@@ -70,7 +70,11 @@ const SUPPORTED_NODE_VERSIONS: Record<
 	| { status: 'retiring'; removal: Date | string; warnDate: Date }
 	| { status: 'deprecated'; removal: Date }
 > = {
-	18: { status: 'retiring', removal: 'Early 2025', warnDate: new Date('October 1 2024') },
+	18: {
+		status: 'retiring',
+		removal: new Date('September 1 2025'),
+		warnDate: new Date('October 1 2024'),
+	},
 	20: { status: 'available' },
 	22: { status: 'default' },
 };
@@ -703,10 +707,10 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 		logger.warn(
 			`\n` +
 				`\tThe local Node.js version (${major}) is not supported by Vercel Serverless Functions.\n` +
-				`\tYour project will use Node.js 18 as the runtime instead.\n` +
-				`\tConsider switching your local version to 18.\n`,
+				`\tYour project will use Node.js 22 as the runtime instead.\n` +
+				`\tConsider switching your local version to 22.\n`,
 		);
-		return 'nodejs18.x';
+		return 'nodejs22.x';
 	}
 	if (support.status === 'default' || support.status === 'available') {
 		return `nodejs${major}.x`;
@@ -733,11 +737,11 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 			`\n` +
 				`\tYour project is being built for Node.js ${major} as the runtime.\n` +
 				`\tThis version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${removeDate}.\n` +
-				`\tConsider upgrading your local version to 18.\n`,
+				`\tConsider upgrading your local version to 22.\n`,
 		);
 		return `nodejs${major}.x`;
 	}
-	return 'nodejs18.x';
+	return 'nodejs22.x';
 }
 
 function createConfigHeaders(staticHeaders: RouteToHeaders, config: AstroConfig): Header[] {

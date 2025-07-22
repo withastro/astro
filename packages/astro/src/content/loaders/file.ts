@@ -69,12 +69,19 @@ export function file(fileName: string, options?: FileOptions): Loader {
 			}
 			logger.debug(`Found ${data.length} item array in ${fileName}`);
 			store.clear();
+			const idList = new Set();
 			for (const rawItem of data) {
 				const id = (rawItem.id ?? rawItem.slug)?.toString();
 				if (!id) {
 					logger.error(`Item in ${fileName} is missing an id or slug field.`);
 					continue;
 				}
+				if (idList.has(id)) {
+					logger.warn(
+						`Duplicate id "${id}" found in ${fileName}. Later items with the same id will overwrite earlier ones.`,
+					);
+				}
+				idList.add(id);
 				const parsedData = await parseData({ id, data: rawItem, filePath });
 				store.set({ id, data: parsedData, filePath: normalizedFilePath });
 			}

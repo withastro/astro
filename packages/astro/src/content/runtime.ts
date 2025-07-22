@@ -581,7 +581,7 @@ export function createGetLiveCollection({
 			return {
 				error: new LiveCollectionError(
 					collection,
-					`Unexpected error loading collection ${collection}`,
+					`Unexpected error loading collection ${collection}${error instanceof Error ? `: ${error.message}` : ''}`,
 					error as Error,
 				),
 			};
@@ -973,4 +973,13 @@ export function defineCollection(config: any) {
 		});
 	}
 	return defineCollectionOrig(config);
+}
+
+export function defineLiveCollection() {
+	throw new AstroError({
+		...AstroErrorData.LiveContentConfigError,
+		message: AstroErrorData.LiveContentConfigError.message(
+			'Live collections must be defined in a `src/live.config.ts` file.',
+		),
+	});
 }

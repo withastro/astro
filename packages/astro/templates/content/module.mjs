@@ -11,7 +11,11 @@ import {
 	createReference,
 } from 'astro/content/runtime';
 
-export { defineCollection, renderEntry as render } from 'astro/content/runtime';
+export {
+	defineCollection,
+	defineLiveCollection,
+	renderEntry as render,
+} from 'astro/content/runtime';
 export { z } from 'astro/zod';
 
 /* @@LIVE_CONTENT_CONFIG@@ */

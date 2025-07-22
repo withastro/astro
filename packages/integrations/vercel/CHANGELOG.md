@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 8.2.3
+
+### Patch Changes
+
+- [#14077](https://github.com/withastro/astro/pull/14077) [`42ef004`](https://github.com/withastro/astro/commit/42ef00442cc685dd7452de13b476e42bffde9df3) Thanks [@jat001](https://github.com/jat001)! - Changes the default Node.js version of Vercel functions to 22
+
 ## 8.2.2
 
 ### Patch Changes
