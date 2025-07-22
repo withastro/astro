@@ -146,7 +146,7 @@ describe('astro:assets - SVG Components', () => {
 				assert.equal(json.image.format, 'svg');
 				assert.equal(json.image.width, 85);
 				assert.equal(json.image.height, 107);
-				assert.ok(json.image.src.startsWith("/"));
+				assert.ok(json.image.src.startsWith('/'));
 			});
 		});
 	});
