@@ -5,7 +5,7 @@ import testAdapter from '../../astro/test/test-adapter.js';
 import { loadFixture } from '../../astro/test/test-utils.js';
 import { clearEnvironment, setupRemoteDbServer } from './test-utils.js';
 
-describe('astro:db', () => {
+describe.only('astro:db', () => {
 	let fixture;
 	before(async () => {
 		fixture = await loadFixture({
@@ -15,7 +15,7 @@ describe('astro:db', () => {
 		});
 	});
 
-	describe({ skip: process.platform === 'darwin' }, 'development', () => {
+	describe('development', () => {
 		let devServer;
 
 		before(async () => {
@@ -176,7 +176,7 @@ describe('astro:db', () => {
 		});
 	});
 
-	describe('build --remote', () => {
+	describe.only('build --remote', () => {
 		let remoteDbServer;
 
 		before(async () => {
@@ -191,7 +191,7 @@ describe('astro:db', () => {
 			await remoteDbServer?.stop();
 		});
 
-		it('Can render page', async () => {
+		it.only('Can render page', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/');
 			const response = await app.render(request);

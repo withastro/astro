@@ -1,30 +1,30 @@
-import assert from "node:assert";
-import test, { beforeEach, describe } from "node:test";
-import { getRemoteDatabaseInfo } from "../../dist/core/utils.js";
-import { clearEnvironment } from "../test-utils.js";
+import assert from 'node:assert';
+import test, { beforeEach, describe } from 'node:test';
+import { getRemoteDatabaseInfo } from '../../dist/core/utils.js';
+import { clearEnvironment } from '../test-utils.js';
 
-describe("RemoteDatabaseInfo", () => {
+describe('RemoteDatabaseInfo', () => {
 	beforeEach(() => {
 		clearEnvironment();
 	});
 
-	// TODO: what should be the default url for libsql?
-	test("default remote info", () => {
+	test('default remote info', () => {
 		const dbInfo = getRemoteDatabaseInfo();
 
 		assert.deepEqual(dbInfo, {
-			type: "studio",
-			url: "https://db.services.astro.build",
+			url: undefined,
+			token: undefined,
 		});
 	});
 
-	test("configured libSQL remote", () => {
-		process.env.ASTRO_DB_REMOTE_URL = "libsql://libsql.self.hosted";
+	test('configured libSQL remote', () => {
+		process.env.ASTRO_DB_REMOTE_URL = 'libsql://libsql.self.hosted';
+		process.env.ASTRO_DB_APP_TOKEN = 'foo';
 		const dbInfo = getRemoteDatabaseInfo();
 
 		assert.deepEqual(dbInfo, {
-			type: "libsql",
-			url: "libsql://libsql.self.hosted",
+			url: 'libsql://libsql.self.hosted',
+			token: 'foo',
 		});
 	});
 });

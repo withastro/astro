@@ -66,6 +66,14 @@ function createRemoteLibSQLClient(authToken: string, dbURL: URL, rawUrl: string)
 		url = 'file:' + dbURL.pathname.substring(1);
 	}
 
-	const client = createClient({ ...parseOpts(options), url, authToken });
+	const client = createClient({
+		...parseOpts(options),
+		url,
+		authToken,
+		// fetch: (...args) => {
+		// 	console.log({ args })
+		// 	return fetch(...args);
+		// },
+	});
 	return drizzleLibsql(client);
 }

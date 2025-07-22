@@ -7,7 +7,7 @@ export default async function () {
 	await db.batch([
 		db
 			.insert(Themes)
-			.values([{ name: 'dracula' }, { name: 'monokai', added: new Date() }])
+			.values([{ name: 'dracula' }, { name: 'monokai' }])
 			.returning({ name: Themes.name }),
 		db
 			.insert(Author)

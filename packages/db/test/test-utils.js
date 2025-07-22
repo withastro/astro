@@ -11,7 +11,31 @@ const singleQuerySchema = z.object({
 	args: z.array(z.any()).or(z.record(z.string(), z.any())),
 });
 
-const querySchema = singleQuerySchema.or(z.array(singleQuerySchema));
+const querySchema = z.union([
+	singleQuerySchema.or(z.array(singleQuerySchema)),
+	z.object({
+		requests: z.array(
+			z.union([
+				z.object({
+					type: z.literal('execute'),
+					stmt: z.object({}).passthrough(),
+				}),
+				z.object({
+					type: z.literal('batch'),
+					batch: z.object({}).passthrough(),
+				}),
+				z.object({
+					type: z.literal('store_sql'),
+					sql_id: z.number(),
+					sql: z.string(),
+				}),
+				z.object({
+					type: z.literal('close'),
+				}),
+			]),
+		),
+	}),
+]);
 
 let portIncrementer = 8030;
 
@@ -21,7 +45,7 @@ let portIncrementer = 8030;
  */
 export async function setupRemoteDbServer(astroConfig) {
 	const port = portIncrementer++;
-	process.env.ASTRO_DB_REMOTE_DB_URL = `http://localhost:${port}`;
+	process.env.ASTRO_DB_REMOTE_URL = `http://localhost:${port}`;
 	process.env.ASTRO_INTERNAL_TEST_REMOTE = true;
 	const server = createRemoteDbServer().listen(port);
 
@@ -50,7 +74,7 @@ export async function setupRemoteDbServer(astroConfig) {
 	return {
 		server,
 		async stop() {
-			delete process.env.ASTRO_DB_REMOTE_DB_URL;
+			delete process.env.ASTRO_DB_REMOTE_URL;
 			delete process.env.ASTRO_INTERNAL_TEST_REMOTE;
 			return new Promise((resolve, reject) => {
 				server.close((err) => {
@@ -94,13 +118,30 @@ export function clearEnvironment() {
 	}
 }
 
+// Save the original fetch if needed
+const originalFetch = fetch;
+
+// Replace fetch with your own version
+globalThis.fetch = async (url, options) => {
+	console.log(url);
+	// You can modify the request here
+
+	// Optionally call the original fetch
+	const response = await originalFetch(url, options);
+
+	// Optionally modify the response here
+	console.dir(await response.clone().json(), { depth: null })
+
+	return response;
+};
 function createRemoteDbServer() {
 	const dbClient = createClient({
 		url: ':memory:',
 	});
 	const server = createServer((req, res) => {
+		const isPipeline = req.url.startsWith('/v2/pipeline');
 		if (
-			!req.url.startsWith('/db/query') ||
+			!(req.url.startsWith('/db/query') || isPipeline) ||
 			req.method !== 'POST' ||
 			req.headers['content-type'] !== 'application/json'
 		) {
@@ -124,6 +165,7 @@ function createRemoteDbServer() {
 				applyParseError(res);
 				return;
 			}
+			// console.log(json)
 			const parsed = querySchema.safeParse(json);
 			if (parsed.success === false) {
 				applyParseError(res);
@@ -131,9 +173,38 @@ function createRemoteDbServer() {
 			}
 			const body = parsed.data;
 			try {
-				const result = Array.isArray(body)
-					? await dbClient.batch(body)
-					: await dbClient.execute(body);
+				let result;
+				if (isPipeline) {
+					result = {
+						baton: null,
+						base_url: null,
+						results: [],
+					};
+					const map = new Map();
+					for (const e of body.requests) {
+						if (e.type === 'execute') {
+							result.results.push(await dbClient.execute(e.stmt));
+						} else if (e.type === 'store_sql') {
+							// Get queries first, that will be used in batch calls
+							map.set(e.sql_id, e.sql);
+						} else if (e.type === 'batch') {
+							const stmts = e.batch.steps
+								.filter(
+									({ stmt }) =>
+										stmt.sql !== 'BEGIN DEFERRED' &&
+										stmt.sql !== 'COMMIT' &&
+										stmt.sql !== 'ROLLBACK',
+								)
+								.map(({ stmt }) => ({
+									sql: map.get(stmt.sql_id) ?? stmt.sql,
+									args: stmt.args.map((_e) => _e.value),
+								}));
+							result.results.push(...(await dbClient.batch(stmts)));
+						}
+					}
+				} else {
+					result = Array.isArray(body) ? await dbClient.batch(body) : await dbClient.execute(body);
+				}
 				res.writeHead(200, { 'Content-Type': 'application/json' });
 				res.end(JSON.stringify(result));
 			} catch (e) {
