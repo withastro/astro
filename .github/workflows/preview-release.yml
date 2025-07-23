@@ -54,11 +54,55 @@ jobs:
       - name: Build Packages
         run: pnpm run build
 
+      - name: Get changeset status
+        id: changeset-status
+        run: |
+          pnpm changeset status --output changes.json
+          echo "changes-output<<EOF" >> $GITHUB_OUTPUT
+          cat changes.json >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Get pnpm packages
+        id: pnpm-packages
+        run: |
+          pnpm list --recursive --depth -1 --json >> pnpm.json
+          echo "packages-output<<EOF" >> $GITHUB_OUTPUT
+          cat pnpm.json >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Compute affected packages
+        id: compute-affected-packages
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        env:
+          CHANGES: ${{ steps.changeset-status.outputs.changes-output }}
+          PACKAGES: ${{ steps.pnpm-packages.outputs.packages-output }}
+        # TODO: remove logs
+        with:
+          script: |
+              const { relative } = require('node:path');
+
+              const changes = JSON.parse(process.env.CHANGES);
+              console.log({ changes });
+              const packages = JSON.parse(process.env.PACKAGES);
+              console.log({ packages });
+              const packagesMap = Object.fromEntries(packages.map(p => [p.name, relative(process.cwd(), p.path)]));
+              console.log({ packagesMap });
+              const affectedPackages = [...new Set(changes.changesets.map(c => c.releases.map(r=> packagesMap[r.name])).flat()))]
+              console.log({ affectedPackages });
+              core.setOutput('affected-packages', JSON.stringify(affectedPackages));
+
       - name: Remove Preview Label
         uses: actions-ecosystem/action-remove-labels@2ce5d41b4b6aa8503e285553f75ed56e0a40bae0 # v1.3.0
         with:
           labels: "pr preview"
-        
+
       - name: Publish packages
+        env:
+          AFFECTED_PACKAGES: ${{ steps.compute-affected-packages.outputs.affected-packages }}
         run: |
-          pnpm dlx pkg-pr-new publish --pnpm --compact --no-template 'packages/astro' 'packages/integrations/node' 'packages/integrations/cloudflare' 'packages/integrations/netlify' 'packages/integrations/vercel' 
+          packages=$(echo $AFFECTED_PACKAGES | jq -r '.[]' | tr '\n' ' ')
+          if [ -n "$packages" ]; then
+            pnpm dlx pkg-pr-new publish --pnpm --compact --no-template $packages
+          else
+            echo "No affected packages to publish"
+          fi
