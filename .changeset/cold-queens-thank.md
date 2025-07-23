@@ -2,4 +2,4 @@
 'create-astro': minor
 ---
 
-Removes "Open in x" badges from templates when they are used
+Removes "Open in x" badges from the README of the official Astro templates when a new project is created
