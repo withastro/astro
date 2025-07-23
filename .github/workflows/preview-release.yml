@@ -106,7 +106,3 @@ jobs:
           else
             echo "No affected packages to publish"
           fi
-            pnpm dlx pkg-pr-new publish --pnpm --compact --no-template $packages
-          else
-            echo "No affected packages to publish"
-          fi
