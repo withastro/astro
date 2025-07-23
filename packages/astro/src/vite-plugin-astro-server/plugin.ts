@@ -153,8 +153,8 @@ export default function createVitePluginAstroServer({
 						return;
 					}
 
-					const cacheDir = fileURLToPath(settings.config.cacheDir);
-					const configPath = join(cacheDir, 'chrome-workspace.json');
+					const cacheDir = settings.config.cacheDir;
+					const configPath = new URL('./chrome-workspace.json', cacheDir);
 
 					if (!existsSync(cacheDir)) {
 						await mkdir(cacheDir, { recursive: true });
