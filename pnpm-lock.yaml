@@ -624,7 +624,7 @@ importers:
         version: 5.0.0
       unstorage:
         specifier: ^1.15.0
-        version: 1.16.1(@netlify/blobs@10.0.6)
+        version: 1.15.0(@netlify/blobs@10.0.6)
       vfile:
         specifier: ^6.0.3
         version: 6.0.3
@@ -652,10 +652,6 @@ importers:
       zod-to-ts:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.8.3)(zod@3.24.2)
-    optionalDependencies:
-      sharp:
-        specifier: ^0.33.3
-        version: 0.33.5
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.4
@@ -769,7 +765,6 @@ importers:
       sharp:
         specifier: ^0.33.3
         version: 0.33.5
-
 
   packages/astro-prism:
     dependencies:
@@ -5360,7 +5355,7 @@ importers:
         version: 4.1.11(rollup@4.40.2)
       '@netlify/vite-plugin':
         specifier: ^2.4.4
-        version: 2.4.4(rollup@4.40.2)(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))
+        version: 2.4.6(rollup@4.40.2)(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))
       '@vercel/nft':
         specifier: ^0.29.2
         version: 0.29.4(rollup@4.40.2)
@@ -6634,8 +6629,8 @@ packages:
     resolution: {integrity: sha512-8OLQgDScAOHXnAz2cV+RfzzNMipuLVBz2biuAJFMV9bfkNf393je3VM8CLkjQodW5+iWsSJdSgSWT6rsZoXHPw==}
     engines: {node: '>=6.9.0'}
 
-  '@babel/types@7.28.0':
-    resolution: {integrity: sha512-jYnje+JyZG5YThjHiF28oT4SIZLnYOcSBb6+SDaFIyzDVSkXQmQQYclJ2R+YxcdmK0AX6x1E5OQNtuh3jHDrUg==}
+  '@babel/types@7.28.1':
+    resolution: {integrity: sha512-x0LvFTekgSX+83TI28Y9wYPUfzrnl2aT5+5QLnO6v7mSJYtEEevuDRN0F0uSHRk1G1IWZC43o00Y0xDDrpBGPQ==}
     engines: {node: '>=6.9.0'}
 
   '@biomejs/biome@2.0.0':
@@ -8190,8 +8185,8 @@ packages:
     resolution: {integrity: sha512-WJlP9/2eo3Ij7rNLWrZun8djeoT04DC6Np0xWrzSUAytGgdgCUDAXXK5x0g8GKwSXD7cPT1oMTUvgflBHoECzw==}
     engines: {node: ^18.14.0 || >=20}
 
-  '@netlify/dev@4.4.4':
-    resolution: {integrity: sha512-nosrE9AtT7I1Q9/YrNRiSkd7jq50CemVDhatG3nmMJ7rEz2i98rzJcjhQCRE1IiXJiaMIedQulHcxZ+4fOrWyg==}
+  '@netlify/dev@4.4.6':
+    resolution: {integrity: sha512-imnOvJKRCH9jhHKs5arLZS2AKFjn7IbUAf7aeMRlEzYhWFR5OtpILTPJQi0ykAmuWpgPgp0nHT9/K88snpuCVg==}
     engines: {node: '>=20.6.1'}
 
   '@netlify/edge-bundler@14.2.2':
@@ -8209,8 +8204,8 @@ packages:
     resolution: {integrity: sha512-fa0R9lGvFDVQHcYPb5flWJea/X/umH0xXjB61lYiuDiYlPP0TDr6fIfIupr8JOWePjNod7tXQmIiu5vnHVk0cg==}
     engines: {node: '>=18.0.0'}
 
-  '@netlify/functions@4.1.12':
-    resolution: {integrity: sha512-btkG/IAvAFdQ8mmw07a+q3fgiPbPq3rKcjsmyS7qaEZDGXnI436MyMq/U5ZNhxNyM9zuiUGuF/gDvN+SS+K5Jw==}
+  '@netlify/functions@4.1.14':
+    resolution: {integrity: sha512-KjSXHtY2ukbjgyUF6B90yQzIzJAW6YOY19jkpWhoYyp5cGDYZ6W4Tly0IGWd/aBE3AVo28tDbZC+4/YsjM9pzw==}
     engines: {node: '>=18.0.0'}
 
   '@netlify/headers-parser@9.0.1':
@@ -8257,8 +8252,8 @@ packages:
     resolution: {integrity: sha512-6899BAqehToSAd3hoevqGaIkG0M9epPMLTi6byynNVIzqv2x+b9OtRXqK67G/gCX7XkrtLQ9Xm3QNJmaFNrSXA==}
     engines: {node: ^18.14.0 || >=20}
 
-  '@netlify/vite-plugin@2.4.4':
-    resolution: {integrity: sha512-Bcx+XItGA1Q5UbA0WR3yjtwmvU157tm5wHS49nmlaBBzzPbsiXomqkNQvaIc3qEgyllkq20m4ZJ+juzfyuWhLA==}
+  '@netlify/vite-plugin@2.4.6':
+    resolution: {integrity: sha512-Y9ovQeOWZUdEOVaHhbStmceQDmRQogh3lEeoC5DThITZPrWDcHzTVKQJCgD72Whh+aGF7ioy2/0nclKhUwhR3Q==}
     engines: {node: ^20.6.1 || >=22}
     peerDependencies:
       vite: ^5 || ^6 || ^7
@@ -8268,8 +8263,8 @@ packages:
     engines: {node: '>=18.14.0'}
     hasBin: true
 
-  '@netlify/zip-it-and-ship-it@12.2.1':
-    resolution: {integrity: sha512-zAr+8Tg80y/sUbhdUkZsq4Uy1IMzkSB6H/sKRMrDQ2NJx4uPgf5X5jMdg9g2FljNcxzpfJwc1Gg4OXQrjD0Z4A==}
+  '@netlify/zip-it-and-ship-it@14.1.0':
+    resolution: {integrity: sha512-avFOrCOoRMCHfeZyVUNBAbP4Byi0FMYSWS2j4zn5KAbpBgOFRRc841JnGlXGB5gCIzsrJAsW5ZL8SnlXf6lrOQ==}
     engines: {node: '>=18.14.0'}
     hasBin: true
 
@@ -9713,8 +9708,8 @@ packages:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
 
-  crossws@0.3.5:
-    resolution: {integrity: sha512-ojKiDvcmByhwa8YYqbQI/hg7MEU0NC03+pSdEq4ZUnZR9xXpwk7E43SMNGkn+JxJGPFtNvQ48+vV2p+P1ml5PA==}
+  crossws@0.3.4:
+    resolution: {integrity: sha512-uj0O1ETYX1Bh6uSgktfPvwDiPYGQ3aI4qVsaC/LWpkIzGj1nUYm5FK3K+t11oOlpN01lGbprFCH4wBlKdJjVgw==}
 
   css-blank-pseudo@7.0.1:
     resolution: {integrity: sha512-jf+twWGDf6LDoXDUode+nc7ZlrqfaNphrBIBrcmeP3D8yw1uPaix1gCC8LUQUGQ6CycuK2opkbFFWFuq/a94ag==}
@@ -9868,8 +9863,8 @@ packages:
     resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
     engines: {node: '>=6'}
 
-  destr@2.0.5:
-    resolution: {integrity: sha512-ugFTXCtDZunbzasqBxrK93Ik/DRYsO6S/fedkWEMKqt04xZ4csmnmwGDBAb07QWNaGMAmnTIemsYZCksjATwsA==}
+  destr@2.0.3:
+    resolution: {integrity: sha512-2N3BOUU4gYMpTP24s5rF5iP7BDr7uNTCs4ozw3kf/eKfvWSIu93GEBi5m427YoyJoeOzQ5smuu4nNAPGb8idSQ==}
 
   destroy@1.2.0:
     resolution: {integrity: sha512-2sJGJTaXIIaR1w4iJSNoN0hnMY7Gpc/n8D4qSCJw8QqFWXf7cuAgnEHxBpweaVcPevC2l3KpjYCx3NypQQgaJg==}
@@ -10641,8 +10636,8 @@ packages:
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
 
-  h3@1.15.3:
-    resolution: {integrity: sha512-z6GknHqyX0h9aQaTx22VZDf6QyZn+0Nh+Ym8O/u0SGSkyF5cuTJYKlc8MkzW3Nzf9LE1ivcpmYC3FUGpywhuUQ==}
+  h3@1.15.1:
+    resolution: {integrity: sha512-+ORaOBttdUm1E2Uu/obAyCguiI7MbBvsLTndc3gyK3zU+SYLoZXlyCP9Xgy0gikkGufFLTZXCXD6+4BsufnmHA==}
 
   has-async-hooks@1.0.0:
     resolution: {integrity: sha512-YF0VPGjkxr7AyyQQNykX8zK4PvtEDsUJAPqwu06UFz1lb6EvI53sPh5H1kWxg8NXI5LsfRCZ8uX9NkYDZBb/mw==}
@@ -11729,8 +11724,8 @@ packages:
   node-html-parser@6.1.13:
     resolution: {integrity: sha512-qIsTMOY4C/dAa5Q5vsobRpOOvPfC4pB61UVW2uSwZNUp0QU/jCekTal1vMmbO0DgdHeLUJpv/ARmDqErVxA3Sg==}
 
-  node-mock-http@1.0.1:
-    resolution: {integrity: sha512-0gJJgENizp4ghds/Ywu2FCmcRsgBTmRQzYPZm61wy+Em2sBarSka0OhQS5huLBg6od1zkNpnWMCZloQDFVvOMQ==}
+  node-mock-http@1.0.0:
+    resolution: {integrity: sha512-0uGYQ1WQL1M5kKvGRXWQ3uZCHtLTO8hln3oBjIusM75WoesZ909uQJs/Hb946i2SS+Gsrhkaa6iAO17jRIv6DQ==}
 
   node-mocks-http@1.17.2:
     resolution: {integrity: sha512-HVxSnjNzE9NzoWMx9T9z4MLqwMpLwVvA0oVZ+L+gXskYXEJ6tFn3Kx4LargoB6ie7ZlCLplv7QbWO6N+MysWGA==}
@@ -13188,9 +13183,6 @@ packages:
   ufo@1.5.4:
     resolution: {integrity: sha512-UsUk3byDzKd04EyoZ7U4DOlxQaD14JUKQl6/P7wiX4FNvUfm3XL246n9W5AmqwW5RSFJ27NAuM0iLscAOYUiGQ==}
 
-  ufo@1.6.1:
-    resolution: {integrity: sha512-9a4/uxlTWJ4+a5i0ooc1rU7C7YOw3wT+UGqdeNNHWnOF9qcMBgLRS+4IYUqbczewFx4mLEig6gawh7X6mFlEkA==}
-
   uhyphen@0.2.0:
     resolution: {integrity: sha512-qz3o9CHXmJJPGBdqzab7qAYuW8kQGKNEuoHFYrBwV6hWIMcpAmxDLXojcHfFr9US1Pe6zUswEIJIbLI610fuqA==}
 
@@ -13312,8 +13304,8 @@ packages:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
     engines: {node: '>= 0.8'}
 
-  unstorage@1.16.1:
-    resolution: {integrity: sha512-gdpZ3guLDhz+zWIlYP1UwQ259tG5T5vYRzDaHMkQ1bBY1SQPutvZnrRjTFaWUUpseErJIgAZS51h6NOcZVZiqQ==}
+  unstorage@1.15.0:
+    resolution: {integrity: sha512-m40eHdGY/gA6xAPqo8eaxqXgBuzQTlAKfmB1iF7oCKXE1HfwHwzDJBywK+qQGn52dta+bPlZluPF7++yR3p/bg==}
     peerDependencies:
       '@azure/app-configuration': ^1.8.0
       '@azure/cosmos': ^4.2.0
@@ -13321,9 +13313,9 @@ packages:
       '@azure/identity': ^4.6.0
       '@azure/keyvault-secrets': ^4.9.0
       '@azure/storage-blob': ^12.26.0
-      '@capacitor/preferences': ^6.0.3 || ^7.0.0
+      '@capacitor/preferences': ^6.0.3
       '@deno/kv': '>=0.9.0'
-      '@netlify/blobs': ^6.5.0 || ^7.0.0 || ^8.1.0 || ^9.0.0 || ^10.0.0
+      '@netlify/blobs': ^6.5.0 || ^7.0.0 || ^8.1.0
       '@planetscale/database': ^1.19.0
       '@upstash/redis': ^1.34.3
       '@vercel/blob': '>=0.27.1'
@@ -14242,7 +14234,7 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.27.1
 
-  '@babel/types@7.28.0':
+  '@babel/types@7.28.1':
     dependencies:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.27.1
@@ -15603,13 +15595,13 @@ snapshots:
       uuid: 11.1.0
       write-file-atomic: 5.0.1
 
-  '@netlify/dev@4.4.4(rollup@4.40.2)':
+  '@netlify/dev@4.4.6(rollup@4.40.2)':
     dependencies:
       '@netlify/blobs': 10.0.6
       '@netlify/config': 23.2.0
       '@netlify/dev-utils': 4.0.0
       '@netlify/edge-functions': 2.16.1
-      '@netlify/functions': 4.1.12(rollup@4.40.2)
+      '@netlify/functions': 4.1.14(rollup@4.40.2)
       '@netlify/headers': 2.0.6
       '@netlify/images': 1.2.2(@netlify/blobs@10.0.6)
       '@netlify/redirects': 3.0.6
@@ -15692,12 +15684,12 @@ snapshots:
       - rollup
       - supports-color
 
-  '@netlify/functions@4.1.12(rollup@4.40.2)':
+  '@netlify/functions@4.1.14(rollup@4.40.2)':
     dependencies:
       '@netlify/blobs': 10.0.6
       '@netlify/dev-utils': 4.0.0
-      '@netlify/serverless-functions-api': 2.1.3
-      '@netlify/zip-it-and-ship-it': 12.2.1(rollup@4.40.2)
+      '@netlify/types': 2.0.2
+      '@netlify/zip-it-and-ship-it': 14.1.0(rollup@4.40.2)
       cron-parser: 4.9.0
       decache: 4.6.2
       extract-zip: 2.0.1
@@ -15781,9 +15773,9 @@ snapshots:
 
   '@netlify/types@2.0.2': {}
 
-  '@netlify/vite-plugin@2.4.4(rollup@4.40.2)(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))':
+  '@netlify/vite-plugin@2.4.6(rollup@4.40.2)(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))':
     dependencies:
-      '@netlify/dev': 4.4.4(rollup@4.40.2)
+      '@netlify/dev': 4.4.6(rollup@4.40.2)
       '@netlify/dev-utils': 4.0.0
       chalk: 5.4.1
       vite: 6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0)
@@ -15849,10 +15841,10 @@ snapshots:
       - rollup
       - supports-color
 
-  '@netlify/zip-it-and-ship-it@12.2.1(rollup@4.40.2)':
+  '@netlify/zip-it-and-ship-it@14.1.0(rollup@4.40.2)':
     dependencies:
       '@babel/parser': 7.27.7
-      '@babel/types': 7.28.0
+      '@babel/types': 7.28.1
       '@netlify/binary-info': 1.0.0
       '@netlify/serverless-functions-api': 2.1.3
       '@vercel/nft': 0.29.4(rollup@4.40.2)
@@ -15860,7 +15852,7 @@ snapshots:
       common-path-prefix: 3.0.0
       copy-file: 11.0.0
       es-module-lexer: 1.6.0
-      esbuild: 0.25.5
+      esbuild: 0.25.6
       execa: 8.0.1
       fast-glob: 3.3.3
       filter-obj: 6.1.0
@@ -17430,7 +17422,7 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  crossws@0.3.5:
+  crossws@0.3.4:
     dependencies:
       uncrypto: 0.1.3
 
@@ -17551,7 +17543,7 @@ snapshots:
 
   dequal@2.0.3: {}
 
-  destr@2.0.5: {}
+  destr@2.0.3: {}
 
   destroy@1.2.0: {}
 
@@ -18397,16 +18389,16 @@ snapshots:
 
   graphemer@1.4.0: {}
 
-  h3@1.15.3:
+  h3@1.15.1:
     dependencies:
       cookie-es: 1.2.2
-      crossws: 0.3.5
+      crossws: 0.3.4
       defu: 6.1.4
-      destr: 2.0.5
+      destr: 2.0.3
       iron-webcrypto: 1.2.1
-      node-mock-http: 1.0.1
+      node-mock-http: 1.0.0
       radix3: 1.1.2
-      ufo: 1.6.1
+      ufo: 1.5.4
       uncrypto: 0.1.3
 
   has-async-hooks@1.0.0: {}
@@ -18706,17 +18698,17 @@ snapshots:
       citty: 0.1.6
       consola: 3.4.2
       defu: 6.1.4
-      destr: 2.0.5
+      destr: 2.0.3
       etag: 1.8.1
-      h3: 1.15.3
+      h3: 1.15.1
       image-meta: 0.2.1
       listhen: 1.9.0
       ofetch: 1.4.1
       pathe: 2.0.3
       sharp: 0.33.5
       svgo: 3.3.2
-      ufo: 1.6.1
-      unstorage: 1.16.1(@netlify/blobs@10.0.6)
+      ufo: 1.5.4
+      unstorage: 1.15.0(@netlify/blobs@10.0.6)
       xss: 1.0.15
     transitivePeerDependencies:
       - '@azure/app-configuration'
@@ -19045,17 +19037,17 @@ snapshots:
       citty: 0.1.6
       clipboardy: 4.0.0
       consola: 3.4.2
-      crossws: 0.3.5
+      crossws: 0.3.4
       defu: 6.1.4
       get-port-please: 3.1.2
-      h3: 1.15.3
+      h3: 1.15.1
       http-shutdown: 1.2.2
       jiti: 2.4.2
       mlly: 1.7.4
       node-forge: 1.3.1
       pathe: 1.1.2
       std-env: 3.8.1
-      ufo: 1.6.1
+      ufo: 1.5.4
       untun: 0.1.3
       uqr: 0.1.2
 
@@ -19779,7 +19771,7 @@ snapshots:
       acorn: 8.14.1
       pathe: 2.0.3
       pkg-types: 1.3.1
-      ufo: 1.6.1
+      ufo: 1.5.4
 
   module-definition@6.0.1:
     dependencies:
@@ -19846,7 +19838,7 @@ snapshots:
       css-select: 5.1.0
       he: 1.2.0
 
-  node-mock-http@1.0.1: {}
+  node-mock-http@1.0.0: {}
 
   node-mocks-http@1.17.2(@types/node@22.13.1):
     dependencies:
@@ -19906,9 +19898,9 @@ snapshots:
 
   ofetch@1.4.1:
     dependencies:
-      destr: 2.0.5
+      destr: 2.0.3
       node-fetch-native: 1.6.6
-      ufo: 1.6.1
+      ufo: 1.5.4
 
   ohash@2.0.11: {}
 
@@ -21549,8 +21541,6 @@ snapshots:
 
   ufo@1.5.4: {}
 
-  ufo@1.6.1: {}
-
   uhyphen@0.2.0: {}
 
   ulid@3.0.1: {}
@@ -21694,16 +21684,16 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unstorage@1.16.1(@netlify/blobs@10.0.6):
+  unstorage@1.15.0(@netlify/blobs@10.0.6):
     dependencies:
       anymatch: 3.1.3
       chokidar: 4.0.3
-      destr: 2.0.5
-      h3: 1.15.3
+      destr: 2.0.3
+      h3: 1.15.1
       lru-cache: 10.4.3
       node-fetch-native: 1.6.6
       ofetch: 1.4.1
-      ufo: 1.6.1
+      ufo: 1.5.4
     optionalDependencies:
       '@netlify/blobs': 10.0.6
 
