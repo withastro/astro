@@ -89,7 +89,7 @@ jobs:
               console.log({ packages });
               const packagesMap = Object.fromEntries(packages.map(p => [p.name, relative(process.cwd(), p.path)]));
               console.log({ packagesMap });
-              const affectedPackages = [...new Set(changes.changesets.map(c => c.releases.map(r=> packagesMap[r.name])).flat()))]
+              const affectedPackages = [...new Set(changes.changesets.map(c => c.releases.map(r=> packagesMap[r.name])).flat())]
               console.log({ affectedPackages });
               core.setOutput('affected-packages', JSON.stringify(affectedPackages));
 
