@@ -160,15 +160,16 @@ export default function createVitePluginAstroServer({
 						await mkdir(cacheDir, { recursive: true });
 					}
 
-					let config = {
-						version: '1.0',
-						projectId: randomUUID(),
-						workspaceRoot: fileURLToPath(settings.config.root),
-					};
+					let config;
 					try {
 						config = JSON.parse(await readFile(configPath, 'utf-8'));
 					} catch {
-						await writeFile(configPath, JSON.stringify(config, null, 2));
+						config = {
+							version: '1.0',
+							projectId: randomUUID(),
+							workspaceRoot: fileURLToPath(settings.config.root),
+						};
+						await writeFile(configPath, JSON.stringify(config));
 					}
 
 					response.setHeader('Content-Type', 'application/json');
