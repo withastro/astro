@@ -57,7 +57,7 @@ jobs:
       - name: Get changeset status
         id: changeset-status
         run: |
-          pnpm changeset status --output changes.json
+          pnpm changeset status --since origin/main --output changes.json
           echo "changes-output<<EOF" >> $GITHUB_OUTPUT
           cat changes.json >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
