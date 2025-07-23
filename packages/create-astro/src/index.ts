@@ -9,8 +9,8 @@ import { projectName } from './actions/project-name.js';
 import { template } from './actions/template.js';
 import { verify } from './actions/verify.js';
 
+export { processTemplateReadme, removeTemplateMarkerSections } from './actions/template.js';
 export { setStdout } from './messages.js';
-export { removeTemplateMarkerSections, processTemplateReadme } from './actions/template.js';
 
 const exit = () => process.exit(0);
 process.on('SIGINT', exit);

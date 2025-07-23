@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { removeTemplateMarkerSections, processTemplateReadme } from '../dist/index.js';
+import { processTemplateReadme, removeTemplateMarkerSections } from '../dist/index.js';
 
 describe('removeTemplateMarkerSections', async () => {
 	it('removes HTML template marker sections', async () => {
@@ -49,7 +49,6 @@ Final content.`;
 		const result = removeTemplateMarkerSections(content);
 		assert.equal(result.trim(), expected.trim());
 	});
-
 
 	it('handles whitespace in template marker tags', async () => {
 		const content = `# Title
@@ -134,7 +133,6 @@ Keep this content.`;
 		assert.equal(result.trim(), expected.trim());
 	});
 
-
 	it('handles malformed template markers gracefully', async () => {
 		const content = `# Title
 
@@ -184,13 +182,13 @@ npm install
 Regular usage instructions.`;
 
 		const result = removeTemplateMarkerSections(content);
-		
+
 		// Should preserve main structure
 		assert.ok(result.includes('# My Project'));
 		assert.ok(result.includes('## Features'));
 		assert.ok(result.includes('## Installation'));
 		assert.ok(result.includes('## Usage'));
-		
+
 		// Should remove development section
 		assert.ok(!result.includes('## Development Only'));
 		assert.ok(!result.includes('Debug Info'));
@@ -282,11 +280,14 @@ Run \`npm install\` and then \`npm run dev\` to start.`;
 		const result = processTemplateReadme(content, 'bun');
 
 		// Should only replace package manager
-		assert.equal(result, `# Test Project
+		assert.equal(
+			result,
+			`# Test Project
 
 ## Commands
 
-Run \`bun install\` and then \`bun dev\` to start.`);
+Run \`bun install\` and then \`bun dev\` to start.`,
+		);
 	});
 
 	it('handles README with only template markers and npm', async () => {

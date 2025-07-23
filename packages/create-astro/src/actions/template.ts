@@ -7,7 +7,7 @@ import type { Context } from './context.js';
 
 /**
  * Removes sections from README content that are marked with HTML template markers.
- * 
+ *
  * Template marker format:
  * <!-- ASTRO:REMOVE:START -->
  * Content to remove
