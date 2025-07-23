@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import testAdapter from '../../astro/test/test-adapter.js';
 import { loadFixture } from '../../astro/test/test-utils.js';
-import { setupRemoteDbServer } from './test-utils.js';
+import { setupRemoteDb } from './test-utils.js';
 
 describe('missing app token', () => {
 	let fixture;
@@ -14,7 +14,7 @@ describe('missing app token', () => {
 			adapter: testAdapter(),
 		});
 
-		remoteDbServer = await setupRemoteDbServer(fixture.config);
+		remoteDbServer = await setupRemoteDb(fixture.config);
 		await fixture.build();
 		// Ensure there's no token at runtime
 		delete process.env.ASTRO_DB_APP_TOKEN;

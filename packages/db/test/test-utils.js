@@ -7,8 +7,7 @@ import { getCreateIndexQueries, getCreateTableQuery } from '../dist/core/queries
 /**
  * @param {import('astro').AstroConfig} astroConfig
  */
-// TODO: rename
-export async function setupRemoteDbServer(astroConfig) {
+export async function setupRemoteDb(astroConfig) {
 	const url = new URL(`./${Date.now()}.db`, astroConfig.root);
 	const token = 'foo';
 	process.env.ASTRO_DB_REMOTE_URL = url.toString();
