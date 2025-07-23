@@ -8,11 +8,11 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number }}
   cancel-in-progress: true
-        
+
 permissions:
   contents: read
   actions: write
-  
+
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
@@ -47,16 +47,16 @@ jobs:
 
       - name: Setup PNPM
         uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
-  
+
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
           cache: "pnpm"
-  
+
       - name: Install dependencies
         run: pnpm install
-  
+
       - name: Build Packages
         run: pnpm run build
 
@@ -78,17 +78,13 @@ jobs:
         env:
           CHANGES: ${{ steps.changeset-status.outputs.changes-output }}
           PACKAGES: ${{ steps.pnpm-packages.outputs.packages-output }}
-        # TODO: remove logs
         with:
           script: |
               const { relative } = require('node:path');
-
               const changes = JSON.parse(process.env.CHANGES);
-              console.log({ changes });
               const packages = JSON.parse(process.env.PACKAGES);
               const packagesMap = Object.fromEntries(packages.map(p => [p.name, relative(process.cwd(), p.path)]));
               const affectedPackages = [...new Set(changes.changesets.map(c => c.releases.map(r=> packagesMap[r.name])).flat())]
-              console.log({ affectedPackages });
               core.setOutput('affected-packages', JSON.stringify(affectedPackages));
 
       - name: Remove Preview Label
