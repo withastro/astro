@@ -4,7 +4,6 @@ import type fs from 'node:fs';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { IncomingMessage } from 'node:http';
-import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
