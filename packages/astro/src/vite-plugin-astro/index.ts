@@ -1,3 +1,4 @@
+import type { HydratedComponent } from '@astrojs/compiler/types';
 import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
@@ -10,7 +11,6 @@ import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
 import type { PluginMetadata as AstroPluginMetadata, CompileMetadata } from './types.js';
 import { loadId } from './utils.js';
-import type { HydratedComponent } from '@astrojs/compiler/types';
 
 export { getAstroMetadata } from './metadata.js';
 export type { AstroPluginMetadata };

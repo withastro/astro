@@ -106,13 +106,12 @@ describe('Directives', async () => {
 		const $ = cheerio.load(html);
 
 		const hello = $('h1.hello');
-		assert.equal(hello.text(), "Hello");
+		assert.equal(hello.text(), 'Hello');
 
 		// Astro components should not have client directives
 		assert.equal(hello.attr('client:load'), undefined);
 
 		// Should not create Astro islands
 		assert.equal($('astro-island').length, 0);
-
 	});
 });
