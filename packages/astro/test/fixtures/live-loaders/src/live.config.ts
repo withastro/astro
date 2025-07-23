@@ -1,5 +1,4 @@
-import { defineLiveCollection } from 'astro:content';
-import { z } from 'astro/zod';
+import { defineLiveCollection, z } from 'astro:content';
 import type { LiveLoader } from 'astro/loaders';
 
 type Entry = {
@@ -52,6 +51,7 @@ const loader: LiveLoader<Entry, EntryFilter, CollectionFilter, CustomError> = {
 			cacheHint: {
 				tags: [`page:${filter.id}`],
 				maxAge: 60,
+				lastModified: new Date('2025-01-01T00:00:00.000Z'),
 			},
 		};
 	},
@@ -69,13 +69,13 @@ const loader: LiveLoader<Entry, EntryFilter, CollectionFilter, CustomError> = {
 			cacheHint: {
 				tags: ['page'],
 				maxAge: 60,
+				lastModified: new Date('2025-01-02T00:00:00.000Z'),
 			},
 		};
 	},
 };
 
 const liveStuff = defineLiveCollection({
-	type: 'live',
 	loader,
 	schema: z.object({
 		title: z.string(),

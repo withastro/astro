@@ -1,16 +1,16 @@
 import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
+import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
-import type { PluginMetadata as AstroPluginMetadata, CompileMetadata } from './types.js';
-
-import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
 import type { AstroConfig } from '../types/public/config.js';
 import { hasSpecialQueries, normalizeFilename } from '../vite-plugin-utils/index.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
+import type { PluginMetadata as AstroPluginMetadata, CompileMetadata } from './types.js';
 import { loadId } from './utils.js';
+
 export { getAstroMetadata } from './metadata.js';
 export type { AstroPluginMetadata };
 

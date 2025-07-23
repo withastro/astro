@@ -7,8 +7,6 @@ import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { prependForwardSlash } from '../core/path.js';
-import { defineCollection as defineCollectionOrig } from './config.js';
-
 import {
 	type AstroComponentFactory,
 	createComponent,
@@ -21,10 +19,12 @@ import {
 	unescapeHTML,
 } from '../runtime/server/index.js';
 import type {
+	CacheHint,
 	LiveDataCollectionResult,
 	LiveDataEntry,
 	LiveDataEntryResult,
 } from '../types/public/content.js';
+import { defineCollection as defineCollectionOrig } from './config.js';
 import { IMAGE_IMPORT_PREFIX, type LIVE_CONTENT_TYPE } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import {
@@ -72,6 +72,7 @@ export function createCollectionToGlobResultMap({
 const cacheHintSchema = z.object({
 	tags: z.array(z.string()).optional(),
 	maxAge: z.number().optional(),
+	lastModified: z.date().optional(),
 });
 
 async function parseLiveEntry(
@@ -529,6 +530,7 @@ export function createGetLiveCollection({
 			if (processedEntries.length > 0) {
 				const entryTags = new Set<string>();
 				let minMaxAge: number | undefined;
+				let latestModified: Date | undefined;
 
 				for (const entry of processedEntries) {
 					if (entry.cacheHint) {
@@ -536,25 +538,36 @@ export function createGetLiveCollection({
 							entry.cacheHint.tags.forEach((tag) => entryTags.add(tag));
 						}
 						if (typeof entry.cacheHint.maxAge === 'number') {
-							minMaxAge =
-								minMaxAge === undefined
-									? entry.cacheHint.maxAge
-									: Math.min(minMaxAge, entry.cacheHint.maxAge);
+							if (minMaxAge === undefined || entry.cacheHint.maxAge < minMaxAge) {
+								minMaxAge = entry.cacheHint.maxAge;
+							}
+						}
+						if (entry.cacheHint.lastModified instanceof Date) {
+							if (latestModified === undefined || entry.cacheHint.lastModified > latestModified) {
+								latestModified = entry.cacheHint.lastModified;
+							}
 						}
 					}
 				}
 
 				// Merge collection and entry cache hints
-				if (entryTags.size > 0 || minMaxAge !== undefined || cacheHint) {
-					const mergedCacheHint: any = {};
+				if (entryTags.size > 0 || minMaxAge !== undefined || latestModified || cacheHint) {
+					const mergedCacheHint: CacheHint = {};
 					if (cacheHint?.tags || entryTags.size > 0) {
-						mergedCacheHint.tags = [...(cacheHint?.tags || []), ...entryTags];
+						// Merge and dedupe tags
+						mergedCacheHint.tags = [...new Set([...(cacheHint?.tags || []), ...entryTags])];
 					}
 					if (cacheHint?.maxAge !== undefined || minMaxAge !== undefined) {
 						mergedCacheHint.maxAge =
 							cacheHint?.maxAge !== undefined && minMaxAge !== undefined
 								? Math.min(cacheHint.maxAge, minMaxAge)
 								: (cacheHint?.maxAge ?? minMaxAge);
+					}
+					if (cacheHint?.lastModified && latestModified) {
+						mergedCacheHint.lastModified =
+							cacheHint.lastModified > latestModified ? cacheHint.lastModified : latestModified;
+					} else if (cacheHint?.lastModified || latestModified) {
+						mergedCacheHint.lastModified = cacheHint?.lastModified ?? latestModified;
 					}
 					cacheHint = mergedCacheHint;
 				}
@@ -568,7 +581,7 @@ export function createGetLiveCollection({
 			return {
 				error: new LiveCollectionError(
 					collection,
-					`Unexpected error loading collection ${collection}`,
+					`Unexpected error loading collection ${collection}${error instanceof Error ? `: ${error.message}` : ''}`,
 					error as Error,
 				),
 			};
@@ -960,4 +973,13 @@ export function defineCollection(config: any) {
 		});
 	}
 	return defineCollectionOrig(config);
+}
+
+export function defineLiveCollection() {
+	throw new AstroError({
+		...AstroErrorData.LiveContentConfigError,
+		message: AstroErrorData.LiveContentConfigError.message(
+			'Live collections must be defined in a `src/live.config.ts` file.',
+		),
+	});
 }

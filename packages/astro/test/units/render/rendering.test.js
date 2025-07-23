@@ -3,8 +3,8 @@ import { beforeEach, describe, it } from 'node:test';
 import { isPromise } from 'node:util/types';
 import * as cheerio from 'cheerio';
 import {
-	HTMLString,
 	createComponent,
+	HTMLString,
 	renderComponent,
 	renderTemplate,
 } from '../../../dist/runtime/server/index.js';

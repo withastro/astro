@@ -286,6 +286,24 @@ describe('CSP', () => {
 		assert.equal(meta.attr('content'), undefined, 'meta tag should not be present');
 	});
 
+	it('should generate hashes for inline styles', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+		});
+		await fixture.build();
+		const html = await fixture.readFile('/inline/index.html');
+		const $ = cheerio.load(html);
+
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		// hash of the <style> content
+		assert.ok(
+			meta
+				.attr('content')
+				.toString()
+				.includes("'sha256-fP5hIETY85LoQH4mfn28a0KQgRZ3ZBI/WJOYJRKChes='"),
+		);
+	});
+
 	it('should return CSP header inside a hook', async () => {
 		let routeToHeaders;
 		fixture = await loadFixture({
@@ -303,13 +321,14 @@ describe('CSP', () => {
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
 
-		assert.equal(
-			routeToHeaders.size,
-			4,
-			'expected four routes: /, /scripts, /title/foo, /title/bar',
-		);
+		assert.equal(routeToHeaders.size, 4, 'expected four routes: /, /scripts, /foo, /bar');
 
-		for (const headers of routeToHeaders.values()) {
+		assert.ok(routeToHeaders.has('/'), 'should have a CSP header for /');
+		assert.ok(routeToHeaders.has('/scripts'), 'should have a CSP header for /scripts');
+		assert.ok(routeToHeaders.has('/foo'), 'should have a CSP header for /foo');
+		assert.ok(routeToHeaders.has('/bar'), 'should have a CSP header for /bar');
+
+		for (const { headers } of routeToHeaders.values()) {
 			assert.ok(headers.has('content-security-policy'), 'should have a CSP header');
 		}
 	});

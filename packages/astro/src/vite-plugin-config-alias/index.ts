@@ -1,6 +1,6 @@
 import path from 'node:path';
 import type { CompilerOptions } from 'typescript';
-import { type ResolvedConfig, type Plugin as VitePlugin, normalizePath } from 'vite';
+import { normalizePath, type ResolvedConfig, type Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../types/astro.js';
 
 type Alias = {
@@ -14,10 +14,13 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	if (!tsConfig || !tsConfigPath || !tsConfig.compilerOptions) return null;
 
 	const { baseUrl, paths } = tsConfig.compilerOptions as CompilerOptions;
-	if (!baseUrl) return null;
+
+	// If paths exist but baseUrl doesn't, default to "." (tsconfig directory)
+	const effectiveBaseUrl = baseUrl ?? (paths ? '.' : undefined);
+	if (!effectiveBaseUrl) return null;
 
 	// resolve the base url from the configuration file directory
-	const resolvedBaseUrl = path.resolve(path.dirname(tsConfigPath), baseUrl);
+	const resolvedBaseUrl = path.resolve(path.dirname(tsConfigPath), effectiveBaseUrl);
 
 	const aliases: Alias[] = [];
 
@@ -49,12 +52,15 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	// compile the baseUrl expression and push it to the list
 	// - `baseUrl` changes the way non-relative specifiers are resolved
 	// - if `baseUrl` exists then all non-relative specifiers are resolved relative to it
-	aliases.push({
-		find: /^(?!\.*\/|\.*$|\w:)(.+)$/,
-		replacement: `${[...normalizePath(resolvedBaseUrl)]
-			.map((segment) => (segment === '$' ? '$$' : segment))
-			.join('')}/$1`,
-	});
+	// - only add this if an explicit baseUrl was provided (not the default)
+	if (baseUrl) {
+		aliases.push({
+			find: /^(?!\.*\/|\.*$|\w:)(.+)$/,
+			replacement: `${[...normalizePath(resolvedBaseUrl)]
+				.map((segment) => (segment === '$' ? '$$' : segment))
+				.join('')}/$1`,
+		});
+	}
 
 	return aliases;
 };

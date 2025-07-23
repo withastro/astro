@@ -114,6 +114,13 @@ describe('astro:image', () => {
 				assert.equal(res.headers.get('content-type'), 'image/webp');
 			});
 
+			it('includes priority loading attributes', () => {
+				let $img = $('#priority img');
+				assert.equal($img.attr('loading'), 'eager');
+				assert.equal($img.attr('decoding'), 'sync');
+				assert.equal($img.attr('fetchpriority'), 'high');
+			});
+
 			it('properly skip processing SVGs, but does not error', async () => {
 				let res = await fixture.fetch('/svgSupport');
 				let html = await res.text();

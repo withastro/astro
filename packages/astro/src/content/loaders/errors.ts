@@ -8,6 +8,9 @@ export class LiveCollectionError extends Error {
 	) {
 		super(message);
 		this.name = 'LiveCollectionError';
+		if (cause?.stack) {
+			this.stack = cause.stack;
+		}
 	}
 	static is(error: unknown): error is LiveCollectionError {
 		return error instanceof LiveCollectionError;

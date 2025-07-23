@@ -6,6 +6,7 @@ import { Logger } from '../dist/core/logger/core.js';
 
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
+
 describe('Live content collections', () => {
 	let fixture;
 	before(async () => {
@@ -47,11 +48,13 @@ describe('Live content collections', () => {
 					cacheHint: {
 						tags: [`page:123`],
 						maxAge: 60,
+						lastModified: '2025-01-01T00:00:00.000Z',
 					},
 				},
 				cacheHint: {
 					tags: [`page:123`],
 					maxAge: 60,
+					lastModified: '2025-01-01T00:00:00.000Z',
 				},
 			});
 			assert.deepEqual(data.entryByObject, {
@@ -61,11 +64,13 @@ describe('Live content collections', () => {
 					cacheHint: {
 						tags: [`page:456`],
 						maxAge: 60,
+						lastModified: '2025-01-01T00:00:00.000Z',
 					},
 				},
 				cacheHint: {
 					tags: [`page:456`],
 					maxAge: 60,
+					lastModified: '2025-01-01T00:00:00.000Z',
 				},
 			});
 			assert.deepEqual(data.collection, {
@@ -86,6 +91,7 @@ describe('Live content collections', () => {
 				cacheHint: {
 					tags: ['page'],
 					maxAge: 60,
+					lastModified: '2025-01-02T00:00:00.000Z',
 				},
 			});
 		});
@@ -101,11 +107,13 @@ describe('Live content collections', () => {
 						id: '456',
 						data: { title: 'Page 456', age: 25 },
 						cacheHint: {
+							lastModified: '2025-01-01T00:00:00.000Z',
 							tags: [`page:456`],
 							maxAge: 60,
 						},
 					},
 					cacheHint: {
+						lastModified: '2025-01-01T00:00:00.000Z',
 						tags: [`page:456`],
 						maxAge: 60,
 					},
@@ -167,11 +175,13 @@ describe('Live content collections', () => {
 					id: '123',
 					data: { title: 'Page 123', age: 10 },
 					cacheHint: {
+						lastModified: '2025-01-01T00:00:00.000Z',
 						tags: [`page:123`],
 						maxAge: 60,
 					},
 				},
 				cacheHint: {
+					lastModified: '2025-01-01T00:00:00.000Z',
 					tags: [`page:123`],
 					maxAge: 60,
 				},
@@ -190,11 +200,13 @@ describe('Live content collections', () => {
 						id: '456',
 						data: { title: 'Page 456', age: 25 },
 						cacheHint: {
+							lastModified: '2025-01-01T00:00:00.000Z',
 							tags: [`page:456`],
 							maxAge: 60,
 						},
 					},
 					cacheHint: {
+						lastModified: '2025-01-01T00:00:00.000Z',
 						tags: [`page:456`],
 						maxAge: 60,
 					},

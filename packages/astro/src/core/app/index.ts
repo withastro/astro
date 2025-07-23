@@ -3,10 +3,10 @@ import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import {
+	clientAddressSymbol,
 	DEFAULT_404_COMPONENT,
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
-	clientAddressSymbol,
 	responseSentSymbol,
 } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
@@ -20,8 +20,8 @@ import {
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '../path.js';
-import { RenderContext } from '../render-context.js';
 import { createAssetLink } from '../render/ssr-element.js';
+import { RenderContext } from '../render-context.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { createDefaultRoutes } from '../routing/default.js';
@@ -191,7 +191,15 @@ export class App {
 		}
 	}
 
-	match(request: Request): RouteData | undefined {
+	/**
+	 * Given a `Request`, it returns the `RouteData` that matches its `pathname`. By default, prerendered
+	 * routes aren't returned, even if they are matched.
+	 *
+	 * When `allowPrerenderedRoutes` is `true`, the function returns matched prerendered routes too.
+	 * @param request
+	 * @param allowPrerenderedRoutes
+	 */
+	match(request: Request, allowPrerenderedRoutes = false): RouteData | undefined {
 		const url = new URL(request.url);
 		// ignore requests matching public assets
 		if (this.#manifest.assets.has(url.pathname)) return undefined;
@@ -201,8 +209,14 @@ export class App {
 		}
 		let routeData = matchRoute(decodeURI(pathname), this.#manifestData);
 
+		if (!routeData) return undefined;
+		if (allowPrerenderedRoutes) {
+			return routeData;
+		}
 		// missing routes fall-through, pre rendered are handled by static layer
-		if (!routeData || routeData.prerender) return undefined;
+		else if (routeData.prerender) {
+			return undefined;
+		}
 		return routeData;
 	}
 
