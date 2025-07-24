@@ -8,7 +8,9 @@ import { next } from './actions/next-steps.js';
 import { projectName } from './actions/project-name.js';
 import { template } from './actions/template.js';
 import { verify } from './actions/verify.js';
-import { setStdout } from './messages.js';
+
+export { processTemplateReadme, removeTemplateMarkerSections } from './actions/template.js';
+export { setStdout } from './messages.js';
 
 const exit = () => process.exit(0);
 process.on('SIGINT', exit);
@@ -58,4 +60,4 @@ export async function main() {
 	process.exit(0);
 }
 
-export { dependencies, getContext, git, intro, next, projectName, setStdout, template, verify };
+export { dependencies, getContext, git, intro, next, projectName, template, verify };

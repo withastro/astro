@@ -1,5 +1,14 @@
 # @astrojs/netlify
 
+## 6.5.3
+
+### Patch Changes
+
+- [#14120](https://github.com/withastro/astro/pull/14120) [`798b5fa`](https://github.com/withastro/astro/commit/798b5fa022b19ab048c3b67dfc9880f785ce51be) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds mock feature flags in dev
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 6.5.2
 
 ### Patch Changes
