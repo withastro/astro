@@ -652,6 +652,10 @@ importers:
       zod-to-ts:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.8.3)(zod@3.24.2)
+    optionalDependencies:
+      sharp:
+        specifier: ^0.33.3
+        version: 0.33.5
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.4
@@ -3262,6 +3266,12 @@ importers:
       preact:
         specifier: ^10.26.4
         version: 10.26.9
+
+  packages/astro/test/fixtures/i18n-double-prefix:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
 
   packages/astro/test/fixtures/i18n-routing:
     dependencies:
