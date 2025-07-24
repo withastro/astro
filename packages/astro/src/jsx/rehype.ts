@@ -1,6 +1,5 @@
 import type { RehypePlugin } from '@astrojs/markdown-remark';
 import type { RootContent } from 'hast';
-// biome-ignore lint/correctness/noUnusedImports: This import includes ambient types for hast to include mdx nodes
 import type {} from 'mdast-util-mdx';
 import type {
 	MdxJsxAttribute,
