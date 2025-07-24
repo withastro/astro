@@ -41,6 +41,6 @@
   "devDependencies": {
     "astro-scripts": "workspace:*",
     "typescript": "^5.8.3",
-    "vite": "^6.3.4"
+    "vite": "^7.0.6"
   }
 }

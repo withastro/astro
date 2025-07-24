@@ -79,7 +79,7 @@
     "astro-scripts": "workspace:*",
     "devalue": "^5.1.1",
     "linkedom": "^0.18.9",
-    "vite": "^6.3.4"
+    "vite": "^7.0.6"
   },
   "engines": {
     "node": "18.20.8 || ^20.3.0 || >=22.0.0"
