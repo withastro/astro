@@ -72,7 +72,6 @@
 - [#12539](https://github.com/withastro/astro/pull/12539) [`827093e`](https://github.com/withastro/astro/commit/827093e6175549771f9d93ddf3f2be4c2c60f0b7) Thanks [@bluwy](https://github.com/bluwy)! - Drops node 21 support
 
 - [#12083](https://github.com/withastro/astro/pull/12083) [`9263e96`](https://github.com/withastro/astro/commit/9263e965932b9a6a116801c063c6b7105c39643e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Reworks the experience of creating a new Astro project using the `create astro` CLI command.
-
   - Updates the list of templates to include Starlight and combines the "minimal" and "basics" templates into a new, refreshed "Basics" template to serve as the single, minimal Astro project starter.
   - Removes the TypeScript question. Astro is TypeScript-only, so this question was often misleading. The "Strict" preset is now the default, but it can still be changed manually in `tsconfig.json`.
   - `astro check` is no longer automatically added to the build script.
@@ -89,7 +88,6 @@
 ### Minor Changes
 
 - [#12083](https://github.com/withastro/astro/pull/12083) [`9263e96`](https://github.com/withastro/astro/commit/9263e965932b9a6a116801c063c6b7105c39643e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Reworks the experience of creating a new Astro project using the `create astro` CLI command.
-
   - Updates the list of templates to include Starlight and combines the "minimal" and "basics" templates into a new, refreshed "Basics" template to serve as the single, minimal Astro project starter.
   - Removes the TypeScript question. Astro is TypeScript-only, so this question was often misleading. The "Strict" preset is now the default, but it can still be changed manually in `tsconfig.json`.
   - `astro check` is no longer automatically added to the build script.
@@ -546,7 +544,6 @@
 ### Minor Changes
 
 - [#4810](https://github.com/withastro/astro/pull/4810) [`7481ffda0`](https://github.com/withastro/astro/commit/7481ffda028d9028d8e28bc7c6e9960ab80acf0f) Thanks [@mrienstra](https://github.com/mrienstra)! - Always write chosen config to `tsconfig.json`.
-
   - Before: Only when `strict` & `strictest` was selected
   - After: Also when `base` is selected (via "Relaxed" or "I prefer not to use TypeScript")
 

@@ -83,7 +83,6 @@ Inputs:
 Flow:
 
 1. Before we mutate the `hast` tree, each element in `allPossibleElements` may have siblings that can be optimized together. Sibling elements are grouped with the `findElementGroups()` function, which returns an array of element groups (new variable `elementGroups`) and mutates `allPossibleElements` to remove elements that are already part of a group.
-
    - Q: How does `findElementGroups()` work? <br>
      A: For each elements in `allPossibleElements` that are non-static, we're able to take the element metadata from `elementMetadatas` and guess the next sibling node. If the next sibling node is static and is an element in `allPossibleElements`, we group them together for optimization. It continues to guess until it hits a non-static node or an element not in `allPossibleElements`, which it'll finalize the group as part of the returned result.
 
