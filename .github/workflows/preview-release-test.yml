@@ -38,13 +38,9 @@ jobs:
         run: git config --global core.autocrlf false
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      # Changeset needs access to the main branch to find pending changesets
-      - name: Checkout base ref
-        run: git fetch origin ${{ github.base_ref }} && git checkout ${{ github.base_ref }}
-
-      - name: Checkout head ref
-        run: git fetch origin ${{ github.head_ref }} && git checkout ${{ github.head_ref }}
+        with:
+          # Changeset needs access to the main branch to find pending changesets
+          fetch-depth: 0
 
       - name: Setup PNPM
         uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
