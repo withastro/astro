@@ -24,7 +24,7 @@ env:
 
 jobs:
   preview:
-    if: ${{ github.repository_owner == 'withastro' && github.event.label.name == 'pr preview' }}
+    if: ${{ github.repository_owner == 'withastro' && github.event.label.name == 'markdown' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -91,7 +91,7 @@ jobs:
       - name: Remove Preview Label
         uses: actions-ecosystem/action-remove-labels@2ce5d41b4b6aa8503e285553f75ed56e0a40bae0 # v1.3.0
         with:
-          labels: "pr preview"
+          labels: "markdown"
 
       - name: Publish packages
         env:
