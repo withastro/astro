@@ -1,5 +1,13 @@
 # astro
 
+## 5.12.3
+
+### Patch Changes
+
+- [#14119](https://github.com/withastro/astro/pull/14119) [`14807a4`](https://github.com/withastro/astro/commit/14807a4581b5ba2e61bc63ef9ef9f14848564edd) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused builds to fail if a client directive was mistakenly added to an Astro component
+
+- [#14001](https://github.com/withastro/astro/pull/14001) [`4b03d9c`](https://github.com/withastro/astro/commit/4b03d9c9d9237d9af38425062559eafdfc27f76f) Thanks [@dnek](https://github.com/dnek)! - Fixes an issue where `getImage()` assigned the resized base URL to the srcset URL of `ImageTransform`, which matched the width, height, and format of the original image.
+
 ## 5.12.2
 
 ### Patch Changes
