@@ -256,7 +256,9 @@ describe('Server islands', () => {
 			});
 		});
 
-		describe('build (no adapter)', () => {
+		describe('with no adapter', () => {
+			let devServer;
+
 			it('Errors during the build', async () => {
 				try {
 					await fixture.build({
@@ -266,6 +268,18 @@ describe('Server islands', () => {
 				} catch (err) {
 					assert.equal(err.title, 'Cannot use Server Islands without an adapter.');
 				}
+			});
+
+			it('Errors during dev', async () => {
+				devServer = await fixture.startDevServer();
+				const res = await fixture.fetch('/');
+				assert.equal(res.status, 500);
+				const html = await res.text();
+				const $ = cheerio.load(html);
+				assert.equal($('title').text(), 'NoAdapterInstalledServerIslands');
+			});
+			after(() => {
+				return devServer?.stop();
 			});
 		});
 	});
