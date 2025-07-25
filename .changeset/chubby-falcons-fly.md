@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Optimize SVG asset handling with cross-platform deduplication
+Optimized the build pipeline for SVG images. Now, Astro doesn't reprocess images that have already been processed. 
