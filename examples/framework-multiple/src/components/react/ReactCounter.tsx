@@ -1,6 +1,6 @@
 /** @jsxImportSource react */
 
-import { useState, type ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 
 /** A counter written with React */
 export function Counter({ children }: { children?: ReactNode }) {

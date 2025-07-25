@@ -1,5 +1,30 @@
 # create-astro
 
+## 4.13.0
+
+### Minor Changes
+
+- [#14115](https://github.com/withastro/astro/pull/14115) [`270e009`](https://github.com/withastro/astro/commit/270e009048f226845c0297077c1114d7fb467c6a) Thanks [@ascorbic](https://github.com/ascorbic)! - Removes "Open in x" badges from the README of the official Astro templates when a new project is created
+
+- [#14115](https://github.com/withastro/astro/pull/14115) [`270e009`](https://github.com/withastro/astro/commit/270e009048f226845c0297077c1114d7fb467c6a) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds support for marking sections in template READMEs to be removed when the `create astro` command is used to create a new project
+
+  Theme authors can now use magic comments in template READMEs to mark sections that should not be included when a user runs `create-astro` with the `--template` flag to create a new project.
+
+  This allows templates to have content that is visible when viewed in the source repo but not when the template is copied for use in a new project. This is useful for content that is appropriate for a theme's own repository, but will not be useful to someone using the theme, such as
+  an "Open this repository in StackBlitz" badge where the URL is hardcoded .
+
+  Use the magic comments `<!-- ASTRO:REMOVE:START -->` and `<!-- ASTRO:REMOVE:END -->` to indicate content to be excluded from your README during the `create astro` process.
+
+  ```md
+  <!-- ASTRO:REMOVE:START -->
+
+  [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
+
+  <!-- ASTRO:REMOVE:END -->
+  ```
+
+  Note that these comments only remove content when new projects are created using `create astro`. When your theme template is forked, your README will be copied in its entirety.
+
 ## 4.12.1
 
 ### Patch Changes
@@ -47,7 +72,6 @@
 - [#12539](https://github.com/withastro/astro/pull/12539) [`827093e`](https://github.com/withastro/astro/commit/827093e6175549771f9d93ddf3f2be4c2c60f0b7) Thanks [@bluwy](https://github.com/bluwy)! - Drops node 21 support
 
 - [#12083](https://github.com/withastro/astro/pull/12083) [`9263e96`](https://github.com/withastro/astro/commit/9263e965932b9a6a116801c063c6b7105c39643e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Reworks the experience of creating a new Astro project using the `create astro` CLI command.
-
   - Updates the list of templates to include Starlight and combines the "minimal" and "basics" templates into a new, refreshed "Basics" template to serve as the single, minimal Astro project starter.
   - Removes the TypeScript question. Astro is TypeScript-only, so this question was often misleading. The "Strict" preset is now the default, but it can still be changed manually in `tsconfig.json`.
   - `astro check` is no longer automatically added to the build script.
@@ -64,7 +88,6 @@
 ### Minor Changes
 
 - [#12083](https://github.com/withastro/astro/pull/12083) [`9263e96`](https://github.com/withastro/astro/commit/9263e965932b9a6a116801c063c6b7105c39643e) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Reworks the experience of creating a new Astro project using the `create astro` CLI command.
-
   - Updates the list of templates to include Starlight and combines the "minimal" and "basics" templates into a new, refreshed "Basics" template to serve as the single, minimal Astro project starter.
   - Removes the TypeScript question. Astro is TypeScript-only, so this question was often misleading. The "Strict" preset is now the default, but it can still be changed manually in `tsconfig.json`.
   - `astro check` is no longer automatically added to the build script.
@@ -521,7 +544,6 @@
 ### Minor Changes
 
 - [#4810](https://github.com/withastro/astro/pull/4810) [`7481ffda0`](https://github.com/withastro/astro/commit/7481ffda028d9028d8e28bc7c6e9960ab80acf0f) Thanks [@mrienstra](https://github.com/mrienstra)! - Always write chosen config to `tsconfig.json`.
-
   - Before: Only when `strict` & `strictest` was selected
   - After: Also when `base` is selected (via "Relaxed" or "I prefer not to use TypeScript")
 

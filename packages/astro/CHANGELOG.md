@@ -1,5 +1,13 @@
 # astro
 
+## 5.12.3
+
+### Patch Changes
+
+- [#14119](https://github.com/withastro/astro/pull/14119) [`14807a4`](https://github.com/withastro/astro/commit/14807a4581b5ba2e61bc63ef9ef9f14848564edd) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused builds to fail if a client directive was mistakenly added to an Astro component
+
+- [#14001](https://github.com/withastro/astro/pull/14001) [`4b03d9c`](https://github.com/withastro/astro/commit/4b03d9c9d9237d9af38425062559eafdfc27f76f) Thanks [@dnek](https://github.com/dnek)! - Fixes an issue where `getImage()` assigned the resized base URL to the srcset URL of `ImageTransform`, which matched the width, height, and format of the original image.
+
 ## 5.12.2
 
 ### Patch Changes
@@ -217,7 +225,6 @@
   This change introduces a new `priority` option for the `<Image />` and `<Picture />` components, which automatically sets the `loading`, `decoding`, and `fetchpriority` attributes to their optimal values for above-the-fold images which should be loaded immediately.
 
   It is a boolean prop, and you can use the shorthand syntax by simply adding `priority` as a prop to the `<Image />` or `<Picture />` component. When set, it will apply the following attributes:
-
   - `loading="eager"`
   - `decoding="sync"`
   - `fetchpriority="high"`
@@ -428,7 +435,6 @@
 - [#13923](https://github.com/withastro/astro/pull/13923) [`a9ac5ed`](https://github.com/withastro/astro/commit/a9ac5ed3ff461d1c8e66fc40df3205df67c63059) Thanks [@ematipico](https://github.com/ematipico)! - **BREAKING CHANGE to the experimental Content Security Policy (CSP) only**
 
   Changes the behavior of experimental Content Security Policy (CSP) to now serve hashes differently depending on whether or not a page is prerendered:
-
   - Via the `<meta>` element for static pages.
   - Via the `Response` header `content-security-policy` for on-demand rendered pages.
 
@@ -471,11 +477,9 @@
   See the [Adapter API docs](https://docs.astro.build/en/reference/adapter-reference/#adapter-features) for more information about providing adapter features.
 
 - [#13697](https://github.com/withastro/astro/pull/13697) [`af83b85`](https://github.com/withastro/astro/commit/af83b85d6ea1e2e27ee2b9357f794fee0418f453) Thanks [@benosmac](https://github.com/benosmac)! - Fixes issues with fallback route pattern matching when `i18n.routing.fallbackType` is `rewrite`.
-
   - Adds conditions for route matching in `generatePath` when building fallback routes and checking for existing translated pages
 
   Now for a route to be matched it needs to be inside a named `[locale]` folder. This fixes an issue where `route.pattern.test()` incorrectly matched dynamic routes, causing the page to be skipped.
-
   - Adds conditions for route matching in `findRouteToRewrite`
 
   Now the requested pathname must exist in `route.distURL` for a dynamic route to match. This fixes an issue where `route.pattern.test()` incorrectly matched dynamic routes, causing the build to fail.
@@ -1047,7 +1051,6 @@
 - [#13560](https://github.com/withastro/astro/pull/13560) [`df3fd54`](https://github.com/withastro/astro/commit/df3fd5434514b68cf1fe499a2e28bc1215bd253d) Thanks [@ematipico](https://github.com/ematipico)! - The virtual module `astro:config` introduced behind a flag in [v5.2.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#520) is no longer experimental and is available for general use.
 
   This virtual module exposes two sub-paths for type-safe, controlled access to your configuration:
-
   - `astro:config/client`: exposes config information that is safe to expose to the client.
   - `astro:config/server`: exposes additional information that is safe to expose to the server, such as file and directory paths.
 
@@ -1259,7 +1262,6 @@
 - [#13488](https://github.com/withastro/astro/pull/13488) [`d777420`](https://github.com/withastro/astro/commit/d7774207b11d042711ec310f2ad46d15246482f0) Thanks [@stramel](https://github.com/stramel)! - **BREAKING CHANGE to the experimental SVG Component API only**
 
   Removes some previously available prop, attribute, and configuration options from the experimental SVG API. These items are no longer available and must be removed from your code:
-
   - The `title` prop has been removed until we can settle on the correct balance between developer experience and accessibility. Please replace any `title` props on your components with `aria-label`:
     ```diff
     - <Logo title="My Company Logo" />
@@ -1615,7 +1617,6 @@
   #### Config helpers
 
   Two new helper functions exported from `astro/config`:
-
   - `mergeConfig()` allows users to merge partially defined Astro configurations on top of a base config while following the merge rules of `updateConfig()` available for integrations.
   - `validateConfig()` allows users to validate that a given value is a valid Astro configuration and fills in default values as necessary.
 
@@ -1624,7 +1625,6 @@
   #### Programmatic build
 
   The `build` API now receives a second optional `BuildOptions` argument where users can specify:
-
   - `devOutput` (default `false`): output a development-based build similar to code transformed in `astro dev`.
   - `teardownCompiler` (default `true`): teardown the compiler WASM instance after build.
 
@@ -1867,7 +1867,6 @@
 - [#13084](https://github.com/withastro/astro/pull/13084) [`0f3be31`](https://github.com/withastro/astro/commit/0f3be3104e62d5b50dabfb15023f97954a160b8e) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new experimental virtual module `astro:config` that exposes a type-safe subset of your `astro.config.mjs` configuration
 
   The virtual module exposes two sub-paths for controlled access to your configuration:
-
   - `astro:config/client`: exposes config information that is safe to expose to the client.
   - `astro:config/server`: exposes additional information that is safe to expose to the server, such as file/dir paths.
 
@@ -2327,12 +2326,10 @@
 - [#10742](https://github.com/withastro/astro/pull/10742) [`b6fbdaa`](https://github.com/withastro/astro/commit/b6fbdaa94a9ecec706a99e1938fbf5cd028c72e0) Thanks [@ematipico](https://github.com/ematipico)! - The lowest version of Node supported by Astro is now Node v18.17.1 and higher.
 
 - [#11916](https://github.com/withastro/astro/pull/11916) [`46ea29f`](https://github.com/withastro/astro/commit/46ea29f91df83ea638ecbc544ce99375538636d4) Thanks [@bluwy](https://github.com/bluwy)! - Updates how the `build.client` and `build.server` option values get resolved to match existing documentation. With this fix, the option values will now correctly resolve relative to the `outDir` option. So if `outDir` is set to `./dist/nested/`, then by default:
-
   - `build.client` will resolve to `<root>/dist/nested/client/`
   - `build.server` will resolve to `<root>/dist/nested/server/`
 
   Previously the values were incorrectly resolved:
-
   - `build.client` was resolved to `<root>/dist/nested/dist/client/`
   - `build.server` was resolved to `<root>/dist/nested/dist/server/`
 
@@ -2343,7 +2340,6 @@
   Both of these options can be overridden by setting your own values to the corresponding settings in your `tsconfig.json` file.
 
 - [#11861](https://github.com/withastro/astro/pull/11861) [`3ab3b4e`](https://github.com/withastro/astro/commit/3ab3b4efbcdd2aabea5f949deedf51a5acefae59) Thanks [@bluwy](https://github.com/bluwy)! - Cleans up Astro-specific metadata attached to `vfile.data` in Remark and Rehype plugins. Previously, the metadata was attached in different locations with inconsistent names. The metadata is now renamed as below:
-
   - `vfile.data.__astroHeadings` -> `vfile.data.astro.headings`
   - `vfile.data.imagePaths` -> `vfile.data.astro.imagePaths`
 
@@ -2503,7 +2499,6 @@
 - [#11826](https://github.com/withastro/astro/pull/11826) [`7315050`](https://github.com/withastro/astro/commit/7315050fc1192fa72ae92aef92b920f63b46118f) Thanks [@matthewp](https://github.com/matthewp)! - Deprecate Astro.glob
 
   The `Astro.glob` function has been deprecated in favor of Content Collections and `import.meta.glob`.
-
   - If you want to query for markdown and MDX in your project, use Content Collections.
   - If you want to query source files in your project, use `import.meta.glob`(https://vitejs.dev/guide/features.html#glob-import).
 
@@ -2521,7 +2516,6 @@
   This is a breaking change because it requires the version `8.*` of `@astrojs/vercel`.
 
 - [#11741](https://github.com/withastro/astro/pull/11741) [`6617491`](https://github.com/withastro/astro/commit/6617491c3bc2bde87f7867d7dec2580781852cfc) Thanks [@bluwy](https://github.com/bluwy)! - Removes internal JSX handling and moves the responsibility to the `@astrojs/mdx` package directly. The following exports are also now removed:
-
   - `astro/jsx/babel.js`
   - `astro/jsx/component.js`
   - `astro/jsx/index.js`
@@ -2589,7 +2583,6 @@
   By default, collections that use the old types (`content` or `data`) and do not define a `loader` are now implemented under the hood using the Content Layer API's built-in `glob()` loader, with extra backward-compatibility handling.
 
   In order to achieve backwards compatibility with existing `content` collections, the following have been implemented:
-
   - a `glob` loader collection is defined, with patterns that match the previous handling (matches `src/content/<collection name>/**/*.md` and other content extensions depending on installed integrations, with underscore-prefixed files and folders ignored)
   - When used in the runtime, the entries have an ID based on the filename in the same format as legacy collections
   - A `slug` field is added with the same format as before
@@ -2597,13 +2590,11 @@
   - `getEntryBySlug` is supported
 
   In order to achieve backwards compatibility with existing `data` collections, the following have been implemented:
-
   - a `glob` loader collection is defined, with patterns that match the previous handling (matches `src/content/<collection name>/**/*{.json,.yaml}` and other data extensions, with underscore-prefixed files and folders ignored)
   - Entries have an ID that is not slugified
   - `getDataEntryById` is supported
 
   While this backwards compatibility implementation is able to emulate most of the features of legacy collections, **there are some differences and limitations that may cause breaking changes to existing collections**:
-
   - In previous versions of Astro, collections would be generated for all folders in `src/content/`, even if they were not defined in `src/content/config.ts`. This behavior is now deprecated, and collections should always be defined in `src/content/config.ts`. For existing collections, these can just be empty declarations (e.g. `const blog = defineCollection({})`) and Astro will implicitly define your legacy collection for you in a way that is compatible with the new loading behavior.
   - The special `layout` field is not supported in Markdown collection entries. This property is intended only for standalone page files located in `src/pages/` and not likely to be in your collection entries. However, if you were using this property, you must now create dynamic routes that include your page styling.
   - Sort order of generated collections is non-deterministic and platform-dependent. This means that if you are calling `getCollection()`, the order in which entries are returned may be different than before. If you need a specific order, you should sort the collection entries yourself.
@@ -2831,12 +2822,10 @@
 - [#12226](https://github.com/withastro/astro/pull/12226) [`51d13e2`](https://github.com/withastro/astro/commit/51d13e2f6ce3a9e03c33d80af6716847f6a78061) Thanks [@ematipico](https://github.com/ematipico)! - The following renderer fields and integration fields now accept `URL` as a type:
 
   **Renderers**:
-
   - `AstroRenderer.clientEntrpoint`
   - `AstroRenderer.serverEntrypoint`
 
   **Integrations**:
-
   - `InjectedRoute.entrypoint`
   - `AstroIntegrationMiddleware.entrypoint`
   - `DevToolbarAppEntry.entrypoint`
@@ -3179,7 +3168,6 @@
   #### Responsive image properties
 
   These are additional properties available to the `<Image />` and `<Picture />` components when responsive images are enabled:
-
   - `layout`: The layout type for the image. Can be `responsive`, `fixed`, `full-width` or `none`. Defaults to value of `image.experimentalLayout`.
   - `fit`: Defines how the image should be cropped if the aspect ratio is changed. Values match those of CSS `object-fit`. Defaults to `cover`, or the value of `image.experimentalObjectFit` if set.
   - `position`: Defines the position of the image crop if the aspect ratio is changed. Values match those of CSS `object-position`. Defaults to `center`, or the value of `image.experimentalObjectPosition` if set.
@@ -3223,7 +3211,6 @@
   Also adds a new `--devOutput` flag for `astro build` that will output a development-based build.
 
   Note that changing the `mode` does not change the kind of code transform handled by Vite and Astro:
-
   - In `astro dev`, Astro will transform code with debug information.
   - In `astro build`, Astro will transform code with the most optimized output and removes debug information.
   - In `astro build --devOutput` (new flag), Astro will transform code with debug information like in `astro dev`.
@@ -3420,7 +3407,6 @@
   The signature for `app.render()` has changed, and the second argument is now an options object called `renderOptions` with more options for customizing rendering.
 
   The `renderOptions` are:
-
   - `addCookieHeader`: Determines whether Astro will set the `Set-Cookie` header, otherwise the adapter is expected to do so itself.
   - `clientAddress`: The client IP address used to set `Astro.clientAddress`.
   - `locals`: An object of locals that's set to `Astro.locals`.
@@ -3762,7 +3748,6 @@
   #### Responsive image properties
 
   These are additional properties available to the `<Image />` and `<Picture />` components when responsive images are enabled:
-
   - `layout`: The layout type for the image. Can be `responsive`, `fixed`, `full-width` or `none`. Defaults to value of `image.experimentalLayout`.
   - `fit`: Defines how the image should be cropped if the aspect ratio is changed. Values match those of CSS `object-fit`. Defaults to `cover`, or the value of `image.experimentalObjectFit` if set.
   - `position`: Defines the position of the image crop if the aspect ratio is changed. Values match those of CSS `object-position`. Defaults to `center`, or the value of `image.experimentalObjectPosition` if set.
@@ -3913,7 +3898,6 @@
   Also adds a new `--devOutput` flag for `astro build` that will output a development-based build.
 
   Note that changing the `mode` does not change the kind of code transform handled by Vite and Astro:
-
   - In `astro dev`, Astro will transform code with debug information.
   - In `astro build`, Astro will transform code with the most optimized output and removes debug information.
   - In `astro build --devOutput` (new flag), Astro will transform code with debug information like in `astro dev`.
@@ -3951,12 +3935,10 @@
 - [#12226](https://github.com/withastro/astro/pull/12226) [`51d13e2`](https://github.com/withastro/astro/commit/51d13e2f6ce3a9e03c33d80af6716847f6a78061) Thanks [@ematipico](https://github.com/ematipico)! - The following renderer fields and integration fields now accept `URL` as a type:
 
   **Renderers**:
-
   - `AstroRenderer.clientEntrpoint`
   - `AstroRenderer.serverEntrypoint`
 
   **Integrations**:
-
   - `InjectedRoute.entrypoint`
   - `AstroIntegrationMiddleware.entrypoint`
   - `DevToolbarAppEntry.entrypoint`
@@ -3986,7 +3968,6 @@
   By default, collections that use the old types (`content` or `data`) and do not define a `loader` are now implemented under the hood using the Content Layer API's built-in `glob()` loader, with extra backward-compatibility handling.
 
   In order to achieve backwards compatibility with existing `content` collections, the following have been implemented:
-
   - a `glob` loader collection is defined, with patterns that match the previous handling (matches `src/content/<collection name>/**/*.md` and other content extensions depending on installed integrations, with underscore-prefixed files and folders ignored)
   - When used in the runtime, the entries have an ID based on the filename in the same format as legacy collections
   - A `slug` field is added with the same format as before
@@ -3994,13 +3975,11 @@
   - `getEntryBySlug` is supported
 
   In order to achieve backwards compatibility with existing `data` collections, the following have been implemented:
-
   - a `glob` loader collection is defined, with patterns that match the previous handling (matches `src/content/<collection name>/**/*{.json,.yaml}` and other data extensions, with underscore-prefixed files and folders ignored)
   - Entries have an ID that is not slugified
   - `getDataEntryById` is supported
 
   While this backwards compatibility implementation is able to emulate most of the features of legacy collections, **there are some differences and limitations that may cause breaking changes to existing collections**:
-
   - In previous versions of Astro, collections would be generated for all folders in `src/content/`, even if they were not defined in `src/content/config.ts`. This behavior is now deprecated, and collections should always be defined in `src/content/config.ts`. For existing collections, these can just be empty declarations (e.g. `const blog = defineCollection({})`) and Astro will implicitly define your legacy collection for you in a way that is compatible with the new loading behavior.
   - The special `layout` field is not supported in Markdown collection entries. This property is intended only for standalone page files located in `src/pages/` and not likely to be in your collection entries. However, if you were using this property, you must now create dynamic routes that include your page styling.
   - Sort order of generated collections is non-deterministic and platform-dependent. This means that if you are calling `getCollection()`, the order in which entries are returned may be different than before. If you need a specific order, you should sort the collection entries yourself.
@@ -4273,7 +4252,6 @@
   The signature for `app.render()` has changed, and the second argument is now an options object called `renderOptions` with more options for customizing rendering.
 
   The `renderOptions` are:
-
   - `addCookieHeader`: Determines whether Astro will set the `Set-Cookie` header, otherwise the adapter is expected to do so itself.
   - `clientAddress`: The client IP address used to set `Astro.clientAddress`.
   - `locals`: An object of locals that's set to `Astro.locals`.
@@ -4496,12 +4474,10 @@
 ### Major Changes
 
 - [#11916](https://github.com/withastro/astro/pull/11916) [`46ea29f`](https://github.com/withastro/astro/commit/46ea29f91df83ea638ecbc544ce99375538636d4) Thanks [@bluwy](https://github.com/bluwy)! - Updates how the `build.client` and `build.server` option values get resolved to match existing documentation. With this fix, the option values will now correctly resolve relative to the `outDir` option. So if `outDir` is set to `./dist/nested/`, then by default:
-
   - `build.client` will resolve to `<root>/dist/nested/client/`
   - `build.server` will resolve to `<root>/dist/nested/server/`
 
   Previously the values were incorrectly resolved:
-
   - `build.client` was resolved to `<root>/dist/nested/dist/client/`
   - `build.server` was resolved to `<root>/dist/nested/dist/server/`
 
@@ -4667,7 +4643,6 @@
 ### Major Changes
 
 - [#11861](https://github.com/withastro/astro/pull/11861) [`3ab3b4e`](https://github.com/withastro/astro/commit/3ab3b4efbcdd2aabea5f949deedf51a5acefae59) Thanks [@bluwy](https://github.com/bluwy)! - Cleans up Astro-specific metadata attached to `vfile.data` in Remark and Rehype plugins. Previously, the metadata was attached in different locations with inconsistent names. The metadata is now renamed as below:
-
   - `vfile.data.__astroHeadings` -> `vfile.data.astro.headings`
   - `vfile.data.imagePaths` -> `vfile.data.astro.imagePaths`
 
@@ -4742,7 +4717,6 @@
 - [#11826](https://github.com/withastro/astro/pull/11826) [`7315050`](https://github.com/withastro/astro/commit/7315050fc1192fa72ae92aef92b920f63b46118f) Thanks [@matthewp](https://github.com/matthewp)! - Deprecate Astro.glob
 
   The `Astro.glob` function has been deprecated in favor of Content Collections and `import.meta.glob`.
-
   - If you want to query for markdown and MDX in your project, use Content Collections.
   - If you want to query source files in your project, use `import.meta.glob`(https://vitejs.dev/guide/features.html#glob-import).
 
@@ -4891,7 +4865,6 @@
   ```
 
 - [#11741](https://github.com/withastro/astro/pull/11741) [`6617491`](https://github.com/withastro/astro/commit/6617491c3bc2bde87f7867d7dec2580781852cfc) Thanks [@bluwy](https://github.com/bluwy)! - Removes internal JSX handling and moves the responsibility to the `@astrojs/mdx` package directly. The following exports are also now removed:
-
   - `astro/jsx/babel.js`
   - `astro/jsx/component.js`
   - `astro/jsx/index.js`
@@ -5981,7 +5954,6 @@
 - [#11658](https://github.com/withastro/astro/pull/11658) [`13b912a`](https://github.com/withastro/astro/commit/13b912a8702afb96e2d0bc20dcc1b4135ae58147) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fixes `orThrow()` type when calling an Action without an `input` validator.
 
 - [#11603](https://github.com/withastro/astro/pull/11603) [`f31d466`](https://github.com/withastro/astro/commit/f31d4665c1cbb0918b9e00ba1431fb6f264025f7) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Improves user experience when render an Action result from a form POST request:
-
   - Removes "Confirm post resubmission?" dialog when refreshing a result.
   - Removes the `?_astroAction=NAME` flag when a result is rendered.
 
@@ -6221,7 +6193,6 @@
   ## Migration
 
   To migrate your existing action calls:
-
   - Remove `.safe` from existing _safe_ action calls
   - Add `.orThrow` to existing _unsafe_ action calls
 
@@ -6912,7 +6883,6 @@
   ```
 
   There are three kinds of environment variables, determined by the combination of `context` (`client` or `server`) and `access` (`private` or `public`) settings defined in your [`env.schema`](#experimentalenvschema):
-
   - **Public client variables**: These variables end up in both your final client and server bundles, and can be accessed from both client and server through the `astro:env/client` module:
 
     ```js
@@ -7062,7 +7032,6 @@
 - [#11051](https://github.com/withastro/astro/pull/11051) [`12a1bcc`](https://github.com/withastro/astro/commit/12a1bccc818af292cdd2a8ed0f3e3c042b9819b4) Thanks [@ematipico](https://github.com/ematipico)! - Introduces an experimental Container API to render `.astro` components in isolation.
 
   This API introduces three new functions to allow you to create a new container and render an Astro component returning either a string or a Response:
-
   - `create()`: creates a new instance of the container.
   - `renderToString()`: renders a component and return a string.
   - `renderToResponse()`: renders a component and returns the `Response` emitted by the rendering phase.
@@ -7290,7 +7259,6 @@
 - [#11043](https://github.com/withastro/astro/pull/11043) [`d0d1710`](https://github.com/withastro/astro/commit/d0d1710439ec281518b17d03126b5d9cd008a102) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fixes minor type issues in actions component example
 
 - [#10999](https://github.com/withastro/astro/pull/10999) [`5f353e3`](https://github.com/withastro/astro/commit/5f353e39b2b9fb15e6c9d193b5b5101457fef002) Thanks [@bluwy](https://github.com/bluwy)! - The prefetch feature is updated to better support different browsers and different cache headers setup, including:
-
   1. All prefetch strategies will now always try to use `<link rel="prefetch">` if supported, or will fall back to `fetch()`.
   2. The `prefetch()` programmatic API's `with` option is deprecated in favour of an automatic approach that will also try to use `<link rel="prefetch>` if supported, or will fall back to `fetch()`.
 
@@ -8308,13 +8276,11 @@
   This means that `/blog` is considered more specific than `/blog/[...slug]`.
 
   But this special case was being applied incorrectly to indexes, which could cause a problem in scenarios like the following:
-
   - `/`
   - `/blog`
   - `/blog/[...slug]`
 
   The algorithm would make the following comparisons:
-
   - `/` is more specific than `/blog` (incorrect)
   - `/blog/[...slug]` is more specific than `/` (correct)
   - `/blog` is more specific than `/blog/[...slug]` (correct)
@@ -8426,7 +8392,6 @@
   ```
 
 - [#9159](https://github.com/withastro/astro/pull/9159) [`7d937c158959e76443a02f740b10e251d14dbd8c`](https://github.com/withastro/astro/commit/7d937c158959e76443a02f740b10e251d14dbd8c) Thanks [@bluwy](https://github.com/bluwy)! - Adds CLI shortcuts as an easter egg for the dev server:
-
   - `o + enter`: opens the site in your browser
   - `q + enter`: quits the dev server
   - `h + enter`: prints all available shortcuts
@@ -8440,7 +8405,6 @@
   Rather than make a breaking change to allow `build.format: 'file'` to be more flexible, we decided to create a new `build.format: 'preserve'`.
 
   The new format will preserve how the filesystem is structured and make sure that is mirrored over to production. Using this option:
-
   - `about.astro` becomes `about.html`
   - `about/index.astro` becomes `about/index.html`
 
@@ -8488,7 +8452,6 @@
   ```
 
   Similarly, your localized files will create routes at corresponding URLs:
-
   - The file `/en/about.astro` will be reachable at the URL `https://example.com/about`.
   - The file `/fr/about.astro` will be reachable at the URL `https://fr.example.com/about`.
   - The file `/es/about.astro` will be reachable at the URL `https://example.es/about`.
@@ -8665,7 +8628,6 @@
 - [#9566](https://github.com/withastro/astro/pull/9566) [`165cfc154be477337037185c32b308616d1ed6fa`](https://github.com/withastro/astro/commit/165cfc154be477337037185c32b308616d1ed6fa) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Allows remark plugins to pass options specifying how images in `.md` files will be optimized
 
 - [#9661](https://github.com/withastro/astro/pull/9661) [`d6edc7540864cf5d294d7b881eb886a3804f6d05`](https://github.com/withastro/astro/commit/d6edc7540864cf5d294d7b881eb886a3804f6d05) Thanks [@ematipico](https://github.com/ematipico)! - Adds new helper functions for adapter developers.
-
   - `Astro.clientAddress` can now be passed directly to the `app.render()` method.
 
   ```ts
@@ -8770,7 +8732,6 @@
   Enabling this feature ensures that all routes in your project follow the same, predictable route priority order rules. In particular, this avoids an issue where redirects or injected routes (e.g. from an integration) would always take precedence over local route definitions, making it impossible to override some routes locally.
 
   The following table shows which route builds certain page URLs when file-based routes, injected routes, and redirects are combined as shown below:
-
   - File-based route: `/blog/post/[pid]`
   - File-based route: `/[page]`
   - Injected route: `/blog/[...slug]`
@@ -8796,7 +8757,6 @@
   Now, routes with **more defined path segments** will take precedence over less specific routes.
 
   For example, `/blog/posts/[pid].astro` (3 path segments) takes precedence over `/blog/[...slug].astro` (2 path segments). This means that:
-
   - `/pages/blog/posts/[id].astro` will build routes of the form `/blog/posts/1` and `/blog/posts/a`
   - `/pages/blog/[...slug].astro` will build routes of a variety of forms, including `blog/1` and `/blog/posts/1/a`, but will not build either of the previous routes.
 
@@ -9108,7 +9068,6 @@
   The types for middlewares have also been revised. To type a middleware function, you should now use `MiddlewareHandler` instead of `MiddlewareResponseHandler`. If you used `defineMiddleware()` to type the function, no changes are needed.
 
 - [#9263](https://github.com/withastro/astro/pull/9263) [`3cbd8ea75`](https://github.com/withastro/astro/commit/3cbd8ea7534910e3beae396dcfa93ce87dcdd91f) Thanks [@bluwy](https://github.com/bluwy)! - Removes additional deprecated APIs:
-
   - The Astro preview server now returns a 404 status instead of a 301 redirect when requesting assets from the public directory without a base.
   - Removes special handling when referencing the `astro/client-image` type. You should use the `astro/client` type instead.
   - Removes deprecated built-in `rss` support in `getStaticPaths`. You should use `@astrojs/rss` instead.
@@ -9164,7 +9123,6 @@
 - [#9212](https://github.com/withastro/astro/pull/9212) [`c0383ea0c`](https://github.com/withastro/astro/commit/c0383ea0c102cb62b7235823c706a090ba08715f) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Removes deprecated `app.match()` option, `matchNotFound`
 
 - [#9168](https://github.com/withastro/astro/pull/9168) [`153a5abb9`](https://github.com/withastro/astro/commit/153a5abb905042ac68b712514dc9ec387d3e6b17) Thanks [@bluwy](https://github.com/bluwy)! - Removes deprecated features from Astro 3.0
-
   - Adapters are now required to pass `supportedAstroFeatures` to specify a list of features they support.
   - The `build.split` and `build.excludeMiddleware` options are removed. Use `functionPerRoute` and `edgeMiddleware` from adapters instead.
   - The `markdown.drafts` option and draft feature is removed. Use content collections instead.
@@ -9256,7 +9214,6 @@
 - [#9273](https://github.com/withastro/astro/pull/9273) [`9887f2412`](https://github.com/withastro/astro/commit/9887f241241f800e2907afe7079db070f3bfcfab) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Exports type for Dev Toolbar App under correct name
 
 - [#9150](https://github.com/withastro/astro/pull/9150) [`710be505c`](https://github.com/withastro/astro/commit/710be505c9ddf416e77a75343d8cae9c497d72c6) Thanks [@bluwy](https://github.com/bluwy)! - Refactors virtual modules exports. This should not break your project unless you import Astro's internal modules, including:
-
   - `astro/middleware/namespace`
   - `astro/transitions`
   - `astro/transitions/router`
@@ -9333,7 +9290,6 @@
 ### Major Changes
 
 - [#9263](https://github.com/withastro/astro/pull/9263) [`3cbd8ea75`](https://github.com/withastro/astro/commit/3cbd8ea7534910e3beae396dcfa93ce87dcdd91f) Thanks [@bluwy](https://github.com/bluwy)! - Removes additional deprecated APIs:
-
   - The Astro preview server now returns a 404 status instead of a 301 redirect when requesting assets from the public directory without a base.
   - Removes special handling when referencing the `astro/client-image` type. You should use the `astro/client` type instead.
   - Removes deprecated built-in `rss` support in `getStaticPaths`. You should use `@astrojs/rss` instead.
@@ -9477,7 +9433,6 @@
   ```
 
 - [#9168](https://github.com/withastro/astro/pull/9168) [`153a5abb9`](https://github.com/withastro/astro/commit/153a5abb905042ac68b712514dc9ec387d3e6b17) Thanks [@bluwy](https://github.com/bluwy)! - Removes deprecated features from Astro 3.0
-
   - Adapters are now required to pass `supportedAstroFeatures` to specify a list of features they support.
   - The `build.split` and `build.excludeMiddleware` options are removed. Use `functionPerRoute` and `edgeMiddleware` from adapters instead.
   - The `markdown.drafts` option and draft feature is removed. Use content collections instead.
@@ -9495,7 +9450,6 @@
 - [#9149](https://github.com/withastro/astro/pull/9149) [`0fe3a7ed5`](https://github.com/withastro/astro/commit/0fe3a7ed5d7bb1a9fce1623e84ba14104b51223c) Thanks [@bluwy](https://github.com/bluwy)! - Removes vendored Vite's `importMeta.d.ts` file in favour of Vite 5's new `vite/types/import-meta.d.ts` export
 
 - [#9150](https://github.com/withastro/astro/pull/9150) [`710be505c`](https://github.com/withastro/astro/commit/710be505c9ddf416e77a75343d8cae9c497d72c6) Thanks [@bluwy](https://github.com/bluwy)! - Refactors virtual modules exports. This should not break your project unless you import Astro's internal modules, including:
-
   - `astro/middleware/namespace`
   - `astro/transitions`
   - `astro/transitions/router`

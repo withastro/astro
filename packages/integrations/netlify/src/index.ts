@@ -540,13 +540,9 @@ export default function netlifyIntegration(
 				throw new Error('Please use Astro.cookies instead.');
 			},
 			flags: {
-				get(_key: string): unknown {
-					return undefined;
-				},
-				get evaluations(): Set<string> {
-					return new Set<string>();
-				},
-			} as any,
+				get: () => undefined,
+				evaluations: new Set<string>(),
+			} as unknown as Context['flags'],
 			json: (input) => Response.json(input),
 			log: console.info,
 			next: () => {
