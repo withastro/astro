@@ -73,6 +73,8 @@ const ALWAYS_NOEXTERNAL = [
 	'@nanostores/preact',
 	// fontsource packages are CSS that need to be processed
 	'@fontsource/*',
+	// Without this the user can't install newer versions of Zod in their project
+	'zod',
 ];
 
 // These specifiers are usually dependencies written in CJS, but loaded through Vite's transform

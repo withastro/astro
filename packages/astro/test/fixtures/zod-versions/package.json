@@ -1,0 +1,9 @@
+{
+  "name": "@test/zod-versions",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*",
+    "zod": "^4.0.0"
+  }
+}
