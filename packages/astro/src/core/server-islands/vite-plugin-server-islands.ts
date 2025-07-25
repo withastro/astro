@@ -8,7 +8,7 @@ export const VIRTUAL_ISLAND_MAP_ID = '@astro-server-islands';
 const RESOLVED_VIRTUAL_ISLAND_MAP_ID = '\0' + VIRTUAL_ISLAND_MAP_ID;
 const serverIslandPlaceholder = "'$$server-islands$$'";
 
-export function vitePluginServerIslands({ settings, logger }: AstroPluginOptions): VitePlugin {
+export function vitePluginServerIslands({ settings }: AstroPluginOptions): VitePlugin {
 	let command: ConfigEnv['command'] = 'serve';
 	let viteServer: ViteDevServer | null = null;
 	const referenceIdMap = new Map<string, string>();
