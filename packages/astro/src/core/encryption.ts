@@ -125,7 +125,7 @@ export async function generateCspDigest(data: string, algorithm: CspAlgorithm): 
 }
 
 /**
- * Generate SHA-256 hash of buffer. 
+ * Generate SHA-256 hash of buffer.
  * @param {ArrayBuffer} data The buffer data to hash
  * @returns {Promise<string>} A hex string of the first 16 characters of the SHA-256 hash
  */

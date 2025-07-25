@@ -32,12 +32,12 @@ function keyFor(hash: string): SvgCacheKey {
 async function handleSvgDeduplication(
 	fileData: Buffer,
 	filename: string,
-	fileEmitter: FileEmitter
+	fileEmitter: FileEmitter,
 ): Promise<string> {
 	const contentHash = await generateContentHash(fileData);
 	const key = keyFor(contentHash);
 	const existing = svgContentCache.get(key);
-	
+
 	if (existing) {
 		// Reuse existing handle for duplicate SVG content
 		return existing.handle;
@@ -107,7 +107,7 @@ export async function emitESMImage(
 
 		try {
 			let handle: string;
-			
+
 			if (fileMetadata.format === 'svg') {
 				// check if this content already exists
 				handle = await handleSvgDeduplication(fileData, filename, fileEmitter!);
@@ -119,7 +119,7 @@ export async function emitESMImage(
 					type: 'asset',
 				});
 			}
-			
+
 			emittedImage.src = `__ASTRO_ASSET_IMAGE__${handle}__`;
 		} catch {
 			isBuild = false;
@@ -183,7 +183,7 @@ export async function emitImageMetadata(
 
 		try {
 			let handle: string;
-			
+
 			if (fileMetadata.format === 'svg') {
 				// check if this content already exists
 				handle = await handleSvgDeduplication(fileData, filename, fileEmitter!);
@@ -195,7 +195,7 @@ export async function emitImageMetadata(
 					type: 'asset',
 				});
 			}
-			
+
 			emittedImage.src = `__ASTRO_ASSET_IMAGE__${handle}__`;
 		} catch {
 			isBuild = false;
