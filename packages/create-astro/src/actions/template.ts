@@ -5,6 +5,45 @@ import { downloadTemplate } from '@bluwy/giget-core';
 import { error, info, title } from '../messages.js';
 import type { Context } from './context.js';
 
+/**
+ * Removes sections from README content that are marked with HTML template markers.
+ *
+ * Template marker format:
+ * <!-- ASTRO:REMOVE:START -->
+ * Content to remove
+ * <!-- ASTRO:REMOVE:END -->
+ */
+export function removeTemplateMarkerSections(content: string): string {
+	// Pattern to match HTML template marker sections
+	const pattern = /<!--\s*ASTRO:REMOVE:START\s*-->[\s\S]*?<!--\s*ASTRO:REMOVE:END\s*-->/gi;
+
+	let result = content.replace(pattern, '');
+
+	// Clean up extra whitespace that might be left behind
+	// Replace multiple consecutive newlines with at most 2 newlines
+	result = result.replace(/\n{3,}/g, '\n\n');
+
+	return result;
+}
+
+/**
+ * Processes a template README file by removing template marker sections and
+ * replacing package manager references.
+ */
+export function processTemplateReadme(content: string, packageManager: string): string {
+	// Remove sections marked with template markers
+	let processed = removeTemplateMarkerSections(content);
+
+	// Replace package manager references if not npm
+	if (packageManager !== 'npm') {
+		processed = processed
+			.replace(/\bnpm run\b/g, packageManager)
+			.replace(/\bnpm\b/g, packageManager);
+	}
+
+	return processed;
+}
+
 export async function template(
 	ctx: Pick<Context, 'template' | 'prompt' | 'yes' | 'dryRun' | 'exit' | 'tasks'>,
 ) {
@@ -104,17 +143,12 @@ async function copyTemplate(tmpl: string, ctx: Context) {
 				dir: '.',
 			});
 
-			// Modify the README file to reflect the correct package manager
-			if (ctx.packageManager !== 'npm') {
-				const readmePath = path.resolve(ctx.cwd, 'README.md');
+			// Process the README file to remove marked sections and update package manager
+			const readmePath = path.resolve(ctx.cwd, 'README.md');
+			if (fs.existsSync(readmePath)) {
 				const readme = fs.readFileSync(readmePath, 'utf8');
-
-				// `run` is removed since it's optional in other package managers
-				const updatedReadme = readme
-					.replace(/\bnpm run\b/g, ctx.packageManager)
-					.replace(/\bnpm\b/g, ctx.packageManager);
-
-				fs.writeFileSync(readmePath, updatedReadme);
+				const processedReadme = processTemplateReadme(readme, ctx.packageManager);
+				fs.writeFileSync(readmePath, processedReadme);
 			}
 		} catch (err: any) {
 			// Only remove the directory if it's most likely created by us.

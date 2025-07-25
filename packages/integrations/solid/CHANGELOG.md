@@ -239,7 +239,6 @@
   It is very unlikely that a server-only component would have used the Suspense feature until now, so this should not be a breaking change for server-only components.
 
   This could be a breaking change for components that meet the following conditions:
-
   - The component uses Suspense APIs like `Suspense`, `lazy` or `createResource`, and
   - The component is mounted using a _hydrating_ directive:
     - `client:load`
@@ -250,7 +249,6 @@
   These components will now first try to resolve the Suspense boundaries on the server side instead of the client side.
 
   If you do not want Suspense boundaries to be resolved on the server (for example, if you are using createResource to do an HTTP fetch that relies on a browser-side cookie), you may consider:
-
   - changing the template directive to `client:only` to skip server side rendering completely
   - use APIs like [isServer](https://www.solidjs.com/docs/latest/api#isserver) or `onMount()` to detect server mode and render a server fallback without using Suspense.
 

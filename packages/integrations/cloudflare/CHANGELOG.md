@@ -557,7 +557,6 @@
   If you observe any issues, please check current open issues or create a new one in the repository.
 
   To add environment variables to your project, you still need to make sure they are available in three places. You're setup might require different steps to achieve this, so we can't give you a complete step-by-step guide, on how to achieve the requirements, but here are some guidance to get you started:
-
   - `process.env` during build in your node process (`astro build`)
   - `wrangler.toml` for local development (`astro dev`)
   - `Cloudflare Pages Dashboard` for production deployments
@@ -999,7 +998,6 @@
   _(Full documentation to help you migrate your project to the upgraded Cloudflare adapter will be provided with the release of v10.0.)_
 
   **Deprecates** the following adapter configuration options (to be **removed entirely in v10**):
-
   - **`mode`:** All projects will deploy to Cloudflare pages using [advanced mode](https://developers.cloudflare.com/pages/functions/advanced-mode/) (the previous default setting). This is no longer a configurable option. [Cloudflare Functions](https://developers.cloudflare.com/pages/functions/get-started/) will no longer be supported. If you were using `mode: 'directory'`, please migrate to [Astro Endpoints](https://docs.astro.build/en/guides/endpoints/).
   - **`functionPerRoute`:** Discontinued due to Cloudflare's single execution context approach. You will no longer have the option to compile a separate bundle for each page.
   - **`routes.strategy`:** Projects will use the auto-generated `_route.json` for route management unless you [provide your own `public/_routes.json`](/en/guides/integrations-guide/cloudflare/#custom-_routesjson). This change aims to eliminate confusion and promote consistency.
@@ -1236,7 +1234,6 @@
 ### Minor Changes
 
 - [#8595](https://github.com/withastro/astro/pull/8595) [`5b0b3c9a8`](https://github.com/withastro/astro/commit/5b0b3c9a8e0c0e6b6c7472b82008ab57985f2a04) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Add support for the following Node.js Runtime APIs, which are availabe in [Cloudflare](https://developers.cloudflare.com/workers/runtime-apis/nodejs) using the `node:` syntax.
-
   - assert
   - AsyncLocalStorage
   - Buffer
@@ -1974,7 +1971,6 @@
 - [#4015](https://github.com/withastro/astro/pull/4015) [`6fd161d76`](https://github.com/withastro/astro/commit/6fd161d7691cbf9d3ffa4646e46059dfd0940010) Thanks [@matthewp](https://github.com/matthewp)! - New `output` configuration option
 
   This change introduces a new "output target" configuration option (`output`). Setting the output target lets you decide the format of your final build, either:
-
   - `"static"` (default): A static site. Your final build will be a collection of static assets (HTML, CSS, JS) that you can deploy to any static site host.
   - `"server"`: A dynamic server application. Your final build will be an application that will run in a hosted server environment, generating HTML dynamically for different requests.
 

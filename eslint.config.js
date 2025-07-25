@@ -1,10 +1,9 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-
-import tseslint from 'typescript-eslint';
-
 // plugins
 import regexpEslint from 'eslint-plugin-regexp';
+import tseslint from 'typescript-eslint';
+
 const typescriptEslint = tseslint.plugin;
 
 // parsers
