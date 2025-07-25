@@ -2304,6 +2304,7 @@ describe('i18n routing with server islands', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/i18n-server-island/',
+			adapter: testAdapter(),
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -2331,6 +2332,8 @@ describe('i18n routing with server islands and base path', () => {
 		fixture = await loadFixture({
 			root: './fixtures/i18n-server-island/',
 			base: '/custom',
+				adapter: testAdapter(),
+
 		});
 		devServer = await fixture.startDevServer();
 	});
