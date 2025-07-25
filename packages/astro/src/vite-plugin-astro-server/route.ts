@@ -229,6 +229,16 @@ export async function handleRoute({
 			statusCode = 500;
 			return _response;
 		} catch (_err) {
+			// We always throw for errors related to middleware calling
+			if (
+				isAstroError(_err) &&
+				[
+					AstroErrorData.MiddlewareNoDataOrNextCalled.name,
+					AstroErrorData.MiddlewareNotAResponse.name,
+				].includes(_err.name)
+			) {
+				throw _err;
+			}
 			if (skipMiddleware === false) {
 				return renderError(_err, true);
 			}
