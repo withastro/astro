@@ -52,7 +52,7 @@ export async function cli({
 				tables: {
 					Commands: [
 						['push', 'Push table schema updates to libSQL.'],
-						['verify', 'Test schema updates /w libSQL (good for CI).'],
+						['verify', 'Test schema updates with libSQL (good for CI).'],
 						[
 							'astro db execute <file-path>',
 							'Execute a ts/js file using astro:db. Use --remote to connect to libSQL.',
