@@ -508,6 +508,8 @@ export const a11y: AuditRuleWithSelector[] = [
 				element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
 			if (isScrollable) return false;
 
+			if (element.localName === 'pre') return false;
+
 			if (!isInteractive(element)) return false;
 
 			if (

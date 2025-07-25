@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.15.0
+
+### Minor Changes
+
+- [#13815](https://github.com/withastro/astro/pull/13815) [`03435f8`](https://github.com/withastro/astro/commit/03435f8269b91ce8973bc8ded8e8071481d39dda) Thanks [@jonaspm](https://github.com/jonaspm)! - Upgraded drizzle-orm to latest v0.42.0
+
 ## 0.14.14
 
 ### Patch Changes
@@ -190,7 +196,6 @@
 - [#11385](https://github.com/withastro/astro/pull/11385) [`d6611e8`](https://github.com/withastro/astro/commit/d6611e8bb05e7d913aeb5e59e90906b8b919d48e) Thanks [@Fryuni](https://github.com/Fryuni)! - Adds support for connecting Astro DB to any remote LibSQL server. This allows Astro DB to be used with self-hosting and air-gapped deployments.
 
   To connect Astro DB to a remote LibSQL server instead of Studio, set the following environment variables:
-
   - `ASTRO_DB_REMOTE_URL`: the connection URL to your LibSQL server
   - `ASTRO_DB_APP_TOKEN`: the auth token to your LibSQL server
 

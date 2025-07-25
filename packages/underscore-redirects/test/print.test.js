@@ -1,10 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { Redirects } from '../dist/index.js';
+import { HostRoutes, printAsRedirects } from '../dist/index.js';
 
 describe('Printing', () => {
 	it('Formats long lines in a pretty way', () => {
-		const _redirects = new Redirects();
+		const _redirects = new HostRoutes();
 		_redirects.add({
 			dynamic: false,
 			input: '/a',
@@ -19,7 +19,7 @@ describe('Printing', () => {
 			weight: 0,
 			status: 200,
 		});
-		let out = _redirects.print();
+		let out = printAsRedirects(_redirects);
 
 		let [lineOne, lineTwo] = out.split('\n');
 
@@ -33,7 +33,7 @@ describe('Printing', () => {
 	});
 
 	it('Properly prints dynamic routes', () => {
-		const _redirects = new Redirects();
+		const _redirects = new HostRoutes();
 		_redirects.add({
 			dynamic: true,
 			input: '/pets/:cat',
@@ -41,7 +41,7 @@ describe('Printing', () => {
 			status: 200,
 			weight: 1,
 		});
-		let out = _redirects.print();
+		let out = printAsRedirects(_redirects);
 		let parts = out.split(/\s+/);
 
 		const expectedParts = ['/pets/:cat', '/pets/:cat/index.html', '200'];
@@ -49,7 +49,7 @@ describe('Printing', () => {
 	});
 
 	it('Properly handles force redirects', () => {
-		const _redirects = new Redirects();
+		const _redirects = new HostRoutes();
 		_redirects.add({
 			dynamic: false,
 			input: '/a',
@@ -58,7 +58,7 @@ describe('Printing', () => {
 			weight: 1,
 			force: true,
 		});
-		let out = _redirects.print();
+		let out = printAsRedirects(_redirects);
 		let parts = out.split(/\s+/);
 
 		const expectedParts = ['/a', '/b', '200!'];

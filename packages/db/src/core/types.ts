@@ -1,6 +1,5 @@
 import type { z } from 'zod';
 import type {
-	MaybeArray,
 	booleanColumnSchema,
 	columnSchema,
 	columnsSchema,
@@ -8,6 +7,7 @@ import type {
 	dbConfigSchema,
 	indexSchema,
 	jsonColumnSchema,
+	MaybeArray,
 	numberColumnOptsSchema,
 	numberColumnSchema,
 	referenceableColumnSchema,

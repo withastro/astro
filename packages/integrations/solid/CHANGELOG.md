@@ -1,5 +1,15 @@
 # @astrojs/solid-js
 
+## 5.1.0
+
+### Minor Changes
+
+- [#13809](https://github.com/withastro/astro/pull/13809) [`3c3b492`](https://github.com/withastro/astro/commit/3c3b492375bd6a63f1fb6cede3685aff999be3c9) Thanks [@ascorbic](https://github.com/ascorbic)! - Increases minimum Node.js version to 18.20.8
+
+  Node.js 18 has now reached end-of-life and should not be used. For now, Astro will continue to support Node.js 18.20.8, which is the final LTS release of Node.js 18, as well as Node.js 20 and Node.js 22 or later. We will drop support for Node.js 18 in a future release, so we recommend upgrading to Node.js 22 as soon as possible. See Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support) for more details.
+
+  :warning: **Important note for users of Cloudflare Pages**: The current build image for Cloudflare Pages uses Node.js 18.17.1 by default, which is no longer supported by Astro. If you are using Cloudflare Pages you should [override the default Node.js version](https://developers.cloudflare.com/pages/configuration/build-image/#override-default-versions) to Node.js 22. This does not affect users of Cloudflare Workers, which uses Node.js 22 by default.
+
 ## 5.0.10
 
 ### Patch Changes
@@ -229,7 +239,6 @@
   It is very unlikely that a server-only component would have used the Suspense feature until now, so this should not be a breaking change for server-only components.
 
   This could be a breaking change for components that meet the following conditions:
-
   - The component uses Suspense APIs like `Suspense`, `lazy` or `createResource`, and
   - The component is mounted using a _hydrating_ directive:
     - `client:load`
@@ -240,7 +249,6 @@
   These components will now first try to resolve the Suspense boundaries on the server side instead of the client side.
 
   If you do not want Suspense boundaries to be resolved on the server (for example, if you are using createResource to do an HTTP fetch that relies on a browser-side cookie), you may consider:
-
   - changing the template directive to `client:only` to skip server side rendering completely
   - use APIs like [isServer](https://www.solidjs.com/docs/latest/api#isserver) or `onMount()` to detect server mode and render a server fallback without using Suspense.
 

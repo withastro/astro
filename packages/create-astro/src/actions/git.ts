@@ -1,10 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { Context } from './context.js';
-
 import { color } from '@astrojs/cli-kit';
 import { error, info, title } from '../messages.js';
 import { shell } from '../shell.js';
+import type { Context } from './context.js';
 
 export async function git(
 	ctx: Pick<Context, 'cwd' | 'git' | 'yes' | 'prompt' | 'dryRun' | 'tasks'>,

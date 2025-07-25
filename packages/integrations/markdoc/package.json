@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/markdoc",
   "description": "Add support for Markdoc in your Astro site",
-  "version": "0.14.2",
+  "version": "0.15.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -82,7 +82,7 @@
     "vite": "^6.3.4"
   },
   "engines": {
-    "node": "^18.17.1 || ^20.3.0 || >=22.0.0"
+    "node": "18.20.8 || ^20.3.0 || >=22.0.0"
   },
   "publishConfig": {
     "provenance": true

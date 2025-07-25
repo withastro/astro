@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { exec } from 'tinyexec';
 import { beforeAll, bench, describe } from 'vitest';
 import { astroBin, makeProject } from './_util.js';
+
 let streamingApp;
 let nonStreamingApp;
 beforeAll(async () => {

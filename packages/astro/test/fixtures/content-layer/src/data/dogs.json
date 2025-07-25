@@ -23,6 +23,18 @@
       "Confident"
     ]
   },
+    {
+    "breed": "Alsatian",
+    "id": "german-shepherd",
+    "size": "Large",
+    "origin": "Germany",
+    "lifespan": "9-13 years",
+    "temperament": [
+      "Loyal",
+      "Intelligent",
+      "Confident"
+    ]
+  },
   {
     "breed": "Golden Retriever",
     "id": "golden-retriever",
