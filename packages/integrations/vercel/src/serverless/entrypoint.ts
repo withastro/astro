@@ -15,7 +15,13 @@ setGetEnv((key) => process.env[key]);
 
 export const createExports = (
 	manifest: SSRManifest,
-	{ middlewareSecret, skewProtection }: { middlewareSecret: string; skewProtection: boolean },
+	{
+		middlewareSecret,
+		skewProtection,
+	}: {
+		middlewareSecret: string;
+		skewProtection: boolean;
+	},
 ) => {
 	const app = new NodeApp(manifest);
 	const handler = async (req: IncomingMessage, res: ServerResponse) => {
@@ -46,11 +52,17 @@ export const createExports = (
 			req.headers['x-deployment-id'] = process.env.VERCEL_DEPLOYMENT_ID;
 		}
 
-		const webResponse = await app.render(req, { addCookieHeader: true, clientAddress, locals });
+		const webResponse = await app.render(req, {
+			addCookieHeader: true,
+			clientAddress,
+			locals,
+		});
 		await NodeApp.writeResponse(webResponse, res);
 	};
 
-	return { default: handler };
+	return {
+		default: handler,
+	};
 };
 
 // HACK: prevent warning

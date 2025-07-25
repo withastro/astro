@@ -7,10 +7,10 @@ export default {
 	hooks: {
 		'astro:config:setup': ({ addDevToolbarApp }) => {
 			addDevToolbarApp({
-				id: "my-toolbar-app",
-				name: "My Toolbar App",
-				icon: "🚀",
-				entrypoint: fileURLToPath(new URL('./app.js', import.meta.url))
+				id: 'my-toolbar-app',
+				name: 'My Toolbar App',
+				icon: '🚀',
+				entrypoint: fileURLToPath(new URL('./app.js', import.meta.url)),
 			});
 		},
 	},

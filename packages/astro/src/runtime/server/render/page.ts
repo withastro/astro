@@ -36,7 +36,10 @@ export async function renderPage(
 			['Content-Type', 'text/html'],
 			['Content-Length', bytes.byteLength.toString()],
 		]);
-		if (result.cspDestination === 'header' || result.cspDestination === 'adapter') {
+		if (
+			result.shouldInjectCspMetaTags &&
+			(result.cspDestination === 'header' || result.cspDestination === 'adapter')
+		) {
 			headers.set('content-security-policy', renderCspContent(result));
 		}
 		return new Response(bytes, {

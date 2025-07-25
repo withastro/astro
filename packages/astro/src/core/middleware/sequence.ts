@@ -80,6 +80,7 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 						handleContext.url = new URL(newRequest.url);
 						handleContext.cookies = new AstroCookies(newRequest);
 						handleContext.params = getParams(routeData, pathname);
+						handleContext.routePattern = routeData.route;
 						setOriginPathname(
 							handleContext.request,
 							oldPathname,
