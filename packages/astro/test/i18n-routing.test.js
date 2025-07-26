@@ -1095,6 +1095,10 @@ describe('[SSG] i18n routing', () => {
 			let html = await fixture.readFile('/es/page/page-1/index.html');
 			assert.equal(html.includes('page/page-1'), true);
 		});
+		it('should rewrite a fallback route when a dynamic spread route exists in the locale folder', async () => {
+			let html = await fixture.readFile('/es/test/index.html');
+			assert.equal(html.includes('test'), true);
+		});
 	});
 
 	describe('i18n routing with fallback rewrite from dynamic route and config.build.format: file', () => {
@@ -1122,6 +1126,10 @@ describe('[SSG] i18n routing', () => {
 		it('should rewrite dynamic fallback route with rest parameter and different depths', async () => {
 			let html = await fixture.readFile('/es/page/page-1.html');
 			assert.equal(html.includes('page/page-1'), true);
+		});
+		it('should rewrite a fallback route when a dynamic spread route exists in the locale folder', async () => {
+			let html = await fixture.readFile('/es/test.html');
+			assert.equal(html.includes('test'), true);
 		});
 	});
 
