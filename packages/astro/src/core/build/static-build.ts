@@ -37,6 +37,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	const pageInput = new Set<string>();
 
 	// Build internals needed by the CSS plugin
+	// On a un css considérer comme un server chunk wtf (faut voir)
 	const internals = createBuildInternals();
 
 	for (const pageData of Object.values(allPages)) {
@@ -64,6 +65,8 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	// Build your project (SSR application code, assets, client JS, etc.)
 	const ssrTime = performance.now();
 	opts.logger.info('build', `Building ${settings.buildOutput} entrypoints...`);
+	console.log("ici qu'on build le premier css : ", internals);
+	console.log('inputs : ', pageInput);
 	const ssrOutput = await ssrBuild(opts, internals, pageInput, container);
 	opts.logger.info('build', green(`✓ Completed in ${getTimeStat(ssrTime, performance.now())}.`));
 
@@ -144,6 +147,11 @@ async function ssrBuild(
 	const ssr = settings.buildOutput === 'server';
 	const out = getServerOutputDirectory(settings);
 	const routes = Object.values(allPages).flatMap((pageData) => pageData.route);
+
+	console.log('pages: ', allPages);
+	console.log('routes: ', routes);
+	console.log('out : ', out);
+
 	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('server', input);
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
@@ -170,9 +178,17 @@ async function ssrBuild(
 					// Server chunks can't go in the assets (_astro) folder
 					// We need to keep these separate
 					chunkFileNames(chunkInfo) {
-						const { name } = chunkInfo;
+						const { name, type } = chunkInfo;
 						let prefix = CHUNKS_PATH;
 						let suffix = '_[hash].mjs';
+
+						console.log('server chunk : ', chunkInfo);
+
+						// Ignore css chunks, they are handled by the CSS plugin
+						if (type !== 'chunk' || (name && name.endsWith('.css'))) {
+							// Pour les assets (dont CSS), utiliser le nommage par défaut
+							return '[name].[hash][extname]';
+						}
 
 						// Sometimes chunks have the `@_@astro` suffix due to SSR logic. Remove it!
 						// TODO: refactor our build logic to avoid this
@@ -256,6 +272,8 @@ async function clientBuild(
 
 	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('client', input);
 	opts.logger.info('SKIP_FORMAT', `\n${bgGreen(black(' building client (vite) '))}`);
+
+	console.log('oue client');
 
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,

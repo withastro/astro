@@ -112,6 +112,9 @@ export function shouldInlineAsset(
 	assetPath: string,
 	assetsInlineLimit: NonNullable<BuildOptions['assetsInlineLimit']>,
 ) {
+	console.log("shouldInlineAsset : ", assetPath, assetContent);
+	console.log("buffersize : ", Buffer.byteLength(assetContent), " < " ,assetsInlineLimit, "|", typeof assetsInlineLimit);
+
 	if (typeof assetsInlineLimit === 'function') {
 		const result = assetsInlineLimit(assetPath, Buffer.from(assetContent));
 		if (result != null) {

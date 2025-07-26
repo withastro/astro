@@ -531,6 +531,8 @@ export async function runHookBuildSetup({
 }): Promise<InlineConfig> {
 	let updatedConfig = vite;
 
+	console.log('runhookBuildSetup: ', target, pages);
+
 	for (const integration of config.integrations) {
 		await runHookInternal({
 			integration,

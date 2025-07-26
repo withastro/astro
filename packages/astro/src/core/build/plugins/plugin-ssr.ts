@@ -149,7 +149,10 @@ export function pluginSSR(
 			},
 			'build:post': async () => {
 				if (!ssr) {
+					console.warn('no SSR');
 					return;
+				} else {
+					console.warn('pluginSSR:build:post');
 				}
 
 				if (!internals.ssrEntryChunk) {
@@ -157,6 +160,18 @@ export function pluginSSR(
 				}
 				// Mutate the filename
 				internals.ssrEntryChunk.fileName = options.settings.config.build.serverEntry;
+
+				// SUPPRESSION DES FICHIERS CSS DU BUNDLE SSR
+				const outDir = options.settings.config.build.server;
+				const fs = await import('fs/promises');
+				const path = await import('path');
+				const files = await fs.readdir(outDir);
+				for (const file of files) {
+					if (file.endsWith('.css')) {
+						console.log(`Removing CSS file from SSR bundle: ${file} | ${outDir}`);
+						await fs.unlink(path.join('outDir', file));
+					}
+				}
 			},
 		},
 	};

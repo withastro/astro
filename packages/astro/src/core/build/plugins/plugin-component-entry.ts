@@ -82,6 +82,7 @@ export function pluginComponentEntry(internals: BuildInternals): AstroBuildPlugi
 		targets: ['client'],
 		hooks: {
 			'build:before': () => {
+				console.log('pluginComponentEntry:build:before');
 				return {
 					vitePlugin: vitePluginComponentEntry(internals),
 				};
