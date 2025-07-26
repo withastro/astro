@@ -31,7 +31,11 @@ export async function build({ flags }: BuildOptions) {
 		return;
 	}
 
+	//console.log("flags :", flags);
+
 	const inlineConfig = flagsToAstroInlineConfig(flags);
+
+	//console.log("inlineConfig :", inlineConfig);
 
 	await _build(inlineConfig, { devOutput: !!flags.devOutput });
 }

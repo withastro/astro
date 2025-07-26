@@ -27,9 +27,10 @@ export function pluginCSS(
 	internals: BuildInternals,
 ): AstroBuildPlugin {
 	return {
-		targets: ['client', 'server'],
+		targets: ['server', 'client'],
 		hooks: {
 			'build:before': ({ target }) => {
+				console.log('pluginCSS:build:before', target);
 				let plugins = rollupPluginAstroBuildCSS({
 					buildOptions: options,
 					internals,
@@ -83,6 +84,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							return internals.cssModuleToChunkIdMap.get(id)!;
 						}
 
+						// TODO: ne pas inclures les css indépendants dans les chunks ici
 						const ctx = { getModuleInfo: meta.getModuleInfo };
 						for (const pageInfo of getParentModuleInfos(id, ctx)) {
 							if (hasAssetPropagationFlag(pageInfo.id)) {
@@ -94,6 +96,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							}
 						}
 						const chunkId = createNameForParentPages(id, meta);
+						console.log('CSS chunkId:', chunkId, 'for', id);
 						internals.cssModuleToChunkIdMap.set(id, chunkId);
 						return chunkId;
 					}
@@ -102,6 +105,13 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		},
 
 		async generateBundle(_outputOptions, bundle) {
+			// Dans generateBundle du plugin CSS
+			for (const [fileName, chunk] of Object.entries(bundle)) {
+				if (fileName.endsWith('.css')) {
+					console.log('CSS output:', fileName);
+				}
+			}
+
 			for (const [, chunk] of Object.entries(bundle)) {
 				if (chunk.type !== 'chunk') continue;
 				if ('viteMetadata' in chunk === false) continue;
@@ -168,6 +178,8 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 			const cssChunk = Object.values(bundle).find(
 				(chunk) => chunk.type === 'asset' && chunk.name === 'style.css',
 			);
+
+			console.log('cssChunk :', cssChunk);
 			if (cssChunk === undefined) return;
 			for (const pageData of internals.pagesByKeys.values()) {
 				const cssToInfoMap = (pagesToCss[pageData.moduleSpecifier] ??= {});
@@ -184,8 +196,10 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 			assetsInlineLimit = config.build.assetsInlineLimit;
 		},
 		async generateBundle(_outputOptions, bundle) {
+			console.info('generateBundle');
 			const inlineConfig = settings.config.build.inlineStylesheets;
 			Object.entries(bundle).forEach(([id, stylesheet]) => {
+				console.log(' | id : ', id);
 				if (
 					stylesheet.type !== 'asset' ||
 					stylesheet.name?.endsWith('.css') !== true ||
@@ -193,12 +207,16 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				)
 					return;
 
+				console.log('style option : ', inlineConfig, ' | limit : ', assetsInlineLimit);
+
 				const toBeInlined =
 					inlineConfig === 'always'
 						? true
 						: inlineConfig === 'never'
 							? false
 							: shouldInlineAsset(stylesheet.source, stylesheet.fileName, assetsInlineLimit);
+
+				console.log('toBeInlined :', toBeInlined);
 
 				// there should be a single js object for each stylesheet,
 				// allowing the single reference to be shared and checked for duplicates
