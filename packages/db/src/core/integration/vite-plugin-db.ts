@@ -34,7 +34,7 @@ export type SeedHandler = {
 
 type VitePluginDBParams =
 	| {
-			connectToStudio: false;
+			connectToRemote: false;
 			tables: LateTables;
 			seedFiles: LateSeedFiles;
 			srcDir: URL;
@@ -44,7 +44,7 @@ type VitePluginDBParams =
 			seedHandler: SeedHandler;
 	  }
 	| {
-			connectToStudio: true;
+			connectToRemote: true;
 			tables: LateTables;
 			appToken: string;
 			srcDir: URL;
@@ -71,8 +71,8 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 		async load(id) {
 			if (id !== resolved.module && id !== resolved.importedFromSeedFile) return;
 
-			if (params.connectToStudio) {
-				return getStudioVirtualModContents({
+			if (params.connectToRemote) {
+				return getRemoteVirtualModContents({
 					appToken: params.appToken,
 					tables: params.tables.get(),
 					isBuild: command === 'build',
@@ -132,7 +132,7 @@ export * from ${RUNTIME_VIRTUAL_IMPORT};
 ${getStringifiedTableExports(tables)}`;
 }
 
-export function getStudioVirtualModContents({
+export function getRemoteVirtualModContents({
 	tables,
 	appToken,
 	isBuild,
@@ -147,13 +147,12 @@ export function getStudioVirtualModContents({
 
 	function appTokenArg() {
 		if (isBuild) {
-			const envPrefix = dbInfo.type === 'studio' ? 'ASTRO_STUDIO' : 'ASTRO_DB';
 			if (output === 'server') {
 				// In production build, always read the runtime environment variable.
-				return `process.env.${envPrefix}_APP_TOKEN`;
+				return `process.env.ASTRO_DB_APP_TOKEN`;
 			} else {
 				// Static mode or prerendering needs the local app token.
-				return `process.env.${envPrefix}_APP_TOKEN ?? ${JSON.stringify(appToken)}`;
+				return `process.env.ASTRO_DB_APP_TOKEN ?? ${JSON.stringify(appToken)}`;
 			}
 		} else {
 			return JSON.stringify(appToken);
@@ -165,9 +164,7 @@ export function getStudioVirtualModContents({
 
 		if (isBuild) {
 			// Allow overriding, mostly for testing
-			return dbInfo.type === 'studio'
-				? `import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL ?? ${dbStr}`
-				: `import.meta.env.ASTRO_DB_REMOTE_URL ?? ${dbStr}`;
+			return `import.meta.env.ASTRO_DB_REMOTE_URL ?? ${dbStr}`;
 		} else {
 			return dbStr;
 		}
@@ -177,9 +174,8 @@ export function getStudioVirtualModContents({
 import {asDrizzleTable, createRemoteDatabaseClient} from ${RUNTIME_IMPORT};
 
 export const db = await createRemoteDatabaseClient({
-  dbType: ${JSON.stringify(dbInfo.type)},
-  remoteUrl: ${dbUrlArg()},
-  appToken: ${appTokenArg()},
+  url: ${dbUrlArg()},
+  token: ${appTokenArg()},
 });
 
 export * from ${RUNTIME_VIRTUAL_IMPORT};
@@ -202,10 +198,9 @@ function getStringifiedTableExports(tables: DBTables) {
 const sqlite = new SQLiteAsyncDialect();
 
 async function recreateTables({ tables, root }: { tables: LateTables; root: URL }) {
-	const dbInfo = getRemoteDatabaseInfo();
 	const { ASTRO_DATABASE_FILE } = getAstroEnv();
 	const dbUrl = normalizeDatabaseUrl(ASTRO_DATABASE_FILE, new URL(DB_PATH, root).href);
-	const db = createLocalDatabaseClient({ dbUrl, enableTransactions: dbInfo.type === 'libsql' });
+	const db = createLocalDatabaseClient({ dbUrl });
 	const setupQueries: SQL[] = [];
 	for (const [name, table] of Object.entries(tables.get() ?? {})) {
 		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${sqlite.escapeName(name)}`);

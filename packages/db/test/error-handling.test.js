@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { loadFixture } from '../../astro/test/test-utils.js';
-import { setupRemoteDbServer } from './test-utils.js';
+import { setupRemoteDb } from './test-utils.js';
 
 const foreignKeyConstraintError =
 	'LibsqlError: SQLITE_CONSTRAINT_FOREIGNKEY: FOREIGN KEY constraint failed';
@@ -38,7 +38,7 @@ describe('astro:db - error handling', () => {
 		let remoteDbServer;
 
 		before(async () => {
-			remoteDbServer = await setupRemoteDbServer(fixture.config);
+			remoteDbServer = await setupRemoteDb(fixture.config);
 			await fixture.build();
 		});
 

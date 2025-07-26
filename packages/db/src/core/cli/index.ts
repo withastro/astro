@@ -41,18 +41,6 @@ export async function cli({
 			const { cmd } = await import('./commands/execute/index.js');
 			return await cmd({ astroConfig, dbConfig, flags });
 		}
-		case 'login': {
-			const { cmd } = await import('./commands/login/index.js');
-			return await cmd({ astroConfig, dbConfig, flags });
-		}
-		case 'logout': {
-			const { cmd } = await import('./commands/logout/index.js');
-			return await cmd();
-		}
-		case 'link': {
-			const { cmd } = await import('./commands/link/index.js');
-			return await cmd();
-		}
 		default: {
 			if (command != null) {
 				console.error(`Unknown command: ${command}`);
@@ -63,15 +51,15 @@ export async function cli({
 				headline: ' ',
 				tables: {
 					Commands: [
-						['push', 'Push table schema updates to Astro Studio.'],
-						['verify', 'Test schema updates /w Astro Studio (good for CI).'],
+						['push', 'Push table schema updates to libSQL.'],
+						['verify', 'Test schema updates with libSQL (good for CI).'],
 						[
 							'astro db execute <file-path>',
-							'Execute a ts/js file using astro:db. Use --remote to connect to Studio.',
+							'Execute a ts/js file using astro:db. Use --remote to connect to libSQL.',
 						],
 						[
 							'astro db shell --query <sql-string>',
-							'Execute a SQL string. Use --remote to connect to Studio.',
+							'Execute a SQL string. Use --remote to connect to libSQL.',
 						],
 					],
 				},

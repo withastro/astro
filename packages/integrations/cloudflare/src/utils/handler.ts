@@ -13,7 +13,6 @@ import { createGetEnv } from '../utils/env.js';
 type Env = {
 	[key: string]: unknown;
 	ASSETS: { fetch: (req: Request | string) => Promise<Response> };
-	ASTRO_STUDIO_APP_TOKEN?: string;
 };
 
 setGetEnv(createGetEnv(globalEnv as Env));
@@ -68,12 +67,6 @@ export async function handle(
 	}
 
 	Reflect.set(request, Symbol.for('astro.clientAddress'), request.headers.get('cf-connecting-ip'));
-
-	process.env.ASTRO_STUDIO_APP_TOKEN ??= (() => {
-		if (typeof env.ASTRO_STUDIO_APP_TOKEN === 'string') {
-			return env.ASTRO_STUDIO_APP_TOKEN;
-		}
-	})();
 
 	const locals: Runtime = {
 		runtime: {

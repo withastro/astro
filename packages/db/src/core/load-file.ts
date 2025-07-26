@@ -145,8 +145,6 @@ export async function bundleFile({
 		sourcemap: 'inline',
 		metafile: true,
 		define: {
-			'import.meta.env.ASTRO_STUDIO_REMOTE_DB_URL': 'undefined',
-			'import.meta.env.ASTRO_DB_REMOTE_DB_URL': 'undefined',
 			'import.meta.env.ASTRO_DATABASE_FILE': JSON.stringify(ASTRO_DATABASE_FILE ?? ''),
 		},
 		plugins: [

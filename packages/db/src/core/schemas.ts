@@ -94,7 +94,7 @@ const textColumnBaseSchema = baseColumnSchema
 			z.object({
 				// text primary key allows NULL values.
 				// NULL values bypass unique checks, which could
-				// lead to duplicate URLs per record in Astro Studio.
+				// lead to duplicate URLs per record.
 				// disable `optional` for primary keys.
 				primaryKey: z.literal(true),
 				optional: z.literal(false).optional(),
