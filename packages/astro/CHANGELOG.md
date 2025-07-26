@@ -1,5 +1,21 @@
 # astro
 
+## 5.12.4
+
+### Patch Changes
+
+- [#14031](https://github.com/withastro/astro/pull/14031) [`e9206c1`](https://github.com/withastro/astro/commit/e9206c192fc4a4dbf2d02f921fa540f987ccbe89) Thanks [@jp-knj](https://github.com/jp-knj)! - Optimized the build pipeline for SVG images. Now, Astro doesn't reprocess images that have already been processed.
+
+- [#14132](https://github.com/withastro/astro/pull/14132) [`976879a`](https://github.com/withastro/astro/commit/976879a400af9f44aee52c9112a7bd9788163588) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the property `Astro.routePattern`/`context.routePattern` wasn't updated when using a rewrite via middleware.
+
+- [#14131](https://github.com/withastro/astro/pull/14131) [`aafc4d7`](https://github.com/withastro/astro/commit/aafc4d7f8b3f198ace24a8a7f6cc9298771542da) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where an error occurring in a middleware would show the dev overlay instead of the custom `500.astro` page
+
+- [#14127](https://github.com/withastro/astro/pull/14127) [`2309ada`](https://github.com/withastro/astro/commit/2309ada1c6d96c75815eda0760656147de435ba2) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Upgrades zod
+
+- [#14134](https://github.com/withastro/astro/pull/14134) [`186c201`](https://github.com/withastro/astro/commit/186c201a1bd83593c880ab784d79f69245b445c2) Thanks [@ascorbic](https://github.com/ascorbic)! - Throws a more helpful error in dev if trying to use a server island without an adapter
+
+- [#14129](https://github.com/withastro/astro/pull/14129) [`3572d85`](https://github.com/withastro/astro/commit/3572d85ba89ef9c374f3631654eee704adf00e73) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the CSP headers was incorrectly added to a page when using an adapter.
+
 ## 5.12.3
 
 ### Patch Changes
