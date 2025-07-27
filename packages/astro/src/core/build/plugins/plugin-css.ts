@@ -81,10 +81,13 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						// and that's okay. We can use Rollup's default chunk strategy instead as these CSS
 						// are outside of the SSR build scope, which no dedupe is needed.
 						if (options.target === 'client') {
-							return internals.cssModuleToChunkIdMap.get(id)!;
+							// TODO: verify doc
+							// Find the chunkId for this CSS module in the server build.
+							// If it exists, we can use it to ensure the client build matches the server
+							// build and doesn't create a duplicate chunk.
+							return internals.cssModuleToChunkIdMap.get(id);
 						}
 
-						// TODO: ne pas inclures les css indépendants dans les chunks ici
 						const ctx = { getModuleInfo: meta.getModuleInfo };
 						for (const pageInfo of getParentModuleInfos(id, ctx)) {
 							if (hasAssetPropagationFlag(pageInfo.id)) {
@@ -95,8 +98,17 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 								return chunkId;
 							}
 						}
+						const parentPages = Array.from(getParentModuleInfos(id, ctx)).filter((info) =>
+							moduleIsTopLevelPage(info),
+						);
+
+						// TODO: doc
+						if (parentPages.length <= 1) {
+							console.warn('CSS MODULE used only by one page, no chunk created for it.');
+							return undefined;
+						}
+
 						const chunkId = createNameForParentPages(id, meta);
-						console.log('CSS chunkId:', chunkId, 'for', id);
 						internals.cssModuleToChunkIdMap.set(id, chunkId);
 						return chunkId;
 					}
@@ -105,13 +117,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		},
 
 		async generateBundle(_outputOptions, bundle) {
-			// Dans generateBundle du plugin CSS
-			for (const [fileName, chunk] of Object.entries(bundle)) {
-				if (fileName.endsWith('.css')) {
-					console.log('CSS output:', fileName);
-				}
-			}
-
 			for (const [, chunk] of Object.entries(bundle)) {
 				if (chunk.type !== 'chunk') continue;
 				if ('viteMetadata' in chunk === false) continue;
@@ -207,8 +212,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				)
 					return;
 
-				console.log('style option : ', inlineConfig, ' | limit : ', assetsInlineLimit);
-
 				const toBeInlined =
 					inlineConfig === 'always'
 						? true
@@ -252,6 +255,15 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					// CSS is already added to all used pages, we can delete it from the bundle
 					// and make sure no chunks reference it via `importedCss` (for Vite preloading)
 					// to avoid duplicate CSS.
+					delete bundle[id];
+					for (const chunk of Object.values(bundle)) {
+						if (chunk.type === 'chunk') {
+							chunk.viteMetadata?.importedCss?.delete(id);
+						}
+					}
+				} else if (!sheetAddedToPage) {
+					// TODO: comment for orphaned CSS assets
+					console.log(`Orphaned CSS asset removed: ${id}`); // Log de débugging utile
 					delete bundle[id];
 					for (const chunk of Object.values(bundle)) {
 						if (chunk.type === 'chunk') {
