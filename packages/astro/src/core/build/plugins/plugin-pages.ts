@@ -63,7 +63,6 @@ export function pluginPages(opts: StaticBuildOptions, internals: BuildInternals)
 		targets: ['server'],
 		hooks: {
 			'build:before': () => {
-				console.log('pluginPages:build:before');
 				return {
 					vitePlugin: vitePluginPages(opts, internals),
 				};
