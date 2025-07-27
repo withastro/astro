@@ -97,14 +97,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							}
 						}
 
-						const parentPages = Array.from(getParentModuleInfos(id, ctx)).filter((info) =>
-							moduleIsTopLevelPage(info),
-						);
-						// CSS module is used only by one page, so we doesn't need to create a chunk
-						if (parentPages.length <= 1) {
-							return undefined;
-						}
-
 						const chunkId = createNameForParentPages(id, meta);
 						internals.cssModuleToChunkIdMap.set(id, chunkId);
 						return chunkId;
