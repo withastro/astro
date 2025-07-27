@@ -27,10 +27,9 @@ export function pluginCSS(
 	internals: BuildInternals,
 ): AstroBuildPlugin {
 	return {
-		targets: ['server', 'client'],
+		targets: ['client', 'server'],
 		hooks: {
 			'build:before': ({ target }) => {
-				console.log('pluginCSS:build:before', target);
 				let plugins = rollupPluginAstroBuildCSS({
 					buildOptions: options,
 					internals,
@@ -81,7 +80,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						// and that's okay. We can use Rollup's default chunk strategy instead as these CSS
 						// are outside of the SSR build scope, which no dedupe is needed.
 						if (options.target === 'client') {
-							// TODO: verify doc
 							// Find the chunkId for this CSS module in the server build.
 							// If it exists, we can use it to ensure the client build matches the server
 							// build and doesn't create a duplicate chunk.
@@ -184,7 +182,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				(chunk) => chunk.type === 'asset' && chunk.name === 'style.css',
 			);
 
-			console.log('cssChunk :', cssChunk);
 			if (cssChunk === undefined) return;
 			for (const pageData of internals.pagesByKeys.values()) {
 				const cssToInfoMap = (pagesToCss[pageData.moduleSpecifier] ??= {});
@@ -201,10 +198,8 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 			assetsInlineLimit = config.build.assetsInlineLimit;
 		},
 		async generateBundle(_outputOptions, bundle) {
-			console.info('generateBundle');
 			const inlineConfig = settings.config.build.inlineStylesheets;
 			Object.entries(bundle).forEach(([id, stylesheet]) => {
-				console.log(' | id : ', id);
 				if (
 					stylesheet.type !== 'asset' ||
 					stylesheet.name?.endsWith('.css') !== true ||
@@ -218,8 +213,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						: inlineConfig === 'never'
 							? false
 							: shouldInlineAsset(stylesheet.source, stylesheet.fileName, assetsInlineLimit);
-
-				console.log('toBeInlined :', toBeInlined);
 
 				// there should be a single js object for each stylesheet,
 				// allowing the single reference to be shared and checked for duplicates
@@ -263,7 +256,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					}
 				} else if (!sheetAddedToPage) {
 					// TODO: comment for orphaned CSS assets
-					console.log(`Orphaned CSS asset removed: ${id}`); // Log de débugging utile
 					delete bundle[id];
 					for (const chunk of Object.values(bundle)) {
 						if (chunk.type === 'chunk') {

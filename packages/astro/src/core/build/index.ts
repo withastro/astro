@@ -70,8 +70,6 @@ export default async function build(
 
 	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
 
-	//console.log("settings :", settings);
-
 	if (inlineConfig.force) {
 		// isDev is always false, because it's interested in the build command, not the output type
 		await clearContentLayerCache({ settings, logger, fs, isDev: false });
