@@ -100,9 +100,8 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							moduleIsTopLevelPage(info),
 						);
 
-						// TODO: doc
+						// CSS module is used only by one page, so we doesn't need to create a chunk
 						if (parentPages.length <= 1) {
-							console.warn('CSS MODULE used only by one page, no chunk created for it.');
 							return undefined;
 						}
 
@@ -181,7 +180,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 			const cssChunk = Object.values(bundle).find(
 				(chunk) => chunk.type === 'asset' && chunk.name === 'style.css',
 			);
-
 			if (cssChunk === undefined) return;
 			for (const pageData of internals.pagesByKeys.values()) {
 				const cssToInfoMap = (pagesToCss[pageData.moduleSpecifier] ??= {});
@@ -244,18 +242,14 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					sheetAddedToPage = true;
 				}
 
-				if (toBeInlined && sheetAddedToPage) {
-					// CSS is already added to all used pages, we can delete it from the bundle
+				const wasInlined = toBeInlined && sheetAddedToPage;
+				const isOrphaned = !sheetAddedToPage;
+				if (wasInlined || isOrphaned) {
+					// wasInlined : CSS is already added to all used pages
+					// isOrphaned : CSS is already used in a merged chunk
+					// we can delete it from the bundle
 					// and make sure no chunks reference it via `importedCss` (for Vite preloading)
 					// to avoid duplicate CSS.
-					delete bundle[id];
-					for (const chunk of Object.values(bundle)) {
-						if (chunk.type === 'chunk') {
-							chunk.viteMetadata?.importedCss?.delete(id);
-						}
-					}
-				} else if (!sheetAddedToPage) {
-					// TODO: comment for orphaned CSS assets
 					delete bundle[id];
 					for (const chunk of Object.values(bundle)) {
 						if (chunk.type === 'chunk') {
