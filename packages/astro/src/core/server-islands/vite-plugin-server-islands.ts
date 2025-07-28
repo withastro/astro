@@ -2,12 +2,13 @@ import MagicString from 'magic-string';
 import type { ConfigEnv, ViteDevServer, Plugin as VitePlugin } from 'vite';
 import type { AstroPluginOptions } from '../../types/astro.js';
 import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 
 export const VIRTUAL_ISLAND_MAP_ID = '@astro-server-islands';
 const RESOLVED_VIRTUAL_ISLAND_MAP_ID = '\0' + VIRTUAL_ISLAND_MAP_ID;
 const serverIslandPlaceholder = "'$$server-islands$$'";
 
-export function vitePluginServerIslands({ settings, logger }: AstroPluginOptions): VitePlugin {
+export function vitePluginServerIslands({ settings }: AstroPluginOptions): VitePlugin {
 	let command: ConfigEnv['command'] = 'serve';
 	let viteServer: ViteDevServer | null = null;
 	const referenceIdMap = new Map<string, string>();
@@ -40,12 +41,8 @@ export function vitePluginServerIslands({ settings, logger }: AstroPluginOptions
 			for (const comp of astro.serverComponents) {
 				if (!settings.serverIslandNameMap.has(comp.resolvedPath)) {
 					if (!settings.adapter) {
-						logger.error(
-							'islands',
-							'You tried to render a server island without an adapter added to your project. An adapter is required to use the `server:defer` attribute on any component. Your project will fail to build unless you add an adapter or remove the attribute.',
-						);
+						throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
 					}
-
 					let name = comp.localName;
 					let idx = 1;
 

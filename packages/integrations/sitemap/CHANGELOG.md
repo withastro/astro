@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 3.4.2
+
+### Patch Changes
+
+- [#14127](https://github.com/withastro/astro/pull/14127) [`2309ada`](https://github.com/withastro/astro/commit/2309ada1c6d96c75815eda0760656147de435ba2) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Upgrades zod
+
 ## 3.4.1
 
 ### Patch Changes

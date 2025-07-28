@@ -45,7 +45,7 @@ export function createAppHandler(app: NodeApp): RequestHandler {
 		} else if (next) {
 			return next();
 		} else {
-			const response = await app.render(req);
+			const response = await app.render(req, { addCookieHeader: true });
 			await NodeApp.writeResponse(response, res);
 		}
 	};
