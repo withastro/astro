@@ -305,7 +305,9 @@ async function emitOptimizedImages(
 	},
 ) {
 	for (const node of nodeChildren) {
-		let isComponent = (node.type === 'tag' && node.tag === 'image') || (node.type === 'image' && ctx.hasDefaultImage);
+		let isComponent =
+			(node.type === 'tag' && node.tag === 'image') ||
+			(node.type === 'image' && ctx.hasDefaultImage);
 		// Support either a ![]() or {% image %} syntax, and handle the `src` attribute accordingly.
 		if ((node.type === 'image' || isComponent) && typeof node.attributes.src === 'string') {
 			let attributeName = isComponent ? 'src' : '__optimizedSrc';

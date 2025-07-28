@@ -8,8 +8,8 @@ const imageAssetsCustomFixture = new URL('./fixtures/image-assets-custom/', impo
 
 describe('Markdoc - Image assets', () => {
 	const configurations = [
-	  [imageAssetsFixture, 'Standard default image node rendering'],
-	  [imageAssetsCustomFixture, 'Custom default image node component'],
+		[imageAssetsFixture, 'Standard default image node rendering'],
+		[imageAssetsCustomFixture, 'Custom default image node component'],
 	];
 
 	for (const [root, description] of configurations) {
@@ -88,7 +88,10 @@ describe('Markdoc - Image assets', () => {
 				it('transforms aliased image paths to optimized path', async () => {
 					const html = await baseFixture.readFile('/index.html');
 					const { document } = parseHTML(html);
-					assert.match(document.querySelector('#alias > img')?.src, /^\/_astro\/cityscape.*\.webp$/);
+					assert.match(
+						document.querySelector('#alias > img')?.src,
+						/^\/_astro\/cityscape.*\.webp$/,
+					);
 				});
 
 				it('passes images inside image tags to configured image component', async () => {
