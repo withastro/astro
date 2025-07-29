@@ -1269,12 +1269,15 @@ test.describe('View Transitions', () => {
 		page,
 		astro,
 	}) => {
-		await page.goto(astro.resolveUrl('/form-one#test'));
+		let navigated
+		await page.goto(astro.resolveUrl('/form-with-hash#test'));
 		page.on('request', (request) => {
 			expect(request.method()).toBe('POST');
+			navigated = true
 		});
 		// Submit the form
 		await page.click('#submit');
+		expect(navigated).toBe(true)
 	});
 
 	test('Route announcer is invisible on page transition', async ({ page, astro }) => {
