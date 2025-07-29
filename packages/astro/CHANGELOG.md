@@ -1,5 +1,13 @@
 # astro
 
+## 5.12.5
+
+### Patch Changes
+
+- [#14059](https://github.com/withastro/astro/pull/14059) [`19f53eb`](https://github.com/withastro/astro/commit/19f53eb59dfeeff08078cec0a903c8722b5650ca) Thanks [@benosmac](https://github.com/benosmac)! - Fixes a bug in i18n implementation, where Astro didn't emit the correct pages when `fallback` is enabled, and a locale uses a catch-all route, e.g. `src/pages/es/[...catchAll].astro`
+
+- [#14155](https://github.com/withastro/astro/pull/14155) [`31822c3`](https://github.com/withastro/astro/commit/31822c3f0c8401e20129d0fc6bf8d1d670249265) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused an error "serverEntrypointModule[_start] is not a function" in some adapters
+
 ## 5.12.4
 
 ### Patch Changes
