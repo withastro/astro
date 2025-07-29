@@ -47,8 +47,8 @@ export async function setupRemoteDb(astroConfig) {
 			delete process.env.ASTRO_DB_REMOTE_URL;
 			delete process.env.ASTRO_DB_APP_TOKEN;
 			delete process.env.ASTRO_INTERNAL_TEST_REMOTE;
-			await unlink(url);
 			dbClient.close();
+			await unlink(url);
 		},
 	};
 }
