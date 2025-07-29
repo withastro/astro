@@ -3,6 +3,8 @@ import { readFile } from 'node:fs/promises';
 import { isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
+import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
+import { generateCspDigest } from '../../core/encryption.js';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
 import { AstroError, AstroErrorData, isAstroError } from '../../core/errors/index.js';
 import type { Logger } from '../../core/logger/core.js';
@@ -56,7 +58,7 @@ interface Options {
 }
 
 export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
-	if (!settings.config.experimental.fonts) {
+	if (sync || !settings.config.experimental.fonts) {
 		// This is required because the virtual module may be imported as
 		// a side effect
 		// TODO: remove once fonts are stabilized
@@ -171,6 +173,24 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		// to avoid locking memory
 		fontFileDataMap = res.fontFileDataMap;
 		consumableMap = res.consumableMap;
+
+		// Handle CSP
+		if (shouldTrackCspHashes(settings.config.experimental.csp)) {
+			const algorithm = getAlgorithm(settings.config.experimental.csp);
+
+			// Generate a hash for each style we generate
+			settings.injectedCsp.styleHashes.push(
+				...(await Promise.all(
+					[...consumableMap.values()].map((e) => generateCspDigest(e.css, algorithm)),
+				)),
+			);
+			const origins = urlResolver.getOrigins();
+			if (origins) {
+				settings.injectedCsp.directives.push(
+					...origins.map((e) => `font-src ${e === '/' ? "'self'" : e}` as const),
+				);
+			}
+		}
 	}
 
 	return {
@@ -271,7 +291,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 		},
 		async buildEnd() {
-			if (sync || settings.config.experimental.fonts!.length === 0) {
+			if (settings.config.experimental.fonts!.length === 0) {
 				cleanup();
 				return;
 			}

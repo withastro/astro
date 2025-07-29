@@ -150,6 +150,10 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		latestAstroVersion: undefined, // Will be set later if applicable when the dev server starts
 		injectedTypes: [],
 		buildOutput: undefined,
+		injectedCsp: {
+			directives: [],
+			styleHashes: [],
+		},
 	};
 }
 
