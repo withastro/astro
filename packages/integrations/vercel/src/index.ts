@@ -326,20 +326,6 @@ export default function vercelAdapter({
 `,
 								);
 							}
-							// Handle this case https://vercel.com/docs/project-configuration#legacy-spa-fallback
-							// The presence of this configuration might conflict with the usage of CSP
-							if (
-								experimentalStaticHeaders &&
-								vercelConfig.routes &&
-								vercelConfig.routes.length > 0
-							) {
-								const firstRoute = vercelConfig.routes[0];
-								if ('handle' in firstRoute && firstRoute['handle'] === 'filesystem') {
-									logger.warn(
-										'The use of \`{ "handle": "filesystem" }\` as first item of the list might not work well with CSP. You should consider moving it at the last place.',
-									);
-								}
-							}
 						} catch (_err) {
 							logger.warn(`Your "vercel.json" config is not a valid json file.`);
 						}
@@ -634,6 +620,20 @@ export default function vercelAdapter({
 						normalized.routes = [];
 					}
 					normalized.routes.push(...createConfigHeaders(_routeToHeaders, _config));
+				}
+
+				// We shift `{ "handle": "filesystem" }` to the last place, otherwise the
+				// static headers don't work as expected
+				if (experimentalStaticHeaders) {
+					if (normalized.routes && normalized.routes.length > 0) {
+						const firstRoute = normalized.routes[0];
+						if ('handle' in firstRoute && firstRoute.handle === 'filesystem') {
+							const fileSystemRoute = normalized.routes.shift();
+							if (fileSystemRoute) {
+								normalized.routes.push(fileSystemRoute);
+							}
+						}
+					}
 				}
 
 				// Output configuration
