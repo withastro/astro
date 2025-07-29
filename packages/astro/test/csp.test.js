@@ -304,6 +304,31 @@ describe('CSP', () => {
 		);
 	});
 
+	it('should generate hashes and directives for fonts', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+		});
+		await fixture.build();
+		const html = await fixture.readFile('/fonts/index.html');
+		const $ = cheerio.load(html);
+
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		// hash of the <style> content
+		assert.ok(
+			meta
+				.attr('content')
+				.toString()
+				.includes("'sha256-nwBrTaDGvHZ8RLycRsFujCJ4wH9WMDzXSWXAnIsiY/4='"),
+		);
+		// directive
+		assert.ok(
+			meta
+				.attr('content')
+				.toString()
+				.includes("font-src 'self'"),
+		);
+	});
+
 	it('should return CSP header inside a hook', async () => {
 		let routeToHeaders;
 		fixture = await loadFixture({
