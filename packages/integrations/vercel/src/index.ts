@@ -326,6 +326,20 @@ export default function vercelAdapter({
 `,
 								);
 							}
+							// Handle this case https://vercel.com/docs/project-configuration#legacy-spa-fallback
+							// The presence of this configuration might conflict with the usage of CSP
+							if (
+								experimentalStaticHeaders &&
+								vercelConfig.routes &&
+								vercelConfig.routes.length > 0
+							) {
+								const firstRoute = vercelConfig.routes[0];
+								if ('handle' in firstRoute && firstRoute['handle'] === 'filesystem') {
+									logger.warn(
+										'The use of \`{ "handle": "filesystem" }\` as first item of the list might not work well with CSP. You should consider moving it at the last place.',
+									);
+								}
+							}
 						} catch (_err) {
 							logger.warn(`Your "vercel.json" config is not a valid json file.`);
 						}
