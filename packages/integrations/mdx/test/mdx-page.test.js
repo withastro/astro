@@ -54,6 +54,14 @@ describe('MDX Page', () => {
 			const html = await fixture.readFile('/chinese-encoding-layout-manual/index.html');
 			assert.doesNotMatch(html, /<meta charset="utf-8"/);
 		});
+
+		it('renders MDX with key prop', async () => {
+			const html = await fixture.readFile('/index.html');
+			const { document } = parseHTML(html);
+
+			const keyTest = document.querySelector('#key-test');
+			assert.equal(keyTest.textContent, 'oranges');
+		});
 	});
 
 	describe('dev', () => {

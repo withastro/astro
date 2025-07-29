@@ -29,3 +29,4 @@ pnpm-lock.yaml
 **/*.jsx
 **/*.mjs
 **/*.cjs
+**/*.css

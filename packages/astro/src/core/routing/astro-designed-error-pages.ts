@@ -7,7 +7,7 @@ export const DEFAULT_404_ROUTE: RouteData = {
 	component: DEFAULT_404_COMPONENT,
 	generate: () => '',
 	params: [],
-	pattern: /\/404/,
+	pattern: /^\/404\/?$/,
 	prerender: false,
 	pathname: '/404',
 	segments: [[{ content: '404', dynamic: false, spread: false }]],

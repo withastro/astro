@@ -72,12 +72,19 @@ function transformSetDirectives(vnode: AstroVNode) {
 	}
 }
 
-function createVNode(type: any, props: Record<string, any>) {
+function createVNode(
+	type: any,
+	props: Record<string, any> = {},
+	key?: string | number,
+): AstroVNode {
+	if (key) {
+		props.key = key;
+	}
 	const vnode: AstroVNode = {
 		[Renderer]: 'astro:jsx',
 		[AstroJSX]: true,
 		type,
-		props: props ?? {},
+		props,
 	};
 	transformSetDirectives(vnode);
 	transformSlots(vnode);

@@ -138,5 +138,16 @@ describe('astro:assets - SVG Components', () => {
 				assert.equal($svg.attr('aria-description'), 'Some description');
 			});
 		});
+
+		describe('metadata', () => {
+			it('returns a serializable metadata object', async () => {
+				let res = await fixture.fetch('/serialize.json');
+				let json = await res.json();
+				assert.equal(json.image.format, 'svg');
+				assert.equal(json.image.width, 85);
+				assert.equal(json.image.height, 107);
+				assert.ok(json.image.src.startsWith('/'));
+			});
+		});
 	});
 });

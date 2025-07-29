@@ -539,8 +539,10 @@ export default function netlifyIntegration(
 			get cookies(): never {
 				throw new Error('Please use Astro.cookies instead.');
 			},
-			// @ts-expect-error This is not currently included in the public Netlify types
-			flags: undefined,
+			flags: {
+				get: () => undefined,
+				evaluations: new Set<string>(),
+			} as unknown as Context['flags'],
 			json: (input) => Response.json(input),
 			log: console.info,
 			next: () => {

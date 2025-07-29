@@ -1,3 +1,4 @@
+import type { HydratedComponent } from '@astrojs/compiler/types';
 import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
@@ -35,6 +36,8 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 	// Variables for determining if an id starts with /src...
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
 	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb) && srcRootWeb !== '/';
+	const notAstroComponent = (component: HydratedComponent) =>
+		!component.resolvedPath.endsWith('.astro');
 
 	const prePlugin: vite.Plugin = {
 		name: 'astro:build',
@@ -228,8 +231,10 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			const transformResult = await compile(source, filename);
 
 			const astroMetadata: AstroPluginMetadata['astro'] = {
-				clientOnlyComponents: transformResult.clientOnlyComponents,
-				hydratedComponents: transformResult.hydratedComponents,
+				// Remove Astro components that have been mistakenly given client directives
+				// We'll warn the user about this later, but for now we'll prevent them from breaking the build
+				clientOnlyComponents: transformResult.clientOnlyComponents.filter(notAstroComponent),
+				hydratedComponents: transformResult.hydratedComponents.filter(notAstroComponent),
 				serverComponents: transformResult.serverComponents,
 				scripts: transformResult.scripts,
 				containsHead: transformResult.containsHead,

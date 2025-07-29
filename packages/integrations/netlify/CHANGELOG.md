@@ -1,5 +1,23 @@
 # @astrojs/netlify
 
+## 6.5.3
+
+### Patch Changes
+
+- [#14120](https://github.com/withastro/astro/pull/14120) [`798b5fa`](https://github.com/withastro/astro/commit/798b5fa022b19ab048c3b67dfc9880f785ce51be) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds mock feature flags in dev
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.5.2
+
+### Patch Changes
+
+- [#14103](https://github.com/withastro/astro/pull/14103) [`69d6871`](https://github.com/withastro/astro/commit/69d6871e2af80903be50173b21743234911738b8) Thanks [@ascorbic](https://github.com/ascorbic)! - Upgrades Netlify Vite plugin to fix error in edge functions.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 6.5.1
 
 ### Patch Changes
@@ -289,13 +307,11 @@ While not required for fully static, prerendered web sites, you may still wish t
 - [#13194](https://github.com/withastro/astro/pull/13194) [`1b5037b`](https://github.com/withastro/astro/commit/1b5037bd77d77817e5f821aee8ceccb49b00e0d9) Thanks [@dfdez](https://github.com/dfdez)! - Adds `includedFiles` and `excludedFiles` configuration options to customize SSR function bundle contents.
 
   The `includeFiles` property allows you to explicitly specify additional files that should be bundled with your function. This is useful for files that aren't automatically detected as dependencies, such as:
-
   - Data files loaded using `fs` operations
   - Configuration files
   - Template files
 
   Similarly, you can use the `excludeFiles` property to prevent specific files from being bundled that would otherwise be included. This is helpful for:
-
   - Reducing bundle size
   - Excluding large binaries
   - Preventing unwanted files from being deployed
@@ -1233,12 +1249,10 @@ While not required for fully static, prerendered web sites, you may still wish t
 
   > **Note**
   > This API is not yet stable and is subject to possible breaking changes!
-
   - Deploy an Astro server without sacrificing the speed or cacheability of static HTML.
   - The Prerender API allows you to statically prerender specific `pages/` at build time.
 
   **Usage**
-
   - First, run `astro build --experimental-prerender` or enable `experimental: { prerender: true }` in your `astro.config.mjs` file.
   - Then, include `export const prerender = true` in any file in the `pages/` directory that you wish to prerender.
 
@@ -1395,7 +1409,6 @@ While not required for fully static, prerendered web sites, you may still wish t
 - [#4015](https://github.com/withastro/astro/pull/4015) [`6fd161d76`](https://github.com/withastro/astro/commit/6fd161d7691cbf9d3ffa4646e46059dfd0940010) Thanks [@matthewp](https://github.com/matthewp)! - New `output` configuration option
 
   This change introduces a new "output target" configuration option (`output`). Setting the output target lets you decide the format of your final build, either:
-
   - `"static"` (default): A static site. Your final build will be a collection of static assets (HTML, CSS, JS) that you can deploy to any static site host.
   - `"server"`: A dynamic server application. Your final build will be an application that will run in a hosted server environment, generating HTML dynamically for different requests.
 
@@ -1552,7 +1565,6 @@ While not required for fully static, prerendered web sites, you may still wish t
 ### Minor Changes
 
 - [`732ea388`](https://github.com/withastro/astro/commit/732ea3881e216f0e6de3642c549afd019d32409f) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Improve the Netlify adapter:
-
   1. Remove `site` config requirement
   2. Fix an issue where query params were being stripped
   3. Pass the event body to the request object

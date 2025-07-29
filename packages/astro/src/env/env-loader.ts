@@ -47,11 +47,22 @@ function getPrivateEnv(
 	return privateEnv;
 }
 
-export const createEnvLoader = (mode: string, config: AstroConfig, useRawValues: boolean) => {
+function getEnv(mode: string, config: AstroConfig, useRawValues: boolean) {
 	const loaded = loadEnv(mode, config.vite.envDir ?? fileURLToPath(config.root), '');
 	const privateEnv = getPrivateEnv(loaded, config, useRawValues);
+
+	return { loaded, privateEnv };
+}
+
+export const createEnvLoader = (mode: string, config: AstroConfig, useRawValues: boolean) => {
+	let { loaded, privateEnv } = getEnv(mode, config, useRawValues);
 	return {
-		get: () => loaded,
+		get: () => {
+			// We refresh the env we have in case process.env has been updated since creating
+			// the env loader. That can happen in eg. integrations
+			({ loaded, privateEnv } = getEnv(mode, config, useRawValues));
+			return loaded;
+		},
 		getPrivateEnv: () => privateEnv,
 	};
 };

@@ -244,7 +244,6 @@
 ### Minor Changes
 
 - [#5851](https://github.com/withastro/astro/pull/5851) [`81dce94f2`](https://github.com/withastro/astro/commit/81dce94f2a6db598bd9e47fc2a4b9d713e58f286) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Update RSS config for readability and consistency with Astro 2.0.
-
   - **Migration - `import.meta.glob()` handling**
 
     We have deprecated `items: import.meta.glob(...)` handling in favor of a separate `pagesGlobToRssItems()` helper. This simplifies our `items` configuration option to accept a single type, without losing existing functionality.
@@ -289,7 +288,6 @@
 ### Minor Changes
 
 - [#5851](https://github.com/withastro/astro/pull/5851) [`81dce94f2`](https://github.com/withastro/astro/commit/81dce94f2a6db598bd9e47fc2a4b9d713e58f286) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Update RSS config for readability and consistency with Astro 2.0.
-
   - **Migration - `import.meta.glob()` handling**
 
     We have deprecated `items: import.meta.glob(...)` handling in favor of a separate `pagesGlobToRssItems()` helper. This simplifies our `items` configuration option to accept a single type, without losing existing functionality.

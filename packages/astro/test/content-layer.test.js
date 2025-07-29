@@ -414,6 +414,16 @@ describe('Content Layer', () => {
 			assert.ok(logs.find((log) => log.level === 'warn' && log.message.includes('does not exist')));
 		});
 
+		it('warns about duplicate IDs in file() loader arrays', () => {
+			assert.ok(
+				logs.find(
+					(log) =>
+						log.level === 'warn' &&
+						log.message.includes('Duplicate id "german-shepherd" found in src/data/dogs.json'),
+				),
+			);
+		});
+
 		it("warns about missing files in glob() loader's path", async () => {
 			assert.ok(
 				logs.find((log) => log.level === 'warn' && log.message.includes('No files found matching')),

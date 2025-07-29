@@ -29,6 +29,11 @@ export function createSvgComponent({ meta, attributes, children }: SvgComponentP
 		});
 	}
 
+	Object.defineProperty(Component, 'toJSON', {
+		value: () => meta,
+		enumerable: false,
+	});
+
 	// Attaching the metadata to the component to maintain current functionality
 	return Object.assign(Component, meta);
 }

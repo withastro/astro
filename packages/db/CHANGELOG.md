@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.15.1
+
+### Patch Changes
+
+- [#14127](https://github.com/withastro/astro/pull/14127) [`2309ada`](https://github.com/withastro/astro/commit/2309ada1c6d96c75815eda0760656147de435ba2) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Upgrades zod
+
 ## 0.15.0
 
 ### Minor Changes
@@ -196,7 +202,6 @@
 - [#11385](https://github.com/withastro/astro/pull/11385) [`d6611e8`](https://github.com/withastro/astro/commit/d6611e8bb05e7d913aeb5e59e90906b8b919d48e) Thanks [@Fryuni](https://github.com/Fryuni)! - Adds support for connecting Astro DB to any remote LibSQL server. This allows Astro DB to be used with self-hosting and air-gapped deployments.
 
   To connect Astro DB to a remote LibSQL server instead of Studio, set the following environment variables:
-
   - `ASTRO_DB_REMOTE_URL`: the connection URL to your LibSQL server
   - `ASTRO_DB_APP_TOKEN`: the auth token to your LibSQL server
 
