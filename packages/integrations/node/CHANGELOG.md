@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 9.3.1
+
+### Patch Changes
+
+- [#14148](https://github.com/withastro/astro/pull/14148) [`e4d74ba`](https://github.com/withastro/astro/commit/e4d74bac7f9a86c0499e31699fb48302060ee747) Thanks [@ColoredCarrot](https://github.com/ColoredCarrot)! - fix(node): emit set-cookie header from middlewares for not-found routes (#14136)
+
 ## 9.3.0
 
 ### Minor Changes
