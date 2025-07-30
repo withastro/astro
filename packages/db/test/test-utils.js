@@ -10,7 +10,9 @@ const isWindows = process.platform === 'win32';
  * @param {import('astro').AstroConfig} astroConfig
  */
 export async function setupRemoteDb(astroConfig) {
-	const url = new URL(`./${Date.now()}.db`, isWindows ? astroConfig.outDir : astroConfig.root);
+	const url = isWindows
+		? new URL(`./.astro/${Date.now()}.db`, astroConfig.root)
+		: new URL(`./${Date.now()}.db`, astroConfig.root);
 	const token = 'foo';
 	process.env.ASTRO_DB_REMOTE_URL = url.toString();
 	process.env.ASTRO_DB_APP_TOKEN = token;
