@@ -2,5 +2,5 @@
 'astro': patch
 ---
 
-fix(assets): always register duplicate SVG handles so Rollup can resolve them  
+Fixes a regression introduced by a recent optimisation of how SVG images are emitted during the build. 
 
