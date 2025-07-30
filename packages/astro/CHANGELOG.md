@@ -1,5 +1,17 @@
 # astro
 
+## 5.12.6
+
+### Patch Changes
+
+- [#14153](https://github.com/withastro/astro/pull/14153) [`29e9283`](https://github.com/withastro/astro/commit/29e928391a90844f8b701a581c4f163e0b6c46db) Thanks [@jp-knj](https://github.com/jp-knj)! - Fixes a regression introduced by a recent optimisation of how SVG images are emitted during the build.
+
+- [#14156](https://github.com/withastro/astro/pull/14156) [`592f08d`](https://github.com/withastro/astro/commit/592f08d1b4a3e03c61b34344e36cb772bd67709a) Thanks [@TheOtterlord](https://github.com/TheOtterlord)! - Fix the client router not submitting forms if the active URL contained a hash
+
+- [#14160](https://github.com/withastro/astro/pull/14160) [`d2e25c6`](https://github.com/withastro/astro/commit/d2e25c6e9d52160d4f8d8cbf7bc44e6794483f20) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that meant some remote image URLs could cause invalid filenames to be used for processed images
+
+- [#14167](https://github.com/withastro/astro/pull/14167) [`62bd071`](https://github.com/withastro/astro/commit/62bd0717ab810c049ed7f3f63029895dfb402797) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that prevented destroyed sessions from being deleted from storage unless the session had been loaded
+
 ## 5.12.5
 
 ### Patch Changes

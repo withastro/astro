@@ -1,5 +1,11 @@
 # @astrojs/upgrade
 
+## 0.6.1
+
+### Patch Changes
+
+- [#14158](https://github.com/withastro/astro/pull/14158) [`89e9364`](https://github.com/withastro/astro/commit/89e9364ba0121424f03f7eb959416371c26f38e3) Thanks [@bjohansebas](https://github.com/bjohansebas)! - Prevents deprecation warnings in Node 24
+
 ## 0.6.0
 
 ### Minor Changes
