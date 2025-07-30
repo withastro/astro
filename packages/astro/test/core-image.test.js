@@ -904,7 +904,7 @@ describe('astro:image', () => {
 				root: './fixtures/core-image-ssg/',
 				image: {
 					service: testImageService(),
-					domains: ['astro.build', 'avatars.githubusercontent.com', 'server-islands.com'],
+					domains: ['astro.build', 'avatars.githubusercontent.com', 'kaleidoscopic-biscotti-6fe98c.netlify.app'],
 				},
 			});
 			// Remove cache directory
