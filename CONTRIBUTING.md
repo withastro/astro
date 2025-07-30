@@ -239,7 +239,7 @@ graph TD;
     start --YES--> dupe{Is duplicate?}
     dupe --YES--> close2[Close and point <br/> to duplicate.]
     dupe --NO--> repro{Has proper <br/> reproduction?}
-    repro --NO--> close3[Add&nbsp;label:&nbsp;'needs&nbsp;discussion'. <br/> Bot will auto close if no <br/>update was made in 3 days.]
+    repro --NO--> close3[Add&nbsp;label:&nbsp;'needs&nbsp;repro'. <br/> Bot will auto close if no <br/>update was made in 3 days.]
     repro --YES--> real{Is actually a bug?}
     real --NO--> maybefeat{Is it a feature request?}
     maybefeat -- YES --> roadmap[Close the issue. <br/> Point user to the roadmap.]
