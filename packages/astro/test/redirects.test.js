@@ -345,4 +345,22 @@ describe('Astro.redirect', () => {
 			assert.equal(secretHtml.includes('url=/login'), true);
 		});
 	});
+
+	describe('should fail for redirects that cannot be mapped ', () => {
+		it('should fail for redirects that cannot be mapped', async () => {
+			fixture = await loadFixture({
+				root: './fixtures/redirects/',
+				output: 'static',
+				redirects: {
+					'/old/[category]/': '/old/[category]/[slug]',
+				},
+			});
+			try {
+				await fixture.build();
+				assert.fail('Expected build to fail');
+			} catch {
+				assert.ok(true);
+			}
+		});
+	});
 });
