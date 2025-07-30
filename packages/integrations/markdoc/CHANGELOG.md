@@ -1,5 +1,11 @@
 # @astrojs/markdoc
 
+## 0.15.2
+
+### Patch Changes
+
+- [#14147](https://github.com/withastro/astro/pull/14147) [`211968c`](https://github.com/withastro/astro/commit/211968ceb54964457f9a5eefa4c10a65e0f0c714) Thanks [@birtles](https://github.com/birtles)! - Recognize a custom default image node component
+
 ## 0.15.1
 
 ### Patch Changes
