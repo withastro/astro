@@ -1,5 +1,4 @@
-import { defineLiveCollection } from 'astro:content';
-import { z } from 'astro/zod';
+import { defineLiveCollection, z } from 'astro:content';
 import type { LiveLoader } from 'astro/loaders';
 
 type Entry = {
@@ -77,7 +76,6 @@ const loader: LiveLoader<Entry, EntryFilter, CollectionFilter, CustomError> = {
 };
 
 const liveStuff = defineLiveCollection({
-	type: 'live',
 	loader,
 	schema: z.object({
 		title: z.string(),

@@ -1,5 +1,52 @@
 # @astrojs/node
 
+## 9.3.1
+
+### Patch Changes
+
+- [#14148](https://github.com/withastro/astro/pull/14148) [`e4d74ba`](https://github.com/withastro/astro/commit/e4d74bac7f9a86c0499e31699fb48302060ee747) Thanks [@ColoredCarrot](https://github.com/ColoredCarrot)! - fix(node): emit set-cookie header from middlewares for not-found routes (#14136)
+
+## 9.3.0
+
+### Minor Changes
+
+- [#14012](https://github.com/withastro/astro/pull/14012) [`a125a14`](https://github.com/withastro/astro/commit/a125a14c51c8f66fef0b582e5daf90ff02fce821) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new experimental configuration option `experimentalDisableStreaming` to allow you to opt out of Astro's default [HTML streaming](https://docs.astro.build/en/guides/on-demand-rendering/#html-streaming) for pages rendered on demand.
+
+  HTML streaming helps with performance and generally provides a better visitor experience. In most cases, disabling streaming is not recommended.
+
+  However, when you need to disable HTML streaming (e.g. your host only supports non-streamed HTML caching at the CDN level), you can now opt out of the default behavior:
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+  import node from '@astrojs/node';
+
+  export default defineConfig({
+    adapter: node({
+      mode: 'standalone',
+  +    experimentalDisableStreaming: true,
+    }),
+  });
+  ```
+
+- [#13972](https://github.com/withastro/astro/pull/13972) [`db8f8be`](https://github.com/withastro/astro/commit/db8f8becc9508fa4f292d45c14af92ba59c414d1) Thanks [@ematipico](https://github.com/ematipico)! - Adds support for the [experimental static headers Astro feature](https://docs.astro.build/en/reference/adapter-reference/#experimentalstaticheaders).
+
+  When the feature is enabled via the option `experimentalStaticHeaders`, and [experimental Content Security Policy](https://docs.astro.build/en/reference/experimental-flags/csp/) is enabled, the adapter will generate `Response` headers for static pages, which allows support for CSP directives that are not supported inside a `<meta>` tag (e.g. `frame-ancestors`).
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import node from '@astrojs/node';
+
+  export default defineConfig({
+    adapter: node({
+      mode: 'standalone',
+      experimentalStaticHeaders: true,
+    }),
+    experimental: {
+      cps: true,
+    },
+  });
+  ```
+
 ## 9.2.2
 
 ### Patch Changes
@@ -1027,7 +1074,6 @@
 - [#4015](https://github.com/withastro/astro/pull/4015) [`6fd161d76`](https://github.com/withastro/astro/commit/6fd161d7691cbf9d3ffa4646e46059dfd0940010) Thanks [@matthewp](https://github.com/matthewp)! - New `output` configuration option
 
   This change introduces a new "output target" configuration option (`output`). Setting the output target lets you decide the format of your final build, either:
-
   - `"static"` (default): A static site. Your final build will be a collection of static assets (HTML, CSS, JS) that you can deploy to any static site host.
   - `"server"`: A dynamic server application. Your final build will be an application that will run in a hosted server environment, generating HTML dynamically for different requests.
 

@@ -1095,6 +1095,10 @@ describe('[SSG] i18n routing', () => {
 			let html = await fixture.readFile('/es/page/page-1/index.html');
 			assert.equal(html.includes('page/page-1'), true);
 		});
+		it('should rewrite a fallback route when a dynamic spread route exists in the locale folder', async () => {
+			let html = await fixture.readFile('/es/test/index.html');
+			assert.equal(html.includes('test'), true);
+		});
 	});
 
 	describe('i18n routing with fallback rewrite from dynamic route and config.build.format: file', () => {
@@ -1122,6 +1126,10 @@ describe('[SSG] i18n routing', () => {
 		it('should rewrite dynamic fallback route with rest parameter and different depths', async () => {
 			let html = await fixture.readFile('/es/page/page-1.html');
 			assert.equal(html.includes('page/page-1'), true);
+		});
+		it('should rewrite a fallback route when a dynamic spread route exists in the locale folder', async () => {
+			let html = await fixture.readFile('/es/test.html');
+			assert.equal(html.includes('test'), true);
 		});
 	});
 
@@ -2261,6 +2269,40 @@ describe('Fallback rewrite SSR', () => {
 	});
 });
 
+describe('Fallback rewrite hybrid', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let app;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-routing-fallback-rewrite-hybrid/',
+			output: 'server',
+			adapter: testAdapter(),
+		});
+		await fixture.build();
+		app = await fixture.loadTestAdapterApp();
+	});
+
+	it('should correctly prerender es index', async () => {
+		const html = await fixture.readFile('/client/es/index.html');
+		assert.match(html, /ES index/);
+	});
+
+	it('should correctly prerender fallback locale paths with path parameters', async () => {
+		const html = await fixture.readFile('/client/es/slug-1/index.html');
+		assert.match(html, /slug-1 - es/);
+	});
+
+	it('should rewrite fallback locale paths for ssr pages', async () => {
+		let request = new Request('http://example.com/es/about');
+		let response = await app.render(request);
+		assert.equal(response.status, 200);
+		const text = await response.text();
+		assert.match(text, /about - es/);
+	});
+});
+
 describe('i18n routing with server islands', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
@@ -2270,6 +2312,7 @@ describe('i18n routing with server islands', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/i18n-server-island/',
+			adapter: testAdapter(),
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -2297,6 +2340,7 @@ describe('i18n routing with server islands and base path', () => {
 		fixture = await loadFixture({
 			root: './fixtures/i18n-server-island/',
 			base: '/custom',
+			adapter: testAdapter(),
 		});
 		devServer = await fixture.startDevServer();
 	});

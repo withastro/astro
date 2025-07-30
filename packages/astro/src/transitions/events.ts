@@ -178,9 +178,16 @@ export async function doPreparation(
 	return event;
 }
 
-export function doSwap(afterPreparation: BeforeEvent, viewTransition: ViewTransition) {
+export async function doSwap(
+	afterPreparation: BeforeEvent,
+	viewTransition: ViewTransition,
+	afterDispatch?: () => Promise<void>,
+) {
 	const event = new TransitionBeforeSwapEvent(afterPreparation, viewTransition);
 	document.dispatchEvent(event);
+	if (afterDispatch) {
+		await afterDispatch();
+	}
 	event.swap();
 	return event;
 }

@@ -21,7 +21,7 @@ export type {
 	UnresolvedImageTransform,
 } from '../../assets/types.js';
 export type { ContainerRenderer } from '../../container/index.js';
-export type { AssetsPrefix, SSRManifest } from '../../core/app/types.js';
+export type { AssetsPrefix, NodeAppHeadersJson, SSRManifest } from '../../core/app/types.js';
 export type {
 	AstroCookieGetOptions,
 	AstroCookieSetOptions,

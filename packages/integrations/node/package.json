@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/node",
   "description": "Deploy your site to a Node.js server",
-  "version": "9.2.2",
+  "version": "9.3.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -27,6 +27,7 @@
     "dist"
   ],
   "scripts": {
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "test": "astro-scripts test \"test/**/*.test.js\""

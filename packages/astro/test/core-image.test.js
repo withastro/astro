@@ -114,6 +114,13 @@ describe('astro:image', () => {
 				assert.equal(res.headers.get('content-type'), 'image/webp');
 			});
 
+			it('includes priority loading attributes', () => {
+				let $img = $('#priority img');
+				assert.equal($img.attr('loading'), 'eager');
+				assert.equal($img.attr('decoding'), 'sync');
+				assert.equal($img.attr('fetchpriority'), 'high');
+			});
+
 			it('properly skip processing SVGs, but does not error', async () => {
 				let res = await fixture.fetch('/svgSupport');
 				let html = await res.text();
@@ -341,6 +348,56 @@ describe('astro:image', () => {
 					]).size,
 					2,
 				);
+			});
+
+			it('has proper srcset urls when w and h of 2x should be the same as original', async () => {
+				let res = await fixture.fetch('/srcset');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				const originalWidth = 600;
+				const originalHeight = 400;
+				const local2xOriginalWH = $('#local-2x-original-wh img');
+
+				const srcURL = new URL(local2xOriginalWH.attr('src'), 'http://localhost');
+				const srcParams = srcURL.searchParams;
+				assert.equal(srcParams.get('w'), (originalWidth / 2).toString());
+				assert.equal(srcParams.get('h'), (originalHeight / 2).toString());
+				assert.equal(srcParams.get('f'), 'webp');
+
+				const parsedSrcsets = parseSrcset(local2xOriginalWH.attr('srcset'));
+				const srcset2x = parsedSrcsets.find((a) => a.d === 2);
+				assert(srcset2x);
+				const srcset2xURL = new URL(srcset2x.url, 'http://localhost');
+				const srcset2xParams = srcset2xURL.searchParams;
+				assert.equal(srcset2xParams.get('w'), originalWidth.toString());
+				assert.equal(srcset2xParams.get('h'), originalHeight.toString());
+				assert.equal(srcset2xParams.get('f'), 'webp');
+			});
+
+			it('has proper srcset urls when w, h and f of 2x should be the same as original', async () => {
+				let res = await fixture.fetch('/srcset');
+				let html = await res.text();
+				$ = cheerio.load(html);
+
+				const originalWidth = 600;
+				const originalHeight = 400;
+				const local2xOriginalWHF = $('#local-2x-original-whf img');
+
+				const srcURL = new URL(local2xOriginalWHF.attr('src'), 'http://localhost');
+				const srcParams = srcURL.searchParams;
+				assert.equal(srcParams.get('w'), (originalWidth / 2).toString());
+				assert.equal(srcParams.get('h'), (originalHeight / 2).toString());
+				assert.equal(srcParams.get('f'), 'jpg');
+
+				const parsedSrcsets = parseSrcset(local2xOriginalWHF.attr('srcset'));
+				const srcset2x = parsedSrcsets.find((a) => a.d === 2);
+				assert(srcset2x);
+				const srcset2xURL = new URL(srcset2x.url, 'http://localhost');
+				const srcset2xParams = srcset2xURL.searchParams;
+				assert.equal(srcset2xParams.get('w'), originalWidth.toString());
+				assert.equal(srcset2xParams.get('h'), originalHeight.toString());
+				assert.equal(srcset2xParams.get('f'), 'jpg');
 			});
 		});
 

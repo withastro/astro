@@ -2,7 +2,6 @@ import { cpSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { emptyDir, removeDir, writeJson } from '@astrojs/internal-helpers/fs';
-import { createHostedRouteDefinition } from '@astrojs/underscore-redirects';
 import {
 	getTransformedRoutes,
 	type Header,
@@ -16,6 +15,7 @@ import type {
 	AstroIntegrationLogger,
 	HookParameters,
 	IntegrationResolvedRoute,
+	RouteToHeaders,
 } from 'astro';
 import { AstroError } from 'astro/errors';
 import { globSync } from 'tinyglobby';
@@ -64,15 +64,36 @@ const ISR_PATH = `/_isr?${ASTRO_PATH_PARAM}=$0`;
 // https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/node-js#node.js-version
 const SUPPORTED_NODE_VERSIONS: Record<
 	string,
-	| { status: 'default' }
-	| { status: 'available' }
-	| { status: 'beta' }
-	| { status: 'retiring'; removal: Date | string; warnDate: Date }
-	| { status: 'deprecated'; removal: Date }
+	| {
+			status: 'default';
+	  }
+	| {
+			status: 'available';
+	  }
+	| {
+			status: 'beta';
+	  }
+	| {
+			status: 'retiring';
+			removal: Date | string;
+			warnDate: Date;
+	  }
+	| {
+			status: 'deprecated';
+			removal: Date;
+	  }
 > = {
-	18: { status: 'retiring', removal: 'Early 2025', warnDate: new Date('October 1 2024') },
-	20: { status: 'available' },
-	22: { status: 'default' },
+	18: {
+		status: 'retiring',
+		removal: new Date('September 1 2025'),
+		warnDate: new Date('October 1 2024'),
+	},
+	20: {
+		status: 'available',
+	},
+	22: {
+		status: 'default',
+	},
 };
 
 function getAdapter({
@@ -92,7 +113,10 @@ function getAdapter({
 		name: PACKAGE_NAME,
 		serverEntrypoint: `${PACKAGE_NAME}/entrypoint`,
 		exports: ['default'],
-		args: { middlewareSecret, skewProtection },
+		args: {
+			middlewareSecret,
+			skewProtection,
+		},
 		adapterFeatures: {
 			edgeMiddleware,
 			buildOutput,
@@ -192,10 +216,14 @@ export default function vercelAdapter({
 }: VercelServerlessConfig = {}): AstroIntegration {
 	if (maxDuration) {
 		if (typeof maxDuration !== 'number') {
-			throw new TypeError(`maxDuration must be a number`, { cause: maxDuration });
+			throw new TypeError(`maxDuration must be a number`, {
+				cause: maxDuration,
+			});
 		}
 		if (maxDuration <= 0) {
-			throw new TypeError(`maxDuration must be a positive number`, { cause: maxDuration });
+			throw new TypeError(`maxDuration must be a positive number`, {
+				cause: maxDuration,
+			});
 		}
 	}
 
@@ -204,7 +232,7 @@ export default function vercelAdapter({
 	let _serverEntry: string;
 	let _entryPoints: Map<Pick<IntegrationResolvedRoute, 'entrypoint' | 'patternRegex'>, URL>;
 	let _middlewareEntryPoint: URL | undefined;
-	let _routeToHeaders: Map<IntegrationResolvedRoute, Headers> | undefined = undefined;
+	let _routeToHeaders: RouteToHeaders | undefined = undefined;
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
 	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
@@ -448,7 +476,10 @@ export default function vercelAdapter({
 								const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 								for (const route of expandedExclusions) {
 									// vercel interprets src as a regex pattern, so we need to escape it
-									routeDefinitions.push({ src: escapeRegex(route), dest });
+									routeDefinitions.push({
+										src: escapeRegex(route),
+										dest,
+									});
 								}
 							}
 							await builder.buildISRFolder(entryFile, '_isr', isrConfig, _config.root);
@@ -468,7 +499,11 @@ export default function vercelAdapter({
 										src.startsWith('^\\/_image') || src.startsWith('^\\/_server-islands')
 											? NODE_PATH
 											: ISR_PATH;
-									if (!route.isPrerendered) routeDefinitions.push({ src, dest });
+									if (!route.isPrerendered)
+										routeDefinitions.push({
+											src,
+											dest,
+										});
 								}
 							}
 						} else {
@@ -476,7 +511,10 @@ export default function vercelAdapter({
 							const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 							for (const route of routes) {
 								if (!route.isPrerendered)
-									routeDefinitions.push({ src: route.patternRegex.source, dest });
+									routeDefinitions.push({
+										src: route.patternRegex.source,
+										dest,
+									});
 							}
 						}
 					}
@@ -493,7 +531,9 @@ export default function vercelAdapter({
 				const finalRoutes: Route[] = [
 					{
 						src: `^/${_config.build.assets}/(.*)$`,
-						headers: { 'cache-control': 'public, max-age=31536000, immutable' },
+						headers: {
+							'cache-control': 'public, max-age=31536000, immutable',
+						},
 						continue: true,
 					},
 				];
@@ -546,22 +586,23 @@ export default function vercelAdapter({
 				}
 
 				let images: VercelImageConfig | undefined;
-				if (imageService || imagesConfig) {
-					if (imagesConfig) {
-						images = {
-							...imagesConfig,
-							domains: [...imagesConfig.domains, ..._config.image.domains],
-							remotePatterns: [...(imagesConfig.remotePatterns ?? [])],
-						};
-						const remotePatterns = _config.image.remotePatterns;
-						for (const pattern of remotePatterns) {
-							if (isAcceptedPattern(pattern)) {
-								images.remotePatterns?.push(pattern);
-							}
+				if (imagesConfig) {
+					images = {
+						...imagesConfig,
+						domains:
+							imagesConfig.domains || _config.image.domains
+								? [...(imagesConfig.domains ?? []), ...(_config.image.domains ?? [])]
+								: undefined,
+						remotePatterns: [...(imagesConfig.remotePatterns ?? [])],
+					};
+					const remotePatterns = _config.image.remotePatterns;
+					for (const pattern of remotePatterns) {
+						if (isAcceptedPattern(pattern)) {
+							images.remotePatterns?.push(pattern);
 						}
-					} else {
-						images = getDefaultImageConfig(_config.image);
 					}
+				} else if (imageService) {
+					images = getDefaultImageConfig(_config.image);
 				}
 
 				const normalized = normalizeRoutes([...(redirects ?? []), ...finalRoutes]);
@@ -647,7 +688,9 @@ class VercelBuilder {
 
 		// Enable ESM
 		// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
-		await writeJson(packageJson, { type: 'module' });
+		await writeJson(packageJson, {
+			type: 'module',
+		});
 
 		// Serverless function config
 		// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
@@ -702,10 +745,10 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 		logger.warn(
 			`\n` +
 				`\tThe local Node.js version (${major}) is not supported by Vercel Serverless Functions.\n` +
-				`\tYour project will use Node.js 18 as the runtime instead.\n` +
-				`\tConsider switching your local version to 18.\n`,
+				`\tYour project will use Node.js 22 as the runtime instead.\n` +
+				`\tConsider switching your local version to 22.\n`,
 		);
-		return 'nodejs18.x';
+		return 'nodejs22.x';
 	}
 	if (support.status === 'default' || support.status === 'available') {
 		return `nodejs${major}.x`;
@@ -725,41 +768,29 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 		return `nodejs${major}.x`;
 	}
 	if (support.status === 'deprecated') {
-		const removeDate = new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(
-			support.removal,
-		);
+		const removeDate = new Intl.DateTimeFormat(undefined, {
+			dateStyle: 'long',
+		}).format(support.removal);
 		logger.warn(
 			`\n` +
 				`\tYour project is being built for Node.js ${major} as the runtime.\n` +
 				`\tThis version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${removeDate}.\n` +
-				`\tConsider upgrading your local version to 18.\n`,
+				`\tConsider upgrading your local version to 22.\n`,
 		);
 		return `nodejs${major}.x`;
 	}
-	return 'nodejs18.x';
+	return 'nodejs22.x';
 }
 
-function createConfigHeaders(
-	staticHeaders: Map<IntegrationResolvedRoute, Headers>,
-	config: AstroConfig,
-): Header[] {
+function createConfigHeaders(staticHeaders: RouteToHeaders, config: AstroConfig): Header[] {
 	const vercelHeaders: Header[] = [];
-	for (const [route, routeHeaders] of staticHeaders.entries()) {
-		if (!route.isPrerendered) {
-			continue;
-		}
-		if (route.redirect) {
-			continue;
-		}
-
-		const definition = createHostedRouteDefinition(route, config);
-
+	for (const [pathname, { headers }] of staticHeaders.entries()) {
 		if (config.experimental.csp) {
-			const csp = routeHeaders.get('Content-Security-Policy');
+			const csp = headers.get('Content-Security-Policy');
 
 			if (csp) {
 				vercelHeaders.push({
-					source: definition.input,
+					source: pathname,
 					headers: [
 						{
 							key: 'Content-Security-Policy',
