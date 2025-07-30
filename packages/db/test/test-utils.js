@@ -1,4 +1,3 @@
-import { unlink } from 'node:fs/promises';
 import { createClient } from '@libsql/client';
 import { cli } from '../dist/core/cli/index.js';
 import { resolveDbConfig } from '../dist/core/load-file.js';
@@ -8,7 +7,7 @@ import { getCreateIndexQueries, getCreateTableQuery } from '../dist/core/queries
  * @param {import('astro').AstroConfig} astroConfig
  */
 export async function setupRemoteDb(astroConfig) {
-	const url = new URL(`./${Date.now()}.db`, astroConfig.root);
+	const url = new URL(`./${Date.now()}.db`, astroConfig.outDir);
 	const token = 'foo';
 	process.env.ASTRO_DB_REMOTE_URL = url.toString();
 	process.env.ASTRO_DB_APP_TOKEN = token;
@@ -48,7 +47,6 @@ export async function setupRemoteDb(astroConfig) {
 			delete process.env.ASTRO_DB_APP_TOKEN;
 			delete process.env.ASTRO_INTERNAL_TEST_REMOTE;
 			dbClient.close();
-			await unlink(url);
 		},
 	};
 }
