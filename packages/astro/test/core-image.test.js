@@ -904,7 +904,7 @@ describe('astro:image', () => {
 				root: './fixtures/core-image-ssg/',
 				image: {
 					service: testImageService(),
-					domains: ['astro.build', 'avatars.githubusercontent.com'],
+					domains: ['astro.build', 'avatars.githubusercontent.com', 'kaleidoscopic-biscotti-6fe98c.netlify.app'],
 				},
 			});
 			// Remove cache directory
@@ -951,6 +951,18 @@ describe('astro:image', () => {
 			const src = $img.attr('src');
 			const data = await fixture.readFile(src, null);
 			assert.equal(data instanceof Buffer, true);
+		});
+
+		it('handles remote images with special characters', async () => {
+			const html = await fixture.readFile('/special-chars/index.html');
+			const $ = cheerio.load(html);
+			const $img = $('img');
+			assert.equal($img.length, 1);
+			const src = $img.attr('src');
+			// The filename should be encoded and sanitized
+			assert.ok(src.startsWith('/_astro/c_23'));
+			const data = await fixture.readFile(src, null);
+			assert.ok(data instanceof Buffer);
 		});
 
 		it('Picture component images are written', async () => {
