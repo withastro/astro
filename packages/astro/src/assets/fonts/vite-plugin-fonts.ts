@@ -179,11 +179,9 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			const algorithm = getAlgorithm(settings.config.experimental.csp);
 
 			// Generate a hash for each style we generate
-			settings.injectedCsp.styleHashes.push(
-				...(await Promise.all(
-					[...consumableMap.values()].map((e) => generateCspDigest(e.css, algorithm)),
-				)),
-			);
+			for (const { css } of consumableMap.values()) {
+				settings.injectedCsp.styleHashes.push(await generateCspDigest(css, algorithm));
+			}
 			const origins = urlResolver.getOrigins();
 			if (origins) {
 				settings.injectedCsp.directives.push(
