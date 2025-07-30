@@ -39,8 +39,14 @@ async function handleSvgDeduplication(
 	const existing = svgContentCache.get(key);
 
 	if (existing) {
-		// Reuse existing handle for duplicate SVG content
-		return existing.handle;
+		// Emit file again with the same filename to get a new handle
+		// This ensures Rollup knows about this handle while maintaining deduplication on disk
+		const handle = fileEmitter({
+			name: existing.filename,
+			source: fileData,
+			type: 'asset',
+		});
+		return handle;
 	} else {
 		// First time seeing this SVG content - emit it
 		const handle = fileEmitter({
