@@ -66,6 +66,8 @@ export class NodeApp extends App {
 	 * ```
 	 */
 	static createRequest(req: NodeRequest, { skipBody = false } = {}): Request {
+		const controller = new AbortController();
+
 		const isEncrypted = 'encrypted' in req.socket && req.socket.encrypted;
 
 		// Parses multiple header and returns first value if available.
@@ -105,6 +107,7 @@ export class NodeApp extends App {
 		const options: RequestInit = {
 			method: req.method || 'GET',
 			headers: makeRequestHeaders(req),
+			signal: controller.signal,
 		};
 		const bodyAllowed = options.method !== 'HEAD' && options.method !== 'GET' && skipBody === false;
 		if (bodyAllowed) {
