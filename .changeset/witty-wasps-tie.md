@@ -8,6 +8,6 @@ and Astro doesn't know how map the parameters:
 
 ```js
 export default defineConfig({
-  "/category/[categories]": "/category/[categories]/[page]"
+  redirects: { "/category/[categories]": "/category/[categories]/[page]" }
 })
 ```
