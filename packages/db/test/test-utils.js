@@ -1,13 +1,16 @@
+import { unlink } from 'node:fs/promises';
 import { createClient } from '@libsql/client';
 import { cli } from '../dist/core/cli/index.js';
 import { resolveDbConfig } from '../dist/core/load-file.js';
 import { getCreateIndexQueries, getCreateTableQuery } from '../dist/core/queries.js';
 
+const isWindows = process.platform === 'win32';
+
 /**
  * @param {import('astro').AstroConfig} astroConfig
  */
 export async function setupRemoteDb(astroConfig) {
-	const url = new URL(`./.astro/${Date.now()}.db`, astroConfig.root);
+	const url = new URL(`./${Date.now()}.db`, isWindows ? astroConfig.outDir : astroConfig.root);
 	const token = 'foo';
 	process.env.ASTRO_DB_REMOTE_URL = url.toString();
 	process.env.ASTRO_DB_APP_TOKEN = token;
@@ -47,6 +50,9 @@ export async function setupRemoteDb(astroConfig) {
 			delete process.env.ASTRO_DB_APP_TOKEN;
 			delete process.env.ASTRO_INTERNAL_TEST_REMOTE;
 			dbClient.close();
+			if (!isWindows) {
+				await unlink(url);
+			}
 		},
 	};
 }
