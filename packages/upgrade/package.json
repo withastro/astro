@@ -32,7 +32,7 @@
     "@astrojs/cli-kit": "^0.4.1",
     "package-manager-detector": "^1.1.0",
     "semver": "^7.7.1",
-    "terminal-link": "^3.0.0"
+    "terminal-link": "^4.0.0"
   },
   "devDependencies": {
     "@types/semver": "^7.7.0",
