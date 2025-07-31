@@ -1,4 +1,4 @@
-import { collapseDuplicateTrailingSlashes, hasFileExtension } from '@astrojs/internal-helpers/path';
+import { collapseDuplicateTrailingSlashes, hasFileExtension, isInternalPath } from '@astrojs/internal-helpers/path';
 import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
@@ -292,7 +292,7 @@ export class App {
 		const { trailingSlash } = this.#manifest;
 
 		// Ignore root and internal paths
-		if (pathname === '/' || pathname.startsWith('/_')) {
+		if (pathname === '/' || isInternalPath(pathname)) {
 			return pathname;
 		}
 
