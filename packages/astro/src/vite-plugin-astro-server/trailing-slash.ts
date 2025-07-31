@@ -1,4 +1,8 @@
-import { collapseDuplicateTrailingSlashes, hasFileExtension, isInternalPath } from '@astrojs/internal-helpers/path';
+import {
+	collapseDuplicateTrailingSlashes,
+	hasFileExtension,
+	isInternalPath,
+} from '@astrojs/internal-helpers/path';
 import type * as vite from 'vite';
 import { trailingSlashMismatchTemplate } from '../template/4xx.js';
 import type { AstroSettings } from '../types/astro.js';

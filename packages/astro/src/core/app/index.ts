@@ -1,4 +1,8 @@
-import { collapseDuplicateTrailingSlashes, hasFileExtension, isInternalPath } from '@astrojs/internal-helpers/path';
+import {
+	collapseDuplicateTrailingSlashes,
+	hasFileExtension,
+	isInternalPath,
+} from '@astrojs/internal-helpers/path';
 import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
