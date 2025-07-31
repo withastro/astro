@@ -352,13 +352,17 @@ describe('Astro.redirect', () => {
 				root: './fixtures/redirects/',
 				output: 'static',
 				redirects: {
-					'/old/[category]/': '/old/[category]/[slug]',
+					'/old/[category]/1': '/old/[category]/[slug]',
 				},
 			});
 			try {
 				await fixture.build();
 				assert.fail('Expected build to fail');
-			} catch {
+			} catch (e) {
+				assert.equal(
+					e.message,
+					"The number of dynamic segments don't match. The route /old/[category]/1 has 1 segments, while /old/[category]/[slug] has 2 segments.",
+				);
 				assert.ok(true);
 			}
 		});
