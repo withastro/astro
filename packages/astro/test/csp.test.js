@@ -319,13 +319,12 @@ describe('CSP', () => {
 				.attr('content')
 				.toString()
 				.includes("'sha256-nwBrTaDGvHZ8RLycRsFujCJ4wH9WMDzXSWXAnIsiY/4='"),
+			'Wrong hash',
 		);
 		// directive
 		assert.ok(
-			meta
-				.attr('content')
-				.toString()
-				.includes("font-src 'self' https://fonts.cdn.example.com"),
+			meta.attr('content').toString().includes("font-src 'self' https://fonts.cdn.example.com"),
+			'Wrong resource',
 		);
 	});
 
