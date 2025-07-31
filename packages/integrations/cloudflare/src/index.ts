@@ -168,7 +168,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				if (!session?.driver) {
 					logger.info(
-						`Enabling sessions with Cloudflare KV for ${isBuild ? 'production' : 'development'} with the "${SESSION_KV_BINDING_NAME}" KV binding.`,
+						`Enabling sessions with Cloudflare KV with the "${SESSION_KV_BINDING_NAME}" KV binding.`,
 					);
 					logger.info(
 						`If you see the error "Invalid binding \`${SESSION_KV_BINDING_NAME}\`" in your build output, you need to add the binding to your wrangler config file.`,
