@@ -1,4 +1,4 @@
-import { unlink } from 'node:fs/promises';
+import { mkdir, unlink } from 'node:fs/promises';
 import { createClient } from '@libsql/client';
 import { cli } from '../dist/core/cli/index.js';
 import { resolveDbConfig } from '../dist/core/load-file.js';
@@ -17,6 +17,10 @@ export async function setupRemoteDb(astroConfig) {
 	process.env.ASTRO_DB_REMOTE_URL = url.toString();
 	process.env.ASTRO_DB_APP_TOKEN = token;
 	process.env.ASTRO_INTERNAL_TEST_REMOTE = true;
+
+	if (isWindows) {
+		await mkdir(new URL('.', url), { recursive: true });
+	}
 
 	const dbClient = createClient({
 		url,
