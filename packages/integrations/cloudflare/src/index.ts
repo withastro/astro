@@ -149,6 +149,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 	let _routes: IntegrationResolvedRoute[];
 
+	const SESSION_KV_BINDING_NAME = args?.sessionKVBindingName ?? 'SESSION';
+
 	return {
 		name: '@astrojs/cloudflare',
 		hooks: {
@@ -165,20 +167,18 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				const isBuild = command === 'build';
 
 				if (!session?.driver) {
-					const bindingName = args?.sessionKVBindingName ?? 'SESSION';
-
 					logger.info(
-						`Enabling sessions with Cloudflare KV for ${isBuild ? 'production' : 'development'} with the "${bindingName}" KV binding.`,
+						`Enabling sessions with Cloudflare KV for ${isBuild ? 'production' : 'development'} with the "${SESSION_KV_BINDING_NAME}" KV binding.`,
 					);
 					logger.info(
-						`If you see the error "Invalid binding \`${bindingName}\`" in your build output, you need to add the binding to your wrangler config file.`,
+						`If you see the error "Invalid binding \`${SESSION_KV_BINDING_NAME}\`" in your build output, you need to add the binding to your wrangler config file.`,
 					);
 
 					session = {
 						...session,
 						driver: 'cloudflare-kv-binding',
 						options: {
-							binding: bindingName,
+							binding: SESSION_KV_BINDING_NAME,
 							...session?.options,
 						},
 					};
@@ -285,8 +285,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					setProcessEnv(_config, platformProxy.env);
 
 					globalThis.__env__ ??= {};
-					globalThis.__env__[args?.sessionKVBindingName ?? 'SESSION'] =
-						platformProxy.env[args?.sessionKVBindingName ?? 'SESSION'];
+					globalThis.__env__[SESSION_KV_BINDING_NAME] = platformProxy.env[SESSION_KV_BINDING_NAME];
 
 					const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -353,9 +352,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite.define = {
 						'process.env': 'process.env',
 						// Allows the request handler to know what the binding name is
-						'globalThis.__ASTRO_SESSION_BINDING_NAME': JSON.stringify(
-							args?.sessionKVBindingName ?? 'SESSION',
-						),
+						'globalThis.__ASTRO_SESSION_BINDING_NAME': JSON.stringify(SESSION_KV_BINDING_NAME),
 						...vite.define,
 					};
 				}
