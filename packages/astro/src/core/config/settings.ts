@@ -151,7 +151,7 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		injectedTypes: [],
 		buildOutput: undefined,
 		injectedCsp: {
-			directives: [],
+			fontResources: [],
 			styleHashes: [],
 		},
 	};

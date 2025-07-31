@@ -2385,6 +2385,17 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 *
 					 */
 					directives?: CspDirective[];
+
+					/**
+					 * @name experimental.csp.fontDirectiveResources
+					 * @type {string[]}
+					 * @default `[]`
+					 * @version 5.9.x
+					 * @description
+					 *
+					 * TODO:
+					 */
+					fontDirectiveResources?: string[];
 			  };
 
 		/**

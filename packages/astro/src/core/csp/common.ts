@@ -51,6 +51,13 @@ export function getStyleResources(csp: EnabledCsp): string[] {
 	return csp.styleDirective?.resources ?? [];
 }
 
+export function getFontResources(csp: EnabledCsp): string[] {
+	if (csp === true) {
+		return [];
+	}
+	return csp.fontDirectiveResources ?? [];
+}
+
 export function getDirectives(csp: EnabledCsp): CspDirective[] {
 	if (csp === true) {
 		return [];

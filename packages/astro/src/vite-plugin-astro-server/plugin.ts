@@ -8,6 +8,7 @@ import type { SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/t
 import {
 	getAlgorithm,
 	getDirectives,
+	getFontResources,
 	getScriptHashes,
 	getScriptResources,
 	getStrictDynamic,
@@ -189,10 +190,11 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			...getStyleHashes(settings.config.experimental.csp),
 			...settings.injectedCsp.styleHashes,
 		];
-		const directives = [
-			...getDirectives(settings.config.experimental.csp),
-			...settings.injectedCsp.directives,
+		const fontResources = [
+			...getFontResources(settings.config.experimental.csp),
+			...settings.injectedCsp.fontResources,
 		];
+
 		csp = {
 			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
 				? 'adapter'
@@ -202,8 +204,9 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			styleHashes,
 			styleResources: getStyleResources(settings.config.experimental.csp),
 			algorithm: getAlgorithm(settings.config.experimental.csp),
-			directives,
+			directives: getDirectives(settings.config.experimental.csp),
 			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
+			fontResources,
 		};
 	}
 

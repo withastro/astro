@@ -18,6 +18,7 @@ import type {
 import {
 	getAlgorithm,
 	getDirectives,
+	getFontResources,
 	getScriptHashes,
 	getScriptResources,
 	getStrictDynamic,
@@ -326,9 +327,9 @@ async function buildManifest(
 			...settings.injectedCsp.styleHashes,
 			...(await trackStyleHashes(internals, settings, algorithm)),
 		];
-		const directives = [
-			...getDirectives(settings.config.experimental.csp),
-			...settings.injectedCsp.directives,
+		const fontResources = [
+			...getFontResources(settings.config.experimental.csp),
+			...settings.injectedCsp.fontResources,
 		];
 
 		csp = {
@@ -340,8 +341,9 @@ async function buildManifest(
 			styleHashes,
 			styleResources: getStyleResources(settings.config.experimental.csp),
 			algorithm,
-			directives,
+			directives: getDirectives(settings.config.experimental.csp),
 			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
+			fontResources,
 		};
 	}
 

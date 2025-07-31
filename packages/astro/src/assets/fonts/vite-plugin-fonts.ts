@@ -184,8 +184,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 			const origins = urlResolver.getOrigins();
 			if (origins) {
-				settings.injectedCsp.directives.push(
-					...origins.map((e) => `font-src ${e === '/' ? "'self'" : e}` as const),
+				settings.injectedCsp.fontResources.push(
+					...origins.map((origin) => (origin === '/' ? "'self'" : origin)),
 				);
 			}
 		}
