@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Skips trailing slash handling for internal paths
+Skips trailing slash handling for paths that start with `/.`.
