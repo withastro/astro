@@ -410,6 +410,17 @@ export interface AstroSharedContext<
 	 * ```
 	 */
 	insertScriptHash: (hash: CspHash) => void;
+
+	/**
+	 * It set the resource for the directive `font-src` in the route being rendered.
+	 *
+	 * ## Example
+	 *
+	 * ```js
+	 * ctx.insertFontResource("https://fonts.cdn.example.com/")
+	 * ```
+	 */
+	insertFontResource: (resource: string) => void;
 }
 
 /**

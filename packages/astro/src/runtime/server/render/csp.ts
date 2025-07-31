@@ -27,16 +27,21 @@ export function renderCspContent(result: SSRResult): string {
 
 	let scriptResources = "'self'";
 	if (result.scriptResources.length > 0) {
-		scriptResources = result.scriptResources.map((r) => `${r}`).join(' ');
+		scriptResources = result.scriptResources.join(' ');
 	}
 
 	let styleResources = "'self'";
 	if (result.styleResources.length > 0) {
-		styleResources = result.styleResources.map((r) => `${r}`).join(' ');
+		styleResources = result.styleResources.join(' ');
+	}
+	let fontResources = "'self'";
+	if (result.fontResources.length > 0) {
+		fontResources = result.fontResources.join(' ');
 	}
 
 	const strictDynamic = result.isStrictDynamic ? ` 'strict-dynamic'` : '';
 	const scriptSrc = `script-src ${scriptResources} ${Array.from(finalScriptHashes).join(' ')}${strictDynamic};`;
 	const styleSrc = `style-src ${styleResources} ${Array.from(finalStyleHashes).join(' ')};`;
-	return `${directives} ${scriptSrc} ${styleSrc}`;
+	const fontSrc = `font-src ${fontResources};`;
+	return `${directives} ${scriptSrc} ${styleSrc} ${fontSrc}`;
 }

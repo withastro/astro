@@ -45,6 +45,7 @@ export type ActionAPIContext = Pick<
 	| 'insertStyleResource'
 	| 'insertScriptHash'
 	| 'insertStyleHash'
+	| 'insertFontResource'
 > & {
 	// TODO: remove in Astro 6.0
 	/**
