@@ -164,7 +164,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			}) => {
 				let session = config.session;
 
-				const isBuild = command === 'build';
 
 				if (!session?.driver) {
 					logger.info(
