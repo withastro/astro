@@ -2390,10 +2390,22 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * @name experimental.csp.fontDirectiveResources
 					 * @type {string[]}
 					 * @default `[]`
-					 * @version 5.9.x
+					 * @version 5.12.7
 					 * @description
 					 *
-					 * TODO:
+					 * A list of resources applied to the `font-src` directive. These resources are added to all pages and will override Astro's defaults.
+					 *
+					 * ```js
+					 * import { defineConfig } from 'astro/config';
+					 *
+					 * export default defineConfig({
+					 *   experimental: {
+					 *     csp: {
+					 *       fontDirectiveResources: ["'self'", "https://cdn.example.com"]
+					 *     }
+					 *   }
+					 * });
+					 * ```
 					 */
 					fontDirectiveResources?: string[];
 			  };
