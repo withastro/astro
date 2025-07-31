@@ -115,6 +115,7 @@ describe('Redirecting trailing slashes in SSR', () => {
 				'/_image?url=http://example.com/foo.jpg',
 				'/_server-islands/foo',
 				'/_actions/foo',
+				'/.netlify/image?url=http://example.com/foo.jpg',
 			]) {
 				const request = new Request(`http://example.com${path}`);
 				const response = await app.render(request);
@@ -211,6 +212,7 @@ describe('Redirecting trailing slashes in SSR', () => {
 				'/_image/?url=http://example.com/foo.jpg',
 				'/_server-islands/foo/',
 				'/_actions/foo/',
+				'/.netlify/image/?url=http://example.com/foo.jpg',
 			]) {
 				const request = new Request(`http://example.com${path}/`);
 				const response = await app.render(request);
@@ -258,6 +260,22 @@ describe('Redirecting trailing slashes in SSR', () => {
 			const request = new Request('http://example.com/another/');
 			const response = await app.render(request);
 			assert.equal(response.status, 200);
+		});
+
+		it('Does not redirect internal paths', async () => {
+			const app = await fixture.loadTestAdapterApp();
+
+			for (const path of [
+				'/_astro/something//',
+				'/_image//?url=http://example.com/foo.jpg',
+				'/_server-islands/foo//',
+				'/_actions/foo//',
+				'/.netlify/image//?url=http://example.com/foo.jpg',
+			]) {
+				const request = new Request(`http://example.com${path}/`);
+				const response = await app.render(request);
+				assert.notEqual(response.status, 301);
+			}
 		});
 	});
 });

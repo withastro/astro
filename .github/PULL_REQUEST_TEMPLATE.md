@@ -3,7 +3,8 @@
 - What does this change?
 - Be short and concise. Bullet points can help!
 - Before/after screenshots can help as well.
-- Don't forget a changeset! `pnpm exec changeset`
+- Don't forget a changeset! Run `pnpm changeset`.
+- See https://contribute.docs.astro.build/docs-for-code-changes/changesets/ for more info on writing changesets.
 
 ## Testing
 

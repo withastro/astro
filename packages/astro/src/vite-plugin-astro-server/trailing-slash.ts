@@ -1,4 +1,8 @@
-import { collapseDuplicateTrailingSlashes, hasFileExtension } from '@astrojs/internal-helpers/path';
+import {
+	collapseDuplicateTrailingSlashes,
+	hasFileExtension,
+	isInternalPath,
+} from '@astrojs/internal-helpers/path';
 import type * as vite from 'vite';
 import { trailingSlashMismatchTemplate } from '../template/4xx.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -16,7 +20,7 @@ export function trailingSlashMiddleware(settings: AstroSettings): vite.Connect.N
 			/* malformed uri */
 			return next(e);
 		}
-		if (pathname.startsWith('/_') || pathname.startsWith('/@')) {
+		if (isInternalPath(pathname)) {
 			return next();
 		}
 
