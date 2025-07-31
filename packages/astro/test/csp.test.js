@@ -272,10 +272,10 @@ describe('CSP', () => {
 
 		const header = response.headers.get('content-security-policy');
 
-		assert.ok(header.includes('style-src https://styles.cdn.example.com'));
-
 		// correctness for resources
+		assert.ok(header.includes('style-src https://styles.cdn.example.com'));
 		assert.ok(header.includes("script-src 'self'"));
+		assert.ok(header.includes('font-src https://fonts.cdn.example.com'));
 		// correctness for hashes
 		assert.ok(header.includes("default-src 'self';"));
 
@@ -325,7 +325,7 @@ describe('CSP', () => {
 			meta
 				.attr('content')
 				.toString()
-				.includes("font-src 'self'"),
+				.includes("font-src 'self' https://fonts.cdn.example.com"),
 		);
 	});
 

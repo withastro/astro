@@ -27,16 +27,16 @@ export function renderCspContent(result: SSRResult): string {
 
 	let scriptResources = "'self'";
 	if (result.scriptResources.length > 0) {
-		scriptResources = result.scriptResources.join(' ');
+		scriptResources = [...new Set(result.scriptResources)].join(' ');
 	}
 
 	let styleResources = "'self'";
 	if (result.styleResources.length > 0) {
-		styleResources = result.styleResources.join(' ');
+		styleResources = [...new Set(result.styleResources)].join(' ');
 	}
 	let fontResources = "'self'";
 	if (result.fontResources.length > 0) {
-		fontResources = result.fontResources.join(' ');
+		fontResources = [...new Set(result.fontResources)].join(' ');
 	}
 
 	const strictDynamic = result.isStrictDynamic ? ` 'strict-dynamic'` : '';
