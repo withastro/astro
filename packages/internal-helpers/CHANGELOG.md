@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.7.0
+
+### Minor Changes
+
+- [#14169](https://github.com/withastro/astro/pull/14169) [`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds `isInternalPath` helper
+
 ## 0.6.1
 
 ### Patch Changes
