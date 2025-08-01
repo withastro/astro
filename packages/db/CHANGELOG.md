@@ -1,5 +1,13 @@
 # @astrojs/db
 
+## 0.16.0
+
+### Minor Changes
+
+- [#13894](https://github.com/withastro/astro/pull/13894) [`b36e72f`](https://github.com/withastro/astro/commit/b36e72f11fbcc0f3d5826f2b1939084f1fb1e3a8) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes support for Astro Studio
+
+  Astro Studio has been [discontinued since September 2024](https://astro.build/blog/goodbye-astro-studio/). If you still haven't migrated yet to Turso, check [our guide](https://docs.astro.build/en/guides/astro-db/#migrate-from-astro-studio-to-turso).
+
 ## 0.15.1
 
 ### Patch Changes

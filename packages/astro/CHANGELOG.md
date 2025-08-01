@@ -1,5 +1,17 @@
 # astro
 
+## 5.12.8
+
+### Patch Changes
+
+- [`0567fb7`](https://github.com/withastro/astro/commit/0567fb7b50c0c452be387dd7c7264b96bedab48f) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds `//` to list of internal path prefixes that do not have automated trailing slash handling
+
+- [#13894](https://github.com/withastro/astro/pull/13894) [`b36e72f`](https://github.com/withastro/astro/commit/b36e72f11fbcc0f3d5826f2b1939084f1fb1e3a8) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes Astro Studio commands from the CLI help
+
+- Updated dependencies [[`0567fb7`](https://github.com/withastro/astro/commit/0567fb7b50c0c452be387dd7c7264b96bedab48f)]:
+  - @astrojs/internal-helpers@0.7.1
+  - @astrojs/markdown-remark@6.3.5
+
 ## 5.12.7
 
 ### Patch Changes

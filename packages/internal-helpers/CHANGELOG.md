@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.7.1
+
+### Patch Changes
+
+- [`0567fb7`](https://github.com/withastro/astro/commit/0567fb7b50c0c452be387dd7c7264b96bedab48f) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds `//` to list of internal path prefixes that do not have automated trailing slash handling
+
 ## 0.7.0
 
 ### Minor Changes
