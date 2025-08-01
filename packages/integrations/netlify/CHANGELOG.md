@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 6.5.6
+
+### Patch Changes
+
+- [#14175](https://github.com/withastro/astro/pull/14175) [`1e1cef0`](https://github.com/withastro/astro/commit/1e1cef04b565c867e7b1450aba2e27eb8283fafb) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the adapter would cause a runtime error when calling `astro build` in CI environments.
+
 ## 6.5.5
 
 ### Patch Changes
