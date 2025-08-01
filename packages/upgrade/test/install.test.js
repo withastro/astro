@@ -212,7 +212,7 @@ describe('install', () => {
 
 	it('npm peer dependency error retry with legacy-peer-deps', async () => {
 		const mockShell = mock.fn(async () => {
-			if (mockShell.mock.calls.length === 0) {
+			if (mockShell.mock.callCount() === 0) {
 				// First call fails with peer dependency error
 				throw new Error('npm ERR! peer dependencies conflict');
 			}
@@ -241,7 +241,7 @@ describe('install', () => {
 		await install(context, mockShell);
 		
 		// Should have been called twice (initial failure, then retry with --legacy-peer-deps)
-		assert.equal(mockShell.mock.calls.length, 2);
+		assert.equal(mockShell.mock.callCount(), 2);
 		
 		// Check that second call includes --legacy-peer-deps
 		const secondCallArgs = mockShell.mock.calls[1].arguments[1];
@@ -277,7 +277,45 @@ describe('install', () => {
 		await install(context, mockShell);
 		
 		// Should only be called once (no retry for non-peer dependency errors)
-		assert.equal(mockShell.mock.calls.length, 1);
+		assert.equal(mockShell.mock.callCount(), 1);
+		assert.equal(exitCode, 1);
+		assert.equal(fixture.hasMessage('Dependencies failed to install'), true);
+	});
+
+	it('npm peer dependency error retry fails on second attempt', async () => {
+		const mockShell = mock.fn(async () => {
+			// Both calls fail with peer dependency errors
+			throw new Error('npm ERR! peer dependencies conflict');
+		});
+
+		let exitCode;
+		const context = {
+			...ctx,
+			dryRun: false,
+			cwd: new URL('file:///tmp/test'),
+			packageManager: { name: 'npm', agent: 'npm' },
+			exit: (code) => {
+				exitCode = code;
+			},
+			packages: [
+				{
+					name: 'astro',
+					currentVersion: '1.0.0',
+					targetVersion: '1.1.0',
+				},
+			],
+		};
+
+		await install(context, mockShell);
+		
+		// Should have been called twice (initial failure, then retry with --legacy-peer-deps that also fails)
+		assert.equal(mockShell.mock.callCount(), 2);
+		
+		// Check that second call includes --legacy-peer-deps
+		const secondCallArgs = mockShell.mock.calls[1].arguments[1];
+		assert.ok(secondCallArgs.includes('--legacy-peer-deps'), 'Second command should include --legacy-peer-deps');
+		
+		// Should exit with error code 1 after both attempts fail
 		assert.equal(exitCode, 1);
 		assert.equal(fixture.hasMessage('Dependencies failed to install'), true);
 	});
@@ -308,7 +346,7 @@ describe('install', () => {
 		await install(context, mockShell);
 		
 		// Should only be called once (no retry for pnpm, only npm gets retry)
-		assert.equal(mockShell.mock.calls.length, 1);
+		assert.equal(mockShell.mock.callCount(), 1);
 		assert.equal(exitCode, 1);
 		assert.equal(fixture.hasMessage('Dependencies failed to install'), true);
 	});
