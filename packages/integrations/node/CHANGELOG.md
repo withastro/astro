@@ -1,5 +1,25 @@
 # @astrojs/node
 
+## 9.3.3
+
+### Patch Changes
+
+- Updated dependencies [[`0567fb7`](https://github.com/withastro/astro/commit/0567fb7b50c0c452be387dd7c7264b96bedab48f)]:
+  - @astrojs/internal-helpers@0.7.1
+
+## 9.3.2
+
+### Patch Changes
+
+- Updated dependencies [[`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172)]:
+  - @astrojs/internal-helpers@0.7.0
+
+## 9.3.1
+
+### Patch Changes
+
+- [#14148](https://github.com/withastro/astro/pull/14148) [`e4d74ba`](https://github.com/withastro/astro/commit/e4d74bac7f9a86c0499e31699fb48302060ee747) Thanks [@ColoredCarrot](https://github.com/ColoredCarrot)! - fix(node): emit set-cookie header from middlewares for not-found routes (#14136)
+
 ## 9.3.0
 
 ### Minor Changes
@@ -1068,7 +1088,6 @@
 - [#4015](https://github.com/withastro/astro/pull/4015) [`6fd161d76`](https://github.com/withastro/astro/commit/6fd161d7691cbf9d3ffa4646e46059dfd0940010) Thanks [@matthewp](https://github.com/matthewp)! - New `output` configuration option
 
   This change introduces a new "output target" configuration option (`output`). Setting the output target lets you decide the format of your final build, either:
-
   - `"static"` (default): A static site. Your final build will be a collection of static assets (HTML, CSS, JS) that you can deploy to any static site host.
   - `"server"`: A dynamic server application. Your final build will be an application that will run in a hosted server environment, generating HTML dynamically for different requests.
 

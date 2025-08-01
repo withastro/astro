@@ -7,7 +7,7 @@ import { AstroSession, PERSIST_SYMBOL } from '../../../dist/core/session.js';
 const defaultMockCookies = {
 	set: () => {},
 	delete: () => {},
-	get: () => 'sessionid',
+	get: () => ({ value: 'sessionid' }),
 };
 
 const stringify = (data) => JSON.parse(devalueStringify(data));
@@ -359,6 +359,24 @@ test('AstroSession - Cleanup Operations', async (t) => {
 		await session[PERSIST_SYMBOL]();
 
 		assert.ok(removedKeys.has(oldId), `Session ${oldId} should be removed`);
+	});
+
+	await t.test("should destroy sessions that haven't been loaded", async () => {
+		const removedKeys = new Set();
+		const mockStorage = {
+			get: async () => stringify(new Map([['key', 'value']])),
+			setItem: async () => {},
+			removeItem: async (key) => {
+				removedKeys.add(key);
+			},
+		};
+
+		const session = createSession(defaultConfig, defaultMockCookies, mockStorage);
+		session.destroy();
+
+		// Simulate end of request
+		await session[PERSIST_SYMBOL]();
+		assert.equal(removedKeys.size, 1, `Session should be removed`);
 	});
 });
 

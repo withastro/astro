@@ -1265,6 +1265,18 @@ test.describe('View Transitions', () => {
 		await page.click('#submit');
 	});
 
+	test('form with hash in url should still submit', async ({ page, astro }) => {
+		let navigated;
+		await page.goto(astro.resolveUrl('/form-with-hash#test'));
+		page.on('request', (request) => {
+			expect(request.method()).toBe('POST');
+			navigated = true;
+		});
+		// Submit the form
+		await page.click('#submit');
+		expect(navigated).toBe(true);
+	});
+
 	test('Route announcer is invisible on page transition', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/no-directive-one'));
 

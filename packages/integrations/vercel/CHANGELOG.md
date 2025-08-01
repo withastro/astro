@@ -1,5 +1,25 @@
 # @astrojs/vercel
 
+## 8.2.5
+
+### Patch Changes
+
+- Updated dependencies [[`0567fb7`](https://github.com/withastro/astro/commit/0567fb7b50c0c452be387dd7c7264b96bedab48f)]:
+  - @astrojs/internal-helpers@0.7.1
+
+## 8.2.4
+
+### Patch Changes
+
+- Updated dependencies [[`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172)]:
+  - @astrojs/internal-helpers@0.7.0
+
+## 8.2.3
+
+### Patch Changes
+
+- [#14077](https://github.com/withastro/astro/pull/14077) [`42ef004`](https://github.com/withastro/astro/commit/42ef00442cc685dd7452de13b476e42bffde9df3) Thanks [@jat001](https://github.com/jat001)! - Changes the default Node.js version of Vercel functions to 22
+
 ## 8.2.2
 
 ### Patch Changes
@@ -631,7 +651,6 @@
   The Vercel adapter has a file-tracer it uses to detect which files should be moved over to the `dist/` folder. When it's done, it prints warnings for things that it detected that maybe should be moved.
 
   This change expands how we do ignores so that:
-
   - Ignores happen within dot folders like `.pnpm`.
   - `@libsql/client` is ignored, a package we know is not bundled.
 
@@ -854,7 +873,6 @@
 ### Patch Changes
 
 - [#8348](https://github.com/withastro/astro/pull/8348) [`5f2c55bb5`](https://github.com/withastro/astro/commit/5f2c55bb54bb66693d278b7cd705c198aecc0331) Thanks [@ematipico](https://github.com/ematipico)! - - Cache result during bundling, to speed up the process of multiple functions;
-
   - Avoid creating multiple symbolic links of the dependencies when building the project with `functionPerRoute` enabled;
 
 - [#8354](https://github.com/withastro/astro/pull/8354) [`0eb09dbab`](https://github.com/withastro/astro/commit/0eb09dbab1674a57d23ac97950a527d2e5a9c9fb) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix unnecessary warning about Sharp showing while building
@@ -1714,7 +1732,6 @@
 - [#4015](https://github.com/withastro/astro/pull/4015) [`6fd161d76`](https://github.com/withastro/astro/commit/6fd161d7691cbf9d3ffa4646e46059dfd0940010) Thanks [@matthewp](https://github.com/matthewp)! - New `output` configuration option
 
   This change introduces a new "output target" configuration option (`output`). Setting the output target lets you decide the format of your final build, either:
-
   - `"static"` (default): A static site. Your final build will be a collection of static assets (HTML, CSS, JS) that you can deploy to any static site host.
   - `"server"`: A dynamic server application. Your final build will be an application that will run in a hosted server environment, generating HTML dynamically for different requests.
 
@@ -1792,13 +1809,11 @@
 ### Minor Changes
 
 - [#3216](https://github.com/withastro/astro/pull/3216) [`114bf63e`](https://github.com/withastro/astro/commit/114bf63e11f28299b13178ef1a412eed37ab7909) Thanks [@JuanM04](https://github.com/JuanM04)! - **[BREAKING]** Now with Build Output API (v3)! [See the README to get started](https://github.com/withastro/astro/tree/main/packages/integrations/vercel#readme).
-
   - `trailingSlash` redirects works without a `vercel.json` file: just configure them inside your `astro.config.mjs`
   - Multiple deploy targets: `edge`, `serverless` and `static`!
   - When building to `serverless`, your code isn't transpiled to CJS anymore.
 
   **Migrate from v0.1**
-
   1. Change the import inside `astro.config.mjs`:
      ```diff
      - import vercel from '@astrojs/vercel';
