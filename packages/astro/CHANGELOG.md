@@ -1,5 +1,19 @@
 # astro
 
+## 5.12.7
+
+### Patch Changes
+
+- [#14169](https://github.com/withastro/astro/pull/14169) [`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172) Thanks [@ascorbic](https://github.com/ascorbic)! - Skips trailing slash handling for paths that start with `/.`.
+
+- [#14170](https://github.com/withastro/astro/pull/14170) [`34e6b3a`](https://github.com/withastro/astro/commit/34e6b3a87dd3e9be4886059d1c0efee4c5fa3cda) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where static redirects couldn't correctly generate a redirect when the destination is a prerendered route, and the `output` is set to `"server"`.
+
+- [#14169](https://github.com/withastro/astro/pull/14169) [`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that prevented images from being displayed in dev when using the Netlify adapter with `trailingSlash` set to `always`
+
+- Updated dependencies [[`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172)]:
+  - @astrojs/internal-helpers@0.7.0
+  - @astrojs/markdown-remark@6.3.4
+
 ## 5.12.6
 
 ### Patch Changes

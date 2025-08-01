@@ -69,6 +69,13 @@ function isString(path: unknown): path is string {
 	return typeof path === 'string' || path instanceof String;
 }
 
+const INTERNAL_PREFIXES = new Set(['/_', '/@', '/.']);
+const JUST_SLASHES = /^\/{2,}$/;
+
+export function isInternalPath(path: string) {
+	return INTERNAL_PREFIXES.has(path.slice(0, 2)) && !JUST_SLASHES.test(path);
+}
+
 export function joinPaths(...paths: (string | undefined)[]) {
 	return paths
 		.filter(isString)

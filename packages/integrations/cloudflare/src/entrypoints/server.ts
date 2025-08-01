@@ -7,7 +7,6 @@ import { handle } from '../utils/handler.js';
 type Env = {
 	[key: string]: unknown;
 	ASSETS: { fetch: (req: Request | string) => Promise<Response> };
-	ASTRO_STUDIO_APP_TOKEN?: string;
 };
 
 export function createExports(manifest: SSRManifest) {
