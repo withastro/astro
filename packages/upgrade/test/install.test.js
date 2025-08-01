@@ -1,7 +1,11 @@
 import * as assert from 'node:assert/strict';
+import { tmpdir } from 'node:os';
 import { describe, it, mock } from 'node:test';
+import { pathToFileURL } from 'node:url';
 import { install } from '../dist/index.js';
 import { setup } from './utils.js';
+
+const tmpUrl = pathToFileURL(tmpdir());
 
 describe('install', () => {
 	const fixture = setup();
@@ -224,7 +228,7 @@ describe('install', () => {
 		const context = {
 			...ctx,
 			dryRun: false,
-			cwd: new URL('file:///tmp/test'),
+			cwd: tmpUrl,
 			packageManager: { name: 'npm', agent: 'npm' },
 			exit: (code) => {
 				exitCode = code;
@@ -239,14 +243,17 @@ describe('install', () => {
 		};
 
 		await install(context, mockShell);
-		
+
 		// Should have been called twice (initial failure, then retry with --legacy-peer-deps)
 		assert.equal(mockShell.mock.callCount(), 2);
-		
+
 		// Check that second call includes --legacy-peer-deps
 		const secondCallArgs = mockShell.mock.calls[1].arguments[1];
-		assert.ok(secondCallArgs.includes('--legacy-peer-deps'), 'Second command should include --legacy-peer-deps');
-		
+		assert.ok(
+			secondCallArgs.includes('--legacy-peer-deps'),
+			'Second command should include --legacy-peer-deps',
+		);
+
 		assert.equal(exitCode, undefined, 'Should not exit with error after successful retry');
 		assert.equal(fixture.hasMessage('Installed dependencies!'), true);
 	});
@@ -260,7 +267,7 @@ describe('install', () => {
 		const context = {
 			...ctx,
 			dryRun: false,
-			cwd: new URL('file:///tmp/test'),
+			cwd: tmpUrl,
 			packageManager: { name: 'npm', agent: 'npm' },
 			exit: (code) => {
 				exitCode = code;
@@ -275,7 +282,7 @@ describe('install', () => {
 		};
 
 		await install(context, mockShell);
-		
+
 		// Should only be called once (no retry for non-peer dependency errors)
 		assert.equal(mockShell.mock.callCount(), 1);
 		assert.equal(exitCode, 1);
@@ -292,7 +299,7 @@ describe('install', () => {
 		const context = {
 			...ctx,
 			dryRun: false,
-			cwd: new URL('file:///tmp/test'),
+			cwd: tmpUrl,
 			packageManager: { name: 'npm', agent: 'npm' },
 			exit: (code) => {
 				exitCode = code;
@@ -307,14 +314,17 @@ describe('install', () => {
 		};
 
 		await install(context, mockShell);
-		
+
 		// Should have been called twice (initial failure, then retry with --legacy-peer-deps that also fails)
 		assert.equal(mockShell.mock.callCount(), 2);
-		
+
 		// Check that second call includes --legacy-peer-deps
 		const secondCallArgs = mockShell.mock.calls[1].arguments[1];
-		assert.ok(secondCallArgs.includes('--legacy-peer-deps'), 'Second command should include --legacy-peer-deps');
-		
+		assert.ok(
+			secondCallArgs.includes('--legacy-peer-deps'),
+			'Second command should include --legacy-peer-deps',
+		);
+
 		// Should exit with error code 1 after both attempts fail
 		assert.equal(exitCode, 1);
 		assert.equal(fixture.hasMessage('Dependencies failed to install'), true);
@@ -329,7 +339,7 @@ describe('install', () => {
 		const context = {
 			...ctx,
 			dryRun: false,
-			cwd: new URL('file:///tmp/test'),
+			cwd: tmpUrl,
 			packageManager: { name: 'pnpm', agent: 'pnpm' },
 			exit: (code) => {
 				exitCode = code;
@@ -344,7 +354,7 @@ describe('install', () => {
 		};
 
 		await install(context, mockShell);
-		
+
 		// Should only be called once (no retry for pnpm, only npm gets retry)
 		assert.equal(mockShell.mock.callCount(), 1);
 		assert.equal(exitCode, 1);
