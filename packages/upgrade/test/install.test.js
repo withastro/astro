@@ -1,5 +1,5 @@
 import * as assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { describe, it, mock } from 'node:test';
 import { install } from '../dist/index.js';
 import { setup } from './utils.js';
 
@@ -208,5 +208,108 @@ describe('install', () => {
 		const [changelog, major] = fixture.messages().slice(-4);
 		assert.match(changelog, /^check/);
 		assert.match(major, /^major/);
+	});
+
+	it('npm peer dependency error retry with legacy-peer-deps', async () => {
+		const mockShell = mock.fn(async () => {
+			if (mockShell.mock.calls.length === 0) {
+				// First call fails with peer dependency error
+				throw new Error('npm ERR! peer dependencies conflict');
+			}
+			// Second call succeeds
+			return { stdout: '', stderr: '', exitCode: 0 };
+		});
+
+		let exitCode;
+		const context = {
+			...ctx,
+			dryRun: false,
+			cwd: new URL('file:///tmp/test'),
+			packageManager: { name: 'npm', agent: 'npm' },
+			exit: (code) => {
+				exitCode = code;
+			},
+			packages: [
+				{
+					name: 'astro',
+					currentVersion: '1.0.0',
+					targetVersion: '1.1.0',
+				},
+			],
+		};
+
+		await install(context, mockShell);
+		
+		// Should have been called twice (initial failure, then retry with --legacy-peer-deps)
+		assert.equal(mockShell.mock.calls.length, 2);
+		
+		// Check that second call includes --legacy-peer-deps
+		const secondCallArgs = mockShell.mock.calls[1].arguments[1];
+		assert.ok(secondCallArgs.includes('--legacy-peer-deps'), 'Second command should include --legacy-peer-deps');
+		
+		assert.equal(exitCode, undefined, 'Should not exit with error after successful retry');
+		assert.equal(fixture.hasMessage('Installed dependencies!'), true);
+	});
+
+	it('npm non-peer dependency error does not retry', async () => {
+		const mockShell = mock.fn(async () => {
+			throw new Error('npm ERR! some other error');
+		});
+
+		let exitCode;
+		const context = {
+			...ctx,
+			dryRun: false,
+			cwd: new URL('file:///tmp/test'),
+			packageManager: { name: 'npm', agent: 'npm' },
+			exit: (code) => {
+				exitCode = code;
+			},
+			packages: [
+				{
+					name: 'astro',
+					currentVersion: '1.0.0',
+					targetVersion: '1.1.0',
+				},
+			],
+		};
+
+		await install(context, mockShell);
+		
+		// Should only be called once (no retry for non-peer dependency errors)
+		assert.equal(mockShell.mock.calls.length, 1);
+		assert.equal(exitCode, 1);
+		assert.equal(fixture.hasMessage('Dependencies failed to install'), true);
+	});
+
+	it('pnpm peer dependency error does not retry', async () => {
+		const mockShell = mock.fn(async () => {
+			throw new Error('pnpm ERR! peer dependencies conflict');
+		});
+
+		let exitCode;
+		const context = {
+			...ctx,
+			dryRun: false,
+			cwd: new URL('file:///tmp/test'),
+			packageManager: { name: 'pnpm', agent: 'pnpm' },
+			exit: (code) => {
+				exitCode = code;
+			},
+			packages: [
+				{
+					name: 'astro',
+					currentVersion: '1.0.0',
+					targetVersion: '1.1.0',
+				},
+			],
+		};
+
+		await install(context, mockShell);
+		
+		// Should only be called once (no retry for pnpm, only npm gets retry)
+		assert.equal(mockShell.mock.calls.length, 1);
+		assert.equal(exitCode, 1);
+		assert.equal(fixture.hasMessage('Dependencies failed to install'), true);
 	});
 });

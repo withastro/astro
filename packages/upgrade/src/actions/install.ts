@@ -28,6 +28,7 @@ export async function install(
 		Context,
 		'version' | 'packages' | 'packageManager' | 'prompt' | 'dryRun' | 'exit' | 'cwd'
 	>,
+	shellFn: typeof shell = shell,
 ) {
 	await banner();
 	newline();
@@ -80,7 +81,7 @@ export async function install(
 	if (ctx.dryRun) {
 		await info('--dry-run', `Skipping dependency installation`);
 	} else {
-		await runInstallCommand(ctx, dependencies, devDependencies);
+		await runInstallCommand(ctx, dependencies, devDependencies, shellFn);
 	}
 }
 
@@ -119,6 +120,7 @@ async function runInstallCommand(
 	ctx: Pick<Context, 'cwd' | 'packageManager' | 'exit'>,
 	dependencies: PackageInfo[],
 	devDependencies: PackageInfo[],
+	shellFn: typeof shell = shell,
 ) {
 	const cwd = fileURLToPath(ctx.cwd);
 	if (ctx.packageManager.name === 'yarn') await ensureYarnLock({ cwd });
@@ -133,7 +135,7 @@ async function runInstallCommand(
 	const doInstall = async (legacyPeerDeps = false) => {
 		try {
 			if (dependencies.length > 0) {
-				await shell(
+				await shellFn(
 					installCommand.command,
 					[
 						...installCommand.args,
@@ -146,7 +148,7 @@ async function runInstallCommand(
 				);
 			}
 			if (devDependencies.length > 0) {
-				await shell(
+				await shellFn(
 					installCommand.command,
 					[
 						...installCommand.args,
