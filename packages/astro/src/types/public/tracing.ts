@@ -36,6 +36,10 @@ export interface TraceEvents {
 		url: URL;
 		partial?: boolean;
 	};
+
+	// Allow for events to be added in a backwards-compatible way.
+	// Trace listeners must handle unknown events gracefully in order to be type-safe.
+	[k: string]: Record<string, unknown>;
 }
 
 export type EventArgs = {
