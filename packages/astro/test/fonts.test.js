@@ -121,7 +121,7 @@ describe('astro fonts', () => {
 				base: '/my-base',
 				build: {
 					assets: '_custom',
-					assetsPrefix: 'https//cdn.example.com',
+					assetsPrefix: 'https://cdn.example.com',
 				},
 				experimental: {
 					fonts: [
