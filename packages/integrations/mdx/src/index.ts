@@ -24,6 +24,12 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 	rehypePlugins: PluggableList;
 	remarkRehype: RemarkRehypeOptions;
 	optimize: boolean | OptimizeOptions;
+	/**
+	 * Choose which MDX compiler to use.
+	 * @default 'mdx'
+	 * @experimental
+	 */
+	compiler?: 'mdx' | 'mdx-hybrid';
 };
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
@@ -115,6 +121,7 @@ const defaultMdxOptions = {
 	extendMarkdownConfig: true,
 	recmaPlugins: [],
 	optimize: false,
+	compiler: 'mdx',
 } satisfies Partial<MdxOptions>;
 
 function markdownConfigToMdxOptions(
@@ -148,5 +155,6 @@ function applyDefaultOptions({
 		rehypePlugins: options.rehypePlugins ?? defaults.rehypePlugins,
 		shikiConfig: options.shikiConfig ?? defaults.shikiConfig,
 		optimize: options.optimize ?? defaults.optimize,
+		compiler: options.compiler ?? defaults.compiler,
 	};
 }

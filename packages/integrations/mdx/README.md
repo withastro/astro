@@ -6,6 +6,37 @@ This **[Astro integration][astro-integration]** enables the usage of [MDX](https
 
 Read the [`@astrojs/mdx` docs][docs]
 
+## Experimental Features
+
+### Alternative MDX Compilers
+
+**⚠️ Experimental:** This feature is experimental and may change in future versions.
+
+The MDX integration now supports using alternative MDX compilers. You can choose between the default MDX compiler or the experimental mdx-hybrid compiler.
+
+To use the mdx-hybrid compiler, first install it:
+
+```bash
+npm install @mdx-hybrid/core
+```
+
+Then configure your `astro.config.mjs`:
+
+```js
+import { defineConfig } from 'astro/config';
+import mdx from '@astrojs/mdx';
+
+export default defineConfig({
+  integrations: [
+    mdx({
+      compiler: 'mdx-hybrid', // 'mdx' (default) | 'mdx-hybrid'
+    }),
+  ],
+});
+```
+
+The mdx-hybrid compiler offers automatic engine selection between Rust and JavaScript for optimal performance. Note that plugin compatibility may vary between compilers.
+
 ## Support
 
 - Get help in the [Astro Discord][discord]. Post questions in our `#support` forum, or visit our dedicated `#dev` channel to discuss current development and more!

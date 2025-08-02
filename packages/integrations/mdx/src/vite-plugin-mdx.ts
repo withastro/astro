@@ -4,6 +4,7 @@ import { VFile } from 'vfile';
 import type { Plugin } from 'vite';
 import type { MdxOptions } from './index.js';
 import { createMdxProcessor } from './plugins.js';
+import { createMdxHybridProcessor } from './mdx-hybrid-processor.js';
 import { safeParseFrontmatter } from './utils.js';
 
 export interface VitePluginMdxOptions {
@@ -14,7 +15,7 @@ export interface VitePluginMdxOptions {
 
 // NOTE: Do not destructure `opts` as we're assigning a reference that will be mutated later
 export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
-	let processor: ReturnType<typeof createMdxProcessor> | undefined;
+	let processor: ReturnType<typeof createMdxProcessor> | Awaited<ReturnType<typeof createMdxHybridProcessor>> | undefined;
 	let sourcemapEnabled: boolean;
 
 	return {
@@ -60,12 +61,18 @@ export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 				},
 			});
 
-			// Lazily initialize the MDX processor
+			// Lazily initialize the MDX processor based on compiler option
 			if (!processor) {
-				processor = createMdxProcessor(opts.mdxOptions, {
-					sourcemap: sourcemapEnabled,
-					experimentalHeadingIdCompat: opts.experimentalHeadingIdCompat,
-				});
+				const compiler = opts.mdxOptions.compiler || 'mdx';
+				
+				if (compiler === 'mdx-hybrid') {
+					processor = await createMdxHybridProcessor(opts);
+				} else {
+					processor = createMdxProcessor(opts.mdxOptions, {
+						sourcemap: sourcemapEnabled,
+						experimentalHeadingIdCompat: opts.experimentalHeadingIdCompat,
+					});
+				}
 			}
 
 			try {
