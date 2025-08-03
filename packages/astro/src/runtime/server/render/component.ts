@@ -503,9 +503,42 @@ function innerRenderComponent(
 	}
 }
 
+function traceableRenderComponent(
+	result: SSRResult,
+	displayName: string,
+	Component: unknown,
+	props: Record<string | number, any>,
+	slots: any = {},
+): RenderInstance | Promise<RenderInstance> {
+	const renderInstance = innerRenderComponent(result, displayName, Component, props, slots);
+
+	const moduleId = isAstroComponentFactory(Component) ? Component.moduleId : undefined;
+	const name = typeof Component === 'function' ? Component.name : displayName;
+
+	const eventPayload = {
+		moduleId: moduleId,
+		componentName: name || displayName,
+		displayName: displayName,
+		request: result.request,
+		response: result.response,
+	};
+
+	if (isPromise(renderInstance)) {
+		return renderInstance.then((instance) => {
+			instance.render = wrapWithTracing('componentRender', instance.render, eventPayload);
+
+			return instance;
+		});
+	}
+
+	renderInstance.render = wrapWithTracing('componentRender', renderInstance.render, eventPayload);
+
+	return renderInstance;
+}
+
 export const renderComponent = wrapWithTracing(
 	'instantiateComponent',
-	innerRenderComponent,
+	traceableRenderComponent,
 	(result, displayName, Component) => {
 		const moduleId = isAstroComponentFactory(Component) ? Component.moduleId : undefined;
 		const name = typeof Component === 'function' ? Component.name : displayName;

@@ -1,8 +1,11 @@
-import type { TraceEvents, TraceListener } from '../../types/public/tracing.js';
+import type {
+	TraceEvent,
+	TraceEventsPayloads,
+	TraceListener,
+	TraceWrapListener,
+} from '../../types/public/tracing.js';
 
-type EventArgs = {
-	[K in keyof TraceEvents]: [event: K, payload: TraceEvents[K]];
-}[keyof TraceEvents];
+export type { TraceEvent, TraceEventsPayloads, TraceListener, TraceWrapListener };
 
 type OperationLifecycle = 'before' | 'onComplete' | 'after';
 
@@ -62,31 +65,68 @@ export function onAfterTrace(listener: TraceListener, signal?: AbortSignal) {
 	onTrace('after', listener, signal);
 }
 
-export function wrapWithTracing<This, Args extends any[], Return, Event extends keyof TraceEvents>(
+const wrapListeners: TraceWrapListener[] = [];
+
+export function onTraceEvent(listener: TraceWrapListener, signal?: AbortSignal) {
+	if (signal) {
+		if (signal.aborted) {
+			// The signal is already aborted, the listener should never be called.
+			// Returning early avoids both possible scenarios:
+			// - The `abort` event is being processed and the listener would be removed depending on a race condition.
+			// - The `abort` signal was already processed and the listener will never be removed, triggering after the signal is aborted.
+			return;
+		}
+		signal.addEventListener('abort', () => {
+			wrapListeners.splice(wrapListeners.indexOf(listener), 1);
+		});
+	}
+
+	wrapListeners.push(listener);
+}
+
+function wrapCall<T>(event: TraceEvent, fn: () => T, index = 0): T {
+	if (index >= wrapListeners.length) {
+		return fn();
+	}
+
+	const listener = wrapListeners[index];
+	return listener(event, () => wrapCall(event, fn, index + 1));
+}
+
+export function wrapWithTracing<
+	This,
+	Args extends any[],
+	Return,
+	Event extends keyof TraceEventsPayloads,
+>(
 	event: Event,
 	fn: (this: This, ...args: Args) => Return,
-	payload: TraceEvents[Event] | ((this: This, ...args: Args) => TraceEvents[Event]),
+	payload: TraceEventsPayloads[Event] | ((this: This, ...args: Args) => TraceEventsPayloads[Event]),
 ): (this: This, ...args: Args) => Return {
 	return function (this: This, ...args: Args): Return {
 		if (
 			eventLifecycle.before.length === 0 &&
 			eventLifecycle.onComplete.length === 0 &&
-			eventLifecycle.after.length === 0
+			eventLifecycle.after.length === 0 &&
+			wrapListeners.length === 0
 		) {
 			// Avoid constructing payloads and emitting events if no listeners are attached
 			return fn.apply(this, args);
 		}
 
-		const eventArgs = [
+		const eventArgs = {
 			event,
-			typeof payload === 'function' ? payload.apply(this, args) : payload,
-		] as EventArgs;
+			payload: typeof payload === 'function' ? payload.apply(this, args) : payload,
+		} as TraceEvent;
 
 		for (const listener of eventLifecycle.before) {
-			listener(...eventArgs);
+			listener(eventArgs);
 		}
 
-		let result = fn.apply(this, args);
+		let result =
+			wrapListeners.length === 0
+				? fn.apply(this, args)
+				: wrapCall(eventArgs, () => fn.apply(this, args));
 
 		if (result instanceof Promise) {
 			if (eventLifecycle.onComplete.length > 0) {
@@ -95,19 +135,19 @@ export function wrapWithTracing<This, Args extends any[], Return, Event extends 
 				result = result.finally(() => {
 					// Call hook after the async operation completes
 					for (const listener of eventLifecycle.onComplete) {
-						listener(...eventArgs);
+						listener(eventArgs);
 					}
 				}) as /* Safe to cast because Promise.finally doesn't change the resolved or thrown value. */ Return;
 			}
 		} else {
 			// Operation was synchronous, call onComplete listeners immediately
 			for (const listener of eventLifecycle.onComplete) {
-				listener(...eventArgs);
+				listener(eventArgs);
 			}
 		}
 
 		for (const listener of eventLifecycle.after) {
-			listener(...eventArgs);
+			listener(eventArgs);
 		}
 
 		return result;

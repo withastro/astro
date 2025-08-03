@@ -1,7 +1,7 @@
 import type { AstroGlobal } from './context.js';
 import type { RouteData } from './internal.js';
 
-export interface TraceEvents {
+export interface TraceEventsPayloads {
 	instantiateComponent: {
 		moduleId?: string;
 		componentName: string;
@@ -39,11 +39,16 @@ export interface TraceEvents {
 
 	// Allow for events to be added in a backwards-compatible way.
 	// Trace listeners must handle unknown events gracefully in order to be type-safe.
-	[k: string]: Record<string, unknown>;
+	// TODO: Think of something that allows forward compatibility without losing type safety.
+	// [k: string]: Record<string, unknown>;
 }
 
-export type EventArgs = {
-	[K in keyof TraceEvents]: [event: K, payload: TraceEvents[K]];
-}[keyof TraceEvents];
+export type TraceEvent = {
+	[K in keyof TraceEventsPayloads]: {
+		event: K;
+		payload: TraceEventsPayloads[K];
+	};
+}[keyof TraceEventsPayloads];
 
-export type TraceListener = (...args: EventArgs) => void;
+export type TraceListener = (event: TraceEvent) => void;
+export type TraceWrapListener = <T>(event: TraceEvent, callback: () => T) => T;

@@ -832,7 +832,7 @@ RenderContext.prototype.render = wrapWithTracing(
 	RenderContext.prototype.render,
 	function (this: RenderContext, component: ComponentInstance) {
 		return {
-			rootModuleId: component.default.moduleId,
+			rootModuleId: component.default?.moduleId,
 			request: this.request,
 			clientAddress: this.clientAddress,
 			pathname: this.pathname,
