@@ -3,7 +3,7 @@ import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import testAdapter from '../../astro/test/test-adapter.js';
 import { loadFixture } from '../../astro/test/test-utils.js';
-import { clearEnvironment, setupRemoteDbServer } from './test-utils.js';
+import { clearEnvironment, setupRemoteDb } from './test-utils.js';
 
 describe('astro:db', () => {
 	let fixture;
@@ -15,7 +15,7 @@ describe('astro:db', () => {
 		});
 	});
 
-	describe({ skip: process.platform === 'darwin' }, 'development', () => {
+	describe('development', () => {
 		let devServer;
 
 		before(async () => {
@@ -94,13 +94,13 @@ describe('astro:db', () => {
 		});
 	});
 
-	describe({ skip: process.platform === 'darwin' }, 'development --remote', () => {
+	describe('development --remote', () => {
 		let devServer;
 		let remoteDbServer;
 
 		before(async () => {
 			clearEnvironment();
-			remoteDbServer = await setupRemoteDbServer(fixture.config);
+			remoteDbServer = await setupRemoteDb(fixture.config);
 			devServer = await fixture.startDevServer();
 		});
 
@@ -181,13 +181,11 @@ describe('astro:db', () => {
 
 		before(async () => {
 			clearEnvironment();
-			process.env.ASTRO_STUDIO_APP_TOKEN = 'some token';
-			remoteDbServer = await setupRemoteDbServer(fixture.config);
+			remoteDbServer = await setupRemoteDb(fixture.config);
 			await fixture.build();
 		});
 
 		after(async () => {
-			process.env.ASTRO_STUDIO_APP_TOKEN = '';
 			await remoteDbServer?.stop();
 		});
 

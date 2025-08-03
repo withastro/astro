@@ -21,6 +21,8 @@ describe('Astro.redirect', () => {
 					'/source/[dynamic]': '/not-verbatim/target1/[dynamic]',
 					// may be called src/pages/not-verbatim/target2/[abc]/[xyz].astro
 					'/source/[dynamic]/[route]': '/not-verbatim/target2/[dynamic]/[route]',
+					// check for prerendered routes
+					'/source/[dynamic]/[prerender]': '/not-verbatim/target2/[dynamic]/[prerender]',
 					// may be called src/pages/not-verbatim/target3/[...rest].astro
 					'/source/[...spread]': '/not-verbatim/target3/[...spread]',
 				},

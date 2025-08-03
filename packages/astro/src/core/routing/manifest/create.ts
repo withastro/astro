@@ -509,10 +509,20 @@ export async function createRoutesList(
 	for (const route of routes) {
 		promises.push(
 			limit(async () => {
-				if (route.type !== 'page' && route.type !== 'endpoint') return;
+				if (route.type !== 'page' && route.type !== 'endpoint' && route.type !== 'redirect') return;
+				// External redirects aren't taken into account
+				if (route.type === 'redirect' && !route.redirectRoute) return;
 				const localFs = params.fsMod ?? nodeFs;
 				const content = await localFs.promises.readFile(
-					fileURLToPath(new URL(route.component, settings.config.root)),
+					fileURLToPath(
+						new URL(
+							// The destination redirect might be a prerendered
+							route.type === 'redirect' && route.redirectRoute
+								? route.redirectRoute.component
+								: route.component,
+							settings.config.root,
+						),
+					),
 					'utf-8',
 				);
 
