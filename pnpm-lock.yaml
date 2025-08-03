@@ -6619,10 +6619,6 @@ packages:
     resolution: {integrity: sha512-ETyHEk2VHHvl9b9jZP5IHPavHYk57EhanlRRuae9XCpb/j5bDCbPPMOBfCWhnl/7EDJz0jEMCi/RhccCE8r1+Q==}
     engines: {node: '>=6.9.0'}
 
-  '@babel/types@7.27.7':
-    resolution: {integrity: sha512-8OLQgDScAOHXnAz2cV+RfzzNMipuLVBz2biuAJFMV9bfkNf393je3VM8CLkjQodW5+iWsSJdSgSWT6rsZoXHPw==}
-    engines: {node: '>=6.9.0'}
-
   '@babel/types@7.28.0':
     resolution: {integrity: sha512-jYnje+JyZG5YThjHiF28oT4SIZLnYOcSBb6+SDaFIyzDVSkXQmQQYclJ2R+YxcdmK0AX6x1E5OQNtuh3jHDrUg==}
     engines: {node: '>=6.9.0'}
@@ -8297,10 +8293,6 @@ packages:
     resolution: {integrity: sha512-igbARa6gUII83lZdloe0zQzf2YLqJOZ3/3k2GMkEFFNxfLptAjvnh1z6WtFVV6bbO2IR2qOeuS2uaWRXeTNtlw==}
     engines: {node: ^14.16.0 || >=16.0.0}
 
-  '@netlify/blobs@10.0.6':
-    resolution: {integrity: sha512-KP3jSg+ipILXSXq0CfKlMzNNZtJpvkSuDF2A4F0s6w8nSyl+0UrOid9VaFdyrVvSiwBZOEE6eF6qvNqfQKYKnA==}
-    engines: {node: ^14.16.0 || >=16.0.0}
-
   '@netlify/blobs@10.0.8':
     resolution: {integrity: sha512-zvMCtMfek7f+ky8jB3mR5zQE4ai94/SisOvQZJ+7kOfKn7poY027WnG4ngcogCQmOMQLSScvzGheojN5HjenCQ==}
     engines: {node: ^14.16.0 || >=16.0.0}
@@ -8316,10 +8308,6 @@ packages:
 
   '@netlify/dev-utils@3.3.0':
     resolution: {integrity: sha512-bW8akt30XHUY3Yh4x7pB/Yis5yCafQxbfAGAAZgHlOYfG1WqlazFsTd9OvW5d8C3g3Y2H/JA2Oy03pTBFPtSkg==}
-    engines: {node: ^18.14.0 || >=20}
-
-  '@netlify/dev-utils@4.0.0':
-    resolution: {integrity: sha512-WJlP9/2eo3Ij7rNLWrZun8djeoT04DC6Np0xWrzSUAytGgdgCUDAXXK5x0g8GKwSXD7cPT1oMTUvgflBHoECzw==}
     engines: {node: ^18.14.0 || >=20}
 
   '@netlify/dev-utils@4.1.1':
@@ -8343,10 +8331,6 @@ packages:
 
   '@netlify/functions@4.1.11':
     resolution: {integrity: sha512-fa0R9lGvFDVQHcYPb5flWJea/X/umH0xXjB61lYiuDiYlPP0TDr6fIfIupr8JOWePjNod7tXQmIiu5vnHVk0cg==}
-    engines: {node: '>=18.0.0'}
-
-  '@netlify/functions@4.1.12':
-    resolution: {integrity: sha512-btkG/IAvAFdQ8mmw07a+q3fgiPbPq3rKcjsmyS7qaEZDGXnI436MyMq/U5ZNhxNyM9zuiUGuF/gDvN+SS+K5Jw==}
     engines: {node: '>=18.0.0'}
 
   '@netlify/functions@4.2.1':
@@ -8405,11 +8389,6 @@ packages:
 
   '@netlify/zip-it-and-ship-it@12.2.0':
     resolution: {integrity: sha512-64tKrE4bGGh/uChrCKQ1g6rDmY+Jl95bh+GGeP1mzIOcXmZHFja8sWMyaKv8iOxIiPdaJCQuhadSmE4ATUDVFg==}
-    engines: {node: '>=18.14.0'}
-    hasBin: true
-
-  '@netlify/zip-it-and-ship-it@12.2.1':
-    resolution: {integrity: sha512-zAr+8Tg80y/sUbhdUkZsq4Uy1IMzkSB6H/sKRMrDQ2NJx4uPgf5X5jMdg9g2FljNcxzpfJwc1Gg4OXQrjD0Z4A==}
     engines: {node: '>=18.14.0'}
     hasBin: true
 
@@ -14355,7 +14334,7 @@ snapshots:
       '@babel/parser': 7.28.0
       '@babel/template': 7.27.2
       '@babel/traverse': 7.28.0
-      '@babel/types': 7.28.0
+      '@babel/types': 7.28.1
       convert-source-map: 2.0.0
       debug: 4.4.1
       gensync: 1.0.0-beta.2
@@ -14367,14 +14346,14 @@ snapshots:
   '@babel/generator@7.28.0':
     dependencies:
       '@babel/parser': 7.28.0
-      '@babel/types': 7.28.0
+      '@babel/types': 7.28.1
       '@jridgewell/gen-mapping': 0.3.12
       '@jridgewell/trace-mapping': 0.3.29
       jsesc: 3.0.2
 
   '@babel/helper-annotate-as-pure@7.27.1':
     dependencies:
-      '@babel/types': 7.27.7
+      '@babel/types': 7.28.1
 
   '@babel/helper-compilation-targets@7.27.2':
     dependencies:
@@ -14402,18 +14381,18 @@ snapshots:
   '@babel/helper-member-expression-to-functions@7.27.1':
     dependencies:
       '@babel/traverse': 7.28.0
-      '@babel/types': 7.28.0
+      '@babel/types': 7.28.1
     transitivePeerDependencies:
       - supports-color
 
   '@babel/helper-module-imports@7.18.6':
     dependencies:
-      '@babel/types': 7.27.7
+      '@babel/types': 7.28.1
 
   '@babel/helper-module-imports@7.27.1':
     dependencies:
       '@babel/traverse': 7.28.0
-      '@babel/types': 7.28.0
+      '@babel/types': 7.28.1
     transitivePeerDependencies:
       - supports-color
 
@@ -14428,7 +14407,7 @@ snapshots:
 
   '@babel/helper-optimise-call-expression@7.27.1':
     dependencies:
-      '@babel/types': 7.27.7
+      '@babel/types': 7.28.1
 
   '@babel/helper-plugin-utils@7.27.1': {}
 
@@ -14444,7 +14423,7 @@ snapshots:
   '@babel/helper-skip-transparent-expression-wrappers@7.27.1':
     dependencies:
       '@babel/traverse': 7.28.0
-      '@babel/types': 7.28.0
+      '@babel/types': 7.28.1
     transitivePeerDependencies:
       - supports-color
 
@@ -14457,11 +14436,11 @@ snapshots:
   '@babel/helpers@7.27.6':
     dependencies:
       '@babel/template': 7.27.2
-      '@babel/types': 7.27.7
+      '@babel/types': 7.28.1
 
   '@babel/parser@7.28.0':
     dependencies:
-      '@babel/types': 7.27.7
+      '@babel/types': 7.28.1
 
   '@babel/plugin-proposal-decorators@7.24.7(@babel/core@7.28.0)':
     dependencies:
@@ -14521,7 +14500,7 @@ snapshots:
       '@babel/helper-module-imports': 7.27.1
       '@babel/helper-plugin-utils': 7.27.1
       '@babel/plugin-syntax-jsx': 7.25.9(@babel/core@7.28.0)
-      '@babel/types': 7.28.0
+      '@babel/types': 7.28.1
     transitivePeerDependencies:
       - supports-color
 
@@ -14544,7 +14523,7 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.27.1
       '@babel/parser': 7.28.0
-      '@babel/types': 7.28.0
+      '@babel/types': 7.28.1
 
   '@babel/traverse@7.28.0':
     dependencies:
@@ -14553,17 +14532,12 @@ snapshots:
       '@babel/helper-globals': 7.28.0
       '@babel/parser': 7.28.0
       '@babel/template': 7.27.2
-      '@babel/types': 7.27.7
+      '@babel/types': 7.28.1
       debug: 4.4.1
     transitivePeerDependencies:
       - supports-color
 
   '@babel/types@7.27.6':
-    dependencies:
-      '@babel/helper-string-parser': 7.27.1
-      '@babel/helper-validator-identifier': 7.27.1
-
-  '@babel/types@7.27.7':
     dependencies:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.27.1
@@ -15973,11 +15947,6 @@ snapshots:
       '@netlify/dev-utils': 3.3.0
       '@netlify/runtime-utils': 2.1.0
 
-  '@netlify/blobs@10.0.6':
-    dependencies:
-      '@netlify/dev-utils': 4.0.0
-      '@netlify/runtime-utils': 2.1.0
-
   '@netlify/blobs@10.0.8':
     dependencies:
       '@netlify/dev-utils': 4.1.1
@@ -16015,24 +15984,6 @@ snapshots:
       yargs: 17.7.2
 
   '@netlify/dev-utils@3.3.0':
-    dependencies:
-      '@whatwg-node/server': 0.10.10
-      ansis: 4.1.0
-      chokidar: 4.0.3
-      decache: 4.6.2
-      dot-prop: 9.0.0
-      env-paths: 3.0.0
-      find-up: 7.0.0
-      image-size: 2.0.2
-      js-image-generator: 1.0.4
-      lodash.debounce: 4.0.8
-      parse-gitignore: 2.0.0
-      semver: 7.7.2
-      tmp-promise: 3.0.3
-      uuid: 11.1.0
-      write-file-atomic: 5.0.1
-
-  '@netlify/dev-utils@4.0.0':
     dependencies:
       '@whatwg-node/server': 0.10.10
       ansis: 4.1.0
@@ -16144,25 +16095,6 @@ snapshots:
       '@netlify/dev-utils': 3.3.0
       '@netlify/serverless-functions-api': 2.1.3
       '@netlify/zip-it-and-ship-it': 12.2.0(rollup@4.40.2)
-      cron-parser: 4.9.0
-      decache: 4.6.2
-      extract-zip: 2.0.1
-      is-stream: 4.0.1
-      jwt-decode: 4.0.0
-      lambda-local: 2.2.0
-      read-package-up: 11.0.0
-      source-map-support: 0.5.21
-    transitivePeerDependencies:
-      - encoding
-      - rollup
-      - supports-color
-
-  '@netlify/functions@4.1.12(rollup@4.40.2)':
-    dependencies:
-      '@netlify/blobs': 10.0.6
-      '@netlify/dev-utils': 4.0.0
-      '@netlify/serverless-functions-api': 2.1.3
-      '@netlify/zip-it-and-ship-it': 12.2.1(rollup@4.40.2)
       cron-parser: 4.9.0
       decache: 4.6.2
       extract-zip: 2.0.1
@@ -16295,48 +16227,8 @@ snapshots:
 
   '@netlify/zip-it-and-ship-it@12.2.0(rollup@4.40.2)':
     dependencies:
-      '@babel/parser': 7.27.7
-      '@babel/types': 7.27.6
-      '@netlify/binary-info': 1.0.0
-      '@netlify/serverless-functions-api': 2.1.3
-      '@vercel/nft': 0.29.4(rollup@4.40.2)
-      archiver: 7.0.1
-      common-path-prefix: 3.0.0
-      copy-file: 11.0.0
-      es-module-lexer: 1.6.0
-      esbuild: 0.25.5
-      execa: 8.0.1
-      fast-glob: 3.3.3
-      filter-obj: 6.1.0
-      find-up: 7.0.0
-      is-builtin-module: 3.2.1
-      is-path-inside: 4.0.0
-      junk: 4.0.1
-      locate-path: 7.2.0
-      merge-options: 3.0.4
-      minimatch: 9.0.5
-      normalize-path: 3.0.0
-      p-map: 7.0.3
-      path-exists: 5.0.0
-      precinct: 12.2.0
-      require-package-name: 2.0.1
-      resolve: 2.0.0-next.5
-      semver: 7.7.2
-      tmp-promise: 3.0.3
-      toml: 3.0.0
-      unixify: 1.0.0
-      urlpattern-polyfill: 8.0.2
-      yargs: 17.7.2
-      zod: 3.25.76
-    transitivePeerDependencies:
-      - encoding
-      - rollup
-      - supports-color
-
-  '@netlify/zip-it-and-ship-it@12.2.1(rollup@4.40.2)':
-    dependencies:
       '@babel/parser': 7.28.0
-      '@babel/types': 7.28.0
+      '@babel/types': 7.27.6
       '@netlify/binary-info': 1.0.0
       '@netlify/serverless-functions-api': 2.1.3
       '@vercel/nft': 0.29.4(rollup@4.40.2)
@@ -16835,23 +16727,23 @@ snapshots:
   '@types/babel__core@7.20.5':
     dependencies:
       '@babel/parser': 7.28.0
-      '@babel/types': 7.28.0
+      '@babel/types': 7.28.1
       '@types/babel__generator': 7.6.8
       '@types/babel__template': 7.4.4
       '@types/babel__traverse': 7.20.6
 
   '@types/babel__generator@7.6.8':
     dependencies:
-      '@babel/types': 7.27.7
+      '@babel/types': 7.28.1
 
   '@types/babel__template@7.4.4':
     dependencies:
       '@babel/parser': 7.28.0
-      '@babel/types': 7.28.0
+      '@babel/types': 7.28.1
 
   '@types/babel__traverse@7.20.6':
     dependencies:
-      '@babel/types': 7.27.7
+      '@babel/types': 7.28.1
 
   '@types/canvas-confetti@1.9.0': {}
 
@@ -17306,7 +17198,7 @@ snapshots:
       '@babel/plugin-syntax-jsx': 7.25.9(@babel/core@7.28.0)
       '@babel/template': 7.27.2
       '@babel/traverse': 7.28.0
-      '@babel/types': 7.28.0
+      '@babel/types': 7.28.1
       '@vue/babel-helper-vue-transform-on': 1.4.0
       '@vue/babel-plugin-resolve-type': 1.4.0(@babel/core@7.28.0)
       '@vue/shared': 3.5.18
@@ -17660,7 +17552,7 @@ snapshots:
       '@babel/core': 7.28.0
       '@babel/helper-module-imports': 7.18.6
       '@babel/plugin-syntax-jsx': 7.25.9(@babel/core@7.28.0)
-      '@babel/types': 7.28.0
+      '@babel/types': 7.28.1
       html-entities: 2.3.3
       validate-html-nesting: 1.2.2
 
@@ -21870,7 +21762,7 @@ snapshots:
     dependencies:
       '@babel/generator': 7.28.0
       '@babel/helper-module-imports': 7.27.1
-      '@babel/types': 7.27.7
+      '@babel/types': 7.28.1
       solid-js: 1.9.7
     transitivePeerDependencies:
       - supports-color
