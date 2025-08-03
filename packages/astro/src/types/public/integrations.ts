@@ -188,6 +188,7 @@ export interface BaseIntegrationHooks {
 		addClientDirective: (directive: ClientDirectiveConfig) => void;
 		addDevToolbarApp: (entrypoint: DevToolbarAppEntry) => void;
 		addMiddleware: (mid: AstroIntegrationMiddleware) => void;
+		addInitializer: (entrypoint: string | URL) => void;
 		createCodegenDir: () => URL;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;

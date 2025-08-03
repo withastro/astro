@@ -289,6 +289,13 @@ export async function runHookConfigSetup({
 							typeof entrypoint === 'string' ? entrypoint : fileURLToPath(entrypoint),
 						);
 					},
+					addInitializer: (entrypoint) => {
+						if (typeof entrypoint === 'string') {
+							updatedSettings.initializers.push(entrypoint);
+						} else {
+							updatedSettings.initializers.push(fileURLToPath(entrypoint));
+						}
+					},
 					createCodegenDir: () => {
 						const codegenDir = new URL(normalizeCodegenDir(integration.name), settings.dotAstroDir);
 						fs.mkdirSync(codegenDir, { recursive: true });
