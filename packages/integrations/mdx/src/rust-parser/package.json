@@ -1,0 +1,24 @@
+{
+  "name": "mdx-rs-parser",
+  "version": "0.0.1",
+  "description": "Rust-based MDX parser for AST bridge",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "napi": {
+    "name": "mdx-rs-parser",
+    "triples": {}
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@napi-rs/cli": "^2.18.0"
+  },
+  "scripts": {
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "prepublishOnly": "napi prepublish -t npm",
+    "artifacts": "napi artifacts"
+  },
+  "engines": {
+    "node": ">= 10"
+  }
+}

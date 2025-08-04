@@ -59,8 +59,20 @@ jobs:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
 
+      # for checking if rust-parser is working
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@1fbea72663f6d4c03efaab13560c8a24cfd2a7cc # v1.9.0
+        with:
+          toolchain: stable
+
       - name: Install dependencies
         run: pnpm install
+
+      # for checking if rust-parser is working
+      - name: Build MDX Rust Parser
+        run: |
+          cd packages/integrations/mdx/src/rust-parser
+          pnpm run build
 
       # Only build in ubuntu as windows can share the build cache.
       # Also only build in core repo as forks don't have access to the Turbo cache.
@@ -89,8 +101,18 @@ jobs:
           node-version: 22
           cache: "pnpm"
 
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@1fbea72663f6d4c03efaab13560c8a24cfd2a7cc # v1.9.0
+        with:
+          toolchain: stable
+
       - name: Install dependencies
         run: pnpm install
+
+      - name: Build MDX Rust Parser
+        run: |
+          cd packages/integrations/mdx/src/rust-parser
+          pnpm run build
 
       - name: Build Packages
         # The cache doesn't contain prebuild files and causes knip to fail
@@ -135,8 +157,18 @@ jobs:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
 
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@1fbea72663f6d4c03efaab13560c8a24cfd2a7cc # v1.9.0
+        with:
+          toolchain: stable
+
       - name: Install dependencies
         run: pnpm install
+
+      - name: Build MDX Rust Parser
+        run: |
+          cd packages/integrations/mdx/src/rust-parser
+          pnpm run build
 
       - name: Build Packages
         run: pnpm run build
@@ -172,8 +204,18 @@ jobs:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
 
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@1fbea72663f6d4c03efaab13560c8a24cfd2a7cc # v1.9.0
+        with:
+          toolchain: stable
+
       - name: Install dependencies
         run: pnpm install
+
+      - name: Build MDX Rust Parser
+        run: |
+          cd packages/integrations/mdx/src/rust-parser
+          pnpm run build
 
       - name: Build Packages
         run: pnpm run build
@@ -208,6 +250,11 @@ jobs:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
 
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@1fbea72663f6d4c03efaab13560c8a24cfd2a7cc # v1.9.0
+        with:
+          toolchain: stable
+
       - name: Checkout docs
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -225,6 +272,11 @@ jobs:
       # Reset lockfile changes so that Turbo can reuse the old build cache
       - name: Reset lockfile changes
         run: git reset --hard
+
+      - name: Build MDX Rust Parser
+        run: |
+          cd packages/integrations/mdx/src/rust-parser
+          pnpm run build
 
       - name: Build Packages
         run: pnpm run build

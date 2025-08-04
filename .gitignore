@@ -41,3 +41,10 @@ examples/**/env.d.ts
 # want to share with others (see
 # https://github.com/withastro/astro/pull/11759#discussion_r1721444711)
 *.code-workspace
+
+# re-think this
+# Rust build artifacts
+packages/integrations/mdx/src/rust-parser/target/
+packages/integrations/mdx/src/rust-parser/*.node
+packages/*/target/
+**/*.node

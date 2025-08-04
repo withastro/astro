@@ -103,12 +103,15 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		liveContentCollections: false,
 		csp: false,
 		rawEnvValues: false,
+		mdxCompiler: 'js' as const,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
 const highlighterTypesSchema = z
 	.union([z.literal('shiki'), z.literal('prism')])
 	.default(syntaxHighlightDefaults.type);
+
+const mdxCompilerSchema = z.enum(['js', 'rs']).default('js');
 
 export const AstroConfigSchema = z.object({
 	root: z
@@ -375,6 +378,35 @@ export const AstroConfigSchema = z.object({
 			smartypants: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
 		})
 		.default({}),
+	mdx: z
+		.object({
+			gfm: z.boolean().optional().default(true),
+			smartypants: z.boolean().optional().default(true),
+			remarkPlugins: z
+				.union([
+					z.string(),
+					z.tuple([z.string(), z.any()]),
+					z.custom<RemarkPlugin>((data) => typeof data === 'function'),
+					z.tuple([z.custom<RemarkPlugin>((data) => typeof data === 'function'), z.any()]),
+				])
+				.array()
+				.optional()
+				.default([]),
+			rehypePlugins: z
+				.union([
+					z.string(),
+					z.tuple([z.string(), z.any()]),
+					z.custom<RehypePlugin>((data) => typeof data === 'function'),
+					z.tuple([z.custom<RehypePlugin>((data) => typeof data === 'function'), z.any()]),
+				])
+				.array()
+				.optional()
+				.default([]),
+			remarkRehype: z
+				.custom<RemarkRehype>((data) => data instanceof Object && !Array.isArray(data))
+				.optional(),
+		})
+		.optional(),
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
@@ -502,6 +534,7 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
 			rawEnvValues: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rawEnvValues),
+			mdxCompiler: mdxCompilerSchema,
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,
