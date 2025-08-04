@@ -4,7 +4,7 @@ import type { ColumnsConfig, DBColumn, OutputColumnsConfig } from '../core/types
 
 type GeneratedConfig<T extends ColumnDataType = ColumnDataType> = Pick<
 	ColumnBaseConfig<T, string>,
-	'name' | 'tableName' | 'notNull' | 'hasDefault'
+	'name' | 'tableName' | 'notNull' | 'hasDefault' | 'hasRuntimeDefault' | 'isPrimaryKey'
 >;
 
 type AstroText<T extends GeneratedConfig<'string'>> = SQLiteColumn<
@@ -15,9 +15,9 @@ type AstroText<T extends GeneratedConfig<'string'>> = SQLiteColumn<
 		driverParam: string;
 		enumValues: never;
 		baseColumn: never;
-		isPrimaryKey: boolean;
 		isAutoincrement: boolean;
-		hasRuntimeDefault: boolean;
+        identity: undefined;
+        generated: undefined;
 	}
 >;
 
@@ -29,9 +29,9 @@ type AstroDate<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 		driverParam: string;
 		enumValues: never;
 		baseColumn: never;
-		isPrimaryKey: boolean;
 		isAutoincrement: boolean;
-		hasRuntimeDefault: boolean;
+        identity: undefined;
+        generated: undefined;
 	}
 >;
 
@@ -43,9 +43,9 @@ type AstroBoolean<T extends GeneratedConfig<'boolean'>> = SQLiteColumn<
 		driverParam: number;
 		enumValues: never;
 		baseColumn: never;
-		isPrimaryKey: boolean;
 		isAutoincrement: boolean;
-		hasRuntimeDefault: boolean;
+        identity: undefined;
+        generated: undefined;
 	}
 >;
 
@@ -57,9 +57,9 @@ type AstroNumber<T extends GeneratedConfig<'number'>> = SQLiteColumn<
 		driverParam: number;
 		enumValues: never;
 		baseColumn: never;
-		isPrimaryKey: boolean;
 		isAutoincrement: boolean;
-		hasRuntimeDefault: boolean;
+        identity: undefined;
+        generated: undefined;
 	}
 >;
 
@@ -71,9 +71,9 @@ type AstroJson<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 		driverParam: string;
 		enumValues: never;
 		baseColumn: never;
-		isPrimaryKey: boolean;
 		isAutoincrement: boolean;
-		hasRuntimeDefault: boolean;
+        identity: undefined;
+        generated: undefined;
 	}
 >;
 
@@ -102,11 +102,17 @@ export type Table<
 			{
 				tableName: TTableName;
 				name: K;
+				isPrimaryKey: TColumns[K]['schema'] extends { primaryKey: true }
+					? true
+					: false;
 				hasDefault: TColumns[K]['schema'] extends { default: NonNullable<unknown> }
 					? true
 					: TColumns[K]['schema'] extends { primaryKey: true }
 						? true
 						: false;
+				hasRuntimeDefault: TColumns[K]['schema'] extends { default: NonNullable<unknown> }
+					? true
+					: false;
 				notNull: TColumns[K]['schema']['optional'] extends true ? false : true;
 			}
 		>;
