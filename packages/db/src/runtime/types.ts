@@ -16,8 +16,8 @@ type AstroText<T extends GeneratedConfig<'string'>> = SQLiteColumn<
 		enumValues: never;
 		baseColumn: never;
 		isAutoincrement: boolean;
-        identity: undefined;
-        generated: undefined;
+		identity: undefined;
+		generated: undefined;
 	}
 >;
 
@@ -30,8 +30,8 @@ type AstroDate<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 		enumValues: never;
 		baseColumn: never;
 		isAutoincrement: boolean;
-        identity: undefined;
-        generated: undefined;
+		identity: undefined;
+		generated: undefined;
 	}
 >;
 
@@ -44,8 +44,8 @@ type AstroBoolean<T extends GeneratedConfig<'boolean'>> = SQLiteColumn<
 		enumValues: never;
 		baseColumn: never;
 		isAutoincrement: boolean;
-        identity: undefined;
-        generated: undefined;
+		identity: undefined;
+		generated: undefined;
 	}
 >;
 
@@ -58,8 +58,8 @@ type AstroNumber<T extends GeneratedConfig<'number'>> = SQLiteColumn<
 		enumValues: never;
 		baseColumn: never;
 		isAutoincrement: boolean;
-        identity: undefined;
-        generated: undefined;
+		identity: undefined;
+		generated: undefined;
 	}
 >;
 
@@ -72,8 +72,8 @@ type AstroJson<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 		enumValues: never;
 		baseColumn: never;
 		isAutoincrement: boolean;
-        identity: undefined;
-        generated: undefined;
+		identity: undefined;
+		generated: undefined;
 	}
 >;
 
@@ -102,9 +102,7 @@ export type Table<
 			{
 				tableName: TTableName;
 				name: K;
-				isPrimaryKey: TColumns[K]['schema'] extends { primaryKey: true }
-					? true
-					: false;
+				isPrimaryKey: TColumns[K]['schema'] extends { primaryKey: true } ? true : false;
 				hasDefault: TColumns[K]['schema'] extends { default: NonNullable<unknown> }
 					? true
 					: TColumns[K]['schema'] extends { primaryKey: true }
