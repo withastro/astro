@@ -37,8 +37,7 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        # windows-latest is still windows-2022 for some reason, even though the windows-2025 image is GA
-        OS: [ubuntu-latest, windows-2025]
+        OS: [ubuntu-latest, windows-latest]
         NODE_VERSION: [22]
       fail-fast: true
     steps:
@@ -114,7 +113,7 @@ jobs:
         include:
           - os: macos-14
             NODE_VERSION: 22
-          - os: windows-2025
+          - os: windows-latest
             NODE_VERSION: 22
       fail-fast: false
     env:
@@ -151,7 +150,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        OS: [ubuntu-latest, windows-2025]
+        OS: [ubuntu-latest, windows-latest]
         NODE_VERSION: [22]
       fail-fast: false
     env:
@@ -188,7 +187,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        OS: [ubuntu-latest, windows-2025]
+        OS: [ubuntu-latest, windows-latest]
         NODE_VERSION: [22]
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
