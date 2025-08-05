@@ -13,6 +13,8 @@ describe('Prerendered error page host', () => {
 
 	before(async () => {
 		// Start local server to serve error pages
+		// This isn't something that would happen in production, but allows us to
+		// see if Astro is correctly requesting the prerendered error pages
 		errorPageServer = createServer((req, res) => {
 			errorPageRequests.push(req.url);
 
@@ -48,18 +50,14 @@ describe('Prerendered error page host', () => {
 	});
 
 	it('requests prerendered 404 page from the configured host', async () => {
-		// Clear any previous requests
 		errorPageRequests = [];
 
-		// Make request to non-existent page
 		const response = await fixture.fetch('/nonexistent');
-		// Verify the error page host received a request for 404.html
 		assert.ok(
 			errorPageRequests.includes('/404.html'),
 			'Error page host should receive request for 404.html',
 		);
 
-		// Verify we get the custom error page content
 		const text = await response.text();
 		assert.ok(text.includes('Custom 404 Page'), 'Should serve error page content from host');
 	});
@@ -67,15 +65,12 @@ describe('Prerendered error page host', () => {
 		// Clear any previous requests
 		errorPageRequests = [];
 
-		// Make request to trigger a 500 error
 		const response = await fixture.fetch('/error?error=true');
-		// Verify the error page host received a request for 500.html
 		assert.ok(
 			errorPageRequests.includes('/500.html'),
 			'Error page host should receive request for 500.html',
 		);
 
-		// Verify we get the custom error page content
 		const text = await response.text();
 		assert.ok(text.includes('Custom 500 Page'), 'Should serve error page content from host');
 	});
