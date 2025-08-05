@@ -22,7 +22,6 @@ export function createAppHandler(app: NodeApp, options: Options): RequestHandler
 
 	const prerenderedErrorPageFetch = options.experimentalErrorPageHost
 		? (url: string) => {
-				console.log('Default prerendered error page fetch:', url);
 				const errorPageUrl = new URL(url);
 				const originUrl = new URL(options.experimentalErrorPageHost!);
 				errorPageUrl.protocol = originUrl.protocol;
