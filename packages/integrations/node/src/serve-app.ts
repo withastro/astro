@@ -1,13 +1,13 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { NodeApp } from 'astro/app/node';
-import type { RequestHandler } from './types.js';
+import type { Options, RequestHandler } from './types.js';
 
 /**
  * Creates a Node.js http listener for on-demand rendered pages, compatible with http.createServer and Connect middleware.
  * If the next callback is provided, it will be called if the request does not have a matching route.
  * Intended to be used in both standalone and middleware mode.
  */
-export function createAppHandler(app: NodeApp): RequestHandler {
+export function createAppHandler(app: NodeApp, options: Options): RequestHandler {
 	/**
 	 * Keep track of the current request path using AsyncLocalStorage.
 	 * Used to log unhandled rejections with a helpful message.
@@ -19,6 +19,17 @@ export function createAppHandler(app: NodeApp): RequestHandler {
 		logger.error(`Unhandled rejection while rendering ${requestUrl}`);
 		console.error(reason);
 	});
+
+	const prerenderedErrorPageFetch = options.experimentalErrorPageHost
+		? (url: string) => {
+				console.log('Default prerendered error page fetch:', url);
+				const errorPageUrl = new URL(url);
+				const originUrl = new URL(options.experimentalErrorPageHost!);
+				errorPageUrl.protocol = originUrl.protocol;
+				errorPageUrl.host = originUrl.host;
+				return fetch(errorPageUrl);
+			}
+		: undefined;
 
 	return async (req, res, next, locals) => {
 		let request: Request;
@@ -39,13 +50,14 @@ export function createAppHandler(app: NodeApp): RequestHandler {
 					addCookieHeader: true,
 					locals,
 					routeData,
+					prerenderedErrorPageFetch,
 				}),
 			);
 			await NodeApp.writeResponse(response, res);
 		} else if (next) {
 			return next();
 		} else {
-			const response = await app.render(req, { addCookieHeader: true });
+			const response = await app.render(req, { addCookieHeader: true, prerenderedErrorPageFetch });
 			await NodeApp.writeResponse(response, res);
 		}
 	};

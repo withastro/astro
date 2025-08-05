@@ -86,6 +86,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 					port: config.server.port,
 					assets: config.build.assets,
 					experimentalStaticHeaders: userOptions.experimentalStaticHeaders ?? false,
+					experimentalErrorPageHost: userOptions.experimentalErrorPageHost,
 				};
 				setAdapter(getAdapter(_options));
 			},

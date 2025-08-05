@@ -21,6 +21,16 @@ export interface UserOptions {
 	 * - The CSP header of the static pages is added when CSP support is enabled.
 	 */
 	experimentalStaticHeaders?: boolean;
+
+	/**
+   * The host that should be used if the server needs to fetch the prerendered error page.
+	 * If not provided, this will default to the host of the server. This should be set if the server
+	 * should fetch prerendered error pages from a different host than the public URL of the server.
+	 * This is useful for example if the server is behind a reverse proxy or a load balancer, or if
+	 * static files are hosted on a different domain.
+	 */
+	experimentalErrorPageHost?: string;
+
 }
 
 export interface Options extends UserOptions {
