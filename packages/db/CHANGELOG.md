@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.16.1
+
+### Patch Changes
+
+- [#14186](https://github.com/withastro/astro/pull/14186) [`9fe883e`](https://github.com/withastro/astro/commit/9fe883ece60f11da7d63c2eef8af61923997021e) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Fixes types for optional and primary key columns in Astro DB tables.
+
 ## 0.16.0
 
 ### Minor Changes
