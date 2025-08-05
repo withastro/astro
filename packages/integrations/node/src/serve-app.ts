@@ -20,10 +20,13 @@ export function createAppHandler(app: NodeApp, options: Options): RequestHandler
 		console.error(reason);
 	});
 
-	const prerenderedErrorPageFetch = options.experimentalErrorPageHost
+	const originUrl = options.experimentalErrorPageHost
+		? new URL(options.experimentalErrorPageHost)
+		: undefined;
+
+	const prerenderedErrorPageFetch = originUrl
 		? (url: string) => {
 				const errorPageUrl = new URL(url);
-				const originUrl = new URL(options.experimentalErrorPageHost!);
 				errorPageUrl.protocol = originUrl.protocol;
 				errorPageUrl.host = originUrl.host;
 				return fetch(errorPageUrl);

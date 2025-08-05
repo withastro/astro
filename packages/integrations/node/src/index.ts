@@ -39,6 +39,15 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 		throw new AstroError(`Setting the 'mode' option is required.`);
 	}
 
+	if (
+		userOptions.experimentalErrorPageHost &&
+		!URL.canParse(userOptions.experimentalErrorPageHost)
+	) {
+		throw new AstroError(
+			`Invalid experimentalErrorPageHost: ${userOptions.experimentalErrorPageHost}. It should be a valid URL.`,
+		);
+	}
+
 	let _options: Options;
 	let _config: AstroConfig | undefined = undefined;
 	let _routeToHeaders: RouteToHeaders | undefined = undefined;

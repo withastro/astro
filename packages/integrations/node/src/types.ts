@@ -23,14 +23,13 @@ export interface UserOptions {
 	experimentalStaticHeaders?: boolean;
 
 	/**
-   * The host that should be used if the server needs to fetch the prerendered error page.
+	 * The host that should be used if the server needs to fetch the prerendered error page.
 	 * If not provided, this will default to the host of the server. This should be set if the server
 	 * should fetch prerendered error pages from a different host than the public URL of the server.
 	 * This is useful for example if the server is behind a reverse proxy or a load balancer, or if
-	 * static files are hosted on a different domain.
+	 * static files are hosted on a different domain. Do not include a path in the URL: it will be ignored.
 	 */
-	experimentalErrorPageHost?: string;
-
+	experimentalErrorPageHost?: string | URL;
 }
 
 export interface Options extends UserOptions {
