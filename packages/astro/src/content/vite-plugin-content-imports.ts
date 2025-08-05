@@ -35,6 +35,7 @@ import {
 	reloadContentConfigObserver,
 	reverseSymlink,
 } from './utils.js';
+import { getRunnableEnvironment } from '../core/module-loader/index.js';
 
 function getContentRendererByViteId(
 	viteId: string,
@@ -152,6 +153,8 @@ export const _internal = {
 			configureServer(viteServer) {
 				viteServer.watcher.on('all', async (event, entry) => {
 					if (CHOKIDAR_MODIFIED_EVENTS.includes(event)) {
+						const environment = getRunnableEnvironment(viteServer);
+
 						const entryType = getEntryType(entry, contentPaths, contentEntryExts, dataEntryExts);
 						if (!COLLECTION_TYPES_TO_INVALIDATE_ON.includes(entryType)) return;
 
@@ -159,21 +162,21 @@ export const _internal = {
 						// Reload the config in case of changes.
 						// Changes to the config file itself are handled in types-generator.ts, so we skip them here
 						if (entryType === 'content' || entryType === 'data') {
-							await reloadContentConfigObserver({ fs, settings, viteServer });
+							await reloadContentConfigObserver({ fs, settings, environment });
 						}
 
 						// Invalidate all content imports and `render()` modules.
 						// TODO: trace `reference()` calls for fine-grained invalidation.
-						for (const modUrl of viteServer.moduleGraph.urlToModuleMap.keys()) {
+						for (const modUrl of environment.moduleGraph.urlToModuleMap.keys()) {
 							if (
 								hasContentFlag(modUrl, CONTENT_FLAG) ||
 								hasContentFlag(modUrl, DATA_FLAG) ||
 								Boolean(getContentRendererByViteId(modUrl, settings))
 							) {
 								try {
-									const mod = await viteServer.moduleGraph.getModuleByUrl(modUrl);
+									const mod = await environment.moduleGraph.getModuleByUrl(modUrl);
 									if (mod) {
-										viteServer.moduleGraph.invalidateModule(mod);
+										environment.moduleGraph.invalidateModule(mod);
 									}
 								} catch (e: any) {
 									// The server may be closed due to a restart caused by this file change

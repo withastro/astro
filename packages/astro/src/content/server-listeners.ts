@@ -9,6 +9,7 @@ import { appendForwardSlash } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
 import { createContentTypesGenerator } from './types-generator.js';
 import { type ContentPaths, getContentPaths, globalContentConfigObserver } from './utils.js';
+import { getRunnableEnvironment } from '../core/module-loader/index.js';
 
 interface ContentServerListenerParams {
 	fs: typeof fsMod;
@@ -23,6 +24,7 @@ export async function attachContentServerListeners({
 	logger,
 	settings,
 }: ContentServerListenerParams) {
+	const environment = getRunnableEnvironment(viteServer);
 	const contentPaths = getContentPaths(settings.config, fs);
 	if (!settings.config.legacy?.collections) {
 		await attachListeners();
@@ -52,7 +54,7 @@ export async function attachContentServerListeners({
 			fs,
 			settings,
 			logger,
-			viteServer,
+			environment,
 			contentConfigObserver: globalContentConfigObserver,
 		});
 		await contentGenerator.init();

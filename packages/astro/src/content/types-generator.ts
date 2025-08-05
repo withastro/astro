@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { bold, cyan } from 'kleur/colors';
 import { glob } from 'tinyglobby';
-import { normalizePath, type ViteDevServer } from 'vite';
+import { normalizePath, type RunnableDevEnvironment } from 'vite';
 import { type ZodSchema, z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { AstroError } from '../core/errors/errors.js';
@@ -66,7 +66,7 @@ type CreateContentGeneratorParams = {
 	logger: Logger;
 	settings: AstroSettings;
 	/** This is required for loading the content config */
-	viteServer: ViteDevServer;
+	environment: RunnableDevEnvironment;
 	fs: typeof fsMod;
 };
 
@@ -75,7 +75,7 @@ export async function createContentTypesGenerator({
 	fs,
 	logger,
 	settings,
-	viteServer,
+	environment,
 }: CreateContentGeneratorParams) {
 	const collectionEntryMap: CollectionEntryMap = {};
 	const contentPaths = getContentPaths(settings.config, fs);
@@ -151,7 +151,7 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: false };
 		}
 		if (fileType === 'config') {
-			await reloadContentConfigObserver({ fs, settings, viteServer });
+			await reloadContentConfigObserver({ fs, settings, environment });
 			return { shouldGenerateTypes: true };
 		}
 
@@ -183,7 +183,7 @@ export async function createContentTypesGenerator({
 					}
 					const collectionInfo = collectionEntryMap[collectionKey];
 					if (collectionInfo.type === 'content') {
-						viteServer.hot.send({
+						environment.hot.send({
 							type: 'error',
 							err: new AstroError({
 								...AstroErrorData.MixedContentDataCollectionError,
@@ -227,7 +227,7 @@ export async function createContentTypesGenerator({
 		}
 		const collectionInfo = collectionEntryMap[collectionKey];
 		if (collectionInfo.type === 'data') {
-			viteServer.hot.send({
+			environment.hot.send({
 				type: 'error',
 				err: new AstroError({
 					...AstroErrorData.MixedContentDataCollectionError,
@@ -334,11 +334,11 @@ export async function createContentTypesGenerator({
 				typeTemplateContent,
 				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
 				contentEntryTypes: settings.contentEntryTypes,
-				viteServer,
+				environment,
 				logger,
 				settings,
 			});
-			invalidateVirtualMod(viteServer);
+			invalidateVirtualMod(environment);
 		}
 	}
 	return { init, queueEvent };
@@ -346,11 +346,11 @@ export async function createContentTypesGenerator({
 
 // The virtual module contains a lookup map from slugs to content imports.
 // Invalidate whenever content types change.
-function invalidateVirtualMod(viteServer: ViteDevServer) {
-	const virtualMod = viteServer.moduleGraph.getModuleById('\0' + VIRTUAL_MODULE_ID);
+function invalidateVirtualMod(environment: RunnableDevEnvironment) {
+	const virtualMod = environment.moduleGraph.getModuleById('\0' + VIRTUAL_MODULE_ID);
 	if (!virtualMod) return;
 
-	viteServer.moduleGraph.invalidateModule(virtualMod);
+	environment.moduleGraph.invalidateModule(virtualMod);
 }
 
 /**
@@ -432,7 +432,7 @@ async function writeContentFiles({
 	typeTemplateContent,
 	contentEntryTypes,
 	contentConfig,
-	viteServer,
+	environment,
 	logger,
 	settings,
 }: {
@@ -442,7 +442,7 @@ async function writeContentFiles({
 	typeTemplateContent: string;
 	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
-	viteServer: Pick<ViteDevServer, 'hot'>;
+	environment: Pick<RunnableDevEnvironment, 'hot'>;
 	logger: Logger;
 	settings: AstroSettings;
 }) {
@@ -469,7 +469,7 @@ async function writeContentFiles({
 			collectionConfig.type !== CONTENT_LAYER_TYPE &&
 			collection.type !== collectionConfig.type
 		) {
-			viteServer.hot.send({
+			environment.hot.send({
 				type: 'error',
 				err: new AstroError({
 					...AstroErrorData.ContentCollectionTypeMismatchError,

@@ -3,7 +3,7 @@ import { dirname, relative } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { dim } from 'kleur/colors';
-import { createServer, type FSWatcher, type HMRPayload } from 'vite';
+import { createServer, type FSWatcher, type HotPayload } from 'vite';
 import { syncFonts } from '../../assets/fonts/sync.js';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
 import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
@@ -35,6 +35,7 @@ import type { Logger } from '../logger/core.js';
 import { createRoutesList } from '../routing/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { normalizePath } from '../viteUtils.js';
+import { getRunnableEnvironment } from '../module-loader/index.js';
 
 type SyncOptions = {
 	mode: string;
@@ -254,10 +255,12 @@ async function syncContentCollections(
 		),
 	);
 
+	const environment = getRunnableEnvironment(tempViteServer);
+
 	// Patch `hot.send` to bubble up error events
 	// `hot.on('error')` does not fire for some reason
-	const hotSend = tempViteServer.hot.send;
-	tempViteServer.hot.send = (payload: HMRPayload) => {
+	const hotSend = environment.hot.send;
+	environment.hot.send = (payload: HotPayload) => {
 		if (payload.type === 'error') {
 			throw payload.err;
 		}
@@ -270,7 +273,7 @@ async function syncContentCollections(
 			logger: logger,
 			fs,
 			settings,
-			viteServer: tempViteServer,
+			environment,
 		});
 		const typesResult = await contentTypesGenerator.init();
 

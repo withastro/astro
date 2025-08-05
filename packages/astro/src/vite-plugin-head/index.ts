@@ -6,12 +6,14 @@ import type { AstroBuildPlugin } from '../core/build/plugin.js';
 import type { SSRComponentMetadata, SSRResult } from '../types/public/internal.js';
 import { getAstroMetadata } from '../vite-plugin-astro/index.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
+import type { RunnableDevEnvironment } from 'vite';
+import { getRunnableEnvironment } from '../core/module-loader/index.js';
 
 // Detect this in comments, both in .astro components and in js/ts files.
 const injectExp = /(?:^\/\/|\/\/!)\s*astro-head-inject/;
 
 export default function configHeadVitePlugin(): vite.Plugin {
-	let server: vite.ViteDevServer;
+	let environment: RunnableDevEnvironment;
 
 	function propagateMetadata<
 		P extends keyof PluginMetadata['astro'],
@@ -25,7 +27,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 	) {
 		if (seen.has(id)) return;
 		seen.add(id);
-		const mod = server.moduleGraph.getModuleById(id);
+		const mod = environment.moduleGraph.getModuleById(id);
 		const info = this.getModuleInfo(id);
 
 		if (info?.meta.astro) {
@@ -47,7 +49,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 		enforce: 'pre',
 		apply: 'serve',
 		configureServer(_server) {
-			server = _server;
+			environment = getRunnableEnvironment(_server);
 		},
 		resolveId(source, importer) {
 			if (importer) {
@@ -73,10 +75,6 @@ export default function configHeadVitePlugin(): vite.Plugin {
 			}
 		},
 		transform(source, id) {
-			if (!server) {
-				return;
-			}
-
 			// TODO This could probably be removed now that this is handled in resolveId
 			let info = this.getModuleInfo(id);
 			if (info && getAstroMetadata(info)?.containsHead) {
@@ -85,7 +83,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 
 			// TODO This could probably be removed now that this is handled in resolveId
 			if (info && getAstroMetadata(info)?.propagation === 'self') {
-				const mod = server.moduleGraph.getModuleById(id);
+				const mod = (this.environment as RunnableDevEnvironment).moduleGraph.getModuleById(id);
 				for (const parent of mod?.importers ?? []) {
 					if (parent.id) {
 						propagateMetadata.call(this, parent.id, 'propagation', 'in-tree');

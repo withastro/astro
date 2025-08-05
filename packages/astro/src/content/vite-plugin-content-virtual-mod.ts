@@ -4,8 +4,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dataToEsm } from '@rollup/pluginutils';
 import pLimit from 'p-limit';
 import { glob } from 'tinyglobby';
-import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
+import { type DevEnvironment, normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { getRunnableEnvironment } from '../core/module-loader/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
@@ -46,12 +47,12 @@ interface AstroContentVirtualModPluginParams {
 	fs: typeof nodeFs;
 }
 
-function invalidateDataStore(server: ViteDevServer) {
-	const module = server.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
+function invalidateDataStore(environment: DevEnvironment) {
+	const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
 	if (module) {
-		server.moduleGraph.invalidateModule(module);
+		environment.moduleGraph.invalidateModule(module);
 	}
-	server.ws.send({
+	environment.hot.send({
 		type: 'full-reload',
 		path: '*',
 	});
@@ -79,7 +80,7 @@ export function astroContentVirtualModPlugin({
 				// We defer adding the data store file to the watcher until the server is ready
 				devServer.watcher.add(fileURLToPath(dataStoreFile));
 				// Manually invalidate the data store to avoid a race condition in file watching
-				invalidateDataStore(devServer);
+				invalidateDataStore(this.environment as DevEnvironment);
 			}
 		},
 		async resolveId(id, importer) {
@@ -197,14 +198,16 @@ export function astroContentVirtualModPlugin({
 			// If the datastore file changes, invalidate the virtual module
 
 			server.watcher.on('add', (addedPath) => {
+				const environment = getRunnableEnvironment(server);
 				if (addedPath === dataStorePath) {
-					invalidateDataStore(server);
+					invalidateDataStore(environment);
 				}
 			});
 
 			server.watcher.on('change', (changedPath) => {
 				if (changedPath === dataStorePath) {
-					invalidateDataStore(server);
+					const environment = getRunnableEnvironment(server);
+					invalidateDataStore(environment);
 				}
 			});
 		},

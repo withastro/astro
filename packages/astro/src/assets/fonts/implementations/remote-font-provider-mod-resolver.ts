@@ -1,5 +1,6 @@
 import type { ViteDevServer } from 'vite';
 import type { RemoteFontProviderModResolver } from '../definitions.js';
+import { getRunnableEnvironment } from '../../../core/module-loader/index.js';
 
 export function createBuildRemoteFontProviderModResolver(): RemoteFontProviderModResolver {
 	return {
@@ -16,7 +17,8 @@ export function createDevServerRemoteFontProviderModResolver({
 }): RemoteFontProviderModResolver {
 	return {
 		resolve(id) {
-			return server.ssrLoadModule(id);
+			const ssrEnvironment = getRunnableEnvironment(server);
+			return ssrEnvironment.runner.import(id);
 		},
 	};
 }
