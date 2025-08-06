@@ -32,10 +32,10 @@ import {
 	isAstroError,
 } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
+import { getRunnableEnvironment } from '../module-loader/index.js';
 import { createRoutesList } from '../routing/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { normalizePath } from '../viteUtils.js';
-import { getRunnableEnvironment } from '../module-loader/index.js';
 
 type SyncOptions = {
 	mode: string;

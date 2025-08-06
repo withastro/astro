@@ -5,11 +5,11 @@ import { bold, cyan, underline } from 'kleur/colors';
 import type { ViteDevServer } from 'vite';
 import { loadTSConfig } from '../core/config/tsconfig.js';
 import type { Logger } from '../core/logger/core.js';
+import { getRunnableEnvironment } from '../core/module-loader/index.js';
 import { appendForwardSlash } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
 import { createContentTypesGenerator } from './types-generator.js';
 import { type ContentPaths, getContentPaths, globalContentConfigObserver } from './utils.js';
-import { getRunnableEnvironment } from '../core/module-loader/index.js';
 
 interface ContentServerListenerParams {
 	fs: typeof fsMod;

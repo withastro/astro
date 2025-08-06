@@ -1,13 +1,13 @@
 import type { ModuleInfo } from 'rollup';
 import type * as vite from 'vite';
+import type { RunnableDevEnvironment } from 'vite';
 import { getParentModuleInfos, getTopLevelPageModuleInfos } from '../core/build/graph.js';
 import type { BuildInternals } from '../core/build/internal.js';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
+import { getRunnableEnvironment } from '../core/module-loader/index.js';
 import type { SSRComponentMetadata, SSRResult } from '../types/public/internal.js';
 import { getAstroMetadata } from '../vite-plugin-astro/index.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
-import type { RunnableDevEnvironment } from 'vite';
-import { getRunnableEnvironment } from '../core/module-loader/index.js';
 
 // Detect this in comments, both in .astro components and in js/ts files.
 const injectExp = /(?:^\/\/|\/\/!)\s*astro-head-inject/;

@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events';
 import type * as fs from 'node:fs';
-import type { TypedEventEmitter } from '../../types/typed-emitter.js';
 import type { EnvironmentModuleNode } from 'vite';
+import type { TypedEventEmitter } from '../../types/typed-emitter.js';
 
 // This is a generic interface for a module loader. In the astro cli this is
 // fulfilled by Vite, see vite.ts

@@ -8,6 +8,7 @@ import { getProxyCode } from '../assets/utils/proxy.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
+import { getRunnableEnvironment } from '../core/module-loader/index.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type {
@@ -35,7 +36,6 @@ import {
 	reloadContentConfigObserver,
 	reverseSymlink,
 } from './utils.js';
-import { getRunnableEnvironment } from '../core/module-loader/index.js';
 
 function getContentRendererByViteId(
 	viteId: string,
