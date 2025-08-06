@@ -82,18 +82,18 @@ type AstroJson<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 
 type Column<
 	T extends DBColumn['type'],
-	S extends [string, ...string[]] | never,
-	G extends GeneratedConfig,
+	E extends [string, ...string[]] | never,
+	S extends GeneratedConfig,
 > = T extends 'boolean'
-	? AstroBoolean<G>
+	? AstroBoolean<S>
 	: T extends 'number'
-		? AstroNumber<G>
+		? AstroNumber<S>
 		: T extends 'text'
-			? AstroText<G, S extends infer S ? (S extends [string, ...string[]] ? S : never) : never>
+			? AstroText<S, E extends infer F ? (F extends [string, ...string[]] ? F : never) : never>
 			: T extends 'date'
-				? AstroDate<G>
+				? AstroDate<S>
 				: T extends 'json'
-					? AstroJson<G>
+					? AstroJson<S>
 					: never;
 
 export type Table<
