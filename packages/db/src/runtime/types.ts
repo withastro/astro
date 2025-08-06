@@ -4,12 +4,7 @@ import type { ColumnsConfig, DBColumn, OutputColumnsConfig } from '../core/types
 
 type GeneratedConfig<T extends ColumnDataType = ColumnDataType> = Pick<
 	ColumnBaseConfig<T, string>,
-	| 'name'
-	| 'tableName'
-	| 'notNull'
-	| 'hasDefault'
-	| 'hasRuntimeDefault'
-	| 'isPrimaryKey'
+	'name' | 'tableName' | 'notNull' | 'hasDefault' | 'hasRuntimeDefault' | 'isPrimaryKey'
 >;
 
 type AstroText<
@@ -17,9 +12,7 @@ type AstroText<
 	D extends [string, ...string[]] | never,
 > = SQLiteColumn<
 	T & {
-		data: D extends [string, ...string[]]
-			? D[number] // Convert tuple to union
-			: string;
+		data: D extends [string, ...string[]] ? D[number] : string;
 		dataType: 'string';
 		columnType: 'SQLiteText';
 		driverParam: string;
@@ -113,7 +106,9 @@ export type Table<
 	columns: {
 		[K in Extract<keyof TColumns, string>]: Column<
 			TColumns[K]['type'],
-			TColumns[K]['schema'] extends { enum: [string, ...string[]] } ? TColumns[K]['schema']['enum'] : never,
+			TColumns[K]['schema'] extends { enum: [string, ...string[]] }
+				? TColumns[K]['schema']['enum']
+				: never,
 			{
 				tableName: TTableName;
 				name: K;
