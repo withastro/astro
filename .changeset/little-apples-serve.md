@@ -16,7 +16,7 @@ const UserTable = defineTable({
 	},
 });
 
-// Type definition
+// Resulting type definition
 type UserTableInferInsert = {
     id: string;
     name: string;
