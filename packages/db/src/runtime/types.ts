@@ -4,16 +4,21 @@ import type { ColumnsConfig, DBColumn, OutputColumnsConfig } from '../core/types
 
 type GeneratedConfig<T extends ColumnDataType = ColumnDataType> = Pick<
 	ColumnBaseConfig<T, string>,
-	'name' | 'tableName' | 'notNull' | 'hasDefault' | 'hasRuntimeDefault' | 'isPrimaryKey'
+	| 'name'
+	| 'tableName'
+	| 'notNull'
+	| 'hasDefault'
+	| 'hasRuntimeDefault'
+	| 'isPrimaryKey'
+	| 'enumValues'
+	| 'data'
 >;
 
 type AstroText<T extends GeneratedConfig<'string'>> = SQLiteColumn<
 	T & {
-		data: string;
 		dataType: 'string';
 		columnType: 'SQLiteText';
 		driverParam: string;
-		enumValues: never;
 		baseColumn: never;
 		isAutoincrement: boolean;
 		identity: undefined;
@@ -23,11 +28,9 @@ type AstroText<T extends GeneratedConfig<'string'>> = SQLiteColumn<
 
 type AstroDate<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 	T & {
-		data: Date;
 		dataType: 'custom';
 		columnType: 'SQLiteCustomColumn';
 		driverParam: string;
-		enumValues: never;
 		baseColumn: never;
 		isAutoincrement: boolean;
 		identity: undefined;
@@ -37,11 +40,9 @@ type AstroDate<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 
 type AstroBoolean<T extends GeneratedConfig<'boolean'>> = SQLiteColumn<
 	T & {
-		data: boolean;
 		dataType: 'boolean';
 		columnType: 'SQLiteBoolean';
 		driverParam: number;
-		enumValues: never;
 		baseColumn: never;
 		isAutoincrement: boolean;
 		identity: undefined;
@@ -51,11 +52,9 @@ type AstroBoolean<T extends GeneratedConfig<'boolean'>> = SQLiteColumn<
 
 type AstroNumber<T extends GeneratedConfig<'number'>> = SQLiteColumn<
 	T & {
-		data: number;
 		dataType: 'number';
 		columnType: 'SQLiteInteger';
 		driverParam: number;
-		enumValues: never;
 		baseColumn: never;
 		isAutoincrement: boolean;
 		identity: undefined;
@@ -65,11 +64,9 @@ type AstroNumber<T extends GeneratedConfig<'number'>> = SQLiteColumn<
 
 type AstroJson<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 	T & {
-		data: unknown;
 		dataType: 'custom';
 		columnType: 'SQLiteCustomColumn';
 		driverParam: string;
-		enumValues: never;
 		baseColumn: never;
 		isAutoincrement: boolean;
 		identity: undefined;
@@ -112,6 +109,26 @@ export type Table<
 					? true
 					: false;
 				notNull: TColumns[K]['schema']['optional'] extends true ? false : true;
+				enumValues: TColumns[K]['schema'] extends { enum: infer E }
+					? E extends [string, ...string[]]
+						? E
+						: never
+					: never;
+				data: TColumns[K]['type'] extends 'boolean'
+					? boolean
+					: TColumns[K]['type'] extends 'number'
+						? number
+						: TColumns[K]['type'] extends 'text'
+							? TColumns[K]['schema'] extends { enum: infer E }
+								? E extends [string, ...string[]]
+									? E[number] // Convert tuple to union
+									: string
+								: string
+							: TColumns[K]['type'] extends 'date'
+								? Date
+								: TColumns[K]['type'] extends 'json'
+									? unknown
+									: never;
 			}
 		>;
 	};
