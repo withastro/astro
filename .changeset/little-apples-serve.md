@@ -2,4 +2,4 @@
 '@astrojs/db': patch
 ---
 
-Adds support for enums on column.text() to table types
+Adds support for enum support for text columns in Astro DB tables.
