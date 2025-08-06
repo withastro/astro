@@ -9,14 +9,18 @@ type GeneratedConfig<T extends ColumnDataType = ColumnDataType> = Pick<
 
 type AstroText<
 	T extends GeneratedConfig<'string'>,
-	D extends [string, ...string[]] | never,
+	E extends [string, ...string[]] | never,
 > = SQLiteColumn<
 	T & {
-		data: D extends [string, ...string[]] ? D[number] : string;
+		data: E extends infer EnumValues
+			? EnumValues extends [string, ...string[]]
+				? EnumValues[number]
+				: never
+			: string;
 		dataType: 'string';
 		columnType: 'SQLiteText';
 		driverParam: string;
-		enumValues: D extends [string, ...string[]] ? D : never;
+		enumValues: E extends [string, ...string[]] ? E : never;
 		baseColumn: never;
 		isAutoincrement: boolean;
 		identity: undefined;
@@ -89,7 +93,7 @@ type Column<
 	: T extends 'number'
 		? AstroNumber<S>
 		: T extends 'text'
-			? AstroText<S, E extends infer F ? (F extends [string, ...string[]] ? F : never) : never>
+			? AstroText<S, E>
 			: T extends 'date'
 				? AstroDate<S>
 				: T extends 'json'
