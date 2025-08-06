@@ -10,15 +10,20 @@ type GeneratedConfig<T extends ColumnDataType = ColumnDataType> = Pick<
 	| 'hasDefault'
 	| 'hasRuntimeDefault'
 	| 'isPrimaryKey'
-	| 'enumValues'
-	| 'data'
 >;
 
-type AstroText<T extends GeneratedConfig<'string'>> = SQLiteColumn<
+type AstroText<
+	T extends GeneratedConfig<'string'>,
+	D extends [string, ...string[]] | never,
+> = SQLiteColumn<
 	T & {
+		data: D extends [string, ...string[]]
+			? D[number] // Convert tuple to union
+			: string;
 		dataType: 'string';
 		columnType: 'SQLiteText';
 		driverParam: string;
+		enumValues: D extends [string, ...string[]] ? D : never;
 		baseColumn: never;
 		isAutoincrement: boolean;
 		identity: undefined;
@@ -28,9 +33,11 @@ type AstroText<T extends GeneratedConfig<'string'>> = SQLiteColumn<
 
 type AstroDate<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 	T & {
+		data: Date;
 		dataType: 'custom';
 		columnType: 'SQLiteCustomColumn';
 		driverParam: string;
+		enumValues: never;
 		baseColumn: never;
 		isAutoincrement: boolean;
 		identity: undefined;
@@ -40,9 +47,11 @@ type AstroDate<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 
 type AstroBoolean<T extends GeneratedConfig<'boolean'>> = SQLiteColumn<
 	T & {
+		data: boolean;
 		dataType: 'boolean';
 		columnType: 'SQLiteBoolean';
 		driverParam: number;
+		enumValues: never;
 		baseColumn: never;
 		isAutoincrement: boolean;
 		identity: undefined;
@@ -52,9 +61,11 @@ type AstroBoolean<T extends GeneratedConfig<'boolean'>> = SQLiteColumn<
 
 type AstroNumber<T extends GeneratedConfig<'number'>> = SQLiteColumn<
 	T & {
+		data: number;
 		dataType: 'number';
 		columnType: 'SQLiteInteger';
 		driverParam: number;
+		enumValues: never;
 		baseColumn: never;
 		isAutoincrement: boolean;
 		identity: undefined;
@@ -64,9 +75,11 @@ type AstroNumber<T extends GeneratedConfig<'number'>> = SQLiteColumn<
 
 type AstroJson<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 	T & {
+		data: unknown;
 		dataType: 'custom';
 		columnType: 'SQLiteCustomColumn';
 		driverParam: string;
+		enumValues: never;
 		baseColumn: never;
 		isAutoincrement: boolean;
 		identity: undefined;
@@ -74,16 +87,20 @@ type AstroJson<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 	}
 >;
 
-type Column<T extends DBColumn['type'], S extends GeneratedConfig> = T extends 'boolean'
-	? AstroBoolean<S>
+type Column<
+	T extends DBColumn['type'],
+	S extends [string, ...string[]] | never,
+	G extends GeneratedConfig,
+> = T extends 'boolean'
+	? AstroBoolean<G>
 	: T extends 'number'
-		? AstroNumber<S>
+		? AstroNumber<G>
 		: T extends 'text'
-			? AstroText<S>
+			? AstroText<G, S extends infer S ? (S extends [string, ...string[]] ? S : never) : never>
 			: T extends 'date'
-				? AstroDate<S>
+				? AstroDate<G>
 				: T extends 'json'
-					? AstroJson<S>
+					? AstroJson<G>
 					: never;
 
 export type Table<
@@ -96,6 +113,7 @@ export type Table<
 	columns: {
 		[K in Extract<keyof TColumns, string>]: Column<
 			TColumns[K]['type'],
+			TColumns[K]['schema'] extends { enum: [string, ...string[]] } ? TColumns[K]['schema']['enum'] : never,
 			{
 				tableName: TTableName;
 				name: K;
@@ -109,26 +127,6 @@ export type Table<
 					? true
 					: false;
 				notNull: TColumns[K]['schema']['optional'] extends true ? false : true;
-				enumValues: TColumns[K]['schema'] extends { enum: infer E }
-					? E extends [string, ...string[]]
-						? E
-						: never
-					: never;
-				data: TColumns[K]['type'] extends 'boolean'
-					? boolean
-					: TColumns[K]['type'] extends 'number'
-						? number
-						: TColumns[K]['type'] extends 'text'
-							? TColumns[K]['schema'] extends { enum: infer E }
-								? E extends [string, ...string[]]
-									? E[number] // Convert tuple to union
-									: string
-								: string
-							: TColumns[K]['type'] extends 'date'
-								? Date
-								: TColumns[K]['type'] extends 'json'
-									? unknown
-									: never;
 			}
 		>;
 	};
