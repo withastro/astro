@@ -81,16 +81,6 @@ export default function configHeadVitePlugin(): vite.Plugin {
 				propagateMetadata.call(this, id, 'containsHead', true);
 			}
 
-			// TODO This could probably be removed now that this is handled in resolveId
-			if (info && getAstroMetadata(info)?.propagation === 'self') {
-				const mod = (this.environment as RunnableDevEnvironment).moduleGraph.getModuleById(id);
-				for (const parent of mod?.importers ?? []) {
-					if (parent.id) {
-						propagateMetadata.call(this, parent.id, 'propagation', 'in-tree');
-					}
-				}
-			}
-
 			if (injectExp.test(source)) {
 				propagateMetadata.call(this, id, 'propagation', 'in-tree');
 			}
