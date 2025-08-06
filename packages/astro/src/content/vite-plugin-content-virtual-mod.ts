@@ -4,7 +4,13 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dataToEsm } from '@rollup/pluginutils';
 import pLimit from 'p-limit';
 import { glob } from 'tinyglobby';
-import { type DevEnvironment, normalizePath, type Plugin, type ViteDevServer } from 'vite';
+import {
+	type DevEnvironment,
+	isRunnableDevEnvironment,
+	normalizePath,
+	type Plugin,
+	type ViteDevServer,
+} from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { getRunnableEnvironment } from '../core/module-loader/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
@@ -79,8 +85,10 @@ export function astroContentVirtualModPlugin({
 			if (devServer) {
 				// We defer adding the data store file to the watcher until the server is ready
 				devServer.watcher.add(fileURLToPath(dataStoreFile));
+			}
+			if (isRunnableDevEnvironment(this.environment)) {
 				// Manually invalidate the data store to avoid a race condition in file watching
-				invalidateDataStore(this.environment as DevEnvironment);
+				invalidateDataStore(this.environment);
 			}
 		},
 		async resolveId(id, importer) {
