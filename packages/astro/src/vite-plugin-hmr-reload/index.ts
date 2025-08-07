@@ -18,10 +18,22 @@ export default function hmrReload(): Plugin {
 
 				const invalidatedModules = new Set<EnvironmentModuleNode>();
 				for (const mod of modules) {
-					if (mod.id == null) continue;
-					const clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
-					if (clientModule != null) continue;
-
+					if (!mod.id) {
+						continue;
+					}
+					let clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
+					if (clientModule) {
+						continue;
+					}
+					if (mod.id.includes('?inline')) {
+						clientModule = server.environments.client.moduleGraph.getModuleById(
+							// check if the module is included without the ?inline flag
+							mod.id.replace('?inline&', '?').replace(/\?inline$/, ''),
+						);
+						if (clientModule) {
+							continue;
+						}
+					}
 					this.environment.moduleGraph.invalidateModule(mod, invalidatedModules, timestamp, true);
 					hasSsrOnlyModules = true;
 				}
