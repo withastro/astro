@@ -37,8 +37,8 @@ export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
 		}
 	});
 
-	const _wsSend = ssrEnvironment.hot.send;
-	ssrEnvironment.hot.send = function (...args: any) {
+	const _wsSend = viteServer.environments.client.hot.send;
+	viteServer.environments.client.hot.send = function (...args: any) {
 		// If the tsconfig changed, Vite will trigger a reload as it invalidates the module.
 		// However in Astro, the whole server is restarted when the tsconfig changes. If we
 		// do a restart and reload at the same time, the browser will refetch and the server
@@ -99,15 +99,13 @@ export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
 			return viteServer.ssrFixStacktrace(err);
 		},
 		clientReload() {
-			ssrEnvironment.hot.send({
+			viteServer.environments.client.hot.send({
 				type: 'full-reload',
 				path: '*',
 			});
 		},
 		webSocketSend(msg) {
-			// NOTE: this part seems to be broken/changed. Using `environment.hot.send` doesn't show the error overlay anymore
-			// TODO: make sure update this once we understand how the error overlay should appear
-			return viteServer.hot.send(msg);
+			return viteServer.environments.client.hot.send(msg);
 		},
 		isHttps() {
 			return !!ssrEnvironment.config.server.https;
