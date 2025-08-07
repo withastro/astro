@@ -94,7 +94,7 @@ export interface RenderErrorOptions {
 	prerenderedErrorPageFetch: (url: ErrorPagePath) => Promise<Response>;
 }
 
-export type ErrorPagePath =
+type ErrorPagePath =
 	| `${string}/404`
 	| `${string}/500`
 	| `${string}/404/`
@@ -103,23 +103,21 @@ export type ErrorPagePath =
 	| `${string}500.html`;
 
 export abstract class BaseApp<P extends Pipeline = AppPipeline> {
-	// manifest: SSRManifest;
-	// manifestData: RoutesList;
+	manifest: SSRManifest;
+	manifestData: RoutesList;
+	pipeline: P;
+	adapterLogger: AstroIntegrationLogger;
+	baseWithoutTrailingSlash: string;
 	logger = new Logger({
 		dest: consoleLogDestination,
 		level: 'info',
 	});
-	constructor(
-		readonly manifest: SSRManifest,
-		streaming = true,
-		private manifestData: RoutesList = { routes: manifest.routes.map((route) => route.routeData) },
-		private readonly baseWithoutTrailingSlash = removeTrailingForwardSlash(manifest.base),
-		private readonly pipeline = this.createPipeline(streaming),
-		private readonly adapterLogger = new AstroIntegrationLogger(
-			this.logger.options,
-			manifest.adapterName,
-		),
-	) {
+	constructor(manifest: SSRManifest, streaming = true) {
+		this.manifest = manifest;
+		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
+		this.baseWithoutTrailingSlash = removeTrailingForwardSlash(manifest.base);
+		this.pipeline = this.createPipeline(streaming);
+		this.adapterLogger = new AstroIntegrationLogger(this.logger.options, manifest.adapterName);
 		// This is necessary to allow running middlewares for 404 in SSR. There's special handling
 		// to return the host 404 if the user doesn't provide a custom 404
 		ensure404Route(this.manifestData);

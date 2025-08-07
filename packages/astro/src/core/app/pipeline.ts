@@ -7,7 +7,6 @@ import {
 	createModuleScriptElement,
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
-import { createDefaultRoutes } from '../routing/default.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 
 export class AppPipeline extends Pipeline {
@@ -16,7 +15,6 @@ export class AppPipeline extends Pipeline {
 		manifest,
 		streaming,
 	}: Pick<AppPipeline, 'logger' | 'manifest' | 'streaming'>) {
-		const defaultRoutes = createDefaultRoutes(manifest);
 		const resolve = async function resolve(specifier: string) {
 			if (!(specifier in manifest.entryModules)) {
 				throw new Error(`Unable to resolve [${specifier}]`);
@@ -44,7 +42,6 @@ export class AppPipeline extends Pipeline {
 			undefined,
 			undefined,
 			undefined,
-			defaultRoutes,
 		);
 		return pipeline;
 	}
