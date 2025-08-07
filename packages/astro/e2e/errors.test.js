@@ -20,8 +20,7 @@ test.afterAll(async ({ astro }) => {
 	astro.resetAllFiles();
 });
 
-// TODO: look after error overlay. There's been a regression where we can't catch errors anymore
-test.describe.skip('Error display', () => {
+test.describe('Error display', () => {
 	test('detect syntax errors in template', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/astro-syntax-error'), { waitUntil: 'networkidle' });
 
