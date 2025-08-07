@@ -3,8 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@astrojs/mdx": "workspace:*",
+    "@astrojs/preact": "^4.1.0",
     "astro": "workspace:*",
-    "@astrojs/mdx": "workspace:*"
+    "preact": "^10.27.0"
   },
   "scripts": {
     "dev": "astro dev"

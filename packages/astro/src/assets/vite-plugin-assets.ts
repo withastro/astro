@@ -93,6 +93,8 @@ const addStaticImageFactory = (
 	};
 };
 
+const isAstroModule = (id?: string) => id && (id.endsWith('.astro') || id.endsWith('.mdx'));
+
 interface Options {
 	settings: AstroSettings;
 	sync: boolean;
@@ -204,11 +206,21 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 			configResolved(viteConfig) {
 				resolvedConfig = viteConfig;
 			},
+			async resolveId(id, importer, options) {
+				if (id.endsWith('.svg') && id === removeQueryString(id) && !isAstroModule(importer)) {
+					const resolved = await this.resolve(id, importer, options);
+					if (!resolved) {
+						return null;
+					}
+					return `${resolved.id}?url`;
+				}
+			},
 			async load(id, options) {
 				if (assetRegex.test(id)) {
 					if (!globalThis.astroAsset.referencedImages)
 						globalThis.astroAsset.referencedImages = new Set();
 
+					const isSvgComponent = id.endsWith('.svg');
 					if (id !== removeQueryString(id)) {
 						// If our import has any query params, we'll let Vite handle it, nonetheless we'll make sure to not delete it
 						// See https://github.com/withastro/astro/issues/8333
@@ -225,7 +237,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					const imageMetadata = await emitESMImage(
 						id,
 						this.meta.watchMode,
-						id.endsWith('.svg'),
+						isSvgComponent,
 						emitFile,
 					);
 
@@ -236,7 +248,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 						});
 					}
 
-					if (id.endsWith('.svg')) {
+					if (isSvgComponent) {
 						const contents = await fs.promises.readFile(imageMetadata.fsPath, { encoding: 'utf8' });
 						// We know that the contents are present, as we only emit this property for SVG files
 						return { code: makeSvgComponent(imageMetadata, contents) };

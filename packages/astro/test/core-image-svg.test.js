@@ -149,5 +149,15 @@ describe('astro:assets - SVG Components', () => {
 				assert.ok(json.image.src.startsWith('/'));
 			});
 		});
+
+		describe('frameworks', () => {
+			it('does not process SVGs in framework components', async () => {
+				let res = await fixture.fetch('/framework');
+				let html = await res.text();
+				const $ = cheerio.load(html);
+				const $img = $('img');
+				assert.ok($img.attr('src').startsWith('data:image/svg+xml'));
+			});
+		});
 	});
 });
