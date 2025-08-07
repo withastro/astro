@@ -32,7 +32,6 @@ import {
 	isAstroError,
 } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
-import { getRunnableEnvironment } from '../module-loader/index.js';
 import { createRoutesList } from '../routing/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { normalizePath } from '../viteUtils.js';
@@ -255,8 +254,6 @@ async function syncContentCollections(
 		),
 	);
 
-	const environment = getRunnableEnvironment(tempViteServer);
-
 	// Patch `hot.send` to bubble up error events
 	// `hot.on('error')` does not fire for some reason
 	const hotSend = tempViteServer.environments.client.hot.send;
@@ -273,7 +270,7 @@ async function syncContentCollections(
 			logger: logger,
 			fs,
 			settings,
-			environment,
+			viteServer: tempViteServer,
 		});
 		const typesResult = await contentTypesGenerator.init();
 

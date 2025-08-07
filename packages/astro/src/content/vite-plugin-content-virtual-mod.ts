@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dataToEsm } from '@rollup/pluginutils';
 import pLimit from 'p-limit';
 import { glob } from 'tinyglobby';
-import { isRunnableDevEnvironment, normalizePath, type Plugin, type ViteDevServer } from 'vite';
+import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { getRunnableEnvironment } from '../core/module-loader/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
@@ -80,10 +80,8 @@ export function astroContentVirtualModPlugin({
 			if (devServer) {
 				// We defer adding the data store file to the watcher until the server is ready
 				devServer.watcher.add(fileURLToPath(dataStoreFile));
-			}
-			if (isRunnableDevEnvironment(this.environment)) {
 				// Manually invalidate the data store to avoid a race condition in file watching
-				invalidateDataStore(this.environment);
+				invalidateDataStore(devServer);
 			}
 		},
 		async resolveId(id, importer) {
@@ -201,16 +199,14 @@ export function astroContentVirtualModPlugin({
 			// If the datastore file changes, invalidate the virtual module
 
 			server.watcher.on('add', (addedPath) => {
-				const environment = getRunnableEnvironment(server);
 				if (addedPath === dataStorePath) {
-					invalidateDataStore(environment);
+					invalidateDataStore(server);
 				}
 			});
 
 			server.watcher.on('change', (changedPath) => {
 				if (changedPath === dataStorePath) {
-					const environment = getRunnableEnvironment(server);
-					invalidateDataStore(environment);
+					invalidateDataStore(server);
 				}
 			});
 		},

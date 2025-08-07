@@ -9,6 +9,7 @@ import { zodToJsonSchema } from 'zod-to-json-schema';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData, AstroUserError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
+import { getRunnableEnvironment } from '../core/module-loader/index.js';
 import { isRelativePath } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType } from '../types/public/content.js';
@@ -34,7 +35,6 @@ import {
 	getEntryType,
 	reloadContentConfigObserver,
 } from './utils.js';
-import { getRunnableEnvironment } from '../core/module-loader/index.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
@@ -336,10 +336,11 @@ export async function createContentTypesGenerator({
 				typeTemplateContent,
 				contentConfig: observable.status === 'loaded' ? observable.config : undefined,
 				contentEntryTypes: settings.contentEntryTypes,
-				environment,
+				viteServer,
 				logger,
 				settings,
 			});
+			const environment = getRunnableEnvironment(viteServer);
 			invalidateVirtualMod(environment);
 		}
 	}
@@ -444,7 +445,7 @@ async function writeContentFiles({
 	typeTemplateContent: string;
 	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
-	viteServer: Pick<ViteDevServer, 'hot'>;
+	viteServer: ViteDevServer;
 	logger: Logger;
 	settings: AstroSettings;
 }) {

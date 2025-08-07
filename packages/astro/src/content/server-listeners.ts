@@ -5,7 +5,6 @@ import { bold, cyan, underline } from 'kleur/colors';
 import type { ViteDevServer } from 'vite';
 import { loadTSConfig } from '../core/config/tsconfig.js';
 import type { Logger } from '../core/logger/core.js';
-import { getRunnableEnvironment } from '../core/module-loader/index.js';
 import { appendForwardSlash } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
 import { createContentTypesGenerator } from './types-generator.js';
@@ -24,7 +23,6 @@ export async function attachContentServerListeners({
 	logger,
 	settings,
 }: ContentServerListenerParams) {
-	const environment = getRunnableEnvironment(viteServer);
 	const contentPaths = getContentPaths(settings.config, fs);
 	if (!settings.config.legacy?.collections) {
 		await attachListeners();
@@ -54,7 +52,7 @@ export async function attachContentServerListeners({
 			fs,
 			settings,
 			logger,
-			environment,
+			viteServer,
 			contentConfigObserver: globalContentConfigObserver,
 		});
 		await contentGenerator.init();
