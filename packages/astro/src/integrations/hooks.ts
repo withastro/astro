@@ -119,7 +119,7 @@ export function getToolbarServerCommunicationHelpers(server: ViteDevServer) {
 		 * @param payload - The payload to send
 		 */
 		send: <T>(event: string, payload: T) => {
-			server.hot.send(event, payload);
+			server.environments.client.hot.send(event, payload);
 		},
 		/**
 		 * Receive a message from a dev toolbar app.
