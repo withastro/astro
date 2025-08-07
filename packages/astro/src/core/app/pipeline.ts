@@ -7,6 +7,7 @@ import {
 	createModuleScriptElement,
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
+import { createDefaultRoutes } from '../routing/default.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 
 export class AppPipeline extends Pipeline {
