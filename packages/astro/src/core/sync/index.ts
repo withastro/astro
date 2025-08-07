@@ -259,8 +259,8 @@ async function syncContentCollections(
 
 	// Patch `hot.send` to bubble up error events
 	// `hot.on('error')` does not fire for some reason
-	const hotSend = environment.hot.send;
-	environment.hot.send = (payload: HotPayload) => {
+	const hotSend = tempViteServer.environments.client.hot.send;
+	tempViteServer.environments.client.hot.send = (payload: HotPayload) => {
 		if (payload.type === 'error') {
 			throw payload.err;
 		}

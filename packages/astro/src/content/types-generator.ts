@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { bold, cyan } from 'kleur/colors';
 import { glob } from 'tinyglobby';
-import { normalizePath, type RunnableDevEnvironment } from 'vite';
+import { normalizePath, type RunnableDevEnvironment, type ViteDevServer } from 'vite';
 import { type ZodSchema, z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { AstroError } from '../core/errors/errors.js';
@@ -34,6 +34,7 @@ import {
 	getEntryType,
 	reloadContentConfigObserver,
 } from './utils.js';
+import { getRunnableEnvironment } from '../core/module-loader/index.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
@@ -66,7 +67,7 @@ type CreateContentGeneratorParams = {
 	logger: Logger;
 	settings: AstroSettings;
 	/** This is required for loading the content config */
-	environment: RunnableDevEnvironment;
+	viteServer: ViteDevServer;
 	fs: typeof fsMod;
 };
 
@@ -75,7 +76,7 @@ export async function createContentTypesGenerator({
 	fs,
 	logger,
 	settings,
-	environment,
+	viteServer,
 }: CreateContentGeneratorParams) {
 	const collectionEntryMap: CollectionEntryMap = {};
 	const contentPaths = getContentPaths(settings.config, fs);
@@ -151,6 +152,7 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: false };
 		}
 		if (fileType === 'config') {
+			const environment = getRunnableEnvironment(viteServer);
 			await reloadContentConfigObserver({ fs, settings, environment });
 			return { shouldGenerateTypes: true };
 		}
@@ -183,7 +185,7 @@ export async function createContentTypesGenerator({
 					}
 					const collectionInfo = collectionEntryMap[collectionKey];
 					if (collectionInfo.type === 'content') {
-						environment.hot.send({
+						viteServer.environments.client.hot.send({
 							type: 'error',
 							err: new AstroError({
 								...AstroErrorData.MixedContentDataCollectionError,
@@ -227,7 +229,7 @@ export async function createContentTypesGenerator({
 		}
 		const collectionInfo = collectionEntryMap[collectionKey];
 		if (collectionInfo.type === 'data') {
-			environment.hot.send({
+			viteServer.environments.client.hot.send({
 				type: 'error',
 				err: new AstroError({
 					...AstroErrorData.MixedContentDataCollectionError,
@@ -432,7 +434,7 @@ async function writeContentFiles({
 	typeTemplateContent,
 	contentEntryTypes,
 	contentConfig,
-	environment,
+	viteServer,
 	logger,
 	settings,
 }: {
@@ -442,7 +444,7 @@ async function writeContentFiles({
 	typeTemplateContent: string;
 	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
-	environment: Pick<RunnableDevEnvironment, 'hot'>;
+	viteServer: Pick<ViteDevServer, 'hot'>;
 	logger: Logger;
 	settings: AstroSettings;
 }) {
@@ -469,7 +471,7 @@ async function writeContentFiles({
 			collectionConfig.type !== CONTENT_LAYER_TYPE &&
 			collection.type !== collectionConfig.type
 		) {
-			environment.hot.send({
+			viteServer.environments.client.hot.send({
 				type: 'error',
 				err: new AstroError({
 					...AstroErrorData.ContentCollectionTypeMismatchError,

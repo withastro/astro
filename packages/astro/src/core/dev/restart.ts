@@ -96,7 +96,7 @@ async function restartContainer(container: Container): Promise<Container | Error
 			);
 		}
 		// Inform connected clients of the config error
-		container.viteServer.hot.send({
+		container.viteServer.environments.client.hot.send({
 			type: 'error',
 			err: {
 				message: error.message,

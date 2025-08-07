@@ -4,7 +4,13 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dataToEsm } from '@rollup/pluginutils';
 import pLimit from 'p-limit';
 import { glob } from 'tinyglobby';
-import { type DevEnvironment, isRunnableDevEnvironment, normalizePath, type Plugin, type ViteDevServer } from 'vite';
+import {
+	type DevEnvironment,
+	isRunnableDevEnvironment,
+	normalizePath,
+	type Plugin,
+	type ViteDevServer,
+} from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { getRunnableEnvironment } from '../core/module-loader/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
@@ -47,12 +53,13 @@ interface AstroContentVirtualModPluginParams {
 	fs: typeof nodeFs;
 }
 
-function invalidateDataStore(environment: DevEnvironment) {
+function invalidateDataStore(viteServer: ViteDevServer) {
+	const environment = getRunnableEnvironment(viteServer);
 	const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
 	if (module) {
 		environment.moduleGraph.invalidateModule(module);
 	}
-	environment.hot.send({
+	viteServer.environments.client.hot.send({
 		type: 'full-reload',
 		path: '*',
 	});
