@@ -25,15 +25,6 @@ export default function hmrReload(): Plugin {
 					if (clientModule) {
 						continue;
 					}
-					if (mod.id.includes('?inline')) {
-						clientModule = server.environments.client.moduleGraph.getModuleById(
-							// check if the module is included without the ?inline flag
-							mod.id.replace('?inline&', '?').replace(/\?inline$/, ''),
-						);
-						if (clientModule) {
-							continue;
-						}
-					}
 					this.environment.moduleGraph.invalidateModule(mod, invalidatedModules, timestamp, true);
 					hasSsrOnlyModules = true;
 				}
