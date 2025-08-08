@@ -1,0 +1,28 @@
+---
+import Layout from '../components/Layout.astro';
+---
+<Layout>
+	<p id="skip">Skip</p>
+	<a id="a1" href="/skip">go to page w/o param</a>
+	<a id="a2" href="/skip?param=true">go to page with param</a>
+</Layout>
+<script>
+	const observer = new MutationObserver((mutations) => {
+		for (const mutation of mutations) {
+			if (mutation.type === 'attributes') {
+					console.log('[test]', mutation.attributeName, 
+						(mutation.target as HTMLElement).getAttribute(mutation.attributeName!));
+			}
+		}
+	});		
+	observer.observe(document.documentElement, {
+		attributes: true,
+		attributeFilter: ["data-astro-transition-fallback"]
+	});
+
+	document.addEventListener('astro:before-swap', (e) => {
+    if (e.from.href === e.to.href) {
+      e.viewTransition?.skipTransition()
+    }
+  });
+</script>
