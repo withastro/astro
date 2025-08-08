@@ -36,7 +36,7 @@ describe('Prerendered error page host', () => {
 		});
 
 		fixture = await loadFixture({
-			root: './fixtures/preview-headers/',
+			root: './fixtures/prerender-error-page/',
 			adapter: nodejs({ mode: 'standalone', experimentalErrorPageHost: 'http://localhost:3030' }),
 		});
 		await fixture.build();
