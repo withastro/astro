@@ -24,6 +24,8 @@ export type MdxOptions = Omit<typeof markdownConfigDefaults, 'remarkPlugins' | '
 	rehypePlugins: PluggableList;
 	remarkRehype: RemarkRehypeOptions;
 	optimize: boolean | OptimizeOptions;
+	development?: boolean;
+	disableDefaultPlugins?: boolean;
 };
 
 type SetupHookParams = HookParameters<'astro:config:setup'> & {
@@ -89,12 +91,18 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 				const extendMarkdownConfig =
 					partialMdxOptions.extendMarkdownConfig ?? defaultMdxOptions.extendMarkdownConfig;
 
+				// Merge configurations: config.mdx overrides config.markdown
+				const baseConfig = extendMarkdownConfig ? config.markdown : markdownConfigDefaults;
+				const mdxConfig = (config as any).mdx || {};
+
+				const mergedConfig = {
+					...baseConfig,
+					...mdxConfig,
+				};
+
 				const resolvedMdxOptions = applyDefaultOptions({
 					options: partialMdxOptions,
-					defaults: markdownConfigToMdxOptions(
-						extendMarkdownConfig ? config.markdown : markdownConfigDefaults,
-						logger,
-					),
+					defaults: markdownConfigToMdxOptions(mergedConfig, logger),
 				});
 
 				// Mutate `mdxOptions` so that `vitePluginMdx` can reference the actual options
@@ -102,6 +110,8 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					mdxOptions: resolvedMdxOptions,
 					srcDir: config.srcDir,
 					experimentalHeadingIdCompat: config.experimental.headingIdCompat,
+					config, // Pass the full config to access experimental.mdxCompiler
+					logger, // Pass logger for warnings
 				});
 				// @ts-expect-error After we assign, we don't need to reference `mdxOptions` in this context anymore.
 				// Re-assign it so that the garbage can be collected later.

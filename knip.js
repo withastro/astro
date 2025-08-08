@@ -49,6 +49,7 @@ export default {
 		},
 		'packages/integrations/mdx': {
 			entry: [testEntry],
+			ignore: ['src/rust-parser/**'],
 			// Required but not imported directly
 			ignoreDependencies: ['@types/*'],
 		},

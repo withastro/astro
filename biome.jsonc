@@ -1,7 +1,7 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.1.2/schema.json",
   "files": {
-    "includes": ["**", "!**/smoke/**", "!**/fixtures/**", "!**/_temp-fixtures/**", "!**/vendor/**"]
+    "includes": ["**", "!**/smoke/**", "!**/fixtures/**", "!**/_temp-fixtures/**", "!**/vendor/**", "!**/rust-parser/**"]
   },
   "vcs": {
     "enabled": true,

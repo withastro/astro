@@ -1620,6 +1620,78 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
+	 * @name mdx
+	 * @type {object}
+	 * @description
+	 *
+	 * Configuration options for MDX files when used with the @astrojs/mdx integration.
+	 * These options override the default markdown options when processing .mdx files.
+	 *
+	 * ```js
+	 * {
+	 *   mdx: {
+	 *     gfm: true,
+	 *     smartypants: true,
+	 *     remarkPlugins: [],
+	 *     rehypePlugins: [],
+	 *   }
+	 * }
+	 * ```
+	 */
+	mdx?: {
+		/**
+		 * @docs
+		 * @name mdx.gfm
+		 * @type {boolean}
+		 * @default `true`
+		 * @description
+		 * Enable GitHub Flavored Markdown (GFM) in MDX files.
+		 */
+		gfm?: boolean;
+
+		/**
+		 * @docs
+		 * @name mdx.smartypants
+		 * @type {boolean}
+		 * @default `true`
+		 * @description
+		 * Enable smart typography in MDX files.
+		 */
+		smartypants?: boolean;
+
+		/**
+		 * @docs
+		 * @name mdx.remarkPlugins
+		 * @type {RemarkPlugin[]}
+		 * @default `[]`
+		 * @description
+		 * Remark plugins to apply to MDX files.
+		 */
+		remarkPlugins?: RemarkPlugins;
+
+		/**
+		 * @docs
+		 * @name mdx.rehypePlugins
+		 * @type {RehypePlugin[]}
+		 * @default `[]`
+		 * @description
+		 * Rehype plugins to apply to MDX files.
+		 */
+		rehypePlugins?: RehypePlugins;
+
+		/**
+		 * @docs
+		 * @name mdx.remarkRehype
+		 * @type {RemarkRehype}
+		 * @description
+		 * Options to pass to remark-rehype for MDX files.
+		 */
+		remarkRehype?: RemarkRehype;
+	};
+
+	/**
+	 * @docs
+	 * @kind heading
 	 * @name i18n
 	 * @type {object}
 	 * @version 3.5.0
@@ -2458,6 +2530,30 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * See the [experimental raw environment variables guide](https://docs.astro.build/en/reference/experimental-flags/raw-env-values/) for more information.
 		 */
 		rawEnvValues?: boolean;
+
+		/**
+		 * @docs
+		 * @name experimental.mdxCompiler
+		 * @type {'js' | 'rs'}
+		 * @default `'js'`
+		 * @description
+		 * Select the MDX compiler to use for processing MDX files.
+		 *
+		 * - `'js'` - Use the standard @mdx-js/mdx JavaScript compiler (default)
+		 * - `'rs'` - Use Rust-powered AST bridge (Rust parser + JS plugins + Rust codegen)
+		 *
+		 * The 'rs' mode provides faster MDX compilation while maintaining full
+		 * compatibility with JavaScript plugins through the AST bridge approach.
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     mdxCompiler: 'rs',
+		 *   }
+		 * }
+		 * ```
+		 */
+		mdxCompiler?: 'js' | 'rs';
 	};
 }
 

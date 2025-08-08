@@ -29,6 +29,7 @@ export default [
 			'scripts/',
 			'.github/',
 			'.changeset/',
+			'**/rust-parser/**',
 		],
 	},
 

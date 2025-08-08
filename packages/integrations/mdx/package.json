@@ -29,6 +29,7 @@
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "build:rust": "cd src/rust-parser && pnpm run build",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test": "astro-scripts test --timeout 70000 \"test/**/*.test.js\""

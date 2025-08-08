@@ -1,4 +1,4 @@
-import type { SSRError } from 'astro';
+import type { AstroConfig, AstroIntegrationLogger, SSRError } from 'astro';
 import { getAstroMetadata } from 'astro/jsx/rehype.js';
 import { VFile } from 'vfile';
 import type { Plugin } from 'vite';
@@ -10,11 +10,13 @@ export interface VitePluginMdxOptions {
 	mdxOptions: MdxOptions;
 	srcDir: URL;
 	experimentalHeadingIdCompat: boolean;
+	config?: AstroConfig;
+	logger?: AstroIntegrationLogger;
 }
 
 // NOTE: Do not destructure `opts` as we're assigning a reference that will be mutated later
 export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
-	let processor: ReturnType<typeof createMdxProcessor> | undefined;
+	let processor: Awaited<ReturnType<typeof createMdxProcessor>> | undefined;
 	let sourcemapEnabled: boolean;
 
 	return {
@@ -62,14 +64,33 @@ export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 
 			// Lazily initialize the MDX processor
 			if (!processor) {
-				processor = createMdxProcessor(opts.mdxOptions, {
+				const compilerMode = (opts.config?.experimental as any)?.mdxCompiler || 'js';
+				opts.logger?.debug?.(`Initializing MDX processor with compiler mode: ${compilerMode}`);
+
+				const startInit = performance.now();
+				processor = await createMdxProcessor(opts.mdxOptions, {
 					sourcemap: sourcemapEnabled,
 					experimentalHeadingIdCompat: opts.experimentalHeadingIdCompat,
+					config: opts.config,
+					logger: opts.logger,
 				});
+				const initTime = performance.now() - startInit;
+
+				opts.logger?.debug?.(`MDX processor initialized in ${initTime.toFixed(2)}ms`);
 			}
 
 			try {
+				const startCompile = performance.now();
 				const compiled = await processor.process(vfile);
+				const compileTime = performance.now() - startCompile;
+
+				// Log compilation metrics for debugging
+				if (opts.logger?.debug) {
+					const compilerMode = (opts.config?.experimental as any)?.mdxCompiler || 'js';
+					opts.logger.debug(
+						`MDX compiled ${id} in ${compileTime.toFixed(2)}ms using ${compilerMode} compiler`,
+					);
+				}
 
 				return {
 					code: String(compiled.value),
@@ -85,6 +106,9 @@ export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 
 				// For another some reason, MDX doesn't include a stack trace. Weird
 				Error.captureStackTrace(err);
+
+				// Log compilation failure
+				opts.logger?.error?.(`MDX compilation failed for ${id}: ${err.message}`);
 
 				throw err;
 			}
