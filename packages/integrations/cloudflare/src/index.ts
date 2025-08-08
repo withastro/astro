@@ -164,7 +164,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			}) => {
 				let session = config.session;
 
-
 				if (!session?.driver) {
 					logger.info(
 						`Enabling sessions with Cloudflare KV with the "${SESSION_KV_BINDING_NAME}" KV binding.`,
