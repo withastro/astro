@@ -1,5 +1,15 @@
 # astro
 
+## 5.12.9
+
+### Patch Changes
+
+- [#14020](https://github.com/withastro/astro/pull/14020) [`9518975`](https://github.com/withastro/astro/commit/951897553921c1419fb96aef74d42ec99976d8be) Thanks [@jp-knj](https://github.com/jp-knj)! - Prevent double-prefixed redirect paths when using fallback and redirectToDefaultLocale together
+
+  Fixes an issue where i18n fallback routes would generate double-prefixed paths (e.g., `/es/es/test/item1/`) when `fallback` and `redirectToDefaultLocale` configurations were used together. The fix adds proper checks to prevent double prefixing in route generation.
+
+- [#14199](https://github.com/withastro/astro/pull/14199) [`3e4cb8e`](https://github.com/withastro/astro/commit/3e4cb8e52a83974cc2671d13fb1b4595fe65085d) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that prevented HMR from working with inline styles
+
 ## 5.12.8
 
 ### Patch Changes
