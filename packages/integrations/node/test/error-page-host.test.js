@@ -82,7 +82,7 @@ describe('Prerendered error page host', () => {
 		await assert.rejects(
 			async () =>
 				loadFixture({
-					root: './fixtures/preview-headers/',
+					root: './fixtures/prerender-error-page/',
 					adapter: nodejs({ mode: 'standalone', experimentalErrorPageHost: 'invalid-url' }),
 				}),
 			{
@@ -90,5 +90,18 @@ describe('Prerendered error page host', () => {
 				message: /Invalid experimentalErrorPageHost/,
 			},
 		);
+
+		await assert.rejects(
+			async () =>
+				loadFixture({
+					root: './fixtures/prerender-error-page/',
+					adapter: nodejs({ mode: 'standalone', experimentalErrorPageHost: 'file:///invalid-url' }),
+				}),
+			{
+				name: 'AstroUserError',
+				message: /Invalid experimentalErrorPageHost/,
+			},
+		);
+
 	});
 });
