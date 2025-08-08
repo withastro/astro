@@ -8,6 +8,7 @@ describe('Prerendered error page host', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let devPreview;
+	/** @type {import('node:http').Server} */
 	let errorPageServer;
 	let errorPageRequests = [];
 
@@ -45,7 +46,9 @@ describe('Prerendered error page host', () => {
 	after(async () => {
 		await devPreview.stop();
 		if (errorPageServer) {
-			errorPageServer.close();
+			await new Promise((resolve) => {
+				errorPageServer.close(resolve);
+			});
 		}
 	});
 
