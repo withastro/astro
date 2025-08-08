@@ -76,11 +76,11 @@ test.describe('Styles', () => {
 		page.once('load', throwPageShouldNotReload);
 
 		const h = page.locator('h1.css-inline');
-		await expect(h).toHaveCSS('color', 'rgb(65, 105, 225)'); // royalblue
+		await expect(h).toHaveCSS('color', 'rgb(0, 0, 255)');
 
 		await astro.editFile('./src/pages/css-inline.astro', (original) =>
-			original.replace('royalblue', 'yellow'),
+			original.replace('blue', 'red'),
 		);
-		await expect(h).toHaveCSS('color', 'rgb(255, 255, 0)', { timeout: 10000 }); // yellow
+		await expect(h).toHaveCSS('color', 'rgb(255, 0, 0)');
 	});
 });
