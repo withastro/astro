@@ -5603,6 +5603,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/node/test/fixtures/prerender-error-page:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/node/test/fixtures/preview-headers:
     dependencies:
       '@astrojs/node':
