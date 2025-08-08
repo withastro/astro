@@ -13,9 +13,13 @@ import build from '../dist/core/build/index.js';
 import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
 import { dev, preview } from '../dist/core/index.js';
 import sync from '../dist/core/sync/index.js';
+import * as kleur from 'kleur/colors';
 
 // Disable telemetry when running tests
 process.env.ASTRO_TELEMETRY_DISABLED = true;
+
+// Disable colors when running tests
+kleur.$.enabled = false;
 
 /**
  * @typedef {import('../src/core/dev/dev').DevServer} DevServer
