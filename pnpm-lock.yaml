@@ -3668,6 +3668,18 @@ importers:
         specifier: ^10.26.4
         version: 10.27.0
 
+  packages/astro/test/fixtures/prerender-conflict-dynamic-dynamic:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/prerender-conflict-static-dynamic:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/public-base-404:
     dependencies:
       astro:

@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
 import { execa } from 'execa';
+import * as kleur from 'kleur/colors';
 import { glob } from 'tinyglobby';
 import { Agent } from 'undici';
 import { check } from '../dist/cli/check/index.js';
@@ -13,7 +14,6 @@ import build from '../dist/core/build/index.js';
 import { mergeConfig, resolveConfig } from '../dist/core/config/index.js';
 import { dev, preview } from '../dist/core/index.js';
 import sync from '../dist/core/sync/index.js';
-import * as kleur from 'kleur/colors';
 
 // Disable telemetry when running tests
 process.env.ASTRO_TELEMETRY_DISABLED = true;
