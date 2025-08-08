@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- [#14020](https://github.com/withastro/astro/pull/14020) [`9518975`](https://github.com/withastro/astro/commit/951897553921c1419fb96aef74d42ec99976d8be) Thanks [@jp-knj](https://github.com/jp-knj)! - Prevent double-prefixed redirect paths when using fallback and redirectToDefaultLocale together
+- [#14020](https://github.com/withastro/astro/pull/14020) [`9518975`](https://github.com/withastro/astro/commit/951897553921c1419fb96aef74d42ec99976d8be) Thanks [@jp-knj](https://github.com/jp-knj) and [@asieradzk](https://github.com/asieradzk)! - Prevent double-prefixed redirect paths when using fallback and redirectToDefaultLocale together
 
   Fixes an issue where i18n fallback routes would generate double-prefixed paths (e.g., `/es/es/test/item1/`) when `fallback` and `redirectToDefaultLocale` configurations were used together. The fix adds proper checks to prevent double prefixing in route generation.
 
