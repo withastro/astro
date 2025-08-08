@@ -79,9 +79,8 @@ test.describe('Styles', () => {
 		await expect(h).toHaveCSS('color', 'rgb(65, 105, 225)'); // royalblue
 
 		await astro.editFile('./src/pages/css-inline.astro', (original) =>
-			original.replace('royalblue', 'yellow')
+			original.replace('royalblue', 'yellow'),
 		);
-		await expect(h).toHaveCSS('color', 'rgb(255, 255, 0)', {timeout: 10000}); // yellow
+		await expect(h).toHaveCSS('color', 'rgb(255, 255, 0)', { timeout: 10000 }); // yellow
 	});
-
 });

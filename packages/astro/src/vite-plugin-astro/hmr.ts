@@ -1,8 +1,8 @@
 import type { HmrContext } from 'vite';
 import type { Logger } from '../core/logger/core.js';
+import { parseAstroRequest } from './query.js';
 import type { CompileMetadata } from './types.js';
 import { frontmatterRE } from './utils.js';
-import { parseAstroRequest } from './query.js';
 
 interface HandleHotUpdateOptions {
 	logger: Logger;
