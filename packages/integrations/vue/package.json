@@ -37,10 +37,10 @@
   },
   "dependencies": {
     "@vitejs/plugin-vue": "5.2.1",
-    "@vitejs/plugin-vue-jsx": "^4.2.0",
+    "@vitejs/plugin-vue-jsx": "^5.0.1",
     "@vue/compiler-sfc": "^3.5.18",
-    "vite": "^6.3.5",
-    "vite-plugin-vue-devtools": "^7.7.7"
+    "vite": "^7.1.1",
+    "vite-plugin-vue-devtools": "^8.0.0"
   },
   "devDependencies": {
     "astro": "workspace:*",
