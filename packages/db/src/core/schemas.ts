@@ -84,6 +84,7 @@ const textColumnBaseSchema = baseColumnSchema
 	.extend({
 		default: z.union([z.string(), sqlSchema]).optional(),
 		multiline: z.boolean().optional(),
+		enum: z.tuple([z.string()]).rest(z.string()).optional(), // At least one value required,
 	})
 	.and(
 		z.union([
