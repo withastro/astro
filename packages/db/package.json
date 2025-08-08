@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/db",
-  "version": "0.16.1",
+  "version": "0.17.0",
   "description": "Add libSQL support to your Astro site",
   "license": "MIT",
   "repository": {

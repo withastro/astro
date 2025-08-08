@@ -1,5 +1,31 @@
 # @astrojs/db
 
+## 0.17.0
+
+### Minor Changes
+
+- [#14190](https://github.com/withastro/astro/pull/14190) [`438adab`](https://github.com/withastro/astro/commit/438adab4b7b24ff8614cd7244aa3a94d42f0602c) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Adds support for enum support for text columns in Astro DB tables.
+
+  ```ts
+  import { column, defineTable } from 'astro:db';
+
+  // Table definition
+  const UserTable = defineTable({
+    columns: {
+      id: column.number({ primaryKey: true }),
+      name: column.text(),
+      rank: column.text({ enum: ['user', 'mod', 'admin'] }),
+    },
+  });
+
+  // Resulting type definition
+  type UserTableInferInsert = {
+    id: string;
+    name: string;
+    rank: 'user' | 'mod' | 'admin';
+  };
+  ```
+
 ## 0.16.1
 
 ### Patch Changes
