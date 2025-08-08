@@ -13,6 +13,7 @@ import {
 	type ViteDevServer,
 } from 'vite';
 import parseArgs from 'yargs-parser';
+import { z } from 'zod';
 import { AstroDbError, isDbError } from '../../runtime/utils.js';
 import { CONFIG_FILE_NAMES, DB_PATH, VIRTUAL_MODULE_ID } from '../consts.js';
 import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
@@ -28,7 +29,27 @@ import {
 	vitePluginDb,
 } from './vite-plugin-db.js';
 
-function astroDBIntegration(): AstroIntegration {
+const astroDBConfigSchema = z
+	.object({
+		/**
+		 * Sets the mode of the underlying `@libsql/client` connection.
+		 *
+		 * In most cases, the default 'node' mode is sufficient. On platforms like Cloudflare, or Deno, you may need to set this to 'web'.
+		 *
+		 * @default 'node'
+		 */
+		mode: z
+			.union([z.literal('node'), z.literal('web')])
+			.optional()
+			.default('node'),
+	})
+	.optional()
+	.default({});
+
+export type AstroDBConfig = z.infer<typeof astroDBConfigSchema>;
+
+function astroDBIntegration(options?: AstroDBConfig): AstroIntegration {
+	const resolvedConfig = astroDBConfigSchema.parse(options);
 	let connectToRemote = false;
 	let configFileDependencies: string[] = [];
 	let root: URL;
@@ -78,6 +99,7 @@ function astroDBIntegration(): AstroIntegration {
 						srcDir: config.srcDir,
 						output: config.output,
 						seedHandler,
+						mode: resolvedConfig.mode,
 					});
 				} else {
 					dbPlugin = vitePluginDb({
@@ -182,8 +204,8 @@ function databaseFileEnvDefined() {
 	return env.ASTRO_DATABASE_FILE != null || process.env.ASTRO_DATABASE_FILE != null;
 }
 
-export function integration(): AstroIntegration[] {
-	return [astroDBIntegration(), fileURLIntegration()];
+export function integration(options?: AstroDBConfig): AstroIntegration[] {
+	return [astroDBIntegration(options), fileURLIntegration()];
 }
 
 async function executeSeedFile({

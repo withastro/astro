@@ -1,6 +1,7 @@
 import { createClient, type Config as LibSQLConfig } from '@libsql/client';
-import type { LibSQLDatabase } from 'drizzle-orm/libsql';
-import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
+import { createClient as createClientWeb } from '@libsql/client/web';
+import { drizzle as drizzleLibsql, type LibSQLDatabase } from 'drizzle-orm/libsql';
+import { drizzle as drizzleLibsqlWeb } from 'drizzle-orm/libsql/web';
 
 const isWebContainer = !!process.versions?.webcontainer;
 
@@ -18,12 +19,18 @@ export function createLocalDatabaseClient(options: LocalDbClientOptions): LibSQL
 type RemoteDbClientOptions = {
 	token: string;
 	url: string | URL;
+	mode: 'node' | 'web';
 };
 
 export function createRemoteDatabaseClient(options: RemoteDbClientOptions) {
 	const url = new URL(options.url);
 
-	return createRemoteLibSQLClient(options.token, url, options.url.toString());
+	switch (options.mode) {
+		case 'web':
+			return createRemoteLibSQLWebClient(options.token, url);
+		case 'node':
+			return createRemoteLibSQLClient(options.token, url, options.url.toString());
+	}
 }
 
 // this function parses the options from a `Record<string, string>`
@@ -68,4 +75,22 @@ function createRemoteLibSQLClient(authToken: string, dbURL: URL, rawUrl: string)
 
 	const client = createClient({ ...parseOpts(options), url, authToken });
 	return drizzleLibsql(client);
+}
+
+function createRemoteLibSQLWebClient(authToken: string, dbURL: URL) {
+	const options: Record<string, string> = Object.fromEntries(dbURL.searchParams.entries());
+	dbURL.search = '';
+
+	let url = dbURL.toString();
+
+	const supportedProtocols = ['http:', 'https:', 'libsql:'];
+
+	if (!supportedProtocols.includes(dbURL.protocol)) {
+		throw new Error(
+			`Unsupported protocol "${dbURL.protocol}" for libSQL web client. Supported protocols are: ${supportedProtocols.join(', ')}.`
+		);
+	}
+
+	const client = createClientWeb({ ...parseOpts(options), url, authToken });
+	return drizzleLibsqlWeb(client);
 }

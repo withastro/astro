@@ -51,6 +51,7 @@ type VitePluginDBParams =
 			root: URL;
 			output: AstroConfig['output'];
 			seedHandler: SeedHandler;
+			mode: 'node' | 'web';
 	  };
 
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
@@ -77,6 +78,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 					tables: params.tables.get(),
 					isBuild: command === 'build',
 					output: params.output,
+					mode: params.mode,
 				});
 			}
 
@@ -137,11 +139,13 @@ export function getRemoteVirtualModContents({
 	appToken,
 	isBuild,
 	output,
+	mode
 }: {
 	tables: DBTables;
 	appToken: string;
 	isBuild: boolean;
 	output: AstroConfig['output'];
+	mode: 'node' | 'web';
 }) {
 	const dbInfo = getRemoteDatabaseInfo();
 
@@ -176,6 +180,7 @@ import {asDrizzleTable, createRemoteDatabaseClient} from ${RUNTIME_IMPORT};
 export const db = await createRemoteDatabaseClient({
   url: ${dbUrlArg()},
   token: ${appTokenArg()},
+  mode: ${JSON.stringify(mode)},
 });
 
 export * from ${RUNTIME_VIRTUAL_IMPORT};
