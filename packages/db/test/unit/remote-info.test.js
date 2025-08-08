@@ -9,22 +9,24 @@ describe('RemoteDatabaseInfo', () => {
 	});
 
 	test('default remote info', () => {
-		const dbInfo = getRemoteDatabaseInfo();
+		const dbInfo = getRemoteDatabaseInfo('node');
 
 		assert.deepEqual(dbInfo, {
 			url: undefined,
 			token: undefined,
+			mode: 'node',
 		});
 	});
 
 	test('configured libSQL remote', () => {
 		process.env.ASTRO_DB_REMOTE_URL = 'libsql://libsql.self.hosted';
 		process.env.ASTRO_DB_APP_TOKEN = 'foo';
-		const dbInfo = getRemoteDatabaseInfo();
+		const dbInfo = getRemoteDatabaseInfo('node');
 
 		assert.deepEqual(dbInfo, {
 			url: 'libsql://libsql.self.hosted',
 			token: 'foo',
+			mode: 'node'
 		});
 	});
 });
