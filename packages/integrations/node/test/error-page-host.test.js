@@ -102,6 +102,5 @@ describe('Prerendered error page host', () => {
 				message: /Invalid experimentalErrorPageHost/,
 			},
 		);
-
 	});
 });
