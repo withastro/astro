@@ -24,7 +24,7 @@ export async function cmd({
 }) {
 	const isDryRun = flags.dryRun;
 	const isForceReset = flags.forceReset;
-	const dbInfo = getRemoteDatabaseInfo();
+	const dbInfo = getRemoteDatabaseInfo('node');
 	const productionSnapshot = await getProductionCurrentSnapshot(dbInfo);
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
 	const isFromScratch = !productionSnapshot;
@@ -111,6 +111,7 @@ async function pushToDb(requestBody: RequestBody, appToken: string, remoteUrl: s
 	const client = createRemoteDatabaseClient({
 		token: appToken,
 		url: remoteUrl,
+		mode: 'node',
 	});
 
 	await client.run(sql`create table if not exists _astro_db_snapshot (

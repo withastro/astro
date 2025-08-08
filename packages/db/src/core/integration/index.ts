@@ -93,7 +93,7 @@ function astroDBIntegration(options?: AstroDBConfig): AstroIntegration {
 				if (connectToRemote) {
 					dbPlugin = vitePluginDb({
 						connectToRemote,
-						appToken: getRemoteDatabaseInfo().token,
+						appToken: getRemoteDatabaseInfo(resolvedConfig.mode).token,
 						tables,
 						root: config.root,
 						srcDir: config.srcDir,
@@ -111,6 +111,7 @@ function astroDBIntegration(options?: AstroDBConfig): AstroIntegration {
 						output: config.output,
 						logger,
 						seedHandler,
+						mode: resolvedConfig.mode,
 					});
 				}
 

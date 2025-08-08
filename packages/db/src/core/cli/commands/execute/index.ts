@@ -40,17 +40,19 @@ export async function cmd({
 
 	let virtualModContents: string;
 	if (flags.remote) {
-		const dbInfo = getRemoteDatabaseInfo();
+		const dbInfo = getRemoteDatabaseInfo('node');
 		virtualModContents = getRemoteVirtualModContents({
 			tables: dbConfig.tables ?? {},
 			appToken: flags.token ?? dbInfo.token,
 			isBuild: false,
 			output: 'server',
+			mode: 'node'
 		});
 	} else {
 		virtualModContents = getLocalVirtualModContents({
 			tables: dbConfig.tables ?? {},
 			root: astroConfig.root,
+			mode: 'node'
 		});
 	}
 	const { code } = await bundleFile({ virtualModContents, root: astroConfig.root, fileUrl });

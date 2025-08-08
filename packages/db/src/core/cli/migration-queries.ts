@@ -437,6 +437,7 @@ async function getDbCurrentSnapshot(
 	const client = createRemoteDatabaseClient({
 		token: appToken,
 		url: remoteUrl,
+		mode: 'node',
 	});
 
 	try {

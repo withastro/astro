@@ -24,7 +24,7 @@ export async function cmd({
 		console.error(SHELL_QUERY_MISSING_ERROR);
 		process.exit(1);
 	}
-	const dbInfo = getRemoteDatabaseInfo();
+	const dbInfo = getRemoteDatabaseInfo('node');
 	if (flags.remote) {
 		const db = createRemoteDatabaseClient(dbInfo);
 		const result = await db.run(sql.raw(query));

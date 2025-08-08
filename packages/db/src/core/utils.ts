@@ -12,14 +12,16 @@ export function getAstroEnv(envMode = ''): Record<`ASTRO_${string}`, string> {
 export type RemoteDatabaseInfo = {
 	url: string;
 	token: string;
+	mode: 'node' | 'web';
 };
 
-export function getRemoteDatabaseInfo(): RemoteDatabaseInfo {
+export function getRemoteDatabaseInfo(mode: 'node' | 'web'): RemoteDatabaseInfo {
 	const astroEnv = getAstroEnv();
 
 	return {
 		url: astroEnv.ASTRO_DB_REMOTE_URL,
 		token: astroEnv.ASTRO_DB_APP_TOKEN,
+		mode,
 	};
 }
 

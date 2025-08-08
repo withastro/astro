@@ -42,6 +42,7 @@ type VitePluginDBParams =
 			logger?: AstroIntegrationLogger;
 			output: AstroConfig['output'];
 			seedHandler: SeedHandler;
+			mode: 'node' | 'web';
 	  }
 	| {
 			connectToRemote: true;
@@ -89,6 +90,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 				return getLocalVirtualModContents({
 					root: params.root,
 					tables: params.tables.get(),
+					mode: 'node',
 				});
 			}
 
@@ -110,6 +112,7 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			return getLocalVirtualModContents({
 				root: params.root,
 				tables: params.tables.get(),
+				mode: params.mode,
 			});
 		},
 	};
@@ -119,9 +122,9 @@ export function getConfigVirtualModContents() {
 	return `export * from ${RUNTIME_VIRTUAL_IMPORT}`;
 }
 
-export function getLocalVirtualModContents({ tables, root }: { tables: DBTables; root: URL }) {
+export function getLocalVirtualModContents({ tables, root, mode }: { tables: DBTables; root: URL; mode: 'node' | 'web' }) {
 	const { ASTRO_DATABASE_FILE } = getAstroEnv();
-	const dbInfo = getRemoteDatabaseInfo();
+	const dbInfo = getRemoteDatabaseInfo(mode);
 	const dbUrl = new URL(DB_PATH, root);
 	return `
 import { asDrizzleTable, createLocalDatabaseClient, normalizeDatabaseUrl } from ${RUNTIME_IMPORT};
@@ -147,7 +150,7 @@ export function getRemoteVirtualModContents({
 	output: AstroConfig['output'];
 	mode: 'node' | 'web';
 }) {
-	const dbInfo = getRemoteDatabaseInfo();
+	const dbInfo = getRemoteDatabaseInfo(mode);
 
 	function appTokenArg() {
 		if (isBuild) {
