@@ -102,7 +102,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		preserveScriptOrder: false,
 		liveContentCollections: false,
 		csp: false,
-		rawEnvValues: false,
+		staticImportMetaEnv: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -501,7 +501,7 @@ export const AstroConfigSchema = z.object({
 				])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
-			rawEnvValues: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rawEnvValues),
+			staticImportMetaEnv: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.staticImportMetaEnv),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,
