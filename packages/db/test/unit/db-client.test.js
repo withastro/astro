@@ -12,7 +12,6 @@ describe('db client config', () => {
 		const config = parseLibSQLConfig(options);
 
 		assert.deepEqual(config, {
-			url: 'file://local-copy.db',
 			encryptionKey: 'your-encryption-key',
 			syncInterval: 60,
 			syncUrl: 'libsql://your.server.io',
@@ -26,7 +25,6 @@ describe('db client config', () => {
 		const config = parseLibSQLConfig(options);
 
 		assert.deepEqual(config, {
-			url: 'file://local-copy.db',
 			readYourWrites: true,
 			offline: true,
 			tls: true,
@@ -42,7 +40,6 @@ describe('db client config', () => {
 		const config = parseLibSQLConfig(options);
 
 		assert.deepEqual(config, {
-			url: 'file://local-copy.db',
 			readYourWrites: true,
 			offline: true,
 			tls: true,
@@ -56,7 +53,6 @@ describe('db client config', () => {
 		const config = parseLibSQLConfig(options);
 
 		assert.deepEqual(config, {
-			url: 'file://local-copy.db',
 			syncInterval: 60,
 			concurrency: 2,
 		});
