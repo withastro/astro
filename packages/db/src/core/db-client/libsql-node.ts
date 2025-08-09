@@ -8,22 +8,22 @@ type RemoteDbClientOptions = {
 };
 
 export function createClient(opts: RemoteDbClientOptions) {
-	const { token, url } = opts;
+	const { token, url: rawUrl } = opts;
 
-	let parsedUrl = new URL(url);
+	let parsedUrl = new URL(rawUrl);
 
 	const options: Record<string, string> = Object.fromEntries(parsedUrl.searchParams.entries());
 	parsedUrl.search = '';
 
-	let dbURL = parsedUrl.toString();
+	let url = parsedUrl.toString();
 	if (parsedUrl.protocol === 'memory:') {
 		// libSQL expects a special string in place of a URL
 		// for in-memory DBs.
-		dbURL = ':memory:';
+		url = ':memory:';
 	} else if (
 		parsedUrl.protocol === 'file:' &&
 		parsedUrl.pathname.startsWith('/') &&
-		!dbURL.startsWith('file:/')
+		!url.startsWith('file:/')
 	) {
 		// libSQL accepts relative and absolute file URLs
 		// for local DBs. This doesn't match the URL specification.
@@ -33,9 +33,9 @@ export function createClient(opts: RemoteDbClientOptions) {
 		// This detects when such a conversion happened during parsing
 		// and undoes it so that the URL given to libSQL is the
 		// same as given by the user.
-		dbURL = 'file:' + parsedUrl.pathname.substring(1);
+		url = 'file:' + parsedUrl.pathname.substring(1);
 	}
 
-	const client = createLibsqlClient({ ...parseOpts(options), url: dbURL, authToken: token });
+	const client = createLibsqlClient({ ...parseOpts(options), url, authToken: token });
 	return drizzleLibsql(client);
 }

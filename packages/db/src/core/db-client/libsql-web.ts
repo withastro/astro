@@ -8,13 +8,15 @@ type RemoteDbClientOptions = {
 };
 
 export function createClient(opts: RemoteDbClientOptions) {
-	const { token, url } = opts;
+	const { token, url: rawUrl } = opts;
 
-	let parsedUrl = new URL(url);
+	let parsedUrl = new URL(rawUrl);
+	
 	const options: Record<string, string> = Object.fromEntries(parsedUrl.searchParams.entries());
+
 	parsedUrl.search = '';
 
-	let dbURL = parsedUrl.toString();
+	let url = parsedUrl.toString();
 
 	const supportedProtocols = ['http:', 'https:', 'libsql:'];
 
@@ -24,6 +26,6 @@ export function createClient(opts: RemoteDbClientOptions) {
 		);
 	}
 
-	const client = createLibsqlClient({ ...parseOpts(options), url: dbURL, authToken: token });
+	const client = createLibsqlClient({ ...parseOpts(options), url, authToken: token });
 	return drizzleLibsql(client);
 }
