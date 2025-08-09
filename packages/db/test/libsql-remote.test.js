@@ -55,6 +55,7 @@ describe('astro:db local database', () => {
 			await rm(prodDbPath, { force: true });
 
 			console.log('=============');
+			console.log('absoluteFileUrl', absoluteFileUrl);
 			console.log('prodDbPath', prodDbPath);
 			console.log('ASTRO_DB_REMOTE_URL', `file:${prodDbPath}`);
 			console.log('=============');
