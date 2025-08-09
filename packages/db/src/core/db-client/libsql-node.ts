@@ -10,7 +10,7 @@ type RemoteDbClientOptions = {
 export function createClient(opts: RemoteDbClientOptions) {
 	const { token, url } = opts;
 
-	const parsedUrl = new URL(url);
+	let parsedUrl = new URL(url);
 
 	const options: Record<string, string> = Object.fromEntries(parsedUrl.searchParams.entries());
 	parsedUrl.search = '';
