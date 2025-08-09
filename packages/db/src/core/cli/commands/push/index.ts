@@ -2,8 +2,8 @@ import type { AstroConfig } from 'astro';
 import { sql } from 'drizzle-orm';
 import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
-import { createRemoteDatabaseClient } from '../../../../runtime/index.js';
 import { MIGRATION_VERSION } from '../../../consts.js';
+import { createRemoteLibSQLClient } from '../../../db-client/libsql-node.js';
 import type { DBConfig, DBSnapshot } from '../../../types.js';
 import { getRemoteDatabaseInfo, type RemoteDatabaseInfo } from '../../../utils.js';
 import {
@@ -24,7 +24,7 @@ export async function cmd({
 }) {
 	const isDryRun = flags.dryRun;
 	const isForceReset = flags.forceReset;
-	const dbInfo = getRemoteDatabaseInfo('node');
+	const dbInfo = getRemoteDatabaseInfo();
 	const productionSnapshot = await getProductionCurrentSnapshot(dbInfo);
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
 	const isFromScratch = !productionSnapshot;
@@ -108,10 +108,9 @@ type RequestBody = {
 };
 
 async function pushToDb(requestBody: RequestBody, appToken: string, remoteUrl: string) {
-	const client = createRemoteDatabaseClient({
+	const client = createRemoteLibSQLClient({
 		token: appToken,
 		url: remoteUrl,
-		mode: 'node',
 	});
 
 	await client.run(sql`create table if not exists _astro_db_snapshot (

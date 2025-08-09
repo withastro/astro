@@ -1,0 +1,41 @@
+import { createClient } from '@libsql/client';
+import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
+import { parseOpts } from '../../runtime/utils.js';
+
+type RemoteDbClientOptions = {
+	token: string;
+	url: string;
+};
+
+export function createRemoteLibSQLClient(opts: RemoteDbClientOptions) {
+	const { token, url } = opts;
+
+	const parsedUrl = new URL(url);
+
+	const options: Record<string, string> = Object.fromEntries(parsedUrl.searchParams.entries());
+	parsedUrl.search = '';
+
+	let dbURL = parsedUrl.toString();
+	if (parsedUrl.protocol === 'memory:') {
+		// libSQL expects a special string in place of a URL
+		// for in-memory DBs.
+		dbURL = ':memory:';
+	} else if (
+		parsedUrl.protocol === 'file:' &&
+		parsedUrl.pathname.startsWith('/') &&
+		!dbURL.startsWith('file:/')
+	) {
+		// libSQL accepts relative and absolute file URLs
+		// for local DBs. This doesn't match the URL specification.
+		// Parsing `file:some.db` and `file:/some.db` should yield
+		// the same result, but libSQL interprets the former as
+		// a relative path, and the latter as an absolute path.
+		// This detects when such a conversion happened during parsing
+		// and undoes it so that the URL given to libSQL is the
+		// same as given by the user.
+		dbURL = 'file:' + parsedUrl.pathname.substring(1);
+	}
+
+	const client = createClient({ ...parseOpts(options), url: dbURL, authToken: token });
+	return drizzleLibsql(client);
+}

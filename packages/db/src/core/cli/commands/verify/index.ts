@@ -19,7 +19,7 @@ export async function cmd({
 	flags: Arguments;
 }) {
 	const isJson = flags.json;
-	const dbInfo = getRemoteDatabaseInfo('node');
+	const dbInfo = getRemoteDatabaseInfo();
 	const productionSnapshot = await getProductionCurrentSnapshot(dbInfo);
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
 	const { queries: migrationQueries, confirmations } = await getMigrationQueries({

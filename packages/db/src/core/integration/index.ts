@@ -28,6 +28,7 @@ import {
 	type SeedHandler,
 	vitePluginDb,
 } from './vite-plugin-db.js';
+import { vitePluginDbClient } from './vite-plugin-db-client.js';
 
 const astroDBConfigSchema = z
 	.object({
@@ -90,16 +91,20 @@ function astroDBIntegration(options?: AstroDBConfig): AstroIntegration {
 				const args = parseArgs(process.argv.slice(3));
 				connectToRemote = process.env.ASTRO_INTERNAL_TEST_REMOTE || args['remote'];
 
+				const dbClientPlugin = vitePluginDbClient({
+					connectToRemote,
+					mode: resolvedConfig.mode,
+				});
+
 				if (connectToRemote) {
 					dbPlugin = vitePluginDb({
 						connectToRemote,
-						appToken: getRemoteDatabaseInfo(resolvedConfig.mode).token,
+						appToken: getRemoteDatabaseInfo().token,
 						tables,
 						root: config.root,
 						srcDir: config.srcDir,
 						output: config.output,
 						seedHandler,
-						mode: resolvedConfig.mode,
 					});
 				} else {
 					dbPlugin = vitePluginDb({
@@ -111,14 +116,13 @@ function astroDBIntegration(options?: AstroDBConfig): AstroIntegration {
 						output: config.output,
 						logger,
 						seedHandler,
-						mode: resolvedConfig.mode,
 					});
 				}
 
 				updateConfig({
 					vite: {
 						assetsInclude: [DB_PATH],
-						plugins: [dbPlugin],
+						plugins: [dbClientPlugin, dbPlugin],
 					},
 				});
 			},

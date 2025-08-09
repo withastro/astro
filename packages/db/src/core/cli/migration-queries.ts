@@ -4,10 +4,11 @@ import { sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import * as color from 'kleur/colors';
 import { customAlphabet } from 'nanoid';
-import { createRemoteDatabaseClient, hasPrimaryKey } from '../../runtime/index.js';
+import { hasPrimaryKey } from '../../runtime/index.js';
 import { isSerializedSQL } from '../../runtime/types.js';
 import { isDbError } from '../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../consts.js';
+import { createRemoteLibSQLClient } from '../db-client/libsql-node.js';
 import { RENAME_COLUMN_ERROR, RENAME_TABLE_ERROR } from '../errors.js';
 import {
 	getCreateIndexQueries,
@@ -434,10 +435,9 @@ async function getDbCurrentSnapshot(
 	appToken: string,
 	remoteUrl: string,
 ): Promise<DBSnapshot | undefined> {
-	const client = createRemoteDatabaseClient({
+	const client = createRemoteLibSQLClient({
 		token: appToken,
 		url: remoteUrl,
-		mode: 'node',
 	});
 
 	try {

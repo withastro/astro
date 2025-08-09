@@ -1,0 +1,47 @@
+import { DB_CLIENTS, VIRTUAL_CLIENT_MODULE_ID } from '../consts.js';
+import type { VitePlugin } from '../utils.js';
+
+type VitePluginDBClientParams = {
+	connectToRemote: boolean;
+	mode: 'node' | 'web';
+};
+
+function getRemoteClientModule(mode: 'node' | 'web') {
+	switch (mode) {
+		case 'web': {
+			return `export { createRemoteLibSQLClient as createClient } from '${DB_CLIENTS.web}';`;
+		}
+		default:
+			return `export { createRemoteLibSQLClient as createClient } from '${DB_CLIENTS.node}';`;
+	}
+}
+
+function getLocalClientModule(mode: 'node' | 'web') {
+	switch (mode) {
+		default:
+			return `export { createLocalDatabaseClient as createClient } from '${DB_CLIENTS.local}';`;
+	}
+}
+
+const resolved = '\0' + VIRTUAL_CLIENT_MODULE_ID;
+
+export function vitePluginDbClient(params: VitePluginDBClientParams): VitePlugin {
+	return {
+		name: 'virtual:astro:db-client',
+		enforce: 'pre',
+		async resolveId(id) {
+			if (id !== VIRTUAL_CLIENT_MODULE_ID) return;
+			return resolved;
+		},
+		async load(id) {
+			if (id !== resolved) return;
+
+			switch (params.connectToRemote) {
+				case true:
+					return getRemoteClientModule(params.mode);
+				case false:
+					return getLocalClientModule(params.mode);
+			}
+		},
+	};
+}

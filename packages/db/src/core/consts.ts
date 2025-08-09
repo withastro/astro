@@ -15,3 +15,11 @@ export const DB_PATH = '.astro/content.db';
 export const CONFIG_FILE_NAMES = ['config.ts', 'config.js', 'config.mts', 'config.mjs'];
 
 export const MIGRATION_VERSION = '2024-03-12';
+
+export const VIRTUAL_CLIENT_MODULE_ID = 'virtual:astro:db-client';
+
+export const DB_CLIENTS = {
+	node: '@astro/db/db-client/libsql-node.js',
+	web: '@astro/db/db-client/libsql-web.js',
+	local: '@astro/db/db-client/libsql-local.js',
+};

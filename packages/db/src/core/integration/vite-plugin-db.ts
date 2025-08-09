@@ -3,9 +3,9 @@ import { fileURLToPath } from 'node:url';
 import type { AstroConfig, AstroIntegrationLogger } from 'astro';
 import { type SQL, sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
-import { createLocalDatabaseClient } from '../../runtime/db-client.js';
 import { normalizeDatabaseUrl } from '../../runtime/index.js';
-import { DB_PATH, RUNTIME_IMPORT, RUNTIME_VIRTUAL_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
+import { DB_CLIENTS, DB_PATH, RUNTIME_IMPORT, RUNTIME_VIRTUAL_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
+import { createLocalDatabaseClient } from '../db-client/libsql-local.js';
 import { getResolvedFileUrl } from '../load-file.js';
 import { getCreateIndexQueries, getCreateTableQuery, SEED_DEV_FILE_NAME } from '../queries.js';
 import type { DBTables } from '../types.js';
@@ -42,7 +42,6 @@ type VitePluginDBParams =
 			logger?: AstroIntegrationLogger;
 			output: AstroConfig['output'];
 			seedHandler: SeedHandler;
-			mode: 'node' | 'web';
 	  }
 	| {
 			connectToRemote: true;
@@ -52,7 +51,6 @@ type VitePluginDBParams =
 			root: URL;
 			output: AstroConfig['output'];
 			seedHandler: SeedHandler;
-			mode: 'node' | 'web';
 	  };
 
 export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
@@ -79,7 +77,6 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 					tables: params.tables.get(),
 					isBuild: command === 'build',
 					output: params.output,
-					mode: params.mode,
 				});
 			}
 
@@ -90,7 +87,6 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 				return getLocalVirtualModContents({
 					root: params.root,
 					tables: params.tables.get(),
-					mode: 'node',
 				});
 			}
 
@@ -112,7 +108,6 @@ export function vitePluginDb(params: VitePluginDBParams): VitePlugin {
 			return getLocalVirtualModContents({
 				root: params.root,
 				tables: params.tables.get(),
-				mode: params.mode,
 			});
 		},
 	};
@@ -122,15 +117,30 @@ export function getConfigVirtualModContents() {
 	return `export * from ${RUNTIME_VIRTUAL_IMPORT}`;
 }
 
-export function getLocalVirtualModContents({ tables, root, mode }: { tables: DBTables; root: URL; mode: 'node' | 'web' }) {
+export function getLocalVirtualModContents({
+	tables,
+	root,
+	__execute = false,
+}: {
+	tables: DBTables;
+	root: URL;
+	__execute?: boolean;
+}) {
 	const { ASTRO_DATABASE_FILE } = getAstroEnv();
-	const dbInfo = getRemoteDatabaseInfo(mode);
 	const dbUrl = new URL(DB_PATH, root);
+
+	// If this is for the execute command, we need to import the client directly instead of using the runtime only virtual module.
+	const clientImport = __execute
+		? `import { createClient } from '${DB_CLIENTS.node}';`
+		: `import { createClient } from '${RUNTIME_IMPORT}';`;
+
 	return `
-import { asDrizzleTable, createLocalDatabaseClient, normalizeDatabaseUrl } from ${RUNTIME_IMPORT};
+import { asDrizzleTable, normalizeDatabaseUrl } from ${RUNTIME_IMPORT};
+
+${clientImport}
 
 const dbUrl = normalizeDatabaseUrl(${JSON.stringify(ASTRO_DATABASE_FILE)}, ${JSON.stringify(dbUrl)});
-export const db = createLocalDatabaseClient({ dbUrl, enableTransactions: ${dbInfo.url === 'libsql'} });
+export const db = createClient({ url: dbUrl });
 
 export * from ${RUNTIME_VIRTUAL_IMPORT};
 
@@ -142,15 +152,15 @@ export function getRemoteVirtualModContents({
 	appToken,
 	isBuild,
 	output,
-	mode
+	__execute = false, // Used for execute command
 }: {
 	tables: DBTables;
 	appToken: string;
 	isBuild: boolean;
 	output: AstroConfig['output'];
-	mode: 'node' | 'web';
+	__execute?: boolean;
 }) {
-	const dbInfo = getRemoteDatabaseInfo(mode);
+	const dbInfo = getRemoteDatabaseInfo();
 
 	function appTokenArg() {
 		if (isBuild) {
@@ -177,13 +187,19 @@ export function getRemoteVirtualModContents({
 		}
 	}
 
-	return `
-import {asDrizzleTable, createRemoteDatabaseClient} from ${RUNTIME_IMPORT};
+	// If this is for the execute command, we need to import the client directly instead of using the runtime only virtual module.
+	const clientImport = __execute
+		? `import { createClient } from '${DB_CLIENTS.node}';`
+		: `import { createClient } from '${RUNTIME_IMPORT}';`;
 
-export const db = await createRemoteDatabaseClient({
+	return `
+import {asDrizzleTable} from ${RUNTIME_IMPORT};
+
+${clientImport}
+
+export const db = await createClient({
   url: ${dbUrlArg()},
   token: ${appTokenArg()},
-  mode: ${JSON.stringify(mode)},
 });
 
 export * from ${RUNTIME_VIRTUAL_IMPORT};
@@ -208,7 +224,7 @@ const sqlite = new SQLiteAsyncDialect();
 async function recreateTables({ tables, root }: { tables: LateTables; root: URL }) {
 	const { ASTRO_DATABASE_FILE } = getAstroEnv();
 	const dbUrl = normalizeDatabaseUrl(ASTRO_DATABASE_FILE, new URL(DB_PATH, root).href);
-	const db = createLocalDatabaseClient({ dbUrl });
+	const db = createLocalDatabaseClient({ url: dbUrl });
 	const setupQueries: SQL[] = [];
 	for (const [name, table] of Object.entries(tables.get() ?? {})) {
 		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${sqlite.escapeName(name)}`);

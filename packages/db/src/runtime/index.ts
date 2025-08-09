@@ -13,7 +13,7 @@ import type { DBColumn, DBTable } from '../core/types.js';
 import { isSerializedSQL, type SerializedSQL } from './types.js';
 import { pathToFileURL } from './utils.js';
 export type Database = LibSQLDatabase;
-export { createLocalDatabaseClient, createRemoteDatabaseClient } from './db-client.js';
+export { createClient } from 'virtual:astro:db-client';
 export type { Table } from './types.js';
 
 export function hasPrimaryKey(column: DBColumn) {

@@ -27,6 +27,10 @@
       "types": "./dist/runtime/index.d.ts",
       "default": "./dist/runtime/index.js"
     },
+    "./db-client/*": {
+      "types": "./dist/core/db-client/*.d.ts",
+      "default": "./dist/core/db-client/*.js"
+    },
     "./dist/runtime/virtual.js": {
       "default": "./dist/runtime/virtual.js"
     },

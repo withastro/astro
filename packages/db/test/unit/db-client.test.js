@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 import test, { describe } from 'node:test';
-import { parseOpts } from '../../dist/runtime/db-client.js';
+import { parseOpts } from '../../dist/runtime/utils.js';
 
 describe('db client config', () => {
 	test('parse config options from URL (docs example url)', () => {
