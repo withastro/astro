@@ -49,6 +49,7 @@ export interface AstroSettings {
 	clientDirectives: Map<string, string>;
 	devToolbarApps: (DevToolbarAppEntry | string)[];
 	middlewares: { pre: string[]; post: string[] };
+	initializers: string[];
 	tsConfig: TSConfig | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];
