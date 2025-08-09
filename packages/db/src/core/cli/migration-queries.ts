@@ -7,7 +7,7 @@ import { customAlphabet } from 'nanoid';
 import { isSerializedSQL } from '../../runtime/types.js';
 import { hasPrimaryKey, isDbError } from '../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../consts.js';
-import { createRemoteLibSQLClient } from '../db-client/libsql-node.js';
+import { createClient } from '../db-client/libsql-node.js';
 import { RENAME_COLUMN_ERROR, RENAME_TABLE_ERROR } from '../errors.js';
 import {
 	getCreateIndexQueries,
@@ -434,7 +434,7 @@ async function getDbCurrentSnapshot(
 	appToken: string,
 	remoteUrl: string,
 ): Promise<DBSnapshot | undefined> {
-	const client = createRemoteLibSQLClient({
+	const client = createClient({
 		token: appToken,
 		url: remoteUrl,
 	});

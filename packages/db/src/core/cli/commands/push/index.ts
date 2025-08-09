@@ -3,7 +3,7 @@ import { sql } from 'drizzle-orm';
 import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
 import { MIGRATION_VERSION } from '../../../consts.js';
-import { createRemoteLibSQLClient } from '../../../db-client/libsql-node.js';
+import { createClient } from '../../../db-client/libsql-node.js';
 import type { DBConfig, DBSnapshot } from '../../../types.js';
 import { getRemoteDatabaseInfo, type RemoteDatabaseInfo } from '../../../utils.js';
 import {
@@ -108,7 +108,7 @@ type RequestBody = {
 };
 
 async function pushToDb(requestBody: RequestBody, appToken: string, remoteUrl: string) {
-	const client = createRemoteLibSQLClient({
+	const client = createClient({
 		token: appToken,
 		url: remoteUrl,
 	});
