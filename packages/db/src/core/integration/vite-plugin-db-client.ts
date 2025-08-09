@@ -8,9 +8,8 @@ type VitePluginDBClientParams = {
 
 function getRemoteClientModule(mode: 'node' | 'web') {
 	switch (mode) {
-		case 'web': {
+		case 'web':
 			return `export { createClient } from '${DB_CLIENTS.web}';`;
-		}
         case 'node':
 		default:
 			return `export { createClient } from '${DB_CLIENTS.node}';`;

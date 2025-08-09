@@ -120,17 +120,18 @@ export function getConfigVirtualModContents() {
 export function getLocalVirtualModContents({
 	tables,
 	root,
-	__execute = false,
+	localExecution = false,
 }: {
 	tables: DBTables;
 	root: URL;
-	__execute?: boolean;
+	// Request module to be loaded immediately in process  
+    localExecution?: boolean; 
 }) {
 	const { ASTRO_DATABASE_FILE } = getAstroEnv();
 	const dbUrl = new URL(DB_PATH, root);
 
 	// If this is for the execute command, we need to import the client directly instead of using the runtime only virtual module.
-	const clientImport = __execute
+	const clientImport = localExecution
 		? `import { createClient } from '${DB_CLIENTS.node}';`
 		: `import { createClient } from '${VIRTUAL_CLIENT_MODULE_ID}';`;
 
@@ -152,13 +153,14 @@ export function getRemoteVirtualModContents({
 	appToken,
 	isBuild,
 	output,
-	__execute = false, // Used for execute command
+	localExecution = false, // Used for execute command
 }: {
 	tables: DBTables;
 	appToken: string;
 	isBuild: boolean;
 	output: AstroConfig['output'];
-	__execute?: boolean;
+	// Request module to be loaded immediately in process  
+    localExecution?: boolean; 
 }) {
 	const dbInfo = getRemoteDatabaseInfo();
 
@@ -188,7 +190,7 @@ export function getRemoteVirtualModContents({
 	}
 
 	// If this is for the execute command, we need to import the client directly instead of using the runtime only virtual module.
-	const clientImport = __execute
+	const clientImport = localExecution
 		? `import { createClient } from '${DB_CLIENTS.node}';`
 		: `import { createClient } from '${VIRTUAL_CLIENT_MODULE_ID}';`;
 
