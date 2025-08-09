@@ -23,7 +23,7 @@ export function createClient(opts: RemoteDbClientOptions) {
 	} else if (
 		parsedUrl.protocol === 'file:' &&
 		parsedUrl.pathname.startsWith('/') &&
-		!url.startsWith('file:/')
+		!rawUrl.startsWith('file:/')
 	) {
 		// libSQL accepts relative and absolute file URLs
 		// for local DBs. This doesn't match the URL specification.
