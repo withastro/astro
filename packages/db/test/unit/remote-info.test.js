@@ -20,7 +20,7 @@ describe('RemoteDatabaseInfo', () => {
 	test('configured libSQL remote', () => {
 		process.env.ASTRO_DB_REMOTE_URL = 'libsql://libsql.self.hosted';
 		process.env.ASTRO_DB_APP_TOKEN = 'foo';
-		const dbInfo = getRemoteDatabaseInfo('node');
+		const dbInfo = getRemoteDatabaseInfo();
 
 		assert.deepEqual(dbInfo, {
 			url: 'libsql://libsql.self.hosted',
