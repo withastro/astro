@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 import test, { describe } from 'node:test';
-import { parseOpts } from '../../dist/runtime/utils.js';
+import { parseLibSQLConfig } from '../../dist/core/db-client/utils.js';
 
 describe('db client config', () => {
 	test('parse config options from URL (docs example url)', () => {
@@ -9,9 +9,10 @@ describe('db client config', () => {
 		);
 		const options = Object.fromEntries(remoteURLToParse.searchParams.entries());
 
-		const config = parseOpts(options);
+		const config = parseLibSQLConfig(options);
 
 		assert.deepEqual(config, {
+			url: 'file://local-copy.db',
 			encryptionKey: 'your-encryption-key',
 			syncInterval: 60,
 			syncUrl: 'libsql://your.server.io',
@@ -22,9 +23,10 @@ describe('db client config', () => {
 		const remoteURLToParse = new URL('file://local-copy.db?readYourWrites&offline&tls');
 		const options = Object.fromEntries(remoteURLToParse.searchParams.entries());
 
-		const config = parseOpts(options);
+		const config = parseLibSQLConfig(options);
 
 		assert.deepEqual(config, {
+			url: 'file://local-copy.db',
 			readYourWrites: true,
 			offline: true,
 			tls: true,
@@ -37,9 +39,10 @@ describe('db client config', () => {
 		);
 		const options = Object.fromEntries(remoteURLToParse.searchParams.entries());
 
-		const config = parseOpts(options);
+		const config = parseLibSQLConfig(options);
 
 		assert.deepEqual(config, {
+			url: 'file://local-copy.db',
 			readYourWrites: true,
 			offline: true,
 			tls: true,
@@ -50,9 +53,10 @@ describe('db client config', () => {
 		const remoteURLToParse = new URL('file://local-copy.db?syncInterval=60&concurrency=2');
 		const options = Object.fromEntries(remoteURLToParse.searchParams.entries());
 
-		const config = parseOpts(options);
+		const config = parseLibSQLConfig(options);
 
 		assert.deepEqual(config, {
+			url: 'file://local-copy.db',
 			syncInterval: 60,
 			concurrency: 2,
 		});
