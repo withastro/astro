@@ -36,8 +36,8 @@ export function createClient(opts: RemoteDbClientOptions) {
 		url = 'file:' + parsedUrl.pathname.substring(1);
 	}
 
-	const libSQLOptions = parseLibSQLConfig({ ...options, url, authToken: token });
+	const libSQLOptions = parseLibSQLConfig(options);
 
-	const client = createLibsqlClient(libSQLOptions);
+	const client = createLibsqlClient({ ...libSQLOptions, url, authToken: token });
 	return drizzleLibsql(client);
 }

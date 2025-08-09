@@ -8,9 +8,7 @@ const parseBoolean = (value: string) => z.coerce.boolean().parse(value);
 
 const libSQLConfigTransformed = rawLibSQLOptions.transform((raw) => {
     // Ensure the URL is always present
-	const parsed: LibSQLConfig = {
-		url: raw.url,
-	};
+	const parsed: Partial<LibSQLConfig> = {};
 
     // Optional fields
 	for (const [key, value] of Object.entries(raw)) {
@@ -28,12 +26,7 @@ const libSQLConfigTransformed = rawLibSQLOptions.transform((raw) => {
             case 'encryptionKey':
             case 'syncUrl':
 				parsed[key] = value;
-				break;
-            case 'url':
-                // Already handled above, no need to reassign
                 break;
-            default:
-                throw new Error(`Unsupported LibSQL config option: ${key}`);
 		}
 	}
 
@@ -41,7 +34,7 @@ const libSQLConfigTransformed = rawLibSQLOptions.transform((raw) => {
     return parsed;
 });
 
-export const parseLibSQLConfig = (config: Record<string, string>): LibSQLConfig => {
+export const parseLibSQLConfig = (config: Record<string, string>): Partial<LibSQLConfig> => {
     try {
         return libSQLConfigTransformed.parse(config);
     } catch (error) {
