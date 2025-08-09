@@ -4,7 +4,7 @@ import type { AstroConfig, AstroIntegrationLogger } from 'astro';
 import { type SQL, sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { normalizeDatabaseUrl } from '../../runtime/index.js';
-import { DB_CLIENTS, DB_PATH, RUNTIME_IMPORT, RUNTIME_VIRTUAL_IMPORT, VIRTUAL_MODULE_ID } from '../consts.js';
+import { DB_CLIENTS, DB_PATH, RUNTIME_IMPORT, RUNTIME_VIRTUAL_IMPORT, VIRTUAL_CLIENT_MODULE_ID, VIRTUAL_MODULE_ID } from '../consts.js';
 import { createLocalDatabaseClient } from '../db-client/libsql-local.js';
 import { getResolvedFileUrl } from '../load-file.js';
 import { getCreateIndexQueries, getCreateTableQuery, SEED_DEV_FILE_NAME } from '../queries.js';
@@ -132,7 +132,7 @@ export function getLocalVirtualModContents({
 	// If this is for the execute command, we need to import the client directly instead of using the runtime only virtual module.
 	const clientImport = __execute
 		? `import { createClient } from '${DB_CLIENTS.node}';`
-		: `import { createClient } from '${RUNTIME_IMPORT}';`;
+		: `import { createClient } from '${VIRTUAL_CLIENT_MODULE_ID}';`;
 
 	return `
 import { asDrizzleTable, normalizeDatabaseUrl } from ${RUNTIME_IMPORT};
@@ -190,7 +190,7 @@ export function getRemoteVirtualModContents({
 	// If this is for the execute command, we need to import the client directly instead of using the runtime only virtual module.
 	const clientImport = __execute
 		? `import { createClient } from '${DB_CLIENTS.node}';`
-		: `import { createClient } from '${RUNTIME_IMPORT}';`;
+		: `import { createClient } from '${VIRTUAL_CLIENT_MODULE_ID}';`;
 
 	return `
 import {asDrizzleTable} from ${RUNTIME_IMPORT};
