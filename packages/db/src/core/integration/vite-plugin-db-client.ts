@@ -11,6 +11,7 @@ function getRemoteClientModule(mode: 'node' | 'web') {
 		case 'web': {
 			return `export { createRemoteLibSQLClient as createClient } from '${DB_CLIENTS.web}';`;
 		}
+        case 'node':
 		default:
 			return `export { createRemoteLibSQLClient as createClient } from '${DB_CLIENTS.node}';`;
 	}
@@ -18,6 +19,8 @@ function getRemoteClientModule(mode: 'node' | 'web') {
 
 function getLocalClientModule(mode: 'node' | 'web') {
 	switch (mode) {
+        case 'node':
+        case 'web':
 		default:
 			return `export { createLocalDatabaseClient as createClient } from '${DB_CLIENTS.local}';`;
 	}
