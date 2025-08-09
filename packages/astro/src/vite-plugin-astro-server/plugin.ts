@@ -1,5 +1,8 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { randomUUID } from 'node:crypto';
 import type fs from 'node:fs';
+import { existsSync } from 'node:fs';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
@@ -135,6 +138,44 @@ export default function createVitePluginAstroServer({
 					route: '',
 					handle: trailingSlashMiddleware(settings),
 				});
+
+				// Chrome DevTools workspace handler
+				// See https://chromium.googlesource.com/devtools/devtools-frontend/+/main/docs/ecosystem/automatic_workspace_folders.md
+				viteServer.middlewares.use(async function chromeDevToolsHandler(request, response, next) {
+					if (request.url !== '/.well-known/appspecific/com.chrome.devtools.json') {
+						return next();
+					}
+					if (!settings.config.experimental.chromeDevtoolsWorkspace) {
+						// Return early to stop console spam
+						response.writeHead(404);
+						response.end();
+						return;
+					}
+
+					const cacheDir = settings.config.cacheDir;
+					const configPath = new URL('./chrome-workspace.json', cacheDir);
+
+					if (!existsSync(cacheDir)) {
+						await mkdir(cacheDir, { recursive: true });
+					}
+
+					let config;
+					try {
+						config = JSON.parse(await readFile(configPath, 'utf-8'));
+					} catch {
+						config = {
+							version: '1.0',
+							projectId: randomUUID(),
+							workspaceRoot: fileURLToPath(settings.config.root),
+						};
+						await writeFile(configPath, JSON.stringify(config));
+					}
+
+					response.setHeader('Content-Type', 'application/json');
+					response.end(JSON.stringify(config));
+					return;
+				});
+
 				// Note that this function has a name so other middleware can find it.
 				viteServer.middlewares.use(async function astroDevHandler(request, response) {
 					if (request.url === undefined || !request.method) {
