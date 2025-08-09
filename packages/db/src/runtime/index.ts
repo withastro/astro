@@ -11,14 +11,10 @@ import {
 } from 'drizzle-orm/sqlite-core';
 import type { DBColumn, DBTable } from '../core/types.js';
 import { isSerializedSQL, type SerializedSQL } from './types.js';
-import { pathToFileURL } from './utils.js';
+import { hasPrimaryKey, pathToFileURL } from './utils.js';
 export type Database = LibSQLDatabase;
 export { createClient } from 'virtual:astro:db-client';
 export type { Table } from './types.js';
-
-export function hasPrimaryKey(column: DBColumn) {
-	return 'primaryKey' in column.schema && !!column.schema.primaryKey;
-}
 
 // Taken from:
 // https://stackoverflow.com/questions/52869695/check-if-a-date-string-is-in-iso-and-utc-format

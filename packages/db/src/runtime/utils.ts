@@ -1,5 +1,10 @@
 import { type Config as LibSQLConfig, LibsqlError } from '@libsql/client';
 import { AstroError } from 'astro/errors';
+import type { DBColumn } from '../core/types.js';
+
+export function hasPrimaryKey(column: DBColumn) {
+	return 'primaryKey' in column.schema && !!column.schema.primaryKey;
+}
 
 const isWindows = process?.platform === 'win32';
 
