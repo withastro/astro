@@ -652,6 +652,10 @@ importers:
       zod-to-ts:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.8.3)(zod@3.25.76)
+    optionalDependencies:
+      sharp:
+        specifier: ^0.33.3
+        version: 0.33.5
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.4
@@ -761,10 +765,6 @@ importers:
       vitest:
         specifier: ^3.0.9
         version: 3.1.1(@types/debug@4.1.12)(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0)
-    optionalDependencies:
-      sharp:
-        specifier: ^0.33.3
-        version: 0.33.5
 
   packages/astro-prism:
     dependencies:
