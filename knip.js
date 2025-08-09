@@ -39,6 +39,9 @@ export default {
 				'remark-code-titles',
 			],
 		},
+		'packages/db': {
+			entry: [testEntry, 'test/types/**/*'],
+		},
 		'packages/integrations/*': {
 			entry: [testEntry],
 		},
