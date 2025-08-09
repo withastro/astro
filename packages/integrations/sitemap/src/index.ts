@@ -20,7 +20,7 @@ export type SitemapOptions =
 	| {
 			filenameBase?: string;
 			filter?(page: string): boolean;
-			customPages?: string[] | ((page: string) => Promise<string[]> | string[]);
+			customPages?: string[] | ((page: string) => Promise<string[]> | string[] | undefined);
 
 			i18n?: {
 				defaultLocale: string;
@@ -149,8 +149,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 					let urlData = generateSitemap(pageUrls, finalSiteUrl.href, {
 						...opts,
-						//TODO: remove this and exclude customPages from the SitemapOptions type. Omit<> doesn't work.
-						customPages: customPagesUrls,
+						customPages: customPagesUrls ?? [],
 					});
 
 					if (serialize) {
