@@ -9,12 +9,11 @@ describe('RemoteDatabaseInfo', () => {
 	});
 
 	test('default remote info', () => {
-		const dbInfo = getRemoteDatabaseInfo('node');
+		const dbInfo = getRemoteDatabaseInfo();
 
 		assert.deepEqual(dbInfo, {
 			url: undefined,
 			token: undefined,
-			mode: 'node',
 		});
 	});
 
@@ -26,7 +25,6 @@ describe('RemoteDatabaseInfo', () => {
 		assert.deepEqual(dbInfo, {
 			url: 'libsql://libsql.self.hosted',
 			token: 'foo',
-			mode: 'node'
 		});
 	});
 });
