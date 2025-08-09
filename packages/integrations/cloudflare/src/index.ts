@@ -2,7 +2,7 @@ import { createReadStream } from 'node:fs';
 import { appendFile, stat } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline/promises';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import {
 	appendForwardSlash,
 	prependForwardSlash,
@@ -149,6 +149,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 	let _routes: IntegrationResolvedRoute[];
 
+	const SESSION_KV_BINDING_NAME = args?.sessionKVBindingName ?? 'SESSION';
+
 	return {
 		name: '@astrojs/cloudflare',
 		hooks: {
@@ -159,42 +161,25 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				logger,
 				addWatchFile,
 				addMiddleware,
-				createCodegenDir,
 			}) => {
 				let session = config.session;
 
-				const isBuild = command === 'build';
-
 				if (!session?.driver) {
-					const sessionDir = isBuild ? undefined : createCodegenDir();
-					const bindingName = args?.sessionKVBindingName ?? 'SESSION';
+					logger.info(
+						`Enabling sessions with Cloudflare KV with the "${SESSION_KV_BINDING_NAME}" KV binding.`,
+					);
+					logger.info(
+						`If you see the error "Invalid binding \`${SESSION_KV_BINDING_NAME}\`" in your build output, you need to add the binding to your wrangler config file.`,
+					);
 
-					if (isBuild) {
-						logger.info(
-							`Enabling sessions with Cloudflare KV for production with the "${bindingName}" KV binding.`,
-						);
-						logger.info(
-							`If you see the error "Invalid binding \`${bindingName}\`" in your build output, you need to add the binding to your wrangler config file.`,
-						);
-					}
-
-					session = isBuild
-						? {
-								...session,
-								driver: 'cloudflare-kv-binding',
-								options: {
-									binding: bindingName,
-									...session?.options,
-								},
-							}
-						: {
-								...session,
-								driver: 'fs-lite',
-								options: {
-									base: fileURLToPath(new URL('sessions', sessionDir)),
-									...session?.options,
-								},
-							};
+					session = {
+						...session,
+						driver: 'cloudflare-kv-binding',
+						options: {
+							binding: SESSION_KV_BINDING_NAME,
+							...session?.options,
+						},
+					};
 				}
 
 				updateConfig({
@@ -297,6 +282,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 					setProcessEnv(_config, platformProxy.env);
 
+					globalThis.__env__ ??= {};
+					globalThis.__env__[SESSION_KV_BINDING_NAME] = platformProxy.env[SESSION_KV_BINDING_NAME];
+
 					const clientLocalsSymbol = Symbol.for('astro.locals');
 
 					server.middlewares.use(async function middleware(req, _res, next) {
@@ -362,9 +350,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite.define = {
 						'process.env': 'process.env',
 						// Allows the request handler to know what the binding name is
-						'globalThis.__ASTRO_SESSION_BINDING_NAME': JSON.stringify(
-							args?.sessionKVBindingName ?? 'SESSION',
-						),
+						'globalThis.__ASTRO_SESSION_BINDING_NAME': JSON.stringify(SESSION_KV_BINDING_NAME),
 						...vite.define,
 					};
 				}

@@ -94,7 +94,7 @@ function columnMapper(columnName: string, column: DBColumn) {
 
 	switch (column.type) {
 		case 'text': {
-			c = text(columnName);
+			c = text(columnName, { enum: column.schema.enum });
 			// Duplicate default logic across cases to preserve type inference.
 			// No clean generic for every column builder.
 			if (column.schema.default !== undefined)
