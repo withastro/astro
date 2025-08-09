@@ -5,7 +5,7 @@ import { type SQL, sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { normalizeDatabaseUrl } from '../../runtime/index.js';
 import { DB_CLIENTS, DB_PATH, RUNTIME_IMPORT, RUNTIME_VIRTUAL_IMPORT, VIRTUAL_CLIENT_MODULE_ID, VIRTUAL_MODULE_ID } from '../consts.js';
-import { createLocalDatabaseClient } from '../db-client/libsql-local.js';
+import { createClient } from '../db-client/libsql-local.js';
 import { getResolvedFileUrl } from '../load-file.js';
 import { getCreateIndexQueries, getCreateTableQuery, SEED_DEV_FILE_NAME } from '../queries.js';
 import type { DBTables } from '../types.js';
@@ -224,7 +224,7 @@ const sqlite = new SQLiteAsyncDialect();
 async function recreateTables({ tables, root }: { tables: LateTables; root: URL }) {
 	const { ASTRO_DATABASE_FILE } = getAstroEnv();
 	const dbUrl = normalizeDatabaseUrl(ASTRO_DATABASE_FILE, new URL(DB_PATH, root).href);
-	const db = createLocalDatabaseClient({ url: dbUrl });
+	const db = createClient({ url: dbUrl });
 	const setupQueries: SQL[] = [];
 	for (const [name, table] of Object.entries(tables.get() ?? {})) {
 		const dropQuery = sql.raw(`DROP TABLE IF EXISTS ${sqlite.escapeName(name)}`);

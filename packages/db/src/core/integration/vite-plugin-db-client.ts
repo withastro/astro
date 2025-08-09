@@ -9,11 +9,11 @@ type VitePluginDBClientParams = {
 function getRemoteClientModule(mode: 'node' | 'web') {
 	switch (mode) {
 		case 'web': {
-			return `export { createRemoteLibSQLClient as createClient } from '${DB_CLIENTS.web}';`;
+			return `export { createClient } from '${DB_CLIENTS.web}';`;
 		}
         case 'node':
 		default:
-			return `export { createRemoteLibSQLClient as createClient } from '${DB_CLIENTS.node}';`;
+			return `export { createClient } from '${DB_CLIENTS.node}';`;
 	}
 }
 
@@ -22,7 +22,7 @@ function getLocalClientModule(mode: 'node' | 'web') {
         case 'node':
         case 'web':
 		default:
-			return `export { createLocalDatabaseClient as createClient } from '${DB_CLIENTS.local}';`;
+			return `export { createClient } from '${DB_CLIENTS.local}';`;
 	}
 }
 

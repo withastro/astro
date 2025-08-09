@@ -1,4 +1,4 @@
-import { createClient } from '@libsql/client';
+import { createClient as createLibsqlClient } from '@libsql/client';
 import { drizzle as drizzleLibsql } from 'drizzle-orm/libsql';
 import { parseOpts } from '../../runtime/utils.js';
 
@@ -7,7 +7,7 @@ type RemoteDbClientOptions = {
 	url: string;
 };
 
-export function createRemoteLibSQLClient(opts: RemoteDbClientOptions) {
+export function createClient(opts: RemoteDbClientOptions) {
 	const { token, url } = opts;
 
 	const parsedUrl = new URL(url);
@@ -36,6 +36,6 @@ export function createRemoteLibSQLClient(opts: RemoteDbClientOptions) {
 		dbURL = 'file:' + parsedUrl.pathname.substring(1);
 	}
 
-	const client = createClient({ ...parseOpts(options), url: dbURL, authToken: token });
+	const client = createLibsqlClient({ ...parseOpts(options), url: dbURL, authToken: token });
 	return drizzleLibsql(client);
 }
