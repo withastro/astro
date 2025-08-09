@@ -2467,7 +2467,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * Enables Chrome DevTools workspace integration for the Astro dev server.
 		 *
-		 * When enabled, the dev server will automatically configure a Chrome DevTools workspace for your project,
+		 * When enabled, the dev server will automatically configure a [Chrome DevTools workspace](https://developer.chrome.com/docs/devtools/workspaces) for your project,
 		 * allowing you to edit files directly in the browser and have those changes reflected in your local file system.
 		 *
 		 * ```js
@@ -2480,7 +2480,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * });
 		 * ```
 		 *
-		 * See the [Chrome DevTools workspace documentation](https://developer.chrome.com/docs/devtools/workspaces) for more information.
+		 * See the [experimental Chrome DevTools workspace feature documentation](https://docs.astro.build/en/reference/experimental-flags/chrome-devtools-workspace/) for more information.
 		 */
 		chromeDevtoolsWorkspace?: boolean;
 	};
