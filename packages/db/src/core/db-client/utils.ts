@@ -28,6 +28,10 @@ const libSQLConfigTransformed = rawLibSQLOptions.transform((raw) => {
             case 'encryptionKey':
             case 'syncUrl':
 				parsed[key] = value;
+				break;
+            case 'url':
+                // Already handled above, no need to reassign
+                break;
             default:
                 throw new Error(`Unsupported LibSQL config option: ${key}`);
 		}
