@@ -15,6 +15,7 @@ import { hasPrimaryKey, pathToFileURL } from './utils.js';
 export type Database = LibSQLDatabase;
 export { createClient } from 'virtual:astro:db-client';
 export type { Table } from './types.js';
+export { hasPrimaryKey } from './utils.js';
 
 // Taken from:
 // https://stackoverflow.com/questions/52869695/check-if-a-date-string-is-in-iso-and-utc-format
