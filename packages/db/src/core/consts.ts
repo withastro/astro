@@ -19,7 +19,7 @@ export const MIGRATION_VERSION = '2024-03-12';
 export const VIRTUAL_CLIENT_MODULE_ID = 'virtual:astro:db-client';
 
 export const DB_CLIENTS = {
-	node: '@astrojs/db/db-client/libsql-node.js',
-	web: '@astrojs/db/db-client/libsql-web.js',
-	local: '@astrojs/db/db-client/libsql-local.js',
+	node: `${PACKAGE_NAME}/db-client/libsql-node.js`,
+	web: `${PACKAGE_NAME}/db-client/libsql-web.js`,
+	local: `${PACKAGE_NAME}/db-client/libsql-local.js`,
 };
