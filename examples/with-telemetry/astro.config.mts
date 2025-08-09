@@ -1,5 +1,3 @@
-// @ts-check
-
 import node from '@astrojs/node';
 import opentelemetry from '@astrojs/opentelemetry';
 import svelte from '@astrojs/svelte';
@@ -11,7 +9,7 @@ export default defineConfig({
 	adapter: node({
 		mode: 'standalone',
 	}),
-	integrations: [svelte(), opentelemetry()],
+	integrations: [svelte(), opentelemetry({})],
 	vite: {
 		build: {
 			sourcemap: true,

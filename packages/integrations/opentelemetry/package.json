@@ -23,7 +23,7 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/opentelemetry/",
   "exports": {
     ".": "./dist/index.js",
-    "./initOpentelemetry": "./dist/initOpentelemetry.js",
+    "./otel-reexport/*": "./dist/otel-reexport/*.js",
     "./package.json": "./package.json"
   },
   "files": [
@@ -36,17 +36,29 @@
   },
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
-    "@opentelemetry/exporter-trace-otlp-http": "^0.203.0",
+    "@opentelemetry/semantic-conventions": "^1.36.0",
+    "@opentelemetry/instrumentation": "^0.203.0",
     "@opentelemetry/instrumentation-http": "^0.203.0",
-    "@opentelemetry/context-async-hooks": "^2.0.1",
-    "@opentelemetry/sdk-node": "^0.203.0"
+    "@opentelemetry/instrumentation-fetch": "^0.203.0",
+    "@opentelemetry/instrumentation-undici": "^0.14.0"
   },
   "devDependencies": {
+    "@opentelemetry/sdk-node": "^0.203.0",
     "astro": "workspace:*",
-    "astro-scripts": "workspace:*"
+    "astro-scripts": "workspace:*",
+    "vite": "^6.3.4"
   },
   "peerDependencies": {
-    "astro": "*"
+    "astro": "*",
+    "@opentelemetry/sdk-node": "^0.203.0"
+  },
+  "peerDependenciesMeta": {
+    "astro": {
+      "optional": false
+    },
+    "@opentelemetry/sdk-node": {
+      "optional": true
+    }
   },
   "engines": {
     "node": "18.20.8 || ^20.3.0 || >=22.0.0"

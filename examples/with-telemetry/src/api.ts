@@ -1,3 +1,5 @@
+import * as api from '@opentelemetry/api';
+
 export interface Product {
 	id: number;
 	name: string;
@@ -17,7 +19,13 @@ interface Cart {
 	}>;
 }
 
+const meter = api.metrics.getMeter('src/api');
+
+const readCounter = meter.createCounter('api.reads');
+
 async function getJson<T>(incomingReq: Request, endpoint: string): Promise<T> {
+	readCounter.add(1, { endpoint });
+
 	const origin = new URL(incomingReq.url).origin;
 	try {
 		const response = await fetch(`${origin}${endpoint}`, {
@@ -27,12 +35,13 @@ async function getJson<T>(incomingReq: Request, endpoint: string): Promise<T> {
 		if (!response.ok) {
 			throw new Error(`GET ${endpoint} failed: ${response.statusText}`);
 		}
-		return response.json() as Promise<T>;
+		return await response.json() as Promise<T>;
 	} catch (error) {
 		if (error instanceof DOMException || error instanceof TypeError) {
 			throw new Error(`GET ${endpoint} failed: ${error.message}`);
 		}
 		throw error;
+	} finally {
 	}
 }
 

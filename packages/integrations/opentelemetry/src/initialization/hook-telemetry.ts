@@ -1,34 +1,9 @@
-import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
-import { api, NodeSDK, tracing } from '@opentelemetry/sdk-node';
+import * as api from 'astro:otel:api';
+import * as sc from 'astro:otel:semantic-conventions';
 import { onTraceEvent, type TraceEvent } from 'astro/runtime/server/tracing.js';
 
-// TODO: Make the types load
-// @ts-ignore
-// import { site } from 'astro:config/server';
-
-api.diag.setLogger(new api.DiagConsoleLogger(), {
-	logLevel: api.DiagLogLevel.WARN,
-});
-
-console.log('Initializing OpenTelemetry SDK for Astro...');
-
-const contextManager = new AsyncLocalStorageContextManager();
-
-const sdk = new NodeSDK({
-	contextManager,
-	autoDetectResources: true,
-	serviceName: 'astro',
-	sampler: new tracing.AlwaysOnSampler(),
-	instrumentations: [new HttpInstrumentation({ enabled: true })],
-	spanProcessors: [new tracing.SimpleSpanProcessor(new OTLPTraceExporter({}))],
-});
-
-// TS claims this doesn't need await, but it does.
-// TODO: Link the issue later
-await sdk.start();
-const tracer = api.trace.getTracer('astro');
+const PACKAGE_VERSION = process.env.PACKAGE_VERSION ?? 'development';
+const tracer = api.trace.getTracer('@astrojs/opentelemetry', PACKAGE_VERSION);
 
 function getEventAttributes(event: TraceEvent): api.Attributes {
 	switch (event.event) {
@@ -58,11 +33,13 @@ function getEventAttributes(event: TraceEvent): api.Attributes {
 		case 'routeRender':
 			return {
 				'astro.route.rootModuleId': event.payload.rootModuleId,
-				'astro.route.pathname': event.payload.pathname,
-				'astro.route.url': event.payload.url.toString(),
-				'astro.route.pattern': event.payload.routeData.route,
 				'astro.route.type': event.payload.routeData.type,
 				'astro.partial': event.payload.partial,
+				[sc.ATTR_CLIENT_ADDRESS]: event.payload.clientAddress,
+				[sc.ATTR_URL_FULL]: event.payload.url.toString(),
+				[sc.ATTR_URL_PATH]: event.payload.pathname,
+				[sc.ATTR_HTTP_ROUTE]: event.payload.routeData.route,
+				[sc.ATTR_HTTP_REQUEST_METHOD]: event.payload.request.method,
 			};
 		default:
 			return {};
