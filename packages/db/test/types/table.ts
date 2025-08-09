@@ -25,16 +25,13 @@ describe('Table Type Tests', () => {
 
 		const tsTestTable = asDrizzleTable('testTable', testTable);
 
-		type inferInsert = typeof tsTestTable.$inferInsert;
-		type inferSelect = typeof tsTestTable.$inferSelect;
-
-		expectTypeOf<inferInsert>().toEqualTypeOf<{
+		expectTypeOf(tsTestTable.$inferInsert).toEqualTypeOf<{
 			name: string;
 			createdAt: Date;
 			id?: number | undefined;
 		}>();
 
-		expectTypeOf<inferSelect>().toEqualTypeOf<{
+		expectTypeOf(tsTestTable.$inferSelect).toEqualTypeOf<{
 			id: number;
 			name: string;
 			createdAt: Date;
@@ -52,16 +49,13 @@ describe('Table Type Tests', () => {
 
 		const tsOptionalTable = asDrizzleTable('optionalTable', optionalTable);
 
-		type inferInsert = typeof tsOptionalTable.$inferInsert;
-		type inferSelect = typeof tsOptionalTable.$inferSelect;
-
-		expectTypeOf<inferInsert>().toEqualTypeOf<{
+		expectTypeOf(tsOptionalTable.$inferInsert).toEqualTypeOf<{
 			name: string;
 			id?: number | undefined;
 			description?: string | null | undefined;
 		}>();
 
-		expectTypeOf<inferSelect>().toEqualTypeOf<{
+		expectTypeOf(tsOptionalTable.$inferSelect).toEqualTypeOf<{
 			id: number;
 			name: string;
 			description: string | null;
@@ -79,16 +73,13 @@ describe('Table Type Tests', () => {
 
 		const tsEnumTable = asDrizzleTable('enumTable', enumTable);
 
-		type inferInsert = typeof tsEnumTable.$inferInsert;
-		type inferSelect = typeof tsEnumTable.$inferSelect;
-
-		expectTypeOf<inferInsert>().toEqualTypeOf<{
+		expectTypeOf(tsEnumTable.$inferInsert).toEqualTypeOf<{
 			name: string;
 			id?: number | undefined;
 			status: 'active' | 'inactive';
 		}>();
 
-		expectTypeOf<inferSelect>().toEqualTypeOf<{
+		expectTypeOf(tsEnumTable.$inferSelect).toEqualTypeOf<{
 			id: number;
 			name: string;
 			status: 'active' | 'inactive';
@@ -106,16 +97,13 @@ describe('Table Type Tests', () => {
 
 		const tsEnumTable = asDrizzleTable('enumTable', enumTable);
 
-		type inferInsert = typeof tsEnumTable.$inferInsert;
-		type inferSelect = typeof tsEnumTable.$inferSelect;
-
-		expectTypeOf<inferInsert>().toEqualTypeOf<{
+		expectTypeOf(tsEnumTable.$inferInsert).toEqualTypeOf<{
 			name: string;
 			id?: number | undefined;
 			status?: 'active' | 'inactive' | null | undefined;
 		}>();
 
-		expectTypeOf<inferSelect>().toEqualTypeOf<{
+		expectTypeOf(tsEnumTable.$inferSelect).toEqualTypeOf<{
 			id: number;
 			name: string;
 			status: 'active' | 'inactive' | null;
