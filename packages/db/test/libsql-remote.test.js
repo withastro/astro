@@ -54,6 +54,11 @@ describe('astro:db local database', () => {
 			// Remove the file if it exists to avoid conflict between test runs
 			await rm(prodDbPath, { force: true });
 
+			console.log('=============');
+			console.log('prodDbPath', prodDbPath);
+			console.log('ASTRO_DB_REMOTE_URL', `file:${prodDbPath}`);
+			console.log('=============');
+
 			process.env.ASTRO_INTERNAL_TEST_REMOTE = true;
 			process.env.ASTRO_DB_REMOTE_URL = `file:${prodDbPath}`;
 			await fixture.build();
