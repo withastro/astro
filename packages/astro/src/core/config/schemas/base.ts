@@ -497,6 +497,7 @@ export const AstroConfigSchema = z.object({
 								strictDynamic: z.boolean().optional(),
 							})
 							.optional(),
+						fontDirectiveResources: z.array(z.string()).optional(),
 					}),
 				])
 				.optional()
