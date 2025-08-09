@@ -43,7 +43,9 @@ export function vitePluginDbClient(params: VitePluginDBClientParams): VitePlugin
 				case true:
 					return getRemoteClientModule(params.mode);
 				case false:
-					return getLocalClientModule(params.mode);
+				default:
+					// Local client is always available, even if not used.
+					return getLocalClientModule(params.mode);	
 			}
 		},
 	};
