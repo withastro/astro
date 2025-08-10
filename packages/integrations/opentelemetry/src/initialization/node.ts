@@ -10,6 +10,7 @@ import { instrumentations } from 'astro:otel-internal';
 process.env.OTEL_PROPAGATORS ?? 'tracecontext,baggage,b3';
 process.env.OTEL_TRACES_EXPORTER ?? 'otlp';
 process.env.OTEL_METRICS_EXPORTER ?? 'otlp';
+process.env.OTEL_LOGS_EXPORTER ?? 'otlp,console';
 
 const sdk = new NodeSDK({
 	autoDetectResources: true,
