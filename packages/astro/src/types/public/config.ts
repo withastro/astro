@@ -2090,7 +2090,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @default `false`
 		 * @version 5.x
 		 * @description
-		 * When two routes generate the same prerendered URL, fail the build instead of silently skipping one.
+		 * When two routes generate the same prerendered URL, fail the build instead of skipping one.
 		 * If disabled (default), a warning is logged when conflicts occur and the highest-priority route wins.
 		 */
 		failOnPrerenderConflict?: boolean;
