@@ -2,4 +2,4 @@
 '@astrojs/db': patch
 ---
 
-Fixes type casting for Astro DB tables.
+Fixes inferred types for Astro DB tables using `column.text` fields.
