@@ -29,6 +29,11 @@ export type SerializedRouteData = Omit<
 	};
 };
 
+type InjectedMiddleware = {
+	name: string;
+	entrypoint: string;
+}
+
 export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
@@ -48,7 +53,7 @@ export interface AstroSettings {
 	 */
 	clientDirectives: Map<string, string>;
 	devToolbarApps: (DevToolbarAppEntry | string)[];
-	middlewares: { pre: string[]; post: string[] };
+	middlewares: { pre: InjectedMiddleware[]; post: InjectedMiddleware[] };
 	initializers: string[];
 	tsConfig: TSConfig | undefined;
 	tsConfigPath: string | undefined;

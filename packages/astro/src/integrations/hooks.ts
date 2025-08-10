@@ -285,9 +285,10 @@ export async function runHookConfigSetup({
 								order === 'pre' ? 'before' : 'after'
 							} any application middleware you define.`,
 						);
-						updatedSettings.middlewares[order].push(
-							typeof entrypoint === 'string' ? entrypoint : fileURLToPath(entrypoint),
-						);
+						updatedSettings.middlewares[order].push({
+							name: integration.name,
+							entrypoint: typeof entrypoint === 'string' ? entrypoint : fileURLToPath(entrypoint),
+						});
 					},
 					addInitializer: (entrypoint) => {
 						if (typeof entrypoint === 'string') {

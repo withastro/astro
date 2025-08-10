@@ -63,7 +63,7 @@ export class RenderContext {
 		public session: AstroSession | undefined = pipeline.manifest.sessionConfig
 			? new AstroSession(cookies, pipeline.manifest.sessionConfig, pipeline.runtimeMode)
 			: undefined,
-	) {}
+	) { }
 
 	/**
 	 * A flag that tells the render content if the rewriting was triggered
@@ -92,7 +92,9 @@ export class RenderContext {
 		Partial<
 			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props' | 'partial' | 'actions'>
 		>): Promise<RenderContext> {
-		const pipelineMiddleware = await pipeline.getMiddleware();
+		const pipelineMiddlewares = middleware == null
+			? await pipeline.getMiddleware()
+			: [middleware];
 		const pipelineActions = actions ?? (await pipeline.getActions());
 		setOriginPathname(
 			request,
@@ -103,7 +105,7 @@ export class RenderContext {
 		return new RenderContext(
 			pipeline,
 			locals,
-			sequence(...pipeline.internalMiddleware, middleware ?? pipelineMiddleware),
+			sequence(...pipeline.internalMiddlewares, ...pipelineMiddlewares),
 			pipelineActions,
 			pathname,
 			request,
@@ -139,14 +141,14 @@ export class RenderContext {
 			Object.keys(this.props).length > 0
 				? this.props
 				: await getProps({
-						mod: componentInstance,
-						routeData: this.routeData,
-						routeCache: this.pipeline.routeCache,
-						pathname: this.pathname,
-						logger,
-						serverLike,
-						base: manifest.base,
-					});
+					mod: componentInstance,
+					routeData: this.routeData,
+					routeCache: this.pipeline.routeCache,
+					pathname: this.pathname,
+					logger,
+					serverLike,
+					base: manifest.base,
+				});
 		const actionApiContext = this.createActionAPIContext();
 		const apiContext = this.createAPIContext(props, actionApiContext);
 

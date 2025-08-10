@@ -41,6 +41,8 @@ function getEventAttributes(event: TraceEvent): api.Attributes {
 				[sc.ATTR_HTTP_ROUTE]: event.payload.routeData.route,
 				[sc.ATTR_HTTP_REQUEST_METHOD]: event.payload.request.method,
 			};
+		case 'middleware':
+			return { 'astro.middleware.name': event.payload.name }
 		default:
 			return {};
 	}

@@ -36,6 +36,12 @@ export interface TraceEventsPayloads {
 		url: URL;
 		partial?: boolean;
 	};
+	middleware: {
+		name: string;
+		pathname: string;
+		url: URL;
+		request: Request;
+	};
 
 	// Allow for events to be added in a backwards-compatible way.
 	// Trace listeners must handle unknown events gracefully in order to be type-safe.

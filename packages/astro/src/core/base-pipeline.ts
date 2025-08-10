@@ -3,7 +3,7 @@ import { NOOP_ACTIONS_MOD } from '../actions/noop-actions.js';
 import type { ActionAccept, ActionClient } from '../actions/runtime/virtual/server.js';
 import { createI18nMiddleware } from '../i18n/middleware.js';
 import type { ComponentInstance } from '../types/astro.js';
-import type { MiddlewareHandler, RewritePayload } from '../types/public/common.js';
+import type { NamedMiddlewareHandler, RewritePayload } from '../types/public/common.js';
 import type { RuntimeMode } from '../types/public/config.js';
 import type {
 	RouteData,
@@ -17,7 +17,6 @@ import { ActionNotFoundError } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
 import type { Logger } from './logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
-import { sequence } from './middleware/sequence.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
 
@@ -28,8 +27,8 @@ import { createDefaultRoutes } from './routing/default.js';
  * Thus, a `Pipeline` is created once at process start and then used by every `RenderContext`.
  */
 export abstract class Pipeline {
-	readonly internalMiddleware: MiddlewareHandler[];
-	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
+	readonly internalMiddlewares: NamedMiddlewareHandler[];
+	resolvedMiddleware: NamedMiddlewareHandler[] | undefined = undefined;
 	resolvedActions: SSRActions | undefined = undefined;
 
 	constructor(
@@ -68,11 +67,11 @@ export abstract class Pipeline {
 
 		readonly actions = manifest.actions,
 	) {
-		this.internalMiddleware = [];
+		this.internalMiddlewares = [];
 		// We do use our middleware only if the user isn't using the manual setup
 		if (i18n?.strategy !== 'manual') {
-			this.internalMiddleware.push(
-				createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat),
+			this.internalMiddlewares.push(
+				['i18', createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat)],
 			);
 		}
 	}
@@ -103,7 +102,7 @@ export abstract class Pipeline {
 	 * Resolves the middleware from the manifest, and returns the `onRequest` function. If `onRequest` isn't there,
 	 * it returns a no-op function
 	 */
-	async getMiddleware(): Promise<MiddlewareHandler> {
+	async getMiddleware(): Promise<NamedMiddlewareHandler[]> {
 		if (this.resolvedMiddleware) {
 			return this.resolvedMiddleware;
 		}
@@ -112,15 +111,15 @@ export abstract class Pipeline {
 		else if (this.middleware) {
 			const middlewareInstance = await this.middleware();
 			const onRequest = middlewareInstance.onRequest ?? NOOP_MIDDLEWARE_FN;
-			const internalMiddlewares = [onRequest];
+			const internalMiddlewares: NamedMiddlewareHandler[] = [['onRequest', onRequest]];
 			if (this.manifest.checkOrigin) {
 				// this middleware must be placed at the beginning because it needs to block incoming requests
-				internalMiddlewares.unshift(createOriginCheckMiddleware());
+				internalMiddlewares.unshift(['checkMiddleware', createOriginCheckMiddleware()]);
 			}
-			this.resolvedMiddleware = sequence(...internalMiddlewares);
+			this.resolvedMiddleware = internalMiddlewares;
 			return this.resolvedMiddleware;
 		} else {
-			this.resolvedMiddleware = NOOP_MIDDLEWARE_FN;
+			this.resolvedMiddleware = [['noop', NOOP_MIDDLEWARE_FN]];
 			return this.resolvedMiddleware;
 		}
 	}

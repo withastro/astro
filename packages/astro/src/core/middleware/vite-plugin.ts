@@ -53,18 +53,21 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				const preMiddleware = createMiddlewareImports(settings.middlewares.pre, 'pre');
 				const postMiddleware = createMiddlewareImports(settings.middlewares.post, 'post');
 
+				const userMiddlewareReference = userMiddlewareIsPresent
+					? `['projectMiddleware', userOnRequest]${postMiddleware.sequenceCode ? ',' : ''}`
+					: ''
+
 				const code = `
-				${
-					userMiddlewareIsPresent
+				${userMiddlewareIsPresent
 						? `import { onRequest as userOnRequest } from '${resolvedMiddlewareId}';`
 						: ''
-				}
+					}
 import { sequence } from 'astro:middleware';
 ${preMiddleware.importsCode}${postMiddleware.importsCode}
 
 export const onRequest = sequence(
 	${preMiddleware.sequenceCode}${preMiddleware.sequenceCode ? ',' : ''}
-	${userMiddlewareIsPresent ? `userOnRequest${postMiddleware.sequenceCode ? ',' : ''}` : ''}
+	${userMiddlewareReference}
 	${postMiddleware.sequenceCode}
 );
 `.trim();
@@ -76,7 +79,7 @@ export const onRequest = sequence(
 }
 
 function createMiddlewareImports(
-	entrypoints: string[],
+	entrypoints: { name: string, entrypoint: string }[],
 	prefix: string,
 ): {
 	importsCode: string;
@@ -85,10 +88,11 @@ function createMiddlewareImports(
 	let importsRaw = '';
 	let sequenceRaw = '';
 	let index = 0;
-	for (const entrypoint of entrypoints) {
-		const name = `_${prefix}_${index}`;
-		importsRaw += `import { onRequest as ${name} } from '${normalizePath(entrypoint)}';\n`;
-		sequenceRaw += `${index > 0 ? ',' : ''}${name}`;
+	for (const { name, entrypoint } of entrypoints) {
+		const ident = `_${prefix}_${index}`;
+		const traceName = `${prefix}:${name}`;
+		importsRaw += `import { onRequest as ${ident} } from '${normalizePath(entrypoint)}';\n`;
+		sequenceRaw += `${index > 0 ? ',' : ''}[${JSON.stringify(traceName)},${ident}]`;
 		index++;
 	}
 

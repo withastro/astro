@@ -1,5 +1,6 @@
 import { type HeadElements, Pipeline, type TryRewriteResult } from '../core/base-pipeline.js';
 import type { SinglePageBuiltModule } from '../core/build/types.js';
+import { sequence } from '../core/middleware/index.js';
 import {
 	createModuleScriptElement,
 	createStylesheetElementSet,
@@ -41,7 +42,7 @@ export class ContainerPipeline extends Pipeline {
 		);
 	}
 
-	componentMetadata(_routeData: RouteData): Promise<SSRResult['componentMetadata']> | void {}
+	componentMetadata(_routeData: RouteData): Promise<SSRResult['componentMetadata']> | void { }
 
 	headElements(routeData: RouteData): Promise<HeadElements> | HeadElements {
 		const routeInfo = this.manifest.routes.find((route) => route.routeData === routeData);
@@ -85,7 +86,7 @@ export class ContainerPipeline extends Pipeline {
 				return Promise.resolve(componentInstance);
 			},
 			renderers: this.manifest.renderers,
-			onRequest: this.resolvedMiddleware,
+			onRequest: sequence(...this.resolvedMiddleware ?? []),
 		});
 	}
 
