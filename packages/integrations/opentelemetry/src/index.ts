@@ -4,6 +4,7 @@ import { z } from 'astro/zod';
 import { fileURLToPath } from 'node:url';
 import { otelApis } from './vite/otel-apis.js';
 import { otelInternalApis } from './vite/otel-internal.js';
+import { otelHelper } from './vite/otel-helper.js';
 
 const optionsSchema = z.object({
 	/**
@@ -25,6 +26,16 @@ const optionsSchema = z.object({
 	 * This can be used to configure library instrumentations with environment patching.
 	 */
 	instrumentationModule: z.string().optional(),
+
+	/**
+	 * The module specifier prefix to use for re-exporting OpenTelemetry APIs.
+	 *
+	 * This should be set by integrations that wrap this OpenTelemetry integration to ensure imports
+	 * from virtual modules can resolve to transitive dependencies.
+	 *
+	 * Default: `@astrojs/opentelemetry/otel-reexport`
+	 */
+	reexportPrefix: z.string().optional().default('@astrojs/opentelemetry/otel-reexport'),
 })
 	.optional()
 	.default({});
@@ -50,7 +61,7 @@ export default function openTelemetry(options?: z.input<typeof optionsSchema>): 
 				updateConfig({
 					vite: {
 						plugins: [
-							otelApis({ logger }),
+							otelApis({ logger, reexportPrefix: parsedOptions.reexportPrefix }),
 							otelInternalApis({
 								logger,
 								instrumentationModule: parsedOptions.instrumentationModule?.startsWith('.')
