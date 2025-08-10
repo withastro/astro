@@ -22,12 +22,17 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/opentelemetry/",
   "exports": {
-    ".": "./dist/index.js",
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./dist/index.js",
+    },
     "./otel-reexport/*": "./dist/otel-reexport/*.js",
     "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "virtual.d.ts",
+    "index.d.ts",
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
@@ -36,6 +41,7 @@
   },
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/api-logs": "^0.203.0",
     "@opentelemetry/semantic-conventions": "^1.36.0",
     "@opentelemetry/instrumentation": "^0.203.0",
     "@opentelemetry/instrumentation-http": "^0.203.0",

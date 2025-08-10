@@ -68,6 +68,7 @@ export default function openTelemetry(options?: z.input<typeof optionsSchema>): 
 									? fileURLToPath(new URL(parsedOptions.instrumentationModule, config.root))
 									: parsedOptions.instrumentationModule,
 							}),
+							otelHelper(),
 						],
 					},
 				});

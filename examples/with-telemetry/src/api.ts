@@ -1,4 +1,6 @@
-import * as api from '@opentelemetry/api';
+import tracer from 'astro:otel:tracer';
+import meter from 'astro:otel:meter';
+import logger from 'astro:otel:logger';
 
 export interface Product {
 	id: number;
@@ -18,8 +20,6 @@ interface Cart {
 		count: number;
 	}>;
 }
-
-const meter = api.metrics.getMeter('src/api');
 
 const readCounter = meter.createCounter('api.reads');
 
