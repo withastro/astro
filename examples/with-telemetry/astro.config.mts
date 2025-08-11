@@ -1,8 +1,8 @@
+import { fileURLToPath } from 'node:url';
 import node from '@astrojs/node';
 import opentelemetry from '@astrojs/opentelemetry';
 import svelte from '@astrojs/svelte';
 import { defineConfig } from 'astro/config';
-import { fileURLToPath } from 'node:url';
 
 // https://astro.build/config
 export default defineConfig({

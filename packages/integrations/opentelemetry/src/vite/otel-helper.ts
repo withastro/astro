@@ -1,5 +1,5 @@
-import { URLSearchParams } from "node:url";
-import type { Plugin } from "vite";
+import { URLSearchParams } from 'node:url';
+import type { Plugin } from 'vite';
 
 const LOGGER_ID = 'astro:otel:logger';
 const TRACER_ID = 'astro:otel:tracer';
@@ -13,7 +13,7 @@ const resolveMapping: Record<string, string> = {
 	[LOGGER_ID]: LOGGER_RESOLVED_ID,
 	[TRACER_ID]: TRACER_RESOLVED_ID,
 	[METER_ID]: METER_RESOLVED_ID,
-}
+};
 
 export function otelHelper(): Plugin {
 	return {
@@ -26,7 +26,7 @@ export function otelHelper(): Plugin {
 			return `${resolved}?${new URLSearchParams({ importer: importer || '' })}`;
 		},
 		load(id) {
-			if (!Object.values(resolveMapping).some(resolvedId => id.startsWith(resolvedId))) {
+			if (!Object.values(resolveMapping).some((resolvedId) => id.startsWith(resolvedId))) {
 				return null;
 			}
 
@@ -57,6 +57,6 @@ export default meter;
 				default:
 					return null;
 			}
-		}
+		},
 	};
 }

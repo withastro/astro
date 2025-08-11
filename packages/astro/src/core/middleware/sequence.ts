@@ -1,4 +1,9 @@
-import type { MiddlewareHandler, NamedMiddlewareHandler, RewritePayload } from '../../types/public/common.js';
+import { wrapWithTracing } from '../../runtime/server/tracing.js';
+import type {
+	MiddlewareHandler,
+	NamedMiddlewareHandler,
+	RewritePayload,
+} from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
 import { AstroCookies } from '../cookies/cookies.js';
 import { ForbiddenRewrite } from '../errors/errors-data.js';
@@ -7,12 +12,11 @@ import { getParams, type Pipeline } from '../render/index.js';
 import { apiContextRoutesSymbol } from '../render-context.js';
 import { setOriginPathname } from '../routing/rewrite.js';
 import { defineMiddleware } from './index.js';
-import { wrapWithTracing } from '../../runtime/server/tracing.js';
 
 type MiddlewareOrNamed = MiddlewareHandler | NamedMiddlewareHandler;
 
 function wrapMiddlewareWithTracing(name: string, handler: MiddlewareHandler): MiddlewareHandler {
-	return wrapWithTracing('middleware', handler, context => ({
+	return wrapWithTracing('middleware', handler, (context) => ({
 		name,
 		pathname: context.url.pathname,
 		url: context.url,
@@ -26,8 +30,7 @@ function wrapMiddlewareWithTracing(name: string, handler: MiddlewareHandler): Mi
  * It accepts one or more middleware handlers and makes sure that they are run in sequence.
  */
 export function sequence(...handlers: MiddlewareOrNamed[]): MiddlewareHandler {
-	const filtered = handlers
-		.filter((h) => !!h && (typeof h === 'function' || !!h[1]))
+	const filtered = handlers.filter((h) => !!h && (typeof h === 'function' || !!h[1]));
 	const length = filtered.length;
 	if (!length) {
 		return defineMiddleware((_context, next) => {
@@ -38,11 +41,11 @@ export function sequence(...handlers: MiddlewareOrNamed[]): MiddlewareHandler {
 		const handler = filtered[0];
 		return typeof handler === 'function' ? handler : handler[1];
 	}
-	const tracedMiddlewares: MiddlewareHandler[] = filtered.map((h, index) => (
+	const tracedMiddlewares: MiddlewareHandler[] = filtered.map((h, index) =>
 		typeof h === 'function'
 			? wrapMiddlewareWithTracing(h.name || `sequence[${index}]`, h)
-			: wrapMiddlewareWithTracing(h[0] || `sequence[${index}]`, h[1])
-	));
+			: wrapMiddlewareWithTracing(h[0] || `sequence[${index}]`, h[1]),
+	);
 	return defineMiddleware((context, next) => {
 		/**
 		 * This variable is used to carry the rerouting payload across middleware functions.

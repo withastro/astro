@@ -1,6 +1,6 @@
-import type { MiddlewareHandler } from "astro";
-import { defineMiddleware, sequence } from "astro:middleware";
+import { defineMiddleware, sequence } from 'astro:middleware';
 import * as timers from 'node:timers/promises';
+import type { MiddlewareHandler } from 'astro';
 
 const foo: MiddlewareHandler = async (_, next) => {
 	await timers.setTimeout(10); // Simulate some async operation
@@ -12,7 +12,4 @@ const bar = defineMiddleware(async (_, next) => {
 	return next();
 });
 
-export const onRequest = sequence(
-	foo,
-	['bar', bar]
-)
+export const onRequest = sequence(foo, ['bar', bar]);

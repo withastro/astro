@@ -42,7 +42,7 @@ export class ContainerPipeline extends Pipeline {
 		);
 	}
 
-	componentMetadata(_routeData: RouteData): Promise<SSRResult['componentMetadata']> | void { }
+	componentMetadata(_routeData: RouteData): Promise<SSRResult['componentMetadata']> | void {}
 
 	headElements(routeData: RouteData): Promise<HeadElements> | HeadElements {
 		const routeInfo = this.manifest.routes.find((route) => route.routeData === routeData);
@@ -86,7 +86,7 @@ export class ContainerPipeline extends Pipeline {
 				return Promise.resolve(componentInstance);
 			},
 			renderers: this.manifest.renderers,
-			onRequest: sequence(...this.resolvedMiddleware ?? []),
+			onRequest: sequence(...(this.resolvedMiddleware ?? [])),
 		});
 	}
 

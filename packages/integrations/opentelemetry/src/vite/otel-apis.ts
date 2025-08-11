@@ -1,9 +1,12 @@
 import type { AstroIntegrationLogger } from 'astro';
 import type { Plugin } from 'vite';
 
-export function otelApis({ logger, reexportPrefix }: {
-	logger: AstroIntegrationLogger,
-	reexportPrefix: string,
+export function otelApis({
+	logger,
+	reexportPrefix,
+}: {
+	logger: AstroIntegrationLogger;
+	reexportPrefix: string;
 }): Plugin {
 	return {
 		// All OpenTelemetry dependencies have to be externalized due
@@ -17,7 +20,7 @@ export function otelApis({ logger, reexportPrefix }: {
 		async resolveId(id) {
 			if (id.startsWith(reexportPrefix)) {
 				logger.debug(`Externalizing OpenTelemetry dependency: ${id}`);
-				return { id, external: true, };
+				return { id, external: true };
 			}
 
 			if (id.startsWith('astro:otel:')) {
@@ -30,5 +33,5 @@ export function otelApis({ logger, reexportPrefix }: {
 				};
 			}
 		},
-	}
+	};
 }

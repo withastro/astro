@@ -142,10 +142,10 @@ export type InferGetStaticParamsType<T> = T extends (
 	opts?: GetStaticPathsOptions,
 ) => infer R | Promise<infer R>
 	? R extends Array<infer U>
-	? U extends { params: infer P }
-	? P
-	: never
-	: never
+		? U extends { params: infer P }
+			? P
+			: never
+		: never
 	: never;
 
 /**
@@ -175,10 +175,10 @@ export type InferGetStaticPropsType<T> = T extends (
 	opts: GetStaticPathsOptions,
 ) => infer R | Promise<infer R>
 	? R extends Array<infer U>
-	? U extends { props: infer P }
-	? P
-	: never
-	: never
+		? U extends { props: infer P }
+			? P
+			: never
+		: never
 	: never;
 
 export type Params = Record<string, string | undefined>;

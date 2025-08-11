@@ -11,7 +11,11 @@ declare module 'astro:otel:semantic-conventions' {
 }
 
 declare module 'astro:otel:node' {
-	import { HttpInstrumentation, UndiciInstrumentation, FetchInstrumentation } from './otel-reexport/node.js';
+	import {
+		HttpInstrumentation,
+		UndiciInstrumentation,
+		FetchInstrumentation,
+	} from './otel-reexport/node.js';
 	export { HttpInstrumentation, UndiciInstrumentation, FetchInstrumentation };
 }
 

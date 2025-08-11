@@ -32,7 +32,7 @@ export type SerializedRouteData = Omit<
 type InjectedMiddleware = {
 	name: string;
 	entrypoint: string;
-}
+};
 
 export interface AstroSettings {
 	config: AstroConfig;

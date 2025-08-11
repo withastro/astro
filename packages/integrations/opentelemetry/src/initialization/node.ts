@@ -1,11 +1,7 @@
-import {
-	HttpInstrumentation,
-	UndiciInstrumentation,
-	FetchInstrumentation,
-} from 'astro:otel:node';
-import { NodeSDK, tracing } from '@opentelemetry/sdk-node';
 import { site } from 'astro:config/server';
+import { FetchInstrumentation, HttpInstrumentation, UndiciInstrumentation } from 'astro:otel:node';
 import { instrumentations } from 'astro:otel-internal';
+import { NodeSDK, tracing } from '@opentelemetry/sdk-node';
 
 process.env.OTEL_PROPAGATORS ?? 'tracecontext,baggage,b3';
 process.env.OTEL_TRACES_EXPORTER ?? 'otlp';
@@ -32,7 +28,7 @@ const sdk = new NodeSDK({
 		new UndiciInstrumentation({ enabled: true }),
 		new FetchInstrumentation({ enabled: true }),
 		...instrumentations,
-	]
+	],
 });
 
 // TS claims this doesn't need await, but it does.

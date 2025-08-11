@@ -70,9 +70,10 @@ export abstract class Pipeline {
 		this.internalMiddlewares = [];
 		// We do use our middleware only if the user isn't using the manual setup
 		if (i18n?.strategy !== 'manual') {
-			this.internalMiddlewares.push(
-				['i18', createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat)],
-			);
+			this.internalMiddlewares.push([
+				'i18',
+				createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat),
+			]);
 		}
 	}
 

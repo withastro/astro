@@ -55,13 +55,14 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 
 				const userMiddlewareReference = userMiddlewareIsPresent
 					? `['projectMiddleware', userOnRequest]${postMiddleware.sequenceCode ? ',' : ''}`
-					: ''
+					: '';
 
 				const code = `
-				${userMiddlewareIsPresent
+				${
+					userMiddlewareIsPresent
 						? `import { onRequest as userOnRequest } from '${resolvedMiddlewareId}';`
 						: ''
-					}
+				}
 import { sequence } from 'astro:middleware';
 ${preMiddleware.importsCode}${postMiddleware.importsCode}
 
@@ -79,7 +80,7 @@ export const onRequest = sequence(
 }
 
 function createMiddlewareImports(
-	entrypoints: { name: string, entrypoint: string }[],
+	entrypoints: { name: string; entrypoint: string }[],
 	prefix: string,
 ): {
 	importsCode: string;
