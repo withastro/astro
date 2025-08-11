@@ -51,7 +51,7 @@ export default function ({
 									if (id === '@my-ssr') {
 										return {
 											code: `
-											import { App } from 'astro/app';
+											import { App, AppPipeline } from 'astro/app';
 											import fs from 'fs';
 
 											${
@@ -71,6 +71,14 @@ export default function ({
 												constructor(manifest, streaming) {
 													super(manifest, streaming);
 													this.#manifest = manifest;
+												}
+												
+												createPipeline(streaming) {
+													return AppPipeline.create({
+														manifest: this.manifest,
+														logger: this.logger,
+														streaming
+													})
 												}
 
 												async render(request, { routeData, clientAddress, locals, addCookieHeader, prerenderedErrorPageFetch } = {}) {
