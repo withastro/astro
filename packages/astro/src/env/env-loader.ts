@@ -6,6 +6,10 @@ import type { AstroConfig } from '../types/public/index.js';
 // except that the first character cannot be a number.
 const isValidIdentifierRe = /^[_$a-zA-Z][\w$]*$/;
 
+/**
+ * From public env, returns private env. Each value may be stringified, transformed as `process.env`
+ * or coerced depending on options.
+ */
 function getPrivateEnv({
 	fullEnv,
 	viteConfig,
