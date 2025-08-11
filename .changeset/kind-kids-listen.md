@@ -28,8 +28,9 @@ This experimental flag supersedes the `experimental.rawEnvValues` flag, that you
 import { defineConfig } from "astro/config"
 
 export default defineConfig({
--  experimental: {
+   experimental: {
 -    rawEnvValues: true,
--  }
++    staticImportMetaEnv: true,
+   }
 })
 ```
