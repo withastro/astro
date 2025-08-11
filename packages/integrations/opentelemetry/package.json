@@ -24,7 +24,7 @@
   "exports": {
     ".": {
       "types": "./index.d.ts",
-      "default": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./otel-reexport/*": "./dist/otel-reexport/*.js",
     "./package.json": "./package.json"
@@ -32,7 +32,7 @@
   "files": [
     "dist",
     "virtual.d.ts",
-    "index.d.ts",
+    "index.d.ts"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
