@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.17.1
+
+### Patch Changes
+
+- [#14207](https://github.com/withastro/astro/pull/14207) [`91283b5`](https://github.com/withastro/astro/commit/91283b5f56af8c1a976b0516948ec340cbe24e01) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Fixes inferred types for Astro DB tables using `column.text` fields.
+
 ## 0.17.0
 
 ### Minor Changes

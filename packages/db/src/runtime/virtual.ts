@@ -27,7 +27,14 @@ export const column = {
 	boolean: <T extends BooleanColumnInput['schema']>(opts: T = {} as T) => {
 		return createColumn('boolean', opts) satisfies { type: 'boolean' };
 	},
-	text: <T extends TextColumnOpts>(opts: T = {} as T) => {
+	text: <
+		T extends TextColumnOpts,
+		const E extends T['enum'] extends readonly [string, ...string[]]
+			? Omit<T, 'enum'> & T['enum']
+			: T,
+	>(
+		opts: E = {} as E,
+	) => {
 		return createColumn('text', opts) satisfies { type: 'text' };
 	},
 	date<T extends DateColumnInput['schema']>(opts: T = {} as T) {
