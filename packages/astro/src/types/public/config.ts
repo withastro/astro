@@ -2447,7 +2447,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @version 5.13
 		 * @description
 		 *
-		 * Disables replacement of `import.meta.env` values with `process.env` calls
+		 * Disables replacement of `import.meta.env` values with `process.env` calls and disables their coercion
 		 * 
 		 * By default, Astro turns non public `import.meta.env` values into `process.env` calls during the build, if the environment
 		 * variable name is present in `process.env`.
