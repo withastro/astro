@@ -8,7 +8,7 @@ const parseBoolean = (value: string) => z.coerce.boolean().parse(value);
 
 const booleanValues = ['true', 'false'];
 
-// parse a value that should be a boolean, but could be a valueless variable)
+// parse a value that should be a boolean, but could be a valueless variable:
 // e.g. 'file://local-copy.db?readYourWrites' & 'file://local-copy.db?readYourWrites=true' should be parsed as true
 const parseOptionalBoolean = (value: string) => {
 	if (booleanValues.includes(value)) {
