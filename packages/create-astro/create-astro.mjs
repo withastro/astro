@@ -12,4 +12,6 @@ if (requiredMajorVersion < minimumMajorVersion) {
 	process.exit(1);
 }
 
+process.removeAllListeners('warning');
+
 import('./dist/index.js').then(({ main }) => main());
