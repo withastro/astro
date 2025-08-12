@@ -14,7 +14,7 @@ Currently, non-public `import.meta.env` environment variables are replaced by a 
 
 The `experimental.staticImportMetaEnv` flag simplifies Astro's default behavior, making it easier to understand and use. Astro will no longer replace any `import.meta.env` environment variables with a `process.env` call, nor will it coerce values.
 
-To enable this feature, add the experimental flag in your Astro config and remove the now removed `rawEnvValues` if it was enabled:
+To enable this feature, add the experimental flag in your Astro config and remove `rawEnvValues` if it was enabled:
 
 ```diff
 // astro.config.mjs
