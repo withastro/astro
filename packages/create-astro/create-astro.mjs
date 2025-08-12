@@ -12,6 +12,6 @@ if (requiredMajorVersion < minimumMajorVersion) {
 	process.exit(1);
 }
 
-process.removeAllListeners('warning');
+process.noDeprecation = true
 
 import('./dist/index.js').then(({ main }) => main());
