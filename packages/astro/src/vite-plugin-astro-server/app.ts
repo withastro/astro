@@ -1,7 +1,7 @@
 import type http from 'node:http';
 import { prependForwardSlash, removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import { loadActions } from '../actions/loadActions.js';
-import { BaseApp } from '../core/app/index.js';
+import { BaseApp, type RenderErrorOptions } from '../core/app/index.js';
 import type { SSRManifest } from '../core/app/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import {
@@ -11,24 +11,32 @@ import {
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
 } from '../core/constants.js';
+import {
+	MiddlewareNoDataOrNextCalled,
+	MiddlewareNotAResponse,
+	NoMatchingStaticPathFound,
+} from '../core/errors/errors-data.js';
+import { type AstroError, isAstroError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { req } from '../core/messages.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { routeIsRedirect } from '../core/redirects/index.js';
+import { getProps } from '../core/render/index.js';
 import { type CreateRenderContext, RenderContext } from '../core/render-context.js';
 import { createRequest } from '../core/request.js';
 import { redirectTemplate } from '../core/routing/3xx.js';
+import { isRoute404, isRoute500, matchAllRoutes } from '../core/routing/match.js';
 import { PERSIST_SYMBOL } from '../core/session.js';
+import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
 import type { RouteData } from '../types/public/index.js';
 import { type DevServerController, runWithErrorHandling } from './controller.js';
 import { recordServerError } from './error.js';
 import { DevPipeline } from './pipeline.js';
 import { handle500Response, writeSSRResult, writeWebResponse } from './response.js';
-import { matchRoute } from './route.js';
 
-export class App extends BaseApp<DevPipeline> {
+export class DevApp extends BaseApp<DevPipeline> {
 	settings: AstroSettings;
 	logger: Logger;
 	loader: ModuleLoader;
@@ -212,12 +220,13 @@ export class App extends BaseApp<DevPipeline> {
 					? response.status
 					: (statusCodedMatched ?? response.status);
 		} catch (err: any) {
-			response = await this.renderError(err, {
+			response = await this.renderError(request, {
 				skipMiddleware: false,
 				locals,
 				status: 500,
 				prerenderedErrorPageFetch: fetch,
-				clientAddress: undefined,
+				clientAddress: incomingRequest.socket.remoteAddress,
+				error: err,
 			});
 		} finally {
 			this.currentRenderContext?.session?.[PERSIST_SYMBOL]();
@@ -343,6 +352,55 @@ export class App extends BaseApp<DevPipeline> {
 			);
 		});
 	}
+
+	async renderError(
+		request: Request,
+		{ locals, skipMiddleware = false, error, clientAddress }: RenderErrorOptions,
+	): Promise<Response> {
+		const custom500 = getCustom500Route(this.manifestData);
+		// Show dev overlay
+		if (!custom500) {
+			throw error;
+		}
+		try {
+			const filePath500 = new URL(`./${custom500.component}`, this.settings.config.root);
+			const preloaded500Component = await this.pipeline.preload(custom500, filePath500);
+			const renderContext = await RenderContext.create({
+				locals,
+				pipeline: this.pipeline,
+				pathname: this.getPathnameFromRequest(request),
+				middleware: skipMiddleware ? undefined : await this.pipeline.getMiddleware(),
+				request,
+				routeData: custom500,
+				clientAddress,
+				actions: await this.pipeline.getActions(),
+			});
+			renderContext.props.error = error;
+			const _response = await renderContext.render(preloaded500Component);
+			// Log useful information that the custom 500 page may not display unlike the default error overlay
+			this.logger.error('router', (error as AstroError).stack || (error as AstroError).message);
+			return _response;
+		} catch (_err) {
+			// We always throw for errors related to middleware calling
+			if (
+				isAstroError(_err) &&
+				[MiddlewareNoDataOrNextCalled.name, MiddlewareNotAResponse.name].includes(_err.name)
+			) {
+				throw _err;
+			}
+			if (skipMiddleware === false) {
+				return this.renderError(request, {
+					clientAddress: undefined,
+					prerenderedErrorPageFetch: fetch,
+					status: 500,
+					skipMiddleware: true,
+					error: _err,
+				});
+			}
+			// If even skipping the middleware isn't enough to prevent the error, show the dev overlay
+			throw _err;
+		}
+	}
 }
 
 /** Check for /404 and /500 custom routes to compute status code */
@@ -380,3 +438,89 @@ type HandleRoute = {
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
 };
+
+interface MatchedRoute {
+	route: RouteData;
+	filePath: URL;
+	resolvedPathname: string;
+}
+
+export async function matchRoute(
+	pathname: string,
+	routesList: RoutesList,
+	pipeline: DevPipeline,
+): Promise<MatchedRoute | undefined> {
+	const { config, logger, routeCache, serverLike, settings } = pipeline;
+	const matches = matchAllRoutes(pathname, routesList);
+
+	const preloadedMatches = await getSortedPreloadedMatches({ pipeline, matches, settings });
+
+	for await (const { route: maybeRoute, filePath } of preloadedMatches) {
+		// attempt to get static paths
+		// if this fails, we have a bad URL match!
+		try {
+			await getProps({
+				mod: await pipeline.preload(maybeRoute, filePath),
+				routeData: maybeRoute,
+				routeCache,
+				pathname: pathname,
+				logger,
+				serverLike,
+				base: config.base,
+			});
+			return {
+				route: maybeRoute,
+				filePath,
+				resolvedPathname: pathname,
+			};
+		} catch (e) {
+			// Ignore error for no matching static paths
+			if (isAstroError(e) && e.title === NoMatchingStaticPathFound.title) {
+				continue;
+			}
+			throw e;
+		}
+	}
+
+	// Try without `.html` extensions or `index.html` in request URLs to mimic
+	// routing behavior in production builds. This supports both file and directory
+	// build formats, and is necessary based on how the manifest tracks build targets.
+	const altPathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+
+	if (altPathname !== pathname) {
+		return await matchRoute(altPathname, routesList, pipeline);
+	}
+
+	if (matches.length) {
+		const possibleRoutes = matches.flatMap((route) => route.component);
+
+		logger.warn(
+			'router',
+			`${NoMatchingStaticPathFound.message(
+				pathname,
+			)}\n\n${NoMatchingStaticPathFound.hint(possibleRoutes)}`,
+		);
+	}
+
+	const custom404 = getCustom404Route(routesList);
+
+	if (custom404) {
+		const filePath = new URL(`./${custom404.component}`, config.root);
+
+		return {
+			route: custom404,
+			filePath,
+			resolvedPathname: pathname,
+		};
+	}
+
+	return undefined;
+}
+
+function getCustom404Route(manifestData: RoutesList): RouteData | undefined {
+	return manifestData.routes.find((r) => isRoute404(r.route));
+}
+
+function getCustom500Route(manifestData: RoutesList): RouteData | undefined {
+	return manifestData.routes.find((r) => isRoute500(r.route));
+}

@@ -157,9 +157,8 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	 *
 	 * If the decoding fails, it logs the error and return the pathname as is.
 	 * @param request
-	 * @private
 	 */
-	private getPathnameFromRequest(request: Request): string {
+	public getPathnameFromRequest(request: Request): string {
 		const url = new URL(request.url);
 		const pathname = prependForwardSlash(this.removeBase(url.pathname));
 		try {

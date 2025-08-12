@@ -28,7 +28,7 @@ import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
 import { toFallbackType, toRoutingStrategy } from '../i18n/utils.js';
 import { runHookRoutesResolved } from '../integrations/hooks.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
-import { App } from './app.js';
+import { DevApp } from './app.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
 import { recordServerError } from './error.js';
@@ -54,7 +54,7 @@ export default function createVitePluginAstroServer({
 		name: 'astro:server',
 		async configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
-			const app = new App(manifest, true, settings, logger, loader, routesList);
+			const app = new DevApp(manifest, true, settings, logger, loader, routesList);
 
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();
