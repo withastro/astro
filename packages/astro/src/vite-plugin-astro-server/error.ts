@@ -1,14 +1,14 @@
 import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { createSafeError } from '../core/errors/index.js';
+import type { Logger } from '../core/logger/core.js';
 import { formatErrorMessage } from '../core/messages.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import type { AstroConfig } from '../types/public/config.js';
-import type { DevPipeline } from './pipeline.js';
 
 export function recordServerError(
 	loader: ModuleLoader,
 	config: AstroConfig,
-	{ logger }: DevPipeline,
+	logger: Logger,
 	_err: unknown,
 ) {
 	const err = createSafeError(_err);
