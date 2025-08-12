@@ -2449,10 +2449,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * Disables replacement of `import.meta.env` values with `process.env` calls and their coercion
 		 *
-		 * By default, Astro turns non public `import.meta.env` values into `process.env` calls during the build, if the environment
-		 * variable name is present in `process.env`. It also converts your environment variables used through `import.meta.env` in
-		 * some cases, and this can prevent access to some values such as the strings `"true"` (which is converted to a boolean value),
-		 * and `"1"` (which is converted to a number).
+		 * Currently, non-public `import.meta.env` environment variables are replaced by a reference to `process.env`. Additionally, Astro may also convert the value type of your environment variables used through `import.meta.env`, which can prevent access to some values such as the strings `"true"` (which is converted to a boolean value), and `"1"` (which is converted to a number).
+		 *
+		 * The `experimental.staticImportMetaEnv` flag simplifies Astro's default behavior, making it easier to understand and use. Astro will no longer replace any `import.meta.env` environment variables with a `process.env` call, nor will it coerce values.
 		 *
 		 * This flag aligns `import.meta.env`'s behavior in Astro with [Vite](https://vite.dev/guide/env-and-mode.html#env-variables).
 		 *
