@@ -34,8 +34,6 @@ interface MatchedRoute {
 	route: RouteData;
 	filePath: URL;
 	resolvedPathname: string;
-	preloadedComponent: ComponentInstance;
-	mod: ComponentInstance;
 }
 
 function isLoggedRequest(url: string) {
@@ -60,12 +58,12 @@ export async function matchRoute(
 
 	const preloadedMatches = await getSortedPreloadedMatches({ pipeline, matches, settings });
 
-	for await (const { preloadedComponent, route: maybeRoute, filePath } of preloadedMatches) {
+	for await (const { route: maybeRoute, filePath } of preloadedMatches) {
 		// attempt to get static paths
 		// if this fails, we have a bad URL match!
 		try {
 			await getProps({
-				mod: preloadedComponent,
+				mod: await pipeline.preload(maybeRoute, filePath),
 				routeData: maybeRoute,
 				routeCache,
 				pathname: pathname,
@@ -77,8 +75,6 @@ export async function matchRoute(
 				route: maybeRoute,
 				filePath,
 				resolvedPathname: pathname,
-				preloadedComponent,
-				mod: preloadedComponent,
 			};
 		} catch (e) {
 			// Ignore error for no matching static paths
@@ -113,14 +109,11 @@ export async function matchRoute(
 
 	if (custom404) {
 		const filePath = new URL(`./${custom404.component}`, config.root);
-		const preloadedComponent = await pipeline.preload(custom404, filePath);
 
 		return {
 			route: custom404,
 			filePath,
 			resolvedPathname: pathname,
-			preloadedComponent,
-			mod: preloadedComponent,
 		};
 	}
 
@@ -158,16 +151,13 @@ export async function handleRoute({
 
 	let request: Request;
 	let renderContext: RenderContext;
-	let mod: ComponentInstance | undefined = undefined;
-	let route: RouteData;
+	let route = matchedRoute.route;
+	const mod: ComponentInstance = await pipeline.preload(route, matchedRoute.filePath);
 	const actions = await loadActions(loader);
 	pipeline.setActions(actions);
 	const middleware = (await loadMiddleware(loader)).onRequest;
 	// This is required for adapters to set locals in dev mode. They use a dev server middleware to inject locals to the `http.IncomingRequest` object.
 	const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
-
-	const { preloadedComponent } = matchedRoute;
-	route = matchedRoute.route;
 
 	// Allows adapters to pass in locals in dev mode.
 	request = createRequest({
@@ -184,8 +174,6 @@ export async function handleRoute({
 	for (const [name, value] of Object.entries(config.server.headers ?? {})) {
 		if (value) incomingResponse.setHeader(name, value);
 	}
-
-	mod = preloadedComponent;
 
 	renderContext = await RenderContext.create({
 		locals,
@@ -298,7 +286,8 @@ export async function handleRoute({
 				routeData: fourOhFourRoute.route,
 				clientAddress: incomingRequest.socket.remoteAddress,
 			});
-			response = await renderContext.render(fourOhFourRoute.preloadedComponent);
+			const component = await pipeline.preload(fourOhFourRoute.route, fourOhFourRoute.filePath);
+			response = await renderContext.render(component);
 		}
 	}
 

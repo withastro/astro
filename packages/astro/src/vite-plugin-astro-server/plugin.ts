@@ -28,11 +28,10 @@ import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
 import { toFallbackType, toRoutingStrategy } from '../i18n/utils.js';
 import { runHookRoutesResolved } from '../integrations/hooks.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
+import { App } from './app.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
 import { recordServerError } from './error.js';
-import { DevPipeline } from './pipeline.js';
-import { handleRequest } from './request.js';
 import { setRouteError } from './server-state.js';
 import { trailingSlashMiddleware } from './trailing-slash.js';
 
@@ -55,18 +54,14 @@ export default function createVitePluginAstroServer({
 		name: 'astro:server',
 		async configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
-			const pipeline = DevPipeline.create(routesList, {
-				loader,
-				logger,
-				manifest,
-				settings,
-			});
+			const app = new App(manifest, true, settings, logger, loader, routesList);
+
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();
 
 			/** rebuild the route cache + manifest */
 			async function rebuildManifest(path: string | null = null) {
-				pipeline.clearRouteCache();
+				app.clearRouteCache();
 
 				// If a route changes, we check if it's part of the manifest and check for its prerender value
 				if (path !== null) {
@@ -91,9 +86,9 @@ export default function createVitePluginAstroServer({
 				}
 
 				warnMissingAdapter(logger, settings);
-				pipeline.manifest.checkOrigin =
-					settings.config.security.checkOrigin && settings.buildOutput === 'server';
-				pipeline.setManifestData(routesList);
+				// pipeline.manifest.checkOrigin =
+				// 	settings.config.security.checkOrigin && settings.buildOutput === 'server';
+				app.setManifestData = routesList;
 			}
 
 			// Rebuild route manifest on file change
@@ -112,7 +107,7 @@ export default function createVitePluginAstroServer({
 				if (store instanceof IncomingMessage) {
 					setRouteError(controller.state, store.url!, error);
 				}
-				const { errorWithMetadata } = recordServerError(loader, settings.config, pipeline, error);
+				const { errorWithMetadata } = recordServerError(loader, settings.config, logger, error);
 				setTimeout(
 					async () => loader.webSocketSend(await getViteErrorPayload(errorWithMetadata)),
 					200,
@@ -143,9 +138,7 @@ export default function createVitePluginAstroServer({
 						return;
 					}
 					localStorage.run(request, () => {
-						handleRequest({
-							pipeline,
-							routesList,
+						app.handleRequest({
 							controller,
 							incomingRequest: request,
 							incomingResponse: response,

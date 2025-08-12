@@ -23,7 +23,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
-import { RenderContext } from '../render-context.js';
+import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../routing/match.js';
@@ -112,15 +112,19 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		dest: consoleLogDestination,
 		level: 'info',
 	});
-	constructor(manifest: SSRManifest, streaming = true) {
+	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
 		this.manifest = manifest;
 		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
 		this.baseWithoutTrailingSlash = removeTrailingForwardSlash(manifest.base);
-		this.pipeline = this.createPipeline(streaming);
+		this.pipeline = this.createPipeline(streaming, manifest, ...args);
 		this.adapterLogger = new AstroIntegrationLogger(this.logger.options, manifest.adapterName);
 		// This is necessary to allow running middlewares for 404 in SSR. There's special handling
 		// to return the host 404 if the user doesn't provide a custom 404
 		ensure404Route(this.manifestData);
+	}
+
+	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
+		return RenderContext.create(payload);
 	}
 
 	getAdapterLogger(): AstroIntegrationLogger {
@@ -131,9 +135,11 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	 * Creates a pipeline by reading the stored manifest
 	 *
 	 * @param streaming
+	 * @param manifest
+	 * @param args
 	 * @private
 	 */
-	abstract createPipeline(streaming: boolean): P;
+	abstract createPipeline(streaming: boolean, manifest: SSRManifest, ...args: any[]): P;
 
 	set setManifestData(newManifestData: RoutesList) {
 		this.manifestData = newManifestData;
@@ -342,7 +348,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			}
 		}
 		if (!routeData) {
-			routeData = this.match(request);
+			routeData = this.match(request, true);
 			this.logger.debug('router', 'Astro matched the following route for ' + request.url);
 			this.logger.debug('router', 'RouteData:\n' + routeData);
 		}
@@ -371,9 +377,9 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		let session: AstroSession | undefined;
 		try {
 			// Load route module. We also catch its error here if it fails on initialization
-			const mod = await this.pipeline.getModuleForRoute(routeData);
+			const componentInstance = await this.pipeline.getComponentByRoute(routeData);
 
-			const renderContext = await RenderContext.create({
+			const renderContext = await this.createRenderContext({
 				pipeline: this.pipeline,
 				locals,
 				pathname,
@@ -383,7 +389,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				clientAddress,
 			});
 			session = renderContext.session;
-			response = await renderContext.render(await mod.page());
+			response = await renderContext.render(componentInstance);
 		} catch (err: any) {
 			this.logger.error(null, err.stack || err.message || String(err));
 			return this.renderError(request, {
@@ -449,7 +455,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	 * If it is a known error code, try sending the according page (e.g. 404.astro / 500.astro).
 	 * This also handles pre-rendered /404 or /500 routes
 	 */
-	private async renderError(
+	public async renderError(
 		request: Request,
 		{
 			locals,
@@ -486,10 +492,10 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 					return this.mergeResponses(response, originalResponse, override);
 				}
 			}
-			const mod = await this.pipeline.getModuleForRoute(errorRouteData);
+			const mod = await this.pipeline.getComponentByRoute(errorRouteData);
 			let session: AstroSession | undefined;
 			try {
-				const renderContext = await RenderContext.create({
+				const renderContext = await this.createRenderContext({
 					locals,
 					pipeline: this.pipeline,
 					middleware: skipMiddleware ? NOOP_MIDDLEWARE_FN : undefined,
@@ -501,7 +507,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 					clientAddress,
 				});
 				session = renderContext.session;
-				const response = await renderContext.render(await mod.page());
+				const response = await renderContext.render(mod);
 				return this.mergeResponses(response, originalResponse);
 			} catch {
 				// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.
