@@ -4,7 +4,7 @@
 
 Adds an experimental flag `staticImportMetaEnv` to disable the replacement of `import.meta.env` values with `process.env` calls and their coercion of environment variable values. This supersedes the `rawEnvValues` experimental flag which is now removed.
 
-Astro allows you to configure a [type-safe schema for your environment variables](/en/guides/environment-variables/#type-safe-environment-variables), and converts variables imported via `astro:env` into the expected type. This is the recommended way to use environment variables in Astro, as it allows you to easily see and manage whether your variables are public or secret, available on the client or only on the server at build time, and the data type of your values.
+Astro allows you to configure a [type-safe schema for your environment variables](https://docs.astro.build/en/guides/environment-variables/#type-safe-environment-variables), and converts variables imported via `astro:env` into the expected type. This is the recommended way to use environment variables in Astro, as it allows you to easily see and manage whether your variables are public or secret, available on the client or only on the server at build time, and the data type of your values.
 
 However, you can still access environment variables through `process.env` and `import.meta.env` directly when needed. This was the only way to use environment variables in Astro before `astro:env` was added in Astro 5.0, and Astro's default handling of `import.meta.env` includes some logic that was only needed for earlier versions of Astro.
 
@@ -68,4 +68,4 @@ interface ImportMeta {
 + }
 ```
 
-See the [experimental static `import.meta.env` documentation](https://docs.astro.build/en/reference/experimental-flags/static-import-meta-env/) for more information about this feature. You can learn more about using environment variables in Astro, including `astro:env`, in the [environment variables documentation](/en/guides/environment-variables/).
+See the [experimental static `import.meta.env` documentation](https://docs.astro.build/en/reference/experimental-flags/static-import-meta-env/) for more information about this feature. You can learn more about using environment variables in Astro, including `astro:env`, in the [environment variables documentation](https://docs.astro.build/en/guides/environment-variables/).
