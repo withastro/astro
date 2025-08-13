@@ -176,7 +176,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							publicBasePath: config.base,
 							sourceData: urlData,
 							limit: entryLimit,
-              customSitemaps,
+							customSitemaps,
 							xslURL: xslURL,
 						},
 						config,
