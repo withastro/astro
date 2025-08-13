@@ -14,7 +14,8 @@ export default defineConfig({
 					weight: 400,
 					style: 'normal',
 					src: ['./src/fonts/roboto-normal-400.woff2']
-				}]
+				}],
+				optimizedFallbacks: false
 			},
 		],
 	},

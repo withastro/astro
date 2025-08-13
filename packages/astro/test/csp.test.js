@@ -318,7 +318,7 @@ describe('CSP', () => {
 			meta
 				.attr('content')
 				.toString()
-				.includes("'sha256-nwBrTaDGvHZ8RLycRsFujCJ4wH9WMDzXSWXAnIsiY/4='"),
+				.includes("'sha256-lPtJk6HHGmT9L13DCy2QCBp/KEtjtoXIQETdx1YUBF4='"),
 			'Wrong hash',
 		);
 		// directive
