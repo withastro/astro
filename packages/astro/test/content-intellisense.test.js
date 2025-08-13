@@ -21,11 +21,11 @@ describe('Content Intellisense', () => {
 	});
 
 	it('generate JSON schemas for content collections', async () => {
-		assert.deepEqual(collectionsDir.includes('blog-cc.schema.json'), true);
+		assert.equal(collectionsDir.includes('blog-cc.schema.json'), true);
 	});
 
 	it('generate JSON schemas for content layer', async () => {
-		assert.deepEqual(collectionsDir.includes('blog-cl.schema.json'), true);
+		assert.equal(collectionsDir.includes('blog-cl.schema.json'), true);
 	});
 
 	it('manifest exists', async () => {
