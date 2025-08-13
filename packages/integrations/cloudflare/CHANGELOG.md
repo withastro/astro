@@ -1,5 +1,36 @@
 # @astrojs/cloudflare
 
+## 12.6.3
+
+### Patch Changes
+
+- [#14066](https://github.com/withastro/astro/pull/14066) [`7abde79`](https://github.com/withastro/astro/commit/7abde7921fb21058d99180d6a0c897c5fa23ff14) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Refactors the internal solution which powers Astro Sessions when running local development with ˋastro devˋ.
+
+  The adapter now utilizes Cloudflare's local support for Cloudflare KV. This internal change is a drop-in replacement and does not require any change to your projectct code.
+
+  However, you now have the ability to connect to the remote Cloudflare KV Namespace if desired and use production data during local development.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 12.6.2
+
+### Patch Changes
+
+- [#13894](https://github.com/withastro/astro/pull/13894) [`b36e72f`](https://github.com/withastro/astro/commit/b36e72f11fbcc0f3d5826f2b1939084f1fb1e3a8) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes special handling of the `ASTRO_STUDIO_APP_TOKEN` environment variable
+
+- Updated dependencies [[`0567fb7`](https://github.com/withastro/astro/commit/0567fb7b50c0c452be387dd7c7264b96bedab48f)]:
+  - @astrojs/internal-helpers@0.7.1
+  - @astrojs/underscore-redirects@1.0.0
+
+## 12.6.1
+
+### Patch Changes
+
+- Updated dependencies [[`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172)]:
+  - @astrojs/internal-helpers@0.7.0
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 12.6.0
 
 ### Minor Changes

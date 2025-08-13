@@ -116,6 +116,7 @@ describe('Redirecting trailing slashes in SSR', () => {
 				'/_server-islands/foo',
 				'/_actions/foo',
 				'/.netlify/image?url=http://example.com/foo.jpg',
+				'//target.example/path',
 			]) {
 				const request = new Request(`http://example.com${path}`);
 				const response = await app.render(request);
@@ -213,6 +214,7 @@ describe('Redirecting trailing slashes in SSR', () => {
 				'/_server-islands/foo/',
 				'/_actions/foo/',
 				'/.netlify/image/?url=http://example.com/foo.jpg',
+				'//target.example/path/',
 			]) {
 				const request = new Request(`http://example.com${path}/`);
 				const response = await app.render(request);
@@ -271,6 +273,7 @@ describe('Redirecting trailing slashes in SSR', () => {
 				'/_server-islands/foo//',
 				'/_actions/foo//',
 				'/.netlify/image//?url=http://example.com/foo.jpg',
+				'//target.example/path//',
 			]) {
 				const request = new Request(`http://example.com${path}/`);
 				const response = await app.render(request);

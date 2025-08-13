@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/netlify",
   "description": "Deploy your site to Netlify",
-  "version": "6.5.3",
+  "version": "6.5.6",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -43,7 +43,7 @@
     "@astrojs/underscore-redirects": "workspace:*",
     "@netlify/blobs": "^10.0.5",
     "@netlify/functions": "^4.1.11",
-    "@netlify/vite-plugin": "^2.4.4",
+    "@netlify/vite-plugin": "^2.5.4",
     "@vercel/nft": "^0.29.2",
     "esbuild": "^0.25.0",
     "tinyglobby": "^0.2.13",

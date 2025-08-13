@@ -69,7 +69,7 @@ function isString(path: unknown): path is string {
 	return typeof path === 'string' || path instanceof String;
 }
 
-const INTERNAL_PREFIXES = new Set(['/_', '/@', '/.']);
+const INTERNAL_PREFIXES = new Set(['/_', '/@', '/.', '//']);
 const JUST_SLASHES = /^\/{2,}$/;
 
 export function isInternalPath(path: string) {

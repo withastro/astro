@@ -1,5 +1,41 @@
 # astro
 
+## 5.12.9
+
+### Patch Changes
+
+- [#14020](https://github.com/withastro/astro/pull/14020) [`9518975`](https://github.com/withastro/astro/commit/951897553921c1419fb96aef74d42ec99976d8be) Thanks [@jp-knj](https://github.com/jp-knj) and [@asieradzk](https://github.com/asieradzk)! - Prevent double-prefixed redirect paths when using fallback and redirectToDefaultLocale together
+
+  Fixes an issue where i18n fallback routes would generate double-prefixed paths (e.g., `/es/es/test/item1/`) when `fallback` and `redirectToDefaultLocale` configurations were used together. The fix adds proper checks to prevent double prefixing in route generation.
+
+- [#14199](https://github.com/withastro/astro/pull/14199) [`3e4cb8e`](https://github.com/withastro/astro/commit/3e4cb8e52a83974cc2671d13fb1b4595fe65085d) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that prevented HMR from working with inline styles
+
+## 5.12.8
+
+### Patch Changes
+
+- [`0567fb7`](https://github.com/withastro/astro/commit/0567fb7b50c0c452be387dd7c7264b96bedab48f) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds `//` to list of internal path prefixes that do not have automated trailing slash handling
+
+- [#13894](https://github.com/withastro/astro/pull/13894) [`b36e72f`](https://github.com/withastro/astro/commit/b36e72f11fbcc0f3d5826f2b1939084f1fb1e3a8) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes Astro Studio commands from the CLI help
+
+- Updated dependencies [[`0567fb7`](https://github.com/withastro/astro/commit/0567fb7b50c0c452be387dd7c7264b96bedab48f)]:
+  - @astrojs/internal-helpers@0.7.1
+  - @astrojs/markdown-remark@6.3.5
+
+## 5.12.7
+
+### Patch Changes
+
+- [#14169](https://github.com/withastro/astro/pull/14169) [`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172) Thanks [@ascorbic](https://github.com/ascorbic)! - Skips trailing slash handling for paths that start with `/.`.
+
+- [#14170](https://github.com/withastro/astro/pull/14170) [`34e6b3a`](https://github.com/withastro/astro/commit/34e6b3a87dd3e9be4886059d1c0efee4c5fa3cda) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where static redirects couldn't correctly generate a redirect when the destination is a prerendered route, and the `output` is set to `"server"`.
+
+- [#14169](https://github.com/withastro/astro/pull/14169) [`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that prevented images from being displayed in dev when using the Netlify adapter with `trailingSlash` set to `always`
+
+- Updated dependencies [[`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172)]:
+  - @astrojs/internal-helpers@0.7.0
+  - @astrojs/markdown-remark@6.3.4
+
 ## 5.12.6
 
 ### Patch Changes
