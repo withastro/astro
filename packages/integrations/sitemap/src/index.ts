@@ -20,6 +20,7 @@ export type SitemapOptions =
 	| {
 			filenameBase?: string;
 			filter?(page: string): boolean;
+			customSitemaps?: string[];
 			customPages?: string[];
 
 			i18n?: {
@@ -88,7 +89,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 					const opts = validateOptions(config.site, options);
 
-					const { filenameBase, filter, customPages, serialize, entryLimit } = opts;
+					const { filenameBase, filter, customPages, customSitemaps, serialize, entryLimit } = opts;
 
 					const outFile = `${filenameBase}-index.xml`;
 					const finalSiteUrl = new URL(config.base, config.site);
@@ -175,6 +176,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							publicBasePath: config.base,
 							sourceData: urlData,
 							limit: entryLimit,
+              customSitemaps,
 							xslURL: xslURL,
 						},
 						config,

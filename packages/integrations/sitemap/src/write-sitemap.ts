@@ -4,8 +4,7 @@ import { normalize, resolve } from 'node:path';
 import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'node:util';
 import type { AstroConfig } from 'astro';
-
-import { SitemapAndIndexStream, SitemapStream } from 'sitemap';
+import { SitemapAndIndexStream, SitemapIndexStream, SitemapStream } from 'sitemap';
 import replace from 'stream-replace-string';
 import type { SitemapItem } from './index.js';
 
@@ -13,6 +12,7 @@ type WriteSitemapConfig = {
 	filenameBase: string;
 	hostname: string;
 	sitemapHostname?: string;
+	customSitemaps?: string[];
 	sourceData: SitemapItem[];
 	destinationDir: string;
 	publicBasePath?: string;
@@ -29,6 +29,7 @@ export async function writeSitemap(
 		sourceData,
 		destinationDir,
 		limit = 50000,
+		customSitemaps = [],
 		publicBasePath = './',
 		xslURL: xslUrl,
 	}: WriteSitemapConfig,
@@ -70,5 +71,13 @@ export async function writeSitemap(
 
 	const src = Readable.from(sourceData);
 	const indexPath = resolve(destinationDir, `./${filenameBase}-index.xml`);
+	for (const customSitemap of customSitemaps) {
+		SitemapIndexStream.prototype._transform.call(
+			sitemapAndIndexStream,
+			{ url: customSitemap },
+			'utf8',
+			() => {},
+		);
+	}
 	return promisify(pipeline)(src, sitemapAndIndexStream, createWriteStream(indexPath));
 }
