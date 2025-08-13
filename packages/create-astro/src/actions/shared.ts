@@ -27,7 +27,13 @@ const VALID_PROJECT_DIRECTORY_SAFE_LIST = [
 	/^yarn-error\.log/,
 ];
 
-export function isEmpty(dirPath: string) {
+export function isEmpty(_dirPath: string) {
+	let dirPath = _dirPath;
+
+	if (typeof dirPath !== 'string') {
+		dirPath = String(_dirPath);
+	}
+
 	if (!fs.existsSync(dirPath)) {
 		return true;
 	}
