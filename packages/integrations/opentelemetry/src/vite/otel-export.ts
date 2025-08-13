@@ -1,7 +1,7 @@
 import type { AstroIntegrationLogger } from 'astro';
 import type { Plugin } from 'vite';
 
-export function otelApis({
+export function otelReexport({
 	logger,
 	reexportPrefix,
 }: {
@@ -15,20 +15,28 @@ export function otelApis({
 		// the OpenTelemetry tracking otherwise.
 		// This serves as a workaround for conflicting expectations and restrictions between
 		// strict dependency management, vite and OpenTelemetry.
-		name: '@astrojs/opentelemetry/otel-apis',
+		name: '@astrojs/opentelemetry/otel-reexport',
 		enforce: 'pre',
 		async resolveId(id) {
 			if (id.startsWith(reexportPrefix)) {
 				logger.debug(`Externalizing OpenTelemetry dependency: ${id}`);
-				return { id, external: true };
+				const resolvedId = await this.resolve(id);
+
+				return resolvedId && {
+					...resolvedId,
+					external: true,
+				};
 			}
 
-			if (id.startsWith('astro:otel:')) {
-				const reexportName = id.slice('astro:otel:'.length);
+			if (id.startsWith('astro:otel-reexport:')) {
+				const reexportName = id.slice('astro:otel-reexport:'.length);
 				logger.debug(`Rewriting OpenTelemetry re-export: ${reexportName}`);
 
-				return {
-					id: `${reexportPrefix}/${reexportName}`,
+				const baseId = `${reexportPrefix}/${reexportName}`;
+				const resolvedId = await this.resolve(baseId);
+
+				return resolvedId && {
+					...resolvedId,
 					external: true,
 				};
 			}

@@ -1,16 +1,16 @@
 /// <reference types="astro/client" />
 
-declare module 'astro:otel:api' {
+declare module 'astro:otel-reexport:api' {
 	import * as api from '@opentelemetry/api';
 	export = api;
 }
 
-declare module 'astro:otel:semantic-conventions' {
+declare module 'astro:otel-reexport:semantic-conventions' {
 	import * as api from '@opentelemetry/semantic-conventions';
 	export = api;
 }
 
-declare module 'astro:otel:node' {
+declare module 'astro:otel-reexport:node' {
 	import {
 		HttpInstrumentation,
 		UndiciInstrumentation,

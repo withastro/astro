@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import type { AstroIntegration } from 'astro';
 import { AstroError } from 'astro/errors';
 import { z } from 'astro/zod';
-import { otelApis } from './vite/otel-apis.js';
+import { otelReexport } from './vite/otel-export.js';
 import { otelHelper } from './vite/otel-helper.js';
 import { otelInternalApis } from './vite/otel-internal.js';
 
@@ -62,23 +62,27 @@ export default function openTelemetry(options?: z.input<typeof optionsSchema>): 
 				updateConfig({
 					vite: {
 						plugins: [
-							otelApis({ logger, reexportPrefix: parsedOptions.reexportPrefix }),
+							otelHelper(),
+							otelReexport({ logger, reexportPrefix: parsedOptions.reexportPrefix }),
 							otelInternalApis({
 								logger,
 								instrumentationModule: parsedOptions.instrumentationModule?.startsWith('.')
 									? fileURLToPath(new URL(parsedOptions.instrumentationModule, config.root))
 									: parsedOptions.instrumentationModule,
 							}),
-							otelHelper(),
 						],
 					},
 				});
 
-				if (parsedOptions.apiInitialization === false) {
+				if (command === 'dev') {
+					// Node module loading will deduplicate this initialization
+					// in case the dev server is restarted within the same process.
+					await import('./initialization/dev.js');
+				} else if (parsedOptions.apiInitialization === false) {
 					logger.info(
 						'OpenTelemetry API initialization is disabled. Only instrumentation will be registered.',
 					);
-				} else if (command === 'build') {
+				} else {
 					const adapterName = config.adapter?.name;
 
 					if (!adapterName) {

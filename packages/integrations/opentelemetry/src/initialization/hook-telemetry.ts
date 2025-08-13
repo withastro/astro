@@ -1,5 +1,5 @@
-import * as api from 'astro:otel:api';
-import * as sc from 'astro:otel:semantic-conventions';
+import * as api from 'astro:otel-reexport:api';
+import * as sc from 'astro:otel-reexport:semantic-conventions';
 import { onTraceEvent, type TraceEvent } from 'astro/runtime/server/tracing.js';
 
 const PACKAGE_VERSION = process.env.PACKAGE_VERSION ?? 'development';

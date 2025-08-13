@@ -38,19 +38,19 @@ export function otelHelper(): Plugin {
 			switch (component) {
 				case 'logger':
 					return `
-import { logs } from 'astro:otel:api-logs';
+import { logs } from 'astro:otel-reexport:api-logs';
 const logger = logs.getLogger(${JSON.stringify(importer)});
 export default logger;
 					`.trim();
 				case 'tracer':
 					return `
-import { trace } from 'astro:otel:api';
+import { trace } from 'astro:otel-reexport:api';
 const tracer = trace.getTracer(${JSON.stringify(importer)});
 export default tracer;
 					`.trim();
 				case 'meter':
 					return `
-import { metrics } from 'astro:otel:api';
+import { metrics } from 'astro:otel-reexport:api';
 const meter = api.metrics.getMeter(${JSON.stringify(importer)});
 export default meter;
 					`.trim();
