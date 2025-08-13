@@ -102,7 +102,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		preserveScriptOrder: false,
 		liveContentCollections: false,
 		csp: false,
-		rawEnvValues: false,
+		staticImportMetaEnv: false,
 		chromeDevtoolsWorkspace: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
@@ -502,7 +502,7 @@ export const AstroConfigSchema = z.object({
 				])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
-			rawEnvValues: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rawEnvValues),
+			staticImportMetaEnv: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.staticImportMetaEnv),
 			chromeDevtoolsWorkspace: z
 				.boolean()
 				.optional()
