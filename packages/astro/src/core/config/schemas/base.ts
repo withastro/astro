@@ -502,7 +502,10 @@ export const AstroConfigSchema = z.object({
 				])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
-			staticImportMetaEnv: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.staticImportMetaEnv),
+			staticImportMetaEnv: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.staticImportMetaEnv),
 			chromeDevtoolsWorkspace: z
 				.boolean()
 				.optional()
