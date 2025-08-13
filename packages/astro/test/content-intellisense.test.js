@@ -28,6 +28,20 @@ describe('Content Intellisense', () => {
 		assert.equal(collectionsDir.includes('blog-cl.schema.json'), true);
 	});
 
+	it('generate JSON schemas for file loader', async () => {
+		assert.equal(collectionsDir.includes('data-cl.schema.json'), true);
+	});
+
+	it('generates a record JSON schema for the file loader', async () => {
+		const schema = JSON.parse(await fixture.readFile('../.astro/collections/data-cl.schema.json'));
+		assert.equal(schema.definitions['data-cl'].type, 'object');
+		assert.equal(schema.definitions['data-cl'].additionalProperties.type, 'object');
+		assert.deepEqual(schema.definitions['data-cl'].additionalProperties.properties, {
+			name: { type: 'string' },
+			color: { type: 'string' },
+		});
+	});
+
 	it('manifest exists', async () => {
 		assert.notEqual(manifest, undefined);
 	});

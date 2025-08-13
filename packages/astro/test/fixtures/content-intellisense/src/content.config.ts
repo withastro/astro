@@ -1,4 +1,4 @@
-import { glob } from 'astro/loaders';
+import { glob, file } from 'astro/loaders';
 import { defineCollection, z } from 'astro:content';
 
 const blogCC = defineCollection({
@@ -18,7 +18,13 @@ const blogCL = defineCollection({
   }),
 });
 
+const dataCL = defineCollection({
+	loader: file('src/data-cl.yml'),
+	schema: z.object({ name: z.string(), color: z.string() }),
+})
+
 export const collections = {
 	"blog-cc": blogCC,
 	"blog-cl": blogCL,
+	"data-cl": dataCL,
 };
