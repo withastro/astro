@@ -111,15 +111,17 @@ jobs:
       matrix:
         OS: [ubuntu-latest]
         NODE_VERSION: [18, 20, 22]
-        TEST_SUITE:
+        TEST_SUITE: &test-suites
           - { name: astro, script: 'pnpm run test:astro' }
           - { name: create-astro, script: 'pnpm run test:create-astro' }
           - { name: integrations, script: 'pnpm run test:integrations' }
         include:
           - os: macos-14
             NODE_VERSION: 22
+            TEST_SUITE: *test-suites
           - os: windows-2025
             NODE_VERSION: 22
+            TEST_SUITE: *test-suites
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
