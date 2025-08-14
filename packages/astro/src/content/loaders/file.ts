@@ -90,6 +90,10 @@ export function file(fileName: string, options?: FileOptions): Loader {
 			logger.debug(`Found object with ${entries.length} entries in ${fileName}`);
 			store.clear();
 			for (const [id, rawItem] of entries) {
+				if (id === '$schema') {
+					// Ignore JSON schema field.
+					continue;
+				}
 				const parsedData = await parseData({ id, data: rawItem, filePath });
 				store.set({ id, data: parsedData, filePath: normalizedFilePath });
 			}
