@@ -38,7 +38,7 @@ jobs:
     strategy:
       matrix:
         # windows-latest is still windows-2022 for some reason, even though the windows-2025 image is GA
-        OS: [depot-ubuntu-22.04-16, depot-windows-2022-16]
+        OS: [depot-ubuntu-22.04-16, depot-windows-2022-64]
         NODE_VERSION: [22]
       fail-fast: true
     steps:
@@ -151,7 +151,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        OS: [depot-ubuntu-22.04-16, depot-windows-2022-16]
+        OS: [depot-ubuntu-22.04-16, depot-windows-2022-64]
         NODE_VERSION: [22]
       fail-fast: false
     env:
@@ -188,7 +188,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        OS: [depot-ubuntu-24.04-16, depot-windows-2022-16]
+        OS: [depot-ubuntu-24.04-16, depot-windows-2022-64]
         NODE_VERSION: [22]
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
