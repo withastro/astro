@@ -164,9 +164,11 @@ export default function createVitePluginAstroServer({
 						config = JSON.parse(await readFile(configPath, 'utf-8'));
 					} catch {
 						config = {
-							version: '1.0',
-							projectId: randomUUID(),
-							workspaceRoot: fileURLToPath(settings.config.root),
+							workspace: {
+								version: '1.1',
+								uuid: randomUUID(),
+								root: fileURLToPath(settings.config.root),
+							},
 						};
 						await writeFile(configPath, JSON.stringify(config));
 					}
