@@ -73,6 +73,12 @@ describe('Markdown tests', () => {
 			assert.match(html, /&#x3C;i>This should NOT be italic&#x3C;\/i>/);
 		});
 
+		// TODO: Revert this duplicated test
+		it('Does not unescape entities', async () => {
+			const html = await fixture.readFile('/entities/index.html');
+			assert.match(html, /&#x3C;i>This should NOT be italic&#x3C;\/i>/);
+		});
+
 		it('Resolves the image paths correctly', async () => {
 			const html = await fixture.readFile('/images/index.html');
 			const $ = cheerio.load(html);
