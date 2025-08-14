@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes JSON schema output for content collections using the `file()` loader
+Fixes JSON schema support for content collections using the `file()` loader
