@@ -90,7 +90,7 @@ export function file(fileName: string, options?: FileOptions): Loader {
 			logger.debug(`Found object with ${entries.length} entries in ${fileName}`);
 			store.clear();
 			for (const [id, rawItem] of entries) {
-				if (id === '$schema') {
+				if (id === '$schema' && typeof rawItem === 'string') {
 					// Ignore JSON schema field.
 					continue;
 				}
