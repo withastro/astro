@@ -1,4 +1,12 @@
 ---
+export const getStaticPaths = async () => {
+  return ['en-us', 'es-mx', 'fr-fr'].map((locale) => ({
+    params: {
+      locale,
+    },
+  }))
+}
+
 const currentLocale = Astro.currentLocale;
 ---
 <html>

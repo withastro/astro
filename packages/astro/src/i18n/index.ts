@@ -232,8 +232,7 @@ export function normalizeTheLocale(locale: string): string {
  * - removes the `.html` extension if it exists
  */
 export function normalizeThePath(path: string): string {
-	return path;
-	// return path.endsWith('.html') ? path.slice(0, -5) : path;
+	return path.endsWith('.html') ? path.slice(0, -5) : path;
 }
 
 /**
