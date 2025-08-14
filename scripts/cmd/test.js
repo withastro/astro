@@ -47,19 +47,19 @@ export default async function test() {
 		process.env.NODE_OPTIONS += ' --test-only';
 	}
 
-	if (!args.values.parallel) {
-		// If not parallel, we create a temporary file that imports all the test files
-		// so that it all runs in a single process.
-		const tempTestFile = path.resolve('./node_modules/.astro/test.mjs');
-		await fs.mkdir(path.dirname(tempTestFile), { recursive: true });
-		await fs.writeFile(
-			tempTestFile,
-			files.map((f) => `import ${JSON.stringify(pathToFileURL(f).toString())};`).join('\n'),
-		);
+	// if (!args.values.parallel) {
+	// If not parallel, we create a temporary file that imports all the test files
+	// so that it all runs in a single process.
+	const tempTestFile = path.resolve('./node_modules/.astro/test.mjs');
+	await fs.mkdir(path.dirname(tempTestFile), { recursive: true });
+	await fs.writeFile(
+		tempTestFile,
+		files.map((f) => `import ${JSON.stringify(pathToFileURL(f).toString())};`).join('\n'),
+	);
 
-		files.length = 0;
-		files.push(tempTestFile);
-	}
+	files.length = 0;
+	files.push(tempTestFile);
+	// }
 
 	const teardownModule = args.values.teardown
 		? await import(pathToFileURL(path.resolve(args.values.teardown)).toString())
@@ -69,7 +69,7 @@ export default async function test() {
 	run({
 		files,
 		testNamePatterns: args.values.match,
-		concurrency: args.values.parallel,
+		concurrency: true,
 		only: args.values.only,
 		setup: args.values.setup,
 		watch: args.values.watch,

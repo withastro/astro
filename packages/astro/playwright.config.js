@@ -4,6 +4,7 @@ import { defineConfig } from '@playwright/test';
 // for some reason. This comes from Vite, and is conditionally called based on `isTTY`.
 // We set it to false here to skip this odd behavior.
 process.stdout.isTTY = false;
+const isWindows = process.platform === 'win32';
 
 export default defineConfig({
 	testMatch: 'e2e/*.test.js',
@@ -13,7 +14,7 @@ export default defineConfig({
 	},
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 2 : 0,
-	workers: process.env.CI ? 1 : undefined,
+	workers: process.env.CI && isWindows ? 1 : undefined,
 	projects: [
 		{
 			name: 'Chrome Stable',
