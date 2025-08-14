@@ -138,6 +138,12 @@ describe('Astro Actions', () => {
 			const text = await res.text();
 			assert.match(text, /ActionCalledFromServerError/);
 		});
+
+		it('Should fail when calling an action without using Astro.callAction [TEST TEST]', async () => {
+			const res = await fixture.fetch('/invalid/');
+			const text = await res.text();
+			assert.match(text, /ActionCalledFromServerError/);
+		});
 	});
 
 	describe('build', () => {
