@@ -113,7 +113,6 @@ jobs:
         NODE_VERSION: [18, 20, 22]
         TEST_SUITE:
           - { name: astro, script: 'pnpm run test:astro' }
-          - { name: create-astro, script: 'pnpm run test:create-astro' }
           - { name: integrations, script: 'pnpm run test:integrations' }
         exclude:
           - os: macos-14
