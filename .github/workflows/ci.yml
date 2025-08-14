@@ -65,12 +65,12 @@ jobs:
       # Only build in ubuntu as windows can share the build cache.
       # Also only build in core repo as forks don't have access to the Turbo cache.
       - name: Build Packages
-        if: ${{ matrix.os == 'ubuntu-latest' && github.repository_owner == 'withastro' }}
+        if: ${{ matrix.os == 'depot-ubuntu-22.04-16' && github.repository_owner == 'withastro' }}
         run: pnpm run build
 
   lint:
     name: Lint
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-22.04-16
     timeout-minutes: 5
     needs: build
     steps:
@@ -109,7 +109,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        OS: [ubuntu-latest]
+        OS: [depot-ubuntu-22.04-16]
         NODE_VERSION: [18, 20, 22]
         include:
           - os: macos-14
