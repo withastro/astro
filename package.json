@@ -21,7 +21,7 @@
     "format:imports": "biome check --formatter-enabled=false --write",
     "format:imports:ci": "biome ci --formatter-enabled=false",
     "test": "turbo run test --concurrency=1 --filter=astro --filter=create-astro --filter=\"@astrojs/*\"",
-    "test:astro": "turbo run test --concurrency=1 --filter=astro",
+    "test:astro": "turbo run test --concurrency=1 --filter=astro --only",
     "test:integrations": "turbo run test --concurrency=1 --filter=create-astro --filter=\"@astrojs/*\" --only",
     "test:citgm": "pnpm -r --filter=astro test",
     "test:match": "cd packages/astro && pnpm run test:match",
