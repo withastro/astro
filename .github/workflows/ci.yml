@@ -29,11 +29,6 @@ env:
   # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
   NODE_OPTIONS: --max-old-space-size=6144
 
-__anchor: &test-suites 
-  - { name: astro, script: 'pnpm run test:astro' }
-  - { name: create-astro, script: 'pnpm run test:create-astro' }
-  - { name: integrations, script: 'pnpm run test:integrations' }
-
 jobs:
   # Build primes out Turbo build cache and pnpm cache
   build:
@@ -116,7 +111,10 @@ jobs:
       matrix:
         OS: [ubuntu-latest]
         NODE_VERSION: [18, 20, 22]
-        TEST_SUITE: *test-suites
+        TEST_SUITE: &test-suites
+          - { name: astro, script: 'pnpm run test:astro' }
+          - { name: create-astro, script: 'pnpm run test:create-astro' }
+          - { name: integrations, script: 'pnpm run test:integrations' }
         include:
           - os: macos-14
             NODE_VERSION: 22
