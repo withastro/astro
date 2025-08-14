@@ -152,6 +152,7 @@ export default function createVitePluginAstroServer({
 						return;
 					}
 
+					const pluginVersion = '1.1';
 					const cacheDir = settings.config.cacheDir;
 					const configPath = new URL('./chrome-workspace.json', cacheDir);
 
@@ -162,11 +163,16 @@ export default function createVitePluginAstroServer({
 					let config;
 					try {
 						config = JSON.parse(await readFile(configPath, 'utf-8'));
+						// If the cached workspace config was created with a previous version of this plugin,
+						// we throw an error so it gets recreated in the `catch` block below.
+						if (config.version !== pluginVersion) throw new Error('Cached config is outdated.');
 					} catch {
 						config = {
-							version: '1.0',
-							projectId: randomUUID(),
-							workspaceRoot: fileURLToPath(settings.config.root),
+							workspace: {
+								version: pluginVersion,
+								uuid: randomUUID(),
+								root: fileURLToPath(settings.config.root),
+							},
 						};
 						await writeFile(configPath, JSON.stringify(config));
 					}
