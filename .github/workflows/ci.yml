@@ -38,7 +38,7 @@ jobs:
     strategy:
       matrix:
         # windows-latest is still windows-2022 for some reason, even though the windows-2025 image is GA
-        OS: [depot-ubuntu-22.04-16, windows-2025]
+        OS: [depot-ubuntu-22.04-64, windows-2025]
         NODE_VERSION: [22]
       fail-fast: true
     steps:
@@ -65,12 +65,12 @@ jobs:
       # Only build in ubuntu as windows can share the build cache.
       # Also only build in core repo as forks don't have access to the Turbo cache.
       - name: Build Packages
-        if: ${{ matrix.os == 'depot-ubuntu-22.04-16' && github.repository_owner == 'withastro' }}
+        if: ${{ matrix.os == 'depot-ubuntu-22.04-64' && github.repository_owner == 'withastro' }}
         run: pnpm run build
 
   lint:
     name: Lint
-    runs-on: depot-ubuntu-22.04-16
+    runs-on: depot-ubuntu-22.04-64
     timeout-minutes: 5
     needs: build
     steps:
@@ -109,7 +109,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        OS: [depot-ubuntu-22.04-16]
+        OS: [depot-ubuntu-22.04-64]
         NODE_VERSION: [18, 20, 22]
         include:
           - os: macos-14
@@ -151,7 +151,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        OS: [depot-ubuntu-22.04-16, windows-2025]
+        OS: [depot-ubuntu-22.04-64, windows-2025]
         NODE_VERSION: [22]
       fail-fast: false
     env:
@@ -188,7 +188,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        OS: [depot-ubuntu-24.04-16, windows-2025]
+        OS: [depot-ubuntu-24.04-64, windows-2025]
         NODE_VERSION: [22]
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
