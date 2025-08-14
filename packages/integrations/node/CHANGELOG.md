@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 9.4.1
+
+### Patch Changes
+
+- [`5fc3c59`](https://github.com/withastro/astro/commit/5fc3c599cacb0172cc7d8e1202a5f2e8685d7ef2) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a routing bug in standalone mode with `trailingSlash` set to `"always"`.
+
 ## 9.4.0
 
 ### Minor Changes
