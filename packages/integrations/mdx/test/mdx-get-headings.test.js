@@ -120,6 +120,23 @@ describe('MDX heading IDs can be customized by user plugins', () => {
 			]),
 		);
 	});
+	
+	// TODO: Remove this duplicate test before merging.
+	it('generates correct getHeadings() export', async () => {
+		const { headingsByPage } = JSON.parse(await fixture.readFile('/pages.json'));
+		assert.equal(
+			JSON.stringify(headingsByPage['./test.mdx']),
+			JSON.stringify([
+				{ depth: 1, slug: '0', text: 'Heading test' },
+				{ depth: 2, slug: '1', text: 'Section 1' },
+				{ depth: 3, slug: '2', text: 'Subsection 1' },
+				{ depth: 3, slug: '3', text: 'Subsection 2' },
+				{ depth: 2, slug: '4', text: 'Section 2' },
+				{ depth: 2, slug: '5', text: '<Picture />' },
+				{ depth: 3, slug: '6', text: '« Sacrebleu ! »' },
+			]),
+		);
+	});
 });
 
 describe('MDX heading IDs can be injected before user plugins', () => {
