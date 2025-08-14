@@ -27,11 +27,11 @@ describe('Chrome DevTools workspace', () => {
 			assert.equal(result.headers.get('content-type'), 'application/json');
 
 			const data = await result.json();
-			assert.equal(data.version, '1.0');
-			assert.equal(typeof data.projectId, 'string');
-			assert.equal(data.projectId.length, 36); // UUID length
-			assert.equal(typeof data.workspaceRoot, 'string');
-			assert.ok(data.workspaceRoot.includes('astro-dev-headers'));
+			assert.equal(data.workspace.version, '1.1');
+			assert.equal(typeof data.workspace.uuid, 'string');
+			assert.equal(data.workspace.uuid.length, 36); // UUID length
+			assert.equal(typeof data.workspace.root, 'string');
+			assert.ok(data.workspace.root.includes('astro-dev-headers'));
 		});
 	});
 
