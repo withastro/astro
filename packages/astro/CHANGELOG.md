@@ -1,5 +1,11 @@
 # astro
 
+## 5.13.1
+
+### Patch Changes
+
+- [#14225](https://github.com/withastro/astro/pull/14225) [`f2490ab`](https://github.com/withastro/astro/commit/f2490aba420a8999c0e8d12b9e1e69d4e33ae29e) Thanks [@delucis](https://github.com/delucis)! - Fixes the `experimental.chromeDevtoolsWorkspace` feature.
+
 ## 5.13.0
 
 ### Minor Changes
