@@ -163,7 +163,9 @@ export default function createVitePluginAstroServer({
 					let config;
 					try {
 						config = JSON.parse(await readFile(configPath, 'utf-8'));
-						if (config.version !== pluginVersion) throw new Error('Found outdated config.');
+						// If the cached workspace config was created with a previous version of this plugin,
+						// we throw an error so it gets recreated in the `catch` block below.
+						if (config.version !== pluginVersion) throw new Error('Cached config is outdated.');
 					} catch {
 						config = {
 							workspace: {
