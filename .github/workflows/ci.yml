@@ -111,6 +111,7 @@ jobs:
       matrix:
         OS: [ubuntu-latest]
         NODE_VERSION: [18, 20, 22]
+        TEST_SUITE: ["test:astro", "test:create-astro", "test:integrations"]
         include:
           - os: macos-14
             NODE_VERSION: 22
@@ -142,7 +143,7 @@ jobs:
         run: pnpm run build
 
       - name: Test
-        run: pnpm run test
+        run: pnpm run ${{ matrix.TEST_SUITE }}
 
   e2e:
     name: "Test (E2E): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
