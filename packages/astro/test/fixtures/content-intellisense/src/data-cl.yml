@@ -1,4 +1,6 @@
-- name: Starlight
+- id: starlight
+  name: Starlight
   color: golden
-- name: Astro flame
+- id: astro
+  name: Astro flame
   color: red
