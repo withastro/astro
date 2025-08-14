@@ -1268,6 +1268,33 @@ describe('[SSG] i18n routing', () => {
 			});
 		});
 
+		describe('when `build.format` is `file` and locales array contains objects', () => {
+			/** @type {import('./test-utils').Fixture} */
+			let fixture;
+
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-locale-index-format-file/',
+				});
+				await fixture.build();
+			});
+
+			it('should return the locale code of the current URL (en-US)', async () => {
+				const html = await fixture.readFile('/en-us.html');
+				assert.equal(html.includes('currentLocale: en-US'), true);
+			});
+
+			it('should return the locale code of the current URL (es-MX)', async () => {
+				const html = await fixture.readFile('/es-mx.html');
+				assert.equal(html.includes('currentLocale: es-MX'), true);
+			});
+
+			it('should return the locale code of the current URL (fr-FR)', async () => {
+				const html = await fixture.readFile('/fr-fr.html');
+				assert.equal(html.includes('currentLocale: fr-FR'), true);
+			});
+		});
+
 		describe('with dynamic paths', async () => {
 			/** @type {import('./test-utils').Fixture} */
 			let fixture;

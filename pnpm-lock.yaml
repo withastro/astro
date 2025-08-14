@@ -3275,6 +3275,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/i18n-locale-index-format-file:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/i18n-routing:
     dependencies:
       astro:

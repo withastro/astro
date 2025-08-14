@@ -1,6 +1,6 @@
 import type { SSRManifest } from '../core/app/types.js';
 import type { AstroConfig, Locales } from '../types/public/config.js';
-import { getAllCodes, normalizeTheLocale } from './index.js';
+import { getAllCodes, normalizeTheLocale, normalizeThePath } from './index.js';
 
 type BrowserLocale = {
 	locale: string;
@@ -150,19 +150,20 @@ export function computeCurrentLocale(
 	defaultLocale: string,
 ): string | undefined {
 	for (const segment of pathname.split('/')) {
+		const normalizedSegment = normalizeThePath(segment);
 		for (const locale of locales) {
 			if (typeof locale === 'string') {
 				// we skip ta locale that isn't present in the current segment
-				if (!segment.includes(locale)) continue;
-				if (normalizeTheLocale(locale) === normalizeTheLocale(segment)) {
+				if (!normalizedSegment.includes(locale)) continue;
+				if (normalizeTheLocale(locale) === normalizeTheLocale(normalizedSegment)) {
 					return locale;
 				}
 			} else {
-				if (locale.path === segment) {
+				if (locale.path === normalizedSegment) {
 					return locale.codes.at(0);
 				} else {
 					for (const code of locale.codes) {
-						if (normalizeTheLocale(code) === normalizeTheLocale(segment)) {
+						if (normalizeTheLocale(code) === normalizeTheLocale(normalizedSegment)) {
 							return code;
 						}
 					}

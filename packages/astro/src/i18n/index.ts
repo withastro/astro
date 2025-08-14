@@ -19,12 +19,13 @@ export function requestHasLocale(locales: Locales) {
 export function pathHasLocale(path: string, locales: Locales): boolean {
 	const segments = path.split('/');
 	for (const segment of segments) {
+		const normalizedSegment = normalizeThePath(segment);
 		for (const locale of locales) {
 			if (typeof locale === 'string') {
-				if (normalizeTheLocale(segment) === normalizeTheLocale(locale)) {
+				if (normalizeTheLocale(normalizedSegment) === normalizeTheLocale(locale)) {
 					return true;
 				}
-			} else if (segment === locale.path) {
+			} else if (normalizedSegment === locale.path) {
 				return true;
 			}
 		}
@@ -223,6 +224,16 @@ export function getLocaleByPath(path: string, locales: Locales): string {
  */
 export function normalizeTheLocale(locale: string): string {
 	return locale.replaceAll('_', '-').toLowerCase();
+}
+
+/**
+ *
+ * Given a path or path segment, this function:
+ * - removes the `.html` extension if it exists
+ */
+export function normalizeThePath(path: string): string {
+	return path;
+	// return path.endsWith('.html') ? path.slice(0, -5) : path;
 }
 
 /**
