@@ -12,12 +12,16 @@ describe('Content Intellisense', () => {
 	/** @type {{collections: {hasSchema: boolean, name: string}[], entries: Record<string, string>}} */
 	let manifest = undefined;
 
+	/** @type {Record<string, Array<{ id: string; data: any; filePath: string; collection: string }>>} */
+	let collections;
+
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/content-intellisense/' });
 		await fixture.build();
 
 		collectionsDir = await fixture.readdir('../.astro/collections');
 		manifest = JSON.parse(await fixture.readFile('../.astro/collections/collections.json'));
+		collections = JSON.parse(await fixture.readFile('index.json'));
 	});
 
 	it('generate JSON schemas for content collections', async () => {
@@ -88,6 +92,17 @@ describe('Content Intellisense', () => {
 			collectionEntries.every((entry) => entry[1] === 'blog-cl'),
 			true,
 			"Expected 3 entries for 'blog-cl' collection to have 'blog-cl' as collection name",
+		);
+	});
+
+	it('doesn’t generate a `$schema` entry for file loader if `$schema` value is a string', async () => {
+		assert.equal(collections['data-cl-json'].map((entry) => entry.id).includes('$schema'), false);
+	});
+
+	it('generates a `$schema` entry for file loader if `$schema` value isn’t a string', async () => {
+		assert.equal(
+			collections['data-schema-misuse'].map((entry) => entry.id).includes('$schema'),
+			true,
 		);
 	});
 });
