@@ -12,6 +12,7 @@ napi-derive = "2"
 markdown = "1.0.0-alpha.21"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+rmp-serde = "1"
 
 [build-dependencies]
 napi-build = "2"

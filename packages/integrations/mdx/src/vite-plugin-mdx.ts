@@ -28,11 +28,17 @@ export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 		configResolved(resolved) {
 			sourcemapEnabled = !!resolved.build.sourcemap;
 
+			// In Rust mode, we need the JSX plugin to transform our output
+			const compilerMode = (opts.config?.experimental as any)?.mdxCompiler || 'js';
+			
 			// HACK: Remove the `astro:jsx` plugin if defined as we handle the JSX transformation ourselves
-			const jsxPluginIndex = resolved.plugins.findIndex((p) => p.name === 'astro:jsx');
-			if (jsxPluginIndex !== -1) {
-				// @ts-ignore-error ignore readonly annotation
-				resolved.plugins.splice(jsxPluginIndex, 1);
+			// But keep it in Rust mode since Rust generates JSX that needs transformation
+			if (compilerMode !== 'rs') {
+				const jsxPluginIndex = resolved.plugins.findIndex((p) => p.name === 'astro:jsx');
+				if (jsxPluginIndex !== -1) {
+					// @ts-ignore-error ignore readonly annotation
+					resolved.plugins.splice(jsxPluginIndex, 1);
+				}
 			}
 		},
 		async resolveId(source, importer, options) {
@@ -87,8 +93,10 @@ export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 				// Log compilation metrics for debugging
 				if (opts.logger?.debug) {
 					const compilerMode = (opts.config?.experimental as any)?.mdxCompiler || 'js';
+					const useBinary = (opts.config?.experimental as any)?.mdxOptimizations?.binaryAST || false;
 					opts.logger.debug(
-						`MDX compiled ${id} in ${compileTime.toFixed(2)}ms using ${compilerMode} compiler`,
+						`MDX compiled ${id} in ${compileTime.toFixed(2)}ms using ${compilerMode} compiler` +
+						(useBinary ? ' with MessagePack' : ''),
 					);
 				}
 

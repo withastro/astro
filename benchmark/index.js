@@ -11,11 +11,14 @@ if (args.help || args.h) {
 astro-benchmark <command> [options]
 
 Command
-  [empty]         Run all benchmarks
-  memory          Run build memory and speed test
-  render          Run rendering speed test
-  server-stress   Run server stress test
-  cli-startup     Run CLI startup speed test
+  [empty]                Run all benchmarks
+  memory                 Run build memory and speed test
+  render                 Run rendering speed test
+  server-stress          Run server stress test
+  cli-startup            Run CLI startup speed test
+  mdx-optimizations      Run MDX optimization benchmarks
+  mdx-compiler-compare   Compare MDX compiler modes
+  mdx-plugin-threshold   Test MDX plugin threshold performance
 
 Options
   --project <project-name>       Project to use for benchmark, see benchmark/make-project/ for available names
@@ -30,6 +33,9 @@ const benchmarks = {
 	render: () => import('./bench/render.js'),
 	'server-stress': () => import('./bench/server-stress.js'),
 	'cli-startup': () => import('./bench/cli-startup.js'),
+	'mdx-optimizations': () => import('./bench/mdx-optimizations.js'),
+	'mdx-compiler-compare': () => import('./bench/mdx-compiler-compare.js'),
+	'mdx-plugin-threshold': () => import('./bench/mdx-plugin-threshold.js'),
 };
 
 if (commandName && !(commandName in benchmarks)) {

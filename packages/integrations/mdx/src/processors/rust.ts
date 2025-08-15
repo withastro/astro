@@ -6,6 +6,7 @@ import type { PluggableList } from 'unified';
 import { unified } from 'unified';
 import { visit } from 'unist-util-visit';
 import { VFile } from 'vfile';
+// Binary transfer utilities removed - using JSON for now
 
 // Import the Rust parser
 let rustParser: any;
@@ -129,6 +130,9 @@ export async function createRustProcessor(options: ProcessorOptions = {}) {
 
 	return {
 		async process(content: string | VFile): Promise<{ value: string; map: any; data: any }> {
+			const enableMetrics = process.env.MDX_PERF_LOG === '1';
+			const metrics: Record<string, number> = {};
+			
 			// Create VFile if needed
 			const vfile = typeof content === 'string' ? new VFile({ value: content }) : content;
 			const source = String(vfile.value);
@@ -144,22 +148,38 @@ export async function createRustProcessor(options: ProcessorOptions = {}) {
 			}
 
 			// Step 1: Parse MDX to AST using Rust
+			const parseStart = enableMetrics ? performance.now() : 0;
+			
+			// Always use JSON for now (binary transfer removed)
 			const astJson = rust.parseToAst(source);
-			let mdast = JSON.parse(astJson) as MdastRoot;
+			let mdast: MdastRoot = JSON.parse(astJson) as MdastRoot;
+			
+			if (enableMetrics) {
+				metrics.rustParse = performance.now() - parseStart;
+			}
 
 			// Collect metadata from mdast
+			const metadataStart = enableMetrics ? performance.now() : 0;
 			collectMetadataFromMdast(mdast, vfile);
+			if (enableMetrics) {
+				metrics.metadataCollection = performance.now() - metadataStart;
+			}
 
 			// Step 2: Transform AST with remark plugins
 			if (options.remarkPlugins && options.remarkPlugins.length > 0) {
+				const remarkStart = enableMetrics ? performance.now() : 0;
 				vfile.data.mdast = mdast;
 				const processedVFile = await remarkProcessor.run(mdast, vfile);
 				mdast = processedVFile as unknown as MdastRoot;
+				if (enableMetrics) {
+					metrics.remarkPlugins = performance.now() - remarkStart;
+				}
 			}
 
 			// Step 3: Convert mdast to hast for rehype plugins
 			let hast: HastRoot | undefined;
 			if (options.rehypePlugins && options.rehypePlugins.length > 0) {
+				const rehypeStart = enableMetrics ? performance.now() : 0;
 				// Run remark-rehype to convert mdast to hast
 				const hastVFile = await remarkProcessor.runSync(mdast, vfile);
 				hast = hastVFile as unknown as HastRoot;
@@ -167,12 +187,45 @@ export async function createRustProcessor(options: ProcessorOptions = {}) {
 				// Run rehype plugins
 				const processedHast = await rehypeProcessor.run(hast, vfile);
 				hast = processedHast as unknown as HastRoot;
+				if (enableMetrics) {
+					metrics.rehypePlugins = performance.now() - rehypeStart;
+				}
 			}
 
 			// Step 4: Generate JavaScript from AST using Rust
+			const generateStart = enableMetrics ? performance.now() : 0;
 			// Use hast if available (after rehype processing), otherwise use mdast
 			const finalAst = hast || mdast;
-			const code = rust.generateFromAst(JSON.stringify(finalAst));
+			
+			// Always use JSON for now (binary transfer removed)
+			const astSerializationStart = enableMetrics ? performance.now() : 0;
+			const serializedAst = JSON.stringify(finalAst);
+			if (enableMetrics) {
+				metrics.astSerialization = performance.now() - astSerializationStart;
+			}
+			const code = rust.generateFromAst(serializedAst);
+			
+			if (enableMetrics) {
+				metrics.rustGenerate = performance.now() - generateStart;
+				metrics.rustGenerateOnly = (performance.now() - generateStart) - (metrics.astSerialization || 0);
+			}
+
+			// Log detailed metrics if enabled
+			if (enableMetrics && vfile.path) {
+				const totalTime = Object.values(metrics).filter(v => typeof v === 'number').reduce((a, b) => a + b, 0);
+				console.log(`MDX Rust Phases for ${vfile.path} (JSON mode):`);
+				console.log(`  Parse (Rust): ${metrics.rustParse?.toFixed(2)}ms`);
+				console.log(`  Metadata: ${metrics.metadataCollection?.toFixed(2)}ms`);
+				if (metrics.remarkPlugins) {
+					console.log(`  Remark Plugins: ${metrics.remarkPlugins.toFixed(2)}ms`);
+				}
+				if (metrics.rehypePlugins) {
+					console.log(`  Rehype Plugins: ${metrics.rehypePlugins.toFixed(2)}ms`);
+				}
+				console.log(`  AST Serialization: ${metrics.astSerialization?.toFixed(2)}ms (JSON)`);
+				console.log(`  Generate (Rust): ${metrics.rustGenerateOnly?.toFixed(2)}ms`);
+				console.log(`  Total: ${totalTime.toFixed(2)}ms`);
+			}
 
 			// Create the result with proper vfile.data structure
 			const result = {

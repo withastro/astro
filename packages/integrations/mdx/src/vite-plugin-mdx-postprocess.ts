@@ -15,6 +15,7 @@ const astroTagComponentImportRegex = /[\s,{]__astro_tag_component__[\s,}]/;
 export function vitePluginMdxPostprocess(astroConfig: AstroConfig): Plugin {
 	return {
 		name: '@astrojs/mdx-postprocess',
+		enforce: 'post', // Ensure this runs after JSX transformation
 		transform(code, id, opts) {
 			if (!id.endsWith('.mdx')) return;
 

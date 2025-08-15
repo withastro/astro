@@ -2534,16 +2534,19 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		/**
 		 * @docs
 		 * @name experimental.mdxCompiler
-		 * @type {'js' | 'rs'}
+		 * @type {'js' | 'rs' | 'auto'}
 		 * @default `'js'`
 		 * @description
 		 * Select the MDX compiler to use for processing MDX files.
 		 *
 		 * - `'js'` - Use the standard @mdx-js/mdx JavaScript compiler (default)
 		 * - `'rs'` - Use Rust-powered AST bridge (Rust parser + JS plugins + Rust codegen)
+		 * - `'auto'` - Automatically select based on plugin count (rs for ≤10 plugins, js for >10)
 		 *
 		 * The 'rs' mode provides faster MDX compilation while maintaining full
 		 * compatibility with JavaScript plugins through the AST bridge approach.
+		 * The 'auto' mode intelligently selects the optimal compiler based on your
+		 * plugin configuration. Set MDX_PLUGIN_THRESHOLD env var to customize the threshold.
 		 *
 		 * ```js
 		 * {
@@ -2553,7 +2556,33 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * }
 		 * ```
 		 */
-		mdxCompiler?: 'js' | 'rs';
+		mdxCompiler?: 'js' | 'rs' | 'auto';
+
+		/**
+		 * @docs
+		 * @name experimental.mdxOptimizations
+		 * @type {object}
+		 * @default `{ binaryAST: false }`
+		 * @description
+		 * Configure MDX compilation optimizations for improved performance when using the Rust-based MDX compiler.
+		 *
+		 * Options:
+		 * - `binaryAST`: Enable MessagePack binary serialization for Rust mode instead of JSON (reduces serialization overhead)
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     mdxCompiler: 'rs',  // Must use Rust compiler
+		 *     mdxOptimizations: {
+		 *       binaryAST: true   // Use MessagePack for AST serialization
+		 *     }
+		 *   }
+		 * }
+		 * ```
+		 */
+		mdxOptimizations?: {
+			binaryAST?: boolean;
+		};
 	};
 }
 

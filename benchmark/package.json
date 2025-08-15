@@ -7,7 +7,10 @@
     "astro-benchmark": "./index.js"
   },
   "scripts": {
-    "bench": "pnpm vitest bench --run"
+    "bench": "pnpm vitest bench --run",
+    "bench:mdx-optimizations": "node bench/mdx-optimizations.js",
+    "bench:mdx-compare": "node bench/mdx-compiler-compare.js",
+    "bench:mdx-threshold": "node bench/mdx-plugin-threshold.js"
   },
   "dependencies": {
     "@astrojs/mdx": "workspace:*",

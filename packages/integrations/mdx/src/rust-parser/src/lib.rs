@@ -3,6 +3,7 @@ use napi_derive::napi;
 use serde_json;
 use markdown::{to_mdast, ParseOptions, Constructs};
 use markdown::mdast;
+use rmp_serde;
 
 // Convert markdown AST to JSON-serializable format
 fn mdast_to_json(node: &mdast::Node) -> serde_json::Value {
@@ -266,10 +267,13 @@ pub fn generate_from_ast(ast_json: String) -> Result<String> {
     // Generate JavaScript/JSX
     let mut output = String::new();
     
-    // Add imports
-    output.push_str("/*@jsxRuntime automatic*/\n");
-    output.push_str("/*@jsxImportSource astro*/\n");
+    // Add imports - Note: We import the actual JSX runtime functions
+    // The postprocess plugin expects these imports to already be present
     output.push_str("import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from 'astro/jsx-runtime';\n\n");
+    
+    // Add required MDX exports
+    output.push_str("export const frontmatter = {};\n");
+    output.push_str("export function getHeadings() { return []; }\n\n");
     
     // Generate component function
     output.push_str("function _createMdxContent(props) {\n");
@@ -290,24 +294,38 @@ pub fn generate_from_ast(ast_json: String) -> Result<String> {
 
 // Helper to generate JSX from JSON AST
 fn generate_jsx_from_json(node: &serde_json::Value) -> Result<String> {
+    generate_jsx_from_json_impl(node, 0, false)
+}
+
+// Helper to generate JSX from JSON AST with proper formatting
+fn generate_jsx_from_json_impl(node: &serde_json::Value, indent_level: usize, inline: bool) -> Result<String> {
     let node_type = node.get("type")
         .and_then(|t| t.as_str())
         .unwrap_or("unknown");
+    
+    let indent = if inline { String::new() } else { "  ".repeat(indent_level) };
+    let newline = if inline { "" } else { "\n" };
     
     match node_type {
         "root" => {
             if let Some(children) = node.get("children").and_then(|c| c.as_array()) {
                 let child_jsx: Vec<String> = children
                     .iter()
-                    .filter_map(|child| generate_jsx_from_json(child).ok())
+                    .filter_map(|child| generate_jsx_from_json_impl(child, indent_level + 1, false).ok())
                     .collect();
                 
                 if child_jsx.len() == 1 {
                     Ok(child_jsx[0].clone())
+                } else if child_jsx.is_empty() {
+                    Ok("null".to_string())
                 } else {
                     Ok(format!(
-                        "_jsxs(_Fragment, {{ children: [{}] }})",
-                        child_jsx.join(", ")
+                        "_jsxs(_Fragment, {{{}  children: [{}{}{}  ]{}}})",
+                        newline,
+                        newline,
+                        child_jsx.join(&format!(",{}", newline)),
+                        newline,
+                        newline
                     ))
                 }
             } else {
@@ -323,37 +341,60 @@ fn generate_jsx_from_json(node: &serde_json::Value) -> Result<String> {
             if let Some(children) = node.get("children").and_then(|c| c.as_array()) {
                 let child_jsx: Vec<String> = children
                     .iter()
-                    .filter_map(|child| generate_jsx_from_json(child).ok())
+                    .filter_map(|child| generate_jsx_from_json_impl(child, indent_level + 1, true).ok())
                     .collect();
                 
-                Ok(format!(
-                    "_jsx(_components.{} || '{}', {{ children: {} }})",
-                    tag, tag,
-                    if child_jsx.len() == 1 {
-                        child_jsx[0].clone()
-                    } else {
-                        format!("[{}]", child_jsx.join(", "))
-                    }
-                ))
+                if child_jsx.len() == 1 {
+                    Ok(format!(
+                        "_jsx(_components.{} || '{}', {{ children: {} }})",
+                        tag, tag, child_jsx[0]
+                    ))
+                } else if !child_jsx.is_empty() {
+                    Ok(format!(
+                        "_jsx(_components.{} || '{}', {{{}  children: [{}]{}}})",
+                        tag, tag, newline, child_jsx.join(", "), newline
+                    ))
+                } else {
+                    Ok(format!("_jsx(_components.{} || '{}')", tag, tag))
+                }
             } else {
                 Ok(format!("_jsx(_components.{} || '{}')", tag, tag))
             }
         }
         "paragraph" => {
             if let Some(children) = node.get("children").and_then(|c| c.as_array()) {
+                // Check if paragraph has many inline elements
+                let has_many_children = children.len() > 3;
                 let child_jsx: Vec<String> = children
                     .iter()
-                    .filter_map(|child| generate_jsx_from_json(child).ok())
+                    .filter_map(|child| generate_jsx_from_json_impl(child, indent_level + 1, !has_many_children).ok())
                     .collect();
                 
-                Ok(format!(
-                    "_jsx(_components.p || 'p', {{ children: {} }})",
-                    if child_jsx.len() == 1 {
-                        child_jsx[0].clone()
+                if child_jsx.len() == 1 {
+                    Ok(format!(
+                        "_jsx(_components.p || 'p', {{ children: {} }})",
+                        child_jsx[0]
+                    ))
+                } else if !child_jsx.is_empty() {
+                    if has_many_children {
+                        // Format with line breaks for readability
+                        Ok(format!(
+                            "_jsx(_components.p || 'p', {{{}  children: [{}{}{}  ]{}}})",
+                            newline,
+                            newline,
+                            child_jsx.join(&format!(",{}", newline)),
+                            newline,
+                            newline
+                        ))
                     } else {
-                        format!("[{}]", child_jsx.join(", "))
+                        Ok(format!(
+                            "_jsx(_components.p || 'p', {{ children: [{}] }})",
+                            child_jsx.join(", ")
+                        ))
                     }
-                ))
+                } else {
+                    Ok("_jsx(_components.p || 'p')".to_string())
+                }
             } else {
                 Ok("_jsx(_components.p || 'p')".to_string())
             }
@@ -371,18 +412,22 @@ fn generate_jsx_from_json(node: &serde_json::Value) -> Result<String> {
             if let Some(children) = node.get("children").and_then(|c| c.as_array()) {
                 let child_jsx: Vec<String> = children
                     .iter()
-                    .filter_map(|child| generate_jsx_from_json(child).ok())
+                    .filter_map(|child| generate_jsx_from_json_impl(child, indent_level + 1, true).ok())
                     .collect();
                 
-                Ok(format!(
-                    "_jsx(_components.{} || '{}', {{ children: {} }})",
-                    tag, tag,
-                    if child_jsx.len() == 1 {
-                        child_jsx[0].clone()
-                    } else {
-                        format!("[{}]", child_jsx.join(", "))
-                    }
-                ))
+                if child_jsx.len() == 1 {
+                    Ok(format!(
+                        "_jsx(_components.{} || '{}', {{ children: {} }})",
+                        tag, tag, child_jsx[0]
+                    ))
+                } else if !child_jsx.is_empty() {
+                    Ok(format!(
+                        "_jsx(_components.{} || '{}', {{ children: [{}] }})",
+                        tag, tag, child_jsx.join(", ")
+                    ))
+                } else {
+                    Ok(format!("_jsx(_components.{} || '{}')", tag, tag))
+                }
             } else {
                 Ok(format!("_jsx(_components.{} || '{}')", tag, tag))
             }
@@ -396,9 +441,14 @@ fn generate_jsx_from_json(node: &serde_json::Value) -> Result<String> {
                 .unwrap_or("");
             
             Ok(format!(
-                "_jsx(_components.pre || 'pre', {{ children: _jsx(_components.code || 'code', {{ className: '{}', children: '{}' }}) }})",
+                "_jsx(_components.pre || 'pre', {{{}  children: _jsx(_components.code || 'code', {{{}    className: '{}',{}    children: '{}'{}  }}){}}})",
+                newline,
+                newline,
                 if !lang.is_empty() { format!("language-{}", lang) } else { String::new() },
-                value.replace('\'', "\\'")
+                newline,
+                value.replace('\'', "\\'"),
+                newline,
+                newline
             ))
         }
         "inlineCode" => {
@@ -420,14 +470,22 @@ fn generate_jsx_from_json(node: &serde_json::Value) -> Result<String> {
             if let Some(children) = node.get("children").and_then(|c| c.as_array()) {
                 let child_jsx: Vec<String> = children
                     .iter()
-                    .filter_map(|child| generate_jsx_from_json(child).ok())
+                    .filter_map(|child| generate_jsx_from_json_impl(child, indent_level + 1, false).ok())
                     .collect();
                 
-                Ok(format!(
-                    "_jsx(_components.{} || '{}', {{ children: [{}] }})",
-                    tag, tag,
-                    child_jsx.join(", ")
-                ))
+                if child_jsx.is_empty() {
+                    Ok(format!("_jsx(_components.{} || '{}')", tag, tag))
+                } else {
+                    Ok(format!(
+                        "_jsx(_components.{} || '{}', {{{}  children: [{}{}{}  ]{}}})",
+                        tag, tag,
+                        newline,
+                        newline,
+                        child_jsx.join(&format!(",{}", newline)),
+                        newline,
+                        newline
+                    ))
+                }
             } else {
                 Ok(format!("_jsx(_components.{} || '{}')", tag, tag))
             }
@@ -436,17 +494,26 @@ fn generate_jsx_from_json(node: &serde_json::Value) -> Result<String> {
             if let Some(children) = node.get("children").and_then(|c| c.as_array()) {
                 let child_jsx: Vec<String> = children
                     .iter()
-                    .filter_map(|child| generate_jsx_from_json(child).ok())
+                    .filter_map(|child| generate_jsx_from_json_impl(child, indent_level + 1, false).ok())
                     .collect();
                 
-                Ok(format!(
-                    "_jsx(_components.li || 'li', {{ children: {} }})",
-                    if child_jsx.len() == 1 {
-                        child_jsx[0].clone()
-                    } else {
-                        format!("[{}]", child_jsx.join(", "))
-                    }
-                ))
+                if child_jsx.len() == 1 {
+                    Ok(format!(
+                        "_jsx(_components.li || 'li', {{ children: {} }})",
+                        child_jsx[0]
+                    ))
+                } else if !child_jsx.is_empty() {
+                    Ok(format!(
+                        "_jsx(_components.li || 'li', {{{}  children: [{}{}{}  ]{}}})",
+                        newline,
+                        newline,
+                        child_jsx.join(&format!(",{}", newline)),
+                        newline,
+                        newline
+                    ))
+                } else {
+                    Ok("_jsx(_components.li || 'li')".to_string())
+                }
             } else {
                 Ok("_jsx(_components.li || 'li')".to_string())
             }
@@ -459,7 +526,7 @@ fn generate_jsx_from_json(node: &serde_json::Value) -> Result<String> {
             if let Some(children) = node.get("children").and_then(|c| c.as_array()) {
                 let child_jsx: Vec<String> = children
                     .iter()
-                    .filter_map(|child| generate_jsx_from_json(child).ok())
+                    .filter_map(|child| generate_jsx_from_json_impl(child, indent_level + 1, false).ok())
                     .collect();
                 
                 if child_jsx.is_empty() {
@@ -468,14 +535,77 @@ fn generate_jsx_from_json(node: &serde_json::Value) -> Result<String> {
                     Ok(format!("_jsx({}, {{ children: {} }})", name, child_jsx[0]))
                 } else {
                     Ok(format!(
-                        "_jsxs({}, {{ children: [{}] }})",
+                        "_jsxs({}, {{{}  children: [{}{}{}  ]{}}})",
                         name,
-                        child_jsx.join(", ")
+                        newline,
+                        newline,
+                        child_jsx.join(&format!(",{}", newline)),
+                        newline,
+                        newline
                     ))
                 }
             } else {
                 Ok(format!("_jsx({}, {{}})", name))
             }
+        }
+        "image" => {
+            let url = node.get("url")
+                .and_then(|u| u.as_str())
+                .unwrap_or("");
+            let alt = node.get("alt")
+                .and_then(|a| a.as_str())
+                .unwrap_or("");
+            
+            Ok(format!(
+                "_jsx(_components.img || 'img', {{{}  src: '{}',{}  alt: '{}'{}}})",
+                newline,
+                url.replace('\'', "\\'"),
+                newline,
+                alt.replace('\'', "\\'"),
+                newline
+            ))
+        }
+        "link" => {
+            let url = node.get("url")
+                .and_then(|u| u.as_str())
+                .unwrap_or("");
+            
+            if let Some(children) = node.get("children").and_then(|c| c.as_array()) {
+                let child_jsx: Vec<String> = children
+                    .iter()
+                    .filter_map(|child| generate_jsx_from_json_impl(child, indent_level + 1, true).ok())
+                    .collect();
+                
+                if child_jsx.len() == 1 {
+                    Ok(format!(
+                        "_jsx(_components.a || 'a', {{ href: '{}', children: {} }})",
+                        url.replace('\'', "\\'"),
+                        child_jsx[0]
+                    ))
+                } else if !child_jsx.is_empty() {
+                    Ok(format!(
+                        "_jsx(_components.a || 'a', {{{}  href: '{}',{}  children: [{}]{}}})",
+                        newline,
+                        url.replace('\'', "\\'"),
+                        newline,
+                        child_jsx.join(", "),
+                        newline
+                    ))
+                } else {
+                    Ok(format!(
+                        "_jsx(_components.a || 'a', {{ href: '{}' }})",
+                        url.replace('\'', "\\'")
+                    ))
+                }
+            } else {
+                Ok(format!(
+                    "_jsx(_components.a || 'a', {{ href: '{}' }})",
+                    url.replace('\'', "\\'")
+                ))
+            }
+        }
+        "break" => {
+            Ok("_jsx(_components.br || 'br')".to_string())
         }
         _ => {
             // For unknown types, return null
@@ -492,4 +622,92 @@ pub fn compile_mdx(content: String) -> Result<String> {
     
     // Generate from AST
     generate_from_ast(ast_json)
+}
+
+// Parse MDX to AST using MessagePack binary format
+#[napi]
+pub fn parse_to_ast_binary(content: String) -> Result<Buffer> {
+    let options = ParseOptions {
+        constructs: Constructs {
+            frontmatter: true,
+            gfm_table: true,
+            gfm_task_list_item: true,
+            gfm_strikethrough: true,
+            gfm_autolink_literal: true,
+            gfm_footnote_definition: true,
+            gfm_label_start_footnote: true,
+            math_text: true,
+            math_flow: true,
+            mdx_esm: true,
+            mdx_expression_flow: true,
+            mdx_expression_text: true,
+            mdx_jsx_flow: true,
+            mdx_jsx_text: true,
+            ..Constructs::mdx()
+        },
+        ..ParseOptions::mdx()
+    };
+
+    // Parse MDX to mdast
+    match to_mdast(&content, &options) {
+        Ok(ast) => {
+            // Convert to JSON format first
+            let json_ast = mdast_to_json(&ast);
+            
+            // Serialize to MessagePack binary
+            match rmp_serde::to_vec(&json_ast) {
+                Ok(bytes) => Ok(Buffer::from(bytes)),
+                Err(e) => Err(Error::new(
+                    Status::GenericFailure,
+                    format!("Failed to serialize AST to MessagePack: {}", e),
+                )),
+            }
+        }
+        Err(e) => Err(Error::new(
+            Status::GenericFailure,
+            format!("Failed to parse MDX: {}", e),
+        )),
+    }
+}
+
+// Generate JavaScript from AST using MessagePack binary format
+#[napi]
+pub fn generate_from_ast_binary(ast_binary: Buffer) -> Result<String> {
+    // Deserialize MessagePack binary to JSON
+    let ast: serde_json::Value = match rmp_serde::from_slice(&ast_binary) {
+        Ok(ast) => ast,
+        Err(e) => {
+            return Err(Error::new(
+                Status::GenericFailure,
+                format!("Failed to deserialize MessagePack AST: {}", e),
+            ))
+        }
+    };
+    
+    // Generate JavaScript/JSX
+    let mut output = String::new();
+    
+    // Add imports - Note: We import the actual JSX runtime functions
+    // The postprocess plugin expects these imports to already be present
+    output.push_str("import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from 'astro/jsx-runtime';\n\n");
+    
+    // Add required MDX exports
+    output.push_str("export const frontmatter = {};\n");
+    output.push_str("export function getHeadings() { return []; }\n\n");
+    
+    // Generate component function
+    output.push_str("function _createMdxContent(props) {\n");
+    output.push_str("  const _components = {\n");
+    output.push_str("    ...props.components,\n");
+    output.push_str("  };\n");
+    output.push_str("  return ");
+    
+    // Generate JSX from AST
+    let jsx = generate_jsx_from_json(&ast)?;
+    output.push_str(&jsx);
+    
+    output.push_str(";\n}\n\n");
+    output.push_str("export default _createMdxContent;\n");
+    
+    Ok(output)
 }
