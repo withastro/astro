@@ -1,0 +1,24 @@
+1. Pick a project:
+
+- Example: https://github.com/withastro/astro/tree/fryuni/tracing-hooks/examples/with-telemetry
+- New project
+- Existing project
+
+2. Use this version of Astro: https://pkg.pr.new/withastro/astro@fc5a126
+3. Add this integration: https://pkg.pr.new/withastro/astro/@astrojs/opentelemetry@fc5a126
+4. Add the integration to `astro.config.mjs/ts`:
+
+```ts
+import node from '@astrojs/node';
+import opentelemetry from '@astrojs/opentelemetry';
+export default defineConfig({
+  adapter: node({ mode: 'standalone' }),
+  integrations: [opentelemetry()],
+});
+```
+
+5. Start this docker compose: https://github.com/withastro/astro/blob/fryuni/tracing-hooks/examples/with-telemetry/docker-compose.yml
+
+   Or run `otel-tui`, if you have that installed.
+
+6. Have fun!
