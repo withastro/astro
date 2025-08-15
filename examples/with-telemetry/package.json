@@ -1,0 +1,22 @@
+{
+  "name": "@example/with-telemetry",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "server": "node dist/server/entry.mjs"
+  },
+  "dependencies": {
+    "@astrojs/node": "^9.3.3",
+    "@astrojs/opentelemetry": "0.0.1",
+    "@astrojs/svelte": "^7.1.0",
+    "@opentelemetry/api": "^1",
+    "@opentelemetry/sdk-node": "^0.203.0",
+    "astro": "^5.12.8",
+    "svelte": "^5.25.7"
+  }
+}
