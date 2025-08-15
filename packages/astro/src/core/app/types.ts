@@ -116,6 +116,7 @@ export type SSRManifestCSP = {
 	isStrictDynamic: boolean;
 	styleHashes: string[];
 	styleResources: string[];
+	fontResources: string[];
 	directives: CspDirective[];
 };
 
