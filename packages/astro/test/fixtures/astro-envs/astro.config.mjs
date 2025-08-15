@@ -21,6 +21,6 @@ export default defineConfig({
 		],
 	},
 	experimental: {
-		rawEnvValues: true,
+		staticImportMetaEnv: true,
 	}
 });
