@@ -1,12 +1,10 @@
 import type { AstroConfig } from 'astro';
 import { sql } from 'drizzle-orm';
 import type { Arguments } from 'yargs-parser';
-import {
-	createLocalDatabaseClient,
-	createRemoteDatabaseClient,
-} from '../../../../runtime/db-client.js';
 import { normalizeDatabaseUrl } from '../../../../runtime/index.js';
 import { DB_PATH } from '../../../consts.js';
+import { createClient as createLocalDatabaseClient } from '../../../db-client/libsql-local.js';
+import { createClient as createRemoteDatabaseClient } from '../../../db-client/libsql-node.js';
 import { SHELL_QUERY_MISSING_ERROR } from '../../../errors.js';
 import type { DBConfigInput } from '../../../types.js';
 import { getAstroEnv, getRemoteDatabaseInfo } from '../../../utils.js';
@@ -35,7 +33,7 @@ export async function cmd({
 			ASTRO_DATABASE_FILE,
 			new URL(DB_PATH, astroConfig.root).href,
 		);
-		const db = createLocalDatabaseClient({ dbUrl });
+		const db = createLocalDatabaseClient({ url: dbUrl });
 		const result = await db.run(sql.raw(query));
 		console.log(result);
 	}
