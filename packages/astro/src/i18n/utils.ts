@@ -149,21 +149,24 @@ export function computeCurrentLocale(
 	locales: Locales,
 	defaultLocale: string,
 ): string | undefined {
-	for (const segment of pathname.split('/')) {
-		const normalizedSegment = normalizeThePath(segment);
+	// pages that use a locale param ([locale].astro or [locale]/index.astro)
+	// and getStaticPaths make [locale].html the pathname during SSG
+	// which will not match a configured locale without removing .html
+	// as we do in normalizeThePath
+	for (const segment of pathname.split('/').map(normalizeThePath)) {
 		for (const locale of locales) {
 			if (typeof locale === 'string') {
 				// we skip ta locale that isn't present in the current segment
-				if (!normalizedSegment.includes(locale)) continue;
-				if (normalizeTheLocale(locale) === normalizeTheLocale(normalizedSegment)) {
+				if (!segment.includes(locale)) continue;
+				if (normalizeTheLocale(locale) === normalizeTheLocale(segment)) {
 					return locale;
 				}
 			} else {
-				if (locale.path === normalizedSegment) {
+				if (locale.path === segment) {
 					return locale.codes.at(0);
 				} else {
 					for (const code of locale.codes) {
-						if (normalizeTheLocale(code) === normalizeTheLocale(normalizedSegment)) {
+						if (normalizeTheLocale(code) === normalizeTheLocale(segment)) {
 							return code;
 						}
 					}

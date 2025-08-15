@@ -17,15 +17,18 @@ export function requestHasLocale(locales: Locales) {
 
 // Checks if the pathname has any locale
 export function pathHasLocale(path: string, locales: Locales): boolean {
-	const segments = path.split('/');
+	// pages that use a locale param ([locale].astro or [locale]/index.astro)
+	// and getStaticPaths make [locale].html the pathname during SSG
+	// which will not match a configured locale without removing .html
+	// as we do in normalizeThePath
+	const segments = path.split('/').map(normalizeThePath);
 	for (const segment of segments) {
-		const normalizedSegment = normalizeThePath(segment);
 		for (const locale of locales) {
 			if (typeof locale === 'string') {
-				if (normalizeTheLocale(normalizedSegment) === normalizeTheLocale(locale)) {
+				if (normalizeTheLocale(segment) === normalizeTheLocale(locale)) {
 					return true;
 				}
-			} else if (normalizedSegment === locale.path) {
+			} else if (segment === locale.path) {
 				return true;
 			}
 		}
