@@ -23,6 +23,14 @@ export default defineConfig({
 
 6. Have fun!
 
+## See the data
+
+Traces will be available on http://localhost:16686/
+
+Metrics will be availabe on http://localhost:9090/query
+
+Logs will be shown on the console
+
 ## New APIs:
 
 ```ts
