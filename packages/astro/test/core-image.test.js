@@ -910,7 +910,9 @@ describe('astro:image', () => {
 			let response = await app.render(request);
 			// making sure that the app works
 			assert.equal(response.status, 200);
-			request = new Request('http://example.com/_image/?href=//secure0x.netlify.app/secure0x.svg&f=svg');
+			request = new Request(
+				'http://example.com/_image/?href=//secure0x.netlify.app/secure0x.svg&f=svg',
+			);
 			response = await app.render(request);
 			assert.equal(response.status, 403);
 		});
@@ -1420,9 +1422,11 @@ describe('astro:image', () => {
 			});
 			devServer = await fixture.startDevServer();
 			// we don't use `URLSearchParams` because the initial // will get encoded
-			const response = await fixture.fetch('/_image?' + "href=//secure0x.netlify.app/secure0x.svg&f=svg");
+			const response = await fixture.fetch(
+				'/_image?' + 'href=//secure0x.netlify.app/secure0x.svg&f=svg',
+			);
 			assert.equal(response.status, 403);
-		})
+		});
 
 		afterEach(async () => {
 			await devServer.stop();
