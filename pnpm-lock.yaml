@@ -5882,8 +5882,8 @@ importers:
         specifier: ^0.29.2
         version: 0.29.4(rollup@4.40.2)
       '@vercel/routing-utils':
-        specifier: ^5.0.4
-        version: 5.0.4
+        specifier: ^5.1.1
+        version: 5.1.1
       esbuild:
         specifier: ^0.25.0
         version: 0.25.5
@@ -9225,8 +9225,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@vercel/routing-utils@5.0.4':
-    resolution: {integrity: sha512-4ke67zkXVi2fRZdoYckABcsSkRC9CnrdadOGxoS/Bk22+ObHjGQWvUHExRSXh339anwu9YY7ZacNSGH4gUnTQA==}
+  '@vercel/routing-utils@5.1.1':
+    resolution: {integrity: sha512-EyOik06V2fPXAbKY087BM7DMOQOJK+9mubwwox1TkDi21tMeJcMYwsXwepm6ZmyZ5u0j1TpJW172fP4MbzaCcg==}
 
   '@vitejs/plugin-react@4.7.0':
     resolution: {integrity: sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA==}
@@ -17076,7 +17076,7 @@ snapshots:
       - rollup
       - supports-color
 
-  '@vercel/routing-utils@5.0.4':
+  '@vercel/routing-utils@5.1.1':
     dependencies:
       path-to-regexp: 6.1.0
       path-to-regexp-updated: path-to-regexp@6.3.0
