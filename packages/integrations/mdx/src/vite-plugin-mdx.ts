@@ -1,10 +1,8 @@
-import type { AstroConfig, AstroIntegrationLogger, SSRError } from 'astro';
-import { getAstroMetadata } from 'astro/jsx/rehype.js';
-import { VFile } from 'vfile';
+import type { AstroConfig, AstroIntegrationLogger } from 'astro';
 import type { Plugin } from 'vite';
 import type { MdxOptions } from './index.js';
-import { createMdxProcessor } from './plugins.js';
-import { safeParseFrontmatter } from './utils.js';
+import { vitePluginMdxJs } from './vite-plugin-mdx-js.js';
+import { vitePluginMdxRust } from './vite-plugin-mdx-rust.js';
 
 export interface VitePluginMdxOptions {
 	mdxOptions: MdxOptions;
@@ -14,129 +12,19 @@ export interface VitePluginMdxOptions {
 	logger?: AstroIntegrationLogger;
 }
 
-// NOTE: Do not destructure `opts` as we're assigning a reference that will be mutated later
+/**
+ * MDX Vite plugin router
+ * Selects the appropriate MDX compiler based on configuration
+ */
 export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
-	let processor: Awaited<ReturnType<typeof createMdxProcessor>> | undefined;
-	let sourcemapEnabled: boolean;
-
-	return {
-		name: '@mdx-js/rollup',
-		enforce: 'pre',
-		buildEnd() {
-			processor = undefined;
-		},
-		configResolved(resolved) {
-			sourcemapEnabled = !!resolved.build.sourcemap;
-
-			// In Rust mode, we need the JSX plugin to transform our output
-			const compilerMode = (opts.config?.experimental as any)?.mdxCompiler || 'js';
-			
-			// HACK: Remove the `astro:jsx` plugin if defined as we handle the JSX transformation ourselves
-			// But keep it in Rust mode since Rust generates JSX that needs transformation
-			if (compilerMode !== 'rs') {
-				const jsxPluginIndex = resolved.plugins.findIndex((p) => p.name === 'astro:jsx');
-				if (jsxPluginIndex !== -1) {
-					// @ts-ignore-error ignore readonly annotation
-					resolved.plugins.splice(jsxPluginIndex, 1);
-				}
-			}
-		},
-		async resolveId(source, importer, options) {
-			if (importer?.endsWith('.mdx') && source[0] !== '/') {
-				let resolved = await this.resolve(source, importer, options);
-				if (!resolved) resolved = await this.resolve('./' + source, importer, options);
-				return resolved;
-			}
-		},
-		// Override transform to alter code before MDX compilation
-		// ex. inject layouts
-		async transform(code, id) {
-			if (!id.endsWith('.mdx')) return;
-
-			const { frontmatter, content } = safeParseFrontmatter(code, id);
-
-			const vfile = new VFile({
-				value: content,
-				path: id,
-				data: {
-					astro: {
-						frontmatter,
-					},
-					applyFrontmatterExport: {
-						srcDir: opts.srcDir,
-					},
-				},
-			});
-
-			// Lazily initialize the MDX processor
-			if (!processor) {
-				const compilerMode = (opts.config?.experimental as any)?.mdxCompiler || 'js';
-				opts.logger?.debug?.(`Initializing MDX processor with compiler mode: ${compilerMode}`);
-
-				const startInit = performance.now();
-				processor = await createMdxProcessor(opts.mdxOptions, {
-					sourcemap: sourcemapEnabled,
-					experimentalHeadingIdCompat: opts.experimentalHeadingIdCompat,
-					config: opts.config,
-					logger: opts.logger,
-				});
-				const initTime = performance.now() - startInit;
-
-				opts.logger?.debug?.(`MDX processor initialized in ${initTime.toFixed(2)}ms`);
-			}
-
-			try {
-				const startCompile = performance.now();
-				const compiled = await processor.process(vfile);
-				const compileTime = performance.now() - startCompile;
-
-				// Log compilation metrics for debugging
-				if (opts.logger?.debug) {
-					const compilerMode = (opts.config?.experimental as any)?.mdxCompiler || 'js';
-					const useBinary = (opts.config?.experimental as any)?.mdxOptimizations?.binaryAST || false;
-					opts.logger.debug(
-						`MDX compiled ${id} in ${compileTime.toFixed(2)}ms using ${compilerMode} compiler` +
-						(useBinary ? ' with MessagePack' : ''),
-					);
-				}
-
-				return {
-					code: String(compiled.value),
-					map: compiled.map,
-					meta: getMdxMeta(vfile),
-				};
-			} catch (e: any) {
-				const err: SSRError = e;
-
-				// For some reason MDX puts the error location in the error's name, not very useful for us.
-				err.name = 'MDXError';
-				err.loc = { file: id, line: e.line, column: e.column };
-
-				// For another some reason, MDX doesn't include a stack trace. Weird
-				Error.captureStackTrace(err);
-
-				// Log compilation failure
-				opts.logger?.error?.(`MDX compilation failed for ${id}: ${err.message}`);
-
-				throw err;
-			}
-		},
-	};
-}
-
-function getMdxMeta(vfile: VFile): Record<string, any> {
-	const astroMetadata = getAstroMetadata(vfile);
-	if (!astroMetadata) {
-		throw new Error(
-			'Internal MDX error: Astro metadata is not set by rehype-analyze-astro-metadata',
-		);
+	// Determine which compiler to use
+	const compilerMode = (opts.config?.experimental as any)?.mdxCompiler || 'js';
+	
+	if (compilerMode === 'rs') {
+		// Use Rust compiler for better performance
+		return vitePluginMdxRust(opts);
+	} else {
+		// Use JavaScript compiler (default)
+		return vitePluginMdxJs(opts);
 	}
-	return {
-		astro: astroMetadata,
-		vite: {
-			// Setting this vite metadata to `ts` causes Vite to resolve .js
-			// extensions to .ts files.
-			lang: 'ts',
-		},
-	};
 }
