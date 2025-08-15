@@ -165,5 +165,10 @@ export async function startContainer({
 		logger,
 	});
 
+	// Run initializers from the dev server
+	for (const initializer of settings.initializers) {
+		await viteServer.ssrLoadModule(initializer);
+	}
+
 	return devServerAddressInfo;
 }

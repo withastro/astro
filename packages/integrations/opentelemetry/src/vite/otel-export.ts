@@ -17,15 +17,24 @@ export function otelReexport({
 		// strict dependency management, vite and OpenTelemetry.
 		name: '@astrojs/opentelemetry/otel-reexport',
 		enforce: 'pre',
+		config() {
+			return {
+				optimizeDeps: {
+					exclude: ['@opentelemetry/api', '@opentelemetry/api-logs'],
+				},
+			};
+		},
 		async resolveId(id) {
-			if (id.startsWith(reexportPrefix)) {
+			if (id.startsWith(reexportPrefix) || id.startsWith('@opentelemetry/')) {
 				logger.debug(`Externalizing OpenTelemetry dependency: ${id}`);
 				const resolvedId = await this.resolve(id);
 
-				return resolvedId && {
-					...resolvedId,
-					external: true,
-				};
+				return (
+					resolvedId && {
+						...resolvedId,
+						external: true,
+					}
+				);
 			}
 
 			if (id.startsWith('astro:otel-reexport:')) {
@@ -35,10 +44,12 @@ export function otelReexport({
 				const baseId = `${reexportPrefix}/${reexportName}`;
 				const resolvedId = await this.resolve(baseId);
 
-				return resolvedId && {
-					...resolvedId,
-					external: true,
-				};
+				return (
+					resolvedId && {
+						...resolvedId,
+						external: true,
+					}
+				);
 			}
 		},
 	};

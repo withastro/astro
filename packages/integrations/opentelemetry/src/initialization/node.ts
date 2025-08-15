@@ -1,6 +1,10 @@
 import { site } from 'astro:config/server';
-import { FetchInstrumentation, HttpInstrumentation, UndiciInstrumentation } from 'astro:otel-reexport:node';
 import { instrumentations } from 'astro:otel-internal';
+import {
+	FetchInstrumentation,
+	HttpInstrumentation,
+	UndiciInstrumentation,
+} from 'astro:otel-reexport:node';
 import { NodeSDK, tracing } from '@opentelemetry/sdk-node';
 
 process.env.OTEL_PROPAGATORS ?? 'tracecontext,baggage,b3';

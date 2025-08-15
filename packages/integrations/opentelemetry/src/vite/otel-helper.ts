@@ -51,7 +51,7 @@ export default tracer;
 				case 'meter':
 					return `
 import { metrics } from 'astro:otel-reexport:api';
-const meter = api.metrics.getMeter(${JSON.stringify(importer)});
+const meter = metrics.getMeter(${JSON.stringify(importer)});
 export default meter;
 					`.trim();
 				default:
