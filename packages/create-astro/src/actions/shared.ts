@@ -28,7 +28,7 @@ const VALID_PROJECT_DIRECTORY_SAFE_LIST = [
 ];
 
 export function isEmpty(dirPath: string) {
-	if (!fs.existsSync(dirPath)) {
+	if (!fs.existsSync(String(dirPath))) {
 		return true;
 	}
 
