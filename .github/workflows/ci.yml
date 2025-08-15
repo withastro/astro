@@ -103,19 +103,26 @@ jobs:
         run: pnpm run publint
 
   test:
-    name: "Test: ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
+    name: 'Test (${{ matrix.TEST_SUITE.name }}): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     needs: build
     strategy:
       matrix:
-        OS: [ubuntu-latest]
+        OS: [ubuntu-latest, macos-14, windows-2025]
         NODE_VERSION: [18, 20, 22]
-        include:
+        TEST_SUITE:
+          - { name: astro, script: 'pnpm run test:astro' }
+          - { name: integrations, script: 'pnpm run test:integrations' }
+        exclude:
           - os: macos-14
-            NODE_VERSION: 22
+            NODE_VERSION: 18
+          - os: macos-14
+            NODE_VERSION: 20
           - os: windows-2025
-            NODE_VERSION: 22
+            NODE_VERSION: 18
+          - os: windows-2025
+            NODE_VERSION: 20
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
@@ -141,8 +148,8 @@ jobs:
       - name: Build Packages
         run: pnpm run build
 
-      - name: Test
-        run: pnpm run test
+      - name: Test ${{ matrix.TEST_SUITE.name }}
+        run: ${{ matrix.TEST_SUITE.script }}
 
   e2e:
     name: "Test (E2E): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
