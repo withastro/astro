@@ -22,3 +22,11 @@ export default defineConfig({
    Or run `otel-tui`, if you have that installed.
 
 6. Have fun!
+
+## New APIs:
+
+```ts
+import tracer from 'astro:otel:tracer';
+import meter from 'astro:otel:meter';
+import logger from 'astro:otel:logger';
+```
