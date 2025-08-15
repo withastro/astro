@@ -984,6 +984,25 @@ export const UnsupportedExternalRedirect = {
 /**
  * @docs
  * @see
+ * - [Astro.redirect](https://docs.astro.build/en/reference/api-reference/#redirect)
+ * @description
+ * A redirect can't be mapped when origin and destination have different segments.
+ */
+export const RedirectMappingMismatch = {
+	name: 'RedirectMappingMismatch',
+	title: "A redirect can't be mapped when origin and destination have different segments",
+	message: (
+		fromRoute: string,
+		toRoute: string,
+		fromDynamicSegments: number,
+		toDynamicSegments: number,
+	) =>
+		`The number of dynamic segments don't match. The route ${fromRoute} has ${fromDynamicSegments} segments, while ${toRoute} has ${toDynamicSegments} segments.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
  * - [Dynamic routes](https://docs.astro.build/en/guides/routing/#dynamic-routes)
  * @description
  * A dynamic route param is invalid. This is often caused by an `undefined` parameter or a missing [rest parameter](https://docs.astro.build/en/guides/routing/#rest-parameters).
