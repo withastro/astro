@@ -248,7 +248,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					name: '@astrojs/cloudflare',
 					serverEntrypoint: customWorkerEntryPoint ?? '@astrojs/cloudflare/entrypoints/server.js',
 					exports: args?.workerEntryPoint?.namedExports
-						? ['default', ...args.workerEntryPoint.namedExports]
+						? ['default', ...args.workerEntryPoint.namedExports.filter((e) => e !== 'default')]
 						: ['default'],
 					adapterFeatures: {
 						edgeMiddleware: false,
