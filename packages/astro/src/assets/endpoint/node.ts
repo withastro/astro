@@ -73,6 +73,8 @@ async function loadRemoteImage(src: URL) {
 	}
 }
 
+const URL_PROTOCOL_REGEX = /^(?:(?:http|ftp|https|ws):?\/\/|\/\/)/;
+
 /**
  * Endpoint used in dev and SSR to serve optimized images by the base image services
  */
@@ -97,7 +99,7 @@ export const GET: APIRoute = async ({ request }) => {
 
 		let inputBuffer: Buffer | undefined = undefined;
 
-		if (isRemotePath(transform.src)) {
+		if (isRemotePath(transform.src) || URL_PROTOCOL_REGEX.test(transform.src)) {
 			if (isRemoteAllowed(transform.src, imageConfig) === false) {
 				return new Response('Forbidden', { status: 403 });
 			}
