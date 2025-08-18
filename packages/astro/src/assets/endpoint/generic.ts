@@ -45,12 +45,12 @@ export const GET: APIRoute = async ({ request }) => {
 		let inputBuffer: ArrayBuffer | undefined = undefined;
 
 		const isRemoteImage = isRemotePath(transform.src);
-		const sourceUrl = isRemoteImage ? new URL(transform.src) : new URL(transform.src, url.origin);
 
 		if (isRemoteImage && isRemoteAllowed(transform.src, imageConfig) === false) {
 			return new Response('Forbidden', { status: 403 });
 		}
-
+		
+		const sourceUrl = new URL(transform.src, url.origin);
 		inputBuffer = await loadRemoteImage(sourceUrl, isRemoteImage ? new Headers() : request.headers);
 
 		if (!inputBuffer) {
