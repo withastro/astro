@@ -896,6 +896,26 @@ describe('astro:image', () => {
 			const img = await app.render(new Request(`https://example.com${src}`));
 			assert.equal(img.status, 200);
 		});
+
+		it('returns 403 when loading a relative pattern iamge', async () => {
+			const fixtureWithBase = await loadFixture({
+				root: './fixtures/core-image-ssr/',
+				output: 'server',
+				outDir: './dist/server-base-path',
+				adapter: testAdapter(),
+			});
+			await fixtureWithBase.build();
+			const app = await fixtureWithBase.loadTestAdapterApp();
+			let request = new Request('http://example.com/');
+			let response = await app.render(request);
+			// making sure that the app works
+			assert.equal(response.status, 200);
+			request = new Request(
+				'http://example.com/_image/?href=//secure0x.netlify.app/secure0x.svg&f=svg',
+			);
+			response = await app.render(request);
+			assert.equal(response.status, 403);
+		});
 	});
 
 	describe('build ssg', () => {
@@ -1394,6 +1414,18 @@ describe('astro:image', () => {
 			const src = $('#local img').attr('src');
 
 			assert.equal(src.startsWith('/_image?'), true);
+		});
+
+		it("returns 403 for /_image when requesting a relative pattern image and the parameters aren't encoded", async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image/',
+			});
+			devServer = await fixture.startDevServer();
+			// we don't use `URLSearchParams` because the initial // will get encoded
+			const response = await fixture.fetch(
+				'/_image?' + 'href=//secure0x.netlify.app/secure0x.svg&f=svg',
+			);
+			assert.equal(response.status, 403);
 		});
 
 		afterEach(async () => {
