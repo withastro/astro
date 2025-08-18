@@ -44,7 +44,7 @@
     "wrangler": "^4.14.1"
   },
   "peerDependencies": {
-    "astro": "^5.0.0"
+    "astro": "^5.7.0"
   },
   "devDependencies": {
     "astro": "workspace:*",
