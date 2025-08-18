@@ -50,7 +50,7 @@
     "vite": "^6.3.5"
   },
   "peerDependencies": {
-    "astro": "^5.3.0"
+    "astro": "^5.7.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.6",
