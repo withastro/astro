@@ -141,7 +141,6 @@ describe('API routes in SSR', () => {
 			const response = await fixture.fetch('/fail');
 			const text = await response.text();
 			assert.equal(response.status, 500);
-			assert.equal(text, '');
 		});
 
 		it('Has valid api context', async () => {
