@@ -74,8 +74,6 @@ async function loadRemoteImage(src: URL) {
 	}
 }
 
-const URL_PROTOCOL_REGEX = /^(?:(?:http|ftp|https|ws):?\/\/|\/\/)/;
-
 /**
  * Endpoint used in dev and SSR to serve optimized images by the base image services
  */
