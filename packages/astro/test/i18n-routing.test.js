@@ -1325,16 +1325,12 @@ describe('[SSG] i18n routing', () => {
 					root: './fixtures/i18n-locale-index-format-file/',
 					i18n: {
 						defaultLocale: 'en-us',
-						locales: [
-							'en-us',
-							'es-mx',
-							'fr-fr',
-						],
+						locales: ['en-us', 'es-mx', 'fr-fr'],
 						routing: {
 							prefixDefaultLocale: true,
 							redirectToDefaultLocale: false,
 						},
-					}
+					},
 				});
 				await fixture.build();
 			});
