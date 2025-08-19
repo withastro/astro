@@ -228,6 +228,7 @@ export class DevApp extends BaseApp<DevPipeline> {
 				clientAddress: incomingRequest.socket.remoteAddress,
 				error: err,
 			});
+			statusCode = 500;
 		} finally {
 			this.currentRenderContext?.session?.[PERSIST_SYMBOL]();
 		}
@@ -263,12 +264,14 @@ export class DevApp extends BaseApp<DevPipeline> {
 					request,
 					routeData: fourOhFourRoute.route,
 					clientAddress: incomingRequest.socket.remoteAddress,
+					status: 404
 				});
 				const component = await this.pipeline.preload(
 					fourOhFourRoute.route,
 					fourOhFourRoute.filePath,
 				);
 				response = await renderContext.render(component);
+				console.log("render 404", response.status);
 			}
 		}
 
@@ -330,7 +333,7 @@ export class DevApp extends BaseApp<DevPipeline> {
 
 		// Apply the `status` override to the response object before responding.
 		// Response.status is read-only, so a clone is required to override.
-		if (response.status !== statusCode) {
+		if ( response.status !== statusCode) {
 			response = new Response(response.body, {
 				status: statusCode,
 				headers: response.headers,
@@ -355,13 +358,22 @@ export class DevApp extends BaseApp<DevPipeline> {
 
 	async renderError(
 		request: Request,
-		{ locals, skipMiddleware = false, error, clientAddress }: RenderErrorOptions,
+		{ locals, skipMiddleware = false, error, clientAddress , status }: RenderErrorOptions,
 	): Promise<Response> {
+		// we always throw when we have Astro errors around the middleware
+		if (
+			isAstroError(error) &&
+			[MiddlewareNoDataOrNextCalled.name, MiddlewareNotAResponse.name].includes(error.name)
+		) {
+			throw error;
+		}
+
 		const custom500 = getCustom500Route(this.manifestData);
 		// Show dev overlay
 		if (!custom500) {
 			throw error;
 		}
+		
 		try {
 			const filePath500 = new URL(`./${custom500.component}`, this.settings.config.root);
 			const preloaded500Component = await this.pipeline.preload(custom500, filePath500);
@@ -374,20 +386,14 @@ export class DevApp extends BaseApp<DevPipeline> {
 				routeData: custom500,
 				clientAddress,
 				actions: await this.pipeline.getActions(),
+				status
 			});
 			renderContext.props.error = error;
-			const _response = await renderContext.render(preloaded500Component);
+			const response = await renderContext.render(preloaded500Component);
 			// Log useful information that the custom 500 page may not display unlike the default error overlay
 			this.logger.error('router', (error as AstroError).stack || (error as AstroError).message);
-			return _response;
+			return response;
 		} catch (_err) {
-			// We always throw for errors related to middleware calling
-			if (
-				isAstroError(_err) &&
-				[MiddlewareNoDataOrNextCalled.name, MiddlewareNotAResponse.name].includes(_err.name)
-			) {
-				throw _err;
-			}
 			if (skipMiddleware === false) {
 				return this.renderError(request, {
 					clientAddress: undefined,
