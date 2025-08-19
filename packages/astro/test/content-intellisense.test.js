@@ -12,20 +12,38 @@ describe('Content Intellisense', () => {
 	/** @type {{collections: {hasSchema: boolean, name: string}[], entries: Record<string, string>}} */
 	let manifest = undefined;
 
+	/** @type {Record<string, Array<{ id: string; data: any; filePath: string; collection: string }>>} */
+	let collections;
+
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/content-intellisense/' });
 		await fixture.build();
 
 		collectionsDir = await fixture.readdir('../.astro/collections');
 		manifest = JSON.parse(await fixture.readFile('../.astro/collections/collections.json'));
+		collections = JSON.parse(await fixture.readFile('index.json'));
 	});
 
 	it('generate JSON schemas for content collections', async () => {
-		assert.deepEqual(collectionsDir.includes('blog-cc.schema.json'), true);
+		assert.equal(collectionsDir.includes('blog-cc.schema.json'), true);
 	});
 
 	it('generate JSON schemas for content layer', async () => {
-		assert.deepEqual(collectionsDir.includes('blog-cl.schema.json'), true);
+		assert.equal(collectionsDir.includes('blog-cl.schema.json'), true);
+	});
+
+	it('generate JSON schemas for file loader', async () => {
+		assert.equal(collectionsDir.includes('data-cl.schema.json'), true);
+	});
+
+	it('generates a record JSON schema for the file loader', async () => {
+		const schema = JSON.parse(await fixture.readFile('../.astro/collections/data-cl.schema.json'));
+		assert.equal(schema.definitions['data-cl'].type, 'object');
+		assert.equal(schema.definitions['data-cl'].additionalProperties.type, 'object');
+		assert.deepEqual(schema.definitions['data-cl'].additionalProperties.properties, {
+			name: { type: 'string' },
+			color: { type: 'string' },
+		});
 	});
 
 	it('manifest exists', async () => {
@@ -74,6 +92,17 @@ describe('Content Intellisense', () => {
 			collectionEntries.every((entry) => entry[1] === 'blog-cl'),
 			true,
 			"Expected 3 entries for 'blog-cl' collection to have 'blog-cl' as collection name",
+		);
+	});
+
+	it('doesn’t generate a `$schema` entry for file loader if `$schema` value is a string', async () => {
+		assert.equal(collections['data-cl-json'].map((entry) => entry.id).includes('$schema'), false);
+	});
+
+	it('generates a `$schema` entry for file loader if `$schema` value isn’t a string', async () => {
+		assert.equal(
+			collections['data-schema-misuse'].map((entry) => entry.id).includes('$schema'),
+			true,
 		);
 	});
 });
