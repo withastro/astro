@@ -1,6 +1,7 @@
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import type { AstroConfig } from '../@types/astro.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { isCoreRemotePath } from '../core/path.js';
 import { DEFAULT_HASH_PROPS } from './consts.js';
 import { type ImageService, isLocalService } from './services/service.js';
 import {
@@ -12,7 +13,6 @@ import {
 } from './types.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { inferRemoteSize } from './utils/remoteProbe.js';
-import { isCoreRemotePath } from '../core/path.js';
 
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!globalThis?.astroAsset?.imageService) {

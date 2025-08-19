@@ -8,10 +8,10 @@ import { assetsDir, imageConfig, outDir } from 'astro:assets';
 import { isRemotePath, removeQueryString } from '@astrojs/internal-helpers/path';
 import * as mime from 'mrmime';
 import type { APIRoute } from '../../@types/astro.js';
+import { isCoreRemotePath } from '../../core/path.js';
 import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
 import { isRemoteAllowed } from '../utils/remotePattern.js';
-import { isCoreRemotePath } from '../../core/path.js';
 
 function replaceFileSystemReferences(src: string) {
 	return os.platform().includes('win32') ? src.replace(/^\/@fs\//, '') : src.replace(/^\/@fs/, '');

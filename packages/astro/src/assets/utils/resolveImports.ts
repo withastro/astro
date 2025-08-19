@@ -1,8 +1,8 @@
 import { isRemotePath, removeBase } from '@astrojs/internal-helpers/path';
 import { CONTENT_IMAGE_FLAG, IMAGE_IMPORT_PREFIX } from '../../content/consts.js';
+import { isCoreRemotePath } from '../../core/path.js';
 import { shorthash } from '../../runtime/server/shorthash.js';
 import { VALID_INPUT_FORMATS } from '../consts.js';
-import { isCoreRemotePath } from '../../core/path.js';
 
 /**
  * Resolves an image src from a content file (such as markdown) to a module ID or import that can be resolved by Vite.

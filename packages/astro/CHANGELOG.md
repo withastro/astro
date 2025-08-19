@@ -1,5 +1,11 @@
 # astro
 
+## 4.16.19
+
+### Patch Changes
+
+- [#14241](https://github.com/withastro/astro/pull/14241) [`760acc8`](https://github.com/withastro/astro/commit/760acc86f535a48a6f5195cdc53dfc72b0dc6053) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where remote paths weren't correctly computed when generating assets
+
 ## 4.16.18
 
 ### Patch Changes

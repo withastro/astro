@@ -15,7 +15,7 @@
     "./app": "./dist/app.js"
   },
   "devDependencies": {
-    "astro": "^4.16.18",
+    "astro": "^4.16.19",
     "@types/node": "^18.17.8"
   }
 }
