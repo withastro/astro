@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-fix(sync): add missing live content collections check for generating content collections types
+Fixes a bug where the types for the live content collections were not being generated correctly in dev mode
