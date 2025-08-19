@@ -11,6 +11,7 @@ import type { APIRoute } from '../../@types/astro.js';
 import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
 import { isRemoteAllowed } from '../utils/remotePattern.js';
+import { isCoreRemotePath } from '../../core/path.js';
 
 function replaceFileSystemReferences(src: string) {
 	return os.platform().includes('win32') ? src.replace(/^\/@fs\//, '') : src.replace(/^\/@fs/, '');
@@ -99,7 +100,7 @@ export const GET: APIRoute = async ({ request }) => {
 
 		let inputBuffer: Buffer | undefined = undefined;
 
-		if (isRemotePath(transform.src) || URL_PROTOCOL_REGEX.test(transform.src)) {
+		if (isCoreRemotePath(transform.src)) {
 			if (isRemoteAllowed(transform.src, imageConfig) === false) {
 				return new Response('Forbidden', { status: 403 });
 			}

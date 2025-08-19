@@ -12,6 +12,7 @@ import {
 } from './types.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { inferRemoteSize } from './utils/remoteProbe.js';
+import { isCoreRemotePath } from '../core/path.js';
 
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!globalThis?.astroAsset?.imageService) {
@@ -69,7 +70,7 @@ export async function getImage(
 	if (
 		options.inferSize &&
 		isRemoteImage(resolvedOptions.src) &&
-		isRemotePath(resolvedOptions.src)
+		isCoreRemotePath(resolvedOptions.src)
 	) {
 		const result = await inferRemoteSize(resolvedOptions.src); // Directly probe the image URL
 		resolvedOptions.width ??= result.width;

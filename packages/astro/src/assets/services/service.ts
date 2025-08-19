@@ -1,11 +1,10 @@
 import type { AstroConfig } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import { joinPaths } from '../../core/path.js';
+import { isCoreRemotePath, joinPaths } from '../../core/path.js';
 import { DEFAULT_HASH_PROPS, DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
 import type { ImageOutputFormat, ImageTransform, UnresolvedSrcSetValue } from '../types.js';
 import { isESMImportedImage } from '../utils/imageKind.js';
 import { isRemoteAllowed } from '../utils/remotePattern.js';
-import { isCoreRemotePath } from '../../core/isCoreRemotePath.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
 

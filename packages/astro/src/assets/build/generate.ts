@@ -9,7 +9,7 @@ import { getTimeStat } from '../../core/build/util.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { AstroErrorData } from '../../core/errors/index.js';
 import type { Logger } from '../../core/logger/core.js';
-import { isRemotePath, removeLeadingForwardSlash } from '../../core/path.js';
+import { isCoreRemotePath, isRemotePath, removeLeadingForwardSlash } from '../../core/path.js';
 import { isServerLikeOutput } from '../../core/util.js';
 import type { MapValue } from '../../type-utils.js';
 import { getConfiguredImageService } from '../internal.js';
@@ -278,7 +278,7 @@ export function getStaticImageList(): AssetsGlobalStaticImagesList {
 }
 
 async function loadImage(path: string, env: AssetEnv): Promise<ImageData> {
-	if (isRemotePath(path)) {
+	if (isCoreRemotePath(path)) {
 		const remoteImage = await loadRemoteImage(path);
 		return {
 			data: remoteImage.data,
