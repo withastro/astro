@@ -1,6 +1,6 @@
 import type { AstroConfig } from '../../@types/astro.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import { isRemotePath, joinPaths } from '../../core/path.js';
+import { isCoreRemotePath, joinPaths } from '../../core/path.js';
 import { DEFAULT_HASH_PROPS, DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
 import type { ImageOutputFormat, ImageTransform, UnresolvedSrcSetValue } from '../types.js';
 import { isESMImportedImage } from '../utils/imageKind.js';
@@ -157,7 +157,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			// User passed an `/@fs/` path or a filesystem path instead of the full image.
 			if (
 				options.src.startsWith('/@fs/') ||
-				(!isRemotePath(options.src) && !options.src.startsWith('/'))
+				(!isCoreRemotePath(options.src) && !options.src.startsWith('/'))
 			) {
 				throw new AstroError({
 					...AstroErrorData.LocalImageUsedWrongly,

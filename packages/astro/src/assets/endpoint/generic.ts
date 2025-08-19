@@ -6,6 +6,7 @@ import type { APIRoute } from '../../@types/astro.js';
 import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
 import { isRemoteAllowed } from '../utils/remotePattern.js';
+import { isCoreRemotePath } from '../../core/path.js';
 
 async function loadRemoteImage(src: URL, headers: Headers) {
 	try {
@@ -44,7 +45,7 @@ export const GET: APIRoute = async ({ request }) => {
 
 		let inputBuffer: ArrayBuffer | undefined = undefined;
 
-		const isRemoteImage = isRemotePath(transform.src);
+		const isRemoteImage = isCoreRemotePath(transform.src);
 		const sourceUrl = isRemoteImage ? new URL(transform.src) : new URL(transform.src, url.origin);
 
 		if (isRemoteImage && isRemoteAllowed(transform.src, imageConfig) === false) {
