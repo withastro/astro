@@ -1,5 +1,21 @@
 # astro
 
+## 5.13.2
+
+### Patch Changes
+
+- [`4d16de7`](https://github.com/withastro/astro/commit/4d16de7f95db5d1ec1ce88610d2a95e606e83820) Thanks [@ematipico](https://github.com/ematipico)! - Improves the detection of remote paths in the `_image` endpoint. Now `href` parameters that start with `//` are considered remote paths.
+
+- Updated dependencies [[`4d16de7`](https://github.com/withastro/astro/commit/4d16de7f95db5d1ec1ce88610d2a95e606e83820)]:
+  - @astrojs/internal-helpers@0.7.2
+  - @astrojs/markdown-remark@6.3.6
+
+## 5.13.1
+
+### Patch Changes
+
+- [#14225](https://github.com/withastro/astro/pull/14225) [`f2490ab`](https://github.com/withastro/astro/commit/f2490aba420a8999c0e8d12b9e1e69d4e33ae29e) Thanks [@delucis](https://github.com/delucis)! - Fixes the `experimental.chromeDevtoolsWorkspace` feature.
+
 ## 5.13.0
 
 ### Minor Changes
