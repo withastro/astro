@@ -167,6 +167,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						}
 					}
 					const destDir = fileURLToPath(dir);
+					const lastmod = opts.lastmod?.toISOString();
 					const xslURL = opts.xslURL ? new URL(opts.xslURL, finalSiteUrl).href : undefined;
 					await writeSitemap(
 						{
@@ -178,6 +179,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							limit: entryLimit,
 							customSitemaps,
 							xslURL: xslURL,
+							lastmod,
 						},
 						config,
 					);
