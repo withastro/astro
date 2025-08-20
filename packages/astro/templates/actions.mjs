@@ -26,6 +26,8 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 			Object.assign(action, {
 				queryString: getActionQueryString(path),
 				toString: () => action.queryString,
+				// define valueOf as the object's own property, not the prototype's
+				valueOf: () => action.valueOf,
 				// Progressive enhancement info for React.
 				$$FORM_ACTION: function () {
 					const searchParams = new URLSearchParams(action.toString());
