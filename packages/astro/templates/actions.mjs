@@ -13,7 +13,7 @@ const ENCODED_DOT = '%2E';
 function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 	return new Proxy(actionCallback, {
 		get(target, objKey) {
-			if (objKey in target || typeof objKey === 'symbol') {
+			if (target.hasOwnProperty(objKey) || typeof objKey === 'symbol') {
 				return target[objKey];
 			}
 			// Add the key, encoding dots so they're not interpreted as nested properties.
