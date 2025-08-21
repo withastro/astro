@@ -264,14 +264,13 @@ export class DevApp extends BaseApp<DevPipeline> {
 					request,
 					routeData: fourOhFourRoute.route,
 					clientAddress: incomingRequest.socket.remoteAddress,
-					status: 404
+					status: 404,
 				});
 				const component = await this.pipeline.preload(
 					fourOhFourRoute.route,
 					fourOhFourRoute.filePath,
 				);
 				response = await renderContext.render(component);
-				console.log("render 404", response.status);
 			}
 		}
 
@@ -333,7 +332,7 @@ export class DevApp extends BaseApp<DevPipeline> {
 
 		// Apply the `status` override to the response object before responding.
 		// Response.status is read-only, so a clone is required to override.
-		if ( response.status !== statusCode) {
+		if (response.status !== statusCode) {
 			response = new Response(response.body, {
 				status: statusCode,
 				headers: response.headers,
@@ -358,7 +357,7 @@ export class DevApp extends BaseApp<DevPipeline> {
 
 	async renderError(
 		request: Request,
-		{ locals, skipMiddleware = false, error, clientAddress , status }: RenderErrorOptions,
+		{ locals, skipMiddleware = false, error, clientAddress, status }: RenderErrorOptions,
 	): Promise<Response> {
 		// we always throw when we have Astro errors around the middleware
 		if (
@@ -373,7 +372,7 @@ export class DevApp extends BaseApp<DevPipeline> {
 		if (!custom500) {
 			throw error;
 		}
-		
+
 		try {
 			const filePath500 = new URL(`./${custom500.component}`, this.settings.config.root);
 			const preloaded500Component = await this.pipeline.preload(custom500, filePath500);
@@ -386,7 +385,7 @@ export class DevApp extends BaseApp<DevPipeline> {
 				routeData: custom500,
 				clientAddress,
 				actions: await this.pipeline.getActions(),
-				status
+				status,
 			});
 			renderContext.props.error = error;
 			const response = await renderContext.render(preloaded500Component);

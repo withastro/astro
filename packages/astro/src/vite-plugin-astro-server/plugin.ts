@@ -86,8 +86,6 @@ export default function createVitePluginAstroServer({
 				}
 
 				warnMissingAdapter(logger, settings);
-				// pipeline.manifest.checkOrigin =
-				// 	settings.config.security.checkOrigin && settings.buildOutput === 'server';
 				app.setManifestData = routesList;
 			}
 
