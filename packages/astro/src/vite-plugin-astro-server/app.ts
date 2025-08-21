@@ -450,7 +450,7 @@ interface MatchedRoute {
 	resolvedPathname: string;
 }
 
-export async function matchRoute(
+async function matchRoute(
 	pathname: string,
 	routesList: RoutesList,
 	pipeline: DevPipeline,
