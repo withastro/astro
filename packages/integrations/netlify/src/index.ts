@@ -604,9 +604,9 @@ export default function netlifyIntegration(
 					},
 				};
 
-				const shouldLoadNetlifyPlugin = vitePluginOptions.environmentVariables?.enabled ||
-				(typeof features === 'object' ? (features.images ?? true) : features === true);
-
+				const shouldLoadNetlifyPlugin =
+					vitePluginOptions.environmentVariables?.enabled ||
+					(typeof features === 'object' ? (features.images ?? true) : features === true);
 
 				updateConfig({
 					outDir,
