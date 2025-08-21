@@ -26,7 +26,8 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 			Object.assign(action, {
 				queryString: getActionQueryString(path),
 				toString: () => action.queryString,
-				// define valueOf as the object's own property, not the prototype's
+				// redefine prototype methods as the object's own property, not the prototype's
+				bind: action.bind,
 				valueOf: () => action.valueOf,
 				// Progressive enhancement info for React.
 				$$FORM_ACTION: function () {
