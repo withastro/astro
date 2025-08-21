@@ -604,6 +604,10 @@ export default function netlifyIntegration(
 					},
 				};
 
+				const shouldLoadNetlifyPlugin = vitePluginOptions.environmentVariables?.enabled ||
+				(typeof features === 'object' ? (features.images ?? true) : features === true);
+
+
 				updateConfig({
 					outDir,
 					build: {
@@ -613,7 +617,7 @@ export default function netlifyIntegration(
 					},
 					session,
 					vite: {
-						plugins: [netlifyVitePlugin(vitePluginOptions)],
+						plugins: [...(shouldLoadNetlifyPlugin ? [netlifyVitePlugin(vitePluginOptions)] : [])],
 						server: {
 							watch: {
 								ignored: [fileURLToPath(new URL('./.netlify/**', rootDir))],
