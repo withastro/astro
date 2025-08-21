@@ -23,7 +23,7 @@ describe('Image', () => {
 		const $ = cheerio.load(html);
 		const img = $('#basic-image img');
 
-		assert.equal(img.attr('src').startsWith('/_vercel/image?url=_astr'), true);
+		assert.equal(img.attr('src').startsWith('/_vercel/image?url=%2F_astr'), true);
 		assert.equal(img.attr('loading'), 'lazy');
 		assert.equal(img.attr('width'), '225');
 	});
