@@ -347,7 +347,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			}
 		}
 		if (!routeData) {
-			routeData = this.match(request, true);
+			routeData = this.match(request);
 			this.logger.debug('router', 'Astro matched the following route for ' + request.url);
 			this.logger.debug('router', 'RouteData:\n' + routeData);
 		}
