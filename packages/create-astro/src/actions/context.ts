@@ -18,7 +18,7 @@ export interface Context {
 	add?: string[];
 	dryRun?: boolean;
 	yes?: boolean;
-	projectName?: string;
+	projectName?: string | undefined;
 	template?: string;
 	ref: string;
 	install?: boolean;
