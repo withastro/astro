@@ -190,7 +190,7 @@ export class DevApp extends BaseApp<DevPipeline> {
 			if (value) incomingResponse.setHeader(name, value);
 		}
 
-		renderContext = await RenderContext.create({
+		renderContext = await this.createRenderContext({
 			locals,
 			pipeline: this.pipeline,
 			pathname,
@@ -256,7 +256,7 @@ export class DevApp extends BaseApp<DevPipeline> {
 		) {
 			const fourOhFourRoute = await matchRoute('/404', this.manifestData, this.pipeline);
 			if (fourOhFourRoute) {
-				renderContext = await RenderContext.create({
+				renderContext = await this.createRenderContext({
 					locals,
 					pipeline: this.pipeline,
 					pathname,
@@ -376,7 +376,7 @@ export class DevApp extends BaseApp<DevPipeline> {
 		try {
 			const filePath500 = new URL(`./${custom500.component}`, this.settings.config.root);
 			const preloaded500Component = await this.pipeline.preload(custom500, filePath500);
-			const renderContext = await RenderContext.create({
+			const renderContext = await this.createRenderContext({
 				locals,
 				pipeline: this.pipeline,
 				pathname: this.getPathnameFromRequest(request),
