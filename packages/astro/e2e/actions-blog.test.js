@@ -165,4 +165,25 @@ test.describe('Astro Actions - Blog', () => {
 		const p = page.locator('p').nth(0);
 		await expect(p).toContainText('Form result: {"data":3}');
 	});
+
+	test('Apply action - success', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/apply'));
+
+		const form = page.getByTestId('apply-form');
+		const nameInput = form.locator('input[name="name"]');
+		const emailInput = form.locator('input[name="email"]');
+
+		// Fill out the form
+		await nameInput.fill('John Doe');
+		await emailInput.fill('john.doe@example.com');
+
+		const submitButton = form.getByRole('button');
+		await submitButton.click();
+
+		// Check that the form was submitted successfully
+		const result = page.getByTestId('result');
+		await expect(result).toBeVisible();
+		await expect(result).toContainText('John Doe');
+		await expect(result).toContainText('john.doe@example.com');
+	});
 });

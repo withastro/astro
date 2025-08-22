@@ -56,6 +56,17 @@ export const server = {
 			},
 		}),
 
+		apply: defineAction({
+			accept: 'form',
+			input: z.object({
+				name: z.string().min(2),
+				email: z.string().email(),
+			}),
+			handler: async ({ name, email }) => {
+				return { name, email, submitted: true };
+			},
+		}),
+
 		lotsOfStuff: defineAction({
 			accept: 'form',
 			input: z.object({

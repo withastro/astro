@@ -13,7 +13,7 @@ const ENCODED_DOT = '%2E';
 function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 	return new Proxy(actionCallback, {
 		get(target, objKey) {
-			if (objKey in target || typeof objKey === 'symbol') {
+			if (target.hasOwnProperty(objKey) || typeof objKey === 'symbol') {
 				return target[objKey];
 			}
 			// Add the key, encoding dots so they're not interpreted as nested properties.
@@ -26,6 +26,9 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 			Object.assign(action, {
 				queryString: getActionQueryString(path),
 				toString: () => action.queryString,
+				// redefine prototype methods as the object's own property, not the prototype's
+				bind: action.bind,
+				valueOf: () => action.valueOf,
 				// Progressive enhancement info for React.
 				$$FORM_ACTION: function () {
 					const searchParams = new URLSearchParams(action.toString());
