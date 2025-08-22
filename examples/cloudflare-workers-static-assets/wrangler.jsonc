@@ -1,0 +1,8 @@
+{
+  "main": "dist/_worker.js/index.js",
+  "name": "@example/cloudflare-workers-static-assets",
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./dist"
+  }
+}
