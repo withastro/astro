@@ -158,7 +158,6 @@ export async function handleRoute({
 
 	let request: Request;
 	let renderContext: RenderContext;
-	let mod: ComponentInstance | undefined = undefined;
 	let route: RouteData;
 	const actions = await loadActions(loader);
 	pipeline.setActions(actions);
@@ -168,6 +167,8 @@ export async function handleRoute({
 
 	const { preloadedComponent } = matchedRoute;
 	route = matchedRoute.route;
+
+	const mod = await pipeline.loader.import(route.route);
 
 	// Allows adapters to pass in locals in dev mode.
 	request = createRequest({
@@ -185,7 +186,7 @@ export async function handleRoute({
 		if (value) incomingResponse.setHeader(name, value);
 	}
 
-	mod = preloadedComponent;
+	// mod = preloadedComponent;
 
 	renderContext = await RenderContext.create({
 		locals,
