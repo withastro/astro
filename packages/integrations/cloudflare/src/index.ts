@@ -224,13 +224,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			'astro:routes:resolved': ({ routes }) => {
 				_routes = routes;
 			},
-			'astro:config:done': ({ setAdapter, config, buildOutput, logger }) => {
-				if (buildOutput === 'static') {
-					logger.warn(
-						'[@astrojs/cloudflare] This adapter is intended to be used with server rendered pages, which this project does not contain any of. As such, this adapter is unnecessary.',
-					);
-				}
-
+			'astro:config:done': ({ setAdapter, config, buildOutput }) => {
 				_config = config;
 				finalBuildOutput = buildOutput;
 
