@@ -1,5 +1,20 @@
 # @astrojs/cloudflare
 
+## 12.6.5
+
+### Patch Changes
+
+- [#14259](https://github.com/withastro/astro/pull/14259) [`02366e9`](https://github.com/withastro/astro/commit/02366e9ce38df8e7362817c095ff05ae61dc7b56) Thanks [@ascorbic](https://github.com/ascorbic)! - Removes warning when using the adapter with a static build.
+
+  The Cloudflare adapter now has several uses outside of on-demand rendered pages, so this warning is misleading. Similar warnings have already been removed from other adapters.
+
+- [#14234](https://github.com/withastro/astro/pull/14234) [`15b55f3`](https://github.com/withastro/astro/commit/15b55f34cb84ecfb99d2e76918a567a00bbb13f6) Thanks [@yanthomasdev](https://github.com/yanthomasdev)! - Fixes an issue that could cause duplicate exports when configuring `workerEntrypoint.namedExports`
+
+- [#14240](https://github.com/withastro/astro/pull/14240) [`77b18fb`](https://github.com/withastro/astro/commit/77b18fb1f85cf1a0c8842bb6e32fd16a9198b974) Thanks [@delucis](https://github.com/delucis)! - Increases the minimum supported version of Astro to 5.7.0
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 12.6.4
 
 ### Patch Changes
