@@ -10,14 +10,17 @@ import {
 } from '../test-utils.js';
 
 const fileSystem = {
-	'/src/pages/api.ts': `export const GET = () => Response.json({ success: true })`,
-	'/src/pages/dot.json.ts': `export const GET = () => Response.json({ success: true })`,
+	'/src/pages/api.ts': `export const GET = () => new Response(JSON.stringify({ success: true }), { headers: { 'content-type': 'application/json' } })`,
+	'/src/pages/dot.json.ts': `export const GET = () => new Response(JSON.stringify({ success: true }), { headers: { 'content-type': 'application/json' } })`,
+	'/src/pages/pathname.ts': `export const GET = (ctx) => new Response(JSON.stringify({ pathname: ctx.url.pathname }), { headers: { 'content-type': 'application/json' } })`,
+	'/src/pages/subpage.ts': `export const GET = (ctx) => new Response(JSON.stringify({ pathname: ctx.url.pathname }), { headers: { 'content-type': 'application/json' } })`,
 };
 
 describe('trailingSlash', () => {
 	let fixture;
 	let container;
 	let baseContainer;
+	let rootPathContainer;
 
 	before(async () => {
 		fixture = await createFixture(fileSystem);
@@ -80,11 +83,39 @@ describe('trailingSlash', () => {
 			settings: baseSettings,
 			logger: defaultLogger,
 		});
+
+		// Create a container specifically for testing root path with base
+		const rootPathSettings = await createBasicSettings({
+			root: fixture.path,
+			trailingSlash: 'never',
+			base: '/mybase',
+			output: 'server',
+			adapter: testAdapter(),
+			integrations: [
+				{
+					name: 'test',
+					hooks: {
+						'astro:config:setup': ({ injectRoute }) => {
+							// Inject a route at the root that returns Astro.url.pathname
+							injectRoute({
+								pattern: '/',
+								entrypoint: './src/pages/pathname.ts',
+							});
+						},
+					},
+				},
+			],
+		});
+		rootPathContainer = await createContainer({
+			settings: rootPathSettings,
+			logger: defaultLogger,
+		});
 	});
 
 	after(async () => {
 		await container.close();
 		await baseContainer.close();
+		await rootPathContainer.close();
 	});
 
 	// Tests for trailingSlash: 'always'
@@ -180,5 +211,43 @@ describe('trailingSlash', () => {
 		const html = await text();
 		assert.equal(html.includes(`<span class="statusMessage">Not found</span>`), true);
 		assert.equal(res.statusCode, 404);
+	});
+
+	// Test for issue #13736: Astro.url.pathname should respect trailingSlash config with base
+	it('Astro.url.pathname should not have trailing slash on root path when base is set and trailingSlash is never', async () => {
+		const { req, res, text } = createRequestAndResponse({
+			method: 'GET',
+			url: '/mybase',
+		});
+		rootPathContainer.handle(req, res);
+		const json = await text();
+		const data = JSON.parse(json);
+		// The pathname should be /mybase without trailing slash (the core issue from #13736)
+		assert.equal(data.pathname, '/mybase');
+		assert.equal(res.statusCode, 200);
+	});
+
+	it('should return correct Astro.url.pathname for pages with base and trailingSlash never', async () => {
+		const { req, res, text } = createRequestAndResponse({
+			method: 'GET',
+			url: '/base/pathname',
+		});
+		baseContainer.handle(req, res);
+		const json = await text();
+		const data = JSON.parse(json);
+		// The pathname should be /base/pathname without trailing slash
+		assert.equal(data.pathname, '/base/pathname');
+	});
+
+	it('should return correct Astro.url.pathname for subpage with base and trailingSlash never', async () => {
+		const { req, res, text } = createRequestAndResponse({
+			method: 'GET',
+			url: '/base/subpage',
+		});
+		baseContainer.handle(req, res);
+		const json = await text();
+		const data = JSON.parse(json);
+		// The pathname should be /base/subpage without trailing slash
+		assert.equal(data.pathname, '/base/subpage');
 	});
 });
