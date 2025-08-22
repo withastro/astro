@@ -51,7 +51,7 @@ const service: ExternalImageService = {
 
 		// For non-SVG files, continue with the Vercel image processing
 		const fileSrc = isESMImportedImage(options.src)
-			? removeLeadingForwardSlash(options.src.src)
+			? options.src.src
 			: options.src;
 
 		const searchParams = new URLSearchParams();
@@ -63,9 +63,5 @@ const service: ExternalImageService = {
 		return '/_vercel/image?' + searchParams;
 	},
 };
-
-function removeLeadingForwardSlash(path: string) {
-	return path.startsWith('/') ? path.substring(1) : path;
-}
 
 export default service;
