@@ -47,6 +47,15 @@ export const apiContextRoutesSymbol = Symbol.for('context.routes');
  * Each request is rendered using a `RenderContext`.
  * It contains data unique to each request. It is responsible for executing middleware, calling endpoints, and rendering the page by gathering necessary data from a `Pipeline`.
  */
+
+export type CreateRenderContext = Pick<
+	RenderContext,
+	'pathname' | 'pipeline' | 'request' | 'routeData' | 'clientAddress'
+> &
+	Partial<
+		Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props' | 'partial' | 'actions'>
+	>;
+
 export class RenderContext {
 	private constructor(
 		readonly pipeline: Pipeline,
@@ -93,20 +102,7 @@ export class RenderContext {
 		props,
 		partial = undefined,
 		actions,
-		shouldInjectCspMetaTags,
-	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData' | 'clientAddress'> &
-		Partial<
-			Pick<
-				RenderContext,
-				| 'locals'
-				| 'middleware'
-				| 'status'
-				| 'props'
-				| 'partial'
-				| 'actions'
-				| 'shouldInjectCspMetaTags'
-			>
-		>): Promise<RenderContext> {
+	}: CreateRenderContext): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
 		const pipelineActions = actions ?? (await pipeline.getActions());
 		setOriginPathname(
