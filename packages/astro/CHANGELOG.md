@@ -1,5 +1,15 @@
 # astro
 
+## 5.13.3
+
+### Patch Changes
+
+- [#14239](https://github.com/withastro/astro/pull/14239) [`d7d93e1`](https://github.com/withastro/astro/commit/d7d93e19fbfa52cf74dee40f5af6b7ea6a7503d2) Thanks [@wtchnm](https://github.com/wtchnm)! - Fixes a bug where the types for the live content collections were not being generated correctly in dev mode
+
+- [#14221](https://github.com/withastro/astro/pull/14221) [`eadc9dd`](https://github.com/withastro/astro/commit/eadc9dd277d0075d7bff0e33c7a86f3fb97fdd61) Thanks [@delucis](https://github.com/delucis)! - Fixes JSON schema support for content collections using the `file()` loader
+
+- [#14229](https://github.com/withastro/astro/pull/14229) [`1a9107a`](https://github.com/withastro/astro/commit/1a9107a4049f43c1e4e9f40e07033f6bfe4398e4) Thanks [@jonmichaeldarby](https://github.com/jonmichaeldarby)! - Ensures `Astro.currentLocale` returns the correct locale during SSG for pages that use a locale param (such as `[locale].astro` or `[locale]/index.astro`, which produce `[locale].html`)
+
 ## 5.13.2
 
 ### Patch Changes
