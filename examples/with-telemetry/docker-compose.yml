@@ -1,0 +1,31 @@
+volumes:
+  developmentData:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/development
+
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:1.71.0
+    ports:
+      - '6831:6831/udp'
+      - '16686:16686'
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - './prometheus.yaml:/etc/prometheus/prometheus.yml'
+    ports:
+      - '9090:9090'
+
+  otel:
+    image: otel/opentelemetry-collector-contrib:0.131.0
+    command: --config /config/otel.yaml
+    volumes:
+      - ./otel.yaml:/config/otel.yaml:ro
+    ports:
+      - '4317:4317'
+      - '4318:4318'
+      - '8888:8888'
+      - '8889:8889'

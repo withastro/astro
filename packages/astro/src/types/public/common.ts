@@ -111,6 +111,8 @@ export type MiddlewareHandler = (
 	next: MiddlewareNext,
 ) => Promise<Response> | Response | Promise<void> | void;
 
+export type NamedMiddlewareHandler = readonly [string, MiddlewareHandler];
+
 // NOTE: when updating this file with other functions,
 // remember to update `plugin-page.ts` too, to add that function as a no-op function.
 export type AstroMiddlewareInstance = {
