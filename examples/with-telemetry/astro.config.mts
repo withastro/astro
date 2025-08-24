@@ -10,21 +10,7 @@ export default defineConfig({
 	adapter: node({
 		mode: 'standalone',
 	}),
-	integrations: [
-		svelte(),
-		opentelemetry({}),
-		{
-			name: 'test-integration',
-			hooks: {
-				'astro:config:setup': ({ addMiddleware }) => {
-					addMiddleware({
-						entrypoint: fileURLToPath(new URL('./src/middleware.ts', import.meta.url)),
-						order: 'pre',
-					});
-				},
-			},
-		},
-	],
+	integrations: [svelte(), opentelemetry()],
 	vite: {
 		build: {
 			sourcemap: true,
