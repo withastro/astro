@@ -19,4 +19,4 @@ export default defineConfig({
 });
 ```
 
-For more information, see the [`@astrojs/db` documentation](https://docs.astro.build/en/guides/integrations-guide/db/).
+For more information, see the [`@astrojs/db` documentation](https://docs.astro.build/en/guides/integrations-guide/db/#mode).
