@@ -4426,6 +4426,15 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/test-ssr-trailing-slash:
+    dependencies:
+      '@astrojs/node':
+        specifier: ^8.0.0
+        version: 8.3.4(astro@file:packages/astro(@netlify/blobs@10.0.8)(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(rollup@4.40.2)(sass@1.86.3)(typescript@5.8.3)(yaml@2.8.0))
+      astro:
+        specifier: file:../../
+        version: file:packages/astro(@netlify/blobs@10.0.8)(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(rollup@4.40.2)(sass@1.86.3)(typescript@5.8.3)(yaml@2.8.0)
+
   packages/astro/test/units/_temp-fixtures:
     dependencies:
       '@astrojs/mdx':
@@ -6461,6 +6470,12 @@ packages:
         optional: true
       prettier-plugin-astro:
         optional: true
+
+  '@astrojs/node@8.3.4':
+    resolution: {integrity: sha512-xzQs39goN7xh9np9rypGmbgZj3AmmjNxEMj9ZWz5aBERlqqFF3n8A/w/uaJeZ/bkHS60l1BXVS0tgsQt9MFqBA==}
+    version: 8.3.4
+    peerDependencies:
+      astro: ^4.2.0
 
   '@astrojs/yaml2ts@0.2.1':
     resolution: {integrity: sha512-CBaNwDQJz20E5WxzQh4thLVfhB3JEEGz72wRA+oJp6fQR37QLAqXZJU0mHC+yqMOQ6oj0GfRPJrz6hjf+zm6zA==}
@@ -9556,6 +9571,11 @@ packages:
   astro-remote@0.3.4:
     resolution: {integrity: sha512-jL5skNQLA0YBc1R3bVGXyHew3FqGqsT7AgLzWAVeTLzFkwVMUYvs4/lKJSmS7ygcF1GnHnoKG6++8GL9VtWwGQ==}
     engines: {node: '>=18.14.1'}
+
+  astro@file:packages/astro:
+    resolution: {directory: packages/astro, type: directory}
+    engines: {node: 18.20.8 || ^20.3.0 || >=22.0.0, npm: '>=9.6.5', pnpm: '>=7.1.0'}
+    hasBin: true
 
   async-sema@3.1.1:
     resolution: {integrity: sha512-tLRNUXati5MFePdAk8dw7Qt7DpxPB60ofAgn8WRhW6a2rcimZnYBP9oxHiv0OHy+Wz7kPMG+t4LGdt31+4EmGg==}
@@ -14329,6 +14349,14 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
+  '@astrojs/node@8.3.4(astro@file:packages/astro(@netlify/blobs@10.0.8)(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(rollup@4.40.2)(sass@1.86.3)(typescript@5.8.3)(yaml@2.8.0))':
+    dependencies:
+      astro: file:packages/astro(@netlify/blobs@10.0.8)(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(rollup@4.40.2)(sass@1.86.3)(typescript@5.8.3)(yaml@2.8.0)
+      send: 0.19.0
+      server-destroy: 1.0.1
+    transitivePeerDependencies:
+      - supports-color
+
   '@astrojs/yaml2ts@0.2.1':
     dependencies:
       yaml: 2.8.0
@@ -17510,6 +17538,107 @@ snapshots:
       marked-footnote: 1.2.4(marked@12.0.2)
       marked-smartypants: 1.1.8(marked@12.0.2)
       ultrahtml: 1.6.0
+
+  astro@file:packages/astro(@netlify/blobs@10.0.8)(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(rollup@4.40.2)(sass@1.86.3)(typescript@5.8.3)(yaml@2.8.0):
+    dependencies:
+      '@astrojs/compiler': 2.12.2
+      '@astrojs/internal-helpers': link:packages/internal-helpers
+      '@astrojs/markdown-remark': link:packages/markdown/remark
+      '@astrojs/telemetry': link:packages/telemetry
+      '@capsizecss/unpack': 2.4.0
+      '@oslojs/encoding': 1.1.0
+      '@rollup/pluginutils': 5.1.4(rollup@4.40.2)
+      acorn: 8.15.0
+      aria-query: 5.3.2
+      axobject-query: 4.1.0
+      boxen: 8.0.1
+      ci-info: 4.2.0
+      clsx: 2.1.1
+      common-ancestor-path: 1.0.1
+      cookie: 1.0.2
+      cssesc: 3.0.0
+      debug: 4.4.1
+      deterministic-object-hash: 2.0.2
+      devalue: 5.1.1
+      diff: 5.2.0
+      dlv: 1.1.3
+      dset: 3.1.4
+      es-module-lexer: 1.6.0
+      esbuild: 0.25.5
+      estree-walker: 3.0.3
+      flattie: 1.1.1
+      fontace: 0.3.0
+      github-slugger: 2.0.0
+      html-escaper: 3.0.3
+      http-cache-semantics: 4.1.1
+      import-meta-resolve: 4.1.0
+      js-yaml: 4.1.0
+      kleur: 4.1.5
+      magic-string: 0.30.17
+      magicast: 0.3.5
+      mrmime: 2.0.1
+      neotraverse: 0.6.18
+      p-limit: 6.2.0
+      p-queue: 8.1.0
+      package-manager-detector: 1.1.0
+      picomatch: 4.0.2
+      prompts: 2.4.2
+      rehype: 13.0.2
+      semver: 7.7.2
+      shiki: 3.2.1
+      smol-toml: 1.3.4
+      tinyexec: 0.3.2
+      tinyglobby: 0.2.14
+      tsconfck: 3.1.5(typescript@5.8.3)
+      ultrahtml: 1.6.0
+      unifont: 0.5.0
+      unist-util-visit: 5.0.0
+      unstorage: 1.16.1(@netlify/blobs@10.0.8)
+      vfile: 6.0.3
+      vite: 6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0)
+      vitefu: 1.0.6(vite@6.3.5(@types/node@22.13.1)(jiti@2.4.2)(lightningcss@1.29.2)(sass@1.86.3)(yaml@2.8.0))
+      xxhash-wasm: 1.1.0
+      yargs-parser: 21.1.1
+      yocto-spinner: 0.2.1
+      zod: 3.25.76
+      zod-to-json-schema: 3.24.5(zod@3.25.76)
+      zod-to-ts: 1.2.0(typescript@5.8.3)(zod@3.25.76)
+    optionalDependencies:
+      sharp: 0.33.5
+    transitivePeerDependencies:
+      - '@azure/app-configuration'
+      - '@azure/cosmos'
+      - '@azure/data-tables'
+      - '@azure/identity'
+      - '@azure/keyvault-secrets'
+      - '@azure/storage-blob'
+      - '@capacitor/preferences'
+      - '@deno/kv'
+      - '@netlify/blobs'
+      - '@planetscale/database'
+      - '@types/node'
+      - '@upstash/redis'
+      - '@vercel/blob'
+      - '@vercel/kv'
+      - aws4fetch
+      - db0
+      - encoding
+      - idb-keyval
+      - ioredis
+      - jiti
+      - less
+      - lightningcss
+      - rollup
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - tsx
+      - typescript
+      - uploadthing
+      - yaml
 
   async-sema@3.1.1: {}
 
