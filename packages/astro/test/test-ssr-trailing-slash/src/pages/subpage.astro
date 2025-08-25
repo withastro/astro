@@ -1,0 +1,11 @@
+---
+export const prerender = false;
+---
+<html>
+<head><title>Subpage</title></head>
+<body>
+	<h1>Subpage Test</h1>
+	<p>Astro.url.pathname: {Astro.url.pathname}</p>
+	<pre>{JSON.stringify({ pathname: Astro.url.pathname }, null, 2)}</pre>
+</body>
+</html>
