@@ -4463,13 +4463,13 @@ importers:
     dependencies:
       '@libsql/client':
         specifier: ^0.15.2
-        version: 0.15.12
+        version: 0.15.13
       deep-diff:
         specifier: ^1.0.2
         version: 1.0.2
       drizzle-orm:
         specifier: ^0.42.0
-        version: 0.42.0(@cloudflare/workers-types@4.20250826.0)(@libsql/client@0.15.12)
+        version: 0.42.0(@cloudflare/workers-types@4.20250826.0)(@libsql/client@0.15.13)
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
@@ -8107,19 +8107,19 @@ packages:
     resolution: {integrity: sha512-n5JEf16Wr4mdkRMZ8wMP/wN9/sHmTjRPbouXjJH371mZ2LEGDl72t8tEsMRNFerQN/QJtivOxqK1frdGa4QK5Q==}
     engines: {node: '>=10'}
 
-  '@libsql/client@0.15.12':
-    resolution: {integrity: sha512-JIqB0XsNrqYqBQZuhcgZdTcQoNOoQ5AMF+1yxc7vcZrLtm42QJwRazmTuBfyDwtWASEmVgjxeaLF4NT1iyVX8g==}
+  '@libsql/client@0.15.13':
+    resolution: {integrity: sha512-EnpDWaczD7g9OHq04SnsiT7IF9p9vr9ePUa2oNwP2lbUUJFagVbtAmS7GwBAjryO2wK96WWWFAKvu1J7LB8bnQ==}
 
-  '@libsql/core@0.15.12':
-    resolution: {integrity: sha512-S3tF6885ZizVjfym7f8SevL2VId/+DzxiKmP5zFbrhA8oMLh2XH8bYXChmhab7o9qUSHx+XjK4jCFpUwR5g+Ig==}
+  '@libsql/core@0.15.13':
+    resolution: {integrity: sha512-FbV2sqjqyALAZn1pdK6/yuRpYK5c2zILNklOhznJwc+qIivQBUOxiFASvo+cJG1K6ELh4sdDNKhrMXLqiQH36A==}
 
-  '@libsql/darwin-arm64@0.5.18':
-    resolution: {integrity: sha512-9+6O9cpg9iKwTrLXZdq8Jk4WX4hTIQmSsFZQzdWyVqYtMhrFjXCDwbfF5uFCCK56JUuPobUvOQMNI2xSfcBMiA==}
+  '@libsql/darwin-arm64@0.5.19':
+    resolution: {integrity: sha512-CX3qSDz7HACL2xDrxkoKIzoWM8KggMW4qw14cdOfvG6yrRhowaZTB95S80rF1m3U4C+VwmIjMxiR668bEV79Vw==}
     cpu: [arm64]
     os: [darwin]
 
-  '@libsql/darwin-x64@0.5.18':
-    resolution: {integrity: sha512-fLeanuwZBSGEt01BvRmLd16niJd2dbdFh3gV9Y6fG2S52yxyXA6NAYCkGhxl5WEHPYD6DmU+Xew8bYeiKQ5r+Q==}
+  '@libsql/darwin-x64@0.5.19':
+    resolution: {integrity: sha512-cbd4qEs3l+uESlDxG9dPoDOlmPYtDl3DFWeJXB80v/mrNfjOA6Hy4H3uZEXccNLiMCoeCO925/77Wy8fQu0cBQ==}
     cpu: [x64]
     os: [darwin]
 
@@ -8133,38 +8133,38 @@ packages:
   '@libsql/isomorphic-ws@0.1.5':
     resolution: {integrity: sha512-DtLWIH29onUYR00i0GlQ3UdcTRC6EP4u9w/h9LxpUZJWRMARk6dQwZ6Jkd+QdwVpuAOrdxt18v0K2uIYR3fwFg==}
 
-  '@libsql/linux-arm-gnueabihf@0.5.18':
-    resolution: {integrity: sha512-ZlqZY3zWmUPdA6LP+lB7WQw0OEKZWglPZdIka29/FFuhaOCeRp8J51LVuPXx589/tdKcCg8IAqpifEK0vdBOiQ==}
+  '@libsql/linux-arm-gnueabihf@0.5.19':
+    resolution: {integrity: sha512-faALiBFerlJgeonl1j3ucxI7sIZKkv63t9EVcDBiVhg/rCGgLwKHpj8cbGepffHKHshIQFikngwWl/UYZYpWyg==}
     cpu: [arm]
     os: [linux]
 
-  '@libsql/linux-arm-musleabihf@0.5.18':
-    resolution: {integrity: sha512-DTVnMjSIzLeGVfQjyPqdJLFxNhZlobdwS6fAdQsIbuhYY0/jngDa2SxqDx24cvFKYHKo7p0Feu0/wDLiaqt2fg==}
+  '@libsql/linux-arm-musleabihf@0.5.19':
+    resolution: {integrity: sha512-6bDjCmgOvLP6nWKj2mAsDsRJxHAjUBC7Zkgh0wpihA9fAdk3jO0CL5Qvh3URSvtbcorbfnNaCvh2dCV+HzG8xg==}
     cpu: [arm]
     os: [linux]
 
-  '@libsql/linux-arm64-gnu@0.5.18':
-    resolution: {integrity: sha512-49aWPzDi62w2AAWFJcuuxaNOHoN8CwNvHf4x0+OTlCPelq4rVkiBIb8Rss46si80HGPCutcjPNQfbc639Kp5BA==}
+  '@libsql/linux-arm64-gnu@0.5.19':
+    resolution: {integrity: sha512-czThqjdphX0zauHjU/CxtIzIK8zs6H3GTrtILhSXaMoScC3VuhMDgf7AHQplzdpF7G7O4PWwuJ5tHb37dqKhKQ==}
     cpu: [arm64]
     os: [linux]
 
-  '@libsql/linux-arm64-musl@0.5.18':
-    resolution: {integrity: sha512-3RrBEF6KmQXHmQjCD0nFDGjhg/OnyoWy0Tvcrjh8a7cxbZNT4v6BlMg2H8+0k/gx2NDDjwaLBVWp5ZpRf8ZvZA==}
+  '@libsql/linux-arm64-musl@0.5.19':
+    resolution: {integrity: sha512-VzYmLv8Ukoe1WI0A9Wmg77UMNqfMvxMbEbY133f2+8wpRTJV0LV0Pj6wx1IF0Z19q8+D7hu34eZqSLjMFT3kgQ==}
     cpu: [arm64]
     os: [linux]
 
-  '@libsql/linux-x64-gnu@0.5.18':
-    resolution: {integrity: sha512-FElxEkEBLL3U+6Gh6YOn/L5fAZkbH9fQWhi8q80aF+wwHmH4u5eEGjmvGUzeiSz9VogOT8TmVH0BSWyx4fcv0w==}
+  '@libsql/linux-x64-gnu@0.5.19':
+    resolution: {integrity: sha512-4iK7LYccj0diomKMzLHKzoAB4Q5PkuLSSp+MlQUirLRHqWPKfI264WJQ/dxOJ1Qoi89jZc+IYnB1iknsQFvpfA==}
     cpu: [x64]
     os: [linux]
 
-  '@libsql/linux-x64-musl@0.5.18':
-    resolution: {integrity: sha512-dI89UjZmRkWDfVpsJIqqB94JAuIPZccJKQ35VsKHpe1g0mU/uWV5jZMMzHVgj+sByL2m76cnV9nKeYNgXplqpw==}
+  '@libsql/linux-x64-musl@0.5.19':
+    resolution: {integrity: sha512-F5DgJMpYHlYi9EjwtIgetxKQ5/o009m/Aeo8uNYWXeJb20IYyawDxKHFonvCr5koZZaiqntRfUQuFECIutuRLw==}
     cpu: [x64]
     os: [linux]
 
-  '@libsql/win32-x64-msvc@0.5.18':
-    resolution: {integrity: sha512-xI2zsw6VUDC9/1nfNhPIVUwQnyWfZQF1XWJl73pbDYJfETXp84dHwjQEhMOGGaiM7THTk8MQzSXCcMaBPsH1jA==}
+  '@libsql/win32-x64-msvc@0.5.19':
+    resolution: {integrity: sha512-B+LXnNSQXjxBgl1Xyw1zRISk+ajwI2KBq/NQDdmLYgkBKxRol677BmwHhO7CnFMU1flFaJKWRd3abcxOQxZf1Q==}
     cpu: [x64]
     os: [win32]
 
@@ -11293,8 +11293,8 @@ packages:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
 
-  libsql@0.5.18:
-    resolution: {integrity: sha512-04DIt5a+/8H1WYNemt2VCAyXKbNHDFIwP9MtTYLz2vP9F1ipKziO0KR+f/EDphuJOJQCBPsqv/IqK+kVoZj77Q==}
+  libsql@0.5.19:
+    resolution: {integrity: sha512-0+QUpmw/y21uSUwWGb4m653z37toBZ5cJChD2Bmvb/oQN6FHk9D4h94Dg19riRgVJy52pu0UXypminc5DePxJQ==}
     cpu: [x64, arm64, wasm32, arm]
     os: [darwin, linux, win32]
 
@@ -15607,25 +15607,25 @@ snapshots:
 
   '@jsdevtools/rehype-toc@3.0.2': {}
 
-  '@libsql/client@0.15.12':
+  '@libsql/client@0.15.13':
     dependencies:
-      '@libsql/core': 0.15.12
+      '@libsql/core': 0.15.13
       '@libsql/hrana-client': 0.7.0
       js-base64: 3.7.8
-      libsql: 0.5.18
+      libsql: 0.5.19
       promise-limit: 2.7.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@libsql/core@0.15.12':
+  '@libsql/core@0.15.13':
     dependencies:
       js-base64: 3.7.8
 
-  '@libsql/darwin-arm64@0.5.18':
+  '@libsql/darwin-arm64@0.5.19':
     optional: true
 
-  '@libsql/darwin-x64@0.5.18':
+  '@libsql/darwin-x64@0.5.19':
     optional: true
 
   '@libsql/hrana-client@0.7.0':
@@ -15648,25 +15648,25 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@libsql/linux-arm-gnueabihf@0.5.18':
+  '@libsql/linux-arm-gnueabihf@0.5.19':
     optional: true
 
-  '@libsql/linux-arm-musleabihf@0.5.18':
+  '@libsql/linux-arm-musleabihf@0.5.19':
     optional: true
 
-  '@libsql/linux-arm64-gnu@0.5.18':
+  '@libsql/linux-arm64-gnu@0.5.19':
     optional: true
 
-  '@libsql/linux-arm64-musl@0.5.18':
+  '@libsql/linux-arm64-musl@0.5.19':
     optional: true
 
-  '@libsql/linux-x64-gnu@0.5.18':
+  '@libsql/linux-x64-gnu@0.5.19':
     optional: true
 
-  '@libsql/linux-x64-musl@0.5.18':
+  '@libsql/linux-x64-musl@0.5.19':
     optional: true
 
-  '@libsql/win32-x64-msvc@0.5.18':
+  '@libsql/win32-x64-msvc@0.5.19':
     optional: true
 
   '@lit-labs/ssr-dom-shim@1.4.0': {}
@@ -17937,10 +17937,10 @@ snapshots:
 
   dotenv@8.6.0: {}
 
-  drizzle-orm@0.42.0(@cloudflare/workers-types@4.20250826.0)(@libsql/client@0.15.12):
+  drizzle-orm@0.42.0(@cloudflare/workers-types@4.20250826.0)(@libsql/client@0.15.13):
     optionalDependencies:
       '@cloudflare/workers-types': 4.20250826.0
-      '@libsql/client': 0.15.12
+      '@libsql/client': 0.15.13
 
   dset@3.1.4: {}
 
@@ -19224,20 +19224,20 @@ snapshots:
       prelude-ls: 1.2.1
       type-check: 0.4.0
 
-  libsql@0.5.18:
+  libsql@0.5.19:
     dependencies:
       '@neon-rs/load': 0.0.4
       detect-libc: 2.0.2
     optionalDependencies:
-      '@libsql/darwin-arm64': 0.5.18
-      '@libsql/darwin-x64': 0.5.18
-      '@libsql/linux-arm-gnueabihf': 0.5.18
-      '@libsql/linux-arm-musleabihf': 0.5.18
-      '@libsql/linux-arm64-gnu': 0.5.18
-      '@libsql/linux-arm64-musl': 0.5.18
-      '@libsql/linux-x64-gnu': 0.5.18
-      '@libsql/linux-x64-musl': 0.5.18
-      '@libsql/win32-x64-msvc': 0.5.18
+      '@libsql/darwin-arm64': 0.5.19
+      '@libsql/darwin-x64': 0.5.19
+      '@libsql/linux-arm-gnueabihf': 0.5.19
+      '@libsql/linux-arm-musleabihf': 0.5.19
+      '@libsql/linux-arm64-gnu': 0.5.19
+      '@libsql/linux-arm64-musl': 0.5.19
+      '@libsql/linux-x64-gnu': 0.5.19
+      '@libsql/linux-x64-musl': 0.5.19
+      '@libsql/win32-x64-msvc': 0.5.19
 
   lightningcss-darwin-arm64@1.30.1:
     optional: true
