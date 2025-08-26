@@ -306,10 +306,10 @@ describe('CSP', () => {
 
 	it('should generate hashes and directives for fonts', async () => {
 		fixture = await loadFixture({
-			root: './fixtures/csp/',
+			root: './fixtures/csp-fonts/',
 		});
 		await fixture.build();
-		const html = await fixture.readFile('/fonts/index.html');
+		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 
 		/**
@@ -334,7 +334,7 @@ describe('CSP', () => {
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
 		const parsed = parseCsp(meta.attr('content').toString());
 		assert.ok(
-			parsed.find((e) => e.directive === 'style-src')?.resources.length === 5,
+			parsed.find((e) => e.directive === 'style-src')?.resources.length === 2,
 			'Style hash is not injected by vite-plugin-fonts',
 		);
 		assert.deepStrictEqual(parsed.find((e) => e.directive === 'font-src')?.resources, [
@@ -342,6 +342,18 @@ describe('CSP', () => {
 			'https://fonts.cdn.test.com',
 			'https://fonts.cdn.example.com',
 		]);
+	});
+
+	it('should not inject self by default if fonts are not used', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+		});
+		await fixture.build();
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		assert.equal(meta.attr('content').toString().includes('font-src'), false);
 	});
 
 	it('should return CSP header inside a hook', async () => {

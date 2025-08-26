@@ -35,7 +35,7 @@ export function renderCspContent(result: SSRResult): string {
 		styleResources = result.styleResources.map((r) => `${r}`).join(' ');
 	}
 
-	let fontResources = "'self'";
+	let fontResources;
 	if (result.fontResources.length > 0) {
 		fontResources = result.fontResources.map((r) => `${r}`).join(' ');
 	}
@@ -43,6 +43,10 @@ export function renderCspContent(result: SSRResult): string {
 	const strictDynamic = result.isStrictDynamic ? ` 'strict-dynamic'` : '';
 	const scriptSrc = `script-src ${scriptResources} ${Array.from(finalScriptHashes).join(' ')}${strictDynamic};`;
 	const styleSrc = `style-src ${styleResources} ${Array.from(finalStyleHashes).join(' ')};`;
-	const fontSrc = `font-src ${fontResources};`;
-	return `${directives} ${scriptSrc} ${styleSrc} ${fontSrc}`;
+	return [
+		directives,
+		scriptSrc,
+		styleSrc,
+		...(fontResources ? [`font-src ${fontResources};`] : []),
+	].join(' ');
 }
