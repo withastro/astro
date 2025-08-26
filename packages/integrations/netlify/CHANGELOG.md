@@ -1,5 +1,22 @@
 # @astrojs/netlify
 
+## 6.5.8
+
+### Patch Changes
+
+- [#14240](https://github.com/withastro/astro/pull/14240) [`77b18fb`](https://github.com/withastro/astro/commit/77b18fb1f85cf1a0c8842bb6e32fd16a9198b974) Thanks [@delucis](https://github.com/delucis)! - Increases the minimum supported version of Astro to 5.7.0
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.5.7
+
+### Patch Changes
+
+- Updated dependencies [[`4d16de7`](https://github.com/withastro/astro/commit/4d16de7f95db5d1ec1ce88610d2a95e606e83820)]:
+  - @astrojs/internal-helpers@0.7.2
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 6.5.6
 
 ### Patch Changes
