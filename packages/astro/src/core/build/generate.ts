@@ -695,10 +695,6 @@ async function createBuildManifest(
 			...settings.injectedCsp.styleHashes,
 			...(await trackStyleHashes(internals, settings, algorithm)),
 		];
-		const fontResources = [
-			...getFontResources(settings.config.experimental.csp),
-			...settings.injectedCsp.fontResources,
-		];
 
 		csp = {
 			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
@@ -711,7 +707,7 @@ async function createBuildManifest(
 			algorithm,
 			directives: getDirectives(settings.config.experimental.csp),
 			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
-			fontResources,
+			fontResources: getFontResources(settings),
 		};
 	}
 	return {

@@ -51,11 +51,24 @@ export function getStyleResources(csp: EnabledCsp): string[] {
 	return csp.styleDirective?.resources ?? [];
 }
 
-export function getFontResources(csp: EnabledCsp): string[] {
-	if (csp === true) {
+// Unlike other helpers like getStyleResources, getFontResources has more logic
+// because it has to collect and deduplicate font resources from both the user
+// config and the vite plugin for fonts
+export function getFontResources(settings: AstroSettings): string[] {
+	const { csp } = settings.config.experimental;
+	if (!shouldTrackCspHashes(csp)) {
 		return [];
 	}
-	return csp.fontDirectiveResources ?? [];
+	const resources = new Set<string>();
+	if (csp !== true && csp.fontDirectiveResources) {
+		for (const resource of csp.fontDirectiveResources) {
+			resources.add(resource);
+		}
+	}
+	for (const resource of settings.injectedCsp.fontResources.values()) {
+		resources.add(resource);
+	}
+	return Array.from(resources);
 }
 
 export function getDirectives(csp: EnabledCsp): CspDirective[] {

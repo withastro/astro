@@ -237,10 +237,6 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			...getStyleHashes(settings.config.experimental.csp),
 			...settings.injectedCsp.styleHashes,
 		];
-		const fontResources = [
-			...getFontResources(settings.config.experimental.csp),
-			...settings.injectedCsp.fontResources,
-		];
 
 		csp = {
 			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
@@ -253,7 +249,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			algorithm: getAlgorithm(settings.config.experimental.csp),
 			directives: getDirectives(settings.config.experimental.csp),
 			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
-			fontResources,
+			fontResources: getFontResources(settings),
 		};
 	}
 
