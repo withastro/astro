@@ -4,22 +4,24 @@ import react from '@astrojs/react';
 
 export default defineConfig({
 	experimental: {
-		csp: true,
+		csp: {
+			fontDirectiveResources: ["'self'", 'https://fonts.cdn.test.com'],
+		},
 		fonts: [
 			{
 				name: 'Roboto',
 				cssVariable: '--font-roboto',
 				provider: 'local',
-				variants: [{
-					weight: 400,
-					style: 'normal',
-					src: ['./src/fonts/roboto-normal-400.woff2']
-				}],
-				optimizedFallbacks: false
+				variants: [
+					{
+						weight: 400,
+						style: 'normal',
+						src: ['./src/fonts/roboto-normal-400.woff2'],
+					},
+				],
+				optimizedFallbacks: false,
 			},
 		],
 	},
-	integrations: [
-		react()
-	],
+	integrations: [react()],
 });
