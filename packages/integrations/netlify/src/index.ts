@@ -490,7 +490,10 @@ export default function netlifyIntegration(
 		});
 	}
 
-	function getLocalDevNetlifyContext(req: IncomingMessage): Context {
+	function getLocalDevNetlifyContext(
+		req: IncomingMessage,
+		promises: Array<Promise<unknown>>,
+	): Context {
 		const isHttps = req.headers['x-forwarded-proto'] === 'https';
 		const parseBase64JSON = <T = unknown>(header: string): T | undefined => {
 			if (typeof req.headers[header] === 'string') {
@@ -501,16 +504,22 @@ export default function netlifyIntegration(
 		};
 
 		const context: Context = {
+			get url(): never {
+				throw new Error('Please use Astro.url instead.');
+			},
+			waitUntil: (promise) => {
+				promises.push(promise);
+			},
 			account: parseBase64JSON('x-nf-account-info') ?? {
 				id: 'mock-netlify-account-id',
 			},
-			// TODO: this has type conflicts with @netlify/functions ^2.8.1
-			// @ts-expect-error: this has type conflicts with @netlify/functions ^2.8.1
 			deploy: {
+				context: 'dev',
 				id:
 					typeof req.headers['x-nf-deploy-id'] === 'string'
 						? req.headers['x-nf-deploy-id']
 						: 'mock-netlify-deploy-id',
+				published: false,
 			},
 			site: parseBase64JSON('x-nf-site-info') ?? {
 				id: 'mock-netlify-site-id',
@@ -693,12 +702,25 @@ export default function netlifyIntegration(
 				if (existingSessionModule) {
 					server.moduleGraph.invalidateModule(existingSessionModule);
 				}
-				server.middlewares.use((req, _res, next) => {
+				server.middlewares.use((req, res, next) => {
 					const locals = Symbol.for('astro.locals');
+					const promises: Array<Promise<unknown>> = [];
 					Reflect.set(req, locals, {
 						...Reflect.get(req, locals),
-						netlify: { context: getLocalDevNetlifyContext(req) },
+						netlify: { context: getLocalDevNetlifyContext(req, promises) },
 					});
+
+					// Wait for response to finish, then resolve waitUntil promises
+					res.on('finish', async () => {
+						if (promises.length > 0) {
+							try {
+								await Promise.allSettled(promises);
+							} catch {
+								// Ignore errors in background tasks
+							}
+						}
+					});
+
 					next();
 				});
 			},
