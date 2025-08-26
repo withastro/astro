@@ -182,11 +182,9 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			for (const { css } of consumableMap.values()) {
 				settings.injectedCsp.styleHashes.push(await generateCspDigest(css, algorithm));
 			}
-			const origins = urlResolver.getOrigins();
-			if (origins) {
-				settings.injectedCsp.fontResources.push(
-					...origins.map((origin) => (origin === '/' ? "'self'" : origin)),
-				);
+			const resources = urlResolver.getCspResources();
+			for (const resource of resources) {
+				settings.injectedCsp.fontResources.add(resource);
 			}
 		}
 	}

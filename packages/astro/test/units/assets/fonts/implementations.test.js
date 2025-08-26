@@ -350,9 +350,9 @@ describe('fonts implementations', () => {
 
 	it('createDevUrlResolver()', () => {
 		const resolver = createDevUrlResolver({ base: 'base/_astro/fonts' });
-		assert.equal(resolver.getOrigins(), null);
+		assert.deepStrictEqual(resolver.getCspResources(), []);
 		assert.equal(resolver.resolve('xxx.woff2'), '/base/_astro/fonts/xxx.woff2');
-		assert.deepStrictEqual(resolver.getOrigins(), ['/']);
+		assert.deepStrictEqual(resolver.getCspResources(), ["'self'"]);
 	});
 
 	describe('createBuildUrlResolver()', () => {
@@ -360,19 +360,19 @@ describe('fonts implementations', () => {
 
 		it('works with no assetsPrefix', () => {
 			const resolver = createBuildUrlResolver({ base, assetsPrefix: undefined });
-			assert.equal(resolver.getOrigins(), null);
+			assert.deepStrictEqual(resolver.getCspResources(), []);
 			assert.equal(resolver.resolve('abc.ttf'), '/foo/_custom/fonts/abc.ttf');
-			assert.deepStrictEqual(resolver.getOrigins(), ['/']);
+			assert.deepStrictEqual(resolver.getCspResources(), ["'self'"]);
 		});
 
 		it('works with assetsPrefix as string', () => {
 			const resolver = createBuildUrlResolver({ base, assetsPrefix: 'https://cdn.example.com' });
-			assert.equal(resolver.getOrigins(), null);
+			assert.deepStrictEqual(resolver.getCspResources(), []);
 			assert.equal(
 				resolver.resolve('foo.woff'),
 				'https://cdn.example.com/foo/_custom/fonts/foo.woff',
 			);
-			assert.deepStrictEqual(resolver.getOrigins(), ['https://cdn.example.com']);
+			assert.deepStrictEqual(resolver.getCspResources(), ['https://cdn.example.com']);
 		});
 
 		it('works with assetsPrefix object', () => {
@@ -383,7 +383,7 @@ describe('fonts implementations', () => {
 					fallback: 'https://cdn.example.com',
 				},
 			});
-			assert.equal(resolver.getOrigins(), null);
+			assert.deepStrictEqual(resolver.getCspResources(), []);
 			assert.equal(
 				resolver.resolve('bar.woff2'),
 				'https://fonts.cdn.example.com/foo/_custom/fonts/bar.woff2',
@@ -392,7 +392,7 @@ describe('fonts implementations', () => {
 				resolver.resolve('xyz.ttf'),
 				'https://cdn.example.com/foo/_custom/fonts/xyz.ttf',
 			);
-			assert.deepStrictEqual(resolver.getOrigins(), [
+			assert.deepStrictEqual(resolver.getCspResources(), [
 				'https://fonts.cdn.example.com',
 				'https://cdn.example.com',
 			]);

@@ -74,7 +74,7 @@ export interface AstroSettings {
 	 */
 	buildOutput: undefined | 'static' | 'server';
 	injectedCsp: {
-		fontResources: Array<string>;
+		fontResources: Set<string>;
 		styleHashes: Required<CspObject['styleDirective']>['hashes'];
 	};
 }

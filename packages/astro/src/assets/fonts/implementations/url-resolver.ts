@@ -4,14 +4,14 @@ import { getAssetsPrefix } from '../../utils/getAssetsPrefix.js';
 import type { UrlResolver } from '../definitions.js';
 
 export function createDevUrlResolver({ base }: { base: string }): UrlResolver {
-	let origins: Array<string> | null = null;
+	let resolved = false;
 	return {
 		resolve(hash) {
-			origins ??= ['/'];
+			resolved ||= true;
 			return prependForwardSlash(joinPaths(base, hash));
 		},
-		getOrigins() {
-			return origins;
+		getCspResources() {
+			return resolved ? ["'self'"] : [];
 		},
 	};
 }
@@ -23,20 +23,19 @@ export function createBuildUrlResolver({
 	base: string;
 	assetsPrefix: AssetsPrefix;
 }): UrlResolver {
-	let origins: Array<string> | null = null;
+	const resources = new Set<string>();
 	return {
 		resolve(hash) {
-			origins ??= [];
 			const prefix = assetsPrefix ? getAssetsPrefix(fileExtension(hash), assetsPrefix) : undefined;
 			if (prefix) {
-				origins = [...new Set([...origins, prefix])];
+				resources.add(prefix);
 				return joinPaths(prefix, base, hash);
 			}
-			origins = [...new Set([...origins, '/'])];
+			resources.add("'self'");
 			return prependForwardSlash(joinPaths(base, hash));
 		},
-		getOrigins() {
-			return origins;
+		getCspResources() {
+			return Array.from(resources);
 		},
 	};
 }
