@@ -1,5 +1,6 @@
 import type http from 'node:http';
-import { removeTrailingForwardSlash } from '../core/path.js';
+import { hasFileExtension } from '@astrojs/internal-helpers/path';
+import { appendForwardSlash, removeTrailingForwardSlash } from '../core/path.js';
 import type { RoutesList } from '../types/astro.js';
 import type { DevServerController } from './controller.js';
 import { runWithErrorHandling } from './controller.js';
@@ -41,6 +42,13 @@ export async function handleRequest({
 
 	// Add config.base back to url before passing it to SSR
 	url.pathname = removeTrailingForwardSlash(config.base) + url.pathname;
+
+	// Apply trailing slash configuration consistently
+	if (config.trailingSlash === 'never') {
+		url.pathname = removeTrailingForwardSlash(url.pathname);
+	} else if (config.trailingSlash === 'always' && !hasFileExtension(url.pathname)) {
+		url.pathname = appendForwardSlash(url.pathname);
+	}
 
 	let body: ArrayBuffer | undefined = undefined;
 	if (!(incomingRequest.method === 'GET' || incomingRequest.method === 'HEAD')) {
