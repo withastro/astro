@@ -521,7 +521,7 @@ importers:
         specifier: ^2.0.2
         version: 2.0.2
       devalue:
-        specifier: ^5.1.1
+        specifier: ^5.3.2
         version: 5.3.2
       diff:
         specifier: ^5.2.0
@@ -4740,7 +4740,7 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       devalue:
-        specifier: ^5.1.1
+        specifier: ^5.3.2
         version: 5.3.2
       execa:
         specifier: ^8.0.1
@@ -4939,7 +4939,7 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       devalue:
-        specifier: ^5.1.1
+        specifier: ^5.3.2
         version: 5.3.2
       linkedom:
         specifier: ^0.18.9
@@ -5403,7 +5403,7 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       devalue:
-        specifier: ^5.1.1
+        specifier: ^5.3.2
         version: 5.3.2
       typescript:
         specifier: ^5.8.3
@@ -5513,7 +5513,7 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       devalue:
-        specifier: ^5.1.1
+        specifier: ^5.3.2
         version: 5.3.2
       express:
         specifier: ^4.21.2
