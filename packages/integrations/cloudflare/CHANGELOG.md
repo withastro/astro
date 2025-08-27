@@ -1,5 +1,14 @@
 # @astrojs/cloudflare
 
+## 12.6.6
+
+### Patch Changes
+
+- [`9ecf359`](https://github.com/withastro/astro/commit/9ecf3598e2b29dd74614328fde3047ea90e67252) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Improves the image proxy endpoint when using the default compile option to adhere to user configuration regarding the allowed remote domains
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 12.6.5
 
 ### Patch Changes
