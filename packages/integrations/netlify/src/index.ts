@@ -504,6 +504,7 @@ export default function netlifyIntegration(
 			get url(): never {
 				throw new Error('Please use Astro.url instead.');
 			},
+			// The dev server is a long running process, so promises will run even with a noop
 			waitUntil: () => {},
 			account: parseBase64JSON('x-nf-account-info') ?? {
 				id: 'mock-netlify-account-id',
