@@ -1,5 +1,13 @@
 # astro
 
+## 5.13.4
+
+### Patch Changes
+
+- [#14260](https://github.com/withastro/astro/pull/14260) [`86a1e40`](https://github.com/withastro/astro/commit/86a1e40ce21b629a956057b059d06ba78bd89402) Thanks [@jp-knj](https://github.com/jp-knj)! - Fixes `Astro.url.pathname` to respect `trailingSlash: 'never'` configuration when using a base path. Previously, the root path with a base would incorrectly return `/base/` instead of `/base` when `trailingSlash` was set to 'never'.
+
+- [#14248](https://github.com/withastro/astro/pull/14248) [`e81c4bd`](https://github.com/withastro/astro/commit/e81c4bd1cca6739192d33068cbfb2c9e4ced1ffe) Thanks [@julesyoungberg](https://github.com/julesyoungberg)! - Fixes a bug where actions named 'apply' do not work due to being a function prototype method.
+
 ## 5.13.3
 
 ### Patch Changes

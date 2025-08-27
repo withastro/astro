@@ -1,5 +1,14 @@
 # @astrojs/netlify
 
+## 6.5.9
+
+### Patch Changes
+
+- [#14269](https://github.com/withastro/astro/pull/14269) [`4823c42`](https://github.com/withastro/astro/commit/4823c426c4e3c63765098f53c93fcb1bb3a4faaf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates `context.netlify` to implement all its properties
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 6.5.8
 
 ### Patch Changes
