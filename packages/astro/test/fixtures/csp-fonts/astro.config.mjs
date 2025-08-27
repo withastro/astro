@@ -4,7 +4,7 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	experimental: {
 		csp: {
-			fontDirectiveResources: ["'self'", 'https://fonts.cdn.test.com'],
+			directives: ["font-src 'self' https://fonts.cdn.test.com"]
 		},
 		fonts: [
 			{
