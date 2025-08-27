@@ -54,7 +54,6 @@ export function getStyleResources(csp: EnabledCsp): string[] {
 // Unlike other helpers like getStyleResources, getDirectives has more logic
 // because it has to collect and deduplicate font resources from both the user
 // config and the vite plugin for fonts
-// TODO: unit test
 export function getDirectives(settings: AstroSettings): CspDirective[] {
 	const { csp } = settings.config.experimental;
 	if (!shouldTrackCspHashes(csp)) {
