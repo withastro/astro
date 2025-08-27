@@ -51,12 +51,15 @@ describe('CompileImageService', () => {
 	});
 
 	it('allows trusted with redirect', async () => {
-		const res = await fetch('http://127.0.0.1:8788/_image?href=https://astro.build/_astro/HeroBackground.B0iWl89K_2hpsgp.webp', { redirect: "manual" })
-		const header = res.headers.get("location")
+		const res = await fetch(
+			'http://127.0.0.1:8788/_image?href=https://astro.build/_astro/HeroBackground.B0iWl89K_2hpsgp.webp',
+			{ redirect: 'manual' },
+		);
+		const header = res.headers.get('location');
 		const status = res.status;
-		assert.equal(header, "https://astro.build/_astro/HeroBackground.B0iWl89K_2hpsgp.webp")
-		assert.equal(status, 302)
-	})
+		assert.equal(header, 'https://astro.build/_astro/HeroBackground.B0iWl89K_2hpsgp.webp');
+		assert.equal(status, 302);
+	});
 
 	it('allows local', async () => {
 		const res = await fetch('http://127.0.0.1:8788/_image?href=/_astro/placeholder.gLBdjEDe.jpg');
