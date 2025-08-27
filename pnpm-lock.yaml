@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
+overrides:
+  undici: ^6.21.3
+
 importers:
 
   .:
@@ -753,8 +756,8 @@ importers:
         specifier: ^5.8.3
         version: 5.8.3
       undici:
-        specifier: ^7.5.0
-        version: 7.15.0
+        specifier: ^6.21.3
+        version: 6.21.3
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -13395,10 +13398,6 @@ packages:
     resolution: {integrity: sha512-gBLkYIlEnSp8pFbT64yFgGE6UIB9tAkhukC23PmMDCe5Nd+cRqKxSjw5y54MK2AZMgZfJWMaNE4nYUHgi1XEOw==}
     engines: {node: '>=18.17'}
 
-  undici@7.15.0:
-    resolution: {integrity: sha512-7oZJCPvvMvTd0OlqWsIxTuItTpJBpU1tcbVl24FMn3xt3+VSunwUasmfPJRE57oNO1KsZ4PgA1xTdAX4hq8NyQ==}
-    engines: {node: '>=20.18.1'}
-
   unenv@2.0.0-rc.19:
     resolution: {integrity: sha512-t/OMHBNAkknVCI7bVB9OWjUUAwhVv9vsPIAGnNUxnu3FxPQN11rjh0sksLMzc3g7IlTgvHmOTl4JM7JHpcv5wA==}
 
@@ -17541,7 +17540,7 @@ snapshots:
       parse5: 7.3.0
       parse5-htmlparser2-tree-adapter: 7.1.0
       parse5-parser-stream: 7.1.2
-      undici: 7.15.0
+      undici: 6.21.3
       whatwg-mimetype: 4.0.0
 
   chokidar@4.0.3:
@@ -20003,7 +20002,7 @@ snapshots:
       glob-to-regexp: 0.4.1
       sharp: 0.33.5
       stoppable: 1.1.0
-      undici: 7.15.0
+      undici: 6.21.3
       workerd: 1.20250816.0
       ws: 8.18.0
       youch: 4.1.0-beta.10
@@ -21846,8 +21845,6 @@ snapshots:
   undici-types@6.21.0: {}
 
   undici@6.21.3: {}
-
-  undici@7.15.0: {}
 
   unenv@2.0.0-rc.19:
     dependencies:
