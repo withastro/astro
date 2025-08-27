@@ -13,4 +13,3 @@ overrides:
   # Cheerio uses ^7, which requires node 20
   # TODO: remove in Astro 6
   'undici': '^6.21.3'
-  'wrangler': '~4.20.0'
