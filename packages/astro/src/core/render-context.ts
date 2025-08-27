@@ -450,13 +450,6 @@ export class RenderContext {
 				}
 				renderContext.result?.scriptHashes.push(hash);
 			},
-			insertFontResource(resource) {
-				if (!pipeline.manifest.csp) {
-					throw new AstroError(CspNotEnabled);
-				}
-
-				renderContext.result?.fontResources.push(resource);
-			},
 		};
 	}
 
@@ -722,13 +715,6 @@ export class RenderContext {
 					throw new AstroError(CspNotEnabled);
 				}
 				renderContext.result?.scriptHashes.push(hash);
-			},
-			insertFontResource(resource) {
-				if (!pipeline.manifest.csp) {
-					throw new AstroError(CspNotEnabled);
-				}
-
-				renderContext.result?.fontResources.push(resource);
 			},
 		};
 	}
