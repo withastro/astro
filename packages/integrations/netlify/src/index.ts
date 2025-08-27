@@ -490,10 +490,7 @@ export default function netlifyIntegration(
 		});
 	}
 
-	function getLocalDevNetlifyContext(
-		req: IncomingMessage,
-		promises: Array<Promise<unknown>>,
-	): Context {
+	function getLocalDevNetlifyContext(req: IncomingMessage): Context {
 		const isHttps = req.headers['x-forwarded-proto'] === 'https';
 		const parseBase64JSON = <T = unknown>(header: string): T | undefined => {
 			if (typeof req.headers[header] === 'string') {
@@ -507,9 +504,7 @@ export default function netlifyIntegration(
 			get url(): never {
 				throw new Error('Please use Astro.url instead.');
 			},
-			waitUntil: (promise) => {
-				promises.push(promise);
-			},
+			waitUntil: () => {},
 			account: parseBase64JSON('x-nf-account-info') ?? {
 				id: 'mock-netlify-account-id',
 			},
@@ -702,25 +697,12 @@ export default function netlifyIntegration(
 				if (existingSessionModule) {
 					server.moduleGraph.invalidateModule(existingSessionModule);
 				}
-				server.middlewares.use((req, res, next) => {
+				server.middlewares.use((req, _res, next) => {
 					const locals = Symbol.for('astro.locals');
-					const promises: Array<Promise<unknown>> = [];
 					Reflect.set(req, locals, {
 						...Reflect.get(req, locals),
-						netlify: { context: getLocalDevNetlifyContext(req, promises) },
+						netlify: { context: getLocalDevNetlifyContext(req) },
 					});
-
-					// Wait for response to finish, then resolve waitUntil promises
-					res.on('finish', async () => {
-						if (promises.length > 0) {
-							try {
-								await Promise.allSettled(promises);
-							} catch {
-								// Ignore errors in background tasks
-							}
-						}
-					});
-
 					next();
 				});
 			},
