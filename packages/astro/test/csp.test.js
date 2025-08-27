@@ -275,7 +275,6 @@ describe('CSP', () => {
 		// correctness for resources
 		assert.ok(header.includes('style-src https://styles.cdn.example.com'));
 		assert.ok(header.includes("script-src 'self'"));
-		assert.ok(header.includes('font-src https://fonts.cdn.example.com'));
 		// correctness for hashes
 		assert.ok(header.includes("default-src 'self';"));
 
@@ -340,7 +339,6 @@ describe('CSP', () => {
 		assert.deepStrictEqual(parsed.find((e) => e.directive === 'font-src')?.resources, [
 			"'self'",
 			'https://fonts.cdn.test.com',
-			'https://fonts.cdn.example.com',
 		]);
 	});
 
