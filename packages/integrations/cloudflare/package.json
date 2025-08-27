@@ -41,7 +41,7 @@
     "@cloudflare/workers-types": "^4.20250507.0",
     "tinyglobby": "^0.2.13",
     "vite": "^6.3.5",
-    "wrangler": "4.14.1"
+    "wrangler": "4.17.0"
   },
   "peerDependencies": {
     "astro": "^5.7.0"
