@@ -8,6 +8,6 @@
   },
   "dependencies": {
     "astro": "file:../../",
-    "@astrojs/node": "^8.0.0"
+    "@astrojs/node": "^9.0.0"
   }
 }
