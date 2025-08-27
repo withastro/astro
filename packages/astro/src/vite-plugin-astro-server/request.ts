@@ -42,7 +42,7 @@ export async function handleRequest({
 
 	// Add config.base back to url before passing it to SSR
 	url.pathname = removeTrailingForwardSlash(config.base) + url.pathname;
-	
+
 	// Apply trailing slash configuration consistently
 	if (config.trailingSlash === 'never') {
 		url.pathname = removeTrailingForwardSlash(url.pathname);
