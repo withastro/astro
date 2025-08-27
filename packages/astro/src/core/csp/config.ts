@@ -47,6 +47,7 @@ const ALLOWED_DIRECTIVES = [
 	'connect-src',
 	'default-src',
 	'fenced-frame-src',
+	'font-src',
 	'form-action',
 	'frame-ancestors',
 	'frame-src',

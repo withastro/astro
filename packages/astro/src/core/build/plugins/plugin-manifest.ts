@@ -18,7 +18,6 @@ import type {
 import {
 	getAlgorithm,
 	getDirectives,
-	getFontResources,
 	getScriptHashes,
 	getScriptResources,
 	getStrictDynamic,
@@ -337,9 +336,8 @@ async function buildManifest(
 			styleHashes,
 			styleResources: getStyleResources(settings.config.experimental.csp),
 			algorithm,
-			directives: getDirectives(settings.config.experimental.csp),
+			directives: getDirectives(settings),
 			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
-			fontResources: getFontResources(settings),
 		};
 	}
 

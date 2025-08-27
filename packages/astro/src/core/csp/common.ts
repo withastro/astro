@@ -51,31 +51,27 @@ export function getStyleResources(csp: EnabledCsp): string[] {
 	return csp.styleDirective?.resources ?? [];
 }
 
-// Unlike other helpers like getStyleResources, getFontResources has more logic
+// Unlike other helpers like getStyleResources, getDirectives has more logic
 // because it has to collect and deduplicate font resources from both the user
 // config and the vite plugin for fonts
-export function getFontResources(settings: AstroSettings): string[] {
+export function getDirectives(settings: AstroSettings): CspDirective[] {
 	const { csp } = settings.config.experimental;
 	if (!shouldTrackCspHashes(csp)) {
 		return [];
 	}
-	const resources = new Set<string>();
-	if (csp !== true && csp.fontDirectiveResources) {
-		for (const resource of csp.fontDirectiveResources) {
-			resources.add(resource);
-		}
-	}
-	for (const resource of settings.injectedCsp.fontResources.values()) {
-		resources.add(resource);
-	}
-	return Array.from(resources);
-}
-
-export function getDirectives(csp: EnabledCsp): CspDirective[] {
-	if (csp === true) {
-		return [];
-	}
-	return csp.directives ?? [];
+	// TODO:
+	const directives = csp === true ? [] : (csp.directives ?? []);
+	// 	const resources = new Set<string>();
+	// if (csp !== true && csp.fontDirectiveResources) {
+	// 	for (const resource of csp.fontDirectiveResources) {
+	// 		resources.add(resource);
+	// 	}
+	// }
+	// for (const resource of settings.injectedCsp.fontResources.values()) {
+	// 	resources.add(resource);
+	// }
+	// return Array.from(resources);
+	return directives;
 }
 
 export function getStrictDynamic(csp: EnabledCsp): boolean {

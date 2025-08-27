@@ -544,7 +544,6 @@ export class RenderContext {
 			styleResources: manifest.csp?.styleResources ? [...manifest.csp.styleResources] : [],
 			directives: manifest.csp?.directives ? [...manifest.csp.directives] : [],
 			isStrictDynamic: manifest.csp?.isStrictDynamic ?? false,
-			fontResources: manifest.csp?.fontResources ? [...manifest.csp.fontResources] : [],
 		};
 
 		return result;

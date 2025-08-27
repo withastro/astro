@@ -33,7 +33,6 @@ import type { SSRActions, SSRManifest, SSRManifestCSP, SSRManifestI18n } from '.
 import {
 	getAlgorithm,
 	getDirectives,
-	getFontResources,
 	getScriptHashes,
 	getScriptResources,
 	getStrictDynamic,
@@ -705,9 +704,8 @@ async function createBuildManifest(
 			scriptHashes,
 			scriptResources: getScriptResources(settings.config.experimental.csp),
 			algorithm,
-			directives: getDirectives(settings.config.experimental.csp),
+			directives: getDirectives(settings),
 			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
-			fontResources: getFontResources(settings),
 		};
 	}
 	return {

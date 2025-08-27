@@ -20,7 +20,7 @@ export function renderCspContent(result: SSRResult): string {
 		finalScriptHashes.add(`'${scriptHash}'`);
 	}
 
-	let directives = '';
+	let directives;
 	if (result.directives.length > 0) {
 		directives = result.directives.join(';') + ';';
 	}
@@ -35,18 +35,8 @@ export function renderCspContent(result: SSRResult): string {
 		styleResources = result.styleResources.map((r) => `${r}`).join(' ');
 	}
 
-	let fontResources;
-	if (result.fontResources.length > 0) {
-		fontResources = result.fontResources.map((r) => `${r}`).join(' ');
-	}
-
 	const strictDynamic = result.isStrictDynamic ? ` 'strict-dynamic'` : '';
 	const scriptSrc = `script-src ${scriptResources} ${Array.from(finalScriptHashes).join(' ')}${strictDynamic};`;
 	const styleSrc = `style-src ${styleResources} ${Array.from(finalStyleHashes).join(' ')};`;
-	return [
-		directives,
-		scriptSrc,
-		styleSrc,
-		...(fontResources ? [`font-src ${fontResources};`] : []),
-	].join(' ');
+	return [directives, scriptSrc, styleSrc].filter(Boolean).join(' ');
 }
