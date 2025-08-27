@@ -13,7 +13,7 @@ const RESOLVED_VIRTUAL_SERVER_ID = '\0' + VIRTUAL_SERVER_ID;
 const VIRTUAL_CLIENT_ID = 'astro:config/client';
 const RESOLVED_VIRTUAL_CLIENT_ID = '\0' + VIRTUAL_CLIENT_ID;
 
-export default function virtualModulePlugin({ manifest }: { manifest: SSRManifest }): Plugin {
+export default function virtualModulePlugin(): Plugin {
 	return {
 		enforce: 'pre',
 		name: 'astro-manifest-plugin',
@@ -25,9 +25,11 @@ export default function virtualModulePlugin({ manifest }: { manifest: SSRManifes
 				return RESOLVED_VIRTUAL_CLIENT_ID;
 			}
 		},
-		load(id, opts) {
+		async load(id, opts) {
 			// client
 			if (id === RESOLVED_VIRTUAL_CLIENT_ID) {
+				// @ts-expect-error it's a virtual module
+				const manifest: SSRManifest = await import('astro:ssr-manifest');
 				// There's nothing wrong about using `/client` on the server
 				return { code: serializeClientConfig(manifest) };
 			}
@@ -39,6 +41,8 @@ export default function virtualModulePlugin({ manifest }: { manifest: SSRManifes
 						message: AstroErrorData.ServerOnlyModule.message(VIRTUAL_SERVER_ID),
 					});
 				}
+				// @ts-expect-error it's a virtual module
+				const manifest: SSRManifest = await import('astro:ssr-manifest');
 				return { code: serializeServerConfig(manifest) };
 			}
 		},

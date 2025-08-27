@@ -1,7 +1,7 @@
 import type http from 'node:http';
 import { prependForwardSlash, removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import { loadActions } from '../actions/loadActions.js';
-import { BaseApp, type RenderErrorOptions } from '../core/app/index.js';
+import { BaseApp, deserializeManifest, type RenderErrorOptions } from '../core/app/index.js';
 import type { SSRManifest } from '../core/app/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import {
@@ -23,7 +23,7 @@ import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { routeIsRedirect } from '../core/redirects/index.js';
 import { getProps } from '../core/render/index.js';
-import { type CreateRenderContext, RenderContext } from '../core/render-context.js';
+import type { CreateRenderContext, RenderContext } from '../core/render-context.js';
 import { createRequest } from '../core/request.js';
 import { redirectTemplate } from '../core/routing/3xx.js';
 import { isRoute404, isRoute500, matchAllRoutes } from '../core/routing/match.js';
@@ -55,6 +55,18 @@ export class DevApp extends BaseApp<DevPipeline> {
 		this.logger = logger;
 		this.loader = loader;
 		this.manifestData = manifestData;
+	}
+
+	// TODO remove routelist once it's a plugin
+	static async create(
+		routesList: RoutesList,
+		settings: AstroSettings,
+		logger: Logger,
+		loader: ModuleLoader,
+	): Promise<DevApp> {
+		const { manifest } = await loader.import('astro:serialized-manifest');
+		const deserializedManifest = deserializeManifest(manifest, routesList);
+		return new DevApp(deserializedManifest, true, settings, logger, loader, routesList);
 	}
 
 	createPipeline(
@@ -124,7 +136,6 @@ export class DevApp extends BaseApp<DevPipeline> {
 		}
 
 		const self = this;
-
 		await runWithErrorHandling({
 			controller,
 			pathname,
@@ -167,7 +178,7 @@ export class DevApp extends BaseApp<DevPipeline> {
 		let request: Request;
 		let renderContext: RenderContext;
 		let route: RouteData = matchedRoute.route;
-		const componentInstance = await this.pipeline.preload(route, matchedRoute.filePath);
+		const componentInstance = await this.pipeline.getComponentByRoute(route);
 		const actions = await loadActions(loader);
 		this.pipeline.setActions(actions);
 		const middleware = (await loadMiddleware(loader)).onRequest;
