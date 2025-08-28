@@ -15,6 +15,7 @@ import { createRemoteFontProviderResolver } from '../../../../dist/assets/fonts/
 import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/implementations/system-fallbacks-provider.js';
 import { createUrlProxy } from '../../../../dist/assets/fonts/implementations/url-proxy.js';
 import { createRemoteUrlProxyContentResolver } from '../../../../dist/assets/fonts/implementations/url-proxy-content-resolver.js';
+import { createBuildUrlProxyHashResolver } from '../../../../dist/assets/fonts/implementations/url-proxy-hash-resolver.js';
 import { createDevUrlResolver } from '../../../../dist/assets/fonts/implementations/url-resolver.js';
 import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
 import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
@@ -62,13 +63,13 @@ describe('fonts orchestrate()', () => {
 			fontTypeExtractor,
 			fontFileReader: createFontaceFontFileReader({ errorHandler }),
 			logger: defaultLogger,
-			createUrlProxy: ({ local, ...params }) => {
+			createUrlProxy: ({ local, cssVariable, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = createRemoteUrlProxyContentResolver();
 				return createUrlProxy({
 					urlResolver: createDevUrlResolver({ base: 'test' }),
-					contentResolver,
-					hasher,
+					cssVariable,
+					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
 					dataCollector,
 				});
 			},
@@ -163,15 +164,16 @@ describe('fonts orchestrate()', () => {
 			fontTypeExtractor,
 			fontFileReader: createFontaceFontFileReader({ errorHandler }),
 			logger: defaultLogger,
-			createUrlProxy: ({ local, ...params }) => {
+			createUrlProxy: ({ local, cssVariable, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = createRemoteUrlProxyContentResolver();
 				return createUrlProxy({
 					urlResolver: {
 						resolve: (hash) => hash,
+						getCspResources: () => [],
 					},
-					contentResolver,
-					hasher,
+					cssVariable,
+					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
 					dataCollector,
 				});
 			},
