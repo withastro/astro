@@ -29,6 +29,8 @@ export type SerializedRouteData = Omit<
 	};
 };
 
+type CspObject = Required<Exclude<AstroConfig['experimental']['csp'], boolean>>;
+
 export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
@@ -71,6 +73,10 @@ export interface AstroSettings {
 	 * undefined when unknown
 	 */
 	buildOutput: undefined | 'static' | 'server';
+	injectedCsp: {
+		fontResources: Set<string>;
+		styleHashes: Required<CspObject['styleDirective']>['hashes'];
+	};
 }
 
 /** Generic interface for a component (Astro, Svelte, React, etc.) */

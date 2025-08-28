@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import path from 'node:path';
 import url from 'node:url';
-import { hasFileExtension } from '@astrojs/internal-helpers/path';
+import { hasFileExtension, isInternalPath } from '@astrojs/internal-helpers/path';
 import type { NodeApp } from 'astro/app/node';
 import send from 'send';
 import type { Options } from './types.js';
@@ -66,7 +66,9 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 				}
 				case 'always': {
 					// trailing slash is not added to "subresources"
-					if (!hasSlash && !hasFileExtension(urlPath)) {
+					// We check if `urlPath` doesn't contain possible internal paths. This should prevent
+					// redirects to unwanted paths
+					if (!hasSlash && !hasFileExtension(urlPath) && !isInternalPath(urlPath)) {
 						pathname = urlPath + '/' + (urlQuery ? '?' + urlQuery : '');
 						res.statusCode = 301;
 						res.setHeader('Location', pathname);

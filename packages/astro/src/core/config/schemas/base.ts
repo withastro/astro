@@ -34,7 +34,7 @@ import { allowedDirectivesSchema, cspAlgorithmSchema, cspHashSchema } from '../.
 
 /** @lintignore */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ComplexifyUnionObj {}
+export interface ComplexifyUnionObj { }
 
 type ComplexifyWithUnion<T> = T & ComplexifyUnionObj;
 type ComplexifyWithOmit<T> = Omit<T, '__nonExistent'>;
@@ -102,7 +102,8 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		preserveScriptOrder: false,
 		liveContentCollections: false,
 		csp: false,
-		rawEnvValues: false,
+		staticImportMetaEnv: false,
+		chromeDevtoolsWorkspace: false,
 		failOnPrerenderConflict: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
@@ -502,7 +503,14 @@ export const AstroConfigSchema = z.object({
 				])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
-			rawEnvValues: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.rawEnvValues),
+			staticImportMetaEnv: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.staticImportMetaEnv),
+			chromeDevtoolsWorkspace: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.chromeDevtoolsWorkspace),
 			failOnPrerenderConflict: z
 				.boolean()
 				.optional()

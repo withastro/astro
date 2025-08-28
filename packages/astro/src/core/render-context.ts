@@ -445,7 +445,7 @@ export class RenderContext {
 				renderContext.result?.styleHashes.push(hash);
 			},
 			insertScriptHash(hash) {
-				if (!!pipeline.manifest.csp === false) {
+				if (!pipeline.manifest.csp) {
 					throw new AstroError(CspNotEnabled);
 				}
 				renderContext.result?.scriptHashes.push(hash);
@@ -710,7 +710,7 @@ export class RenderContext {
 				renderContext.result?.styleHashes.push(hash);
 			},
 			insertScriptHash(hash) {
-				if (!!pipeline.manifest.csp === false) {
+				if (!pipeline.manifest.csp) {
 					throw new AstroError(CspNotEnabled);
 				}
 				renderContext.result?.scriptHashes.push(hash);
