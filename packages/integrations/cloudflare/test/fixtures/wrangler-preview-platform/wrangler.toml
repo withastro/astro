@@ -1,4 +1,5 @@
 name = "test"
+compatibility_flags = ["nodejs_compat"]
 
 [vars]
 COOL = "ME"
