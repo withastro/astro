@@ -2,7 +2,7 @@
 import { imageConfig } from 'astro:assets';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import type { APIRoute } from 'astro';
-import { isRemoteAllowed } from 'astro/assets/utils';
+import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 
 export const prerender = false;
 
