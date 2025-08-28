@@ -144,6 +144,7 @@ export async function orchestrate({
 					collectedFonts.push(collected);
 				}
 			},
+			cssVariable: family.cssVariable,
 		});
 
 		let fonts: Array<unifont.FontFaceData>;
