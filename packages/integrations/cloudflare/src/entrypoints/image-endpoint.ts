@@ -1,8 +1,8 @@
 // @ts-expect-error
 import { imageConfig } from 'astro:assets';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
-import type { APIRoute } from 'astro';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
+import type { APIRoute } from 'astro';
 
 export const prerender = false;
 
