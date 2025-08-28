@@ -4193,11 +4193,11 @@ importers:
   packages/astro/test/fixtures/ssr-trailing-slash:
     dependencies:
       '@astrojs/node':
-        specifier: ^8.0.0
-        version: 8.3.4(test@file:packages/astro/test)
+        specifier: workspace:*
+        version: link:../../../../integrations/node
       astro:
-        specifier: file:../../
-        version: test@file:packages/astro/test
+        specifier: workspace:*
+        version: link:../../..
 
   packages/astro/test/fixtures/static-build:
     dependencies:
@@ -6479,12 +6479,6 @@ packages:
         optional: true
       prettier-plugin-astro:
         optional: true
-
-  '@astrojs/node@8.3.4':
-    resolution: {integrity: sha512-xzQs39goN7xh9np9rypGmbgZj3AmmjNxEMj9ZWz5aBERlqqFF3n8A/w/uaJeZ/bkHS60l1BXVS0tgsQt9MFqBA==}
-    version: 8.3.4
-    peerDependencies:
-      astro: ^4.2.0
 
   '@astrojs/yaml2ts@0.2.2':
     resolution: {integrity: sha512-GOfvSr5Nqy2z5XiwqTouBBpy5FyI6DEe+/g/Mk5am9SjILN1S5fOEvYK0GuWHg98yS/dobP4m8qyqw/URW35fQ==}
@@ -13201,9 +13195,6 @@ packages:
     resolution: {integrity: sha512-lk+vH+MccxNqgVqSnkMVKx4VLJfnLjDBGzH16JVZjKE2DoxP57s6/vt6JmXV5I3jBcfGrxNrYtC+mPtU7WJztA==}
     engines: {node: '>=18'}
 
-  test@file:packages/astro/test:
-    resolution: {directory: packages/astro/test, type: directory}
-
   text-decoder@1.2.3:
     resolution: {integrity: sha512-3/o9z3X0X0fTupwsYvR03pJ/DjWuqqrfwBgTQzdWDiQSm9KitAyz/9WqsT2JQW7KV2m+bC2ol/zqpW37NHxLaA==}
 
@@ -14196,14 +14187,6 @@ snapshots:
       prettier-plugin-astro: 0.14.1
     transitivePeerDependencies:
       - typescript
-
-  '@astrojs/node@8.3.4(test@file:packages/astro/test)':
-    dependencies:
-      astro: test@file:packages/astro/test
-      send: 0.19.0
-      server-destroy: 1.0.1
-    transitivePeerDependencies:
-      - supports-color
 
   '@astrojs/yaml2ts@0.2.2':
     dependencies:
@@ -21694,8 +21677,6 @@ snapshots:
     dependencies:
       ansi-escapes: 7.0.0
       supports-hyperlinks: 3.2.0
-
-  test@file:packages/astro/test: {}
 
   text-decoder@1.2.3:
     dependencies:

@@ -59,6 +59,7 @@ export class RenderContext {
 		protected url = new URL(request.url),
 		public props: Props = {},
 		public partial: undefined | boolean = undefined,
+		public shouldInjectCspMetaTags = !!pipeline.manifest.csp,
 		public session: AstroSession | undefined = pipeline.manifest.sessionConfig
 			? new AstroSession(cookies, pipeline.manifest.sessionConfig, pipeline.runtimeMode)
 			: undefined,
@@ -87,9 +88,19 @@ export class RenderContext {
 		props,
 		partial = undefined,
 		actions,
+		shouldInjectCspMetaTags,
 	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData' | 'clientAddress'> &
 		Partial<
-			Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props' | 'partial' | 'actions'>
+			Pick<
+				RenderContext,
+				| 'locals'
+				| 'middleware'
+				| 'status'
+				| 'props'
+				| 'partial'
+				| 'actions'
+				| 'shouldInjectCspMetaTags'
+			>
 		>): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
 		const pipelineActions = actions ?? (await pipeline.getActions());
@@ -114,6 +125,7 @@ export class RenderContext {
 			undefined,
 			props,
 			partial,
+			shouldInjectCspMetaTags ?? !!pipeline.manifest.csp,
 		);
 	}
 	/**
@@ -461,7 +473,7 @@ export class RenderContext {
 
 		const extraStyleHashes = [];
 		const extraScriptHashes = [];
-		const shouldInjectCspMetaTags = !!manifest.csp;
+		const shouldInjectCspMetaTags = this.shouldInjectCspMetaTags;
 		const cspAlgorithm = manifest.csp?.algorithm ?? 'SHA-256';
 		if (shouldInjectCspMetaTags) {
 			for (const style of styles) {

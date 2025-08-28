@@ -196,6 +196,7 @@ export async function handleRoute({
 		routeData: route,
 		clientAddress: incomingRequest.socket.remoteAddress,
 		actions,
+		shouldInjectCspMetaTags: false,
 	});
 
 	let response;
@@ -221,6 +222,7 @@ export async function handleRoute({
 				routeData: route,
 				clientAddress: incomingRequest.socket.remoteAddress,
 				actions,
+				shouldInjectCspMetaTags: false,
 			});
 			renderContext.props.error = err;
 			const _response = await renderContext.render(preloaded500Component);
@@ -297,6 +299,7 @@ export async function handleRoute({
 				request,
 				routeData: fourOhFourRoute.route,
 				clientAddress: incomingRequest.socket.remoteAddress,
+				shouldInjectCspMetaTags: false,
 			});
 			response = await renderContext.render(fourOhFourRoute.preloadedComponent);
 		}
