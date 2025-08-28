@@ -125,9 +125,7 @@ export class RenderContext {
 			undefined,
 			props,
 			partial,
-			typeof shouldInjectCspMetaTags !== 'undefined'
-				? shouldInjectCspMetaTags
-				: !!pipeline.manifest.csp,
+			shouldInjectCspMetaTags ?? !!pipeline.manifest.csp,
 		);
 	}
 	/**
