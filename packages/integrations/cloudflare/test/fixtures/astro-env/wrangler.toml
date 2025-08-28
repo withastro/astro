@@ -1,5 +1,4 @@
 name = "astro-env"
-compatibility_flags = ["nodejs_compat"]
 
 [vars]
 API_URL = "https://google.de"
