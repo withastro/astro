@@ -9,6 +9,6 @@
   "dependencies": {
     "@astrojs/preact": "workspace:*",
     "astro": "workspace:*",
-    "preact": "^10.26.4"
+    "preact": "^10.27.1"
   }
 }
