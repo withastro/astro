@@ -63,6 +63,7 @@ export interface UrlProxy {
 
 export interface UrlResolver {
 	resolve: (hash: string) => string;
+	getCspResources: () => Array<string>;
 }
 
 export interface UrlProxyContentResolver {
