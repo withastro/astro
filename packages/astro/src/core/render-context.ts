@@ -131,7 +131,7 @@ export class RenderContext {
 		componentInstance: ComponentInstance | undefined,
 		slots: Record<string, any> = {},
 	): Promise<Response> {
-		const { cookies, middleware, pipeline } = this;
+		const { middleware, pipeline } = this;
 		const { logger, serverLike, streaming, manifest } = pipeline;
 
 		const props =
@@ -271,7 +271,7 @@ export class RenderContext {
 			// because they may need to be passed along from a rewrite.
 			const responseCookies = getCookiesFromResponse(response);
 			if (responseCookies) {
-				cookies.merge(responseCookies);
+				this.cookies.merge(responseCookies);
 			}
 			return response;
 		};
@@ -289,7 +289,7 @@ export class RenderContext {
 		// LEGACY: we put cookies on the response object,
 		// where the adapter might be expecting to read it.
 		// New code should be using `app.render({ addCookieHeader: true })` instead.
-		attachCookiesToResponse(response, cookies);
+		attachCookiesToResponse(response, this.cookies);
 		return response;
 	}
 
@@ -346,7 +346,11 @@ export class RenderContext {
 			);
 		}
 		this.url = new URL(this.request.url);
-		this.cookies = new AstroCookies(this.request);
+		const newCookies = new AstroCookies(this.request);
+		if(this.cookies) {
+			newCookies.merge(this.cookies);
+		}
+		this.cookies = newCookies;
 		this.params = getParams(routeData, pathname);
 		this.pathname = pathname;
 		this.isRewriting = true;
@@ -363,7 +367,7 @@ export class RenderContext {
 
 	createActionAPIContext(): ActionAPIContext {
 		const renderContext = this;
-		const { cookies, params, pipeline, url } = this;
+		const { params, pipeline, url } = this;
 		const generator = `Astro v${ASTRO_VERSION}`;
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
@@ -371,7 +375,10 @@ export class RenderContext {
 		};
 
 		return {
-			cookies,
+			// Don't allow reassignment of cookies because it doesn't work
+			get cookies() {
+				return renderContext.cookies;
+			},
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
 			get clientAddress() {
