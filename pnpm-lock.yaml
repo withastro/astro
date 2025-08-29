@@ -5912,7 +5912,7 @@ importers:
         specifier: ^0.29.2
         version: 0.29.4(rollup@4.48.1)
       '@vercel/routing-utils':
-        specifier: ^5.0.4
+        specifier: ^5.1.1
         version: 5.1.1
       esbuild:
         specifier: ^0.25.0
