@@ -130,9 +130,8 @@ function createContext({
 				insertStyleResource() {},
 				insertScriptHash() {},
 				insertStyleHash() {},
-			}			
-		}
-
+			};
+		},
 	};
 	return Object.assign(context, {
 		getActionResult: createGetActionResult(context.locals),
