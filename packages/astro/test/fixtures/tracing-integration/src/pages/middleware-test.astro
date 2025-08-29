@@ -1,0 +1,157 @@
+---
+// Test page that will trigger middleware tracing
+const requestHeaders = Object.fromEntries(Astro.request.headers.entries());
+const requestMethod = Astro.request.method;
+const requestUrl = Astro.url.href;
+const timestamp = new Date().toISOString();
+
+// Access locals to test middleware functionality
+const middlewareData = Astro.locals.middlewareData || 'No middleware data';
+const requestId = Astro.locals.requestId || 'No request ID';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Tracing Test - Middleware</title>
+	</head>
+	<body>
+		<main>
+			<h1>Middleware Tracing Test</h1>
+			<p>This page tests middleware execution tracing.</p>
+			
+			<section>
+				<h2>Request Information</h2>
+				<dl>
+					<dt>Method:</dt>
+					<dd>{requestMethod}</dd>
+					
+					<dt>URL:</dt>
+					<dd>{requestUrl}</dd>
+					
+					<dt>Timestamp:</dt>
+					<dd>{timestamp}</dd>
+					
+					<dt>Middleware Data:</dt>
+					<dd>{middlewareData}</dd>
+					
+					<dt>Request ID:</dt>
+					<dd>{requestId}</dd>
+				</dl>
+			</section>
+
+			<section>
+				<h2>Request Headers</h2>
+				<table>
+					<thead>
+						<tr>
+							<th>Header</th>
+							<th>Value</th>
+						</tr>
+					</thead>
+					<tbody>
+						{Object.entries(requestHeaders).map(([key, value]) => (
+							<tr>
+								<td>{key}</td>
+								<td>{value}</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</section>
+
+			<section>
+				<h2>Middleware Testing</h2>
+				<p>This page should trigger middleware execution, which should be traced.</p>
+				<p>Check the tracing events to see middleware execution details.</p>
+				
+				<div class="test-actions">
+					<form method="POST" action="/middleware-test">
+						<button type="submit">Test POST Request</button>
+					</form>
+					
+					<a href="/middleware-test?param=test">Test with Query Params</a>
+				</div>
+			</section>
+		</main>
+	</body>
+</html>
+
+<style>
+	dl {
+		display: grid;
+		grid-template-columns: max-content 1fr;
+		gap: 0.5rem 1rem;
+		background-color: #f5f5f5;
+		padding: 1rem;
+		border-radius: 8px;
+	}
+
+	dt {
+		font-weight: bold;
+		color: #333;
+	}
+
+	dd {
+		margin: 0;
+		word-break: break-all;
+	}
+
+	table {
+		width: 100%;
+		border-collapse: collapse;
+		margin-top: 1rem;
+	}
+
+	th, td {
+		border: 1px solid #ddd;
+		padding: 0.5rem;
+		text-align: left;
+	}
+
+	th {
+		background-color: #f2f2f2;
+		font-weight: bold;
+	}
+
+	tr:nth-child(even) {
+		background-color: #f9f9f9;
+	}
+
+	.test-actions {
+		display: flex;
+		gap: 1rem;
+		margin-top: 1rem;
+	}
+
+	button, a {
+		padding: 0.5rem 1rem;
+		background-color: #007acc;
+		color: white;
+		text-decoration: none;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+	}
+
+	button:hover, a:hover {
+		background-color: #005a99;
+	}
+
+	section {
+		margin: 2rem 0;
+		padding: 1rem;
+		border: 1px solid #eee;
+		border-radius: 8px;
+	}
+
+	section h2 {
+		margin-top: 0;
+		color: #333;
+		border-bottom: 2px solid #4CAF50;
+		padding-bottom: 0.5rem;
+	}
+</style>

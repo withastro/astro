@@ -1,4 +1,3 @@
-import { fileURLToPath } from 'node:url';
 import node from '@astrojs/node';
 import opentelemetry from '@astrojs/opentelemetry';
 import svelte from '@astrojs/svelte';

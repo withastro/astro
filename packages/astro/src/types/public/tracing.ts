@@ -56,4 +56,4 @@ export type TraceEvent = {
 	};
 }[keyof TraceEventsPayloads];
 
-export type TraceListener = (event: TraceEvent, callback: (() => void | Promise<void>)) => void;
+export type TraceListener = (event: TraceEvent, callback: () => void | Promise<void>) => void;

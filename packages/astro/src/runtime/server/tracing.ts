@@ -1,10 +1,6 @@
-import type {
-	TraceEvent,
-	TraceEventsPayloads,
-	TraceListener,
-} from '../../types/public/tracing.js';
+import type { TraceEvent, TraceEventsPayloads, TraceListener } from '../../types/public/tracing.js';
 
-export type { TraceEvent, TraceEventsPayloads, TraceListener, };
+export type { TraceEvent, TraceEventsPayloads, TraceListener };
 
 const listeners: TraceListener[] = [];
 
@@ -26,11 +22,11 @@ export function onTraceEvent(listener: TraceListener, signal?: AbortSignal) {
 }
 
 /**
- * 
- * @param event 
- * @param fn 
- * @param index 
- * @returns 
+ *
+ * @param event
+ * @param fn
+ * @param index
+ * @returns
  */
 function sequenceListeners<T>(event: TraceEvent, fn: () => T, index = 0): T {
 	if (index >= listeners.length) {
@@ -39,7 +35,7 @@ function sequenceListeners<T>(event: TraceEvent, fn: () => T, index = 0): T {
 
 	const listener = listeners[index];
 
-	let state: 'pending' | 'called' | 'failed' = 'pending'
+	let state: 'pending' | 'called' | 'failed' = 'pending';
 	let resultValue: T;
 	let errorValue: unknown;
 	// Wrapper to ensure the callback is only called once
@@ -66,10 +62,10 @@ function sequenceListeners<T>(event: TraceEvent, fn: () => T, index = 0): T {
 		listener(event, () => {
 			const result = next();
 			return result instanceof Promise
-				// Return a promise that always resolve to void, but only once resultValue resolves.
-				// This allow tracing listeners to await the completion of the inner function without
-				// without having access to any internal values.
-				? result.then<void>(() => { })
+				? // Return a promise that always resolve to void, but only once resultValue resolves.
+					// This allow tracing listeners to await the completion of the inner function without
+					// without having access to any internal values.
+					result.then<void>(() => {})
 				: undefined;
 		});
 	} catch {
@@ -100,9 +96,6 @@ export function wrapWithTracing<
 			payload: typeof payload === 'function' ? payload.apply(this, args) : payload,
 		} as TraceEvent;
 
-		return sequenceListeners(
-			eventArgs,
-			() => fn.apply(this, args)
-		);
+		return sequenceListeners(eventArgs, () => fn.apply(this, args));
 	};
 }

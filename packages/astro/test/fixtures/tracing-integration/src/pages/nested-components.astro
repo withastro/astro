@@ -1,0 +1,201 @@
+---
+import TestComponent from '../components/TestComponent.astro';
+import SlotWrapper from '../components/SlotWrapper.astro';
+import NestedContainer from '../components/NestedContainer.astro';
+
+// Test complex nested component structure for tracing
+const componentData = [
+	{ title: "Level 1 - Component A", count: 1, isActive: true },
+	{ title: "Level 1 - Component B", count: 2, isActive: false },
+	{ title: "Level 1 - Component C", count: 3, isActive: true },
+];
+
+const nestedLevels = 3;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Tracing Test - Nested Components</title>
+	</head>
+	<body>
+		<main>
+			<h1>Nested Components Tracing Test</h1>
+			<p>This page tests complex nested component structures to verify tracing order and completeness.</p>
+			
+			<section>
+				<h2>Simple Nesting</h2>
+				<SlotWrapper title="Outer Wrapper">
+					<TestComponent title="Level 2 Component" count={10} isActive={true}>
+						<TestComponent title="Level 3 Component" count={20} isActive={false}>
+							<p>Deeply nested content</p>
+						</TestComponent>
+					</TestComponent>
+				</SlotWrapper>
+			</section>
+
+			<section>
+				<h2>Multiple Nested Containers</h2>
+				<div class="grid-container">
+					{componentData.map((data, index) => (
+						<NestedContainer level={1} maxLevel={nestedLevels} componentData={data} />
+					))}
+				</div>
+			</section>
+
+			<section>
+				<h2>Complex Slot Nesting</h2>
+				<SlotWrapper title="Root Container" className="complex-nesting">
+					<Fragment slot="header">
+						<TestComponent title="Header Component" count={5} isActive={true} />
+					</Fragment>
+					
+					<Fragment slot="sidebar">
+						<SlotWrapper title="Sidebar Container">
+							<TestComponent title="Sidebar Component 1" count={1} />
+							<TestComponent title="Sidebar Component 2" count={2} />
+						</SlotWrapper>
+					</Fragment>
+					
+					<SlotWrapper title="Main Content Container">
+						<Fragment slot="header">
+							<h3>Main Content Header</h3>
+						</Fragment>
+						
+						<TestComponent title="Main Component 1" count={100} isActive={true}>
+							<SlotWrapper title="Nested in Main">
+								<TestComponent title="Deeply Nested Main" count={200} />
+							</SlotWrapper>
+						</TestComponent>
+						
+						<TestComponent title="Main Component 2" count={150} isActive={false} />
+						
+						<Fragment slot="footer">
+							<TestComponent title="Main Footer Component" count={50} />
+						</Fragment>
+					</SlotWrapper>
+					
+					<Fragment slot="footer">
+						<div class="footer-components">
+							<TestComponent title="Footer Component 1" count={10} isActive={true} />
+							<TestComponent title="Footer Component 2" count={20} isActive={false} />
+						</div>
+					</Fragment>
+				</SlotWrapper>
+			</section>
+
+			<section>
+				<h2>Dynamic Nesting</h2>
+				<div class="dynamic-nesting">
+					{Array.from({ length: 3 }, (_, outerIndex) => (
+						<SlotWrapper title={`Dynamic Container ${outerIndex + 1}`} key={outerIndex}>
+							{Array.from({ length: 2 }, (_, innerIndex) => (
+								<TestComponent 
+									title={`Dynamic Component ${outerIndex + 1}.${innerIndex + 1}`}
+									count={(outerIndex + 1) * 10 + (innerIndex + 1)}
+									isActive={innerIndex % 2 === 0}
+									key={`${outerIndex}-${innerIndex}`}
+								>
+									<div class="dynamic-content">
+										<p>Dynamic content for component {outerIndex + 1}.{innerIndex + 1}</p>
+										{innerIndex === 1 && (
+											<TestComponent 
+												title={`Conditional Component ${outerIndex + 1}`}
+												count={999}
+												isActive={true}
+											/>
+										)}
+									</div>
+								</TestComponent>
+							))}
+						</SlotWrapper>
+					))}
+				</div>
+			</section>
+
+			<section>
+				<h2>Recursive-like Structure</h2>
+				<div class="recursive-structure">
+					<NestedContainer level={1} maxLevel={4} componentData={{
+						title: "Recursive Root",
+						count: 1000,
+						isActive: true
+					}} />
+				</div>
+			</section>
+		</main>
+	</body>
+</html>
+
+<style>
+	.grid-container {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		gap: 1rem;
+		margin-top: 1rem;
+	}
+
+	.complex-nesting {
+		border: 3px solid #ff6b35;
+	}
+
+	.footer-components {
+		display: flex;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+
+	.dynamic-nesting {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.dynamic-content {
+		background-color: #fff3cd;
+		padding: 0.5rem;
+		border-radius: 4px;
+		border: 1px solid #ffeaa7;
+	}
+
+	.recursive-structure {
+		border: 2px dashed #9b59b6;
+		padding: 1rem;
+		border-radius: 8px;
+		background-color: #f8f9fa;
+	}
+
+	section {
+		margin: 2rem 0;
+		padding: 1.5rem;
+		border: 1px solid #eee;
+		border-radius: 8px;
+		background-color: #ffffff;
+	}
+
+	section h2 {
+		margin-top: 0;
+		color: #333;
+		border-bottom: 2px solid #4CAF50;
+		padding-bottom: 0.5rem;
+	}
+
+	/* Add visual indicators for nesting levels */
+	.test-component {
+		position: relative;
+	}
+
+	.test-component::before {
+		content: '';
+		position: absolute;
+		left: -10px;
+		top: 0;
+		bottom: 0;
+		width: 3px;
+		background: linear-gradient(to bottom, #3498db, #2ecc71);
+		border-radius: 2px;
+	}
+</style>
