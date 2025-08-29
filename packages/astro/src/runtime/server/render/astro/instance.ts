@@ -1,4 +1,5 @@
 import type { SSRResult } from '../../../../types/public/internal.js';
+import { wrapWithTracing } from '../../tracing.js';
 import { isPromise } from '../../util.js';
 import { renderChild } from '../any.js';
 import type { RenderDestination } from '../common.js';
@@ -30,6 +31,12 @@ export class AstroComponentInstance {
 		this.factory = factory;
 		this.slotValues = {};
 		for (const name in slots) {
+			// add tracing to slots functions so each call is traced individually
+			slots[name] = wrapWithTracing('slotRender', slots[name], {
+				slotName: name,
+				componentModuleId: factory.moduleId,
+				componentName: factory.name,
+			});
 			// prerender the slots eagerly to make collection entries propagate styles and scripts
 			let didRender = false;
 			let value = slots[name](result);

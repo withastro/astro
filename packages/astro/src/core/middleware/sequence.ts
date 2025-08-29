@@ -1,4 +1,9 @@
-import type { MiddlewareHandler, RewritePayload } from '../../types/public/common.js';
+import { wrapWithTracing } from '../../runtime/server/tracing.js';
+import type {
+	MiddlewareHandler,
+	NamedMiddlewareHandler,
+	RewritePayload,
+} from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
 import { ForbiddenRewrite } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
@@ -7,19 +12,39 @@ import { apiContextRoutesSymbol } from '../render-context.js';
 import { setOriginPathname } from '../routing/rewrite.js';
 import { defineMiddleware } from './index.js';
 
+type MiddlewareOrNamed = MiddlewareHandler | NamedMiddlewareHandler;
+
+function wrapMiddlewareWithTracing(name: string, handler: MiddlewareHandler): MiddlewareHandler {
+	return wrapWithTracing('middleware', handler, (context) => ({
+		name,
+		pathname: context.url.pathname,
+		url: context.url,
+		request: context.request,
+	}));
+}
+
 // From SvelteKit: https://github.com/sveltejs/kit/blob/master/packages/kit/src/exports/hooks/sequence.js
 /**
  *
  * It accepts one or more middleware handlers and makes sure that they are run in sequence.
  */
-export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
-	const filtered = handlers.filter((h) => !!h);
+export function sequence(...handlers: MiddlewareOrNamed[]): MiddlewareHandler {
+	const filtered = handlers.filter((h) => !!h && (typeof h === 'function' || !!h[1]));
 	const length = filtered.length;
 	if (!length) {
 		return defineMiddleware((_context, next) => {
 			return next();
 		});
 	}
+	if (length === 1) {
+		const handler = filtered[0];
+		return typeof handler === 'function' ? handler : handler[1];
+	}
+	const tracedMiddlewares: MiddlewareHandler[] = filtered.map((h, index) =>
+		typeof h === 'function'
+			? wrapMiddlewareWithTracing(h.name || `sequence[${index}]`, h)
+			: wrapMiddlewareWithTracing(h[0] || `sequence[${index}]`, h[1]),
+	);
 	return defineMiddleware((context, next) => {
 		/**
 		 * This variable is used to carry the rerouting payload across middleware functions.
@@ -28,11 +53,9 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 		return applyHandle(0, context);
 
 		function applyHandle(i: number, handleContext: APIContext) {
-			const handle = filtered[i];
-			// @ts-expect-error
-			// SAFETY: Usually `next` always returns something in user land, but in `sequence` we are actually
-			// doing a loop over all the `next` functions, and eventually we call the last `next` that returns the `Response`.
-			const result = handle(handleContext, async (payload?: RewritePayload) => {
+			const handle = tracedMiddlewares[i];
+
+			const result = handle(handleContext, async (payload?: RewritePayload): Promise<Response> => {
 				if (i < length - 1) {
 					if (payload) {
 						let newRequest;
@@ -86,6 +109,10 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 							pipeline.manifest.buildFormat,
 						);
 					}
+
+					// @ts-expect-error
+					// SAFETY: Usually `next` always returns something in user land, but in `sequence` we are actually
+					// doing a loop over all the `next` functions, and eventually we call the last `next` that returns the `Response`.
 					return applyHandle(i + 1, handleContext);
 				} else {
 					return next(payload ?? carriedPayload);
