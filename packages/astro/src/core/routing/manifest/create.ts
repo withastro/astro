@@ -14,6 +14,7 @@ import type { RouteData, RoutePart } from '../../../types/public/internal.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import {
 	MissingIndexForInternationalization,
+	RedirectMappingMismatch,
 	UnsupportedExternalRedirect,
 } from '../../errors/errors-data.js';
 import { AstroError } from '../../errors/index.js';
@@ -364,6 +365,12 @@ function createRedirectRoutes(
 			});
 		}
 
+		const redirectRoute = routeMap.get(destination);
+
+		if (redirectRoute) {
+			validateRouteMapping(segments, from, redirectRoute.segments ?? [], redirectRoute.route ?? '');
+		}
+
 		routes.push({
 			type: 'redirect',
 			// For backwards compatibility, a redirect is never considered an index route.
@@ -377,7 +384,7 @@ function createRedirectRoutes(
 			pathname: pathname || void 0,
 			prerender: getPrerenderDefault(config),
 			redirect: to,
-			redirectRoute: routeMap.get(destination),
+			redirectRoute,
 			fallbackRoutes: [],
 			distURL: [],
 			origin: 'project',
@@ -385,6 +392,54 @@ function createRedirectRoutes(
 	}
 
 	return routes;
+}
+
+/**
+ * Checks whether `a` can be mapped to `b`. If the requirements don't match,
+ * an error is thrown.
+ * @param fromSegments
+ * @param fromRoute
+ * @param toSegments
+ * @param toRoute
+ */
+function validateRouteMapping(
+	fromSegments: RoutePart[][],
+	fromRoute: string,
+	toSegments: RoutePart[][],
+	toRoute: string,
+) {
+	const fromHasSpread = fromSegments.some((routePart) => routePart.some((part) => part.spread));
+	const toHasSpread = toSegments.some((routePart) => routePart.some((part) => part.spread));
+
+	if (fromHasSpread || toHasSpread) {
+		return;
+	}
+
+	const fromDynamicSegments = fromSegments.reduce((dynamicSegments, routePart) => {
+		if (routePart.some((part) => part.dynamic || part.spread)) {
+			dynamicSegments += 1;
+		}
+		return dynamicSegments;
+	}, 0);
+
+	const toDynamicSegments = toSegments.reduce((dynamicSegments, routePart) => {
+		if (routePart.some((part) => part.dynamic || part.spread)) {
+			dynamicSegments += 1;
+		}
+		return dynamicSegments;
+	}, 0);
+
+	if (fromDynamicSegments != toDynamicSegments) {
+		throw new AstroError({
+			...RedirectMappingMismatch,
+			message: RedirectMappingMismatch.message(
+				fromRoute,
+				toRoute,
+				fromDynamicSegments,
+				toDynamicSegments,
+			),
+		});
+	}
 }
 
 /**
