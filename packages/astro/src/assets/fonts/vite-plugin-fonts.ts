@@ -23,7 +23,10 @@ import type {
 	CssRenderer,
 	FontFetcher,
 	FontTypeExtractor,
+	Hasher,
 	RemoteFontProviderModResolver,
+	UrlProxyContentResolver,
+	UrlProxyHashResolver,
 	UrlResolver,
 } from './definitions.js';
 import { createMinifiableCssRenderer } from './implementations/css-renderer.js';
@@ -47,6 +50,10 @@ import {
 	createLocalUrlProxyContentResolver,
 	createRemoteUrlProxyContentResolver,
 } from './implementations/url-proxy-content-resolver.js';
+import {
+	createBuildUrlProxyHashResolver,
+	createDevUrlProxyHashResolver,
+} from './implementations/url-proxy-hash-resolver.js';
 import { createBuildUrlResolver, createDevUrlResolver } from './implementations/url-resolver.js';
 import { orchestrate } from './orchestrate.js';
 import type { ConsumableMap, FontFileDataMap } from './types.js';
@@ -103,11 +110,16 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		modResolver,
 		cssRenderer,
 		urlResolver,
+		createHashResolver,
 	}: {
 		cacheDir: URL;
 		modResolver: RemoteFontProviderModResolver;
 		cssRenderer: CssRenderer;
 		urlResolver: UrlResolver;
+		createHashResolver: (dependencies: {
+			hasher: Hasher;
+			contentResolver: UrlProxyContentResolver;
+		}) => UrlProxyHashResolver;
 	}) {
 		const { root } = settings.config;
 		// Dependencies. Once extracted to a dedicated vite plugin, those may be passed as
@@ -155,16 +167,16 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			fontTypeExtractor,
 			fontFileReader,
 			logger,
-			createUrlProxy: ({ local, ...params }) => {
+			createUrlProxy: ({ local, cssVariable, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = local
 					? createLocalUrlProxyContentResolver({ errorHandler })
 					: createRemoteUrlProxyContentResolver();
 				return createUrlProxy({
 					urlResolver,
-					contentResolver,
-					hasher,
+					hashResolver: createHashResolver({ hasher, contentResolver }),
 					dataCollector,
+					cssVariable,
 				});
 			},
 			defaults: DEFAULTS,
@@ -204,6 +216,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 						base: baseUrl,
 						assetsPrefix: settings.config.build.assetsPrefix,
 					}),
+					createHashResolver: (dependencies) => createBuildUrlProxyHashResolver(dependencies),
 				});
 			}
 		},
@@ -214,6 +227,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				modResolver: createDevServerRemoteFontProviderModResolver({ server }),
 				cssRenderer: createMinifiableCssRenderer({ minify: false }),
 				urlResolver: createDevUrlResolver({ base: baseUrl }),
+				createHashResolver: (dependencies) =>
+					createDevUrlProxyHashResolver({
+						baseHashResolver: createBuildUrlProxyHashResolver(dependencies),
+					}),
 			});
 			// The map is always defined at this point. Its values contains urls from remote providers
 			// as well as local paths for the local provider. We filter them to only keep the filepaths
