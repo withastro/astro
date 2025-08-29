@@ -364,7 +364,7 @@ export class RenderContext {
 		}
 		this.url = new URL(this.request.url);
 		const newCookies = new AstroCookies(this.request);
-		if(this.cookies) {
+		if (this.cookies) {
 			newCookies.merge(this.cookies);
 		}
 		this.cookies = newCookies;
