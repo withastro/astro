@@ -335,7 +335,7 @@ By default, `create-astro` and [astro.new](https://astro.new) point to this bran
 
 The repo is set up with automatic releases, using the changeset GitHub action & bot.
 
-To release a new version of Astro, find the `Version Packages` PR, read it over, and merge it.
+To release a new version of Astro, find the `[ci] release` PR, read it over, and merge it.
 
 ### Releasing PR preview snapshots
 

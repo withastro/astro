@@ -171,6 +171,7 @@ export async function syncInternal({
 		const paths = getContentPaths(settings.config, fs);
 		if (
 			paths.config.exists ||
+			paths.liveConfig.exists ||
 			// Legacy collections don't require a config file
 			(settings.config.legacy?.collections && fs.existsSync(paths.contentDir))
 		) {

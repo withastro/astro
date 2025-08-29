@@ -5,7 +5,6 @@ import type {
 	RewritePayload,
 } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
-import { AstroCookies } from '../cookies/cookies.js';
 import { ForbiddenRewrite } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
 import { getParams, type Pipeline } from '../render/index.js';
@@ -101,7 +100,6 @@ export function sequence(...handlers: MiddlewareOrNamed[]): MiddlewareHandler {
 						carriedPayload = payload;
 						handleContext.request = newRequest;
 						handleContext.url = new URL(newRequest.url);
-						handleContext.cookies = new AstroCookies(newRequest);
 						handleContext.params = getParams(routeData, pathname);
 						handleContext.routePattern = routeData.route;
 						setOriginPathname(

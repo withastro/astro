@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 9.4.3
+
+### Patch Changes
+
+- [#14240](https://github.com/withastro/astro/pull/14240) [`77b18fb`](https://github.com/withastro/astro/commit/77b18fb1f85cf1a0c8842bb6e32fd16a9198b974) Thanks [@delucis](https://github.com/delucis)! - Increases the minimum supported version of Astro to 5.7.0
+
 ## 9.4.2
 
 ### Patch Changes
