@@ -12,7 +12,12 @@ import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, Props, RewritePayload } from '../types/public/common.js';
-import type { APIContext, AstroGlobal, AstroGlobalPartial } from '../types/public/context.js';
+import type {
+	APIContext,
+	AstroGlobal,
+	AstroGlobalPartial,
+	AstroSharedContextCsp,
+} from '../types/public/context.js';
 import type { RouteData, SSRResult } from '../types/public/internal.js';
 import type { SSRActions } from './app/types.js';
 import {
@@ -430,37 +435,41 @@ export class RenderContext {
 				}
 				return renderContext.session;
 			},
-			insertDirective(payload) {
-				if (!pipeline.manifest.csp) {
-					throw new AstroError(CspNotEnabled);
-				}
-				renderContext.result?.directives.push(payload);
-			},
+			get csp(): AstroSharedContextCsp {
+				return {
+					insertDirective(payload) {
+						if (!pipeline.manifest.csp) {
+							throw new AstroError(CspNotEnabled);
+						}
+						renderContext.result?.directives.push(payload);
+					},
 
-			insertScriptResource(resource) {
-				if (!pipeline.manifest.csp) {
-					throw new AstroError(CspNotEnabled);
-				}
-				renderContext.result?.scriptResources.push(resource);
-			},
-			insertStyleResource(resource) {
-				if (!pipeline.manifest.csp) {
-					throw new AstroError(CspNotEnabled);
-				}
+					insertScriptResource(resource) {
+						if (!pipeline.manifest.csp) {
+							throw new AstroError(CspNotEnabled);
+						}
+						renderContext.result?.scriptResources.push(resource);
+					},
+					insertStyleResource(resource) {
+						if (!pipeline.manifest.csp) {
+							throw new AstroError(CspNotEnabled);
+						}
 
-				renderContext.result?.styleResources.push(resource);
-			},
-			insertStyleHash(hash) {
-				if (!pipeline.manifest.csp) {
-					throw new AstroError(CspNotEnabled);
-				}
-				renderContext.result?.styleHashes.push(hash);
-			},
-			insertScriptHash(hash) {
-				if (!pipeline.manifest.csp) {
-					throw new AstroError(CspNotEnabled);
-				}
-				renderContext.result?.scriptHashes.push(hash);
+						renderContext.result?.styleResources.push(resource);
+					},
+					insertStyleHash(hash) {
+						if (!pipeline.manifest.csp) {
+							throw new AstroError(CspNotEnabled);
+						}
+						renderContext.result?.styleHashes.push(hash);
+					},
+					insertScriptHash(hash) {
+						if (!pipeline.manifest.csp) {
+							throw new AstroError(CspNotEnabled);
+						}
+						renderContext.result?.scriptHashes.push(hash);
+					},
+				};
 			},
 		};
 	}
@@ -695,37 +704,41 @@ export class RenderContext {
 			get originPathname() {
 				return getOriginPathname(renderContext.request);
 			},
-			insertDirective(payload) {
-				if (!pipeline.manifest.csp) {
-					throw new AstroError(CspNotEnabled);
-				}
-				renderContext.result?.directives.push(payload);
-			},
+			get csp(): AstroSharedContextCsp {
+				return {
+					insertDirective(payload) {
+						if (!pipeline.manifest.csp) {
+							throw new AstroError(CspNotEnabled);
+						}
+						renderContext.result?.directives.push(payload);
+					},
 
-			insertScriptResource(resource) {
-				if (!pipeline.manifest.csp) {
-					throw new AstroError(CspNotEnabled);
-				}
-				renderContext.result?.scriptResources.push(resource);
-			},
-			insertStyleResource(resource) {
-				if (!pipeline.manifest.csp) {
-					throw new AstroError(CspNotEnabled);
-				}
+					insertScriptResource(resource) {
+						if (!pipeline.manifest.csp) {
+							throw new AstroError(CspNotEnabled);
+						}
+						renderContext.result?.scriptResources.push(resource);
+					},
+					insertStyleResource(resource) {
+						if (!pipeline.manifest.csp) {
+							throw new AstroError(CspNotEnabled);
+						}
 
-				renderContext.result?.styleResources.push(resource);
-			},
-			insertStyleHash(hash) {
-				if (!pipeline.manifest.csp) {
-					throw new AstroError(CspNotEnabled);
-				}
-				renderContext.result?.styleHashes.push(hash);
-			},
-			insertScriptHash(hash) {
-				if (!pipeline.manifest.csp) {
-					throw new AstroError(CspNotEnabled);
-				}
-				renderContext.result?.scriptHashes.push(hash);
+						renderContext.result?.styleResources.push(resource);
+					},
+					insertStyleHash(hash) {
+						if (!pipeline.manifest.csp) {
+							throw new AstroError(CspNotEnabled);
+						}
+						renderContext.result?.styleHashes.push(hash);
+					},
+					insertScriptHash(hash) {
+						if (!pipeline.manifest.csp) {
+							throw new AstroError(CspNotEnabled);
+						}
+						renderContext.result?.scriptHashes.push(hash);
+					},
+				};
 			},
 		};
 	}

@@ -1,7 +1,7 @@
 ---
-Astro.insertScriptResource("https://scripts.cdn.example.com");
-Astro.insertScriptHash('sha256-customHash');
-Astro.insertDirective("default-src 'self'");
+Astro.csp.insertScriptResource("https://scripts.cdn.example.com");
+Astro.csp.insertScriptHash('sha256-customHash');
+Astro.csp.insertDirective("default-src 'self'");
 ---
 
 <html lang="en">
