@@ -619,20 +619,12 @@ export default function vercelAdapter({
 					if (!normalized.routes) {
 						normalized.routes = [];
 					}
-					normalized.routes.push(...createConfigHeaders(_routeToHeaders, _config));
-				}
-
-				// We shift `{ "handle": "filesystem" }` to the last place, otherwise the
-				// static headers don't work as expected
-				if (experimentalStaticHeaders) {
-					if (normalized.routes && normalized.routes.length > 0) {
-						const firstRoute = normalized.routes[0];
-						if ('handle' in firstRoute && firstRoute.handle === 'filesystem') {
-							const fileSystemRoute = normalized.routes.shift();
-							if (fileSystemRoute) {
-								normalized.routes.push(fileSystemRoute);
-							}
-						}
+					if (experimentalStaticHeaders) {
+						const routesWithConfigHeaders = createRoutesWithStaticHeaders(_routeToHeaders, _config);
+						const fileSystemRouteIndex = normalized.routes.findIndex(
+							(r) => 'handle' in r && r.handle === 'filesystem',
+						);
+						normalized.routes.splice(fileSystemRouteIndex, 0, ...routesWithConfigHeaders);
 					}
 				}
 
@@ -797,7 +789,10 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 	return 'nodejs22.x';
 }
 
-function createConfigHeaders(staticHeaders: RouteToHeaders, config: AstroConfig): RouteWithSrc[] {
+function createRoutesWithStaticHeaders(
+	staticHeaders: RouteToHeaders,
+	config: AstroConfig,
+): RouteWithSrc[] {
 	const vercelHeaders: RouteWithSrc[] = [];
 	for (const [pathname, { headers }] of staticHeaders.entries()) {
 		if (config.experimental.csp) {
