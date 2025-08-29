@@ -62,7 +62,8 @@ const service: ExternalImageService = {
 
 		return '/_vercel/image?' + searchParams;
 	},
-	// Adapted from the base service's getSrcSet, but always returning widths that are valid for Vercel
+	// Adapted from the base service's getSrcSet, but always returning widths that are valid for Vercel,
+	// meaning they're in the list of configured sizes. See sharedValidateOptions in shared.ts for more info.
 	getSrcSet(options) {
 		const { inputtedWidth, densities, widths, ...props } = options;
 
