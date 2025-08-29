@@ -1,5 +1,14 @@
 # @astrojs/cloudflare
 
+## 12.6.7
+
+### Patch Changes
+
+- [#14281](https://github.com/withastro/astro/pull/14281) [`dfd88de`](https://github.com/withastro/astro/commit/dfd88de3ca9a6cda75b05534b0f78dab0227abe7) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a regression that broke sites that used the compile image service without nodejs_compat set
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 12.6.6
 
 ### Patch Changes
