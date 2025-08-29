@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { sitemap } from './fixtures/static/deps.mjs';
-import { loadFixture, readXML } from './test-utils.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Namespaces Configuration', () => {
     let fixture;
