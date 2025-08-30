@@ -56,6 +56,13 @@ async function expectUrlNotPrefetched(url, page) {
 	expect(reqUrls).not.toContainEqual(url);
 }
 
+async function simulateTap(locator) {
+  await locator.evaluate((el) => {
+    const touchStart = new TouchEvent('touchstart');
+    el.dispatchEvent(touchStart);
+  });
+}
+
 test.describe('Prefetch (default)', () => {
 	let devServer;
 
@@ -393,3 +400,76 @@ test.describe('Prefetch (default), Experimental ({ clientPrerender: true })', ()
 		expect(await scriptIsInHead(page, 'prefetch-load')).toBeTruthy();
 	});
 });
+
+test.describe("Prefetch View Transitions", () => {
+	let devServer;
+
+	test.afterEach(async () => {
+		await devServer.stop();
+	});
+
+	test('"load" strategy', async ({ page, astro }) => {
+		devServer = await astro.startDevServer({
+			prefetch: {
+				defaultStrategy: 'load',
+			},
+		});
+		await page.goto(astro.resolveUrl('/view-transitions'));
+		await expectUrlPrefetched('/view-transitions/1', page);
+
+		await page.click('a')
+		await expectUrlPrefetched('/view-transitions/2', page);
+	});
+
+	test('"viewport" strategy', async ({ page, astro }) => {
+		devServer = await astro.startDevServer({
+			prefetch: {
+				defaultStrategy: 'viewport',
+			},
+		});
+		await page.goto(astro.resolveUrl('/view-transitions'));
+		await expectUrlPrefetched('/view-transitions/1', page);
+
+		await page.click('a')
+		await expectUrlPrefetched('/view-transitions/2', page);
+	});
+
+	test('"tap" strategy', async ({ page, astro }) => {
+		devServer = await astro.startDevServer({
+			prefetch: {
+				defaultStrategy: 'tap',
+			},
+		});
+		await page.goto(astro.resolveUrl('/view-transitions'));
+
+		await expectUrlNotPrefetched('/view-transitions/1', page);
+		await simulateTap(page.locator('a'))
+		await expectUrlPrefetched('/view-transitions/1', page);
+
+		await page.click('a')
+
+		await expectUrlNotPrefetched('/view-transitions/2', page);
+		await simulateTap(page.locator('a'))
+		await expectUrlPrefetched('/view-transitions/2', page);
+	});
+
+	test('"hover" strategy', async ({ page, astro }) => {
+		devServer = await astro.startDevServer({
+			prefetch: {
+				defaultStrategy: 'hover',
+			},
+		});
+		await page.goto(astro.resolveUrl('/view-transitions'));
+
+		await expectUrlNotPrefetched('/view-transitions/1', page);
+		await page.locator('a').hover()
+		await expectUrlPrefetched('/view-transitions/1', page);
+
+		await page.click('a')
+		await page.mouse.move(0, 0)
+
+		await expectUrlNotPrefetched('/view-transitions/2', page);
+		await page.locator('a').hover()
+		await expectUrlPrefetched('/view-transitions/2', page);
+	});
+})
