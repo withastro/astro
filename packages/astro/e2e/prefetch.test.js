@@ -57,10 +57,10 @@ async function expectUrlNotPrefetched(url, page) {
 }
 
 async function simulateTap(locator) {
-  await locator.evaluate((el) => {
-    const touchStart = new TouchEvent('touchstart');
-    el.dispatchEvent(touchStart);
-  });
+	await locator.evaluate((el) => {
+		const touchStart = new TouchEvent('touchstart');
+		el.dispatchEvent(touchStart);
+	});
 }
 
 test.describe('Prefetch (default)', () => {
@@ -401,7 +401,7 @@ test.describe('Prefetch (default), Experimental ({ clientPrerender: true })', ()
 	});
 });
 
-test.describe("Prefetch View Transitions", () => {
+test.describe('Prefetch View Transitions', () => {
 	let devServer;
 
 	test.afterEach(async () => {
@@ -417,7 +417,7 @@ test.describe("Prefetch View Transitions", () => {
 		await page.goto(astro.resolveUrl('/view-transitions'));
 		await expectUrlPrefetched('/view-transitions/1', page);
 
-		await page.click('a')
+		await page.click('a');
 		await expectUrlPrefetched('/view-transitions/2', page);
 	});
 
@@ -430,7 +430,7 @@ test.describe("Prefetch View Transitions", () => {
 		await page.goto(astro.resolveUrl('/view-transitions'));
 		await expectUrlPrefetched('/view-transitions/1', page);
 
-		await page.click('a')
+		await page.click('a');
 		await expectUrlPrefetched('/view-transitions/2', page);
 	});
 
@@ -443,13 +443,13 @@ test.describe("Prefetch View Transitions", () => {
 		await page.goto(astro.resolveUrl('/view-transitions'));
 
 		await expectUrlNotPrefetched('/view-transitions/1', page);
-		await simulateTap(page.locator('a'))
+		await simulateTap(page.locator('a'));
 		await expectUrlPrefetched('/view-transitions/1', page);
 
-		await page.click('a')
+		await page.click('a');
 
 		await expectUrlNotPrefetched('/view-transitions/2', page);
-		await simulateTap(page.locator('a'))
+		await simulateTap(page.locator('a'));
 		await expectUrlPrefetched('/view-transitions/2', page);
 	});
 
@@ -462,14 +462,14 @@ test.describe("Prefetch View Transitions", () => {
 		await page.goto(astro.resolveUrl('/view-transitions'));
 
 		await expectUrlNotPrefetched('/view-transitions/1', page);
-		await page.locator('a').hover()
+		await page.locator('a').hover();
 		await expectUrlPrefetched('/view-transitions/1', page);
 
-		await page.click('a')
-		await page.mouse.move(0, 0)
+		await page.click('a');
+		await page.mouse.move(0, 0);
 
 		await expectUrlNotPrefetched('/view-transitions/2', page);
-		await page.locator('a').hover()
+		await page.locator('a').hover();
 		await expectUrlPrefetched('/view-transitions/2', page);
 	});
-})
+});
