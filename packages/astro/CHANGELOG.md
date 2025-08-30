@@ -1,5 +1,55 @@
 # astro
 
+## 5.13.5
+
+### Patch Changes
+
+- [#14286](https://github.com/withastro/astro/pull/14286) [`09c5db3`](https://github.com/withastro/astro/commit/09c5db37d12862eef8d4ecf62389e10f30a22de9) Thanks [@ematipico](https://github.com/ematipico)! - **BREAKING CHANGES only to the experimental CSP feature**
+
+  The following runtime APIs of the `Astro` global have been renamed:
+  - `Astro.insertDirective` to `Astro.csp.insertDirective`
+  - `Astro.insertStyleResource` to `Astro.csp.insertStyleResource`
+  - `Astro.insertStyleHash` to `Astro.csp.insertStyleHash`
+  - `Astro.insertScriptResource` to `Astro.csp.insertScriptResource`
+  - `Astro.insertScriptHash` to `Astro.csp.insertScriptHash`
+
+  The following runtime APIs of the `APIContext` have been renamed:
+  - `ctx.insertDirective` to `ctx.csp.insertDirective`
+  - `ctx.insertStyleResource` to `ctx.csp.insertStyleResource`
+  - `ctx.insertStyleHash` to `ctx.csp.insertStyleHash`
+  - `ctx.insertScriptResource` to `ctx.csp.insertScriptResource`
+  - `ctx.insertScriptHash` to `ctx.csp.insertScriptHash`
+
+- [#14283](https://github.com/withastro/astro/pull/14283) [`3224637`](https://github.com/withastro/astro/commit/3224637eca5c065872d92449216cb33baac2dbfd) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where CSP headers were incorrectly injected in the development server.
+
+- [#14275](https://github.com/withastro/astro/pull/14275) [`3e2f20d`](https://github.com/withastro/astro/commit/3e2f20d07e92b1acfadb1357a59b6952e85227f3) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds support for experimental CSP when using experimental fonts
+
+  Experimental fonts now integrate well with experimental CSP by injecting hashes for the styles it generates, as well as `font-src` directives.
+
+  No action is required to benefit from it.
+
+- [#14280](https://github.com/withastro/astro/pull/14280) [`4b9fb73`](https://github.com/withastro/astro/commit/4b9fb736dab42b8864012db0a981d3441366c388) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused cookies to not be correctly set when using middleware sequences
+
+- [#14276](https://github.com/withastro/astro/pull/14276) [`77281c4`](https://github.com/withastro/astro/commit/77281c4616b65959715dcbac42bf948bebfee755) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Adds a missing export for `resolveSrc`, a documented image services utility.
+
+## 5.13.4
+
+### Patch Changes
+
+- [#14260](https://github.com/withastro/astro/pull/14260) [`86a1e40`](https://github.com/withastro/astro/commit/86a1e40ce21b629a956057b059d06ba78bd89402) Thanks [@jp-knj](https://github.com/jp-knj)! - Fixes `Astro.url.pathname` to respect `trailingSlash: 'never'` configuration when using a base path. Previously, the root path with a base would incorrectly return `/base/` instead of `/base` when `trailingSlash` was set to 'never'.
+
+- [#14248](https://github.com/withastro/astro/pull/14248) [`e81c4bd`](https://github.com/withastro/astro/commit/e81c4bd1cca6739192d33068cbfb2c9e4ced1ffe) Thanks [@julesyoungberg](https://github.com/julesyoungberg)! - Fixes a bug where actions named 'apply' do not work due to being a function prototype method.
+
+## 5.13.3
+
+### Patch Changes
+
+- [#14239](https://github.com/withastro/astro/pull/14239) [`d7d93e1`](https://github.com/withastro/astro/commit/d7d93e19fbfa52cf74dee40f5af6b7ea6a7503d2) Thanks [@wtchnm](https://github.com/wtchnm)! - Fixes a bug where the types for the live content collections were not being generated correctly in dev mode
+
+- [#14221](https://github.com/withastro/astro/pull/14221) [`eadc9dd`](https://github.com/withastro/astro/commit/eadc9dd277d0075d7bff0e33c7a86f3fb97fdd61) Thanks [@delucis](https://github.com/delucis)! - Fixes JSON schema support for content collections using the `file()` loader
+
+- [#14229](https://github.com/withastro/astro/pull/14229) [`1a9107a`](https://github.com/withastro/astro/commit/1a9107a4049f43c1e4e9f40e07033f6bfe4398e4) Thanks [@jonmichaeldarby](https://github.com/jonmichaeldarby)! - Ensures `Astro.currentLocale` returns the correct locale during SSG for pages that use a locale param (such as `[locale].astro` or `[locale]/index.astro`, which produce `[locale].html`)
+
 ## 5.13.2
 
 ### Patch Changes

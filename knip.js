@@ -37,6 +37,7 @@ export default {
 				'rehype-slug',
 				'rehype-toc',
 				'remark-code-titles',
+				'@types/http-cache-semantics',
 			],
 		},
 		'packages/db': {

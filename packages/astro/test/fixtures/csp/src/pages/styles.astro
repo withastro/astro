@@ -1,7 +1,7 @@
 ---
-Astro.insertStyleResource("https://styles.cdn.example.com");
-Astro.insertStyleHash('sha256-customHash');
-Astro.insertDirective("default-src 'self'");
+Astro.csp.insertStyleResource("https://styles.cdn.example.com");
+Astro.csp.insertStyleHash('sha256-customHash');
+Astro.csp.insertDirective("default-src 'self'");
 ---
 
 <html lang="en">

@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 3.5.1
+
+### Patch Changes
+
+- [#14233](https://github.com/withastro/astro/pull/14233) [`896886c`](https://github.com/withastro/astro/commit/896886cc6e60954d8d5ac80a4b2560df92cfdc5b) Thanks [@gouravkhunger](https://github.com/gouravkhunger)! - Fixes the issue with the option `lastmod` where if it is defined it applies correctly to `<url>` entries in each `sitemap-${i}.xml` file but not the `<sitemap>` entries in the root `sitemap-index.xml` file.
+
 ## 3.5.0
 
 ### Minor Changes

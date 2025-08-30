@@ -28,6 +28,22 @@ describe('Image', () => {
 		assert.equal(img.attr('width'), '225');
 	});
 
+	it('generates valid image sizes when requested width is larger than source image', async () => {
+		const html = await fixture.readFile('../.vercel/output/static/index.html');
+		const $ = cheerio.load(html);
+		const img = $('#small-source img');
+		const widths = img
+			.attr('srcset')
+			.split(', ')
+			.map((entry) => entry.split(' ')[1]);
+		assert.deepEqual(widths, ['640w'], 'uses valid widths in srcset');
+
+		const url = new URL(img.attr('src'), 'http://localhost');
+		assert.equal(url.searchParams.get('w'), '640', 'uses valid width in src');
+
+		assert.equal(img.attr('width'), '225', 'uses requested width in img attribute');
+	});
+
 	it('has proper vercel config', async () => {
 		const vercelConfig = JSON.parse(await fixture.readFile('../.vercel/output/config.json'));
 
