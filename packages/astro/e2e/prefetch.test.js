@@ -401,7 +401,7 @@ test.describe('Prefetch (default), Experimental ({ clientPrerender: true })', ()
 	});
 });
 
-test.describe('Prefetch View Transitions', () => {
+test.describe('Prefetch (View Transitions)', () => {
 	let devServer;
 
 	test.afterEach(async () => {
