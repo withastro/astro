@@ -12,7 +12,6 @@
     "verbatimModuleSyntax": true,
     "stripInternal": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "resolveJsonModule": true
+    "noUnusedParameters": true
   }
 }
