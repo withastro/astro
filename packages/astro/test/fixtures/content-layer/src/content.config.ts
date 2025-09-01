@@ -274,3 +274,5 @@ export const collections = {
 	nothingMatches
 };
 
+
+export const foo = 'bar';
