@@ -1129,9 +1129,12 @@ test.describe('View Transitions', () => {
 
 	test('form POST that action for cross-origin is opt-out', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/form-five'));
-		page.on('request', (request) => expect(request.method()).toBe('POST'));
-		// Submit the form
-		await page.click('#submit');
+		// Wait for the navigation request specifically
+		const [request] = await Promise.all([
+			page.waitForRequest((req) => req.isNavigationRequest()),
+			page.click('#submit')
+		]);
+		expect(request.method()).toBe('POST');
 	});
 
 	test('form GET that redirects to another page is handled', async ({ page, astro }) => {
@@ -1246,11 +1249,12 @@ test.describe('View Transitions', () => {
 		astro,
 	}) => {
 		await page.goto(astro.resolveUrl('/form-six'));
-		page.on('request', (request) => {
-			expect(request.url()).toContain('/bar');
-		});
-		// Submit the form
-		await page.click('#submit');
+		// Wait for the navigation request specifically
+		const [request] = await Promise.all([
+			page.waitForRequest((req) => req.isNavigationRequest()),
+			page.click('#submit')
+		]);
+		expect(request.url()).toContain('/bar');
 	});
 
 	test('form without method that includes an input with name method should not override default method', async ({
@@ -1258,23 +1262,28 @@ test.describe('View Transitions', () => {
 		astro,
 	}) => {
 		await page.goto(astro.resolveUrl('/form-seven'));
-		page.on('request', (request) => {
-			expect(request.method()).toBe('GET');
-		});
-		// Submit the form
-		await page.click('#submit');
+		// Wait for the navigation request specifically
+		const [request] = await Promise.all([
+			page.waitForRequest((req) => req.isNavigationRequest()),
+			page.click('#submit')
+		]);
+		expect(request.method()).toBe('GET');
 	});
 
 	test('form with hash in url should still submit', async ({ page, astro }) => {
-		let navigated;
 		await page.goto(astro.resolveUrl('/form-with-hash#test'));
-		page.on('request', (request) => {
-			expect(request.method()).toBe('POST');
-			navigated = true;
-		});
-		// Submit the form
-		await page.click('#submit');
-		expect(navigated).toBe(true);
+		const targetPath = new URL(astro.resolveUrl('/form-with-hash')).pathname;
+		// Wait for the navigation request specifically, filtering by path and frame
+		const [request] = await Promise.all([
+			page.waitForRequest((req) => {
+				const url = new URL(req.url());
+				return req.isNavigationRequest() && 
+					req.frame() === page.mainFrame() &&
+					url.pathname === targetPath;
+			}),
+			page.click('#submit')
+		]);
+		expect(request.method()).toBe('POST');
 	});
 
 	test('Route announcer is invisible on page transition', async ({ page, astro }) => {
