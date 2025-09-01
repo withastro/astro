@@ -14,7 +14,7 @@ interface InfoOptions {
 	flags: Flags;
 }
 
-const VERSION_PREFIX_REGEX = /[\^~<>=]/g;
+export const VERSION_PREFIX_REGEX = /[\^~<>=]/g;
 
 type MinimalPackageJSON = {
 	version: string;
