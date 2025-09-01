@@ -132,17 +132,8 @@ export async function generateCspDigest(data: string, algorithm: CspAlgorithm): 
  * @param {ArrayBuffer} data The buffer data to hash
  * @returns {Promise<string>} A hex string of the first 16 characters of the SHA-256 hash
  */
-export async function generateContentHash(data: Buffer): Promise<string> {
-	const hashBuffer = await crypto.subtle.digest('SHA-256', toArrayBuffer(data));
+export async function generateContentHash(data: ArrayBuffer): Promise<string> {
+	const hashBuffer = await crypto.subtle.digest('SHA-256', data);
 	const hashArray = new Uint8Array(hashBuffer);
 	return encodeBase64(hashArray);
-}
-
-function toArrayBuffer(buffer: Buffer) {
-	const arrayBuffer = new ArrayBuffer(buffer.length);
-	const view = new Uint8Array(arrayBuffer);
-	for (let i = 0; i < buffer.length; ++i) {
-		view[i] = buffer[i];
-	}
-	return arrayBuffer;
 }

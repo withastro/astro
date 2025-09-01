@@ -127,11 +127,11 @@ export async function matchRoute(
 	return undefined;
 }
 
-type HandleRoute = {
+interface HandleRoute {
 	matchedRoute: AsyncReturnType<typeof matchRoute>;
 	url: URL;
 	pathname: string;
-	body: ArrayBuffer | undefined;
+	body: BodyInit | undefined;
 	routesList: RoutesList;
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
