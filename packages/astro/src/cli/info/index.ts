@@ -90,8 +90,8 @@ export async function getInfoOutput({
 
 export async function printInfo({ flags }: InfoOptions) {
 	applyPolyfill();
-	const { userConfig, root } = await resolveConfig(flagsToAstroInlineConfig(flags), 'info');
-	const output = await getInfoOutput({ userConfig, print: true, root });
+	const { userConfig, astroConfig } = await resolveConfig(flagsToAstroInlineConfig(flags), 'info');
+	const output = await getInfoOutput({ userConfig, print: true, root: astroConfig.root.pathname });
 	await copyToClipboard(output, flags.copy);
 }
 
