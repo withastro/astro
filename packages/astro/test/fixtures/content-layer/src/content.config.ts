@@ -273,6 +273,3 @@ export const collections = {
 	notADirectory,
 	nothingMatches
 };
-
-
-export const foo = 'bar';
