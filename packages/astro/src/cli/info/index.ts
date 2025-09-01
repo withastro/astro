@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { arch, platform } from 'node:os';
 import path from 'node:path';
@@ -23,24 +23,26 @@ type MinimalPackageJSON = {
 }
 
 function getVersion(packageJsonPath: string, dependency?: string): string | undefined {
-	const resolvedPath = createRequire(import.meta.url).resolve(packageJsonPath);
-	
-	if (!existsSync(resolvedPath)) return undefined;
-	
-	const packageJSON = JSON.parse(readFileSync(resolvedPath, "utf-8")) as MinimalPackageJSON;
-	
-	if (dependency) {
-		if (!packageJSON.dependencies) return undefined;
+	try {
+		const resolvedPath = createRequire(import.meta.url).resolve(packageJsonPath);
 		
-		const depVersion = packageJSON.dependencies[dependency];
+		const packageJSON = JSON.parse(readFileSync(resolvedPath, "utf-8")) as MinimalPackageJSON;
 		
-		if (!depVersion) return undefined;
-		
-		const sanitizedDepVersion = depVersion.replaceAll(VERSION_PREFIX_REGEX, "");
-		
-		return sanitizedDepVersion;
-	} else {
-		return packageJSON.version;
+		if (dependency) {
+			if (!packageJSON.dependencies) return undefined;
+			
+			const depVersion = packageJSON.dependencies[dependency];
+			
+			if (!depVersion) return undefined;
+			
+			const sanitizedDepVersion = depVersion.replaceAll(VERSION_PREFIX_REGEX, "");
+			
+			return sanitizedDepVersion;
+		} else {
+			return packageJSON.version;
+		}
+	} catch {
+		return undefined;
 	}
 }
 
@@ -53,20 +55,28 @@ export async function getInfoOutput({
 	print: boolean;
 	root: string;
 }): Promise<string> {
-	try {
-		const astroViteVersion = getVersion("../../../package.json", "vite");
-		const userViteVersion = getVersion(path.join(root, "package.json"), "vite");
-		
-		const rows: Array<[string, string | string[]]> = [
-			['Astro', `v${ASTRO_VERSION}`],
-			['Vite', userViteVersion ? `User: v${userViteVersion}, Astro: ${astroViteVersion}` : `Astro: v${astroViteVersion}`],
-			['Node', process.version],
-			['System', getSystem()],
-			['Package Manager', getPackageManager()],
-		];
+	const astroViteVersion = getVersion("../../../package.json", "vite");
+	const userViteVersion = getVersion(path.join(root, "package.json"), "vite");
 	
+	const rows: Array<[string, string | string[]]> = [
+		['Astro', `v${ASTRO_VERSION}`],
+		['Vite', userViteVersion ? `User: v${userViteVersion}, Astro: ${astroViteVersion}` : `Astro: v${astroViteVersion}`],
+		['Node', process.version],
+		['System', getSystem()],
+		['Package Manager', getPackageManager()],
+	];
+	
+	const adapterVersion = userConfig.adapter?.name
+		? getVersion(userConfig.adapter.name)
+		: undefined;
+	
+	const adatperOutputString = userConfig.adapter?.name
+		? `${userConfig.adapter.name} ${adapterVersion ? `(v${adapterVersion})` : ""}`
+		: "none";
+	
+	try {
 		rows.push(['Output', userConfig.output ?? 'static']);
-		rows.push(['Adapter', userConfig.adapter?.name ?? 'none']);
+		rows.push(['Adapter', adatperOutputString]);
 		const integrations = (userConfig?.integrations ?? [])
 			.filter(Boolean)
 			.flat()
@@ -78,19 +88,15 @@ export async function getInfoOutput({
 			})
 			.filter(Boolean);
 		
-			rows.push(['Integrations', integrations.length > 0 ? integrations : 'none']);
+		rows.push(['Integrations', integrations.length > 0 ? integrations : 'none']);
+	} catch {}
 	
-		let output = '';
-		for (const [label, value] of rows) {
-			output += printRow(label, value, print);
-		}
-	
-		return output.trim();
-	} catch (err) {
-		console.error(err);
-		// FIXME: Debug only try/catch
-		return "";
+	let output = '';
+	for (const [label, value] of rows) {
+		output += printRow(label, value, print);
 	}
+
+	return output.trim();
 }
 
 export async function printInfo({ flags }: InfoOptions) {
