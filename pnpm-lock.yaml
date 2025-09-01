@@ -660,8 +660,8 @@ importers:
         specifier: ^0.9.4
         version: 0.9.4(prettier-plugin-astro@0.14.1)(prettier@3.6.2)(typescript@5.9.2)
       '@playwright/test':
-        specifier: ^1.55.0
-        version: 1.55.0
+        specifier: ~1.54.0
+        version: 1.54.2
       '@types/aria-query':
         specifier: ^5.0.4
         version: 5.0.4
@@ -8536,8 +8536,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@playwright/test@1.55.0':
-    resolution: {integrity: sha512-04IXzPwHrW69XusN/SIdDdKZBzMfOT9UNT/YiJit/xpy2VuAoB8NHc8Aplb96zsWDddLnbkPL3TsmrS04ZU2xQ==}
+  '@playwright/test@1.54.2':
+    resolution: {integrity: sha512-A+znathYxPf+72riFd1r1ovOLqsIIB0jKIoPjyK2kqEIe30/6jF6BC7QNluHuwUmsD2tv1XZVugN8GqfTMOxsA==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -12251,8 +12251,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright-core@1.55.0:
-    resolution: {integrity: sha512-GvZs4vU3U5ro2nZpeiwyb0zuFaqb9sUiAJuyrWpcGouD8y9/HLgGbNRjIph7zU9D3hnPaisMl9zG9CgFi/biIg==}
+  playwright-core@1.54.2:
+    resolution: {integrity: sha512-n5r4HFbMmWsB4twG7tJLDN9gmBUeSPcsBZiWSE4DnYz9mJMAFqr2ID7+eGC9kpEnxExJ1epttwR59LEWCk8mtA==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -12261,8 +12261,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.55.0:
-    resolution: {integrity: sha512-sdCWStblvV1YU909Xqx0DhOjPZE4/5lJsIS84IfN9dAZfcl/CIZ5O8l3o0j7hPMjDvqoTF8ZUcc+i/GL5erstA==}
+  playwright@1.54.2:
+    resolution: {integrity: sha512-Hu/BMoA1NAdRUuulyvQC0pEqZ4vQbGfn8f7wPXcnqQmM+zct9UliKxsIkLNmz/ku7LElUNqmaiv1TG/aL5ACsw==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -16242,9 +16242,9 @@ snapshots:
     dependencies:
       playwright: 1.51.1
 
-  '@playwright/test@1.55.0':
+  '@playwright/test@1.54.2':
     dependencies:
-      playwright: 1.55.0
+      playwright: 1.54.2
 
   '@polka/url@1.0.0-next.29': {}
 
@@ -20510,7 +20510,7 @@ snapshots:
 
   playwright-core@1.51.1: {}
 
-  playwright-core@1.55.0: {}
+  playwright-core@1.54.2: {}
 
   playwright@1.51.1:
     dependencies:
@@ -20518,9 +20518,9 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.2
 
-  playwright@1.55.0:
+  playwright@1.54.2:
     dependencies:
-      playwright-core: 1.55.0
+      playwright-core: 1.54.2
     optionalDependencies:
       fsevents: 2.3.2
 

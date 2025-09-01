@@ -182,7 +182,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
-    "@playwright/test": "^1.55.0",
+    "@playwright/test": "~1.54.0",
     "@types/aria-query": "^5.0.4",
     "@types/common-ancestor-path": "^1.0.2",
     "@types/cssesc": "^3.0.2",
