@@ -53,18 +53,18 @@ export async function getInfoOutput({
 	print: boolean;
 	root: string;
 }): Promise<string> {
-	const astroViteVersion = getVersion("../../../package.json", "vite");
-	const userViteVersion = getVersion(path.join(root, "package.json"), "vite");
-	
-	const rows: Array<[string, string | string[]]> = [
-		['Astro', `v${ASTRO_VERSION}`],
-		['Vite', userViteVersion ? `User: v${userViteVersion}, Astro: ${astroViteVersion}` : `Astro: v${astroViteVersion}`],
-		['Node', process.version],
-		['System', getSystem()],
-		['Package Manager', getPackageManager()],
-	];
-
 	try {
+		const astroViteVersion = getVersion("../../../package.json", "vite");
+		const userViteVersion = getVersion(path.join(root, "package.json"), "vite");
+		
+		const rows: Array<[string, string | string[]]> = [
+			['Astro', `v${ASTRO_VERSION}`],
+			['Vite', userViteVersion ? `User: v${userViteVersion}, Astro: ${astroViteVersion}` : `Astro: v${astroViteVersion}`],
+			['Node', process.version],
+			['System', getSystem()],
+			['Package Manager', getPackageManager()],
+		];
+	
 		rows.push(['Output', userConfig.output ?? 'static']);
 		rows.push(['Adapter', userConfig.adapter?.name ?? 'none']);
 		const integrations = (userConfig?.integrations ?? [])
@@ -77,15 +77,20 @@ export async function getInfoOutput({
 				return `${name} ${version ? `(v${version})` : ""}`;
 			})
 			.filter(Boolean);
-		rows.push(['Integrations', integrations.length > 0 ? integrations : 'none']);
-	} catch {}
-
-	let output = '';
-	for (const [label, value] of rows) {
-		output += printRow(label, value, print);
+		
+			rows.push(['Integrations', integrations.length > 0 ? integrations : 'none']);
+	
+		let output = '';
+		for (const [label, value] of rows) {
+			output += printRow(label, value, print);
+		}
+	
+		return output.trim();
+	} catch (err) {
+		console.error(err);
+		// FIXME: Debug only try/catch
+		return "";
 	}
-
-	return output.trim();
 }
 
 export async function printInfo({ flags }: InfoOptions) {
