@@ -26,7 +26,7 @@ async function createDevApp(overrides = {}, root) {
 		},
 		defaultLogger,
 	);
-	console.log(manifest);
+
 	if (!manifest.routes) {
 		manifest.routes = [];
 	}
