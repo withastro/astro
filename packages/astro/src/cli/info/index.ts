@@ -30,6 +30,8 @@ function getVersion(packageJsonPath: string, dependency?: string): string | unde
 	const packageJSON = JSON.parse(readFileSync(resolvedPath, "utf-8")) as MinimalPackageJSON;
 	
 	if (dependency) {
+		if (!packageJSON.dependencies) return undefined;
+		
 		const depVersion = packageJSON.dependencies[dependency];
 		
 		if (!depVersion) return undefined;
