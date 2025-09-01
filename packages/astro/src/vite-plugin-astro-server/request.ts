@@ -59,7 +59,7 @@ export async function handleRequest({
 			});
 			incomingRequest.on('end', resolve);
 		});
-		body = Buffer.concat(bytes);
+		body = Buffer.concat(bytes).buffer;
 	}
 
 	await runWithErrorHandling({

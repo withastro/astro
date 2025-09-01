@@ -67,7 +67,10 @@ export async function encodeKey(key: CryptoKey) {
  */
 export async function decodeKey(encoded: string): Promise<CryptoKey> {
 	const bytes = decodeBase64(encoded);
-	return crypto.subtle.importKey('raw', bytes, ALGORITHM, true, ['encrypt', 'decrypt']);
+	return crypto.subtle.importKey('raw', Buffer.from(bytes), ALGORITHM, true, [
+		'encrypt',
+		'decrypt',
+	]);
 }
 
 const encoder = new TextEncoder();
@@ -103,10 +106,10 @@ export async function decryptString(key: CryptoKey, encoded: string) {
 	const decryptedBuffer = await crypto.subtle.decrypt(
 		{
 			name: ALGORITHM,
-			iv,
+			iv: Buffer.from(iv),
 		},
 		key,
-		dataArray,
+		Buffer.from(dataArray),
 	);
 	const decryptedString = decoder.decode(decryptedBuffer);
 	return decryptedString;
@@ -129,8 +132,17 @@ export async function generateCspDigest(data: string, algorithm: CspAlgorithm): 
  * @param {ArrayBuffer} data The buffer data to hash
  * @returns {Promise<string>} A hex string of the first 16 characters of the SHA-256 hash
  */
-export async function generateContentHash(data: ArrayBuffer): Promise<string> {
-	const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+export async function generateContentHash(data: Buffer): Promise<string> {
+	const hashBuffer = await crypto.subtle.digest('SHA-256', toArrayBuffer(data));
 	const hashArray = new Uint8Array(hashBuffer);
 	return encodeBase64(hashArray);
+}
+
+function toArrayBuffer(buffer: Buffer) {
+	const arrayBuffer = new ArrayBuffer(buffer.length);
+	const view = new Uint8Array(arrayBuffer);
+	for (let i = 0; i < buffer.length; ++i) {
+		view[i] = buffer[i];
+	}
+	return arrayBuffer;
 }
