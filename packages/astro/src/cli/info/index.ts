@@ -3,7 +3,7 @@ import { arch, platform } from 'node:os';
 import * as colors from 'kleur/colors';
 import prompts from 'prompts';
 import { resolveConfig } from '../../core/config/index.js';
-import { ASTRO_VERSION } from '../../core/constants.js';
+import { ASTRO_VERSION, VITE_VERSION } from '../../core/constants.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
 import type { AstroConfig, AstroUserConfig } from '../../types/public/config.js';
 import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
@@ -21,6 +21,7 @@ export async function getInfoOutput({
 }): Promise<string> {
 	const rows: Array<[string, string | string[]]> = [
 		['Astro', `v${ASTRO_VERSION}`],
+		['Vite', `v${VITE_VERSION}`],
 		['Node', process.version],
 		['System', getSystem()],
 		['Package Manager', getPackageManager()],
