@@ -1249,12 +1249,25 @@ test.describe('View Transitions', () => {
 		astro,
 	}) => {
 		await page.goto(astro.resolveUrl('/form-six'));
-		// Wait for the navigation request specifically
+		const targetPath = new URL(astro.resolveUrl('/bar')).pathname;
+		// Wait for the fetch request specifically (not navigation with view transitions)
 		const [request] = await Promise.all([
-			page.waitForRequest((req) => req.isNavigationRequest()),
+			page.waitForRequest((req) => {
+				try {
+					const u = new URL(req.url());
+					return !req.isNavigationRequest() &&
+						(req.resourceType() === 'fetch' || req.resourceType() === 'xhr') &&
+						req.frame() === page.mainFrame() &&
+						u.pathname === targetPath &&
+						req.method() === 'POST';
+				} catch {
+					return false;
+				}
+			}),
 			page.click('#submit')
 		]);
-		expect(request.url()).toContain('/bar');
+		expect(request.method()).toBe('POST');
+		expect(new URL(request.url()).pathname).toBe(targetPath);
 	});
 
 	test('form without method that includes an input with name method should not override default method', async ({
@@ -1262,9 +1275,21 @@ test.describe('View Transitions', () => {
 		astro,
 	}) => {
 		await page.goto(astro.resolveUrl('/form-seven'));
-		// Wait for the navigation request specifically
+		const targetPath = new URL(astro.resolveUrl('/form-seven')).pathname;
+		// Wait for the fetch request specifically (not navigation with view transitions)
 		const [request] = await Promise.all([
-			page.waitForRequest((req) => req.isNavigationRequest()),
+			page.waitForRequest((req) => {
+				try {
+					const u = new URL(req.url());
+					return !req.isNavigationRequest() &&
+						(req.resourceType() === 'fetch' || req.resourceType() === 'xhr') &&
+						req.frame() === page.mainFrame() &&
+						u.pathname === targetPath &&
+						req.method() === 'GET';
+				} catch {
+					return false;
+				}
+			}),
 			page.click('#submit')
 		]);
 		expect(request.method()).toBe('GET');
@@ -1273,13 +1298,19 @@ test.describe('View Transitions', () => {
 	test('form with hash in url should still submit', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/form-with-hash#test'));
 		const targetPath = new URL(astro.resolveUrl('/form-with-hash')).pathname;
-		// Wait for the navigation request specifically, filtering by path and frame
+		// Wait for the fetch request specifically (not navigation with view transitions)
 		const [request] = await Promise.all([
 			page.waitForRequest((req) => {
-				const url = new URL(req.url());
-				return req.isNavigationRequest() && 
-					req.frame() === page.mainFrame() &&
-					url.pathname === targetPath;
+				try {
+					const url = new URL(req.url());
+					return !req.isNavigationRequest() && 
+						(req.resourceType() === 'fetch' || req.resourceType() === 'xhr') &&
+						req.frame() === page.mainFrame() &&
+						url.pathname === targetPath &&
+						req.method() === 'POST';
+				} catch {
+					return false;
+				}
 			}),
 			page.click('#submit')
 		]);
