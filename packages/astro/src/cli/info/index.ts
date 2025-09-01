@@ -29,9 +29,13 @@ function getVersion(packageJsonPath: string, dependency?: string): string | unde
 	const packageJSON = JSON.parse(readFileSync(path, "utf-8")) as MinimalPackageJSON;
 	
 	if (dependency) {
-		const depVersion = packageJSON.dependencies[dependency].replaceAll(VERSION_PREFIX_REGEX, "");
+		const depVersion = packageJSON.dependencies[dependency];
 		
-		return depVersion;
+		if (!depVersion) return undefined;
+		
+		const sanitizedDepVersion = depVersion.replaceAll(VERSION_PREFIX_REGEX, "");
+		
+		return sanitizedDepVersion;
 	} else {
 		return packageJSON.version;
 	}
@@ -40,15 +44,18 @@ function getVersion(packageJsonPath: string, dependency?: string): string | unde
 export async function getInfoOutput({
 	userConfig,
 	print,
+	root
 }: {
 	userConfig: AstroUserConfig | AstroConfig;
 	print: boolean;
+	root: string;
 }): Promise<string> {
-	const viteVersion = getVersion("../../../package.json", "vite");
+	const astroViteVersion = getVersion("../../../package.json", "vite");
+	const userViteVersion = getVersion(`${root}/package.json`, "vite");
 	
 	const rows: Array<[string, string | string[]]> = [
 		['Astro', `v${ASTRO_VERSION}`],
-		['Vite', `v${viteVersion}`],
+		['Vite', userViteVersion ? `User: v${userViteVersion}, Astro: ${astroViteVersion}` : `Astro: v${astroViteVersion}`],
 		['Node', process.version],
 		['System', getSystem()],
 		['Package Manager', getPackageManager()],
@@ -80,8 +87,8 @@ export async function getInfoOutput({
 
 export async function printInfo({ flags }: InfoOptions) {
 	applyPolyfill();
-	const { userConfig } = await resolveConfig(flagsToAstroInlineConfig(flags), 'info');
-	const output = await getInfoOutput({ userConfig, print: true });
+	const { userConfig, root } = await resolveConfig(flagsToAstroInlineConfig(flags), 'info');
+	const output = await getInfoOutput({ userConfig, print: true, root });
 	await copyToClipboard(output, flags.copy);
 }
 

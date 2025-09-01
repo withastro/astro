@@ -124,6 +124,7 @@ function splitInlineConfig(inlineConfig: AstroInlineConfig): {
 interface ResolveConfigResult {
 	userConfig: AstroUserConfig;
 	astroConfig: AstroConfig;
+	root: string;
 }
 
 /**
@@ -163,5 +164,5 @@ export async function resolveConfig(
 		throw e;
 	}
 
-	return { userConfig: mergedConfig, astroConfig };
+	return { userConfig: mergedConfig, astroConfig, root };
 }

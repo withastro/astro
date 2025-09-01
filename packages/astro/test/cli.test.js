@@ -89,7 +89,7 @@ describe('astro cli', () => {
 		const viteVersion = pkgJson.dependencies.vite.replaceAll(VERSION_PREFIX_REGEX, "");
 		
 		assert.ok(proc.stdout.includes(`v${pkgVersion}`));
-		assert.ok(proc.stdout.includes(`v${viteVersion}`));
+		assert.ok(proc.stdout.includes(`Astro: v${viteVersion}`));
 		assert.equal(proc.exitCode, 0);
 
 		// On Linux we only check if we have Wayland or x11. In Codespaces it falsely reports that it does have x11

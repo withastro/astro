@@ -95,7 +95,7 @@ export class DevPipeline extends Pipeline {
 					root: fileURLToPath(settings.config.root),
 					version: ASTRO_VERSION,
 					latestAstroVersion: settings.latestAstroVersion,
-					debugInfo: await getInfoOutput({ userConfig: settings.config, print: false }),
+					debugInfo: await getInfoOutput({ userConfig: settings.config, print: false, root: root.toString() }),
 				};
 
 				// Additional data for the dev overlay
