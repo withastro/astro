@@ -4,7 +4,12 @@ import { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
-import type { SerializedSSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
+import type {
+	SerializedSSRManifest,
+	SSRManifest,
+	SSRManifestCSP,
+	SSRManifestI18n,
+} from '../core/app/types.js';
 import {
 	getAlgorithm,
 	getDirectives,
@@ -21,6 +26,7 @@ import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
+import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
 import { createRoutesList } from '../core/routing/index.js';
 import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
