@@ -1,8 +1,8 @@
 import { spawnSync } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { arch, platform } from 'node:os';
 import path from 'node:path';
-import { existsSync, readFileSync } from 'node:fs';
 import * as colors from 'kleur/colors';
 import prompts from 'prompts';
 import { resolveConfig } from '../../core/config/index.js';
