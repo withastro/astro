@@ -3,13 +3,38 @@ import { arch, platform } from 'node:os';
 import * as colors from 'kleur/colors';
 import prompts from 'prompts';
 import { resolveConfig } from '../../core/config/index.js';
-import { ASTRO_VERSION, VITE_VERSION } from '../../core/constants.js';
+import { ASTRO_VERSION } from '../../core/constants.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
 import type { AstroConfig, AstroUserConfig } from '../../types/public/config.js';
 import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
+import { createRequire } from "node:module";
+import { existsSync, readFileSync } from 'node:fs';
 
 interface InfoOptions {
 	flags: Flags;
+}
+
+const VERSION_PREFIX_REGEX = /[\^~<>=]/g;
+
+type MinimalPackageJSON = {
+	version: string;
+	dependencies: Record<string, string>;
+}
+
+function getVersion(packageJsonPath: string, dependency?: string): string | undefined {
+	const path = createRequire(import.meta.url).resolve(packageJsonPath);
+	
+	if (!existsSync(path)) return undefined;
+	
+	const packageJSON = JSON.parse(readFileSync(path, "utf-8")) as MinimalPackageJSON;
+	
+	if (dependency) {
+		const depVersion = packageJSON.dependencies[dependency].replaceAll(VERSION_PREFIX_REGEX, "");
+		
+		return depVersion;
+	} else {
+		return packageJSON.version;
+	}
 }
 
 export async function getInfoOutput({
@@ -19,9 +44,11 @@ export async function getInfoOutput({
 	userConfig: AstroUserConfig | AstroConfig;
 	print: boolean;
 }): Promise<string> {
+	const viteVersion = getVersion("../../../package.json", "vite");
+	
 	const rows: Array<[string, string | string[]]> = [
 		['Astro', `v${ASTRO_VERSION}`],
-		['Vite', `v${VITE_VERSION}`],
+		['Vite', `v${viteVersion}`],
 		['Node', process.version],
 		['System', getSystem()],
 		['Package Manager', getPackageManager()],
@@ -33,7 +60,12 @@ export async function getInfoOutput({
 		const integrations = (userConfig?.integrations ?? [])
 			.filter(Boolean)
 			.flat()
-			.map((i: any) => i?.name)
+			.map((i: any) => {
+				const name = i?.name;
+				const version = getVersion(`${name}/package.json`);
+				
+				return `${name} ${version ? `(v${version})` : ""}`;
+			})
 			.filter(Boolean);
 		rows.push(['Integrations', integrations.length > 0 ? integrations : 'none']);
 	} catch {}
