@@ -90,12 +90,14 @@ export class DevPipeline extends Pipeline {
 			) {
 				const src = await resolveIdToUrl(loader, 'astro/runtime/client/dev-toolbar/entrypoint.js');
 				scripts.add({ props: { type: 'module', src }, children: '' });
+				
+				const rootPath = fileURLToPath(settings.config.root);
 
 				const additionalMetadata: DevToolbarMetadata['__astro_dev_toolbar__'] = {
-					root: fileURLToPath(settings.config.root),
+					root: rootPath,
 					version: ASTRO_VERSION,
 					latestAstroVersion: settings.latestAstroVersion,
-					debugInfo: await getInfoOutput({ userConfig: settings.config, print: false, root: root.pathname }),
+					debugInfo: await getInfoOutput({ userConfig: settings.config, print: false, root: rootPath }),
 				};
 
 				// Additional data for the dev overlay

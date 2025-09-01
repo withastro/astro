@@ -54,7 +54,7 @@ export async function getInfoOutput({
 	root: string;
 }): Promise<string> {
 	const astroViteVersion = getVersion("../../../package.json", "vite");
-	const userViteVersion = getVersion(path.resolve(root, "package.json"), "vite");
+	const userViteVersion = getVersion(path.join(root, "package.json"), "vite");
 	
 	const rows: Array<[string, string | string[]]> = [
 		['Astro', `v${ASTRO_VERSION}`],
