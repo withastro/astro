@@ -1,3 +1,4 @@
+import { deepEqual } from 'node:assert';
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { validateSupportedFeatures } from '../../../dist/integrations/features-validation.js';
@@ -384,7 +385,7 @@ describe('Integration API', () => {
 				},
 				async () => {
 					routes.sort((a, b) => a.component.localeCompare(b.component));
-					assert.deepEqual(routes, [
+					deepEqual(routes, [
 						{
 							component: 'src/pages/no-prerender.astro',
 							prerender: false,

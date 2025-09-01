@@ -16,6 +16,7 @@ import { createEnvLoader } from '../env/env-loader.js';
 import { astroEnv } from '../env/vite-plugin-env.js';
 import { importMetaEnv } from '../env/vite-plugin-import-meta-env.js';
 import astroInternationalization from '../i18n/vite-plugin-i18n.js';
+import { serializedManifestPlugin } from '../manifest/serialized.js';
 import astroVirtualManifestPlugin from '../manifest/virtual-module.js';
 import astroPrefetch from '../prefetch/vite-plugin-prefetch.js';
 import astroDevToolbar from '../toolbar/vite-plugin-dev-toolbar.js';
@@ -36,7 +37,6 @@ import astroScannerPlugin from '../vite-plugin-scanner/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
-import type { SSRManifest } from './app/types.js';
 import type { Logger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
@@ -51,15 +51,12 @@ type CreateViteOptions = {
 	fs?: typeof nodeFs;
 	sync: boolean;
 	routesList: RoutesList;
-	manifest: SSRManifest;
 } & (
 	| {
 			command: 'dev';
-			manifest: SSRManifest;
 	  }
 	| {
 			command: 'build';
-			manifest?: SSRManifest;
 	  }
 );
 
@@ -90,7 +87,7 @@ const ONLY_DEV_EXTERNAL = [
 /** Return a base vite config as a common starting point for all Vite commands. */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
-	{ settings, logger, mode, command, fs = nodeFs, sync, routesList, manifest }: CreateViteOptions,
+	{ settings, logger, mode, command, fs = nodeFs, sync, routesList }: CreateViteOptions,
 ): Promise<vite.InlineConfig> {
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
@@ -147,14 +144,15 @@ export async function createVite(
 			exclude: ['astro', 'node-fetch'],
 		},
 		plugins: [
-			astroVirtualManifestPlugin({ manifest }),
+			await serializedManifestPlugin({ settings }),
+			astroVirtualManifestPlugin(),
 			configAliasVitePlugin({ settings }),
 			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
 			astroVitePlugin({ settings, logger }),
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
-			command === 'dev' && vitePluginAstroServer({ settings, logger, fs, routesList, manifest }), // manifest is only required in dev mode, where it gets created before a Vite instance is created, and get passed to this function
+			command === 'dev' && vitePluginAstroServer({ settings, logger, fs, routesList }), // manifest is only required in dev mode, where it gets created before a Vite instance is created, and get passed to this function
 			importMetaEnv({ envLoader }),
 			astroEnv({ settings, sync, envLoader }),
 			markdownVitePlugin({ settings, logger }),
