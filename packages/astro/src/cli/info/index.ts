@@ -1,5 +1,8 @@
 import { spawnSync } from 'node:child_process';
+import { createRequire } from 'node:module';
 import { arch, platform } from 'node:os';
+import path from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
 import * as colors from 'kleur/colors';
 import prompts from 'prompts';
 import { resolveConfig } from '../../core/config/index.js';
@@ -7,9 +10,6 @@ import { ASTRO_VERSION } from '../../core/constants.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
 import type { AstroConfig, AstroUserConfig } from '../../types/public/config.js';
 import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
-import { createRequire } from "node:module";
-import { existsSync, readFileSync } from 'node:fs';
-import path from 'node:path';
 
 interface InfoOptions {
 	flags: Flags;
