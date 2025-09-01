@@ -4,6 +4,8 @@ import { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
+import { toFallbackType } from '../core/app/common.js';
+import { toRoutingStrategy } from '../core/app/index.js';
 import type {
 	SerializedSSRManifest,
 	SSRManifest,
@@ -30,7 +32,6 @@ import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
 import { createRoutesList } from '../core/routing/index.js';
 import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
-import { toFallbackType, toRoutingStrategy } from '../i18n/utils.js';
 import { runHookRoutesResolved } from '../integrations/hooks.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
 import { DevApp } from './app.js';
