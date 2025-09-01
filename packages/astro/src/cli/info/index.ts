@@ -9,6 +9,7 @@ import type { AstroConfig, AstroUserConfig } from '../../types/public/config.js'
 import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
 import { createRequire } from "node:module";
 import { existsSync, readFileSync } from 'node:fs';
+import path from 'node:path';
 
 interface InfoOptions {
 	flags: Flags;
@@ -22,11 +23,11 @@ type MinimalPackageJSON = {
 }
 
 function getVersion(packageJsonPath: string, dependency?: string): string | undefined {
-	const path = createRequire(import.meta.url).resolve(packageJsonPath);
+	const resolvedPath = createRequire(import.meta.url).resolve(packageJsonPath);
 	
-	if (!existsSync(path)) return undefined;
+	if (!existsSync(resolvedPath)) return undefined;
 	
-	const packageJSON = JSON.parse(readFileSync(path, "utf-8")) as MinimalPackageJSON;
+	const packageJSON = JSON.parse(readFileSync(resolvedPath, "utf-8")) as MinimalPackageJSON;
 	
 	if (dependency) {
 		const depVersion = packageJSON.dependencies[dependency];
@@ -51,7 +52,7 @@ export async function getInfoOutput({
 	root: string;
 }): Promise<string> {
 	const astroViteVersion = getVersion("../../../package.json", "vite");
-	const userViteVersion = getVersion(`${root}/package.json`, "vite");
+	const userViteVersion = getVersion(path.resolve(root, "package.json"), "vite");
 	
 	const rows: Array<[string, string | string[]]> = [
 		['Astro', `v${ASTRO_VERSION}`],
