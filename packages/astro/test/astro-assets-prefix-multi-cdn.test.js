@@ -81,9 +81,9 @@ describe('Assets Prefix Multiple CDN - Static', () => {
 
 describe('Assets Prefix Multiple CDN, server', () => {
 	let app;
-
+let fixture;
 	before(async () => {
-		const fixture = await loadFixture({
+		fixture = await loadFixture({
 			root: './fixtures/astro-assets-prefix',
 			output: 'server',
 			adapter: testAdapter(),
@@ -94,11 +94,8 @@ describe('Assets Prefix Multiple CDN, server', () => {
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
 	});
-
-
-	after(async () => {
-		await fixture.clean();
-	})
+	
+	
 
 	it('all stylesheets should start with assetPrefix', async () => {
 		const request = new Request('http://example.com/custom-base/');
