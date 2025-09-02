@@ -30,6 +30,7 @@ export function baseMiddleware(
 
 		if (pathname.startsWith(devRoot)) {
 			req.url = url.replace(devRoot, devRootReplacement);
+			req.url ||= '/';
 			return next();
 		}
 
