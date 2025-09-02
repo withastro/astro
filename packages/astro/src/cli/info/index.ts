@@ -1,8 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { arch, platform } from 'node:os';
-import path from 'node:path';
 import * as colors from 'kleur/colors';
 import prompts from 'prompts';
 import { resolveConfig } from '../../core/config/index.js';
@@ -15,59 +12,29 @@ interface InfoOptions {
 	flags: Flags;
 }
 
-export const VERSION_PREFIX_REGEX = /[\^~<>=]/g;
-
-type MinimalPackageJSON = {
-	version: string;
-	dependencies: Record<string, string>;
-}
-
-function getVersion(packageJsonPath: string, dependency?: string): string | undefined {
-	try {
-		const resolvedPath = createRequire(import.meta.url).resolve(packageJsonPath);
-		
-		const packageJSON = JSON.parse(readFileSync(resolvedPath, "utf-8")) as MinimalPackageJSON;
-		
-		if (dependency) {
-			if (!packageJSON.dependencies) return undefined;
-			
-			const depVersion = packageJSON.dependencies[dependency];
-			
-			if (!depVersion) return undefined;
-			
-			const sanitizedDepVersion = depVersion.replaceAll(VERSION_PREFIX_REGEX, "");
-			
-			return sanitizedDepVersion;
-		} else {
-			return packageJSON.version;
-		}
-	} catch {
-		return undefined;
-	}
-}
-
 export async function getInfoOutput({
 	userConfig,
-	print,
-	root
+	print
 }: {
 	userConfig: AstroUserConfig | AstroConfig;
 	print: boolean;
-	root: string;
 }): Promise<string> {
-	const astroViteVersion = getVersion("../../../package.json", "vite");
-	const userViteVersion = getVersion(path.join(root, "package.json"), "vite");
+	const packageManager = getPackageManager();
+	const viteVersion = getVersion(packageManager, "vite");
 	
 	const rows: Array<[string, string | string[]]> = [
 		['Astro', `v${ASTRO_VERSION}`],
-		['Vite', userViteVersion ? `User: v${userViteVersion}, Astro: ${astroViteVersion}` : `Astro: v${astroViteVersion}`],
 		['Node', process.version],
 		['System', getSystem()],
-		['Package Manager', getPackageManager()],
+		['Package Manager', packageManager],
 	];
 	
+	if (viteVersion) {
+		rows.splice(1, 0, ['Vite', viteVersion]);
+	}
+	
 	const adapterVersion = userConfig.adapter?.name
-		? getVersion(userConfig.adapter.name)
+		? getVersion(packageManager, userConfig.adapter.name)
 		: undefined;
 	
 	const adatperOutputString = userConfig.adapter?.name
@@ -82,9 +49,9 @@ export async function getInfoOutput({
 			.flat()
 			.map((i: any) => {
 				const name = i?.name;
-				const version = getVersion(`${name}/package.json`);
+				const version = getVersion(packageManager, name);
 				
-				return `${name} ${version ? `(v${version})` : ""}`;
+				return `${name} ${version ? `(${version})` : ""}`;
 			})
 			.filter(Boolean);
 		
@@ -101,8 +68,8 @@ export async function getInfoOutput({
 
 export async function printInfo({ flags }: InfoOptions) {
 	applyPolyfill();
-	const { userConfig, astroConfig } = await resolveConfig(flagsToAstroInlineConfig(flags), 'info');
-	const output = await getInfoOutput({ userConfig, print: true, root: astroConfig.root.pathname });
+	const { userConfig } = await resolveConfig(flagsToAstroInlineConfig(flags), 'info');
+	const output = await getInfoOutput({ userConfig, print: true });
 	await copyToClipboard(output, flags.copy);
 }
 
@@ -244,4 +211,98 @@ function printRow(label: string, value: string | string[], print: boolean) {
 		console.info(richtext);
 	}
 	return plaintext;
+}
+
+function formatPnpmVersionOutput(versionOutput: string): string {
+	return versionOutput.startsWith("link:")
+		? "Local"
+		: `v${versionOutput}`;
+}
+
+type BareNpmLikeVersionOutput = {
+	version: string;
+	dependencies: Record<string, BareNpmLikeVersionOutput>;
+}
+
+function getVersionUsingPNPM(dependency: string): string | undefined {
+	const output = spawnSync("pnpm", ["why", dependency, "--json"], { encoding: "utf-8" });
+	const parsedOutput = JSON.parse(output.stdout) as Array<BareNpmLikeVersionOutput>;
+	
+	if (parsedOutput.length === 0 || !parsedOutput[0].dependencies) {
+		return undefined;
+	}
+	
+	const userProvidedDependency = parsedOutput[0].dependencies[dependency];
+	
+	if (userProvidedDependency) {
+		return userProvidedDependency.version.startsWith("link:")
+			? "Local"
+			: `v${userProvidedDependency.version}`;
+	}
+	
+	for (const [key, value] of Object.entries(parsedOutput[0].dependencies)) {
+		if (key === "astro") {
+			return formatPnpmVersionOutput(value.version);
+		}
+	}
+}
+
+function getVersionUsingNPM(dependency: string): string | undefined {
+	const npmOutput = spawnSync("npm", ["ls", dependency, "--json", "--depth=1"], { encoding: "utf-8" });
+	const parsedNpmOutput = JSON.parse(npmOutput.stdout) as BareNpmLikeVersionOutput;
+	
+	if (!parsedNpmOutput.dependencies) {
+		return undefined;
+	}
+	
+	if (parsedNpmOutput.dependencies[dependency]) {
+		return `v${parsedNpmOutput.dependencies[dependency].version}`;
+	}
+	
+	for (const [key, value] of Object.entries(parsedNpmOutput.dependencies)) {
+		if (key === "astro") {
+			return `v${value.dependencies[dependency].version}`;
+		}
+	}
+}
+
+type YarnVersionOutputLine = {
+	children: Record<string, { locator: string }>
+};
+
+function getYarnOutputDepVersion(dependency: string, outputLine: string) {
+	const parsed = JSON.parse(outputLine) as YarnVersionOutputLine;
+	
+	for (const [key, value] of Object.entries(parsed.children)) {
+		if (key.startsWith(`${dependency}@`)) {
+			return `v${value.locator.split(":").pop()}`;
+		}
+	}
+}
+
+function getVersionUsingYarn(dependency: string): string | undefined {
+	const yarnOutput = spawnSync("yarn", ["why", dependency, "--json"], { encoding: "utf-8" });
+	
+	if (yarnOutput.error) return undefined;
+	
+	const hasUserDefinition = yarnOutput.stdout.includes("workspace:.");
+	
+	for (const line of yarnOutput.stdout.split("\n")) {
+		if (hasUserDefinition && line.includes("workspace:.")) return getYarnOutputDepVersion(dependency, line);
+		if (!hasUserDefinition && line.includes("astro@")) return getYarnOutputDepVersion(dependency, line);
+	}
+}
+
+function getVersion(packageManager: string, dependency: string): string | undefined {
+	try {
+		switch (packageManager) {
+			case "pnpm": return getVersionUsingPNPM(dependency);
+			case "npm": return getVersionUsingNPM(dependency);
+			case "yarn": return getVersionUsingYarn(dependency);
+		}
+		
+		return undefined;
+	} catch {
+		return undefined;
+	}
 }
