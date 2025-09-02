@@ -255,9 +255,7 @@ describe('Redirecting trailing slashes in SSR', () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/mybase');
 			const response = await app.render(request);
-			// Should not redirect, but will 404 since we don't have an index page
-			assert.notEqual(response.status, 301);
-			assert.notEqual(response.status, 308);
+			assert.equal(response.status, 200);
 		});
 
 		it('Redirects to remove trailing slash on sub-paths with base', async () => {
