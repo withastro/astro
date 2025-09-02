@@ -10,7 +10,6 @@ import {
 } from '../../integrations/hooks.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
-import { createDevelopmentManifest } from '../../vite-plugin-astro-server/plugin.js';
 import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
@@ -82,8 +81,6 @@ export async function createContainer({
 
 	// Create the route manifest already outside of Vite so that `runHookConfigDone` can use it to inform integrations of the build output
 	const routesList = await createRoutesList({ settings, fsMod: fs }, logger, { dev: true });
-	const manifest = createDevelopmentManifest(settings);
-
 	await runHookConfigDone({ settings, logger, command: 'dev' });
 
 	warnMissingAdapter(logger, settings);
@@ -104,7 +101,6 @@ export async function createContainer({
 			fs,
 			sync: false,
 			routesList,
-			manifest,
 		},
 	);
 	const viteServer = await vite.createServer(viteConfig);
@@ -119,7 +115,6 @@ export async function createContainer({
 		},
 		force: inlineConfig?.force,
 		routesList,
-		manifest,
 		command: 'dev',
 		watcher: viteServer.watcher,
 	});

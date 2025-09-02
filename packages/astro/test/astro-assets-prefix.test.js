@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
@@ -18,6 +18,10 @@ describe('Assets Prefix - Static', () => {
 		});
 		await fixture.build();
 	});
+	
+	after(async () => {
+		await fixture.clean();
+	})
 
 	it('all stylesheets should start with assetPrefix', async () => {
 		const html = await fixture.readFile('/index.html');

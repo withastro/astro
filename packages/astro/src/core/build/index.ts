@@ -13,7 +13,6 @@ import {
 } from '../../integrations/hooks.js';
 import type { AstroSettings, RoutesList } from '../../types/astro.js';
 import type { AstroInlineConfig, RuntimeMode } from '../../types/public/config.js';
-import { createDevelopmentManifest } from '../../vite-plugin-astro-server/plugin.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
@@ -123,10 +122,6 @@ class AstroBuilder {
 			command: 'build',
 			logger: logger,
 		});
-		// NOTE: this manifest is only used by the first build pass to make the `astro:manifest` function.
-		// After the first build, the BuildPipeline comes into play, and it creates the proper manifest for generating the pages.
-		const manifest = createDevelopmentManifest(this.settings);
-
 		this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
 
 		await runHookConfigDone({ settings: this.settings, logger: logger, command: 'build' });
@@ -151,7 +146,6 @@ class AstroBuilder {
 				command: 'build',
 				sync: false,
 				routesList: this.routesList,
-				manifest,
 			},
 		);
 
@@ -163,7 +157,6 @@ class AstroBuilder {
 			fs,
 			routesList: this.routesList,
 			command: 'build',
-			manifest,
 		});
 
 		return { viteConfig };

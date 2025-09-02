@@ -16,7 +16,6 @@ import {
 	removeTrailingForwardSlash,
 	trimSlashes,
 } from '../../core/path.js';
-import { toFallbackType, toRoutingStrategy } from '../../i18n/utils.js';
 import { runHookBuildGenerated, toIntegrationResolvedRoute } from '../../integrations/hooks.js';
 import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
@@ -29,6 +28,7 @@ import type {
 	SSRError,
 	SSRLoadedRenderer,
 } from '../../types/public/internal.js';
+import { toFallbackType, toRoutingStrategy } from '../app/common.js';
 import type { SSRActions, SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../app/types.js';
 import {
 	getAlgorithm,

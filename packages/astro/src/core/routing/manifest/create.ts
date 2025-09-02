@@ -5,12 +5,12 @@ import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
 import pLimit from 'p-limit';
 import { injectImageEndpoint } from '../../../assets/endpoint/config.js';
-import { toRoutingStrategy } from '../../../i18n/utils.js';
 import { runHookRoutesResolved } from '../../../integrations/hooks.js';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
 import type { AstroSettings, RoutesList } from '../../../types/astro.js';
 import type { AstroConfig } from '../../../types/public/config.js';
 import type { RouteData, RoutePart } from '../../../types/public/internal.js';
+import { toRoutingStrategy } from '../../app/index.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import {
 	MissingIndexForInternationalization,

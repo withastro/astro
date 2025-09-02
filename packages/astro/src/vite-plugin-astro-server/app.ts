@@ -23,7 +23,7 @@ import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { routeIsRedirect } from '../core/redirects/index.js';
 import { getProps } from '../core/render/index.js';
-import { type CreateRenderContext, RenderContext } from '../core/render-context.js';
+import type { CreateRenderContext, RenderContext } from '../core/render-context.js';
 import { createRequest } from '../core/request.js';
 import { redirectTemplate } from '../core/routing/3xx.js';
 import { isRoute404, isRoute500, matchAllRoutes } from '../core/routing/match.js';
@@ -55,6 +55,17 @@ export class DevApp extends BaseApp<DevPipeline> {
 		this.logger = logger;
 		this.loader = loader;
 		this.manifestData = manifestData;
+	}
+
+	// TODO remove routelist once it's a plugin
+	static async create(
+		routesList: RoutesList,
+		settings: AstroSettings,
+		logger: Logger,
+		loader: ModuleLoader,
+	): Promise<DevApp> {
+		const { manifest } = await loader.import('astro:serialized-manifest');
+		return new DevApp(manifest as SSRManifest, true, settings, logger, loader, routesList);
 	}
 
 	createPipeline(
@@ -124,7 +135,6 @@ export class DevApp extends BaseApp<DevPipeline> {
 		}
 
 		const self = this;
-
 		await runWithErrorHandling({
 			controller,
 			pathname,
@@ -167,7 +177,7 @@ export class DevApp extends BaseApp<DevPipeline> {
 		let request: Request;
 		let renderContext: RenderContext;
 		let route: RouteData = matchedRoute.route;
-		const componentInstance = await this.pipeline.preload(route, matchedRoute.filePath);
+		const componentInstance = await this.pipeline.getComponentByRoute(route);
 		const actions = await loadActions(loader);
 		this.pipeline.setActions(actions);
 		const middleware = (await loadMiddleware(loader)).onRequest;

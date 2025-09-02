@@ -16,8 +16,6 @@ import { eventCliSession } from '../../events/session.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
 import type { AstroSettings, RoutesList } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
-import { createDevelopmentManifest } from '../../vite-plugin-astro-server/plugin.js';
-import type { SSRManifest } from '../app/types.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
@@ -52,7 +50,6 @@ type SyncOptions = {
 		cleanup?: boolean;
 	};
 	routesList: RoutesList;
-	manifest: SSRManifest;
 	command: 'build' | 'dev' | 'sync';
 	watcher?: FSWatcher;
 };
@@ -74,7 +71,6 @@ export default async function sync(
 		logger,
 	});
 	const routesList = await createRoutesList({ settings, fsMod: fs }, logger);
-	const manifest = createDevelopmentManifest(settings);
 	await runHookConfigDone({ settings, logger });
 
 	return await syncInternal({
@@ -85,7 +81,6 @@ export default async function sync(
 		force: inlineConfig.force,
 		routesList,
 		command: 'sync',
-		manifest,
 	});
 }
 
@@ -127,7 +122,6 @@ export async function syncInternal({
 	routesList,
 	command,
 	watcher,
-	manifest,
 }: SyncOptions): Promise<void> {
 	const isDev = command === 'dev';
 	if (force) {
@@ -137,7 +131,7 @@ export async function syncInternal({
 	const timerStart = performance.now();
 
 	if (!skip?.content) {
-		await syncContentCollections(settings, { mode, fs, logger, routesList, manifest });
+		await syncContentCollections(settings, { mode, fs, logger, routesList });
 		settings.timer.start('Sync content layer');
 
 		let store: MutableDataStore | undefined;
@@ -239,8 +233,7 @@ async function syncContentCollections(
 		logger,
 		fs,
 		routesList,
-		manifest,
-	}: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs' | 'routesList' | 'manifest'>>,
+	}: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs' | 'routesList'>>,
 ): Promise<void> {
 	// Needed to load content config
 	const tempViteServer = await createServer(
@@ -251,7 +244,7 @@ async function syncContentCollections(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logger, mode, command: 'build', fs, sync: true, routesList, manifest },
+			{ settings, logger, mode, command: 'build', fs, sync: true, routesList },
 		),
 	);
 
