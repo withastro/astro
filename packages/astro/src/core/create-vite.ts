@@ -144,7 +144,7 @@ export async function createVite(
 			exclude: ['astro', 'node-fetch'],
 		},
 		plugins: [
-			await serializedManifestPlugin({ settings }),
+			command === 'dev' && (await serializedManifestPlugin({ settings })),
 			astroVirtualManifestPlugin(),
 			configAliasVitePlugin({ settings }),
 			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
