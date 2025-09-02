@@ -215,8 +215,6 @@ async function renderFrameworkComponent(
 				});
 			}
 		} else if (typeof Component !== 'string') {
-			console.log(validRenderers);
-			console.log(probableRendererNames);
 			const matchingRenderers = validRenderers.filter((r) =>
 				probableRendererNames.includes(r.name),
 			);
