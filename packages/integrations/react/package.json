@@ -48,7 +48,7 @@
     "@types/react-dom": "^18.3.7",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "cheerio": "1.1.2",
+    "cheerio": "1.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
