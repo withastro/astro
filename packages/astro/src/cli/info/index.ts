@@ -256,11 +256,8 @@ function getVersionUsingNPM(dependency: string): string | undefined {
 		return `v${parsedNpmOutput.dependencies[dependency].version}`;
 	}
 	
-	for (const [key, value] of Object.entries(parsedNpmOutput.dependencies)) {
-		if (key === "astro") {
-			return `v${value.dependencies[dependency].version}`;
-		}
-	}
+	const astro = parsedNpmOutput.dependencies.astro;
+	return astro ? `v${astro.dependencies[dependency].version}` : undefined;
 }
 
 type YarnVersionOutputLine = {
