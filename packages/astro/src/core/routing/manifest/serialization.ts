@@ -2,15 +2,12 @@ import type { SerializedRouteData } from '../../../types/astro.js';
 import type { AstroConfig } from '../../../types/public/config.js';
 import type { RouteData } from '../../../types/public/internal.js';
 
-import { getRouteGenerator } from './generator.js';
-
 export function serializeRouteData(
 	routeData: RouteData,
 	trailingSlash: AstroConfig['trailingSlash'],
 ): SerializedRouteData {
 	return {
 		...routeData,
-		generate: undefined,
 		pattern: routeData.pattern.source,
 		redirectRoute: routeData.redirectRoute
 			? serializeRouteData(routeData.redirectRoute, trailingSlash)
@@ -29,7 +26,6 @@ export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteDa
 		pattern: new RegExp(rawRouteData.pattern),
 		params: rawRouteData.params,
 		component: rawRouteData.component,
-		generate: getRouteGenerator(rawRouteData.segments, rawRouteData._meta.trailingSlash),
 		pathname: rawRouteData.pathname || undefined,
 		segments: rawRouteData.segments,
 		prerender: rawRouteData.prerender,

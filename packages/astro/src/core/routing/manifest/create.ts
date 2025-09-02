@@ -23,7 +23,6 @@ import { injectServerIslandRoute } from '../../server-islands/endpoint.js';
 import { resolvePages } from '../../util.js';
 import { ensure404Route } from '../astro-designed-error-pages.js';
 import { routeComparator } from '../priority.js';
-import { getRouteGenerator } from './generator.js';
 import { getPattern } from './pattern.js';
 import { getRoutePrerenderOption } from './prerender.js';
 import { validateSegment } from './segment.js';
@@ -222,7 +221,6 @@ function createFileBasedRoutes(
 					: null;
 				const trailingSlash = trailingSlashForPath(pathname, settings.config);
 				const pattern = getPattern(segments, settings.config.base, trailingSlash);
-				const generate = getRouteGenerator(segments, trailingSlash);
 				const route = joinSegments(segments);
 				routes.push({
 					route,
@@ -232,7 +230,6 @@ function createFileBasedRoutes(
 					segments,
 					params,
 					component,
-					generate,
 					pathname: pathname || undefined,
 					prerender,
 					fallbackRoutes: [],
@@ -289,7 +286,6 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 
 		const trailingSlash = trailingSlashForPath(pathname, config);
 		const pattern = getPattern(segments, settings.config.base, trailingSlash);
-		const generate = getRouteGenerator(segments, trailingSlash);
 		const params = segments
 			.flat()
 			.filter((p) => p.dynamic)
@@ -305,7 +301,6 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			segments,
 			params,
 			component,
-			generate,
 			pathname: pathname || void 0,
 			prerender: prerenderInjected ?? prerender,
 			fallbackRoutes: [],
@@ -339,7 +334,6 @@ function createRedirectRoutes(
 			});
 
 		const pattern = getPattern(segments, settings.config.base, trailingSlash);
-		const generate = getRouteGenerator(segments, trailingSlash);
 		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
 			: null;
@@ -373,7 +367,6 @@ function createRedirectRoutes(
 			segments,
 			params,
 			component: from,
-			generate,
 			pathname: pathname || void 0,
 			prerender: getPrerenderDefault(config),
 			redirect: to,
@@ -707,7 +700,6 @@ export async function createRoutesList(
 									validateSegment(s);
 									return getParts(s, route);
 								});
-							const generate = getRouteGenerator(segments, config.trailingSlash);
 							const index = routes.findIndex((r) => r === fallbackToRoute);
 							if (index >= 0) {
 								const fallbackRoute: RouteData = {
@@ -715,7 +707,6 @@ export async function createRoutesList(
 									pathname,
 									route,
 									segments,
-									generate,
 									pattern: getPattern(segments, config.base, config.trailingSlash),
 									type: 'fallback',
 									fallbackRoutes: [],

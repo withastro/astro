@@ -66,7 +66,7 @@ export interface RouteData {
 	 * console.log(generate({ id: 'presentation' })) // will log `/blog/presentation`
 	 * ```
 	 */
-	generate: (data?: any) => string;
+	// generate: (data?: any) => string;
 	/**
 	 * Dynamic and spread route params
 	 * ex. "/pages/[lang]/[...slug].astro" will output the params ['lang', '...slug']

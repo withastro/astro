@@ -18,10 +18,10 @@ describe('Assets Prefix - Static', () => {
 		});
 		await fixture.build();
 	});
-	
+
 	after(async () => {
 		await fixture.clean();
-	})
+	});
 
 	it('all stylesheets should start with assetPrefix', async () => {
 		const html = await fixture.readFile('/index.html');
