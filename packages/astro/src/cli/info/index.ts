@@ -240,11 +240,8 @@ function getVersionUsingPNPM(dependency: string): string | undefined {
 			: `v${userProvidedDependency.version}`;
 	}
 	
-	for (const [key, value] of Object.entries(parsedOutput[0].dependencies)) {
-		if (key === "astro") {
-			return formatPnpmVersionOutput(value.version);
-		}
-	}
+const astroDependency = parsedOutput[0].dependencies.astro?.dependencies[dependency];
+return astroDependency ? formatPnpmVersionOutput(astroDependency.version) : undefined;
 }
 
 function getVersionUsingNPM(dependency: string): string | undefined {
