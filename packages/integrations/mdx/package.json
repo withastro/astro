@@ -57,7 +57,7 @@
     "@types/mdast": "^4.0.4",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "cheerio": "1.0.0",
+    "cheerio": "1.1.2",
     "linkedom": "^0.18.12",
     "mdast-util-mdx": "^3.0.0",
     "mdast-util-mdx-jsx": "^3.2.0",
