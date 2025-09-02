@@ -76,7 +76,7 @@ describe('Integration API', () => {
 			pages: new Map(),
 			target: 'server',
 		});
-		assert.deepEqual(updatedViteConfig, updatedInternalConfig);
+		deepEqual(updatedViteConfig, updatedInternalConfig);
 	});
 
 	it('runHookConfigSetup can update Astro config', async () => {
@@ -179,7 +179,7 @@ describe('Integration API', () => {
 					},
 				},
 				async (container) => {
-					assert.deepEqual(
+					deepEqual(
 						routes,
 						[
 							{
@@ -234,7 +234,7 @@ describe('Integration API', () => {
 					);
 					await new Promise((r) => setTimeout(r, 100));
 
-					assert.deepEqual(
+					deepEqual(
 						routes,
 						[
 							{
@@ -296,7 +296,7 @@ describe('Integration API', () => {
 					);
 					await new Promise((r) => setTimeout(r, 100));
 
-					assert.deepEqual(
+					deepEqual(
 						routes,
 						[
 							{
