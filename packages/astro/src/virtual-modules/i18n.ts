@@ -1,9 +1,10 @@
+import { toFallbackType } from '../core/app/common.js';
+import { toRoutingStrategy } from '../core/app/index.js';
 import type { SSRManifest } from '../core/app/types.js';
 import { IncorrectStrategyForI18n } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
 import type { RedirectToFallback } from '../i18n/index.js';
 import * as I18nInternals from '../i18n/index.js';
-import { toFallbackType, toRoutingStrategy } from '../i18n/utils.js';
 import type { I18nInternalConfig } from '../i18n/vite-plugin-i18n.js';
 import type { MiddlewareHandler } from '../types/public/common.js';
 import type { AstroConfig, ValidRedirectStatus } from '../types/public/config.js';
