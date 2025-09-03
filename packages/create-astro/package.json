@@ -32,7 +32,7 @@
   "//b": "DEPENDENCIES IS FOR UNBUNDLED PACKAGES",
   "dependencies": {
     "@astrojs/cli-kit": "^0.4.1",
-    "@bluwy/giget-core": "^0.1.2"
+    "@bluwy/giget-core": "^0.1.3"
   },
   "devDependencies": {
     "arg": "^5.0.2",
