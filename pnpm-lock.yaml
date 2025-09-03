@@ -488,10 +488,10 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0
       '@rollup/pluginutils':
-        specifier: ^5.2.0
+        specifier: ^5.1.4
         version: 5.2.0(rollup@4.50.0)
       acorn:
-        specifier: ^8.15.0
+        specifier: ^8.14.1
         version: 8.15.0
       aria-query:
         specifier: ^5.3.2
@@ -503,7 +503,7 @@ importers:
         specifier: 8.0.1
         version: 8.0.1
       ci-info:
-        specifier: ^4.3.0
+        specifier: ^4.2.0
         version: 4.3.0
       clsx:
         specifier: ^2.1.1
@@ -518,7 +518,7 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       debug:
-        specifier: ^4.4.1
+        specifier: ^4.4.0
         version: 4.4.1
       deterministic-object-hash:
         specifier: ^2.0.2
@@ -536,7 +536,7 @@ importers:
         specifier: ^3.1.4
         version: 3.1.4
       es-module-lexer:
-        specifier: ^1.7.0
+        specifier: ^1.6.0
         version: 1.7.0
       esbuild:
         specifier: ^0.25.0
@@ -557,10 +557,10 @@ importers:
         specifier: 3.0.3
         version: 3.0.3
       http-cache-semantics:
-        specifier: ^4.2.0
+        specifier: ^4.1.1
         version: 4.2.0
       import-meta-resolve:
-        specifier: ^4.2.0
+        specifier: ^4.1.0
         version: 4.2.0
       js-yaml:
         specifier: ^4.1.0
@@ -569,7 +569,7 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5
       magic-string:
-        specifier: ^0.30.18
+        specifier: ^0.30.17
         version: 0.30.18
       magicast:
         specifier: ^0.3.5
@@ -587,10 +587,10 @@ importers:
         specifier: ^8.1.0
         version: 8.1.0
       package-manager-detector:
-        specifier: ^1.3.0
+        specifier: ^1.1.0
         version: 1.3.0
       picomatch:
-        specifier: ^4.0.3
+        specifier: ^4.0.2
         version: 4.0.3
       prompts:
         specifier: ^2.4.2
@@ -599,43 +599,43 @@ importers:
         specifier: ^13.0.2
         version: 13.0.2
       semver:
-        specifier: ^7.7.2
+        specifier: ^7.7.1
         version: 7.7.2
       shiki:
-        specifier: ^3.12.0
+        specifier: ^3.2.1
         version: 3.12.0
       smol-toml:
-        specifier: ^1.4.2
+        specifier: ^1.3.4
         version: 1.4.2
       tinyexec:
         specifier: ^0.3.2
         version: 0.3.2
       tinyglobby:
-        specifier: ^0.2.14
+        specifier: ^0.2.12
         version: 0.2.14
       tsconfck:
-        specifier: ^3.1.6
+        specifier: ^3.1.5
         version: 3.1.6(typescript@5.9.2)
       ultrahtml:
         specifier: ^1.6.0
         version: 1.6.0
       unifont:
-        specifier: ~0.5.2
+        specifier: ~0.5.0
         version: 0.5.2
       unist-util-visit:
         specifier: ^5.0.0
         version: 5.0.0
       unstorage:
-        specifier: ^1.17.0
+        specifier: ^1.15.0
         version: 1.17.0(@netlify/blobs@10.0.8)(@vercel/functions@2.2.13)
       vfile:
         specifier: ^6.0.3
         version: 6.0.3
       vite:
-        specifier: ^6.3.5
+        specifier: ^6.3.4
         version: 6.3.5(@types/node@22.18.0)(jiti@2.5.1)(lightningcss@1.30.1)(sass@1.91.0)(yaml@2.8.1)
       vitefu:
-        specifier: ^1.1.1
+        specifier: ^1.0.6
         version: 1.1.1(vite@6.3.5(@types/node@22.18.0)(jiti@2.5.1)(lightningcss@1.30.1)(sass@1.91.0)(yaml@2.8.1))
       xxhash-wasm:
         specifier: ^1.1.0
@@ -644,13 +644,13 @@ importers:
         specifier: ^21.1.1
         version: 21.1.1
       yocto-spinner:
-        specifier: ^0.2.3
+        specifier: ^0.2.1
         version: 0.2.3
       zod:
-        specifier: ^3.25.76
+        specifier: ^3.24.4
         version: 3.25.76
       zod-to-json-schema:
-        specifier: ^3.24.6
+        specifier: ^3.24.5
         version: 3.24.6(zod@3.25.76)
       zod-to-ts:
         specifier: ^1.2.0
@@ -660,8 +660,8 @@ importers:
         specifier: ^0.9.4
         version: 0.9.4(prettier-plugin-astro@0.14.1)(prettier@3.6.2)(typescript@5.9.2)
       '@playwright/test':
-        specifier: ^1.55.0
-        version: 1.55.0
+        specifier: ^1.51.1
+        version: 1.51.1
       '@types/aria-query':
         specifier: ^5.0.4
         version: 5.0.4
@@ -708,8 +708,8 @@ importers:
         specifier: workspace:*
         version: link:../../scripts
       cheerio:
-        specifier: 1.1.2
-        version: 1.1.2
+        specifier: 1.0.0
+        version: 1.0.0
       eol:
         specifier: ^0.10.0
         version: 0.10.0
@@ -717,10 +717,10 @@ importers:
         specifier: ^8.0.1
         version: 8.0.1
       expect-type:
-        specifier: ^1.2.2
+        specifier: ^1.2.0
         version: 1.2.2
       fs-fixture:
-        specifier: ^2.8.1
+        specifier: ^2.7.1
         version: 2.8.1
       mdast-util-mdx:
         specifier: ^3.0.0
@@ -729,7 +729,7 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0
       node-mocks-http:
-        specifier: ^1.17.2
+        specifier: ^1.16.2
         version: 1.17.2(@types/node@22.18.0)
       parse-srcset:
         specifier: ^1.0.2
@@ -747,13 +747,13 @@ importers:
         specifier: ^0.1.2
         version: 0.1.2
       rollup:
-        specifier: ^4.50.0
+        specifier: ^4.37.0
         version: 4.50.0
       sass:
-        specifier: ^1.91.0
+        specifier: ^1.86.0
         version: 1.91.0
       typescript:
-        specifier: ^5.9.2
+        specifier: ^5.8.3
         version: 5.9.2
       undici:
         specifier: ^6.21.3
@@ -762,7 +762,7 @@ importers:
         specifier: ^11.0.5
         version: 11.0.5
       vitest:
-        specifier: ^3.2.4
+        specifier: ^3.0.9
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.18.0)(jiti@2.5.1)(lightningcss@1.30.1)(sass@1.91.0)(yaml@2.8.1)
     optionalDependencies:
       sharp:
@@ -5137,13 +5137,13 @@ importers:
         specifier: workspace:*
         version: link:../../markdown/remark
       '@mdx-js/mdx':
-        specifier: ^3.1.1
+        specifier: ^3.1.0
         version: 3.1.1
       acorn:
-        specifier: ^8.15.0
+        specifier: ^8.14.1
         version: 8.15.0
       es-module-lexer:
-        specifier: ^1.7.0
+        specifier: ^1.6.0
         version: 1.7.0
       estree-util-visit:
         specifier: ^2.0.0
@@ -5164,7 +5164,7 @@ importers:
         specifier: ^3.0.2
         version: 3.0.2
       source-map:
-        specifier: ^0.7.6
+        specifier: ^0.7.4
         version: 0.7.6
       unist-util-visit:
         specifier: ^5.0.0
@@ -5174,7 +5174,7 @@ importers:
         version: 6.0.3
     devDependencies:
       '@types/estree':
-        specifier: ^1.0.8
+        specifier: ^1.0.7
         version: 1.0.8
       '@types/hast':
         specifier: ^3.0.4
@@ -5189,10 +5189,10 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       cheerio:
-        specifier: 1.1.2
-        version: 1.1.2
+        specifier: 1.0.0
+        version: 1.0.0
       linkedom:
-        specifier: ^0.18.12
+        specifier: ^0.18.9
         version: 0.18.12
       mdast-util-mdx:
         specifier: ^3.0.0
@@ -5210,7 +5210,7 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
       remark-rehype:
-        specifier: ^11.1.2
+        specifier: ^11.1.1
         version: 11.1.2
       remark-shiki-twoslash:
         specifier: ^3.1.3
@@ -5219,13 +5219,13 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
       shiki:
-        specifier: ^3.12.0
+        specifier: ^3.2.1
         version: 3.12.0
       unified:
         specifier: ^11.0.5
         version: 11.0.5
       vite:
-        specifier: ^6.3.5
+        specifier: ^6.3.4
         version: 6.3.5(@types/node@22.18.0)(jiti@2.5.1)(lightningcss@1.30.1)(sass@1.91.0)(yaml@2.8.1)
 
   packages/integrations/mdx/test/fixtures/css-head-mdx:
@@ -8533,11 +8533,6 @@ packages:
 
   '@playwright/test@1.51.1':
     resolution: {integrity: sha512-nM+kEaTSAoVlXmMPH10017vn3FSiFqr/bh4fKg9vmAdMfd9SDqRZNvPSiAHADc/itWak+qPvMPZQOPwCBW7k7Q==}
-    engines: {node: '>=18'}
-    hasBin: true
-
-  '@playwright/test@1.55.0':
-    resolution: {integrity: sha512-04IXzPwHrW69XusN/SIdDdKZBzMfOT9UNT/YiJit/xpy2VuAoB8NHc8Aplb96zsWDddLnbkPL3TsmrS04ZU2xQ==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -12251,18 +12246,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright-core@1.55.0:
-    resolution: {integrity: sha512-GvZs4vU3U5ro2nZpeiwyb0zuFaqb9sUiAJuyrWpcGouD8y9/HLgGbNRjIph7zU9D3hnPaisMl9zG9CgFi/biIg==}
-    engines: {node: '>=18'}
-    hasBin: true
-
   playwright@1.51.1:
     resolution: {integrity: sha512-kkx+MB2KQRkyxjYPc3a0wLZZoDczmppyGJIvQ43l+aZihkaVvmu/21kiyaHeHjiFxjxNNFnUncKmcGIyOojsaw==}
-    engines: {node: '>=18'}
-    hasBin: true
-
-  playwright@1.55.0:
-    resolution: {integrity: sha512-sdCWStblvV1YU909Xqx0DhOjPZE4/5lJsIS84IfN9dAZfcl/CIZ5O8l3o0j7hPMjDvqoTF8ZUcc+i/GL5erstA==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -16241,10 +16226,6 @@ snapshots:
   '@playwright/test@1.51.1':
     dependencies:
       playwright: 1.51.1
-
-  '@playwright/test@1.55.0':
-    dependencies:
-      playwright: 1.55.0
 
   '@polka/url@1.0.0-next.29': {}
 
@@ -20510,17 +20491,9 @@ snapshots:
 
   playwright-core@1.51.1: {}
 
-  playwright-core@1.55.0: {}
-
   playwright@1.51.1:
     dependencies:
       playwright-core: 1.51.1
-    optionalDependencies:
-      fsevents: 2.3.2
-
-  playwright@1.55.0:
-    dependencies:
-      playwright-core: 1.55.0
     optionalDependencies:
       fsevents: 2.3.2
 
