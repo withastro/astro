@@ -182,7 +182,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
-    "@playwright/test": "^1.55.0",
+    "@playwright/test": "^1.51.1",
     "@types/aria-query": "^5.0.4",
     "@types/common-ancestor-path": "^1.0.2",
     "@types/cssesc": "^3.0.2",
@@ -212,7 +212,7 @@
     "rehype-toc": "^3.0.2",
     "remark-code-titles": "^0.1.2",
     "rollup": "^4.37.0",
-    "sass": "^1.91.0",
+    "sass": "^1.86.0",
     "typescript": "^5.8.3",
     "undici": "^6.21.3",
     "unified": "^11.0.5",
