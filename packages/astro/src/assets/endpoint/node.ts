@@ -112,7 +112,7 @@ export const GET: APIRoute = async ({ request }) => {
 
 		const { data, format } = await imageService.transform(inputBuffer, transform, imageConfig);
 
-		return new Response(data, {
+		return new Response(Buffer.from(data), {
 			status: 200,
 			headers: {
 				'Content-Type': mime.lookup(format) ?? `image/${format}`,
