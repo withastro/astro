@@ -21,6 +21,7 @@ interface CallGetStaticPathsOptions {
 	logger: Logger;
 	ssr: boolean;
 	base: AstroConfig['base'];
+	trailingSlash: AstroConfig['trailingSlash'];
 }
 
 export async function callGetStaticPaths({
@@ -30,6 +31,7 @@ export async function callGetStaticPaths({
 	logger,
 	ssr,
 	base,
+	trailingSlash,
 }: CallGetStaticPathsOptions): Promise<GetStaticPathsResultKeyed> {
 	const cached = routeCache.get(route);
 	if (!mod) {
@@ -59,7 +61,7 @@ export async function callGetStaticPaths({
 	staticPaths = await mod.getStaticPaths({
 		// Q: Why the cast?
 		// A: So users downstream can have nicer typings, we have to make some sacrifice in our internal typings, which necessitate a cast here
-		paginate: generatePaginateFunction(route, base) as PaginateFunction,
+		paginate: generatePaginateFunction(route, base, trailingSlash) as PaginateFunction,
 	});
 
 	validateGetStaticPathsResult(staticPaths, logger, route);
@@ -68,7 +70,7 @@ export async function callGetStaticPaths({
 	keyedStaticPaths.keyed = new Map<string, GetStaticPathsItem>();
 
 	for (const sp of keyedStaticPaths) {
-		const paramsKey = stringifyParams(sp.params, route);
+		const paramsKey = stringifyParams(sp.params, route, trailingSlash);
 		keyedStaticPaths.keyed.set(paramsKey, sp);
 	}
 
@@ -125,8 +127,9 @@ export function findPathItemByKey(
 	params: Params,
 	route: RouteData,
 	logger: Logger,
+	trailingSlash: AstroConfig['trailingSlash'],
 ) {
-	const paramsKey = stringifyParams(params, route);
+	const paramsKey = stringifyParams(params, route, trailingSlash);
 	const matchedStaticPath = staticPaths.keyed.get(paramsKey);
 	if (matchedStaticPath) {
 		return matchedStaticPath;

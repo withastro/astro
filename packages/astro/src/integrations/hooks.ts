@@ -16,6 +16,7 @@ import { mergeConfig } from '../core/config/index.js';
 import { validateConfigRefined } from '../core/config/validate.js';
 import { validateSetAdapter } from '../core/dev/adapter-validation.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
+import { getRouteGenerator } from '../core/routing/manifest/generator.js';
 import { getClientOutputDirectory } from '../prerender/utils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
@@ -568,7 +569,7 @@ export async function runHookBuildSsr({
 }: RunHookBuildSsr) {
 	const entryPointsMap = new Map();
 	for (const [key, value] of entryPoints) {
-		entryPointsMap.set(toIntegrationRouteData(key), value);
+		entryPointsMap.set(toIntegrationRouteData(key, config.trailingSlash), value);
 	}
 	for (const integration of config.integrations) {
 		await runHookInternal({
@@ -616,7 +617,9 @@ type RunHookBuildDone = {
 export async function runHookBuildDone({ settings, pages, routes, logger }: RunHookBuildDone) {
 	const dir = getClientOutputDirectory(settings);
 	await fsMod.promises.mkdir(dir, { recursive: true });
-	const integrationRoutes = routes.map(toIntegrationRouteData);
+	const integrationRoutes = routes.map((route) =>
+		toIntegrationRouteData(route, settings.config.trailingSlash),
+	);
 
 	for (const integration of settings.config.integrations) {
 		await runHookInternal({
@@ -683,42 +686,52 @@ export async function runHookRoutesResolved({
 			hookName: 'astro:routes:resolved',
 			logger,
 			params: () => ({
-				routes: routes.map((route) => toIntegrationResolvedRoute(route)),
+				routes: routes.map((route) =>
+					toIntegrationResolvedRoute(route, settings.config.trailingSlash),
+				),
 			}),
 		});
 	}
 }
 
-export function toIntegrationResolvedRoute(route: RouteData): IntegrationResolvedRoute {
+export function toIntegrationResolvedRoute(
+	route: RouteData,
+	trailingSlash: AstroConfig['trailingSlash'],
+): IntegrationResolvedRoute {
 	return {
 		isPrerendered: route.prerender,
 		entrypoint: route.component,
 		pattern: route.route,
 		params: route.params,
 		origin: route.origin,
-		generate: route.generate,
+		generate: getRouteGenerator(route.segments, trailingSlash),
 		patternRegex: route.pattern,
 		segments: route.segments,
 		type: route.type,
 		pathname: route.pathname,
 		redirect: route.redirect,
 		redirectRoute: route.redirectRoute
-			? toIntegrationResolvedRoute(route.redirectRoute)
+			? toIntegrationResolvedRoute(route.redirectRoute, trailingSlash)
 			: undefined,
 	};
 }
 
-function toIntegrationRouteData(route: RouteData): IntegrationRouteData {
+function toIntegrationRouteData(
+	route: RouteData,
+	trailingSlash: AstroConfig['trailingSlash'],
+): IntegrationRouteData {
 	return {
 		route: route.route,
 		component: route.component,
-		generate: route.generate,
+		generate: getRouteGenerator(route.segments, trailingSlash),
 		params: route.params,
 		pathname: route.pathname,
 		segments: route.segments,
 		prerender: route.prerender,
 		redirect: route.redirect,
-		redirectRoute: route.redirectRoute ? toIntegrationRouteData(route.redirectRoute) : undefined,
+		redirectRoute: route.redirectRoute
+			? toIntegrationRouteData(route.redirectRoute, trailingSlash)
+			: undefined,
 		type: route.type,
 		pattern: route.pattern,
 		distURL: route.distURL,

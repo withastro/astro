@@ -485,6 +485,7 @@ async function matchRoute(
 				logger,
 				serverLike,
 				base: config.base,
+				trailingSlash: config.trailingSlash,
 			});
 			return {
 				route: maybeRoute,

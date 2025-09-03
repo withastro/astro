@@ -168,6 +168,7 @@ export class RenderContext {
 						logger,
 						serverLike,
 						base: manifest.base,
+						trailingSlash: manifest.trailingSlash,
 					});
 		const actionApiContext = this.createActionAPIContext();
 		const apiContext = this.createAPIContext(props, actionApiContext);
