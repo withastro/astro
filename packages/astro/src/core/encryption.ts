@@ -67,9 +67,10 @@ export async function encodeKey(key: CryptoKey) {
  */
 export async function decodeKey(encoded: string): Promise<CryptoKey> {
 	const bytes = decodeBase64(encoded);
-	// @ts-expect-error
-	// return crypto.subtle.importKey('raw', Buffer.from(bytes), ALGORITHM, true, [
-	return crypto.subtle.importKey('raw', bytes, ALGORITHM, true, ['encrypt', 'decrypt']);
+	return crypto.subtle.importKey('raw', Buffer.from(bytes), ALGORITHM, true, [
+		'encrypt',
+		'decrypt',
+	]);
 }
 
 const encoder = new TextEncoder();
@@ -105,13 +106,10 @@ export async function decryptString(key: CryptoKey, encoded: string) {
 	const decryptedBuffer = await crypto.subtle.decrypt(
 		{
 			name: ALGORITHM,
-			// @ts-expect-error
-			// iv: Buffer.from(iv),
-			iv: iv,
+			iv: Buffer.from(iv),
 		},
 		key,
-		// Buffer.from(dataArray),
-		dataArray,
+		Buffer.from(dataArray),
 	);
 	const decryptedString = decoder.decode(decryptedBuffer);
 	return decryptedString;

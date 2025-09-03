@@ -63,9 +63,7 @@ export const GET: APIRoute = async ({ request }) => {
 			imageConfig,
 		);
 
-		// @ts-expect-error
-		// return new Response(Buffer.from(data), {
-		return new Response(data, {
+		return new Response(Buffer.from(data), {
 			status: 200,
 			headers: {
 				'Content-Type': mime.lookup(format) ?? `image/${format}`,

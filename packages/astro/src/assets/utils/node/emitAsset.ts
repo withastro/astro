@@ -34,9 +34,7 @@ async function handleSvgDeduplication(
 	filename: string,
 	fileEmitter: FileEmitter,
 ): Promise<string> {
-	// @ts-expect-error
-	// const contentHash = await generateContentHash(Uint8Array.from(fileData).buffer);
-	const contentHash = await generateContentHash(fileData);
+	const contentHash = await generateContentHash(Uint8Array.from(fileData).buffer);
 	const key = keyFor(contentHash);
 	const existing = svgContentCache.get(key);
 
