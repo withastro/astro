@@ -708,8 +708,8 @@ importers:
         specifier: workspace:*
         version: link:../../scripts
       cheerio:
-        specifier: 1.1.2
-        version: 1.1.2
+        specifier: 1.0.0
+        version: 1.0.0
       eol:
         specifier: ^0.10.0
         version: 0.10.0
@@ -747,13 +747,13 @@ importers:
         specifier: ^0.1.2
         version: 0.1.2
       rollup:
-        specifier: ^4.50.0
+        specifier: ^4.37.0
         version: 4.50.0
       sass:
         specifier: ^1.91.0
         version: 1.91.0
       typescript:
-        specifier: ^5.9.2
+        specifier: ^5.8.3
         version: 5.9.2
       undici:
         specifier: ^6.21.3
