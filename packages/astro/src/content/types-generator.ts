@@ -646,11 +646,25 @@ async function generateJSONSchema(
 		zodSchemaForJson = await getContentLayerSchema(collectionConfig, collectionKey);
 	}
 
+	// The `file()` loader uses a schema which applies to every item in the file rather than a schema
+	// for the whole file. We special case this to provide the correct JSON schema to users.
+	// TODO: it would be nice if loaders could indicate this behavior so it wasn’t unique to the built-in loader.
+	if (
+		collectionConfig.type === CONTENT_LAYER_TYPE &&
+		collectionConfig.loader.name === 'file-loader'
+	) {
+		// `file()` supports arrays of items, but you can’t set `$schema` when using a top-level array,
+		// so we’re only handling the object case.
+		// We use `z.object()` instead of `z.record()` for compatibility with the next `if` statement.
+		zodSchemaForJson = z.object({}).catchall(zodSchemaForJson);
+	}
+
 	if (zodSchemaForJson instanceof z.ZodObject) {
 		zodSchemaForJson = zodSchemaForJson.extend({
 			$schema: z.string().optional(),
 		});
 	}
+
 	try {
 		await fsMod.promises.writeFile(
 			new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),

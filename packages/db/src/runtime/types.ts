@@ -7,13 +7,16 @@ type GeneratedConfig<T extends ColumnDataType = ColumnDataType> = Pick<
 	'name' | 'tableName' | 'notNull' | 'hasDefault' | 'hasRuntimeDefault' | 'isPrimaryKey'
 >;
 
-type AstroText<T extends GeneratedConfig<'string'>> = SQLiteColumn<
+type AstroText<
+	T extends GeneratedConfig<'string'>,
+	E extends readonly [string, ...string[]] | string,
+> = SQLiteColumn<
 	T & {
-		data: string;
+		data: E extends readonly (infer U)[] ? U : string;
 		dataType: 'string';
 		columnType: 'SQLiteText';
 		driverParam: string;
-		enumValues: never;
+		enumValues: E extends [string, ...string[]] ? E : never;
 		baseColumn: never;
 		isAutoincrement: boolean;
 		identity: undefined;
@@ -77,12 +80,16 @@ type AstroJson<T extends GeneratedConfig<'custom'>> = SQLiteColumn<
 	}
 >;
 
-type Column<T extends DBColumn['type'], S extends GeneratedConfig> = T extends 'boolean'
+type Column<
+	T extends DBColumn['type'],
+	E extends readonly [string, ...string[]] | string,
+	S extends GeneratedConfig,
+> = T extends 'boolean'
 	? AstroBoolean<S>
 	: T extends 'number'
 		? AstroNumber<S>
 		: T extends 'text'
-			? AstroText<S>
+			? AstroText<S, E>
 			: T extends 'date'
 				? AstroDate<S>
 				: T extends 'json'
@@ -99,6 +106,11 @@ export type Table<
 	columns: {
 		[K in Extract<keyof TColumns, string>]: Column<
 			TColumns[K]['type'],
+			TColumns[K]['schema'] extends { enum: infer E }
+				? E extends readonly [string, ...string[]]
+					? E
+					: string
+				: string,
 			{
 				tableName: TTableName;
 				name: K;

@@ -1,5 +1,37 @@
 # @astrojs/netlify
 
+## 6.5.9
+
+### Patch Changes
+
+- [#14269](https://github.com/withastro/astro/pull/14269) [`4823c42`](https://github.com/withastro/astro/commit/4823c426c4e3c63765098f53c93fcb1bb3a4faaf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates `context.netlify` to implement all its properties
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.5.8
+
+### Patch Changes
+
+- [#14240](https://github.com/withastro/astro/pull/14240) [`77b18fb`](https://github.com/withastro/astro/commit/77b18fb1f85cf1a0c8842bb6e32fd16a9198b974) Thanks [@delucis](https://github.com/delucis)! - Increases the minimum supported version of Astro to 5.7.0
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.5.7
+
+### Patch Changes
+
+- Updated dependencies [[`4d16de7`](https://github.com/withastro/astro/commit/4d16de7f95db5d1ec1ce88610d2a95e606e83820)]:
+  - @astrojs/internal-helpers@0.7.2
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.5.6
+
+### Patch Changes
+
+- [#14175](https://github.com/withastro/astro/pull/14175) [`1e1cef0`](https://github.com/withastro/astro/commit/1e1cef04b565c867e7b1450aba2e27eb8283fafb) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the adapter would cause a runtime error when calling `astro build` in CI environments.
+
 ## 6.5.5
 
 ### Patch Changes

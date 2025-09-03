@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/db",
-  "version": "0.16.0",
+  "version": "0.17.1",
   "description": "Add libSQL support to your Astro site",
   "license": "MIT",
   "repository": {
@@ -66,7 +66,9 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc && pnpm types:virtual",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.js\""
+    "test": "pnpm run test:integration && pnpm run test:types",
+    "test:integration": "astro-scripts test \"test/**/*.test.js\"",
+    "test:types": "tsc --project test/types/tsconfig.json"
   },
   "dependencies": {
     "@libsql/client": "^0.15.2",
@@ -85,6 +87,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.0.0",
+    "expect-type": "^1.2.0",
     "typescript": "^5.8.3",
     "vite": "^6.3.4"
   }

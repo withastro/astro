@@ -1,5 +1,47 @@
 # @astrojs/node
 
+## 9.4.3
+
+### Patch Changes
+
+- [#14240](https://github.com/withastro/astro/pull/14240) [`77b18fb`](https://github.com/withastro/astro/commit/77b18fb1f85cf1a0c8842bb6e32fd16a9198b974) Thanks [@delucis](https://github.com/delucis)! - Increases the minimum supported version of Astro to 5.7.0
+
+## 9.4.2
+
+### Patch Changes
+
+- Updated dependencies [[`4d16de7`](https://github.com/withastro/astro/commit/4d16de7f95db5d1ec1ce88610d2a95e606e83820)]:
+  - @astrojs/internal-helpers@0.7.2
+
+## 9.4.1
+
+### Patch Changes
+
+- [`5fc3c59`](https://github.com/withastro/astro/commit/5fc3c599cacb0172cc7d8e1202a5f2e8685d7ef2) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a routing bug in standalone mode with `trailingSlash` set to `"always"`.
+
+## 9.4.0
+
+### Minor Changes
+
+- [#14188](https://github.com/withastro/astro/pull/14188) [`e3422aa`](https://github.com/withastro/astro/commit/e3422aa423293d9091451d3031b7d6bfb7b46902) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds support for specifying a host to load prerendered error pages
+
+  By default, if a user defines a custom error page that is prerendered, Astro will load it from the same host as the one that the request is made to. This change allows users to specify a different host for loading prerendered error pages. This can be useful in scenarios such as where the server is running behind a reverse proxy or when prerendered pages are hosted on a different domain.
+
+  To use this feature, set the `experimentalErrorPageHost` adapter option in your Astro configuration to the desired host URL. For example, if your server is running on localhost and served via a proxy, you can ensure the prerendered error pages are fetched via the localhost URL:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import node from '@astrojs/node';
+  export default defineConfig({
+    adapter: node({
+      // If your server is running on localhost and served via a proxy, set the host like this to ensure prerendered error pages are fetched via the localhost URL
+      experimentalErrorPageHost: 'http://localhost:4321',
+    }),
+  });
+  ```
+
+  For more information on enabling and using this experimental feature, see the [`@astrojs/node` adapter docs](https://docs.astro.build/en/guides/integrations-guide/node/#experimentalerrorpagehost).
+
 ## 9.3.3
 
 ### Patch Changes
