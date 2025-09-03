@@ -309,7 +309,7 @@ export async function createSerializedManifest(
 			styleHashes: getStyleHashes(settings.config.experimental.csp),
 			styleResources: getStyleResources(settings.config.experimental.csp),
 			algorithm: getAlgorithm(settings.config.experimental.csp),
-			directives: getDirectives(settings.config.experimental.csp),
+			directives: getDirectives(settings),
 			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
 		};
 	}

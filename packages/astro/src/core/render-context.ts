@@ -53,7 +53,16 @@ export type CreateRenderContext = Pick<
 	'pathname' | 'pipeline' | 'request' | 'routeData' | 'clientAddress'
 > &
 	Partial<
-		Pick<RenderContext, 'locals' | 'middleware' | 'status' | 'props' | 'partial' | 'actions'>
+		Pick<
+			RenderContext,
+			| 'locals'
+			| 'middleware'
+			| 'status'
+			| 'props'
+			| 'partial'
+			| 'actions'
+			| 'shouldInjectCspMetaTags'
+		>
 	>;
 
 export class RenderContext {
@@ -102,6 +111,7 @@ export class RenderContext {
 		props,
 		partial = undefined,
 		actions,
+		shouldInjectCspMetaTags,
 	}: CreateRenderContext): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
 		const pipelineActions = actions ?? (await pipeline.getActions());

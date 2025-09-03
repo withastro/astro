@@ -122,7 +122,7 @@ export class DevApp extends BaseApp<DevPipeline> {
 			url.pathname = url.pathname.slice(0, -1);
 		}
 
-		let body: ArrayBuffer | undefined = undefined;
+		let body: BodyInit | undefined = undefined;
 		if (!(incomingRequest.method === 'GET' || incomingRequest.method === 'HEAD')) {
 			let bytes: Uint8Array[] = [];
 			await new Promise((resolve) => {
@@ -209,6 +209,7 @@ export class DevApp extends BaseApp<DevPipeline> {
 			routeData: route,
 			clientAddress: incomingRequest.socket.remoteAddress,
 			actions,
+			shouldInjectCspMetaTags: false,
 		});
 
 		let response;
@@ -275,6 +276,7 @@ export class DevApp extends BaseApp<DevPipeline> {
 					routeData: fourOhFourRoute.route,
 					clientAddress: incomingRequest.socket.remoteAddress,
 					status: 404,
+					shouldInjectCspMetaTags: false,
 				});
 				const component = await this.pipeline.preload(
 					fourOhFourRoute.route,
@@ -396,6 +398,7 @@ export class DevApp extends BaseApp<DevPipeline> {
 				clientAddress,
 				actions: await this.pipeline.getActions(),
 				status,
+				shouldInjectCspMetaTags: false,
 			});
 			renderContext.props.error = error;
 			const response = await renderContext.render(preloaded500Component);
@@ -449,7 +452,7 @@ type HandleRoute = {
 	matchedRoute: AsyncReturnType<typeof matchRoute>;
 	url: URL;
 	pathname: string;
-	body: ArrayBuffer | undefined;
+	body: BodyInit | undefined;
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
 };
