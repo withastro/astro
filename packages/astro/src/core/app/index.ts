@@ -209,10 +209,12 @@ export class App {
 		if (this.#manifest.assets.has(url.pathname)) return undefined;
 		let pathname = this.#computePathnameFromDomain(request);
 		if (!pathname) {
-			pathname = prependForwardSlash(this.removeBase(url.pathname));
+			pathname = this.removeBase(url.pathname)
+			if(pathname !== '' || this.#manifest.base === '/') {
+				pathname = prependForwardSlash(pathname);
+			}
 		}
 		let routeData = matchRoute(decodeURI(pathname), this.#manifestData);
-
 		if (!routeData) return undefined;
 		if (allowPrerenderedRoutes) {
 			return routeData;

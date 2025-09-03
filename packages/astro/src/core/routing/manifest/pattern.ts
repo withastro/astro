@@ -38,7 +38,7 @@ export function getPattern(
 	const trailing =
 		addTrailingSlash && segments.length ? getTrailingSlashPattern(addTrailingSlash) : '$';
 	let initial = '\\/';
-	if (addTrailingSlash === 'never' && base !== '/' && pathname !== '') {
+	if (addTrailingSlash === 'never' && base !== '/') {
 		initial = '';
 	}
 	return new RegExp(`^${pathname || initial}${trailing}`);
