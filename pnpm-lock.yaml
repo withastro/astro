@@ -526,7 +526,7 @@ importers:
         version: 2.0.2
       devalue:
         specifier: ^5.1.1
-        version: 5.1.1
+        version: 5.3.2
       diff:
         specifier: ^5.2.0
         version: 5.2.0
@@ -4766,7 +4766,7 @@ importers:
         version: 1.1.2
       devalue:
         specifier: ^5.1.1
-        version: 5.1.1
+        version: 5.3.2
       execa:
         specifier: ^8.0.1
         version: 8.0.1
@@ -4965,7 +4965,7 @@ importers:
         version: link:../../../scripts
       devalue:
         specifier: ^5.1.1
-        version: 5.1.1
+        version: 5.3.2
       linkedom:
         specifier: ^0.18.9
         version: 0.18.12
@@ -5429,7 +5429,7 @@ importers:
         version: 1.1.2
       devalue:
         specifier: ^5.1.1
-        version: 5.1.1
+        version: 5.3.2
       typescript:
         specifier: ^5.9.2
         version: 5.9.2
@@ -5539,7 +5539,7 @@ importers:
         version: 1.1.2
       devalue:
         specifier: ^5.1.1
-        version: 5.1.1
+        version: 5.3.2
       express:
         specifier: ^4.21.2
         version: 4.21.2
@@ -10144,8 +10144,8 @@ packages:
   dettle@1.0.5:
     resolution: {integrity: sha512-ZVyjhAJ7sCe1PNXEGveObOH9AC8QvMga3HJIghHawtG7mE4K5pW9nz/vDGAr/U7a3LWgdOzEE7ac9MURnyfaTA==}
 
-  devalue@5.1.1:
-    resolution: {integrity: sha512-maua5KUiapvEwiEAe+XnlZ3Rh0GD+qI1J/nb9vrJc3muPXvcF/8gXYTWF76+5DAqHyDUtOIImEuo0YKE9mshVw==}
+  devalue@5.3.2:
+    resolution: {integrity: sha512-UDsjUbpQn9kvm68slnrs+mfxwFkIflOhkanmyabZ8zOYk8SMEIbJ3TK+88g70hSIeytu4y18f0z/hYHMTrXIWw==}
 
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
@@ -17983,7 +17983,7 @@ snapshots:
 
   dettle@1.0.5: {}
 
-  devalue@5.1.1: {}
+  devalue@5.3.2: {}
 
   devlop@1.1.0:
     dependencies:
