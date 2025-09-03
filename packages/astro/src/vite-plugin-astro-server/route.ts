@@ -136,7 +136,7 @@ interface HandleRoute {
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
 	pipeline: DevPipeline;
-};
+}
 
 export async function handleRoute({
 	matchedRoute,
