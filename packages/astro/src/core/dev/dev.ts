@@ -20,6 +20,7 @@ import {
 	MAX_PATCH_DISTANCE,
 	shouldCheckForUpdates,
 } from './update-check.js';
+import { isRunnableDevEnvironment } from 'vite';
 
 export interface DevServer {
 	address: AddressInfo;
@@ -95,8 +96,9 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	if (!store) {
 		logger.error('content', 'Failed to create data store');
 	}
-
-	await attachContentServerListeners(restart.container);
+	if(isRunnableDevEnvironment(restart.container.viteServer.environments.ssr)) {
+		await attachContentServerListeners(restart.container);
+	}
 
 	const config = globalContentConfigObserver.get();
 	if (config.status === 'error') {

@@ -48,6 +48,9 @@ export default function configHeadVitePlugin(): vite.Plugin {
 		enforce: 'pre',
 		apply: 'serve',
 		configureServer(server) {
+			if(!isRunnableDevEnvironment(_server.environments.ssr)) {
+				return
+			}
 			environment = server.environments.ssr;
 		},
 		resolveId(source, importer) {

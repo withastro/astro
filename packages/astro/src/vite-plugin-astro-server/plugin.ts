@@ -58,6 +58,11 @@ export default function createVitePluginAstroServer({
 	return {
 		name: 'astro:server',
 		async configureServer(viteServer) {
+
+			if(!isRunnableDevEnvironment(viteServer.environments.ssr)) {
+				return
+			}
+
 			const loader = createViteLoader(viteServer);
 			const { routes } = await loader.import('astro:routes');
 			const routesList: RoutesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
@@ -179,17 +184,13 @@ export default function createVitePluginAstroServer({
 				});
 
 				// Note that this function has a name so other middleware can find it.
-				viteServer.middlewares.use(async function astroDevHandler(request, response, next) {
+				viteServer.middlewares.use(async function astroDevHandler(request, response) {
 					if (request.url === undefined || !request.method) {
 						response.writeHead(500, 'Incomplete request');
 						response.end();
 						return;
 					}
-					let ssrEnvironment = viteServer.environments.ssr;
-					if (!isRunnableDevEnvironment(ssrEnvironment)) {
-						// We're in a non-runnable environment such as Cloudflare. Let them handle the request.
-						return next();
-					}
+
 					localStorage.run(request, () => {
 						app.handleRequest({
 							controller,
