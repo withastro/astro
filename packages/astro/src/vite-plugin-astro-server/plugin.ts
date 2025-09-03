@@ -6,7 +6,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
-import { normalizePath } from 'vite';
+import { isRunnableDevEnvironment, normalizePath } from 'vite';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/index.js';
 import type {
@@ -179,11 +179,16 @@ export default function createVitePluginAstroServer({
 				});
 
 				// Note that this function has a name so other middleware can find it.
-				viteServer.middlewares.use(async function astroDevHandler(request, response) {
+				viteServer.middlewares.use(async function astroDevHandler(request, response, next) {
 					if (request.url === undefined || !request.method) {
 						response.writeHead(500, 'Incomplete request');
 						response.end();
 						return;
+					}
+					let ssrEnvironment = viteServer.environments.ssr;
+					if (!isRunnableDevEnvironment(ssrEnvironment)) {
+						// We're in a non-runnable environment such as Cloudflare. Let them handle the request.
+						return next();
 					}
 					localStorage.run(request, () => {
 						app.handleRequest({
