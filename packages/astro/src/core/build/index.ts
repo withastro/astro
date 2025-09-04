@@ -145,7 +145,6 @@ class AstroBuilder {
 				mode: this.mode,
 				command: 'build',
 				sync: false,
-				routesList: this.routesList,
 			},
 		);
 
@@ -155,7 +154,6 @@ class AstroBuilder {
 			settings: this.settings,
 			logger,
 			fs,
-			routesList: this.routesList,
 			command: 'build',
 		});
 
