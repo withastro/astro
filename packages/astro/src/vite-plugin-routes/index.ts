@@ -31,7 +31,7 @@ export default async function astroPluginRoutes({
 	logger,
 	fsMod,
 }: Payload): Promise<Plugin> {
-	const routeList = await createRoutesList(
+	let routeList = await createRoutesList(
 		{
 			settings,
 			fsMod,
@@ -41,7 +41,7 @@ export default async function astroPluginRoutes({
 		{ dev: true },
 	);
 
-	const serializedRouteInfo: SerializedRouteInfo[] = routeList.routes.map(
+	let serializedRouteInfo: SerializedRouteInfo[] = routeList.routes.map(
 		(r): SerializedRouteInfo => {
 			return {
 				file: '',
@@ -57,10 +57,28 @@ export default async function astroPluginRoutes({
 		name: 'astro:routes',
 		enforce: 'pre',
 		configureServer(server) {
-			server.watcher.on('all', (_event, relativeEntry) => {
+			server.watcher.on('all', async (_event, relativeEntry) => {
 				const entry = new URL(relativeEntry, settings.config.root);
 				if (entry.pathname.startsWith(settings.config.srcDir.pathname)) {
-					server.restart();
+					routeList = await createRoutesList(
+						{
+							settings,
+							fsMod,
+						},
+						logger,
+						// TODO: the caller should handle this
+						{ dev: true },
+					);
+
+					serializedRouteInfo = routeList.routes.map((r): SerializedRouteInfo => {
+						return {
+							file: '',
+							links: [],
+							scripts: [],
+							styles: [],
+							routeData: serializeRouteData(r, settings.config.trailingSlash),
+						};
+					});
 				}
 			});
 		},
