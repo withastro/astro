@@ -48,7 +48,6 @@ interface AstroPluginOptions {
 	settings: AstroSettings;
 	logger: Logger;
 	fs: typeof fs;
-	routesList: RoutesList;
 }
 
 export default function createVitePluginAstroServer({

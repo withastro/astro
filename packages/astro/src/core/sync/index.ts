@@ -14,7 +14,7 @@ import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
-import type { AstroSettings, RoutesList } from '../../types/astro.js';
+import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
@@ -30,7 +30,6 @@ import {
 	isAstroError,
 } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
-import { createRoutesList } from '../routing/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { normalizePath } from '../viteUtils.js';
 
@@ -49,7 +48,6 @@ type SyncOptions = {
 		// Cleanup can be skipped in dev as some state can be reused on updates
 		cleanup?: boolean;
 	};
-	routesList: RoutesList;
 	command: 'build' | 'dev' | 'sync';
 	watcher?: FSWatcher;
 };
@@ -70,7 +68,6 @@ export default async function sync(
 		settings,
 		logger,
 	});
-	const routesList = await createRoutesList({ settings, fsMod: fs }, logger);
 	await runHookConfigDone({ settings, logger });
 
 	return await syncInternal({
@@ -79,7 +76,6 @@ export default async function sync(
 		mode: 'production',
 		fs,
 		force: inlineConfig.force,
-		routesList,
 		command: 'sync',
 	});
 }
@@ -119,7 +115,6 @@ export async function syncInternal({
 	settings,
 	skip,
 	force,
-	routesList,
 	command,
 	watcher,
 }: SyncOptions): Promise<void> {
@@ -131,7 +126,7 @@ export async function syncInternal({
 	const timerStart = performance.now();
 
 	if (!skip?.content) {
-		await syncContentCollections(settings, { mode, fs, logger, routesList });
+		await syncContentCollections(settings, { mode, fs, logger });
 		settings.timer.start('Sync content layer');
 
 		let store: MutableDataStore | undefined;
@@ -228,12 +223,7 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
  */
 async function syncContentCollections(
 	settings: AstroSettings,
-	{
-		mode,
-		logger,
-		fs,
-		routesList,
-	}: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs' | 'routesList'>>,
+	{ mode, logger, fs }: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs'>>,
 ): Promise<void> {
 	// Needed to load content config
 	const tempViteServer = await createServer(
@@ -244,7 +234,7 @@ async function syncContentCollections(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logger, mode, command: 'build', fs, sync: true, routesList },
+			{ settings, logger, mode, command: 'build', fs, sync: true },
 		),
 	);
 

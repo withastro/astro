@@ -2,19 +2,19 @@ import { extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
 import type { Plugin as VitePlugin } from 'vite';
+import type { RouteInfo } from '../core/app/types.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
 import type { Logger } from '../core/logger/core.js';
 import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
 import { isEndpoint, isPage } from '../core/util.js';
 import { normalizePath, rootRelativePath } from '../core/viteUtils.js';
-import type { AstroSettings, RoutesList } from '../types/astro.js';
+import type { AstroSettings } from '../types/astro.js';
 import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
 interface AstroPluginScannerOptions {
 	settings: AstroSettings;
 	logger: Logger;
-	routesList: RoutesList;
 }
 
 const KNOWN_FILE_EXTENSIONS = ['.astro', '.js', '.ts'];
@@ -22,7 +22,6 @@ const KNOWN_FILE_EXTENSIONS = ['.astro', '.js', '.ts'];
 export default function astroScannerPlugin({
 	settings,
 	logger,
-	routesList,
 }: AstroPluginScannerOptions): VitePlugin {
 	return {
 		name: 'astro:scanner',
@@ -43,9 +42,10 @@ export default function astroScannerPlugin({
 			const fileIsPage = isPage(fileURL, settings);
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
-
-			const route = routesList.routes.find((r) => {
-				const filePath = new URL(`./${r.component}`, settings.config.root);
+			// @ts-expect-error it's a virtual module
+			const { routes } = await import('astro:routes');
+			const route = routes.find((r: RouteInfo) => {
+				const filePath = new URL(`./${r.routeData.component}`, settings.config.root);
 				return normalizePath(fileURLToPath(filePath)) === filename;
 			});
 
@@ -99,8 +99,10 @@ export default function astroScannerPlugin({
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
 
-			const route = routesList.routes.find((r) => {
-				const filePath = new URL(`./${r.component}`, settings.config.root);
+			// @ts-expect-error it's a virtual module
+			const { routes } = await import('astro:routes');
+			const route = routes.find((r: RouteInfo) => {
+				const filePath = new URL(`./${r.routeData.component}`, settings.config.root);
 				return normalizePath(fileURLToPath(filePath)) === filename;
 			});
 

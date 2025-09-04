@@ -29,6 +29,7 @@ export default async function astroPluginRoutes({
 		// TODO: the caller should handle this
 		{ dev: true },
 	);
+
 	const serializedRouteInfo: SerializedRouteInfo[] = routeList.routes.map(
 		(r): SerializedRouteInfo => {
 			return {
@@ -62,7 +63,8 @@ export default async function astroPluginRoutes({
 				const code = `
 				import { deserializeRouteInfo } from 'astro/app';
 				const serializedData = ${JSON.stringify(serializedRouteInfo)};
-				export const routes = serializedData.map(deserializeRouteInfo);
+				const routes = serializedData.map(deserializeRouteInfo);
+				export { routes };
 				`;
 
 				return {
