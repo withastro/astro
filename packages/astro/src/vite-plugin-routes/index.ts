@@ -31,6 +31,7 @@ export default async function astroPluginRoutes({
 	logger,
 	fsMod,
 }: Payload): Promise<Plugin> {
+	logger.debug('update', 'Re-calculate routes');
 	let routeList = await createRoutesList(
 		{
 			settings,
@@ -53,34 +54,36 @@ export default async function astroPluginRoutes({
 		},
 	);
 
+	async function rebuildRoutes(path: string | null = null) {
+		if (path != null) {
+			routeList = await createRoutesList(
+				{
+					settings,
+					fsMod,
+				},
+				logger,
+				// TODO: the caller should handle this
+				{ dev: true },
+			);
+
+			serializedRouteInfo = routeList.routes.map((r): SerializedRouteInfo => {
+				return {
+					file: '',
+					links: [],
+					scripts: [],
+					styles: [],
+					routeData: serializeRouteData(r, settings.config.trailingSlash),
+				};
+			});
+		}
+	}
 	return {
 		name: 'astro:routes',
 		enforce: 'pre',
 		configureServer(server) {
-			server.watcher.on('all', async (_event, relativeEntry) => {
-				const entry = new URL(relativeEntry, settings.config.root);
-				if (entry.pathname.startsWith(settings.config.srcDir.pathname)) {
-					routeList = await createRoutesList(
-						{
-							settings,
-							fsMod,
-						},
-						logger,
-						// TODO: the caller should handle this
-						{ dev: true },
-					);
-
-					serializedRouteInfo = routeList.routes.map((r): SerializedRouteInfo => {
-						return {
-							file: '',
-							links: [],
-							scripts: [],
-							styles: [],
-							routeData: serializeRouteData(r, settings.config.trailingSlash),
-						};
-					});
-				}
-			});
+			server.watcher.on('add', rebuildRoutes.bind(null, null));
+			server.watcher.on('unlink', rebuildRoutes.bind(null, null));
+			server.watcher.on('change', rebuildRoutes);
 		},
 
 		applyToEnvironment(environment) {
