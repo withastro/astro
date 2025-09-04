@@ -1,8 +1,9 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import { serializeRouteData } from '../../../dist/core/app/index.js';
 import { createContainer } from '../../../dist/core/dev/container.js';
 import { createLoader } from '../../../dist/core/module-loader/index.js';
-import { createRoutesList, serializeRouteData } from '../../../dist/core/routing/index.js';
+import { createRoutesList } from '../../../dist/core/routing/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
 import { createController, DevApp } from '../../../dist/vite-plugin-astro-server/index.js';
 import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
