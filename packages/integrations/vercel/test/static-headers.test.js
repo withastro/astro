@@ -25,3 +25,36 @@ describe('Static headers', () => {
 		);
 	});
 });
+
+describe('Static headers - global CSP', () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/static-headers-global',
+		});
+		await fixture.build();
+	});
+
+	it('should create single catch-all route with CSP when globalCsp is enabled', async () => {
+		const config = JSON.parse(await fixture.readFile('../.vercel/output/config.json'));
+		const globalCspRoute = config.routes.find(
+			(r) => r.src === '/(.*)' && r.headers && r.headers['content-security-policy'],
+		);
+
+		assert.ok(globalCspRoute, 'should have global CSP route');
+		assert.ok(
+			typeof globalCspRoute.headers['content-security-policy'] === 'string',
+			'should have CSP header string',
+		);
+	});
+
+	it('should only create one CSP route entry', async () => {
+		const config = JSON.parse(await fixture.readFile('../.vercel/output/config.json'));
+		const cspRoutes = config.routes.filter(
+			(r) => r.headers && r.headers['content-security-policy'],
+		);
+
+		assert.equal(cspRoutes.length, 1, 'should have exactly one CSP route entry');
+	});
+});
