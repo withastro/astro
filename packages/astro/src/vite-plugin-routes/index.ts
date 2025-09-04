@@ -79,7 +79,6 @@ export default async function astroPluginRoutes({
 	}
 	return {
 		name: 'astro:routes',
-		enforce: 'pre',
 		configureServer(server) {
 			server.watcher.on('add', rebuildRoutes.bind(null, null));
 			server.watcher.on('unlink', rebuildRoutes.bind(null, null));
