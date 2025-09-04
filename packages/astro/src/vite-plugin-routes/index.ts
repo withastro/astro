@@ -26,6 +26,8 @@ export default async function astroPluginRoutes({
 			fsMod,
 		},
 		logger,
+		// TODO: the caller should handle this
+		{ dev: true },
 	);
 	const serializedRouteInfo: SerializedRouteInfo[] = routeList.routes.map(
 		(r): SerializedRouteInfo => {
@@ -38,7 +40,7 @@ export default async function astroPluginRoutes({
 			};
 		},
 	);
-	
+
 	return {
 		name: 'astro:routes',
 		enforce: 'pre',
