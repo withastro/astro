@@ -6,7 +6,7 @@ Adds a new configuration option `namespaces` for more control over XML namespace
 
 Excluding unused namespaces can help create cleaner, more focused sitemaps that are faster for search engines to parse and use less bandwidth. If your site doesn't have news content, videos, or multiple languages, you can exclude those namespaces to reduce XML bloat.
 
-The `namespaces` option allows you to configure `news`, `xhtml`, `image`, and `video` namespaces independently. All namespaces enabled by default for backward compatibility and no changes to existing projects is necessary. But now you can choose to streamline your XML and avoid unnecessary code.
+The `namespaces` option allows you to configure `news`, `xhtml`, `image`, and `video` namespaces independently. All namespaces are enabled by default for backward compatibility and no change to existing projects is necessary. But now, you can choose to streamline your XML and avoid unnecessary code.
 
 For example, to exclude the video namespace from your sitemap, set `video: false` in your configuration:
 
