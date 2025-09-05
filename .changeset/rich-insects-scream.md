@@ -8,8 +8,7 @@ Excluding unused namespaces can help create cleaner, more focused sitemaps that 
 
 The `namespaces` option allows you to configure `news`, `xhtml`, `image`, and `video` namespaces independently. All namespaces enabled by default for backward compatibility and no changes to existing projects is necessary. But now you can choose to streamline your XML and avoid unnecessary code.
 
-Example: Removing the video namespace
-If you want to exclude the video namespace from your sitemap, set video: false in your configuration:
+For example, to exclude the video namespace from your sitemap, set `video: false` in your configuration:
 
 ```
 // astro.config.mjs
