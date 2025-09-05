@@ -40,5 +40,3 @@ The generated XML will not include the xmlns:video namespace:
   <!-- ... -->
 </urlset>
 ```
-
-Note: The xmlns:video="..." line is missing from the XML.
