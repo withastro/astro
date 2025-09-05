@@ -12,7 +12,9 @@ import {
 	ASSET_IMPORTS_FILE,
 	COLLECTIONS_MANIFEST_FILE,
 	CONTENT_LAYER_TYPE,
+	DATA_STORE_DIR,
 	DATA_STORE_FILE,
+	DATA_STORE_MANIFEST_FILE,
 	MODULES_IMPORTS_FILE,
 } from './consts.js';
 import type { RenderedContent } from './data-store.js';
@@ -432,6 +434,14 @@ async function simpleLoader<TData extends { id: string }>(
  */
 export function getDataStoreFile(settings: AstroSettings, isDev: boolean) {
 	return new URL(DATA_STORE_FILE, isDev ? settings.dotAstroDir : settings.config.cacheDir);
+}
+
+export function getDataStoreManifestFile(settings: AstroSettings, isDev: boolean) {
+	return new URL(DATA_STORE_MANIFEST_FILE, isDev ? settings.dotAstroDir : settings.config.cacheDir);
+}
+
+export function getDataStoreDir(settings: AstroSettings, isDev: boolean) {
+	return new URL(DATA_STORE_DIR, isDev ? settings.dotAstroDir : settings.config.cacheDir);
 }
 
 function contentLayerSingleton() {

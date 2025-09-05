@@ -878,3 +878,17 @@ export function safeStringify(value: unknown) {
 	const seen = new WeakSet();
 	return JSON.stringify(value, safeStringifyReplacer(seen));
 }
+
+/**
+ * Splits a string into chunks that are each below the specified byte size limit
+ */
+export function splitStringBySizeLimit(str: string, maxBytes: number): string[] {
+	const maxChars = Math.floor(maxBytes / 2); // assume average-case 2 bytes per char
+	const chunks = [];
+
+	for (let i = 0; i < str.length; i += maxChars) {
+		chunks.push(str.slice(i, i + maxChars));
+	}
+
+	return chunks;
+}

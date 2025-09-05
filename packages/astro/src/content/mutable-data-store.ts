@@ -5,18 +5,19 @@ import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolv
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { IMAGE_IMPORT_PREFIX } from './consts.js';
 import { type DataEntry, ImmutableDataStore } from './data-store.js';
-import { contentModuleToId } from './utils.js';
+import { contentModuleToId, splitStringBySizeLimit } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
-
 const MAX_DEPTH = 10;
+const CHUNK_SIZE_LIMIT = 20 * 1024 * 1024; // 20MB in bytes
 
 /**
  * Extends the DataStore with the ability to change entries and write them to disk.
  * This is kept as a separate class to avoid needing node builtins at runtime, when read-only access is all that is needed.
  */
 export class MutableDataStore extends ImmutableDataStore {
-	#file?: PathLike;
+	#manifestFile?: PathLike;
+	#dir?: URL;
 
 	#assetsFile?: PathLike;
 	#modulesFile?: PathLike;
@@ -216,7 +217,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			clearTimeout(this.#saveTimeout);
 		}
 		this.#saveTimeout = undefined;
-		if (this.#file) {
+		if (this.#manifestFile && this.#dir) {
 			await this.writeToDisk();
 		}
 		this.#maybeResolveSavePromise();
@@ -236,7 +237,7 @@ export default new Map([\n${lines.join(',\n')}]);
 
 		this.#saveTimeout = setTimeout(async () => {
 			this.#saveTimeout = undefined;
-			if (this.#file) {
+			if (this.#manifestFile && this.#dir) {
 				await this.writeToDisk();
 			}
 			this.#maybeResolveSavePromise();
@@ -404,13 +405,26 @@ export default new Map([\n${lines.join(',\n')}]);
 		if (!this.#dirty) {
 			return;
 		}
-		if (!this.#file) {
+		if (!this.#manifestFile || !this.#dir) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError);
 		}
 		try {
 			// Mark as clean before writing to disk so that it catches any changes that happen during the write
 			this.#dirty = false;
-			await this.#writeFileAtomic(this.#file, this.toString());
+
+			const manifest: Record<string, string[]> = {};
+
+			for (const [collectionName, entries] of this._collections) {
+				manifest[collectionName] = [];
+				const chunkedEntries = splitStringBySizeLimit(devalue.stringify(entries), CHUNK_SIZE_LIMIT);
+				for (const [index, chunk] of chunkedEntries.entries()) {
+					const fileName = `${collectionName}.${index}.json`;
+					await this.#writeFileAtomic(new URL(`./${fileName}`, this.#dir), chunk);
+					manifest[collectionName].push(fileName);
+				}
+			}
+
+			await this.#writeFileAtomic(this.#manifestFile, JSON.stringify(manifest));
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		}
@@ -436,24 +450,38 @@ export default new Map([\n${lines.join(',\n')}]);
 		return store;
 	}
 
-	static async fromString(data: string) {
-		const map = devalue.parse(data);
-		return MutableDataStore.fromMap(map);
-	}
-
-	static async fromFile(filePath: string | URL) {
+	static async fromDir(dirPath: URL, manifestPath: string | URL) {
 		try {
-			if (existsSync(filePath)) {
-				const data = await fs.readFile(filePath, 'utf-8');
-				const store = await MutableDataStore.fromString(data);
-				store.#file = filePath;
-				return store;
+			if (existsSync(dirPath) && existsSync(manifestPath)) {
+				const data = await fs.readFile(manifestPath, 'utf-8');
+				const manifest = JSON.parse(data);
+
+				if (manifest) {
+					const collections = new Map();
+					for (const [collectionName, files] of Object.entries<string[]>(manifest)) {
+						let rawData = '';
+						for (const file of files) {
+							const path = new URL('./' + file, dirPath);
+							const data = await fs.readFile(path, 'utf-8');
+							rawData += data;
+						}
+						const collectionStore = devalue.parse(rawData);
+						collections.set(collectionName, collectionStore);
+					}
+
+					const store = await MutableDataStore.fromMap(collections);
+					store.#manifestFile = manifestPath;
+					store.#dir = dirPath;
+					return store;
+				}
 			} else {
-				await fs.mkdir(new URL('./', filePath), { recursive: true });
+				await fs.mkdir(dirPath, { recursive: true });
+				await fs.mkdir(new URL('./', manifestPath), { recursive: true });
 			}
 		} catch {}
 		const store = new MutableDataStore();
-		store.#file = filePath;
+		store.#manifestFile = manifestPath;
+		store.#dir = dirPath;
 		return store;
 	}
 }
