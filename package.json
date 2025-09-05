@@ -25,6 +25,7 @@
     "test:integrations": "turbo run test --concurrency=1 --filter=create-astro --filter=\"@astrojs/*\" --only",
     "test:citgm": "pnpm -r --filter=astro test",
     "test:match": "cd packages/astro && pnpm run test:match",
+    "test:cli": "cd packages/astro && pnpm run test:cli",
     "test:unit": "cd packages/astro && pnpm run test:unit",
     "test:types": "cd packages/astro && pnpm run test:types",
     "test:smoke": "pnpm test:smoke:example && pnpm test:smoke:docs",

@@ -3,6 +3,7 @@ import { promises as fs, readFileSync } from 'node:fs';
 import { isIPv4 } from 'node:net';
 import { join } from 'node:path';
 import { platform } from 'node:process';
+import { spawnSync } from 'node:child_process';
 import { Writable } from 'node:stream';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -80,7 +81,7 @@ describe('astro cli', () => {
 		assert.equal(proc.stdout.includes(pkgVersion), true);
 	});
 
-	it('astro info', async () => {
+	it('astro info has correct Astro version', async () => {
 		const proc = await cli('info', '--copy');
 		const pkgURL = new URL('../package.json', import.meta.url);
 		const pkgJson = await fs.readFile(pkgURL, 'utf8').then((data) => JSON.parse(data));
@@ -101,6 +102,76 @@ describe('astro cli', () => {
 			const clipboardContent = await readFromClipboard();
 			assert.ok(clipboardContent.includes(`v${pkgVersion}`));
 		}
+	});
+	
+	it('astro info shows correct Vite and integration versions when using pnpm',	async () => {
+		const projectRootURL = new URL('./fixtures/astro-info-versions/', import.meta.url);
+		const proc = spawnSync('pnpm', ['astro', 'info', '--copy'], { cwd: projectRootURL, encoding: "utf-8" });
+		
+		assert.equal(proc?.stdout.includes('v7.0.0'), true);
+		assert.equal(proc?.stdout.includes('@astrojs/react (Local)'), true);
+	});
+	
+	it('astro info shows correct Vite and integration versions when using npm',	async () => {
+		const projectRootURL = new URL('./fixtures/astro-info-versions/', import.meta.url);
+		
+		const proc = spawnSync('npm', ['run', 'astro', 'info', '--copy'], { cwd: projectRootURL, encoding: "utf-8" });
+		
+		assert.equal(proc?.stdout.includes('v7.0.0'), true);
+		assert.equal(proc?.stdout.includes('@astrojs/react (Local)'), true);
+	});
+	
+	it('astro info shows correct Vite and integration versions when using yarn',	async () => {
+		const fixtureRootURL = new URL('./fixtures/astro-info-versions/', import.meta.url);
+		const testsRootURL = new URL('../', import.meta.url);
+		const astroPackageJSONUrl = new URL('./package.json', testsRootURL);
+		const packageJSONUrl = new URL('./package.json', fixtureRootURL);
+		const yarnLockUrl = new URL('./yarn.lock', fixtureRootURL);
+		
+		const astroVersion = await fs.readFile(fileURLToPath(astroPackageJSONUrl)).then((text) => JSON.parse(text).version);
+		const packURL = new URL(`./astro-${astroVersion}.tgz`, testsRootURL);
+		const packDestinationURL = new URL(`./astro-${astroVersion}.tgz`, fixtureRootURL);
+		
+		// Add a packageManager field to the fixture's package.json file, otherwise
+		// corepack won't allow us to use yarn because a parent directory has a different
+		// package.json file with a packageManager field
+		let packageJSON = await fs.readFile(fileURLToPath(packageJSONUrl), { encoding: "utf-8" }).then((text) => JSON.parse(text));
+		packageJSON.packageManager = "yarn@4.9.4";
+		
+		await fs.writeFile(
+			fileURLToPath(packageJSONUrl),
+			JSON.stringify(packageJSON),
+			{ encoding: "utf-8" }
+		);
+		await fs.writeFile(yarnLockUrl, "", { encoding: "utf-8" });
+		
+		spawnSync('pnpm', ['pack'], { cwd: testsRootURL });
+		await fs.rename(fileURLToPath(packURL), fileURLToPath(packDestinationURL));
+		
+		spawnSync('corepack', ['install'], { cwd: fixtureRootURL });
+		spawnSync('yarn', ['add', fileURLToPath(packDestinationURL)], { cwd: fixtureRootURL, encoding: 'utf-8' });
+		spawnSync('yarn', ['install'], { cwd: fixtureRootURL });
+		
+		const proc = spawnSync(
+			'yarn',
+			['astro', 'info', '--copy'],
+			{
+				cwd: fixtureRootURL,
+				encoding: "utf-8",
+			}
+		);
+
+		// Reset changes to package.jsons
+		delete packageJSON.packageManager;
+		packageJSON.dependencies.astro = "workspace:*";
+		await fs.writeFile(packageJSONUrl, JSON.stringify(packageJSON, null, 2), { encoding: "utf-8" });
+		await fs.rm(yarnLockUrl, { force: true });
+		await fs.rm(packDestinationURL, { force: true });
+		
+		spawnSync('pnpm', ['install'], { cwd: fixtureRootURL });
+		
+		assert.equal(proc?.stdout.includes('v7.0.0'), true);
+		assert.equal(proc?.stdout.includes('@astrojs/react (v4.3.0)'), true);
 	});
 
 	it(
