@@ -1,5 +1,236 @@
 # astro
 
+## 5.13.5
+
+### Patch Changes
+
+- [#14286](https://github.com/withastro/astro/pull/14286) [`09c5db3`](https://github.com/withastro/astro/commit/09c5db37d12862eef8d4ecf62389e10f30a22de9) Thanks [@ematipico](https://github.com/ematipico)! - **BREAKING CHANGES only to the experimental CSP feature**
+
+  The following runtime APIs of the `Astro` global have been renamed:
+  - `Astro.insertDirective` to `Astro.csp.insertDirective`
+  - `Astro.insertStyleResource` to `Astro.csp.insertStyleResource`
+  - `Astro.insertStyleHash` to `Astro.csp.insertStyleHash`
+  - `Astro.insertScriptResource` to `Astro.csp.insertScriptResource`
+  - `Astro.insertScriptHash` to `Astro.csp.insertScriptHash`
+
+  The following runtime APIs of the `APIContext` have been renamed:
+  - `ctx.insertDirective` to `ctx.csp.insertDirective`
+  - `ctx.insertStyleResource` to `ctx.csp.insertStyleResource`
+  - `ctx.insertStyleHash` to `ctx.csp.insertStyleHash`
+  - `ctx.insertScriptResource` to `ctx.csp.insertScriptResource`
+  - `ctx.insertScriptHash` to `ctx.csp.insertScriptHash`
+
+- [#14283](https://github.com/withastro/astro/pull/14283) [`3224637`](https://github.com/withastro/astro/commit/3224637eca5c065872d92449216cb33baac2dbfd) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where CSP headers were incorrectly injected in the development server.
+
+- [#14275](https://github.com/withastro/astro/pull/14275) [`3e2f20d`](https://github.com/withastro/astro/commit/3e2f20d07e92b1acfadb1357a59b6952e85227f3) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds support for experimental CSP when using experimental fonts
+
+  Experimental fonts now integrate well with experimental CSP by injecting hashes for the styles it generates, as well as `font-src` directives.
+
+  No action is required to benefit from it.
+
+- [#14280](https://github.com/withastro/astro/pull/14280) [`4b9fb73`](https://github.com/withastro/astro/commit/4b9fb736dab42b8864012db0a981d3441366c388) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused cookies to not be correctly set when using middleware sequences
+
+- [#14276](https://github.com/withastro/astro/pull/14276) [`77281c4`](https://github.com/withastro/astro/commit/77281c4616b65959715dcbac42bf948bebfee755) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Adds a missing export for `resolveSrc`, a documented image services utility.
+
+## 5.13.4
+
+### Patch Changes
+
+- [#14260](https://github.com/withastro/astro/pull/14260) [`86a1e40`](https://github.com/withastro/astro/commit/86a1e40ce21b629a956057b059d06ba78bd89402) Thanks [@jp-knj](https://github.com/jp-knj)! - Fixes `Astro.url.pathname` to respect `trailingSlash: 'never'` configuration when using a base path. Previously, the root path with a base would incorrectly return `/base/` instead of `/base` when `trailingSlash` was set to 'never'.
+
+- [#14248](https://github.com/withastro/astro/pull/14248) [`e81c4bd`](https://github.com/withastro/astro/commit/e81c4bd1cca6739192d33068cbfb2c9e4ced1ffe) Thanks [@julesyoungberg](https://github.com/julesyoungberg)! - Fixes a bug where actions named 'apply' do not work due to being a function prototype method.
+
+## 5.13.3
+
+### Patch Changes
+
+- [#14239](https://github.com/withastro/astro/pull/14239) [`d7d93e1`](https://github.com/withastro/astro/commit/d7d93e19fbfa52cf74dee40f5af6b7ea6a7503d2) Thanks [@wtchnm](https://github.com/wtchnm)! - Fixes a bug where the types for the live content collections were not being generated correctly in dev mode
+
+- [#14221](https://github.com/withastro/astro/pull/14221) [`eadc9dd`](https://github.com/withastro/astro/commit/eadc9dd277d0075d7bff0e33c7a86f3fb97fdd61) Thanks [@delucis](https://github.com/delucis)! - Fixes JSON schema support for content collections using the `file()` loader
+
+- [#14229](https://github.com/withastro/astro/pull/14229) [`1a9107a`](https://github.com/withastro/astro/commit/1a9107a4049f43c1e4e9f40e07033f6bfe4398e4) Thanks [@jonmichaeldarby](https://github.com/jonmichaeldarby)! - Ensures `Astro.currentLocale` returns the correct locale during SSG for pages that use a locale param (such as `[locale].astro` or `[locale]/index.astro`, which produce `[locale].html`)
+
+## 5.13.2
+
+### Patch Changes
+
+- [`4d16de7`](https://github.com/withastro/astro/commit/4d16de7f95db5d1ec1ce88610d2a95e606e83820) Thanks [@ematipico](https://github.com/ematipico)! - Improves the detection of remote paths in the `_image` endpoint. Now `href` parameters that start with `//` are considered remote paths.
+
+- Updated dependencies [[`4d16de7`](https://github.com/withastro/astro/commit/4d16de7f95db5d1ec1ce88610d2a95e606e83820)]:
+  - @astrojs/internal-helpers@0.7.2
+  - @astrojs/markdown-remark@6.3.6
+
+## 5.13.1
+
+### Patch Changes
+
+- [#14225](https://github.com/withastro/astro/pull/14225) [`f2490ab`](https://github.com/withastro/astro/commit/f2490aba420a8999c0e8d12b9e1e69d4e33ae29e) Thanks [@delucis](https://github.com/delucis)! - Fixes the `experimental.chromeDevtoolsWorkspace` feature.
+
+## 5.13.0
+
+### Minor Changes
+
+- [#14173](https://github.com/withastro/astro/pull/14173) [`39911b8`](https://github.com/withastro/astro/commit/39911b823d4617d99cc95e4b7584e9e4b7b90038) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds an experimental flag `staticImportMetaEnv` to disable the replacement of `import.meta.env` values with `process.env` calls and their coercion of environment variable values. This supersedes the `rawEnvValues` experimental flag, which is now removed.
+
+  Astro allows you to configure a [type-safe schema for your environment variables](https://docs.astro.build/en/guides/environment-variables/#type-safe-environment-variables), and converts variables imported via `astro:env` into the expected type. This is the recommended way to use environment variables in Astro, as it allows you to easily see and manage whether your variables are public or secret, available on the client or only on the server at build time, and the data type of your values.
+
+  However, you can still access environment variables through `process.env` and `import.meta.env` directly when needed. This was the only way to use environment variables in Astro before `astro:env` was added in Astro 5.0, and Astro's default handling of `import.meta.env` includes some logic that was only needed for earlier versions of Astro.
+
+  The `experimental.staticImportMetaEnv` flag updates the behavior of `import.meta.env` to align with [Vite's handling of environment variables](https://vite.dev/guide/env-and-mode.html#env-variables) and for better ease of use with Astro's current implementations and features. **This will become the default behavior in Astro 6.0**, and this early preview is introduced as an experimental feature.
+
+  Currently, non-public `import.meta.env` environment variables are replaced by a reference to `process.env`. Additionally, Astro may also convert the value type of your environment variables used through `import.meta.env`, which can prevent access to some values such as the strings `"true"` (which is converted to a boolean value), and `"1"` (which is converted to a number).
+
+  The `experimental.staticImportMetaEnv` flag simplifies Astro's default behavior, making it easier to understand and use. Astro will no longer replace any `import.meta.env` environment variables with a `process.env` call, nor will it coerce values.
+
+  To enable this feature, add the experimental flag in your Astro config and remove `rawEnvValues` if it was enabled:
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from "astro/config";
+
+  export default defineConfig({
+  +  experimental: {
+  +    staticImportMetaEnv: true
+  -    rawEnvValues: false
+  +  }
+  });
+  ```
+
+  #### Updating your project
+
+  If you were relying on Astro's default coercion, you may need to update your project code to apply it manually:
+
+  ```diff
+  // src/components/MyComponent.astro
+  - const enabled: boolean = import.meta.env.ENABLED;
+  + const enabled: boolean = import.meta.env.ENABLED === "true";
+  ```
+
+  If you were relying on the transformation into `process.env` calls, you may need to update your project code to apply it manually:
+
+  ```diff
+  // src/components/MyComponent.astro
+  - const enabled: boolean = import.meta.env.DB_PASSWORD;
+  + const enabled: boolean = process.env.DB_PASSWORD;
+  ```
+
+  You may also need to update types:
+
+  ```diff
+  // src/env.d.ts
+  interface ImportMetaEnv {
+    readonly PUBLIC_POKEAPI: string;
+  -  readonly DB_PASSWORD: string;
+  -  readonly ENABLED: boolean;
+  +  readonly ENABLED: string;
+  }
+
+  interface ImportMeta {
+    readonly env: ImportMetaEnv;
+  }
+
+  + namespace NodeJS {
+  +  interface ProcessEnv {
+  +    DB_PASSWORD: string;
+  +  }
+  + }
+  ```
+
+  See the [experimental static `import.meta.env` documentation](https://docs.astro.build/en/reference/experimental-flags/static-import-meta-env/) for more information about this feature. You can learn more about using environment variables in Astro, including `astro:env`, in the [environment variables documentation](https://docs.astro.build/en/guides/environment-variables/).
+
+- [#14122](https://github.com/withastro/astro/pull/14122) [`41ed3ac`](https://github.com/withastro/astro/commit/41ed3ac54adf1025a38031757ee0bfaef8504092) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds experimental support for automatic [Chrome DevTools workspace folders](https://developer.chrome.com/docs/devtools/workspaces)
+
+  This feature allows you to edit files directly in the browser and have those changes reflected in your local file system via a connected workspace folder. This allows you to apply edits such as CSS tweaks without leaving your browser tab!
+
+  With this feature enabled, the Astro dev server will automatically configure a Chrome DevTools workspace for your project. Your project will then appear as a workspace source, ready to connect. Then, changes that you make in the "Sources" panel are automatically saved to your project source code.
+
+  To enable this feature, add the experimental flag `chromeDevtoolsWorkspace` to your Astro config:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      chromeDevtoolsWorkspace: true,
+    },
+  });
+  ```
+
+  See the [experimental Chrome DevTools workspace feature documentation](https://docs.astro.build/en/reference/experimental-flags/chrome-devtools-workspace/) for more information.
+
+## 5.12.9
+
+### Patch Changes
+
+- [#14020](https://github.com/withastro/astro/pull/14020) [`9518975`](https://github.com/withastro/astro/commit/951897553921c1419fb96aef74d42ec99976d8be) Thanks [@jp-knj](https://github.com/jp-knj) and [@asieradzk](https://github.com/asieradzk)! - Prevent double-prefixed redirect paths when using fallback and redirectToDefaultLocale together
+
+  Fixes an issue where i18n fallback routes would generate double-prefixed paths (e.g., `/es/es/test/item1/`) when `fallback` and `redirectToDefaultLocale` configurations were used together. The fix adds proper checks to prevent double prefixing in route generation.
+
+- [#14199](https://github.com/withastro/astro/pull/14199) [`3e4cb8e`](https://github.com/withastro/astro/commit/3e4cb8e52a83974cc2671d13fb1b4595fe65085d) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that prevented HMR from working with inline styles
+
+## 5.12.8
+
+### Patch Changes
+
+- [`0567fb7`](https://github.com/withastro/astro/commit/0567fb7b50c0c452be387dd7c7264b96bedab48f) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds `//` to list of internal path prefixes that do not have automated trailing slash handling
+
+- [#13894](https://github.com/withastro/astro/pull/13894) [`b36e72f`](https://github.com/withastro/astro/commit/b36e72f11fbcc0f3d5826f2b1939084f1fb1e3a8) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes Astro Studio commands from the CLI help
+
+- Updated dependencies [[`0567fb7`](https://github.com/withastro/astro/commit/0567fb7b50c0c452be387dd7c7264b96bedab48f)]:
+  - @astrojs/internal-helpers@0.7.1
+  - @astrojs/markdown-remark@6.3.5
+
+## 5.12.7
+
+### Patch Changes
+
+- [#14169](https://github.com/withastro/astro/pull/14169) [`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172) Thanks [@ascorbic](https://github.com/ascorbic)! - Skips trailing slash handling for paths that start with `/.`.
+
+- [#14170](https://github.com/withastro/astro/pull/14170) [`34e6b3a`](https://github.com/withastro/astro/commit/34e6b3a87dd3e9be4886059d1c0efee4c5fa3cda) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where static redirects couldn't correctly generate a redirect when the destination is a prerendered route, and the `output` is set to `"server"`.
+
+- [#14169](https://github.com/withastro/astro/pull/14169) [`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that prevented images from being displayed in dev when using the Netlify adapter with `trailingSlash` set to `always`
+
+- Updated dependencies [[`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172)]:
+  - @astrojs/internal-helpers@0.7.0
+  - @astrojs/markdown-remark@6.3.4
+
+## 5.12.6
+
+### Patch Changes
+
+- [#14153](https://github.com/withastro/astro/pull/14153) [`29e9283`](https://github.com/withastro/astro/commit/29e928391a90844f8b701a581c4f163e0b6c46db) Thanks [@jp-knj](https://github.com/jp-knj)! - Fixes a regression introduced by a recent optimisation of how SVG images are emitted during the build.
+
+- [#14156](https://github.com/withastro/astro/pull/14156) [`592f08d`](https://github.com/withastro/astro/commit/592f08d1b4a3e03c61b34344e36cb772bd67709a) Thanks [@TheOtterlord](https://github.com/TheOtterlord)! - Fix the client router not submitting forms if the active URL contained a hash
+
+- [#14160](https://github.com/withastro/astro/pull/14160) [`d2e25c6`](https://github.com/withastro/astro/commit/d2e25c6e9d52160d4f8d8cbf7bc44e6794483f20) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that meant some remote image URLs could cause invalid filenames to be used for processed images
+
+- [#14167](https://github.com/withastro/astro/pull/14167) [`62bd071`](https://github.com/withastro/astro/commit/62bd0717ab810c049ed7f3f63029895dfb402797) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that prevented destroyed sessions from being deleted from storage unless the session had been loaded
+
+## 5.12.5
+
+### Patch Changes
+
+- [#14059](https://github.com/withastro/astro/pull/14059) [`19f53eb`](https://github.com/withastro/astro/commit/19f53eb59dfeeff08078cec0a903c8722b5650ca) Thanks [@benosmac](https://github.com/benosmac)! - Fixes a bug in i18n implementation, where Astro didn't emit the correct pages when `fallback` is enabled, and a locale uses a catch-all route, e.g. `src/pages/es/[...catchAll].astro`
+
+- [#14155](https://github.com/withastro/astro/pull/14155) [`31822c3`](https://github.com/withastro/astro/commit/31822c3f0c8401e20129d0fc6bf8d1d670249265) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused an error "serverEntrypointModule[_start] is not a function" in some adapters
+
+## 5.12.4
+
+### Patch Changes
+
+- [#14031](https://github.com/withastro/astro/pull/14031) [`e9206c1`](https://github.com/withastro/astro/commit/e9206c192fc4a4dbf2d02f921fa540f987ccbe89) Thanks [@jp-knj](https://github.com/jp-knj)! - Optimized the build pipeline for SVG images. Now, Astro doesn't reprocess images that have already been processed.
+
+- [#14132](https://github.com/withastro/astro/pull/14132) [`976879a`](https://github.com/withastro/astro/commit/976879a400af9f44aee52c9112a7bd9788163588) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the property `Astro.routePattern`/`context.routePattern` wasn't updated when using a rewrite via middleware.
+
+- [#14131](https://github.com/withastro/astro/pull/14131) [`aafc4d7`](https://github.com/withastro/astro/commit/aafc4d7f8b3f198ace24a8a7f6cc9298771542da) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where an error occurring in a middleware would show the dev overlay instead of the custom `500.astro` page
+
+- [#14127](https://github.com/withastro/astro/pull/14127) [`2309ada`](https://github.com/withastro/astro/commit/2309ada1c6d96c75815eda0760656147de435ba2) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Upgrades zod
+
+- [#14134](https://github.com/withastro/astro/pull/14134) [`186c201`](https://github.com/withastro/astro/commit/186c201a1bd83593c880ab784d79f69245b445c2) Thanks [@ascorbic](https://github.com/ascorbic)! - Throws a more helpful error in dev if trying to use a server island without an adapter
+
+- [#14129](https://github.com/withastro/astro/pull/14129) [`3572d85`](https://github.com/withastro/astro/commit/3572d85ba89ef9c374f3631654eee704adf00e73) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the CSP headers was incorrectly added to a page when using an adapter.
+
 ## 5.12.3
 
 ### Patch Changes

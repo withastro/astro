@@ -3,8 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { glob } from 'tinyglobby';
 import { setOutput } from './utils.mjs';
 
-const { GITHUB_REF = 'main' } = process.env;
-const baseUrl = new URL(`https://github.com/withastro/astro/blob/${GITHUB_REF}/`);
+const baseUrl = new URL(`https://github.com/withastro/astro/releases/tag/`);
 
 const emojis = ['🎉', '🥳', '🚀', '🧑', '🎊', '🏆', '✅', '🤩', '🤖', '🙌'];
 const descriptors = [
@@ -110,7 +109,7 @@ async function generateMessage() {
 			return {
 				name,
 				version,
-				url: new URL(`${p}/CHANGELOG.md#${version.replace(/\./g, '')}`, baseUrl).toString(),
+				url: new URL(encodeURIComponent(`${name}@${version}`), baseUrl).toString(),
 			};
 		}),
 	);

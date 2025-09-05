@@ -18,7 +18,6 @@ export type AssetsGlobalStaticImagesList = Map<
 >;
 
 declare global {
-	// eslint-disable-next-line no-var
 	var astroAsset: {
 		imageService?: ImageService;
 		addStaticImage?:

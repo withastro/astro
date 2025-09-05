@@ -2,12 +2,62 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type * as vite from 'vite';
+import { generateContentHash } from '../../../core/encryption.js';
 import { prependForwardSlash, slash } from '../../../core/path.js';
 import type { ImageMetadata } from '../../types.js';
 import { imageMetadata } from '../metadata.js';
 
 type FileEmitter = vite.Rollup.EmitFile;
 type ImageMetadataWithContents = ImageMetadata & { contents?: Buffer };
+
+type SvgCacheKey = { hash: string };
+
+// Global cache for SVG content deduplication
+const svgContentCache = new WeakMap<SvgCacheKey, { handle: string; filename: string }>();
+
+const keyRegistry = new Map<string, SvgCacheKey>();
+
+function keyFor(hash: string): SvgCacheKey {
+	let key = keyRegistry.get(hash);
+	if (!key) {
+		key = { hash };
+		keyRegistry.set(hash, key);
+	}
+	return key;
+}
+
+/**
+ * Handles SVG deduplication by checking if the content already exists in cache.
+ */
+async function handleSvgDeduplication(
+	fileData: Buffer,
+	filename: string,
+	fileEmitter: FileEmitter,
+): Promise<string> {
+	const contentHash = await generateContentHash(Uint8Array.from(fileData).buffer);
+	const key = keyFor(contentHash);
+	const existing = svgContentCache.get(key);
+
+	if (existing) {
+		// Emit file again with the same filename to get a new handle
+		// This ensures Rollup knows about this handle while maintaining deduplication on disk
+		const handle = fileEmitter({
+			name: existing.filename,
+			source: fileData,
+			type: 'asset',
+		});
+		return handle;
+	} else {
+		// First time seeing this SVG content - emit it
+		const handle = fileEmitter({
+			name: filename,
+			source: fileData,
+			type: 'asset',
+		});
+		svgContentCache.set(key, { handle, filename });
+		return handle;
+	}
+}
 
 /**
  * Processes an image file and emits its metadata and optionally its contents. This function supports both build and development modes.
@@ -62,12 +112,19 @@ export async function emitESMImage(
 		const filename = path.basename(pathname, path.extname(pathname) + `.${fileMetadata.format}`);
 
 		try {
-			// fileEmitter throws in dev
-			const handle = fileEmitter!({
-				name: filename,
-				source: await fs.readFile(url),
-				type: 'asset',
-			});
+			let handle: string;
+
+			if (fileMetadata.format === 'svg') {
+				// check if this content already exists
+				handle = await handleSvgDeduplication(fileData, filename, fileEmitter!);
+			} else {
+				// Non-SVG assets: emit normally
+				handle = fileEmitter!({
+					name: filename,
+					source: fileData,
+					type: 'asset',
+				});
+			}
 
 			emittedImage.src = `__ASTRO_ASSET_IMAGE__${handle}__`;
 		} catch {
@@ -131,12 +188,19 @@ export async function emitImageMetadata(
 		const filename = path.basename(pathname, path.extname(pathname) + `.${fileMetadata.format}`);
 
 		try {
-			// fileEmitter throws in dev
-			const handle = fileEmitter!({
-				name: filename,
-				source: await fs.readFile(url),
-				type: 'asset',
-			});
+			let handle: string;
+
+			if (fileMetadata.format === 'svg') {
+				// check if this content already exists
+				handle = await handleSvgDeduplication(fileData, filename, fileEmitter!);
+			} else {
+				// Non-SVG assets: emit normally
+				handle = fileEmitter!({
+					name: filename,
+					source: fileData,
+					type: 'asset',
+				});
+			}
 
 			emittedImage.src = `__ASTRO_ASSET_IMAGE__${handle}__`;
 		} catch {

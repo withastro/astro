@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/db",
-  "version": "0.15.0",
-  "description": "Add libSQL and Astro Studio support to your Astro site",
+  "version": "0.17.1",
+  "description": "Add libSQL support to your Astro site",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -66,22 +66,19 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc && pnpm types:virtual",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "astro-scripts test \"test/**/*.test.js\""
+    "test": "pnpm run test:integration && pnpm run test:types",
+    "test:integration": "astro-scripts test \"test/**/*.test.js\"",
+    "test:types": "tsc --project test/types/tsconfig.json"
   },
   "dependencies": {
-    "@astrojs/studio": "workspace:*",
-    "@libsql/client": "^0.15.2",
-    "async-listen": "^3.1.0",
+    "@libsql/client": "^0.15.14",
     "deep-diff": "^1.0.2",
     "drizzle-orm": "^0.42.0",
-    "github-slugger": "^2.0.0",
     "kleur": "^4.1.5",
     "nanoid": "^5.1.5",
-    "open": "^10.1.0",
     "prompts": "^2.4.2",
     "yargs-parser": "^21.1.1",
-    "yocto-spinner": "^0.2.1",
-    "zod": "^3.24.4"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/deep-diff": "^1.0.5",
@@ -89,8 +86,9 @@
     "@types/yargs-parser": "^21.0.3",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "cheerio": "1.0.0",
-    "typescript": "^5.8.3",
-    "vite": "^6.3.4"
+    "cheerio": "1.1.2",
+    "expect-type": "^1.2.2",
+    "typescript": "^5.9.2",
+    "vite": "^6.3.5"
   }
 }

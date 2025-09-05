@@ -1,5 +1,35 @@
 # @astrojs/markdoc
 
+## 0.15.5
+
+### Patch Changes
+
+- Updated dependencies [[`4d16de7`](https://github.com/withastro/astro/commit/4d16de7f95db5d1ec1ce88610d2a95e606e83820)]:
+  - @astrojs/internal-helpers@0.7.2
+  - @astrojs/markdown-remark@6.3.6
+
+## 0.15.4
+
+### Patch Changes
+
+- Updated dependencies [[`0567fb7`](https://github.com/withastro/astro/commit/0567fb7b50c0c452be387dd7c7264b96bedab48f)]:
+  - @astrojs/internal-helpers@0.7.1
+  - @astrojs/markdown-remark@6.3.5
+
+## 0.15.3
+
+### Patch Changes
+
+- Updated dependencies [[`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172)]:
+  - @astrojs/internal-helpers@0.7.0
+  - @astrojs/markdown-remark@6.3.4
+
+## 0.15.2
+
+### Patch Changes
+
+- [#14147](https://github.com/withastro/astro/pull/14147) [`211968c`](https://github.com/withastro/astro/commit/211968ceb54964457f9a5eefa4c10a65e0f0c714) Thanks [@birtles](https://github.com/birtles)! - Recognize a custom default image node component
+
 ## 0.15.1
 
 ### Patch Changes

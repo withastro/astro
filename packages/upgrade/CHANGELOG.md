@@ -1,5 +1,17 @@
 # @astrojs/upgrade
 
+## 0.6.2
+
+### Patch Changes
+
+- [#14174](https://github.com/withastro/astro/pull/14174) [`2002512`](https://github.com/withastro/astro/commit/20025122deb9f9f02a03ba8192565121a0067eac) Thanks [@ascorbic](https://github.com/ascorbic)! - Retry installation with `--legacy-peer-deps` if npm has peer dep error
+
+## 0.6.1
+
+### Patch Changes
+
+- [#14158](https://github.com/withastro/astro/pull/14158) [`89e9364`](https://github.com/withastro/astro/commit/89e9364ba0121424f03f7eb959416371c26f38e3) Thanks [@bjohansebas](https://github.com/bjohansebas)! - Prevents deprecation warnings in Node 24
+
 ## 0.6.0
 
 ### Minor Changes

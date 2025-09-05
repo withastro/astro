@@ -1,5 +1,26 @@
 # @astrojs/markdown-remark
 
+## 6.3.6
+
+### Patch Changes
+
+- Updated dependencies [[`4d16de7`](https://github.com/withastro/astro/commit/4d16de7f95db5d1ec1ce88610d2a95e606e83820)]:
+  - @astrojs/internal-helpers@0.7.2
+
+## 6.3.5
+
+### Patch Changes
+
+- Updated dependencies [[`0567fb7`](https://github.com/withastro/astro/commit/0567fb7b50c0c452be387dd7c7264b96bedab48f)]:
+  - @astrojs/internal-helpers@0.7.1
+
+## 6.3.4
+
+### Patch Changes
+
+- Updated dependencies [[`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172)]:
+  - @astrojs/internal-helpers@0.7.0
+
 ## 6.3.3
 
 ### Patch Changes

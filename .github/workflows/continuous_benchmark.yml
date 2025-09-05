@@ -47,7 +47,7 @@ jobs:
         run: pnpm run build
         
       - name: Run the benchmarks
-        uses: CodSpeedHQ/action@0010eb0ca6e89b80c88e8edaaa07cfe5f3e6664d # v3.5.0
+        uses: CodSpeedHQ/action@0b6e7a3d96c9d2a6057e7bcea6b45aaf2f7ce60b # v3.8.0
         timeout-minutes: 30
         with:
           working-directory: ./benchmark

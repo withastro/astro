@@ -51,11 +51,39 @@ export function getStyleResources(csp: EnabledCsp): string[] {
 	return csp.styleDirective?.resources ?? [];
 }
 
-export function getDirectives(csp: EnabledCsp): CspDirective[] {
-	if (csp === true) {
+// Unlike other helpers like getStyleResources, getDirectives has more logic
+// because it has to collect and deduplicate font resources from both the user
+// config and the vite plugin for fonts
+export function getDirectives(settings: AstroSettings): CspDirective[] {
+	const { csp } = settings.config.experimental;
+	if (!shouldTrackCspHashes(csp)) {
 		return [];
 	}
-	return csp.directives ?? [];
+	const userDirectives = csp === true ? [] : [...(csp.directives ?? [])];
+	const fontResources = Array.from(settings.injectedCsp.fontResources.values());
+
+	if (fontResources.length === 0) {
+		// If no font resources, just return user directives
+		return userDirectives;
+	}
+
+	const fontSrcIndex = userDirectives.findIndex((e) => e.startsWith('font-src'));
+	if (fontSrcIndex === -1) {
+		// Add new font-src directive
+		return [...userDirectives, `font-src ${fontResources.join(' ')}`];
+	}
+
+	// Merge and deduplicate font-src resources
+	const existing = userDirectives[fontSrcIndex]
+		// split spaces
+		.split(/\s+/)
+		// ignore first match as it's the directive name
+		.slice(1)
+		// Avoid duplicated spaces
+		.filter(Boolean);
+	const merged = Array.from(new Set([...existing, ...fontResources]));
+	userDirectives[fontSrcIndex] = `font-src ${merged.join(' ')}`;
+	return userDirectives;
 }
 
 export function getStrictDynamic(csp: EnabledCsp): boolean {

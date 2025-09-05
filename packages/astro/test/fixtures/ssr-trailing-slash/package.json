@@ -1,0 +1,13 @@
+{
+  "name": "test-ssr-trailing-slash",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "start": "node dist/server/entry.mjs"
+  },
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/node": "workspace:*"
+  }
+}

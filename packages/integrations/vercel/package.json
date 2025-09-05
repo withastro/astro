@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/vercel",
   "description": "Deploy your site to Vercel",
-  "version": "8.2.3",
+  "version": "8.2.7",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -50,11 +50,11 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@vercel/analytics": "^1.5.0",
-    "@vercel/functions": "^2.2.2",
-    "@vercel/nft": "^0.29.2",
-    "@vercel/routing-utils": "^5.0.4",
+    "@vercel/functions": "^2.2.13",
+    "@vercel/nft": "^0.30.1",
+    "@vercel/routing-utils": "^5.1.1",
     "esbuild": "^0.25.0",
-    "tinyglobby": "^0.2.13"
+    "tinyglobby": "^0.2.14"
   },
   "peerDependencies": {
     "astro": "^5.0.0"
@@ -62,7 +62,7 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "cheerio": "1.0.0"
+    "cheerio": "1.1.2"
   },
   "publishConfig": {
     "provenance": true

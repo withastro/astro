@@ -323,6 +323,7 @@ async function buildManifest(
 		];
 		const styleHashes = [
 			...getStyleHashes(settings.config.experimental.csp),
+			...settings.injectedCsp.styleHashes,
 			...(await trackStyleHashes(internals, settings, algorithm)),
 		];
 
@@ -335,7 +336,7 @@ async function buildManifest(
 			styleHashes,
 			styleResources: getStyleResources(settings.config.experimental.csp),
 			algorithm,
-			directives: getDirectives(settings.config.experimental.csp),
+			directives: getDirectives(settings),
 			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
 		};
 	}

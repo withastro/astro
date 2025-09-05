@@ -896,6 +896,26 @@ describe('astro:image', () => {
 			const img = await app.render(new Request(`https://example.com${src}`));
 			assert.equal(img.status, 200);
 		});
+
+		it('returns 403 when loading a relative pattern iamge', async () => {
+			const fixtureWithBase = await loadFixture({
+				root: './fixtures/core-image-ssr/',
+				output: 'server',
+				outDir: './dist/server-base-path',
+				adapter: testAdapter(),
+			});
+			await fixtureWithBase.build();
+			const app = await fixtureWithBase.loadTestAdapterApp();
+			let request = new Request('http://example.com/');
+			let response = await app.render(request);
+			// making sure that the app works
+			assert.equal(response.status, 200);
+			request = new Request(
+				'http://example.com/_image/?href=//secure0x.netlify.app/secure0x.svg&f=svg',
+			);
+			response = await app.render(request);
+			assert.equal(response.status, 403);
+		});
 	});
 
 	describe('build ssg', () => {
@@ -904,7 +924,11 @@ describe('astro:image', () => {
 				root: './fixtures/core-image-ssg/',
 				image: {
 					service: testImageService(),
-					domains: ['astro.build', 'avatars.githubusercontent.com'],
+					domains: [
+						'astro.build',
+						'avatars.githubusercontent.com',
+						'kaleidoscopic-biscotti-6fe98c.netlify.app',
+					],
 				},
 			});
 			// Remove cache directory
@@ -951,6 +975,18 @@ describe('astro:image', () => {
 			const src = $img.attr('src');
 			const data = await fixture.readFile(src, null);
 			assert.equal(data instanceof Buffer, true);
+		});
+
+		it('handles remote images with special characters', async () => {
+			const html = await fixture.readFile('/special-chars/index.html');
+			const $ = cheerio.load(html);
+			const $img = $('img');
+			assert.equal($img.length, 1);
+			const src = $img.attr('src');
+			// The filename should be encoded and sanitized
+			assert.ok(src.startsWith('/_astro/c_23'));
+			const data = await fixture.readFile(src, null);
+			assert.ok(data instanceof Buffer);
 		});
 
 		it('Picture component images are written', async () => {
@@ -1378,6 +1414,18 @@ describe('astro:image', () => {
 			const src = $('#local img').attr('src');
 
 			assert.equal(src.startsWith('/_image?'), true);
+		});
+
+		it("returns 403 for /_image when requesting a relative pattern image and the parameters aren't encoded", async () => {
+			fixture = await loadFixture({
+				root: './fixtures/core-image/',
+			});
+			devServer = await fixture.startDevServer();
+			// we don't use `URLSearchParams` because the initial // will get encoded
+			const response = await fixture.fetch(
+				'/_image?' + 'href=//secure0x.netlify.app/secure0x.svg&f=svg',
+			);
+			assert.equal(response.status, 403);
 		});
 
 		afterEach(async () => {

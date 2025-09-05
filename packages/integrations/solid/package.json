@@ -35,12 +35,12 @@
   },
   "dependencies": {
     "vite": "^6.3.5",
-    "vite-plugin-solid": "^2.11.7"
+    "vite-plugin-solid": "^2.11.8"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "solid-js": "^1.9.7"
+    "solid-js": "^1.9.9"
   },
   "peerDependencies": {
     "solid-devtools": "^0.30.1",
