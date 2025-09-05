@@ -26,7 +26,7 @@ export default {
 };
 ```
 
-The generated XML will not include the xmlns:video namespace:
+The generated XML will not include the `xmlns:video` namespace:
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
