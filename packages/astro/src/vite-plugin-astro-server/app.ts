@@ -57,7 +57,6 @@ export class DevApp extends BaseApp<DevPipeline> {
 		this.manifestData = manifestData;
 	}
 
-	// TODO remove routelist once it's a plugin
 	static async create(
 		routesList: RoutesList,
 		settings: AstroSettings,

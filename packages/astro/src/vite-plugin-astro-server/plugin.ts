@@ -10,6 +10,7 @@ import { normalizePath } from 'vite';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/index.js';
 import type {
+	RouteInfo,
 	SerializedSSRManifest,
 	SSRManifest,
 	SSRManifestCSP,
@@ -33,7 +34,6 @@ import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
-import { createRoutesList } from '../core/routing/index.js';
 import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
 import { runHookRoutesResolved } from '../integrations/hooks.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
@@ -48,19 +48,20 @@ interface AstroPluginOptions {
 	settings: AstroSettings;
 	logger: Logger;
 	fs: typeof fs;
-	routesList: RoutesList;
 }
 
 export default function createVitePluginAstroServer({
 	settings,
 	logger,
 	fs: fsMod,
-	routesList,
 }: AstroPluginOptions): vite.Plugin {
 	return {
 		name: 'astro:server',
 		async configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
+			const { routes } = await loader.import('astro:routes');
+			const routesList: RoutesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
+
 			const app = await DevApp.create(routesList, settings, logger, loader);
 
 			const controller = createController({ loader });
@@ -88,8 +89,6 @@ export default function createVitePluginAstroServer({
 						await getRoutePrerenderOption(content, route, settings, logger);
 						await runHookRoutesResolved({ routes: routesList.routes, settings, logger });
 					} catch (_) {}
-				} else {
-					routesList = await createRoutesList({ settings, fsMod }, logger, { dev: true });
 				}
 
 				warnMissingAdapter(logger, settings);

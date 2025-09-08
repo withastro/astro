@@ -1,6 +1,6 @@
-import type { SerializedRouteData } from '../../../types/astro.js';
-import type { AstroConfig } from '../../../types/public/config.js';
-import type { RouteData } from '../../../types/public/internal.js';
+import type { SerializedRouteData } from '../../types/astro.js';
+import type { AstroConfig, RouteData } from '../../types/public/index.js';
+import type { RouteInfo, SerializedRouteInfo } from './types.js';
 
 export function serializeRouteData(
 	routeData: RouteData,
@@ -38,5 +38,28 @@ export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteDa
 		}),
 		isIndex: rawRouteData.isIndex,
 		origin: rawRouteData.origin,
+	};
+}
+
+export function serializeRouteInfo(
+	routeInfo: RouteInfo,
+	trailingSlash: AstroConfig['trailingSlash'],
+): SerializedRouteInfo {
+	return {
+		styles: routeInfo.styles,
+		file: routeInfo.file,
+		links: routeInfo.links,
+		scripts: routeInfo.scripts,
+		routeData: serializeRouteData(routeInfo.routeData, trailingSlash),
+	};
+}
+
+export function deserializeRouteInfo(rawRouteInfo: SerializedRouteInfo): RouteInfo {
+	return {
+		styles: rawRouteInfo.styles,
+		file: rawRouteInfo.file,
+		links: rawRouteInfo.links,
+		scripts: rawRouteInfo.scripts,
+		routeData: deserializeRouteData(rawRouteInfo.routeData),
 	};
 }
