@@ -1,5 +1,17 @@
 # astro
 
+## 5.13.6
+
+### Patch Changes
+
+- [#14294](https://github.com/withastro/astro/pull/14294) [`e005855`](https://github.com/withastro/astro/commit/e0058553b2a6bb03fd864d77a1f07c25c60f7d91) Thanks [@martrapp](https://github.com/martrapp)! - Restores the ability to use Google Analytics `History change trigger` with the `<ClientRouter />`.
+
+- [#14326](https://github.com/withastro/astro/pull/14326) [`c24a8f4`](https://github.com/withastro/astro/commit/c24a8f42a17410ea78fc2d68ff0105b931a381eb) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates `vite` version to fix CVE
+
+- [#14108](https://github.com/withastro/astro/pull/14108) [`218e070`](https://github.com/withastro/astro/commit/218e07054f4fe7a16e13479861dc162f6d886edc) Thanks [@JusticeMatthew](https://github.com/JusticeMatthew)! - Updates dynamic route split regex to avoid infinite retries/exponential complexity
+
+- [#14327](https://github.com/withastro/astro/pull/14327) [`c1033be`](https://github.com/withastro/astro/commit/c1033beafa331bbd67f0ee76b47303deb3db806f) Thanks [@ascorbic](https://github.com/ascorbic)! - Pins simple-swizzle to avoid compromised version
+
 ## 5.13.5
 
 ### Patch Changes
