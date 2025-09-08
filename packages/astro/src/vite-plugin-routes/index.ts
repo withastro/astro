@@ -19,6 +19,7 @@ type Payload = {
 	settings: AstroSettings;
 	logger: Logger;
 	fsMod?: typeof fsMod;
+	command: 'dev' | 'build';
 };
 
 const ASTRO_ROUTES_MODULE_ID = 'astro:routes';
@@ -30,6 +31,7 @@ export default async function astroPluginRoutes({
 	settings,
 	logger,
 	fsMod,
+	command,
 }: Payload): Promise<Plugin> {
 	logger.debug('update', 'Re-calculate routes');
 	let routeList = await createRoutesList(
@@ -39,7 +41,7 @@ export default async function astroPluginRoutes({
 		},
 		logger,
 		// TODO: the caller should handle this
-		{ dev: true },
+		{ dev: true, skipBuildOutputAssignment: command === 'build' },
 	);
 
 	let serializedRouteInfo: SerializedRouteInfo[] = routeList.routes.map(
