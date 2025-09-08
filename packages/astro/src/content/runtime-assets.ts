@@ -1,5 +1,5 @@
 import type { PluginContext } from 'rollup';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 import type { ImageMetadata, OmitBrand } from '../assets/types.js';
 import { emitESMImage } from '../assets/utils/node/emitAsset.js';
 
@@ -10,6 +10,7 @@ export function createImage(
 	experimentalSvgEnabled: boolean,
 ) {
 	return () => {
+		// TODO: check if this works when used in a v4 schema
 		return z.string().transform(async (imagePath, ctx) => {
 			const resolvedFilePath = (await pluginContext.resolve(imagePath, entryFilePath))?.id;
 			const metadata = (await emitESMImage(

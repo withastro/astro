@@ -4,7 +4,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { bold, cyan } from 'kleur/colors';
 import { glob } from 'tinyglobby';
 import { normalizePath, type ViteDevServer } from 'vite';
-import { type ZodSchema, z } from 'zod';
+import * as z3 from 'zod/v3';
+import * as z4 from 'zod/v4/core';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData, AstroUserError } from '../core/errors/index.js';
@@ -371,12 +372,12 @@ function normalizeConfigPath(from: string, to: string) {
 	return `"${isRelativePath(configPath) ? '' : './'}${normalizedPath}"` as const;
 }
 
-const schemaCache = new Map<string, ZodSchema>();
+const schemaCache = new Map<string, z3.ZodType | z4.$ZodType>();
 
 async function getContentLayerSchema<T extends keyof ContentConfig['collections']>(
 	collection: ContentConfig['collections'][T],
 	collectionKey: T,
-): Promise<ZodSchema | undefined> {
+): Promise<z3.ZodType | z4.$ZodType | undefined> {
 	const cached = schemaCache.get(collectionKey);
 	if (cached) {
 		return cached;
@@ -409,16 +410,21 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	if (collection?.type === CONTENT_LAYER_TYPE) {
 		const schema = await getContentLayerSchema(collection, collectionKey);
 		if (schema) {
-			try {
-				const zodToTs = await import('zod-to-ts');
-				const ast = zodToTs.zodToTs(schema);
-				return zodToTs.printNode(ast.node);
-			} catch (err: any) {
-				// zod-to-ts is sad if we don't have TypeScript installed, but that's fine as we won't be needing types in that case
-				if (err.message.includes("Cannot find package 'typescript'")) {
-					return 'any';
+			if ('_zod' in schema) {
+				const jsonSchema = z4.toJSONSchema(schema);
+				// TODO: use https://github.com/bcherny/json-schema-to-typescript
+			} else {
+				try {
+					const zodToTs = await import('zod-to-ts');
+					const ast = zodToTs.zodToTs(schema);
+					return zodToTs.printNode(ast.node);
+				} catch (err: any) {
+					// zod-to-ts is sad if we don't have TypeScript installed, but that's fine as we won't be needing types in that case
+					if (err.message.includes("Cannot find package 'typescript'")) {
+						return 'any';
+					}
+					throw err;
 				}
-				throw err;
 			}
 		}
 	}
@@ -627,6 +633,7 @@ async function writeContentFiles({
 	}
 }
 
+// TODO: handle zod 4
 async function generateJSONSchema(
 	fsMod: typeof import('node:fs'),
 	collectionConfig: CollectionConfig,
@@ -636,7 +643,7 @@ async function generateJSONSchema(
 ) {
 	let zodSchemaForJson =
 		typeof collectionConfig.schema === 'function'
-			? collectionConfig.schema({ image: () => z.string() })
+			? collectionConfig.schema({ image: () => z3.string() })
 			: collectionConfig.schema;
 
 	if (!zodSchemaForJson && collectionConfig.type === CONTENT_LAYER_TYPE) {
@@ -653,12 +660,12 @@ async function generateJSONSchema(
 		// `file()` supports arrays of items, but you can’t set `$schema` when using a top-level array,
 		// so we’re only handling the object case.
 		// We use `z.object()` instead of `z.record()` for compatibility with the next `if` statement.
-		zodSchemaForJson = z.object({}).catchall(zodSchemaForJson);
+		zodSchemaForJson = z3.object({}).catchall(zodSchemaForJson);
 	}
 
-	if (zodSchemaForJson instanceof z.ZodObject) {
+	if (zodSchemaForJson instanceof z3.ZodObject) {
 		zodSchemaForJson = zodSchemaForJson.extend({
-			$schema: z.string().optional(),
+			$schema: z3.string().optional(),
 		});
 	}
 

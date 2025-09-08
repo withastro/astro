@@ -1,4 +1,5 @@
-import type { ZodLiteral, ZodNumber, ZodObject, ZodString, ZodType, ZodUnion } from 'zod';
+import type * as z3 from 'zod/v3';
+import type * as z4 from 'zod/v4/core';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from './consts.js';
 import type { LiveLoader, Loader } from './loaders/types.js';
@@ -24,23 +25,41 @@ function getImporterFilename() {
 }
 
 // This needs to be in sync with ImageMetadata
-export type ImageFunction = () => ZodObject<{
-	src: ZodString;
-	width: ZodNumber;
-	height: ZodNumber;
-	format: ZodUnion<
-		[
-			ZodLiteral<'png'>,
-			ZodLiteral<'jpg'>,
-			ZodLiteral<'jpeg'>,
-			ZodLiteral<'tiff'>,
-			ZodLiteral<'webp'>,
-			ZodLiteral<'gif'>,
-			ZodLiteral<'svg'>,
-			ZodLiteral<'avif'>,
-		]
-	>;
-}>;
+export type ImageFunction = () =>
+	| z3.ZodObject<{
+			src: z3.ZodString;
+			width: z3.ZodNumber;
+			height: z3.ZodNumber;
+			format: z3.ZodUnion<
+				[
+					z3.ZodLiteral<'png'>,
+					z3.ZodLiteral<'jpg'>,
+					z3.ZodLiteral<'jpeg'>,
+					z3.ZodLiteral<'tiff'>,
+					z3.ZodLiteral<'webp'>,
+					z3.ZodLiteral<'gif'>,
+					z3.ZodLiteral<'svg'>,
+					z3.ZodLiteral<'avif'>,
+				]
+			>;
+	  }>
+	| z4.$ZodObject<{
+			src: z4.$ZodString;
+			width: z4.$ZodNumber;
+			height: z4.$ZodNumber;
+			format: z4.$ZodUnion<
+				[
+					z4.$ZodLiteral<'png'>,
+					z4.$ZodLiteral<'jpg'>,
+					z4.$ZodLiteral<'jpeg'>,
+					z4.$ZodLiteral<'tiff'>,
+					z4.$ZodLiteral<'webp'>,
+					z4.$ZodLiteral<'gif'>,
+					z4.$ZodLiteral<'svg'>,
+					z4.$ZodLiteral<'avif'>,
+				]
+			>;
+	  }>;
 
 export interface DataEntry {
 	id: string;
@@ -67,7 +86,7 @@ export interface MetaStore {
 	has: (key: string) => boolean;
 }
 
-export type BaseSchema = ZodType;
+export type BaseSchema = z3.ZodType | z4.$ZodType;
 
 export type SchemaContext = { image: ImageFunction };
 
