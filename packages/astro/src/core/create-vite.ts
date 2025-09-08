@@ -143,7 +143,7 @@ export async function createVite(
 		},
 		plugins: [
 			await serializedManifestPlugin({ settings }),
-			await astroPluginRoutes({ settings, logger, fsMod: fs }),
+			await astroPluginRoutes({ settings, logger, fsMod: fs, command }),
 			astroVirtualManifestPlugin(),
 			configAliasVitePlugin({ settings }),
 			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
