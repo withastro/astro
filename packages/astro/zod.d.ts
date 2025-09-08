@@ -1,5 +1,6 @@
-import * as mod from 'zod';
-export * from 'zod';
+import * as mod from 'zod/v3';
+
+export * from 'zod/v3';
 export { mod as z };
 export default mod;
 export as namespace Zod;
