@@ -17,7 +17,7 @@ class MyApp extends BaseApp {
 		if (this.#manifest?.assets.has(url.pathname)) {
 			const filePath = new URL('../../client/' + this.removeBase(url.pathname), import.meta.url);
 			const data = await fs.promises.readFile(filePath);
-			return new Response(data);
+			return new Response(Buffer.from(data));
 		}
 
 		return super.render(request);
