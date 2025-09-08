@@ -3,7 +3,7 @@ import { extname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as devalue from 'devalue';
 import type { PluginContext } from 'rollup';
-import type { RunnableDevEnvironment, Plugin } from 'vite';
+import type { Plugin, RunnableDevEnvironment } from 'vite';
 import { getProxyCode } from '../assets/utils/proxy.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';

@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { bold, cyan } from 'kleur/colors';
 import { glob } from 'tinyglobby';
 import {
-	DevEnvironment,
+	type DevEnvironment,
 	normalizePath,
 	type RunnableDevEnvironment,
 	type ViteDevServer,

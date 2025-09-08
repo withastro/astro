@@ -47,7 +47,7 @@ interface AstroContentVirtualModPluginParams {
 }
 
 function invalidateDataStore(viteServer: ViteDevServer) {
-	const environment = viteServer.environments.ssr
+	const environment = viteServer.environments.ssr;
 	const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
 	if (module) {
 		environment.moduleGraph.invalidateModule(module);
