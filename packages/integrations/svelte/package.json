@@ -42,7 +42,7 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "svelte": "^5.38.6"
+    "svelte": "^5.38.7"
   },
   "peerDependencies": {
     "astro": "^5.0.0",
