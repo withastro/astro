@@ -5,6 +5,7 @@ import { performance } from 'node:perf_hooks';
 import { green } from 'kleur/colors';
 import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
+import { isRunnableDevEnvironment } from 'vite';
 import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
 import { attachContentServerListeners } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
@@ -20,7 +21,6 @@ import {
 	MAX_PATCH_DISTANCE,
 	shouldCheckForUpdates,
 } from './update-check.js';
-import { isRunnableDevEnvironment } from 'vite';
 
 export interface DevServer {
 	address: AddressInfo;
@@ -96,7 +96,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	if (!store) {
 		logger.error('content', 'Failed to create data store');
 	}
-	if(isRunnableDevEnvironment(restart.container.viteServer.environments.ssr)) {
+	if (isRunnableDevEnvironment(restart.container.viteServer.environments.ssr)) {
 		await attachContentServerListeners(restart.container);
 	}
 

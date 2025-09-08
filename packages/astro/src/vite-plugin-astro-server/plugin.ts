@@ -58,9 +58,8 @@ export default function createVitePluginAstroServer({
 	return {
 		name: 'astro:server',
 		async configureServer(viteServer) {
-
-			if(!isRunnableDevEnvironment(viteServer.environments.ssr)) {
-				return
+			if (!isRunnableDevEnvironment(viteServer.environments.ssr)) {
+				return;
 			}
 
 			const loader = createViteLoader(viteServer);

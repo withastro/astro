@@ -9,6 +9,7 @@ import {
 	removeLeadingForwardSlash,
 } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
+import { cloudflare as cfVitePlugin } from '@cloudflare/vite-plugin';
 import type {
 	AstroConfig,
 	AstroIntegration,
@@ -26,7 +27,6 @@ import {
 import { createGetEnv } from './utils/env.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { type ImageService, setImageConfig } from './utils/image-config.js';
-import { cloudflare as cfVitePlugin } from '@cloudflare/vite-plugin';
 
 export type { Runtime } from './utils/handler.js';
 
