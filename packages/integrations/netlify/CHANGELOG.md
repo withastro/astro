@@ -1,5 +1,14 @@
 # @astrojs/netlify
 
+## 6.5.10
+
+### Patch Changes
+
+- [#14326](https://github.com/withastro/astro/pull/14326) [`c24a8f4`](https://github.com/withastro/astro/commit/c24a8f42a17410ea78fc2d68ff0105b931a381eb) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates `vite` version to fix CVE
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 6.5.9
 
 ### Patch Changes
