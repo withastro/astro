@@ -13,4 +13,4 @@
 '@astrojs/db': patch
 ---
 
-update vite to latest version to fix CVE
+Updates `vite` version to fix CVE
