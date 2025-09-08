@@ -38,6 +38,7 @@ export default {
 				'rehype-toc',
 				'remark-code-titles',
 				'@types/http-cache-semantics',
+				'simple-swizzle', // Pinned dep to avoid a vulnerability
 			],
 		},
 		'packages/db': {

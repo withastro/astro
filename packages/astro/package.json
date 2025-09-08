@@ -159,6 +159,7 @@
     "rehype": "^13.0.2",
     "semver": "^7.7.2",
     "shiki": "^3.12.0",
+    "simple-swizzle": "0.2.2",
     "smol-toml": "^1.4.2",
     "tinyexec": "^0.3.2",
     "tinyglobby": "^0.2.14",
