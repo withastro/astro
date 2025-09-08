@@ -6,7 +6,6 @@ import pLimit from 'p-limit';
 import { glob } from 'tinyglobby';
 import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { getRunnableEnvironment } from '../core/module-loader/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
@@ -48,7 +47,7 @@ interface AstroContentVirtualModPluginParams {
 }
 
 function invalidateDataStore(viteServer: ViteDevServer) {
-	const environment = getRunnableEnvironment(viteServer);
+	const environment = viteServer.environments.ssr;
 	const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
 	if (module) {
 		environment.moduleGraph.invalidateModule(module);

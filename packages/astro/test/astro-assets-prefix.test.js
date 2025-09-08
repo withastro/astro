@@ -18,10 +18,10 @@ describe('Assets Prefix - Static', () => {
 		});
 		await fixture.build();
 	});
-	
+
 	after(async () => {
 		await fixture.clean();
-	})
+	});
 
 	after(async () => {
 		await fixture.clean();
