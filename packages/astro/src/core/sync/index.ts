@@ -6,11 +6,7 @@ import { dim } from 'kleur/colors';
 import { createServer, type FSWatcher, type HMRPayload } from 'vite';
 import { syncFonts } from '../../assets/fonts/sync.js';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
-import {
-	getDataStoreDir,
-	getDataStoreManifestFile,
-	globalContentLayer,
-} from '../../content/content-layer.js';
+import { getDataStoreDir, globalContentLayer } from '../../content/content-layer.js';
 import { createContentTypesGenerator } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { getContentPaths, globalContentConfigObserver } from '../../content/utils.js';
@@ -107,11 +103,9 @@ export async function clearContentLayerCache({
 	fs?: typeof fsMod;
 	isDev: boolean;
 }) {
-	const dataStoreManifest = getDataStoreManifestFile(settings, isDev);
 	const dataStore = getDataStoreDir(settings, isDev);
-	if (fs.existsSync(dataStoreManifest) || fs.existsSync(dataStore)) {
+	if (fs.existsSync(dataStore)) {
 		logger.debug('content', 'clearing data store');
-		await fs.promises.rm(dataStoreManifest, { force: true });
 		await fs.promises.rm(dataStore, { force: true, recursive: true });
 		logger.warn('content', 'data store cleared (force)');
 	}
@@ -148,9 +142,8 @@ export async function syncInternal({
 
 		let store: MutableDataStore | undefined;
 		try {
-			const dataStoreManifestFile = getDataStoreManifestFile(settings, isDev);
 			const dataStoreDir = getDataStoreDir(settings, isDev);
-			store = await MutableDataStore.fromDir(dataStoreDir, dataStoreManifestFile);
+			store = await MutableDataStore.fromDir(dataStoreDir);
 		} catch (err: any) {
 			logger.error('content', err.message);
 		}

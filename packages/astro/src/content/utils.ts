@@ -879,15 +879,33 @@ export function safeStringify(value: unknown) {
 	return JSON.stringify(value, safeStringifyReplacer(seen));
 }
 
-/**
- * Splits a string into chunks that are each below the specified byte size limit
- */
-export function splitStringBySizeLimit(str: string, maxBytes: number): string[] {
+// Splits a string into chunks that are each below the specified byte size limit
+export function chunkString(str: string, maxBytes: number): string[] {
 	const maxChars = Math.floor(maxBytes / 2); // assume average-case 2 bytes per char
 	const chunks = [];
 
 	for (let i = 0; i < str.length; i += maxChars) {
 		chunks.push(str.slice(i, i + maxChars));
+	}
+
+	return chunks;
+}
+
+// Splits a Map into equally sized chunks of Maps
+export function chunkMap<T>(map: Map<string, T>, chunkSize: number): Map<string, T>[] {
+	const chunks: Map<string, T>[] = [];
+	let currentChunk = new Map<string, T>();
+
+	for (const [key, value] of map) {
+		currentChunk.set(key, value);
+		if (currentChunk.size >= chunkSize) {
+			chunks.push(currentChunk);
+			currentChunk = new Map<string, T>();
+		}
+	}
+
+	if (currentChunk.size > 0) {
+		chunks.push(currentChunk);
 	}
 
 	return chunks;

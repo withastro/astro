@@ -3,9 +3,9 @@ import * as devalue from 'devalue';
 import { Traverse } from 'neotraverse/modern';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { IMAGE_IMPORT_PREFIX } from './consts.js';
+import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
 import { type DataEntry, ImmutableDataStore } from './data-store.js';
-import { contentModuleToId, splitStringBySizeLimit } from './utils.js';
+import { chunkMap, chunkString, contentModuleToId } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
 const MAX_DEPTH = 10;
@@ -412,18 +412,30 @@ export default new Map([\n${lines.join(',\n')}]);
 			// Mark as clean before writing to disk so that it catches any changes that happen during the write
 			this.#dirty = false;
 
-			const manifest: Record<string, string[]> = {};
+			const manifest: Record<string, string[][]> = {};
 
+			// Split by collection
 			for (const [collectionName, entries] of this._collections) {
 				manifest[collectionName] = [];
-				const chunkedEntries = splitStringBySizeLimit(devalue.stringify(entries), CHUNK_SIZE_LIMIT);
-				for (const [index, chunk] of chunkedEntries.entries()) {
-					const fileName = `${collectionName}.${index}.json`;
-					await this.#writeFileAtomic(new URL(`./${fileName}`, this.#dir), chunk);
-					manifest[collectionName].push(fileName);
+
+				// Split into chunks of 1000 entries each (avoid huge strings)
+				const chunkedCollection = chunkMap(entries, 1000);
+				for (const [index, chunkedEntries] of chunkedCollection.entries()) {
+					const stringified = devalue.stringify(chunkedEntries);
+
+					// Further split string into chunks of <20MB each (avoid platform-specific single file size limits)
+					const chunkedStrings = chunkString(stringified, CHUNK_SIZE_LIMIT);
+					const parts = [];
+					for (const [part, chunk] of chunkedStrings.entries()) {
+						const fileName = `${collectionName}.${index}.${part}.json`;
+						await this.#writeFileAtomic(new URL(`./${fileName}`, this.#dir), chunk);
+						parts.push(fileName);
+					}
+					manifest[collectionName].push(parts);
 				}
 			}
 
+			// Finally, write the manifest
 			await this.#writeFileAtomic(this.#manifestFile, JSON.stringify(manifest));
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
@@ -450,7 +462,8 @@ export default new Map([\n${lines.join(',\n')}]);
 		return store;
 	}
 
-	static async fromDir(dirPath: URL, manifestPath: string | URL) {
+	static async fromDir(dirPath: URL) {
+		const manifestPath = new URL(`./${DATA_STORE_MANIFEST_FILE}`, dirPath);
 		try {
 			if (existsSync(dirPath) && existsSync(manifestPath)) {
 				const data = await fs.readFile(manifestPath, 'utf-8');
@@ -458,15 +471,26 @@ export default new Map([\n${lines.join(',\n')}]);
 
 				if (manifest) {
 					const collections = new Map();
-					for (const [collectionName, files] of Object.entries<string[]>(manifest)) {
-						let rawData = '';
-						for (const file of files) {
-							const path = new URL('./' + file, dirPath);
-							const data = await fs.readFile(path, 'utf-8');
-							rawData += data;
+					for (const [collectionName, chunks] of Object.entries<string[][]>(manifest)) {
+						const collection = new Map<string, any>();
+
+						for (const parts of chunks) {
+							// Combine all string parts into a single string
+							let rawData = '';
+							for (const file of parts) {
+								rawData += await fs.readFile(new URL('./' + file, dirPath), 'utf-8');
+							}
+
+							// Restore the collection chunk
+							const chunk: Map<string, any> = devalue.parse(rawData);
+
+							// Combine into the full collection
+							for (const [key, value] of chunk.entries()) {
+								collection.set(key, value);
+							}
 						}
-						const collectionStore = devalue.parse(rawData);
-						collections.set(collectionName, collectionStore);
+
+						collections.set(collectionName, collection);
 					}
 
 					const store = await MutableDataStore.fromMap(collections);
@@ -476,7 +500,6 @@ export default new Map([\n${lines.join(',\n')}]);
 				}
 			} else {
 				await fs.mkdir(dirPath, { recursive: true });
-				await fs.mkdir(new URL('./', manifestPath), { recursive: true });
 			}
 		} catch {}
 		const store = new MutableDataStore();
