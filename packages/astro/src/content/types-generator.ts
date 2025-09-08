@@ -3,13 +3,17 @@ import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { bold, cyan } from 'kleur/colors';
 import { glob } from 'tinyglobby';
-import { normalizePath, type RunnableDevEnvironment, type ViteDevServer } from 'vite';
+import {
+	DevEnvironment,
+	normalizePath,
+	type RunnableDevEnvironment,
+	type ViteDevServer,
+} from 'vite';
 import { type ZodSchema, z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData, AstroUserError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
-import { getRunnableEnvironment } from '../core/module-loader/index.js';
 import { isRelativePath } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType } from '../types/public/content.js';
@@ -152,8 +156,11 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: false };
 		}
 		if (fileType === 'config') {
-			const environment = getRunnableEnvironment(viteServer);
-			await reloadContentConfigObserver({ fs, settings, environment });
+			await reloadContentConfigObserver({
+				fs,
+				settings,
+				environment: viteServer.environments.content as RunnableDevEnvironment,
+			});
 			return { shouldGenerateTypes: true };
 		}
 
@@ -340,8 +347,7 @@ export async function createContentTypesGenerator({
 				logger,
 				settings,
 			});
-			const environment = getRunnableEnvironment(viteServer);
-			invalidateVirtualMod(environment);
+			invalidateVirtualMod(viteServer.environments.ssr);
 		}
 	}
 	return { init, queueEvent };
@@ -349,7 +355,7 @@ export async function createContentTypesGenerator({
 
 // The virtual module contains a lookup map from slugs to content imports.
 // Invalidate whenever content types change.
-function invalidateVirtualMod(environment: RunnableDevEnvironment) {
+function invalidateVirtualMod(environment: DevEnvironment) {
 	const virtualMod = environment.moduleGraph.getModuleById('\0' + VIRTUAL_MODULE_ID);
 	if (!virtualMod) return;
 

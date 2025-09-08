@@ -3,12 +3,11 @@ import { extname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as devalue from 'devalue';
 import type { PluginContext } from 'rollup';
-import type { Plugin } from 'vite';
+import type { RunnableDevEnvironment, Plugin } from 'vite';
 import { getProxyCode } from '../assets/utils/proxy.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
-import { getRunnableEnvironment } from '../core/module-loader/index.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type {
@@ -86,6 +85,14 @@ export function astroContentImportPlugin({
 			name: 'astro:content-imports',
 			config(_config, env) {
 				shouldEmitFile = env.command === 'build';
+				return {
+					environments: {
+						content: {
+							// This is all that's needed to create a new RunnableDevEnvironment
+							dev: {},
+						},
+					},
+				};
 			},
 			async buildStart() {
 				// Get symlinks once at build start
@@ -153,7 +160,7 @@ export const _internal = {
 			configureServer(viteServer) {
 				viteServer.watcher.on('all', async (event, entry) => {
 					if (CHOKIDAR_MODIFIED_EVENTS.includes(event)) {
-						const environment = getRunnableEnvironment(viteServer);
+						const environment = viteServer.environments.ssr;
 
 						const entryType = getEntryType(entry, contentPaths, contentEntryExts, dataEntryExts);
 						if (!COLLECTION_TYPES_TO_INVALIDATE_ON.includes(entryType)) return;
@@ -162,7 +169,11 @@ export const _internal = {
 						// Reload the config in case of changes.
 						// Changes to the config file itself are handled in types-generator.ts, so we skip them here
 						if (entryType === 'content' || entryType === 'data') {
-							await reloadContentConfigObserver({ fs, settings, environment });
+							await reloadContentConfigObserver({
+								fs,
+								settings,
+								environment: viteServer.environments.content as RunnableDevEnvironment,
+							});
 						}
 
 						// Invalidate all content imports and `render()` modules.
