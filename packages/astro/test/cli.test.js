@@ -106,18 +106,27 @@ describe('astro cli', () => {
 	
 	it('astro info shows correct Vite and integration versions when using pnpm',	async () => {
 		const projectRootURL = new URL('./fixtures/astro-info-versions/', import.meta.url);
+		const projectPackageJSONUrl = new URL('./package.json', projectRootURL);
+		
+		const version = await fs.readFile(fileURLToPath(projectPackageJSONUrl))
+			.then((json) => JSON.parse(json).dependencies.vite);
+		
 		const proc = spawnSync('pnpm', ['astro', 'info', '--copy'], { cwd: projectRootURL, encoding: "utf-8" });
 		
-		assert.equal(proc?.stdout.includes('v7.0.0'), true);
+		assert.equal(proc?.stdout.includes(`v${version}`), true);
 		assert.equal(proc?.stdout.includes('@astrojs/react (Local)'), true);
 	});
 	
 	it('astro info shows correct Vite and integration versions when using npm',	async () => {
 		const projectRootURL = new URL('./fixtures/astro-info-versions/', import.meta.url);
+		const projectPackageJSONUrl = new URL('./package.json', projectRootURL);
+		
+		const version = await fs.readFile(fileURLToPath(projectPackageJSONUrl))
+			.then((json) => JSON.parse(json).dependencies.vite);
 		
 		const proc = spawnSync('npm', ['run', 'astro', 'info', '--copy'], { cwd: projectRootURL, encoding: "utf-8" });
 		
-		assert.equal(proc?.stdout.includes('v7.0.0'), true);
+		assert.equal(proc?.stdout.includes(`v${version}`), true);
 		assert.equal(proc?.stdout.includes('@astrojs/react (Local)'), true);
 	});
 	
@@ -137,6 +146,8 @@ describe('astro cli', () => {
 		// package.json file with a packageManager field
 		let packageJSON = await fs.readFile(fileURLToPath(packageJSONUrl), { encoding: "utf-8" }).then((text) => JSON.parse(text));
 		packageJSON.packageManager = "yarn@4.9.4";
+		
+		const viteVersion = packageJSON.dependencies.vite;
 		
 		await fs.writeFile(
 			fileURLToPath(packageJSONUrl),
@@ -170,7 +181,7 @@ describe('astro cli', () => {
 		
 		spawnSync('pnpm', ['install'], { cwd: fixtureRootURL });
 		
-		assert.equal(proc?.stdout.includes('v7.0.0'), true);
+		assert.equal(proc?.stdout.includes(`v${viteVersion}`), true);
 		assert.equal(proc?.stdout.includes('@astrojs/react (v4.3.0)'), true);
 	});
 

@@ -4,12 +4,12 @@
   "private": true,
   "dependencies": {
     "@astrojs/react": "4.3.0",
-    "astro": "workspace:*",
-    "vite": "7.0.0",
-    "react-dom": "19.1.1",
-    "react": "19.1.1",
     "@types/react": "19.1.1",
-    "@types/react-dom": "19.1.1"
+    "@types/react-dom": "19.1.1",
+    "astro": "workspace:*",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "vite": "6.3.5"
   },
   "scripts": {
     "astro": "astro"
