@@ -570,9 +570,6 @@ export class experimental_AstroContainer {
 		return {
 			route: url.pathname,
 			component: '',
-			generate(_data: any): string {
-				return '';
-			},
 			params: Object.keys(params),
 			pattern: getPattern(
 				segments,

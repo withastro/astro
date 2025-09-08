@@ -1,6 +1,5 @@
 import type { ZodType } from 'zod';
 import type { ActionAccept, ActionClient } from '../../actions/runtime/virtual/server.js';
-import type { RoutingStrategies } from '../../i18n/utils.js';
 import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
 import type { AstroMiddlewareInstance } from '../../types/public/common.js';
 import type {
@@ -17,6 +16,7 @@ import type {
 } from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import type { CspDirective } from '../csp/config.js';
+import type { RoutingStrategies } from './common.js';
 
 type ComponentPath = string;
 

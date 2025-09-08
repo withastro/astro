@@ -20,7 +20,6 @@ export type SerializedRouteData = Omit<
 	RouteData,
 	'generate' | 'pattern' | 'redirectRoute' | 'fallbackRoutes'
 > & {
-	generate: undefined;
 	pattern: string;
 	redirectRoute: SerializedRouteData | undefined;
 	fallbackRoutes: SerializedRouteData[];

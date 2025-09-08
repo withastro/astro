@@ -1,32 +1,114 @@
+import type fsMod from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
-import type { Plugin as VitePlugin } from 'vite';
+import type { Plugin } from 'vite';
+import { serializeRouteData } from '../core/app/index.js';
+import type { SerializedRouteInfo } from '../core/app/types.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
 import type { Logger } from '../core/logger/core.js';
+import { createRoutesList } from '../core/routing/index.js';
 import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
 import { isEndpoint, isPage } from '../core/util.js';
 import { normalizePath, rootRelativePath } from '../core/viteUtils.js';
-import type { AstroSettings, RoutesList } from '../types/astro.js';
+import type { AstroSettings } from '../types/astro.js';
 import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
-interface AstroPluginScannerOptions {
+type Payload = {
 	settings: AstroSettings;
 	logger: Logger;
-	routesList: RoutesList;
-}
+	fsMod?: typeof fsMod;
+};
+
+const ASTRO_ROUTES_MODULE_ID = 'astro:routes';
+const ASTRO_ROUTES_MODULE_ID_RESOLVED = '\0' + ASTRO_ROUTES_MODULE_ID;
 
 const KNOWN_FILE_EXTENSIONS = ['.astro', '.js', '.ts'];
 
-export default function astroScannerPlugin({
+export default async function astroPluginRoutes({
 	settings,
 	logger,
-	routesList,
-}: AstroPluginScannerOptions): VitePlugin {
+	fsMod,
+}: Payload): Promise<Plugin> {
+	logger.debug('update', 'Re-calculate routes');
+	let routeList = await createRoutesList(
+		{
+			settings,
+			fsMod,
+		},
+		logger,
+		// TODO: the caller should handle this
+		{ dev: true },
+	);
+
+	let serializedRouteInfo: SerializedRouteInfo[] = routeList.routes.map(
+		(r): SerializedRouteInfo => {
+			return {
+				file: '',
+				links: [],
+				scripts: [],
+				styles: [],
+				routeData: serializeRouteData(r, settings.config.trailingSlash),
+			};
+		},
+	);
+
+	async function rebuildRoutes(path: string | null = null) {
+		if (path != null) {
+			routeList = await createRoutesList(
+				{
+					settings,
+					fsMod,
+				},
+				logger,
+				// TODO: the caller should handle this
+				{ dev: true },
+			);
+
+			serializedRouteInfo = routeList.routes.map((r): SerializedRouteInfo => {
+				return {
+					file: '',
+					links: [],
+					scripts: [],
+					styles: [],
+					routeData: serializeRouteData(r, settings.config.trailingSlash),
+				};
+			});
+		}
+	}
 	return {
-		name: 'astro:scanner',
-		enforce: 'post',
+		name: 'astro:routes',
+		configureServer(server) {
+			server.watcher.on('add', rebuildRoutes.bind(null, null));
+			server.watcher.on('unlink', rebuildRoutes.bind(null, null));
+			server.watcher.on('change', rebuildRoutes);
+		},
+
+		applyToEnvironment(environment) {
+			return environment.name === 'ssr';
+		},
+
+		load(id) {
+			if (id === ASTRO_ROUTES_MODULE_ID_RESOLVED) {
+				const code = `
+				import { deserializeRouteInfo } from 'astro/app';
+				const serializedData = ${JSON.stringify(serializedRouteInfo)};
+				const routes = serializedData.map(deserializeRouteInfo);
+				export { routes };
+				`;
+
+				return {
+					code,
+				};
+			}
+		},
+
+		resolveId(id) {
+			if (id === ASTRO_ROUTES_MODULE_ID) {
+				return ASTRO_ROUTES_MODULE_ID_RESOLVED;
+			}
+		},
 
 		async transform(this, code, id, options) {
 			if (!options?.ssr) return;
@@ -43,8 +125,7 @@ export default function astroScannerPlugin({
 			const fileIsPage = isPage(fileURL, settings);
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
-
-			const route = routesList.routes.find((r) => {
+			const route = routeList.routes.find((r) => {
 				const filePath = new URL(`./${r.component}`, settings.config.root);
 				return normalizePath(fileURLToPath(filePath)) === filename;
 			});
@@ -99,7 +180,7 @@ export default function astroScannerPlugin({
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
 
-			const route = routesList.routes.find((r) => {
+			const route = routeList.routes.find((r) => {
 				const filePath = new URL(`./${r.component}`, settings.config.root);
 				return normalizePath(fileURLToPath(filePath)) === filename;
 			});

@@ -1,8 +1,9 @@
 import MagicString from 'magic-string';
-import type { ConfigEnv, ViteDevServer, Plugin as VitePlugin } from 'vite';
+import type { ConfigEnv, RunnableDevEnvironment, Plugin as VitePlugin } from 'vite';
 import type { AstroPluginOptions } from '../../types/astro.js';
 import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import { getRunnableEnvironment } from '../module-loader/index.js';
 
 export const VIRTUAL_ISLAND_MAP_ID = '@astro-server-islands';
 const RESOLVED_VIRTUAL_ISLAND_MAP_ID = '\0' + VIRTUAL_ISLAND_MAP_ID;
@@ -10,7 +11,7 @@ const serverIslandPlaceholder = "'$$server-islands$$'";
 
 export function vitePluginServerIslands({ settings }: AstroPluginOptions): VitePlugin {
 	let command: ConfigEnv['command'] = 'serve';
-	let viteServer: ViteDevServer | null = null;
+	let ssrEnvironment: RunnableDevEnvironment | null = null;
 	const referenceIdMap = new Map<string, string>();
 	return {
 		name: 'astro:server-islands',
@@ -19,7 +20,7 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 			command = _command;
 		},
 		configureServer(_server) {
-			viteServer = _server;
+			ssrEnvironment = getRunnableEnvironment(_server);
 		},
 		resolveId(name) {
 			if (name === VIRTUAL_ISLAND_MAP_ID) {
@@ -59,7 +60,7 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 					settings.serverIslandNameMap.set(comp.resolvedPath, name);
 
 					settings.serverIslandMap.set(name, () => {
-						return viteServer?.ssrLoadModule(comp.resolvedPath) as any;
+						return ssrEnvironment?.runner.import(comp.resolvedPath) as any;
 					});
 
 					// Build mode

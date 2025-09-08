@@ -25,7 +25,6 @@ export function getServerIslandRouteData(config: ConfigFields) {
 	const route: RouteData = {
 		type: 'page',
 		component: SERVER_ISLAND_COMPONENT,
-		generate: () => '',
 		params: ['name'],
 		segments,
 		pattern: getPattern(segments, config.base, config.trailingSlash),
