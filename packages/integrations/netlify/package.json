@@ -47,7 +47,7 @@
     "@vercel/nft": "^0.30.1",
     "esbuild": "^0.25.0",
     "tinyglobby": "^0.2.14",
-    "vite": "^6.3.5"
+    "vite": "^6.3.6"
   },
   "peerDependencies": {
     "astro": "^5.7.0"
