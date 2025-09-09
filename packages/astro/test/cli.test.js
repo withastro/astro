@@ -148,7 +148,6 @@ describe('astro cli', () => {
 		// package.json file with a packageManager field
 		let packageJSON = await fs.readFile(fileURLToPath(packageJSONUrl), { encoding: "utf-8" }).then((text) => JSON.parse(text));
 		packageJSON.packageManager = "yarn@4.9.4";
-		packageJSON.dependencies.astro = "5.13.7";
 		
 		const viteVersion = packageJSON.dependencies.vite;
 		
@@ -162,9 +161,12 @@ describe('astro cli', () => {
 		spawnSync('pnpm', ['pack'], { cwd: testsRootURL, encoding: 'utf-8', shell: true });
 		await fs.rename(packURL, packDestinationURL);
 		
-		spawnSync('corepack', ['use', 'yarn@4.9.4'], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
+		spawnSync('corepack', ['install', 'yarn@4.9.4'], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
 		spawnSync('yarn', ['add', fileURLToPath(packDestinationURL)], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
 		spawnSync('yarn', ['install'], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
+		const DEBUG_REMOVE_ME_LATER_PROC = spawnSync('yarn', ['--version'], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
+		
+		console.log(`DEBUG_REMOVE_ME_LATER_YARN_VERSION: ${DEBUG_REMOVE_ME_LATER_PROC.stdout}`);
 		
 		const proc = spawnSync(
 			'yarn',
