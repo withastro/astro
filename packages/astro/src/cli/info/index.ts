@@ -38,7 +38,7 @@ export async function getInfoOutput({
 		: undefined;
 	
 	const adatperOutputString = userConfig.adapter?.name
-		? `${userConfig.adapter.name} ${adapterVersion ? `(v${adapterVersion})` : ""}`
+		? `${userConfig.adapter.name}${adapterVersion ? ` (v${adapterVersion})` : ""}`
 		: "none";
 	
 	try {
