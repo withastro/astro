@@ -58,13 +58,13 @@ export class DevApp extends BaseApp<DevPipeline> {
 	}
 
 	static async create(
+		manifest: SSRManifest,
 		routesList: RoutesList,
 		settings: AstroSettings,
 		logger: Logger,
 		loader: ModuleLoader,
 	): Promise<DevApp> {
-		const { manifest } = await loader.import('astro:serialized-manifest');
-		return new DevApp(manifest as SSRManifest, true, settings, logger, loader, routesList);
+		return new DevApp(manifest, true, settings, logger, loader, routesList);
 	}
 
 	createPipeline(
@@ -96,9 +96,10 @@ export class DevApp extends BaseApp<DevPipeline> {
 		controller,
 		incomingRequest,
 		incomingResponse,
+		isHttps,
 	}: HandleRequest): Promise<void> {
-		const { config, loader } = this.pipeline;
-		const origin = `${loader.isHttps() ? 'https' : 'http'}://${
+		const { config } = this.pipeline;
+		const origin = `${isHttps ? 'https' : 'http'}://${
 			incomingRequest.headers[':authority'] ?? incomingRequest.headers.host
 		}`;
 
@@ -150,8 +151,13 @@ export class DevApp extends BaseApp<DevPipeline> {
 				});
 			},
 			onError(_err) {
-				const { error, errorWithMetadata } = recordServerError(loader, config, self.logger, _err);
-				handle500Response(loader, incomingResponse, errorWithMetadata);
+				const { error, errorWithMetadata } = recordServerError(
+					self.loader,
+					config,
+					self.logger,
+					_err,
+				);
+				handle500Response(self.loader, incomingResponse, errorWithMetadata);
 				return error;
 			},
 		});
@@ -439,6 +445,7 @@ type HandleRequest = {
 	controller: DevServerController;
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
+	isHttps: boolean;
 };
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (

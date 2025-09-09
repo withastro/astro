@@ -151,7 +151,7 @@ export async function createVite(
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
-			command === 'dev' && vitePluginAstroServer({ settings, logger, fs }), // manifest is only required in dev mode, where it gets created before a Vite instance is created, and get passed to this function
+			command === 'dev' && vitePluginAstroServer({ settings, logger }),
 			importMetaEnv({ envLoader }),
 			astroEnv({ settings, sync, envLoader }),
 			markdownVitePlugin({ settings, logger }),
