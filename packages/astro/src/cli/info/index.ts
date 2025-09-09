@@ -33,16 +33,16 @@ export async function getInfoOutput({
 		rows.splice(1, 0, ['Vite', viteVersion]);
 	}
 	
-	const adapterVersion = userConfig.adapter?.name
+	const adapterVersion = "adapter" in userConfig && userConfig.adapter?.name
 		? getVersion(packageManager, userConfig.adapter.name)
 		: undefined;
 	
-	const adatperOutputString = userConfig.adapter?.name
-		? `${userConfig.adapter.name}${adapterVersion ? ` (v${adapterVersion})` : ""}`
+	const adatperOutputString = "adapter" in userConfig && userConfig.adapter?.name
+		? `${userConfig.adapter.name}${adapterVersion ? ` (${adapterVersion})` : ""}`
 		: "none";
 	
 	try {
-		rows.push(['Output', userConfig.output ?? 'static']);
+		rows.push(['Output', ("adapter" in userConfig && userConfig.output ? userConfig.output : 'static')]);
 		rows.push(['Adapter', adatperOutputString]);
 		const integrations = (userConfig?.integrations ?? [])
 			.filter(Boolean)
@@ -225,7 +225,7 @@ type BareNpmLikeVersionOutput = {
 }
 
 function getVersionUsingPNPM(dependency: string): string | undefined {
-	const output = spawnSync("pnpm", ["why", dependency, "--json"], { encoding: "utf-8" });
+	const output = spawnSync("pnpm", ["why", dependency, "--json"], { encoding: "utf-8", shell: true });
 	const parsedOutput = JSON.parse(output.stdout) as Array<BareNpmLikeVersionOutput>;
 	
 	if (parsedOutput.length === 0 || !parsedOutput[0].dependencies) {
@@ -245,7 +245,7 @@ return astroDependency ? formatPnpmVersionOutput(astroDependency.version) : unde
 }
 
 function getVersionUsingNPM(dependency: string): string | undefined {
-	const npmOutput = spawnSync("npm", ["ls", dependency, "--json", "--depth=1"], { encoding: "utf-8" });
+	const npmOutput = spawnSync("npm", ["ls", dependency, "--json", "--depth=1"], { encoding: "utf-8", shell: true });
 	const parsedNpmOutput = JSON.parse(npmOutput.stdout) as BareNpmLikeVersionOutput;
 	
 	if (!parsedNpmOutput.dependencies) {
@@ -275,7 +275,7 @@ function getYarnOutputDepVersion(dependency: string, outputLine: string) {
 }
 
 function getVersionUsingYarn(dependency: string): string | undefined {
-	const yarnOutput = spawnSync("yarn", ["why", dependency, "--json"], { encoding: "utf-8" });
+	const yarnOutput = spawnSync("yarn", ["why", dependency, "--json"], { encoding: "utf-8", shell: true });
 	
 	if (yarnOutput.error) return undefined;
 	

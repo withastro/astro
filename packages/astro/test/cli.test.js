@@ -111,10 +111,11 @@ describe('astro cli', () => {
 		const version = await fs.readFile(fileURLToPath(projectPackageJSONUrl))
 			.then((json) => JSON.parse(json).dependencies.vite);
 		
-		const proc = spawnSync('pnpm', ['astro', 'info', '--copy'], { cwd: projectRootURL, encoding: "utf-8" });
+		const proc = spawnSync('pnpm', ['astro', 'info', '--copy'], { cwd: projectRootURL, encoding: "utf-8", shell: true });
 		
-		assert.equal(proc?.stdout.includes(`v${version}`), true);
-		assert.equal(proc?.stdout.includes('@astrojs/react (Local)'), true);
+		assert.equal(proc.stdout.includes(`v${version}`), true);
+		assert.equal(proc.stdout.includes('@astrojs/node (v9.4.0)'), true);
+		assert.equal(proc.stdout.includes('@astrojs/react (v4.3.0)'), true);
 	});
 	
 	it('astro info shows correct Vite and integration versions when using npm',	async () => {
@@ -124,10 +125,11 @@ describe('astro cli', () => {
 		const version = await fs.readFile(fileURLToPath(projectPackageJSONUrl))
 			.then((json) => JSON.parse(json).dependencies.vite);
 		
-		const proc = spawnSync('npm', ['run', 'astro', 'info', '--copy'], { cwd: projectRootURL, encoding: "utf-8" });
-		
-		assert.equal(proc?.stdout.includes(`v${version}`), true);
-		assert.equal(proc?.stdout.includes('@astrojs/react (Local)'), true);
+		const proc = spawnSync('npm', ['run', 'astro', 'info', '--copy'], { cwd: projectRootURL, encoding: "utf-8", shell: true });
+
+		assert.equal(proc.stdout.includes(`v${version}`), true);
+		assert.equal(proc.stdout.includes('@astrojs/node (v9.4.0)'), true);
+		assert.equal(proc.stdout.includes('@astrojs/react (v4.3.0)'), true);
 	});
 	
 	it('astro info shows correct Vite and integration versions when using yarn',	async () => {
@@ -146,6 +148,7 @@ describe('astro cli', () => {
 		// package.json file with a packageManager field
 		let packageJSON = await fs.readFile(fileURLToPath(packageJSONUrl), { encoding: "utf-8" }).then((text) => JSON.parse(text));
 		packageJSON.packageManager = "yarn@4.9.4";
+		packageJSON.dependencies.astro = "5.13.7";
 		
 		const viteVersion = packageJSON.dependencies.vite;
 		
@@ -156,12 +159,12 @@ describe('astro cli', () => {
 		);
 		await fs.writeFile(yarnLockUrl, "", { encoding: "utf-8" });
 		
-		spawnSync('pnpm', ['pack'], { cwd: testsRootURL });
-		await fs.rename(fileURLToPath(packURL), fileURLToPath(packDestinationURL));
+		spawnSync('pnpm', ['pack'], { cwd: testsRootURL, encoding: 'utf-8', shell: true });
+		await fs.rename(packURL, packDestinationURL);
 		
-		spawnSync('corepack', ['install'], { cwd: fixtureRootURL });
-		spawnSync('yarn', ['add', fileURLToPath(packDestinationURL)], { cwd: fixtureRootURL, encoding: 'utf-8' });
-		spawnSync('yarn', ['install'], { cwd: fixtureRootURL });
+		spawnSync('corepack', ['use', 'yarn@4.9.4'], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
+		spawnSync('yarn', ['add', `file:${fileURLToPath(packDestinationURL)}`], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
+		spawnSync('yarn', ['install'], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
 		
 		const proc = spawnSync(
 			'yarn',
@@ -172,17 +175,18 @@ describe('astro cli', () => {
 			}
 		);
 
-		// Reset changes to package.jsons
+		// Reset changes to package.json
 		delete packageJSON.packageManager;
 		packageJSON.dependencies.astro = "workspace:*";
 		await fs.writeFile(packageJSONUrl, JSON.stringify(packageJSON, null, 2), { encoding: "utf-8" });
 		await fs.rm(yarnLockUrl, { force: true });
 		await fs.rm(packDestinationURL, { force: true });
 		
-		spawnSync('pnpm', ['install'], { cwd: fixtureRootURL });
+		spawnSync('pnpm', ['install'], { cwd: fixtureRootURL, shell: true });
 		
-		assert.equal(proc?.stdout.includes(`v${viteVersion}`), true);
-		assert.equal(proc?.stdout.includes('@astrojs/react (v4.3.0)'), true);
+		assert.equal(proc.stdout.includes(`v${viteVersion}`), true);
+		assert.equal(proc.stdout.includes('@astrojs/node (v9.4.0)'), true);
+		assert.equal(proc.stdout.includes('@astrojs/react (v4.3.0)'), true);
 	});
 
 	it(
