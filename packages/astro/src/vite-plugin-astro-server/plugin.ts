@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { IncomingMessage } from 'node:http';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/index.js';
@@ -25,7 +25,6 @@ import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
-import { viteID } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
@@ -46,10 +45,8 @@ export default function createVitePluginAstroServer({
 		name: 'astro:server',
 		async configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
-			// NOTE: this is temporary, we will use the configuration and proper loading later
-			// @ts-expect-error
-			const url = pathToFileURL(import.meta.dirname + '/entrypoint.js');
-			const createExports = await loader.import(viteID(url));
+			const entrypoint = settings.adapter?.devEntrypoint ?? 'astro/app/dev';
+			const createExports = await loader.import(entrypoint.toString());
 			const controller = createController({ loader });
 			const { handler } = await createExports.default(settings, controller, loader);
 

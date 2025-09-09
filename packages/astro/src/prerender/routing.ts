@@ -1,8 +1,8 @@
+import type { DevPipeline } from '../core/app/dev/pipeline.js';
 import { routeIsRedirect } from '../core/redirects/index.js';
 import { routeComparator } from '../core/routing/priority.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { RouteData } from '../types/public/internal.js';
-import type { DevPipeline } from '../vite-plugin-astro-server/pipeline.js';
 import { getPrerenderStatus } from './metadata.js';
 
 type GetSortedPreloadedMatchesParams = {

@@ -1,15 +1,17 @@
-// @ts-expect-error
+// @ts-expect-error This is a virtual module
 import { routes } from 'astro:routes';
-// @ts-expect-error
+// @ts-expect-error This is a virtual module
 import { manifest } from 'astro:serialized-manifest';
 import type http from 'node:http';
-import type { RouteInfo } from '../core/app/types.js';
-import { Logger } from '../core/logger/core.js';
-import { nodeLogDestination } from '../core/logger/node.js';
-import type { ModuleLoader } from '../core/module-loader/index.js';
-import type { AstroSettings, RoutesList } from '../types/astro.js';
+import type { AstroSettings, RoutesList } from '../../../types/astro.js';
+import type { DevServerController } from '../../../vite-plugin-astro-server/controller.js';
+import { Logger } from '../../logger/core.js';
+import { nodeLogDestination } from '../../logger/node.js';
+import type { ModuleLoader } from '../../module-loader/index.js';
+import type { RouteInfo } from '../types.js';
 import { DevApp } from './app.js';
-import type { DevServerController } from './controller.js';
+
+export { DevApp };
 
 export default async function createExports(
 	settings: AstroSettings,

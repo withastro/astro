@@ -1,40 +1,46 @@
 import type http from 'node:http';
 import { prependForwardSlash, removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
-import { loadActions } from '../actions/loadActions.js';
-import { BaseApp, type RenderErrorOptions } from '../core/app/index.js';
-import type { SSRManifest } from '../core/app/types.js';
-import { shouldAppendForwardSlash } from '../core/build/util.js';
+import { loadActions } from '../../../actions/loadActions.js';
+import { getSortedPreloadedMatches } from '../../../prerender/routing.js';
+import type { AstroSettings, RoutesList } from '../../../types/astro.js';
+import type { RouteData } from '../../../types/public/index.js';
+import type { DevServerController } from '../../../vite-plugin-astro-server/controller.js';
+import { recordServerError } from '../../../vite-plugin-astro-server/error.js';
+import { runWithErrorHandling } from '../../../vite-plugin-astro-server/index.js';
+import {
+	handle500Response,
+	writeSSRResult,
+	writeWebResponse,
+} from '../../../vite-plugin-astro-server/response.js';
+import { shouldAppendForwardSlash } from '../../build/util.js';
 import {
 	clientLocalsSymbol,
 	DEFAULT_404_COMPONENT,
 	NOOP_MIDDLEWARE_HEADER,
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
-} from '../core/constants.js';
+} from '../../constants.js';
 import {
 	MiddlewareNoDataOrNextCalled,
 	MiddlewareNotAResponse,
 	NoMatchingStaticPathFound,
-} from '../core/errors/errors-data.js';
-import { type AstroError, isAstroError } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core.js';
-import { req } from '../core/messages.js';
-import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
-import type { ModuleLoader } from '../core/module-loader/index.js';
-import { routeIsRedirect } from '../core/redirects/index.js';
-import { getProps } from '../core/render/index.js';
-import type { CreateRenderContext, RenderContext } from '../core/render-context.js';
-import { createRequest } from '../core/request.js';
-import { redirectTemplate } from '../core/routing/3xx.js';
-import { isRoute404, isRoute500, matchAllRoutes } from '../core/routing/match.js';
-import { PERSIST_SYMBOL } from '../core/session.js';
-import { getSortedPreloadedMatches } from '../prerender/routing.js';
-import type { AstroSettings, RoutesList } from '../types/astro.js';
-import type { RouteData } from '../types/public/index.js';
-import { type DevServerController, runWithErrorHandling } from './controller.js';
-import { recordServerError } from './error.js';
+} from '../../errors/errors-data.js';
+import { type AstroError, isAstroError } from '../../errors/index.js';
+import type { Logger } from '../../logger/core.js';
+import { req } from '../../messages.js';
+import { loadMiddleware } from '../../middleware/loadMiddleware.js';
+import type { ModuleLoader } from '../../module-loader/index.js';
+import { routeIsRedirect } from '../../redirects/index.js';
+import { getProps } from '../../render/index.js';
+import type { CreateRenderContext, RenderContext } from '../../render-context.js';
+import { createRequest } from '../../request.js';
+import { redirectTemplate } from '../../routing/3xx.js';
+import { matchAllRoutes } from '../../routing/index.js';
+import { isRoute404, isRoute500 } from '../../routing/match.js';
+import { PERSIST_SYMBOL } from '../../session.js';
+import { BaseApp, type RenderErrorOptions } from '../base.js';
+import type { SSRManifest } from '../types.js';
 import { DevPipeline } from './pipeline.js';
-import { handle500Response, writeSSRResult, writeWebResponse } from './response.js';
 
 export class DevApp extends BaseApp<DevPipeline> {
 	settings: AstroSettings;
