@@ -1,0 +1,11 @@
+---
+import Island  from "../components/Island.astro"
+export const prerender = true;
+---
+<html>
+<head><title>About</title></head>
+<body>
+<h1>About</h1>
+<Island server:defer />
+</body>
+</html>

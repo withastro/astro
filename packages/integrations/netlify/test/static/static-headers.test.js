@@ -27,3 +27,36 @@ describe('Static headers', () => {
 		);
 	});
 });
+
+describe('Static headers - collapsed CSP', () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: new URL('./fixtures/static-headers-collapsed/', import.meta.url),
+		});
+		await fixture.build();
+	});
+
+	it('CSP headers are collapsed to single catch-all route when collapseHeaders is enabled', async () => {
+		const config = await fixture.readFile('../.netlify/v1/config.json');
+		const headers = JSON.parse(config).headers;
+		const globalCspHeader = headers.find(
+			(x) => x.for === '/(.*)' && x.values['Content-Security-Policy'],
+		);
+
+		assert.notEqual(globalCspHeader, undefined, 'should have global CSP header');
+		assert.ok(
+			typeof globalCspHeader.values['Content-Security-Policy'] === 'string',
+			'should have CSP header string',
+		);
+	});
+
+	it('CSP headers create exactly one entry when collapsed', async () => {
+		const config = await fixture.readFile('../.netlify/v1/config.json');
+		const headers = JSON.parse(config).headers;
+		const cspHeaders = headers.filter((x) => x.values['Content-Security-Policy']);
+
+		assert.equal(cspHeaders.length, 1, 'should have exactly one CSP header entry');
+	});
+});
