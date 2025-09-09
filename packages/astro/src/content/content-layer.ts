@@ -428,18 +428,10 @@ async function simpleLoader<TData extends { id: string }>(
 	});
 }
 /**
- * Get the path to the data store file.
+ * Get the path to the data store directory.
  * During development, this is in the `.astro` directory so that the Vite watcher can see it.
  * In production, it's in the cache directory so that it's preserved between builds.
  */
-export function getDataStoreFile(settings: AstroSettings, isDev: boolean) {
-	return new URL(DATA_STORE_FILE, isDev ? settings.dotAstroDir : settings.config.cacheDir);
-}
-
-export function getDataStoreManifestFile(settings: AstroSettings, isDev: boolean) {
-	return new URL(DATA_STORE_MANIFEST_FILE, isDev ? settings.dotAstroDir : settings.config.cacheDir);
-}
-
 export function getDataStoreDir(settings: AstroSettings, isDev: boolean) {
 	return new URL(DATA_STORE_DIR, isDev ? settings.dotAstroDir : settings.config.cacheDir);
 }

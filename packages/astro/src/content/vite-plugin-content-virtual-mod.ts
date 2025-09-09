@@ -17,6 +17,7 @@ import {
 	CONTENT_FLAG,
 	CONTENT_RENDER_FLAG,
 	DATA_FLAG,
+	DATA_STORE_MANIFEST_FILE,
 	DATA_STORE_VIRTUAL_ID,
 	MODULES_IMPORTS_FILE,
 	MODULES_MJS_ID,
@@ -25,7 +26,7 @@ import {
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
-import { getDataStoreFile } from './content-layer.js';
+import { getDataStoreDir } from './content-layer.js';
 import {
 	type ContentLookupMap,
 	getContentEntryIdAndSlug,
@@ -61,14 +62,17 @@ export function astroContentVirtualModPlugin({
 	settings,
 	fs,
 }: AstroContentVirtualModPluginParams): Plugin {
-	let dataStoreFile: URL;
+	let dataStoreDir: URL;
+	let dataStoreManifestFile: URL;
 	let devServer: ViteDevServer;
 	let liveConfig: string;
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
 		config(_, env) {
-			dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
+			dataStoreDir = getDataStoreDir(settings, env.command === 'serve');
+			dataStoreManifestFile = new URL(DATA_STORE_MANIFEST_FILE, dataStoreDir);
+
 			const contentPaths = getContentPaths(settings.config);
 			if (contentPaths.liveConfig.exists) {
 				liveConfig = normalizePath(fileURLToPath(contentPaths.liveConfig.url));
@@ -77,7 +81,7 @@ export function astroContentVirtualModPlugin({
 		buildStart() {
 			if (devServer) {
 				// We defer adding the data store file to the watcher until the server is ready
-				devServer.watcher.add(fileURLToPath(dataStoreFile));
+				devServer.watcher.add(fileURLToPath(dataStoreManifestFile));
 				// Manually invalidate the data store to avoid a race condition in file watching
 				invalidateDataStore(devServer);
 			}
@@ -153,13 +157,25 @@ export function astroContentVirtualModPlugin({
 				};
 			}
 			if (id === RESOLVED_DATA_STORE_VIRTUAL_ID) {
-				if (!fs.existsSync(dataStoreFile)) {
+				if (!fs.existsSync(dataStoreManifestFile)) {
 					return { code: 'export default new Map()' };
 				}
-				const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
+				const jsonData = await fs.promises.readFile(dataStoreManifestFile, 'utf-8');
 
 				try {
-					const parsed = JSON.parse(jsonData);
+					const manifest: Record<string, string[][]> = JSON.parse(jsonData);
+					const parsed: Record<string, string[]> = {};
+
+					for (const collection in manifest) {
+						// Read manifest files and merge into strings
+						parsed[collection] = manifest[collection].map((files) =>
+							files
+								.map((file) => fileURLToPath(new URL('./' + file, dataStoreDir)))
+								.map((filePath) => fs.readFileSync(filePath, 'utf-8'))
+								.join('\n'),
+						);
+					}
+
 					return {
 						code: dataToEsm(parsed, {
 							compact: true,
@@ -167,7 +183,7 @@ export function astroContentVirtualModPlugin({
 						map: { mappings: '' },
 					};
 				} catch (err) {
-					const message = 'Could not parse JSON file';
+					const message = 'Could not parse data store manifest JSON file';
 					this.error({ message, id, cause: err });
 				}
 			}
@@ -193,7 +209,7 @@ export function astroContentVirtualModPlugin({
 
 		configureServer(server) {
 			devServer = server;
-			const dataStorePath = fileURLToPath(dataStoreFile);
+			const dataStorePath = fileURLToPath(dataStoreManifestFile);
 			// If the datastore file changes, invalidate the virtual module
 
 			server.watcher.on('add', (addedPath) => {

@@ -450,7 +450,15 @@ export default new Map([\n${lines.join(',\n')}]);
 		try {
 			// @ts-expect-error - this is a virtual module
 			const data = await import('astro:data-layer-content');
-			const map = devalue.unflatten(data.default);
+			const map = new Map();
+			for (const [collectionName, chunks] of Object.entries(data.default)) {
+				for (const chunk of chunks as string[]) {
+					const entries: Map<string, any> = devalue.parse(chunk);
+					for (const [id, data] of entries) {
+						map.set(collectionName, (map.get(collectionName) ?? new Map()).set(id, data));
+					}
+				}
+			}
 			return MutableDataStore.fromMap(map);
 		} catch {}
 		return new MutableDataStore();

@@ -96,7 +96,15 @@ export class ImmutableDataStore {
 			if (data.default instanceof Map) {
 				return ImmutableDataStore.fromMap(data.default);
 			}
-			const map = devalue.unflatten(data.default);
+			const map = new Map();
+			for (const [collectionName, chunks] of Object.entries(data.default)) {
+				for (const chunk of chunks as string[]) {
+					const entries: Map<string, any> = devalue.parse(chunk);
+					for (const [id, data] of entries) {
+						map.set(collectionName, (map.get(collectionName) ?? new Map()).set(id, data));
+					}
+				}
+			}
 			return ImmutableDataStore.fromMap(map);
 		} catch {}
 		return new ImmutableDataStore();
