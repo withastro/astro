@@ -162,11 +162,8 @@ describe('astro cli', () => {
 		await fs.rename(packURL, packDestinationURL);
 		
 		spawnSync('corepack', ['use', 'yarn@4.9.4'], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
-		const DEBUG_REMOVE_ME_LATER_PROC = spawnSync('corepack', ['yarn', '--version'], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
 		spawnSync('corepack', ['yarn', 'add', fileURLToPath(packDestinationURL)], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
 		spawnSync('corepack', ['yarn', 'install'], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
-		
-		console.log(`DEBUG_REMOVE_ME_LATER_YARN_VERSION: ${DEBUG_REMOVE_ME_LATER_PROC.stdout}`);
 		
 		const proc = spawnSync(
 			'corepack',
