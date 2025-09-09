@@ -1,30 +1,30 @@
 import { fileURLToPath } from 'node:url';
-import { getInfoOutput } from '../cli/info/index.js';
-import type { HeadElements, TryRewriteResult } from '../core/base-pipeline.js';
-import { ASTRO_VERSION } from '../core/constants.js';
-import { enhanceViteSSRError } from '../core/errors/dev/index.js';
-import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core.js';
-import type { ModuleLoader } from '../core/module-loader/index.js';
-import { RedirectComponentInstance, routeIsRedirect } from '../core/redirects/index.js';
-import { loadRenderer, Pipeline } from '../core/render/index.js';
-import { createDefaultRoutes } from '../core/routing/default.js';
-import { findRouteToRewrite } from '../core/routing/rewrite.js';
-import { isPage, viteID } from '../core/util.js';
-import { resolveIdToUrl } from '../core/viteUtils.js';
-import type { AstroSettings, ComponentInstance, RoutesList } from '../types/astro.js';
-import type { RewritePayload } from '../types/public/common.js';
+import { getInfoOutput } from '../../../cli/info/index.js';
+import type { AstroSettings, ComponentInstance, RoutesList } from '../../../types/astro.js';
 import type {
+	DevToolbarMetadata,
+	RewritePayload,
 	RouteData,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRManifest,
-} from '../types/public/internal.js';
-import type { DevToolbarMetadata } from '../types/public/toolbar.js';
-import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
-import { getStylesForURL } from './css.js';
-import { getComponentMetadata } from './metadata.js';
-import { createResolve } from './resolve.js';
+} from '../../../types/public/index.js';
+import { getStylesForURL } from '../../../vite-plugin-astro-server/css.js';
+import { getComponentMetadata } from '../../../vite-plugin-astro-server/metadata.js';
+import { createResolve } from '../../../vite-plugin-astro-server/resolve.js';
+import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
+import { type HeadElements, Pipeline, type TryRewriteResult } from '../../base-pipeline.js';
+import { ASTRO_VERSION } from '../../constants.js';
+import { enhanceViteSSRError } from '../../errors/dev/index.js';
+import { AggregateError, CSSError, MarkdownError } from '../../errors/index.js';
+import type { Logger } from '../../logger/core.js';
+import type { ModuleLoader } from '../../module-loader/index.js';
+import { RedirectComponentInstance, routeIsRedirect } from '../../redirects/index.js';
+import { loadRenderer } from '../../render/index.js';
+import { createDefaultRoutes } from '../../routing/default.js';
+import { findRouteToRewrite } from '../../routing/rewrite.js';
+import { isPage, viteID } from '../../util.js';
+import { resolveIdToUrl } from '../../viteUtils.js';
 
 export class DevPipeline extends Pipeline {
 	// renderers are loaded on every request,

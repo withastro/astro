@@ -1,21 +1,14 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { randomUUID } from 'node:crypto';
-import type fs from 'node:fs';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
-import { isRunnableDevEnvironment, normalizePath } from 'vite';
+import { isRunnableDevEnvironment } from 'vite';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/index.js';
-import type {
-	RouteInfo,
-	SerializedSSRManifest,
-	SSRManifest,
-	SSRManifestCSP,
-	SSRManifestI18n,
-} from '../core/app/types.js';
+import type { SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
 import {
 	getAlgorithm,
 	getDirectives,
@@ -26,18 +19,14 @@ import {
 	getStyleResources,
 	shouldTrackCspHashes,
 } from '../core/csp/common.js';
-import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
-import { createKey, encodeKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
+import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
-import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
-import { runHookRoutesResolved } from '../integrations/hooks.js';
-import type { AstroSettings, RoutesList } from '../types/astro.js';
-import { DevApp } from './app.js';
+import type { AstroSettings } from '../types/astro.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
 import { recordServerError } from './error.js';
@@ -47,13 +36,11 @@ import { trailingSlashMiddleware } from './trailing-slash.js';
 interface AstroPluginOptions {
 	settings: AstroSettings;
 	logger: Logger;
-	fs: typeof fs;
 }
 
 export default function createVitePluginAstroServer({
 	settings,
 	logger,
-	fs: fsMod,
 }: AstroPluginOptions): vite.Plugin {
 	return {
 		name: 'astro:server',
@@ -63,46 +50,12 @@ export default function createVitePluginAstroServer({
 			}
 
 			const loader = createViteLoader(viteServer);
-			const { routes } = await loader.import('astro:routes');
-			const routesList: RoutesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
-
-			const app = await DevApp.create(routesList, settings, logger, loader);
-
+			const entrypoint = settings.adapter?.devEntrypoint ?? 'astro/app/dev';
+			const createExports = await loader.import(entrypoint.toString());
 			const controller = createController({ loader });
+			const { handler } = await createExports.default(settings, controller, loader);
+
 			const localStorage = new AsyncLocalStorage();
-
-			/** rebuild the route cache + manifest */
-			async function rebuildManifest(path: string | null = null) {
-				app.clearRouteCache();
-
-				// If a route changes, we check if it's part of the manifest and check for its prerender value
-				if (path !== null) {
-					const route = routesList.routes.find(
-						(r) =>
-							normalizePath(path) ===
-							normalizePath(fileURLToPath(new URL(r.component, settings.config.root))),
-					);
-					if (!route) {
-						return;
-					}
-					if (route.type !== 'page' && route.type !== 'endpoint') return;
-
-					const routePath = fileURLToPath(new URL(route.component, settings.config.root));
-					try {
-						const content = await fsMod.promises.readFile(routePath, 'utf-8');
-						await getRoutePrerenderOption(content, route, settings, logger);
-						await runHookRoutesResolved({ routes: routesList.routes, settings, logger });
-					} catch (_) {}
-				}
-
-				warnMissingAdapter(logger, settings);
-				app.setManifestData = routesList;
-			}
-
-			// Rebuild route manifest on file change
-			viteServer.watcher.on('add', rebuildManifest.bind(null, null));
-			viteServer.watcher.on('unlink', rebuildManifest.bind(null, null));
-			viteServer.watcher.on('change', rebuildManifest);
 
 			function handleUnhandledRejection(rejection: any) {
 				const error = AstroError.is(rejection)
@@ -191,11 +144,7 @@ export default function createVitePluginAstroServer({
 					}
 
 					localStorage.run(request, () => {
-						app.handleRequest({
-							controller,
-							incomingRequest: request,
-							incomingResponse: response,
-						});
+						handler(request, response);
 					});
 				});
 			};
@@ -284,69 +233,5 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		},
 		sessionConfig: settings.config.session,
 		csp,
-	};
-}
-
-export async function createSerializedManifest(
-	settings: AstroSettings,
-): Promise<SerializedSSRManifest> {
-	let i18nManifest: SSRManifestI18n | undefined;
-	let csp: SSRManifestCSP | undefined;
-	if (settings.config.i18n) {
-		i18nManifest = {
-			fallback: settings.config.i18n.fallback,
-			strategy: toRoutingStrategy(settings.config.i18n.routing, settings.config.i18n.domains),
-			defaultLocale: settings.config.i18n.defaultLocale,
-			locales: settings.config.i18n.locales,
-			domainLookupTable: {},
-			fallbackType: toFallbackType(settings.config.i18n.routing),
-		};
-	}
-
-	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
-		csp = {
-			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
-				? 'adapter'
-				: undefined,
-			scriptHashes: getScriptHashes(settings.config.experimental.csp),
-			scriptResources: getScriptResources(settings.config.experimental.csp),
-			styleHashes: getStyleHashes(settings.config.experimental.csp),
-			styleResources: getStyleResources(settings.config.experimental.csp),
-			algorithm: getAlgorithm(settings.config.experimental.csp),
-			directives: getDirectives(settings),
-			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
-		};
-	}
-
-	return {
-		hrefRoot: settings.config.root.toString(),
-		srcDir: settings.config.srcDir,
-		cacheDir: settings.config.cacheDir,
-		outDir: settings.config.outDir,
-		buildServerDir: settings.config.build.server,
-		buildClientDir: settings.config.build.client,
-		publicDir: settings.config.publicDir,
-		trailingSlash: settings.config.trailingSlash,
-		buildFormat: settings.config.build.format,
-		compressHTML: settings.config.compressHTML,
-		assets: [],
-		entryModules: {},
-		routes: [],
-		adapterName: settings?.adapter?.name ?? '',
-		clientDirectives: Array.from(settings.clientDirectives.entries()),
-		renderers: [],
-		base: settings.config.base,
-		userAssetsBase: settings.config?.vite?.base,
-		assetsPrefix: settings.config.build.assetsPrefix,
-		site: settings.config.site,
-		componentMetadata: [],
-		inlinedScripts: [],
-		i18n: i18nManifest,
-		checkOrigin:
-			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
-		key: await encodeKey(hasEnvironmentKey() ? await getEnvironmentKey() : await createKey()),
-		sessionConfig: settings.config.session,
-		csp,
-		serverIslandNameMap: [],
 	};
 }

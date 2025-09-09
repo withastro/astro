@@ -106,6 +106,7 @@ export interface AstroAdapter {
 	name: string;
 	serverEntrypoint?: string | URL;
 	previewEntrypoint?: string | URL;
+	devEntrypoint?: string | URL;
 	exports?: string[];
 	args?: any;
 	adapterFeatures?: AstroAdapterFeatures;

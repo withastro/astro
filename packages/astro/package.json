@@ -50,6 +50,7 @@
     "./container": "./dist/container/index.js",
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",
+    "./app/dev": "./dist/core/app/dev/index.js",
     "./client/*": "./dist/runtime/client/*",
     "./components": "./components/index.ts",
     "./components/*": "./components/*",
