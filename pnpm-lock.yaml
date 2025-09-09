@@ -351,7 +351,7 @@ importers:
   examples/minimal:
     dependencies:
       astro:
-        specifier: workspace:*
+        specifier: ^5.13.5
         version: link:../../packages/astro
 
   examples/portfolio:
