@@ -9,6 +9,7 @@ import {
 	removeLeadingForwardSlash,
 } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
+import { cloudflare as cfVitePlugin } from '@cloudflare/vite-plugin';
 import type {
 	AstroConfig,
 	AstroIntegration,
@@ -192,6 +193,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					session,
 					vite: {
 						plugins: [
+							command === 'build' ? undefined : cfVitePlugin({ viteEnvironment: { name: 'ssr' } }),
 							// https://developers.cloudflare.com/pages/functions/module-support/
 							// Allows imports of '.wasm', '.bin', and '.txt' file types
 							cloudflareModulePlugin,
@@ -203,6 +205,18 @@ export default function createIntegration(args?: Options): AstroIntegration {
 										return { id: source, external: true };
 									}
 									return null;
+								},
+							},
+							{
+								enforce: 'post',
+								name: 'vite:cf-externals',
+								applyToEnvironment: (environment) => environment.name === 'ssr',
+								config(conf) {
+									if (conf.ssr) {
+										// Cloudflare does not support externalizing modules in the ssr environment
+										conf.ssr.external = undefined;
+										conf.ssr.noExternal = true;
+									}
 								},
 							},
 						],

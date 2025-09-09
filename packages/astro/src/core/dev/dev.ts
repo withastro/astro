@@ -5,6 +5,7 @@ import { performance } from 'node:perf_hooks';
 import { green } from 'kleur/colors';
 import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
+import { isRunnableDevEnvironment } from 'vite';
 import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
 import { attachContentServerListeners } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
@@ -95,8 +96,9 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	if (!store) {
 		logger.error('content', 'Failed to create data store');
 	}
-
-	await attachContentServerListeners(restart.container);
+	if (isRunnableDevEnvironment(restart.container.viteServer.environments.ssr)) {
+		await attachContentServerListeners(restart.container);
+	}
 
 	const config = globalContentConfigObserver.get();
 	if (config.status === 'error') {

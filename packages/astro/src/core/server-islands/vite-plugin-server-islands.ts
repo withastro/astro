@@ -1,5 +1,10 @@
 import MagicString from 'magic-string';
-import type { ConfigEnv, RunnableDevEnvironment, Plugin as VitePlugin } from 'vite';
+import {
+	type ConfigEnv,
+	isRunnableDevEnvironment,
+	type RunnableDevEnvironment,
+	type Plugin as VitePlugin,
+} from 'vite';
 import type { AstroPluginOptions } from '../../types/astro.js';
 import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -20,6 +25,9 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 			command = _command;
 		},
 		configureServer(_server) {
+			if (!isRunnableDevEnvironment(_server.environments.ssr)) {
+				return;
+			}
 			ssrEnvironment = getRunnableEnvironment(_server);
 		},
 		resolveId(name) {

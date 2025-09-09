@@ -1,6 +1,6 @@
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type { Plugin } from 'vite';
+import { isRunnableDevEnvironment, type Plugin } from 'vite';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 import type { BuildInternals } from '../core/build/internal.js';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
@@ -65,6 +65,9 @@ export function astroContentAssetPropagationPlugin({
 			}
 		},
 		configureServer(server) {
+			if (!isRunnableDevEnvironment(server.environments.ssr)) {
+				return;
+			}
 			devModuleLoader = createViteLoader(server);
 		},
 		async transform(_, id, options) {

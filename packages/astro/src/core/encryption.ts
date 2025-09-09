@@ -67,7 +67,7 @@ export async function encodeKey(key: CryptoKey) {
  */
 export async function decodeKey(encoded: string): Promise<CryptoKey> {
 	const bytes = decodeBase64(encoded);
-	return crypto.subtle.importKey('raw', Buffer.from(bytes), ALGORITHM, true, [
+	return crypto.subtle.importKey('raw', bytes.buffer as ArrayBuffer, ALGORITHM, true, [
 		'encrypt',
 		'decrypt',
 	]);

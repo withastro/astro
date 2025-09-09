@@ -5,6 +5,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
+import { isRunnableDevEnvironment } from 'vite';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/index.js';
 import type { SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
@@ -44,6 +45,12 @@ export default function createVitePluginAstroServer({
 	return {
 		name: 'astro:server',
 		async configureServer(viteServer) {
+			// Cloudflare handles its own requests
+			// TODO: let this handle non-runnable environments that don't intercept requests
+			if (!isRunnableDevEnvironment(viteServer.environments.ssr)) {
+				return;
+			}
+
 			const loader = createViteLoader(viteServer);
 			const entrypoint = settings.adapter?.devEntrypoint ?? 'astro/app/dev';
 			const createExports = await loader.import(entrypoint.toString());
@@ -137,6 +144,7 @@ export default function createVitePluginAstroServer({
 						response.end();
 						return;
 					}
+
 					localStorage.run(request, () => {
 						handler(request, response);
 					});
