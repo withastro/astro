@@ -51,7 +51,7 @@ export async function getInfoOutput({
 				const name = i?.name;
 				const version = getVersion(packageManager, name);
 				
-				return `${name} ${version ? `(${version})` : ""}`;
+				return `${name}${version ? ` (${version})` : ""}`;
 			})
 			.filter(Boolean);
 		
