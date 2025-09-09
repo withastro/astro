@@ -1,6 +1,6 @@
 import type { ModuleInfo } from 'rollup';
 import type * as vite from 'vite';
-import  { type DevEnvironment, isRunnableDevEnvironment } from 'vite';
+import { type DevEnvironment, isRunnableDevEnvironment } from 'vite';
 import { getParentModuleInfos, getTopLevelPageModuleInfos } from '../core/build/graph.js';
 import type { BuildInternals } from '../core/build/internal.js';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
@@ -48,8 +48,8 @@ export default function configHeadVitePlugin(): vite.Plugin {
 		enforce: 'pre',
 		apply: 'serve',
 		configureServer(server) {
-			if(!isRunnableDevEnvironment(_server.environments.ssr)) {
-				return
+			if (!isRunnableDevEnvironment(server.environments.ssr)) {
+				return;
 			}
 			environment = server.environments.ssr;
 		},
