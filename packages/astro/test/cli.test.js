@@ -163,7 +163,7 @@ describe('astro cli', () => {
 		await fs.rename(packURL, packDestinationURL);
 		
 		spawnSync('corepack', ['use', 'yarn@4.9.4'], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
-		spawnSync('yarn', ['add', `file:${fileURLToPath(packDestinationURL)}`], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
+		spawnSync('yarn', ['add', fileURLToPath(packDestinationURL)], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
 		spawnSync('yarn', ['install'], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
 		
 		const proc = spawnSync(
