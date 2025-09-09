@@ -605,9 +605,6 @@ importers:
       shiki:
         specifier: ^3.12.0
         version: 3.12.2
-      simple-swizzle:
-        specifier: 0.2.2
-        version: 0.2.2
       smol-toml:
         specifier: ^1.4.2
         version: 1.4.2
