@@ -172,6 +172,7 @@ describe('astro cli', () => {
 			{
 				cwd: fixtureRootURL,
 				encoding: "utf-8",
+				shell: true
 			}
 		);
 
