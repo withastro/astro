@@ -277,6 +277,8 @@ function getYarnOutputDepVersion(dependency: string, outputLine: string) {
 function getVersionUsingYarn(dependency: string): string | undefined {
 	const yarnOutput = spawnSync("yarn", ["why", dependency, "--json"], { encoding: "utf-8", shell: true });
 	
+	console.log(yarnOutput.stdout);
+	
 	if (yarnOutput.error) return undefined;
 	
 	const hasUserDefinition = yarnOutput.stdout.includes("workspace:.");
