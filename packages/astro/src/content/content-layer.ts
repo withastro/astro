@@ -13,8 +13,6 @@ import {
 	COLLECTIONS_MANIFEST_FILE,
 	CONTENT_LAYER_TYPE,
 	DATA_STORE_DIR,
-	DATA_STORE_FILE,
-	DATA_STORE_MANIFEST_FILE,
 	MODULES_IMPORTS_FILE,
 } from './consts.js';
 import type { RenderedContent } from './data-store.js';
