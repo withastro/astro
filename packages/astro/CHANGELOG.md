@@ -1,5 +1,13 @@
 # astro
 
+## 5.13.7
+
+### Patch Changes
+
+- [#14330](https://github.com/withastro/astro/pull/14330) [`72e14ab`](https://github.com/withastro/astro/commit/72e14abed6e20d31b1cd2caeeaa7e43703bf3aa3) Thanks [@ascorbic](https://github.com/ascorbic)! - Removes pinned package that is no longer needed.
+
+- [#14335](https://github.com/withastro/astro/pull/14335) [`17c7b03`](https://github.com/withastro/astro/commit/17c7b0395c00a0ea29dad9517b60bad3bd3a87a1) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Bumps `sharp` minimal version to `0.34.0`
+
 ## 5.13.6
 
 ### Patch Changes
