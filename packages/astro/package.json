@@ -179,7 +179,7 @@
     "zod-to-ts": "^1.2.0"
   },
   "optionalDependencies": {
-    "sharp": "^0.33.3"
+    "sharp": "^0.34.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
