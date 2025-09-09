@@ -118,6 +118,5 @@ export function getRunnableEnvironment(viteDevServer: ViteDevServer): RunnableDe
 	if (isRunnableDevEnvironment(viteDevServer.environments.ssr)) {
 		return viteDevServer.environments.ssr;
 	}
-	console.trace();
 	throw new Error("The environment isn't a runnable dev environment.");
 }

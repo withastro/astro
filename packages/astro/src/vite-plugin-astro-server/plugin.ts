@@ -45,6 +45,8 @@ export default function createVitePluginAstroServer({
 	return {
 		name: 'astro:server',
 		async configureServer(viteServer) {
+			// Cloudflare handles its own requests
+			// TODO: let this handle non-runnable environments that don't intercept requests
 			if (!isRunnableDevEnvironment(viteServer.environments.ssr)) {
 				return;
 			}
