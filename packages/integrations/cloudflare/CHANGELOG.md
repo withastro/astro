@@ -1,5 +1,14 @@
 # @astrojs/cloudflare
 
+## 12.6.8
+
+### Patch Changes
+
+- [#14326](https://github.com/withastro/astro/pull/14326) [`c24a8f4`](https://github.com/withastro/astro/commit/c24a8f42a17410ea78fc2d68ff0105b931a381eb) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates `vite` version to fix CVE
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 12.6.7
 
 ### Patch Changes
