@@ -162,6 +162,7 @@ function createManifest(
 		middleware: manifest?.middleware ?? middlewareInstance,
 		key: createKey(),
 		csp: manifest?.csp,
+		enableTracing: manifest?.enableTracing ?? false,
 	};
 }
 
@@ -248,6 +249,7 @@ type AstroContainerManifest = Pick<
 	| 'outDir'
 	| 'cacheDir'
 	| 'csp'
+	| 'enableTracing'
 >;
 
 type AstroContainerConstructor = {

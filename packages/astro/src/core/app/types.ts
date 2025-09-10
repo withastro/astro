@@ -93,6 +93,7 @@ export type SSRManifest = {
 	buildClientDir: string | URL;
 	buildServerDir: string | URL;
 	csp: SSRManifestCSP | undefined;
+	enableTracing: boolean;
 };
 
 export type SSRActions = {

@@ -285,5 +285,6 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		},
 		sessionConfig: settings.config.session,
 		csp,
+		enableTracing: settings.config.experimental.enableTracing ?? false,
 	};
 }

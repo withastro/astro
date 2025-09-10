@@ -742,5 +742,6 @@ async function createBuildManifest(
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key,
 		csp,
+		enableTracing: settings.config.experimental.enableTracing,
 	};
 }

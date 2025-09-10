@@ -1,3 +1,4 @@
+import type { ServerDeserializedManifest } from '../../types/public/index.js';
 import type { TraceEvent, TraceEventsPayloads, TraceListener } from '../../types/public/tracing.js';
 
 export type { TraceEvent, TraceEventsPayloads, TraceListener };
@@ -22,11 +23,12 @@ export function onTraceEvent(listener: TraceListener, signal?: AbortSignal) {
 }
 
 /**
+ * A wrapper to call listeners in sequence, ensuring that each listener is
+ * called once and only once, even if some of them don't call the `next` callback
+ * or call it multiple times.
  *
- * @param event
- * @param fn
- * @param index
- * @returns
+ * This ensures that the presence of tracing listeners cannot interfere with
+ * other tracing listeners or the function being traced.
  */
 function sequenceListeners<T>(event: TraceEvent, fn: () => T, index = 0): T {
 	if (index >= listeners.length) {
@@ -75,6 +77,15 @@ function sequenceListeners<T>(event: TraceEvent, fn: () => T, index = 0): T {
 	return next();
 }
 
+// TODO: Figure out why this module is being reported as unknown
+const tracingEnabled = await import('astro:config/server' as any)
+	.then((m: ServerDeserializedManifest) => m.enableTracing)
+	// Tracing enabled in case of import errors to allow testing and
+	// dev environments outside of Vite.
+	// Once the feature is stabilized this flag wouldn't be needed since tracing
+	// always be enabled (disabling by not having listeners instead of a config flag).
+	.catch(() => true);
+
 export function wrapWithTracing<
 	This,
 	Args extends any[],
@@ -85,6 +96,10 @@ export function wrapWithTracing<
 	fn: (this: This, ...args: Args) => Return,
 	payload: TraceEventsPayloads[Event] | ((this: This, ...args: Args) => TraceEventsPayloads[Event]),
 ): (this: This, ...args: Args) => Return {
+	if (!tracingEnabled) {
+		return fn;
+	}
+
 	return function (this: This, ...args: Args): Return {
 		if (listeners.length === 0) {
 			// Avoid constructing payloads and emitting events if no listeners are attached
