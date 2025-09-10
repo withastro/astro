@@ -92,6 +92,28 @@ export function swapBodyElement(newElement: Element, oldElement: Element) {
 			}
 		}
 	}
+
+	// This will upgrade any Declarative Shadow DOM in the new body.
+	attachShadowRoots(newElement);
+}
+
+/**
+ * Attach Shadow DOM roots for templates with the declarative `shadowrootmode` attribute.
+ * @see https://github.com/withastro/astro/issues/14340
+ * @see https://web.dev/articles/declarative-shadow-dom#polyfill
+ * @param root DOM subtree to attach shadow roots within.
+ */
+function attachShadowRoots(root: Element | ShadowRoot) {
+	root.querySelectorAll<HTMLTemplateElement>('template[shadowrootmode]').forEach((template) => {
+		const mode = template.getAttribute('shadowrootmode');
+		const parent = template.parentNode;
+		if ((mode === 'closed' || mode === 'open') && parent instanceof HTMLElement) {
+			const shadowRoot = parent.attachShadow({ mode });
+			shadowRoot.appendChild(template.content);
+			template.remove();
+			attachShadowRoots(shadowRoot);
+		}
+	});
 }
 
 export const saveFocus = (): (() => void) => {

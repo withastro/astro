@@ -36,8 +36,8 @@
     "test:e2e:match": "cd packages/astro && pnpm playwright install chromium firefox && pnpm run test:e2e:match",
     "test:e2e:hosts": "turbo run test:hosted",
     "benchmark": "astro-benchmark",
-    "lint": "biome lint && knip && eslint . --report-unused-disable-directives-severity=warn",
-    "lint:ci": "biome ci --formatter-enabled=false --reporter=github && eslint . --report-unused-disable-directives-severity=warn && knip",
+    "lint": "biome lint && knip && eslint . --report-unused-disable-directives-severity=warn --concurrency=auto",
+    "lint:ci": "biome ci --formatter-enabled=false --reporter=github && eslint . --concurrency=auto --report-unused-disable-directives-severity=warn && knip",
     "lint:fix": "biome lint --write --unsafe",
     "publint": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --no-bail exec publint",
     "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format",
@@ -59,20 +59,20 @@
     "@astrojs/check": "^0.9.4",
     "@biomejs/biome": "2.1.2",
     "@changesets/changelog-github": "^0.5.1",
-    "@changesets/cli": "^2.29.5",
+    "@changesets/cli": "^2.29.6",
     "@types/node": "^18.19.115",
     "esbuild": "0.25.5",
-    "eslint": "^9.30.1",
-    "eslint-plugin-regexp": "^2.9.0",
+    "eslint": "^9.34.0",
+    "eslint-plugin-regexp": "^2.10.0",
     "knip": "5.61.3",
     "only-allow": "^1.2.1",
     "prettier": "^3.6.2",
     "prettier-plugin-astro": "^0.14.1",
     "publint": "^0.3.12",
     "tinyglobby": "^0.2.14",
-    "turbo": "^2.5.4",
-    "typescript": "~5.8.3",
-    "typescript-eslint": "^8.35.1"
+    "turbo": "^2.5.6",
+    "typescript": "~5.9.2",
+    "typescript-eslint": "^8.42.0"
   },
   "pnpm": {
     "peerDependencyRules": {
@@ -82,10 +82,13 @@
       ]
     },
     "onlyBuiltDependencies": [
-      "esbuild",
-      "workerd",
       "@biomejs/biome",
-      "sharp"
+      "@tailwindcss/oxide",
+      "esbuild",
+      "oxc-resolver",
+      "protobufjs",
+      "sharp",
+      "workerd"
     ]
   }
 }
