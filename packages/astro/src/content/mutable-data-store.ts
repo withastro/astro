@@ -431,7 +431,7 @@ export default new Map([\n${lines.join(',\n')}]);
 					const chunkedStrings = chunkString(stringified, CHUNK_SIZE_LIMIT);
 					const parts = [];
 					for (const chunk of chunkedStrings) {
-						const fileName = `${collectionName}.${this.#hasher.h64ToString(chunk)}.json`;
+						const fileName = `${encodeURIComponent(collectionName)}.${this.#hasher.h64ToString(chunk)}.json`;
 						await this.#writeFileAtomic(new URL(`./${fileName}`, this.#dir), chunk);
 						parts.push(fileName);
 					}

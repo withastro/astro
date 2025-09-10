@@ -25,7 +25,10 @@ describe('Content Layer', () => {
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/content-layer/' });
 			await fs
-				.rm(new URL('./node_modules/.astro/data-store/', fixture.config.root), { recursive: true, force: true})
+				.rm(new URL('./node_modules/.astro/data-store/', fixture.config.root), {
+					recursive: true,
+					force: true,
+				})
 				.catch(() => {});
 			await fixture.build({ force: true });
 			const rawJson = await fixture.readFile('/collections.json');
