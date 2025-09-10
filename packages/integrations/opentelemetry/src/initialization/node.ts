@@ -7,10 +7,10 @@ import {
 } from 'astro:otel-reexport:node';
 import { NodeSDK, tracing } from '@opentelemetry/sdk-node';
 
-process.env.OTEL_PROPAGATORS ?? 'tracecontext,baggage,b3';
-process.env.OTEL_TRACES_EXPORTER ?? 'otlp';
-process.env.OTEL_METRICS_EXPORTER ?? 'otlp';
-process.env.OTEL_LOGS_EXPORTER ?? 'otlp,console';
+process.env.OTEL_PROPAGATORS ??= 'tracecontext,baggage,b3';
+process.env.OTEL_TRACES_EXPORTER ??= 'otlp';
+process.env.OTEL_METRICS_EXPORTER ??= 'otlp';
+process.env.OTEL_LOGS_EXPORTER ??= 'otlp,console';
 
 const sdk = new NodeSDK({
 	autoDetectResources: true,
