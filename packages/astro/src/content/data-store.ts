@@ -100,8 +100,8 @@ export class ImmutableDataStore {
 			for (const [collectionName, chunks] of Object.entries(data.default)) {
 				for (const chunk of chunks as string[]) {
 					const entries: Map<string, any> = devalue.parse(chunk);
-					for (const [id, data] of entries) {
-						map.set(collectionName, (map.get(collectionName) ?? new Map()).set(id, data));
+					for (const [id, entry] of entries) {
+						map.set(collectionName, (map.get(collectionName) ?? new Map()).set(id, entry));
 					}
 				}
 			}

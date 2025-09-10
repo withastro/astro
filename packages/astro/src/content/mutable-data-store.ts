@@ -7,7 +7,7 @@ import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolv
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
 import { type DataEntry, ImmutableDataStore } from './data-store.js';
-import { chunkMap, chunkString, contentModuleToId } from './utils.js';
+import { chunkMap, chunkString, contentModuleToId, safeFileName } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
 const MAX_DEPTH = 10;
@@ -431,7 +431,7 @@ export default new Map([\n${lines.join(',\n')}]);
 					const chunkedStrings = chunkString(stringified, CHUNK_SIZE_LIMIT);
 					const parts = [];
 					for (const chunk of chunkedStrings) {
-						const fileName = `${encodeURIComponent(collectionName)}.${this.#hasher.h64ToString(chunk)}.json`;
+						const fileName = `${safeFileName(collectionName)}.${this.#hasher.h64ToString(chunk)}.json`;
 						await this.#writeFileAtomic(new URL(`./${fileName}`, this.#dir), chunk);
 						parts.push(fileName);
 					}

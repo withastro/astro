@@ -879,6 +879,30 @@ export function safeStringify(value: unknown) {
 	return JSON.stringify(value, safeStringifyReplacer(seen));
 }
 
+const safeFileNameReplacers = [
+	/[\/\?<>\\:\*\|":]/g, // common illegal characters
+	/[\x00-\x1f\x80-\x9f]/g, // unicode control codes
+	/^\.+$/, // unix reserved
+	/^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i, // windows reserved
+]
+
+/**
+ * Cross-platform string sanitizer for file names
+ * Adapted from https://gist.github.com/barbietunnie/7bc6d48a424446c44ff4
+ */
+export function safeFileName(fileName: string, replacement: string = '_') {
+	let sanitized = fileName
+
+	for (const re of safeFileNameReplacers) {
+		sanitized = sanitized.replace(re, replacement)
+	}
+
+	// truncate to 200 chars (leave space for hash and extension)
+	const encoded = new TextEncoder().encode(sanitized)
+  	const truncated = encoded.slice(0, 200)
+  	return new TextDecoder().decode(truncated)
+}
+
 // Splits a string into chunks that are each below the specified byte size limit
 export function chunkString(str: string, maxBytes: number): string[] {
 	const maxChars = Math.floor(maxBytes / 2); // assume average-case 2 bytes per char
