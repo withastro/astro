@@ -880,17 +880,18 @@ export function safeStringify(value: unknown) {
 }
 
 const safeFileNameReplacers = [
-	/[\/\?<>\\:\*\|":]/g, // common illegal characters
+	/[/?<>\\:*|"]/g, // common illegal characters
+	// eslint-disable-next-line no-control-regex
 	/[\x00-\x1f\x80-\x9f]/g, // unicode control codes
 	/^\.+$/, // unix reserved
-	/^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i, // windows reserved
+	/^(con|prn|aux|nul|com\d|lpt\d)(\..*)?$/i, // windows reserved
 ]
 
 /**
  * Cross-platform string sanitizer for file names
  * Adapted from https://gist.github.com/barbietunnie/7bc6d48a424446c44ff4
  */
-export function safeFileName(fileName: string, replacement: string = '_') {
+export function safeFileName(fileName: string, replacement = '_') {
 	let sanitized = fileName
 
 	for (const re of safeFileNameReplacers) {
