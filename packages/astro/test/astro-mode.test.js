@@ -19,8 +19,11 @@ describe('--mode', () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-mode/',
 		});
-		devDataStoreFile = new URL('./.astro/data-store.json', fixture.config.root);
-		prodDataStoreFile = new URL('./node_modules/.astro/data-store.json', fixture.config.root);
+		devDataStoreFile = new URL('./.astro/data-store/__manifest.json', fixture.config.root);
+		prodDataStoreFile = new URL(
+			'./node_modules/.astro/data-store/__manifest.json',
+			fixture.config.root,
+		);
 	});
 
 	afterEach(() => {

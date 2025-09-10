@@ -1,6 +1,8 @@
 import { existsSync, promises as fs, type PathLike } from 'node:fs';
 import * as devalue from 'devalue';
 import { Traverse } from 'neotraverse/modern';
+import type { XXHashAPI } from 'xxhash-wasm';
+import xxhash from 'xxhash-wasm';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
@@ -35,6 +37,8 @@ export class MutableDataStore extends ImmutableDataStore {
 
 	#assetImports = new Set<string>();
 	#moduleImports = new Map<string, string>();
+
+	#hasher?: XXHashAPI;
 
 	set(collectionName: string, key: string, value: unknown) {
 		const collection = this._collections.get(collectionName) ?? new Map();
@@ -397,10 +401,6 @@ export default new Map([\n${lines.join(',\n')}]);
 		return this.#savePromise;
 	}
 
-	toString() {
-		return devalue.stringify(this._collections);
-	}
-
 	async writeToDisk() {
 		if (!this.#dirty) {
 			return;
@@ -408,6 +408,10 @@ export default new Map([\n${lines.join(',\n')}]);
 		if (!this.#manifestFile || !this.#dir) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError);
 		}
+		if (!this.#hasher) {
+			this.#hasher = await xxhash();
+		}
+
 		try {
 			// Mark as clean before writing to disk so that it catches any changes that happen during the write
 			this.#dirty = false;
@@ -420,14 +424,14 @@ export default new Map([\n${lines.join(',\n')}]);
 
 				// Split into chunks of 1000 entries each (avoid huge strings)
 				const chunkedCollection = chunkMap(entries, 1000);
-				for (const [index, chunkedEntries] of chunkedCollection.entries()) {
+				for (const chunkedEntries of chunkedCollection) {
 					const stringified = devalue.stringify(chunkedEntries);
 
 					// Further split string into chunks of <20MB each (avoid platform-specific single file size limits)
 					const chunkedStrings = chunkString(stringified, CHUNK_SIZE_LIMIT);
 					const parts = [];
-					for (const [part, chunk] of chunkedStrings.entries()) {
-						const fileName = `${collectionName}.${index}.${part}.json`;
+					for (const chunk of chunkedStrings) {
+						const fileName = `${collectionName}.${this.#hasher.h64ToString(chunk)}.json`;
 						await this.#writeFileAtomic(new URL(`./${fileName}`, this.#dir), chunk);
 						parts.push(fileName);
 					}
