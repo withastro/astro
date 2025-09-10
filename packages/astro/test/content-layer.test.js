@@ -609,7 +609,7 @@ describe('Content Layer', () => {
 			logs.length = 0;
 
 			// Give time for the server to restart
-			await setTimeout(5000);
+			await setTimeout(10000);
 
 			const rawJsonResponse = await fixture.fetch('/collections.json');
 			const initialJson = devalue.parse(await rawJsonResponse.text());
@@ -629,7 +629,7 @@ describe('Content Layer', () => {
 
 			await fixture.resetAllFiles();
 			// Give time for the server to restart again
-			await setTimeout(5000);
+			await setTimeout(10000);
 		});
 	});
 });
