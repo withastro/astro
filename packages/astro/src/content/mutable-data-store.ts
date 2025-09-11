@@ -454,15 +454,7 @@ export default new Map([\n${lines.join(',\n')}]);
 		try {
 			// @ts-expect-error - this is a virtual module
 			const data = await import('astro:data-layer-content');
-			const map = new Map();
-			for (const [collectionName, chunks] of Object.entries(data.default)) {
-				for (const chunk of chunks as string[]) {
-					const entries: Map<string, any> = devalue.parse(chunk);
-					for (const [id, entry] of entries) {
-						map.set(collectionName, (map.get(collectionName) ?? new Map()).set(id, entry));
-					}
-				}
-			}
+			const map = await this.manifestToMap(data.default);
 			return MutableDataStore.fromMap(map);
 		} catch {}
 		return new MutableDataStore();
@@ -479,33 +471,26 @@ export default new Map([\n${lines.join(',\n')}]);
 		try {
 			if (existsSync(dirPath) && existsSync(manifestPath)) {
 				const data = await fs.readFile(manifestPath, 'utf-8');
-				const manifest = JSON.parse(data);
+				const manifest: Record<string, string[][]> = JSON.parse(data);
 
 				if (manifest) {
-					const collections = new Map();
-					for (const [collectionName, chunks] of Object.entries<string[][]>(manifest)) {
-						const collection = new Map<string, any>();
+					// Read each file in the manifest
+					const parsed: Record<string, string[][]> = {};
 
-						for (const parts of chunks) {
-							// Combine all string parts into a single string
-							let rawData = '';
-							for (const file of parts) {
-								rawData += await fs.readFile(new URL('./' + file, dirPath), 'utf-8');
-							}
-
-							// Restore the collection chunk
-							const chunk: Map<string, any> = devalue.parse(rawData);
-
-							// Combine into the full collection
-							for (const [key, value] of chunk.entries()) {
-								collection.set(key, value);
-							}
+					for (const collection in manifest) {
+						for (const chunks of manifest[collection]) {
+							parsed[collection].push(
+								await Promise.all(
+									chunks.map(
+										async (file) => await fs.readFile(new URL('./' + file, dirPath), 'utf-8'),
+									),
+								),
+							);
 						}
-
-						collections.set(collectionName, collection);
 					}
 
-					const store = await MutableDataStore.fromMap(collections);
+					const map = await this.manifestToMap(parsed);
+					const store = await MutableDataStore.fromMap(map);
 					store.#manifestFile = manifestPath;
 					store.#dir = dirPath;
 					return store;

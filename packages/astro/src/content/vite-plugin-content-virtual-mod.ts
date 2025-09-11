@@ -1,5 +1,5 @@
 import nodeFs from 'node:fs';
-import { extname } from 'node:path';
+import { extname, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dataToEsm } from '@rollup/pluginutils';
 import pLimit from 'p-limit';
@@ -164,22 +164,26 @@ export function astroContentVirtualModPlugin({
 
 				try {
 					const manifest: Record<string, string[][]> = JSON.parse(jsonData);
-					const parsed: Record<string, string[]> = {};
+					const parsed: Record<string, string[][]> = {};
 
+					/**
+					 * Convert manifest paths to imports to keep content files separated.
+					 */
 					for (const collection in manifest) {
-						// Read manifest files and merge into strings
 						parsed[collection] = manifest[collection].map((files) =>
-							files
-								.map((file) => fileURLToPath(new URL('./' + file, dataStoreDir)))
-								.map((filePath) => fs.readFileSync(filePath, 'utf-8'))
-								.join('\n'),
+							files.map(
+								(file) =>
+									`@@IMPORT@@${rootRelativePath(settings.config.root, new URL('./' + file, dataStoreDir))}@@/IMPORT@@`,
+							),
 						);
 					}
 
+					const code = dataToEsm(parsed, {
+						compact: true,
+					}).replace(/"@@IMPORT@@(.+?)@@\/IMPORT@@"/g, '(await import("$1?raw"))');
+
 					return {
-						code: dataToEsm(parsed, {
-							compact: true,
-						}),
+						code,
 						map: { mappings: '' },
 					};
 				} catch (err) {

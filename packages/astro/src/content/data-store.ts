@@ -86,6 +86,39 @@ export class ImmutableDataStore {
 	}
 
 	/**
+	 * Converts an expanded manifest object to a collections map.
+	 *
+	 * Expanded manifest has file names swapped with actual file contents,
+	 * in a form of either ESM imports or raw strings.
+	 */
+	static async manifestToMap(manifest: Record<string, any[][]>) {
+		const map = new Map();
+		for (const [collectionName, chunks] of Object.entries(manifest)) {
+			const collection = new Map<string, any>();
+			for (const chunk of chunks) {
+				// Combine all string parts into a single string
+				let stringified = '';
+				for (const data of chunk) {
+					// Handle strings and ESM default imports
+					stringified += typeof data === 'string' ? data : data.default;
+				}
+
+				// Restore the collection chunk (up to 1000 entries)
+				const entries: Map<string, any> = devalue.parse(stringified);
+
+				// Combine into the full collection
+				for (const [id, entry] of entries) {
+					collection.set(id, entry);
+				}
+			}
+
+			map.set(collectionName, collection);
+		}
+
+		return map;
+	}
+
+	/**
 	 * Attempts to load a DataStore from the virtual module.
 	 * This only works in Vite.
 	 */
@@ -96,15 +129,7 @@ export class ImmutableDataStore {
 			if (data.default instanceof Map) {
 				return ImmutableDataStore.fromMap(data.default);
 			}
-			const map = new Map();
-			for (const [collectionName, chunks] of Object.entries(data.default)) {
-				for (const chunk of chunks as string[]) {
-					const entries: Map<string, any> = devalue.parse(chunk);
-					for (const [id, entry] of entries) {
-						map.set(collectionName, (map.get(collectionName) ?? new Map()).set(id, entry));
-					}
-				}
-			}
+			const map = await this.manifestToMap(data.default);
 			return ImmutableDataStore.fromMap(map);
 		} catch {}
 		return new ImmutableDataStore();
