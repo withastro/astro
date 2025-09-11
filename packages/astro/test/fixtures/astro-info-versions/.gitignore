@@ -3,3 +3,4 @@
 yarn.lock
 astro-*.tgz
 .yarn
+.yarnrc.yml

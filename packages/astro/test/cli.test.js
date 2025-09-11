@@ -140,8 +140,9 @@ describe('astro cli', () => {
 		const yarnLockUrl = new URL('./yarn.lock', fixtureRootURL);
 		
 		const astroVersion = await fs.readFile(fileURLToPath(astroPackageJSONUrl)).then((text) => JSON.parse(text).version);
-		const packURL = new URL(`./astro-${astroVersion}.tgz`, testsRootURL);
-		const packDestinationURL = new URL(`./astro-${astroVersion}.tgz`, fixtureRootURL);
+		const packFileName = `./astro-${astroVersion}.tgz`;
+		const packURL = new URL(packFileName, testsRootURL);
+		const packDestinationURL = new URL(packFileName, fixtureRootURL);
 		
 		// Add a packageManager field to the fixture's package.json file, otherwise
 		// corepack won't allow us to use yarn because a parent directory has a different
@@ -162,8 +163,7 @@ describe('astro cli', () => {
 		await fs.rename(packURL, packDestinationURL);
 		
 		spawnSync('corepack', ['use', 'yarn@4.9.4'], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
-		spawnSync('corepack', ['yarn', 'add', fileURLToPath(packDestinationURL)], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
-		spawnSync('corepack', ['yarn', 'install'], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
+		spawnSync('corepack', ['yarn', 'add', packFileName], { cwd: fixtureRootURL, encoding: 'utf-8', shell: true });
 		
 		const proc = spawnSync(
 			'corepack',
