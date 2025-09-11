@@ -45,6 +45,13 @@ export function deserializeManifest(
 			return { onRequest: NOOP_MIDDLEWARE_FN };
 		},
 		...serializedManifest,
+		rootDir: new URL(serializedManifest.rootDir),
+		srcDir: new URL(serializedManifest.srcDir),
+		publicDir: new URL(serializedManifest.publicDir),
+		outDir: new URL(serializedManifest.outDir),
+		cacheDir: new URL(serializedManifest.cacheDir),
+		buildClientDir: new URL(serializedManifest.buildClientDir),
+		buildServerDir: new URL(serializedManifest.buildServerDir),
 		assets,
 		componentMetadata,
 		inlinedScripts,

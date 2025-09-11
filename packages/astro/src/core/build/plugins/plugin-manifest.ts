@@ -342,7 +342,7 @@ async function buildManifest(
 	}
 
 	return {
-		hrefRoot: opts.settings.config.root.toString(),
+		rootDir: opts.settings.config.root.toString(),
 		cacheDir: opts.settings.config.cacheDir.toString(),
 		outDir: opts.settings.config.outDir.toString(),
 		srcDir: opts.settings.config.srcDir.toString(),

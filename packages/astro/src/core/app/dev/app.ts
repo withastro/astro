@@ -25,7 +25,7 @@ import {
 	MiddlewareNotAResponse,
 	NoMatchingStaticPathFound,
 } from '../../errors/errors-data.js';
-import { type AstroError, isAstroError } from '../../errors/index.js';
+import { type AstroError, createSafeError, isAstroError } from '../../errors/index.js';
 import type { Logger } from '../../logger/core.js';
 import { req } from '../../messages.js';
 import { loadMiddleware } from '../../middleware/loadMiddleware.js';
@@ -43,18 +43,18 @@ import type { SSRManifest } from '../types.js';
 import { DevPipeline } from './pipeline.js';
 
 export class DevApp extends BaseApp<DevPipeline> {
-	settings: AstroSettings;
+	settings?: AstroSettings;
 	logger: Logger;
-	loader: ModuleLoader;
+	loader?: ModuleLoader;
 	manifestData: RoutesList;
 	currentRenderContext: RenderContext | undefined = undefined;
 	constructor(
 		manifest: SSRManifest,
 		streaming = true,
-		settings: AstroSettings,
 		logger: Logger,
-		loader: ModuleLoader,
 		manifestData: RoutesList,
+		loader?: ModuleLoader,
+		settings?: AstroSettings,
 	) {
 		super(manifest, streaming, settings, logger, loader, manifestData);
 		this.settings = settings;
@@ -66,11 +66,11 @@ export class DevApp extends BaseApp<DevPipeline> {
 	static async create(
 		manifest: SSRManifest,
 		routesList: RoutesList,
-		settings: AstroSettings,
 		logger: Logger,
-		loader: ModuleLoader,
+		loader?: ModuleLoader,
+		settings?: AstroSettings,
 	): Promise<DevApp> {
-		return new DevApp(manifest, true, settings, logger, loader, routesList);
+		return new DevApp(manifest, true, logger, routesList, loader, settings);
 	}
 
 	createPipeline(
@@ -104,14 +104,13 @@ export class DevApp extends BaseApp<DevPipeline> {
 		incomingResponse,
 		isHttps,
 	}: HandleRequest): Promise<void> {
-		const { config } = this.pipeline;
 		const origin = `${isHttps ? 'https' : 'http'}://${
 			incomingRequest.headers[':authority'] ?? incomingRequest.headers.host
 		}`;
 
 		const url = new URL(origin + incomingRequest.url);
 		let pathname: string;
-		if (config.trailingSlash === 'never' && !incomingRequest.url) {
+		if (this.manifest.trailingSlash === 'never' && !incomingRequest.url) {
 			pathname = '';
 		} else {
 			// We already have a middleware that checks if there's an incoming URL that has invalid URI, so it's safe
@@ -120,10 +119,10 @@ export class DevApp extends BaseApp<DevPipeline> {
 		}
 
 		// Add config.base back to url before passing it to SSR
-		url.pathname = removeTrailingForwardSlash(config.base) + url.pathname;
+		url.pathname = removeTrailingForwardSlash(this.manifest.base) + url.pathname;
 		if (
 			url.pathname.endsWith('/') &&
-			!shouldAppendForwardSlash(config.trailingSlash, config.build.format)
+			!shouldAppendForwardSlash(this.manifest.trailingSlash, this.manifest.buildFormat)
 		) {
 			url.pathname = url.pathname.slice(0, -1);
 		}
@@ -145,7 +144,12 @@ export class DevApp extends BaseApp<DevPipeline> {
 			controller,
 			pathname,
 			async run() {
-				const matchedRoute = await matchRoute(pathname, self.manifestData, self.pipeline);
+				const matchedRoute = await matchRoute(
+					pathname,
+					self.manifestData,
+					self.pipeline,
+					self.manifest,
+				);
 				const resolvedPathname = matchedRoute?.resolvedPathname ?? pathname;
 				return await self.handleRoute({
 					matchedRoute,
@@ -157,13 +161,16 @@ export class DevApp extends BaseApp<DevPipeline> {
 				});
 			},
 			onError(_err) {
-				const { error, errorWithMetadata } = recordServerError(
-					self.loader,
-					config,
-					self.logger,
-					_err,
-				);
-				handle500Response(self.loader, incomingResponse, errorWithMetadata);
+				const error = createSafeError(_err);
+				if (self.loader) {
+					const { errorWithMetadata } = recordServerError(
+						self.loader,
+						self.manifest,
+						self.logger,
+						error,
+					);
+					handle500Response(self.loader, incomingResponse, errorWithMetadata);
+				}
 				return error;
 			},
 		});
@@ -178,7 +185,7 @@ export class DevApp extends BaseApp<DevPipeline> {
 		pathname,
 	}: HandleRoute): Promise<void> {
 		const timeStart = performance.now();
-		const { config, loader, logger } = this.pipeline;
+		const { loader, logger } = this.pipeline;
 
 		if (!matchedRoute) {
 			// This should never happen, because ensure404Route will add a 404 route if none exists.
@@ -207,7 +214,7 @@ export class DevApp extends BaseApp<DevPipeline> {
 		});
 
 		// Set user specified headers to response object.
-		for (const [name, value] of Object.entries(config.server.headers ?? {})) {
+		for (const [name, value] of Object.entries(this.settings?.config.server.headers ?? {})) {
 			if (value) incomingResponse.setHeader(name, value);
 		}
 
@@ -276,7 +283,12 @@ export class DevApp extends BaseApp<DevPipeline> {
 			response.body === null &&
 			response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 		) {
-			const fourOhFourRoute = await matchRoute('/404', this.manifestData, this.pipeline);
+			const fourOhFourRoute = await matchRoute(
+				'/404',
+				this.manifestData,
+				this.pipeline,
+				this.manifest,
+			);
 			if (fourOhFourRoute) {
 				renderContext = await this.createRenderContext({
 					locals,
@@ -327,8 +339,8 @@ export class DevApp extends BaseApp<DevPipeline> {
 				response.status >= 300 &&
 				response.status < 400 &&
 				routeIsRedirect(route) &&
-				!config.build.redirects &&
-				this.pipeline.settings.buildOutput === 'static'
+				!this.settings?.config.build.redirects &&
+				this.settings?.buildOutput === 'static'
 			) {
 				// If we're here, it means that the calling static redirect that was configured by the user
 				// We try to replicate the same behaviour that we provide during a static build
@@ -397,7 +409,7 @@ export class DevApp extends BaseApp<DevPipeline> {
 		}
 
 		try {
-			const filePath500 = new URL(`./${custom500.component}`, this.settings.config.root);
+			const filePath500 = new URL(`./${custom500.component}`, this.manifest.rootDir);
 			const preloaded500Component = await this.pipeline.preload(custom500, filePath500);
 			const renderContext = await this.createRenderContext({
 				locals,
@@ -479,11 +491,16 @@ async function matchRoute(
 	pathname: string,
 	routesList: RoutesList,
 	pipeline: DevPipeline,
+	manifest: SSRManifest,
 ): Promise<MatchedRoute | undefined> {
-	const { config, logger, routeCache, serverLike, settings } = pipeline;
+	const { logger, routeCache, serverLike } = pipeline;
 	const matches = matchAllRoutes(pathname, routesList);
 
-	const preloadedMatches = await getSortedPreloadedMatches({ pipeline, matches, settings });
+	const preloadedMatches = await getSortedPreloadedMatches({
+		pipeline,
+		matches,
+		manifest,
+	});
 
 	for await (const { route: maybeRoute, filePath } of preloadedMatches) {
 		// attempt to get static paths
@@ -496,8 +513,8 @@ async function matchRoute(
 				pathname: pathname,
 				logger,
 				serverLike,
-				base: config.base,
-				trailingSlash: config.trailingSlash,
+				base: manifest.base,
+				trailingSlash: manifest.trailingSlash,
 			});
 			return {
 				route: maybeRoute,
@@ -519,7 +536,7 @@ async function matchRoute(
 	const altPathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 
 	if (altPathname !== pathname) {
-		return await matchRoute(altPathname, routesList, pipeline);
+		return await matchRoute(altPathname, routesList, pipeline, manifest);
 	}
 
 	if (matches.length) {
@@ -536,7 +553,7 @@ async function matchRoute(
 	const custom404 = getCustom404Route(routesList);
 
 	if (custom404) {
-		const filePath = new URL(`./${custom404.component}`, config.root);
+		const filePath = new URL(`./${custom404.component}`, manifest.rootDir);
 
 		return {
 			route: custom404,

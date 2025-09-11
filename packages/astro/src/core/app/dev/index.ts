@@ -14,24 +14,23 @@ import { DevApp } from './app.js';
 export { DevApp };
 
 export default async function createExports(
-	settings: AstroSettings,
 	controller: DevServerController,
-	loader: ModuleLoader,
+	settings?: AstroSettings,
+	loader?: ModuleLoader,
 ) {
 	const logger = new Logger({
 		dest: nodeLogDestination,
 		level: 'info',
 	});
 	const routesList: RoutesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
-	const app = await DevApp.create(manifest, routesList, settings, logger, loader);
-
+	const app = await DevApp.create(manifest, routesList, logger, loader, settings);
 	return {
 		handler(incomingRequest: http.IncomingMessage, incomingResponse: http.ServerResponse) {
 			app.handleRequest({
 				controller,
 				incomingRequest,
 				incomingResponse,
-				isHttps: loader.isHttps(),
+				isHttps: loader?.isHttps() ?? false,
 			});
 		},
 	};

@@ -55,8 +55,8 @@ export default function createVitePluginAstroServer({
 			const entrypoint = settings.adapter?.devEntrypoint ?? 'astro/app/dev';
 			const createExports = await loader.import(entrypoint.toString());
 			const controller = createController({ loader });
-			const { handler } = await createExports.default(settings, controller, loader);
-
+			const { handler } = await createExports.default(controller, settings, loader);
+			const { manifest } = await loader.import('astro:serialized-manifest');
 			const localStorage = new AsyncLocalStorage();
 
 			function handleUnhandledRejection(rejection: any) {
@@ -70,7 +70,7 @@ export default function createVitePluginAstroServer({
 				if (store instanceof IncomingMessage) {
 					setRouteError(controller.state, store.url!, error);
 				}
-				const { errorWithMetadata } = recordServerError(loader, settings.config, logger, error);
+				const { errorWithMetadata } = recordServerError(loader, manifest, logger, error);
 				setTimeout(
 					async () => loader.webSocketSend(await getViteErrorPayload(errorWithMetadata)),
 					200,
@@ -202,7 +202,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 	}
 
 	return {
-		hrefRoot: settings.config.root.toString(),
+		rootDir: settings.config.root,
 		srcDir: settings.config.srcDir,
 		cacheDir: settings.config.cacheDir,
 		outDir: settings.config.outDir,
