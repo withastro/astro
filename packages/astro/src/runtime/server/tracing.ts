@@ -5,6 +5,32 @@ export type { TraceEvent, TraceEventsPayloads, TraceListener };
 
 const listeners: TraceListener[] = [];
 
+/**
+ * Register a trace listener that will be called on every trace event.
+ *
+ * The listener can optionally be associated with an AbortSignal to
+ * automatically remove it when the signal is aborted.
+ * If the signal is already aborted or is aborting, the listener will not be registered.
+ *
+ * Listeners are called in the order they are registered.
+ * Each listener receives the trace event and a `next` callback.
+ * Calling the `next` callback will invoke the next listener in the chain,
+ * or the traced function if there are no more listeners.
+ *
+ * Not calling `next` means the next listener or the traced function will
+ * be called automatically after the current listener returns.
+ * Calling `next` multiple times will have no effect after the first call,
+ * the same value or error will be returned to the caller without invoking
+ * the next listener or the traced function again.
+ *
+ * Since trace events can describe both synchronous and asynchronous operations,
+ * listeners MUST invoke the `next` function synchronously if they ever do invoke it.
+ * A listener must not return a promise that can reject, such a promise rejection
+ * will not be handled and trigger an unhandled promise rejection error on the runtime.
+ *
+ * @param listener The listener function to register.
+ * @param signal An optional AbortSignal to remove the listener when aborted.
+ */
 export function onTraceEvent(listener: TraceListener, signal?: AbortSignal) {
 	if (signal) {
 		if (signal.aborted) {
@@ -20,6 +46,23 @@ export function onTraceEvent(listener: TraceListener, signal?: AbortSignal) {
 	}
 
 	listeners.push(listener);
+}
+
+/**
+ * Get the number of trace listeners currently registered.
+ * Primarily useful for tests to check how many listeners are active
+ * after some operation.
+ */
+export function getTraceListenersCount() {
+	return listeners.length;
+}
+
+/**
+ * Clear all trace listeners.
+ * Primarily useful for tests to ensure no listeners are leaking between tests.
+ */
+export function clearTraceListeners() {
+	listeners.length = 0;
 }
 
 /**
@@ -63,17 +106,25 @@ function sequenceListeners<T>(event: TraceEvent, fn: () => T, index = 0): T {
 	try {
 		listener(event, () => {
 			const result = next();
-			return result instanceof Promise
-				? // Return a promise that always resolve to void, but only once resultValue resolves.
-					// This allow tracing listeners to await the completion of the inner function without
-					// without having access to any internal values.
-					result.then<void>(() => {})
-				: undefined;
+			if (result instanceof Promise) {
+				// Return a promise that always resolve to void, but only once
+				// resultValue resolves. This allow tracing listeners to await
+				// the completion of the inner function without without having
+				// access to any internal values.
+				const hiddenResult = result.then(() => {});
+				// Prevent unhandled promise rejections in case the inner promise fails.
+				hiddenResult.catch(() => {
+					/* ignore */
+				});
+				return hiddenResult;
+			}
 		});
 	} catch {
 		// Ignore errors in listeners to avoid breaking the main flow.
 	}
 
+	// Return the result of `fn`, calling next handles deduplication
+	// in case it was already called by the listener.
 	return next();
 }
 

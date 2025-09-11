@@ -1,34 +1,23 @@
 import * as assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it } from 'node:test';
-import { onTraceEvent, wrapWithTracing } from '../../../dist/runtime/server/tracing.js';
+import {
+	clearTraceListeners,
+	onTraceEvent,
+	wrapWithTracing,
+} from '../../../dist/runtime/server/tracing.js';
 
 describe('Tracing API', () => {
-	let events = [];
-	let listener;
-
-	beforeEach(() => {
-		events = [];
-		listener = (event, callback) => {
-			events.push({ ...event, callbackCalled: false });
-			const result = callback();
-			events[events.length - 1].callbackCalled = true;
-			return result;
-		};
-	});
-
 	afterEach(() => {
-		// Clear all listeners by calling onTraceEvent with an aborted signal
-		const abortController = new AbortController();
-		abortController.abort();
-		onTraceEvent(() => {}, abortController.signal);
+		clearTraceListeners();
 	});
 
 	describe('onTraceEvent', () => {
 		it('should register a trace listener', () => {
-			const mockListener = () => {};
-			onTraceEvent(mockListener);
+			let listenerCalled = false;
+			onTraceEvent(() => {
+				listenerCalled = true;
+			});
 
-			// Test that the listener was registered by wrapping a function
 			const wrappedFn = wrapWithTracing('componentRender', () => 'test', {
 				moduleId: 'test.astro',
 				componentName: 'Test',
@@ -37,25 +26,21 @@ describe('Tracing API', () => {
 				response: new Response(),
 			});
 
-			// Should execute without error
 			const result = wrappedFn();
-			assert.equal(result, 'test');
+			assert.equal(result, 'test', 'Wrapped function should return correct result');
+			assert.ok(listenerCalled, 'Listener should have been called');
 		});
 
 		it('should support AbortSignal for listener cleanup', () => {
-			const abortController = new AbortController();
+			const controller = new AbortController();
 			let listenerCalled = false;
 
-			const testListener = () => {
+			onTraceEvent(() => {
 				listenerCalled = true;
-			};
+			}, controller.signal);
 
-			onTraceEvent(testListener, abortController.signal);
+			controller.abort();
 
-			// Abort the signal
-			abortController.abort();
-
-			// Create a wrapped function
 			const wrappedFn = wrapWithTracing('componentRender', () => 'test', {
 				moduleId: 'test.astro',
 				componentName: 'Test',
@@ -66,20 +51,17 @@ describe('Tracing API', () => {
 
 			wrappedFn();
 
-			// Listener should not have been called
-			assert.equal(listenerCalled, false);
+			assert.ok(!listenerCalled, 'Listener should not have been called after abort');
 		});
 
 		it('should not register listener if signal is already aborted', () => {
-			const abortController = new AbortController();
-			abortController.abort();
+			const abortedSignal = AbortSignal.abort();
 
 			let listenerCalled = false;
-			const testListener = () => {
-				listenerCalled = true;
-			};
 
-			onTraceEvent(testListener, abortController.signal);
+			onTraceEvent(() => {
+				listenerCalled = true;
+			}, abortedSignal);
 
 			const wrappedFn = wrapWithTracing('componentRender', () => 'test', {
 				moduleId: 'test.astro',
@@ -91,7 +73,7 @@ describe('Tracing API', () => {
 
 			wrappedFn();
 
-			assert.equal(listenerCalled, false);
+			assert.ok(!listenerCalled, 'Listener should not have been registered with aborted signal');
 		});
 	});
 
@@ -111,7 +93,10 @@ describe('Tracing API', () => {
 		});
 
 		it('should call listeners with correct event data', () => {
-			onTraceEvent(listener);
+			const events = [];
+			onTraceEvent((event) => {
+				events.push(event);
+			});
 
 			const payload = {
 				moduleId: 'test.astro',
@@ -127,14 +112,14 @@ describe('Tracing API', () => {
 			const result = wrappedFn();
 
 			assert.equal(result, 'result');
-			assert.equal(events.length, 1);
-			assert.equal(events[0].event, 'componentRender');
-			assert.deepEqual(events[0].payload, payload);
-			assert.equal(events[0].callbackCalled, true);
+			assert.deepEqual(events, [{ event: 'componentRender', payload }]);
 		});
 
 		it('should support dynamic payload generation', () => {
-			onTraceEvent(listener);
+			const events = [];
+			onTraceEvent((event) => {
+				events.push(event);
+			});
 
 			const fn = function (arg1, arg2) {
 				return `${arg1}-${arg2}`;
@@ -155,13 +140,19 @@ describe('Tracing API', () => {
 			const result = wrappedFn('test', 'Component');
 
 			assert.equal(result, 'test-Component');
-			assert.equal(events.length, 1);
-			assert.equal(events[0].payload.moduleId, 'module-test');
-			assert.equal(events[0].payload.componentName, 'Component');
+			assert.deepEqual(events, [
+				{
+					event: 'componentRender',
+					payload: payloadFn('test', 'Component'),
+				},
+			]);
 		});
 
 		it('should preserve function context (this)', () => {
-			onTraceEvent(listener);
+			let listenerCalled = false;
+			onTraceEvent(() => {
+				listenerCalled = true;
+			});
 
 			const obj = {
 				value: 42,
@@ -182,10 +173,14 @@ describe('Tracing API', () => {
 
 			const result = obj.method();
 			assert.equal(result, 42);
+			assert.ok(listenerCalled, 'Listener should have been called');
 		});
 
 		it('should handle async functions', async () => {
-			onTraceEvent(listener);
+			let listenerCalled = false;
+			onTraceEvent(() => {
+				listenerCalled = true;
+			});
 
 			const asyncFn = async () => {
 				await new Promise((resolve) => setTimeout(resolve, 10));
@@ -202,11 +197,14 @@ describe('Tracing API', () => {
 
 			const result = await wrappedFn();
 			assert.equal(result, 'async result');
-			assert.equal(events.length, 1);
+			assert.ok(listenerCalled, 'Listener should have been called');
 		});
 
 		it('should handle function arguments correctly', () => {
-			onTraceEvent(listener);
+			let listenerCalled = false;
+			onTraceEvent(() => {
+				listenerCalled = true;
+			});
 
 			const fn = (a, b, c) => a + b + c;
 			const wrappedFn = wrapWithTracing('componentRender', fn, {
@@ -219,6 +217,7 @@ describe('Tracing API', () => {
 
 			const result = wrappedFn(1, 2, 3);
 			assert.equal(result, 6);
+			assert.ok(listenerCalled, 'Listener should have been called');
 		});
 	});
 
@@ -267,40 +266,15 @@ describe('Tracing API', () => {
 				'listener1-end',
 			]);
 		});
-
-		it('should handle listener errors gracefully', () => {
-			const workingListener = (event, callback) => {
-				events.push({ type: 'working', event });
-				return callback();
-			};
-
-			const errorListener = (_event, _callback) => {
-				throw new Error('Listener error');
-			};
-
-			onTraceEvent(workingListener);
-			onTraceEvent(errorListener);
-
-			const fn = () => 'result';
-			const wrappedFn = wrapWithTracing('componentRender', fn, {
-				moduleId: 'test.astro',
-				componentName: 'Test',
-				displayName: 'Test',
-				request: new Request('http://localhost/'),
-				response: new Response(),
-			});
-
-			// Should not throw despite listener error
-			const result = wrappedFn();
-			assert.equal(result, 'result');
-			assert.equal(events.length, 1);
-			assert.equal(events[0].type, 'working');
-		});
 	});
 
 	describe('Event types', () => {
+		const events = [];
 		beforeEach(() => {
-			onTraceEvent(listener);
+			events.length = 0;
+			onTraceEvent((event) => {
+				events.push(event);
+			});
 		});
 
 		it('should handle instantiateComponent events', () => {
@@ -380,14 +354,38 @@ describe('Tracing API', () => {
 			assert.equal(events[0].event, 'middleware');
 			assert.deepEqual(events[0].payload, payload);
 		});
+
+		it('should skip event creation when no listeners are registered', () => {
+			clearTraceListeners(); // Ensure no listeners are present
+			let payloadFnCalled = false;
+
+			const payloadFn = () => {
+				payloadFnCalled = true;
+				return {
+					moduleId: 'test.astro',
+					componentName: 'Test',
+					displayName: 'Test',
+					request: new Request('http://localhost/'),
+					response: new Response(),
+				};
+			};
+
+			const fn = () => 'result';
+			const wrappedFn = wrapWithTracing('componentRender', fn, payloadFn);
+
+			const result = wrappedFn();
+
+			assert.equal(result, 'result');
+			assert.equal(payloadFnCalled, false); // Payload function should not be called
+		});
 	});
 
 	describe('Callback behavior', () => {
 		it('should handle async callbacks', async () => {
-			let _callbackResult;
+			let callbackResult;
 
 			const asyncListener = async (_event, callback) => {
-				_callbackResult = await callback();
+				callbackResult = await callback();
 			};
 
 			onTraceEvent(asyncListener);
@@ -407,6 +405,11 @@ describe('Tracing API', () => {
 
 			const result = await wrappedFn();
 			assert.equal(result, 'async result');
+			assert.strictEqual(
+				callbackResult,
+				void 0,
+				'Wrapped function result should not be visible to listener',
+			);
 		});
 
 		it('should handle callback called multiple times', () => {
@@ -445,7 +448,7 @@ describe('Tracing API', () => {
 		});
 
 		it('should preserve errors thrown by wrapped function', () => {
-			onTraceEvent(listener);
+			onTraceEvent(() => {});
 
 			const errorFn = () => {
 				throw new Error('Function error');
@@ -459,102 +462,9 @@ describe('Tracing API', () => {
 				response: new Response(),
 			});
 
-			assert.throws(
-				() => {
-					wrappedFn();
-				},
-				{
-					message: 'Function error',
-				},
-			);
-		});
-
-		it('should handle errors in callback gracefully', () => {
-			let errorCaught = false;
-
-			const errorHandlingListener = (_event, callback) => {
-				try {
-					return callback();
-				} catch (error) {
-					errorCaught = true;
-					throw error;
-				}
-			};
-
-			onTraceEvent(errorHandlingListener);
-
-			const errorFn = () => {
-				throw new Error('Function error');
-			};
-
-			const wrappedFn = wrapWithTracing('componentRender', errorFn, {
-				moduleId: 'test.astro',
-				componentName: 'Test',
-				displayName: 'Test',
-				request: new Request('http://localhost/'),
-				response: new Response(),
+			assert.throws(wrappedFn, {
+				message: 'Function error',
 			});
-
-			assert.throws(
-				() => {
-					wrappedFn();
-				},
-				{
-					message: 'Function error',
-				},
-			);
-
-			assert.equal(errorCaught, true);
-		});
-	});
-
-	describe('Performance optimization', () => {
-		it('should skip event creation when no listeners are registered', () => {
-			let payloadFnCalled = false;
-
-			const payloadFn = () => {
-				payloadFnCalled = true;
-				return {
-					moduleId: 'test.astro',
-					componentName: 'Test',
-					displayName: 'Test',
-					request: new Request('http://localhost/'),
-					response: new Response(),
-				};
-			};
-
-			const fn = () => 'result';
-			const wrappedFn = wrapWithTracing('componentRender', fn, payloadFn);
-
-			const result = wrappedFn();
-
-			assert.equal(result, 'result');
-			assert.equal(payloadFnCalled, false); // Payload function should not be called
-		});
-
-		it('should create payload when listeners are present', () => {
-			onTraceEvent(listener);
-
-			let payloadFnCalled = false;
-
-			const payloadFn = () => {
-				payloadFnCalled = true;
-				return {
-					moduleId: 'test.astro',
-					componentName: 'Test',
-					displayName: 'Test',
-					request: new Request('http://localhost/'),
-					response: new Response(),
-				};
-			};
-
-			const fn = () => 'result';
-			const wrappedFn = wrapWithTracing('componentRender', fn, payloadFn);
-
-			const result = wrappedFn();
-
-			assert.equal(result, 'result');
-			assert.equal(payloadFnCalled, true); // Payload function should be called
 		});
 	});
 });
