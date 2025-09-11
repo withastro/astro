@@ -67,7 +67,7 @@ export async function encodeKey(key: CryptoKey) {
  */
 export async function decodeKey(encoded: string): Promise<CryptoKey> {
 	const bytes = decodeBase64(encoded);
-	return crypto.subtle.importKey('raw', Buffer.from(bytes), ALGORITHM, true, [
+	return crypto.subtle.importKey('raw', bytes.buffer as ArrayBuffer, ALGORITHM, true, [
 		'encrypt',
 		'decrypt',
 	]);
@@ -101,15 +101,15 @@ export async function encryptString(key: CryptoKey, raw: string) {
  * Takes a base64 encoded string, decodes it and returns the decrypted text.
  */
 export async function decryptString(key: CryptoKey, encoded: string) {
-	const iv = decodeHex(encoded.slice(0, IV_LENGTH));
-	const dataArray = decodeBase64(encoded.slice(IV_LENGTH));
+	const iv = decodeHex(encoded.slice(0, IV_LENGTH)) as Uint8Array<ArrayBuffer>;
+	const dataArray = decodeBase64(encoded.slice(IV_LENGTH)) as Uint8Array<ArrayBuffer>;
 	const decryptedBuffer = await crypto.subtle.decrypt(
 		{
 			name: ALGORITHM,
-			iv: Buffer.from(iv),
+			iv,
 		},
 		key,
-		Buffer.from(dataArray),
+		dataArray,
 	);
 	const decryptedString = decoder.decode(decryptedBuffer);
 	return decryptedString;
