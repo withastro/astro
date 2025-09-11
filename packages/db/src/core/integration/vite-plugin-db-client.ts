@@ -10,7 +10,7 @@ function getRemoteClientModule(mode: 'node' | 'web') {
 	switch (mode) {
 		case 'web':
 			return `export { createClient } from '${DB_CLIENTS.web}';`;
-        case 'node':
+		case 'node':
 		default:
 			return `export { createClient } from '${DB_CLIENTS.node}';`;
 	}
@@ -18,8 +18,8 @@ function getRemoteClientModule(mode: 'node' | 'web') {
 
 function getLocalClientModule(mode: 'node' | 'web') {
 	switch (mode) {
-        case 'node':
-        case 'web':
+		case 'node':
+		case 'web':
 		default:
 			return `export { createClient } from '${DB_CLIENTS.local}';`;
 	}
@@ -44,7 +44,7 @@ export function vitePluginDbClient(params: VitePluginDBClientParams): VitePlugin
 				case false:
 				default:
 					// Local client is always available, even if not used.
-					return getLocalClientModule(params.mode);	
+					return getLocalClientModule(params.mode);
 			}
 		},
 	};
