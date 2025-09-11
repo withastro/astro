@@ -9,3 +9,9 @@ packages:
   # Below excludes are only for Turbo because it doesn't respect gitignore like pnpm does
   - '!packages/astro/test/units/_temp-fixtures/*'
   - '!**/.vercel/**'
+# TODO: remove in Astro 6
+overrides:
+  # Cheerio uses ^7, which requires node 20
+  'undici': '^6.21.3'
+  # A later wrangler minor dropeed support for node 18
+  'wrangler': '4.14.1'

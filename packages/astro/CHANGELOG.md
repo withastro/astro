@@ -1,5 +1,184 @@
 # astro
 
+## 5.13.7
+
+### Patch Changes
+
+- [#14330](https://github.com/withastro/astro/pull/14330) [`72e14ab`](https://github.com/withastro/astro/commit/72e14abed6e20d31b1cd2caeeaa7e43703bf3aa3) Thanks [@ascorbic](https://github.com/ascorbic)! - Removes pinned package that is no longer needed.
+
+- [#14335](https://github.com/withastro/astro/pull/14335) [`17c7b03`](https://github.com/withastro/astro/commit/17c7b0395c00a0ea29dad9517b60bad3bd3a87a1) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Bumps `sharp` minimal version to `0.34.0`
+
+## 5.13.6
+
+### Patch Changes
+
+- [#14294](https://github.com/withastro/astro/pull/14294) [`e005855`](https://github.com/withastro/astro/commit/e0058553b2a6bb03fd864d77a1f07c25c60f7d91) Thanks [@martrapp](https://github.com/martrapp)! - Restores the ability to use Google Analytics `History change trigger` with the `<ClientRouter />`.
+
+- [#14326](https://github.com/withastro/astro/pull/14326) [`c24a8f4`](https://github.com/withastro/astro/commit/c24a8f42a17410ea78fc2d68ff0105b931a381eb) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates `vite` version to fix CVE
+
+- [#14108](https://github.com/withastro/astro/pull/14108) [`218e070`](https://github.com/withastro/astro/commit/218e07054f4fe7a16e13479861dc162f6d886edc) Thanks [@JusticeMatthew](https://github.com/JusticeMatthew)! - Updates dynamic route split regex to avoid infinite retries/exponential complexity
+
+- [#14327](https://github.com/withastro/astro/pull/14327) [`c1033be`](https://github.com/withastro/astro/commit/c1033beafa331bbd67f0ee76b47303deb3db806f) Thanks [@ascorbic](https://github.com/ascorbic)! - Pins simple-swizzle to avoid compromised version
+
+## 5.13.5
+
+### Patch Changes
+
+- [#14286](https://github.com/withastro/astro/pull/14286) [`09c5db3`](https://github.com/withastro/astro/commit/09c5db37d12862eef8d4ecf62389e10f30a22de9) Thanks [@ematipico](https://github.com/ematipico)! - **BREAKING CHANGES only to the experimental CSP feature**
+
+  The following runtime APIs of the `Astro` global have been renamed:
+  - `Astro.insertDirective` to `Astro.csp.insertDirective`
+  - `Astro.insertStyleResource` to `Astro.csp.insertStyleResource`
+  - `Astro.insertStyleHash` to `Astro.csp.insertStyleHash`
+  - `Astro.insertScriptResource` to `Astro.csp.insertScriptResource`
+  - `Astro.insertScriptHash` to `Astro.csp.insertScriptHash`
+
+  The following runtime APIs of the `APIContext` have been renamed:
+  - `ctx.insertDirective` to `ctx.csp.insertDirective`
+  - `ctx.insertStyleResource` to `ctx.csp.insertStyleResource`
+  - `ctx.insertStyleHash` to `ctx.csp.insertStyleHash`
+  - `ctx.insertScriptResource` to `ctx.csp.insertScriptResource`
+  - `ctx.insertScriptHash` to `ctx.csp.insertScriptHash`
+
+- [#14283](https://github.com/withastro/astro/pull/14283) [`3224637`](https://github.com/withastro/astro/commit/3224637eca5c065872d92449216cb33baac2dbfd) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where CSP headers were incorrectly injected in the development server.
+
+- [#14275](https://github.com/withastro/astro/pull/14275) [`3e2f20d`](https://github.com/withastro/astro/commit/3e2f20d07e92b1acfadb1357a59b6952e85227f3) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds support for experimental CSP when using experimental fonts
+
+  Experimental fonts now integrate well with experimental CSP by injecting hashes for the styles it generates, as well as `font-src` directives.
+
+  No action is required to benefit from it.
+
+- [#14280](https://github.com/withastro/astro/pull/14280) [`4b9fb73`](https://github.com/withastro/astro/commit/4b9fb736dab42b8864012db0a981d3441366c388) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused cookies to not be correctly set when using middleware sequences
+
+- [#14276](https://github.com/withastro/astro/pull/14276) [`77281c4`](https://github.com/withastro/astro/commit/77281c4616b65959715dcbac42bf948bebfee755) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Adds a missing export for `resolveSrc`, a documented image services utility.
+
+## 5.13.4
+
+### Patch Changes
+
+- [#14260](https://github.com/withastro/astro/pull/14260) [`86a1e40`](https://github.com/withastro/astro/commit/86a1e40ce21b629a956057b059d06ba78bd89402) Thanks [@jp-knj](https://github.com/jp-knj)! - Fixes `Astro.url.pathname` to respect `trailingSlash: 'never'` configuration when using a base path. Previously, the root path with a base would incorrectly return `/base/` instead of `/base` when `trailingSlash` was set to 'never'.
+
+- [#14248](https://github.com/withastro/astro/pull/14248) [`e81c4bd`](https://github.com/withastro/astro/commit/e81c4bd1cca6739192d33068cbfb2c9e4ced1ffe) Thanks [@julesyoungberg](https://github.com/julesyoungberg)! - Fixes a bug where actions named 'apply' do not work due to being a function prototype method.
+
+## 5.13.3
+
+### Patch Changes
+
+- [#14239](https://github.com/withastro/astro/pull/14239) [`d7d93e1`](https://github.com/withastro/astro/commit/d7d93e19fbfa52cf74dee40f5af6b7ea6a7503d2) Thanks [@wtchnm](https://github.com/wtchnm)! - Fixes a bug where the types for the live content collections were not being generated correctly in dev mode
+
+- [#14221](https://github.com/withastro/astro/pull/14221) [`eadc9dd`](https://github.com/withastro/astro/commit/eadc9dd277d0075d7bff0e33c7a86f3fb97fdd61) Thanks [@delucis](https://github.com/delucis)! - Fixes JSON schema support for content collections using the `file()` loader
+
+- [#14229](https://github.com/withastro/astro/pull/14229) [`1a9107a`](https://github.com/withastro/astro/commit/1a9107a4049f43c1e4e9f40e07033f6bfe4398e4) Thanks [@jonmichaeldarby](https://github.com/jonmichaeldarby)! - Ensures `Astro.currentLocale` returns the correct locale during SSG for pages that use a locale param (such as `[locale].astro` or `[locale]/index.astro`, which produce `[locale].html`)
+
+## 5.13.2
+
+### Patch Changes
+
+- [`4d16de7`](https://github.com/withastro/astro/commit/4d16de7f95db5d1ec1ce88610d2a95e606e83820) Thanks [@ematipico](https://github.com/ematipico)! - Improves the detection of remote paths in the `_image` endpoint. Now `href` parameters that start with `//` are considered remote paths.
+
+- Updated dependencies [[`4d16de7`](https://github.com/withastro/astro/commit/4d16de7f95db5d1ec1ce88610d2a95e606e83820)]:
+  - @astrojs/internal-helpers@0.7.2
+  - @astrojs/markdown-remark@6.3.6
+
+## 5.13.1
+
+### Patch Changes
+
+- [#14225](https://github.com/withastro/astro/pull/14225) [`f2490ab`](https://github.com/withastro/astro/commit/f2490aba420a8999c0e8d12b9e1e69d4e33ae29e) Thanks [@delucis](https://github.com/delucis)! - Fixes the `experimental.chromeDevtoolsWorkspace` feature.
+
+## 5.13.0
+
+### Minor Changes
+
+- [#14173](https://github.com/withastro/astro/pull/14173) [`39911b8`](https://github.com/withastro/astro/commit/39911b823d4617d99cc95e4b7584e9e4b7b90038) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds an experimental flag `staticImportMetaEnv` to disable the replacement of `import.meta.env` values with `process.env` calls and their coercion of environment variable values. This supersedes the `rawEnvValues` experimental flag, which is now removed.
+
+  Astro allows you to configure a [type-safe schema for your environment variables](https://docs.astro.build/en/guides/environment-variables/#type-safe-environment-variables), and converts variables imported via `astro:env` into the expected type. This is the recommended way to use environment variables in Astro, as it allows you to easily see and manage whether your variables are public or secret, available on the client or only on the server at build time, and the data type of your values.
+
+  However, you can still access environment variables through `process.env` and `import.meta.env` directly when needed. This was the only way to use environment variables in Astro before `astro:env` was added in Astro 5.0, and Astro's default handling of `import.meta.env` includes some logic that was only needed for earlier versions of Astro.
+
+  The `experimental.staticImportMetaEnv` flag updates the behavior of `import.meta.env` to align with [Vite's handling of environment variables](https://vite.dev/guide/env-and-mode.html#env-variables) and for better ease of use with Astro's current implementations and features. **This will become the default behavior in Astro 6.0**, and this early preview is introduced as an experimental feature.
+
+  Currently, non-public `import.meta.env` environment variables are replaced by a reference to `process.env`. Additionally, Astro may also convert the value type of your environment variables used through `import.meta.env`, which can prevent access to some values such as the strings `"true"` (which is converted to a boolean value), and `"1"` (which is converted to a number).
+
+  The `experimental.staticImportMetaEnv` flag simplifies Astro's default behavior, making it easier to understand and use. Astro will no longer replace any `import.meta.env` environment variables with a `process.env` call, nor will it coerce values.
+
+  To enable this feature, add the experimental flag in your Astro config and remove `rawEnvValues` if it was enabled:
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig } from "astro/config";
+
+  export default defineConfig({
+  +  experimental: {
+  +    staticImportMetaEnv: true
+  -    rawEnvValues: false
+  +  }
+  });
+  ```
+
+  #### Updating your project
+
+  If you were relying on Astro's default coercion, you may need to update your project code to apply it manually:
+
+  ```diff
+  // src/components/MyComponent.astro
+  - const enabled: boolean = import.meta.env.ENABLED;
+  + const enabled: boolean = import.meta.env.ENABLED === "true";
+  ```
+
+  If you were relying on the transformation into `process.env` calls, you may need to update your project code to apply it manually:
+
+  ```diff
+  // src/components/MyComponent.astro
+  - const enabled: boolean = import.meta.env.DB_PASSWORD;
+  + const enabled: boolean = process.env.DB_PASSWORD;
+  ```
+
+  You may also need to update types:
+
+  ```diff
+  // src/env.d.ts
+  interface ImportMetaEnv {
+    readonly PUBLIC_POKEAPI: string;
+  -  readonly DB_PASSWORD: string;
+  -  readonly ENABLED: boolean;
+  +  readonly ENABLED: string;
+  }
+
+  interface ImportMeta {
+    readonly env: ImportMetaEnv;
+  }
+
+  + namespace NodeJS {
+  +  interface ProcessEnv {
+  +    DB_PASSWORD: string;
+  +  }
+  + }
+  ```
+
+  See the [experimental static `import.meta.env` documentation](https://docs.astro.build/en/reference/experimental-flags/static-import-meta-env/) for more information about this feature. You can learn more about using environment variables in Astro, including `astro:env`, in the [environment variables documentation](https://docs.astro.build/en/guides/environment-variables/).
+
+- [#14122](https://github.com/withastro/astro/pull/14122) [`41ed3ac`](https://github.com/withastro/astro/commit/41ed3ac54adf1025a38031757ee0bfaef8504092) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds experimental support for automatic [Chrome DevTools workspace folders](https://developer.chrome.com/docs/devtools/workspaces)
+
+  This feature allows you to edit files directly in the browser and have those changes reflected in your local file system via a connected workspace folder. This allows you to apply edits such as CSS tweaks without leaving your browser tab!
+
+  With this feature enabled, the Astro dev server will automatically configure a Chrome DevTools workspace for your project. Your project will then appear as a workspace source, ready to connect. Then, changes that you make in the "Sources" panel are automatically saved to your project source code.
+
+  To enable this feature, add the experimental flag `chromeDevtoolsWorkspace` to your Astro config:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      chromeDevtoolsWorkspace: true,
+    },
+  });
+  ```
+
+  See the [experimental Chrome DevTools workspace feature documentation](https://docs.astro.build/en/reference/experimental-flags/chrome-devtools-workspace/) for more information.
+
 ## 5.12.9
 
 ### Patch Changes

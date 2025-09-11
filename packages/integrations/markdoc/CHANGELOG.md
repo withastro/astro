@@ -1,5 +1,19 @@
 # @astrojs/markdoc
 
+## 0.15.6
+
+### Patch Changes
+
+- [#14326](https://github.com/withastro/astro/pull/14326) [`c24a8f4`](https://github.com/withastro/astro/commit/c24a8f42a17410ea78fc2d68ff0105b931a381eb) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates `vite` version to fix CVE
+
+## 0.15.5
+
+### Patch Changes
+
+- Updated dependencies [[`4d16de7`](https://github.com/withastro/astro/commit/4d16de7f95db5d1ec1ce88610d2a95e606e83820)]:
+  - @astrojs/internal-helpers@0.7.2
+  - @astrojs/markdown-remark@6.3.6
+
 ## 0.15.4
 
 ### Patch Changes

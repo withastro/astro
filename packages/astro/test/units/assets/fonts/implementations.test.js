@@ -349,29 +349,30 @@ describe('fonts implementations', () => {
 	});
 
 	it('createDevUrlResolver()', () => {
-		assert.equal(
-			createDevUrlResolver({ base: 'base/_astro/fonts' }).resolve('xxx.woff2'),
-			'/base/_astro/fonts/xxx.woff2',
-		);
+		const resolver = createDevUrlResolver({ base: 'base/_astro/fonts' });
+		assert.deepStrictEqual(resolver.getCspResources(), []);
+		assert.equal(resolver.resolve('xxx.woff2'), '/base/_astro/fonts/xxx.woff2');
+		assert.deepStrictEqual(resolver.getCspResources(), ["'self'"]);
 	});
 
 	describe('createBuildUrlResolver()', () => {
 		const base = 'foo/_custom/fonts';
 
 		it('works with no assetsPrefix', () => {
-			assert.equal(
-				createBuildUrlResolver({ base, assetsPrefix: undefined }).resolve('abc.ttf'),
-				'/foo/_custom/fonts/abc.ttf',
-			);
+			const resolver = createBuildUrlResolver({ base, assetsPrefix: undefined });
+			assert.deepStrictEqual(resolver.getCspResources(), []);
+			assert.equal(resolver.resolve('abc.ttf'), '/foo/_custom/fonts/abc.ttf');
+			assert.deepStrictEqual(resolver.getCspResources(), ["'self'"]);
 		});
 
 		it('works with assetsPrefix as string', () => {
+			const resolver = createBuildUrlResolver({ base, assetsPrefix: 'https://cdn.example.com' });
+			assert.deepStrictEqual(resolver.getCspResources(), []);
 			assert.equal(
-				createBuildUrlResolver({ base, assetsPrefix: 'https://cdn.example.com' }).resolve(
-					'foo.woff',
-				),
+				resolver.resolve('foo.woff'),
 				'https://cdn.example.com/foo/_custom/fonts/foo.woff',
 			);
+			assert.deepStrictEqual(resolver.getCspResources(), ['https://cdn.example.com']);
 		});
 
 		it('works with assetsPrefix object', () => {
@@ -382,7 +383,7 @@ describe('fonts implementations', () => {
 					fallback: 'https://cdn.example.com',
 				},
 			});
-
+			assert.deepStrictEqual(resolver.getCspResources(), []);
 			assert.equal(
 				resolver.resolve('bar.woff2'),
 				'https://fonts.cdn.example.com/foo/_custom/fonts/bar.woff2',
@@ -391,6 +392,10 @@ describe('fonts implementations', () => {
 				resolver.resolve('xyz.ttf'),
 				'https://cdn.example.com/foo/_custom/fonts/xyz.ttf',
 			);
+			assert.deepStrictEqual(resolver.getCspResources(), [
+				'https://fonts.cdn.example.com',
+				'https://cdn.example.com',
+			]);
 		});
 	});
 });
