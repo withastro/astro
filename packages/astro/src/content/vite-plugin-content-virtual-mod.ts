@@ -1,5 +1,5 @@
 import nodeFs from 'node:fs';
-import { extname, relative } from 'node:path';
+import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dataToEsm } from '@rollup/pluginutils';
 import pLimit from 'p-limit';
