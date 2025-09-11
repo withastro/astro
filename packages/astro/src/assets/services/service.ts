@@ -105,7 +105,7 @@ export interface LocalImageService<T extends Record<string, any> = Record<string
 		inputBuffer: Uint8Array,
 		transform: LocalImageTransform,
 		imageConfig: ImageConfig<T>,
-	) => Promise<{ data: Uint8Array; format: ImageOutputFormat }>;
+	) => Promise<{ data: Uint8Array<ArrayBuffer>; format: ImageOutputFormat }>;
 
 	/**
 	 * A list of properties that should be used to generate the hash for the image.
