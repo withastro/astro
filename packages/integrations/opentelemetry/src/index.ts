@@ -51,7 +51,9 @@ export default function openTelemetry(options?: z.input<typeof optionsSchema>): 
 	return {
 		name: '@astrojs/opentelemetry',
 		hooks: {
-			'astro:config:setup': async ({ command, config, updateConfig, addInitializer, logger }) => {
+			'astro:config:setup': async (params) => {
+				const { command, config, updateConfig, experimental_addInitializer, logger } = params;
+
 				if (command !== 'dev' && command !== 'build') {
 					// This integration is only relevant for dev and build commands
 					return;
@@ -109,11 +111,11 @@ export default function openTelemetry(options?: z.input<typeof optionsSchema>): 
 						);
 					}
 
-					addInitializer(initializer);
+					experimental_addInitializer(initializer);
 				}
 
 				logger.info('Registering OpenTelemetry hook telemetry module.');
-				addInitializer(import.meta.resolve('./initialization/hook-telemetry.js'));
+				experimental_addInitializer(import.meta.resolve('./initialization/hook-telemetry.js'));
 			},
 		},
 	};

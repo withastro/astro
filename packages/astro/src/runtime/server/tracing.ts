@@ -3,7 +3,9 @@ import type { TraceEvent, TraceEventsPayloads, TraceListener } from '../../types
 
 export type { TraceEvent, TraceEventsPayloads, TraceListener };
 
-const listeners: TraceListener[] = [];
+// Use a global variable to store listeners to handle reloading when
+// running the dev server.
+const listeners: TraceListener[] = ((globalThis as any).__astro_tracing ??= []);
 
 /**
  * Register a trace listener that will be called on every trace event.

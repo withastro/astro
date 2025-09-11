@@ -1,12 +1,15 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-	// Enable tracing and middleware for testing
 	experimental: {
-		// Any experimental features needed for tracing
+		enableTracing: true,
 	},
-	// Configure for testing environment
-	server: {
-		port: 4321,
-	},
+	integrations: [{
+		name: 'tracing-test',
+		hooks: {
+			'astro:config:setup': ({ experimental_addInitializer }) => {
+				experimental_addInitializer('./src/tracing.ts');
+			},
+		},
+	}],
 });

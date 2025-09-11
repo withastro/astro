@@ -290,7 +290,7 @@ export async function runHookConfigSetup({
 							entrypoint: typeof entrypoint === 'string' ? entrypoint : fileURLToPath(entrypoint),
 						});
 					},
-					addInitializer: (entrypoint) => {
+					experimental_addInitializer: (entrypoint) => {
 						if (typeof entrypoint === 'string') {
 							updatedSettings.initializers.push(entrypoint);
 						} else {
