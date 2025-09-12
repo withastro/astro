@@ -2,8 +2,6 @@
 
 import type { SharpImageServiceConfig } from '../assets/services/sharp.js';
 
-export { createConsoleLogger, createNodeLogger } from '../core/config/index.js';
-
 import type { ImageServiceConfig } from '../types/public/index.js';
 
 export { defineAstroFontProvider, fontProviders } from '../assets/fonts/providers/index.js';
