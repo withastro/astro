@@ -105,6 +105,7 @@
     "dev": "astro-scripts dev --copy-wasm --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.{ts,js}\"",
     "test": "pnpm run test:unit && pnpm run test:integration && pnpm run test:types",
     "test:match": "astro-scripts test \"test/**/*.test.js\" --match",
+    "test:cli": "astro-scripts test \"test/**/cli.test.js\"",
     "test:e2e": "pnpm test:e2e:chrome && pnpm test:e2e:firefox",
     "test:e2e:match": "playwright test -g",
     "test:e2e:chrome": "playwright test",
