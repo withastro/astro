@@ -2,6 +2,8 @@
 import { routes } from 'astro:routes';
 // @ts-expect-error This is a virtual module
 import { manifest as serializedManifest } from 'astro:serialized-manifest';
+// @ts-expect-error This is a virtual module
+import { renderers } from 'astro:renderers';
 
 import type http from 'node:http';
 import type { RouteInfo } from '../core/app/types.js';
@@ -23,7 +25,10 @@ export default async function createExports(
 	});
 	const routesList: RoutesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
 
-	const app = await AstroServerApp.create(serializedManifest, routesList, logger, loader, settings);
+	// Merge renderers into the serialized manifest
+	const manifest = Object.assign(serializedManifest, { renderers });
+
+	const app = await AstroServerApp.create(manifest, routesList, logger, loader, settings);
 	return {
 		handler(incomingRequest: http.IncomingMessage, incomingResponse: http.ServerResponse) {
 			app.handleRequest({

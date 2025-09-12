@@ -2,8 +2,17 @@
 	"name": "@test/astro-cloudflare-vite-plugin",
 	"version": "0.0.0",
 	"private": true,
+	"scripts": {
+	  "dev": "astro dev"
+	},
 	"dependencies": {
 		"@astrojs/cloudflare": "workspace:*",
-		"astro": "workspace:*"
+		"@astrojs/react": "workspace:*",
+		"astro": "workspace:*",
+    "@types/react": "^18.3.24",
+    "@types/react-dom": "^18.3.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+		
 	}
 }

@@ -1,4 +1,6 @@
 ---
+import Hello from '../components/Hello.tsx';
+
 const workerRuntime = globalThis.navigator?.userAgent
 export const prerender = false
 ---
@@ -9,5 +11,9 @@ export const prerender = false
 	<body>
 		<h1>astro-cloudflare-custom-entryfile</h1>
 		<p>Runtime: {workerRuntime}</p>
+
+		<div id="framework">
+			<Hello client:load />
+		</div>
 	</body>
 </html>

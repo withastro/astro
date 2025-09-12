@@ -1,47 +1,21 @@
 import type { Plugin as VitePlugin } from 'vite';
+import vitePluginRenderers, { ASTRO_RENDERERS_MODULE_ID } from '../../../vite-plugin-renderers/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 
-export const RENDERERS_MODULE_ID = '@astro-renderers';
+// Keep the old export for backwards compatibility, but it now points to the new module ID
+export const RENDERERS_MODULE_ID = ASTRO_RENDERERS_MODULE_ID;
 export const RESOLVED_RENDERERS_MODULE_ID = `\0${RENDERERS_MODULE_ID}`;
 
-function vitePluginRenderers(opts: StaticBuildOptions): VitePlugin {
+function vitePluginRenderersForBuild(opts: StaticBuildOptions): VitePlugin {
+	const basePlugin = vitePluginRenderers({ settings: opts.settings });
+	
+	// Add the rollup input option for build
 	return {
-		name: '@astro/plugin-renderers',
-
+		...basePlugin,
 		options(options) {
-			return addRollupInput(options, [RENDERERS_MODULE_ID]);
-		},
-
-		resolveId(id) {
-			if (id === RENDERERS_MODULE_ID) {
-				return RESOLVED_RENDERERS_MODULE_ID;
-			}
-		},
-
-		async load(id) {
-			if (id === RESOLVED_RENDERERS_MODULE_ID) {
-				if (opts.settings.renderers.length > 0) {
-					const imports: string[] = [];
-					const exports: string[] = [];
-					let i = 0;
-					let rendererItems = '';
-
-					for (const renderer of opts.settings.renderers) {
-						const variable = `_renderer${i}`;
-						imports.push(`import ${variable} from ${JSON.stringify(renderer.serverEntrypoint)};`);
-						rendererItems += `Object.assign(${JSON.stringify(renderer)}, { ssr: ${variable} }),`;
-						i++;
-					}
-
-					exports.push(`export const renderers = [${rendererItems}];`);
-
-					return { code: `${imports.join('\n')}\n${exports.join('\n')}` };
-				} else {
-					return { code: `export const renderers = [];` };
-				}
-			}
+			return addRollupInput(options, [ASTRO_RENDERERS_MODULE_ID]);
 		},
 	};
 }
@@ -52,7 +26,7 @@ export function pluginRenderers(opts: StaticBuildOptions): AstroBuildPlugin {
 		hooks: {
 			'build:before': () => {
 				return {
-					vitePlugin: vitePluginRenderers(opts),
+					vitePlugin: vitePluginRenderersForBuild(opts),
 				};
 			},
 		},
