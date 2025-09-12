@@ -21,7 +21,7 @@ type DeserializedDirs = Extend<Dirs, URL>;
 
 export type ServerDeserializedManifest = Pick<
 	SSRManifest,
-	'base' | 'trailingSlash' | 'compressHTML' | 'site'
+	'base' | 'trailingSlash' | 'compressHTML' | 'site' | 'enableTracing'
 > &
 	DeserializedDirs & {
 		i18n: AstroConfig['i18n'];

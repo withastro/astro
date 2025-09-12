@@ -10,6 +10,7 @@ import { markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
+import { wrapWithTracing } from '../tracing.js';
 import { isPromise } from '../util.js';
 import { type AstroComponentFactory, isAstroComponentFactory } from './astro/factory.js';
 import { renderTemplate } from './astro/index.js';
@@ -460,7 +461,7 @@ function renderAstroComponent(
 	};
 }
 
-export function renderComponent(
+function innerRenderComponent(
 	result: SSRResult,
 	displayName: string,
 	Component: unknown,
@@ -469,7 +470,7 @@ export function renderComponent(
 ): RenderInstance | Promise<RenderInstance> {
 	if (isPromise(Component)) {
 		return Component.catch(handleCancellation).then((x) => {
-			return renderComponent(result, displayName, x, props, slots);
+			return innerRenderComponent(result, displayName, x, props, slots);
 		});
 	}
 
@@ -501,6 +502,56 @@ export function renderComponent(
 		throw e;
 	}
 }
+
+function traceableRenderComponent(
+	result: SSRResult,
+	displayName: string,
+	Component: unknown,
+	props: Record<string | number, any>,
+	slots: any = {},
+): RenderInstance | Promise<RenderInstance> {
+	const renderInstance = innerRenderComponent(result, displayName, Component, props, slots);
+
+	const moduleId = isAstroComponentFactory(Component) ? Component.moduleId : undefined;
+	const name = typeof Component === 'function' ? Component.name : displayName;
+
+	const eventPayload = {
+		moduleId: moduleId,
+		componentName: name || displayName,
+		displayName: displayName,
+		request: result.request,
+		response: result.response,
+	};
+
+	if (isPromise(renderInstance)) {
+		return renderInstance.then((instance) => {
+			instance.render = wrapWithTracing('componentRender', instance.render, eventPayload);
+
+			return instance;
+		});
+	}
+
+	renderInstance.render = wrapWithTracing('componentRender', renderInstance.render, eventPayload);
+
+	return renderInstance;
+}
+
+export const renderComponent = wrapWithTracing(
+	'instantiateComponent',
+	traceableRenderComponent,
+	(result, displayName, Component) => {
+		const moduleId = isAstroComponentFactory(Component) ? Component.moduleId : undefined;
+		const name = typeof Component === 'function' ? Component.name : displayName;
+
+		return {
+			moduleId: moduleId,
+			componentName: name || displayName,
+			displayName: displayName,
+			request: result.request,
+			response: result.response,
+		};
+	},
+);
 
 function normalizeProps(props: Record<string, any>): Record<string, any> {
 	if (props['class:list'] !== undefined) {

@@ -371,5 +371,6 @@ async function buildManifest(
 		key: encodedKey,
 		sessionConfig: settings.config.session,
 		csp,
+		enableTracing: settings.config.experimental.enableTracing,
 	};
 }

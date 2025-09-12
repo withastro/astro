@@ -29,6 +29,11 @@ export type SerializedRouteData = Omit<
 	};
 };
 
+type InjectedMiddleware = {
+	name: string;
+	entrypoint: string;
+};
+
 type CspObject = Required<Exclude<AstroConfig['experimental']['csp'], boolean>>;
 
 export interface AstroSettings {
@@ -50,7 +55,8 @@ export interface AstroSettings {
 	 */
 	clientDirectives: Map<string, string>;
 	devToolbarApps: (DevToolbarAppEntry | string)[];
-	middlewares: { pre: string[]; post: string[] };
+	middlewares: { pre: InjectedMiddleware[]; post: InjectedMiddleware[] };
+	initializers: string[];
 	tsConfig: TSConfig | undefined;
 	tsConfigPath: string | undefined;
 	watchFiles: string[];

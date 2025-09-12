@@ -104,6 +104,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		csp: false,
 		staticImportMetaEnv: false,
 		chromeDevtoolsWorkspace: false,
+		enableTracing: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -510,6 +511,10 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.chromeDevtoolsWorkspace),
+			enableTracing: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.enableTracing),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,

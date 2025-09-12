@@ -1,0 +1,100 @@
+---
+export interface Props {
+	title: string;
+	className?: string;
+}
+
+const { title, className = '' } = Astro.props;
+---
+
+<div class={`slot-wrapper ${className}`}>
+	<header class="wrapper-header">
+		<h3>{title}</h3>
+		<slot name="header" />
+	</header>
+	
+	<div class="wrapper-body">
+		<aside class="wrapper-sidebar">
+			<slot name="sidebar">
+				<p class="default-sidebar">Default sidebar content</p>
+			</slot>
+		</aside>
+		
+		<main class="wrapper-main">
+			<slot>
+				<p class="default-content">Default main content</p>
+			</slot>
+		</main>
+	</div>
+	
+	<footer class="wrapper-footer">
+		<slot name="footer">
+			<p class="default-footer">Default footer content</p>
+		</slot>
+	</footer>
+</div>
+
+<style>
+	.slot-wrapper {
+		border: 2px solid #007acc;
+		border-radius: 12px;
+		padding: 1rem;
+		margin: 1rem 0;
+		background-color: #f0f8ff;
+	}
+
+	.wrapper-header {
+		border-bottom: 1px solid #007acc;
+		padding-bottom: 0.5rem;
+		margin-bottom: 1rem;
+	}
+
+	.wrapper-header h3 {
+		margin: 0;
+		color: #007acc;
+		font-size: 1.2rem;
+	}
+
+	.wrapper-body {
+		display: grid;
+		grid-template-columns: 200px 1fr;
+		gap: 1rem;
+		min-height: 100px;
+	}
+
+	.wrapper-sidebar {
+		background-color: #e6f3ff;
+		padding: 0.75rem;
+		border-radius: 6px;
+		border: 1px solid #b3d9ff;
+	}
+
+	.wrapper-main {
+		background-color: white;
+		padding: 1rem;
+		border-radius: 6px;
+		border: 1px solid #ccc;
+	}
+
+	.wrapper-footer {
+		border-top: 1px solid #007acc;
+		padding-top: 0.5rem;
+		margin-top: 1rem;
+	}
+
+	.default-sidebar,
+	.default-content,
+	.default-footer {
+		color: #666;
+		font-style: italic;
+		margin: 0;
+		font-size: 0.9rem;
+	}
+
+	/* Responsive design */
+	@media (max-width: 768px) {
+		.wrapper-body {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

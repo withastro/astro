@@ -82,10 +82,13 @@
       ]
     },
     "onlyBuiltDependencies": [
-      "esbuild",
-      "workerd",
       "@biomejs/biome",
-      "sharp"
+      "@tailwindcss/oxide",
+      "esbuild",
+      "oxc-resolver",
+      "protobufjs",
+      "sharp",
+      "workerd"
     ]
   }
 }

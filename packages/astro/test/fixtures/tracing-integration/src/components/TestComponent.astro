@@ -1,0 +1,89 @@
+---
+export interface Props {
+	title: string;
+	count?: number;
+	isActive?: boolean;
+}
+
+const { title, count = 0, isActive = false } = Astro.props;
+
+// Some frontmatter logic to test frontmatter tracing
+const computedValue = count * 2;
+const statusText = isActive ? 'Active' : 'Inactive';
+const renderTime = new Date().toISOString();
+---
+
+<div class="test-component" data-active={isActive}>
+	<h3>{title}</h3>
+	<div class="content">
+		<p>Count: {count}</p>
+		<p>Computed Value: {computedValue}</p>
+		<p>Status: {statusText}</p>
+		<p>Rendered at: {renderTime}</p>
+		
+		{count > 0 && (
+			<div class="conditional-content">
+				<p>This content is conditionally rendered</p>
+				<ul>
+					{Array.from({ length: Math.min(count, 5) }, (_, i) => (
+						<li key={i}>Item {i + 1}</li>
+					))}
+				</ul>
+			</div>
+		)}
+
+		<slot>
+			<p class="default-slot-content">Default slot content</p>
+		</slot>
+	</div>
+</div>
+
+<style>
+	.test-component {
+		border: 1px solid #ddd;
+		border-radius: 8px;
+		padding: 1rem;
+		margin: 0.5rem 0;
+		background-color: #f9f9f9;
+	}
+
+	.test-component[data-active="true"] {
+		border-color: #4CAF50;
+		background-color: #e8f5e8;
+	}
+
+	.test-component h3 {
+		margin: 0 0 0.5rem 0;
+		color: #333;
+	}
+
+	.content {
+		margin-top: 0.5rem;
+	}
+
+	.content p {
+		margin: 0.25rem 0;
+		font-size: 0.9rem;
+	}
+
+	.conditional-content {
+		background-color: #fff;
+		padding: 0.5rem;
+		border-radius: 4px;
+		margin-top: 0.5rem;
+	}
+
+	.conditional-content ul {
+		margin: 0.5rem 0 0 0;
+		padding-left: 1.5rem;
+	}
+
+	.conditional-content li {
+		margin: 0.25rem 0;
+	}
+
+	.default-slot-content {
+		font-style: italic;
+		color: #666;
+	}
+</style>

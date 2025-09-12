@@ -2483,6 +2483,22 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * See the [experimental Chrome DevTools workspace feature documentation](https://docs.astro.build/en/reference/experimental-flags/chrome-devtools-workspace/) for more information.
 		 */
 		chromeDevtoolsWorkspace?: boolean;
+
+		/**
+		 * @name experimental.enableTracing
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.14
+		 * @description
+		 *
+		 * Enables tracing functionality for Astro internals.
+		 *
+		 * This allows users and integrations to subscribe to events describing internal
+		 * Astro processes during rendering or build.
+		 *
+		 * Without this flag, no tracing events will be emitted even if subscribers are registered.
+		 */
+		enableTracing?: boolean;
 	};
 }
 

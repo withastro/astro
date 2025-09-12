@@ -1,0 +1,113 @@
+---
+import TestComponent from '../components/TestComponent.astro';
+import SlotWrapper from '../components/SlotWrapper.astro';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Tracing Test - Slots</title>
+	</head>
+	<body>
+		<main>
+			<h1>Slots Tracing Test</h1>
+			<p>This page tests slot rendering tracing.</p>
+			
+			<section>
+				<h2>Default Slot</h2>
+				<SlotWrapper title="Default Slot Wrapper">
+					<p>This content goes into the default slot</p>
+					<TestComponent title="Component in Slot" count={5} isActive={true} />
+				</SlotWrapper>
+			</section>
+
+			<section>
+				<h2>Named Slots</h2>
+				<SlotWrapper title="Named Slots Wrapper">
+					<Fragment slot="header">
+						<h3>Header Slot Content</h3>
+						<p>This is in the header slot</p>
+					</Fragment>
+					
+					<Fragment slot="sidebar">
+						<ul>
+							<li>Sidebar Item 1</li>
+							<li>Sidebar Item 2</li>
+							<li>Sidebar Item 3</li>
+						</ul>
+					</Fragment>
+					
+					<p>Main content goes here (default slot)</p>
+					<TestComponent title="Main Content Component" count={3} />
+					
+					<Fragment slot="footer">
+						<p>Footer slot content</p>
+						<small>Generated at: {new Date().toISOString()}</small>
+					</Fragment>
+				</SlotWrapper>
+			</section>
+
+			<section>
+				<h2>Nested Slots</h2>
+				<SlotWrapper title="Outer Wrapper">
+					<SlotWrapper title="Inner Wrapper">
+						<Fragment slot="header">
+							<h4>Nested Header</h4>
+						</Fragment>
+						
+						<TestComponent title="Deeply Nested Component" count={7} isActive={true}>
+							<p>Content inside nested component slot</p>
+						</TestComponent>
+						
+						<Fragment slot="footer">
+							<p>Nested Footer</p>
+						</Fragment>
+					</SlotWrapper>
+				</SlotWrapper>
+			</section>
+
+			<section>
+				<h2>Multiple Components with Slots</h2>
+				<div class="multi-component-section">
+					<SlotWrapper title="First Wrapper">
+						<TestComponent title="First Component" count={1} />
+					</SlotWrapper>
+					
+					<SlotWrapper title="Second Wrapper">
+						<TestComponent title="Second Component" count={2} />
+					</SlotWrapper>
+					
+					<SlotWrapper title="Third Wrapper">
+						<TestComponent title="Third Component" count={3} />
+					</SlotWrapper>
+				</div>
+			</section>
+		</main>
+	</body>
+</html>
+
+<style>
+	.multi-component-section {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		gap: 1rem;
+		margin-top: 1rem;
+	}
+	
+	section {
+		margin: 2rem 0;
+		padding: 1rem;
+		border: 1px solid #eee;
+		border-radius: 8px;
+	}
+	
+	section h2 {
+		margin-top: 0;
+		color: #333;
+		border-bottom: 2px solid #4CAF50;
+		padding-bottom: 0.5rem;
+	}
+</style>

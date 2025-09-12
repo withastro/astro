@@ -285,9 +285,17 @@ export async function runHookConfigSetup({
 								order === 'pre' ? 'before' : 'after'
 							} any application middleware you define.`,
 						);
-						updatedSettings.middlewares[order].push(
-							typeof entrypoint === 'string' ? entrypoint : fileURLToPath(entrypoint),
-						);
+						updatedSettings.middlewares[order].push({
+							name: integration.name,
+							entrypoint: typeof entrypoint === 'string' ? entrypoint : fileURLToPath(entrypoint),
+						});
+					},
+					experimental_addInitializer: (entrypoint) => {
+						if (typeof entrypoint === 'string') {
+							updatedSettings.initializers.push(entrypoint);
+						} else {
+							updatedSettings.initializers.push(fileURLToPath(entrypoint));
+						}
 					},
 					createCodegenDir: () => {
 						const codegenDir = new URL(normalizeCodegenDir(integration.name), settings.dotAstroDir);

@@ -1,0 +1,55 @@
+---
+// Import a test component to trigger component tracing
+import TestComponent from '../components/TestComponent.astro';
+
+const props = {
+	title: "Component Test",
+	count: 42,
+	isActive: true
+};
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Tracing Test - Component</title>
+	</head>
+	<body>
+		<main>
+			<h1>Component Tracing Test</h1>
+			<p>This page tests component instantiation and rendering tracing.</p>
+			
+			<section>
+				<h2>Test Component</h2>
+				<TestComponent {...props} />
+			</section>
+
+			<section>
+				<h2>Multiple Components</h2>
+				<TestComponent title="First Component" count={1} isActive={true} />
+				<TestComponent title="Second Component" count={2} isActive={false} />
+				<TestComponent title="Third Component" count={3} isActive={true} />
+			</section>
+
+			<section>
+				<h2>Nested Components</h2>
+				<div class="nested-wrapper">
+					<TestComponent title="Outer Component" count={10}>
+						<TestComponent title="Inner Component" count={20} isActive={true} />
+					</TestComponent>
+				</div>
+			</section>
+		</main>
+	</body>
+</html>
+
+<style>
+	.nested-wrapper {
+		border: 2px solid #ccc;
+		padding: 1rem;
+		margin: 1rem 0;
+	}
+</style>

@@ -99,6 +99,7 @@ function serializeServerConfig(manifest: SSRManifest): string {
 		trailingSlash: manifest.trailingSlash,
 		site: manifest.site,
 		compressHTML: manifest.compressHTML,
+		enableTracing: manifest.enableTracing,
 	};
 	const output = [];
 	for (const [key, value] of Object.entries(serverConfig)) {
