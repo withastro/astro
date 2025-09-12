@@ -52,8 +52,7 @@ export default function createVitePluginAstroServer({
 			}
 
 			const loader = createViteLoader(viteServer);
-			const entrypoint = settings.adapter?.devEntrypoint ?? 'astro/app/dev';
-			const createExports = await loader.import(entrypoint.toString());
+			const createExports = await loader.import('astro:app');
 			const controller = createController({ loader });
 			const { handler } = await createExports.default(controller, settings, loader);
 			const { manifest } = await loader.import('astro:serialized-manifest');

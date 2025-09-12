@@ -1,14 +1,15 @@
 import type { SSRManifest } from 'astro';
 import { handle, type Env } from '@astrojs/cloudflare/handler'
 import type { ExportedHandler } from '@cloudflare/workers-types';
-import { DevApp } from 'astro/app/dev';
 import type { RouteInfo } from 'astro';
-import { createConsoleLogger } from 'astro/config';
+import  { DevApp, createConsoleLogger } from 'astro/app';
+import type { RoutesList } from 'astro/dist/types/astro.ts';
 
-export async function createExports(manifest: SSRManifest, routes: RouteInfo[]) {
-	const routesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
-	const logger = createConsoleLogger("info");
-	const app = await DevApp.create(manifest, routesList, logger);
+
+export function createExports(manifest: SSRManifest, routes: RouteInfo[]) {
+	const routesList: RoutesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
+	const logger = createConsoleLogger('debug');
+	const app = new DevApp(manifest, true, logger, routesList)
 	return {
 		default: {
 			async fetch(request, env, ctx) {

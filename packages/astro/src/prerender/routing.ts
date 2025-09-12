@@ -1,11 +1,10 @@
-import type { DevPipeline } from '../core/app/dev/pipeline.js';
 import { routeIsRedirect } from '../core/redirects/index.js';
 import { routeComparator } from '../core/routing/priority.js';
 import type { RouteData, SSRManifest } from '../types/public/internal.js';
-import { getPrerenderStatus } from './metadata.js';
+import type { AstroServerPipeline } from '../vite-plugin-app/pipeline.js';
 
 type GetSortedPreloadedMatchesParams = {
-	pipeline: DevPipeline;
+	pipeline: AstroServerPipeline;
 	matches: RouteData[];
 	manifest: SSRManifest;
 };
@@ -26,7 +25,7 @@ export async function getSortedPreloadedMatches({
 }
 
 type PreloadAndSetPrerenderStatusParams = {
-	pipeline: DevPipeline;
+	pipeline: AstroServerPipeline;
 	matches: RouteData[];
 	manifest: SSRManifest;
 };
@@ -37,7 +36,6 @@ type PreloadAndSetPrerenderStatusResult = {
 };
 
 async function preloadAndSetPrerenderStatus({
-	pipeline,
 	matches,
 	manifest,
 }: PreloadAndSetPrerenderStatusParams): Promise<PreloadAndSetPrerenderStatusResult[]> {
@@ -50,16 +48,6 @@ async function preloadAndSetPrerenderStatus({
 				filePath,
 			});
 			continue;
-		}
-
-		// gets the prerender metadata set by the `astro:scanner` vite plugin
-		const prerenderStatus = getPrerenderStatus({
-			filePath,
-			loader: pipeline.loader,
-		});
-
-		if (prerenderStatus !== undefined) {
-			route.prerender = prerenderStatus;
 		}
 
 		preloaded.push({ route, filePath });

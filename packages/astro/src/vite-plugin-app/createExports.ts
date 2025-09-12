@@ -1,17 +1,16 @@
 // @ts-expect-error This is a virtual module
 import { routes } from 'astro:routes';
 // @ts-expect-error This is a virtual module
-import { manifest } from 'astro:serialized-manifest';
-import type http from 'node:http';
-import type { AstroSettings, RoutesList } from '../../../types/astro.js';
-import type { DevServerController } from '../../../vite-plugin-astro-server/controller.js';
-import { Logger } from '../../logger/core.js';
-import { nodeLogDestination } from '../../logger/node.js';
-import type { ModuleLoader } from '../../module-loader/index.js';
-import type { RouteInfo } from '../types.js';
-import { DevApp } from './app.js';
+import { manifest as serializedManifest } from 'astro:serialized-manifest';
 
-export { DevApp };
+import type http from 'node:http';
+import type { RouteInfo } from '../core/app/types.js';
+import { Logger } from '../core/logger/core.js';
+import { nodeLogDestination } from '../core/logger/node.js';
+import type { ModuleLoader } from '../core/module-loader/index.js';
+import type { AstroSettings, RoutesList } from '../types/astro.js';
+import type { DevServerController } from '../vite-plugin-astro-server/controller.js';
+import { AstroServerApp } from './app.js';
 
 export default async function createExports(
 	controller: DevServerController,
@@ -23,7 +22,8 @@ export default async function createExports(
 		level: 'info',
 	});
 	const routesList: RoutesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
-	const app = await DevApp.create(manifest, routesList, logger, loader, settings);
+
+	const app = await AstroServerApp.create(serializedManifest, routesList, logger, loader, settings);
 	return {
 		handler(incomingRequest: http.IncomingMessage, incomingResponse: http.ServerResponse) {
 			app.handleRequest({
