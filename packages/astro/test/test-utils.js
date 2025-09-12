@@ -173,26 +173,47 @@ export async function loadFixture(inlineConfig) {
 			return devServer;
 		},
 		onNextDataStoreChange: (timeout = 5000) => {
-			
-
-			if (!devServer) {
-				return Promise.reject(new Error('No dev server running'));
-			}
-
-			const dataStoreFile = path.join(root, '.astro', 'data-store', '__manifest.json');
-			console.log('Watching data store:', dataStoreFile)
+			const dataStoreDir = path.join(root, '.astro', 'data-store');
+			console.log('Watching data store directory:', dataStoreDir);
 
 			return new Promise((resolve, reject) => {
+				let debounceTimer = null;
+				let timeoutTimer = null;
+
+				const cleanup = () => {
+					if (debounceTimer) {
+						clearTimeout(debounceTimer);
+						debounceTimer = null;
+					}
+					if (timeoutTimer) {
+						clearTimeout(timeoutTimer);
+						timeoutTimer = null;
+					}
+					devServer.watcher.removeListener('change', changeHandler);
+				};
+
 				const changeHandler = (fileName) => {
-					console.log('File changed: ', fileName)
-					if (fileName === dataStoreFile) {
-						devServer.watcher.removeListener('change', changeHandler);
-						resolve();
+					console.log('File changed:', fileName);
+
+					// Check if the changed file is in the data store directory
+					if (fileName.startsWith(dataStoreDir)) {
+						console.log('Data store file changed, debouncing...');
+
+						if (debounceTimer) {
+							clearTimeout(debounceTimer);
+						}
+
+						debounceTimer = setTimeout(() => {
+							cleanup();
+							resolve();
+						}, 100); // 100ms debounce
 					}
 				};
+
 				devServer.watcher.on('change', changeHandler);
-				setTimeout(() => {
-					devServer.watcher.removeListener('change', changeHandler);
+
+				timeoutTimer = setTimeout(() => {
+					cleanup();
 					reject(new Error('Data store did not update within timeout'));
 				}, timeout);
 			});
