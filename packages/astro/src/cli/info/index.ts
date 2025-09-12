@@ -20,7 +20,7 @@ export async function getInfoOutput({
 	print: boolean;
 }): Promise<string> {
 	const packageManager = getPackageManager();
-	
+
 	const rows: Array<[string, string | string[]]> = [
 		['Astro', `v${ASTRO_VERSION}`],
 		['Node', process.version],
@@ -29,26 +29,29 @@ export async function getInfoOutput({
 	];
 
 	if (print) {
-		const viteVersion = await getVersion(packageManager, "vite");
-	
+		const viteVersion = await getVersion(packageManager, 'vite');
+
 		if (viteVersion) {
 			rows.splice(1, 0, ['Vite', viteVersion]);
 		}
 	}
-	
-	const hasAdapter = "adapter" in userConfig && userConfig.adapter?.name;
+
+	const hasAdapter = 'adapter' in userConfig && userConfig.adapter?.name;
 	let adapterVersion: string | undefined = undefined;
 
 	if (print && hasAdapter) {
 		adapterVersion = await getVersion(packageManager, userConfig.adapter!.name);
 	}
-	
+
 	const adatperOutputString = hasAdapter
-		? `${userConfig.adapter!.name}${adapterVersion ? ` (${adapterVersion})` : ""}`
-		: "none";
-	
+		? `${userConfig.adapter!.name}${adapterVersion ? ` (${adapterVersion})` : ''}`
+		: 'none';
+
 	try {
-		rows.push(['Output', ("adapter" in userConfig && userConfig.output ? userConfig.output : 'static')]);
+		rows.push([
+			'Output',
+			'adapter' in userConfig && userConfig.output ? userConfig.output : 'static',
+		]);
 		rows.push(['Adapter', adatperOutputString]);
 
 		const integrations = (userConfig?.integrations ?? [])
@@ -59,22 +62,24 @@ export async function getInfoOutput({
 				if (!print) return i.name;
 
 				const version = await getVersion(packageManager, i.name);
-				
-				return `${i.name}${version ? ` (${version})` : ""}`;
+
+				return `${i.name}${version ? ` (${version})` : ''}`;
 			});
 
 		const awaitedIntegrations = (await Promise.all(integrations)).filter(Boolean);
-		
+
 		rows.push(['Integrations', awaitedIntegrations.length > 0 ? awaitedIntegrations : 'none']);
 	} catch {}
-	
+
 	let output = '';
 	for (const [label, value] of rows) {
 		output += printRow(label, value, print);
 	}
 
-	if (packageManager === "bun") {
-		console.warn("Bun is not officially supported by Astro. Unable to retreive certain version information.");
+	if (packageManager === 'bun') {
+		console.warn(
+			'Bun is not officially supported by Astro. Unable to retreive certain version information.',
+		);
 	}
 
 	return output.trim();
@@ -228,105 +233,109 @@ function printRow(label: string, value: string | string[], print: boolean) {
 }
 
 function formatPnpmVersionOutput(versionOutput: string): string {
-	return versionOutput.startsWith("link:")
-		? "Local"
-		: `v${versionOutput}`;
+	return versionOutput.startsWith('link:') ? 'Local' : `v${versionOutput}`;
 }
 
 type BareNpmLikeVersionOutput = {
 	version: string;
 	dependencies: Record<string, BareNpmLikeVersionOutput>;
-}
+};
 
 async function spawnAsync(executable: string, opts: Array<string>): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const child = spawn(executable, opts, { shell: true });
-    let stdout = "";
-    let stderr = "";
+	return new Promise((resolve, reject) => {
+		const child = spawn(executable, opts, { shell: true });
+		let stdout = '';
+		let stderr = '';
 
-    child.stdout.on("data", d => (stdout += d));
-    child.stderr.on("data", d => (stderr += d));
-    child.on("error", reject);
-    child.on("close", code => {
-      if (code !== 0) reject(new Error(stderr));
-      else resolve(stdout);
-    });
-  });
+		child.stdout.on('data', (d) => (stdout += d));
+		child.stderr.on('data', (d) => (stderr += d));
+		child.on('error', reject);
+		child.on('close', (code) => {
+			if (code !== 0) reject(new Error(stderr));
+			else resolve(stdout);
+		});
+	});
 }
 
 async function getVersionUsingPNPM(dependency: string): Promise<string | undefined> {
-	const output = await spawnAsync("pnpm", ["why", dependency, "--json"]);
+	const output = await spawnAsync('pnpm', ['why', dependency, '--json']);
 
 	const parsedOutput = JSON.parse(output) as Array<BareNpmLikeVersionOutput>;
-	
+
 	const deps = parsedOutput[0].dependencies;
 
 	if (parsedOutput.length === 0 || !deps) {
 		return undefined;
 	}
-	
+
 	const userProvidedDependency = deps[dependency];
-	
+
 	if (userProvidedDependency) {
-		return userProvidedDependency.version.startsWith("link:")
-			? "Local"
+		return userProvidedDependency.version.startsWith('link:')
+			? 'Local'
 			: `v${userProvidedDependency.version}`;
 	}
-	
+
 	const astroDependency = deps.astro?.dependencies[dependency];
 	return astroDependency ? formatPnpmVersionOutput(astroDependency.version) : undefined;
 }
 
 async function getVersionUsingNPM(dependency: string): Promise<string | undefined> {
-	const output = await spawnAsync("npm", ["ls", dependency, "--json", "--depth=1"]);
+	const output = await spawnAsync('npm', ['ls', dependency, '--json', '--depth=1']);
 	const parsedNpmOutput = JSON.parse(output) as BareNpmLikeVersionOutput;
-	
+
 	if (!parsedNpmOutput.dependencies) {
 		return undefined;
 	}
-	
+
 	if (parsedNpmOutput.dependencies[dependency]) {
 		return `v${parsedNpmOutput.dependencies[dependency].version}`;
 	}
-	
+
 	const astro = parsedNpmOutput.dependencies.astro;
 	return astro ? `v${astro.dependencies[dependency].version}` : undefined;
 }
 
 type YarnVersionOutputLine = {
-	children: Record<string, { locator: string }>
-}
+	children: Record<string, { locator: string }>;
+};
 
 function getYarnOutputDepVersion(dependency: string, outputLine: string) {
 	const parsed = JSON.parse(outputLine) as YarnVersionOutputLine;
-	
+
 	for (const [key, value] of Object.entries(parsed.children)) {
 		if (key.startsWith(`${dependency}@`)) {
-			return `v${value.locator.split(":").pop()}`;
+			return `v${value.locator.split(':').pop()}`;
 		}
 	}
 }
 
 async function getVersionUsingYarn(dependency: string): Promise<string | undefined> {
-	const yarnOutput = await spawnAsync("yarn", ["why", dependency, "--json"]);
-	
-	const hasUserDefinition = yarnOutput.includes("workspace:.");
-	
-	for (const line of yarnOutput.split("\n")) {
-		if (hasUserDefinition && line.includes("workspace:.")) return getYarnOutputDepVersion(dependency, line);
-		if (!hasUserDefinition && line.includes("astro@")) return getYarnOutputDepVersion(dependency, line);
+	const yarnOutput = await spawnAsync('yarn', ['why', dependency, '--json']);
+
+	const hasUserDefinition = yarnOutput.includes('workspace:.');
+
+	for (const line of yarnOutput.split('\n')) {
+		if (hasUserDefinition && line.includes('workspace:.'))
+			return getYarnOutputDepVersion(dependency, line);
+		if (!hasUserDefinition && line.includes('astro@'))
+			return getYarnOutputDepVersion(dependency, line);
 	}
 }
 
 async function getVersion(packageManager: string, dependency: string): Promise<string | undefined> {
 	try {
 		switch (packageManager) {
-			case "pnpm": return await getVersionUsingPNPM(dependency);
-			case "npm": return getVersionUsingNPM(dependency);
-			case "yarn": return getVersionUsingYarn(dependency);
-			case "bun": return undefined;
+			case 'pnpm':
+				return await getVersionUsingPNPM(dependency);
+			case 'npm':
+				return getVersionUsingNPM(dependency);
+			case 'yarn':
+				return getVersionUsingYarn(dependency);
+			case 'bun':
+				return undefined;
 		}
-		
+
 		return undefined;
 	} catch (err) {
 		console.error(err);
