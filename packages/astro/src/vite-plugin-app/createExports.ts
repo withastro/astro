@@ -14,8 +14,8 @@ import { AstroServerApp } from './app.js';
 
 export default async function createExports(
 	controller: DevServerController,
-	settings?: AstroSettings,
-	loader?: ModuleLoader,
+	settings: AstroSettings,
+	loader: ModuleLoader,
 ) {
 	const logger = new Logger({
 		dest: nodeLogDestination,

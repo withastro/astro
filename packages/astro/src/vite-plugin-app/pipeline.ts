@@ -62,9 +62,8 @@ export class AstroServerPipeline extends Pipeline {
 			logger,
 			manifest,
 			settings,
-		}: Pick<AstroServerPipeline, 'loader' | 'logger' | 'manifest'> & {
-			settings?: AstroSettings;
-		},
+		}: Pick<AstroServerPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>
+		
 	) {
 		const pipeline = new AstroServerPipeline(loader, logger, manifest, settings);
 		pipeline.routesList = manifestData;

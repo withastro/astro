@@ -42,9 +42,9 @@ import {
 import { AstroServerPipeline } from './pipeline.js';
 
 export class AstroServerApp extends BaseApp<AstroServerPipeline> {
-	settings?: AstroSettings;
+	settings: AstroSettings;
 	logger: Logger;
-	loader?: ModuleLoader;
+	loader: ModuleLoader;
 	manifestData: RoutesList;
 	currentRenderContext: RenderContext | undefined = undefined;
 	constructor(
@@ -52,8 +52,8 @@ export class AstroServerApp extends BaseApp<AstroServerPipeline> {
 		streaming = true,
 		logger: Logger,
 		manifestData: RoutesList,
-		loader?: ModuleLoader,
-		settings?: AstroSettings,
+		loader: ModuleLoader,
+		settings: AstroSettings,
 	) {
 		super(manifest, streaming, settings, logger, loader, manifestData);
 		this.settings = settings;
@@ -66,8 +66,8 @@ export class AstroServerApp extends BaseApp<AstroServerPipeline> {
 		manifest: SSRManifest,
 		routesList: RoutesList,
 		logger: Logger,
-		loader?: ModuleLoader,
-		settings?: AstroSettings,
+		loader: ModuleLoader,
+		settings: AstroSettings,
 	): Promise<AstroServerApp> {
 		return new AstroServerApp(manifest, true, logger, routesList, loader, settings);
 	}
@@ -213,7 +213,7 @@ export class AstroServerApp extends BaseApp<AstroServerPipeline> {
 		});
 
 		// Set user specified headers to response object.
-		for (const [name, value] of Object.entries(this.settings?.config.server.headers ?? {})) {
+		for (const [name, value] of Object.entries(this.settings.config.server.headers ?? {})) {
 			if (value) incomingResponse.setHeader(name, value);
 		}
 
@@ -338,8 +338,8 @@ export class AstroServerApp extends BaseApp<AstroServerPipeline> {
 				response.status >= 300 &&
 				response.status < 400 &&
 				routeIsRedirect(route) &&
-				!this.settings?.config.build.redirects &&
-				this.settings?.buildOutput === 'static'
+				!this.settings.config.build.redirects &&
+				this.settings.buildOutput === 'static'
 			) {
 				// If we're here, it means that the calling static redirect that was configured by the user
 				// We try to replicate the same behaviour that we provide during a static build
