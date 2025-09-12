@@ -1,7 +1,9 @@
 // IMPORTANT: this file is the entrypoint for "astro/config". Keep it as light as possible!
 
 import type { SharpImageServiceConfig } from '../assets/services/sharp.js';
-import { createNodeLogger } from '../core/config/index.js';
+
+export { createConsoleLogger, createNodeLogger } from '../core/config/index.js';
+
 import type { ImageServiceConfig } from '../types/public/index.js';
 
 export { defineAstroFontProvider, fontProviders } from '../assets/fonts/providers/index.js';
@@ -33,5 +35,3 @@ export function passthroughImageService(): ImageServiceConfig {
 		config: {},
 	};
 }
-
-export { createNodeLogger };

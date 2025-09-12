@@ -46,9 +46,7 @@ export async function serializedManifestPlugin({
 	};
 }
 
-export async function createSerializedManifest(
-	settings: AstroSettings,
-): Promise<SerializedSSRManifest> {
+async function createSerializedManifest(settings: AstroSettings): Promise<SerializedSSRManifest> {
 	let i18nManifest: SSRManifestI18n | undefined;
 	let csp: SSRManifestCSP | undefined;
 	if (settings.config.i18n) {
