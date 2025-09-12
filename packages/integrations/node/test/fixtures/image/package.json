@@ -7,7 +7,7 @@
     "astro": "workspace:*"
   },
   "peerDependencies": {
-    "sharp": "^0.33.5"
+    "sharp": "^0.34.3"
   },
   "scripts": {
     "build": "astro build",
