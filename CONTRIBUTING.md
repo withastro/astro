@@ -85,7 +85,7 @@ Overall, it's up to personal preference which method to use. For smaller changes
 > [!IMPORTANT]
 > This convention is recent, the source code might not follow this convention yet.
 
-The use of `Node.js` APIs e.g. `node:` is limited and should be done only in specific parts of the code. The reason why 
+The use of `Node.js` APIs e.g. `node:` is limited and should be done only in specific parts of the code. The reason why
 the project can't use `Node.js` APIs at will is because Astro code might run in environments that support runtimes other than
 Node.js. An example is Cloudflare Workers.
 
