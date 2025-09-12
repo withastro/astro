@@ -20,7 +20,6 @@ export async function getInfoOutput({
 	print: boolean;
 }): Promise<string> {
 	const packageManager = getPackageManager();
-	const viteVersion = await getVersion(packageManager, "vite");
 	
 	const rows: Array<[string, string | string[]]> = [
 		['Astro', `v${ASTRO_VERSION}`],
@@ -28,27 +27,38 @@ export async function getInfoOutput({
 		['System', getSystem()],
 		['Package Manager', packageManager],
 	];
+
+	if (print) {
+		const viteVersion = await getVersion(packageManager, "vite");
 	
-	if (viteVersion) {
-		rows.splice(1, 0, ['Vite', viteVersion]);
+		if (viteVersion) {
+			rows.splice(1, 0, ['Vite', viteVersion]);
+		}
 	}
 	
-	const adapterVersion = "adapter" in userConfig && userConfig.adapter?.name
-		? await getVersion(packageManager, userConfig.adapter.name)
-		: undefined;
+	const hasAdapter = "adapter" in userConfig && userConfig.adapter?.name;
+	let adapterVersion: string | undefined = undefined;
+
+	if (print && hasAdapter) {
+		adapterVersion = await getVersion(packageManager, userConfig.adapter!.name);
+	}
 	
-	const adatperOutputString = "adapter" in userConfig && userConfig.adapter?.name
-		? `${userConfig.adapter.name}${adapterVersion ? ` (${adapterVersion})` : ""}`
+	const adatperOutputString = hasAdapter
+		? `${userConfig.adapter!.name}${adapterVersion ? ` (${adapterVersion})` : ""}`
 		: "none";
 	
 	try {
 		rows.push(['Output', ("adapter" in userConfig && userConfig.output ? userConfig.output : 'static')]);
 		rows.push(['Adapter', adatperOutputString]);
+
 		const integrations = (userConfig?.integrations ?? [])
 			.filter(Boolean)
 			.flat()
 			.map(async (i: any) => {
 				const name = i?.name;
+
+				if (!print) return name;
+
 				const version = await getVersion(packageManager, name);
 				
 				return `${name}${version ? ` (${version})` : ""}`;
