@@ -710,7 +710,7 @@ async function createBuildManifest(
 		};
 	}
 	return {
-		hrefRoot: settings.config.root.toString(),
+		rootDir: settings.config.root,
 		srcDir: settings.config.srcDir,
 		buildClientDir: settings.config.build.client,
 		buildServerDir: settings.config.build.server,

@@ -63,7 +63,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 					if (result) {
 						let info = this.getModuleInfo(result.id);
 						const astro = info && getAstroMetadata(info);
-						if (astro) {
+						if (astro && isRunnableDevEnvironment(environment)) {
 							if (astro.propagation === 'self' || astro.propagation === 'in-tree') {
 								propagateMetadata.call(this, importer, 'propagation', 'in-tree');
 							}
@@ -77,6 +77,9 @@ export default function configHeadVitePlugin(): vite.Plugin {
 			}
 		},
 		transform(source, id) {
+			if (!isRunnableDevEnvironment(environment)) {
+				return;
+			}
 			// TODO This could probably be removed now that this is handled in resolveId
 			let info = this.getModuleInfo(id);
 			if (info && getAstroMetadata(info)?.containsHead) {

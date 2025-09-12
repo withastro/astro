@@ -5,6 +5,7 @@ import { bold, cyan } from 'kleur/colors';
 import { glob } from 'tinyglobby';
 import {
 	type DevEnvironment,
+	isRunnableDevEnvironment,
 	normalizePath,
 	type RunnableDevEnvironment,
 	type ViteDevServer,
@@ -347,6 +348,9 @@ export async function createContentTypesGenerator({
 				logger,
 				settings,
 			});
+			if (!isRunnableDevEnvironment(viteServer.environments.ssr)) {
+				return;
+			}
 			invalidateVirtualMod(viteServer.environments.ssr);
 		}
 	}

@@ -22,6 +22,7 @@ import astroPrefetch from '../prefetch/vite-plugin-prefetch.js';
 import astroDevToolbar from '../toolbar/vite-plugin-dev-toolbar.js';
 import astroTransitions from '../transitions/vite-plugin-transitions.js';
 import type { AstroSettings } from '../types/astro.js';
+import { vitePluginApp } from '../vite-plugin-app/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
@@ -151,6 +152,7 @@ export async function createVite(
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
+			command === 'dev' && vitePluginApp(),
 			command === 'dev' && vitePluginAstroServer({ settings, logger }),
 			importMetaEnv({ envLoader }),
 			astroEnv({ settings, sync, envLoader }),
