@@ -14,10 +14,14 @@ import { createCachedFontFetcher } from '../../../../dist/assets/fonts/implement
 import { createCapsizeFontMetricsResolver } from '../../../../dist/assets/fonts/implementations/font-metrics-resolver.js';
 import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
 import {
+	createBuildUrlProxyHashResolver,
+	createDevUrlProxyHashResolver,
+} from '../../../../dist/assets/fonts/implementations/url-proxy-hash-resolver.js';
+import {
 	createBuildUrlResolver,
 	createDevUrlResolver,
 } from '../../../../dist/assets/fonts/implementations/url-resolver.js';
-import { createSpyStorage, simpleErrorHandler } from './utils.js';
+import { createSpyStorage, fakeHasher, simpleErrorHandler } from './utils.js';
 
 describe('fonts implementations', () => {
 	describe('createMinifiableCssRenderer()', () => {
@@ -397,5 +401,61 @@ describe('fonts implementations', () => {
 				'https://cdn.example.com',
 			]);
 		});
+	});
+
+	it('createBuildUrlProxyHashResolver()', () => {
+		const resolver = createBuildUrlProxyHashResolver({
+			hasher: fakeHasher,
+			contentResolver: {
+				resolve: (url) => url,
+			},
+		});
+		assert.equal(
+			resolver.resolve({
+				cssVariable: '--foo',
+				data: {},
+				originalUrl: 'whatever',
+				type: 'woff2',
+			}),
+			'whatever.woff2',
+		);
+		assert.equal(
+			resolver.resolve({
+				cssVariable: '--foo',
+				data: { weight: 400, style: 'italic' },
+				originalUrl: 'whatever',
+				type: 'woff2',
+			}),
+			'whatever.woff2',
+		);
+	});
+
+	it('createDevUrlProxyHashResolver()', () => {
+		const resolver = createDevUrlProxyHashResolver({
+			baseHashResolver: createBuildUrlProxyHashResolver({
+				hasher: fakeHasher,
+				contentResolver: {
+					resolve: (url) => url,
+				},
+			}),
+		});
+		assert.equal(
+			resolver.resolve({
+				cssVariable: '--foo',
+				data: {},
+				originalUrl: 'whatever',
+				type: 'woff2',
+			}),
+			'foo-whatever.woff2',
+		);
+		assert.equal(
+			resolver.resolve({
+				cssVariable: '--foo',
+				data: { weight: 400, style: 'italic' },
+				originalUrl: 'whatever',
+				type: 'woff2',
+			}),
+			'foo-400-italic-whatever.woff2',
+		);
 	});
 });
