@@ -55,16 +55,15 @@ export async function getInfoOutput({
 			.filter(Boolean)
 			.flat()
 			.map(async (i: any) => {
-				const name = i?.name;
+				if (!i.name) return;
+				if (!print) return i.name;
 
-				if (!print) return name;
-
-				const version = await getVersion(packageManager, name);
+				const version = await getVersion(packageManager, i.name);
 				
-				return `${name}${version ? ` (${version})` : ""}`;
+				return `${i.name}${version ? ` (${version})` : ""}`;
 			});
 
-		const awaitedIntegrations = (await Promise.all(integrations)).filter(Boolean);;
+		const awaitedIntegrations = (await Promise.all(integrations)).filter(Boolean);
 		
 		rows.push(['Integrations', awaitedIntegrations.length > 0 ? awaitedIntegrations : 'none']);
 	} catch {}
@@ -72,6 +71,10 @@ export async function getInfoOutput({
 	let output = '';
 	for (const [label, value] of rows) {
 		output += printRow(label, value, print);
+	}
+
+	if (packageManager === "bun") {
+		console.warn("Bun is not officially supported by Astro. Unable to retreive certain version information.");
 	}
 
 	return output.trim();
@@ -321,6 +324,7 @@ async function getVersion(packageManager: string, dependency: string): Promise<s
 			case "pnpm": return await getVersionUsingPNPM(dependency);
 			case "npm": return getVersionUsingNPM(dependency);
 			case "yarn": return getVersionUsingYarn(dependency);
+			case "bun": return undefined;
 		}
 		
 		return undefined;
