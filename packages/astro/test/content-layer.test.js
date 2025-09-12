@@ -25,7 +25,10 @@ describe('Content Layer', () => {
 		before(async () => {
 			fixture = await loadFixture({ root: './fixtures/content-layer/' });
 			await fs
-				.unlink(new URL('./node_modules/.astro/data-store.json', fixture.config.root))
+				.rm(new URL('./node_modules/.astro/data-store/', fixture.config.root), {
+					recursive: true,
+					force: true,
+				})
 				.catch(() => {});
 			await fixture.build({ force: true });
 			const rawJson = await fixture.readFile('/collections.json');
@@ -606,7 +609,7 @@ describe('Content Layer', () => {
 			logs.length = 0;
 
 			// Give time for the server to restart
-			await setTimeout(5000);
+			await setTimeout(10000);
 
 			const rawJsonResponse = await fixture.fetch('/collections.json');
 			const initialJson = devalue.parse(await rawJsonResponse.text());
@@ -626,7 +629,7 @@ describe('Content Layer', () => {
 
 			await fixture.resetAllFiles();
 			// Give time for the server to restart again
-			await setTimeout(5000);
+			await setTimeout(10000);
 		});
 	});
 });
