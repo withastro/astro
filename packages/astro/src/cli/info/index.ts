@@ -1,4 +1,4 @@
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { arch, platform } from 'node:os';
 import * as colors from 'kleur/colors';
 import prompts from 'prompts';
@@ -14,13 +14,13 @@ interface InfoOptions {
 
 export async function getInfoOutput({
 	userConfig,
-	print
+	print,
 }: {
 	userConfig: AstroUserConfig | AstroConfig;
 	print: boolean;
 }): Promise<string> {
 	const packageManager = getPackageManager();
-	const viteVersion = getVersion(packageManager, "vite");
+	const viteVersion = await getVersion(packageManager, "vite");
 	
 	const rows: Array<[string, string | string[]]> = [
 		['Astro', `v${ASTRO_VERSION}`],
@@ -34,7 +34,7 @@ export async function getInfoOutput({
 	}
 	
 	const adapterVersion = "adapter" in userConfig && userConfig.adapter?.name
-		? getVersion(packageManager, userConfig.adapter.name)
+		? await getVersion(packageManager, userConfig.adapter.name)
 		: undefined;
 	
 	const adatperOutputString = "adapter" in userConfig && userConfig.adapter?.name
@@ -47,15 +47,16 @@ export async function getInfoOutput({
 		const integrations = (userConfig?.integrations ?? [])
 			.filter(Boolean)
 			.flat()
-			.map((i: any) => {
+			.map(async (i: any) => {
 				const name = i?.name;
-				const version = getVersion(packageManager, name);
+				const version = await getVersion(packageManager, name);
 				
 				return `${name}${version ? ` (${version})` : ""}`;
-			})
-			.filter(Boolean);
+			});
+
+		const awaitedIntegrations = (await Promise.all(integrations)).filter(Boolean);;
 		
-		rows.push(['Integrations', integrations.length > 0 ? integrations : 'none']);
+		rows.push(['Integrations', awaitedIntegrations.length > 0 ? awaitedIntegrations : 'none']);
 	} catch {}
 	
 	let output = '';
@@ -224,15 +225,34 @@ type BareNpmLikeVersionOutput = {
 	dependencies: Record<string, BareNpmLikeVersionOutput>;
 }
 
-function getVersionUsingPNPM(dependency: string): string | undefined {
-	const output = spawnSync("pnpm", ["why", dependency, "--json"], { encoding: "utf-8", shell: true });
-	const parsedOutput = JSON.parse(output.stdout) as Array<BareNpmLikeVersionOutput>;
+async function spawnAsync(executable: string, opts: Array<string>): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(executable, opts, { shell: true });
+    let stdout = "";
+    let stderr = "";
+
+    child.stdout.on("data", d => (stdout += d));
+    child.stderr.on("data", d => (stderr += d));
+    child.on("error", reject);
+    child.on("close", code => {
+      if (code !== 0) reject(new Error(stderr));
+      else resolve(stdout);
+    });
+  });
+}
+
+async function getVersionUsingPNPM(dependency: string): Promise<string | undefined> {
+	const output = await spawnAsync("pnpm", ["why", dependency, "--json"]);
+
+	const parsedOutput = JSON.parse(output) as Array<BareNpmLikeVersionOutput>;
 	
-	if (parsedOutput.length === 0 || !parsedOutput[0].dependencies) {
+	const deps = parsedOutput[0].dependencies;
+
+	if (parsedOutput.length === 0 || !deps) {
 		return undefined;
 	}
 	
-	const userProvidedDependency = parsedOutput[0].dependencies[dependency];
+	const userProvidedDependency = deps[dependency];
 	
 	if (userProvidedDependency) {
 		return userProvidedDependency.version.startsWith("link:")
@@ -240,13 +260,13 @@ function getVersionUsingPNPM(dependency: string): string | undefined {
 			: `v${userProvidedDependency.version}`;
 	}
 	
-const astroDependency = parsedOutput[0].dependencies.astro?.dependencies[dependency];
-return astroDependency ? formatPnpmVersionOutput(astroDependency.version) : undefined;
+	const astroDependency = deps.astro?.dependencies[dependency];
+	return astroDependency ? formatPnpmVersionOutput(astroDependency.version) : undefined;
 }
 
-function getVersionUsingNPM(dependency: string): string | undefined {
-	const npmOutput = spawnSync("npm", ["ls", dependency, "--json", "--depth=1"], { encoding: "utf-8", shell: true });
-	const parsedNpmOutput = JSON.parse(npmOutput.stdout) as BareNpmLikeVersionOutput;
+async function getVersionUsingNPM(dependency: string): Promise<string | undefined> {
+	const output = await spawnAsync("npm", ["ls", dependency, "--json", "--depth=1"]);
+	const parsedNpmOutput = JSON.parse(output) as BareNpmLikeVersionOutput;
 	
 	if (!parsedNpmOutput.dependencies) {
 		return undefined;
@@ -262,7 +282,7 @@ function getVersionUsingNPM(dependency: string): string | undefined {
 
 type YarnVersionOutputLine = {
 	children: Record<string, { locator: string }>
-};
+}
 
 function getYarnOutputDepVersion(dependency: string, outputLine: string) {
 	const parsed = JSON.parse(outputLine) as YarnVersionOutputLine;
@@ -274,31 +294,28 @@ function getYarnOutputDepVersion(dependency: string, outputLine: string) {
 	}
 }
 
-function getVersionUsingYarn(dependency: string): string | undefined {
-	const yarnOutput = spawnSync("yarn", ["why", dependency, "--json"], { encoding: "utf-8", shell: true });
+async function getVersionUsingYarn(dependency: string): Promise<string | undefined> {
+	const yarnOutput = await spawnAsync("yarn", ["why", dependency, "--json"]);
 	
-	console.log(yarnOutput.stdout);
+	const hasUserDefinition = yarnOutput.includes("workspace:.");
 	
-	if (yarnOutput.error) return undefined;
-	
-	const hasUserDefinition = yarnOutput.stdout.includes("workspace:.");
-	
-	for (const line of yarnOutput.stdout.split("\n")) {
+	for (const line of yarnOutput.split("\n")) {
 		if (hasUserDefinition && line.includes("workspace:.")) return getYarnOutputDepVersion(dependency, line);
 		if (!hasUserDefinition && line.includes("astro@")) return getYarnOutputDepVersion(dependency, line);
 	}
 }
 
-function getVersion(packageManager: string, dependency: string): string | undefined {
+async function getVersion(packageManager: string, dependency: string): Promise<string | undefined> {
 	try {
 		switch (packageManager) {
-			case "pnpm": return getVersionUsingPNPM(dependency);
+			case "pnpm": return await getVersionUsingPNPM(dependency);
 			case "npm": return getVersionUsingNPM(dependency);
 			case "yarn": return getVersionUsingYarn(dependency);
 		}
 		
 		return undefined;
-	} catch {
+	} catch (err) {
+		console.error(err);
 		return undefined;
 	}
 }
