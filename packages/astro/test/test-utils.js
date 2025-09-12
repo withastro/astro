@@ -173,14 +173,18 @@ export async function loadFixture(inlineConfig) {
 			return devServer;
 		},
 		onNextDataStoreChange: (timeout = 5000) => {
+			
+
 			if (!devServer) {
 				return Promise.reject(new Error('No dev server running'));
 			}
 
 			const dataStoreFile = path.join(root, '.astro', 'data-store', '__manifest.json');
+			console.log('Watching data store:', dataStoreFile)
 
 			return new Promise((resolve, reject) => {
 				const changeHandler = (fileName) => {
+					console.log('File changed: ', fileName)
 					if (fileName === dataStoreFile) {
 						devServer.watcher.removeListener('change', changeHandler);
 						resolve();
