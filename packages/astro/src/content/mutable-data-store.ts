@@ -413,9 +413,6 @@ export default new Map([\n${lines.join(',\n')}]);
 			this.#hasher = await xxhash();
 		}
 
-		// Empty previous contents of the data store directory
-		emptyDir(this.#dir);
-
 		try {
 			// Mark as clean before writing to disk so that it catches any changes that happen during the write
 			this.#dirty = false;
