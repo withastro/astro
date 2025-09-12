@@ -5,6 +5,7 @@ import type { XXHashAPI } from 'xxhash-wasm';
 import xxhash from 'xxhash-wasm';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { emptyDir } from '../core/fs/index.js';
 import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
 import { type DataEntry, ImmutableDataStore } from './data-store.js';
 import { chunkMap, chunkString, contentModuleToId, safeFileName } from './utils.js';
@@ -18,7 +19,7 @@ const CHUNK_SIZE_LIMIT = 20 * 1024 * 1024; // 20MB in bytes
  * This is kept as a separate class to avoid needing node builtins at runtime, when read-only access is all that is needed.
  */
 export class MutableDataStore extends ImmutableDataStore {
-	#manifestFile?: PathLike;
+	#manifestFile?: URL;
 	#dir?: URL;
 
 	#assetsFile?: PathLike;
@@ -412,9 +413,15 @@ export default new Map([\n${lines.join(',\n')}]);
 			this.#hasher = await xxhash();
 		}
 
+		// Empty previous contents of the data store directory
+		emptyDir(this.#dir);
+
 		try {
 			// Mark as clean before writing to disk so that it catches any changes that happen during the write
 			this.#dirty = false;
+
+			// Keep track of written files to remove old ones
+			const writtenFiles: Set<string> = new Set();
 
 			const manifest: Record<string, string[][]> = {};
 
@@ -434,6 +441,7 @@ export default new Map([\n${lines.join(',\n')}]);
 						const fileName = `${safeFileName(collectionName)}.${this.#hasher.h64ToString(chunk)}.json`;
 						await this.#writeFileAtomic(new URL(`./${fileName}`, this.#dir), chunk);
 						parts.push(fileName);
+						writtenFiles.add(fileName);
 					}
 					manifest[collectionName].push(parts);
 				}
@@ -441,6 +449,10 @@ export default new Map([\n${lines.join(',\n')}]);
 
 			// Finally, write the manifest
 			await this.#writeFileAtomic(this.#manifestFile, JSON.stringify(manifest));
+			writtenFiles.add(DATA_STORE_MANIFEST_FILE);
+
+			// Remove any files that are no longer referenced in the manifest
+			emptyDir(this.#dir, writtenFiles);
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
 		}
@@ -478,6 +490,7 @@ export default new Map([\n${lines.join(',\n')}]);
 					const parsed: Record<string, string[][]> = {};
 
 					for (const collection in manifest) {
+						parsed[collection] = [];
 						for (const chunks of manifest[collection]) {
 							parsed[collection].push(
 								await Promise.all(

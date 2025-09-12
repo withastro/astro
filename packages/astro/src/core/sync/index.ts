@@ -107,6 +107,7 @@ export async function clearContentLayerCache({
 	if (fs.existsSync(dataStore)) {
 		logger.debug('content', 'clearing data store');
 		await fs.promises.rm(dataStore, { force: true, recursive: true });
+		await fs.promises.mkdir(dataStore, { recursive: true });
 		logger.warn('content', 'data store cleared (force)');
 	}
 }
