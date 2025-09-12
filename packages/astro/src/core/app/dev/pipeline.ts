@@ -7,7 +7,6 @@ import type {
 } from '../../../types/public/index.js';
 import { Pipeline, type TryRewriteResult } from '../../base-pipeline.js';
 import {
-	createAssetLink,
 	createModuleScriptElement,
 	createStylesheetElementSet,
 } from '../../render/ssr-element.js';
@@ -20,14 +19,10 @@ export class DevPipeline extends Pipeline {
 		streaming,
 	}: Pick<DevPipeline, 'logger' | 'manifest' | 'streaming'>) {
 		const resolve = async function resolve(specifier: string) {
-			if (!(specifier in manifest.entryModules)) {
-				throw new Error(`Unable to resolve [${specifier}]`);
-			}
-			const bundlePath = manifest.entryModules[specifier];
-			if (bundlePath.startsWith('data:') || bundlePath.length === 0) {
-				return bundlePath;
+			if(specifier.startsWith('/')) {
+				return specifier;
 			} else {
-				return createAssetLink(bundlePath, manifest.base, manifest.assetsPrefix);
+				return '/@id/' + specifier;
 			}
 		};
 		const pipeline = new DevPipeline(
@@ -75,6 +70,14 @@ export class DevPipeline extends Pipeline {
 	componentMetadata() {}
 
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
+		try {
+			const module = await this.getModuleForRoute(routeData);
+			return module.page();
+		}
+		catch {
+			// could not find, ignore	
+		}
+		
 		const url = new URL(routeData.component, this.manifest.rootDir);
 		const module = await import(url.toString());
 		return module;

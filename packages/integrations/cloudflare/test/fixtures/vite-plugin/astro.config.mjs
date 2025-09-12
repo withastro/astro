@@ -4,6 +4,7 @@ import { defineConfig } from 'astro/config';
 
 import mdx from '@astrojs/mdx';
 import { fileURLToPath } from 'node:url';
+import react from '@astrojs/react';
 
 export default defineConfig({
 	adapter: cloudflare({
@@ -19,5 +20,5 @@ export default defineConfig({
 			},
 		},
 	},
-	integrations: [mdx()],
+	integrations: [mdx(), react()],
 });
