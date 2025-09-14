@@ -108,9 +108,13 @@ describe('astro cli', () => {
 		const projectRootURL = new URL('./fixtures/astro-info-versions/', import.meta.url);
 		const projectPackageJSONUrl = new URL('./package.json', projectRootURL);
 
-		const version = await fs
+		const packageJSON = await fs
 			.readFile(fileURLToPath(projectPackageJSONUrl))
-			.then((json) => JSON.parse(json).dependencies.vite);
+			.then((json) => JSON.parse(json));
+		
+		const viteVersion = packageJSON.dependencies.vite;
+		const adapterVersion = packageJSON.dependencies["@astrojs/node"];
+		const integrationVersion = packageJSON.dependencies["@astrojs/react"];
 
 		const proc = spawnSync('pnpm', ['astro', 'info', '--copy'], {
 			cwd: projectRootURL,
@@ -118,18 +122,22 @@ describe('astro cli', () => {
 			shell: true,
 		});
 
-		assert.equal(proc.stdout.includes(`v${version}`), true);
-		assert.equal(proc.stdout.includes('@astrojs/node (v9.4.0)'), true);
-		assert.equal(proc.stdout.includes('@astrojs/react (v4.3.0)'), true);
+		assert.equal(proc.stdout.includes(`v${viteVersion}`), true);
+		assert.equal(proc.stdout.includes(`@astrojs/node (v${adapterVersion})`), true);
+		assert.equal(proc.stdout.includes(`@astrojs/react (v${integrationVersion})`), true);
 	});
 
 	it('astro info shows correct Vite and integration versions when using npm', async () => {
 		const projectRootURL = new URL('./fixtures/astro-info-versions/', import.meta.url);
 		const projectPackageJSONUrl = new URL('./package.json', projectRootURL);
-
-		const version = await fs
+		
+		const packageJSON = await fs
 			.readFile(fileURLToPath(projectPackageJSONUrl))
-			.then((json) => JSON.parse(json).dependencies.vite);
+			.then((json) => JSON.parse(json));
+		
+		const viteVersion = packageJSON.dependencies.vite;
+		const adapterVersion = packageJSON.dependencies["@astrojs/node"];
+		const integrationVersion = packageJSON.dependencies["@astrojs/react"];
 
 		const proc = spawnSync('npm', ['run', 'astro', 'info', '--copy'], {
 			cwd: projectRootURL,
@@ -137,9 +145,9 @@ describe('astro cli', () => {
 			shell: true,
 		});
 
-		assert.equal(proc.stdout.includes(`v${version}`), true);
-		assert.equal(proc.stdout.includes('@astrojs/node (v9.4.0)'), true);
-		assert.equal(proc.stdout.includes('@astrojs/react (v4.3.0)'), true);
+		assert.equal(proc.stdout.includes(`v${viteVersion}`), true);
+		assert.equal(proc.stdout.includes(`@astrojs/node (v${adapterVersion})`), true);
+		assert.equal(proc.stdout.includes(`@astrojs/react (v${integrationVersion})`), true);
 	});
 
 	it('astro info shows correct Vite and integration versions when using yarn', async () => {
@@ -165,6 +173,8 @@ describe('astro cli', () => {
 		packageJSON.packageManager = 'yarn@4.9.4';
 
 		const viteVersion = packageJSON.dependencies.vite;
+		const adapterVersion = packageJSON.dependencies["@astrojs/node"];
+		const integrationVersion = packageJSON.dependencies["@astrojs/react"];
 
 		await fs.writeFile(fileURLToPath(packageJSONUrl), JSON.stringify(packageJSON), {
 			encoding: 'utf-8',
@@ -179,6 +189,7 @@ describe('astro cli', () => {
 			encoding: 'utf-8',
 			shell: true,
 		});
+		
 		spawnSync('corepack', ['yarn', 'add', packFileName], {
 			cwd: fixtureRootURL,
 			encoding: 'utf-8',
@@ -194,6 +205,7 @@ describe('astro cli', () => {
 		// Reset changes to package.json
 		delete packageJSON.packageManager;
 		packageJSON.dependencies.astro = 'workspace:*';
+		
 		await fs.writeFile(packageJSONUrl, JSON.stringify(packageJSON, null, 2), { encoding: 'utf-8' });
 		await fs.rm(yarnLockUrl, { force: true });
 		await fs.rm(packDestinationURL, { force: true });
@@ -201,8 +213,8 @@ describe('astro cli', () => {
 		spawnSync('pnpm', ['install'], { cwd: fixtureRootURL, shell: true });
 
 		assert.equal(proc.stdout.includes(`v${viteVersion}`), true);
-		assert.equal(proc.stdout.includes('@astrojs/node (v9.4.0)'), true);
-		assert.equal(proc.stdout.includes('@astrojs/react (v4.3.0)'), true);
+		assert.equal(proc.stdout.includes(`@astrojs/node (v${adapterVersion})`), true);
+		assert.equal(proc.stdout.includes(`@astrojs/react (v${integrationVersion})`), true);
 	});
 
 	it(
