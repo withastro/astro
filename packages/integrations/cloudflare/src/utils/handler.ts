@@ -1,18 +1,19 @@
 // @ts-expect-error - It is safe to expect the error here.
 import { env as globalEnv } from 'cloudflare:workers';
 import type {
+	Response as CfResponse,
 	CacheStorage as CloudflareCacheStorage,
 	ExecutionContext,
 	ExportedHandlerFetchHandler,
 } from '@cloudflare/workers-types';
 import type { SSRManifest } from 'astro';
-import type { App } from 'astro/app';
+import type { BaseApp } from 'astro/app';
 import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from '../utils/env.js';
 
-type Env = {
+export type Env = {
 	[key: string]: unknown;
-	ASSETS: { fetch: (req: Request | string) => Promise<Response> };
+	ASSETS: { fetch: (req: Request | string) => Promise<CfResponse> };
 };
 
 setGetEnv(createGetEnv(globalEnv as Env));
@@ -36,11 +37,11 @@ declare global {
 
 export async function handle(
 	manifest: SSRManifest,
-	app: App,
+	app: BaseApp,
 	request: Parameters<ExportedHandlerFetchHandler>[0],
 	env: Env,
 	context: ExecutionContext,
-) {
+): Promise<CfResponse> {
 	const { pathname } = new URL(request.url);
 	const bindingName = globalThis.__ASTRO_SESSION_BINDING_NAME;
 	// Assigning the KV binding to globalThis allows unstorage to access it for session storage.
@@ -90,7 +91,7 @@ export async function handle(
 			routeData,
 			locals,
 			prerenderedErrorPageFetch: async (url) => {
-				return env.ASSETS.fetch(url.replace(/\.html$/, ''));
+				return env.ASSETS.fetch(url.replace(/\.html$/, '')) as unknown as Response;
 			},
 		},
 	);
@@ -101,5 +102,5 @@ export async function handle(
 		}
 	}
 
-	return response;
+	return response as unknown as CfResponse;
 }
