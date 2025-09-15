@@ -10,7 +10,7 @@ export default defineConfig({
 		workerEntryPoint: {
 			path: 'src/worker.ts',
 		},
-		imageService: 'cloudflare',
+		imageService: 'cloudflare-binding',
 	}),
 	vite: {
 		resolve: {
