@@ -25,6 +25,7 @@
     "test:integrations": "turbo run test --concurrency=1 --filter=create-astro --filter=\"@astrojs/*\" --only",
     "test:citgm": "pnpm -r --filter=astro test",
     "test:match": "cd packages/astro && pnpm run test:match",
+    "test:cli": "cd packages/astro && pnpm run test:cli",
     "test:unit": "cd packages/astro && pnpm run test:unit",
     "test:types": "cd packages/astro && pnpm run test:types",
     "test:smoke": "pnpm test:smoke:example && pnpm test:smoke:docs",
@@ -57,22 +58,22 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
-    "@biomejs/biome": "2.1.2",
+    "@biomejs/biome": "2.2.4",
     "@changesets/changelog-github": "^0.5.1",
-    "@changesets/cli": "^2.29.6",
+    "@changesets/cli": "^2.29.7",
     "@types/node": "^18.19.115",
     "esbuild": "0.25.5",
-    "eslint": "^9.34.0",
+    "eslint": "^9.35.0",
     "eslint-plugin-regexp": "^2.10.0",
     "knip": "5.61.3",
     "only-allow": "^1.2.1",
     "prettier": "^3.6.2",
     "prettier-plugin-astro": "^0.14.1",
     "publint": "^0.3.12",
-    "tinyglobby": "^0.2.14",
+    "tinyglobby": "^0.2.15",
     "turbo": "^2.5.6",
     "typescript": "~5.9.2",
-    "typescript-eslint": "^8.42.0"
+    "typescript-eslint": "^8.43.0"
   },
   "pnpm": {
     "peerDependencyRules": {

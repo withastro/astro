@@ -34,7 +34,7 @@ async function handleSvgDeduplication(
 	filename: string,
 	fileEmitter: FileEmitter,
 ): Promise<string> {
-	const contentHash = await generateContentHash(Uint8Array.from(fileData).buffer);
+	const contentHash = await generateContentHash(fileData.buffer as ArrayBuffer);
 	const key = keyFor(contentHash);
 	const existing = svgContentCache.get(key);
 
