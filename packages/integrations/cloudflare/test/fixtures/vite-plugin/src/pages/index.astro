@@ -1,13 +1,40 @@
 ---
-const workerRuntime = globalThis.navigator?.userAgent
 export const prerender = false
+import { getCollection, getEntry, render } from 'astro:content';
+
+const workerRuntime = globalThis.navigator?.userAgent
+const blog = await getCollection('blog');
+const first = await getEntry('blog', 1);
+const dogs = await getCollection('dogs');
+const increment = await getEntry('increment', 'value');
+const { Content } = await render(increment);
 ---
 <html>
-	<head>
-		<title>astro-cloudflare-custom-entryfile</title>
-	</head>
-	<body>
-		<h1>astro-cloudflare-custom-entryfile</h1>
-		<p>Runtime: {workerRuntime}</p>
-	</body>
+<head>
+	<title>Index</title>
+</head>
+<body>
+	<p>Last updated: {increment.data.lastUpdated.toLocaleTimeString()}</p>
+
+	<h1>Dogs</h1>
+	<p>Running on: {workerRuntime ?? 'unknown runtime'}</p>
+	<ul>
+		{dogs.map(dog => (
+			<li><a href={`/dogs/${dog.id}`}>{ dog.data?.breed }</a></li>
+		))}
+	</ul>
+	<section>
+		<Content />
+	</section>
+	<h1>Blog Posts</h1>
+
+	<h2>{first.data.title}</h2>
+	<ul>
+		{blog.map(post => (
+			<li><a href={`/blog/${post.id}`}>{ post.data?.title }</a></li>
+		))}
+	</ul>
+
+	
+</body>
 </html>

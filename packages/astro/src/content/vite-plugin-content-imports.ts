@@ -3,7 +3,7 @@ import { extname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as devalue from 'devalue';
 import type { PluginContext } from 'rollup';
-import { isRunnableDevEnvironment, type Plugin, type RunnableDevEnvironment } from 'vite';
+import type { Plugin, RunnableDevEnvironment } from 'vite';
 import { getProxyCode } from '../assets/utils/proxy.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
@@ -158,9 +158,6 @@ export const _internal = {
 				}
 			},
 			configureServer(viteServer) {
-				if (!isRunnableDevEnvironment(viteServer.environments.ssr)) {
-					return;
-				}
 				viteServer.watcher.on('all', async (event, entry) => {
 					if (CHOKIDAR_MODIFIED_EVENTS.includes(event)) {
 						const environment = viteServer.environments.ssr;
