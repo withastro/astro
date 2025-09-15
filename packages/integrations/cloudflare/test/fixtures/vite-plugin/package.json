@@ -4,6 +4,7 @@
 	"private": true,
 	"dependencies": {
 		"@astrojs/cloudflare": "workspace:*",
+		"@astrojs/mdx": "^4.3.5",
 		"astro": "workspace:*"
 	}
 }

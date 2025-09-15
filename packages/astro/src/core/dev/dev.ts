@@ -96,9 +96,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	if (!store) {
 		logger.error('content', 'Failed to create data store');
 	}
-	if (isRunnableDevEnvironment(restart.container.viteServer.environments.ssr)) {
-		await attachContentServerListeners(restart.container);
-	}
+	await attachContentServerListeners(restart.container);
 
 	const config = globalContentConfigObserver.get();
 	if (config.status === 'error') {

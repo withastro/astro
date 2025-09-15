@@ -1,6 +1,6 @@
 import type { ModuleInfo } from 'rollup';
 import type * as vite from 'vite';
-import { type DevEnvironment, isRunnableDevEnvironment } from 'vite';
+import { type DevEnvironment } from 'vite';
 import { getParentModuleInfos, getTopLevelPageModuleInfos } from '../core/build/graph.js';
 import type { BuildInternals } from '../core/build/internal.js';
 import type { AstroBuildPlugin } from '../core/build/plugin.js';
@@ -48,9 +48,6 @@ export default function configHeadVitePlugin(): vite.Plugin {
 		enforce: 'pre',
 		apply: 'serve',
 		configureServer(server) {
-			if (!isRunnableDevEnvironment(server.environments.ssr)) {
-				return;
-			}
 			environment = server.environments.ssr;
 		},
 		resolveId(source, importer) {
@@ -63,7 +60,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 					if (result) {
 						let info = this.getModuleInfo(result.id);
 						const astro = info && getAstroMetadata(info);
-						if (astro && isRunnableDevEnvironment(environment)) {
+						if (astro) {
 							if (astro.propagation === 'self' || astro.propagation === 'in-tree') {
 								propagateMetadata.call(this, importer, 'propagation', 'in-tree');
 							}
@@ -77,9 +74,6 @@ export default function configHeadVitePlugin(): vite.Plugin {
 			}
 		},
 		transform(source, id) {
-			if (!isRunnableDevEnvironment(environment)) {
-				return;
-			}
 			// TODO This could probably be removed now that this is handled in resolveId
 			let info = this.getModuleInfo(id);
 			if (info && getAstroMetadata(info)?.containsHead) {
