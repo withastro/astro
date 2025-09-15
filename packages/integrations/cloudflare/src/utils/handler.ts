@@ -31,6 +31,10 @@ declare global {
 	// This is not a real global, but is injected using Vite define to allow us to specify the session binding name in the config.
 	var __ASTRO_SESSION_BINDING_NAME: string;
 
+	// This is not a real global, but is injected using Vite define to allow us to specify the Images binding name in the config.
+	// eslint-disable-next-line no-var
+	var __ASTRO_IMAGES_BINDING_NAME: string;
+
 	// Just used to pass the KV binding to unstorage.
 	var __env__: Partial<Env>;
 }

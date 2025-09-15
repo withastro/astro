@@ -5,5 +5,8 @@
 	"assets": {
 		"directory": "./dist",
 		"binding": "ASSETS"
+	},
+	"images": {
+		"binding": "IMAGES"
 	}
 }
