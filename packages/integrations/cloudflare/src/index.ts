@@ -102,6 +102,23 @@ export type Options = {
 	sessionKVBindingName?: string;
 
 	/**
+	 * When configured as `cloudflare-binding`, the Cloudflare Images binding will be used to transform images:
+	 * - https://developers.cloudflare.com/images/transform-images/bindings/
+	 *
+	 * By default, this will use the "IMAGES" binding name, but this can be customised in your `wrangler.json`:
+	 *
+	 * ```json
+	 * {
+	 *   "images": {
+	 *     "binding": "IMAGES" // <-- this should match `imagesBindingName`
+	 *   }
+	 * }
+	 * ```
+	 *
+	 */
+	imagesBindingName?: string;
+
+	/**
 	 * This configuration option allows you to specify a custom entryPoint for your Cloudflare Worker.
 	 * The entry point is the file that will be executed when your Worker is invoked.
 	 * By default, this is set to `@astrojs/cloudflare/entrypoints/server.js` and `['default']`.
@@ -164,6 +181,17 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				addMiddleware,
 			}) => {
 				let session = config.session;
+
+				if (args?.imageService === 'cloudflare-binding') {
+					const bindingName = args?.imagesBindingName ?? 'IMAGES';
+
+					logger.info(
+						`Enabling image processing with Cloudflare Images for production with the "${bindingName}" Images binding.`,
+					);
+					logger.info(
+						`If you see the error "Invalid binding \`${bindingName}\`" in your build output, you need to add the binding to your wrangler config file.`,
+					);
+				}
 
 				if (!session?.driver) {
 					logger.info(
@@ -356,7 +384,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite.define = {
 						'process.env': 'process.env',
 						// Allows the request handler to know what the binding name is
-						'globalThis.__ASTRO_SESSION_BINDING_NAME': JSON.stringify(SESSION_KV_BINDING_NAME),
+						'globalThis.__ASTRO_SESSION_BINDING_NAME': JSON.stringify(
+							args?.sessionKVBindingName ?? 'SESSION',
+						),
+						'globalThis.__ASTRO_IMAGES_BINDING_NAME': JSON.stringify(
+							args?.imagesBindingName ?? 'IMAGES',
+						),
 						...vite.define,
 					};
 				}

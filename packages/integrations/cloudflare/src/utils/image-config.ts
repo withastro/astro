@@ -1,7 +1,12 @@
 import type { AstroConfig, AstroIntegrationLogger, HookParameters } from 'astro';
 import { passthroughImageService, sharpImageService } from 'astro/config';
 
-export type ImageService = 'passthrough' | 'cloudflare' | 'compile' | 'custom';
+export type ImageService =
+	| 'passthrough'
+	| 'cloudflare'
+	| 'cloudflare-binding'
+	| 'compile'
+	| 'custom';
 
 export function setImageConfig(
 	service: ImageService,
@@ -20,6 +25,17 @@ export function setImageConfig(
 					command === 'dev'
 						? sharpImageService()
 						: { entrypoint: '@astrojs/cloudflare/image-service' },
+			};
+		case 'cloudflare-binding':
+			return {
+				...config,
+				service: command === 'dev' ? sharpImageService() : undefined,
+				endpoint:
+					command === 'dev'
+						? undefined
+						: {
+								entrypoint: '@astrojs/cloudflare/image-transform-endpoint',
+							},
 			};
 
 		case 'compile':
