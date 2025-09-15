@@ -5,7 +5,6 @@ import { performance } from 'node:perf_hooks';
 import { green } from 'kleur/colors';
 import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
-import { isRunnableDevEnvironment } from 'vite';
 import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
 import { attachContentServerListeners } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
