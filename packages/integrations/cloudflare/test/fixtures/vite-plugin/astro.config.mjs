@@ -8,10 +8,7 @@ import react from '@astrojs/react';
 
 export default defineConfig({
 	adapter: cloudflare({
-		workerEntryPoint: {
-			path: 'src/worker.ts',
-		},
-		imageService: 'cloudflare',
+		imageService: 'cloudflare-binding',
 	}),
 	vite: {
 		resolve: {

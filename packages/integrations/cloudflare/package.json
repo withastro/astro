@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers/Pages",
-  "version": "12.6.7",
+  "version": "12.6.8",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -23,6 +23,7 @@
     "./entrypoints/middleware.js": "./dist/entrypoints/middleware.js",
     "./image-service": "./dist/entrypoints/image-service.js",
     "./image-endpoint": "./dist/entrypoints/image-endpoint.js",
+    "./image-transform-endpoint": "./dist/entrypoints/image-transform-endpoint.js",
     "./handler": "./dist/utils/handler.js",
     "./package.json": "./package.json"
   },
@@ -39,10 +40,10 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
     "@cloudflare/vite-plugin": "^1.12.2",
-    "@cloudflare/workers-types": "^4.20250903.0",
-    "tinyglobby": "^0.2.14",
-    "vite": "^6.3.5",
-    "wrangler": "4.33.2"
+    "@cloudflare/workers-types": "^4.20250913.0",
+    "tinyglobby": "^0.2.15",
+    "vite": "^6.3.6",
+    "wrangler": "4.37.0"
   },
   "peerDependencies": {
     "astro": "^5.7.0"
@@ -51,9 +52,9 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.1.2",
-    "devalue": "^5.1.1",
+    "devalue": "^5.3.2",
     "execa": "^8.0.1",
-    "rollup": "^4.50.0"
+    "rollup": "^4.50.2"
   },
   "publishConfig": {
     "provenance": true

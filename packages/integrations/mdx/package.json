@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Add support for MDX pages in your Astro site",
-  "version": "4.3.4",
+  "version": "4.3.5",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -69,7 +69,7 @@
     "remark-toc": "^9.0.0",
     "shiki": "^3.12.0",
     "unified": "^11.0.5",
-    "vite": "^6.3.5"
+    "vite": "^6.3.6"
   },
   "engines": {
     "node": "18.20.8 || ^20.3.0 || >=22.0.0"

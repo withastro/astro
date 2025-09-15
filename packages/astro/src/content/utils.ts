@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseFrontmatter } from '@astrojs/markdown-remark';
 import { slug as githubSlug } from 'github-slugger';
-import { green } from 'kleur/colors';
+import { green, red } from 'kleur/colors';
 import type { PluginContext } from 'rollup';
 import type { RunnableDevEnvironment } from 'vite';
 import xxhash from 'xxhash-wasm';
@@ -535,6 +535,26 @@ async function loadContentConfig({
 		const digest = hasher.h64ToString(await fs.promises.readFile(configPathname, 'utf-8'));
 		return { ...config.data, digest };
 	} else {
+		const message = config.error.issues
+			.map((issue) => `  → ${green(issue.path.join('.'))}: ${red(issue.message)}`)
+			.join('\n');
+		console.error(
+			`${green('[content]')} There was a problem with your content config:\n\n${message}\n`,
+		);
+		if (settings.config.experimental.liveContentCollections) {
+			const liveCollections = Object.entries(unparsedConfig.collections ?? {}).filter(
+				([, collection]: [string, any]) => collection?.type === LIVE_CONTENT_TYPE,
+			);
+			if (liveCollections.length > 0) {
+				throw new AstroError({
+					...AstroErrorData.LiveContentConfigError,
+					message: AstroErrorData.LiveContentConfigError.message(
+						'Live collections must be defined in a `src/live.config.ts` file.',
+						path.relative(fileURLToPath(settings.config.root), configPathname),
+					),
+				});
+			}
+		}
 		return undefined;
 	}
 }
