@@ -23,8 +23,6 @@ export async function serializedManifestPlugin({
 }: {
 	settings: AstroSettings;
 }): Promise<Plugin> {
-	const serialized = await createSerializedManifest(settings);
-
 	return {
 		name: 'astro:serialized-manifest',
 		enforce: 'pre',
@@ -36,6 +34,7 @@ export async function serializedManifestPlugin({
 
 		async load(id) {
 			if (id === SERIALIZED_MANIFEST_RESOLVED_ID) {
+				const serialized = await createSerializedManifest(settings);
 				const code = `
 					import { deserializeManifest as _deserializeManifest } from 'astro/app';
 					export const manifest = _deserializeManifest((${JSON.stringify(serialized)}));

@@ -1,6 +1,7 @@
 ---
-export const prerender = false
+export const prerender = false;
 import { getCollection, getEntry, render } from 'astro:content';
+import Hello from '../components/Hello.tsx';
 
 const workerRuntime = globalThis.navigator?.userAgent
 const blog = await getCollection('blog');
@@ -34,6 +35,10 @@ const { Content } = await render(increment);
 			<li><a href={`/blog/${post.id}`}>{ post.data?.title }</a></li>
 		))}
 	</ul>
+
+	<div id="framework">
+		<Hello client:load />
+	</div>
 
 	
 </body>
