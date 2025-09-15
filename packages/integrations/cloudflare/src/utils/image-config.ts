@@ -29,13 +29,9 @@ export function setImageConfig(
 		case 'cloudflare-binding':
 			return {
 				...config,
-				service: command === 'dev' ? sharpImageService() : undefined,
-				endpoint:
-					command === 'dev'
-						? undefined
-						: {
-								entrypoint: '@astrojs/cloudflare/image-transform-endpoint',
-							},
+				endpoint: {
+					entrypoint: '@astrojs/cloudflare/image-transform-endpoint',
+				},
 			};
 
 		case 'compile':
