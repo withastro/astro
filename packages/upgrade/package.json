@@ -35,7 +35,7 @@
     "terminal-link": "^4.0.0"
   },
   "devDependencies": {
-    "@types/semver": "^7.7.0",
+    "@types/semver": "^7.7.1",
     "arg": "^5.0.2",
     "astro-scripts": "workspace:*"
   },
