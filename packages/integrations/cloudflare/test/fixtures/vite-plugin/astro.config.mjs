@@ -7,9 +7,6 @@ import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
 	adapter: cloudflare({
-		workerEntryPoint: {
-			path: 'src/worker.ts',
-		},
 		imageService: 'cloudflare-binding',
 	}),
 	vite: {
