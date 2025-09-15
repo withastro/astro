@@ -135,14 +135,15 @@ function createManifest(
 		};
 	}
 
+	const root = new URL(import.meta.url);
 	return {
-		hrefRoot: import.meta.url,
-		srcDir: manifest?.srcDir ?? ASTRO_CONFIG_DEFAULTS.srcDir,
-		buildClientDir: manifest?.buildClientDir ?? ASTRO_CONFIG_DEFAULTS.build.client,
-		buildServerDir: manifest?.buildServerDir ?? ASTRO_CONFIG_DEFAULTS.build.server,
-		publicDir: manifest?.publicDir ?? ASTRO_CONFIG_DEFAULTS.publicDir,
-		outDir: manifest?.outDir ?? ASTRO_CONFIG_DEFAULTS.outDir,
-		cacheDir: manifest?.cacheDir ?? ASTRO_CONFIG_DEFAULTS.cacheDir,
+		rootDir: root,
+		srcDir: manifest?.srcDir ?? new URL(ASTRO_CONFIG_DEFAULTS.srcDir, root),
+		buildClientDir: manifest?.buildClientDir ?? new URL(ASTRO_CONFIG_DEFAULTS.build.client, root),
+		buildServerDir: manifest?.buildServerDir ?? new URL(ASTRO_CONFIG_DEFAULTS.build.server, root),
+		publicDir: manifest?.publicDir ?? new URL(ASTRO_CONFIG_DEFAULTS.publicDir, root),
+		outDir: manifest?.outDir ?? new URL(ASTRO_CONFIG_DEFAULTS.outDir, root),
+		cacheDir: manifest?.cacheDir ?? new URL(ASTRO_CONFIG_DEFAULTS.cacheDir, root),
 		trailingSlash: manifest?.trailingSlash ?? ASTRO_CONFIG_DEFAULTS.trailingSlash,
 		buildFormat: manifest?.buildFormat ?? ASTRO_CONFIG_DEFAULTS.build.format,
 		compressHTML: manifest?.compressHTML ?? ASTRO_CONFIG_DEFAULTS.compressHTML,

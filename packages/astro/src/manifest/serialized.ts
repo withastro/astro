@@ -46,9 +46,7 @@ export async function serializedManifestPlugin({
 	};
 }
 
-export async function createSerializedManifest(
-	settings: AstroSettings,
-): Promise<SerializedSSRManifest> {
+async function createSerializedManifest(settings: AstroSettings): Promise<SerializedSSRManifest> {
 	let i18nManifest: SSRManifestI18n | undefined;
 	let csp: SSRManifestCSP | undefined;
 	if (settings.config.i18n) {
@@ -78,13 +76,13 @@ export async function createSerializedManifest(
 	}
 
 	return {
-		hrefRoot: settings.config.root.toString(),
-		srcDir: settings.config.srcDir,
-		cacheDir: settings.config.cacheDir,
-		outDir: settings.config.outDir,
-		buildServerDir: settings.config.build.server,
-		buildClientDir: settings.config.build.client,
-		publicDir: settings.config.publicDir,
+		rootDir: settings.config.root.toString(),
+		srcDir: settings.config.srcDir.toString(),
+		cacheDir: settings.config.cacheDir.toString(),
+		outDir: settings.config.outDir.toString(),
+		buildServerDir: settings.config.build.server.toString(),
+		buildClientDir: settings.config.build.client.toString(),
+		publicDir: settings.config.publicDir.toString(),
 		trailingSlash: settings.config.trailingSlash,
 		buildFormat: settings.config.build.format,
 		compressHTML: settings.config.compressHTML,

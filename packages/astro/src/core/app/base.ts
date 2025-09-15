@@ -186,7 +186,6 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			pathname = prependForwardSlash(this.removeBase(url.pathname));
 		}
 		let routeData = matchRoute(decodeURI(pathname), this.manifestData);
-
 		if (!routeData) return undefined;
 		if (allowPrerenderedRoutes) {
 			return routeData;

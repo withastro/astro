@@ -51,7 +51,6 @@ export type AssetsPrefix =
 	| undefined;
 
 export type SSRManifest = {
-	hrefRoot: string;
 	adapterName: string;
 	routes: RouteInfo[];
 	site?: string;
@@ -86,12 +85,13 @@ export type SSRManifest = {
 	actions?: () => Promise<SSRActions> | SSRActions;
 	checkOrigin: boolean;
 	sessionConfig?: ResolvedSessionConfig<any>;
-	cacheDir: string | URL;
-	srcDir: string | URL;
-	outDir: string | URL;
-	publicDir: string | URL;
-	buildClientDir: string | URL;
-	buildServerDir: string | URL;
+	cacheDir: URL;
+	srcDir: URL;
+	outDir: URL;
+	rootDir: URL;
+	publicDir: URL;
+	buildClientDir: URL;
+	buildServerDir: URL;
 	csp: SSRManifestCSP | undefined;
 };
 
@@ -130,7 +130,21 @@ export type SerializedSSRManifest = Omit<
 	| 'clientDirectives'
 	| 'serverIslandNameMap'
 	| 'key'
+	| 'rootDir'
+	| 'srcDir'
+	| 'cacheDir'
+	| 'outDir'
+	| 'publicDir'
+	| 'buildClientDir'
+	| 'buildServerDir'
 > & {
+	rootDir: string;
+	srcDir: string;
+	cacheDir: string;
+	outDir: string;
+	publicDir: string;
+	buildClientDir: string;
+	buildServerDir: string;
 	routes: SerializedRouteInfo[];
 	assets: string[];
 	componentMetadata: [string, SSRComponentMetadata][];
