@@ -18,7 +18,6 @@ export type {
 	ImageQuality,
 	ImageQualityPreset,
 	ImageTransform,
-	SvgComponent,
 	UnresolvedImageTransform,
 } from '../../assets/types.js';
 export type { ContainerRenderer } from '../../container/index.js';

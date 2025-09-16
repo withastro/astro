@@ -109,8 +109,7 @@ declare module '*.avif' {
 	export default metadata;
 }
 declare module '*.svg' {
-	type SvgComponent = import('./dist/assets/types.js').SvgComponent;
-	const Component: SvgComponent & ImageMetadata;
+	const Component: import('./types').SvgComponent & ImageMetadata;
 	export default Component;
 }
 
