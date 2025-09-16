@@ -1,7 +1,7 @@
 import type { AstroConfig } from 'astro';
 import type { Arguments } from 'yargs-parser';
 import type { DBConfig } from '../../../types.js';
-import { getManagedRemoteToken, getRemoteDatabaseInfo } from '../../../utils.js';
+import { getRemoteDatabaseInfo } from '../../../utils.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
@@ -20,11 +20,7 @@ export async function cmd({
 }) {
 	const isJson = flags.json;
 	const dbInfo = getRemoteDatabaseInfo();
-	const appToken = await getManagedRemoteToken(flags.token, dbInfo);
-	const productionSnapshot = await getProductionCurrentSnapshot({
-		dbInfo,
-		appToken: appToken.token,
-	});
+	const productionSnapshot = await getProductionCurrentSnapshot(dbInfo);
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
 	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
 		oldSnapshot: productionSnapshot || createEmptySnapshot(),
@@ -53,6 +49,5 @@ export async function cmd({
 		console.log(result.message);
 	}
 
-	await appToken.destroy();
 	process.exit(result.exitCode);
 }

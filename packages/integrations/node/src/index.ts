@@ -1,6 +1,14 @@
 import { fileURLToPath } from 'node:url';
-import type { AstroAdapter, AstroIntegration } from 'astro';
+import { writeJson } from '@astrojs/internal-helpers/fs';
+import type {
+	AstroAdapter,
+	AstroConfig,
+	AstroIntegration,
+	NodeAppHeadersJson,
+	RouteToHeaders,
+} from 'astro';
 import { AstroError } from 'astro/errors';
+import { STATIC_HEADERS_FILE } from './shared.js';
 import type { Options, UserOptions } from './types.js';
 
 export function getAdapter(options: Options): AstroAdapter {
@@ -13,6 +21,7 @@ export function getAdapter(options: Options): AstroAdapter {
 		adapterFeatures: {
 			buildOutput: 'server',
 			edgeMiddleware: false,
+			experimentalStaticHeaders: options.experimentalStaticHeaders,
 		},
 		supportedAstroFeatures: {
 			hybridOutput: 'stable',
@@ -25,18 +34,32 @@ export function getAdapter(options: Options): AstroAdapter {
 	};
 }
 
+const protocols = ['http:', 'https:'];
+
 export default function createIntegration(userOptions: UserOptions): AstroIntegration {
 	if (!userOptions?.mode) {
 		throw new AstroError(`Setting the 'mode' option is required.`);
 	}
+	const { experimentalErrorPageHost } = userOptions;
+	if (
+		experimentalErrorPageHost &&
+		(!URL.canParse(experimentalErrorPageHost) ||
+			!protocols.includes(new URL(experimentalErrorPageHost).protocol))
+	) {
+		throw new AstroError(
+			`Invalid experimentalErrorPageHost: ${experimentalErrorPageHost}. It should be a valid URL.`,
+		);
+	}
 
 	let _options: Options;
+	let _config: AstroConfig | undefined = undefined;
+	let _routeToHeaders: RouteToHeaders | undefined = undefined;
 	return {
 		name: '@astrojs/node',
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, logger }) => {
 				let session = config.session;
-
+				_config = config;
 				if (!session?.driver) {
 					logger.info('Enabling sessions with filesystem storage');
 					session = {
@@ -63,6 +86,9 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 					},
 				});
 			},
+			'astro:build:generated': ({ experimentalRouteToHeaders }) => {
+				_routeToHeaders = experimentalRouteToHeaders;
+			},
 			'astro:config:done': ({ setAdapter, config }) => {
 				_options = {
 					...userOptions,
@@ -71,8 +97,39 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 					host: config.server.host,
 					port: config.server.port,
 					assets: config.build.assets,
+					experimentalStaticHeaders: userOptions.experimentalStaticHeaders ?? false,
+					experimentalErrorPageHost,
 				};
 				setAdapter(getAdapter(_options));
+			},
+			'astro:build:done': async () => {
+				if (!_config) {
+					return;
+				}
+
+				if (_routeToHeaders && _routeToHeaders.size > 0) {
+					const headersFileUrl = new URL(STATIC_HEADERS_FILE, _config.outDir);
+					const headersValue: NodeAppHeadersJson = [];
+
+					for (const [pathname, { headers }] of _routeToHeaders.entries()) {
+						if (_config.experimental.csp) {
+							const csp = headers.get('Content-Security-Policy');
+							if (csp) {
+								headersValue.push({
+									pathname,
+									headers: [
+										{
+											key: 'Content-Security-Policy',
+											value: csp,
+										},
+									],
+								});
+							}
+						}
+					}
+
+					await writeJson(headersFileUrl, headersValue);
+				}
 			},
 		},
 	};

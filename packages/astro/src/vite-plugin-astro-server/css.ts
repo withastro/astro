@@ -1,5 +1,5 @@
 import type { ModuleLoader } from '../core/module-loader/index.js';
-import { viteID } from '../core/util.js';
+import { viteID, wrapId } from '../core/util.js';
 import { isBuildableCSSRequest } from './util.js';
 import { crawlGraph } from './vite.js';
 
@@ -55,8 +55,8 @@ export async function getStylesForURL(
 			}
 
 			importedStylesMap.set(importedModule.url, {
-				id: importedModule.id ?? importedModule.url,
-				url: importedModule.url,
+				id: wrapId(importedModule.id ?? importedModule.url),
+				url: wrapId(importedModule.url),
 				content: css,
 			});
 		}

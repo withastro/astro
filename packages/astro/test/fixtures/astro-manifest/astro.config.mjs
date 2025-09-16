@@ -6,5 +6,20 @@ export default defineConfig({
 	i18n: {
 		locales: ["en", "fr"],
 		defaultLocale: "en",
-	}
+	},
+	integrations: [
+		{
+ 		name: 'config',
+		    hooks: {
+				'astro:config:setup': ({ updateConfig }) => {
+					    updateConfig({
+							 base: '/blog',
+            				site: 'https://example.com',
+            				trailingSlash: 'always',
+						})
+				}
+			}
+		}
+	]
+	
 });

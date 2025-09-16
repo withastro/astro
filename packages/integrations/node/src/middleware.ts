@@ -1,6 +1,6 @@
 import type { NodeApp } from 'astro/app/node';
 import { createAppHandler } from './serve-app.js';
-import type { RequestHandler } from './types.js';
+import type { Options, RequestHandler } from './types.js';
 
 /**
  * Creates a middleware that can be used with Express, Connect, etc.
@@ -10,8 +10,8 @@ import type { RequestHandler } from './types.js';
  *
  * https://expressjs.com/en/guide/using-middleware.html#middleware.error-handling
  */
-export default function createMiddleware(app: NodeApp): RequestHandler {
-	const handler = createAppHandler(app);
+export default function createMiddleware(app: NodeApp, options: Options): RequestHandler {
+	const handler = createAppHandler(app, options);
 	const logger = app.getAdapterLogger();
 	// using spread args because express trips up if the function's
 	// stringified body includes req, res, next, locals directly

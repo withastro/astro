@@ -1,6 +1,6 @@
 # @astrojs/svelte 🧡
 
-This **[Astro integration][astro-integration]** enables server-side rendering and client-side hydration for your [Svelte](https://svelte.dev/) components. It supports Svelte 3, 4, and 5 (experimental).
+This **[Astro integration][astro-integration]** enables server-side rendering and client-side hydration for your [Svelte](https://svelte.dev/) components. It supports Svelte 3, 4 (both `v5`), and 5 (since `v6`).
 
 ## Documentation
 

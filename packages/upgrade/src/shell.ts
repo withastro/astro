@@ -1,9 +1,8 @@
 // This is an extremely simplified version of [`execa`](https://github.com/sindresorhus/execa)
 // intended to keep our dependency size down
 import type { ChildProcess, StdioOptions } from 'node:child_process';
-import type { Readable } from 'node:stream';
-
 import { spawn } from 'node:child_process';
+import type { Readable } from 'node:stream';
 import { text as textFromStream } from 'node:stream/consumers';
 
 interface ExecaOptions {
@@ -36,7 +35,7 @@ export async function shell(
 		signal = controller.signal;
 	}
 	try {
-		child = spawn(command, flags, {
+		child = spawn(`${command} ${flags.join(' ')}`, {
 			cwd: opts.cwd,
 			shell: true,
 			stdio: opts.stdio,

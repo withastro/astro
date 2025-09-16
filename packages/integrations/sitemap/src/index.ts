@@ -20,6 +20,7 @@ export type SitemapOptions =
 	| {
 			filenameBase?: string;
 			filter?(page: string): boolean;
+			customSitemaps?: string[];
 			customPages?: string[];
 
 			i18n?: {
@@ -88,7 +89,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 					const opts = validateOptions(config.site, options);
 
-					const { filenameBase, filter, customPages, serialize, entryLimit } = opts;
+					const { filenameBase, filter, customPages, customSitemaps, serialize, entryLimit } = opts;
 
 					const outFile = `${filenameBase}-index.xml`;
 					const finalSiteUrl = new URL(config.base, config.site);
@@ -135,13 +136,8 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 					pageUrls = Array.from(new Set([...pageUrls, ...routeUrls, ...(customPages ?? [])]));
 
-					try {
-						if (filter) {
-							pageUrls = pageUrls.filter(filter);
-						}
-					} catch (err) {
-						logger.error(`Error filtering pages\n${(err as any).toString()}`);
-						return;
+					if (filter) {
+						pageUrls = pageUrls.filter(filter);
 					}
 
 					if (pageUrls.length === 0) {
@@ -171,6 +167,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						}
 					}
 					const destDir = fileURLToPath(dir);
+					const lastmod = opts.lastmod?.toISOString();
 					const xslURL = opts.xslURL ? new URL(opts.xslURL, finalSiteUrl).href : undefined;
 					await writeSitemap(
 						{
@@ -180,7 +177,9 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							publicBasePath: config.base,
 							sourceData: urlData,
 							limit: entryLimit,
+							customSitemaps,
 							xslURL: xslURL,
+							lastmod,
 						},
 						config,
 					);

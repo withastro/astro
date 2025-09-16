@@ -1,10 +1,23 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { randomUUID } from 'node:crypto';
 import type fs from 'node:fs';
+import { existsSync } from 'node:fs';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
-import type { SSRManifest, SSRManifestI18n } from '../core/app/types.js';
+import type { SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
+import {
+	getAlgorithm,
+	getDirectives,
+	getScriptHashes,
+	getScriptResources,
+	getStrictDynamic,
+	getStyleHashes,
+	getStyleResources,
+	shouldTrackCspHashes,
+} from '../core/csp/common.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
 import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
@@ -100,8 +113,7 @@ export default function createVitePluginAstroServer({
 						});
 				const store = localStorage.getStore();
 				if (store instanceof IncomingMessage) {
-					const request = store;
-					setRouteError(controller.state, request.url!, error);
+					setRouteError(controller.state, store.url!, error);
 				}
 				const { errorWithMetadata } = recordServerError(loader, settings.config, pipeline, error);
 				setTimeout(
@@ -126,6 +138,50 @@ export default function createVitePluginAstroServer({
 					route: '',
 					handle: trailingSlashMiddleware(settings),
 				});
+
+				// Chrome DevTools workspace handler
+				// See https://chromium.googlesource.com/devtools/devtools-frontend/+/main/docs/ecosystem/automatic_workspace_folders.md
+				viteServer.middlewares.use(async function chromeDevToolsHandler(request, response, next) {
+					if (request.url !== '/.well-known/appspecific/com.chrome.devtools.json') {
+						return next();
+					}
+					if (!settings.config.experimental.chromeDevtoolsWorkspace) {
+						// Return early to stop console spam
+						response.writeHead(404);
+						response.end();
+						return;
+					}
+
+					const pluginVersion = '1.1';
+					const cacheDir = settings.config.cacheDir;
+					const configPath = new URL('./chrome-workspace.json', cacheDir);
+
+					if (!existsSync(cacheDir)) {
+						await mkdir(cacheDir, { recursive: true });
+					}
+
+					let config;
+					try {
+						config = JSON.parse(await readFile(configPath, 'utf-8'));
+						// If the cached workspace config was created with a previous version of this plugin,
+						// we throw an error so it gets recreated in the `catch` block below.
+						if (config.version !== pluginVersion) throw new Error('Cached config is outdated.');
+					} catch {
+						config = {
+							workspace: {
+								version: pluginVersion,
+								uuid: randomUUID(),
+								root: fileURLToPath(settings.config.root),
+							},
+						};
+						await writeFile(configPath, JSON.stringify(config));
+					}
+
+					response.setHeader('Content-Type', 'application/json');
+					response.end(JSON.stringify(config));
+					return;
+				});
+
 				// Note that this function has a name so other middleware can find it.
 				viteServer.middlewares.use(async function astroDevHandler(request, response) {
 					if (request.url === undefined || !request.method) {
@@ -162,7 +218,8 @@ export default function createVitePluginAstroServer({
  * @param settings
  */
 export function createDevelopmentManifest(settings: AstroSettings): SSRManifest {
-	let i18nManifest: SSRManifestI18n | undefined = undefined;
+	let i18nManifest: SSRManifestI18n | undefined;
+	let csp: SSRManifestCSP | undefined;
 	if (settings.config.i18n) {
 		i18nManifest = {
 			fallback: settings.config.i18n.fallback,
@@ -171,6 +228,26 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			locales: settings.config.i18n.locales,
 			domainLookupTable: {},
 			fallbackType: toFallbackType(settings.config.i18n.routing),
+		};
+	}
+
+	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
+		const styleHashes = [
+			...getStyleHashes(settings.config.experimental.csp),
+			...settings.injectedCsp.styleHashes,
+		];
+
+		csp = {
+			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
+				? 'adapter'
+				: undefined,
+			scriptHashes: getScriptHashes(settings.config.experimental.csp),
+			scriptResources: getScriptResources(settings.config.experimental.csp),
+			styleHashes,
+			styleResources: getStyleResources(settings.config.experimental.csp),
+			algorithm: getAlgorithm(settings.config.experimental.csp),
+			directives: getDirectives(settings),
+			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
 		};
 	}
 
@@ -188,7 +265,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		assets: new Set(),
 		entryModules: {},
 		routes: [],
-		adapterName: settings?.adapter?.name || '',
+		adapterName: settings?.adapter?.name ?? '',
 		clientDirectives: settings.clientDirectives,
 		renderers: [],
 		base: settings.config.base,
@@ -207,5 +284,6 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			};
 		},
 		sessionConfig: settings.config.session,
+		csp,
 	};
 }

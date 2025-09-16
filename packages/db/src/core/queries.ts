@@ -7,14 +7,14 @@ import {
 	FOREIGN_KEY_REFERENCES_LENGTH_ERROR,
 	REFERENCE_DNE_ERROR,
 } from '../runtime/errors.js';
-import { hasPrimaryKey } from '../runtime/index.js';
 import { isSerializedSQL } from '../runtime/types.js';
+import { hasPrimaryKey } from '../runtime/utils.js';
 import type {
 	BooleanColumn,
 	ColumnType,
+	DateColumn,
 	DBColumn,
 	DBTable,
-	DateColumn,
 	JsonColumn,
 	NumberColumn,
 	TextColumn,
@@ -191,7 +191,7 @@ function getDefaultValueSql(columnName: string, column: DBColumnWithDefault): st
 			try {
 				stringified = JSON.stringify(column.schema.default);
 			} catch {
-				// biome-ignore lint/suspicious/noConsoleLog: allowed
+				// biome-ignore lint/suspicious/noConsole: allowed
 				console.log(
 					`Invalid default value for column ${bold(
 						columnName,

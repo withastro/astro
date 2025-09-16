@@ -1,22 +1,22 @@
+import { createReadStream } from 'node:fs';
+import { appendFile, stat } from 'node:fs/promises';
+import { createRequire } from 'node:module';
+import { createInterface } from 'node:readline/promises';
+import { pathToFileURL } from 'node:url';
+import {
+	appendForwardSlash,
+	prependForwardSlash,
+	removeLeadingForwardSlash,
+} from '@astrojs/internal-helpers/path';
+import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import type {
 	AstroConfig,
 	AstroIntegration,
 	HookParameters,
 	IntegrationResolvedRoute,
 } from 'astro';
-import type { PluginOption } from 'vite';
-
-import { createReadStream } from 'node:fs';
-import { appendFile, stat } from 'node:fs/promises';
-import { createInterface } from 'node:readline/promises';
-import { fileURLToPath } from 'node:url';
-import {
-	appendForwardSlash,
-	prependForwardSlash,
-	removeLeadingForwardSlash,
-} from '@astrojs/internal-helpers/path';
-import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
 import { AstroError } from 'astro/errors';
+import type { PluginOption } from 'vite';
 import { defaultClientConditions } from 'vite';
 import { type GetPlatformProxyOptions, getPlatformProxy } from 'wrangler';
 import {
@@ -25,13 +25,13 @@ import {
 } from './utils/cloudflare-module-loader.js';
 import { createGetEnv } from './utils/env.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
-import { setImageConfig } from './utils/image-config.js';
+import { type ImageService, setImageConfig } from './utils/image-config.js';
 
-export type { Runtime } from './entrypoints/server.js';
+export type { Runtime } from './utils/handler.js';
 
 export type Options = {
 	/** Options for handling images. */
-	imageService?: 'passthrough' | 'cloudflare' | 'compile' | 'custom';
+	imageService?: ImageService;
 	/** Configuration for `_routes.json` generation. A _routes.json file controls when your Function is invoked. This file will include three different properties:
 	 *
 	 * - version: Defines the version of the schema. Currently there is only one version of the schema (version 1), however, we may add more in the future and aim to be backwards compatible.
@@ -98,8 +98,28 @@ export type Options = {
 	 * See https://developers.cloudflare.com/kv/concepts/kv-namespaces/ for more details on using KV namespaces.
 	 *
 	 */
-
 	sessionKVBindingName?: string;
+
+	/**
+	 * This configuration option allows you to specify a custom entryPoint for your Cloudflare Worker.
+	 * The entry point is the file that will be executed when your Worker is invoked.
+	 * By default, this is set to `@astrojs/cloudflare/entrypoints/server.js` and `['default']`.
+	 * @docs https://docs.astro.build/en/guides/integrations-guide/cloudflare/#workerEntryPoint
+	 */
+	workerEntryPoint?: {
+		/**
+		 * The path to the entry file. This should be a relative path from the root of your Astro project.
+		 * @example`'src/worker.ts'`
+		 * @docs https://docs.astro.build/en/guides/integrations-guide/cloudflare/#workerentrypointpath
+		 */
+		path: string | URL;
+		/**
+		 * Additional named exports to use for the entry file. Astro always includes the default export (`['default']`). If you need to have other top level named exports use this option.
+		 * @example ['MyDurableObject', 'namedExport']
+		 * @docs https://docs.astro.build/en/guides/integrations-guide/cloudflare/#workerentrypointnamedexports
+		 */
+		namedExports?: string[];
+	};
 };
 
 function wrapWithSlashes(path: string): string {
@@ -129,6 +149,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 	let _routes: IntegrationResolvedRoute[];
 
+	const SESSION_KV_BINDING_NAME = args?.sessionKVBindingName ?? 'SESSION';
+
 	return {
 		name: '@astrojs/cloudflare',
 		hooks: {
@@ -139,38 +161,25 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				logger,
 				addWatchFile,
 				addMiddleware,
-				createCodegenDir,
 			}) => {
 				let session = config.session;
 
-				const isBuild = command === 'build';
-
 				if (!session?.driver) {
-					const sessionDir = isBuild ? undefined : createCodegenDir();
-					const bindingName = args?.sessionKVBindingName ?? 'SESSION';
 					logger.info(
-						`Enabling sessions with ${isBuild ? 'Cloudflare KV' : 'filesystem storage'}. Be sure to define a KV binding named "${bindingName}".`,
+						`Enabling sessions with Cloudflare KV with the "${SESSION_KV_BINDING_NAME}" KV binding.`,
 					);
 					logger.info(
-						`If you see the error "Invalid binding \`${bindingName}\`" in your build output, you need to add the binding to your wrangler config file.`,
+						`If you see the error "Invalid binding \`${SESSION_KV_BINDING_NAME}\`" in your build output, you need to add the binding to your wrangler config file.`,
 					);
-					session = isBuild
-						? {
-								...session,
-								driver: 'cloudflare-kv-binding',
-								options: {
-									binding: bindingName,
-									...session?.options,
-								},
-							}
-						: {
-								...session,
-								driver: 'fs-lite',
-								options: {
-									base: fileURLToPath(new URL('sessions', sessionDir)),
-									...session?.options,
-								},
-							};
+
+					session = {
+						...session,
+						driver: 'cloudflare-kv-binding',
+						options: {
+							binding: SESSION_KV_BINDING_NAME,
+							...session?.options,
+						},
+					};
 				}
 
 				updateConfig({
@@ -215,20 +224,24 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			'astro:routes:resolved': ({ routes }) => {
 				_routes = routes;
 			},
-			'astro:config:done': ({ setAdapter, config, buildOutput, logger }) => {
-				if (buildOutput === 'static') {
-					logger.warn(
-						'[@astrojs/cloudflare] This adapter is intended to be used with server rendered pages, which this project does not contain any of. As such, this adapter is unnecessary.',
-					);
-				}
-
+			'astro:config:done': ({ setAdapter, config, buildOutput }) => {
 				_config = config;
 				finalBuildOutput = buildOutput;
 
+				let customWorkerEntryPoint: URL | undefined;
+				if (args?.workerEntryPoint && typeof args.workerEntryPoint.path === 'string') {
+					const require = createRequire(config.root);
+					try {
+						customWorkerEntryPoint = pathToFileURL(require.resolve(args.workerEntryPoint.path));
+					} catch {
+						customWorkerEntryPoint = new URL(args.workerEntryPoint.path, config.root);
+					}
+				}
+
 				setAdapter({
 					name: '@astrojs/cloudflare',
-					serverEntrypoint: '@astrojs/cloudflare/entrypoints/server.js',
-					exports: ['default'],
+					serverEntrypoint: customWorkerEntryPoint ?? '@astrojs/cloudflare/entrypoints/server.js',
+					exports: [...new Set(['default', ...(args?.workerEntryPoint?.namedExports ?? [])])],
 					adapterFeatures: {
 						edgeMiddleware: false,
 						buildOutput: 'server',
@@ -241,7 +254,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						sharpImageService: {
 							support: 'limited',
 							message:
-								'Cloudflare does not support sharp. You can use the `compile` image service to compile images at build time. It will not work for any on-demand rendered images.',
+								'Cloudflare does not support sharp at runtime. However, you can configure `imageService: "compile"` to optimize images with sharp on prerendered pages during build time.',
+							// For explicitly set image services, we suppress the warning about sharp not being supported at runtime,
+							// inferring the user is aware of the limitations.
+							suppress: args?.imageService ? 'all' : 'default',
 						},
 						envGetSecret: 'stable',
 					},
@@ -251,7 +267,15 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				if ((args?.platformProxy?.enabled ?? true) === true) {
 					const platformProxy = await getPlatformProxy(args?.platformProxy);
 
+					// Ensures the dev server doesn't hang
+					server.httpServer?.on('close', async () => {
+						await platformProxy.dispose();
+					});
+
 					setProcessEnv(_config, platformProxy.env);
+
+					globalThis.__env__ ??= {};
+					globalThis.__env__[SESSION_KV_BINDING_NAME] = platformProxy.env[SESSION_KV_BINDING_NAME];
 
 					const clientLocalsSymbol = Symbol.for('astro.locals');
 
@@ -318,9 +342,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite.define = {
 						'process.env': 'process.env',
 						// Allows the request handler to know what the binding name is
-						'globalThis.__ASTRO_SESSION_BINDING_NAME': JSON.stringify(
-							args?.sessionKVBindingName ?? 'SESSION',
-						),
+						'globalThis.__ASTRO_SESSION_BINDING_NAME': JSON.stringify(SESSION_KV_BINDING_NAME),
 						...vite.define,
 					};
 				}
@@ -401,7 +423,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				if (!trueRedirects.empty()) {
 					try {
-						await appendFile(new URL('./_redirects', _config.outDir), trueRedirects.print());
+						await appendFile(
+							new URL('./_redirects', _config.outDir),
+							printAsRedirects(trueRedirects),
+						);
 					} catch (_error) {
 						logger.error('Failed to write _redirects file');
 					}

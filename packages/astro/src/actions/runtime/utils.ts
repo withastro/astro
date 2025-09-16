@@ -40,6 +40,7 @@ export type ActionAPIContext = Pick<
 	| 'preferredLocaleList'
 	| 'originPathname'
 	| 'session'
+	| 'csp'
 > & {
 	// TODO: remove in Astro 6.0
 	/**

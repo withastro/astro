@@ -37,7 +37,11 @@ export default {
 				'rehype-slug',
 				'rehype-toc',
 				'remark-code-titles',
+				'@types/http-cache-semantics',
 			],
+		},
+		'packages/db': {
+			entry: [testEntry, 'test/types/**/*'],
 		},
 		'packages/integrations/*': {
 			entry: [testEntry],

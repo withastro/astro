@@ -174,4 +174,19 @@ describe('defineConfig()', () => {
 			},
 		);
 	});
+
+	it('Validates CSP hashes', () => {
+		defineConfig({
+			experimental: {
+				csp: {
+					scriptDirective: {
+						hashes: ['sha256-xx', 'sha384-xx', 'sha512-xx'],
+					},
+					styleDirective: {
+						hashes: ['sha256-xx', 'sha384-xx', 'sha512-xx'],
+					},
+				},
+			},
+		});
+	});
 });

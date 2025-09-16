@@ -1,5 +1,23 @@
 # @astrojs/internal-helpers
 
+## 0.7.2
+
+### Patch Changes
+
+- [`4d16de7`](https://github.com/withastro/astro/commit/4d16de7f95db5d1ec1ce88610d2a95e606e83820) Thanks [@ematipico](https://github.com/ematipico)! - Improves the detection of remote paths in the `_image` endpoint. Now `href` parameters that start with `//` are considered remote paths.
+
+## 0.7.1
+
+### Patch Changes
+
+- [`0567fb7`](https://github.com/withastro/astro/commit/0567fb7b50c0c452be387dd7c7264b96bedab48f) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds `//` to list of internal path prefixes that do not have automated trailing slash handling
+
+## 0.7.0
+
+### Minor Changes
+
+- [#14169](https://github.com/withastro/astro/pull/14169) [`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds `isInternalPath` helper
+
 ## 0.6.1
 
 ### Patch Changes

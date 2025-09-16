@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import path from 'node:path';
 import url from 'node:url';
-import { hasFileExtension } from '@astrojs/internal-helpers/path';
+import { hasFileExtension, isInternalPath } from '@astrojs/internal-helpers/path';
 import type { NodeApp } from 'astro/app/node';
 import send from 'send';
 import type { Options } from './types.js';
@@ -33,6 +33,18 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 			const hasSlash = urlPath.endsWith('/');
 			let pathname = urlPath;
 
+			if (app.headersMap && app.headersMap.length > 0) {
+				const routeData = app.match(req, true);
+				if (routeData && routeData.prerender) {
+					const matchedRoute = app.headersMap.find((header) => header.pathname.includes(pathname));
+					if (matchedRoute) {
+						for (const header of matchedRoute.headers) {
+							res.setHeader(header.key, header.value);
+						}
+					}
+				}
+			}
+
 			switch (trailingSlash) {
 				case 'never': {
 					if (isDirectory && urlPath !== '/' && hasSlash) {
@@ -54,7 +66,9 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 				}
 				case 'always': {
 					// trailing slash is not added to "subresources"
-					if (!hasSlash && !hasFileExtension(urlPath)) {
+					// We check if `urlPath` doesn't contain possible internal paths. This should prevent
+					// redirects to unwanted paths
+					if (!hasSlash && !hasFileExtension(urlPath) && !isInternalPath(urlPath)) {
 						pathname = urlPath + '/' + (urlQuery ? '?' + urlQuery : '');
 						res.statusCode = 301;
 						res.setHeader('Location', pathname);

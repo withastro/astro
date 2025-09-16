@@ -16,6 +16,9 @@ export async function getRoutePrerenderOption(
 	const match = PRERENDER_REGEX.exec(content);
 	if (match) {
 		route.prerender = match[1] === 'true';
+		if (route.redirectRoute) {
+			route.redirectRoute.prerender = match[1] === 'true';
+		}
 	}
 
 	await runHookRouteSetup({ route, settings, logger });

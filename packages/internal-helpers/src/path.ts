@@ -69,6 +69,13 @@ function isString(path: unknown): path is string {
 	return typeof path === 'string' || path instanceof String;
 }
 
+const INTERNAL_PREFIXES = new Set(['/_', '/@', '/.', '//']);
+const JUST_SLASHES = /^\/{2,}$/;
+
+export function isInternalPath(path: string) {
+	return INTERNAL_PREFIXES.has(path.slice(0, 2)) && !JUST_SLASHES.test(path);
+}
+
 export function joinPaths(...paths: (string | undefined)[]) {
 	return paths
 		.filter(isString)
@@ -94,8 +101,28 @@ export function removeQueryString(path: string) {
 	return index > 0 ? path.substring(0, index) : path;
 }
 
+/**
+ * Regex that matches the following URLs like:
+ * - http://example.com
+ * - https://example.com
+ * - ftp://example.com
+ * - ws://example.com
+ * - //example.com (protocol-relative URLs)
+ */
+const URL_PROTOCOL_REGEX = /^(?:(?:http|ftp|https|ws):?\/\/|\/\/)/;
+
+/**
+ * Checks whether the path is considered a remote path. Paths need to start with:
+ * - `http://`
+ * - `https://`
+ * - `ftp://`
+ * - `ws://`
+ * - `//` (protocol-relative URLs)
+ * - `data:` (base64 images)
+ * @param src
+ */
 export function isRemotePath(src: string) {
-	return /^(?:http|ftp|https|ws):?\/\//.test(src) || src.startsWith('data:');
+	return URL_PROTOCOL_REGEX.test(src) || src.startsWith('data:');
 }
 
 export function slash(path: string) {

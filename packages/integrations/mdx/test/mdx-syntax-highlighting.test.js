@@ -1,7 +1,6 @@
-import mdx from '@astrojs/mdx';
-
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import mdx from '@astrojs/mdx';
 import { parseHTML } from 'linkedom';
 import rehypePrettyCode from 'rehype-pretty-code';
 import shikiTwoslash from 'remark-shiki-twoslash';
