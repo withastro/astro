@@ -19,19 +19,14 @@ type Transition = {
 	viewTransitionFinished?: () => void;
 };
 
-// Create bound versions of pushState/replaceState so that Partytown doesn't hijack them,
-// which breaks Firefox.
 const inBrowser = import.meta.env.SSR === false;
-const pushState = (inBrowser && history.pushState.bind(history)) as typeof history.pushState;
-const replaceState = (inBrowser &&
-	history.replaceState.bind(history)) as typeof history.replaceState;
 
 // only update history entries that are managed by us
 // leave other entries alone and do not accidently add state.
 export const updateScrollPosition = (positions: { scrollX: number; scrollY: number }) => {
 	if (history.state) {
 		history.scrollRestoration = 'manual';
-		replaceState({ ...history.state, ...positions }, '');
+		history.replaceState({ ...history.state, ...positions }, '');
 	}
 };
 
@@ -93,7 +88,7 @@ if (inBrowser) {
 	} else if (transitionEnabledOnThisPage()) {
 		// This page is loaded from the browser address bar or via a link from extern,
 		// it needs a state in the history
-		replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
+		history.replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
 		history.scrollRestoration = 'manual';
 	}
 }
@@ -191,7 +186,7 @@ const moveToLocation = (
 	if (to.href !== location.href && !historyState) {
 		if (options.history === 'replace') {
 			const current = history.state;
-			replaceState(
+			history.replaceState(
 				{
 					...options.state,
 					index: current.index,
@@ -202,7 +197,7 @@ const moveToLocation = (
 				to.href,
 			);
 		} else {
-			pushState(
+			history.pushState(
 				{ ...options.state, index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
 				'',
 				to.href,
@@ -231,7 +226,7 @@ const moveToLocation = (
 			const savedState = history.state;
 			location.href = to.href; // this kills the history state on Firefox
 			if (!history.state) {
-				replaceState(savedState, ''); // this restores the history state
+				history.replaceState(savedState, ''); // this restores the history state
 				if (intraPage) {
 					window.dispatchEvent(new PopStateEvent('popstate'));
 				}

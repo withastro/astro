@@ -77,6 +77,22 @@ During the development process, you may want to test your changes to ensure they
 
 Overall, it's up to personal preference which method to use. For smaller changes, using the examples folder may be sufficient. For larger changes, using a separate project may be more appropriate.
 
+#### Naming convention and APIs usage
+
+> [!NOTE]
+> This is a requirement that is applied only to the `packages/astro` source code.
+
+> [!IMPORTANT]
+> This convention is recent, the source code might not follow this convention yet.
+
+The use of `Node.js` APIs e.g. `node:` is limited and should be done only in specific parts of the code. The reason why
+the project can't use `Node.js` APIs at will is because Astro code might run in environments that support runtimes other than
+Node.js. An example is Cloudflare Workers.
+
+Code that is runtime-agnostic (i.e. code that shouldn't use Node.js APIs) should be placed inside folders or files called `runtime` (`runtime/` or `runtime.ts`).
+
+You can use `Node.js` APIs inside the implementation of the vite plugins, but if the vite plugin returns a virtual module, that virtual module can't use Node.js APIs.
+
 #### Debugging Vite
 
 You can debug vite by prefixing any command with `DEBUG` like so:

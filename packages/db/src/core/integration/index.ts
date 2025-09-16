@@ -13,6 +13,7 @@ import {
 	type ViteDevServer,
 } from 'vite';
 import parseArgs from 'yargs-parser';
+import { z } from 'zod';
 import { AstroDbError, isDbError } from '../../runtime/utils.js';
 import { CONFIG_FILE_NAMES, DB_PATH, VIRTUAL_MODULE_ID } from '../consts.js';
 import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
@@ -27,8 +28,29 @@ import {
 	type SeedHandler,
 	vitePluginDb,
 } from './vite-plugin-db.js';
+import { vitePluginDbClient } from './vite-plugin-db-client.js';
 
-function astroDBIntegration(): AstroIntegration {
+const astroDBConfigSchema = z
+	.object({
+		/**
+		 * Sets the mode of the underlying `@libsql/client` connection.
+		 *
+		 * In most cases, the default 'node' mode is sufficient. On platforms like Cloudflare, or Deno, you may need to set this to 'web'.
+		 *
+		 * @default 'node'
+		 */
+		mode: z
+			.union([z.literal('node'), z.literal('web')])
+			.optional()
+			.default('node'),
+	})
+	.optional()
+	.default({});
+
+export type AstroDBConfig = z.infer<typeof astroDBConfigSchema>;
+
+function astroDBIntegration(options?: AstroDBConfig): AstroIntegration {
+	const resolvedConfig = astroDBConfigSchema.parse(options);
 	let connectToRemote = false;
 	let configFileDependencies: string[] = [];
 	let root: URL;
@@ -69,6 +91,11 @@ function astroDBIntegration(): AstroIntegration {
 				const args = parseArgs(process.argv.slice(3));
 				connectToRemote = process.env.ASTRO_INTERNAL_TEST_REMOTE || args['remote'];
 
+				const dbClientPlugin = vitePluginDbClient({
+					connectToRemote,
+					mode: resolvedConfig.mode,
+				});
+
 				if (connectToRemote) {
 					dbPlugin = vitePluginDb({
 						connectToRemote,
@@ -95,7 +122,7 @@ function astroDBIntegration(): AstroIntegration {
 				updateConfig({
 					vite: {
 						assetsInclude: [DB_PATH],
-						plugins: [dbPlugin],
+						plugins: [dbClientPlugin, dbPlugin],
 					},
 				});
 			},
@@ -182,8 +209,8 @@ function databaseFileEnvDefined() {
 	return env.ASTRO_DATABASE_FILE != null || process.env.ASTRO_DATABASE_FILE != null;
 }
 
-export function integration(): AstroIntegration[] {
-	return [astroDBIntegration(), fileURLIntegration()];
+export function integration(options?: AstroDBConfig): AstroIntegration[] {
+	return [astroDBIntegration(options), fileURLIntegration()];
 }
 
 async function executeSeedFile({
