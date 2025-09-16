@@ -15,3 +15,5 @@ overrides:
   'undici': '^6.21.3'
   # A later wrangler minor dropeed support for node 18
   'wrangler': '4.14.1'
+# Wait until three days after release to install new versions of packages
+minimumReleaseAge: 4320
