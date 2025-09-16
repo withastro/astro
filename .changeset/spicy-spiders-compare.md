@@ -39,8 +39,8 @@ export const server = {
       postId: z.string(),
     }),
     handler: async ({ postId }, ctx) => {
--     const currentLikes = experimental_getActionState<number>(ctx);
--     const currentLikes = getActionState<number>(ctx);
+-     const currentLikes = await experimental_getActionState<number>(ctx);
+-     const currentLikes = await getActionState<number>(ctx);
       // write to database
       return currentLikes + 1;
     },
