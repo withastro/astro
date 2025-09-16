@@ -434,7 +434,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			this.#dirty = false;
 
 			// Keep track of written files to remove old ones
-			const writtenFiles: Set<string> = new Set();
+			const writtenFiles = new Set<string>();
 
 			const manifest: Record<string, string[][]> = {};
 
