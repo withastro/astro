@@ -84,4 +84,5 @@
     "postcss-load-config",
     "esbuild",
   ],
+  "minimumReleaseAge": "3 days"
 }
