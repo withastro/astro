@@ -62,6 +62,7 @@ export function astroContentVirtualModPlugin({
 	settings,
 	fs,
 }: AstroContentVirtualModPluginParams): Plugin {
+	let dataStoreDir: URL;
 	let dataStoreFile: URL;
 	let devServer: ViteDevServer;
 	let liveConfig: string;
@@ -70,7 +71,7 @@ export function astroContentVirtualModPlugin({
 		enforce: 'pre',
 		config(_, env) {
 			if (settings.config.experimental.dataStoreChunking) {
-				const dataStoreDir = getDataStoreDir(settings, env.command === 'serve');
+				dataStoreDir = getDataStoreDir(settings, env.command === 'serve');
 				dataStoreFile = new URL(DATA_STORE_MANIFEST_FILE, dataStoreDir);
 			} else {
 				dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
