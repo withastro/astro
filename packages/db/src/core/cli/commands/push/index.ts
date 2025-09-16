@@ -2,16 +2,10 @@ import type { AstroConfig } from 'astro';
 import { sql } from 'drizzle-orm';
 import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
-import { createRemoteDatabaseClient } from '../../../../runtime/index.js';
-import { safeFetch } from '../../../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../../../consts.js';
+import { createClient } from '../../../db-client/libsql-node.js';
 import type { DBConfig, DBSnapshot } from '../../../types.js';
-import {
-	type RemoteDatabaseInfo,
-	type Result,
-	getManagedRemoteToken,
-	getRemoteDatabaseInfo,
-} from '../../../utils.js';
+import { getRemoteDatabaseInfo, type RemoteDatabaseInfo } from '../../../utils.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
@@ -31,11 +25,7 @@ export async function cmd({
 	const isDryRun = flags.dryRun;
 	const isForceReset = flags.forceReset;
 	const dbInfo = getRemoteDatabaseInfo();
-	const appToken = await getManagedRemoteToken(flags.token, dbInfo);
-	const productionSnapshot = await getProductionCurrentSnapshot({
-		dbInfo,
-		appToken: appToken.token,
-	});
+	const productionSnapshot = await getProductionCurrentSnapshot(dbInfo);
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
 	const isFromScratch = !productionSnapshot;
 	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
@@ -77,13 +67,11 @@ export async function cmd({
 		await pushSchema({
 			statements: migrationQueries,
 			dbInfo,
-			appToken: appToken.token,
+			appToken: flags.token ?? dbInfo.token,
 			isDryRun,
 			currentSnapshot: currentSnapshot,
 		});
 	}
-	// cleanup and exit
-	await appToken.destroy();
 	console.info('Push complete!');
 }
 
@@ -110,9 +98,7 @@ async function pushSchema({
 		return new Response(null, { status: 200 });
 	}
 
-	return dbInfo.type === 'studio'
-		? pushToStudio(requestBody, appToken, dbInfo.url)
-		: pushToDb(requestBody, appToken, dbInfo.url);
+	return pushToDb(requestBody, appToken, dbInfo.url);
 }
 
 type RequestBody = {
@@ -122,10 +108,9 @@ type RequestBody = {
 };
 
 async function pushToDb(requestBody: RequestBody, appToken: string, remoteUrl: string) {
-	const client = createRemoteDatabaseClient({
-		dbType: 'libsql',
-		appToken,
-		remoteUrl,
+	const client = createClient({
+		token: appToken,
+		url: remoteUrl,
 	});
 
 	await client.run(sql`create table if not exists _astro_db_snapshot (
@@ -144,30 +129,4 @@ async function pushToDb(requestBody: RequestBody, appToken: string, remoteUrl: s
 			${JSON.stringify(requestBody.snapshot)}
 		)`);
 	});
-}
-
-async function pushToStudio(requestBody: RequestBody, appToken: string, remoteUrl: string) {
-	const url = new URL('/db/push', remoteUrl);
-	const response = await safeFetch(
-		url,
-		{
-			method: 'POST',
-			headers: new Headers({
-				Authorization: `Bearer ${appToken}`,
-			}),
-			body: JSON.stringify(requestBody),
-		},
-		async (res) => {
-			console.error(`${url.toString()} failed: ${res.status} ${res.statusText}`);
-			console.error(await res.text());
-			throw new Error(`/db/push fetch failed: ${res.status} ${res.statusText}`);
-		},
-	);
-
-	const result = (await response.json()) as Result<never>;
-	if (!result.success) {
-		console.error(`${url.toString()} unsuccessful`);
-		console.error(await response.text());
-		throw new Error(`/db/push fetch unsuccessful`);
-	}
 }

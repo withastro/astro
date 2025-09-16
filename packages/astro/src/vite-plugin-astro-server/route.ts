@@ -1,18 +1,18 @@
 import type http from 'node:http';
 import { loadActions } from '../actions/loadActions.js';
 import {
+	clientLocalsSymbol,
 	DEFAULT_404_COMPONENT,
 	NOOP_MIDDLEWARE_HEADER,
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
-	clientLocalsSymbol,
 } from '../core/constants.js';
 import { AstroErrorData, isAstroError } from '../core/errors/index.js';
 import { req } from '../core/messages.js';
 import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import { routeIsRedirect } from '../core/redirects/index.js';
-import { RenderContext } from '../core/render-context.js';
 import { getProps } from '../core/render/index.js';
+import { RenderContext } from '../core/render-context.js';
 import { createRequest } from '../core/request.js';
 import { redirectTemplate } from '../core/routing/3xx.js';
 import { matchAllRoutes } from '../core/routing/index.js';
@@ -127,16 +127,16 @@ export async function matchRoute(
 	return undefined;
 }
 
-type HandleRoute = {
+interface HandleRoute {
 	matchedRoute: AsyncReturnType<typeof matchRoute>;
 	url: URL;
 	pathname: string;
-	body: ArrayBuffer | undefined;
+	body: BodyInit | undefined;
 	routesList: RoutesList;
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
 	pipeline: DevPipeline;
-};
+}
 
 export async function handleRoute({
 	matchedRoute,
@@ -196,12 +196,59 @@ export async function handleRoute({
 		routeData: route,
 		clientAddress: incomingRequest.socket.remoteAddress,
 		actions,
+		shouldInjectCspMetaTags: false,
 	});
 
 	let response;
 	let statusCode = 200;
 	let isReroute = false;
 	let isRewrite = false;
+
+	async function renderError(err: any, skipMiddleware: boolean) {
+		const custom500 = getCustom500Route(routesList);
+		// Show dev overlay
+		if (!custom500) {
+			throw err;
+		}
+		try {
+			const filePath500 = new URL(`./${custom500.component}`, config.root);
+			const preloaded500Component = await pipeline.preload(custom500, filePath500);
+			renderContext = await RenderContext.create({
+				locals,
+				pipeline,
+				pathname,
+				middleware: skipMiddleware ? undefined : middleware,
+				request,
+				routeData: route,
+				clientAddress: incomingRequest.socket.remoteAddress,
+				actions,
+				shouldInjectCspMetaTags: false,
+			});
+			renderContext.props.error = err;
+			const _response = await renderContext.render(preloaded500Component);
+			// Log useful information that the custom 500 page may not display unlike the default error overlay
+			logger.error('router', err.stack || err.message);
+			statusCode = 500;
+			return _response;
+		} catch (_err) {
+			// We always throw for errors related to middleware calling
+			if (
+				isAstroError(_err) &&
+				[
+					AstroErrorData.MiddlewareNoDataOrNextCalled.name,
+					AstroErrorData.MiddlewareNotAResponse.name,
+				].includes(_err.name)
+			) {
+				throw _err;
+			}
+			if (skipMiddleware === false) {
+				return renderError(_err, true);
+			}
+			// If even skipping the middleware isn't enough to prevent the error, show the dev overlay
+			throw _err;
+		}
+	}
+
 	try {
 		response = await renderContext.render(mod);
 		isReroute = response.headers.has(REROUTE_DIRECTIVE_HEADER);
@@ -216,17 +263,7 @@ export async function handleRoute({
 				? response.status
 				: (statusCodedMatched ?? response.status);
 	} catch (err: any) {
-		const custom500 = getCustom500Route(routesList);
-		if (!custom500) {
-			throw err;
-		}
-		// Log useful information that the custom 500 page may not display unlike the default error overlay
-		logger.error('router', err.stack || err.message);
-		const filePath500 = new URL(`./${custom500.component}`, config.root);
-		const preloaded500Component = await pipeline.preload(custom500, filePath500);
-		renderContext.props.error = err;
-		response = await renderContext.render(preloaded500Component);
-		statusCode = 500;
+		response = await renderError(err, false);
 	} finally {
 		renderContext.session?.[PERSIST_SYMBOL]();
 	}
@@ -262,6 +299,7 @@ export async function handleRoute({
 				request,
 				routeData: fourOhFourRoute.route,
 				clientAddress: incomingRequest.socket.remoteAddress,
+				shouldInjectCspMetaTags: false,
 			});
 			response = await renderContext.render(fourOhFourRoute.preloadedComponent);
 		}

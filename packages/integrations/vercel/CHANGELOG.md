@@ -1,5 +1,175 @@
 # @astrojs/vercel
 
+## 8.2.7
+
+### Patch Changes
+
+- [#14039](https://github.com/withastro/astro/pull/14039) [`da4182d`](https://github.com/withastro/astro/commit/da4182dbe8cc0c8871621d3f8e0f9d40e084ddbf) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where `experimentalStaticHeaders` did not work as expected.
+
+- [#14289](https://github.com/withastro/astro/pull/14289) [`ed493a6`](https://github.com/withastro/astro/commit/ed493a6929512ab636afdb3511ea790789c7c3dd) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused invalid image sizes to be generated when the requested widths were larger than the source image
+
+## 8.2.6
+
+### Patch Changes
+
+- Updated dependencies [[`4d16de7`](https://github.com/withastro/astro/commit/4d16de7f95db5d1ec1ce88610d2a95e606e83820)]:
+  - @astrojs/internal-helpers@0.7.2
+
+## 8.2.5
+
+### Patch Changes
+
+- Updated dependencies [[`0567fb7`](https://github.com/withastro/astro/commit/0567fb7b50c0c452be387dd7c7264b96bedab48f)]:
+  - @astrojs/internal-helpers@0.7.1
+
+## 8.2.4
+
+### Patch Changes
+
+- Updated dependencies [[`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172)]:
+  - @astrojs/internal-helpers@0.7.0
+
+## 8.2.3
+
+### Patch Changes
+
+- [#14077](https://github.com/withastro/astro/pull/14077) [`42ef004`](https://github.com/withastro/astro/commit/42ef00442cc685dd7452de13b476e42bffde9df3) Thanks [@jat001](https://github.com/jat001)! - Changes the default Node.js version of Vercel functions to 22
+
+## 8.2.2
+
+### Patch Changes
+
+- [#14063](https://github.com/withastro/astro/pull/14063) [`de5a253`](https://github.com/withastro/astro/commit/de5a253aa85400c6b4c76379f4ab60707326cde5) Thanks [@RobbieTheWagner](https://github.com/RobbieTheWagner)! - Allow setting `domains` to `undefined` in `imagesConfig` so that `remotePatterns` can be better utilized for images from a variety of domains.
+
+## 8.2.1
+
+### Patch Changes
+
+- [#13972](https://github.com/withastro/astro/pull/13972) [`db8f8be`](https://github.com/withastro/astro/commit/db8f8becc9508fa4f292d45c14af92ba59c414d1) Thanks [@ematipico](https://github.com/ematipico)! - Fixes the internal implementation of the new feature `experimentalStaticHeaders`, where dynamic routes
+  were mapped to use always the same header.
+
+## 8.2.0
+
+### Minor Changes
+
+- [#13965](https://github.com/withastro/astro/pull/13965) [`95ece06`](https://github.com/withastro/astro/commit/95ece0663ed160687ef21101f84b2adec0bffd01) Thanks [@ematipico](https://github.com/ematipico)! - Adds support for the [experimental static headers Astro feature](https://docs.astro.build/en/reference/adapter-reference/#experimentalstaticheaders).
+
+  When the feature is enabled via option `experimentalStaticHeaders`, and [experimental Content Security Policy](https://docs.astro.build/en/reference/experimental-flags/csp/) is enabled, the adapter will generate `Response` headers for static pages, which allows support for CSP directives that are not supported inside a `<meta>` tag (e.g. `frame-ancestors`).
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import vercel from '@astrojs/vercel';
+
+  export default defineConfig({
+    adapter: vercel({
+      experimentalStaticHeaders: true,
+    }),
+    experimental: {
+      cps: true,
+    },
+  });
+  ```
+
+### Patch Changes
+
+- [#13917](https://github.com/withastro/astro/pull/13917) [`e615216`](https://github.com/withastro/astro/commit/e615216c55bca5d61b8c5c1b49d62671f0238509) Thanks [@ascorbic](https://github.com/ascorbic)! - The responsive images feature introduced behind a flag in [v5.0.0](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#500) is no longer experimental and is available for general use.
+
+  The new responsive images feature in Astro automatically generates optimized images for different screen sizes and resolutions, and applies the correct attributes to ensure that images are displayed correctly on all devices.
+
+  Enable the `image.responsiveStyles` option in your Astro config. Then, set a `layout` attribute on any <Image /> or <Picture /> component, or configure a default `image.layout`, for instantly responsive images with automatically generated `srcset` and `sizes` attributes based on the image's dimensions and the layout type.
+
+  Displaying images correctly on the web can be challenging, and is one of the most common performance issues seen in sites. This new feature simplifies the most challenging part of the process: serving your site visitor an image optimized for their viewing experience, and for your website's performance.
+
+  For full details, see the updated [Image guide](https://docs.astro.build/en/guides/images/#responsive-image-behavior).
+
+  #### Migration from Experimental Responsive Images
+
+  The `experimental.responsiveImages` flag has been removed, and all experimental image configuration options have been renamed to their final names.
+
+  If you were using the experimental responsive images feature, you'll need to update your configuration:
+
+  ##### Remove the experimental flag
+
+  ```diff
+  export default defineConfig({
+     experimental: {
+  -    responsiveImages: true,
+     },
+  });
+  ```
+
+  ##### Update image configuration options
+
+  During the experimental phase, default styles were applied automatically to responsive images. Now, you need to explicitly set the `responsiveStyles` option to `true` if you want these styles applied.
+
+  ```diff
+  export default defineConfig({
+    image: {
+  +    responsiveStyles: true,
+    },
+  });
+  ```
+
+  The experimental image configuration options have been renamed:
+
+  **Before:**
+
+  ```js
+  export default defineConfig({
+    image: {
+      experimentalLayout: 'constrained',
+      experimentalObjectFit: 'cover',
+      experimentalObjectPosition: 'center',
+      experimentalBreakpoints: [640, 750, 828, 1080, 1280],
+      experimentalDefaultStyles: true,
+    },
+    experimental: {
+      responsiveImages: true,
+    },
+  });
+  ```
+
+  **After:**
+
+  ```js
+  export default defineConfig({
+    image: {
+      layout: 'constrained',
+      objectFit: 'cover',
+      objectPosition: 'center',
+      breakpoints: [640, 750, 828, 1080, 1280],
+      responsiveStyles: true, // This is now *false* by default
+    },
+  });
+  ```
+
+  ##### Component usage remains the same
+
+  The `layout`, `fit`, and `position` props on `<Image>` and `<Picture>` components work exactly the same as before:
+
+  ```astro
+  <Image
+    src={myImage}
+    alt="A responsive image"
+    layout="constrained"
+    fit="cover"
+    position="center"
+  />
+  ```
+
+  If you weren't using the experimental responsive images feature, no changes are required.
+
+  Please see the [Image guide](https://docs.astro.build/en/guides/images/#responsive-image-behavior) for more information on using responsive images in Astro.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 8.1.5
+
+### Patch Changes
+
+- [#13679](https://github.com/withastro/astro/pull/13679) [`4a8f193`](https://github.com/withastro/astro/commit/4a8f193c444c30d154f868fc444a153a26124347) Thanks [@moonclavedev](https://github.com/moonclavedev)! - Handle SVG images correctly in build image service
+
 ## 8.1.4
 
 ### Patch Changes
@@ -496,7 +666,6 @@
   The Vercel adapter has a file-tracer it uses to detect which files should be moved over to the `dist/` folder. When it's done, it prints warnings for things that it detected that maybe should be moved.
 
   This change expands how we do ignores so that:
-
   - Ignores happen within dot folders like `.pnpm`.
   - `@libsql/client` is ignored, a package we know is not bundled.
 
@@ -719,7 +888,6 @@
 ### Patch Changes
 
 - [#8348](https://github.com/withastro/astro/pull/8348) [`5f2c55bb5`](https://github.com/withastro/astro/commit/5f2c55bb54bb66693d278b7cd705c198aecc0331) Thanks [@ematipico](https://github.com/ematipico)! - - Cache result during bundling, to speed up the process of multiple functions;
-
   - Avoid creating multiple symbolic links of the dependencies when building the project with `functionPerRoute` enabled;
 
 - [#8354](https://github.com/withastro/astro/pull/8354) [`0eb09dbab`](https://github.com/withastro/astro/commit/0eb09dbab1674a57d23ac97950a527d2e5a9c9fb) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix unnecessary warning about Sharp showing while building
@@ -1579,7 +1747,6 @@
 - [#4015](https://github.com/withastro/astro/pull/4015) [`6fd161d76`](https://github.com/withastro/astro/commit/6fd161d7691cbf9d3ffa4646e46059dfd0940010) Thanks [@matthewp](https://github.com/matthewp)! - New `output` configuration option
 
   This change introduces a new "output target" configuration option (`output`). Setting the output target lets you decide the format of your final build, either:
-
   - `"static"` (default): A static site. Your final build will be a collection of static assets (HTML, CSS, JS) that you can deploy to any static site host.
   - `"server"`: A dynamic server application. Your final build will be an application that will run in a hosted server environment, generating HTML dynamically for different requests.
 
@@ -1657,13 +1824,11 @@
 ### Minor Changes
 
 - [#3216](https://github.com/withastro/astro/pull/3216) [`114bf63e`](https://github.com/withastro/astro/commit/114bf63e11f28299b13178ef1a412eed37ab7909) Thanks [@JuanM04](https://github.com/JuanM04)! - **[BREAKING]** Now with Build Output API (v3)! [See the README to get started](https://github.com/withastro/astro/tree/main/packages/integrations/vercel#readme).
-
   - `trailingSlash` redirects works without a `vercel.json` file: just configure them inside your `astro.config.mjs`
   - Multiple deploy targets: `edge`, `serverless` and `static`!
   - When building to `serverless`, your code isn't transpiled to CJS anymore.
 
   **Migrate from v0.1**
-
   1. Change the import inside `astro.config.mjs`:
      ```diff
      - import vercel from '@astrojs/vercel';

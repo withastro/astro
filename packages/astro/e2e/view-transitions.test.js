@@ -189,6 +189,23 @@ test.describe('View Transitions', () => {
 		).toEqual(3);
 	});
 
+	test('Declarative Shadow DOM elements are attached after transitions', async ({
+		page,
+		astro,
+	}) => {
+		const loads = collectLoads(page);
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+
+		// transition to DSD page
+		await page.click('#click-declarative-shadow-dom');
+		const host = page.locator('#dsd-host');
+		await expect(host, 'should have content').toHaveText('Welcome to the Shadow Realm!');
+
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
+
 	test('Stylesheets in the head are waited on', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));
@@ -878,8 +895,8 @@ test.describe('View Transitions', () => {
 		// go to external page
 		await page.click('#click-redirect-external');
 		// doesn't work for playwright when we are too fast
-
-		await page.waitForURL('http://example.com');
+		await page.waitForLoadState('commit', { timeout: 5000 });
+		await page.waitForURL('http://example.com/', { waitUntil: 'commit', timeout: 5000 });
 		await expect(page.locator('h1'), 'should have content').toHaveText('Example Domain');
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);
 	});
@@ -1263,6 +1280,18 @@ test.describe('View Transitions', () => {
 		});
 		// Submit the form
 		await page.click('#submit');
+	});
+
+	test('form with hash in url should still submit', async ({ page, astro }) => {
+		let navigated;
+		await page.goto(astro.resolveUrl('/form-with-hash#test'));
+		page.on('request', (request) => {
+			expect(request.method()).toBe('POST');
+			navigated = true;
+		});
+		// Submit the form
+		await page.click('#submit');
+		expect(navigated).toBe(true);
 	});
 
 	test('Route announcer is invisible on page transition', async ({ page, astro }) => {
@@ -1656,5 +1685,33 @@ test.describe('View Transitions', () => {
 		expect(lines.join(', '), 'should raise page-load after inline module').toBe(
 			'inline module, page-load',
 		);
+	});
+
+	test('fallback triggers animation if not skipped', async ({ page, astro, browserName }) => {
+		test.skip(browserName !== 'firefox', 'Only makes sense for browser that uses fallback');
+		let lines = [];
+		page.on('console', (msg) => {
+			msg.text().startsWith('[test]') && lines.push(msg.text().slice('[test]'.length + 1));
+		});
+		await page.goto(astro.resolveUrl('/skip'));
+		await expect(page).toHaveTitle('Testing');
+		await page.click('#a2');
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		expect(lines.join(' | ')).toBe(
+			'data-astro-transition-fallback old | data-astro-transition-fallback old | data-astro-transition-fallback old | data-astro-transition-fallback new | data-astro-transition-fallback null',
+		);
+	});
+
+	test('fallback skipTransition() skips transition', async ({ page, astro, browserName }) => {
+		test.skip(browserName !== 'firefox', 'Only makes sense for browser that uses fallback');
+		let lines = [];
+		page.on('console', (msg) => {
+			msg.text().startsWith('[test]') && lines.push(msg.text().slice('[test]'.length + 1));
+		});
+		await page.goto(astro.resolveUrl('/skip'));
+		await expect(page).toHaveTitle('Testing');
+		await page.click('#a1');
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		expect(lines.join('')).toBe('');
 	});
 });

@@ -1,6 +1,9 @@
-import { promises as fs, existsSync } from 'node:fs';
+import { existsSync, promises as fs } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
+import toml from 'smol-toml';
+import { FileGlobNotSupported, FileParserNotFound } from '../../core/errors/errors-data.js';
+import { AstroError } from '../../core/errors/index.js';
 import { posixRelative } from '../utils.js';
 import type { Loader, LoaderContext } from './types.js';
 
@@ -21,8 +24,7 @@ interface FileOptions {
  */
 export function file(fileName: string, options?: FileOptions): Loader {
 	if (fileName.includes('*')) {
-		// TODO: AstroError
-		throw new Error('Glob patterns are not supported in `file` loader. Use `glob` loader instead.');
+		throw new AstroError(FileGlobNotSupported);
 	}
 
 	let parse: ((text: string) => any) | null = null;
@@ -35,14 +37,16 @@ export function file(fileName: string, options?: FileOptions): Loader {
 			yaml.load(text, {
 				filename: fileName,
 			});
+	} else if (ext === 'toml') {
+		parse = toml.parse;
 	}
 	if (options?.parser) parse = options.parser;
 
 	if (parse === null) {
-		// TODO: AstroError
-		throw new Error(
-			`No parser found for file '${fileName}'. Try passing a parser to the \`file\` loader.`,
-		);
+		throw new AstroError({
+			...FileParserNotFound,
+			message: FileParserNotFound.message(fileName),
+		});
 	}
 
 	async function syncData(filePath: string, { logger, parseData, store, config }: LoaderContext) {
@@ -65,12 +69,19 @@ export function file(fileName: string, options?: FileOptions): Loader {
 			}
 			logger.debug(`Found ${data.length} item array in ${fileName}`);
 			store.clear();
+			const idList = new Set();
 			for (const rawItem of data) {
 				const id = (rawItem.id ?? rawItem.slug)?.toString();
 				if (!id) {
 					logger.error(`Item in ${fileName} is missing an id or slug field.`);
 					continue;
 				}
+				if (idList.has(id)) {
+					logger.warn(
+						`Duplicate id "${id}" found in ${fileName}. Later items with the same id will overwrite earlier ones.`,
+					);
+				}
+				idList.add(id);
 				const parsedData = await parseData({ id, data: rawItem, filePath });
 				store.set({ id, data: parsedData, filePath: normalizedFilePath });
 			}
@@ -79,6 +90,10 @@ export function file(fileName: string, options?: FileOptions): Loader {
 			logger.debug(`Found object with ${entries.length} entries in ${fileName}`);
 			store.clear();
 			for (const [id, rawItem] of entries) {
+				if (id === '$schema' && typeof rawItem === 'string') {
+					// Ignore JSON schema field.
+					continue;
+				}
 				const parsedData = await parseData({ id, data: rawItem, filePath });
 				store.set({ id, data: parsedData, filePath: normalizedFilePath });
 			}

@@ -1,7 +1,6 @@
 import { defineCollection, z, reference } from 'astro:content';
 import { file, glob } from 'astro/loaders';
 import { loader } from './loaders/post-loader.js';
-import { parse as parseToml } from 'toml';
 import { readFile } from 'fs/promises';
 
 const blog = defineCollection({
@@ -130,6 +129,22 @@ const birds = defineCollection({
 	}),
 });
 
+const plants = defineCollection({
+	loader: file('src/data/plants.csv', {
+		parser: (text) => {
+			const [headers, ...rows] = text.trim().split('\n');
+			return rows.map(row => Object.fromEntries(
+			    headers.split(',').map((h, i) => [h, row.split(',')[i]])
+			));
+		},
+	}),
+	schema: z.object({
+		id: z.string(),
+		common_name: z.string(),
+		scientific_name: z.string(),
+		color: z.string(),
+	}),
+});
 
 const probes = defineCollection({
 	loader: glob({ pattern: ['*.md', '!voyager-*'], base: 'src/data/space-probes' }),
@@ -146,6 +161,14 @@ const probes = defineCollection({
 
 const numbers = defineCollection({
 	loader: glob({ pattern: 'src/data/glob-data/*', base: '.' }),
+});
+
+const numbersYaml = defineCollection({
+	loader: glob({ pattern: 'src/data/glob-yaml/*', base: '.' }),
+});
+
+const numbersToml = defineCollection({
+	loader: glob({ pattern: 'src/data/glob-toml/*', base: '.' }),
 });
 
 const notADirectory = defineCollection({
@@ -173,10 +196,18 @@ const images = defineCollection({
 		}),
 });
 
+const markdownContent = `
+# heading 1
+hello
+## heading 2
+![image](./image.png)
+![image 2](https://example.com/image.png)
+`
+
 const increment = defineCollection({
 	loader: {
 		name: 'increment-loader',
-		load: async ({ store, refreshContextData, parseData }) => {
+		load: async ({ store, refreshContextData, parseData, renderMarkdown }) => {
 			const entry = store.get<{ lastValue: number }>('value');
 			const lastValue = entry?.data.lastValue ?? 0;
 			const raw = {
@@ -192,6 +223,7 @@ const increment = defineCollection({
 			store.set({
 				id: raw.id,
 				data: parsed,
+				rendered: await renderMarkdown(markdownContent)
 			});
 		},
 		// Example of a loader that returns an async schema function
@@ -206,18 +238,16 @@ const increment = defineCollection({
 });
 
 const artists = defineCollection({
-        loader: file('src/data/music.toml', { parser: (text) => parseToml(text).artists }),
+        loader: file('src/data/artists.toml'),
         schema: z.object({
-                id: z.string(),
                 name: z.string(),
                 genre: z.string().array(),
         }),
 });
 
 const songs = defineCollection({
-        loader: file('src/data/music.toml', { parser: (text) => parseToml(text).songs }),
+        loader: file('src/data/songs.toml'),
         schema: z.object({
-                id: z.string(),
                 name: z.string(),
                 artists: z.array(reference('artists')),
         }),
@@ -229,7 +259,10 @@ export const collections = {
 	cats,
 	fish,
 	birds,
+	plants,
 	numbers,
+	numbersToml,
+	numbersYaml,
 	spacecraft,
 	increment,
 	images,

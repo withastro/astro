@@ -4,8 +4,8 @@
   "private": true,
   "dependencies": {
     "@astrojs/preact": "workspace:*",
-    "@preact/signals": "2.0.2",
+    "@preact/signals": "2.3.1",
     "astro": "workspace:*",
-    "preact": "^10.26.4"
+    "preact": "^10.27.1"
   }
 }

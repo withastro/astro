@@ -1,35 +1,39 @@
-import { type WriteStream, createWriteStream } from 'node:fs';
+import { createWriteStream, type WriteStream } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { normalize, resolve } from 'node:path';
-import { Readable, pipeline } from 'node:stream';
+import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'node:util';
-import replace from 'stream-replace-string';
-
-import { SitemapAndIndexStream, SitemapStream } from 'sitemap';
-
 import type { AstroConfig } from 'astro';
+import { SitemapAndIndexStream, SitemapIndexStream, SitemapStream } from 'sitemap';
+import replace from 'stream-replace-string';
 import type { SitemapItem } from './index.js';
 
 type WriteSitemapConfig = {
+	filenameBase: string;
 	hostname: string;
 	sitemapHostname?: string;
+	customSitemaps?: string[];
 	sourceData: SitemapItem[];
 	destinationDir: string;
 	publicBasePath?: string;
 	limit?: number;
 	xslURL?: string;
+	lastmod?: string;
 };
 
 // adapted from sitemap.js/sitemap-simple
 export async function writeSitemap(
 	{
+		filenameBase,
 		hostname,
 		sitemapHostname = hostname,
 		sourceData,
 		destinationDir,
 		limit = 50000,
+		customSitemaps = [],
 		publicBasePath = './',
 		xslURL: xslUrl,
+		lastmod,
 	}: WriteSitemapConfig,
 	astroConfig: AstroConfig,
 ) {
@@ -43,7 +47,7 @@ export async function writeSitemap(
 				hostname,
 				xslUrl,
 			});
-			const path = `./sitemap-${i}.xml`;
+			const path = `./${filenameBase}-${i}.xml`;
 			const writePath = resolve(destinationDir, path);
 			if (!publicBasePath.endsWith('/')) {
 				publicBasePath += '/';
@@ -63,11 +67,20 @@ export async function writeSitemap(
 				stream = sitemapStream.pipe(createWriteStream(writePath));
 			}
 
-			return [new URL(publicPath, sitemapHostname).toString(), sitemapStream, stream];
+			const url = new URL(publicPath, sitemapHostname).toString();
+			return [{ url, lastmod }, sitemapStream, stream];
 		},
 	});
 
 	const src = Readable.from(sourceData);
-	const indexPath = resolve(destinationDir, `./sitemap-index.xml`);
+	const indexPath = resolve(destinationDir, `./${filenameBase}-index.xml`);
+	for (const url of customSitemaps) {
+		SitemapIndexStream.prototype._transform.call(
+			sitemapAndIndexStream,
+			{ url, lastmod },
+			'utf8',
+			() => {},
+		);
+	}
 	return promisify(pipeline)(src, sitemapAndIndexStream, createWriteStream(indexPath));
 }

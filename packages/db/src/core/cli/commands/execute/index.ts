@@ -11,11 +11,11 @@ import {
 } from '../../../errors.js';
 import {
 	getLocalVirtualModContents,
-	getStudioVirtualModContents,
+	getRemoteVirtualModContents,
 } from '../../../integration/vite-plugin-db.js';
 import { bundleFile, importBundledFile } from '../../../load-file.js';
 import type { DBConfig } from '../../../types.js';
-import { getManagedRemoteToken } from '../../../utils.js';
+import { getRemoteDatabaseInfo } from '../../../utils.js';
 
 export async function cmd({
 	astroConfig,
@@ -40,17 +40,19 @@ export async function cmd({
 
 	let virtualModContents: string;
 	if (flags.remote) {
-		const appToken = await getManagedRemoteToken(flags.token);
-		virtualModContents = getStudioVirtualModContents({
+		const dbInfo = getRemoteDatabaseInfo();
+		virtualModContents = getRemoteVirtualModContents({
 			tables: dbConfig.tables ?? {},
-			appToken: appToken.token,
+			appToken: flags.token ?? dbInfo.token,
 			isBuild: false,
 			output: 'server',
+			localExecution: true,
 		});
 	} else {
 		virtualModContents = getLocalVirtualModContents({
 			tables: dbConfig.tables ?? {},
 			root: astroConfig.root,
+			localExecution: true,
 		});
 	}
 	const { code } = await bundleFile({ virtualModContents, root: astroConfig.root, fileUrl });

@@ -1,5 +1,5 @@
 {
-  "[json]": {
+  "[json][jsonc]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
   "[javascript]": {
@@ -15,7 +15,7 @@
     "editor.defaultFormatter": "biomejs.biome"
   },
   "editor.codeActionsOnSave": {
-		"quickFix.biome": "explicit",
-		"source.fixAll.biome": "explicit"
-	}
+    "source.organizeImports.biome": "explicit",
+    "source.fixAll.biome": "explicit"
+  }
 }

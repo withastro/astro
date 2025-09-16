@@ -65,6 +65,7 @@
   "ignoreDeps": [
     // manually bumping deps
     "@biomejs/biome",
+    "knip",
     "@types/node",
     
     // TODO: investigate upgrade (zod import issues with atproto)
@@ -82,7 +83,6 @@
     // follow vite deps version
     "postcss-load-config",
     "esbuild",
-    // TODO: follow https://github.com/withastro/astro/pull/13478
-    "@vitejs/plugin-vue"
   ],
+  "minimumReleaseAge": "3 days"
 }

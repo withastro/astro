@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import boxen from 'boxen';
 import { diffWords } from 'diff';
 import { bold, cyan, dim, green, magenta, red, yellow } from 'kleur/colors';
-import { type ASTNode, type ProxifiedModule, builders, generateCode, loadFile } from 'magicast';
+import { type ASTNode, builders, generateCode, loadFile, type ProxifiedModule } from 'magicast';
 import { getDefaultExportOptions } from 'magicast/helpers';
 import { detect, resolveCommand } from 'package-manager-detector';
 import prompts from 'prompts';
@@ -31,7 +31,7 @@ import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { ensureProcessNodeEnv, parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { exec } from '../exec.js';
-import { type Flags, createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
+import { createLoggerFromFlags, type Flags, flagsToAstroInlineConfig } from '../flags.js';
 import { fetchPackageJson, fetchPackageVersions } from '../install-package.js';
 
 interface AddOptions {
@@ -363,15 +363,12 @@ export async function add(names: string[], { flags }: AddOptions) {
 				),
 			);
 			if (integrations.find((integration) => integration.integrationName === 'tailwind')) {
-				const code = boxen(
-					getDiffContent('---\n---', "---\nimport './src/styles/global.css'\n---")!,
-					{
-						margin: 0.5,
-						padding: 0.5,
-						borderStyle: 'round',
-						title: 'src/layouts/Layout.astro',
-					},
-				);
+				const code = boxen(getDiffContent('---\n---', "---\nimport '../styles/global.css'\n---")!, {
+					margin: 0.5,
+					padding: 0.5,
+					borderStyle: 'round',
+					title: 'src/layouts/Layout.astro',
+				});
 				logger.warn(
 					'SKIP_FORMAT',
 					msg.actionRequired(

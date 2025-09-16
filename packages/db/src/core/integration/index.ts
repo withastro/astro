@@ -2,24 +2,24 @@ import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { ManagedAppToken } from '@astrojs/studio';
-import type { AstroIntegration } from 'astro';
+import type { AstroIntegration, HookParameters } from 'astro';
 import { blue, yellow } from 'kleur/colors';
 import {
-	type HMRPayload,
-	type UserConfig,
-	type ViteDevServer,
 	createServer,
+	type HMRPayload,
 	loadEnv,
 	mergeConfig,
+	type UserConfig,
+	type ViteDevServer,
 } from 'vite';
 import parseArgs from 'yargs-parser';
+import { z } from 'zod';
 import { AstroDbError, isDbError } from '../../runtime/utils.js';
 import { CONFIG_FILE_NAMES, DB_PATH, VIRTUAL_MODULE_ID } from '../consts.js';
 import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';
 import { resolveDbConfig } from '../load-file.js';
 import { SEED_DEV_FILE_NAME } from '../queries.js';
-import { type VitePlugin, getDbDirectoryUrl, getManagedRemoteToken } from '../utils.js';
+import { getDbDirectoryUrl, getRemoteDatabaseInfo, type VitePlugin } from '../utils.js';
 import { fileURLIntegration } from './file-url.js';
 import { getDtsContent } from './typegen.js';
 import {
@@ -28,12 +28,32 @@ import {
 	type SeedHandler,
 	vitePluginDb,
 } from './vite-plugin-db.js';
+import { vitePluginDbClient } from './vite-plugin-db-client.js';
 
-function astroDBIntegration(): AstroIntegration {
+const astroDBConfigSchema = z
+	.object({
+		/**
+		 * Sets the mode of the underlying `@libsql/client` connection.
+		 *
+		 * In most cases, the default 'node' mode is sufficient. On platforms like Cloudflare, or Deno, you may need to set this to 'web'.
+		 *
+		 * @default 'node'
+		 */
+		mode: z
+			.union([z.literal('node'), z.literal('web')])
+			.optional()
+			.default('node'),
+	})
+	.optional()
+	.default({});
+
+export type AstroDBConfig = z.infer<typeof astroDBConfigSchema>;
+
+function astroDBIntegration(options?: AstroDBConfig): AstroIntegration {
+	const resolvedConfig = astroDBConfigSchema.parse(options);
 	let connectToRemote = false;
 	let configFileDependencies: string[] = [];
 	let root: URL;
-	let appToken: ManagedAppToken | undefined;
 	// Used during production builds to load seed files.
 	let tempViteServer: ViteDevServer | undefined;
 
@@ -56,7 +76,7 @@ function astroDBIntegration(): AstroIntegration {
 		inProgress: false,
 	};
 
-	let command: 'dev' | 'build' | 'preview' | 'sync';
+	let command: HookParameters<'astro:config:setup'>['command'];
 	let finalBuildOutput: string;
 	return {
 		name: 'astro:db',
@@ -71,11 +91,15 @@ function astroDBIntegration(): AstroIntegration {
 				const args = parseArgs(process.argv.slice(3));
 				connectToRemote = process.env.ASTRO_INTERNAL_TEST_REMOTE || args['remote'];
 
+				const dbClientPlugin = vitePluginDbClient({
+					connectToRemote,
+					mode: resolvedConfig.mode,
+				});
+
 				if (connectToRemote) {
-					appToken = await getManagedRemoteToken();
 					dbPlugin = vitePluginDb({
-						connectToStudio: connectToRemote,
-						appToken: appToken.token,
+						connectToRemote,
+						appToken: getRemoteDatabaseInfo().token,
 						tables,
 						root: config.root,
 						srcDir: config.srcDir,
@@ -84,7 +108,7 @@ function astroDBIntegration(): AstroIntegration {
 					});
 				} else {
 					dbPlugin = vitePluginDb({
-						connectToStudio: false,
+						connectToRemote,
 						tables,
 						seedFiles,
 						root: config.root,
@@ -98,7 +122,7 @@ function astroDBIntegration(): AstroIntegration {
 				updateConfig({
 					vite: {
 						assetsInclude: [DB_PATH],
-						plugins: [dbPlugin],
+						plugins: [dbClientPlugin, dbPlugin],
 					},
 				});
 			},
@@ -161,7 +185,7 @@ function astroDBIntegration(): AstroIntegration {
 				if (!connectToRemote && !databaseFileEnvDefined() && finalBuildOutput === 'server') {
 					const message = `Attempting to build without the --remote flag or the ASTRO_DATABASE_FILE environment variable defined. You probably want to pass --remote to astro build.`;
 					const hint =
-						'Learn more connecting to Studio: https://docs.astro.build/en/guides/astro-db/#connect-to-astro-studio';
+						'Learn more connecting to libSQL: https://docs.astro.build/en/guides/astro-db/#connect-a-libsql-database-for-production';
 					throw new AstroDbError(message, hint);
 				}
 
@@ -174,7 +198,6 @@ function astroDBIntegration(): AstroIntegration {
 				};
 			},
 			'astro:build:done': async ({}) => {
-				await appToken?.destroy();
 				await tempViteServer?.close();
 			},
 		},
@@ -186,8 +209,8 @@ function databaseFileEnvDefined() {
 	return env.ASTRO_DATABASE_FILE != null || process.env.ASTRO_DATABASE_FILE != null;
 }
 
-export function integration(): AstroIntegration[] {
-	return [astroDBIntegration(), fileURLIntegration()];
+export function integration(options?: AstroDBConfig): AstroIntegration[] {
+	return [astroDBIntegration(options), fileURLIntegration()];
 }
 
 async function executeSeedFile({

@@ -1,5 +1,4 @@
 ---
-import { Image } from "astro:assets";
 import { getEntry, type CollectionEntry } from "astro:content";
 
 export const prerender = false;
@@ -21,14 +20,6 @@ const { Content } = await post.render();
     <title>Document</title>
   </head>
   <body>
-    <div class="aspect-video w-full overflow-hidden flex items-end rounded-lg">
-      <Image
-        class="aspect-[4/3] object-cover object-left w-full"
-        src={post.data.image}
-        alt=""
-      />
-    </div>
-
     <Content />
   </body>
 </html>

@@ -1,0 +1,11 @@
+{
+  "name": "@test/csp",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/react": "workspace:*",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  }
+}

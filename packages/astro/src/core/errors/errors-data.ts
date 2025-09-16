@@ -1312,6 +1312,21 @@ export const CannotExtractFontType = {
 /**
  * @docs
  * @description
+ * Cannot determine weight and style from font file, update your family config and set `weight` and `style` manually instead.
+ * @message
+ * An error occured while determining the weight and style from the local font file.
+ */
+export const CannotDetermineWeightAndStyleFromFontFile = {
+	name: 'CannotDetermineWeightAndStyleFromFontFile',
+	title: 'Cannot determine weight and style from font file.',
+	message: (family: string, url: string) =>
+		`An error occurred while determining the \`weight\` and \`style\` from local family "${family}" font file: ${url}`,
+	hint: 'Update your family config and set `weight` and `style` manually instead.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * Cannot fetch the given font file
  * @message
  * An error occured while fetching font file from the given URL.
@@ -1363,6 +1378,19 @@ export const FontFamilyNotFound = {
 	message: (family: string) =>
 		`No data was found for the \`"${family}"\` family passed to the \`<Font>\` component.`,
 	hint: 'This is often caused by a typo. Check that your Font component is using a `cssVariable` specified in your config.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * The CSP feature isn't enabled
+ * @message
+ * The `experimental.csp` configuration isn't enabled.
+ */
+export const CspNotEnabled = {
+	name: 'CspNotEnabled',
+	title: "CSP feature isn't enabled",
+	message: "The `experimental.csp` configuration isn't enabled.",
 } satisfies ErrorData;
 
 /**
@@ -1526,6 +1554,7 @@ export const GenerateContentTypesError = {
 	hint: (fileName?: string) =>
 		`This error is often caused by a syntax error inside your content, or your content configuration file. Check your ${fileName ?? 'content config'} file for typos.`,
 } satisfies ErrorData;
+
 /**
  * @docs
  * @kind heading
@@ -1614,8 +1643,9 @@ export const InvalidContentEntryDataError = {
 	title: 'Content entry data does not match schema.',
 	message(collection: string, entryId: string, error: ZodError) {
 		return [
-			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.`,
-			...error.errors.map((zodError) => zodError.message),
+			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
+			...error.errors.map((zodError) => `  **${zodError.path.join('.')}**: ${zodError.message}`),
+			'',
 		].join('\n');
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
@@ -1665,11 +1695,31 @@ export const ContentEntryDataError = {
 	title: 'Content entry data does not match schema.',
 	message(collection: string, entryId: string, error: ZodError) {
 		return [
-			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.`,
-			...error.errors.map((zodError) => zodError.message),
+			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
+			...error.errors.map((zodError) => `  **${zodError.path.join('.')}**: ${zodError.message}`),
+			'',
 		].join('\n');
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * The schema cannot be a function for live collections. Please use a schema object instead. Check your collection definitions in your live content config file.
+ * @description
+ * Error in live content config.
+ * @see
+ * - [Experimental live content](https://docs.astro.build/en/reference/experimental-flags/live-content-collections/)
+ */
+
+export const LiveContentConfigError = {
+	name: 'LiveContentConfigError',
+	title: 'Error in live content config.',
+	message: (error: string, filename?: string) =>
+		`${error} Check your collection definitions in ${filename ?? 'your live content config file'}.`,
+	hint: 'See https://docs.astro.build/en/reference/experimental-flags/live-content-collections/ for more information on live content collections.',
 } satisfies ErrorData;
 
 /**
@@ -1755,7 +1805,7 @@ export const ContentCollectionTypeMismatchError = {
  * @docs
  * @message `COLLECTION_ENTRY_NAME` failed to parse.
  * @description
- * Collection entries of `type: 'data'` must return an object with valid JSON (for `.json` entries) or YAML (for `.yaml` entries).
+ * Collection entries of `type: 'data'` must return an object with valid JSON (for `.json` entries), YAML (for `.yaml` entries) or TOML (for `.toml` entries).
  */
 export const DataCollectionEntryParseError = {
 	name: 'DataCollectionEntryParseError',
@@ -1763,7 +1813,7 @@ export const DataCollectionEntryParseError = {
 	message(entryId: string, errorMessage: string) {
 		return `**${entryId}** failed to parse: ${errorMessage}`;
 	},
-	hint: 'Ensure your data entry is an object with valid JSON (for `.json` entries) or YAML (for `.yaml` entries).',
+	hint: 'Ensure your data entry is an object with valid JSON (for `.json` entries), YAML (for `.yaml` entries) or TOML (for `.toml` entries).',
 } satisfies ErrorData;
 /**
  * @docs
@@ -1798,6 +1848,34 @@ export const UnsupportedConfigTransformError = {
 	message: (parseError: string) =>
 		`\`transform()\` functions in your content config must return valid JSON, or data types compatible with the devalue library (including Dates, Maps, and Sets).\nFull error: ${parseError}`,
 	hint: 'See the devalue library for all supported types: https://github.com/rich-harris/devalue',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ *  - [Passing a `parser` to the `file` loader](https://docs.astro.build/en/guides/content-collections/#parser-function)
+ * @description
+ * The `file` loader can’t determine which parser to use. Please provide a custom parser (e.g. `csv-parse`) to create a collection from your file type.
+ */
+export const FileParserNotFound = {
+	name: 'FileParserNotFound',
+	title: 'File parser not found',
+	message: (fileName: string) =>
+		`No parser was found for '${fileName}'. Pass a parser function (e.g. \`parser: csv\`) to the \`file\` loader.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ *  - [Astro's built-in loaders](https://docs.astro.build/en/guides/content-collections/#built-in-loaders)
+ * @description
+ * The `file` loader must be passed a single local file. Glob patterns are not supported. Use the built-in `glob` loader to create entries from patterns of multiple local files.
+ */
+export const FileGlobNotSupported = {
+	name: 'FileGlobNotSupported',
+	title: 'Glob patterns are not supported in the file loader',
+	message: 'Glob patterns are not supported in the `file` loader. Use the `glob` loader instead.',
+	hint: `See Astro's built-in file and glob loaders https://docs.astro.build/en/guides/content-collections/#built-in-loaders for supported usage.`,
 } satisfies ErrorData;
 
 /**

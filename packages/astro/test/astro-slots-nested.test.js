@@ -15,7 +15,7 @@ describe('Nested Slots', () => {
 	it('Hidden nested slots see their hydration scripts hoisted', async () => {
 		const html = await fixture.readFile('/hidden-nested/index.html');
 		const $ = cheerio.load(html);
-		assert.equal($('script').length, 1, 'script rendered');
+		assert.equal($('script').length, 2, 'script rendered');
 		const scriptInTemplate = $($('template')[0].children[0]).find('script');
 		assert.equal(scriptInTemplate.length, 0, 'script defined outside of the inner template');
 	});
@@ -23,7 +23,7 @@ describe('Nested Slots', () => {
 	it('Slots rendered via Astro.slots.render have the hydration script', async () => {
 		const html = await fixture.readFile('/component-slot/index.html');
 		const $ = cheerio.load(html);
-		assert.equal($('script').length, 1, 'script rendered');
+		assert.equal($('script').length, 2, 'script rendered');
 	});
 
 	describe('Client components nested inside server-only framework components', () => {

@@ -17,49 +17,39 @@ interface Cart {
 	}>;
 }
 
-async function get<T>(
-	incomingReq: Request,
-	endpoint: string,
-	cb: (response: Response) => Promise<T>
-): Promise<T> {
+async function getJson<T>(incomingReq: Request, endpoint: string): Promise<T> {
 	const origin = new URL(incomingReq.url).origin;
-	const response = await fetch(`${origin}${endpoint}`, {
-		credentials: 'same-origin',
-		headers: incomingReq.headers,
-	});
-	if (!response.ok) {
-		// TODO make this better...
-		throw new Error('Fetch failed');
+	try {
+		const response = await fetch(`${origin}${endpoint}`, {
+			credentials: 'same-origin',
+			headers: incomingReq.headers,
+		});
+		if (!response.ok) {
+			throw new Error(`GET ${endpoint} failed: ${response.statusText}`);
+		}
+		return response.json() as Promise<T>;
+	} catch (error) {
+		if (error instanceof DOMException || error instanceof TypeError) {
+			throw new Error(`GET ${endpoint} failed: ${error.message}`);
+		}
+		throw error;
 	}
-	return cb(response);
 }
 
 export async function getProducts(incomingReq: Request): Promise<Product[]> {
-	return get<Product[]>(incomingReq, '/api/products', async (response) => {
-		const products: Product[] = await response.json();
-		return products;
-	});
+	return getJson<Product[]>(incomingReq, '/api/products');
 }
 
 export async function getProduct(incomingReq: Request, id: number): Promise<Product> {
-	return get<Product>(incomingReq, `/api/products/${id}`, async (response) => {
-		const product: Product = await response.json();
-		return product;
-	});
+	return getJson<Product>(incomingReq, `/api/products/${id}`);
 }
 
 export async function getUser(incomingReq: Request): Promise<User> {
-	return get<User>(incomingReq, `/api/user`, async (response) => {
-		const user: User = await response.json();
-		return user;
-	});
+	return getJson<User>(incomingReq, `/api/user`);
 }
 
 export async function getCart(incomingReq: Request): Promise<Cart> {
-	return get<Cart>(incomingReq, `/api/cart`, async (response) => {
-		const cart: Cart = await response.json();
-		return cart;
-	});
+	return getJson<Cart>(incomingReq, `/api/cart`);
 }
 
 export async function addToUserCart(id: number | string, name: string): Promise<void> {
