@@ -15,13 +15,13 @@ export class DevPipeline extends Pipeline {
 		manifest,
 		streaming,
 	}: Pick<DevPipeline, 'logger' | 'manifest' | 'streaming'>) {
-		const resolve = async function resolve(specifier: string) {
+		async function resolve(specifier: string) {
 			if (specifier.startsWith('/')) {
 				return specifier;
 			} else {
 				return '/@id/' + specifier;
 			}
-		};
+		}
 		const pipeline = new DevPipeline(
 			logger,
 			manifest,
@@ -61,6 +61,12 @@ export class DevPipeline extends Pipeline {
 				scripts.add(createModuleScriptElement(script));
 			}
 		}
+
+		scripts.add({
+			props: { type: 'module', src: '/@vite/client' },
+			children: '',
+		});
+
 		return { links, styles, scripts };
 	}
 

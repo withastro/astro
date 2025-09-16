@@ -1,4 +1,4 @@
-import { type EnvironmentModuleNode, isRunnableDevEnvironment, type Plugin } from 'vite';
+import { type EnvironmentModuleNode, type Plugin } from 'vite';
 
 /**
  * The very last Vite plugin to reload the browser if any SSR-only module are updated
@@ -13,9 +13,6 @@ export default function hmrReload(): Plugin {
 			order: 'post',
 			handler({ modules, server, timestamp }) {
 				if (this.environment.name !== 'ssr') return;
-				if (!isRunnableDevEnvironment(this.environment)) {
-					return;
-				}
 
 				let hasSsrOnlyModules = false;
 
