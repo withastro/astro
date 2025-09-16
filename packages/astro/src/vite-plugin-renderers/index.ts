@@ -10,7 +10,7 @@ interface PluginOptions {
 
 export default function vitePluginRenderers(options: PluginOptions): VitePlugin {
 	const renderers = options.settings.renderers;
-	
+
 	return {
 		name: 'astro:plugin-renderers',
 		enforce: 'pre',

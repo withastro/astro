@@ -1,5 +1,7 @@
 import type { Plugin as VitePlugin } from 'vite';
-import vitePluginRenderers, { ASTRO_RENDERERS_MODULE_ID } from '../../../vite-plugin-renderers/index.js';
+import vitePluginRenderers, {
+	ASTRO_RENDERERS_MODULE_ID,
+} from '../../../vite-plugin-renderers/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
@@ -10,7 +12,7 @@ export const RESOLVED_RENDERERS_MODULE_ID = `\0${RENDERERS_MODULE_ID}`;
 
 function vitePluginRenderersForBuild(opts: StaticBuildOptions): VitePlugin {
 	const basePlugin = vitePluginRenderers({ settings: opts.settings });
-	
+
 	// Add the rollup input option for build
 	return {
 		...basePlugin,

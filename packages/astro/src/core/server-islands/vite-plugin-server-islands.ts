@@ -1,22 +1,20 @@
 import MagicString from 'magic-string';
-import {
-	type ConfigEnv,
-	isRunnableDevEnvironment,
-	type RunnableDevEnvironment,
-	type Plugin as VitePlugin,
-} from 'vite';
+import type { ConfigEnv, DevEnvironment, Plugin as VitePlugin } from 'vite';
 import type { AstroPluginOptions } from '../../types/astro.js';
 import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { getRunnableEnvironment } from '../module-loader/index.js';
 
 export const VIRTUAL_ISLAND_MAP_ID = '@astro-server-islands';
 const RESOLVED_VIRTUAL_ISLAND_MAP_ID = '\0' + VIRTUAL_ISLAND_MAP_ID;
+
+export const SERVER_ISLAND_MANIFEST = 'virtual:astro-server-island-manifest';
+const RESOLVED_SERVER_ISLAND_MANIFEST = '\0' + SERVER_ISLAND_MANIFEST;
+
 const serverIslandPlaceholder = "'$$server-islands$$'";
 
 export function vitePluginServerIslands({ settings }: AstroPluginOptions): VitePlugin {
 	let command: ConfigEnv['command'] = 'serve';
-	let ssrEnvironment: RunnableDevEnvironment | null = null;
+	let ssrEnvironment: DevEnvironment | null = null;
 	const referenceIdMap = new Map<string, string>();
 	return {
 		name: 'astro:server-islands',
@@ -24,20 +22,34 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 		config(_config, { command: _command }) {
 			command = _command;
 		},
-		configureServer(_server) {
-			if (!isRunnableDevEnvironment(_server.environments.ssr)) {
-				return;
-			}
-			ssrEnvironment = getRunnableEnvironment(_server);
+		configureServer(server) {
+			ssrEnvironment = server.environments.ssr;
 		},
 		resolveId(name) {
 			if (name === VIRTUAL_ISLAND_MAP_ID) {
 				return RESOLVED_VIRTUAL_ISLAND_MAP_ID;
 			}
+			if (name === SERVER_ISLAND_MANIFEST) {
+				return RESOLVED_SERVER_ISLAND_MANIFEST;
+			}
 		},
 		load(id) {
 			if (id === RESOLVED_VIRTUAL_ISLAND_MAP_ID) {
 				return { code: `export const serverIslandMap = ${serverIslandPlaceholder};` };
+			}
+			if (id === RESOLVED_SERVER_ISLAND_MANIFEST) {
+				let mapSource = 'new Map([';
+				for (let [resolvedPath, name] of settings.serverIslandNameMap) {
+					mapSource += `\n\t['${name}', () => import(/* @vite-ignore */'${resolvedPath}')],`;
+				}
+				mapSource += '\n]);';
+
+				return {
+					code: `export const serverIslandNameMap = new Map(${JSON.stringify(
+						Array.from(settings.serverIslandNameMap.entries()),
+					)});\nexport const serverIslandMap = ${mapSource}
+					;`,
+				};
 			}
 		},
 		transform(_code, id) {
@@ -46,6 +58,8 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 			if (!info?.meta?.astro) return;
 
 			const astro = info.meta.astro as AstroPluginMetadata['astro'];
+
+			let hasAddedIsland = false;
 
 			for (const comp of astro.serverComponents) {
 				if (!settings.serverIslandNameMap.has(comp.resolvedPath)) {
@@ -66,9 +80,8 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 
 					// Append the name map, for prod
 					settings.serverIslandNameMap.set(comp.resolvedPath, name);
-
 					settings.serverIslandMap.set(name, () => {
-						return ssrEnvironment?.runner.import(comp.resolvedPath) as any;
+						return import(/* @vite-ignore */ comp.resolvedPath);
 					});
 
 					// Build mode
@@ -81,6 +94,17 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 						});
 
 						referenceIdMap.set(comp.resolvedPath, referenceId);
+					}
+					hasAddedIsland = true;
+				}
+			}
+			if (hasAddedIsland && ssrEnvironment) {
+				// In dev, we need to clear the module graph so that Vite knows to re-transform
+				// the module with the new island information.
+				for (const id of [VIRTUAL_ISLAND_MAP_ID, SERVER_ISLAND_MANIFEST]) {
+					const mod = ssrEnvironment.moduleGraph.getModuleById(id);
+					if (mod) {
+						ssrEnvironment.moduleGraph.invalidateModule(mod);
 					}
 				}
 			}
