@@ -9,3 +9,7 @@ packages:
   # Below excludes are only for Turbo because it doesn't respect gitignore like pnpm does
   - '!packages/astro/test/units/_temp-fixtures/*'
   - '!**/.vercel/**'
+
+# Wait until three days after release to install new versions of packages
+minimumReleaseAge: 4320
+
