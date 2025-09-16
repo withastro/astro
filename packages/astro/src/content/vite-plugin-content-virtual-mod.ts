@@ -26,7 +26,7 @@ import {
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
-import { getDataStoreDir } from './content-layer.js';
+import { getDataStoreDir, getDataStoreFile } from './content-layer.js';
 import {
 	type ContentLookupMap,
 	getContentEntryIdAndSlug,
@@ -62,16 +62,19 @@ export function astroContentVirtualModPlugin({
 	settings,
 	fs,
 }: AstroContentVirtualModPluginParams): Plugin {
-	let dataStoreDir: URL;
-	let dataStoreManifestFile: URL;
+	let dataStoreFile: URL;
 	let devServer: ViteDevServer;
 	let liveConfig: string;
 	return {
 		name: 'astro-content-virtual-mod-plugin',
 		enforce: 'pre',
 		config(_, env) {
-			dataStoreDir = getDataStoreDir(settings, env.command === 'serve');
-			dataStoreManifestFile = new URL(DATA_STORE_MANIFEST_FILE, dataStoreDir);
+			if (settings.config.experimental.dataStoreChunking) {
+				const dataStoreDir = getDataStoreDir(settings, env.command === 'serve');
+				dataStoreFile = new URL(DATA_STORE_MANIFEST_FILE, dataStoreDir);
+			} else {
+				dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
+			}
 
 			const contentPaths = getContentPaths(settings.config);
 			if (contentPaths.liveConfig.exists) {
@@ -81,7 +84,7 @@ export function astroContentVirtualModPlugin({
 		buildStart() {
 			if (devServer) {
 				// We defer adding the data store file to the watcher until the server is ready
-				devServer.watcher.add(fileURLToPath(dataStoreManifestFile));
+				devServer.watcher.add(fileURLToPath(dataStoreFile));
 				// Manually invalidate the data store to avoid a race condition in file watching
 				invalidateDataStore(devServer);
 			}
@@ -157,38 +160,53 @@ export function astroContentVirtualModPlugin({
 				};
 			}
 			if (id === RESOLVED_DATA_STORE_VIRTUAL_ID) {
-				if (!fs.existsSync(dataStoreManifestFile)) {
+				if (!fs.existsSync(dataStoreFile)) {
 					return { code: 'export default new Map()' };
 				}
-				const jsonData = await fs.promises.readFile(dataStoreManifestFile, 'utf-8');
+				const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
 
-				try {
-					const manifest: Record<string, string[][]> = JSON.parse(jsonData);
-					const parsed: Record<string, string[][]> = {};
+				if (settings.config.experimental.dataStoreChunking) {
+					try {
+						const manifest: Record<string, string[][]> = JSON.parse(jsonData);
+						const parsed: Record<string, string[][]> = {};
 
-					/**
-					 * Convert manifest paths to imports to keep content files separated.
-					 */
-					for (const collection in manifest) {
-						parsed[collection] = manifest[collection].map((files) =>
-							files.map(
-								(file) =>
-									`@@IMPORT@@${rootRelativePath(settings.config.root, new URL('./' + file, dataStoreDir))}@@/IMPORT@@`,
-							),
-						);
+						/**
+						 * Convert manifest paths to imports to keep content files separated.
+						 */
+						for (const collection in manifest) {
+							parsed[collection] = manifest[collection].map((files) =>
+								files.map(
+									(file) =>
+										`@@IMPORT@@${rootRelativePath(settings.config.root, new URL('./' + file, dataStoreDir))}@@/IMPORT@@`,
+								),
+							);
+						}
+
+						const code = dataToEsm(parsed, {
+							compact: true,
+						}).replace(/"@@IMPORT@@(.+?)@@\/IMPORT@@"/g, '(await import("$1?raw"))');
+
+						return {
+							code,
+							map: { mappings: '' },
+						};
+					} catch (err) {
+						const message = 'Could not parse data store manifest JSON file';
+						this.error({ message, id, cause: err });
 					}
-
-					const code = dataToEsm(parsed, {
-						compact: true,
-					}).replace(/"@@IMPORT@@(.+?)@@\/IMPORT@@"/g, '(await import("$1?raw"))');
-
-					return {
-						code,
-						map: { mappings: '' },
-					};
-				} catch (err) {
-					const message = 'Could not parse data store manifest JSON file';
-					this.error({ message, id, cause: err });
+				} else {
+					try {
+						const parsed = JSON.parse(jsonData);
+						return {
+							code: dataToEsm(parsed, {
+								compact: true,
+							}),
+							map: { mappings: '' },
+						};
+					} catch (err) {
+						const message = 'Could not parse JSON file';
+						this.error({ message, id, cause: err });
+					}
 				}
 			}
 
@@ -213,7 +231,7 @@ export function astroContentVirtualModPlugin({
 
 		configureServer(server) {
 			devServer = server;
-			const dataStorePath = fileURLToPath(dataStoreManifestFile);
+			const dataStorePath = fileURLToPath(dataStoreFile);
 			// If the datastore file changes, invalidate the virtual module
 
 			server.watcher.on('add', (addedPath) => {

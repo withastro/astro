@@ -11,19 +11,35 @@ import { Logger } from '../dist/core/logger/core.js';
 
 import { loadFixture } from './test-utils.js';
 
-describe('Content Layer', () => {
+function describeWithConfig(name, configs, fn) {
+	for (const cfg of configs) {
+		describe(`${name} ${cfg.name}`, () => {
+			fn(cfg);
+		});
+	}
+}
+
+const configs = [
+	{ name: '', value: {} },
+	{ name: '(chunking enabled)', value: { experimental: { dataStoreChunking: true } } },
+];
+
+describeWithConfig('Content Layer', configs, (config) => {
 	/** @type {import("./test-utils.js").Fixture} */
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/content-layer/' });
+		fixture = await loadFixture({ ...config, root: './fixtures/content-layer/' });
 	});
 
 	describe('Build', () => {
 		let json;
 		let $;
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/content-layer/' });
+			fixture = await loadFixture({ ...config, root: './fixtures/content-layer/' });
+			await fs
+				.unlink(new URL('./node_modules/.astro/data-store.json', fixture.config.root))
+				.catch(() => {});
 			await fs
 				.rm(new URL('./node_modules/.astro/data-store/', fixture.config.root), {
 					recursive: true,
@@ -609,7 +625,7 @@ describe('Content Layer', () => {
 			logs.length = 0;
 
 			// Give time for the server to restart
-			await setTimeout(10000);
+			await setTimeout(5000);
 
 			const rawJsonResponse = await fixture.fetch('/collections.json');
 			const initialJson = devalue.parse(await rawJsonResponse.text());
@@ -629,7 +645,7 @@ describe('Content Layer', () => {
 
 			await fixture.resetAllFiles();
 			// Give time for the server to restart again
-			await setTimeout(10000);
+			await setTimeout(5000);
 		});
 	});
 });

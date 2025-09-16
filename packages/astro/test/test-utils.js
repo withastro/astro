@@ -173,8 +173,12 @@ export async function loadFixture(inlineConfig) {
 			return devServer;
 		},
 		onNextDataStoreChange: (timeout = 5000) => {
+			if (!devServer) {
+				return Promise.reject(new Error('No dev server running'));
+			}
+
+			const dataStoreFile = path.join(root, '.astro', 'data-store.json');
 			const dataStoreDir = path.join(root, '.astro', 'data-store');
-			console.log('Watching data store directory:', dataStoreDir);
 
 			return new Promise((resolve, reject) => {
 				let debounceTimer = null;
@@ -193,12 +197,8 @@ export async function loadFixture(inlineConfig) {
 				};
 
 				const changeHandler = (fileName) => {
-					console.log('File changed:', fileName);
-
-					// Check if the changed file is in the data store directory
-					if (fileName.startsWith(dataStoreDir)) {
-						console.log('Data store file changed, debouncing...');
-
+					// Check if the changed file is in the data store directory or file
+					if (fileName === dataStoreFile || fileName.startsWith(dataStoreDir)) {
 						if (debounceTimer) {
 							clearTimeout(debounceTimer);
 						}

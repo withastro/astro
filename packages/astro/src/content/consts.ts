@@ -35,6 +35,7 @@ export const CONTENT_FLAGS = [
 
 export const CONTENT_TYPES_FILE = 'content.d.ts';
 
+export const DATA_STORE_FILE = 'data-store.json';
 export const DATA_STORE_MANIFEST_FILE = '__manifest.json';
 export const DATA_STORE_DIR = 'data-store/';
 

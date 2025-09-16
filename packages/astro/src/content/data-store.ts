@@ -129,6 +129,10 @@ export class ImmutableDataStore {
 			if (data.default instanceof Map) {
 				return ImmutableDataStore.fromMap(data.default);
 			}
+			if (typeof data.default === 'string') {
+				const map = devalue.unflatten(data.default);
+				return ImmutableDataStore.fromMap(map);
+			}
 			const map = await this.manifestToMap(data.default);
 			return ImmutableDataStore.fromMap(map);
 		} catch {}

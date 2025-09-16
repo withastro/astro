@@ -8,7 +8,7 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { emptyDir } from '../core/fs/index.js';
 import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
 import { type DataEntry, ImmutableDataStore } from './data-store.js';
-import { chunkMap, chunkString, contentModuleToId, safeFileName } from './utils.js';
+import { chunkMap, chunkString, contentModuleToId, sanitizeFileName } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
 const MAX_DEPTH = 10;
@@ -19,6 +19,7 @@ const CHUNK_SIZE_LIMIT = 20 * 1024 * 1024; // 20MB in bytes
  * This is kept as a separate class to avoid needing node builtins at runtime, when read-only access is all that is needed.
  */
 export class MutableDataStore extends ImmutableDataStore {
+	#file?: PathLike;
 	#manifestFile?: URL;
 	#dir?: URL;
 
@@ -40,6 +41,7 @@ export class MutableDataStore extends ImmutableDataStore {
 	#moduleImports = new Map<string, string>();
 
 	#hasher?: XXHashAPI;
+	#chunking = false;
 
 	set(collectionName: string, key: string, value: unknown) {
 		const collection = this._collections.get(collectionName) ?? new Map();
@@ -222,7 +224,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			clearTimeout(this.#saveTimeout);
 		}
 		this.#saveTimeout = undefined;
-		if (this.#manifestFile && this.#dir) {
+		if (this.#file || (this.#manifestFile && this.#dir)) {
 			await this.writeToDisk();
 		}
 		this.#maybeResolveSavePromise();
@@ -242,7 +244,7 @@ export default new Map([\n${lines.join(',\n')}]);
 
 		this.#saveTimeout = setTimeout(async () => {
 			this.#saveTimeout = undefined;
-			if (this.#manifestFile && this.#dir) {
+			if (this.#file || (this.#manifestFile && this.#dir)) {
 				await this.writeToDisk();
 			}
 			this.#maybeResolveSavePromise();
@@ -402,10 +404,24 @@ export default new Map([\n${lines.join(',\n')}]);
 		return this.#savePromise;
 	}
 
-	async writeToDisk() {
-		if (!this.#dirty) {
-			return;
+	toString() {
+		return devalue.stringify(this._collections);
+	}
+
+	async writeToFile() {
+		if (!this.#file) {
+			throw new AstroError(AstroErrorData.UnknownFilesystemError);
 		}
+		try {
+			// Mark as clean before writing to disk so that it catches any changes that happen during the write
+			this.#dirty = false;
+			await this.#writeFileAtomic(this.#file, this.toString());
+		} catch (err) {
+			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
+		}
+	}
+
+	async writeToDir() {
 		if (!this.#manifestFile || !this.#dir) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError);
 		}
@@ -435,7 +451,7 @@ export default new Map([\n${lines.join(',\n')}]);
 					const chunkedStrings = chunkString(stringified, CHUNK_SIZE_LIMIT);
 					const parts = [];
 					for (const chunk of chunkedStrings) {
-						const fileName = `${safeFileName(collectionName)}.${this.#hasher.h64ToString(chunk)}.json`;
+						const fileName = `${sanitizeFileName(collectionName)}.${this.#hasher.h64ToString(chunk)}.json`;
 						await this.#writeFileAtomic(new URL(`./${fileName}`, this.#dir), chunk);
 						parts.push(fileName);
 						writtenFiles.add(fileName);
@@ -452,6 +468,18 @@ export default new Map([\n${lines.join(',\n')}]);
 			emptyDir(this.#dir, writtenFiles);
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
+		}
+	}
+
+	async writeToDisk() {
+		if (!this.#dirty) {
+			return;
+		}
+
+		if (this.#chunking) {
+			return this.writeToDir();
+		} else {
+			return this.writeToFile();
 		}
 	}
 
@@ -472,6 +500,27 @@ export default new Map([\n${lines.join(',\n')}]);
 	static async fromMap(data: Map<string, Map<string, any>>) {
 		const store = new MutableDataStore();
 		store._collections = data;
+		return store;
+	}
+
+	static async fromString(data: string) {
+		const map = devalue.parse(data);
+		return MutableDataStore.fromMap(map);
+	}
+
+	static async fromFile(filePath: string | URL) {
+		try {
+			if (existsSync(filePath)) {
+				const data = await fs.readFile(filePath, 'utf-8');
+				const store = await MutableDataStore.fromString(data);
+				store.#file = filePath;
+				return store;
+			} else {
+				await fs.mkdir(new URL('./', filePath), { recursive: true });
+			}
+		} catch {}
+		const store = new MutableDataStore();
+		store.#file = filePath;
 		return store;
 	}
 
@@ -503,6 +552,7 @@ export default new Map([\n${lines.join(',\n')}]);
 					const store = await MutableDataStore.fromMap(map);
 					store.#manifestFile = manifestPath;
 					store.#dir = dirPath;
+					store.#chunking = true;
 					return store;
 				}
 			} else {
@@ -512,6 +562,7 @@ export default new Map([\n${lines.join(',\n')}]);
 		const store = new MutableDataStore();
 		store.#manifestFile = manifestPath;
 		store.#dir = dirPath;
+		store.#chunking = true;
 		return store;
 	}
 }
