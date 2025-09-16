@@ -101,8 +101,8 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 			if (hasAddedIsland && ssrEnvironment) {
 				// In dev, we need to clear the module graph so that Vite knows to re-transform
 				// the module with the new island information.
-				for (const id of [VIRTUAL_ISLAND_MAP_ID, SERVER_ISLAND_MANIFEST]) {
-					const mod = ssrEnvironment.moduleGraph.getModuleById(id);
+				for (const modId of [VIRTUAL_ISLAND_MAP_ID, SERVER_ISLAND_MANIFEST]) {
+					const mod = ssrEnvironment.moduleGraph.getModuleById(modId);
 					if (mod) {
 						ssrEnvironment.moduleGraph.invalidateModule(mod);
 					}
