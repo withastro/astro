@@ -10,7 +10,6 @@ import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugin-manifest.js';
 import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
-import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 import { getVirtualModulePageName } from './util.js';
 
 const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
@@ -201,7 +200,6 @@ if (Object.prototype.hasOwnProperty.call(serverEntrypointModule, _start)) {
 	serverEntrypointModule[_start](_manifest, _args);
 }`,
 	];
-
 	return {
 		imports,
 		contents,

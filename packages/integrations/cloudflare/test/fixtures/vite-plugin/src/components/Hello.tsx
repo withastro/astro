@@ -1,6 +1,6 @@
 
 export default function() {
 	return (
-		<div>Hello world</div>
+		<div>Hello from React</div>
 	);
 }

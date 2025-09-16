@@ -6,10 +6,7 @@ import type {
 	SSRResult,
 } from '../../../types/public/index.js';
 import { Pipeline, type TryRewriteResult } from '../../base-pipeline.js';
-import {
-	createModuleScriptElement,
-	createStylesheetElementSet,
-} from '../../render/ssr-element.js';
+import { createModuleScriptElement, createStylesheetElementSet } from '../../render/ssr-element.js';
 import { findRouteToRewrite } from '../../routing/rewrite.js';
 
 export class DevPipeline extends Pipeline {
@@ -19,7 +16,7 @@ export class DevPipeline extends Pipeline {
 		streaming,
 	}: Pick<DevPipeline, 'logger' | 'manifest' | 'streaming'>) {
 		const resolve = async function resolve(specifier: string) {
-			if(specifier.startsWith('/')) {
+			if (specifier.startsWith('/')) {
 				return specifier;
 			} else {
 				return '/@id/' + specifier;
@@ -73,13 +70,12 @@ export class DevPipeline extends Pipeline {
 		try {
 			const module = await this.getModuleForRoute(routeData);
 			return module.page();
+		} catch {
+			// could not find, ignore
 		}
-		catch {
-			// could not find, ignore	
-		}
-		
+
 		const url = new URL(routeData.component, this.manifest.rootDir);
-		const module = await import(url.toString());
+		const module = await import(/* @vite-ignore */ url.toString());
 		return module;
 	}
 
