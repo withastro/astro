@@ -1,4 +1,5 @@
 import * as assert from 'node:assert/strict';
+import { EventEmitter } from 'node:events';
 import { describe, it } from 'node:test';
 import { NodeApp } from '../../../dist/core/app/node.js';
 
@@ -182,4 +183,71 @@ describe('NodeApp', () => {
 			});
 		});
 	});
+
+	describe('abort signal', () => {
+		it('aborts the request.signal when the underlying socket closes', () => {
+			const socket = new EventEmitter();
+			socket.encrypted = true;
+			socket.remoteAddress = '2.2.2.2';
+			socket.destroyed = false;
+			const result = NodeApp.createRequest({
+				...mockNodeRequest,
+				socket,
+			});
+			assert.equal(result.signal.aborted, false);
+			socket.destroyed = true;
+			socket.emit('close');
+			assert.equal(result.signal.aborted, true);
+		});
+
+		it('cleans up socket listeners after the response finishes', async () => {
+			const socket = new EventEmitter();
+			socket.encrypted = true;
+			socket.remoteAddress = '2.2.2.2';
+			socket.destroyed = false;
+			const nodeRequest = {
+				...mockNodeRequest,
+				socket,
+			};
+			const result = NodeApp.createRequest(nodeRequest);
+			assert.equal(typeof result.signal.addEventListener, 'function');
+			assert.equal(socket.listenerCount('close') > 0, true);
+
+			const response = new Response('ok');
+			const destination = new MockServerResponse(nodeRequest);
+			await NodeApp.writeResponse(response, destination);
+
+			assert.equal(result.signal.aborted, false);
+			assert.equal(socket.listenerCount('close'), 0);
+		});
+	});
 });
+
+class MockServerResponse extends EventEmitter {
+	constructor(req) {
+		super();
+		this.req = req;
+		this.statusCode = 200;
+		this.statusMessage = undefined;
+		this.headers = {};
+		this.body = [];
+	}
+
+	writeHead(status, headers) {
+		this.statusCode = status;
+		this.headers = headers;
+	}
+
+	write(chunk) {
+		this.body.push(chunk);
+		return true;
+	}
+
+	end() {
+		this.emit('finish');
+	}
+
+	destroy() {
+		this.emit('close');
+	}
+}
