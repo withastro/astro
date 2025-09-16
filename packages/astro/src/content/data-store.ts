@@ -129,7 +129,7 @@ export class ImmutableDataStore {
 			if (data.default instanceof Map) {
 				return ImmutableDataStore.fromMap(data.default);
 			}
-			if (typeof data.default === 'string') {
+			if (Array.isArray(data.default)) {
 				const map = devalue.unflatten(data.default);
 				return ImmutableDataStore.fromMap(map);
 			}
