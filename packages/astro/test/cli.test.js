@@ -128,7 +128,7 @@ describe('astro cli', () => {
 			assert.equal(proc.stdout.includes(`v${viteVersion}`), true);
 			assert.equal(proc.stdout.includes(`@astrojs/node (v${adapterVersion})`), true);
 			assert.equal(proc.stdout.includes(`@astrojs/react (v${integrationVersion})`), true);
-		}
+		},
 	);
 
 	it(
@@ -155,7 +155,7 @@ describe('astro cli', () => {
 			assert.equal(proc.stdout.includes(`v${viteVersion}`), true);
 			assert.equal(proc.stdout.includes(`@astrojs/node (v${adapterVersion})`), true);
 			assert.equal(proc.stdout.includes(`@astrojs/react (v${integrationVersion})`), true);
-		}
+		},
 	);
 
 	it(
@@ -217,7 +217,9 @@ describe('astro cli', () => {
 			delete packageJSON.packageManager;
 			packageJSON.dependencies.astro = 'workspace:*';
 
-			await fs.writeFile(packageJSONUrl, JSON.stringify(packageJSON, null, 2), { encoding: 'utf-8' });
+			await fs.writeFile(packageJSONUrl, JSON.stringify(packageJSON, null, 2), {
+				encoding: 'utf-8',
+			});
 			await fs.rm(yarnLockUrl, { force: true });
 			await fs.rm(packDestinationURL, { force: true });
 
@@ -226,7 +228,7 @@ describe('astro cli', () => {
 			assert.equal(proc.stdout.includes(`v${viteVersion}`), true);
 			assert.equal(proc.stdout.includes(`@astrojs/node (v${adapterVersion})`), true);
 			assert.equal(proc.stdout.includes(`@astrojs/react (v${integrationVersion})`), true);
-		}
+		},
 	);
 
 	it(
