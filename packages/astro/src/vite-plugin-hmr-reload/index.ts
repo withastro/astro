@@ -1,4 +1,4 @@
-import { type EnvironmentModuleNode, type Plugin } from 'vite';
+import type { EnvironmentModuleNode, Plugin } from 'vite';
 
 /**
  * The very last Vite plugin to reload the browser if any SSR-only module are updated

@@ -1,11 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { serializeRouteData } from '../../../dist/core/app/index.js';
 import { createContainer } from '../../../dist/core/dev/container.js';
 import { createLoader } from '../../../dist/core/module-loader/index.js';
 import { createRoutesList } from '../../../dist/core/routing/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-import { createController, DevApp } from '../../../dist/vite-plugin-astro-server/index.js';
+import { createController } from '../../../dist/vite-plugin-astro-server/index.js';
 import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
 import testAdapter from '../../test-adapter.js';
 import {
@@ -15,10 +14,12 @@ import {
 	createRequestAndResponse,
 	defaultLogger,
 } from '../test-utils.js';
+import { serializeRouteData } from '../../../dist/core/app/index.js';
+import { AstroServerApp } from '../../../dist/vite-plugin-app/app.js';
 
 async function createDevApp(overrides = {}, root) {
 	const settings = overrides.settings ?? (await createBasicSettings({ root }));
-	const loader = overrides.loader ?? createLoader();
+	const loader = overrides.loader ?? createLoader({});
 	const manifest = createDevelopmentManifest(settings);
 	const routesList = await createRoutesList(
 		{
@@ -43,7 +44,7 @@ async function createDevApp(overrides = {}, root) {
 
 	// TODO: temporarily inject route list inside manifest
 
-	return new DevApp(manifest, true, settings, defaultLogger, loader, routesList);
+	return new AstroServerApp(manifest, true, defaultLogger, routesList, loader, settings);
 }
 
 describe('vite-plugin-astro-server', () => {
