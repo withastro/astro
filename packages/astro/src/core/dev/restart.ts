@@ -7,13 +7,14 @@ import { eventCliSession, telemetry } from '../../events/index.js';
 import { SETTINGS_FILE } from '../../preferences/constants.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
-import { createNodeLogger, createSettings, resolveConfig } from '../config/index.js';
+import { createSettings, resolveConfig } from '../config/index.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { isAstroConfigZodError } from '../errors/errors.js';
 import { createSafeError } from '../errors/index.js';
 import { formatErrorMessage } from '../messages.js';
 import type { Container } from './container.js';
 import { createContainer, startContainer } from './container.js';
+import { createNodeLogger } from '../config/logging.js';
 
 async function createRestartedContainer(
 	container: Container,
