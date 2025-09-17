@@ -27,7 +27,7 @@ import type {
 	FontFileDataMap,
 	PreloadData,
 	ConsumableMap,
-	ConsumableMapValue,
+	FontData,
 } from './types.js';
 import {
 	pickFontFaceProperty,
@@ -121,7 +121,7 @@ export async function orchestrate({
 
 	for (const family of resolvedFamilies) {
 		const preloadData: Array<PreloadData> = [];
-		const consumableMapValue: ConsumableMapValue = [];
+		const consumableMapValue: FontData = [];
 		let css = '';
 
 		/**
