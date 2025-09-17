@@ -42,7 +42,7 @@ export const server = {
     }),
     handler: async ({ postId }, ctx) => {
 -     const currentLikes = await experimental_getActionState<SafeResult<any, number>>(ctx);
--     const currentLikes = await getActionState<SafeResult<any, number>>(ctx);
++     const currentLikes = await getActionState<SafeResult<any, number>>(ctx);
       // write to database
       return (currentLikes.data ?? 0) + 1;
     },
