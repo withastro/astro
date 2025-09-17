@@ -1,5 +1,17 @@
 # astro
 
+## 5.13.8
+
+### Patch Changes
+
+- [#14300](https://github.com/withastro/astro/pull/14300) [`bd4a70b`](https://github.com/withastro/astro/commit/bd4a70bde3c8e0c04e2754cf26d222aa36d3c3c8) Thanks [@louisescher](https://github.com/louisescher)! - Adds Vite version & integration versions to output of `astro info`
+
+- [#14341](https://github.com/withastro/astro/pull/14341) [`f75fd99`](https://github.com/withastro/astro/commit/f75fd9977f0f3f8afd1128cc3616205edec0a11c) Thanks [@delucis](https://github.com/delucis)! - Fixes support for declarative Shadow DOM when using the `<ClientRouter>` component
+
+- [#14350](https://github.com/withastro/astro/pull/14350) [`f59581f`](https://github.com/withastro/astro/commit/f59581f2d4566c684c587af816e22763440ded19) Thanks [@ascorbic](https://github.com/ascorbic)! - Improves error reporting for content collections by adding logging for configuration errors that had previously been silently ignored. Also adds a new error that is thrown if a live collection is used in `content.config.ts` rather than `live.config.ts`.
+
+- [#14343](https://github.com/withastro/astro/pull/14343) [`13f7d36`](https://github.com/withastro/astro/commit/13f7d36688042cdb5644786d795fc921841da76a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a regression in non node runtimes
+
 ## 5.13.7
 
 ### Patch Changes
