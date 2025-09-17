@@ -44,15 +44,9 @@ async function loadLocalImage(src: string, url: URL) {
 
 	try {
 		buffer = await readFile(fileUrl);
-	} catch {
-		// Fallback to try to load the file using `fetch`
-		try {
-			const sourceUrl = new URL(src, url.origin);
-			buffer = await loadRemoteImage(sourceUrl);
-		} catch (err: unknown) {
-			console.error('Could not process image request:', err);
-			return undefined;
-		}
+	} catch (err: unknown) {
+		console.error('Could not process image request:', err);
+		return undefined;
 	}
 
 	return buffer;
