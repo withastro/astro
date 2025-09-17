@@ -3,6 +3,8 @@ import { readFile } from 'node:fs/promises';
 import { isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
+import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
+import { generateCspDigest } from '../../core/encryption.js';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
 import { AstroError, AstroErrorData, isAstroError } from '../../core/errors/index.js';
 import type { Logger } from '../../core/logger/core.js';
@@ -40,11 +42,11 @@ import {
 import { createRemoteFontProviderResolver } from './implementations/remote-font-provider-resolver.js';
 import { createFsStorage } from './implementations/storage.js';
 import { createSystemFallbacksProvider } from './implementations/system-fallbacks-provider.js';
+import { createUrlProxy } from './implementations/url-proxy.js';
 import {
 	createLocalUrlProxyContentResolver,
 	createRemoteUrlProxyContentResolver,
 } from './implementations/url-proxy-content-resolver.js';
-import { createUrlProxy } from './implementations/url-proxy.js';
 import { createBuildUrlResolver, createDevUrlResolver } from './implementations/url-resolver.js';
 import { orchestrate } from './orchestrate.js';
 import type { InternalConsumableMap, FontFileDataMap, ConsumableMap } from './types.js';
@@ -56,7 +58,7 @@ interface Options {
 }
 
 export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
-	if (!settings.config.experimental.fonts) {
+	if (sync || !settings.config.experimental.fonts) {
 		// This is required because the virtual module may be imported as
 		// a side effect
 		// TODO: remove once fonts are stabilized
@@ -174,6 +176,20 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		fontFileDataMap = res.fontFileDataMap;
 		internalConsumableMap = res.internalConsumableMap;
 		consumableMap = res.consumableMap;
+
+		// Handle CSP
+		if (shouldTrackCspHashes(settings.config.experimental.csp)) {
+			const algorithm = getAlgorithm(settings.config.experimental.csp);
+
+			// Generate a hash for each style we generate
+			for (const { css } of consumableMap.values()) {
+				settings.injectedCsp.styleHashes.push(await generateCspDigest(css, algorithm));
+			}
+			const resources = urlResolver.getCspResources();
+			for (const resource of resources) {
+				settings.injectedCsp.fontResources.add(resource);
+			}
+		}
 	}
 
 	return {
@@ -277,7 +293,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 		},
 		async buildEnd() {
-			if (sync || settings.config.experimental.fonts!.length === 0) {
+			if (settings.config.experimental.fonts!.length === 0) {
 				cleanup();
 				return;
 			}

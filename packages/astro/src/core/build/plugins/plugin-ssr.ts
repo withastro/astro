@@ -113,7 +113,6 @@ function vitePluginSSR(
 					internals.staticFiles.add(chunk.fileName);
 				}
 			}
-
 			for (const [, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'asset') {
 					continue;
@@ -198,7 +197,7 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 		// They are NOT equivalent! Some bundlers will throw if `start` is not exported, but we
 		// only want to silently ignore it... hence the dynamic, obfuscated weirdness.
 		`const _start = 'start';
-if (_start in serverEntrypointModule) {
+if (Object.prototype.hasOwnProperty.call(serverEntrypointModule, _start)) {
 	serverEntrypointModule[_start](_manifest, _args);
 }`,
 	];

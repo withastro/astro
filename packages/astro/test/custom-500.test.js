@@ -61,6 +61,24 @@ describe('Custom 500', () => {
 			assert.equal($('p').text(), 'some error');
 		});
 
+		it('renders custom 500 even if error occurs in the middleware', async () => {
+			fixture = await loadFixture({
+				root: './fixtures/custom-500-middleware/',
+				output: 'server',
+				adapter: testAdapter(),
+			});
+			devServer = await fixture.startDevServer();
+
+			const response = await fixture.fetch('/');
+			assert.equal(response.status, 500);
+
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			assert.equal($('h1').text(), 'Server error');
+			assert.equal($('p').text(), 'an error');
+		});
+
 		it('renders default error overlay if custom 500 throws', async () => {
 			fixture = await loadFixture({
 				root: './fixtures/custom-500-failing/',

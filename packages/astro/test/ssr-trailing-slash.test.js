@@ -115,6 +115,8 @@ describe('Redirecting trailing slashes in SSR', () => {
 				'/_image?url=http://example.com/foo.jpg',
 				'/_server-islands/foo',
 				'/_actions/foo',
+				'/.netlify/image?url=http://example.com/foo.jpg',
+				'//target.example/path',
 			]) {
 				const request = new Request(`http://example.com${path}`);
 				const response = await app.render(request);
@@ -211,6 +213,8 @@ describe('Redirecting trailing slashes in SSR', () => {
 				'/_image/?url=http://example.com/foo.jpg',
 				'/_server-islands/foo/',
 				'/_actions/foo/',
+				'/.netlify/image/?url=http://example.com/foo.jpg',
+				'//target.example/path/',
 			]) {
 				const request = new Request(`http://example.com${path}/`);
 				const response = await app.render(request);
@@ -224,6 +228,51 @@ describe('Redirecting trailing slashes in SSR', () => {
 			const response = await app.render(request);
 			assert.equal(response.status, 308);
 			assert.equal(response.headers.get('Location'), '/another');
+		});
+	});
+
+	describe('trailingSlash: never with base path', () => {
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/ssr-response/',
+				adapter: testAdapter(),
+				output: 'server',
+				trailingSlash: 'never',
+				base: '/mybase',
+			});
+			await fixture.build();
+		});
+
+		it('Redirects to remove a trailing slash on base path', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/mybase/');
+			const response = await app.render(request);
+			assert.equal(response.status, 301);
+			assert.equal(response.headers.get('Location'), '/mybase');
+		});
+
+		it('Does not redirect when base path has no trailing slash', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/mybase');
+			const response = await app.render(request);
+			// Should not redirect, but will 404 since we don't have an index page
+			assert.notEqual(response.status, 301);
+			assert.notEqual(response.status, 308);
+		});
+
+		it('Redirects to remove trailing slash on sub-paths with base', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/mybase/another/');
+			const response = await app.render(request);
+			assert.equal(response.status, 301);
+			assert.equal(response.headers.get('Location'), '/mybase/another');
+		});
+
+		it('Does not redirect sub-paths without trailing slash with base', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/mybase/another');
+			const response = await app.render(request);
+			assert.equal(response.status, 200);
 		});
 	});
 
@@ -258,6 +307,23 @@ describe('Redirecting trailing slashes in SSR', () => {
 			const request = new Request('http://example.com/another/');
 			const response = await app.render(request);
 			assert.equal(response.status, 200);
+		});
+
+		it('Does not redirect internal paths', async () => {
+			const app = await fixture.loadTestAdapterApp();
+
+			for (const path of [
+				'/_astro/something//',
+				'/_image//?url=http://example.com/foo.jpg',
+				'/_server-islands/foo//',
+				'/_actions/foo//',
+				'/.netlify/image//?url=http://example.com/foo.jpg',
+				'//target.example/path//',
+			]) {
+				const request = new Request(`http://example.com${path}/`);
+				const response = await app.render(request);
+				assert.notEqual(response.status, 301);
+			}
 		});
 	});
 });

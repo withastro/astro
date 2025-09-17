@@ -48,9 +48,7 @@ declare module 'astro:assets' {
 		getImage: (
 			options: import('./dist/assets/types.js').UnresolvedImageTransform,
 		) => Promise<import('./dist/assets/types.js').GetImageResult>;
-		imageConfig: import('./dist/types/public/config.js').AstroConfig['image'] & {
-			experimentalResponsiveImages: boolean;
-		};
+		imageConfig: import('./dist/types/public/config.js').AstroConfig['image'];
 		getConfiguredImageService: typeof import('./dist/assets/index.js').getConfiguredImageService;
 		inferRemoteSize: typeof import('./dist/assets/utils/index.js').inferRemoteSize;
 		Image: typeof import('./components/Image.astro').default;
@@ -538,6 +536,11 @@ declare module '*?url' {
 }
 
 declare module '*?inline' {
+	const src: string;
+	export default src;
+}
+
+declare module '*?no-inline' {
 	const src: string;
 	export default src;
 }

@@ -6,7 +6,7 @@ import { enhanceViteSSRError } from '../core/errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
-import { Pipeline, loadRenderer } from '../core/render/index.js';
+import { loadRenderer, Pipeline } from '../core/render/index.js';
 import { createDefaultRoutes } from '../core/routing/default.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
 import { isPage, viteID } from '../core/util.js';
@@ -203,6 +203,7 @@ export class DevPipeline extends Pipeline {
 			trailingSlash: this.config.trailingSlash,
 			buildFormat: this.config.build.format,
 			base: this.config.base,
+			outDir: this.manifest.outDir,
 		});
 
 		const componentInstance = await this.getComponentByRoute(routeData);

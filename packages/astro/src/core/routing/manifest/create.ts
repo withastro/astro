@@ -1,6 +1,3 @@
-import type { AstroSettings, RoutesList } from '../../../types/astro.js';
-import type { Logger } from '../../logger/core.js';
-
 import nodeFs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
@@ -11,6 +8,7 @@ import { injectImageEndpoint } from '../../../assets/endpoint/config.js';
 import { toRoutingStrategy } from '../../../i18n/utils.js';
 import { runHookRoutesResolved } from '../../../integrations/hooks.js';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
+import type { AstroSettings, RoutesList } from '../../../types/astro.js';
 import type { AstroConfig } from '../../../types/public/config.js';
 import type { RouteData, RoutePart } from '../../../types/public/internal.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
@@ -19,6 +17,7 @@ import {
 	UnsupportedExternalRedirect,
 } from '../../errors/errors-data.js';
 import { AstroError } from '../../errors/index.js';
+import type { Logger } from '../../logger/core.js';
 import { hasFileExtension, removeLeadingForwardSlash, slash } from '../../path.js';
 import { injectServerIslandRoute } from '../../server-islands/endpoint.js';
 import { resolvePages } from '../../util.js';
@@ -42,9 +41,7 @@ interface Item {
 	routeSuffix: string;
 }
 
-// Disable eslint as we're not sure how to improve this regex yet
-// eslint-disable-next-line regexp/no-super-linear-backtracking
-const ROUTE_DYNAMIC_SPLIT = /\[(.+?\(.+?\)|.+?)\]/;
+const ROUTE_DYNAMIC_SPLIT = /\[([^[\]()]+(?:\([^)]+\))?)\]/;
 const ROUTE_SPREAD = /^\.{3}.+$/;
 
 function getParts(part: string, file: string) {
@@ -376,7 +373,7 @@ function createRedirectRoutes(
 			component: from,
 			generate,
 			pathname: pathname || void 0,
-			prerender: false,
+			prerender: getPrerenderDefault(config),
 			redirect: to,
 			redirectRoute: routeMap.get(destination),
 			fallbackRoutes: [],
@@ -510,10 +507,20 @@ export async function createRoutesList(
 	for (const route of routes) {
 		promises.push(
 			limit(async () => {
-				if (route.type !== 'page' && route.type !== 'endpoint') return;
+				if (route.type !== 'page' && route.type !== 'endpoint' && route.type !== 'redirect') return;
+				// External redirects aren't taken into account
+				if (route.type === 'redirect' && !route.redirectRoute) return;
 				const localFs = params.fsMod ?? nodeFs;
 				const content = await localFs.promises.readFile(
-					fileURLToPath(new URL(route.component, settings.config.root)),
+					fileURLToPath(
+						new URL(
+							// The destination redirect might be a prerendered
+							route.type === 'redirect' && route.redirectRoute
+								? route.redirectRoute.component
+								: route.component,
+							settings.config.root,
+						),
+					),
 					'utf-8',
 				);
 
@@ -661,14 +668,19 @@ export async function createRoutesList(
 							// we check if the fallback from locale (the origin) has already this route
 							fallbackFromRoutes.some((route) => {
 								if (fallbackToLocale === i18n.defaultLocale) {
+									// Check both the direct route and the route with locale prefix removed
 									return (
+										route.route === `/${fallbackFromLocale}${fallbackToRoute.route}` ||
 										route.route.replace(`/${fallbackFromLocale}`, '') === fallbackToRoute.route
 									);
 								} else {
-									return (
-										route.route.replace(`/${fallbackToLocale}`, `/${fallbackFromLocale}`) ===
-										fallbackToRoute.route
+									// Check if the route already exists with the correct locale
+									const expectedRoute = replaceOrKeep(
+										fallbackToRoute.route,
+										fallbackToLocale,
+										fallbackFromLocale,
 									);
+									return route.route === expectedRoute;
 								}
 							});
 
@@ -684,12 +696,11 @@ export async function createRoutesList(
 								}
 								route = `/${fallbackFromLocale}${fallbackToRoute.route}`;
 							} else {
+								// Use the helper to avoid double prefixing
 								pathname = fallbackToRoute.pathname
-									?.replace(`/${fallbackToLocale}/`, `/${fallbackFromLocale}/`)
-									.replace(`/${fallbackToLocale}`, `/${fallbackFromLocale}`);
-								route = fallbackToRoute.route
-									.replace(`/${fallbackToLocale}`, `/${fallbackFromLocale}`)
-									.replace(`/${fallbackToLocale}/`, `/${fallbackFromLocale}/`);
+									? replaceOrKeep(fallbackToRoute.pathname, fallbackToLocale, fallbackFromLocale)
+									: undefined;
+								route = replaceOrKeep(fallbackToRoute.route, fallbackToLocale, fallbackFromLocale);
 							}
 							const segments = removeLeadingForwardSlash(route)
 								.split(path.posix.sep)
@@ -764,4 +775,9 @@ function joinSegments(segments: RoutePart[][]): string {
 	});
 
 	return `/${arr.join('/')}`.toLowerCase();
+}
+
+function replaceOrKeep(original: string, from: string, to: string): string {
+	if (original.startsWith(`/${to}/`) || original === `/${to}`) return original;
+	return original.replace(`/${from}/`, `/${to}/`).replace(`/${from}`, `/${to}`);
 }

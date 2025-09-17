@@ -10,9 +10,10 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^4.2.6",
-    "@astrojs/rss": "^4.0.11",
-    "@astrojs/sitemap": "^3.4.0",
-    "astro": "^5.7.13"
+    "@astrojs/mdx": "^4.3.5",
+    "@astrojs/rss": "^4.0.12",
+    "@astrojs/sitemap": "^3.6.0",
+    "astro": "^5.13.8",
+    "sharp": "^0.34.3"
   }
 }

@@ -6,11 +6,19 @@ import {
 	createGetEntries,
 	createGetEntry,
 	createGetEntryBySlug,
+	createGetLiveCollection,
+	createGetLiveEntry,
 	createReference,
 } from 'astro/content/runtime';
 
-export { defineCollection, renderEntry as render } from 'astro/content/runtime';
+export {
+	defineCollection,
+	defineLiveCollection,
+	renderEntry as render,
+} from 'astro/content/runtime';
 export { z } from 'astro/zod';
+
+/* @@LIVE_CONTENT_CONFIG@@ */
 
 const contentDir = '@@CONTENT_DIR@@';
 
@@ -56,12 +64,14 @@ export const getCollection = createGetCollection({
 	dataCollectionToEntryMap,
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
 	cacheEntriesByCollection,
+	liveCollections,
 });
 
 export const getEntry = createGetEntry({
 	getEntryImport: createGlobLookup(collectionToEntryMap),
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
 	collectionNames,
+	liveCollections,
 });
 
 export const getEntryBySlug = createGetEntryBySlug({
@@ -80,3 +90,11 @@ export const getDataEntryById = createGetDataEntryById({
 export const getEntries = createGetEntries(getEntry);
 
 export const reference = createReference({ lookupMap });
+
+export const getLiveCollection = createGetLiveCollection({
+	liveCollections,
+});
+
+export const getLiveEntry = createGetLiveEntry({
+	liveCollections,
+});

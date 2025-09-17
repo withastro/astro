@@ -1,5 +1,5 @@
 import type { TransitionBeforePreparationEvent } from './events.js';
-import { TRANSITION_AFTER_SWAP, doPreparation, doSwap } from './events.js';
+import { doPreparation, doSwap, TRANSITION_AFTER_SWAP } from './events.js';
 import { detectScriptExecuted } from './swap-functions.js';
 import type { Direction, Fallback, Options } from './types.js';
 
@@ -19,19 +19,14 @@ type Transition = {
 	viewTransitionFinished?: () => void;
 };
 
-// Create bound versions of pushState/replaceState so that Partytown doesn't hijack them,
-// which breaks Firefox.
 const inBrowser = import.meta.env.SSR === false;
-const pushState = (inBrowser && history.pushState.bind(history)) as typeof history.pushState;
-const replaceState = (inBrowser &&
-	history.replaceState.bind(history)) as typeof history.replaceState;
 
 // only update history entries that are managed by us
 // leave other entries alone and do not accidently add state.
 export const updateScrollPosition = (positions: { scrollX: number; scrollY: number }) => {
 	if (history.state) {
 		history.scrollRestoration = 'manual';
-		replaceState({ ...history.state, ...positions }, '');
+		history.replaceState({ ...history.state, ...positions }, '');
 	}
 };
 
@@ -93,7 +88,7 @@ if (inBrowser) {
 	} else if (transitionEnabledOnThisPage()) {
 		// This page is loaded from the browser address bar or via a link from extern,
 		// it needs a state in the history
-		replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
+		history.replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
 		history.scrollRestoration = 'manual';
 	}
 }
@@ -191,7 +186,7 @@ const moveToLocation = (
 	if (to.href !== location.href && !historyState) {
 		if (options.history === 'replace') {
 			const current = history.state;
-			replaceState(
+			history.replaceState(
 				{
 					...options.state,
 					index: current.index,
@@ -202,7 +197,7 @@ const moveToLocation = (
 				to.href,
 			);
 		} else {
-			pushState(
+			history.pushState(
 				{ ...options.state, index: ++currentHistoryIndex, scrollX: 0, scrollY: 0 },
 				'',
 				to.href,
@@ -231,7 +226,7 @@ const moveToLocation = (
 			const savedState = history.state;
 			location.href = to.href; // this kills the history state on Firefox
 			if (!history.state) {
-				replaceState(savedState, ''); // this restores the history state
+				history.replaceState(savedState, ''); // this restores the history state
 				if (intraPage) {
 					window.dispatchEvent(new PopStateEvent('popstate'));
 				}
@@ -301,21 +296,27 @@ async function updateDOM(
 		return Promise.allSettled(newAnimations.map((a) => a.finished));
 	}
 
-	if (
-		fallback === 'animate' &&
-		!currentTransition.transitionSkipped &&
-		!preparationEvent.signal.aborted
-	) {
-		try {
-			await animate('old');
-		} catch {
-			// animate might reject as a consequence of a call to skipTransition()
-			// ignored on purpose
+	const animateFallbackOld = async () => {
+		if (
+			fallback === 'animate' &&
+			!currentTransition.transitionSkipped &&
+			!preparationEvent.signal.aborted
+		) {
+			try {
+				await animate('old');
+			} catch {
+				// animate might reject as a consequence of a call to skipTransition()
+				// ignored on purpose
+			}
 		}
-	}
+	};
 
 	const pageTitleForBrowserHistory = document.title; // document.title will be overridden by swap()
-	const swapEvent = doSwap(preparationEvent, currentTransition.viewTransition!);
+	const swapEvent = await doSwap(
+		preparationEvent,
+		currentTransition.viewTransition!,
+		animateFallbackOld,
+	);
 	moveToLocation(swapEvent.to, swapEvent.from, options, pageTitleForBrowserHistory, historyState);
 	triggerEvent(TRANSITION_AFTER_SWAP);
 
@@ -366,7 +367,7 @@ async function transition(
 	if (navigationType !== 'traverse') {
 		updateScrollPosition({ scrollX, scrollY });
 	}
-	if (samePage(from, to)) {
+	if (samePage(from, to) && !options.formData) {
 		if ((direction !== 'back' && to.hash) || (direction === 'back' && from.hash)) {
 			moveToLocation(to, from, options, document.title, historyState);
 			if (currentNavigation === mostRecentNavigation) mostRecentNavigation = undefined;
@@ -564,7 +565,7 @@ async function transition(
 		// This log doesn't make it worse than before, where we got error messages about uncaught exceptions, which can't be caught when the trigger was a click or history traversal.
 		// Needs more investigation on root causes if errors still occur sporadically
 		const err = e as Error;
-		// biome-ignore lint/suspicious/noConsoleLog: allowed
+		// biome-ignore lint/suspicious/noConsole: allowed
 		console.log('[astro]', err.name, err.message, err.stack);
 	}
 }

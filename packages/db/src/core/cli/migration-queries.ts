@@ -4,11 +4,10 @@ import { sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import * as color from 'kleur/colors';
 import { customAlphabet } from 'nanoid';
-import { hasPrimaryKey } from '../../runtime/index.js';
-import { createRemoteDatabaseClient } from '../../runtime/index.js';
 import { isSerializedSQL } from '../../runtime/types.js';
-import { isDbError, safeFetch } from '../../runtime/utils.js';
+import { hasPrimaryKey, isDbError } from '../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../consts.js';
+import { createClient } from '../db-client/libsql-node.js';
 import { RENAME_COLUMN_ERROR, RENAME_TABLE_ERROR } from '../errors.js';
 import {
 	getCreateIndexQueries,
@@ -23,11 +22,11 @@ import { columnSchema } from '../schemas.js';
 import type {
 	BooleanColumn,
 	ColumnType,
+	DateColumn,
 	DBColumn,
 	DBColumns,
 	DBConfig,
 	DBSnapshot,
-	DateColumn,
 	JsonColumn,
 	NumberColumn,
 	ResolvedDBTable,
@@ -35,7 +34,7 @@ import type {
 	ResolvedIndexes,
 	TextColumn,
 } from '../types.js';
-import type { RemoteDatabaseInfo, Result } from '../utils.js';
+import type { RemoteDatabaseInfo } from '../utils.js';
 
 const sqlite = new SQLiteAsyncDialect();
 const genTempTableName = customAlphabet('abcdefghijklmnopqrstuvwxyz', 10);
@@ -424,23 +423,20 @@ function hasRuntimeDefault(column: DBColumn): column is DBColumnWithDefault {
 	return !!(column.schema.default && isSerializedSQL(column.schema.default));
 }
 
-export function getProductionCurrentSnapshot(options: {
-	dbInfo: RemoteDatabaseInfo;
-	appToken: string;
-}): Promise<DBSnapshot | undefined> {
-	return options.dbInfo.type === 'studio'
-		? getStudioCurrentSnapshot(options.appToken, options.dbInfo.url)
-		: getDbCurrentSnapshot(options.appToken, options.dbInfo.url);
+export function getProductionCurrentSnapshot({
+	url,
+	token,
+}: RemoteDatabaseInfo): Promise<DBSnapshot | undefined> {
+	return getDbCurrentSnapshot(token, url);
 }
 
 async function getDbCurrentSnapshot(
 	appToken: string,
 	remoteUrl: string,
 ): Promise<DBSnapshot | undefined> {
-	const client = createRemoteDatabaseClient({
-		dbType: 'libsql',
-		appToken,
-		remoteUrl,
+	const client = createClient({
+		token: appToken,
+		url: remoteUrl,
 	});
 
 	try {
@@ -471,36 +467,6 @@ async function getDbCurrentSnapshot(
 
 		throw error;
 	}
-}
-
-async function getStudioCurrentSnapshot(
-	appToken: string,
-	remoteUrl: string,
-): Promise<DBSnapshot | undefined> {
-	const url = new URL('/db/schema', remoteUrl);
-
-	const response = await safeFetch(
-		url,
-		{
-			method: 'POST',
-			headers: new Headers({
-				Authorization: `Bearer ${appToken}`,
-			}),
-		},
-		async (res) => {
-			console.error(`${url.toString()} failed: ${res.status} ${res.statusText}`);
-			console.error(await res.text());
-			throw new Error(`/db/schema fetch failed: ${res.status} ${res.statusText}`);
-		},
-	);
-
-	const result = (await response.json()) as Result<DBSnapshot>;
-	if (!result.success) {
-		console.error(`${url.toString()} unsuccessful`);
-		console.error(await response.text());
-		throw new Error(`/db/schema fetch unsuccessful`);
-	}
-	return result.data;
 }
 
 function getDropTableQueriesForSnapshot(snapshot: DBSnapshot) {

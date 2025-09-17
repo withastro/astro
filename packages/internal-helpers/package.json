@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/internal-helpers",
   "description": "Internal helpers used by core Astro packages.",
-  "version": "0.6.1",
+  "version": "0.7.2",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -36,7 +36,8 @@
     "prepublish": "pnpm build",
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "dev": "astro-scripts dev \"src/**/*.ts\""
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "devDependencies": {
     "astro-scripts": "workspace:*"

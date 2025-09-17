@@ -69,4 +69,18 @@ test.describe('Styles', () => {
 
 		await expect(h).toHaveCSS('color', 'rgb(255, 0, 0)');
 	});
+
+	test('inline styles refresh with HMR', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/css-inline'));
+
+		page.once('load', throwPageShouldNotReload);
+
+		const h = page.locator('h1.css-inline');
+		await expect(h).toHaveCSS('color', 'rgb(0, 0, 255)');
+
+		await astro.editFile('./src/pages/css-inline.astro', (original) =>
+			original.replace('blue', 'red'),
+		);
+		await expect(h).toHaveCSS('color', 'rgb(255, 0, 0)');
+	});
 });

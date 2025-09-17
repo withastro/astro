@@ -1,29 +1,31 @@
-import { createServer } from 'node:http';
+import { mkdir, unlink } from 'node:fs/promises';
 import { createClient } from '@libsql/client';
-import { z } from 'zod';
 import { cli } from '../dist/core/cli/index.js';
 import { resolveDbConfig } from '../dist/core/load-file.js';
 import { getCreateIndexQueries, getCreateTableQuery } from '../dist/core/queries.js';
-import { isDbError } from '../dist/runtime/utils.js';
 
-const singleQuerySchema = z.object({
-	sql: z.string(),
-	args: z.array(z.any()).or(z.record(z.string(), z.any())),
-});
-
-const querySchema = singleQuerySchema.or(z.array(singleQuerySchema));
-
-let portIncrementer = 8030;
+const isWindows = process.platform === 'win32';
 
 /**
  * @param {import('astro').AstroConfig} astroConfig
- * @param {number | undefined} port
  */
-export async function setupRemoteDbServer(astroConfig) {
-	const port = portIncrementer++;
-	process.env.ASTRO_STUDIO_REMOTE_DB_URL = `http://localhost:${port}`;
+export async function setupRemoteDb(astroConfig) {
+	const url = isWindows
+		? new URL(`./.astro/${Date.now()}.db`, astroConfig.root)
+		: new URL(`./${Date.now()}.db`, astroConfig.root);
+	const token = 'foo';
+	process.env.ASTRO_DB_REMOTE_URL = url.toString();
+	process.env.ASTRO_DB_APP_TOKEN = token;
 	process.env.ASTRO_INTERNAL_TEST_REMOTE = true;
-	const server = createRemoteDbServer().listen(port);
+
+	if (isWindows) {
+		await mkdir(new URL('.', url), { recursive: true });
+	}
+
+	const dbClient = createClient({
+		url,
+		authToken: token,
+	});
 
 	const { dbConfig } = await resolveDbConfig(astroConfig);
 	const setupQueries = [];
@@ -32,13 +34,14 @@ export async function setupRemoteDbServer(astroConfig) {
 		const indexQueries = getCreateIndexQueries(name, table);
 		setupQueries.push(createQuery, ...indexQueries);
 	}
-	await fetch(`http://localhost:${port}/db/query`, {
-		method: 'POST',
-		body: JSON.stringify(setupQueries.map((sql) => ({ sql, args: [] }))),
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	});
+
+	for (const sql of setupQueries) {
+		await dbClient.execute({
+			sql,
+			args: [],
+		});
+	}
+
 	await cli({
 		config: astroConfig,
 		flags: {
@@ -48,19 +51,14 @@ export async function setupRemoteDbServer(astroConfig) {
 	});
 
 	return {
-		server,
 		async stop() {
-			delete process.env.ASTRO_STUDIO_REMOTE_DB_URL;
+			delete process.env.ASTRO_DB_REMOTE_URL;
+			delete process.env.ASTRO_DB_APP_TOKEN;
 			delete process.env.ASTRO_INTERNAL_TEST_REMOTE;
-			return new Promise((resolve, reject) => {
-				server.close((err) => {
-					if (err) {
-						reject(err);
-					} else {
-						resolve();
-					}
-				});
-			});
+			dbClient.close();
+			if (!isWindows) {
+				await unlink(url);
+			}
 		},
 	};
 }
@@ -83,90 +81,13 @@ export async function initializeRemoteDb(astroConfig) {
 }
 
 /**
- * Clears the environment variables related to Astro DB and Astro Studio.
+ * Clears the environment variables related to Astro DB.
  */
 export function clearEnvironment() {
 	const keys = Array.from(Object.keys(process.env));
 	for (const key of keys) {
-		if (key.startsWith('ASTRO_DB_') || key.startsWith('ASTRO_STUDIO_')) {
+		if (key.startsWith('ASTRO_DB_')) {
 			delete process.env[key];
 		}
 	}
-}
-
-function createRemoteDbServer() {
-	const dbClient = createClient({
-		url: ':memory:',
-	});
-	const server = createServer((req, res) => {
-		if (
-			!req.url.startsWith('/db/query') ||
-			req.method !== 'POST' ||
-			req.headers['content-type'] !== 'application/json'
-		) {
-			res.writeHead(404, { 'Content-Type': 'application/json' });
-			res.end(
-				JSON.stringify({
-					success: false,
-				}),
-			);
-			return;
-		}
-		const rawBody = [];
-		req.on('data', (chunk) => {
-			rawBody.push(chunk);
-		});
-		req.on('end', async () => {
-			let json;
-			try {
-				json = JSON.parse(Buffer.concat(rawBody).toString());
-			} catch {
-				applyParseError(res);
-				return;
-			}
-			const parsed = querySchema.safeParse(json);
-			if (parsed.success === false) {
-				applyParseError(res);
-				return;
-			}
-			const body = parsed.data;
-			try {
-				const result = Array.isArray(body)
-					? await dbClient.batch(body)
-					: await dbClient.execute(body);
-				res.writeHead(200, { 'Content-Type': 'application/json' });
-				res.end(JSON.stringify(result));
-			} catch (e) {
-				res.writeHead(500, { 'Content-Type': 'application/json' });
-				res.statusMessage = e.message;
-				res.end(
-					JSON.stringify({
-						success: false,
-						error: {
-							code: isDbError(e) ? e.code : 'SQLITE_QUERY_FAILED',
-							details: e.message,
-						},
-					}),
-				);
-			}
-		});
-	});
-
-	server.on('close', () => {
-		dbClient.close();
-	});
-
-	return server;
-}
-
-function applyParseError(res) {
-	res.writeHead(400, { 'Content-Type': 'application/json' });
-	res.statusMessage = 'Invalid request body';
-	res.end(
-		JSON.stringify({
-			// Use JSON response with `success: boolean` property
-			// to match remote error responses.
-			success: false,
-		}),
-	);
 }

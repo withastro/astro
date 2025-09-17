@@ -3,14 +3,16 @@ import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import type { IncomingMessage } from 'node:http';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { emptyDir } from '@astrojs/internal-helpers/fs';
-import { createRedirectsFromAstroRoutes } from '@astrojs/underscore-redirects';
+import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import type { Context } from '@netlify/functions';
+import netlifyVitePlugin, { type NetlifyPluginOptions } from '@netlify/vite-plugin';
 import type {
 	AstroConfig,
 	AstroIntegration,
 	AstroIntegrationLogger,
 	HookParameters,
 	IntegrationResolvedRoute,
+	RouteToHeaders,
 } from 'astro';
 import { build } from 'esbuild';
 import { glob, globSync } from 'tinyglobby';
@@ -103,8 +105,11 @@ export function remotePatternToRegex(
 	return regexStr;
 }
 
-async function writeNetlifyFrameworkConfig(config: AstroConfig, logger: AstroIntegrationLogger) {
-	const remoteImages: Array<string> = [];
+function remoteImagesFromAstroConfig(
+	config: AstroConfig,
+	logger: AstroIntegrationLogger,
+): string[] {
+	const remoteImages: string[] = [];
 	// Domains get a simple regex match
 	remoteImages.push(
 		...config.image.domains.map((domain) => `https?:\/\/${domain.replaceAll('.', '\\.')}\/.*`),
@@ -115,17 +120,42 @@ async function writeNetlifyFrameworkConfig(config: AstroConfig, logger: AstroInt
 			.map((pattern) => remotePatternToRegex(pattern, logger))
 			.filter(Boolean as unknown as (pattern?: string) => pattern is string),
 	);
+	return remoteImages;
+}
 
-	const headers = config.build.assetsPrefix
-		? undefined
-		: [
-				{
-					for: `${config.base}${config.base.endsWith('/') ? '' : '/'}${config.build.assets}/*`,
-					values: {
-						'Cache-Control': 'public, max-age=31536000, immutable',
-					},
-				},
-			];
+async function writeNetlifyFrameworkConfig(
+	config: AstroConfig,
+	staticHeaders: RouteToHeaders | undefined,
+	logger: AstroIntegrationLogger,
+) {
+	const remoteImages = remoteImagesFromAstroConfig(config, logger);
+
+	const headers = [];
+	if (!config.build.assetsPrefix) {
+		headers.push({
+			for: `${config.base}${config.base.endsWith('/') ? '' : '/'}${config.build.assets}/*`,
+			values: {
+				'Cache-Control': 'public, max-age=31536000, immutable',
+			},
+		});
+	}
+
+	if (staticHeaders && staticHeaders.size > 0) {
+		for (const [pathname, { headers: routeHeaders }] of staticHeaders.entries()) {
+			if (config.experimental.csp) {
+				const csp = routeHeaders.get('Content-Security-Policy');
+
+				if (csp) {
+					headers.push({
+						for: pathname,
+						values: {
+							'Content-Security-Policy': csp,
+						},
+					});
+				}
+			}
+		}
+	}
 
 	// See https://docs.netlify.com/image-cdn/create-integration/
 	const deployConfigDir = new URL('.netlify/v1/', config.root);
@@ -205,6 +235,26 @@ export interface NetlifyIntegrationConfig {
 	 * @default {true}
 	 */
 	imageCDN?: boolean;
+
+	/**
+	 * If enabled, the adapter will save [static headers in the framework API file](https://docs.netlify.com/frameworks-api/#headers).
+	 *
+	 * Here the list of the headers that are added:
+	 * - The CSP header of the static pages is added when CSP support is enabled.
+	 */
+	experimentalStaticHeaders?: boolean;
+
+	/**
+	 * Netlify features to enable when running `astro dev`. These work best when your site is linked to a Netlify site using `netlify link`.
+	 *
+	 * Either a boolean to enable or disable all features, or an object to enable specific features.
+	 *
+	 * - `images`: Enables the Netlify Image CDN in local development. Default: true
+	 * - `environmentVariables`: If your site is linked to a Netlify site, this will automatically load the environment variables from the Netlify site or team. Default: false
+	 *
+	 * @default {{ environmentVariables: false, images: true }}
+	 */
+	devFeatures?: { environmentVariables: boolean; images: boolean } | boolean;
 }
 
 export default function netlifyIntegration(
@@ -218,6 +268,7 @@ export default function netlifyIntegration(
 	let outDir: URL;
 	let rootDir: URL;
 	let astroMiddlewareEntryPoint: URL | undefined = undefined;
+	let staticHeadersMap: RouteToHeaders | undefined = undefined;
 	// Extra files to be merged with `includeFiles` during build
 	const extraFilesToInclude: URL[] = [];
 	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
@@ -271,7 +322,7 @@ export default function netlifyIntegration(
 		});
 
 		if (!redirects.empty()) {
-			await appendFile(new URL('_redirects', outDir), `\n${redirects.print()}\n`);
+			await appendFile(new URL('_redirects', outDir), `\n${printAsRedirects(redirects)}\n`);
 		}
 	}
 
@@ -450,16 +501,21 @@ export default function netlifyIntegration(
 		};
 
 		const context: Context = {
+			get url(): never {
+				throw new Error('Please use Astro.url instead.');
+			},
+			// The dev server is a long running process, so promises will run even with a noop
+			waitUntil: () => {},
 			account: parseBase64JSON('x-nf-account-info') ?? {
 				id: 'mock-netlify-account-id',
 			},
-			// TODO: this has type conflicts with @netlify/functions ^2.8.1
-			// @ts-expect-error: this has type conflicts with @netlify/functions ^2.8.1
 			deploy: {
+				context: 'dev',
 				id:
 					typeof req.headers['x-nf-deploy-id'] === 'string'
 						? req.headers['x-nf-deploy-id']
 						: 'mock-netlify-deploy-id',
+				published: false,
 			},
 			site: parseBase64JSON('x-nf-site-info') ?? {
 				id: 'mock-netlify-site-id',
@@ -488,8 +544,6 @@ export default function netlifyIntegration(
 			get cookies(): never {
 				throw new Error('Please use Astro.cookies instead.');
 			},
-			// @ts-expect-error This is not currently included in the public Netlify types
-			flags: undefined,
 			json: (input) => Response.json(input),
 			log: console.info,
 			next: () => {
@@ -511,39 +565,45 @@ export default function netlifyIntegration(
 	return {
 		name: '@astrojs/netlify',
 		hooks: {
-			'astro:config:setup': async ({ config, updateConfig, logger }) => {
+			'astro:config:setup': async ({ config, updateConfig, logger, command }) => {
 				rootDir = config.root;
 				await cleanFunctions();
 
 				outDir = new URL(config.outDir, rootDir);
 
-				const enableImageCDN = isRunningInNetlify && (integrationConfig?.imageCDN ?? true);
-
 				let session = config.session;
 
 				if (!session?.driver) {
-					logger.info(
-						`Enabling sessions with ${isRunningInNetlify ? 'Netlify Blobs' : 'filesystem storage'}`,
-					);
-					session = isRunningInNetlify
-						? {
-								...session,
-								driver: 'netlify-blobs',
-								options: {
-									name: 'astro-sessions',
-									consistency: 'strong',
-									...session?.options,
-								},
-							}
-						: {
-								...session,
-								driver: 'fs-lite',
-								options: {
-									base: fileURLToPath(new URL('sessions', config.cacheDir)),
-									...session?.options,
-								},
-							};
+					logger.info('Enabling sessions with Netlify Blobs');
+
+					session = {
+						...session,
+						driver: 'netlify-blobs',
+						options: {
+							name: 'astro-sessions',
+							consistency: 'strong',
+							...session?.options,
+						},
+					};
 				}
+
+				const features = integrationConfig?.devFeatures;
+
+				const vitePluginOptions: NetlifyPluginOptions = {
+					images: {
+						// We don't need to disable the feature, because if the user disables it
+						// we'll disable the whole image service.
+						remoteURLPatterns: remoteImagesFromAstroConfig(config, logger),
+					},
+					environmentVariables: {
+						// If features is an object, use the `environmentVariables` property
+						// Otherwise, use the boolean value of `features`, defaulting to false
+						enabled:
+							typeof features === 'object'
+								? (features.environmentVariables ?? false)
+								: features === true,
+					},
+				};
 
 				updateConfig({
 					outDir,
@@ -554,6 +614,7 @@ export default function netlifyIntegration(
 					},
 					session,
 					vite: {
+						plugins: [netlifyVitePlugin(vitePluginOptions)],
 						server: {
 							watch: {
 								ignored: [fileURLToPath(new URL('./.netlify/**', rootDir))],
@@ -562,7 +623,13 @@ export default function netlifyIntegration(
 					},
 					image: {
 						service: {
-							entrypoint: enableImageCDN ? '@astrojs/netlify/image-service.js' : undefined,
+							// defaults to true, so should only be disabled if the user has
+							// explicitly set false
+							entrypoint:
+								(command === 'build' && integrationConfig?.imageCDN === false) ||
+								(command === 'dev' && vitePluginOptions?.images?.enabled === false)
+									? undefined
+									: '@astrojs/netlify/image-service.js',
 						},
 					},
 				});
@@ -570,22 +637,22 @@ export default function netlifyIntegration(
 			'astro:routes:resolved': (params) => {
 				routes = params.routes;
 			},
-			'astro:config:done': async ({ config, setAdapter, logger, buildOutput }) => {
+			'astro:config:done': async ({ config, setAdapter, buildOutput }) => {
 				rootDir = config.root;
 				_config = config;
 
 				finalBuildOutput = buildOutput;
 
-				await writeNetlifyFrameworkConfig(config, logger);
-
-				const edgeMiddleware = integrationConfig?.edgeMiddleware ?? false;
+				const useEdgeMiddleware = integrationConfig?.edgeMiddleware ?? false;
+				const useStaticHeaders = integrationConfig?.experimentalStaticHeaders ?? false;
 
 				setAdapter({
 					name: '@astrojs/netlify',
 					serverEntrypoint: '@astrojs/netlify/ssr-function.js',
 					exports: ['default'],
 					adapterFeatures: {
-						edgeMiddleware,
+						edgeMiddleware: useEdgeMiddleware,
+						experimentalStaticHeaders: useStaticHeaders,
 					},
 					args: { middlewareSecret } satisfies Args,
 					supportedAstroFeatures: {
@@ -596,6 +663,9 @@ export default function netlifyIntegration(
 						envGetSecret: 'stable',
 					},
 				});
+			},
+			'astro:build:generated': ({ experimentalRouteToHeaders }) => {
+				staticHeadersMap = experimentalRouteToHeaders;
 			},
 			'astro:build:ssr': async ({ middlewareEntryPoint }) => {
 				astroMiddlewareEntryPoint = middlewareEntryPoint;
@@ -616,10 +686,18 @@ export default function netlifyIntegration(
 					await writeMiddleware(astroMiddlewareEntryPoint);
 					logger.info('Generated Middleware Edge Function');
 				}
+
+				await writeNetlifyFrameworkConfig(_config, staticHeadersMap, logger);
 			},
 
 			// local dev
 			'astro:server:setup': async ({ server }) => {
+				const existingSessionModule = server.moduleGraph.getModuleById('astro:sessions');
+				// if we're restarting the server, we need to recreate the session
+				// module because blobs will have new ports
+				if (existingSessionModule) {
+					server.moduleGraph.invalidateModule(existingSessionModule);
+				}
 				server.middlewares.use((req, _res, next) => {
 					const locals = Symbol.for('astro.locals');
 					Reflect.set(req, locals, {

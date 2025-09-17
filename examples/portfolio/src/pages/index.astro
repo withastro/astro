@@ -1,20 +1,17 @@
 ---
 import { getCollection } from 'astro:content';
-
-// Layout import — provides basic page elements: <head>, <nav>, <footer> etc.
-import BaseLayout from '../layouts/BaseLayout.astro';
-
 // Component Imports
 import CallToAction from '../components/CallToAction.astro';
+// Page section components
+import ContactCTA from '../components/ContactCTA.astro';
 import Grid from '../components/Grid.astro';
 import Hero from '../components/Hero.astro';
 import Icon from '../components/Icon.astro';
 import Pill from '../components/Pill.astro';
 import PortfolioPreview from '../components/PortfolioPreview.astro';
-
-// Page section components
-import ContactCTA from '../components/ContactCTA.astro';
 import Skills from '../components/Skills.astro';
+// Layout import — provides basic page elements: <head>, <nav>, <footer> etc.
+import BaseLayout from '../layouts/BaseLayout.astro';
 
 // Content Fetching: List four most recent work projects
 const projects = (await getCollection('work'))
