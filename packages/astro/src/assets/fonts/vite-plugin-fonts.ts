@@ -49,7 +49,7 @@ import {
 } from './implementations/url-proxy-content-resolver.js';
 import { createBuildUrlResolver, createDevUrlResolver } from './implementations/url-resolver.js';
 import { orchestrate } from './orchestrate.js';
-import type { InternalConsumableMap, FontFileDataMap, ConsumableMap } from './types.js';
+import type { ConsumableMap, FontFileDataMap, InternalConsumableMap } from './types.js';
 
 interface Options {
 	settings: AstroSettings;

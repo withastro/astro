@@ -20,14 +20,14 @@ import { type CollectedFontForMetrics, optimizeFallbacks } from './logic/optimiz
 import { resolveFamilies } from './logic/resolve-families.js';
 import { resolveLocalFont } from './providers/local.js';
 import type {
-	InternalConsumableMap,
+	ConsumableMap,
 	CreateUrlProxyParams,
 	Defaults,
+	FontData,
 	FontFamily,
 	FontFileDataMap,
+	InternalConsumableMap,
 	PreloadData,
-	ConsumableMap,
-	FontData,
 } from './types.js';
 import {
 	pickFontFaceProperty,

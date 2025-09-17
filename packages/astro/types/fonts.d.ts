@@ -3,5 +3,5 @@ declare module 'astro:assets' {
 	export type CssVariable = string;
 
 	/** The data returned by `getFontData()` */
-	export type FontData = import('../dist/assets/fonts/types.js').FontData
+	export type FontData = import('../dist/assets/fonts/types.js').FontData;
 }
