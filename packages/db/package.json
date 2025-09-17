@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/db",
-  "version": "0.17.1",
+  "version": "0.18.0",
   "description": "Add libSQL support to your Astro site",
   "license": "MIT",
   "repository": {
@@ -27,6 +27,7 @@
       "types": "./dist/runtime/index.d.ts",
       "default": "./dist/runtime/index.js"
     },
+    "./db-client/*": "./dist/core/db-client/*",
     "./dist/runtime/virtual.js": {
       "default": "./dist/runtime/virtual.js"
     },
@@ -71,7 +72,7 @@
     "test:types": "tsc --project test/types/tsconfig.json"
   },
   "dependencies": {
-    "@libsql/client": "^0.15.14",
+    "@libsql/client": "^0.15.15",
     "deep-diff": "^1.0.2",
     "drizzle-orm": "^0.42.0",
     "kleur": "^4.1.5",
@@ -89,6 +90,6 @@
     "cheerio": "1.1.2",
     "expect-type": "^1.2.2",
     "typescript": "^5.9.2",
-    "vite": "^6.3.5"
+    "vite": "^6.3.6"
   }
 }

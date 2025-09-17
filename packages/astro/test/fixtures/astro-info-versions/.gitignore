@@ -1,0 +1,6 @@
+.pnp.cjs
+.pnp.loader.mjs
+yarn.lock
+astro-*.tgz
+.yarn
+.yarnrc.yml
