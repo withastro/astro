@@ -1,9 +1,11 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import { serializeRouteData } from '../../../dist/core/app/index.js';
 import { createContainer } from '../../../dist/core/dev/container.js';
 import { createLoader } from '../../../dist/core/module-loader/index.js';
 import { createRoutesList } from '../../../dist/core/routing/index.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
+import { AstroServerApp } from '../../../dist/vite-plugin-app/app.js';
 import { createController } from '../../../dist/vite-plugin-astro-server/index.js';
 import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
 import testAdapter from '../../test-adapter.js';
@@ -14,8 +16,6 @@ import {
 	createRequestAndResponse,
 	defaultLogger,
 } from '../test-utils.js';
-import { serializeRouteData } from '../../../dist/core/app/index.js';
-import { AstroServerApp } from '../../../dist/vite-plugin-app/app.js';
 
 async function createDevApp(overrides = {}, root) {
 	const settings = overrides.settings ?? (await createBasicSettings({ root }));
