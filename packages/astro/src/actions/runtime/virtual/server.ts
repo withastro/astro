@@ -230,6 +230,7 @@ export function formDataToZ4Object<T extends z4.$ZodObject>(
 	schema._zod.def.catchall;
 	const obj: Record<string, unknown> =
 		// TODO:
+		// @ts-expect-error
 		schema._zod.def.unknownKeys === 'passthrough' ? Object.fromEntries(formData.entries()) : {};
 	for (const [key, baseValidator] of Object.entries(schema._zod.def.shape)) {
 		let validator = baseValidator;

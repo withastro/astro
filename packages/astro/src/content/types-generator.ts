@@ -5,7 +5,7 @@ import { bold, cyan } from 'kleur/colors';
 import { glob } from 'tinyglobby';
 import { normalizePath, type ViteDevServer } from 'vite';
 import * as z3 from 'zod/v3';
-import * as z4 from 'zod/v4/core';
+import type * as z4 from 'zod/v4/core';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData, AstroUserError } from '../core/errors/index.js';
@@ -411,7 +411,7 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 		const schema = await getContentLayerSchema(collection, collectionKey);
 		if (schema) {
 			if ('_zod' in schema) {
-				const jsonSchema = z4.toJSONSchema(schema);
+				// const jsonSchema = z4.toJSONSchema(schema);
 				// TODO: use https://github.com/bcherny/json-schema-to-typescript
 			} else {
 				try {

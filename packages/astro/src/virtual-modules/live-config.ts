@@ -1,4 +1,5 @@
-export * as z from 'astro/zod';
+// TODO: check if that's correct
+export * as z from 'zod/v3';
 export { defineLiveCollection } from '../content/config.js';
 
 function createErrorFunction(message: string) {

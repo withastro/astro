@@ -368,6 +368,7 @@ async function simpleLoader<TData extends { id: string }>(
 
 		// Due to this being a union, zod will always throw an "Expected array, received object" error along with the other errors.
 		// This error is in the second position if the data is an array, and in the first position if the data is an object.
+		// @ts-expect-error
 		const parseIssue = Array.isArray(unsafeData) ? issue.unionErrors[0] : issue.unionErrors[1];
 
 		const error = parseIssue.errors[0];
