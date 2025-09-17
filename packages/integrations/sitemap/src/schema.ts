@@ -40,10 +40,10 @@ export const SitemapOptionsSchema = z
 
 		namespaces: z
 			.object({
-					news: z.boolean().optional(),
-					xhtml: z.boolean().optional(),
-					image: z.boolean().optional(),
-					video: z.boolean().optional(),
+				news: z.boolean().optional(),
+				xhtml: z.boolean().optional(),
+				image: z.boolean().optional(),
+				video: z.boolean().optional(),
 			})
 			.optional()
 			.default(SITEMAP_CONFIG_DEFAULTS.namespaces),

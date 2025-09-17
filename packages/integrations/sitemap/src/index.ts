@@ -39,8 +39,8 @@ export type SitemapOptions =
 			serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem | undefined> | undefined;
 
 			xslURL?: string;
-			
-		// namespace configuration
+
+			// namespace configuration
 			namespaces?: {
 				news?: boolean;
 				xhtml?: boolean;

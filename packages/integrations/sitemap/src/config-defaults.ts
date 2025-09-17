@@ -5,7 +5,7 @@ export const SITEMAP_CONFIG_DEFAULTS = {
 	entryLimit: 45000,
 	namespaces: {
 		news: true,
-		xhtml: true, 
+		xhtml: true,
 		image: true,
 		video: true,
 	},
