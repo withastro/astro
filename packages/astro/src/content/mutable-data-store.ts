@@ -491,6 +491,13 @@ export default new Map([\n${lines.join(',\n')}]);
 		try {
 			// @ts-expect-error - this is a virtual module
 			const data = await import('astro:data-layer-content');
+			if (data.default instanceof Map) {
+				return MutableDataStore.fromMap(data.default);
+			}
+			if (Array.isArray(data.default)) {
+				const map = devalue.unflatten(data.default);
+				return MutableDataStore.fromMap(map);
+			}
 			const map = await this.manifestToMap(data.default);
 			return MutableDataStore.fromMap(map);
 		} catch {}

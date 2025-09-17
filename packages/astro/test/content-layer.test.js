@@ -9,34 +9,26 @@ import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
 import { Logger } from '../dist/core/logger/core.js';
 
-import { loadFixture } from './test-utils.js';
+import { describeCases, loadFixture } from './test-utils.js';
 
-function describeWithConfig(name, configs, fn) {
-	for (const cfg of configs) {
-		describe(`${name} ${cfg.name}`, () => {
-			fn(cfg);
-		});
-	}
-}
-
-const configs = [
-	{ name: '', value: {} },
-	{ name: '(chunking enabled)', value: { experimental: { dataStoreChunking: true } } },
+const cases = [
+	['', { config: {} }],
+	['chunking enabled', { config: { experimental: { dataStoreChunking: true } } }],
 ];
 
-describeWithConfig('Content Layer', configs, (config) => {
+describeCases('Content Layer', cases, (testCase) => {
 	/** @type {import("./test-utils.js").Fixture} */
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ ...config, root: './fixtures/content-layer/' });
+		fixture = await loadFixture({ ...testCase.config, root: './fixtures/content-layer/' });
 	});
 
 	describe('Build', () => {
 		let json;
 		let $;
 		before(async () => {
-			fixture = await loadFixture({ ...config, root: './fixtures/content-layer/' });
+			fixture = await loadFixture({ ...testCase.config, root: './fixtures/content-layer/' });
 			await fs
 				.unlink(new URL('./node_modules/.astro/data-store.json', fixture.config.root))
 				.catch(() => {});

@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { describe } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
 import { execa } from 'execa';
@@ -406,5 +407,13 @@ export async function* streamAsyncIterator(stream) {
 		}
 	} finally {
 		reader.releaseLock();
+	}
+}
+
+export function describeCases(name, cases, fn) {
+	for (const [caseName, caseParams] of cases) {
+		describe(name + (caseName ? ` (${caseName})` : ''), () => {
+			fn(caseParams);
+		});
 	}
 }
