@@ -30,7 +30,7 @@ export default {
 				'e2e/**/*.test.js',
 				'test/units/teardown.js',
 			],
-			ignore: ['**/e2e/**/{fixtures,_temp-fixtures}/**', 'performance/**/*'],
+			ignore: ['**/e2e/**/{fixtures,_temp-fixtures}/**', 'performance/**/*', 'src/vite-plugin-app/createExports.ts'],
 			// Those deps are used in tests but only referenced as strings
 			ignoreDependencies: [
 				'rehype-autolink-headings',

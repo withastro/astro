@@ -16,7 +16,7 @@ import {
 import { detect, resolveCommand } from 'package-manager-detector';
 import type { ResolvedServerUrls } from 'vite';
 import type { ZodError } from 'zod';
-import { getDocsForError, renderErrorMarkdown } from './errors/dev/utils.js';
+import { getDocsForError, renderErrorMarkdown } from './errors/dev/runtime.js';
 import {
 	AstroError,
 	AstroUserError,
