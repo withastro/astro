@@ -104,10 +104,13 @@ describe('getStaticPaths - dev calls', () => {
 	});
 
 	it('provides routePattern', async () => {
-		const res = await fixture.fetch('/blog/2022/post-2');
+		const res = await fixture.fetch('/blog/2022/post-1');
+		assert.equal(res.status, 200);
+
 		const html = await res.text();
 		const $ = cheerio.load(html);
-		assert.equal($('body').text(), '/blog/[year]/[slug]');
+
+		assert.equal($('#route-pattern').text(), '/blog/[year]/[slug]');
 	});
 
 	it('resolves 200 on matching static paths', async () => {
