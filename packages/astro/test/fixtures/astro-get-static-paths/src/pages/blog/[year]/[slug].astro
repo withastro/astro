@@ -1,18 +1,18 @@
 ---
-export async function getStaticPaths() {
+export async function getStaticPaths({ routePattern }) {
     return [
-        { params: { year: '2022', slug: 'post-1' } },
-        { params: { year: 2022, slug: 'post-2' } },
-        { params: { slug: 'post-2', year: '2022' } },
+        { params: { year: '2022', slug: 'post-1', routePattern } },
+        { params: { year: 2022, slug: 'post-2', routePattern } },
+        { params: { slug: 'post-2', year: '2022', routePattern } },
     ]
 }
 
-const { year, slug } = Astro.params
+const { year, slug, routePattern } = Astro.params
 ---
 
 <html>
   <head>
     <title>{year} | {slug}</title>
   </head>
-  <body></body>
+  <body>{routePattern}</body>
 </html>
