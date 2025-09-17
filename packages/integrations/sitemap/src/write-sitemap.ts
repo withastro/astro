@@ -19,6 +19,12 @@ type WriteSitemapConfig = {
 	limit?: number;
 	xslURL?: string;
 	lastmod?: string;
+	namespaces?: {
+		news?: boolean;
+		xhtml?: boolean;
+		image?: boolean;
+		video?: boolean;
+	};
 };
 
 // adapted from sitemap.js/sitemap-simple
@@ -34,6 +40,7 @@ export async function writeSitemap(
 		publicBasePath = './',
 		xslURL: xslUrl,
 		lastmod,
+		namespaces = { news: true, xhtml: true, image: true, video: true },
 	}: WriteSitemapConfig,
 	astroConfig: AstroConfig,
 ) {
@@ -46,6 +53,13 @@ export async function writeSitemap(
 			const sitemapStream = new SitemapStream({
 				hostname,
 				xslUrl,
+				// Custom namespace handling
+				xmlns: {
+					news: namespaces?.news !== false,
+					xhtml: namespaces?.xhtml !== false,
+					image: namespaces?.image !== false,
+					video: namespaces?.video !== false,
+				},
 			});
 			const path = `./${filenameBase}-${i}.xml`;
 			const writePath = resolve(destinationDir, path);
