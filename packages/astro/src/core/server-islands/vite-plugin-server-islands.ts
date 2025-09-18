@@ -7,7 +7,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 export const VIRTUAL_ISLAND_MAP_ID = '@astro-server-islands';
 const RESOLVED_VIRTUAL_ISLAND_MAP_ID = '\0' + VIRTUAL_ISLAND_MAP_ID;
 
-export const SERVER_ISLAND_MANIFEST = 'virtual:astro-server-island-manifest';
+const SERVER_ISLAND_MANIFEST = 'virtual:astro-server-island-manifest';
 const RESOLVED_SERVER_ISLAND_MANIFEST = '\0' + SERVER_ISLAND_MANIFEST;
 
 const serverIslandPlaceholder = "'$$server-islands$$'";
