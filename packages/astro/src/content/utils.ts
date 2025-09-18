@@ -7,7 +7,8 @@ import { green, red } from 'kleur/colors';
 import type { PluginContext } from 'rollup';
 import type { ViteDevServer } from 'vite';
 import xxhash from 'xxhash-wasm';
-import { z } from 'zod';
+import * as z3 from 'zod/v3';
+import * as z4 from 'zod/v4';
 import { AstroError, AstroErrorData, errorMap, MarkdownError } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
@@ -37,22 +38,22 @@ export type ContentLookupMap = {
 	[collectionName: string]: { type: 'content' | 'data'; entries: { [lookupId: string]: string } };
 };
 
-const entryTypeSchema = z
+const entryTypeSchema = z3
 	.object({
-		id: z.string({
+		id: z3.string({
 			invalid_type_error: 'Content entry `id` must be a string',
 			// Default to empty string so we can validate properly in the loader
 		}),
 	})
 	.passthrough();
 
-export const loaderReturnSchema = z.union([
-	z.array(entryTypeSchema),
-	z.record(
-		z.string(),
-		z
+export const loaderReturnSchema = z3.union([
+	z3.array(entryTypeSchema),
+	z3.record(
+		z3.string(),
+		z3
 			.object({
-				id: z
+				id: z3
 					.string({
 						invalid_type_error: 'Content entry `id` must be a string',
 					})
@@ -62,62 +63,62 @@ export const loaderReturnSchema = z.union([
 	),
 ]);
 
-const collectionConfigParser = z.union([
-	z.object({
-		type: z.literal('content').optional().default('content'),
-		schema: z.any().optional(),
+const collectionConfigParser = z3.union([
+	z3.object({
+		type: z3.literal('content').optional().default('content'),
+		schema: z3.any().optional(),
 	}),
-	z.object({
-		type: z.literal('data'),
-		schema: z.any().optional(),
+	z3.object({
+		type: z3.literal('data'),
+		schema: z3.any().optional(),
 	}),
-	z.object({
-		type: z.literal(CONTENT_LAYER_TYPE),
-		schema: z.any().optional(),
-		loader: z.union([
-			z.function(),
-			z.object({
-				name: z.string(),
-				load: z.function(
-					z.tuple(
+	z3.object({
+		type: z3.literal(CONTENT_LAYER_TYPE),
+		schema: z3.any().optional(),
+		loader: z3.union([
+			z3.function(),
+			z3.object({
+				name: z3.string(),
+				load: z3.function(
+					z3.tuple(
 						[
-							z.object({
-								collection: z.string(),
-								store: z.any(),
-								meta: z.any(),
-								logger: z.any(),
-								config: z.any(),
-								entryTypes: z.any(),
-								parseData: z.any(),
-								renderMarkdown: z.any(),
-								generateDigest: z.function(z.tuple([z.any()], z.string())),
-								watcher: z.any().optional(),
-								refreshContextData: z.record(z.unknown()).optional(),
+							z3.object({
+								collection: z3.string(),
+								store: z3.any(),
+								meta: z3.any(),
+								logger: z3.any(),
+								config: z3.any(),
+								entryTypes: z3.any(),
+								parseData: z3.any(),
+								renderMarkdown: z3.any(),
+								generateDigest: z3.function(z3.tuple([z3.any()], z3.string())),
+								watcher: z3.any().optional(),
+								refreshContextData: z3.record(z3.unknown()).optional(),
 							}),
 						],
-						z.unknown(),
+						z3.unknown(),
 					),
 				),
-				schema: z.any().optional(),
-				render: z.function(z.tuple([z.any()], z.unknown())).optional(),
+				schema: z3.any().optional(),
+				render: z3.function(z3.tuple([z3.any()], z3.unknown())).optional(),
 			}),
 		]),
 		/** deprecated */
-		_legacy: z.boolean().optional(),
+		_legacy: z3.boolean().optional(),
 	}),
-	z.object({
-		type: z.literal(LIVE_CONTENT_TYPE).optional().default(LIVE_CONTENT_TYPE),
-		schema: z.any().optional(),
-		loader: z.function(),
+	z3.object({
+		type: z3.literal(LIVE_CONTENT_TYPE).optional().default(LIVE_CONTENT_TYPE),
+		schema: z3.any().optional(),
+		loader: z3.function(),
 	}),
 ]);
 
-const contentConfigParser = z.object({
-	collections: z.record(collectionConfigParser),
+const contentConfigParser = z3.object({
+	collections: z3.record(collectionConfigParser),
 });
 
-export type CollectionConfig = z.infer<typeof collectionConfigParser>;
-export type ContentConfig = z.infer<typeof contentConfigParser> & { digest?: string };
+export type CollectionConfig = z3.infer<typeof collectionConfigParser>;
+export type ContentConfig = z3.infer<typeof contentConfigParser> & { digest?: string };
 
 type EntryInternal = { rawData: string | undefined; filePath: string };
 
@@ -133,7 +134,7 @@ export function parseEntrySlug({
 	frontmatterSlug?: unknown;
 }) {
 	try {
-		return z.string().default(generatedSlug).parse(frontmatterSlug);
+		return z3.string().default(generatedSlug).parse(frontmatterSlug);
 	} catch {
 		throw new AstroError({
 			...AstroErrorData.InvalidContentEntrySlugError,
@@ -181,12 +182,18 @@ export async function getEntryDataAndImages<
 				),
 			});
 		} else if (collectionConfig.type === CONTENT_LAYER_TYPE) {
+			const temp = schema({
+				image: () => new Proxy({}, {}),
+			});
+			const isZod4 = '_zod' in temp;
+			const transform = (val: string) => {
+				imageImports.add(val);
+				return `${IMAGE_IMPORT_PREFIX}${val}`;
+			};
 			schema = schema({
-				image: () =>
-					z.string().transform((val) => {
-						imageImports.add(val);
-						return `${IMAGE_IMPORT_PREFIX}${val}`;
-					}),
+				image: isZod4
+					? () => z4.string().transform(transform)
+					: () => z3.string().transform(transform),
 			});
 		}
 	}
@@ -208,7 +215,7 @@ export async function getEntryDataAndImages<
 
 		// Use `safeParseAsync` to allow async transforms
 		let formattedError;
-		const parsed = await (schema as z.ZodSchema).safeParseAsync(data, {
+		const parsed = await (schema as z3.ZodSchema).safeParseAsync(data, {
 			errorMap(error, ctx) {
 				if (error.code === 'custom' && error.params?.isHoistedAstroError) {
 					formattedError = error.params?.astroError;
