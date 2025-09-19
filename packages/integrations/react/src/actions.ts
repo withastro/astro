@@ -6,9 +6,9 @@ type FormFn<T> = (formData: FormData) => Promise<T>;
  * Use an Astro Action with React `useActionState()`.
  * This function matches your action to the expected types,
  * and preserves metadata for progressive enhancement.
- * To read state from your action handler, use {@linkcode experimental_getActionState}.
+ * To read state from your action handler, use {@linkcode getActionState}.
  */
-export function experimental_withState<T>(action: FormFn<T>) {
+export function withState<T>(action: FormFn<T>) {
 	// React expects two positional arguments when using `useActionState()`:
 	// 1. The initial state value.
 	// 2. The form data object.
@@ -42,9 +42,9 @@ export function experimental_withState<T>(action: FormFn<T>) {
 
 /**
  * Retrieve the state object from your action handler when using `useActionState()`.
- * To ensure this state is retrievable, use the {@linkcode experimental_withState} helper.
+ * To ensure this state is retrievable, use the {@linkcode withState} helper.
  */
-export async function experimental_getActionState<T>({
+export async function getActionState<T>({
 	request,
 }: {
 	request: Request;
@@ -61,7 +61,7 @@ export async function experimental_getActionState<T>({
 	if (!state) {
 		throw new AstroError(
 			'`getActionState()` could not find a state object.',
-			'Ensure your action was passed to `useActionState()` with the `experimental_withState()` wrapper.',
+			'Ensure your action was passed to `useActionState()` with the `withState()` wrapper.',
 		);
 	}
 	return JSON.parse(state) as T;
