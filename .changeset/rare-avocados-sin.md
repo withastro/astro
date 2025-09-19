@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Remove warning for bun, causing unexpected console spam
+Removes warning that caused unexpected console spam when using Bun
