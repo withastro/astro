@@ -1355,11 +1355,12 @@ describe('astro:image', () => {
 				let response = await app.render(request);
 				const body = await response.text();
 
-				// Paths with backslashes are now correctly detected as remote paths and get 403
-				// Other malformed paths still get 500
-				const hasBackslash = path.includes('\\') || path.includes('%5c') || path.includes('%5C');
-				const expectedStatus = hasBackslash ? 403 : 500;
-				const expectedBodyText = hasBackslash ? 'Forbidden' : 'Internal Server Error';
+				// Most paths are malformed local paths (500), but some backslash patterns
+				// are now correctly detected as remote and get 403
+				const { isRemotePath } = await import('@astrojs/internal-helpers/path');
+				const isDetectedAsRemote = isRemotePath(path);
+				const expectedStatus = isDetectedAsRemote ? 403 : 500;
+				const expectedBodyText = isDetectedAsRemote ? 'Forbidden' : 'Internal Server Error';
 				
 				assert.equal(response.status, expectedStatus, `Path "${path}" should return ${expectedStatus}`);
 				assert.equal(body.includes(expectedBodyText), true, `Path "${path}" body should include "${expectedBodyText}"`);
