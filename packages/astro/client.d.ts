@@ -122,10 +122,6 @@ declare module 'astro:transitions' {
 	export const createAnimationScope: TransitionModule['createAnimationScope'];
 
 	type ClientRouterModule = typeof import('./components/ClientRouter.astro');
-	/**
-	 * @deprecated The ViewTransitions component has been renamed to ClientRouter
-	 */
-	export const ViewTransitions: ClientRouterModule['default'];
 	export const ClientRouter: ClientRouterModule['default'];
 }
 
