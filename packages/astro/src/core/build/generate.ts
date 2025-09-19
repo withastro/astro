@@ -635,7 +635,17 @@ async function generatePath(
 		pipeline.settings.adapter?.adapterFeatures?.experimentalStaticHeaders &&
 		pipeline.settings.config.experimental?.csp
 	) {
-		routeToHeaders.set(pathname, { headers: responseHeaders, route: integrationRoute });
+		const cspConfig = pipeline.settings.config.experimental.csp;
+		const shouldCollapseHeaders =
+			typeof cspConfig === 'object' && cspConfig.collapseHeaders === true;
+
+		if (shouldCollapseHeaders) {
+			// For collapsed headers, use a catch-all route pattern
+			routeToHeaders.set('/(.*)', { headers: responseHeaders, route: integrationRoute });
+		} else {
+			// Default behavior: per-route headers
+			routeToHeaders.set(pathname, { headers: responseHeaders, route: integrationRoute });
+		}
 	}
 
 	await fs.promises.mkdir(outFolder, { recursive: true });

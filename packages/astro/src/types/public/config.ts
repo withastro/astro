@@ -2385,6 +2385,36 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 *
 					 */
 					directives?: CspDirective[];
+
+					/**
+					 * @name experimental.csp.collapseHeaders
+					 * @type {boolean}
+					 * @default `false`
+					 * @version 5.14.0
+					 * @description
+					 *
+					 * When enabled and using adapters that support static headers, collapses all CSP headers
+					 * to a single catch-all route instead of creating individual route entries per page.
+					 * This significantly reduces configuration file size for large sites and prevents
+					 * deployment payload limit errors.
+					 *
+					 * ```js
+					 * import { defineConfig } from 'astro/config';
+					 *
+					 * export default defineConfig({
+					 *   experimental: {
+					 *     csp: {
+					 *       collapseHeaders: true
+					 *     }
+					 *   }
+					 * });
+					 * ```
+					 *
+					 * This option only affects adapters that support `experimentalStaticHeaders`.
+					 * When no adapter is used or the adapter doesn't support static headers,
+					 * this option is safely ignored and CSP continues to work via meta tags.
+					 */
+					collapseHeaders?: boolean;
 			  };
 
 		/**
