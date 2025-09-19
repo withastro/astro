@@ -5,7 +5,11 @@ import { performance } from 'node:perf_hooks';
 import { green } from 'kleur/colors';
 import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
-import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
+import {
+	getDataStoreDir,
+	getDataStoreFile,
+	globalContentLayer,
+} from '../../content/content-layer.js';
 import { attachContentServerListeners } from '../../content/index.js';
 import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
@@ -86,8 +90,14 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 	let store: MutableDataStore | undefined;
 	try {
-		const dataStoreFile = getDataStoreFile(restart.container.settings, true);
-		store = await MutableDataStore.fromFile(dataStoreFile);
+		const chunkingEnabled = restart.container.settings.config.experimental.dataStoreChunking;
+		if (chunkingEnabled) {
+			const dataStoreDir = getDataStoreDir(restart.container.settings, true);
+			store = await MutableDataStore.fromDir(dataStoreDir);
+		} else {
+			const dataStoreFile = getDataStoreFile(restart.container.settings, true);
+			store = await MutableDataStore.fromFile(dataStoreFile);
+		}
 	} catch (err: any) {
 		logger.error('content', err.message);
 	}

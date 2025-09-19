@@ -1,15 +1,18 @@
 import { existsSync, promises as fs, type PathLike } from 'node:fs';
 import * as devalue from 'devalue';
 import { Traverse } from 'neotraverse/modern';
+import type { XXHashAPI } from 'xxhash-wasm';
+import xxhash from 'xxhash-wasm';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { IMAGE_IMPORT_PREFIX } from './consts.js';
+import { emptyDir } from '../core/fs/index.js';
+import { DATA_STORE_MANIFEST_FILE, IMAGE_IMPORT_PREFIX } from './consts.js';
 import { type DataEntry, ImmutableDataStore } from './data-store.js';
-import { contentModuleToId } from './utils.js';
+import { chunkMap, chunkString, contentModuleToId, sanitizeFileName } from './utils.js';
 
 const SAVE_DEBOUNCE_MS = 500;
-
 const MAX_DEPTH = 10;
+const CHUNK_SIZE_LIMIT = 20 * 1024 * 1024; // 20MB in bytes
 
 /**
  * Extends the DataStore with the ability to change entries and write them to disk.
@@ -17,6 +20,8 @@ const MAX_DEPTH = 10;
  */
 export class MutableDataStore extends ImmutableDataStore {
 	#file?: PathLike;
+	#manifestFile?: URL;
+	#dir?: URL;
 
 	#assetsFile?: PathLike;
 	#modulesFile?: PathLike;
@@ -34,6 +39,9 @@ export class MutableDataStore extends ImmutableDataStore {
 
 	#assetImports = new Set<string>();
 	#moduleImports = new Map<string, string>();
+
+	#hasher?: XXHashAPI;
+	#chunking = false;
 
 	set(collectionName: string, key: string, value: unknown) {
 		const collection = this._collections.get(collectionName) ?? new Map();
@@ -216,7 +224,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			clearTimeout(this.#saveTimeout);
 		}
 		this.#saveTimeout = undefined;
-		if (this.#file) {
+		if (this.#file || (this.#manifestFile && this.#dir)) {
 			await this.writeToDisk();
 		}
 		this.#maybeResolveSavePromise();
@@ -236,7 +244,7 @@ export default new Map([\n${lines.join(',\n')}]);
 
 		this.#saveTimeout = setTimeout(async () => {
 			this.#saveTimeout = undefined;
-			if (this.#file) {
+			if (this.#file || (this.#manifestFile && this.#dir)) {
 				await this.writeToDisk();
 			}
 			this.#maybeResolveSavePromise();
@@ -400,10 +408,7 @@ export default new Map([\n${lines.join(',\n')}]);
 		return devalue.stringify(this._collections);
 	}
 
-	async writeToDisk() {
-		if (!this.#dirty) {
-			return;
-		}
+	async writeToFile() {
 		if (!this.#file) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError);
 		}
@@ -416,6 +421,68 @@ export default new Map([\n${lines.join(',\n')}]);
 		}
 	}
 
+	async writeToDir() {
+		if (!this.#manifestFile || !this.#dir) {
+			throw new AstroError(AstroErrorData.UnknownFilesystemError);
+		}
+		if (!this.#hasher) {
+			this.#hasher = await xxhash();
+		}
+
+		try {
+			// Mark as clean before writing to disk so that it catches any changes that happen during the write
+			this.#dirty = false;
+
+			// Keep track of written files to remove old ones
+			const writtenFiles = new Set<string>();
+
+			const manifest: Record<string, string[][]> = {};
+
+			// Split by collection
+			for (const [collectionName, entries] of this._collections) {
+				manifest[collectionName] = [];
+
+				// Split into chunks of 1000 entries each (avoid huge strings)
+				const chunkedCollection = chunkMap(entries, 1000);
+				for (const chunkedEntries of chunkedCollection) {
+					const stringified = devalue.stringify(chunkedEntries);
+
+					// Further split string into chunks of <20MB each (avoid platform-specific single file size limits)
+					const chunkedStrings = chunkString(stringified, CHUNK_SIZE_LIMIT);
+					const parts = [];
+					for (const chunk of chunkedStrings) {
+						const fileName = `${sanitizeFileName(collectionName)}.${this.#hasher.h64ToString(chunk)}.json`;
+						await this.#writeFileAtomic(new URL(`./${fileName}`, this.#dir), chunk);
+						parts.push(fileName);
+						writtenFiles.add(fileName);
+					}
+					manifest[collectionName].push(parts);
+				}
+			}
+
+			// Finally, write the manifest
+			await this.#writeFileAtomic(this.#manifestFile, JSON.stringify(manifest));
+			writtenFiles.add(DATA_STORE_MANIFEST_FILE);
+
+			// Remove any files that are no longer referenced in the manifest
+			emptyDir(this.#dir, writtenFiles);
+		} catch (err) {
+			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
+		}
+	}
+
+	async writeToDisk() {
+		if (!this.#dirty) {
+			return;
+		}
+
+		if (this.#chunking) {
+			return this.writeToDir();
+		} else {
+			return this.writeToFile();
+		}
+	}
+
 	/**
 	 * Attempts to load a MutableDataStore from the virtual module.
 	 * This only works in Vite.
@@ -424,7 +491,14 @@ export default new Map([\n${lines.join(',\n')}]);
 		try {
 			// @ts-expect-error - this is a virtual module
 			const data = await import('astro:data-layer-content');
-			const map = devalue.unflatten(data.default);
+			if (data.default instanceof Map) {
+				return MutableDataStore.fromMap(data.default);
+			}
+			if (Array.isArray(data.default)) {
+				const map = devalue.unflatten(data.default);
+				return MutableDataStore.fromMap(map);
+			}
+			const map = await this.manifestToMap(data.default);
 			return MutableDataStore.fromMap(map);
 		} catch {}
 		return new MutableDataStore();
@@ -454,6 +528,48 @@ export default new Map([\n${lines.join(',\n')}]);
 		} catch {}
 		const store = new MutableDataStore();
 		store.#file = filePath;
+		return store;
+	}
+
+	static async fromDir(dirPath: URL) {
+		const manifestPath = new URL(`./${DATA_STORE_MANIFEST_FILE}`, dirPath);
+		try {
+			if (existsSync(dirPath) && existsSync(manifestPath)) {
+				const data = await fs.readFile(manifestPath, 'utf-8');
+				const manifest: Record<string, string[][]> = JSON.parse(data);
+
+				if (manifest) {
+					// Read each file in the manifest
+					const parsed: Record<string, string[][]> = {};
+
+					for (const collection in manifest) {
+						parsed[collection] = [];
+						for (const chunks of manifest[collection]) {
+							parsed[collection].push(
+								await Promise.all(
+									chunks.map(
+										async (file) => await fs.readFile(new URL('./' + file, dirPath), 'utf-8'),
+									),
+								),
+							);
+						}
+					}
+
+					const map = await this.manifestToMap(parsed);
+					const store = await MutableDataStore.fromMap(map);
+					store.#manifestFile = manifestPath;
+					store.#dir = dirPath;
+					store.#chunking = true;
+					return store;
+				}
+			} else {
+				await fs.mkdir(dirPath, { recursive: true });
+			}
+		} catch {}
+		const store = new MutableDataStore();
+		store.#manifestFile = manifestPath;
+		store.#dir = dirPath;
+		store.#chunking = true;
 		return store;
 	}
 }

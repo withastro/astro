@@ -34,7 +34,11 @@ export const CONTENT_FLAGS = [
 ] as const;
 
 export const CONTENT_TYPES_FILE = 'content.d.ts';
+
 export const DATA_STORE_FILE = 'data-store.json';
+export const DATA_STORE_MANIFEST_FILE = '__manifest.json';
+export const DATA_STORE_DIR = 'data-store/';
+
 export const ASSET_IMPORTS_FILE = 'content-assets.mjs';
 export const MODULES_IMPORTS_FILE = 'content-modules.mjs';
 export const COLLECTIONS_MANIFEST_FILE = 'collections/collections.json';
