@@ -83,9 +83,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	integrations: [],
 	markdown: markdownConfigDefaults,
 	vite: {},
-	legacy: {
-		collections: false,
-	},
+	legacy: {},
 	redirects: {},
 	security: {
 		checkOrigin: true,
