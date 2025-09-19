@@ -15,7 +15,7 @@ import {
 	COLLECTIONS_DIR,
 	CONTENT_LAYER_TYPE,
 	CONTENT_TYPES_FILE,
-	LIVE_CONTENT_TYPE,
+	type LIVE_CONTENT_TYPE,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
 import {
@@ -417,7 +417,6 @@ async function writeContentFiles({
 	logger: Logger;
 	settings: AstroSettings;
 }) {
-	let contentTypesStr = '';
 	let dataTypesStr = '';
 
 	const collectionSchemasDir = new URL(COLLECTIONS_DIR, settings.dotAstroDir);

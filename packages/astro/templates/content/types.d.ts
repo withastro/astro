@@ -23,9 +23,7 @@ declare module 'astro:content' {
 	export type CollectionKey = keyof DataEntryMap;
 	export type CollectionEntry<C extends CollectionKey> = Flatten<DataEntryMap[C]>;
 
-
 	type AllValuesOf<T> = T extends any ? T[keyof T] : never;
-
 
 	export type ReferenceDataEntry<
 		C extends CollectionKey,

@@ -21,10 +21,7 @@ import {
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
 import { getDataStoreFile } from './content-layer.js';
-import {
-	getContentPaths,
-	isDeferredModule
-} from './utils.js';
+import { getContentPaths, isDeferredModule } from './utils.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;

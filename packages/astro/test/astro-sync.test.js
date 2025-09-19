@@ -172,7 +172,6 @@ describe('astro sync', () => {
 				'Types file does not include empty collection type',
 			);
 		});
-
 	});
 
 	describe('astro:env', () => {

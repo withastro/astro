@@ -169,10 +169,7 @@ export async function syncInternal({
 		settings.timer.end('Sync content layer');
 	} else {
 		const paths = getContentPaths(settings.config, fs);
-		if (
-			paths.config.exists ||
-			paths.liveConfig.exists 
-		) {
+		if (paths.config.exists || paths.liveConfig.exists) {
 			// We only create the reference, without a stub to avoid overriding the
 			// already generated types
 			settings.injectedTypes.push({
@@ -277,7 +274,6 @@ async function syncContentCollections(
 		if (contentConfig.status === 'error') {
 			throw contentConfig.error;
 		}
-
 	} catch (e) {
 		const safeError = createSafeError(e) as ErrorWithMetadata;
 		if (isAstroError(e)) {
