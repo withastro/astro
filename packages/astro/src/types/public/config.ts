@@ -1995,7 +1995,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * These flags allow you to opt in to some deprecated or otherwise outdated behavior of Astro
 	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
 	 */
-	legacy?: {};
+	legacy?: Record<string, never>; // Currently no legacy flags are available.
 
 	/**
 	 *
