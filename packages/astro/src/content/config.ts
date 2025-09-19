@@ -182,23 +182,28 @@ export function defineCollection<S extends BaseSchema>(
 		});
 	}
 
-	if ('loader' in config) {
-		if (config.type && config.type !== CONTENT_LAYER_TYPE) {
-			throw new AstroUserError(
-				`Collections that use the Content Layer API must have a \`loader\` defined and no \`type\` set. Check your collection definitions in ${importerFilename ?? 'your content config file'}.`,
-			);
-		}
-		if (
-			typeof config.loader === 'object' &&
-			typeof config.loader.load !== 'function' &&
-			('loadEntry' in config.loader || 'loadCollection' in config.loader)
-		) {
-			throw new AstroUserError(
-				`Live content collections must be defined in "src/live.config.ts" file. Check your collection definitions in "${importerFilename ?? 'your content config file'}" to ensure you are not using a live loader.`,
-			);
-		}
-		config.type = CONTENT_LAYER_TYPE;
+	// TODO: add links to the migration guide in these errors
+	if (!('loader' in config)) {
+		throw new AstroUserError(
+			`Collections must have a \`loader\` defined. Check your collection definitions in ${importerFilename ?? 'your content config file'}. `,
+		);
 	}
-	if (!config.type) config.type = 'content';
+
+	if(config.type && config.type !== CONTENT_LAYER_TYPE) {
+		throw new AstroUserError(
+			`Invalid collection type "${config.type}". Remove the type from your collection definition in ${importerFilename ?? 'your content config file'}.`,
+		);
+	}
+
+	if (
+		typeof config.loader === 'object' &&
+		typeof config.loader.load !== 'function' &&
+		('loadEntry' in config.loader || 'loadCollection' in config.loader)
+	) {
+		throw new AstroUserError(
+			`Live content collections must be defined in "src/live.config.ts" file. Check your collection definitions in "${importerFilename ?? 'your content config file'}" to ensure you are not using a live loader.`,
+		);
+	}
+	config.type = CONTENT_LAYER_TYPE;
 	return config;
 }
