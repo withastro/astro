@@ -1,5 +1,11 @@
 # astro
 
+## 5.13.9
+
+### Patch Changes
+
+- [#14402](https://github.com/withastro/astro/pull/14402) [`54dcd04`](https://github.com/withastro/astro/commit/54dcd04350b83cbf368dfb8d72f7d2ddf209a91e) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Removes warning that caused unexpected console spam when using Bun
+
 ## 5.13.8
 
 ### Patch Changes
