@@ -119,10 +119,27 @@ const URL_PROTOCOL_REGEX = /^(?:(?:http|ftp|https|ws):?\/\/|\/\/)/;
  * - `ws://`
  * - `//` (protocol-relative URLs)
  * - `data:` (base64 images)
+ * - Backslash variants (e.g., `\\example.com`) that could normalize to remote URLs
+ * - URL-encoded backslash variants (e.g., `%5C%5Cexample.com`)
  * @param src
  */
 export function isRemotePath(src: string) {
-	return URL_PROTOCOL_REGEX.test(src) || src.startsWith('data:');
+	// First decode any URL-encoded backslashes
+	const decoded = src.replace(/%5C/gi, '\\');
+	
+	// Check for any backslash at the start (single or multiple)
+	// These can be normalized to protocol-relative URLs
+	if (decoded[0] === '\\') {
+		return true;
+	}
+	
+	// Check for protocols with backslashes (e.g., http:\\ or https:\\)
+	if (/^(?:http|https|ftp|ws):\\/.test(decoded)) {
+		return true;
+	}
+	
+	// Check standard URL patterns
+	return URL_PROTOCOL_REGEX.test(decoded) || decoded.startsWith('data:');
 }
 
 export function slash(path: string) {
