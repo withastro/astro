@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
 import { execa } from 'execa';
+import * as kleur from 'kleur/colors';
 import { glob } from 'tinyglobby';
 import { Agent } from 'undici';
 import { check } from '../dist/cli/check/index.js';
@@ -16,6 +17,9 @@ import sync from '../dist/core/sync/index.js';
 
 // Disable telemetry when running tests
 process.env.ASTRO_TELEMETRY_DISABLED = true;
+
+// Disable colors when running tests
+kleur.$.enabled = false;
 
 /**
  * @typedef {import('../src/core/dev/dev').DevServer} DevServer
