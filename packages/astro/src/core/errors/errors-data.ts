@@ -749,8 +749,10 @@ export const CouldNotTransformImage = {
 
 /**
  * @docs
+ * @see
+ * - [HTML streaming](https://docs.astro.build/en/guides/on-demand-rendering/#html-streaming)
  * @description
- * Making changes to the response, such as setting headers, cookies, and the status code cannot be done outside of page components.
+ * Making changes to the response, such as setting headers, cookies, and the status code can only be done at the page level. (You can’t use them inside of components, including layout components.) 
  */
 export const ResponseSentError = {
 	name: 'ResponseSentError',
