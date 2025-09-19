@@ -34,8 +34,6 @@ Use import.meta.glob instead: https://vitejs.dev/guide/features.html#glob-import
 // inside of getStaticPaths. See the `astroGlobalArgs` option for parameter type.
 export function createAstro(site: string | undefined): AstroGlobalPartial {
 	return {
-		// TODO: this is no longer necessary for `Astro.site`
-		// but it somehow allows working around caching issues in content collections for some tests
 		site: site ? new URL(site) : undefined,
 		generator: `Astro v${ASTRO_VERSION}`,
 		glob: createAstroGlobFn(),
