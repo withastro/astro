@@ -33,7 +33,7 @@ describe('fonts orchestrate()', () => {
 		const errorHandler = simpleErrorHandler;
 		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
 		const hasher = fakeHasher;
-		const { fontFileDataMap, consumableMap } = await orchestrate({
+		const { fontFileDataMap, internalConsumableMap, consumableMap } = await orchestrate({
 			families: [
 				{
 					name: 'Test',
@@ -87,8 +87,8 @@ describe('fonts orchestrate()', () => {
 				],
 			],
 		);
-		assert.deepStrictEqual([...consumableMap.keys()], ['--test']);
-		const entry = consumableMap.get('--test');
+		assert.deepStrictEqual([...internalConsumableMap.keys()], ['--test']);
+		const entry = internalConsumableMap.get('--test');
 		assert.deepStrictEqual(entry?.preloadData, [
 			{
 				url: joinPaths('/test', fileURLToPath(new URL('my-font.woff2.woff2', root))),
@@ -101,6 +101,33 @@ describe('fonts orchestrate()', () => {
 		assert.equal(entry?.css.includes(':root{--test:Test-'), true);
 		// Fallback
 		assert.equal(entry?.css.includes('fallback: Arial"'), true);
+
+		assert.deepStrictEqual(
+			[...consumableMap.entries()],
+			[
+				[
+					'--test',
+					[
+						{
+							weight: '400',
+							style: 'normal',
+							src: [
+								{
+									url: joinPaths('/test', fileURLToPath(new URL('my-font.woff2.woff2', root))),
+									format: 'woff2',
+									tech: undefined,
+								},
+								{
+									url: joinPaths('/test', fileURLToPath(new URL('my-font.woff.woff', root))),
+									format: 'woff',
+									tech: undefined,
+								},
+							],
+						},
+					],
+				],
+			],
+		);
 	});
 
 	it('works with a remote provider', async () => {
@@ -136,7 +163,7 @@ describe('fonts orchestrate()', () => {
 		const errorHandler = simpleErrorHandler;
 		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
 		const hasher = fakeHasher;
-		const { fontFileDataMap, consumableMap } = await orchestrate({
+		const { fontFileDataMap, internalConsumableMap, consumableMap } = await orchestrate({
 			families: [
 				{
 					name: 'Test',
@@ -191,8 +218,8 @@ describe('fonts orchestrate()', () => {
 				],
 			],
 		);
-		assert.deepStrictEqual([...consumableMap.keys()], ['--test']);
-		const entry = consumableMap.get('--test');
+		assert.deepStrictEqual([...internalConsumableMap.keys()], ['--test']);
+		const entry = internalConsumableMap.get('--test');
 		assert.deepStrictEqual(entry?.preloadData, [
 			{ url: 'https://example.com/foo.woff2.woff2', type: 'woff2' },
 		]);
@@ -202,5 +229,32 @@ describe('fonts orchestrate()', () => {
 		assert.equal(entry?.css.includes(':root{--test:Test-'), true);
 		// Fallback
 		assert.equal(entry?.css.includes('fallback: Times New Roman"'), true);
+
+		assert.deepStrictEqual(
+			[...consumableMap.entries()],
+			[
+				[
+					'--test',
+					[
+						{
+							weight: '400',
+							style: 'normal',
+							src: [
+								{
+									url: 'https://example.com/foo.woff2.woff2',
+									format: undefined,
+									tech: undefined,
+								},
+								{
+									url: 'https://example.com/foo.woff.woff',
+									format: undefined,
+									tech: undefined,
+								},
+							],
+						},
+					],
+				],
+			],
+		);
 	});
 });
