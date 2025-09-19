@@ -5,7 +5,7 @@ import {
 	defineAction,
 	type SafeResult,
 } from '../../dist/actions/runtime/virtual/server.js';
-import { z } from '../../zod.mjs';
+import { z } from '../../dist/zod.js';
 
 describe('ActionReturnType', () => {
 	it('Infers action return type', async () => {

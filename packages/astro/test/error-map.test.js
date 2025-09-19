@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { errorMap } from '../dist/core/errors/zod-error-map.js';
-import { z } from '../zod.mjs';
+import { z } from '../dist/zod.js';
 import { fixLineEndings } from './test-utils.js';
 
 describe('Content Collections - error map', () => {
