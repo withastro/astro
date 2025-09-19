@@ -50,7 +50,7 @@ export async function handleRequest({
 		url.pathname = appendForwardSlash(url.pathname);
 	}
 
-	let body: ArrayBuffer | undefined = undefined;
+	let body: BodyInit | undefined = undefined;
 	if (!(incomingRequest.method === 'GET' || incomingRequest.method === 'HEAD')) {
 		let bytes: Uint8Array[] = [];
 		await new Promise((resolve) => {

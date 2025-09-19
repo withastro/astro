@@ -10,19 +10,19 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/preact": "^4.1.0",
-    "@astrojs/react": "^4.3.0",
-    "@astrojs/solid-js": "^5.1.0",
-    "@astrojs/svelte": "^7.1.0",
-    "@astrojs/vue": "^5.1.0",
-    "@types/react": "^18.3.20",
-    "@types/react-dom": "^18.3.6",
-    "astro": "^5.13.4",
-    "preact": "^10.26.5",
+    "@astrojs/preact": "^4.1.1",
+    "@astrojs/react": "^4.3.1",
+    "@astrojs/solid-js": "^5.1.1",
+    "@astrojs/svelte": "^7.1.1",
+    "@astrojs/vue": "^5.1.1",
+    "@types/react": "^18.3.24",
+    "@types/react-dom": "^18.3.7",
+    "astro": "^5.13.8",
+    "preact": "^10.27.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "solid-js": "^1.9.5",
-    "svelte": "^5.25.7",
-    "vue": "^3.5.13"
+    "solid-js": "^1.9.9",
+    "svelte": "^5.38.10",
+    "vue": "^3.5.21"
   }
 }

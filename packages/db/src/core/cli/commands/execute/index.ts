@@ -46,11 +46,13 @@ export async function cmd({
 			appToken: flags.token ?? dbInfo.token,
 			isBuild: false,
 			output: 'server',
+			localExecution: true,
 		});
 	} else {
 		virtualModContents = getLocalVirtualModContents({
 			tables: dbConfig.tables ?? {},
 			root: astroConfig.root,
+			localExecution: true,
 		});
 	}
 	const { code } = await bundleFile({ virtualModContents, root: astroConfig.root, fileUrl });

@@ -1,5 +1,69 @@
 # astro
 
+## 5.13.8
+
+### Patch Changes
+
+- [#14300](https://github.com/withastro/astro/pull/14300) [`bd4a70b`](https://github.com/withastro/astro/commit/bd4a70bde3c8e0c04e2754cf26d222aa36d3c3c8) Thanks [@louisescher](https://github.com/louisescher)! - Adds Vite version & integration versions to output of `astro info`
+
+- [#14341](https://github.com/withastro/astro/pull/14341) [`f75fd99`](https://github.com/withastro/astro/commit/f75fd9977f0f3f8afd1128cc3616205edec0a11c) Thanks [@delucis](https://github.com/delucis)! - Fixes support for declarative Shadow DOM when using the `<ClientRouter>` component
+
+- [#14350](https://github.com/withastro/astro/pull/14350) [`f59581f`](https://github.com/withastro/astro/commit/f59581f2d4566c684c587af816e22763440ded19) Thanks [@ascorbic](https://github.com/ascorbic)! - Improves error reporting for content collections by adding logging for configuration errors that had previously been silently ignored. Also adds a new error that is thrown if a live collection is used in `content.config.ts` rather than `live.config.ts`.
+
+- [#14343](https://github.com/withastro/astro/pull/14343) [`13f7d36`](https://github.com/withastro/astro/commit/13f7d36688042cdb5644786d795fc921841da76a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a regression in non node runtimes
+
+## 5.13.7
+
+### Patch Changes
+
+- [#14330](https://github.com/withastro/astro/pull/14330) [`72e14ab`](https://github.com/withastro/astro/commit/72e14abed6e20d31b1cd2caeeaa7e43703bf3aa3) Thanks [@ascorbic](https://github.com/ascorbic)! - Removes pinned package that is no longer needed.
+
+- [#14335](https://github.com/withastro/astro/pull/14335) [`17c7b03`](https://github.com/withastro/astro/commit/17c7b0395c00a0ea29dad9517b60bad3bd3a87a1) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Bumps `sharp` minimal version to `0.34.0`
+
+## 5.13.6
+
+### Patch Changes
+
+- [#14294](https://github.com/withastro/astro/pull/14294) [`e005855`](https://github.com/withastro/astro/commit/e0058553b2a6bb03fd864d77a1f07c25c60f7d91) Thanks [@martrapp](https://github.com/martrapp)! - Restores the ability to use Google Analytics `History change trigger` with the `<ClientRouter />`.
+
+- [#14326](https://github.com/withastro/astro/pull/14326) [`c24a8f4`](https://github.com/withastro/astro/commit/c24a8f42a17410ea78fc2d68ff0105b931a381eb) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates `vite` version to fix CVE
+
+- [#14108](https://github.com/withastro/astro/pull/14108) [`218e070`](https://github.com/withastro/astro/commit/218e07054f4fe7a16e13479861dc162f6d886edc) Thanks [@JusticeMatthew](https://github.com/JusticeMatthew)! - Updates dynamic route split regex to avoid infinite retries/exponential complexity
+
+- [#14327](https://github.com/withastro/astro/pull/14327) [`c1033be`](https://github.com/withastro/astro/commit/c1033beafa331bbd67f0ee76b47303deb3db806f) Thanks [@ascorbic](https://github.com/ascorbic)! - Pins simple-swizzle to avoid compromised version
+
+## 5.13.5
+
+### Patch Changes
+
+- [#14286](https://github.com/withastro/astro/pull/14286) [`09c5db3`](https://github.com/withastro/astro/commit/09c5db37d12862eef8d4ecf62389e10f30a22de9) Thanks [@ematipico](https://github.com/ematipico)! - **BREAKING CHANGES only to the experimental CSP feature**
+
+  The following runtime APIs of the `Astro` global have been renamed:
+  - `Astro.insertDirective` to `Astro.csp.insertDirective`
+  - `Astro.insertStyleResource` to `Astro.csp.insertStyleResource`
+  - `Astro.insertStyleHash` to `Astro.csp.insertStyleHash`
+  - `Astro.insertScriptResource` to `Astro.csp.insertScriptResource`
+  - `Astro.insertScriptHash` to `Astro.csp.insertScriptHash`
+
+  The following runtime APIs of the `APIContext` have been renamed:
+  - `ctx.insertDirective` to `ctx.csp.insertDirective`
+  - `ctx.insertStyleResource` to `ctx.csp.insertStyleResource`
+  - `ctx.insertStyleHash` to `ctx.csp.insertStyleHash`
+  - `ctx.insertScriptResource` to `ctx.csp.insertScriptResource`
+  - `ctx.insertScriptHash` to `ctx.csp.insertScriptHash`
+
+- [#14283](https://github.com/withastro/astro/pull/14283) [`3224637`](https://github.com/withastro/astro/commit/3224637eca5c065872d92449216cb33baac2dbfd) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where CSP headers were incorrectly injected in the development server.
+
+- [#14275](https://github.com/withastro/astro/pull/14275) [`3e2f20d`](https://github.com/withastro/astro/commit/3e2f20d07e92b1acfadb1357a59b6952e85227f3) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds support for experimental CSP when using experimental fonts
+
+  Experimental fonts now integrate well with experimental CSP by injecting hashes for the styles it generates, as well as `font-src` directives.
+
+  No action is required to benefit from it.
+
+- [#14280](https://github.com/withastro/astro/pull/14280) [`4b9fb73`](https://github.com/withastro/astro/commit/4b9fb736dab42b8864012db0a981d3441366c388) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused cookies to not be correctly set when using middleware sequences
+
+- [#14276](https://github.com/withastro/astro/pull/14276) [`77281c4`](https://github.com/withastro/astro/commit/77281c4616b65959715dcbac42bf948bebfee755) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Adds a missing export for `resolveSrc`, a documented image services utility.
+
 ## 5.13.4
 
 ### Patch Changes

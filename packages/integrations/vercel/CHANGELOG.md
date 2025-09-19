@@ -1,5 +1,13 @@
 # @astrojs/vercel
 
+## 8.2.7
+
+### Patch Changes
+
+- [#14039](https://github.com/withastro/astro/pull/14039) [`da4182d`](https://github.com/withastro/astro/commit/da4182dbe8cc0c8871621d3f8e0f9d40e084ddbf) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where `experimentalStaticHeaders` did not work as expected.
+
+- [#14289](https://github.com/withastro/astro/pull/14289) [`ed493a6`](https://github.com/withastro/astro/commit/ed493a6929512ab636afdb3511ea790789c7c3dd) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused invalid image sizes to be generated when the requested widths were larger than the source image
+
 ## 8.2.6
 
 ### Patch Changes

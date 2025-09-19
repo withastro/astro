@@ -42,12 +42,12 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.6",
-    "@types/send": "^0.17.4",
+    "@types/send": "^0.17.5",
     "@types/server-destroy": "^1.0.4",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "cheerio": "1.0.0",
-    "devalue": "^5.1.1",
+    "cheerio": "1.1.2",
+    "devalue": "^5.3.2",
     "express": "^4.21.2",
     "node-mocks-http": "^1.17.2"
   },
