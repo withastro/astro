@@ -30,3 +30,5 @@ export type Polymorphic<P extends { as: HTMLTag }> = PolymorphicAttributes<
 >;
 
 export type ComponentProps<T extends (args: any) => any> = Simplify<Parameters<T>[0]>;
+
+export type SvgComponent = (props: astroHTML.JSX.SVGAttributes) => any;
