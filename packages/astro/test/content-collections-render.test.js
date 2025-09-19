@@ -213,7 +213,7 @@ describe('Content Collections - render()', () => {
 			assert.equal(h2.attr('data-components-export-applied'), 'true');
 		});
 
-		it('Supports layout prop with recursive getCollection() call', async () => {
+		it.skip('Supports layout prop with recursive getCollection() call - DEPRECATED: layout props removed in Astro 5', async () => {
 			const response = await fixture.fetch('/with-layout-prop', { method: 'GET' });
 			assert.equal(response.status, 200);
 

@@ -1,11 +1,8 @@
 // astro-head-inject
 import {
-	createCollectionToGlobResultMap,
 	createGetCollection,
-	createGetDataEntryById,
 	createGetEntries,
 	createGetEntry,
-	createGetEntryBySlug,
 	createGetLiveCollection,
 	createGetLiveEntry,
 	createReference,
@@ -20,8 +17,6 @@ export { z } from 'astro/zod';
 
 /* @@LIVE_CONTENT_CONFIG@@ */
 
-
-const cacheEntriesByCollection = new Map();
 export const getCollection = createGetCollection({
 	liveCollections,
 });

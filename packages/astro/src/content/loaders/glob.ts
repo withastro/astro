@@ -232,11 +232,6 @@ export function glob(globOptions: GlobOptions): Loader {
 
 			const contentDir = new URL('content/', config.srcDir);
 
-			function isInContentDir(file: string) {
-				const fileUrl = new URL(file, baseDir);
-				return fileUrl.href.startsWith(contentDir.href);
-			}
-
 			const configFiles = new Set(
 				['config.js', 'config.ts', 'config.mjs'].map((file) => new URL(file, contentDir).href),
 			);
@@ -249,10 +244,6 @@ export function glob(globOptions: GlobOptions): Loader {
 			await Promise.all(
 				files.map((entry) => {
 					if (isConfigFile(entry)) {
-						return;
-					}
-					if (isInContentDir(entry)) {
-						skippedFiles.push(entry);
 						return;
 					}
 					return limit(async () => {
