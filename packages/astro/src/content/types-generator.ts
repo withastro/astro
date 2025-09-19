@@ -524,7 +524,6 @@ async function writeContentFiles({
 		}
 	}
 	typeTemplateContent = typeTemplateContent
-		.replace('// @@CONTENT_ENTRY_MAP@@', contentTypesStr)
 		.replace('// @@DATA_ENTRY_MAP@@', dataTypesStr)
 		.replace(
 			"'@@CONTENT_CONFIG_TYPE@@'",
