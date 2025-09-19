@@ -56,6 +56,24 @@ async function expectUrlNotPrefetched(url, page) {
 	expect(reqUrls).not.toContainEqual(url);
 }
 
+/**
+ * @param {import('@playwright/test').Page} page
+ * @param {string} selector
+ */
+async function mouseDown(page, selector) {
+	const box = await page.locator(selector).boundingBox();
+	await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+	await page.mouse.down();
+}
+
+/**
+ * @param {import('@playwright/test').Page} page
+ */
+async function waitForPageLoad(page) {
+	await page.waitForEvent('response');
+	await new Promise(res => setTimeout(res, 500)); // wait for transition to finish
+}
+
 test.describe('Prefetch (default)', () => {
 	let devServer;
 
@@ -391,5 +409,77 @@ test.describe('Prefetch (default), Experimental ({ clientPrerender: true })', ()
 	test('data-astro-prefetch="load" should prefetch', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 		expect(await scriptIsInHead(page, 'prefetch-load')).toBeTruthy();
+	});
+});
+
+test.describe('Prefetch View Transitions', () => {
+	let devServer;
+
+	test.afterEach(async () => {
+		await devServer.stop();
+	});
+
+	test('"load" strategy', async ({ page, astro }) => {
+		devServer = await astro.startDevServer({
+			prefetch: {
+				defaultStrategy: 'load',
+			},
+		});
+		await page.goto(astro.resolveUrl('/view-transitions'));
+		await expectUrlPrefetched('/view-transitions/1', page);
+
+		await Promise.all([waitForPageLoad(page), page.click('a')]);
+		await expectUrlPrefetched('/view-transitions/2', page);
+	});
+
+	test('"viewport" strategy', async ({ page, astro }) => {
+		devServer = await astro.startDevServer({
+			prefetch: {
+				defaultStrategy: 'viewport',
+			},
+		});
+		await page.goto(astro.resolveUrl('/view-transitions'));
+		await expectUrlPrefetched('/view-transitions/1', page);
+
+		await Promise.all([waitForPageLoad(page), page.click('a')]);
+		await expectUrlPrefetched('/view-transitions/2', page);
+	});
+
+	test('"tap" strategy', async ({ page, astro }) => {
+		devServer = await astro.startDevServer({
+			prefetch: {
+				defaultStrategy: 'tap',
+			},
+		});
+		await page.goto(astro.resolveUrl('/view-transitions'));
+
+		await expectUrlNotPrefetched('/view-transitions/1', page);
+		await mouseDown(page, 'a');
+		await expectUrlPrefetched('/view-transitions/1', page);
+
+		await Promise.all([waitForPageLoad(page), page.mouse.up()]);
+
+		await expectUrlNotPrefetched('/view-transitions/2', page);
+		await mouseDown(page, 'a')
+		await expectUrlPrefetched('/view-transitions/2', page);
+	});
+
+	test('"hover" strategy', async ({ page, astro }) => {
+		devServer = await astro.startDevServer({
+			prefetch: {
+				defaultStrategy: 'hover',
+			},
+		});
+		await page.goto(astro.resolveUrl('/view-transitions'));
+
+		await expectUrlNotPrefetched('/view-transitions/1', page);
+		await page.locator('a').hover();
+		await expectUrlPrefetched('/view-transitions/1', page);
+
+		await Promise.all([waitForPageLoad(page), page.click('a')]);
+
+		await expectUrlNotPrefetched('/view-transitions/2', page);
+		await page.locator('a').hover();
+		await expectUrlPrefetched('/view-transitions/2', page);
 	});
 });
