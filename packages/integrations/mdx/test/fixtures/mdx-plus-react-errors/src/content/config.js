@@ -1,11 +1,12 @@
 import { z, defineCollection } from "astro:content";
+import { glob } from "astro/loaders";
 
 const filesSchema = () => {
   return z.object({});
 };
 
 const filesCollection = defineCollection({
-  type: "content",
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/files' }),
   schema: filesSchema(),
 });
 
