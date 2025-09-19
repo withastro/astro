@@ -8,7 +8,7 @@ import type { ModuleLoader } from '../../module-loader/index.js';
 import { AstroError, type ErrorWithMetadata } from '../errors.js';
 import { FailedToLoadModuleSSR, InvalidGlob, MdxIntegrationMissingError } from '../errors-data.js';
 import { createSafeError } from '../utils.js';
-import { getDocsForError, renderErrorMarkdown } from './utils.js';
+import { getDocsForError, renderErrorMarkdown } from './runtime.js';
 
 export function enhanceViteSSRError({
 	error,

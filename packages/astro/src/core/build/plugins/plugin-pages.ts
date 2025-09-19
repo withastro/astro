@@ -4,7 +4,6 @@ import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
-import { RENDERERS_MODULE_ID } from './plugin-renderers.js';
 import { getPagesFromVirtualModulePageName, getVirtualModulePageName } from './util.js';
 
 export const ASTRO_PAGE_MODULE_ID = '@astro-page:';
@@ -47,7 +46,7 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 						imports.push(`import * as _page from ${JSON.stringify(pageData.moduleSpecifier)};`);
 						exports.push(`export const page = () => _page`);
 
-						imports.push(`import { renderers } from "${RENDERERS_MODULE_ID}";`);
+						imports.push(`import { renderers } from "astro:renderers";`);
 						exports.push(`export { renderers };`);
 
 						return { code: `${imports.join('\n')}${exports.join('\n')}` };

@@ -16,11 +16,13 @@ import { createEnvLoader } from '../env/env-loader.js';
 import { astroEnv } from '../env/vite-plugin-env.js';
 import { importMetaEnv } from '../env/vite-plugin-import-meta-env.js';
 import astroInternationalization from '../i18n/vite-plugin-i18n.js';
+import { serializedManifestPlugin } from '../manifest/serialized.js';
 import astroVirtualManifestPlugin from '../manifest/virtual-module.js';
 import astroPrefetch from '../prefetch/vite-plugin-prefetch.js';
 import astroDevToolbar from '../toolbar/vite-plugin-dev-toolbar.js';
 import astroTransitions from '../transitions/vite-plugin-transitions.js';
-import type { AstroSettings, RoutesList } from '../types/astro.js';
+import type { AstroSettings } from '../types/astro.js';
+import { vitePluginApp } from '../vite-plugin-app/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
@@ -32,11 +34,11 @@ import htmlVitePlugin from '../vite-plugin-html/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
-import astroScannerPlugin from '../vite-plugin-scanner/index.js';
+import vitePluginRenderers from '../vite-plugin-renderers/index.js';
+import astroPluginRoutes from '../vite-plugin-routes/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
-import type { SSRManifest } from './app/types.js';
 import type { Logger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
@@ -50,16 +52,12 @@ type CreateViteOptions = {
 	mode: string;
 	fs?: typeof nodeFs;
 	sync: boolean;
-	routesList: RoutesList;
-	manifest: SSRManifest;
 } & (
 	| {
 			command: 'dev';
-			manifest: SSRManifest;
 	  }
 	| {
 			command: 'build';
-			manifest?: SSRManifest;
 	  }
 );
 
@@ -90,7 +88,7 @@ const ONLY_DEV_EXTERNAL = [
 /** Return a base vite config as a common starting point for all Vite commands. */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
-	{ settings, logger, mode, command, fs = nodeFs, sync, routesList, manifest }: CreateViteOptions,
+	{ settings, logger, mode, command, fs = nodeFs, sync }: CreateViteOptions,
 ): Promise<vite.InlineConfig> {
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
@@ -146,14 +144,18 @@ export async function createVite(
 			exclude: ['astro', 'node-fetch'],
 		},
 		plugins: [
-			astroVirtualManifestPlugin({ manifest }),
+			await serializedManifestPlugin({ settings }),
+			vitePluginRenderers({ settings }),
+			await astroPluginRoutes({ settings, logger, fsMod: fs, command }),
+			astroVirtualManifestPlugin(),
 			configAliasVitePlugin({ settings }),
 			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
 			astroVitePlugin({ settings, logger }),
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
-			command === 'dev' && vitePluginAstroServer({ settings, logger, fs, routesList, manifest }), // manifest is only required in dev mode, where it gets created before a Vite instance is created, and get passed to this function
+			command === 'dev' && vitePluginApp(),
+			command === 'dev' && vitePluginAstroServer({ settings, logger }),
 			importMetaEnv({ envLoader }),
 			astroEnv({ settings, sync, envLoader }),
 			markdownVitePlugin({ settings, logger }),
@@ -162,7 +164,6 @@ export async function createVite(
 			astroIntegrationsContainerPlugin({ settings, logger }),
 			astroScriptsPageSSRPlugin({ settings }),
 			astroHeadPlugin(),
-			astroScannerPlugin({ settings, logger, routesList }),
 			astroContentVirtualModPlugin({ fs, settings }),
 			astroContentImportPlugin({ fs, settings, logger }),
 			astroContentAssetPropagationPlugin({ settings }),

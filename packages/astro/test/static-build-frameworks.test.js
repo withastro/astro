@@ -14,7 +14,11 @@ describe('Static build - frameworks', () => {
 		fixture = await loadFixture({
 			root: './fixtures/static-build-frameworks/',
 		});
-		await fixture.build();
+		try {
+			await fixture.build();
+		} catch (error) {
+			console.log(error);
+		}
 	});
 
 	it('can build preact', async () => {

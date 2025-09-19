@@ -55,10 +55,10 @@ export function getStyleResources(csp: EnabledCsp): string[] {
 // because it has to collect and deduplicate font resources from both the user
 // config and the vite plugin for fonts
 export function getDirectives(settings: AstroSettings): CspDirective[] {
-	const { csp } = settings.config.experimental;
-	if (!shouldTrackCspHashes(csp)) {
+	if (!shouldTrackCspHashes(settings.config.experimental.csp)) {
 		return [];
 	}
+	const { csp } = settings.config.experimental;
 	const userDirectives = csp === true ? [] : [...(csp.directives ?? [])];
 	const fontResources = Array.from(settings.injectedCsp.fontResources.values());
 
