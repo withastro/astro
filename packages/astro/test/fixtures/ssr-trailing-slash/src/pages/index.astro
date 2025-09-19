@@ -1,0 +1,10 @@
+---
+export const prerender = false;
+const pathname = Astro.url.pathname;
+---
+<html>
+<body>
+  <h1>Test: {pathname}</h1>
+  <code>{pathname}</code>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "@test/nodejs-image",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/node": "workspace:*",
+    "astro": "workspace:*"
+  },
+  "peerDependencies": {
+    "sharp": "^0.34.3"
+  },
+  "scripts": {
+    "build": "astro build",
+    "preview": "astro preview"
+  }
+}
