@@ -353,13 +353,6 @@ export async function runHookConfigSetup({
 		updatedSettings.renderers.push(astroJSXRenderer);
 	}
 
-	// TODO: Astro 6.0
-	// Remove this hack to avoid breaking changes, and change the default value of redirectToDefaultLocale
-	if (updatedConfig.i18n && typeof updatedConfig.i18n.routing !== 'string') {
-		updatedConfig.i18n.routing.redirectToDefaultLocale ??=
-			updatedConfig.i18n.routing.prefixDefaultLocale || false;
-	}
-
 	updatedSettings.config = updatedConfig;
 	return updatedSettings;
 }
@@ -609,6 +602,7 @@ export async function runHookBuildGenerated({
 type RunHookBuildDone = {
 	settings: AstroSettings;
 	pages: string[];
+	// TODO: remove in Astro 6
 	routes: RouteData[];
 	logger: Logger;
 };
