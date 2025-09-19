@@ -1,9 +1,9 @@
 ---
-import { getEntryBySlug } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 import Button from '../components/Button.astro';
 
-const entry = await getEntryBySlug('en', 'endeavour');
-const { Content } = await entry.render();
+const entry = await getEntry('en', 'endeavour');
+const { Content } = await render(entry);
 ---
 <style>
     #welcome::after {

@@ -9,7 +9,7 @@ export async function GET() {
 	const withUnionSchema = stripAllRenderFn(await getCollection('with-union-schema'));
 	const withSymlinkedContent = stripAllRenderFn(await getCollection('with-symlinked-content'));
 	const withSymlinkedData = stripAllRenderFn(await getCollection('with-symlinked-data'));
-	const filtered = stripAllRenderFn(await getCollection('without-config', (entry) => entry.slug));
+	const filtered = stripAllRenderFn(await getCollection('without-config', (entry) => entry.id));
 
 	return new Response(
 		devalue.stringify({
