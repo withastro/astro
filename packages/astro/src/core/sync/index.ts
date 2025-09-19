@@ -171,9 +171,7 @@ export async function syncInternal({
 		const paths = getContentPaths(settings.config, fs);
 		if (
 			paths.config.exists ||
-			paths.liveConfig.exists ||
-			// Legacy collections don't require a config file
-			(settings.config.legacy?.collections && fs.existsSync(paths.contentDir))
+			paths.liveConfig.exists 
 		) {
 			// We only create the reference, without a stub to avoid overriding the
 			// already generated types
@@ -273,20 +271,13 @@ async function syncContentCollections(
 			settings,
 			viteServer: tempViteServer,
 		});
-		const typesResult = await contentTypesGenerator.init();
+		await contentTypesGenerator.init();
 
 		const contentConfig = globalContentConfigObserver.get();
 		if (contentConfig.status === 'error') {
 			throw contentConfig.error;
 		}
 
-		if (typesResult.typesGenerated === false) {
-			switch (typesResult.reason) {
-				case 'no-content-dir':
-				default:
-					logger.debug('types', 'No content directory found. Skipping type generation.');
-			}
-		}
 	} catch (e) {
 		const safeError = createSafeError(e) as ErrorWithMetadata;
 		if (isAstroError(e)) {

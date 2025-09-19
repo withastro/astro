@@ -1,7 +1,6 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import { escape } from 'html-escaper';
 import { Traverse } from 'neotraverse/modern';
-import pLimit from 'p-limit';
 import { ZodIssueCode, z } from 'zod';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
@@ -34,7 +33,6 @@ import {
 	LiveEntryNotFoundError,
 } from './loaders/errors.js';
 import type { LiveLoader } from './loaders/types.js';
-import type { ContentLookupMap } from './utils.js';
 export {
 	LiveCollectionError,
 	LiveCollectionCacheHintError,
@@ -115,16 +113,8 @@ async function parseLiveEntry(
 }
 
 export function createGetCollection({
-	contentCollectionToEntryMap,
-	dataCollectionToEntryMap,
-	getRenderEntryImport,
-	cacheEntriesByCollection,
 	liveCollections,
 }: {
-	contentCollectionToEntryMap: CollectionToEntryMap;
-	dataCollectionToEntryMap: CollectionToEntryMap;
-	getRenderEntryImport: GetEntryImport;
-	cacheEntriesByCollection: Map<string, any[]>;
 	liveCollections: LiveCollectionConfigMap;
 }) {
 	return async function getCollection(
@@ -140,12 +130,7 @@ export function createGetCollection({
 
 		const hasFilter = typeof filter === 'function';
 		const store = await globalDataStore.get();
-		let type: 'content' | 'data';
-		if (collection in contentCollectionToEntryMap) {
-			type = 'content';
-		} else if (collection in dataCollectionToEntryMap) {
-			type = 'data';
-		} else if (store.hasCollection(collection)) {
+		if (store.hasCollection(collection)) {
 			// @ts-expect-error	virtual module
 			const { default: imageAssetMap } = await import('astro:asset-imports');
 
@@ -176,55 +161,6 @@ export function createGetCollection({
 				)} does not exist or is empty. Please check your content config file for errors.`,
 			);
 			return [];
-		}
-
-		const lazyImports = Object.values(
-			type === 'content'
-				? contentCollectionToEntryMap[collection]
-				: dataCollectionToEntryMap[collection],
-		);
-		let entries: any[] = [];
-		// Cache `getCollection()` calls in production only
-		// prevents stale cache in development
-		if (!import.meta.env?.DEV && cacheEntriesByCollection.has(collection)) {
-			entries = cacheEntriesByCollection.get(collection)!;
-		} else {
-			const limit = pLimit(10);
-			entries = await Promise.all(
-				lazyImports.map((lazyImport) =>
-					limit(async () => {
-						const entry = await lazyImport();
-						return type === 'content'
-							? {
-									id: entry.id,
-									slug: entry.slug,
-									body: entry.body,
-									collection: entry.collection,
-									data: entry.data,
-									async render() {
-										return render({
-											collection: entry.collection,
-											id: entry.id,
-											renderEntryImport: await getRenderEntryImport(collection, entry.slug),
-										});
-									},
-								}
-							: {
-									id: entry.id,
-									collection: entry.collection,
-									data: entry.data,
-								};
-					}),
-				),
-			);
-			cacheEntriesByCollection.set(collection, entries);
-		}
-		if (hasFilter) {
-			return entries.filter(filter);
-		} else {
-			// Clone the array so users can safely mutate it.
-			// slice() is faster than ...spread for large arrays.
-			return entries.slice();
 		}
 	};
 }
@@ -882,7 +818,7 @@ async function render({
 	}
 }
 
-export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) {
+export function createReference() {
 	return function reference(collection: string) {
 		return z
 			.union([
@@ -915,36 +851,10 @@ export function createReference({ lookupMap }: { lookupMap: ContentLookupMap }) 
 							});
 							return;
 						}
-						// We won't throw if the collection is missing, because it may be a content layer collection and the store may not yet be populated.
 						// If it is an object then we're validating later in the build, so we can check the collection at that point.
-
 						return lookup;
 					}
 
-					// If the collection is not in the lookup map it may be a content layer collection and the store may not yet be populated.
-					if (!lookupMap[collection]) {
-						// For now, we can't validate this reference, so we'll optimistically convert it to a reference object which we'll validate
-						// later in the pipeline when we do have access to the store.
-						return { id: lookup, collection };
-					}
-					const { type, entries } = lookupMap[collection];
-					const entry = entries[lookup];
-
-					if (!entry) {
-						ctx.addIssue({
-							code: ZodIssueCode.custom,
-							message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${Object.keys(
-								entries,
-							)
-								.map((c) => JSON.stringify(c))
-								.join(' | ')}. Received ${JSON.stringify(lookup)}.`,
-						});
-						return;
-					}
-					// Content is still identified by slugs, so map to a `slug` key for consistency.
-					if (type === 'content') {
-						return { slug: lookup, collection };
-					}
 					return { id: lookup, collection };
 				},
 			);

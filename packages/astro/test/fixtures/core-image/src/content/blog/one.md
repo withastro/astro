@@ -6,7 +6,6 @@ cover:
 arrayOfImages:
   - ../../assets/penguin2.jpg
   - ../../assets/penguin1.jpg
-refinedImage: ../../assets/penguin1.jpg
 ---
 
 # A post

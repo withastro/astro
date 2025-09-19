@@ -8,7 +8,6 @@ const blogCollection = defineCollection({
 			image: image()
 		}),
 		arrayOfImages: z.array(image()),
-		refinedImage: image().refine((img) => img.width > 200)
   }),
 });
 

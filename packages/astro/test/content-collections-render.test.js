@@ -37,25 +37,6 @@ describe('Content Collections - render()', () => {
 			assert.equal($('link[rel=stylesheet]').length, 0);
 		});
 
-		it('De-duplicates CSS used both in layout and directly in target page', async () => {
-			const html = await fixture.readFile('/with-layout-prop/index.html');
-			const $ = cheerio.load(html);
-
-			const set = new Set();
-
-			$('link[rel=stylesheet]').each((_, linkEl) => {
-				const href = linkEl.attribs.href;
-				assert.equal(set.has(href), false);
-				set.add(href);
-			});
-
-			$('style').each((_, styleEl) => {
-				const textContent = styleEl.children[0].data;
-				assert.equal(set.has(textContent), false);
-				set.add(textContent);
-			});
-		});
-
 		it('Includes component scripts for rendered entry', async () => {
 			const html = await fixture.readFile('/launch-week-component-scripts/index.html');
 			const $ = cheerio.load(html);

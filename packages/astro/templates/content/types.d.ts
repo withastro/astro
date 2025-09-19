@@ -157,16 +157,6 @@ declare module 'astro:content' {
 		ReturnTypeOrOriginal<Required<ContentConfig['collections'][C]>['schema']>
 	>;
 
-	type ContentEntryMap = {
-		// @@CONTENT_ENTRY_MAP@@
-	};
-
-	type DataEntryMap = {
-		// @@DATA_ENTRY_MAP@@
-	};
-
-	type AnyEntryMap = ContentEntryMap & DataEntryMap;
-
 	type ExtractLoaderTypes<T> = T extends import('astro/loaders').LiveLoader<
 		infer TData,
 		infer TEntryFilter,
@@ -175,7 +165,6 @@ declare module 'astro:content' {
 	>
 		? { data: TData; entryFilter: TEntryFilter; collectionFilter: TCollectionFilter; error: TError }
 		: { data: never; entryFilter: never; collectionFilter: never; error: never };
-	type ExtractDataType<T> = ExtractLoaderTypes<T>['data'];
 	type ExtractEntryFilterType<T> = ExtractLoaderTypes<T>['entryFilter'];
 	type ExtractCollectionFilterType<T> = ExtractLoaderTypes<T>['collectionFilter'];
 	type ExtractErrorType<T> = ExtractLoaderTypes<T>['error'];

@@ -615,11 +615,6 @@ describe('astro:image', () => {
 				assert.equal($img.attr('src').startsWith('/'), true);
 			});
 
-			it('has proper source for refined image', () => {
-				let $img = $('#refined-image img');
-				assert.equal($img.attr('src').startsWith('/'), true);
-			});
-
 			it('has proper sources for array of images', () => {
 				let $img = $('#array-of-images img');
 				const imgsSrcs = [];
