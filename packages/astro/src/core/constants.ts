@@ -75,6 +75,11 @@ export const clientLocalsSymbol = Symbol.for('astro.locals');
 export const originPathnameSymbol = Symbol.for('astro.originPathname');
 
 /**
+ * The symbol used as a field on the request object to store a cleanup callback associated with aborting the request when the underlying socket closes.
+ */
+export const nodeRequestAbortControllerCleanupSymbol = Symbol.for('astro.nodeRequestAbortControllerCleanup');
+
+/**
  * The symbol used as a field on the response object to keep track of streaming.
  *
  * It is set when the `<head>` element has been completely generated, rendered, and the response object has been passed onto the adapter.
