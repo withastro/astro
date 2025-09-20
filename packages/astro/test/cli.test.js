@@ -128,6 +128,7 @@ describe('astro cli', () => {
 			assert.equal(proc.stdout.includes(`v${viteVersion}`), true);
 			assert.equal(proc.stdout.includes(`@astrojs/node (v${adapterVersion})`), true);
 			assert.equal(proc.stdout.includes(`@astrojs/react (v${integrationVersion})`), true);
+			assert.equal(proc.stdout.includes(`manual-integration`), true);
 		},
 	);
 
@@ -155,6 +156,7 @@ describe('astro cli', () => {
 			assert.equal(proc.stdout.includes(`v${viteVersion}`), true);
 			assert.equal(proc.stdout.includes(`@astrojs/node (v${adapterVersion})`), true);
 			assert.equal(proc.stdout.includes(`@astrojs/react (v${integrationVersion})`), true);
+			assert.equal(proc.stdout.includes(`manual-integration`), true);
 		},
 	);
 
@@ -228,6 +230,7 @@ describe('astro cli', () => {
 			assert.equal(proc.stdout.includes(`v${viteVersion}`), true);
 			assert.equal(proc.stdout.includes(`@astrojs/node (v${adapterVersion})`), true);
 			assert.equal(proc.stdout.includes(`@astrojs/react (v${integrationVersion})`), true);
+			assert.equal(proc.stdout.includes(`manual-integration`), true);
 		},
 	);
 

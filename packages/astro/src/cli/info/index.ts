@@ -331,8 +331,7 @@ async function getVersion(packageManager: string, dependency: string): Promise<s
 		}
 
 		return undefined;
-	} catch (err) {
-		console.error(err);
+	} catch {
 		return undefined;
 	}
 }
