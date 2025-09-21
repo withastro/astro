@@ -467,7 +467,12 @@ function getUrlForPath(
 	switch (format) {
 		case 'directory':
 		case 'preserve': {
-			ending = trailingSlash === 'never' ? '' : '/';
+			const isNamedPathnameRegex = /\/[a-zA-Z-0-9]+/;
+			if (isNamedPathnameRegex.test(pathname)) {
+				ending = '.html'
+			} else {
+				ending = trailingSlash === 'never' ? '' : '/';
+			}
 			break;
 		}
 		case 'file':
