@@ -37,6 +37,16 @@ export const SitemapOptionsSchema = z
 		changefreq: z.nativeEnum(ChangeFreq).optional(),
 		lastmod: z.date().optional(),
 		priority: z.number().min(0).max(1).optional(),
+
+		namespaces: z
+			.object({
+				news: z.boolean().optional(),
+				xhtml: z.boolean().optional(),
+				image: z.boolean().optional(),
+				video: z.boolean().optional(),
+			})
+			.optional()
+			.default(SITEMAP_CONFIG_DEFAULTS.namespaces),
 	})
 	.strict()
 	.default(SITEMAP_CONFIG_DEFAULTS);
