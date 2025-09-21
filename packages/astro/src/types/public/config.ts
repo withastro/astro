@@ -372,9 +372,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @see output
 	 * @description
 	 *
-	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters ([Cloudflare](/en/guides/integrations-guide/cloudflare/), [Netlify](/en/guides/integrations-guide/netlify/), [Node.js](/en/guides/integrations-guide/node/), [Vercel](/en/guides/integrations-guide/vercel/)) or explore [community adapters](https://astro.build/integrations/2/?search=&categories%5B%5D=adapters) to enable on-demand rendering in your Astro project.
+	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters ([Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/), [Netlify](https://docs.astro.build/en/guides/integrations-guide/netlify/), [Node.js](https://docs.astro.build/en/guides/integrations-guide/node/), [Vercel](https://docs.astro.build/en/guides/integrations-guide/vercel/)) or explore [community adapters](https://astro.build/integrations/2/?search=&categories%5B%5D=adapters) to enable on-demand rendering in your Astro project.
 	 *
-	 * See our [on-demand rendering guide](/en/guides/on-demand-rendering/) for more on Astro's server rendering options.
+	 * See our [on-demand rendering guide](https://docs.astro.build/en/guides/on-demand-rendering/) for more on Astro's server rendering options.
 	 *
 	 * ```js
 	 * import netlify from '@astrojs/netlify';
@@ -1002,7 +1002,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *
 	 * The Unstorage driver to use for session storage.  The [Node](https://docs.astro.build/en/guides/integrations-guide/node/#sessions),
 	 * [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/#sessions), and
-	 * [Netlify](/en/guides/integrations-guide/netlify/#sessions) adapters automatically configure a default driver for you,
+	 * [Netlify](https://docs.astro.build/en/guides/integrations-guide/netlify/#sessions) adapters automatically configure a default driver for you,
 	 * but you can specify your own if you would prefer or if you are using an adapter that does not provide one.
 	 *
 	 * The value is the "Driver name" from the [Unstorage driver documentation](https://unstorage.unjs.io/drivers).
@@ -1454,7 +1454,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * });
 		 * ```
 		 *
-		 * See the [code syntax highlighting guide](/en/guides/syntax-highlighting/) for usage and examples.
+		 * See the [code syntax highlighting guide](https://docs.astro.build/en/guides/syntax-highlighting/) for usage and examples.
 		 */
 		shikiConfig?: Partial<ShikiConfig>;
 
@@ -1467,7 +1467,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * Which syntax highlighter to use for Markdown code blocks (\`\`\`), if any. This determines the CSS classes that Astro will apply to your Markdown code blocks.
 	 	 * 
 		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter (`github-dark` theme configured by default)
-		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter and [provide your own Prism stylesheet](/en/guides/syntax-highlighting/#add-a-prism-stylesheet)
+		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter and [provide your own Prism stylesheet](https://docs.astro.build/en/guides/syntax-highlighting/#add-a-prism-stylesheet)
 		 * - `false` - do not apply syntax highlighting.
 
 		 * ```js
@@ -1627,7 +1627,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *
 	 * Configures i18n routing and allows you to specify some customization options.
 	 *
-	 * See our guide for more information on [internationalization in Astro](/en/guides/internationalization/)
+	 * See our guide for more information on [internationalization in Astro](https://docs.astro.build/en/guides/internationalization/)
 	 */
 	i18n?: {
 		/**
@@ -1888,7 +1888,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *
 	 * Configuration options for type-safe environment variables.
 	 *
-	 * See our guide for more information on [environment variables in Astro](/en/guides/environment-variables/).
+	 * See our guide for more information on [environment variables in Astro](https://docs.astro.build/en/guides/environment-variables/).
 	 */
 	env?: {
 		/**
