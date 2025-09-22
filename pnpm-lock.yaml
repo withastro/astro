@@ -3790,6 +3790,15 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/request-signal:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/reroute:
     dependencies:
       astro:
