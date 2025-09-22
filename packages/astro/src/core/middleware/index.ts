@@ -6,7 +6,7 @@ import {
 } from '../../i18n/utils.js';
 import type { MiddlewareHandler, Params, RewritePayload } from '../../types/public/common.js';
 import type { APIContext, AstroSharedContextCsp } from '../../types/public/context.js';
-import { ASTRO_VERSION, clientLocalsSymbol } from '../constants.js';
+import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getClientIpAddress } from '../routing/request.js';
@@ -110,15 +110,10 @@ function createContext({
 			return clientIpAddress;
 		},
 		get locals() {
-			// TODO: deprecate this usage. This is used only by the edge middleware for now, so its usage should be basically none.
-			let _locals = locals ?? Reflect.get(request, clientLocalsSymbol);
-			if (locals === undefined) {
-				_locals = {};
-			}
-			if (typeof _locals !== 'object') {
+			if (typeof locals !== 'object') {
 				throw new AstroError(AstroErrorData.LocalsNotAnObject);
 			}
-			return _locals;
+			return locals;
 		},
 		set locals(_) {
 			throw new AstroError(AstroErrorData.LocalsReassigned);
