@@ -43,7 +43,7 @@ export type CreateContext = {
 	/**
 	 * Initial value of the locals
 	 */
-	locals: App.Locals;
+	locals?: App.Locals;
 };
 
 /**
@@ -54,7 +54,7 @@ function createContext({
 	params = {},
 	userDefinedLocales = [],
 	defaultLocale = '',
-	locals,
+	locals = {},
 }: CreateContext): APIContext {
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;
