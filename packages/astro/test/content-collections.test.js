@@ -223,7 +223,7 @@ describe('Content Collections', () => {
 		});
 	});
 	describe('With legacy config', () => {
-		it("Throws if legacy config file is found", async () => {
+		it('Throws if legacy config file is found', async () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-with-config-mjs/',
 			});
@@ -233,7 +233,10 @@ describe('Content Collections', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			assert.equal(error, "Found legacy content config file in \"src/content/config.mjs\". Please move this file to \"src/content.config.mjs\" and ensure each collection has a loader defined.");
+			assert.equal(
+				error,
+				'Found legacy content config file in "src/content/config.mjs". Please move this file to "src/content.config.mjs" and ensure each collection has a loader defined.',
+			);
 		});
 	});
 
@@ -335,7 +338,6 @@ describe('Content Collections', () => {
 			}
 		});
 
-
 		it('Throws deprecation error when using getEntryBySlug', async () => {
 			const request = new Request('http://example.com/deprecated-getentrybyslug');
 			const response = await app.render(request);
@@ -343,7 +345,6 @@ describe('Content Collections', () => {
 			// Should return 500 status when getEntryBySlug is used with new content collections
 			assert.equal(response.status, 500);
 		});
-
 	});
 
 	describe('Base configuration', () => {

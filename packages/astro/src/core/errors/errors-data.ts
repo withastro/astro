@@ -1610,7 +1610,7 @@ export const GetEntryDeprecationError = {
  * Make sure that all required fields are present, and that all fields are of the correct type.
  * You can check against the collection schema in your `src/content.config.*` file.
  * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
- * @deprecated This error only applies to legacy content collections which were removed in Astro 6. 
+ * @deprecated This error only applies to legacy content collections which were removed in Astro 6.
  */
 export const InvalidContentEntryFrontmatterError = {
 	name: 'InvalidContentEntryFrontmatterError',

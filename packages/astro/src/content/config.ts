@@ -189,7 +189,7 @@ export function defineCollection<S extends BaseSchema>(
 		);
 	}
 
-	if(config.type && config.type !== CONTENT_LAYER_TYPE) {
+	if (config.type && config.type !== CONTENT_LAYER_TYPE) {
 		throw new AstroUserError(
 			`Invalid collection type "${config.type}". Remove the type from your collection definition in ${importerFilename ?? 'your content config file'}.`,
 		);

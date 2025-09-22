@@ -1,12 +1,12 @@
 // astro-head-inject
 import {
+	createDeprecatedFunction,
 	createGetCollection,
 	createGetEntries,
 	createGetEntry,
 	createGetLiveCollection,
 	createGetLiveEntry,
 	createReference,
-	createDeprecatedFunction,
 } from 'astro/content/runtime';
 
 export {
@@ -38,10 +38,6 @@ export const getLiveEntry = createGetLiveEntry({
 	liveCollections,
 });
 
-export const getEntryBySlug = createDeprecatedFunction(
-	'getEntryBySlug',
-);
+export const getEntryBySlug = createDeprecatedFunction('getEntryBySlug');
 
-export const getDataEntryById = createDeprecatedFunction(
-	'getDataEntryById',
-);
+export const getDataEntryById = createDeprecatedFunction('getDataEntryById');

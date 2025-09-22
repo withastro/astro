@@ -100,7 +100,7 @@ describe('Setting inlineStylesheets to auto in static output', () => {
 			},
 			vite: {
 				build: {
-					assetsInlineLimit: 2048,
+					assetsInlineLimit: 512,
 				},
 			},
 		});
@@ -113,7 +113,7 @@ describe('Setting inlineStylesheets to auto in static output', () => {
 		// the count of style/link tags depends on our css chunking logic
 		// this test should be updated if it changes
 		assert.equal($('link[rel=stylesheet]').length, 1);
-		assert.equal($('style').length, 3);
+		assert.equal($('style').length, 1);
 	});
 
 	describe('Inspect linked and inlined stylesheets', () => {
@@ -161,7 +161,7 @@ describe('Setting inlineStylesheets to auto in server output', () => {
 
 		// the count of style/link tags depends on our css chunking logic
 		// this test should be updated if it changes
-		assert.equal($('style').length, 3);
+		assert.equal($('style').length, 1);
 		assert.equal($('link[rel=stylesheet]').length, 1);
 	});
 
