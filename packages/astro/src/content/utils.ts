@@ -604,6 +604,18 @@ export function getContentPaths(
 	fs: typeof fsMod = fsMod,
 ): ContentPaths {
 	const configStats = searchConfig(fs, srcDir);
+
+	if (!configStats.exists) {
+		const legacyConfigStats = searchLegacyConfig(fs, srcDir);
+		if (legacyConfigStats.exists) {
+			const relativePath = path.relative(fileURLToPath(root), fileURLToPath(legacyConfigStats.url));
+			throw new AstroError({
+				...AstroErrorData.LegacyContentConfigError,
+				message: AstroErrorData.LegacyContentConfigError.message(relativePath),
+			});
+		}
+	}
+
 	const liveConfigStats = experimental?.liveContentCollections
 		? searchLiveConfig(fs, srcDir)
 		: { exists: false, url: new URL('./', srcDir) };
@@ -625,6 +637,16 @@ function searchConfig(fs: typeof fsMod, srcDir: URL): { exists: boolean; url: UR
 		'content.config.js',
 		'content.config.mts',
 		'content.config.ts',
+	];
+	return search(fs, srcDir, paths);
+}
+
+function searchLegacyConfig(fs: typeof fsMod, srcDir: URL): { exists: boolean; url: URL } {
+	const paths = [
+		'content/config.ts',
+		'content/config.js',
+		'content/config.mjs',
+		'content/config.mts',
 	];
 	return search(fs, srcDir, paths);
 }

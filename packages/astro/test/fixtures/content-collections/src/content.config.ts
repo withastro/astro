@@ -11,11 +11,24 @@ const withData = defineCollection({
 const withCustomSlugs = defineCollection({
 	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/with-custom-slugs' }),
 	// Ensure schema passes even when `slug` is present
-	schema: z.object({}).strict(),
+	schema: z
+		.object({
+			slug: z.string().optional(),
+		})
+		.strict(),
 });
 
 const withSchemaConfig = defineCollection({
-	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/with-schema-config' }),
+	loader: glob({
+		pattern: [
+			'**/*.{md,mdx}', 	// Include all markdown files
+			'!**/_*/**', 			// Exclude anything in directories starting with _
+			'!**/_*.{md,mdx}',// Exclude files starting with _
+		],
+		base: './src/content/with-schema-config',
+		// Preserve special characters like % in filenames
+		generateId: ({ entry }) => entry.replace(/\.(md|mdx)$/, ''),
+	}),
 	schema: z.object({
 		title: z.string(),
 		isDraft: z.boolean().default(false),

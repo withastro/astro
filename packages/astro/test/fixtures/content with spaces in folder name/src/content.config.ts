@@ -1,10 +1,13 @@
 import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
 
 const withCustomSlugs = defineCollection({
+	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/with-custom-slugs' }),
 	schema: z.object({}),
 });
 
 const withSchemaConfig = defineCollection({
+	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/with-schema-config' }),
 	schema: z.object({
 		title: z.string(),
 		isDraft: z.boolean().default(false),
@@ -14,6 +17,7 @@ const withSchemaConfig = defineCollection({
 });
 
 const withUnionSchema = defineCollection({
+	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/with-union-schema' }),
 	schema: z.discriminatedUnion('type', [
 		z.object({
 			type: z.literal('post'),

@@ -6,6 +6,7 @@ import {
 	createGetLiveCollection,
 	createGetLiveEntry,
 	createReference,
+	createDeprecatedFunction,
 } from 'astro/content/runtime';
 
 export {
@@ -36,3 +37,11 @@ export const getLiveCollection = createGetLiveCollection({
 export const getLiveEntry = createGetLiveEntry({
 	liveCollections,
 });
+
+export const getEntryBySlug = createDeprecatedFunction(
+	'getEntryBySlug',
+);
+
+export const getDataEntryById = createDeprecatedFunction(
+	'getDataEntryById',
+);

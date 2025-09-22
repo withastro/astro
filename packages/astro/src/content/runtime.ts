@@ -739,3 +739,20 @@ export function defineLiveCollection() {
 		),
 	});
 }
+
+export function createDeprecatedFunction(functionName: string) {
+	return (collection: string) => {
+		const error = new AstroError({
+			...AstroErrorData.GetEntryDeprecationError,
+			message: AstroErrorData.GetEntryDeprecationError.message(collection, functionName),
+		});
+
+		// Remove the runtime module from the stack trace
+		const stackLines = error.stack?.split('\n');
+		if (stackLines && stackLines.length > 1) {
+			stackLines.splice(1, 1);
+			error.stack = stackLines.join('\n');
+		}
+		throw error;
+	};
+}
