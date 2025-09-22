@@ -3,7 +3,7 @@ import Debug from 'astro/debug';
 
 // all the content that should be generated
 export async function getStaticPaths() {
-    const data = await Astro.glob('../../data/posts/*.md')
+    const data = Object.values(import.meta.glob('../../data/posts/*.md', { eager: true }));
 
     const allArticles = data.map((article) => {
         return {

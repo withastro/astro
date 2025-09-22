@@ -929,34 +929,6 @@ export const LocalImageUsedWrongly = {
 /**
  * @docs
  * @see
- * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
- * @description
- * `Astro.glob()` can only be used in `.astro` files. You can use [`import.meta.glob()`](https://vite.dev/guide/features.html#glob-import) instead to achieve the same result.
- */
-export const AstroGlobUsedOutside = {
-	name: 'AstroGlobUsedOutside',
-	title: 'Astro.glob() used outside of an Astro file.',
-	message: (globStr: string) =>
-		`\`Astro.glob(${globStr})\` can only be used in \`.astro\` files. \`import.meta.glob(${globStr})\` can be used instead to achieve a similar result.`,
-	hint: "See Vite's documentation on `import.meta.glob` for more information: https://vite.dev/guide/features.html#glob-import",
-} satisfies ErrorData;
-
-/**
- * @docs
- * @see
- * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
- * @description
- * `Astro.glob()` did not return any matching files. There might be a typo in the glob pattern.
- */
-export const AstroGlobNoMatch = {
-	name: 'AstroGlobNoMatch',
-	title: 'Astro.glob() did not match any files.',
-	message: (globStr: string) => `\`Astro.glob(${globStr})\` did not return any matching files.`,
-	hint: 'Check the pattern for typos.',
-} satisfies ErrorData;
-/**
- * @docs
- * @see
  * - [Astro.redirect](https://docs.astro.build/en/reference/api-reference/#redirect)
  * @description
  * A redirect must be given a location with the `Location` header.
@@ -1050,20 +1022,7 @@ export const FailedToLoadModuleSSR = {
 	message: (importName: string) => `Could not import \`${importName}\`.`,
 	hint: 'This is often caused by a typo in the import path. Please make sure the file exists.',
 } satisfies ErrorData;
-/**
- * @docs
- * @see
- * - [Glob Patterns](https://docs.astro.build/en/guides/imports/#glob-patterns)
- * @description
- * Astro encountered an invalid glob pattern. This is often caused by the glob pattern not being a valid file path.
- */
-export const InvalidGlob = {
-	name: 'InvalidGlob',
-	title: 'Invalid glob pattern.',
-	message: (globPattern: string) =>
-		`Invalid glob pattern: \`${globPattern}\`. Glob patterns must start with './', '../' or '/'.`,
-	hint: 'See https://docs.astro.build/en/guides/imports/#glob-patterns for more information on supported glob patterns.',
-} satisfies ErrorData;
+
 /**
  * @docs
  * @description
