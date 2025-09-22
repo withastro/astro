@@ -663,7 +663,6 @@ export class RenderContext {
 
 		return {
 			generator: astroStaticPartial.generator,
-			glob: astroStaticPartial.glob,
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
 			cookies,
