@@ -1,15 +1,18 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { before, describe, it, after } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { createVitest } from 'vitest/node';
 
 describe('vitest', () => {
-	it('basics', async () => {
-		const config = new URL('./fixtures/vitest/vitest.config.js', import.meta.url);
+	let originalCwd;
+	before(() => {
+		originalCwd = process.cwd();
+		// We chdir rather than setting the root in vitest, because otherwise it sets the wrong root in the site config
+		process.chdir(fileURLToPath(new URL('./fixtures/vitest/', import.meta.url)));
+	});
 
+	it('basics', async () => {
 		const vitest = await createVitest('test', {
-			config: fileURLToPath(config),
-			root: fileURLToPath(new URL('./fixtures/vitest/', import.meta.url)),
 			watch: false,
 		});
 
@@ -20,5 +23,9 @@ describe('vitest', () => {
 		} finally {
 			await vitest.close();
 		}
+	});
+	
+	after(() => {
+		process.chdir(originalCwd);
 	});
 });
