@@ -1,5 +1,12 @@
 # @astrojs/node
 
+## 9.4.4
+
+### Patch Changes
+
+- Updated dependencies [[`1e2499e`](https://github.com/withastro/astro/commit/1e2499e8ea83ebfa233a18a7499e1ccf169e56f4)]:
+  - @astrojs/internal-helpers@0.7.3
+
 ## 9.4.3
 
 ### Patch Changes
