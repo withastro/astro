@@ -278,7 +278,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * When redirects occur in production for GET requests, the redirect will be a 301 (permanent) redirect. For all other request methods, it will be a 308 (permanent, and preserve the request method) redirect.
 	 *
 	 * Trailing slashes on prerendered pages are handled by the hosting platform, and may not respect your chosen configuration.
-	 * See your hosting platform's documentation for more information. You cannot use Astro [redirects](#redirects) for this use case at this point.
+	 * See your hosting platform's documentation for more information. You cannot use Astro [redirects](https://docs.astro.build/en/reference/configuration-reference/#redirects) for this use case at this point.
 	 *
 	 * ```js
 	 * {
@@ -660,7 +660,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * This means that when you create relative URLs using `new URL('./relative', Astro.url)`, you will get consistent behavior between dev and build.
 		 *
-		 * To prevent inconsistencies with trailing slash behaviour in dev, you can restrict the [`trailingSlash` option](#trailingslash) to `'always'` or `'never'` depending on your build format:
+		 * To prevent inconsistencies with trailing slash behaviour in dev, you can restrict the [`trailingSlash` option](https://docs.astro.build/en/reference/configuration-reference/#trailingslash) to `'always'` or `'never'` depending on your build format:
 		 * - `directory` - Set `trailingSlash: 'always'`
 		 * - `file` - Set `trailingSlash: 'never'`
 		 */
@@ -1145,7 +1145,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * ```html
 	 * <a href="/about" data-astro-prefetch>About</a>
 	 * ```
-	 * Further customize the default prefetching behavior using the [`prefetch.defaultStrategy`](#prefetchdefaultstrategy) and [`prefetch.prefetchAll`](#prefetchprefetchall) options.
+	 * Further customize the default prefetching behavior using the [`prefetch.defaultStrategy`](https://docs.astro.build/en/reference/configuration-reference/#prefetchdefaultstrategy) and [`prefetch.prefetchAll`](https://docs.astro.build/en/reference/configuration-reference/#prefetchprefetchall) options.
 	 *
 	 * See the [Prefetch guide](https://docs.astro.build/en/guides/prefetch/) for more information.
 	 */
@@ -1279,7 +1279,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @description
 		 * Defines a list of permitted image source domains for remote image optimization. No other remote images will be optimized by Astro.
 		 *
-		 * This option requires an array of individual domain names as strings. Wildcards are not permitted. Instead, use [`image.remotePatterns`](#imageremotepatterns) to define a list of allowed source URL patterns.
+		 * This option requires an array of individual domain names as strings. Wildcards are not permitted. Instead, use [`image.remotePatterns`](https://docs.astro.build/en/reference/configuration-reference/#imageremotepatterns) to define a list of allowed source URL patterns.
 		 *
 		 * ```js
 		 * // astro.config.mjs
@@ -1803,7 +1803,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * @version 4.15.0
 					 * @description
 					 *
-					 * When [`i18n.fallback`](#i18nfallback) is configured to avoid showing a 404 page for missing page routes, this option controls whether to [redirect](https://docs.astro.build/en/guides/routing/#redirects) to the fallback page, or to [rewrite](https://docs.astro.build/en/guides/routing/#rewrites) the fallback page's content in place.
+					 * When [`i18n.fallback`](https://docs.astro.build/en/reference/configuration-reference/#i18nfallback) is configured to avoid showing a 404 page for missing page routes, this option controls whether to [redirect](https://docs.astro.build/en/guides/routing/#redirects) to the fallback page, or to [rewrite](https://docs.astro.build/en/guides/routing/#rewrites) the fallback page's content in place.
 					 *
 					 * By default, Astro's i18n routing creates pages that redirect your visitors to a new destination based on your fallback configuration. The browser will refresh and show the destination address in the URL bar.
 					 *
