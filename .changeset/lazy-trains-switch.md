@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fix unsatisfiable type definition of AddServerRenderer when renderer is NamedSSRLoadedRendererValue.
+Fixes an unsatisfiable type definition when calling `addServerRenderer` on an experimental container instance
