@@ -363,7 +363,7 @@ export class experimental_AstroContainer {
 			});
 		} else {
 			throw new Error(
-				"The renderer name must be provided when adding a server renderer that is not a named renderer."
+				'The renderer name must be provided when adding a server renderer that is not a named renderer.',
 			);
 		}
 	}
