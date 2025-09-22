@@ -36,7 +36,7 @@
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@vitejs/plugin-vue": "5.2.1",
+    "@vitejs/plugin-vue": "5.2.4",
     "@vitejs/plugin-vue-jsx": "^4.2.0",
     "@vue/compiler-sfc": "^3.5.21",
     "vite": "^6.3.6",
