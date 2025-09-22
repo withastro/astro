@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import { after, before, describe, it } from 'node:test';
 import { EventEmitter } from 'node:events';
+import { after, before, describe, it } from 'node:test';
 import { setTimeout as delay } from 'node:timers/promises';
 import { loadFixture } from './test-utils.js';
 import { createRequestAndResponse } from './units/test-utils.js';
