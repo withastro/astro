@@ -126,18 +126,18 @@ const URL_PROTOCOL_REGEX = /^(?:(?:http|ftp|https|ws):?\/\/|\/\/)/;
 export function isRemotePath(src: string) {
 	// First decode any URL-encoded backslashes
 	const decoded = src.replace(/%5C/gi, '\\');
-	
+
 	// Check for any backslash at the start (single or multiple)
 	// These can be normalized to protocol-relative URLs
 	if (decoded[0] === '\\') {
 		return true;
 	}
-	
+
 	// Check for protocols with backslashes (e.g., http:\\ or https:\\)
 	if (/^(?:http|https|ftp|ws):\\/.test(decoded)) {
 		return true;
 	}
-	
+
 	// Check standard URL patterns
 	return URL_PROTOCOL_REGEX.test(decoded) || decoded.startsWith('data:');
 }

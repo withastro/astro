@@ -1361,9 +1361,17 @@ describe('astro:image', () => {
 				const isDetectedAsRemote = isRemotePath(path);
 				const expectedStatus = isDetectedAsRemote ? 403 : 500;
 				const expectedBodyText = isDetectedAsRemote ? 'Forbidden' : 'Internal Server Error';
-				
-				assert.equal(response.status, expectedStatus, `Path "${path}" should return ${expectedStatus}`);
-				assert.equal(body.includes(expectedBodyText), true, `Path "${path}" body should include "${expectedBodyText}"`);
+
+				assert.equal(
+					response.status,
+					expectedStatus,
+					`Path "${path}" should return ${expectedStatus}`,
+				);
+				assert.equal(
+					body.includes(expectedBodyText),
+					true,
+					`Path "${path}" body should include "${expectedBodyText}"`,
+				);
 			}
 
 			// Server should still be running
