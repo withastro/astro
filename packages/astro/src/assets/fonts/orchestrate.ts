@@ -120,7 +120,7 @@ export async function orchestrate({
 
 	for (const family of resolvedFamilies) {
 		const preloadData: Array<PreloadData> = [];
-		const consumableMapValue: FontData = [];
+		const consumableMapValue: Array<FontData> = [];
 		let css = '';
 
 		/**

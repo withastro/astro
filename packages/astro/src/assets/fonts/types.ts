@@ -103,15 +103,15 @@ export type FontFileDataMap = Map<FontFileData['hash'], Pick<FontFileData, 'url'
  */
 export type InternalConsumableMap = Map<string, { preloadData: Array<PreloadData>; css: string }>;
 
-export type FontData = Array<{
+export interface FontData {
 	src: Array<{ url: string; format?: string; tech?: string }>;
 	weight?: string;
 	style?: string;
-}>;
+};
 
 /**
  * Holds associations of CSS variables and font data to be exposed via virtual module.
  */
-export type ConsumableMap = Map<string, FontData>;
+export type ConsumableMap = Map<string, Array<FontData>>;
 
 export type Style = z.output<typeof styleSchema>;

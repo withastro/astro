@@ -56,7 +56,7 @@ declare module 'astro:assets' {
 		Font: typeof import('./components/Font.astro').default;
 		getFontData: (
 			cssVariable: import('astro:assets').CssVariable,
-		) => import('astro:assets').FontData;
+		) => Array<import('astro:assets').FontData>;
 	};
 
 	type ImgAttributes = import('./dist/type-utils.js').WithRequired<
