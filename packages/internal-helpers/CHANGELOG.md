@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.7.3
+
+### Patch Changes
+
+- [#14408](https://github.com/withastro/astro/pull/14408) [`1e2499e`](https://github.com/withastro/astro/commit/1e2499e8ea83ebfa233a18a7499e1ccf169e56f4) Thanks [@matthewp](https://github.com/matthewp)! - Handle backslash and encoded backslash in isRemotePath
+
 ## 0.7.2
 
 ### Patch Changes
