@@ -1,6 +1,3 @@
-// Keep at the top
-import './polyfill.js';
-
 import { existsSync, readFileSync } from 'node:fs';
 import type { NodeAppHeadersJson, SSRManifest } from 'astro';
 import { NodeApp } from 'astro/app/node';

@@ -1,6 +1,3 @@
-// Keep at the top
-import './polyfill.js';
-
 import type { Context } from '@netlify/functions';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';

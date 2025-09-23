@@ -9,8 +9,6 @@ import type { RenderOptions } from './index.js';
 import { App } from './index.js';
 import type { NodeAppHeadersJson, SerializedSSRManifest, SSRManifest } from './types.js';
 
-export { apply as applyPolyfills } from '../polyfill.js';
-
 /**
  * Allow the request body to be explicitly overridden. For example, this
  * is used by the Express JSON middleware.
