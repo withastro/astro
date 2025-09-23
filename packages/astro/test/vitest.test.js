@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { before, describe, it, after } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { createVitest } from 'vitest/node';
 
@@ -24,7 +24,7 @@ describe('vitest', () => {
 			await vitest.close();
 		}
 	});
-	
+
 	after(() => {
 		process.chdir(originalCwd);
 	});

@@ -5,7 +5,7 @@ const docs = defineCollection({
 	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/docs' }),
 	schema: z.object({
 		title: z.string(),
-	})
+	}),
 });
 
 const i18n = defineCollection({
@@ -14,12 +14,17 @@ const i18n = defineCollection({
 		homepage: z.object({
 			greeting: z.string(),
 			preamble: z.string(),
-		})
+		}),
 	}),
 });
 
 const authors = defineCollection({
-	loader: glob({ pattern: '**/*.{json,yaml,yml}', base: './src/content/authors' }),
+	loader: glob({
+		pattern: '**/*.{json,yaml,yml}',
+		base: './src/content/authors',
+		// Old data collection behavior
+		generateId: ({ entry }) => entry.split('.')[0],
+	}),
 });
 
 export const collections = { docs, i18n, authors };

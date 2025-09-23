@@ -12,4 +12,4 @@ arrayOfImages:
 
 text here
 
-![](blogfolder.jpg)
+![sir penguin](blogfolder.jpg)
