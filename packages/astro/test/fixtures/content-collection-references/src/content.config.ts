@@ -2,7 +2,7 @@ import { defineCollection, reference, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
 const banners = defineCollection({
-	loader: glob({ pattern: '**/*.{json,yaml}', base: './src/content/banners' }),
+	loader: glob({ pattern: '**/*.{json,yaml,yml}', base: './src/content/banners' }),
 	schema: ({ image }) =>
 		z.object({
 			alt: z.string(),
@@ -11,7 +11,7 @@ const banners = defineCollection({
 });
 
 const authors = defineCollection({
-	loader: glob({ pattern: '**/*.{json,yaml}', base: './src/content/authors' }),
+	loader: glob({ pattern: '**/*.{json,yaml,yml}', base: './src/content/authors' }),
 	schema: z.object({
 		name: z.string(),
 		twitter: z.string().url(),

@@ -146,7 +146,7 @@ describe('Content Collections - render()', () => {
 			let response = await app.render(request);
 			let html = await response.text();
 			let $ = cheerio.load(html);
-			assert.equal($('li').first().text(), 'With Layout Prop');
+			assert.equal($('li').first().text(), 'Launch week!');
 
 			request = new Request('http://example.com/');
 			response = await app.render(request);

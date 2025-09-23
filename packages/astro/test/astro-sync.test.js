@@ -150,9 +150,7 @@ describe('astro sync', () => {
 				'.astro/content.d.ts',
 				`"blog": Record<string, {
   id: string;
-  render(): Render[".md"];
-  slug: string;
-  body: string;
+  body?: string;
   collection: "blog";
   data: InferEntrySchema<"blog">;
   rendered?: RenderedContent;
