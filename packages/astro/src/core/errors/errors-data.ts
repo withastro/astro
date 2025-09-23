@@ -932,6 +932,7 @@ export const LocalImageUsedWrongly = {
  * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
  * @description
  * `Astro.glob()` can only be used in `.astro` files. You can use [`import.meta.glob()`](https://vite.dev/guide/features.html#glob-import) instead to achieve the same result.
+ * @deprecated Removed in Astro v6.0.0 as it is no longer relevant due to the removal of `Astro.glob()`.
  */
 export const AstroGlobUsedOutside = {
 	name: 'AstroGlobUsedOutside',
@@ -947,6 +948,7 @@ export const AstroGlobUsedOutside = {
  * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
  * @description
  * `Astro.glob()` did not return any matching files. There might be a typo in the glob pattern.
+ * @deprecated Removed in Astro v6.0.0 as it is no longer relevant due to the removal of `Astro.glob()`.
  */
 export const AstroGlobNoMatch = {
 	name: 'AstroGlobNoMatch',
@@ -1056,6 +1058,7 @@ export const FailedToLoadModuleSSR = {
  * - [Glob Patterns](https://docs.astro.build/en/guides/imports/#glob-patterns)
  * @description
  * Astro encountered an invalid glob pattern. This is often caused by the glob pattern not being a valid file path.
+ * @deprecated Removed in Astro v6.0.0 as it is no longer relevant due to the removal of `Astro.glob()`.
  */
 export const InvalidGlob = {
 	name: 'InvalidGlob',
