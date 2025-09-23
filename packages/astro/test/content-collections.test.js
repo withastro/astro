@@ -21,47 +21,13 @@ describe('Content Collections', () => {
 				json = devalue.parse(rawJson);
 			});
 
-			it('Returns `without config` collection', async () => {
-				assert.ok(json.hasOwnProperty('withoutConfig'));
-				assert.equal(Array.isArray(json.withoutConfig), true);
-
-				const ids = json.withoutConfig.map((item) => item.id);
-				assert.deepEqual(
-					ids.sort(),
-					[
-						'columbia.md',
-						'endeavour.md',
-						'enterprise.md',
-						// Spaces allowed in IDs
-						'promo/launch week.mdx',
-					].sort(),
-				);
-			});
-
-			it('Handles spaces in `without config` slugs', async () => {
-				assert.ok(json.hasOwnProperty('withoutConfig'));
-				assert.equal(Array.isArray(json.withoutConfig), true);
-
-				const slugs = json.withoutConfig.map((item) => item.slug);
-				assert.deepEqual(
-					slugs.sort(),
-					[
-						'columbia',
-						'endeavour',
-						'enterprise',
-						// "launch week.mdx" is converted to "launch-week.mdx"
-						'promo/launch-week',
-					].sort(),
-				);
-			});
-
 			it('Returns `with schema` collection', async () => {
 				assert.ok(json.hasOwnProperty('withSchemaConfig'));
 				assert.equal(Array.isArray(json.withSchemaConfig), true);
 
 				const ids = json.withSchemaConfig.map((item) => item.id);
 				const publishedDates = json.withSchemaConfig.map((item) => item.data.publishedAt);
-				assert.deepEqual(ids.sort(), ['four%.md', 'one.md', 'three.md', 'two.md'].sort());
+				assert.deepEqual(ids.sort(), ['four%', 'one', 'three', 'two'].sort());
 				assert.equal(
 					publishedDates.every((date) => date instanceof Date),
 					true,
@@ -79,10 +45,10 @@ describe('Content Collections', () => {
 			});
 
 			it('Returns `with custom slugs` collection', async () => {
-				assert.ok(json.hasOwnProperty('withSlugConfig'));
-				assert.equal(Array.isArray(json.withSlugConfig), true);
+				assert.ok(json.hasOwnProperty('withCustomSlugs'));
+				assert.equal(Array.isArray(json.withCustomSlugs), true);
 
-				const slugs = json.withSlugConfig.map((item) => item.slug);
+				const slugs = json.withCustomSlugs.map((item) => item.id);
 				assert.deepEqual(slugs.sort(), ['fancy-one', 'excellent-three', 'interesting-two'].sort());
 			});
 
@@ -90,14 +56,14 @@ describe('Content Collections', () => {
 				assert.ok(json.hasOwnProperty('withUnionSchema'));
 				assert.equal(Array.isArray(json.withUnionSchema), true);
 
-				const post = json.withUnionSchema.find((item) => item.id === 'post.md');
+				const post = json.withUnionSchema.find((item) => item.id === 'post');
 				assert.notEqual(post, undefined);
 				assert.deepEqual(post.data, {
 					type: 'post',
 					title: 'My Post',
 					description: 'This is my post',
 				});
-				const newsletter = json.withUnionSchema.find((item) => item.id === 'newsletter.md');
+				const newsletter = json.withUnionSchema.find((item) => item.id === 'newsletter');
 				assert.notEqual(newsletter, undefined);
 				assert.deepEqual(newsletter.data, {
 					type: 'newsletter',
@@ -109,9 +75,9 @@ describe('Content Collections', () => {
 				assert.ok(json.hasOwnProperty('withSymlinkedContent'));
 				assert.equal(Array.isArray(json.withSymlinkedContent), true);
 				const ids = json.withSymlinkedContent.map((item) => item.id);
-				assert.deepEqual(ids.sort(), ['first.md', 'second.md', 'third.md'].sort());
+				assert.deepEqual(ids.sort(), ['first', 'second', 'third'].sort());
 				assert.equal(
-					json.withSymlinkedContent.find(({ id }) => id === 'first.md').data.title,
+					json.withSymlinkedContent.find(({ id }) => id === 'first').data.title,
 					'First Blog',
 				);
 			});
@@ -147,7 +113,7 @@ describe('Content Collections', () => {
 
 			it('Returns `with schema` collection entry', async () => {
 				assert.ok(json.hasOwnProperty('oneWithSchemaConfig'));
-				assert.equal(json.oneWithSchemaConfig.id, 'one.md');
+				assert.equal(json.oneWithSchemaConfig.id, 'one');
 				assert.equal(json.oneWithSchemaConfig.data.publishedAt instanceof Date, true);
 				assert.equal(
 					json.oneWithSchemaConfig.data.publishedAt.toISOString(),
@@ -156,13 +122,13 @@ describe('Content Collections', () => {
 			});
 
 			it('Returns `with custom slugs` collection entry', async () => {
-				assert.ok(json.hasOwnProperty('twoWithSlugConfig'));
-				assert.equal(json.twoWithSlugConfig.slug, 'interesting-two');
+				assert.ok(json.hasOwnProperty('twoWithCustomSlugs'));
+				assert.equal(json.twoWithCustomSlugs.id, 'interesting-two');
 			});
 
 			it('Returns `with union schema` collection entry', async () => {
 				assert.ok(json.hasOwnProperty('postWithUnionSchema'));
-				assert.equal(json.postWithUnionSchema.id, 'post.md');
+				assert.equal(json.postWithUnionSchema.id, 'post');
 				assert.deepEqual(json.postWithUnionSchema.data, {
 					type: 'post',
 					title: 'My Post',
@@ -256,8 +222,8 @@ describe('Content Collections', () => {
 			assert.equal(error, null);
 		});
 	});
-	describe('With config.mjs', () => {
-		it("Errors when frontmatter doesn't match schema", async () => {
+	describe('With legacy config', () => {
+		it('Throws if legacy config file is found', async () => {
 			const fixture = await loadFixture({
 				root: './fixtures/content-collections-with-config-mjs/',
 			});
@@ -267,21 +233,10 @@ describe('Content Collections', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			assert.match(error, /\*\*title\*\*: Expected type `"string"`, received `"number"`/);
-		});
-	});
-	describe('With config.mts', () => {
-		it("Errors when frontmatter doesn't match schema", async () => {
-			const fixture = await loadFixture({
-				root: './fixtures/content-collections-with-config-mts/',
-			});
-			let error;
-			try {
-				await fixture.build({ force: true });
-			} catch (e) {
-				error = e.message;
-			}
-			assert.match(error, /\*\*title\*\*: Expected type `"string"`, received `"number"`/);
+			assert.equal(
+				error,
+				'Found legacy content config file in "src/content/config.mjs". Please move this file to "src/content.config.mjs" and ensure each collection has a loader defined.',
+			);
 		});
 	});
 
@@ -381,6 +336,14 @@ describe('Content Collections', () => {
 					blogSlugToContents[slug].content,
 				);
 			}
+		});
+
+		it('Throws deprecation error when using getEntryBySlug', async () => {
+			const request = new Request('http://example.com/deprecated-getentrybyslug');
+			const response = await app.render(request);
+
+			// Should return 500 status when getEntryBySlug is used with new content collections
+			assert.equal(response.status, 500);
 		});
 	});
 

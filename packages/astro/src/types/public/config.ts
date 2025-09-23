@@ -278,7 +278,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * When redirects occur in production for GET requests, the redirect will be a 301 (permanent) redirect. For all other request methods, it will be a 308 (permanent, and preserve the request method) redirect.
 	 *
 	 * Trailing slashes on prerendered pages are handled by the hosting platform, and may not respect your chosen configuration.
-	 * See your hosting platform's documentation for more information. You cannot use Astro [redirects](#redirects) for this use case at this point.
+	 * See your hosting platform's documentation for more information. You cannot use Astro [redirects](https://docs.astro.build/en/reference/configuration-reference/#redirects) for this use case at this point.
 	 *
 	 * ```js
 	 * {
@@ -372,9 +372,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @see output
 	 * @description
 	 *
-	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters ([Cloudflare](/en/guides/integrations-guide/cloudflare/), [Netlify](/en/guides/integrations-guide/netlify/), [Node.js](/en/guides/integrations-guide/node/), [Vercel](/en/guides/integrations-guide/vercel/)) or explore [community adapters](https://astro.build/integrations/2/?search=&categories%5B%5D=adapters) to enable on-demand rendering in your Astro project.
+	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters ([Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/), [Netlify](https://docs.astro.build/en/guides/integrations-guide/netlify/), [Node.js](https://docs.astro.build/en/guides/integrations-guide/node/), [Vercel](https://docs.astro.build/en/guides/integrations-guide/vercel/)) or explore [community adapters](https://astro.build/integrations/2/?search=&categories%5B%5D=adapters) to enable on-demand rendering in your Astro project.
 	 *
-	 * See our [on-demand rendering guide](/en/guides/on-demand-rendering/) for more on Astro's server rendering options.
+	 * See our [on-demand rendering guide](https://docs.astro.build/en/guides/on-demand-rendering/) for more on Astro's server rendering options.
 	 *
 	 * ```js
 	 * import netlify from '@astrojs/netlify';
@@ -660,7 +660,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * This means that when you create relative URLs using `new URL('./relative', Astro.url)`, you will get consistent behavior between dev and build.
 		 *
-		 * To prevent inconsistencies with trailing slash behaviour in dev, you can restrict the [`trailingSlash` option](#trailingslash) to `'always'` or `'never'` depending on your build format:
+		 * To prevent inconsistencies with trailing slash behaviour in dev, you can restrict the [`trailingSlash` option](https://docs.astro.build/en/reference/configuration-reference/#trailingslash) to `'always'` or `'never'` depending on your build format:
 		 * - `directory` - Set `trailingSlash: 'always'`
 		 * - `file` - Set `trailingSlash: 'never'`
 		 */
@@ -1002,7 +1002,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *
 	 * The Unstorage driver to use for session storage.  The [Node](https://docs.astro.build/en/guides/integrations-guide/node/#sessions),
 	 * [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/#sessions), and
-	 * [Netlify](/en/guides/integrations-guide/netlify/#sessions) adapters automatically configure a default driver for you,
+	 * [Netlify](https://docs.astro.build/en/guides/integrations-guide/netlify/#sessions) adapters automatically configure a default driver for you,
 	 * but you can specify your own if you would prefer or if you are using an adapter that does not provide one.
 	 *
 	 * The value is the "Driver name" from the [Unstorage driver documentation](https://unstorage.unjs.io/drivers).
@@ -1145,7 +1145,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * ```html
 	 * <a href="/about" data-astro-prefetch>About</a>
 	 * ```
-	 * Further customize the default prefetching behavior using the [`prefetch.defaultStrategy`](#prefetchdefaultstrategy) and [`prefetch.prefetchAll`](#prefetchprefetchall) options.
+	 * Further customize the default prefetching behavior using the [`prefetch.defaultStrategy`](https://docs.astro.build/en/reference/configuration-reference/#prefetchdefaultstrategy) and [`prefetch.prefetchAll`](https://docs.astro.build/en/reference/configuration-reference/#prefetchprefetchall) options.
 	 *
 	 * See the [Prefetch guide](https://docs.astro.build/en/guides/prefetch/) for more information.
 	 */
@@ -1279,7 +1279,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @description
 		 * Defines a list of permitted image source domains for remote image optimization. No other remote images will be optimized by Astro.
 		 *
-		 * This option requires an array of individual domain names as strings. Wildcards are not permitted. Instead, use [`image.remotePatterns`](#imageremotepatterns) to define a list of allowed source URL patterns.
+		 * This option requires an array of individual domain names as strings. Wildcards are not permitted. Instead, use [`image.remotePatterns`](https://docs.astro.build/en/reference/configuration-reference/#imageremotepatterns) to define a list of allowed source URL patterns.
 		 *
 		 * ```js
 		 * // astro.config.mjs
@@ -1454,7 +1454,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * });
 		 * ```
 		 *
-		 * See the [code syntax highlighting guide](/en/guides/syntax-highlighting/) for usage and examples.
+		 * See the [code syntax highlighting guide](https://docs.astro.build/en/guides/syntax-highlighting/) for usage and examples.
 		 */
 		shikiConfig?: Partial<ShikiConfig>;
 
@@ -1467,7 +1467,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * Which syntax highlighter to use for Markdown code blocks (\`\`\`), if any. This determines the CSS classes that Astro will apply to your Markdown code blocks.
 	 	 * 
 		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter (`github-dark` theme configured by default)
-		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter and [provide your own Prism stylesheet](/en/guides/syntax-highlighting/#add-a-prism-stylesheet)
+		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter and [provide your own Prism stylesheet](https://docs.astro.build/en/guides/syntax-highlighting/#add-a-prism-stylesheet)
 		 * - `false` - do not apply syntax highlighting.
 
 		 * ```js
@@ -1627,7 +1627,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *
 	 * Configures i18n routing and allows you to specify some customization options.
 	 *
-	 * See our guide for more information on [internationalization in Astro](/en/guides/internationalization/)
+	 * See our guide for more information on [internationalization in Astro](https://docs.astro.build/en/guides/internationalization/)
 	 */
 	i18n?: {
 		/**
@@ -1803,7 +1803,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * @version 4.15.0
 					 * @description
 					 *
-					 * When [`i18n.fallback`](#i18nfallback) is configured to avoid showing a 404 page for missing page routes, this option controls whether to [redirect](https://docs.astro.build/en/guides/routing/#redirects) to the fallback page, or to [rewrite](https://docs.astro.build/en/guides/routing/#rewrites) the fallback page's content in place.
+					 * When [`i18n.fallback`](https://docs.astro.build/en/reference/configuration-reference/#i18nfallback) is configured to avoid showing a 404 page for missing page routes, this option controls whether to [redirect](https://docs.astro.build/en/guides/routing/#redirects) to the fallback page, or to [rewrite](https://docs.astro.build/en/guides/routing/#rewrites) the fallback page's content in place.
 					 *
 					 * By default, Astro's i18n routing creates pages that redirect your visitors to a new destination based on your fallback configuration. The browser will refresh and show the destination address in the URL bar.
 					 *
@@ -1888,7 +1888,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *
 	 * Configuration options for type-safe environment variables.
 	 *
-	 * See our guide for more information on [environment variables in Astro](/en/guides/environment-variables/).
+	 * See our guide for more information on [environment variables in Astro](https://docs.astro.build/en/guides/environment-variables/).
 	 */
 	env?: {
 		/**
@@ -1995,48 +1995,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * These flags allow you to opt in to some deprecated or otherwise outdated behavior of Astro
 	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
 	 */
-	legacy?: {
-		/**
-		 *
-		 * @name legacy.collections
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 5.0.0
-		 * @description
-		 * Enable legacy behavior for content collections.
-		 *
-		 * ```js
-		 * // astro.config.mjs
-		 * import { defineConfig } from 'astro/config';
-		 * export default defineConfig({
-		 *   legacy: {
-		 *     collections: true
-		 *   }
-		 * });
-		 * ```
-		 *
-		 * If enabled, `data` and `content` collections (only) are handled using the legacy content collections implementation. Collections with a `loader` (only) will continue to use the Content Layer API instead. Both kinds of collections may exist in the same project, each using their respective implementations.
-		 *
-		 *  The following limitations continue to exist:
-		 *
-		 * - Any legacy (`type: 'content'` or `type: 'data'`) collections must continue to be located in the `src/content/` directory.
-		 * - These legacy collections will not be transformed to implicitly use the `glob()` loader, and will instead be handled by legacy code.
-		 * - Collections using the Content Layer API (with a `loader` defined) are forbidden in `src/content/`, but may exist anywhere else in your project.
-		 *
-		 * When you are ready to remove this flag and migrate to the new Content Layer API for your legacy collections, you must define a collection for any directories in `src/content/` that you want to continue to use as a collection. It is sufficient to declare an empty collection, and Astro will implicitly generate an appropriate definition for your legacy collections:
-		 *
-		 * ```js
-		 * // src/content.config.ts
-		 * import { defineCollection, z } from 'astro:content';
-		 *
-		 * const blog = defineCollection({ })
-		 *
-		 * export const collections = { blog };
-		 * ```
-		 *
-		 */
-		collections?: boolean;
-	};
+	legacy?: Record<string, never>; // Currently no legacy flags are available.
 
 	/**
 	 *

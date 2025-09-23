@@ -600,23 +600,18 @@ describe('astro:image', () => {
 
 			it('Adds the <img> tags', () => {
 				let $img = $('img');
-				assert.equal($img.length, 8);
+				assert.equal($img.length, 7);
 			});
 
 			it('image in cc folder is processed', () => {
 				let $imgs = $('img');
-				let $blogfolderimg = $($imgs[7]);
+				let $blogfolderimg = $($imgs[6]);
 				assert.equal($blogfolderimg.attr('src').includes('blogfolder.jpg'), true);
 				assert.equal($blogfolderimg.attr('src').endsWith('f=webp'), true);
 			});
 
 			it('has proper source for directly used image', () => {
 				let $img = $('#direct-image img');
-				assert.equal($img.attr('src').startsWith('/'), true);
-			});
-
-			it('has proper source for refined image', () => {
-				let $img = $('#refined-image img');
 				assert.equal($img.attr('src').startsWith('/'), true);
 			});
 
@@ -806,7 +801,11 @@ describe('astro:image', () => {
 			await res.text();
 
 			assert.equal(logs.length, 1);
-			assert.equal(logs[0].message.includes('does not exist. Is the path correct?'), true);
+			assert.ok(
+				logs[0].message.includes(
+					'Could not find requested image `./does-not-exist.jpg`. Does it exist\?',
+				),
+			);
 		});
 
 		it('properly error image in Markdown content is not found', async () => {
@@ -1355,8 +1354,23 @@ describe('astro:image', () => {
 				let response = await app.render(request);
 				const body = await response.text();
 
-				assert.equal(response.status, 500);
-				assert.equal(body.includes('Internal Server Error'), true);
+				// Most paths are malformed local paths (500), but some backslash patterns
+				// are now correctly detected as remote and get 403
+				const { isRemotePath } = await import('@astrojs/internal-helpers/path');
+				const isDetectedAsRemote = isRemotePath(path);
+				const expectedStatus = isDetectedAsRemote ? 403 : 500;
+				const expectedBodyText = isDetectedAsRemote ? 'Forbidden' : 'Internal Server Error';
+
+				assert.equal(
+					response.status,
+					expectedStatus,
+					`Path "${path}" should return ${expectedStatus}`,
+				);
+				assert.equal(
+					body.includes(expectedBodyText),
+					true,
+					`Path "${path}" body should include "${expectedBodyText}"`,
+				);
 			}
 
 			// Server should still be running
