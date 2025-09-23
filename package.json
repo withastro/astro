@@ -50,7 +50,7 @@
     "packages/*"
   ],
   "engines": {
-    "node": "^18.20.8 || ^20.3.0 || >=22.0.0"
+    "node": "^20.19.5 || >=22.0.0"
   },
   "packageManager": "pnpm@10.17.0",
   "dependencies": {

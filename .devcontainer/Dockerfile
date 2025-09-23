@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/javascript-node:1-18
+FROM mcr.microsoft.com/devcontainers/javascript-node:1-20
 
 # Install playwright
 RUN npm install -g @playwright/test
