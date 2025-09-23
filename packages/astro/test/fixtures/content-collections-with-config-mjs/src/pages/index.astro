@@ -1,5 +1,5 @@
 ---
-import {getEntryBySlug} from "astro:content"
-const blogEntry = await getEntryBySlug("blog", "introduction");
+import {getEntry} from "astro:content"
+const blogEntry = await getEntry("blog", "introduction");
 ---
 {blogEntry.data.title}

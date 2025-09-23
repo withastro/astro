@@ -1588,14 +1588,14 @@ export const RenderUndefinedEntryError = {
 /**
  * @docs
  * @description
- * The `getDataEntryById` and `getEntryBySlug` functions are deprecated and cannot be used with content layer collections. Use the `getEntry` function instead.
+ * The `getDataEntryById` and `getEntryBySlug` functions are deprecated and cannot be used with content collections. Use the `getEntry` function instead.
  */
 export const GetEntryDeprecationError = {
 	name: 'GetEntryDeprecationError',
 	title: 'Invalid use of `getDataEntryById` or `getEntryBySlug` function.',
 	message: (collection: string, method: string) =>
 		`The \`${method}\` function is deprecated and cannot be used to query the "${collection}" collection. Use \`getEntry\` instead.`,
-	hint: 'Use the `getEntry` or `getCollection` functions to query content layer collections.',
+	hint: 'See https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information.',
 } satisfies ErrorData;
 
 /**
@@ -1610,6 +1610,7 @@ export const GetEntryDeprecationError = {
  * Make sure that all required fields are present, and that all fields are of the correct type.
  * You can check against the collection schema in your `src/content.config.*` file.
  * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
+ * @deprecated This error only applies to legacy content collections which were removed in Astro 6.
  */
 export const InvalidContentEntryFrontmatterError = {
 	name: 'InvalidContentEntryFrontmatterError',
@@ -1629,7 +1630,7 @@ export const InvalidContentEntryFrontmatterError = {
  * @docs
  * @message
  * **Example error message:**<br/>
- * **blog** → **post** frontmatter does not match collection schema.<br/>
+ * **blog** → **post** data does not match collection schema.<br/>
  * "title" is required.<br/>
  * "date" must be a valid date.
  * @description
@@ -1649,6 +1650,60 @@ export const InvalidContentEntryDataError = {
 		].join('\n');
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * Found legacy content config file in "src/content/config.ts". Please move this file to "src/content.config.ts" and ensure each collection has a loader defined.<br/>
+ * @description
+ * A legacy content config file was found. Move the file to `src/content.config.ts` and update any collection definitions if needed.
+ * See the [Astro 6 migration guide](https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections) for more information.
+ */
+
+export const LegacyContentConfigError = {
+	name: 'LegacyContentConfigError',
+	title: 'Legacy content config file found.',
+	message: (filename: string) =>
+		`Found legacy content config file in "${filename}". Please move this file to "src/content.config.${filename.split('.').at(-1)}" and ensure each collection has a loader defined.`,
+	hint: 'See https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on updating collections.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * Collections must have a `loader` defined. Check your collection definitions in your content config file.<br/>
+ * @description
+ * A content collection is missing a `loader` definition. Make sure that each collection in your content config file has a `loader`.
+ * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
+ */
+
+export const ContentCollectionMissingLoader = {
+	name: 'ContentCollectionMissingLoader',
+	title: 'Content collection is missing a `loader` definition.',
+	message: (file = 'your content config file') =>
+		`Collections must have a \`loader\` defined. Check your collection definitions in ${file}.`,
+	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content loaders and https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on migrating from legacy collections.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * Invalid collection type "data". Remove the type from your collection definition in your content config file.
+ * @description
+ * Content collections should no longer have a `type` field. Remove this field from your content config file.
+ * See the [Astro 6 migration guide](https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections) for more information.
+ */
+
+export const ContentCollectionInvalidType = {
+	name: 'ContentCollectionInvalidType',
+	title: 'Content collection has an invalid `type` field.',
+	message: (type: string, file = 'your content config file') =>
+		`Invalid collection type "${type}". Remove the type from your collection definition in ${file}.`,
+	hint: 'See https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on migrating from legacy collections.',
 } satisfies ErrorData;
 
 /**
