@@ -210,11 +210,13 @@ export function createGetEntry({ liveCollections }: { liveCollections: LiveColle
 				...entry,
 				collection,
 			} as DataEntryResult | ContentEntryResult;
+			// TODO: remove in Astro 7
 			warnForPropertyAccess(
 				result.data,
 				'slug',
 				`[content] Attempted to access deprecated property on "${collection}" entry.\nThe "slug" property is no longer automatically added to entries. Please use the "id" property instead.`,
 			);
+			// TODO: remove in Astro 7
 			warnForPropertyAccess(
 				result,
 				'render',
