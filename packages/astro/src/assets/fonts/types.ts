@@ -90,6 +90,7 @@ export interface CreateUrlProxyParams {
 	saveUrl: (input: FontFileData) => void;
 	savePreload: (preload: PreloadData) => void;
 	saveFontData: (collected: CollectedFontForMetrics) => void;
+	cssVariable: string;
 }
 
 /**

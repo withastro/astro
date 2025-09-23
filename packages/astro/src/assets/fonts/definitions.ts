@@ -116,3 +116,12 @@ export interface FontFileReader {
 		style: Style;
 	};
 }
+
+export interface UrlProxyHashResolver {
+	resolve: (input: {
+		originalUrl: string;
+		type: FontType;
+		cssVariable: string;
+		data: Partial<unifont.FontFaceData>;
+	}) => string;
+}
