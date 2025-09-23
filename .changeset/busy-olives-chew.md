@@ -12,11 +12,11 @@ Astro 6.0 removes `emitESMImage()` entirely. Update to `emitImageMetadata()` to 
 
 Replace all occurrences of the `emitESMImage()` with `emitImageMetadata()` and remove unused arguments:
 
-```ts del={1,5} ins={2,6}
-import { emitESMImage } from 'astro/assets/utils';
-import { emitImageMetadata } from 'astro/assets/utils';
+```diff
+-import { emitESMImage } from 'astro/assets/utils';
++import { emitImageMetadata } from 'astro/assets/utils';
 
 const imageId = '/images/photo.jpg';
-const result = await emitESMImage(imageId, false, false);
-const result = await emitImageMetadata(imageId);
+-const result = await emitESMImage(imageId, false, false);
++const result = await emitImageMetadata(imageId);
 ```
