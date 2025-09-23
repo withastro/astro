@@ -12,8 +12,8 @@ const CI_INSTRUCTIONS = {
 };
 
 // Hardcode supported Node.js version so we don't have to read differently in CJS & ESM.
-const engines = '>=18.20.8';
-const skipSemverCheckIfAbove = 19;
+const engines = '>=20.19.5';
+const skipSemverCheckIfAbove = 21;
 
 /** `astro *` */
 async function main() {
