@@ -64,8 +64,6 @@ export async function handle(
 		}
 	}
 
-	Reflect.set(request, Symbol.for('astro.clientAddress'), request.headers.get('cf-connecting-ip'));
-
 	const locals: Runtime = {
 		runtime: {
 			env: env,
@@ -92,6 +90,7 @@ export async function handle(
 			prerenderedErrorPageFetch: async (url) => {
 				return env.ASSETS.fetch(url.replace(/\.html$/, ''));
 			},
+			clientAddress: request.headers.get('cf-connecting-ip') ?? undefined,
 		},
 	);
 

@@ -698,10 +698,11 @@ export default function netlifyIntegration(
 				if (existingSessionModule) {
 					server.moduleGraph.invalidateModule(existingSessionModule);
 				}
+
+				const clientLocalsSymbol = Symbol.for('astro.locals');
+
 				server.middlewares.use((req, _res, next) => {
-					const locals = Symbol.for('astro.locals');
-					Reflect.set(req, locals, {
-						...Reflect.get(req, locals),
+					Reflect.set(req, clientLocalsSymbol, {
 						netlify: { context: getLocalDevNetlifyContext(req) },
 					});
 					next();

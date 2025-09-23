@@ -26,12 +26,6 @@ import { App } from 'astro/app';
  			}
  		}
 
- 		Reflect.set(
- 			request,
- 			Symbol.for('astro.clientAddress'),
- 			request.headers.get('cf-connecting-ip')
- 		);
-
  		const locals = {
  			runtime: {
  				env: env,
@@ -44,7 +38,11 @@ import { App } from 'astro/app';
  			},
  		};
 
- 		const response = await app.render(request, { routeData, locals });
+ 		const response = await app.render(request, {
+			routeData,
+			locals,
+			clientAddress: request.headers.get('cf-connecting-ip'),
+		});
 
  		if (app.setCookieHeaders) {
  			for (const setCookieHeader of app.setCookieHeaders(response)) {
