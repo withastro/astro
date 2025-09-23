@@ -182,17 +182,18 @@ export function defineCollection<S extends BaseSchema>(
 		});
 	}
 
-	// TODO: add links to the migration guide in these errors
 	if (!('loader' in config)) {
-		throw new AstroUserError(
-			`Collections must have a \`loader\` defined. Check your collection definitions in ${importerFilename ?? 'your content config file'}. `,
-		);
+		throw new AstroError({
+			...AstroErrorData.ContentCollectionMissingLoader,
+			message: AstroErrorData.ContentCollectionMissingLoader.message(importerFilename),
+		});
 	}
 
 	if (config.type && config.type !== CONTENT_LAYER_TYPE) {
-		throw new AstroUserError(
-			`Invalid collection type "${config.type}". Remove the type from your collection definition in ${importerFilename ?? 'your content config file'}.`,
-		);
+		throw new AstroError({
+			...AstroErrorData.ContentCollectionInvalidType,
+			message: AstroErrorData.ContentCollectionInvalidType.message(config.type, importerFilename),
+		});
 	}
 
 	if (

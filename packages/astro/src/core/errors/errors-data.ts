@@ -1674,6 +1674,42 @@ export const LegacyContentConfigError = {
  * @docs
  * @message
  * **Example error message:**<br/>
+ * Collections must have a `loader` defined. Check your collection definitions in your content config file.<br/>
+ * @description
+ * A content collection is missing a `loader` definition. Make sure that each collection in your content config file has a `loader`.
+ * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
+ */
+
+export const ContentCollectionMissingLoader = {
+	name: 'ContentCollectionMissingLoader',
+	title: 'Content collection is missing a `loader` definition.',
+	message: (file = 'your content config file') =>
+		`Collections must have a \`loader\` defined. Check your collection definitions in ${file}.`,
+	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content loaders and https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on migrating from legacy collections.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * Invalid collection type "data". Remove the type from your collection definition in your content config file.
+ * @description
+ * Content collections should no longer have a `type` field. Remove this field from your content config file.
+ * See the [Astro 6 migration guide](https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections) for more information.
+ */
+
+export const ContentCollectionInvalidType = {
+	name: 'ContentCollectionInvalidType',
+	title: 'Content collection has an invalid `type` field.',
+	message: (type: string, file = 'your content config file') =>
+		`Invalid collection type "${type}". Remove the type from your collection definition in ${file}.`,
+	hint: 'See https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on migrating from legacy collections.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
  * The content loader for the collection **blog** returned an entry with an invalid `id`:<br/>
  * &#123;<br/>
  *   "id": 1,<br/>

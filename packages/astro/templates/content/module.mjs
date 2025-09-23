@@ -38,6 +38,8 @@ export const getLiveEntry = createGetLiveEntry({
 	liveCollections,
 });
 
+// TODO: remove in Astro 7
 export const getEntryBySlug = createDeprecatedFunction('getEntryBySlug');
 
+// TODO: remove in Astro 7
 export const getDataEntryById = createDeprecatedFunction('getDataEntryById');
