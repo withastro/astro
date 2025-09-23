@@ -801,7 +801,11 @@ describe('astro:image', () => {
 			await res.text();
 
 			assert.equal(logs.length, 1);
-			assert.ok(logs[0].message.includes("Could not find requested image `./does-not-exist.jpg`. Does it exist\?"));
+			assert.ok(
+				logs[0].message.includes(
+					'Could not find requested image `./does-not-exist.jpg`. Does it exist\?',
+				),
+			);
 		});
 
 		it('properly error image in Markdown content is not found', async () => {
