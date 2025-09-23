@@ -189,6 +189,23 @@ test.describe('View Transitions', () => {
 		).toEqual(3);
 	});
 
+	test('Declarative Shadow DOM elements are attached after transitions', async ({
+		page,
+		astro,
+	}) => {
+		const loads = collectLoads(page);
+
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+
+		// transition to DSD page
+		await page.click('#click-declarative-shadow-dom');
+		const host = page.locator('#dsd-host');
+		await expect(host, 'should have content').toHaveText('Welcome to the Shadow Realm!');
+
+		expect(loads.length, 'There should only be 1 page load').toEqual(1);
+	});
+
 	test('Stylesheets in the head are waited on', async ({ page, astro }) => {
 		// Go to page 1
 		await page.goto(astro.resolveUrl('/one'));

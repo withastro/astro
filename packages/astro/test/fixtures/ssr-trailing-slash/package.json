@@ -7,7 +7,7 @@
     "start": "node dist/server/entry.mjs"
   },
   "dependencies": {
-    "astro": "file:../../",
-    "@astrojs/node": "^8.0.0"
+    "astro": "workspace:*",
+    "@astrojs/node": "workspace:*"
   }
 }
