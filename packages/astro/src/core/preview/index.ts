@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { AstroIntegrationLogger } from '../../core/logger/core.js';
 import { telemetry } from '../../events/index.js';
@@ -59,11 +60,12 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 			`[preview] The ${settings.adapter.name} adapter does not support the preview command.`,
 		);
 	}
-	// We need to use import.meta.resolve() here so that advanced package managers like pnpm
+	// We need to use require.resolve() here so that advanced package managers like pnpm
 	// don't treat this as a dependency of Astro itself. This correctly resolves the
 	// preview entrypoint of the integration package, relative to the user's project root.
+	const require = createRequire(settings.config.root);
 	const previewEntrypointUrl = pathToFileURL(
-		import.meta.resolve(settings.adapter.previewEntrypoint.toString(), settings.config.root),
+		require.resolve(settings.adapter.previewEntrypoint.toString()),
 	).href;
 
 	const previewModule = (await import(previewEntrypointUrl)) as Partial<PreviewModule>;
