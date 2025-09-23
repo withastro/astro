@@ -39,6 +39,14 @@ export type SitemapOptions =
 			serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem | undefined> | undefined;
 
 			xslURL?: string;
+
+			// namespace configuration
+			namespaces?: {
+				news?: boolean;
+				xhtml?: boolean;
+				image?: boolean;
+				video?: boolean;
+			};
 	  }
 	| undefined;
 
@@ -180,6 +188,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							customSitemaps,
 							xslURL: xslURL,
 							lastmod,
+							namespaces: opts.namespaces,
 						},
 						config,
 					);

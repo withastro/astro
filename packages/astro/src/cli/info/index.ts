@@ -76,12 +76,6 @@ export async function getInfoOutput({
 		output += printRow(label, value, print);
 	}
 
-	if (packageManager === 'bun') {
-		console.warn(
-			'Bun is not officially supported by Astro. Unable to retreive certain version information.',
-		);
-	}
-
 	return output.trim();
 }
 
@@ -337,8 +331,7 @@ async function getVersion(packageManager: string, dependency: string): Promise<s
 		}
 
 		return undefined;
-	} catch (err) {
-		console.error(err);
+	} catch {
 		return undefined;
 	}
 }

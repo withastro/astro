@@ -134,7 +134,6 @@ export async function createContainer({
 		handle(req, res) {
 			viteServer.middlewares.handle(req, res, Function.prototype);
 		},
-		// TODO deprecate and remove
 		close() {
 			return closeContainer(container);
 		},
