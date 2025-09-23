@@ -307,7 +307,8 @@ function getRequestSocket(req: NodeRequest): Socket | undefined {
 	if (req.socket && typeof req.socket.on === 'function') {
 		return req.socket;
 	}
-	const http2Socket = (req as unknown as { stream?: { session?: { socket?: Socket } } }).stream?.session?.socket;
+	const http2Socket = (req as unknown as { stream?: { session?: { socket?: Socket } } }).stream
+		?.session?.socket;
 	if (http2Socket && typeof http2Socket.on === 'function') {
 		return http2Socket;
 	}
