@@ -1,6 +1,5 @@
 import { createReadStream } from 'node:fs';
 import { appendFile, stat } from 'node:fs/promises';
-import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline/promises';
 import { pathToFileURL } from 'node:url';
 import {
@@ -230,9 +229,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				let customWorkerEntryPoint: URL | undefined;
 				if (args?.workerEntryPoint && typeof args.workerEntryPoint.path === 'string') {
-					const require = createRequire(config.root);
 					try {
-						customWorkerEntryPoint = pathToFileURL(require.resolve(args.workerEntryPoint.path));
+						customWorkerEntryPoint = pathToFileURL(
+							import.meta.resolve(args.workerEntryPoint.path, config.root),
+						);
 					} catch {
 						customWorkerEntryPoint = new URL(args.workerEntryPoint.path, config.root);
 					}

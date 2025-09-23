@@ -1,4 +1,3 @@
-import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import type * as unifont from 'unifont';
 import type { Storage } from 'unstorage';
@@ -100,10 +99,8 @@ export function sortObjectByKey<T extends Record<string, any>>(unordered: T): T 
 }
 
 export function resolveEntrypoint(root: URL, entrypoint: string): URL {
-	const require = createRequire(root);
-
 	try {
-		return pathToFileURL(require.resolve(entrypoint));
+		return pathToFileURL(import.meta.resolve(entrypoint, root));
 	} catch {
 		return new URL(entrypoint, root);
 	}

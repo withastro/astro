@@ -1,6 +1,5 @@
 import { existsSync } from 'node:fs';
 import { unlink, writeFile } from 'node:fs/promises';
-import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { AstroConfig } from 'astro';
 import { build as esbuild } from 'esbuild';
@@ -83,8 +82,7 @@ async function loadUserConfigFile(
 
 export function getResolvedFileUrl(root: URL, filePathOrUrl: string | URL): URL {
 	if (typeof filePathOrUrl === 'string') {
-		const { resolve } = createRequire(root);
-		const resolvedFilePath = resolve(filePathOrUrl);
+		const resolvedFilePath = import.meta.resolve(filePathOrUrl, root);
 		return pathToFileURL(resolvedFilePath);
 	}
 	return filePathOrUrl;

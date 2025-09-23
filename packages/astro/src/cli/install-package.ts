@@ -1,4 +1,3 @@
-import { createRequire } from 'node:module';
 import boxen from 'boxen';
 import ci from 'ci-info';
 import { bold, cyan, dim, magenta } from 'kleur/colors';
@@ -7,8 +6,6 @@ import prompts from 'prompts';
 import yoctoSpinner from 'yocto-spinner';
 import type { Logger } from '../core/logger/core.js';
 import { exec } from './exec.js';
-
-const require = createRequire(import.meta.url);
 
 type GetPackageOptions = {
 	skipAsk?: boolean;
@@ -25,7 +22,7 @@ export async function getPackage<T>(
 	try {
 		// Try to resolve with `createRequire` first to prevent ESM caching of the package
 		// if it errors and fails here
-		require.resolve(packageName, { paths: [options.cwd ?? process.cwd()] });
+		import.meta.resolve(packageName, options.cwd ?? process.cwd());
 		const packageImport = await import(packageName);
 		return packageImport as T;
 	} catch {

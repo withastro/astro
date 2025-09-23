@@ -1,5 +1,4 @@
 import nodeFs from 'node:fs';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
@@ -27,8 +26,6 @@ import { getRouteGenerator } from './generator.js';
 import { getPattern } from './pattern.js';
 import { getRoutePrerenderOption } from './prerender.js';
 import { validateSegment } from './segment.js';
-
-const require = createRequire(import.meta.url);
 
 interface Item {
 	basename: string;
@@ -758,7 +755,7 @@ export async function createRoutesList(
 export function resolveInjectedRoute(entrypoint: string, root: URL, cwd?: string) {
 	let resolved;
 	try {
-		resolved = require.resolve(entrypoint, { paths: [cwd || fileURLToPath(root)] });
+		resolved = import.meta.resolve(entrypoint, cwd || root);
 	} catch {
 		resolved = fileURLToPath(new URL(entrypoint, root));
 	}
