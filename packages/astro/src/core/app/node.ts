@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { Http2ServerResponse } from 'node:http2';
+import type { Socket } from 'node:net';
 import type { RouteData } from '../../types/public/internal.js';
-import { clientAddressSymbol } from '../constants.js';
+import { clientAddressSymbol, nodeRequestAbortControllerCleanupSymbol } from '../constants.js';
 import { deserializeManifest } from './common.js';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import type { RenderOptions } from './index.js';
@@ -66,6 +67,8 @@ export class NodeApp extends App {
 	 * ```
 	 */
 	static createRequest(req: NodeRequest, { skipBody = false } = {}): Request {
+		const controller = new AbortController();
+
 		const isEncrypted = 'encrypted' in req.socket && req.socket.encrypted;
 
 		// Parses multiple header and returns first value if available.
@@ -105,6 +108,7 @@ export class NodeApp extends App {
 		const options: RequestInit = {
 			method: req.method || 'GET',
 			headers: makeRequestHeaders(req),
+			signal: controller.signal,
 		};
 		const bodyAllowed = options.method !== 'HEAD' && options.method !== 'GET' && skipBody === false;
 		if (bodyAllowed) {
@@ -112,6 +116,46 @@ export class NodeApp extends App {
 		}
 
 		const request = new Request(url, options);
+
+		const socket = getRequestSocket(req);
+		if (socket && typeof socket.on === 'function') {
+			const existingCleanup = getAbortControllerCleanup(req);
+			if (existingCleanup) {
+				existingCleanup();
+			}
+			let cleanedUp = false;
+
+			const removeSocketListener = () => {
+				if (typeof socket.off === 'function') {
+					socket.off('close', onSocketClose);
+				} else if (typeof socket.removeListener === 'function') {
+					socket.removeListener('close', onSocketClose);
+				}
+			};
+
+			const cleanup = () => {
+				if (cleanedUp) return;
+				cleanedUp = true;
+				removeSocketListener();
+				controller.signal.removeEventListener('abort', cleanup);
+				Reflect.deleteProperty(req, nodeRequestAbortControllerCleanupSymbol);
+			};
+
+			const onSocketClose = () => {
+				cleanup();
+				if (!controller.signal.aborted) {
+					controller.abort();
+				}
+			};
+
+			socket.on('close', onSocketClose);
+			controller.signal.addEventListener('abort', cleanup, { once: true });
+			Reflect.set(req, nodeRequestAbortControllerCleanupSymbol, cleanup);
+
+			if (socket.destroyed) {
+				onSocketClose();
+			}
+		}
 
 		// Get the IP of end client behind the proxy.
 		// @example "1.1.1.1,8.8.8.8" => "1.1.1.1"
@@ -146,6 +190,24 @@ export class NodeApp extends App {
 			destination.statusMessage = statusText;
 		}
 		destination.writeHead(status, createOutgoingHttpHeaders(headers));
+
+		const cleanupAbortFromDestination = getAbortControllerCleanup(
+			(destination.req as NodeRequest | undefined) ?? undefined,
+		);
+		if (cleanupAbortFromDestination) {
+			const runCleanup = () => {
+				cleanupAbortFromDestination();
+				if (typeof destination.off === 'function') {
+					destination.off('finish', runCleanup);
+					destination.off('close', runCleanup);
+				} else {
+					destination.removeListener?.('finish', runCleanup);
+					destination.removeListener?.('close', runCleanup);
+				}
+			};
+			destination.on('finish', runCleanup);
+			destination.on('close', runCleanup);
+		}
 		if (!body) return destination.end();
 		try {
 			const reader = body.getReader();
@@ -233,6 +295,24 @@ function asyncIterableToBodyProps(iterable: AsyncIterable<any>): RequestInit {
 		// property because they are not up-to-date.
 		duplex: 'half',
 	};
+}
+
+function getAbortControllerCleanup(req?: NodeRequest): (() => void) | undefined {
+	if (!req) return undefined;
+	const cleanup = Reflect.get(req, nodeRequestAbortControllerCleanupSymbol);
+	return typeof cleanup === 'function' ? cleanup : undefined;
+}
+
+function getRequestSocket(req: NodeRequest): Socket | undefined {
+	if (req.socket && typeof req.socket.on === 'function') {
+		return req.socket;
+	}
+	const http2Socket = (req as unknown as { stream?: { session?: { socket?: Socket } } }).stream
+		?.session?.socket;
+	if (http2Socket && typeof http2Socket.on === 'function') {
+		return http2Socket;
+	}
+	return undefined;
 }
 
 export async function loadManifest(rootFolder: URL): Promise<SSRManifest> {
