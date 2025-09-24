@@ -13,7 +13,7 @@
     "@astrojs/react": "^4.3.1",
     "@types/react": "^18.3.24",
     "@types/react-dom": "^18.3.7",
-    "astro": "^5.13.10",
+    "astro": "^5.13.11",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   }
