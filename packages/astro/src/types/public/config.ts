@@ -2044,6 +2044,18 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		/**
 		 *
+		 * @name experimental.failOnPrerenderConflict
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.x
+		 * @description
+		 * When two routes generate the same prerendered URL, fail the build instead of skipping one.
+		 * If disabled (default), a warning is logged when conflicts occur and the highest-priority route wins.
+		 */
+		failOnPrerenderConflict?: boolean;
+
+		/**
+		 *
 		 * @name experimental.contentIntellisense
 		 * @type {boolean}
 		 * @default `false`

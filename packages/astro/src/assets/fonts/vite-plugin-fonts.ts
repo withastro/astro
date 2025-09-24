@@ -56,7 +56,7 @@ import {
 } from './implementations/url-proxy-hash-resolver.js';
 import { createBuildUrlResolver, createDevUrlResolver } from './implementations/url-resolver.js';
 import { orchestrate } from './orchestrate.js';
-import type { ConsumableMap, FontFileDataMap } from './types.js';
+import type { ConsumableMap, FontFileDataMap, InternalConsumableMap } from './types.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -94,12 +94,14 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	const baseUrl = joinPaths(settings.config.base, assetsDir);
 
 	let fontFileDataMap: FontFileDataMap | null = null;
+	let internalConsumableMap: InternalConsumableMap | null = null;
 	let consumableMap: ConsumableMap | null = null;
 	let isBuild: boolean;
 	let fontFetcher: FontFetcher | null = null;
 	let fontTypeExtractor: FontTypeExtractor | null = null;
 
 	const cleanup = () => {
+		internalConsumableMap = null;
 		consumableMap = null;
 		fontFileDataMap = null;
 		fontFetcher = null;
@@ -184,6 +186,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		// We initialize shared variables here and reset them in buildEnd
 		// to avoid locking memory
 		fontFileDataMap = res.fontFileDataMap;
+		internalConsumableMap = res.internalConsumableMap;
 		consumableMap = res.consumableMap;
 
 		// Handle CSP
@@ -191,7 +194,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			const algorithm = getAlgorithm(settings.config.experimental.csp);
 
 			// Generate a hash for each style we generate
-			for (const { css } of consumableMap.values()) {
+			for (const { css } of internalConsumableMap.values()) {
 				settings.injectedCsp.styleHashes.push(await generateCspDigest(css, algorithm));
 			}
 			const resources = urlResolver.getCspResources();
@@ -299,7 +302,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		load(id) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
 				return {
-					code: `export const fontsData = new Map(${JSON.stringify(Array.from(consumableMap?.entries() ?? []))})`,
+					code: `
+						export const internalConsumableMap = new Map(${JSON.stringify(Array.from(internalConsumableMap?.entries() ?? []))});
+						export const consumableMap = new Map(${JSON.stringify(Array.from(consumableMap?.entries() ?? []))});
+					`,
 				};
 			}
 		},
