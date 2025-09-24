@@ -211,6 +211,7 @@ export interface AstroGlobal<
 /** Union type of supported markdown file extensions */
 type MarkdownFileExtension = (typeof SUPPORTED_MARKDOWN_FILE_EXTENSIONS)[number];
 
+/** @deprecated */
 export interface AstroGlobalPartial {
 	/**
 	 * Fetch local files into your static site setup

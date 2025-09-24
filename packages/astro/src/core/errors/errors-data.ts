@@ -1395,6 +1395,19 @@ export const CspNotEnabled = {
 
 /**
  * @docs
+ * @description
+ * Unavailable Astro global property in getStaticPaths
+ * @message
+ * This property on the Astro global is not available in getStaticPaths
+ */
+export const UnavailableAstroGlobalProperty = {
+	name: 'UnavailableAstroGlobalProperty',
+	title: 'Unavailable Astro global property in getStaticPaths',
+	message: (name: string) => `"Astro.${name}" is not available in getStaticPaths`,
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name CSS Errors
  */
