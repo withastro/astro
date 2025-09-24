@@ -2704,12 +2704,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/content-collections-with-config-mts:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/content-intellisense:
     dependencies:
       '@astrojs/markdoc':
@@ -3488,21 +3482,6 @@ importers:
         version: 1.9.9
 
   packages/astro/test/fixtures/lazy-layout:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/legacy-content-collections:
-    dependencies:
-      '@astrojs/mdx':
-        specifier: workspace:*
-        version: link:../../../../integrations/mdx
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/legacy-data-collections:
     dependencies:
       astro:
         specifier: workspace:*
