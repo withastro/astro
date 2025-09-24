@@ -113,9 +113,7 @@ declare module '*.avif' {
 	export default metadata;
 }
 declare module '*.svg' {
-	type Props = astroHTML.JSX.SVGAttributes;
-
-	const Component: ((_props: Props) => any) & ImageMetadata;
+	const Component: import('./types').SvgComponent & ImageMetadata;
 	export default Component;
 }
 
