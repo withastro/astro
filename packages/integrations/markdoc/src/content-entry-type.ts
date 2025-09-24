@@ -5,7 +5,7 @@ import { parseFrontmatter } from '@astrojs/markdown-remark';
 import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
-import { emitESMImage } from 'astro/assets/utils';
+import { emitImageMetadata } from 'astro/assets/utils';
 import type { Rollup, ErrorPayload as ViteErrorPayload } from 'vite';
 import type { ComponentConfig } from './config.js';
 import { htmlTokenTransform } from './html/transform/html-token-transform.js';
@@ -319,13 +319,7 @@ async function emitOptimizedImages(
 				const resolved = await ctx.pluginContext.resolve(node.attributes.src, ctx.filePath);
 
 				if (resolved?.id && fs.existsSync(new URL(prependForwardSlash(resolved.id), 'file://'))) {
-					const src = await emitESMImage(
-						resolved.id,
-						ctx.pluginContext.meta.watchMode,
-						// FUTURE: Remove in this in v6
-						resolved.id.endsWith('.svg'),
-						ctx.pluginContext.emitFile,
-					);
+					const src = await emitImageMetadata(resolved.id, ctx.pluginContext.emitFile);
 
 					const fsPath = resolved.id;
 

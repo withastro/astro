@@ -126,8 +126,12 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 
 		const { data, info } = await result.toBuffer({ resolveWithObject: true });
 
+		// Sharp can sometimes return a SharedArrayBuffer when using WebAssembly.
+		// SharedArrayBuffers need to be copied into an ArrayBuffer in order to be manipulated.
+		const needsCopy = 'buffer' in data && data.buffer instanceof SharedArrayBuffer;
+
 		return {
-			data: data,
+			data: needsCopy ? new Uint8Array(data) : data,
 			format: info.format as ImageOutputFormat,
 		};
 	},
