@@ -34,7 +34,7 @@ import { allowedDirectivesSchema, cspAlgorithmSchema, cspHashSchema } from '../.
 
 /** @lintignore */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ComplexifyUnionObj { }
+export interface ComplexifyUnionObj {}
 
 type ComplexifyWithUnion<T> = T & ComplexifyUnionObj;
 type ComplexifyWithOmit<T> = Omit<T, '__nonExistent'>;

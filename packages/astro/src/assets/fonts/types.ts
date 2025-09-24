@@ -108,7 +108,7 @@ export interface FontData {
 	src: Array<{ url: string; format?: string; tech?: string }>;
 	weight?: string;
 	style?: string;
-};
+}
 
 /**
  * Holds associations of CSS variables and font data to be exposed via virtual module.

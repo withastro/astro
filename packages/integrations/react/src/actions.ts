@@ -44,11 +44,7 @@ export function withState<T>(action: FormFn<T>) {
  * Retrieve the state object from your action handler when using `useActionState()`.
  * To ensure this state is retrievable, use the {@linkcode withState} helper.
  */
-export async function getActionState<T>({
-	request,
-}: {
-	request: Request;
-}): Promise<T> {
+export async function getActionState<T>({ request }: { request: Request }): Promise<T> {
 	const contentType = request.headers.get('Content-Type');
 	if (!contentType || !isFormRequest(contentType)) {
 		throw new AstroError(
