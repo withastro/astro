@@ -54,7 +54,7 @@ async function renderToStaticMarkup(
 		}));
 	}
 
-	const result = render(Component, {
+	const result = await render(Component, {
 		props: {
 			...props,
 			children,

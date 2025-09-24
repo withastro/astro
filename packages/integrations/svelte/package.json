@@ -32,7 +32,8 @@
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist",
-    "dev": "astro-scripts dev \"src/**/*.ts\""
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.1.1",
@@ -42,7 +43,8 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "svelte": "^5.38.7"
+    "cheerio": "1.1.2",
+    "svelte": "^5.39.3"
   },
   "peerDependencies": {
     "astro": "^5.0.0",
