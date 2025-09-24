@@ -54,6 +54,9 @@ declare module 'astro:assets' {
 		Image: typeof import('./components/Image.astro').default;
 		Picture: typeof import('./components/Picture.astro').default;
 		Font: typeof import('./components/Font.astro').default;
+		getFontData: (
+			cssVariable: import('astro:assets').CssVariable,
+		) => Array<import('astro:assets').FontData>;
 	};
 
 	type ImgAttributes = import('./dist/type-utils.js').WithRequired<
@@ -75,6 +78,7 @@ declare module 'astro:assets' {
 		Picture,
 		Font,
 		inferRemoteSize,
+		getFontData,
 	}: AstroAssets;
 }
 
