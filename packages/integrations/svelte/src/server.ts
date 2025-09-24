@@ -6,11 +6,12 @@ import type { RendererContext } from './types.js';
 
 function check(Component: any) {
 	if (typeof Component !== 'function') return false;
-	// Svelte 5 generated components always accept a `$$payload` prop.
+	// Svelte 5 generated components always accept a `$$renderer` prop (previously called `$$payload`).
 	// This assumes that the SSR build does not minify it (which Astro enforces by default).
 	// This isn't the best check, but the only other option otherwise is to try to render the
 	// component, which is taxing. We'll leave it as a last resort for the future for now.
-	return Component.toString().includes('$$payload');
+	const componentString = Component.toString();
+	return componentString.includes('$$payload') || componentString.includes('$$renderer');
 }
 
 function needsHydration(metadata?: AstroComponentMetadata) {
