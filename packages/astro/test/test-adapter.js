@@ -89,12 +89,17 @@ export default function ({
 														return new Response(data);
 													}
 
+													return super.render(request, {
+														routeData,
+														locals,
+														addCookieHeader,
+														prerenderedErrorPageFetch,
 													${
 														provideAddress
-															? `request[Symbol.for('astro.clientAddress')] = clientAddress ?? '0.0.0.0';`
+															? `clientAddress: clientAddress ?? '0.0.0.0',`
 															: ''
 													}
-													return super.render(request, { routeData, locals, addCookieHeader, prerenderedErrorPageFetch });
+													});
 												}
 											}
 

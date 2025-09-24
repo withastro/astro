@@ -22,7 +22,6 @@ import type { RouteData, SSRResult } from '../types/public/internal.js';
 import type { SSRActions } from './app/types.js';
 import {
 	ASTRO_VERSION,
-	clientAddressSymbol,
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
 	REWRITE_DIRECTIVE_HEADER_VALUE,
@@ -758,7 +757,7 @@ export class RenderContext {
 	}
 
 	getClientAddress() {
-		const { pipeline, request, routeData, clientAddress } = this;
+		const { pipeline, routeData, clientAddress } = this;
 
 		if (routeData.prerender) {
 			throw new AstroError({
@@ -769,13 +768,6 @@ export class RenderContext {
 
 		if (clientAddress) {
 			return clientAddress;
-		}
-
-		// TODO: Legacy, should not need to get here.
-		// Some adapters set this symbol so we can't remove support yet.
-		// Adapters should be updated to provide it via RenderOptions instead.
-		if (clientAddressSymbol in request) {
-			return Reflect.get(request, clientAddressSymbol) as string;
 		}
 
 		if (pipeline.adapterName) {

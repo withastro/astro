@@ -72,7 +72,6 @@ export async function orchestrate({
 	fontMetricsResolver: FontMetricsResolver;
 	fontTypeExtractor: FontTypeExtractor;
 	fontFileReader: FontFileReader;
-	// TODO: follow this implementation: https://github.com/withastro/astro/pull/13756/commits/e30ac2b7082a3eed36225da6e88449890cbcbe6b
 	logger: Logger;
 	createUrlProxy: (params: CreateUrlProxyParams) => UrlProxy;
 	defaults: Defaults;
@@ -144,6 +143,7 @@ export async function orchestrate({
 					collectedFonts.push(collected);
 				}
 			},
+			cssVariable: family.cssVariable,
 		});
 
 		let fonts: Array<unifont.FontFaceData>;
