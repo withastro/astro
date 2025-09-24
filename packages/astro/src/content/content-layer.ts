@@ -12,6 +12,7 @@ import {
 	ASSET_IMPORTS_FILE,
 	COLLECTIONS_MANIFEST_FILE,
 	CONTENT_LAYER_TYPE,
+	DATA_STORE_DIR,
 	DATA_STORE_FILE,
 	MODULES_IMPORTS_FILE,
 } from './consts.js';
@@ -425,6 +426,7 @@ async function simpleLoader<TData extends { id: string }>(
 		),
 	});
 }
+
 /**
  * Get the path to the data store file.
  * During development, this is in the `.astro` directory so that the Vite watcher can see it.
@@ -432,6 +434,15 @@ async function simpleLoader<TData extends { id: string }>(
  */
 export function getDataStoreFile(settings: AstroSettings, isDev: boolean) {
 	return new URL(DATA_STORE_FILE, isDev ? settings.dotAstroDir : settings.config.cacheDir);
+}
+
+/**
+ * Get the path to the data store directory.
+ * During development, this is in the `.astro` directory so that the Vite watcher can see it.
+ * In production, it's in the cache directory so that it's preserved between builds.
+ */
+export function getDataStoreDir(settings: AstroSettings, isDev: boolean) {
+	return new URL(DATA_STORE_DIR, isDev ? settings.dotAstroDir : settings.config.cacheDir);
 }
 
 function contentLayerSingleton() {

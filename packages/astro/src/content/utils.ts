@@ -898,3 +898,60 @@ export function safeStringify(value: unknown) {
 	const seen = new WeakSet();
 	return JSON.stringify(value, safeStringifyReplacer(seen));
 }
+
+const safeFileNameReplacers = [
+	/[/?<>\\:*|"]/g, // common illegal characters
+	// eslint-disable-next-line no-control-regex
+	/[\x00-\x1f\x80-\x9f]/g, // unicode control codes
+	/^\.+$/, // unix reserved
+	/^(con|prn|aux|nul|com\d|lpt\d)(\..*)?$/i, // windows reserved
+];
+
+/**
+ * Cross-platform string sanitizer for file names
+ * Adapted from https://gist.github.com/barbietunnie/7bc6d48a424446c44ff4
+ */
+export function sanitizeFileName(fileName: string, replacement = '_') {
+	let sanitized = fileName;
+
+	for (const re of safeFileNameReplacers) {
+		sanitized = sanitized.replace(re, replacement);
+	}
+
+	// truncate to 200 chars (leave space for hash and extension)
+	const encoded = new TextEncoder().encode(sanitized);
+	const truncated = encoded.slice(0, 200);
+	return new TextDecoder().decode(truncated);
+}
+
+// Splits a string into chunks that are each below the specified byte size limit
+export function chunkString(str: string, maxBytes: number): string[] {
+	const maxChars = Math.floor(maxBytes / 2); // assume average-case 2 bytes per char
+	const chunks = [];
+
+	for (let i = 0; i < str.length; i += maxChars) {
+		chunks.push(str.slice(i, i + maxChars));
+	}
+
+	return chunks;
+}
+
+// Splits a Map into equally sized chunks of Maps
+export function chunkMap<T>(map: Map<string, T>, chunkSize: number): Map<string, T>[] {
+	const chunks: Map<string, T>[] = [];
+	let currentChunk = new Map<string, T>();
+
+	for (const [key, value] of map) {
+		currentChunk.set(key, value);
+		if (currentChunk.size >= chunkSize) {
+			chunks.push(currentChunk);
+			currentChunk = new Map<string, T>();
+		}
+	}
+
+	if (currentChunk.size > 0) {
+		chunks.push(currentChunk);
+	}
+
+	return chunks;
+}

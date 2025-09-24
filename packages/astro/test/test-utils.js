@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { describe } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
 import { execa } from 'execa';
@@ -178,17 +179,42 @@ export async function loadFixture(inlineConfig) {
 			}
 
 			const dataStoreFile = path.join(root, '.astro', 'data-store.json');
+			const dataStoreDir = path.join(root, '.astro', 'data-store');
 
 			return new Promise((resolve, reject) => {
+				let debounceTimer = null;
+				let timeoutTimer = null;
+
+				const cleanup = () => {
+					if (debounceTimer) {
+						clearTimeout(debounceTimer);
+						debounceTimer = null;
+					}
+					if (timeoutTimer) {
+						clearTimeout(timeoutTimer);
+						timeoutTimer = null;
+					}
+					devServer.watcher.removeListener('change', changeHandler);
+				};
+
 				const changeHandler = (fileName) => {
-					if (fileName === dataStoreFile) {
-						devServer.watcher.removeListener('change', changeHandler);
-						resolve();
+					// Check if the changed file is in the data store directory or file
+					if (fileName === dataStoreFile || fileName.startsWith(dataStoreDir)) {
+						if (debounceTimer) {
+							clearTimeout(debounceTimer);
+						}
+
+						debounceTimer = setTimeout(() => {
+							cleanup();
+							resolve();
+						}, 100); // 100ms debounce
 					}
 				};
+
 				devServer.watcher.on('change', changeHandler);
-				setTimeout(() => {
-					devServer.watcher.removeListener('change', changeHandler);
+
+				timeoutTimer = setTimeout(() => {
+					cleanup();
 					reject(new Error('Data store did not update within timeout'));
 				}, timeout);
 			});
@@ -381,5 +407,13 @@ export async function* streamAsyncIterator(stream) {
 		}
 	} finally {
 		reader.releaseLock();
+	}
+}
+
+export function describeCases(name, cases, fn) {
+	for (const [caseName, caseParams] of cases) {
+		describe(name + (caseName ? ` (${caseName})` : ''), () => {
+			fn(caseParams);
+		});
 	}
 }

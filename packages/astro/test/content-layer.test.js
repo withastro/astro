@@ -9,23 +9,34 @@ import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
 import { Logger } from '../dist/core/logger/core.js';
 
-import { loadFixture } from './test-utils.js';
+import { describeCases, loadFixture } from './test-utils.js';
 
-describe('Content Layer', () => {
+const cases = [
+	['', { config: {} }],
+	['chunking enabled', { config: { experimental: { dataStoreChunking: true } } }],
+];
+
+describeCases('Content Layer', cases, (testCase) => {
 	/** @type {import("./test-utils.js").Fixture} */
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/content-layer/' });
+		fixture = await loadFixture({ ...testCase.config, root: './fixtures/content-layer/' });
 	});
 
 	describe('Build', () => {
 		let json;
 		let $;
 		before(async () => {
-			fixture = await loadFixture({ root: './fixtures/content-layer/' });
+			fixture = await loadFixture({ ...testCase.config, root: './fixtures/content-layer/' });
 			await fs
 				.unlink(new URL('./node_modules/.astro/data-store.json', fixture.config.root))
+				.catch(() => {});
+			await fs
+				.rm(new URL('./node_modules/.astro/data-store/', fixture.config.root), {
+					recursive: true,
+					force: true,
+				})
 				.catch(() => {});
 			await fixture.build({ force: true });
 			const rawJson = await fixture.readFile('/collections.json');

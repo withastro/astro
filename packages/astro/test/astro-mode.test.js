@@ -2,9 +2,20 @@ import assert from 'node:assert/strict';
 import { existsSync, promises as fs } from 'node:fs';
 import { after, afterEach, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { describeCases, loadFixture } from './test-utils.js';
 
-describe('--mode', () => {
+const cases = [
+	['', { config: {}, dataStoreFileName: 'data-store.json' }],
+	[
+		'data store chunking enabled',
+		{
+			config: { experimental: { dataStoreChunking: true } },
+			dataStoreFileName: 'data-store/__manifest.json',
+		},
+	],
+];
+
+describeCases('--mode', cases, (testCase) => {
 	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
 	let devDataStoreFile;
@@ -17,10 +28,14 @@ describe('--mode', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
+			...testCase.config,
 			root: './fixtures/astro-mode/',
 		});
-		devDataStoreFile = new URL('./.astro/data-store.json', fixture.config.root);
-		prodDataStoreFile = new URL('./node_modules/.astro/data-store.json', fixture.config.root);
+		devDataStoreFile = new URL(`./.astro/${testCase.dataStoreFileName}`, fixture.config.root);
+		prodDataStoreFile = new URL(
+			`./node_modules/.astro/${testCase.dataStoreFileName}`,
+			fixture.config.root,
+		);
 	});
 
 	afterEach(() => {
