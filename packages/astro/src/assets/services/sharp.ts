@@ -128,7 +128,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 
 		// Sharp can sometimes return a SharedArrayBuffer when using WebAssembly.
 		// SharedArrayBuffers need to be copied into an ArrayBuffer in order to be manipulated.
-		const needsCopy = "buffer" in data && data.buffer instanceof SharedArrayBuffer;
+		const needsCopy = 'buffer' in data && data.buffer instanceof SharedArrayBuffer;
 
 		return {
 			data: needsCopy ? new Uint8Array(data) : data,
