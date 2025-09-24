@@ -1,5 +1,21 @@
 # astro
 
+## 5.13.11
+
+### Patch Changes
+
+- [#14409](https://github.com/withastro/astro/pull/14409) [`250a595`](https://github.com/withastro/astro/commit/250a595596e9c7e1a966c5cda40f9bd5cf9d3f66) Thanks [@louisescher](https://github.com/louisescher)! - Fixes an issue where `astro info` would log errors to console in certain cases.
+
+- [#14398](https://github.com/withastro/astro/pull/14398) [`a7df80d`](https://github.com/withastro/astro/commit/a7df80d284652b500079e4476b17d5d1b7746b06) Thanks [@idawnlight](https://github.com/idawnlight)! - Fixes an unsatisfiable type definition when calling `addServerRenderer` on an experimental container instance
+
+- [#13747](https://github.com/withastro/astro/pull/13747) [`120866f`](https://github.com/withastro/astro/commit/120866f35a6b27c31bae1c04c0ea9d6bdaf09b16) Thanks [@jp-knj](https://github.com/jp-knj)! - Adds automatic request signal abortion when the underlying socket closes in the Node.js adapter
+
+  The Node.js adapter now automatically aborts the `request.signal` when the client connection is terminated. This enables better resource management and allows applications to properly handle client disconnections through the standard `AbortSignal` API.
+
+- [#14428](https://github.com/withastro/astro/pull/14428) [`32a8acb`](https://github.com/withastro/astro/commit/32a8acba50bb15101c099fc7a14081d1a8cf0331) Thanks [@drfuzzyness](https://github.com/drfuzzyness)! - Force sharpService to return a Uint8Array if Sharp returns a SharedArrayBuffer
+
+- [#14411](https://github.com/withastro/astro/pull/14411) [`a601186`](https://github.com/withastro/astro/commit/a601186fb9ac0e7c8ff20887024234ecbfdd6ff1) Thanks [@GameRoMan](https://github.com/GameRoMan)! - Fixes relative links to docs that could not be opened in the editor.
+
 ## 5.13.10
 
 ### Patch Changes
