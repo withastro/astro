@@ -4,8 +4,6 @@
 
 Stabilizes the formerly experimental `getActionState()` and `withState()` functions introduced in `@astrojs/react` v3.4.0 used to integrate Astro Actions with [React 19's `useActionState()` hook](https://react.dev/reference/react/useActionState).
 
-(something hype here would be nice!)
-
 This example calls a `like` action that accepts a `postId` and returns the number of likes. Pass this action to the `withState()` function to apply progressive enhancement info, and apply to `useActionState()` to track the result:
 
 ```
