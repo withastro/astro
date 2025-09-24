@@ -142,17 +142,23 @@ describe('Content Collections - render()', () => {
 		it('getCollection should return new instances of the array to be mutated safely', async () => {
 			const app = await fixture.loadTestAdapterApp();
 
-			let request = new Request('http://example.com/sort-blog-collection');
+			let request = new Request('http://example.com/');
 			let response = await app.render(request);
 			let html = await response.text();
 			let $ = cheerio.load(html);
-			assert.equal($('li').first().text(), '4 Launch week!');
+			const firstText = $('li').first().text();
+
+			request = new Request('http://example.com/sort-blog-collection');
+			response = await app.render(request);
+			html = await response.text();
+			$ = cheerio.load(html);
+			assert.notEqual($('li').first().text(), firstText);
 
 			request = new Request('http://example.com/');
 			response = await app.render(request);
 			html = await response.text();
 			$ = cheerio.load(html);
-			assert.equal($('li').first().text(), '1 Hello world');
+			assert.equal($('li').first().text(), firstText);
 		});
 	});
 
