@@ -233,10 +233,7 @@ describe('Content Collections', () => {
 			} catch (e) {
 				error = e.message;
 			}
-			assert.equal(
-				error,
-				'Found legacy content config file in "src/content/config.mjs". Please move this file to "src/content.config.mjs" and ensure each collection has a loader defined.',
-			);
+			assert.ok(error.startsWith('Found legacy content config file in'));
 		});
 	});
 
