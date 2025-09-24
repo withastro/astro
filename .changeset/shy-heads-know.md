@@ -2,11 +2,26 @@
 'astro': minor
 ---
 
-Add a new `SvgComponent` type
+Adds a new `SvgComponent` type
 
-Until now, getting the type of an SVG component was not really straight forward. You can now directly import the `SVGComponent` from `astro/types` instead:
+You can now more easily enforce type safety for your `.svg` assets by directly importing `SVGComponent` from `astro/types`:
 
-```diff
--type SvgComponent = typeof import("*.svg")
-+import type { SvgComponent } from "astro/types"
+```astro
+---
+// src/components/Logo.astro
+import type { SvgComponent } from "astro/types";
+import HomeIcon from './Home.svg'
+interface Link {
+	url: string
+	text: string
+	icon: SvgComponent
+}
+const links: Link[] = [
+	{
+		url: '/',
+		text: 'Home',
+		icon: HomeIcon
+	}
+]
+---
 ```
