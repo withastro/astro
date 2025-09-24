@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
-import { isWindows, loadFixture } from '../../../astro/test/test-utils.js';
+import { loadFixture } from '../../../astro/test/test-utils.js';
 
 let fixture;
 
@@ -42,7 +42,6 @@ describe('Async rendering', () => {
 			const $ = cheerioLoad(html);
 
 			assert.ok($('.weather').text().startsWith('The current temperature at KSC is'));
-			
 		});
 	});
 });
