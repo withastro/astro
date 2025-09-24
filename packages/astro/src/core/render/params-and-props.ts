@@ -1,5 +1,6 @@
 import type { ComponentInstance } from '../../types/astro.js';
 import type { Params, Props } from '../../types/public/common.js';
+import type { AstroConfig } from '../../types/public/index.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { DEFAULT_404_COMPONENT } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -17,10 +18,20 @@ interface GetParamsAndPropsOptions {
 	logger: Logger;
 	serverLike: boolean;
 	base: string;
+	trailingSlash: AstroConfig['trailingSlash'];
 }
 
 export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
-	const { logger, mod, routeData: route, routeCache, pathname, serverLike, base } = opts;
+	const {
+		logger,
+		mod,
+		routeData: route,
+		routeCache,
+		pathname,
+		serverLike,
+		base,
+		trailingSlash,
+	} = opts;
 
 	// If there's no route, or if there's a pathname (e.g. a static `src/pages/normal.astro` file),
 	// then we know for sure they don't have params and props, return a fallback value.
@@ -45,13 +56,14 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 		logger,
 		ssr: serverLike,
 		base,
+		trailingSlash,
 	});
 
 	// The pathname used here comes from the server, which already encoded.
 	// Since we decided to not mess up with encoding anymore, we need to decode them back so the parameters can match
 	// the ones expected from the users
 	const params = getParams(route, pathname);
-	const matchedStaticPath = findPathItemByKey(staticPaths, params, route, logger);
+	const matchedStaticPath = findPathItemByKey(staticPaths, params, route, logger, trailingSlash);
 	if (!matchedStaticPath && (serverLike ? route.prerender : true)) {
 		throw new AstroError({
 			...AstroErrorData.NoMatchingStaticPathFound,

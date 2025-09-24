@@ -1,31 +1,32 @@
 import { fileURLToPath } from 'node:url';
 import { getInfoOutput } from '../cli/info/index.js';
-import type { HeadElements, TryRewriteResult } from '../core/base-pipeline.js';
+import { type HeadElements, Pipeline, type TryRewriteResult } from '../core/base-pipeline.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
-import { loadRenderer, Pipeline } from '../core/render/index.js';
+import { RedirectComponentInstance, routeIsRedirect } from '../core/redirects/index.js';
+import { loadRenderer } from '../core/render/index.js';
 import { createDefaultRoutes } from '../core/routing/default.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
-import { isPage, viteID } from '../core/util.js';
+import { isPage } from '../core/util.js';
 import { resolveIdToUrl } from '../core/viteUtils.js';
 import type { AstroSettings, ComponentInstance, RoutesList } from '../types/astro.js';
-import type { RewritePayload } from '../types/public/common.js';
 import type {
+	DevToolbarMetadata,
+	RewritePayload,
 	RouteData,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRManifest,
-} from '../types/public/internal.js';
-import type { DevToolbarMetadata } from '../types/public/toolbar.js';
+} from '../types/public/index.js';
+import { getStylesForURL } from '../vite-plugin-astro-server/css.js';
+import { getComponentMetadata } from '../vite-plugin-astro-server/metadata.js';
+import { createResolve } from '../vite-plugin-astro-server/resolve.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
-import { getStylesForURL } from './css.js';
-import { getComponentMetadata } from './metadata.js';
-import { createResolve } from './resolve.js';
 
-export class DevPipeline extends Pipeline {
+export class AstroServerPipeline extends Pipeline {
 	// renderers are loaded on every request,
 	// so it needs to be mutable here unlike in other environments
 	override renderers = new Array<SSRLoadedRenderer>();
@@ -41,16 +42,17 @@ export class DevPipeline extends Pipeline {
 		readonly loader: ModuleLoader,
 		readonly logger: Logger,
 		readonly manifest: SSRManifest,
-		readonly settings: AstroSettings,
-		readonly config = settings.config,
+		readonly settings: AstroSettings | undefined,
 		readonly defaultRoutes = createDefaultRoutes(manifest),
 	) {
-		const resolve = createResolve(loader, config.root);
-		const serverLike = settings.buildOutput === 'server';
+		const resolve = createResolve(loader, manifest.rootDir);
+		const serverLike = settings?.buildOutput === 'server';
 		const streaming = true;
 		super(logger, manifest, 'development', [], resolve, serverLike, streaming);
-		manifest.serverIslandMap = settings.serverIslandMap;
-		manifest.serverIslandNameMap = settings.serverIslandNameMap;
+		if (settings) {
+			manifest.serverIslandMap = settings.serverIslandMap;
+			manifest.serverIslandNameMap = settings.serverIslandNameMap;
+		}
 	}
 
 	static create(
@@ -60,62 +62,62 @@ export class DevPipeline extends Pipeline {
 			logger,
 			manifest,
 			settings,
-		}: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>,
+		}: Pick<AstroServerPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>,
 	) {
-		const pipeline = new DevPipeline(loader, logger, manifest, settings);
+		const pipeline = new AstroServerPipeline(loader, logger, manifest, settings);
 		pipeline.routesList = manifestData;
 		return pipeline;
 	}
 
 	async headElements(routeData: RouteData): Promise<HeadElements> {
-		const {
-			config: { root },
-			loader,
-			runtimeMode,
-			settings,
-		} = this;
-		const filePath = new URL(`${routeData.component}`, root);
+		const { manifest, loader, runtimeMode, settings } = this;
+		const filePath = new URL(`${routeData.component}`, manifest.rootDir);
 		const scripts = new Set<SSRElement>();
 
 		// Inject HMR scripts
-		if (isPage(filePath, settings) && runtimeMode === 'development') {
-			scripts.add({
-				props: { type: 'module', src: '/@vite/client' },
-				children: '',
-			});
-
-			if (
-				settings.config.devToolbar.enabled &&
-				(await settings.preferences.get('devToolbar.enabled'))
-			) {
-				const src = await resolveIdToUrl(loader, 'astro/runtime/client/dev-toolbar/entrypoint.js');
-				scripts.add({ props: { type: 'module', src }, children: '' });
-
-				const additionalMetadata: DevToolbarMetadata['__astro_dev_toolbar__'] = {
-					root: fileURLToPath(settings.config.root),
-					version: ASTRO_VERSION,
-					latestAstroVersion: settings.latestAstroVersion,
-					debugInfo: await getInfoOutput({ userConfig: settings.config, print: false }),
-				};
-
-				// Additional data for the dev overlay
-				const children = `window.__astro_dev_toolbar__ = ${JSON.stringify(additionalMetadata)}`;
-				scripts.add({ props: {}, children });
-			}
-		}
-
-		// TODO: We should allow adding generic HTML elements to the head, not just scripts
-		for (const script of settings.scripts) {
-			if (script.stage === 'head-inline') {
+		if (settings) {
+			if (isPage(filePath, settings) && runtimeMode === 'development') {
 				scripts.add({
-					props: {},
-					children: script.content,
-				});
-			} else if (script.stage === 'page' && isPage(filePath, settings)) {
-				scripts.add({
-					props: { type: 'module', src: `/@id/${PAGE_SCRIPT_ID}` },
+					props: { type: 'module', src: '/@vite/client' },
 					children: '',
 				});
+
+				if (
+					settings.config.devToolbar.enabled &&
+					(await settings.preferences.get('devToolbar.enabled'))
+				) {
+					const src = await resolveIdToUrl(
+						loader,
+						'astro/runtime/client/dev-toolbar/entrypoint.js',
+					);
+					scripts.add({ props: { type: 'module', src }, children: '' });
+
+					const additionalMetadata: DevToolbarMetadata['__astro_dev_toolbar__'] = {
+						root: fileURLToPath(settings.config.root),
+						version: ASTRO_VERSION,
+						latestAstroVersion: settings.latestAstroVersion,
+						debugInfo: await getInfoOutput({ userConfig: settings.config, print: false }),
+					};
+
+					// Additional data for the dev overlay
+					const children = `window.__astro_dev_toolbar__ = ${JSON.stringify(additionalMetadata)}`;
+					scripts.add({ props: {}, children });
+				}
+			}
+
+			// TODO: We should allow adding generic HTML elements to the head, not just scripts
+			for (const script of settings.scripts) {
+				if (script.stage === 'head-inline') {
+					scripts.add({
+						props: {},
+						children: script.content,
+					});
+				} else if (script.stage === 'page' && isPage(filePath, settings)) {
+					scripts.add({
+						props: { type: 'module', src: `/@id/${PAGE_SCRIPT_ID}` },
+						children: '',
+					});
+				}
 			}
 		}
 
@@ -139,15 +141,15 @@ export class DevPipeline extends Pipeline {
 	}
 
 	componentMetadata(routeData: RouteData) {
-		const {
-			config: { root },
-			loader,
-		} = this;
-		const filePath = new URL(`${routeData.component}`, root);
-		return getComponentMetadata(filePath, loader);
+		const filePath = new URL(`${routeData.component}`, this.manifest.rootDir);
+		return getComponentMetadata(filePath, this.loader);
 	}
 
 	async preload(routeData: RouteData, filePath: URL) {
+		if (routeIsRedirect(routeData)) {
+			return RedirectComponentInstance;
+		}
+
 		const { loader } = this;
 
 		// First check built-in routes
@@ -158,13 +160,15 @@ export class DevPipeline extends Pipeline {
 		}
 
 		// Important: This needs to happen first, in case a renderer provides polyfills.
-		const renderers__ = this.settings.renderers.map((r) => loadRenderer(r, loader));
-		const renderers_ = await Promise.all(renderers__);
-		this.renderers = renderers_.filter((r): r is SSRLoadedRenderer => Boolean(r));
+		if (this.settings) {
+			const renderers__ = this.settings.renderers.map((r) => loadRenderer(r, loader));
+			const renderers_ = await Promise.all(renderers__);
+			this.renderers = renderers_.filter((r): r is SSRLoadedRenderer => Boolean(r));
+		}
 
 		try {
 			// Load the module from the Vite SSR Runtime.
-			const componentInstance = (await loader.import(viteID(filePath))) as ComponentInstance;
+			const componentInstance = (await loader.import(filePath.toString())) as ComponentInstance;
 			this.componentInterner.set(routeData, componentInstance);
 			return componentInstance;
 		} catch (error) {
@@ -187,7 +191,7 @@ export class DevPipeline extends Pipeline {
 		if (component) {
 			return component;
 		} else {
-			const filePath = new URL(`${routeData.component}`, this.config.root);
+			const filePath = new URL(`${routeData.component}`, this.manifest.rootDir);
 			return await this.preload(routeData, filePath);
 		}
 	}
@@ -200,9 +204,9 @@ export class DevPipeline extends Pipeline {
 			payload,
 			request,
 			routes: this.routesList?.routes,
-			trailingSlash: this.config.trailingSlash,
-			buildFormat: this.config.build.format,
-			base: this.config.base,
+			trailingSlash: this.manifest.trailingSlash,
+			buildFormat: this.manifest.buildFormat,
+			base: this.manifest.base,
 			outDir: this.manifest.outDir,
 		});
 

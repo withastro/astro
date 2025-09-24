@@ -1,9 +1,9 @@
 import npath from 'node:path';
+import { type EnvironmentModuleNode, isCSSRequest } from 'vite';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../core/constants.js';
-import type { ModuleLoader, ModuleNode } from '../core/module-loader/index.js';
+import type { ModuleLoader } from '../core/module-loader/index.js';
 import { unwrapId } from '../core/util.js';
 import { hasSpecialQueries } from '../vite-plugin-utils/index.js';
-import { isCSSRequest } from './util.js';
 
 /**
  * List of file extensions signalling we can (and should) SSR ahead-of-time
@@ -19,9 +19,9 @@ export async function* crawlGraph(
 	_id: string,
 	isRootFile: boolean,
 	scanned = new Set<string>(),
-): AsyncGenerator<ModuleNode, void, unknown> {
+): AsyncGenerator<EnvironmentModuleNode, void, unknown> {
 	const id = unwrapId(_id);
-	const importedModules = new Set<ModuleNode>();
+	const importedModules = new Set<EnvironmentModuleNode>();
 
 	const moduleEntriesForId = isRootFile
 		? // "getModulesByFile" pulls from a delayed module cache (fun implementation detail),
@@ -117,7 +117,7 @@ export async function* crawlGraph(
 
 // Verify true imports. If the child module has the parent as an importers, it's
 // a real import.
-function isImportedBy(parent: string, entry: ModuleNode) {
+function isImportedBy(parent: string, entry: EnvironmentModuleNode) {
 	for (const importer of entry.importers) {
 		if (importer.id === parent) {
 			return true;

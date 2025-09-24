@@ -1,8 +1,6 @@
-import type { SerializedRouteData } from '../../../types/astro.js';
-import type { AstroConfig } from '../../../types/public/config.js';
-import type { RouteData } from '../../../types/public/internal.js';
-
-import { getRouteGenerator } from './generator.js';
+import type { SerializedRouteData } from '../../types/astro.js';
+import type { AstroConfig, RouteData } from '../../types/public/index.js';
+import type { RouteInfo, SerializedRouteInfo } from './types.js';
 
 export function serializeRouteData(
 	routeData: RouteData,
@@ -10,7 +8,6 @@ export function serializeRouteData(
 ): SerializedRouteData {
 	return {
 		...routeData,
-		generate: undefined,
 		pattern: routeData.pattern.source,
 		redirectRoute: routeData.redirectRoute
 			? serializeRouteData(routeData.redirectRoute, trailingSlash)
@@ -29,7 +26,6 @@ export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteDa
 		pattern: new RegExp(rawRouteData.pattern),
 		params: rawRouteData.params,
 		component: rawRouteData.component,
-		generate: getRouteGenerator(rawRouteData.segments, rawRouteData._meta.trailingSlash),
 		pathname: rawRouteData.pathname || undefined,
 		segments: rawRouteData.segments,
 		prerender: rawRouteData.prerender,
@@ -42,5 +38,28 @@ export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteDa
 		}),
 		isIndex: rawRouteData.isIndex,
 		origin: rawRouteData.origin,
+	};
+}
+
+export function serializeRouteInfo(
+	routeInfo: RouteInfo,
+	trailingSlash: AstroConfig['trailingSlash'],
+): SerializedRouteInfo {
+	return {
+		styles: routeInfo.styles,
+		file: routeInfo.file,
+		links: routeInfo.links,
+		scripts: routeInfo.scripts,
+		routeData: serializeRouteData(routeInfo.routeData, trailingSlash),
+	};
+}
+
+export function deserializeRouteInfo(rawRouteInfo: SerializedRouteInfo): RouteInfo {
+	return {
+		styles: rawRouteInfo.styles,
+		file: rawRouteInfo.file,
+		links: rawRouteInfo.links,
+		scripts: rawRouteInfo.scripts,
+		routeData: deserializeRouteData(rawRouteInfo.routeData),
 	};
 }
