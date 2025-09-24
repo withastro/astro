@@ -142,17 +142,23 @@ describe('Content Collections - render()', () => {
 		it('getCollection should return new instances of the array to be mutated safely', async () => {
 			const app = await fixture.loadTestAdapterApp();
 
-			let request = new Request('http://example.com/sort-blog-collection');
+			let request = new Request('http://example.com/');
 			let response = await app.render(request);
 			let html = await response.text();
 			let $ = cheerio.load(html);
-			assert.equal($('li').first().text(), 'Launch week!');
+			const firstText = $('li').first().text();
+
+			request = new Request('http://example.com/sort-blog-collection');
+			response = await app.render(request);
+			html = await response.text();
+			$ = cheerio.load(html);
+			assert.notEqual($('li').first().text(), firstText);
 
 			request = new Request('http://example.com/');
 			response = await app.render(request);
 			html = await response.text();
 			$ = cheerio.load(html);
-			assert.equal($('li').first().text(), 'Hello world');
+			assert.equal($('li').first().text(), firstText);
 		});
 	});
 
@@ -211,25 +217,6 @@ describe('Content Collections - render()', () => {
 			const h2 = $('h2');
 			assert.equal(h2.length, 1);
 			assert.equal(h2.attr('data-components-export-applied'), 'true');
-		});
-
-		it.skip('Supports layout prop with recursive getCollection() call - DEPRECATED: layout props removed in Astro 5', async () => {
-			const response = await fixture.fetch('/with-layout-prop', { method: 'GET' });
-			assert.equal(response.status, 200);
-
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			const body = $('body');
-			assert.equal(body.attr('data-layout-prop'), 'true');
-
-			const h1 = $('h1');
-			assert.equal(h1.length, 1);
-			assert.equal(h1.text(), 'With Layout Prop');
-
-			const h2 = $('h2');
-			assert.equal(h2.length, 1);
-			assert.equal(h2.text(), 'Content with a layout prop');
 		});
 	});
 });
