@@ -1,5 +1,5 @@
 <script>
-	const req = await fetch("https://api.open-meteo.com/v1/forecast?latitude=28.52&longitude=80.68&current=temperature_2m,wind_speed_10m");
+	const req = await fetch("https://api.open-meteo.com/v1/forecast?latitude=28.52&longitude=-80.68&current=temperature_2m,wind_speed_10m");
 	const weather = await req.json();
 </script>
 
