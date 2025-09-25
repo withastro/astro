@@ -42,21 +42,19 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 		}
 	}
 
-	// TODO: Astro 6.0
-	// Uncomment this validation check, and change the default value of redirectToDefaultLocale to false
-	// if (
-	// 	config.i18n &&
-	// 	typeof config.i18n.routing !== 'string' &&
-	// 	config.i18n.routing.prefixDefaultLocale === false &&
-	// 	config.i18n.routing.redirectToDefaultLocale === true
-	// ) {
-	// 	ctx.addIssue({
-	// 		code: z.ZodIssueCode.custom,
-	// 		message:
-	// 			'The option `i18n.routing.redirectToDefaultLocale` can be used only when `i18n.routing.prefixDefaultLocale` is set to `true`, otherwise redirects might cause infinite loops. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `false`.',
-	// 		path: ['i18n', 'routing', 'redirectToDefaultLocale'],
-	// 	});
-	// }
+	if (
+		config.i18n &&
+		typeof config.i18n.routing !== 'string' &&
+		config.i18n.routing.prefixDefaultLocale === false &&
+		config.i18n.routing.redirectToDefaultLocale === true
+	) {
+		ctx.addIssue({
+			code: z.ZodIssueCode.custom,
+			message:
+				'The option `i18n.routing.redirectToDefaultLocale` can be used only when `i18n.routing.prefixDefaultLocale` is set to `true`, otherwise redirects might cause infinite loops. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `false`.',
+			path: ['i18n', 'routing', 'redirectToDefaultLocale'],
+		});
+	}
 
 	if (config.outDir.toString().startsWith(config.publicDir.toString())) {
 		ctx.addIssue({

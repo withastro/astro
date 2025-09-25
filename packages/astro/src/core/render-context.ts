@@ -646,8 +646,6 @@ export class RenderContext {
 
 		return {
 			generator: ASTRO_GENERATOR,
-			// TODO: remove
-			glob: () => null as any,
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
 			cookies,

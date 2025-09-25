@@ -5,7 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  undici: ^6.21.3
   wrangler: 4.14.1
 
 importers:
@@ -149,7 +148,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
 
   examples/blog:
@@ -164,7 +163,7 @@ importers:
         specifier: ^3.6.0
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
       sharp:
         specifier: ^0.34.3
@@ -173,16 +172,16 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
 
   examples/container-with-vitest:
     dependencies:
       '@astrojs/react':
-        specifier: ^4.3.1
+        specifier: ^4.4.0
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -213,7 +212,7 @@ importers:
         specifier: ^3.15.0
         version: 3.15.0
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
 
   examples/framework-multiple:
@@ -222,7 +221,7 @@ importers:
         specifier: ^4.1.1
         version: link:../../packages/integrations/preact
       '@astrojs/react':
-        specifier: ^4.3.1
+        specifier: ^4.4.0
         version: link:../../packages/integrations/react
       '@astrojs/solid-js':
         specifier: ^5.1.1
@@ -240,7 +239,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.24)
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.27.2
@@ -270,7 +269,7 @@ importers:
         specifier: ^2.3.1
         version: 2.3.1(preact@10.27.2)
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.27.2
@@ -279,7 +278,7 @@ importers:
   examples/framework-react:
     dependencies:
       '@astrojs/react':
-        specifier: ^4.3.1
+        specifier: ^4.4.0
         version: link:../../packages/integrations/react
       '@types/react':
         specifier: ^18.3.24
@@ -288,7 +287,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.24)
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -303,7 +302,7 @@ importers:
         specifier: ^5.1.1
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.9
@@ -315,7 +314,7 @@ importers:
         specifier: ^7.2.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
       svelte:
         specifier: ^5.39.3
@@ -327,7 +326,7 @@ importers:
         specifier: ^5.1.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.21
@@ -339,25 +338,25 @@ importers:
         specifier: ^9.4.4
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
 
   examples/ssr:
@@ -369,7 +368,7 @@ importers:
         specifier: ^7.2.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
       svelte:
         specifier: ^5.38.10
@@ -378,7 +377,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
       sass:
         specifier: ^1.92.1
@@ -393,7 +392,7 @@ importers:
         specifier: ^18.17.8
         version: 18.19.124
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -402,7 +401,7 @@ importers:
         specifier: ^0.15.7
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -414,7 +413,7 @@ importers:
         specifier: ^4.1.1
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
       preact:
         specifier: ^10.27.2
@@ -429,7 +428,7 @@ importers:
         specifier: ^0.5.2
         version: 0.5.2(nanostores@0.11.4)(preact@10.27.2)
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.11.4
@@ -450,7 +449,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.3
@@ -462,7 +461,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^5.13.11
+        specifier: ^5.14.0
         version: link:../../packages/astro
       vitest:
         specifier: ^3.2.4
@@ -491,9 +490,6 @@ importers:
       '@rollup/pluginutils':
         specifier: ^5.2.0
         version: 5.3.0(rollup@4.50.2)
-      acorn:
-        specifier: ^8.15.0
-        version: 8.15.0
       aria-query:
         specifier: ^5.3.2
         version: 5.3.2
@@ -542,9 +538,6 @@ importers:
       esbuild:
         specifier: ^0.25.0
         version: 0.25.5
-      estree-walker:
-        specifier: ^3.0.3
-        version: 3.0.3
       flattie:
         specifier: ^1.1.1
         version: 1.1.1
@@ -558,9 +551,6 @@ importers:
         specifier: 3.0.3
         version: 3.0.3
       http-cache-semantics:
-        specifier: ^4.2.0
-        version: 4.2.0
-      import-meta-resolve:
         specifier: ^4.2.0
         version: 4.2.0
       js-yaml:
@@ -6295,9 +6285,6 @@ importers:
       hast-util-to-text:
         specifier: ^4.0.2
         version: 4.0.2
-      import-meta-resolve:
-        specifier: ^4.2.0
-        version: 4.2.0
       js-yaml:
         specifier: ^4.1.0
         version: 4.1.0
@@ -7878,6 +7865,10 @@ packages:
 
   '@fastify/accept-negotiator@2.0.1':
     resolution: {integrity: sha512-/c/TW2bO/v9JeEgoD/g1G5GxGeCF1Hafdf79WPmUlgYiBXummY0oX3VVq4yFkKKVBKDNlaDUYoab7g38RpPqCQ==}
+
+  '@fastify/busboy@2.1.1':
+    resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
+    engines: {node: '>=14'}
 
   '@fastify/busboy@3.2.0':
     resolution: {integrity: sha512-m9FVDXU3GT2ITSe0UaMA5rU3QkfC/UXtCU8y0gSN/GugTqtVldOBWIB5V6V3sbmenVZUIpU6f+mPEO2+m5iTaA==}
@@ -11134,9 +11125,6 @@ packages:
     resolution: {integrity: sha512-TR3KfrTZTYLPB6jUjfx6MF9WcWrHL9su5TObK4ZkYgBdWKPOFoSoQIdEuTuR82pmtxH2spWG9h6etwfr1pLBqQ==}
     engines: {node: '>=6'}
 
-  import-meta-resolve@4.2.0:
-    resolution: {integrity: sha512-Iqv2fzaTQN28s/FwZAoFq0ZSs/7hMAHJVX+w8PZl3cY19Pxk6jFFalxQoIfW2826i/fDLXv8IiEZRIT0lDuWcg==}
-
   imurmurhash@0.1.4:
     resolution: {integrity: sha512-JmXMZ6wuvDmLiHEml9ykzqO6lwFbof0GG4IkcGaENdCRDDmMVnny7s5HsIgHCbaq0w2MyPhDqkhTUgS2LU2PHA==}
     engines: {node: '>=0.8.19'}
@@ -13520,9 +13508,17 @@ packages:
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
+  undici@5.29.0:
+    resolution: {integrity: sha512-raqeBD6NQK4SkWhQzeYKd1KmIG6dllBOTt55Rmkt4HtI9mwdWtJljnrXjAFUBLTSN67HWrOIZ3EPF4kjUw80Bg==}
+    engines: {node: '>=14.0'}
+
   undici@6.21.3:
     resolution: {integrity: sha512-gBLkYIlEnSp8pFbT64yFgGE6UIB9tAkhukC23PmMDCe5Nd+cRqKxSjw5y54MK2AZMgZfJWMaNE4nYUHgi1XEOw==}
     engines: {node: '>=18.17'}
+
+  undici@7.16.0:
+    resolution: {integrity: sha512-QEg3HPMll0o3t2ourKwOeUAZ159Kn9mx5pnzHRQO8+Wixmh88YdZRiIwat0iNzNNXn0yoEtXJqFpyW7eM8BV7g==}
+    engines: {node: '>=20.18.1'}
 
   unenv@2.0.0-rc.15:
     resolution: {integrity: sha512-J/rEIZU8w6FOfLNz/hNKsnY+fFHWnu9MH4yRbSZF3xbbGHovcetXPs7sD+9p8L6CeNC//I9bhRYAOsBt2u7/OA==}
@@ -15537,6 +15533,8 @@ snapshots:
       levn: 0.4.1
 
   '@fastify/accept-negotiator@2.0.1': {}
+
+  '@fastify/busboy@2.1.1': {}
 
   '@fastify/busboy@3.2.0': {}
 
@@ -17685,7 +17683,7 @@ snapshots:
       parse5: 7.3.0
       parse5-htmlparser2-tree-adapter: 7.1.0
       parse5-parser-stream: 7.1.2
-      undici: 6.21.3
+      undici: 7.16.0
       whatwg-mimetype: 4.0.0
 
   chokidar@4.0.3:
@@ -19112,8 +19110,6 @@ snapshots:
       parent-module: 1.0.1
       resolve-from: 4.0.0
 
-  import-meta-resolve@4.2.0: {}
-
   imurmurhash@0.1.4: {}
 
   indent-string@5.0.0: {}
@@ -20144,7 +20140,7 @@ snapshots:
       exit-hook: 2.2.1
       glob-to-regexp: 0.4.1
       stoppable: 1.1.0
-      undici: 6.21.3
+      undici: 5.29.0
       workerd: 1.20250428.0
       ws: 8.18.0
       youch: 3.3.4
@@ -21994,7 +21990,13 @@ snapshots:
 
   undici-types@6.21.0: {}
 
+  undici@5.29.0:
+    dependencies:
+      '@fastify/busboy': 2.1.1
+
   undici@6.21.3: {}
+
+  undici@7.16.0: {}
 
   unenv@2.0.0-rc.15:
     dependencies:

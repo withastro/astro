@@ -1,8 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { SSRManifest } from 'astro';
-import { applyPolyfills, NodeApp } from 'astro/app/node';
-
-applyPolyfills();
+import { NodeApp } from 'astro/app/node';
 
 export function createExports(manifest: SSRManifest) {
 	const app = new NodeApp(manifest);
