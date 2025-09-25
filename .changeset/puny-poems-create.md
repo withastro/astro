@@ -11,7 +11,7 @@
 'astro': major
 ---
 
-Increases minimum Node.js version to 22.0.0
+Increases minimum Node.js version to 22.12.0
 
 Node 18 reached its End of Life in March 2025 and Node 20 is scheduled to reach its End of Life in April 2026.
 
@@ -19,7 +19,7 @@ Astro v6.0 drops Node 18 and Node 20 support entirely so that all Astro users ca
 
 #### What should I do?
 
-Check that both your development environment and your deployment environment are using **Node `22.0.0` or higher**.
+Check that both your development environment and your deployment environment are using **Node `22.12.0` or higher**.
 
 1. Check your local version of Node using:
 
@@ -29,9 +29,9 @@ Check that both your development environment and your deployment environment are
 
 2. Check your deployment environment's own documentation to verify that they support Node 22.
 
-  You can specify Node `22.0.0` for your Astro project either in a dashboard configuration setting or a `.nvmrc` file.
+  You can specify Node `22.12.0` for your Astro project either in a dashboard configuration setting or a `.nvmrc` file.
 
   ```bash
   # .nvmrc
-  22.0.0
+  22.12.0
   ```
