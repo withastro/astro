@@ -1,5 +1,102 @@
 # astro
 
+## 5.14.0
+
+### Minor Changes
+
+- [#13520](https://github.com/withastro/astro/pull/13520) [`a31edb8`](https://github.com/withastro/astro/commit/a31edb8daad8632bacd1861adf6ac720695f7173) Thanks [@openscript](https://github.com/openscript)! - Adds a new property `routePattern` available to `GetStaticPathsOptions`
+
+  This provides the original, dynamic segment definition in a routing file path (e.g. `/[...locale]/[files]/[slug]`) from the Astro render context that would not otherwise be available within the scope of `getStaticPaths()`. This can be useful to calculate the `params` and `props` for each page route.
+
+  For example, you can now localize your route segments and return an array of static paths by passing `routePattern` to a custom `getLocalizedData()` helper function. The `params` object will be set with explicit values for each route segment (e.g. `locale`, `files`, and `slug)`. Then, these values will be used to generate the routes and can be used in your page template via `Astro.params`.
+
+  ```astro
+  // src/pages/[...locale]/[files]/[slug].astro
+
+  import { getLocalizedData } from "../../../utils/i18n"; export async function getStaticPaths({ routePattern
+  }) { const response = await fetch('...'); const data = await response.json(); console.log(routePattern);
+  // [...locale]/[files]/[slug] // Call your custom helper with `routePattern` to generate the static
+  paths return data.flatMap((file) => getLocalizedData(file, routePattern)); } const { locale, files,
+  slug } = Astro.params;
+  ```
+
+  For more information about this advanced routing pattern, see Astro's [routing reference](https://docs.astro.build/en/reference/routing-reference/#routepattern).
+
+- [#13651](https://github.com/withastro/astro/pull/13651) [`dcfbd8c`](https://github.com/withastro/astro/commit/dcfbd8c9d5dc798d1bcb9b36531c2eded301050d) Thanks [@ADTC](https://github.com/ADTC)! - Adds a new `SvgComponent` type
+
+  You can now more easily enforce type safety for your `.svg` assets by directly importing `SVGComponent` from `astro/types`:
+
+  ```astro
+  ---
+  // src/components/Logo.astro
+  import type { SvgComponent } from 'astro/types';
+  import HomeIcon from './Home.svg';
+  interface Link {
+    url: string;
+    text: string;
+    icon: SvgComponent;
+  }
+  const links: Link[] = [
+    {
+      url: '/',
+      text: 'Home',
+      icon: HomeIcon,
+    },
+  ];
+  ---
+  ```
+
+- [#14206](https://github.com/withastro/astro/pull/14206) [`16a23e2`](https://github.com/withastro/astro/commit/16a23e23c3ad2309d3b84962b055f4b2d1c8604c) Thanks [@Fryuni](https://github.com/Fryuni)! - Warn on prerendered routes collision.
+
+  Previously, when two dynamic routes `/[foo]` and `/[bar]` returned values on their `getStaticPaths` that resulted in the same final path, only one of the routes would be rendered while the other would be silently ignored. Now, when this happens, a warning will be displayed explaining which routes collided and on which path.
+
+  Additionally, a new experimental flag `failOnPrerenderCollision` can be used to fail the build when such a collision occurs.
+
+### Patch Changes
+
+- [#13811](https://github.com/withastro/astro/pull/13811) [`69572c0`](https://github.com/withastro/astro/commit/69572c0aa2d453cc399948406dbcbfd12e03c4a8) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new `getFontData()` method to retrieve lower-level font family data programmatically when using the experimental Fonts API
+
+  The `getFontData()` helper function from `astro:assets` provides access to font family data for use outside of Astro. This can then be used in an [API Route](/en/guides/endpoints/#server-endpoints-api-routes) or to generate your own meta tags.
+
+  ```ts
+  import { getFontData } from 'astro:assets';
+
+  const data = getFontData('--font-roboto');
+  ```
+
+  For example, `getFontData()` can get the font buffer from the URL when using [satori](https://github.com/vercel/satori) to generate OpenGraph images:
+
+  ```tsx
+  // src/pages/og.png.ts
+
+  import type { APIRoute } from 'astro';
+  import { getFontData } from 'astro:assets';
+  import satori from 'satori';
+
+  export const GET: APIRoute = (context) => {
+    const data = getFontData('--font-roboto');
+
+    const svg = await satori(<div style={{ color: 'black' }}>hello, world</div>, {
+      width: 600,
+      height: 400,
+      fonts: [
+        {
+          name: 'Roboto',
+          data: await fetch(new URL(data[0].src[0].url, context.url.origin)).then((res) =>
+            res.arrayBuffer(),
+          ),
+          weight: 400,
+          style: 'normal',
+        },
+      ],
+    });
+
+    // ...
+  };
+  ```
+
+  See the [experimental Fonts API documentation](https://docs.astro.build/en/reference/experimental-flags/fonts/#accessing-font-data-programmatically) for more information.
+
 ## 5.13.11
 
 ### Patch Changes
