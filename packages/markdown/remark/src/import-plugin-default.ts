@@ -18,7 +18,7 @@ export async function importPlugin(p: string): Promise<unified.Plugin> {
 
 	// Try import from user project
 	cwdUrlStr ??= pathToFileURL(path.join(process.cwd(), 'package.json')).toString();
-	const resolved = require.resolve(p, { paths: [cwdUrlStr] });
+	const resolved = pathToFileURL(require.resolve(p, { paths: [cwdUrlStr] })).toString();
 	const importResult = await import(/* @vite-ignore */ resolved);
 	return importResult.default;
 }
