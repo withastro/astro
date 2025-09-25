@@ -470,8 +470,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^2.12.2
-        version: 2.12.2
+        specifier: next--next-result-create-astro
+        version: 0.20.0-next.2
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
@@ -6496,6 +6496,9 @@ packages:
   '@astrojs/cli-kit@0.4.1':
     resolution: {integrity: sha512-bVzyKzEpIwqjihBU/aUzt1LQckJuHK0agd3/ITdXhPUYculrc6K1/K7H+XG4rwjXtg+ikT3PM05V1MVYWiIvQw==}
     engines: {node: '>=18.14.1'}
+
+  '@astrojs/compiler@0.20.0-next.2':
+    resolution: {integrity: sha512-tHYAHFV6mNfG1AB3zbtmlmr1Qo8c9ulURJTUPFDYBgEjG5cX3Vt8MtOtgJY2Yk1C4Y2lAAoiRkHMWpjkm0r9zA==}
 
   '@astrojs/compiler@2.12.2':
     resolution: {integrity: sha512-w2zfvhjNCkNMmMMOn5b0J8+OmUaBL1o40ipMvqcG6NRpdC+lKxmTi48DT8Xw0SzJ3AfmeFLB45zXZXtmbsjcgw==}
@@ -14284,6 +14287,8 @@ snapshots:
       chalk: 5.6.2
       log-update: 5.0.1
       sisteransi: 1.0.5
+
+  '@astrojs/compiler@0.20.0-next.2': {}
 
   '@astrojs/compiler@2.12.2': {}
 
