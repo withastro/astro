@@ -49,10 +49,7 @@ describe('astro:db local database', () => {
 			clearEnvironment();
 
 			const absoluteFileUrl = new URL('./fixtures/libsql-remote/dist/relative.db', import.meta.url);
-			const prodDbPath = relative(
-				fileURLToPath(fixture.config.root),
-				fileURLToPath(absoluteFileUrl),
-			);
+			const prodDbPath = relative(process.cwd(), fileURLToPath(absoluteFileUrl));
 
 			// Remove the file if it exists to avoid conflict between test runs
 			await rm(prodDbPath, { force: true });
