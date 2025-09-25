@@ -21,7 +21,7 @@ describe('astro:db local database', () => {
 		before(async () => {
 			clearEnvironment();
 
-			const absoluteFileUrl = new URL('./fixtures/libsql-remote/dist/absolute.db', import.meta.url);
+			const absoluteFileUrl = new URL('./fixtures/libsql-remote/temp/absolute.db', import.meta.url);
 			// Remove the file if it exists to avoid conflict between test runs
 			await rm(absoluteFileUrl, { force: true });
 
