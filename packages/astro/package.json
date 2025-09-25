@@ -73,7 +73,7 @@
     "./virtual-modules/*": "./dist/virtual-modules/*"
   },
   "bin": {
-    "astro": "bin/astro.mjs"
+    "astro": "./bin/astro.mjs"
   },
   "files": [
     "components/*.{astro,css,ts}",
