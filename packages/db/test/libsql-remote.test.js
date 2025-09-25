@@ -48,18 +48,15 @@ describe('astro:db local database', () => {
 		before(async () => {
 			clearEnvironment();
 
-			const absoluteFileUrl = new URL('./fixtures/libsql-remote/dist/relative.db', import.meta.url);
+			const absoluteFileUrl = new URL('./fixtures/libsql-remote/temp/relative.db', import.meta.url);
 			const prodDbPath = relative(process.cwd(), fileURLToPath(absoluteFileUrl));
 
 			// Remove the file if it exists to avoid conflict between test runs
-			console.log('rm prodDbPath');
 			await rm(prodDbPath, { force: true });
 
 			process.env.ASTRO_INTERNAL_TEST_REMOTE = true;
 			process.env.ASTRO_DB_REMOTE_URL = `file:${prodDbPath}`;
-			console.log('fixture.build')
 			await fixture.build();
-			console.log('initializeRemoteDb');
 			await initializeRemoteDb(fixture.config);
 		});
 
