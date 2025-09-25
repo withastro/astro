@@ -110,7 +110,7 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest, macos-14, windows-2025]
-        NODE_VERSION: [18, 20, 22]
+        NODE_VERSION: [22, 24]
         TEST_SUITE:
           - { name: astro, script: 'pnpm run test:astro' }
           - { name: integrations, script: 'pnpm run test:integrations' }
@@ -119,13 +119,9 @@ jobs:
         # Windows and use one of the older Node versions.
         exclude:
           - os: macos-14
-            NODE_VERSION: 18
-          - os: macos-14
-            NODE_VERSION: 20
+            NODE_VERSION: 22
           - os: windows-2025
-            NODE_VERSION: 18
-          - os: windows-2025
-            NODE_VERSION: 20
+            NODE_VERSION: 22
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}

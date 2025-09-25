@@ -82,27 +82,17 @@ export async function revalidateRemoteImage(
 	};
 }
 
-function webToCachePolicyRequest({ url, method, headers: _headers }: Request): CachePolicy.Request {
-	let headers: CachePolicy.Headers = {};
-	// Be defensive here due to a cookie header bug in node@18.14.1 + undici
-	try {
-		headers = Object.fromEntries(_headers.entries());
-	} catch {}
+function webToCachePolicyRequest({ url, method, headers }: Request): CachePolicy.Request {
 	return {
 		method,
 		url,
-		headers,
+		headers: Object.fromEntries(headers.entries()),
 	};
 }
 
-function webToCachePolicyResponse({ status, headers: _headers }: Response): CachePolicy.Response {
-	let headers: CachePolicy.Headers = {};
-	// Be defensive here due to a cookie header bug in node@18.14.1 + undici
-	try {
-		headers = Object.fromEntries(_headers.entries());
-	} catch {}
+function webToCachePolicyResponse({ status, headers }: Response): CachePolicy.Response {
 	return {
 		status,
-		headers,
+		headers: Object.fromEntries(headers.entries()),
 	};
 }

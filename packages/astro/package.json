@@ -73,14 +73,14 @@
     "./virtual-modules/*": "./dist/virtual-modules/*"
   },
   "bin": {
-    "astro": "astro.js"
+    "astro": "./bin/astro.mjs"
   },
   "files": [
     "components/*.{astro,css,ts}",
     "tsconfigs",
     "dist",
     "types",
-    "astro.js",
+    "bin",
     "env.d.ts",
     "client.d.ts",
     "jsx-runtime.d.ts",
@@ -134,7 +134,6 @@
     "github-slugger": "^2.0.0",
     "html-escaper": "3.0.3",
     "http-cache-semantics": "^4.2.0",
-    "import-meta-resolve": "^4.2.0",
     "js-yaml": "^4.1.0",
     "kleur": "^4.1.5",
     "magic-string": "^0.30.18",
@@ -209,7 +208,7 @@
     "vitest": "^3.2.4"
   },
   "engines": {
-    "node": "18.20.8 || ^20.3.0 || >=22.0.0",
+    "node": "^20.19.5 || >=22.0.0",
     "npm": ">=9.6.5",
     "pnpm": ">=7.1.0"
   },
