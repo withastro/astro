@@ -72,7 +72,7 @@
     "vite": "^6.3.6"
   },
   "engines": {
-    "node": "^20.19.5 || >=22.0.0"
+    "node": "^20.19.5 || >=22.12.0"
   },
   "publishConfig": {
     "provenance": true

@@ -12,7 +12,7 @@ const CI_INSTRUCTIONS = {
 const IS_STACKBLITZ = !!process.versions.webcontainer;
 
 // Hardcode supported Node.js version so we don't have to read differently in CJS & ESM.
-const engines = IS_STACKBLITZ ? '>=20.19.5' : '>=22.0.0';
+const engines = IS_STACKBLITZ ? '>=20.19.5' : '>=22.12.0';
 const skipSemverCheckIfAbove = IS_STACKBLITZ ? 21 : 23;
 
 /** `astro *` */
