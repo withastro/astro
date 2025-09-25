@@ -491,9 +491,6 @@ importers:
       '@rollup/pluginutils':
         specifier: ^5.2.0
         version: 5.3.0(rollup@4.50.2)
-      acorn:
-        specifier: ^8.15.0
-        version: 8.15.0
       aria-query:
         specifier: ^5.3.2
         version: 5.3.2
@@ -542,9 +539,6 @@ importers:
       esbuild:
         specifier: ^0.25.0
         version: 0.25.5
-      estree-walker:
-        specifier: ^3.0.3
-        version: 3.0.3
       flattie:
         specifier: ^1.1.1
         version: 1.1.1

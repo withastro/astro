@@ -22,7 +22,6 @@ import astroDevToolbar from '../toolbar/vite-plugin-dev-toolbar.js';
 import astroTransitions from '../transitions/vite-plugin-transitions.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
-import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import vitePluginFileURL from '../vite-plugin-fileurl/index.js';
@@ -158,7 +157,6 @@ export async function createVite(
 			astroEnv({ settings, sync, envLoader }),
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
-			astroPostprocessVitePlugin(),
 			astroIntegrationsContainerPlugin({ settings, logger }),
 			astroScriptsPageSSRPlugin({ settings }),
 			astroHeadPlugin(),
