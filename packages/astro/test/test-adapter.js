@@ -86,11 +86,7 @@ export default function ({
 														locals,
 														addCookieHeader,
 														prerenderedErrorPageFetch,
-													${
-														provideAddress
-															? `clientAddress: clientAddress ?? '0.0.0.0',`
-															: ''
-													}
+													${provideAddress ? `clientAddress: clientAddress ?? '0.0.0.0',` : ''}
 													});
 												}
 											}

@@ -43,7 +43,7 @@ export const createExports = (manifest: SSRManifest, { middlewareSecret }: Args)
 			const response = await app.render(request, {
 				routeData,
 				locals,
-				clientAddress: context.ip
+				clientAddress: context.ip,
 			});
 
 			if (app.setCookieHeaders) {
