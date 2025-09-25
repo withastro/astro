@@ -73,14 +73,14 @@
     "./virtual-modules/*": "./dist/virtual-modules/*"
   },
   "bin": {
-    "astro": "astro.js"
+    "astro": "bin/astro.mjs"
   },
   "files": [
     "components/*.{astro,css,ts}",
     "tsconfigs",
     "dist",
     "types",
-    "astro.js",
+    "bin",
     "env.d.ts",
     "client.d.ts",
     "jsx-runtime.d.ts",

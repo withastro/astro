@@ -1,9 +1,6 @@
 #!/usr/bin/env node
 'use strict';
 
-// ISOMORPHIC FILE: NO TOP-LEVEL IMPORT/REQUIRE() ALLOWED
-// This file has to run as both ESM and CJS on older Node.js versions
-
 const CI_INSTRUCTIONS = {
 	NETLIFY: 'https://docs.netlify.com/configure-builds/manage-dependencies/#node-js-and-javascript',
 	GITHUB_ACTIONS:
@@ -39,7 +36,7 @@ async function main() {
 		if (correctedCwd !== cwd) process.chdir(correctedCwd);
 	}
 
-	return import('./dist/cli/index.js')
+	return import('../dist/cli/index.js')
 		.then(({ cli }) => cli(process.argv))
 		.catch((error) => {
 			console.error(error);
@@ -52,8 +49,7 @@ async function errorNodeUnsupported() {
 Node.js v${process.versions.node} is not supported by Astro!
 Please upgrade Node.js to a supported version: "${engines}"\n`);
 
-	// eslint-disable-next-line @typescript-eslint/no-require-imports
-	const ci = typeof require !== 'undefined' ? require('ci-info') : await import('ci-info');
+	const ci = await import('ci-info');
 
 	// Special instructions for CI environments, which may have special steps needed.
 	// This is a common issue that we can help users with proactively.
