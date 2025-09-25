@@ -22,5 +22,3 @@ Replace all use of `Astro.glob()` with `import.meta.glob()`. Note that `import.m
 ```
 
 Where appropriate, consider using content collections to organize your content, which has its own newer, more performant querying functions.
-
-You may also wish to consider using glob packages from NPM, such as `fast-glob`.
