@@ -31,6 +31,7 @@ Check that both your development environment and your deployment environment are
 
   You can specify Node `22.0.0` for your Astro project either in a dashboard configuration setting or a `.nvmrc` file.
 
-  ```bash title=".nvmrc"
+  ```bash
+  # .nvmrc
   22.0.0
   ```
