@@ -526,8 +526,7 @@ export class RenderContext {
 			compressHTML,
 			cookies,
 			/** This function returns the `Astro` faux-global */
-			// TODO: update compiler to not pass the astroGlobal as first argument
-			createAstro: (_, props, slots) => this.createAstro(result, props, slots, ctx),
+			createAstro: (props, slots) => this.createAstro(result, props, slots, ctx),
 			links,
 			params: this.params,
 			partial,
