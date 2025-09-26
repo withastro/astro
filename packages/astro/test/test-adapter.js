@@ -3,7 +3,6 @@ import { viteID } from '../dist/core/util.js';
 /**
  * @typedef {import('../src/types/public/integrations.js').AstroAdapter} AstroAdapter
  * @typedef {import('../src/types/public/integrations.js').AstroIntegration} AstroIntegration
- * @typedef {import('../src/types/public/integrations.js').HookParameters<"astro:build:ssr">['entryPoints']} EntryPoints
  * @typedef {import('../src/types/public/integrations.js').HookParameters<"astro:build:ssr">['middlewareEntryPoint']} MiddlewareEntryPoint
  * @typedef {import('../src/types/public/integrations.js').HookParameters<"astro:build:done">['routes']} Routes
  */
@@ -13,7 +12,6 @@ import { viteID } from '../dist/core/util.js';
  * @param {{
  * 	provideAddress?: boolean;
  * 	extendAdapter?: AstroAdapter;
- * 	setEntryPoints?: (entryPoints: EntryPoints) => void;
  * 	setMiddlewareEntryPoint?: (middlewareEntryPoint: MiddlewareEntryPoint) => void;
  * 	env: Record<string, string | undefined>;
  * }} param0
@@ -23,7 +21,6 @@ export default function ({
 	provideAddress = true,
 	staticHeaders = false,
 	extendAdapter,
-	setEntryPoints,
 	setMiddlewareEntryPoint,
 	setManifest,
 	setRouteToHeaders,
@@ -124,10 +121,7 @@ export default function ({
 					...extendAdapter,
 				});
 			},
-			'astro:build:ssr': ({ entryPoints, middlewareEntryPoint, manifest }) => {
-				if (setEntryPoints) {
-					setEntryPoints(entryPoints);
-				}
+			'astro:build:ssr': ({ middlewareEntryPoint, manifest }) => {
 				if (setMiddlewareEntryPoint) {
 					setMiddlewareEntryPoint(middlewareEntryPoint);
 				}
