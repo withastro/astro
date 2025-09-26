@@ -1,5 +1,5 @@
 import type { Rollup } from 'vite';
-import type { RouteData, SSRResult } from '../../types/public/internal.js';
+import type { SSRResult } from '../../types/public/internal.js';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
 import { makePageDataKey } from './plugins/util.js';
