@@ -255,20 +255,6 @@ export interface AstroIntegration {
 	} & Partial<Record<string, unknown>>;
 }
 
-/**
- * A smaller version of the {@link RouteData} that is used in the integrations.
- * @deprecated Use {@link IntegrationResolvedRoute}
- */
-export type IntegrationRouteData = Omit<
-	RouteData,
-	'isIndex' | 'fallbackRoutes' | 'redirectRoute' | 'origin'
-> & {
-	/**
-	 * {@link RouteData.redirectRoute}
-	 */
-	redirectRoute?: IntegrationRouteData;
-};
-
 export type RouteToHeaders = Map<string, HeaderPayload>;
 
 export type HeaderPayload = {
