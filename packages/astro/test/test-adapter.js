@@ -15,7 +15,6 @@ import { viteID } from '../dist/core/util.js';
  * 	extendAdapter?: AstroAdapter;
  * 	setEntryPoints?: (entryPoints: EntryPoints) => void;
  * 	setMiddlewareEntryPoint?: (middlewareEntryPoint: MiddlewareEntryPoint) => void;
- * 	setRoutes?: (routes: Routes) => void;
  * 	env: Record<string, string | undefined>;
  * }} param0
  * @returns {AstroIntegration}
@@ -26,7 +25,6 @@ export default function ({
 	extendAdapter,
 	setEntryPoints,
 	setMiddlewareEntryPoint,
-	setRoutes,
 	setManifest,
 	setRouteToHeaders,
 	env,
@@ -135,11 +133,6 @@ export default function ({
 				}
 				if (setManifest) {
 					setManifest(manifest);
-				}
-			},
-			'astro:build:done': ({ routes }) => {
-				if (setRoutes) {
-					setRoutes(routes);
 				}
 			},
 			'astro:build:generated': ({ experimentalRouteToHeaders }) => {
