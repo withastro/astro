@@ -18,6 +18,8 @@ CONTENT GUIDELINES:
 - Patch updates: Often one-line, clearly communicate impact
 - New features: Begin with 'Adds' or similar, more detail than one line, mention new capabilities, optionally include usage example
 - Breaking changes: Use verbs such as 'Removes'/'Changes'/'Deprecates', provide migration guidance
+- Experimental features (only) are allowed to have breaking changes in a patch or minor. All other breaking changes must be in a major release.
+- All breaking changes must include actionable migration advice.
 - Use inline code for API references
 - Avoid internal implementation details
 
