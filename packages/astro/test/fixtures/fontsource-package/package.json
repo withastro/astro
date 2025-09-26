@@ -1,0 +1,10 @@
+{
+  "name": "@test/astro-fontsource-package",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@fontsource/monofett": "5.2.6",
+    "@fontsource/montserrat": "5.2.6",
+    "astro": "workspace:*"
+  }
+}
