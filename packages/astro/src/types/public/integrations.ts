@@ -212,12 +212,6 @@ export interface BaseIntegrationHooks {
 	'astro:build:ssr': (options: {
 		manifest: SerializedSSRManifest;
 		/**
-		 * This maps a {@link RouteData} to an {@link URL}, this URL represents
-		 * the physical file you should import.
-		 */
-		// TODO: Change in Astro 6.0
-		entryPoints: Map<IntegrationRouteData, URL>;
-		/**
 		 * File path of the emitted middleware
 		 */
 		middlewareEntryPoint: URL | undefined;
@@ -239,8 +233,6 @@ export interface BaseIntegrationHooks {
 	'astro:build:done': (options: {
 		pages: { pathname: string }[];
 		dir: URL;
-		/** @deprecated Use the `assets` map and the new `astro:routes:resolved` hook */
-		routes: IntegrationRouteData[];
 		assets: Map<string, URL[]>;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;

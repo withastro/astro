@@ -23,7 +23,6 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
 import { createRoutesList } from '../routing/index.js';
-import { getServerIslandRouteData } from '../server-islands/endpoint.js';
 import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
@@ -242,8 +241,7 @@ class AstroBuilder {
 			pages: pageNames,
 			routes: Object.values(allPages)
 				.flat()
-				.map((pageData) => pageData.route)
-				.concat(hasServerIslands ? getServerIslandRouteData(this.settings.config) : []),
+				.map((pageData) => pageData.route),
 			logger: this.logger,
 		});
 

@@ -89,7 +89,6 @@ export interface BuildInternals {
 	// The SSR manifest entry chunk.
 	manifestEntryChunk?: Rollup.OutputChunk;
 	manifestFileName?: string;
-	entryPoints: Map<RouteData, URL>;
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint: URL | undefined;
 	astroActionsEntryPoint: URL | undefined;
@@ -121,7 +120,6 @@ export function createBuildInternals(): BuildInternals {
 		discoveredScripts: new Set(),
 		staticFiles: new Set(),
 		componentMetadata: new Map(),
-		entryPoints: new Map(),
 		prerenderOnlyChunks: [],
 		astroActionsEntryPoint: undefined,
 		middlewareEntryPoint: undefined,
