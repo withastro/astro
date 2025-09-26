@@ -22,9 +22,26 @@ export function createDevUrlProxyHashResolver({
 	return {
 		resolve(input) {
 			const { cssVariable, data } = input;
-			return [cssVariable.slice(2), data.weight, data.style, baseHashResolver.resolve(input)]
+			return [
+				cssVariable.slice(2),
+				formatWeight(data.weight),
+				data.style,
+				baseHashResolver.resolve(input),
+			]
 				.filter(Boolean)
 				.join('-');
 		},
 	};
+}
+
+function formatWeight(
+	weight: Parameters<UrlProxyHashResolver['resolve']>[0]['data']['weight'],
+): string | undefined {
+	if (Array.isArray(weight)) {
+		return weight.join('-');
+	}
+	if (typeof weight === 'number') {
+		return weight.toString();
+	}
+	return weight;
 }

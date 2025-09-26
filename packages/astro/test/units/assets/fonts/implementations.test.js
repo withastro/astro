@@ -457,5 +457,23 @@ describe('fonts implementations', () => {
 			}),
 			'foo-400-italic-whatever.woff2',
 		);
+		assert.equal(
+			resolver.resolve({
+				cssVariable: '--foo',
+				data: { weight: '500', style: 'italic' },
+				originalUrl: 'whatever',
+				type: 'woff2',
+			}),
+			'foo-500-italic-whatever.woff2',
+		);
+		assert.equal(
+			resolver.resolve({
+				cssVariable: '--foo',
+				data: { weight: [100, 900], style: 'italic' },
+				originalUrl: 'whatever',
+				type: 'woff2',
+			}),
+			'foo-100-900-italic-whatever.woff2',
+		);
 	});
 });
