@@ -106,7 +106,7 @@
     "test:integration": "astro-scripts test \"test/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/compiler": "next--next-result-create-astro",
+    "@astrojs/compiler": "0.0.0-next-result-create-astro-20250926081949",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
