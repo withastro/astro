@@ -146,7 +146,7 @@
         "**/packages/db/**/cli/**/*.ts",
         "**/benchmark/**/*.js",
         "**/packages/astro/src/cli/**/*.ts",
-        "**/packages/astro/astro.js"
+        "**/packages/astro/bin/**/*.mjs"
       ],
       "linter": {
         "rules": {

@@ -1,5 +1,4 @@
 import { fileURLToPath } from 'node:url';
-import { resolve as importMetaResolve } from 'import-meta-resolve';
 import type { OutputChunk } from 'rollup';
 import { glob } from 'tinyglobby';
 import { type BuiltinDriverName, builtinDrivers } from 'unstorage';
@@ -50,10 +49,10 @@ function resolveSessionDriver(driver: string | undefined): string | null {
 	}
 	try {
 		if (driver === 'fs') {
-			return importMetaResolve(builtinDrivers.fsLite, import.meta.url);
+			return import.meta.resolve(builtinDrivers.fsLite, import.meta.url);
 		}
 		if (driver in builtinDrivers) {
-			return importMetaResolve(builtinDrivers[driver as BuiltinDriverName], import.meta.url);
+			return import.meta.resolve(builtinDrivers[driver as BuiltinDriverName], import.meta.url);
 		}
 	} catch {
 		return null;

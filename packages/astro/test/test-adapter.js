@@ -81,12 +81,13 @@ export default function ({
 														return new Response(data);
 													}
 
-													${
-														provideAddress
-															? `request[Symbol.for('astro.clientAddress')] = clientAddress ?? '0.0.0.0';`
-															: ''
-													}
-													return super.render(request, { routeData, locals, addCookieHeader, prerenderedErrorPageFetch });
+													return super.render(request, {
+														routeData,
+														locals,
+														addCookieHeader,
+														prerenderedErrorPageFetch,
+													${provideAddress ? `clientAddress: clientAddress ?? '0.0.0.0',` : ''}
+													});
 												}
 											}
 

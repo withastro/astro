@@ -83,9 +83,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	integrations: [],
 	markdown: markdownConfigDefaults,
 	vite: {},
-	legacy: {
-		collections: false,
-	},
+	legacy: {},
 	redirects: {},
 	security: {
 		checkOrigin: true,
@@ -409,8 +407,7 @@ export const AstroConfigSchema = z.object({
 					.or(
 						z.object({
 							prefixDefaultLocale: z.boolean().optional().default(false),
-							// TODO: Astro 6.0 change to false
-							redirectToDefaultLocale: z.boolean().optional().default(true),
+							redirectToDefaultLocale: z.boolean().optional().default(false),
 							fallbackType: z.enum(['redirect', 'rewrite']).optional().default('redirect'),
 						}),
 					)
@@ -520,11 +517,7 @@ export const AstroConfigSchema = z.object({
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,
 		)
 		.default({}),
-	legacy: z
-		.object({
-			collections: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.legacy.collections),
-		})
-		.default({}),
+	legacy: z.object({}).default({}),
 });
 
 export type AstroConfigType = z.infer<typeof AstroConfigSchema>;

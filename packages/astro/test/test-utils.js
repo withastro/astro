@@ -312,7 +312,7 @@ function parseAddressToHost(address) {
 	return address;
 }
 
-const cliPath = fileURLToPath(new URL('../astro.js', import.meta.url));
+const cliPath = fileURLToPath(new URL('../bin/astro.mjs', import.meta.url));
 
 /** Returns a process running the Astro CLI. */
 export function cli(/** @type {string[]} */ ...args) {
