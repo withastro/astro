@@ -250,7 +250,7 @@ async function buildManifest(
 		const pageData = internals.pagesByKeys.get(makePageDataKey(route.route, route.component));
 		if (!pageData) continue;
 
-		if (route.prerender && !needsStaticHeaders) {
+		if (route.prerender && route.type !== 'redirect' && !needsStaticHeaders) {
 			continue;
 		}
 		const scripts: SerializedRouteInfo['scripts'] = [];
