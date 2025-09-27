@@ -21,8 +21,23 @@ export interface AstroGlobal<
 	Self = AstroComponentFactory,
 	// eslint-disable-next-line @typescript-eslint/no-shadow
 	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
-> extends AstroGlobalPartial,
-		AstroSharedContext<Props, Params> {
+> extends AstroSharedContext<Props, Params> {
+	/**
+	 * Returns a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrosite)
+	 */
+	site: URL | undefined;
+	/**
+	 * Returns a string with the current version of Astro.
+	 *
+	 * Useful for using `<meta name="generator" content={Astro.generator} />` or crediting Astro in a site footer.
+	 *
+	 * [HTML Specification for `generator`](https://html.spec.whatwg.org/multipage/semantics.html#meta-generator)
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrogenerator)
+	 */
+	generator: string;
 	/**
 	 * A full URL object of the request URL.
 	 * Equivalent to: `new URL(Astro.request.url)`
@@ -204,25 +219,6 @@ export interface AstroGlobal<
 		 */
 		render(slotName: string, args?: any[]): Promise<string>;
 	};
-}
-
-export interface AstroGlobalPartial {
-	/**
-	 * Returns a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrosite)
-	 */
-	site: URL | undefined;
-	/**
-	 * Returns a string with the current version of Astro.
-	 *
-	 * Useful for using `<meta name="generator" content={Astro.generator} />` or crediting Astro in a site footer.
-	 *
-	 * [HTML Specification for `generator`](https://html.spec.whatwg.org/multipage/semantics.html#meta-generator)
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrogenerator)
-	 */
-	generator: string;
 }
 
 // Shared types between `Astro` global and API context object
