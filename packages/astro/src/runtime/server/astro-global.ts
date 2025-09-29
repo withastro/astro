@@ -30,22 +30,22 @@ export function createAstro(site: string | undefined): AstroGlobal {
 			return ASTRO_GENERATOR;
 		},
 		get callAction(): any {
-			throw createAstro('callAction');
+			throw createError('callAction');
 		},
 		get clientAddress(): any {
-			throw createAstro('clientAddress');
+			throw createError('clientAddress');
 		},
 		get cookies(): any {
-			throw createAstro('cookies');
+			throw createError('cookies');
 		},
 		get csp(): any {
-			throw createAstro('csp');
+			throw createError('csp');
 		},
 		get currentLocale(): any {
 			throw createError('currentLocale');
 		},
 		get getActionResult(): any {
-			throw createAstro('getActionResult');
+			throw createError('getActionResult');
 		},
 		get isPrerendered(): any {
 			throw createError('isPrerendered');

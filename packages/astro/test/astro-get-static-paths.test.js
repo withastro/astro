@@ -1,5 +1,5 @@
+// @ts-check
 import assert from 'node:assert/strict';
-import { readFile, writeFile } from 'node:fs/promises';
 import { after, afterEach, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
@@ -17,11 +17,12 @@ describe('getStaticPaths - build calls', () => {
 			trailingSlash: 'never',
 			base: '/blog',
 		});
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	afterEach(() => {
 		// reset the flag used by [...calledTwiceTest].astro between each test
+		// @ts-expect-error not typed
 		globalThis.isCalledOnce = false;
 	});
 
@@ -39,7 +40,9 @@ describe('getStaticPaths - build calls', () => {
 });
 
 describe('getStaticPaths - dev calls', () => {
+	/** @type {import('./test-utils').Fixture} */
 	let fixture;
+	/** @type {import('./test-utils').DevServer} */
 	let devServer;
 
 	before(async () => {
@@ -52,6 +55,7 @@ describe('getStaticPaths - dev calls', () => {
 
 	afterEach(() => {
 		// reset the flag used by [...calledTwiceTest].astro between each test
+		// @ts-expect-error not typed
 		globalThis.isCalledOnce = false;
 	});
 
@@ -141,6 +145,7 @@ describe('getStaticPaths - dev calls', () => {
 
 	it('warns if Astro.generator or Astro.site is accessed', async () => {
 		const originalWarn = console.warn;
+		/** @type {Array<string>} */
 		const logs = [];
 		console.warn = (...args) => {
 			logs.push(...args);
@@ -161,17 +166,36 @@ describe('getStaticPaths - dev calls', () => {
 		// For some reason site is always undefined
 		assert.equal($('#site').text(), '');
 	});
+});
 
-	it('throws if an invalid Astro property is accessed', async () => {
-		const url = new URL('src/pages/food/[name].astro', root);
-		const originalContents = await readFile(url, 'utf-8');
-		await writeFile(
-			url,
-			originalContents.replace('getStaticPaths() {', 'getStaticPaths() {\nAstro.getActionResult;'),
-			'utf-8',
+describe('throws if an invalid Astro property is accessed', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root,
+			site: 'https://mysite.dev/',
+		});
+		await fixture.editFile(
+			'/src/pages/food/[name].astro',
+			(prev) => prev.replace('getStaticPaths() {', 'getStaticPaths() {\nAstro.getActionResult;'),
+			false,
 		);
-		const res = await fixture.fetch('/food/tacos');
-		assert.equal(res.status, 500);
-		await writeFile(url, originalContents, 'utf-8');
+	});
+
+	after(async () => {
+		fixture.resetAllFiles();
+	});
+
+	it('does not build', async () => {
+		try {
+			await fixture.build({});
+			assert.fail();
+		} catch (err) {
+			assert.equal(err instanceof Error, true);
+			// @ts-ignore
+			assert.equal(err.title, 'Unavailable Astro global property in getStaticPaths');
+		}
 	});
 });
