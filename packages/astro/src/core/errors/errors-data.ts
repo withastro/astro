@@ -1422,12 +1422,12 @@ export const CspNotEnabled = {
  * @description
  * Unavailable Astro global property in getStaticPaths
  * @message
- * This property on the Astro global is not available in getStaticPaths().
+ * The Astro global is not available in getStaticPaths().
  */
 export const UnavailableAstroGlobalProperty = {
 	name: 'UnavailableAstroGlobalProperty',
 	title: 'Unavailable Astro global property in getStaticPaths()',
-	message: (name: string) => `"Astro.${name}" is not available in getStaticPaths().`,
+	message: (name: string) => `The Astro global is not available in this scope. Please remove "Astro.${name}" from your getStaticPaths() function.`,
 } satisfies ErrorData;
 
 /**
