@@ -12,16 +12,11 @@ import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, Props, RewritePayload } from '../types/public/common.js';
-import type {
-	APIContext,
-	AstroGlobal,
-	AstroGlobalPartial,
-	AstroSharedContextCsp,
-} from '../types/public/context.js';
+import type { APIContext, AstroGlobal, AstroSharedContextCsp } from '../types/public/context.js';
 import type { RouteData, SSRResult } from '../types/public/internal.js';
 import type { SSRActions } from './app/types.js';
 import {
-	ASTRO_VERSION,
+	ASTRO_GENERATOR,
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
 	REWRITE_DIRECTIVE_HEADER_VALUE,
@@ -384,7 +379,6 @@ export class RenderContext {
 	createActionAPIContext(): ActionAPIContext {
 		const renderContext = this;
 		const { params, pipeline, url } = this;
-		const generator = `Astro v${ASTRO_VERSION}`;
 
 		const rewrite = async (reroutePayload: RewritePayload) => {
 			return await this.#executeRewrite(reroutePayload);
@@ -403,7 +397,7 @@ export class RenderContext {
 			get currentLocale() {
 				return renderContext.computeCurrentLocale();
 			},
-			generator,
+			generator: ASTRO_GENERATOR,
 			get locals() {
 				return renderContext.locals;
 			},
@@ -532,8 +526,7 @@ export class RenderContext {
 			compressHTML,
 			cookies,
 			/** This function returns the `Astro` faux-global */
-			createAstro: (astroGlobal, props, slots) =>
-				this.createAstro(result, astroGlobal, props, slots, ctx),
+			createAstro: (props, slots) => this.createAstro(result, props, slots, ctx),
 			links,
 			params: this.params,
 			partial,
@@ -588,7 +581,6 @@ export class RenderContext {
 	 */
 	createAstro(
 		result: SSRResult,
-		astroStaticPartial: AstroGlobalPartial,
 		props: Record<string, any>,
 		slotValues: Record<string, any> | null,
 		apiContext: ActionAPIContext,
@@ -596,18 +588,10 @@ export class RenderContext {
 		let astroPagePartial;
 		// During rewriting, we must recompute the Astro global, because we need to purge the previous params/props/etc.
 		if (this.isRewriting) {
-			astroPagePartial = this.#astroPagePartial = this.createAstroPagePartial(
-				result,
-				astroStaticPartial,
-				apiContext,
-			);
+			astroPagePartial = this.#astroPagePartial = this.createAstroPagePartial(result, apiContext);
 		} else {
 			// Create page partial with static partial so they can be cached together.
-			astroPagePartial = this.#astroPagePartial ??= this.createAstroPagePartial(
-				result,
-				astroStaticPartial,
-				apiContext,
-			);
+			astroPagePartial = this.#astroPagePartial ??= this.createAstroPagePartial(result, apiContext);
 		}
 		// Create component-level partials. `Astro.self` is added by the compiler.
 		const astroComponentPartial = { props, self: null };
@@ -638,7 +622,6 @@ export class RenderContext {
 
 	createAstroPagePartial(
 		result: SSRResult,
-		astroStaticPartial: AstroGlobalPartial,
 		apiContext: ActionAPIContext,
 	): Omit<AstroGlobal, 'props' | 'self' | 'slots'> {
 		const renderContext = this;
@@ -661,7 +644,7 @@ export class RenderContext {
 		const callAction = createCallAction(apiContext);
 
 		return {
-			generator: astroStaticPartial.generator,
+			generator: ASTRO_GENERATOR,
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
 			cookies,

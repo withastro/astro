@@ -6,7 +6,7 @@ import {
 } from '../../i18n/utils.js';
 import type { MiddlewareHandler, Params, RewritePayload } from '../../types/public/common.js';
 import type { APIContext, AstroSharedContextCsp } from '../../types/public/context.js';
-import { ASTRO_VERSION } from '../constants.js';
+import { ASTRO_GENERATOR } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getClientIpAddress } from '../routing/request.js';
@@ -73,7 +73,7 @@ function createContext({
 		request,
 		params,
 		site: undefined,
-		generator: `Astro v${ASTRO_VERSION}`,
+		generator: ASTRO_GENERATOR,
 		props: {},
 		rewrite,
 		routePattern: '',

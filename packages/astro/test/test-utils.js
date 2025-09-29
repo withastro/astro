@@ -23,7 +23,7 @@ kleur.$.enabled = false;
 
 /**
  * @typedef {import('../src/core/dev/dev').DevServer} DevServer
- * @typedef {import('../src/types/public/config.js').AstroInlineConfig & { root?: string | URL }} AstroInlineConfig
+ * @typedef {Omit<import('../src/types/public/config.js').AstroInlineConfig, 'root'> & { root?: string | URL }} AstroInlineConfig
  * @typedef {import('../src/types/public/config.js').AstroConfig} AstroConfig
  * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
  * @typedef {import('../src/core/app/index').App} App
@@ -39,7 +39,7 @@ kleur.$.enabled = false;
  * @property {(path: string) => Promise<boolean>} pathExists
  * @property {(url: string, opts?: Parameters<typeof fetch>[1]) => Promise<Response>} fetch
  * @property {(path: string) => Promise<string>} readFile
- * @property {(path: string, updater: (content: string) => string) => Promise<void>} editFile
+ * @property {(path: string, updater: (content: string) => string, waitForNextWrite = true) => Promise<() => void>} editFile
  * @property {(path: string) => Promise<string[]>} readdir
  * @property {(pattern: string) => Promise<string[]>} glob
  * @property {(inlineConfig?: Parameters<typeof dev>[0]) => ReturnType<typeof dev>} startDevServer
@@ -47,7 +47,6 @@ kleur.$.enabled = false;
  * @property {() => Promise<void>} clean
  * @property {() => Promise<App>} loadTestAdapterApp
  * @property {() => Promise<(req: NodeRequest, res: NodeResponse) => void>} loadNodeAdapterHandler
- * @property {() => Promise<void>} onNextChange
  * @property {(timeout?: number) => Promise<void>} onNextDataStoreChange
  * @property {typeof check} check
  * @property {typeof sync} sync
