@@ -16,23 +16,23 @@ Remove any instance of `routes` passed to `astro:build:done` and replace it with
 ```diff
 // my-integration.mjs
 const integration = () => {
-+    let routes
++   let routes
     return {
         name: 'my-integration',
         hooks: {
-+            'astro:routes:resolved': (params) => {
-+                routes = params.routes
-+            },
++           'astro:routes:resolved': (params) => {
++               routes = params.routes
++           },
             'astro:build:done': ({
--                routes
-+                assets
+-               routes
++               assets
             }) => {
-+                for (const route of routes) {
-+                    const distURL = assets.get(route.pattern)
-+                    if (distURL) {
-+                        Object.assign(route, { distURL })
-+                    }
-+                }
++               for (const route of routes) {
++                   const distURL = assets.get(route.pattern)
++                   if (distURL) {
++                       Object.assign(route, { distURL })
++                   }
++               }
                 console.log(routes)
             }
         }
