@@ -159,7 +159,7 @@
     "unist-util-visit": "^5.0.0",
     "unstorage": "^1.17.0",
     "vfile": "^6.0.3",
-    "vite": "^6.3.6",
+    "vite": "^7.1.7",
     "vitefu": "^1.1.1",
     "xxhash-wasm": "^1.1.0",
     "yargs-parser": "^21.1.1",
