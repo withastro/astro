@@ -13,7 +13,7 @@
 '@astrojs/db': minor
 ---
 
-Updates Vite
+Updates Vite to 7.0
 
 Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler.
 
