@@ -1,5 +1,4 @@
 ---
-'@astrojs/vercel': major
 'astro': major
 ---
 

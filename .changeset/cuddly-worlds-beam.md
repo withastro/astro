@@ -1,5 +1,4 @@
 ---
-'@astrojs/sitemap': major
 'astro': major
 ---
 
