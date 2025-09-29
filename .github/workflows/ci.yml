@@ -219,11 +219,11 @@ jobs:
         with:
           repository: withastro/docs
           path: smoke/docs
-          # For a commit event on the `next` branch (`ref_name`), use the `5.0.0-beta` branch.
-          # For a pull_request event merging into the `next` branch (`base_ref`), use the `5.0.0-beta` branch.
+          # For a commit event on the `next` branch (`ref_name`), use the `v6` branch.
+          # For a pull_request event merging into the `next` branch (`base_ref`), use the `v6` branch.
           # NOTE: For a pull_request event, the `ref_name` is something like `<pr-number>/merge` than the branch name.
           # NOTE: Perhaps docs repo should use a consistent `next` branch in the future.
-          ref: ${{ (github.ref_name == 'next' || github.base_ref == 'next') && '5.0.0-beta' || 'main' }}
+          ref: ${{ (github.ref_name == 'next' || github.base_ref == 'next') && 'v6' || 'main' }}
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
