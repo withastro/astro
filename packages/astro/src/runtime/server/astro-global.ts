@@ -4,8 +4,8 @@ import type { AstroGlobal } from '../../types/public/context.js';
 
 function createError(name: string) {
 	return new AstroError({
-		...AstroErrorData.UnavailableAstroGlobalProperty,
-		message: AstroErrorData.UnavailableAstroGlobalProperty.message(name),
+		...AstroErrorData.UnavailableAstroGlobal,
+		message: AstroErrorData.UnavailableAstroGlobal.message(name),
 	});
 }
 
