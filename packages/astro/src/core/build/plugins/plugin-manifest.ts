@@ -140,7 +140,6 @@ export function pluginManifest(
 					config: options.settings.config,
 					manifest,
 					logger: options.logger,
-					entryPoints: internals.entryPoints,
 					middlewareEntryPoint: shouldPassMiddlewareEntryPoint
 						? internals.middlewareEntryPoint
 						: undefined,
