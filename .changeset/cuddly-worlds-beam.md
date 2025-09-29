@@ -4,13 +4,13 @@
 
 Removes `routes` on `astro:build:done` hook (Integration API)
 
-In Astro 5.0, accessing `routes` on the `astro:build:done` hook was deprecated.
+In Astro 5.0, accessing `routes` on the `astro:build:done` hook was deprecated in favour of a new `astro:routes:resolved` hook. However, Astro integrations may have continued to function using the `routes` array.
 
-Astro 6.0 removes the `routes` array passed to this hook entirely. Instead, the `astro:routes:resolved` hook should be used. 
+Astro 6.0 removes the `routes` array passed to this hook entirely. Instead, the `astro:routes:resolved` hook must be used. 
 
 #### What should I do?
 
-Remove any instance of `routes` passed to `astro:build:done` and replace it with the new `astro:routes:resolved` hook. Access `distURL` on the newly exposed `assets` map:
+Remove any instance of `routes` passed to `astro:build:done` in your Astro integration and replace it with the new `astro:routes:resolved` hook. You can access `distURL` on the newly exposed `assets` map:
 
 ```diff
 // my-integration.mjs
