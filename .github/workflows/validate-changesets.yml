@@ -19,12 +19,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
         with:
           fetch-depth: 0
 
       - name: Restore response cache
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@6f8efc29b200d32929f49075959781ed54ec270c # v3.5.0
         id: cache-restore
         with:
           path: /tmp/llm_cache
@@ -33,9 +33,9 @@ jobs:
             llm-validation-pr-${{ github.event.pull_request.number }}-
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
-          python-version: '3.12'
+          python-version: '3.13.7'
 
       - name: Install llm CLI
         run: |
@@ -217,7 +217,7 @@ jobs:
       - name: Comment validation results on PR
         id: comment
         if: steps.validate.outputs.has_changesets == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
           script: |
             const fs = require('fs');
@@ -399,7 +399,7 @@ jobs:
             }
 
       - name: Save response cache
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@6f8efc29b200d32929f49075959781ed54ec270c # v3.5.0
         if: always()
         with:
           path: /tmp/llm_cache
