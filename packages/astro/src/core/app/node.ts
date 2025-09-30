@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { Http2ServerResponse } from 'node:http2';
 import type { Socket } from 'node:net';
-import type { RouteData } from '../../types/public/internal.js';
 import { clientAddressSymbol, nodeRequestAbortControllerCleanupSymbol } from '../constants.js';
 import { deserializeManifest } from './common.js';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
@@ -33,22 +32,12 @@ export class NodeApp extends App {
 		}
 		return super.match(req, allowPrerenderedRoutes);
 	}
-	render(request: NodeRequest | Request, options?: RenderOptions): Promise<Response>;
-	/**
-	 * @deprecated Instead of passing `RouteData` and locals individually, pass an object with `routeData` and `locals` properties.
-	 * See https://github.com/withastro/astro/pull/9199 for more information.
-	 */
-	render(request: NodeRequest | Request, routeData?: RouteData, locals?: object): Promise<Response>;
-	render(
-		req: NodeRequest | Request,
-		routeDataOrOptions?: RouteData | RenderOptions,
-		maybeLocals?: object,
-	) {
-		if (!(req instanceof Request)) {
-			req = NodeApp.createRequest(req);
+
+	render(request: NodeRequest | Request, options?: RenderOptions): Promise<Response> {
+		if (!(request instanceof Request)) {
+			request = NodeApp.createRequest(request);
 		}
-		// @ts-expect-error The call would have succeeded against the implementation, but implementation signatures of overloads are not externally visible.
-		return super.render(req, routeDataOrOptions, maybeLocals);
+		return super.render(request, options);
 	}
 
 	/**
