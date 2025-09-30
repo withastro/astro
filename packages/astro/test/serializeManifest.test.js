@@ -133,7 +133,7 @@ describe('astro:config/server', () => {
 			assert.ok($('#build-client').text().endsWith('/dist/client/'));
 			assert.ok($('#build-server').text().endsWith('/dist/server/'));
 			// URL
-			assert.equal($('#root-type').text(), 'object');
+			assert.equal($('#root-url').text(), 'true');
 		});
 	});
 
@@ -155,7 +155,7 @@ describe('astro:config/server', () => {
 			assert.ok($('#build-client').text().endsWith('/dist/client/'));
 			assert.ok($('#build-server').text().endsWith('/dist/server/'));
 			// URL
-			assert.equal($('#root-type').text(), 'object');
+			assert.equal($('#root-url').text(), 'true');
 		});
 	});
 
@@ -184,7 +184,7 @@ describe('astro:config/server', () => {
 			assert.ok($('#build-client').text().endsWith('/dist/client/'));
 			assert.ok($('#build-server').text().endsWith('/dist/server/'));
 			// URL
-			assert.equal($('#root-type').text(), 'object');
+			assert.equal($('#root-url').text(), 'true');
 		});
 	});
 });
