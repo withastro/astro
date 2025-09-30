@@ -5,8 +5,10 @@
 /// <reference path="./types/fonts.d.ts" />
 
 interface ImportMetaEnv {
+	// TODO: remove in Astro 7
 	/**
 	 * The prefix for Astro-generated asset links if the build.assetsPrefix config option is set. This can be used to create asset links not handled by Astro.
+	 * @deprectated It will be removed in a future major version of Astro. Use `build.assetsPrefix` from `astro:config/server` instead.
 	 */
 	readonly ASSETS_PREFIX: string | Record<string, string>;
 	/**
