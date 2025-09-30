@@ -51,12 +51,18 @@ export interface ErrorHandler {
 	handle: (input: ErrorHandlerInput) => Error;
 }
 
+interface ProxyData {
+	weight: unifont.FontFaceData['weight'];
+	style: unifont.FontFaceData['style'];
+	subset: NonNullable<unifont.FontFaceData['meta']>['subset'];
+}
+
 export interface UrlProxy {
 	proxy: (
 		input: Pick<FontFileData, 'url' | 'init'> & {
 			type: FontType;
 			collectPreload: boolean;
-			data: Partial<unifont.FontFaceData>;
+			data: ProxyData;
 		},
 	) => string;
 }
@@ -73,7 +79,7 @@ export interface UrlProxyContentResolver {
 export interface DataCollector {
 	collect: (
 		input: FontFileData & {
-			data: Partial<unifont.FontFaceData>;
+			data: ProxyData;
 			preload: PreloadData | null;
 		},
 	) => void;
@@ -122,6 +128,6 @@ export interface UrlProxyHashResolver {
 		originalUrl: string;
 		type: FontType;
 		cssVariable: string;
-		data: Partial<unifont.FontFaceData>;
+		data: ProxyData;
 	}) => string;
 }
