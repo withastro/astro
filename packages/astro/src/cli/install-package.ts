@@ -132,7 +132,14 @@ export async function fetchPackageJson(
 ): Promise<Record<string, any> | Error> {
 	const packageName = `${scope ? `${scope}/` : ''}${name}`;
 	const registry = await getRegistry();
-	const res = await fetch(`${registry}/${packageName}/${tag}`);
+	const registryToken = await getRegistryToken();
+	const headers: Record<string, string> = {};
+	if (registryToken !== null) {
+		headers.authorization = `Bearer ${registryToken}`;
+	}
+	const res = await fetch(`${registry}/${packageName}/${tag}`, {
+		headers
+	});
 	if (res.status >= 200 && res.status < 300) {
 		return await res.json();
 	} else if (res.status === 404) {
@@ -145,8 +152,15 @@ export async function fetchPackageJson(
 
 export async function fetchPackageVersions(packageName: string): Promise<string[] | Error> {
 	const registry = await getRegistry();
+	const registryToken = await getRegistryToken();
+	const headers: Record<string, string> = {
+		accept: 'application/vnd.npm.install-v1+json',
+	};
+	if (registryToken !== null) {
+		headers.authorization = `Bearer ${registryToken}`;
+	}
 	const res = await fetch(`${registry}/${packageName}`, {
-		headers: { accept: 'application/vnd.npm.install-v1+json' },
+		headers,
 	});
 	if (res.status >= 200 && res.status < 300) {
 		return await res.json().then((data) => Object.keys(data.versions));
@@ -163,17 +177,37 @@ export async function fetchPackageVersions(packageName: string): Promise<string[
 //
 // A copy of this function also exists in the create-astro package
 let _registry: string;
+let _registryToken: string | null = null;
+const _fallback = 'https://registry.npmjs.org';
 async function getRegistry(): Promise<string> {
 	if (_registry) return _registry;
-	const fallback = 'https://registry.npmjs.org';
 	const packageManager = (await detect())?.name || 'npm';
 	try {
 		const { stdout } = await exec(packageManager, ['config', 'get', 'registry']);
-		_registry = stdout.trim()?.replace(/\/$/, '') || fallback;
+		_registry = stdout.trim()?.replace(/\/$/, '') || _fallback;
 		// Detect cases where the shell command returned a non-URL (e.g. a warning)
-		if (!new URL(_registry).host) _registry = fallback;
+		if (!new URL(_registry).host) _registry = _fallback;
 	} catch {
-		_registry = fallback;
+		_registry = _fallback;
 	}
 	return _registry;
+}
+
+// Users can sometimes install their packages from a private registry.
+// This function retrieves the token from the package manager configuration.
+async function getRegistryToken(): Promise<string | null> {
+	if (_registryToken) return _registryToken;
+	if (!_registry) await getRegistry();
+	if (_registry === _fallback) {
+		return null;
+	}
+	const configKey = _registry.replace('https://', '')+':_authToken';
+	const packageManager = (await detect())?.name || 'npm';
+	try {
+		const { stdout } = await exec(packageManager, ['config', 'get', configKey]);
+		_registryToken = stdout.trim() || null;
+	} catch {
+		_registryToken = null;
+	}
+	return _registryToken;
 }
