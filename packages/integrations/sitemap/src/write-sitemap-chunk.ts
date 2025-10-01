@@ -1,12 +1,13 @@
-import type { AstroConfig } from 'astro';
 import { createWriteStream, type WriteStream } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { normalize, resolve } from 'node:path';
 import { pipeline, Readable } from 'node:stream';
 import { promisify } from 'node:util';
+import type { AstroConfig } from 'astro';
 import { SitemapAndIndexStream, SitemapIndexStream, SitemapStream } from 'sitemap';
 import replace from 'stream-replace-string';
 import type { SitemapItem } from './index.js';
+
 
 type WriteSitemapChunkConfig = {
 	filenameBase: string;
