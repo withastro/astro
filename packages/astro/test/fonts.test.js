@@ -179,8 +179,8 @@ describe('astro fonts', () => {
 				experimental: {
 					fonts: [
 						{
-							name: 'Roboto',
-							cssVariable: '--font-roboto',
+							name: 'Poppins',
+							cssVariable: '--font-test',
 							provider: fontProviders.fontsource(),
 						},
 					],
@@ -297,8 +297,8 @@ describe('astro fonts', () => {
 				experimental: {
 					fonts: [
 						{
-							name: 'Roboto',
-							cssVariable: '--font-roboto',
+							name: 'Poppins',
+							cssVariable: '--font-test',
 							provider: fontProviders.fontsource(),
 						},
 					],
