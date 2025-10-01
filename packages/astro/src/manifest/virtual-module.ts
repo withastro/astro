@@ -68,7 +68,7 @@ function serializeClientConfig(manifest: SSRManifest): string {
 
 	const output = [];
 	for (const [key, value] of Object.entries(serClientConfig)) {
-		output.push(`export const ${key} = ${JSON.stringify(value)};`);
+		output.push(`export const ${key} = ${stringify(value)};`);
 	}
 	return output.join('\n') + '\n';
 }
@@ -102,7 +102,22 @@ function serializeServerConfig(manifest: SSRManifest): string {
 	};
 	const output = [];
 	for (const [key, value] of Object.entries(serverConfig)) {
-		output.push(`export const ${key} = ${JSON.stringify(value)};`);
+		output.push(`export const ${key} = ${stringify(value)};`);
 	}
 	return output.join('\n') + '\n';
+}
+
+function stringify(value: any): string {
+	if (Array.isArray(value)) {
+		return `[${value.map(e => stringify(e)).join(', ')}]`;
+	}
+	if (value instanceof URL) {
+		return `new URL(${JSON.stringify(value)})`;
+	}
+	if (typeof value === 'object') {
+		return `{\n${Object.entries(value)
+			.map(([k, v]) => `${JSON.stringify(k)}: ${stringify(v)}`)
+			.join(',\n')}\n}`;
+	}
+	return JSON.stringify(value);
 }
