@@ -110,7 +110,7 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
-    "@capsizecss/unpack": "^2.4.0",
+    "@capsizecss/unpack": "^3.0.0",
     "@oslojs/encoding": "^1.1.0",
     "@rollup/pluginutils": "^5.2.0",
     "acorn": "^8.15.0",
