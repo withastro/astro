@@ -2,7 +2,7 @@
 'astro': major
 ---
 
-Updates endpoints with a file extension to not be accessed with a trailing slash
+Updates trailing slash behavior of endpoint URLs.
 
 In Astro v5.0, custom endpoints whose URL ended in a file extension (e.g. `/src/pages/sitemap.xml.ts` ) could be accessed with a trailing slash (`/sitemap.xml/`) or without (`/sitemap.xml`), regardless of the value configured for `build.trailingSlash`.
 
