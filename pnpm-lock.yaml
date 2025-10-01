@@ -609,8 +609,8 @@ importers:
         specifier: ^1.4.2
         version: 1.4.2
       tinyexec:
-        specifier: ^0.3.2
-        version: 0.3.2
+        specifier: ^1.0.1
+        version: 1.0.1
       tinyglobby:
         specifier: ^0.2.14
         version: 0.2.15
