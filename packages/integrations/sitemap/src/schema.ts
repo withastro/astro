@@ -47,6 +47,7 @@ export const SitemapOptionsSchema = z
 			})
 			.optional()
 			.default(SITEMAP_CONFIG_DEFAULTS.namespaces),
-	})
+		chunks: z.record(z.function().args(z.any()).returns(z.any())).optional(),
+		})
 	.strict()
 	.default(SITEMAP_CONFIG_DEFAULTS);
