@@ -1,7 +1,6 @@
 ---
 import * as mod from 'virtual:astro:assets/fonts/internal';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
-import type { Style } from '../dist/assets/fonts/types';
 
 // TODO: remove check when fonts are stabilized
 const { internalConsumableMap } = mod;
@@ -13,7 +12,7 @@ interface Props {
 	/** The `cssVariable` registered in your Astro configuration. */
 	cssVariable: import('astro:assets').CssVariable;
 	/** Whether it should output [preload links](https://web.dev/learn/performance/optimize-web-fonts#preload) or not. */
-	preload?: boolean | Array<{ weight: string | number; style?: Style }>;
+	preload?: boolean | Array<{ weight: string | number; style?: string }>;
 }
 
 const { cssVariable, preload = false } = Astro.props as Props;

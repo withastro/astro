@@ -62,8 +62,8 @@ export interface PreloadData {
 	 * A font type, eg. woff2, woff, ttf...
 	 */
 	type: FontType;
-	weight: string | null;
-	style: Style | null;
+	weight: string | undefined;
+	style: string | undefined;
 }
 
 export type FontFaceMetrics = Pick<

@@ -1,5 +1,4 @@
 import type { DataCollector, UrlProxy, UrlProxyHashResolver, UrlResolver } from '../definitions.js';
-import type { Style } from '../types.js';
 import { renderFontWeight } from '../utils.js';
 
 export function createUrlProxy({
@@ -25,8 +24,8 @@ export function createUrlProxy({
 					? {
 							url,
 							type,
-							weight: renderFontWeight(data.weight) ?? null,
-							style: (data.style as Style) ?? null,
+							weight: renderFontWeight(data.weight),
+							style: data.style,
 						}
 					: null,
 				data,
