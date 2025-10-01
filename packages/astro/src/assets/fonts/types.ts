@@ -64,6 +64,7 @@ export interface PreloadData {
 	type: FontType;
 	weight: string | undefined;
 	style: string | undefined;
+	subset: string | undefined;
 }
 
 export type FontFaceMetrics = Pick<

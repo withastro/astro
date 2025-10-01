@@ -12,7 +12,7 @@ interface Props {
 	/** The `cssVariable` registered in your Astro configuration. */
 	cssVariable: import('astro:assets').CssVariable;
 	/** Whether it should output [preload links](https://web.dev/learn/performance/optimize-web-fonts#preload) or not. */
-	preload?: boolean | Array<{ weight: string | number; style?: string }>;
+	preload?: boolean | Array<{ weight?: string | number; style?: string; subset?: string }>;
 }
 
 const { cssVariable, preload = false } = Astro.props as Props;
@@ -25,19 +25,21 @@ if (!data) {
 }
 
 const filteredPreloadData = preload
-	? data.preloadData.filter(
-			({ weight, style }) =>
-				// Preload everything
-				preload === true ||
-				// Only preload urls based on weight and style
+	? preload === true
+		? // Preload everything
+			data.preloadData
+		: // Only preload urls based on weight, style and subset
+			data.preloadData.filter(({ weight, style, subset }) =>
 				preload.some(
 					(p) =>
 						// Always check the weight
-						p.weight.toString() === weight &&
+						(!p.weight || p.weight.toString() === weight) &&
 						// Only check the style if specified
-						(!p.style || p.style === style),
+						(!p.style || p.style === style) &&
+						// Only check the subset if specified
+						(p!.subset || p.subset === subset),
 				),
-		)
+			)
 	: null;
 ---
 
