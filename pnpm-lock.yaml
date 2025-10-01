@@ -14,9 +14,6 @@ importers:
 
   .:
     dependencies:
-      astro:
-        specifier: ^5.14.1
-        version: link:packages/astro
       astro-benchmark:
         specifier: workspace:*
         version: link:benchmark
