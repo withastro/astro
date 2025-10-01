@@ -109,7 +109,7 @@ function serializeServerConfig(manifest: SSRManifest): string {
 
 function stringify(value: any): string {
 	if (Array.isArray(value)) {
-		return `[${value.map(e => stringify(e)).join(', ')}]`;
+		return `[${value.map((e) => stringify(e)).join(', ')}]`;
 	}
 	if (value instanceof URL) {
 		return `new URL(${JSON.stringify(value)})`;
