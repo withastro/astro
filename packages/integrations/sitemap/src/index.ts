@@ -1,13 +1,13 @@
+import type { AstroConfig, AstroIntegration } from 'astro';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { AstroConfig, AstroIntegration } from 'astro';
 import type { EnumChangefreq, LinkItem as LinkItemBase, SitemapItemLoose } from 'sitemap';
 import { ZodError } from 'zod';
 
 import { generateSitemap } from './generate-sitemap.js';
 import { validateOptions } from './validate-options.js';
-import { writeSitemap } from './write-sitemap.js';
 import { writeSitemapChunk } from './write-sitemap-chunk.js';
+import { writeSitemap } from './write-sitemap.js';
 // import { writeSitemapChunk } from './write-sitemap-chunk.js';
 
 export { EnumChangefreq as ChangeFreqEnum } from 'sitemap';
