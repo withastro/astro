@@ -1,18 +1,7 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.2.4/schema.json",
   "files": {
-    "includes": [
-      "**/test/**",
-      "**/e2e/**",
-      "**/packages/**",
-      "**/scripts/**",
-      "**/benchmark/**",
-      "**/biome.jsonc",
-      "!**/smoke/**",
-      "!**/fixtures/**",
-      "!**/_temp-fixtures/**",
-      "!**/vendor/**"
-    ]
+    "includes": ["**", "!**/smoke/**", "!**/fixtures/**", "!**/_temp-fixtures/**", "!**/vendor/**"]
   },
   "vcs": {
     "enabled": true,
@@ -23,9 +12,16 @@
     "indentStyle": "tab",
     "indentWidth": 2,
     "lineWidth": 100,
-    "includes": ["**", "!**/.changeset", "!**/pnpm-lock.yaml", "!**/*.astro"]
+    "includes": ["**", "!**/.changeset", "!**/pnpm-lock.yaml", "!**/*.astro"],
+    "expand": "auto"
   },
-  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
   "linter": {
     "enabled": true,
     "rules": {
@@ -37,7 +33,12 @@
       },
       "suspicious": {
         // This one is specific to catch `console.log`. The rest of logs are permitted
-        "noConsole": { "level": "warn", "options": { "allow": ["error", "warn", "info", "debug"] } }
+        "noConsole": {
+          "level": "warn",
+          "options": {
+            "allow": ["error", "warn", "info", "debug"]
+          }
+        }
       },
       "correctness": {
         "noUnusedVariables": {
@@ -74,7 +75,21 @@
       "includes": ["**/package.json"],
       "json": {
         "formatter": {
-          "lineWidth": 1
+          "expand": "always"
+        }
+      }
+    },
+    {
+      "includes": ["**/*.astro", "**/*.vue", "**/*.svelte"],
+      "formatter": {
+        "enabled": false
+      },
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noUnusedVariables": "off",
+            "noUnusedImports": "off"
+          }
         }
       }
     },
@@ -137,6 +152,19 @@
         "rules": {
           "suspicious": {
             "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "**/packages/astro/src/**/runtime/**/*.ts",
+        "**/packages/astro/src/**/runtime.ts"
+      ],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noNodejsModules": "error"
           }
         }
       }

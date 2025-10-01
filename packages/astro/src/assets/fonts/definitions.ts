@@ -63,6 +63,7 @@ export interface UrlProxy {
 
 export interface UrlResolver {
 	resolve: (hash: string) => string;
+	getCspResources: () => Array<string>;
 }
 
 export interface UrlProxyContentResolver {
@@ -114,4 +115,13 @@ export interface FontFileReader {
 		weight: string;
 		style: Style;
 	};
+}
+
+export interface UrlProxyHashResolver {
+	resolve: (input: {
+		originalUrl: string;
+		type: FontType;
+		cssVariable: string;
+		data: Partial<unifont.FontFaceData>;
+	}) => string;
 }

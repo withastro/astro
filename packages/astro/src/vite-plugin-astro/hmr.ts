@@ -1,5 +1,6 @@
 import type { HmrContext } from 'vite';
 import type { Logger } from '../core/logger/core.js';
+import { parseAstroRequest } from './query.js';
 import type { CompileMetadata } from './types.js';
 import { frontmatterRE } from './utils.js';
 
@@ -37,8 +38,14 @@ export async function handleHotUpdate(
 		// Invalidate its `astroFileToCompileMetadata` so that the next transform of Astro style virtual module
 		// will re-generate it
 		astroFileToCompileMetadata.delete(ctx.file);
-		// Only return the Astro styles that have changed!
-		return ctx.modules.filter((mod) => mod.id?.includes('astro&type=style'));
+		return ctx.modules.filter((mod) => {
+			if (!mod.id) {
+				return false;
+			}
+			const { query } = parseAstroRequest(mod.id);
+			// Only return the Astro styles that have changed, except inline style modules that are treated as SSR-only
+			return query.astro && query.type === 'style' && !query.inline;
+		});
 	}
 }
 

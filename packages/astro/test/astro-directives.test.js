@@ -100,4 +100,18 @@ describe('Directives', async () => {
 		assert.equal($('#true').length, 1);
 		assert.equal($('#true').text(), 'true');
 	});
+
+	it('ignores client directives on Astro components', async () => {
+		const html = await fixture.readFile('/client/index.html');
+		const $ = cheerio.load(html);
+
+		const hello = $('h1.hello');
+		assert.equal(hello.text(), 'Hello');
+
+		// Astro components should not have client directives
+		assert.equal(hello.attr('client:load'), undefined);
+
+		// Should not create Astro islands
+		assert.equal($('astro-island').length, 0);
+	});
 });

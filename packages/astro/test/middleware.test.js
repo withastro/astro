@@ -413,4 +413,35 @@ describe('Middleware should support clone request', () => {
 		const html = await res.text();
 		assert.equal(html.includes('Hello Sequence and Request Clone'), true);
 	});
+
+	it('should preserve cookies set in sequence', async () => {
+		const res = await fixture.fetch('/');
+		assert.ok(res.headers.get('set-cookie').includes('cookie1=Cookie%20from%20middleware%201'));
+		assert.ok(res.headers.get('set-cookie').includes('cookie2=Cookie%20from%20middleware%202'));
+	});
+});
+
+describe('Middleware sequence rewrites', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/middleware-sequence-rewrite/',
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('should preserve cookies set in sequence', async () => {
+		const res = await fixture.fetch('/');
+		const html = await res.text();
+		assert.ok(html.includes('Hello Another'));
+		assert.ok(res.headers.get('set-cookie').includes('cookie1=Cookie%20from%20middleware%201'));
+		assert.ok(res.headers.get('set-cookie').includes('cookie2=Cookie%20from%20middleware%202'));
+	});
 });

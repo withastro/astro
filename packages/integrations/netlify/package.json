@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/netlify",
   "description": "Deploy your site to Netlify",
-  "version": "6.4.1",
+  "version": "6.5.11",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -32,32 +32,33 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "test": "pnpm run test-fn && pnpm run test-static",
+    "test": "pnpm run test-fn && pnpm run test-static && pnpm run test:dev",
     "test-fn": "astro-scripts test \"test/functions/*.test.js\"",
+    "test:dev": "astro-scripts test \"test/development/*.test.js\"",
     "test-static": "astro-scripts test \"test/static/*.test.js\"",
     "test:hosted": "astro-scripts test \"test/hosted/*.test.js\""
   },
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
-    "@netlify/blobs": "^10.0.4",
-    "@netlify/functions": "^4.1.10",
-    "@netlify/vite-plugin": "^2.3.7",
-    "@vercel/nft": "^0.29.2",
+    "@netlify/blobs": "^10.0.10",
+    "@netlify/functions": "^4.2.5",
+    "@netlify/vite-plugin": "^2.5.9",
+    "@vercel/nft": "^0.30.1",
     "esbuild": "^0.25.0",
-    "tinyglobby": "^0.2.13",
-    "vite": "^6.3.5"
+    "tinyglobby": "^0.2.15",
+    "vite": "^6.3.6"
   },
   "peerDependencies": {
-    "astro": "^5.3.0"
+    "astro": "^5.7.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.6",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "cheerio": "1.0.0",
-    "devalue": "^5.1.1",
-    "typescript": "^5.8.3"
+    "cheerio": "1.1.2",
+    "devalue": "^5.3.2",
+    "typescript": "^5.9.2"
   },
   "astro": {
     "external": true

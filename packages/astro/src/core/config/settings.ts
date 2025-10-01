@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import yaml from 'js-yaml';
+import toml from 'smol-toml';
 import { getContentPaths } from '../../content/index.js';
 import createPreferences from '../../preferences/index.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -9,7 +10,12 @@ import { markdownContentEntryType } from '../../vite-plugin-markdown/content-ent
 import { getDefaultClientDirectives } from '../client-directive/index.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { formatYAMLException, isYAMLException } from '../errors/utils.js';
+import {
+	formatTOMLError,
+	formatYAMLException,
+	isTOMLError,
+	isYAMLException,
+} from '../errors/utils.js';
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
 
@@ -100,6 +106,38 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 					}
 				},
 			},
+			{
+				extensions: ['.toml'],
+				getEntryInfo({ contents, fileUrl }) {
+					try {
+						const data = toml.parse(contents);
+						const rawData = contents;
+
+						return { data, rawData };
+					} catch (e) {
+						const pathRelToContentDir = path.relative(
+							fileURLToPath(contentDir),
+							fileURLToPath(fileUrl),
+						);
+						const formattedError = isTOMLError(e)
+							? formatTOMLError(e)
+							: new Error('contains invalid TOML.');
+
+						throw new AstroError({
+							...AstroErrorData.DataCollectionEntryParseError,
+							message: AstroErrorData.DataCollectionEntryParseError.message(
+								pathRelToContentDir,
+								formattedError.message,
+							),
+							stack: formattedError.stack,
+							location:
+								'loc' in formattedError
+									? { file: fileUrl.pathname, ...formattedError.loc }
+									: { file: fileUrl.pathname },
+						});
+					}
+				},
+			},
 		],
 		renderers: [],
 		scripts: [],
@@ -112,6 +150,10 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 		latestAstroVersion: undefined, // Will be set later if applicable when the dev server starts
 		injectedTypes: [],
 		buildOutput: undefined,
+		injectedCsp: {
+			fontResources: new Set(),
+			styleHashes: [],
+		},
 	};
 }
 

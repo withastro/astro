@@ -1,7 +1,7 @@
 import { db, Likes, eq, sql } from 'astro:db';
 import { defineAction, type SafeResult } from 'astro:actions';
 import { z } from 'astro:schema';
-import { experimental_getActionState } from '@astrojs/react/actions';
+import { getActionState } from '@astrojs/react/actions';
 
 export const server = {
 	blog: {
@@ -29,7 +29,7 @@ export const server = {
 			handler: async ({ postId }, ctx) => {
 				await new Promise((r) => setTimeout(r, 200));
 
-				const state = await experimental_getActionState<SafeResult<any, number>>(ctx);
+				const state = await getActionState<SafeResult<any, number>>(ctx);
 				const previousLikes = state.data ?? 0;
 
 				const { likes } = await db

@@ -5,6 +5,10 @@ import { shorthash } from '../../runtime/server/shorthash.js';
 import type { ImageTransform } from '../types.js';
 import { isESMImportedImage } from './imageKind.js';
 
+// Taken from https://github.com/rollup/rollup/blob/a8647dac0fe46c86183be8596ef7de25bc5b4e4b/src/utils/sanitizeFileName.ts
+// eslint-disable-next-line no-control-regex
+const INVALID_CHAR_REGEX = /[\u0000-\u001F"#$%&*+,:;<=>?[\]^`{|}\u007F]/g;
+
 /**
  * Converts a file path and transformation properties of the transformation image service, into a formatted filename.
  *
@@ -33,12 +37,12 @@ export function propsToFilename(filePath: string, transform: ImageTransform, has
 	if (filePath.startsWith('data:')) {
 		filename = shorthash(filePath);
 	} else {
-		filename = basename(filename, ext);
+		filename = basename(filename, ext).replace(INVALID_CHAR_REGEX, '_');
 	}
 	const prefixDirname = isESMImportedImage(transform.src) ? dirname(filePath) : '';
 
 	let outputExt = transform.format ? `.${transform.format}` : ext;
-	return decodeURIComponent(`${prefixDirname}/${filename}_${hash}${outputExt}`);
+	return `${prefixDirname}/${filename}_${hash}${outputExt}`;
 }
 
 /**

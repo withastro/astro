@@ -28,6 +28,7 @@ export async function install(
 		Context,
 		'version' | 'packages' | 'packageManager' | 'prompt' | 'dryRun' | 'exit' | 'cwd'
 	>,
+	shellFn: typeof shell = shell,
 ) {
 	await banner();
 	newline();
@@ -80,7 +81,7 @@ export async function install(
 	if (ctx.dryRun) {
 		await info('--dry-run', `Skipping dependency installation`);
 	} else {
-		await runInstallCommand(ctx, dependencies, devDependencies);
+		await runInstallCommand(ctx, dependencies, devDependencies, shellFn);
 	}
 }
 
@@ -119,6 +120,7 @@ async function runInstallCommand(
 	ctx: Pick<Context, 'cwd' | 'packageManager' | 'exit'>,
 	dependencies: PackageInfo[],
 	devDependencies: PackageInfo[],
+	shellFn: typeof shell = shell,
 ) {
 	const cwd = fileURLToPath(ctx.cwd);
 	if (ctx.packageManager.name === 'yarn') await ensureYarnLock({ cwd });
@@ -130,52 +132,65 @@ async function runInstallCommand(
 		error('error', `Unable to find install command for ${ctx.packageManager.name}.`);
 		return ctx.exit(1);
 	}
+	const doInstall = async (legacyPeerDeps = false) => {
+		try {
+			if (dependencies.length > 0) {
+				await shellFn(
+					installCommand.command,
+					[
+						...installCommand.args,
+						...(legacyPeerDeps ? ['--legacy-peer-deps'] : []),
+						...dependencies.map(
+							({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`,
+						),
+					],
+					{ cwd, timeout: 90_000 },
+				);
+			}
+			if (devDependencies.length > 0) {
+				await shellFn(
+					installCommand.command,
+					[
+						...installCommand.args,
+						...(legacyPeerDeps ? ['--legacy-peer-deps'] : []),
+						...devDependencies.map(
+							({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`,
+						),
+					],
+					{ cwd, timeout: 90_000 },
+				);
+			}
+		} catch (err: unknown) {
+			const errorMessage = err instanceof Error ? err.message : String(err);
+			// If the error is related to peer dependencies, we can try again with `--legacy-peer-deps`
+			if (
+				ctx.packageManager.name === 'npm' &&
+				!legacyPeerDeps &&
+				errorMessage.includes('peer dependenc')
+			) {
+				return doInstall(true);
+			}
+
+			const manualInstallCommand = [
+				installCommand.command,
+				...installCommand.args,
+				...[...dependencies, ...devDependencies].map(
+					({ name, targetVersion }) => `${name}@${targetVersion}`,
+				),
+			].join(' ');
+			newline();
+			error(
+				'error',
+				`Dependencies failed to install, please run the following command manually:\n${color.bold(manualInstallCommand)}`,
+			);
+			return ctx.exit(1);
+		}
+	};
 
 	await spinner({
 		start: `Installing dependencies with ${ctx.packageManager.name}...`,
 		end: `Installed dependencies!`,
-		while: async () => {
-			try {
-				if (dependencies.length > 0) {
-					await shell(
-						installCommand.command,
-						[
-							...installCommand.args,
-							...dependencies.map(
-								({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`,
-							),
-						],
-						{ cwd, timeout: 90_000, stdio: 'ignore' },
-					);
-				}
-				if (devDependencies.length > 0) {
-					await shell(
-						installCommand.command,
-						[
-							...installCommand.args,
-							...devDependencies.map(
-								({ name, targetVersion }) => `${name}@${targetVersion.replace(/^\^/, '')}`,
-							),
-						],
-						{ cwd, timeout: 90_000, stdio: 'ignore' },
-					);
-				}
-			} catch {
-				const manualInstallCommand = [
-					installCommand.command,
-					...installCommand.args,
-					...[...dependencies, ...devDependencies].map(
-						({ name, targetVersion }) => `${name}@${targetVersion}`,
-					),
-				].join(' ');
-				newline();
-				error(
-					'error',
-					`Dependencies failed to install, please run the following command manually:\n${color.bold(manualInstallCommand)}`,
-				);
-				return ctx.exit(1);
-			}
-		},
+		while: doInstall,
 	});
 
 	await say([`${random(celebrations)} ${random(done)}`, random(bye)], { clear: false });

@@ -7,8 +7,8 @@ import {
 	FOREIGN_KEY_REFERENCES_LENGTH_ERROR,
 	REFERENCE_DNE_ERROR,
 } from '../runtime/errors.js';
-import { hasPrimaryKey } from '../runtime/index.js';
 import { isSerializedSQL } from '../runtime/types.js';
+import { hasPrimaryKey } from '../runtime/utils.js';
 import type {
 	BooleanColumn,
 	ColumnType,

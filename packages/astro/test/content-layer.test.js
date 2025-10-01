@@ -137,7 +137,7 @@ describe('Content Layer', () => {
 			assert.ok(json.hasOwnProperty('tomlLoader'));
 			assert.ok(Array.isArray(json.tomlLoader));
 
-			const ids = json.tomlLoader.map((item) => item.data.id);
+			const ids = json.tomlLoader.map((item) => item.id);
 			assert.deepEqual(ids, [
 				'crown',
 				'nikes-on-my-feet',
@@ -148,6 +148,41 @@ describe('Content Layer', () => {
 				'somebody',
 				'honest',
 			]);
+		});
+
+		it('Returns csv `file()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('csvLoader'));
+			assert.ok(Array.isArray(json.csvLoader));
+
+			const ids = json.csvLoader.map((item) => item.data.id);
+			assert.deepEqual(ids, [
+				'lavender',
+				'rose',
+				'sunflower',
+				'basil',
+				'thyme',
+				'sage',
+				'daisy',
+				'marigold',
+				'chamomile',
+				'fern',
+			]);
+		});
+
+		it('Returns yaml `glob()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('numbersYaml'));
+			assert.ok(Array.isArray(json.numbersYaml));
+
+			const titles = json.numbersYaml.map((item) => item.data.title).sort();
+			assert.deepEqual(titles, ['One', 'Three', 'Two']);
+		});
+
+		it('Returns toml `glob()` loader collection', async () => {
+			assert.ok(json.hasOwnProperty('numbersToml'));
+			assert.ok(Array.isArray(json.numbersToml));
+
+			const titles = json.numbersToml.map((item) => item.data.title).sort();
+			assert.deepEqual(titles, ['One', 'Three', 'Two']);
 		});
 
 		it('Returns nested json `file()` loader collection', async () => {
@@ -377,6 +412,16 @@ describe('Content Layer', () => {
 
 		it("warns about missing directory in glob() loader's path", async () => {
 			assert.ok(logs.find((log) => log.level === 'warn' && log.message.includes('does not exist')));
+		});
+
+		it('warns about duplicate IDs in file() loader arrays', () => {
+			assert.ok(
+				logs.find(
+					(log) =>
+						log.level === 'warn' &&
+						log.message.includes('Duplicate id "german-shepherd" found in src/data/dogs.json'),
+				),
+			);
 		});
 
 		it("warns about missing files in glob() loader's path", async () => {

@@ -15,6 +15,7 @@ import { createRemoteFontProviderResolver } from '../../../../dist/assets/fonts/
 import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/implementations/system-fallbacks-provider.js';
 import { createUrlProxy } from '../../../../dist/assets/fonts/implementations/url-proxy.js';
 import { createRemoteUrlProxyContentResolver } from '../../../../dist/assets/fonts/implementations/url-proxy-content-resolver.js';
+import { createBuildUrlProxyHashResolver } from '../../../../dist/assets/fonts/implementations/url-proxy-hash-resolver.js';
 import { createDevUrlResolver } from '../../../../dist/assets/fonts/implementations/url-resolver.js';
 import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
 import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
@@ -33,7 +34,7 @@ describe('fonts orchestrate()', () => {
 		const errorHandler = simpleErrorHandler;
 		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
 		const hasher = fakeHasher;
-		const { fontFileDataMap, consumableMap } = await orchestrate({
+		const { fontFileDataMap, internalConsumableMap, consumableMap } = await orchestrate({
 			families: [
 				{
 					name: 'Test',
@@ -62,13 +63,13 @@ describe('fonts orchestrate()', () => {
 			fontTypeExtractor,
 			fontFileReader: createFontaceFontFileReader({ errorHandler }),
 			logger: defaultLogger,
-			createUrlProxy: ({ local, ...params }) => {
+			createUrlProxy: ({ local, cssVariable, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = createRemoteUrlProxyContentResolver();
 				return createUrlProxy({
 					urlResolver: createDevUrlResolver({ base: 'test' }),
-					contentResolver,
-					hasher,
+					cssVariable,
+					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
 					dataCollector,
 				});
 			},
@@ -87,8 +88,8 @@ describe('fonts orchestrate()', () => {
 				],
 			],
 		);
-		assert.deepStrictEqual([...consumableMap.keys()], ['--test']);
-		const entry = consumableMap.get('--test');
+		assert.deepStrictEqual([...internalConsumableMap.keys()], ['--test']);
+		const entry = internalConsumableMap.get('--test');
 		assert.deepStrictEqual(entry?.preloadData, [
 			{
 				url: joinPaths('/test', fileURLToPath(new URL('my-font.woff2.woff2', root))),
@@ -103,6 +104,33 @@ describe('fonts orchestrate()', () => {
 		assert.equal(entry?.css.includes(':root{--test:Test-'), true);
 		// Fallback
 		assert.equal(entry?.css.includes('fallback: Arial"'), true);
+
+		assert.deepStrictEqual(
+			[...consumableMap.entries()],
+			[
+				[
+					'--test',
+					[
+						{
+							weight: '400',
+							style: 'normal',
+							src: [
+								{
+									url: joinPaths('/test', fileURLToPath(new URL('my-font.woff2.woff2', root))),
+									format: 'woff2',
+									tech: undefined,
+								},
+								{
+									url: joinPaths('/test', fileURLToPath(new URL('my-font.woff.woff', root))),
+									format: 'woff',
+									tech: undefined,
+								},
+							],
+						},
+					],
+				],
+			],
+		);
 	});
 
 	it('works with a remote provider', async () => {
@@ -138,7 +166,7 @@ describe('fonts orchestrate()', () => {
 		const errorHandler = simpleErrorHandler;
 		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
 		const hasher = fakeHasher;
-		const { fontFileDataMap, consumableMap } = await orchestrate({
+		const { fontFileDataMap, internalConsumableMap, consumableMap } = await orchestrate({
 			families: [
 				{
 					name: 'Test',
@@ -165,15 +193,16 @@ describe('fonts orchestrate()', () => {
 			fontTypeExtractor,
 			fontFileReader: createFontaceFontFileReader({ errorHandler }),
 			logger: defaultLogger,
-			createUrlProxy: ({ local, ...params }) => {
+			createUrlProxy: ({ local, cssVariable, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = createRemoteUrlProxyContentResolver();
 				return createUrlProxy({
 					urlResolver: {
 						resolve: (hash) => hash,
+						getCspResources: () => [],
 					},
-					contentResolver,
-					hasher,
+					cssVariable,
+					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
 					dataCollector,
 				});
 			},
@@ -193,8 +222,8 @@ describe('fonts orchestrate()', () => {
 				],
 			],
 		);
-		assert.deepStrictEqual([...consumableMap.keys()], ['--test']);
-		const entry = consumableMap.get('--test');
+		assert.deepStrictEqual([...internalConsumableMap.keys()], ['--test']);
+		const entry = internalConsumableMap.get('--test');
 		assert.deepStrictEqual(entry?.preloadData, [
 			{
 				url: 'https://example.com/foo.woff2.woff2',
@@ -209,5 +238,32 @@ describe('fonts orchestrate()', () => {
 		assert.equal(entry?.css.includes(':root{--test:Test-'), true);
 		// Fallback
 		assert.equal(entry?.css.includes('fallback: Times New Roman"'), true);
+
+		assert.deepStrictEqual(
+			[...consumableMap.entries()],
+			[
+				[
+					'--test',
+					[
+						{
+							weight: '400',
+							style: 'normal',
+							src: [
+								{
+									url: 'https://example.com/foo.woff2.woff2',
+									format: undefined,
+									tech: undefined,
+								},
+								{
+									url: 'https://example.com/foo.woff.woff',
+									format: undefined,
+									tech: undefined,
+								},
+							],
+						},
+					],
+				],
+			],
+		);
 	});
 });

@@ -152,7 +152,7 @@ describe('astro fonts', () => {
 				base: '/my-base',
 				build: {
 					assets: '_custom',
-					assetsPrefix: 'https//cdn.example.com',
+					assetsPrefix: 'https://cdn.example.com',
 				},
 				experimental: {
 					fonts: [
@@ -171,6 +171,33 @@ describe('astro fonts', () => {
 				const $ = cheerio.load(html);
 				const href = $('link[rel=preload][type=font/woff2]').attr('href');
 				assert.equal(href?.startsWith('/my-base/_custom/fonts/'), true);
+			});
+		});
+
+		it('Exposes data in getFontData()', async () => {
+			const { fixture, run } = await createDevFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Roboto',
+							cssVariable: '--font-roboto',
+							provider: fontProviders.fontsource(),
+						},
+					],
+				},
+			});
+			await run(async () => {
+				const res = await fixture.fetch('/get-font-data');
+				const html = await res.text();
+				const $ = cheerio.load(html);
+				const content = $('#data').html();
+				if (!content) {
+					assert.fail();
+				}
+				const parsed = JSON.parse(content);
+				assert.equal(Array.isArray(parsed), true);
+				assert.equal(parsed.length > 0, true);
+				assert.equal(parsed[0].src[0].url.startsWith('/_astro/fonts/'), true);
 			});
 		});
 	});
@@ -263,6 +290,31 @@ describe('astro fonts', () => {
 			assert.equal(href?.startsWith('https://cdn.example.com/my-base/_custom/fonts/'), true);
 			const files = await readdir(new URL('./dist/_custom/fonts/', fixture.config.root));
 			assert.equal(files.length > 0, true);
+		});
+
+		it('Exposes data in getFontData()', async () => {
+			const { fixture } = await createBuildFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Roboto',
+							cssVariable: '--font-roboto',
+							provider: fontProviders.fontsource(),
+						},
+					],
+				},
+			});
+
+			const html = await fixture.readFile('/get-font-data/index.html');
+			const $ = cheerio.load(html);
+			const content = $('#data').html();
+			if (!content) {
+				assert.fail();
+			}
+			const parsed = JSON.parse(content);
+			assert.equal(Array.isArray(parsed), true);
+			assert.equal(parsed.length > 0, true);
+			assert.equal(parsed[0].src[0].url.startsWith('/_astro/fonts/'), true);
 		});
 	});
 });

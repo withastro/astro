@@ -125,7 +125,11 @@ export async function createVite(
 	});
 
 	const srcDirPattern = convertPathToPattern(fileURLToPath(settings.config.srcDir));
-	const envLoader = createEnvLoader(mode, settings.config);
+	const envLoader = createEnvLoader({
+		mode,
+		config: settings.config,
+		useStatic: settings.config.experimental.staticImportMetaEnv,
+	});
 
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: vite.InlineConfig = {

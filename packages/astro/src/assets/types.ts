@@ -18,7 +18,6 @@ export type AssetsGlobalStaticImagesList = Map<
 >;
 
 declare global {
-	// eslint-disable-next-line no-var
 	var astroAsset: {
 		imageService?: ImageService;
 		addStaticImage?:
@@ -157,6 +156,16 @@ type ImageSharedProps<T> = T & {
 	 * ```
 	 */
 	quality?: ImageQuality;
+
+	/**
+	 * If true, the image will be loaded with a higher priority. This can be useful for images that are visible above the fold. There should usually be only one image with `priority` set to `true` per page.
+	 * All other images will be lazy-loaded according to when they are in the viewport.
+	 * **Example**:
+	 * ```astro
+	 * <Image src={...} priority alt="..." />
+	 * ```
+	 */
+	priority?: boolean;
 } & (
 		| {
 				/**
@@ -201,15 +210,6 @@ type ImageSharedProps<T> = T & {
 				 */
 
 				position?: string;
-				/**
-				 * If true, the image will be loaded with a higher priority. This can be useful for images that are visible above the fold. There should usually be only one image with `priority` set to `true` per page.
-				 * All other images will be lazy-loaded according to when they are in the viewport.
-				 * **Example**:
-				 * ```astro
-				 * <Image src={...} priority alt="..." />
-				 * ```
-				 */
-				priority?: boolean;
 
 				/**
 				 * A list of widths to generate images for. The value of this property will be used to assign the `srcset` property on the final `img` element.

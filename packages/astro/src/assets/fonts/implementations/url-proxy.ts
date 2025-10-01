@@ -1,27 +1,21 @@
-import type {
-	DataCollector,
-	Hasher,
-	UrlProxy,
-	UrlProxyContentResolver,
-	UrlResolver,
-} from '../definitions.js';
+import type { DataCollector, UrlProxy, UrlProxyHashResolver, UrlResolver } from '../definitions.js';
 import type { Style } from '../types.js';
 import { renderFontWeight } from '../utils.js';
 
 export function createUrlProxy({
-	contentResolver,
-	hasher,
+	hashResolver,
 	dataCollector,
 	urlResolver,
+	cssVariable,
 }: {
-	contentResolver: UrlProxyContentResolver;
-	hasher: Hasher;
+	hashResolver: UrlProxyHashResolver;
 	dataCollector: DataCollector;
 	urlResolver: UrlResolver;
+	cssVariable: string;
 }): UrlProxy {
 	return {
 		proxy({ url: originalUrl, type, data, collectPreload, init }) {
-			const hash = `${hasher.hashString(contentResolver.resolve(originalUrl))}.${type}`;
+			const hash = hashResolver.resolve({ cssVariable, data, originalUrl, type });
 			const url = urlResolver.resolve(hash);
 
 			dataCollector.collect({

@@ -14,6 +14,7 @@ import {
 	joinPaths,
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
+	trimSlashes,
 } from '../../core/path.js';
 import { toFallbackType, toRoutingStrategy } from '../../i18n/utils.js';
 import { runHookBuildGenerated, toIntegrationResolvedRoute } from '../../integrations/hooks.js';
@@ -385,8 +386,9 @@ async function getPathsForRoute(
 				}
 			})
 			.filter((staticPath) => {
+				const normalized = removeTrailingForwardSlash(staticPath);
 				// The path hasn't been built yet, include it
-				if (!builtPaths.has(removeTrailingForwardSlash(staticPath))) {
+				if (!builtPaths.has(normalized)) {
 					return true;
 				}
 
@@ -396,7 +398,39 @@ async function getPathsForRoute(
 				// Routing priority needs to be verified here for any duplicate
 				// paths to ensure routing priority rules are enforced in the final build.
 				const matchedRoute = matchRoute(decodeURI(staticPath), options.routesList);
-				return matchedRoute === route;
+
+				if (!matchedRoute) {
+					// No route matched this path, so we can skip it.
+					return false;
+				}
+
+				if (matchedRoute === route) {
+					// Current route is higher-priority. Include it for building.
+					return true;
+				}
+
+				// Current route is lower-priority than matchedRoute.
+				// Path will be skipped due to collision.
+				if (config.experimental.failOnPrerenderConflict) {
+					throw new AstroError({
+						...AstroErrorData.PrerenderRouteConflict,
+						message: AstroErrorData.PrerenderRouteConflict.message(
+							matchedRoute.route,
+							route.route,
+							normalized,
+						),
+						hint: AstroErrorData.PrerenderRouteConflict.hint(matchedRoute.route, route.route),
+					});
+				} else {
+					const msg = AstroErrorData.PrerenderRouteConflict.message(
+						matchedRoute.route,
+						route.route,
+						normalized,
+					);
+					logger.warn('build', msg);
+				}
+
+				return false;
 			});
 
 		// Add each path to the builtPaths set, to avoid building it again later.
@@ -525,15 +559,23 @@ async function generatePath(
 	// Do not render the fallback route if there is already a translated page
 	// with the same path
 	if (route.type === 'fallback' && route.pathname !== '/') {
-		// Get the locale from the pathname
-		let locale = removeLeadingForwardSlash(pathname).split('/')[0];
 		if (
 			Object.values(options.allPages).some((val) => {
 				if (val.route.pattern.test(pathname)) {
 					// Check if we've matched a dynamic route
-					if (val.route.segments && val.route.segments.length !== 0) {
-						// Check that the route is in a matching locale folder
-						if (val.route.segments[0][0].content !== locale) return false;
+					if (val.route.params && val.route.params.length !== 0) {
+						// Make sure the pathname matches an entry in distURL
+						if (
+							val.route.distURL &&
+							!val.route.distURL.find(
+								(url) =>
+									url.href
+										.replace(config.outDir.toString(), '')
+										.replace(/(?:\/index\.html|\.html)$/, '') == trimSlashes(pathname),
+							)
+						) {
+							return false;
+						}
 					}
 					// Route matches
 					return true;
@@ -682,6 +724,7 @@ async function createBuildManifest(
 		];
 		const styleHashes = [
 			...getStyleHashes(settings.config.experimental.csp),
+			...settings.injectedCsp.styleHashes,
 			...(await trackStyleHashes(internals, settings, algorithm)),
 		];
 
@@ -694,7 +737,7 @@ async function createBuildManifest(
 			scriptHashes,
 			scriptResources: getScriptResources(settings.config.experimental.csp),
 			algorithm,
-			directives: getDirectives(settings.config.experimental.csp),
+			directives: getDirectives(settings),
 			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
 		};
 	}

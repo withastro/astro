@@ -163,11 +163,15 @@ interface TestSessionConfig extends CommonSessionConfig {
 }
 
 export type SessionConfig<TDriver extends SessionDriverName> =
-	TDriver extends keyof BuiltinDriverOptions
-		? BuiltinSessionConfig<TDriver>
-		: TDriver extends 'test'
-			? TestSessionConfig
-			: CustomSessionConfig;
+	// Distributive conditional tuple trick
+	// https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
+	[TDriver] extends [never]
+		? CustomSessionConfig
+		: TDriver extends keyof BuiltinDriverOptions
+			? BuiltinSessionConfig<TDriver>
+			: TDriver extends 'test'
+				? TestSessionConfig
+				: CustomSessionConfig;
 
 export type ResolvedSessionConfig<TDriver extends SessionDriverName> = SessionConfig<TDriver> & {
 	driverModule?: () => Promise<{ default: () => Driver }>;
@@ -274,7 +278,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * When redirects occur in production for GET requests, the redirect will be a 301 (permanent) redirect. For all other request methods, it will be a 308 (permanent, and preserve the request method) redirect.
 	 *
 	 * Trailing slashes on prerendered pages are handled by the hosting platform, and may not respect your chosen configuration.
-	 * See your hosting platform's documentation for more information. You cannot use Astro [redirects](#redirects) for this use case at this point.
+	 * See your hosting platform's documentation for more information. You cannot use Astro [redirects](https://docs.astro.build/en/reference/configuration-reference/#redirects) for this use case at this point.
 	 *
 	 * ```js
 	 * {
@@ -368,9 +372,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @see output
 	 * @description
 	 *
-	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters ([Cloudflare](/en/guides/integrations-guide/cloudflare/), [Netlify](/en/guides/integrations-guide/netlify/), [Node.js](/en/guides/integrations-guide/node/), [Vercel](/en/guides/integrations-guide/vercel/)) or explore [community adapters](https://astro.build/integrations/2/?search=&categories%5B%5D=adapters) to enable on-demand rendering in your Astro project.
+	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters ([Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/), [Netlify](https://docs.astro.build/en/guides/integrations-guide/netlify/), [Node.js](https://docs.astro.build/en/guides/integrations-guide/node/), [Vercel](https://docs.astro.build/en/guides/integrations-guide/vercel/)) or explore [community adapters](https://astro.build/integrations/2/?search=&categories%5B%5D=adapters) to enable on-demand rendering in your Astro project.
 	 *
-	 * See our [on-demand rendering guide](/en/guides/on-demand-rendering/) for more on Astro's server rendering options.
+	 * See our [on-demand rendering guide](https://docs.astro.build/en/guides/on-demand-rendering/) for more on Astro's server rendering options.
 	 *
 	 * ```js
 	 * import netlify from '@astrojs/netlify';
@@ -656,7 +660,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * This means that when you create relative URLs using `new URL('./relative', Astro.url)`, you will get consistent behavior between dev and build.
 		 *
-		 * To prevent inconsistencies with trailing slash behaviour in dev, you can restrict the [`trailingSlash` option](#trailingslash) to `'always'` or `'never'` depending on your build format:
+		 * To prevent inconsistencies with trailing slash behaviour in dev, you can restrict the [`trailingSlash` option](https://docs.astro.build/en/reference/configuration-reference/#trailingslash) to `'always'` or `'never'` depending on your build format:
 		 * - `directory` - Set `trailingSlash: 'always'`
 		 * - `file` - Set `trailingSlash: 'never'`
 		 */
@@ -998,7 +1002,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *
 	 * The Unstorage driver to use for session storage.  The [Node](https://docs.astro.build/en/guides/integrations-guide/node/#sessions),
 	 * [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/#sessions), and
-	 * [Netlify](/en/guides/integrations-guide/netlify/#sessions) adapters automatically configure a default driver for you,
+	 * [Netlify](https://docs.astro.build/en/guides/integrations-guide/netlify/#sessions) adapters automatically configure a default driver for you,
 	 * but you can specify your own if you would prefer or if you are using an adapter that does not provide one.
 	 *
 	 * The value is the "Driver name" from the [Unstorage driver documentation](https://unstorage.unjs.io/drivers).
@@ -1141,7 +1145,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * ```html
 	 * <a href="/about" data-astro-prefetch>About</a>
 	 * ```
-	 * Further customize the default prefetching behavior using the [`prefetch.defaultStrategy`](#prefetchdefaultstrategy) and [`prefetch.prefetchAll`](#prefetchprefetchall) options.
+	 * Further customize the default prefetching behavior using the [`prefetch.defaultStrategy`](https://docs.astro.build/en/reference/configuration-reference/#prefetchdefaultstrategy) and [`prefetch.prefetchAll`](https://docs.astro.build/en/reference/configuration-reference/#prefetchprefetchall) options.
 	 *
 	 * See the [Prefetch guide](https://docs.astro.build/en/guides/prefetch/) for more information.
 	 */
@@ -1275,7 +1279,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @description
 		 * Defines a list of permitted image source domains for remote image optimization. No other remote images will be optimized by Astro.
 		 *
-		 * This option requires an array of individual domain names as strings. Wildcards are not permitted. Instead, use [`image.remotePatterns`](#imageremotepatterns) to define a list of allowed source URL patterns.
+		 * This option requires an array of individual domain names as strings. Wildcards are not permitted. Instead, use [`image.remotePatterns`](https://docs.astro.build/en/reference/configuration-reference/#imageremotepatterns) to define a list of allowed source URL patterns.
 		 *
 		 * ```js
 		 * // astro.config.mjs
@@ -1450,7 +1454,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * });
 		 * ```
 		 *
-		 * See the [code syntax highlighting guide](/en/guides/syntax-highlighting/) for usage and examples.
+		 * See the [code syntax highlighting guide](https://docs.astro.build/en/guides/syntax-highlighting/) for usage and examples.
 		 */
 		shikiConfig?: Partial<ShikiConfig>;
 
@@ -1463,7 +1467,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * Which syntax highlighter to use for Markdown code blocks (\`\`\`), if any. This determines the CSS classes that Astro will apply to your Markdown code blocks.
 	 	 * 
 		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter (`github-dark` theme configured by default)
-		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter and [provide your own Prism stylesheet](/en/guides/syntax-highlighting/#add-a-prism-stylesheet)
+		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter and [provide your own Prism stylesheet](https://docs.astro.build/en/guides/syntax-highlighting/#add-a-prism-stylesheet)
 		 * - `false` - do not apply syntax highlighting.
 
 		 * ```js
@@ -1623,7 +1627,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *
 	 * Configures i18n routing and allows you to specify some customization options.
 	 *
-	 * See our guide for more information on [internationalization in Astro](/en/guides/internationalization/)
+	 * See our guide for more information on [internationalization in Astro](https://docs.astro.build/en/guides/internationalization/)
 	 */
 	i18n?: {
 		/**
@@ -1799,7 +1803,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * @version 4.15.0
 					 * @description
 					 *
-					 * When [`i18n.fallback`](#i18nfallback) is configured to avoid showing a 404 page for missing page routes, this option controls whether to [redirect](https://docs.astro.build/en/guides/routing/#redirects) to the fallback page, or to [rewrite](https://docs.astro.build/en/guides/routing/#rewrites) the fallback page's content in place.
+					 * When [`i18n.fallback`](https://docs.astro.build/en/reference/configuration-reference/#i18nfallback) is configured to avoid showing a 404 page for missing page routes, this option controls whether to [redirect](https://docs.astro.build/en/guides/routing/#redirects) to the fallback page, or to [rewrite](https://docs.astro.build/en/guides/routing/#rewrites) the fallback page's content in place.
 					 *
 					 * By default, Astro's i18n routing creates pages that redirect your visitors to a new destination based on your fallback configuration. The browser will refresh and show the destination address in the URL bar.
 					 *
@@ -1884,7 +1888,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *
 	 * Configuration options for type-safe environment variables.
 	 *
-	 * See our guide for more information on [environment variables in Astro](/en/guides/environment-variables/).
+	 * See our guide for more information on [environment variables in Astro](https://docs.astro.build/en/guides/environment-variables/).
 	 */
 	env?: {
 		/**
@@ -2078,6 +2082,18 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * See the [Prefetch Guide](https://docs.astro.build/en/guides/prefetch/) for more `prefetch` options and usage.
 		 */
 		clientPrerender?: boolean;
+
+		/**
+		 *
+		 * @name experimental.failOnPrerenderConflict
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.x
+		 * @description
+		 * When two routes generate the same prerendered URL, fail the build instead of skipping one.
+		 * If disabled (default), a warning is logged when conflicts occur and the highest-priority route wins.
+		 */
+		failOnPrerenderConflict?: boolean;
 
 		/**
 		 *
@@ -2429,12 +2445,56 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @name experimental.liveContentCollections
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 5.x
+		 * @version 5.10
 		 * @description
 		 * Enables the use of live content collections.
 		 *
 		 */
 		liveContentCollections?: boolean;
+
+		/**
+		 * @name experimental.staticImportMetaEnv
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.13
+		 * @description
+		 *
+		 * Disables replacement of `import.meta.env` values with `process.env` calls and their coercion
+		 *
+		 * Currently, non-public `import.meta.env` environment variables are replaced by a reference to `process.env`. Additionally, Astro may also convert the value type of your environment variables used through `import.meta.env`, which can prevent access to some values such as the strings `"true"` (which is converted to a boolean value), and `"1"` (which is converted to a number).
+		 *
+		 * The `experimental.staticImportMetaEnv` flag simplifies Astro's default behavior, making it easier to understand and use. Astro will no longer replace any `import.meta.env` environment variables with a `process.env` call, nor will it coerce values.
+		 *
+		 * This flag aligns `import.meta.env`'s behavior in Astro with [Vite](https://vite.dev/guide/env-and-mode.html#env-variables).
+		 *
+		 * See the [experimental static `import.meta.env` docs](https://docs.astro.build/en/reference/experimental-flags/static-import-meta-env/) for more information.
+		 */
+		staticImportMetaEnv?: boolean;
+		/**
+		 * @name experimental.chromeDevtoolsWorkspace
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.13
+		 * @description
+		 *
+		 * Enables Chrome DevTools workspace integration for the Astro dev server.
+		 *
+		 * When enabled, the dev server will automatically configure a [Chrome DevTools workspace](https://developer.chrome.com/docs/devtools/workspaces) for your project,
+		 * allowing you to edit files directly in the browser and have those changes reflected in your local file system.
+		 *
+		 * ```js
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     chromeDevtoolsWorkspace: true,
+		 *   },
+		 * });
+		 * ```
+		 *
+		 * See the [experimental Chrome DevTools workspace feature documentation](https://docs.astro.build/en/reference/experimental-flags/chrome-devtools-workspace/) for more information.
+		 */
+		chromeDevtoolsWorkspace?: boolean;
 	};
 }
 

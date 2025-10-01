@@ -34,7 +34,7 @@ export default function standalone(app: NodeApp, options: Options) {
 
 // also used by server entrypoint
 export function createStandaloneHandler(app: NodeApp, options: Options) {
-	const appHandler = createAppHandler(app);
+	const appHandler = createAppHandler(app, options);
 	const staticHandler = createStaticHandler(app, options);
 	return (req: http.IncomingMessage, res: http.ServerResponse) => {
 		try {
