@@ -78,7 +78,7 @@
     "kleur": "^4.1.5",
     "nanoid": "^5.1.6",
     "prompts": "^2.4.2",
-    "yargs-parser": "^21.1.1",
+    "yargs-parser": "^22.0.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
