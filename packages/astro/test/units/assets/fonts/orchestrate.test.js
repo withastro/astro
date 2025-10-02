@@ -25,6 +25,7 @@ import {
 	createSpyStorage,
 	fakeFontMetricsResolver,
 	fakeHasher,
+	markdownBold,
 	simpleErrorHandler,
 } from './utils.js';
 
@@ -75,6 +76,7 @@ describe('fonts orchestrate()', () => {
 				});
 			},
 			defaults: DEFAULTS,
+			bold: markdownBold,
 		});
 		assert.deepStrictEqual(
 			[...fontFileDataMap.entries()],
@@ -206,6 +208,7 @@ describe('fonts orchestrate()', () => {
 				});
 			},
 			defaults: DEFAULTS,
+			bold: markdownBold,
 		});
 
 		assert.deepStrictEqual(
@@ -321,13 +324,14 @@ describe('fonts orchestrate()', () => {
 				});
 			},
 			defaults: DEFAULTS,
+			bold: markdownBold,
 		});
 
 		assert.deepStrictEqual(logs, [
 			{
 				type: 'warn',
 				label: 'assets',
-				message: 'No data found for font family \x1B[1mTest\x1B[22m. Review your configuration',
+				message: 'No data found for font family **Test**. Review your configuration',
 			},
 		]);
 	});
@@ -393,19 +397,20 @@ describe('fonts orchestrate()', () => {
 				});
 			},
 			defaults: DEFAULTS,
+			bold: markdownBold,
 		});
 
 		assert.deepStrictEqual(logs, [
 			{
 				type: 'warn',
 				label: 'assets',
-				message: 'No data found for font family \x1B[1mTest\x1B[22m. Review your configuration',
+				message: 'No data found for font family **Test**. Review your configuration',
 			},
 			{
 				type: 'warn',
 				label: 'assets',
 				message:
-					'\x1B[1mTest\x1B[22m font family cannot be retrieved by the provider. Supported values are: Foo, Bar',
+					'**Test** font family cannot be retrieved by the provider. Supported values are: Foo, Bar',
 			},
 		]);
 	});

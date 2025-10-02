@@ -1,4 +1,3 @@
-import { bold } from 'kleur/colors';
 import * as unifont from 'unifont';
 import type { Storage } from 'unstorage';
 import type { Logger } from '../../core/logger/core.js';
@@ -67,6 +66,7 @@ export async function orchestrate({
 	logger,
 	createUrlProxy,
 	defaults,
+	bold,
 }: {
 	families: Array<FontFamily>;
 	hasher: Hasher;
@@ -81,6 +81,7 @@ export async function orchestrate({
 	logger: Logger;
 	createUrlProxy: (params: CreateUrlProxyParams) => UrlProxy;
 	defaults: Defaults;
+	bold: (input: string) => string;
 }): Promise<{
 	fontFileDataMap: FontFileDataMap;
 	internalConsumableMap: InternalConsumableMap;

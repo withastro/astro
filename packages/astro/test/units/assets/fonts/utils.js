@@ -107,3 +107,10 @@ export function createSpyLogger() {
 		logger,
 	};
 }
+
+/**
+ * @param {string} input
+ */
+export function markdownBold(input) {
+	return `**${input}**`;
+}
