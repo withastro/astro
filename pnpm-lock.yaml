@@ -471,8 +471,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: 0.0.0-next-result-create-astro-20250926081949
-        version: 0.0.0-next-result-create-astro-20250926081949
+        specifier: 0.0.0-script-order-20251002140654
+        version: 0.0.0-script-order-20251002140654
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
@@ -6498,8 +6498,8 @@ packages:
     resolution: {integrity: sha512-bVzyKzEpIwqjihBU/aUzt1LQckJuHK0agd3/ITdXhPUYculrc6K1/K7H+XG4rwjXtg+ikT3PM05V1MVYWiIvQw==}
     engines: {node: '>=18.14.1'}
 
-  '@astrojs/compiler@0.0.0-next-result-create-astro-20250926081949':
-    resolution: {integrity: sha512-iZAPYDe2R9fU1GA26epcy4iOvDgla3oWirzqOsc3nkKeSTcUYtY1rZq/D02oKCVHepAkFlRS1bS27+G+jIeX0Q==}
+  '@astrojs/compiler@0.0.0-script-order-20251002140654':
+    resolution: {integrity: sha512-6pR3ODwtdJt4wx+W8i0YUVIRonDu6+MILh25wALbcxhDlKDBt55iCQjwu7JLbDg6eln2CvscHvecTKu/uBnlWA==}
 
   '@astrojs/compiler@2.12.2':
     resolution: {integrity: sha512-w2zfvhjNCkNMmMMOn5b0J8+OmUaBL1o40ipMvqcG6NRpdC+lKxmTi48DT8Xw0SzJ3AfmeFLB45zXZXtmbsjcgw==}
@@ -14256,7 +14256,7 @@ snapshots:
       log-update: 5.0.1
       sisteransi: 1.0.5
 
-  '@astrojs/compiler@0.0.0-next-result-create-astro-20250926081949': {}
+  '@astrojs/compiler@0.0.0-script-order-20251002140654': {}
 
   '@astrojs/compiler@2.12.2': {}
 
