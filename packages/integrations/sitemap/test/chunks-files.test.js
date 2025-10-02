@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import path from 'node:path';
 import { before, describe, it } from 'node:test';
 import { sitemap } from './fixtures/static/deps.mjs';
 import { loadFixture, readXML } from './test-utils.js';
@@ -21,7 +22,7 @@ describe('Sitemap with chunked files', () => {
 					},
 					chunks: {
 						'blog': (item) => {
-							if (/blog/.test(item.url)) {
+							if (item.url.includes('blog')) {
 								item.changefreq = 'weekly';
 								item.lastmod = new Date();
 								item.priority = 0.9;
@@ -29,7 +30,7 @@ describe('Sitemap with chunked files', () => {
 							}
 						},
 						'glossary': (item) => {
-							if (/glossary/.test(item.url)) {
+							if (item.url.includes('glossary')) {
 								item.changefreq = 'weekly';
 								item.lastmod = new Date();
 								item.priority = 0.9;
@@ -41,15 +42,13 @@ describe('Sitemap with chunked files', () => {
 			],
 		});
 		await fixture.build();
-		const [blogUrlsRaw, glossaryUrlsRaw, pagesUrlsRaw] = await Promise.all([
-			readXML(fixture.readFile('/sitemap-blog-0.xml')),
-			readXML(fixture.readFile('/sitemap-glossary-0.xml')),
-			readXML(fixture.readFile('/sitemap-pages-0.xml')),
-		]);
-		const flatMapUrls = (data) => data.urlset.url.map((url) => url.loc[0])
-		blogUrls = flatMapUrls(blogUrlsRaw);
-		glossaryUrls = flatMapUrls(glossaryUrlsRaw)
-		pagesUrls = flatMapUrls(pagesUrlsRaw)
+		const flatMapUrls = async (file) => {
+			const data = await readXML(path.resolve(fixture.root, file))
+			data.urlset.url.map((url) => url.loc[0])
+		};
+		blogUrls = flatMapUrls('sitemap-blog-0.xml');
+		glossaryUrls = flatMapUrls('sitemap-glossary-0.xml')
+		pagesUrls = flatMapUrls('sitemap-pages-0.xml')
 	});
 
 	it('includes defined custom pages', async () => {
