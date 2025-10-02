@@ -21,6 +21,7 @@ import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
 import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
 import { defaultLogger } from '../../test-utils.js';
 import {
+	createSpyLogger,
 	createSpyStorage,
 	fakeFontMetricsResolver,
 	fakeHasher,
@@ -258,5 +259,154 @@ describe('fonts orchestrate()', () => {
 				],
 			],
 		);
+	});
+
+	it('warns if remote provider does not return any font data', async () => {
+		const fakeUnifontProvider = defineFontProvider('test', () => {
+			return {
+				resolveFont: () => {
+					return undefined;
+				},
+			};
+		});
+		const fakeAstroProvider = defineAstroFontProvider({
+			entrypoint: 'test',
+		});
+
+		const root = new URL(import.meta.url);
+		const { storage } = createSpyStorage();
+		const errorHandler = simpleErrorHandler;
+		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
+		const hasher = fakeHasher;
+		const { logs, logger } = createSpyLogger();
+
+		await orchestrate({
+			families: [
+				{
+					name: 'Test',
+					cssVariable: '--test',
+					provider: fakeAstroProvider,
+					fallbacks: ['serif'],
+				},
+			],
+			hasher,
+			remoteFontProviderResolver: createRemoteFontProviderResolver({
+				root,
+				errorHandler,
+				modResolver: {
+					resolve: async () => ({
+						provider: fakeUnifontProvider,
+					}),
+				},
+			}),
+			localProviderUrlResolver: createRequireLocalProviderUrlResolver({ root }),
+			storage,
+			cssRenderer: createMinifiableCssRenderer({ minify: true }),
+			systemFallbacksProvider: createSystemFallbacksProvider(),
+			fontMetricsResolver: fakeFontMetricsResolver,
+			fontTypeExtractor,
+			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			logger,
+			createUrlProxy: ({ local, cssVariable, ...params }) => {
+				const dataCollector = createDataCollector(params);
+				const contentResolver = createRemoteUrlProxyContentResolver();
+				return createUrlProxy({
+					urlResolver: {
+						resolve: (hash) => hash,
+						getCspResources: () => [],
+					},
+					cssVariable,
+					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
+					dataCollector,
+				});
+			},
+			defaults: DEFAULTS,
+		});
+
+		assert.deepStrictEqual(logs, [
+			{
+				type: 'warn',
+				label: 'assets',
+				message: 'No data found for font family \x1B[1mTest\x1B[22m. Review your configuration',
+			},
+		]);
+	});
+
+	it('warns if remote provider does not support given font family name', async () => {
+		const fakeUnifontProvider = defineFontProvider('test', () => {
+			return {
+				resolveFont: () => {
+					return undefined;
+				},
+				listFonts: async () => ['Foo', 'Bar'],
+			};
+		});
+		const fakeAstroProvider = defineAstroFontProvider({
+			entrypoint: 'test',
+		});
+
+		const root = new URL(import.meta.url);
+		const { storage } = createSpyStorage();
+		const errorHandler = simpleErrorHandler;
+		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
+		const hasher = fakeHasher;
+		const { logs, logger } = createSpyLogger();
+
+		await orchestrate({
+			families: [
+				{
+					name: 'Test',
+					cssVariable: '--test',
+					provider: fakeAstroProvider,
+					fallbacks: ['serif'],
+				},
+			],
+			hasher,
+			remoteFontProviderResolver: createRemoteFontProviderResolver({
+				root,
+				errorHandler,
+				modResolver: {
+					resolve: async () => ({
+						provider: fakeUnifontProvider,
+					}),
+				},
+			}),
+			localProviderUrlResolver: createRequireLocalProviderUrlResolver({ root }),
+			storage,
+			cssRenderer: createMinifiableCssRenderer({ minify: true }),
+			systemFallbacksProvider: createSystemFallbacksProvider(),
+			fontMetricsResolver: fakeFontMetricsResolver,
+			fontTypeExtractor,
+			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			logger,
+			createUrlProxy: ({ local, cssVariable, ...params }) => {
+				const dataCollector = createDataCollector(params);
+				const contentResolver = createRemoteUrlProxyContentResolver();
+				return createUrlProxy({
+					urlResolver: {
+						resolve: (hash) => hash,
+						getCspResources: () => [],
+					},
+					cssVariable,
+					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
+					dataCollector,
+				});
+			},
+			defaults: DEFAULTS,
+		});
+
+		assert.deepStrictEqual(logs, [
+			{
+				type: 'warn',
+				label: 'assets',
+				message: 'No data found for font family \x1B[1mTest\x1B[22m. Review your configuration',
+			},
+			{
+				type: 'warn',
+				label: 'assets',
+				message:
+					'\x1B[1mTest\x1B[22m font family cannot be retrieved by the provider. Supported values are: Foo, Bar',
+			},
+		]);
 	});
 });

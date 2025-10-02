@@ -100,7 +100,7 @@ export async function orchestrate({
 	resolvedFamilies = extractedUnifontProvidersResult.families;
 	const unifontProviders = extractedUnifontProvidersResult.providers;
 
-	const { resolveFont } = await unifont.createUnifont(unifontProviders, {
+	const { resolveFont, listFonts } = await unifont.createUnifont(unifontProviders, {
 		storage,
 	});
 
@@ -189,6 +189,13 @@ export async function orchestrate({
 					'assets',
 					`No data found for font family ${bold(family.name)}. Review your configuration`,
 				);
+				const availableFamilies = await listFonts([family.provider.name!]);
+				if (availableFamilies && !availableFamilies.includes(family.name)) {
+					logger.warn(
+						'assets',
+						`${bold(family.name)} font family cannot be retrieved by the provider. Supported values are: ${availableFamilies.join(', ')}`,
+					);
+				}
 			}
 			// The data returned by the remote provider contains original URLs. We proxy them.
 			fonts = normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy, fontTypeExtractor });
