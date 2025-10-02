@@ -3524,7 +3524,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/live-loaders(with space):
+  packages/astro/test/fixtures/live-loaders space:
     dependencies:
       '@astrojs/node':
         specifier: workspace:*

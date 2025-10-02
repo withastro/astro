@@ -10,7 +10,7 @@ describe('Live content collections', () => {
 	let fixture;
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/live-loaders(with space)/',
+			root: './fixtures/live-loaders space/',
 			adapter: testAdapter(),
 		});
 	});
