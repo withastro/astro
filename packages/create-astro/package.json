@@ -1,6 +1,6 @@
 {
   "name": "create-astro",
-  "version": "4.12.1",
+  "version": "4.13.1",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -32,7 +32,7 @@
   "//b": "DEPENDENCIES IS FOR UNBUNDLED PACKAGES",
   "dependencies": {
     "@astrojs/cli-kit": "^0.4.1",
-    "@bluwy/giget-core": "^0.1.2"
+    "@bluwy/giget-core": "^0.1.3"
   },
   "devDependencies": {
     "arg": "^5.0.2",

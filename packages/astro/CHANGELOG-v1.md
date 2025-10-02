@@ -71,19 +71,16 @@
 
   > **Note**
   > This API is not yet stable and is subject to possible breaking changes!
-
   - Deploy an Astro server without sacrificing the speed or cacheability of static HTML.
   - The Prerender API allows you to statically prerender specific `pages/` at build time.
 
   **Usage**
-
   - First, run `astro build --experimental-prerender` or enable `experimental: { prerender: true }` in your `astro.config.mjs` file.
   - Then, include `export const prerender = true` in any file in the `pages/` directory that you wish to prerender.
 
 - [#5495](https://github.com/withastro/astro/pull/5495) [`31ec84797`](https://github.com/withastro/astro/commit/31ec8479721a1cd65538ec041458c5ffe8f50ee9) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add a new error overlay designed by @doodlemarks! This new overlay should be much more informative, clearer, astro-y, and prettier than the previous one.
 
 - [#5291](https://github.com/withastro/astro/pull/5291) [`5ec0f6ed5`](https://github.com/withastro/astro/commit/5ec0f6ed55b0a14a9663a90a03428345baf126bd) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Introduce Content Collections experimental API
-
   - Organize your Markdown and MDX content into easy-to-manage collections.
   - Add type safety to your frontmatter with schemas.
   - Generate landing pages, static routes, and SSR endpoints from your content using the collection query APIs.
@@ -317,7 +314,6 @@
   ```
 
 - [#5164](https://github.com/withastro/astro/pull/5164) [`4a8a346ca`](https://github.com/withastro/astro/commit/4a8a346ca9a6d6ed8def2fa32329c1db922893d2) Thanks [@MoustaphaDev](https://github.com/MoustaphaDev)! - Add support for markdown files with the following extensions:
-
   - `.markdown`
   - `.mdown`
   - `.mkdn`
@@ -446,7 +442,6 @@
   ```
 
 - [#4947](https://github.com/withastro/astro/pull/4947) [`a5e3ecc80`](https://github.com/withastro/astro/commit/a5e3ecc8039c1e115ce5597362e18cd35d04e40b) Thanks [@JuanM04](https://github.com/JuanM04)! - - Added `isRestart` and `addWatchFile` to integration step `isRestart`.
-
   - Restart dev server automatically when tsconfig changes.
 
 - [#4986](https://github.com/withastro/astro/pull/4986) [`ebd364e39`](https://github.com/withastro/astro/commit/ebd364e392035b379dd00b8f2f15a4cc09ee88e6) Thanks [@bluwy](https://github.com/bluwy)! - ## Support passing a custom status code for Astro.redirect
@@ -737,7 +732,6 @@
   This means you can take a legacy app that has been statically generated to HTML and directly consume that HTML within your templates. As is always the case with `set:html`, this should only be used on trusted content.
 
   To make this possible, you can also pass several other types into `set:html` now:
-
   - `Response` objects, since that is what fetch() returns:
     ```astro
     <div

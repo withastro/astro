@@ -6,4 +6,7 @@ export default defineConfig({
 		imageService: 'compile',
 	}),
 	output: 'static',
+	image: {
+		domains: ["astro.build"]
+	}
 });

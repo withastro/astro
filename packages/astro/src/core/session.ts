@@ -214,9 +214,16 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	/**
 	 * Destroys the session, clearing the cookie and storage if it exists.
 	 */
-
 	destroy() {
-		this.#destroySafe();
+		// We don't use #ensureSessionID here because we don't want to create a new session ID if it doesn't exist.
+		const sessionId = this.#sessionID ?? this.#cookies.get(this.#cookieName)?.value;
+		if (sessionId) {
+			this.#toDestroy.add(sessionId);
+		}
+		this.#cookies.delete(this.#cookieName, this.#cookieConfig);
+		this.#sessionID = undefined;
+		this.#data = undefined;
+		this.#dirty = true;
 	}
 
 	/**
@@ -351,7 +358,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		try {
 			const storedMap = unflatten(raw);
 			if (!(storedMap instanceof Map)) {
-				await this.#destroySafe();
+				await this.destroy();
 				throw new AstroError({
 					...SessionStorageInitError,
 					message: SessionStorageInitError.message(
@@ -377,7 +384,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			this.#partial = false;
 			return this.#data;
 		} catch (err) {
-			await this.#destroySafe();
+			await this.destroy();
 			if (err instanceof AstroError) {
 				throw err;
 			}
@@ -392,20 +399,6 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 				{ cause: err },
 			);
 		}
-	}
-	/**
-	 * Safely destroys the session, clearing the cookie and storage if it exists.
-	 */
-	#destroySafe() {
-		if (this.#sessionID) {
-			this.#toDestroy.add(this.#sessionID);
-		}
-		if (this.#cookieName) {
-			this.#cookies.delete(this.#cookieName, this.#cookieConfig);
-		}
-		this.#sessionID = undefined;
-		this.#data = undefined;
-		this.#dirty = true;
 	}
 
 	/**

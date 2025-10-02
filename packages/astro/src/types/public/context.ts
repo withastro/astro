@@ -357,6 +357,13 @@ export interface AstroSharedContext<
 	isPrerendered: boolean;
 
 	/**
+	 * It exposes utilities to control CSP headers
+	 */
+	csp: AstroSharedContextCsp;
+}
+
+export type AstroSharedContextCsp = {
+	/**
 	 * It adds a specific CSP directive to the route being rendered.
 	 *
 	 * ## Example
@@ -410,7 +417,7 @@ export interface AstroSharedContext<
 	 * ```
 	 */
 	insertScriptHash: (hash: CspHash) => void;
-}
+};
 
 /**
  * The `APIContext` is the object made available to endpoints and middleware.

@@ -4,9 +4,9 @@ import { pathToFileURL } from 'node:url';
 import { emptyDir, removeDir, writeJson } from '@astrojs/internal-helpers/fs';
 import {
 	getTransformedRoutes,
-	type Header,
 	normalizeRoutes,
 	type Route,
+	type RouteWithSrc,
 } from '@vercel/routing-utils';
 import type {
 	AstroAdapter,
@@ -64,19 +64,36 @@ const ISR_PATH = `/_isr?${ASTRO_PATH_PARAM}=$0`;
 // https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/node-js#node.js-version
 const SUPPORTED_NODE_VERSIONS: Record<
 	string,
-	| { status: 'default' }
-	| { status: 'available' }
-	| { status: 'beta' }
-	| { status: 'retiring'; removal: Date | string; warnDate: Date }
-	| { status: 'deprecated'; removal: Date }
+	| {
+			status: 'default';
+	  }
+	| {
+			status: 'available';
+	  }
+	| {
+			status: 'beta';
+	  }
+	| {
+			status: 'retiring';
+			removal: Date | string;
+			warnDate: Date;
+	  }
+	| {
+			status: 'deprecated';
+			removal: Date;
+	  }
 > = {
 	18: {
 		status: 'retiring',
 		removal: new Date('September 1 2025'),
 		warnDate: new Date('October 1 2024'),
 	},
-	20: { status: 'available' },
-	22: { status: 'default' },
+	20: {
+		status: 'available',
+	},
+	22: {
+		status: 'default',
+	},
 };
 
 function getAdapter({
@@ -96,7 +113,10 @@ function getAdapter({
 		name: PACKAGE_NAME,
 		serverEntrypoint: `${PACKAGE_NAME}/entrypoint`,
 		exports: ['default'],
-		args: { middlewareSecret, skewProtection },
+		args: {
+			middlewareSecret,
+			skewProtection,
+		},
 		adapterFeatures: {
 			edgeMiddleware,
 			buildOutput,
@@ -196,10 +216,14 @@ export default function vercelAdapter({
 }: VercelServerlessConfig = {}): AstroIntegration {
 	if (maxDuration) {
 		if (typeof maxDuration !== 'number') {
-			throw new TypeError(`maxDuration must be a number`, { cause: maxDuration });
+			throw new TypeError(`maxDuration must be a number`, {
+				cause: maxDuration,
+			});
 		}
 		if (maxDuration <= 0) {
-			throw new TypeError(`maxDuration must be a positive number`, { cause: maxDuration });
+			throw new TypeError(`maxDuration must be a positive number`, {
+				cause: maxDuration,
+			});
 		}
 	}
 
@@ -452,7 +476,10 @@ export default function vercelAdapter({
 								const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 								for (const route of expandedExclusions) {
 									// vercel interprets src as a regex pattern, so we need to escape it
-									routeDefinitions.push({ src: escapeRegex(route), dest });
+									routeDefinitions.push({
+										src: escapeRegex(route),
+										dest,
+									});
 								}
 							}
 							await builder.buildISRFolder(entryFile, '_isr', isrConfig, _config.root);
@@ -472,7 +499,11 @@ export default function vercelAdapter({
 										src.startsWith('^\\/_image') || src.startsWith('^\\/_server-islands')
 											? NODE_PATH
 											: ISR_PATH;
-									if (!route.isPrerendered) routeDefinitions.push({ src, dest });
+									if (!route.isPrerendered)
+										routeDefinitions.push({
+											src,
+											dest,
+										});
 								}
 							}
 						} else {
@@ -480,7 +511,10 @@ export default function vercelAdapter({
 							const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 							for (const route of routes) {
 								if (!route.isPrerendered)
-									routeDefinitions.push({ src: route.patternRegex.source, dest });
+									routeDefinitions.push({
+										src: route.patternRegex.source,
+										dest,
+									});
 							}
 						}
 					}
@@ -497,7 +531,9 @@ export default function vercelAdapter({
 				const finalRoutes: Route[] = [
 					{
 						src: `^/${_config.build.assets}/(.*)$`,
-						headers: { 'cache-control': 'public, max-age=31536000, immutable' },
+						headers: {
+							'cache-control': 'public, max-age=31536000, immutable',
+						},
 						continue: true,
 					},
 				];
@@ -579,9 +615,17 @@ export default function vercelAdapter({
 					);
 				}
 
-				let headers: Header[] | undefined = undefined;
 				if (_routeToHeaders && _routeToHeaders.size > 0) {
-					headers = createConfigHeaders(_routeToHeaders, _config);
+					if (!normalized.routes) {
+						normalized.routes = [];
+					}
+					if (experimentalStaticHeaders) {
+						const routesWithConfigHeaders = createRoutesWithStaticHeaders(_routeToHeaders, _config);
+						const fileSystemRouteIndex = normalized.routes.findIndex(
+							(r) => 'handle' in r && r.handle === 'filesystem',
+						);
+						normalized.routes.splice(fileSystemRouteIndex, 0, ...routesWithConfigHeaders);
+					}
 				}
 
 				// Output configuration
@@ -590,7 +634,6 @@ export default function vercelAdapter({
 					version: 3,
 					routes: normalized.routes,
 					images,
-					headers,
 				});
 
 				// Remove temporary folder
@@ -652,7 +695,9 @@ class VercelBuilder {
 
 		// Enable ESM
 		// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
-		await writeJson(packageJson, { type: 'module' });
+		await writeJson(packageJson, {
+			type: 'module',
+		});
 
 		// Serverless function config
 		// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
@@ -730,9 +775,9 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 		return `nodejs${major}.x`;
 	}
 	if (support.status === 'deprecated') {
-		const removeDate = new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(
-			support.removal,
-		);
+		const removeDate = new Intl.DateTimeFormat(undefined, {
+			dateStyle: 'long',
+		}).format(support.removal);
 		logger.warn(
 			`\n` +
 				`\tYour project is being built for Node.js ${major} as the runtime.\n` +
@@ -744,21 +789,22 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 	return 'nodejs22.x';
 }
 
-function createConfigHeaders(staticHeaders: RouteToHeaders, config: AstroConfig): Header[] {
-	const vercelHeaders: Header[] = [];
+function createRoutesWithStaticHeaders(
+	staticHeaders: RouteToHeaders,
+	config: AstroConfig,
+): RouteWithSrc[] {
+	const vercelHeaders: RouteWithSrc[] = [];
 	for (const [pathname, { headers }] of staticHeaders.entries()) {
 		if (config.experimental.csp) {
 			const csp = headers.get('Content-Security-Policy');
 
 			if (csp) {
+				const _headers = {
+					'content-security-policy': csp,
+				};
 				vercelHeaders.push({
-					source: pathname,
-					headers: [
-						{
-							key: 'Content-Security-Policy',
-							value: csp,
-						},
-					],
+					src: pathname,
+					headers: _headers,
 				});
 			}
 		}

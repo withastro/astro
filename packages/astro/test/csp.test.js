@@ -272,9 +272,8 @@ describe('CSP', () => {
 
 		const header = response.headers.get('content-security-policy');
 
-		assert.ok(header.includes('style-src https://styles.cdn.example.com'));
-
 		// correctness for resources
+		assert.ok(header.includes('style-src https://styles.cdn.example.com'));
 		assert.ok(header.includes("script-src 'self'"));
 		// correctness for hashes
 		assert.ok(header.includes("default-src 'self';"));
@@ -302,6 +301,57 @@ describe('CSP', () => {
 				.toString()
 				.includes("'sha256-fP5hIETY85LoQH4mfn28a0KQgRZ3ZBI/WJOYJRKChes='"),
 		);
+	});
+
+	it('should generate hashes and directives for fonts', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp-fonts/',
+		});
+		await fixture.build();
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+
+		/**
+		 *
+		 * @param {string} csp
+		 * @returns {Array<{ directive: string; resources: Array<string> }>}
+		 */
+		function parseCsp(csp) {
+			return csp
+				.split(';')
+				.map((part) => part.trim())
+				.filter((part) => part.length > 0)
+				.map((part) => {
+					const [directive, ...resources] = part.split(/\s+/);
+					return {
+						directive,
+						resources,
+					};
+				});
+		}
+
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		const parsed = parseCsp(meta.attr('content').toString());
+		assert.ok(
+			parsed.find((e) => e.directive === 'style-src')?.resources.length === 2,
+			'Style hash is not injected by vite-plugin-fonts',
+		);
+		assert.deepStrictEqual(parsed.find((e) => e.directive === 'font-src')?.resources, [
+			"'self'",
+			'https://fonts.cdn.test.com',
+		]);
+	});
+
+	it('should not inject self by default if fonts are not used', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/csp/',
+		});
+		await fixture.build();
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+
+		const meta = $('meta[http-equiv="Content-Security-Policy"]');
+		assert.equal(meta.attr('content').toString().includes('font-src'), false);
 	});
 
 	it('should return CSP header inside a hook', async () => {

@@ -501,16 +501,21 @@ export default function netlifyIntegration(
 		};
 
 		const context: Context = {
+			get url(): never {
+				throw new Error('Please use Astro.url instead.');
+			},
+			// The dev server is a long running process, so promises will run even with a noop
+			waitUntil: () => {},
 			account: parseBase64JSON('x-nf-account-info') ?? {
 				id: 'mock-netlify-account-id',
 			},
-			// TODO: this has type conflicts with @netlify/functions ^2.8.1
-			// @ts-expect-error: this has type conflicts with @netlify/functions ^2.8.1
 			deploy: {
+				context: 'dev',
 				id:
 					typeof req.headers['x-nf-deploy-id'] === 'string'
 						? req.headers['x-nf-deploy-id']
 						: 'mock-netlify-deploy-id',
+				published: false,
 			},
 			site: parseBase64JSON('x-nf-site-info') ?? {
 				id: 'mock-netlify-site-id',
@@ -539,8 +544,6 @@ export default function netlifyIntegration(
 			get cookies(): never {
 				throw new Error('Please use Astro.cookies instead.');
 			},
-			// @ts-expect-error This is not currently included in the public Netlify types
-			flags: undefined,
 			json: (input) => Response.json(input),
 			log: console.info,
 			next: () => {

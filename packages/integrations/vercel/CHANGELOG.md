@@ -1,5 +1,41 @@
 # @astrojs/vercel
 
+## 8.2.8
+
+### Patch Changes
+
+- Updated dependencies [[`1e2499e`](https://github.com/withastro/astro/commit/1e2499e8ea83ebfa233a18a7499e1ccf169e56f4)]:
+  - @astrojs/internal-helpers@0.7.3
+
+## 8.2.7
+
+### Patch Changes
+
+- [#14039](https://github.com/withastro/astro/pull/14039) [`da4182d`](https://github.com/withastro/astro/commit/da4182dbe8cc0c8871621d3f8e0f9d40e084ddbf) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where `experimentalStaticHeaders` did not work as expected.
+
+- [#14289](https://github.com/withastro/astro/pull/14289) [`ed493a6`](https://github.com/withastro/astro/commit/ed493a6929512ab636afdb3511ea790789c7c3dd) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused invalid image sizes to be generated when the requested widths were larger than the source image
+
+## 8.2.6
+
+### Patch Changes
+
+- Updated dependencies [[`4d16de7`](https://github.com/withastro/astro/commit/4d16de7f95db5d1ec1ce88610d2a95e606e83820)]:
+  - @astrojs/internal-helpers@0.7.2
+
+## 8.2.5
+
+### Patch Changes
+
+- Updated dependencies [[`0567fb7`](https://github.com/withastro/astro/commit/0567fb7b50c0c452be387dd7c7264b96bedab48f)]:
+  - @astrojs/internal-helpers@0.7.1
+
+## 8.2.4
+
+### Patch Changes
+
+- Updated dependencies [[`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172)]:
+  - @astrojs/internal-helpers@0.7.0
+
 ## 8.2.3
 
 ### Patch Changes
@@ -637,7 +673,6 @@
   The Vercel adapter has a file-tracer it uses to detect which files should be moved over to the `dist/` folder. When it's done, it prints warnings for things that it detected that maybe should be moved.
 
   This change expands how we do ignores so that:
-
   - Ignores happen within dot folders like `.pnpm`.
   - `@libsql/client` is ignored, a package we know is not bundled.
 
@@ -860,7 +895,6 @@
 ### Patch Changes
 
 - [#8348](https://github.com/withastro/astro/pull/8348) [`5f2c55bb5`](https://github.com/withastro/astro/commit/5f2c55bb54bb66693d278b7cd705c198aecc0331) Thanks [@ematipico](https://github.com/ematipico)! - - Cache result during bundling, to speed up the process of multiple functions;
-
   - Avoid creating multiple symbolic links of the dependencies when building the project with `functionPerRoute` enabled;
 
 - [#8354](https://github.com/withastro/astro/pull/8354) [`0eb09dbab`](https://github.com/withastro/astro/commit/0eb09dbab1674a57d23ac97950a527d2e5a9c9fb) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix unnecessary warning about Sharp showing while building
@@ -1720,7 +1754,6 @@
 - [#4015](https://github.com/withastro/astro/pull/4015) [`6fd161d76`](https://github.com/withastro/astro/commit/6fd161d7691cbf9d3ffa4646e46059dfd0940010) Thanks [@matthewp](https://github.com/matthewp)! - New `output` configuration option
 
   This change introduces a new "output target" configuration option (`output`). Setting the output target lets you decide the format of your final build, either:
-
   - `"static"` (default): A static site. Your final build will be a collection of static assets (HTML, CSS, JS) that you can deploy to any static site host.
   - `"server"`: A dynamic server application. Your final build will be an application that will run in a hosted server environment, generating HTML dynamically for different requests.
 
@@ -1798,13 +1831,11 @@
 ### Minor Changes
 
 - [#3216](https://github.com/withastro/astro/pull/3216) [`114bf63e`](https://github.com/withastro/astro/commit/114bf63e11f28299b13178ef1a412eed37ab7909) Thanks [@JuanM04](https://github.com/JuanM04)! - **[BREAKING]** Now with Build Output API (v3)! [See the README to get started](https://github.com/withastro/astro/tree/main/packages/integrations/vercel#readme).
-
   - `trailingSlash` redirects works without a `vercel.json` file: just configure them inside your `astro.config.mjs`
   - Multiple deploy targets: `edge`, `serverless` and `static`!
   - When building to `serverless`, your code isn't transpiled to CJS anymore.
 
   **Migrate from v0.1**
-
   1. Change the import inside `astro.config.mjs`:
      ```diff
      - import vercel from '@astrojs/vercel';

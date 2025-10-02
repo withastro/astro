@@ -2,7 +2,6 @@ import type { RehypePlugin } from '@astrojs/markdown-remark';
 import { SKIP, visit } from 'estree-util-visit';
 import type { Element, RootContent, RootContentMap } from 'hast';
 import { toHtml } from 'hast-util-to-html';
-// biome-ignore lint/correctness/noUnusedImports: This import includes ambient types for hast to include mdx nodes
 import type {} from 'mdast-util-mdx';
 import type { MdxJsxFlowElementHast, MdxJsxTextElementHast } from 'mdast-util-mdx-jsx';
 

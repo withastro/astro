@@ -1,5 +1,79 @@
 # @astrojs/netlify
 
+## 6.5.11
+
+### Patch Changes
+
+- Updated dependencies [[`1e2499e`](https://github.com/withastro/astro/commit/1e2499e8ea83ebfa233a18a7499e1ccf169e56f4)]:
+  - @astrojs/internal-helpers@0.7.3
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.5.10
+
+### Patch Changes
+
+- [#14326](https://github.com/withastro/astro/pull/14326) [`c24a8f4`](https://github.com/withastro/astro/commit/c24a8f42a17410ea78fc2d68ff0105b931a381eb) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates `vite` version to fix CVE
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.5.9
+
+### Patch Changes
+
+- [#14269](https://github.com/withastro/astro/pull/14269) [`4823c42`](https://github.com/withastro/astro/commit/4823c426c4e3c63765098f53c93fcb1bb3a4faaf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates `context.netlify` to implement all its properties
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.5.8
+
+### Patch Changes
+
+- [#14240](https://github.com/withastro/astro/pull/14240) [`77b18fb`](https://github.com/withastro/astro/commit/77b18fb1f85cf1a0c8842bb6e32fd16a9198b974) Thanks [@delucis](https://github.com/delucis)! - Increases the minimum supported version of Astro to 5.7.0
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.5.7
+
+### Patch Changes
+
+- Updated dependencies [[`4d16de7`](https://github.com/withastro/astro/commit/4d16de7f95db5d1ec1ce88610d2a95e606e83820)]:
+  - @astrojs/internal-helpers@0.7.2
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.5.6
+
+### Patch Changes
+
+- [#14175](https://github.com/withastro/astro/pull/14175) [`1e1cef0`](https://github.com/withastro/astro/commit/1e1cef04b565c867e7b1450aba2e27eb8283fafb) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the adapter would cause a runtime error when calling `astro build` in CI environments.
+
+## 6.5.5
+
+### Patch Changes
+
+- Updated dependencies [[`0567fb7`](https://github.com/withastro/astro/commit/0567fb7b50c0c452be387dd7c7264b96bedab48f)]:
+  - @astrojs/internal-helpers@0.7.1
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.5.4
+
+### Patch Changes
+
+- Updated dependencies [[`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172)]:
+  - @astrojs/internal-helpers@0.7.0
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.5.3
+
+### Patch Changes
+
+- [#14120](https://github.com/withastro/astro/pull/14120) [`798b5fa`](https://github.com/withastro/astro/commit/798b5fa022b19ab048c3b67dfc9880f785ce51be) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds mock feature flags in dev
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 6.5.2
 
 ### Patch Changes
@@ -298,13 +372,11 @@ While not required for fully static, prerendered web sites, you may still wish t
 - [#13194](https://github.com/withastro/astro/pull/13194) [`1b5037b`](https://github.com/withastro/astro/commit/1b5037bd77d77817e5f821aee8ceccb49b00e0d9) Thanks [@dfdez](https://github.com/dfdez)! - Adds `includedFiles` and `excludedFiles` configuration options to customize SSR function bundle contents.
 
   The `includeFiles` property allows you to explicitly specify additional files that should be bundled with your function. This is useful for files that aren't automatically detected as dependencies, such as:
-
   - Data files loaded using `fs` operations
   - Configuration files
   - Template files
 
   Similarly, you can use the `excludeFiles` property to prevent specific files from being bundled that would otherwise be included. This is helpful for:
-
   - Reducing bundle size
   - Excluding large binaries
   - Preventing unwanted files from being deployed
@@ -1242,12 +1314,10 @@ While not required for fully static, prerendered web sites, you may still wish t
 
   > **Note**
   > This API is not yet stable and is subject to possible breaking changes!
-
   - Deploy an Astro server without sacrificing the speed or cacheability of static HTML.
   - The Prerender API allows you to statically prerender specific `pages/` at build time.
 
   **Usage**
-
   - First, run `astro build --experimental-prerender` or enable `experimental: { prerender: true }` in your `astro.config.mjs` file.
   - Then, include `export const prerender = true` in any file in the `pages/` directory that you wish to prerender.
 
@@ -1404,7 +1474,6 @@ While not required for fully static, prerendered web sites, you may still wish t
 - [#4015](https://github.com/withastro/astro/pull/4015) [`6fd161d76`](https://github.com/withastro/astro/commit/6fd161d7691cbf9d3ffa4646e46059dfd0940010) Thanks [@matthewp](https://github.com/matthewp)! - New `output` configuration option
 
   This change introduces a new "output target" configuration option (`output`). Setting the output target lets you decide the format of your final build, either:
-
   - `"static"` (default): A static site. Your final build will be a collection of static assets (HTML, CSS, JS) that you can deploy to any static site host.
   - `"server"`: A dynamic server application. Your final build will be an application that will run in a hosted server environment, generating HTML dynamically for different requests.
 
@@ -1561,7 +1630,6 @@ While not required for fully static, prerendered web sites, you may still wish t
 ### Minor Changes
 
 - [`732ea388`](https://github.com/withastro/astro/commit/732ea3881e216f0e6de3642c549afd019d32409f) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Improve the Netlify adapter:
-
   1. Remove `site` config requirement
   2. Fix an issue where query params were being stripped
   3. Pass the event body to the request object
