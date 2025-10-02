@@ -1,7 +1,7 @@
 name: Validate Changesets
 
 on:
-  pull_request:
+  pull_request_target:
     paths:
       - '.changeset/*.md'
 
@@ -22,6 +22,10 @@ jobs:
         uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
         with:
           fetch-depth: 0
+
+      - name: Fetch PR head
+        run: |
+          git fetch origin pull/${{ github.event.pull_request.number }}/head:pr-${{ github.event.pull_request.number }}
 
       - name: Restore response cache
         uses: actions/cache/restore@6f8efc29b200d32929f49075959781ed54ec270c # v3.5.0
@@ -50,13 +54,15 @@ jobs:
           echo "Starting changeset validation"
 
           # Find changed changeset files
-          echo "Looking for changed files between ${{ github.event.pull_request.base.sha }} and ${{ github.sha }}"
+          echo "::debug::Looking for changed files between ${{ github.event.pull_request.base.sha }} and ${{ github.event.pull_request.head.sha }}"
           git diff --name-only --diff-filter=AM \
-            "${{ github.event.pull_request.base.sha }}...${{ github.sha }}" \
+            "${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}" \
             -- '.changeset/*.md' | grep -v 'README.md' > changeset_files.txt || true
 
-          echo "Found changeset files:"
-          cat changeset_files.txt || true
+          {
+            echo "::debug::Found changeset files:"
+            cat changeset_files.txt || true
+          } >&2
 
           if [ ! -s changeset_files.txt ]; then
             echo "::notice::No changeset files to validate"
@@ -69,18 +75,34 @@ jobs:
 
           # Collect changeset contents using XML-style tags for better AI parsing
           changesets=""
+          total_size=0
+          max_total_size=51200  # 50KB total limit
+
           while IFS= read -r file; do
-            if [ -f "$file" ]; then
-              echo "Reading changeset file: $file"
-              # Use printf for more reliable string building
-              changesets=$(printf "%s<changeset file=\"%s\">\n%s\n</changeset>\n\n" "$changesets" "$file" "$(cat "$file")")
+            echo "::debug::Reading changeset file: $file"
+            # Read file from PR head SHA without checking it out (safer for pull_request_target)
+            if content=$(git show "${{ github.event.pull_request.head.sha }}:$file" 2>/dev/null); then
+              content_size=${#content}
+              new_total=$((total_size + content_size))
+
+              if [ $new_total -gt $max_total_size ]; then
+                echo "::error::Total changeset size exceeds 50KB limit. Please reduce the amount of content in your changesets."
+                exit 1
+              fi
+
+              total_size=$new_total
+              changesets=$(printf "%s<changeset file=\"%s\">\n%s\n</changeset>\n\n" "$changesets" "$file" "$content")
             else
               echo "::warning::Changeset file not found: $file"
             fi
           done < changeset_files.txt
 
-          echo "Collected changesets content (first 500 chars):"
-          echo "$changesets" | head -c 500
+          echo "::debug::Total changeset content size: $total_size bytes"
+
+          {
+            echo "::debug::Collected changesets content (first 500 chars):"
+            echo "$changesets" | head -c 500
+          } >&2
 
           # Read the validation prompt from file
           prompt_template=$(cat .github/workflows/changeset-validation-prompt.txt)
@@ -96,14 +118,14 @@ jobs:
           cache_key=$(echo "$prompt" | sha256sum | cut -d' ' -f1)
           cache_file="${cache_dir}/${cache_key}.json"
 
-          echo "Cache key (prompt hash): $cache_key"
+          echo "::debug::Cache key (prompt hash): $cache_key"
 
           # Check for cached response
           if [ -f "$cache_file" ]; then
             echo "::notice::Cache hit! Using cached validation response"
             response=$(cat "$cache_file")
           else
-            echo "Cache miss - calling LLM API"
+            echo "::debug::Cache miss - calling LLM API"
             need_llm_call=true
           fi
 
@@ -172,27 +194,28 @@ jobs:
 
           # Only call LLM if we don't have a cached response
           if [ "$need_llm_call" = "true" ]; then
-            echo "Running llm CLI"
+            echo "::debug::Running llm CLI"
             response=$(echo "$prompt" | llm prompt -m github/gpt-4o --schema "$schema" --no-stream 2>&1) || {
               echo "::error::Failed to run llm CLI. Exit code: $?"
-              echo "Error output: $response"
-              response='{"overall_valid": false, "files": [{"file": "unknown", "valid": false, "errors": ["Failed to get AI response"], "suggestions": []}]}'
+              echo "::debug::Error output: $response"
+              response='{"overall_valid": false, "files": [{"file": "unknown", "valid": false, "issues": [], "general_errors": ["Failed to get AI response"], "general_suggestions": []}]}'
             }
 
             # Save successful response to cache
             if echo "$response" | jq -e '.overall_valid != null' > /dev/null 2>&1; then
               echo "$response" > "$cache_file"
-              echo "Response cached for future use"
+              echo "::debug::Response cached for future use"
             fi
           fi
 
-          echo "LLM response received (first 500 chars):"
-          echo "$response" | head -c 500
-          echo ""
+          {
+            echo "::debug::LLM response received (first 500 chars):"
+            echo "$response" | head -c 500
+          } >&2
 
           # Save response for parsing
           echo "$response" > validation_response.json
-          echo "Response saved to validation_response.json"
+          echo "::debug::Response saved to validation_response.json"
 
           # Extract validation status - check both overall_valid AND actual errors
           has_errors=false
@@ -211,7 +234,10 @@ jobs:
             echo "valid=false" >> "$GITHUB_OUTPUT"
 
             # Show per-file errors if present
-            echo "$response" | jq -r '.files[]? | select((.issues // [] | length > 0) or (.general_errors // [] | length > 0)) | "File: " + .file + " - Issues found"' 2>/dev/null || true
+            {
+              echo "::debug::Files with issues:"
+              echo "$response" | jq -r '.files[]? | select((.issues // [] | length > 0) or (.general_errors // [] | length > 0)) | "File: " + .file + " - Issues found"' 2>/dev/null || true
+            } >&2
           fi
 
       - name: Comment validation results on PR
@@ -232,8 +258,9 @@ jobs:
                 files: [{
                   file: "unknown",
                   valid: false,
-                  errors: [{ message: "Failed to parse validation response" }],
-                  suggestions: []
+                  issues: [],
+                  general_errors: ["Failed to parse validation response"],
+                  general_suggestions: []
                 }]
               };
             }
@@ -395,7 +422,7 @@ jobs:
             // This ensures the cache gets saved
             if (!overallValid) {
               core.setOutput("validation_failed", "true");
-              console.log("Validation failed - will fail job after cache is saved");
+              core.debug("Validation failed - will fail job after cache is saved");
             }
 
       - name: Save response cache
