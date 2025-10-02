@@ -7,6 +7,7 @@ settings:
 overrides:
   undici: ^6.21.3
   wrangler: 4.14.1
+  '@vercel/nft': 0.30.1
 
 importers:
 
@@ -5451,7 +5452,7 @@ importers:
         specifier: ^2.5.9
         version: 2.5.9(@vercel/functions@2.2.13)(rollup@4.50.2)(vite@6.3.6(@types/node@22.18.1)(jiti@2.5.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1))
       '@vercel/nft':
-        specifier: ^0.30.1
+        specifier: 0.30.1
         version: 0.30.1(rollup@4.50.2)
       esbuild:
         specifier: ^0.25.0
@@ -5973,7 +5974,7 @@ importers:
         specifier: ^2.2.13
         version: 2.2.13
       '@vercel/nft':
-        specifier: ^0.30.1
+        specifier: 0.30.1
         version: 0.30.1(rollup@4.50.2)
       '@vercel/routing-utils':
         specifier: ^5.1.1
@@ -9292,11 +9293,6 @@ packages:
     peerDependenciesMeta:
       '@aws-sdk/credential-provider-web-identity':
         optional: true
-
-  '@vercel/nft@0.29.4':
-    resolution: {integrity: sha512-6lLqMNX3TuycBPABycx7A9F1bHQR7kiQln6abjFbPrf5C/05qHM9M5E4PeTE59c7z8g6vHnx1Ioihb2AQl7BTA==}
-    engines: {node: '>=18'}
-    hasBin: true
 
   '@vercel/nft@0.30.1':
     resolution: {integrity: sha512-2mgJZv4AYBFkD/nJ4QmiX5Ymxi+AisPLPcS/KPXVqniyQNqKXX+wjieAbDXQP3HcogfEbpHoRMs49Cd4pfkk8g==}
@@ -16185,7 +16181,7 @@ snapshots:
       '@babel/types': 7.28.1
       '@netlify/binary-info': 1.0.0
       '@netlify/serverless-functions-api': 2.5.0
-      '@vercel/nft': 0.29.4(rollup@4.50.2)
+      '@vercel/nft': 0.30.1(rollup@4.50.2)
       archiver: 7.0.1
       common-path-prefix: 3.0.0
       copy-file: 11.1.0
@@ -16962,25 +16958,6 @@ snapshots:
   '@vercel/functions@2.2.13':
     dependencies:
       '@vercel/oidc': 2.0.2
-
-  '@vercel/nft@0.29.4(rollup@4.50.2)':
-    dependencies:
-      '@mapbox/node-pre-gyp': 2.0.0
-      '@rollup/pluginutils': 5.3.0(rollup@4.50.2)
-      acorn: 8.15.0
-      acorn-import-attributes: 1.9.5(acorn@8.15.0)
-      async-sema: 3.1.1
-      bindings: 1.5.0
-      estree-walker: 2.0.2
-      glob: 10.4.5
-      graceful-fs: 4.2.11
-      node-gyp-build: 4.8.4
-      picomatch: 4.0.3
-      resolve-from: 5.0.0
-    transitivePeerDependencies:
-      - encoding
-      - rollup
-      - supports-color
 
   '@vercel/nft@0.30.1(rollup@4.50.2)':
     dependencies:
