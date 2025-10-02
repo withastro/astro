@@ -13,6 +13,9 @@ packages:
 overrides:
   # A later wrangler minor dropeed support for node 18
   'wrangler': '4.14.1'
+  # TODO: fix upstream
+  # 0.30.2 scans too many files
+  '@vercel/nft': '0.30.1'
 # Wait until three days after release to install new versions of packages
 # TODO: uncomment before merging into main
 # minimumReleaseAge: 4320

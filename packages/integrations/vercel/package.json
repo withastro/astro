@@ -51,7 +51,7 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@vercel/analytics": "^1.5.0",
     "@vercel/functions": "^2.2.13",
-    "@vercel/nft": "^0.30.1",
+    "@vercel/nft": "0.30.1",
     "@vercel/routing-utils": "^5.1.1",
     "esbuild": "^0.25.0",
     "tinyglobby": "^0.2.15"
