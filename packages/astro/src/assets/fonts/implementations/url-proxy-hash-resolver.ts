@@ -26,6 +26,7 @@ export function createDevUrlProxyHashResolver({
 				cssVariable.slice(2),
 				formatWeight(data.weight),
 				data.style,
+				data.subset,
 				baseHashResolver.resolve(input),
 			]
 				.filter(Boolean)
