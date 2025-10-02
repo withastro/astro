@@ -87,7 +87,11 @@ describe('fonts implementations', () => {
 			hash: 'xxx',
 			url: 'abc',
 			preload: null,
-			data: {},
+			data: {
+				weight: undefined,
+				style: undefined,
+				subset: undefined,
+			},
 			init: null,
 		});
 		dataCollector.collect({
@@ -100,14 +104,22 @@ describe('fonts implementations', () => {
 				style: 'normal',
 				subset: undefined,
 			},
-			data: {},
+			data: {
+				weight: undefined,
+				style: undefined,
+				subset: undefined,
+			},
 			init: null,
 		});
 		dataCollector.collect({
 			hash: 'xxx',
 			url: 'abc',
 			preload: null,
-			data: {},
+			data: {
+				weight: undefined,
+				style: undefined,
+				subset: undefined,
+			},
 			init: null,
 		});
 
@@ -128,9 +140,36 @@ describe('fonts implementations', () => {
 			},
 		]);
 		assert.deepStrictEqual(collectedFonts, [
-			{ hash: 'xxx', url: 'abc', data: {}, init: null },
-			{ hash: 'yyy', url: 'def', data: {}, init: null },
-			{ hash: 'xxx', url: 'abc', data: {}, init: null },
+			{
+				hash: 'xxx',
+				url: 'abc',
+				data: {
+					weight: undefined,
+					style: undefined,
+					subset: undefined,
+				},
+				init: null,
+			},
+			{
+				hash: 'yyy',
+				url: 'def',
+				data: {
+					weight: undefined,
+					style: undefined,
+					subset: undefined,
+				},
+				init: null,
+			},
+			{
+				hash: 'xxx',
+				url: 'abc',
+				data: {
+					weight: undefined,
+					style: undefined,
+					subset: undefined,
+				},
+				init: null,
+			},
 		]);
 	});
 
@@ -427,7 +466,11 @@ describe('fonts implementations', () => {
 		assert.equal(
 			resolver.resolve({
 				cssVariable: '--foo',
-				data: {},
+				data: {
+					weight: undefined,
+					style: undefined,
+					subset: undefined,
+				},
 				originalUrl: 'whatever',
 				type: 'woff2',
 			}),
@@ -436,7 +479,7 @@ describe('fonts implementations', () => {
 		assert.equal(
 			resolver.resolve({
 				cssVariable: '--foo',
-				data: { weight: 400, style: 'italic' },
+				data: { weight: 400, style: 'italic', subset: 'latin' },
 				originalUrl: 'whatever',
 				type: 'woff2',
 			}),
@@ -456,7 +499,11 @@ describe('fonts implementations', () => {
 		assert.equal(
 			resolver.resolve({
 				cssVariable: '--foo',
-				data: {},
+				data: {
+					weight: undefined,
+					style: undefined,
+					subset: undefined,
+				},
 				originalUrl: 'whatever',
 				type: 'woff2',
 			}),
@@ -465,29 +512,29 @@ describe('fonts implementations', () => {
 		assert.equal(
 			resolver.resolve({
 				cssVariable: '--foo',
-				data: { weight: 400, style: 'italic' },
+				data: { weight: 400, style: 'italic', subset: 'latin' },
 				originalUrl: 'whatever',
 				type: 'woff2',
 			}),
-			'foo-400-italic-whatever.woff2',
+			'foo-400-italic-latin-whatever.woff2',
 		);
 		assert.equal(
 			resolver.resolve({
 				cssVariable: '--foo',
-				data: { weight: '500', style: 'italic' },
+				data: { weight: '500', style: 'italic', subset: 'latin-ext' },
 				originalUrl: 'whatever',
 				type: 'woff2',
 			}),
-			'foo-500-italic-whatever.woff2',
+			'foo-500-italic-latin-ext-whatever.woff2',
 		);
 		assert.equal(
 			resolver.resolve({
 				cssVariable: '--foo',
-				data: { weight: [100, 900], style: 'italic' },
+				data: { weight: [100, 900], style: 'italic', subset: 'cyrillic' },
 				originalUrl: 'whatever',
 				type: 'woff2',
 			}),
-			'foo-100-900-italic-whatever.woff2',
+			'foo-100-900-italic-cyrillic-whatever.woff2',
 		);
 	});
 });
