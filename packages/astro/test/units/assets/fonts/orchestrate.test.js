@@ -9,6 +9,7 @@ import { createMinifiableCssRenderer } from '../../../../dist/assets/fonts/imple
 import { createDataCollector } from '../../../../dist/assets/fonts/implementations/data-collector.js';
 import { createFontaceFontFileReader } from '../../../../dist/assets/fonts/implementations/font-file-reader.js';
 import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
+import { createLevenshteinStringMatcher } from '../../../../dist/assets/fonts/implementations/levenshtein-string-matcher.js';
 import { createRequireLocalProviderUrlResolver } from '../../../../dist/assets/fonts/implementations/local-provider-url-resolver.js';
 import { createBuildRemoteFontProviderModResolver } from '../../../../dist/assets/fonts/implementations/remote-font-provider-mod-resolver.js';
 import { createRemoteFontProviderResolver } from '../../../../dist/assets/fonts/implementations/remote-font-provider-resolver.js';
@@ -77,6 +78,7 @@ describe('fonts orchestrate()', () => {
 			},
 			defaults: DEFAULTS,
 			bold: markdownBold,
+			stringMatcher: createLevenshteinStringMatcher(),
 		});
 		assert.deepStrictEqual(
 			[...fontFileDataMap.entries()],
@@ -209,6 +211,7 @@ describe('fonts orchestrate()', () => {
 			},
 			defaults: DEFAULTS,
 			bold: markdownBold,
+			stringMatcher: createLevenshteinStringMatcher(),
 		});
 
 		assert.deepStrictEqual(
@@ -325,6 +328,7 @@ describe('fonts orchestrate()', () => {
 			},
 			defaults: DEFAULTS,
 			bold: markdownBold,
+			stringMatcher: createLevenshteinStringMatcher(),
 		});
 
 		assert.deepStrictEqual(logs, [
@@ -342,7 +346,7 @@ describe('fonts orchestrate()', () => {
 				resolveFont: () => {
 					return undefined;
 				},
-				listFonts: async () => ['Foo', 'Bar'],
+				listFonts: async () => ['Testi', 'XYZ'],
 			};
 		});
 		const fakeAstroProvider = defineAstroFontProvider({
@@ -398,6 +402,7 @@ describe('fonts orchestrate()', () => {
 			},
 			defaults: DEFAULTS,
 			bold: markdownBold,
+			stringMatcher: createLevenshteinStringMatcher(),
 		});
 
 		assert.deepStrictEqual(logs, [
@@ -410,7 +415,7 @@ describe('fonts orchestrate()', () => {
 				type: 'warn',
 				label: 'assets',
 				message:
-					'**Test** font family cannot be retrieved by the provider. Supported values are: Foo, Bar',
+					'**Test** font family cannot be retrieved by the provider. Did you mean **Testi**?',
 			},
 		]);
 	});

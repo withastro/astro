@@ -10,6 +10,7 @@ import type {
 	Hasher,
 	LocalProviderUrlResolver,
 	RemoteFontProviderResolver,
+	StringMatcher,
 	SystemFallbacksProvider,
 	UrlProxy,
 } from './definitions.js';
@@ -67,6 +68,7 @@ export async function orchestrate({
 	createUrlProxy,
 	defaults,
 	bold,
+	stringMatcher,
 }: {
 	families: Array<FontFamily>;
 	hasher: Hasher;
@@ -82,6 +84,7 @@ export async function orchestrate({
 	createUrlProxy: (params: CreateUrlProxyParams) => UrlProxy;
 	defaults: Defaults;
 	bold: (input: string) => string;
+	stringMatcher: StringMatcher;
 }): Promise<{
 	fontFileDataMap: FontFileDataMap;
 	internalConsumableMap: InternalConsumableMap;
@@ -194,7 +197,7 @@ export async function orchestrate({
 				if (availableFamilies && !availableFamilies.includes(family.name)) {
 					logger.warn(
 						'assets',
-						`${bold(family.name)} font family cannot be retrieved by the provider. Supported values are: ${availableFamilies.join(', ')}`,
+						`${bold(family.name)} font family cannot be retrieved by the provider. Did you mean ${bold(stringMatcher.getClosestMatch(family.name, availableFamilies))}?`,
 					);
 				}
 			}

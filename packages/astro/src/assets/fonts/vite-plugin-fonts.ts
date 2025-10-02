@@ -58,6 +58,7 @@ import {
 import { createBuildUrlResolver, createDevUrlResolver } from './implementations/url-resolver.js';
 import { orchestrate } from './orchestrate.js';
 import type { ConsumableMap, FontFileDataMap, InternalConsumableMap } from './types.js';
+import { createLevenshteinStringMatcher } from './implementations/levenshtein-string-matcher.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -157,6 +158,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		const fontMetricsResolver = createCapsizeFontMetricsResolver({ fontFetcher, cssRenderer });
 		fontTypeExtractor = createFontTypeExtractor({ errorHandler });
 		const fontFileReader = createFontaceFontFileReader({ errorHandler });
+		const stringMatcher = createLevenshteinStringMatcher();
 
 		const res = await orchestrate({
 			families: settings.config.experimental.fonts!,
@@ -184,6 +186,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			},
 			defaults: DEFAULTS,
 			bold,
+			stringMatcher,
 		});
 		// We initialize shared variables here and reset them in buildEnd
 		// to avoid locking memory

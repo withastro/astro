@@ -131,3 +131,7 @@ export interface UrlProxyHashResolver {
 		data: ProxyData;
 	}) => string;
 }
+
+export interface StringMatcher {
+	getClosestMatch: (target: string, candidates: Array<string>) => string;
+}
