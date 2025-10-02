@@ -27,7 +27,7 @@ describe('Image endpoint', () => {
 		await devPreview.stop();
 	});
 
-	it('it returns local images', { skip: 'Check why the infer remote size fails' }, async () => {
+	it('it returns local images', async () => {
 		const res = await fixture.fetch('/');
 		assert.equal(res.status, 200);
 		const html = await res.text();
@@ -40,7 +40,7 @@ describe('Image endpoint', () => {
 		assert.equal(size.height, 33);
 	});
 
-	it('it returns remote images', { skip: 'Check why the infer remote size fails' }, async () => {
+	it('it returns remote images', async () => {
 		const res = await fixture.fetch('/');
 		assert.equal(res.status, 200);
 		const html = await res.text();
@@ -51,4 +51,39 @@ describe('Image endpoint', () => {
 		assert.equal(size.width, 400);
 		assert.equal(size.height, 300);
 	});
+
+
+
+	it('refuses images from unknown domains', async () => {
+		const res = await fixture.fetch('/_image?href=https://example.com/image.jpg&w=100&h=100&f=webp&q=75');
+		assert.equal(res.status, 403);
+	});
+
+	it("refuses common URL bypasses", async () => {
+
+		for (const href of [
+			"HTTP://raw.githubusercontent.com/projectdiscovery/nuclei-templates/refs/heads/main/helpers/payloads/retool-xss.svg",
+			"HttpS://raw.githubusercontent.com/projectdiscovery/nuclei-templates/refs/heads/main/helpers/payloads/retool-xss.svg",
+			"//raw.githubusercontent.com/projectdiscovery/nuclei-templates/refs/heads/main/helpers/payloads/retool-xss.svg",
+			"//raw.githubusercontent.com/projectdiscovery/nuclei-templates/refs/heads/main/helpers/payloads/retool-xss.svg?param=https://example.com",
+			"/%2fraw.githubusercontent.com/projectdiscovery/nuclei-templates/refs/heads/main/helpers/payloads/retool-xss.svg",
+			"/%5craw.githubusercontent.com/projectdiscovery/nuclei-templates/refs/heads/main/helpers/payloads/retool-xss.svg",
+			"/\\raw.githubusercontent.com/projectdiscovery/nuclei-templates/refs/heads/main/helpers/payloads/retool-xss.svg",
+			"///raw.githubusercontent.com/projectdiscovery/nuclei-templates/refs/heads/main/helpers/payloads/retool-xss.svg",
+			"http:\\\\raw.githubusercontent.com/projectdiscovery/nuclei-templates/refs/heads/main/helpers/payloads/retool-xss.svg",
+			"\\\\raw.githubusercontent.com/projectdiscovery/nuclei-templates/refs/heads/main/helpers/payloads/retool-xss.svg",
+			"\\raw.githubusercontent.com/projectdiscovery/nuclei-templates/refs/heads/main/helpers/payloads/retool-xss.svg",
+			"    https://raw.githubusercontent.com/projectdiscovery/nuclei-templates/refs/heads/main/helpers/payloads/retool-xss.svg",
+			"\thttps://raw.githubusercontent.com/projectdiscovery/nuclei-templates/refs/heads/main/helpers/payloads/retool-xss.svg",
+			"\nhttps://raw.githubusercontent.com/projectdiscovery/nuclei-templates/refs/heads/main/helpers/payloads/retool-xss.svg",
+			"\rhttps://raw.githubusercontent.com/projectdiscovery/nuclei-templates/refs/heads/main/helpers/payloads/retool-xss.svg",
+		]) {
+			const res = await fixture.fetch(
+				`/_image?href=${encodeURIComponent(href)}&f=svg`
+			);
+			assert.equal(res.status, 403, `Failed on href: ${href}`);
+		}
+
+	});
+
 });
