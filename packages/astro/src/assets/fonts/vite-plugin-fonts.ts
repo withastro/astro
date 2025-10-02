@@ -38,6 +38,7 @@ import { createFontaceFontFileReader } from './implementations/font-file-reader.
 import { createCapsizeFontMetricsResolver } from './implementations/font-metrics-resolver.js';
 import { createFontTypeExtractor } from './implementations/font-type-extractor.js';
 import { createXxHasher } from './implementations/hasher.js';
+import { createLevenshteinStringMatcher } from './implementations/levenshtein-string-matcher.js';
 import { createRequireLocalProviderUrlResolver } from './implementations/local-provider-url-resolver.js';
 import {
 	createBuildRemoteFontProviderModResolver,
@@ -58,7 +59,6 @@ import {
 import { createBuildUrlResolver, createDevUrlResolver } from './implementations/url-resolver.js';
 import { orchestrate } from './orchestrate.js';
 import type { ConsumableMap, FontFileDataMap, InternalConsumableMap } from './types.js';
-import { createLevenshteinStringMatcher } from './implementations/levenshtein-string-matcher.js';
 
 interface Options {
 	settings: AstroSettings;
