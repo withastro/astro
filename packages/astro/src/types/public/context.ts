@@ -222,7 +222,7 @@ export interface AstroGlobal<
 }
 
 // Shared types between `Astro` global and API context object
-export interface AstroSharedContext<
+interface AstroSharedContext<
 	Props extends Record<string, any> = Record<string, any>,
 	RouteParams extends Record<string, string | undefined> = Record<string, string | undefined>,
 > {
