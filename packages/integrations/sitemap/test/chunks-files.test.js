@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import path from 'node:path';
 import { before, describe, it } from 'node:test';
 import { sitemap } from './fixtures/static/deps.mjs';
 import { loadFixture, readXML } from './test-utils.js';
@@ -43,12 +42,12 @@ describe('Sitemap with chunked files', () => {
 		});
 		await fixture.build();
 		const flatMapUrls = async (file) => {
-			const data = await readXML(path.resolve(fixture.root, file))
-			data.urlset.url.map((url) => url.loc[0])
+			const data = await readXML(fixture.readFile(file))
+			return data.urlset.url.map((url) => url.loc[0])
 		};
-		blogUrls = flatMapUrls('sitemap-blog-0.xml');
-		glossaryUrls = flatMapUrls('sitemap-glossary-0.xml')
-		pagesUrls = flatMapUrls('sitemap-pages-0.xml')
+		blogUrls = await flatMapUrls('sitemap-blog-0.xml');
+		glossaryUrls = await flatMapUrls('sitemap-glossary-0.xml')
+		pagesUrls = await flatMapUrls('sitemap-pages-0.xml')
 	});
 
 	it('includes defined custom pages', async () => {
