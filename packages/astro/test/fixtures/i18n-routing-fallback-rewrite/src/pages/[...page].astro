@@ -1,0 +1,11 @@
+---
+export async function getStaticPaths() {
+  return [
+    { params: { page: 'page-1' } }, 
+    { params: { page: 'page-2' } }, 
+    { params: { page: 'page/page-1' } }, 
+  ];
+}
+const { page } = Astro.params;
+---
+<span id="page">{page}</span>

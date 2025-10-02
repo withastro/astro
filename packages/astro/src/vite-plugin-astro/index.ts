@@ -1,22 +1,19 @@
+import type { HydratedComponent } from '@astrojs/compiler/types';
 import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
+import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
-import type {
-	PluginCssMetadata as AstroPluginCssMetadata,
-	PluginMetadata as AstroPluginMetadata,
-	CompileMetadata,
-} from './types.js';
-
-import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
 import type { AstroConfig } from '../types/public/config.js';
 import { hasSpecialQueries, normalizeFilename } from '../vite-plugin-utils/index.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
+import type { PluginMetadata as AstroPluginMetadata, CompileMetadata } from './types.js';
 import { loadId } from './utils.js';
+
 export { getAstroMetadata } from './metadata.js';
-export type { AstroPluginMetadata, AstroPluginCssMetadata };
+export type { AstroPluginMetadata };
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -39,6 +36,8 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 	// Variables for determining if an id starts with /src...
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
 	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb) && srcRootWeb !== '/';
+	const notAstroComponent = (component: HydratedComponent) =>
+		!component.resolvedPath.endsWith('.astro');
 
 	const prePlugin: vite.Plugin = {
 		name: 'astro:build',
@@ -138,17 +137,15 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 					return {
 						code: result.code,
-						// This metadata is used by `cssScopeToPlugin` to remove this module from the bundle
-						// if the `filename` default export (the Astro component) is unused.
+						// `vite.cssScopeTo` is a Vite feature that allows this CSS to be treeshaken
+						// if the Astro component's default export is not used
 						meta: result.isGlobal
 							? undefined
-							: ({
-									astroCss: {
-										cssScopeTo: {
-											[filename]: ['default'],
-										},
+							: {
+									vite: {
+										cssScopeTo: [filename, 'default'],
 									},
-								} satisfies AstroPluginCssMetadata),
+								},
 					};
 				}
 				case 'script': {
@@ -234,8 +231,10 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			const transformResult = await compile(source, filename);
 
 			const astroMetadata: AstroPluginMetadata['astro'] = {
-				clientOnlyComponents: transformResult.clientOnlyComponents,
-				hydratedComponents: transformResult.hydratedComponents,
+				// Remove Astro components that have been mistakenly given client directives
+				// We'll warn the user about this later, but for now we'll prevent them from breaking the build
+				clientOnlyComponents: transformResult.clientOnlyComponents.filter(notAstroComponent),
+				hydratedComponents: transformResult.hydratedComponents.filter(notAstroComponent),
 				serverComponents: transformResult.serverComponents,
 				scripts: transformResult.scripts,
 				containsHead: transformResult.containsHead,

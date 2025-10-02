@@ -1,5 +1,68 @@
 # @astrojs/markdown-remark
 
+## 6.3.7
+
+### Patch Changes
+
+- Updated dependencies [[`1e2499e`](https://github.com/withastro/astro/commit/1e2499e8ea83ebfa233a18a7499e1ccf169e56f4)]:
+  - @astrojs/internal-helpers@0.7.3
+
+## 6.3.6
+
+### Patch Changes
+
+- Updated dependencies [[`4d16de7`](https://github.com/withastro/astro/commit/4d16de7f95db5d1ec1ce88610d2a95e606e83820)]:
+  - @astrojs/internal-helpers@0.7.2
+
+## 6.3.5
+
+### Patch Changes
+
+- Updated dependencies [[`0567fb7`](https://github.com/withastro/astro/commit/0567fb7b50c0c452be387dd7c7264b96bedab48f)]:
+  - @astrojs/internal-helpers@0.7.1
+
+## 6.3.4
+
+### Patch Changes
+
+- Updated dependencies [[`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172)]:
+  - @astrojs/internal-helpers@0.7.0
+
+## 6.3.3
+
+### Patch Changes
+
+- [#13941](https://github.com/withastro/astro/pull/13941) [`6bd5f75`](https://github.com/withastro/astro/commit/6bd5f75806cb4df39d9e4e9b1f2225dcfdd724b0) Thanks [@aditsachde](https://github.com/aditsachde)! - Adds support for TOML files to Astro's built-in `glob()` and `file()` content loaders.
+
+  In Astro 5.2, Astro added support for using TOML frontmatter in Markdown files instead of YAML. However, if you wanted to use TOML files as local content collection entries themselves, you needed to write your own loader.
+
+  Astro 5.12 now directly supports loading data from TOML files in content collections in both the `glob()` and the `file()` loaders.
+
+  If you had added your own TOML content parser for the `file()` loader, you can now remove it as this functionality is now included:
+
+  ```diff
+  // src/content.config.ts
+  import { defineCollection } from "astro:content";
+  import { file } from "astro/loaders";
+  - import { parse as parseToml } from "toml";
+  const dogs = defineCollection({
+  -  loader: file("src/data/dogs.toml", { parser: (text) => parseToml(text) }),
+  + loader: file("src/data/dogs.toml")
+    schema: /* ... */
+  })
+  ```
+
+  Note that TOML does not support top-level arrays. Instead, the `file()` loader considers each top-level table to be an independent entry. The table header is populated in the `id` field of the entry object.
+
+  See Astro's [content collections guide](https://docs.astro.build/en/guides/content-collections/#built-in-loaders) for more information on using the built-in content loaders.
+
+## 6.3.2
+
+### Patch Changes
+
+- Updated dependencies [[`3c3b492`](https://github.com/withastro/astro/commit/3c3b492375bd6a63f1fb6cede3685aff999be3c9)]:
+  - @astrojs/prism@3.3.0
+
 ## 6.3.1
 
 ### Patch Changes
@@ -142,7 +205,6 @@
 ### Major Changes
 
 - [#11861](https://github.com/withastro/astro/pull/11861) [`3ab3b4e`](https://github.com/withastro/astro/commit/3ab3b4efbcdd2aabea5f949deedf51a5acefae59) Thanks [@bluwy](https://github.com/bluwy)! - Cleans up Astro-specific metadata attached to `vfile.data` in Remark and Rehype plugins. Previously, the metadata was attached in different locations with inconsistent names. The metadata is now renamed as below:
-
   - `vfile.data.__astroHeadings` -> `vfile.data.astro.headings`
   - `vfile.data.imagePaths` -> `vfile.data.astro.imagePaths`
 
@@ -159,7 +221,6 @@
 - [#11825](https://github.com/withastro/astro/pull/11825) [`560ef15`](https://github.com/withastro/astro/commit/560ef15ad23bd137b56ef1048eb2df548b99fdce) Thanks [@bluwy](https://github.com/bluwy)! - Updates return object of `createShikiHighlighter` as `codeToHast` and `codeToHtml` to allow generating either the hast or html string directly
 
 - [#11661](https://github.com/withastro/astro/pull/11661) [`83a2a64`](https://github.com/withastro/astro/commit/83a2a648418ad30f4eb781d1c1b5f2d8a8ac846e) Thanks [@bluwy](https://github.com/bluwy)! - Renames the following CSS variables theme color token names to better align with the Shiki v1 defaults:
-
   - `--astro-code-color-text` => `--astro-code-foreground`
   - `--astro-code-color-background` => `--astro-code-background`
 
@@ -202,7 +263,6 @@
 ### Major Changes
 
 - [#11861](https://github.com/withastro/astro/pull/11861) [`3ab3b4e`](https://github.com/withastro/astro/commit/3ab3b4efbcdd2aabea5f949deedf51a5acefae59) Thanks [@bluwy](https://github.com/bluwy)! - Cleans up Astro-specific metadata attached to `vfile.data` in Remark and Rehype plugins. Previously, the metadata was attached in different locations with inconsistent names. The metadata is now renamed as below:
-
   - `vfile.data.__astroHeadings` -> `vfile.data.astro.headings`
   - `vfile.data.imagePaths` -> `vfile.data.astro.imagePaths`
 
@@ -219,7 +279,6 @@
 ### Major Changes
 
 - [#11661](https://github.com/withastro/astro/pull/11661) [`83a2a64`](https://github.com/withastro/astro/commit/83a2a648418ad30f4eb781d1c1b5f2d8a8ac846e) Thanks [@bluwy](https://github.com/bluwy)! - Renames the following CSS variables theme color token names to better align with the Shiki v1 defaults:
-
   - `--astro-code-color-text` => `--astro-code-foreground`
   - `--astro-code-color-background` => `--astro-code-background`
 
@@ -379,7 +438,6 @@
 - [#10104](https://github.com/withastro/astro/pull/10104) [`a31bbd7ff8f3ec62ee507f72d1d25140b82ffc18`](https://github.com/withastro/astro/commit/a31bbd7ff8f3ec62ee507f72d1d25140b82ffc18) Thanks [@remcohaszing](https://github.com/remcohaszing)! - Changes Astro's internal syntax highlighting to use rehype plugins instead of remark plugins. This provides better interoperability with other [rehype plugins](https://github.com/rehypejs/rehype/blob/main/doc/plugins.md#list-of-plugins) that deal with code blocks, in particular with third party syntax highlighting plugins and [`rehype-mermaid`](https://github.com/remcohaszing/rehype-mermaid).
 
   This may be a breaking change if you are currently using:
-
   - a remark plugin that relies on nodes of type `html`
   - a rehype plugin that depends on nodes of type `raw`.
 
@@ -541,7 +599,6 @@
 - [#8179](https://github.com/withastro/astro/pull/8179) [`6011d52d3`](https://github.com/withastro/astro/commit/6011d52d38e43c3e3d52bc3bc41a60e36061b7b7) Thanks [@matthewp](https://github.com/matthewp)! - Astro 3.0 Release Candidate
 
 - [#8169](https://github.com/withastro/astro/pull/8169) [`e79e3779d`](https://github.com/withastro/astro/commit/e79e3779df0ad35253abcdb931d622847d9adb12) Thanks [@bluwy](https://github.com/bluwy)! - Remove pre-shiki v0.14 theme names for compatibility. Please rename to the new theme names to migrate:
-
   - `material-darker` -> `material-theme-darker`
   - `material-default` -> `material-theme`
   - `material-lighter` -> `material-theme-lighter`
@@ -561,7 +618,6 @@
 - [#8179](https://github.com/withastro/astro/pull/8179) [`6011d52d3`](https://github.com/withastro/astro/commit/6011d52d38e43c3e3d52bc3bc41a60e36061b7b7) Thanks [@matthewp](https://github.com/matthewp)! - Astro 3.0 Release Candidate
 
 - [#8169](https://github.com/withastro/astro/pull/8169) [`e79e3779d`](https://github.com/withastro/astro/commit/e79e3779df0ad35253abcdb931d622847d9adb12) Thanks [@bluwy](https://github.com/bluwy)! - Remove pre-shiki v0.14 theme names for compatibility. Please rename to the new theme names to migrate:
-
   - `material-darker` -> `material-theme-darker`
   - `material-default` -> `material-theme`
   - `material-lighter` -> `material-theme-lighter`
@@ -648,7 +704,6 @@
 - [#6344](https://github.com/withastro/astro/pull/6344) [`694918a56`](https://github.com/withastro/astro/commit/694918a56b01104831296be0c25456135a63c784) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add a new experimental flag (`experimental.assets`) to enable our new core Assets story.
 
   This unlocks a few features:
-
   - A new built-in image component and JavaScript API to transform and optimize images.
   - Relative images with automatic optimization in Markdown.
   - Support for validating assets using content collections.
@@ -714,9 +769,7 @@
 - [#5785](https://github.com/withastro/astro/pull/5785) [`16107b6a1`](https://github.com/withastro/astro/commit/16107b6a10514ef1b563e585ec9add4b14f42b94) Thanks [@delucis](https://github.com/delucis)! - Drop support for legacy Astro-flavored Markdown
 
 - [#5684](https://github.com/withastro/astro/pull/5684) [`a9c292026`](https://github.com/withastro/astro/commit/a9c2920264e36cc5dc05f4adc1912187979edb0d) & [#5769](https://github.com/withastro/astro/pull/5769) [`93e633922`](https://github.com/withastro/astro/commit/93e633922c2e449df3bb2357b3683af1d3c0e07b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Refine Markdown and MDX configuration options for ease-of-use.
-
   - **Markdown**
-
     - **Replace the `extendDefaultPlugins` option** with a `gfm` boolean and a `smartypants` boolean. These are enabled by default, and can be disabled to remove GitHub-Flavored Markdown and SmartyPants.
 
     - Ensure GitHub-Flavored Markdown and SmartyPants are applied whether or not custom `remarkPlugins` or `rehypePlugins` are configured. If you want to apply custom plugins _and_ remove Astro's default plugins, manually set `gfm: false` and `smartypants: false` in your config.
@@ -724,7 +777,6 @@
   - **Migrate `extendDefaultPlugins` to `gfm` and `smartypants`**
 
     You may have disabled Astro's built-in plugins (GitHub-Flavored Markdown and Smartypants) with the `extendDefaultPlugins` option. This has now been split into 2 flags to disable each plugin individually:
-
     - `markdown.gfm` to disable GitHub-Flavored Markdown
     - `markdown.smartypants` to disable SmartyPants
 
@@ -744,7 +796,6 @@
     Additionally, applying remark and rehype plugins **no longer disables** `gfm` and `smartypants`. You will need to opt-out manually by setting `gfm` and `smartypants` to `false`.
 
   - **MDX**
-
     - Support _all_ Markdown configuration options (except `drafts`) from your MDX integration config. This includes `syntaxHighlighting` and `shikiConfig` options to further customize the MDX renderer.
 
     - Simplify `extendPlugins` to an `extendMarkdownConfig` option. MDX options will default to their equivalent in your Markdown config. By setting `extendMarkdownConfig` to false, you can "eject" to set your own syntax highlighting, plugins, and more.
@@ -752,7 +803,6 @@
   - **Migrate MDX's `extendPlugins` to `extendMarkdownConfig`**
 
     You may have used the `extendPlugins` option to manage plugin defaults in MDX. This has been replaced by 3 flags:
-
     - `extendMarkdownConfig` (`true` by default) to toggle Markdown config inheritance. This replaces the `extendPlugins: 'markdown'` option.
     - `gfm` (`true` by default) and `smartypants` (`true` by default) to toggle GitHub-Flavored Markdown and SmartyPants in MDX. This replaces the `extendPlugins: 'defaults'` option.
 
@@ -833,7 +883,6 @@
   #### Migration
 
   You may have disabled Astro's built-in plugins (GitHub-Flavored Markdown and Smartypants) with the `extendDefaultPlugins` option. This has now been split into 2 flags to disable each plugin individually:
-
   - `markdown.gfm` to disable GitHub-Flavored Markdown
   - `markdown.smartypants` to disable SmartyPants
 
@@ -900,13 +949,11 @@
 - [#5684](https://github.com/withastro/astro/pull/5684) [`a9c292026`](https://github.com/withastro/astro/commit/a9c2920264e36cc5dc05f4adc1912187979edb0d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Refine Markdown and MDX configuration options for ease-of-use.
 
   #### Markdown
-
   - **Remove `remark-smartypants`** from Astro's default Markdown plugins.
   - **Replace the `extendDefaultPlugins` option** with a simplified `gfm` boolean. This is enabled by default, and can be disabled to remove GitHub-Flavored Markdown.
   - Ensure GitHub-Flavored Markdown is applied whether or not custom `remarkPlugins` or `rehypePlugins` are configured. If you want to apply custom plugins _and_ remove GFM, manually set `gfm: false` in your config.
 
   #### MDX
-
   - Support _all_ Markdown configuration options (except `drafts`) from your MDX integration config. This includes `syntaxHighlighting` and `shikiConfig` options to further customize the MDX renderer.
   - Simplify `extendDefaults` to an `extendMarkdownConfig` option. MDX options will default to their equivalent in your Markdown config. By setting `extendMarkdownConfig` to false, you can "eject" to set your own syntax highlighting, plugins, and more.
 
@@ -951,7 +998,6 @@
   ##### Migrate MDX's `extendPlugins` to `extendMarkdownConfig`
 
   You may have used the `extendPlugins` option to manage plugin defaults in MDX. This has been replaced by 2 flags:
-
   - `extendMarkdownConfig` (`true` by default) to toggle Markdown config inheritance. This replaces the `extendPlugins: 'markdown'` option.
   - `gfm` (`true` by default) to toggle GitHub-Flavored Markdown in MDX. This replaces the `extendPlugins: 'defaults'` option.
 

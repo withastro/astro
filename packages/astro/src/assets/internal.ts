@@ -4,17 +4,17 @@ import type { AstroConfig } from '../types/public/config.js';
 import { DEFAULT_HASH_PROPS } from './consts.js';
 import {
 	DEFAULT_RESOLUTIONS,
-	LIMITED_RESOLUTIONS,
 	getSizesAttribute,
 	getWidths,
+	LIMITED_RESOLUTIONS,
 } from './layout.js';
 import { type ImageService, isLocalService } from './services/service.js';
 import {
 	type GetImageResult,
 	type ImageTransform,
+	isImageMetadata,
 	type SrcSetValue,
 	type UnresolvedImageTransform,
-	isImageMetadata,
 } from './types.js';
 import { addCSSVarsToStyle, cssFitValues } from './utils/imageAttributes.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
@@ -39,13 +39,9 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 	return globalThis.astroAsset.imageService;
 }
 
-type ImageConfig = AstroConfig['image'] & {
-	experimentalResponsiveImages: boolean;
-};
-
 export async function getImage(
 	options: UnresolvedImageTransform,
-	imageConfig: ImageConfig,
+	imageConfig: AstroConfig['image'],
 ): Promise<GetImageResult> {
 	if (!options || typeof options !== 'object') {
 		throw new AstroError({
@@ -78,7 +74,6 @@ export async function getImage(
 
 	let originalWidth: number | undefined;
 	let originalHeight: number | undefined;
-	let originalFormat: string | undefined;
 
 	// Infer size for remote images if inferSize is true
 	if (
@@ -91,7 +86,6 @@ export async function getImage(
 		resolvedOptions.height ??= result.height;
 		originalWidth = result.width;
 		originalHeight = result.height;
-		originalFormat = result.format;
 		delete resolvedOptions.inferSize; // Delete so it doesn't end up in the attributes
 	}
 
@@ -109,7 +103,6 @@ export async function getImage(
 	if (isESMImportedImage(clonedSrc)) {
 		originalWidth = clonedSrc.width;
 		originalHeight = clonedSrc.height;
-		originalFormat = clonedSrc.format;
 	}
 
 	if (originalWidth && originalHeight) {
@@ -126,43 +119,41 @@ export async function getImage(
 	}
 	resolvedOptions.src = clonedSrc;
 
-	const layout = options.layout ?? imageConfig.experimentalLayout;
+	const layout = options.layout ?? imageConfig.layout ?? 'none';
 
-	if (imageConfig.experimentalResponsiveImages && layout) {
+	if (resolvedOptions.priority) {
+		resolvedOptions.loading ??= 'eager';
+		resolvedOptions.decoding ??= 'sync';
+		resolvedOptions.fetchpriority ??= 'high';
+		delete resolvedOptions.priority;
+	} else {
+		resolvedOptions.loading ??= 'lazy';
+		resolvedOptions.decoding ??= 'async';
+		resolvedOptions.fetchpriority ??= 'auto';
+	}
+
+	if (layout !== 'none') {
 		resolvedOptions.widths ||= getWidths({
 			width: resolvedOptions.width,
 			layout,
 			originalWidth,
-			breakpoints: imageConfig.experimentalBreakpoints?.length
-				? imageConfig.experimentalBreakpoints
+			breakpoints: imageConfig.breakpoints?.length
+				? imageConfig.breakpoints
 				: isLocalService(service)
 					? LIMITED_RESOLUTIONS
 					: DEFAULT_RESOLUTIONS,
 		});
 		resolvedOptions.sizes ||= getSizesAttribute({ width: resolvedOptions.width, layout });
-
-		if (resolvedOptions.priority) {
-			resolvedOptions.loading ??= 'eager';
-			resolvedOptions.decoding ??= 'sync';
-			resolvedOptions.fetchpriority ??= 'high';
-		} else {
-			resolvedOptions.loading ??= 'lazy';
-			resolvedOptions.decoding ??= 'async';
-			resolvedOptions.fetchpriority ??= 'auto';
-		}
-		delete resolvedOptions.priority;
+		// The densities option is incompatible with the `layout` option
 		delete resolvedOptions.densities;
-
-		if (layout !== 'none') {
-			resolvedOptions.style = addCSSVarsToStyle(
-				{
-					fit: cssFitValues.includes(resolvedOptions.fit ?? '') && resolvedOptions.fit,
-					pos: resolvedOptions.position,
-				},
-				resolvedOptions.style,
-			);
-			resolvedOptions['data-astro-image'] = layout;
-		}
+		resolvedOptions.style = addCSSVarsToStyle(
+			{
+				fit: cssFitValues.includes(resolvedOptions.fit ?? '') && resolvedOptions.fit,
+				pos: resolvedOptions.position,
+			},
+			resolvedOptions.style,
+		);
+		resolvedOptions['data-astro-image'] = layout;
 	}
 
 	const validatedOptions = service.validateOptions
@@ -176,16 +167,16 @@ export async function getImage(
 
 	let imageURL = await service.getURL(validatedOptions, imageConfig);
 
-	const matchesOriginal = (transform: ImageTransform) =>
-		transform.width === originalWidth &&
-		transform.height === originalHeight &&
-		transform.format === originalFormat;
+	const matchesValidatedTransform = (transform: ImageTransform) =>
+		transform.width === validatedOptions.width &&
+		transform.height === validatedOptions.height &&
+		transform.format === validatedOptions.format;
 
 	let srcSets: SrcSetValue[] = await Promise.all(
 		srcSetTransforms.map(async (srcSet) => {
 			return {
 				transform: srcSet.transform,
-				url: matchesOriginal(srcSet.transform)
+				url: matchesValidatedTransform(srcSet.transform)
 					? imageURL
 					: await service.getURL(srcSet.transform, imageConfig),
 				descriptor: srcSet.descriptor,
@@ -208,7 +199,7 @@ export async function getImage(
 		srcSets = srcSetTransforms.map((srcSet) => {
 			return {
 				transform: srcSet.transform,
-				url: matchesOriginal(srcSet.transform)
+				url: matchesValidatedTransform(srcSet.transform)
 					? imageURL
 					: globalThis.astroAsset.addStaticImage!(srcSet.transform, propsToHash, originalFilePath),
 				descriptor: srcSet.descriptor,

@@ -3,8 +3,8 @@ import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageFit, ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import {
 	type BaseServiceTransform,
-	type LocalImageService,
 	baseService,
+	type LocalImageService,
 	parseQuality,
 } from './service.js';
 
@@ -108,13 +108,30 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 				}
 			}
 
-			result.toFormat(transform.format as keyof FormatEnum, { quality: quality });
+			const isGifInput =
+				inputBuffer[0] === 0x47 && // 'G'
+				inputBuffer[1] === 0x49 && // 'I'
+				inputBuffer[2] === 0x46 && // 'F'
+				inputBuffer[3] === 0x38 && // '8'
+				(inputBuffer[4] === 0x39 || inputBuffer[4] === 0x37) && // '9' or '7'
+				inputBuffer[5] === 0x61; // 'a'
+
+			if (transform.format === 'webp' && isGifInput) {
+				// Convert animated GIF to animated WebP with loop=0 (infinite)
+				result.webp({ quality: typeof quality === 'number' ? quality : undefined, loop: 0 });
+			} else {
+				result.toFormat(transform.format as keyof FormatEnum, { quality });
+			}
 		}
 
 		const { data, info } = await result.toBuffer({ resolveWithObject: true });
 
+		// Sharp can sometimes return a SharedArrayBuffer when using WebAssembly.
+		// SharedArrayBuffers need to be copied into an ArrayBuffer in order to be manipulated.
+		const needsCopy = 'buffer' in data && data.buffer instanceof SharedArrayBuffer;
+
 		return {
-			data: data,
+			data: needsCopy ? new Uint8Array(data) : data,
 			format: info.format as ImageOutputFormat,
 		};
 	},

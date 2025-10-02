@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+	createMinifiableCssRenderer,
 	handleValueWithSpaces,
 	renderCssVariable,
 	renderFontFace,
@@ -10,8 +11,17 @@ import {
 import { createDataCollector } from '../../../../dist/assets/fonts/implementations/data-collector.js';
 import { createAstroErrorHandler } from '../../../../dist/assets/fonts/implementations/error-handler.js';
 import { createCachedFontFetcher } from '../../../../dist/assets/fonts/implementations/font-fetcher.js';
+import { createCapsizeFontMetricsResolver } from '../../../../dist/assets/fonts/implementations/font-metrics-resolver.js';
 import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
-import { createSpyStorage, simpleErrorHandler } from './utils.js';
+import {
+	createBuildUrlProxyHashResolver,
+	createDevUrlProxyHashResolver,
+} from '../../../../dist/assets/fonts/implementations/url-proxy-hash-resolver.js';
+import {
+	createBuildUrlResolver,
+	createDevUrlResolver,
+} from '../../../../dist/assets/fonts/implementations/url-resolver.js';
+import { createSpyStorage, fakeHasher, simpleErrorHandler } from './utils.js';
 
 describe('fonts implementations', () => {
 	describe('createMinifiableCssRenderer()', () => {
@@ -77,21 +87,33 @@ describe('fonts implementations', () => {
 			hash: 'xxx',
 			url: 'abc',
 			preload: null,
-			data: {},
+			data: {
+				weight: undefined,
+				style: undefined,
+				subset: undefined,
+			},
 			init: null,
 		});
 		dataCollector.collect({
 			hash: 'yyy',
 			url: 'def',
 			preload: { type: 'woff2', url: 'def' },
-			data: {},
+			data: {
+				weight: undefined,
+				style: undefined,
+				subset: undefined,
+			},
 			init: null,
 		});
 		dataCollector.collect({
 			hash: 'xxx',
 			url: 'abc',
 			preload: null,
-			data: {},
+			data: {
+				weight: undefined,
+				style: undefined,
+				subset: undefined,
+			},
 			init: null,
 		});
 
@@ -104,9 +126,36 @@ describe('fonts implementations', () => {
 		);
 		assert.deepStrictEqual(preloadData, [{ type: 'woff2', url: 'def' }]);
 		assert.deepStrictEqual(collectedFonts, [
-			{ hash: 'xxx', url: 'abc', data: {}, init: null },
-			{ hash: 'yyy', url: 'def', data: {}, init: null },
-			{ hash: 'xxx', url: 'abc', data: {}, init: null },
+			{
+				hash: 'xxx',
+				url: 'abc',
+				data: {
+					weight: undefined,
+					style: undefined,
+					subset: undefined,
+				},
+				init: null,
+			},
+			{
+				hash: 'yyy',
+				url: 'def',
+				data: {
+					weight: undefined,
+					style: undefined,
+					subset: undefined,
+				},
+				init: null,
+			},
+			{
+				hash: 'xxx',
+				url: 'abc',
+				data: {
+					weight: undefined,
+					style: undefined,
+					subset: undefined,
+				},
+				init: null,
+			},
 		]);
 	});
 
@@ -269,8 +318,44 @@ describe('fonts implementations', () => {
 		});
 	});
 
-	// TODO: find a good way to test this
-	// describe('createCapsizeFontMetricsResolver()', () => {});
+	describe('createCapsizeFontMetricsResolver()', () => {
+		describe('generateFontFace()', () => {
+			it('returns a src', () => {
+				const fontMetricsResolver = createCapsizeFontMetricsResolver({
+					cssRenderer: createMinifiableCssRenderer({ minify: true }),
+					fontFetcher: {
+						async fetch() {
+							return Buffer.from('');
+						},
+					},
+				});
+
+				const css = fontMetricsResolver.generateFontFace({
+					name: 'Roboto-xxx fallback: Arial',
+					font: 'Arial',
+					metrics: {
+						ascent: 1,
+						descent: 1,
+						lineGap: 1,
+						unitsPerEm: 1,
+						xWidthAvg: 1,
+					},
+					fallbackMetrics: {
+						ascent: 1,
+						descent: 1,
+						lineGap: 1,
+						unitsPerEm: 1,
+						xWidthAvg: 1,
+					},
+					properties: {
+						src: undefined,
+					},
+				});
+
+				assert.equal(css.includes('src:local("Arial")'), true);
+			});
+		});
+	});
 
 	it('createFontTypeExtractor()', () => {
 		/** @type {Array<[string, false | string]>} */
@@ -304,5 +389,138 @@ describe('fonts implementations', () => {
 				}
 			}
 		}
+	});
+
+	it('createDevUrlResolver()', () => {
+		const resolver = createDevUrlResolver({ base: 'base/_astro/fonts' });
+		assert.deepStrictEqual(resolver.getCspResources(), []);
+		assert.equal(resolver.resolve('xxx.woff2'), '/base/_astro/fonts/xxx.woff2');
+		assert.deepStrictEqual(resolver.getCspResources(), ["'self'"]);
+	});
+
+	describe('createBuildUrlResolver()', () => {
+		const base = 'foo/_custom/fonts';
+
+		it('works with no assetsPrefix', () => {
+			const resolver = createBuildUrlResolver({ base, assetsPrefix: undefined });
+			assert.deepStrictEqual(resolver.getCspResources(), []);
+			assert.equal(resolver.resolve('abc.ttf'), '/foo/_custom/fonts/abc.ttf');
+			assert.deepStrictEqual(resolver.getCspResources(), ["'self'"]);
+		});
+
+		it('works with assetsPrefix as string', () => {
+			const resolver = createBuildUrlResolver({ base, assetsPrefix: 'https://cdn.example.com' });
+			assert.deepStrictEqual(resolver.getCspResources(), []);
+			assert.equal(
+				resolver.resolve('foo.woff'),
+				'https://cdn.example.com/foo/_custom/fonts/foo.woff',
+			);
+			assert.deepStrictEqual(resolver.getCspResources(), ['https://cdn.example.com']);
+		});
+
+		it('works with assetsPrefix object', () => {
+			const resolver = createBuildUrlResolver({
+				base,
+				assetsPrefix: {
+					woff2: 'https://fonts.cdn.example.com',
+					fallback: 'https://cdn.example.com',
+				},
+			});
+			assert.deepStrictEqual(resolver.getCspResources(), []);
+			assert.equal(
+				resolver.resolve('bar.woff2'),
+				'https://fonts.cdn.example.com/foo/_custom/fonts/bar.woff2',
+			);
+			assert.equal(
+				resolver.resolve('xyz.ttf'),
+				'https://cdn.example.com/foo/_custom/fonts/xyz.ttf',
+			);
+			assert.deepStrictEqual(resolver.getCspResources(), [
+				'https://fonts.cdn.example.com',
+				'https://cdn.example.com',
+			]);
+		});
+	});
+
+	it('createBuildUrlProxyHashResolver()', () => {
+		const resolver = createBuildUrlProxyHashResolver({
+			hasher: fakeHasher,
+			contentResolver: {
+				resolve: (url) => url,
+			},
+		});
+		assert.equal(
+			resolver.resolve({
+				cssVariable: '--foo',
+				data: {
+					weight: undefined,
+					style: undefined,
+					subset: undefined,
+				},
+				originalUrl: 'whatever',
+				type: 'woff2',
+			}),
+			'whatever.woff2',
+		);
+		assert.equal(
+			resolver.resolve({
+				cssVariable: '--foo',
+				data: { weight: 400, style: 'italic', subset: 'latin' },
+				originalUrl: 'whatever',
+				type: 'woff2',
+			}),
+			'whatever.woff2',
+		);
+	});
+
+	it('createDevUrlProxyHashResolver()', () => {
+		const resolver = createDevUrlProxyHashResolver({
+			baseHashResolver: createBuildUrlProxyHashResolver({
+				hasher: fakeHasher,
+				contentResolver: {
+					resolve: (url) => url,
+				},
+			}),
+		});
+		assert.equal(
+			resolver.resolve({
+				cssVariable: '--foo',
+				data: {
+					weight: undefined,
+					style: undefined,
+					subset: undefined,
+				},
+				originalUrl: 'whatever',
+				type: 'woff2',
+			}),
+			'foo-whatever.woff2',
+		);
+		assert.equal(
+			resolver.resolve({
+				cssVariable: '--foo',
+				data: { weight: 400, style: 'italic', subset: 'latin' },
+				originalUrl: 'whatever',
+				type: 'woff2',
+			}),
+			'foo-400-italic-latin-whatever.woff2',
+		);
+		assert.equal(
+			resolver.resolve({
+				cssVariable: '--foo',
+				data: { weight: '500', style: 'italic', subset: 'latin-ext' },
+				originalUrl: 'whatever',
+				type: 'woff2',
+			}),
+			'foo-500-italic-latin-ext-whatever.woff2',
+		);
+		assert.equal(
+			resolver.resolve({
+				cssVariable: '--foo',
+				data: { weight: [100, 900], style: 'italic', subset: 'cyrillic' },
+				originalUrl: 'whatever',
+				type: 'woff2',
+			}),
+			'foo-100-900-italic-cyrillic-whatever.woff2',
+		);
 	});
 });

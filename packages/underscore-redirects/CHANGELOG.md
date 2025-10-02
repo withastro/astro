@@ -1,5 +1,26 @@
 # @astrojs/underscore-redirects
 
+## 1.0.0
+
+### Major Changes
+
+- [#13952](https://github.com/withastro/astro/pull/13952) [`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3) Thanks [@ematipico](https://github.com/ematipico)! - - The type `Redirects` has been renamed to `HostRoutes`.
+  - `RouteDefinition.target` is now optional
+  - `RouteDefinition.weight` is now optional
+  - `Redirects.print` has been removed. Now you need to pass `Redirects` type to the `print` function
+
+  ```diff
+  - redirects.print()
+  + import { printAsRedirects } from "@astrojs/underscore-redirects"
+  + printAsRedirects(redirects)
+  ```
+
+### Minor Changes
+
+- [#13952](https://github.com/withastro/astro/pull/13952) [`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new method called `createHostedRouteDefinition`, which returns a `HostRoute` type from a `IntegrationResolvedRoute`.
+
+- [#13952](https://github.com/withastro/astro/pull/13952) [`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new method called `printAsRedirects` to print `HostRoutes` as redirects for the `_redirects` file.
+
 ## 0.6.1
 
 ### Patch Changes
@@ -13,7 +34,6 @@
 - [#12924](https://github.com/withastro/astro/pull/12924) [`3caa337`](https://github.com/withastro/astro/commit/3caa337f0ba917ad677fd8438b7045abc5d29e1c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates how the output is determined in `createRedirectsFromAstroRoutes`. Since `v0.5.0`, the output would use the `buildOutput` property and `config.output` as a fallback. It no longer uses this fallback.
 
 - [#12924](https://github.com/withastro/astro/pull/12924) [`3caa337`](https://github.com/withastro/astro/commit/3caa337f0ba917ad677fd8438b7045abc5d29e1c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the input requirements of `createRedirectsFromAstroRoutes`:
-
   - `routeToDynamicTargetMap` keys are `IntegrationResolvedRoute` instead of `IntegrationRouteData` (obtained from the `astro:routes:resolved` hook)
   - There's a new `assets` property, that can be obtained from the `astro:build:done` hook
 

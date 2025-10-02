@@ -174,6 +174,41 @@ describe('Trailing slash', () => {
 				assert.equal(res.status, 200);
 			});
 		});
+
+		describe('Without automatic output', () => {
+			before(async () => {
+				process.env.ASTRO_NODE_AUTOSTART = 'disabled';
+
+				fixture = await loadFixture({
+					root: './fixtures/trailing-slash/',
+					trailingSlash: 'always',
+					adapter: nodejs({ mode: 'standalone' }),
+				});
+				await fixture.build();
+				const { startServer } = await fixture.loadAdapterEntryModule();
+				const res = startServer();
+				server = res.server;
+				await waitServerListen(server.server);
+			});
+
+			after(async () => {
+				await server.stop();
+				await fixture.clean();
+			});
+
+			it('Should return 404 when trying to serve a page with an internal path added to the URL', async () => {
+				let res = await fetch(`http://${server.host}:${server.port}//astro.build/press`);
+				assert.equal(res.status, 404);
+				res = await fetch(`http://${server.host}:${server.port}/foo//astro.build/press`);
+				assert.equal(res.status, 404);
+				res = await fetch(`http://${server.host}:${server.port}//example.com/es//astro.build`);
+				assert.equal(res.status, 404);
+				res = await fetch(
+					`http://${server.host}:${server.port}//example.com/es//astro.build/press`,
+				);
+				assert.equal(res.status, 404);
+			});
+		});
 	});
 	describe('Never', async () => {
 		describe('With base', async () => {

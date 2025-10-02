@@ -1,5 +1,57 @@
 # @astrojs/svelte
 
+## 7.2.0
+
+### Minor Changes
+
+- [#14430](https://github.com/withastro/astro/pull/14430) [`78011ba`](https://github.com/withastro/astro/commit/78011ba4ee6cce6d42d246ee7b91a48b1509a3be) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds support for async server rendering
+
+  Svelte 5.36 added experimental support for async rendering. This allows you to use `await` in your components in several new places. This worked out of the box with client-rendered components, but server-rendered components needed some extra help. This update adds support for async server rendering in Svelte components used in Astro.
+
+  To use async rendering, you must enable it in your Svelte config:
+
+  ```js
+  // svelte.config.js
+  export default {
+    compilerOptions: {
+      experimental: {
+        async: true,
+      },
+    },
+  };
+  ```
+
+  Then you can use `await` in your components:
+
+  ```svelte
+  <script>
+    let data = await fetch('/api/data').then(res => res.json());
+  </script>
+  <h1>{data.title}</h1>
+  ```
+
+  See [the Svelte docs](https://svelte.dev/docs/svelte/await-expressions) for more information on using `await` in Svelte components, including inside `$derived` blocks and directly in markup.
+
+### Patch Changes
+
+- [#14433](https://github.com/withastro/astro/pull/14433) [`9cc8f21`](https://github.com/withastro/astro/commit/9cc8f21a15492a80e2edae0e38c652174a8c3ba0) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that prevented Svelte 5.39.1+ components rendering when multiple frameworks were present
+
+## 7.1.1
+
+### Patch Changes
+
+- [#14326](https://github.com/withastro/astro/pull/14326) [`c24a8f4`](https://github.com/withastro/astro/commit/c24a8f42a17410ea78fc2d68ff0105b931a381eb) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates `vite` version to fix CVE
+
+## 7.1.0
+
+### Minor Changes
+
+- [#13809](https://github.com/withastro/astro/pull/13809) [`3c3b492`](https://github.com/withastro/astro/commit/3c3b492375bd6a63f1fb6cede3685aff999be3c9) Thanks [@ascorbic](https://github.com/ascorbic)! - Increases minimum Node.js version to 18.20.8
+
+  Node.js 18 has now reached end-of-life and should not be used. For now, Astro will continue to support Node.js 18.20.8, which is the final LTS release of Node.js 18, as well as Node.js 20 and Node.js 22 or later. We will drop support for Node.js 18 in a future release, so we recommend upgrading to Node.js 22 as soon as possible. See Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support) for more details.
+
+  :warning: **Important note for users of Cloudflare Pages**: The current build image for Cloudflare Pages uses Node.js 18.17.1 by default, which is no longer supported by Astro. If you are using Cloudflare Pages you should [override the default Node.js version](https://developers.cloudflare.com/pages/configuration/build-image/#override-default-versions) to Node.js 22. This does not affect users of Cloudflare Workers, which uses Node.js 22 by default.
+
 ## 7.0.13
 
 ### Patch Changes

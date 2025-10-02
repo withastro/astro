@@ -1,13 +1,13 @@
 import { AstroJSX, type AstroVNode, isVNode } from '../../jsx-runtime/index.js';
 import type { SSRResult } from '../../types/public/internal.js';
 import {
-	HTMLString,
 	escapeHTML,
+	HTMLString,
 	markHTMLString,
-	renderToString,
 	spreadAttributes,
 	voidElementNames,
 } from './index.js';
+import { isAstroComponentFactory } from './render/astro/factory.js';
 import { renderComponentToString } from './render/component.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
@@ -54,7 +54,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 			}
 			case (vnode.type as any) === Symbol.for('astro:fragment'):
 				return renderJSX(result, vnode.props.children);
-			case (vnode.type as any).isAstroComponentFactory: {
+			case isAstroComponentFactory(vnode.type): {
 				let props: Record<string, any> = {};
 				let slots: Record<string, any> = {};
 				for (const [key, value] of Object.entries(vnode.props ?? {})) {
@@ -64,10 +64,14 @@ Did you forget to import the component or is it possible there is a typo?`);
 						props[key] = value;
 					}
 				}
-				const str = await renderToString(result, vnode.type as any, props, slots);
-				if (str instanceof Response) {
-					throw str;
-				}
+				// We don't use renderToString because it doesn't contain the server island script handling
+				const str = await renderComponentToString(
+					result,
+					vnode.type.name,
+					vnode.type,
+					props,
+					slots,
+				);
 				const html = markHTMLString(str);
 				return html;
 			}

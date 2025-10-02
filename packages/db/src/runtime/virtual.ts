@@ -2,8 +2,8 @@ import { sql as _sql } from 'drizzle-orm';
 import type {
 	BooleanColumnInput,
 	ColumnsConfig,
-	DBConfigInput,
 	DateColumnInput,
+	DBConfigInput,
 	JsonColumnInput,
 	NumberColumnOpts,
 	TableConfig,
@@ -27,7 +27,14 @@ export const column = {
 	boolean: <T extends BooleanColumnInput['schema']>(opts: T = {} as T) => {
 		return createColumn('boolean', opts) satisfies { type: 'boolean' };
 	},
-	text: <T extends TextColumnOpts>(opts: T = {} as T) => {
+	text: <
+		T extends TextColumnOpts,
+		const E extends T['enum'] extends readonly [string, ...string[]]
+			? Omit<T, 'enum'> & T['enum']
+			: T,
+	>(
+		opts: E = {} as E,
+	) => {
 		return createColumn('text', opts) satisfies { type: 'text' };
 	},
 	date<T extends DateColumnInput['schema']>(opts: T = {} as T) {
@@ -52,37 +59,37 @@ export const TRUE = _sql`TRUE`;
 export const FALSE = _sql`FALSE`;
 
 export {
-	sql,
-	eq,
-	gt,
-	gte,
-	lt,
-	lte,
-	ne,
-	isNull,
-	isNotNull,
-	inArray,
-	notInArray,
-	exists,
-	notExists,
-	between,
-	notBetween,
-	like,
-	ilike,
-	notIlike,
-	not,
-	asc,
-	desc,
 	and,
-	or,
-	count,
-	countDistinct,
+	asc,
 	avg,
 	avgDistinct,
-	sum,
-	sumDistinct,
+	between,
+	count,
+	countDistinct,
+	desc,
+	eq,
+	exists,
+	gt,
+	gte,
+	ilike,
+	inArray,
+	isNotNull,
+	isNull,
+	like,
+	lt,
+	lte,
 	max,
 	min,
+	ne,
+	not,
+	notBetween,
+	notExists,
+	notIlike,
+	notInArray,
+	or,
+	sql,
+	sum,
+	sumDistinct,
 } from 'drizzle-orm';
 
 export { alias } from 'drizzle-orm/sqlite-core';

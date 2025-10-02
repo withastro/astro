@@ -1,5 +1,88 @@
 # @astrojs/react
 
+## 4.4.0
+
+### Minor Changes
+
+- [#14386](https://github.com/withastro/astro/pull/14386) [`f75f446`](https://github.com/withastro/astro/commit/f75f4469603f8282a399c65bd4dc1a1b4baf3bb9) Thanks [@yanthomasdev](https://github.com/yanthomasdev)! - Stabilizes the formerly experimental `getActionState()` and `withState()` functions introduced in `@astrojs/react` v3.4.0 used to integrate Astro Actions with [React 19's `useActionState()` hook](https://react.dev/reference/react/useActionState).
+
+  This example calls a `like` action that accepts a `postId` and returns the number of likes. Pass this action to the `withState()` function to apply progressive enhancement info, and apply to `useActionState()` to track the result:
+
+  ```
+  import { actions } from 'astro:actions';
+  import { withState } from '@astrojs/react/actions';
+  import { useActionState } from 'react';
+
+  export function Like({ postId }: { postId: string }) {
+    const [state, action, pending] = useActionState(
+      withState(actions.like),
+      0, // initial likes
+    );
+
+    return (
+      <form action={action}>
+        <input type="hidden" name="postId" value={postId} />
+        <button disabled={pending}>{state} ❤️</button>
+      </form>
+    );
+  }
+  ```
+
+  You can also access the state stored by `useActionState()` from your action handler. Call `getActionState()` with the API context, and optionally apply a type to the result:
+
+  ```
+  import { defineAction } from 'astro:actions';
+  import { z } from 'astro:schema';
+  import { getActionState } from '@astrojs/react/actions';
+
+  export const server = {
+    like: defineAction({
+      input: z.object({
+        postId: z.string(),
+      }),
+      handler: async ({ postId }, ctx) => {
+        const currentLikes = getActionState<number>(ctx);
+        // write to database
+        return currentLikes + 1;
+      },
+    }),
+  };
+  ```
+
+  If you were previously using this experimental feature, you will need to update your code to use the new stable exports:
+
+  ```diff
+  // src/components/Form.jsx
+  import { actions } from 'astro:actions';
+  -import { experimental_withState } from '@astrojs/react/actions';
+  +import { withState } from '@astrojs/react/actions';
+  import { useActionState } from "react";
+  ```
+
+  ```diff
+  // src/actions/index.ts
+  import { defineAction, type SafeResult } from 'astro:actions';
+  import { z } from 'astro:schema';
+  -import { experimental_getActionState } from '@astrojs/react/actions';
+  +import { getActionState } from '@astrojs/react/actions';
+  ```
+
+## 4.3.1
+
+### Patch Changes
+
+- [#14326](https://github.com/withastro/astro/pull/14326) [`c24a8f4`](https://github.com/withastro/astro/commit/c24a8f42a17410ea78fc2d68ff0105b931a381eb) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates `vite` version to fix CVE
+
+## 4.3.0
+
+### Minor Changes
+
+- [#13809](https://github.com/withastro/astro/pull/13809) [`3c3b492`](https://github.com/withastro/astro/commit/3c3b492375bd6a63f1fb6cede3685aff999be3c9) Thanks [@ascorbic](https://github.com/ascorbic)! - Increases minimum Node.js version to 18.20.8
+
+  Node.js 18 has now reached end-of-life and should not be used. For now, Astro will continue to support Node.js 18.20.8, which is the final LTS release of Node.js 18, as well as Node.js 20 and Node.js 22 or later. We will drop support for Node.js 18 in a future release, so we recommend upgrading to Node.js 22 as soon as possible. See Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support) for more details.
+
+  :warning: **Important note for users of Cloudflare Pages**: The current build image for Cloudflare Pages uses Node.js 18.17.1 by default, which is no longer supported by Astro. If you are using Cloudflare Pages you should [override the default Node.js version](https://developers.cloudflare.com/pages/configuration/build-image/#override-default-versions) to Node.js 22. This does not affect users of Cloudflare Workers, which uses Node.js 22 by default.
+
 ## 4.2.7
 
 ### Patch Changes
@@ -175,7 +258,6 @@
   ## Migration
 
   To migrate your existing action calls:
-
   - Remove `.safe` from existing _safe_ action calls
   - Add `.orThrow` to existing _unsafe_ action calls
 

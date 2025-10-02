@@ -1,4 +1,4 @@
-import { promises as fs, type PathLike, existsSync } from 'node:fs';
+import { existsSync, promises as fs, type PathLike } from 'node:fs';
 import * as devalue from 'devalue';
 import { Traverse } from 'neotraverse/modern';
 import { imageSrcToImportId, importIdToSymbolName } from '../assets/utils/resolveImports.js';

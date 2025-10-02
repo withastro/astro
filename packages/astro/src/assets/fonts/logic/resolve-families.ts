@@ -21,7 +21,7 @@ function resolveVariants({
 }): ResolvedLocalFontFamily['variants'] {
 	return variants.map((variant) => ({
 		...variant,
-		weight: variant.weight.toString(),
+		weight: variant.weight?.toString(),
 		src: variant.src.map((value) => {
 			// A src can be a string or an object, we extract the value accordingly.
 			const isValue = typeof value === 'string' || value instanceof URL;

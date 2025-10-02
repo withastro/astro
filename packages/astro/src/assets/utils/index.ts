@@ -5,6 +5,8 @@
  * If some functions don't need to be exposed, just import the file that contains the functions.
  */
 
+export { isESMImportedImage, isRemoteImage, resolveSrc } from './imageKind.js';
+export { imageMetadata } from './metadata.js';
 export {
 	/**
 	 * @deprecated
@@ -12,11 +14,7 @@ export {
 	emitESMImage,
 	emitImageMetadata,
 } from './node/emitAsset.js';
-export { isESMImportedImage, isRemoteImage } from './imageKind.js';
-export { imageMetadata } from './metadata.js';
 export { getOrigQueryParams } from './queryParams.js';
-export { hashTransform, propsToFilename } from './transformToPath.js';
-export { inferRemoteSize } from './remoteProbe.js';
 export {
 	isRemoteAllowed,
 	matchHostname,
@@ -26,3 +24,5 @@ export {
 	matchProtocol,
 	type RemotePattern,
 } from './remotePattern.js';
+export { inferRemoteSize } from './remoteProbe.js';
+export { hashTransform, propsToFilename } from './transformToPath.js';

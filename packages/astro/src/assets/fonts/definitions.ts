@@ -3,12 +3,14 @@ import type { CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type {
 	AstroFontProvider,
+	FontFaceMetrics,
 	FontFileData,
 	FontType,
+	GenericFallbackName,
 	PreloadData,
 	ResolvedFontProvider,
+	Style,
 } from './types.js';
-import type { FontFaceMetrics, GenericFallbackName } from './types.js';
 
 export interface Hasher {
 	hashString: (input: string) => string;
@@ -42,19 +44,32 @@ export type ErrorHandlerInput =
 	  >
 	| SingleErrorInput<'unknown-fs-error', {}>
 	| SingleErrorInput<'cannot-fetch-font-file', { url: string }>
-	| SingleErrorInput<'cannot-extract-font-type', { url: string }>;
+	| SingleErrorInput<'cannot-extract-font-type', { url: string }>
+	| SingleErrorInput<'cannot-extract-data', { family: string; url: string }>;
 
 export interface ErrorHandler {
 	handle: (input: ErrorHandlerInput) => Error;
 }
 
+interface ProxyData {
+	weight: unifont.FontFaceData['weight'];
+	style: unifont.FontFaceData['style'];
+	subset: NonNullable<unifont.FontFaceData['meta']>['subset'];
+}
+
 export interface UrlProxy {
 	proxy: (
 		input: Pick<FontFileData, 'url' | 'init'> & {
+			type: FontType;
 			collectPreload: boolean;
-			data: Partial<unifont.FontFaceData>;
+			data: ProxyData;
 		},
 	) => string;
+}
+
+export interface UrlResolver {
+	resolve: (hash: string) => string;
+	getCspResources: () => Array<string>;
 }
 
 export interface UrlProxyContentResolver {
@@ -64,7 +79,7 @@ export interface UrlProxyContentResolver {
 export interface DataCollector {
 	collect: (
 		input: FontFileData & {
-			data: Partial<unifont.FontFaceData>;
+			data: ProxyData;
 			preload: PreloadData | null;
 		},
 	) => void;
@@ -99,4 +114,20 @@ export interface FontFetcher {
 
 export interface FontTypeExtractor {
 	extract: (url: string) => FontType;
+}
+
+export interface FontFileReader {
+	extract: (input: { family: string; url: string }) => {
+		weight: string;
+		style: Style;
+	};
+}
+
+export interface UrlProxyHashResolver {
+	resolve: (input: {
+		originalUrl: string;
+		type: FontType;
+		cssVariable: string;
+		data: ProxyData;
+	}) => string;
 }

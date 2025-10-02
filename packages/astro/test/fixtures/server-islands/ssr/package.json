@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@astrojs/mdx": "workspace:*",
     "@astrojs/svelte": "workspace:*",
     "astro": "workspace:*",
-    "svelte": "^5.25.3"
+    "svelte": "^5.39.3"
   }
 }

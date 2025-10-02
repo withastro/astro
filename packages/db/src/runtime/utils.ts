@@ -1,45 +1,15 @@
 import { LibsqlError } from '@libsql/client';
 import { AstroError } from 'astro/errors';
+import type { DBColumn } from '../core/types.js';
+
+export function hasPrimaryKey(column: DBColumn) {
+	return 'primaryKey' in column.schema && !!column.schema.primaryKey;
+}
 
 const isWindows = process?.platform === 'win32';
 
-/**
- * Small wrapper around fetch that throws an error if the response is not OK. Allows for custom error handling as well through the onNotOK callback.
- */
-export async function safeFetch(
-	url: Parameters<typeof fetch>[0],
-	options: Parameters<typeof fetch>[1] = {},
-	onNotOK: (response: Response) => void | Promise<void> = () => {
-		throw new Error(`Request to ${url} returned a non-OK status code.`);
-	},
-): Promise<Response> {
-	const response = await fetch(url, options);
-
-	if (!response.ok) {
-		await onNotOK(response);
-	}
-
-	return response;
-}
-
 export class AstroDbError extends AstroError {
 	name = 'Astro DB Error';
-}
-
-export class DetailedLibsqlError extends LibsqlError {
-	name = 'Astro DB Error';
-	hint?: string;
-
-	constructor({
-		message,
-		code,
-		hint,
-		rawCode,
-		cause,
-	}: { message: string; code: string; hint?: string; rawCode?: number; cause?: Error }) {
-		super(message, code, rawCode, cause);
-		this.hint = hint;
-	}
 }
 
 export function isDbError(err: unknown): err is LibsqlError {

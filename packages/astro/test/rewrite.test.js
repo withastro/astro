@@ -25,7 +25,7 @@ describe('Dev reroute', () => {
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Index');
-		assert.equal($('h2').text(), 'Origin: /reroute');
+		assert.equal($('h2').text(), 'Origin: /reroute/');
 	});
 
 	it('should render the index page when navigating /blog/hello ', async () => {
@@ -730,7 +730,7 @@ describe('Runtime error in SSR, custom 500', () => {
 	});
 });
 
-describe('Issue 13633', async () => {
+describe('Rewrite issue 13633', async () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let devServer;
@@ -752,5 +752,35 @@ describe('Issue 13633', async () => {
 		const $ = cheerioLoad(html);
 
 		assert.equal($('h1').text(), 'Index page');
+	});
+});
+
+describe('Rewrite', async () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	let devServer;
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/rewrite-route-pattern/',
+			output: 'server',
+			adapter: testAdapter(),
+		});
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('should correctly update routePattern with using sequence in middleware', async () => {
+		let html = await fixture.fetch('/').then((res) => res.text());
+		let $ = cheerioLoad(html);
+
+		assert.equal($('p').text(), '/destination');
+
+		html = await fixture.fetch('/index2').then((res) => res.text());
+		$ = cheerioLoad(html);
+
+		assert.equal($('p').text(), '/[id]/post');
 	});
 });

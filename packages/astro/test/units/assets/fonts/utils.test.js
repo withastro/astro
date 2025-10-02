@@ -5,6 +5,7 @@ import {
 	isFontType,
 	isGenericFontFamily,
 	renderFontSrc,
+	renderFontWeight,
 	sortObjectByKey,
 	unifontFontFaceDataToProperties,
 } from '../../../../dist/assets/fonts/utils.js';
@@ -60,6 +61,13 @@ describe('fonts utils', () => {
 		});
 	});
 
+	it('renderFontWeight()', () => {
+		assert.equal(renderFontWeight(undefined), undefined);
+		assert.equal(renderFontWeight('400'), '400');
+		assert.equal(renderFontWeight(400), '400');
+		assert.equal(renderFontWeight([300, 500]), '300 500');
+	});
+
 	it('unifontFontFaceDataToProperties()', () => {
 		assert.deepStrictEqual(
 			unifontFontFaceDataToProperties({
@@ -80,6 +88,36 @@ describe('fonts utils', () => {
 				'font-stretch': 'condensed',
 				'font-feature-settings': 'foo',
 				'font-variation-settings': 'bar',
+			},
+		);
+		assert.deepStrictEqual(
+			unifontFontFaceDataToProperties({
+				unicodeRange: [],
+			}),
+			{
+				src: undefined,
+				'font-weight': undefined,
+				'font-style': undefined,
+				'font-stretch': undefined,
+				'font-feature-settings': undefined,
+				'font-variation-settings': undefined,
+				'unicode-range': undefined,
+				'font-display': 'swap',
+			},
+		);
+		assert.deepStrictEqual(
+			unifontFontFaceDataToProperties({
+				unicodeRange: undefined,
+			}),
+			{
+				src: undefined,
+				'font-weight': undefined,
+				'font-style': undefined,
+				'font-stretch': undefined,
+				'font-feature-settings': undefined,
+				'font-variation-settings': undefined,
+				'unicode-range': undefined,
+				'font-display': 'swap',
 			},
 		);
 	});

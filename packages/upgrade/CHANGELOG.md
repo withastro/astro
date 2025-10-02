@@ -1,5 +1,27 @@
 # @astrojs/upgrade
 
+## 0.6.2
+
+### Patch Changes
+
+- [#14174](https://github.com/withastro/astro/pull/14174) [`2002512`](https://github.com/withastro/astro/commit/20025122deb9f9f02a03ba8192565121a0067eac) Thanks [@ascorbic](https://github.com/ascorbic)! - Retry installation with `--legacy-peer-deps` if npm has peer dep error
+
+## 0.6.1
+
+### Patch Changes
+
+- [#14158](https://github.com/withastro/astro/pull/14158) [`89e9364`](https://github.com/withastro/astro/commit/89e9364ba0121424f03f7eb959416371c26f38e3) Thanks [@bjohansebas](https://github.com/bjohansebas)! - Prevents deprecation warnings in Node 24
+
+## 0.6.0
+
+### Minor Changes
+
+- [#13809](https://github.com/withastro/astro/pull/13809) [`3c3b492`](https://github.com/withastro/astro/commit/3c3b492375bd6a63f1fb6cede3685aff999be3c9) Thanks [@ascorbic](https://github.com/ascorbic)! - Increases minimum Node.js version to 18.20.8
+
+  Node.js 18 has now reached end-of-life and should not be used. For now, Astro will continue to support Node.js 18.20.8, which is the final LTS release of Node.js 18, as well as Node.js 20 and Node.js 22 or later. We will drop support for Node.js 18 in a future release, so we recommend upgrading to Node.js 22 as soon as possible. See Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support) for more details.
+
+  :warning: **Important note for users of Cloudflare Pages**: The current build image for Cloudflare Pages uses Node.js 18.17.1 by default, which is no longer supported by Astro. If you are using Cloudflare Pages you should [override the default Node.js version](https://developers.cloudflare.com/pages/configuration/build-image/#override-default-versions) to Node.js 22. This does not affect users of Cloudflare Workers, which uses Node.js 22 by default.
+
 ## 0.5.2
 
 ### Patch Changes

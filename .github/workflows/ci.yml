@@ -34,10 +34,11 @@ jobs:
   build:
     name: "Build: ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 3
+    timeout-minutes: 5
     strategy:
       matrix:
-        OS: [ubuntu-latest, windows-latest]
+        # windows-latest is still windows-2022 for some reason, even though the windows-2025 image is GA
+        OS: [ubuntu-latest, windows-2025]
         NODE_VERSION: [22]
       fail-fast: true
     steps:
@@ -47,13 +48,13 @@ jobs:
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
 
       - name: Setup PNPM
         uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
@@ -77,13 +78,13 @@ jobs:
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
 
       - name: Setup PNPM
         uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
 
       - name: Setup Node
-        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
           cache: "pnpm"
@@ -102,19 +103,29 @@ jobs:
         run: pnpm run publint
 
   test:
-    name: "Test: ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
+    name: 'Test (${{ matrix.TEST_SUITE.name }}): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})'
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 25
+    timeout-minutes: 30
     needs: build
     strategy:
       matrix:
-        OS: [ubuntu-latest]
+        OS: [ubuntu-latest, macos-14, windows-2025]
         NODE_VERSION: [18, 20, 22]
-        include:
+        TEST_SUITE:
+          - { name: astro, script: 'pnpm run test:astro' }
+          - { name: integrations, script: 'pnpm run test:integrations' }
+        # We only test Node 22 on macOS and Windows to reduce CI usage.
+        # This exclude config tells GitHub to skip the items in the matrix that run on macOS or
+        # Windows and use one of the older Node versions.
+        exclude:
           - os: macos-14
-            NODE_VERSION: 22
-          - os: windows-latest
-            NODE_VERSION: 22
+            NODE_VERSION: 18
+          - os: macos-14
+            NODE_VERSION: 20
+          - os: windows-2025
+            NODE_VERSION: 18
+          - os: windows-2025
+            NODE_VERSION: 20
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
@@ -123,13 +134,13 @@ jobs:
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
 
       - name: Setup PNPM
         uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
@@ -140,17 +151,17 @@ jobs:
       - name: Build Packages
         run: pnpm run build
 
-      - name: Test
-        run: pnpm run test
+      - name: Test ${{ matrix.TEST_SUITE.name }}
+        run: ${{ matrix.TEST_SUITE.script }}
 
   e2e:
     name: "Test (E2E): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 25
+    timeout-minutes: 30
     needs: build
     strategy:
       matrix:
-        OS: [ubuntu-latest, windows-latest]
+        OS: [ubuntu-latest, windows-2025]
         NODE_VERSION: [22]
       fail-fast: false
     env:
@@ -160,13 +171,13 @@ jobs:
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
 
       - name: Setup PNPM
         uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
@@ -183,11 +194,11 @@ jobs:
   smoke:
     name: "Test (Smoke): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 25
+    timeout-minutes: 30
     needs: build
     strategy:
       matrix:
-        OS: [ubuntu-latest, windows-latest]
+        OS: [ubuntu-latest, windows-2025]
         NODE_VERSION: [22]
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
@@ -196,19 +207,19 @@ jobs:
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
 
       - name: Setup PNPM
         uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
 
       - name: Checkout docs
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
         with:
           repository: withastro/docs
           path: smoke/docs

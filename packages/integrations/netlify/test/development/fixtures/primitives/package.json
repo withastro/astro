@@ -1,0 +1,10 @@
+{
+  "name": "@test/netlify-primitives",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:",
+    "@astrojs/netlify": "workspace:",
+    "sharp": "^0.34.3"
+  }
+}

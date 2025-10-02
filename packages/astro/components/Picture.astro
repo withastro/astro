@@ -1,5 +1,5 @@
 ---
-import { type LocalImageProps, type RemoteImageProps, getImage, imageConfig } from 'astro:assets';
+import { getImage, imageConfig, type LocalImageProps, type RemoteImageProps } from 'astro:assets';
 import * as mime from 'mrmime';
 import { isESMImportedImage, resolveSrc } from '../dist/assets/utils/imageKind.js';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
@@ -42,18 +42,19 @@ if (scopedStyleClass) {
 	}
 }
 
-const layout = props.layout ?? imageConfig.experimentalLayout ?? 'none';
-const useResponsive = imageConfig.experimentalResponsiveImages && layout !== 'none';
+const layout = props.layout ?? imageConfig.layout ?? 'none';
+const useResponsive = layout !== 'none';
 
 if (useResponsive) {
 	// Apply defaults from imageConfig if not provided
-	props.layout ??= imageConfig.experimentalLayout;
-	props.fit ??= imageConfig.experimentalObjectFit ?? 'cover';
-	props.position ??= imageConfig.experimentalObjectPosition ?? 'center';
+	props.layout ??= imageConfig.layout;
+	props.fit ??= imageConfig.objectFit ?? 'cover';
+	props.position ??= imageConfig.objectPosition ?? 'center';
 }
 
 for (const key in props) {
 	if (key.startsWith('data-astro-cid')) {
+		// @ts-expect-error This is for island props so they're not properly typed
 		pictureAttributes[key] = props[key];
 	}
 }

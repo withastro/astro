@@ -1,8 +1,11 @@
+import { bold } from 'kleur/colors';
 import * as unifont from 'unifont';
 import type { Storage } from 'unstorage';
+import type { Logger } from '../../core/logger/core.js';
 import { LOCAL_PROVIDER_NAME } from './constants.js';
 import type {
 	CssRenderer,
+	FontFileReader,
 	FontMetricsResolver,
 	FontTypeExtractor,
 	Hasher,
@@ -20,11 +23,17 @@ import type {
 	ConsumableMap,
 	CreateUrlProxyParams,
 	Defaults,
+	FontData,
 	FontFamily,
 	FontFileDataMap,
+	InternalConsumableMap,
 	PreloadData,
 } from './types.js';
-import { pickFontFaceProperty, unifontFontFaceDataToProperties } from './utils.js';
+import {
+	pickFontFaceProperty,
+	renderFontWeight,
+	unifontFontFaceDataToProperties,
+} from './utils.js';
 
 /**
  * Manages how fonts are resolved:
@@ -54,6 +63,8 @@ export async function orchestrate({
 	systemFallbacksProvider,
 	fontMetricsResolver,
 	fontTypeExtractor,
+	fontFileReader,
+	logger,
 	createUrlProxy,
 	defaults,
 }: {
@@ -66,10 +77,13 @@ export async function orchestrate({
 	systemFallbacksProvider: SystemFallbacksProvider;
 	fontMetricsResolver: FontMetricsResolver;
 	fontTypeExtractor: FontTypeExtractor;
+	fontFileReader: FontFileReader;
+	logger: Logger;
 	createUrlProxy: (params: CreateUrlProxyParams) => UrlProxy;
 	defaults: Defaults;
 }): Promise<{
 	fontFileDataMap: FontFileDataMap;
+	internalConsumableMap: InternalConsumableMap;
 	consumableMap: ConsumableMap;
 }> {
 	let resolvedFamilies = await resolveFamilies({
@@ -96,12 +110,17 @@ export async function orchestrate({
 	 */
 	const fontFileDataMap: FontFileDataMap = new Map();
 	/**
-	 * Holds associations of CSS variables and preloadData/css to be passed to the virtual module.
+	 * Holds associations of CSS variables and preloadData/css to be passed to the internal virtual module.
+	 */
+	const internalConsumableMap: InternalConsumableMap = new Map();
+	/**
+	 * Holds associations of CSS variables and font data to be exposed via virtual module.
 	 */
 	const consumableMap: ConsumableMap = new Map();
 
 	for (const family of resolvedFamilies) {
 		const preloadData: Array<PreloadData> = [];
+		const consumableMapValue: Array<FontData> = [];
 		let css = '';
 
 		/**
@@ -136,6 +155,7 @@ export async function orchestrate({
 					collectedFonts.push(collected);
 				}
 			},
+			cssVariable: family.cssVariable,
 		});
 
 		let fonts: Array<unifont.FontFaceData>;
@@ -145,6 +165,7 @@ export async function orchestrate({
 				family,
 				urlProxy,
 				fontTypeExtractor,
+				fontFileReader,
 			});
 			// URLs are already proxied at this point so no further processing is required
 			fonts = result.fonts;
@@ -163,8 +184,14 @@ export async function orchestrate({
 				// from families (inside extractUnifontProviders).
 				[family.provider.name!],
 			);
+			if (result.fonts.length === 0) {
+				logger.warn(
+					'assets',
+					`No data found for font family ${bold(family.name)}. Review your configuration`,
+				);
+			}
 			// The data returned by the remote provider contains original URLs. We proxy them.
-			fonts = normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy });
+			fonts = normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy, fontTypeExtractor });
 		}
 
 		for (const data of fonts) {
@@ -183,6 +210,18 @@ export async function orchestrate({
 					variationSettings: pickFontFaceProperty('variationSettings', { data, family }),
 				}),
 			);
+
+			consumableMapValue.push({
+				weight: renderFontWeight(data.weight),
+				style: data.style,
+				src: data.src
+					.filter((src) => 'url' in src)
+					.map((src) => ({
+						url: src.url,
+						format: src.format,
+						tech: src.tech,
+					})),
+			});
 		}
 
 		const cssVarValues = [family.nameWithHash];
@@ -205,8 +244,9 @@ export async function orchestrate({
 
 		css += cssRenderer.generateCssVariable(family.cssVariable, cssVarValues);
 
-		consumableMap.set(family.cssVariable, { preloadData, css });
+		internalConsumableMap.set(family.cssVariable, { preloadData, css });
+		consumableMap.set(family.cssVariable, consumableMapValue);
 	}
 
-	return { fontFileDataMap, consumableMap };
+	return { fontFileDataMap, internalConsumableMap, consumableMap };
 }

@@ -1,5 +1,187 @@
 # @astrojs/cloudflare
 
+## 12.6.9
+
+### Patch Changes
+
+- Updated dependencies [[`1e2499e`](https://github.com/withastro/astro/commit/1e2499e8ea83ebfa233a18a7499e1ccf169e56f4)]:
+  - @astrojs/internal-helpers@0.7.3
+  - @astrojs/underscore-redirects@1.0.0
+
+## 12.6.8
+
+### Patch Changes
+
+- [#14326](https://github.com/withastro/astro/pull/14326) [`c24a8f4`](https://github.com/withastro/astro/commit/c24a8f42a17410ea78fc2d68ff0105b931a381eb) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates `vite` version to fix CVE
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 12.6.7
+
+### Patch Changes
+
+- [#14281](https://github.com/withastro/astro/pull/14281) [`dfd88de`](https://github.com/withastro/astro/commit/dfd88de3ca9a6cda75b05534b0f78dab0227abe7) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a regression that broke sites that used the compile image service without nodejs_compat set
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 12.6.6
+
+### Patch Changes
+
+- [`9ecf359`](https://github.com/withastro/astro/commit/9ecf3598e2b29dd74614328fde3047ea90e67252) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Improves the image proxy endpoint when using the default compile option to adhere to user configuration regarding the allowed remote domains
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 12.6.5
+
+### Patch Changes
+
+- [#14259](https://github.com/withastro/astro/pull/14259) [`02366e9`](https://github.com/withastro/astro/commit/02366e9ce38df8e7362817c095ff05ae61dc7b56) Thanks [@ascorbic](https://github.com/ascorbic)! - Removes warning when using the adapter with a static build.
+
+  The Cloudflare adapter now has several uses outside of on-demand rendered pages, so this warning is misleading. Similar warnings have already been removed from other adapters.
+
+- [#14234](https://github.com/withastro/astro/pull/14234) [`15b55f3`](https://github.com/withastro/astro/commit/15b55f34cb84ecfb99d2e76918a567a00bbb13f6) Thanks [@yanthomasdev](https://github.com/yanthomasdev)! - Fixes an issue that could cause duplicate exports when configuring `workerEntrypoint.namedExports`
+
+- [#14240](https://github.com/withastro/astro/pull/14240) [`77b18fb`](https://github.com/withastro/astro/commit/77b18fb1f85cf1a0c8842bb6e32fd16a9198b974) Thanks [@delucis](https://github.com/delucis)! - Increases the minimum supported version of Astro to 5.7.0
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 12.6.4
+
+### Patch Changes
+
+- Updated dependencies [[`4d16de7`](https://github.com/withastro/astro/commit/4d16de7f95db5d1ec1ce88610d2a95e606e83820)]:
+  - @astrojs/internal-helpers@0.7.2
+  - @astrojs/underscore-redirects@1.0.0
+
+## 12.6.3
+
+### Patch Changes
+
+- [#14066](https://github.com/withastro/astro/pull/14066) [`7abde79`](https://github.com/withastro/astro/commit/7abde7921fb21058d99180d6a0c897c5fa23ff14) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Refactors the internal solution which powers Astro Sessions when running local development with ˋastro devˋ.
+
+  The adapter now utilizes Cloudflare's local support for Cloudflare KV. This internal change is a drop-in replacement and does not require any change to your projectct code.
+
+  However, you now have the ability to connect to the remote Cloudflare KV Namespace if desired and use production data during local development.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 12.6.2
+
+### Patch Changes
+
+- [#13894](https://github.com/withastro/astro/pull/13894) [`b36e72f`](https://github.com/withastro/astro/commit/b36e72f11fbcc0f3d5826f2b1939084f1fb1e3a8) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes special handling of the `ASTRO_STUDIO_APP_TOKEN` environment variable
+
+- Updated dependencies [[`0567fb7`](https://github.com/withastro/astro/commit/0567fb7b50c0c452be387dd7c7264b96bedab48f)]:
+  - @astrojs/internal-helpers@0.7.1
+  - @astrojs/underscore-redirects@1.0.0
+
+## 12.6.1
+
+### Patch Changes
+
+- Updated dependencies [[`f4e8889`](https://github.com/withastro/astro/commit/f4e8889c10c25aeb7650b389c35a70780d5ed172)]:
+  - @astrojs/internal-helpers@0.7.0
+  - @astrojs/underscore-redirects@1.0.0
+
+## 12.6.0
+
+### Minor Changes
+
+- [#13837](https://github.com/withastro/astro/pull/13837) [`7cef86f`](https://github.com/withastro/astro/commit/7cef86f9e31c9207620df74a72bfe96db8fa457a) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Adds new configuration options to allow you to set a custom `workerEntryPoint` for Cloudflare Workers. This is useful if you want to use features that require handlers (e.g. Durable Objects, Cloudflare Queues, Scheduled Invocations) not supported by the basic generic entry file.
+
+  This feature is not supported when running the Astro dev server. However, you can run `astro build` followed by either `wrangler deploy` (to deploy it) or `wrangler dev` to preview it.
+
+  The following example configures a custom entry file that registers a Durable Object and a queue handler:
+
+  ```ts
+  // astro.config.ts
+  import cloudflare from '@astrojs/cloudflare';
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    adapter: cloudflare({
+      workerEntryPoint: {
+        path: 'src/worker.ts',
+        namedExports: ['MyDurableObject'],
+      },
+    }),
+  });
+  ```
+
+  ```ts
+  // src/worker.ts
+  import type { SSRManifest } from 'astro';
+
+  import { App } from 'astro/app';
+  import { handle } from '@astrojs/cloudflare/handler';
+  import { DurableObject } from 'cloudflare:workers';
+
+  class MyDurableObject extends DurableObject<Env> {
+    constructor(ctx: DurableObjectState, env: Env) {
+      super(ctx, env);
+    }
+  }
+
+  export function createExports(manifest: SSRManifest) {
+    const app = new App(manifest);
+    return {
+      default: {
+        async fetch(request, env, ctx) {
+          await env.MY_QUEUE.send('log');
+          return handle(manifest, app, request, env, ctx);
+        },
+        async queue(batch, _env) {
+          let messages = JSON.stringify(batch.messages);
+          console.log(`consumed from our queue: ${messages}`);
+        },
+      } satisfies ExportedHandler<Env>,
+      MyDurableObject,
+    };
+  }
+  ```
+
+### Patch Changes
+
+- [#13963](https://github.com/withastro/astro/pull/13963) [`c667c55`](https://github.com/withastro/astro/commit/c667c554726102620e0115612a6347ddc0183d08) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where the platform proxy would not be disposed when the dev process ended
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 12.5.5
+
+### Patch Changes
+
+- [#13930](https://github.com/withastro/astro/pull/13930) [`acb9b30`](https://github.com/withastro/astro/commit/acb9b302f56e38833a1ab01147f7fde0bf967889) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Fixes an issue where setting values for `Astro.response` resulted in a Cloudflare runtime exception.
+
+- Updated dependencies [[`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3), [`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3), [`de82ef2`](https://github.com/withastro/astro/commit/de82ef24540752f1a838b6b0534d80c7cebd88a3)]:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 12.5.4
+
+### Patch Changes
+
+- [#13817](https://github.com/withastro/astro/pull/13817) [`b7258f1`](https://github.com/withastro/astro/commit/b7258f1243189218604346f5e0301dbdd363a57f) Thanks [@yanthomasdev](https://github.com/yanthomasdev)! - Clarifies and reduces a few logs when starting the dev server with `@astrojs/cloudflare`.
+
+  Warnings about sharp support will now be suppressed when you have explicitly set an `imageService` option.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.1
+
+## 12.5.3
+
+### Patch Changes
+
+- [#13792](https://github.com/withastro/astro/pull/13792) [`7910fea`](https://github.com/withastro/astro/commit/7910feaf4f9895b67ea9eb3242ba451928bd6cda) Thanks [@alexeyzimarev](https://github.com/alexeyzimarev)! - Unify imported images detection across adapters
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@0.6.1
+
 ## 12.5.2
 
 ### Patch Changes
@@ -464,7 +646,6 @@
   If you observe any issues, please check current open issues or create a new one in the repository.
 
   To add environment variables to your project, you still need to make sure they are available in three places. You're setup might require different steps to achieve this, so we can't give you a complete step-by-step guide, on how to achieve the requirements, but here are some guidance to get you started:
-
   - `process.env` during build in your node process (`astro build`)
   - `wrangler.toml` for local development (`astro dev`)
   - `Cloudflare Pages Dashboard` for production deployments
@@ -906,7 +1087,6 @@
   _(Full documentation to help you migrate your project to the upgraded Cloudflare adapter will be provided with the release of v10.0.)_
 
   **Deprecates** the following adapter configuration options (to be **removed entirely in v10**):
-
   - **`mode`:** All projects will deploy to Cloudflare pages using [advanced mode](https://developers.cloudflare.com/pages/functions/advanced-mode/) (the previous default setting). This is no longer a configurable option. [Cloudflare Functions](https://developers.cloudflare.com/pages/functions/get-started/) will no longer be supported. If you were using `mode: 'directory'`, please migrate to [Astro Endpoints](https://docs.astro.build/en/guides/endpoints/).
   - **`functionPerRoute`:** Discontinued due to Cloudflare's single execution context approach. You will no longer have the option to compile a separate bundle for each page.
   - **`routes.strategy`:** Projects will use the auto-generated `_route.json` for route management unless you [provide your own `public/_routes.json`](/en/guides/integrations-guide/cloudflare/#custom-_routesjson). This change aims to eliminate confusion and promote consistency.
@@ -1143,7 +1323,6 @@
 ### Minor Changes
 
 - [#8595](https://github.com/withastro/astro/pull/8595) [`5b0b3c9a8`](https://github.com/withastro/astro/commit/5b0b3c9a8e0c0e6b6c7472b82008ab57985f2a04) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Add support for the following Node.js Runtime APIs, which are availabe in [Cloudflare](https://developers.cloudflare.com/workers/runtime-apis/nodejs) using the `node:` syntax.
-
   - assert
   - AsyncLocalStorage
   - Buffer
@@ -1881,7 +2060,6 @@
 - [#4015](https://github.com/withastro/astro/pull/4015) [`6fd161d76`](https://github.com/withastro/astro/commit/6fd161d7691cbf9d3ffa4646e46059dfd0940010) Thanks [@matthewp](https://github.com/matthewp)! - New `output` configuration option
 
   This change introduces a new "output target" configuration option (`output`). Setting the output target lets you decide the format of your final build, either:
-
   - `"static"` (default): A static site. Your final build will be a collection of static assets (HTML, CSS, JS) that you can deploy to any static site host.
   - `"server"`: A dynamic server application. Your final build will be an application that will run in a hosted server environment, generating HTML dynamically for different requests.
 

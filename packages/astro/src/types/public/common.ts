@@ -1,3 +1,4 @@
+import type { BundledLanguage, LanguageRegistration, SpecialLanguage } from 'shiki';
 import type { OmitIndexSignature, Simplify } from '../../type-utils.js';
 import type { APIContext } from './context.js';
 
@@ -8,6 +9,7 @@ import type { APIContext } from './context.js';
  */
 export interface GetStaticPathsOptions {
 	paginate: PaginateFunction;
+	routePattern: string;
 }
 
 export type GetStaticPathsItem = {
@@ -180,3 +182,5 @@ export type InferGetStaticPropsType<T> = T extends (
 
 export type Params = Record<string, string | undefined>;
 export type Props = Record<string, unknown>;
+
+export type CodeLanguage = BundledLanguage | LanguageRegistration | SpecialLanguage;

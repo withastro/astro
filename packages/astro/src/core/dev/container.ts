@@ -1,8 +1,6 @@
+import nodeFs from 'node:fs';
 import type * as http from 'node:http';
 import type { AddressInfo } from 'node:net';
-import type { AstroSettings } from '../../types/astro.js';
-
-import nodeFs from 'node:fs';
 import * as vite from 'vite';
 import {
 	runHookConfigDone,
@@ -10,6 +8,7 @@ import {
 	runHookServerDone,
 	runHookServerStart,
 } from '../../integrations/hooks.js';
+import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { createDevelopmentManifest } from '../../vite-plugin-astro-server/plugin.js';
 import { createVite } from '../create-vite.js';
@@ -135,7 +134,6 @@ export async function createContainer({
 		handle(req, res) {
 			viteServer.middlewares.handle(req, res, Function.prototype);
 		},
-		// TODO deprecate and remove
 		close() {
 			return closeContainer(container);
 		},

@@ -24,15 +24,14 @@ describe('astro:config/client', () => {
 		});
 
 		it('should return the expected properties', async () => {
-			const response = await fixture.fetch('/');
+			const response = await fixture.fetch('/blog/');
 			const html = await response.text();
-
 			const $ = cheerio.load(html);
 
 			assert.deepEqual(
 				$('#config').text(),
 				JSON.stringify({
-					base: '/',
+					base: '/blog',
 					i18n: {
 						defaultLocale: 'en',
 						locales: ['en', 'fr'],
@@ -45,9 +44,9 @@ describe('astro:config/client', () => {
 					build: {
 						format: 'directory',
 					},
-					trailingSlash: 'ignore',
+					trailingSlash: 'always',
 					compressHTML: true,
-					site: 'https://astro.build/',
+					site: 'https://example.com',
 				}),
 			);
 		});
@@ -68,7 +67,7 @@ describe('astro:config/client', () => {
 			assert.deepEqual(
 				$('#config').text(),
 				JSON.stringify({
-					base: '/',
+					base: '/blog',
 					i18n: {
 						defaultLocale: 'en',
 						locales: ['en', 'fr'],
@@ -81,9 +80,9 @@ describe('astro:config/client', () => {
 					build: {
 						format: 'directory',
 					},
-					trailingSlash: 'ignore',
+					trailingSlash: 'always',
 					compressHTML: true,
-					site: 'https://astro.build/',
+					site: 'https://example.com',
 				}),
 			);
 		});
@@ -123,9 +122,8 @@ describe('astro:config/server', () => {
 		});
 
 		it('should return the expected properties', async () => {
-			const response = await fixture.fetch('/server');
+			const response = await fixture.fetch('/blog/server/');
 			const html = await response.text();
-
 			const $ = cheerio.load(html);
 
 			assert.ok($('#out-dir').text().endsWith('/dist/'));
@@ -134,6 +132,8 @@ describe('astro:config/server', () => {
 			assert.ok($('#root').text().endsWith('/'));
 			assert.ok($('#build-client').text().endsWith('/dist/client/'));
 			assert.ok($('#build-server').text().endsWith('/dist/server/'));
+			// URL
+			assert.equal($('#root-url').text(), 'true');
 		});
 	});
 
@@ -148,13 +148,14 @@ describe('astro:config/server', () => {
 		it('should return the expected properties', async () => {
 			const html = await fixture.readFile('/server/index.html');
 			const $ = cheerio.load(html);
-
 			assert.ok($('#out-dir').text().endsWith('/dist/'));
 			assert.ok($('#src-dir').text().endsWith('/src/'));
 			assert.ok($('#cache-dir').text().endsWith('/.astro/'));
 			assert.ok($('#root').text().endsWith('/'));
 			assert.ok($('#build-client').text().endsWith('/dist/client/'));
 			assert.ok($('#build-server').text().endsWith('/dist/server/'));
+			// URL
+			assert.equal($('#root-url').text(), 'true');
 		});
 	});
 
@@ -171,7 +172,7 @@ describe('astro:config/server', () => {
 		});
 
 		it('should return the expected properties', async () => {
-			const request = new Request('http://example.com/server');
+			const request = new Request('http://example.com/blog/server/');
 			const response = await app.render(request);
 			const html = await response.text();
 			const $ = cheerio.load(html);
@@ -182,6 +183,8 @@ describe('astro:config/server', () => {
 			assert.ok($('#root').text().endsWith('/'));
 			assert.ok($('#build-client').text().endsWith('/dist/client/'));
 			assert.ok($('#build-server').text().endsWith('/dist/server/'));
+			// URL
+			assert.equal($('#root-url').text(), 'true');
 		});
 	});
 });

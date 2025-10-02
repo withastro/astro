@@ -1,5 +1,61 @@
 # @astrojs/mdx
 
+## 4.3.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/markdown-remark@6.3.7
+
+## 4.3.5
+
+### Patch Changes
+
+- [#14326](https://github.com/withastro/astro/pull/14326) [`c24a8f4`](https://github.com/withastro/astro/commit/c24a8f42a17410ea78fc2d68ff0105b931a381eb) Thanks [@jsparkdev](https://github.com/jsparkdev)! - Updates `vite` version to fix CVE
+
+## 4.3.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/markdown-remark@6.3.6
+
+## 4.3.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/markdown-remark@6.3.5
+
+## 4.3.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/markdown-remark@6.3.4
+
+## 4.3.1
+
+### Patch Changes
+
+- Updated dependencies [[`6bd5f75`](https://github.com/withastro/astro/commit/6bd5f75806cb4df39d9e4e9b1f2225dcfdd724b0)]:
+  - @astrojs/markdown-remark@6.3.3
+
+## 4.3.0
+
+### Minor Changes
+
+- [#13809](https://github.com/withastro/astro/pull/13809) [`3c3b492`](https://github.com/withastro/astro/commit/3c3b492375bd6a63f1fb6cede3685aff999be3c9) Thanks [@ascorbic](https://github.com/ascorbic)! - Increases minimum Node.js version to 18.20.8
+
+  Node.js 18 has now reached end-of-life and should not be used. For now, Astro will continue to support Node.js 18.20.8, which is the final LTS release of Node.js 18, as well as Node.js 20 and Node.js 22 or later. We will drop support for Node.js 18 in a future release, so we recommend upgrading to Node.js 22 as soon as possible. See Astro's [Node.js support policy](https://docs.astro.build/en/upgrade-astro/#support) for more details.
+
+  :warning: **Important note for users of Cloudflare Pages**: The current build image for Cloudflare Pages uses Node.js 18.17.1 by default, which is no longer supported by Astro. If you are using Cloudflare Pages you should [override the default Node.js version](https://developers.cloudflare.com/pages/configuration/build-image/#override-default-versions) to Node.js 22. This does not affect users of Cloudflare Workers, which uses Node.js 22 by default.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/markdown-remark@6.3.2
+
 ## 4.2.6
 
 ### Patch Changes
@@ -431,7 +487,6 @@
 - [#10104](https://github.com/withastro/astro/pull/10104) [`a31bbd7ff8f3ec62ee507f72d1d25140b82ffc18`](https://github.com/withastro/astro/commit/a31bbd7ff8f3ec62ee507f72d1d25140b82ffc18) Thanks [@remcohaszing](https://github.com/remcohaszing)! - Changes Astro's internal syntax highlighting to use rehype plugins instead of remark plugins. This provides better interoperability with other [rehype plugins](https://github.com/rehypejs/rehype/blob/main/doc/plugins.md#list-of-plugins) that deal with code blocks, in particular with third party syntax highlighting plugins and [`rehype-mermaid`](https://github.com/remcohaszing/rehype-mermaid).
 
   This may be a breaking change if you are currently using:
-
   - a remark plugin that relies on nodes of type `html`
   - a rehype plugin that depends on nodes of type `raw`.
 
@@ -666,7 +721,6 @@
 - [#8188](https://github.com/withastro/astro/pull/8188) [`d0679a666`](https://github.com/withastro/astro/commit/d0679a666f37da0fca396d42b9b32bbb25d29312) Thanks [@ematipico](https://github.com/ematipico)! - Remove support for Node 16. The lowest supported version by Astro and all integrations is now v18.14.1. As a reminder, Node 16 will be deprecated on the 11th September 2023.
 
 - [#8169](https://github.com/withastro/astro/pull/8169) [`e79e3779d`](https://github.com/withastro/astro/commit/e79e3779df0ad35253abcdb931d622847d9adb12) Thanks [@bluwy](https://github.com/bluwy)! - Remove pre-shiki v0.14 theme names for compatibility. Please rename to the new theme names to migrate:
-
   - `material-darker` -> `material-theme-darker`
   - `material-default` -> `material-theme`
   - `material-lighter` -> `material-theme-lighter`
@@ -695,7 +749,6 @@
 ### Minor Changes
 
 - [#8169](https://github.com/withastro/astro/pull/8169) [`e79e3779d`](https://github.com/withastro/astro/commit/e79e3779df0ad35253abcdb931d622847d9adb12) Thanks [@bluwy](https://github.com/bluwy)! - Remove pre-shiki v0.14 theme names for compatibility. Please rename to the new theme names to migrate:
-
   - `material-darker` -> `material-theme-darker`
   - `material-default` -> `material-theme`
   - `material-lighter` -> `material-theme-lighter`
@@ -842,7 +895,6 @@
 - [#6344](https://github.com/withastro/astro/pull/6344) [`694918a56`](https://github.com/withastro/astro/commit/694918a56b01104831296be0c25456135a63c784) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add a new experimental flag (`experimental.assets`) to enable our new core Assets story.
 
   This unlocks a few features:
-
   - A new built-in image component and JavaScript API to transform and optimize images.
   - Relative images with automatic optimization in Markdown.
   - Support for validating assets using content collections.
@@ -926,9 +978,7 @@
 ### Minor Changes
 
 - [#5684](https://github.com/withastro/astro/pull/5684) [`a9c292026`](https://github.com/withastro/astro/commit/a9c2920264e36cc5dc05f4adc1912187979edb0d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Refine Markdown and MDX configuration options for ease-of-use. & [#5769](https://github.com/withastro/astro/pull/5769) [`93e633922`](https://github.com/withastro/astro/commit/93e633922c2e449df3bb2357b3683af1d3c0e07b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Introduce a `smartypants` flag to opt-out of Astro's default SmartyPants plugin.
-
   - **Markdown**
-
     - **Replace the `extendDefaultPlugins` option** with a `gfm` boolean and a `smartypants` boolean. These are enabled by default, and can be disabled to remove GitHub-Flavored Markdown and SmartyPants.
 
     - Ensure GitHub-Flavored Markdown and SmartyPants are applied whether or not custom `remarkPlugins` or `rehypePlugins` are configured. If you want to apply custom plugins _and_ remove Astro's default plugins, manually set `gfm: false` and `smartypants: false` in your config.
@@ -936,7 +986,6 @@
   - **Migrate `extendDefaultPlugins` to `gfm` and `smartypants`**
 
     You may have disabled Astro's built-in plugins (GitHub-Flavored Markdown and Smartypants) with the `extendDefaultPlugins` option. This has now been split into 2 flags to disable each plugin individually:
-
     - `markdown.gfm` to disable GitHub-Flavored Markdown
     - `markdown.smartypants` to disable SmartyPants
 
@@ -956,7 +1005,6 @@
     Additionally, applying remark and rehype plugins **no longer disables** `gfm` and `smartypants`. You will need to opt-out manually by setting `gfm` and `smartypants` to `false`.
 
   - **MDX**
-
     - Support _all_ Markdown configuration options (except `drafts`) from your MDX integration config. This includes `syntaxHighlighting` and `shikiConfig` options to further customize the MDX renderer.
 
     - Simplify `extendPlugins` to an `extendMarkdownConfig` option. MDX options will default to their equivalent in your Markdown config. By setting `extendMarkdownConfig` to false, you can "eject" to set your own syntax highlighting, plugins, and more.
@@ -964,7 +1012,6 @@
   - **Migrate MDX's `extendPlugins` to `extendMarkdownConfig`**
 
     You may have used the `extendPlugins` option to manage plugin defaults in MDX. This has been replaced by 3 flags:
-
     - `extendMarkdownConfig` (`true` by default) to toggle Markdown config inheritance. This replaces the `extendPlugins: 'markdown'` option.
     - `gfm` (`true` by default) and `smartypants` (`true` by default) to toggle GitHub-Flavored Markdown and SmartyPants in MDX. This replaces the `extendPlugins: 'defaults'` option.
 
@@ -1077,7 +1124,6 @@
   #### Migration
 
   You may have disabled Astro's built-in plugins (GitHub-Flavored Markdown and Smartypants) with the `extendDefaultPlugins` option. This has now been split into 2 flags to disable each plugin individually:
-
   - `markdown.gfm` to disable GitHub-Flavored Markdown
   - `markdown.smartypants` to disable SmartyPants
 
@@ -1151,13 +1197,11 @@
 - [#5684](https://github.com/withastro/astro/pull/5684) [`a9c292026`](https://github.com/withastro/astro/commit/a9c2920264e36cc5dc05f4adc1912187979edb0d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Refine Markdown and MDX configuration options for ease-of-use.
 
   #### Markdown
-
   - **Remove `remark-smartypants`** from Astro's default Markdown plugins.
   - **Replace the `extendDefaultPlugins` option** with a simplified `gfm` boolean. This is enabled by default, and can be disabled to remove GitHub-Flavored Markdown.
   - Ensure GitHub-Flavored Markdown is applied whether or not custom `remarkPlugins` or `rehypePlugins` are configured. If you want to apply custom plugins _and_ remove GFM, manually set `gfm: false` in your config.
 
   #### MDX
-
   - Support _all_ Markdown configuration options (except `drafts`) from your MDX integration config. This includes `syntaxHighlighting` and `shikiConfig` options to further customize the MDX renderer.
   - Simplify `extendDefaults` to an `extendMarkdownConfig` option. MDX options will default to their equivalent in your Markdown config. By setting `extendMarkdownConfig` to false, you can "eject" to set your own syntax highlighting, plugins, and more.
 
@@ -1202,7 +1246,6 @@
   ##### Migrate MDX's `extendPlugins` to `extendMarkdownConfig`
 
   You may have used the `extendPlugins` option to manage plugin defaults in MDX. This has been replaced by 2 flags:
-
   - `extendMarkdownConfig` (`true` by default) to toggle Markdown config inheritance. This replaces the `extendPlugins: 'markdown'` option.
   - `gfm` (`true` by default) to toggle GitHub-Flavored Markdown in MDX. This replaces the `extendPlugins: 'defaults'` option.
 

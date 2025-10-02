@@ -2,7 +2,7 @@ import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
 import type { SSRManifest } from '../core/app/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { REROUTE_DIRECTIVE_HEADER } from '../core/constants.js';
-import { MissingLocale, i18nNoLocaleFoundInPath } from '../core/errors/errors-data.js';
+import { i18nNoLocaleFoundInPath, MissingLocale } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
 import type { AstroConfig, Locales, ValidRedirectStatus } from '../types/public/config.js';
 import type { APIContext } from '../types/public/context.js';
@@ -17,7 +17,11 @@ export function requestHasLocale(locales: Locales) {
 
 // Checks if the pathname has any locale
 export function pathHasLocale(path: string, locales: Locales): boolean {
-	const segments = path.split('/');
+	// pages that use a locale param ([locale].astro or [locale]/index.astro)
+	// and getStaticPaths make [locale].html the pathname during SSG
+	// which will not match a configured locale without removing .html
+	// as we do in normalizeThePath
+	const segments = path.split('/').map(normalizeThePath);
 	for (const segment of segments) {
 		for (const locale of locales) {
 			if (typeof locale === 'string') {
@@ -223,6 +227,15 @@ export function getLocaleByPath(path: string, locales: Locales): string {
  */
 export function normalizeTheLocale(locale: string): string {
 	return locale.replaceAll('_', '-').toLowerCase();
+}
+
+/**
+ *
+ * Given a path or path segment, this function:
+ * - removes the `.html` extension if it exists
+ */
+export function normalizeThePath(path: string): string {
+	return path.endsWith('.html') ? path.slice(0, -5) : path;
 }
 
 /**
