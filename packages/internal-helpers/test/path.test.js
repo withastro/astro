@@ -355,7 +355,6 @@ describe('isRemotePath', () => {
 		'http://example.com./.', // Multiple dots
 		'http://.example.com', // Leading dot (handled earlier but different context)
 
-
 		// Relative URLs that look suspicious
 		'http:example.com', // Missing slashes (relative URL in HTTP context)
 		'https:example.com', // Missing slashes
@@ -368,7 +367,6 @@ describe('isRemotePath', () => {
 		'DaTa:,test',
 
 		'http:/\\example.com', // Mixed slash backslash (this is actually http:/\example.com)
-
 	];
 
 	const localPaths = [

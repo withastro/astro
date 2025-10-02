@@ -111,7 +111,7 @@ export function removeQueryString(path: string) {
  * Checks whether the path is considered a remote path.
  * Remote means untrusted in this context, so anything that isn't a straightforward
  * local path is considered remote.
- * 
+ *
  * @param src
  */
 export function isRemotePath(src: string) {
@@ -169,7 +169,7 @@ export function isRemotePath(src: string) {
 			return true;
 		}
 
-		if(decoded.includes('@') && (!url.pathname.includes('@') && !url.search.includes('@'))) {
+		if (decoded.includes('@') && !url.pathname.includes('@') && !url.search.includes('@')) {
 			// If the original string had an @ but it wasn't in the pathname or search,
 			// it must have been in the authority section (credentials or domain).
 			// Since we already checked for credentials, this is something dodgy.
@@ -188,13 +188,12 @@ export function isRemotePath(src: string) {
 			return true;
 		}
 		// If we can parse it both with and without a base URL, it's probably remote
-		if(URL.canParse(decoded)) {
+		if (URL.canParse(decoded)) {
 			return true;
 		}
 		return false;
-
-	} catch(e) {
-		return true
+	} catch {
+		return true;
 	}
 }
 
