@@ -96,6 +96,7 @@ describe('fonts orchestrate()', () => {
 				type: 'woff2',
 				weight: '400',
 				style: 'normal',
+				subset: undefined,
 			},
 		]);
 		// Uses the hash
@@ -230,6 +231,7 @@ describe('fonts orchestrate()', () => {
 				type: 'woff2',
 				weight: '400',
 				style: 'normal',
+				subset: undefined,
 			},
 		]);
 		// Uses the hash
