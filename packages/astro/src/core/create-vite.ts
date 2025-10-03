@@ -127,7 +127,6 @@ export async function createVite(
 	const envLoader = createEnvLoader({
 		mode,
 		config: settings.config,
-		useStatic: settings.config.experimental.staticImportMetaEnv,
 	});
 
 	// Start with the Vite configuration that Astro core needs

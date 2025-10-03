@@ -99,7 +99,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		headingIdCompat: false,
 		liveContentCollections: false,
 		csp: false,
-		staticImportMetaEnv: false,
 		chromeDevtoolsWorkspace: false,
 		failOnPrerenderConflict: false,
 	},
@@ -495,10 +494,6 @@ export const AstroConfigSchema = z.object({
 				])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
-			staticImportMetaEnv: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.staticImportMetaEnv),
 			chromeDevtoolsWorkspace: z
 				.boolean()
 				.optional()
