@@ -308,11 +308,16 @@ export class RenderContext {
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
 
+		const rewrite = async (reroutePayload: RewritePayload) => {
+			return await this.#executeRewrite(reroutePayload);
+		};
+
 		Reflect.set(context, apiContextRoutesSymbol, this.pipeline);
 
 		return Object.assign(context, {
 			props,
 			redirect,
+			rewrite,
 			getActionResult: createGetActionResult(context.locals),
 			callAction: createCallAction(context),
 		});
@@ -380,10 +385,6 @@ export class RenderContext {
 		const renderContext = this;
 		const { params, pipeline, url } = this;
 
-		const rewrite = async (reroutePayload: RewritePayload) => {
-			return await this.#executeRewrite(reroutePayload);
-		};
-
 		return {
 			// Don't allow reassignment of cookies because it doesn't work
 			get cookies() {
@@ -411,7 +412,6 @@ export class RenderContext {
 			get preferredLocaleList() {
 				return renderContext.computePreferredLocaleList();
 			},
-			rewrite,
 			request: this.request,
 			site: pipeline.site,
 			url,
