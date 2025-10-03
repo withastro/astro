@@ -2412,24 +2412,6 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		liveContentCollections?: boolean;
 
 		/**
-		 * @name experimental.staticImportMetaEnv
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 5.13
-		 * @description
-		 *
-		 * Disables replacement of `import.meta.env` values with `process.env` calls and their coercion
-		 *
-		 * Currently, non-public `import.meta.env` environment variables are replaced by a reference to `process.env`. Additionally, Astro may also convert the value type of your environment variables used through `import.meta.env`, which can prevent access to some values such as the strings `"true"` (which is converted to a boolean value), and `"1"` (which is converted to a number).
-		 *
-		 * The `experimental.staticImportMetaEnv` flag simplifies Astro's default behavior, making it easier to understand and use. Astro will no longer replace any `import.meta.env` environment variables with a `process.env` call, nor will it coerce values.
-		 *
-		 * This flag aligns `import.meta.env`'s behavior in Astro with [Vite](https://vite.dev/guide/env-and-mode.html#env-variables).
-		 *
-		 * See the [experimental static `import.meta.env` docs](https://docs.astro.build/en/reference/experimental-flags/static-import-meta-env/) for more information.
-		 */
-		staticImportMetaEnv?: boolean;
-		/**
 		 * @name experimental.chromeDevtoolsWorkspace
 		 * @type {boolean}
 		 * @default `false`

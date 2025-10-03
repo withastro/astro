@@ -20,7 +20,4 @@ export default defineConfig({
 			},
 		],
 	},
-	experimental: {
-		staticImportMetaEnv: true,
-	}
 });
