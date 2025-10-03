@@ -38,6 +38,8 @@ export default {
 				'rehype-toc',
 				'remark-code-titles',
 				'@types/http-cache-semantics',
+				// Used in templates/actions.mjs
+				'astro-internal',
 			],
 		},
 		'packages/db': {
