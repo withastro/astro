@@ -196,12 +196,12 @@ export function vitePluginActions({
 				} else {
 					mod = await modPromise;
 				}
-				console.log(mod);
-				// TODO: exploit mod
 				let code = await fs.promises.readFile(
 					new URL('../../templates/actions.mjs', import.meta.url),
 					'utf-8',
 				);
+				code += `export const actions = ${serialize(constructObject(mod.server))};`;
+				console.log(code)
 				code += getActionPathContents(
 					shouldAppendForwardSlash(settings.config.trailingSlash, settings.config.build.format),
 				);
@@ -223,4 +223,38 @@ export function getActionPath(action) {
 	${appendForwardSlash && 'path = appendForwardSlash(path);'}
 	return path;
 }`;
+}
+
+const ENCODED_DOT = '%2E';
+
+function constructObject(server: Record<string, any>) {
+	function transform(obj: Record<string, any>, aggregatedPath = ''): Record<string, any> {
+		const result: Record<string, any> = {};
+
+		for (const [key, value] of Object.entries(obj)) {
+			// Add the key, encoding dots so they're not interpreted as nested properties.
+			const path = aggregatedPath + encodeURIComponent(key.toString()).replaceAll('.', ENCODED_DOT);
+
+			if (typeof value === 'function') {
+				result[key] = path;
+			} else if (value && typeof value === 'object' && !Array.isArray(value)) {
+				result[key] = transform(value, path + '.');
+			} else {
+				result[key] = value;
+			}
+		}
+
+		return result;
+	}
+
+	return transform(server);
+}
+
+function serialize(input: any): string {
+	if (typeof input === 'string') {
+		return `_createAction(${JSON.stringify(input)})`;
+	}
+	return `{\n${Object.entries(input)
+		.map(([k, v]) => `  ${JSON.stringify(k)}: ${serialize(v)}`)
+		.join(',\n')}\n}`;
 }
