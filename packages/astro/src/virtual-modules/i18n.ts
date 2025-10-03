@@ -385,6 +385,7 @@ if (i18n?.routing === 'manual') {
 			domainLookupTable: {},
 			fallbackType,
 			fallback: i18n.fallback,
+			domains: i18n.domains,
 		};
 		return I18nInternals.createMiddleware(manifest, base, trailingSlash, format);
 	};
