@@ -106,6 +106,7 @@ export type SSRManifestI18n = {
 	locales: Locales;
 	defaultLocale: string;
 	domainLookupTable: Record<string, string>;
+	domains: Record<string, string> | undefined;
 };
 
 export type SSRManifestCSP = {

@@ -681,6 +681,7 @@ async function createBuildManifest(
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
 			domainLookupTable: {},
+			domains: settings.config.i18n.domains,
 		};
 	}
 

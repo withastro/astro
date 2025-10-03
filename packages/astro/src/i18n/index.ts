@@ -42,7 +42,7 @@ type GetLocaleRelativeUrl = GetLocaleOptions & {
 	base: string;
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
-	format: AstroConfig['build']['format'];
+	format: NonNullable<AstroConfig['build']['format']>;
 	strategy?: RoutingStrategies;
 	defaultLocale: string;
 	domains: Record<string, string> | undefined;

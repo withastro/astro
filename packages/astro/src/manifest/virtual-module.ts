@@ -31,7 +31,7 @@ i18n = {
   defaultLocale: manifest.i18n.defaultLocale,
   locales: manifest.i18n.locales,
   routing: fromRoutingStrategy(manifest.i18n.strategy, manifest.i18n.fallbackType),
-  fallback: manifest.i18n.fallback,
+  fallback: manifest.i18n.fallback
   };
 }
 
@@ -66,6 +66,7 @@ if (manifest.i18n) {
    locales: manifest.i18n.locales,
    routing: fromRoutingStrategy(manifest.i18n.strategy, manifest.i18n.fallbackType),
    fallback: manifest.i18n.fallback,
+   domains: manifest.i18n.domains,
  };
 }
 
