@@ -172,7 +172,7 @@ export async function createVite(
 			astroDevToolbar({ settings, logger }),
 			vitePluginFileURL(),
 			astroInternationalization({ settings }),
-			vitePluginActions({ fs, settings }),
+			vitePluginActions({ fs, settings, logger, routesList, manifest, sync }),
 			vitePluginServerIslands({ settings, logger }),
 			astroContainer(),
 			astroHmrReloadPlugin(),

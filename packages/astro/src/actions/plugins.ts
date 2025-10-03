@@ -1,11 +1,14 @@
 import type fsMod from 'node:fs';
-import type { Plugin as VitePlugin } from 'vite';
+import { createServer, type Plugin as VitePlugin } from 'vite';
 import { addRollupInput } from '../core/build/add-rollup-input.js';
 import type { BuildInternals } from '../core/build/internal.js';
 import type { StaticBuildOptions } from '../core/build/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
+import { createVite } from '../core/create-vite.js';
+import type { Logger } from '../core/logger/core.js';
 import { getServerOutputDirectory } from '../prerender/utils.js';
-import type { AstroSettings } from '../types/astro.js';
+import type { AstroSettings, RoutesList } from '../types/astro.js';
+import type { SSRManifest } from '../types/public/index.js';
 import {
 	CODEGEN_VIRTUAL_MODULE_ID,
 	ENTRYPOINT_VIRTUAL_MODULE_ID,
@@ -53,15 +56,28 @@ export function vitePluginActionsBuild(
 export function vitePluginActions({
 	fs,
 	settings,
+	logger,
+	routesList,
+	manifest,
+	sync,
 }: {
 	fs: typeof fsMod;
 	settings: AstroSettings;
+	logger: Logger;
+	routesList: RoutesList;
+	manifest: SSRManifest;
+	sync: boolean;
 }): VitePlugin {
 	let resolvedActionsId: string;
+	let modPromise: Promise<Record<string, any>>;
+	let isBuild: boolean;
 
 	return {
 		name: VIRTUAL_MODULE_ID,
 		enforce: 'pre',
+		configResolved(config) {
+			isBuild = config.command === 'build';
+		},
 		async resolveId(id, importer) {
 			if (id === VIRTUAL_MODULE_ID) {
 				// When astro:actions is imported in the actions entrypoint, we return
@@ -108,6 +124,10 @@ export function vitePluginActions({
 			}
 			server.watcher.on('add', watcherCallback);
 			server.watcher.on('change', watcherCallback);
+
+			if (!sync) {
+				modPromise = server.ssrLoadModule(ENTRYPOINT_VIRTUAL_MODULE_ID);
+			}
 		},
 		async load(id, opts) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
@@ -145,6 +165,39 @@ export function vitePluginActions({
 				};
 			}
 			if (id === RESOLVED_CODEGEN_VIRTUAL_MODULE_ID) {
+				let mod;
+				if (isBuild) {
+					let tempViteServer;
+					try {
+						tempViteServer = await createServer(
+							await createVite(
+								{
+									server: { middlewareMode: true, hmr: false, watch: null, ws: false },
+									optimizeDeps: { noDiscovery: true },
+									ssr: { external: [] },
+									logLevel: 'silent',
+								},
+								{
+									settings,
+									logger,
+									mode: 'production',
+									command: 'build',
+									fs,
+									sync: true,
+									routesList,
+									manifest,
+								},
+							),
+						);
+						mod = await tempViteServer.ssrLoadModule(ENTRYPOINT_VIRTUAL_MODULE_ID);
+					} finally {
+						await tempViteServer?.close();
+					}
+				} else {
+					mod = await modPromise;
+				}
+				console.log(mod);
+				// TODO: exploit mod
 				let code = await fs.promises.readFile(
 					new URL('../../templates/actions.mjs', import.meta.url),
 					'utf-8',
