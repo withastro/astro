@@ -310,6 +310,7 @@ async function buildManifest(
 			locales: settings.config.i18n.locales,
 			defaultLocale: settings.config.i18n.defaultLocale,
 			domainLookupTable,
+			domains: settings.config.i18n.domains,
 		};
 	}
 

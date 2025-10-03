@@ -16,7 +16,7 @@ export { normalizeTheLocale, toCodes, toPaths } from '../i18n/index.js';
 
 const { trailingSlash, site, i18n, build } = config as ServerDeserializedManifest;
 const { format } = build;
-const isBuild = import.meta.env.MODE === 'build';
+const isBuild = import.meta.env.PROD;
 const { defaultLocale, locales, domains, fallback, routing } = i18n!;
 const base = import.meta.env.BASE_URL;
 

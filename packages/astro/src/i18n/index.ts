@@ -122,6 +122,7 @@ export function getLocaleAbsoluteUrl({ site, isBuild, ...rest }: GetLocaleAbsolu
 	const localeUrl = getLocaleRelativeUrl(rest);
 	const { domains, locale } = rest;
 	let url;
+	console.log('isBuild', domains, isBuild);
 	if (isBuild && domains && domains[locale]) {
 		const base = domains[locale];
 		url = joinPaths(base, localeUrl.replace(`/${rest.locale}`, ''));

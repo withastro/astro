@@ -56,6 +56,7 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 			locales: settings.config.i18n.locales,
 			domainLookupTable: {},
 			fallbackType: toFallbackType(settings.config.i18n.routing),
+			domains: settings.config.i18n.domains,
 		};
 	}
 

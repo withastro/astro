@@ -177,6 +177,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			locales: settings.config.i18n.locales,
 			domainLookupTable: {},
 			fallbackType: toFallbackType(settings.config.i18n.routing),
+			domains: settings.config.i18n.domains,
 		};
 	}
 
