@@ -1,11 +1,9 @@
 import {
-	ACTION_QUERY_PARAMS,
 	ActionError,
-	appendForwardSlash,
 	astroCalledServerError,
 	deserializeActionResult,
 	getActionQueryString,
-} from 'astro:actions';
+} from 'astro-internal:actions-runtime';
 
 const apiContextRoutesSymbol = Symbol.for('context.routes');
 const ENCODED_DOT = '%2E';
@@ -56,17 +54,6 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 			return toActionProxy(action, path + '.');
 		},
 	});
-}
-
-const SHOULD_APPEND_TRAILING_SLASH = '/** @TRAILING_SLASH@ **/';
-
-/** @param {import('astro:actions').ActionClient<any, any, any>} */
-export function getActionPath(action) {
-	let path = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/_actions/${new URLSearchParams(action.toString()).get(ACTION_QUERY_PARAMS.actionName)}`;
-	if (SHOULD_APPEND_TRAILING_SLASH) {
-		path = appendForwardSlash(path);
-	}
-	return path;
 }
 
 /**

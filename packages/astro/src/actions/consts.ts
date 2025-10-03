@@ -1,12 +1,21 @@
+export const ACTIONS_TYPES_FILE = 'actions.d.ts';
+
 export const VIRTUAL_MODULE_ID = 'astro:actions';
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
-export const ACTIONS_TYPES_FILE = 'actions.d.ts';
-export const ASTRO_ACTIONS_INTERNAL_MODULE_ID = 'astro-internal:actions';
-export const RESOLVED_ASTRO_ACTIONS_INTERNAL_MODULE_ID = '\0' + ASTRO_ACTIONS_INTERNAL_MODULE_ID;
-export const NOOP_ACTIONS = '\0noop-actions';
-export const INTERNAL_CODEGEN_VIRTUAL_MODULE_ID = 'astro-internal:actions-codegen';
-export const RESOLVED_INTERNAL_CODEGEN_VIRTUAL_MODULE_ID =
-	'\0' + INTERNAL_CODEGEN_VIRTUAL_MODULE_ID;
+
+export const RESOLVED_NOOP_VIRTUAL_MODULE_ID = '\0astro-internal:actions-noop';
+
+export const RUNTIME_VIRTUAL_MODULE_ID = 'astro-internal:actions-runtime';
+export const RESOLVED_RUNTIME_VIRTUAL_MODULE_ID = '\0' + RUNTIME_VIRTUAL_MODULE_ID;
+
+export const ENTRYPOINT_VIRTUAL_MODULE_ID = 'astro-internal:actions-entrypoint';
+export const RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID = '\0' + ENTRYPOINT_VIRTUAL_MODULE_ID;
+
+export const RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID =
+	'\0astro-internal:actions-entrypoint-noop';
+
+export const CODEGEN_VIRTUAL_MODULE_ID = 'astro-internal:actions-codegen';
+export const RESOLVED_CODEGEN_VIRTUAL_MODULE_ID = '\0' + CODEGEN_VIRTUAL_MODULE_ID;
 
 export const ACTION_QUERY_PARAMS = {
 	actionName: '_action',
