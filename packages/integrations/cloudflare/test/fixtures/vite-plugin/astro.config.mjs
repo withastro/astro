@@ -17,5 +17,16 @@ export default defineConfig({
 			},
 		},
 	},
+	i18n: {
+		defaultLocale: "en",
+		locales: ["en", "fr"],
+		routing: {
+			prefixDefaultLocale: false,
+			redirectToDefaultLocale: true
+		},
+		fallback: {
+			"fr": "en"
+		}
+	},
 	integrations: [mdx(), react()],
 });
