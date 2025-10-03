@@ -97,7 +97,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		clientPrerender: false,
 		contentIntellisense: false,
 		headingIdCompat: false,
-		preserveScriptOrder: false,
 		liveContentCollections: false,
 		csp: false,
 		staticImportMetaEnv: false,
@@ -468,10 +467,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.headingIdCompat),
-			preserveScriptOrder: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.preserveScriptOrder),
 			fonts: z.array(z.union([localFontFamilySchema, remoteFontFamilySchema])).optional(),
 			liveContentCollections: z
 				.boolean()
