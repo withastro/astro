@@ -55,7 +55,6 @@ export async function compile({
 				astroConfig.devToolbar &&
 				astroConfig.devToolbar.enabled &&
 				(await preferences.get('devToolbar.enabled')),
-			renderScript: true,
 			preprocessStyle: createStylePreprocessor({
 				filename,
 				viteConfig,
