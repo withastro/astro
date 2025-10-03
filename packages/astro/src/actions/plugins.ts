@@ -69,14 +69,23 @@ export function vitePluginActions({
 	sync: boolean;
 }): VitePlugin {
 	let resolvedActionsId: string;
-	let modPromise: Promise<Record<string, any>>;
+	let modPromise: Promise<Record<string, any>> | null;
 	let isBuild: boolean;
+	let abortController: AbortController | null;
 
 	return {
 		name: VIRTUAL_MODULE_ID,
 		enforce: 'pre',
 		configResolved(config) {
 			isBuild = config.command === 'build';
+		},
+		async buildEnd() {
+			if (abortController && !abortController.signal.aborted) {
+				abortController.abort();
+			}
+			await modPromise;
+			modPromise = null;
+			abortController = null;
 		},
 		async resolveId(id, importer) {
 			if (id === VIRTUAL_MODULE_ID) {
@@ -126,7 +135,15 @@ export function vitePluginActions({
 			server.watcher.on('change', watcherCallback);
 
 			if (!sync) {
-				modPromise = server.ssrLoadModule(ENTRYPOINT_VIRTUAL_MODULE_ID);
+				abortController = new AbortController();
+				modPromise = Promise.race([
+					server.ssrLoadModule(ENTRYPOINT_VIRTUAL_MODULE_ID),
+					new Promise<Record<string, any>>((_, reject) => {
+						abortController!.signal.addEventListener('abort', () => {
+							reject(new Error('Module loading cancelled'));
+						});
+					}),
+				]);
 			}
 		},
 		async load(id, opts) {
@@ -200,8 +217,7 @@ export function vitePluginActions({
 					new URL('../../templates/actions.mjs', import.meta.url),
 					'utf-8',
 				);
-				code += `export const actions = ${serialize(constructObject(mod.server))};`;
-				console.log(code)
+				code += `export const actions = ${serialize(constructObject(mod!.server))};`;
 				code += getActionPathContents(
 					shouldAppendForwardSlash(settings.config.trailingSlash, settings.config.build.format),
 				);
