@@ -1,5 +1,5 @@
 ---
-'astro': patch
+"astro": patch
 ---
 
-Fixes: include styles in custom 500 error pages
+Fixes inclusion of styles in custom 500 error pages
