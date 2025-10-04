@@ -726,6 +726,7 @@ class ErrorOverlay extends HTMLElement {
       copyIcon.onclick = () => {
         navigator.clipboard.writeText(err.stack);
         
+        const RESET_TIME = 2000;
         copyIcon.innerHTML = checkmarkIconSvg;
         copyIcon.style.color = 'var(--success-text)';
 
@@ -733,7 +734,7 @@ class ErrorOverlay extends HTMLElement {
         setTimeout(() => {
           copyIcon.innerHTML = copyIconSvg;
           copyIcon.style.color = 'var(--title-text)';
-        }, 2000);
+        }, RESET_TIME);
       };
     }
 
