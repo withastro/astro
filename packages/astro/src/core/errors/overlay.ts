@@ -29,6 +29,7 @@ const style = /* css */ `
   --background: #ffffff;
   --error-text: #ba1212;
   --error-text-hover: #a10000;
+  --success-text: #10b981;
   --title-text: #090b11;
   --box-background: #f3f4f7;
   --box-background-hover: #dadbde;
@@ -39,7 +40,7 @@ const style = /* css */ `
   --accent-hover: #792bc0;
   --stack-text: #3d4663;
   --misc-text: #6474a2;
-
+  
   --houston-overlay: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0) 3.95%,
@@ -219,6 +220,10 @@ const style = /* css */ `
 
 .icon-tabler-sun {
 	color: var(--sun-icon-color);
+}
+
+.icon-tabler-copy {
+	color: var(--title-text);
 }
 
 #backdrop {
@@ -408,11 +413,24 @@ const style = /* css */ `
   display: none;
 }
 
-#code header {
+#code header,
+#stack header {
   padding: 24px;
   display: flex;
   justify-content: space-between;
   gap: 1rem;
+}
+
+#stack header {
+  border-bottom: 1px solid var(--border);
+}
+
+#copy-btn {
+  cursor: pointer;
+}
+
+#copy-btn:hover {
+  color: var(--accent-hover);
 }
 
 #code h2 {
@@ -480,6 +498,9 @@ const style = /* css */ `
   font-family: var(--font-normal);
   font-size: 22px;
   margin: 0;
+}
+
+#cause h2 {
   padding: 24px;
   border-bottom: 1px solid var(--border);
 }
@@ -558,7 +579,16 @@ ${style.trim()}
 		</section>
 
     <section id="stack">
-      <h2>Stack Trace</h2>
+      <header>
+        <h2>Stack Trace</h2>
+        <span id="copy-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="icon-tabler icon-tabler-copy" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M8 8m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z" />
+            <path d="M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2" />
+          </svg>
+        </span>
+      </header>
       <div id="stack-content"></div>
     </section>
 
@@ -573,6 +603,10 @@ ${style.trim()}
 const openNewWindowIcon =
 	/* html */
 	'<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="16" height="16" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14 2h-4m4 0L8 8m6-6v4"/><path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M14 8.667V12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h3.333"/></svg>';
+
+const checkmarkIconSvg = 
+  /* html */
+  `<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="icon-tabler icon-tabler-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>`;
 
 // Make HTMLElement available in non-browser environments
 const { HTMLElement = class {} as typeof globalThis.HTMLElement } = globalThis;
@@ -685,6 +719,24 @@ class ErrorOverlay extends HTMLElement {
 			}
 		}
 
+    const copyIcon = this.root.querySelector<HTMLSpanElement>('#copy-btn');
+    if (copyIcon) {
+      const copyIconSvg = copyIcon.innerHTML;
+      
+      copyIcon.onclick = () => {
+        navigator.clipboard.writeText(err.stack);
+        
+        copyIcon.innerHTML = checkmarkIconSvg;
+        copyIcon.style.color = 'var(--success-text)';
+
+        // Reset to copy icon after 2 seconds
+        setTimeout(() => {
+          copyIcon.innerHTML = copyIconSvg;
+          copyIcon.style.color = 'var(--title-text)';
+        }, 2000);
+      };
+    }
+
 		this.text('#stack-content', err.stack);
 	}
 
@@ -742,6 +794,7 @@ function getOverlayCode() {
 	return `
 		const overlayTemplate = \`${overlayTemplate}\`;
 		const openNewWindowIcon = \`${openNewWindowIcon}\`;
+		const checkmarkIconSvg = \`${checkmarkIconSvg}\`;
 		${ErrorOverlay.toString()}
 	`;
 }
