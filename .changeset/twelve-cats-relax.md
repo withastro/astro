@@ -1,5 +1,5 @@
 ---
-'@astrojs/vercel': patch
+'@astrojs/vercel': minor
 ---
 
 Removes deprecation notice for Node.js 18
