@@ -83,10 +83,10 @@
       ]
     },
     "onlyBuiltDependencies": [
-      "esbuild",
-      "workerd",
       "@biomejs/biome",
-      "sharp"
+      "esbuild",
+      "sharp",
+      "workerd"
     ]
   }
 }

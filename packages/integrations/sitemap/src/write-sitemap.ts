@@ -93,7 +93,7 @@ export async function writeSitemap(
 			sitemapAndIndexStream,
 			{ url, lastmod },
 			'utf8',
-			() => {},
+			() => { },
 		);
 	}
 	return promisify(pipeline)(src, sitemapAndIndexStream, createWriteStream(indexPath));
