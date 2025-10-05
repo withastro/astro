@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { bold } from 'kleur/colors';
 import type { Plugin } from 'vite';
 import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
 import { generateCspDigest } from '../../core/encryption.js';
@@ -37,6 +38,7 @@ import { createFontaceFontFileReader } from './implementations/font-file-reader.
 import { createCapsizeFontMetricsResolver } from './implementations/font-metrics-resolver.js';
 import { createFontTypeExtractor } from './implementations/font-type-extractor.js';
 import { createXxHasher } from './implementations/hasher.js';
+import { createLevenshteinStringMatcher } from './implementations/levenshtein-string-matcher.js';
 import { createRequireLocalProviderUrlResolver } from './implementations/local-provider-url-resolver.js';
 import {
 	createBuildRemoteFontProviderModResolver,
@@ -156,6 +158,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		const fontMetricsResolver = createCapsizeFontMetricsResolver({ fontFetcher, cssRenderer });
 		fontTypeExtractor = createFontTypeExtractor({ errorHandler });
 		const fontFileReader = createFontaceFontFileReader({ errorHandler });
+		const stringMatcher = createLevenshteinStringMatcher();
 
 		const res = await orchestrate({
 			families: settings.config.experimental.fonts!,
@@ -182,6 +185,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				});
 			},
 			defaults: DEFAULTS,
+			bold,
+			stringMatcher,
 		});
 		// We initialize shared variables here and reset them in buildEnd
 		// to avoid locking memory
