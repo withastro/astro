@@ -1,5 +1,5 @@
 ---
-'astro': major
+'astro': minor
 ---
 
 adds button to copy stacktrace in error overlay"
