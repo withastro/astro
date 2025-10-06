@@ -202,7 +202,7 @@ describe('MDX headings with frontmatter', () => {
 	});
 });
 
-describe('experimental.headingIdCompat', () => {
+describe('MDX IDs', () => {
 	describe('MDX getHeadings', () => {
 		let fixture;
 
@@ -210,7 +210,6 @@ describe('experimental.headingIdCompat', () => {
 			fixture = await loadFixture({
 				root: new URL('./fixtures/mdx-get-headings/', import.meta.url),
 				integrations: [mdx()],
-				experimental: { headingIdCompat: true },
 			});
 
 			await fixture.build();
