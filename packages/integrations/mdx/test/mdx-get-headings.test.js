@@ -42,8 +42,8 @@ describe('MDX getHeadings', () => {
 				{ depth: 3, slug: 'subsection-1', text: 'Subsection 1' },
 				{ depth: 3, slug: 'subsection-2', text: 'Subsection 2' },
 				{ depth: 2, slug: 'section-2', text: 'Section 2' },
-				{ depth: 2, slug: 'picture', text: '<Picture />' },
-				{ depth: 3, slug: '-sacrebleu-', text: '« Sacrebleu ! »' },
+				{ depth: 2, slug: 'picture-', text: '<Picture />' },
+				{ depth: 3, slug: '-sacrebleu--', text: '« Sacrebleu ! »' },
 			]),
 		);
 	});
