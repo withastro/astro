@@ -44,5 +44,8 @@ function formatWeight(
 	if (typeof weight === 'number') {
 		return weight.toString();
 	}
-	return weight?.replace(/\s+/g, '-');
+	if (typeof weight === 'string') {
+		return weight.replace(/\s+/g, '-');
+	}
+	return weight;
 }
