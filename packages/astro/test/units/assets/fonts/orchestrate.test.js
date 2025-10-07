@@ -20,9 +20,8 @@ import { createBuildUrlProxyHashResolver } from '../../../../dist/assets/fonts/i
 import { createDevUrlResolver } from '../../../../dist/assets/fonts/implementations/url-resolver.js';
 import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
 import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
-import { defaultLogger } from '../../test-utils.js';
+import { createSpyLogger, defaultLogger } from '../../test-utils.js';
 import {
-	createSpyLogger,
 	createSpyStorage,
 	fakeFontMetricsResolver,
 	fakeHasher,
