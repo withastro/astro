@@ -89,7 +89,7 @@
     "astro-scripts": "workspace:*",
     "cheerio": "1.1.2",
     "expect-type": "^1.2.2",
-    "typescript": "^5.9.2",
+    "typescript": "^5.9.3",
     "vite": "^7.1.7"
   }
 }

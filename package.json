@@ -72,8 +72,8 @@
     "publint": "^0.3.13",
     "tinyglobby": "^0.2.15",
     "turbo": "^2.5.8",
-    "typescript": "~5.9.2",
-    "typescript-eslint": "^8.44.1"
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.45.0"
   },
   "pnpm": {
     "peerDependencyRules": {
