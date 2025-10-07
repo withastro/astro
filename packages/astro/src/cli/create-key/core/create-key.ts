@@ -1,12 +1,23 @@
 import type { Logger } from '../../../core/logger/core.js';
-import type { KeyGenerator } from '../definitions.js';
+import type { HelpDisplay, KeyGenerator } from '../definitions.js';
 
 interface CreateKeyOptions {
 	logger: Logger;
 	keyGenerator: KeyGenerator;
+	helpDisplay: HelpDisplay;
 }
 
-export async function createKey({ logger, keyGenerator }: CreateKeyOptions) {
+export async function createKey({ logger, keyGenerator, helpDisplay }: CreateKeyOptions) {
+	if (helpDisplay.shouldFire()) {
+		return helpDisplay.show({
+			commandName: 'astro create-key',
+			tables: {
+				Flags: [['--help (-h)', 'See all available flags.']],
+			},
+			description: 'Generates a key to encrypt props passed to Server islands.',
+		});
+	}
+
 	const key = await keyGenerator.generate();
 
 	logger.info(

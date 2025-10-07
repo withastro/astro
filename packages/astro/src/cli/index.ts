@@ -109,15 +109,32 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			return;
 		}
 		case 'create-key': {
-			const [{ createKey }, { createLoggerFromFlags }, { createCryptoKeyGenerator }] =
-				await Promise.all([
-					import('./create-key/core/create-key.js'),
-					import('./flags.js'),
-					import('./create-key/infra/crypto-key-generator.js'),
-				]);
+			const [
+				{ createLoggerFromFlags },
+				{ createCryptoKeyGenerator },
+				{ createKleurTextStyler },
+				{ createBuildTimeAstroVersionProvider },
+				{ createLoggerHelpDisplay },
+				{ createKey },
+			] = await Promise.all([
+				import('./flags.js'),
+				import('./create-key/infra/crypto-key-generator.js'),
+				import('./create-key/infra/kleur-text-styler.js'),
+				import('./create-key/infra/build-time-astro-version-provider.js'),
+				import('./create-key/infra/logger-help-display.js'),
+				import('./create-key/core/create-key.js'),
+			]);
 			const logger = createLoggerFromFlags(flags);
 			const keyGenerator = createCryptoKeyGenerator();
-			await createKey({ logger, keyGenerator });
+			const textStyler = createKleurTextStyler();
+			const astroVersionProvider = createBuildTimeAstroVersionProvider();
+			const helpDisplay = createLoggerHelpDisplay({
+				logger,
+				flags,
+				textStyler,
+				astroVersionProvider,
+			});
+			await createKey({ logger, keyGenerator, helpDisplay });
 			return;
 		}
 		case 'docs': {
