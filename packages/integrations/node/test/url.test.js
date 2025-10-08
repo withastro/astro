@@ -80,6 +80,7 @@ describe('URL', () => {
 				'X-Forwarded-Proto': 'https',
 				'X-Forwarded-Host': 'abc.xyz',
 				'X-Forwarded-Port': '444',
+				'Host': 'localhost:3000',
 			},
 			url: '/',
 		});
@@ -111,5 +112,48 @@ describe('URL', () => {
 		const $ = cheerio.load(html);
 
 		assert.equal($('body').text(), 'https://abc.xyz:444/');
+	});
+
+	it('ignores X-Forwarded-Host when no allowedDomains configured', async () => {
+		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const { req, res, text } = createRequestAndResponse({
+			headers: {
+				'X-Forwarded-Proto': 'https',
+				'X-Forwarded-Host': 'malicious.example.com',
+				'Host': 'legitimate.example.com',
+			},
+			url: '/',
+		});
+
+		handler(req, res);
+		req.send();
+
+		const html = await text();
+		const $ = cheerio.load(html);
+
+		// Should use the Host header, not X-Forwarded-Host when allowedDomains is not configured
+		assert.equal($('body').text(), 'https://legitimate.example.com/');
+	});
+
+	it('accepts any port when port not specified in allowedDomains', async () => {
+		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const { req, res, text } = createRequestAndResponse({
+			headers: {
+				'X-Forwarded-Proto': 'https',
+				'X-Forwarded-Host': 'abc.xyz:8080',
+				'Host': 'localhost:3000',
+			},
+			url: '/',
+		});
+
+		handler(req, res);
+		req.send();
+
+		const html = await text();
+		const $ = cheerio.load(html);
+
+		// When no port is specified in allowedDomains pattern, any port is accepted
+		// This validates that port validation works (it's checking and passing)
+		assert.equal($('body').text(), 'https://abc.xyz:8080/');
 	});
 });

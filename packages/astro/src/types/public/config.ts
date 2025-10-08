@@ -26,6 +26,8 @@ export type { AstroFontProvider as FontProvider };
 
 export type { CspAlgorithm };
 
+export type { RemotePattern };
+
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
 		? T[K]
@@ -589,6 +591,45 @@ export interface AstroUserConfig<
 		 */
 
 		checkOrigin?: boolean;
+
+		/**
+		 * @docs
+		 * @name security.allowedDomains
+		 * @type {RemotePattern[]}
+		 * @default `[]`
+		 * @version 5.15.0
+		 * @description
+		 *
+		 * Defines a list of permitted host patterns for incoming requests when using SSR. When configured, Astro will validate the `X-Forwarded-Host` header
+		 * against these patterns for security. If the header doesn't match any allowed pattern, the header is ignored and the request's original host is used instead.
+		 *
+		 * This prevents host header injection attacks where malicious actors can manipulate the `Astro.url` value by sending crafted `X-Forwarded-Host` headers.
+		 *
+		 * Each pattern can specify `protocol`, `hostname`, and `port`. All three are validated if provided.
+		 * The patterns support wildcards for flexible hostname matching:
+		 *
+		 * ```js
+		 * {
+		 *   security: {
+		 *     // Example: Allow any subdomain of example.com on https
+		 *     allowedDomains: [
+		 *       {
+		 *         hostname: '**.example.com',
+		 *         protocol: 'https'
+		 *       },
+		 *       {
+		 *         hostname: 'staging.myapp.com',
+		 *         protocol: 'https',
+		 *         port: '443'
+		 *       }
+		 *     ]
+		 *   }
+		 * }
+		 * ```
+		 *
+		 * When not configured, `X-Forwarded-Host` headers are not trusted and will be ignored.
+		 */
+		allowedDomains?: Partial<RemotePattern>[];
 	};
 
 	/**

@@ -7,6 +7,7 @@ import type {
 	AstroConfig,
 	CspAlgorithm,
 	Locales,
+	RemotePattern,
 	ResolvedSessionConfig,
 } from '../../types/public/config.js';
 import type {
@@ -85,6 +86,7 @@ export type SSRManifest = {
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
 	actions?: () => Promise<SSRActions> | SSRActions;
 	checkOrigin: boolean;
+	allowedDomains?: Partial<RemotePattern>[];
 	sessionConfig?: ResolvedSessionConfig<any>;
 	cacheDir: string | URL;
 	srcDir: string | URL;
