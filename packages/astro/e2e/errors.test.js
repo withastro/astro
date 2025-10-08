@@ -147,12 +147,8 @@ test.describe('Error display', () => {
 		await context.grantPermissions(['clipboard-read', 'clipboard-write']);
 		await page.goto(astro.resolveUrl('/astro-runtime-error'), { waitUntil: 'networkidle' });
 
-		const overlay = await page.waitForSelector('vite-error-overlay', {
-			strict: true,
-			timeout: 10 * 1000,
-		});
+		const { copyButton } = await getErrorOverlayContent(page);
 
-		const copyButton = await overlay.$('#copy-btn');
 		expect(copyButton).toBeTruthy();
 
 		const originalIcon = await copyButton.innerHTML();
