@@ -6,6 +6,7 @@ import {
 	deserializeActionResult,
 	getActionQueryString,
 } from 'astro:actions';
+import { internalFetchHeaders } from 'astro:adapter-config/client';
 
 const apiContextRoutesSymbol = Symbol.for('context.routes');
 const ENCODED_DOT = '%2E';
@@ -91,6 +92,10 @@ async function handleAction(param, path, context) {
 	// When running client-side, make a fetch request to the action path.
 	const headers = new Headers();
 	headers.set('Accept', 'application/json');
+	// Apply adapter-specific headers for internal fetches
+	for (const [key, value] of Object.entries(internalFetchHeaders)) {
+		headers.set(key, value);
+	}
 	let body = param;
 	if (!(body instanceof FormData)) {
 		try {

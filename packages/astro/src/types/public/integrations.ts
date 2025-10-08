@@ -115,6 +115,16 @@ export interface AstroAdapter {
 	 * If the adapter is not able to handle certain configurations, Astro will throw an error.
 	 */
 	supportedAstroFeatures: AstroAdapterFeatureMap;
+	/**
+	 * Runtime configuration that will be available to Astro's client-side code.
+	 */
+	runtimeConfig?: {
+		/**
+		 * Headers to inject into Astro's internal fetch calls (Actions, View Transitions, Server Islands, Prefetch).
+		 * Can be an object of headers or a function that returns headers.
+		 */
+		internalFetchHeaders?: Record<string, string> | (() => Record<string, string>);
+	};
 }
 
 export type AstroAdapterFeatureMap = {

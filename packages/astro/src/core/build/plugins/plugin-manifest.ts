@@ -341,6 +341,18 @@ async function buildManifest(
 		};
 	}
 
+	// Get internal fetch headers from adapter config
+	let internalFetchHeaders: Record<string, string> | undefined = undefined;
+	if (settings.adapter?.runtimeConfig?.internalFetchHeaders) {
+		const headers =
+			typeof settings.adapter.runtimeConfig.internalFetchHeaders === 'function'
+				? settings.adapter.runtimeConfig.internalFetchHeaders()
+				: settings.adapter.runtimeConfig.internalFetchHeaders;
+		if (Object.keys(headers).length > 0) {
+			internalFetchHeaders = headers;
+		}
+	}
+
 	return {
 		hrefRoot: opts.settings.config.root.toString(),
 		cacheDir: opts.settings.config.cacheDir.toString(),
@@ -372,5 +384,6 @@ async function buildManifest(
 		key: encodedKey,
 		sessionConfig: settings.config.session,
 		csp,
+		internalFetchHeaders,
 	};
 }

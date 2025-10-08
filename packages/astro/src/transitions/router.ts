@@ -2,6 +2,7 @@ import type { TransitionBeforePreparationEvent } from './events.js';
 import { doPreparation, doSwap, TRANSITION_AFTER_SWAP } from './events.js';
 import { detectScriptExecuted } from './swap-functions.js';
 import type { Direction, Fallback, Options } from './types.js';
+import { internalFetchHeaders } from 'astro:adapter-config/client';
 
 type State = {
 	index: number;
@@ -99,7 +100,12 @@ async function fetchHTML(
 	init?: RequestInit,
 ): Promise<null | { html: string; redirected?: string; mediaType: DOMParserSupportedType }> {
 	try {
-		const res = await fetch(href, init);
+		// Apply adapter-specific headers for internal fetches
+		const headers = new Headers(init?.headers);
+		for (const [key, value] of Object.entries(internalFetchHeaders)) {
+			headers.set(key, value);
+		}
+		const res = await fetch(href, { ...init, headers });
 		const contentType = res.headers.get('content-type') ?? '';
 		// drop potential charset (+ other name/value pairs) as parser needs the mediaType
 		const mediaType = contentType.split(';', 1)[0].trim();

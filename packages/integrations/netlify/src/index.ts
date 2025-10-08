@@ -169,6 +169,29 @@ async function writeNetlifyFrameworkConfig(
 	);
 }
 
+async function writeSkewProtectionConfig(config: AstroConfig) {
+	const deployId = process.env.DEPLOY_ID;
+	if (!deployId) {
+		return; // Skip if not deploying to Netlify
+	}
+
+	const deployConfigDir = new URL('.netlify/v1/', config.root);
+	await mkdir(deployConfigDir, { recursive: true });
+	await writeFile(
+		new URL('./skew-protection.json', deployConfigDir),
+		JSON.stringify({
+			patterns: [
+				'/_actions/.*',
+				'/_server-islands/.*',
+				'.*\\.(html)$',
+			],
+			sources: [
+				{ type: 'header', name: 'X-Netlify-Deploy-ID' },
+			],
+		}),
+	);
+}
+
 export interface NetlifyIntegrationConfig {
 	/**
 	 * Force files to be bundled with your SSR function.
@@ -662,6 +685,12 @@ export default function netlifyIntegration(
 						sharpImageService: 'stable',
 						envGetSecret: 'stable',
 					},
+					runtimeConfig: {
+						internalFetchHeaders: () => {
+							const deployId = process.env.DEPLOY_ID;
+							return deployId ? { 'X-Netlify-Deploy-ID': deployId } : {};
+						},
+					},
 				});
 			},
 			'astro:build:generated': ({ experimentalRouteToHeaders }) => {
@@ -688,6 +717,7 @@ export default function netlifyIntegration(
 				}
 
 				await writeNetlifyFrameworkConfig(_config, staticHeadersMap, logger);
+				await writeSkewProtectionConfig(_config);
 			},
 
 			// local dev
