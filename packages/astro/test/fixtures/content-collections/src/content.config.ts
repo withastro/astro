@@ -1,18 +1,34 @@
 import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
 
 const withData = defineCollection({
-	type: 'data',
+	loader: glob({ pattern: '**/*.{json,yaml,yml}', base: './src/content/with-data' }),
 	schema: z.object({
 		title: z.string(),
 	}),
 });
 
 const withCustomSlugs = defineCollection({
+	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/with-custom-slugs' }),
 	// Ensure schema passes even when `slug` is present
-	schema: z.object({}).strict(),
+	schema: z
+		.object({
+			slug: z.string().optional(),
+		})
+		.strict(),
 });
 
 const withSchemaConfig = defineCollection({
+	loader: glob({
+		pattern: [
+			'**/*.{md,mdx}', 	// Include all markdown files
+			'!**/_*/**', 			// Exclude anything in directories starting with _
+			'!**/_*.{md,mdx}',// Exclude files starting with _
+		],
+		base: './src/content/with-schema-config',
+		// Preserve special characters like % in filenames
+		generateId: ({ entry }) => entry.replace(/\.(md|mdx)$/, ''),
+	}),
 	schema: z.object({
 		title: z.string(),
 		isDraft: z.boolean().default(false),
@@ -22,6 +38,7 @@ const withSchemaConfig = defineCollection({
 });
 
 const withUnionSchema = defineCollection({
+	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/with-union-schema' }),
 	schema: z.discriminatedUnion('type', [
 		z.object({
 			type: z.literal('post'),
@@ -36,7 +53,7 @@ const withUnionSchema = defineCollection({
 });
 
 const withSymlinkedData = defineCollection({
-	type: 'data',
+	loader: glob({ pattern: '**/*.{json,yaml,yml}', base: './src/content/with-symlinked-data' }),
 	schema: ({ image }) =>
 		z.object({
 			alt: z.string(),
@@ -45,14 +62,16 @@ const withSymlinkedData = defineCollection({
 });
 
 const withSymlinkedContent = defineCollection({
-	type: 'content',
+	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/with-symlinked-content' }),
 	schema: z.object({
 		title: z.string(),
 		date: z.date(),
 	}),
 });
 
-const withScripts = defineCollection({});
+const withScripts = defineCollection({
+	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/with-scripts' }),
+});
 
 export const collections = {
 	'with-data': withData,

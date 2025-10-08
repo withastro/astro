@@ -34,15 +34,15 @@ ${loremIpsumMd}
 		new URL(`./src/pages/blog/[...slug].astro`, projectDir),
 		`\
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 export async function getStaticPaths() {
   const blogEntries = await getCollection('blog');
   return blogEntries.map(entry => ({
-    params: { slug: entry.slug }, props: { entry },
+    params: { slug: entry.id }, props: { entry },
   }));
 }
 const { entry } = Astro.props;
-const { Content } = await entry.render();
+const { Content } = await render(entry);
 ---
 <h1>{entry.data.title}</h1>
 <Content />
@@ -51,6 +51,24 @@ const { Content } = await entry.render();
 	);
 
 	await Promise.all(promises);
+
+	await fs.writeFile(
+		new URL(`./src/content.config.ts`, projectDir),
+		`\
+import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
+
+const blog = defineCollection({
+	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
+	schema: z.object({
+		title: z.string(),
+	}),
+});
+
+export const collections = { blog };
+`,
+		'utf-8',
+	);
 
 	await fs.writeFile(
 		new URL('./astro.config.js', projectDir),

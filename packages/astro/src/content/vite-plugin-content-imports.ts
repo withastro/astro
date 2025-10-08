@@ -245,8 +245,6 @@ async function getContentEntryModule(
 				{ id, collection, _internal, unvalidatedData },
 				collectionConfig,
 				params.shouldEmitFile,
-				// FUTURE: Remove in this in v6
-				id.endsWith('.svg'),
 				pluginContext,
 			)
 		: unvalidatedData;
@@ -282,8 +280,6 @@ async function getDataEntryModule(
 				{ id, collection, _internal, unvalidatedData },
 				collectionConfig,
 				params.shouldEmitFile,
-				// FUTURE: Remove in this in v6
-				id.endsWith('.svg'),
 				pluginContext,
 			)
 		: unvalidatedData;

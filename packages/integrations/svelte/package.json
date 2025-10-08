@@ -38,7 +38,7 @@
   "dependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.1.1",
     "svelte2tsx": "^0.7.42",
-    "vite": "^6.3.6"
+    "vite": "^7.1.7"
   },
   "devDependencies": {
     "astro": "workspace:*",
@@ -52,7 +52,7 @@
     "typescript": "^5.3.3"
   },
   "engines": {
-    "node": "18.20.8 || ^20.3.0 || >=22.0.0"
+    "node": "^20.19.5 || >=22.12.0"
   },
   "publishConfig": {
     "provenance": true

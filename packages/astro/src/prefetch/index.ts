@@ -187,16 +187,6 @@ function initLoadStrategy() {
 
 export interface PrefetchOptions {
 	/**
-	 * How the prefetch should prioritize the URL. (default `'link'`)
-	 * - `'link'`: use `<link rel="prefetch">`.
-	 * - `'fetch'`: use `fetch()`.
-	 *
-	 * @deprecated It is recommended to not use this option, and let prefetch use `'link'` whenever it's supported,
-	 * or otherwise fall back to `'fetch'`. `'link'` works better if the URL doesn't set an appropriate cache header,
-	 * as the browser will continue to cache it as long as it's used subsequently.
-	 */
-	with?: 'link' | 'fetch';
-	/**
 	 * Should prefetch even on data saver mode or slow connection. (default `false`)
 	 */
 	ignoreSlowConnection?: boolean;
@@ -236,10 +226,7 @@ export function prefetch(url: string, opts?: PrefetchOptions) {
 		appendSpeculationRules(url, opts?.eagerness ?? 'immediate');
 	}
 	// Prefetch with link if supported
-	else if (
-		document.createElement('link').relList?.supports?.('prefetch') &&
-		opts?.with !== 'fetch'
-	) {
+	else if (document.createElement('link').relList?.supports?.('prefetch')) {
 		debug?.(`[astro] Prefetching ${url} with <link rel="prefetch">`);
 		const link = document.createElement('link');
 		link.rel = 'prefetch';

@@ -1,7 +1,10 @@
+// @ts-check
 import assert from 'node:assert/strict';
 import { after, afterEach, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
+
+const root = new URL('./fixtures/astro-get-static-paths/', import.meta.url);
 
 describe('getStaticPaths - build calls', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -9,16 +12,17 @@ describe('getStaticPaths - build calls', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-get-static-paths/',
+			root,
 			site: 'https://mysite.dev/',
 			trailingSlash: 'never',
 			base: '/blog',
 		});
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	afterEach(() => {
 		// reset the flag used by [...calledTwiceTest].astro between each test
+		// @ts-expect-error not typed
 		globalThis.isCalledOnce = false;
 	});
 
@@ -36,12 +40,14 @@ describe('getStaticPaths - build calls', () => {
 });
 
 describe('getStaticPaths - dev calls', () => {
+	/** @type {import('./test-utils').Fixture} */
 	let fixture;
+	/** @type {import('./test-utils').DevServer} */
 	let devServer;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-get-static-paths/',
+			root,
 			site: 'https://mysite.dev/',
 		});
 		devServer = await fixture.startDevServer();
@@ -49,6 +55,7 @@ describe('getStaticPaths - dev calls', () => {
 
 	afterEach(() => {
 		// reset the flag used by [...calledTwiceTest].astro between each test
+		// @ts-expect-error not typed
 		globalThis.isCalledOnce = false;
 	});
 
@@ -134,5 +141,61 @@ describe('getStaticPaths - dev calls', () => {
 	it('properly handles hyphenation in getStaticPaths', async () => {
 		const res = await fixture.fetch('/pizza/parmesan-and-olives');
 		assert.equal(res.status, 200);
+	});
+
+	it('warns if Astro.generator or Astro.site is accessed', async () => {
+		const originalWarn = console.warn;
+		/** @type {Array<string>} */
+		const logs = [];
+		console.warn = (...args) => {
+			logs.push(...args);
+			return originalWarn(...args);
+		};
+		const res = await fixture.fetch('/food/tacos');
+		console.warn = originalWarn;
+		assert.equal(res.status, 200);
+		assert.deepStrictEqual(logs, [
+			'Astro.generator inside getStaticPaths is deprecated and will be removed in a future major version of Astro.',
+			'Astro.site inside getStaticPaths is deprecated and will be removed in a future major version of Astro. Use import.meta.env.SITE instead',
+		]);
+
+		const html = await res.text();
+		const $ = cheerio.load(html);
+
+		assert.equal($('#generator').text().startsWith('Astro v'), true);
+		// For some reason site is always undefined
+		assert.equal($('#site').text(), '');
+	});
+});
+
+describe('throws if an invalid Astro property is accessed', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root,
+			site: 'https://mysite.dev/',
+		});
+		await fixture.editFile(
+			'/src/pages/food/[name].astro',
+			(prev) => prev.replace('getStaticPaths() {', 'getStaticPaths() {\nAstro.getActionResult;'),
+			false,
+		);
+	});
+
+	after(async () => {
+		fixture.resetAllFiles();
+	});
+
+	it('does not build', async () => {
+		try {
+			await fixture.build({});
+			assert.fail();
+		} catch (err) {
+			assert.equal(err instanceof Error, true);
+			// @ts-ignore
+			assert.equal(err.title, 'Unavailable Astro global in getStaticPaths()');
+		}
 	});
 });
