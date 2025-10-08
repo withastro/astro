@@ -284,7 +284,7 @@ export class App {
 			}
 
 			// Validate X-Forwarded-Host against allowedDomains if configured
-			if (forwardedHost && !this.matchesAllowedDomains(forwardedHost, protocol)) {
+			if (forwardedHost && !this.matchesAllowedDomains(forwardedHost, protocol?.replace(':', ''))) {
 				// If not allowed, ignore the X-Forwarded-Host header
 				forwardedHost = null;
 			}
