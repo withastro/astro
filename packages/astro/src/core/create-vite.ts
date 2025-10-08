@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { convertPathToPattern } from 'tinyglobby';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
-import { vitePluginActions, vitePluginUserActions } from '../actions/plugins.js';
+import { vitePluginActions } from '../actions/plugins.js';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
 import astroContainer from '../container/vite-plugin-container.js';
@@ -171,8 +171,7 @@ export async function createVite(
 			astroDevToolbar({ settings, logger }),
 			vitePluginFileURL(),
 			astroInternationalization({ settings }),
-			vitePluginActions({ fs, settings }),
-			vitePluginUserActions({ settings }),
+			vitePluginActions({ fs, settings, logger, routesList, manifest, sync }),
 			vitePluginServerIslands({ settings, logger }),
 			astroContainer(),
 			astroHmrReloadPlugin(),

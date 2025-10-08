@@ -1,55 +1,27 @@
 import type fsMod from 'node:fs';
-import type { Plugin as VitePlugin } from 'vite';
+import { createServer, type Plugin as VitePlugin } from 'vite';
 import { addRollupInput } from '../core/build/add-rollup-input.js';
 import type { BuildInternals } from '../core/build/internal.js';
 import type { StaticBuildOptions } from '../core/build/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
+import { createVite } from '../core/create-vite.js';
+import type { Logger } from '../core/logger/core.js';
 import { getServerOutputDirectory } from '../prerender/utils.js';
-import type { AstroSettings } from '../types/astro.js';
+import type { AstroSettings, RoutesList } from '../types/astro.js';
+import type { SSRManifest } from '../types/public/index.js';
 import {
-	ASTRO_ACTIONS_INTERNAL_MODULE_ID,
-	NOOP_ACTIONS,
-	RESOLVED_ASTRO_ACTIONS_INTERNAL_MODULE_ID,
+	CODEGEN_VIRTUAL_MODULE_ID,
+	ENTRYPOINT_VIRTUAL_MODULE_ID,
+	RESOLVED_CODEGEN_VIRTUAL_MODULE_ID,
+	RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID,
+	RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID,
+	RESOLVED_NOOP_VIRTUAL_MODULE_ID,
+	RESOLVED_RUNTIME_VIRTUAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
+	RUNTIME_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
 import { isActionsFilePresent } from './utils.js';
-
-/**
- * This plugin is responsible to load the known file `actions/index.js` / `actions.js`
- * If the file doesn't exist, it returns an empty object.
- * @param settings
- */
-export function vitePluginUserActions({ settings }: { settings: AstroSettings }): VitePlugin {
-	let resolvedActionsId: string;
-	return {
-		name: '@astro/plugin-actions',
-		async resolveId(id) {
-			if (id === NOOP_ACTIONS) {
-				return NOOP_ACTIONS;
-			}
-			if (id === ASTRO_ACTIONS_INTERNAL_MODULE_ID) {
-				const resolvedModule = await this.resolve(
-					`${decodeURI(new URL('actions', settings.config.srcDir).pathname)}`,
-				);
-
-				if (!resolvedModule) {
-					return NOOP_ACTIONS;
-				}
-				resolvedActionsId = resolvedModule.id;
-				return RESOLVED_ASTRO_ACTIONS_INTERNAL_MODULE_ID;
-			}
-		},
-
-		load(id) {
-			if (id === NOOP_ACTIONS) {
-				return 'export const server = {}';
-			} else if (id === RESOLVED_ASTRO_ACTIONS_INTERNAL_MODULE_ID) {
-				return `export { server } from '${resolvedActionsId}';`;
-			}
-		},
-	};
-}
 
 /**
  * This plugin is used to retrieve the final entry point of the bundled actions.ts file
@@ -64,14 +36,14 @@ export function vitePluginActionsBuild(
 		name: '@astro/plugin-actions-build',
 
 		options(options) {
-			return addRollupInput(options, [ASTRO_ACTIONS_INTERNAL_MODULE_ID]);
+			return addRollupInput(options, [ENTRYPOINT_VIRTUAL_MODULE_ID]);
 		},
 
 		writeBundle(_, bundle) {
 			for (const [chunkName, chunk] of Object.entries(bundle)) {
 				if (
 					chunk.type !== 'asset' &&
-					chunk.facadeModuleId === RESOLVED_ASTRO_ACTIONS_INTERNAL_MODULE_ID
+					chunk.facadeModuleId === RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID
 				) {
 					const outputDirectory = getServerOutputDirectory(opts.settings);
 					internals.astroActionsEntryPoint = new URL(chunkName, outputDirectory);
@@ -84,16 +56,70 @@ export function vitePluginActionsBuild(
 export function vitePluginActions({
 	fs,
 	settings,
+	logger,
+	routesList,
+	manifest,
+	sync,
 }: {
 	fs: typeof fsMod;
 	settings: AstroSettings;
+	logger: Logger;
+	routesList: RoutesList;
+	manifest: SSRManifest;
+	sync: boolean;
 }): VitePlugin {
+	let resolvedActionsId: string;
+	let modPromise: Promise<Record<string, any>> | null;
+	let isBuild: boolean;
+	let abortController: AbortController | null;
+
 	return {
 		name: VIRTUAL_MODULE_ID,
 		enforce: 'pre',
-		resolveId(id) {
+		configResolved(config) {
+			isBuild = config.command === 'build';
+		},
+		async buildEnd() {
+			if (abortController && !abortController.signal.aborted) {
+				abortController.abort();
+			}
+			await modPromise;
+			modPromise = null;
+			abortController = null;
+		},
+		async resolveId(id, importer) {
 			if (id === VIRTUAL_MODULE_ID) {
+				// When astro:actions is imported in the actions entrypoint, we return
+				// a noop for the exported actions object
+				if (importer === resolvedActionsId) {
+					return RESOLVED_NOOP_VIRTUAL_MODULE_ID;
+				}
 				return RESOLVED_VIRTUAL_MODULE_ID;
+			}
+
+			if (id === RUNTIME_VIRTUAL_MODULE_ID) {
+				return RESOLVED_RUNTIME_VIRTUAL_MODULE_ID;
+			}
+
+			if (id === ENTRYPOINT_VIRTUAL_MODULE_ID) {
+				const resolvedModule = await this.resolve(
+					`${decodeURI(new URL('actions', settings.config.srcDir).pathname)}`,
+				);
+
+				// If there's no action entrypoint, we return a noop server object
+				if (!resolvedModule) {
+					return RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID;
+				}
+				resolvedActionsId = resolvedModule.id;
+				return RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID;
+			}
+
+			if (id === RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID) {
+				return RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID;
+			}
+
+			if (id === CODEGEN_VIRTUAL_MODULE_ID) {
+				return RESOLVED_CODEGEN_VIRTUAL_MODULE_ID;
 			}
 		},
 		async configureServer(server) {
@@ -107,26 +133,144 @@ export function vitePluginActions({
 			}
 			server.watcher.on('add', watcherCallback);
 			server.watcher.on('change', watcherCallback);
+
+			if (!sync) {
+				abortController = new AbortController();
+				modPromise = Promise.race([
+					server.ssrLoadModule(ENTRYPOINT_VIRTUAL_MODULE_ID),
+					new Promise<Record<string, any>>((_, reject) => {
+						abortController!.signal.addEventListener('abort', () => {
+							reject(new Error('Module loading cancelled'));
+						});
+					}),
+				]);
+			}
 		},
 		async load(id, opts) {
-			if (id !== RESOLVED_VIRTUAL_MODULE_ID) return;
-
-			let code = await fs.promises.readFile(
-				new URL('../../templates/actions.mjs', import.meta.url),
-				'utf-8',
-			);
-			if (opts?.ssr) {
-				code += `\nexport * from 'astro/actions/runtime/virtual/server.js';`;
-			} else {
-				code += `\nexport * from 'astro/actions/runtime/virtual/client.js';`;
+			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+				return {
+					code: `export { actions, getActionPath } from ${JSON.stringify(CODEGEN_VIRTUAL_MODULE_ID)}; export * from ${JSON.stringify(RUNTIME_VIRTUAL_MODULE_ID)};`,
+				};
 			}
-			code = code.replace(
-				"'/** @TRAILING_SLASH@ **/'",
-				JSON.stringify(
+
+			if (id === RESOLVED_NOOP_VIRTUAL_MODULE_ID) {
+				return {
+					code: `
+						export const actions = {};
+						${getActionPathContents(
+							shouldAppendForwardSlash(settings.config.trailingSlash, settings.config.build.format),
+						)}
+						export * from ${JSON.stringify(RUNTIME_VIRTUAL_MODULE_ID)};`,
+				};
+			}
+
+			if (id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID) {
+				return {
+					code: opts?.ssr
+						? `export * from 'astro/actions/runtime/virtual/server.js';`
+						: `export * from 'astro/actions/runtime/virtual/client.js';`,
+				};
+			}
+
+			if (id === RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID) {
+				return `export { server } from ${JSON.stringify(resolvedActionsId)};`;
+			}
+
+			if (id === RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID) {
+				return {
+					code: 'export const server = {};',
+				};
+			}
+			if (id === RESOLVED_CODEGEN_VIRTUAL_MODULE_ID) {
+				let mod;
+				if (isBuild) {
+					let tempViteServer;
+					try {
+						tempViteServer = await createServer(
+							await createVite(
+								{
+									server: { middlewareMode: true, hmr: false, watch: null, ws: false },
+									optimizeDeps: { noDiscovery: true },
+									ssr: { external: [] },
+									logLevel: 'silent',
+								},
+								{
+									settings,
+									logger,
+									mode: 'production',
+									command: 'build',
+									fs,
+									sync: true,
+									routesList,
+									manifest,
+								},
+							),
+						);
+						mod = await tempViteServer.ssrLoadModule(ENTRYPOINT_VIRTUAL_MODULE_ID);
+					} finally {
+						await tempViteServer?.close();
+					}
+				} else {
+					mod = await modPromise;
+				}
+				let code = await fs.promises.readFile(
+					new URL('../../templates/actions.mjs', import.meta.url),
+					'utf-8',
+				);
+				code += `export const actions = ${serialize(constructObject(mod!.server))};`;
+				code += getActionPathContents(
 					shouldAppendForwardSlash(settings.config.trailingSlash, settings.config.build.format),
-				),
-			);
-			return { code };
+				);
+				return { code };
+			}
 		},
 	};
+}
+
+function getActionPathContents(appendForwardSlash: boolean) {
+	return `
+import {
+	ACTION_QUERY_PARAMS,
+	appendForwardSlash,
+} from ${JSON.stringify(RUNTIME_VIRTUAL_MODULE_ID)};
+
+export function getActionPath(action) {
+	let path = \`\${import.meta.env.BASE_URL.replace(/\\/$/, '')}/_actions/\${new URLSearchParams(action.toString()).get(ACTION_QUERY_PARAMS.actionName)}\`;
+	${appendForwardSlash && 'path = appendForwardSlash(path);'}
+	return path;
+}`;
+}
+
+const ENCODED_DOT = '%2E';
+
+function constructObject(server: Record<string, any>) {
+	function transform(obj: Record<string, any>, aggregatedPath = ''): Record<string, any> {
+		const result: Record<string, any> = {};
+
+		for (const [key, value] of Object.entries(obj)) {
+			// Add the key, encoding dots so they're not interpreted as nested properties.
+			const path = aggregatedPath + encodeURIComponent(key.toString()).replaceAll('.', ENCODED_DOT);
+
+			if (typeof value === 'function') {
+				result[key] = path;
+			} else if (value && typeof value === 'object' && !Array.isArray(value)) {
+				result[key] = transform(value, path + '.');
+			} else {
+				result[key] = value;
+			}
+		}
+
+		return result;
+	}
+
+	return transform(server);
+}
+
+function serialize(input: any): string {
+	if (typeof input === 'string') {
+		return `_createAction(${JSON.stringify(input)})`;
+	}
+	return `{\n${Object.entries(input)
+		.map(([k, v]) => `  ${JSON.stringify(k)}: ${serialize(v)}`)
+		.join(',\n')}\n}`;
 }
