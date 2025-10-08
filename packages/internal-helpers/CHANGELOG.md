@@ -1,5 +1,11 @@
 # @astrojs/internal-helpers
 
+## 0.7.4
+
+### Patch Changes
+
+- [`b8ca69b`](https://github.com/withastro/astro/commit/b8ca69b97149becefaf89bf21853de9c905cdbb7) Thanks [@ascorbic](https://github.com/ascorbic)! - Refactor remote path detection
+
 ## 0.7.3
 
 ### Patch Changes
