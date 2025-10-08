@@ -93,7 +93,9 @@ function vitePluginSSR(
 						const pageData2 = internals.pagesByKeys.get(pageData.key);
 						// Always add to pageMap even if pageData2 is missing from internals
 						// This ensures error pages like 500.astro are included in the build
-						pageMap.push(`[${JSON.stringify(pageData2?.component || pageData.component)}, ${variable}]`);
+						pageMap.push(
+							`[${JSON.stringify(pageData2?.component || pageData.component)}, ${variable}]`,
+						);
 						i++;
 					}
 				}
