@@ -2144,9 +2144,9 @@ describe('i18n routing does not break assets and endpoints', () => {
 					allowedDomains: [
 						{ hostname: 'example.pt' },
 						{ hostname: 'it.example.com' },
-						{ hostname: 'example.com' }
-					]
-				}
+						{ hostname: 'example.com' },
+					],
+				},
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();

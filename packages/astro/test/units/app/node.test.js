@@ -66,7 +66,7 @@ describe('NodeApp', () => {
 							'x-forwarded-host': 'www2.example.com',
 						},
 					},
-					{ allowedDomains: [{ hostname: '**.example.com' }] }
+					{ allowedDomains: [{ hostname: '**.example.com' }] },
 				);
 				assert.equal(result.url, 'https://www2.example.com/');
 			});
@@ -79,7 +79,7 @@ describe('NodeApp', () => {
 							'x-forwarded-host': 'www2.example.com,www3.example.com',
 						},
 					},
-					{ allowedDomains: [{ hostname: '**.example.com' }] }
+					{ allowedDomains: [{ hostname: '**.example.com' }] },
 				);
 				assert.equal(result.url, 'https://www2.example.com/');
 			});
@@ -186,7 +186,7 @@ describe('NodeApp', () => {
 							'x-forwarded-port': '443',
 						},
 					},
-					{ allowedDomains: [{ hostname: 'example.com' }] }
+					{ allowedDomains: [{ hostname: 'example.com' }] },
 				);
 				assert.equal(result.url, 'https://example.com:3000/');
 			});
