@@ -91,9 +91,9 @@ function vitePluginSSR(
 						imports.push(`const ${variable} = () => import("${virtualModuleName}");`);
 
 						const pageData2 = internals.pagesByKeys.get(pageData.key);
-						if (pageData2) {
-							pageMap.push(`[${JSON.stringify(pageData2.component)}, ${variable}]`);
-						}
+						// Always add to pageMap even if pageData2 is missing from internals
+						// This ensures error pages like 500.astro are included in the build
+						pageMap.push(`[${JSON.stringify(pageData2?.component || pageData.component)}, ${variable}]`);
 						i++;
 					}
 				}
