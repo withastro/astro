@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Fixes inclusion of styles in custom 500 error pages
+Fixes a case where styles on the custom 500 error page would not be included
