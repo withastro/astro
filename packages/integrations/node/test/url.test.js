@@ -80,7 +80,7 @@ describe('URL', () => {
 				'X-Forwarded-Proto': 'https',
 				'X-Forwarded-Host': 'abc.xyz',
 				'X-Forwarded-Port': '444',
-				'Host': 'localhost:3000',
+				Host: 'localhost:3000',
 			},
 			url: '/',
 		});
@@ -120,7 +120,7 @@ describe('URL', () => {
 			headers: {
 				'X-Forwarded-Proto': 'https',
 				'X-Forwarded-Host': 'malicious.example.com',
-				'Host': 'legitimate.example.com',
+				Host: 'legitimate.example.com',
 			},
 			url: '/',
 		});
@@ -141,7 +141,7 @@ describe('URL', () => {
 			headers: {
 				'X-Forwarded-Proto': 'https',
 				'X-Forwarded-Host': 'abc.xyz:8080',
-				'Host': 'localhost:3000',
+				Host: 'localhost:3000',
 			},
 			url: '/',
 		});

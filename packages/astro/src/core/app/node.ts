@@ -73,7 +73,10 @@ export class NodeApp extends App {
 	 */
 	static createRequest(
 		req: NodeRequest,
-		{ skipBody = false, allowedDomains = [] }: { skipBody?: boolean; allowedDomains?: Partial<RemotePattern>[] } = {},
+		{
+			skipBody = false,
+			allowedDomains = [],
+		}: { skipBody?: boolean; allowedDomains?: Partial<RemotePattern>[] } = {},
 	): Request {
 		const controller = new AbortController();
 
@@ -98,13 +101,20 @@ export class NodeApp extends App {
 		// @example "example.com,www2.example.com" => "example.com"
 		let forwardedHostname = getFirstForwardedValue(req.headers['x-forwarded-host']);
 		const providedHostname = req.headers.host ?? req.headers[':authority'];
-		
+
 		// Validate X-Forwarded-Host against allowedDomains if configured
-		if (forwardedHostname && !App.validateForwardedHost(forwardedHostname, allowedDomains, forwardedProtocol ?? providedProtocol)) {
+		if (
+			forwardedHostname &&
+			!App.validateForwardedHost(
+				forwardedHostname,
+				allowedDomains,
+				forwardedProtocol ?? providedProtocol,
+			)
+		) {
 			// If not allowed, ignore the X-Forwarded-Host header
 			forwardedHostname = undefined;
 		}
-		
+
 		const hostname = forwardedHostname ?? providedHostname;
 
 		// @example "443,8080,80" => "443"

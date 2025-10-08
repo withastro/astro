@@ -153,12 +153,12 @@ export class App {
 	static validateForwardedHost(
 		forwardedHost: string,
 		allowedDomains?: Partial<RemotePattern>[],
-		protocol?: string
+		protocol?: string,
 	): boolean {
 		if (!allowedDomains || allowedDomains.length === 0) {
 			return false;
 		}
-		
+
 		try {
 			const testUrl = new URL(`${protocol || 'https'}://${forwardedHost}`);
 			return allowedDomains.some((pattern) => {
@@ -278,13 +278,13 @@ export class App {
 				// we fall back to the protocol of the request
 				protocol = url.protocol;
 			}
-			
+
 			// Validate X-Forwarded-Host against allowedDomains if configured
 			if (forwardedHost && !this.matchesAllowedDomains(forwardedHost, protocol)) {
 				// If not allowed, ignore the X-Forwarded-Host header
 				forwardedHost = null;
 			}
-			
+
 			let host = forwardedHost;
 			if (!host) {
 				// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Host
