@@ -146,6 +146,10 @@ export class App {
 		return this.#manifest;
 	}
 
+	protected set manifest(value: SSRManifest) {
+		this.#manifest = value;
+	}
+
 	protected matchesAllowedDomains(forwardedHost: string, protocol?: string): boolean {
 		return App.validateForwardedHost(forwardedHost, this.#manifest.allowedDomains, protocol);
 	}
@@ -280,7 +284,7 @@ export class App {
 			}
 
 			// Validate X-Forwarded-Host against allowedDomains if configured
-			if (forwardedHost && !this.matchesAllowedDomains(forwardedHost, protocol)) {
+			if (forwardedHost && !this.matchesAllowedDomains(forwardedHost, protocol?.replace(':', ''))) {
 				// If not allowed, ignore the X-Forwarded-Host header
 				forwardedHost = null;
 			}

@@ -25,7 +25,9 @@ export default defineConfig({
 
 The patterns support wildcards (`*` and `**`) for flexible hostname matching and can optionally specify protocol and port.
 
-### Breaking change
+Additionally, this fixes a bug where protocol validation was incorrectly formatted, causing valid `X-Forwarded-Host` headers to be rejected when `allowedDomains` was configured.
+
+__Breaking change__
 
 Previously, `Astro.url` would reflect the value of the `X-Forwarded-Host` header. While this header is commonly used by reverse proxies like Nginx to communicate the original host, it can be sent by any client, potentially allowing malicious actors to poison caches with incorrect URLs.
 
