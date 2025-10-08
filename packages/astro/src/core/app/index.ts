@@ -146,6 +146,10 @@ export class App {
 		return this.#manifest;
 	}
 
+	protected set manifest(value: SSRManifest) {
+		this.#manifest = value;
+	}
+
 	protected matchesAllowedDomains(forwardedHost: string, protocol?: string): boolean {
 		return App.validateForwardedHost(forwardedHost, this.#manifest.allowedDomains, protocol);
 	}
