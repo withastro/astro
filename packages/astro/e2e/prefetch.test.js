@@ -71,7 +71,7 @@ async function mouseDown(page, selector) {
  */
 async function waitForPageLoad(page) {
 	await page.waitForEvent('response');
-	await new Promise(res => setTimeout(res, 500)); // wait for transition to finish
+	await new Promise((res) => setTimeout(res, 500)); // wait for transition to finish
 }
 
 test.describe('Prefetch (default)', () => {
@@ -460,7 +460,7 @@ test.describe('Prefetch View Transitions', () => {
 		await Promise.all([waitForPageLoad(page), page.mouse.up()]);
 
 		await expectUrlNotPrefetched('/view-transitions/2', page);
-		await mouseDown(page, 'a')
+		await mouseDown(page, 'a');
 		await expectUrlPrefetched('/view-transitions/2', page);
 	});
 
