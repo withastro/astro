@@ -597,7 +597,7 @@ export interface AstroUserConfig<
 		 * @name security.allowedDomains
 		 * @type {RemotePattern[]}
 		 * @default `[]`
-		 * @version 5.15.0
+		 * @version 5.14.2
 		 * @description
 		 *
 		 * Defines a list of permitted host patterns for incoming requests when using SSR. When configured, Astro will validate the `X-Forwarded-Host` header
@@ -1506,7 +1506,7 @@ export interface AstroUserConfig<
 		 * @default `{ type: 'shiki', excludeLangs: ['math'] }`
 		 * @description
 		 * Which syntax highlighter to use for Markdown code blocks (\`\`\`), if any. This determines the CSS classes that Astro will apply to your Markdown code blocks.
-	 	 * 
+	 	 *
 		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter (`github-dark` theme configured by default)
 		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter and [provide your own Prism stylesheet](https://docs.astro.build/en/guides/syntax-highlighting/#add-a-prism-stylesheet)
 		 * - `false` - do not apply syntax highlighting.
