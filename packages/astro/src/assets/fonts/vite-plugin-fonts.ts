@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { bold } from 'kleur/colors';
 import type { Plugin } from 'vite';
 import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
 import { generateCspDigest } from '../../core/encryption.js';
@@ -23,7 +24,10 @@ import type {
 	CssRenderer,
 	FontFetcher,
 	FontTypeExtractor,
+	Hasher,
 	RemoteFontProviderModResolver,
+	UrlProxyContentResolver,
+	UrlProxyHashResolver,
 	UrlResolver,
 } from './definitions.js';
 import { createMinifiableCssRenderer } from './implementations/css-renderer.js';
@@ -34,6 +38,7 @@ import { createFontaceFontFileReader } from './implementations/font-file-reader.
 import { createCapsizeFontMetricsResolver } from './implementations/font-metrics-resolver.js';
 import { createFontTypeExtractor } from './implementations/font-type-extractor.js';
 import { createXxHasher } from './implementations/hasher.js';
+import { createLevenshteinStringMatcher } from './implementations/levenshtein-string-matcher.js';
 import { createRequireLocalProviderUrlResolver } from './implementations/local-provider-url-resolver.js';
 import {
 	createBuildRemoteFontProviderModResolver,
@@ -47,9 +52,13 @@ import {
 	createLocalUrlProxyContentResolver,
 	createRemoteUrlProxyContentResolver,
 } from './implementations/url-proxy-content-resolver.js';
+import {
+	createBuildUrlProxyHashResolver,
+	createDevUrlProxyHashResolver,
+} from './implementations/url-proxy-hash-resolver.js';
 import { createBuildUrlResolver, createDevUrlResolver } from './implementations/url-resolver.js';
 import { orchestrate } from './orchestrate.js';
-import type { ConsumableMap, FontFileDataMap } from './types.js';
+import type { ConsumableMap, FontFileDataMap, InternalConsumableMap } from './types.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -87,12 +96,14 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	const baseUrl = joinPaths(settings.config.base, assetsDir);
 
 	let fontFileDataMap: FontFileDataMap | null = null;
+	let internalConsumableMap: InternalConsumableMap | null = null;
 	let consumableMap: ConsumableMap | null = null;
 	let isBuild: boolean;
 	let fontFetcher: FontFetcher | null = null;
 	let fontTypeExtractor: FontTypeExtractor | null = null;
 
 	const cleanup = () => {
+		internalConsumableMap = null;
 		consumableMap = null;
 		fontFileDataMap = null;
 		fontFetcher = null;
@@ -103,11 +114,16 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		modResolver,
 		cssRenderer,
 		urlResolver,
+		createHashResolver,
 	}: {
 		cacheDir: URL;
 		modResolver: RemoteFontProviderModResolver;
 		cssRenderer: CssRenderer;
 		urlResolver: UrlResolver;
+		createHashResolver: (dependencies: {
+			hasher: Hasher;
+			contentResolver: UrlProxyContentResolver;
+		}) => UrlProxyHashResolver;
 	}) {
 		const { root } = settings.config;
 		// Dependencies. Once extracted to a dedicated vite plugin, those may be passed as
@@ -142,6 +158,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		const fontMetricsResolver = createCapsizeFontMetricsResolver({ fontFetcher, cssRenderer });
 		fontTypeExtractor = createFontTypeExtractor({ errorHandler });
 		const fontFileReader = createFontaceFontFileReader({ errorHandler });
+		const stringMatcher = createLevenshteinStringMatcher();
 
 		const res = await orchestrate({
 			families: settings.config.experimental.fonts!,
@@ -155,23 +172,26 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			fontTypeExtractor,
 			fontFileReader,
 			logger,
-			createUrlProxy: ({ local, ...params }) => {
+			createUrlProxy: ({ local, cssVariable, ...params }) => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = local
 					? createLocalUrlProxyContentResolver({ errorHandler })
 					: createRemoteUrlProxyContentResolver();
 				return createUrlProxy({
 					urlResolver,
-					contentResolver,
-					hasher,
+					hashResolver: createHashResolver({ hasher, contentResolver }),
 					dataCollector,
+					cssVariable,
 				});
 			},
 			defaults: DEFAULTS,
+			bold,
+			stringMatcher,
 		});
 		// We initialize shared variables here and reset them in buildEnd
 		// to avoid locking memory
 		fontFileDataMap = res.fontFileDataMap;
+		internalConsumableMap = res.internalConsumableMap;
 		consumableMap = res.consumableMap;
 
 		// Handle CSP
@@ -179,7 +199,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			const algorithm = getAlgorithm(settings.config.experimental.csp);
 
 			// Generate a hash for each style we generate
-			for (const { css } of consumableMap.values()) {
+			for (const { css } of internalConsumableMap.values()) {
 				settings.injectedCsp.styleHashes.push(await generateCspDigest(css, algorithm));
 			}
 			const resources = urlResolver.getCspResources();
@@ -204,6 +224,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 						base: baseUrl,
 						assetsPrefix: settings.config.build.assetsPrefix,
 					}),
+					createHashResolver: (dependencies) => createBuildUrlProxyHashResolver(dependencies),
 				});
 			}
 		},
@@ -214,6 +235,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				modResolver: createDevServerRemoteFontProviderModResolver({ server }),
 				cssRenderer: createMinifiableCssRenderer({ minify: false }),
 				urlResolver: createDevUrlResolver({ base: baseUrl }),
+				createHashResolver: (dependencies) =>
+					createDevUrlProxyHashResolver({
+						baseHashResolver: createBuildUrlProxyHashResolver(dependencies),
+					}),
 			});
 			// The map is always defined at this point. Its values contains urls from remote providers
 			// as well as local paths for the local provider. We filter them to only keep the filepaths
@@ -282,7 +307,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		load(id) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
 				return {
-					code: `export const fontsData = new Map(${JSON.stringify(Array.from(consumableMap?.entries() ?? []))})`,
+					code: `
+						export const internalConsumableMap = new Map(${JSON.stringify(Array.from(internalConsumableMap?.entries() ?? []))});
+						export const consumableMap = new Map(${JSON.stringify(Array.from(consumableMap?.entries() ?? []))});
+					`,
 				};
 			}
 		},

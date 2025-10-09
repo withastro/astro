@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "5.13.7",
+  "version": "5.14.2",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -12,7 +12,7 @@
   },
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
-  "types": "./index.d.ts",
+  "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
       "app": [
@@ -27,10 +27,7 @@
     }
   },
   "exports": {
-    ".": {
-      "types": "./index.d.ts",
-      "default": "./dist/core/index.js"
-    },
+    ".": "./dist/index.js",
     "./env": "./env.d.ts",
     "./env/runtime": "./dist/env/runtime.js",
     "./env/setup": "./dist/env/setup.js",
@@ -63,16 +60,14 @@
     "./assets/services/sharp": "./dist/assets/services/sharp.js",
     "./assets/services/noop": "./dist/assets/services/noop.js",
     "./assets/fonts/providers/*": "./dist/assets/fonts/providers/entrypoints/*.js",
+    "./assets/fonts/runtime": "./dist/assets/fonts/runtime.js",
     "./loaders": "./dist/content/loaders/index.js",
     "./content/config": "./dist/content/config.js",
     "./content/runtime": "./dist/content/runtime.js",
     "./content/runtime-assets": "./dist/content/runtime-assets.js",
     "./debug": "./components/Debug.astro",
     "./package.json": "./package.json",
-    "./zod": {
-      "types": "./zod.d.ts",
-      "default": "./zod.mjs"
-    },
+    "./zod": "./dist/zod.js",
     "./errors": "./dist/core/errors/userError.js",
     "./middleware": "./dist/core/middleware/index.js",
     "./virtual-modules/*": "./dist/virtual-modules/*"
@@ -86,17 +81,13 @@
     "dist",
     "types",
     "astro.js",
-    "index.d.ts",
-    "zod.d.ts",
-    "zod.mjs",
     "env.d.ts",
     "client.d.ts",
     "jsx-runtime.d.ts",
     "templates",
     "astro-jsx.d.ts",
     "types.d.ts",
-    "README.md",
-    "vendor"
+    "README.md"
   ],
   "scripts": {
     "prebuild": "astro-scripts prebuild --to-string \"src/runtime/server/astro-island.ts\" \"src/runtime/client/{idle,load,media,only,visible}.ts\"",
@@ -119,7 +110,7 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
-    "@capsizecss/unpack": "^2.4.0",
+    "@capsizecss/unpack": "^3.0.0",
     "@oslojs/encoding": "^1.1.0",
     "@rollup/pluginutils": "^5.2.0",
     "acorn": "^8.15.0",
@@ -133,7 +124,7 @@
     "cssesc": "^3.0.0",
     "debug": "^4.4.1",
     "deterministic-object-hash": "^2.0.2",
-    "devalue": "^5.1.1",
+    "devalue": "^5.3.2",
     "diff": "^5.2.0",
     "dlv": "^1.1.3",
     "dset": "^3.1.4",
@@ -161,11 +152,11 @@
     "semver": "^7.7.2",
     "shiki": "^3.12.0",
     "smol-toml": "^1.4.2",
-    "tinyexec": "^0.3.2",
+    "tinyexec": "^1.0.1",
     "tinyglobby": "^0.2.14",
     "tsconfck": "^3.1.6",
     "ultrahtml": "^1.6.0",
-    "unifont": "~0.5.2",
+    "unifont": "~0.6.0",
     "unist-util-visit": "^5.0.0",
     "unstorage": "^1.17.0",
     "vfile": "^6.0.3",

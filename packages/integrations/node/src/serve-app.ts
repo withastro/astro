@@ -36,7 +36,9 @@ export function createAppHandler(app: NodeApp, options: Options): RequestHandler
 	return async (req, res, next, locals) => {
 		let request: Request;
 		try {
-			request = NodeApp.createRequest(req);
+			request = NodeApp.createRequest(req, {
+				allowedDomains: app.getAllowedDomains(),
+			});
 		} catch (err) {
 			logger.error(`Could not render ${req.url}`);
 			console.error(err);

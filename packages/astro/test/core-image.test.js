@@ -453,31 +453,28 @@ describe('astro:image', () => {
 
 				it('includes loading and decoding attributes', () => {
 					let $img = $('#remote img');
-					assert.equal(!!$img.attr('loading'), true);
-					assert.equal(!!$img.attr('decoding'), true);
+					assert.ok($img.attr('loading'));
+					assert.ok($img.attr('decoding'));
 				});
 
 				it('includes width and height attributes', () => {
 					let $img = $('#remote img');
-					assert.equal(!!$img.attr('width'), true);
-					assert.equal(!!$img.attr('height'), true);
+					assert.ok($img.attr('width'));
+					assert.ok($img.attr('height'));
 				});
 
 				it('support data: URI', () => {
 					let $img = $('#data-uri img');
-					assert.equal(
-						$img.attr('src'),
-						'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAAAXNSR0IArs4c6QAAAIRlWElmTU0AKgAAAAgABQESAAMAAAABAAEAAAEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEoAAMAAAABAAIAAIdpAAQAAAABAAAAWgAAAAAAAABIAAAAAQAAAEgAAAABAAOgAQADAAAAAQABAACgAgAEAAAAAQAAAA2gAwAEAAAAAQAAAA0AAAAAWvB1rQAAAAlwSFlzAAALEwAACxMBAJqcGAAAAVlpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDYuMC4wIj4KICAgPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICAgICAgPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIKICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KGV7hBwAAAWJJREFUKBVtUDEsQ1EUve+1/SItKYMIkYpF06GJdGAwNFFGkxBEYupssRm6EpvJbpVoYhRd6FBikDSxYECsBpG25D/nvP/+p+Ik551z73v33feuyA/izq5CL8ET8ALcBolYIP+vd0ibX/yAT7uj2qkVzwWzUBa0nbacbkKJHi5dlYhXmARYeAS+MwCWA5FPqKIP/9IH/wiygMru5y5mcRYkPHYKP7gAPw4SDbCjRXMgRBJctM4t4ROriM2QSpmkeOtub6YfMYrZvelykbD1sxJVg+6AfKqURRKQLfA4JvoVWgIjDMNlGLVKZxNRFsZsoHGAgREZHKPlJEi2t7if3r2KKS9nVOo0rtNZ3yR7M/VGTqTy5Y4o/scWHBbKfIq0/eZ+x3850OZpaTTxlu/4D3ssuA72uxrYS2rFYjh+aRbmb24LpTVu1IqVKG8P/lmUEaNMxeh6fmquOhkMBE8JJ2yPfwPjdVhiDbiX6AAAAABJRU5ErkJggg==',
-					);
-					assert.equal(!!$img.attr('width'), true);
-					assert.equal(!!$img.attr('height'), true);
+					assert.ok($img.attr('src').startsWith('/_image?href=data'));
+					assert.ok($img.attr('width'));
+					assert.ok($img.attr('height'));
 				});
 
 				it('support images from public', () => {
 					let $img = $('#public img');
 					assert.equal($img.attr('src'), '/penguin3.jpg');
-					assert.equal(!!$img.attr('width'), true);
-					assert.equal(!!$img.attr('height'), true);
+					assert.ok($img.attr('width'));
+					assert.ok($img.attr('height'));
 				});
 			});
 
@@ -1355,8 +1352,23 @@ describe('astro:image', () => {
 				let response = await app.render(request);
 				const body = await response.text();
 
-				assert.equal(response.status, 500);
-				assert.equal(body.includes('Internal Server Error'), true);
+				// Most paths are malformed local paths (500), but some backslash patterns
+				// are now correctly detected as remote and get 403
+				const { isRemotePath } = await import('@astrojs/internal-helpers/path');
+				const isDetectedAsRemote = isRemotePath(path);
+				const expectedStatus = isDetectedAsRemote ? 403 : 500;
+				const expectedBodyText = isDetectedAsRemote ? 'Forbidden' : 'Internal Server Error';
+
+				assert.equal(
+					response.status,
+					expectedStatus,
+					`Path "${path}" should return ${expectedStatus}`,
+				);
+				assert.equal(
+					body.includes(expectedBodyText),
+					true,
+					`Path "${path}" body should include "${expectedBodyText}"`,
+				);
 			}
 
 			// Server should still be running
@@ -1371,6 +1383,14 @@ describe('astro:image', () => {
 			const src = $('img').attr('src');
 			const imgData = await fixture.readFile('/client' + src, null);
 			assert.equal(imgData instanceof Buffer, true);
+		});
+
+		it('can load images from public dir', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			let request = new Request('http://example.com/_image?href=/penguin3.jpg&f=webp');
+			let response = await app.render(request);
+			assert.equal(response.status, 200);
+			assert.equal(response.headers.get('content-type'), 'image/webp');
 		});
 	});
 

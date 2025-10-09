@@ -112,7 +112,6 @@ export type ContainerRenderOptions = {
 export type AddServerRenderer =
 	| {
 			renderer: NamedSSRLoadedRendererValue;
-			name: never;
 	  }
 	| {
 			renderer: SSRLoadedRendererValue;
@@ -159,6 +158,7 @@ function createManifest(
 		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
 		i18n: manifest?.i18n,
 		checkOrigin: false,
+		allowedDomains: manifest?.allowedDomains ?? [],
 		middleware: manifest?.middleware ?? middlewareInstance,
 		key: createKey(),
 		csp: manifest?.csp,
@@ -248,6 +248,7 @@ type AstroContainerManifest = Pick<
 	| 'outDir'
 	| 'cacheDir'
 	| 'csp'
+	| 'allowedDomains'
 >;
 
 type AstroContainerConstructor = {
@@ -345,7 +346,7 @@ export class experimental_AstroContainer {
 	 * @param options.renderer The server renderer exported by integration.
 	 */
 	public addServerRenderer(options: AddServerRenderer): void {
-		const { renderer, name } = options;
+		const { renderer } = options;
 		if (!renderer.check || !renderer.renderToStaticMarkup) {
 			throw new Error(
 				"The renderer you passed isn't valid. A renderer is usually an object that exposes the `check` and `renderToStaticMarkup` functions.\n" +
@@ -357,11 +358,15 @@ export class experimental_AstroContainer {
 				name: renderer.name,
 				ssr: renderer,
 			});
-		} else {
+		} else if ('name' in options) {
 			this.#pipeline.manifest.renderers.push({
-				name,
+				name: options.name,
 				ssr: renderer,
 			});
+		} else {
+			throw new Error(
+				'The renderer name must be provided when adding a server renderer that is not a named renderer.',
+			);
 		}
 	}
 

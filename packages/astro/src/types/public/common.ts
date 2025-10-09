@@ -9,6 +9,7 @@ import type { APIContext } from './context.js';
  */
 export interface GetStaticPathsOptions {
 	paginate: PaginateFunction;
+	routePattern: string;
 }
 
 export type GetStaticPathsItem = {
