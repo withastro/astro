@@ -53,9 +53,8 @@ export function init(defaultOpts?: InitOptions) {
  * Prefetch links with higher priority when the user taps on them
  */
 function initTapStrategy() {
-	const events = ['touchstart', 'mousedown'];
-	for (const event of events) {
-		document.body.addEventListener(
+	for (const event of ['touchstart', 'mousedown']) {
+		document.addEventListener(
 			event,
 			(e) => {
 				if (elMatchesStrategy(e.target, 'tap')) {
@@ -65,22 +64,6 @@ function initTapStrategy() {
 			{ passive: true },
 		);
 	}
-
-	onPageLoad(() => {
-		for (const anchor of document.getElementsByTagName('a')) {
-			if (listenedAnchors.has(anchor)) continue;
-			if (elMatchesStrategy(anchor, 'tap')) {
-				listenedAnchors.add(anchor);
-				for (const event of events) {
-					anchor.addEventListener(
-						event,
-						(e) => prefetch((e.target as HTMLAnchorElement).href, { ignoreSlowConnection: true }),
-						{ passive: true },
-					);
-				}
-			}
-		}
-	});
 }
 
 /**
