@@ -1,5 +1,13 @@
 # astro
 
+## 5.14.3
+
+### Patch Changes
+
+- [#14505](https://github.com/withastro/astro/pull/14505) [`28b2a1d`](https://github.com/withastro/astro/commit/28b2a1db4f3f265632f280b0dbc4c5f241c387e2) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `Cannot set property manifest` error in test utilities by adding a protected setter for the manifest property
+
+- [#14235](https://github.com/withastro/astro/pull/14235) [`c4d84bb`](https://github.com/withastro/astro/commit/c4d84bb654c9a5064b243e971c3b5b280e2b3791) Thanks [@toxeeec](https://github.com/toxeeec)! - Fixes a bug where the "tap" prefetch strategy worked only on the first clicked link with view transitions enabled
+
 ## 5.14.2
 
 ### Patch Changes
