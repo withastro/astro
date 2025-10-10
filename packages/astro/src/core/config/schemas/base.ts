@@ -510,6 +510,7 @@ export const AstroConfigSchema = z.object({
 								strictDynamic: z.boolean().optional(),
 							})
 							.optional(),
+						collapseHeaders: z.boolean().optional().default(false),
 					}),
 				])
 				.optional()
