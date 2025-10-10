@@ -1,5 +1,11 @@
 # astro
 
+## 5.14.4
+
+### Patch Changes
+
+- [#14509](https://github.com/withastro/astro/pull/14509) [`7e04caf`](https://github.com/withastro/astro/commit/7e04caf9a4a75c75f06c4207fae601a5fd251735) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes an error in the docs that specified an incorrect version for the `security.allowedDomains` release.
+
 ## 5.14.3
 
 ### Patch Changes
