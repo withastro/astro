@@ -83,11 +83,6 @@ const SUPPORTED_NODE_VERSIONS: Record<
 			removal: Date;
 	  }
 > = {
-	18: {
-		status: 'retiring',
-		removal: new Date('September 1 2025'),
-		warnDate: new Date('October 1 2024'),
-	},
 	20: {
 		status: 'available',
 	},
