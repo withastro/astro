@@ -83,31 +83,6 @@ export const fakeFontMetricsResolver = {
 	},
 };
 
-export function createSpyLogger() {
-	/** @type {Array<{ type: string; label: string | null; message: string }>} */
-	const logs = [];
-
-	/** @type {import('../../../../dist/core/logger/core').Logger} */
-	const logger = {
-		debug: (label, ...messages) => {
-			logs.push(...messages.map((message) => ({ type: 'debug', label, message })));
-		},
-		error: (label, message) => {
-			logs.push({ type: 'error', label, message });
-		},
-		info: (label, message) => {
-			logs.push({ type: 'info', label, message });
-		},
-		warn: (label, message) => {
-			logs.push({ type: 'warn', label, message });
-		},
-	};
-	return {
-		logs,
-		logger,
-	};
-}
-
 /**
  * @param {string} input
  */

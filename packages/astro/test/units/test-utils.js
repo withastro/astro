@@ -7,7 +7,7 @@ import { getDefaultClientDirectives } from '../../dist/core/client-directive/ind
 import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
 import { createContainer } from '../../dist/core/dev/container.js';
-import { Logger } from '../../dist/core/logger/core.js';
+import { AstroIntegrationLogger, Logger } from '../../dist/core/logger/core.js';
 import { nodeLogDestination } from '../../dist/core/logger/node.js';
 import { NOOP_MIDDLEWARE_FN } from '../../dist/core/middleware/noop-middleware.js';
 import { Pipeline } from '../../dist/core/render/index.js';
@@ -166,4 +166,40 @@ export async function runInContainer(options = {}, callback) {
 	} finally {
 		await container.close();
 	}
+}
+
+export function createSpyLogger() {
+	/** @type {Array<{ type: string; label: string | null; message: string }>} */
+	const logs = [];
+
+	/** @type {import('../../dist/core/logger/core').Logger} */
+	const logger = {
+		debug: (label, ...messages) => {
+			logs.push(...messages.map((message) => ({ type: 'debug', label, message })));
+		},
+		error: (label, message) => {
+			logs.push({ type: 'error', label, message });
+		},
+		info: (label, message) => {
+			logs.push({ type: 'info', label, message });
+		},
+		warn: (label, message) => {
+			logs.push({ type: 'warn', label, message });
+		},
+		options: {
+			dest: {
+				write: () => true,
+			},
+			level: 'silent',
+		},
+		level: () => 'silent',
+		forkIntegrationLogger(label) {
+			return new AstroIntegrationLogger(this.options, label);
+		},
+	};
+
+	return {
+		logs,
+		logger,
+	};
 }

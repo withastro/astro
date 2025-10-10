@@ -109,9 +109,16 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			return;
 		}
 		case 'create-key': {
-			const { createKey } = await import('./create-key/index.js');
-			const exitCode = await createKey({ flags });
-			return process.exit(exitCode);
+			const [{ createKey }, { createLoggerFromFlags }, { createCryptoKeyGenerator }] =
+				await Promise.all([
+					import('./create-key/core/create-key.js'),
+					import('./flags.js'),
+					import('./create-key/infra/crypto-key-generator.js'),
+				]);
+			const logger = createLoggerFromFlags(flags);
+			const keyGenerator = createCryptoKeyGenerator();
+			await createKey({ logger, keyGenerator });
+			return;
 		}
 		case 'docs': {
 			const { docs } = await import('./docs/index.js');
