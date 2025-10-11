@@ -1,0 +1,9 @@
+---
+export async function getStaticPaths() {
+  return [
+    { params: { tags: 'tags/tag-1' } }, 
+  ];
+}
+const { tags } = Astro.params;
+---
+<span id="tag">{tags}</span>
