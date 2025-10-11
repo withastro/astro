@@ -595,6 +595,7 @@ export interface AstroUserConfig<
 		/**
 		 * @docs
 		 * @name security.allowedDomains
+		 * @kind h4
 		 * @type {RemotePattern[]}
 		 * @default `[]`
 		 * @version 5.14.2
