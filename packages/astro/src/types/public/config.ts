@@ -26,6 +26,8 @@ export type { AstroFontProvider as FontProvider };
 
 export type { CspAlgorithm };
 
+export type { RemotePattern };
+
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
 		? T[K]
@@ -194,10 +196,10 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  * Docs: https://docs.astro.build/reference/configuration-reference/
  *
  * Generics do not follow semver and may change at any time.
- */ export interface AstroUserConfig<
+ */
+export interface AstroUserConfig<
 	TLocales extends Locales = never,
 	TSession extends SessionDriverName = never,
-	TFontFamilies extends FontFamily[] = never,
 > {
 	/**
 	 * @docs
@@ -278,7 +280,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * When redirects occur in production for GET requests, the redirect will be a 301 (permanent) redirect. For all other request methods, it will be a 308 (permanent, and preserve the request method) redirect.
 	 *
 	 * Trailing slashes on prerendered pages are handled by the hosting platform, and may not respect your chosen configuration.
-	 * See your hosting platform's documentation for more information. You cannot use Astro [redirects](#redirects) for this use case at this point.
+	 * See your hosting platform's documentation for more information. You cannot use Astro [redirects](https://docs.astro.build/en/reference/configuration-reference/#redirects) for this use case at this point.
 	 *
 	 * ```js
 	 * {
@@ -372,9 +374,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * @see output
 	 * @description
 	 *
-	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters ([Cloudflare](/en/guides/integrations-guide/cloudflare/), [Netlify](/en/guides/integrations-guide/netlify/), [Node.js](/en/guides/integrations-guide/node/), [Vercel](/en/guides/integrations-guide/vercel/)) or explore [community adapters](https://astro.build/integrations/2/?search=&categories%5B%5D=adapters) to enable on-demand rendering in your Astro project.
+	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters ([Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/), [Netlify](https://docs.astro.build/en/guides/integrations-guide/netlify/), [Node.js](https://docs.astro.build/en/guides/integrations-guide/node/), [Vercel](https://docs.astro.build/en/guides/integrations-guide/vercel/)) or explore [community adapters](https://astro.build/integrations/2/?search=&categories%5B%5D=adapters) to enable on-demand rendering in your Astro project.
 	 *
-	 * See our [on-demand rendering guide](/en/guides/on-demand-rendering/) for more on Astro's server rendering options.
+	 * See our [on-demand rendering guide](https://docs.astro.build/en/guides/on-demand-rendering/) for more on Astro's server rendering options.
 	 *
 	 * ```js
 	 * import netlify from '@astrojs/netlify';
@@ -589,6 +591,46 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 */
 
 		checkOrigin?: boolean;
+
+		/**
+		 * @docs
+		 * @name security.allowedDomains
+		 * @kind h4
+		 * @type {RemotePattern[]}
+		 * @default `[]`
+		 * @version 5.14.2
+		 * @description
+		 *
+		 * Defines a list of permitted host patterns for incoming requests when using SSR. When configured, Astro will validate the `X-Forwarded-Host` header
+		 * against these patterns for security. If the header doesn't match any allowed pattern, the header is ignored and the request's original host is used instead.
+		 *
+		 * This prevents host header injection attacks where malicious actors can manipulate the `Astro.url` value by sending crafted `X-Forwarded-Host` headers.
+		 *
+		 * Each pattern can specify `protocol`, `hostname`, and `port`. All three are validated if provided.
+		 * The patterns support wildcards for flexible hostname matching:
+		 *
+		 * ```js
+		 * {
+		 *   security: {
+		 *     // Example: Allow any subdomain of example.com on https
+		 *     allowedDomains: [
+		 *       {
+		 *         hostname: '**.example.com',
+		 *         protocol: 'https'
+		 *       },
+		 *       {
+		 *         hostname: 'staging.myapp.com',
+		 *         protocol: 'https',
+		 *         port: '443'
+		 *       }
+		 *     ]
+		 *   }
+		 * }
+		 * ```
+		 *
+		 * When not configured, `X-Forwarded-Host` headers are not trusted and will be ignored.
+		 */
+		allowedDomains?: Partial<RemotePattern>[];
 	};
 
 	/**
@@ -660,7 +702,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 *
 		 * This means that when you create relative URLs using `new URL('./relative', Astro.url)`, you will get consistent behavior between dev and build.
 		 *
-		 * To prevent inconsistencies with trailing slash behaviour in dev, you can restrict the [`trailingSlash` option](#trailingslash) to `'always'` or `'never'` depending on your build format:
+		 * To prevent inconsistencies with trailing slash behaviour in dev, you can restrict the [`trailingSlash` option](https://docs.astro.build/en/reference/configuration-reference/#trailingslash) to `'always'` or `'never'` depending on your build format:
 		 * - `directory` - Set `trailingSlash: 'always'`
 		 * - `file` - Set `trailingSlash: 'never'`
 		 */
@@ -1002,7 +1044,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *
 	 * The Unstorage driver to use for session storage.  The [Node](https://docs.astro.build/en/guides/integrations-guide/node/#sessions),
 	 * [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/#sessions), and
-	 * [Netlify](/en/guides/integrations-guide/netlify/#sessions) adapters automatically configure a default driver for you,
+	 * [Netlify](https://docs.astro.build/en/guides/integrations-guide/netlify/#sessions) adapters automatically configure a default driver for you,
 	 * but you can specify your own if you would prefer or if you are using an adapter that does not provide one.
 	 *
 	 * The value is the "Driver name" from the [Unstorage driver documentation](https://unstorage.unjs.io/drivers).
@@ -1145,7 +1187,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 * ```html
 	 * <a href="/about" data-astro-prefetch>About</a>
 	 * ```
-	 * Further customize the default prefetching behavior using the [`prefetch.defaultStrategy`](#prefetchdefaultstrategy) and [`prefetch.prefetchAll`](#prefetchprefetchall) options.
+	 * Further customize the default prefetching behavior using the [`prefetch.defaultStrategy`](https://docs.astro.build/en/reference/configuration-reference/#prefetchdefaultstrategy) and [`prefetch.prefetchAll`](https://docs.astro.build/en/reference/configuration-reference/#prefetchprefetchall) options.
 	 *
 	 * See the [Prefetch guide](https://docs.astro.build/en/guides/prefetch/) for more information.
 	 */
@@ -1279,7 +1321,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @description
 		 * Defines a list of permitted image source domains for remote image optimization. No other remote images will be optimized by Astro.
 		 *
-		 * This option requires an array of individual domain names as strings. Wildcards are not permitted. Instead, use [`image.remotePatterns`](#imageremotepatterns) to define a list of allowed source URL patterns.
+		 * This option requires an array of individual domain names as strings. Wildcards are not permitted. Instead, use [`image.remotePatterns`](https://docs.astro.build/en/reference/configuration-reference/#imageremotepatterns) to define a list of allowed source URL patterns.
 		 *
 		 * ```js
 		 * // astro.config.mjs
@@ -1454,7 +1496,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * });
 		 * ```
 		 *
-		 * See the [code syntax highlighting guide](/en/guides/syntax-highlighting/) for usage and examples.
+		 * See the [code syntax highlighting guide](https://docs.astro.build/en/guides/syntax-highlighting/) for usage and examples.
 		 */
 		shikiConfig?: Partial<ShikiConfig>;
 
@@ -1465,9 +1507,9 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * @default `{ type: 'shiki', excludeLangs: ['math'] }`
 		 * @description
 		 * Which syntax highlighter to use for Markdown code blocks (\`\`\`), if any. This determines the CSS classes that Astro will apply to your Markdown code blocks.
-	 	 * 
+	 	 *
 		 * - `shiki` - use the [Shiki](https://shiki.style) highlighter (`github-dark` theme configured by default)
-		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter and [provide your own Prism stylesheet](/en/guides/syntax-highlighting/#add-a-prism-stylesheet)
+		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter and [provide your own Prism stylesheet](https://docs.astro.build/en/guides/syntax-highlighting/#add-a-prism-stylesheet)
 		 * - `false` - do not apply syntax highlighting.
 
 		 * ```js
@@ -1627,7 +1669,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *
 	 * Configures i18n routing and allows you to specify some customization options.
 	 *
-	 * See our guide for more information on [internationalization in Astro](/en/guides/internationalization/)
+	 * See our guide for more information on [internationalization in Astro](https://docs.astro.build/en/guides/internationalization/)
 	 */
 	i18n?: {
 		/**
@@ -1803,7 +1845,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 					 * @version 4.15.0
 					 * @description
 					 *
-					 * When [`i18n.fallback`](#i18nfallback) is configured to avoid showing a 404 page for missing page routes, this option controls whether to [redirect](https://docs.astro.build/en/guides/routing/#redirects) to the fallback page, or to [rewrite](https://docs.astro.build/en/guides/routing/#rewrites) the fallback page's content in place.
+					 * When [`i18n.fallback`](https://docs.astro.build/en/reference/configuration-reference/#i18nfallback) is configured to avoid showing a 404 page for missing page routes, this option controls whether to [redirect](https://docs.astro.build/en/guides/routing/#redirects) to the fallback page, or to [rewrite](https://docs.astro.build/en/guides/routing/#rewrites) the fallback page's content in place.
 					 *
 					 * By default, Astro's i18n routing creates pages that redirect your visitors to a new destination based on your fallback configuration. The browser will refresh and show the destination address in the URL bar.
 					 *
@@ -1888,7 +1930,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 	 *
 	 * Configuration options for type-safe environment variables.
 	 *
-	 * See our guide for more information on [environment variables in Astro](/en/guides/environment-variables/).
+	 * See our guide for more information on [environment variables in Astro](https://docs.astro.build/en/guides/environment-variables/).
 	 */
 	env?: {
 		/**
@@ -2085,6 +2127,18 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 
 		/**
 		 *
+		 * @name experimental.failOnPrerenderConflict
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.x
+		 * @description
+		 * When two routes generate the same prerendered URL, fail the build instead of skipping one.
+		 * If disabled (default), a warning is logged when conflicts occur and the highest-priority route wins.
+		 */
+		failOnPrerenderConflict?: boolean;
+
+		/**
+		 *
 		 * @name experimental.contentIntellisense
 		 * @type {boolean}
 		 * @default `false`
@@ -2124,7 +2178,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 		 * For a complete overview, and to give feedback on this experimental API,
 		 * see the [Fonts RFC](https://github.com/withastro/roadmap/pull/1039).
 		 */
-		fonts?: [TFontFamilies] extends [never] ? FontFamily[] : TFontFamilies;
+		fonts?: FontFamily[];
 
 		/**
 		 * @name experimental.headingIdCompat

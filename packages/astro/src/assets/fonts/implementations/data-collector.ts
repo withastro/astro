@@ -6,7 +6,10 @@ export function createDataCollector({
 	saveUrl,
 	savePreload,
 	saveFontData,
-}: Omit<CreateUrlProxyParams, 'local'>): DataCollector {
+}: Pick<
+	CreateUrlProxyParams,
+	'hasUrl' | 'saveUrl' | 'savePreload' | 'saveFontData'
+>): DataCollector {
 	return {
 		collect({ hash, url, init, preload, data }) {
 			if (!hasUrl(hash)) {

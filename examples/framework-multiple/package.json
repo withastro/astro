@@ -11,18 +11,18 @@
   },
   "dependencies": {
     "@astrojs/preact": "^4.1.1",
-    "@astrojs/react": "^4.3.1",
+    "@astrojs/react": "^4.4.0",
     "@astrojs/solid-js": "^5.1.1",
-    "@astrojs/svelte": "^7.1.1",
+    "@astrojs/svelte": "^7.2.0",
     "@astrojs/vue": "^5.1.1",
-    "@types/react": "^18.3.24",
+    "@types/react": "^18.3.26",
     "@types/react-dom": "^18.3.7",
-    "astro": "^5.13.8",
+    "astro": "^5.14.4",
     "preact": "^10.27.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "solid-js": "^1.9.9",
-    "svelte": "^5.38.10",
-    "vue": "^3.5.21"
+    "svelte": "^5.39.11",
+    "vue": "^3.5.22"
   }
 }

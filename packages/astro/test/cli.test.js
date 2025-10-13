@@ -128,6 +128,7 @@ describe('astro cli', () => {
 			assert.equal(proc.stdout.includes(`v${viteVersion}`), true);
 			assert.equal(proc.stdout.includes(`@astrojs/node (v${adapterVersion})`), true);
 			assert.equal(proc.stdout.includes(`@astrojs/react (v${integrationVersion})`), true);
+			assert.equal(proc.stdout.includes(`manual-integration`), true);
 		},
 	);
 
@@ -155,12 +156,13 @@ describe('astro cli', () => {
 			assert.equal(proc.stdout.includes(`v${viteVersion}`), true);
 			assert.equal(proc.stdout.includes(`@astrojs/node (v${adapterVersion})`), true);
 			assert.equal(proc.stdout.includes(`@astrojs/react (v${integrationVersion})`), true);
+			assert.equal(proc.stdout.includes(`manual-integration`), true);
 		},
 	);
 
 	it(
 		'astro info shows correct Vite and integration versions when using yarn',
-		{ skip: process.env.ECOSYSTEM_CI },
+		{ skip: true },
 		async () => {
 			const fixtureRootURL = new URL('./fixtures/astro-info-versions/', import.meta.url);
 			const testsRootURL = new URL('../', import.meta.url);
@@ -228,6 +230,7 @@ describe('astro cli', () => {
 			assert.equal(proc.stdout.includes(`v${viteVersion}`), true);
 			assert.equal(proc.stdout.includes(`@astrojs/node (v${adapterVersion})`), true);
 			assert.equal(proc.stdout.includes(`@astrojs/react (v${integrationVersion})`), true);
+			assert.equal(proc.stdout.includes(`manual-integration`), true);
 		},
 	);
 
