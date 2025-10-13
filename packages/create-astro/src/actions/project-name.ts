@@ -11,7 +11,7 @@ export async function projectName(
 	await checkCwd(ctx.cwd);
 
 	if (!ctx.cwd || !isEmpty(ctx.cwd)) {
-		if (ctx.cwd && !isEmpty(ctx.cwd)) {
+		if (!isEmpty(ctx.cwd)) {
 			await info('Hmm...', `${color.reset(`"${ctx.cwd}"`)}${color.dim(` is not empty!`)}`);
 		}
 
