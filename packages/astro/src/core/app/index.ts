@@ -3,6 +3,7 @@ import {
 	hasFileExtension,
 	isInternalPath,
 } from '@astrojs/internal-helpers/path';
+import { matchPattern, type RemotePattern } from '../../assets/utils/remotePattern.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
@@ -137,6 +138,42 @@ export class App {
 		return this.#adapterLogger;
 	}
 
+	getAllowedDomains() {
+		return this.#manifest.allowedDomains;
+	}
+
+	protected get manifest(): SSRManifest {
+		return this.#manifest;
+	}
+
+	protected set manifest(value: SSRManifest) {
+		this.#manifest = value;
+	}
+
+	protected matchesAllowedDomains(forwardedHost: string, protocol?: string): boolean {
+		return App.validateForwardedHost(forwardedHost, this.#manifest.allowedDomains, protocol);
+	}
+
+	static validateForwardedHost(
+		forwardedHost: string,
+		allowedDomains?: Partial<RemotePattern>[],
+		protocol?: string,
+	): boolean {
+		if (!allowedDomains || allowedDomains.length === 0) {
+			return false;
+		}
+
+		try {
+			const testUrl = new URL(`${protocol || 'https'}://${forwardedHost}`);
+			return allowedDomains.some((pattern) => {
+				return matchPattern(testUrl, pattern);
+			});
+		} catch {
+			// Invalid URL
+			return false;
+		}
+	}
+
 	/**
 	 * Creates a pipeline by reading the stored manifest
 	 *
@@ -235,7 +272,7 @@ export class App {
 				this.#manifest.i18n.strategy === 'domains-prefix-always-no-redirect')
 		) {
 			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
-			let host = request.headers.get('X-Forwarded-Host');
+			let forwardedHost = request.headers.get('X-Forwarded-Host');
 			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto
 			let protocol = request.headers.get('X-Forwarded-Proto');
 			if (protocol) {
@@ -245,6 +282,14 @@ export class App {
 				// we fall back to the protocol of the request
 				protocol = url.protocol;
 			}
+
+			// Validate X-Forwarded-Host against allowedDomains if configured
+			if (forwardedHost && !this.matchesAllowedDomains(forwardedHost, protocol?.replace(':', ''))) {
+				// If not allowed, ignore the X-Forwarded-Host header
+				forwardedHost = null;
+			}
+
+			let host = forwardedHost;
 			if (!host) {
 				// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Host
 				host = request.headers.get('Host');

@@ -157,6 +157,7 @@ function createManifest(
 		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
 		i18n: manifest?.i18n,
 		checkOrigin: false,
+		allowedDomains: manifest?.allowedDomains ?? [],
 		middleware: manifest?.middleware ?? middlewareInstance,
 		key: createKey(),
 		csp: manifest?.csp,
@@ -246,6 +247,7 @@ type AstroContainerManifest = Pick<
 	| 'outDir'
 	| 'cacheDir'
 	| 'csp'
+	| 'allowedDomains'
 >;
 
 type AstroContainerConstructor = {

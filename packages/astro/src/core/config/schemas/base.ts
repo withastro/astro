@@ -87,6 +87,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	redirects: {},
 	security: {
 		checkOrigin: true,
+		allowedDomains: [],
 	},
 	env: {
 		schema: {},
@@ -417,6 +418,16 @@ export const AstroConfigSchema = z.object({
 	security: z
 		.object({
 			checkOrigin: z.boolean().default(ASTRO_CONFIG_DEFAULTS.security.checkOrigin),
+			allowedDomains: z
+				.array(
+					z.object({
+						hostname: z.string().optional(),
+						protocol: z.string().optional(),
+						port: z.string().optional(),
+					}),
+				)
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.security.allowedDomains),
 		})
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.security),

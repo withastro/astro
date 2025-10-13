@@ -1,5 +1,15 @@
 # @astrojs/cloudflare
 
+## 12.6.10
+
+### Patch Changes
+
+- [`b8ca69b`](https://github.com/withastro/astro/commit/b8ca69b97149becefaf89bf21853de9c905cdbb7) Thanks [@ascorbic](https://github.com/ascorbic)! - Refactor remote path detection
+
+- Updated dependencies [[`b8ca69b`](https://github.com/withastro/astro/commit/b8ca69b97149becefaf89bf21853de9c905cdbb7)]:
+  - @astrojs/internal-helpers@0.7.4
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 12.6.9
 
 ### Patch Changes
