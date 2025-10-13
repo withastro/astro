@@ -45,7 +45,7 @@ export async function dependencies(
 					)} to install them manually after setup.`,
 				);
 			},
-			while: () => install({ packageManager: ctx.packageManager, cwd: ctx.cwd }),
+			while: () => install({ packageManager: ctx.packageManager, cwd: ctx.cwd! }),
 		});
 
 		let add = ctx.add;
@@ -65,7 +65,7 @@ export async function dependencies(
 					);
 				},
 				while: () =>
-					astroAdd({ integrations: add, packageManager: ctx.packageManager, cwd: ctx.cwd }),
+					astroAdd({ integrations: add, packageManager: ctx.packageManager, cwd: ctx.cwd! }),
 			});
 		}
 	} else {

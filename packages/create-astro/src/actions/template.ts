@@ -144,7 +144,7 @@ async function copyTemplate(tmpl: string, ctx: Context) {
 			});
 
 			// Process the README file to remove marked sections and update package manager
-			const readmePath = path.resolve(ctx.cwd, 'README.md');
+			const readmePath = path.resolve(ctx.cwd!, 'README.md');
 			if (fs.existsSync(readmePath)) {
 				const readme = fs.readFileSync(readmePath, 'utf8');
 				const processedReadme = processTemplateReadme(readme, ctx.packageManager);
@@ -152,9 +152,9 @@ async function copyTemplate(tmpl: string, ctx: Context) {
 			}
 		} catch (err: any) {
 			// Only remove the directory if it's most likely created by us.
-			if (ctx.cwd !== '.' && ctx.cwd !== './' && !ctx.cwd.startsWith('../')) {
+			if (ctx.cwd !== '.' && ctx.cwd !== './' && !ctx.cwd!.startsWith('../')) {
 				try {
-					fs.rmdirSync(ctx.cwd);
+					fs.rmdirSync(ctx.cwd!);
 				} catch (_) {
 					// Ignore any errors from removing the directory,
 					// make sure we throw and display the original error.
@@ -185,13 +185,13 @@ async function copyTemplate(tmpl: string, ctx: Context) {
 
 		// Post-process in parallel
 		const removeFiles = FILES_TO_REMOVE.map(async (file) => {
-			const fileLoc = path.resolve(path.join(ctx.cwd, file));
+			const fileLoc = path.resolve(path.join(ctx.cwd!, file));
 			if (fs.existsSync(fileLoc)) {
 				return fs.promises.rm(fileLoc, { recursive: true });
 			}
 		});
 		const updateFiles = Object.entries(FILES_TO_UPDATE).map(async ([file, update]) => {
-			const fileLoc = path.resolve(path.join(ctx.cwd, file));
+			const fileLoc = path.resolve(path.join(ctx.cwd!, file));
 			if (fs.existsSync(fileLoc)) {
 				return update(fileLoc, { name: ctx.projectName! });
 			}
