@@ -5965,6 +5965,18 @@ importers:
         specifier: ^5.39.3
         version: 5.39.11
 
+  packages/integrations/svelte/test/fixtures/render-warning:
+    dependencies:
+      '@astrojs/svelte':
+        specifier: ^7.1.1
+        version: link:../../..
+      astro:
+        specifier: ^5.13.10
+        version: link:../../../../../astro
+      svelte:
+        specifier: ^5.39.3
+        version: 5.39.11
+
   packages/integrations/vercel:
     dependencies:
       '@astrojs/internal-helpers':

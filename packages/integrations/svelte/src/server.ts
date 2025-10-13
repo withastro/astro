@@ -1,3 +1,4 @@
+import { experimentalAsync } from 'astro:svelte:opts';
 import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
 import { createRawSnippet } from 'svelte';
 import { render } from 'svelte/server';
@@ -55,7 +56,7 @@ async function renderToStaticMarkup(
 		}));
 	}
 
-	const result = await render(Component, {
+	const options = {
 		props: {
 			...props,
 			children,
@@ -63,7 +64,12 @@ async function renderToStaticMarkup(
 			...renderProps,
 		},
 		idPrefix,
-	});
+	};
+
+	// Svelte is very strict about how render() is called, so we need an intermediate function
+	const renderComponent = () => render(Component, options);
+	const result = experimentalAsync ? await renderComponent() : renderComponent();
+
 	return { html: result.body };
 }
 
