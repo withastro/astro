@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-reorder Font.astro content based on capo.js
+Updates the `<Font />` component so that preload links are generated after the style tag, as recommended by capo.js
