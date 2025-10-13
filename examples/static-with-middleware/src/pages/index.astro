@@ -1,17 +1,20 @@
 ---
+import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
-import { getCollection } from "astro:content";
 
-export const entries = await getCollection("entries");
+export const entries = await getCollection('entries');
 ---
 
 <Layout title="Home">
 	<p>This is the homepage</p>
 	<h2 id="h2">Entries</h2>
 	<ul aria-labelledby="h2">
-		{entries.map((entry) => (
-			<li>
-				<a href={`/entries/${entry.id}`}>{entry.data.title}</a>
-			</li>
-		))}
+		{
+			entries.map((entry) => (
+				<li>
+					<a href={`/entries/${entry.id}`}>{entry.data.title}</a>
+				</li>
+			))
+		}
+	</ul>
 </Layout>

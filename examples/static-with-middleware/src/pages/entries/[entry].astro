@@ -12,9 +12,9 @@ export async function getStaticPaths() {
 type Props = CollectionEntry<'entries'>;
 
 const { entry } = Astro.params;
-const post = await getEntry("entries", entry);
+const post = await getEntry('entries', entry);
 if (post === undefined) {
-  return new Response(null, { status: 404 });
+	return new Response(null, { status: 404 });
 }
 const { Content } = await render(post);
 ---
