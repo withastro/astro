@@ -11,7 +11,7 @@ export async function createKey({ logger, keyGenerator }: CreateKeyOptions) {
 
 	logger.info(
 		'crypto',
-		`Generated a key to encrypt props passed to Server islands. To reuse the same key across builds, set this value as ASTRO_KEY in an environment variable on your build server.
+		`Generated a key to encrypt props passed to server islands. To reuse the same key across builds, set this value as ASTRO_KEY in an environment variable on your build server.
 
 ASTRO_KEY=${key}`,
 	);
