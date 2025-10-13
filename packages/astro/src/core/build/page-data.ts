@@ -29,7 +29,8 @@ export function collectPagesData(opts: CollectPagesDataOptions): CollectPagesDat
 	// and is then cached across all future SSR builds. In the past, we've had trouble
 	// with parallelized builds without guaranteeing that this is called first.
 	for (const route of manifest.routes) {
-		// There's special handling in SSR
+		// There's special handling in SSR for default components like 404
+		// However, we need to include 500 pages so they can be properly built with their styles
 		if (DEFAULT_COMPONENTS.some((component) => route.component === component)) {
 			continue;
 		}
