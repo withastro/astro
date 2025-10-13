@@ -9,7 +9,7 @@ import { getName, getVersion } from '../messages.js';
 export interface Context {
 	help: boolean;
 	prompt: typeof prompt;
-	cwd?: string;
+	cwd: string;
 	packageManager: string;
 	username: Promise<string>;
 	version: Promise<string>;
@@ -75,7 +75,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 	);
 
 	const packageManager = detectPackageManager() ?? 'npm';
-	let cwd = flags['_'].at(0);
+	let cwd = flags['_'][0];
 	let {
 		'--help': help = false,
 		'--template': template,
