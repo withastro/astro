@@ -8,7 +8,7 @@ import type { Context } from './context.js';
 export async function git(
 	ctx: Pick<Context, 'cwd' | 'git' | 'yes' | 'prompt' | 'dryRun' | 'tasks'>,
 ) {
-	if (fs.existsSync(path.join(ctx.cwd!, '.git'))) {
+	if (fs.existsSync(path.join(ctx.cwd, '.git'))) {
 		await info('Nice!', `Git has already been initialized`);
 		return;
 	}
@@ -32,7 +32,7 @@ export async function git(
 			start: 'Git initializing...',
 			end: 'Git initialized',
 			while: () =>
-				init({ cwd: ctx.cwd! }).catch((e) => {
+				init({ cwd: ctx.cwd }).catch((e) => {
 					error('error', e);
 					process.exit(1);
 				}),
