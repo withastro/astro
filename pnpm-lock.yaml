@@ -388,6 +388,21 @@ importers:
         specifier: ^0.34.3
         version: 0.34.3
 
+  examples/static-with-middleware:
+    dependencies:
+      '@astrojs/node':
+        specifier: ^9.4.6
+        version: link:../../packages/integrations/node
+      '@astrojs/svelte':
+        specifier: ^7.2.0
+        version: link:../../packages/integrations/svelte
+      astro:
+        specifier: ^5.14.4
+        version: link:../../packages/astro
+      svelte:
+        specifier: ^5.39.11
+        version: 5.39.11
+
   examples/toolbar-app:
     devDependencies:
       '@types/node':
