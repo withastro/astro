@@ -283,8 +283,6 @@ class ContentLayer {
 						},
 						collectionWithResolvedSchema,
 						false,
-						// FUTURE: Remove in this in v6
-						id.endsWith('.svg'),
 					);
 
 					return parsedData;

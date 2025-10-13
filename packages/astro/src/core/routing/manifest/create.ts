@@ -255,12 +255,11 @@ function createFileBasedRoutes(
 }
 
 // Get trailing slash rule for a path, based on the config and whether the path has an extension.
-// TODO: in Astro 6, change endpoints with extentions to use 'never'
 const trailingSlashForPath = (
 	pathname: string | null,
 	config: AstroConfig,
 ): AstroConfig['trailingSlash'] =>
-	pathname && hasFileExtension(pathname) ? 'ignore' : config.trailingSlash;
+	pathname && hasFileExtension(pathname) ? 'never' : config.trailingSlash;
 
 function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): RouteData[] {
 	const { config } = settings;

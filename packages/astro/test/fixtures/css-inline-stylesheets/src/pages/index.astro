@@ -1,10 +1,12 @@
 ---
-import { getEntryBySlug } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 import Button from '../components/Button.astro';
+import Layout from '../layouts/Layout.astro';
 
-const entry = await getEntryBySlug('en', 'endeavour');
-const { Content } = await entry.render();
+const entry = await getEntry('en', 'endeavour');
+const { Content } = await render(entry);
 ---
+<Layout title={entry.data.title}>
 <style>
     #welcome::after {
         content: '🚀'
@@ -15,3 +17,4 @@ const { Content } = await entry.render();
     <Content/>
     <Button>Button used directly in page</Button>
 </main>
+</Layout>

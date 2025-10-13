@@ -1,23 +1,19 @@
 import type { PluginContext } from 'rollup';
 import { z } from 'zod/v3';
 import type { ImageMetadata, OmitBrand } from '../assets/types.js';
-import { emitESMImage } from '../assets/utils/node/emitAsset.js';
+import { emitImageMetadata } from '../assets/utils/node/emitAsset.js';
 
 export function createImage(
 	pluginContext: PluginContext,
 	shouldEmitFile: boolean,
 	entryFilePath: string,
-	experimentalSvgEnabled: boolean,
 ) {
 	return () => {
 		// TODO: check if this works when used in a v4 schema
 		return z.string().transform(async (imagePath, ctx) => {
 			const resolvedFilePath = (await pluginContext.resolve(imagePath, entryFilePath))?.id;
-			const metadata = (await emitESMImage(
+			const metadata = (await emitImageMetadata(
 				resolvedFilePath,
-				pluginContext.meta.watchMode,
-				// FUTURE: Remove in this in v6
-				experimentalSvgEnabled,
 				shouldEmitFile ? pluginContext.emitFile : undefined,
 			)) as OmitBrand<ImageMetadata>;
 

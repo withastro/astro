@@ -1,6 +1,3 @@
-// Keep at the top
-import './polyfill.js';
-
 import type { Context } from '@netlify/functions';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
@@ -11,8 +8,6 @@ setGetEnv((key) => process.env[key]);
 export interface Args {
 	middlewareSecret: string;
 }
-
-const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
 export const createExports = (manifest: SSRManifest, { middlewareSecret }: Args) => {
 	const app = new App(manifest);
@@ -30,7 +25,6 @@ export const createExports = (manifest: SSRManifest, { middlewareSecret }: Args)
 				});
 			}
 
-			Reflect.set(request, clientAddressSymbol, context.ip);
 			let locals: Record<string, unknown> = {};
 
 			const astroLocalsHeader = request.headers.get('x-astro-locals');
@@ -46,7 +40,11 @@ export const createExports = (manifest: SSRManifest, { middlewareSecret }: Args)
 
 			locals.netlify = { context };
 
-			const response = await app.render(request, { routeData, locals });
+			const response = await app.render(request, {
+				routeData,
+				locals,
+				clientAddress: context.ip,
+			});
 
 			if (app.setCookieHeaders) {
 				for (const setCookieHeader of app.setCookieHeaders(response)) {

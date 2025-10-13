@@ -201,23 +201,29 @@ export function defineCollection<S extends BaseSchema>(
 		});
 	}
 
-	if ('loader' in config) {
-		if (config.type && config.type !== CONTENT_LAYER_TYPE) {
-			throw new AstroUserError(
-				`Collections that use the Content Layer API must have a \`loader\` defined and no \`type\` set. Check your collection definitions in ${importerFilename ?? 'your content config file'}.`,
-			);
-		}
-		if (
-			typeof config.loader === 'object' &&
-			typeof config.loader.load !== 'function' &&
-			('loadEntry' in config.loader || 'loadCollection' in config.loader)
-		) {
-			throw new AstroUserError(
-				`Live content collections must be defined in "src/live.config.ts" file. Check your collection definitions in "${importerFilename ?? 'your content config file'}" to ensure you are not using a live loader.`,
-			);
-		}
-		config.type = CONTENT_LAYER_TYPE;
+	if (!('loader' in config)) {
+		throw new AstroError({
+			...AstroErrorData.ContentCollectionMissingLoader,
+			message: AstroErrorData.ContentCollectionMissingLoader.message(importerFilename),
+		});
 	}
-	if (!config.type) config.type = 'content';
+
+	if (config.type && config.type !== CONTENT_LAYER_TYPE) {
+		throw new AstroError({
+			...AstroErrorData.ContentCollectionInvalidType,
+			message: AstroErrorData.ContentCollectionInvalidType.message(config.type, importerFilename),
+		});
+	}
+
+	if (
+		typeof config.loader === 'object' &&
+		typeof config.loader.load !== 'function' &&
+		('loadEntry' in config.loader || 'loadCollection' in config.loader)
+	) {
+		throw new AstroUserError(
+			`Live content collections must be defined in "src/live.config.ts" file. Check your collection definitions in "${importerFilename ?? 'your content config file'}" to ensure you are not using a live loader.`,
+		);
+	}
+	config.type = CONTENT_LAYER_TYPE;
 	return config;
 }

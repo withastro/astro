@@ -953,6 +953,7 @@ export const LocalImageUsedWrongly = {
  * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
  * @description
  * `Astro.glob()` can only be used in `.astro` files. You can use [`import.meta.glob()`](https://vite.dev/guide/features.html#glob-import) instead to achieve the same result.
+ * @deprecated This error was removed in Astro v6.0.0 along with the removal of `Astro.glob()`.
  */
 export const AstroGlobUsedOutside = {
 	name: 'AstroGlobUsedOutside',
@@ -968,6 +969,7 @@ export const AstroGlobUsedOutside = {
  * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
  * @description
  * `Astro.glob()` did not return any matching files. There might be a typo in the glob pattern.
+ * @deprecated This error was removed in Astro v6.0.0 along with the removal of `Astro.glob()`.
  */
 export const AstroGlobNoMatch = {
 	name: 'AstroGlobNoMatch',
@@ -1077,6 +1079,7 @@ export const FailedToLoadModuleSSR = {
  * - [Glob Patterns](https://docs.astro.build/en/guides/imports/#glob-patterns)
  * @description
  * Astro encountered an invalid glob pattern. This is often caused by the glob pattern not being a valid file path.
+ * @deprecated This error was removed in Astro v6.0.0 along with the removal of `Astro.glob()`.
  */
 export const InvalidGlob = {
 	name: 'InvalidGlob',
@@ -1416,6 +1419,20 @@ export const CspNotEnabled = {
 
 /**
  * @docs
+ * @description
+ * Unavailable Astro global in getStaticPaths
+ * @message
+ * The Astro global is not available in getStaticPaths().
+ */
+export const UnavailableAstroGlobal = {
+	name: 'UnavailableAstroGlobal',
+	title: 'Unavailable Astro global in getStaticPaths()',
+	message: (name: string) =>
+		`The Astro global is not available in this scope. Please remove "Astro.${name}" from your getStaticPaths() function.`,
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @kind heading
  * @name CSS Errors
  */
@@ -1609,14 +1626,14 @@ export const RenderUndefinedEntryError = {
 /**
  * @docs
  * @description
- * The `getDataEntryById` and `getEntryBySlug` functions are deprecated and cannot be used with content layer collections. Use the `getEntry` function instead.
+ * The `getDataEntryById` and `getEntryBySlug` functions are deprecated and cannot be used with content collections. Use the `getEntry` function instead.
  */
 export const GetEntryDeprecationError = {
 	name: 'GetEntryDeprecationError',
 	title: 'Invalid use of `getDataEntryById` or `getEntryBySlug` function.',
 	message: (collection: string, method: string) =>
 		`The \`${method}\` function is deprecated and cannot be used to query the "${collection}" collection. Use \`getEntry\` instead.`,
-	hint: 'Use the `getEntry` or `getCollection` functions to query content layer collections.',
+	hint: 'See https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information.',
 } satisfies ErrorData;
 
 /**
@@ -1631,6 +1648,7 @@ export const GetEntryDeprecationError = {
  * Make sure that all required fields are present, and that all fields are of the correct type.
  * You can check against the collection schema in your `src/content.config.*` file.
  * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
+ * @deprecated This error only applies to legacy content collections which were removed in Astro 6.
  */
 export const InvalidContentEntryFrontmatterError = {
 	name: 'InvalidContentEntryFrontmatterError',
@@ -1650,7 +1668,7 @@ export const InvalidContentEntryFrontmatterError = {
  * @docs
  * @message
  * **Example error message:**<br/>
- * **blog** → **post** frontmatter does not match collection schema.<br/>
+ * **blog** → **post** data does not match collection schema.<br/>
  * "title" is required.<br/>
  * "date" must be a valid date.
  * @description
@@ -1670,6 +1688,60 @@ export const InvalidContentEntryDataError = {
 		].join('\n');
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * Found legacy content config file in "src/content/config.ts". Please move this file to "src/content.config.ts" and ensure each collection has a loader defined.<br/>
+ * @description
+ * A legacy content config file was found. Move the file to `src/content.config.ts` and update any collection definitions if needed.
+ * See the [Astro 6 migration guide](https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections) for more information.
+ */
+
+export const LegacyContentConfigError = {
+	name: 'LegacyContentConfigError',
+	title: 'Legacy content config file found.',
+	message: (filename: string) =>
+		`Found legacy content config file in "${filename}". Please move this file to "src/content.config.${filename.split('.').at(-1)}" and ensure each collection has a loader defined.`,
+	hint: 'See https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on updating collections.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * Collections must have a `loader` defined. Check your collection definitions in your content config file.<br/>
+ * @description
+ * A content collection is missing a `loader` definition. Make sure that each collection in your content config file has a `loader`.
+ * See the [Content collections documentation](https://docs.astro.build/en/guides/content-collections/) for more information.
+ */
+
+export const ContentCollectionMissingLoader = {
+	name: 'ContentCollectionMissingLoader',
+	title: 'Content collection is missing a `loader` definition.',
+	message: (file = 'your content config file') =>
+		`Collections must have a \`loader\` defined. Check your collection definitions in ${file}.`,
+	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content loaders and https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on migrating from legacy collections.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message
+ * **Example error message:**<br/>
+ * Invalid collection type "data". Remove the type from your collection definition in your content config file.
+ * @description
+ * Content collections should no longer have a `type` field. Remove this field from your content config file.
+ * See the [Astro 6 migration guide](https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections) for more information.
+ */
+
+export const ContentCollectionInvalidType = {
+	name: 'ContentCollectionInvalidType',
+	title: 'Content collection has an invalid `type` field.',
+	message: (type: string, file = 'your content config file') =>
+		`Invalid collection type "${type}". Remove the type from your collection definition in ${file}.`,
+	hint: 'See https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on migrating from legacy collections.',
 } satisfies ErrorData;
 
 /**
@@ -2013,54 +2085,6 @@ export const SessionStorageSaveError = {
 	title: 'Session data could not be saved.',
 	message: (error: string, driver?: string) =>
 		`Error when saving session data${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
-	hint: 'For more information, see https://docs.astro.build/en/guides/sessions/',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @see
- * 	- [Sessions](https://docs.astro.build/en/guides/sessions/)
- * @deprecated This error was removed in Astro 5.7, when the Sessions feature stopped being experimental.
- * @description
- * Your adapter must support server output to use sessions.
- */
-export const SessionWithoutSupportedAdapterOutputError = {
-	name: 'SessionWithoutSupportedAdapterOutputError',
-	title: "Sessions cannot be used with an adapter that doesn't support server output.",
-	message:
-		'Sessions require an adapter that supports server output. The adapter must set `"server"` in the `buildOutput` adapter feature.',
-	hint: 'Ensure your adapter supports `buildOutput: "server"`: https://docs.astro.build/en/reference/adapter-reference/#building-an-adapter',
-} satisfies ErrorData;
-/**
- * @docs
- * @message The `experimental.session` flag was set to `true`, but no storage was configured. Either configure the storage manually or use an adapter that provides session storage.
- * @deprecated This error was removed in Astro 5.7, when the Sessions feature stopped being experimental.
- * @see
- * 	- [Sessions](https://docs.astro.build/en/guides/sessions/)
- * @description
- * Thrown when session storage is enabled but not configured.
- */
-export const SessionConfigMissingError = {
-	name: 'SessionConfigMissingError',
-	title: 'Session storage was enabled but not configured.',
-	message:
-		'The `experimental.session` flag was set to `true`, but no storage was configured. Either configure the storage manually or use an adapter that provides session storage',
-	hint: 'For more information, see https://docs.astro.build/en/guides/sessions/',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @message Session config was provided without enabling the `experimental.session` flag
- * @deprecated This error was removed in Astro 5.7, when the Sessions feature stopped being experimental.
- * @see
- * 	- [Sessions](https://docs.astro.build/en/guides/sessions/)
- * @description
- * Thrown when session storage is configured but the `experimental.session` flag is not enabled.
- */
-export const SessionConfigWithoutFlagError = {
-	name: 'SessionConfigWithoutFlagError',
-	title: 'Session flag not set',
-	message: 'Session config was provided without enabling the `experimental.session` flag',
 	hint: 'For more information, see https://docs.astro.build/en/guides/sessions/',
 } satisfies ErrorData;
 

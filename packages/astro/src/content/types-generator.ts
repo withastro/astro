@@ -2,13 +2,12 @@ import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { bold, cyan } from 'kleur/colors';
-import { glob } from 'tinyglobby';
 import { normalizePath, type ViteDevServer } from 'vite';
 import * as z3 from 'zod/v3';
 import type * as z4 from 'zod/v4/core';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { AstroError } from '../core/errors/errors.js';
-import { AstroErrorData, AstroUserError } from '../core/errors/index.js';
+import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -17,7 +16,7 @@ import {
 	COLLECTIONS_DIR,
 	CONTENT_LAYER_TYPE,
 	CONTENT_TYPES_FILE,
-	LIVE_CONTENT_TYPE,
+	type LIVE_CONTENT_TYPE,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
 import {
@@ -89,33 +88,9 @@ export async function createContentTypesGenerator({
 
 	const typeTemplateContent = await fs.promises.readFile(contentPaths.typesTemplate, 'utf-8');
 
-	async function init(): Promise<
-		{ typesGenerated: true } | { typesGenerated: false; reason: 'no-content-dir' }
-	> {
+	async function init(): Promise<void> {
 		events.push({ name: 'add', entry: contentPaths.config.url });
-
-		if (settings.config.legacy.collections) {
-			if (!fs.existsSync(contentPaths.contentDir)) {
-				return { typesGenerated: false, reason: 'no-content-dir' };
-			}
-			const globResult = await glob('**', {
-				cwd: fileURLToPath(contentPaths.contentDir),
-				absolute: true,
-			});
-
-			for (const fullPath of globResult) {
-				const entryURL = pathToFileURL(fullPath);
-				if (entryURL.href.startsWith(contentPaths.config.url.href)) continue;
-				const stat = fs.statSync(fullPath);
-				if (stat.isFile()) {
-					events.push({ name: 'add', entry: entryURL });
-				} else if (stat.isDirectory()) {
-					events.push({ name: 'addDir', entry: entryURL });
-				}
-			}
-		}
 		await runEvents();
-		return { typesGenerated: true };
 	}
 
 	async function handleEvent(event: ContentEvent): Promise<{ shouldGenerateTypes: boolean }> {
@@ -294,11 +269,7 @@ export async function createContentTypesGenerator({
 			name: rawEvent.name,
 		};
 
-		if (settings.config.legacy.collections) {
-			if (!event.entry.pathname.startsWith(contentPaths.contentDir.pathname)) {
-				return;
-			}
-		} else if (contentPaths.config.url.pathname !== event.entry.pathname) {
+		if (contentPaths.config.url.pathname !== event.entry.pathname) {
 			return;
 		}
 
@@ -406,29 +377,28 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	if (collection?.schema) {
 		return `InferEntrySchema<${collectionKey}>`;
 	}
-
-	if (collection?.type === CONTENT_LAYER_TYPE) {
-		const schema = await getContentLayerSchema(collection, collectionKey);
-		if (schema) {
-			if ('_zod' in schema) {
-				// const jsonSchema = z4.toJSONSchema(schema);
-				// TODO: use https://github.com/bcherny/json-schema-to-typescript
-			} else {
-				try {
-					const zodToTs = await import('zod-to-ts');
-					const ast = zodToTs.zodToTs(schema);
-					return zodToTs.printNode(ast.node);
-				} catch (err: any) {
-					// zod-to-ts is sad if we don't have TypeScript installed, but that's fine as we won't be needing types in that case
-					if (err.message.includes("Cannot find package 'typescript'")) {
-						return 'any';
-					}
-					throw err;
-				}
-			}
-		}
+	if (!collection?.type) {
+		return 'any';
 	}
-	return 'any';
+	const schema = await getContentLayerSchema(collection, collectionKey);
+	if (!schema) {
+		return 'any';
+	}
+	if ('_zod' in schema) {
+		// const jsonSchema = z4.toJSONSchema(schema);
+		// TODO: use https://github.com/bcherny/json-schema-to-typescript
+	}
+	try {
+		const zodToTs = await import('zod-to-ts');
+		const ast = zodToTs.zodToTs(schema);
+		return zodToTs.printNode(ast.node);
+	} catch (err: any) {
+		// zod-to-ts is sad if we don't have TypeScript installed, but that's fine as we won't be needing types in that case
+		if (err.message.includes("Cannot find package 'typescript'")) {
+			return 'any';
+		}
+		throw err;
+	}
 }
 
 async function writeContentFiles({
@@ -452,7 +422,6 @@ async function writeContentFiles({
 	logger: Logger;
 	settings: AstroSettings;
 }) {
-	let contentTypesStr = '';
 	let dataTypesStr = '';
 
 	const collectionSchemasDir = new URL(COLLECTIONS_DIR, settings.dotAstroDir);
@@ -495,56 +464,10 @@ async function writeContentFiles({
 			});
 			return;
 		}
-		const resolvedType =
-			collection.type === 'unknown'
-				? // Add empty / unknown collections to the data type map by default
-					// This ensures `getCollection('empty-collection')` doesn't raise a type error
-					(collectionConfig?.type ?? 'data')
-				: collection.type;
-		const collectionEntryKeys = Object.keys(collection.entries).sort();
+
 		const dataType = await typeForCollection(collectionConfig, collectionKey);
-		switch (resolvedType) {
-			case LIVE_CONTENT_TYPE:
-				// This error should never be thrown, as it should have been caught earlier in the process
-				throw new AstroUserError(
-					`Invalid definition for collection ${collectionKey}: Live content collections must be defined in "src/live.config.ts"`,
-				);
-			case 'content':
-				if (collectionEntryKeys.length === 0) {
-					contentTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  slug: string;\n  body: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  render(): Render[".md"];\n}>;\n`;
-					break;
-				}
-				contentTypesStr += `${collectionKey}: {\n`;
-				for (const entryKey of collectionEntryKeys) {
-					const entryMetadata = collection.entries[entryKey];
-					const renderType = `{ render(): Render[${JSON.stringify(
-						path.extname(JSON.parse(entryKey)),
-					)}] }`;
 
-					const slugType = JSON.stringify(entryMetadata.slug);
-					contentTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  slug: ${slugType};\n  body: string;\n  collection: ${collectionKey};\n  data: ${dataType}\n} & ${renderType};\n`;
-				}
-				contentTypesStr += `};\n`;
-				break;
-			case CONTENT_LAYER_TYPE:
-				const legacyTypes = (collectionConfig as any)?._legacy
-					? 'render(): Render[".md"];\n  slug: string;\n  body: string;\n'
-					: 'body?: string;\n';
-				dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  ${legacyTypes}  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent;\n  filePath?: string;\n}>;\n`;
-				break;
-			case 'data':
-				if (collectionEntryKeys.length === 0) {
-					dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n}>;\n`;
-				} else {
-					dataTypesStr += `${collectionKey}: {\n`;
-					for (const entryKey of collectionEntryKeys) {
-						dataTypesStr += `${entryKey}: {\n	id: ${entryKey};\n  collection: ${collectionKey};\n  data: ${dataType}\n};\n`;
-					}
-					dataTypesStr += `};\n`;
-				}
-
-				break;
-		}
+		dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  body?: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent;\n  filePath?: string;\n}>;\n`;
 
 		if (
 			collectionConfig &&
@@ -605,7 +528,6 @@ async function writeContentFiles({
 		}
 	}
 	typeTemplateContent = typeTemplateContent
-		.replace('// @@CONTENT_ENTRY_MAP@@', contentTypesStr)
 		.replace('// @@DATA_ENTRY_MAP@@', dataTypesStr)
 		.replace(
 			"'@@CONTENT_CONFIG_TYPE@@'",

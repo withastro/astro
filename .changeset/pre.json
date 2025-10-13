@@ -1,0 +1,31 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "astro": "5.13.7",
+    "@astrojs/prism": "3.3.0",
+    "@astrojs/rss": "4.0.12",
+    "create-astro": "4.13.1",
+    "@astrojs/db": "0.17.2",
+    "@astrojs/alpinejs": "0.4.9",
+    "@astrojs/cloudflare": "12.6.8",
+    "@astrojs/markdoc": "0.15.6",
+    "@astrojs/mdx": "4.3.5",
+    "@astrojs/netlify": "6.5.10",
+    "@astrojs/node": "9.4.3",
+    "@astrojs/partytown": "2.1.4",
+    "@astrojs/preact": "4.1.1",
+    "@astrojs/react": "4.3.1",
+    "@astrojs/sitemap": "3.5.1",
+    "@astrojs/solid-js": "5.1.1",
+    "@astrojs/svelte": "7.1.1",
+    "@astrojs/vercel": "8.2.7",
+    "@astrojs/vue": "5.1.1",
+    "@astrojs/internal-helpers": "0.7.2",
+    "@astrojs/markdown-remark": "6.3.6",
+    "@astrojs/telemetry": "3.3.0",
+    "@astrojs/underscore-redirects": "1.0.0",
+    "@astrojs/upgrade": "0.6.2"
+  },
+  "changesets": []
+}
