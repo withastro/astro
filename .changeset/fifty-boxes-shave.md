@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fix to defineLiveCollection type
+Fixes `defineLiveCollection()` types
