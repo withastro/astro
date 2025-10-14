@@ -1,3 +1,4 @@
+import { experimentalZod4 } from 'virtual:astro:actions/options';
 import * as z3 from 'zod/v3';
 import * as z4 from 'zod/v4/core';
 import type { Pipeline } from '../../../core/base-pipeline.js';
@@ -136,6 +137,10 @@ function getFormServerHandler<TOutput, TInputSchema extends z3.ZodType | z4.$Zod
 
 		if (!inputSchema) return await handler(unparsedInput, context);
 
+		if ('_zod' in inputSchema && !experimentalZod4) {
+			// TODO: throw astro error
+		}
+
 		let parsed;
 		if ('_zod' in inputSchema) {
 			const baseSchema = unwrapBaseZ4ObjectSchema(inputSchema, unparsedInput);
@@ -249,7 +254,6 @@ export function formDataToZ4Object<T extends z4.$ZodObject>(
 			}
 			validator = validator._zod.def.innerType;
 		}
-		
 
 		if (!formData.has(key) && key in obj) {
 			// continue loop if form input is not found and default value is set
@@ -281,11 +285,7 @@ function handleZ3FormDataGetAll(
 	return entries;
 }
 
-function handleZ4FormDataGetAll(
-	key: string,
-	formData: FormData,
-	validator: z4.$ZodArray,
-) {
+function handleZ4FormDataGetAll(key: string, formData: FormData, validator: z4.$ZodArray) {
 	const entries = Array.from(formData.getAll(key));
 	const elementValidator = validator._zod.def.element;
 	if (elementValidator instanceof z4.$ZodNumber) {

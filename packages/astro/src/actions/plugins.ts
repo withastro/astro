@@ -9,7 +9,9 @@ import type { AstroSettings } from '../types/astro.js';
 import {
 	ASTRO_ACTIONS_INTERNAL_MODULE_ID,
 	NOOP_ACTIONS,
+	OPTIONS_VIRTUAL_MODULE_ID,
 	RESOLVED_ASTRO_ACTIONS_INTERNAL_MODULE_ID,
+	RESOLVED_OPTIONS_VIRTUAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
@@ -95,6 +97,9 @@ export function vitePluginActions({
 			if (id === VIRTUAL_MODULE_ID) {
 				return RESOLVED_VIRTUAL_MODULE_ID;
 			}
+			if (id === OPTIONS_VIRTUAL_MODULE_ID) {
+				return RESOLVED_OPTIONS_VIRTUAL_MODULE_ID;
+			}
 		},
 		async configureServer(server) {
 			const filePresentOnStartup = await isActionsFilePresent(fs, settings.config.srcDir);
@@ -109,24 +114,22 @@ export function vitePluginActions({
 			server.watcher.on('change', watcherCallback);
 		},
 		async load(id, opts) {
-			if (id !== RESOLVED_VIRTUAL_MODULE_ID) return;
-
-			let code = await fs.promises.readFile(
-				new URL('../../templates/actions.mjs', import.meta.url),
-				'utf-8',
-			);
-			if (opts?.ssr) {
-				code += `\nexport * from 'astro/actions/runtime/virtual/server.js';`;
-			} else {
-				code += `\nexport * from 'astro/actions/runtime/virtual/client.js';`;
+			if (id === RESOLVED_OPTIONS_VIRTUAL_MODULE_ID) {
+				return {
+					code: `
+						export const shouldAppendTrailingSlash = ${JSON.stringify(
+							shouldAppendForwardSlash(settings.config.trailingSlash, settings.config.build.format),
+						)};
+						export const experimentalZod4 = ${JSON.stringify(settings.config.experimental.zod4)};
+					`,
+				};
 			}
-			code = code.replace(
-				"'/** @TRAILING_SLASH@ **/'",
-				JSON.stringify(
-					shouldAppendForwardSlash(settings.config.trailingSlash, settings.config.build.format),
-				),
-			);
-			return { code };
+
+			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+				return {
+					code: `export * from 'astro/actions/runtime/virtual/${opts?.ssr ? 'server' : 'client'}.js';`,
+				};
+			}
 		},
 	};
 }

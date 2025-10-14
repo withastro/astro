@@ -8,3 +8,8 @@ declare module 'virtual:astro:assets/fonts/internal' {
 	export const internalConsumableMap: import('./src/assets/fonts/types.js').InternalConsumableMap;
 	export const consumableMap: import('./src/assets/fonts/types.js').ConsumableMap;
 }
+
+declare module 'virtual:astro:actions/options' {
+	export const shouldAppendTrailingSlash: boolean;
+	export const experimentalZod4: boolean;
+}
