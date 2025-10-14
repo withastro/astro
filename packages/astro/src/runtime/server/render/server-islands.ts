@@ -187,7 +187,7 @@ export class ServerIslandComponent {
 		}
 
 		// Get adapter headers for inline script
-		const adapterHeaders = this.result.manifest.internalFetchHeaders || {};
+		const adapterHeaders = this.result.internalFetchHeaders || {};
 		const headersJson = safeJsonStringify(adapterHeaders);
 
 		const method = useGETRequest

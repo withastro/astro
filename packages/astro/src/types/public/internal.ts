@@ -1,7 +1,7 @@
 // TODO: Should the types here really be public?
 
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
-import type { SSRManifest, SSRManifestCSP } from '../../core/app/types.js';
+import type { SSRManifestCSP } from '../../core/app/types.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
 import type { AstroComponentInstance, ServerIslandComponent } from '../../runtime/server/index.js';
 import type { Params } from './common.js';
@@ -270,7 +270,7 @@ export interface SSRResult {
 	styleResources: SSRManifestCSP['styleResources'];
 	directives: SSRManifestCSP['directives'];
 	isStrictDynamic: SSRManifestCSP['isStrictDynamic'];
-	manifest: SSRManifest;
+	internalFetchHeaders?: Record<string, string>;
 }
 
 /**
