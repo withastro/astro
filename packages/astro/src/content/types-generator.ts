@@ -387,10 +387,11 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	if ('_zod' in schema) {
 		// const jsonSchema = z4.toJSONSchema(schema);
 		// TODO: use https://github.com/bcherny/json-schema-to-typescript
+		return 'any'
 	}
 	try {
 		const zodToTs = await import('zod-to-ts');
-		const ast = zodToTs.zodToTs(schema);
+		const ast = zodToTs.zodToTs(schema as any);
 		return zodToTs.printNode(ast.node);
 	} catch (err: any) {
 		// zod-to-ts is sad if we don't have TypeScript installed, but that's fine as we won't be needing types in that case
