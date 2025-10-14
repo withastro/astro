@@ -27,41 +27,41 @@ function getImporterFilename() {
 }
 
 // This needs to be in sync with ImageMetadata
-export type ImageFunction = () =>
-	| z3.ZodObject<{
-			src: z3.ZodString;
-			width: z3.ZodNumber;
-			height: z3.ZodNumber;
-			format: z3.ZodUnion<
-				[
-					z3.ZodLiteral<'png'>,
-					z3.ZodLiteral<'jpg'>,
-					z3.ZodLiteral<'jpeg'>,
-					z3.ZodLiteral<'tiff'>,
-					z3.ZodLiteral<'webp'>,
-					z3.ZodLiteral<'gif'>,
-					z3.ZodLiteral<'svg'>,
-					z3.ZodLiteral<'avif'>,
-				]
-			>;
-	  }>
-	| z4.$ZodObject<{
-			src: z4.$ZodString;
-			width: z4.$ZodNumber;
-			height: z4.$ZodNumber;
-			format: z4.$ZodUnion<
-				[
-					z4.$ZodLiteral<'png'>,
-					z4.$ZodLiteral<'jpg'>,
-					z4.$ZodLiteral<'jpeg'>,
-					z4.$ZodLiteral<'tiff'>,
-					z4.$ZodLiteral<'webp'>,
-					z4.$ZodLiteral<'gif'>,
-					z4.$ZodLiteral<'svg'>,
-					z4.$ZodLiteral<'avif'>,
-				]
-			>;
-	  }>;
+type Z3ImageFunction = () => z3.ZodObject<{
+	src: z3.ZodString;
+	width: z3.ZodNumber;
+	height: z3.ZodNumber;
+	format: z3.ZodUnion<
+		[
+			z3.ZodLiteral<'png'>,
+			z3.ZodLiteral<'jpg'>,
+			z3.ZodLiteral<'jpeg'>,
+			z3.ZodLiteral<'tiff'>,
+			z3.ZodLiteral<'webp'>,
+			z3.ZodLiteral<'gif'>,
+			z3.ZodLiteral<'svg'>,
+			z3.ZodLiteral<'avif'>,
+		]
+	>;
+}>;
+// This needs to be in sync with ImageMetadata
+type Z4ImageFunction = () => z4.$ZodObject<{
+	src: z4.$ZodString;
+	width: z4.$ZodNumber;
+	height: z4.$ZodNumber;
+	format: z4.$ZodUnion<
+		[
+			z4.$ZodLiteral<'png'>,
+			z4.$ZodLiteral<'jpg'>,
+			z4.$ZodLiteral<'jpeg'>,
+			z4.$ZodLiteral<'tiff'>,
+			z4.$ZodLiteral<'webp'>,
+			z4.$ZodLiteral<'gif'>,
+			z4.$ZodLiteral<'svg'>,
+			z4.$ZodLiteral<'avif'>,
+		]
+	>;
+}>;
 
 export interface DataEntry {
 	id: string;
@@ -90,31 +90,6 @@ export interface MetaStore {
 
 export type BaseSchema = z3.ZodType | z4.$ZodType;
 
-export type SchemaContext = { image: ImageFunction };
-
-type ContentLayerConfig<S extends BaseSchema, TData extends { id: string } = { id: string }> = {
-	type?: 'content_layer';
-	schema?: S | ((context: SchemaContext) => S);
-	loader:
-		| Loader
-		| (() =>
-				| Array<TData>
-				| Promise<Array<TData>>
-				| Record<string, Omit<TData, 'id'> & { id?: string }>
-				| Promise<Record<string, Omit<TData, 'id'> & { id?: string }>>);
-};
-
-type DataCollectionConfig<S extends BaseSchema> = {
-	type: 'data';
-	schema?: S | ((context: SchemaContext) => S);
-};
-
-type ContentCollectionConfig<S extends BaseSchema> = {
-	type?: 'content';
-	schema?: S | ((context: SchemaContext) => S);
-	loader?: never;
-};
-
 export type LiveCollectionConfig<
 	L extends LiveLoader,
 	S extends BaseSchema | undefined = undefined,
@@ -124,10 +99,19 @@ export type LiveCollectionConfig<
 	loader: L;
 };
 
-export type CollectionConfig<S extends BaseSchema> =
-	| ContentCollectionConfig<S>
-	| DataCollectionConfig<S>
-	| ContentLayerConfig<S>;
+export type CollectionConfig<S extends BaseSchema> = {
+	type?: 'content_layer';
+	schema?:
+		| S
+		| ((context: { image: NoInfer<S> extends z4.$ZodType ? Z4ImageFunction : Z3ImageFunction }) => S);
+	loader:
+		| Loader
+		| (() =>
+				| Array<{ id: string }>
+				| Promise<Array<{ id: string }>>
+				| Record<string, { id?: string }>
+				| Promise<Record<string, { id?: string }>>);
+};
 
 export function defineLiveCollection<
 	L extends LiveLoader,
@@ -188,9 +172,15 @@ export function defineLiveCollection<
 	return config;
 }
 
-export function defineCollection<S extends BaseSchema>(
+export function defineCollection<S extends z4.$ZodType>(
 	config: CollectionConfig<S>,
-): CollectionConfig<S> {
+): CollectionConfig<S>;
+export function defineCollection<S extends z3.ZodType>(
+	config: CollectionConfig<S>,
+): CollectionConfig<S>;
+export function defineCollection(
+	config: CollectionConfig<BaseSchema>,
+): CollectionConfig<BaseSchema> {
 	const importerFilename = getImporterFilename();
 
 	if (importerFilename?.includes('live.config')) {

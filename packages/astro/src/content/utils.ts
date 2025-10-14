@@ -157,11 +157,16 @@ export async function getEntryDataAndImages<
 				imageImports.add(val);
 				return `${IMAGE_IMPORT_PREFIX}${val}`;
 			};
-			schema = schema({
-				image: experimentalZod4
-					? () => z4.string().transform(transform)
-					: () => z3.string().transform(transform),
-			});
+			try {
+				schema = schema({
+					image: experimentalZod4
+						? () => z4.string().transform(transform)
+						: () => z3.string().transform(transform),
+				});
+			} catch (e) {
+				// TODO: intercept zod error
+				throw e;
+			}
 		}
 	}
 
