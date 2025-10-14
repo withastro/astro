@@ -65,6 +65,12 @@ export function isRelativePath(path: string) {
 	return startsWithDotDotSlash(path) || startsWithDotSlash(path);
 }
 
+export function isAbsolutePath(path: string) {
+	// Unix absolute paths start with /
+	// Windows absolute paths start with drive letter (C:, D:, etc)
+	return startsWithForwardSlash(path) || /^[a-zA-Z]:/.test(path);
+}
+
 function isString(path: unknown): path is string {
 	return typeof path === 'string' || path instanceof String;
 }
@@ -102,44 +108,132 @@ export function removeQueryString(path: string) {
 }
 
 /**
- * Regex that matches the following URLs like:
- * - http://example.com
- * - https://example.com
- * - ftp://example.com
- * - ws://example.com
- * - //example.com (protocol-relative URLs)
- */
-const URL_PROTOCOL_REGEX = /^(?:(?:http|ftp|https|ws):?\/\/|\/\/)/;
-
-/**
- * Checks whether the path is considered a remote path. Paths need to start with:
- * - `http://`
- * - `https://`
- * - `ftp://`
- * - `ws://`
- * - `//` (protocol-relative URLs)
- * - `data:` (base64 images)
- * - Backslash variants (e.g., `\\example.com`) that could normalize to remote URLs
- * - URL-encoded backslash variants (e.g., `%5C%5Cexample.com`)
+ * Checks whether the path is considered a remote path.
+ * Remote means untrusted in this context, so anything that isn't a straightforward
+ * local path is considered remote.
+ *
  * @param src
  */
 export function isRemotePath(src: string) {
-	// First decode any URL-encoded backslashes
-	const decoded = src.replace(/%5C/gi, '\\');
+	if (!src) return false;
 
-	// Check for any backslash at the start (single or multiple)
-	// These can be normalized to protocol-relative URLs
+	// Trim leading/trailing whitespace
+	const trimmed = src.trim();
+	if (!trimmed) return false;
+
+	// Recursively decode URL-encoded characters to catch multi-level obfuscation
+	let decoded = trimmed;
+	let previousDecoded = '';
+	let maxIterations = 10; // Prevent infinite loops on malformed input
+
+	while (decoded !== previousDecoded && maxIterations > 0) {
+		previousDecoded = decoded;
+		try {
+			decoded = decodeURIComponent(decoded);
+		} catch {
+			// If decoding fails (e.g., invalid %), stop and use what we have
+			break;
+		}
+		maxIterations--;
+	}
+
+	// Check for Windows paths first (C:\, D:\, C:file, etc.)
+	// This needs to be before the backslash check
+	if (/^[a-zA-Z]:/.test(decoded)) {
+		// Windows path with drive letter - always local
+		return false;
+	}
+
+	// Check for Unix absolute path (starts with / but not // or /\)
+	// This needs to be before the backslash check
+	if (decoded[0] === '/' && decoded[1] !== '/' && decoded[1] !== '\\') {
+		return false;
+	}
+
+	// Any backslash at the start is probably trouble. Treat as remote.
 	if (decoded[0] === '\\') {
 		return true;
 	}
 
-	// Check for protocols with backslashes (e.g., http:\\ or https:\\)
-	if (/^(?:http|https|ftp|ws):\\/.test(decoded)) {
+	// Protocol-relative URLs are remote
+	if (decoded.startsWith('//')) {
 		return true;
 	}
 
-	// Check standard URL patterns
-	return URL_PROTOCOL_REGEX.test(decoded) || decoded.startsWith('data:');
+	// Try to parse as URL to check for protocols and credentials
+	try {
+		// Try with a mock base URL for relative URLs that might have protocols
+		const url = new URL(decoded, 'http://n');
+		// Check for credentials first - ANY URL with credentials is suspicious
+		if (url.username || url.password) {
+			return true;
+		}
+
+		if (decoded.includes('@') && !url.pathname.includes('@') && !url.search.includes('@')) {
+			// If the original string had an @ but it wasn't in the pathname or search,
+			// it must have been in the authority section (credentials or domain).
+			// Since we already checked for credentials, this is something dodgy.
+			return true;
+		}
+		// If the input had its own protocol, it would override the base
+		if (url.origin !== 'http://n') {
+			// It had its own protocol - check what it is
+			const protocol = url.protocol.toLowerCase();
+
+			// Only file: protocol without credentials is considered local
+			if (protocol === 'file:') {
+				return false;
+			}
+			// All other protocols are remote (http:, https:, ftp:, ws:, data:, etc.)
+			return true;
+		}
+		// If we can parse it both with and without a base URL, it's probably remote
+		if (URL.canParse(decoded)) {
+			return true;
+		}
+		return false;
+	} catch {
+		return true;
+	}
+}
+
+/**
+ * Checks if parentPath is a parent directory of childPath.
+ */
+export function isParentDirectory(parentPath: string, childPath: string): boolean {
+	if (!parentPath || !childPath) {
+		return false;
+	}
+
+	// Reject any URLs
+	if (parentPath.includes('://') || childPath.includes('://')) {
+		return false;
+	}
+
+	// Reject remote or suspicious paths
+	if (isRemotePath(parentPath) || isRemotePath(childPath)) {
+		return false;
+	}
+
+	// Don't allow any .. in paths - too risky for traversal attacks
+	if (parentPath.includes('..') || childPath.includes('..')) {
+		return false;
+	}
+
+	// Reject null bytes - security risk
+	if (parentPath.includes('\0') || childPath.includes('\0')) {
+		return false;
+	}
+
+	const normalizedParent = appendForwardSlash(slash(parentPath).toLowerCase());
+	const normalizedChild = slash(childPath).toLowerCase();
+
+	// Don't allow same path (parent can't be parent of itself)
+	if (normalizedParent === normalizedChild || normalizedParent === normalizedChild + '/') {
+		return false;
+	}
+
+	return normalizedChild.startsWith(normalizedParent);
 }
 
 export function slash(path: string) {

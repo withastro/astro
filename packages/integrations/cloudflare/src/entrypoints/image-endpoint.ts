@@ -24,5 +24,11 @@ export const GET: APIRoute = (ctx) => {
 		}
 	}
 
-	return fetch(new URL(href, ctx.url.origin));
+	const proxied = new URL(href, ctx.url.origin);
+	// Have we been tricked into thinking this is local?
+	if (proxied.origin !== ctx.url.origin) {
+		return new Response('Forbidden', { status: 403 });
+	}
+
+	return fetch(proxied);
 };

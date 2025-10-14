@@ -26,6 +26,7 @@ export function createDevUrlProxyHashResolver({
 				cssVariable.slice(2),
 				formatWeight(data.weight),
 				data.style,
+				data.subset,
 				baseHashResolver.resolve(input),
 			]
 				.filter(Boolean)
@@ -43,5 +44,5 @@ function formatWeight(
 	if (typeof weight === 'number') {
 		return weight.toString();
 	}
-	return weight;
+	return weight?.replace(/\s+/g, '-');
 }

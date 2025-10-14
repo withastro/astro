@@ -24,7 +24,7 @@ function getImageEndpointData(
 	const endpointEntrypoint =
 		settings.config.image.endpoint.entrypoint === undefined // If not set, use default endpoint
 			? mode === 'dev'
-				? 'astro/assets/endpoint/node'
+				? 'astro/assets/endpoint/dev'
 				: 'astro/assets/endpoint/generic'
 			: settings.config.image.endpoint.entrypoint;
 

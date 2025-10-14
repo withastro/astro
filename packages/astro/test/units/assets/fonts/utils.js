@@ -55,6 +55,7 @@ export const fakeHasher = {
 };
 
 export function createSpyUrlProxy() {
+	/** @type {Array<Parameters<import('../../../../dist/assets/fonts/definitions').UrlProxy['proxy']>[0]>} */
 	const collected = [];
 	/** @type {import('../../../../dist/assets/fonts/definitions').UrlProxy} */
 	const urlProxy = {
@@ -81,3 +82,10 @@ export const fakeFontMetricsResolver = {
 		return JSON.stringify(input, null, 2) + `,`;
 	},
 };
+
+/**
+ * @param {string} input
+ */
+export function markdownBold(input) {
+	return `**${input}**`;
+}

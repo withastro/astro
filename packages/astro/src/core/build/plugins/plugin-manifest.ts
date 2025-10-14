@@ -250,7 +250,7 @@ async function buildManifest(
 		const pageData = internals.pagesByKeys.get(makePageDataKey(route.route, route.component));
 		if (!pageData) continue;
 
-		if (route.prerender && !needsStaticHeaders) {
+		if (route.prerender && route.type !== 'redirect' && !needsStaticHeaders) {
 			continue;
 		}
 		const scripts: SerializedRouteInfo['scripts'] = [];
@@ -367,6 +367,7 @@ async function buildManifest(
 		buildFormat: settings.config.build.format,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
+		allowedDomains: settings.config.security?.allowedDomains,
 		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		key: encodedKey,
 		sessionConfig: settings.config.session,

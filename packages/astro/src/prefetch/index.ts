@@ -54,7 +54,7 @@ export function init(defaultOpts?: InitOptions) {
  */
 function initTapStrategy() {
 	for (const event of ['touchstart', 'mousedown']) {
-		document.body.addEventListener(
+		document.addEventListener(
 			event,
 			(e) => {
 				if (elMatchesStrategy(e.target, 'tap')) {
