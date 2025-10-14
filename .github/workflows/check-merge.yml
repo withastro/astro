@@ -34,7 +34,7 @@ jobs:
 
       - name: Get changed files in the .changeset folder
         id: changed-files
-        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47.0.0
         if: steps.blocked.outputs.result != 'true'
         with:
           files: |
