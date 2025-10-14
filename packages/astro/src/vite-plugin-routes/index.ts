@@ -1,8 +1,8 @@
 import type fsMod from 'node:fs';
 import { extname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { bold } from 'kleur/colors';
-import type { Plugin } from 'vite';
+import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { serializeRouteData } from '../core/app/index.js';
 import type { SerializedRouteInfo } from '../core/app/types.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
@@ -10,7 +10,7 @@ import type { Logger } from '../core/logger/core.js';
 import { createRoutesList } from '../core/routing/index.js';
 import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
 import { isEndpoint, isPage } from '../core/util.js';
-import { normalizePath, rootRelativePath } from '../core/viteUtils.js';
+import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
 import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
@@ -56,8 +56,13 @@ export default async function astroPluginRoutes({
 		},
 	);
 
-	async function rebuildRoutes(path: string | null = null) {
-		if (path != null) {
+	async function rebuildRoutes(path: string | null = null, server: ViteDevServer) {
+		if (path != null && path.startsWith(settings.config.srcDir.pathname)) {
+			logger.debug(
+				'update',
+				`Re-calculating routes for ${path.slice(settings.config.srcDir.pathname.length)}`,
+			);
+			const file = pathToFileURL(normalizePath(path));
 			routeList = await createRoutesList(
 				{
 					settings,
@@ -70,21 +75,26 @@ export default async function astroPluginRoutes({
 
 			serializedRouteInfo = routeList.routes.map((r): SerializedRouteInfo => {
 				return {
-					file: '',
+					file: fileURLToPath(file),
 					links: [],
 					scripts: [],
 					styles: [],
 					routeData: serializeRouteData(r, settings.config.trailingSlash),
 				};
 			});
+			let environment = server.environments.ssr;
+			const virtualMod = environment.moduleGraph.getModuleById(ASTRO_ROUTES_MODULE_ID_RESOLVED);
+			if (!virtualMod) return;
+
+			environment.moduleGraph.invalidateModule(virtualMod);
 		}
 	}
 	return {
 		name: 'astro:routes',
 		configureServer(server) {
-			server.watcher.on('add', rebuildRoutes.bind(null, null));
-			server.watcher.on('unlink', rebuildRoutes.bind(null, null));
-			server.watcher.on('change', rebuildRoutes);
+			server.watcher.on('add', (path) => rebuildRoutes(path, server));
+			server.watcher.on('unlink', (path) => rebuildRoutes(path, server));
+			server.watcher.on('change', (path) => rebuildRoutes(path, server));
 		},
 
 		applyToEnvironment(environment) {
