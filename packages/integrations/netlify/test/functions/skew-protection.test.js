@@ -40,20 +40,29 @@ describe(
 		});
 
 		it('Manifest contains internalFetchHeaders', async () => {
-			// The manifest is embedded in the server output
-			// We can check by importing the handler and inspecting its manifest
-			const entryURL = new URL(
-				'./fixtures/skew-protection/.netlify/v1/functions/ssr/ssr.mjs',
+			// The manifest is embedded in the build output
+			// Check the manifest file which contains the serialized manifest
+			const manifestURL = new URL(
+				'./fixtures/skew-protection/.netlify/build/',
 				import.meta.url,
 			);
 
-			// Read the file contents to check if headers are serialized
-			const ssrContent = await readFile(entryURL, 'utf-8');
+			// Find the manifest file (it has a hash in the name)
+			const { readdir } = await import('node:fs/promises');
+			const files = await readdir(manifestURL);
+			const manifestFile = files.find((f) => f.startsWith('manifest_') && f.endsWith('.mjs'));
+			assert.ok(manifestFile, 'Expected to find a manifest file');
+
+			const manifestContent = await readFile(new URL(manifestFile, manifestURL), 'utf-8');
 
 			// The manifest should be serialized with internalFetchHeaders
 			assert.ok(
-				ssrContent.includes('internalFetchHeaders') || ssrContent.includes('test-deploy-123'),
-				'Expected SSR function to include internalFetchHeaders in manifest',
+				manifestContent.includes('internalFetchHeaders'),
+				'Expected manifest to include internalFetchHeaders field',
+			);
+			assert.ok(
+				manifestContent.includes('test-deploy-123'),
+				'Expected manifest to include deploy ID value',
 			);
 		});
 	},
