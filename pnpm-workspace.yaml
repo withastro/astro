@@ -19,3 +19,5 @@ overrides:
   'unstorage': '2.0.0-alpha.3'
 # Wait until three days after release to install new versions of packages
 minimumReleaseAge: 4320
+minimumReleaseAgeExclude:
+  - '@biomejs/*'
