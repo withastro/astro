@@ -1,5 +1,5 @@
 import { shouldAppendTrailingSlash } from 'virtual:astro:actions/options';
-import type { ActionClient, SafeResult } from '../actions/runtime/virtual/server.js';
+import type { ActionClient, SafeResult } from '../actions/runtime/server.js';
 import {
 	ACTION_QUERY_PARAMS,
 	ActionError,
@@ -7,7 +7,7 @@ import {
 	astroCalledServerError,
 	deserializeActionResult,
 	getActionQueryString,
-} from '../actions/runtime/virtual/shared.js';
+} from '../actions/runtime/shared.js';
 import type { APIContext } from '../types/public/context.js';
 
 export * from 'virtual:astro:actions/runtime';

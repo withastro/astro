@@ -14,5 +14,5 @@ declare module 'virtual:astro:actions/options' {
 }
 
 declare module 'virtual:astro:actions/runtime' {
-	export * from './src/actions/runtime/virtual/client.js';
+	export * from './src/actions/runtime/client.js';
 }
