@@ -102,7 +102,7 @@ async function fetchHTML(
 	try {
 		// Apply adapter-specific headers for internal fetches
 		const headers = new Headers(init?.headers);
-		for (const [key, value] of Object.entries(internalFetchHeaders)) {
+		for (const [key, value] of Object.entries(internalFetchHeaders) as [string, string][]) {
 			headers.set(key, value);
 		}
 		const res = await fetch(href, { ...init, headers });

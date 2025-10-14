@@ -686,9 +686,12 @@ export default function netlifyIntegration(
 						envGetSecret: 'stable',
 					},
 					runtimeConfig: {
-						internalFetchHeaders: () => {
+						internalFetchHeaders: (): Record<string, string> => {
 							const deployId = process.env.DEPLOY_ID;
-							return deployId ? { 'X-Netlify-Deploy-ID': deployId } : {};
+							if (deployId) {
+								return { 'X-Netlify-Deploy-ID': deployId };
+							}
+							return {};
 						},
 					},
 				});

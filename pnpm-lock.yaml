@@ -5535,6 +5535,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../../astro
 
+  packages/integrations/netlify/test/functions/fixtures/skew-protection:
+    dependencies:
+      '@astrojs/netlify':
+        specifier: 'workspace:'
+        version: link:../../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../../astro
+
   packages/integrations/netlify/test/hosted/hosted-astro-project:
     dependencies:
       '@astrojs/netlify':

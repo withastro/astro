@@ -572,6 +572,7 @@ export class RenderContext {
 			styleResources: manifest.csp?.styleResources ? [...manifest.csp.styleResources] : [],
 			directives: manifest.csp?.directives ? [...manifest.csp.directives] : [],
 			isStrictDynamic: manifest.csp?.isStrictDynamic ?? false,
+			manifest,
 		};
 
 		return result;

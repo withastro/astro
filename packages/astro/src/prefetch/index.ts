@@ -253,7 +253,7 @@ export function prefetch(url: string, opts?: PrefetchOptions) {
 		debug?.(`[astro] Prefetching ${url} with fetch`);
 		// Apply adapter-specific headers for internal fetches
 		const headers = new Headers();
-		for (const [key, value] of Object.entries(internalFetchHeaders)) {
+		for (const [key, value] of Object.entries(internalFetchHeaders) as [string, string][]) {
 			headers.set(key, value);
 		}
 		fetch(url, { priority: 'low', headers });
