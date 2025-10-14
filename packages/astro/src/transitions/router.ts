@@ -1,8 +1,8 @@
+import { internalFetchHeaders } from 'astro:adapter-config/client';
 import type { TransitionBeforePreparationEvent } from './events.js';
 import { doPreparation, doSwap, TRANSITION_AFTER_SWAP } from './events.js';
 import { detectScriptExecuted } from './swap-functions.js';
 import type { Direction, Fallback, Options } from './types.js';
-import { internalFetchHeaders } from 'astro:adapter-config/client';
 
 type State = {
 	index: number;
