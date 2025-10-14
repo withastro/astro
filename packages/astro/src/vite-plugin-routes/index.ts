@@ -2,7 +2,7 @@ import type fsMod from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { bold } from 'kleur/colors';
-import { isRunnableDevEnvironment, normalizePath, type Plugin, type ViteDevServer } from 'vite';
+import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { serializeRouteData } from '../core/app/index.js';
 import type { SerializedRouteInfo } from '../core/app/types.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
@@ -83,12 +83,10 @@ export default async function astroPluginRoutes({
 				};
 			});
 			let environment = server.environments.ssr;
-			if (isRunnableDevEnvironment(environment)) {
-				const virtualMod = environment.moduleGraph.getModuleById(ASTRO_ROUTES_MODULE_ID_RESOLVED);
-				if (!virtualMod) return;
+			const virtualMod = environment.moduleGraph.getModuleById(ASTRO_ROUTES_MODULE_ID_RESOLVED);
+			if (!virtualMod) return;
 
-				environment.moduleGraph.invalidateModule(virtualMod);
-			}
+			environment.moduleGraph.invalidateModule(virtualMod);
 		}
 	}
 	return {
