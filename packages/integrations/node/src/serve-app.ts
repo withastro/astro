@@ -47,7 +47,9 @@ export function createAppHandler(app: NodeApp, options: Options): RequestHandler
 			return;
 		}
 
-		const routeData = app.match(request);
+		// Redirects are considered prerendered routes in static mode, but we want to
+		// handle them dynamically, so prerendered routes are included here.
+		const routeData = app.match(request, true);
 		if (routeData) {
 			const response = await als.run(request.url, () =>
 				app.render(request, {
