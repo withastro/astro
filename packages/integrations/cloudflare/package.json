@@ -42,7 +42,7 @@
     "@cloudflare/vite-plugin": "^1.13.1",
     "@cloudflare/workers-types": "^4.20250913.0",
     "tinyglobby": "^0.2.15",
-    "vite": "^6.3.6",
+    "vite": "^7.1.7",
     "wrangler": "4.37.0"
   },
   "peerDependencies": {
