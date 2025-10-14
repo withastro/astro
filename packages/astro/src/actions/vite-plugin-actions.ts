@@ -8,8 +8,10 @@ import { getServerOutputDirectory } from '../prerender/utils.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
 	ENTRYPOINT_VIRTUAL_MODULE_ID,
+	OPTIONS_VIRTUAL_MODULE_ID,
 	RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID,
 	RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID,
+	RESOLVED_OPTIONS_VIRTUAL_MODULE_ID,
 	RESOLVED_RUNTIME_VIRTUAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	RUNTIME_VIRTUAL_MODULE_ID,
@@ -68,6 +70,10 @@ export function vitePluginActions({
 				return RESOLVED_RUNTIME_VIRTUAL_MODULE_ID;
 			}
 
+			if (id === OPTIONS_VIRTUAL_MODULE_ID) {
+				return RESOLVED_OPTIONS_VIRTUAL_MODULE_ID;
+			}
+
 			if (id === ENTRYPOINT_VIRTUAL_MODULE_ID) {
 				const resolvedModule = await this.resolve(
 					`${decodeURI(new URL('actions', settings.config.srcDir).pathname)}`,
@@ -108,19 +114,23 @@ export function vitePluginActions({
 				};
 			}
 
+			if (id === RESOLVED_OPTIONS_VIRTUAL_MODULE_ID) {
+				return {
+					code: `
+						export const shouldAppendTrailingSlash = ${JSON.stringify(
+							shouldAppendForwardSlash(settings.config.trailingSlash, settings.config.build.format),
+						)};
+					`,
+				};
+			}
+
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-				let code = await fs.promises.readFile(
-					new URL('../../templates/actions.mjs', import.meta.url),
-					'utf-8',
-				);
-				code += `export * from ${JSON.stringify(RUNTIME_VIRTUAL_MODULE_ID)};`;
-				code = code.replace(
-					"'/** @TRAILING_SLASH@ **/'",
-					JSON.stringify(
-						shouldAppendForwardSlash(settings.config.trailingSlash, settings.config.build.format),
-					),
-				);
-				return { code };
+				const resolved = (await this.resolve('astro/virtual-modules/actions.js')) ?? {
+					id: 'astro/virtual-modules/actions.js',
+				};
+				return {
+					code: `export * from ${JSON.stringify(resolved.id)};`,
+				};
 			}
 		},
 	};
