@@ -19,10 +19,13 @@ const { Content } = await render(increment);
 <body>
 	<p>Last updated: {increment.data.lastUpdated.toLocaleTimeString()}</p>
 
+	<h2>Translations</h2>
 	<ul>
 		<li><a href="/fr">French index</a></li>
 	</ul>
-	<h1>Dogs</h1>
+	<h2><code>astro:env</code></h2>
+	<a href="/env">Environment variables</a>
+	<h2>Dogs</h2>
 	<p>Running on: {workerRuntime ?? 'unknown runtime'}</p>
 	<div id="framework">
 		<Hello client:load />

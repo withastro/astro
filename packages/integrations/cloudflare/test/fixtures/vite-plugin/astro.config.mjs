@@ -1,6 +1,6 @@
 // @ts-check
 import cloudflare from '@astrojs/cloudflare';
-import { defineConfig } from 'astro/config';
+import { defineConfig, envField } from 'astro/config';
 
 import mdx from '@astrojs/mdx';
 import { fileURLToPath } from 'node:url';
@@ -29,4 +29,11 @@ export default defineConfig({
 		}
 	},
 	integrations: [mdx(), react()],
+	env: {
+		schema: {
+			FOO: envField.string({ context: 'server', access: 'public' }),
+			BAR: envField.string({ context: 'client', access: 'public' }),
+			SECRET: envField.string({ context: 'server', access: 'secret' }),
+		}
+	}
 });
