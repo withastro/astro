@@ -17,3 +17,5 @@ overrides:
   'wrangler': '4.14.1'
 # Wait until three days after release to install new versions of packages
 minimumReleaseAge: 4320
+minimumReleaseAgeExclude:
+  - '@biomejs/*'
