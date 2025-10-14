@@ -21,22 +21,6 @@ describe(
 			delete process.env.DEPLOY_ID;
 		});
 
-		it('Includes adapter headers in actions template', async () => {
-			// Check that the actions.mjs template includes the header import and usage
-			const actionsPath = new URL(
-				'./fixtures/skew-protection/dist/client/_astro/actions.*.js',
-				import.meta.url,
-			);
-			// Note: We'd need to glob to find the actual hashed filename
-			// For now, check the built output contains the import
-			// This is a simplified check - in practice we'd need to find the actual file
-		});
-
-		it('Includes adapter headers in view transitions router', async () => {
-			// Check that the router bundle includes the header import and usage
-			// Similar to actions, would need to find the actual bundled file
-		});
-
 		it('Server islands inline adapter headers', async () => {
 			// Render a page with server islands and check the HTML contains inline headers
 			const entryURL = new URL(
@@ -56,12 +40,6 @@ describe(
 		});
 
 		it('Manifest contains internalFetchHeaders', async () => {
-			// Check the manifest file contains the headers
-			const manifestPath = new URL(
-				'./fixtures/skew-protection/.netlify/v1/functions/ssr/',
-				import.meta.url,
-			);
-
 			// The manifest is embedded in the server output
 			// We can check by importing the handler and inspecting its manifest
 			const entryURL = new URL(

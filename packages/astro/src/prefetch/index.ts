@@ -1,5 +1,5 @@
 /*
-  NOTE: Do not add any dependencies or imports in this file so that it can load quickly in dev.
+  NOTE: Be careful about adding dependencies or imports in this file so that it can load quickly in dev.
 */
 
 import { internalFetchHeaders } from 'astro:adapter-config/client';
