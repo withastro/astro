@@ -83,6 +83,9 @@
     // follow vite deps version
     "postcss-load-config",
     "esbuild",
+    // TODO: fix upstream
+    // https://github.com/vercel/nft/issues/545
+    "@vercel/nft"
   ],
   "minimumReleaseAge": "3 days"
 }
