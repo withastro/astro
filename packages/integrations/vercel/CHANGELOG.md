@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 8.2.10
+
+### Patch Changes
+
+- [#14536](https://github.com/withastro/astro/pull/14536) [`9261996`](https://github.com/withastro/astro/commit/9261996150f4c690c4762bf02100e44680bd480d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a bug that caused too many files to be bundled in SSR
+
 ## 8.2.9
 
 ### Patch Changes
