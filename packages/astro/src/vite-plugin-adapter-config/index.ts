@@ -12,8 +12,15 @@ export function vitePluginAdapterConfig(settings: AstroSettings): VitePlugin {
 				return RESOLVED_VIRTUAL_CLIENT_ID;
 			}
 		},
-		load(id) {
+		load(id, options) {
 			if (id === RESOLVED_VIRTUAL_CLIENT_ID) {
+				// During SSR, return empty headers to avoid any runtime issues
+				if (options?.ssr) {
+					return {
+						code: `export const internalFetchHeaders = {};`,
+					};
+				}
+
 				const adapter = settings.adapter;
 				const runtimeConfig = adapter?.runtimeConfig || {};
 
