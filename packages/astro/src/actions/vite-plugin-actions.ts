@@ -13,7 +13,6 @@ import {
 	RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID,
 	RESOLVED_OPTIONS_VIRTUAL_MODULE_ID,
 	RESOLVED_RUNTIME_VIRTUAL_MODULE_ID,
-	RESOLVED_VIRTUAL_MODULE_ID,
 	RUNTIME_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
@@ -63,7 +62,7 @@ export function vitePluginActions({
 		enforce: 'pre',
 		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
-				return RESOLVED_VIRTUAL_MODULE_ID;
+				return this.resolve('astro/virtual-modules/actions.js')
 			}
 
 			if (id === RUNTIME_VIRTUAL_MODULE_ID) {
@@ -121,15 +120,6 @@ export function vitePluginActions({
 							shouldAppendForwardSlash(settings.config.trailingSlash, settings.config.build.format),
 						)};
 					`,
-				};
-			}
-
-			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-				const resolved = (await this.resolve('astro/virtual-modules/actions.js')) ?? {
-					id: 'astro/virtual-modules/actions.js',
-				};
-				return {
-					code: `export * from ${JSON.stringify(resolved.id)};`,
 				};
 			}
 		},
