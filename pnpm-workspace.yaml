@@ -18,4 +18,4 @@ overrides:
 # Wait until three days after release to install new versions of packages
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
-  - '@biomejs/*'
+  - '@biomejs/biome'
