@@ -25,7 +25,7 @@ import {
 	LIVE_CONTENT_TYPE,
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
-import { createImage } from './runtime-assets.js';
+import { createZ3Image, createZ4Image } from './runtime-assets.js';
 
 const entryTypeSchema = z3
 	.object({
@@ -134,6 +134,7 @@ export async function getEntryDataAndImages<
 	},
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
+	experimentalZod4: boolean,
 	pluginContext?: PluginContext,
 ): Promise<{ data: TOutputData; imageImports: Array<string> }> {
 	let data = entry.unvalidatedData as TOutputData;
@@ -145,19 +146,19 @@ export async function getEntryDataAndImages<
 	if (typeof schema === 'function') {
 		if (pluginContext) {
 			schema = schema({
-				image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
+				image: (experimentalZod4 ? createZ4Image : createZ3Image)(
+					pluginContext,
+					shouldEmitFile,
+					entry._internal.filePath,
+				),
 			});
 		} else if (collectionConfig.type === CONTENT_LAYER_TYPE) {
-			const temp = schema({
-				image: () => new Proxy({}, {}),
-			});
-			const isZod4 = '_zod' in temp;
 			const transform = (val: string) => {
 				imageImports.add(val);
 				return `${IMAGE_IMPORT_PREFIX}${val}`;
 			};
 			schema = schema({
-				image: isZod4
+				image: experimentalZod4
 					? () => z4.string().transform(transform)
 					: () => z3.string().transform(transform),
 			});
@@ -212,12 +213,14 @@ export async function getEntryData(
 	},
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
+	experimentalZod4: boolean,
 	pluginContext?: PluginContext,
 ) {
 	const { data } = await getEntryDataAndImages(
 		entry,
 		collectionConfig,
 		shouldEmitFile,
+		experimentalZod4,
 		pluginContext,
 	);
 	return data;

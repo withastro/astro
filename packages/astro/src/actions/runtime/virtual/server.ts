@@ -98,6 +98,10 @@ export function defineAction<
 	accept?: TAccept;
 	handler: ActionHandler<TInputSchema, TOutput>;
 }): ActionClient<TOutput, TAccept, TInputSchema> & string {
+	if (inputSchema && '_zod' in inputSchema && !experimentalZod4) {
+		// TODO: throw astro error
+	}
+
 	const serverHandler =
 		accept === 'form'
 			? getFormServerHandler(handler, inputSchema)
@@ -136,10 +140,6 @@ function getFormServerHandler<TOutput, TInputSchema extends z3.ZodType | z4.$Zod
 		}
 
 		if (!inputSchema) return await handler(unparsedInput, context);
-
-		if ('_zod' in inputSchema && !experimentalZod4) {
-			// TODO: throw astro error
-		}
 
 		let parsed;
 		if ('_zod' in inputSchema) {

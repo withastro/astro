@@ -1,3 +1,5 @@
+// TODO: find another virtual module
+import { experimentalZod4 } from 'virtual:astro:actions/options';
 import type * as z3 from 'zod/v3';
 import type * as z4 from 'zod/v4/core';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
@@ -225,5 +227,15 @@ export function defineCollection<S extends BaseSchema>(
 		);
 	}
 	config.type = CONTENT_LAYER_TYPE;
+
+	if (
+		config.schema &&
+		typeof config.schema !== 'function' &&
+		'_zod' in config.schema &&
+		!experimentalZod4
+	) {
+		// TODO: throw astro error
+	}
+
 	return config;
 }

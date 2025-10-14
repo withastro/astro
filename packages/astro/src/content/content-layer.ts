@@ -283,6 +283,7 @@ class ContentLayer {
 						},
 						collectionWithResolvedSchema,
 						false,
+						this.#settings.config.experimental.zod4,
 					);
 
 					return parsedData;
