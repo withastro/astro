@@ -102,6 +102,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		csp: false,
 		chromeDevtoolsWorkspace: false,
 		failOnPrerenderConflict: false,
+		zod4: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -513,6 +514,7 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.failOnPrerenderConflict),
+			zod4: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.zod4),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,

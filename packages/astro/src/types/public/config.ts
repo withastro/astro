@@ -2436,6 +2436,17 @@ export interface AstroUserConfig<
 		 * See the [experimental Chrome DevTools workspace feature documentation](https://docs.astro.build/en/reference/experimental-flags/chrome-devtools-workspace/) for more information.
 		 */
 		chromeDevtoolsWorkspace?: boolean;
+
+		/**
+		 * @name experimental.zod4
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 6.0
+		 * @description
+		 *
+		 * TODO:
+		 */
+		zod4?: boolean;
 	};
 }
 
