@@ -26,10 +26,7 @@ describe('Redirects', () => {
 	});
 
 	function fetchEndpoint(url, options = {}) {
-		return fetch(
-			`http://${server.host}:${server.port}/${url}`,
-			{ ...options, redirect: 'manual' },
-		);
+		return fetch(`http://${server.host}:${server.port}/${url}`, { ...options, redirect: 'manual' });
 	}
 
 	it('should redirect with default 301 status for simple redirects', async () => {
