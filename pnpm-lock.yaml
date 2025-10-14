@@ -7,7 +7,6 @@ settings:
 overrides:
   undici: ^6.21.3
   wrangler: 4.14.1
-  '@vercel/nft': 0.30.1
   unstorage: 2.0.0-alpha.3
 
 importers:
@@ -22,8 +21,8 @@ importers:
         specifier: ^0.9.4
         version: 0.9.4(prettier-plugin-astro@0.14.1)(prettier@3.6.2)(typescript@5.9.3)
       '@biomejs/biome':
-        specifier: 2.2.4
-        version: 2.2.4
+        specifier: 2.2.6
+        version: 2.2.6
       '@changesets/changelog-github':
         specifier: ^0.5.1
         version: 0.5.1
@@ -151,7 +150,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
 
   examples/blog:
@@ -166,7 +165,7 @@ importers:
         specifier: ^3.6.0
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
       sharp:
         specifier: ^0.34.3
@@ -175,7 +174,7 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
 
   examples/container-with-vitest:
@@ -184,7 +183,7 @@ importers:
         specifier: ^4.4.0
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -215,7 +214,7 @@ importers:
         specifier: ^3.15.0
         version: 3.15.0
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
 
   examples/framework-multiple:
@@ -242,7 +241,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.26)
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
       preact:
         specifier: ^10.27.2
@@ -272,7 +271,7 @@ importers:
         specifier: ^2.3.2
         version: 2.3.2(preact@10.27.2)
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
       preact:
         specifier: ^10.27.2
@@ -290,7 +289,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.26)
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -305,7 +304,7 @@ importers:
         specifier: ^5.1.1
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.9
@@ -317,7 +316,7 @@ importers:
         specifier: ^7.2.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
       svelte:
         specifier: ^5.39.11
@@ -329,7 +328,7 @@ importers:
         specifier: ^5.1.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.22
@@ -338,40 +337,40 @@ importers:
   examples/hackernews:
     dependencies:
       '@astrojs/node':
-        specifier: ^9.4.6
+        specifier: ^9.5.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
 
   examples/ssr:
     dependencies:
       '@astrojs/node':
-        specifier: ^9.4.6
+        specifier: ^9.5.0
         version: link:../../packages/integrations/node
       '@astrojs/svelte':
         specifier: ^7.2.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
       svelte:
         specifier: ^5.39.11
@@ -380,7 +379,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
       sass:
         specifier: ^1.93.2
@@ -395,7 +394,7 @@ importers:
         specifier: ^18.17.8
         version: 18.19.124
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -404,7 +403,7 @@ importers:
         specifier: ^0.15.8
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -416,7 +415,7 @@ importers:
         specifier: ^4.1.1
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
       preact:
         specifier: ^10.27.2
@@ -431,7 +430,7 @@ importers:
         specifier: ^0.5.2
         version: 0.5.2(nanostores@0.11.4)(preact@10.27.2)
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.11.4
@@ -452,7 +451,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.3
@@ -464,7 +463,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^5.14.4
+        specifier: ^5.14.5
         version: link:../../packages/astro
       vitest:
         specifier: ^3.2.4
@@ -6756,62 +6755,10 @@ packages:
     resolution: {integrity: sha512-bkFqkLhh3pMBUQQkpVgWDWq/lqzc2678eUyDlTBhRqhCHFguYYGM0Efga7tYk4TogG/3x0EEl66/OQ+WGbWB/Q==}
     engines: {node: '>=6.9.0'}
 
-  '@biomejs/biome@2.2.4':
-    resolution: {integrity: sha512-TBHU5bUy/Ok6m8c0y3pZiuO/BZoY/OcGxoLlrfQof5s8ISVwbVBdFINPQZyFfKwil8XibYWb7JMwnT8wT4WVPg==}
+  '@biomejs/biome@2.2.6':
+    resolution: {integrity: sha512-yKTCNGhek0rL5OEW1jbLeZX8LHaM8yk7+3JRGv08my+gkpmtb5dDE+54r2ZjZx0ediFEn1pYBOJSmOdDP9xtFw==}
     engines: {node: '>=14.21.3'}
     hasBin: true
-
-  '@biomejs/cli-darwin-arm64@2.2.4':
-    resolution: {integrity: sha512-RJe2uiyaloN4hne4d2+qVj3d3gFJFbmrr5PYtkkjei1O9c+BjGXgpUPVbi8Pl8syumhzJjFsSIYkcLt2VlVLMA==}
-    engines: {node: '>=14.21.3'}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@biomejs/cli-darwin-x64@2.2.4':
-    resolution: {integrity: sha512-cFsdB4ePanVWfTnPVaUX+yr8qV8ifxjBKMkZwN7gKb20qXPxd/PmwqUH8mY5wnM9+U0QwM76CxFyBRJhC9tQwg==}
-    engines: {node: '>=14.21.3'}
-    cpu: [x64]
-    os: [darwin]
-
-  '@biomejs/cli-linux-arm64-musl@2.2.4':
-    resolution: {integrity: sha512-7TNPkMQEWfjvJDaZRSkDCPT/2r5ESFPKx+TEev+I2BXDGIjfCZk2+b88FOhnJNHtksbOZv8ZWnxrA5gyTYhSsQ==}
-    engines: {node: '>=14.21.3'}
-    cpu: [arm64]
-    os: [linux]
-    libc: [musl]
-
-  '@biomejs/cli-linux-arm64@2.2.4':
-    resolution: {integrity: sha512-M/Iz48p4NAzMXOuH+tsn5BvG/Jb07KOMTdSVwJpicmhN309BeEyRyQX+n1XDF0JVSlu28+hiTQ2L4rZPvu7nMw==}
-    engines: {node: '>=14.21.3'}
-    cpu: [arm64]
-    os: [linux]
-    libc: [glibc]
-
-  '@biomejs/cli-linux-x64-musl@2.2.4':
-    resolution: {integrity: sha512-m41nFDS0ksXK2gwXL6W6yZTYPMH0LughqbsxInSKetoH6morVj43szqKx79Iudkp8WRT5SxSh7qVb8KCUiewGg==}
-    engines: {node: '>=14.21.3'}
-    cpu: [x64]
-    os: [linux]
-    libc: [musl]
-
-  '@biomejs/cli-linux-x64@2.2.4':
-    resolution: {integrity: sha512-orr3nnf2Dpb2ssl6aihQtvcKtLySLta4E2UcXdp7+RTa7mfJjBgIsbS0B9GC8gVu0hjOu021aU8b3/I1tn+pVQ==}
-    engines: {node: '>=14.21.3'}
-    cpu: [x64]
-    os: [linux]
-    libc: [glibc]
-
-  '@biomejs/cli-win32-arm64@2.2.4':
-    resolution: {integrity: sha512-NXnfTeKHDFUWfxAefa57DiGmu9VyKi0cDqFpdI+1hJWQjGJhJutHPX0b5m+eXvTKOaf+brU+P0JrQAZMb5yYaQ==}
-    engines: {node: '>=14.21.3'}
-    cpu: [arm64]
-    os: [win32]
-
-  '@biomejs/cli-win32-x64@2.2.4':
-    resolution: {integrity: sha512-3Y4V4zVRarVh/B/eSHczR4LYoSVyv3Dfuvm3cWs5w/HScccS0+Wt/lHOcDTRYeHjQmMYVC3rIRWqyN2EI52+zg==}
-    engines: {node: '>=14.21.3'}
-    cpu: [x64]
-    os: [win32]
 
   '@bluwy/giget-core@0.1.6':
     resolution: {integrity: sha512-5BwSIzqhpzXKUnSSheB0M+Qb4iGskepb35FiPA1/7AciPArTqt9H5yc53NmV21gNkDFrgbDBuzSWwrlo2aAKxg==}
@@ -9316,6 +9263,11 @@ packages:
     peerDependenciesMeta:
       '@aws-sdk/credential-provider-web-identity':
         optional: true
+
+  '@vercel/nft@0.29.4':
+    resolution: {integrity: sha512-6lLqMNX3TuycBPABycx7A9F1bHQR7kiQln6abjFbPrf5C/05qHM9M5E4PeTE59c7z8g6vHnx1Ioihb2AQl7BTA==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   '@vercel/nft@0.30.1':
     resolution: {integrity: sha512-2mgJZv4AYBFkD/nJ4QmiX5Ymxi+AisPLPcS/KPXVqniyQNqKXX+wjieAbDXQP3HcogfEbpHoRMs49Cd4pfkk8g==}
@@ -14635,40 +14587,7 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.27.1
 
-  '@biomejs/biome@2.2.4':
-    optionalDependencies:
-      '@biomejs/cli-darwin-arm64': 2.2.4
-      '@biomejs/cli-darwin-x64': 2.2.4
-      '@biomejs/cli-linux-arm64': 2.2.4
-      '@biomejs/cli-linux-arm64-musl': 2.2.4
-      '@biomejs/cli-linux-x64': 2.2.4
-      '@biomejs/cli-linux-x64-musl': 2.2.4
-      '@biomejs/cli-win32-arm64': 2.2.4
-      '@biomejs/cli-win32-x64': 2.2.4
-
-  '@biomejs/cli-darwin-arm64@2.2.4':
-    optional: true
-
-  '@biomejs/cli-darwin-x64@2.2.4':
-    optional: true
-
-  '@biomejs/cli-linux-arm64-musl@2.2.4':
-    optional: true
-
-  '@biomejs/cli-linux-arm64@2.2.4':
-    optional: true
-
-  '@biomejs/cli-linux-x64-musl@2.2.4':
-    optional: true
-
-  '@biomejs/cli-linux-x64@2.2.4':
-    optional: true
-
-  '@biomejs/cli-win32-arm64@2.2.4':
-    optional: true
-
-  '@biomejs/cli-win32-x64@2.2.4':
-    optional: true
+  '@biomejs/biome@2.2.6': {}
 
   '@bluwy/giget-core@0.1.6':
     dependencies:
@@ -16232,7 +16151,7 @@ snapshots:
       '@babel/types': 7.28.1
       '@netlify/binary-info': 1.0.0
       '@netlify/serverless-functions-api': 2.5.0
-      '@vercel/nft': 0.30.1(rollup@4.52.3)
+      '@vercel/nft': 0.29.4(rollup@4.52.3)
       archiver: 7.0.1
       common-path-prefix: 3.0.0
       copy-file: 11.1.0
@@ -17017,6 +16936,25 @@ snapshots:
   '@vercel/functions@2.2.13':
     dependencies:
       '@vercel/oidc': 2.0.2
+
+  '@vercel/nft@0.29.4(rollup@4.52.3)':
+    dependencies:
+      '@mapbox/node-pre-gyp': 2.0.0
+      '@rollup/pluginutils': 5.3.0(rollup@4.52.3)
+      acorn: 8.15.0
+      acorn-import-attributes: 1.9.5(acorn@8.15.0)
+      async-sema: 3.1.1
+      bindings: 1.5.0
+      estree-walker: 2.0.2
+      glob: 10.4.5
+      graceful-fs: 4.2.11
+      node-gyp-build: 4.8.4
+      picomatch: 4.0.3
+      resolve-from: 5.0.0
+    transitivePeerDependencies:
+      - encoding
+      - rollup
+      - supports-color
 
   '@vercel/nft@0.30.1(rollup@4.52.3)':
     dependencies:
