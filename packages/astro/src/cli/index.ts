@@ -10,14 +10,6 @@ import { ASTRO_VERSION } from '../core/constants.js';
 async function runCommand(cmd: string, flags: yargs.Arguments) {
 	// These commands can run directly without parsing the user config.
 	switch (cmd) {
-		case 'telemetry': {
-			// Do not track session start, since the user may be trying to enable,
-			// disable, or modify telemetry settings.
-			const { update } = await import('./telemetry/index.js');
-			const subcommand = flags._[3]?.toString();
-			await update(subcommand, { flags });
-			return;
-		}
 		case 'sync': {
 			const { sync } = await import('./sync/index.js');
 			await sync({ flags });
@@ -127,7 +119,6 @@ program
 
 program
 	.command('info')
-	.usage('[...flags]')
 	.description('Outputs Astro informations.')
 	.option('--copy', 'Force the copy of the output.')
 	.action(async (options: { copy?: boolean }) => {
@@ -146,7 +137,6 @@ program
 
 program
 	.command('create-key')
-	.usage('[...flags]')
 	.description('Generates a key to encrypt props passed to server islands.')
 	.action(async () => {
 		const [{ createKey }, { createLoggerFromFlags }, { createCryptoKeyGenerator }] =
@@ -166,12 +156,78 @@ program
 
 program
 	.command('docs')
-	.usage('[...flags]')
 	.description('Launches the Astro Docs website directly from the terminal.')
 	.action(async () => {
 		const { docs } = await import('./docs/index.js');
 		await docs();
 	});
+
+program
+	.command('telemetry')
+	.usage('[command]')
+	.description('Update Astro telemetry settings.')
+	.addCommand(
+		new Command()
+			.name('enable')
+			.description('Enable anonymous data collection.')
+			.action(async () => {
+				const [{ createLoggerFromFlags }, { enable }] = await Promise.all([
+					import('./flags.js'),
+					import('./telemetry/enable.js'),
+				]);
+				const globalOptions = program.opts<GlobalOptions>();
+				const logger = createLoggerFromFlags({
+					verbose: globalOptions.verbose,
+					silent: globalOptions.silent,
+				});
+				enable({ logger });
+			}),
+	)
+	.addCommand(
+		new Command()
+			.name('disable')
+			.description('Disable anonymous data collection.')
+			.action(async () => {
+				const [{ createLoggerFromFlags }, { disable }] = await Promise.all([
+					import('./flags.js'),
+					import('./telemetry/disable.js'),
+				]);
+				const globalOptions = program.opts<GlobalOptions>();
+				const logger = createLoggerFromFlags({
+					verbose: globalOptions.verbose,
+					silent: globalOptions.silent,
+				});
+				disable({ logger });
+			}),
+	)
+	.addCommand(
+		new Command()
+			.name('reset')
+			.description('Reset anonymous data collection settings.')
+			.action(async () => {
+				const [{ createLoggerFromFlags }, { reset }] = await Promise.all([
+					import('./flags.js'),
+					import('./telemetry/reset.js'),
+				]);
+				const globalOptions = program.opts<GlobalOptions>();
+				const logger = createLoggerFromFlags({
+					verbose: globalOptions.verbose,
+					silent: globalOptions.silent,
+				});
+				reset({ logger });
+			}),
+	);
+
+// TODO: sync
+// TODO: preferences
+
+const programWithTelemetryNotice = (command: Command) =>
+	command.hook('preAction', async () => {
+		const { notify } = await import('./telemetry/index.js');
+		await notify();
+	});
+
+
 
 /** The primary CLI action */
 export async function cli(argv: string[]) {
