@@ -10,28 +10,6 @@ import { ASTRO_VERSION } from '../core/constants.js';
 async function runCommand(cmd: string, flags: yargs.Arguments) {
 	// These commands can run directly without parsing the user config.
 	switch (cmd) {
-		case 'info': {
-			const { printInfo } = await import('./info/index.js');
-			await printInfo({ flags });
-			return;
-		}
-		case 'create-key': {
-			const [{ createKey }, { createLoggerFromFlags }, { createCryptoKeyGenerator }] =
-				await Promise.all([
-					import('./create-key/core/create-key.js'),
-					import('./flags.js'),
-					import('./create-key/infra/crypto-key-generator.js'),
-				]);
-			const logger = createLoggerFromFlags(flags);
-			const keyGenerator = createCryptoKeyGenerator();
-			await createKey({ logger, keyGenerator });
-			return;
-		}
-		case 'docs': {
-			const { docs } = await import('./docs/index.js');
-			await docs({ flags });
-			return;
-		}
 		case 'telemetry': {
 			// Do not track session start, since the user may be trying to enable,
 			// disable, or modify telemetry settings.
@@ -149,6 +127,7 @@ program
 
 program
 	.command('info')
+	.usage('[...flags]')
 	.description('Outputs Astro informations.')
 	.option('--copy', 'Force the copy of the output.')
 	.action(async (options: { copy?: boolean }) => {
@@ -167,6 +146,7 @@ program
 
 program
 	.command('create-key')
+	.usage('[...flags]')
 	.description('Generates a key to encrypt props passed to server islands.')
 	.action(async () => {
 		const [{ createKey }, { createLoggerFromFlags }, { createCryptoKeyGenerator }] =
@@ -182,6 +162,15 @@ program
 		});
 		const keyGenerator = createCryptoKeyGenerator();
 		await createKey({ logger, keyGenerator });
+	});
+
+program
+	.command('docs')
+	.usage('[...flags]')
+	.description('Launches the Astro Docs website directly from the terminal.')
+	.action(async () => {
+		const { docs } = await import('./docs/index.js');
+		await docs();
 	});
 
 /** The primary CLI action */
