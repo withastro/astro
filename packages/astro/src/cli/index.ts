@@ -1,5 +1,5 @@
 import * as colors from 'kleur/colors';
-import yargs from 'yargs-parser';
+import type yargs from 'yargs-parser';
 import { ASTRO_VERSION } from '../core/constants.js';
 
 type CLICommand =
@@ -209,14 +209,66 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	throw new Error(`Error running ${cmd} -- no command found.`);
 }
 
+import { Command } from 'commander';
+
+const program = new Command();
+
+interface GlobalOptions {
+	config?: string;
+	root?: string;
+	site?: string;
+	base?: string;
+	verbose?: boolean;
+	silent?: boolean;
+}
+
+program
+	.name('astro')
+	.usage('[command] [...flags]')
+	.description('Build faster websites.')
+	.option('--config <path>', 'Specify your config file.')
+	.option('--root <path>', 'Specify your project root folder.')
+	.option('--site <url>', 'Specify your project site.')
+	.option('--base <pathname>', 'Specify your project base.')
+	.option('--verbose', 'Enable verbose logging.')
+	.option('--silent', 'Disable all logging.')
+	.version(
+		`${colors.bgGreen(colors.black(` astro `))} ${colors.green(`v${ASTRO_VERSION}`)}`,
+		'--version',
+		'Show the version number and exit.',
+	)
+	.helpOption('--help', 'Show this help message.')
+	.action(program.help);
+
+program
+	.command('create-key')
+	.description('Generates a key to encrypt props passed to server islands.')
+	.action(async () => {
+		const [{ createKey }, { createLoggerFromFlags }, { createCryptoKeyGenerator }] =
+			await Promise.all([
+				import('./create-key/core/create-key.js'),
+				import('./flags.js'),
+				import('./create-key/infra/crypto-key-generator.js'),
+			]);
+		const options = program.opts<GlobalOptions>();
+		const logger = createLoggerFromFlags({
+			verbose: options.verbose,
+			silent: options.silent,
+		});
+		const keyGenerator = createCryptoKeyGenerator();
+		await createKey({ logger, keyGenerator });
+	});
+
+
 /** The primary CLI action */
 export async function cli(argv: string[]) {
-	const flags = yargs(argv, { boolean: ['global'], alias: { g: 'global' } });
-	const cmd = resolveCommand(flags);
-	try {
-		await runCommand(cmd, flags);
-	} catch (err) {
-		const { throwAndExit } = await import('./throw-and-exit.js');
-		await throwAndExit(cmd, err);
-	}
+	await program.parseAsync(argv);
+	// const flags = yargs(argv, { boolean: ['global'], alias: { g: 'global' } });
+	// const cmd = resolveCommand(flags);
+	// try {
+	// 	await runCommand(cmd, flags);
+	// } catch (err) {
+	// 	const { throwAndExit } = await import('./throw-and-exit.js');
+	// 	await throwAndExit(cmd, err);
+	// }
 }

@@ -119,6 +119,7 @@
     "boxen": "8.0.1",
     "ci-info": "^4.3.0",
     "clsx": "^2.1.1",
+    "commander": "^14.0.1",
     "common-ancestor-path": "^1.0.1",
     "cookie": "^1.0.2",
     "cssesc": "^3.0.0",
