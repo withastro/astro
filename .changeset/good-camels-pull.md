@@ -64,4 +64,4 @@ export default defineConfig({
 });
 ```
 
-If you want to keep the old ID generation for backward compatibility reasons, you can create a custom rehype plugin that will generate headings IDs like Astro 5.x. This will allow you to continue to use your existing anchor links without adding trailing hyphens.
+If you want to keep the old ID generation for backward compatibility reasons, you can [create a custom rehype plugin that will generate headings IDs like Astro 5.x](https://docs.astro.build/en/guides/upgrade-to/v6/#changed-markdown-heading-id-generation) by following the instructions in the Astro 6 upgrade guide. This will allow you to continue to use your existing anchor links without adding trailing hyphens.
