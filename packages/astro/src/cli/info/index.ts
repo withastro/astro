@@ -5,12 +5,7 @@ import prompts from 'prompts';
 import { resolveConfig } from '../../core/config/index.js';
 import { ASTRO_VERSION } from '../../core/constants.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
-import type { AstroConfig, AstroUserConfig } from '../../types/public/config.js';
-import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
-
-interface InfoOptions {
-	flags: Flags;
-}
+import type { AstroConfig, AstroInlineConfig, AstroUserConfig } from '../../types/public/config.js';
 
 export async function getInfoOutput({
 	userConfig,
@@ -79,11 +74,17 @@ export async function getInfoOutput({
 	return output.trim();
 }
 
-export async function printInfo({ flags }: InfoOptions) {
+export async function printInfo({
+	inlineConfig,
+	force,
+}: {
+	inlineConfig: AstroInlineConfig;
+	force?: boolean;
+}) {
 	applyPolyfill();
-	const { userConfig } = await resolveConfig(flagsToAstroInlineConfig(flags), 'info');
+	const { userConfig } = await resolveConfig(inlineConfig, 'info');
 	const output = await getInfoOutput({ userConfig, print: true });
-	await copyToClipboard(output, flags.copy);
+	await copyToClipboard(output, force);
 }
 
 async function copyToClipboard(text: string, force?: boolean) {

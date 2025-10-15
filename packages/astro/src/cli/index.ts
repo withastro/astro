@@ -148,6 +148,24 @@ program
 	.action(program.help);
 
 program
+	.command('info')
+	.description('Outputs Astro informations.')
+	.option('--copy', 'Force the copy of the output.')
+	.action(async (options: { copy?: boolean }) => {
+		const { printInfo } = await import('./info/index.js');
+		const globalOptions = program.opts<GlobalOptions>();
+		await printInfo({
+			inlineConfig: {
+				configFile: globalOptions.config,
+				root: globalOptions.root,
+				site: globalOptions.site,
+				base: globalOptions.base,
+			},
+			force: options.copy,
+		});
+	});
+
+program
 	.command('create-key')
 	.description('Generates a key to encrypt props passed to server islands.')
 	.action(async () => {
@@ -157,10 +175,10 @@ program
 				import('./flags.js'),
 				import('./create-key/infra/crypto-key-generator.js'),
 			]);
-		const options = program.opts<GlobalOptions>();
+		const globalOptions = program.opts<GlobalOptions>();
 		const logger = createLoggerFromFlags({
-			verbose: options.verbose,
-			silent: options.silent,
+			verbose: globalOptions.verbose,
+			silent: globalOptions.silent,
 		});
 		const keyGenerator = createCryptoKeyGenerator();
 		await createKey({ logger, keyGenerator });
