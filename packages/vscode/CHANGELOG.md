@@ -1,5 +1,12 @@
 # astro-vscode
 
+## 2.15.5
+
+### Patch Changes
+
+- 2cbd3f6: Updates the autocomplete options for `export const prerender=` to remove `import.meta.env`, as this option was removed in Astro 4.14
+- 6dfd814: Updated internal Volar version. This update should improve compatibility with newer versions of TypeScript and fix minor issues.
+
 ## 2.15.4
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/ts-plugin",
-  "version": "1.10.4",
+  "version": "1.10.5",
   "description": "A TypeScript Plugin providing Astro intellisense",
   "main": "dist/index.js",
   "type": "commonjs",

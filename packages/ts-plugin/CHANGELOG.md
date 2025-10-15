@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 1.10.5
+
+### Patch Changes
+
+- 6dfd814: Updated internal Volar version. This update should improve compatibility with newer versions of TypeScript and fix minor issues.
+
 ## 1.10.4
 
 ### Patch Changes
