@@ -2,93 +2,6 @@ import * as colors from 'kleur/colors';
 import type yargs from 'yargs-parser';
 import { ASTRO_VERSION } from '../core/constants.js';
 
-type CLICommand =
-	| 'help'
-	| 'version'
-	| 'add'
-	| 'create-key'
-	| 'docs'
-	| 'dev'
-	| 'build'
-	| 'preview'
-	| 'db'
-	| 'sync'
-	| 'check'
-	| 'info'
-	| 'preferences'
-	| 'telemetry';
-
-/** Display --help flag */
-async function printAstroHelp() {
-	const { printHelp } = await import('../core/messages.js');
-	printHelp({
-		commandName: 'astro',
-		usage: '[command] [...flags]',
-		headline: 'Build faster websites.',
-		tables: {
-			Commands: [
-				['add', 'Add an integration.'],
-				['build', 'Build your project and write it to disk.'],
-				['check', 'Check your project for errors.'],
-				['create-key', 'Create a cryptography key'],
-				['db', 'Manage your Astro database.'],
-				['dev', 'Start the development server.'],
-				['docs', 'Open documentation in your web browser.'],
-				['info', 'List info about your current Astro setup.'],
-				['preview', 'Preview your build locally.'],
-				['sync', 'Generate content collection types.'],
-				['preferences', 'Configure user preferences.'],
-				['telemetry', 'Configure telemetry settings.'],
-			],
-			'Global Flags': [
-				['--config <path>', 'Specify your config file.'],
-				['--root <path>', 'Specify your project root folder.'],
-				['--site <url>', 'Specify your project site.'],
-				['--base <pathname>', 'Specify your project base.'],
-				['--verbose', 'Enable verbose logging.'],
-				['--silent', 'Disable all logging.'],
-				['--version', 'Show the version number and exit.'],
-				['--help', 'Show this help message.'],
-			],
-		},
-	});
-}
-
-/** Display --version flag */
-function printVersion() {
-	console.log();
-	console.log(`  ${colors.bgGreen(colors.black(` astro `))} ${colors.green(`v${ASTRO_VERSION}`)}`);
-}
-
-/** Determine which command the user requested */
-function resolveCommand(flags: yargs.Arguments): CLICommand {
-	const cmd = flags._[2] as string;
-	if (flags.version) return 'version';
-
-	const supportedCommands = new Set([
-		'add',
-		'sync',
-		'telemetry',
-		'preferences',
-		'dev',
-		'build',
-		'preview',
-		'check',
-		'create-key',
-		'docs',
-		'db',
-		'info',
-		'login',
-		'logout',
-		'link',
-		'init',
-	]);
-	if (supportedCommands.has(cmd)) {
-		return cmd as CLICommand;
-	}
-	return 'help';
-}
-
 /**
  * Run the given command with the given flags.
  * NOTE: This function provides no error handling, so be sure
@@ -97,12 +10,6 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
 async function runCommand(cmd: string, flags: yargs.Arguments) {
 	// These commands can run directly without parsing the user config.
 	switch (cmd) {
-		case 'help':
-			await printAstroHelp();
-			return;
-		case 'version':
-			printVersion();
-			return;
 		case 'info': {
 			const { printInfo } = await import('./info/index.js');
 			await printInfo({ flags });
@@ -259,16 +166,8 @@ program
 		await createKey({ logger, keyGenerator });
 	});
 
-
 /** The primary CLI action */
 export async function cli(argv: string[]) {
+	// TODO: error handling
 	await program.parseAsync(argv);
-	// const flags = yargs(argv, { boolean: ['global'], alias: { g: 'global' } });
-	// const cmd = resolveCommand(flags);
-	// try {
-	// 	await runCommand(cmd, flags);
-	// } catch (err) {
-	// 	const { throwAndExit } = await import('./throw-and-exit.js');
-	// 	await throwAndExit(cmd, err);
-	// }
 }
