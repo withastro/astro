@@ -1,6 +1,6 @@
 import type { HelpPayload } from './help-payload.js';
 
-export interface Command<T extends (...args: Array<any>) => any> {
+interface Command<T extends (...args: Array<any>) => any> {
 	help: HelpPayload;
 	run: T;
 }
