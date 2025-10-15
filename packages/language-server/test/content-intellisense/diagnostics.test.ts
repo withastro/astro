@@ -4,6 +4,7 @@ import { DiagnosticSeverity, Position } from '@volar/language-server';
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
 import { type LanguageServer, getLanguageServer } from '../server.js';
+import { fixtureDir } from '../utils.js';
 
 describe('Content Intellisense - Diagnostics', async () => {
 	let languageServer: LanguageServer;
@@ -12,7 +13,7 @@ describe('Content Intellisense - Diagnostics', async () => {
 
 	it('Report errors for missing entries in frontmatter', async () => {
 		const document = await languageServer.handle.openTextDocument(
-			path.resolve(__dirname, '..', 'fixture', 'src', 'content', 'blog', 'missing_property.md'),
+			path.join(fixtureDir, 'src', 'content', 'blog', 'missing_property.md'),
 			'markdown',
 		);
 		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
@@ -40,7 +41,7 @@ describe('Content Intellisense - Diagnostics', async () => {
 
 	it('Report errors for invalid types in frontmatter', async () => {
 		const document = await languageServer.handle.openTextDocument(
-			path.resolve(__dirname, '..', 'fixture', 'src', 'content', 'blog', 'type_error.md'),
+			path.join(fixtureDir, 'src', 'content', 'blog', 'type_error.md'),
 			'markdown',
 		);
 		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
@@ -67,7 +68,7 @@ describe('Content Intellisense - Diagnostics', async () => {
 
 	it('Report error for missing frontmatter', async () => {
 		const document = await languageServer.handle.openTextDocument(
-			path.resolve(__dirname, '..', 'fixture', 'src', 'content', 'blog', 'no_frontmatter.md'),
+			path.join(fixtureDir, 'src', 'content', 'blog', 'no_frontmatter.md'),
 			'markdown',
 		);
 		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(

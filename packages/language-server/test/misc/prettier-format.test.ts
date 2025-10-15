@@ -3,6 +3,7 @@ import { Range } from '@volar/language-server';
 import { expect } from 'chai';
 import { describe } from 'mocha';
 import { type LanguageServer, getLanguageServer } from '../server.js';
+import { fixtureDir } from '../utils.js';
 
 describe('Formatting - Prettier', () => {
 	let languageServer: LanguageServer;
@@ -26,7 +27,7 @@ describe('Formatting - Prettier', () => {
 
 	it('Can ignore documents correctly', async () => {
 		const document = await languageServer.handle.openTextDocument(
-			path.resolve(__dirname, '..', 'fixture', 'dontFormat.astro'),
+			path.join(fixtureDir, 'dontFormat.astro'),
 			'astro',
 		);
 		const formatEdits = await languageServer.handle.sendDocumentFormattingRequest(document.uri, {
@@ -39,7 +40,7 @@ describe('Formatting - Prettier', () => {
 
 	it('Respect .editorconfig', async () => {
 		const document = await languageServer.handle.openTextDocument(
-			path.resolve(__dirname, '..', 'fixture', 'editorConfig.astro'),
+			path.join(fixtureDir, 'editorConfig.astro'),
 			'astro',
 		);
 		const formatEdits = await languageServer.handle.sendDocumentFormattingRequest(document.uri, {

@@ -1,0 +1,5 @@
+{
+  "name": "language-server-tests",
+  "private": true,
+  "type": "module"
+}

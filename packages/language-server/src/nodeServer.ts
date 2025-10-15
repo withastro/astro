@@ -43,6 +43,7 @@ connection.onInitialize((params) => {
 		configs: contentIntellisenseEnabled
 			? loadCollectionConfig(
 					// The vast majority of clients support workspaceFolders, but sometimes some unusual environments like tests don't
+					// @ts-expect-error - Just deprecated types, it's fine
 					params.workspaceFolders ?? (params.rootUri ? [{ uri: params.rootUri }] : []) ?? [],
 				)
 			: [],

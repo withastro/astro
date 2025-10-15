@@ -19,12 +19,12 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node_version: [18, 20]
+        node_version: [20.9.0, 22]
         include:
           - os: windows-latest
-            node_version: 18
+            node_version: 20.9.0
           - os: macos-latest
-            node_version: 18
+            node_version: 20.9.0
       fail-fast: false
 
     name: 'Test: node-${{ matrix.node_version }}, ${{ matrix.os }}'

@@ -30,21 +30,21 @@
     "@astrojs/compiler": "^2.10.3",
     "@astrojs/yaml2ts": "^0.2.2",
     "@jridgewell/sourcemap-codec": "^1.4.15",
-    "@volar/language-core": "~2.4.7",
-    "@volar/typescript": "~2.4.7",
+    "@volar/language-core": "~2.4.23",
+    "@volar/typescript": "~2.4.23",
     "semver": "^7.3.8",
     "vscode-languageserver-textdocument": "^1.0.11"
   },
   "devDependencies": {
     "@types/chai": "^4.3.5",
     "@types/mocha": "^10.0.1",
-    "@types/node": "^18.17.8",
+    "@types/node": "^20.9.0",
     "@types/semver": "^7.3.13",
-    "@vscode/test-electron": "^2.3.2",
+    "@vscode/test-electron": "^2.5.2",
     "chai": "^4.3.7",
     "glob": "^8.0.3",
     "mocha": "^10.2.0",
-    "typescript": "^5.5.4",
+    "typescript": "^5.9.3",
     "vscode-uri": "^3.0.8"
   }
 }

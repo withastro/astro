@@ -4,6 +4,7 @@ import { Position } from '@volar/language-server';
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
 import { type LanguageServer, getLanguageServer } from '../server.js';
+import { fixtureDir } from '../utils.js';
 
 describe('Content Intellisense - Go To Everywhere', async () => {
 	let languageServer: LanguageServer;
@@ -12,7 +13,7 @@ describe('Content Intellisense - Go To Everywhere', async () => {
 
 	it('Provide definitions for keys', async () => {
 		const document = await languageServer.handle.openTextDocument(
-			path.resolve(__dirname, '..', 'fixture', 'src', 'content', 'blog', 'definitions.md'),
+			path.join(fixtureDir, 'src', 'content', 'blog', 'definitions.md'),
 			'markdown',
 		);
 

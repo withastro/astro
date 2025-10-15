@@ -3,6 +3,7 @@ import { Position } from '@volar/language-server';
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
 import { type LanguageServer, getLanguageServer } from '../server.js';
+import { fixtureDir } from '../utils.js';
 
 describe('Content Intellisense - Completions', async () => {
 	let languageServer: LanguageServer;
@@ -11,7 +12,7 @@ describe('Content Intellisense - Completions', async () => {
 
 	it('Provide completions for collection properties', async () => {
 		const document = await languageServer.handle.openTextDocument(
-			path.resolve(__dirname, '..', 'fixture', 'src', 'content', 'blog', 'completions.md'),
+			path.join(fixtureDir, 'src', 'content', 'blog', 'completions.md'),
 			'markdown',
 		);
 
@@ -27,7 +28,7 @@ describe('Content Intellisense - Completions', async () => {
 
 	it('Provide completions for collection property values', async () => {
 		const document = await languageServer.handle.openTextDocument(
-			path.resolve(__dirname, '..', 'fixture', 'src', 'content', 'blog', 'completions-values.md'),
+			path.join(fixtureDir, 'src', 'content', 'blog', 'completions-values.md'),
 			'markdown',
 		);
 

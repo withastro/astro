@@ -3,6 +3,7 @@ import { Position } from '@volar/language-server';
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
 import { type LanguageServer, getLanguageServer } from '../server.js';
+import { fixtureDir } from '../utils.js';
 
 describe('Content Intellisense - Hover', async () => {
 	let languageServer: LanguageServer;
@@ -11,7 +12,7 @@ describe('Content Intellisense - Hover', async () => {
 
 	it('Provide hover information for collection properties', async () => {
 		const document = await languageServer.handle.openTextDocument(
-			path.resolve(__dirname, '..', 'fixture', 'src', 'content', 'blog', 'hover.md'),
+			path.join(fixtureDir, 'src', 'content', 'blog', 'hover.md'),
 			'markdown',
 		);
 

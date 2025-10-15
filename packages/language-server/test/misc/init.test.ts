@@ -96,7 +96,7 @@ describe('Initialize', async () => {
 			},
 			selectionRangeProvider: true,
 			semanticTokensProvider: {
-				full: false,
+				full: true,
 				legend: {
 					tokenModifiers: ['declaration', 'readonly', 'static', 'async', 'defaultLibrary', 'local'],
 					tokenTypes: [

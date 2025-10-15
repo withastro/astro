@@ -16,7 +16,7 @@ describe('Content Intellisense - Caching', async () => {
 
 	it('Properly updates the schema when they are updated', async () => {
 		const document = await languageServer.handle.openTextDocument(
-			path.resolve(__dirname, '..', 'fixture', 'src', 'content', 'caching', 'caching.md'),
+			path.join(fixtureDir, 'src', 'content', 'caching', 'caching.md'),
 			'markdown',
 		);
 

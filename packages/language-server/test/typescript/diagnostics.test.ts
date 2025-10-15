@@ -4,6 +4,7 @@ import { type Diagnostic, DiagnosticSeverity, Range } from '@volar/language-serv
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
 import { type LanguageServer, getLanguageServer } from '../server.js';
+import { fixtureDir } from '../utils.js';
 
 describe('TypeScript - Diagnostics', async () => {
 	let languageServer: LanguageServer;
@@ -52,7 +53,7 @@ describe('TypeScript - Diagnostics', async () => {
 
 	it('shows enhanced diagnostics', async () => {
 		const document = await languageServer.handle.openTextDocument(
-			path.resolve(__dirname, '..', 'fixture', 'enhancedDiagnostics.astro'),
+			path.join(fixtureDir, 'enhancedDiagnostics.astro'),
 			'astro',
 		);
 		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(

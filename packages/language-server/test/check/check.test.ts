@@ -1,9 +1,16 @@
+import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
 import type { CheckResult } from '../../dist/check.js';
 import { AstroCheck } from '../../dist/check.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const require = createRequire(import.meta.url);
+const checkFixtureDir = path.resolve(__dirname, 'fixture');
 
 describe('AstroCheck', async () => {
 	let checker: AstroCheck;
@@ -13,7 +20,7 @@ describe('AstroCheck', async () => {
 		// First init can sometimes be slow in CI, even though the rest of the tests will be fast.
 		this.timeout(50000);
 		checker = new AstroCheck(
-			path.resolve(__dirname, 'fixture'),
+			checkFixtureDir,
 			require.resolve('typescript/lib/typescript.js'),
 			undefined,
 		);

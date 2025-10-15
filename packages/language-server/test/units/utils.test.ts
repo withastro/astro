@@ -77,7 +77,7 @@ describe('Utilities', async () => {
 	});
 
 	it('ensureRangeIsInFrontmatter - properly return a range inside the frontmatter', () => {
-		const beforeFrontmatterRange = html.Range.create(0, 0, 0, 0);
+		const beforeFrontmatterRange = Range.create(0, 0, 0, 0);
 		const input = '---\nfoo\n---\n';
 		const tsx = safeConvertToTSX(input, { filename: 'file.astro' });
 		const tsxRanges = getTSXRangesAsLSPRanges(tsx);
@@ -87,12 +87,12 @@ describe('Utilities', async () => {
 			Range.create(2, 0, 2, 0),
 		);
 
-		const insideFrontmatterRange = html.Range.create(1, 0, 1, 0);
+		const insideFrontmatterRange = Range.create(1, 0, 1, 0);
 		expect(utils.ensureRangeIsInFrontmatter(insideFrontmatterRange, astroMetadata)).to.deep.equal(
 			Range.create(2, 0, 2, 0),
 		);
 
-		const outsideFrontmatterRange = html.Range.create(6, 0, 6, 0);
+		const outsideFrontmatterRange = Range.create(6, 0, 6, 0);
 		expect(utils.ensureRangeIsInFrontmatter(outsideFrontmatterRange, astroMetadata)).to.deep.equal(
 			Range.create(2, 0, 2, 0),
 		);
