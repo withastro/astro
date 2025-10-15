@@ -221,7 +221,7 @@
 // 	}
 // }
 
-import { buildApplication, buildCommand, buildRouteMap, run } from '@stricli/core';
+import { buildApplication, buildCommand, buildRouteMap, numberParser, run } from '@stricli/core';
 import * as colors from 'kleur/colors';
 import { ASTRO_VERSION } from '../core/constants.js';
 
@@ -257,11 +257,30 @@ import { ASTRO_VERSION } from '../core/constants.js';
 // 		},
 // 	});
 
+// TODO: check what is command specific
+interface SharedParameters {
+	// Inline-only configs
+	config?: string;
+	mode?: string;
+	verbose?: boolean;
+	silent?: boolean;
+
+	// Astro user configs
+	root?: string;
+	site?: string;
+	base?: string;
+	outDir?: string;
+	port?: number;
+	host?: string | boolean;
+	open?: string | boolean;
+	allowedHosts?: string | boolean;
+}
+
 const app = buildApplication(
 	buildRouteMap({
 		routes: {
 			'create-key': buildCommand({
-				async func({ verbose, silent }: { verbose?: boolean; silent?: boolean }) {
+				async func({ verbose, silent }: SharedParameters) {
 					const [{ createKey }, { createLoggerFromFlags }, { createCryptoKeyGenerator }] =
 						await Promise.all([
 							import('./create-key/core/create-key.js'),
@@ -274,9 +293,23 @@ const app = buildApplication(
 				},
 				docs: {
 					brief: 'Generates a key to encrypt props passed to server islands.',
+					customUsage: ['[...flags]']
 				},
 				parameters: {
 					flags: {
+						// Inline-only configs
+						config: {
+							kind: 'parsed',
+							parse: String,
+							brief: 'Specify your config file.',
+							optional: true,
+						},
+						mode: {
+							kind: 'parsed',
+							parse: String,
+							brief: "Specify Vite's mode.",
+							optional: true,
+						},
 						verbose: {
 							kind: 'boolean',
 							brief: 'Enable verbose logging.',
@@ -285,6 +318,59 @@ const app = buildApplication(
 						silent: {
 							kind: 'boolean',
 							brief: 'Disable all logging.',
+							optional: true,
+						},
+
+						// Astro user configs
+						root: {
+							kind: 'parsed',
+							parse: String,
+							brief: 'Specify your project root folder.',
+							optional: true,
+						},
+						site: {
+							kind: 'parsed',
+							parse: String,
+							brief: 'Specify your project site.',
+							optional: true,
+						},
+						base: {
+							kind: 'parsed',
+							parse: String,
+							brief: 'Specify your project base.',
+							optional: true,
+						},
+						outDir: {
+							kind: 'parsed',
+							parse: String,
+							brief: 'Specify your project outDir folder.',
+							optional: true,
+						},
+						port: {
+							kind: 'parsed',
+							parse: numberParser,
+							brief: 'Specify your project server port.',
+							optional: true,
+						},
+						host: {
+							kind: 'parsed',
+							// TODO: handle boolean
+							parse: String,
+							brief: 'Specify your project server host.',
+							optional: true,
+						},
+						open: {
+							kind: 'parsed',
+							// TODO: handle boolean
+							parse: String,
+							brief: 'Open dev server on start',
+							optional: true,
+						},
+						allowedHosts: {
+							kind: 'parsed',
+							// TODO: handle boolean and array
+							parse: String,
+							brief: 'Specify your project server allowed hosts.',
 							optional: true,
 						},
 					},
