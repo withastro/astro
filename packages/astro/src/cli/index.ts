@@ -35,12 +35,6 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	// These commands uses the logging and user config. All commands are assumed to have been handled
 	// by the end of this switch statement.
 	switch (cmd) {
-		case 'add': {
-			const { add } = await import('./add/index.js');
-			const packages = flags._.slice(3) as string[];
-			await add(packages, { flags });
-			return;
-		}
 		case 'db':
 		case 'login':
 		case 'logout':
@@ -114,7 +108,7 @@ program
 		'--version',
 		'Show the version number and exit.',
 	)
-	.helpOption('--help', 'Show this help message.')
+	.helpOption('--help, -h', 'Show this help message.')
 	.action(program.help);
 
 program
@@ -221,13 +215,103 @@ program
 // TODO: sync
 // TODO: preferences
 
-const programWithTelemetryNotice = (command: Command) =>
+const withTelemetryNotice = (command: Command) =>
 	command.hook('preAction', async () => {
 		const { notify } = await import('./telemetry/index.js');
 		await notify();
 	});
 
+withTelemetryNotice(
+	program
+		.command('add')
+		.description(
+			`For more integrations, check out: ${colors.cyan('https://astro.build/integrations')}`,
+		)
+		.argument('[packages...]')
+		.option('--yes, -y', 'Accept all prompts.', false)
+		// Allow forwarding of standard `npm install` flags
+		// See https://docs.npmjs.com/cli/v8/commands/npm-install#description
+		.option('--save-prod, -P')
+		.option('--save-dev, -D')
+		.option('--save-exact, -E')
+		.option('--no-save')
+		.addHelpText(
+			'after',
+			`
+UI Frameworks:
+  react     astro add react
+  preact    astro add preact
+  vue       astro add vue
+  svelte    astro add svelte
+  solids    astro add solid-js
+  lit       astro add lit
+  alpinejs  astro add alpinejs
 
+Documentation Frameworks:
+  starlight  astro add starlight
+
+SSR Adapters:
+  netlify     astro add netlify
+  vercel      astro add vercel
+  deno        astro add deno
+  cloudflare  astro add cloudflare
+  node        astro add node
+
+Others:
+  db         astro add db
+  tailwind   astro add tailwind
+  mdx        astro add mdx
+  markdoc    astro add markdoc
+  partytown  astro add partytown
+  sitemap    astro add sitemap
+`,
+		)
+		.action(
+			async (
+				packages: Array<string>,
+				options: {
+					yes: boolean;
+
+					'save-prod'?: boolean;
+					'save-dev'?: boolean;
+					'save-exact'?: boolean;
+					'no-save'?: boolean;
+				},
+				command: Command,
+			) => {
+				if (packages.length === 0) {
+					return command.help();
+				}
+
+				const [{ createLoggerFromFlags }, { add }] = await Promise.all([
+					import('./flags.js'),
+					import('./add/index.js'),
+				]);
+				const globalOptions = program.opts<GlobalOptions>();
+				const logger = createLoggerFromFlags({
+					verbose: globalOptions.verbose,
+					silent: globalOptions.silent,
+				});
+				await add({
+					names: packages,
+					inlineConfig: {
+						configFile: globalOptions.config,
+						root: globalOptions.root,
+						site: globalOptions.site,
+						base: globalOptions.base,
+					},
+					logger,
+					yes: options.yes,
+					inheritedFlags: {
+						'save-prod': options['save-prod'],
+						'save-dev': options['save-dev'],
+						'save-exact': options['save-exact'],
+						'no-save': options['no-save'],
+					},
+				});
+			},
+		),
+);
 
 /** The primary CLI action */
 export async function cli(argv: string[]) {
