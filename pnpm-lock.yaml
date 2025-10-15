@@ -4978,6 +4978,19 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/llm:
+    dependencies:
+      turndown:
+        specifier: ^7.2.0
+        version: 7.2.1
+    devDependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../astro
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../../scripts
+
   packages/integrations/markdoc:
     dependencies:
       '@astrojs/internal-helpers':
@@ -8333,6 +8346,9 @@ packages:
 
   '@mdx-js/mdx@3.1.1':
     resolution: {integrity: sha512-f6ZO2ifpwAQIpzGWaBQT2TXxPv6z3RBzQKpVftEWN78Vl/YweF1uwussDx8ECAXVtr3Rs89fKyG9YlzUs9DyGQ==}
+
+  '@mixmark-io/domino@2.2.0':
+    resolution: {integrity: sha512-Y28PR25bHXUg88kCV7nivXrP2Nj2RueZ3/l/jdx6J9f8J4nsEGcgX0Qe6lt7Pa+J79+kPiJU3LguR6O/6zrLOw==}
 
   '@nanostores/preact@0.5.2':
     resolution: {integrity: sha512-DZ5G0UuHTJ8NNS8I3Jd6f4RCcWIl4siYD+vaV6jQf0T6xJ3QqTSkJkYNQTZK7O+7NC/mzaLkomyLQqD+w1E0Tg==}
@@ -13503,6 +13519,9 @@ packages:
     resolution: {integrity: sha512-5c9Fdsr9qfpT3hA0EyYSFRZj1dVVsb6KIWubA9JBYZ/9ZEAijgUEae0BBR/Xl/wekt4w65/lYLTFaP3JmwSO8w==}
     hasBin: true
 
+  turndown@7.2.1:
+    resolution: {integrity: sha512-7YiPJw6rLClQL3oUKN3KgMaXeJJ2lAyZItclgKDurqnH61so4k4IH/qwmMva0zpuJc/FhRExBBnk7EbeFANlgQ==}
+
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
     engines: {node: '>= 0.8.0'}
@@ -15944,6 +15963,8 @@ snapshots:
       vfile: 6.0.3
     transitivePeerDependencies:
       - supports-color
+
+  '@mixmark-io/domino@2.2.0': {}
 
   '@nanostores/preact@0.5.2(nanostores@0.11.4)(preact@10.27.2)':
     dependencies:
@@ -21986,6 +22007,10 @@ snapshots:
       turbo-linux-arm64: 2.5.8
       turbo-windows-64: 2.5.8
       turbo-windows-arm64: 2.5.8
+
+  turndown@7.2.1:
+    dependencies:
+      '@mixmark-io/domino': 2.2.0
 
   type-check@0.4.0:
     dependencies:
