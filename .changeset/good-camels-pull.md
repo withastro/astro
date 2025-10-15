@@ -33,7 +33,18 @@ and must now be linked to as:
 See [the Picture component](/en/guides/images/#picture-) for more details.
 ```
 
-If you were previously using the experimental feature to enforce trailing hyphens, you must [remove this experimental flag from your configuration](#experimental-flags) as it no longer exists.
+If you were previously using this experimental feature, you must remove this experimental flag from your configuration as it no longer exists:
+
+```diff
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+
+export default defineConfig({
+  experimental: {
+-    headingIdCompat: true,
+  },
+})
+```
 
 If you were previously using the `rehypeHeadingIds` plugin directly to enforce compatibility, remove the `headingIdCompat` option as it no longer exists:
 
