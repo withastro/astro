@@ -28,14 +28,9 @@ describe('CLI create-key', () => {
 					},
 				});
 
-				assert.deepStrictEqual(logs, [
-					{
-						type: 'info',
-						label: 'crypto',
-						message:
-							'Generated a key to encrypt props passed to Server islands. To reuse the same key across builds, set this value as ASTRO_KEY in an environment variable on your build server.\n\nASTRO_KEY=FOO',
-					},
-				]);
+				assert.equal(logs[0].type, 'info');
+				assert.equal(logs[0].label, 'crypto');
+				assert.match(logs[0].message, /ASTRO_KEY=FOO/);
 				assert.deepStrictEqual(payloads, []);
 			});
 

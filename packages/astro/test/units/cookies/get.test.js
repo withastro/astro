@@ -5,12 +5,12 @@ import { apply as applyPolyfill } from '../../../dist/core/polyfill.js';
 
 applyPolyfill();
 
-export const encode = (data) => {
+const encode = (data) => {
 	const dataSerialized = typeof data === 'string' ? data : JSON.stringify(data);
 	return Buffer.from(dataSerialized).toString('base64');
 };
 
-export const decode = (str) => {
+const decode = (str) => {
 	return Buffer.from(str, 'base64').toString();
 };
 
