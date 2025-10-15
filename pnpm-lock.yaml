@@ -491,6 +491,9 @@ importers:
       '@rollup/pluginutils':
         specifier: ^5.2.0
         version: 5.3.0(rollup@4.52.3)
+      '@stricli/core':
+        specifier: ^1.2.0
+        version: 1.2.0
       acorn:
         specifier: ^8.15.0
         version: 8.15.0
@@ -8892,6 +8895,9 @@ packages:
     peerDependencies:
       solid-js: ^1.8.6
 
+  '@stricli/core@1.2.0':
+    resolution: {integrity: sha512-5b+npntDY0TAB7wAw0daGlh3/R2sf0TDLyrB1By2jCNH+C+lmcSqMtJXOMLVtEGSkIOvqAgIWpLMSs1PXqzt3w==}
+
   '@sveltejs/acorn-typescript@1.0.5':
     resolution: {integrity: sha512-IwQk4yfwLdibDlrXVE04jTZYlLnwsTT2PIOQQGNLWfjavGifnk1JD1LcZjZaBTRcxZu2FfPfNLOE04DSu9lqtQ==}
     peerDependencies:
@@ -16579,6 +16585,8 @@ snapshots:
   '@solidjs/router@0.15.3(solid-js@1.9.9)':
     dependencies:
       solid-js: 1.9.9
+
+  '@stricli/core@1.2.0': {}
 
   '@sveltejs/acorn-typescript@1.0.5(acorn@8.15.0)':
     dependencies:

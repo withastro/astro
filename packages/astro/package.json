@@ -113,6 +113,7 @@
     "@capsizecss/unpack": "^3.0.0",
     "@oslojs/encoding": "^1.1.0",
     "@rollup/pluginutils": "^5.2.0",
+    "@stricli/core": "^1.2.0",
     "acorn": "^8.15.0",
     "aria-query": "^5.3.2",
     "axobject-query": "^4.1.0",
