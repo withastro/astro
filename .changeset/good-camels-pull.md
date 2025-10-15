@@ -48,7 +48,8 @@ export default defineConfig({
 
 If you were previously using the `rehypeHeadingIds` plugin directly to enforce compatibility, remove the `headingIdCompat` option as it no longer exists:
 
-```js title="astro.config.mjs" del={8} ins={9}
+```diff
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import { rehypeHeadingIds } from '@astrojs/markdown-remark';
 import { otherPluginThatReliesOnHeadingIDs } from 'some/plugin/source';
@@ -56,8 +57,8 @@ import { otherPluginThatReliesOnHeadingIDs } from 'some/plugin/source';
 export default defineConfig({
   markdown: {
     rehypePlugins: [
-      [rehypeHeadingIds, { headingIdCompat: true }],
-      [rehypeHeadingIds],
+-     [rehypeHeadingIds, { headingIdCompat: true }],
++     [rehypeHeadingIds],
       otherPluginThatReliesOnHeadingIDs,
     ],
   },
