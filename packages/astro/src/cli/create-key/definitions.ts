@@ -1,3 +1,4 @@
+import type { AnyCommand } from './domain/command.js';
 import type { HelpPayload } from './domain/help-payload.js';
 
 export interface KeyGenerator {
@@ -20,4 +21,8 @@ export interface TextStyler {
 
 export interface AstroVersionProvider {
 	getVersion: () => string;
+}
+
+export interface CommandRunner {
+	run: <T extends AnyCommand>(command: T, ...args: Parameters<T['run']>) => ReturnType<T['run']>;
 }

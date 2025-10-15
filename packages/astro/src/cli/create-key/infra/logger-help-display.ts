@@ -2,7 +2,7 @@ import type { Logger } from '../../../core/logger/core.js';
 import type { Flags } from '../../flags.js';
 import type { AstroVersionProvider, HelpDisplay, TextStyler } from '../definitions.js';
 
-interface LoggerHelpDisplayOptions {
+interface Options {
 	logger: Logger;
 	textStyler: TextStyler;
 	astroVersionProvider: AstroVersionProvider;
@@ -15,7 +15,7 @@ export function createLoggerHelpDisplay({
 	flags,
 	textStyler,
 	astroVersionProvider,
-}: LoggerHelpDisplayOptions): HelpDisplay {
+}: Options): HelpDisplay {
 	return {
 		shouldFire() {
 			return !!(flags.help || flags.h);
