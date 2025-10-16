@@ -62,7 +62,7 @@ export function vitePluginActions({
 		enforce: 'pre',
 		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
-				return this.resolve('astro/virtual-modules/actions.js')
+				return this.resolve('astro/virtual-modules/actions.js');
 			}
 
 			if (id === RUNTIME_VIRTUAL_MODULE_ID) {
