@@ -536,5 +536,14 @@ describe('fonts implementations', () => {
 			}),
 			'foo-100-900-italic-cyrillic-whatever.woff2',
 		);
+		assert.equal(
+			resolver.resolve({
+				cssVariable: '--foo',
+				data: { weight: '200 700', style: 'italic', subset: 'cyrillic' },
+				originalUrl: 'whatever',
+				type: 'woff2',
+			}),
+			'foo-200-700-italic-cyrillic-whatever.woff2',
+		);
 	});
 });

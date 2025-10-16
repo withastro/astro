@@ -399,6 +399,11 @@ export function redirectToFallback({
 				if (pathFallbackLocale === defaultLocale && strategy === 'pathname-prefix-other-locales') {
 					if (context.url.pathname.includes(`${base}`)) {
 						newPathname = context.url.pathname.replace(`/${urlLocale}`, ``);
+						// Ensure the pathname are non-empty. Redirects like "/fr" => "" may create infinite loops,
+						// as the "Location" response header is empty.
+						if (newPathname === '') {
+							newPathname = '/';
+						}
 					} else {
 						newPathname = context.url.pathname.replace(`/${urlLocale}`, `/`);
 					}

@@ -1,4 +1,3 @@
-import { bold } from 'kleur/colors';
 import * as unifont from 'unifont';
 import type { Storage } from 'unstorage';
 import type { Logger } from '../../core/logger/core.js';
@@ -11,6 +10,7 @@ import type {
 	Hasher,
 	LocalProviderUrlResolver,
 	RemoteFontProviderResolver,
+	StringMatcher,
 	SystemFallbacksProvider,
 	UrlProxy,
 } from './definitions.js';
@@ -67,6 +67,8 @@ export async function orchestrate({
 	logger,
 	createUrlProxy,
 	defaults,
+	bold,
+	stringMatcher,
 }: {
 	families: Array<FontFamily>;
 	hasher: Hasher;
@@ -81,6 +83,8 @@ export async function orchestrate({
 	logger: Logger;
 	createUrlProxy: (params: CreateUrlProxyParams) => UrlProxy;
 	defaults: Defaults;
+	bold: (input: string) => string;
+	stringMatcher: StringMatcher;
 }): Promise<{
 	fontFileDataMap: FontFileDataMap;
 	internalConsumableMap: InternalConsumableMap;
@@ -100,7 +104,7 @@ export async function orchestrate({
 	resolvedFamilies = extractedUnifontProvidersResult.families;
 	const unifontProviders = extractedUnifontProvidersResult.providers;
 
-	const { resolveFont } = await unifont.createUnifont(unifontProviders, {
+	const { resolveFont, listFonts } = await unifont.createUnifont(unifontProviders, {
 		storage,
 	});
 
@@ -189,6 +193,13 @@ export async function orchestrate({
 					'assets',
 					`No data found for font family ${bold(family.name)}. Review your configuration`,
 				);
+				const availableFamilies = await listFonts([family.provider.name!]);
+				if (availableFamilies && !availableFamilies.includes(family.name)) {
+					logger.warn(
+						'assets',
+						`${bold(family.name)} font family cannot be retrieved by the provider. Did you mean ${bold(stringMatcher.getClosestMatch(family.name, availableFamilies))}?`,
+					);
+				}
 			}
 			// The data returned by the remote provider contains original URLs. We proxy them.
 			fonts = normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy, fontTypeExtractor });

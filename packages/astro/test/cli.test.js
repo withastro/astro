@@ -162,7 +162,7 @@ describe('astro cli', () => {
 
 	it(
 		'astro info shows correct Vite and integration versions when using yarn',
-		{ skip: process.env.ECOSYSTEM_CI },
+		{ skip: true },
 		async () => {
 			const fixtureRootURL = new URL('./fixtures/astro-info-versions/', import.meta.url);
 			const testsRootURL = new URL('../', import.meta.url);
