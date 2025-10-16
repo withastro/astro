@@ -54,7 +54,6 @@ const loader: LiveLoader<Entry, EntryFilter, CollectionFilter, CustomError> = {
 			},
 			cacheHint: {
 				tags: [`page:${filter.id}`],
-				maxAge: 60,
 				lastModified: new Date('2025-01-01T00:00:00.000Z'),
 			},
 		};
@@ -72,7 +71,6 @@ const loader: LiveLoader<Entry, EntryFilter, CollectionFilter, CustomError> = {
 				: Object.values(entries),
 			cacheHint: {
 				tags: ['page'],
-				maxAge: 60,
 				lastModified: new Date('2025-01-02T00:00:00.000Z'),
 			},
 		};

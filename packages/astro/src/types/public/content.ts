@@ -129,8 +129,6 @@ export type GetDataEntryInfoReturnType = { data: Record<string, unknown>; rawDat
 export interface CacheHint {
 	/** Cache tags */
 	tags?: Array<string>;
-	/** Maximum age of the response in seconds */
-	maxAge?: number;
 	/** Last modified time of the content */
 	lastModified?: Date;
 }
