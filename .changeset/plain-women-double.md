@@ -19,4 +19,11 @@ return {
 };
 ```
 
-The `cacheHint` object now only supports `tags` and `lastModified` properties.
+The `cacheHint` object now only supports `tags` and `lastModified` properties. If you want to set the max age for a page, you can set the headers manually:
+
+```astro
+---
+Astro.headers.set('cdn-cache-control', 'maxage=3600');
+---
+```
+
