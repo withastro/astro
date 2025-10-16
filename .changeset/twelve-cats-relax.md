@@ -2,4 +2,5 @@
 '@astrojs/vercel': major
 ---
 
-Removes deprecation notice for Node.js 18 as Vercel no longer supports it.
+Updates Node v18 'retiring' notice to 'deprecated' for Vercel adapter.
+Removes removeDate from 'deprecated' notice text.
