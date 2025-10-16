@@ -20,7 +20,7 @@ import {
 async function createDevApp(overrides = {}, root) {
 	const settings = overrides.settings ?? (await createBasicSettings({ root }));
 	const loader = overrides.loader ?? createLoader({});
-	const manifest = createDevelopmentManifest(settings);
+	const manifest = await createDevelopmentManifest(settings);
 	const routesList = await createRoutesList(
 		{
 			cwd: root,
