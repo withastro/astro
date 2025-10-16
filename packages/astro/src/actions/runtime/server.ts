@@ -1,5 +1,5 @@
 // TODO: move some stuff
-import { experimentalZod4 } from 'virtual:astro:actions/options';
+import { experimentalZod4 } from 'virtual:astro:config/experimentalZod4';
 import * as z3 from 'zod/v3';
 import * as z4 from 'zod/v4/core';
 import type { Pipeline } from '../../core/base-pipeline.js';

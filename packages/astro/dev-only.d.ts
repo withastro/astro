@@ -18,3 +18,7 @@ declare module 'virtual:astro:actions/options' {
 declare module 'virtual:astro:actions/runtime' {
 	export * from './src/actions/runtime/client.js';
 }
+
+declare module 'virtual:astro:config/experimentalZod4' {
+	export const experimentalZod4: boolean;
+}

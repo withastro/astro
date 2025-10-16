@@ -1,5 +1,4 @@
-// TODO: find another virtual module
-import { experimentalZod4 } from 'virtual:astro:actions/options';
+import { experimentalZod4 } from 'virtual:astro:config/experimentalZod4';
 import type * as z3 from 'zod/v3';
 import type * as z4 from 'zod/v4/core';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
@@ -103,7 +102,9 @@ export type CollectionConfig<S extends BaseSchema> = {
 	type?: 'content_layer';
 	schema?:
 		| S
-		| ((context: { image: NoInfer<S> extends z4.$ZodType ? Z4ImageFunction : Z3ImageFunction }) => S);
+		| ((context: {
+				image: NoInfer<S> extends z4.$ZodType ? Z4ImageFunction : Z3ImageFunction;
+		  }) => S);
 	loader:
 		| Loader
 		| (() =>
