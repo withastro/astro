@@ -4,15 +4,15 @@
 
 Adds support for live content collections
 
-Live content collections are a new type of [content collection](https://docs.astro.build/en/guides/content-collections/) that fetch their data at runtime rather than build time. This allows you to access frequently-updated data from CMSs, APIs, databases, or other sources using a unified API, without needing to rebuild your site when the data changes.
+Live content collections are a new type of [content collection](https://docs.astro.build/en/guides/content-collections/) that fetch their data at runtime rather than build time. This allows you to access frequently updated data from CMSs, APIs, databases, or other sources using a unified API, without needing to rebuild your site when the data changes.
 
 #### Live collections vs build-time collections
 
 In Astro 5.0, the content layer API added support for adding diverse content sources to content collections. You can create loaders that fetch data from any source at build time, and then access it inside a page via `getEntry()` and `getCollection()`. The data is cached between builds, giving fast access and updates. 
 
-However there is no method for updating the data store between builds, meaning any updates to the data need a full site deploy, even if the pages are rendered on-demand. This means that content collections are not suitable for pages that update frequently. Instead, today these pages tend to access the APIs directly in the frontmatter. This works, but leads to a lot of boilerplate, and means users don't benefit from the simple, unified API that content loaders offer. In most cases users tend to individually create loader libraries that they share between pages.
+However there was no method for updating the data store between builds, meaning any updates to the data need a full site deploy, even if the pages are rendered on-demand. This meant that content collections were not suitable for pages that update frequently. Instead, these pages tended to access the APIs directly in the frontmatter. This worked, but leads to a lot of boilerplate, and meant users don't benefit from the simple, unified API that content loaders offer. In most cases users tended to individually create loader libraries that they share between pages.
 
-Live content collections solve this problem by allowing you to create loaders that fetch data at runtime, rather than build time. This means that the data is always up-to-date, without needing to rebuild the site. 
+Live content collections ([introduced experimentally in Astro 5.10](https://astro.build/blog/live-content-collections-deep-dive/)) solve this problem by allowing you to create loaders that fetch data at runtime, rather than build time. This means that the data is always up-to-date, without needing to rebuild the site. 
 
 #### How to use
 
@@ -60,7 +60,7 @@ const { Content } = await render(product);
 
 #### Upgrading from experimental live collections
 
-If you were using the experimental feature, you should remove the `experimental.liveContentCollections` flag from your `astro.config.*` file:
+If you were using the experimental feature, you must remove the `experimental.liveContentCollections` flag from your `astro.config.*` file:
 
 ```diff
  export default defineConfig({
@@ -70,3 +70,5 @@ If you were using the experimental feature, you should remove the `experimental.
 -  },
  });
 ```
+
+No other changes to your project code are required as long as you have been keeping up with Astro 5.x patch releases which may have contained breaking changes to this experimental feature. If you experience problems with your live collections after upgrading to Astro v6 and removing this flag, please review the [Astro CHANGELOG from 5.10.2](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#5102) onwards for any potential updates you might have missed, or follow the [current v6 documentation for live collections](https://docs.astro.build/en/guides/content-collections/).
