@@ -83,6 +83,9 @@ const SUPPORTED_NODE_VERSIONS: Record<
 			removal: Date;
 	  }
 > = {
+	18: {
+		status: 'deprecated',
+	},
 	20: {
 		status: 'available',
 	},
@@ -776,7 +779,7 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 		logger.warn(
 			`\n` +
 				`\tYour project is being built for Node.js ${major} as the runtime.\n` +
-				`\tThis version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${removeDate}.\n` +
+				`\tThis version is deprecated by Vercel Serverless Functions.\n` +
 				`\tConsider upgrading your local version to 22.\n`,
 		);
 		return `nodejs${major}.x`;
