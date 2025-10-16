@@ -17,7 +17,11 @@ type EntryFilter = {
 };
 
 const entries = {
-	'123': { id: '123', data: { title: 'Page 123', age: 10 } },
+	'123': {
+		id: '123',
+		data: { title: 'Page 123', age: 10 },
+		rendered: { html: '<h1>Page 123</h1><p>This is rendered content.</p>' }
+	},
 	'456': { id: '456', data: { title: 'Page 456', age: 20 } },
 	'789': { id: '789', data: { title: 'Page 789', age: 30 } },
 };

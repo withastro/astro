@@ -140,6 +140,10 @@ export interface LiveDataEntry<TData extends Record<string, any> = Record<string
 	id: string;
 	/** The parsed entry data */
 	data: TData;
+	/** Optional rendered content */
+	rendered?: {
+		html: string;
+	};
 	/** A hint for how to cache this entry */
 	cacheHint?: CacheHint;
 }
