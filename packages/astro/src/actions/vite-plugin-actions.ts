@@ -108,8 +108,14 @@ export function vitePluginActions({
 			}
 
 			if (id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID) {
+				if (opts?.ssr) {
+					return `
+						export * from 'astro/actions/runtime/server.js';
+						export * from 'astro/actions/runtime/virtual.js';
+					`;
+				}
 				return {
-					code: `export * from 'astro/actions/runtime/${opts?.ssr ? 'server' : 'client'}.js';`,
+					code: `export * from 'astro/actions/runtime/client.js';`,
 				};
 			}
 

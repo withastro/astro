@@ -1,11 +1,7 @@
-// TODO: move some stuff
-import { experimentalZod4 } from 'virtual:astro:config/experimentalZod4';
 import * as z3 from 'zod/v3';
 import * as z4 from 'zod/v4/core';
 import type { Pipeline } from '../../core/base-pipeline.js';
 import { shouldAppendForwardSlash } from '../../core/build/util.js';
-import { AstroError } from '../../core/errors/errors.js';
-import { ActionCalledFromServerError } from '../../core/errors/errors-data.js';
 import { removeTrailingForwardSlash } from '../../core/path.js';
 import { apiContextRoutesSymbol } from '../../core/render-context.js';
 import type { APIContext } from '../../types/public/index.js';
@@ -14,7 +10,6 @@ import {
 	ACTION_QUERY_PARAMS,
 	ActionError,
 	ActionInputError,
-	callSafely,
 	deserializeActionResult,
 	type SafeResult,
 	type SerializedActionResult,
@@ -27,7 +22,6 @@ import {
 	type ErrorInferenceObject,
 	formContentTypes,
 	hasContentType,
-	isActionAPIContext,
 	type MaybePromise,
 } from './utils.js';
 
@@ -83,52 +77,7 @@ export type ActionClient<
 				orThrow: (input?: any) => Promise<Awaited<TOutput>>;
 			};
 
-export function defineAction<
-	TOutput,
-	TAccept extends ActionAccept | undefined = undefined,
-	TInputSchema extends z3.ZodType | z4.$ZodType | undefined = TAccept extends 'form'
-		? // If `input` is omitted, default to `FormData` for forms and `any` for JSON.
-			z3.ZodType<FormData>
-		: undefined,
->({
-	accept,
-	input: inputSchema,
-	handler,
-}: {
-	input?: TInputSchema;
-	accept?: TAccept;
-	handler: ActionHandler<TInputSchema, TOutput>;
-}): ActionClient<TOutput, TAccept, TInputSchema> & string {
-	if (inputSchema && '_zod' in inputSchema && !experimentalZod4) {
-		// TODO: throw astro error
-	}
-
-	const serverHandler =
-		accept === 'form'
-			? getFormServerHandler(handler, inputSchema)
-			: getJsonServerHandler(handler, inputSchema);
-
-	async function safeServerHandler(this: ActionAPIContext, unparsedInput: unknown) {
-		// The ActionAPIContext should always contain the `params` property
-		if (typeof this === 'function' || !isActionAPIContext(this)) {
-			throw new AstroError(ActionCalledFromServerError);
-		}
-		return callSafely(() => serverHandler(unparsedInput, this));
-	}
-
-	Object.assign(safeServerHandler, {
-		orThrow(this: ActionAPIContext, unparsedInput: unknown) {
-			if (typeof this === 'function') {
-				throw new AstroError(ActionCalledFromServerError);
-			}
-			return serverHandler(unparsedInput, this);
-		},
-	});
-
-	return safeServerHandler as ActionClient<TOutput, TAccept, TInputSchema> & string;
-}
-
-function getFormServerHandler<TOutput, TInputSchema extends z3.ZodType | z4.$ZodType>(
+export function getFormServerHandler<TOutput, TInputSchema extends z3.ZodType | z4.$ZodType>(
 	handler: ActionHandler<TInputSchema, TOutput>,
 	inputSchema?: TInputSchema,
 ) {
@@ -167,7 +116,7 @@ function getFormServerHandler<TOutput, TInputSchema extends z3.ZodType | z4.$Zod
 	};
 }
 
-function getJsonServerHandler<TOutput, TInputSchema extends z3.ZodType | z4.$ZodType>(
+export function getJsonServerHandler<TOutput, TInputSchema extends z3.ZodType | z4.$ZodType>(
 	handler: ActionHandler<TInputSchema, TOutput>,
 	inputSchema?: TInputSchema,
 ) {
