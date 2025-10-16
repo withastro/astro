@@ -85,9 +85,6 @@ export function vitePluginActions({
 				resolvedActionsId = resolvedModule.id;
 				return RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID;
 			}
-			if (id === OPTIONS_VIRTUAL_MODULE_ID) {
-				return RESOLVED_OPTIONS_VIRTUAL_MODULE_ID;
-			}
 		},
 		async configureServer(server) {
 			const filePresentOnStartup = await isActionsFilePresent(fs, settings.config.srcDir);
