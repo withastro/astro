@@ -2,9 +2,11 @@
 'astro': patch
 ---
 
-#### :warning: Breaking change for live content collections only
+Removes support for the `maxAge` property in `cacheHint` objects returned by live loaders. 
 
-Removes support for the `maxAge` property in `cacheHint` objects returned by live loaders. This did not make sense to set at the loader level, since the loader does not know how long each individual entry should be cached for.
+#### :warning: Breaking change for experimental live content collections only
+
+Feedback showed that this did not make sense to set at the loader level, since the loader does not know how long each individual entry should be cached for.
 
 If your live loader returns cache hints with `maxAge`, you need to remove this property:
 
@@ -23,7 +25,7 @@ The `cacheHint` object now only supports `tags` and `lastModified` properties. I
 
 ```astro
 ---
-Astro.headers.set('cdn-cache-control', 'maxage=3600');
+Astro.headers.set('cdn-cache-control', 'max-age=3600');
 ---
 ```
 
