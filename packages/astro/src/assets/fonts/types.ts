@@ -119,3 +119,7 @@ export interface FontData {
 export type ConsumableMap = Map<string, Array<FontData>>;
 
 export type Style = z.output<typeof styleSchema>;
+
+export type PreloadFilter =
+	| boolean
+	| Array<{ weight?: string | number; style?: string; subset?: string }>;
