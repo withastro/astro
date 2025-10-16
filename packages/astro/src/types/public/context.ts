@@ -1,9 +1,5 @@
 import type { z } from 'zod';
-import type {
-	ActionAccept,
-	ActionClient,
-	ActionReturnType,
-} from '../../actions/runtime/virtual/server.js';
+import type { ActionAccept, ActionClient, ActionReturnType } from '../../actions/runtime/server.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
 import type { CspDirective, CspHash } from '../../core/csp/config.js';
 import type { AstroSession } from '../../core/session.js';
