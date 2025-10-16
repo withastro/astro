@@ -129,8 +129,6 @@ export type GetDataEntryInfoReturnType = { data: Record<string, unknown>; rawDat
 export interface CacheHint {
 	/** Cache tags */
 	tags?: Array<string>;
-	/** Maximum age of the response in seconds */
-	maxAge?: number;
 	/** Last modified time of the content */
 	lastModified?: Date;
 }
@@ -140,6 +138,10 @@ export interface LiveDataEntry<TData extends Record<string, any> = Record<string
 	id: string;
 	/** The parsed entry data */
 	data: TData;
+	/** Optional rendered content */
+	rendered?: {
+		html: string;
+	};
 	/** A hint for how to cache this entry */
 	cacheHint?: CacheHint;
 }

@@ -1,22 +1,23 @@
+// TODO: shouldn't live here
 import { shouldAppendTrailingSlash } from 'virtual:astro:actions/options';
 import { parse as devalueParse, stringify as devalueStringify } from 'devalue';
 import type * as z3 from 'zod/v3';
 import type * as z4 from 'zod/v4/core';
-import { REDIRECT_STATUS_CODES } from '../../../core/constants.js';
-import { AstroError } from '../../../core/errors/errors.js';
+import { REDIRECT_STATUS_CODES } from '../../core/constants.js';
+import { AstroError } from '../../core/errors/errors.js';
 import {
 	ActionCalledFromServerError,
 	ActionsReturnedInvalidDataError,
-} from '../../../core/errors/errors-data.js';
-import { appendForwardSlash as _appendForwardSlash } from '../../../core/path.js';
-import type { APIContext } from '../../../types/public/context.js';
-import { ACTION_QUERY_PARAMS as _ACTION_QUERY_PARAMS } from '../../consts.js';
+} from '../../core/errors/errors-data.js';
+import { appendForwardSlash as _appendForwardSlash } from '../../core/path.js';
+import type { APIContext } from '../../types/public/context.js';
+import { ACTION_QUERY_PARAMS as _ACTION_QUERY_PARAMS } from '../consts.js';
+import type { ActionClient } from './server.js';
 import type {
 	ActionAPIContext as _ActionAPIContext,
 	ErrorInferenceObject,
 	MaybePromise,
-} from '../utils.js';
-import type { ActionClient } from './server.js';
+} from './utils.js';
 
 export type ActionAPIContext = _ActionAPIContext;
 export const ACTION_QUERY_PARAMS = _ACTION_QUERY_PARAMS;

@@ -52,13 +52,13 @@
   "engines": {
     "node": ">=22.12.0"
   },
-  "packageManager": "pnpm@10.17.0",
+  "packageManager": "pnpm@10.18.3",
   "dependencies": {
     "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
-    "@biomejs/biome": "2.2.4",
+    "@biomejs/biome": "2.2.6",
     "@changesets/changelog-github": "^0.5.1",
     "@changesets/cli": "^2.29.7",
     "@types/node": "^18.19.115",

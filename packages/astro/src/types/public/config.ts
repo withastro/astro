@@ -2140,20 +2140,6 @@ export interface AstroUserConfig<
 		fonts?: FontFamily[];
 
 		/**
-		 * @name experimental.headingIdCompat
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 5.5.x
-		 * @description
-		 *
-		 * Enables full compatibility of Markdown headings IDs with common platforms such as GitHub and npm.
-		 *
-		 * When enabled, IDs for headings ending with non-alphanumeric characters, e.g. `<Picture />`, will
-		 * include a trailing `-`, matching standard behavior in other Markdown tooling.
-		 */
-		headingIdCompat?: boolean;
-
-		/**
 		 * @name experimental.csp
 		 * @type {boolean | object}
 		 * @default `false`

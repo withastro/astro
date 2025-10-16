@@ -2,12 +2,12 @@ import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { AstroCookies } from '../../../dist/core/cookies/index.js';
 
-export const encode = (data) => {
+const encode = (data) => {
 	const dataSerialized = typeof data === 'string' ? data : JSON.stringify(data);
 	return Buffer.from(dataSerialized).toString('base64');
 };
 
-export const decode = (str) => {
+const decode = (str) => {
 	return Buffer.from(str, 'base64').toString();
 };
 

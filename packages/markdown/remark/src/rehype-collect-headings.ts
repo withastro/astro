@@ -12,15 +12,9 @@ const codeTagNames = new Set(['code', 'pre']);
 /**
  * Rehype plugin that adds `id` attributes to headings based on their text content.
  *
- * @param options Optional configuration object for the plugin.
- *
  * @see https://docs.astro.build/en/guides/markdown-content/#heading-ids-and-plugins
  */
-export function rehypeHeadingIds({
-	experimentalHeadingIdCompat,
-}: {
-	experimentalHeadingIdCompat?: boolean;
-} = {}): ReturnType<RehypePlugin> {
+export function rehypeHeadingIds(): ReturnType<RehypePlugin> {
 	return function (tree, file) {
 		const headings: MarkdownHeading[] = [];
 		const frontmatter = file.data.astro?.frontmatter;
@@ -68,13 +62,7 @@ export function rehypeHeadingIds({
 
 			node.properties = node.properties || {};
 			if (typeof node.properties.id !== 'string') {
-				let slug = slugger.slug(text);
-
-				if (!experimentalHeadingIdCompat) {
-					if (slug.endsWith('-')) slug = slug.slice(0, -1);
-				}
-
-				node.properties.id = slug;
+				node.properties.id = slugger.slug(text);
 			}
 
 			headings.push({ depth, slug: node.properties.id, text });
