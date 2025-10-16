@@ -48,7 +48,7 @@ describe('Live content collections', () => {
 					rendered: { html: '<h1>Page 123</h1><p>This is rendered content.</p>' },
 					cacheHint: {
 						tags: [`page:123`],
-							lastModified: '2025-01-01T00:00:00.000Z',
+						lastModified: '2025-01-01T00:00:00.000Z',
 					},
 				},
 				cacheHint: {
@@ -62,7 +62,7 @@ describe('Live content collections', () => {
 					data: { title: 'Page 456', age: 20 },
 					cacheHint: {
 						tags: [`page:456`],
-							lastModified: '2025-01-01T00:00:00.000Z',
+						lastModified: '2025-01-01T00:00:00.000Z',
 					},
 				},
 				cacheHint: {
@@ -106,12 +106,12 @@ describe('Live content collections', () => {
 						cacheHint: {
 							lastModified: '2025-01-01T00:00:00.000Z',
 							tags: [`page:456`],
-								},
+						},
 					},
 					cacheHint: {
 						lastModified: '2025-01-01T00:00:00.000Z',
 						tags: [`page:456`],
-						},
+					},
 				},
 				'passes dynamic filter to getEntry',
 			);
@@ -182,7 +182,7 @@ describe('Live content collections', () => {
 					cacheHint: {
 						lastModified: '2025-01-01T00:00:00.000Z',
 						tags: [`page:123`],
-						},
+					},
 				},
 				cacheHint: {
 					lastModified: '2025-01-01T00:00:00.000Z',
@@ -205,12 +205,12 @@ describe('Live content collections', () => {
 						cacheHint: {
 							lastModified: '2025-01-01T00:00:00.000Z',
 							tags: [`page:456`],
-								},
+						},
 					},
 					cacheHint: {
 						lastModified: '2025-01-01T00:00:00.000Z',
 						tags: [`page:456`],
-						},
+					},
 				},
 				'passes dynamic filter to getEntry',
 			);
