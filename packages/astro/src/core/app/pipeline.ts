@@ -1,7 +1,7 @@
 import type { ComponentInstance } from '../../types/astro.js';
 import type { RewritePayload } from '../../types/public/common.js';
-import type { RouteData, SSRElement, SSRResult } from '../../types/public/internal.js';
-import { Pipeline, type TryRewriteResult } from '../base-pipeline.js';
+import type { RouteData, SSRElement } from '../../types/public/internal.js';
+import { type HeadElements, Pipeline, type TryRewriteResult } from '../base-pipeline.js';
 import {
 	createAssetLink,
 	createModuleScriptElement,
@@ -46,7 +46,7 @@ export class AppPipeline extends Pipeline {
 		return pipeline;
 	}
 
-	headElements(routeData: RouteData): Pick<SSRResult, 'scripts' | 'styles' | 'links'> {
+	async headElements(routeData: RouteData): Promise<HeadElements> {
 		const routeInfo = this.manifest.routes.find((route) => route.routeData === routeData);
 		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 		const links = new Set<never>();

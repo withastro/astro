@@ -1,27 +1,27 @@
 import type { ComponentInstance } from '../../../types/astro.js';
 import type {
+	DevToolbarMetadata,
 	RewritePayload,
 	RouteData,
 	SSRElement,
-	SSRResult,
 } from '../../../types/public/index.js';
-import { Pipeline, type TryRewriteResult } from '../../base-pipeline.js';
+import { type HeadElements, Pipeline, type TryRewriteResult } from '../../base-pipeline.js';
+import { ASTRO_VERSION } from '../../constants.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../../render/ssr-element.js';
 import { findRouteToRewrite } from '../../routing/rewrite.js';
 
+type DevPipelineCreate = Pick<DevPipeline, 'logger' | 'manifest' | 'streaming'>;
+
 export class DevPipeline extends Pipeline {
-	static create({
-		logger,
-		manifest,
-		streaming,
-	}: Pick<DevPipeline, 'logger' | 'manifest' | 'streaming'>) {
-		async function resolve(specifier: string) {
+	static create({ logger, manifest, streaming }: DevPipelineCreate) {
+		async function resolve(specifier: string): Promise<string> {
 			if (specifier.startsWith('/')) {
 				return specifier;
 			} else {
 				return '/@id/' + specifier;
 			}
 		}
+
 		const pipeline = new DevPipeline(
 			logger,
 			manifest,
@@ -42,7 +42,7 @@ export class DevPipeline extends Pipeline {
 		return pipeline;
 	}
 
-	headElements(routeData: RouteData): Pick<SSRResult, 'scripts' | 'styles' | 'links'> {
+	async headElements(routeData: RouteData): Promise<HeadElements> {
 		const routeInfo = this.manifest.routes.find((route) => route.routeData === routeData);
 		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 		const links = new Set<never>();
@@ -66,6 +66,27 @@ export class DevPipeline extends Pipeline {
 			props: { type: 'module', src: '/@vite/client' },
 			children: '',
 		});
+
+		if (this.manifest.devToolbar.enabled) {
+			scripts.add({
+				props: {
+					type: 'module',
+					src: '/@id/astro/runtime/client/dev-toolbar/entrypoint.js',
+				},
+				children: '',
+			});
+
+			const additionalMetadata: DevToolbarMetadata['__astro_dev_toolbar__'] = {
+				root: this.manifest.rootDir.toString(),
+				version: ASTRO_VERSION,
+				latestAstroVersion: this.manifest.devToolbar.latestAstroVersion,
+				debugInfo: this.manifest.devToolbar.debugInfoOutput ?? '',
+			};
+
+			// Additional data for the dev overlay
+			const children = `window.__astro_dev_toolbar__ = ${JSON.stringify(additionalMetadata)}`;
+			scripts.add({ props: {}, children });
+		}
 
 		return { links, styles, scripts };
 	}

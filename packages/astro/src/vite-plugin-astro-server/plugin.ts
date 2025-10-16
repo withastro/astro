@@ -6,25 +6,10 @@ import { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { isRunnableDevEnvironment } from 'vite';
-import { toFallbackType } from '../core/app/common.js';
-import { toRoutingStrategy } from '../core/app/index.js';
-import type { SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
-import {
-	getAlgorithm,
-	getDirectives,
-	getScriptHashes,
-	getScriptResources,
-	getStrictDynamic,
-	getStyleHashes,
-	getStyleResources,
-	shouldTrackCspHashes,
-} from '../core/csp/common.js';
-import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
-import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
 import type { AstroSettings } from '../types/astro.js';
 import { baseMiddleware } from './base.js';
@@ -157,83 +142,5 @@ export default function createVitePluginAstroServer({
 			// Replace the Vite overlay with ours
 			return patchOverlay(code);
 		},
-	};
-}
-
-/**
- * It creates a `SSRManifest` from the `AstroSettings`.
- *
- * Renderers needs to be pulled out from the page module emitted during the build.
- * @param settings
- */
-export function createDevelopmentManifest(settings: AstroSettings): SSRManifest {
-	let i18nManifest: SSRManifestI18n | undefined;
-	let csp: SSRManifestCSP | undefined;
-	if (settings.config.i18n) {
-		i18nManifest = {
-			fallback: settings.config.i18n.fallback,
-			strategy: toRoutingStrategy(settings.config.i18n.routing, settings.config.i18n.domains),
-			defaultLocale: settings.config.i18n.defaultLocale,
-			locales: settings.config.i18n.locales,
-			domainLookupTable: {},
-			fallbackType: toFallbackType(settings.config.i18n.routing),
-			domains: settings.config.i18n.domains,
-		};
-	}
-
-	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
-		const styleHashes = [
-			...getStyleHashes(settings.config.experimental.csp),
-			...settings.injectedCsp.styleHashes,
-		];
-
-		csp = {
-			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
-				? 'adapter'
-				: undefined,
-			scriptHashes: getScriptHashes(settings.config.experimental.csp),
-			scriptResources: getScriptResources(settings.config.experimental.csp),
-			styleHashes,
-			styleResources: getStyleResources(settings.config.experimental.csp),
-			algorithm: getAlgorithm(settings.config.experimental.csp),
-			directives: getDirectives(settings),
-			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
-		};
-	}
-
-	return {
-		rootDir: settings.config.root,
-		srcDir: settings.config.srcDir,
-		cacheDir: settings.config.cacheDir,
-		outDir: settings.config.outDir,
-		buildServerDir: settings.config.build.server,
-		buildClientDir: settings.config.build.client,
-		publicDir: settings.config.publicDir,
-		trailingSlash: settings.config.trailingSlash,
-		buildFormat: settings.config.build.format,
-		compressHTML: settings.config.compressHTML,
-		assets: new Set(),
-		entryModules: {},
-		routes: [],
-		adapterName: settings?.adapter?.name ?? '',
-		clientDirectives: settings.clientDirectives,
-		renderers: [],
-		base: settings.config.base,
-		userAssetsBase: settings.config?.vite?.base,
-		assetsPrefix: settings.config.build.assetsPrefix,
-		site: settings.config.site,
-		componentMetadata: new Map(),
-		inlinedScripts: new Map(),
-		i18n: i18nManifest,
-		checkOrigin:
-			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
-		key: hasEnvironmentKey() ? getEnvironmentKey() : createKey(),
-		middleware() {
-			return {
-				onRequest: NOOP_MIDDLEWARE_FN,
-			};
-		},
-		sessionConfig: settings.config.session,
-		csp,
 	};
 }

@@ -162,6 +162,11 @@ function createManifest(
 		middleware: manifest?.middleware ?? middlewareInstance,
 		key: createKey(),
 		csp: manifest?.csp,
+		devToolbar: {
+			enabled: false,
+			latestAstroVersion: undefined,
+			debugInfoOutput: '',
+		},
 	};
 }
 

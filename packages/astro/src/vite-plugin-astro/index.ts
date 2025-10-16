@@ -54,14 +54,15 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			}
 			viteConfig.resolve.conditions.push('astro');
 		},
-		configResolved(viteConfig) {
+		async configResolved(viteConfig) {
+			const toolbarEnabled = await settings.preferences.get('devToolbar.enabled');
 			// Initialize `compile` function to simplify usage later
 			compile = (code, filename) => {
 				return compileAstro({
 					compileProps: {
 						astroConfig: config,
 						viteConfig,
-						preferences: settings.preferences,
+						toolbarEnabled,
 						filename,
 						source: code,
 					},
