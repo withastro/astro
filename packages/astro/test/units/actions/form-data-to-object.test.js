@@ -1,9 +1,9 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { z } from 'zod/v3';
-import { formDataToObject } from '../../../dist/actions/runtime/server.js';
+import { formDataToZ3Object } from '../../../dist/actions/runtime/server.js';
 
-describe('formDataToObject', () => {
+describe('formDataToZ3Object', () => {
 	it('should handle strings', () => {
 		const formData = new FormData();
 		formData.set('name', 'Ben');
@@ -14,7 +14,7 @@ describe('formDataToObject', () => {
 			email: z.string(),
 		});
 
-		const res = formDataToObject(formData, input);
+		const res = formDataToZ3Object(formData, input);
 		assert.equal(res.name, 'Ben');
 		assert.equal(res.email, 'test@test.test');
 	});
@@ -27,7 +27,7 @@ describe('formDataToObject', () => {
 			age: z.number(),
 		});
 
-		const res = formDataToObject(formData, input);
+		const res = formDataToZ3Object(formData, input);
 		assert.equal(res.age, 25);
 	});
 
@@ -39,7 +39,7 @@ describe('formDataToObject', () => {
 			age: z.number(),
 		});
 
-		const res = formDataToObject(formData, input);
+		const res = formDataToZ3Object(formData, input);
 		assert.ok(isNaN(res.age));
 	});
 
@@ -58,7 +58,7 @@ describe('formDataToObject', () => {
 			falseString: z.boolean(),
 		});
 
-		const res = formDataToObject(formData, input);
+		const res = formDataToZ3Object(formData, input);
 		assert.equal(res.isCool, true);
 		assert.equal(res.isNotCool, false);
 		assert.equal(res.isTrue, true);
@@ -76,7 +76,7 @@ describe('formDataToObject', () => {
 			age: z.number().optional(),
 		});
 
-		const res = formDataToObject(formData, input);
+		const res = formDataToZ3Object(formData, input);
 
 		assert.equal(res.name, 'Ben');
 		assert.equal(res.email, undefined);
@@ -93,7 +93,7 @@ describe('formDataToObject', () => {
 			age: z.number().nullable(),
 		});
 
-		const res = formDataToObject(formData, input);
+		const res = formDataToZ3Object(formData, input);
 
 		assert.equal(res.name, 'Ben');
 		assert.equal(res.email, null);
@@ -109,7 +109,7 @@ describe('formDataToObject', () => {
 			favoriteNumbers: z.array(z.number()).default([1, 2]),
 		});
 
-		const res = formDataToObject(formData, input);
+		const res = formDataToZ3Object(formData, input);
 		assert.equal(res.name, 'test');
 		assert.equal(res.email, 'test@test.test');
 		assert.deepEqual(res.favoriteNumbers, [1, 2]);
@@ -125,7 +125,7 @@ describe('formDataToObject', () => {
 			favoriteNumbers: z.array(z.number()).default([1, 2]).nullish().optional(),
 		});
 
-		const res = formDataToObject(formData, input);
+		const res = formDataToZ3Object(formData, input);
 		assert.equal(res.name, 'test');
 		assert.equal(res.email, 'test@test.test');
 		assert.deepEqual(res.favoriteNumbers, [1, 2]);
@@ -139,7 +139,7 @@ describe('formDataToObject', () => {
 			file: z.instanceof(File),
 		});
 
-		const res = formDataToObject(formData, input);
+		const res = formDataToZ3Object(formData, input);
 
 		assert.equal(res.file instanceof File, true);
 	});
@@ -154,7 +154,7 @@ describe('formDataToObject', () => {
 			contact: z.array(z.string()),
 		});
 
-		const res = formDataToObject(formData, input);
+		const res = formDataToZ3Object(formData, input);
 
 		assert.ok(Array.isArray(res.contact), 'contact is not an array');
 		assert.deepEqual(res.contact.sort(), ['Ben', 'Jane', 'John']);
@@ -170,7 +170,7 @@ describe('formDataToObject', () => {
 			age: z.array(z.number()),
 		});
 
-		const res = formDataToObject(formData, input);
+		const res = formDataToZ3Object(formData, input);
 
 		assert.ok(Array.isArray(res.age), 'age is not an array');
 		assert.deepEqual(res.age.sort(), [25, 30, 35]);
@@ -187,7 +187,7 @@ describe('formDataToObject', () => {
 			files: z.array(z.instanceof(File)),
 		});
 
-		const res = formDataToObject(formData, input);
+		const res = formDataToZ3Object(formData, input);
 
 		assert.equal(res.files instanceof Array, true);
 		assert.deepEqual(res.files, [file1, file2]);
@@ -204,7 +204,7 @@ describe('formDataToObject', () => {
 			})
 			.passthrough();
 
-		const res = formDataToObject(formData, input);
+		const res = formDataToZ3Object(formData, input);
 		assert.deepEqual(res, {
 			expected: 42,
 			unexpected: '42',
