@@ -52,7 +52,6 @@ export async function getContentEntryType({
 			const markdocConfig = await setupConfig(
 				userMarkdocConfig,
 				options,
-				astroConfig.experimental.headingIdCompat,
 			);
 			const filePath = fileURLToPath(fileUrl);
 			raiseValidationErrors({
@@ -121,7 +120,6 @@ markdocConfig.nodes = { ...assetsConfig.nodes, ...markdocConfig.nodes };
 
 ${getStringifiedImports(componentConfigByTagMap, 'Tag', astroConfig.root)}
 ${getStringifiedImports(componentConfigByNodeMap, 'Node', astroConfig.root)}
-const experimentalHeadingIdCompat = ${JSON.stringify(astroConfig.experimental.headingIdCompat || false)}
 
 const tagComponentMap = ${getStringifiedMap(componentConfigByTagMap, 'Tag')};
 const nodeComponentMap = ${getStringifiedMap(componentConfigByNodeMap, 'Node')};
@@ -132,15 +130,14 @@ const stringifiedAst = ${JSON.stringify(
 				/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast),
 			)};
 
-export const getHeadings = createGetHeadings(stringifiedAst, markdocConfig, options, experimentalHeadingIdCompat);
+export const getHeadings = createGetHeadings(stringifiedAst, markdocConfig, options);
 export const Content = createContentComponent(
 	Renderer,
 	stringifiedAst,
 	markdocConfig,
-  options,
+	options,
 	tagComponentMap,
 	nodeComponentMap,
-	experimentalHeadingIdCompat,
 )`;
 			return { code: res };
 		},
