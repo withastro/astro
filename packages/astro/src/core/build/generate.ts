@@ -744,5 +744,10 @@ async function createBuildManifest(
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key,
 		csp,
+		devToolbar: {
+			latestAstroVersion: settings.latestAstroVersion,
+			enabled: false,
+			debugInfoOutput: '',
+		},
 	};
 }

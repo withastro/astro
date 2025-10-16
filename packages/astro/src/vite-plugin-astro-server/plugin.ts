@@ -166,7 +166,7 @@ export default function createVitePluginAstroServer({
  * Renderers needs to be pulled out from the page module emitted during the build.
  * @param settings
  */
-export function createDevelopmentManifest(settings: AstroSettings): SSRManifest {
+export async function createDevelopmentManifest(settings: AstroSettings): Promise<SSRManifest> {
 	let i18nManifest: SSRManifestI18n | undefined;
 	let csp: SSRManifestCSP | undefined;
 	if (settings.config.i18n) {
@@ -235,5 +235,12 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		},
 		sessionConfig: settings.config.session,
 		csp,
+		devToolbar: {
+			enabled:
+				settings.config.devToolbar.enabled &&
+				(await settings.preferences.get('devToolbar.enabled')),
+			latestAstroVersion: settings.latestAstroVersion,
+			debugInfoOutput: '',
+		},
 	};
 }

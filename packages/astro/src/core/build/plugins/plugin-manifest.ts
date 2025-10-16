@@ -372,5 +372,10 @@ async function buildManifest(
 		key: encodedKey,
 		sessionConfig: settings.config.session,
 		csp,
+		devToolbar: {
+			enabled: false,
+			latestAstroVersion: settings.latestAstroVersion,
+			debugInfoOutput: '',
+		},
 	};
 }

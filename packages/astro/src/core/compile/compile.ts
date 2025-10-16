@@ -2,7 +2,6 @@ import { fileURLToPath } from 'node:url';
 import type { TransformResult } from '@astrojs/compiler';
 import { transform } from '@astrojs/compiler';
 import type { ResolvedConfig } from 'vite';
-import type { AstroPreferences } from '../../preferences/index.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { AstroError } from '../errors/errors.js';
 import { AggregateError, CompilerError } from '../errors/errors.js';
@@ -14,7 +13,7 @@ import type { CompileCssResult } from './types.js';
 export interface CompileProps {
 	astroConfig: AstroConfig;
 	viteConfig: ResolvedConfig;
-	preferences: AstroPreferences;
+	toolbarEnabled: boolean;
 	filename: string;
 	source: string;
 }
@@ -26,7 +25,7 @@ export interface CompileResult extends Omit<TransformResult, 'css'> {
 export async function compile({
 	astroConfig,
 	viteConfig,
-	preferences,
+	toolbarEnabled,
 	filename,
 	source,
 }: CompileProps): Promise<CompileResult> {
@@ -54,7 +53,7 @@ export async function compile({
 				viteConfig.command === 'serve' &&
 				astroConfig.devToolbar &&
 				astroConfig.devToolbar.enabled &&
-				(await preferences.get('devToolbar.enabled')),
+				toolbarEnabled,
 			renderScript: true,
 			preprocessStyle: createStylePreprocessor({
 				filename,
