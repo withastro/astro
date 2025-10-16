@@ -15,54 +15,10 @@ Astro 6.0 removes this experimental flag and makes this the new default behavior
 
 #### What should I do?
 
-If you have manual links to headings, you may need to update the anchor link value with a new trailing hyphen. For example, the following Markdown heading:
+If you have manual links to headings, you may need to update some anchor link values with a new trailing hyphen. 
 
-```md
-## `<Picture />`
-```
+If you were previously using this experimental feature, remove this experimental flag from your configuration.
 
-will now generate the following HTML with a trailing hyphen in the heading `id`:
+If you were previously using the `rehypeHeadingIds` plugin directly to enforce compatibility, remove the `headingIdCompat` option as it no longer exists.
 
-```html
-<h2 id="picture-"><code>&lt;Picture /&gt;</h2>
-```
-
-and must now be linked to as:
-
-```markdown
-See [the Picture component](/en/guides/images/#picture-) for more details.
-```
-
-If you were previously using this experimental feature, you must remove this experimental flag from your configuration as it no longer exists:
-
-```diff
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-
-export default defineConfig({
-  experimental: {
--    headingIdCompat: true,
-  },
-})
-```
-
-If you were previously using the `rehypeHeadingIds` plugin directly to enforce compatibility, remove the `headingIdCompat` option as it no longer exists:
-
-```diff
-// astro.config.mjs
-import { defineConfig } from 'astro/config';
-import { rehypeHeadingIds } from '@astrojs/markdown-remark';
-import { otherPluginThatReliesOnHeadingIDs } from 'some/plugin/source';
-
-export default defineConfig({
-  markdown: {
-    rehypePlugins: [
--     [rehypeHeadingIds, { headingIdCompat: true }],
-+     [rehypeHeadingIds],
-      otherPluginThatReliesOnHeadingIDs,
-    ],
-  },
-});
-```
-
-If you want to keep the old ID generation for backward compatibility reasons, you can [create a custom rehype plugin that will generate headings IDs like Astro 5.x](https://docs.astro.build/en/guides/upgrade-to/v6/#changed-markdown-heading-id-generation) by following the instructions in the Astro 6 upgrade guide. This will allow you to continue to use your existing anchor links without adding trailing hyphens.
+See the [Astro 6.0 upgrade guide](https://docs.astro.build/en/guides/upgrade-to/v6/#changed-markdown-heading-id-generation) for upgrade examples, and instructions to create a custom rehype plulgin if you want to keep the old ID generation for backward compatibility reasons.
