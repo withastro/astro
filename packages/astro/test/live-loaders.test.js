@@ -45,15 +45,14 @@ describe('Live content collections', () => {
 				entry: {
 					id: '123',
 					data: { title: 'Page 123', age: 10 },
+					rendered: { html: '<h1>Page 123</h1><p>This is rendered content.</p>' },
 					cacheHint: {
 						tags: [`page:123`],
-						maxAge: 60,
-						lastModified: '2025-01-01T00:00:00.000Z',
+							lastModified: '2025-01-01T00:00:00.000Z',
 					},
 				},
 				cacheHint: {
 					tags: [`page:123`],
-					maxAge: 60,
 					lastModified: '2025-01-01T00:00:00.000Z',
 				},
 			});
@@ -63,13 +62,11 @@ describe('Live content collections', () => {
 					data: { title: 'Page 456', age: 20 },
 					cacheHint: {
 						tags: [`page:456`],
-						maxAge: 60,
-						lastModified: '2025-01-01T00:00:00.000Z',
+							lastModified: '2025-01-01T00:00:00.000Z',
 					},
 				},
 				cacheHint: {
 					tags: [`page:456`],
-					maxAge: 60,
 					lastModified: '2025-01-01T00:00:00.000Z',
 				},
 			});
@@ -78,6 +75,7 @@ describe('Live content collections', () => {
 					{
 						id: '123',
 						data: { title: 'Page 123', age: 10 },
+						rendered: { html: '<h1>Page 123</h1><p>This is rendered content.</p>' },
 					},
 					{
 						id: '456',
@@ -90,7 +88,6 @@ describe('Live content collections', () => {
 				],
 				cacheHint: {
 					tags: ['page'],
-					maxAge: 60,
 					lastModified: '2025-01-02T00:00:00.000Z',
 				},
 			});
@@ -109,14 +106,12 @@ describe('Live content collections', () => {
 						cacheHint: {
 							lastModified: '2025-01-01T00:00:00.000Z',
 							tags: [`page:456`],
-							maxAge: 60,
-						},
+								},
 					},
 					cacheHint: {
 						lastModified: '2025-01-01T00:00:00.000Z',
 						tags: [`page:456`],
-						maxAge: 60,
-					},
+						},
 				},
 				'passes dynamic filter to getEntry',
 			);
@@ -126,6 +121,7 @@ describe('Live content collections', () => {
 					{
 						id: '123',
 						data: { title: 'Page 123', age: 15 },
+						rendered: { html: '<h1>Page 123</h1><p>This is rendered content.</p>' },
 					},
 					{
 						id: '456',
@@ -154,6 +150,14 @@ describe('Live content collections', () => {
 			const data = await response.json();
 			assert.ok(data.error.includes('Use getLiveCollection() instead of getCollection()'));
 		});
+
+		it('can render live entry with rendered content', async () => {
+			const response = await fixture.fetch('/rendered');
+			assert.equal(response.status, 200);
+			const html = await response.text();
+			assert.ok(html.includes('<h1>Page 123</h1>'));
+			assert.ok(html.includes('<p>This is rendered content.</p>'));
+		});
 	});
 
 	describe('SSR', () => {
@@ -174,16 +178,15 @@ describe('Live content collections', () => {
 				entry: {
 					id: '123',
 					data: { title: 'Page 123', age: 10 },
+					rendered: { html: '<h1>Page 123</h1><p>This is rendered content.</p>' },
 					cacheHint: {
 						lastModified: '2025-01-01T00:00:00.000Z',
 						tags: [`page:123`],
-						maxAge: 60,
-					},
+						},
 				},
 				cacheHint: {
 					lastModified: '2025-01-01T00:00:00.000Z',
 					tags: [`page:123`],
-					maxAge: 60,
 				},
 			});
 		});
@@ -202,14 +205,12 @@ describe('Live content collections', () => {
 						cacheHint: {
 							lastModified: '2025-01-01T00:00:00.000Z',
 							tags: [`page:456`],
-							maxAge: 60,
-						},
+								},
 					},
 					cacheHint: {
 						lastModified: '2025-01-01T00:00:00.000Z',
 						tags: [`page:456`],
-						maxAge: 60,
-					},
+						},
 				},
 				'passes dynamic filter to getEntry',
 			);
@@ -221,6 +222,15 @@ describe('Live content collections', () => {
 			assert.equal(response.status, 500);
 			const data = await response.json();
 			assert.ok(data.error.includes('Use getLiveCollection() instead of getCollection()'));
+		});
+
+		it('can render live entry with rendered content', async () => {
+			const request = new Request('http://example.com/rendered');
+			const response = await app.render(request);
+			assert.equal(response.status, 200);
+			const html = await response.text();
+			assert.ok(html.includes('<h1>Page 123</h1>'));
+			assert.ok(html.includes('<p>This is rendered content.</p>'));
 		});
 	});
 });
