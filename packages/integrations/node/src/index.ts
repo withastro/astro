@@ -72,6 +72,9 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 				}
 
 				updateConfig({
+					build: {
+						redirects: false,
+					},
 					image: {
 						endpoint: {
 							route: config.image.endpoint.route ?? '_image',

@@ -12,7 +12,7 @@ describe('Dynamic route collision', () => {
 			root: './fixtures/dynamic-route-collision',
 		});
 
-		await fixture.build().catch(console.log);
+		await fixture.build().catch(console.info);
 	});
 
 	it('Builds a static route when in conflict with a dynamic route', async () => {
