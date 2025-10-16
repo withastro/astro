@@ -1,4 +1,6 @@
-// IMPORTANT: do not publish this file! It's only intended for development within the monorepo
+// IMPORTANT: do not publish this file!
+// It provides typings for internal virtual modules.
+// The naming convention is: virtual:astro:<feature>/<...custom>
 
 declare module 'virtual:astro:env/internal' {
 	export const schema: import('./src/env/schema.js').EnvSchema;
