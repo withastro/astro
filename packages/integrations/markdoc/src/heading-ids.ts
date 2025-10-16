@@ -11,23 +11,17 @@ function getSlug(
 	attributes: Record<string, any>,
 	children: RenderableTreeNode[],
 	headingSlugger: Slugger,
-	experimentalHeadingIdCompat: boolean,
 ): string {
 	if (attributes.id && typeof attributes.id === 'string') {
 		return attributes.id;
 	}
 	const textContent = attributes.content ?? getTextContent(children);
-	let slug = headingSlugger.slug(textContent);
-
-	if (!experimentalHeadingIdCompat) {
-		if (slug.endsWith('-')) slug = slug.slice(0, -1);
-	}
-	return slug;
+	return headingSlugger.slug(textContent);
 }
 
-type HeadingIdConfig = MarkdocConfig & {
-	ctx: { headingSlugger: Slugger; experimentalHeadingIdCompat: boolean };
-};
+interface HeadingIdConfig extends MarkdocConfig {
+	ctx: { headingSlugger: Slugger };
+}
 
 /*
 	Expose standalone node for users to import in their config.
@@ -50,12 +44,7 @@ export const heading: Schema = {
 					'Unexpected problem adding heading IDs to Markdoc file. Did you modify the `ctx.headingSlugger` property in your Markdoc config?',
 			});
 		}
-		const slug = getSlug(
-			attributes,
-			children,
-			config.ctx.headingSlugger,
-			config.ctx.experimentalHeadingIdCompat,
-		);
+		const slug = getSlug(attributes, children, config.ctx.headingSlugger);
 
 		const render = config.nodes?.heading?.render ?? `h${level}`;
 
@@ -72,12 +61,11 @@ export const heading: Schema = {
 };
 
 // Called internally to ensure `ctx` is generated per-file, instead of per-build.
-export function setupHeadingConfig(experimentalHeadingIdCompat: boolean): HeadingIdConfig {
+export function setupHeadingConfig(): HeadingIdConfig {
 	const headingSlugger = new Slugger();
 	return {
 		ctx: {
 			headingSlugger,
-			experimentalHeadingIdCompat,
 		},
 		nodes: {
 			heading,

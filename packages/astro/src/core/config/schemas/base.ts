@@ -97,7 +97,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	experimental: {
 		clientPrerender: false,
 		contentIntellisense: false,
-		headingIdCompat: false,
 		csp: false,
 		chromeDevtoolsWorkspace: false,
 		failOnPrerenderConflict: false,
@@ -472,10 +471,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
-			headingIdCompat: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.headingIdCompat),
 			fonts: z.array(z.union([localFontFamilySchema, remoteFontFamilySchema])).optional(),
 			csp: z
 				.union([

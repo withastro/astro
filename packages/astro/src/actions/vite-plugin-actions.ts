@@ -7,49 +7,16 @@ import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { getServerOutputDirectory } from '../prerender/utils.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
-	ASTRO_ACTIONS_INTERNAL_MODULE_ID,
-	NOOP_ACTIONS,
-	RESOLVED_ASTRO_ACTIONS_INTERNAL_MODULE_ID,
-	RESOLVED_VIRTUAL_MODULE_ID,
+	ENTRYPOINT_VIRTUAL_MODULE_ID,
+	OPTIONS_VIRTUAL_MODULE_ID,
+	RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID,
+	RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID,
+	RESOLVED_OPTIONS_VIRTUAL_MODULE_ID,
+	RESOLVED_RUNTIME_VIRTUAL_MODULE_ID,
+	RUNTIME_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
 import { isActionsFilePresent } from './utils.js';
-
-/**
- * This plugin is responsible to load the known file `actions/index.js` / `actions.js`
- * If the file doesn't exist, it returns an empty object.
- * @param settings
- */
-export function vitePluginUserActions({ settings }: { settings: AstroSettings }): VitePlugin {
-	let resolvedActionsId: string;
-	return {
-		name: '@astro/plugin-actions',
-		async resolveId(id) {
-			if (id === NOOP_ACTIONS) {
-				return NOOP_ACTIONS;
-			}
-			if (id === ASTRO_ACTIONS_INTERNAL_MODULE_ID) {
-				const resolvedModule = await this.resolve(
-					`${decodeURI(new URL('actions', settings.config.srcDir).pathname)}`,
-				);
-
-				if (!resolvedModule) {
-					return NOOP_ACTIONS;
-				}
-				resolvedActionsId = resolvedModule.id;
-				return RESOLVED_ASTRO_ACTIONS_INTERNAL_MODULE_ID;
-			}
-		},
-
-		load(id) {
-			if (id === NOOP_ACTIONS) {
-				return 'export const server = {}';
-			} else if (id === RESOLVED_ASTRO_ACTIONS_INTERNAL_MODULE_ID) {
-				return `export { server } from '${resolvedActionsId}';`;
-			}
-		},
-	};
-}
 
 /**
  * This plugin is used to retrieve the final entry point of the bundled actions.ts file
@@ -64,14 +31,14 @@ export function vitePluginActionsBuild(
 		name: '@astro/plugin-actions-build',
 
 		options(options) {
-			return addRollupInput(options, [ASTRO_ACTIONS_INTERNAL_MODULE_ID]);
+			return addRollupInput(options, [ENTRYPOINT_VIRTUAL_MODULE_ID]);
 		},
 
 		writeBundle(_, bundle) {
 			for (const [chunkName, chunk] of Object.entries(bundle)) {
 				if (
 					chunk.type !== 'asset' &&
-					chunk.facadeModuleId === RESOLVED_ASTRO_ACTIONS_INTERNAL_MODULE_ID
+					chunk.facadeModuleId === RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID
 				) {
 					const outputDirectory = getServerOutputDirectory(opts.settings);
 					internals.astroActionsEntryPoint = new URL(chunkName, outputDirectory);
@@ -88,12 +55,35 @@ export function vitePluginActions({
 	fs: typeof fsMod;
 	settings: AstroSettings;
 }): VitePlugin {
+	let resolvedActionsId: string;
+
 	return {
 		name: VIRTUAL_MODULE_ID,
 		enforce: 'pre',
-		resolveId(id) {
+		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
-				return RESOLVED_VIRTUAL_MODULE_ID;
+				return this.resolve('astro/virtual-modules/actions.js');
+			}
+
+			if (id === RUNTIME_VIRTUAL_MODULE_ID) {
+				return RESOLVED_RUNTIME_VIRTUAL_MODULE_ID;
+			}
+
+			if (id === OPTIONS_VIRTUAL_MODULE_ID) {
+				return RESOLVED_OPTIONS_VIRTUAL_MODULE_ID;
+			}
+
+			if (id === ENTRYPOINT_VIRTUAL_MODULE_ID) {
+				const resolvedModule = await this.resolve(
+					`${decodeURI(new URL('actions', settings.config.srcDir).pathname)}`,
+				);
+
+				if (!resolvedModule) {
+					return RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID;
+				}
+
+				resolvedActionsId = resolvedModule.id;
+				return RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID;
 			}
 		},
 		async configureServer(server) {
@@ -109,24 +99,29 @@ export function vitePluginActions({
 			server.watcher.on('change', watcherCallback);
 		},
 		async load(id, opts) {
-			if (id !== RESOLVED_VIRTUAL_MODULE_ID) return;
-
-			let code = await fs.promises.readFile(
-				new URL('../../templates/actions.mjs', import.meta.url),
-				'utf-8',
-			);
-			if (opts?.ssr) {
-				code += `\nexport * from 'astro/actions/runtime/virtual/server.js';`;
-			} else {
-				code += `\nexport * from 'astro/actions/runtime/virtual/client.js';`;
+			if (id === RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID) {
+				return { code: 'export const server = {}' };
 			}
-			code = code.replace(
-				"'/** @TRAILING_SLASH@ **/'",
-				JSON.stringify(
-					shouldAppendForwardSlash(settings.config.trailingSlash, settings.config.build.format),
-				),
-			);
-			return { code };
+
+			if (id === RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID) {
+				return { code: `export { server } from ${JSON.stringify(resolvedActionsId)};` };
+			}
+
+			if (id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID) {
+				return {
+					code: `export * from 'astro/actions/runtime/${opts?.ssr ? 'server' : 'client'}.js';`,
+				};
+			}
+
+			if (id === RESOLVED_OPTIONS_VIRTUAL_MODULE_ID) {
+				return {
+					code: `
+						export const shouldAppendTrailingSlash = ${JSON.stringify(
+							shouldAppendForwardSlash(settings.config.trailingSlash, settings.config.build.format),
+						)};
+					`,
+				};
+			}
 		},
 	};
 }
