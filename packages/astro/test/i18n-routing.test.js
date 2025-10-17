@@ -774,6 +774,50 @@ describe('[SSG] i18n routing', () => {
 		});
 	});
 
+	describe('i18n routing with routing strategy [prefix-other-locales] with root base', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+		/** @type {import('./test-utils').DevServer} */
+		let devServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-prefix-other-locales/',
+				output: 'server',
+				adapter: testAdapter(),
+				base: '/',
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'pt', 'fr'],
+					fallback: {
+						fr: 'en',
+					},
+					routing: {
+						prefixDefaultLocale: false,
+						redirectToDefaultLocale: true,
+						fallbackType: 'redirect',
+					},
+				},
+			});
+			await fixture.build();
+			devServer = await fixture.startDevServer();
+		});
+
+		afterEach(async () => {
+			devServer.stop();
+		});
+
+		it('should redirect to English page', async () => {
+			const response = await fixture.fetch('/fr', { redirect: 'manual' });
+			assert.equal(response.headers.get('Location'), '/');
+			assert.equal(response.status, 302);
+
+			const followRedirectResponse = await fixture.fetch('/fr');
+			assert.equal(followRedirectResponse.status, 200);
+			assert.equal((await followRedirectResponse.text()).includes('Hello'), true);
+		});
+	});
+
 	describe('i18n routing with routing strategy [pathname-prefix-always-no-redirect]', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
@@ -2096,6 +2140,13 @@ describe('i18n routing does not break assets and endpoints', () => {
 				root: './fixtures/i18n-routing-subdomain/',
 				output: 'server',
 				adapter: testAdapter(),
+				security: {
+					allowedDomains: [
+						{ hostname: 'example.pt' },
+						{ hostname: 'it.example.com' },
+						{ hostname: 'example.com' },
+					],
+				},
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();

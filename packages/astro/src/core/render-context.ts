@@ -1,7 +1,7 @@
 import { green } from 'kleur/colors';
+import { getActionContext } from '../actions/runtime/server.js';
+import { deserializeActionResult } from '../actions/runtime/shared.js';
 import type { ActionAPIContext } from '../actions/runtime/utils.js';
-import { getActionContext } from '../actions/runtime/virtual/server.js';
-import { deserializeActionResult } from '../actions/runtime/virtual/shared.js';
 import { createCallAction, createGetActionResult, hasActionPayload } from '../actions/utils.js';
 import {
 	computeCurrentLocale,

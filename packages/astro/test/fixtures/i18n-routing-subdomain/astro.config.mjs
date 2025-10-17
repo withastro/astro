@@ -18,4 +18,11 @@ export default defineConfig({
 		}
 	},
 	site: "https://example.com",
+	security: {
+		allowedDomains: [
+			{ hostname: 'example.pt' },
+			{ hostname: 'it.example.com' },
+			{ hostname: 'example.com' }
+		]
+	}
 })
