@@ -291,17 +291,7 @@ export default new Map([\n${lines.join(',\n')}]);
 			entries: () => this.entries(collectionName),
 			values: () => this.values(collectionName),
 			keys: () => this.keys(collectionName),
-			set: ({
-				id: key,
-				data,
-				body,
-				filePath,
-				deferredRender,
-				digest,
-				rendered,
-				assetImports,
-				legacyId,
-			}) => {
+			set: ({ id: key, data, body, filePath, deferredRender, digest, rendered, assetImports }) => {
 				if (!key) {
 					throw new Error(`ID must be a non-empty string`);
 				}
@@ -347,9 +337,6 @@ export default new Map([\n${lines.join(',\n')}]);
 				}
 				if (rendered) {
 					entry.rendered = rendered;
-				}
-				if (legacyId) {
-					entry.legacyId = legacyId;
 				}
 				if (deferredRender) {
 					entry.deferredRender = deferredRender;

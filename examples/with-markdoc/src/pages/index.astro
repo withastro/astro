@@ -1,12 +1,12 @@
 ---
-import { getEntry } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 
 const intro = await getEntry('docs', 'intro');
 if (!intro) {
 	return Astro.redirect('/404');
 }
-const { Content } = await intro.render();
+const { Content } = await render(intro);
 ---
 
 <Layout title={intro.data.title}>

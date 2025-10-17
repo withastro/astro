@@ -6,7 +6,7 @@ import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.j
  * @typedef {{ stop: Promise<void>, port: number }} WranglerCLI
  */
 
-const astroPath = fileURLToPath(new URL('../node_modules/astro/astro.js', import.meta.url));
+const astroPath = fileURLToPath(new URL('../node_modules/astro/bin/astro.mjs', import.meta.url));
 /** Returns a process running the Astro CLI. */
 export function astroCli(cwd, /** @type {string[]} */ ...args) {
 	const spawned = execa(astroPath, [...args], {

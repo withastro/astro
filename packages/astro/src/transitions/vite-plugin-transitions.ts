@@ -30,10 +30,7 @@ export default function astroTransitions({ settings }: { settings: AstroSettings
 				return {
 					code: `
 						export * from "astro/virtual-modules/transitions.js";
-						export {
-							default as ViewTransitions,
-							default as ClientRouter
-						} from "astro/components/ClientRouter.astro";
+						export { default as ClientRouter } from "astro/components/ClientRouter.astro";
 					`,
 				};
 			}

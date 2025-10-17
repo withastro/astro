@@ -17,8 +17,6 @@ function createErrorFunction(message: string) {
 export const getCollection = createErrorFunction('getCollection');
 export const render = createErrorFunction('render');
 export const getEntry = createErrorFunction('getEntry');
-export const getEntryBySlug = createErrorFunction('getEntryBySlug');
-export const getDataEntryById = createErrorFunction('getDataEntryById');
 export const getEntries = createErrorFunction('getEntries');
 export const reference = createErrorFunction('reference');
 export const getLiveCollection = createErrorFunction('getLiveCollection');

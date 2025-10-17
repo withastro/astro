@@ -1,4 +1,4 @@
-import type { APIContext, AstroSharedContext } from '../../types/public/context.js';
+import type { APIContext } from '../../types/public/context.js';
 import type { SerializedActionResult } from './shared.js';
 
 export type ActionPayload = {
@@ -24,7 +24,6 @@ export function hasContentType(contentType: string, expected: string[]) {
 
 export type ActionAPIContext = Pick<
 	APIContext,
-	| 'rewrite'
 	| 'request'
 	| 'url'
 	| 'isPrerendered'
@@ -41,14 +40,7 @@ export type ActionAPIContext = Pick<
 	| 'originPathname'
 	| 'session'
 	| 'csp'
-> & {
-	// TODO: remove in Astro 6.0
-	/**
-	 * @deprecated
-	 * The use of `rewrite` in Actions is deprecated
-	 */
-	rewrite: AstroSharedContext['rewrite'];
-};
+>;
 
 export type MaybePromise<T> = T | Promise<T>;
 

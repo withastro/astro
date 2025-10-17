@@ -18,7 +18,7 @@ import { fontsPlugin } from './fonts/vite-plugin-fonts.js';
 import type { ImageTransform } from './types.js';
 import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
 import { isESMImportedImage } from './utils/imageKind.js';
-import { emitESMImage } from './utils/node/emitAsset.js';
+import { emitImageMetadata } from './utils/node/emitAsset.js';
 import { getProxyCode } from './utils/proxy.js';
 import { makeSvgComponent } from './utils/svg.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
@@ -226,13 +226,8 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 						return;
 					}
 
-					const emitFile = shouldEmitFile ? this.emitFile.bind(this) : undefined;
-					const imageMetadata = await emitESMImage(
-						id,
-						this.meta.watchMode,
-						id.endsWith('.svg'),
-						emitFile,
-					);
+					const fileEmitter = shouldEmitFile ? this.emitFile.bind(this) : undefined;
+					const imageMetadata = await emitImageMetadata(id, fileEmitter);
 
 					if (!imageMetadata) {
 						throw new AstroError({

@@ -38,7 +38,7 @@ describe('Astro Global', () => {
 			assert.equal($('#nested-child-pathname').text(), '/blog/');
 		});
 
-		it('Astro.glob() returned `url` metadata of each markdown file extensions DOES NOT include the extension', async () => {
+		it('import.meta.glob() returned `url` metadata of each markdown file extensions DOES NOT include the extension', async () => {
 			const html = await fixture.fetch('/blog/omit-markdown-extensions/').then((res) => res.text());
 			const $ = cheerio.load(html);
 			assert.equal(
@@ -90,13 +90,13 @@ describe('Astro Global', () => {
 			assert.equal($('#site').attr('href'), 'https://mysite.dev/subsite/');
 		});
 
-		it('Astro.glob() correctly returns an array of all posts', async () => {
+		it('import.meta.glob() correctly returns an array of all posts', async () => {
 			const html = await fixture.readFile('/posts/1/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('.post-url').attr('href'), '/blog/post/post-2');
 		});
 
-		it('Astro.glob() correctly returns meta info for MD and Astro files', async () => {
+		it('import.meta.glob() correctly returns meta info for MD and Astro files', async () => {
 			const html = await fixture.readFile('/glob/index.html');
 			const $ = cheerio.load(html);
 			assert.equal($('[data-file]').length, 8);
