@@ -44,6 +44,49 @@ describe('Image', () => {
 		assert.equal(img.attr('width'), '225', 'uses requested width in img attribute');
 	});
 
+	it('generates valid densities-based srcset using only configured sizes', async () => {
+		const html = await fixture.readFile('../.vercel/output/static/index.html');
+		const $ = cheerio.load(html);
+		const img = $('#densities-test img');
+		const srcset = img.attr('srcset');
+
+		// Extract widths from srcset (format: "url 1x", "url 1.5x", etc)
+		const descriptors = srcset
+			.split(', ')
+			.map((entry) => entry.split(' ')[1]);
+
+		// Extract the widths from the URLs (they should be valid configured sizes)
+		const urls = srcset.split(', ').map((entry) => entry.split(' ')[0]);
+		const widthsFromUrls = urls.map((url) => {
+			const urlObj = new URL(url, 'http://localhost');
+			return parseInt(urlObj.searchParams.get('w'), 10);
+		});
+
+		// The configured sizes are [640, 750, 828, 1080, 1200, 1920, 2048, 3840]
+		// width=600 with densities [1, 1.5, 2] would calculate [600, 900, 1200]
+		// 600 -> nearest is 640
+		// 900 -> nearest is 828
+		// 1200 -> exactly in configured sizes
+		// So we expect widths [640, 828, 1200]
+		assert.deepEqual(
+			widthsFromUrls.sort((a, b) => a - b),
+			[640, 828, 1200],
+			`widths are mapped to nearest configured sizes`
+		);
+
+		// All widths should be from the configured sizes
+		assert.ok(
+			widthsFromUrls.every((w) => [640, 750, 828, 1080, 1200, 1920, 2048, 3840].includes(w)),
+			`all widths in srcset are from configured sizes: ${widthsFromUrls}`
+		);
+
+		// Check that we have density descriptors
+		assert.ok(
+			descriptors.every((d) => d.match(/^\d+(\.\d+)?x$/)),
+			`all descriptors are density-based (e.g., 1x, 1.5x): ${descriptors}`
+		);
+	});
+
 	it('has proper vercel config', async () => {
 		const vercelConfig = JSON.parse(await fixture.readFile('../.vercel/output/config.json'));
 
