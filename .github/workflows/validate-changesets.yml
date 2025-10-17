@@ -1,7 +1,9 @@
 name: Validate Changesets
 
 on:
-  pull_request_target:
+  # TODO: Switch back to pull_request_target after testing
+  pull_request:
+  # pull_request_target:
     paths:
       - '.changeset/*.md'
 
@@ -23,9 +25,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fetch PR head
-        run: |
-          git fetch origin pull/${{ github.event.pull_request.number }}/head:pr-${{ github.event.pull_request.number }}
+      # TODO: Uncomment for pull_request_target
+      # - name: Fetch PR head
+      #   run: |
+      #     git fetch origin pull/${{ github.event.pull_request.number }}/head:pr-${{ github.event.pull_request.number }}
 
       - name: Restore response cache
         uses: actions/cache/restore@6f8efc29b200d32929f49075959781ed54ec270c # v3.5.0
@@ -65,9 +68,10 @@ jobs:
           echo "Starting changeset validation"
 
           # Find changed changeset files
-          echo "::debug::Looking for changed files between ${{ github.event.pull_request.base.sha }} and ${{ github.event.pull_request.head.sha }}"
+          # TODO: For pull_request_target, use: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
+          echo "::debug::Looking for changed files in PR"
           git diff --name-only --diff-filter=AM \
-            "${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}" \
+            "origin/${{ github.event.pull_request.base.ref }}...HEAD" \
             -- '.changeset/*.md' | grep -v 'README.md' > changeset_files.txt || true
 
           {
@@ -91,8 +95,8 @@ jobs:
 
           while IFS= read -r file; do
             echo "::debug::Reading changeset file: $file"
-            # Read file from PR head SHA without checking it out (safer for pull_request_target)
-            if content=$(git show "${{ github.event.pull_request.head.sha }}:$file" 2>/dev/null); then
+            # TODO: For pull_request_target, use: git show "${{ github.event.pull_request.head.sha }}:$file"
+            if content=$(git show "HEAD:$file" 2>/dev/null); then
               content_size=${#content}
               new_total=$((total_size + content_size))
 
