@@ -2,7 +2,7 @@
 'astro': patch
 ---
 
-Allows specifying what weight (and optionally style) to preload for a given font family when using the experimental fonts API:
+Adds the option to specify in the `preload` directive which weights, styles, or subsets to preload for a given font family when using the experimental Fonts API:
 
 ```astro
 ---
