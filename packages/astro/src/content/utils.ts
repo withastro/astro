@@ -168,6 +168,7 @@ export async function getEntryDataAndImages<
 
 	if (typeof schema === 'function') {
 		if (pluginContext) {
+			// TODO: handle error when incompatible schema is passed
 			schema = schema({
 				image: (experimentalZod4 ? createZ4Image : createZ3Image)(
 					pluginContext,

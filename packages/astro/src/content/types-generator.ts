@@ -574,7 +574,6 @@ async function writeContentFiles({
 	}
 }
 
-// TODO: handle zod 4
 async function generateJSONSchema(
 	fsMod: typeof import('node:fs'),
 	collectionConfig: CollectionConfig,
