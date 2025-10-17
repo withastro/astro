@@ -182,11 +182,9 @@ export function formDataToZ4Object<T extends z4.$ZodObject>(
 	formData: FormData,
 	schema: T,
 ): Record<string, unknown> {
-	schema._zod.def.catchall;
-	const obj: Record<string, unknown> =
-		// TODO:
-		// @ts-expect-error
-		schema._zod.def.unknownKeys === 'passthrough' ? Object.fromEntries(formData.entries()) : {};
+	const obj: Record<string, unknown> = schema._zod.def.catchall
+		? Object.fromEntries(formData.entries())
+		: {};
 	for (const [key, baseValidator] of Object.entries(schema._zod.def.shape)) {
 		let validator = baseValidator;
 
@@ -295,15 +293,16 @@ function unwrapBaseZ3ObjectSchema(schema: z3.ZodType, unparsedInput: FormData) {
 }
 
 function unwrapBaseZ4ObjectSchema(schema: z4.$ZodType, unparsedInput: FormData) {
-	// TODO: how to handle z4.$ZodTransform?
+	if (schema instanceof z4.$ZodPipe) {
+		return schema._zod.def.in;
+	}
 	if (schema instanceof z4.$ZodDiscriminatedUnion) {
 		const typeKey = schema._zod.def.discriminator;
 		const typeValue = unparsedInput.get(typeKey);
 		if (typeof typeValue !== 'string') return schema;
 
-		// TODO: test
-		const objSchema = schema._zod.def.options.find(
-			(option) => (option as any)[typeKey] === typeValue,
+		const objSchema = schema._zod.def.options.find((option) =>
+			(option as any).def.shape[typeKey].values.has(typeValue),
 		);
 		if (!objSchema) return schema;
 
