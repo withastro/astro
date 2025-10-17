@@ -1,4 +1,5 @@
 import type { Plugin as VitePlugin } from 'vite';
+import { ASTRO_RENDERERS_MODULE_ID } from '../../../vite-plugin-renderers/index.js';
 import { routeIsRedirect } from '../../redirects/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal.js';
@@ -46,7 +47,7 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 						imports.push(`import * as _page from ${JSON.stringify(pageData.moduleSpecifier)};`);
 						exports.push(`export const page = () => _page`);
 
-						imports.push(`import { renderers } from "astro:renderers";`);
+						imports.push(`import { renderers } from "${ASTRO_RENDERERS_MODULE_ID}";`);
 						exports.push(`export { renderers };`);
 
 						return { code: `${imports.join('\n')}${exports.join('\n')}` };

@@ -16,7 +16,7 @@ import {
 import { createKey, encodeKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
 import type { AstroSettings } from '../types/astro.js';
 
-export const SERIALIZED_MANIFEST_ID = 'astro:serialized-manifest';
+export const SERIALIZED_MANIFEST_ID = 'virtual:astro:serialized-manifest';
 const SERIALIZED_MANIFEST_RESOLVED_ID = '\0' + SERIALIZED_MANIFEST_ID;
 
 export async function serializedManifestPlugin({
@@ -25,7 +25,7 @@ export async function serializedManifestPlugin({
 	settings: AstroSettings;
 }): Promise<Plugin> {
 	return {
-		name: 'astro:serialized-manifest',
+		name: 'virtual:astro:serialized-manifest',
 		enforce: 'pre',
 		resolveId(id) {
 			if (id === SERIALIZED_MANIFEST_ID) {
