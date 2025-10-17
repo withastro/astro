@@ -202,12 +202,18 @@ async function buildManifest(
 		staticFiles.push(entryModules[PAGE_SCRIPT_ID]);
 	}
 
+	const assetQueryParams = settings.adapter?.client?.assetQueryParams;
+
 	const prefixAssetPath = (pth: string) => {
 		if (settings.config.build.assetsPrefix) {
-			const pf = getAssetsPrefix(fileExtension(pth), settings.config.build.assetsPrefix);
+			const pf = getAssetsPrefix(fileExtension(pth), settings.config.build.assetsPrefix, assetQueryParams);
 			return joinPaths(pf, pth);
 		} else {
-			return prependForwardSlash(joinPaths(settings.config.base, pth));
+			let result = prependForwardSlash(joinPaths(settings.config.base, pth));
+			if (assetQueryParams) {
+				result += '?' + assetQueryParams;
+			}
+			return result;
 		}
 	};
 

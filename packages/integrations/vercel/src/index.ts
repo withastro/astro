@@ -130,6 +130,21 @@ function getAdapter({
 			i18nDomains: 'experimental',
 			envGetSecret: 'stable',
 		},
+		client: {
+			internalFetchHeaders: skewProtection
+				? (): Record<string, string> => {
+						const deploymentId = process.env.VERCEL_DEPLOYMENT_ID;
+						if (deploymentId) {
+							return { 'x-deployment-id': deploymentId };
+						}
+						return {};
+					}
+				: undefined,
+			assetQueryParams:
+				skewProtection && process.env.VERCEL_DEPLOYMENT_ID
+					? `dpl=${process.env.VERCEL_DEPLOYMENT_ID}`
+					: undefined,
+		},
 	};
 }
 
