@@ -236,7 +236,9 @@ jobs:
           echo "::debug::Checking for shallow headings (h1, h2, h3) in changesets"
           while IFS= read -r file; do
             if [ -f "$file" ]; then
-              if heading_output=$(pnpm --filter astro-scripts has-shallow-headings "$file" 2>&1); then
+              # Make path absolute for the script
+              abs_file="$(pwd)/$file"
+              if heading_output=$(pnpm --filter astro-scripts has-shallow-headings "$abs_file" 2>&1); then
                 echo "::debug::$file: No shallow headings found"
               else
                 echo "::warning::$file: Contains forbidden shallow headings"
