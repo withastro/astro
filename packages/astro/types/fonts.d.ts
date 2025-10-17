@@ -4,4 +4,7 @@ declare module 'astro:assets' {
 
 	/** The data returned by `getFontData()` */
 	export type FontData = import('../dist/assets/fonts/types.js').FontData;
+
+	/** @internal */
+	export type FontPreloadFilter = import('../dist/assets/fonts/types.js').PreloadFilter;
 }

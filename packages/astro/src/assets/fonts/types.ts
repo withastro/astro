@@ -62,6 +62,9 @@ export interface PreloadData {
 	 * A font type, eg. woff2, woff, ttf...
 	 */
 	type: FontType;
+	weight: string | undefined;
+	style: string | undefined;
+	subset: string | undefined;
 }
 
 export type FontFaceMetrics = Pick<
@@ -116,3 +119,7 @@ export interface FontData {
 export type ConsumableMap = Map<string, Array<FontData>>;
 
 export type Style = z.output<typeof styleSchema>;
+
+export type PreloadFilter =
+	| boolean
+	| Array<{ weight?: string | number; style?: string; subset?: string }>;

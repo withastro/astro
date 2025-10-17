@@ -98,6 +98,9 @@ describe('fonts orchestrate()', () => {
 			{
 				url: joinPaths('/test', fileURLToPath(new URL('my-font.woff2.woff2', root))),
 				type: 'woff2',
+				weight: '400',
+				style: 'normal',
+				subset: undefined,
 			},
 		]);
 		// Uses the hash
@@ -229,7 +232,13 @@ describe('fonts orchestrate()', () => {
 		assert.deepStrictEqual([...internalConsumableMap.keys()], ['--test']);
 		const entry = internalConsumableMap.get('--test');
 		assert.deepStrictEqual(entry?.preloadData, [
-			{ url: 'https://example.com/foo.woff2.woff2', type: 'woff2' },
+			{
+				url: 'https://example.com/foo.woff2.woff2',
+				type: 'woff2',
+				weight: '400',
+				style: 'normal',
+				subset: undefined,
+			},
 		]);
 		// Uses the hash
 		assert.equal(entry?.css.includes('font-family:Test-'), true);
