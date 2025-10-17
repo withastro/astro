@@ -2,7 +2,7 @@
 // Additionally, this code, much like `types/public/config.ts`, is used to generate documentation, so make sure to pass
 // your changes by our wonderful docs team before merging!
 
-import type { ZodError } from 'zod';
+import type { ZodError } from 'zod/v3';
 
 export interface ErrorData {
 	name: string;
@@ -1680,10 +1680,14 @@ export const InvalidContentEntryFrontmatterError = {
 export const InvalidContentEntryDataError = {
 	name: 'InvalidContentEntryDataError',
 	title: 'Content entry data does not match schema.',
-	message(collection: string, entryId: string, error: ZodError) {
+	message(
+		collection: string,
+		entryId: string,
+		errors: Array<{ path: Array<string | number | symbol>; message: string }>,
+	) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
-			...error.errors.map((zodError) => `  **${zodError.path.join('.')}**: ${zodError.message}`),
+			...errors.map(({ path, message }) => `  **${path.join('.')}**: ${message}`),
 			'',
 		].join('\n');
 	},
@@ -2086,6 +2090,30 @@ export const SessionStorageSaveError = {
 	message: (error: string, driver?: string) =>
 		`Error when saving session data${driver ? ` with driver \`${driver}\`` : ''}. \`${error ?? ''}\``,
 	hint: 'For more information, see https://docs.astro.build/en/guides/sessions/',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message The provided Zod schema uses a version incompatible with `experimental.zod4`.
+ */
+export const InvalidZodSchemaVersion = {
+	name: 'InvalidZodSchemaVersion',
+	title: 'Invalid Zod Schema version.',
+	message: (feature: string, version: 3 | 4) =>
+		`Zod schema provided to ${feature} uses zod v${version}. However, experimental.zod4 is ${version === 3 ? 'enabled' : 'disabled'}.`,
+	hint: 'Update your schema or the option in your Astro config.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message An unknown error occurred while executing content collection schema.
+ */
+export const CannotExecuteContentCollectionSchema = {
+	name: 'CannotExecuteContentCollectionSchema',
+	title: 'Cannot Execute Content Collection Schema',
+	message: (collection: string) =>
+		`An unknown error occurred while executing the ${JSON.stringify(collection)} content collection schema.`,
+	hint: 'This is likely caused by a zod v3 and v4 mismatch. Review your schema or the experimental.zod4 option in your Astro config.',
 } satisfies ErrorData;
 
 /*

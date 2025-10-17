@@ -1,9 +1,12 @@
 import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { compile } from 'json-schema-to-typescript';
 import { bold, cyan } from 'kleur/colors';
 import { normalizePath, type ViteDevServer } from 'vite';
-import { type ZodSchema, z } from 'zod';
+import * as z3 from 'zod/v3';
+import * as _z4 from 'zod/v4';
+import * as z4 from 'zod/v4/core';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
@@ -342,12 +345,12 @@ function normalizeConfigPath(from: string, to: string) {
 	return `"${isRelativePath(configPath) ? '' : './'}${normalizedPath}"` as const;
 }
 
-const schemaCache = new Map<string, ZodSchema>();
+const schemaCache = new Map<string, z3.ZodType | z4.$ZodType>();
 
 async function getContentLayerSchema<T extends keyof ContentConfig['collections']>(
 	collection: ContentConfig['collections'][T],
 	collectionKey: T,
-): Promise<ZodSchema | undefined> {
+): Promise<z3.ZodType | z4.$ZodType | undefined> {
 	const cached = schemaCache.get(collectionKey);
 	if (cached) {
 		return cached;
@@ -383,9 +386,23 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	if (!schema) {
 		return 'any';
 	}
+	if ('_zod' in schema) {
+		try {
+			const jsonSchema = z4.toJSONSchema(schema);
+			// schema versions do not match
+			const result = await compile(jsonSchema as any, 'X', {
+				format: false,
+				bannerComment: '',
+			});
+			// Removes "export interface X"
+			return result.slice(19);
+		} catch {
+			return 'any';
+		}
+	}
 	try {
 		const zodToTs = await import('zod-to-ts');
-		const ast = zodToTs.zodToTs(schema);
+		const ast = zodToTs.zodToTs(schema as any);
 		return zodToTs.printNode(ast.node);
 	} catch (err: any) {
 		// zod-to-ts is sad if we don't have TypeScript installed, but that's fine as we won't be needing types in that case
@@ -468,7 +485,14 @@ async function writeContentFiles({
 			collectionConfig &&
 			(collectionConfig.schema || (await getContentLayerSchema(collectionConfig, collectionKey)))
 		) {
-			await generateJSONSchema(fs, collectionConfig, collectionKey, collectionSchemasDir, logger);
+			await generateJSONSchema(
+				fs,
+				collectionConfig,
+				collectionKey,
+				collectionSchemasDir,
+				logger,
+				settings.config.experimental.zod4,
+			);
 
 			contentCollectionsMap[collectionKey] = collection;
 		}
@@ -556,10 +580,11 @@ async function generateJSONSchema(
 	collectionKey: string,
 	collectionSchemasDir: URL,
 	logger: Logger,
+	experimentalZod4: boolean,
 ) {
 	let zodSchemaForJson =
 		typeof collectionConfig.schema === 'function'
-			? collectionConfig.schema({ image: () => z.string() })
+			? collectionConfig.schema({ image: () => (experimentalZod4 ? _z4.string() : z3.string()) })
 			: collectionConfig.schema;
 
 	if (!zodSchemaForJson && collectionConfig.type === CONTENT_LAYER_TYPE) {
@@ -576,12 +601,19 @@ async function generateJSONSchema(
 		// `file()` supports arrays of items, but you can’t set `$schema` when using a top-level array,
 		// so we’re only handling the object case.
 		// We use `z.object()` instead of `z.record()` for compatibility with the next `if` statement.
-		zodSchemaForJson = z.object({}).catchall(zodSchemaForJson);
+		zodSchemaForJson = experimentalZod4
+			? _z4.object({}).catchall(zodSchemaForJson)
+			: z3.object({}).catchall(zodSchemaForJson);
 	}
 
-	if (zodSchemaForJson instanceof z.ZodObject) {
+	if (zodSchemaForJson instanceof z4.$ZodObject) {
+		zodSchemaForJson = _z4.object({
+			...(zodSchemaForJson as any).shape,
+			$schema: _z4.string().optional(),
+		});
+	} else if (zodSchemaForJson instanceof z3.ZodObject) {
 		zodSchemaForJson = zodSchemaForJson.extend({
-			$schema: z.string().optional(),
+			$schema: z3.string().optional(),
 		});
 	}
 
@@ -589,13 +621,18 @@ async function generateJSONSchema(
 		await fsMod.promises.writeFile(
 			new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
 			JSON.stringify(
-				zodToJsonSchema(zodSchemaForJson, {
-					name: collectionKey.replace(/"/g, ''),
-					markdownDescription: true,
-					errorMessages: true,
-					// Fix for https://github.com/StefanTerdell/zod-to-json-schema/issues/110
-					dateStrategy: ['format:date-time', 'format:date', 'integer'],
-				}),
+				'_zod' in zodSchemaForJson
+					? z4.toJSONSchema(zodSchemaForJson, {
+							unrepresentable: 'any',
+							io: 'input',
+						})
+					: zodToJsonSchema(zodSchemaForJson, {
+							name: collectionKey.replace(/"/g, ''),
+							markdownDescription: true,
+							errorMessages: true,
+							// Fix for https://github.com/StefanTerdell/zod-to-json-schema/issues/110
+							dateStrategy: ['format:date-time', 'format:date', 'integer'],
+						}),
 				null,
 				2,
 			),

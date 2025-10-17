@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "astro": "workspace:*"
+    "astro": "workspace:*",
+    "zod": "^4.1.12"
   }
 }

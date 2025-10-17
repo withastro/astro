@@ -1,7 +1,7 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import { escape } from 'html-escaper';
 import { Traverse } from 'neotraverse/modern';
-import { ZodIssueCode, z } from 'zod';
+import { z } from 'zod/v3';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -681,7 +681,7 @@ export function createReference() {
 						// If these don't match then something is wrong with the reference
 						if (lookup.collection !== collection) {
 							ctx.addIssue({
-								code: ZodIssueCode.custom,
+								code: z.ZodIssueCode.custom,
 								message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${collection}. Received ${lookup.collection}.`,
 							});
 							return;

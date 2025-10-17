@@ -15,7 +15,7 @@ import {
 } from 'kleur/colors';
 import { detect, resolveCommand } from 'package-manager-detector';
 import type { ResolvedServerUrls } from 'vite';
-import type { ZodError } from 'zod';
+import type { ZodError } from 'zod/v3';
 import { getDocsForError, renderErrorMarkdown } from './errors/dev/utils.js';
 import {
 	AstroError,
