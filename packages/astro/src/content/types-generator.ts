@@ -5,6 +5,7 @@ import { compile } from 'json-schema-to-typescript';
 import { bold, cyan } from 'kleur/colors';
 import { normalizePath, type ViteDevServer } from 'vite';
 import * as z3 from 'zod/v3';
+import * as _z4 from 'zod/v4';
 import * as z4 from 'zod/v4/core';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { AstroError } from '../core/errors/errors.js';
@@ -484,7 +485,14 @@ async function writeContentFiles({
 			collectionConfig &&
 			(collectionConfig.schema || (await getContentLayerSchema(collectionConfig, collectionKey)))
 		) {
-			await generateJSONSchema(fs, collectionConfig, collectionKey, collectionSchemasDir, logger);
+			await generateJSONSchema(
+				fs,
+				collectionConfig,
+				collectionKey,
+				collectionSchemasDir,
+				logger,
+				settings.config.experimental.zod4,
+			);
 
 			contentCollectionsMap[collectionKey] = collection;
 		}
@@ -573,10 +581,11 @@ async function generateJSONSchema(
 	collectionKey: string,
 	collectionSchemasDir: URL,
 	logger: Logger,
+	experimentalZod4: boolean,
 ) {
 	let zodSchemaForJson =
 		typeof collectionConfig.schema === 'function'
-			? collectionConfig.schema({ image: () => z3.string() })
+			? collectionConfig.schema({ image: () => (experimentalZod4 ? _z4.string() : z3.string()) })
 			: collectionConfig.schema;
 
 	if (!zodSchemaForJson && collectionConfig.type === CONTENT_LAYER_TYPE) {
@@ -593,10 +602,17 @@ async function generateJSONSchema(
 		// `file()` supports arrays of items, but you can’t set `$schema` when using a top-level array,
 		// so we’re only handling the object case.
 		// We use `z.object()` instead of `z.record()` for compatibility with the next `if` statement.
-		zodSchemaForJson = z3.object({}).catchall(zodSchemaForJson);
+		zodSchemaForJson = experimentalZod4
+			? _z4.object({}).catchall(zodSchemaForJson)
+			: z3.object({}).catchall(zodSchemaForJson);
 	}
 
-	if (zodSchemaForJson instanceof z3.ZodObject) {
+	if (zodSchemaForJson instanceof z4.$ZodObject) {
+		zodSchemaForJson = _z4.object({
+			...(zodSchemaForJson as any).shape,
+			$schema: _z4.string().optional(),
+		});
+	} else if (zodSchemaForJson instanceof z3.ZodObject) {
 		zodSchemaForJson = zodSchemaForJson.extend({
 			$schema: z3.string().optional(),
 		});
@@ -606,13 +622,18 @@ async function generateJSONSchema(
 		await fsMod.promises.writeFile(
 			new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
 			JSON.stringify(
-				zodToJsonSchema(zodSchemaForJson, {
-					name: collectionKey.replace(/"/g, ''),
-					markdownDescription: true,
-					errorMessages: true,
-					// Fix for https://github.com/StefanTerdell/zod-to-json-schema/issues/110
-					dateStrategy: ['format:date-time', 'format:date', 'integer'],
-				}),
+				'_zod' in zodSchemaForJson
+					? z4.toJSONSchema(zodSchemaForJson, {
+							unrepresentable: 'any',
+							io: 'input',
+						})
+					: zodToJsonSchema(zodSchemaForJson, {
+							name: collectionKey.replace(/"/g, ''),
+							markdownDescription: true,
+							errorMessages: true,
+							// Fix for https://github.com/StefanTerdell/zod-to-json-schema/issues/110
+							dateStrategy: ['format:date-time', 'format:date', 'integer'],
+						}),
 				null,
 				2,
 			),
