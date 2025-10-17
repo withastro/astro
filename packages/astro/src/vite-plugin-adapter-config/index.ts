@@ -22,14 +22,14 @@ export function vitePluginAdapterConfig(settings: AstroSettings): VitePlugin {
 				}
 
 				const adapter = settings.adapter;
-				const runtimeConfig = adapter?.runtimeConfig || {};
+				const clientConfig = adapter?.client || {};
 
 				let internalFetchHeaders = {};
-				if (runtimeConfig.internalFetchHeaders) {
+				if (clientConfig.internalFetchHeaders) {
 					internalFetchHeaders =
-						typeof runtimeConfig.internalFetchHeaders === 'function'
-							? runtimeConfig.internalFetchHeaders()
-							: runtimeConfig.internalFetchHeaders;
+						typeof clientConfig.internalFetchHeaders === 'function'
+							? clientConfig.internalFetchHeaders()
+							: clientConfig.internalFetchHeaders;
 				}
 
 				return {

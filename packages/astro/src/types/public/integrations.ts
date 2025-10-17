@@ -116,9 +116,9 @@ export interface AstroAdapter {
 	 */
 	supportedAstroFeatures: AstroAdapterFeatureMap;
 	/**
-	 * Runtime configuration that will be available to Astro's client-side code.
+	 * Configuration for Astro's client-side code.
 	 */
-	runtimeConfig?: {
+	client?: {
 		/**
 		 * Headers to inject into Astro's internal fetch calls (Actions, View Transitions, Server Islands, Prefetch).
 		 * Can be an object of headers or a function that returns headers.

@@ -343,11 +343,11 @@ async function buildManifest(
 
 	// Get internal fetch headers from adapter config
 	let internalFetchHeaders: Record<string, string> | undefined = undefined;
-	if (settings.adapter?.runtimeConfig?.internalFetchHeaders) {
+	if (settings.adapter?.client?.internalFetchHeaders) {
 		const headers =
-			typeof settings.adapter.runtimeConfig.internalFetchHeaders === 'function'
-				? settings.adapter.runtimeConfig.internalFetchHeaders()
-				: settings.adapter.runtimeConfig.internalFetchHeaders;
+			typeof settings.adapter.client.internalFetchHeaders === 'function'
+				? settings.adapter.client.internalFetchHeaders()
+				: settings.adapter.client.internalFetchHeaders;
 		if (Object.keys(headers).length > 0) {
 			internalFetchHeaders = headers;
 		}

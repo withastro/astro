@@ -685,7 +685,7 @@ export default function netlifyIntegration(
 						sharpImageService: 'stable',
 						envGetSecret: 'stable',
 					},
-					runtimeConfig: {
+					client: {
 						internalFetchHeaders: (): Record<string, string> => {
 							const deployId = process.env.DEPLOY_ID;
 							if (deployId) {
