@@ -203,18 +203,20 @@ async function buildManifest(
 	}
 
 	const assetQueryParams = settings.adapter?.client?.assetQueryParams;
+	const assetQueryString = assetQueryParams ? assetQueryParams.toString() : undefined;
 
 	const prefixAssetPath = (pth: string) => {
+		let result = '';
 		if (settings.config.build.assetsPrefix) {
-			const pf = getAssetsPrefix(fileExtension(pth), settings.config.build.assetsPrefix, assetQueryParams);
-			return joinPaths(pf, pth);
+			const pf = getAssetsPrefix(fileExtension(pth), settings.config.build.assetsPrefix);
+			result = joinPaths(pf, pth);
 		} else {
-			let result = prependForwardSlash(joinPaths(settings.config.base, pth));
-			if (assetQueryParams) {
-				result += '?' + assetQueryParams;
-			}
-			return result;
+			result = prependForwardSlash(joinPaths(settings.config.base, pth));
 		}
+		if (assetQueryString) {
+			result += '?' + assetQueryString;
+		}
+		return result;
 	};
 
 	// Default components follow a special flow during build. We prevent their processing earlier

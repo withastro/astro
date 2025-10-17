@@ -126,10 +126,9 @@ export interface AstroAdapter {
 		internalFetchHeaders?: Record<string, string> | (() => Record<string, string>);
 		/**
 		 * Query parameters to append to all asset URLs (images, stylesheets, scripts, etc.).
-		 * Should be a string in the format "key=value&other=value".
 		 * Useful for adapters that need to track deployment versions or other metadata.
 		 */
-		assetQueryParams?: string;
+		assetQueryParams?: URLSearchParams;
 	};
 }
 

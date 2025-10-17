@@ -3,7 +3,6 @@ import type { AssetsPrefix } from '../../core/app/types.js';
 export function getAssetsPrefix(
 	fileExtension: string,
 	assetsPrefix?: AssetsPrefix,
-	queryParams?: string,
 ): string {
 	let prefix = '';
 	if (!assetsPrefix) {
@@ -16,8 +15,5 @@ export function getAssetsPrefix(
 		prefix = assetsPrefix[dotLessFileExtension] || assetsPrefix.fallback;
 	}
 
-	if (queryParams) {
-		return prefix + '?' + queryParams;
-	}
 	return prefix;
 }

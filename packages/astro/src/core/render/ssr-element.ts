@@ -7,22 +7,19 @@ export function createAssetLink(
 	href: string,
 	base?: string,
 	assetsPrefix?: AssetsPrefix,
-	queryParams?: string,
+	queryParams?: URLSearchParams,
 ): string {
 	let url = '';
 	if (assetsPrefix) {
-		const pf = getAssetsPrefix(fileExtension(href), assetsPrefix, queryParams);
+		const pf = getAssetsPrefix(fileExtension(href), assetsPrefix);
 		url = joinPaths(pf, slash(href));
 	} else if (base) {
 		url = prependForwardSlash(joinPaths(base, slash(href)));
-		if (queryParams) {
-			url += '?' + queryParams;
-		}
 	} else {
 		url = href;
-		if (queryParams) {
-			url += '?' + queryParams;
-		}
+	}
+	if (queryParams) {
+		url += '?' + queryParams.toString();
 	}
 	return url;
 }
@@ -31,7 +28,7 @@ function createStylesheetElement(
 	stylesheet: StylesheetAsset,
 	base?: string,
 	assetsPrefix?: AssetsPrefix,
-	queryParams?: string,
+	queryParams?: URLSearchParams,
 ): SSRElement {
 	if (stylesheet.type === 'inline') {
 		return {
@@ -53,7 +50,7 @@ export function createStylesheetElementSet(
 	stylesheets: StylesheetAsset[],
 	base?: string,
 	assetsPrefix?: AssetsPrefix,
-	queryParams?: string,
+	queryParams?: URLSearchParams,
 ): Set<SSRElement> {
 	return new Set(stylesheets.map((s) => createStylesheetElement(s, base, assetsPrefix, queryParams)));
 }
@@ -62,7 +59,7 @@ export function createModuleScriptElement(
 	script: { type: 'inline' | 'external'; value: string },
 	base?: string,
 	assetsPrefix?: AssetsPrefix,
-	queryParams?: string,
+	queryParams?: URLSearchParams,
 ): SSRElement {
 	if (script.type === 'external') {
 		return createModuleScriptElementWithSrc(script.value, base, assetsPrefix, queryParams);
@@ -80,7 +77,7 @@ function createModuleScriptElementWithSrc(
 	src: string,
 	base?: string,
 	assetsPrefix?: AssetsPrefix,
-	queryParams?: string,
+	queryParams?: URLSearchParams,
 ): SSRElement {
 	return {
 		props: {
