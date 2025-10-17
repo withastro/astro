@@ -3,8 +3,7 @@ import { createMarkdownProcessor, type MarkdownProcessor } from '@astrojs/markdo
 import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
-import type * as z3 from 'zod/v3';
-import type * as z4 from 'zod/v4/core';
+import * as z4 from 'zod/v4/core';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -24,7 +23,8 @@ import {
 	getEntryConfigByExtMap,
 	getEntryDataAndImages,
 	globalContentConfigObserver,
-	loaderReturnSchema,
+	loaderReturnZ3Schema,
+	loaderReturnZ4Schema,
 	safeStringify,
 } from './utils.js';
 import { createWatcherWrapper, type WrappedWatcher } from './watcher.js';
@@ -297,7 +297,11 @@ class ContentLayer {
 				});
 
 				if (typeof collection.loader === 'function') {
-					return simpleLoader(collection.loader as CollectionLoader<{ id: string }>, context);
+					return simpleLoader(
+						collection.loader as CollectionLoader<{ id: string }>,
+						context,
+						this.#settings.config.experimental.zod4,
+					);
 				}
 
 				if (!collection.loader.load) {
@@ -357,20 +361,26 @@ class ContentLayer {
 async function simpleLoader<TData extends { id: string }>(
 	handler: CollectionLoader<TData>,
 	context: LoaderContext,
+	experimentalZod4: boolean,
 ) {
 	const unsafeData = await handler();
-	const parsedData = loaderReturnSchema.safeParse(unsafeData);
+	const parsedData = experimentalZod4
+		? z4.safeParse(loaderReturnZ4Schema, unsafeData)
+		: loaderReturnZ3Schema.safeParse(unsafeData);
 
 	if (!parsedData.success) {
-		// TODO: investigate
-		const issue = parsedData.error.issues[0] as z3.ZodInvalidUnionIssue | z4.$ZodIssueInvalidUnion;
+		let errors;
+		if (parsedData.error instanceof z4.$ZodError) {
+			errors = (parsedData.error.issues[0] as any).errors[0]
+		} else {
+			const issue = parsedData.error.issues[0] as any;
 
-		// Due to this being a union, zod will always throw an "Expected array, received object" error along with the other errors.
-		// This error is in the second position if the data is an array, and in the first position if the data is an object.
-		// @ts-expect-error
-		const parseIssue = Array.isArray(unsafeData) ? issue.unionErrors[0] : issue.unionErrors[1];
+			// Due to this being a union, zod will always throw an "Expected array, received object" error along with the other errors.
+			// This error is in the second position if the data is an array, and in the first position if the data is an object.
+			errors = issue.unionErrors[Array.isArray(unsafeData) ? 0 : 1].errors;
+		}
 
-		const error = parseIssue.errors[0];
+		const error = errors[0];
 		const firstPathItem = error.path[0];
 
 		const entry = Array.isArray(unsafeData)

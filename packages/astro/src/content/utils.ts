@@ -27,17 +27,17 @@ import {
 } from './consts.js';
 import { createZ3Image, createZ4Image } from './runtime-assets.js';
 
-const entryTypeSchema = z3
-	.object({
-		id: z3.string({
-			invalid_type_error: 'Content entry `id` must be a string',
-			// Default to empty string so we can validate properly in the loader
-		}),
-	})
-	.passthrough();
-
-export const loaderReturnSchema = z3.union([
-	z3.array(entryTypeSchema),
+export const loaderReturnZ3Schema = z3.union([
+	z3.array(
+		z3
+			.object({
+				id: z3.string({
+					invalid_type_error: 'Content entry `id` must be a string',
+					// Default to empty string so we can validate properly in the loader
+				}),
+			})
+			.passthrough(),
+	),
 	z3.record(
 		z3.string(),
 		z3
@@ -49,6 +49,29 @@ export const loaderReturnSchema = z3.union([
 					.optional(),
 			})
 			.passthrough(),
+	),
+]);
+
+export const loaderReturnZ4Schema = z4.union([
+	z4.array(
+		z4.looseObject({
+			id: z4.string({
+				error: (issue) =>
+					issue.input === undefined ? undefined : 'Content entry `id` must be a string',
+				// Default to empty string so we can validate properly in the loader
+			}),
+		}),
+	),
+	z4.record(
+		z4.string(),
+		z4.looseObject({
+			id: z4
+				.string({
+					error: (issue) =>
+						issue.input === undefined ? undefined : 'Content entry `id` must be a string',
+				})
+				.optional(),
+		}),
 	),
 ]);
 
