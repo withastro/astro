@@ -37,7 +37,7 @@ export default {
 				'rehype-slug',
 				'rehype-toc',
 				'remark-code-titles',
-				'@types/http-cache-semantics',
+				'@types/http-cache-semantics'
 			],
 		},
 		'packages/db': {
@@ -77,5 +77,9 @@ export default {
 		'packages/upgrade': {
 			entry: ['src/index.ts', testEntry],
 		},
+		'scripts': {
+			// Used in shell script
+			ignoreDependencies: ['marked']
+		}
 	},
 };
