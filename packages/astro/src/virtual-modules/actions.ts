@@ -1,3 +1,4 @@
+import { internalFetchHeaders } from 'astro:adapter-config/client';
 import { shouldAppendTrailingSlash } from 'virtual:astro:actions/options';
 import type { ActionClient, SafeResult } from '../actions/runtime/server.js';
 import {
@@ -9,7 +10,6 @@ import {
 	getActionQueryString,
 } from '../actions/runtime/shared.js';
 import type { APIContext } from '../types/public/context.js';
-import { internalFetchHeaders } from 'astro:adapter-config/client';
 
 export * from 'virtual:astro:actions/runtime';
 
