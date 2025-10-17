@@ -333,6 +333,7 @@ export function formatErrorMessage(err: ErrorWithMetadata, showFullStacktrace: b
 	return output.join('\n');
 }
 
+/** @deprecated Migrate to HelpDisplay */
 export function printHelp({
 	commandName,
 	headline,
