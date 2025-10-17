@@ -55,7 +55,7 @@ export default function createVitePluginAstroServer({
 			const createExports = await loader.import('astro:app');
 			const controller = createController({ loader });
 			const { handler } = await createExports.default(controller, settings, loader);
-			const { manifest } = await loader.import('astro:serialized-manifest');
+			const { manifest } = await loader.import('virtual:astro:serialized-manifest');
 			const localStorage = new AsyncLocalStorage();
 
 			function handleUnhandledRejection(rejection: any) {
