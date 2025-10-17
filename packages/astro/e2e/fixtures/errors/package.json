@@ -1,0 +1,20 @@
+{
+  "name": "@e2e/errors",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/preact": "workspace:*",
+    "@astrojs/react": "workspace:*",
+    "@astrojs/solid-js": "workspace:*",
+    "@astrojs/svelte": "workspace:*",
+    "@astrojs/vue": "workspace:*",
+    "astro": "workspace:*",
+    "preact": "^10.27.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sass": "^1.91.0",
+    "solid-js": "^1.9.9",
+    "svelte": "^5.39.3",
+    "vue": "^3.5.20"
+  }
+}

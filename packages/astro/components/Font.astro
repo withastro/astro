@@ -1,0 +1,34 @@
+---
+import * as mod from 'virtual:astro:assets/fonts/internal';
+import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
+
+// TODO: remove check when fonts are stabilized
+const { internalConsumableMap } = mod;
+if (!internalConsumableMap) {
+	throw new AstroError(AstroErrorData.ExperimentalFontsNotEnabled);
+}
+
+interface Props {
+	/** The `cssVariable` registered in your Astro configuration. */
+	cssVariable: import('astro:assets').CssVariable;
+	/** Whether it should output [preload links](https://web.dev/learn/performance/optimize-web-fonts#preload) or not. */
+	preload?: boolean;
+}
+
+const { cssVariable, preload = false } = Astro.props as Props;
+const data = internalConsumableMap.get(cssVariable);
+if (!data) {
+	throw new AstroError({
+		...AstroErrorData.FontFamilyNotFound,
+		message: AstroErrorData.FontFamilyNotFound.message(cssVariable),
+	});
+}
+---
+
+<style set:html={data.css}></style>
+{
+	preload &&
+		data.preloadData.map(({ url, type }) => (
+			<link rel="preload" href={url} as="font" type={`font/${type}`} crossorigin />
+		))
+}
