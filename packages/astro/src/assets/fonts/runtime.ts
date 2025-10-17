@@ -31,17 +31,21 @@ export function filterPreloads(
 	}
 	// Only preload urls based on weight, style and subset
 	return data.filter(({ weight, style, subset }) =>
-		preload.some(
-			(p) =>
-				// Always check the weight
-				(p.weight === undefined ||
-					weight === undefined ||
-					checkWeight(p.weight.toString(), weight)) &&
-				// Only check the style if specified
-				(p.style === undefined || p.style === style) &&
-				// Only check the subset if specified
-				(p.subset === undefined || p.subset === subset),
-		),
+		preload.some((p) => {
+			// Always check the weight
+			if (p.weight !== undefined && weight !== undefined && !checkWeight(p.weight.toString(), weight)) {
+				return false;
+			}
+			// Only check the style if specified
+			if (p.style !== undefined && p.style !== style) {
+				return false;
+			}
+			// Only check the subset if specified
+			if (p.subset !== undefined && p.subset !== subset) {
+				return false;
+			}
+			return true;
+		}),
 	);
 }
 
