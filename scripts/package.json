@@ -7,9 +7,13 @@
   "bin": {
     "astro-scripts": "./index.js"
   },
+  "scripts": {
+    "has-shallow-headings": "./shallow-headings.sh"
+  },
   "dependencies": {
     "esbuild": "^0.25.0",
     "kleur": "^4.1.5",
+    "marked": "^16.4.0",
     "p-limit": "^6.2.0",
     "tinyglobby": "^0.2.15",
     "tsconfck": "^3.1.6"
