@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Prevent duplicate CSS for hydrated client components
+Updates handling of CSS for hydrated client components to prevent duplicates
