@@ -62,7 +62,7 @@ export function testFactory(testFile, inlineConfig) {
 /**
  *
  * @param {import('@playwright/test').Page} page
- * @returns {Promise<{message: string, hint: string, absoluteFileLocation: string, fileLocation: string, codeFrame: import('@playwright/test').ElementHandle}>}
+ * @returns {Promise<{message: string, hint: string, absoluteFileLocation: string, fileLocation: string, codeFrame: import('@playwright/test').ElementHandle, copyButton: import('@playwright/test').ElementHandle}>}
  */
 export async function getErrorOverlayContent(page) {
 	const overlay = await page.waitForSelector('vite-error-overlay', {
@@ -80,8 +80,9 @@ export async function getErrorOverlayContent(page) {
 	]);
 
 	const codeFrame = await overlay.$('#code pre code');
+	const copyButton = await overlay.$('#copy-btn');
 
-	return { message, hint, absoluteFileLocation, fileLocation, codeFrame };
+	return { message, hint, absoluteFileLocation, fileLocation, codeFrame, copyButton };
 }
 
 /**
