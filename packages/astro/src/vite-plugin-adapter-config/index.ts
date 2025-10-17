@@ -1,7 +1,7 @@
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../types/astro.js';
 
-const VIRTUAL_CLIENT_ID = 'astro:adapter-config/client';
+const VIRTUAL_CLIENT_ID = 'virtual:astro:adapter-config/client';
 const RESOLVED_VIRTUAL_CLIENT_ID = '\0' + VIRTUAL_CLIENT_ID;
 
 export function vitePluginAdapterConfig(settings: AstroSettings): VitePlugin {

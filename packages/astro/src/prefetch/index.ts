@@ -2,7 +2,7 @@
   NOTE: Be careful about adding dependencies or imports in this file so that it can load quickly in dev.
 */
 
-import { internalFetchHeaders } from 'astro:adapter-config/client';
+import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
 
 const debug = import.meta.env.DEV ? console.debug : undefined;
 const inBrowser = import.meta.env.SSR === false;

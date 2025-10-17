@@ -1,4 +1,4 @@
-import { internalFetchHeaders } from 'astro:adapter-config/client';
+import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
 import type { TransitionBeforePreparationEvent } from './events.js';
 import { doPreparation, doSwap, TRANSITION_AFTER_SWAP } from './events.js';
 import { detectScriptExecuted } from './swap-functions.js';

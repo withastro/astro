@@ -1,5 +1,5 @@
-import { internalFetchHeaders } from 'astro:adapter-config/client';
 import { shouldAppendTrailingSlash } from 'virtual:astro:actions/options';
+import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
 import type { ActionClient, SafeResult } from '../actions/runtime/server.js';
 import {
 	ACTION_QUERY_PARAMS,
