@@ -11,7 +11,7 @@ declare module 'virtual:astro:assets/fonts/internal' {
 	export const consumableMap: import('./src/assets/fonts/types.js').ConsumableMap;
 }
 
-declare module 'astro:adapter-config/client' {
+declare module 'virtual:astro:adapter-config/client' {
 	export const internalFetchHeaders: Record<string, string>;
 }
 
