@@ -47,10 +47,7 @@ export function getViteConfig(
 		const { astroConfig: config } = await resolveConfig(inlineAstroConfig, cmd);
 		let settings = await createSettings(config, userViteConfig.root);
 		settings = await runHookConfigSetup({ settings, command: cmd, logger });
-		const viteConfig = await createVite(
-			{},
-			{ settings, command: cmd, logger, mode, sync: false },
-		);
+		const viteConfig = await createVite({}, { settings, command: cmd, logger, mode, sync: false });
 		await runHookConfigDone({ settings, logger });
 		return mergeConfig(viteConfig, userViteConfig);
 	};
