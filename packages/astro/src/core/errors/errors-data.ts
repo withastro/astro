@@ -1680,10 +1680,14 @@ export const InvalidContentEntryFrontmatterError = {
 export const InvalidContentEntryDataError = {
 	name: 'InvalidContentEntryDataError',
 	title: 'Content entry data does not match schema.',
-	message(collection: string, entryId: string, error: ZodError) {
+	message(
+		collection: string,
+		entryId: string,
+		errors: Array<{ path: Array<string | number | symbol>; message: string }>,
+	) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
-			...error.errors.map((zodError) => `  **${zodError.path.join('.')}**: ${zodError.message}`),
+			...errors.map(({ path, message }) => `  **${path.join('.')}**: ${message}`),
 			'',
 		].join('\n');
 	},
@@ -2098,6 +2102,18 @@ export const InvalidZodSchemaVersion = {
 	message: (feature: string, version: 3 | 4) =>
 		`Zod schema provided to ${feature} uses zod v${version}. However, experimental.zod4 is ${version === 3 ? 'enabled' : 'disabled'}.`,
 	hint: 'Update your schema or the option in your Astro config.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message An unknown error occurred while executing content collection schema.
+ */
+export const CannotExecuteContentCollectionSchema = {
+	name: 'CannotExecuteContentCollectionSchema',
+	title: 'Cannot Execute Content Collection Schema',
+	message: (collection: string) =>
+		`An unknown error occurred while executing the ${JSON.stringify(collection)} content collection schema.`,
+	hint: 'This is likely caused by a zod v3 and v4 mismatch. Review your schema or the experimental.zod4 option in your Astro config.',
 } satisfies ErrorData;
 
 /*

@@ -167,54 +167,97 @@ export async function getEntryDataAndImages<
 	const imageImports = new Set<string>();
 
 	if (typeof schema === 'function') {
-		if (pluginContext) {
-			// TODO: handle error when incompatible schema is passed
-			schema = schema({
-				image: (experimentalZod4 ? createZ4Image : createZ3Image)(
-					pluginContext,
-					shouldEmitFile,
-					entry._internal.filePath,
-				),
-			});
-		} else if (collectionConfig.type === CONTENT_LAYER_TYPE) {
-			const transform = (val: string) => {
-				imageImports.add(val);
-				return `${IMAGE_IMPORT_PREFIX}${val}`;
-			};
-			try {
+		try {
+			if (pluginContext) {
+				schema = schema({
+					image: (experimentalZod4 ? createZ4Image : createZ3Image)(
+						pluginContext,
+						shouldEmitFile,
+						entry._internal.filePath,
+					),
+				});
+			} else if (collectionConfig.type === CONTENT_LAYER_TYPE) {
+				const transform = (val: string) => {
+					imageImports.add(val);
+					return `${IMAGE_IMPORT_PREFIX}${val}`;
+				};
 				schema = schema({
 					image: experimentalZod4
 						? () => z4.string().transform(transform)
 						: () => z3.string().transform(transform),
 				});
-			} catch (e) {
-				// TODO: intercept zod error
-				throw e;
 			}
+		} catch (cause) {
+			throw new AstroError(
+				{
+					...AstroErrorData.CannotExecuteContentCollectionSchema,
+					message: AstroErrorData.CannotExecuteContentCollectionSchema.message(entry.collection),
+				},
+				{ cause },
+			);
 		}
 	}
 
 	if (schema) {
-		// Use `safeParseAsync` to allow async transforms
-		let formattedError;
-		const parsed = await (schema as z3.ZodSchema).safeParseAsync(data, {
-			errorMap(error, ctx) {
-				if (error.code === 'custom' && error.params?.isHoistedAstroError) {
-					formattedError = error.params?.astroError;
-				}
-				return errorMap(error, ctx);
-			},
-		});
-		if (parsed.success) {
-			data = parsed.data as TOutputData;
-		} else {
-			if (!formattedError) {
-				formattedError = new AstroError({
+		if ('_zod' in schema) {
+			let parsed;
+			try {
+				parsed = await z4.safeParseAsync(schema, data, {
+					// TODO: error map
+				});
+			} catch (cause) {
+				throw new AstroError(
+					{
+						...AstroErrorData.CannotExecuteContentCollectionSchema,
+						message: AstroErrorData.CannotExecuteContentCollectionSchema.message(entry.collection),
+					},
+					{ cause },
+				);
+			}
+			if (parsed.success) {
+				data = parsed.data as TOutputData;
+			} else {
+				throw new AstroError({
 					...AstroErrorData.InvalidContentEntryDataError,
 					message: AstroErrorData.InvalidContentEntryDataError.message(
 						entry.collection,
 						entry.id,
-						parsed.error,
+						parsed.error.issues,
+					),
+					location: {
+						file: entry._internal?.filePath,
+						line: getYAMLErrorLine(
+							entry._internal?.rawData,
+							String(parsed.error.issues[0].path[0]),
+						),
+						column: 0,
+					},
+				});
+			}
+		} else {
+			let parsed;
+			try {
+				parsed = await (schema as z3.ZodSchema).safeParseAsync(data, {
+					errorMap,
+				});
+			} catch (cause) {
+				throw new AstroError(
+					{
+						...AstroErrorData.CannotExecuteContentCollectionSchema,
+						message: AstroErrorData.CannotExecuteContentCollectionSchema.message(entry.collection),
+					},
+					{ cause },
+				);
+			}
+			if (parsed.success) {
+				data = parsed.data as TOutputData;
+			} else {
+				throw new AstroError({
+					...AstroErrorData.InvalidContentEntryDataError,
+					message: AstroErrorData.InvalidContentEntryDataError.message(
+						entry.collection,
+						entry.id,
+						parsed.error.errors,
 					),
 					location: {
 						file: entry._internal?.filePath,
@@ -226,7 +269,6 @@ export async function getEntryDataAndImages<
 					},
 				});
 			}
-			throw formattedError;
 		}
 	}
 
