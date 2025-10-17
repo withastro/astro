@@ -6,7 +6,6 @@ Adds the option to specify in the `preload` directive which weights, styles, or 
 
 ```astro
 ---
----
 import { Font } from 'astro:assets';
 ---
 <Font
