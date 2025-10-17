@@ -135,6 +135,7 @@
     "html-escaper": "3.0.3",
     "http-cache-semantics": "^4.2.0",
     "js-yaml": "^4.1.0",
+    "json-schema-to-typescript": "^15.0.4",
     "kleur": "^4.1.5",
     "magic-string": "^0.30.18",
     "magicast": "^0.3.5",

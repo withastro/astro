@@ -1,10 +1,11 @@
 import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { compile } from 'json-schema-to-typescript';
 import { bold, cyan } from 'kleur/colors';
 import { normalizePath, type ViteDevServer } from 'vite';
 import * as z3 from 'zod/v3';
-import type * as z4 from 'zod/v4/core';
+import * as z4 from 'zod/v4/core';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
@@ -385,9 +386,18 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 		return 'any';
 	}
 	if ('_zod' in schema) {
-		// const jsonSchema = z4.toJSONSchema(schema);
-		// TODO: use https://github.com/bcherny/json-schema-to-typescript
-		return 'any'
+		try {
+			const jsonSchema = z4.toJSONSchema(schema);
+			// schema versions do not match
+			const result = await compile(jsonSchema as any, 'X', {
+				format: false,
+				bannerComment: '',
+			});
+			// Removes "export interface X"
+			return result.slice(19);
+		} catch {
+			return 'any';
+		}
 	}
 	try {
 		const zodToTs = await import('zod-to-ts');
