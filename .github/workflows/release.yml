@@ -56,8 +56,8 @@ jobs:
         env:
           # Needs access to push to main
           GITHUB_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
-          # Needs access to publish to npm
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Use OIDC for npm authentication instead of NPM_TOKEN
+          NPM_CONFIG_PROVENANCE: true
 
       - name: Generate Announcement
         id: message
