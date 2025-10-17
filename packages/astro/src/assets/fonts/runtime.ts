@@ -47,8 +47,9 @@ export function filterPreloads(
 
 function checkWeight(input: string, target: string): boolean {
 	// If the input looks like "100 900", we check it as is
-	if (input.includes(' ')) {
-		return input === target;
+	const trimmedInput = input.trim();
+	if (trimmedInput.includes(' ')) {
+		return trimmedInput === target;
 	}
 	// If the target looks like "100 900", we check if the input is between the values
 	if (target.includes(' ')) {

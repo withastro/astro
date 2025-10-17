@@ -121,6 +121,41 @@ describe('fonts runtime', () => {
 					},
 				],
 			);
+
+			assert.deepStrictEqual(
+				filterPreloads(
+					[
+						{
+							style: 'normal',
+							subset: undefined,
+							type: 'woff2',
+							url: 'foo',
+							weight: '500 900',
+						},
+						{
+							style: 'italic',
+							subset: 'latin',
+							type: 'otf',
+							url: 'bar',
+							weight: '100 900',
+						},
+					],
+					[
+						{
+							weight: ' 100 900',
+						},
+					],
+				),
+				[
+					{
+						style: 'italic',
+						subset: 'latin',
+						type: 'otf',
+						url: 'bar',
+						weight: '100 900',
+					},
+				],
+			);
 		});
 	});
 });
