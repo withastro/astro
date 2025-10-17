@@ -43,6 +43,7 @@ export function normalizeRemoteFontFaces({
 								data: {
 									weight: font.weight,
 									style: font.style,
+									subset: font.meta?.subset,
 								},
 								init: font.meta?.init ?? null,
 							}),

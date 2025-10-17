@@ -57,6 +57,7 @@ export function resolveLocalFont({
 						data: {
 							weight: data.weight,
 							style: data.style,
+							subset: undefined,
 						},
 						init: null,
 					}),

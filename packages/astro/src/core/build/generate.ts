@@ -386,8 +386,9 @@ async function getPathsForRoute(
 				}
 			})
 			.filter((staticPath) => {
+				const normalized = removeTrailingForwardSlash(staticPath);
 				// The path hasn't been built yet, include it
-				if (!builtPaths.has(removeTrailingForwardSlash(staticPath))) {
+				if (!builtPaths.has(normalized)) {
 					return true;
 				}
 
@@ -397,7 +398,39 @@ async function getPathsForRoute(
 				// Routing priority needs to be verified here for any duplicate
 				// paths to ensure routing priority rules are enforced in the final build.
 				const matchedRoute = matchRoute(decodeURI(staticPath), options.routesList);
-				return matchedRoute === route;
+
+				if (!matchedRoute) {
+					// No route matched this path, so we can skip it.
+					return false;
+				}
+
+				if (matchedRoute === route) {
+					// Current route is higher-priority. Include it for building.
+					return true;
+				}
+
+				// Current route is lower-priority than matchedRoute.
+				// Path will be skipped due to collision.
+				if (config.experimental.failOnPrerenderConflict) {
+					throw new AstroError({
+						...AstroErrorData.PrerenderRouteConflict,
+						message: AstroErrorData.PrerenderRouteConflict.message(
+							matchedRoute.route,
+							route.route,
+							normalized,
+						),
+						hint: AstroErrorData.PrerenderRouteConflict.hint(matchedRoute.route, route.route),
+					});
+				} else {
+					const msg = AstroErrorData.PrerenderRouteConflict.message(
+						matchedRoute.route,
+						route.route,
+						normalized,
+					);
+					logger.warn('build', msg);
+				}
+
+				return false;
 			});
 
 		// Add each path to the builtPaths set, to avoid building it again later.
@@ -691,6 +724,7 @@ async function createBuildManifest(
 		];
 		const styleHashes = [
 			...getStyleHashes(settings.config.experimental.csp),
+			...settings.injectedCsp.styleHashes,
 			...(await trackStyleHashes(internals, settings, algorithm)),
 		];
 
@@ -703,7 +737,7 @@ async function createBuildManifest(
 			scriptHashes,
 			scriptResources: getScriptResources(settings.config.experimental.csp),
 			algorithm,
-			directives: getDirectives(settings.config.experimental.csp),
+			directives: getDirectives(settings),
 			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
 		};
 	}

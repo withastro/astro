@@ -774,6 +774,50 @@ describe('[SSG] i18n routing', () => {
 		});
 	});
 
+	describe('i18n routing with routing strategy [prefix-other-locales] with root base', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+		/** @type {import('./test-utils').DevServer} */
+		let devServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-prefix-other-locales/',
+				output: 'server',
+				adapter: testAdapter(),
+				base: '/',
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'pt', 'fr'],
+					fallback: {
+						fr: 'en',
+					},
+					routing: {
+						prefixDefaultLocale: false,
+						redirectToDefaultLocale: true,
+						fallbackType: 'redirect',
+					},
+				},
+			});
+			await fixture.build();
+			devServer = await fixture.startDevServer();
+		});
+
+		afterEach(async () => {
+			devServer.stop();
+		});
+
+		it('should redirect to English page', async () => {
+			const response = await fixture.fetch('/fr', { redirect: 'manual' });
+			assert.equal(response.headers.get('Location'), '/');
+			assert.equal(response.status, 302);
+
+			const followRedirectResponse = await fixture.fetch('/fr');
+			assert.equal(followRedirectResponse.status, 200);
+			assert.equal((await followRedirectResponse.text()).includes('Hello'), true);
+		});
+	});
+
 	describe('i18n routing with routing strategy [pathname-prefix-always-no-redirect]', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
@@ -1265,6 +1309,89 @@ describe('[SSG] i18n routing', () => {
 			it('should return the locale of the current URL (pt)', async () => {
 				const html = await fixture.readFile('/pt/start/index.html');
 				assert.equal(html.includes('Current Locale: pt'), true);
+			});
+		});
+
+		describe('when `build.format` is `file`, locales array contains objects, and locale indexes use getStaticPaths', () => {
+			/** @type {import('./test-utils').Fixture} */
+			let fixture;
+
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-locale-index-format-file/',
+					i18n: {
+						defaultLocale: 'en-us',
+						locales: [
+							{
+								path: 'en-us',
+								codes: ['en-US'],
+							},
+							{
+								path: 'es-mx',
+								codes: ['es-MX'],
+							},
+							{
+								path: 'fr-fr',
+								codes: ['fr-FR'],
+							},
+						],
+						routing: {
+							prefixDefaultLocale: true,
+							redirectToDefaultLocale: false,
+						},
+					},
+				});
+				await fixture.build();
+			});
+
+			it('should return the locale code of the current URL (en-US)', async () => {
+				const html = await fixture.readFile('/en-us.html');
+				assert.equal(html.includes('currentLocale: en-US'), true);
+			});
+
+			it('should return the locale code of the current URL (es-MX)', async () => {
+				const html = await fixture.readFile('/es-mx.html');
+				assert.equal(html.includes('currentLocale: es-MX'), true);
+			});
+
+			it('should return the locale code of the current URL (fr-FR)', async () => {
+				const html = await fixture.readFile('/fr-fr.html');
+				assert.equal(html.includes('currentLocale: fr-FR'), true);
+			});
+		});
+
+		describe('when `build.format` is `file`, locales array contains strings, and locale indexes use getStaticPaths', () => {
+			/** @type {import('./test-utils').Fixture} */
+			let fixture;
+
+			before(async () => {
+				fixture = await loadFixture({
+					root: './fixtures/i18n-locale-index-format-file/',
+					i18n: {
+						defaultLocale: 'en-us',
+						locales: ['en-us', 'es-mx', 'fr-fr'],
+						routing: {
+							prefixDefaultLocale: true,
+							redirectToDefaultLocale: false,
+						},
+					},
+				});
+				await fixture.build();
+			});
+
+			it('should return the locale of the current URL (en-us)', async () => {
+				const html = await fixture.readFile('/en-us.html');
+				assert.equal(html.includes('currentLocale: en-us'), true);
+			});
+
+			it('should return the locale of the current URL (es-mx)', async () => {
+				const html = await fixture.readFile('/es-mx.html');
+				assert.equal(html.includes('currentLocale: es-mx'), true);
+			});
+
+			it('should return the locale of the current URL (fr-fr)', async () => {
+				const html = await fixture.readFile('/fr-fr.html');
+				assert.equal(html.includes('currentLocale: fr-fr'), true);
 			});
 		});
 
@@ -2013,6 +2140,13 @@ describe('i18n routing does not break assets and endpoints', () => {
 				root: './fixtures/i18n-routing-subdomain/',
 				output: 'server',
 				adapter: testAdapter(),
+				security: {
+					allowedDomains: [
+						{ hostname: 'example.pt' },
+						{ hostname: 'it.example.com' },
+						{ hostname: 'example.com' },
+					],
+				},
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();

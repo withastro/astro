@@ -1,8 +1,8 @@
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
-import { type ActionReturnType, defineAction } from '../../dist/actions/runtime/virtual/server.js';
+import { type ActionReturnType, defineAction } from '../../dist/actions/runtime/server.js';
 import type { APIContext } from '../../dist/types/public/context.js';
-import { z } from '../../zod.mjs';
+import { z } from '../../dist/zod.js';
 
 describe('Astro.callAction', () => {
 	it('Infers JSON action result on callAction', async () => {

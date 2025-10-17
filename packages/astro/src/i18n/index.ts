@@ -17,7 +17,11 @@ export function requestHasLocale(locales: Locales) {
 
 // Checks if the pathname has any locale
 export function pathHasLocale(path: string, locales: Locales): boolean {
-	const segments = path.split('/');
+	// pages that use a locale param ([locale].astro or [locale]/index.astro)
+	// and getStaticPaths make [locale].html the pathname during SSG
+	// which will not match a configured locale without removing .html
+	// as we do in normalizeThePath
+	const segments = path.split('/').map(normalizeThePath);
 	for (const segment of segments) {
 		for (const locale of locales) {
 			if (typeof locale === 'string') {
@@ -226,6 +230,15 @@ export function normalizeTheLocale(locale: string): string {
 }
 
 /**
+ *
+ * Given a path or path segment, this function:
+ * - removes the `.html` extension if it exists
+ */
+export function normalizeThePath(path: string): string {
+	return path.endsWith('.html') ? path.slice(0, -5) : path;
+}
+
+/**
  * Returns an array of only locales, by picking the `code`
  * @param locales
  */
@@ -386,6 +399,11 @@ export function redirectToFallback({
 				if (pathFallbackLocale === defaultLocale && strategy === 'pathname-prefix-other-locales') {
 					if (context.url.pathname.includes(`${base}`)) {
 						newPathname = context.url.pathname.replace(`/${urlLocale}`, ``);
+						// Ensure the pathname are non-empty. Redirects like "/fr" => "" may create infinite loops,
+						// as the "Location" response header is empty.
+						if (newPathname === '') {
+							newPathname = '/';
+						}
 					} else {
 						newPathname = context.url.pathname.replace(`/${urlLocale}`, `/`);
 					}

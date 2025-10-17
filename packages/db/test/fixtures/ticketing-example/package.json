@@ -13,14 +13,14 @@
     "@astrojs/db": "workspace:*",
     "@astrojs/node": "workspace:*",
     "@astrojs/react": "workspace:*",
-    "@types/react": "^18.3.20",
-    "@types/react-dom": "^18.3.6",
+    "@types/react": "^18.3.26",
+    "@types/react-dom": "^18.3.7",
     "astro": "workspace:*",
-    "open-props": "^1.7.14",
+    "open-props": "^1.7.16",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "simple-stack-form": "^0.1.12",
-    "typescript": "^5.8.3",
-    "zod": "^3.24.4"
+    "typescript": "^5.9.3",
+    "zod": "^3.25.76"
   }
 }

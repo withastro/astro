@@ -1,5 +1,5 @@
 import type { APIContext, AstroSharedContext } from '../../types/public/context.js';
-import type { SerializedActionResult } from './virtual/shared.js';
+import type { SerializedActionResult } from './shared.js';
 
 export type ActionPayload = {
 	actionResult: SerializedActionResult;
@@ -40,11 +40,7 @@ export type ActionAPIContext = Pick<
 	| 'preferredLocaleList'
 	| 'originPathname'
 	| 'session'
-	| 'insertDirective'
-	| 'insertScriptResource'
-	| 'insertStyleResource'
-	| 'insertScriptHash'
-	| 'insertStyleHash'
+	| 'csp'
 > & {
 	// TODO: remove in Astro 6.0
 	/**

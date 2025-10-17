@@ -127,16 +127,16 @@ export async function matchRoute(
 	return undefined;
 }
 
-type HandleRoute = {
+interface HandleRoute {
 	matchedRoute: AsyncReturnType<typeof matchRoute>;
 	url: URL;
 	pathname: string;
-	body: ArrayBuffer | undefined;
+	body: BodyInit | undefined;
 	routesList: RoutesList;
 	incomingRequest: http.IncomingMessage;
 	incomingResponse: http.ServerResponse;
 	pipeline: DevPipeline;
-};
+}
 
 export async function handleRoute({
 	matchedRoute,
@@ -196,6 +196,7 @@ export async function handleRoute({
 		routeData: route,
 		clientAddress: incomingRequest.socket.remoteAddress,
 		actions,
+		shouldInjectCspMetaTags: false,
 	});
 
 	let response;
@@ -221,6 +222,7 @@ export async function handleRoute({
 				routeData: route,
 				clientAddress: incomingRequest.socket.remoteAddress,
 				actions,
+				shouldInjectCspMetaTags: false,
 			});
 			renderContext.props.error = err;
 			const _response = await renderContext.render(preloaded500Component);
@@ -297,6 +299,7 @@ export async function handleRoute({
 				request,
 				routeData: fourOhFourRoute.route,
 				clientAddress: incomingRequest.socket.remoteAddress,
+				shouldInjectCspMetaTags: false,
 			});
 			response = await renderContext.render(fourOhFourRoute.preloadedComponent);
 		}

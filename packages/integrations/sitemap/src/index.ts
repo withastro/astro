@@ -39,6 +39,14 @@ export type SitemapOptions =
 			serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem | undefined> | undefined;
 
 			xslURL?: string;
+
+			// namespace configuration
+			namespaces?: {
+				news?: boolean;
+				xhtml?: boolean;
+				image?: boolean;
+				video?: boolean;
+			};
 	  }
 	| undefined;
 
@@ -167,6 +175,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						}
 					}
 					const destDir = fileURLToPath(dir);
+					const lastmod = opts.lastmod?.toISOString();
 					const xslURL = opts.xslURL ? new URL(opts.xslURL, finalSiteUrl).href : undefined;
 					await writeSitemap(
 						{
@@ -178,6 +187,8 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							limit: entryLimit,
 							customSitemaps,
 							xslURL: xslURL,
+							lastmod,
+							namespaces: opts.namespaces,
 						},
 						config,
 					);

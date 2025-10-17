@@ -232,16 +232,21 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 	}
 
 	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
+		const styleHashes = [
+			...getStyleHashes(settings.config.experimental.csp),
+			...settings.injectedCsp.styleHashes,
+		];
+
 		csp = {
 			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
 				? 'adapter'
 				: undefined,
 			scriptHashes: getScriptHashes(settings.config.experimental.csp),
 			scriptResources: getScriptResources(settings.config.experimental.csp),
-			styleHashes: getStyleHashes(settings.config.experimental.csp),
+			styleHashes,
 			styleResources: getStyleResources(settings.config.experimental.csp),
 			algorithm: getAlgorithm(settings.config.experimental.csp),
-			directives: getDirectives(settings.config.experimental.csp),
+			directives: getDirectives(settings),
 			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
 		};
 	}

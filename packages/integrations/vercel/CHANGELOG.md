@@ -1,5 +1,35 @@
 # @astrojs/vercel
 
+## 8.2.10
+
+### Patch Changes
+
+- [#14536](https://github.com/withastro/astro/pull/14536) [`9261996`](https://github.com/withastro/astro/commit/9261996150f4c690c4762bf02100e44680bd480d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a bug that caused too many files to be bundled in SSR
+
+## 8.2.9
+
+### Patch Changes
+
+- [#14473](https://github.com/withastro/astro/pull/14473) [`d9634d3`](https://github.com/withastro/astro/commit/d9634d31c47f3707e6092bed7938dfcfc0fb550b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a bug that caused too many files to be bundled in SSR
+
+- Updated dependencies [[`b8ca69b`](https://github.com/withastro/astro/commit/b8ca69b97149becefaf89bf21853de9c905cdbb7)]:
+  - @astrojs/internal-helpers@0.7.4
+
+## 8.2.8
+
+### Patch Changes
+
+- Updated dependencies [[`1e2499e`](https://github.com/withastro/astro/commit/1e2499e8ea83ebfa233a18a7499e1ccf169e56f4)]:
+  - @astrojs/internal-helpers@0.7.3
+
+## 8.2.7
+
+### Patch Changes
+
+- [#14039](https://github.com/withastro/astro/pull/14039) [`da4182d`](https://github.com/withastro/astro/commit/da4182dbe8cc0c8871621d3f8e0f9d40e084ddbf) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where `experimentalStaticHeaders` did not work as expected.
+
+- [#14289](https://github.com/withastro/astro/pull/14289) [`ed493a6`](https://github.com/withastro/astro/commit/ed493a6929512ab636afdb3511ea790789c7c3dd) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused invalid image sizes to be generated when the requested widths were larger than the source image
+
 ## 8.2.6
 
 ### Patch Changes

@@ -83,7 +83,9 @@
     // follow vite deps version
     "postcss-load-config",
     "esbuild",
-    // TODO: follow https://github.com/withastro/astro/pull/13478
-    "@vitejs/plugin-vue"
+    // TODO: fix upstream
+    // https://github.com/vercel/nft/issues/545
+    "@vercel/nft"
   ],
+  "minimumReleaseAge": "3 days"
 }

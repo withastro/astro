@@ -1,5 +1,17 @@
 # @astrojs/internal-helpers
 
+## 0.7.4
+
+### Patch Changes
+
+- [`b8ca69b`](https://github.com/withastro/astro/commit/b8ca69b97149becefaf89bf21853de9c905cdbb7) Thanks [@ascorbic](https://github.com/ascorbic)! - Refactor remote path detection
+
+## 0.7.3
+
+### Patch Changes
+
+- [#14408](https://github.com/withastro/astro/pull/14408) [`1e2499e`](https://github.com/withastro/astro/commit/1e2499e8ea83ebfa233a18a7499e1ccf169e56f4) Thanks [@matthewp](https://github.com/matthewp)! - Handle backslash and encoded backslash in isRemotePath
+
 ## 0.7.2
 
 ### Patch Changes
