@@ -4,7 +4,7 @@
 
 Removes support for the deprecated `Astro.glob()` API.
 
-### Migration Guide
+#### Migration Guide
 
 Update your code to use `import.meta.glob()` instead:
 
