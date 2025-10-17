@@ -180,13 +180,10 @@ async function writeSkewProtectionConfig(config: AstroConfig) {
 	await writeFile(
 		new URL('./skew-protection.json', deployConfigDir),
 		JSON.stringify({
-			patterns: [
-				'/_actions/.*',
-				'/_server-islands/.*',
-				'.*\\.(html)$',
-			],
+			patterns: ['/_actions/.*', '/_server-islands/.*', '.*\\.(html)$'],
 			sources: [
 				{ type: 'header', name: 'X-Netlify-Deploy-ID' },
+				{ type: 'query', name: 'dpl' },
 			],
 		}),
 	);
@@ -693,6 +690,7 @@ export default function netlifyIntegration(
 							}
 							return {};
 						},
+						assetQueryParams: process.env.DEPLOY_ID ? `dpl=${process.env.DEPLOY_ID}` : undefined,
 					},
 				});
 			},
