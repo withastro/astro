@@ -6,8 +6,7 @@ import type {
 	ExecutionContext,
 	ExportedHandlerFetchHandler,
 } from '@cloudflare/workers-types';
-import type { SSRManifest } from 'astro';
-import type { BaseApp } from 'astro/app';
+import { getApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from '../utils/env.js';
 
@@ -39,12 +38,11 @@ declare global {
 }
 
 export async function handle(
-	manifest: SSRManifest,
-	app: BaseApp,
 	request: Parameters<ExportedHandlerFetchHandler>[0],
 	env: Env,
 	context: ExecutionContext,
 ): Promise<CfResponse> {
+	const app = getApp(import.meta.env.DEV);
 	const { pathname } = new URL(request.url);
 	const bindingName = globalThis.__ASTRO_SESSION_BINDING_NAME;
 	// Assigning the KV binding to globalThis allows unstorage to access it for session storage.
@@ -53,7 +51,7 @@ export async function handle(
 	globalThis.__env__[bindingName] = env[bindingName];
 
 	// static assets fallback, in case default _routes.json is not used
-	if (manifest.assets.has(pathname)) {
+	if (app.manifest.assets.has(pathname)) {
 		return env.ASSETS.fetch(request.url.replace(/\.html$/, ''));
 	}
 
