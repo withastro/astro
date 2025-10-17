@@ -242,12 +242,13 @@ jobs:
             if [ -f "$file" ]; then
               # Make path absolute for the script
               abs_file="$(pwd)/$file"
-              # Capture only stdout, discard stderr (pnpm noise)
-              if heading_output=$(pnpm --filter astro-scripts has-shallow-headings "$abs_file" 2>/dev/null); then
+              # Run the script and capture output
+              if heading_output=$(pnpm --filter astro-scripts has-shallow-headings "$abs_file" 2>&1); then
                 echo "::debug::$file: No shallow headings found"
               else
-                # Get the actual heading output (stdout only)
-                heading_output=$(pnpm --filter astro-scripts has-shallow-headings "$abs_file" 2>/dev/null || true)
+                # Filter output to only lines that look like markdown headings (start with #)
+                # This removes pnpm wrapper noise
+                heading_output=$(pnpm --filter astro-scripts has-shallow-headings "$abs_file" 2>&1 | grep '^#' || true)
 
                 if [ -n "$heading_output" ]; then
                   echo "::warning::$file: Contains forbidden shallow headings"
@@ -271,6 +272,8 @@ jobs:
                       mv validation_response.tmp.json validation_response.json
                     fi
                   done <<< "$heading_output"
+                else
+                  echo "::debug::$file: Script failed but no headings found (might be other error)"
                 fi
               fi
             fi
