@@ -2088,6 +2088,18 @@ export const SessionStorageSaveError = {
 	hint: 'For more information, see https://docs.astro.build/en/guides/sessions/',
 } satisfies ErrorData;
 
+/**
+ * @docs
+ * @message The provided Zod schema uses a version incompatible with `experimental.zod4`.
+ */
+export const InvalidZodSchemaVersion = {
+	name: 'InvalidZodSchemaVersion',
+	title: 'Invalid Zod Schema version.',
+	message: (feature: string, version: 3 | 4) =>
+		`Zod schema provided to ${feature} uses zod v${version}. However, experimental.zod4 is ${version === 3 ? 'enabled' : 'disabled'}.`,
+	hint: 'Update your schema or the option in your Astro config.',
+} satisfies ErrorData;
+
 /*
  * Adding an error? Follow these steps:
  * 1. Determine in which category it belongs (Astro, Vite, CSS, Content Collections etc.)

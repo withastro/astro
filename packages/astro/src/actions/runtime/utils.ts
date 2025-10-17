@@ -3,6 +3,7 @@ import type * as z4 from 'zod/v4/core';
 import { AstroError } from '../../core/errors/errors.js';
 import { ActionCalledFromServerError } from '../../core/errors/errors-data.js';
 import type { APIContext } from '../../types/public/context.js';
+import { checkZodSchemaCompatibility } from '../../vite-plugin-experimental-zod4/utils.js';
 import {
 	type ActionAccept,
 	type ActionClient,
@@ -89,8 +90,15 @@ export function createDefineAction(experimentalZod4: boolean) {
 		accept?: TAccept;
 		handler: ActionHandler<TInputSchema, TOutput>;
 	}): ActionClient<TOutput, TAccept, TInputSchema> & string {
-		if (inputSchema && '_zod' in inputSchema && !experimentalZod4) {
-			// TODO: throw astro error
+		if (inputSchema) {
+			const error = checkZodSchemaCompatibility(
+				inputSchema,
+				experimentalZod4,
+				'content collections',
+			);
+			if (error) {
+				throw error;
+			}
 		}
 
 		const serverHandler =

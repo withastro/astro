@@ -2,6 +2,7 @@ import { experimentalZod4 } from 'virtual:astro:config/experimentalZod4';
 import type * as z3 from 'zod/v3';
 import type * as z4 from 'zod/v4/core';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
+import { checkZodSchemaCompatibility } from '../vite-plugin-experimental-zod4/utils.js';
 import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from './consts.js';
 import type { LiveLoader, Loader } from './loaders/types.js';
 
@@ -225,7 +226,10 @@ export function defineCollection(
 		'_zod' in config.schema &&
 		!experimentalZod4
 	) {
-		// TODO: throw astro error
+		const error = checkZodSchemaCompatibility(config.schema, experimentalZod4, 'content collections');
+		if (error) {
+			throw error;
+		}
 	}
 
 	return config;
