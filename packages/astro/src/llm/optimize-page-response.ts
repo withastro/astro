@@ -1,4 +1,3 @@
-import type { MiddlewareHandler } from 'astro';
 import TurndownService from 'turndown';
 
 const turndownService = new TurndownService({
@@ -11,11 +10,18 @@ const turndownService = new TurndownService({
 // Remove elements that aren't useful for LLMs
 turndownService.remove(['script', 'style', 'nav', 'footer']);
 
-export const onRequest: MiddlewareHandler = async (context, next) => {
-	const response = await next();
+export async function optimizePageResponse(
+	html: string,
+): Promise<string> {
+	return turndownService.turndown(html);
+}
 
+export async function processLLMResponse(
+	response: Response,
+	request: Request,
+): Promise<Response> {
 	// Check if the request accepts markdown
-	const acceptHeader = context.request.headers.get('accept');
+	const acceptHeader = request.headers.get('accept');
 	const wantsMarkdown = acceptHeader?.includes('text/markdown');
 
 	// Only convert HTML responses to markdown
@@ -23,8 +29,8 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 		wantsMarkdown &&
 		response.headers.get('content-type')?.includes('text/html')
 	) {
-		const html = await response.text();
-		const markdown = turndownService.turndown(html);
+		const html = await response.clone().text();
+		const markdown = await optimizePageResponse(html);
 
 		const headers = new Headers(response.headers);
 		headers.set('content-type', 'text/markdown; charset=utf-8');
@@ -37,4 +43,4 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 	}
 
 	return response;
-};
+}

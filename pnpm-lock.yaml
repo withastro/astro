@@ -617,6 +617,9 @@ importers:
       tsconfck:
         specifier: ^3.1.6
         version: 3.1.6(typescript@5.9.3)
+      turndown:
+        specifier: ^7.2.0
+        version: 7.2.1
       ultrahtml:
         specifier: ^1.6.0
         version: 1.6.0
@@ -702,6 +705,9 @@ importers:
       '@types/semver':
         specifier: ^7.7.0
         version: 7.7.1
+      '@types/turndown':
+        specifier: ^5.0.5
+        version: 5.0.5
       '@types/yargs-parser':
         specifier: ^21.0.3
         version: 21.0.3
@@ -3523,6 +3529,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/llm-optimization:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/markdown:
     dependencies:
       '@astrojs/preact':
@@ -4977,19 +4989,6 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
-
-  packages/integrations/llm:
-    dependencies:
-      turndown:
-        specifier: ^7.2.0
-        version: 7.2.1
-    devDependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../astro
-      astro-scripts:
-        specifier: workspace:*
-        version: link:../../../scripts
 
   packages/integrations/markdoc:
     dependencies:
@@ -9200,6 +9199,9 @@ packages:
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
+
+  '@types/turndown@5.0.5':
+    resolution: {integrity: sha512-TL2IgGgc7B5j78rIccBtlYAnkuv8nUQqhQc+DSYV5j9Be9XOcm/SKOVRuA47xAVI3680Tk9B1d8flK2GWT2+4w==}
 
   '@types/ungap__structured-clone@1.2.0':
     resolution: {integrity: sha512-ZoaihZNLeZSxESbk9PUAPZOlSpcKx81I1+4emtULDVmBLkYutTcMlCj2K9VNlf9EWODxdO6gkAqEaLorXwZQVA==}
@@ -16876,6 +16878,8 @@ snapshots:
   '@types/triple-beam@1.3.5': {}
 
   '@types/trusted-types@2.0.7': {}
+
+  '@types/turndown@5.0.5': {}
 
   '@types/ungap__structured-clone@1.2.0': {}
 

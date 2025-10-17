@@ -372,5 +372,6 @@ async function buildManifest(
 		key: encodedKey,
 		sessionConfig: settings.config.session,
 		csp,
+		llm: settings.config.experimental.llm,
 	};
 }
