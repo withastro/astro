@@ -6,10 +6,16 @@ Adds the option to specify in the `preload` directive which weights, styles, or 
 
 ```astro
 ---
-import { Font } from 'astro:assets'
 ---
-
-<Font cssVariable='--font-test' preload={[{ weight: 400 }]} />
+import { Font } from 'astro:assets';
+---
+<Font
+  cssVariable="--font-roboto"
+  preload={[
+    { subset: 'latin', style: 'normal' },
+    { weight: '400' },
+  ]}
+/>
 ```
 
-If a candidate is a file with a variable weight, it will be preloaded if the passed weight is within range. For example, a font file for font weight `100 900` will be included since `400` is within that range.
+Variable weight font files will be preloaded if any weight within its range is requested. For example, a font file for font weight `100 900` will be included when `400` is specified in a `preload` object.
