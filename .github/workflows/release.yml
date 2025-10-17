@@ -57,7 +57,7 @@ jobs:
           # Needs access to push to main
           GITHUB_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
           # Use OIDC for npm authentication instead of NPM_TOKEN
-          NPM_CONFIG_PROVENANCE: true
+          NPM_TOKEN: '' # https://github.com/changesets/changesets/issues/1152#issuecomment-3190884868
 
       - name: Generate Announcement
         id: message
