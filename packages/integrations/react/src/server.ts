@@ -1,4 +1,13 @@
 import opts from 'astro:react:opts';
+
+interface Options {
+	experimentalReactChildren?: boolean;
+	experimentalDisableStreaming?: boolean;
+	experimentalSharedContext?: boolean;
+}
+
+// Type assertion for opts since it comes from a virtual module
+const typedOpts = opts as Options;
 import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
@@ -92,7 +101,7 @@ async function renderToStaticMarkup(
 		...slots,
 	};
 	const newChildren = children ?? props.children;
-	if (children && opts.experimentalReactChildren) {
+	if (children && typedOpts.experimentalReactChildren) {
 		attrs['data-react-children'] = true;
 		const convert = await import('./vnode-children.js').then((mod) => mod.default);
 		newProps.children = convert(children);
@@ -101,6 +110,9 @@ async function renderToStaticMarkup(
 			hydrate: needsHydration(metadata),
 			value: newChildren,
 		});
+	}
+	if (typedOpts.experimentalSharedContext) {
+		attrs['data-react-shared-context'] = true;
 	}
 	const formState = this ? await getFormState(this) : undefined;
 	if (formState) {
@@ -114,7 +126,7 @@ async function renderToStaticMarkup(
 		formState,
 	};
 	let html: string;
-	if (opts.experimentalDisableStreaming) {
+	if (typedOpts.experimentalDisableStreaming) {
 		html = ReactDOM.renderToString(vnode);
 	} else if ('renderToReadableStream' in ReactDOM) {
 		html = await renderToReadableStreamAsync(vnode, renderOptions);

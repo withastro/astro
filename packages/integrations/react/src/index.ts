@@ -18,6 +18,10 @@ export type ReactIntegrationOptions = Pick<
 	 * Disable streaming in React components
 	 */
 	experimentalDisableStreaming?: boolean;
+	/**
+	 * Enable shared React context across islands using portals
+	 */
+	experimentalSharedContext?: boolean;
 };
 
 const FAST_REFRESH_PREAMBLE = react.preambleCode;
@@ -33,9 +37,11 @@ function getRenderer(reactConfig: ReactVersionConfig) {
 function optionsPlugin({
 	experimentalReactChildren = false,
 	experimentalDisableStreaming = false,
+	experimentalSharedContext = false,
 }: {
 	experimentalReactChildren: boolean;
 	experimentalDisableStreaming: boolean;
+	experimentalSharedContext: boolean;
 }): vite.Plugin {
 	const virtualModule = 'astro:react:opts';
 	const virtualModuleId = '\0' + virtualModule;
@@ -51,7 +57,8 @@ function optionsPlugin({
 				return {
 					code: `export default {
 						experimentalReactChildren: ${JSON.stringify(experimentalReactChildren)},
-						experimentalDisableStreaming: ${JSON.stringify(experimentalDisableStreaming)}
+						experimentalDisableStreaming: ${JSON.stringify(experimentalDisableStreaming)},
+						experimentalSharedContext: ${JSON.stringify(experimentalSharedContext)}
 					}`,
 				};
 			}
@@ -66,6 +73,7 @@ function getViteConfiguration(
 		babel,
 		experimentalReactChildren,
 		experimentalDisableStreaming,
+		experimentalSharedContext,
 	}: ReactIntegrationOptions = {},
 	reactConfig: ReactVersionConfig,
 ) {
@@ -79,6 +87,7 @@ function getViteConfiguration(
 			optionsPlugin({
 				experimentalReactChildren: !!experimentalReactChildren,
 				experimentalDisableStreaming: !!experimentalDisableStreaming,
+				experimentalSharedContext: !!experimentalSharedContext,
 			}),
 		],
 		ssr: {
@@ -100,6 +109,7 @@ export default function ({
 	babel,
 	experimentalReactChildren,
 	experimentalDisableStreaming,
+	experimentalSharedContext,
 }: ReactIntegrationOptions = {}): AstroIntegration {
 	const majorVersion = getReactMajorVersion();
 	if (isUnsupportedVersion(majorVersion)) {
@@ -114,7 +124,7 @@ export default function ({
 				addRenderer(getRenderer(versionConfig));
 				updateConfig({
 					vite: getViteConfiguration(
-						{ include, exclude, babel, experimentalReactChildren, experimentalDisableStreaming },
+						{ include, exclude, babel, experimentalReactChildren, experimentalDisableStreaming, experimentalSharedContext },
 						versionConfig,
 					),
 				});

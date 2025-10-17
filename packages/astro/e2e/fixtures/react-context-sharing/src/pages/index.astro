@@ -1,0 +1,53 @@
+---
+import ThemeProvider from '../components/ThemeProvider.jsx';
+import ThemeConsumer from '../components/ThemeConsumer.jsx';
+import ThemeToggle from '../components/ThemeToggle.jsx';
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>React Context Sharing Test</title>
+	</head>
+	<body>
+		<h1>React Context Sharing Tests</h1>
+
+		<!-- Test 1: Island outside of context provider (should NOT have context) -->
+		<section>
+			<h2>Test 1: Island outside provider</h2>
+			<ThemeConsumer id="outside" client:load />
+		</section>
+
+		<!-- Test 2: Island nested inside context provider (should have context) -->
+		<section>
+			<h2>Test 2: Island nested inside provider</h2>
+			<ThemeProvider client:load>
+				<ThemeConsumer id="nested" client:load />
+				<ThemeToggle client:load />
+			</ThemeProvider>
+		</section>
+
+		<!-- Test 3: Multiple islands at same level inside provider (should all share context) -->
+		<section>
+			<h2>Test 3: Multiple islands inside provider</h2>
+			<ThemeProvider client:load>
+				<ThemeConsumer id="sibling-1" client:load />
+				<ThemeConsumer id="sibling-2" client:load />
+				<ThemeToggle client:load />
+			</ThemeProvider>
+		</section>
+
+		<!-- Test 4: Deeply nested islands (should have context) -->
+		<section>
+			<h2>Test 4: Deeply nested islands</h2>
+			<ThemeProvider client:load>
+				<div>
+					<div>
+						<ThemeConsumer id="deep-nested" client:load />
+					</div>
+				</div>
+			</ThemeProvider>
+		</section>
+	</body>
+</html>

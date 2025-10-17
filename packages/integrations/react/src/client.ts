@@ -1,5 +1,14 @@
 import { createElement, startTransition } from 'react';
 import { createRoot, hydrateRoot, type Root } from 'react-dom/client';
+import {
+	buildIslandTree,
+	discoverIslandsInTree,
+	findRootIsland,
+	islandDataMap,
+	renderTreeWithPortals,
+	rootMap as sharedRootMap,
+	type IslandData,
+} from './shared-context.js';
 import StaticHtml from './static-html.js';
 
 function isAlreadyHydrated(element: HTMLElement) {
@@ -64,6 +73,61 @@ const getOrCreateRoot = (element: HTMLElement, creator: () => Root) => {
 	return root;
 };
 
+/**
+ * Hydrate a tree of islands using a shared React root and portals
+ */
+function hydrateSharedTree(rootElement: HTMLElement) {
+	const rootInfo = sharedRootMap.get(rootElement);
+	if (!rootInfo) {
+		return;
+	}
+
+	// Skip if already rendered
+	if (rootInfo.rendered) {
+		return;
+	}
+
+	// Check if all islands have their data
+	const allIslandsReady = Array.from(rootInfo.pendingIslands).every(island =>
+		islandDataMap.has(island)
+	);
+
+	if (!allIslandsReady) {
+		return;
+	}
+
+	// Create shared root if needed
+	if (!rootInfo.root) {
+		const container = document.createElement('div');
+		container.style.display = 'none';
+		container.id = `astro-react-root-${Math.random().toString(36).slice(2)}`;
+		document.body.appendChild(container);
+
+		// Build tree from all pending islands
+		const tree = buildIslandTree(Array.from(rootInfo.pendingIslands));
+
+		// Render tree with portals (only renders islands that have component data)
+		const reactTree = renderTreeWithPortals(tree);
+
+		// Use createRoot since we're not hydrating the container itself
+		rootInfo.root = createRoot(container);
+		rootInfo.root.render(reactTree);
+
+		// Mark as rendered
+		rootInfo.rendered = true;
+
+		// Clean up on unmount
+		rootElement.addEventListener(
+			'astro:unmount',
+			() => {
+				rootInfo.root?.unmount();
+				container.remove();
+			},
+			{ once: true },
+		);
+	}
+}
+
 export default (element: HTMLElement) =>
 	(
 		Component: any,
@@ -73,49 +137,109 @@ export default (element: HTMLElement) =>
 	) => {
 		if (!element.hasAttribute('ssr')) return;
 
-		const actionKey = element.getAttribute('data-action-key');
-		const actionName = element.getAttribute('data-action-name');
-		const stringifiedActionResult = element.getAttribute('data-action-result');
+		// Check if this island should use shared context
+		const useSharedContext = element.hasAttribute('data-react-shared-context');
 
-		const formState =
-			actionKey && actionName && stringifiedActionResult
-				? [JSON.parse(stringifiedActionResult), actionKey, actionName]
-				: undefined;
+		if (useSharedContext) {
+			// Shared context mode: use portals and shared root
+			const rootElement = findRootIsland(element);
 
-		const renderOptions = {
-			identifierPrefix: element.getAttribute('prefix'),
-			formState,
-		};
-		for (const [key, value] of Object.entries(slotted)) {
-			props[key] = createElement(StaticHtml, { value, name: key });
-		}
+			// Get or create root info
+			let rootInfo = sharedRootMap.get(rootElement);
+			if (!rootInfo) {
+				// Discover all islands in this tree upfront
+				const islands = discoverIslandsInTree(rootElement);
 
-		const componentEl = createElement(
-			Component,
-			props,
-			getChildren(children, element.hasAttribute('data-react-children')),
-		);
-		const rootKey = isAlreadyHydrated(element);
-		// HACK: delete internal react marker for nested components to suppress aggressive warnings
-		if (rootKey) {
-			delete element[rootKey];
-		}
-		if (client === 'only') {
-			return startTransition(() => {
+				rootInfo = {
+					root: null,
+					pendingIslands: new Set(islands),
+					rendered: false,
+				};
+				sharedRootMap.set(rootElement, rootInfo);
+			}
+
+			// Prepare props with slots
+			for (const [key, value] of Object.entries(slotted)) {
+				props[key] = createElement(StaticHtml, { value, name: key });
+			}
+
+			// Add children
+			const childrenElement = getChildren(children, element.hasAttribute('data-react-children'));
+			if (childrenElement) {
+				props.children = childrenElement;
+			}
+
+			// Store island data
+			const islandData: IslandData = {
+				Component,
+				props,
+				slotted,
+				client,
+			};
+			islandDataMap.set(element, islandData);
+
+			const rootKey = isAlreadyHydrated(element);
+			// HACK: delete internal react marker for nested components to suppress aggressive warnings
+			if (rootKey) {
+				delete element[rootKey];
+			}
+
+			// Schedule hydration
+			startTransition(() => {
+				queueMicrotask(() => {
+					hydrateSharedTree(rootElement);
+				});
+			});
+
+			// IMPORTANT: Return early to prevent normal hydration!
+			// The portal rendering should be the ONLY rendering that happens
+			return;
+		} else {
+			// Original mode: independent roots per island
+			const actionKey = element.getAttribute('data-action-key');
+			const actionName = element.getAttribute('data-action-name');
+			const stringifiedActionResult = element.getAttribute('data-action-result');
+
+			const formState =
+				actionKey && actionName && stringifiedActionResult
+					? [JSON.parse(stringifiedActionResult), actionKey, actionName]
+					: undefined;
+
+			const renderOptions = {
+				identifierPrefix: element.getAttribute('prefix'),
+				formState,
+			};
+			for (const [key, value] of Object.entries(slotted)) {
+				props[key] = createElement(StaticHtml, { value, name: key });
+			}
+
+			const componentEl = createElement(
+				Component,
+				props,
+				getChildren(children, element.hasAttribute('data-react-children')),
+			);
+			const rootKey = isAlreadyHydrated(element);
+			// HACK: delete internal react marker for nested components to suppress aggressive warnings
+			if (rootKey) {
+				delete element[rootKey];
+			}
+			if (client === 'only') {
+				return startTransition(() => {
+					const root = getOrCreateRoot(element, () => {
+						const r = createRoot(element);
+						element.addEventListener('astro:unmount', () => r.unmount(), { once: true });
+						return r;
+					});
+					root.render(componentEl);
+				});
+			}
+			startTransition(() => {
 				const root = getOrCreateRoot(element, () => {
-					const r = createRoot(element);
+					const r = hydrateRoot(element, componentEl, renderOptions as any);
 					element.addEventListener('astro:unmount', () => r.unmount(), { once: true });
 					return r;
 				});
 				root.render(componentEl);
 			});
 		}
-		startTransition(() => {
-			const root = getOrCreateRoot(element, () => {
-				const r = hydrateRoot(element, componentEl, renderOptions as any);
-				element.addEventListener('astro:unmount', () => r.unmount(), { once: true });
-				return r;
-			});
-			root.render(componentEl);
-		});
 	};
