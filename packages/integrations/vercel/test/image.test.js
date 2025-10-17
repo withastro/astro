@@ -82,7 +82,7 @@ describe('Image', () => {
 
 		// Check that we have density descriptors
 		assert.ok(
-			descriptors.every((d) => d.match(/^\d+(\.\d+)?x$/)),
+			descriptors.every((d) => /^\d+(\.\d+)?x$/.exec(d)),
 			`all descriptors are density-based (e.g., 1x, 1.5x): ${descriptors}`
 		);
 	});
