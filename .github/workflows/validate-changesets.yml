@@ -122,9 +122,13 @@ jobs:
           # Read the validation prompt from file
           prompt_template=$(cat .github/workflows/changeset-validation-prompt.txt)
 
-          # Create the full prompt with changesets
+          # Create the full prompt with PR context and changesets
           prompt="${prompt_template}
-          
+
+          <pr_context>
+          PR Title: ${{ github.event.pull_request.title }}
+          </pr_context>
+
           $changesets"
 
           # Generate cache key from prompt content
@@ -238,30 +242,36 @@ jobs:
             if [ -f "$file" ]; then
               # Make path absolute for the script
               abs_file="$(pwd)/$file"
-              if heading_output=$(pnpm --filter astro-scripts has-shallow-headings "$abs_file" 2>&1); then
+              # Capture only stdout, discard stderr (pnpm noise)
+              if heading_output=$(pnpm --filter astro-scripts has-shallow-headings "$abs_file" 2>/dev/null); then
                 echo "::debug::$file: No shallow headings found"
               else
-                echo "::warning::$file: Contains forbidden shallow headings"
-                # Add heading errors to the validation response
-                # The script outputs the offending headings, one per line
-                while IFS= read -r heading; do
-                  if [ -n "$heading" ]; then
-                    error_msg="Forbidden heading found: '$heading'. Headings shallower than h4 (####) break changelog formatting. Please use h4 or deeper."
-                    echo "::debug::Adding heading error for $file: $heading"
+                # Get the actual heading output (stdout only)
+                heading_output=$(pnpm --filter astro-scripts has-shallow-headings "$abs_file" 2>/dev/null || true)
 
-                    # Add error to the file's general_errors array in the JSON
-                    jq --arg file "$file" --arg error "$error_msg" '
-                      .overall_valid = false |
-                      .files |= map(
-                        if .file == $file then
-                          .valid = false |
-                          .general_errors += [$error]
-                        else . end
-                      )
-                    ' validation_response.json > validation_response.tmp.json
-                    mv validation_response.tmp.json validation_response.json
-                  fi
-                done <<< "$heading_output"
+                if [ -n "$heading_output" ]; then
+                  echo "::warning::$file: Contains forbidden shallow headings"
+                  # Add heading errors to the validation response
+                  # The script outputs the offending headings, one per line
+                  while IFS= read -r heading; do
+                    if [ -n "$heading" ]; then
+                      error_msg="Forbidden heading found: '$heading'. Headings shallower than h4 (####) break changelog formatting. Please use h4 or deeper."
+                      echo "::debug::Adding heading error for $file: $heading"
+
+                      # Add error to the file's general_errors array in the JSON
+                      jq --arg file "$file" --arg error "$error_msg" '
+                        .overall_valid = false |
+                        .files |= map(
+                          if .file == $file then
+                            .valid = false |
+                            .general_errors += [$error]
+                          else . end
+                        )
+                      ' validation_response.json > validation_response.tmp.json
+                      mv validation_response.tmp.json validation_response.json
+                    fi
+                  done <<< "$heading_output"
+                fi
               fi
             fi
           done < changeset_files.txt
