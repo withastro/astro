@@ -2537,6 +2537,40 @@ export interface AstroUserConfig<
 		 * See the [experimental Chrome DevTools workspace feature documentation](https://docs.astro.build/en/reference/experimental-flags/chrome-devtools-workspace/) for more information.
 		 */
 		chromeDevtoolsWorkspace?: boolean;
+
+		/**
+		 *
+		 * @name experimental.llm
+		 * @type {{ optimizePageResponse?: boolean }}
+		 * @default `undefined`
+		 * @description
+		 * Configuration for LLM (Large Language Model) optimization features.
+		 *
+		 * - `optimizePageResponse`: When enabled, converts HTML page responses to Markdown for better LLM consumption.
+		 *
+		 * ```js
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     llm: {
+		 *       optimizePageResponse: true,
+		 *     },
+		 *   },
+		 * });
+		 * ```
+		 */
+		llm?: {
+			/**
+			 * @name experimental.llm.optimizePageResponse
+			 * @type {boolean}
+			 * @default `false`
+			 * @description
+			 * When enabled, converts HTML page responses to Markdown format for better consumption by Large Language Models (LLMs).
+			 * This allows LLMs to request pages in Markdown by setting the Accept header to `text/markdown`.
+			 */
+			optimizePageResponse?: boolean;
+		};
 	};
 }
 
