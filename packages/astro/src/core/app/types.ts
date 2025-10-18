@@ -95,6 +95,7 @@ export type SSRManifest = {
 	buildClientDir: string | URL;
 	buildServerDir: string | URL;
 	csp: SSRManifestCSP | undefined;
+	internalFetchHeaders?: Record<string, string>;
 };
 
 export type SSRActions = {
