@@ -1,5 +1,46 @@
 # astro
 
+## 5.14.6
+
+### Patch Changes
+
+- [#14562](https://github.com/withastro/astro/pull/14562) [`722bba0`](https://github.com/withastro/astro/commit/722bba0a57984b6b1c4585627cafa22af64e4251) Thanks [@erbierc](https://github.com/erbierc)! - Fixes a bug where the behavior of the "muted" HTML attribute was inconsistent with that of other attributes.
+
+- [#14538](https://github.com/withastro/astro/pull/14538) [`51ebe6a`](https://github.com/withastro/astro/commit/51ebe6ae9307f5c2124162212493f61152221a43) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves how Actions are implemented
+
+- [#14548](https://github.com/withastro/astro/pull/14548) [`6cdade4`](https://github.com/withastro/astro/commit/6cdade49c975e717f098bb4aa7f03a7b845d0a7c) Thanks [@ascorbic](https://github.com/ascorbic)! - Removes support for the `maxAge` property in `cacheHint` objects returned by live loaders.
+
+  #### :warning: Breaking change for experimental live content collections only
+
+  Feedback showed that this did not make sense to set at the loader level, since the loader does not know how long each individual entry should be cached for.
+
+  If your live loader returns cache hints with `maxAge`, you need to remove this property:
+
+  ```diff
+  return {
+    entries: [...],
+    cacheHint: {
+      tags: ['my-tag'],
+  -   maxAge: 60,
+      lastModified: new Date(),
+    },
+  };
+  ```
+
+  The `cacheHint` object now only supports `tags` and `lastModified` properties. If you want to set the max age for a page, you can set the headers manually:
+
+  ```astro
+  ---
+  Astro.headers.set('cdn-cache-control', 'max-age=3600');
+  ---
+  ```
+
+- [#14548](https://github.com/withastro/astro/pull/14548) [`6cdade4`](https://github.com/withastro/astro/commit/6cdade49c975e717f098bb4aa7f03a7b845d0a7c) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds missing `rendered` property to experimental live collections entry type
+
+  Live collections support a `rendered` property that allows you to provide pre-rendered HTML for each entry. While this property was documented and implemented, it was missing from the TypeScript types. This could lead to type errors when trying to use it in a TypeScript project.
+
+  No changes to your project code are necessary. You can continue to use the `rendered` property as before, and it will no longer produce TypeScript errors.
+
 ## 5.14.5
 
 ### Patch Changes

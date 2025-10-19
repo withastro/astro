@@ -59,6 +59,18 @@ describe('astro/src/core/cookies', () => {
 			assert.equal(cookie, undefined);
 		});
 
+		it('handles malformed cookie values gracefully', () => {
+			// Test with invalid URI sequence (e.g., incomplete percent encoding)
+			const req = new Request('http://example.com/', {
+				headers: {
+					cookie: 'malformed=0:%',
+				},
+			});
+			let cookies = new AstroCookies(req);
+			// Should return the unparsed value instead of throwing
+			assert.equal(cookies.get('malformed').value, '0:%');
+		});
+
 		describe('.json()', () => {
 			it('returns a JavaScript object', () => {
 				const req = new Request('http://example.com/', {
