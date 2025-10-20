@@ -135,15 +135,20 @@ function getAdapter({
 				? (): Record<string, string> => {
 						const deploymentId = process.env.VERCEL_DEPLOYMENT_ID;
 						if (deploymentId) {
-							return { 'x-deployment-id': deploymentId };
+							return { 'x-vercel-deployment-id': deploymentId };
 						}
 						return {};
 					}
 				: undefined,
-			assetQueryParams:
-				skewProtection && process.env.VERCEL_DEPLOYMENT_ID
-					? new URLSearchParams({ dpl: process.env.VERCEL_DEPLOYMENT_ID })
-					: undefined,
+			assetQueryParams: skewProtection
+				? (): URLSearchParams | undefined => {
+						const deploymentId = process.env.VERCEL_DEPLOYMENT_ID;
+						if (deploymentId) {
+							return new URLSearchParams({ dpl: deploymentId });
+						}
+						return undefined;
+					}
+				: undefined,
 		},
 	};
 }
@@ -226,7 +231,7 @@ export default function vercelAdapter({
 	edgeMiddleware = false,
 	maxDuration,
 	isr = false,
-	skewProtection = false,
+	skewProtection = process.env.VERCEL_SKEW_PROTECTION_ENABLED === '1',
 	experimentalStaticHeaders = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	if (maxDuration) {
