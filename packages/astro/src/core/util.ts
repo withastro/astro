@@ -90,7 +90,7 @@ export function parseNpmName(
 }
 
 /**
- * Convert file URL to ID for viteServer.moduleGraph.idToModuleMap.get(:viteID)
+ * Convert file URL to ID for environment.moduleGraph.idToModuleMap.get(:viteID)
  * Format:
  *   Linux/Mac:  /Users/astro/code/my-project/src/pages/index.astro
  *   Windows:    C:/Users/astro/code/my-project/src/pages/index.astro

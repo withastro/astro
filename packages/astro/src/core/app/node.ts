@@ -8,7 +8,8 @@ import { clientAddressSymbol, nodeRequestAbortControllerCleanupSymbol } from '..
 import { deserializeManifest } from './common.js';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import type { RenderOptions } from './index.js';
-import { App } from './index.js';
+import { BaseApp } from './index.js';
+import { AppPipeline } from './pipeline.js';
 import type { NodeAppHeadersJson, SerializedSSRManifest, SSRManifest } from './types.js';
 
 /**
@@ -19,7 +20,14 @@ interface NodeRequest extends IncomingMessage {
 	body?: unknown;
 }
 
-export class NodeApp extends App {
+export class NodeApp extends BaseApp {
+	createPipeline(streaming: boolean): AppPipeline {
+		return AppPipeline.create({
+			logger: this.logger,
+			manifest: this.manifest,
+			streaming,
+		});
+	}
 	headersMap: NodeAppHeadersJson | undefined = undefined;
 
 	public setHeadersMap(headers: NodeAppHeadersJson) {
@@ -92,7 +100,7 @@ export class NodeApp extends App {
 		// Validate X-Forwarded-Host against allowedDomains if configured
 		if (
 			forwardedHostname &&
-			!App.validateForwardedHost(
+			!BaseApp.validateForwardedHost(
 				forwardedHostname,
 				allowedDomains,
 				forwardedProtocol ?? providedProtocol,

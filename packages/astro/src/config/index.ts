@@ -1,12 +1,10 @@
 import type { UserConfig as ViteUserConfig, UserConfigFn as ViteUserConfigFn } from 'vite';
-import { createRoutesList } from '../core/routing/index.js';
 import type {
 	AstroInlineConfig,
 	AstroUserConfig,
 	Locales,
 	SessionDriverName,
 } from '../types/public/config.js';
-import { createDevelopmentManifest } from '../vite-plugin-astro-server/plugin.js';
 
 /**
  * See the full Astro Configuration API Documentation
@@ -49,12 +47,7 @@ export function getViteConfig(
 		const { astroConfig: config } = await resolveConfig(inlineAstroConfig, cmd);
 		let settings = await createSettings(config, userViteConfig.root);
 		settings = await runHookConfigSetup({ settings, command: cmd, logger });
-		const routesList = await createRoutesList({ settings }, logger);
-		const manifest = createDevelopmentManifest(settings);
-		const viteConfig = await createVite(
-			{},
-			{ settings, command: cmd, logger, mode, sync: false, manifest, routesList },
-		);
+		const viteConfig = await createVite({}, { settings, command: cmd, logger, mode, sync: false });
 		await runHookConfigDone({ settings, logger });
 		return mergeConfig(viteConfig, userViteConfig);
 	};

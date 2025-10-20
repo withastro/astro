@@ -1,0 +1,12 @@
+{
+	"compatibility_date": "2025-05-21",
+	"main": "@astrojs/cloudflare/entrypoints/server",
+	"name": "astro-cloudflare-custom-entryfile",
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS"
+	},
+	"images": {
+		"binding": "IMAGES"
+	}
+}

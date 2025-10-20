@@ -1,5 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { toRoutingStrategy } from '../../../dist/core/app/common.js';
 import { validateConfig } from '../../../dist/core/config/validate.js';
 import { MissingLocale } from '../../../dist/core/errors/errors-data.js';
 import { AstroError } from '../../../dist/core/errors/index.js';
@@ -9,7 +10,7 @@ import {
 	getLocaleRelativeUrl,
 	getLocaleRelativeUrlList,
 } from '../../../dist/i18n/index.js';
-import { parseLocale, toRoutingStrategy } from '../../../dist/i18n/utils.js';
+import { parseLocale } from '../../../dist/i18n/utils.js';
 
 describe('getLocaleRelativeUrl', () => {
 	it('should correctly return the URL with the base', () => {

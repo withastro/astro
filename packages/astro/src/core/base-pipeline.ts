@@ -13,11 +13,13 @@ import type {
 	SSRResult,
 } from '../types/public/internal.js';
 import { createOriginCheckMiddleware } from './app/middlewares.js';
+import type { SinglePageBuiltModule } from './build/types.js';
 import { ActionNotFoundError } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
 import type { Logger } from './logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from './middleware/noop-middleware.js';
 import { sequence } from './middleware/sequence.js';
+import { RedirectSinglePageBuiltModule } from './redirects/index.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
 
@@ -164,6 +166,36 @@ export abstract class Pipeline {
 			);
 		}
 		return server;
+	}
+
+	async getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
+		for (const defaultRoute of this.defaultRoutes) {
+			if (route.component === defaultRoute.component) {
+				return {
+					page: () => Promise.resolve(defaultRoute.instance),
+					renderers: [],
+				};
+			}
+		}
+
+		if (route.type === 'redirect') {
+			return RedirectSinglePageBuiltModule;
+		} else {
+			if (this.manifest.pageMap) {
+				const importComponentInstance = this.manifest.pageMap.get(route.component);
+				if (!importComponentInstance) {
+					throw new Error(
+						`Unexpectedly unable to find a component instance for route ${route.route}`,
+					);
+				}
+				return await importComponentInstance();
+			} else if (this.manifest.pageModule) {
+				return this.manifest.pageModule;
+			}
+			throw new Error(
+				"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue.",
+			);
+		}
 	}
 }
 

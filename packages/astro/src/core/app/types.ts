@@ -1,6 +1,5 @@
 import type { ZodType } from 'zod';
 import type { ActionAccept, ActionClient } from '../../actions/runtime/server.js';
-import type { RoutingStrategies } from '../../i18n/utils.js';
 import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
 import type { AstroMiddlewareInstance } from '../../types/public/common.js';
 import type {
@@ -18,6 +17,7 @@ import type {
 } from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import type { CspDirective } from '../csp/config.js';
+import type { RoutingStrategies } from './common.js';
 
 type ComponentPath = string;
 
@@ -52,7 +52,6 @@ export type AssetsPrefix =
 	| undefined;
 
 export type SSRManifest = {
-	hrefRoot: string;
 	adapterName: string;
 	routes: RouteInfo[];
 	site?: string;
@@ -88,13 +87,28 @@ export type SSRManifest = {
 	checkOrigin: boolean;
 	allowedDomains?: Partial<RemotePattern>[];
 	sessionConfig?: ResolvedSessionConfig<any>;
-	cacheDir: string | URL;
-	srcDir: string | URL;
-	outDir: string | URL;
-	publicDir: string | URL;
-	buildClientDir: string | URL;
-	buildServerDir: string | URL;
+	cacheDir: URL;
+	srcDir: URL;
+	outDir: URL;
+	rootDir: URL;
+	publicDir: URL;
+	buildClientDir: URL;
+	buildServerDir: URL;
 	csp: SSRManifestCSP | undefined;
+	devToolbar: {
+		// This should always be false in prod/SSR
+		enabled: boolean;
+		/**
+		 * Latest version of Astro, will be undefined if:
+		 * - unable to check
+		 * - the user has disabled the check
+		 * - the check has not completed yet
+		 * - the user is on the latest version already
+		 */
+		latestAstroVersion: string | undefined;
+
+		debugInfoOutput: string | undefined;
+	};
 };
 
 export type SSRActions = {
@@ -108,6 +122,7 @@ export type SSRManifestI18n = {
 	locales: Locales;
 	defaultLocale: string;
 	domainLookupTable: Record<string, string>;
+	domains: Record<string, string> | undefined;
 };
 
 export type SSRManifestCSP = {
@@ -132,7 +147,21 @@ export type SerializedSSRManifest = Omit<
 	| 'clientDirectives'
 	| 'serverIslandNameMap'
 	| 'key'
+	| 'rootDir'
+	| 'srcDir'
+	| 'cacheDir'
+	| 'outDir'
+	| 'publicDir'
+	| 'buildClientDir'
+	| 'buildServerDir'
 > & {
+	rootDir: string;
+	srcDir: string;
+	cacheDir: string;
+	outDir: string;
+	publicDir: string;
+	buildClientDir: string;
+	buildServerDir: string;
 	routes: SerializedRouteInfo[];
 	assets: string[];
 	componentMetadata: [string, SSRComponentMetadata][];

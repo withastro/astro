@@ -16,7 +16,6 @@ import {
 	removeTrailingForwardSlash,
 	trimSlashes,
 } from '../../core/path.js';
-import { toFallbackType, toRoutingStrategy } from '../../i18n/utils.js';
 import { runHookBuildGenerated, toIntegrationResolvedRoute } from '../../integrations/hooks.js';
 import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
@@ -29,6 +28,7 @@ import type {
 	SSRError,
 	SSRLoadedRenderer,
 } from '../../types/public/internal.js';
+import { toFallbackType, toRoutingStrategy } from '../app/common.js';
 import type { SSRActions, SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../app/types.js';
 import {
 	getAlgorithm,
@@ -307,7 +307,7 @@ async function generatePage(
 
 	// Now we explode the routes. A route render itself, and it can render its fallbacks (i18n routing)
 	for (const route of eachRouteInRouteData(pageData)) {
-		const integrationRoute = toIntegrationResolvedRoute(route);
+		const integrationRoute = toIntegrationResolvedRoute(route, pipeline.manifest.trailingSlash);
 		const icon =
 			route.type === 'page' || route.type === 'redirect' || route.type === 'fallback'
 				? green('▶')
@@ -350,7 +350,7 @@ async function getPathsForRoute(
 	pipeline: BuildPipeline,
 	builtPaths: Set<string>,
 ): Promise<Array<string>> {
-	const { logger, options, routeCache, serverLike, config } = pipeline;
+	const { logger, options, routeCache, serverLike, manifest } = pipeline;
 	let paths: Array<string> = [];
 	if (route.pathname) {
 		paths.push(route.pathname);
@@ -362,7 +362,8 @@ async function getPathsForRoute(
 			routeCache,
 			logger,
 			ssr: serverLike,
-			base: config.base,
+			base: manifest.base,
+			trailingSlash: manifest.trailingSlash,
 		}).catch((err) => {
 			logger.error('build', `Failed to call getStaticPaths for ${route.component}`);
 			throw err;
@@ -377,7 +378,7 @@ async function getPathsForRoute(
 		paths = staticPaths
 			.map((staticPath) => {
 				try {
-					return stringifyParams(staticPath.params, route);
+					return stringifyParams(staticPath.params, route, manifest.trailingSlash);
 				} catch (e) {
 					if (e instanceof TypeError) {
 						throw getInvalidRouteSegmentError(e, route, staticPath);
@@ -411,7 +412,7 @@ async function getPathsForRoute(
 
 				// Current route is lower-priority than matchedRoute.
 				// Path will be skipped due to collision.
-				if (config.experimental.failOnPrerenderConflict) {
+				if (pipeline.config.experimental.failOnPrerenderConflict) {
 					throw new AstroError({
 						...AstroErrorData.PrerenderRouteConflict,
 						message: AstroErrorData.PrerenderRouteConflict.message(
@@ -713,6 +714,7 @@ async function createBuildManifest(
 			defaultLocale: settings.config.i18n.defaultLocale,
 			locales: settings.config.i18n.locales,
 			domainLookupTable: {},
+			domains: settings.config.i18n.domains,
 		};
 	}
 
@@ -742,7 +744,7 @@ async function createBuildManifest(
 		};
 	}
 	return {
-		hrefRoot: settings.config.root.toString(),
+		rootDir: settings.config.root,
 		srcDir: settings.config.srcDir,
 		buildClientDir: settings.config.build.client,
 		buildServerDir: settings.config.build.server,
@@ -775,5 +777,10 @@ async function createBuildManifest(
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key,
 		csp,
+		devToolbar: {
+			latestAstroVersion: settings.latestAstroVersion,
+			enabled: false,
+			debugInfoOutput: '',
+		},
 	};
 }

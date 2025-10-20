@@ -18,3 +18,23 @@ declare module 'virtual:astro:actions/options' {
 declare module 'virtual:astro:actions/runtime' {
 	export * from './src/actions/runtime/client.js';
 }
+
+declare module 'virtual:astro:actions/entrypoint' {
+	import type { SSRActions } from './src/index.js';
+	export const server: SSRActions;
+}
+
+declare module 'virtual:astro:serialized-manifest' {
+	import type { SSRManifest } from './src/index.js';
+	export const manifest: SSRManifest;
+}
+
+declare module 'virtual:astro:routes' {
+	import type { RoutesList } from './src/types/astro.js';
+	export const routes: RoutesList[];
+}
+
+declare module 'virtual:astro:renderers' {
+	import type { AstroRenderer } from './src/index.js';
+	export const renderers: AstroRenderer[];
+}

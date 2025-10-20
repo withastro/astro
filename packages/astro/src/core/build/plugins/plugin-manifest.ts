@@ -5,9 +5,10 @@ import { type BuiltinDriverName, builtinDrivers } from 'unstorage';
 import type { Plugin as VitePlugin } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
-import { toFallbackType, toRoutingStrategy } from '../../../i18n/utils.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
+import { toFallbackType } from '../../app/common.js';
+import { serializeRouteData, toRoutingStrategy } from '../../app/index.js';
 import type {
 	SerializedRouteInfo,
 	SerializedSSRManifest,
@@ -29,7 +30,6 @@ import {
 import { encodeKey } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { DEFAULT_COMPONENTS } from '../../routing/default.js';
-import { serializeRouteData } from '../../routing/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
@@ -308,6 +308,7 @@ async function buildManifest(
 			locales: settings.config.i18n.locales,
 			defaultLocale: settings.config.i18n.defaultLocale,
 			domainLookupTable,
+			domains: settings.config.i18n.domains,
 		};
 	}
 
@@ -340,7 +341,7 @@ async function buildManifest(
 	}
 
 	return {
-		hrefRoot: opts.settings.config.root.toString(),
+		rootDir: opts.settings.config.root.toString(),
 		cacheDir: opts.settings.config.cacheDir.toString(),
 		outDir: opts.settings.config.outDir.toString(),
 		srcDir: opts.settings.config.srcDir.toString(),
@@ -370,5 +371,10 @@ async function buildManifest(
 		key: encodedKey,
 		sessionConfig: settings.config.session,
 		csp,
+		devToolbar: {
+			enabled: false,
+			latestAstroVersion: settings.latestAstroVersion,
+			debugInfoOutput: '',
+		},
 	};
 }

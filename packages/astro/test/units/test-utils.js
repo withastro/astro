@@ -105,7 +105,7 @@ export function createBasicPipeline(options = {}) {
 	const pipeline = new Pipeline(
 		options.logger ?? defaultLogger,
 		options.manifest ?? {
-			hrefRoot: import.meta.url,
+			rootDir: import.meta.url,
 		},
 		options.mode ?? 'development',
 		options.renderers ?? [],

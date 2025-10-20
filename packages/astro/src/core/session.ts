@@ -449,7 +449,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			} else if (this.#config.driver) {
 				const driverName = resolveSessionDriverName(this.#config.driver);
 				if (driverName) {
-					driver = (await import(driverName)).default;
+					driver = (await import(/* @vite-ignore */ driverName)).default;
 				}
 			}
 		} catch (err: any) {

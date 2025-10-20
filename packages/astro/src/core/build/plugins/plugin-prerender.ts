@@ -1,5 +1,4 @@
 import type { Rollup, Plugin as VitePlugin } from 'vite';
-import { getPrerenderMetadata } from '../../../prerender/metadata.js';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
@@ -17,9 +16,7 @@ function vitePluginPrerender(internals: BuildInternals): VitePlugin {
 				if (!pageInfo) continue;
 				const moduleInfo = this.getModuleInfo(id);
 				if (!moduleInfo) continue;
-
-				const prerender = !!getPrerenderMetadata(moduleInfo);
-				pageInfo.route.prerender = prerender;
+				pageInfo.route.prerender = Boolean(moduleInfo?.meta?.astro?.pageOptions?.prerender);
 			}
 
 			// Find all chunks used in the SSR runtime (that aren't used for prerendering only), then use
