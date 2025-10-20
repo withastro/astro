@@ -4,7 +4,7 @@ import ci from 'ci-info';
 import { bold, cyan, dim, magenta } from 'kleur/colors';
 import { detect, resolveCommand } from 'package-manager-detector';
 import prompts from 'prompts';
-import yoctoSpinner from 'yocto-spinner';
+import * as clack from '@clack/prompts';
 import type { Logger } from '../core/logger/core.js';
 import { exec } from './exec.js';
 
@@ -102,7 +102,8 @@ async function installPackage(
 	}
 
 	if (Boolean(response)) {
-		const spinner = yoctoSpinner({ text: 'Installing dependencies...' }).start();
+		const spinner = clack.spinner();
+		spinner.start('Installing dependencies...');
 		try {
 			await exec(installCommand.command, [...installCommand.args, ...packageNames], {
 				nodeOptions: {
@@ -111,12 +112,12 @@ async function installPackage(
 					env: { NODE_ENV: undefined },
 				},
 			});
-			spinner.success();
+			spinner.stop();
 
 			return true;
 		} catch (err) {
 			logger.debug('add', 'Error installing dependencies', err);
-			spinner.error();
+			spinner.stop(undefined, 2);
 
 			return false;
 		}

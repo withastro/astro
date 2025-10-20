@@ -10,7 +10,7 @@ import { detect, resolveCommand } from 'package-manager-detector';
 import prompts from 'prompts';
 import maxSatisfying from 'semver/ranges/max-satisfying.js';
 import type yargsParser from 'yargs-parser';
-import yoctoSpinner from 'yocto-spinner';
+import * as clack from '@clack/prompts';
 import {
 	loadTSConfig,
 	resolveConfig,
@@ -689,7 +689,8 @@ async function tryToInstallIntegrations({
 	);
 
 	if (await askToContinue({ flags })) {
-		const spinner = yoctoSpinner({ text: 'Installing dependencies...' }).start();
+		const spinner = clack.spinner();
+		spinner.start('Installing dependencies...');
 		try {
 			await exec(installCommand.command, [...installCommand.args, ...installSpecifiers], {
 				nodeOptions: {
@@ -698,10 +699,10 @@ async function tryToInstallIntegrations({
 					env: { NODE_ENV: undefined },
 				},
 			});
-			spinner.success();
+			spinner.stop();
 			return UpdateResult.updated;
 		} catch (err: any) {
-			spinner.error();
+			spinner.stop(undefined, 2);
 			logger.debug('add', 'Error installing dependencies', err);
 			// NOTE: `err.stdout` can be an empty string, so log the full error instead for a more helpful log
 			console.error('\n', err.stdout || err.message, '\n');
@@ -716,7 +717,8 @@ async function validateIntegrations(
 	integrations: string[],
 	flags: yargsParser.Arguments,
 ): Promise<IntegrationInfo[]> {
-	const spinner = yoctoSpinner({ text: 'Resolving packages...' }).start();
+	const spinner = clack.spinner();
+	spinner.start('Resolving packages...');
 	try {
 		const integrationEntries = await Promise.all(
 			integrations.map(async (integration): Promise<IntegrationInfo> => {
@@ -734,9 +736,9 @@ async function validateIntegrations(
 					const firstPartyPkgCheck = await fetchPackageJson('@astrojs', name, tag);
 					if (firstPartyPkgCheck instanceof Error) {
 						if (firstPartyPkgCheck.message) {
-							spinner.warning(yellow(firstPartyPkgCheck.message));
+							spinner.message(yellow(firstPartyPkgCheck.message));
 						}
-						spinner.warning(yellow(`${bold(integration)} is not an official Astro package.`));
+						spinner.message(yellow(`${bold(integration)} is not an official Astro package.`));
 						if (!(await askToContinue({ flags }))) {
 							throw new Error(
 								`No problem! Find our official integrations at ${cyan(
@@ -744,7 +746,7 @@ async function validateIntegrations(
 								)}`,
 							);
 						}
-						spinner.start('Resolving with third party packages...');
+						spinner.message('Resolving with third party packages...');
 						pkgType = 'third-party';
 					} else {
 						pkgType = 'first-party';
@@ -755,7 +757,7 @@ async function validateIntegrations(
 					const thirdPartyPkgCheck = await fetchPackageJson(scope, name, tag);
 					if (thirdPartyPkgCheck instanceof Error) {
 						if (thirdPartyPkgCheck.message) {
-							spinner.warning(yellow(thirdPartyPkgCheck.message));
+							spinner.message(yellow(thirdPartyPkgCheck.message));
 						}
 						throw new Error(`Unable to fetch ${bold(integration)}. Does the package exist?`);
 					} else {
@@ -813,11 +815,11 @@ async function validateIntegrations(
 				};
 			}),
 		);
-		spinner.success();
+		spinner.stop();
 		return integrationEntries;
 	} catch (e) {
 		if (e instanceof Error) {
-			spinner.error(e.message);
+			spinner.stop(e.message, 2);
 			process.exit(1);
 		} else {
 			throw e;

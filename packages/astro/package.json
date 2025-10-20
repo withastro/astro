@@ -111,6 +111,7 @@
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
     "@capsizecss/unpack": "^3.0.0",
+    "@clack/prompts": "1.0.0-alpha.6",
     "@oslojs/encoding": "^1.1.0",
     "@rollup/pluginutils": "^5.2.0",
     "acorn": "^8.15.0",
@@ -164,7 +165,6 @@
     "vitefu": "^1.1.1",
     "xxhash-wasm": "^1.1.0",
     "yargs-parser": "^21.1.1",
-    "yocto-spinner": "^0.2.3",
     "zod": "^3.25.76",
     "zod-to-json-schema": "^3.24.6",
     "zod-to-ts": "^1.2.0"
