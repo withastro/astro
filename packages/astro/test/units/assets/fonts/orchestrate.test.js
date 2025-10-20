@@ -9,6 +9,7 @@ import { createMinifiableCssRenderer } from '../../../../dist/assets/fonts/imple
 import { createDataCollector } from '../../../../dist/assets/fonts/implementations/data-collector.js';
 import { createFontaceFontFileReader } from '../../../../dist/assets/fonts/implementations/font-file-reader.js';
 import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
+import { createLevenshteinStringMatcher } from '../../../../dist/assets/fonts/implementations/levenshtein-string-matcher.js';
 import { createRequireLocalProviderUrlResolver } from '../../../../dist/assets/fonts/implementations/local-provider-url-resolver.js';
 import { createBuildRemoteFontProviderModResolver } from '../../../../dist/assets/fonts/implementations/remote-font-provider-mod-resolver.js';
 import { createRemoteFontProviderResolver } from '../../../../dist/assets/fonts/implementations/remote-font-provider-resolver.js';
@@ -19,11 +20,12 @@ import { createBuildUrlProxyHashResolver } from '../../../../dist/assets/fonts/i
 import { createDevUrlResolver } from '../../../../dist/assets/fonts/implementations/url-resolver.js';
 import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
 import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
-import { defaultLogger } from '../../test-utils.js';
+import { createSpyLogger, defaultLogger } from '../../test-utils.js';
 import {
 	createSpyStorage,
 	fakeFontMetricsResolver,
 	fakeHasher,
+	markdownBold,
 	simpleErrorHandler,
 } from './utils.js';
 
@@ -34,7 +36,7 @@ describe('fonts orchestrate()', () => {
 		const errorHandler = simpleErrorHandler;
 		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
 		const hasher = fakeHasher;
-		const { fontFileDataMap, consumableMap } = await orchestrate({
+		const { fontFileDataMap, internalConsumableMap, consumableMap } = await orchestrate({
 			families: [
 				{
 					name: 'Test',
@@ -74,6 +76,8 @@ describe('fonts orchestrate()', () => {
 				});
 			},
 			defaults: DEFAULTS,
+			bold: markdownBold,
+			stringMatcher: createLevenshteinStringMatcher(),
 		});
 		assert.deepStrictEqual(
 			[...fontFileDataMap.entries()],
@@ -88,8 +92,8 @@ describe('fonts orchestrate()', () => {
 				],
 			],
 		);
-		assert.deepStrictEqual([...consumableMap.keys()], ['--test']);
-		const entry = consumableMap.get('--test');
+		assert.deepStrictEqual([...internalConsumableMap.keys()], ['--test']);
+		const entry = internalConsumableMap.get('--test');
 		assert.deepStrictEqual(entry?.preloadData, [
 			{
 				url: joinPaths('/test', fileURLToPath(new URL('my-font.woff2.woff2', root))),
@@ -102,6 +106,33 @@ describe('fonts orchestrate()', () => {
 		assert.equal(entry?.css.includes(':root{--test:Test-'), true);
 		// Fallback
 		assert.equal(entry?.css.includes('fallback: Arial"'), true);
+
+		assert.deepStrictEqual(
+			[...consumableMap.entries()],
+			[
+				[
+					'--test',
+					[
+						{
+							weight: '400',
+							style: 'normal',
+							src: [
+								{
+									url: joinPaths('/test', fileURLToPath(new URL('my-font.woff2.woff2', root))),
+									format: 'woff2',
+									tech: undefined,
+								},
+								{
+									url: joinPaths('/test', fileURLToPath(new URL('my-font.woff.woff', root))),
+									format: 'woff',
+									tech: undefined,
+								},
+							],
+						},
+					],
+				],
+			],
+		);
 	});
 
 	it('works with a remote provider', async () => {
@@ -137,7 +168,7 @@ describe('fonts orchestrate()', () => {
 		const errorHandler = simpleErrorHandler;
 		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
 		const hasher = fakeHasher;
-		const { fontFileDataMap, consumableMap } = await orchestrate({
+		const { fontFileDataMap, internalConsumableMap, consumableMap } = await orchestrate({
 			families: [
 				{
 					name: 'Test',
@@ -178,6 +209,8 @@ describe('fonts orchestrate()', () => {
 				});
 			},
 			defaults: DEFAULTS,
+			bold: markdownBold,
+			stringMatcher: createLevenshteinStringMatcher(),
 		});
 
 		assert.deepStrictEqual(
@@ -193,8 +226,8 @@ describe('fonts orchestrate()', () => {
 				],
 			],
 		);
-		assert.deepStrictEqual([...consumableMap.keys()], ['--test']);
-		const entry = consumableMap.get('--test');
+		assert.deepStrictEqual([...internalConsumableMap.keys()], ['--test']);
+		const entry = internalConsumableMap.get('--test');
 		assert.deepStrictEqual(entry?.preloadData, [
 			{ url: 'https://example.com/foo.woff2.woff2', type: 'woff2' },
 		]);
@@ -204,5 +237,185 @@ describe('fonts orchestrate()', () => {
 		assert.equal(entry?.css.includes(':root{--test:Test-'), true);
 		// Fallback
 		assert.equal(entry?.css.includes('fallback: Times New Roman"'), true);
+
+		assert.deepStrictEqual(
+			[...consumableMap.entries()],
+			[
+				[
+					'--test',
+					[
+						{
+							weight: '400',
+							style: 'normal',
+							src: [
+								{
+									url: 'https://example.com/foo.woff2.woff2',
+									format: undefined,
+									tech: undefined,
+								},
+								{
+									url: 'https://example.com/foo.woff.woff',
+									format: undefined,
+									tech: undefined,
+								},
+							],
+						},
+					],
+				],
+			],
+		);
+	});
+
+	it('warns if remote provider does not return any font data', async () => {
+		const fakeUnifontProvider = defineFontProvider('test', () => {
+			return {
+				resolveFont: () => {
+					return undefined;
+				},
+			};
+		});
+		const fakeAstroProvider = defineAstroFontProvider({
+			entrypoint: 'test',
+		});
+
+		const root = new URL(import.meta.url);
+		const { storage } = createSpyStorage();
+		const errorHandler = simpleErrorHandler;
+		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
+		const hasher = fakeHasher;
+		const { logs, logger } = createSpyLogger();
+
+		await orchestrate({
+			families: [
+				{
+					name: 'Test',
+					cssVariable: '--test',
+					provider: fakeAstroProvider,
+					fallbacks: ['serif'],
+				},
+			],
+			hasher,
+			remoteFontProviderResolver: createRemoteFontProviderResolver({
+				root,
+				errorHandler,
+				modResolver: {
+					resolve: async () => ({
+						provider: fakeUnifontProvider,
+					}),
+				},
+			}),
+			localProviderUrlResolver: createRequireLocalProviderUrlResolver({ root }),
+			storage,
+			cssRenderer: createMinifiableCssRenderer({ minify: true }),
+			systemFallbacksProvider: createSystemFallbacksProvider(),
+			fontMetricsResolver: fakeFontMetricsResolver,
+			fontTypeExtractor,
+			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			logger,
+			createUrlProxy: ({ local, cssVariable, ...params }) => {
+				const dataCollector = createDataCollector(params);
+				const contentResolver = createRemoteUrlProxyContentResolver();
+				return createUrlProxy({
+					urlResolver: {
+						resolve: (hash) => hash,
+						getCspResources: () => [],
+					},
+					cssVariable,
+					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
+					dataCollector,
+				});
+			},
+			defaults: DEFAULTS,
+			bold: markdownBold,
+			stringMatcher: createLevenshteinStringMatcher(),
+		});
+
+		assert.deepStrictEqual(logs, [
+			{
+				type: 'warn',
+				label: 'assets',
+				message: 'No data found for font family **Test**. Review your configuration',
+			},
+		]);
+	});
+
+	it('warns if remote provider does not support given font family name', async () => {
+		const fakeUnifontProvider = defineFontProvider('test', () => {
+			return {
+				resolveFont: () => {
+					return undefined;
+				},
+				listFonts: async () => ['Testi', 'XYZ'],
+			};
+		});
+		const fakeAstroProvider = defineAstroFontProvider({
+			entrypoint: 'test',
+		});
+
+		const root = new URL(import.meta.url);
+		const { storage } = createSpyStorage();
+		const errorHandler = simpleErrorHandler;
+		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
+		const hasher = fakeHasher;
+		const { logs, logger } = createSpyLogger();
+
+		await orchestrate({
+			families: [
+				{
+					name: 'Test',
+					cssVariable: '--test',
+					provider: fakeAstroProvider,
+					fallbacks: ['serif'],
+				},
+			],
+			hasher,
+			remoteFontProviderResolver: createRemoteFontProviderResolver({
+				root,
+				errorHandler,
+				modResolver: {
+					resolve: async () => ({
+						provider: fakeUnifontProvider,
+					}),
+				},
+			}),
+			localProviderUrlResolver: createRequireLocalProviderUrlResolver({ root }),
+			storage,
+			cssRenderer: createMinifiableCssRenderer({ minify: true }),
+			systemFallbacksProvider: createSystemFallbacksProvider(),
+			fontMetricsResolver: fakeFontMetricsResolver,
+			fontTypeExtractor,
+			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			logger,
+			createUrlProxy: ({ local, cssVariable, ...params }) => {
+				const dataCollector = createDataCollector(params);
+				const contentResolver = createRemoteUrlProxyContentResolver();
+				return createUrlProxy({
+					urlResolver: {
+						resolve: (hash) => hash,
+						getCspResources: () => [],
+					},
+					cssVariable,
+					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
+					dataCollector,
+				});
+			},
+			defaults: DEFAULTS,
+			bold: markdownBold,
+			stringMatcher: createLevenshteinStringMatcher(),
+		});
+
+		assert.deepStrictEqual(logs, [
+			{
+				type: 'warn',
+				label: 'assets',
+				message: 'No data found for font family **Test**. Review your configuration',
+			},
+			{
+				type: 'warn',
+				label: 'assets',
+				message:
+					'**Test** font family cannot be retrieved by the provider. Did you mean **Testi**?',
+			},
+		]);
 	});
 });

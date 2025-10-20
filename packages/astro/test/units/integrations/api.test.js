@@ -216,7 +216,7 @@ describe('Integration API', () => {
 								},
 								{
 									isPrerendered: false,
-									entrypoint: '../../../../dist/assets/endpoint/node.js',
+									entrypoint: '../../../../dist/assets/endpoint/dev.js',
 									pattern: '/_image',
 									params: [],
 									origin: 'internal',
@@ -278,7 +278,7 @@ describe('Integration API', () => {
 								},
 								{
 									isPrerendered: false,
-									entrypoint: '../../../../dist/assets/endpoint/node.js',
+									entrypoint: '../../../../dist/assets/endpoint/dev.js',
 									pattern: '/_image',
 									params: [],
 									origin: 'internal',
@@ -343,7 +343,7 @@ describe('Integration API', () => {
 								},
 								{
 									isPrerendered: false,
-									entrypoint: '../../../../dist/assets/endpoint/node.js',
+									entrypoint: '../../../../dist/assets/endpoint/dev.js',
 									pattern: '/_image',
 									params: [],
 									origin: 'internal',

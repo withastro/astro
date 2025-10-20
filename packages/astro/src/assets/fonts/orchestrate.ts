@@ -1,4 +1,3 @@
-import { bold } from 'kleur/colors';
 import * as unifont from 'unifont';
 import type { Storage } from 'unstorage';
 import type { Logger } from '../../core/logger/core.js';
@@ -11,6 +10,7 @@ import type {
 	Hasher,
 	LocalProviderUrlResolver,
 	RemoteFontProviderResolver,
+	StringMatcher,
 	SystemFallbacksProvider,
 	UrlProxy,
 } from './definitions.js';
@@ -23,11 +23,17 @@ import type {
 	ConsumableMap,
 	CreateUrlProxyParams,
 	Defaults,
+	FontData,
 	FontFamily,
 	FontFileDataMap,
+	InternalConsumableMap,
 	PreloadData,
 } from './types.js';
-import { pickFontFaceProperty, unifontFontFaceDataToProperties } from './utils.js';
+import {
+	pickFontFaceProperty,
+	renderFontWeight,
+	unifontFontFaceDataToProperties,
+} from './utils.js';
 
 /**
  * Manages how fonts are resolved:
@@ -61,6 +67,8 @@ export async function orchestrate({
 	logger,
 	createUrlProxy,
 	defaults,
+	bold,
+	stringMatcher,
 }: {
 	families: Array<FontFamily>;
 	hasher: Hasher;
@@ -75,8 +83,11 @@ export async function orchestrate({
 	logger: Logger;
 	createUrlProxy: (params: CreateUrlProxyParams) => UrlProxy;
 	defaults: Defaults;
+	bold: (input: string) => string;
+	stringMatcher: StringMatcher;
 }): Promise<{
 	fontFileDataMap: FontFileDataMap;
+	internalConsumableMap: InternalConsumableMap;
 	consumableMap: ConsumableMap;
 }> {
 	let resolvedFamilies = await resolveFamilies({
@@ -93,7 +104,7 @@ export async function orchestrate({
 	resolvedFamilies = extractedUnifontProvidersResult.families;
 	const unifontProviders = extractedUnifontProvidersResult.providers;
 
-	const { resolveFont } = await unifont.createUnifont(unifontProviders, {
+	const { resolveFont, listFonts } = await unifont.createUnifont(unifontProviders, {
 		storage,
 	});
 
@@ -103,12 +114,17 @@ export async function orchestrate({
 	 */
 	const fontFileDataMap: FontFileDataMap = new Map();
 	/**
-	 * Holds associations of CSS variables and preloadData/css to be passed to the virtual module.
+	 * Holds associations of CSS variables and preloadData/css to be passed to the internal virtual module.
+	 */
+	const internalConsumableMap: InternalConsumableMap = new Map();
+	/**
+	 * Holds associations of CSS variables and font data to be exposed via virtual module.
 	 */
 	const consumableMap: ConsumableMap = new Map();
 
 	for (const family of resolvedFamilies) {
 		const preloadData: Array<PreloadData> = [];
+		const consumableMapValue: Array<FontData> = [];
 		let css = '';
 
 		/**
@@ -177,6 +193,13 @@ export async function orchestrate({
 					'assets',
 					`No data found for font family ${bold(family.name)}. Review your configuration`,
 				);
+				const availableFamilies = await listFonts([family.provider.name!]);
+				if (availableFamilies && !availableFamilies.includes(family.name)) {
+					logger.warn(
+						'assets',
+						`${bold(family.name)} font family cannot be retrieved by the provider. Did you mean ${bold(stringMatcher.getClosestMatch(family.name, availableFamilies))}?`,
+					);
+				}
 			}
 			// The data returned by the remote provider contains original URLs. We proxy them.
 			fonts = normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy, fontTypeExtractor });
@@ -198,6 +221,18 @@ export async function orchestrate({
 					variationSettings: pickFontFaceProperty('variationSettings', { data, family }),
 				}),
 			);
+
+			consumableMapValue.push({
+				weight: renderFontWeight(data.weight),
+				style: data.style,
+				src: data.src
+					.filter((src) => 'url' in src)
+					.map((src) => ({
+						url: src.url,
+						format: src.format,
+						tech: src.tech,
+					})),
+			});
 		}
 
 		const cssVarValues = [family.nameWithHash];
@@ -220,8 +255,9 @@ export async function orchestrate({
 
 		css += cssRenderer.generateCssVariable(family.cssVariable, cssVarValues);
 
-		consumableMap.set(family.cssVariable, { preloadData, css });
+		internalConsumableMap.set(family.cssVariable, { preloadData, css });
+		consumableMap.set(family.cssVariable, consumableMapValue);
 	}
 
-	return { fontFileDataMap, consumableMap };
+	return { fontFileDataMap, internalConsumableMap, consumableMap };
 }

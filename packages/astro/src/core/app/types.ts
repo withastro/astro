@@ -1,11 +1,12 @@
 import type { ZodType } from 'zod';
-import type { ActionAccept, ActionClient } from '../../actions/runtime/virtual/server.js';
+import type { ActionAccept, ActionClient } from '../../actions/runtime/server.js';
 import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
 import type { AstroMiddlewareInstance } from '../../types/public/common.js';
 import type {
 	AstroConfig,
 	CspAlgorithm,
 	Locales,
+	RemotePattern,
 	ResolvedSessionConfig,
 } from '../../types/public/config.js';
 import type {
@@ -84,6 +85,7 @@ export type SSRManifest = {
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
 	actions?: () => Promise<SSRActions> | SSRActions;
 	checkOrigin: boolean;
+	allowedDomains?: Partial<RemotePattern>[];
 	sessionConfig?: ResolvedSessionConfig<any>;
 	cacheDir: URL;
 	srcDir: URL;

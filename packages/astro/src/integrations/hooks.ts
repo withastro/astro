@@ -31,7 +31,6 @@ import type {
 	BaseIntegrationHooks,
 	HookParameters,
 	IntegrationResolvedRoute,
-	IntegrationRouteData,
 	RouteOptions,
 	RouteToHeaders,
 } from '../types/public/integrations.js';
@@ -354,13 +353,6 @@ export async function runHookConfigSetup({
 		updatedSettings.renderers.push(astroJSXRenderer);
 	}
 
-	// TODO: Astro 6.0
-	// Remove this hack to avoid breaking changes, and change the default value of redirectToDefaultLocale
-	if (updatedConfig.i18n && typeof updatedConfig.i18n.routing !== 'string') {
-		updatedConfig.i18n.routing.redirectToDefaultLocale ??=
-			updatedConfig.i18n.routing.prefixDefaultLocale || false;
-	}
-
 	updatedSettings.config = updatedConfig;
 	return updatedSettings;
 }
@@ -578,7 +570,6 @@ export async function runHookBuildSsr({
 			logger,
 			params: () => ({
 				manifest,
-				entryPoints: entryPointsMap,
 				middlewareEntryPoint,
 			}),
 		});
@@ -617,9 +608,6 @@ type RunHookBuildDone = {
 export async function runHookBuildDone({ settings, pages, routes, logger }: RunHookBuildDone) {
 	const dir = getClientOutputDirectory(settings);
 	await fsMod.promises.mkdir(dir, { recursive: true });
-	const integrationRoutes = routes.map((route) =>
-		toIntegrationRouteData(route, settings.config.trailingSlash),
-	);
 
 	for (const integration of settings.config.integrations) {
 		await runHookInternal({
@@ -629,7 +617,6 @@ export async function runHookBuildDone({ settings, pages, routes, logger }: RunH
 			params: () => ({
 				pages: pages.map((p) => ({ pathname: p })),
 				dir,
-				routes: integrationRoutes,
 				assets: new Map(
 					routes.filter((r) => r.distURL !== undefined).map((r) => [r.route, r.distURL!]),
 				),
@@ -713,27 +700,5 @@ export function toIntegrationResolvedRoute(
 		redirectRoute: route.redirectRoute
 			? toIntegrationResolvedRoute(route.redirectRoute, trailingSlash)
 			: undefined,
-	};
-}
-
-function toIntegrationRouteData(
-	route: RouteData,
-	trailingSlash: AstroConfig['trailingSlash'],
-): IntegrationRouteData {
-	return {
-		route: route.route,
-		component: route.component,
-		generate: getRouteGenerator(route.segments, trailingSlash),
-		params: route.params,
-		pathname: route.pathname,
-		segments: route.segments,
-		prerender: route.prerender,
-		redirect: route.redirect,
-		redirectRoute: route.redirectRoute
-			? toIntegrationRouteData(route.redirectRoute, trailingSlash)
-			: undefined,
-		type: route.type,
-		pattern: route.pattern,
-		distURL: route.distURL,
 	};
 }

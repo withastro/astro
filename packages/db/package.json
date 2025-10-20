@@ -76,7 +76,7 @@
     "deep-diff": "^1.0.2",
     "drizzle-orm": "^0.42.0",
     "kleur": "^4.1.5",
-    "nanoid": "^5.1.5",
+    "nanoid": "^5.1.6",
     "prompts": "^2.4.2",
     "yargs-parser": "^21.1.1",
     "zod": "^3.25.76"
@@ -89,7 +89,7 @@
     "astro-scripts": "workspace:*",
     "cheerio": "1.1.2",
     "expect-type": "^1.2.2",
-    "typescript": "^5.9.2",
+    "typescript": "^5.9.3",
     "vite": "^7.1.7"
   }
 }

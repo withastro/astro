@@ -4,7 +4,6 @@ import * as colors from 'kleur/colors';
 import prompts from 'prompts';
 import { resolveConfig } from '../../core/config/index.js';
 import { ASTRO_VERSION } from '../../core/constants.js';
-import { apply as applyPolyfill } from '../../core/polyfill.js';
 import type { AstroConfig, AstroUserConfig } from '../../types/public/config.js';
 import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
 
@@ -80,7 +79,6 @@ export async function getInfoOutput({
 }
 
 export async function printInfo({ flags }: InfoOptions) {
-	applyPolyfill();
 	const { userConfig } = await resolveConfig(flagsToAstroInlineConfig(flags), 'info');
 	const output = await getInfoOutput({ userConfig, print: true });
 	await copyToClipboard(output, flags.copy);

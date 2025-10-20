@@ -1,6 +1,6 @@
 ---
 import { parse } from 'node:path';
-const components = await Astro.glob('../components/*.mdx');
+const components = Object.values(import.meta.glob('../components/*.mdx', { eager: true }));
 ---
 
 <div data-default-export>

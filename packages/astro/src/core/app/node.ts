@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { Http2ServerResponse } from 'node:http2';
 import type { Socket } from 'node:net';
-import type { RouteData } from '../../types/public/internal.js';
+// matchPattern is used in App.validateForwardedHost, no need to import here
+import type { RemotePattern } from '../../types/public/config.js';
 import { clientAddressSymbol, nodeRequestAbortControllerCleanupSymbol } from '../constants.js';
 import { deserializeManifest } from './common.js';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
@@ -10,8 +11,6 @@ import type { RenderOptions } from './index.js';
 import { BaseApp } from './index.js';
 import { AppPipeline } from './pipeline.js';
 import type { NodeAppHeadersJson, SerializedSSRManifest, SSRManifest } from './types.js';
-
-export { apply as applyPolyfills } from '../polyfill.js';
 
 /**
  * Allow the request body to be explicitly overridden. For example, this
@@ -39,26 +38,19 @@ export class NodeApp extends BaseApp {
 		if (!(req instanceof Request)) {
 			req = NodeApp.createRequest(req, {
 				skipBody: true,
+				allowedDomains: this.manifest.allowedDomains,
 			});
 		}
 		return super.match(req, allowPrerenderedRoutes);
 	}
-	render(request: NodeRequest | Request, options?: RenderOptions): Promise<Response>;
-	/**
-	 * @deprecated Instead of passing `RouteData` and locals individually, pass an object with `routeData` and `locals` properties.
-	 * See https://github.com/withastro/astro/pull/9199 for more information.
-	 */
-	render(request: NodeRequest | Request, routeData?: RouteData, locals?: object): Promise<Response>;
-	render(
-		req: NodeRequest | Request,
-		routeDataOrOptions?: RouteData | RenderOptions,
-		maybeLocals?: object,
-	) {
-		if (!(req instanceof Request)) {
-			req = NodeApp.createRequest(req);
+
+	render(request: NodeRequest | Request, options?: RenderOptions): Promise<Response> {
+		if (!(request instanceof Request)) {
+			request = NodeApp.createRequest(request, {
+				allowedDomains: this.manifest.allowedDomains,
+			});
 		}
-		// @ts-expect-error The call would have succeeded against the implementation, but implementation signatures of overloads are not externally visible.
-		return super.render(req, routeDataOrOptions, maybeLocals);
+		return super.render(request, options);
 	}
 
 	/**
@@ -74,7 +66,13 @@ export class NodeApp extends BaseApp {
 	 * })
 	 * ```
 	 */
-	static createRequest(req: NodeRequest, { skipBody = false } = {}): Request {
+	static createRequest(
+		req: NodeRequest,
+		{
+			skipBody = false,
+			allowedDomains = [],
+		}: { skipBody?: boolean; allowedDomains?: Partial<RemotePattern>[] } = {},
+	): Request {
 		const controller = new AbortController();
 
 		const isEncrypted = 'encrypted' in req.socket && req.socket.encrypted;
@@ -96,8 +94,22 @@ export class NodeApp extends BaseApp {
 		const protocol = forwardedProtocol ?? providedProtocol;
 
 		// @example "example.com,www2.example.com" => "example.com"
-		const forwardedHostname = getFirstForwardedValue(req.headers['x-forwarded-host']);
+		let forwardedHostname = getFirstForwardedValue(req.headers['x-forwarded-host']);
 		const providedHostname = req.headers.host ?? req.headers[':authority'];
+
+		// Validate X-Forwarded-Host against allowedDomains if configured
+		if (
+			forwardedHostname &&
+			!App.validateForwardedHost(
+				forwardedHostname,
+				allowedDomains,
+				forwardedProtocol ?? providedProtocol,
+			)
+		) {
+			// If not allowed, ignore the X-Forwarded-Host header
+			forwardedHostname = undefined;
+		}
+
 		const hostname = forwardedHostname ?? providedHostname;
 
 		// @example "443,8080,80" => "443"

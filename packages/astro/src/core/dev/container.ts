@@ -12,7 +12,6 @@ import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
-import { apply as applyPolyfill } from '../polyfill.js';
 import { syncInternal } from '../sync/index.js';
 import { warnMissingAdapter } from './adapter-validation.js';
 
@@ -43,7 +42,6 @@ export async function createContainer({
 	fs = nodeFs,
 }: CreateContainerParams): Promise<Container> {
 	// Initialize
-	applyPolyfill();
 	settings = await runHookConfigSetup({
 		settings,
 		command: 'dev',

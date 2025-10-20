@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "5.13.10",
+  "version": "5.14.5",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -60,6 +60,7 @@
     "./assets/services/sharp": "./dist/assets/services/sharp.js",
     "./assets/services/noop": "./dist/assets/services/noop.js",
     "./assets/fonts/providers/*": "./dist/assets/fonts/providers/entrypoints/*.js",
+    "./assets/fonts/runtime": "./dist/assets/fonts/runtime.js",
     "./loaders": "./dist/content/loaders/index.js",
     "./content/config": "./dist/content/config.js",
     "./content/runtime": "./dist/content/runtime.js",
@@ -72,14 +73,14 @@
     "./virtual-modules/*": "./dist/virtual-modules/*"
   },
   "bin": {
-    "astro": "astro.js"
+    "astro": "./bin/astro.mjs"
   },
   "files": [
     "components/*.{astro,css,ts}",
     "tsconfigs",
     "dist",
     "types",
-    "astro.js",
+    "bin",
     "env.d.ts",
     "client.d.ts",
     "jsx-runtime.d.ts",
@@ -105,14 +106,13 @@
     "test:integration": "astro-scripts test \"test/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/compiler": "^2.12.2",
+    "@astrojs/compiler": "0.0.0-render-script-20251003120459",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
-    "@capsizecss/unpack": "^2.4.0",
+    "@capsizecss/unpack": "^3.0.0",
     "@oslojs/encoding": "^1.1.0",
     "@rollup/pluginutils": "^5.2.0",
-    "acorn": "^8.15.0",
     "aria-query": "^5.3.2",
     "axobject-query": "^4.1.0",
     "boxen": "8.0.1",
@@ -129,13 +129,11 @@
     "dset": "^3.1.4",
     "es-module-lexer": "^1.7.0",
     "esbuild": "^0.25.0",
-    "estree-walker": "^3.0.3",
     "flattie": "^1.1.1",
     "fontace": "~0.3.0",
     "github-slugger": "^2.0.0",
     "html-escaper": "3.0.3",
     "http-cache-semantics": "^4.2.0",
-    "import-meta-resolve": "^4.2.0",
     "js-yaml": "^4.1.0",
     "kleur": "^4.1.5",
     "magic-string": "^0.30.18",
@@ -151,11 +149,11 @@
     "semver": "^7.7.2",
     "shiki": "^3.12.0",
     "smol-toml": "^1.4.2",
-    "tinyexec": "^0.3.2",
+    "tinyexec": "^1.0.1",
     "tinyglobby": "^0.2.14",
     "tsconfck": "^3.1.6",
     "ultrahtml": "^1.6.0",
-    "unifont": "~0.5.2",
+    "unifont": "~0.6.0",
     "unist-util-visit": "^5.0.0",
     "unstorage": "^1.17.0",
     "vfile": "^6.0.3",
@@ -210,7 +208,7 @@
     "vitest": "^3.2.4"
   },
   "engines": {
-    "node": "18.20.8 || ^20.3.0 || >=22.0.0",
+    "node": "^20.19.5 || >=22.12.0",
     "npm": ">=9.6.5",
     "pnpm": ">=7.1.0"
   },

@@ -1,5 +1,220 @@
 # astro
 
+## 5.14.5
+
+### Patch Changes
+
+- [#14525](https://github.com/withastro/astro/pull/14525) [`4f55781`](https://github.com/withastro/astro/commit/4f5578190dab96ad0cd117b9e9bb96fdd18730ae) Thanks [@penx](https://github.com/penx)! - Fixes `defineLiveCollection()` types
+
+- [#14441](https://github.com/withastro/astro/pull/14441) [`62ec8ea`](https://github.com/withastro/astro/commit/62ec8ea14a42c1dba81f68c50e987b111fabcce5) Thanks [@upsuper](https://github.com/upsuper)! - Updates redirect handling to be consistent across `static` and `server` output, aligning with the behavior of other adapters.
+
+  Previously, the Node.js adapter used default HTML files with meta refresh tags when in `static` output. This often resulted in an extra flash of the page on redirect, while also not applying the proper status code for redirections. It's also likely less friendly to search engines.
+
+  This update ensures that configured redirects are always handled as HTTP redirects regardless of output mode, and the default HTML files for the redirects are no longer generated in `static` output. It makes the Node.js adapter more consistent with the other official adapters.
+
+  No change to your project is required to take advantage of this new adapter functionality. It is not expected to cause any breaking changes. However, if you relied on the previous redirecting behavior, you may need to handle your redirects differently now. Otherwise you should notice smoother redirects, with more accurate HTTP status codes, and may potentially see some SEO gains.
+
+- [#14506](https://github.com/withastro/astro/pull/14506) [`ec3cbe1`](https://github.com/withastro/astro/commit/ec3cbe178094e94fcb49cccdcc15c6ffee3104ba) Thanks [@abdo-spices](https://github.com/abdo-spices)! - Updates the `<Font />` component so that preload links are generated after the style tag, as recommended by capo.js
+
+## 5.14.4
+
+### Patch Changes
+
+- [#14509](https://github.com/withastro/astro/pull/14509) [`7e04caf`](https://github.com/withastro/astro/commit/7e04caf9a4a75c75f06c4207fae601a5fd251735) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes an error in the docs that specified an incorrect version for the `security.allowedDomains` release.
+
+## 5.14.3
+
+### Patch Changes
+
+- [#14505](https://github.com/withastro/astro/pull/14505) [`28b2a1d`](https://github.com/withastro/astro/commit/28b2a1db4f3f265632f280b0dbc4c5f241c387e2) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `Cannot set property manifest` error in test utilities by adding a protected setter for the manifest property
+
+- [#14235](https://github.com/withastro/astro/pull/14235) [`c4d84bb`](https://github.com/withastro/astro/commit/c4d84bb654c9a5064b243e971c3b5b280e2b3791) Thanks [@toxeeec](https://github.com/toxeeec)! - Fixes a bug where the "tap" prefetch strategy worked only on the first clicked link with view transitions enabled
+
+## 5.14.2
+
+### Patch Changes
+
+- [#14459](https://github.com/withastro/astro/pull/14459) [`916f9c2`](https://github.com/withastro/astro/commit/916f9c2e094f19562cfe722ca0a5fafb0f313c2e) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves font files URLs in development when using the experimental fonts API by showing the subset if present
+
+- [`b8ca69b`](https://github.com/withastro/astro/commit/b8ca69b97149becefaf89bf21853de9c905cdbb7) Thanks [@ascorbic](https://github.com/ascorbic)! - Aligns dev image server file base with Vite rules
+
+- [#14469](https://github.com/withastro/astro/pull/14469) [`1c090b0`](https://github.com/withastro/astro/commit/1c090b00c1f5c3d8e938ac873fc63ab2f1ae37f1) Thanks [@delucis](https://github.com/delucis)! - Updates `tinyexec` dependency
+
+- [#14460](https://github.com/withastro/astro/pull/14460) [`008dc75`](https://github.com/withastro/astro/commit/008dc75d860eadbb394e86dac68c7f4962e40489) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `astro:config/server` values typed as URLs would be serialized as strings
+
+- [#13730](https://github.com/withastro/astro/pull/13730) [`7260367`](https://github.com/withastro/astro/commit/72603676818d1c433ac2751843a8a9b0cc9b48c9) Thanks [@razonyang](https://github.com/razonyang)! - Fixes a bug in i18n, where Astro caused an infinite loop when a locale that doesn't have an index, and Astro falls back to the index of the default locale.
+
+- [`6ee63bf`](https://github.com/withastro/astro/commit/6ee63bfac4856f21b4d4633021b3d2ee059e553f) Thanks [@matthewp](https://github.com/matthewp)! - Adds `security.allowedDomains` configuration to validate `X-Forwarded-Host` headers in SSR
+
+  The `X-Forwarded-Host` header will now only be trusted if it matches one of the configured allowed host patterns. This prevents [host header injection attacks](https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/17-Testing_for_Host_Header_Injection) that can lead to cache poisoning and other security vulnerabilities.
+
+  Configure allowed host patterns to enable `X-Forwarded-Host` support:
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    output: 'server',
+    adapter: node(),
+    security: {
+      allowedDomains: [
+        { hostname: 'example.com' },
+        { hostname: '*.example.com' },
+        { hostname: 'cdn.example.com', port: '443' },
+      ],
+    },
+  });
+  ```
+
+  The patterns support wildcards (`*` and `**`) for flexible hostname matching and can optionally specify protocol and port.
+
+  ### Breaking change
+
+  Previously, `Astro.url` would reflect the value of the `X-Forwarded-Host` header. While this header is commonly used by reverse proxies like Nginx to communicate the original host, it can be sent by any client, potentially allowing malicious actors to poison caches with incorrect URLs.
+
+  If you were relying on `X-Forwarded-Host` support, add `security.allowedDomains` to your configuration to restore this functionality securely. When `allowedDomains` is not configured, `X-Forwarded-Host` headers are now ignored by default.
+
+- [#14488](https://github.com/withastro/astro/pull/14488) [`badc929`](https://github.com/withastro/astro/commit/badc9292a702250430b9ba11d9b26d75bd441934) Thanks [@olcanebrem](https://github.com/olcanebrem)! - Fixes a case where styles on the custom 500 error page would not be included
+
+- [#14487](https://github.com/withastro/astro/pull/14487) [`1e5b72c`](https://github.com/withastro/astro/commit/1e5b72c8df709b8ab966ed1d0f74977758bbf445) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where the URLs generated by the experimental Fonts API would be incorrect in dev
+
+- [#14475](https://github.com/withastro/astro/pull/14475) [`ae034ae`](https://github.com/withastro/astro/commit/ae034ae38cf1fd4837acc2c7da0c35f298fa8035) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Warns if the font family name is not supported by the provider when using the experimental fonts API
+
+- [`b8ca69b`](https://github.com/withastro/astro/commit/b8ca69b97149becefaf89bf21853de9c905cdbb7) Thanks [@ascorbic](https://github.com/ascorbic)! - Refactor remote path detection
+
+- [#14468](https://github.com/withastro/astro/pull/14468) [`2f2a5da`](https://github.com/withastro/astro/commit/2f2a5da27e1ea6b27bfa244513a15922b726c6ac) Thanks [@delucis](https://github.com/delucis)! - Updates `@capsizecss/unpack` dependency
+
+- Updated dependencies [[`b8ca69b`](https://github.com/withastro/astro/commit/b8ca69b97149becefaf89bf21853de9c905cdbb7)]:
+  - @astrojs/internal-helpers@0.7.4
+  - @astrojs/markdown-remark@6.3.8
+
+## 5.14.1
+
+### Patch Changes
+
+- [#14440](https://github.com/withastro/astro/pull/14440) [`a3e16ab`](https://github.com/withastro/astro/commit/a3e16ab6dd0bef9ab6259f23bfeebed747e27497) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where the URLs generated by the experimental Fonts API would be incorrect in dev
+
+## 5.14.0
+
+### Minor Changes
+
+- [#13520](https://github.com/withastro/astro/pull/13520) [`a31edb8`](https://github.com/withastro/astro/commit/a31edb8daad8632bacd1861adf6ac720695f7173) Thanks [@openscript](https://github.com/openscript)! - Adds a new property `routePattern` available to `GetStaticPathsOptions`
+
+  This provides the original, dynamic segment definition in a routing file path (e.g. `/[...locale]/[files]/[slug]`) from the Astro render context that would not otherwise be available within the scope of `getStaticPaths()`. This can be useful to calculate the `params` and `props` for each page route.
+
+  For example, you can now localize your route segments and return an array of static paths by passing `routePattern` to a custom `getLocalizedData()` helper function. The `params` object will be set with explicit values for each route segment (e.g. `locale`, `files`, and `slug)`. Then, these values will be used to generate the routes and can be used in your page template via `Astro.params`.
+
+  ```astro
+  ---
+  // src/pages/[...locale]/[files]/[slug].astro
+  import { getLocalizedData } from '../../../utils/i18n';
+
+  export async function getStaticPaths({ routePattern }) {
+    const response = await fetch('...');
+    const data = await response.json();
+
+    console.log(routePattern); // [...locale]/[files]/[slug]
+
+    // Call your custom helper with `routePattern` to generate the static paths
+    return data.flatMap((file) => getLocalizedData(file, routePattern));
+  }
+
+  const { locale, files, slug } = Astro.params;
+  ---
+  ```
+
+  For more information about this advanced routing pattern, see Astro's [routing reference](https://docs.astro.build/en/reference/routing-reference/#routepattern).
+
+- [#13651](https://github.com/withastro/astro/pull/13651) [`dcfbd8c`](https://github.com/withastro/astro/commit/dcfbd8c9d5dc798d1bcb9b36531c2eded301050d) Thanks [@ADTC](https://github.com/ADTC)! - Adds a new `SvgComponent` type
+
+  You can now more easily enforce type safety for your `.svg` assets by directly importing `SVGComponent` from `astro/types`:
+
+  ```astro
+  ---
+  // src/components/Logo.astro
+  import type { SvgComponent } from 'astro/types';
+  import HomeIcon from './Home.svg';
+  interface Link {
+    url: string;
+    text: string;
+    icon: SvgComponent;
+  }
+  const links: Link[] = [
+    {
+      url: '/',
+      text: 'Home',
+      icon: HomeIcon,
+    },
+  ];
+  ---
+  ```
+
+- [#14206](https://github.com/withastro/astro/pull/14206) [`16a23e2`](https://github.com/withastro/astro/commit/16a23e23c3ad2309d3b84962b055f4b2d1c8604c) Thanks [@Fryuni](https://github.com/Fryuni)! - Warn on prerendered routes collision.
+
+  Previously, when two dynamic routes `/[foo]` and `/[bar]` returned values on their `getStaticPaths` that resulted in the same final path, only one of the routes would be rendered while the other would be silently ignored. Now, when this happens, a warning will be displayed explaining which routes collided and on which path.
+
+  Additionally, a new experimental flag `failOnPrerenderConflict` can be used to fail the build when such a collision occurs.
+
+### Patch Changes
+
+- [#13811](https://github.com/withastro/astro/pull/13811) [`69572c0`](https://github.com/withastro/astro/commit/69572c0aa2d453cc399948406dbcbfd12e03c4a8) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new `getFontData()` method to retrieve lower-level font family data programmatically when using the experimental Fonts API
+
+  The `getFontData()` helper function from `astro:assets` provides access to font family data for use outside of Astro. This can then be used in an [API Route](/en/guides/endpoints/#server-endpoints-api-routes) or to generate your own meta tags.
+
+  ```ts
+  import { getFontData } from 'astro:assets';
+
+  const data = getFontData('--font-roboto');
+  ```
+
+  For example, `getFontData()` can get the font buffer from the URL when using [satori](https://github.com/vercel/satori) to generate OpenGraph images:
+
+  ```tsx
+  // src/pages/og.png.ts
+
+  import type { APIRoute } from 'astro';
+  import { getFontData } from 'astro:assets';
+  import satori from 'satori';
+
+  export const GET: APIRoute = (context) => {
+    const data = getFontData('--font-roboto');
+
+    const svg = await satori(<div style={{ color: 'black' }}>hello, world</div>, {
+      width: 600,
+      height: 400,
+      fonts: [
+        {
+          name: 'Roboto',
+          data: await fetch(new URL(data[0].src[0].url, context.url.origin)).then((res) =>
+            res.arrayBuffer(),
+          ),
+          weight: 400,
+          style: 'normal',
+        },
+      ],
+    });
+
+    // ...
+  };
+  ```
+
+  See the [experimental Fonts API documentation](https://docs.astro.build/en/reference/experimental-flags/fonts/#accessing-font-data-programmatically) for more information.
+
+## 5.13.11
+
+### Patch Changes
+
+- [#14409](https://github.com/withastro/astro/pull/14409) [`250a595`](https://github.com/withastro/astro/commit/250a595596e9c7e1a966c5cda40f9bd5cf9d3f66) Thanks [@louisescher](https://github.com/louisescher)! - Fixes an issue where `astro info` would log errors to console in certain cases.
+
+- [#14398](https://github.com/withastro/astro/pull/14398) [`a7df80d`](https://github.com/withastro/astro/commit/a7df80d284652b500079e4476b17d5d1b7746b06) Thanks [@idawnlight](https://github.com/idawnlight)! - Fixes an unsatisfiable type definition when calling `addServerRenderer` on an experimental container instance
+
+- [#13747](https://github.com/withastro/astro/pull/13747) [`120866f`](https://github.com/withastro/astro/commit/120866f35a6b27c31bae1c04c0ea9d6bdaf09b16) Thanks [@jp-knj](https://github.com/jp-knj)! - Adds automatic request signal abortion when the underlying socket closes in the Node.js adapter
+
+  The Node.js adapter now automatically aborts the `request.signal` when the client connection is terminated. This enables better resource management and allows applications to properly handle client disconnections through the standard `AbortSignal` API.
+
+- [#14428](https://github.com/withastro/astro/pull/14428) [`32a8acb`](https://github.com/withastro/astro/commit/32a8acba50bb15101c099fc7a14081d1a8cf0331) Thanks [@drfuzzyness](https://github.com/drfuzzyness)! - Force sharpService to return a Uint8Array if Sharp returns a SharedArrayBuffer
+
+- [#14411](https://github.com/withastro/astro/pull/14411) [`a601186`](https://github.com/withastro/astro/commit/a601186fb9ac0e7c8ff20887024234ecbfdd6ff1) Thanks [@GameRoMan](https://github.com/GameRoMan)! - Fixes relative links to docs that could not be opened in the editor.
+
 ## 5.13.10
 
 ### Patch Changes

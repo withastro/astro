@@ -10,7 +10,7 @@ declare module 'astro:content' {
 	} from 'astro/content/config';
 
 	export function defineLiveCollection<
-		L extends import('astro/loader').LiveLoader,
+		L extends import('astro/loaders').LiveLoader,
 		S extends import('astro/content/config').BaseSchema | undefined = undefined,
 	>(
 		config: import('astro/content/config').LiveCollectionConfig<L, S>,

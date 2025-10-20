@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Add support for MDX pages in your Astro site",
-  "version": "4.3.6",
+  "version": "4.3.7",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -72,7 +72,7 @@
     "vite": "^7.1.7"
   },
   "engines": {
-    "node": "18.20.8 || ^20.3.0 || >=22.0.0"
+    "node": "^20.19.5 || >=22.12.0"
   },
   "publishConfig": {
     "provenance": true

@@ -59,22 +59,28 @@ describe('NodeApp', () => {
 
 		describe('x-forwarded-host', () => {
 			it('parses host from single-value x-forwarded-host header', () => {
-				const result = NodeApp.createRequest({
-					...mockNodeRequest,
-					headers: {
-						'x-forwarded-host': 'www2.example.com',
+				const result = NodeApp.createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							'x-forwarded-host': 'www2.example.com',
+						},
 					},
-				});
+					{ allowedDomains: [{ hostname: '**.example.com' }] },
+				);
 				assert.equal(result.url, 'https://www2.example.com/');
 			});
 
 			it('parses host from multi-value x-forwarded-host header', () => {
-				const result = NodeApp.createRequest({
-					...mockNodeRequest,
-					headers: {
-						'x-forwarded-host': 'www2.example.com,www3.example.com',
+				const result = NodeApp.createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							'x-forwarded-host': 'www2.example.com,www3.example.com',
+						},
 					},
-				});
+					{ allowedDomains: [{ hostname: '**.example.com' }] },
+				);
 				assert.equal(result.url, 'https://www2.example.com/');
 			});
 
@@ -171,14 +177,17 @@ describe('NodeApp', () => {
 			});
 
 			it('prefers port from x-forwarded-host', () => {
-				const result = NodeApp.createRequest({
-					...mockNodeRequest,
-					headers: {
-						host: 'example.com:443',
-						'x-forwarded-host': 'example.com:3000',
-						'x-forwarded-port': '443',
+				const result = NodeApp.createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com:443',
+							'x-forwarded-host': 'example.com:3000',
+							'x-forwarded-port': '443',
+						},
 					},
-				});
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
 				assert.equal(result.url, 'https://example.com:3000/');
 			});
 		});

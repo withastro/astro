@@ -17,7 +17,7 @@ export const SERVER_ISLAND_BASE_PREFIX = '_server-islands';
 
 type ConfigFields = Pick<SSRManifest, 'base' | 'trailingSlash'>;
 
-export function getServerIslandRouteData(config: ConfigFields) {
+function getServerIslandRouteData(config: ConfigFields) {
 	const segments = [
 		[{ content: '_server-islands', dynamic: false, spread: false }],
 		[{ content: 'name', dynamic: true, spread: false }],

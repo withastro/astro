@@ -1,9 +1,6 @@
 import * as fs from 'node:fs';
 import type { SSRManifest } from 'astro';
 import { AppPipeline, BaseApp } from 'astro/app';
-import { applyPolyfills } from 'astro/app/node';
-
-applyPolyfills();
 
 class MyApp extends BaseApp {
 	#manifest: SSRManifest | undefined;

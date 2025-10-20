@@ -62,6 +62,7 @@ export async function callGetStaticPaths({
 		// Q: Why the cast?
 		// A: So users downstream can have nicer typings, we have to make some sacrifice in our internal typings, which necessitate a cast here
 		paginate: generatePaginateFunction(route, base, trailingSlash) as PaginateFunction,
+		routePattern: route.route,
 	});
 
 	validateGetStaticPathsResult(staticPaths, logger, route);

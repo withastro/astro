@@ -1,17 +1,11 @@
 import type { z } from 'zod';
-import type {
-	ActionAccept,
-	ActionClient,
-	ActionReturnType,
-} from '../../actions/runtime/virtual/server.js';
-import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../core/constants.js';
+import type { ActionAccept, ActionClient, ActionReturnType } from '../../actions/runtime/server.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
 import type { CspDirective, CspHash } from '../../core/csp/config.js';
 import type { AstroSession } from '../../core/session.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { Params, RewritePayload } from './common.js';
 import type { ValidRedirectStatus } from './config.js';
-import type { AstroInstance, MarkdownInstance, MDXInstance } from './content.js';
 
 /**
  * Astro global available in all contexts in .astro files
@@ -23,8 +17,23 @@ export interface AstroGlobal<
 	Self = AstroComponentFactory,
 	// eslint-disable-next-line @typescript-eslint/no-shadow
 	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
-> extends AstroGlobalPartial,
-		AstroSharedContext<Props, Params> {
+> extends AstroSharedContext<Props, Params> {
+	/**
+	 * Returns a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrosite)
+	 */
+	site: URL | undefined;
+	/**
+	 * Returns a string with the current version of Astro.
+	 *
+	 * Useful for using `<meta name="generator" content={Astro.generator} />` or crediting Astro in a site footer.
+	 *
+	 * [HTML Specification for `generator`](https://html.spec.whatwg.org/multipage/semantics.html#meta-generator)
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrogenerator)
+	 */
+	generator: string;
 	/**
 	 * A full URL object of the request URL.
 	 * Equivalent to: `new URL(Astro.request.url)`
@@ -208,47 +217,8 @@ export interface AstroGlobal<
 	};
 }
 
-/** Union type of supported markdown file extensions */
-type MarkdownFileExtension = (typeof SUPPORTED_MARKDOWN_FILE_EXTENSIONS)[number];
-
-export interface AstroGlobalPartial {
-	/**
-	 * Fetch local files into your static site setup
-	 *
-	 * Example usage:
-	 * ```typescript
-	 * const posts = await Astro.glob('../pages/post/*.md');
-	 * ```
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroglob)
-	 * @deprecated Astro.glob is deprecated and will be removed in the next major version of Astro. Use `import.meta.glob` instead: https://vitejs.dev/guide/features.html#glob-import
-	 */
-	glob(globStr: `${any}.astro`): Promise<AstroInstance[]>;
-	glob<T extends Record<string, any>>(
-		globStr: `${any}${MarkdownFileExtension}`,
-	): Promise<MarkdownInstance<T>[]>;
-	glob<T extends Record<string, any>>(globStr: `${any}.mdx`): Promise<MDXInstance<T>[]>;
-	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
-	/**
-	 * Returns a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrosite)
-	 */
-	site: URL | undefined;
-	/**
-	 * Returns a string with the current version of Astro.
-	 *
-	 * Useful for using `<meta name="generator" content={Astro.generator} />` or crediting Astro in a site footer.
-	 *
-	 * [HTML Specification for `generator`](https://html.spec.whatwg.org/multipage/semantics.html#meta-generator)
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrogenerator)
-	 */
-	generator: string;
-}
-
 // Shared types between `Astro` global and API context object
-export interface AstroSharedContext<
+interface AstroSharedContext<
 	Props extends Record<string, any> = Record<string, any>,
 	RouteParams extends Record<string, string | undefined> = Record<string, string | undefined>,
 > {

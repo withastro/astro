@@ -50,30 +50,30 @@
     "packages/*"
   ],
   "engines": {
-    "node": "^18.20.8 || ^20.3.0 || >=22.0.0"
+    "node": ">=22.12.0"
   },
-  "packageManager": "pnpm@10.17.0",
+  "packageManager": "pnpm@10.18.3",
   "dependencies": {
     "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
-    "@biomejs/biome": "2.2.4",
+    "@biomejs/biome": "2.2.6",
     "@changesets/changelog-github": "^0.5.1",
     "@changesets/cli": "^2.29.7",
     "@types/node": "^18.19.115",
     "esbuild": "0.25.5",
-    "eslint": "^9.35.0",
+    "eslint": "^9.37.0",
     "eslint-plugin-regexp": "^2.10.0",
     "knip": "5.61.3",
     "only-allow": "^1.2.1",
     "prettier": "^3.6.2",
     "prettier-plugin-astro": "^0.14.1",
-    "publint": "^0.3.12",
+    "publint": "^0.3.14",
     "tinyglobby": "^0.2.15",
-    "turbo": "^2.5.6",
-    "typescript": "~5.9.2",
-    "typescript-eslint": "^8.43.0"
+    "turbo": "^2.5.8",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.0"
   },
   "pnpm": {
     "peerDependencyRules": {

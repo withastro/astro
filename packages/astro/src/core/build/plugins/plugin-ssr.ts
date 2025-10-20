@@ -1,5 +1,5 @@
 import type { Plugin as VitePlugin } from 'vite';
-import { ASTRO_ACTIONS_INTERNAL_MODULE_ID } from '../../../actions/consts.js';
+import { ENTRYPOINT_VIRTUAL_MODULE_ID } from '../../../actions/consts.js';
 import type { AstroAdapter } from '../../../types/public/integrations.js';
 import { MIDDLEWARE_MODULE_ID } from '../../middleware/vite-plugin.js';
 import { routeIsRedirect } from '../../redirects/index.js';
@@ -90,9 +90,11 @@ function vitePluginSSR(
 						imports.push(`const ${variable} = () => import("${virtualModuleName}");`);
 
 						const pageData2 = internals.pagesByKeys.get(pageData.key);
-						if (pageData2) {
-							pageMap.push(`[${JSON.stringify(pageData2.component)}, ${variable}]`);
-						}
+						// Always add to pageMap even if pageData2 is missing from internals
+						// This ensures error pages like 500.astro are included in the build
+						pageMap.push(
+							`[${JSON.stringify(pageData2?.component || pageData.component)}, ${variable}]`,
+						);
 						i++;
 					}
 				}
@@ -177,7 +179,7 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 		`    pageMap,`,
 		`    serverIslandMap,`,
 		`    renderers,`,
-		`    actions: () => import("${ASTRO_ACTIONS_INTERNAL_MODULE_ID}"),`,
+		`    actions: () => import("${ENTRYPOINT_VIRTUAL_MODULE_ID}"),`,
 		`    middleware: ${edgeMiddleware ? 'undefined' : `() => import("${middlewareId}")`}`,
 		`});`,
 		`const _args = ${adapter.args ? JSON.stringify(adapter.args, null, 4) : 'undefined'};`,

@@ -1,5 +1,4 @@
 import type { UserConfig as ViteUserConfig, UserConfigFn as ViteUserConfigFn } from 'vite';
-import type { FontFamily } from '../assets/fonts/types.js';
 import type {
 	AstroInlineConfig,
 	AstroUserConfig,
@@ -14,8 +13,7 @@ import type {
 export function defineConfig<
 	const TLocales extends Locales = never,
 	const TDriver extends SessionDriverName = never,
-	const TFontFamilies extends FontFamily[] = never,
->(config: AstroUserConfig<TLocales, TDriver, TFontFamilies>) {
+>(config: AstroUserConfig<TLocales, TDriver>) {
 	return config;
 }
 

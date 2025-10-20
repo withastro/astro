@@ -40,10 +40,8 @@ describe('CSS production ordering', () => {
 			staticCSS = await Promise.all(
 				getLinks(staticHTML).map((href) => getLinkContent(fixture, href)),
 			);
-		});
 
-		before(async () => {
-			let fixture = await loadFixture({
+			fixture = await loadFixture({
 				...commonConfig,
 				adapter: testAdapter(),
 				output: 'server',
