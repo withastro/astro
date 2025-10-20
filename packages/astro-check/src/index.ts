@@ -82,10 +82,14 @@ export async function check(flags: Partial<Flags>): Promise<boolean | void> {
 			[
 				bold(`Result (${result.fileChecked} file${result.fileChecked === 1 ? '' : 's'}): `),
 				['error', 'warning', 'hint'].includes(minimumSeverity)
-					? bold(red(`${result.errors} ${result.errors === 1 ? 'error' : 'errors'}`))
+					? result.errors > 0
+						? bold(red(`${result.errors} ${result.errors === 1 ? 'error' : 'errors'}`))
+						: dim('0 errors')
 					: undefined,
 				['warning', 'hint'].includes(minimumSeverity)
-					? bold(yellow(`${result.warnings} ${result.warnings === 1 ? 'warning' : 'warnings'}`))
+					? result.warnings > 0
+						? bold(yellow(`${result.warnings} ${result.warnings === 1 ? 'warning' : 'warnings'}`))
+						: dim('0 warnings')
 					: undefined,
 				['hint'].includes(minimumSeverity)
 					? dim(`${result.hints} ${result.hints === 1 ? 'hint' : 'hints'}\n`)
