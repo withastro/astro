@@ -63,7 +63,7 @@ export function vitePluginActions({
 		enforce: 'pre',
 		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
-				return RESOLVED_VIRTUAL_MODULE_ID
+				return RESOLVED_VIRTUAL_MODULE_ID;
 			}
 
 			if (id === RUNTIME_VIRTUAL_MODULE_ID) {
@@ -101,7 +101,7 @@ export function vitePluginActions({
 		},
 		async load(id, opts) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-				return { code: `export * from 'astro/actions/runtime/virtual.js';` }
+				return { code: `export * from 'astro/actions/runtime/virtual.js';` };
 			}
 
 			if (id === RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID) {
