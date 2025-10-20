@@ -80,7 +80,8 @@ export default async function seed() {
 	// TODO
 }
 `,
-	CLOUDFLARE_WRANGLER_CONFIG: (name: string) => `{
+	CLOUDFLARE_WRANGLER_CONFIG: (name: string) => `\
+{
 	"main": "dist/_worker.js/index.js",
 	"name": ${JSON.stringify(name)},
 	"assets": {
@@ -88,6 +89,7 @@ export default async function seed() {
 		"directory": "./dist"
 	}
 }`,
+	CLOUDFLARE_ASSETSIGNORE: `_worker.js`,
 };
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
@@ -217,6 +219,24 @@ export async function add(names: string[], { flags }: AddOptions) {
 					}
 				} else {
 					logger.debug('add', 'Using existing wrangler configuration');
+				}
+
+				const dir = new URL(userConfig.publicDir ?? './public/', root);
+				const assetsignore = new URL('./.assetsignore', dir);
+				if (!existsSync(assetsignore)) {
+					logger.info(
+						'SKIP_FORMAT',
+						`\n  ${magenta(`Astro will scaffold ${green('./public/.assetsignore')}.`)}\n`,
+					);
+
+					if (await askToContinue({ flags })) {
+						if (!existsSync(dir)) {
+							await fs.mkdir(dir);
+						}
+						await fs.writeFile(assetsignore, STUBS.CLOUDFLARE_ASSETSIGNORE, 'utf-8');
+					}
+				} else {
+					logger.debug('add', `Using existing .assetsignore`);
 				}
 			}
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
