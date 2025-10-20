@@ -23,7 +23,7 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "sync-fixture": "pnpm --dir ./test/fixture sync",
-    "test": "pnpm run sync-fixture && tsx ./test/script.ts \"**/*.test.ts\"",
+    "test": "tsx ./test/script.ts \"**/*.test.ts\"",
     "test:match": "pnpm run test --match"
   },
   "dependencies": {
@@ -47,12 +47,11 @@
     "vscode-uri": "^3.1.0"
   },
   "devDependencies": {
-    "@astrojs/svelte": "^5.0.3",
-    "@astrojs/vue": "^4.0.8",
+    "@astrojs/svelte": "workspace:*",
+    "@astrojs/vue": "workspace:*",
     "@types/node": "^20.9.0",
     "@volar/test-utils": "~2.4.23",
     "@volar/typescript": "~2.4.23",
-    "astro": "^4.14.0",
     "svelte": "^4.2.10",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",

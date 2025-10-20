@@ -3,14 +3,15 @@ import path from 'node:path';
 import { AstroCheck } from '@astrojs/language-server';
 import { watch } from 'chokidar';
 import { bold, dim, red, yellow } from 'kleur/colors';
-import parseArgs from 'yargs-parser';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import { options } from './options.js';
 
 /**
  * Given a list of arguments from the command line (such as `process.argv`), return parsed and processed options
  */
 export function parseArgsAsCheckConfig(args: string[]) {
-	return parseArgs(args).options(options).parseSync();
+	return yargs(hideBin(args)).options(options).parseSync();
 }
 
 export type Flags = Pick<ReturnType<typeof parseArgsAsCheckConfig>, keyof typeof options>;

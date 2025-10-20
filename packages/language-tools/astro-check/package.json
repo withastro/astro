@@ -31,12 +31,12 @@
     "@astrojs/language-server": "^2.15.0",
     "chokidar": "^4.0.1",
     "kleur": "^4.1.5",
-    "yargs-parser": "^21.1.1"
+    "yargs": "^18.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.9.0",
-    "@types/yargs-parser": "^21.0.3",
     "tinyglobby": "^0.2.15",
+    "@types/yargs": "^17.0.33",
     "tsx": "^3.12.7"
   },
   "peerDependencies": {

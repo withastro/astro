@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import path from 'node:path';
 import { before, describe, it } from 'node:test';
 import { Position } from '@volar/language-server';
-import { type LanguageServer, getLanguageServer } from '../server.js';
+import { getLanguageServer, type LanguageServer } from '../server.js';
 import { fixtureDir } from '../utils.js';
 
 describe('Content Intellisense - Completions', async () => {

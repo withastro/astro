@@ -3,7 +3,7 @@ import path from 'node:path';
 import { before, describe, it } from 'node:test';
 import type { LocationLink } from '@volar/language-server';
 import { Position } from '@volar/language-server';
-import { type LanguageServer, getLanguageServer } from '../server.js';
+import { getLanguageServer, type LanguageServer } from '../server.js';
 import { fixtureDir } from '../utils.js';
 
 describe('Content Intellisense - Go To Everywhere', async () => {
