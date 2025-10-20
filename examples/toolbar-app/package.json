@@ -16,6 +16,6 @@
   },
   "devDependencies": {
     "@types/node": "^18.17.8",
-    "astro": "^5.14.6"
+    "astro": "^5.14.7"
   }
 }
