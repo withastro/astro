@@ -1,5 +1,21 @@
 # astro
 
+## 5.14.7
+
+### Patch Changes
+
+- [#14582](https://github.com/withastro/astro/pull/14582) [`7958c6b`](https://github.com/withastro/astro/commit/7958c6b44c4bcdaa827d33f71ae7c2def26dc1b4) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a regression that caused Actions to throw errors while loading
+
+- [#14567](https://github.com/withastro/astro/pull/14567) [`94500bb`](https://github.com/withastro/astro/commit/94500bb22236b77c842d88407b9a73bfc7fde488) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the actions endpoint to return 404 for non-existent actions instead of throwing an unhandled error
+
+- [#14566](https://github.com/withastro/astro/pull/14566) [`946fe68`](https://github.com/withastro/astro/commit/946fe68c973c966a4f589ae43858bf486cc70eb5) Thanks [@matthewp](https://github.com/matthewp)! - Fixes handling malformed cookies gracefully by returning the unparsed value instead of throwing
+
+  When a cookie with an invalid value is present (e.g., containing invalid URI sequences), `Astro.cookies.get()` now returns the raw cookie value instead of throwing a URIError. This aligns with the behavior of the underlying `cookie` package and prevents crashes when manually-set or corrupted cookies are encountered.
+
+- [#14142](https://github.com/withastro/astro/pull/14142) [`73c5de9`](https://github.com/withastro/astro/commit/73c5de9263c1de17804a1720d91d3475425b24d1) Thanks [@P4tt4te](https://github.com/P4tt4te)! - Updates handling of CSS for hydrated client components to prevent duplicates
+
+- [#14576](https://github.com/withastro/astro/pull/14576) [`2af62c6`](https://github.com/withastro/astro/commit/2af62c659c3b428561ddf1fa3d0f02126841b672) Thanks [@aprici7y](https://github.com/aprici7y)! - Fixes a regression that caused `Astro.site` to always be `undefined` in `getStaticPaths()`
+
 ## 5.14.6
 
 ### Patch Changes
