@@ -17,12 +17,12 @@
     "@astrojs/vue": "^5.1.1",
     "@types/react": "^18.3.26",
     "@types/react-dom": "^18.3.7",
-    "astro": "^5.14.6",
+    "astro": "^5.14.7",
     "preact": "^10.27.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "solid-js": "^1.9.9",
-    "svelte": "^5.39.11",
+    "svelte": "^5.40.2",
     "vue": "^3.5.22"
   }
 }
