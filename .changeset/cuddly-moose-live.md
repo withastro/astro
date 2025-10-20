@@ -7,8 +7,8 @@ Ensure `InferGetStaticParamsType` correctly infers route parameters as strings.
 This change aligns the **static type** of `Astro.params` with its **runtime behavior**, where all route parameters are converted to strings. Previously, numeric values in `getStaticPaths` were inferred as `number`, causing a type mismatch.
 
 ```ts
-// src/pages/post/[id].astro
 ---
+// src/pages/post/[id].astro
 import type { GetStaticPaths, InferGetStaticParamsType } from 'astro';
 
 export const getStaticPaths = (() => {
