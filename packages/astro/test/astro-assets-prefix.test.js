@@ -23,10 +23,6 @@ describe('Assets Prefix - Static', () => {
 		await fixture.clean();
 	});
 
-	after(async () => {
-		await fixture.clean();
-	});
-
 	it('all stylesheets should start with assetPrefix', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);

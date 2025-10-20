@@ -17,7 +17,7 @@ describe('Static build - frameworks', () => {
 		try {
 			await fixture.build();
 		} catch (error) {
-			console.log(error);
+			console.info(error);
 		}
 	});
 
