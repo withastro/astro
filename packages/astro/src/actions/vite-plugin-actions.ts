@@ -13,6 +13,7 @@ import {
 	RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID,
 	RESOLVED_OPTIONS_VIRTUAL_MODULE_ID,
 	RESOLVED_RUNTIME_VIRTUAL_MODULE_ID,
+	RESOLVED_VIRTUAL_MODULE_ID,
 	RUNTIME_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
@@ -62,7 +63,7 @@ export function vitePluginActions({
 		enforce: 'pre',
 		async resolveId(id) {
 			if (id === VIRTUAL_MODULE_ID) {
-				return this.resolve('astro/virtual-modules/actions.js');
+				return RESOLVED_VIRTUAL_MODULE_ID;
 			}
 
 			if (id === RUNTIME_VIRTUAL_MODULE_ID) {
@@ -99,6 +100,10 @@ export function vitePluginActions({
 			server.watcher.on('change', watcherCallback);
 		},
 		async load(id, opts) {
+			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+				return { code: `export * from 'astro/actions/runtime/virtual/index.js';` };
+			}
+
 			if (id === RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID) {
 				return { code: 'export const server = {}' };
 			}
@@ -111,7 +116,7 @@ export function vitePluginActions({
 				if (opts?.ssr) {
 					return `
 						export * from 'astro/actions/runtime/server.js';
-						export * from 'astro/actions/runtime/virtual.js';
+						export * from 'astro/actions/runtime/virtual/server.js';
 					`;
 				}
 				return {
