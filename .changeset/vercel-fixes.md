@@ -2,9 +2,6 @@
 '@astrojs/vercel': minor
 ---
 
-Updates the Vercel adapter to support `assetQueryParams` and `internalFetchHeaders` configuration options for skew protection. When skew protection is enabled, the adapter now:
+Enables skew protection for Astro sites deployed on Vercel. Skew protection ensures that your site's client and server versions stay synchronized during deployments, preventing issues where users might load assets from a newer deployment while the server is still running the older version.
 
-- Includes the deployment ID in asset URLs via `assetQueryParams` (query parameter: `dpl`)
-- Includes the deployment ID in internal fetch requests via `internalFetchHeaders` (header: `x-vercel-deployment-id`)
-
-This ensures that client and server versions match during deployments by tracking the deployment ID across both asset requests and internal API calls.
+Skew protection is automatically enabled on Vercel deployments when the `VERCEL_SKEW_PROTECTION_ENABLED` environment variable is set to `1`. The deployment ID is automatically included in both asset requests and API calls, allowing Vercel to serve the correct version to every user.
