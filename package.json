@@ -73,7 +73,7 @@
     "tinyglobby": "^0.2.15",
     "turbo": "^2.5.8",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.46.0"
+    "typescript-eslint": "^8.46.1"
   },
   "pnpm": {
     "peerDependencyRules": {
