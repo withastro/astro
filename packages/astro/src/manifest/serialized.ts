@@ -25,7 +25,7 @@ export async function serializedManifestPlugin({
 	settings: AstroSettings;
 }): Promise<Plugin> {
 	return {
-		name: 'virtual:astro:serialized-manifest',
+		name: SERIALIZED_MANIFEST_ID,
 		enforce: 'pre',
 		resolveId(id) {
 			if (id === SERIALIZED_MANIFEST_ID) {
