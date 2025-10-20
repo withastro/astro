@@ -1,0 +1,78 @@
+{
+  "name": "@astrojs/language-server",
+  "version": "2.15.5",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/language-tools",
+    "directory": "packages/language-server"
+  },
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "files": [
+    "bin",
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "types/**/*.d.ts"
+  ],
+  "bin": {
+    "astro-ls": "./bin/nodeServer.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "sync-fixture": "pnpm --dir ./test/fixture sync",
+    "test": "pnpm run sync-fixture && mocha --timeout 10000 --require tsx --require test/takedown.ts test/misc/init.test.ts test/**/*.test.ts",
+    "test:match": "pnpm run test -g"
+  },
+  "dependencies": {
+    "@astrojs/compiler": "^2.10.3",
+    "@astrojs/yaml2ts": "^0.2.2",
+    "@jridgewell/sourcemap-codec": "^1.4.15",
+    "@volar/kit": "~2.4.23",
+    "@volar/language-core": "~2.4.23",
+    "@volar/language-server": "~2.4.23",
+    "@volar/language-service": "~2.4.23",
+    "fast-glob": "^3.2.12",
+    "muggle-string": "^0.4.1",
+    "volar-service-css": "0.0.65",
+    "volar-service-emmet": "0.0.65",
+    "volar-service-html": "0.0.65",
+    "volar-service-prettier": "0.0.65",
+    "volar-service-typescript": "0.0.65",
+    "volar-service-typescript-twoslash-queries": "0.0.65",
+    "volar-service-yaml": "0.0.65",
+    "vscode-html-languageservice": "^5.5.2",
+    "vscode-uri": "^3.1.0"
+  },
+  "devDependencies": {
+    "@astrojs/svelte": "^5.0.3",
+    "@astrojs/vue": "^4.0.8",
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.9.0",
+    "@volar/test-utils": "~2.4.23",
+    "@volar/typescript": "~2.4.23",
+    "astro": "^4.14.0",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "svelte": "^4.2.10",
+    "tsx": "^3.12.7",
+    "typescript": "^5.9.3",
+    "vscode-languageserver-protocol": "^3.17.5",
+    "vscode-languageserver-textdocument": "^1.0.11"
+  },
+  "peerDependencies": {
+    "prettier": "^3.0.0",
+    "prettier-plugin-astro": ">=0.11.0"
+  },
+  "peerDependenciesMeta": {
+    "prettier": {
+      "optional": true
+    },
+    "prettier-plugin-astro": {
+      "optional": true
+    }
+  }
+}
