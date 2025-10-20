@@ -2,8 +2,8 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "checkJs": true
   },
-  "include": ["src"]
+  "include": ["src", ".vscode-test.js"]
 }

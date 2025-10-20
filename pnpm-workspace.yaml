@@ -1,3 +1,4 @@
 packages:
   - 'packages/*'
+  - 'packages/language-server/test'
   - 'packages/language-server/test/fixture'

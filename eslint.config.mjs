@@ -113,8 +113,8 @@ export default [
 
 	{
 		files: [
-			'packages/ts-plugin/test/**/*',
-			'packages/vscode/test/**/*',
+			'packages/ts-plugin/**/*',
+			'packages/vscode/**/*',
 			// The language server is distributed as CJS in the VS Code extension, despite being written as ESM.
 			// As such, sometimes require are required.
 			'packages/language-server/**/*',

@@ -1,6 +1,6 @@
+import assert from 'node:assert';
+import { before, describe, it } from 'node:test';
 import { Position } from '@volar/language-server';
-import { expect } from 'chai';
-import { describe } from 'mocha';
 import { type LanguageServer, getLanguageServer } from '../server.js';
 
 describe('HTML - Custom Data', () => {
@@ -16,7 +16,7 @@ describe('HTML - Custom Data', () => {
 		);
 
 		const labels = completions!.items.map((i) => i.label);
-		expect(completions!.items).to.not.be.empty;
-		expect(labels).to.include('class:list');
+		assert.ok(completions!.items && completions!.items.length > 0);
+		assert.ok(labels.includes('class:list'));
 	});
 });

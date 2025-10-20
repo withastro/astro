@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { Position } from '@volar/language-server';
-import { expect } from 'chai';
-import { before, describe, it } from 'mocha';
+import assert from 'node:assert';
+import { before, describe, it } from 'node:test';
 import { type LanguageServer, getLanguageServer } from '../server.js';
 import { fixtureDir } from '../utils.js';
 
@@ -18,7 +18,7 @@ describe('Content Intellisense - Hover', async () => {
 
 		const hover = await languageServer.handle.sendHoverRequest(document.uri, Position.create(1, 1));
 
-		expect(hover?.contents).to.deep.equal({
+		assert.deepStrictEqual(hover?.contents, {
 			kind: 'markdown',
 			value: "The blog post's title.",
 		});

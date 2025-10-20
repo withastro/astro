@@ -1,8 +1,8 @@
+import assert from 'node:assert';
 import path from 'node:path';
+import { before, describe, it } from 'node:test';
 import type { FullDocumentDiagnosticReport } from '@volar/language-server';
 import { DiagnosticSeverity, Position } from '@volar/language-server';
-import { expect } from 'chai';
-import { before, describe, it } from 'mocha';
 import { type LanguageServer, getLanguageServer } from '../server.js';
 import { fixtureDir } from '../utils.js';
 
@@ -20,14 +20,14 @@ describe('Content Intellisense - Diagnostics', async () => {
 			document.uri,
 		)) as FullDocumentDiagnosticReport;
 
-		expect(diagnostics.items).length(1);
+		assert.strictEqual(diagnostics.items.length, 1);
 
 		const firstDiagnostic = diagnostics.items[0];
 
 		// The data is not super relevant to the test, so we'll throw it out.
 		delete firstDiagnostic.data;
 
-		expect(firstDiagnostic).to.deep.equal({
+		assert.deepStrictEqual(firstDiagnostic, {
 			code: 0,
 			message: 'Missing property "description".',
 			range: {
@@ -48,13 +48,13 @@ describe('Content Intellisense - Diagnostics', async () => {
 			document.uri,
 		)) as FullDocumentDiagnosticReport;
 
-		expect(diagnostics.items).length(1);
+		assert.strictEqual(diagnostics.items.length, 1);
 
 		const firstDiagnostic = diagnostics.items[0];
 
 		delete firstDiagnostic.data;
 
-		expect(firstDiagnostic).to.deep.equal({
+		assert.deepStrictEqual(firstDiagnostic, {
 			code: 0,
 			message: 'Incorrect type. Expected "string".',
 			range: {
@@ -75,13 +75,13 @@ describe('Content Intellisense - Diagnostics', async () => {
 			document.uri,
 		)) as FullDocumentDiagnosticReport;
 
-		expect(diagnostics.items).length(1);
+		assert.strictEqual(diagnostics.items.length, 1);
 
 		const firstDiagnostic = diagnostics.items[0];
 
 		delete firstDiagnostic.data;
 
-		expect(firstDiagnostic).to.deep.equal({
+		assert.deepStrictEqual(firstDiagnostic, {
 			message: 'Frontmatter is required for this file.',
 			range: {
 				start: Position.create(0, 0),

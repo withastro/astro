@@ -1,6 +1,6 @@
+import assert from 'node:assert';
+import { before, describe, it } from 'node:test';
 import { Position } from '@volar/language-server';
-import { expect } from 'chai';
-import { describe } from 'mocha';
 import { type LanguageServer, getLanguageServer } from '../server.js';
 
 describe('HTML - Hover', () => {
@@ -12,7 +12,7 @@ describe('HTML - Hover', () => {
 		const document = await languageServer.openFakeDocument(`<q`, 'astro');
 		const hover = await languageServer.handle.sendHoverRequest(document.uri, Position.create(0, 2));
 
-		expect(hover).to.not.be.null;
+		assert.notStrictEqual(hover, null);
 	});
 
 	it('Can provide hover for HTML attributes', async () => {
@@ -22,6 +22,6 @@ describe('HTML - Hover', () => {
 			Position.create(0, 13),
 		);
 
-		expect(hover).to.not.be.null;
+		assert.notStrictEqual(hover, null);
 	});
 });

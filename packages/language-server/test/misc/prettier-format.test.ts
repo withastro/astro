@@ -1,7 +1,7 @@
+import assert from 'node:assert';
 import * as path from 'node:path';
+import { before, describe, it } from 'node:test';
 import { Range } from '@volar/language-server';
-import { expect } from 'chai';
-import { describe } from 'mocha';
 import { type LanguageServer, getLanguageServer } from '../server.js';
 import { fixtureDir } from '../utils.js';
 
@@ -17,7 +17,7 @@ describe('Formatting - Prettier', () => {
 			insertSpaces: true,
 		});
 
-		expect(formatEdits).to.deep.equal([
+		assert.deepStrictEqual(formatEdits, [
 			{
 				range: Range.create(0, 0, 3, 3),
 				newText: '---\n\n---\n',
@@ -35,7 +35,7 @@ describe('Formatting - Prettier', () => {
 			insertSpaces: true,
 		});
 
-		expect(formatEdits).to.deep.equal(null);
+		assert.deepStrictEqual(formatEdits, null);
 	});
 
 	it('Respect .editorconfig', async () => {
@@ -48,7 +48,7 @@ describe('Formatting - Prettier', () => {
 			insertSpaces: true,
 		});
 
-		expect(formatEdits).to.deep.equal([
+		assert.deepStrictEqual(formatEdits, [
 			{
 				range: Range.create(0, 0, 3, 0),
 				newText: '<div>\r\n\t<div></div>\r\n</div>\r\n',

@@ -1,6 +1,6 @@
+import assert from 'node:assert';
+import { before, describe, it } from 'node:test';
 import { Position } from '@volar/language-server';
-import { expect } from 'chai';
-import { describe } from 'mocha';
 import type { LanguageServer } from '../server.js';
 import { getLanguageServer } from '../server.js';
 
@@ -16,7 +16,7 @@ describe('CSS - Completions', () => {
 			Position.create(0, 18),
 		);
 
-		expect(completions!.items).to.not.be.empty;
+		assert.ok(completions!.items && completions!.items.length > 0);
 	});
 
 	it('Can provide completions for CSS values', async () => {
@@ -29,7 +29,7 @@ describe('CSS - Completions', () => {
 			Position.create(0, 21),
 		);
 
-		expect(completions!.items).to.not.be.empty;
+		assert.ok(completions!.items && completions!.items.length > 0);
 	});
 
 	it('Can provide completions inside inline styles', async () => {
@@ -39,8 +39,8 @@ describe('CSS - Completions', () => {
 			Position.create(0, 18),
 		);
 
-		expect(completions!.items).to.not.be.empty;
-		expect(completions?.items.map((i) => i.label)).to.include('aliceblue');
+		assert.ok(completions!.items && completions!.items.length > 0);
+		assert.ok(completions?.items.map((i) => i.label).includes('aliceblue'));
 	});
 
 	it('Can provide completions inside inline styles with multi-bytes characters in the file', async () => {
@@ -53,8 +53,8 @@ describe('CSS - Completions', () => {
 			Position.create(0, 30),
 		);
 
-		expect(completions!.items).to.not.be.empty;
-		expect(completions?.items.map((i) => i.label)).to.include('aliceblue');
+		assert.ok(completions!.items && completions!.items.length > 0);
+		assert.ok(completions?.items.map((i) => i.label).includes('aliceblue'));
 	});
 
 	it('Can provide completions inside SCSS blocks', async () => {
@@ -74,9 +74,10 @@ describe('CSS - Completions', () => {
 		);
 
 		const allLabels = completions?.items.map((i) => i.label);
+		assert.ok(allLabels);
 
-		expect(completions!.items).to.not.be.empty;
-		expect(allLabels).to.include('$c');
+		assert.ok(completions!.items && completions!.items.length > 0);
+		assert.ok(allLabels.includes('$c'));
 	});
 
 	it('Can provide completions inside LESS blocks', async () => {
@@ -96,7 +97,9 @@ describe('CSS - Completions', () => {
 		);
 
 		const allLabels = completions?.items.map((i) => i.label);
-		expect(completions!.items).to.not.be.empty;
-		expect(allLabels).to.include('@link-color');
+		assert.ok(allLabels);
+
+		assert.ok(completions!.items && completions!.items.length > 0);
+		assert.ok(allLabels.includes('@link-color'));
 	});
 });

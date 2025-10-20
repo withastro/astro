@@ -1,6 +1,7 @@
-import { expect } from 'chai';
+import assert from 'node:assert';
 import { astro2tsx } from '../../dist/core/astro2tsx.js';
 import { extractScriptTags } from '../../dist/core/parseJS.js';
+import { describe, it } from 'node:test';
 
 describe('parseJS - Can find all the scripts in an Astro file', () => {
 	it('Can find all the scripts in an Astro file, including nested tags', () => {
@@ -8,7 +9,7 @@ describe('parseJS - Can find all the scripts in an Astro file', () => {
 		const { ranges } = astro2tsx(input, 'file.astro');
 		const scriptTags = extractScriptTags(ranges.scripts);
 
-		expect(scriptTags.length).to.equal(2);
+		assert.strictEqual(scriptTags.length, 2);
 	});
 
 	it('Includes JSON scripts', () => {
@@ -16,7 +17,7 @@ describe('parseJS - Can find all the scripts in an Astro file', () => {
 		const { ranges } = astro2tsx(input, 'file.astro');
 		const scriptTags = extractScriptTags(ranges.scripts);
 
-		expect(scriptTags.length).to.equal(1);
+		assert.strictEqual(scriptTags.length, 1);
 	});
 
 	it('returns the proper capabilities for inline script tags', async () => {
@@ -25,7 +26,7 @@ describe('parseJS - Can find all the scripts in an Astro file', () => {
 		const scriptTags = extractScriptTags(ranges.scripts);
 
 		scriptTags[0].mappings.forEach((mapping) => {
-			expect(mapping.data).to.deep.equal({
+			assert.deepStrictEqual(mapping.data, {
 				verification: true,
 				completion: true,
 				semantic: true,

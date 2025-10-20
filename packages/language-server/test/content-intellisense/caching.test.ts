@@ -1,8 +1,8 @@
+import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
+import { after, before, describe, it } from 'node:test';
 import { Position } from '@volar/language-server';
-import { expect } from 'chai';
-import { before, describe, it } from 'mocha';
 import { URI } from 'vscode-uri';
 import { type LanguageServer, getLanguageServer } from '../server.js';
 import { fixtureDir } from '../utils.js';
@@ -22,7 +22,7 @@ describe('Content Intellisense - Caching', async () => {
 
 		const hover = await languageServer.handle.sendHoverRequest(document.uri, Position.create(1, 1));
 
-		expect(hover?.contents).to.deep.equal({
+		assert.deepStrictEqual(hover?.contents, {
 			kind: 'markdown',
 			value: 'I will be changed',
 		});
@@ -44,7 +44,7 @@ describe('Content Intellisense - Caching', async () => {
 			Position.create(1, 1),
 		);
 
-		expect(hover2?.contents).to.deep.equal({
+		assert.deepStrictEqual(hover2?.contents, {
 			kind: 'markdown',
 			value: 'I am changed',
 		});
