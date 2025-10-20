@@ -548,7 +548,6 @@ type RunHookBuildSsr = {
 	config: AstroConfig;
 	manifest: SerializedSSRManifest;
 	logger: Logger;
-	entryPoints: Map<RouteData, URL>;
 	middlewareEntryPoint: URL | undefined;
 };
 
@@ -556,13 +555,8 @@ export async function runHookBuildSsr({
 	config,
 	manifest,
 	logger,
-	entryPoints,
 	middlewareEntryPoint,
 }: RunHookBuildSsr) {
-	const entryPointsMap = new Map();
-	for (const [key, value] of entryPoints) {
-		entryPointsMap.set(toIntegrationRouteData(key, config.trailingSlash), value);
-	}
 	for (const integration of config.integrations) {
 		await runHookInternal({
 			integration,

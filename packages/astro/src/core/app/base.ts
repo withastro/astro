@@ -7,9 +7,10 @@ import {
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
+import { matchPattern } from '../../assets/utils/index.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
-import type { RouteData } from '../../types/public/index.js';
+import type { RemotePattern, RouteData } from '../../types/public/index.js';
 import type { Pipeline } from '../base-pipeline.js';
 import {
 	clientAddressSymbol,
@@ -129,6 +130,34 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 	getAdapterLogger(): AstroIntegrationLogger {
 		return this.adapterLogger;
+	}
+
+	getAllowedDomains() {
+		return this.manifest.allowedDomains;
+	}
+
+	protected matchesAllowedDomains(forwardedHost: string, protocol?: string): boolean {
+		return BaseApp.validateForwardedHost(forwardedHost, this.manifest.allowedDomains, protocol);
+	}
+
+	static validateForwardedHost(
+		forwardedHost: string,
+		allowedDomains?: Partial<RemotePattern>[],
+		protocol?: string,
+	): boolean {
+		if (!allowedDomains || allowedDomains.length === 0) {
+			return false;
+		}
+
+		try {
+			const testUrl = new URL(`${protocol || 'https'}://${forwardedHost}`);
+			return allowedDomains.some((pattern) => {
+				return matchPattern(testUrl, pattern);
+			});
+		} catch {
+			// Invalid URL
+			return false;
+		}
 	}
 
 	/**

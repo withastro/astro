@@ -412,7 +412,7 @@ async function getPathsForRoute(
 
 				// Current route is lower-priority than matchedRoute.
 				// Path will be skipped due to collision.
-				if (config.experimental.failOnPrerenderConflict) {
+				if (pipeline.config.experimental.failOnPrerenderConflict) {
 					throw new AstroError({
 						...AstroErrorData.PrerenderRouteConflict,
 						message: AstroErrorData.PrerenderRouteConflict.message(

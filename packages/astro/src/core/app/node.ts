@@ -100,7 +100,7 @@ export class NodeApp extends BaseApp {
 		// Validate X-Forwarded-Host against allowedDomains if configured
 		if (
 			forwardedHostname &&
-			!App.validateForwardedHost(
+			!BaseApp.validateForwardedHost(
 				forwardedHostname,
 				allowedDomains,
 				forwardedProtocol ?? providedProtocol,
