@@ -1,6 +1,6 @@
-import { Position } from '@volar/language-server';
 import assert from 'node:assert';
 import { before, describe, it } from 'node:test';
+import { Position } from '@volar/language-server';
 import { type LanguageServer, getLanguageServer } from '../server.js';
 
 describe('TypeScript Addons - Completions', async () => {

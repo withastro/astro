@@ -1,7 +1,7 @@
-import path from 'node:path';
-import { Position } from '@volar/language-server';
 import assert from 'node:assert';
+import path from 'node:path';
 import { before, describe, it } from 'node:test';
+import { Position } from '@volar/language-server';
 import { type LanguageServer, getLanguageServer } from '../server.js';
 import { fixtureDir } from '../utils.js';
 
@@ -23,7 +23,7 @@ describe('Content Intellisense - Completions', async () => {
 
 		// We don't do any mapping ourselves here, so we'll just check if the labels are correct.
 		const labels = (completions?.items ?? []).map((item) => item.label);
-		['title', 'description', 'tags', 'type'].forEach(m => assert.ok(labels.includes(m)));
+		['title', 'description', 'tags', 'type'].forEach((m) => assert.ok(labels.includes(m)));
 	});
 
 	it('Provide completions for collection property values', async () => {
@@ -38,6 +38,6 @@ describe('Content Intellisense - Completions', async () => {
 		);
 
 		const labels = (completions?.items ?? []).map((item) => item.label);
-		['blog'].forEach(m => assert.ok(labels.includes(m)));
+		['blog'].forEach((m) => assert.ok(labels.includes(m)));
 	});
 });

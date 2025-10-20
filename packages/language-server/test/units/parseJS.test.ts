@@ -1,7 +1,7 @@
 import assert from 'node:assert';
+import { describe, it } from 'node:test';
 import { astro2tsx } from '../../dist/core/astro2tsx.js';
 import { extractScriptTags } from '../../dist/core/parseJS.js';
-import { describe, it } from 'node:test';
 
 describe('parseJS - Can find all the scripts in an Astro file', () => {
 	it('Can find all the scripts in an Astro file, including nested tags', () => {
