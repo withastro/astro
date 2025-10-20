@@ -5,7 +5,7 @@ import { parseFrontmatter } from '@astrojs/markdown-remark';
 import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
-import { emitImageMetadata } from 'astro/assets/utils';
+import { emitImageMetadata } from 'astro/assets/utils/node';
 import type { Rollup, ErrorPayload as ViteErrorPayload } from 'vite';
 import type { ComponentConfig } from './config.js';
 import { htmlTokenTransform } from './html/transform/html-token-transform.js';
@@ -49,10 +49,7 @@ export async function getContentEntryType({
 			const userMarkdocConfig = markdocConfigResult?.config ?? {};
 			const markdocConfigUrl = markdocConfigResult?.fileUrl;
 			const pluginContext = this;
-			const markdocConfig = await setupConfig(
-				userMarkdocConfig,
-				options,
-			);
+			const markdocConfig = await setupConfig(userMarkdocConfig, options);
 			const filePath = fileURLToPath(fileUrl);
 			raiseValidationErrors({
 				ast,

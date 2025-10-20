@@ -19,6 +19,10 @@ declare module 'virtual:astro:actions/runtime' {
 	export * from './src/actions/runtime/client.js';
 }
 
+declare module 'virtual:astro:actions/entrypoint' {
+	export * from './src/actions/runtime/server.js';
+}
+
 declare module 'virtual:astro:serialized-manifest' {
 	import type { SSRManifest } from './src/index.js';
 	export const manifest: SSRManifest;

@@ -1,16 +1,13 @@
 import { renderers } from 'virtual:astro:renderers';
 import { routes } from 'virtual:astro:routes';
 import { manifest as serializedManifest } from 'virtual:astro:serialized-manifest';
-import type { RoutesList } from '../../types/astro.js';
 import { App } from './app.js';
 import type { BaseApp } from './base.js';
 import { DevApp } from './dev/app.js';
 import { createConsoleLogger } from './logging.js';
-import type { RouteInfo } from './types.js';
 
 const actions = async () => {
-	// @ts-expect-error
-	return await import('astro-internal:actions');
+	return await import('virtual:astro:actions/entrypoint');
 };
 const manifest = Object.assign(serializedManifest, { renderers, actions });
 
