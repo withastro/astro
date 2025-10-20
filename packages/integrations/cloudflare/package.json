@@ -19,6 +19,7 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/cloudflare/",
   "exports": {
     ".": "./dist/index.js",
+    "./entrypoints/server": "./dist/entrypoints/server.js",
     "./entrypoints/server.js": "./dist/entrypoints/server.js",
     "./entrypoints/middleware.js": "./dist/entrypoints/middleware.js",
     "./image-service": "./dist/entrypoints/image-service.js",
