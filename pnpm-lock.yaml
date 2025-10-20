@@ -5472,8 +5472,8 @@ importers:
         specifier: ^2.6.1
         version: 2.6.1(@vercel/functions@2.2.13)(rollup@4.52.3)(vite@6.3.6(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1))
       '@vercel/nft':
-        specifier: 0.30.1
-        version: 0.30.1(rollup@4.52.3)
+        specifier: ^0.30.3
+        version: 0.30.3(rollup@4.52.3)
       esbuild:
         specifier: ^0.25.0
         version: 0.25.5
@@ -6006,8 +6006,8 @@ importers:
         specifier: ^2.2.13
         version: 2.2.13
       '@vercel/nft':
-        specifier: 0.30.1
-        version: 0.30.1(rollup@4.52.3)
+        specifier: ^0.30.3
+        version: 0.30.3(rollup@4.52.3)
       '@vercel/routing-utils':
         specifier: ^5.1.1
         version: 5.1.1
@@ -9344,8 +9344,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@vercel/nft@0.30.1':
-    resolution: {integrity: sha512-2mgJZv4AYBFkD/nJ4QmiX5Ymxi+AisPLPcS/KPXVqniyQNqKXX+wjieAbDXQP3HcogfEbpHoRMs49Cd4pfkk8g==}
+  '@vercel/nft@0.30.3':
+    resolution: {integrity: sha512-UEq+eF0ocEf9WQCV1gktxKhha36KDs7jln5qii6UpPf5clMqDc0p3E7d9l2Smx0i9Pm1qpq4S4lLfNl97bbv6w==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -11732,6 +11732,7 @@ packages:
 
   mathjax-full@3.2.2:
     resolution: {integrity: sha512-+LfG9Fik+OuI8SLwsiR02IVdjcnRCy5MufYLi0C3TdMT56L/pjB0alMVGgoWJF8pN9Rc7FESycZB9BMNWIid5w==}
+    deprecated: Version 4 replaces this package with the scoped package @mathjax/src
 
   mdast-util-definitions@6.0.0:
     resolution: {integrity: sha512-scTllyX6pnYNZH/AIp/0ePz6s4cZtARxImwoPJ7kS42n+MnVsI4XbnG6d4ibehRIldYMWM2LD7ImQblVhUejVQ==}
@@ -17052,7 +17053,7 @@ snapshots:
       - rollup
       - supports-color
 
-  '@vercel/nft@0.30.1(rollup@4.52.3)':
+  '@vercel/nft@0.30.3(rollup@4.52.3)':
     dependencies:
       '@mapbox/node-pre-gyp': 2.0.0
       '@rollup/pluginutils': 5.3.0(rollup@4.52.3)
