@@ -1,6 +1,6 @@
+import assert from 'node:assert';
+import { before, describe, it } from 'node:test';
 import { Position } from '@volar/language-server';
-import { expect } from 'chai';
-import { before, describe, it } from 'mocha';
 import { type LanguageServer, getLanguageServer } from '../server.js';
 
 describe('TypeScript Addons - Completions', async () => {
@@ -16,6 +16,6 @@ describe('TypeScript Addons - Completions', async () => {
 		);
 
 		const prerenderCompletions = completions?.items.filter((item) => item.label === 'prerender');
-		expect(prerenderCompletions).to.not.be.empty;
+		assert.ok(prerenderCompletions && prerenderCompletions.length > 0);
 	});
 });

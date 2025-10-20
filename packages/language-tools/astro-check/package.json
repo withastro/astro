@@ -24,8 +24,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "mocha --timeout 50000 --require tsx test/**/*.test.ts",
-    "test:match": "pnpm run test -g"
+    "test": "tsx ./test/script.ts \"**/*.test.ts\"",
+    "test:match": "pnpm run test --test-name-pattern"
   },
   "dependencies": {
     "@astrojs/language-server": "^2.15.0",
@@ -36,10 +36,7 @@
   "devDependencies": {
     "@types/node": "^20.9.0",
     "@types/yargs": "^17.0.24",
-    "@types/chai": "^4.3.5",
-    "@types/mocha": "^10.0.1",
-    "chai": "^4.3.7",
-    "mocha": "^10.2.0",
+    "tinyglobby": "^0.2.15",
     "tsx": "^3.12.7"
   },
   "peerDependencies": {

@@ -1,7 +1,7 @@
 import { spawnSync } from 'child_process';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
 
 describe('astro-check - binary', async () => {
 	it('Can run the binary', async () => {
@@ -9,10 +9,10 @@ describe('astro-check - binary', async () => {
 			cwd: fileURLToPath(new URL('./', import.meta.url)),
 		});
 
-		expect(childProcess.status).to.equal(1);
-		expect(childProcess.stdout.toString()).to.contain('Getting diagnostics for Astro files in');
-		expect(childProcess.stdout.toString()).to.contain('1 error');
-		expect(childProcess.stdout.toString()).to.contain('1 warning');
-		expect(childProcess.stdout.toString()).to.contain('1 hint');
+		assert.strictEqual(childProcess.status, 1);
+		assert.ok(childProcess.stdout.toString().includes('Getting diagnostics for Astro files in'));
+		assert.ok(childProcess.stdout.toString().includes('1 error'));
+		assert.ok(childProcess.stdout.toString().includes('1 warning'));
+		assert.ok(childProcess.stdout.toString().includes('1 hint'));
 	});
 });

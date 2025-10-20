@@ -23,8 +23,8 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "sync-fixture": "pnpm --dir ./test/fixture sync",
-    "test": "pnpm run sync-fixture && mocha --timeout 10000 --require tsx --require test/takedown.ts test/misc/init.test.ts test/**/*.test.ts",
-    "test:match": "pnpm run test -g"
+    "test": "pnpm run sync-fixture && tsx ./test/script.ts \"**/*.test.ts\"",
+    "test:match": "pnpm run test --match"
   },
   "dependencies": {
     "@astrojs/compiler": "^2.10.3",
@@ -49,16 +49,12 @@
   "devDependencies": {
     "@astrojs/svelte": "^5.0.3",
     "@astrojs/vue": "^4.0.8",
-    "@types/chai": "^4.3.5",
-    "@types/mocha": "^10.0.1",
     "@types/node": "^20.9.0",
     "@volar/test-utils": "~2.4.23",
     "@volar/typescript": "~2.4.23",
     "astro": "^4.14.0",
-    "chai": "^4.3.7",
-    "mocha": "^10.2.0",
     "svelte": "^4.2.10",
-    "tsx": "^3.12.7",
+    "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "vscode-languageserver-protocol": "^3.17.5",
     "vscode-languageserver-textdocument": "^1.0.11"

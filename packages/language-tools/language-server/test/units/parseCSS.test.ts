@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 import { astro2tsx } from '../../dist/core/astro2tsx.js';
 import { extractStylesheets } from '../../dist/core/parseCSS.js';
 
@@ -9,6 +10,6 @@ describe('parseCSS - Can find all the styles in an Astro file', () => {
 
 		const styleTags = extractStylesheets(ranges.styles);
 
-		expect(styleTags).to.not.be.undefined;
+		assert.notStrictEqual(styleTags, undefined);
 	});
 });

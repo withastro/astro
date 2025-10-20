@@ -1,6 +1,6 @@
+import assert from 'node:assert';
+import { before, describe, it } from 'node:test';
 import * as _ from '@volar/language-server/node';
-import { expect } from 'chai';
-import { describe } from 'mocha';
 import type { LanguageServer } from '../server.js';
 import { getLanguageServer } from '../server.js';
 
@@ -16,6 +16,7 @@ describe('Astro - Code Lens', () => {
 			textDocument: { uri: document.uri },
 		});
 
-		expect(codeLens).to.have.lengthOf(1);
+		assert.ok(codeLens);
+		assert.strictEqual(codeLens.length, 1);
 	});
 });

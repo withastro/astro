@@ -1,5 +1,6 @@
+import assert from 'node:assert';
 import path from 'node:path';
-import { expect } from 'chai';
+import { before, describe, it } from 'node:test';
 import type { RenameFilesParams } from 'vscode-languageserver-protocol';
 import { WillRenameFilesRequest } from 'vscode-languageserver-protocol';
 import { type LanguageServer, getLanguageServer } from '../server.js';
@@ -27,7 +28,7 @@ describe('TypeScript - Renaming', async () => {
 			],
 		});
 
-		expect(edits).to.not.be.null;
+		assert.notStrictEqual(edits, null);
 	});
 
 	it('Does not rename imports for files when setting is disabled', async () => {
@@ -54,7 +55,7 @@ describe('TypeScript - Renaming', async () => {
 			],
 		} satisfies RenameFilesParams);
 
-		expect(edits).to.be.null;
+		assert.strictEqual(edits, null);
 	});
 
 	it('Renames imports for files when setting is enabled', async () => {
@@ -81,6 +82,6 @@ describe('TypeScript - Renaming', async () => {
 			],
 		});
 
-		expect(edits).to.not.be.null;
+		assert.notStrictEqual(edits, null);
 	});
 });

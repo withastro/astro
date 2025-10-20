@@ -1,5 +1,5 @@
-const { expect } = require('chai');
-const path = require('path');
+const assert = require('node:assert');
+const path = require('node:path');
 const vscode = require('vscode');
 
 suite('Extension Test Suite', () => {
@@ -31,7 +31,7 @@ suite('Extension Test Suite', () => {
 		);
 
 		const hasAstroRef = references.some((ref) => ref.uri.path.includes('MyAstroComponent.astro'));
-		expect(hasAstroRef).to.be.true;
+		assert.strictEqual(hasAstroRef, true, 'Should find Astro reference');
 	}).timeout(22000);
 
 	test('can get completions for Astro components', async () => {
@@ -48,7 +48,7 @@ suite('Extension Test Suite', () => {
 		const hasAstroCompletion = completions.items.some((item) => {
 			return item.insertText === 'MyAstroComponent';
 		});
-		expect(hasAstroCompletion).to.be.true;
+		assert.strictEqual(hasAstroCompletion, true, 'Should find Astro component completion');
 	}).timeout(12000);
 
 	test('can get implementations inside Astro files', async () => {
@@ -65,6 +65,6 @@ suite('Extension Test Suite', () => {
 		const hasAstroImplementation = implementations.some((impl) =>
 			impl.uri.path.includes('MyAstroComponent'),
 		);
-		expect(hasAstroImplementation).to.be.true;
+		assert.strictEqual(hasAstroImplementation, true, 'Should find Astro implementation');
 	}).timeout(12000);
 });

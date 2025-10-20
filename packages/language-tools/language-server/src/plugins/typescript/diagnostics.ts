@@ -15,7 +15,7 @@ export enum DiagnosticCodes {
 
 export function enhancedProvideSemanticDiagnostics(
 	originalDiagnostics: Diagnostic[],
-	tsxLineCount?: number | undefined,
+	tsxLineCount?: number,
 ) {
 	const diagnostics = originalDiagnostics
 		.filter(

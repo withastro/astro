@@ -1,5 +1,6 @@
+import assert from 'node:assert';
+import { before, describe, it } from 'node:test';
 import { type FullDocumentDiagnosticReport, Position, Range } from '@volar/language-server';
-import { expect } from 'chai';
 import { type LanguageServer, getLanguageServer } from '../server.js';
 
 describe('TypeScript - Diagnostics', async () => {
@@ -16,7 +17,7 @@ describe('TypeScript - Diagnostics', async () => {
 			document.uri,
 		)) as FullDocumentDiagnosticReport;
 
-		expect(diagnostics.items).length(2);
+		assert.strictEqual(diagnostics.items.length, 2);
 	});
 
 	it('treats inline script tags as not isolated modules', async () => {
@@ -29,7 +30,7 @@ describe('TypeScript - Diagnostics', async () => {
 			document.uri,
 		)) as FullDocumentDiagnosticReport;
 
-		expect(diagnostics.items).length(0);
+		assert.strictEqual(diagnostics.items.length, 0);
 	});
 
 	it('still supports script tags with unknown types', async () => {
@@ -43,7 +44,7 @@ describe('TypeScript - Diagnostics', async () => {
 			Position.create(0, 38),
 		);
 
-		expect(hoverInfo).to.not.be.undefined;
+		assert.notStrictEqual(hoverInfo, undefined);
 	});
 
 	it('ignores is:raw script tags', async () => {
@@ -57,7 +58,7 @@ describe('TypeScript - Diagnostics', async () => {
 			Position.create(0, 38),
 		);
 
-		expect(hoverInfo).to.be.null;
+		assert.strictEqual(hoverInfo, null);
 	});
 
 	it('supports script tags in files with multibytes characters', async () => {
@@ -71,7 +72,7 @@ describe('TypeScript - Diagnostics', async () => {
 			document.uri,
 		)) as FullDocumentDiagnosticReport;
 
-		expect(diagnostics.items).length(1);
-		expect(diagnostics.items[0].range).to.deep.equal(Range.create(1, 8, 1, 20));
+		assert.strictEqual(diagnostics.items.length, 1);
+		assert.deepStrictEqual(diagnostics.items[0].range, Range.create(1, 8, 1, 20));
 	});
 });

@@ -235,7 +235,7 @@
     "build:grammar": "node scripts/build-grammar.mjs",
     "dev:grammar": "node scripts/build-grammar.mjs -- --watch",
     "test": "pnpm test:vscode && pnpm test:grammar",
-    "test:vscode": "node ./test/runTest.js",
+    "test:vscode": "vscode-test",
     "test:grammar": "pnpm build:grammar && node ./test/grammar/test.mjs",
     "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot"
   },
@@ -249,6 +249,7 @@
     "@volar/language-server": "~2.4.23",
     "@volar/vscode": "~2.4.23",
     "@vscode/test-electron": "^2.5.2",
+    "@vscode/test-cli": "^0.0.12",
     "@vscode/vsce": "2.30.0",
     "esbuild": "^0.17.19",
     "esbuild-plugin-copy": "^2.1.1",

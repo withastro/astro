@@ -1,6 +1,6 @@
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 import path from 'path';
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
 import { check } from '../dist/index.js';
 
 describe('astro-check - js api', async () => {
@@ -10,8 +10,8 @@ describe('astro-check - js api', async () => {
 			tsconfig: path.resolve(process.cwd(), './test/fixture/tsconfig.json'),
 		});
 
-		expect(hasError).to.not.be.undefined;
-		expect(hasError).to.be.true;
+		assert.notStrictEqual(hasError, undefined);
+		assert.strictEqual(hasError, true);
 	});
 
 	// TODO: Test `watch` option once we have a way to pass a custom logger

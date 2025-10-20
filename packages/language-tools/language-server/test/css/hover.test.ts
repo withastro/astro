@@ -1,6 +1,6 @@
+import assert from 'node:assert';
+import { before, describe, it } from 'node:test';
 import { Position } from '@volar/language-server';
-import { expect } from 'chai';
-import { describe } from 'mocha';
 import type { LanguageServer } from '../server.js';
 import { getLanguageServer } from '../server.js';
 
@@ -18,6 +18,7 @@ describe('CSS - Hover', () => {
 		);
 		const hover = await languageServer.handle.sendHoverRequest(document.uri, Position.create(2, 7));
 
-		expect(hover?.contents).to.not.be.empty;
+		assert.ok(hover?.contents);
+		assert.ok(Array.isArray(hover.contents) ? hover.contents.length > 0 : true);
 	});
 });

@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 import { getAstroMetadata } from '../../dist/core/parseAstro.js';
 import { createCompilerPoint, createCompilerPosition } from '../utils.js';
 
@@ -8,7 +8,7 @@ describe('parseAstro - Can parse astro files', () => {
 		const input = `---\n--- <div>Astro!</div>`;
 		const metadata = getAstroMetadata('file.astro', input);
 
-		expect(metadata.ast).to.deep.equal({
+		assert.deepStrictEqual(metadata.ast, {
 			children: [
 				{
 					position: createCompilerPosition(
@@ -40,7 +40,7 @@ describe('parseAstro - Can parse astro files', () => {
 			],
 			type: 'root',
 		});
-		expect(metadata.frontmatter).to.deep.equal({
+		assert.deepStrictEqual(metadata.frontmatter, {
 			status: 'closed',
 			position: {
 				start: {
@@ -55,17 +55,20 @@ describe('parseAstro - Can parse astro files', () => {
 				},
 			},
 		});
-		expect(metadata.diagnostics).to.deep.equal([]);
+		assert.deepStrictEqual(metadata.diagnostics, []);
 	});
 
 	it('properly return frontmatter states', () => {
 		const inputClosed = `---\n--- <div>Astro!</div>`;
-		expect(getAstroMetadata('file.astro', inputClosed).frontmatter.status).to.equal('closed');
+		assert.strictEqual(getAstroMetadata('file.astro', inputClosed).frontmatter.status, 'closed');
 
 		const inputOpen = `---\n<div>Astro!</div>`;
-		expect(getAstroMetadata('file.astro', inputOpen).frontmatter.status).to.equal('open');
+		assert.strictEqual(getAstroMetadata('file.astro', inputOpen).frontmatter.status, 'open');
 
 		const inputNull = `<div>Astro!</div>`;
-		expect(getAstroMetadata('file.astro', inputNull).frontmatter.status).to.equal('doesnt-exist');
+		assert.strictEqual(
+			getAstroMetadata('file.astro', inputNull).frontmatter.status,
+			'doesnt-exist',
+		);
 	});
 });

@@ -22,7 +22,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "node ./test/runTest.js"
+    "test": "vscode-test"
   },
   "author": "withastro",
   "license": "MIT",
@@ -36,13 +36,11 @@
     "vscode-languageserver-textdocument": "^1.0.11"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.5",
     "@types/mocha": "^10.0.1",
     "@types/node": "^20.9.0",
     "@types/semver": "^7.3.13",
     "@vscode/test-electron": "^2.5.2",
-    "chai": "^4.3.7",
-    "glob": "^8.0.3",
+    "@vscode/test-cli": "^0.0.12",
     "mocha": "^10.2.0",
     "typescript": "^5.9.3",
     "vscode-uri": "^3.0.8"

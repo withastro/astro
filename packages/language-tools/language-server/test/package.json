@@ -1,5 +1,8 @@
 {
   "name": "language-server-tests",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "tinyglobby": "^0.2.15"
+  }
 }

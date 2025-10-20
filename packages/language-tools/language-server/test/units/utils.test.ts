@@ -1,7 +1,7 @@
+import assert from 'node:assert';
+import { describe, it } from 'node:test';
 import type { Point } from '@astrojs/compiler/types.js';
 import { Range } from '@volar/language-server';
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
 import type { Node } from 'vscode-html-languageservice';
 import * as html from 'vscode-html-languageservice';
 import { getTSXRangesAsLSPRanges, safeConvertToTSX } from '../../dist/core/astro2tsx.js';
@@ -11,27 +11,27 @@ import * as utils from '../../dist/plugins/utils.js';
 
 describe('Utilities', async () => {
 	it('isTsDocument - properly return if a document is JavaScript', () => {
-		expect(utils.isJSDocument('javascript')).to.be.true;
-		expect(utils.isJSDocument('typescript')).to.be.true;
-		expect(utils.isJSDocument('javascriptreact')).to.be.true;
-		expect(utils.isJSDocument('typescriptreact')).to.be.true;
+		assert.strictEqual(utils.isJSDocument('javascript'), true);
+		assert.strictEqual(utils.isJSDocument('typescript'), true);
+		assert.strictEqual(utils.isJSDocument('javascriptreact'), true);
+		assert.strictEqual(utils.isJSDocument('typescriptreact'), true);
 	});
 
 	it('isPossibleComponent - properly return if a node is a component', () => {
 		const node = {
 			tag: 'div',
 		} as Node;
-		expect(utils.isPossibleComponent(node)).to.be.false;
+		assert.strictEqual(utils.isPossibleComponent(node), false);
 
 		const component = {
 			tag: 'MyComponent',
 		} as Node;
-		expect(utils.isPossibleComponent(component)).to.be.true;
+		assert.strictEqual(utils.isPossibleComponent(component), true);
 
 		const namespacedComponent = {
 			tag: 'components.MyOtherComponent',
 		} as Node;
-		expect(utils.isPossibleComponent(namespacedComponent)).to.be.true;
+		assert.strictEqual(utils.isPossibleComponent(namespacedComponent), true);
 	});
 
 	it('isInComponentStartTag - properly return if a given offset is inside the start tag of a component', () => {
@@ -39,29 +39,29 @@ describe('Utilities', async () => {
 		const htmlContent = `<div><Component astr></Component></div>`;
 		const htmlDoc = htmlLs.parseHTMLDocument({ getText: () => htmlContent } as any);
 
-		expect(utils.isInComponentStartTag(htmlDoc, 3)).to.be.false;
-		expect(utils.isInComponentStartTag(htmlDoc, 16)).to.be.true;
+		assert.strictEqual(utils.isInComponentStartTag(htmlDoc, 3), false);
+		assert.strictEqual(utils.isInComponentStartTag(htmlDoc, 16), true);
 	});
 
 	it('isInsideExpression - properly return if a given position is inside a JSX expression', () => {
 		const template = `<div>{expression}</div>`;
-		expect(utils.isInsideExpression(template, 0, 0)).to.be.false;
-		expect(utils.isInsideExpression(template, 0, 6)).to.be.true;
+		assert.strictEqual(utils.isInsideExpression(template, 0, 0), false);
+		assert.strictEqual(utils.isInsideExpression(template, 0, 6), true);
 	});
 
 	it('isInsideFrontmatter - properly return if a given offset is inside the frontmatter', () => {
 		const hasFrontmatter = getAstroMetadata('file.astro', '---\nfoo\n---\n');
-		expect(utils.isInsideFrontmatter(0, hasFrontmatter.frontmatter)).to.be.false;
-		expect(utils.isInsideFrontmatter(6, hasFrontmatter.frontmatter)).to.be.true;
-		expect(utils.isInsideFrontmatter(15, hasFrontmatter.frontmatter)).to.be.false;
+		assert.strictEqual(utils.isInsideFrontmatter(0, hasFrontmatter.frontmatter), false);
+		assert.strictEqual(utils.isInsideFrontmatter(6, hasFrontmatter.frontmatter), true);
+		assert.strictEqual(utils.isInsideFrontmatter(15, hasFrontmatter.frontmatter), false);
 
 		const noFrontmatter = getAstroMetadata('file.astro', '<div></div>');
-		expect(utils.isInsideFrontmatter(0, noFrontmatter.frontmatter)).to.be.false;
-		expect(utils.isInsideFrontmatter(6, noFrontmatter.frontmatter)).to.be.false;
+		assert.strictEqual(utils.isInsideFrontmatter(0, noFrontmatter.frontmatter), false);
+		assert.strictEqual(utils.isInsideFrontmatter(6, noFrontmatter.frontmatter), false);
 
 		const openFrontmatter = getAstroMetadata('file.astro', '---\nfoo\n');
-		expect(utils.isInsideFrontmatter(0, openFrontmatter.frontmatter)).to.be.false;
-		expect(utils.isInsideFrontmatter(6, openFrontmatter.frontmatter)).to.be.true;
+		assert.strictEqual(utils.isInsideFrontmatter(0, openFrontmatter.frontmatter), false);
+		assert.strictEqual(utils.isInsideFrontmatter(6, openFrontmatter.frontmatter), true);
 	});
 
 	it('PointToPosition - properly transform a Point from the Astro compiler to an LSP Position', () => {
@@ -70,7 +70,7 @@ describe('Utilities', async () => {
 			column: 2,
 			offset: 3,
 		};
-		expect(compilerUtils.PointToPosition(point)).to.deep.equal({
+		assert.deepStrictEqual(compilerUtils.PointToPosition(point), {
 			line: 0,
 			character: 1,
 		});
@@ -83,17 +83,20 @@ describe('Utilities', async () => {
 		const tsxRanges = getTSXRangesAsLSPRanges(tsx);
 		const astroMetadata = { tsxRanges, ...getAstroMetadata('file.astro', input) };
 
-		expect(utils.ensureRangeIsInFrontmatter(beforeFrontmatterRange, astroMetadata)).to.deep.equal(
+		assert.deepStrictEqual(
+			utils.ensureRangeIsInFrontmatter(beforeFrontmatterRange, astroMetadata),
 			Range.create(2, 0, 2, 0),
 		);
 
 		const insideFrontmatterRange = Range.create(1, 0, 1, 0);
-		expect(utils.ensureRangeIsInFrontmatter(insideFrontmatterRange, astroMetadata)).to.deep.equal(
+		assert.deepStrictEqual(
+			utils.ensureRangeIsInFrontmatter(insideFrontmatterRange, astroMetadata),
 			Range.create(2, 0, 2, 0),
 		);
 
 		const outsideFrontmatterRange = Range.create(6, 0, 6, 0);
-		expect(utils.ensureRangeIsInFrontmatter(outsideFrontmatterRange, astroMetadata)).to.deep.equal(
+		assert.deepStrictEqual(
+			utils.ensureRangeIsInFrontmatter(outsideFrontmatterRange, astroMetadata),
 			Range.create(2, 0, 2, 0),
 		);
 	});
@@ -108,7 +111,7 @@ describe('Utilities', async () => {
 			astroMetadata,
 			'\n',
 		);
-		expect(edit).to.deep.equal({
+		assert.deepStrictEqual(edit, {
 			range: Range.create(2, 0, 2, 0),
 			newText: '---\nfoo---\n\n',
 		});
@@ -125,7 +128,7 @@ describe('Utilities', async () => {
 			'\n',
 		);
 
-		expect(edit).to.deep.equal({
+		assert.deepStrictEqual(edit, {
 			range: Range.create(2, 0, 2, 0),
 			newText: '\nfoo---',
 		});

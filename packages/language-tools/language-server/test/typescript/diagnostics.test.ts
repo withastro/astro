@@ -1,8 +1,8 @@
+import assert from 'node:assert';
 import * as path from 'node:path';
+import { before, describe, it } from 'node:test';
 import type { FullDocumentDiagnosticReport } from '@volar/language-server';
 import { type Diagnostic, DiagnosticSeverity, Range } from '@volar/language-server';
-import { expect } from 'chai';
-import { before, describe, it } from 'mocha';
 import { type LanguageServer, getLanguageServer } from '../server.js';
 import { fixtureDir } from '../utils.js';
 
@@ -18,12 +18,12 @@ describe('TypeScript - Diagnostics', async () => {
 		)) as FullDocumentDiagnosticReport;
 
 		// We should only have one error here.
-		expect(diagnostics.items).length(1);
+		assert.strictEqual(diagnostics.items.length, 1);
 
 		// Data here is Volar specific, and is not too relevant to test. We'll throw it out.
 		const diagnostic: Diagnostic = { ...diagnostics.items[0], data: {} };
 
-		expect(diagnostic).to.deep.equal({
+		assert.deepStrictEqual(diagnostic, {
 			code: 2304,
 			data: {},
 			message: "Cannot find name 'NotAThing'.",
@@ -38,10 +38,10 @@ describe('TypeScript - Diagnostics', async () => {
 		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
 			document.uri,
 		)) as FullDocumentDiagnosticReport;
-		expect(diagnostics.items).length(1);
+		assert.strictEqual(diagnostics.items.length, 1);
 
 		const diagnostic: Diagnostic = { ...diagnostics.items[0], data: {} };
-		expect(diagnostic).to.deep.equal({
+		assert.deepStrictEqual(diagnostic, {
 			code: 2304,
 			data: {},
 			message: "Cannot find name 'nope'.",
@@ -59,10 +59,10 @@ describe('TypeScript - Diagnostics', async () => {
 		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
 			document.uri,
 		)) as FullDocumentDiagnosticReport;
-		expect(diagnostics.items).length(1);
+		assert.strictEqual(diagnostics.items.length, 1);
 
 		diagnostics.items = diagnostics.items.map((diag) => ({ ...diag, data: {} }));
-		expect(diagnostics.items).to.deep.equal([
+		assert.deepStrictEqual(diagnostics.items, [
 			{
 				code: 2322,
 				data: {},
@@ -83,6 +83,6 @@ describe('TypeScript - Diagnostics', async () => {
 		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
 			document.uri,
 		)) as FullDocumentDiagnosticReport;
-		expect(diagnostics.items).length(1);
+		assert.strictEqual(diagnostics.items.length, 1);
 	});
 });

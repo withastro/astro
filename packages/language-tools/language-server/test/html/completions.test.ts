@@ -1,6 +1,6 @@
+import assert from 'node:assert';
+import { before, describe, it } from 'node:test';
 import { Position } from '@volar/language-server';
-import { expect } from 'chai';
-import { describe } from 'mocha';
 import { type LanguageServer, getLanguageServer } from '../server.js';
 
 describe('HTML - Completions', () => {
@@ -16,8 +16,8 @@ describe('HTML - Completions', () => {
 		);
 
 		const allLabels = completions!.items.map((i) => i.label);
-		expect(completions!.items).to.not.be.empty;
-		expect(allLabels).to.include('blockquote');
+		assert.ok(completions!.items && completions!.items.length > 0);
+		assert.ok(allLabels.includes('blockquote'));
 	});
 
 	it('Can provide completions for HTML attributes', async () => {
@@ -27,7 +27,7 @@ describe('HTML - Completions', () => {
 			Position.create(0, 13),
 		);
 
-		expect(completions!.items).to.not.be.empty;
-		expect(completions!.items[0].label).to.equal('cite');
+		assert.ok(completions!.items && completions!.items.length > 0);
+		assert.strictEqual(completions!.items[0].label, 'cite');
 	});
 });

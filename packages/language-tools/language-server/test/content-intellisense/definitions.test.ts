@@ -1,8 +1,8 @@
+import assert from 'node:assert';
 import path from 'node:path';
+import { before, describe, it } from 'node:test';
 import type { LocationLink } from '@volar/language-server';
 import { Position } from '@volar/language-server';
-import { expect } from 'chai';
-import { before, describe, it } from 'mocha';
 import { type LanguageServer, getLanguageServer } from '../server.js';
 import { fixtureDir } from '../utils.js';
 
@@ -23,21 +23,24 @@ describe('Content Intellisense - Go To Everywhere', async () => {
 		)) as LocationLink[];
 
 		const targetUris = definitions?.map((definition) => definition.targetUri);
-		expect(targetUris.every((uri) => uri.endsWith('config.ts'))).to.be.true;
+		assert.strictEqual(
+			targetUris.every((uri) => uri.endsWith('config.ts')),
+			true,
+		);
 
 		const { targetRange, targetSelectionRange, originSelectionRange } = definitions[0];
 
-		expect(targetRange).to.deep.equal({
+		assert.deepStrictEqual(targetRange, {
 			start: { line: 5, character: 2 },
 			end: { line: 5, character: 54 },
 		});
 
-		expect(targetSelectionRange).to.deep.equal({
+		assert.deepStrictEqual(targetSelectionRange, {
 			start: { line: 5, character: 2 },
 			end: { line: 5, character: 7 },
 		});
 
-		expect(originSelectionRange).to.deep.equal({
+		assert.deepStrictEqual(originSelectionRange, {
 			start: { line: 1, character: 0 },
 			end: { line: 1, character: 5 },
 		});

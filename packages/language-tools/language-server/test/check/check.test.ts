@@ -1,9 +1,9 @@
+import assert from 'node:assert';
 import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
+import { before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { expect } from 'chai';
-import { before, describe, it } from 'mocha';
 import type { CheckResult } from '../../dist/check.js';
 import { AstroCheck } from '../../dist/check.js';
 
@@ -16,9 +16,7 @@ describe('AstroCheck', async () => {
 	let checker: AstroCheck;
 	let result: CheckResult;
 
-	before(async function () {
-		// First init can sometimes be slow in CI, even though the rest of the tests will be fast.
-		this.timeout(50000);
+	before(async () => {
 		checker = new AstroCheck(
 			checkFixtureDir,
 			require.resolve('typescript/lib/typescript.js'),
@@ -28,33 +26,34 @@ describe('AstroCheck', async () => {
 	});
 
 	it('Can check files and return errors', async () => {
-		expect(result).to.not.be.undefined;
-		expect(result.fileResult).to.have.lengthOf(4);
+		assert.notStrictEqual(result, undefined);
+		assert.strictEqual(result.fileResult.length, 4);
 	});
 
 	it("Returns the file's URL", async () => {
-		expect(result.fileResult[0].fileUrl).to.not.be.undefined;
-		expect(result.fileResult[0].fileUrl instanceof URL).to.be.true;
+		assert.notStrictEqual(result.fileResult[0].fileUrl, undefined);
+		assert.strictEqual(result.fileResult[0].fileUrl instanceof URL, true);
 	});
 
 	it("Returns the file's content", async () => {
-		expect(result.fileResult[0].fileContent).to.not.be.undefined;
-		expect(result.fileResult[0].fileContent).to.deep.equal(
+		assert.notStrictEqual(result.fileResult[0].fileContent, undefined);
+		assert.deepStrictEqual(
+			result.fileResult[0].fileContent,
 			`---${os.EOL}console.log(doesntExist);${os.EOL}---${os.EOL}`,
 		);
 	});
 
 	it('Can return the total amount of errors, warnings and hints', async () => {
-		expect(result.errors).to.equal(2);
-		expect(result.warnings).to.equal(1);
-		expect(result.hints).to.equal(1);
+		assert.strictEqual(result.errors, 2);
+		assert.strictEqual(result.warnings, 1);
+		assert.strictEqual(result.hints, 1);
 	});
 
 	it('Can return the total amount of files checked', async () => {
-		expect(result.fileChecked).to.equal(6);
+		assert.strictEqual(result.fileChecked, 6);
 	});
 
 	it('Can return the status of the check', async () => {
-		expect(result.status).to.equal('completed');
+		assert.strictEqual(result.status, 'completed');
 	});
 });

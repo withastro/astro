@@ -1,6 +1,6 @@
+import assert from 'node:assert';
+import { before, describe, it } from 'node:test';
 import { Range } from '@volar/language-server';
-import { expect } from 'chai';
-import { describe } from 'mocha';
 import { URI } from 'vscode-uri';
 import { type LanguageServer, getLanguageServer } from '../server.js';
 
@@ -24,7 +24,7 @@ describe('TypeScript - Organize & Sort Imports', () => {
 			},
 		);
 
-		expect(organizeEdits).to.deep.equal([
+		assert.deepStrictEqual(organizeEdits, [
 			{
 				data: {
 					original: {
@@ -99,7 +99,7 @@ describe('TypeScript - Organize & Sort Imports', () => {
 			},
 		);
 
-		expect(organizeEdits).to.deep.equal([
+		assert.deepStrictEqual(organizeEdits, [
 			{
 				data: {
 					original: {
