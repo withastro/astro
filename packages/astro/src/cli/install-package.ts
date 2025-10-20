@@ -1,10 +1,9 @@
 import { createRequire } from 'node:module';
-import boxen from 'boxen';
+import * as clack from '@clack/prompts';
 import ci from 'ci-info';
 import { bold, cyan, dim, magenta } from 'kleur/colors';
 import { detect, resolveCommand } from 'package-manager-detector';
 import prompts from 'prompts';
-import * as clack from '@clack/prompts';
 import type { Logger } from '../core/logger/core.js';
 import { exec } from './exec.js';
 
@@ -75,17 +74,15 @@ async function installPackage(
 		packageNames = packageNames.map((name) => `npm:${name}`);
 	}
 	const coloredOutput = `${bold(installCommand.command)} ${installCommand.args.join(' ')} ${cyan(packageNames.join(' '))}`;
-	const message = `\n${boxen(coloredOutput, {
-		margin: 0.5,
-		padding: 0.5,
-		borderStyle: 'round',
-	})}\n`;
 	logger.info(
 		'SKIP_FORMAT',
 		`\n  ${magenta('Astro will run the following command:')}\n  ${dim(
 			'If you skip this step, you can always run it yourself later',
-		)}\n${message}`,
+		)}`,
 	);
+	clack.box(coloredOutput, undefined, {
+		rounded: true,
+	});
 
 	let response;
 	if (options.skipAsk) {

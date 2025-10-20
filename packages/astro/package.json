@@ -117,7 +117,6 @@
     "acorn": "^8.15.0",
     "aria-query": "^5.3.2",
     "axobject-query": "^4.1.0",
-    "boxen": "8.0.1",
     "ci-info": "^4.3.0",
     "clsx": "^2.1.1",
     "common-ancestor-path": "^1.0.1",
