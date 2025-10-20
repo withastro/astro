@@ -16,9 +16,8 @@ const manifest = Object.assign(serializedManifest, { renderers, actions });
 
 export function getApp(dev = import.meta.env.DEV): BaseApp {
 	if (dev) {
-		const routesList: RoutesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
 		const logger = createConsoleLogger('debug');
-		return new DevApp(manifest, true, logger, routesList);
+		return new DevApp(manifest, true, logger, { routes: routes.map((r) => r.routeData) });
 	} else {
 		return new App(manifest);
 	}
