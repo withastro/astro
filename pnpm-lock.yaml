@@ -490,7 +490,7 @@ importers:
         version: 1.1.0
       '@rollup/pluginutils':
         specifier: ^5.2.0
-        version: 5.3.0(rollup@4.52.3)
+        version: 5.3.0(rollup@4.52.4)
       acorn:
         specifier: ^8.15.0
         version: 8.15.0
@@ -628,7 +628,7 @@ importers:
         version: 5.0.0
       unstorage:
         specifier: ^1.17.0
-        version: 1.17.1(@netlify/blobs@10.0.11)(@vercel/functions@2.2.13)
+        version: 1.17.1(@netlify/blobs@10.1.0)(@vercel/functions@2.2.13)
       vfile:
         specifier: ^6.0.3
         version: 6.0.3
@@ -749,7 +749,7 @@ importers:
         version: 0.1.2
       rollup:
         specifier: ^4.50.0
-        version: 4.52.3
+        version: 4.52.4
       sass:
         specifier: ^1.91.0
         version: 1.93.2
@@ -4557,7 +4557,7 @@ importers:
         version: 1.0.2
       drizzle-orm:
         specifier: ^0.42.0
-        version: 0.42.0(@cloudflare/workers-types@4.20251003.0)(@libsql/client@0.15.15)
+        version: 0.42.0(@cloudflare/workers-types@4.20251011.0)(@libsql/client@0.15.15)
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
@@ -4812,17 +4812,17 @@ importers:
         specifier: workspace:*
         version: link:../../underscore-redirects
       '@cloudflare/workers-types':
-        specifier: ^4.20251003.0
-        version: 4.20251003.0
+        specifier: ^4.20251011.0
+        version: 4.20251011.0
       tinyglobby:
         specifier: ^0.2.15
         version: 0.2.15
       vite:
-        specifier: ^6.3.6
+        specifier: ^6.4.0
         version: 6.4.0(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1)
       wrangler:
         specifier: 4.14.1
-        version: 4.14.1(@cloudflare/workers-types@4.20251003.0)
+        version: 4.14.1(@cloudflare/workers-types@4.20251011.0)
     devDependencies:
       astro:
         specifier: workspace:*
@@ -4834,14 +4834,14 @@ importers:
         specifier: 1.1.2
         version: 1.1.2
       devalue:
-        specifier: ^5.3.2
+        specifier: ^5.4.1
         version: 5.4.1
       execa:
         specifier: ^8.0.1
         version: 8.0.1
       rollup:
-        specifier: ^4.52.3
-        version: 4.52.3
+        specifier: ^4.52.4
+        version: 4.52.4
 
   packages/integrations/cloudflare/test/fixtures/astro-dev-platform:
     dependencies:
@@ -4854,7 +4854,7 @@ importers:
     devDependencies:
       wrangler:
         specifier: 4.14.1
-        version: 4.14.1(@cloudflare/workers-types@4.20251003.0)
+        version: 4.14.1(@cloudflare/workers-types@4.20251011.0)
 
   packages/integrations/cloudflare/test/fixtures/astro-env:
     dependencies:
@@ -4867,7 +4867,7 @@ importers:
     devDependencies:
       wrangler:
         specifier: 4.14.1
-        version: 4.14.1(@cloudflare/workers-types@4.20251003.0)
+        version: 4.14.1(@cloudflare/workers-types@4.20251011.0)
 
   packages/integrations/cloudflare/test/fixtures/compile-image-service:
     dependencies:
@@ -4934,7 +4934,7 @@ importers:
         version: link:../../../../../astro
       wrangler:
         specifier: 4.14.1
-        version: 4.14.1(@cloudflare/workers-types@4.20251003.0)
+        version: 4.14.1(@cloudflare/workers-types@4.20251011.0)
 
   packages/integrations/cloudflare/test/fixtures/with-base:
     dependencies:
@@ -4972,7 +4972,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.39.8
+        specifier: ^5.40.2
         version: 5.40.2
 
   packages/integrations/cloudflare/test/fixtures/with-vue:
@@ -5463,17 +5463,17 @@ importers:
         specifier: workspace:*
         version: link:../../underscore-redirects
       '@netlify/blobs':
-        specifier: ^10.0.11
-        version: 10.0.11
+        specifier: ^10.1.0
+        version: 10.1.0
       '@netlify/functions':
-        specifier: ^4.2.7
-        version: 4.2.7(rollup@4.52.3)
+        specifier: ^4.3.0
+        version: 4.3.0(rollup@4.52.4)
       '@netlify/vite-plugin':
-        specifier: ^2.6.1
-        version: 2.6.1(@vercel/functions@2.2.13)(rollup@4.52.3)(vite@6.4.0(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1))
+        specifier: ^2.7.2
+        version: 2.7.2(@vercel/functions@2.2.13)(rollup@4.52.4)(vite@6.4.0(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1))
       '@vercel/nft':
         specifier: 0.30.1
-        version: 0.30.1(rollup@4.52.3)
+        version: 0.30.1(rollup@4.52.4)
       esbuild:
         specifier: ^0.25.0
         version: 0.25.5
@@ -5481,7 +5481,7 @@ importers:
         specifier: ^0.2.15
         version: 0.2.15
       vite:
-        specifier: ^6.3.6
+        specifier: ^6.4.0
         version: 6.4.0(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1)
     devDependencies:
       '@types/node':
@@ -5497,7 +5497,7 @@ importers:
         specifier: 1.1.2
         version: 1.1.2
       devalue:
-        specifier: ^5.3.2
+        specifier: ^5.4.1
         version: 5.4.1
       typescript:
         specifier: ^5.9.3
@@ -5607,7 +5607,7 @@ importers:
         specifier: 1.1.2
         version: 1.1.2
       devalue:
-        specifier: ^5.3.2
+        specifier: ^5.4.1
         version: 5.4.1
       express:
         specifier: ^4.21.2
@@ -6007,10 +6007,10 @@ importers:
         version: 2.2.13
       '@vercel/nft':
         specifier: 0.30.1
-        version: 0.30.1(rollup@4.52.3)
+        version: 0.30.1(rollup@4.52.4)
       '@vercel/routing-utils':
-        specifier: ^5.1.1
-        version: 5.1.1
+        specifier: ^5.2.0
+        version: 5.2.0
       esbuild:
         specifier: ^0.25.0
         version: 0.25.5
@@ -6227,7 +6227,7 @@ importers:
         version: 6.4.0(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1)
       vite-plugin-vue-devtools:
         specifier: ^7.7.7
-        version: 7.7.7(rollup@4.52.3)(vite@6.4.0(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1))(vue@3.5.22(typescript@5.9.3))
+        version: 7.7.7(rollup@4.52.4)(vite@6.4.0(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1))(vue@3.5.22(typescript@5.9.3))
     devDependencies:
       astro:
         specifier: workspace:*
@@ -6955,8 +6955,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@cloudflare/workers-types@4.20251003.0':
-    resolution: {integrity: sha512-rtg7FqYVNHsltn1GOV+P3hQpVf1WDI3wH8Mj4IjK99fidJ4ttzUPuCX/uYE/PIF/HBPK66TqVwToO+GN4Lmx0Q==}
+  '@cloudflare/workers-types@4.20251011.0':
+    resolution: {integrity: sha512-gQpih+pbq3sP4uXltUeCSbPgZxTNp2gQd8639SaIbQMwgA6oJNHLhIART1fWy6DQACngiRzDVULA2x0ohmkGTQ==}
 
   '@codspeed/core@4.0.1':
     resolution: {integrity: sha512-fJ53arfgtzCDZa8DuGJhpTZ3Ll9A1uW5nQ2jSJnfO4Hl5MRD2cP8P4vPvIUAGbdbjwCxR1jat6cW8OloMJkJXw==}
@@ -8378,12 +8378,12 @@ packages:
   '@netlify/binary-info@1.0.0':
     resolution: {integrity: sha512-4wMPu9iN3/HL97QblBsBay3E1etIciR84izI3U+4iALY+JHCrI+a2jO0qbAZ/nxKoegypYEaiiqWXylm+/zfrw==}
 
-  '@netlify/blobs@10.0.11':
-    resolution: {integrity: sha512-/pa7eD2gxkhJ6aUIJULrRu3tvAaimy+sA6vHUuGRMvncjOuRpeatXLHxuzdn8DyK1CZCjN3E33oXsdEpoqG7SA==}
+  '@netlify/blobs@10.1.0':
+    resolution: {integrity: sha512-dFpqDc6/x5LEu9L7kblCQu00CFEchH8J42jmQoXPuhKoE7avajzeLTbVKA8Olk3S/c2m9ejegrgbhL8NRA2Jyw==}
     engines: {node: ^14.16.0 || >=16.0.0}
 
-  '@netlify/cache@3.1.1':
-    resolution: {integrity: sha512-n8DU/lH2vTIBM137bGlRmyZsWq3mGU3J8R2fnecD9CDxBx0jNsb8u0WEYC9E3tavPKyYmW1BvIGNNtWHn0R3Lg==}
+  '@netlify/cache@3.3.0':
+    resolution: {integrity: sha512-rKHmfPreOJhOz0FEKzqFdykIAdO2fC98hNXab6JuIKycySWZtLq+YtythuR/qL6AWBtdn1DQTAsOh8zBz7va7w==}
     engines: {node: '>=20.6.1'}
 
   '@netlify/config@23.2.0':
@@ -8391,12 +8391,12 @@ packages:
     engines: {node: '>=18.14.0'}
     hasBin: true
 
-  '@netlify/dev-utils@4.2.0':
-    resolution: {integrity: sha512-P/uLJ5IKB4DhUOd6Q4Mpk7N0YKrnijUhAL3C05dEftNi3U3xJB98YekYfsL3G6GkS3L35pKGMx+vKJRwUHpP1Q==}
+  '@netlify/dev-utils@4.3.0':
+    resolution: {integrity: sha512-vZAL8pMuj3yPQlmHSgyaA/UQFxc6pZgU0LucFJ1+IPWGJtIzBXHRvuR4acpoP72HtyQPUHJ42s7U9GaaSGVNHg==}
     engines: {node: ^18.14.0 || >=20}
 
-  '@netlify/dev@4.5.12':
-    resolution: {integrity: sha512-Kbcu4EG1sTH9VxxaZraumu/8YJ2EkIe92+6ju+n1KYQ7P3qz2wughPr6Vtss06P9S1g70wu1mNxvvqj4IAlJlw==}
+  '@netlify/dev@4.6.2':
+    resolution: {integrity: sha512-gBW/1g+fXcUHbnzo0vsjNJ66TVO8O/4DeGihUmQFEGi0r1LiP4mVHcz1Cw0nqC20BS+wRWpGaRcDLyNnnHh6zg==}
     engines: {node: '>=20.6.1'}
 
   '@netlify/edge-bundler@14.5.4':
@@ -8406,24 +8406,32 @@ packages:
   '@netlify/edge-functions-bootstrap@2.16.0':
     resolution: {integrity: sha512-v8QQihSbBHj3JxtJsHoepXALpNumD9M7egHoc8z62FYl5it34dWczkaJoFFopEyhiBVKi4K/n0ZYpdzwfujd6g==}
 
-  '@netlify/edge-functions@2.18.2':
-    resolution: {integrity: sha512-DwkQIwiVO+2XU3zt5X96g3VEYI2mVtIdoFuia0TZLcWO8mzqceqNljL4xpCRREzZl9FT+HdwDF+YpYjZ+IRRTA==}
+  '@netlify/edge-functions@2.19.0':
+    resolution: {integrity: sha512-OsTi1Ch59MRmr0/8QUqPADbtpcoGapBU7NLScfax1tKi43tTIleZRynIKlY4fx2X7orJc4tzU+zErf1JXOQZ8A==}
     engines: {node: '>=18.0.0'}
 
-  '@netlify/functions@4.2.7':
-    resolution: {integrity: sha512-TN2sijuyrEejhLfataxAKSFjFi8ZC0IMqrubg3Rz3ROBBwk54vdLwxibHxnKexou75MXsrpCotsEzm/V0xZwBA==}
+  '@netlify/functions-dev@1.0.0':
+    resolution: {integrity: sha512-Ws/NZiSjz2X2KW4fpZIPkfKGwoFcTFItm6iAgpY06TOol+n+sy2+qgvvjvF6Plm1l7mT2kttxXdsk6kVnR31Qg==}
+    engines: {node: '>=20.6.1'}
+
+  '@netlify/functions@4.3.0':
+    resolution: {integrity: sha512-m00J4hO/AL+1mAD4jCia1kg2jIoO3S9+DXCge58n5tTqPlWt42Vgig5zm0ICJoAyjMKw2bGzfVw9a/s/x6d1+Q==}
+    engines: {node: '>=18.0.0'}
+
+  '@netlify/functions@5.0.0':
+    resolution: {integrity: sha512-gyKzl+P5SPp6P4iqykwPagSy7ODgRoQqi9TkjFJjM74FVJgxdiBQoLAmz+Pjl7kE5avJWtIvlQ+akAFaChekQQ==}
     engines: {node: '>=18.0.0'}
 
   '@netlify/headers-parser@9.0.2':
     resolution: {integrity: sha512-86YEGPxVemhksY1LeSr8NSOyH11RHvYHq+FuBJnTlPZoRDX+TD+0TAxF6lwzAgVTd1VPkyFEHlNgUGqw7aNzRQ==}
     engines: {node: '>=18.14.0'}
 
-  '@netlify/headers@2.0.12':
-    resolution: {integrity: sha512-smDSAKvPEYufdMhZvNvb1/D00EL5QDleEHa7N6+CXKrG81WVzPrpWtCL67UP8qgewv0fDnLPal9XLL46Jvsa9A==}
+  '@netlify/headers@2.1.0':
+    resolution: {integrity: sha512-+7MgRPBYhRjizrd6JHxlD9KCjUyYk5yMqa16Ib3VNOSWYzaYiQi8Muyb1pn1pQVfBN2oPeK/q7J3pEdc/PWznQ==}
     engines: {node: '>=20.6.1'}
 
-  '@netlify/images@1.2.8':
-    resolution: {integrity: sha512-VfjimnTRvFZ+8Ul/r4AlPMjBPK7+qZZuKli/el4MVwqt7+pXKrx3YkFPwT1XtoahqNJ8Mm2bZQzM8JB34PUxrA==}
+  '@netlify/images@1.3.0':
+    resolution: {integrity: sha512-edQefgR4aeL04oSgkGyjza3CObdU2C24EmRuF/FPXIR1GHa/TkEKMamppxFjZ6qj1i5tX0RGTLKvnREmtW34NA==}
     engines: {node: '>=20.6.1'}
 
   '@netlify/open-api@2.37.0':
@@ -8434,32 +8442,32 @@ packages:
     resolution: {integrity: sha512-/HB3fcRRNgf6O/pbLn4EYNDHrU2kiadMMnazg8/OjvQK2S9i4y61vQcrICvDxYKUKQdgeEaABUuaCNAJFnfD9w==}
     engines: {node: '>=18.14.0'}
 
-  '@netlify/redirects@3.0.13':
-    resolution: {integrity: sha512-pRseix34XmP+PoUGgsHYqsyBxXvSF8plLkt+D9s/fv+MBEcLIGxZLHLNBHOmNIP+WX2SIusPOxwcL3DBVjbZkw==}
+  '@netlify/redirects@3.1.0':
+    resolution: {integrity: sha512-Eo50oNaTybEfB/4W6JFWdzQ1EbpObbaf83sIpT6H0DzfBgQIzPc3azdb7eD9eEFi3IAQjR5kZ6bOb2i4wbFDHQ==}
     engines: {node: '>=20.6.1'}
 
-  '@netlify/runtime-utils@2.1.0':
-    resolution: {integrity: sha512-z1h+wjB7IVYUsFZsuIYyNxiw5WWuylseY+eXaUDHBxNeLTlqziy+lz03QkR67CUR4Y790xGIhaHV00aOR2KAtw==}
+  '@netlify/runtime-utils@2.2.0':
+    resolution: {integrity: sha512-K3kWIxIMucibzQsATU2xw2JI+OpS9PZfPW/a+81gmeLC8tLv5YAxTVT0NFY/3imk1kcOJb9g7658jPLqDJaiAw==}
     engines: {node: ^18.14.0 || >=20}
 
-  '@netlify/runtime@4.0.16':
-    resolution: {integrity: sha512-8itGQs4yGByyFWUBxMUDJGgutAFChPlMos2oJr9DbQWsTZjbn9QnZ0rddh156upya4znqq6XnSJ7vc5Y7xqzEg==}
+  '@netlify/runtime@4.1.1':
+    resolution: {integrity: sha512-5qnHsri4X5r2spdD2tvdbU78grFV4fq7uVh/rMXF19qlgcHiuo0yr1JBEim1oINs/w+pyjusXMfnFEZjvV2qlQ==}
     engines: {node: '>=20.6.1'}
 
   '@netlify/serverless-functions-api@2.5.0':
     resolution: {integrity: sha512-0Hl6POpkEs3aan8T+EQvPIj5/gNc+64nwNv93VY4JoxFSrLPKYWmUyXJhT9lG93VxwGfmbxrCOV8U4sq2eWgTw==}
     engines: {node: '>=18.0.0'}
 
-  '@netlify/static@3.0.11':
-    resolution: {integrity: sha512-+fAIBbZLQB6dwyX8JTUc7xvwO/+goaUmEIcHYpycwJwrphL2ZpcNAOVFq00alwpw0Szrf2LCE5bnom6/EOgbBQ==}
+  '@netlify/static@3.1.0':
+    resolution: {integrity: sha512-XbxiXpHaAakBASBFL5qc0SJhLlJdzYD0MYdM9sfCnRI38YJdvr0F2eHQlQDF016gn/iXhG6fJDxcWHEt2hEFDA==}
     engines: {node: '>=20.6.1'}
 
-  '@netlify/types@2.0.3':
-    resolution: {integrity: sha512-OcV8ivKTdsyANqVSQzbusOA7FVtE9s6zwxNCGR/aNnQaVxMUgm93UzKgfR7cZ1nnQNZHAbjd0dKJKaAUqrzbMw==}
+  '@netlify/types@2.1.0':
+    resolution: {integrity: sha512-ktUb5d58pt1lQGXO5E9S0F1ljM0g+CoQuGTVII0IxBc0apmPq5RI0o3OWLY7U3ZERRiYTg5UfjiMihBEzuZsuw==}
     engines: {node: ^18.14.0 || >=20}
 
-  '@netlify/vite-plugin@2.6.1':
-    resolution: {integrity: sha512-KhXWcwTzEDX+7lWyEs0TRwr4nIjlMs1/82l05czH9xG2K4iHSjE6R5qHFEdWvIh6W1He3t05h30UMf2QuHCqVw==}
+  '@netlify/vite-plugin@2.7.2':
+    resolution: {integrity: sha512-YP9oEsKQXFZZgouoGMqSXYqqXOW8nwnI77hWL3ANDpN9/g0+vj3LvBU8gKJcOreuE8ZSQoCwsg5KsDRAitO9uw==}
     engines: {node: ^20.6.1 || >=22}
     peerDependencies:
       vite: ^5 || ^6 || ^7
@@ -8762,124 +8770,124 @@ packages:
       rollup:
         optional: true
 
-  '@rollup/rollup-android-arm-eabi@4.52.3':
-    resolution: {integrity: sha512-h6cqHGZ6VdnwliFG1NXvMPTy/9PS3h8oLh7ImwR+kl+oYnQizgjxsONmmPSb2C66RksfkfIxEVtDSEcJiO0tqw==}
+  '@rollup/rollup-android-arm-eabi@4.52.4':
+    resolution: {integrity: sha512-BTm2qKNnWIQ5auf4deoetINJm2JzvihvGb9R6K/ETwKLql/Bb3Eg2H1FBp1gUb4YGbydMA3jcmQTR73q7J+GAA==}
     cpu: [arm]
     os: [android]
 
-  '@rollup/rollup-android-arm64@4.52.3':
-    resolution: {integrity: sha512-wd+u7SLT/u6knklV/ifG7gr5Qy4GUbH2hMWcDauPFJzmCZUAJ8L2bTkVXC2niOIxp8lk3iH/QX8kSrUxVZrOVw==}
+  '@rollup/rollup-android-arm64@4.52.4':
+    resolution: {integrity: sha512-P9LDQiC5vpgGFgz7GSM6dKPCiqR3XYN1WwJKA4/BUVDjHpYsf3iBEmVz62uyq20NGYbiGPR5cNHI7T1HqxNs2w==}
     cpu: [arm64]
     os: [android]
 
-  '@rollup/rollup-darwin-arm64@4.52.3':
-    resolution: {integrity: sha512-lj9ViATR1SsqycwFkJCtYfQTheBdvlWJqzqxwc9f2qrcVrQaF/gCuBRTiTolkRWS6KvNxSk4KHZWG7tDktLgjg==}
+  '@rollup/rollup-darwin-arm64@4.52.4':
+    resolution: {integrity: sha512-QRWSW+bVccAvZF6cbNZBJwAehmvG9NwfWHwMy4GbWi/BQIA/laTIktebT2ipVjNncqE6GLPxOok5hsECgAxGZg==}
     cpu: [arm64]
     os: [darwin]
 
-  '@rollup/rollup-darwin-x64@4.52.3':
-    resolution: {integrity: sha512-+Dyo7O1KUmIsbzx1l+4V4tvEVnVQqMOIYtrxK7ncLSknl1xnMHLgn7gddJVrYPNZfEB8CIi3hK8gq8bDhb3h5A==}
+  '@rollup/rollup-darwin-x64@4.52.4':
+    resolution: {integrity: sha512-hZgP05pResAkRJxL1b+7yxCnXPGsXU0fG9Yfd6dUaoGk+FhdPKCJ5L1Sumyxn8kvw8Qi5PvQ8ulenUbRjzeCTw==}
     cpu: [x64]
     os: [darwin]
 
-  '@rollup/rollup-freebsd-arm64@4.52.3':
-    resolution: {integrity: sha512-u9Xg2FavYbD30g3DSfNhxgNrxhi6xVG4Y6i9Ur1C7xUuGDW3banRbXj+qgnIrwRN4KeJ396jchwy9bCIzbyBEQ==}
+  '@rollup/rollup-freebsd-arm64@4.52.4':
+    resolution: {integrity: sha512-xmc30VshuBNUd58Xk4TKAEcRZHaXlV+tCxIXELiE9sQuK3kG8ZFgSPi57UBJt8/ogfhAF5Oz4ZSUBN77weM+mQ==}
     cpu: [arm64]
     os: [freebsd]
 
-  '@rollup/rollup-freebsd-x64@4.52.3':
-    resolution: {integrity: sha512-5M8kyi/OX96wtD5qJR89a/3x5x8x5inXBZO04JWhkQb2JWavOWfjgkdvUqibGJeNNaz1/Z1PPza5/tAPXICI6A==}
+  '@rollup/rollup-freebsd-x64@4.52.4':
+    resolution: {integrity: sha512-WdSLpZFjOEqNZGmHflxyifolwAiZmDQzuOzIq9L27ButpCVpD7KzTRtEG1I0wMPFyiyUdOO+4t8GvrnBLQSwpw==}
     cpu: [x64]
     os: [freebsd]
 
-  '@rollup/rollup-linux-arm-gnueabihf@4.52.3':
-    resolution: {integrity: sha512-IoerZJ4l1wRMopEHRKOO16e04iXRDyZFZnNZKrWeNquh5d6bucjezgd+OxG03mOMTnS1x7hilzb3uURPkJ0OfA==}
+  '@rollup/rollup-linux-arm-gnueabihf@4.52.4':
+    resolution: {integrity: sha512-xRiOu9Of1FZ4SxVbB0iEDXc4ddIcjCv2aj03dmW8UrZIW7aIQ9jVJdLBIhxBI+MaTnGAKyvMwPwQnoOEvP7FgQ==}
     cpu: [arm]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-arm-musleabihf@4.52.3':
-    resolution: {integrity: sha512-ZYdtqgHTDfvrJHSh3W22TvjWxwOgc3ThK/XjgcNGP2DIwFIPeAPNsQxrJO5XqleSlgDux2VAoWQ5iJrtaC1TbA==}
+  '@rollup/rollup-linux-arm-musleabihf@4.52.4':
+    resolution: {integrity: sha512-FbhM2p9TJAmEIEhIgzR4soUcsW49e9veAQCziwbR+XWB2zqJ12b4i/+hel9yLiD8pLncDH4fKIPIbt5238341Q==}
     cpu: [arm]
     os: [linux]
     libc: [musl]
 
-  '@rollup/rollup-linux-arm64-gnu@4.52.3':
-    resolution: {integrity: sha512-NcViG7A0YtuFDA6xWSgmFb6iPFzHlf5vcqb2p0lGEbT+gjrEEz8nC/EeDHvx6mnGXnGCC1SeVV+8u+smj0CeGQ==}
+  '@rollup/rollup-linux-arm64-gnu@4.52.4':
+    resolution: {integrity: sha512-4n4gVwhPHR9q/g8lKCyz0yuaD0MvDf7dV4f9tHt0C73Mp8h38UCtSCSE6R9iBlTbXlmA8CjpsZoujhszefqueg==}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-arm64-musl@4.52.3':
-    resolution: {integrity: sha512-d3pY7LWno6SYNXRm6Ebsq0DJGoiLXTb83AIPCXl9fmtIQs/rXoS8SJxxUNtFbJ5MiOvs+7y34np77+9l4nfFMw==}
+  '@rollup/rollup-linux-arm64-musl@4.52.4':
+    resolution: {integrity: sha512-u0n17nGA0nvi/11gcZKsjkLj1QIpAuPFQbR48Subo7SmZJnGxDpspyw2kbpuoQnyK+9pwf3pAoEXerJs/8Mi9g==}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@rollup/rollup-linux-loong64-gnu@4.52.3':
-    resolution: {integrity: sha512-3y5GA0JkBuirLqmjwAKwB0keDlI6JfGYduMlJD/Rl7fvb4Ni8iKdQs1eiunMZJhwDWdCvrcqXRY++VEBbvk6Eg==}
+  '@rollup/rollup-linux-loong64-gnu@4.52.4':
+    resolution: {integrity: sha512-0G2c2lpYtbTuXo8KEJkDkClE/+/2AFPdPAbmaHoE870foRFs4pBrDehilMcrSScrN/fB/1HTaWO4bqw+ewBzMQ==}
     cpu: [loong64]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-ppc64-gnu@4.52.3':
-    resolution: {integrity: sha512-AUUH65a0p3Q0Yfm5oD2KVgzTKgwPyp9DSXc3UA7DtxhEb/WSPfbG4wqXeSN62OG5gSo18em4xv6dbfcUGXcagw==}
+  '@rollup/rollup-linux-ppc64-gnu@4.52.4':
+    resolution: {integrity: sha512-teSACug1GyZHmPDv14VNbvZFX779UqWTsd7KtTM9JIZRDI5NUwYSIS30kzI8m06gOPB//jtpqlhmraQ68b5X2g==}
     cpu: [ppc64]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-riscv64-gnu@4.52.3':
-    resolution: {integrity: sha512-1makPhFFVBqZE+XFg3Dkq+IkQ7JvmUrwwqaYBL2CE+ZpxPaqkGaiWFEWVGyvTwZace6WLJHwjVh/+CXbKDGPmg==}
+  '@rollup/rollup-linux-riscv64-gnu@4.52.4':
+    resolution: {integrity: sha512-/MOEW3aHjjs1p4Pw1Xk4+3egRevx8Ji9N6HUIA1Ifh8Q+cg9dremvFCUbOX2Zebz80BwJIgCBUemjqhU5XI5Eg==}
     cpu: [riscv64]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-riscv64-musl@4.52.3':
-    resolution: {integrity: sha512-OOFJa28dxfl8kLOPMUOQBCO6z3X2SAfzIE276fwT52uXDWUS178KWq0pL7d6p1kz7pkzA0yQwtqL0dEPoVcRWg==}
+  '@rollup/rollup-linux-riscv64-musl@4.52.4':
+    resolution: {integrity: sha512-1HHmsRyh845QDpEWzOFtMCph5Ts+9+yllCrREuBR/vg2RogAQGGBRC8lDPrPOMnrdOJ+mt1WLMOC2Kao/UwcvA==}
     cpu: [riscv64]
     os: [linux]
     libc: [musl]
 
-  '@rollup/rollup-linux-s390x-gnu@4.52.3':
-    resolution: {integrity: sha512-jMdsML2VI5l+V7cKfZx3ak+SLlJ8fKvLJ0Eoa4b9/vCUrzXKgoKxvHqvJ/mkWhFiyp88nCkM5S2v6nIwRtPcgg==}
+  '@rollup/rollup-linux-s390x-gnu@4.52.4':
+    resolution: {integrity: sha512-seoeZp4L/6D1MUyjWkOMRU6/iLmCU2EjbMTyAG4oIOs1/I82Y5lTeaxW0KBfkUdHAWN7j25bpkt0rjnOgAcQcA==}
     cpu: [s390x]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-x64-gnu@4.52.3':
-    resolution: {integrity: sha512-tPgGd6bY2M2LJTA1uGq8fkSPK8ZLYjDjY+ZLK9WHncCnfIz29LIXIqUgzCR0hIefzy6Hpbe8Th5WOSwTM8E7LA==}
+  '@rollup/rollup-linux-x64-gnu@4.52.4':
+    resolution: {integrity: sha512-Wi6AXf0k0L7E2gteNsNHUs7UMwCIhsCTs6+tqQ5GPwVRWMaflqGec4Sd8n6+FNFDw9vGcReqk2KzBDhCa1DLYg==}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@rollup/rollup-linux-x64-musl@4.52.3':
-    resolution: {integrity: sha512-BCFkJjgk+WFzP+tcSMXq77ymAPIxsX9lFJWs+2JzuZTLtksJ2o5hvgTdIcZ5+oKzUDMwI0PfWzRBYAydAHF2Mw==}
+  '@rollup/rollup-linux-x64-musl@4.52.4':
+    resolution: {integrity: sha512-dtBZYjDmCQ9hW+WgEkaffvRRCKm767wWhxsFW3Lw86VXz/uJRuD438/XvbZT//B96Vs8oTA8Q4A0AfHbrxP9zw==}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@rollup/rollup-openharmony-arm64@4.52.3':
-    resolution: {integrity: sha512-KTD/EqjZF3yvRaWUJdD1cW+IQBk4fbQaHYJUmP8N4XoKFZilVL8cobFSTDnjTtxWJQ3JYaMgF4nObY/+nYkumA==}
+  '@rollup/rollup-openharmony-arm64@4.52.4':
+    resolution: {integrity: sha512-1ox+GqgRWqaB1RnyZXL8PD6E5f7YyRUJYnCqKpNzxzP0TkaUh112NDrR9Tt+C8rJ4x5G9Mk8PQR3o7Ku2RKqKA==}
     cpu: [arm64]
     os: [openharmony]
 
-  '@rollup/rollup-win32-arm64-msvc@4.52.3':
-    resolution: {integrity: sha512-+zteHZdoUYLkyYKObGHieibUFLbttX2r+58l27XZauq0tcWYYuKUwY2wjeCN9oK1Um2YgH2ibd6cnX/wFD7DuA==}
+  '@rollup/rollup-win32-arm64-msvc@4.52.4':
+    resolution: {integrity: sha512-8GKr640PdFNXwzIE0IrkMWUNUomILLkfeHjXBi/nUvFlpZP+FA8BKGKpacjW6OUUHaNI6sUURxR2U2g78FOHWQ==}
     cpu: [arm64]
     os: [win32]
 
-  '@rollup/rollup-win32-ia32-msvc@4.52.3':
-    resolution: {integrity: sha512-of1iHkTQSo3kr6dTIRX6t81uj/c/b15HXVsPcEElN5sS859qHrOepM5p9G41Hah+CTqSh2r8Bm56dL2z9UQQ7g==}
+  '@rollup/rollup-win32-ia32-msvc@4.52.4':
+    resolution: {integrity: sha512-AIy/jdJ7WtJ/F6EcfOb2GjR9UweO0n43jNObQMb6oGxkYTfLcnN7vYYpG+CN3lLxrQkzWnMOoNSHTW54pgbVxw==}
     cpu: [ia32]
     os: [win32]
 
-  '@rollup/rollup-win32-x64-gnu@4.52.3':
-    resolution: {integrity: sha512-s0hybmlHb56mWVZQj8ra9048/WZTPLILKxcvcq+8awSZmyiSUZjjem1AhU3Tf4ZKpYhK4mg36HtHDOe8QJS5PQ==}
+  '@rollup/rollup-win32-x64-gnu@4.52.4':
+    resolution: {integrity: sha512-UF9KfsH9yEam0UjTwAgdK0anlQ7c8/pWPU2yVjyWcF1I1thABt6WXE47cI71pGiZ8wGvxohBoLnxM04L/wj8mQ==}
     cpu: [x64]
     os: [win32]
 
-  '@rollup/rollup-win32-x64-msvc@4.52.3':
-    resolution: {integrity: sha512-zGIbEVVXVtauFgl3MRwGWEN36P5ZGenHRMgNw88X5wEhEBpq0XrMEZwOn07+ICrwM17XO5xfMZqh0OldCH5VTA==}
+  '@rollup/rollup-win32-x64-msvc@4.52.4':
+    resolution: {integrity: sha512-bf9PtUa0u8IXDVxzRToFQKsNCRz9qLYfR/MpECxl4mRoWYjAeFjgxj1XdZr2M/GNVpT05p+LgQOHopYDlUu6/w==}
     cpu: [x64]
     os: [win32]
 
@@ -9353,8 +9361,8 @@ packages:
     resolution: {integrity: sha512-59PBFx3T+k5hLTEWa3ggiMpGRz1OVvl9eN8SUai+A43IsqiOuAe7qPBf+cray/Fj6mkgnxm/D7IAtjc8zSHi7g==}
     engines: {node: '>= 18'}
 
-  '@vercel/routing-utils@5.1.1':
-    resolution: {integrity: sha512-EyOik06V2fPXAbKY087BM7DMOQOJK+9mubwwox1TkDi21tMeJcMYwsXwepm6ZmyZ5u0j1TpJW172fP4MbzaCcg==}
+  '@vercel/routing-utils@5.2.0':
+    resolution: {integrity: sha512-XBexLmd746XkSFa459tJpHd0NtxYEGswBe1o99BmpC4w4/8hoz6/BhlY+XWJh8jakPTP4hcKiE4w3TjOwuUxfw==}
 
   '@vitejs/plugin-react@4.7.0':
     resolution: {integrity: sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA==}
@@ -12984,8 +12992,8 @@ packages:
   rfdc@1.4.1:
     resolution: {integrity: sha512-q1b3N5QkRUWUl7iyylaaj3kOpIT0N2i9MqIEQXP73GVsN9cw3fdx8X63cEmWhJGi2PPCF23Ijp7ktmd39rawIA==}
 
-  rollup@4.52.3:
-    resolution: {integrity: sha512-RIDh866U8agLgiIcdpB+COKnlCreHJLfIhWC3LVflku5YHfpnsIKigRZeFfMfCc4dVcqNVfQQ5gO/afOck064A==}
+  rollup@4.52.4:
+    resolution: {integrity: sha512-CLEVl+MnPAiKh5pl4dEWSyMTpuflgNQiLGhMv8ezD5W/qP8AKvmYpCOKRRNOh7oRKnauBZ4SyeYkMS+1VSyKwQ==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
@@ -14939,7 +14947,7 @@ snapshots:
   '@cloudflare/workerd-windows-64@1.20250428.0':
     optional: true
 
-  '@cloudflare/workers-types@4.20251003.0': {}
+  '@cloudflare/workers-types@4.20251011.0': {}
 
   '@codspeed/core@4.0.1':
     dependencies:
@@ -16039,14 +16047,14 @@ snapshots:
 
   '@netlify/binary-info@1.0.0': {}
 
-  '@netlify/blobs@10.0.11':
+  '@netlify/blobs@10.1.0':
     dependencies:
-      '@netlify/dev-utils': 4.2.0
-      '@netlify/runtime-utils': 2.1.0
+      '@netlify/dev-utils': 4.3.0
+      '@netlify/runtime-utils': 2.2.0
 
-  '@netlify/cache@3.1.1':
+  '@netlify/cache@3.3.0':
     dependencies:
-      '@netlify/runtime-utils': 2.1.0
+      '@netlify/runtime-utils': 2.2.0
 
   '@netlify/config@23.2.0':
     dependencies:
@@ -16075,7 +16083,7 @@ snapshots:
       yaml: 2.8.1
       yargs: 17.7.2
 
-  '@netlify/dev-utils@4.2.0':
+  '@netlify/dev-utils@4.3.0':
     dependencies:
       '@whatwg-node/server': 0.10.12
       ansis: 4.1.0
@@ -16093,18 +16101,18 @@ snapshots:
       uuid: 11.1.0
       write-file-atomic: 5.0.1
 
-  '@netlify/dev@4.5.12(@vercel/functions@2.2.13)(rollup@4.52.3)':
+  '@netlify/dev@4.6.2(@vercel/functions@2.2.13)(rollup@4.52.4)':
     dependencies:
-      '@netlify/blobs': 10.0.11
+      '@netlify/blobs': 10.1.0
       '@netlify/config': 23.2.0
-      '@netlify/dev-utils': 4.2.0
-      '@netlify/edge-functions': 2.18.2
-      '@netlify/functions': 4.2.7(rollup@4.52.3)
-      '@netlify/headers': 2.0.12
-      '@netlify/images': 1.2.8(@netlify/blobs@10.0.11)(@vercel/functions@2.2.13)
-      '@netlify/redirects': 3.0.13
-      '@netlify/runtime': 4.0.16
-      '@netlify/static': 3.0.11
+      '@netlify/dev-utils': 4.3.0
+      '@netlify/edge-functions': 2.19.0
+      '@netlify/functions-dev': 1.0.0(rollup@4.52.4)
+      '@netlify/headers': 2.1.0
+      '@netlify/images': 1.3.0(@netlify/blobs@10.1.0)(@vercel/functions@2.2.13)
+      '@netlify/redirects': 3.1.0
+      '@netlify/runtime': 4.1.1
+      '@netlify/static': 3.1.0
       ulid: 3.0.1
     transitivePeerDependencies:
       - '@azure/app-configuration'
@@ -16154,21 +16162,41 @@ snapshots:
 
   '@netlify/edge-functions-bootstrap@2.16.0': {}
 
-  '@netlify/edge-functions@2.18.2':
+  '@netlify/edge-functions@2.19.0':
     dependencies:
-      '@netlify/dev-utils': 4.2.0
+      '@netlify/dev-utils': 4.3.0
       '@netlify/edge-bundler': 14.5.4
       '@netlify/edge-functions-bootstrap': 2.16.0
-      '@netlify/runtime-utils': 2.1.0
-      '@netlify/types': 2.0.3
+      '@netlify/runtime-utils': 2.2.0
+      '@netlify/types': 2.1.0
       get-port: 7.1.0
 
-  '@netlify/functions@4.2.7(rollup@4.52.3)':
+  '@netlify/functions-dev@1.0.0(rollup@4.52.4)':
     dependencies:
-      '@netlify/blobs': 10.0.11
-      '@netlify/dev-utils': 4.2.0
-      '@netlify/types': 2.0.3
-      '@netlify/zip-it-and-ship-it': 14.1.7(rollup@4.52.3)
+      '@netlify/blobs': 10.1.0
+      '@netlify/dev-utils': 4.3.0
+      '@netlify/functions': 5.0.0
+      '@netlify/zip-it-and-ship-it': 14.1.7(rollup@4.52.4)
+      cron-parser: 4.9.0
+      decache: 4.6.2
+      extract-zip: 2.0.1
+      is-stream: 4.0.1
+      jwt-decode: 4.0.0
+      lambda-local: 2.2.0
+      read-package-up: 11.0.0
+      semver: 7.7.3
+      source-map-support: 0.5.21
+    transitivePeerDependencies:
+      - encoding
+      - rollup
+      - supports-color
+
+  '@netlify/functions@4.3.0(rollup@4.52.4)':
+    dependencies:
+      '@netlify/blobs': 10.1.0
+      '@netlify/dev-utils': 4.3.0
+      '@netlify/types': 2.1.0
+      '@netlify/zip-it-and-ship-it': 14.1.7(rollup@4.52.4)
       cron-parser: 4.9.0
       decache: 4.6.2
       extract-zip: 2.0.1
@@ -16182,6 +16210,10 @@ snapshots:
       - rollup
       - supports-color
 
+  '@netlify/functions@5.0.0':
+    dependencies:
+      '@netlify/types': 2.1.0
+
   '@netlify/headers-parser@9.0.2':
     dependencies:
       '@iarna/toml': 2.2.5
@@ -16191,13 +16223,13 @@ snapshots:
       map-obj: 5.0.2
       path-exists: 5.0.0
 
-  '@netlify/headers@2.0.12':
+  '@netlify/headers@2.1.0':
     dependencies:
       '@netlify/headers-parser': 9.0.2
 
-  '@netlify/images@1.2.8(@netlify/blobs@10.0.11)(@vercel/functions@2.2.13)':
+  '@netlify/images@1.3.0(@netlify/blobs@10.1.0)(@vercel/functions@2.2.13)':
     dependencies:
-      ipx: 3.1.1(@netlify/blobs@10.0.11)(@vercel/functions@2.2.13)
+      ipx: 3.1.1(@netlify/blobs@10.1.0)(@vercel/functions@2.2.13)
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -16228,35 +16260,35 @@ snapshots:
       is-plain-obj: 4.1.0
       path-exists: 5.0.0
 
-  '@netlify/redirects@3.0.13':
+  '@netlify/redirects@3.1.0':
     dependencies:
-      '@netlify/dev-utils': 4.2.0
+      '@netlify/dev-utils': 4.3.0
       '@netlify/redirect-parser': 15.0.3
       cookie: 1.0.2
       jsonwebtoken: 9.0.2
       netlify-redirector: 0.5.0
 
-  '@netlify/runtime-utils@2.1.0': {}
+  '@netlify/runtime-utils@2.2.0': {}
 
-  '@netlify/runtime@4.0.16':
+  '@netlify/runtime@4.1.1':
     dependencies:
-      '@netlify/blobs': 10.0.11
-      '@netlify/cache': 3.1.1
-      '@netlify/runtime-utils': 2.1.0
-      '@netlify/types': 2.0.3
+      '@netlify/blobs': 10.1.0
+      '@netlify/cache': 3.3.0
+      '@netlify/runtime-utils': 2.2.0
+      '@netlify/types': 2.1.0
 
   '@netlify/serverless-functions-api@2.5.0': {}
 
-  '@netlify/static@3.0.11':
+  '@netlify/static@3.1.0':
     dependencies:
       mime-types: 3.0.1
 
-  '@netlify/types@2.0.3': {}
+  '@netlify/types@2.1.0': {}
 
-  '@netlify/vite-plugin@2.6.1(@vercel/functions@2.2.13)(rollup@4.52.3)(vite@6.4.0(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1))':
+  '@netlify/vite-plugin@2.7.2(@vercel/functions@2.2.13)(rollup@4.52.4)(vite@6.4.0(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1))':
     dependencies:
-      '@netlify/dev': 4.5.12(@vercel/functions@2.2.13)(rollup@4.52.3)
-      '@netlify/dev-utils': 4.2.0
+      '@netlify/dev': 4.6.2(@vercel/functions@2.2.13)(rollup@4.52.4)
+      '@netlify/dev-utils': 4.3.0
       dedent: 1.7.0
       vite: 6.4.0(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1)
     transitivePeerDependencies:
@@ -16283,13 +16315,13 @@ snapshots:
       - supports-color
       - uploadthing
 
-  '@netlify/zip-it-and-ship-it@14.1.7(rollup@4.52.3)':
+  '@netlify/zip-it-and-ship-it@14.1.7(rollup@4.52.4)':
     dependencies:
       '@babel/parser': 7.28.4
       '@babel/types': 7.28.1
       '@netlify/binary-info': 1.0.0
       '@netlify/serverless-functions-api': 2.5.0
-      '@vercel/nft': 0.29.4(rollup@4.52.3)
+      '@vercel/nft': 0.29.4(rollup@4.52.4)
       archiver: 7.0.1
       common-path-prefix: 3.0.0
       copy-file: 11.1.0
@@ -16536,78 +16568,78 @@ snapshots:
       estree-walker: 2.0.2
       picomatch: 2.3.1
 
-  '@rollup/pluginutils@5.3.0(rollup@4.52.3)':
+  '@rollup/pluginutils@5.3.0(rollup@4.52.4)':
     dependencies:
       '@types/estree': 1.0.8
       estree-walker: 2.0.2
       picomatch: 4.0.3
     optionalDependencies:
-      rollup: 4.52.3
+      rollup: 4.52.4
 
-  '@rollup/rollup-android-arm-eabi@4.52.3':
+  '@rollup/rollup-android-arm-eabi@4.52.4':
     optional: true
 
-  '@rollup/rollup-android-arm64@4.52.3':
+  '@rollup/rollup-android-arm64@4.52.4':
     optional: true
 
-  '@rollup/rollup-darwin-arm64@4.52.3':
+  '@rollup/rollup-darwin-arm64@4.52.4':
     optional: true
 
-  '@rollup/rollup-darwin-x64@4.52.3':
+  '@rollup/rollup-darwin-x64@4.52.4':
     optional: true
 
-  '@rollup/rollup-freebsd-arm64@4.52.3':
+  '@rollup/rollup-freebsd-arm64@4.52.4':
     optional: true
 
-  '@rollup/rollup-freebsd-x64@4.52.3':
+  '@rollup/rollup-freebsd-x64@4.52.4':
     optional: true
 
-  '@rollup/rollup-linux-arm-gnueabihf@4.52.3':
+  '@rollup/rollup-linux-arm-gnueabihf@4.52.4':
     optional: true
 
-  '@rollup/rollup-linux-arm-musleabihf@4.52.3':
+  '@rollup/rollup-linux-arm-musleabihf@4.52.4':
     optional: true
 
-  '@rollup/rollup-linux-arm64-gnu@4.52.3':
+  '@rollup/rollup-linux-arm64-gnu@4.52.4':
     optional: true
 
-  '@rollup/rollup-linux-arm64-musl@4.52.3':
+  '@rollup/rollup-linux-arm64-musl@4.52.4':
     optional: true
 
-  '@rollup/rollup-linux-loong64-gnu@4.52.3':
+  '@rollup/rollup-linux-loong64-gnu@4.52.4':
     optional: true
 
-  '@rollup/rollup-linux-ppc64-gnu@4.52.3':
+  '@rollup/rollup-linux-ppc64-gnu@4.52.4':
     optional: true
 
-  '@rollup/rollup-linux-riscv64-gnu@4.52.3':
+  '@rollup/rollup-linux-riscv64-gnu@4.52.4':
     optional: true
 
-  '@rollup/rollup-linux-riscv64-musl@4.52.3':
+  '@rollup/rollup-linux-riscv64-musl@4.52.4':
     optional: true
 
-  '@rollup/rollup-linux-s390x-gnu@4.52.3':
+  '@rollup/rollup-linux-s390x-gnu@4.52.4':
     optional: true
 
-  '@rollup/rollup-linux-x64-gnu@4.52.3':
+  '@rollup/rollup-linux-x64-gnu@4.52.4':
     optional: true
 
-  '@rollup/rollup-linux-x64-musl@4.52.3':
+  '@rollup/rollup-linux-x64-musl@4.52.4':
     optional: true
 
-  '@rollup/rollup-openharmony-arm64@4.52.3':
+  '@rollup/rollup-openharmony-arm64@4.52.4':
     optional: true
 
-  '@rollup/rollup-win32-arm64-msvc@4.52.3':
+  '@rollup/rollup-win32-arm64-msvc@4.52.4':
     optional: true
 
-  '@rollup/rollup-win32-ia32-msvc@4.52.3':
+  '@rollup/rollup-win32-ia32-msvc@4.52.4':
     optional: true
 
-  '@rollup/rollup-win32-x64-gnu@4.52.3':
+  '@rollup/rollup-win32-x64-gnu@4.52.4':
     optional: true
 
-  '@rollup/rollup-win32-x64-msvc@4.52.3':
+  '@rollup/rollup-win32-x64-msvc@4.52.4':
     optional: true
 
   '@sec-ant/readable-stream@0.4.1': {}
@@ -17075,10 +17107,10 @@ snapshots:
     dependencies:
       '@vercel/oidc': 2.0.2
 
-  '@vercel/nft@0.29.4(rollup@4.52.3)':
+  '@vercel/nft@0.29.4(rollup@4.52.4)':
     dependencies:
       '@mapbox/node-pre-gyp': 2.0.0
-      '@rollup/pluginutils': 5.3.0(rollup@4.52.3)
+      '@rollup/pluginutils': 5.3.0(rollup@4.52.4)
       acorn: 8.15.0
       acorn-import-attributes: 1.9.5(acorn@8.15.0)
       async-sema: 3.1.1
@@ -17094,10 +17126,10 @@ snapshots:
       - rollup
       - supports-color
 
-  '@vercel/nft@0.30.1(rollup@4.52.3)':
+  '@vercel/nft@0.30.1(rollup@4.52.4)':
     dependencies:
       '@mapbox/node-pre-gyp': 2.0.0
-      '@rollup/pluginutils': 5.3.0(rollup@4.52.3)
+      '@rollup/pluginutils': 5.3.0(rollup@4.52.4)
       acorn: 8.15.0
       acorn-import-attributes: 1.9.5(acorn@8.15.0)
       async-sema: 3.1.1
@@ -17118,7 +17150,7 @@ snapshots:
       '@types/ms': 2.1.0
       ms: 2.1.3
 
-  '@vercel/routing-utils@5.1.1':
+  '@vercel/routing-utils@5.2.0':
     dependencies:
       path-to-regexp: 6.1.0
       path-to-regexp-updated: path-to-regexp@6.3.0
@@ -18223,9 +18255,9 @@ snapshots:
 
   dotenv@8.6.0: {}
 
-  drizzle-orm@0.42.0(@cloudflare/workers-types@4.20251003.0)(@libsql/client@0.15.15):
+  drizzle-orm@0.42.0(@cloudflare/workers-types@4.20251011.0)(@libsql/client@0.15.15):
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20251003.0
+      '@cloudflare/workers-types': 4.20251011.0
       '@libsql/client': 0.15.15
 
   dset@3.1.4: {}
@@ -19244,7 +19276,7 @@ snapshots:
 
   ipaddr.js@1.9.1: {}
 
-  ipx@3.1.1(@netlify/blobs@10.0.11)(@vercel/functions@2.2.13):
+  ipx@3.1.1(@netlify/blobs@10.1.0)(@vercel/functions@2.2.13):
     dependencies:
       '@fastify/accept-negotiator': 2.0.1
       citty: 0.1.6
@@ -19260,7 +19292,7 @@ snapshots:
       sharp: 0.34.3
       svgo: 4.0.0
       ufo: 1.6.1
-      unstorage: 1.17.1(@netlify/blobs@10.0.11)(@vercel/functions@2.2.13)
+      unstorage: 1.17.1(@netlify/blobs@10.1.0)(@vercel/functions@2.2.13)
       xss: 1.0.15
     transitivePeerDependencies:
       - '@azure/app-configuration'
@@ -21414,32 +21446,32 @@ snapshots:
 
   rfdc@1.4.1: {}
 
-  rollup@4.52.3:
+  rollup@4.52.4:
     dependencies:
       '@types/estree': 1.0.8
     optionalDependencies:
-      '@rollup/rollup-android-arm-eabi': 4.52.3
-      '@rollup/rollup-android-arm64': 4.52.3
-      '@rollup/rollup-darwin-arm64': 4.52.3
-      '@rollup/rollup-darwin-x64': 4.52.3
-      '@rollup/rollup-freebsd-arm64': 4.52.3
-      '@rollup/rollup-freebsd-x64': 4.52.3
-      '@rollup/rollup-linux-arm-gnueabihf': 4.52.3
-      '@rollup/rollup-linux-arm-musleabihf': 4.52.3
-      '@rollup/rollup-linux-arm64-gnu': 4.52.3
-      '@rollup/rollup-linux-arm64-musl': 4.52.3
-      '@rollup/rollup-linux-loong64-gnu': 4.52.3
-      '@rollup/rollup-linux-ppc64-gnu': 4.52.3
-      '@rollup/rollup-linux-riscv64-gnu': 4.52.3
-      '@rollup/rollup-linux-riscv64-musl': 4.52.3
-      '@rollup/rollup-linux-s390x-gnu': 4.52.3
-      '@rollup/rollup-linux-x64-gnu': 4.52.3
-      '@rollup/rollup-linux-x64-musl': 4.52.3
-      '@rollup/rollup-openharmony-arm64': 4.52.3
-      '@rollup/rollup-win32-arm64-msvc': 4.52.3
-      '@rollup/rollup-win32-ia32-msvc': 4.52.3
-      '@rollup/rollup-win32-x64-gnu': 4.52.3
-      '@rollup/rollup-win32-x64-msvc': 4.52.3
+      '@rollup/rollup-android-arm-eabi': 4.52.4
+      '@rollup/rollup-android-arm64': 4.52.4
+      '@rollup/rollup-darwin-arm64': 4.52.4
+      '@rollup/rollup-darwin-x64': 4.52.4
+      '@rollup/rollup-freebsd-arm64': 4.52.4
+      '@rollup/rollup-freebsd-x64': 4.52.4
+      '@rollup/rollup-linux-arm-gnueabihf': 4.52.4
+      '@rollup/rollup-linux-arm-musleabihf': 4.52.4
+      '@rollup/rollup-linux-arm64-gnu': 4.52.4
+      '@rollup/rollup-linux-arm64-musl': 4.52.4
+      '@rollup/rollup-linux-loong64-gnu': 4.52.4
+      '@rollup/rollup-linux-ppc64-gnu': 4.52.4
+      '@rollup/rollup-linux-riscv64-gnu': 4.52.4
+      '@rollup/rollup-linux-riscv64-musl': 4.52.4
+      '@rollup/rollup-linux-s390x-gnu': 4.52.4
+      '@rollup/rollup-linux-x64-gnu': 4.52.4
+      '@rollup/rollup-linux-x64-musl': 4.52.4
+      '@rollup/rollup-openharmony-arm64': 4.52.4
+      '@rollup/rollup-win32-arm64-msvc': 4.52.4
+      '@rollup/rollup-win32-ia32-msvc': 4.52.4
+      '@rollup/rollup-win32-x64-gnu': 4.52.4
+      '@rollup/rollup-win32-x64-msvc': 4.52.4
       fsevents: 2.3.3
 
   run-applescript@7.1.0: {}
@@ -22240,7 +22272,7 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unstorage@1.17.1(@netlify/blobs@10.0.11)(@vercel/functions@2.2.13):
+  unstorage@1.17.1(@netlify/blobs@10.1.0)(@vercel/functions@2.2.13):
     dependencies:
       anymatch: 3.1.3
       chokidar: 4.0.3
@@ -22251,7 +22283,7 @@ snapshots:
       ofetch: 1.4.1
       ufo: 1.6.1
     optionalDependencies:
-      '@netlify/blobs': 10.0.11
+      '@netlify/blobs': 10.1.0
       '@vercel/functions': 2.2.13
 
   untun@0.1.3:
@@ -22337,10 +22369,10 @@ snapshots:
       - tsx
       - yaml
 
-  vite-plugin-inspect@0.8.9(rollup@4.52.3)(vite@6.4.0(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1)):
+  vite-plugin-inspect@0.8.9(rollup@4.52.4)(vite@6.4.0(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1)):
     dependencies:
       '@antfu/utils': 0.7.10
-      '@rollup/pluginutils': 5.3.0(rollup@4.52.3)
+      '@rollup/pluginutils': 5.3.0(rollup@4.52.4)
       debug: 4.4.3
       error-stack-parser-es: 0.1.5
       fs-extra: 11.3.1
@@ -22366,7 +22398,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vite-plugin-vue-devtools@7.7.7(rollup@4.52.3)(vite@6.4.0(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1))(vue@3.5.22(typescript@5.9.3)):
+  vite-plugin-vue-devtools@7.7.7(rollup@4.52.4)(vite@6.4.0(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1))(vue@3.5.22(typescript@5.9.3)):
     dependencies:
       '@vue/devtools-core': 7.7.7(vite@6.4.0(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1))(vue@3.5.22(typescript@5.9.3))
       '@vue/devtools-kit': 7.7.7
@@ -22374,7 +22406,7 @@ snapshots:
       execa: 9.6.0
       sirv: 3.0.2
       vite: 6.4.0(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1)
-      vite-plugin-inspect: 0.8.9(rollup@4.52.3)(vite@6.4.0(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1))
+      vite-plugin-inspect: 0.8.9(rollup@4.52.4)(vite@6.4.0(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1))
       vite-plugin-vue-inspector: 5.3.2(vite@6.4.0(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.1)(sass@1.93.2)(yaml@2.8.1))
     transitivePeerDependencies:
       - '@nuxt/kit'
@@ -22418,7 +22450,7 @@ snapshots:
       fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
       postcss: 8.5.6
-      rollup: 4.52.3
+      rollup: 4.52.4
       tinyglobby: 0.2.15
     optionalDependencies:
       '@types/node': 22.18.1
@@ -22434,7 +22466,7 @@ snapshots:
       fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
       postcss: 8.5.6
-      rollup: 4.52.3
+      rollup: 4.52.4
       tinyglobby: 0.2.15
     optionalDependencies:
       '@types/node': 22.18.1
@@ -22682,7 +22714,7 @@ snapshots:
       '@cloudflare/workerd-linux-arm64': 1.20250428.0
       '@cloudflare/workerd-windows-64': 1.20250428.0
 
-  wrangler@4.14.1(@cloudflare/workers-types@4.20251003.0):
+  wrangler@4.14.1(@cloudflare/workers-types@4.20251011.0):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.4.0
       '@cloudflare/unenv-preset': 2.3.1(unenv@2.0.0-rc.15)(workerd@1.20250428.0)
@@ -22693,7 +22725,7 @@ snapshots:
       unenv: 2.0.0-rc.15
       workerd: 1.20250428.0
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20251003.0
+      '@cloudflare/workers-types': 4.20251011.0
       fsevents: 2.3.3
       sharp: 0.33.5
     transitivePeerDependencies:
