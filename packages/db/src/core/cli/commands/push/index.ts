@@ -1,6 +1,6 @@
+import * as clack from '@clack/prompts';
 import type { AstroConfig } from 'astro';
 import { sql } from 'drizzle-orm';
-import prompts from 'prompts';
 import type { Arguments } from 'yargs-parser';
 import { MIGRATION_VERSION } from '../../../consts.js';
 import { createClient } from '../../../db-client/libsql-node.js';
@@ -42,14 +42,12 @@ export async function cmd({
 	}
 
 	if (isForceReset) {
-		const { begin } = await prompts({
-			type: 'confirm',
-			name: 'begin',
+		const begin = await clack.confirm({
 			message: `Reset your database? All of your data will be erased and your schema created from scratch.`,
-			initial: false,
+			initialValue: false,
 		});
 
-		if (!begin) {
+		if (begin !== true) {
 			console.log('Canceled.');
 			process.exit(0);
 		}

@@ -593,9 +593,6 @@ importers:
       picomatch:
         specifier: ^4.0.3
         version: 4.0.3
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
       rehype:
         specifier: ^13.0.2
         version: 13.0.2
@@ -693,9 +690,6 @@ importers:
       '@types/picomatch':
         specifier: ^3.0.2
         version: 3.0.2
-      '@types/prompts':
-        specifier: ^2.4.9
-        version: 2.4.9
       '@types/semver':
         specifier: ^7.7.0
         version: 7.7.1
@@ -4546,6 +4540,9 @@ importers:
 
   packages/db:
     dependencies:
+      '@clack/prompts':
+        specifier: 1.0.0-alpha.6
+        version: 1.0.0-alpha.6
       '@libsql/client':
         specifier: ^0.15.15
         version: 0.15.15
@@ -4561,9 +4558,6 @@ importers:
       nanoid:
         specifier: ^5.1.6
         version: 5.1.6
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
       yargs-parser:
         specifier: ^21.1.1
         version: 21.1.1
@@ -4574,9 +4568,6 @@ importers:
       '@types/deep-diff':
         specifier: ^1.0.5
         version: 1.0.5
-      '@types/prompts':
-        specifier: ^2.4.9
-        version: 2.4.9
       '@types/yargs-parser':
         specifier: ^21.0.3
         version: 21.0.3
@@ -9177,9 +9168,6 @@ packages:
   '@types/prismjs@1.26.5':
     resolution: {integrity: sha512-AUZTa7hQ2KY5L7AmtSiqxlhWxb4ina0yd8hNbl4TWuqnv/pFP0nDMb3YrfSBf4hJVGLh2YEIBfKaBW/9UEl6IQ==}
 
-  '@types/prompts@2.4.9':
-    resolution: {integrity: sha512-qTxFi6Buiu8+50/+3DGIWLHM6QuWsEKugJnnP6iv2Mc4ncxE4A/OJkjuVOA+5X0X1S/nq5VJRa8Lu+nwcvbrKA==}
-
   '@types/prop-types@15.7.15':
     resolution: {integrity: sha512-F6bEyamV9jKGAFBEmlQnesRPGOQqS2+Uwi0Em15xenOxHaf2hv6L8YCVn3rPdPJOiJfPiCnLIRyvwVaqMY3MIw==}
 
@@ -11446,10 +11434,6 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  kleur@3.0.3:
-    resolution: {integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==}
-    engines: {node: '>=6'}
-
   kleur@4.1.5:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
@@ -12692,10 +12676,6 @@ packages:
 
   promise-limit@2.7.0:
     resolution: {integrity: sha512-7nJ6v5lnJsXwGprnGXga4wx6d1POjvi5Qmf1ivTRxTjH4Z/9Czja/UCMLVmB9N93GeWOU93XaFaEt6jbuoagNw==}
-
-  prompts@2.4.2:
-    resolution: {integrity: sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==}
-    engines: {node: '>= 6'}
 
   property-information@6.5.0:
     resolution: {integrity: sha512-PgTgs/BlvHxOu8QuEN7wi5A0OmXaBcHpmCSTehcs6Uuu9IkDIEo13Hy7n898RHfrQ49vKCoGeWZSaAK01nwVig==}
@@ -16890,11 +16870,6 @@ snapshots:
 
   '@types/prismjs@1.26.5': {}
 
-  '@types/prompts@2.4.9':
-    dependencies:
-      '@types/node': 18.19.124
-      kleur: 3.0.3
-
   '@types/prop-types@15.7.15': {}
 
   '@types/react-dom@18.3.7(@types/react@18.3.26)':
@@ -19448,8 +19423,6 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  kleur@3.0.3: {}
-
   kleur@4.1.5: {}
 
   knip@5.61.3(@types/node@18.19.124)(typescript@5.9.3):
@@ -21003,11 +20976,6 @@ snapshots:
   progress@2.0.3: {}
 
   promise-limit@2.7.0: {}
-
-  prompts@2.4.2:
-    dependencies:
-      kleur: 3.0.3
-      sisteransi: 1.0.5
 
   property-information@6.5.0: {}
 

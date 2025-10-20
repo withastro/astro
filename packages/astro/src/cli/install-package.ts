@@ -3,7 +3,6 @@ import * as clack from '@clack/prompts';
 import ci from 'ci-info';
 import { bold, cyan, dim, magenta } from 'kleur/colors';
 import { detect, resolveCommand } from 'package-manager-detector';
-import prompts from 'prompts';
 import type { Logger } from '../core/logger/core.js';
 import { exec } from './exec.js';
 
@@ -88,14 +87,11 @@ async function installPackage(
 	if (options.skipAsk) {
 		response = true;
 	} else {
-		response = (
-			await prompts({
-				type: 'confirm',
-				name: 'askToContinue',
+		response =
+			(await clack.confirm({
 				message: 'Continue?',
-				initial: true,
-			})
-		).askToContinue;
+				initialValue: true,
+			})) === true;
 	}
 
 	if (Boolean(response)) {

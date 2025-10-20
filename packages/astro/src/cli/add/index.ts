@@ -7,7 +7,6 @@ import { bold, cyan, dim, green, magenta, red, yellow } from 'kleur/colors';
 import { type ASTNode, builders, generateCode, loadFile, type ProxifiedModule } from 'magicast';
 import { getDefaultExportOptions } from 'magicast/helpers';
 import { detect, resolveCommand } from 'package-manager-detector';
-import prompts from 'prompts';
 import maxSatisfying from 'semver/ranges/max-satisfying.js';
 import type yargsParser from 'yargs-parser';
 import {
@@ -928,14 +927,12 @@ function parseIntegrationName(spec: string) {
 async function askToContinue({ flags }: { flags: Flags }): Promise<boolean> {
 	if (flags.yes || flags.y) return true;
 
-	const response = await prompts({
-		type: 'confirm',
-		name: 'askToContinue',
+	const response = await clack.confirm({
 		message: 'Continue?',
-		initial: true,
+		initialValue: true,
 	});
 
-	return Boolean(response.askToContinue);
+	return response === true;
 }
 
 function getDiffContent(input: string, output: string): string | null {
