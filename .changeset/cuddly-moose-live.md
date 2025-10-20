@@ -8,6 +8,7 @@ This change aligns the **static type** of `Astro.params` with its **runtime beha
 
 ```ts
 // src/pages/post/[id].astro
+---
 import type { GetStaticPaths, InferGetStaticParamsType } from 'astro';
 
 export const getStaticPaths = (() => {
@@ -24,4 +25,5 @@ type Params = InferGetStaticParamsType<typeof getStaticPaths>;
 
 const params = Astro.params as Params;
 console.log(typeof params.id); // Always "string" at runtime.
+---
 ```
