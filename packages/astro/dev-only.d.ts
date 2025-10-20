@@ -20,7 +20,8 @@ declare module 'virtual:astro:actions/runtime' {
 }
 
 declare module 'virtual:astro:actions/entrypoint' {
-	export * from './src/actions/runtime/server.js';
+	import type { SSRActions } from './src/index.js';
+	export const server: SSRActions;
 }
 
 declare module 'virtual:astro:serialized-manifest' {
