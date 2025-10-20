@@ -12,11 +12,11 @@ import type { HTMLDocument } from 'vscode-html-languageservice';
 import type { URI } from 'vscode-uri';
 import type { PackageInfo } from '../importPackage.js';
 import { getLanguageServerTypesDir } from '../utils.js';
-import { astro2tsx } from './astro2tsx';
-import type { AstroMetadata } from './parseAstro';
-import { getAstroMetadata } from './parseAstro';
-import { extractStylesheets } from './parseCSS';
-import { parseHTML } from './parseHTML';
+import { astro2tsx } from './astro2tsx.js';
+import type { AstroMetadata } from './parseAstro.js';
+import { getAstroMetadata } from './parseAstro.js';
+import { extractStylesheets } from './parseCSS.js';
+import { parseHTML } from './parseHTML.js';
 import { extractScriptTags } from './parseJS.js';
 
 const decoratedHosts = new WeakSet<ts.LanguageServiceHost>();
