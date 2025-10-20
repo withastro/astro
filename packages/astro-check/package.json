@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/check",
   "description": "Type checking and diagnostics for Astro projects",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "author": "withastro",
   "license": "MIT",
   "homepage": "https://github.com/withastro/language-tools/tree/main/packages/astro-check",

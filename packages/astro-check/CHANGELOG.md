@@ -1,5 +1,11 @@
 # @astrojs/check
 
+## 0.9.5
+
+### Patch Changes
+
+- d415d4e: When no errors or warnings are detected, display "0 errors" or "0 warnings" in a dimmed color on the console instead of red or yellow.
+
 ## 0.9.4
 
 ### Patch Changes
