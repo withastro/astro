@@ -135,7 +135,7 @@ function getAdapter({
 				? (): Record<string, string> => {
 						const deploymentId = process.env.VERCEL_DEPLOYMENT_ID;
 						if (deploymentId) {
-							return { 'x-vercel-deployment-id': deploymentId };
+							return { 'x-deployment-id': deploymentId };
 						}
 						return {};
 					}
