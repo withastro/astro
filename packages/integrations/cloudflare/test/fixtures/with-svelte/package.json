@@ -6,6 +6,6 @@
     "@astrojs/cloudflare": "workspace:*",
     "@astrojs/svelte": "^7.2.0",
     "astro": "workspace:*",
-    "svelte": "^5.39.8"
+    "svelte": "^5.40.2"
   }
 }
