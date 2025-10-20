@@ -142,7 +142,10 @@ export type InferGetStaticParamsType<T> = T extends (
 ) => infer R | Promise<infer R>
 	? R extends Array<infer U>
 		? U extends { params: infer P }
-			? P
+			? P extends Record<string, any>
+				? // Convert numbers to strings, and keep strings and undefined as is
+					{ [K in keyof P]: Extract<P[K], string | undefined> | `${Extract<P[K], number>}` }
+				: never
 			: never
 		: never
 	: never;
