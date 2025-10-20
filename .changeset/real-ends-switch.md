@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Enable CLI shortcuts for `astro preview`:
+Enables CLI shortcuts for `astro preview`:
 
 - `o + enter`: opens the site in your browser
 - `q + enter`: quits the dev server
