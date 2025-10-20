@@ -140,14 +140,8 @@ function getAdapter({
 						return {};
 					}
 				: undefined,
-			assetQueryParams: skewProtection
-				? (): URLSearchParams | undefined => {
-						const deploymentId = process.env.VERCEL_DEPLOYMENT_ID;
-						if (deploymentId) {
-							return new URLSearchParams({ dpl: deploymentId });
-						}
-						return undefined;
-					}
+			assetQueryParams: skewProtection && process.env.VERCEL_DEPLOYMENT_ID
+				? new URLSearchParams({ dpl: process.env.VERCEL_DEPLOYMENT_ID })
 				: undefined,
 		},
 	};
