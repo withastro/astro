@@ -1,5 +1,7 @@
 ---
-export async function getStaticPaths() {
+import type { GetStaticPaths, InferGetStaticParamsType } from "astro";
+
+export const getStaticPaths = (() => {
 	return [
 		{
 			params: { page: 1 },
@@ -11,9 +13,11 @@ export async function getStaticPaths() {
 			params: { page: 3 }
 		}
 	]
-};
+}) satisfies GetStaticPaths;
 
-const { page } = Astro.params
+type Params = InferGetStaticParamsType<typeof getStaticPaths>;
+const params = Astro.params as Params;
+const page = params.page satisfies string
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
