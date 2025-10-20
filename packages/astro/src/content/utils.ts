@@ -184,8 +184,14 @@ export async function getEntryDataAndImages<
 			schema = schema({
 				image: () =>
 					z.string().transform((val) => {
-						imageImports.add(val);
-						return `${IMAGE_IMPORT_PREFIX}${val}`;
+						// Normalize bare filenames to relative paths for consistent resolution
+						// This ensures bare filenames like "cover.jpg" work the same way as in markdown frontmatter
+						let normalizedPath = val;
+						if (val && !val.startsWith('./') && !val.startsWith('/') && !val.includes('://')) {
+							normalizedPath = `./${val}`;
+						}
+						imageImports.add(normalizedPath);
+						return `${IMAGE_IMPORT_PREFIX}${normalizedPath}`;
 					}),
 			});
 		}
