@@ -1,7 +1,7 @@
 import type { PluginContext } from 'rollup';
 import { z } from 'zod';
 import type { ImageMetadata, OmitBrand } from '../assets/types.js';
-import { emitImageMetadata } from '../assets/utils/node/emitAsset.js';
+import { emitImageMetadata } from '../assets/utils/node.js';
 
 export function createImage(
 	pluginContext: PluginContext,

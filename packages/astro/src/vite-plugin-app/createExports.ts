@@ -1,11 +1,7 @@
-// @ts-expect-error This is a virtual module
-import { renderers } from 'astro:renderers';
-// @ts-expect-error This is a virtual module
-import { routes } from 'astro:routes';
-// @ts-expect-error This is a virtual module
-import { manifest as serializedManifest } from 'astro:serialized-manifest';
-
 import type http from 'node:http';
+import { renderers } from 'virtual:astro:renderers';
+import { routes } from 'virtual:astro:routes';
+import { manifest as serializedManifest } from 'virtual:astro:serialized-manifest';
 import type { RouteInfo } from '../core/app/types.js';
 import { Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';

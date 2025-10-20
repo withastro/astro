@@ -1,7 +1,7 @@
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../types/astro.js';
 
-export const ASTRO_RENDERERS_MODULE_ID = 'astro:renderers';
+export const ASTRO_RENDERERS_MODULE_ID = 'virtual:astro:renderers';
 export const RESOLVED_ASTRO_RENDERERS_MODULE_ID = `\0${ASTRO_RENDERERS_MODULE_ID}`;
 
 interface PluginOptions {

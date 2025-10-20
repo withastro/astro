@@ -1,6 +1,7 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { ENTRYPOINT_VIRTUAL_MODULE_ID } from '../../../actions/consts.js';
 import type { AstroAdapter } from '../../../types/public/integrations.js';
+import { ASTRO_RENDERERS_MODULE_ID } from '../../../vite-plugin-renderers/index.js';
 import { MIDDLEWARE_MODULE_ID } from '../../middleware/vite-plugin.js';
 import { routeIsRedirect } from '../../redirects/index.js';
 import { VIRTUAL_ISLAND_MAP_ID } from '../../server-islands/vite-plugin-server-islands.js';
@@ -167,7 +168,7 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 	const edgeMiddleware = adapter?.adapterFeatures?.edgeMiddleware ?? false;
 
 	const imports = [
-		`import { renderers } from 'astro:renderers';`,
+		`import { renderers } from '${ASTRO_RENDERERS_MODULE_ID}';`,
 		`import * as serverEntrypointModule from '${ADAPTER_VIRTUAL_MODULE_ID}';`,
 		`import { manifest as defaultManifest } from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}';`,
 		`import { serverIslandMap } from '${VIRTUAL_ISLAND_MAP_ID}';`,
