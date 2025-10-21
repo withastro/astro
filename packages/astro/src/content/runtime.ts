@@ -2,8 +2,7 @@ import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import { escape } from 'html-escaper';
 import { Traverse } from 'neotraverse/modern';
 import * as z3 from 'zod/v3';
-import { safeParseAsync } from 'zod/v4';
-import type * as z4 from 'zod/v4/core';
+import * as z4 from 'zod/v4/core';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -60,7 +59,7 @@ async function parseLiveEntry(
 	try {
 		const parsed =
 			'_zod' in schema
-				? await safeParseAsync(schema, entry.data)
+				? await z4.safeParseAsync(schema, entry.data)
 				: await schema.safeParseAsync(entry.data);
 		if (!parsed.success) {
 			return {
