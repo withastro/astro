@@ -5,4 +5,4 @@
 '@astrojs/db': patch
 ---
 
-Makes dependencies a tiny bit lighter by switching from `kleur` to `picocolors` for styling terminal text
+Reduces terminal text styling dependency size by switching from `kleur` to `picocolors`
