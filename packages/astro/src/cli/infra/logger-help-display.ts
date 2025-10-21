@@ -1,6 +1,6 @@
-import type { Logger } from '../../../core/logger/core.js';
-import type { Flags } from '../../flags.js';
+import type { Logger } from '../../core/logger/core.js';
 import type { AstroVersionProvider, HelpDisplay, TextStyler } from '../definitions.js';
+import type { Flags } from '../flags.js';
 
 interface Options {
 	logger: Logger;
