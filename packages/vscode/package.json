@@ -148,6 +148,12 @@
           "default": false,
           "description": "Enable experimental support for content collection intellisense inside Markdown, MDX and Markdoc. Note that this require also enabling the feature in your Astro config (experimental.contentCollectionIntellisense) (Astro 4.14+)"
         },
+        "astro.auto-import-cache.enabled": {
+          "scope": "resource",
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Enable the auto import cache. Yields a faster intellisense when automatically importing a file, but can cause issues with new files not being detected. Change is applied on restart. See [#1035](https://github.com/withastro/language-tools/issues/1035)."
+        },
         "astro.updateImportsOnFileMove.enabled": {
           "scope": "resource",
           "type": "boolean",
