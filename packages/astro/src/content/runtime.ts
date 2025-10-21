@@ -1,7 +1,9 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import { escape } from 'html-escaper';
 import { Traverse } from 'neotraverse/modern';
-import { z } from 'zod/v3';
+import * as z3 from 'zod/v3';
+import { safeParseAsync } from 'zod/v4';
+import type * as z4 from 'zod/v4/core';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -42,21 +44,24 @@ export {
 type LazyImport = () => Promise<any>;
 type LiveCollectionConfigMap = Record<
 	string,
-	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE; schema?: z.ZodType }
+	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE; schema?: z3.ZodType | z4.$ZodType }
 >;
 
-const cacheHintSchema = z.object({
-	tags: z.array(z.string()).optional(),
-	lastModified: z.date().optional(),
+const cacheHintSchema = z3.object({
+	tags: z3.array(z3.string()).optional(),
+	lastModified: z3.date().optional(),
 });
 
 async function parseLiveEntry(
 	entry: LiveDataEntry,
-	schema: z.ZodType,
+	schema: z3.ZodType | z4.$ZodType,
 	collection: string,
 ): Promise<{ entry?: LiveDataEntry; error?: LiveCollectionError }> {
 	try {
-		const parsed = await schema.safeParseAsync(entry.data);
+		const parsed =
+			'_zod' in schema
+				? await safeParseAsync(schema, entry.data)
+				: await schema.safeParseAsync(entry.data);
 		if (!parsed.success) {
 			return {
 				error: new LiveCollectionValidationError(collection, entry.id, parsed.error),
@@ -655,16 +660,16 @@ async function render({
 
 export function createReference() {
 	return function reference(collection: string) {
-		return z
+		return z3
 			.union([
-				z.string(),
-				z.object({
-					id: z.string(),
-					collection: z.string(),
+				z3.string(),
+				z3.object({
+					id: z3.string(),
+					collection: z3.string(),
 				}),
-				z.object({
-					slug: z.string(),
-					collection: z.string(),
+				z3.object({
+					slug: z3.string(),
+					collection: z3.string(),
 				}),
 			])
 			.transform(
@@ -681,7 +686,7 @@ export function createReference() {
 						// If these don't match then something is wrong with the reference
 						if (lookup.collection !== collection) {
 							ctx.addIssue({
-								code: z.ZodIssueCode.custom,
+								code: z3.ZodIssueCode.custom,
 								message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${collection}. Received ${lookup.collection}.`,
 							});
 							return;

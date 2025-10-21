@@ -171,6 +171,14 @@ export function defineLiveCollection<
 			),
 		});
 	}
+
+	if (config.schema) {
+		const error = checkZodSchemaCompatibility(config.schema, experimentalZod4, 'live collections');
+		if (error) {
+			throw error;
+		}
+	}
+
 	return config;
 }
 
@@ -222,12 +230,7 @@ export function defineCollection(
 	}
 	config.type = CONTENT_LAYER_TYPE;
 
-	if (
-		config.schema &&
-		typeof config.schema !== 'function' &&
-		'_zod' in config.schema &&
-		!experimentalZod4
-	) {
+	if (config.schema && typeof config.schema !== 'function') {
 		const error = checkZodSchemaCompatibility(
 			config.schema,
 			experimentalZod4,
