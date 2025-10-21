@@ -1,5 +1,11 @@
 # astro
 
+## 5.14.8
+
+### Patch Changes
+
+- [#14590](https://github.com/withastro/astro/pull/14590) [`577d051`](https://github.com/withastro/astro/commit/577d051637d1b5d0df3100bed4c1d815eae7291c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes image path resolution in content layer collections to support bare filenames. The `image()` helper now normalizes bare filenames like `"cover.jpg"` to relative paths `"./cover.jpg"` for consistent resolution behavior between markdown frontmatter and JSON content collections.
+
 ## 5.14.7
 
 ### Patch Changes
