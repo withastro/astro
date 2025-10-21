@@ -89,7 +89,7 @@ export default async function seed() {
 		"directory": "./dist"
 	}
 }`,
-	CLOUDFLARE_ASSETSIGNORE: `_worker.js`,
+	CLOUDFLARE_ASSETSIGNORE: `_worker.js\n_routes.json`,
 };
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
