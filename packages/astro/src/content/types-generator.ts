@@ -596,7 +596,9 @@ async function generateJSONSchema(
 ) {
 	let zodSchemaForJson =
 		typeof collectionConfig.schema === 'function'
-			? collectionConfig.schema({ image: () => (experimentalZod4 ? _z4.string() : z3.string()) })
+			? collectionConfig.schema({
+					image: experimentalZod4 ? () => _z4.string() : () => z3.string(),
+				})
 			: collectionConfig.schema;
 
 	if (!zodSchemaForJson && collectionConfig.type === CONTENT_LAYER_TYPE) {
@@ -618,13 +620,14 @@ async function generateJSONSchema(
 			: z3.object({}).catchall(zodSchemaForJson);
 	}
 
-	if (zodSchemaForJson instanceof z4.$ZodObject) {
+	if (experimentalZod4 && zodSchemaForJson instanceof z4.$ZodObject) {
 		zodSchemaForJson = _z4.object({
 			...(zodSchemaForJson as any).shape,
 			$schema: _z4.string().optional(),
 		});
 	} else if (zodSchemaForJson instanceof z3.ZodObject) {
-		zodSchemaForJson = zodSchemaForJson.extend({
+		zodSchemaForJson = z3.object({
+			...(zodSchemaForJson as any).shape,
 			$schema: z3.string().optional(),
 		});
 	}
@@ -633,7 +636,7 @@ async function generateJSONSchema(
 		await fsMod.promises.writeFile(
 			new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
 			JSON.stringify(
-				'_zod' in zodSchemaForJson
+				experimentalZod4
 					? z4.toJSONSchema(zodSchemaForJson, {
 							unrepresentable: 'any',
 							io: 'input',
