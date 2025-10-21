@@ -38,45 +38,34 @@ export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z3.ZodTy
 
 export type ActionReturnType<T extends ActionHandler<any, any>> = Awaited<ReturnType<T>>;
 
+type _ActionClient<TOutput, TAccept extends ActionAccept | undefined, TInput> = ((
+	...[args]: TAccept extends 'form'
+		? [input: FormData]
+		: [TInput] extends [never]
+			? [input?: any]
+			: [input: TInput]
+) => Promise<
+	SafeResult<TInput extends ErrorInferenceObject ? TInput : ErrorInferenceObject, Awaited<TOutput>>
+>) & {
+	queryString: string;
+	orThrow: (
+		...[args]: TAccept extends 'form'
+			? [input: FormData]
+			: [TInput] extends [never]
+				? [input?: any]
+				: [input: TInput]
+	) => Promise<Awaited<TOutput>>;
+};
+
 export type ActionClient<
 	TOutput,
 	TAccept extends ActionAccept | undefined,
 	TInputSchema extends z3.ZodType | z4.$ZodType | undefined,
 > = TInputSchema extends z3.ZodType
-	? ((
-			input: TAccept extends 'form' ? FormData : z3.input<TInputSchema>,
-		) => Promise<
-			SafeResult<
-				z3.input<TInputSchema> extends ErrorInferenceObject
-					? z3.input<TInputSchema>
-					: ErrorInferenceObject,
-				Awaited<TOutput>
-			>
-		>) & {
-			queryString: string;
-			orThrow: (
-				input: TAccept extends 'form' ? FormData : z3.input<TInputSchema>,
-			) => Promise<Awaited<TOutput>>;
-		}
+	? _ActionClient<TOutput, TAccept, z3.input<TInputSchema>>
 	: TInputSchema extends z4.$ZodType
-		? ((
-				input: TAccept extends 'form' ? FormData : z4.input<TInputSchema>,
-			) => Promise<
-				SafeResult<
-					z4.input<TInputSchema> extends ErrorInferenceObject
-						? z4.input<TInputSchema>
-						: ErrorInferenceObject,
-					Awaited<TOutput>
-				>
-			>) & {
-				queryString: string;
-				orThrow: (
-					input: TAccept extends 'form' ? FormData : z4.input<TInputSchema>,
-				) => Promise<Awaited<TOutput>>;
-			}
-		: ((input?: any) => Promise<SafeResult<never, Awaited<TOutput>>>) & {
-				orThrow: (input?: any) => Promise<Awaited<TOutput>>;
-			};
+		? _ActionClient<TOutput, TAccept, z4.input<TInputSchema>>
+		: _ActionClient<TOutput, TAccept, never>;
 
 export function getFormServerHandler<TOutput, TInputSchema extends z3.ZodType | z4.$ZodType>(
 	handler: ActionHandler<TInputSchema, TOutput>,
