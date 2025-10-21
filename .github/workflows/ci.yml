@@ -114,6 +114,7 @@ jobs:
         TEST_SUITE:
           - { name: astro, script: 'pnpm run test:astro' }
           - { name: integrations, script: 'pnpm run test:integrations' }
+          - { name: language-tools, script: 'pnpm run test:language-tools' }
         # We only test Node 22 on macOS and Windows to reduce CI usage.
         # This exclude config tells GitHub to skip the items in the matrix that run on macOS or
         # Windows and use one of the older Node versions.
@@ -152,7 +153,12 @@ jobs:
         run: pnpm run build
 
       - name: Test ${{ matrix.TEST_SUITE.name }}
-        run: ${{ matrix.TEST_SUITE.script }}
+        run: |
+          if [[ "${{ matrix.TEST_SUITE.name }}" == "language-tools" && "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            xvfb-run -a ${{ matrix.TEST_SUITE.script }}
+          else
+            ${{ matrix.TEST_SUITE.script }}
+          fi
 
   e2e:
     name: "Test (E2E): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
