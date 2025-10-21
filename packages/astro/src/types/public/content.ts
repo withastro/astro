@@ -41,6 +41,8 @@ export interface MDXInstance<T extends Record<string, any>>
  * ```astro
  * ---
  * import { getEntry, render } from 'astro:content';
+ * import MyCustomH1 from '../components/CustomHeading.astro';
+ * import MyImage from '../images/MyImage.jpg';
  * const entry = await getEntry('blog', 'post');
  * const { Content } = await render(entry);
  * ---
