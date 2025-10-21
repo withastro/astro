@@ -1,5 +1,15 @@
 # @astrojs/vercel
 
+## 8.2.11
+
+### Patch Changes
+
+- [#14570](https://github.com/withastro/astro/pull/14570) [`c96711d`](https://github.com/withastro/astro/commit/c96711d661c1beb7534a0c1d6b4fe806e656c13b) Thanks [@matthewp](https://github.com/matthewp)! - Fix regression in 8.2.7: validate densities-based srcset widths against configured sizes
+
+  When using `densities` with the Vercel image adapter, calculated widths were not being validated against Vercel's configured sizes list. This caused images to fail when using densities, as Vercel would reject the invalid widths.
+
+  This fix ensures densities-calculated widths are mapped to valid configured sizes, matching the behavior already implemented for the `widths` prop.
+
 ## 8.2.10
 
 ### Patch Changes
