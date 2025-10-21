@@ -1,4 +1,4 @@
-import * as colors from 'kleur/colors';
+import colors from 'picocolors';
 import yargs from 'yargs-parser';
 import { ASTRO_VERSION } from '../core/constants.js';
 
@@ -62,19 +62,19 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
 async function runCommand(cmd: string, flags: yargs.Arguments) {
 	const [
 		{ createLoggerFromFlags },
-		{ createKleurTextStyler },
+		{ createTextStyler },
 		{ createBuildTimeAstroVersionProvider },
 		{ createLoggerHelpDisplay },
 		{ createCliCommandRunner },
 	] = await Promise.all([
 		import('./flags.js'),
-		import('./infra/kleur-text-styler.js'),
+		import('./infra/text-styler.js'),
 		import('./infra/build-time-astro-version-provider.js'),
 		import('./infra/logger-help-display.js'),
 		import('./infra/cli-command-runner.js'),
 	]);
 	const logger = createLoggerFromFlags(flags);
-	const textStyler = createKleurTextStyler();
+	const textStyler = createTextStyler();
 	const astroVersionProvider = createBuildTimeAstroVersionProvider();
 	const helpDisplay = createLoggerHelpDisplay({
 		logger,
