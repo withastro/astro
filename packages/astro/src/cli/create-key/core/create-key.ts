@@ -1,6 +1,6 @@
 import type { Logger } from '../../../core/logger/core.js';
+import { defineCommand } from '../../domain/command.js';
 import type { KeyGenerator } from '../definitions.js';
-import { defineCommand } from '../domain/command.js';
 
 interface Options {
 	logger: Logger;
