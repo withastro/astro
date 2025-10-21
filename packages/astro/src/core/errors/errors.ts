@@ -1,4 +1,4 @@
-import type { ZodError } from 'zod';
+import type { ZodError } from 'zod/v3';
 import { codeFrame } from './printer.js';
 
 interface ErrorProperties {

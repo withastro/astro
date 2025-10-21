@@ -16,6 +16,8 @@ export {
 } from 'astro/content/runtime';
 export { z } from 'astro/zod';
 
+import { experimentalZod4 } from 'virtual:astro:config/experimentalZod4';
+
 /* @@LIVE_CONTENT_CONFIG@@ */
 
 export const getCollection = createGetCollection({
@@ -28,7 +30,7 @@ export const getEntry = createGetEntry({
 
 export const getEntries = createGetEntries(getEntry);
 
-export const reference = createReference();
+export const reference = createReference(experimentalZod4);
 
 export const getLiveCollection = createGetLiveCollection({
 	liveCollections,

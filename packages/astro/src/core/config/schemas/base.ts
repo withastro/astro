@@ -7,7 +7,7 @@ import type {
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 import { localFontFamilySchema, remoteFontFamilySchema } from '../../../assets/fonts/config.js';
 import { EnvSchema } from '../../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/config.js';
@@ -101,6 +101,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		csp: false,
 		chromeDevtoolsWorkspace: false,
 		failOnPrerenderConflict: false,
+		zod4: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -508,6 +509,7 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.failOnPrerenderConflict),
+			zod4: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.zod4),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,

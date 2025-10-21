@@ -1,4 +1,5 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { z } from 'zod/v4'
 
 const data = defineCollection({
 	loader: async () => ([
