@@ -174,12 +174,14 @@ export function defineLiveCollection<
 	return config;
 }
 
-export function defineCollection<S extends z4.$ZodType>(
+export type DefineZ4Collection = <S extends z4.$ZodType>(
 	config: CollectionConfig<S>,
-): CollectionConfig<S>;
-export function defineCollection<S extends z3.ZodType>(
+) => CollectionConfig<S>;
+
+export type DefineZ3Collection = <S extends z3.ZodType>(
 	config: CollectionConfig<S>,
-): CollectionConfig<S>;
+) => CollectionConfig<S>;
+
 export function defineCollection(
 	config: CollectionConfig<BaseSchema>,
 ): CollectionConfig<BaseSchema> {
@@ -226,7 +228,11 @@ export function defineCollection(
 		'_zod' in config.schema &&
 		!experimentalZod4
 	) {
-		const error = checkZodSchemaCompatibility(config.schema, experimentalZod4, 'content collections');
+		const error = checkZodSchemaCompatibility(
+			config.schema,
+			experimentalZod4,
+			'content collections',
+		);
 		if (error) {
 			throw error;
 		}

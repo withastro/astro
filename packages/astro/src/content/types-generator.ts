@@ -557,6 +557,12 @@ async function writeContentFiles({
 			liveConfigPathRelativeToCacheDir
 				? `typeof import(${liveConfigPathRelativeToCacheDir})`
 				: 'never',
+		)
+		.replace(
+			"'@@DEFINE_COLLECTION@@'",
+			settings.config.experimental.zod4
+				? "import('astro/content/config').DefineZ4Collection"
+				: "import('astro/content/config').DefineZ3Collection",
 		);
 
 	// If it's the first time, we inject types the usual way. sync() will handle creating files and references. If it's not the first time, we just override the dts content

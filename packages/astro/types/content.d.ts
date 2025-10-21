@@ -8,8 +8,10 @@ declare module 'astro:content' {
 		BaseSchema,
 		SchemaContext,
 	} from 'astro/content/config';
-	export { defineCollection, defineLiveCollection } from 'astro/content/config';
+	export { defineLiveCollection } from 'astro/content/config';
 
+	/** Run `astro dev` or `astro sync` to generate high fidelity types */
+	export const defineCollection: (...args: any[]) => any;
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */
 	export const getEntryBySlug: (...args: any[]) => any;
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */

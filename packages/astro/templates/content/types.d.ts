@@ -8,6 +8,8 @@ declare module 'astro:content' {
 		'.md': Promise<RenderResult>;
 	}
 
+	export const defineCollection: '@@DEFINE_COLLECTION@@';
+
 	export interface RenderedContent {
 		html: string;
 		metadata?: {
@@ -15,9 +17,7 @@ declare module 'astro:content' {
 			[key: string]: unknown;
 		};
 	}
-}
 
-declare module 'astro:content' {
 	type Flatten<T> = T extends { [K: string]: infer U } ? U : never;
 
 	export type CollectionKey = keyof DataEntryMap;
