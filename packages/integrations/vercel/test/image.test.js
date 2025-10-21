@@ -51,9 +51,7 @@ describe('Image', () => {
 		const srcset = img.attr('srcset');
 
 		// Extract widths from srcset (format: "url 1x", "url 1.5x", etc)
-		const descriptors = srcset
-			.split(', ')
-			.map((entry) => entry.split(' ')[1]);
+		const descriptors = srcset.split(', ').map((entry) => entry.split(' ')[1]);
 
 		// Extract the widths from the URLs (they should be valid configured sizes)
 		const urls = srcset.split(', ').map((entry) => entry.split(' ')[0]);
@@ -71,19 +69,19 @@ describe('Image', () => {
 		assert.deepEqual(
 			widthsFromUrls.sort((a, b) => a - b),
 			[640, 828, 1200],
-			`widths are mapped to nearest configured sizes`
+			`widths are mapped to nearest configured sizes`,
 		);
 
 		// All widths should be from the configured sizes
 		assert.ok(
 			widthsFromUrls.every((w) => [640, 750, 828, 1080, 1200, 1920, 2048, 3840].includes(w)),
-			`all widths in srcset are from configured sizes: ${widthsFromUrls}`
+			`all widths in srcset are from configured sizes: ${widthsFromUrls}`,
 		);
 
 		// Check that we have density descriptors
 		assert.ok(
 			descriptors.every((d) => /^\d+(\.\d+)?x$/.exec(d)),
-			`all descriptors are density-based (e.g., 1x, 1.5x): ${descriptors}`
+			`all descriptors are density-based (e.g., 1x, 1.5x): ${descriptors}`,
 		);
 	});
 
