@@ -39,7 +39,7 @@ export function getLanguageServicePlugins(
 	connection: Connection,
 	ts: typeof import('typescript'),
 	collectionConfig: CollectionConfig,
-	initializeParams?: InitializeParams
+	initializeParams?: InitializeParams,
 ) {
 	const LanguageServicePlugins = [
 		createHtmlService(),

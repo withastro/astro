@@ -67,9 +67,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<LabsIn
 		.getConfiguration('astro')
 		.get('content-intellisense');
 
-	const shouldDisableAutoImportCache = vscode.workspace
-	.getConfiguration('astro')
-	.get('auto-import-cache.enabled') === false;
+	const shouldDisableAutoImportCache =
+		vscode.workspace.getConfiguration('astro').get('auto-import-cache.enabled') === false;
 
 	const initializationOptions = {
 		typescript: {
