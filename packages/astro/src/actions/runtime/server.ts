@@ -38,23 +38,21 @@ export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z3.ZodTy
 
 export type ActionReturnType<T extends ActionHandler<any, any>> = Awaited<ReturnType<T>>;
 
-type _ActionClient<TOutput, TAccept extends ActionAccept | undefined, TInput> = ((
-	...[args]: TAccept extends 'form'
-		? [input: FormData]
-		: [TInput] extends [never]
-			? [input?: any]
-			: [input: TInput]
-) => Promise<
+type _ActionClient<TOutput, TAccept extends ActionAccept | undefined, TInput> = (([
+	input,
+]: TAccept extends 'form'
+	? [input: FormData]
+	: [TInput] extends [never]
+		? [input?: any]
+		: [input: TInput]) => Promise<
 	SafeResult<TInput extends ErrorInferenceObject ? TInput : ErrorInferenceObject, Awaited<TOutput>>
 >) & {
 	queryString: string;
-	orThrow: (
-		...[args]: TAccept extends 'form'
-			? [input: FormData]
-			: [TInput] extends [never]
-				? [input?: any]
-				: [input: TInput]
-	) => Promise<Awaited<TOutput>>;
+	orThrow: ([input]: TAccept extends 'form'
+		? [input: FormData]
+		: [TInput] extends [never]
+			? [input?: any]
+			: [input: TInput]) => Promise<Awaited<TOutput>>;
 };
 
 export type ActionClient<

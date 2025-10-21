@@ -87,18 +87,7 @@ declare module 'astro:content' {
 		entry: DataEntryMap[C][string],
 	): Promise<RenderResult>;
 
-	export function reference<C extends keyof DataEntryMap>(
-		collection: C,
-	): import('astro/zod').ZodEffects<
-		import('astro/zod').ZodString,
-		ReferenceDataEntry<C, keyof DataEntryMap[C]>
-	>;
-	// Allow generic `string` to avoid excessive type errors in the config
-	// if `dev` is not running to update as you edit.
-	// Invalid collection names will be caught at build time.
-	export function reference<C extends string>(
-		collection: C,
-	): import('astro/zod').ZodEffects<import('astro/zod').ZodString, never>;
+	export const reference: '@@REFERENCE@@';
 
 	type ReturnTypeOrOriginal<T> = T extends (...args: any[]) => infer R ? R : T;
 	type InferEntrySchema<C extends keyof DataEntryMap> = import('astro/zod').infer<

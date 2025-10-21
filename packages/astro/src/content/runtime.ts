@@ -2,6 +2,7 @@ import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import { escape } from 'html-escaper';
 import { Traverse } from 'neotraverse/modern';
 import * as z3 from 'zod/v3';
+import * as _z4 from 'zod/v4';
 import * as z4 from 'zod/v4/core';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
@@ -657,29 +658,23 @@ async function render({
 	}
 }
 
-export function createReference() {
-	return function reference(collection: string) {
-		return z3
-			.union([
-				z3.string(),
-				z3.object({
-					id: z3.string(),
-					collection: z3.string(),
-				}),
-				z3.object({
-					slug: z3.string(),
-					collection: z3.string(),
-				}),
-			])
-			.transform(
-				(
-					lookup:
-						| string
-						| { id: string; collection: string }
-						| { slug: string; collection: string },
-					ctx,
-				) => {
-					const flattenedErrorPath = ctx.path.join('.');
+export function createReference(experimentalZod4: boolean) {
+	if (experimentalZod4) {
+		return function reference(collection: string) {
+			return _z4
+				.union([
+					_z4.string(),
+					_z4.object({
+						id: _z4.string(),
+						collection: _z4.string(),
+					}),
+					_z4.object({
+						slug: _z4.string(),
+						collection: _z4.string(),
+					}),
+				])
+				.transform((lookup, ctx) => {
+					const flattenedErrorPath = ctx.issues[0].path?.join('.');
 
 					if (typeof lookup === 'object') {
 						// If these don't match then something is wrong with the reference
@@ -695,8 +690,41 @@ export function createReference() {
 					}
 
 					return { id: lookup, collection };
-				},
-			);
+				});
+		};
+	}
+
+	return function reference(collection: string) {
+		return z3
+			.union([
+				z3.string(),
+				z3.object({
+					id: z3.string(),
+					collection: z3.string(),
+				}),
+				z3.object({
+					slug: z3.string(),
+					collection: z3.string(),
+				}),
+			])
+			.transform((lookup, ctx) => {
+				const flattenedErrorPath = ctx.path.join('.');
+
+				if (typeof lookup === 'object') {
+					// If these don't match then something is wrong with the reference
+					if (lookup.collection !== collection) {
+						ctx.addIssue({
+							code: z3.ZodIssueCode.custom,
+							message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${collection}. Received ${lookup.collection}.`,
+						});
+						return;
+					}
+					// If it is an object then we're validating later in the build, so we can check the collection at that point.
+					return lookup;
+				}
+
+				return { id: lookup, collection };
+			});
 	};
 }
 

@@ -563,6 +563,12 @@ async function writeContentFiles({
 			settings.config.experimental.zod4
 				? "import('astro/content/config').DefineZ4Collection"
 				: "import('astro/content/config').DefineZ3Collection",
+		)
+		.replace(
+			"'@@REFERENCE@@'",
+			settings.config.experimental.zod4
+				? "import('astro/content/config').Z4Reference<DataEntryMap>"
+				: "import('astro/content/config').Z3Reference<DataEntryMap>",
 		);
 
 	// If it's the first time, we inject types the usual way. sync() will handle creating files and references. If it's not the first time, we just override the dts content
