@@ -190,9 +190,9 @@ export type DefineZ3Collection = <S extends z3.ZodType>(
 	config: CollectionConfig<S>,
 ) => CollectionConfig<S>;
 
-export function defineCollection(
-	config: CollectionConfig<BaseSchema>,
-): CollectionConfig<BaseSchema> {
+export function defineCollection<S extends BaseSchema>(
+	config: CollectionConfig<S>,
+): CollectionConfig<S> {
 	const importerFilename = getImporterFilename();
 
 	if (importerFilename?.includes('live.config')) {
