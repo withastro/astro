@@ -641,7 +641,8 @@ async function generateJSONSchema(
 							unrepresentable: 'any',
 							io: 'input',
 						})
-					: zodToJsonSchema(zodSchemaForJson, {
+					: // TODO: Broken, see https://github.com/StefanTerdell/zod-to-json-schema/pull/179
+						zodToJsonSchema(zodSchemaForJson, {
 							name: collectionKey.replace(/"/g, ''),
 							markdownDescription: true,
 							errorMessages: true,
