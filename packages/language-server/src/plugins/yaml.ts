@@ -136,6 +136,7 @@ export const create = (collectionConfig: CollectionConfig): LanguageServicePlugi
 						// Remove last line that contains the source schema, it's not useful to users since they're generated
 						originalHover.contents.value = originalHover.contents.value
 							.replace(/\nSource:.*$/, '')
+							.replace(/\n\nsource$/, '')
 							.trim();
 					}
 
