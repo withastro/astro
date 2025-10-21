@@ -18,44 +18,9 @@ type CLICommand =
 	| 'preferences'
 	| 'telemetry';
 
-/** Display --help flag */
-async function printAstroHelp() {
-	const { printHelp } = await import('../core/messages.js');
-	printHelp({
-		commandName: 'astro',
-		usage: '[command] [...flags]',
-		headline: 'Build faster websites.',
-		tables: {
-			Commands: [
-				['add', 'Add an integration.'],
-				['build', 'Build your project and write it to disk.'],
-				['check', 'Check your project for errors.'],
-				['create-key', 'Create a cryptography key'],
-				['db', 'Manage your Astro database.'],
-				['dev', 'Start the development server.'],
-				['docs', 'Open documentation in your web browser.'],
-				['info', 'List info about your current Astro setup.'],
-				['preview', 'Preview your build locally.'],
-				['sync', 'Generate content collection types.'],
-				['preferences', 'Configure user preferences.'],
-				['telemetry', 'Configure telemetry settings.'],
-			],
-			'Global Flags': [
-				['--config <path>', 'Specify your config file.'],
-				['--root <path>', 'Specify your project root folder.'],
-				['--site <url>', 'Specify your project site.'],
-				['--base <pathname>', 'Specify your project base.'],
-				['--verbose', 'Enable verbose logging.'],
-				['--silent', 'Disable all logging.'],
-				['--version', 'Show the version number and exit.'],
-				['--help', 'Show this help message.'],
-			],
-		},
-	});
-}
-
 /** Display --version flag */
 function printVersion() {
+	// TODO: helpDisplay.show does the same, find a way to share code
 	console.log();
 	console.log(`  ${colors.bgGreen(colors.black(` astro `))} ${colors.green(`v${ASTRO_VERSION}`)}`);
 }
@@ -95,30 +60,54 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
  * to present user-friendly error output where the fn is called.
  **/
 async function runCommand(cmd: string, flags: yargs.Arguments) {
+	const [
+		{ createLoggerFromFlags },
+		{ createKleurTextStyler },
+		{ createBuildTimeAstroVersionProvider },
+		{ createLoggerHelpDisplay },
+		{ createCliCommandRunner },
+	] = await Promise.all([
+		import('./flags.js'),
+		import('./infra/kleur-text-styler.js'),
+		import('./infra/build-time-astro-version-provider.js'),
+		import('./infra/logger-help-display.js'),
+		import('./infra/cli-command-runner.js'),
+	]);
+	const logger = createLoggerFromFlags(flags);
+	const textStyler = createKleurTextStyler();
+	const astroVersionProvider = createBuildTimeAstroVersionProvider();
+	const helpDisplay = createLoggerHelpDisplay({
+		logger,
+		flags,
+		textStyler,
+		astroVersionProvider,
+	});
+	const runner = createCliCommandRunner({ helpDisplay });
+
 	// These commands can run directly without parsing the user config.
 	switch (cmd) {
-		case 'help':
-			await printAstroHelp();
+		/** Display --help flag */
+		case 'help': {
+			const { DEFAULT_HELP_PAYLOAD } = await import('./help/index.js');
+			helpDisplay.show(DEFAULT_HELP_PAYLOAD);
 			return;
-		case 'version':
+		}
+		case 'version': {
 			printVersion();
 			return;
+		}
 		case 'info': {
 			const { printInfo } = await import('./info/index.js');
 			await printInfo({ flags });
 			return;
 		}
 		case 'create-key': {
-			const [{ createKey }, { createLoggerFromFlags }, { createCryptoKeyGenerator }] =
-				await Promise.all([
-					import('./create-key/core/create-key.js'),
-					import('./flags.js'),
-					import('./create-key/infra/crypto-key-generator.js'),
-				]);
-			const logger = createLoggerFromFlags(flags);
+			const [{ createCryptoKeyGenerator }, { createKeyCommand }] = await Promise.all([
+				import('./create-key/infra/crypto-key-generator.js'),
+				import('./create-key/core/create-key.js'),
+			]);
 			const keyGenerator = createCryptoKeyGenerator();
-			await createKey({ logger, keyGenerator });
-			return;
+			return await runner.run(createKeyCommand, { logger, keyGenerator });
 		}
 		case 'docs': {
 			const { docs } = await import('./docs/index.js');
@@ -146,8 +135,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 	}
 
-	// In verbose/debug mode, we log the debug logs asap before any potential errors could appear
 	if (flags.verbose) {
+		// In verbose/debug mode, we log the debug logs asap before any potential errors could appear
 		const { enableVerboseLogging } = await import('../core/logger/node.js');
 		enableVerboseLogging();
 	}
