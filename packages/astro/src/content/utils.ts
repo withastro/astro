@@ -11,6 +11,7 @@ import * as z3 from 'zod/v3';
 import * as z4 from 'zod/v4';
 import { AstroError, AstroErrorData, errorMap, MarkdownError } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
+import { z4ErrorMap } from '../core/errors/zod-error-map.js';
 import type { Logger } from '../core/logger/core.js';
 import { normalizePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -203,7 +204,7 @@ export async function getEntryDataAndImages<
 			let parsed;
 			try {
 				parsed = await z4.safeParseAsync(schema, data, {
-					// TODO: error map
+					error: z4ErrorMap,
 				});
 			} catch (cause) {
 				throw new AstroError(
