@@ -114,7 +114,6 @@ jobs:
         TEST_SUITE:
           - { name: astro, script: 'pnpm run test:astro' }
           - { name: integrations, script: 'pnpm run test:integrations' }
-          - { name: language-tools, script: 'pnpm run test:language-tools' }
         # We only test Node 22 on macOS and Windows to reduce CI usage.
         # This exclude config tells GitHub to skip the items in the matrix that run on macOS or
         # Windows and use one of the older Node versions.
@@ -153,12 +152,55 @@ jobs:
         run: pnpm run build
 
       - name: Test ${{ matrix.TEST_SUITE.name }}
+        run: ${{ matrix.TEST_SUITE.script }}
+
+  test-language-tools:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    needs: build
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node_version: [20.9.0, 22]
+        include:
+          - os: windows-latest
+            node_version: 20.9.0
+          - os: macos-latest
+            node_version: 20.9.0
+      fail-fast: false
+
+    name: 'Test (language-tools): node-${{ matrix.node_version }}, ${{ matrix.os }}'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+
+      - name: Setup node@${{ matrix.node_version }}
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ matrix.node_version }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build the packages
+        run: pnpm build
+
+      - name: Test (Linux)
+        if: runner.os == 'Linux'
         run: |
-          if [[ "${{ matrix.TEST_SUITE.name }}" == "language-tools" && "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-            xvfb-run -a ${{ matrix.TEST_SUITE.script }}
-          else
-            ${{ matrix.TEST_SUITE.script }}
-          fi
+          pnpm run test:language-tools:no-vs
+          cd packages/language-tools/vscode
+          xvfb-run -a pnpm test
+          cd ../ts-plugin
+          xvfb-run -a pnpm test
+
+      - name: Test
+        run: pnpm test:language-tools
+        if: runner.os != 'Linux'
 
   e2e:
     name: "Test (E2E): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
