@@ -5,4 +5,4 @@
 '@astrojs/db': patch
 ---
 
-Makes `astro` a tiny bit lighter weight by refactoring internal dependencies. Switches from `kleur` to `picocolors` for styling terminal text.
+Makes dependencies a tiny bit lighter by switching from `kleur` to `picocolors` for styling terminal text
