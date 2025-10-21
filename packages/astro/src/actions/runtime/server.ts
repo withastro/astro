@@ -81,29 +81,32 @@ export function getFormServerHandler<TOutput, TInputSchema extends z3.ZodType | 
 
 		if (!inputSchema) return await handler(unparsedInput, context);
 
-		let parsed;
-		if ('_zod' in inputSchema) {
-			const baseSchema = unwrapBaseZ4ObjectSchema(inputSchema, unparsedInput);
-			parsed = await z4.safeParseAsync(
-				inputSchema,
-				baseSchema instanceof z4.$ZodObject
-					? formDataToZ4Object(unparsedInput, baseSchema)
-					: unparsedInput,
-			);
-		} else {
-			const baseSchema = unwrapBaseZ3ObjectSchema(inputSchema, unparsedInput);
-			parsed = await inputSchema.safeParseAsync(
-				baseSchema instanceof z3.ZodObject
-					? formDataToZ3Object(unparsedInput, baseSchema)
-					: unparsedInput,
-			);
-		}
+		const parsed = await parseFormInput(inputSchema, unparsedInput);
 
 		if (!parsed.success) {
 			throw new ActionInputError(parsed.error.issues);
 		}
 		return await handler(parsed.data, context);
 	};
+}
+
+async function parseFormInput(inputSchema: z3.ZodType | z4.$ZodType, unparsedInput: FormData) {
+	if ('_zod' in inputSchema) {
+		const baseSchema = unwrapBaseZ4ObjectSchema(inputSchema, unparsedInput);
+		return await z4.safeParseAsync(
+			inputSchema,
+			baseSchema instanceof z4.$ZodObject
+				? formDataToZ4Object(unparsedInput, baseSchema)
+				: unparsedInput,
+		);
+	}
+
+	const baseSchema = unwrapBaseZ3ObjectSchema(inputSchema, unparsedInput);
+	return await inputSchema.safeParseAsync(
+		baseSchema instanceof z3.ZodObject
+			? formDataToZ3Object(unparsedInput, baseSchema)
+			: unparsedInput,
+	);
 }
 
 export function getJsonServerHandler<TOutput, TInputSchema extends z3.ZodType | z4.$ZodType>(
