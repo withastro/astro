@@ -85,6 +85,10 @@ export default async function seed() {
 	"main": "dist/_worker.js/index.js",
 	"name": ${JSON.stringify(name)},
   "compatibility_date": ${JSON.stringify(new Date().toISOString().slice(0,10))},
+  "compatibility_flags": [
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
 	"assets": {
 		"binding": "ASSETS",
 		"directory": "./dist"
