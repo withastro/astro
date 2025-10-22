@@ -92,7 +92,10 @@ export default async function seed() {
 	"assets": {
 		"binding": "ASSETS",
 		"directory": "./dist"
-	}
+	},
+	"observability": {
+    "enabled": true
+  }
 }`,
 	CLOUDFLARE_ASSETSIGNORE: `_worker.js\n_routes.json`,
 };
