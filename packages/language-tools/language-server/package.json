@@ -23,7 +23,7 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "sync-fixture": "pnpm --dir ./test/fixture sync",
-    "test": "tsx ./test/script.ts \"**/*.test.ts\"",
+    "test": "pnpm sync-fixture && tsx ./test/script.ts \"**/*.test.ts\"",
     "test:match": "pnpm run test --match"
   },
   "dependencies": {

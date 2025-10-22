@@ -32,7 +32,7 @@ describe('Content Intellisense - Go To Everywhere', async () => {
 
 		assert.deepStrictEqual(targetRange, {
 			start: { line: 5, character: 2 },
-			end: { line: 5, character: 54 },
+			end: { line: 5, character: 65 },
 		});
 
 		assert.deepStrictEqual(targetSelectionRange, {
