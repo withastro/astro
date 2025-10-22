@@ -47,12 +47,9 @@
     "vscode-uri": "^3.1.0"
   },
   "devDependencies": {
-    "@astrojs/svelte": "workspace:*",
-    "@astrojs/vue": "workspace:*",
     "@types/node": "^20.9.0",
     "@volar/test-utils": "~2.4.23",
     "@volar/typescript": "~2.4.23",
-    "svelte": "^4.2.10",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "vscode-languageserver-protocol": "^3.17.5",

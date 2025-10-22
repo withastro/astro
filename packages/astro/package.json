@@ -173,6 +173,7 @@
     "sharp": "^0.34.0"
   },
   "devDependencies": {
+    "@astrojs/check": "workspace:*",
     "@playwright/test": "1.51.1",
     "@types/aria-query": "^5.0.4",
     "@types/common-ancestor-path": "^1.0.2",

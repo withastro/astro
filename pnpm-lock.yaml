@@ -657,6 +657,9 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)(zod@3.25.76)
     devDependencies:
+      '@astrojs/check':
+        specifier: workspace:*
+        version: link:../language-tools/astro-check
       '@playwright/test':
         specifier: 1.51.1
         version: 1.51.1
@@ -6414,12 +6417,6 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0
     devDependencies:
-      '@astrojs/svelte':
-        specifier: workspace:*
-        version: link:../../integrations/svelte
-      '@astrojs/vue':
-        specifier: workspace:*
-        version: link:../../integrations/vue
       '@types/node':
         specifier: ^20.9.0
         version: 20.19.22
@@ -6429,9 +6426,6 @@ importers:
       '@volar/typescript':
         specifier: ~2.4.23
         version: 2.4.23
-      svelte:
-        specifier: ^4.2.10
-        version: 4.2.20
       tsx:
         specifier: ^4.20.6
         version: 4.20.6
@@ -6446,6 +6440,19 @@ importers:
         version: 1.0.12
 
   packages/language-tools/language-server/test:
+    dependencies:
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../../integrations/svelte
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../../integrations/vue
+      astro:
+        specifier: workspace:*
+        version: link:../../../astro
+      svelte:
+        specifier: ^4.2.10
+        version: 4.2.20
     devDependencies:
       tinyglobby:
         specifier: ^0.2.15
