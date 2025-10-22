@@ -165,7 +165,7 @@ test.describe('Error display', () => {
 
 		const updatedIcon = await copyButton.innerHTML();
 		expect(updatedIcon).toContain('icon-tabler-check');
-		
+
 		// Wait for icon to reset (2 seconds + 200ms buffer)
 		await page.waitForTimeout(2200);
 

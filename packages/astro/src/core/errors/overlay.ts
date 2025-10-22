@@ -604,9 +604,9 @@ const openNewWindowIcon =
 	/* html */
 	'<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="16" height="16" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14 2h-4m4 0L8 8m6-6v4"/><path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M14 8.667V12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h3.333"/></svg>';
 
-const checkmarkIconSvg = 
-  /* html */
-  `<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="icon-tabler icon-tabler-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>`;
+const checkmarkIconSvg =
+	/* html */
+	`<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="icon-tabler icon-tabler-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>`;
 
 // Make HTMLElement available in non-browser environments
 const { HTMLElement = class {} as typeof globalThis.HTMLElement } = globalThis;
@@ -719,24 +719,24 @@ class ErrorOverlay extends HTMLElement {
 			}
 		}
 
-    const copyIcon = this.root.querySelector<HTMLSpanElement>('#copy-btn');
-    if (copyIcon) {
-      const copyIconSvg = copyIcon.innerHTML;
-      
-      copyIcon.onclick = () => {
-        navigator.clipboard.writeText(err.stack);
-        
-        const RESET_TIME = 2000;
-        copyIcon.innerHTML = checkmarkIconSvg;
-        copyIcon.style.color = 'var(--success-text)';
+		const copyIcon = this.root.querySelector<HTMLSpanElement>('#copy-btn');
+		if (copyIcon) {
+			const copyIconSvg = copyIcon.innerHTML;
 
-        // Reset to copy icon after 2 seconds
-        setTimeout(() => {
-          copyIcon.innerHTML = copyIconSvg;
-          copyIcon.style.color = 'var(--title-text)';
-        }, RESET_TIME);
-      };
-    }
+			copyIcon.onclick = () => {
+				navigator.clipboard.writeText(err.stack);
+
+				const RESET_TIME = 2000;
+				copyIcon.innerHTML = checkmarkIconSvg;
+				copyIcon.style.color = 'var(--success-text)';
+
+				// Reset to copy icon after 2 seconds
+				setTimeout(() => {
+					copyIcon.innerHTML = copyIconSvg;
+					copyIcon.style.color = 'var(--title-text)';
+				}, RESET_TIME);
+			};
+		}
 
 		this.text('#stack-content', err.stack);
 	}
