@@ -1,19 +1,5 @@
-import {
-	bgCyan,
-	bgGreen,
-	bgWhite,
-	bgYellow,
-	black,
-	blue,
-	bold,
-	cyan,
-	dim,
-	green,
-	red,
-	underline,
-	yellow,
-} from 'kleur/colors';
 import { detect, resolveCommand } from 'package-manager-detector';
+import colors from 'picocolors';
 import type { ResolvedServerUrls } from 'vite';
 import type { ZodError } from 'zod';
 import { getDocsForError, renderErrorMarkdown } from './errors/dev/utils.js';
@@ -24,6 +10,22 @@ import {
 	type ErrorWithMetadata,
 } from './errors/index.js';
 import { padMultilineString } from './util.js';
+
+const {
+	bgGreen,
+	bgYellow,
+	bgCyan,
+	bgWhite,
+	black,
+	blue,
+	bold,
+	cyan,
+	dim,
+	green,
+	red,
+	underline,
+	yellow,
+} = colors;
 
 /**
  * Prestyled messages for the CLI. Used by astro CLI commands.
