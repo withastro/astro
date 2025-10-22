@@ -127,6 +127,20 @@ function getAdapter({
 			i18nDomains: 'experimental',
 			envGetSecret: 'stable',
 		},
+		client: {
+			internalFetchHeaders: skewProtection
+				? (): Record<string, string> => {
+						const deploymentId = process.env.VERCEL_DEPLOYMENT_ID;
+						if (deploymentId) {
+							return { 'x-deployment-id': deploymentId };
+						}
+						return {};
+					}
+				: undefined,
+			assetQueryParams: skewProtection && process.env.VERCEL_DEPLOYMENT_ID
+				? new URLSearchParams({ dpl: process.env.VERCEL_DEPLOYMENT_ID })
+				: undefined,
+		},
 	};
 }
 
@@ -208,7 +222,7 @@ export default function vercelAdapter({
 	edgeMiddleware = false,
 	maxDuration,
 	isr = false,
-	skewProtection = false,
+	skewProtection = process.env.VERCEL_SKEW_PROTECTION_ENABLED === '1',
 	experimentalStaticHeaders = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	if (maxDuration) {
