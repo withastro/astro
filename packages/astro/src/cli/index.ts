@@ -106,13 +106,29 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				import('./create-key/infra/crypto-key-generator.js'),
 				import('./create-key/core/create-key.js'),
 			]);
+
 			const keyGenerator = createCryptoKeyGenerator();
 			return await runner.run(createKeyCommand, { logger, keyGenerator });
 		}
 		case 'docs': {
-			const { docs } = await import('./docs/index.js');
-			await docs({ flags });
-			return;
+			const [
+				{ createTinyexecCommandExecutor },
+				{ createProcessPlatformProvider },
+				{ openDocsCommand },
+			] = await Promise.all([
+				import('./docs/infra/tinyexec-command-executor.js'),
+				import('./docs/infra/process-platform-provider.js'),
+				import('./docs/core/open-docs.js'),
+			]);
+			const commandExecutor = createTinyexecCommandExecutor();
+			const platformProvider = createProcessPlatformProvider();
+
+			return await runner.run(openDocsCommand, {
+				url: 'https://docs.astro.build/',
+				logger,
+				commandExecutor,
+				platformProvider,
+			});
 		}
 		case 'telemetry': {
 			// Do not track session start, since the user may be trying to enable,
