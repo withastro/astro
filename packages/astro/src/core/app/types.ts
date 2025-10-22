@@ -95,6 +95,9 @@ export type SSRManifest = {
 	buildClientDir: string | URL;
 	buildServerDir: string | URL;
 	csp: SSRManifestCSP | undefined;
+	llm?: {
+		optimizePageResponse?: boolean;
+	};
 };
 
 export type SSRActions = {

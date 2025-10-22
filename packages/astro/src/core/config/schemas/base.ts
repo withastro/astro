@@ -106,6 +106,9 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		staticImportMetaEnv: false,
 		chromeDevtoolsWorkspace: false,
 		failOnPrerenderConflict: false,
+		llm: {
+			optimizePageResponse: false,
+		},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -526,6 +529,15 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.failOnPrerenderConflict),
+			llm: z
+				.object({
+					optimizePageResponse: z
+						.boolean()
+						.optional()
+						.default(ASTRO_CONFIG_DEFAULTS.experimental.llm.optimizePageResponse),
+				})
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.llm),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,

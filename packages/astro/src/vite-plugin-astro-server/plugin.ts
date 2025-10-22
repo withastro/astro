@@ -285,5 +285,6 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		},
 		sessionConfig: settings.config.session,
 		csp,
+		llm: settings.config.experimental.llm,
 	};
 }

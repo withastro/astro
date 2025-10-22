@@ -8,6 +8,7 @@ import {
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../i18n/utils.js';
+import { processLLMResponse } from '../llm/optimize-page-response.js';
 import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
 import type { ComponentInstance } from '../types/astro.js';
@@ -307,6 +308,12 @@ export class RenderContext {
 		// where the adapter might be expecting to read it.
 		// New code should be using `app.render({ addCookieHeader: true })` instead.
 		attachCookiesToResponse(response, this.cookies);
+
+		// Apply LLM optimization if enabled
+		if (pipeline.manifest.llm?.optimizePageResponse) {
+			return await processLLMResponse(response, this.request);
+		}
+
 		return response;
 	}
 
