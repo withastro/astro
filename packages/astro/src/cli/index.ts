@@ -62,19 +62,19 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
 async function runCommand(cmd: string, flags: yargs.Arguments) {
 	const [
 		{ createLoggerFromFlags },
-		{ createTextStyler },
+		{ createPicocolorsTextStyler },
 		{ createBuildTimeAstroVersionProvider },
 		{ createLoggerHelpDisplay },
 		{ createCliCommandRunner },
 	] = await Promise.all([
 		import('./flags.js'),
-		import('./infra/text-styler.js'),
+		import('./infra/picocolors-text-styler.js'),
 		import('./infra/build-time-astro-version-provider.js'),
 		import('./infra/logger-help-display.js'),
 		import('./infra/cli-command-runner.js'),
 	]);
 	const logger = createLoggerFromFlags(flags);
-	const textStyler = createTextStyler();
+	const textStyler = createPicocolorsTextStyler();
 	const astroVersionProvider = createBuildTimeAstroVersionProvider();
 	const helpDisplay = createLoggerHelpDisplay({
 		logger,
