@@ -72,18 +72,17 @@
     "test:types": "tsc --project test/types/tsconfig.json"
   },
   "dependencies": {
+    "@clack/prompts": "1.0.0-alpha.6",
     "@libsql/client": "^0.15.15",
     "deep-diff": "^1.0.2",
     "drizzle-orm": "^0.42.0",
     "kleur": "^4.1.5",
     "nanoid": "^5.1.6",
-    "prompts": "^2.4.2",
     "yargs-parser": "^21.1.1",
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/deep-diff": "^1.0.5",
-    "@types/prompts": "^2.4.9",
     "@types/yargs-parser": "^21.0.3",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
