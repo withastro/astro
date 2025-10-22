@@ -24,7 +24,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "astro-scripts test \"**/*.test.ts\""
+    "test": "NODE_OPTIONS='--import tsx' astro-scripts test \"**/*.test.ts\""
   },
   "dependencies": {
     "@astrojs/language-server": "^2.15.0",
@@ -36,7 +36,7 @@
     "@types/node": "^20.9.0",
     "tinyglobby": "^0.2.15",
     "@types/yargs": "^17.0.33",
-    "tsx": "^3.12.7",
+    "tsx": "^4.20.6",
     "astro-scripts": "workspace:*"
   },
   "peerDependencies": {
