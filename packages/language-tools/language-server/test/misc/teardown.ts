@@ -1,5 +1,5 @@
 import { describe, it } from 'node:test';
-import { getLanguageServer } from '../server.js';
+import { getLanguageServer } from '../server.ts';
 
 describe('Teardown', () => {
 	it('Can teardown', async () => {

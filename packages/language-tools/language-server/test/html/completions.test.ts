@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { before, describe, it } from 'node:test';
 import { Position } from '@volar/language-server';
-import { type LanguageServer, getLanguageServer } from '../server.js';
+import { getLanguageServer, type LanguageServer } from '../server.ts';
 
 describe('HTML - Completions', () => {
 	let languageServer: LanguageServer;

@@ -27,6 +27,8 @@ export default async function test() {
 			setup: { type: 'string', alias: 's' },
 			// Test teardown file
 			teardown: { type: 'string' },
+			// Test teardown file to include in the test files list
+			'teardown-test': { type: 'string' },
 		},
 	});
 
@@ -38,6 +40,10 @@ export default async function test() {
 		absolute: true,
 		ignore: ['**/node_modules/**'],
 	});
+
+	if (args.values['teardown-test']) {
+		files.push(path.resolve(args.values['teardown-test']));
+	}
 
 	// For some reason, the `only` option does not work and we need to explicitly set the CLI flag instead.
 	// Node.js requires opt-in to run .only tests :(
@@ -68,7 +74,11 @@ export default async function test() {
 	// https://nodejs.org/api/test.html#runoptions
 	run({
 		files,
-		testNamePatterns: args.values.match,
+		testNamePatterns: args.values.match
+			? args.values['teardown-test']
+				? [args.values.match, 'Teardown']
+				: args.values.match
+			: undefined,
 		concurrency: args.values.parallel,
 		only: args.values.only,
 		setup: args.values.setup,

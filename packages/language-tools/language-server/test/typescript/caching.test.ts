@@ -9,8 +9,8 @@ import {
 } from '@volar/language-server';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import { URI } from 'vscode-uri';
-import { type LanguageServer, getLanguageServer } from '../server.js';
-import { fixtureDir } from '../utils.js';
+import { getLanguageServer, type LanguageServer } from '../server.ts';
+import { fixtureDir } from '../utils.ts';
 
 describe('TypeScript - Cache invalidation', async () => {
 	let languageServer: LanguageServer;

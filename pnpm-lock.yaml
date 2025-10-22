@@ -6426,6 +6426,9 @@ importers:
       '@volar/typescript':
         specifier: ~2.4.23
         version: 2.4.23
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../../scripts
       tsx:
         specifier: ^4.20.6
         version: 4.20.6

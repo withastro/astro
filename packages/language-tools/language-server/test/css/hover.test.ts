@@ -1,8 +1,8 @@
 import assert from 'node:assert';
 import { before, describe, it } from 'node:test';
 import { Position } from '@volar/language-server';
-import type { LanguageServer } from '../server.js';
-import { getLanguageServer } from '../server.js';
+import type { LanguageServer } from '../server.ts';
+import { getLanguageServer } from '../server.ts';
 
 describe('CSS - Hover', () => {
 	let languageServer: LanguageServer;

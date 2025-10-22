@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import { before, describe, it } from 'node:test';
 import { Range } from '@volar/language-server';
 import { URI } from 'vscode-uri';
-import { type LanguageServer, getLanguageServer } from '../server.js';
+import { getLanguageServer, type LanguageServer } from '../server.ts';
 
 describe('TypeScript - Organize & Sort Imports', () => {
 	let languageServer: LanguageServer;

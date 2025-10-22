@@ -3,8 +3,8 @@ import * as path from 'node:path';
 import { before, describe, it } from 'node:test';
 import type { FullDocumentDiagnosticReport } from '@volar/language-server';
 import { type Diagnostic, DiagnosticSeverity, Range } from '@volar/language-server';
-import { type LanguageServer, getLanguageServer } from '../server.js';
-import { fixtureDir } from '../utils.js';
+import { getLanguageServer, type LanguageServer } from '../server.ts';
+import { fixtureDir } from '../utils.ts';
 
 describe('TypeScript - Diagnostics', async () => {
 	let languageServer: LanguageServer;
