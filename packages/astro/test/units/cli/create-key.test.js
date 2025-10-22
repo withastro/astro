@@ -7,7 +7,7 @@ import { createFakeKeyGenerator, createPassthroughCommandRunner } from './utils.
 
 describe('CLI create-key', () => {
 	describe('core', () => {
-		describe('createKey()', () => {
+		describe('createKeyCommand', () => {
 			it('logs the generated key', async () => {
 				const { logger, logs } = createSpyLogger();
 				const runner = createPassthroughCommandRunner();
