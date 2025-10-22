@@ -1,6 +1,6 @@
 // @ts-check
 
-/** @returns {import("../../../dist/cli/create-key/definitions.js").CommandRunner} */
+/** @returns {import("../../../dist/cli/definitions.js").CommandRunner} */
 export function createPassthroughCommandRunner() {
 	return {
 		run(command, ...args) {
@@ -25,10 +25,10 @@ export function createFakeKeyGenerator(key) {
  * @param {boolean} shouldFire
  */
 export function createSpyHelpDisplay(shouldFire) {
-	/** @type {Array<import('../../../dist/cli/create-key/domain/help-payload.js').HelpPayload>} */
+	/** @type {Array<import('../../../dist/cli/domain/help-payload.js').HelpPayload>} */
 	const payloads = [];
 
-	/** @type {import("../../../dist/cli/create-key/definitions.js").HelpDisplay} */
+	/** @type {import("../../../dist/cli/definitions.js").HelpDisplay} */
 	const helpDisplay = {
 		shouldFire() {
 			return shouldFire;
@@ -44,7 +44,7 @@ export function createSpyHelpDisplay(shouldFire) {
 	};
 }
 
-/** @returns {import("../../../dist/cli/create-key/definitions.js").TextStyler} */
+/** @returns {import("../../../dist/cli/definitions.js").TextStyler} */
 export function createPassthroughTextStyler() {
 	return {
 		bgWhite: (msg) => msg,
@@ -58,7 +58,7 @@ export function createPassthroughTextStyler() {
 
 /**
  * @param {string} version
- * @returns {import("../../../dist/cli/create-key/definitions.js").AstroVersionProvider}
+ * @returns {import("../../../dist/cli/definitions.js").AstroVersionProvider}
  * */
 export function createFakeAstroVersionProvider(version) {
 	return {
@@ -66,4 +66,33 @@ export function createFakeAstroVersionProvider(version) {
 			return version;
 		},
 	};
+}
+
+/**
+ * @param {import("../../../dist/cli/docs/domains/platform.js").Platform} platform
+ * @returns {import("../../../dist/cli/docs/definitions.js").PlatformProvider}
+ */
+export function createFakePlatformProvider(platform) {
+	return {
+		get() {
+			return platform;
+		},
+	};
+}
+
+export function createSpyCommandExecutor() {
+	/** @type {Array<{ command: string; args?: Array<string> }>} */
+	const inputs = [];
+
+	/** @type {import("../../../dist/cli/docs/definitions.js").CommandExecutor} */
+	const commandExecutor = {
+		async execute(command, args) {
+			inputs.push({ command, args });
+			return {
+				stdout: '',
+			};
+		},
+	};
+
+	return { inputs, commandExecutor };
 }
