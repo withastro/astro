@@ -1,6 +1,4 @@
-import colors from 'picocolors';
 import yargs from 'yargs-parser';
-import { ASTRO_VERSION } from '../core/constants.js';
 
 type CLICommand =
 	| 'help'
@@ -17,13 +15,6 @@ type CLICommand =
 	| 'info'
 	| 'preferences'
 	| 'telemetry';
-
-/** Display --version flag */
-function printVersion() {
-	// TODO: helpDisplay.show does the same, find a way to share code
-	console.log();
-	console.log(`  ${colors.bgGreen(colors.black(` astro `))} ${colors.green(`v${ASTRO_VERSION}`)}`);
-}
 
 /** Determine which command the user requested */
 function resolveCommand(flags: yargs.Arguments): CLICommand {
@@ -92,8 +83,13 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			helpDisplay.show(DEFAULT_HELP_PAYLOAD);
 			return;
 		}
+		/** Display --version flag */
 		case 'version': {
-			printVersion();
+			const { formatVersion } = await import('./utils/format-version.js');
+			logger.info(
+				'SKIP_FORMAT',
+				formatVersion({ name: 'astro', textStyler, astroVersionProvider }),
+			);
 			return;
 		}
 		case 'info': {

@@ -1,6 +1,7 @@
 import type { Logger } from '../../core/logger/core.js';
 import type { AstroVersionProvider, HelpDisplay, TextStyler } from '../definitions.js';
 import type { Flags } from '../flags.js';
+import { formatVersion } from '../utils/format-version.js';
 
 interface Options {
 	logger: Logger;
@@ -44,9 +45,7 @@ export function createLoggerHelpDisplay({
 			if (headline) {
 				message.push(
 					linebreak(),
-					`  ${textStyler.bgGreen(textStyler.black(` ${commandName} `))} ${textStyler.green(
-						`v${astroVersionProvider.getVersion()}`,
-					)} ${headline}`,
+					`${formatVersion({ name: commandName, textStyler, astroVersionProvider })} ${headline}`,
 				);
 			}
 
