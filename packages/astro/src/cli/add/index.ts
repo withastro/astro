@@ -82,6 +82,24 @@ export default async function seed() {
 	// TODO
 }
 `,
+	CLOUDFLARE_WRANGLER_CONFIG: (name: string) => `\
+{
+	"main": "dist/_worker.js/index.js",
+	"name": ${JSON.stringify(name)},
+  "compatibility_date": ${JSON.stringify(new Date().toISOString().slice(0,10))},
+  "compatibility_flags": [
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
+	"assets": {
+		"binding": "ASSETS",
+		"directory": "./dist"
+	},
+	"observability": {
+    "enabled": true
+  }
+}`,
+	CLOUDFLARE_ASSETSIGNORE: `_worker.js\n_routes.json`,
 };
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
@@ -148,8 +166,89 @@ export async function add(names: string[], { flags }: AddOptions) {
 	// Append forward slash to compute relative paths
 	root.href = appendForwardSlash(root.href);
 
+	const rawConfigPath = await resolveConfigPath({
+		root: rootPath,
+		configFile: inlineConfig.configFile,
+		fs: fsMod,
+	});
+	let configURL = rawConfigPath ? pathToFileURL(rawConfigPath) : undefined;
+
+	if (configURL) {
+		logger.debug('add', `Found config at ${configURL}`);
+	} else {
+		logger.info('add', `Unable to locate a config file, generating one for you.`);
+		configURL = new URL('./astro.config.mjs', root);
+		await fs.writeFile(fileURLToPath(configURL), STUBS.ASTRO_CONFIG, { encoding: 'utf-8' });
+	}
+
+	let packageJson:
+		| { type: 'exists'; data: { name: string; dependencies?: any; devDependencies?: any } }
+		| { type: 'unknown' }
+		| { type: 'does-not-exist' } = { type: 'unknown' };
+
+	async function getPackageJson() {
+		if (packageJson.type === 'exists') {
+			return packageJson.data;
+		}
+
+		if (packageJson.type === 'does-not-exist') {
+			return null;
+		}
+
+		const pkgURL = new URL('./package.json', configURL);
+		if (existsSync(pkgURL)) {
+			packageJson = {
+				type: 'exists',
+				data: await fs.readFile(fileURLToPath(pkgURL)).then((res) => JSON.parse(res.toString())),
+			};
+			return packageJson.data;
+		}
+
+		packageJson = { type: 'does-not-exist' };
+		return null;
+	}
+
 	switch (installResult) {
 		case UpdateResult.updated: {
+			if (integrations.find((integration) => integration.id === 'cloudflare')) {
+				const wranglerConfigURL = new URL('./wrangler.jsonc', configURL);
+				if (!existsSync(wranglerConfigURL)) {
+					logger.info(
+						'SKIP_FORMAT',
+						`\n  ${magenta(`Astro will scaffold ${green('./wrangler.jsonc')}.`)}\n`,
+					);
+
+					if (await askToContinue({ flags })) {
+						const data = await getPackageJson();
+
+						await fs.writeFile(
+							wranglerConfigURL,
+							STUBS.CLOUDFLARE_WRANGLER_CONFIG(data?.name ?? 'example'),
+							'utf-8',
+						);
+					}
+				} else {
+					logger.debug('add', 'Using existing wrangler configuration');
+				}
+
+				const dir = new URL(userConfig.publicDir ?? './public/', root);
+				const assetsignore = new URL('./.assetsignore', dir);
+				if (!existsSync(assetsignore)) {
+					logger.info(
+						'SKIP_FORMAT',
+						`\n  ${magenta(`Astro will scaffold ${green('./public/.assetsignore')}.`)}\n`,
+					);
+
+					if (await askToContinue({ flags })) {
+						if (!existsSync(dir)) {
+							await fs.mkdir(dir);
+						}
+						await fs.writeFile(assetsignore, STUBS.CLOUDFLARE_ASSETSIGNORE, 'utf-8');
+					}
+				} else {
+					logger.debug('add', `Using existing .assetsignore`);
+				}
+			}
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
 				const dir = new URL('./styles/', new URL(userConfig.srcDir ?? './src/', root));
 				const styles = new URL('./global.css', dir);
@@ -247,21 +346,6 @@ export async function add(names: string[], { flags }: AddOptions) {
 			break;
 	}
 
-	const rawConfigPath = await resolveConfigPath({
-		root: rootPath,
-		configFile: inlineConfig.configFile,
-		fs: fsMod,
-	});
-	let configURL = rawConfigPath ? pathToFileURL(rawConfigPath) : undefined;
-
-	if (configURL) {
-		logger.debug('add', `Found config at ${configURL}`);
-	} else {
-		logger.info('add', `Unable to locate a config file, generating one for you.`);
-		configURL = new URL('./astro.config.mjs', root);
-		await fs.writeFile(fileURLToPath(configURL), STUBS.ASTRO_CONFIG, { encoding: 'utf-8' });
-	}
-
 	let mod: ProxifiedModule<any> | undefined;
 	try {
 		mod = await loadFile(fileURLToPath(configURL));
@@ -330,11 +414,9 @@ export async function add(names: string[], { flags }: AddOptions) {
 			break;
 		}
 		case UpdateResult.none: {
-			const pkgURL = new URL('./package.json', configURL);
-			if (existsSync(fileURLToPath(pkgURL))) {
-				const { dependencies = {}, devDependencies = {} } = await fs
-					.readFile(fileURLToPath(pkgURL))
-					.then((res) => JSON.parse(res.toString()));
+			const data = await getPackageJson();
+			if (data) {
+				const { dependencies = {}, devDependencies = {} } = data;
 				const deps = Object.keys(Object.assign(dependencies, devDependencies));
 				const missingDeps = integrations.filter(
 					(integration) => !deps.includes(integration.packageName),
