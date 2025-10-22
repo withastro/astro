@@ -33,7 +33,11 @@ export function filterPreloads(
 	return data.filter(({ weight, style, subset }) =>
 		preload.some((p) => {
 			// Always check the weight
-			if (p.weight !== undefined && weight !== undefined && !checkWeight(p.weight.toString(), weight)) {
+			if (
+				p.weight !== undefined &&
+				weight !== undefined &&
+				!checkWeight(p.weight.toString(), weight)
+			) {
 				return false;
 			}
 			// Only check the style if specified

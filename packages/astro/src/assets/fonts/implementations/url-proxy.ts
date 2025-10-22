@@ -26,7 +26,7 @@ export function createUrlProxy({
 							type,
 							weight: renderFontWeight(data.weight),
 							style: data.style,
-							subset: data.subset
+							subset: data.subset,
 						}
 					: null,
 				data,
