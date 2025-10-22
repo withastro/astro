@@ -6353,6 +6353,9 @@ importers:
       '@types/yargs':
         specifier: ^17.0.33
         version: 17.0.33
+      astro-scripts:
+        specifier: workspace:*
+        version: link:../../../scripts
       tinyglobby:
         specifier: ^0.2.15
         version: 0.2.15

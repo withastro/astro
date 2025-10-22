@@ -1,5 +1,5 @@
-import { spawnSync } from 'child_process';
 import assert from 'node:assert';
+import { spawnSync } from 'node:child_process';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 

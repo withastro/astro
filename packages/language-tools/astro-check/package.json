@@ -24,8 +24,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "tsx ./test/script.ts \"**/*.test.ts\"",
-    "test:match": "pnpm run test --test-name-pattern"
+    "test": "astro-scripts test \"**/*.test.ts\""
   },
   "dependencies": {
     "@astrojs/language-server": "^2.15.0",
@@ -37,7 +36,8 @@
     "@types/node": "^20.9.0",
     "tinyglobby": "^0.2.15",
     "@types/yargs": "^17.0.33",
-    "tsx": "^3.12.7"
+    "tsx": "^3.12.7",
+    "astro-scripts": "workspace:*"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
