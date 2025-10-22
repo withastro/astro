@@ -137,9 +137,10 @@ function getAdapter({
 						return {};
 					}
 				: undefined,
-			assetQueryParams: skewProtection && process.env.VERCEL_DEPLOYMENT_ID
-				? new URLSearchParams({ dpl: process.env.VERCEL_DEPLOYMENT_ID })
-				: undefined,
+			assetQueryParams:
+				skewProtection && process.env.VERCEL_DEPLOYMENT_ID
+					? new URLSearchParams({ dpl: process.env.VERCEL_DEPLOYMENT_ID })
+					: undefined,
 		},
 	};
 }

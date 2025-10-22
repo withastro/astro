@@ -1,9 +1,6 @@
 import type { AssetsPrefix } from '../../core/app/types.js';
 
-export function getAssetsPrefix(
-	fileExtension: string,
-	assetsPrefix?: AssetsPrefix,
-): string {
+export function getAssetsPrefix(fileExtension: string, assetsPrefix?: AssetsPrefix): string {
 	let prefix = '';
 	if (!assetsPrefix) {
 		prefix = '';

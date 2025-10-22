@@ -691,8 +691,8 @@ export default function netlifyIntegration(
 							return {};
 						},
 						assetQueryParams: process.env.DEPLOY_ID
-						? new URLSearchParams({ dpl: process.env.DEPLOY_ID })
-						: undefined,
+							? new URLSearchParams({ dpl: process.env.DEPLOY_ID })
+							: undefined,
 					},
 				});
 			},

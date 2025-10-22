@@ -42,10 +42,7 @@ describe(
 		it('Manifest contains internalFetchHeaders', async () => {
 			// The manifest is embedded in the build output
 			// Check the manifest file which contains the serialized manifest
-			const manifestURL = new URL(
-				'./fixtures/skew-protection/.netlify/build/',
-				import.meta.url,
-			);
+			const manifestURL = new URL('./fixtures/skew-protection/.netlify/build/', import.meta.url);
 
 			// Find the manifest file (it has a hash in the name)
 			const { readdir } = await import('node:fs/promises');

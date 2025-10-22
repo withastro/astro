@@ -52,7 +52,9 @@ export function createStylesheetElementSet(
 	assetsPrefix?: AssetsPrefix,
 	queryParams?: URLSearchParams,
 ): Set<SSRElement> {
-	return new Set(stylesheets.map((s) => createStylesheetElement(s, base, assetsPrefix, queryParams)));
+	return new Set(
+		stylesheets.map((s) => createStylesheetElement(s, base, assetsPrefix, queryParams)),
+	);
 }
 
 export function createModuleScriptElement(
