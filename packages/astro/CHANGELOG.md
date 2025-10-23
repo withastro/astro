@@ -1,5 +1,46 @@
 # astro
 
+## 5.15.0
+
+### Minor Changes
+
+- [#14543](https://github.com/withastro/astro/pull/14543) [`9b3241d`](https://github.com/withastro/astro/commit/9b3241d8a903ce0092905205af883cef5498d0b2) Thanks [@matthewp](https://github.com/matthewp)! - Adds two new adapter configuration options `assetQueryParams` and `internalFetchHeaders` to the Adapter API.
+
+  Official and community-built adapters can now use `client.assetQueryParams` to specify query parameters that should be appended to asset URLs (CSS, JavaScript, images, fonts, etc.). The query parameters are automatically appended to all generated asset URLs during the build process.
+
+  Adapters can also use `client.internalFetchHeaders` to specify headers that should be included in Astro's internal fetch calls (Actions, View Transitions, Server Islands, Prefetch).
+
+  This enables features like Netlify's skew protection, which requires the deploy ID to be sent with both internal requests and asset URLs to ensure client and server versions match during deployments.
+
+- [#14489](https://github.com/withastro/astro/pull/14489) [`add4277`](https://github.com/withastro/astro/commit/add4277b6d78080a9da32554f495d870978656af) Thanks [@dev-shetty](https://github.com/dev-shetty)! - Adds a new Copy to Clipboard button to the error overlay stack trace.
+
+  When an error occurs in dev mode, you can now copy the stack trace with a single click to more easily share it in a bug report, a support thread, or with your favorite LLM.
+
+- [#14564](https://github.com/withastro/astro/pull/14564) [`5e7cebb`](https://github.com/withastro/astro/commit/5e7cebbfaa935dab462de6efb0bab507644e10de) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates `astro add cloudflare` to scaffold more configuration files
+
+  Running `astro add cloudflare` will now emit `wrangler.jsonc` and `public/.assetsignore`, allowing your Astro project to work out of the box as a worker.
+
+### Patch Changes
+
+- [#14591](https://github.com/withastro/astro/pull/14591) [`3e887ec`](https://github.com/withastro/astro/commit/3e887ec523b8e4ec4d01978f0fedf246dfdfbc81) Thanks [@matthewp](https://github.com/matthewp)! - Adds TypeScript support for the `components` prop on MDX `Content` component when using `await render()`. Developers now get proper IntelliSense and type checking when passing custom components to override default MDX element rendering.
+
+- [#14598](https://github.com/withastro/astro/pull/14598) [`7b45c65`](https://github.com/withastro/astro/commit/7b45c65c62e37d4225fb14ea378e2301de31cbea) Thanks [@delucis](https://github.com/delucis)! - Reduces terminal text styling dependency size by switching from `kleur` to `picocolors`
+
+- [#13826](https://github.com/withastro/astro/pull/13826) [`8079482`](https://github.com/withastro/astro/commit/807948204d3838031e8952a5b3eadb26f5612b8f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds the option to specify in the `preload` directive which weights, styles, or subsets to preload for a given font family when using the experimental Fonts API:
+
+  ```astro
+  ---
+  import { Font } from 'astro:assets';
+  ---
+
+  <Font
+    cssVariable="--font-roboto"
+    preload={[{ subset: 'latin', style: 'normal' }, { weight: '400' }]}
+  />
+  ```
+
+  Variable weight font files will be preloaded if any weight within its range is requested. For example, a font file for font weight `100 900` will be included when `400` is specified in a `preload` object.
+
 ## 5.14.8
 
 ### Patch Changes
