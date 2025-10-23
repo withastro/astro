@@ -1,3 +1,4 @@
+import type { AstroConfig } from '../../types/public/index.js';
 import type { DebugInfo } from './domain/debug-info.js';
 
 export interface DebugInfoProvider {
@@ -19,4 +20,8 @@ export interface PackageManager {
 
 export interface OperatingSystemProvider {
 	getName: () => string;
+}
+
+export interface AstroConfigResolver {
+	resolve: () => Promise<AstroConfig>;
 }

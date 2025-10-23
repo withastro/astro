@@ -4,7 +4,7 @@ import type { DebugInfoProvider, OperatingSystemProvider, PackageManager } from 
 import type { DebugInfo } from '../domain/debug-info.js';
 
 interface Options {
-	config: AstroConfig;
+	config: Pick<AstroConfig, 'output' | 'adapter' | 'integrations'>;
 	astroVersionProvider: AstroVersionProvider;
 	packageManager: PackageManager;
 	operatingSystemProvider: OperatingSystemProvider;

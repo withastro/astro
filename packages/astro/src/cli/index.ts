@@ -94,9 +94,26 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			return;
 		}
 		case 'info': {
-			const { printInfo } = await import('./info/index.js');
-			await printInfo({ flags });
-			return;
+			const [
+				{ createNodeOperatingSystemProvider },
+				{ createCliAstroConfigResolver },
+				{ createCliDebugInfoProvider },
+				{ infoCommand },
+			] = await Promise.all([
+				import('./info/infra/node-operating-system-provider.js'),
+				import('./info/infra/cli-astro-config-resolver.js'),
+				import('./info/infra/cli-debug-info-provider.js'),
+				import('./info/core/info.js'),
+			]);
+			const operatingSystemProvider = createNodeOperatingSystemProvider();
+			const astroConfigResolver = createCliAstroConfigResolver({ flags });
+			const debugInfoProvider = createCliDebugInfoProvider({
+				config: await astroConfigResolver.resolve(),
+				astroVersionProvider,
+				operatingSystemProvider,
+			});
+
+			return await runner.run(infoCommand, { logger, debugInfoProvider });
 		}
 		case 'create-key': {
 			const [{ createCryptoKeyGenerator }, { createKeyCommand }] = await Promise.all([
