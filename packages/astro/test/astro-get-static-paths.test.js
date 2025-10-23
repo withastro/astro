@@ -164,7 +164,7 @@ describe('getStaticPaths - dev calls', () => {
 
 		assert.equal($('#generator').text().startsWith('Astro v'), true);
 		// For some reason site is always undefined
-		assert.equal($('#site').text(), '');
+		assert.equal($('#site').text(), 'https://mysite.dev/');
 	});
 });
 

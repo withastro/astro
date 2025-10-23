@@ -186,18 +186,25 @@ export class ServerIslandComponent {
 			);
 		}
 
+		// Get adapter headers for inline script
+		const adapterHeaders = this.result.internalFetchHeaders || {};
+		const headersJson = safeJsonStringify(adapterHeaders);
+
 		const method = useGETRequest
 			? // GET request
-				`let response = await fetch('${serverIslandUrl}');`
+				`const headers = new Headers(${headersJson});
+let response = await fetch('${serverIslandUrl}', { headers });`
 			: // POST request
 				`let data = {
 	componentExport: ${safeJsonStringify(componentExport)},
 	encryptedProps: ${safeJsonStringify(propsEncrypted)},
 	slots: ${safeJsonStringify(renderedSlots)},
 };
+const headers = new Headers({ 'Content-Type': 'application/json', ...${headersJson} });
 let response = await fetch('${serverIslandUrl}', {
 	method: 'POST',
 	body: JSON.stringify(data),
+	headers,
 });`;
 
 		this.islandContent = `${method}replaceServerIsland('${hostId}', response);`;

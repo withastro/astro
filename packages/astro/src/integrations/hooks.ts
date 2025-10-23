@@ -1,7 +1,7 @@
 import fsMod from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
-import { bold } from 'kleur/colors';
+import colors from 'picocolors';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import { mergeConfig as mergeViteConfig } from 'vite';
 import astroIntegrationActionsRouteHandler from '../actions/integration.js';
@@ -52,7 +52,7 @@ async function withTakingALongTimeMsg<T>({
 	const timeout = setTimeout(() => {
 		logger.info(
 			'build',
-			`Waiting for integration ${bold(JSON.stringify(name))}, hook ${bold(
+			`Waiting for integration ${colors.bold(JSON.stringify(name))}, hook ${colors.bold(
 				JSON.stringify(hookName),
 			)}...`,
 		);
@@ -61,7 +61,7 @@ async function withTakingALongTimeMsg<T>({
 		return await hookFn();
 	} catch (err) {
 		integrationLogger.error(
-			`An unhandled error occurred while running the ${bold(JSON.stringify(hookName))} hook`,
+			`An unhandled error occurred while running the ${colors.bold(JSON.stringify(hookName))} hook`,
 		);
 		throw err;
 	} finally {
@@ -157,7 +157,7 @@ export function normalizeCodegenDir(integrationName: string): string {
 export function normalizeInjectedTypeFilename(filename: string, integrationName: string): string {
 	if (!filename.endsWith('.d.ts')) {
 		throw new Error(
-			`Integration ${bold(integrationName)} is injecting a type that does not end with "${bold('.d.ts')}"`,
+			`Integration ${colors.bold(integrationName)} is injecting a type that does not end with "${colors.bold('.d.ts')}"`,
 		);
 	}
 	return `${normalizeCodegenDir(integrationName)}${filename.replace(SAFE_CHARS_RE, '_')}`;
@@ -222,12 +222,14 @@ export async function runHookConfigSetup({
 					isRestart,
 					addRenderer(renderer: AstroRenderer) {
 						if (!renderer.name) {
-							throw new Error(`Integration ${bold(integration.name)} has an unnamed renderer.`);
+							throw new Error(
+								`Integration ${colors.bold(integration.name)} has an unnamed renderer.`,
+							);
 						}
 
 						if (!renderer.serverEntrypoint) {
 							throw new Error(
-								`Renderer ${bold(renderer.name)} does not provide a serverEntrypoint.`,
+								`Renderer ${colors.bold(renderer.name)} does not provide a serverEntrypoint.`,
 							);
 						}
 

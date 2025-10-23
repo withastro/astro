@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/netlify",
   "description": "Deploy your site to Netlify",
-  "version": "6.5.13",
+  "version": "6.6.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -41,10 +41,10 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
-    "@netlify/blobs": "^10.0.11",
-    "@netlify/functions": "^4.2.7",
-    "@netlify/vite-plugin": "^2.6.1",
-    "@vercel/nft": "0.30.1",
+    "@netlify/blobs": "^10.1.0",
+    "@netlify/functions": "^4.3.0",
+    "@netlify/vite-plugin": "^2.7.2",
+    "@vercel/nft": "0.30.3",
     "esbuild": "^0.25.0",
     "tinyglobby": "^0.2.15",
     "vite": "^7.1.7"
@@ -57,7 +57,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.1.2",
-    "devalue": "^5.3.2",
+    "devalue": "^5.4.1",
     "typescript": "^5.9.3"
   },
   "astro": {

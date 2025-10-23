@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseFrontmatter } from '@astrojs/markdown-remark';
 import { slug as githubSlug } from 'github-slugger';
-import { green, red } from 'kleur/colors';
+import colors from 'picocolors';
 import type { PluginContext } from 'rollup';
 import type { ViteDevServer } from 'vite';
 import xxhash from 'xxhash-wasm';
@@ -150,8 +150,27 @@ export async function getEntryDataAndImages<
 			schema = schema({
 				image: () =>
 					z.string().transform((val) => {
-						imageImports.add(val);
-						return `${IMAGE_IMPORT_PREFIX}${val}`;
+						// Normalize bare filenames to relative paths for consistent resolution
+						// This ensures bare filenames like "cover.jpg" work the same way as in markdown frontmatter
+						// Skip normalization for:
+						// - Relative paths (./foo, ../foo)
+						// - Absolute paths (/foo)
+						// - URLs (http://...)
+						// - Aliases (~/, @/, etc.)
+						let normalizedPath = val;
+						if (
+							val &&
+							!val.startsWith('./') &&
+							!val.startsWith('../') &&
+							!val.startsWith('/') &&
+							!val.startsWith('~') &&
+							!val.startsWith('@') &&
+							!val.includes('://')
+						) {
+							normalizedPath = `./${val}`;
+						}
+						imageImports.add(normalizedPath);
+						return `${IMAGE_IMPORT_PREFIX}${normalizedPath}`;
 					}),
 			});
 		}
@@ -487,10 +506,10 @@ async function loadContentConfig({
 		return { ...config.data, digest };
 	} else {
 		const message = config.error.issues
-			.map((issue) => `  → ${green(issue.path.join('.'))}: ${red(issue.message)}`)
+			.map((issue) => `  → ${colors.green(issue.path.join('.'))}: ${colors.red(issue.message)}`)
 			.join('\n');
 		console.error(
-			`${green('[content]')} There was a problem with your content config:\n\n${message}\n`,
+			`${colors.green('[content]')} There was a problem with your content config:\n\n${message}\n`,
 		);
 		const liveCollections = Object.entries(unparsedConfig.collections ?? {}).filter(
 			([, collection]: [string, any]) => collection?.type === LIVE_CONTENT_TYPE,

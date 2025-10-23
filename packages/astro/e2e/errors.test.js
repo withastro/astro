@@ -130,4 +130,34 @@ test.describe('Error display', () => {
 		const codeFrameContent = await codeFrame.innerHTML();
 		expect(codeFrameContent).toContain('error-line');
 	});
+
+	test('copy stack trace to clipboard', async ({ page, astro, context }) => {
+		await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+		await page.goto(astro.resolveUrl('/astro-runtime-error'), { waitUntil: 'networkidle' });
+
+		const { copyButton } = await getErrorOverlayContent(page);
+
+		expect(copyButton).toBeTruthy();
+
+		const originalIcon = await copyButton.innerHTML();
+		expect(originalIcon).toContain('icon-tabler-copy');
+
+		await copyButton.click();
+
+		// Wait for the copy action to complete
+		await page.waitForTimeout(100);
+
+		const clipboardContent = await page.evaluate(() => navigator.clipboard.readText());
+		expect(clipboardContent).toBeTruthy();
+		expect(clipboardContent.length).toBeGreaterThan(0);
+
+		const updatedIcon = await copyButton.innerHTML();
+		expect(updatedIcon).toContain('icon-tabler-check');
+
+		// Wait for icon to reset (2 seconds + 200ms buffer)
+		await page.waitForTimeout(2200);
+
+		const resetIcon = await copyButton.innerHTML();
+		expect(resetIcon).toContain('icon-tabler-copy');
+	});
 });
