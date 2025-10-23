@@ -360,7 +360,6 @@ async function getPathsForRoute(
 			mod,
 			route,
 			routeCache,
-			logger,
 			ssr: serverLike,
 			base: config.base,
 		}).catch((err) => {

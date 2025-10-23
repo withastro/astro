@@ -6,6 +6,16 @@ import { loadFixture } from './test-utils.js';
 
 const root = new URL('./fixtures/astro-get-static-paths/', import.meta.url);
 
+function resetFlags() {
+	// reset the flag used by [...calledTwiceTest].astro between each test
+	// @ts-expect-error not typed
+	globalThis.isCalledOnce = false;
+
+	// reset the flag used by [...invalidParamsTypeTest].astro between each test
+	// @ts-expect-error not typed
+	globalThis.getStaticPathsParamsType = undefined;
+}
+
 describe('getStaticPaths - build calls', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
@@ -21,9 +31,7 @@ describe('getStaticPaths - build calls', () => {
 	});
 
 	afterEach(() => {
-		// reset the flag used by [...calledTwiceTest].astro between each test
-		// @ts-expect-error not typed
-		globalThis.isCalledOnce = false;
+		resetFlags();
 	});
 
 	it('is only called once during build', () => {
@@ -54,9 +62,7 @@ describe('getStaticPaths - dev calls', () => {
 	});
 
 	afterEach(() => {
-		// reset the flag used by [...calledTwiceTest].astro between each test
-		// @ts-expect-error not typed
-		globalThis.isCalledOnce = false;
+		resetFlags();
 	});
 
 	after(async () => {
@@ -104,7 +110,7 @@ describe('getStaticPaths - dev calls', () => {
 		});
 
 		it('resolves 200 on matching static path - numeric params', async () => {
-			// route provided with { params: { year: 2022, slug: "post-2" }}
+			// route provided with { params: { year: "2022", slug: "post-2" }}
 			const res = await fixture.fetch('/blog/2022/post-2');
 			assert.equal(res.status, 200);
 		});
@@ -198,4 +204,43 @@ describe('throws if an invalid Astro property is accessed', () => {
 			assert.equal(err.title, 'Unavailable Astro global in getStaticPaths()');
 		}
 	});
+});
+
+describe('throws if an invalid params type is returned', () => {
+	/**
+	 * @param type {string}
+	 */
+	const build = async (type) => {
+		try {
+			globalThis.getStaticPathsParamsType = type;
+			const fixture = await loadFixture({
+				root,
+				site: 'https://mysite.dev/',
+			});
+			await fixture.build({});
+		} catch (err) {
+			return err;
+		} finally {
+			resetFlags();
+		}
+	};
+
+	const validTypes = ['string', 'undefined'];
+	const invalidTypes = ['number', 'object', 'boolean', 'array', 'bigint'];
+
+	for (const type of validTypes) {
+		it(`does build for param type ${type}`, async () => {
+			const err = await build(type);
+			assert.equal(err, undefined);
+		});
+	}
+
+	for (const type of invalidTypes) {
+		it(`does not build for param type ${type}`, async () => {
+			const err = await build(type);
+			assert.equal(err instanceof Error, true);
+			// @ts-ignore
+			assert.equal(err.title, 'Invalid route parameter returned by `getStaticPaths()`.');
+		});
+	}
 });

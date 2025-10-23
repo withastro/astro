@@ -1,0 +1,29 @@
+---
+
+export function getStaticPaths ()  {
+	const map = {
+		string: "foo",
+		number: 123,
+		boolean: false,
+		array: [1, 2, 3],
+		undefined: undefined,
+		null: null,
+		object: {a: 1},
+		bigint: BigInt(123)
+	}
+	const type = globalThis.getStaticPathsParamsType || "string"
+	if (!map.hasOwnProperty(type)) {
+		throw new Error(`Invalid type: ${type}`);
+	}
+
+	return [{
+		params: {
+			invalidParamsTypeTest: map[type] 
+		}
+	}];
+};
+---
+
+<div>
+    <h1>Invalid Params Type Test</h1>
+</div>

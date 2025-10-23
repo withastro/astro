@@ -111,7 +111,7 @@ describe('Prerender', () => {
 				});
 
 				it('resolves 200 on matching static path - numeric params', async () => {
-					// route provided with { params: { year: 2022, slug: "post-2" }}
+					// route provided with { params: { year: "2022", slug: "post-2" }}
 					const res = await fixture.fetch('/blog/blog/2022/post-2');
 					assert.equal(res.status, 200);
 				});
@@ -239,7 +239,7 @@ describe('Prerender', () => {
 				});
 
 				it('resolves 200 on matching static path - numeric params', async () => {
-					// route provided with { params: { year: 2022, slug: "post-2" }}
+					// route provided with { params: { year: "2022", slug: "post-2" }}
 					const res = await fixture.fetch('/blog/blog/2022/post-2');
 					assert.equal(res.status, 200);
 				});
