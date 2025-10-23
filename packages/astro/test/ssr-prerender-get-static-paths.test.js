@@ -103,20 +103,6 @@ describe('Prerender', () => {
 				});
 			});
 
-			describe('route params type validation', () => {
-				it('resolves 200 on matching static path - string params', async () => {
-					// route provided with { params: { year: "2022", slug: "post-2" }}
-					const res = await fixture.fetch('/blog/blog/2022/post-1');
-					assert.equal(res.status, 200);
-				});
-
-				it('resolves 200 on matching static path - numeric params', async () => {
-					// route provided with { params: { year: "2022", slug: "post-2" }}
-					const res = await fixture.fetch('/blog/blog/2022/post-2');
-					assert.equal(res.status, 200);
-				});
-			});
-
 			it('resolves 200 on matching static paths', async () => {
 				// routes params provided for pages /posts/1, /posts/2, and /posts/3
 				for (const page of [1, 2, 3]) {
@@ -228,20 +214,6 @@ describe('Prerender', () => {
 
 					assert.equal(res.status, 404);
 					assert.match(html, /404/);
-				});
-			});
-
-			describe('route params type validation', () => {
-				it('resolves 200 on matching static path - string params', async () => {
-					// route provided with { params: { year: "2022", slug: "post-2" }}
-					const res = await fixture.fetch('/blog/blog/2022/post-1');
-					assert.equal(res.status, 200);
-				});
-
-				it('resolves 200 on matching static path - numeric params', async () => {
-					// route provided with { params: { year: "2022", slug: "post-2" }}
-					const res = await fixture.fetch('/blog/blog/2022/post-2');
-					assert.equal(res.status, 200);
 				});
 			});
 
