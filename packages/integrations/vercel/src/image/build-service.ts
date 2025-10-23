@@ -1,7 +1,7 @@
 import type { ExternalImageService } from 'astro';
 import { baseService } from 'astro/assets';
 import { isESMImportedImage } from 'astro/assets/utils';
-import { sharedValidateOptions } from './shared.js';
+import { sharedValidateOptions, type VercelImageConfig } from './shared.js';
 
 const service: ExternalImageService = {
 	...baseService,
@@ -64,7 +64,7 @@ const service: ExternalImageService = {
 	},
 	// Adapted from the base service's getSrcSet, but always returning widths that are valid for Vercel,
 	// meaning they're in the list of configured sizes. See sharedValidateOptions in shared.ts for more info.
-	getSrcSet(options) {
+	getSrcSet(options, imageConfig) {
 		const { inputtedWidth, densities, widths, ...props } = options;
 
 		// If `validateOptions` returned a different width than the one of the image, use it for attributes
@@ -97,6 +97,10 @@ const service: ExternalImageService = {
 			...transformWithoutDimensions
 		} = options;
 
+		// Get the configured sizes from the Vercel image config
+		const vercelConfig = imageConfig.service.config as VercelImageConfig;
+		const configuredWidths = (vercelConfig.sizes ?? []).sort((a: number, b: number) => a - b);
+
 		// Collect widths to generate from specified densities or widths
 		let allWidths: Array<{
 			width: number;
@@ -114,13 +118,43 @@ const service: ExternalImageService = {
 			});
 
 			// Calculate the widths for each density, rounding to avoid floats.
-			const densityWidths = densityValues
+			const calculatedWidths = densityValues
 				.sort((a, b) => a - b)
 				.map((density) => Math.round(targetWidth! * density));
 
-			allWidths = densityWidths.map((width, index) => ({
+			// Vercel only supports a fixed set of widths, so map each calculated width to the nearest configured width
+			const sortedDensityValues = densityValues.sort((a, b) => a - b);
+			allWidths = calculatedWidths.map((width, index) => {
+				// Check if this width is already in the configured widths
+				if (configuredWidths.includes(width)) {
+					return {
+						width,
+						descriptor: `${sortedDensityValues[index]}x`,
+					};
+				}
+				// Otherwise, find the nearest configured width
+				const nearestWidth = configuredWidths.reduce((prev, curr) => {
+					return Math.abs(curr - width) < Math.abs(prev - width) ? curr : prev;
+				});
+				return {
+					width: nearestWidth,
+					descriptor: `${sortedDensityValues[index]}x`,
+				};
+			});
+
+			// Dedupe widths but keep all density descriptors by grouping
+			const widthToDescriptors = new Map<number, string[]>();
+			for (const { width, descriptor } of allWidths) {
+				if (!widthToDescriptors.has(width)) {
+					widthToDescriptors.set(width, []);
+				}
+				widthToDescriptors.get(width)!.push(descriptor);
+			}
+
+			// Convert back to allWidths, keeping only unique widths
+			allWidths = Array.from(widthToDescriptors.entries()).map(([width, descriptors]) => ({
 				width,
-				descriptor: `${densityValues[index]}x`,
+				descriptor: descriptors[0] as `${number}x` | `${number}w`,
 			}));
 		} else if (widths?.length) {
 			allWidths = widths.map((width) => ({

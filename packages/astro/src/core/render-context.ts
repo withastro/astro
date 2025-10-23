@@ -1,4 +1,4 @@
-import { green } from 'kleur/colors';
+import colors from 'picocolors';
 import { getActionContext } from '../actions/runtime/server.js';
 import { deserializeActionResult } from '../actions/runtime/shared.js';
 import type { ActionAPIContext } from '../actions/runtime/utils.js';
@@ -429,14 +429,14 @@ export class RenderContext {
 				if (this.isPrerendered) {
 					pipeline.logger.warn(
 						'session',
-						`context.session was used when rendering the route ${green(this.routePattern)}, but it is not available on prerendered routes. If you need access to sessions, make sure that the route is server-rendered using \`export const prerender = false;\` or by setting \`output\` to \`"server"\` in your Astro config to make all your routes server-rendered by default. For more information, see https://docs.astro.build/en/guides/sessions/`,
+						`context.session was used when rendering the route ${colors.green(this.routePattern)}, but it is not available on prerendered routes. If you need access to sessions, make sure that the route is server-rendered using \`export const prerender = false;\` or by setting \`output\` to \`"server"\` in your Astro config to make all your routes server-rendered by default. For more information, see https://docs.astro.build/en/guides/sessions/`,
 					);
 					return undefined;
 				}
 				if (!renderContext.session) {
 					pipeline.logger.warn(
 						'session',
-						`context.session was used when rendering the route ${green(this.routePattern)}, but no storage configuration was provided. Either configure the storage manually or use an adapter that provides session storage. For more information, see https://docs.astro.build/en/guides/sessions/`,
+						`context.session was used when rendering the route ${colors.green(this.routePattern)}, but no storage configuration was provided. Either configure the storage manually or use an adapter that provides session storage. For more information, see https://docs.astro.build/en/guides/sessions/`,
 					);
 					return undefined;
 				}
@@ -572,6 +572,7 @@ export class RenderContext {
 			styleResources: manifest.csp?.styleResources ? [...manifest.csp.styleResources] : [],
 			directives: manifest.csp?.directives ? [...manifest.csp.directives] : [],
 			isStrictDynamic: manifest.csp?.isStrictDynamic ?? false,
+			internalFetchHeaders: manifest.internalFetchHeaders,
 		};
 
 		return result;
@@ -671,14 +672,14 @@ export class RenderContext {
 				if (this.isPrerendered) {
 					pipeline.logger.warn(
 						'session',
-						`Astro.session was used when rendering the route ${green(this.routePattern)}, but it is not available on prerendered pages. If you need access to sessions, make sure that the page is server-rendered using \`export const prerender = false;\` or by setting \`output\` to \`"server"\` in your Astro config to make all your pages server-rendered by default. For more information, see https://docs.astro.build/en/guides/sessions/`,
+						`Astro.session was used when rendering the route ${colors.green(this.routePattern)}, but it is not available on prerendered pages. If you need access to sessions, make sure that the page is server-rendered using \`export const prerender = false;\` or by setting \`output\` to \`"server"\` in your Astro config to make all your pages server-rendered by default. For more information, see https://docs.astro.build/en/guides/sessions/`,
 					);
 					return undefined;
 				}
 				if (!renderContext.session) {
 					pipeline.logger.warn(
 						'session',
-						`Astro.session was used when rendering the route ${green(this.routePattern)}, but no storage configuration was provided. Either configure the storage manually or use an adapter that provides session storage. For more information, see https://docs.astro.build/en/guides/sessions/`,
+						`Astro.session was used when rendering the route ${colors.green(this.routePattern)}, but no storage configuration was provided. Either configure the storage manually or use an adapter that provides session storage. For more information, see https://docs.astro.build/en/guides/sessions/`,
 					);
 					return undefined;
 				}

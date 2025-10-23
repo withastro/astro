@@ -1,4 +1,4 @@
-import { bold } from 'kleur/colors';
+import colors from 'picocolors';
 import { REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER } from '../../core/constants.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { EndpointDidNotReturnAResponse } from '../../core/errors/errors-data.js';
@@ -27,7 +27,7 @@ export async function renderEndpoint(
 	if (isPrerendered && !['GET', 'HEAD'].includes(method)) {
 		logger.warn(
 			'router',
-			`${url.pathname} ${bold(
+			`${url.pathname} ${colors.bold(
 				method,
 			)} requests are not available in static endpoints. Mark this page as server-rendered (\`export const prerender = false;\`) or update your config to \`output: 'server'\` to make all your pages server-rendered by default.`,
 		);

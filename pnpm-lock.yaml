@@ -149,7 +149,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
 
   examples/blog:
@@ -164,7 +164,7 @@ importers:
         specifier: ^3.6.0
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
       sharp:
         specifier: ^0.34.3
@@ -173,7 +173,7 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
 
   examples/container-with-vitest:
@@ -182,7 +182,7 @@ importers:
         specifier: ^4.4.0
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -213,7 +213,7 @@ importers:
         specifier: ^3.15.0
         version: 3.15.0
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
 
   examples/framework-multiple:
@@ -240,7 +240,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.26)
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
       preact:
         specifier: ^10.27.2
@@ -270,7 +270,7 @@ importers:
         specifier: ^2.3.2
         version: 2.3.2(preact@10.27.2)
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
       preact:
         specifier: ^10.27.2
@@ -288,7 +288,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.26)
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -303,7 +303,7 @@ importers:
         specifier: ^5.1.1
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.9
@@ -315,7 +315,7 @@ importers:
         specifier: ^7.2.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
       svelte:
         specifier: ^5.40.2
@@ -327,7 +327,7 @@ importers:
         specifier: ^5.1.1
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.22
@@ -339,25 +339,25 @@ importers:
         specifier: ^9.5.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
 
   examples/ssr:
@@ -369,7 +369,7 @@ importers:
         specifier: ^7.2.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
       svelte:
         specifier: ^5.40.2
@@ -378,7 +378,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
       sass:
         specifier: ^1.93.2
@@ -393,7 +393,7 @@ importers:
         specifier: ^18.17.8
         version: 18.19.124
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -402,7 +402,7 @@ importers:
         specifier: ^0.15.8
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -414,7 +414,7 @@ importers:
         specifier: ^4.1.1
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
       preact:
         specifier: ^10.27.2
@@ -429,7 +429,7 @@ importers:
         specifier: ^0.5.2
         version: 0.5.2(nanostores@0.11.4)(preact@10.27.2)
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.11.4
@@ -450,7 +450,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.3
@@ -462,7 +462,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^5.14.7
+        specifier: ^5.14.8
         version: link:../../packages/astro
       vitest:
         specifier: ^3.2.4
@@ -566,9 +566,6 @@ importers:
       js-yaml:
         specifier: ^4.1.0
         version: 4.1.0
-      kleur:
-        specifier: ^4.1.5
-        version: 4.1.5
       magic-string:
         specifier: ^0.30.18
         version: 0.30.19
@@ -590,6 +587,9 @@ importers:
       package-manager-detector:
         specifier: ^1.3.0
         version: 1.4.1
+      picocolors:
+        specifier: ^1.1.1
+        version: 1.1.1
       picomatch:
         specifier: ^4.0.3
         version: 4.0.3
@@ -788,9 +788,9 @@ importers:
       fast-xml-parser:
         specifier: ^5.3.0
         version: 5.3.0
-      kleur:
-        specifier: ^4.1.5
-        version: 4.1.5
+      picocolors:
+        specifier: ^1.1.1
+        version: 1.1.1
     devDependencies:
       '@types/xml2js':
         specifier: ^0.4.14
@@ -1677,10 +1677,10 @@ importers:
         version: 3.5.22(typescript@5.9.3)
 
   packages/astro/performance:
-    devDependencies:
-      kleur:
-        specifier: ^4.1.5
-        version: 4.1.5
+    dependencies:
+      picocolors:
+        specifier: ^1.1.1
+        version: 1.1.1
 
   packages/astro/performance/fixtures/md:
     dependencies:
@@ -4558,12 +4558,12 @@ importers:
       drizzle-orm:
         specifier: ^0.42.0
         version: 0.42.0(@cloudflare/workers-types@4.20251011.0)(@libsql/client@0.15.15)
-      kleur:
-        specifier: ^4.1.5
-        version: 4.1.5
       nanoid:
         specifier: ^5.1.6
         version: 5.1.6
+      picocolors:
+        specifier: ^1.1.1
+        version: 1.1.1
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
@@ -5221,9 +5221,9 @@ importers:
       hast-util-to-html:
         specifier: ^9.0.5
         version: 9.0.5
-      kleur:
-        specifier: ^4.1.5
-        version: 4.1.5
+      picocolors:
+        specifier: ^1.1.1
+        version: 1.1.1
       rehype-raw:
         specifier: ^7.0.0
         version: 7.0.0
@@ -5551,6 +5551,15 @@ importers:
         specifier: workspace:*
         version: link:../../../..
     devDependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../../astro
+
+  packages/integrations/netlify/test/functions/fixtures/skew-protection:
+    dependencies:
+      '@astrojs/netlify':
+        specifier: 'workspace:'
+        version: link:../../../..
       astro:
         specifier: workspace:*
         version: link:../../../../../../astro
@@ -6502,15 +6511,15 @@ importers:
       esbuild:
         specifier: ^0.25.0
         version: 0.25.5
-      kleur:
-        specifier: ^4.1.5
-        version: 4.1.5
       marked:
         specifier: ^16.4.0
         version: 16.4.0
       p-limit:
         specifier: ^6.2.0
         version: 6.2.0
+      picocolors:
+        specifier: ^1.1.1
+        version: 1.1.1
       tinyglobby:
         specifier: ^0.2.15
         version: 0.2.15
