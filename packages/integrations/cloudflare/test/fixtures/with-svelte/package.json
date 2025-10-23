@@ -1,0 +1,11 @@
+{
+  "name": "@test/astro-cloudflare-with-svelte",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/cloudflare": "workspace:*",
+    "@astrojs/svelte": "^7.2.0",
+    "astro": "workspace:*",
+    "svelte": "^5.40.2"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@test/astro-cloudflare-with-vue",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/cloudflare": "workspace:*",
+    "@astrojs/vue": "^5.1.1",
+    "astro": "workspace:*",
+    "vue": "^3.5.22"
+  }
+}

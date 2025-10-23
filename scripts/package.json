@@ -1,0 +1,21 @@
+{
+  "name": "astro-scripts",
+  "version": "0.0.14",
+  "private": true,
+  "type": "module",
+  "main": "./index.js",
+  "bin": {
+    "astro-scripts": "./index.js"
+  },
+  "scripts": {
+    "has-shallow-headings": "./shallow-headings.sh"
+  },
+  "dependencies": {
+    "esbuild": "^0.25.0",
+    "marked": "^16.4.0",
+    "p-limit": "^6.2.0",
+    "picocolors": "^1.1.1",
+    "tinyglobby": "^0.2.15",
+    "tsconfck": "^3.1.6"
+  }
+}

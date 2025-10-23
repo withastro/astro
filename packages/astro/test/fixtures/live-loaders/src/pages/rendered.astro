@@ -1,0 +1,28 @@
+---
+import { getLiveEntry, render } from "astro:content";
+
+const { entry } = await getLiveEntry("liveStuff", "123");
+
+if (!entry) {
+	return new Response(null, { status: 404 });
+}
+
+const { Content } = await render(entry);
+
+export const prerender = false;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Rendered Content Test</title>
+	</head>
+	<body>
+		<div id="rendered-content">
+			<Content />
+		</div>
+	</body>
+</html>

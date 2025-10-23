@@ -1,0 +1,92 @@
+{
+  "name": "root",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withastro/astro.git"
+  },
+  "scripts": {
+    "release": "pnpm run build && changeset publish",
+    "build": "turbo run build --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
+    "build:ci": "turbo run build:ci --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
+    "build:ci:no-cache": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\" build:ci",
+    "build:examples": "turbo run build --filter=\"@example/*\"",
+    "dev": "turbo run dev --concurrency=40 --parallel --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --filter=\"@benchmark/*\"",
+    "format": "pnpm run format:code && pnpm run format:imports",
+    "format:ci": "pnpm run format:code:ci && pnpm run format:imports:ci",
+    "format:code": "biome format --write && prettier -w \"**/*\" --ignore-unknown --cache",
+    "format:code:ci": "biome format && prettier -w \"**/*\" --ignore-unknown --cache --check",
+    "format:imports": "biome check --formatter-enabled=false --write",
+    "format:imports:ci": "biome ci --formatter-enabled=false",
+    "test": "pnpm run test:astro && pnpm run test:integrations",
+    "test:astro": "turbo run test --concurrency=1 --filter=astro --only",
+    "test:integrations": "turbo run test --concurrency=1 --filter=create-astro --filter=\"@astrojs/*\" --only",
+    "test:citgm": "pnpm -r --filter=astro test",
+    "test:match": "cd packages/astro && pnpm run test:match",
+    "test:cli": "cd packages/astro && pnpm run test:cli",
+    "test:unit": "cd packages/astro && pnpm run test:unit",
+    "test:types": "cd packages/astro && pnpm run test:types",
+    "test:smoke": "pnpm test:smoke:example && pnpm test:smoke:docs",
+    "test:smoke:example": "turbo run build --concurrency=100% --filter=\"@example/*\"",
+    "test:smoke:docs": "turbo run build --filter=docs",
+    "test:check-examples": "node ./scripts/smoke/check.js",
+    "test:vite-ci": "cd packages/astro && pnpm run test:unit && pnpm run test:integration",
+    "test:e2e": "cd packages/astro && pnpm playwright install chromium firefox && pnpm run test:e2e",
+    "test:e2e:match": "cd packages/astro && pnpm playwright install chromium firefox && pnpm run test:e2e:match",
+    "test:e2e:hosts": "turbo run test:hosted",
+    "benchmark": "astro-benchmark",
+    "lint": "biome lint && knip && eslint . --report-unused-disable-directives-severity=warn --concurrency=auto",
+    "lint:ci": "biome ci --formatter-enabled=false --reporter=github && eslint . --concurrency=auto --report-unused-disable-directives-severity=warn && knip",
+    "lint:fix": "biome lint --write --unsafe",
+    "publint": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --no-bail exec publint",
+    "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format",
+    "preinstall": "npx only-allow pnpm"
+  },
+  "workspaces": [
+    "packages/markdown/*",
+    "packages/integrations/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": "^18.20.8 || ^20.3.0 || >=22.0.0"
+  },
+  "packageManager": "pnpm@10.18.3",
+  "dependencies": {
+    "astro-benchmark": "workspace:*"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@biomejs/biome": "2.2.6",
+    "@changesets/changelog-github": "^0.5.1",
+    "@changesets/cli": "^2.29.7",
+    "@types/node": "^18.19.115",
+    "esbuild": "0.25.5",
+    "eslint": "^9.37.0",
+    "eslint-plugin-regexp": "^2.10.0",
+    "knip": "5.61.3",
+    "only-allow": "^1.2.1",
+    "prettier": "^3.6.2",
+    "prettier-plugin-astro": "^0.14.1",
+    "publint": "^0.3.14",
+    "tinyglobby": "^0.2.15",
+    "turbo": "^2.5.8",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.1"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "allowAny": [
+        "astro",
+        "vite"
+      ]
+    },
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "workerd",
+      "@biomejs/biome",
+      "sharp"
+    ]
+  }
+}

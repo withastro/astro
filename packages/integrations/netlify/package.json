@@ -1,0 +1,66 @@
+{
+  "name": "@astrojs/netlify",
+  "description": "Deploy your site to Netlify",
+  "version": "6.6.0",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/integrations/netlify"
+  },
+  "keywords": [
+    "withastro",
+    "astro-adapter"
+  ],
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://docs.astro.build/en/guides/integrations-guide/netlify/",
+  "exports": {
+    ".": "./dist/index.js",
+    "./static": "./dist/static.js",
+    "./functions": "./dist/functions.js",
+    "./ssr-function.js": "./dist/ssr-function.js",
+    "./image-service.js": "./dist/image-service.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "test": "pnpm run test-fn && pnpm run test-static && pnpm run test:dev",
+    "test-fn": "astro-scripts test \"test/functions/*.test.js\"",
+    "test:dev": "astro-scripts test \"test/development/*.test.js\"",
+    "test-static": "astro-scripts test \"test/static/*.test.js\"",
+    "test:hosted": "astro-scripts test \"test/hosted/*.test.js\""
+  },
+  "dependencies": {
+    "@astrojs/internal-helpers": "workspace:*",
+    "@astrojs/underscore-redirects": "workspace:*",
+    "@netlify/blobs": "^10.1.0",
+    "@netlify/functions": "^4.3.0",
+    "@netlify/vite-plugin": "^2.7.2",
+    "@vercel/nft": "0.30.3",
+    "esbuild": "^0.25.0",
+    "tinyglobby": "^0.2.15",
+    "vite": "^6.4.0"
+  },
+  "peerDependencies": {
+    "astro": "^5.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.6",
+    "astro": "workspace:*",
+    "astro-scripts": "workspace:*",
+    "cheerio": "1.1.2",
+    "devalue": "^5.4.1",
+    "typescript": "^5.9.3"
+  },
+  "astro": {
+    "external": true
+  }
+}

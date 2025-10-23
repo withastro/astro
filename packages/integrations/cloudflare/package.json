@@ -1,0 +1,60 @@
+{
+  "name": "@astrojs/cloudflare",
+  "description": "Deploy your site to Cloudflare Workers/Pages",
+  "version": "12.6.10",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/integrations/cloudflare"
+  },
+  "keywords": [
+    "withastro",
+    "astro-adapter"
+  ],
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://docs.astro.build/en/guides/integrations-guide/cloudflare/",
+  "exports": {
+    ".": "./dist/index.js",
+    "./entrypoints/server.js": "./dist/entrypoints/server.js",
+    "./entrypoints/middleware.js": "./dist/entrypoints/middleware.js",
+    "./image-service": "./dist/entrypoints/image-service.js",
+    "./image-endpoint": "./dist/entrypoints/image-endpoint.js",
+    "./handler": "./dist/utils/handler.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "test": "astro-scripts test \"test/**/*.test.js\""
+  },
+  "dependencies": {
+    "@astrojs/internal-helpers": "workspace:*",
+    "@astrojs/underscore-redirects": "workspace:*",
+    "@cloudflare/workers-types": "^4.20251011.0",
+    "tinyglobby": "^0.2.15",
+    "vite": "^6.4.0",
+    "wrangler": "4.43.0"
+  },
+  "peerDependencies": {
+    "astro": "^5.7.0"
+  },
+  "devDependencies": {
+    "astro": "workspace:*",
+    "astro-scripts": "workspace:*",
+    "cheerio": "1.1.2",
+    "devalue": "^5.4.1",
+    "execa": "^8.0.1",
+    "rollup": "^4.52.4"
+  },
+  "publishConfig": {
+    "provenance": true
+  }
+}
