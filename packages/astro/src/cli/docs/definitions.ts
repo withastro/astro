@@ -10,7 +10,8 @@ export interface CommandExecutor {
 		args?: Array<string>,
 		options?: {
 			cwd?: string;
-			env: Record<string, string | undefined>;
+			env?: Record<string, string | undefined>;
+			shell?: boolean;
 		},
 	) => Promise<{ stdout: string }>;
 }
