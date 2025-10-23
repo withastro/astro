@@ -1,41 +1,32 @@
 import type { AstroConfig } from '../../../types/public/index.js';
 import type { AstroVersionProvider } from '../../definitions.js';
-import type {
-	DebugInfoProvider,
-	OperatingSystemProvider,
-	PackageManagerProvider,
-	PackageVersionProvider,
-} from '../definitions.js';
+import type { DebugInfoProvider, OperatingSystemProvider, PackageManager } from '../definitions.js';
 import type { DebugInfo } from '../domain/debug-info.js';
 
 interface Options {
 	config: AstroConfig;
 	astroVersionProvider: AstroVersionProvider;
-	packageManagerProvider: PackageManagerProvider;
+	packageManager: PackageManager;
 	operatingSystemProvider: OperatingSystemProvider;
-	packageVersionProvider: PackageVersionProvider;
 }
 
 export function createCliDebugInfoProvider({
 	config,
 	astroVersionProvider,
-	packageManagerProvider,
+	packageManager,
 	operatingSystemProvider,
-	packageVersionProvider,
 }: Options): DebugInfoProvider {
 	return {
 		async get() {
-			const packageManager = packageManagerProvider.getName();
-
 			const debugInfo: DebugInfo = [
 				['Astro', `v${astroVersionProvider.getVersion()}`],
 				['Node', process.version],
 				['System', operatingSystemProvider.getName()],
-				['Package Manager', packageManager],
+				['Package Manager', packageManager.getName()],
 				['Output', config.output],
 			];
 
-			const viteVersion = await packageVersionProvider.getVersion('vite');
+			const viteVersion = await packageManager.getPackageVersion('vite');
 
 			if (viteVersion) {
 				debugInfo.splice(1, 0, ['Vite', viteVersion]);
@@ -43,7 +34,7 @@ export function createCliDebugInfoProvider({
 
 			let adapter = 'none';
 			if (config.adapter) {
-				const adapterVersion = await packageVersionProvider.getVersion(config.adapter.name);
+				const adapterVersion = await packageManager.getPackageVersion(config.adapter.name);
 				adapter = `${config.adapter.name}${adapterVersion ? ` (${adapterVersion})` : ''}`;
 			}
 			debugInfo.push(['Adapter', adapter]);
@@ -54,7 +45,7 @@ export function createCliDebugInfoProvider({
 				.map(async (i) => {
 					if (!i.name) return;
 
-					const version = await packageVersionProvider.getVersion(i.name);
+					const version = await packageManager.getPackageVersion(i.name);
 
 					return `${i.name}${version ? ` (${version})` : ''}`;
 				});

@@ -12,14 +12,11 @@ export interface Clipboard {
 	copy: (input: string) => Promise<void>;
 }
 
-export interface PackageManagerProvider {
+export interface PackageManager {
 	getName: () => string;
+	getPackageVersion: (name: string) => Promise<string | undefined>;
 }
 
 export interface OperatingSystemProvider {
 	getName: () => string;
-}
-
-export interface PackageVersionProvider {
-	getVersion: (name: string) => Promise<string | undefined>;
 }
