@@ -2,14 +2,18 @@
 
 export function getStaticPaths ()  {
 	const map = {
+		// Valid types
 		string: "foo",
+		undefined: undefined,
+		
+		// Invalid types
 		number: 123,
 		boolean: false,
 		array: [1, 2, 3],
-		undefined: undefined,
 		null: null,
 		object: {a: 1},
-		bigint: BigInt(123)
+		bigint: BigInt(123),
+		function: setTimeout
 	}
 	const type = globalThis.getStaticPathsParamsType || "string"
 	if (!map.hasOwnProperty(type)) {

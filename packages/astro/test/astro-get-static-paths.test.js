@@ -226,7 +226,7 @@ describe('throws if an invalid params type is returned', () => {
 	};
 
 	const validTypes = ['string', 'undefined'];
-	const invalidTypes = ['number', 'object', 'boolean', 'array', 'bigint'];
+	const invalidTypes = ['number', 'boolean', 'array', 'null', 'object', 'bigint', 'function'];
 
 	for (const type of validTypes) {
 		it(`does build for param type ${type}`, async () => {
