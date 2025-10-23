@@ -230,8 +230,14 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					sheetAddedToPage = true;
 				}
 
-				if (toBeInlined && sheetAddedToPage) {
-					// CSS is already added to all used pages, we can delete it from the bundle
+				const wasInlined = toBeInlined && sheetAddedToPage;
+				const wasAddedToChunk = internals.clientChunksAndAssets.has(id);
+				const isOrphaned = !sheetAddedToPage && !wasAddedToChunk;
+
+				if (wasInlined || isOrphaned) {
+					// wasInlined : CSS is already added to all used pages
+					// isOrphaned : CSS is already used in a merged chunk
+					// we can delete it from the bundle
 					// and make sure no chunks reference it via `importedCss` (for Vite preloading)
 					// to avoid duplicate CSS.
 					delete bundle[id];
