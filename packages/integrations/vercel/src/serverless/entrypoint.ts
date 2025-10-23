@@ -1,5 +1,3 @@
-// Keep at the top
-import './polyfill.js';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { SSRManifest } from 'astro';
 import { NodeApp } from 'astro/app/node';

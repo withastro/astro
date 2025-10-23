@@ -1,6 +1,8 @@
 // process.env.PACKAGE_VERSION is injected when we build and publish the astro package.
 export const ASTRO_VERSION = process.env.PACKAGE_VERSION ?? 'development';
 
+export const ASTRO_GENERATOR = `Astro v${ASTRO_VERSION}`;
+
 /**
  * The name for the header used to help rerouting behavior.
  * When set to "no", astro will NOT try to reroute an error response to the corresponding error page, which is the default behavior that can sometimes lead to loops.

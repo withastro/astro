@@ -62,7 +62,6 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				if (!processor) {
 					processor = createMarkdownProcessor({
 						image: settings.config.image,
-						experimentalHeadingIdCompat: settings.config.experimental.headingIdCompat,
 						...settings.config.markdown,
 					});
 				}

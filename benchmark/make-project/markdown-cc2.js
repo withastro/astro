@@ -28,7 +28,7 @@ ${loremIpsumMd}
 	}
 
 	await fs.writeFile(
-		new URL(`./src/content/config.ts`, projectDir),
+		new URL(`./src/content.config.ts`, projectDir),
 		/*ts */ `
 		import { defineCollection, z } from 'astro:content';
 		import { glob } from 'astro/loaders';
