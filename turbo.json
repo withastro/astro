@@ -14,7 +14,8 @@
         "!mod.js.map"
       ],
       "outputs": ["dist/**/*", "!vendor/**", "mod.js", "mod.js.map"],
-      "outputLogs": "new-only"
+      "outputLogs": "new-only",
+      "passThroughEnv": ["SKIP_OG", "PUBLIC_TWO_LANG"]
     },
     "build:ci": {
       "dependsOn": ["^build:ci"],

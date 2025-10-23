@@ -1,8 +1,8 @@
 import { existsSync, promises as fs } from 'node:fs';
 import { relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { bold, green } from 'kleur/colors';
 import pLimit from 'p-limit';
+import colors from 'picocolors';
 import picomatch from 'picomatch';
 import { glob as tinyglobby } from 'tinyglobby';
 import type { ContentEntryRenderFunction, ContentEntryType } from '../../types/public/content.js';
@@ -261,15 +261,15 @@ export function glob(globOptions: GlobOptions): Loader {
 					: globOptions.pattern;
 
 				logger.warn(
-					`The glob() loader cannot be used for files in ${bold('src/content')} when legacy mode is enabled.`,
+					`The glob() loader cannot be used for files in ${colors.bold('src/content')} when legacy mode is enabled.`,
 				);
 				if (skipCount > 10) {
 					logger.warn(
-						`Skipped ${green(skippedFiles.length)} files that matched ${green(patternList)}.`,
+						`Skipped ${colors.green(skippedFiles.length)} files that matched ${colors.green(patternList)}.`,
 					);
 				} else {
-					logger.warn(`Skipped the following files that matched ${green(patternList)}:`);
-					skippedFiles.forEach((file) => logger.warn(`• ${green(file)}`));
+					logger.warn(`Skipped the following files that matched ${colors.green(patternList)}:`);
+					skippedFiles.forEach((file) => logger.warn(`• ${colors.green(file)}`));
 				}
 			}
 
@@ -296,7 +296,7 @@ export function glob(globOptions: GlobOptions): Loader {
 				const baseUrl = pathToFileURL(basePath);
 				const oldId = fileToIdMap.get(changedPath);
 				await syncData(entry, baseUrl, entryType, oldId);
-				logger.info(`Reloaded data from ${green(entry)}`);
+				logger.info(`Reloaded data from ${colors.green(entry)}`);
 			}
 
 			watcher.on('change', onChange);

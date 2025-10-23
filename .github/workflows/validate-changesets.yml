@@ -121,10 +121,6 @@ jobs:
           # Create the full prompt with PR context and changesets
           prompt="${prompt_template}
 
-          <pr_context>
-          PR Title: ${{ github.event.pull_request.title }}
-          </pr_context>
-
           $changesets"
 
           # Generate cache key from prompt content

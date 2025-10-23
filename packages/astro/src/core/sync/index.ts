@@ -2,7 +2,7 @@ import fsMod from 'node:fs';
 import { dirname, relative } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
-import { dim } from 'kleur/colors';
+import colors from 'picocolors';
 import { createServer, type FSWatcher, type HMRPayload } from 'vite';
 import { syncFonts } from '../../assets/fonts/sync.js';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
@@ -181,7 +181,7 @@ export async function syncInternal({
 	syncFonts(settings);
 
 	writeInjectedTypes(settings, fs);
-	logger.info('types', `Generated ${dim(getTimeStat(timerStart, performance.now()))}`);
+	logger.info('types', `Generated ${colors.dim(getTimeStat(timerStart, performance.now()))}`);
 }
 
 function getTsReference(type: 'path' | 'types', value: string) {

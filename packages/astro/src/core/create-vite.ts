@@ -21,6 +21,7 @@ import astroPrefetch from '../prefetch/vite-plugin-prefetch.js';
 import astroDevToolbar from '../toolbar/vite-plugin-dev-toolbar.js';
 import astroTransitions from '../transitions/vite-plugin-transitions.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
+import { vitePluginAdapterConfig } from '../vite-plugin-adapter-config/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
@@ -154,6 +155,7 @@ export async function createVite(
 			command === 'dev' && vitePluginAstroServer({ settings, logger, fs, routesList, manifest }), // manifest is only required in dev mode, where it gets created before a Vite instance is created, and get passed to this function
 			importMetaEnv({ envLoader }),
 			astroEnv({ settings, sync, envLoader }),
+			vitePluginAdapterConfig(settings),
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
 			astroIntegrationsContainerPlugin({ settings, logger }),
