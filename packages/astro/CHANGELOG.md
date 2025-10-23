@@ -1,5 +1,11 @@
 # astro
 
+## 5.15.1
+
+### Patch Changes
+
+- [#14612](https://github.com/withastro/astro/pull/14612) [`18552c7`](https://github.com/withastro/astro/commit/18552c733c55792a4bf8374d66134742d666e902) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression introduced in Astro v5.14.7 that caused `?url` imports to not work correctly. This release reverts [#14142](https://github.com/withastro/astro/pull/14142).
+
 ## 5.15.0
 
 ### Minor Changes
