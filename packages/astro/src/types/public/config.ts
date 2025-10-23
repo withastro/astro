@@ -2387,17 +2387,6 @@ export interface AstroUserConfig<
 			  };
 
 		/**
-		 * @name experimental.liveContentCollections
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 5.10
-		 * @description
-		 * Enables the use of live content collections.
-		 *
-		 */
-		liveContentCollections?: boolean;
-
-		/**
 		 * @name experimental.chromeDevtoolsWorkspace
 		 * @type {boolean}
 		 * @default `false`

@@ -76,7 +76,7 @@ const isStatusCodePage = (locales: string[]) => {
 	};
 };
 const createPlugin = (options?: SitemapOptions): AstroIntegration => {
-	let _routes: Array<IntegrationResolvedRoute>
+	let _routes: Array<IntegrationResolvedRoute>;
 	let config: AstroConfig;
 
 	return {
