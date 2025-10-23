@@ -100,6 +100,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				{ createCliDebugInfoProvider },
 				{ createTinyexecCommandExecutor },
 				{ getPackageManager },
+				{ createStyledDebugInfoFormatter },
 				{ infoCommand },
 			] = await Promise.all([
 				import('./info/infra/node-operating-system-provider.js'),
@@ -107,6 +108,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				import('./info/infra/cli-debug-info-provider.js'),
 				import('./docs/infra/tinyexec-command-executor.js'),
 				import('./info/core/get-package-manager.js'),
+				import('./info/infra/styled-debug-info-formatter.js'),
 				import('./info/core/info.js'),
 			]);
 			const operatingSystemProvider = createNodeOperatingSystemProvider();
@@ -121,8 +123,9 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 					commandExecutor,
 				}),
 			});
+			const debugInfoFormatter = createStyledDebugInfoFormatter({ textStyler });
 
-			return await runner.run(infoCommand, { logger, debugInfoProvider });
+			return await runner.run(infoCommand, { logger, debugInfoProvider, debugInfoFormatter });
 		}
 		case 'create-key': {
 			const [{ createCryptoKeyGenerator }, { createKeyCommand }] = await Promise.all([
