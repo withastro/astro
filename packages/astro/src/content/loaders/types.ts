@@ -31,7 +31,10 @@ export interface LoaderContext {
 	logger: AstroIntegrationLogger;
 	/** Astro config, with user config and merged defaults */
 	config: AstroConfig;
-	/** Validates and parses the data according to the collection schema */
+	/**
+	 * Validates and parses the data according to the collection schema
+	 * @deprecated Pass raw, unvalidated data to store.set({ data }) instead. Validation will occur after load()
+	 * */
 	parseData<TData extends Record<string, unknown>>(props: ParseDataOptions<TData>): Promise<TData>;
 
 	/** Renders markdown content to HTML and metadata */
@@ -49,14 +52,31 @@ export interface LoaderContext {
 	entryTypes: Map<string, ContentEntryType>;
 }
 
-export interface Loader {
+export type Loader = {
 	/** Unique name of the loader, e.g. the npm package name */
 	name: string;
-	/** Do the actual loading of the data */
-	load: (context: LoaderContext) => Promise<void>;
-	/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
-	schema?: ZodSchema | Promise<ZodSchema> | (() => ZodSchema | Promise<ZodSchema>);
-}
+} & (
+	| {
+			/** Do the actual loading of the data */
+			load: (context: LoaderContext) => Promise<void>;
+			/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
+			schema?: ZodSchema;
+	  }
+	| {
+			/** Do the actual loading of the data */
+			load: (context: LoaderContext) => Promise<void>;
+			/**
+			 * Optionally, define the schema of the data. Will be overridden by user-defined schema
+			 * @deprecated Return schema from load() instead
+			 * */
+			schema?: Promise<ZodSchema> | (() => ZodSchema | Promise<ZodSchema>);
+	  }
+	| {
+			/** Do the actual loading of the data */
+			load: (context: LoaderContext) => Promise<{ schema?: ZodSchema; types?: string }>;
+			schema?: never;
+	  }
+);
 
 export interface LoadEntryContext<TEntryFilter = never> {
 	filter: TEntryFilter extends never ? { id: string } : TEntryFilter;

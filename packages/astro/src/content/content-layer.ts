@@ -302,7 +302,8 @@ class ContentLayer {
 					throw new Error(`Collection loader for ${name} does not have a load method`);
 				}
 
-				return collection.loader.load(context);
+				const result = collection.loader.load(context);
+				return result
 			}),
 		);
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
