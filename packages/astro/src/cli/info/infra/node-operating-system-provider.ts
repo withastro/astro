@@ -7,10 +7,14 @@ const PLATFORM_TO_OS: Partial<Record<ReturnType<typeof platform>, string>> = {
 	linux: 'Linux',
 };
 
+// TODO: unify with createProcessPlatformProvider somehow
 export function createNodeOperatingSystemProvider(): OperatingSystemProvider {
+	const _platform = platform();
 	return {
 		getName() {
-			const _platform = platform();
+			return _platform;
+		},
+		getDisplayName() {
 			const system = PLATFORM_TO_OS[_platform] ?? _platform;
 			return `${system} (${arch()})`;
 		},

@@ -10,7 +10,7 @@ export interface DebugInfoFormatter {
 }
 
 export interface Clipboard {
-	copy: (input: string) => Promise<void>;
+	copy: (text: string) => Promise<void>;
 }
 
 export interface PackageManager {
@@ -19,9 +19,14 @@ export interface PackageManager {
 }
 
 export interface OperatingSystemProvider {
-	getName: () => string;
+	getName: () => NodeJS.Platform;
+	getDisplayName: () => string;
 }
 
 export interface AstroConfigResolver {
 	resolve: () => Promise<AstroConfig>;
+}
+
+export interface Prompt {
+	confirm: (input: { message: string; defaultValue?: boolean }) => Promise<boolean>;
 }

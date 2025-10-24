@@ -21,7 +21,7 @@ export function createCliDebugInfoProvider({
 			const debugInfo: DebugInfo = [
 				['Astro', `v${astroVersionProvider.getVersion()}`],
 				['Node', process.version],
-				['System', operatingSystemProvider.getName()],
+				['System', operatingSystemProvider.getDisplayName()],
 				['Package Manager', packageManager.getName()],
 				['Output', config.output],
 			];
