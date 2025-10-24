@@ -38,3 +38,9 @@ declare module 'virtual:astro:renderers' {
 	import type { AstroRenderer } from './src/index.js';
 	export const renderers: AstroRenderer[];
 }
+
+declare module 'virtual:astro:middleware' {
+	import type { AstroMiddlewareInstance } from './src/index.js';
+	const middleware: AstroMiddlewareInstance;
+	export default middleware;
+}

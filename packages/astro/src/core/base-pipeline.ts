@@ -135,7 +135,7 @@ export abstract class Pipeline {
 		if (this.resolvedActions) {
 			return this.resolvedActions;
 		} else if (this.actions) {
-			return await this.actions();
+			return this.actions();
 		}
 		return NOOP_ACTIONS_MOD;
 	}
