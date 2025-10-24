@@ -24,7 +24,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "NODE_OPTIONS='--import tsx' astro-scripts test \"**/*.test.ts\""
+    "test": "astro-scripts test \"**/*.test.ts\"  --tsx true"
   },
   "dependencies": {
     "@astrojs/language-server": "^2.15.0",

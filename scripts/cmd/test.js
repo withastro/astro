@@ -27,6 +27,8 @@ export default async function test() {
 			setup: { type: 'string', alias: 's' },
 			// Test teardown file
 			teardown: { type: 'string' },
+			// Use tsx to run the tests,
+			tsx: { type: 'boolean' },
 			// Test teardown file to include in the test files list
 			'teardown-test': { type: 'string' },
 		},
@@ -51,6 +53,11 @@ export default async function test() {
 	if (args.values.only) {
 		process.env.NODE_OPTIONS ??= '';
 		process.env.NODE_OPTIONS += ' --test-only';
+	}
+
+	if (args.values.tsx) {
+		process.env.NODE_OPTIONS ??= '';
+		process.env.NODE_OPTIONS += ' --import tsx';
 	}
 
 	if (!args.values.parallel) {
