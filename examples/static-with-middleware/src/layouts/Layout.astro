@@ -1,0 +1,127 @@
+---
+const { title } = Astro.props;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>{title}</title>
+	</head>
+	<body>
+		<header>
+			<nav>
+				<ul>
+					<li>
+						<a href="/"> Home </a>
+					</li>
+					<li>
+						<a href="/login"> Login </a>
+					</li>
+					<li>
+						<a href="/logout"> Logout </a>
+					</li>
+					<li>
+						<a href="/dashboard"> Dashboard </a>
+					</li>
+				</ul>
+			</nav>
+			<h1>{title}</h1>
+		</header>
+		<main>
+			<slot />
+		</main>
+	</body>
+</html>
+
+<style is:global>
+	* {
+		box-sizing: border-box;
+		margin: 0;
+		padding: 0;
+	}
+
+	html {
+		font-family: system-ui, sans-serif;
+		background: #f6f6f6;
+	}
+
+	body {
+		max-width: 800px;
+		margin: 0 auto;
+		padding: 2rem 1rem;
+		background: white;
+		min-height: 100vh;
+		line-height: 1.6;
+	}
+
+	header {
+		margin-bottom: 2rem;
+		padding-bottom: 1rem;
+		border-bottom: 1px solid #ddd;
+	}
+
+	nav ul {
+		display: flex;
+		gap: 1rem;
+		list-style: none;
+		margin-bottom: 1rem;
+	}
+
+	a {
+		color: #08305c;
+		text-decoration: none;
+	}
+
+	a:hover {
+		text-decoration: underline;
+	}
+
+	h1 {
+		color: #333;
+		margin: 1rem 0;
+	}
+
+	h2 {
+		color: #444;
+		margin: 1.5rem 0 0.5rem;
+	}
+
+	p {
+		margin: 0.5rem 0;
+	}
+
+	form {
+		margin: 1rem 0;
+	}
+
+	label {
+		display: block;
+		margin: 1rem 0 0.25rem;
+		font-weight: 500;
+	}
+
+	input[type="text"],
+	input[type="password"] {
+		width: 100%;
+		padding: 0.5rem;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		font-size: 1rem;
+	}
+
+	button {
+		margin-top: 1rem;
+		padding: 0.5rem 1.5rem;
+		background: #0070f3;
+		color: white;
+		border: none;
+		border-radius: 4px;
+		font-size: 1rem;
+		cursor: pointer;
+	}
+
+	button:hover {
+		background: #0051cc;
+	}
+</style>

@@ -30,6 +30,17 @@ export interface UserOptions {
 	 * static files are hosted on a different domain. Do not include a path in the URL: it will be ignored.
 	 */
 	experimentalErrorPageHost?: string | URL;
+
+	/**
+	 * Run middleware for prerendered (static) pages.
+	 *
+	 * If enabled, middleware will execute before serving static HTML files,
+	 * allowing access to cookies, headers, and query parameters for authentication,
+	 * personalization, and other request-based logic. Middleware will not run during build time.
+	 * 
+	 * @default false
+	 */
+	runMiddlewareForStaticPages?: boolean;
 }
 
 export interface Options extends UserOptions {
@@ -40,6 +51,7 @@ export interface Options extends UserOptions {
 	assets: string;
 	trailingSlash?: SSRManifest['trailingSlash'];
 	experimentalStaticHeaders: boolean;
+	runMiddlewareForStaticPages: boolean;
 }
 
 export type RequestHandler = (...args: RequestHandlerParams) => void | Promise<void>;

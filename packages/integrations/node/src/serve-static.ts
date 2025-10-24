@@ -3,7 +3,9 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import path from 'node:path';
 import url from 'node:url';
 import { hasFileExtension, isInternalPath } from '@astrojs/internal-helpers/path';
-import type { NodeApp } from 'astro/app/node';
+import type { MiddlewareHandler } from 'astro';
+import { NodeApp } from 'astro/app/node';
+import { createContext } from 'astro/middleware';
 import send from 'send';
 import type { Options } from './types.js';
 
@@ -18,10 +20,44 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 	/**
 	 * @param ssr The SSR handler to be called if the static handler does not find a matching file.
 	 */
-	return (req: IncomingMessage, res: ServerResponse, ssr: () => unknown) => {
+	return async (req: IncomingMessage, res: ServerResponse, ssr: () => unknown) => {
 		if (req.url) {
 			const [urlPath, urlQuery] = req.url.split('?');
 			const filePath = path.join(client, app.removeBase(urlPath));
+
+			// Check if middleware should run for this request
+			if (options.runMiddlewareForStaticPages && isPrerenderedHTMLPage(urlPath)) {
+				try {
+					// Get middleware from the app's manifest
+					// The middleware is already bundled with the app (not edge middleware)
+					// @ts-expect-error - accessing protected manifest property
+					const manifest = app.manifest;
+					if (manifest.middleware) {
+						const middlewareModule =
+							typeof manifest.middleware === 'function'
+								? await manifest.middleware()
+								: manifest.middleware;
+
+						if (middlewareModule?.onRequest) {
+							const handled = await executeMiddlewareForStatic(
+								req,
+								res,
+								middlewareModule.onRequest,
+								app,
+							);
+
+							if (handled) {
+								return; // Middleware handled the response
+							}
+						}
+					}
+					// Otherwise, fall through to static file serving
+				} catch (err) {
+					// Log error but fall through to static serving
+					const logger = app.getAdapterLogger();
+					logger.error(`Error executing middleware for static page: ${err}`);
+				}
+			}
 
 			let isDirectory = false;
 			try {
@@ -140,3 +176,73 @@ function prependForwardSlash(pth: string) {
 function appendForwardSlash(pth: string) {
 	return pth.endsWith('/') ? pth : pth + '/';
 }
+
+/**
+ * Check if a URL path is for a prerendered HTML page (not an asset)
+ */
+function isPrerenderedHTMLPage(urlPath: string): boolean {
+	// Skip middleware for asset files
+	if (
+		urlPath.startsWith('/_astro/') ||
+		/\.(css|js|json|xml|txt|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|webp|avif|map)$/i.test(
+			urlPath,
+		)
+	) {
+		return false;
+	}
+
+	// Middleware should run for HTML pages (anything else)
+	return true;
+}
+
+/**
+ * Execute middleware before serving a static file.
+ * Returns true if middleware handled the response (returned a Response without calling next()).
+ * Returns false if middleware called next() - the static file should be served normally.
+ */
+async function executeMiddlewareForStatic(
+	req: IncomingMessage,
+	res: ServerResponse,
+	middleware: MiddlewareHandler,
+	app: NodeApp,
+): Promise<boolean> {
+	// Create a proper Request object with all headers/cookies
+	const request = NodeApp.createRequest(req, {
+		allowedDomains: app.getAllowedDomains?.() ?? [],
+	});
+
+	// Create middleware context
+	const ctx = createContext({
+		request,
+		params: {}, // Static pages don't have dynamic params
+		locals: {},
+		defaultLocale: '',
+	});
+
+	// Mark this as a prerendered page so middleware knows
+	ctx.isPrerendered = true;
+
+	let nextCalled = false;
+
+	// Create a next function - if called, we'll serve the static file normally
+	const middlewareNext = async (): Promise<Response> => {
+		nextCalled = true;
+		// Return a dummy response - the static file will be served after middleware returns
+		return new Response(null);
+	};
+
+	// Execute middleware
+	const response = await middleware(ctx, middlewareNext);
+
+	// If middleware returned a response and didn't call next(), use it
+	if (response && !nextCalled) {
+		await NodeApp.writeResponse(response, res);
+		return true; // Middleware handled the response
+	}
+
+	// Middleware called next() - continue with static file serving
+	return false;
+}
+
+
+

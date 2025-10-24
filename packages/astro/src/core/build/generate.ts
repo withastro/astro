@@ -76,7 +76,12 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 		const baseDirectory = getServerOutputDirectory(options.settings);
 		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
-		const middleware: MiddlewareHandler = internals.middlewareEntryPoint
+		
+		// Check if adapter wants to skip middleware during prerendering
+		// (e.g., Node adapter with runMiddlewareForStaticPages enabled)
+		const skipMiddlewareOnPrerender = options.settings.adapter?.adapterFeatures?.skipMiddlewareOnPrerender === true;
+		
+		const middleware: MiddlewareHandler = internals.middlewareEntryPoint && !skipMiddlewareOnPrerender
 			? await import(internals.middlewareEntryPoint.toString()).then((mod) => mod.onRequest)
 			: NOOP_MIDDLEWARE_FN;
 

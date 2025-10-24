@@ -22,6 +22,7 @@ export function getAdapter(options: Options): AstroAdapter {
 			buildOutput: 'server',
 			edgeMiddleware: false,
 			experimentalStaticHeaders: options.experimentalStaticHeaders,
+			skipMiddlewareOnPrerender: options.runMiddlewareForStaticPages,
 		},
 		supportedAstroFeatures: {
 			hybridOutput: 'stable',
@@ -94,6 +95,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 			'astro:build:generated': ({ experimentalRouteToHeaders }) => {
 				_routeToHeaders = experimentalRouteToHeaders;
 			},
+
 			'astro:config:done': ({ setAdapter, config }) => {
 				_options = {
 					...userOptions,
@@ -103,6 +105,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 					port: config.server.port,
 					assets: config.build.assets,
 					experimentalStaticHeaders: userOptions.experimentalStaticHeaders ?? false,
+					runMiddlewareForStaticPages: userOptions.runMiddlewareForStaticPages ?? false,
 					experimentalErrorPageHost,
 				};
 				setAdapter(getAdapter(_options));
