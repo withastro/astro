@@ -9,7 +9,7 @@ import { MissingMiddlewareForInternationalization } from '../errors/errors-data.
 import { AstroError } from '../errors/index.js';
 import { normalizePath } from '../viteUtils.js';
 
-export const MIDDLEWARE_MODULE_ID = 'virtual:astro:middleware';
+const MIDDLEWARE_MODULE_ID = 'virtual:astro:middleware';
 export const MIDDLEWARE_RESOLVED_MODULE_ID = '\0' + MIDDLEWARE_MODULE_ID;
 const NOOP_MIDDLEWARE = '\0noop-middleware';
 
