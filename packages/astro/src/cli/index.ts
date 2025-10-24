@@ -51,6 +51,7 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
  * to present user-friendly error output where the fn is called.
  **/
 async function runCommand(cmd: string, flags: yargs.Arguments) {
+	await import('../core/polyfill.js').then((m) => m.apply());
 	const [
 		{ createLoggerFromFlags },
 		{ createPicocolorsTextStyler },
@@ -93,9 +94,38 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			return;
 		}
 		case 'info': {
-			const { printInfo } = await import('./info/index.js');
-			await printInfo({ flags });
-			return;
+			const [
+				{ createNodeOperatingSystemProvider },
+				{ createCliAstroConfigResolver },
+				{ createCliDebugInfoProvider },
+				{ createTinyexecCommandExecutor },
+				{ getPackageManager },
+				{ createStyledDebugInfoFormatter },
+				{ infoCommand },
+			] = await Promise.all([
+				import('./info/infra/node-operating-system-provider.js'),
+				import('./info/infra/cli-astro-config-resolver.js'),
+				import('./info/infra/cli-debug-info-provider.js'),
+				import('./docs/infra/tinyexec-command-executor.js'),
+				import('./info/core/get-package-manager.js'),
+				import('./info/infra/styled-debug-info-formatter.js'),
+				import('./info/core/info.js'),
+			]);
+			const operatingSystemProvider = createNodeOperatingSystemProvider();
+			const astroConfigResolver = createCliAstroConfigResolver({ flags });
+			const commandExecutor = createTinyexecCommandExecutor();
+			const debugInfoProvider = createCliDebugInfoProvider({
+				config: await astroConfigResolver.resolve(),
+				astroVersionProvider,
+				operatingSystemProvider,
+				packageManager: await getPackageManager({
+					configUserAgent: process.env.npm_config_user_agent,
+					commandExecutor,
+				}),
+			});
+			const debugInfoFormatter = createStyledDebugInfoFormatter({ textStyler });
+
+			return await runner.run(infoCommand, { logger, debugInfoProvider, debugInfoFormatter });
 		}
 		case 'create-key': {
 			const [{ createCryptoKeyGenerator }, { createKeyCommand }] = await Promise.all([

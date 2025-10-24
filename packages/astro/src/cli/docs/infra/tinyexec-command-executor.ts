@@ -1,6 +1,8 @@
 import { NonZeroExitError, x } from 'tinyexec';
 import type { CommandExecutor } from '../definitions.js';
 
+// TODO: move file to shared infra
+
 export function createTinyexecCommandExecutor(): CommandExecutor {
 	return {
 		async execute(command, args, options) {
@@ -9,6 +11,7 @@ export function createTinyexecCommandExecutor(): CommandExecutor {
 				nodeOptions: {
 					cwd: options?.cwd,
 					env: options?.env,
+					shell: options?.shell,
 				},
 			}).then(
 				(o) => o,
