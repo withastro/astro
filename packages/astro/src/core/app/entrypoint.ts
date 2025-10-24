@@ -7,18 +7,10 @@ import { DevApp } from './dev/app.js';
 import { createConsoleLogger } from './logging.js';
 import type { SSRManifest } from './types.js';
 
-const actions = async () => {
-	return await import('virtual:astro:actions/entrypoint');
-};
-
-const middleware = async () => {
-	return await import('virtual:astro:middleware');
-};
-
 const manifest: SSRManifest = Object.assign(serializedManifest, {
 	renderers,
-	actions,
-	middleware,
+	actions: () => import('virtual:astro:actions/entrypoint'),
+	middleware: () => import('virtual:astro:middleware'),
 	routes,
 });
 
