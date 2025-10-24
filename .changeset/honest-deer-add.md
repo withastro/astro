@@ -2,33 +2,14 @@
 'astro': major
 ---
 
-Numbers are no longer allowed in `params` returned by `getStaticPaths()`.
+Changes the values allowed in `params` returned by `getStaticPaths()`.
 
-Previously, `getStaticPaths()` could return `params` with number values. However, at runtime `Astro.params` values are always strings or undefined because they come from URL segments. This change removes that mismatch so the types reflect runtime behavior.
+In Astro 5.x, `getStaticPaths()` could return `params` of type number, which would always be stringified by Astro. However, that could be confusing because it conflicted with `Astro.params` types.
+
+Astro 6.0 removes this behavior: `getStaticPaths()` must now return string or undefined `params` values.
 
 #### What should I do?
 
-In the returned `params` object from `getStaticPaths()`, convert any numbers to strings (for example, `String(id)`).
+Review your dynamic routing pages using `getStaticPaths()` and convert any number params to strings.
 
-```diff
----
-// src/pages/post/[id]/[label].astro
-export function getStaticPaths() {
-    return [
-        {
-            params: {
--               id: 1,
-+               id: "1",
-                label: "foo",
-            }
-        },
-        {
-            params: {
--               id: 2,
-+               id: "2",
-                label: "bar",
-            }
-        },
-    ]
-}
----
+For more guidance, see [the v6 upgrade guide entry for this breaking change](https://docs.astro.build/en/guides/upgrade-to/v6/#changed-getstaticpaths-cannot-return-params-of-type-number).
