@@ -232,9 +232,12 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 
 				const wasInlined = toBeInlined && sheetAddedToPage;
 				
-				// stylesheets already added to the page will not be inlined by
+				// stylesheets already referenced as an asset by a chunk will not be inlined by
 				// this plugin, but should not be considered orphaned
-				const wasAddedToChunk = internals.clientChunksAndAssets.has(id);
+				const wasAddedToChunk = Object.values(bundle).some((chunk) =>
+					chunk.type === 'chunk' &&
+					chunk.viteMetadata?.importedAssets?.has(id)
+				);
 				const isOrphaned = !sheetAddedToPage && !wasAddedToChunk;
 
 				if (wasInlined || isOrphaned) {
