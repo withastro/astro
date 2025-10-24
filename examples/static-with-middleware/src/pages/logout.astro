@@ -1,0 +1,10 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Logout">
+	<p>Use the button below to sign out of your account.</p>
+	<form action="/api/auth/logout" method="POST">
+		<button type="submit">Sign Out</button>
+	</form>
+</Layout>

@@ -1,45 +1,43 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const error = Astro.url.searchParams.get('error');
 ---
 
-<script type="module" is:inline>
-	document.addEventListener('DOMContentLoaded', () => {
-		const form = document.querySelector('form');
-		if (!form) throw new Error('Form not found');
-		form.addEventListener('submit', (e) => {
-			e.preventDefault();
-			const formData = new FormData(form);
-			const data = Object.fromEntries(formData);
+<Layout title="Login">
+	<main>
+		<p>You must be logged in to view protected pages.</p>
 
-			fetch('/login.form.async', {
-				method: 'POST',
-				body: JSON.stringify(data),
-			})
-				.then((res) => res.json())
-				.then(() => {
-					const result = document.querySelector('#result');
-					if (result) {
-						result.innerHTML =
-							'Progressive login was successful! you will be redirected to the store in 3 seconds';
-						setTimeout(() => (location.href = '/'), 3000);
-					}
-				});
-		});
-	});
-</script>
+		{
+			error === 'invalid' && (
+				<div class="error-message">Invalid username or password. Please try again.</div>
+			)
+		}
 
-<Layout title="login">
-	<p>You must be logged in to view the secret page. Enter your details below.</p>
+		<div>
+			<h2>Demo Credentials (use these below)</h2>
+			<p>
+				<strong>Username:</strong> demo<br />
+				<strong>Password:</strong> password
+			</p>
 
-	<p>Test validation: password shorter than 5 characters will be rejected.</p>
-	<form action="/login.form" method="POST">
-		<label for="name">Name</label>
-		<input type="text" name="name" />
-
-		<label for="password">Password</label>
-		<input type="password" name="password" />
-
-		<input type="submit" value="Submit" />
-	</form>
-	<div id="result"></div>
+			<form action="/api/auth/login" method="POST">
+				<label>
+					Username
+					<input type="text" id="username" name="username" required autocomplete="username" />
+				</label>
+				<label
+					>Password
+					<input
+						type="password"
+						id="password"
+						name="password"
+						required
+						autocomplete="current-password"
+					/></label
+				>
+				<button type="submit">Sign In</button>
+			</form>
+		</div>
+	</main>
 </Layout>

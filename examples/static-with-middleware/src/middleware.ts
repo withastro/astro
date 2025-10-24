@@ -1,43 +1,35 @@
 import { defineMiddleware } from 'astro:middleware';
 
-const originalRequestCookieName = 'VP-Original-Request';
+const AUTH_COOKIE_NAME = 'auth-token';
+const REDIRECT_COOKIE_NAME = 'redirect-after-login';
 
+/**
+ * Middleware runs only during requests, not during build.
+ */
 export const onRequest = defineMiddleware(async (context, next) => {
-	console.log(
-		'Middleware running on:',
-		context.originPathname,
-		context.cookies.get(originalRequestCookieName)?.value,
-	);
+	// Protected paths - require authentication
+	const protectedPaths = ['/secret', '/dashboard'];
+	const isProtected = protectedPaths.some((path) => context.originPathname.includes(path));
 
-	if (!context.originPathname.includes('secret')) {
+	if (!isProtected) {
 		return next();
 	}
 
-	// todo, check cookie
-	const isAuthed = false;
-
-	console.log('Middleware running on:', context.originPathname, { isAuthed });
+	// Dummy auth validation
+	const authToken = context.cookies.get(AUTH_COOKIE_NAME);
+	const isAuthed = authToken?.value === 'valid-token';
 
 	if (!isAuthed) {
-		return new Response(null, {
-			status: 302,
-			headers: {
-				Location: '/login',
-				'Set-Cookie': `${originalRequestCookieName}=${context.originPathname}; Path=/; HttpOnly`,
-			},
+		const response = context.redirect('/login');
+		context.cookies.set(REDIRECT_COOKIE_NAME, context.originPathname, {
+			path: '/',
+			httpOnly: true,
+			maxAge: 60 * 5, // 5 minutes
 		});
+
+		return response;
 	}
 
-	if (context.originPathname.startsWith('/api/finish-login')) {
-		const redirectTo = context.cookies.get(originalRequestCookieName)?.value || '/';
-		return new Response(null, {
-			status: 302,
-			headers: {
-				Location: redirectTo,
-				'Set-Cookie': `${originalRequestCookieName}=/; Path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`,
-			},
-		});
-	}
-
+	// User is authenticated, allow access to the page
 	return next();
 });
