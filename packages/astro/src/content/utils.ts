@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseFrontmatter } from '@astrojs/markdown-remark';
 import { slug as githubSlug } from 'github-slugger';
-import colors from 'picocolors';
+import { green, red } from 'kleur/colors';
 import type { PluginContext } from 'rollup';
 import type { ViteDevServer } from 'vite';
 import xxhash from 'xxhash-wasm';
@@ -556,10 +556,10 @@ async function loadContentConfig({
 		return { ...config.data, digest };
 	} else {
 		const message = config.error.issues
-			.map((issue) => `  → ${colors.green(issue.path.join('.'))}: ${colors.red(issue.message)}`)
+			.map((issue) => `  → ${green(issue.path.join('.'))}: ${red(issue.message)}`)
 			.join('\n');
 		console.error(
-			`${colors.green('[content]')} There was a problem with your content config:\n\n${message}\n`,
+			`${green('[content]')} There was a problem with your content config:\n\n${message}\n`,
 		);
 		if (settings.config.experimental.liveContentCollections) {
 			const liveCollections = Object.entries(unparsedConfig.collections ?? {}).filter(
@@ -665,7 +665,7 @@ async function autogenerateCollections({
 Auto-generating collections for folders in "src/content/" that are not defined as collections.
 This is deprecated, so you should define these collections yourself in "src/content.config.ts".
 The following collections have been auto-generated: ${orphanedCollections
-					.map((name) => colors.green(name))
+					.map((name) => green(name))
 					.join(', ')}\n`,
 			);
 		}

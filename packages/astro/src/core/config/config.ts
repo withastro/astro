@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import colors from 'picocolors';
+import * as colors from 'kleur/colors';
 import { ZodError } from 'zod';
 import { eventConfigError, telemetry } from '../../events/index.js';
 import type {

@@ -1,4 +1,4 @@
-import colors from 'picocolors';
+import { cyan } from 'kleur/colors';
 import devServer from '../../core/dev/index.js';
 import { printHelp } from '../../core/messages.js';
 import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
@@ -27,7 +27,7 @@ export async function dev({ flags }: DevOptions) {
 					['--help (-h)', 'See all available flags.'],
 				],
 			},
-			description: `Check ${colors.cyan(
+			description: `Check ${cyan(
 				'https://docs.astro.build/en/reference/cli-reference/#astro-dev',
 			)} for more information.`,
 		});

@@ -2,8 +2,8 @@ import nodeFs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { bold } from 'kleur/colors';
 import pLimit from 'p-limit';
-import colors from 'picocolors';
 import { injectImageEndpoint } from '../../../assets/endpoint/config.js';
 import { toRoutingStrategy } from '../../../i18n/utils.js';
 import { runHookRoutesResolved } from '../../../integrations/hooks.js';
@@ -148,7 +148,7 @@ function createFileBasedRoutes(
 			if (!isDir && !validPageExtensions.has(ext) && !validEndpointExtensions.has(ext)) {
 				logger.warn(
 					null,
-					`Unsupported file type ${colors.bold(
+					`Unsupported file type ${bold(
 						resolved,
 					)} found. Prefix filename with an underscore (\`_\`) to ignore.`,
 				);

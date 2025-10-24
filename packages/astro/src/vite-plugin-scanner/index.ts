@@ -1,6 +1,6 @@
 import { extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import colors from 'picocolors';
+import { bold } from 'kleur/colors';
 import type { Plugin as VitePlugin } from 'vite';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
 import type { Logger } from '../core/logger/core.js';
@@ -62,7 +62,7 @@ export default function astroScannerPlugin({
 			) {
 				logger.warn(
 					'router',
-					`getStaticPaths() ignored in dynamic page ${colors.bold(
+					`getStaticPaths() ignored in dynamic page ${bold(
 						rootRelativePath(settings.config.root, fileURL, true),
 					)}. Add \`export const prerender = true;\` to prerender the page as static HTML during the build process.`,
 				);

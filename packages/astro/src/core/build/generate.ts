@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import os from 'node:os';
+import { bgGreen, black, blue, bold, dim, green, magenta, red, yellow } from 'kleur/colors';
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
-import colors from 'picocolors';
 import { NOOP_ACTIONS_MOD } from '../../actions/noop-actions.js';
 import {
 	generateImagesForPath,
@@ -63,8 +63,6 @@ import type {
 	StylesheetAsset,
 } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
-
-const { bgGreen, black, blue, bold, dim, green, magenta, red, yellow } = colors;
 
 export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
 	const generatePagesTimer = performance.now();

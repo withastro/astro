@@ -1,7 +1,7 @@
 import type fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import colors from 'picocolors';
+import { bold, cyan, underline } from 'kleur/colors';
 import type { ViteDevServer } from 'vite';
 import { loadTSConfig } from '../core/config/tsconfig.js';
 import type { Logger } from '../core/logger/core.js';
@@ -29,7 +29,7 @@ export async function attachContentServerListeners({
 	} else if (fs.existsSync(contentPaths.contentDir)) {
 		logger.debug(
 			'content',
-			`Watching ${colors.cyan(
+			`Watching ${cyan(
 				contentPaths.contentDir.href.replace(settings.config.root.href, ''),
 			)} for changes`,
 		);
@@ -87,12 +87,12 @@ function warnAllowJsIsFalse({
 }) {
 	logger.warn(
 		'content',
-		`Make sure you have the ${colors.bold('allowJs')} compiler option set to ${colors.bold(
+		`Make sure you have the ${bold('allowJs')} compiler option set to ${bold(
 			'true',
-		)} in your ${colors.bold(tsConfigFileName)} file to have autocompletion in your ${colors.bold(
+		)} in your ${bold(tsConfigFileName)} file to have autocompletion in your ${bold(
 			contentConfigFileName,
-		)} file. See ${colors.underline(
-			colors.cyan('https://www.typescriptlang.org/tsconfig#allowJs'),
+		)} file. See ${underline(
+			cyan('https://www.typescriptlang.org/tsconfig#allowJs'),
 		)} for more information.`,
 	);
 }

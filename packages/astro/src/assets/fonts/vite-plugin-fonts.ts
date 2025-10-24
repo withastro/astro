@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import colors from 'picocolors';
+import { bold } from 'kleur/colors';
 import type { Plugin } from 'vite';
 import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
 import { generateCspDigest } from '../../core/encryption.js';
@@ -185,7 +185,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				});
 			},
 			defaults: DEFAULTS,
-			bold: colors.bold,
+			bold,
 			stringMatcher,
 		});
 		// We initialize shared variables here and reset them in buildEnd

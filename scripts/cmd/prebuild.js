@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import esbuild from 'esbuild';
-import colors from 'picocolors';
+import { red } from 'kleur/colors';
 import { glob } from 'tinyglobby';
 
 function escapeTemplateLiterals(str) {
@@ -54,7 +54,7 @@ export default async function prebuild(...args) {
 			);
 			if (newTscode === tscode) {
 				console.error(
-					colors.red(
+					red(
 						`${filepath} doesn't follow the \`export default xxxDirective\` convention. The prebuilt output may be wrong. ` +
 							`For more information, check out ${fileURLToPath(import.meta.url)}`,
 					),

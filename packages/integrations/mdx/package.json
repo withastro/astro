@@ -40,7 +40,7 @@
     "es-module-lexer": "^1.7.0",
     "estree-util-visit": "^2.0.0",
     "hast-util-to-html": "^9.0.5",
-    "picocolors": "^1.1.1",
+    "kleur": "^4.1.5",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
     "remark-smartypants": "^3.0.2",

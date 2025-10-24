@@ -3,7 +3,7 @@ import { isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
 import { escape } from 'html-escaper';
-import colors from 'picocolors';
+import { bold, underline } from 'kleur/colors';
 import type { ESBuildTransformResult } from 'vite';
 import type { SSRError } from '../../../types/public/internal.js';
 import { removeLeadingForwardSlashWindows } from '../../path.js';
@@ -258,8 +258,8 @@ export function renderErrorMarkdown(markdown: string, target: 'html' | 'cli') {
 			.replace(codeRegex, '<code>$1</code>');
 	} else {
 		return markdown
-			.replace(linkRegex, (_, m1, m2) => `${colors.bold(m1)} ${colors.underline(m2)}`)
-			.replace(urlRegex, (fullMatch) => ` ${colors.underline(fullMatch.trim())}`)
-			.replace(boldRegex, (_, m1) => `${colors.bold(m1)}`);
+			.replace(linkRegex, (_, m1, m2) => `${bold(m1)} ${underline(m2)}`)
+			.replace(urlRegex, (fullMatch) => ` ${underline(fullMatch.trim())}`)
+			.replace(boldRegex, (_, m1) => `${bold(m1)}`);
 	}
 }

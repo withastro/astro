@@ -1,6 +1,6 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { arch, platform } from 'node:os';
-import colors from 'picocolors';
+import * as colors from 'kleur/colors';
 import prompts from 'prompts';
 import { resolveConfig } from '../../core/config/index.js';
 import { ASTRO_VERSION } from '../../core/constants.js';

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { teardown } from '@astrojs/compiler';
-import colors from 'picocolors';
+import { bgGreen, black, green } from 'kleur/colors';
 import { glob } from 'tinyglobby';
 import * as vite from 'vite';
 import { type BuildInternals, createBuildInternals } from '../../core/build/internal.js';
@@ -65,10 +65,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	const ssrTime = performance.now();
 	opts.logger.info('build', `Building ${settings.buildOutput} entrypoints...`);
 	const ssrOutput = await ssrBuild(opts, internals, pageInput, container);
-	opts.logger.info(
-		'build',
-		colors.green(`✓ Completed in ${getTimeStat(ssrTime, performance.now())}.`),
-	);
+	opts.logger.info('build', green(`✓ Completed in ${getTimeStat(ssrTime, performance.now())}.`));
 
 	settings.timer.end('SSR build');
 
@@ -258,7 +255,7 @@ async function clientBuild(
 	}
 
 	const { lastVitePlugins, vitePlugins } = await container.runBeforeHook('client', input);
-	opts.logger.info('SKIP_FORMAT', `\n${colors.bgGreen(colors.black(' building client (vite) '))}`);
+	opts.logger.info('SKIP_FORMAT', `\n${bgGreen(black(' building client (vite) '))}`);
 
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,

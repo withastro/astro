@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import esbuild from 'esbuild';
-import colors from 'picocolors';
+import { dim, green, red, yellow } from 'kleur/colors';
 import { glob } from 'tinyglobby';
 import prebuild from './prebuild.js';
 
@@ -88,15 +88,14 @@ export default async function build(...args) {
 				}
 				const date = dt.format(new Date());
 				if (result && result.errors.length) {
-					console.error(colors.dim(`[${date}] `) + colors.red(error || result.errors.join('\n')));
+					console.error(dim(`[${date}] `) + red(error || result.errors.join('\n')));
 				} else {
 					if (result.warnings.length) {
 						console.info(
-							colors.dim(`[${date}] `) +
-								colors.yellow('! updated with warnings:\n' + result.warnings.join('\n')),
+							dim(`[${date}] `) + yellow('! updated with warnings:\n' + result.warnings.join('\n')),
 						);
 					}
-					console.info(colors.dim(`[${date}] `) + colors.green('√ updated'));
+					console.info(dim(`[${date}] `) + green('√ updated'));
 				}
 			});
 		},

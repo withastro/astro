@@ -1,7 +1,7 @@
 import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import colors from 'picocolors';
+import { bold, cyan } from 'kleur/colors';
 import { glob } from 'tinyglobby';
 import { normalizePath, type ViteDevServer } from 'vite';
 import { type ZodSchema, z } from 'zod';
@@ -133,7 +133,7 @@ export async function createContentTypesGenerator({
 						type: 'unknown',
 						entries: {},
 					};
-					logger.debug('content', `${colors.cyan(collection)} collection added`);
+					logger.debug('content', `${cyan(collection)} collection added`);
 					break;
 				case 'unlinkDir':
 					delete collectionEntryMap[collectionKey];
@@ -162,11 +162,11 @@ export async function createContentTypesGenerator({
 		if (collection === undefined) {
 			logger.warn(
 				'content',
-				`${colors.bold(
+				`${bold(
 					normalizePath(
 						path.relative(fileURLToPath(contentPaths.contentDir), fileURLToPath(event.entry)),
 					),
-				)} must live in a ${colors.bold('content/...')} collection subdirectory.`,
+				)} must live in a ${bold('content/...')} collection subdirectory.`,
 			);
 			return { shouldGenerateTypes: false };
 		}
