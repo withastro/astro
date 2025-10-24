@@ -1,5 +1,6 @@
 ---
 import assetsUrl from '../assets/index.css?url';
+import assetsUrlNoInline from '../assets/style.css?url&no-inline';
 ---
 
 <html lang="en">
@@ -10,6 +11,7 @@ import assetsUrl from '../assets/index.css?url';
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro</title>
 		<link rel="stylesheet" href={assetsUrl} />
+		<link rel="stylesheet" href={assetsUrlNoInline} />
 	</head>
 	<body>
 		<h1>Astro</h1>
