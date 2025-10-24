@@ -5,12 +5,12 @@ import { apply as applyPolyfill } from '../../../dist/core/polyfill.js';
 
 applyPolyfill();
 
-export const encode = (data) => {
+const encode = (data) => {
 	const dataSerialized = typeof data === 'string' ? data : JSON.stringify(data);
 	return Buffer.from(dataSerialized).toString('base64');
 };
 
-export const decode = (str) => {
+const decode = (str) => {
 	return Buffer.from(str, 'base64').toString();
 };
 
@@ -57,6 +57,18 @@ describe('astro/src/core/cookies', () => {
 			let cookies = new AstroCookies(req);
 			let cookie = cookies.get('foo');
 			assert.equal(cookie, undefined);
+		});
+
+		it('handles malformed cookie values gracefully', () => {
+			// Test with invalid URI sequence (e.g., incomplete percent encoding)
+			const req = new Request('http://example.com/', {
+				headers: {
+					cookie: 'malformed=0:%',
+				},
+			});
+			let cookies = new AstroCookies(req);
+			// Should return the unparsed value instead of throwing
+			assert.equal(cookies.get('malformed').value, '0:%');
 		});
 
 		describe('.json()', () => {

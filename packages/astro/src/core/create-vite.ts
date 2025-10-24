@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { convertPathToPattern } from 'tinyglobby';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
-import { vitePluginActions, vitePluginUserActions } from '../actions/plugins.js';
+import { vitePluginActions } from '../actions/vite-plugin-actions.js';
 import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
 import astroAssetsPlugin from '../assets/vite-plugin-assets.js';
 import astroContainer from '../container/vite-plugin-container.js';
@@ -21,6 +21,7 @@ import astroPrefetch from '../prefetch/vite-plugin-prefetch.js';
 import astroDevToolbar from '../toolbar/vite-plugin-dev-toolbar.js';
 import astroTransitions from '../transitions/vite-plugin-transitions.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
+import { vitePluginAdapterConfig } from '../vite-plugin-adapter-config/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
@@ -156,6 +157,7 @@ export async function createVite(
 			command === 'dev' && vitePluginAstroServer({ settings, logger, fs, routesList, manifest }), // manifest is only required in dev mode, where it gets created before a Vite instance is created, and get passed to this function
 			importMetaEnv({ envLoader }),
 			astroEnv({ settings, sync, envLoader }),
+			vitePluginAdapterConfig(settings),
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
 			astroPostprocessVitePlugin(),
@@ -175,7 +177,6 @@ export async function createVite(
 			vitePluginFileURL(),
 			astroInternationalization({ settings }),
 			vitePluginActions({ fs, settings }),
-			vitePluginUserActions({ settings }),
 			vitePluginServerIslands({ settings, logger }),
 			astroContainer(),
 			astroHmrReloadPlugin(),

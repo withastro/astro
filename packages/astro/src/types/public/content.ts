@@ -33,6 +33,35 @@ export interface MDXInstance<T extends Record<string, any>>
 	components: Record<string, AstroComponentFactory> | undefined;
 }
 
+/**
+ * Props accepted by the MDX `Content` component when using `await render()`.
+ * Allows passing custom components to override default MDX element rendering.
+ *
+ * @example
+ * ```astro
+ * ---
+ * import { getEntry, render } from 'astro:content';
+ * import MyCustomH1 from '../components/CustomHeading.astro';
+ * import MyImage from '../images/MyImage.jpg';
+ * const entry = await getEntry('blog', 'post');
+ * const { Content } = await render(entry);
+ * ---
+ * <Content components={{ h1: MyCustomH1, img: MyImage }} />
+ * ```
+ */
+export interface MDXContentProps {
+	/** Custom components to use for MDX elements (e.g., h1, h2, img, a, etc.) */
+	components?: Record<string, AstroComponentFactory>;
+	/** Any additional props to pass to the MDX content */
+	[key: string]: any;
+}
+
+/**
+ * The MDX `Content` component returned from `await render()`.
+ * Extends `AstroComponentFactory` with typed props for better developer experience.
+ */
+export type MDXContent = AstroComponentFactory & ((props?: MDXContentProps) => any);
+
 export interface MarkdownLayoutProps<T extends Record<string, any>> {
 	frontmatter: {
 		file: MarkdownInstance<T>['file'];
@@ -129,8 +158,6 @@ export type GetDataEntryInfoReturnType = { data: Record<string, unknown>; rawDat
 export interface CacheHint {
 	/** Cache tags */
 	tags?: Array<string>;
-	/** Maximum age of the response in seconds */
-	maxAge?: number;
 	/** Last modified time of the content */
 	lastModified?: Date;
 }
@@ -140,6 +167,10 @@ export interface LiveDataEntry<TData extends Record<string, any> = Record<string
 	id: string;
 	/** The parsed entry data */
 	data: TData;
+	/** Optional rendered content */
+	rendered?: {
+		html: string;
+	};
 	/** A hint for how to cache this entry */
 	cacheHint?: CacheHint;
 }

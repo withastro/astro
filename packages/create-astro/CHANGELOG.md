@@ -1,5 +1,11 @@
 # create-astro
 
+## 4.13.2
+
+### Patch Changes
+
+- [#14528](https://github.com/withastro/astro/pull/14528) [`3597371`](https://github.com/withastro/astro/commit/3597371fe841603d0771b258010e69fbf5d843f7) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where a deprecation warning would be shown on Node 24
+
 ## 4.13.1
 
 ### Patch Changes

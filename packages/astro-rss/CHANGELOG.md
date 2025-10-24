@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 4.0.13
+
+### Patch Changes
+
+- [#14598](https://github.com/withastro/astro/pull/14598) [`7b45c65`](https://github.com/withastro/astro/commit/7b45c65c62e37d4225fb14ea378e2301de31cbea) Thanks [@delucis](https://github.com/delucis)! - Reduces terminal text styling dependency size by switching from `kleur` to `picocolors`
+
 ## 4.0.12
 
 ### Patch Changes

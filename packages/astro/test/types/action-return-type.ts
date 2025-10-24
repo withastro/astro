@@ -4,7 +4,7 @@ import {
 	type ActionReturnType,
 	defineAction,
 	type SafeResult,
-} from '../../dist/actions/runtime/virtual/server.js';
+} from '../../dist/actions/runtime/server.js';
 import { z } from '../../dist/zod.js';
 
 describe('ActionReturnType', () => {

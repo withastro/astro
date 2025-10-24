@@ -8,6 +8,8 @@ describe('Astro.session', () => {
 	describe('Production', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
+		/** @type {import('../src/core/app/index').App} response */
+		let app;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -19,11 +21,6 @@ describe('Astro.session', () => {
 					ttl: 20,
 				},
 			});
-		});
-
-		/** @type {import('../src/core/app/index').App} response */
-		let app;
-		before(async () => {
 			await fixture.build({});
 			app = await fixture.loadTestAdapterApp();
 		});

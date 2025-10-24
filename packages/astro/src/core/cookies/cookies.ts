@@ -125,7 +125,15 @@ class AstroCookies implements AstroCookiesInterface {
 		if (key in values) {
 			const value = values[key];
 			if (value) {
-				return new AstroCookie(decode(value));
+				let decodedValue: string;
+				try {
+					decodedValue = decode(value);
+				} catch (_error) {
+					// If decoding fails (e.g., invalid URI sequences), use the original value
+					// This aligns with the behavior of the `cookie` package
+					decodedValue = value;
+				}
+				return new AstroCookie(decodedValue);
 			}
 		}
 	}

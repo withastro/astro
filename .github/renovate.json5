@@ -82,7 +82,7 @@
     "pnpm",
     // follow vite deps version
     "postcss-load-config",
-    "esbuild",
+    "esbuild"
   ],
   "minimumReleaseAge": "3 days"
 }

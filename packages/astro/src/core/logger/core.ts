@@ -1,4 +1,4 @@
-import { blue, bold, dim, red, yellow } from 'kleur/colors';
+import colors from 'picocolors';
 
 export interface LogWritable<T> {
 	write: (chunk: T) => boolean;
@@ -135,7 +135,7 @@ export function getEventPrefix({ level, label }: LogMessage) {
 	const timestamp = `${dateTimeFormat.format(new Date())}`;
 	const prefix = [];
 	if (level === 'error' || level === 'warn') {
-		prefix.push(bold(timestamp));
+		prefix.push(colors.bold(timestamp));
 		prefix.push(`[${level.toUpperCase()}]`);
 	} else {
 		prefix.push(timestamp);
@@ -144,15 +144,15 @@ export function getEventPrefix({ level, label }: LogMessage) {
 		prefix.push(`[${label}]`);
 	}
 	if (level === 'error') {
-		return red(prefix.join(' '));
+		return colors.red(prefix.join(' '));
 	}
 	if (level === 'warn') {
-		return yellow(prefix.join(' '));
+		return colors.yellow(prefix.join(' '));
 	}
 	if (prefix.length === 1) {
-		return dim(prefix[0]);
+		return colors.dim(prefix[0]);
 	}
-	return dim(prefix[0]) + ' ' + blue(prefix.splice(1).join(' '));
+	return colors.dim(prefix[0]) + ' ' + colors.blue(prefix.splice(1).join(' '));
 }
 
 /** Print out a timer message for debug() */
@@ -160,7 +160,7 @@ export function timerMessage(message: string, startTime: number = Date.now()) {
 	let timeDiff = Date.now() - startTime;
 	let timeDisplay =
 		timeDiff < 750 ? `${Math.round(timeDiff)}ms` : `${(timeDiff / 1000).toFixed(1)}s`;
-	return `${message}   ${dim(timeDisplay)}`;
+	return `${message}   ${colors.dim(timeDisplay)}`;
 }
 
 export class Logger {

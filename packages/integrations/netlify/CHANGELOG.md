@@ -1,5 +1,35 @@
 # @astrojs/netlify
 
+## 6.6.0
+
+### Minor Changes
+
+- [#14543](https://github.com/withastro/astro/pull/14543) [`9b3241d`](https://github.com/withastro/astro/commit/9b3241d8a903ce0092905205af883cef5498d0b2) Thanks [@matthewp](https://github.com/matthewp)! - Enables Netlify's skew protection feature for Astro sites deployed on Netlify. Skew protection ensures that your site's client and server versions stay synchronized during deployments, preventing issues where users might load assets from a newer deployment while the server is still running the older version.
+
+  When you deploy to Netlify, the deployment ID is now automatically included in both asset requests and API calls, allowing Netlify to serve the correct version to every user. These are set for built-in features (Actions, View Transitions, Server Islands, Prefetch). If you are making your own fetch requests to your site, you can include the header manually using the `DEPLOY_ID` environment variable:
+
+  ```js
+  const response = await fetch('/api/endpoint', {
+    headers: {
+      'X-Netlify-Deploy-ID': import.meta.env.DEPLOY_ID,
+    },
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.5.13
+
+### Patch Changes
+
+- [#14536](https://github.com/withastro/astro/pull/14536) [`9261996`](https://github.com/withastro/astro/commit/9261996150f4c690c4762bf02100e44680bd480d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a bug that caused too many files to be bundled in SSR
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 6.5.12
 
 ### Patch Changes

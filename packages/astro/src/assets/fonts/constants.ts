@@ -11,6 +11,7 @@ export const DEFAULTS: Defaults = {
 	optimizedFallbacks: true,
 };
 
+/** Used to serialize data, to be used by public APIs */
 export const VIRTUAL_MODULE_ID = 'virtual:astro:assets/fonts/internal';
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 

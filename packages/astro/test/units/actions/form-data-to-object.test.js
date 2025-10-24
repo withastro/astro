@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { z } from 'zod';
-import { formDataToObject } from '../../../dist/actions/runtime/virtual/server.js';
+import { formDataToObject } from '../../../dist/actions/runtime/server.js';
 
 describe('formDataToObject', () => {
 	it('should handle strings', () => {

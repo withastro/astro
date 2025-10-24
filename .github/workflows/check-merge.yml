@@ -32,16 +32,9 @@ jobs:
             return 'false'
           result-encoding: string
 
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
-        if: steps.blocked.outputs.result != 'true'
-        with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-
       - name: Get changed files in the .changeset folder
         id: changed-files
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47.0.0
         if: steps.blocked.outputs.result != 'true'
         with:
           files: |

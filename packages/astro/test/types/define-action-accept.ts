@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
-import { defineAction } from '../../dist/actions/runtime/virtual/server.js';
+import { defineAction } from '../../dist/actions/runtime/server.js';
 import { z } from '../../dist/zod.js';
 
 describe('defineAction accept', () => {

@@ -281,6 +281,16 @@ describe('Content Layer', () => {
 			assert.ok(json.images[1].data.image.startsWith('https://'));
 		});
 
+		it('loads images with bare filenames in JSON', async () => {
+			assert.ok(json.rockets[0].data.image.src.startsWith('/_astro'));
+			assert.equal(json.rockets[0].data.image.format, 'jpg');
+		});
+
+		it('loads images with relative paths in JSON', async () => {
+			assert.ok(json.rockets[1].data.image.src.startsWith('/_astro'));
+			assert.equal(json.rockets[1].data.image.format, 'jpg');
+		});
+
 		it('renders images from frontmatter', async () => {
 			assert.ok($('img[alt="Lunar Module"]').attr('src').startsWith('/_astro'));
 		});

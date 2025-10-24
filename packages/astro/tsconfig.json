@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["src"],
+  "include": ["src", "dev-only.d.ts"],
   "compilerOptions": {
     "allowJs": true,
     "declarationDir": "./dist",

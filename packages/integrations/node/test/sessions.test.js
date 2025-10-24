@@ -9,6 +9,8 @@ describe('Astro.session', () => {
 	describe('Production', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
+		/** @type {import('../../../astro/src/types/public/preview.js').PreviewServer} */
+		let app;
 
 		before(async () => {
 			fixture = await loadFixture({
@@ -16,11 +18,6 @@ describe('Astro.session', () => {
 				output: 'server',
 				adapter: nodejs({ mode: 'middleware' }),
 			});
-		});
-
-		/** @type {import('../../../astro/src/types/public/preview.js').PreviewServer} */
-		let app;
-		before(async () => {
 			await fixture.build({});
 			app = await fixture.preview({});
 		});

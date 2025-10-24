@@ -1,6 +1,8 @@
 /*
-  NOTE: Do not add any dependencies or imports in this file so that it can load quickly in dev.
+  NOTE: Be careful about adding dependencies or imports in this file so that it can load quickly in dev.
 */
+
+import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
 
 const debug = import.meta.env.DEV ? console.debug : undefined;
 const inBrowser = import.meta.env.SSR === false;
@@ -249,7 +251,12 @@ export function prefetch(url: string, opts?: PrefetchOptions) {
 	// Otherwise, fallback prefetch with fetch
 	else {
 		debug?.(`[astro] Prefetching ${url} with fetch`);
-		fetch(url, { priority: 'low' });
+		// Apply adapter-specific headers for internal fetches
+		const headers = new Headers();
+		for (const [key, value] of Object.entries(internalFetchHeaders) as [string, string][]) {
+			headers.set(key, value);
+		}
+		fetch(url, { priority: 'low', headers });
 	}
 }
 
