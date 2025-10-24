@@ -1938,15 +1938,27 @@ importers:
 
   packages/astro/test/fixtures/astro-check-errors:
     dependencies:
+      '@astrojs/check':
+        specifier: ^0.9.4
+        version: link:../../../../language-tools/astro-check
       astro:
         specifier: workspace:*
         version: link:../../..
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.3
 
   packages/astro/test/fixtures/astro-check-no-errors:
     dependencies:
+      '@astrojs/check':
+        specifier: ^0.9.4
+        version: link:../../../../language-tools/astro-check
       astro:
         specifier: workspace:*
         version: link:../../..
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.3
 
   packages/astro/test/fixtures/astro-check-watch:
     dependencies:
