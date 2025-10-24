@@ -7,7 +7,7 @@ suite('Extension Test Suite', () => {
 
 	// TypeScript takes a while to wake up and there's unfortunately no good way to wait for it
 	async function waitForTS(command, commandArgs, condition) {
-		for (let i = 0; i < 1000; i++) {
+		for (let i = 0; i < 2000; i++) {
 			const commandResult = await vscode.commands.executeCommand(command, ...commandArgs);
 			if (condition(commandResult)) {
 				return commandResult;
@@ -32,7 +32,7 @@ suite('Extension Test Suite', () => {
 
 		const hasAstroRef = references.some((ref) => ref.uri.path.includes('MyAstroComponent.astro'));
 		assert.strictEqual(hasAstroRef, true, 'Should find Astro reference');
-	}).timeout(22000);
+	}).timeout(50000);
 
 	test('can get completions for Astro components', async () => {
 		const doc = await vscode.workspace.openTextDocument(
@@ -49,7 +49,7 @@ suite('Extension Test Suite', () => {
 			return item.insertText === 'MyAstroComponent';
 		});
 		assert.strictEqual(hasAstroCompletion, true, 'Should find Astro component completion');
-	}).timeout(12000);
+	}).timeout(50000);
 
 	test('can get implementations inside Astro files', async () => {
 		const doc = await vscode.workspace.openTextDocument(
@@ -66,5 +66,5 @@ suite('Extension Test Suite', () => {
 			impl.uri.path.includes('MyAstroComponent'),
 		);
 		assert.strictEqual(hasAstroImplementation, true, 'Should find Astro implementation');
-	}).timeout(12000);
+	}).timeout(50000);
 });
