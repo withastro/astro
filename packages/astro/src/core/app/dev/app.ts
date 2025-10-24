@@ -12,10 +12,9 @@ import { DevPipeline } from './pipeline.js';
 export class DevApp extends BaseApp<DevPipeline> {
 	logger: Logger;
 	currentRenderContext: RenderContext | undefined = undefined;
-	constructor(manifest: SSRManifest, streaming = true, logger: Logger, routesList: RoutesList) {
+	constructor(manifest: SSRManifest, streaming = true, logger: Logger) {
 		super(manifest, streaming, logger);
 		this.logger = logger;
-		this.manifestData = routesList;
 	}
 
 	createPipeline(streaming: boolean, manifest: SSRManifest, logger: Logger): DevPipeline {

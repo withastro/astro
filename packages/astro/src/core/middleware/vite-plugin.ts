@@ -9,7 +9,8 @@ import { MissingMiddlewareForInternationalization } from '../errors/errors-data.
 import { AstroError } from '../errors/index.js';
 import { normalizePath } from '../viteUtils.js';
 
-export const MIDDLEWARE_MODULE_ID = '\0astro-internal:middleware';
+export const MIDDLEWARE_MODULE_ID = 'virtual:astro:middleware';
+export const MIDDLEWARE_RESOLVED_MODULE_ID = '\0' + MIDDLEWARE_MODULE_ID;
 const NOOP_MIDDLEWARE = '\0noop-middleware';
 
 export function vitePluginMiddleware({ settings }: { settings: AstroSettings }): VitePlugin {
@@ -19,7 +20,10 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 	let userMiddlewareIsPresent = false;
 
 	return {
-		name: '@astro/plugin-middleware',
+		name: MIDDLEWARE_MODULE_ID,
+		applyToEnvironment(environment) {
+			return environment.name === 'ssr';
+		},
 		async resolveId(id) {
 			if (id === MIDDLEWARE_MODULE_ID) {
 				const middlewareId = await this.resolve(
@@ -28,9 +32,9 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				userMiddlewareIsPresent = !!middlewareId;
 				if (middlewareId) {
 					resolvedMiddlewareId = middlewareId.id;
-					return MIDDLEWARE_MODULE_ID;
+					return MIDDLEWARE_RESOLVED_MODULE_ID;
 				} else if (hasIntegrationMiddleware) {
-					return MIDDLEWARE_MODULE_ID;
+					return MIDDLEWARE_RESOLVED_MODULE_ID;
 				} else {
 					return NOOP_MIDDLEWARE;
 				}
@@ -45,7 +49,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 					throw new AstroError(MissingMiddlewareForInternationalization);
 				}
 				return { code: 'export const onRequest = (_, next) => next()' };
-			} else if (id === MIDDLEWARE_MODULE_ID) {
+			} else if (id === MIDDLEWARE_RESOLVED_MODULE_ID) {
 				if (!userMiddlewareIsPresent && settings.config.i18n?.routing === 'manual') {
 					throw new AstroError(MissingMiddlewareForInternationalization);
 				}
@@ -106,12 +110,12 @@ export function vitePluginMiddlewareBuild(
 		name: '@astro/plugin-middleware-build',
 
 		options(options) {
-			return addRollupInput(options, [MIDDLEWARE_MODULE_ID]);
+			return addRollupInput(options, [MIDDLEWARE_RESOLVED_MODULE_ID]);
 		},
 
 		writeBundle(_, bundle) {
 			for (const [chunkName, chunk] of Object.entries(bundle)) {
-				if (chunk.type !== 'asset' && chunk.facadeModuleId === MIDDLEWARE_MODULE_ID) {
+				if (chunk.type !== 'asset' && chunk.facadeModuleId === MIDDLEWARE_RESOLVED_MODULE_ID) {
 					const outputDirectory = getServerOutputDirectory(opts.settings);
 					internals.middlewareEntryPoint = new URL(chunkName, outputDirectory);
 				}
