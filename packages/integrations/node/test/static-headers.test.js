@@ -69,3 +69,32 @@ describe('Static headers', () => {
 		);
 	});
 });
+
+describe('Static headers - collapsed CSP', () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({ root: './fixtures/static-headers-collapsed' });
+		await fixture.build();
+	});
+
+	it('CSP headers are collapsed to single catch-all route when collapseHeaders is enabled', async () => {
+		const headers = JSON.parse(await fixture.readFile('../dist/_experimentalHeaders.json'));
+		const globalCspHeader = headers.find((x) => x.pathname === '/(.*)');
+
+		assert.notEqual(globalCspHeader, undefined, 'should have global CSP header entry');
+
+		const csp = globalCspHeader.headers.find((x) => x.key === 'Content-Security-Policy');
+		assert.notEqual(csp, undefined, 'should have CSP header');
+		assert.ok(typeof csp.value === 'string', 'should have CSP header string');
+	});
+
+	it('CSP headers create exactly one entry when collapsed', async () => {
+		const headers = JSON.parse(await fixture.readFile('../dist/_experimentalHeaders.json'));
+		const cspHeaders = headers.filter((x) =>
+			x.headers.some((h) => h.key === 'Content-Security-Policy'),
+		);
+
+		assert.equal(cspHeaders.length, 1, 'should have exactly one CSP header entry');
+	});
+});
