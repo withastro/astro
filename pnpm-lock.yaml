@@ -2863,7 +2863,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/core-image-svg-in-client:
+  packages/astro/test/fixtures/core-image-svg-in-island:
     dependencies:
       '@astrojs/react':
         specifier: workspace:*
