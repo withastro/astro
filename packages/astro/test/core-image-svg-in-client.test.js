@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
-describe('astro:assets - SVG Components', () => {
+describe('astro:assets - SVG Components in Astro Islands', () => {
 	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
 
@@ -15,7 +15,7 @@ describe('astro:assets - SVG Components', () => {
 			await fixture.build({});
 		});
 
-		it('SVG image is rendered in build output', async () => {
+		it('React bundle size is small when importing an SVG', async () => {
 			const files = await fixture.readdir('_astro');
 			const bundledReactComponentFilename = files.find(
 				(f) => f.startsWith('ReactTest.') && f.endsWith('.js'),
