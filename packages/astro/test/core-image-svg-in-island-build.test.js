@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('astro:assets - SVG Components in Astro Islands', () => {
@@ -13,6 +13,10 @@ describe('astro:assets - SVG Components in Astro Islands', () => {
 			});
 
 			await fixture.build({});
+		});
+
+		after(async () => {
+			await fixture.clean();
 		});
 
 		it('React bundle size is small when importing an SVG', async () => {
