@@ -20,11 +20,11 @@ describe('astro:assets - SVG Components in Astro Islands', () => {
 			const bundledReactComponentFilename = files.find(
 				(f) => f.startsWith('ReactTest.') && f.endsWith('.js'),
 			);
-			assert.ok(bundledReactComponentFilename, 'React component was bundled');
+			assert.ok(bundledReactComponentFilename, 'Expected to find React component in build output.');
 			const bundledReactComponent = await fixture.readFile(
 				`_astro/${bundledReactComponentFilename}`,
 			);
-			assert.ok(bundledReactComponent, 'React component bundle is not empty');
+			assert.ok(bundledReactComponent, 'Expected React component bundle not to be empty');
 			assert.ok(
 				bundledReactComponent.length < 1_000,
 				`Expected React component bundle to be smaller than 1000 bytes, got ${bundledReactComponent.length} bytes. If this test fails, it is likely that server code has been imported while importing an SVG.`,
