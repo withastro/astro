@@ -169,12 +169,6 @@ export async function handleRoute({
 	const { preloadedComponent } = matchedRoute;
 	route = matchedRoute.route;
 
-	// Check if adapter will run middleware at request time for prerendered pages
-	// If so, don't warn about header access in dev mode (simulates production behavior)
-	const adapterRunsMiddlewareAtRequestTime =
-		pipeline.settings.adapter?.adapterFeatures?.skipMiddlewareOnPrerender === true;
-	const shouldWarnAboutHeaders = route.prerender && !adapterRunsMiddlewareAtRequestTime;
-
 	// Allows adapters to pass in locals in dev mode.
 	request = createRequest({
 		url,
@@ -182,7 +176,9 @@ export async function handleRoute({
 		method: incomingRequest.method,
 		body,
 		logger,
-		isPrerendered: shouldWarnAboutHeaders,
+		useStaticContext:
+			route.prerender && !pipeline.settings.adapter?.adapterFeatures?.skipMiddlewareOnPrerender,
+		isPrerendered: route.prerender,
 		routePattern: route.component,
 	});
 

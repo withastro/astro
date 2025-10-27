@@ -130,21 +130,16 @@ export class BuildPipeline extends Pipeline {
 		const renderersEntryUrl = new URL(`renderers.mjs?time=${Date.now()}`, baseDirectory);
 		const renderers = await import(renderersEntryUrl.toString());
 
-		// Check if adapter wants to skip middleware during prerendering
-		// (e.g., Node adapter with runMiddlewareForStaticPages enabled)
-		const skipMiddlewareOnPrerender =
-			settings.adapter?.adapterFeatures?.skipMiddlewareOnPrerender === true;
-
-		const middleware =
-			internals.middlewareEntryPoint && !skipMiddlewareOnPrerender
+		let middleware = undefined;
+		if (!settings.adapter?.adapterFeatures?.skipMiddlewareOnPrerender) {
+			middleware = internals.middlewareEntryPoint
 				? async function () {
 						// @ts-expect-error: the compiler can't understand the previous check
 						const mod = await import(internals.middlewareEntryPoint.toString());
 						return { onRequest: mod.onRequest };
 					}
-				: skipMiddlewareOnPrerender
-					? undefined
-					: manifest.middleware;
+				: manifest.middleware;
+		}
 
 		if (!renderers) {
 			throw new Error(
