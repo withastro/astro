@@ -1,6 +1,7 @@
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroConfig } from '../types/public/config.js';
+import type { AstroAdapterClientConfig } from '../types/public/integrations.js';
 import { DEFAULT_HASH_PROPS } from './consts.js';
 import {
 	DEFAULT_RESOLUTIONS,
@@ -41,7 +42,7 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 
 export async function getImage(
 	options: UnresolvedImageTransform,
-	imageConfig: AstroConfig['image'],
+	imageConfig: AstroConfig['image'] & AstroAdapterClientConfig,
 ): Promise<GetImageResult> {
 	if (!options || typeof options !== 'object') {
 		throw new AstroError({
