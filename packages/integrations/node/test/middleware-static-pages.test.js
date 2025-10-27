@@ -14,7 +14,7 @@ describe('Middleware for static pages', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/middleware-static/',
-			output: 'hybrid',
+			output: 'static',
 			adapter: nodejs({
 				mode: 'standalone',
 				runMiddlewareOnRequest: true, // Enable the feature
