@@ -68,6 +68,23 @@ describe('Middleware for static pages', () => {
 			assert.ok(res.headers.get('x-debug-mode'));
 			assert.equal(res.headers.get('x-debug-mode'), 'true');
 		});
+
+		it('should resolve cookie value to "no-cookie" in prerendered page content', async () => {
+			// Send a request with a cookie
+			const res = await fetch(`http://${server.host}:${server.port}/static-page`, {
+				headers: {
+					cookie: 'test-cookie=should-not-appear',
+				},
+			});
+			assert.equal(res.status, 200);
+			const html = await res.text();
+			
+			// The page was prerendered, so it should show "no-cookie" regardless of the cookie sent
+			// This is because Astro.cookies.get() on prerendered pages returns undefined/no-cookie
+			assert.ok(html.includes('Cookie: no-cookie'));
+			// Should NOT include the actual cookie value sent in the request
+			assert.ok(!html.includes('should-not-appear'));
+		});
 	});
 
 	describe('Response handling', () => {

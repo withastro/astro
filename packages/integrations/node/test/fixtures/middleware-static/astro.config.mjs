@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 import nodejs from '@astrojs/node';
 
 export default defineConfig({
-	output: 'hybrid',
+	output: 'static',
 	adapter: nodejs({
 		mode: 'standalone',
 		runMiddlewareOnRequest: true,
