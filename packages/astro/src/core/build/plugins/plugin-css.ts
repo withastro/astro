@@ -80,10 +80,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						// and that's okay. We can use Rollup's default chunk strategy instead as these CSS
 						// are outside of the SSR build scope, which no dedupe is needed.
 						if (options.target === 'client') {
-							// Find the chunkId for this CSS module in the server build.
-							// If it exists, we can use it to ensure the client build matches the server
-							// build and doesn't create a duplicate chunk.
-							return internals.cssModuleToChunkIdMap.get(id);
+							return internals.cssModuleToChunkIdMap.get(id)!;
 						}
 
 						const ctx = { getModuleInfo: meta.getModuleInfo };
@@ -96,7 +93,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 								return chunkId;
 							}
 						}
-
 						const chunkId = createNameForParentPages(id, meta);
 						internals.cssModuleToChunkIdMap.set(id, chunkId);
 						return chunkId;
@@ -234,12 +230,8 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					sheetAddedToPage = true;
 				}
 
-				const wasInlined = toBeInlined && sheetAddedToPage;
-				const isOrphaned = !sheetAddedToPage;
-				if (wasInlined || isOrphaned) {
-					// wasInlined : CSS is already added to all used pages
-					// isOrphaned : CSS is already used in a merged chunk
-					// we can delete it from the bundle
+				if (toBeInlined && sheetAddedToPage) {
+					// CSS is already added to all used pages, we can delete it from the bundle
 					// and make sure no chunks reference it via `importedCss` (for Vite preloading)
 					// to avoid duplicate CSS.
 					delete bundle[id];

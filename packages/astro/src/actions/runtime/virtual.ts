@@ -1,4 +1,5 @@
 import { shouldAppendTrailingSlash } from 'virtual:astro:actions/options';
+import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
 import type { APIContext } from '../../types/public/context.js';
 import type { ActionClient, SafeResult } from './server.js';
 import {
@@ -94,6 +95,10 @@ async function handleAction(
 	// When running client-side, make a fetch request to the action path.
 	const headers = new Headers();
 	headers.set('Accept', 'application/json');
+	// Apply adapter-specific headers for internal fetches
+	for (const [key, value] of Object.entries(internalFetchHeaders)) {
+		headers.set(key, value);
+	}
 	let body = param;
 	if (!(body instanceof FormData)) {
 		try {

@@ -1,4 +1,4 @@
-import { bgGreen, bgWhite, black, bold, dim, green } from 'kleur/colors';
+import colors from 'picocolors';
 
 /**
  * Uses implementation from Astro core
@@ -18,7 +18,7 @@ export function printHelp({
 	description?: string;
 }) {
 	const linebreak = () => '';
-	const title = (label: string) => `  ${bgWhite(black(` ${label} `))}`;
+	const title = (label: string) => `  ${colors.bgWhite(colors.black(` ${label} `))}`;
 	const table = (rows: [string, string][], { padding }: { padding: number }) => {
 		const split = process.stdout.columns < 60;
 		let raw = '';
@@ -29,7 +29,7 @@ export function printHelp({
 			} else {
 				raw += `${`${row[0]}`.padStart(padding)}`;
 			}
-			raw += '  ' + dim(row[1]) + '\n';
+			raw += '  ' + colors.dim(row[1]) + '\n';
 		}
 
 		return raw.slice(0, -1); // remove latest \n
@@ -40,14 +40,14 @@ export function printHelp({
 	if (headline) {
 		message.push(
 			linebreak(),
-			`  ${bgGreen(black(` ${commandName} `))} ${green(
+			`  ${colors.bgGreen(colors.black(` ${commandName} `))} ${colors.green(
 				`v${process.env.PACKAGE_VERSION ?? ''}`,
 			)} ${headline}`,
 		);
 	}
 
 	if (usage) {
-		message.push(linebreak(), `  ${green(commandName)} ${bold(usage)}`);
+		message.push(linebreak(), `  ${colors.green(commandName)} ${colors.bold(usage)}`);
 	}
 
 	if (tables) {

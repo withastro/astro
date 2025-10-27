@@ -1,7 +1,7 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { arch, platform } from 'node:os';
 import * as clack from '@clack/prompts';
-import * as colors from 'kleur/colors';
+import colors from 'picocolors';
 import { resolveConfig } from '../../core/config/index.js';
 import { ASTRO_VERSION } from '../../core/constants.js';
 import { apply as applyPolyfill } from '../../core/polyfill.js';
