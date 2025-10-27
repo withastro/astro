@@ -26,7 +26,7 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 			const filePath = path.join(client, app.removeBase(urlPath));
 
 			// Check if middleware should run for this request
-			if (options.runMiddlewareForStaticPages && isPrerenderedHTMLPage(urlPath)) {
+			if (options.runMiddlewareOnRequest && isPrerenderedHTMLPage(urlPath)) {
 				try {
 					// Get middleware from the app's manifest
 					// The middleware is already bundled with the app (not edge middleware)

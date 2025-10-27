@@ -17,7 +17,7 @@ describe('Middleware for static pages', () => {
 			output: 'hybrid',
 			adapter: nodejs({
 				mode: 'standalone',
-				runMiddlewareForStaticPages: true, // Enable the feature
+				runMiddlewareOnRequest: true, // Enable the feature
 			}),
 		});
 		await fixture.build();

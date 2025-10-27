@@ -7,7 +7,7 @@ export default defineConfig({
 	output: 'static',
 	adapter: node({
 		mode: 'standalone',
-		runMiddlewareForStaticPages: true,
+		runMiddlewareOnRequest: true,
 	}),
 	integrations: [],
 });

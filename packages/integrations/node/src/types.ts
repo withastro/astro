@@ -32,7 +32,7 @@ export interface UserOptions {
 	experimentalErrorPageHost?: string | URL;
 
 	/**
-	 * Run middleware for prerendered (static) pages.
+	 * Run middleware on request, even for prerendered (static) pages.
 	 *
 	 * If enabled, middleware will execute before serving static HTML files,
 	 * allowing access to cookies, headers, and query parameters for authentication,
@@ -40,7 +40,7 @@ export interface UserOptions {
 	 * 
 	 * @default false
 	 */
-	runMiddlewareForStaticPages?: boolean;
+	runMiddlewareOnRequest?: boolean;
 }
 
 export interface Options extends UserOptions {
@@ -51,7 +51,7 @@ export interface Options extends UserOptions {
 	assets: string;
 	trailingSlash?: SSRManifest['trailingSlash'];
 	experimentalStaticHeaders: boolean;
-	runMiddlewareForStaticPages: boolean;
+	runMiddlewareOnRequest: boolean;
 }
 
 export type RequestHandler = (...args: RequestHandlerParams) => void | Promise<void>;

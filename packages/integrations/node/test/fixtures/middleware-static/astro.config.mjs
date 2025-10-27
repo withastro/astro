@@ -5,6 +5,6 @@ export default defineConfig({
 	output: 'hybrid',
 	adapter: nodejs({
 		mode: 'standalone',
-		runMiddlewareForStaticPages: true,
+		runMiddlewareOnRequest: true,
 	}),
 });

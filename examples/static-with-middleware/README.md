@@ -10,7 +10,7 @@ npm create astro@latest -- --template static-with-middleware
 
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
 
-This example demonstrates how to use middleware with statically generated pages using the Node adapter's `runMiddlewareForStaticPages` option.
+This example demonstrates how to use middleware with statically generated pages using the Node adapter's `runMiddlewareOnRequest` option.
 
 Features:
 
