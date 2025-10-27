@@ -215,7 +215,6 @@ export async function getImage(
 		}
 		srcSets = srcSets.map((srcSet) => {
 			let url = srcSet.url;
-			const assetQueryString = imageConfig.assetQueryParams!.toString();
 			if (assetQueryString && !url.includes('?')) {
 				url += '?' + assetQueryString;
 			}
