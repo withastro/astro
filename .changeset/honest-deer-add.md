@@ -10,6 +10,6 @@ Astro 6.0 removes this behavior: `getStaticPaths()` must now return string or un
 
 #### What should I do?
 
-Review your dynamic routing pages using `getStaticPaths()` and convert any number params to strings.
+Review your dynamic routes using `getStaticPaths()` and convert any number params to strings.
 
 For more guidance, see [the v6 upgrade guide entry for this breaking change](https://docs.astro.build/en/guides/upgrade-to/v6/#changed-getstaticpaths-cannot-return-params-of-type-number).
