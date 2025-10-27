@@ -184,7 +184,7 @@ function isPrerenderedHTMLPage(urlPath: string): boolean {
 	// Skip middleware for asset files
 	if (
 		urlPath.startsWith('/_astro/') ||
-		/\.(css|js|json|xml|txt|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|webp|avif|map)$/i.test(
+		/\.(?:css|js|json|xml|txt|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|webp|avif|map)$/i.test(
 			urlPath,
 		)
 	) {
