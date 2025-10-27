@@ -444,8 +444,8 @@ importers:
         specifier: ^4.3.8
         version: link:../../packages/integrations/mdx
       '@tailwindcss/vite':
-        specifier: ^4.1.14
-        version: 4.1.14(vite@6.4.1(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.93.2)(yaml@2.8.1))
+        specifier: ^4.1.16
+        version: 4.1.16(vite@6.4.1(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.93.2)(yaml@2.8.1))
       '@types/canvas-confetti':
         specifier: ^1.9.0
         version: 1.9.0
@@ -1595,13 +1595,13 @@ importers:
   packages/astro/e2e/fixtures/tailwindcss:
     dependencies:
       '@tailwindcss/vite':
-        specifier: ^4.1.12
-        version: 4.1.14(vite@6.4.1(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.93.2)(yaml@2.8.1))
+        specifier: ^4.1.16
+        version: 4.1.16(vite@6.4.1(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.93.2)(yaml@2.8.1))
       astro:
         specifier: workspace:*
         version: link:../../..
       tailwindcss:
-        specifier: ^4.1.12
+        specifier: ^4.1.16
         version: 4.1.16
 
   packages/astro/e2e/fixtures/ts-resolution:
@@ -2406,13 +2406,13 @@ importers:
   packages/astro/test/fixtures/astro-scripts:
     dependencies:
       '@tailwindcss/vite':
-        specifier: ^4.1.12
-        version: 4.1.14(vite@6.4.1(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.93.2)(yaml@2.8.1))
+        specifier: ^4.1.16
+        version: 4.1.16(vite@6.4.1(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.93.2)(yaml@2.8.1))
       astro:
         specifier: workspace:*
         version: link:../../..
       tailwindcss:
-        specifier: ^4.1.12
+        specifier: ^4.1.16
         version: 4.1.16
 
   packages/astro/test/fixtures/astro-sitemap-rss:
@@ -3571,13 +3571,13 @@ importers:
   packages/astro/test/fixtures/middleware-tailwind:
     dependencies:
       '@tailwindcss/vite':
-        specifier: ^4.1.12
-        version: 4.1.14(vite@6.4.1(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.93.2)(yaml@2.8.1))
+        specifier: ^4.1.16
+        version: 4.1.16(vite@6.4.1(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.93.2)(yaml@2.8.1))
       astro:
         specifier: workspace:*
         version: link:../../..
       tailwindcss:
-        specifier: ^4.1.12
+        specifier: ^4.1.16
         version: 4.1.16
 
   packages/astro/test/fixtures/middleware-virtual:
@@ -4367,13 +4367,13 @@ importers:
         specifier: workspace:*
         version: link:../../../../integrations/mdx
       '@tailwindcss/vite':
-        specifier: ^4.1.12
-        version: 4.1.14(vite@6.4.1(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.93.2)(yaml@2.8.1))
+        specifier: ^4.1.16
+        version: 4.1.16(vite@6.4.1(@types/node@22.18.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.93.2)(yaml@2.8.1))
       astro:
         specifier: workspace:*
         version: link:../../..
       tailwindcss:
-        specifier: ^4.1.12
+        specifier: ^4.1.16
         version: 4.1.16
 
   packages/astro/test/fixtures/third-party-astro:
