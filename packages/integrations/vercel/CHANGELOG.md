@@ -1,5 +1,27 @@
 # @astrojs/vercel
 
+## 9.0.0
+
+### Major Changes
+
+- [#14555](https://github.com/withastro/astro/pull/14555) [`5601357`](https://github.com/withastro/astro/commit/56013574348b366a5eafa82519f4bdf532df80ae) Thanks [@jacobdalamb](https://github.com/jacobdalamb)! - Updates Node v18 'retiring' notice to 'deprecated' for Vercel adapter.
+
+### Minor Changes
+
+- [#14543](https://github.com/withastro/astro/pull/14543) [`9b3241d`](https://github.com/withastro/astro/commit/9b3241d8a903ce0092905205af883cef5498d0b2) Thanks [@matthewp](https://github.com/matthewp)! - Enables skew protection for Astro sites deployed on Vercel. Skew protection ensures that your site's client and server versions stay synchronized during deployments, preventing issues where users might load assets from a newer deployment while the server is still running the older version.
+
+  Skew protection is automatically enabled on Vercel deployments when the `VERCEL_SKEW_PROTECTION_ENABLED` environment variable is set to `1`. The deployment ID is automatically included in both asset requests and API calls, allowing Vercel to serve the correct version to every user.
+
+## 8.2.11
+
+### Patch Changes
+
+- [#14570](https://github.com/withastro/astro/pull/14570) [`c96711d`](https://github.com/withastro/astro/commit/c96711d661c1beb7534a0c1d6b4fe806e656c13b) Thanks [@matthewp](https://github.com/matthewp)! - Fix regression in 8.2.7: validate densities-based srcset widths against configured sizes
+
+  When using `densities` with the Vercel image adapter, calculated widths were not being validated against Vercel's configured sizes list. This caused images to fail when using densities, as Vercel would reject the invalid widths.
+
+  This fix ensures densities-calculated widths are mapped to valid configured sizes, matching the behavior already implemented for the `widths` prop.
+
 ## 8.2.10
 
 ### Patch Changes
