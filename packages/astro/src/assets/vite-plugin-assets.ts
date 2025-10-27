@@ -85,11 +85,23 @@ const addStaticImageFactory = (
 
 		// The paths here are used for URLs, so we need to make sure they have the proper format for an URL
 		// (leading slash, prefixed with the base / assets prefix, encoded, etc)
+		let url: string;
 		if (settings.config.build.assetsPrefix) {
-			return encodeURI(joinPaths(assetPrefix, finalFilePath));
+			url = encodeURI(joinPaths(assetPrefix, finalFilePath));
 		} else {
-			return encodeURI(prependForwardSlash(joinPaths(settings.config.base, finalFilePath)));
+			url = encodeURI(prependForwardSlash(joinPaths(settings.config.base, finalFilePath)));
 		}
+
+		// Append assetQueryParams if available (for adapter-level tracking like skew protection)
+		const assetQueryParams = settings.adapter?.client?.assetQueryParams;
+		if (assetQueryParams) {
+			const assetQueryString = assetQueryParams.toString();
+			if (assetQueryString) {
+				url += '?' + assetQueryString;
+			}
+		}
+
+		return url;
 	};
 };
 
@@ -142,7 +154,19 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							import * as fontsMod from 'virtual:astro:assets/fonts/internal';
 							import { createGetFontData } from "astro/assets/fonts/runtime";
 
+							const assetQueryParams = ${
+								settings.adapter?.client?.assetQueryParams
+									? `new URLSearchParams(${JSON.stringify(
+											Array.from(settings.adapter.client.assetQueryParams.entries()),
+										)})`
+									: 'undefined'
+							};
 							export const imageConfig = ${JSON.stringify(settings.config.image)};
+							Object.defineProperty(imageConfig, 'assetQueryParams', {
+								value: assetQueryParams,
+								enumerable: false,
+								configurable: true,
+							});
 							// This is used by the @astrojs/node integration to locate images.
 							// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
 							// new URL("dist/...") is interpreted by the bundler as a signal to include that directory
