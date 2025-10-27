@@ -1,6 +1,6 @@
 import {
 	type Connection,
-	InitializeParams,
+	type InitializeParams,
 	type LanguagePlugin,
 	MessageType,
 	ShowMessageNotification,
