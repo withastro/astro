@@ -1,6 +1,6 @@
 import assert from 'node:assert';
+import path from 'node:path';
 import { describe, it } from 'node:test';
-import path from 'path';
 import { check } from '../dist/index.js';
 
 describe('astro-check - js api', async () => {

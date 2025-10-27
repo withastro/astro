@@ -4,8 +4,8 @@ import path from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import { Position } from '@volar/language-server';
 import { URI } from 'vscode-uri';
-import { type LanguageServer, getLanguageServer } from '../server.js';
-import { fixtureDir } from '../utils.js';
+import { getLanguageServer, type LanguageServer } from '../server.ts';
+import { fixtureDir } from '../utils.ts';
 
 const contentSchemaPath = path.resolve(fixtureDir, '.astro', 'collections', 'caching.schema.json');
 

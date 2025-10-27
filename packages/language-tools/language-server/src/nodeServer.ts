@@ -1,11 +1,11 @@
 import {
-	MessageType,
-	ShowMessageNotification,
-	type WorkspaceFolder,
 	createConnection,
 	createServer,
 	createTypeScriptProject,
 	loadTsdkByPath,
+	MessageType,
+	ShowMessageNotification,
+	type WorkspaceFolder,
 } from '@volar/language-server/node';
 import { URI, Utils } from 'vscode-uri';
 import {

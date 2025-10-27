@@ -2,9 +2,9 @@ import * as path from 'node:path';
 import type { DiagnosticMessage, DiagnosticSeverity } from '@astrojs/compiler/types';
 import {
 	type CodeMapping,
+	forEachEmbeddedCode,
 	type LanguagePlugin,
 	type VirtualCode,
-	forEachEmbeddedCode,
 } from '@volar/language-core';
 import type { TypeScriptExtraServiceScript } from '@volar/typescript';
 import type ts from 'typescript';

@@ -1,8 +1,8 @@
 import assert from 'node:assert';
 import { before, describe, it } from 'node:test';
-import * as _ from '@volar/language-server/node';
-import type { LanguageServer } from '../server.js';
-import { getLanguageServer } from '../server.js';
+import * as _ from '@volar/language-server/node.js';
+import type { LanguageServer } from '../server.ts';
+import { getLanguageServer } from '../server.ts';
 
 describe('Astro - Code Lens', () => {
 	let languageServer: LanguageServer;

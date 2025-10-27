@@ -1,9 +1,9 @@
 import {
 	type CodeInformation,
+	forEachEmbeddedCode,
 	type LanguagePlugin,
 	type Mapping,
 	type VirtualCode,
-	forEachEmbeddedCode,
 } from '@volar/language-core';
 import type ts from 'typescript';
 import type { URI } from 'vscode-uri';

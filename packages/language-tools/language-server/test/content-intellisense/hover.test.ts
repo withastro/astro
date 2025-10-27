@@ -2,8 +2,8 @@ import assert from 'node:assert';
 import path from 'node:path';
 import { before, describe, it } from 'node:test';
 import { Position } from '@volar/language-server';
-import { type LanguageServer, getLanguageServer } from '../server.js';
-import { fixtureDir } from '../utils.js';
+import { getLanguageServer, type LanguageServer } from '../server.ts';
+import { fixtureDir } from '../utils.ts';
 
 describe('Content Intellisense - Hover', async () => {
 	let languageServer: LanguageServer;

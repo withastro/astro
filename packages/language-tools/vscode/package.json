@@ -37,8 +37,8 @@
   "main": "./dist/node/client.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/language-tools.git",
-    "directory": "packages/vscode"
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/language-tools/vscode"
   },
   "contributes": {
     "snippets": [
@@ -253,7 +253,6 @@
     "@vscode/vsce": "2.30.0",
     "esbuild": "^0.17.19",
     "esbuild-plugin-copy": "^2.1.1",
-    "glob": "^8.0.3",
     "js-yaml": "^4.1.0",
     "kleur": "^4.1.5",
     "mocha": "^10.2.0",

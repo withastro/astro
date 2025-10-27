@@ -200,7 +200,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			if (flags.watch) {
 				return await new Promise(() => {}); // lives forever
 			} else {
-				return process.exit(checkServer ? 1 : 0);
+				return process.exit(typeof checkServer === 'boolean' && checkServer ? 1 : 0);
 			}
 		}
 	}

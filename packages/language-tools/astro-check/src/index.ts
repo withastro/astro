@@ -109,6 +109,7 @@ export async function check(flags: Partial<Flags>): Promise<boolean | void> {
 					return result.errors + result.warnings > 0;
 				case 'hint':
 					return result.errors + result.warnings + result.hints > 0;
+				case undefined:
 				default:
 					return result.errors > 0;
 			}

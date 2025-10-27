@@ -2,9 +2,9 @@ import { pathToFileURL } from 'node:url';
 import { VIRTUAL_CODE_ID, yaml2ts } from '@astrojs/yaml2ts';
 import {
 	type CodeMapping,
+	forEachEmbeddedCode,
 	type LanguagePlugin,
 	type VirtualCode,
-	forEachEmbeddedCode,
 } from '@volar/language-core';
 import type ts from 'typescript';
 

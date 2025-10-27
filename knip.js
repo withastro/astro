@@ -9,6 +9,7 @@ export default {
 		'examples/**',
 		'**/{test,e2e}/**/{fixtures,_temp-fixtures}/**',
 		'benchmark/**',
+		'packages/language-tools/**/*',
 	],
 	workspaces: {
 		'.': {

@@ -4,23 +4,21 @@ import {
 	MessageType,
 	ShowMessageNotification,
 } from '@volar/language-server/node';
-import { URI } from 'vscode-uri';
-import { getAstroLanguagePlugin } from './core';
-import { getSvelteLanguagePlugin } from './core/svelte.js';
-import { getVueLanguagePlugin } from './core/vue.js';
-import { getPrettierPluginPath, importPrettier } from './importPackage.js';
-
 // Services
 import { create as createCssService } from 'volar-service-css';
 import { create as createEmmetService } from 'volar-service-emmet';
 import { create as createPrettierService } from 'volar-service-prettier';
 import { create as createTypeScriptTwoSlashService } from 'volar-service-typescript-twoslash-queries';
-
+import { URI } from 'vscode-uri';
+import { getAstroLanguagePlugin } from './core';
 import { type CollectionConfig, getFrontmatterLanguagePlugin } from './core/frontmatterHolders.js';
+import { getSvelteLanguagePlugin } from './core/svelte.js';
+import { getVueLanguagePlugin } from './core/vue.js';
+import { getPrettierPluginPath, importPrettier } from './importPackage.js';
 import { create as createAstroService } from './plugins/astro.js';
 import { create as createHtmlService } from './plugins/html.js';
-import { create as createTypescriptAddonsService } from './plugins/typescript-addons/index.js';
 import { create as createTypeScriptServices } from './plugins/typescript/index.js';
+import { create as createTypescriptAddonsService } from './plugins/typescript-addons/index.js';
 import { create as createYAMLService } from './plugins/yaml.js';
 
 export function getLanguagePlugins(collectionConfig: CollectionConfig) {

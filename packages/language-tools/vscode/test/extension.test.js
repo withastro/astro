@@ -1,4 +1,4 @@
-const assert = require('assert');
+const assert = require('node:assert');
 const vscode = require('vscode');
 
 suite('Extension Test Suite', () => {

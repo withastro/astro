@@ -1,5 +1,5 @@
 import assert from 'node:assert';
-import { readdir } from 'node:fs/promises';
+import { mkdir, readdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import {
@@ -7,10 +7,9 @@ import {
 	type FullDocumentDiagnosticReport,
 	type MarkupContent,
 } from '@volar/language-server';
-import { mkdir, rm, writeFile } from 'fs/promises';
 import { URI } from 'vscode-uri';
-import { type LanguageServer, getLanguageServer } from '../server.js';
-import { fixtureDir } from '../utils.js';
+import { getLanguageServer, type LanguageServer } from '../server.ts';
+import { fixtureDir } from '../utils.ts';
 
 describe('TypeScript - Cache invalidation', async () => {
 	let languageServer: LanguageServer;

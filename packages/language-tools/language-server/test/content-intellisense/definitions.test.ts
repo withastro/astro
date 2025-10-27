@@ -3,8 +3,8 @@ import path from 'node:path';
 import { before, describe, it } from 'node:test';
 import type { LocationLink } from '@volar/language-server';
 import { Position } from '@volar/language-server';
-import { type LanguageServer, getLanguageServer } from '../server.js';
-import { fixtureDir } from '../utils.js';
+import { getLanguageServer, type LanguageServer } from '../server.ts';
+import { fixtureDir } from '../utils.ts';
 
 describe('Content Intellisense - Go To Everywhere', async () => {
 	let languageServer: LanguageServer;
@@ -32,7 +32,7 @@ describe('Content Intellisense - Go To Everywhere', async () => {
 
 		assert.deepStrictEqual(targetRange, {
 			start: { line: 5, character: 2 },
-			end: { line: 5, character: 54 },
+			end: { line: 5, character: 65 },
 		});
 
 		assert.deepStrictEqual(targetSelectionRange, {

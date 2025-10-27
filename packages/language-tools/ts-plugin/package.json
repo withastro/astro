@@ -6,8 +6,8 @@
   "type": "commonjs",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/language-tools",
-    "directory": "packages/ts-plugin"
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/language-tools/ts-plugin"
   },
   "keywords": [
     "astro",

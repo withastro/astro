@@ -7,8 +7,8 @@
   "homepage": "https://github.com/withastro/language-tools/tree/main/packages/astro-check",
   "repository": {
     "type": "git",
-    "url": "https://github.com/withastro/language-tools",
-    "directory": "packages/astro-check"
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/language-tools/astro-check"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -24,8 +24,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "tsx ./test/script.ts \"**/*.test.ts\"",
-    "test:match": "pnpm run test --test-name-pattern"
+    "test": "astro-scripts test \"**/*.test.ts\"  --tsx true"
   },
   "dependencies": {
     "@astrojs/language-server": "^2.15.0",
@@ -35,9 +34,10 @@
   },
   "devDependencies": {
     "@types/node": "^20.9.0",
-    "@types/yargs": "^17.0.24",
     "tinyglobby": "^0.2.15",
-    "tsx": "^3.12.7"
+    "@types/yargs": "^17.0.33",
+    "tsx": "^4.20.6",
+    "astro-scripts": "workspace:*"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

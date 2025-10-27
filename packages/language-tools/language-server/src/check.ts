@@ -9,10 +9,9 @@ import { URI } from 'vscode-uri';
 import { addAstroTypes, getAstroLanguagePlugin } from './core/index.js';
 import { getSvelteLanguagePlugin } from './core/svelte.js';
 import { getVueLanguagePlugin } from './core/vue.js';
-import { getAstroInstall } from './utils.js';
-
 import { create as createAstroService } from './plugins/astro.js';
 import { create as createTypeScriptServices } from './plugins/typescript/index.js';
+import { getAstroInstall } from './utils.js';
 
 // Export those for downstream consumers
 export { Diagnostic, DiagnosticSeverity };
