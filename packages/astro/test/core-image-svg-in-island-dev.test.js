@@ -12,7 +12,7 @@ describe('astro:assets - SVG Components in Astro Islands', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/core-image-svg-in-client/',
+				root: './fixtures/core-image-svg-in-island/',
 			});
 			devServer = await fixture.startDevServer();
 		});
