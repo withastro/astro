@@ -110,7 +110,7 @@ connection.onInitialize((params) => {
 				},
 			};
 		}),
-		getLanguageServicePlugins(connection, typescript, collectionConfig),
+		getLanguageServicePlugins(connection, typescript, collectionConfig, params),
 	);
 });
 

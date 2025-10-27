@@ -6,8 +6,16 @@ import { enhancedProvideCodeActions, enhancedResolveCodeAction } from './codeAct
 import { enhancedProvideCompletionItems, enhancedResolveCompletionItem } from './completions.js';
 import { enhancedProvideSemanticDiagnostics } from './diagnostics.js';
 
-export const create = (ts: typeof import('typescript')): LanguageServicePlugin[] => {
-	const tsServicePlugins = createTypeScriptServices(ts as typeof import('typescript'), {});
+export const create = (
+	ts: typeof import('typescript'),
+	options?: {
+		disableAutoImportCache: boolean | undefined;
+	},
+): LanguageServicePlugin[] => {
+	const tsServicePlugins = createTypeScriptServices(ts as typeof import('typescript'), {
+		disableAutoImportCache: options?.disableAutoImportCache,
+	});
+
 	return tsServicePlugins.map<LanguageServicePlugin>((plugin) => {
 		if (plugin.name === 'typescript-semantic') {
 			return {

@@ -1,5 +1,6 @@
 import {
 	type Connection,
+	InitializeParams,
 	type LanguagePlugin,
 	MessageType,
 	ShowMessageNotification,
@@ -36,12 +37,15 @@ export function getLanguageServicePlugins(
 	connection: Connection,
 	ts: typeof import('typescript'),
 	collectionConfig: CollectionConfig,
+	initializeParams?: InitializeParams,
 ) {
 	const LanguageServicePlugins = [
 		createHtmlService(),
 		createCssService(),
 		createEmmetService(),
-		...createTypeScriptServices(ts),
+		...createTypeScriptServices(ts, {
+			disableAutoImportCache: initializeParams?.initializationOptions?.disableAutoImportCache,
+		}),
 		createTypeScriptTwoSlashService(ts),
 		createTypescriptAddonsService(),
 		createAstroService(ts),

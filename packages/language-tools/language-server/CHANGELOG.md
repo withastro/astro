@@ -833,7 +833,6 @@ In the background, this update means that we now have to maintain a lot less cod
 ### Minor Changes
 
 - 6bb45cb: Overhaul TypeScript completions
-
   - Add support for completions inside expressions
   - Add support for auto imports on completion
   - Fix misc issues in completions (missing description, deprecated stuff not showing as deprecated)
