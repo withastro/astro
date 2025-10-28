@@ -7,7 +7,11 @@ describe('Import astro jsx runtime', async () => {
 			await import('astro/jsx-runtime');
 			assert.equal(true, true);
 		} catch (err) {
-			assert.fail(undefined, undefined, `Importing astro/jsx-runtime should not throw an error: ${err}`);
+			assert.fail(
+				undefined,
+				undefined,
+				`Importing astro/jsx-runtime should not throw an error: ${err}`,
+			);
 		}
 	});
 
@@ -16,7 +20,11 @@ describe('Import astro jsx runtime', async () => {
 			await import('astro/jsx-dev-runtime');
 			assert.equal(true, true);
 		} catch (err) {
-			assert.fail(undefined, undefined, `Importing astro/jsx-dev-runtime should not throw an error: ${err}`);
+			assert.fail(
+				undefined,
+				undefined,
+				`Importing astro/jsx-dev-runtime should not throw an error: ${err}`,
+			);
 		}
 	});
 });
