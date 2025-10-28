@@ -44,3 +44,8 @@ declare module 'virtual:astro:middleware' {
 	const middleware: AstroMiddlewareInstance;
 	export default middleware;
 }
+
+declare module 'virtual:astro:session-driver' {
+	import type { Driver } from 'unstorage';
+	export const driver: Driver;
+}

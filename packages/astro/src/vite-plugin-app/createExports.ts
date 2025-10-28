@@ -22,7 +22,10 @@ export default async function createExports(
 	const routesList: RoutesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
 
 	// Merge renderers into the serialized manifest
-	const manifest = Object.assign(serializedManifest, { renderers });
+	const manifest = Object.assign(serializedManifest, {
+		renderers,
+		sessionDriver: async () => await import('virtual:astro:session-driver'),
+	});
 
 	const app = await AstroServerApp.create(manifest, routesList, logger, loader, settings);
 	return {

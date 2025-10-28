@@ -84,6 +84,7 @@ export type SSRManifest = {
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
 	actions?: () => Promise<SSRActions> | SSRActions;
+	sessionDriver?: () => Promise<{ default: ((config: any) => import('unstorage').Driver) | null }>;
 	checkOrigin: boolean;
 	allowedDomains?: Partial<RemotePattern>[];
 	sessionConfig?: ResolvedSessionConfig<any>;

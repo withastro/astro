@@ -77,9 +77,7 @@ export class RenderContext {
 		public props: Props = {},
 		public partial: undefined | boolean = undefined,
 		public shouldInjectCspMetaTags = !!pipeline.manifest.csp,
-		public session: AstroSession | undefined = pipeline.manifest.sessionConfig
-			? new AstroSession(cookies, pipeline.manifest.sessionConfig, pipeline.runtimeMode)
-			: undefined,
+		public session: AstroSession | undefined = undefined,
 	) {}
 
 	/**
@@ -109,12 +107,23 @@ export class RenderContext {
 	}: CreateRenderContext): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
 		const pipelineActions = actions ?? (await pipeline.getActions());
+		const pipelineSessionDriver = await pipeline.getSessionDriver();
 		setOriginPathname(
 			request,
 			pathname,
 			pipeline.manifest.trailingSlash,
 			pipeline.manifest.buildFormat,
 		);
+		const cookies = new AstroCookies(request);
+		const session =
+			pipeline.manifest.sessionConfig && pipelineSessionDriver
+				? new AstroSession(
+						cookies,
+						pipeline.manifest.sessionConfig,
+						pipeline.runtimeMode,
+						pipelineSessionDriver,
+					)
+				: undefined;
 		return new RenderContext(
 			pipeline,
 			locals,
@@ -125,12 +134,13 @@ export class RenderContext {
 			routeData,
 			status,
 			clientAddress,
-			undefined,
+			cookies,
 			undefined,
 			undefined,
 			props,
 			partial,
 			shouldInjectCspMetaTags ?? !!pipeline.manifest.csp,
+			session,
 		);
 	}
 	/**
