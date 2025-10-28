@@ -1,8 +1,8 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { ENTRYPOINT_VIRTUAL_MODULE_ID } from '../../../actions/consts.js';
-import type { AstroAdapter } from '../../../types/public/integrations.js';
+import type { AstroAdapter } from '../../../types/public/index.js';
 import { ASTRO_RENDERERS_MODULE_ID } from '../../../vite-plugin-renderers/index.js';
-import { MIDDLEWARE_RESOLVED_MODULE_ID } from '../../middleware/vite-plugin.js';
+import { MIDDLEWARE_MODULE_ID } from '../../middleware/vite-plugin.js';
 import { routeIsRedirect } from '../../redirects/index.js';
 import { VIRTUAL_ISLAND_MAP_ID } from '../../server-islands/vite-plugin-server-islands.js';
 import { addRollupInput } from '../add-rollup-input.js';
@@ -101,8 +101,7 @@ function vitePluginSSR(
 				}
 				contents.push(`const pageMap = new Map([\n    ${pageMap.join(',\n    ')}\n]);`);
 				exports.push(`export { pageMap }`);
-				const middleware = await this.resolve(MIDDLEWARE_RESOLVED_MODULE_ID);
-				const ssrCode = generateSSRCode(adapter, middleware!.id);
+				const ssrCode = generateSSRCode(adapter);
 				imports.push(...ssrCode.imports);
 				contents.push(...ssrCode.contents);
 				return { code: [...imports, ...contents, ...exports].join('\n') };
@@ -164,7 +163,7 @@ export function pluginSSR(
 	};
 }
 
-function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
+function generateSSRCode(adapter: AstroAdapter) {
 	const edgeMiddleware = adapter?.adapterFeatures?.edgeMiddleware ?? false;
 
 	const imports = [
@@ -181,7 +180,7 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 		`    serverIslandMap,`,
 		`    renderers,`,
 		`    actions: () => import("${ENTRYPOINT_VIRTUAL_MODULE_ID}"),`,
-		`    middleware: ${edgeMiddleware ? 'undefined' : `() => import("${middlewareId}")`}`,
+		`    middleware: ${edgeMiddleware ? 'undefined' : `() => import("${MIDDLEWARE_MODULE_ID}")`}`,
 		`});`,
 		`const _args = ${adapter.args ? JSON.stringify(adapter.args, null, 4) : 'undefined'};`,
 		adapter.exports

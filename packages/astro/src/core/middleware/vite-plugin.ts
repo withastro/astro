@@ -9,8 +9,8 @@ import { MissingMiddlewareForInternationalization } from '../errors/errors-data.
 import { AstroError } from '../errors/index.js';
 import { normalizePath } from '../viteUtils.js';
 
-const MIDDLEWARE_MODULE_ID = 'virtual:astro:middleware';
-export const MIDDLEWARE_RESOLVED_MODULE_ID = '\0' + MIDDLEWARE_MODULE_ID;
+export const MIDDLEWARE_MODULE_ID = 'virtual:astro:middleware';
+const MIDDLEWARE_RESOLVED_MODULE_ID = '\0' + MIDDLEWARE_MODULE_ID;
 const NOOP_MIDDLEWARE = '\0noop-middleware';
 
 export function vitePluginMiddleware({ settings }: { settings: AstroSettings }): VitePlugin {
@@ -20,7 +20,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 	let userMiddlewareIsPresent = false;
 
 	return {
-		name: MIDDLEWARE_MODULE_ID,
+		name: '@astro/plugin-middleware',
 		applyToEnvironment(environment) {
 			return environment.name === 'ssr';
 		},
@@ -110,7 +110,7 @@ export function vitePluginMiddlewareBuild(
 		name: '@astro/plugin-middleware-build',
 
 		options(options) {
-			return addRollupInput(options, [MIDDLEWARE_RESOLVED_MODULE_ID]);
+			return addRollupInput(options, [MIDDLEWARE_MODULE_ID]);
 		},
 
 		writeBundle(_, bundle) {
