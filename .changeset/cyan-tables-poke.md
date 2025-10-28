@@ -1,5 +1,5 @@
 ---
-'astro': patch
+'astro': minor
 ---
 
-Add experimental SVGO optimization support for SVG assets
+Adds experimental SVGO optimization support for SVG assets
