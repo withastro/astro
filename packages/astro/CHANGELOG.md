@@ -1,5 +1,13 @@
 # astro
 
+## 5.15.2
+
+### Patch Changes
+
+- [#14623](https://github.com/withastro/astro/pull/14623) [`c5fe295`](https://github.com/withastro/astro/commit/c5fe295c41c8bc3b9f85727c3635e9ddc67f0030) Thanks [@delucis](https://github.com/delucis)! - Fixes a leak of server runtime code when importing SVGs in client-side code. Previously, when importing an SVG file in client code, Astro could end up adding code for rendering SVGs on the server to the client bundle.
+
+- [#14621](https://github.com/withastro/astro/pull/14621) [`e3175d9`](https://github.com/withastro/astro/commit/e3175d9ccbf070150ab2229b2564ca0b12a86c30) Thanks [@GameRoMan](https://github.com/GameRoMan)! - Updates `vite` version to fix CVE
+
 ## 5.15.1
 
 ### Patch Changes
