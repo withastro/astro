@@ -5,6 +5,7 @@
 '@astrojs/preact': patch
 '@astrojs/react': patch
 '@astrojs/solid-js': patch
+'@astrojs/svelte': patch
 '@astrojs/vue': patch
 ---
 
