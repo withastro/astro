@@ -3,25 +3,27 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-describe('astro:assets - SVG Components in Astro Islands', () => {
+describe('astro:assets - SVG Components in Astro Islands', async () => {
+	/** @type {import('./test-utils.js').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/core-image-svg-in-island/',
+		});
+	});
+
 	describe('dev', () => {
-		/** @type {import('./test-utils.js').Fixture} */
-		let fixture;
 		/** @type {import('./test-utils.js').DevServer} */
 		let devServer;
 
 		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/core-image-svg-in-island/',
-			});
 			devServer = await fixture.startDevServer();
 		});
 
-		after(async () => {
-			await devServer.stop();
-		});
+		after(() => devServer.stop());
 
-		it('Server APIs are not imported to the dev server', async () => {
+		it('SVG metadata imported in React island is small', async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			const $ = cheerio.load(html, { xml: true });
 			const island = $('astro-island');
@@ -43,6 +45,28 @@ describe('astro:assets - SVG Components in Astro Islands', () => {
 			assert.ok(
 				!mod.includes('import'),
 				'Expected client-side SVG not to include import statements.',
+			);
+		});
+	});
+
+	describe('build', () => {
+		before(() => fixture.build({}));
+
+		after(() => fixture.clean());
+
+		it('React bundle size is small when importing an SVG', async () => {
+			const files = await fixture.readdir('_astro');
+			const bundledReactComponentFilename = files.find(
+				(f) => f.startsWith('ReactTest.') && f.endsWith('.js'),
+			);
+			assert.ok(bundledReactComponentFilename, 'Expected to find React component in build output.');
+			const bundledReactComponent = await fixture.readFile(
+				`_astro/${bundledReactComponentFilename}`,
+			);
+			assert.ok(bundledReactComponent, 'Expected React component bundle not to be empty');
+			assert.ok(
+				bundledReactComponent.length < 1_000,
+				`Expected React component bundle to be smaller than 1000 bytes, got ${bundledReactComponent.length} bytes. If this test fails, it is likely that server code has been imported while importing an SVG.`,
 			);
 		});
 	});
