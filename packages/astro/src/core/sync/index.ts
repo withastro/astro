@@ -32,6 +32,7 @@ import {
 import type { Logger } from '../logger/core.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { normalizePath } from '../viteUtils.js';
+import { createRoutesList } from '../routing/index.js';
 
 type SyncOptions = {
 	mode: string;
@@ -220,6 +221,15 @@ async function syncContentCollections(
 	settings: AstroSettings,
 	{ mode, logger, fs }: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs'>>,
 ): Promise<void> {
+	const routesList = await createRoutesList(
+		{
+			settings,
+			fsMod: fs,
+		},
+		logger,
+		{ dev: true, skipBuildOutputAssignment: false },
+	);
+
 	// Needed to load content config
 	const tempViteServer = await createServer(
 		await createVite(
@@ -229,7 +239,7 @@ async function syncContentCollections(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logger, mode, command: 'build', fs, sync: true },
+			{ routesList, settings, logger, mode, command: 'build', fs, sync: true },
 		),
 	);
 

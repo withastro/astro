@@ -1,14 +1,15 @@
+import type { Plugin as VitePlugin } from 'vite';
 import { fileURLToPath } from 'node:url';
 import type { OutputChunk } from 'rollup';
 import { glob } from 'tinyglobby';
-import { type BuiltinDriverName, builtinDrivers } from 'unstorage';
-import type { Plugin as VitePlugin } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
+import { SERIALIZED_MANIFEST_ID, SERIALIZED_MANIFEST_RESOLVED_ID } from '../../../manifest/serialized.js';
 import { toFallbackType } from '../../app/common.js';
 import { serializeRouteData, toRoutingStrategy } from '../../app/index.js';
+import { addRollupInput } from '../add-rollup-input.js';
 import type {
 	SerializedRouteInfo,
 	SerializedSSRManifest,
@@ -30,7 +31,6 @@ import {
 import { encodeKey } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { DEFAULT_COMPONENTS } from '../../routing/default.js';
-import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
@@ -40,61 +40,18 @@ import { makePageDataKey } from './util.js';
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
 
-export const SSR_MANIFEST_VIRTUAL_MODULE_ID = '@astrojs-manifest';
-export const RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID = '\0' + SSR_MANIFEST_VIRTUAL_MODULE_ID;
-
-function resolveSessionDriver(driver: string | undefined): string | null {
-	if (!driver) {
-		return null;
-	}
-	try {
-		if (driver === 'fs') {
-			return import.meta.resolve(builtinDrivers.fsLite, import.meta.url);
-		}
-		if (driver in builtinDrivers) {
-			return import.meta.resolve(builtinDrivers[driver as BuiltinDriverName], import.meta.url);
-		}
-	} catch {
-		return null;
-	}
-
-	return driver;
-}
-
-function vitePluginManifest(options: StaticBuildOptions, internals: BuildInternals): VitePlugin {
+function manifestBuildPlugin(internals: BuildInternals): VitePlugin {
 	return {
-		name: '@astro/plugin-build-manifest',
+		name: '@astro/plugin-manifest-build',
 		enforce: 'post',
+
 		options(opts) {
-			return addRollupInput(opts, [SSR_MANIFEST_VIRTUAL_MODULE_ID]);
+			return addRollupInput(opts, [SERIALIZED_MANIFEST_ID]);
 		},
-		resolveId(id) {
-			if (id === SSR_MANIFEST_VIRTUAL_MODULE_ID) {
-				return RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID;
-			}
-		},
+
 		augmentChunkHash(chunkInfo) {
-			if (chunkInfo.facadeModuleId === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
+			if (chunkInfo.facadeModuleId === SERIALIZED_MANIFEST_RESOLVED_ID) {
 				return Date.now().toString();
-			}
-		},
-		load(id) {
-			if (id === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
-				const imports = [
-					`import { deserializeManifest as _deserializeManifest } from 'astro/app'`,
-					`import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest'`,
-				];
-
-				const resolvedDriver = resolveSessionDriver(options.settings.config.session?.driver);
-
-				const contents = [
-					`const manifest = _deserializeManifest('${manifestReplace}');`,
-					`if (manifest.sessionConfig) manifest.sessionConfig.driverModule = ${resolvedDriver ? `() => import(${JSON.stringify(resolvedDriver)})` : 'null'};`,
-					`_privateSetManifestDontUseThis(manifest);`,
-				];
-				const exports = [`export { manifest }`];
-
-				return { code: [...imports, ...contents, ...exports].join('\n') };
 			}
 		},
 
@@ -103,11 +60,7 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 				if (chunk.type === 'asset') {
 					continue;
 				}
-				if (chunk.modules[RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID]) {
-					internals.manifestEntryChunk = chunk;
-					delete bundle[chunkName];
-				}
-				if (chunkName.startsWith('manifest')) {
+				if (chunk.facadeModuleId === SERIALIZED_MANIFEST_RESOLVED_ID) {
 					internals.manifestFileName = chunkName;
 				}
 			}
@@ -124,13 +77,31 @@ export function pluginManifest(
 		hooks: {
 			'build:before': () => {
 				return {
-					vitePlugin: vitePluginManifest(options, internals),
+					vitePlugin: manifestBuildPlugin(internals),
 				};
 			},
 
-			'build:post': async ({ mutate }) => {
-				if (!internals.manifestEntryChunk) {
-					throw new Error(`Did not generate an entry chunk for SSR`);
+			'build:post': async ({ ssrOutputs, mutate }) => {
+				let manifestEntryChunk: OutputChunk | undefined;
+
+				// Find the serialized manifest chunk in SSR outputs
+				for (const output of ssrOutputs) {
+					for (const chunk of output.output) {
+						if (chunk.type === 'asset') {
+							continue;
+						}
+						if (chunk.code && chunk.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID)) {
+							manifestEntryChunk = chunk as OutputChunk;
+							break;
+						}
+					}
+					if (manifestEntryChunk) {
+						break;
+					}
+				}
+
+				if (!manifestEntryChunk) {
+					throw new Error(`Did not find serialized manifest chunk for SSR`);
 				}
 
 				const manifest = await createManifest(options, internals);
@@ -144,8 +115,8 @@ export function pluginManifest(
 						? internals.middlewareEntryPoint
 						: undefined,
 				});
-				const code = injectManifest(manifest, internals.manifestEntryChunk);
-				mutate(internals.manifestEntryChunk, ['server'], code);
+				const code = injectManifest(manifest, manifestEntryChunk);
+				mutate(manifestEntryChunk, ['server'], code);
 			},
 		},
 	};
@@ -155,10 +126,6 @@ async function createManifest(
 	buildOpts: StaticBuildOptions,
 	internals: BuildInternals,
 ): Promise<SerializedSSRManifest> {
-	if (!internals.manifestEntryChunk) {
-		throw new Error(`Did not generate an entry chunk for SSR`);
-	}
-
 	// Add assets from the client build.
 	const clientStatics = new Set(
 		await glob('**/*', {

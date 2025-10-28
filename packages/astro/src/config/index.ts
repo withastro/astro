@@ -5,6 +5,7 @@ import type {
 	Locales,
 	SessionDriverName,
 } from '../types/public/config.js';
+import { createRoutesList } from '../core/routing/index.js';
 
 /**
  * See the full Astro Configuration API Documentation
@@ -47,7 +48,14 @@ export function getViteConfig(
 		const { astroConfig: config } = await resolveConfig(inlineAstroConfig, cmd);
 		let settings = await createSettings(config, userViteConfig.root);
 		settings = await runHookConfigSetup({ settings, command: cmd, logger });
-		const viteConfig = await createVite({}, { settings, command: cmd, logger, mode, sync: false });
+		const routesList = await createRoutesList(
+			{
+				settings,
+			},
+			logger,
+			{ dev: true, skipBuildOutputAssignment: false },
+		);
+		const viteConfig = await createVite({}, { routesList, settings, command: cmd, logger, mode, sync: false });
 		await runHookConfigDone({ settings, logger });
 		return mergeConfig(viteConfig, userViteConfig);
 	};

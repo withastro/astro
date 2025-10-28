@@ -1,12 +1,24 @@
 {
 	"compatibility_date": "2025-05-21",
-	"main": "@astrojs/cloudflare/entrypoints/server",
+  "compatibility_flags": [
+  	"nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
 	"name": "astro-cloudflare-custom-entryfile",
+	"main": "dist/_worker.js/index.js",
 	"assets": {
 		"directory": "./dist",
 		"binding": "ASSETS"
 	},
 	"images": {
 		"binding": "IMAGES"
-	}
+	},
+	"observability": {
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true,
+      "persist": true
+    }
+  }
 }

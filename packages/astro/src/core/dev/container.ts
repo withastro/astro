@@ -14,6 +14,7 @@ import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
 import { syncInternal } from '../sync/index.js';
 import { warnMissingAdapter } from './adapter-validation.js';
+import { createRoutesList } from '../routing/index.js';
 
 export interface Container {
 	fs: typeof nodeFs;
@@ -82,6 +83,14 @@ export async function createContainer({
 	warnMissingAdapter(logger, settings);
 
 	const mode = inlineConfig?.mode ?? 'development';
+	const initialRoutesList = await createRoutesList(
+		{
+			settings,
+			fsMod: nodeFs,
+		},
+		logger,
+		{ dev: true, skipBuildOutputAssignment: false },
+	);
 	const viteConfig = await createVite(
 		{
 			server: { host, headers, open, allowedHosts },
@@ -96,6 +105,7 @@ export async function createContainer({
 			command: 'dev',
 			fs,
 			sync: false,
+			routesList: initialRoutesList
 		},
 	);
 	const viteServer = await vite.createServer(viteConfig);

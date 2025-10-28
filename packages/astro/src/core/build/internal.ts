@@ -86,8 +86,6 @@ export interface BuildInternals {
 
 	// The SSR entry chunk. Kept in internals to share between ssr/client build steps
 	ssrEntryChunk?: Rollup.OutputChunk;
-	// The SSR manifest entry chunk.
-	manifestEntryChunk?: Rollup.OutputChunk;
 	manifestFileName?: string;
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint: URL | undefined;

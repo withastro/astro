@@ -1,5 +1,4 @@
 import type { Plugin as VitePlugin } from 'vite';
-import { ENTRYPOINT_VIRTUAL_MODULE_ID } from '../../../actions/consts.js';
 import type { AstroAdapter } from '../../../types/public/integrations.js';
 import { ASTRO_RENDERERS_MODULE_ID } from '../../../vite-plugin-renderers/index.js';
 import { MIDDLEWARE_MODULE_ID } from '../../middleware/vite-plugin.js';
@@ -9,7 +8,6 @@ import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
-import { SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugin-manifest.js';
 import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
 import { getVirtualModulePageName } from './util.js';
 
@@ -30,7 +28,10 @@ function vitePluginAdapter(adapter: AstroAdapter): VitePlugin {
 		},
 		async load(id) {
 			if (id === RESOLVED_ADAPTER_VIRTUAL_MODULE_ID) {
-				return { code: `export * from ${JSON.stringify(adapter.serverEntrypoint)};` };
+				const adapterEntrypointStr = JSON.stringify(adapter.serverEntrypoint);
+				return { code: `export * from ${adapterEntrypointStr};
+import * as _serverEntrypoint from ${adapterEntrypointStr};
+export default _serverEntrypoint.default;` };
 			}
 		},
 	};
@@ -170,7 +171,7 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 	const imports = [
 		`import { renderers } from '${ASTRO_RENDERERS_MODULE_ID}';`,
 		`import * as serverEntrypointModule from '${ADAPTER_VIRTUAL_MODULE_ID}';`,
-		`import { manifest as defaultManifest } from '${SSR_MANIFEST_VIRTUAL_MODULE_ID}';`,
+		`import { manifest as defaultManifest } from 'virtual:astro:serialized-manifest';`,
 		`import { serverIslandMap } from '${VIRTUAL_ISLAND_MAP_ID}';`,
 	];
 
@@ -179,13 +180,11 @@ function generateSSRCode(adapter: AstroAdapter, middlewareId: string) {
 		`const _manifest = Object.assign(defaultManifest, {`,
 		`    pageMap,`,
 		`    serverIslandMap,`,
-		`    renderers,`,
-		`    actions: () => import("${ENTRYPOINT_VIRTUAL_MODULE_ID}"),`,
 		`    middleware: ${edgeMiddleware ? 'undefined' : `() => import("${middlewareId}")`}`,
 		`});`,
 		`const _args = ${adapter.args ? JSON.stringify(adapter.args, null, 4) : 'undefined'};`,
 		adapter.exports
-			? `const _exports = serverEntrypointModule.createExports(_manifest, _args);`
+			? `const _exports = serverEntrypointModule.createExports?.(_manifest, _args) || serverEntrypointModule;`
 			: '',
 		...(adapter.exports?.map((name) => {
 			if (name === 'default') {

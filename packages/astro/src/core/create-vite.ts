@@ -21,7 +21,7 @@ import astroVirtualManifestPlugin from '../manifest/virtual-module.js';
 import astroPrefetch from '../prefetch/vite-plugin-prefetch.js';
 import astroDevToolbar from '../toolbar/vite-plugin-dev-toolbar.js';
 import astroTransitions from '../transitions/vite-plugin-transitions.js';
-import type { AstroSettings } from '../types/astro.js';
+import type { AstroSettings, RoutesList } from '../types/astro.js';
 import { vitePluginApp } from '../vite-plugin-app/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
@@ -50,6 +50,7 @@ type CreateViteOptions = {
 	logger: Logger;
 	mode: string;
 	fs?: typeof nodeFs;
+	routesList: RoutesList;
 	sync: boolean;
 } & (
 	| {
@@ -87,7 +88,7 @@ const ONLY_DEV_EXTERNAL = [
 /** Return a base vite config as a common starting point for all Vite commands. */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
-	{ settings, logger, mode, command, fs = nodeFs, sync }: CreateViteOptions,
+	{ settings, logger, mode, command, fs = nodeFs, sync, routesList }: CreateViteOptions,
 ): Promise<vite.InlineConfig> {
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
@@ -142,9 +143,9 @@ export async function createVite(
 			exclude: ['astro', 'node-fetch'],
 		},
 		plugins: [
-			await serializedManifestPlugin({ settings }),
+			serializedManifestPlugin({ settings, command }),
 			vitePluginRenderers({ settings }),
-			await astroPluginRoutes({ settings, logger, fsMod: fs, command }),
+			await astroPluginRoutes({ routesList, settings, logger, fsMod: fs }),
 			astroVirtualManifestPlugin(),
 			configAliasVitePlugin({ settings }),
 			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
