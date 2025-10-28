@@ -41,6 +41,10 @@
       "types": "./jsx-runtime.d.ts",
       "default": "./dist/jsx-runtime/index.js"
     },
+    "./jsx-dev-runtime": {
+      "types": "./jsx-runtime.d.ts",
+      "default": "./dist/jsx-runtime/index.js"
+    },
     "./compiler-runtime": "./dist/runtime/compiler/index.js",
     "./runtime/*": "./dist/runtime/*",
     "./config": "./dist/config/entrypoint.js",
