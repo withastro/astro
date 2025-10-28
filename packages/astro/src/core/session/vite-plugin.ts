@@ -3,7 +3,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
 
 export const VIRTUAL_SESSION_DRIVER_ID = 'virtual:astro:session-driver';
-export const RESOLVED_VIRTUAL_SESSION_DRIVER_ID = '\0' + VIRTUAL_SESSION_DRIVER_ID;
+const RESOLVED_VIRTUAL_SESSION_DRIVER_ID = '\0' + VIRTUAL_SESSION_DRIVER_ID;
 
 export function vitePluginSessionDriver({ settings }: { settings: AstroSettings }): VitePlugin {
 	return {
