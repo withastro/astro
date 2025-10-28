@@ -488,8 +488,6 @@ export interface MetaStore {
 
 export class InMemoryDataStore implements DataStore {
 	#collection = new Map<string, any>();
-	#assetImports = new Set<string>();
-	#moduleImports = new Map<string, string>();
 	#events: Array<
 		| {
 				type: 'set';
@@ -592,7 +590,6 @@ export class InMemoryDataStore implements DataStore {
 
 		if (foundAssets.size) {
 			entry.assetImports = Array.from(foundAssets);
-			this.#addAssetImports(entry.assetImports, filePath!);
 		}
 
 		if (digest) {
@@ -603,9 +600,6 @@ export class InMemoryDataStore implements DataStore {
 		}
 		if (deferredRender) {
 			entry.deferredRender = deferredRender;
-			if (filePath) {
-				this.#addModuleImport(filePath);
-			}
 		}
 		this.#collection.set(id, entry);
 		return true;
@@ -621,19 +615,10 @@ export class InMemoryDataStore implements DataStore {
 
 	clear() {
 		this.#collection = new Map();
-		this.#assetImports = new Set();
-		this.#moduleImports = new Map();
 	}
 
 	has(key: string) {
 		return this.#collection.has(key);
-	}
-
-	#addAssetImport(assetImport: string, filePath: string) {
-		const id = imageSrcToImportId(assetImport, filePath);
-		if (id) {
-			this.#assetImports.add(id);
-		}
 	}
 
 	addAssetImport(assetImport: string, filePath: string) {
@@ -642,11 +627,6 @@ export class InMemoryDataStore implements DataStore {
 			assetImport,
 			filePath,
 		});
-		return this.#addAssetImport(assetImport, filePath);
-	}
-
-	#addAssetImports(assets: Array<string>, filePath: string) {
-		assets.forEach((asset) => this.#addAssetImport(asset, filePath));
 	}
 
 	addAssetImports(assets: Array<string>, filePath: string) {
@@ -655,14 +635,6 @@ export class InMemoryDataStore implements DataStore {
 			assets,
 			filePath,
 		});
-		return this.#addAssetImports(assets, filePath);
-	}
-
-	#addModuleImport(filePath: string) {
-		const id = contentModuleToId(filePath);
-		if (id) {
-			this.#moduleImports.set(filePath, id);
-		}
 	}
 
 	addModuleImport(filePath: string) {
@@ -670,6 +642,5 @@ export class InMemoryDataStore implements DataStore {
 			type: 'addModuleImport',
 			filePath,
 		});
-		return this.#addModuleImport(filePath);
 	}
 }
