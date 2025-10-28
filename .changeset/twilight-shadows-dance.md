@@ -1,5 +1,11 @@
 ---
 'astro': patch
+'@astrojs/db': patch
+'@astrojs/mdx': patch
+'@astrojs/preact': patch
+'@astrojs/react': patch
+'@astrojs/solid-js': patch
+'@astrojs/vue': patch
 ---
 
-Bump `vite` dependency to 6.4.1.
+Updates `vite` version to fix CVE
