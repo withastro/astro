@@ -13,6 +13,7 @@ import type {
 	SSRResult,
 } from '../types/public/internal.js';
 import { createOriginCheckMiddleware } from './app/middlewares.js';
+import type { SSRSessionDriver } from './app/types.js';
 import type { SinglePageBuiltModule } from './build/types.js';
 import { ActionNotFoundError } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
@@ -22,6 +23,7 @@ import { sequence } from './middleware/sequence.js';
 import { RedirectSinglePageBuiltModule } from './redirects/index.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
+import type { SessionDriver } from './session.js';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
@@ -33,10 +35,7 @@ export abstract class Pipeline {
 	readonly internalMiddleware: MiddlewareHandler[];
 	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
 	resolvedActions: SSRActions | undefined = undefined;
-	resolvedSessionDriver:
-		| ((config: any) => import('unstorage').Driver)
-		| null
-		| undefined = undefined;
+	resolvedSessionDriver: SessionDriver | null | undefined = undefined;
 
 	constructor(
 		readonly logger: Logger,
@@ -145,7 +144,7 @@ export abstract class Pipeline {
 		return NOOP_ACTIONS_MOD;
 	}
 
-	async getSessionDriver(): Promise<((config: any) => import('unstorage').Driver) | null> {
+	async getSessionDriver(): Promise<SSRSessionDriver> {
 		// Return cached value if already resolved (including null)
 		if (this.resolvedSessionDriver !== undefined) {
 			return this.resolvedSessionDriver;

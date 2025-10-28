@@ -24,7 +24,7 @@ export default async function createExports(
 	// Merge renderers into the serialized manifest
 	const manifest = Object.assign(serializedManifest, {
 		renderers,
-		sessionDriver: async () => await import('virtual:astro:session-driver'),
+		sessionDriver: () => import('virtual:astro:session-driver'),
 	});
 
 	const app = await AstroServerApp.create(manifest, routesList, logger, loader, settings);

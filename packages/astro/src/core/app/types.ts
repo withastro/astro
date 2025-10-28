@@ -17,6 +17,7 @@ import type {
 } from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import type { CspDirective } from '../csp/config.js';
+import type { SessionDriver } from '../session.js';
 import type { RoutingStrategies } from './common.js';
 
 type ComponentPath = string;
@@ -84,7 +85,7 @@ export type SSRManifest = {
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
 	actions?: () => Promise<SSRActions> | SSRActions;
-	sessionDriver?: () => Promise<{ default: ((config: any) => import('unstorage').Driver) | null }>;
+	sessionDriver?: () => Promise<{ default: SessionDriver | null }>;
 	checkOrigin: boolean;
 	allowedDomains?: Partial<RemotePattern>[];
 	sessionConfig?: ResolvedSessionConfig<any>;
@@ -111,6 +112,8 @@ export type SSRManifest = {
 		debugInfoOutput: string | undefined;
 	};
 };
+
+export type SSRSessionDriver = SessionDriver | null;
 
 export type SSRActions = {
 	server: Record<string, ActionClient<unknown, ActionAccept, ZodType>>;

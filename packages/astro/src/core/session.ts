@@ -16,6 +16,8 @@ export const PERSIST_SYMBOL = Symbol();
 const DEFAULT_COOKIE_NAME = 'astro-session';
 const VALID_COOKIE_REGEX = /^[\w-]+$/;
 
+export type SessionDriver = (config: any) => import('unstorage').Driver;
+
 interface SessionEntry {
 	data: any;
 	expires?: number;

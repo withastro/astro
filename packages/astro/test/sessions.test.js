@@ -152,7 +152,6 @@ describe('Astro.session', () => {
 
 		it('can regenerate session cookies upon request', async () => {
 			const firstResponse = await fixture.fetch('/regenerate');
-			console.log(firstResponse);
 			// @ts-ignore
 			const firstHeaders = firstResponse.headers.get('set-cookie').split(',');
 			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
