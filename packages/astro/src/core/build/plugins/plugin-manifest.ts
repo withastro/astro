@@ -1,15 +1,17 @@
-import type { Plugin as VitePlugin } from 'vite';
 import { fileURLToPath } from 'node:url';
 import type { OutputChunk } from 'rollup';
 import { glob } from 'tinyglobby';
+import type { Plugin as VitePlugin } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
+import {
+	SERIALIZED_MANIFEST_ID,
+	SERIALIZED_MANIFEST_RESOLVED_ID,
+} from '../../../manifest/serialized.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
-import { SERIALIZED_MANIFEST_ID, SERIALIZED_MANIFEST_RESOLVED_ID } from '../../../manifest/serialized.js';
 import { toFallbackType } from '../../app/common.js';
 import { serializeRouteData, toRoutingStrategy } from '../../app/index.js';
-import { addRollupInput } from '../add-rollup-input.js';
 import type {
 	SerializedRouteInfo,
 	SerializedSSRManifest,
@@ -31,6 +33,7 @@ import {
 import { encodeKey } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { DEFAULT_COMPONENTS } from '../../routing/default.js';
+import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';

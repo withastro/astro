@@ -9,11 +9,11 @@ import { type BuildInternals, createBuildInternals } from '../../core/build/inte
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
 import { runHookBuildSetup } from '../../integrations/hooks.js';
+import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../manifest/serialized.js';
 import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { RESOLVED_ASTRO_RENDERERS_MODULE_ID } from '../../vite-plugin-renderers/index.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../manifest/serialized.js';
 import { routeIsRedirect } from '../redirects/index.js';
 import { getOutDirWithinCwd } from './common.js';
 import { CHUNKS_PATH } from './consts.js';
