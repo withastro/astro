@@ -17,7 +17,7 @@ import {
 } from './consts.js';
 import type { RenderedContent } from './data-store.js';
 import type { LoaderContext } from './loaders/types.js';
-import type { MutableDataStore } from './mutable-data-store.js';
+import { InMemoryDataStore, type MutableDataStore } from './mutable-data-store.js';
 import {
 	type ContentObservable,
 	getEntryConfigByExtMap,
@@ -114,21 +114,19 @@ class ContentLayer {
 	async #getLoaderContext({
 		collectionName,
 		loaderName = 'content',
-		parseData,
 		refreshContextData,
 	}: {
 		collectionName: string;
 		loaderName: string;
-		parseData: LoaderContext['parseData'];
 		refreshContextData?: Record<string, unknown>;
-	}): Promise<LoaderContext> {
+	}): Promise<Omit<LoaderContext, 'store'>> {
 		return {
 			collection: collectionName,
-			store: this.#store.scopedStore(collectionName),
 			meta: this.#store.metaStore(collectionName),
 			logger: this.#logger.forkIntegrationLogger(loaderName),
 			config: this.#settings.config,
-			parseData,
+			// TODO: remove in v7
+			parseData: async (props) => props.data,
 			renderMarkdown: this.#processMarkdown.bind(this),
 			generateDigest: await this.#getGenerateDigest(),
 			watcher: this.#watcher,
@@ -269,41 +267,84 @@ class ContentLayer {
 
 				const collectionWithResolvedSchema = { ...collection, schema };
 
-				const parseData: LoaderContext['parseData'] = async ({ id, data, filePath = '' }) => {
-					const { data: parsedData } = await getEntryDataAndImages(
-						{
-							id,
-							collection: name,
-							unvalidatedData: data,
-							_internal: {
-								rawData: undefined,
-								filePath,
-							},
-						},
-						collectionWithResolvedSchema,
-						false,
-					);
-
-					return parsedData;
-				};
-
 				const context = await this.#getLoaderContext({
 					collectionName: name,
-					parseData,
 					loaderName: collection.loader.name,
 					refreshContextData: options?.context,
 				});
 
+				const realStore = this.#store.scopedStore(name);
+
 				if (typeof collection.loader === 'function') {
-					return simpleLoader(collection.loader as CollectionLoader<{ id: string }>, context);
+					return simpleLoader(collection.loader as CollectionLoader<{ id: string }>, {
+						...context,
+						store: realStore,
+					});
 				}
 
 				if (!collection.loader.load) {
 					throw new Error(`Collection loader for ${name} does not have a load method`);
 				}
 
-				const result = collection.loader.load(context);
-				return result
+				const fakeStore = new InMemoryDataStore();
+
+				const result = collection.loader.load({
+					...context,
+					store: fakeStore,
+				});
+
+				// TODO: handle types
+
+				if (!schema && result?.schema) {
+					schema = result.schema;
+				}
+
+				for (const event of fakeStore.events) {
+					switch (event.type) {
+						case 'set': {
+							let data = event.entry.data;
+							if (schema) {
+								({ data } = await getEntryDataAndImages(
+									{
+										id: event.entry.id,
+										collection: name,
+										unvalidatedData: data,
+										_internal: {
+											rawData: undefined,
+											filePath: event.entry.filePath!,
+										},
+									},
+									collectionWithResolvedSchema,
+									false,
+								));
+							}
+							realStore.set({ ...event.entry, data });
+							break;
+						}
+						case 'delete': {
+							realStore.delete(event.key);
+							break;
+						}
+						case 'clear': {
+							realStore.clear();
+							break;
+						}
+						case 'addAssetImport': {
+							realStore.addAssetImport(event.assetImport, event.filePath);
+							break;
+						}
+						case 'addAssetImports': {
+							realStore.addAssetImports(event.assets, event.filePath);
+							break;
+						}
+						case 'addModuleImport': {
+							realStore.addModuleImport(event.filePath);
+							break;
+						}
+					}
+				}
+
+				return result;
 			}),
 		);
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
@@ -395,8 +436,7 @@ async function simpleLoader<TData extends { id: string }>(
 					),
 				});
 			}
-			const item = await context.parseData({ id: raw.id, data: raw });
-			context.store.set({ id: raw.id, data: item });
+			context.store.set({ id: raw.id, data: raw });
 		}
 		return;
 	}

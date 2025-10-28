@@ -64,15 +64,6 @@ export type Loader = {
 	  }
 	| {
 			/** Do the actual loading of the data */
-			load: (context: LoaderContext) => Promise<void>;
-			/**
-			 * Optionally, define the schema of the data. Will be overridden by user-defined schema
-			 * @deprecated Return schema from load() instead
-			 * */
-			schema?: Promise<ZodSchema> | (() => ZodSchema | Promise<ZodSchema>);
-	  }
-	| {
-			/** Do the actual loading of the data */
 			load: (context: LoaderContext) => Promise<{ schema?: ZodSchema; types?: string }>;
 			schema?: never;
 	  }
