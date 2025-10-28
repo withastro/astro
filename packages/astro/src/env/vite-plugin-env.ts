@@ -3,9 +3,13 @@ import type { Plugin } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
+	CLIENT_VIRTUAL_MODULE_ID,
+	INTERNAL_VIRTUAL_MODULE_ID,
 	MODULE_TEMPLATE_URL,
-	VIRTUAL_MODULES_IDS,
-	VIRTUAL_MODULES_IDS_VALUES,
+	RESOLVED_CLIENT_VIRTUAL_MODULE_ID,
+	RESOLVED_INTERNAL_VIRTUAL_MODULE_ID,
+	RESOLVED_SERVER_VIRTUAL_MODULE_ID,
+	SERVER_VIRTUAL_MODULE_ID,
 } from './constants.js';
 import type { EnvLoader } from './env-loader.js';
 import { type InvalidVariable, invalidVariablesToError } from './errors.js';
@@ -65,35 +69,37 @@ export function astroEnv({ settings, sync, envLoader }: AstroEnvPluginParams): P
 			templates = null;
 		},
 		resolveId(id) {
-			if (VIRTUAL_MODULES_IDS_VALUES.has(id)) {
-				return resolveVirtualModuleId(id);
+			if (id === CLIENT_VIRTUAL_MODULE_ID) {
+				return RESOLVED_CLIENT_VIRTUAL_MODULE_ID;
+			}
+			if (id === SERVER_VIRTUAL_MODULE_ID) {
+				return RESOLVED_SERVER_VIRTUAL_MODULE_ID;
+			}
+			if (id === INTERNAL_VIRTUAL_MODULE_ID) {
+				return RESOLVED_INTERNAL_VIRTUAL_MODULE_ID;
 			}
 		},
 		load(id, options) {
-			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.client)) {
+			if (id === RESOLVED_CLIENT_VIRTUAL_MODULE_ID) {
 				ensureTemplateAreLoaded();
 				return { code: templates!.client };
 			}
-			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.server)) {
+			if (id === RESOLVED_SERVER_VIRTUAL_MODULE_ID) {
 				if (options?.ssr) {
 					ensureTemplateAreLoaded();
 					return { code: templates!.server };
 				}
 				throw new AstroError({
 					...AstroErrorData.ServerOnlyModule,
-					message: AstroErrorData.ServerOnlyModule.message(VIRTUAL_MODULES_IDS.server),
+					message: AstroErrorData.ServerOnlyModule.message(SERVER_VIRTUAL_MODULE_ID),
 				});
 			}
-			if (id === resolveVirtualModuleId(VIRTUAL_MODULES_IDS.internal)) {
+			if (id === RESOLVED_INTERNAL_VIRTUAL_MODULE_ID) {
 				ensureTemplateAreLoaded();
 				return { code: templates!.internal };
 			}
 		},
 	};
-}
-
-function resolveVirtualModuleId<T extends string>(id: T): `\0${T}` {
-	return `\0${id}`;
 }
 
 function validatePublicVariables({

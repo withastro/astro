@@ -1,3 +1,7 @@
+import { shouldAppendTrailingSlash } from 'virtual:astro:actions/options';
+import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
+import type { APIContext } from '../../types/public/context.js';
+import type { ActionClient, SafeResult } from './server.js';
 import {
 	ACTION_QUERY_PARAMS,
 	ActionError,
@@ -5,12 +9,14 @@ import {
 	astroCalledServerError,
 	deserializeActionResult,
 	getActionQueryString,
-} from 'astro:actions';
+} from './shared.js';
+
+export * from 'virtual:astro:actions/runtime';
 
 const apiContextRoutesSymbol = Symbol.for('context.routes');
 const ENCODED_DOT = '%2E';
 
-function toActionProxy(actionCallback = {}, aggregatedPath = '') {
+function toActionProxy(actionCallback: Record<string | symbol, any> = {}, aggregatedPath = '') {
 	return new Proxy(actionCallback, {
 		get(target, objKey) {
 			if (target.hasOwnProperty(objKey) || typeof objKey === 'symbol') {
@@ -19,13 +25,13 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 			// Add the key, encoding dots so they're not interpreted as nested properties.
 			const path =
 				aggregatedPath + encodeURIComponent(objKey.toString()).replaceAll('.', ENCODED_DOT);
-			function action(param) {
+			function action(this: APIContext | undefined, param: any) {
 				return handleAction(param, path, this);
 			}
 
 			Object.assign(action, {
 				queryString: getActionQueryString(path),
-				toString: () => action.queryString,
+				toString: () => (action as any).queryString,
 				// redefine prototype methods as the object's own property, not the prototype's
 				bind: action.bind,
 				valueOf: () => action.valueOf,
@@ -44,7 +50,7 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 				// Note: `orThrow` does not have progressive enhancement info.
 				// If you want to throw exceptions,
 				//  you must handle those exceptions with client JS.
-				async orThrow(param) {
+				async orThrow(this: APIContext | undefined, param: any) {
 					const { data, error } = await handleAction(param, path, this);
 					if (error) throw error;
 					return data;
@@ -58,25 +64,23 @@ function toActionProxy(actionCallback = {}, aggregatedPath = '') {
 	});
 }
 
-const SHOULD_APPEND_TRAILING_SLASH = '/** @TRAILING_SLASH@ **/';
-
-/** @param {import('astro:actions').ActionClient<any, any, any>} */
-export function getActionPath(action) {
-	let path = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/_actions/${new URLSearchParams(action.toString()).get(ACTION_QUERY_PARAMS.actionName)}`;
-	if (SHOULD_APPEND_TRAILING_SLASH) {
+function _getActionPath(toString: () => string) {
+	let path = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/_actions/${new URLSearchParams(toString()).get(ACTION_QUERY_PARAMS.actionName)}`;
+	if (shouldAppendTrailingSlash) {
 		path = appendForwardSlash(path);
 	}
 	return path;
 }
 
-/**
- * @param {*} param argument passed to the action when called server or client-side.
- * @param {string} path Built path to call action by path name.
- * @param {import('../dist/types/public/context.js').APIContext | undefined} context Injected API context when calling actions from the server.
- * Usage: `actions.[name](param)`.
- * @returns {Promise<import('../dist/actions/runtime/virtual/shared.js').SafeResult<any, any>>}
- */
-async function handleAction(param, path, context) {
+export function getActionPath(action: ActionClient<any, any, any>) {
+	return _getActionPath(action.toString);
+}
+
+async function handleAction(
+	param: any,
+	path: string,
+	context: APIContext | undefined,
+): Promise<SafeResult<any, any>> {
 	// When running server-side, import the action and call it.
 	if (import.meta.env.SSR && context) {
 		const pipeline = Reflect.get(context, apiContextRoutesSymbol);
@@ -91,6 +95,10 @@ async function handleAction(param, path, context) {
 	// When running client-side, make a fetch request to the action path.
 	const headers = new Headers();
 	headers.set('Accept', 'application/json');
+	// Apply adapter-specific headers for internal fetches
+	for (const [key, value] of Object.entries(internalFetchHeaders)) {
+		headers.set(key, value);
+	}
 	let body = param;
 	if (!(body instanceof FormData)) {
 		try {
@@ -98,7 +106,7 @@ async function handleAction(param, path, context) {
 		} catch (e) {
 			throw new ActionError({
 				code: 'BAD_REQUEST',
-				message: `Failed to serialize request body to JSON. Full error: ${e.message}`,
+				message: `Failed to serialize request body to JSON. Full error: ${(e as Error).message}`,
 			});
 		}
 		if (body) {
@@ -108,11 +116,7 @@ async function handleAction(param, path, context) {
 		}
 	}
 	const rawResult = await fetch(
-		getActionPath({
-			toString() {
-				return getActionQueryString(path);
-			},
-		}),
+		_getActionPath(() => getActionQueryString(path)),
 		{
 			method: 'POST',
 			body,
@@ -124,9 +128,22 @@ async function handleAction(param, path, context) {
 		return deserializeActionResult({ type: 'empty', status: 204 });
 	}
 
+	const bodyText = await rawResult.text();
+
+	if (rawResult.ok) {
+		return deserializeActionResult({
+			type: 'data',
+			body: bodyText,
+			status: 200,
+			contentType: 'application/json+devalue',
+		});
+	}
+
 	return deserializeActionResult({
-		type: rawResult.ok ? 'data' : 'error',
-		body: await rawResult.text(),
+		type: 'error',
+		body: bodyText,
+		status: rawResult.status,
+		contentType: 'application/json',
 	});
 }
 

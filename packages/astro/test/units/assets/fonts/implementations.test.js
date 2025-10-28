@@ -97,7 +97,13 @@ describe('fonts implementations', () => {
 		dataCollector.collect({
 			hash: 'yyy',
 			url: 'def',
-			preload: { type: 'woff2', url: 'def' },
+			preload: {
+				type: 'woff2',
+				url: 'def',
+				weight: undefined,
+				style: 'normal',
+				subset: undefined,
+			},
 			data: {
 				weight: undefined,
 				style: undefined,
@@ -124,7 +130,15 @@ describe('fonts implementations', () => {
 				['yyy', { url: 'def', init: null }],
 			],
 		);
-		assert.deepStrictEqual(preloadData, [{ type: 'woff2', url: 'def' }]);
+		assert.deepStrictEqual(preloadData, [
+			{
+				type: 'woff2',
+				url: 'def',
+				weight: undefined,
+				style: 'normal',
+				subset: undefined,
+			},
+		]);
 		assert.deepStrictEqual(collectedFonts, [
 			{
 				hash: 'xxx',
