@@ -32,7 +32,7 @@ const products = defineLiveCollection({
 export const collections = { products };
 ```
 
-You can then use the `getLiveCollection()` and `getLiveEntry()` functions to access your live data:
+You can then use the `getLiveCollection()` and `getLiveEntry()` functions to access your live data, along with error handling (since anything can happen when requesting live data!):
 
 ```astro
 ---
@@ -43,13 +43,16 @@ if (error) {
   // Handle error appropriately
   console.error(error.message);
 }
+
 // Get products with a filter (if supported by your loader)
 const { entries: electronics } = await getLiveCollection('products', { category: 'electronics' });
+
 // Get a single product by ID (string syntax)
 const { entry: product, error: productError } = await getLiveEntry('products', Astro.params.id);
 if (productError) {
   return Astro.redirect('/404');
 }
+
 // Get a single product with a custom query (if supported by your loader) using a filter object
 const { entry: productBySlug } = await getLiveEntry('products', { slug: Astro.params.slug });
 const { Content } = await render(product);
