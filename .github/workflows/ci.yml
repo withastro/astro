@@ -161,6 +161,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
+        # VS Code 1.90 (minimum supported version) ships with Node 20.9.0
         node_version: [20.9.0, 22]
         include:
           - os: windows-latest
@@ -191,6 +192,7 @@ jobs:
 
       - name: Test (Linux)
         if: runner.os == 'Linux'
+        # On Linux, VS Code tests require a GUI environment, so we need to run tests using Xvfb
         run: |
           pnpm run test:language-tools:no-vs
           cd packages/language-tools/vscode
@@ -200,8 +202,8 @@ jobs:
           # xvfb-run -a pnpm test
 
       - name: Test
-        run: pnpm test:language-tools
         if: runner.os != 'Linux'
+        run: pnpm test:language-tools
 
   e2e:
     name: "Test (E2E): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"
