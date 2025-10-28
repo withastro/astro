@@ -42,7 +42,6 @@ export async function getProps(opts: GetParamsAndPropsOptions): Promise<Props> {
 		mod,
 		route,
 		routeCache,
-		logger,
 		ssr: serverLike,
 		base,
 	});

@@ -34,7 +34,9 @@ export async function GET() {
 	const nestedJsonLoader = await getCollection('birds');
 	
 	const csvLoader = await getCollection('plants');
-	
+
+	const rockets = await getCollection('rockets');
+
 	const numbers = await getCollection('numbers');
 
 	const numbersYaml = await getCollection('numbersYaml');
@@ -55,7 +57,8 @@ export async function GET() {
 			numbers,
 			numbersYaml,
 			numbersToml,
-			images, 
+			images,
+			rockets,
 			probes,
 			yamlLoader,
 			tomlLoader,

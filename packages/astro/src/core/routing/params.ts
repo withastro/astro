@@ -1,4 +1,4 @@
-import type { GetStaticPathsItem, Params } from '../../types/public/common.js';
+import type { GetStaticPathsItem } from '../../types/public/common.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { trimSlashes } from '../path.js';
 import { validateGetStaticPathsParameter } from './validation.js';
@@ -10,14 +10,12 @@ import { validateGetStaticPathsParameter } from './validation.js';
  */
 export function stringifyParams(params: GetStaticPathsItem['params'], route: RouteData) {
 	// validate parameter values then stringify each value
-	const validatedParams = Object.entries(params).reduce((acc, next) => {
-		validateGetStaticPathsParameter(next, route.component);
-		const [key, value] = next;
+	const validatedParams: Record<string, string> = {};
+	for (const [key, value] of Object.entries(params)) {
+		validateGetStaticPathsParameter([key, value], route.component);
 		if (value !== undefined) {
-			acc[key] = typeof value === 'string' ? trimSlashes(value) : value.toString();
+			validatedParams[key] = trimSlashes(value);
 		}
-		return acc;
-	}, {} as Params);
-
+	}
 	return route.generate(validatedParams);
 }
