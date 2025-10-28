@@ -7,7 +7,7 @@ settings:
 overrides:
   undici: ^6.21.3
   wrangler: 4.14.1
-  unstorage: 2.0.0-alpha.3
+  unstorage: 2.0.0-alpha.4
 
 importers:
 
@@ -628,8 +628,8 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0
       unstorage:
-        specifier: 2.0.0-alpha.3
-        version: 2.0.0-alpha.3(@netlify/blobs@10.0.11)(@vercel/functions@2.2.13)(chokidar@4.0.3)(ofetch@1.4.1)
+        specifier: 2.0.0-alpha.4
+        version: 2.0.0-alpha.4(@netlify/blobs@10.0.11)(@vercel/functions@2.2.13)(chokidar@4.0.3)(ofetch@1.4.1)
       vfile:
         specifier: ^6.0.3
         version: 6.0.3
@@ -13656,8 +13656,8 @@ packages:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
     engines: {node: '>= 0.8'}
 
-  unstorage@2.0.0-alpha.3:
-    resolution: {integrity: sha512-BeoqISVh8jxqnPseHH7/92twe2VkQztrudXg8RFZVbXb4ckkFdpLk1LnNvsUndDltyodBMVxgI6V7JcbJYt2VQ==}
+  unstorage@2.0.0-alpha.4:
+    resolution: {integrity: sha512-ywXZMZRfrvmO1giJeMTCw6VUn0ALYxVl8pFqJPStiyQUvgJImejtAHrKvXPj4QGJAoS/iLGcVGF6ljN/lkh1bw==}
     peerDependencies:
       '@azure/app-configuration': ^1.8.0
       '@azure/cosmos': ^4.2.0
@@ -13680,7 +13680,7 @@ packages:
       ioredis: ^5.4.2
       lru-cache: ^11.2.2
       mongodb: ^6.20.0
-      ofetch: ^1.4.1
+      ofetch: '*'
       uploadthing: ^7.4.4
     peerDependenciesMeta:
       '@azure/app-configuration':
@@ -19202,7 +19202,7 @@ snapshots:
       sharp: 0.34.3
       svgo: 4.0.0
       ufo: 1.6.1
-      unstorage: 2.0.0-alpha.3(@netlify/blobs@10.0.11)(@vercel/functions@2.2.13)(chokidar@4.0.3)(ofetch@1.4.1)
+      unstorage: 2.0.0-alpha.4(@netlify/blobs@10.0.11)(@vercel/functions@2.2.13)(chokidar@4.0.3)(ofetch@1.4.1)
       xss: 1.0.15
     transitivePeerDependencies:
       - '@azure/app-configuration'
@@ -22183,7 +22183,7 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unstorage@2.0.0-alpha.3(@netlify/blobs@10.0.11)(@vercel/functions@2.2.13)(chokidar@4.0.3)(ofetch@1.4.1):
+  unstorage@2.0.0-alpha.4(@netlify/blobs@10.0.11)(@vercel/functions@2.2.13)(chokidar@4.0.3)(ofetch@1.4.1):
     optionalDependencies:
       '@netlify/blobs': 10.0.11
       '@vercel/functions': 2.2.13
