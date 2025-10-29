@@ -12,11 +12,12 @@ export function createTinyexecCommandExecutor(): CommandExecutor {
 					cwd: options?.cwd,
 					env: options?.env,
 					shell: options?.shell,
+					stdio: options?.stdio,
 				},
 			});
 			proc.spawn();
 			if (options?.input) {
-				proc.process?.stdin?.write(options?.input, 'utf-8');
+				proc.process?.stdin?.end(options.input);
 			}
 			return await proc.then(
 				(o) => o,

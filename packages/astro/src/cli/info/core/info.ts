@@ -25,6 +25,7 @@ export const infoCommand = defineCommand({
 		const debugInfo = await debugInfoProvider.get();
 		const output = debugInfoFormatter.format(debugInfo);
 		logger.info('SKIP_FORMAT', output);
+		// TODO: need other debug formatter
 		await clipboard.copy(output);
 	},
 });

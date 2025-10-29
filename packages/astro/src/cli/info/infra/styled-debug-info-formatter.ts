@@ -14,7 +14,7 @@ export function createStyledDebugInfoFormatter({ textStyler }: Options): DebugIn
 			for (const [label, value] of info) {
 				const padding = MAX_PADDING - label.length;
 				const [first, ...rest] = Array.isArray(value) ? value : [value];
-				let richtext = `${textStyler.bold(label)}${' '.repeat(padding)}${textStyler.green(first)}`;
+				let richtext = `\n${textStyler.bold(label)}${' '.repeat(padding)}${textStyler.green(first)}`;
 				if (rest.length > 0) {
 					for (const entry of rest) {
 						richtext += `\n${' '.repeat(MAX_PADDING)}${textStyler.green(entry)}`;

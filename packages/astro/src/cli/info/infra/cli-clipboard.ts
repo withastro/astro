@@ -24,7 +24,7 @@ async function getExecInputForPlatform({
 	}
 	// Unix: check if a supported command is installed
 	const unixCommands: Array<[string, Array<string>]> = [
-		['xclip', ['-selection', 'clipboard', '-l', '1']],
+		['xclip', ['-selection', 'clipboard']],
 		['wl-copy', []],
 	];
 	for (const [unixCommand, unixArgs] of unixCommands) {
@@ -70,6 +70,7 @@ export function createCliClipboard({
 				const [command, args] = input;
 				await commandExecutor.execute(command, args, {
 					input: text,
+					stdio: ['pipe', 'ignore', 'ignore'],
 				});
 				logger.info('SKIP_FORMAT', 'Copied to clipboard!');
 			} catch {

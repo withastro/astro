@@ -1,3 +1,4 @@
+import type { StdioOptions } from 'node:child_process';
 import type { Platform } from './domains/platform.js';
 
 export interface PlatformProvider {
@@ -13,6 +14,7 @@ export interface CommandExecutor {
 			env?: Record<string, string | undefined>;
 			shell?: boolean;
 			input?: string;
+			stdio?: StdioOptions;
 		},
 	) => Promise<{ stdout: string }>;
 }
