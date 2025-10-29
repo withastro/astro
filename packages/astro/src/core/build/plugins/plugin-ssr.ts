@@ -9,6 +9,7 @@ import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
+import { SERIALIZED_MANIFEST_ID } from '../../../manifest/serialized.js'; 
 import { getVirtualModulePageName } from './util.js';
 
 const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
@@ -170,7 +171,7 @@ function generateSSRCode(adapter: AstroAdapter) {
 	const imports = [
 		`import { renderers } from '${ASTRO_RENDERERS_MODULE_ID}';`,
 		`import * as serverEntrypointModule from '${ADAPTER_VIRTUAL_MODULE_ID}';`,
-		`import { manifest as defaultManifest } from 'virtual:astro:serialized-manifest';`,
+		`import { manifest as defaultManifest } from '${SERIALIZED_MANIFEST_ID}';`,
 		`import { serverIslandMap } from '${VIRTUAL_ISLAND_MAP_ID}';`,
 	];
 
