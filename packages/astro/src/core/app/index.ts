@@ -7,6 +7,7 @@ import { matchPattern, type RemotePattern } from '../../assets/utils/remotePatte
 import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { MiddlewareHandler } from '../../types/public/common.js';
+import type { APIContext } from '../../types/public/context.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import {
 	clientAddressSymbol,
@@ -186,37 +187,8 @@ export class App {
 		middleware: MiddlewareHandler,
 		locals?: object,
 	): Promise<{ handled: boolean; response: Response | null }> {
-		// Extract params from routeData if available
-		const params =
-			routeData && typeof routeData.params === 'object' && !Array.isArray(routeData.params)
-				? routeData.params
-				: {};
-
-		// Get user-defined locales from manifest
-		const userDefinedLocales = this.#getUserDefinedLocales();
-		const defaultLocale = this.#manifest.i18n?.defaultLocale || '';
-
-		// Create middleware context using the standard createContext function
-		const ctx = createContext({
-			request,
-			params,
-			locals: locals ?? {},
-			defaultLocale,
-			userDefinedLocales,
-		});
-
-		// Set additional context properties
-		if (this.#manifest.site) {
-			ctx.site = new URL(this.#manifest.site);
-		}
-
-		if (routeData) {
-			ctx.routePattern = routeData.route;
-			// Mark as prerendered if this is a static route
-			if (routeData.prerender) {
-				ctx.isPrerendered = true;
-			}
-		}
+		// Create the API context with full capabilities
+		const ctx = this.#createAPIContext(request, routeData, locals);
 
 		// Track whether next() was called
 		let nextCalled = false;
@@ -252,6 +224,54 @@ export class App {
 		}
 
 		return { handled: false, response: null };
+	}
+
+	/**
+	 * Creates a full-featured APIContext for middleware execution.
+	 * This provides the same context capabilities as SSR routes, including rewrites, sessions, CSP, etc.
+	 * @private
+	 */
+	#createAPIContext(
+		request: Request,
+		routeData: RouteData | undefined,
+		locals?: object,
+	): APIContext {
+		// Extract params from routeData if available
+		const params =
+			routeData && typeof routeData.params === 'object' && !Array.isArray(routeData.params)
+				? routeData.params
+				: {};
+
+		// Get user-defined locales from manifest
+		const userDefinedLocales = this.#getUserDefinedLocales();
+		const defaultLocale = this.#manifest.i18n?.defaultLocale || '';
+
+		// Create base context using the standard createContext function
+		const baseCtx = createContext({
+			request,
+			params,
+			locals: locals ?? {},
+			defaultLocale,
+			userDefinedLocales,
+		});
+
+		// Enhance with additional properties (site, routePattern, isPrerendered)
+		if (this.#manifest.site) {
+			baseCtx.site = new URL(this.#manifest.site);
+		}
+
+		if (routeData) {
+			baseCtx.routePattern = routeData.route;
+			// Mark as prerendered if this is a static route
+			if (routeData.prerender) {
+				baseCtx.isPrerendered = true;
+			}
+		}
+
+		// Return the enhanced context
+		// Note: For static routes, rewrite() will return a dummy response since we can't actually rewrite
+		// Session access will be undefined for prerendered routes (same as RenderContext behavior)
+		return baseCtx;
 	}
 
 	/**
