@@ -1,9 +1,5 @@
 import type { StdioOptions } from 'node:child_process';
-import type { Platform } from './domains/platform.js';
-
-export interface PlatformProvider {
-	get: () => Platform;
-}
+import type { CloudIde } from './domain/cloud-ide.js';
 
 export interface CommandExecutor {
 	execute: (
@@ -17,4 +13,8 @@ export interface CommandExecutor {
 			stdio?: StdioOptions;
 		},
 	) => Promise<{ stdout: string }>;
+}
+
+export interface CloudIdeProvider {
+	getName: () => CloudIde | null;
 }
