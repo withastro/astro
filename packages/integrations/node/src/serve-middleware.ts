@@ -28,6 +28,13 @@ export async function executeMiddlewareForStatic(
 /**
  * Check if a URL path is for a prerendered HTML page (not an asset).
  * Middleware should only run for HTML pages, not static assets.
+ * 
+ * Static assets are identified by:
+ * - Paths starting with `/_astro/` (Astro's built assets directory)
+ * - Files with common asset extensions: css, js, json, xml, txt, ico, png, jpg, jpeg, 
+ *   gif, svg, woff, woff2, ttf, eot, webp, avif, map
+ * 
+ * All other paths are considered HTML pages and will have middleware executed.
  */
 export function isPrerenderedHTMLPage(urlPath: string): boolean {
 	// Skip middleware for asset files

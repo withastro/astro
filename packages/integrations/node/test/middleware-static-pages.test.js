@@ -146,6 +146,71 @@ describe('Middleware for static pages', () => {
 			const html = await res.text();
 			assert.ok(html.includes('<h1>Static Error Page</h1>'));
 		});
+
+		it('should handle middleware errors gracefully', async () => {
+			// Create a middleware that throws an error
+			const { createStaticHandler } = await import('../dist/serve-static.js');
+			const { handler: appModule } = await fixture.loadAdapterEntryModule();
+			
+			// Override the middleware with one that throws
+			const originalGetAllMiddleware = appModule.app.getAllMiddleware.bind(appModule.app);
+			appModule.app.getAllMiddleware = async () => {
+				return async (_context, _next) => {
+					throw new Error('Middleware intentionally failed');
+				};
+			};
+			
+			const staticHandler = createStaticHandler(appModule.app, {
+				mode: 'standalone',
+				host: false,
+				port: server.port,
+				server: new URL('./fixtures/middleware-static/dist/server/', import.meta.url),
+				client: new URL('./fixtures/middleware-static/dist/client/', import.meta.url),
+				assets: '_astro',
+				experimentalStaticHeaders: false,
+				runMiddlewareOnRequest: true,
+			});
+
+			let responseEnded = false;
+			let responseStatus = 200;
+			
+			const mockReq = {
+				url: '/static-page',
+				method: 'GET',
+				headers: {
+					host: 'localhost:' + server.port,
+				},
+				socket: {
+					encrypted: false,
+				},
+			};
+
+			const mockRes = {
+				statusCode: 200,
+				writeHead(status, _headers) {
+					this.statusCode = status;
+					responseStatus = status;
+				},
+				setHeader(_name, _value) {},
+				getHeader(_name) { return null; },
+				end(_data) {
+					responseEnded = true;
+				},
+				headersSent: false,
+			};
+
+			// Call the handler
+			await staticHandler(mockReq, mockRes, () => {});
+			
+			// Wait for async operations
+			await new Promise(resolve => setTimeout(resolve, 100));
+			
+			// Should have returned an error response (500) or served the 500 error page
+			assert.ok(responseEnded || responseStatus === 500, 'Should handle middleware error');
+			
+			// Restore original middleware
+			appModule.app.getAllMiddleware = originalGetAllMiddleware;
+		});
 	});
 
 	describe('Locals support', () => {

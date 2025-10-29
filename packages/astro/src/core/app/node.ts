@@ -148,6 +148,11 @@ export class NodeApp extends App {
 	 *
 	 * This is used by the static handler to run middleware on prerendered routes
 	 * before serving the static file.
+	 * 
+	 * **Security Note:** The middleware context is marked as `isPrerendered: true`,
+	 * which causes the origin checking middleware to skip CSRF validation. This is
+	 * intentional to allow static file serving, but you should implement your own
+	 * security checks in custom middleware if needed for prerendered pages.
 	 */
 	async executeMiddlewareOnly(
 		request: Request,

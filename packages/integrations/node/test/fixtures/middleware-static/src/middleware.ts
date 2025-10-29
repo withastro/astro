@@ -1,5 +1,12 @@
 import { defineMiddleware } from 'astro:middleware';
 
+/**
+ * Test middleware for static pages with runMiddlewareOnRequest enabled.
+ * 
+ * Note: This middleware has access to runtime request data (cookies, headers, etc.),
+ * but the prerendered page components do NOT. Pages are built at build time and
+ * cannot access runtime request context like Astro.cookies or context.locals.
+ */
 export const onRequest = defineMiddleware(async (context, next) => {
 	const url = new URL(context.request.url);
 	
