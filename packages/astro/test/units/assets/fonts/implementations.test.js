@@ -405,32 +405,46 @@ describe('fonts implementations', () => {
 		}
 	});
 
-	it('createDevUrlResolver()', () => {
-		const resolver = createDevUrlResolver({ base: 'base/_astro/fonts', searchParams: new URLSearchParams() });
-		assert.deepStrictEqual(resolver.getCspResources(), []);
-		assert.equal(resolver.resolve('xxx.woff2'), '/base/_astro/fonts/xxx.woff2');
-		assert.deepStrictEqual(resolver.getCspResources(), ["'self'"]);
-	});
+	describe('createDevUrlResolver()', () => {
+		it('works', () => {
+			const resolver = createDevUrlResolver({
+				base: 'base/_astro/fonts',
+				searchParams: new URLSearchParams(),
+			});
+			assert.deepStrictEqual(resolver.getCspResources(), []);
+			assert.equal(resolver.resolve('xxx.woff2'), '/base/_astro/fonts/xxx.woff2');
+			assert.deepStrictEqual(resolver.getCspResources(), ["'self'"]);
+		});
 
-	it('createDevUrlResolver() with searchParams', () => {
-		const searchParams = new URLSearchParams([['v', '1.0']]);
-		const resolver = createDevUrlResolver({ base: 'base/_astro/fonts', searchParams });
-		assert.equal(resolver.resolve('xxx.woff2'), '/base/_astro/fonts/xxx.woff2?v=1.0');
+		it('works with searchParams', () => {
+			const resolver = createDevUrlResolver({
+				base: 'base/_astro/fonts',
+				searchParams: new URLSearchParams([['v', '1.0']]),
+			});
+			assert.equal(resolver.resolve('xxx.woff2'), '/base/_astro/fonts/xxx.woff2?v=1.0');
+		});
 	});
 
 	describe('createBuildUrlResolver()', () => {
 		const base = 'foo/_custom/fonts';
-		const emptySearchParams = new URLSearchParams();
 
 		it('works with no assetsPrefix', () => {
-			const resolver = createBuildUrlResolver({ base, assetsPrefix: undefined, searchParams: emptySearchParams });
+			const resolver = createBuildUrlResolver({
+				base,
+				assetsPrefix: undefined,
+				searchParams: new URLSearchParams(),
+			});
 			assert.deepStrictEqual(resolver.getCspResources(), []);
 			assert.equal(resolver.resolve('abc.ttf'), '/foo/_custom/fonts/abc.ttf');
 			assert.deepStrictEqual(resolver.getCspResources(), ["'self'"]);
 		});
 
 		it('works with assetsPrefix as string', () => {
-			const resolver = createBuildUrlResolver({ base, assetsPrefix: 'https://cdn.example.com', searchParams: emptySearchParams });
+			const resolver = createBuildUrlResolver({
+				base,
+				assetsPrefix: 'https://cdn.example.com',
+				searchParams: new URLSearchParams(),
+			});
 			assert.deepStrictEqual(resolver.getCspResources(), []);
 			assert.equal(
 				resolver.resolve('foo.woff'),
@@ -446,7 +460,7 @@ describe('fonts implementations', () => {
 					woff2: 'https://fonts.cdn.example.com',
 					fallback: 'https://cdn.example.com',
 				},
-				searchParams: emptySearchParams,
+				searchParams: new URLSearchParams(),
 			});
 			assert.deepStrictEqual(resolver.getCspResources(), []);
 			assert.equal(
@@ -464,11 +478,10 @@ describe('fonts implementations', () => {
 		});
 
 		it('works with searchParams', () => {
-			const searchParams = new URLSearchParams([['v', '2.0']]);
 			const resolver = createBuildUrlResolver({
 				base,
 				assetsPrefix: undefined,
-				searchParams,
+				searchParams: new URLSearchParams([['v', '2.0']]),
 			});
 			assert.equal(resolver.resolve('test.woff2'), '/foo/_custom/fonts/test.woff2?v=2.0');
 		});
