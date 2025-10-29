@@ -3,13 +3,9 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import path from 'node:path';
 import url from 'node:url';
 import { hasFileExtension, isInternalPath } from '@astrojs/internal-helpers/path';
-import type { MiddlewareHandler } from 'astro';
 import { NodeApp } from 'astro/app/node';
 import send from 'send';
-import {
-	executeMiddlewareForStatic,
-	shouldRunMiddleware,
-} from './serve-middleware.js';
+import { shouldRunMiddleware } from './serve-middleware.js';
 import {
 	createRequestSafely,
 	handleRequestCreationError,
@@ -27,10 +23,6 @@ import type { Options } from './types.js';
  */
 export function createStaticHandler(app: NodeApp, options: Options) {
 	const client = resolveClientDir(options);
-
-	// Cache middleware after first load for performance
-	// Only initialized when runMiddlewareOnRequest is true
-	let cachedMiddleware: MiddlewareHandler | null = null;
 
 	/**
 	 * @param ssr The SSR handler to be called if the static handler does not find a matching file.
@@ -61,17 +53,14 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 		// 3. Check if middleware should run for this request
 		if (shouldRunMiddleware(urlPath, routeData, options.runMiddlewareOnRequest ?? false)) {
 			try {
-				// Lazy load and cache middleware on first request
-				if (!cachedMiddleware) {
-					cachedMiddleware = await app.getAllMiddleware();
-				}
+				// Get middleware (already cached by the pipeline)
+				const middleware = await app.getAllMiddleware();
 
-				// Execute middleware
-				const result = await executeMiddlewareForStatic(
+				// Execute middleware using the core method
+				const result = await app.executeMiddleware(
 					request,
 					routeData,
-					cachedMiddleware,
-					app,
+					middleware,
 					locals,
 				);
 

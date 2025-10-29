@@ -19,6 +19,7 @@ import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
+import { createContext } from '../middleware/index.js';
 import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
 import { sequence } from '../middleware/sequence.js';
 import {
@@ -160,6 +161,131 @@ export class App {
 	async getAllMiddleware(): Promise<MiddlewareHandler> {
 		const pipelineMiddleware = await this.#pipeline.getMiddleware();
 		return sequence(...this.#pipeline.internalMiddleware, pipelineMiddleware);
+	}
+
+	/**
+	 * Execute middleware for a request without performing a full render.
+	 * This is the centralized middleware execution logic used by both SSR and static routes.
+	 *
+	 * @param request - The incoming request
+	 * @param routeData - Optional route data for the matched route
+	 * @param middleware - The middleware chain to execute
+	 * @param locals - Optional locals object to pass to middleware
+	 * @returns Object with:
+	 *   - handled: true if middleware handled the response (didn't call next())
+	 *   - response: The response from middleware, or null if next() was called without returning
+	 *
+	 * **Security Note:** For prerendered routes, the context is marked as `isPrerendered: true`,
+	 * which causes the origin checking middleware to skip CSRF validation. This is intentional
+	 * to allow static file serving, but you should implement your own security checks in custom
+	 * middleware if needed for prerendered pages.
+	 */
+	async executeMiddleware(
+		request: Request,
+		routeData: RouteData | undefined,
+		middleware: MiddlewareHandler,
+		locals?: object,
+	): Promise<{ handled: boolean; response: Response | null }> {
+		// Extract params from routeData if available
+		const params =
+			routeData && typeof routeData.params === 'object' && !Array.isArray(routeData.params)
+				? routeData.params
+				: {};
+
+		// Get user-defined locales from manifest
+		const userDefinedLocales = this.#getUserDefinedLocales();
+		const defaultLocale = this.#manifest.i18n?.defaultLocale || '';
+
+		// Create middleware context using the standard createContext function
+		const ctx = createContext({
+			request,
+			params,
+			locals: locals ?? {},
+			defaultLocale,
+			userDefinedLocales,
+		});
+
+		// Set additional context properties
+		if (this.#manifest.site) {
+			ctx.site = new URL(this.#manifest.site);
+		}
+
+		if (routeData) {
+			ctx.routePattern = routeData.route;
+			// Mark as prerendered if this is a static route
+			if (routeData.prerender) {
+				ctx.isPrerendered = true;
+			}
+		}
+
+		// Track whether next() was called
+		let nextCalled = false;
+
+		// Create a next function - if called, we'll continue with normal flow
+		const middlewareNext = async (): Promise<Response> => {
+			nextCalled = true;
+			// Return a dummy response - the caller will handle continuing
+			return new Response(null);
+		};
+
+		// Execute middleware
+		const response = await middleware(ctx, middlewareNext);
+
+		// If middleware returned a response and didn't call next(), it handled the request
+		if (response && !nextCalled) {
+			// Append cookies from context to response headers
+			for (const setCookieHeaderValue of ctx.cookies.headers()) {
+				response.headers.append('set-cookie', setCookieHeaderValue);
+			}
+
+			return { handled: true, response };
+		}
+
+		// Middleware called next() - continue with normal flow
+		// But return the response so headers can be copied if needed
+		if (response) {
+			// Append cookies from context to response headers
+			for (const setCookieHeaderValue of ctx.cookies.headers()) {
+				response.headers.append('set-cookie', setCookieHeaderValue);
+			}
+			return { handled: false, response };
+		}
+
+		return { handled: false, response: null };
+	}
+
+	/**
+	 * Get user-defined locales from the manifest in a typed, safe way.
+	 * Handles various manifest structures for i18n locales.
+	 */
+	#getUserDefinedLocales(): string[] {
+		if (!this.#manifest.i18n?.locales) {
+			return [];
+		}
+
+		const locales = this.#manifest.i18n.locales;
+
+		// Handle array of strings or locale objects
+		if (Array.isArray(locales)) {
+			return locales.filter((l): l is string => typeof l === 'string');
+		}
+
+		// Handle single string
+		if (typeof locales === 'string') {
+			return [locales];
+		}
+
+		// Handle object with codes property
+		if (
+			typeof locales === 'object' &&
+			locales !== null &&
+			'codes' in locales &&
+			Array.isArray((locales as any).codes)
+		) {
+			return (locales as any).codes;
+		}
+
+		return [];
 	}
 
 	protected get manifest(): SSRManifest {
