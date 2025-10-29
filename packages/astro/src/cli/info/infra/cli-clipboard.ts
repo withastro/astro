@@ -1,6 +1,6 @@
 import type { Logger } from '../../../core/logger/core.js';
-import type { CommandExecutor } from '../../docs/definitions.js';
-import type { Clipboard, OperatingSystemProvider, Prompt } from '../definitions.js';
+import type { CommandExecutor, OperatingSystemProvider } from '../../definitions.js';
+import type { Clipboard, Prompt } from '../definitions.js';
 
 interface Options {
 	operatingSystemProvider: OperatingSystemProvider;

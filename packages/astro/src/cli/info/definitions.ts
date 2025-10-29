@@ -18,11 +18,6 @@ export interface PackageManager {
 	getPackageVersion: (name: string) => Promise<string | undefined>;
 }
 
-export interface OperatingSystemProvider {
-	getName: () => NodeJS.Platform;
-	getDisplayName: () => string;
-}
-
 export interface AstroConfigResolver {
 	resolve: () => Promise<AstroConfig>;
 }

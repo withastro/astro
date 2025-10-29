@@ -1,6 +1,6 @@
 import type { AstroConfig } from '../../../types/public/index.js';
-import type { AstroVersionProvider } from '../../definitions.js';
-import type { DebugInfoProvider, OperatingSystemProvider, PackageManager } from '../definitions.js';
+import type { AstroVersionProvider, OperatingSystemProvider } from '../../definitions.js';
+import type { DebugInfoProvider, PackageManager } from '../definitions.js';
 import type { DebugInfo } from '../domain/debug-info.js';
 
 interface Options {

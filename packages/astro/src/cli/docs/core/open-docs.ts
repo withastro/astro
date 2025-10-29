@@ -1,19 +1,17 @@
 import type { Logger } from '../../../core/logger/core.js';
+import type { CommandExecutor, OperatingSystemProvider } from '../../definitions.js';
 import { defineCommand } from '../../domain/command.js';
-import type { OperatingSystemProvider } from '../../info/definitions.js';
-import type { CloudIdeProvider, CommandExecutor } from '../definitions.js';
+import type { CloudIdeProvider } from '../definitions.js';
 
 interface Options {
 	url: string;
 	operatingSystemProvider: OperatingSystemProvider;
 	logger: Logger;
 	commandExecutor: CommandExecutor;
-	cloudIdeProvider: CloudIdeProvider
+	cloudIdeProvider: CloudIdeProvider;
 }
 
-function getExecInputForPlatform(
-	platform: string,
-): [command: string, args?: Array<string>] | null {
+function getExecInputForPlatform(platform: string): [command: string, args?: Array<string>] | null {
 	switch (platform) {
 		case 'android':
 		case 'linux':

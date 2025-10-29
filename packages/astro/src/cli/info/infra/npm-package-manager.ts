@@ -1,4 +1,4 @@
-import type { CommandExecutor } from '../../docs/definitions.js';
+import type { CommandExecutor } from '../../definitions.js';
 import type { PackageManager } from '../definitions.js';
 
 interface BareNpmLikeVersionOutput {

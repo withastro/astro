@@ -6,7 +6,6 @@ const PLATFORM_TO_OS: Partial<Record<NodeJS.Platform, string>> = {
 	linux: 'Linux',
 };
 
-// TODO: move to shared infra
 export function createProcessOperatingSystemProvider(): OperatingSystemProvider {
 	const platform = process.platform;
 	return {

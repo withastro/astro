@@ -106,10 +106,10 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				{ createPassthroughTextStyler },
 				{ infoCommand },
 			] = await Promise.all([
-				import('./info/infra/process-operating-system-provider.js'),
+				import('./infra/process-operating-system-provider.js'),
 				import('./info/infra/cli-astro-config-resolver.js'),
 				import('./info/infra/cli-debug-info-provider.js'),
-				import('./docs/infra/tinyexec-command-executor.js'),
+				import('./infra/tinyexec-command-executor.js'),
 				import('./info/core/get-package-manager.js'),
 				import('./info/infra/styled-debug-info-formatter.js'),
 				import('./info/infra/prompts-prompt.js'),
@@ -163,8 +163,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				{ createProcessCloudIdeProvider },
 				{ openDocsCommand },
 			] = await Promise.all([
-				import('./docs/infra/tinyexec-command-executor.js'),
-				import('./info/infra/process-operating-system-provider.js'),
+				import('./infra/tinyexec-command-executor.js'),
+				import('./infra/process-operating-system-provider.js'),
 				import('./docs/infra/process-cloud-ide-provider.js'),
 				import('./docs/core/open-docs.js'),
 			]);

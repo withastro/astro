@@ -1,8 +1,6 @@
 import { ExecProcess, NonZeroExitError } from 'tinyexec';
 import type { CommandExecutor } from '../definitions.js';
 
-// TODO: move file to shared infra
-
 export function createTinyexecCommandExecutor(): CommandExecutor {
 	return {
 		async execute(command, args, options) {
