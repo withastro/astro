@@ -27,6 +27,10 @@ export default async function test() {
 			setup: { type: 'string', alias: 's' },
 			// Test teardown file
 			teardown: { type: 'string' },
+			// Use tsx to run the tests,
+			tsx: { type: 'boolean' },
+			// Test teardown file to include in the test files list
+			'teardown-test': { type: 'string' },
 		},
 	});
 
@@ -39,12 +43,21 @@ export default async function test() {
 		ignore: ['**/node_modules/**'],
 	});
 
+	if (args.values['teardown-test']) {
+		files.push(path.resolve(args.values['teardown-test']));
+	}
+
 	// For some reason, the `only` option does not work and we need to explicitly set the CLI flag instead.
 	// Node.js requires opt-in to run .only tests :(
 	// https://nodejs.org/api/test.html#only-tests
 	if (args.values.only) {
 		process.env.NODE_OPTIONS ??= '';
 		process.env.NODE_OPTIONS += ' --test-only';
+	}
+
+	if (args.values.tsx) {
+		process.env.NODE_OPTIONS ??= '';
+		process.env.NODE_OPTIONS += ' --import tsx';
 	}
 
 	if (!args.values.parallel) {
@@ -68,7 +81,11 @@ export default async function test() {
 	// https://nodejs.org/api/test.html#runoptions
 	run({
 		files,
-		testNamePatterns: args.values.match,
+		testNamePatterns: args.values.match
+			? args.values['teardown-test']
+				? [args.values.match, 'Teardown']
+				: args.values.match
+			: undefined,
 		concurrency: args.values.parallel,
 		only: args.values.only,
 		setup: args.values.setup,

@@ -1,6 +1,7 @@
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { AstroConfig } from '../types/public/config.js';
+import type { AstroAdapterClientConfig } from '../types/public/integrations.js';
 import { DEFAULT_HASH_PROPS } from './consts.js';
 import {
 	DEFAULT_RESOLUTIONS,
@@ -19,6 +20,7 @@ import {
 import { addCSSVarsToStyle, cssFitValues } from './utils/imageAttributes.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { inferRemoteSize } from './utils/remoteProbe.js';
+import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
 
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!globalThis?.astroAsset?.imageService) {
@@ -41,7 +43,7 @@ export async function getConfiguredImageService(): Promise<ImageService> {
 
 export async function getImage(
 	options: UnresolvedImageTransform,
-	imageConfig: AstroConfig['image'],
+	imageConfig: AstroConfig['image'] & AstroAdapterClientConfig,
 ): Promise<GetImageResult> {
 	if (!options || typeof options !== 'object') {
 		throw new AstroError({
@@ -204,6 +206,24 @@ export async function getImage(
 					: globalThis.astroAsset.addStaticImage!(srcSet.transform, propsToHash, originalFilePath),
 				descriptor: srcSet.descriptor,
 				attributes: srcSet.attributes,
+			};
+		});
+	} else if (imageConfig.assetQueryParams) {
+		// For SSR-rendered images without addStaticImage, append assetQueryParams manually
+		const imageURLObj = createPlaceholderURL(imageURL);
+		imageConfig.assetQueryParams.forEach((value, key) => {
+			imageURLObj.searchParams.set(key, value);
+		});
+		imageURL = stringifyPlaceholderURL(imageURLObj);
+
+		srcSets = srcSets.map((srcSet) => {
+			const urlObj = createPlaceholderURL(srcSet.url);
+			imageConfig.assetQueryParams!.forEach((value, key) => {
+				urlObj.searchParams.set(key, value);
+			});
+			return {
+				...srcSet,
+				url: stringifyPlaceholderURL(urlObj),
 			};
 		});
 	}
