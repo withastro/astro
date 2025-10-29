@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 describe('astro-check - binary', async () => {
 	it('Can run the binary', async () => {
-		const childProcess = spawnSync('node', ['../dist/bin.js', '--root', './fixture'], {
+		const childProcess = spawnSync('node', ['../bin/astro-check.js', '--root', './fixture'], {
 			cwd: fileURLToPath(new URL('./', import.meta.url)),
 		});
 
