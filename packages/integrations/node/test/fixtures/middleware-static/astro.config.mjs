@@ -7,4 +7,7 @@ export default defineConfig({
 		mode: 'standalone',
 		runMiddlewareOnRequest: true,
 	}),
+	security: {
+		checkOrigin: true,
+	},
 });

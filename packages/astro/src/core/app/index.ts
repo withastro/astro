@@ -6,6 +6,7 @@ import {
 import { matchPattern, type RemotePattern } from '../../assets/utils/remotePattern.js';
 import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
+import type { MiddlewareHandler } from '../../types/public/common.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
 import {
 	clientAddressSymbol,
@@ -19,6 +20,7 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
+import { sequence } from '../middleware/sequence.js';
 import {
 	appendForwardSlash,
 	joinPaths,
@@ -140,6 +142,24 @@ export class App {
 
 	getAllowedDomains() {
 		return this.#manifest.allowedDomains;
+	}
+
+	/**
+	 * Get the middleware handler from the pipeline.
+	 * This includes origin checking and user-defined middleware, but NOT i18n middleware.
+	 */
+	async getMiddleware(): Promise<MiddlewareHandler> {
+		return await this.#pipeline.getMiddleware();
+	}
+
+	/**
+	 * Get the complete middleware chain including i18n, origin checking, and user-defined middleware.
+	 * This is the same middleware sequence used by RenderContext for SSR routes.
+	 * Use this method when you need to execute middleware for prerendered/static routes.
+	 */
+	async getAllMiddleware(): Promise<MiddlewareHandler> {
+		const pipelineMiddleware = await this.#pipeline.getMiddleware();
+		return sequence(...this.#pipeline.internalMiddleware, pipelineMiddleware);
 	}
 
 	protected get manifest(): SSRManifest {

@@ -3,9 +3,12 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { Http2ServerResponse } from 'node:http2';
 import type { Socket } from 'node:net';
 // matchPattern is used in App.validateForwardedHost, no need to import here
+import type { MiddlewareHandler } from '../../types/public/common.js';
 import type { RemotePattern } from '../../types/public/config.js';
+import type { APIContext } from '../../types/public/context.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { clientAddressSymbol, nodeRequestAbortControllerCleanupSymbol } from '../constants.js';
+import { createContext } from '../middleware/index.js';
 import { deserializeManifest } from './common.js';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import type { RenderOptions } from './index.js';
@@ -56,6 +59,138 @@ export class NodeApp extends App {
 		}
 		// @ts-expect-error The call would have succeeded against the implementation, but implementation signatures of overloads are not externally visible.
 		return super.render(req, routeDataOrOptions, maybeLocals);
+	}
+
+	/**
+	 * Get user-defined locales from the manifest in a typed, safe way.
+	 * Handles various manifest structures for i18n locales.
+	 */
+	getUserDefinedLocales(): string[] {
+		if (!this.manifest.i18n?.locales) {
+			return [];
+		}
+
+		const locales = this.manifest.i18n.locales;
+
+		// Handle array of strings or locale objects
+		if (Array.isArray(locales)) {
+			return locales.filter((l): l is string => typeof l === 'string');
+		}
+
+		// Handle single string
+		if (typeof locales === 'string') {
+			return [locales];
+		}
+
+		// Handle object with codes property
+		if (
+			typeof locales === 'object' &&
+			locales !== null &&
+			'codes' in locales &&
+			Array.isArray((locales as any).codes)
+		) {
+			return (locales as any).codes;
+		}
+
+		return [];
+	}
+
+	/**
+	 * Create a middleware context for a request.
+	 * This provides the same context that would be created during SSR,
+	 * but without performing the full render operation.
+	 * Useful for executing middleware on prerendered/static routes.
+	 */
+	createMiddlewareContext(
+		request: Request,
+		routeData: RouteData | undefined,
+		locals?: object,
+	): APIContext {
+		// Ensure params is always an object
+		const params =
+			routeData && typeof routeData.params === 'object' && !Array.isArray(routeData.params)
+				? routeData.params
+				: {};
+
+		// Get user-defined locales
+		const userDefinedLocales = this.getUserDefinedLocales();
+
+		// Create context using the same method as the middleware system
+		const ctx = createContext({
+			request,
+			params,
+			locals: locals ?? {},
+			defaultLocale: this.manifest.i18n?.defaultLocale || '',
+			userDefinedLocales,
+		});
+
+		// Mark this as a prerendered page if applicable
+		if (routeData?.prerender) {
+			ctx.isPrerendered = true;
+		}
+
+		// Set the site if available
+		if (this.manifest.site) {
+			ctx.site = new URL(this.manifest.site);
+		}
+
+		// Set the route pattern if we have route data
+		if (routeData) {
+			ctx.routePattern = routeData.route;
+		}
+
+		return ctx;
+	}
+
+	/**
+	 * Execute middleware for a request without performing a full render.
+	 * Returns whether the middleware handled the response (by not calling next()).
+	 *
+	 * This is used by the static handler to run middleware on prerendered routes
+	 * before serving the static file.
+	 */
+	async executeMiddlewareOnly(
+		request: Request,
+		routeData: RouteData | undefined,
+		middleware: MiddlewareHandler,
+		locals?: object,
+	): Promise<{ handled: boolean; response: Response | null }> {
+		// Create middleware context
+		const ctx = this.createMiddlewareContext(request, routeData, locals);
+
+		let nextCalled = false;
+
+		// Create a next function - if called, we'll serve the static file normally
+		const middlewareNext = async (): Promise<Response> => {
+			nextCalled = true;
+			// Return a dummy response - the static file will be served after middleware returns
+			return new Response(null);
+		};
+
+		// Execute middleware
+		const response = await middleware(ctx, middlewareNext);
+
+		// If middleware returned a response and didn't call next(), use it
+		if (response && !nextCalled) {
+			// Manually append cookies from context to response headers
+			for (const setCookieHeaderValue of ctx.cookies.headers()) {
+				response.headers.append('set-cookie', setCookieHeaderValue);
+			}
+
+			return { handled: true, response };
+		}
+
+		// Middleware called next() - continue with static file serving
+		// But return the response so headers can be copied
+		if (response) {
+			// Manually append cookies from context to response headers
+			for (const setCookieHeaderValue of ctx.cookies.headers()) {
+				response.headers.append('set-cookie', setCookieHeaderValue);
+			}
+			return { handled: false, response };
+		}
+
+		return { handled: false, response: null };
 	}
 
 	/**

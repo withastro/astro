@@ -1,5 +1,6 @@
-import { AsyncLocalStorage } from 'node:async_hooks';
 import { NodeApp } from 'astro/app/node';
+import { createRequestSafely, handleRequestCreationError } from './serve-utils.js';
+import { requestAls } from './standalone.js';
 import type { Options, RequestHandler } from './types.js';
 
 /**
@@ -8,18 +9,6 @@ import type { Options, RequestHandler } from './types.js';
  * Intended to be used in both standalone and middleware mode.
  */
 export function createAppHandler(app: NodeApp, options: Options): RequestHandler {
-	/**
-	 * Keep track of the current request path using AsyncLocalStorage.
-	 * Used to log unhandled rejections with a helpful message.
-	 */
-	const als = new AsyncLocalStorage<string>();
-	const logger = app.getAdapterLogger();
-	process.on('unhandledRejection', (reason) => {
-		const requestUrl = als.getStore();
-		logger.error(`Unhandled rejection while rendering ${requestUrl}`);
-		console.error(reason);
-	});
-
 	const originUrl = options.experimentalErrorPageHost
 		? new URL(options.experimentalErrorPageHost)
 		: undefined;
@@ -34,16 +23,10 @@ export function createAppHandler(app: NodeApp, options: Options): RequestHandler
 		: undefined;
 
 	return async (req, res, next, locals) => {
-		let request: Request;
-		try {
-			request = NodeApp.createRequest(req, {
-				allowedDomains: app.getAllowedDomains?.() ?? [],
-			});
-		} catch (err) {
-			logger.error(`Could not render ${req.url}`);
-			console.error(err);
-			res.statusCode = 500;
-			res.end('Internal Server Error');
+		// Create Request object with proper error handling
+		const { request, error: requestError } = createRequestSafely(req, app);
+		if (!request) {
+			handleRequestCreationError(req, res, requestError, app);
 			return;
 		}
 
@@ -51,7 +34,7 @@ export function createAppHandler(app: NodeApp, options: Options): RequestHandler
 		// handle them dynamically, so prerendered routes are included here.
 		const routeData = app.match(request, true);
 		if (routeData) {
-			const response = await als.run(request.url, () =>
+			const response = await requestAls.run(request.url, () =>
 				app.render(request, {
 					addCookieHeader: true,
 					locals,
@@ -63,7 +46,10 @@ export function createAppHandler(app: NodeApp, options: Options): RequestHandler
 		} else if (next) {
 			return next();
 		} else {
-			const response = await app.render(req, { addCookieHeader: true, prerenderedErrorPageFetch });
+			const response = await app.render(request, {
+				addCookieHeader: true,
+				prerenderedErrorPageFetch,
+			});
 			await NodeApp.writeResponse(response, res);
 		}
 	};

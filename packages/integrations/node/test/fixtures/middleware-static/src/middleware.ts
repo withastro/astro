@@ -7,6 +7,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	const response = await next();
 	response.headers.set('x-middleware-ran', 'true');
 	
+	// Check if locals were set by external middleware (e.g., Express)
+	if (context.locals.expressUser) {
+		response.headers.set('x-express-user', String(context.locals.expressUser));
+	}
+	if (context.locals.expressSessionId) {
+		response.headers.set('x-express-session', String(context.locals.expressSessionId));
+	}
+	
 	// Handle cookies
 	const testCookie = context.cookies.get('test-cookie');
 	if (testCookie) {
