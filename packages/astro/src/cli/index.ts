@@ -170,14 +170,14 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			]);
 			const commandExecutor = createTinyexecCommandExecutor();
 			const operatingSystemProvider = createProcessOperatingSystemProvider();
-			const cloudIdeProvider = createProcessCloudIdeProvider()
+			const cloudIdeProvider = createProcessCloudIdeProvider();
 
 			return await runner.run(openDocsCommand, {
 				url: 'https://docs.astro.build/',
 				logger,
 				commandExecutor,
 				operatingSystemProvider,
-				cloudIdeProvider
+				cloudIdeProvider,
 			});
 		}
 		case 'telemetry': {
