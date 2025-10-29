@@ -20,6 +20,7 @@ import {
 import { addCSSVarsToStyle, cssFitValues } from './utils/imageAttributes.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { inferRemoteSize } from './utils/remoteProbe.js';
+import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
 
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!globalThis?.astroAsset?.imageService) {
@@ -209,20 +210,20 @@ export async function getImage(
 		});
 	} else if (imageConfig.assetQueryParams) {
 		// For SSR-rendered images without addStaticImage, append assetQueryParams manually
-		const imageURLObj = new URL(imageURL, 'http://localhost');
+		const imageURLObj = createPlaceholderURL(imageURL);
 		imageConfig.assetQueryParams.forEach((value, key) => {
 			imageURLObj.searchParams.set(key, value);
 		});
-		imageURL = imageURLObj.href.replace('http://localhost', '');
+		imageURL = stringifyPlaceholderURL(imageURLObj);
 
 		srcSets = srcSets.map((srcSet) => {
-			const urlObj = new URL(srcSet.url, 'http://localhost');
+			const urlObj = createPlaceholderURL(srcSet.url);
 			imageConfig.assetQueryParams!.forEach((value, key) => {
 				urlObj.searchParams.set(key, value);
 			});
 			return {
 				...srcSet,
-				url: urlObj.href.replace('http://localhost', ''),
+				url: stringifyPlaceholderURL(urlObj),
 			};
 		});
 	}

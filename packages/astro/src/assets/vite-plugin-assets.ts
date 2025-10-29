@@ -22,6 +22,7 @@ import { emitESMImage } from './utils/node/emitAsset.js';
 import { getProxyCode } from './utils/proxy.js';
 import { makeSvgComponent } from './utils/svg.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
+import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -86,11 +87,10 @@ const addStaticImageFactory = (
 		// The paths here are used for URLs, so we need to make sure they have the proper format for an URL
 		// (leading slash, prefixed with the base / assets prefix, encoded, etc)
 		// Create URL object to safely manipulate and append assetQueryParams if available (for adapter-level tracking like skew protection)
-		const url = new URL(
+		const url = createPlaceholderURL(
 			settings.config.build.assetsPrefix
 				? encodeURI(joinPaths(assetPrefix, finalFilePath))
 				: encodeURI(prependForwardSlash(joinPaths(settings.config.base, finalFilePath))),
-			'http://localhost',
 		);
 		const assetQueryParams = settings.adapter?.client?.assetQueryParams;
 		if (assetQueryParams) {
@@ -99,7 +99,7 @@ const addStaticImageFactory = (
 			});
 		}
 
-		return url.href.replace('http://localhost', '');
+		return stringifyPlaceholderURL(url);
 	};
 };
 

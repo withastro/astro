@@ -1,6 +1,7 @@
 import { fileExtension, joinPaths, prependForwardSlash } from '../../../core/path.js';
 import type { AssetsPrefix } from '../../../types/public/index.js';
 import { getAssetsPrefix } from '../../utils/getAssetsPrefix.js';
+import { createPlaceholderURL, stringifyPlaceholderURL } from '../../utils/url.js';
 import type { UrlResolver } from '../definitions.js';
 
 export function createDevUrlResolver({
@@ -15,14 +16,14 @@ export function createDevUrlResolver({
 		resolve(hash) {
 			resolved ||= true;
 			const urlPath = prependForwardSlash(joinPaths(base, hash));
-			const url = new URL(urlPath, 'http://localhost');
+			const url = createPlaceholderURL(urlPath);
 
 			// Append searchParams if available (for adapter-level tracking like skew protection)
 			searchParams.forEach((value, key) => {
 				url.searchParams.set(key, value);
 			});
 
-			return url.href.replace('http://localhost', '');
+			return stringifyPlaceholderURL(url);
 		},
 		getCspResources() {
 			return resolved ? ["'self'"] : [];
@@ -53,12 +54,12 @@ export function createBuildUrlResolver({
 			}
 
 			// Create URL object and append searchParams if available (for adapter-level tracking like skew protection)
-			const url = new URL(urlPath, 'http://localhost');
+			const url = createPlaceholderURL(urlPath);
 			searchParams.forEach((value, key) => {
 				url.searchParams.set(key, value);
 			});
 
-			return url.href.replace('http://localhost', '');
+			return stringifyPlaceholderURL(url);
 		},
 		getCspResources() {
 			return Array.from(resources);
