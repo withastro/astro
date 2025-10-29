@@ -54,10 +54,13 @@ export default function createVitePluginAstroServer({
 			}
 
 			const loader = createViteLoader(viteServer);
-			const createApp = await viteServer.environments.ssr.runner.import(ASTRO_DEV_APP_ID);
+			const { default: createAstroServerApp } =
+				await viteServer.environments.ssr.runner.import(ASTRO_DEV_APP_ID);
 			const controller = createController({ loader });
-			const { handler } = await createApp.default(controller, settings, loader);
-			const { manifest } = await viteServer.environments.ssr.runner.import(SERIALIZED_MANIFEST_ID);
+			const { handler } = await createAstroServerApp(controller, settings, loader);
+			const { manifest } = await viteServer.environments.ssr.runner.import<{
+				manifest: SSRManifest;
+			}>(SERIALIZED_MANIFEST_ID);
 			const localStorage = new AsyncLocalStorage();
 
 			function handleUnhandledRejection(rejection: any) {
