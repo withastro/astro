@@ -12,6 +12,7 @@ export interface CommandExecutor {
 			cwd?: string;
 			env?: Record<string, string | undefined>;
 			shell?: boolean;
+			input?: string;
 		},
 	) => Promise<{ stdout: string }>;
 }

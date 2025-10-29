@@ -101,6 +101,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				{ createTinyexecCommandExecutor },
 				{ getPackageManager },
 				{ createStyledDebugInfoFormatter },
+				{ createPromptsPrompt },
+				{ createCliClipboard },
 				{ infoCommand },
 			] = await Promise.all([
 				import('./info/infra/node-operating-system-provider.js'),
@@ -109,6 +111,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				import('./docs/infra/tinyexec-command-executor.js'),
 				import('./info/core/get-package-manager.js'),
 				import('./info/infra/styled-debug-info-formatter.js'),
+				import('./info/infra/prompts-prompt.js'),
+				import('./info/infra/cli-clipboard.js'),
 				import('./info/core/info.js'),
 			]);
 			const operatingSystemProvider = createNodeOperatingSystemProvider();
@@ -124,8 +128,20 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				}),
 			});
 			const debugInfoFormatter = createStyledDebugInfoFormatter({ textStyler });
+			const prompt = createPromptsPrompt({ force: flags.copy });
+			const clipboard = createCliClipboard({
+				commandExecutor,
+				logger,
+				operatingSystemProvider,
+				prompt,
+			});
 
-			return await runner.run(infoCommand, { logger, debugInfoProvider, debugInfoFormatter });
+			return await runner.run(infoCommand, {
+				logger,
+				debugInfoProvider,
+				debugInfoFormatter,
+				clipboard,
+			});
 		}
 		case 'create-key': {
 			const [{ createCryptoKeyGenerator }, { createKeyCommand }] = await Promise.all([

@@ -1,4 +1,4 @@
-import { NonZeroExitError, x } from 'tinyexec';
+import { ExecProcess, NonZeroExitError } from 'tinyexec';
 import type { CommandExecutor } from '../definitions.js';
 
 // TODO: move file to shared infra
@@ -6,14 +6,19 @@ import type { CommandExecutor } from '../definitions.js';
 export function createTinyexecCommandExecutor(): CommandExecutor {
 	return {
 		async execute(command, args, options) {
-			return await x(command, args, {
+			const proc = new ExecProcess(command, args, {
 				throwOnError: true,
 				nodeOptions: {
 					cwd: options?.cwd,
 					env: options?.env,
 					shell: options?.shell,
 				},
-			}).then(
+			});
+			proc.spawn();
+			if (options?.input) {
+				proc.process?.stdin?.write(options?.input, 'utf-8');
+			}
+			return await proc.then(
 				(o) => o,
 				(e) => {
 					if (e instanceof NonZeroExitError) {

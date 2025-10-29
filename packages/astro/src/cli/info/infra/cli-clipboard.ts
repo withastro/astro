@@ -69,9 +69,7 @@ export function createCliClipboard({
 			try {
 				const [command, args] = input;
 				await commandExecutor.execute(command, args, {
-					// TODO:
 					input: text,
-					stdio: ['pipe', 'ignore', 'ignore'],
 				});
 				logger.info('SKIP_FORMAT', 'Copied to clipboard!');
 			} catch {
