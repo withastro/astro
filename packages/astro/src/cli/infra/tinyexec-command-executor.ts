@@ -1,10 +1,10 @@
-import { ExecProcess, NonZeroExitError } from 'tinyexec';
+import { NonZeroExitError, x } from 'tinyexec';
 import type { CommandExecutor } from '../definitions.js';
 
 export function createTinyexecCommandExecutor(): CommandExecutor {
 	return {
 		async execute(command, args, options) {
-			const proc = new ExecProcess(command, args, {
+			const proc = x(command, args, {
 				throwOnError: true,
 				nodeOptions: {
 					cwd: options?.cwd,
@@ -13,7 +13,6 @@ export function createTinyexecCommandExecutor(): CommandExecutor {
 					stdio: options?.stdio,
 				},
 			});
-			proc.spawn();
 			if (options?.input) {
 				proc.process?.stdin?.end(options.input);
 			}
