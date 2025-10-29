@@ -58,11 +58,10 @@ export class DevApp extends BaseApp<DevPipeline> {
 				locals,
 				pipeline: this.pipeline,
 				pathname: this.getPathnameFromRequest(request),
-				middleware: skipMiddleware ? undefined : await this.pipeline.getMiddleware(),
+				skipMiddleware,
 				request,
 				routeData: custom500,
 				clientAddress,
-				actions: await this.pipeline.getActions(),
 				status,
 				shouldInjectCspMetaTags: false,
 			});

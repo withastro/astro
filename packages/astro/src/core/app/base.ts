@@ -23,7 +23,6 @@ import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
-import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
 import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
@@ -525,7 +524,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				const renderContext = await this.createRenderContext({
 					locals,
 					pipeline: this.pipeline,
-					middleware: skipMiddleware ? NOOP_MIDDLEWARE_FN : undefined,
+					skipMiddleware,
 					pathname: this.getPathnameFromRequest(request),
 					request,
 					routeData: errorRouteData,

@@ -1,6 +1,5 @@
 import type http from 'node:http';
 import { prependForwardSlash, removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
-import { loadActions } from '../actions/loadActions.js';
 import { BaseApp, type RenderErrorOptions } from '../core/app/index.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import {
@@ -18,7 +17,6 @@ import {
 import { type AstroError, createSafeError, isAstroError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { req } from '../core/messages.js';
-import { loadMiddleware } from '../core/middleware/loadMiddleware.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { routeIsRedirect } from '../core/redirects/index.js';
 import { getProps } from '../core/render/index.js';
@@ -184,7 +182,7 @@ export class AstroServerApp extends BaseApp<AstroServerPipeline> {
 		pathname,
 	}: HandleRoute): Promise<void> {
 		const timeStart = performance.now();
-		const { loader, logger } = this.pipeline;
+		const { logger } = this.pipeline;
 
 		if (!matchedRoute) {
 			// This should never happen, because ensure404Route will add a 404 route if none exists.
@@ -195,9 +193,6 @@ export class AstroServerApp extends BaseApp<AstroServerPipeline> {
 		let renderContext: RenderContext;
 		let route: RouteData = matchedRoute.route;
 		const componentInstance = await this.pipeline.getComponentByRoute(route);
-		const actions = await loadActions(loader);
-		this.pipeline.setActions(actions);
-		const middleware = (await loadMiddleware(loader)).onRequest;
 		// This is required for adapters to set locals in dev mode. They use a dev server middleware to inject locals to the `http.IncomingRequest` object.
 		const locals = Reflect.get(incomingRequest, clientLocalsSymbol);
 
@@ -221,11 +216,10 @@ export class AstroServerApp extends BaseApp<AstroServerPipeline> {
 			locals,
 			pipeline: this.pipeline,
 			pathname,
-			middleware: isDefaultPrerendered404(matchedRoute.route) ? undefined : middleware,
+			skipMiddleware: isDefaultPrerendered404(matchedRoute.route),
 			request,
 			routeData: route,
 			clientAddress: incomingRequest.socket.remoteAddress,
-			actions,
 			shouldInjectCspMetaTags: false,
 		});
 
@@ -293,7 +287,7 @@ export class AstroServerApp extends BaseApp<AstroServerPipeline> {
 					locals,
 					pipeline: this.pipeline,
 					pathname,
-					middleware: isDefaultPrerendered404(fourOhFourRoute.route) ? undefined : middleware,
+					skipMiddleware: isDefaultPrerendered404(fourOhFourRoute.route),
 					request,
 					routeData: fourOhFourRoute.route,
 					clientAddress: incomingRequest.socket.remoteAddress,
@@ -414,11 +408,10 @@ export class AstroServerApp extends BaseApp<AstroServerPipeline> {
 				locals,
 				pipeline: this.pipeline,
 				pathname: this.getPathnameFromRequest(request),
-				middleware: skipMiddleware ? undefined : await this.pipeline.getMiddleware(),
+				skipMiddleware,
 				request,
 				routeData: custom500,
 				clientAddress,
-				actions: await this.pipeline.getActions(),
 				status,
 				shouldInjectCspMetaTags: false,
 			});

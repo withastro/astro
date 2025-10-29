@@ -15,7 +15,7 @@ const manifest: SSRManifest = Object.assign(serializedManifest, {
 	routes,
 });
 
-export function getApp(dev = import.meta.env.DEV): BaseApp {
+export function createApp(dev = import.meta.env.DEV): BaseApp {
 	if (dev) {
 		const logger = createConsoleLogger('debug');
 		return new DevApp(manifest, true, logger);

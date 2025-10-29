@@ -10,7 +10,7 @@ import type { AstroSettings, RoutesList } from '../types/astro.js';
 import type { DevServerController } from '../vite-plugin-astro-server/controller.js';
 import { AstroServerApp } from './app.js';
 
-export default async function createExports(
+export default async function createAstroServerApp(
 	controller: DevServerController,
 	settings: AstroSettings,
 	loader: ModuleLoader,
@@ -25,6 +25,8 @@ export default async function createExports(
 	const manifest = Object.assign(serializedManifest, {
 		renderers,
 		sessionDriver: () => import('virtual:astro:session-driver'),
+		actions: () => import('virtual:astro:actions/entrypoint'),
+		middleware: () => import('virtual:astro:middleware'),
 	});
 
 	const app = await AstroServerApp.create(manifest, routesList, logger, loader, settings);
