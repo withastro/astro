@@ -44,18 +44,6 @@ export function createSpyHelpDisplay(shouldFire) {
 	};
 }
 
-/** @returns {import("../../../dist/cli/definitions.js").TextStyler} */
-export function createPassthroughTextStyler() {
-	return {
-		bgWhite: (msg) => msg,
-		black: (msg) => msg,
-		dim: (msg) => msg,
-		green: (msg) => msg,
-		bold: (msg) => msg,
-		bgGreen: (msg) => msg,
-	};
-}
-
 /**
  * @param {string} version
  * @returns {import("../../../dist/cli/definitions.js").AstroVersionProvider}

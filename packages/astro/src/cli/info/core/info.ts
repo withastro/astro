@@ -4,7 +4,7 @@ import type { Clipboard, DebugInfoFormatter, DebugInfoProvider } from '../defini
 
 interface Options {
 	debugInfoProvider: DebugInfoProvider;
-	debugInfoFormatter: DebugInfoFormatter;
+	getDebugInfoFormatter: (options: { pretty: boolean }) => DebugInfoFormatter;
 	logger: Logger;
 	clipboard: Clipboard;
 }
@@ -21,11 +21,9 @@ export const infoCommand = defineCommand({
 		description:
 			'Reports useful information about your current Astro environment. Useful for providing information when opening an issue.',
 	},
-	async run({ debugInfoProvider, debugInfoFormatter, logger, clipboard }: Options) {
+	async run({ debugInfoProvider, getDebugInfoFormatter, logger, clipboard }: Options) {
 		const debugInfo = await debugInfoProvider.get();
-		const output = debugInfoFormatter.format(debugInfo);
-		logger.info('SKIP_FORMAT', output);
-		// TODO: need other debug formatter
-		await clipboard.copy(output);
+		logger.info('SKIP_FORMAT', getDebugInfoFormatter({ pretty: true }).format(debugInfo));
+		await clipboard.copy(getDebugInfoFormatter({ pretty: false }).format(debugInfo));
 	},
 });

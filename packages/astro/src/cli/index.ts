@@ -103,6 +103,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				{ createStyledDebugInfoFormatter },
 				{ createPromptsPrompt },
 				{ createCliClipboard },
+				{ createPassthroughTextStyler },
 				{ infoCommand },
 			] = await Promise.all([
 				import('./info/infra/node-operating-system-provider.js'),
@@ -113,6 +114,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				import('./info/infra/styled-debug-info-formatter.js'),
 				import('./info/infra/prompts-prompt.js'),
 				import('./info/infra/cli-clipboard.js'),
+				import('./infra/passthrough-text-styler.js'),
 				import('./info/core/info.js'),
 			]);
 			const operatingSystemProvider = createNodeOperatingSystemProvider();
@@ -127,7 +129,6 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 					commandExecutor,
 				}),
 			});
-			const debugInfoFormatter = createStyledDebugInfoFormatter({ textStyler });
 			const prompt = createPromptsPrompt({ force: flags.copy });
 			const clipboard = createCliClipboard({
 				commandExecutor,
@@ -139,7 +140,10 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			return await runner.run(infoCommand, {
 				logger,
 				debugInfoProvider,
-				debugInfoFormatter,
+				getDebugInfoFormatter: ({ pretty }) =>
+					createStyledDebugInfoFormatter({
+						textStyler: pretty ? textStyler : createPassthroughTextStyler(),
+					}),
 				clipboard,
 			});
 		}

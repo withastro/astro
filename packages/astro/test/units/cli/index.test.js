@@ -4,13 +4,10 @@ import { describe, it } from 'node:test';
 import { createBuildTimeAstroVersionProvider } from '../../../dist/cli/infra/build-time-astro-version-provider.js';
 import { createCliCommandRunner } from '../../../dist/cli/infra/cli-command-runner.js';
 import { createLoggerHelpDisplay } from '../../../dist/cli/infra/logger-help-display.js';
+import { createPassthroughTextStyler } from '../../../dist/cli/infra/passthrough-text-styler.js';
 import packageJson from '../../../package.json' with { type: 'json' };
 import { createSpyLogger } from '../test-utils.js';
-import {
-	createFakeAstroVersionProvider,
-	createPassthroughTextStyler,
-	createSpyHelpDisplay,
-} from './utils.js';
+import { createFakeAstroVersionProvider, createSpyHelpDisplay } from './utils.js';
 
 describe('CLI shared', () => {
 	describe('infra', () => {
