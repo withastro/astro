@@ -16,7 +16,9 @@ export const PERSIST_SYMBOL = Symbol();
 const DEFAULT_COOKIE_NAME = 'astro-session';
 const VALID_COOKIE_REGEX = /^[\w-]+$/;
 
-export type SessionDriver = (config: any) => import('unstorage').Driver;
+export type SessionDriver<TDriver extends SessionDriverName = any> = (
+	config: SessionConfig<TDriver>['options'],
+) => import('unstorage').Driver;
 
 interface SessionEntry {
 	data: any;
@@ -68,7 +70,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	// preserving in-memory changes and deletions.
 	#partial = true;
 	// The driver factory function provided by the pipeline
-	#driverFactory: ((config: SessionConfig<TDriver>['options']) => Driver) | null | undefined;
+	#driverFactory: SessionDriver | null | undefined;
 
 	static #sharedStorage = new Map<string, Storage>();
 

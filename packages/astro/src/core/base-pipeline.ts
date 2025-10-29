@@ -13,7 +13,6 @@ import type {
 	SSRResult,
 } from '../types/public/internal.js';
 import { createOriginCheckMiddleware } from './app/middlewares.js';
-import type { SSRSessionDriver } from './app/types.js';
 import type { SinglePageBuiltModule } from './build/types.js';
 import { ActionNotFoundError } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
@@ -144,7 +143,7 @@ export abstract class Pipeline {
 		return NOOP_ACTIONS_MOD;
 	}
 
-	async getSessionDriver(): Promise<SSRSessionDriver> {
+	async getSessionDriver(): Promise<SessionDriver | null> {
 		// Return cached value if already resolved (including null)
 		if (this.resolvedSessionDriver !== undefined) {
 			return this.resolvedSessionDriver;

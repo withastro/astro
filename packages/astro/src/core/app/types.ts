@@ -113,8 +113,6 @@ export type SSRManifest = {
 	};
 };
 
-export type SSRSessionDriver = SessionDriver | null;
-
 export type SSRActions = {
 	server: Record<string, ActionClient<unknown, ActionAccept, ZodType>>;
 };
