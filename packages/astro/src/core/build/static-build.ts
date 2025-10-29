@@ -9,6 +9,7 @@ import { type BuildInternals, createBuildInternals } from '../../core/build/inte
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
 import { runHookBuildSetup } from '../../integrations/hooks.js';
+import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../manifest/serialized.js';
 import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { RESOLVED_ASTRO_RENDERERS_MODULE_ID } from '../../vite-plugin-renderers/index.js';
@@ -20,7 +21,6 @@ import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { type AstroBuildPluginContainer, createPluginContainer } from './plugin.js';
 import { registerAllPlugins } from './plugins/index.js';
-import { RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID } from './plugins/plugin-manifest.js';
 import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
@@ -201,7 +201,7 @@ async function ssrBuild(
 							return opts.settings.config.build.serverEntry;
 						} else if (chunkInfo.facadeModuleId === RESOLVED_ASTRO_RENDERERS_MODULE_ID) {
 							return 'renderers.mjs';
-						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
+						} else if (chunkInfo.facadeModuleId === SERIALIZED_MANIFEST_RESOLVED_ID) {
 							return 'manifest_[hash].mjs';
 						} else if (chunkInfo.facadeModuleId === settings.adapter?.serverEntrypoint) {
 							return 'adapter_[hash].mjs';

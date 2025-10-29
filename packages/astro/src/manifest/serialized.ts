@@ -3,6 +3,7 @@ import { getInfoOutput } from '../cli/info/index.js';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/index.js';
 import type { SerializedSSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
+import { MANIFEST_REPLACE } from '../core/build/plugins/plugin-manifest.js';
 import {
 	getAlgorithm,
 	getDirectives,
@@ -17,16 +18,19 @@ import { createKey, encodeKey, getEnvironmentKey, hasEnvironmentKey } from '../c
 import type { AstroSettings } from '../types/astro.js';
 
 export const SERIALIZED_MANIFEST_ID = 'virtual:astro:serialized-manifest';
-const SERIALIZED_MANIFEST_RESOLVED_ID = '\0' + SERIALIZED_MANIFEST_ID;
+export const SERIALIZED_MANIFEST_RESOLVED_ID = '\0' + SERIALIZED_MANIFEST_ID;
 
-export async function serializedManifestPlugin({
+export function serializedManifestPlugin({
 	settings,
+	command,
 }: {
 	settings: AstroSettings;
-}): Promise<Plugin> {
+	command: 'dev' | 'build';
+}): Plugin {
 	return {
 		name: SERIALIZED_MANIFEST_ID,
 		enforce: 'pre',
+
 		resolveId(id) {
 			if (id === SERIALIZED_MANIFEST_ID) {
 				return SERIALIZED_MANIFEST_RESOLVED_ID;
@@ -35,10 +39,18 @@ export async function serializedManifestPlugin({
 
 		async load(id) {
 			if (id === SERIALIZED_MANIFEST_RESOLVED_ID) {
-				const serialized = await createSerializedManifest(settings);
+				let manifestData: string;
+				if (command === 'build') {
+					// Emit placeholder token that will be replaced by plugin-manifest.ts in build:post
+					// See plugin-manifest.ts for full architecture explanation
+					manifestData = `'${MANIFEST_REPLACE}'`;
+				} else {
+					const serialized = await createSerializedManifest(settings);
+					manifestData = JSON.stringify(serialized);
+				}
 				const code = `
 					import { deserializeManifest as _deserializeManifest } from 'astro/app';
-					export const manifest = _deserializeManifest((${JSON.stringify(serialized)}));
+					export const manifest = _deserializeManifest((${manifestData}));
 				`;
 				return { code };
 			}

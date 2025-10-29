@@ -137,6 +137,7 @@ class AstroBuilder {
 				},
 			},
 			{
+				routesList: this.routesList,
 				settings: this.settings,
 				logger: this.logger,
 				mode: this.mode,

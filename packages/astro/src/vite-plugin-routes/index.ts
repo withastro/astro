@@ -11,7 +11,7 @@ import { createRoutesList } from '../core/routing/index.js';
 import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
 import { isEndpoint, isPage } from '../core/util.js';
 import { rootRelativePath } from '../core/viteUtils.js';
-import type { AstroSettings } from '../types/astro.js';
+import type { AstroSettings, RoutesList } from '../types/astro.js';
 import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 
@@ -19,7 +19,7 @@ type Payload = {
 	settings: AstroSettings;
 	logger: Logger;
 	fsMod?: typeof fsMod;
-	command: 'dev' | 'build';
+	routesList: RoutesList;
 };
 
 const ASTRO_ROUTES_MODULE_ID = 'virtual:astro:routes';
@@ -31,18 +31,10 @@ export default async function astroPluginRoutes({
 	settings,
 	logger,
 	fsMod,
-	command,
+	routesList: initialRoutesList
 }: Payload): Promise<Plugin> {
 	logger.debug('update', 'Re-calculate routes');
-	let routeList = await createRoutesList(
-		{
-			settings,
-			fsMod,
-		},
-		logger,
-		// TODO: the caller should handle this
-		{ dev: true, skipBuildOutputAssignment: command === 'build' },
-	);
+	let routeList = initialRoutesList;
 
 	let serializedRouteInfo: SerializedRouteInfo[] = routeList.routes.map(
 		(r): SerializedRouteInfo => {
