@@ -9,6 +9,7 @@ import react from '@astrojs/react';
 export default defineConfig({
 	adapter: cloudflare({
 		imageService: 'cloudflare-binding',
+		sessionKVBindingName: "SESSION"
 	}),
 	vite: {
 		resolve: {

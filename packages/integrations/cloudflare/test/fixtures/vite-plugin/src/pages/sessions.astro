@@ -1,0 +1,25 @@
+---
+export const prerender = false; // Not needed with 'server' output
+const cart = await Astro.session?.get('cart');
+const user = await Astro.session?.get('user');
+---
+
+<h1>
+	Sessions
+</h1>
+<h2>
+	Cart
+</h2>
+<p>
+	<a href="/checkout">🛒 {cart?.length ?? 0} items</a>
+</p>
+
+<h2>
+	User
+</h2>
+<p>
+	Id: {user?.id}
+</p>
+<p>
+	Name: {user?.name}
+</p>

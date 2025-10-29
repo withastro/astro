@@ -22,6 +22,7 @@ import { sequence } from './middleware/sequence.js';
 import { RedirectSinglePageBuiltModule } from './redirects/index.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
+import type { SessionDriver } from './session.js';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
@@ -33,6 +34,7 @@ export abstract class Pipeline {
 	readonly internalMiddleware: MiddlewareHandler[];
 	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
 	resolvedActions: SSRActions | undefined = undefined;
+	resolvedSessionDriver: SessionDriver | null | undefined = undefined;
 
 	constructor(
 		readonly logger: Logger,
@@ -69,6 +71,7 @@ export abstract class Pipeline {
 		readonly defaultRoutes = createDefaultRoutes(manifest),
 
 		readonly actions = manifest.actions,
+		readonly sessionDriver = manifest.sessionDriver,
 	) {
 		this.internalMiddleware = [];
 		// We do use our middleware only if the user isn't using the manual setup
@@ -138,6 +141,24 @@ export abstract class Pipeline {
 			return this.actions();
 		}
 		return NOOP_ACTIONS_MOD;
+	}
+
+	async getSessionDriver(): Promise<SessionDriver | null> {
+		// Return cached value if already resolved (including null)
+		if (this.resolvedSessionDriver !== undefined) {
+			return this.resolvedSessionDriver;
+		}
+
+		// Try to load the driver from the manifest
+		if (this.sessionDriver) {
+			const driverModule = await this.sessionDriver();
+			this.resolvedSessionDriver = driverModule?.default || null;
+			return this.resolvedSessionDriver;
+		}
+
+		// No driver configured
+		this.resolvedSessionDriver = null;
+		return null;
 	}
 
 	async getAction(path: string): Promise<ActionClient<unknown, ActionAccept, ZodType>> {

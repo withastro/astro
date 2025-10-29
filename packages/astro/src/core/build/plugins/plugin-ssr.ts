@@ -4,6 +4,7 @@ import { ASTRO_RENDERERS_MODULE_ID } from '../../../vite-plugin-renderers/index.
 import { MIDDLEWARE_MODULE_ID } from '../../middleware/vite-plugin.js';
 import { routeIsRedirect } from '../../redirects/index.js';
 import { VIRTUAL_ISLAND_MAP_ID } from '../../server-islands/vite-plugin-server-islands.js';
+import { VIRTUAL_SESSION_DRIVER_ID } from '../../session/vite-plugin.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';

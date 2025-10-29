@@ -1,13 +1,6 @@
 import { stringify as rawStringify, unflatten as rawUnflatten } from 'devalue';
 
-import {
-	type BuiltinDriverName,
-	type BuiltinDriverOptions,
-	builtinDrivers,
-	createStorage,
-	type Driver,
-	type Storage,
-} from 'unstorage';
+import { type BuiltinDriverOptions, createStorage, type Driver, type Storage } from 'unstorage';
 import type {
 	ResolvedSessionConfig,
 	RuntimeMode,
@@ -22,6 +15,10 @@ export const PERSIST_SYMBOL = Symbol();
 
 const DEFAULT_COOKIE_NAME = 'astro-session';
 const VALID_COOKIE_REGEX = /^[\w-]+$/;
+
+export type SessionDriver<TDriver extends SessionDriverName = any> = (
+	config: SessionConfig<TDriver>['options'],
+) => import('unstorage').Driver;
 
 interface SessionEntry {
 	data: any;
@@ -72,6 +69,8 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	// When we load the data from storage, we need to merge it with the local partial data,
 	// preserving in-memory changes and deletions.
 	#partial = true;
+	// The driver factory function provided by the pipeline
+	#driverFactory: SessionDriver | null | undefined;
 
 	static #sharedStorage = new Map<string, Storage>();
 
@@ -82,6 +81,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			...config
 		}: NonNullable<ResolvedSessionConfig<TDriver>>,
 		runtimeMode?: RuntimeMode,
+		driverFactory?: ((config: SessionConfig<TDriver>['options']) => Driver) | null,
 	) {
 		const { driver } = config;
 		if (!driver) {
@@ -93,6 +93,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			});
 		}
 		this.#cookies = cookies;
+		this.#driverFactory = driverFactory;
 		let cookieConfigObject: AstroCookieSetOptions | undefined;
 		if (typeof cookieConfig === 'object') {
 			const { name = DEFAULT_COOKIE_NAME, ...rest } = cookieConfig;
@@ -441,45 +442,18 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			(this.#config.options as BuiltinDriverOptions['fs-lite']).base ??= '.astro/session';
 		}
 
-		let driver: ((config: SessionConfig<TDriver>['options']) => Driver) | null = null;
-
-		try {
-			if (this.#config.driverModule) {
-				driver = (await this.#config.driverModule()).default;
-			} else if (this.#config.driver) {
-				const driverName = resolveSessionDriverName(this.#config.driver);
-				if (driverName) {
-					driver = (await import(/* @vite-ignore */ driverName)).default;
-				}
-			}
-		} catch (err: any) {
-			// If the driver failed to load, throw an error.
-			if (err.code === 'ERR_MODULE_NOT_FOUND') {
-				throw new AstroError(
-					{
-						...SessionStorageInitError,
-						message: SessionStorageInitError.message(
-							err.message.includes(`Cannot find package`)
-								? 'The driver module could not be found.'
-								: err.message,
-							this.#config.driver,
-						),
-					},
-					{ cause: err },
-				);
-			}
-			throw err;
-		}
-
-		if (!driver) {
+		// Get the driver factory from the pipeline
+		if (!this.#driverFactory) {
 			throw new AstroError({
 				...SessionStorageInitError,
 				message: SessionStorageInitError.message(
-					'The module did not export a driver.',
+					'Astro could not load the driver correctly. Does it exist?',
 					this.#config.driver,
 				),
 			});
 		}
+
+		const driver = this.#driverFactory;
 
 		try {
 			this.#storage = createStorage({
@@ -497,22 +471,4 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			);
 		}
 	}
-}
-
-function resolveSessionDriverName(driver: string | undefined): string | null {
-	if (!driver) {
-		return null;
-	}
-	try {
-		if (driver === 'fs') {
-			return builtinDrivers.fsLite;
-		}
-		if (driver in builtinDrivers) {
-			return builtinDrivers[driver as BuiltinDriverName];
-		}
-	} catch {
-		return null;
-	}
-
-	return driver;
 }
