@@ -241,18 +241,6 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 						});
 					}
 
-					if (id.endsWith('.svg')) {
-						const contents = await fs.promises.readFile(imageMetadata.fsPath, { encoding: 'utf8' });
-						// We know that the contents are present, as we only emit this property for SVG files
-						return {
-							code: makeSvgComponent(
-								imageMetadata,
-								contents,
-								settings.config.experimental?.svg,
-							),
-						};
-					}
-
 					// We can only reliably determine if an image is used on the server, as we need to track its usage throughout the entire build.
 					// Since you cannot use image optimization on the client anyway, it's safe to assume that if the user imported
 					// an image on the client, it should be present in the final build.
@@ -262,7 +250,9 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 								encoding: 'utf8',
 							});
 							// We know that the contents are present, as we only emit this property for SVG files
-							return { code: makeSvgComponent(imageMetadata, contents) };
+							return {
+								code: makeSvgComponent(imageMetadata, contents, settings.config.experimental?.svg),
+							};
 						}
 						return {
 							code: `export default ${getProxyCode(

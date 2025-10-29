@@ -2540,13 +2540,11 @@ export interface AstroUserConfig<
 		chromeDevtoolsWorkspace?: boolean;
 
 		/**
-		 * @docs
 		 * @kind heading
 		 * @name SVG Options
 		 */
 		svg?: {
 			/**
-			 * @docs
 			 * @name experimental.svg.optimize
 			 * @type {boolean}
 			 * @default `true`
@@ -2559,7 +2557,6 @@ export interface AstroUserConfig<
 			optimize?: boolean;
 
 			/**
-			 * @docs
 			 * @name experimental.svg.svgoConfig
 			 * @type {SvgoConfig}
 			 * @default `{}`

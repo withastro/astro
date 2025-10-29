@@ -108,7 +108,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		chromeDevtoolsWorkspace: false,
 		failOnPrerenderConflict: false,
 		svg: {
-			optimize: true,
+			optimize: false,
 			svgoConfig: {},
 		},
 	},
