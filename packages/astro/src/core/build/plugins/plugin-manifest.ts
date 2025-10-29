@@ -64,9 +64,6 @@ import { makePageDataKey } from './util.js';
 export const MANIFEST_REPLACE = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"]${MANIFEST_REPLACE}['"]`, 'g');
 
-export const SSR_MANIFEST_VIRTUAL_MODULE_ID = '@astrojs-manifest';
-export const RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID = '\0' + SSR_MANIFEST_VIRTUAL_MODULE_ID;
-
 /**
  * Low-level Vite plugin that handles:
  * - Registering the serialized manifest as a build input
