@@ -170,7 +170,15 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 				res.end('Internal Server Error');
 				return;
 			}
-			// File not found, forward to the SSR handler
+			// File not found
+			// For asset files (when runMiddlewareOnRequest is enabled), return 404 directly
+			// instead of forwarding to SSR to avoid running middleware on missing assets
+			if (options.runMiddlewareOnRequest && !shouldRunMiddleware(urlPath, routeData, true)) {
+				res.statusCode = 404;
+				res.end('Not Found');
+				return;
+			}
+			// Forward to the SSR handler for HTML pages
 			ssr();
 		});
 		stream.on('headers', (_res: ServerResponse) => {
@@ -195,7 +203,9 @@ function resolveClientDir(options: Options) {
 	const rel = path.relative(url.fileURLToPath(serverURLRaw), url.fileURLToPath(clientURLRaw));
 
 	// walk up the parent folders until you find the one that is the root of the server entry folder. This is how we find the client folder relatively.
-	const serverFolder = path.basename(options.server);
+	// Convert server to string/path in case it's a URL object
+	const serverPath = typeof options.server === 'string' ? options.server : url.fileURLToPath(serverURLRaw);
+	const serverFolder = path.basename(serverPath);
 	let serverEntryFolderURL = path.dirname(import.meta.url);
 	while (!serverEntryFolderURL.endsWith(serverFolder)) {
 		serverEntryFolderURL = path.dirname(serverEntryFolderURL);

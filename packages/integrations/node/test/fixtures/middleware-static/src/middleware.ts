@@ -10,8 +10,20 @@ import { defineMiddleware } from 'astro:middleware';
 export const onRequest = defineMiddleware(async (context, next) => {
 	const url = new URL(context.request.url);
 	
-	// Add a header to show middleware ran
+	// Handle blocked paths BEFORE calling next()
+	if (url.pathname === '/blocked') {
+		return new Response('Access denied', { status: 403 });
+	}
+	
+	// Handle redirects BEFORE calling next()
+	if (url.pathname === '/redirect-me') {
+		return context.redirect('/redirected', 302);
+	}
+	
+	// Call next() to get the response
 	const response = await next();
+	
+	// Add a header to show middleware ran
 	response.headers.set('x-middleware-ran', 'true');
 	
 	// Check if locals were set by external middleware (e.g., Express)
@@ -37,16 +49,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	// Handle query parameters
 	if (url.searchParams.get('debug') === 'true') {
 		response.headers.set('x-debug-mode', 'true');
-	}
-	
-	// Handle blocked paths
-	if (url.pathname === '/blocked') {
-		return new Response('Access denied', { status: 403 });
-	}
-	
-	// Handle redirects
-	if (url.pathname === '/redirect-me') {
-		return context.redirect('/redirected', 302);
 	}
 	
 	// Set cookies for specific pages
