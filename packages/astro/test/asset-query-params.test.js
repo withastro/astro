@@ -34,7 +34,11 @@ describe('Asset Query Parameters (Adapter Client Config)', () => {
 		assert.ok(stylesheets.length > 0, 'Should have at least one stylesheet');
 		stylesheets.each((_i, el) => {
 			const href = $(el).attr('href');
-			assert.match(href, /\?dpl=test-deploy-id/, `Stylesheet href should include assetQueryParams: ${href}`);
+			assert.match(
+				href,
+				/\?dpl=test-deploy-id/,
+				`Stylesheet href should include assetQueryParams: ${href}`,
+			);
 		});
 	});
 
@@ -82,7 +86,11 @@ describe('Asset Query Parameters with Fonts', () => {
 		assert.ok(fontLinks.length > 0, 'Should have at least one font preload link');
 		fontLinks.each((_i, el) => {
 			const href = $(el).attr('href');
-			assert.match(href, /dpl=test-deploy-id/, `Font href should include assetQueryParams: ${href}`);
+			assert.match(
+				href,
+				/dpl=test-deploy-id/,
+				`Font href should include assetQueryParams: ${href}`,
+			);
 		});
 	});
 });
