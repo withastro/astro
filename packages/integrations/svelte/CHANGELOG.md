@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 7.2.1
+
+### Patch Changes
+
+- [#14621](https://github.com/withastro/astro/pull/14621) [`e3175d9`](https://github.com/withastro/astro/commit/e3175d9ccbf070150ab2229b2564ca0b12a86c30) Thanks [@GameRoMan](https://github.com/GameRoMan)! - Updates `vite` version to fix CVE
+
 ## 7.2.0
 
 ### Minor Changes

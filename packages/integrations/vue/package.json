@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/vue",
-  "version": "5.1.1",
+  "version": "5.1.2",
   "description": "Use Vue components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -39,7 +39,7 @@
     "@vitejs/plugin-vue": "5.2.1",
     "@vitejs/plugin-vue-jsx": "^4.2.0",
     "@vue/compiler-sfc": "^3.5.21",
-    "vite": "^6.3.6",
+    "vite": "^6.4.1",
     "vite-plugin-vue-devtools": "^7.7.7"
   },
   "devDependencies": {

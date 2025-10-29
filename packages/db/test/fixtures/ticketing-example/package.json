@@ -9,7 +9,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.4",
+    "@astrojs/check": "^0.9.5",
     "@astrojs/db": "workspace:*",
     "@astrojs/node": "workspace:*",
     "@astrojs/react": "workspace:*",
