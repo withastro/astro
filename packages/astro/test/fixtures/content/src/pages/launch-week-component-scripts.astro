@@ -1,8 +1,8 @@
 ---
-import { getEntryBySlug } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 
-const entry = await getEntryBySlug('blog', 'promo/launch-week-component-scripts');
-const { Content } = await entry.render();
+const entry = await getEntry('blog', 'promo/2-launch-week-component-scripts');
+const { Content } = await render(entry);
 ---
 <html>
 <head>

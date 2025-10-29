@@ -78,8 +78,7 @@ describe('Markdoc - Content Collections', () => {
 });
 
 const post1Entry = {
-	id: 'post-1.mdoc',
-	slug: 'post-1',
+	id: 'post-1',
 	collection: 'blog',
 	data: {
 		schemaWorks: true,
@@ -92,8 +91,7 @@ const post1Entry = {
 };
 
 const post2Entry = {
-	id: 'post-2.mdoc',
-	slug: 'post-2',
+	id: 'post-2',
 	collection: 'blog',
 	data: {
 		schemaWorks: true,
@@ -106,8 +104,7 @@ const post2Entry = {
 };
 
 const post3Entry = {
-	id: 'post-3.mdoc',
-	slug: 'post-3',
+	id: 'post-3',
 	collection: 'blog',
 	data: {
 		schemaWorks: true,

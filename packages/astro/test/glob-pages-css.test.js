@@ -3,7 +3,7 @@ import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-describe('Astro.glob on pages/ directory', () => {
+describe('import.meta.glob on pages/ directory', () => {
 	let fixture;
 
 	before(async () => {

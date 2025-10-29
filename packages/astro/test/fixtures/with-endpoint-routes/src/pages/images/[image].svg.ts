@@ -1,5 +1,5 @@
 export async function getStaticPaths() {
-	return [{ params: { image: 1 } }, { params: { image: 2 } }];
+	return [{ params: { image: "1" } }, { params: { image: "2" } }];
 }
 
 export async function GET({ params }) {
