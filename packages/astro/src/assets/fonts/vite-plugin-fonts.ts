@@ -223,7 +223,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					urlResolver: createBuildUrlResolver({
 						base: baseUrl,
 						assetsPrefix: settings.config.build.assetsPrefix,
-						assetQueryParams: settings.adapter?.client?.assetQueryParams,
+						searchParams: settings.adapter?.client?.assetQueryParams ?? new URLSearchParams(),
 					}),
 					createHashResolver: (dependencies) => createBuildUrlProxyHashResolver(dependencies),
 				});
@@ -237,7 +237,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				cssRenderer: createMinifiableCssRenderer({ minify: false }),
 				urlResolver: createDevUrlResolver({
 					base: baseUrl,
-					assetQueryParams: settings.adapter?.client?.assetQueryParams,
+					searchParams: settings.adapter?.client?.assetQueryParams ?? new URLSearchParams(),
 				}),
 				createHashResolver: (dependencies) =>
 					createDevUrlProxyHashResolver({

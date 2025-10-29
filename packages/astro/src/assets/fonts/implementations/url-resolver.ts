@@ -5,26 +5,24 @@ import type { UrlResolver } from '../definitions.js';
 
 export function createDevUrlResolver({
 	base,
-	assetQueryParams,
+	searchParams,
 }: {
 	base: string;
-	assetQueryParams?: URLSearchParams;
+	searchParams: URLSearchParams;
 }): UrlResolver {
 	let resolved = false;
 	return {
 		resolve(hash) {
 			resolved ||= true;
-			let url = prependForwardSlash(joinPaths(base, hash));
+			const urlPath = prependForwardSlash(joinPaths(base, hash));
+			const url = new URL(urlPath, 'http://localhost');
 
-			// Append assetQueryParams if available (for adapter-level tracking like skew protection)
-			if (assetQueryParams) {
-				const assetQueryString = assetQueryParams.toString();
-				if (assetQueryString) {
-					url += '?' + assetQueryString;
-				}
-			}
+			// Append searchParams if available (for adapter-level tracking like skew protection)
+			searchParams.forEach((value, key) => {
+				url.searchParams.set(key, value);
+			});
 
-			return url;
+			return url.href.replace('http://localhost', '');
 		},
 		getCspResources() {
 			return resolved ? ["'self'"] : [];
@@ -35,34 +33,32 @@ export function createDevUrlResolver({
 export function createBuildUrlResolver({
 	base,
 	assetsPrefix,
-	assetQueryParams,
+	searchParams,
 }: {
 	base: string;
 	assetsPrefix: AssetsPrefix;
-	assetQueryParams?: URLSearchParams;
+	searchParams: URLSearchParams;
 }): UrlResolver {
 	const resources = new Set<string>();
 	return {
 		resolve(hash) {
 			const prefix = assetsPrefix ? getAssetsPrefix(fileExtension(hash), assetsPrefix) : undefined;
-			let url: string;
+			let urlPath: string;
 			if (prefix) {
 				resources.add(prefix);
-				url = joinPaths(prefix, base, hash);
+				urlPath = joinPaths(prefix, base, hash);
 			} else {
 				resources.add("'self'");
-				url = prependForwardSlash(joinPaths(base, hash));
+				urlPath = prependForwardSlash(joinPaths(base, hash));
 			}
 
-			// Append assetQueryParams if available (for adapter-level tracking like skew protection)
-			if (assetQueryParams) {
-				const assetQueryString = assetQueryParams.toString();
-				if (assetQueryString) {
-					url += '?' + assetQueryString;
-				}
-			}
+			// Create URL object and append searchParams if available (for adapter-level tracking like skew protection)
+			const url = new URL(urlPath, 'http://localhost');
+			searchParams.forEach((value, key) => {
+				url.searchParams.set(key, value);
+			});
 
-			return url;
+			return url.href.replace('http://localhost', '');
 		},
 		getCspResources() {
 			return Array.from(resources);
