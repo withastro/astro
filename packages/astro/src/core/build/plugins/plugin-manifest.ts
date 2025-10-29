@@ -1,7 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import type { OutputChunk } from 'rollup';
 import { glob } from 'tinyglobby';
-import { type BuiltinDriverName, builtinDrivers } from 'unstorage';
 import type { Plugin as VitePlugin } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
@@ -43,25 +42,7 @@ const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
 export const SSR_MANIFEST_VIRTUAL_MODULE_ID = '@astrojs-manifest';
 export const RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID = '\0' + SSR_MANIFEST_VIRTUAL_MODULE_ID;
 
-function resolveSessionDriver(driver: string | undefined): string | null {
-	if (!driver) {
-		return null;
-	}
-	try {
-		if (driver === 'fs') {
-			return import.meta.resolve(builtinDrivers.fsLite, import.meta.url);
-		}
-		if (driver in builtinDrivers) {
-			return import.meta.resolve(builtinDrivers[driver as BuiltinDriverName], import.meta.url);
-		}
-	} catch {
-		return null;
-	}
-
-	return driver;
-}
-
-function vitePluginManifest(options: StaticBuildOptions, internals: BuildInternals): VitePlugin {
+function vitePluginManifest(internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/plugin-build-manifest',
 		enforce: 'post',
@@ -85,11 +66,8 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 					`import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest'`,
 				];
 
-				const resolvedDriver = resolveSessionDriver(options.settings.config.session?.driver);
-
 				const contents = [
 					`const manifest = _deserializeManifest('${manifestReplace}');`,
-					`if (manifest.sessionConfig) manifest.sessionConfig.driverModule = ${resolvedDriver ? `() => import(${JSON.stringify(resolvedDriver)})` : 'null'};`,
 					`_privateSetManifestDontUseThis(manifest);`,
 				];
 				const exports = [`export { manifest }`];
@@ -124,7 +102,7 @@ export function pluginManifest(
 		hooks: {
 			'build:before': () => {
 				return {
-					vitePlugin: vitePluginManifest(options, internals),
+					vitePlugin: vitePluginManifest(internals),
 				};
 			},
 

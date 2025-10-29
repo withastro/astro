@@ -43,6 +43,7 @@ import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
 import { vitePluginServerIslands } from './server-islands/vite-plugin-server-islands.js';
+import { vitePluginSessionDriver } from './session/vite-plugin.js';
 import { isObject } from './util.js';
 
 type CreateViteOptions = {
@@ -174,6 +175,7 @@ export async function createVite(
 			astroInternationalization({ settings }),
 			vitePluginActions({ fs, settings }),
 			vitePluginServerIslands({ settings, logger }),
+			vitePluginSessionDriver({ settings }),
 			astroContainer(),
 			astroHmrReloadPlugin(),
 		],
