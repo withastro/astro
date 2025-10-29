@@ -40,9 +40,38 @@ import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { makePageDataKey } from './util.js';
 
-const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
-const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
+/**
+ * Unified manifest system architecture:
+ *
+ * The serialized manifest (virtual:astro:serialized-manifest) is now the single source of truth
+ * for both dev and production builds:
+ *
+ * - In dev: The serialized manifest is used directly (pre-computed manifest data)
+ * - In prod: Two-stage process:
+ *   1. serialized.ts emits a placeholder (MANIFEST_REPLACE token) during bundling
+ *   2. plugin-manifest injects the real build-specific data at the end
+ *
+ * This flow eliminates dual virtual modules and simplifies the architecture:
+ * - manifestBuildPlugin: Registers SERIALIZED_MANIFEST_ID as Vite input
+ * - manifestBuildPlugin.generateBundle: Tracks the serialized manifest chunk filename
+ * - pluginManifest.build:post: Finds the chunk, computes final manifest data, and replaces the token
+ *
+ * The placeholder mechanism allows serialized.ts to emit during vite build without knowing
+ * the final build-specific data (routes, assets, CSP hashes, etc) that's only available
+ * after bundling completes.
+ */
 
+export const MANIFEST_REPLACE = '@@ASTRO_MANIFEST_REPLACE@@';
+const replaceExp = new RegExp(`['"]${MANIFEST_REPLACE}['"]`, 'g');
+
+/**
+ * Low-level Vite plugin that handles:
+ * - Registering the serialized manifest as a build input
+ * - Tracking the manifest chunk filename for later injection
+ * - Ensuring manifest chunk always rebuilds (cache busting via augmentChunkHash)
+ *
+ * Does NOT handle the actual manifest computation or injection - that's done in pluginManifest.build:post
+ */
 function manifestBuildPlugin(internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/plugin-manifest-build',
@@ -71,6 +100,10 @@ function manifestBuildPlugin(internals: BuildInternals): VitePlugin {
 	};
 }
 
+/**
+ * High-level Astro build plugin that orchestrates manifest injection.
+ * Coordinates two stages: Vite plugin setup (build:before) and manifest injection (build:post)
+ */
 export function pluginManifest(
 	options: StaticBuildOptions,
 	internals: BuildInternals,
@@ -84,6 +117,15 @@ export function pluginManifest(
 				};
 			},
 
+			/**
+			 * Post-build manifest injection stage:
+			 * 1. Finds the serialized manifest chunk (contains MANIFEST_REPLACE token)
+			 * 2. Computes final manifest data (routes, assets, CSP hashes, etc)
+			 * 3. Replaces the placeholder token with actual manifest JSON
+			 *
+			 * This is split from Vite plugin because final manifest data depends on build outputs
+			 * that only exist after bundling completes.
+			 */
 			'build:post': async ({ ssrOutputs, mutate }) => {
 				let manifestEntryChunk: OutputChunk | undefined;
 

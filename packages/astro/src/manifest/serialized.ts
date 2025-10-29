@@ -3,6 +3,7 @@ import { getInfoOutput } from '../cli/info/index.js';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/index.js';
 import type { SerializedSSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
+import { MANIFEST_REPLACE } from '../core/build/plugins/plugin-manifest.js';
 import {
 	getAlgorithm,
 	getDirectives,
@@ -40,7 +41,9 @@ export function serializedManifestPlugin({
 			if (id === SERIALIZED_MANIFEST_RESOLVED_ID) {
 				let manifestData: string;
 				if (command === 'build') {
-					manifestData = "'@@ASTRO_MANIFEST_REPLACE@@'";
+					// Emit placeholder token that will be replaced by plugin-manifest.ts in build:post
+					// See plugin-manifest.ts for full architecture explanation
+					manifestData = `'${MANIFEST_REPLACE}'`;
 				} else {
 					const serialized = await createSerializedManifest(settings);
 					manifestData = JSON.stringify(serialized);
