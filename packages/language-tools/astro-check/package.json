@@ -14,7 +14,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "astro-check": "./dist/bin.js"
+    "astro-check": "./bin/astro-check.js"
   },
   "files": [
     "bin",

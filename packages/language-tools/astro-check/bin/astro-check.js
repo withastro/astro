@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import path from 'node:path';
-import { check, parseArgsAsCheckConfig } from './index.js';
+import { check, parseArgsAsCheckConfig } from '../dist/index.js';
 
 const args = parseArgsAsCheckConfig(process.argv.slice(2));
 
