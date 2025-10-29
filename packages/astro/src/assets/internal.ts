@@ -209,18 +209,20 @@ export async function getImage(
 		});
 	} else if (imageConfig.assetQueryParams) {
 		// For SSR-rendered images without addStaticImage, append assetQueryParams manually
-		const assetQueryString = imageConfig.assetQueryParams.toString();
-		if (assetQueryString && !imageURL.includes('?')) {
-			imageURL += '?' + assetQueryString;
-		}
+		const imageURLObj = new URL(imageURL, 'http://localhost');
+		imageConfig.assetQueryParams.forEach((value, key) => {
+			imageURLObj.searchParams.set(key, value);
+		});
+		imageURL = imageURLObj.href.replace('http://localhost', '');
+
 		srcSets = srcSets.map((srcSet) => {
-			let url = srcSet.url;
-			if (assetQueryString && !url.includes('?')) {
-				url += '?' + assetQueryString;
-			}
+			const urlObj = new URL(srcSet.url, 'http://localhost');
+			imageConfig.assetQueryParams!.forEach((value, key) => {
+				urlObj.searchParams.set(key, value);
+			});
 			return {
 				...srcSet,
-				url,
+				url: urlObj.href.replace('http://localhost', ''),
 			};
 		});
 	}

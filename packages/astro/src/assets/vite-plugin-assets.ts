@@ -85,23 +85,21 @@ const addStaticImageFactory = (
 
 		// The paths here are used for URLs, so we need to make sure they have the proper format for an URL
 		// (leading slash, prefixed with the base / assets prefix, encoded, etc)
-		let url: string;
-		if (settings.config.build.assetsPrefix) {
-			url = encodeURI(joinPaths(assetPrefix, finalFilePath));
-		} else {
-			url = encodeURI(prependForwardSlash(joinPaths(settings.config.base, finalFilePath)));
-		}
-
-		// Append assetQueryParams if available (for adapter-level tracking like skew protection)
+		// Create URL object to safely manipulate and append assetQueryParams if available (for adapter-level tracking like skew protection)
+		const url = new URL(
+			settings.config.build.assetsPrefix
+				? encodeURI(joinPaths(assetPrefix, finalFilePath))
+				: encodeURI(prependForwardSlash(joinPaths(settings.config.base, finalFilePath))),
+			'http://localhost',
+		);
 		const assetQueryParams = settings.adapter?.client?.assetQueryParams;
 		if (assetQueryParams) {
-			const assetQueryString = assetQueryParams.toString();
-			if (assetQueryString) {
-				url += '?' + assetQueryString;
-			}
+			assetQueryParams.forEach((value, key) => {
+				url.searchParams.set(key, value);
+			});
 		}
 
-		return url;
+		return url.href.replace('http://localhost', '');
 	};
 };
 
