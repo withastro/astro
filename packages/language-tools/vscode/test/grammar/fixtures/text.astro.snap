@@ -1,0 +1,58 @@
+>---
+#^^^ source.astro comment
+>const cool = "our frontmatter"
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro source.ts
+>console.log("Hello, World!")
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro source.ts
+>console.log(`This is ${cool}!`)
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro source.ts
+>---
+#^^^ source.astro comment
+>
+>This is some text<div>
+#^^^^^^^^^^^^^^^^^ source.astro text.astro
+#                 ^ source.astro meta.scope.tag.div.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+#                  ^^^ source.astro meta.scope.tag.div.astro meta.tag.start.astro entity.name.tag.astro
+#                     ^ source.astro meta.scope.tag.div.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+>  <p>
+#^^ source.astro text.astro
+#  ^ source.astro meta.scope.tag.p.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+#   ^ source.astro meta.scope.tag.p.astro meta.tag.start.astro entity.name.tag.astro
+#    ^ source.astro meta.scope.tag.p.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+>    Some text in HTML tags
+#^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro text.astro
+>    <strong> and some text in nested tags </strong>
+#^^^^ source.astro text.astro
+#    ^ source.astro meta.scope.tag.strong.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+#     ^^^^^^ source.astro meta.scope.tag.strong.astro meta.tag.start.astro entity.name.tag.astro
+#           ^ source.astro meta.scope.tag.strong.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+#            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro text.astro
+#                                          ^^ source.astro meta.scope.tag.strong.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#                                            ^^^^^^ source.astro meta.scope.tag.strong.astro meta.tag.end.astro entity.name.tag.astro
+#                                                  ^ source.astro meta.scope.tag.strong.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>  </p>
+#^^ source.astro text.astro
+#  ^^ source.astro meta.scope.tag.p.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#    ^ source.astro meta.scope.tag.p.astro meta.tag.end.astro entity.name.tag.astro
+#     ^ source.astro meta.scope.tag.p.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>  Watch this &nbsp; html entity!
+#^^^^^^^^^^^^^ source.astro text.astro
+#             ^ source.astro text.astro constant.character.entity.named.nbsp.astro punctuation.definition.entity.astro
+#              ^^^^ source.astro text.astro constant.character.entity.named.nbsp.astro
+#                  ^ source.astro text.astro constant.character.entity.named.nbsp.astro punctuation.definition.entity.astro
+#                   ^^^^^^^^^^^^^ source.astro text.astro
+>  {true && <p>Some more text in expression</p>}
+#^^ source.astro text.astro
+#  ^ source.astro punctuation.section.embedded.begin.astro
+#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.embedded.expression.astro source.tsx
+#                                              ^ source.astro punctuation.section.embedded.end.astro
+>  <!-- Wow, we even have an HTML comment -->
+#^^ source.astro text.astro
+#  ^^^^ source.astro comment.block.astro punctuation.definition.comment.astro
+#      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro comment.block.astro
+#                                         ^^^ source.astro comment.block.astro punctuation.definition.comment.astro
+></div>This is the final text
+#^^ source.astro meta.scope.tag.div.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^ source.astro meta.scope.tag.div.astro meta.tag.end.astro entity.name.tag.astro
+#     ^ source.astro meta.scope.tag.div.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+#      ^^^^^^^^^^^^^^^^^^^^^^ source.astro text.astro
