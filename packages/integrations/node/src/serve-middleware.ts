@@ -36,7 +36,7 @@ export async function executeMiddlewareForStatic(
  * 
  * All other paths are considered HTML pages and will have middleware executed.
  */
-export function isPrerenderedHTMLPage(urlPath: string): boolean {
+function isPrerenderedHTMLPage(urlPath: string): boolean {
 	// Skip middleware for asset files
 	if (
 		urlPath.startsWith('/_astro/') ||
