@@ -1,6 +1,6 @@
 // @ts-check
 import cloudflare from '@astrojs/cloudflare';
-import { defineConfig, envField } from 'astro/config';
+import { defineConfig, envField, fontProviders } from 'astro/config';
 
 import mdx from '@astrojs/mdx';
 import { fileURLToPath } from 'node:url';
@@ -36,5 +36,12 @@ export default defineConfig({
 			BAR: envField.string({ context: 'client', access: 'public' }),
 			SECRET: envField.string({ context: 'server', access: 'secret' }),
 		}
+	},
+	experimental: {
+		fonts: [{
+			provider: fontProviders.google(),
+			name: "Roboto",
+			cssVariable: "--font-roboto"
+		}]
 	}
 });
