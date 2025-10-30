@@ -230,15 +230,16 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		},
 		async configureServer(server) {
 			const environment = server.environments.ssr;
-			if (!isRunnableDevEnvironment(environment)) {
-				return;
-			}
+
 			await initialize({
 				// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
 				cacheDir: new URL(CACHE_DIR, settings.dotAstroDir),
-				modResolver: createDevServerRemoteFontProviderModResolver({
-					environment,
-				}),
+				// If the environment cannot import modules, we fallback to node imports
+				modResolver: isRunnableDevEnvironment(environment)
+					? createDevServerRemoteFontProviderModResolver({
+							environment,
+						})
+					: createBuildRemoteFontProviderModResolver(),
 				cssRenderer: createMinifiableCssRenderer({ minify: false }),
 				urlResolver: createDevUrlResolver({ base: baseUrl }),
 				createHashResolver: (dependencies) =>
