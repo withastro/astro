@@ -109,7 +109,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		failOnPrerenderConflict: false,
 		svg: {
 			optimize: false,
-			svgoConfig: {},
 		},
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
@@ -533,7 +532,7 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.failOnPrerenderConflict),
 			svg: z
 				.object({
-					optimize: z.boolean().default(true),
+					optimize: z.boolean().default(ASTRO_CONFIG_DEFAULTS.experimental.svg.optimize),
 					svgoConfig: z
 						.custom<SvgoConfig>((value) => value && typeof value === 'object')
 						.optional(),

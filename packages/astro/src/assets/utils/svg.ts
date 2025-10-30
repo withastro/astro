@@ -1,21 +1,20 @@
 import { optimize } from 'svgo';
-
 import { parse, renderSync } from 'ultrahtml';
+import { AstroError, AstroErrorData } from '../../../dist/core/errors/index.js';
 import type { AstroConfig } from '../../types/public/config.js';
-
 import type { SvgComponentProps } from '../runtime.js';
 import { dropAttributes } from '../runtime.js';
 import type { ImageMetadata } from '../types.js';
 
-function parseSvg(contents: string, svgConfig?: AstroConfig['experimental']['svg']) {
+function parseSvg(contents: string, svgConfig: AstroConfig['experimental']['svg']) {
 	let processedContents = contents;
 	if (svgConfig?.optimize) {
 		try {
 			const result = optimize(contents, svgConfig.svgoConfig);
 			processedContents = result.data;
-		} catch (error) {
-			console.warn('SVGO optimization failed:', error);
+		} catch (cause) {
 			processedContents = contents;
+			throw new AstroError(AstroErrorData.SvgoOptimizationError, { cause });
 		}
 	}
 	const root = parse(processedContents);
@@ -34,7 +33,7 @@ function parseSvg(contents: string, svgConfig?: AstroConfig['experimental']['svg
 export function makeSvgComponent(
 	meta: ImageMetadata,
 	contents: Buffer | string,
-	svgConfig?: AstroConfig['experimental']['svg'],
+	svgConfig: AstroConfig['experimental']['svg'],
 ): string {
 	const file = typeof contents === 'string' ? contents : contents.toString('utf-8');
 	const { attributes, body: children } = parseSvg(file, svgConfig);

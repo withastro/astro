@@ -2064,6 +2064,13 @@ export const SessionConfigWithoutFlagError = {
 	hint: 'For more information, see https://docs.astro.build/en/guides/sessions/',
 } satisfies ErrorData;
 
+export const SvgoOptimizationError = {
+	name: 'SvgoOptimizationError',
+	title: 'SVGO optimization error',
+	message: 'An error occurred while optimizing an SVG file with SVGO.',
+	hint: 'Check the error cause for more details.',
+} satisfies ErrorData;
+
 /*
  * Adding an error? Follow these steps:
  * 1. Determine in which category it belongs (Astro, Vite, CSS, Content Collections etc.)

@@ -19,7 +19,8 @@ export default defineConfig({
 });
 ```
 
-You can customize SVGO behavior by providing your own configuration:
+With SVG optimization enabled, you can further customize behavior with [SVGO plugins](https://svgo.dev/docs/plugins/):
+
 ```js
 export default defineConfig({
   experimental: {
@@ -33,6 +34,6 @@ export default defineConfig({
 });
 ```
 
-The feature includes graceful error handling - if optimization fails for any SVG, Astro will fall back to using the original file content.
+The feature includes graceful error handling. If optimization fails for any SVG, Astro will fall back to using the original file content.
 
-For more information on enabling and using this feature in your project, see the [Experimental SVG Optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg/).
+For more information on enabling and using this feature in your project, see the [experimental SVG optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/).
