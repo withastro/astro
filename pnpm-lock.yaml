@@ -714,9 +714,6 @@ importers:
       eol:
         specifier: ^0.10.0
         version: 0.10.0
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
       expect-type:
         specifier: ^1.2.2
         version: 1.2.2
@@ -4842,9 +4839,6 @@ importers:
       devalue:
         specifier: ^5.4.1
         version: 5.4.2
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
       rollup:
         specifier: ^4.52.4
         version: 4.52.5
