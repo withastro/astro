@@ -1,5 +1,6 @@
 // @ts-expect-error - It is safe to expect the error here.
 import { env as globalEnv } from 'cloudflare:workers';
+import { sessionKVBindingName } from 'virtual:astro-cloudflare:config';
 import type {
 	Response as CfResponse,
 	CacheStorage as CloudflareCacheStorage,
@@ -9,7 +10,6 @@ import type {
 import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from '../utils/env.js';
-import { sessionKVBindingName } from 'virtual:astro-cloudflare:config';
 
 export type Env = {
 	[key: string]: unknown;
@@ -40,10 +40,10 @@ export async function handle(
 	const app = createApp(import.meta.env.DEV);
 	const { pathname } = new URL(request.url);
 
-	if(env[sessionKVBindingName]) {
+	if (env[sessionKVBindingName]) {
 		const sessionConfigOptions = app.manifest.sessionConfig?.options ?? {};
 		Object.assign(sessionConfigOptions, {
-			binding: env[sessionKVBindingName]
+			binding: env[sessionKVBindingName],
 		});
 	}
 
