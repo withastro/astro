@@ -9,7 +9,7 @@ import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.j
 const astroPath = fileURLToPath(new URL('../node_modules/astro/astro.js', import.meta.url));
 /** Returns a process running the Astro CLI. */
 export function astroCli(cwd, /** @type {string[]} */ ...args) {
-	const proc = spawn(astroPath, args, {
+	const proc = spawn('node', [astroPath, ...args], {
 		env: { ...process.env, ASTRO_TELEMETRY_DISABLED: 'true' },
 		cwd,
 	});
@@ -45,8 +45,9 @@ const wranglerPath = fileURLToPath(
 /** Returns a process running the Wrangler CLI. */
 export function wranglerCli(cwd) {
 	const spawned = spawn(
-		wranglerPath,
+		'node',
 		[
+			wranglerPath,
 			'pages',
 			'dev',
 			'dist',
@@ -65,7 +66,7 @@ export function wranglerCli(cwd) {
 				CI: '1',
 				CF_PAGES: '1',
 			},
-			cwd
+			cwd,
 		},
 	);
 
