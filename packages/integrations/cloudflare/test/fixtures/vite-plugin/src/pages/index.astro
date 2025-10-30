@@ -14,6 +14,11 @@ const dogs = await getCollection('dogs');
 const increment = await getEntry('increment', 'value');
 const { Content } = await render(increment);
 ---
+<style>
+	body {
+		font-family: var(--font-roboto);
+	}
+</style>
 <html>
 <head>
 	<meta charset="utf-8" />
@@ -66,8 +71,4 @@ const { Content } = await render(increment);
 </body>
 </html>
 
-<style>
-	body {
-		font-family: var(--font-roboto);
-	}
-</style>
+

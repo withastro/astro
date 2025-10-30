@@ -17,9 +17,14 @@ export function vitePluginSessionDriver({ settings }: { settings: AstroSettings 
 						return await this.resolve(builtinDrivers.fsLite);
 					}
 					if (settings.config.session.driver && settings.config.session.driver in builtinDrivers) {
-						return await this.resolve(
+						const module = await this.resolve(
 							builtinDrivers[settings.config.session.driver as BuiltinDriverName],
 						);
+						if (module) {
+							return module;
+						} else {
+							return RESOLVED_VIRTUAL_SESSION_DRIVER_ID;
+						}
 					}
 				} else {
 					return RESOLVED_VIRTUAL_SESSION_DRIVER_ID;

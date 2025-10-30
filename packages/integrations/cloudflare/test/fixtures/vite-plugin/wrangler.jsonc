@@ -1,7 +1,6 @@
 {
-	"compatibility_date": "2025-05-21",
+	"compatibility_date": "2025-10-30",
   "compatibility_flags": [
-  	"nodejs_compat",
     "global_fetch_strictly_public"
   ],
 	"name": "astro-cloudflare-custom-entryfile",
