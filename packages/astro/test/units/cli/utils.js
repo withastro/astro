@@ -57,12 +57,27 @@ export function createFakeAstroVersionProvider(version) {
 }
 
 /**
- * @param {import("../../../dist/cli/docs/domains/platform.js").Platform} platform
- * @returns {import("../../../dist/cli/docs/definitions.js").PlatformProvider}
- */
-export function createFakePlatformProvider(platform) {
+ * @param {import('../../../dist/cli/docs/domain/cloud-ide.js').CloudIde | null} cloudIde
+ * @returns {import("../../../dist/cli/docs/definitions.js").CloudIdeProvider}
+ * */
+export function createFakeCloudIdeProvider(cloudIde) {
 	return {
-		get() {
+		getName() {
+			return cloudIde;
+		},
+	};
+}
+
+/**
+ * @param {NodeJS.Platform} platform
+ * @returns {import("../../../dist/cli/definitions.js").OperatingSystemProvider}
+ */
+export function createFakeOperatingSystemProvider(platform) {
+	return {
+		getName() {
+			return platform;
+		},
+		getDisplayName() {
 			return platform;
 		},
 	};
@@ -72,7 +87,7 @@ export function createSpyCommandExecutor() {
 	/** @type {Array<{ command: string; args?: Array<string> }>} */
 	const inputs = [];
 
-	/** @type {import("../../../dist/cli/docs/definitions.js").CommandExecutor} */
+	/** @type {import("../../../dist/cli/definitions.js").CommandExecutor} */
 	const commandExecutor = {
 		async execute(command, args) {
 			inputs.push({ command, args });
