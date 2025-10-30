@@ -262,6 +262,7 @@
     "js-yaml": "^4.1.0",
     "kleur": "^4.1.5",
     "mocha": "^10.2.0",
+    "ovsx": "^0.10.6",
     "vscode-languageclient": "^9.0.1",
     "vscode-tmgrammar-test": "^0.1.2"
   },
