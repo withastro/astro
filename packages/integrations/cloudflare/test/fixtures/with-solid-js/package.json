@@ -1,0 +1,11 @@
+{
+  "name": "@test/astro-cloudflare-with-solid-js",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/cloudflare": "workspace:*",
+    "@astrojs/solid-js": "^5.1.1",
+    "astro": "workspace:*",
+    "solid-js": "^1.9.9"
+  }
+}

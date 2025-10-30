@@ -1,0 +1,70 @@
+{
+  "name": "@astrojs/vercel",
+  "description": "Deploy your site to Vercel",
+  "version": "9.0.0",
+  "type": "module",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/integrations/vercel"
+  },
+  "keywords": [
+    "withastro",
+    "astro-adapter"
+  ],
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://docs.astro.build/en/guides/integrations-guide/vercel/",
+  "exports": {
+    ".": "./dist/index.js",
+    "./entrypoint": "./dist/serverless/entrypoint.js",
+    "./serverless": "./dist/serverless/adapter.js",
+    "./serverless/entrypoint": "./dist/serverless/entrypoint.js",
+    "./static": "./dist/static/adapter.js",
+    "./build-image-service": "./dist/image/build-service.js",
+    "./dev-image-service": "./dist/image/dev-service.js",
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "serverless": [
+        "dist/serverless/adapter.d.ts"
+      ],
+      "static": [
+        "dist/static/adapter.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist",
+    "types.d.ts"
+  ],
+  "scripts": {
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
+    "test": "astro-scripts test --timeout 50000 \"test/**/!(hosted).test.js\"",
+    "test:hosted": "astro-scripts test --timeout 30000 \"test/hosted/*.test.js\""
+  },
+  "dependencies": {
+    "@astrojs/internal-helpers": "workspace:*",
+    "@vercel/analytics": "^1.5.0",
+    "@vercel/functions": "^2.2.13",
+    "@vercel/nft": "0.30.3",
+    "@vercel/routing-utils": "^5.2.0",
+    "esbuild": "^0.25.0",
+    "tinyglobby": "^0.2.15"
+  },
+  "peerDependencies": {
+    "astro": "^5.0.0"
+  },
+  "devDependencies": {
+    "astro": "workspace:*",
+    "astro-scripts": "workspace:*",
+    "cheerio": "1.1.2"
+  },
+  "publishConfig": {
+    "provenance": true
+  }
+}

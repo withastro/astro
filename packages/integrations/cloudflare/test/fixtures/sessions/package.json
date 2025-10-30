@@ -1,0 +1,17 @@
+{
+  "name": "@test/astro-cloudflare-sessions",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/cloudflare": "workspace:*"
+  },
+  "devDependencies": {
+    "astro": "workspace:*",
+    "wrangler": "4.43.0"
+  },
+  "scripts": {
+    "build": "astro build",
+    "preview": "astro build && wrangler dev",
+    "start": "astro dev"
+  }
+}

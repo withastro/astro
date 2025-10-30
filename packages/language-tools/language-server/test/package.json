@@ -1,0 +1,14 @@
+{
+  "name": "language-server-tests",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@astrojs/svelte": "workspace:*",
+    "@astrojs/vue": "workspace:*",
+    "astro": "workspace:*",
+    "svelte": "^4.2.10"
+  },
+  "devDependencies": {
+    "tinyglobby": "^0.2.15"
+  }
+}
