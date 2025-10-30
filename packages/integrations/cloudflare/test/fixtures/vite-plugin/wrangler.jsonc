@@ -5,7 +5,7 @@
     "global_fetch_strictly_public"
   ],
 	"name": "astro-cloudflare-custom-entryfile",
-	"main": "dist/_worker.js/index.js",
+	"main": "@astrojs/cloudflare/entrypoints/server",
 	"assets": {
 		"directory": "./dist",
 		"binding": "ASSETS"
@@ -13,6 +13,12 @@
 	"images": {
 		"binding": "IMAGES"
 	},
+	"kv_namespaces": [
+    {
+      "binding": "SESSION",
+      "id": "SESSION"
+    }
+  ],
 	"observability": {
     "logs": {
       "enabled": true,

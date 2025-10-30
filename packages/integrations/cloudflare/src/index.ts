@@ -27,6 +27,7 @@ import {
 import { createGetEnv } from './utils/env.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { type ImageService, setImageConfig } from './utils/image-config.js';
+import { createConfigPlugin } from './vite-plugin-config.js';
 
 export type { Runtime } from './utils/handler.js';
 
@@ -247,6 +248,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 									}
 								},
 							},
+							createConfigPlugin({
+								sessionKVBindingName: SESSION_KV_BINDING_NAME,
+							}),
 						],
 					},
 					image: setImageConfig(args?.imageService ?? 'compile', config.image, command, logger),
@@ -316,9 +320,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 					setProcessEnv(_config, platformProxy.env);
 
-					globalThis.__env__ ??= {};
-					globalThis.__env__[SESSION_KV_BINDING_NAME] = platformProxy.env[SESSION_KV_BINDING_NAME];
-
 					const clientLocalsSymbol = Symbol.for('astro.locals');
 
 					server.middlewares.use(async function middleware(req, _res, next) {
@@ -385,10 +386,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					// in a global way, so we shim their access as `process.env.*`. This is not the recommended way for users to access environment variables. But we'll add this for compatibility for chosen variables. Mainly to support `@astrojs/db`
 					vite.define = {
 						'process.env': 'process.env',
-						// Allows the request handler to know what the binding name is
-						'globalThis.__ASTRO_SESSION_BINDING_NAME': JSON.stringify(
-							args?.sessionKVBindingName ?? 'SESSION',
-						),
 						'globalThis.__ASTRO_IMAGES_BINDING_NAME': JSON.stringify(
 							args?.imagesBindingName ?? 'IMAGES',
 						),
