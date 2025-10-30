@@ -135,7 +135,7 @@ export async function createContentTypesGenerator({
 			await reloadContentConfigObserver({
 				fs,
 				settings,
-				environment: viteServer.environments.content as RunnableDevEnvironment,
+				environment: viteServer.environments.astro as RunnableDevEnvironment,
 			});
 			return { shouldGenerateTypes: true };
 		}

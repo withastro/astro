@@ -85,14 +85,6 @@ export function astroContentImportPlugin({
 			name: 'astro:content-imports',
 			config(_config, env) {
 				shouldEmitFile = env.command === 'build';
-				return {
-					environments: {
-						content: {
-							// This is all that's needed to create a new RunnableDevEnvironment
-							dev: {},
-						},
-					},
-				};
 			},
 			async buildStart() {
 				// Get symlinks once at build start
@@ -172,7 +164,7 @@ export const _internal = {
 							await reloadContentConfigObserver({
 								fs,
 								settings,
-								environment: viteServer.environments.content as RunnableDevEnvironment,
+								environment: viteServer.environments.astro as RunnableDevEnvironment,
 							});
 						}
 
