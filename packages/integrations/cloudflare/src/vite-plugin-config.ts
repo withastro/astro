@@ -3,7 +3,7 @@ import type { PluginOption } from 'vite';
 const VIRTUAL_CONFIG_ID = 'virtual:astro-cloudflare:config';
 const RESOLVED_VIRTUAL_CONFIG_ID = '\0' + VIRTUAL_CONFIG_ID;
 
-export interface CloudflareConfig {
+interface CloudflareConfig {
 	sessionKVBindingName: string;
 }
 
