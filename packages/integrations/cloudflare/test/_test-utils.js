@@ -1,5 +1,5 @@
+import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { execa } from 'execa';
 import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.js';
 
 /**
@@ -9,14 +9,33 @@ import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.j
 const astroPath = fileURLToPath(new URL('../node_modules/astro/astro.js', import.meta.url));
 /** Returns a process running the Astro CLI. */
 export function astroCli(cwd, /** @type {string[]} */ ...args) {
-	const spawned = execa(astroPath, [...args], {
-		env: { ASTRO_TELEMETRY_DISABLED: true },
-		cwd: cwd,
+	const proc = spawn(astroPath, args, {
+		env: { ...process.env, ASTRO_TELEMETRY_DISABLED: 'true' },
+		cwd,
 	});
+	proc.stdout.setEncoding('utf-8');
 
-	spawned.stdout.setEncoding('utf8');
-
-	return spawned;
+	return {
+		proc,
+		getResult: () =>
+			new Promise((resolve) => {
+				let stdout = '';
+				let stderr = '';
+				proc.stdout.on('data', (chunk) => {
+					stdout += chunk;
+				});
+				proc.stderr.on('data', (chunk) => {
+					stderr += chunk;
+				});
+				proc.on('close', (exitCode) => {
+					resolve({
+						exitCode,
+						stdout,
+						stderr,
+					});
+				});
+			}),
+	};
 }
 
 const wranglerPath = fileURLToPath(
@@ -25,7 +44,7 @@ const wranglerPath = fileURLToPath(
 
 /** Returns a process running the Wrangler CLI. */
 export function wranglerCli(cwd) {
-	const spawned = execa(
+	const spawned = spawn(
 		wranglerPath,
 		[
 			'pages',
@@ -41,8 +60,12 @@ export function wranglerCli(cwd) {
 			'info',
 		],
 		{
-			env: { CI: 1, CF_PAGES: 1 },
-			cwd: cwd,
+			env: {
+				...process.env,
+				CI: '1',
+				CF_PAGES: '1',
+			},
+			cwd
 		},
 	);
 
