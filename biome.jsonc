@@ -6,6 +6,7 @@
       "!**/vendor",
       "!!**/smoke",
       "!!**/fixtures",
+      "!!**/fixture",
       "!!**/_temp-fixtures",
       "!!**/dist",
       "packages/language-tools/vscode/syntaxes/*.json",
