@@ -319,23 +319,24 @@ export function cli(/** @type {string[]} */ ...args) {
 
 	return {
 		proc,
-		getResult: () => new Promise((resolve) => {
-			let stdout = '';
-			let stderr = '';
-			proc.stdout.on('data', (chunk) => {
-				stdout += chunk;
-			});
-			proc.stderr.on('data', (chunk) => {
-				stderr += chunk;
-			});
-			proc.on('close', (exitCode) => {
-				resolve({
-					exitCode,
-					stdout,
-					stderr,
+		getResult: () =>
+			new Promise((resolve) => {
+				let stdout = '';
+				let stderr = '';
+				proc.stdout.on('data', (chunk) => {
+					stdout += chunk;
 				});
-			});
-		}),
+				proc.stderr.on('data', (chunk) => {
+					stderr += chunk;
+				});
+				proc.on('close', (exitCode) => {
+					resolve({
+						exitCode,
+						stdout,
+						stderr,
+					});
+				});
+			}),
 	};
 }
 
