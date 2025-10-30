@@ -10,7 +10,7 @@ import type { ModuleLoader, ModuleLoaderEventEmitter } from './runner.js';
 export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
 	const events = new EventEmitter() as ModuleLoaderEventEmitter;
 
-	let ssrEnvironment = getRunnableEnvironment(viteServer);
+	const ssrEnvironment = getRunnableEnvironment(viteServer);
 
 	let isTsconfigUpdated = false;
 	function isTsconfigUpdate(filePath: string) {

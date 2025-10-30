@@ -6,7 +6,7 @@ import type {
 	ExecutionContext,
 	ExportedHandlerFetchHandler,
 } from '@cloudflare/workers-types';
-import { getApp } from 'astro/app/entrypoint';
+import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from '../utils/env.js';
 
@@ -42,7 +42,7 @@ export async function handle(
 	env: Env,
 	context: ExecutionContext,
 ): Promise<CfResponse> {
-	const app = getApp(import.meta.env.DEV);
+	const app = createApp(import.meta.env.DEV);
 	const { pathname } = new URL(request.url);
 	const bindingName = globalThis.__ASTRO_SESSION_BINDING_NAME;
 	// Assigning the KV binding to globalThis allows unstorage to access it for session storage.

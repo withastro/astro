@@ -169,7 +169,12 @@ export async function loadFixture(inlineConfig) {
 			globalContentConfigObserver.set({ status: 'init' });
 			// Reset NODE_ENV so it can be re-set by `dev()`
 			delete process.env.NODE_ENV;
-			devServer = await dev(mergeConfig(inlineConfig, extraInlineConfig));
+			try {
+				devServer = await dev(mergeConfig(inlineConfig, extraInlineConfig));
+			} catch (e) {
+				console.error(e);
+				return;
+			}
 			config.server.host = parseAddressToHost(devServer.address.address); // update host
 			config.server.port = devServer.address.port; // update port
 			await new Promise((resolve) => setTimeout(resolve, 100));

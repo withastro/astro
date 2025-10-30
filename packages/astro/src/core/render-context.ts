@@ -50,12 +50,12 @@ export type CreateRenderContext = Pick<
 		Pick<
 			RenderContext,
 			| 'locals'
-			| 'middleware'
 			| 'status'
 			| 'props'
 			| 'partial'
 			| 'actions'
 			| 'shouldInjectCspMetaTags'
+			| 'skipMiddleware'
 		>
 	>;
 
@@ -78,6 +78,7 @@ export class RenderContext {
 		public partial: undefined | boolean = undefined,
 		public shouldInjectCspMetaTags = !!pipeline.manifest.csp,
 		public session: AstroSession | undefined = undefined,
+		public skipMiddleware = false,
 	) {}
 
 	/**
@@ -93,7 +94,6 @@ export class RenderContext {
 
 	static async create({
 		locals = {},
-		middleware,
 		pathname,
 		pipeline,
 		request,
@@ -102,11 +102,11 @@ export class RenderContext {
 		status = 200,
 		props,
 		partial = undefined,
-		actions,
 		shouldInjectCspMetaTags,
+		skipMiddleware = false,
 	}: CreateRenderContext): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
-		const pipelineActions = actions ?? (await pipeline.getActions());
+		const pipelineActions = await pipeline.getActions();
 		const pipelineSessionDriver = await pipeline.getSessionDriver();
 		setOriginPathname(
 			request,
@@ -127,7 +127,7 @@ export class RenderContext {
 		return new RenderContext(
 			pipeline,
 			locals,
-			sequence(...pipeline.internalMiddleware, middleware ?? pipelineMiddleware),
+			sequence(...pipeline.internalMiddleware, pipelineMiddleware),
 			pipelineActions,
 			pathname,
 			request,
@@ -141,6 +141,7 @@ export class RenderContext {
 			partial,
 			shouldInjectCspMetaTags ?? !!pipeline.manifest.csp,
 			session,
+			skipMiddleware,
 		);
 	}
 	/**
@@ -310,7 +311,9 @@ export class RenderContext {
 			return renderRedirect(this);
 		}
 
-		const response = await callMiddleware(middleware, apiContext, lastNext);
+		const response = this.skipMiddleware
+			? await lastNext(apiContext)
+			: await callMiddleware(middleware, apiContext, lastNext);
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {
 			response.headers.delete(ROUTE_TYPE_HEADER);
 		}
