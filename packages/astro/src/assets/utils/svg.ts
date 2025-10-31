@@ -1,6 +1,6 @@
 import { optimize } from 'svgo';
 import { parse, renderSync } from 'ultrahtml';
-import { AstroError, AstroErrorData } from '../../../dist/core/errors/index.js';
+import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { SvgComponentProps } from '../runtime.js';
 import { dropAttributes } from '../runtime.js';
@@ -13,8 +13,7 @@ function parseSvg(contents: string, svgConfig: AstroConfig['experimental']['svg'
 			const result = optimize(contents, svgConfig.svgoConfig);
 			processedContents = result.data;
 		} catch (cause) {
-			processedContents = contents;
-			throw new AstroError(AstroErrorData.SvgoOptimizationError, { cause });
+			throw new AstroError(AstroErrorData.CannotOptimizeSvg, { cause });
 		}
 	}
 	const root = parse(processedContents);

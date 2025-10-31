@@ -2064,11 +2064,13 @@ export const SessionConfigWithoutFlagError = {
 	hint: 'For more information, see https://docs.astro.build/en/guides/sessions/',
 } satisfies ErrorData;
 
-export const SvgoOptimizationError = {
-	name: 'SvgoOptimizationError',
-	title: 'SVGO optimization error',
-	message: 'An error occurred while optimizing an SVG file with SVGO.',
-	hint: 'Check the error cause for more details.',
+/**
+ * @docs
+ */
+export const CannotOptimizeSvg = {
+	name: 'CannotOptimizeSvg',
+	title: 'Cannot optimize SVG',
+	message: 'An error occurred while optimizing a SVG file with SVGO.',
 } satisfies ErrorData;
 
 /*
