@@ -5,7 +5,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
-import { isRunnableDevEnvironment } from 'vite';
+import { isRunnableDevEnvironment, type RunnableDevEnvironment } from 'vite';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/index.js';
 import type { SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
@@ -46,19 +46,21 @@ export default function createVitePluginAstroServer({
 }: AstroPluginOptions): vite.Plugin {
 	return {
 		name: 'astro:server',
+		applyToEnvironment(environment) {
+			return environment.name === 'ssr';
+		},
 		async configureServer(viteServer) {
 			// Cloudflare handles its own requests
 			// TODO: let this handle non-runnable environments that don't intercept requests
 			if (!isRunnableDevEnvironment(viteServer.environments.ssr)) {
 				return;
 			}
-
-			const loader = createViteLoader(viteServer);
-			const { default: createAstroServerApp } =
-				await viteServer.environments.ssr.runner.import(ASTRO_DEV_APP_ID);
+			const environment = viteServer.environments.ssr as RunnableDevEnvironment;
+			const loader = createViteLoader(viteServer, environment);
+			const { default: createAstroServerApp } = await environment.runner.import(ASTRO_DEV_APP_ID);
 			const controller = createController({ loader });
 			const { handler } = await createAstroServerApp(controller, settings, loader);
-			const { manifest } = await viteServer.environments.ssr.runner.import<{
+			const { manifest } = await environment.runner.import<{
 				manifest: SSRManifest;
 			}>(SERIALIZED_MANIFEST_ID);
 			const localStorage = new AsyncLocalStorage();

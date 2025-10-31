@@ -2,15 +2,16 @@ import { EventEmitter } from 'node:events';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type * as vite from 'vite';
-import { isRunnableDevEnvironment, type RunnableDevEnvironment, type ViteDevServer } from 'vite';
+import type { RunnableDevEnvironment } from 'vite';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { getViteErrorPayload } from '../errors/dev/vite.js';
 import type { ModuleLoader, ModuleLoaderEventEmitter } from './runner.js';
 
-export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
+export function createViteLoader(
+	viteServer: vite.ViteDevServer,
+	ssrEnvironment: RunnableDevEnvironment,
+): ModuleLoader {
 	const events = new EventEmitter() as ModuleLoaderEventEmitter;
-
-	const ssrEnvironment = getRunnableEnvironment(viteServer);
 
 	let isTsconfigUpdated = false;
 	function isTsconfigUpdate(filePath: string) {
@@ -112,11 +113,4 @@ export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
 		},
 		events,
 	};
-}
-
-export function getRunnableEnvironment(viteDevServer: ViteDevServer): RunnableDevEnvironment {
-	if (isRunnableDevEnvironment(viteDevServer.environments.ssr)) {
-		return viteDevServer.environments.ssr;
-	}
-	throw new Error("The environment isn't a runnable dev environment.");
 }
