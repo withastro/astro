@@ -45,7 +45,12 @@ export function createCliDebugInfoProvider({
 				.map(async (i) => {
 					if (!i.name) return;
 
-					const version = await packageManager.getPackageVersion(i.name);
+					let version: string | undefined;
+					try {
+						version = await packageManager.getPackageVersion(i.name);
+					} catch {
+						version = undefined;
+					}
 
 					return `${i.name}${version ? ` (${version})` : ''}`;
 				});
