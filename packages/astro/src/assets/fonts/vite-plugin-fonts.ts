@@ -3,14 +3,13 @@ import { readFile } from 'node:fs/promises';
 import { isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bold } from 'kleur/colors';
-import type { Plugin } from 'vite';
+import type { Plugin, RunnableDevEnvironment } from 'vite';
 import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
 import { generateCspDigest } from '../../core/encryption.js';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
 import { AstroError, AstroErrorData, isAstroError } from '../../core/errors/index.js';
 import type { Logger } from '../../core/logger/core.js';
 import { formatErrorMessage } from '../../core/messages.js';
-import { getRunnableEnvironment } from '../../core/module-loader/index.js';
 import { appendForwardSlash, joinPaths, prependForwardSlash } from '../../core/path.js';
 import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -230,11 +229,12 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 		},
 		async configureServer(server) {
-			const environment = getRunnableEnvironment(server);
 			await initialize({
 				// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
 				cacheDir: new URL(CACHE_DIR, settings.dotAstroDir),
-				modResolver: createDevServerRemoteFontProviderModResolver({ environment }),
+				modResolver: createDevServerRemoteFontProviderModResolver({
+					environment: server.environments.astro as RunnableDevEnvironment,
+				}),
 				cssRenderer: createMinifiableCssRenderer({ minify: false }),
 				urlResolver: createDevUrlResolver({ base: baseUrl }),
 				createHashResolver: (dependencies) =>
