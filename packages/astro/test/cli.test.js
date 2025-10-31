@@ -8,8 +8,47 @@ import { Writable } from 'node:stream';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
-import { readFromClipboard } from '../dist/cli/info/index.js';
 import { cli, cliServerLogSetup, loadFixture, parseCliDevStart } from './test-utils.js';
+
+function readFromClipboard() {
+	const system = platform();
+	let command = '';
+	let args = [];
+
+	if (system === 'darwin') {
+		command = 'pbpaste';
+	} else if (system === 'win32') {
+		command = 'powershell';
+		args = ['-command', 'Get-Clipboard'];
+	} else {
+		const unixCommands = [
+			['xclip', ['-sel', 'clipboard', '-o']],
+			['wl-paste', []],
+		];
+		for (const [unixCommand, unixArgs] of unixCommands) {
+			try {
+				const output = spawnSync('which', [unixCommand], { encoding: 'utf8' });
+				if (output.stdout.trim()) {
+					command = unixCommand;
+					args = unixArgs;
+					break;
+				}
+			} catch {
+				continue;
+			}
+		}
+	}
+
+	if (!command) {
+		throw new Error('Clipboard read command not found!');
+	}
+
+	const result = spawnSync(command, args, { encoding: 'utf8' });
+	if (result.error) {
+		throw result.error;
+	}
+	return result.stdout.trim();
+}
 
 describe('astro cli', () => {
 	const cliServerLogSetupWithFixture = (flags, cmd) => {
