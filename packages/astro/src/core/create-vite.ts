@@ -232,6 +232,12 @@ export async function createVite(
 			external: [...(command === 'dev' ? ONLY_DEV_EXTERNAL : []), ...astroPkgsConfig.ssr.external],
 		},
 		build: { assetsDir: settings.config.build.assets },
+		environments: {
+			astro: {
+				// This is all that's needed to create a new RunnableDevEnvironment
+				dev: {},
+			},
+		},
 	};
 
 	// If the user provides a custom assets prefix, make sure assets handled by Vite
