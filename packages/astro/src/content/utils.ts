@@ -511,19 +511,17 @@ async function loadContentConfig({
 		console.error(
 			`${colors.green('[content]')} There was a problem with your content config:\n\n${message}\n`,
 		);
-		if (settings.config.experimental.liveContentCollections) {
-			const liveCollections = Object.entries(unparsedConfig.collections ?? {}).filter(
-				([, collection]: [string, any]) => collection?.type === LIVE_CONTENT_TYPE,
-			);
-			if (liveCollections.length > 0) {
-				throw new AstroError({
-					...AstroErrorData.LiveContentConfigError,
-					message: AstroErrorData.LiveContentConfigError.message(
-						'Live collections must be defined in a `src/live.config.ts` file.',
-						path.relative(fileURLToPath(settings.config.root), configPathname),
-					),
-				});
-			}
+		const liveCollections = Object.entries(unparsedConfig.collections ?? {}).filter(
+			([, collection]: [string, any]) => collection?.type === LIVE_CONTENT_TYPE,
+		);
+		if (liveCollections.length > 0) {
+			throw new AstroError({
+				...AstroErrorData.LiveContentConfigError,
+				message: AstroErrorData.LiveContentConfigError.message(
+					'Live collections must be defined in a `src/live.config.ts` file.',
+					path.relative(fileURLToPath(settings.config.root), configPathname),
+				),
+			});
 		}
 		return undefined;
 	}
@@ -611,7 +609,7 @@ export type ContentPaths = {
 };
 
 export function getContentPaths(
-	{ srcDir, root, experimental }: Pick<AstroConfig, 'root' | 'srcDir' | 'experimental'>,
+	{ srcDir, root }: Pick<AstroConfig, 'root' | 'srcDir'>,
 	fs: typeof fsMod = fsMod,
 ): ContentPaths {
 	const configStats = searchConfig(fs, srcDir);
@@ -627,9 +625,7 @@ export function getContentPaths(
 		}
 	}
 
-	const liveConfigStats = experimental?.liveContentCollections
-		? searchLiveConfig(fs, srcDir)
-		: { exists: false, url: new URL('./', srcDir) };
+	const liveConfigStats = searchLiveConfig(fs, srcDir);
 	const pkgBase = new URL('../../', import.meta.url);
 	return {
 		root: new URL('./', root),
