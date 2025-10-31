@@ -1,9 +1,10 @@
 import { fileURLToPath } from 'node:url';
+
 import { type BuiltinDriverName, builtinDrivers } from 'unstorage';
 import type { Plugin as VitePlugin } from 'vite';
-import { AstroError } from '../errors/index.js';
-import { SessionStorageInitError } from '../errors/errors-data.js';
 import type { AstroSettings } from '../../types/astro.js';
+import { SessionStorageInitError } from '../errors/errors-data.js';
+import { AstroError } from '../errors/index.js';
 
 const VIRTUAL_SESSION_DRIVER_ID = 'virtual:astro:session-driver';
 const RESOLVED_VIRTUAL_SESSION_DRIVER_ID = '\0' + VIRTUAL_SESSION_DRIVER_ID;
@@ -25,7 +26,10 @@ export function vitePluginSessionDriver({ settings }: { settings: AstroSettings 
 					let sessionDriver: string;
 					if (settings.config.session.driver === 'fs') {
 						sessionDriver = builtinDrivers.fsLite;
-					} else if (settings.config.session.driver && settings.config.session.driver in builtinDrivers) {
+					} else if (
+						settings.config.session.driver &&
+						settings.config.session.driver in builtinDrivers
+					) {
 						sessionDriver = builtinDrivers[settings.config.session.driver as BuiltinDriverName];
 					} else {
 						return { code: 'export default null;' };
