@@ -1,16 +1,5 @@
-import type { Platform } from './domains/platform.js';
+import type { CloudIde } from './domain/cloud-ide.js';
 
-export interface PlatformProvider {
-	get: () => Platform;
-}
-
-export interface CommandExecutor {
-	execute: (
-		command: string,
-		args?: Array<string>,
-		options?: {
-			cwd?: string;
-			env: Record<string, string | undefined>;
-		},
-	) => Promise<{ stdout: string }>;
+export interface CloudIdeProvider {
+	getName: () => CloudIde | null;
 }

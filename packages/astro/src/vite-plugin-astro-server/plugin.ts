@@ -7,6 +7,13 @@ import { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
+import { getPackageManager } from '../cli/info/core/get-package-manager.js';
+import { createDevDebugInfoProvider } from '../cli/info/infra/dev-debug-info-provider.js';
+import { createStyledDebugInfoFormatter } from '../cli/info/infra/styled-debug-info-formatter.js';
+import { createBuildTimeAstroVersionProvider } from '../cli/infra/build-time-astro-version-provider.js';
+import { createPassthroughTextStyler } from '../cli/infra/passthrough-text-styler.js';
+import { createProcessOperatingSystemProvider } from '../cli/infra/process-operating-system-provider.js';
+import { createTinyexecCommandExecutor } from '../cli/infra/tinyexec-command-executor.js';
 import type { SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
 import {
 	getAlgorithm,
@@ -54,8 +61,12 @@ export default function createVitePluginAstroServer({
 	routesList,
 	manifest,
 }: AstroPluginOptions): vite.Plugin {
+	let debugInfo: string | null = null;
 	return {
 		name: 'astro:server',
+		buildEnd() {
+			debugInfo = null;
+		},
 		async configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
 			const pipeline = DevPipeline.create(routesList, {
@@ -63,6 +74,25 @@ export default function createVitePluginAstroServer({
 				logger,
 				manifest,
 				settings,
+				async getDebugInfo() {
+					if (!debugInfo) {
+						// TODO: do not import from CLI
+						const debugInfoProvider = createDevDebugInfoProvider({
+							config: settings.config,
+							astroVersionProvider: createBuildTimeAstroVersionProvider(),
+							operatingSystemProvider: createProcessOperatingSystemProvider(),
+							packageManager: await getPackageManager({
+								configUserAgent: process.env.npm_config_user_agent,
+								commandExecutor: createTinyexecCommandExecutor(),
+							}),
+						});
+						const debugInfoFormatter = createStyledDebugInfoFormatter({
+							textStyler: createPassthroughTextStyler(),
+						});
+						debugInfo = debugInfoFormatter.format(await debugInfoProvider.get());
+					}
+					return debugInfo;
+				},
 			});
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();

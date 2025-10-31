@@ -51,6 +51,7 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
  * to present user-friendly error output where the fn is called.
  **/
 async function runCommand(cmd: string, flags: yargs.Arguments) {
+	await import('../core/polyfill.js').then((m) => m.apply());
 	const [
 		{ createLoggerFromFlags },
 		{ createPicocolorsTextStyler },
@@ -93,9 +94,58 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			return;
 		}
 		case 'info': {
-			const { printInfo } = await import('./info/index.js');
-			await printInfo({ flags });
-			return;
+			const [
+				{ createProcessOperatingSystemProvider },
+				{ createCliAstroConfigResolver },
+				{ createCliDebugInfoProvider },
+				{ createTinyexecCommandExecutor },
+				{ getPackageManager },
+				{ createStyledDebugInfoFormatter },
+				{ createPromptsPrompt },
+				{ createCliClipboard },
+				{ createPassthroughTextStyler },
+				{ infoCommand },
+			] = await Promise.all([
+				import('./infra/process-operating-system-provider.js'),
+				import('./info/infra/cli-astro-config-resolver.js'),
+				import('./info/infra/cli-debug-info-provider.js'),
+				import('./infra/tinyexec-command-executor.js'),
+				import('./info/core/get-package-manager.js'),
+				import('./info/infra/styled-debug-info-formatter.js'),
+				import('./info/infra/prompts-prompt.js'),
+				import('./info/infra/cli-clipboard.js'),
+				import('./infra/passthrough-text-styler.js'),
+				import('./info/core/info.js'),
+			]);
+			const operatingSystemProvider = createProcessOperatingSystemProvider();
+			const astroConfigResolver = createCliAstroConfigResolver({ flags });
+			const commandExecutor = createTinyexecCommandExecutor();
+			const debugInfoProvider = createCliDebugInfoProvider({
+				config: await astroConfigResolver.resolve(),
+				astroVersionProvider,
+				operatingSystemProvider,
+				packageManager: await getPackageManager({
+					configUserAgent: process.env.npm_config_user_agent,
+					commandExecutor,
+				}),
+			});
+			const prompt = createPromptsPrompt({ force: flags.copy });
+			const clipboard = createCliClipboard({
+				commandExecutor,
+				logger,
+				operatingSystemProvider,
+				prompt,
+			});
+
+			return await runner.run(infoCommand, {
+				logger,
+				debugInfoProvider,
+				getDebugInfoFormatter: ({ pretty }) =>
+					createStyledDebugInfoFormatter({
+						textStyler: pretty ? textStyler : createPassthroughTextStyler(),
+					}),
+				clipboard,
+			});
 		}
 		case 'create-key': {
 			const [{ createCryptoKeyGenerator }, { createKeyCommand }] = await Promise.all([
@@ -109,21 +159,25 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		case 'docs': {
 			const [
 				{ createTinyexecCommandExecutor },
-				{ createProcessPlatformProvider },
+				{ createProcessOperatingSystemProvider },
+				{ createProcessCloudIdeProvider },
 				{ openDocsCommand },
 			] = await Promise.all([
-				import('./docs/infra/tinyexec-command-executor.js'),
-				import('./docs/infra/process-platform-provider.js'),
+				import('./infra/tinyexec-command-executor.js'),
+				import('./infra/process-operating-system-provider.js'),
+				import('./docs/infra/process-cloud-ide-provider.js'),
 				import('./docs/core/open-docs.js'),
 			]);
 			const commandExecutor = createTinyexecCommandExecutor();
-			const platformProvider = createProcessPlatformProvider();
+			const operatingSystemProvider = createProcessOperatingSystemProvider();
+			const cloudIdeProvider = createProcessCloudIdeProvider();
 
 			return await runner.run(openDocsCommand, {
 				url: 'https://docs.astro.build/',
 				logger,
 				commandExecutor,
-				platformProvider,
+				operatingSystemProvider,
+				cloudIdeProvider,
 			});
 		}
 		case 'telemetry': {
