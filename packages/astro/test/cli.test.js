@@ -3,7 +3,6 @@ import { spawnSync } from 'node:child_process';
 import { promises as fs, readFileSync } from 'node:fs';
 import { isIPv4 } from 'node:net';
 import { join } from 'node:path';
-import { platform } from 'node:process';
 import { Writable } from 'node:stream';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -11,7 +10,7 @@ import { stripVTControlCharacters } from 'node:util';
 import { cli, cliServerLogSetup, loadFixture, parseCliDevStart } from './test-utils.js';
 
 function readFromClipboard() {
-	const system = platform();
+	const system = process.platform;
 	let command = '';
 	let args = [];
 
@@ -132,7 +131,7 @@ describe('astro cli', () => {
 
 		// On Linux we only check if we have Wayland or x11. In Codespaces it falsely reports that it does have x11
 		if (
-			platform === 'linux' &&
+			process.platform === 'linux' &&
 			((!process.env.WAYLAND_DISPLAY && !process.env.DISPLAY) || process.env.CODESPACES)
 		) {
 			assert.ok(result.stdout.includes('Please manually copy the text above'));
