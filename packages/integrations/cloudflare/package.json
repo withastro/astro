@@ -51,7 +51,6 @@
     "astro-scripts": "workspace:*",
     "cheerio": "1.1.2",
     "devalue": "^5.4.1",
-    "execa": "^8.0.1",
     "rollup": "^4.52.4"
   },
   "publishConfig": {
