@@ -1,5 +1,11 @@
 # astro
 
+## 5.15.4
+
+### Patch Changes
+
+- [#14701](https://github.com/withastro/astro/pull/14701) [`9be54c7`](https://github.com/withastro/astro/commit/9be54c77cf8c65d253a70e9b7a8ff144a0f95d66) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where the experimental Fonts API would filter available font files too aggressively, which could prevent the download of woff files when using the google provider
+
 ## 5.15.3
 
 ### Patch Changes
