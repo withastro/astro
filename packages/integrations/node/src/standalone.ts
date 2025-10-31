@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import fs from 'node:fs';
 import http from 'node:http';
 import https from 'node:https';
@@ -8,6 +9,12 @@ import { logListeningOn } from './log-listening-on.js';
 import { createAppHandler } from './serve-app.js';
 import { createStaticHandler } from './serve-static.js';
 import type { Options } from './types.js';
+
+/**
+ * Shared AsyncLocalStorage for tracking request URLs across static and app handlers.
+ * Used to provide helpful error messages in unhandledRejection logs.
+ */
+export const requestAls = new AsyncLocalStorage<string>();
 
 // Used to get Host Value at Runtime
 export const hostOptions = (host: Options['host']): string => {
@@ -20,6 +27,20 @@ export const hostOptions = (host: Options['host']): string => {
 export default function standalone(app: NodeApp, options: Options) {
 	const port = process.env.PORT ? Number(process.env.PORT) : (options.port ?? 8080);
 	const host = process.env.HOST ?? hostOptions(options.host);
+	
+	// Set up a single unhandledRejection handler for both static and app handlers
+	const logger = app.getAdapterLogger();
+	const unhandledRejectionHandler = (reason: unknown) => {
+		const requestUrl = requestAls.getStore();
+		if (requestUrl) {
+			logger.error(`Unhandled rejection while processing ${requestUrl}`);
+		} else {
+			logger.error('Unhandled rejection');
+		}
+		console.error(reason);
+	};
+	process.on('unhandledRejection', unhandledRejectionHandler);
+	
 	const handler = createStandaloneHandler(app, options);
 	const server = createServer(handler, host, port);
 	server.server.listen(port, host);

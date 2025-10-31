@@ -1,0 +1,12 @@
+---
+const cookieValue = Astro.cookies.get('test-cookie')?.value || 'no-cookie';
+---
+<html>
+	<head>
+		<title>Static Page</title>
+	</head>
+	<body>
+		<h1>Static Page</h1>
+		<p>Cookie: {cookieValue}</p>
+	</body>
+</html>
