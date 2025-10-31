@@ -581,7 +581,7 @@ export async function createRoutesList(
 			});
 		for (const locale of filteredLocales) {
 			for (const route of setRoutes) {
-				if (!route.route.includes(`/${locale}`)) {
+				if (!route.route.startsWith(`/${locale}/`) && route.route !== `/${locale}`) {
 					continue;
 				}
 				const currentRoutes = routesByLocale.get(locale);
