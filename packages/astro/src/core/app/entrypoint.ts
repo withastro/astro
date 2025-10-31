@@ -11,6 +11,7 @@ const manifest: SSRManifest = Object.assign(serializedManifest, {
 	renderers,
 	actions: () => import('virtual:astro:actions/entrypoint'),
 	middleware: () => import('virtual:astro:middleware'),
+	// TODO: restore this after we fix the importing of the virtual module
 	sessionDriver: () => null,
 	routes,
 });
