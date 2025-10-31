@@ -200,8 +200,8 @@ const markdownContent = `
 # heading 1
 hello
 ## heading 2
-![image](./image.png)
-![image 2](https://example.com/image.png)
+![image](/image.png)
+![image 2](https://placehold.co/100x50)
 `
 
 const increment = defineCollection({

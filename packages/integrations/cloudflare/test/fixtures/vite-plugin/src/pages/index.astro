@@ -14,13 +14,18 @@ const dogs = await getCollection('dogs');
 const increment = await getEntry('increment', 'value');
 const { Content } = await render(increment);
 ---
+<style>
+	body {
+		font-family: var(--font-roboto);
+	}
+</style>
 <html>
 <head>
 	<meta charset="utf-8" />
 	<Font cssVariable='--font-roboto' preload />
 	<title>Index</title>
 </head>
-<body style="font-family: var(--font-roboto)">
+<body>
 	<p>Last updated: {increment.data.lastUpdated.toLocaleTimeString()}</p>
 
 	<h2>Translations</h2>
@@ -59,10 +64,6 @@ const { Content } = await render(increment);
 			<li><a href={`/blog/${post.id}`}>{ post.data?.title }</a></li>
 		))}
 	</ul>
-
-
-
-	
 </body>
 </html>
 
