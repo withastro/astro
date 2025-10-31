@@ -31,7 +31,7 @@ export default async function astroPluginRoutes({
 	settings,
 	logger,
 	fsMod,
-	routesList: initialRoutesList
+	routesList: initialRoutesList,
 }: Payload): Promise<Plugin> {
 	logger.debug('update', 'Re-calculate routes');
 	let routeList = initialRoutesList;
@@ -90,7 +90,7 @@ export default async function astroPluginRoutes({
 		},
 
 		applyToEnvironment(environment) {
-			return environment.name === 'ssr';
+			return environment.name === 'astro' || environment.name === 'ssr';
 		},
 
 		load(id) {

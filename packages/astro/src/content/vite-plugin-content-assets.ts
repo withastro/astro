@@ -68,7 +68,7 @@ export function astroContentAssetPropagationPlugin({
 			if (!isRunnableDevEnvironment(server.environments.ssr)) {
 				return;
 			}
-			devModuleLoader = createViteLoader(server);
+			devModuleLoader = createViteLoader(server, server.environments.ssr);
 		},
 		async transform(_, id, options) {
 			if (hasContentFlag(id, PROPAGATED_ASSET_FLAG)) {
