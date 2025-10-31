@@ -1,5 +1,6 @@
 // @ts-expect-error - It is safe to expect the error here.
 import { env as globalEnv } from 'cloudflare:workers';
+import { sessionKVBindingName } from 'virtual:astro-cloudflare:config';
 import type {
 	Response as CfResponse,
 	CacheStorage as CloudflareCacheStorage,
@@ -27,14 +28,8 @@ export interface Runtime<T extends object = object> {
 }
 
 declare global {
-	// This is not a real global, but is injected using Vite define to allow us to specify the session binding name in the config.
-	var __ASTRO_SESSION_BINDING_NAME: string;
-
 	// This is not a real global, but is injected using Vite define to allow us to specify the Images binding name in the config.
 	var __ASTRO_IMAGES_BINDING_NAME: string;
-
-	// Just used to pass the KV binding to unstorage.
-	var __env__: Partial<Env>;
 }
 
 export async function handle(
@@ -44,11 +39,13 @@ export async function handle(
 ): Promise<CfResponse> {
 	const app = createApp(import.meta.env.DEV);
 	const { pathname } = new URL(request.url);
-	const bindingName = globalThis.__ASTRO_SESSION_BINDING_NAME;
-	// Assigning the KV binding to globalThis allows unstorage to access it for session storage.
-	// unstorage checks in globalThis and globalThis.__env__ for the binding.
-	globalThis.__env__ ??= {};
-	globalThis.__env__[bindingName] = env[bindingName];
+
+	if (env[sessionKVBindingName]) {
+		const sessionConfigOptions = app.manifest.sessionConfig?.options ?? {};
+		Object.assign(sessionConfigOptions, {
+			binding: env[sessionKVBindingName],
+		});
+	}
 
 	// static assets fallback, in case default _routes.json is not used
 	if (app.manifest.assets.has(pathname)) {

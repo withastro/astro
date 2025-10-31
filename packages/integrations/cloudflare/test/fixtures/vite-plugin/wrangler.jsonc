@@ -11,5 +11,11 @@
 	},
 	"images": {
 		"binding": "IMAGES"
-	}
+	},
+	"kv_namespaces": [
+    {
+      "binding": "SESSION",
+      "id": "SESSION"
+    }
+  ]
 }
