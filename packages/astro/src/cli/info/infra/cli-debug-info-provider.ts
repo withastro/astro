@@ -40,8 +40,6 @@ export function createCliDebugInfoProvider({
 			debugInfo.push(['Adapter', adapter]);
 
 			const integrations = config.integrations
-				.filter(Boolean)
-				.flat()
 				.map(async (i) => {
 					if (!i.name) return;
 

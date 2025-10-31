@@ -1,11 +1,4 @@
 import { fileURLToPath } from 'node:url';
-import { getPackageManager } from '../cli/info/core/get-package-manager.js';
-import { createCliDebugInfoProvider } from '../cli/info/infra/cli-debug-info-provider.js';
-import { createStyledDebugInfoFormatter } from '../cli/info/infra/styled-debug-info-formatter.js';
-import { createBuildTimeAstroVersionProvider } from '../cli/infra/build-time-astro-version-provider.js';
-import { createPassthroughTextStyler } from '../cli/infra/passthrough-text-styler.js';
-import { createProcessOperatingSystemProvider } from '../cli/infra/process-operating-system-provider.js';
-import { createTinyexecCommandExecutor } from '../cli/infra/tinyexec-command-executor.js';
 import type { HeadElements, TryRewriteResult } from '../core/base-pipeline.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
@@ -48,6 +41,7 @@ export class DevPipeline extends Pipeline {
 		readonly logger: Logger,
 		readonly manifest: SSRManifest,
 		readonly settings: AstroSettings,
+		readonly getDebugInfo: () => Promise<string>,
 		readonly config = settings.config,
 		readonly defaultRoutes = createDefaultRoutes(manifest),
 	) {
@@ -66,9 +60,10 @@ export class DevPipeline extends Pipeline {
 			logger,
 			manifest,
 			settings,
-		}: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>,
+			getDebugInfo,
+		}: Pick<DevPipeline, 'loader' | 'logger' | 'manifest' | 'settings' | 'getDebugInfo'>,
 	) {
-		const pipeline = new DevPipeline(loader, logger, manifest, settings);
+		const pipeline = new DevPipeline(loader, logger, manifest, settings, getDebugInfo);
 		pipeline.routesList = manifestData;
 		return pipeline;
 	}
@@ -97,25 +92,11 @@ export class DevPipeline extends Pipeline {
 				const src = await resolveIdToUrl(loader, 'astro/runtime/client/dev-toolbar/entrypoint.js');
 				scripts.add({ props: { type: 'module', src }, children: '' });
 
-				// TODO: do not import from CLI
-				const debugInfoProvider = createCliDebugInfoProvider({
-					config: settings.config,
-					astroVersionProvider: createBuildTimeAstroVersionProvider(),
-					operatingSystemProvider: createProcessOperatingSystemProvider(),
-					packageManager: await getPackageManager({
-						configUserAgent: process.env.npm_config_user_agent,
-						commandExecutor: createTinyexecCommandExecutor(),
-					}),
-				});
-				const debugInfoFormatter = createStyledDebugInfoFormatter({
-					textStyler: createPassthroughTextStyler(),
-				});
-
 				const additionalMetadata: DevToolbarMetadata['__astro_dev_toolbar__'] = {
 					root: fileURLToPath(settings.config.root),
 					version: ASTRO_VERSION,
 					latestAstroVersion: settings.latestAstroVersion,
-					debugInfo: debugInfoFormatter.format(await debugInfoProvider.get()),
+					debugInfo: await this.getDebugInfo(),
 				};
 
 				// Additional data for the dev overlay
