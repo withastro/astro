@@ -1,6 +1,8 @@
 import { fileURLToPath } from 'node:url';
 import { type BuiltinDriverName, builtinDrivers } from 'unstorage';
 import type { Plugin as VitePlugin } from 'vite';
+import { AstroError } from '../errors/index.js';
+import { SessionStorageInitError } from '../errors/errors-data.js';
 import type { AstroSettings } from '../../types/astro.js';
 
 const VIRTUAL_SESSION_DRIVER_ID = 'virtual:astro:session-driver';
@@ -31,7 +33,13 @@ export function vitePluginSessionDriver({ settings }: { settings: AstroSettings 
 					const importerPath = fileURLToPath(import.meta.url);
 					const resolved = await this.resolve(sessionDriver, importerPath);
 					if (!resolved) {
-						throw new Error(`Failed to resolve session driver: ${sessionDriver}`);
+						throw new AstroError({
+							...SessionStorageInitError,
+							message: SessionStorageInitError.message(
+								`Failed to resolve session driver: ${sessionDriver}`,
+								settings.config.session.driver,
+							),
+						});
 					}
 					return {
 						code: `import { default as _default } from '${resolved.id}';\nexport * from '${resolved.id}';\nexport default _default;`,
