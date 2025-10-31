@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "5.15.2",
+  "version": "5.15.3",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -196,7 +196,6 @@
     "astro-scripts": "workspace:*",
     "cheerio": "1.1.2",
     "eol": "^0.10.0",
-    "execa": "^8.0.1",
     "expect-type": "^1.2.2",
     "fs-fixture": "^2.8.1",
     "mdast-util-mdx": "^3.0.0",

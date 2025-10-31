@@ -1,5 +1,18 @@
 # astro
 
+## 5.15.3
+
+### Patch Changes
+
+- [#14627](https://github.com/withastro/astro/pull/14627) [`b368de0`](https://github.com/withastro/astro/commit/b368de099e74f5d65c5e8f9799c9c3e0217714ae) Thanks [@matthewp](https://github.com/matthewp)! - Fixes skew protection support for images and font URLs
+
+  Adapter-level query parameters (`assetQueryParams`) are now applied to all image and font asset URLs, including:
+  - Dynamic optimized images via `/_image` endpoint
+  - Static optimized image files
+  - Font preload tags and font requests when using the experimental Fonts API
+
+- [#14631](https://github.com/withastro/astro/pull/14631) [`3ad33f9`](https://github.com/withastro/astro/commit/3ad33f97429fedc1a873c50b54f3cd5e0d95bec8) Thanks [@KurtGokhan](https://github.com/KurtGokhan)! - Adds the `astro/jsx-dev-runtime` export as an alias for `astro/jsx-runtime`
+
 ## 5.15.2
 
 ### Patch Changes
