@@ -7,6 +7,7 @@ import type {
 } from '@astrojs/markdown-remark';
 import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
+import type { Config as SvgoConfig } from 'svgo';
 import { z } from 'zod';
 import { localFontFamilySchema, remoteFontFamilySchema } from '../../../assets/fonts/config.js';
 import { EnvSchema } from '../../../env/schema.js';
@@ -106,6 +107,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		staticImportMetaEnv: false,
 		chromeDevtoolsWorkspace: false,
 		failOnPrerenderConflict: false,
+		svgo: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -526,6 +528,10 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.failOnPrerenderConflict),
+			svgo: z
+				.union([z.boolean(), z.custom<SvgoConfig>((value) => value && typeof value === 'object')])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.svgo),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,
