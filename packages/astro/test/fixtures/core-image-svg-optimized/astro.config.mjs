@@ -1,18 +1,15 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  experimental: {
-    svg: {
-      optimize: true,
-      svgoConfig: {
-        plugins: [
-          'preset-default',
-          {
-            name: 'removeViewBox',
-            active: false
-          }
-        ]
-      }
-    }
-  }
+	experimental: {
+		svgo: {
+			plugins: [
+				'preset-default',
+				{
+					name: 'removeViewBox',
+					active: false,
+				},
+			],
+		},
+	},
 });

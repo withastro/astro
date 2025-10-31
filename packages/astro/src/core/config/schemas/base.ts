@@ -107,9 +107,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		staticImportMetaEnv: false,
 		chromeDevtoolsWorkspace: false,
 		failOnPrerenderConflict: false,
-		svg: {
-			optimize: false,
-		},
+		svgo: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
 
@@ -530,14 +528,10 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.failOnPrerenderConflict),
-			svg: z
-				.object({
-					optimize: z.boolean().default(ASTRO_CONFIG_DEFAULTS.experimental.svg.optimize),
-					svgoConfig: z
-						.custom<SvgoConfig>((value) => value && typeof value === 'object')
-						.optional(),
-				})
-				.optional(),
+			svgo: z
+				.union([z.boolean(), z.custom<SvgoConfig>((value) => value && typeof value === 'object')])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.svgo),
 		})
 		.strict(
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,

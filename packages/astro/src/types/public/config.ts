@@ -2540,49 +2540,48 @@ export interface AstroUserConfig<
 		chromeDevtoolsWorkspace?: boolean;
 
 		/**
-		 * @kind heading
-		 * @name SVG Options
+		 * @name experimental.svgo
+		 * @type {boolean | SvgoConfig}
+		 * @default `false`
+		 * @description
+		 * Enable SVG optimization using SVGO during build time.
+		 *
+		 * Set to `true` to enable optimization with default settings, or pass a configuration
+		 * object to customize SVGO behavior.
+		 *
+		 * When enabled, all imported SVG files will be optimized for smaller file sizes
+		 * and better performance while maintaining visual quality.
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     // Enable with defaults
+		 *     svgo: true
+		 *   }
+		 * }
+		 * ```
+		 *
+		 * To customize optimization, pass a [SVGO configuration object](https://svgo.dev/):
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     svgo: {
+		 *       plugins: [
+		 *         'preset-default',
+		 *         {
+		 *           name: 'removeViewBox',
+		 *           active: false
+		 *         }
+		 *       ]
+		 *     }
+		 *   }
+		 * }
+		 * ```
+		 *
+		 * See the [experimental SVGO optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
 		 */
-		svg?: {
-			/**
-			 * @name experimental.svg.optimize
-			 * @type {boolean}
-			 * @default `true`
-			 * @description
-			 * Whether to enable SVG optimization using SVGO during build time.
-			 *
-			 * When enabled, all imported SVG files will be optimized for smaller file sizes
-			 * and better performance while maintaining visual quality.
-			 */
-			optimize?: boolean;
-
-			/**
-			 * @name experimental.svg.svgoConfig
-			 * @type {SvgoConfig}
-			 * @default `{}`
-			 * @description
-			 * Configuration object passed directly to SVGO for customizing SVG optimization.
-			 *
-			 * See [SVGO documentation](https://svgo.dev/) for available options.
-			 *
-			 * ```js
-			 * {
-			 *   svg: {
-			 *     svgoConfig: {
-			 *       plugins: [
-			 *         'preset-default',
-			 *         {
-			 *           name: 'removeViewBox',
-			 *           active: false
-			 *         }
-			 *       ]
-			 *     }
-			 *   }
-			 * }
-			 * ```
-			 */
-			svgoConfig?: SvgoConfig;
-		};
+		svgo?: boolean | SvgoConfig;
 	};
 }
 

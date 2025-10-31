@@ -6,29 +6,30 @@ Adds experimental SVGO optimization support for SVG assets
 
 Astro now supports automatic SVG optimization using SVGO during build time. This experimental feature helps reduce SVG file sizes while maintaining visual quality, improving your site's performance.
 
-To enable SVG optimization, add the following to your `astro.config.mjs`:
+To enable SVG optimization with default settings, add the following to your `astro.config.mjs`:
 ```js
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
   experimental: {
-    svg: {
-      optimize: true,
-    },
+    svgo: true,
   },
 });
 ```
 
-With SVG optimization enabled, you can further customize behavior with [SVGO plugins](https://svgo.dev/docs/plugins/):
+To customize optimization, pass a [SVGO configuration object](https://svgo.dev/docs/plugins/):
 
 ```js
 export default defineConfig({
   experimental: {
-    svg: {
-      optimize: true,
-      svgoConfig: {
-        plugins: ['preset-default'],
-      },
+    svgo: {
+      plugins: [
+        'preset-default',
+        {
+          name: 'removeViewBox',
+          active: false
+        }
+      ],
     },
   },
 });
