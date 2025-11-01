@@ -104,7 +104,7 @@ function getAdapter({
 	edgeMiddleware: NonNullable<VercelServerlessConfig['edgeMiddleware']>;
 	middlewareSecret: string;
 	skewProtection: boolean;
-	experimentalStaticHeaders: NonNullable<VercelServerlessConfig['experimentalStaticHeaders']>;
+	experimentalStaticHeaders: boolean;
 }): AstroAdapter {
 	return {
 		name: PACKAGE_NAME,
@@ -183,7 +183,17 @@ export interface VercelServerlessConfig {
 	 * Here the list of the headers that are added:
 	 * - The CSP header of the static pages is added when CSP support is enabled.
 	 */
-	experimentalStaticHeaders?: boolean;
+	experimentalStaticHeaders?:
+		| boolean
+		| {
+				/**
+				 * When enabled, collapses all CSP headers to a single catch-all `/(.*)`  route instead of
+				 * creating individual route entries per page. This improves performance for large sites.
+				 *
+				 * @default false
+				 */
+				globalCsp?: boolean;
+		  };
 }
 
 interface VercelISRConfig {
@@ -249,6 +259,12 @@ export default function vercelAdapter({
 	const extraFilesToInclude: URL[] = [];
 	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
 	const middlewareSecret = crypto.randomUUID();
+
+	// Normalize `experimentalStaticHeaders` into flags we can use.
+	const _staticHeadersEnabled =
+		experimentalStaticHeaders === true || typeof experimentalStaticHeaders === 'object';
+	const _globalCsp =
+		typeof experimentalStaticHeaders === 'object' && experimentalStaticHeaders?.globalCsp === true;
 
 	let _buildOutput: 'server' | 'static';
 
@@ -348,7 +364,7 @@ export default function vercelAdapter({
 							edgeMiddleware,
 							middlewareSecret,
 							skewProtection,
-							experimentalStaticHeaders,
+							experimentalStaticHeaders: _staticHeadersEnabled,
 						}),
 					);
 				} else {
@@ -358,7 +374,7 @@ export default function vercelAdapter({
 							middlewareSecret: '',
 							skewProtection,
 							buildOutput: _buildOutput,
-							experimentalStaticHeaders,
+							experimentalStaticHeaders: _staticHeadersEnabled,
 						}),
 					);
 				}
@@ -631,8 +647,12 @@ export default function vercelAdapter({
 					if (!normalized.routes) {
 						normalized.routes = [];
 					}
-					if (experimentalStaticHeaders) {
-						const routesWithConfigHeaders = createRoutesWithStaticHeaders(_routeToHeaders, _config);
+					if (_staticHeadersEnabled) {
+						const routesWithConfigHeaders = createRoutesWithStaticHeaders(
+							_routeToHeaders,
+							_config,
+							_globalCsp,
+						);
 						const fileSystemRouteIndex = normalized.routes.findIndex(
 							(r) => 'handle' in r && r.handle === 'filesystem',
 						);
@@ -801,21 +821,38 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 function createRoutesWithStaticHeaders(
 	staticHeaders: RouteToHeaders,
 	config: AstroConfig,
+	globalCsp = false,
 ): RouteWithSrc[] {
 	const vercelHeaders: RouteWithSrc[] = [];
-	for (const [pathname, { headers }] of staticHeaders.entries()) {
-		if (config.experimental.csp) {
-			const csp = headers.get('Content-Security-Policy');
+	if (!config.experimental.csp) return vercelHeaders;
 
-			if (csp) {
-				const _headers = {
-					'content-security-policy': csp,
-				};
-				vercelHeaders.push({
-					src: pathname,
-					headers: _headers,
-				});
+	// GLOBAL MODE — collapse to a single catch-all CSP header
+	if (globalCsp) {
+		let csp: string | undefined;
+		for (const { headers } of staticHeaders.values()) {
+			const v = headers.get('Content-Security-Policy');
+			if (v) {
+				csp = v;
+				break;
 			}
+		}
+		if (csp) {
+			vercelHeaders.push({
+				src: '/(.*)',
+				headers: { 'content-security-policy': csp },
+			});
+		}
+		return vercelHeaders;
+	}
+
+	// PER-ROUTE MODE — existing behavior
+	for (const [pathname, { headers }] of staticHeaders.entries()) {
+		const csp = headers.get('Content-Security-Policy');
+		if (csp) {
+			vercelHeaders.push({
+				src: pathname,
+				headers: { 'content-security-policy': csp },
+			});
 		}
 	}
 
