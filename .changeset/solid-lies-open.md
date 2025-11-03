@@ -2,4 +2,4 @@
 'astro-vscode': patch
 ---
 
-Fix description for Content-intellisense setting
+Fixes the displayed description for the Content-intellisense setting to refer to the correct configuration file option
