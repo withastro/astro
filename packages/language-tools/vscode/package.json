@@ -146,7 +146,7 @@
           "scope": "resource",
           "type": "boolean",
           "default": false,
-          "description": "Enable experimental support for content collection intellisense inside Markdown, MDX and Markdoc. Note that this require also enabling the feature in your Astro config (experimental.contentCollectionIntellisense) (Astro 4.14+)"
+          "description": "Enable experimental support for content collection intellisense inside Markdown, MDX and Markdoc. Note that this requires also enabling the feature in your Astro config (experimental.contentIntellisense) (Astro 4.14+)"
         },
         "astro.auto-import-cache.enabled": {
           "scope": "resource",
