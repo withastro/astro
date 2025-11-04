@@ -6,7 +6,15 @@ import type { SvgComponentProps } from '../runtime.js';
 import { dropAttributes } from '../runtime.js';
 import type { ImageMetadata } from '../types.js';
 
-function parseSvg(contents: string, svgoConfig: AstroConfig['experimental']['svgo']) {
+function parseSvg({
+	path,
+	contents,
+	svgoConfig,
+}: {
+	path: string;
+	contents: string;
+	svgoConfig: AstroConfig['experimental']['svgo'];
+}) {
 	let processedContents = contents;
 	if (svgoConfig) {
 		try {
@@ -14,7 +22,13 @@ function parseSvg(contents: string, svgoConfig: AstroConfig['experimental']['svg
 			const result = optimize(contents, config);
 			processedContents = result.data;
 		} catch (cause) {
-			throw new AstroError(AstroErrorData.CannotOptimizeSvg, { cause });
+			throw new AstroError(
+				{
+					...AstroErrorData.CannotOptimizeSvg,
+					message: AstroErrorData.CannotOptimizeSvg.message(path),
+				},
+				{ cause },
+			);
 		}
 	}
 	const root = parse(processedContents);
@@ -36,7 +50,11 @@ export function makeSvgComponent(
 	svgoConfig: AstroConfig['experimental']['svgo'],
 ): string {
 	const file = typeof contents === 'string' ? contents : contents.toString('utf-8');
-	const { attributes, body: children } = parseSvg(file, svgoConfig);
+	const { attributes, body: children } = parseSvg({
+		path: meta.fsPath,
+		contents: file,
+		svgoConfig,
+	});
 	const props: SvgComponentProps = {
 		meta,
 		attributes: dropAttributes(attributes),

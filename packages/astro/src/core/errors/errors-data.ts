@@ -2066,11 +2066,13 @@ export const SessionConfigWithoutFlagError = {
 
 /**
  * @docs
+ * @message An error occurred while optimizing the SVG file with SVGO.
  */
 export const CannotOptimizeSvg = {
 	name: 'CannotOptimizeSvg',
 	title: 'Cannot optimize SVG',
-	message: 'An error occurred while optimizing a SVG file with SVGO.',
+	message: (path: string) => `An error occurred while optimizing SVG file "${path}" with SVGO.`,
+	hint: 'Review the error cause to fix this error.',
 } satisfies ErrorData;
 
 /*
