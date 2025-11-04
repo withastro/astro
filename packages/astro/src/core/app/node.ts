@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { Http2ServerResponse } from 'node:http2';
 import type { Socket } from 'node:net';
-// matchPattern is used in App.validateForwardedHost, no need to import here
 import type { RemotePattern } from '../../types/public/config.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { clientAddressSymbol, nodeRequestAbortControllerCleanupSymbol } from '../constants.js';
@@ -90,35 +89,21 @@ export class NodeApp extends App {
 				.map((e) => e.trim())?.[0];
 		};
 
-		// Get the used protocol between the end client and first proxy.
-		// NOTE: Some proxies append values with spaces and some do not.
-		// We need to handle it here and parse the header correctly.
-		// @example "https, http,http" => "http"
-		const forwardedProtocol = getFirstForwardedValue(req.headers['x-forwarded-proto']);
 		const providedProtocol = isEncrypted ? 'https' : 'http';
-		const protocol = forwardedProtocol ?? providedProtocol;
-
-		// @example "example.com,www2.example.com" => "example.com"
-		let forwardedHostname = getFirstForwardedValue(req.headers['x-forwarded-host']);
 		const providedHostname = req.headers.host ?? req.headers[':authority'];
 
-		// Validate X-Forwarded-Host against allowedDomains if configured
-		if (
-			forwardedHostname &&
-			!App.validateForwardedHost(
-				forwardedHostname,
-				allowedDomains,
-				forwardedProtocol ?? providedProtocol,
-			)
-		) {
-			// If not allowed, ignore the X-Forwarded-Host header
-			forwardedHostname = undefined;
-		}
+		// Validate forwarded headers
+		// NOTE: Header values may have commas/spaces from proxy chains, extract first value
+		const validated = App.validateForwardedHeaders(
+			getFirstForwardedValue(req.headers['x-forwarded-proto']),
+			getFirstForwardedValue(req.headers['x-forwarded-host']),
+			getFirstForwardedValue(req.headers['x-forwarded-port']),
+			allowedDomains,
+		);
 
-		const hostname = forwardedHostname ?? providedHostname;
-
-		// @example "443,8080,80" => "443"
-		const port = getFirstForwardedValue(req.headers['x-forwarded-port']);
+		const protocol = validated.protocol ?? providedProtocol;
+		const hostname = validated.host ?? providedHostname;
+		const port = validated.port;
 
 		let url: URL;
 		try {
