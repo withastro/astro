@@ -25,35 +25,20 @@ interface AstroEnvPluginParams {
 export function astroEnv({ settings, sync, envLoader }: AstroEnvPluginParams): Plugin {
 	const { schema, validateSecrets } = settings.config.env;
 	let isDev: boolean;
+	let populated = false;
 
-	let templates: { client: string; server: string; internal: string } | null = null;
-
-	function ensureTemplateAreLoaded() {
-		if (templates !== null) {
+	function populateProcessEnv() {
+		if (isDev || populated) {
 			return;
 		}
 
-		const loadedEnv = envLoader.get();
-
-		if (!isDev) {
-			for (const [key, value] of Object.entries(loadedEnv)) {
-				if (value !== undefined) {
-					process.env[key] = value;
-				}
+		for (const [key, value] of Object.entries(envLoader.get())) {
+			if (value !== undefined) {
+				process.env[key] = value;
 			}
 		}
 
-		const validatedVariables = validatePublicVariables({
-			schema,
-			loadedEnv,
-			validateSecrets,
-			sync,
-		});
-
-		templates = {
-			...getTemplates(schema, validatedVariables, isDev ? loadedEnv : null),
-			internal: `export const schema = ${JSON.stringify(schema)};`,
-		};
+		populated = true;
 	}
 
 	return {
@@ -61,12 +46,6 @@ export function astroEnv({ settings, sync, envLoader }: AstroEnvPluginParams): P
 		enforce: 'pre',
 		config(_, { command }) {
 			isDev = command !== 'build';
-		},
-		buildStart() {
-			ensureTemplateAreLoaded();
-		},
-		buildEnd() {
-			templates = null;
 		},
 		resolveId(id) {
 			if (id === CLIENT_VIRTUAL_MODULE_ID) {
@@ -80,26 +59,49 @@ export function astroEnv({ settings, sync, envLoader }: AstroEnvPluginParams): P
 			}
 		},
 		load(id, options) {
-			if (id === RESOLVED_CLIENT_VIRTUAL_MODULE_ID) {
-				ensureTemplateAreLoaded();
-				return { code: templates!.client };
+			if (id === RESOLVED_INTERNAL_VIRTUAL_MODULE_ID) {
+				return { code: `export const schema = ${JSON.stringify(schema)};` };
 			}
-			if (id === RESOLVED_SERVER_VIRTUAL_MODULE_ID) {
-				if (options?.ssr) {
-					ensureTemplateAreLoaded();
-					return { code: templates!.server };
-				}
+
+			if (id === RESOLVED_SERVER_VIRTUAL_MODULE_ID && !options?.ssr) {
 				throw new AstroError({
 					...AstroErrorData.ServerOnlyModule,
 					message: AstroErrorData.ServerOnlyModule.message(SERVER_VIRTUAL_MODULE_ID),
 				});
 			}
-			if (id === RESOLVED_INTERNAL_VIRTUAL_MODULE_ID) {
-				ensureTemplateAreLoaded();
-				return { code: templates!.internal };
+
+			if (id === RESOLVED_CLIENT_VIRTUAL_MODULE_ID || id === RESOLVED_SERVER_VIRTUAL_MODULE_ID) {
+				populateProcessEnv();
+				const loadedEnv = envLoader.get();
+				const validatedVariables = validatePublicVariables({
+					schema,
+					loadedEnv,
+					validateSecrets,
+					sync,
+				});
+				const { client, server } = getTemplates(
+					schema,
+					validatedVariables,
+					isDev ? loadedEnv : null,
+				);
+
+				if (id === RESOLVED_CLIENT_VIRTUAL_MODULE_ID) {
+					return { code: client };
+				}
+
+				if (id === RESOLVED_SERVER_VIRTUAL_MODULE_ID) {
+					return { code: server };
+				}
 			}
 		},
 	};
+}
+
+interface ValidVariable {
+	key: string;
+	value: any;
+	type: string;
+	context: 'server' | 'client';
 }
 
 function validatePublicVariables({
@@ -113,7 +115,7 @@ function validatePublicVariables({
 	validateSecrets: boolean;
 	sync: boolean;
 }) {
-	const valid: Array<{ key: string; value: any; type: string; context: 'server' | 'client' }> = [];
+	const valid: Array<ValidVariable> = [];
 	const invalid: Array<InvalidVariable> = [];
 
 	for (const [key, options] of Object.entries(schema)) {
@@ -143,13 +145,15 @@ function validatePublicVariables({
 	return valid;
 }
 
+let cachedServerTemplate: string | undefined;
+
 function getTemplates(
 	schema: EnvSchema,
-	validatedVariables: ReturnType<typeof validatePublicVariables>,
+	validatedVariables: Array<ValidVariable>,
 	loadedEnv: Record<string, string> | null,
 ) {
 	let client = '';
-	let server = readFileSync(MODULE_TEMPLATE_URL, 'utf-8');
+	let server = (cachedServerTemplate ??= readFileSync(MODULE_TEMPLATE_URL, 'utf-8'));
 	let onSetGetEnv = '';
 
 	for (const { key, value, context } of validatedVariables) {
