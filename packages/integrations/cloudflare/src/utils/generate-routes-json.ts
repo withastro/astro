@@ -298,13 +298,13 @@ export async function createRoutesFile(
 	 */
 	const CLOUDFLARE_COMBINED_LIMIT = 100;
 	/**
-	 * Caluclate the number of automated and extended include rules
+	 * Calculate the number of automated and extended include rules
 	 */
 	const AUTOMATIC_INCLUDE_RULES_COUNT = deduplicatedIncludePaths.length;
 	const EXTENDED_INCLUDE_RULES_COUNT = includeExtends?.length ?? 0;
 	const INCLUDE_RULES_COUNT = AUTOMATIC_INCLUDE_RULES_COUNT + EXTENDED_INCLUDE_RULES_COUNT;
 	/**
-	 * Caluclate the number of automated and extended exclude rules
+	 * Calculate the number of automated and extended exclude rules
 	 */
 	const AUTOMATIC_EXCLUDE_RULES_COUNT = deduplicatedExcludePaths.length;
 	const EXTENDED_EXCLUDE_RULES_COUNT = excludeExtends?.length ?? 0;

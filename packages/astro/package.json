@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "5.14.8",
+  "version": "5.15.3",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -38,6 +38,10 @@
     "./tsconfigs/*": "./tsconfigs/*.json",
     "./jsx/rehype.js": "./dist/jsx/rehype.js",
     "./jsx-runtime": {
+      "types": "./jsx-runtime.d.ts",
+      "default": "./dist/jsx-runtime/index.js"
+    },
+    "./jsx-dev-runtime": {
       "types": "./jsx-runtime.d.ts",
       "default": "./dist/jsx-runtime/index.js"
     },
@@ -91,7 +95,7 @@
   ],
   "scripts": {
     "prebuild": "astro-scripts prebuild --to-string \"src/runtime/server/astro-island.ts\" \"src/runtime/client/{idle,load,media,only,visible}.ts\"",
-    "build": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" --copy-wasm && tsc && astro-check --root ./components",
+    "build": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" --copy-wasm && tsc && astro-check -- -- --root ./components",
     "build:ci": "pnpm run prebuild && astro-scripts build \"src/**/*.{ts,js}\" --copy-wasm",
     "dev": "astro-scripts dev --copy-wasm --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.{ts,js}\"",
     "test": "pnpm run test:unit && pnpm run test:integration && pnpm run test:types",
@@ -160,7 +164,7 @@
     "unist-util-visit": "^5.0.0",
     "unstorage": "^1.17.0",
     "vfile": "^6.0.3",
-    "vite": "^6.3.6",
+    "vite": "^6.4.1",
     "vitefu": "^1.1.1",
     "xxhash-wasm": "^1.1.0",
     "yargs-parser": "^21.1.1",
@@ -173,7 +177,7 @@
     "sharp": "^0.34.0"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.4",
+    "@astrojs/check": "workspace:*",
     "@playwright/test": "1.51.1",
     "@types/aria-query": "^5.0.4",
     "@types/common-ancestor-path": "^1.0.2",
@@ -192,7 +196,6 @@
     "astro-scripts": "workspace:*",
     "cheerio": "1.1.2",
     "eol": "^0.10.0",
-    "execa": "^8.0.1",
     "expect-type": "^1.2.2",
     "fs-fixture": "^2.8.1",
     "mdast-util-mdx": "^3.0.0",

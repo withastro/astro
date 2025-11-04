@@ -22,6 +22,7 @@ import { emitESMImage } from './utils/node/emitAsset.js';
 import { getProxyCode } from './utils/proxy.js';
 import { makeSvgComponent } from './utils/svg.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
+import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -85,11 +86,20 @@ const addStaticImageFactory = (
 
 		// The paths here are used for URLs, so we need to make sure they have the proper format for an URL
 		// (leading slash, prefixed with the base / assets prefix, encoded, etc)
-		if (settings.config.build.assetsPrefix) {
-			return encodeURI(joinPaths(assetPrefix, finalFilePath));
-		} else {
-			return encodeURI(prependForwardSlash(joinPaths(settings.config.base, finalFilePath)));
+		// Create URL object to safely manipulate and append assetQueryParams if available (for adapter-level tracking like skew protection)
+		const url = createPlaceholderURL(
+			settings.config.build.assetsPrefix
+				? encodeURI(joinPaths(assetPrefix, finalFilePath))
+				: encodeURI(prependForwardSlash(joinPaths(settings.config.base, finalFilePath))),
+		);
+		const assetQueryParams = settings.adapter?.client?.assetQueryParams;
+		if (assetQueryParams) {
+			assetQueryParams.forEach((value, key) => {
+				url.searchParams.set(key, value);
+			});
 		}
+
+		return stringifyPlaceholderURL(url);
 	};
 };
 
@@ -142,7 +152,19 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							import * as fontsMod from 'virtual:astro:assets/fonts/internal';
 							import { createGetFontData } from "astro/assets/fonts/runtime";
 
+							const assetQueryParams = ${
+								settings.adapter?.client?.assetQueryParams
+									? `new URLSearchParams(${JSON.stringify(
+											Array.from(settings.adapter.client.assetQueryParams.entries()),
+										)})`
+									: 'undefined'
+							};
 							export const imageConfig = ${JSON.stringify(settings.config.image)};
+							Object.defineProperty(imageConfig, 'assetQueryParams', {
+								value: assetQueryParams,
+								enumerable: false,
+								configurable: true,
+							});
 							// This is used by the @astrojs/node integration to locate images.
 							// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
 							// new URL("dist/...") is interpreted by the bundler as a signal to include that directory
@@ -241,16 +263,17 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 						});
 					}
 
-					if (id.endsWith('.svg')) {
-						const contents = await fs.promises.readFile(imageMetadata.fsPath, { encoding: 'utf8' });
-						// We know that the contents are present, as we only emit this property for SVG files
-						return { code: makeSvgComponent(imageMetadata, contents) };
-					}
-
 					// We can only reliably determine if an image is used on the server, as we need to track its usage throughout the entire build.
 					// Since you cannot use image optimization on the client anyway, it's safe to assume that if the user imported
 					// an image on the client, it should be present in the final build.
 					if (options?.ssr) {
+						if (id.endsWith('.svg')) {
+							const contents = await fs.promises.readFile(imageMetadata.fsPath, {
+								encoding: 'utf8',
+							});
+							// We know that the contents are present, as we only emit this property for SVG files
+							return { code: makeSvgComponent(imageMetadata, contents) };
+						}
 						return {
 							code: `export default ${getProxyCode(
 								imageMetadata,

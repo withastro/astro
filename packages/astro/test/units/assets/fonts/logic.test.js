@@ -368,16 +368,20 @@ describe('fonts logic', () => {
 							src: [],
 							meta: { priority: 0 },
 						},
-						// Will be ignored
 						{
 							src: [],
 							meta: { priority: 1 },
+						},
+						// Will be ignored
+						{
+							src: [],
+							meta: { priority: 2 },
 						},
 					],
 					urlProxy,
 					fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
 				}).length,
-				4,
+				5,
 			);
 		});
 
