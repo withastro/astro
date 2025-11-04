@@ -1,6 +1,6 @@
 import { version as ReactVersion } from 'react-dom';
 
-export type SupportedReactVersion = keyof typeof versionsConfig;
+type SupportedReactVersion = keyof typeof versionsConfig;
 export type ReactVersionConfig = (typeof versionsConfig)[SupportedReactVersion];
 
 export function getReactMajorVersion(): number {
