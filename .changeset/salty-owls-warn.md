@@ -1,5 +1,5 @@
 ---
-"astro": major
+"astro": patch
 ---
 
-Fix typos in error JSDoc
+Fixes typos in documenting our error messages and public APIs.
