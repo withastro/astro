@@ -24,28 +24,14 @@ interface AstroEnvPluginParams {
 
 export function astroEnv({ settings, sync, envLoader }: AstroEnvPluginParams): Plugin {
 	const { schema, validateSecrets } = settings.config.env;
-	let isDev: boolean;
+	let isBuild: boolean;
 	let populated = false;
-
-	function populateProcessEnv() {
-		if (isDev || populated) {
-			return;
-		}
-
-		for (const [key, value] of Object.entries(envLoader.get())) {
-			if (value !== undefined) {
-				process.env[key] = value;
-			}
-		}
-
-		populated = true;
-	}
 
 	return {
 		name: 'astro-env-plugin',
 		enforce: 'pre',
 		config(_, { command }) {
-			isDev = command !== 'build';
+			isBuild = command === 'build';
 		},
 		resolveId(id) {
 			if (id === CLIENT_VIRTUAL_MODULE_ID) {
@@ -71,19 +57,30 @@ export function astroEnv({ settings, sync, envLoader }: AstroEnvPluginParams): P
 			}
 
 			if (id === RESOLVED_CLIENT_VIRTUAL_MODULE_ID || id === RESOLVED_SERVER_VIRTUAL_MODULE_ID) {
-				populateProcessEnv();
 				const loadedEnv = envLoader.get();
+
+				// During the build, we populate process.env so that secrets can work
+				if (isBuild && !populated) {
+					for (const [key, value] of Object.entries(loadedEnv)) {
+						if (value !== undefined) {
+							process.env[key] = value;
+						}
+					}
+					populated = true;
+				}
+
 				const validatedVariables = validatePublicVariables({
 					schema,
 					loadedEnv,
 					validateSecrets,
 					sync,
 				});
-				const { client, server } = getTemplates(
+				const { client, server } = getTemplates({
 					schema,
 					validatedVariables,
-					isDev ? loadedEnv : null,
-				);
+					// In dev, we inline process.env to avoid freezing it
+					loadedEnv: isBuild ? null : loadedEnv,
+				});
 
 				if (id === RESOLVED_CLIENT_VIRTUAL_MODULE_ID) {
 					return { code: client };
@@ -147,11 +144,15 @@ function validatePublicVariables({
 
 let cachedServerTemplate: string | undefined;
 
-function getTemplates(
-	schema: EnvSchema,
-	validatedVariables: Array<ValidVariable>,
-	loadedEnv: Record<string, string> | null,
-) {
+function getTemplates({
+	schema,
+	validatedVariables,
+	loadedEnv,
+}: {
+	schema: EnvSchema;
+	validatedVariables: Array<ValidVariable>;
+	loadedEnv: Record<string, string> | null;
+}) {
 	let client = '';
 	let server = (cachedServerTemplate ??= readFileSync(MODULE_TEMPLATE_URL, 'utf-8'));
 	let onSetGetEnv = '';
