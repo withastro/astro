@@ -1,11 +1,10 @@
 import react, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-react';
-import type { AstroIntegration, ContainerRenderer } from 'astro';
+import type { AstroIntegration, AstroRenderer } from 'astro';
 import type * as vite from 'vite';
 import {
 	getReactMajorVersion,
-	isUnsupportedVersion,
+	isSupportedReactVersion,
 	type ReactVersionConfig,
-	type SupportedReactVersion,
 	versionsConfig,
 } from './version.js';
 
@@ -102,10 +101,10 @@ export default function ({
 	experimentalDisableStreaming,
 }: ReactIntegrationOptions = {}): AstroIntegration {
 	const majorVersion = getReactMajorVersion();
-	if (isUnsupportedVersion(majorVersion)) {
+	if (!isSupportedReactVersion(majorVersion)) {
 		throw new Error(`Unsupported React version: ${majorVersion}.`);
 	}
-	const versionConfig = versionsConfig[majorVersion as SupportedReactVersion];
+	const versionConfig = versionsConfig[majorVersion];
 
 	return {
 		name: '@astrojs/react',
@@ -139,15 +138,10 @@ export default function ({
 	};
 }
 
-export function getContainerRenderer(): ContainerRenderer {
+export function getContainerRenderer(): AstroRenderer {
 	const majorVersion = getReactMajorVersion();
-	if (isUnsupportedVersion(majorVersion)) {
+	if (!isSupportedReactVersion(majorVersion)) {
 		throw new Error(`Unsupported React version: ${majorVersion}.`);
 	}
-	const versionConfig = versionsConfig[majorVersion as SupportedReactVersion];
-
-	return {
-		name: '@astrojs/react',
-		serverEntrypoint: versionConfig.server,
-	};
+	return getRenderer(versionsConfig[majorVersion]);
 }

@@ -11,8 +11,10 @@ export function getReactMajorVersion(): number {
 	return Number(matches[0]);
 }
 
-export function isUnsupportedVersion(majorVersion: number) {
-	return majorVersion < 17 || majorVersion > 19 || Number.isNaN(majorVersion);
+export function isSupportedReactVersion(
+	majorVersion: number,
+): majorVersion is SupportedReactVersion {
+	return majorVersion in versionsConfig;
 }
 
 export const versionsConfig = {
