@@ -2072,7 +2072,7 @@ export const CannotOptimizeSvg = {
 	name: 'CannotOptimizeSvg',
 	title: 'Cannot optimize SVG',
 	message: (path: string) => `An error occurred while optimizing SVG file "${path}" with SVGO.`,
-	hint: 'Review the error cause to fix this error.',
+	hint: 'Review the included SVGO error message provided for guidance.',
 } satisfies ErrorData;
 
 /*
