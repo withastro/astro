@@ -5466,8 +5466,8 @@ importers:
         specifier: ^10.3.1
         version: 10.3.1
       '@netlify/functions':
-        specifier: ^4.3.0
-        version: 4.3.0(rollup@4.52.5)
+        specifier: ^5.0.1
+        version: 5.0.1
       '@netlify/vite-plugin':
         specifier: ^2.7.8
         version: 2.7.8(@azure/identity@4.13.0)(@vercel/functions@2.2.13)(rollup@4.52.5)(vite@6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.93.2)(tsx@4.20.6)(yaml@2.8.1))
@@ -8852,10 +8852,6 @@ packages:
   '@netlify/binary-info@1.0.0':
     resolution: {integrity: sha512-4wMPu9iN3/HL97QblBsBay3E1etIciR84izI3U+4iALY+JHCrI+a2jO0qbAZ/nxKoegypYEaiiqWXylm+/zfrw==}
 
-  '@netlify/blobs@10.1.0':
-    resolution: {integrity: sha512-dFpqDc6/x5LEu9L7kblCQu00CFEchH8J42jmQoXPuhKoE7avajzeLTbVKA8Olk3S/c2m9ejegrgbhL8NRA2Jyw==}
-    engines: {node: ^14.16.0 || >=16.0.0}
-
   '@netlify/blobs@10.3.1':
     resolution: {integrity: sha512-s3GokkzyZzZfGk5UjEcI1N/lDmUKYJ7K7WyHOBltqyVAO7Woo6D6eVH3vEeatN/FgSPA2WbDOmL1Tei6wku3kw==}
     engines: {node: ^14.16.0 || >=16.0.0}
@@ -8895,10 +8891,6 @@ packages:
   '@netlify/functions-dev@1.0.4':
     resolution: {integrity: sha512-LNutheCNiVTFMXYUi6fDl4/AA53H635k0fb14N5GNaojeUBP9R46bwBGBtm19RfvDjlyIEmYhsN4VlnqTqMbHg==}
     engines: {node: '>=20.6.1'}
-
-  '@netlify/functions@4.3.0':
-    resolution: {integrity: sha512-m00J4hO/AL+1mAD4jCia1kg2jIoO3S9+DXCge58n5tTqPlWt42Vgig5zm0ICJoAyjMKw2bGzfVw9a/s/x6d1+Q==}
-    engines: {node: '>=18.0.0'}
 
   '@netlify/functions@5.0.1':
     resolution: {integrity: sha512-olCwsnp0GDpjSYPfWrtUIvOsZcrRta6lxwZWfl3XxucXOw5AcGDKSqKGRElzyyZoRA8OXVh5B5NHj5Jd4PRx+A==}
@@ -17641,11 +17633,6 @@ snapshots:
 
   '@netlify/binary-info@1.0.0': {}
 
-  '@netlify/blobs@10.1.0':
-    dependencies:
-      '@netlify/dev-utils': 4.3.0
-      '@netlify/runtime-utils': 2.2.0
-
   '@netlify/blobs@10.3.1':
     dependencies:
       '@netlify/dev-utils': 4.3.0
@@ -17793,27 +17780,6 @@ snapshots:
       lambda-local: 2.2.0
       read-package-up: 11.0.0
       semver: 7.7.3
-      source-map-support: 0.5.21
-    transitivePeerDependencies:
-      - bare-abort-controller
-      - encoding
-      - react-native-b4a
-      - rollup
-      - supports-color
-
-  '@netlify/functions@4.3.0(rollup@4.52.5)':
-    dependencies:
-      '@netlify/blobs': 10.1.0
-      '@netlify/dev-utils': 4.3.0
-      '@netlify/types': 2.1.0
-      '@netlify/zip-it-and-ship-it': 14.1.11(rollup@4.52.5)
-      cron-parser: 4.9.0
-      decache: 4.6.2
-      extract-zip: 2.0.1
-      is-stream: 4.0.1
-      jwt-decode: 4.0.0
-      lambda-local: 2.2.0
-      read-package-up: 11.0.0
       source-map-support: 0.5.21
     transitivePeerDependencies:
       - bare-abort-controller

@@ -42,7 +42,7 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
     "@netlify/blobs": "^10.3.1",
-    "@netlify/functions": "^4.3.0",
+    "@netlify/functions": "^5.0.1",
     "@netlify/vite-plugin": "^2.7.8",
     "@vercel/nft": "0.30.3",
     "esbuild": "^0.25.0",
