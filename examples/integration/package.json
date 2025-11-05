@@ -15,7 +15,7 @@
   ],
   "scripts": {},
   "devDependencies": {
-    "astro": "^5.15.3"
+    "astro": "^5.15.4"
   },
   "peerDependencies": {
     "astro": "^4.0.0"
