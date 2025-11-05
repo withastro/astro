@@ -42,3 +42,5 @@ export const COLLECTIONS_DIR = 'collections/';
 
 export const CONTENT_LAYER_TYPE = 'content_layer';
 export const LIVE_CONTENT_TYPE = 'live';
+
+export const REFERENCE_SYMBOL = Symbol.for('astro.content.reference');

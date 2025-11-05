@@ -23,6 +23,7 @@ import {
 	IMAGE_IMPORT_PREFIX,
 	LIVE_CONTENT_TYPE,
 	PROPAGATED_ASSET_FLAG,
+	REFERENCE_SYMBOL,
 } from './consts.js';
 import { createImage } from './runtime-assets.js';
 
@@ -742,4 +743,12 @@ function safeStringifyReplacer(seen: WeakSet<object>) {
 export function safeStringify(value: unknown) {
 	const seen = new WeakSet();
 	return JSON.stringify(value, safeStringifyReplacer(seen));
+}
+
+export function isReference(
+	value: any,
+): value is { id: string; collection: string } | { slug: string; collection: string } {
+	return (
+		value && value !== null && typeof value === 'object' && Reflect.get(value, REFERENCE_SYMBOL)
+	);
 }

@@ -24,7 +24,7 @@ import type {
 	LiveDataEntryResult,
 } from '../types/public/content.js';
 import { defineCollection as defineCollectionOrig } from './config.js';
-import { IMAGE_IMPORT_PREFIX, type LIVE_CONTENT_TYPE } from './consts.js';
+import { IMAGE_IMPORT_PREFIX, type LIVE_CONTENT_TYPE, REFERENCE_SYMBOL } from './consts.js';
 import { type DataEntry, globalDataStore } from './data-store.js';
 import {
 	LiveCollectionCacheHintError,
@@ -660,39 +660,40 @@ export function createReference() {
 				z.string(),
 				z.object({
 					id: z.string(),
-					collection: z.string(),
+					collection: z.string().superRefine((v, ctx) => {
+						const flattenedErrorPath = ctx.path.join('.');
+
+						if (v !== collection) {
+							ctx.addIssue({
+								code: ZodIssueCode.custom,
+								message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${collection}. Received ${v}.`,
+							});
+							return z.NEVER;
+						}
+					}),
 				}),
 				z.object({
 					slug: z.string(),
-					collection: z.string(),
-				}),
-			])
-			.transform(
-				(
-					lookup:
-						| string
-						| { id: string; collection: string }
-						| { slug: string; collection: string },
-					ctx,
-				) => {
-					const flattenedErrorPath = ctx.path.join('.');
+					collection: z.string().superRefine((v, ctx) => {
+						const flattenedErrorPath = ctx.path.join('.');
 
-					if (typeof lookup === 'object') {
-						// If these don't match then something is wrong with the reference
-						if (lookup.collection !== collection) {
+						if (v !== collection) {
 							ctx.addIssue({
 								code: ZodIssueCode.custom,
-								message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${collection}. Received ${lookup.collection}.`,
+								message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${collection}. Received ${v}.`,
 							});
-							return;
+							return z.NEVER;
 						}
-						// If it is an object then we're validating later in the build, so we can check the collection at that point.
-						return lookup;
-					}
-
-					return { id: lookup, collection };
-				},
-			);
+					}),
+				}),
+			])
+			.transform((v) => {
+				if (typeof v === 'string') {
+					v = { id: v, collection };
+				}
+				Reflect.set(v, REFERENCE_SYMBOL, true);
+				return v;
+			});
 	};
 }
 

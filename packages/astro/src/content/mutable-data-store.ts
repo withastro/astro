@@ -487,7 +487,7 @@ export interface MetaStore {
 }
 
 export class InMemoryDataStore implements DataStore {
-	#collection = new Map<string, any>();
+	#collection: Map<string, any>;
 	#events: Array<
 		| {
 				type: 'set';
@@ -515,6 +515,10 @@ export class InMemoryDataStore implements DataStore {
 				filePath: string;
 		  }
 	> = [];
+
+	constructor(collection: Map<string, any>) {
+		this.#collection = collection;
+	}
 
 	get events() {
 		return this.#events;

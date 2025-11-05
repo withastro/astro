@@ -23,6 +23,7 @@ import {
 	getEntryConfigByExtMap,
 	getEntryDataAndImages,
 	globalContentConfigObserver,
+	isReference,
 	loaderReturnSchema,
 	safeStringify,
 } from './utils.js';
@@ -241,10 +242,10 @@ class ContentLayer {
 			this.#watcher?.removeAllTrackedListeners();
 		}
 
-		await Promise.all(
+		const rawLoaderResults = await Promise.all(
 			Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
 				if (collection.type !== CONTENT_LAYER_TYPE) {
-					return;
+					return { type: 'skip' as const };
 				}
 
 				let { schema } = collection;
@@ -262,10 +263,8 @@ class ContentLayer {
 					(typeof collection.loader !== 'object' ||
 						!options.loaders.includes(collection.loader.name))
 				) {
-					return;
+					return { type: 'skip' as const };
 				}
-
-				const collectionWithResolvedSchema = { ...collection, schema };
 
 				const context = await this.#getLoaderContext({
 					collectionName: name,
@@ -276,17 +275,20 @@ class ContentLayer {
 				const realStore = this.#store.scopedStore(name);
 
 				if (typeof collection.loader === 'function') {
-					return simpleLoader(collection.loader as CollectionLoader<{ id: string }>, {
+					await simpleLoader(collection.loader as CollectionLoader<{ id: string }>, {
 						...context,
 						store: realStore,
 					});
+					return {
+						type: 'simple' as const,
+					};
 				}
 
 				if (!collection.loader.load) {
 					throw new Error(`Collection loader for ${name} does not have a load method`);
 				}
 
-				const memoryStore = new InMemoryDataStore();
+				const memoryStore = new InMemoryDataStore(new Map(realStore.entries()));
 
 				const result = collection.loader.load({
 					...context,
@@ -299,6 +301,22 @@ class ContentLayer {
 					schema = result.schema;
 				}
 
+				return {
+					type: 'loader' as const,
+					schema,
+					types: result.types,
+					realStore,
+					memoryStore,
+					name,
+					collection,
+				};
+			}),
+		);
+
+		const filteredRawLoaderResults = rawLoaderResults.filter((result) => result.type === 'loader');
+
+		await Promise.all(
+			filteredRawLoaderResults.map(async ({ memoryStore, realStore, schema, name, collection }) => {
 				for (const event of memoryStore.events) {
 					switch (event.type) {
 						case 'set': {
@@ -314,9 +332,28 @@ class ContentLayer {
 											filePath: event.entry.filePath!,
 										},
 									},
-									collectionWithResolvedSchema,
+									{
+										...collection,
+										schema,
+									},
 									false,
 								));
+								// TODO: properly traverse object
+								for (const [key, value] of Object.entries(data)) {
+									if (!isReference(value)) {
+										continue;
+									}
+									const collectionStore = filteredRawLoaderResults.find(
+										(e) => e.name === value.collection,
+									)!.memoryStore;
+									const id = 'id' in value ? value.id : value.slug;
+									if (!collectionStore.has(id)) {
+										// TODO: AstroError
+										throw new Error(
+											`Invalid reference for ${name}.${key}: cannot find entry ${id}`,
+										);
+									}
+								}
 							}
 							realStore.set({ ...event.entry, data });
 							break;
@@ -344,9 +381,10 @@ class ContentLayer {
 					}
 				}
 
-				return result;
+				// TODO: handle types
 			}),
 		);
+
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
 		await fs.mkdir(this.#settings.dotAstroDir, { recursive: true });
 		const assetImportsFile = new URL(ASSET_IMPORTS_FILE, this.#settings.dotAstroDir);
