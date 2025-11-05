@@ -246,7 +246,7 @@ class ContentLayer {
 		const rawLoaderResults = await Promise.all(
 			Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
 				if (collection.type !== CONTENT_LAYER_TYPE) {
-					return { type: 'skip' as const };
+					return
 				}
 
 				let { schema } = collection;
@@ -264,7 +264,7 @@ class ContentLayer {
 					(typeof collection.loader !== 'object' ||
 						!options.loaders.includes(collection.loader.name))
 				) {
-					return { type: 'skip' as const };
+					return
 				}
 
 				const context = await this.#getLoaderContext({
@@ -280,9 +280,7 @@ class ContentLayer {
 						...context,
 						store: realStore,
 					});
-					return {
-						type: 'simple' as const,
-					};
+					return
 				}
 
 				if (!collection.loader.load) {
@@ -301,7 +299,6 @@ class ContentLayer {
 				}
 
 				return {
-					type: 'loader' as const,
 					schema,
 					types: result.types,
 					realStore,
@@ -312,7 +309,7 @@ class ContentLayer {
 			}),
 		);
 
-		const filteredRawLoaderResults = rawLoaderResults.filter((result) => result.type === 'loader');
+		const filteredRawLoaderResults = rawLoaderResults.filter((result) => !!result);
 
 		await Promise.all(
 			filteredRawLoaderResults.map(async ({ memoryStore, realStore, schema, name, collection }) => {
