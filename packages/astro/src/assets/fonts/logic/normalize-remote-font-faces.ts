@@ -14,7 +14,7 @@ export function normalizeRemoteFontFaces({
 	return (
 		fonts
 			// Avoid getting too much font files
-			.filter((font) => (typeof font.meta?.priority === 'number' ? font.meta.priority === 0 : true))
+			.filter((font) => (typeof font.meta?.priority === 'number' ? font.meta.priority <= 1 : true))
 			// Collect URLs
 			.map((font) => {
 				// The index keeps track of encountered URLs. We can't use the index on font.src.map
