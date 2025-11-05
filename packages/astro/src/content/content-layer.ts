@@ -286,11 +286,11 @@ class ContentLayer {
 					throw new Error(`Collection loader for ${name} does not have a load method`);
 				}
 
-				const fakeStore = new InMemoryDataStore();
+				const memoryStore = new InMemoryDataStore();
 
 				const result = collection.loader.load({
 					...context,
-					store: fakeStore,
+					store: memoryStore,
 				});
 
 				// TODO: handle types
@@ -299,7 +299,7 @@ class ContentLayer {
 					schema = result.schema;
 				}
 
-				for (const event of fakeStore.events) {
+				for (const event of memoryStore.events) {
 					switch (event.type) {
 						case 'set': {
 							let data = event.entry.data;
