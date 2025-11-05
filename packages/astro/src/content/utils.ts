@@ -108,7 +108,7 @@ export function parseEntrySlug({
 	}
 }
 
-export async function getEntryDataAndImages<
+export async function getEntryData<
 	TInputData extends Record<string, unknown> = Record<string, unknown>,
 	TOutputData extends TInputData = TInputData,
 >(
@@ -121,12 +121,10 @@ export async function getEntryDataAndImages<
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
 	pluginContext?: PluginContext,
-): Promise<{ data: TOutputData; imageImports: Array<string> }> {
+): Promise<TOutputData> {
 	let data = entry.unvalidatedData as TOutputData;
 
 	let schema = collectionConfig.schema;
-
-	const imageImports = new Set<string>();
 
 	if (typeof schema === 'function') {
 		if (pluginContext) {
@@ -156,7 +154,6 @@ export async function getEntryDataAndImages<
 						) {
 							normalizedPath = `./${val}`;
 						}
-						imageImports.add(normalizedPath);
 						return `${IMAGE_IMPORT_PREFIX}${normalizedPath}`;
 					}),
 			});
@@ -199,26 +196,6 @@ export async function getEntryDataAndImages<
 		}
 	}
 
-	return { data, imageImports: Array.from(imageImports) };
-}
-
-export async function getEntryData(
-	entry: {
-		id: string;
-		collection: string;
-		unvalidatedData: Record<string, unknown>;
-		_internal: EntryInternal;
-	},
-	collectionConfig: CollectionConfig,
-	shouldEmitFile: boolean,
-	pluginContext?: PluginContext,
-) {
-	const { data } = await getEntryDataAndImages(
-		entry,
-		collectionConfig,
-		shouldEmitFile,
-		pluginContext,
-	);
 	return data;
 }
 

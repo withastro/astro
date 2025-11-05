@@ -22,7 +22,7 @@ import { InMemoryDataStore, type MutableDataStore } from './mutable-data-store.j
 import {
 	type ContentObservable,
 	getEntryConfigByExtMap,
-	getEntryDataAndImages,
+	getEntryData,
 	globalContentConfigObserver,
 	isReference,
 	loaderReturnSchema,
@@ -321,7 +321,7 @@ class ContentLayer {
 						case 'set': {
 							let data = event.entry.data;
 							if (schema) {
-								({ data } = await getEntryDataAndImages(
+								data = await getEntryData(
 									{
 										id: event.entry.id,
 										collection: name,
@@ -336,7 +336,7 @@ class ContentLayer {
 										schema,
 									},
 									false,
-								));
+								);
 
 								new Traverse(data).forEach((ctx, value) => {
 									if (!isReference(value)) {
