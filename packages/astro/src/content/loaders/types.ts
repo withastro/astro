@@ -64,7 +64,7 @@ export type Loader = {
 	  }
 	| {
 			/** Do the actual loading of the data */
-			load: (context: LoaderContext) => Promise<{ schema?: ZodSchema; types?: string }>;
+			load: (context: LoaderContext) => Promise<{ schema?: ZodSchema; types?: string } | void>;
 			schema?: never;
 	  }
 );

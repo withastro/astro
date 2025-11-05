@@ -64,7 +64,7 @@ const collectionConfigParser = z.union([
 					z.custom<{
 						schema?: any;
 						types?: string;
-					}>(),
+					} | void>(),
 				),
 				schema: z.any().optional(),
 				render: z.function(z.tuple([z.any()], z.unknown())).optional(),
