@@ -1325,7 +1325,7 @@ export const UnknownFilesystemError = {
  * @description
  * Cannot extract the font type from the given URL.
  * @message
- * An error occured while trying to extract the font type from the given URL.
+ * An error occurred while trying to extract the font type from the given URL.
  */
 export const CannotExtractFontType = {
 	name: 'CannotExtractFontType',
@@ -1339,7 +1339,7 @@ export const CannotExtractFontType = {
  * @description
  * Cannot determine weight and style from font file, update your family config and set `weight` and `style` manually instead.
  * @message
- * An error occured while determining the weight and style from the local font file.
+ * An error occurred while determining the weight and style from the local font file.
  */
 export const CannotDetermineWeightAndStyleFromFontFile = {
 	name: 'CannotDetermineWeightAndStyleFromFontFile',
@@ -1354,7 +1354,7 @@ export const CannotDetermineWeightAndStyleFromFontFile = {
  * @description
  * Cannot fetch the given font file
  * @message
- * An error occured while fetching font file from the given URL.
+ * An error occurred while fetching font file from the given URL.
  */
 export const CannotFetchFontFile = {
 	name: 'CannotFetchFontFile',
@@ -1373,7 +1373,7 @@ export const CannotFetchFontFile = {
 export const CannotLoadFontProvider = {
 	name: 'CannotLoadFontProvider',
 	title: 'Cannot load font provider',
-	message: (entrypoint: string) => `An error occured while loading the "${entrypoint}" provider.`,
+	message: (entrypoint: string) => `An error occurred while loading the "${entrypoint}" provider.`,
 	hint: 'This is an issue with the font provider. Please open an issue on their repository.',
 } satisfies ErrorData;
 

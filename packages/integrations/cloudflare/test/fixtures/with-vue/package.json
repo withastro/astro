@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@astrojs/cloudflare": "workspace:*",
-    "@astrojs/vue": "^5.1.1",
+    "@astrojs/vue": "^5.1.2",
     "astro": "workspace:*",
     "vue": "^3.5.22"
   }
