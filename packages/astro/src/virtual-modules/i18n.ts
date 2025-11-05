@@ -312,7 +312,7 @@ if (i18n?.routing === 'manual') {
 }
 
 /**
- * Allows to use the build-in fallback system of Astro
+ * Allows to use the built-in fallback system of Astro
  *
  * @param {APIContext} context The context passed to the middleware
  * @param {Promise<Response>} response An optional `Response` in case you're handling a `Response` coming from the `next` function.
