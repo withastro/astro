@@ -9,7 +9,7 @@ const root = new URL('./fixtures/with-vue/', import.meta.url);
 describe('Vue', () => {
 	let wrangler;
 	before(async () => {
-		await astroCli(fileURLToPath(root), 'build');
+		await astroCli(fileURLToPath(root), 'build').getResult();
 
 		wrangler = wranglerCli(fileURLToPath(root));
 		await new Promise((resolve) => {

@@ -59,6 +59,38 @@ jobs:
           # Use OIDC for npm authentication instead of NPM_TOKEN
           NPM_TOKEN: '' # https://github.com/changesets/changesets/issues/1152#issuecomment-3190884868
 
+      - name: Check if astro-vscode was published
+        id: vscode-published
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          if echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null; then
+            echo "published=true" >> $GITHUB_OUTPUT
+          else
+            echo "published=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Prepare vscode folder
+        if: steps.vscode-published.outputs.published == 'true'
+        working-directory: ./packages/language-tools/vscode
+        run: |
+          sleep 60s # wait for npm registry to update
+          rm -rf node_modules
+          npm i --workspaces=false # vsce does not support pnpm, so we need to pretend this is not a monorepo and use npm
+          npm run build
+          npm run build:grammar
+
+      - name: Publish to VSCode Marketplace
+        if: steps.vscode-published.outputs.published == 'true'
+        working-directory: ./packages/language-tools/vscode
+        run: |
+          npx vsce publish -p ${{ secrets.VSCE_TOKEN }} --target win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
+
+      - name: Publish to OpenVSX
+        if: steps.vscode-published.outputs.published == 'true'
+        working-directory: ./packages/language-tools/vscode
+        run: |
+          npx ovsx publish -p ${{ secrets.OVSX_TOKEN }} --target win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
+
       - name: Generate Announcement
         id: message
         if: steps.changesets.outputs.published == 'true'
