@@ -1,5 +1,6 @@
 import { existsSync, promises as fs } from 'node:fs';
 import { createMarkdownProcessor, type MarkdownProcessor } from '@astrojs/markdown-remark';
+import { Traverse } from 'neotraverse/modern';
 import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
@@ -295,8 +296,6 @@ class ContentLayer {
 					store: memoryStore,
 				});
 
-				// TODO: handle types
-
 				if (!schema && result?.schema) {
 					schema = result.schema;
 				}
@@ -338,11 +337,12 @@ class ContentLayer {
 									},
 									false,
 								));
-								// TODO: properly traverse object
-								for (const [key, value] of Object.entries(data)) {
+
+								new Traverse(data).forEach((ctx, value) => {
 									if (!isReference(value)) {
-										continue;
+										return;
 									}
+									// TODO: better data structure
 									const collectionStore = filteredRawLoaderResults.find(
 										(e) => e.name === value.collection,
 									)!.memoryStore;
@@ -350,10 +350,10 @@ class ContentLayer {
 									if (!collectionStore.has(id)) {
 										// TODO: AstroError
 										throw new Error(
-											`Invalid reference for ${name}.${key}: cannot find entry ${id}`,
+											`Invalid reference for ${name}.${ctx.keys!.map((key) => key.toString()).join('.')}: cannot find entry ${id}`,
 										);
 									}
-								}
+								});
 							}
 							realStore.set({ ...event.entry, data });
 							break;
