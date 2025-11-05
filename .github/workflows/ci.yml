@@ -196,10 +196,14 @@ jobs:
           # TODO: Figure out why the vscode tests are fine, but the ts-plugin ones are super flaky
           # cd ../ts-plugin
           # xvfb-run -a pnpm test
+        env:
+          SKIP_NODE_VERSION_CHECK: true
 
       - name: Test
         if: runner.os != 'Linux'
         run: pnpm test:language-tools
+        env:
+          SKIP_NODE_VERSION_CHECK: true
 
   e2e:
     name: "Test (E2E): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})"

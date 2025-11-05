@@ -8,7 +8,7 @@ const requiredMajorVersion = parseInt(currentVersion.split('.')[0], 10);
 const IS_STACKBLITZ = !!process.versions.webcontainer;
 const minimumMajorVersion = IS_STACKBLITZ ? 20 : 22;
 
-if (requiredMajorVersion < minimumMajorVersion) {
+if (process.env.SKIP_NODE_VERSION_CHECK !== 'true' && requiredMajorVersion < minimumMajorVersion) {
 	console.error(`Node.js v${currentVersion} is out of date and unsupported!`);
 	console.error(`Please use Node.js v${minimumMajorVersion} or higher.`);
 	process.exit(1);
