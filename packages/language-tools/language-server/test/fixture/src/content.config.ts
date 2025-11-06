@@ -2,7 +2,7 @@ import { glob } from 'astro/loaders';
 import { defineCollection, z } from 'astro:content';
 
 const blog = defineCollection({
-	loader: glob({ base: './src/content/blog', pattern: '**/*.md' }),
+	loader: glob({ base: './src/content/blog', pattern: '**/[^_]*.md' }),
 	schema: z.object({
 		title: z.string().describe("The blog post's title.").optional(),
 		description: z.string().optional(),
@@ -12,7 +12,7 @@ const blog = defineCollection({
 });
 
 const caching = defineCollection({
-	loader: glob({ base: './src/content/caching', pattern: '**/*.md' }),
+	loader: glob({ base: './src/content/caching', pattern: '**/[^_]*.md' }),
 	schema: z.object({
 		title: z.string().describe('I will be changed'),
 	}),
