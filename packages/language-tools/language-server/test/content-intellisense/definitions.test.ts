@@ -3,8 +3,6 @@ import path from 'node:path';
 import { before, describe, it } from 'node:test';
 import type { LocationLink } from '@volar/language-server';
 import { Position } from '@volar/language-server';
-// @ts-ignore
-import { cli } from '../../../../astro/test/test-utils.js';
 import { getLanguageServer, type LanguageServer } from '../server.ts';
 import { fixtureDir } from '../utils.ts';
 
@@ -15,10 +13,6 @@ describe(
 		let languageServer: LanguageServer;
 
 		before(async () => {
-			const res = await cli('sync', '--root', fixtureDir).getResult();
-			if (res.exitCode !== 0) {
-				throw new Error(res.stderr);
-			}
 			languageServer = await getLanguageServer();
 		});
 
@@ -42,13 +36,13 @@ describe(
 			const { targetRange, targetSelectionRange, originSelectionRange } = definitions[0];
 
 			assert.deepStrictEqual(targetRange, {
-				start: { line: 5, character: 2 },
-				end: { line: 5, character: 65 },
+				start: { line: 6, character: 2 },
+				end: { line: 6, character: 65 },
 			});
 
 			assert.deepStrictEqual(targetSelectionRange, {
-				start: { line: 5, character: 2 },
-				end: { line: 5, character: 7 },
+				start: { line: 6, character: 2 },
+				end: { line: 6, character: 7 },
 			});
 
 			assert.deepStrictEqual(originSelectionRange, {

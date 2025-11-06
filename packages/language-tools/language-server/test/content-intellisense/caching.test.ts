@@ -4,8 +4,6 @@ import path from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import { Position } from '@volar/language-server';
 import { URI } from 'vscode-uri';
-// @ts-ignore
-import { cli } from '../../../../astro/test/test-utils.js';
 import { getLanguageServer, type LanguageServer } from '../server.ts';
 import { fixtureDir } from '../utils.ts';
 
@@ -18,10 +16,6 @@ describe(
 		let languageServer: LanguageServer;
 
 		before(async () => {
-			const res = await cli('sync', '--root', fixtureDir).getResult();
-			if (res.exitCode !== 0) {
-				throw new Error(res.stderr);
-			}
 			languageServer = await getLanguageServer();
 		});
 
