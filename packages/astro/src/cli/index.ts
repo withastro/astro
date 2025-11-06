@@ -112,21 +112,25 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		case 'docs': {
 			const [
 				{ createTinyexecCommandExecutor },
-				{ createProcessPlatformProvider },
+				{ createProcessOperatingSystemProvider },
+				{ createProcessCloudIdeProvider },
 				{ openDocsCommand },
 			] = await Promise.all([
-				import('./docs/infra/tinyexec-command-executor.js'),
-				import('./docs/infra/process-platform-provider.js'),
+				import('./infra/tinyexec-command-executor.js'),
+				import('./infra/process-operating-system-provider.js'),
+				import('./docs/infra/process-cloud-ide-provider.js'),
 				import('./docs/core/open-docs.js'),
 			]);
 			const commandExecutor = createTinyexecCommandExecutor();
-			const platformProvider = createProcessPlatformProvider();
+			const operatingSystemProvider = createProcessOperatingSystemProvider();
+			const cloudIdeProvider = createProcessCloudIdeProvider();
 
 			return await runner.run(openDocsCommand, {
 				url: 'https://docs.astro.build/',
 				logger,
 				commandExecutor,
-				platformProvider,
+				operatingSystemProvider,
+				cloudIdeProvider,
 			});
 		}
 		case 'telemetry': {
