@@ -17,20 +17,18 @@ const skipSemverCheckIfAbove = IS_STACKBLITZ ? 21 : 23;
 
 /** `astro *` */
 async function main() {
-	if (process.env.SKIP_NODE_VERSION_CHECK !== 'true') {
-		const version = process.versions.node;
-		// Fast-path for higher Node.js versions
-		if ((parseInt(version) || 0) <= skipSemverCheckIfAbove) {
-			const semver = await import('semver');
-			try {
-				if (!semver.satisfies(version, engines)) {
-					await errorNodeUnsupported();
-					return;
-				}
-			} catch {
+	const version = process.versions.node;
+	// Fast-path for higher Node.js versions
+	if ((parseInt(version) || 0) <= skipSemverCheckIfAbove) {
+		const semver = await import('semver');
+		try {
+			if (!semver.satisfies(version, engines)) {
 				await errorNodeUnsupported();
 				return;
 			}
+		} catch {
+			await errorNodeUnsupported();
+			return;
 		}
 	}
 
