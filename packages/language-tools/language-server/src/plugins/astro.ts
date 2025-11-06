@@ -1,7 +1,5 @@
-import { dirname } from 'node:path';
 import type { DiagnosticMessage } from '@astrojs/compiler/types';
 import type {
-	CodeLens,
 	CompletionItem,
 	Diagnostic,
 	LanguageServicePlugin,
@@ -14,14 +12,11 @@ import {
 	Range,
 	TextEdit,
 } from '@volar/language-server';
-import fg from 'fast-glob';
-import type { Provide } from 'volar-service-typescript';
 import type { TextDocument } from 'vscode-html-languageservice';
 import { URI } from 'vscode-uri';
 import { AstroVirtualCode } from '../core/index.js';
-import { isJSDocument } from './utils.js';
 
-export const create = (ts: typeof import('typescript')): LanguageServicePlugin => {
+export const create = (): LanguageServicePlugin => {
 	return {
 		capabilities: {
 			completionProvider: {
@@ -76,66 +71,10 @@ export const create = (ts: typeof import('typescript')): LanguageServicePlugin =
 						};
 					}
 				},
-				provideCodeLenses(document, token) {
-					if (token.isCancellationRequested) return;
-					if (!isJSDocument(document.languageId)) return;
-
-					if (!context.project.typescript) return;
-
-					const { uriConverter } = context.project.typescript;
-					const languageService = context.inject<Provide, 'typescript/languageService'>(
-						'typescript/languageService',
-					);
-					if (!languageService) return;
-
-					const tsProgram = languageService.getProgram();
-					if (!tsProgram) return;
-
-					const decoded = context.decodeEmbeddedDocumentUri(URI.parse(document.uri));
-					if (!decoded) return;
-
-					const globcodeLens: CodeLens[] = [];
-					const sourceFile = tsProgram.getSourceFile(decoded[0].fsPath)!;
-
-					function walk() {
-						return ts.forEachChild(sourceFile, function cb(node): void {
-							if (ts.isCallExpression(node) && node.expression.getText() === 'Astro.glob') {
-								const globArgument = node.arguments.at(0);
-
-								if (globArgument && decoded) {
-									globcodeLens.push(
-										getGlobResultAsCodeLens(
-											globArgument.getText().slice(1, -1),
-											dirname(uriConverter.asFileName(decoded[0])),
-											document.positionAt(node.arguments.pos),
-										),
-									);
-								}
-							}
-							return ts.forEachChild(node, cb);
-						});
-					}
-
-					walk();
-
-					return globcodeLens;
-				},
 			};
 		},
 	};
 };
-
-function getGlobResultAsCodeLens(globText: string, dir: string, position: Position) {
-	const globResult = fg.sync(globText, {
-		cwd: dir,
-		onlyFiles: true,
-	});
-
-	return {
-		range: Range.create(position, position),
-		command: { title: `Matches ${globResult.length} files`, command: '' },
-	};
-}
 
 function getFrontmatterCompletion(
 	file: AstroVirtualCode,

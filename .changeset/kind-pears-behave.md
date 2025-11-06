@@ -1,5 +1,6 @@
 ---
 'astro': major
+'@astrojs/language-server': major
 ---
 
 Removes `Astro.glob()`
