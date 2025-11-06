@@ -53,7 +53,7 @@ export async function optimizeFallbacks({
 
 	const localFontsMappings = localFonts.map((font) => ({
 		font,
-		// We must't wrap in quote because that's handled by the CSS renderer
+		// We mustn't wrap in quote because that's handled by the CSS renderer
 		name: `${family.nameWithHash} fallback: ${font}`,
 	}));
 
