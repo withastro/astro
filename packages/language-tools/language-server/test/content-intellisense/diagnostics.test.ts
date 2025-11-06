@@ -16,7 +16,10 @@ describe.skip(
 		let languageServer: LanguageServer;
 
 		before(async () => {
-			await cli('sync', '--root', fixtureDir).getResult();
+			const res = await cli('sync', '--root', fixtureDir).getResult();
+			if (res.exitCode !== 0) {
+				throw new Error(res.stderr);
+			}
 			languageServer = await getLanguageServer();
 		});
 
