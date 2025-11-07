@@ -17,8 +17,9 @@ import {
 	MODULES_IMPORTS_FILE,
 } from './consts.js';
 import type { RenderedContent } from './data-store.js';
+import { InMemoryDataStore } from './in-memory-data-store.js';
 import type { LoaderContext } from './loaders/types.js';
-import { InMemoryDataStore, type MutableDataStore } from './mutable-data-store.js';
+import type { MutableDataStore } from './mutable-data-store.js';
 import {
 	type ContentObservable,
 	getEntryConfigByExtMap,
