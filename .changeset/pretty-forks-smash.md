@@ -3,9 +3,6 @@
 ---
 
 Removes the `handleForms` prop for the `<ClientRouter />` component - ([v6 upgrade guidance](https://deploy-preview-12322--astro-docs-2.netlify.app/en/guides/upgrade-to/v6/#removed-handleforms-prop-for-the-clientrouter--component))
-
-In Astro 4.0, the `handleForms` prop of the `<ClientRouter />` component was deprecated, as it was no longer necessary to opt in to handling `submit` events for `form` elements. This functionality has been built in by default and the property, if still included in your project, silently had no impact on form submission.
-
 Astro 6.0 removes this prop entirely and it now must be removed to avoid errors in your project.
 
 #### What should I do?
