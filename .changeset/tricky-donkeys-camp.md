@@ -15,8 +15,4 @@
 
 Updates Vite to 7.0
 
-Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler.
-
-#### What should I do?
-
-If you are using Vite-specific plugins, configuration, or APIs, check the [Vite migration guide](https://vite.dev/guide/migration) for their breaking changes and upgrade your project as needed.
+Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://deploy-preview-12322--astro-docs-2.netlify.app/en/guides/upgrade-to/v6/#vite-70))
