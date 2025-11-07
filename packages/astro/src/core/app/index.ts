@@ -175,6 +175,17 @@ export class App {
 	}
 
 	/**
+	 * Validate a hostname by rejecting any with path separators.
+	 * Prevents path injection attacks. Invalid hostnames return undefined.
+	 */
+	static sanitizeHost(hostname: string | string[] | undefined): string | undefined {
+		if (!hostname || typeof hostname !== 'string') return hostname;
+		// Reject any hostname containing path separators - they're invalid
+		if (hostname.includes('/')) return undefined;
+		return hostname;
+	}
+
+	/**
 	 * Validate forwarded headers (proto, host, port) against allowedDomains.
 	 * Returns validated values or undefined for rejected headers.
 	 * Uses strict defaults: http/https only for proto, rejects port if not in allowedDomains.
@@ -190,7 +201,9 @@ export class App {
 		// Validate protocol
 		if (forwardedProtocol) {
 			if (allowedDomains && allowedDomains.length > 0) {
-				const hasProtocolPatterns = allowedDomains.some((pattern) => pattern.protocol !== undefined);
+				const hasProtocolPatterns = allowedDomains.some(
+					(pattern) => pattern.protocol !== undefined,
+				);
 				if (hasProtocolPatterns) {
 					// Validate against allowedDomains patterns
 					try {
@@ -210,18 +223,22 @@ export class App {
 		}
 
 		// Validate host (extract port from hostname for validation)
-		if (forwardedHost && allowedDomains && allowedDomains.length > 0) {
+		// Reject empty strings and sanitize to prevent path injection
+		if (forwardedHost && forwardedHost.length > 0 && allowedDomains && allowedDomains.length > 0) {
 			const protoForValidation = result.protocol || 'https';
-			// Extract port from hostname if present (e.g., "example.com:3000" -> "example.com")
-			const hostWithoutPort = forwardedHost.split(':')[0];
-			try {
-				const testUrl = new URL(`${protoForValidation}://${hostWithoutPort}`);
-				const isAllowed = allowedDomains.some((pattern) => matchPattern(testUrl, pattern));
-				if (isAllowed) {
-					result.host = forwardedHost;
+			const sanitized = App.sanitizeHost(forwardedHost);
+			// Extract port from sanitized hostname if present (e.g., "example.com:3000" -> "example.com")
+			const hostWithoutPort = sanitized?.split(':')[0];
+			if (sanitized && hostWithoutPort) {
+				try {
+					const testUrl = new URL(`${protoForValidation}://${hostWithoutPort}`);
+					const isAllowed = allowedDomains.some((pattern) => matchPattern(testUrl, pattern));
+					if (isAllowed) {
+						result.host = sanitized;
+					}
+				} catch {
+					// Invalid host, omit from result
 				}
-			} catch {
-				// Invalid host, omit from result
 			}
 		}
 

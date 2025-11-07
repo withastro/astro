@@ -156,4 +156,46 @@ describe('URL', () => {
 		// This validates that port validation works (it's checking and passing)
 		assert.equal($('body').text(), 'https://abc.xyz:8080/');
 	});
+
+	it('rejects empty X-Forwarded-Host with allowedDomains configured', async () => {
+		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const { req, res, text } = createRequestAndResponse({
+			headers: {
+				'X-Forwarded-Proto': 'https',
+				'X-Forwarded-Host': '',
+				Host: 'legitimate.example.com',
+			},
+			url: '/',
+		});
+
+		handler(req, res);
+		req.send();
+
+		const html = await text();
+		const $ = cheerio.load(html);
+
+		// Empty X-Forwarded-Host should be rejected and fall back to Host header
+		assert.equal($('body').text(), 'https://legitimate.example.com/');
+	});
+
+	it('rejects X-Forwarded-Host with path injection attempt', async () => {
+		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const { req, res, text } = createRequestAndResponse({
+			headers: {
+				'X-Forwarded-Proto': 'https',
+				'X-Forwarded-Host': 'example.com/admin',
+				Host: 'localhost:3000',
+			},
+			url: '/',
+		});
+
+		handler(req, res);
+		req.send();
+
+		const html = await text();
+		const $ = cheerio.load(html);
+
+		// Path injection attempt should be rejected and fall back to Host header
+		assert.equal($('body').text(), 'https://localhost:3000/');
+	});
 });
