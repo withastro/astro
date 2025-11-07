@@ -299,88 +299,94 @@ class ContentLayer {
 					schema = result.schema;
 				}
 
-				return {
-					schema,
-					types: result?.types,
-					realStore,
-					memoryStore,
+				return [
 					name,
-					collection,
-				};
+					{
+						schema,
+						types: result?.types,
+						realStore,
+						memoryStore,
+						collection,
+					},
+				] as const;
 			}),
 		);
 
-		const filteredRawLoaderResults = rawLoaderResults.filter((result) => !!result);
+		const filteredRawLoaderResults = Object.fromEntries(
+			rawLoaderResults.filter((result) => !!result),
+		);
 
 		await Promise.all(
-			filteredRawLoaderResults.map(async ({ memoryStore, realStore, schema, name, collection }) => {
-				for (const event of memoryStore.events) {
-					switch (event.type) {
-						case 'set': {
-							let data = event.entry.data;
-							if (schema) {
-								data = await getEntryData(
-									{
-										id: event.entry.id,
-										collection: name,
-										unvalidatedData: data,
-										_internal: {
-											rawData: undefined,
-											filePath: event.entry.filePath!,
+			Object.entries(filteredRawLoaderResults).map(
+				async ([name, { memoryStore, realStore, schema, collection }]) => {
+					for (const event of memoryStore.events) {
+						switch (event.type) {
+							case 'set': {
+								let data = event.entry.data;
+								if (schema) {
+									data = await getEntryData(
+										{
+											id: event.entry.id,
+											collection: name,
+											unvalidatedData: data,
+											_internal: {
+												rawData: undefined,
+												filePath: event.entry.filePath!,
+											},
 										},
-									},
-									{
-										...collection,
-										schema,
-									},
-									false,
-								);
+										{
+											...collection,
+											schema,
+										},
+										false,
+									);
 
-								new Traverse(data).forEach((ctx, value) => {
-									if (!isReference(value)) {
-										return;
-									}
-									// TODO: better data structure
-									const collectionStore = filteredRawLoaderResults.find(
-										(e) => e.name === value.collection,
-									)!.memoryStore;
-									const id = 'id' in value ? value.id : value.slug;
-									if (!collectionStore.has(id)) {
-										// TODO: AstroError
-										throw new Error(
-											`Invalid reference for ${name}.${ctx.keys!.map((key) => key.toString()).join('.')}: cannot find entry ${id}`,
-										);
-									}
-								});
+									new Traverse(data).forEach((ctx, value) => {
+										if (!isReference(value)) {
+											return;
+										}
+										const loaderResult = filteredRawLoaderResults[value.collection];
+										if (!loaderResult) {
+											// TODO: throw error
+										}
+										const id = 'id' in value ? value.id : value.slug;
+										if (!loaderResult.memoryStore.has(id)) {
+											// TODO: AstroError
+											throw new Error(
+												`Invalid reference for ${name}.${ctx.keys!.map((key) => key.toString()).join('.')}: cannot find entry ${id}`,
+											);
+										}
+									});
+								}
+								realStore.set({ ...event.entry, data });
+								break;
 							}
-							realStore.set({ ...event.entry, data });
-							break;
-						}
-						case 'delete': {
-							realStore.delete(event.key);
-							break;
-						}
-						case 'clear': {
-							realStore.clear();
-							break;
-						}
-						case 'addAssetImport': {
-							realStore.addAssetImport(event.assetImport, event.filePath);
-							break;
-						}
-						case 'addAssetImports': {
-							realStore.addAssetImports(event.assets, event.filePath);
-							break;
-						}
-						case 'addModuleImport': {
-							realStore.addModuleImport(event.filePath);
-							break;
+							case 'delete': {
+								realStore.delete(event.key);
+								break;
+							}
+							case 'clear': {
+								realStore.clear();
+								break;
+							}
+							case 'addAssetImport': {
+								realStore.addAssetImport(event.assetImport, event.filePath);
+								break;
+							}
+							case 'addAssetImports': {
+								realStore.addAssetImports(event.assets, event.filePath);
+								break;
+							}
+							case 'addModuleImport': {
+								realStore.addModuleImport(event.filePath);
+								break;
+							}
 						}
 					}
-				}
 
-				// TODO: handle types
-			}),
+					// TODO: handle types
+				},
+			),
 		);
 
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
