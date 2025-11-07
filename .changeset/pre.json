@@ -25,7 +25,38 @@
     "@astrojs/markdown-remark": "6.3.6",
     "@astrojs/telemetry": "3.3.0",
     "@astrojs/underscore-redirects": "1.0.0",
-    "@astrojs/upgrade": "0.6.2"
+    "@astrojs/upgrade": "0.6.2",
+    "@astrojs/check": "0.9.5",
+    "@astrojs/language-server": "2.16.0",
+    "@astrojs/ts-plugin": "1.10.5",
+    "astro-vscode": "2.16.0",
+    "@astrojs/yaml2ts": "0.2.2"
   },
-  "changesets": []
+  "changesets": [
+    "beige-clowns-read",
+    "beige-friends-sell",
+    "busy-olives-chew",
+    "cuddly-worlds-beam",
+    "cyan-crews-cross",
+    "dull-mangos-travel",
+    "fast-bushes-fall",
+    "fresh-hairs-battle",
+    "giant-areas-press",
+    "good-camels-pull",
+    "green-garlics-heal",
+    "honest-deer-add",
+    "kind-pears-behave",
+    "pretty-forks-smash",
+    "puny-poems-create",
+    "rich-horses-begin",
+    "sad-lines-hear",
+    "salty-owls-warn",
+    "six-women-visit",
+    "stale-ads-see",
+    "three-apples-roll",
+    "tricky-donkeys-camp",
+    "wet-suits-help",
+    "whole-geckos-think",
+    "young-banks-camp"
+  ]
 }

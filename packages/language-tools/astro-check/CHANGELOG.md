@@ -1,5 +1,12 @@
 # @astrojs/check
 
+## 0.9.6-alpha.0
+
+### Patch Changes
+
+- Updated dependencies [[`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485)]:
+  - @astrojs/language-server@2.16.1-alpha.0
+
 ## 0.9.5
 
 ### Patch Changes

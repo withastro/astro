@@ -1,5 +1,17 @@
 # @astrojs/db
 
+## 0.19.0-alpha.0
+
+### Minor Changes
+
+- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates Vite to 7.0
+
+  Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler.
+
+  #### What should I do?
+
+  If you are using Vite-specific plugins, configuration, or APIs, check the [Vite migration guide](https://vite.dev/guide/migration) for their breaking changes and upgrade your project as needed.
+
 ## 0.18.2
 
 ### Patch Changes

@@ -1,5 +1,49 @@
 # @astrojs/react
 
+## 5.0.0-alpha.0
+
+### Major Changes
+
+- [#14427](https://github.com/withastro/astro/pull/14427) [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases minimum Node.js version to 22.12.0
+
+  Node 18 reached its End of Life in March 2025 and Node 20 is scheduled to reach its End of Life in April 2026.
+
+  Astro v6.0 drops Node 18 and Node 20 support entirely so that all Astro users can take advantage of Node's more modern features.
+
+  #### What should I do?
+
+  Check that both your development environment and your deployment environment are using **Node `22.12.0` or higher**.
+  1. Check your local version of Node using:
+
+  ```sh
+  node -v
+  ```
+
+  2. Check your deployment environment's own documentation to verify that they support Node 22.
+
+  You can specify Node `22.12.0` for your Astro project either in a dashboard configuration setting or a `.nvmrc` file.
+
+  ```bash
+  # .nvmrc
+  22.12.0
+  ```
+
+- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates Vite to 7.0
+
+  Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler.
+
+  #### What should I do?
+
+  If you are using Vite-specific plugins, configuration, or APIs, check the [Vite migration guide](https://vite.dev/guide/migration) for their breaking changes and upgrade your project as needed.
+
+### Patch Changes
+
+- [#14715](https://github.com/withastro/astro/pull/14715) [`3d55c5d`](https://github.com/withastro/astro/commit/3d55c5d0fb520d470b33d391e5b68861f5b51271) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds support for client hydration in `getContainerRenderer()`
+
+  The `getContainerRenderer()` function is exported by Astro framework integrations to simplify the process of rendering framework components when using the experimental Container API inside a Vite or Vitest environment. This update adds the client hydration entrypoint to the returned object, enabling client-side interactivity for components rendered using this function. Previously this required users to manually call `container.addClientRenderer()` with the appropriate client renderer entrypoint.
+
+  See [the `container-with-vitest` demo](https://github.com/withastro/astro/blob/main/examples/container-with-vitest/test/ReactWrapper.test.ts) for a usage example, and [the Container API documentation](https://docs.astro.build/en/reference/container-reference/#renderers-option) for more information on using framework components with the experimental Container API.
+
 ## 4.4.1
 
 ### Patch Changes
