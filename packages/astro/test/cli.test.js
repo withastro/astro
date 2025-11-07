@@ -18,8 +18,8 @@ describe('astro cli', () => {
 	};
 
 	it('astro', async () => {
-		const proc = await cli();
-		assert.equal(proc.exitCode, 0);
+		const result = await cli().getResult();
+		assert.equal(result.exitCode, 0);
 	});
 
 	// Flaky test, in CI it exceeds the timeout most of the times
@@ -76,29 +76,29 @@ describe('astro cli', () => {
 		const pkgURL = new URL('../package.json', import.meta.url);
 		const pkgVersion = await fs.readFile(pkgURL, 'utf8').then((data) => JSON.parse(data).version);
 
-		const proc = await cli('--version');
+		const result = await cli('--version').getResult();
 
-		assert.equal(proc.stdout.includes(pkgVersion), true);
+		assert.equal(result.stdout.includes(pkgVersion), true);
 	});
 
 	it('astro info has correct Astro version', async () => {
-		const proc = await cli('info', '--copy');
+		const result = await cli('info', '--copy').getResult();
 		const pkgURL = new URL('../package.json', import.meta.url);
 		const pkgJson = await fs.readFile(pkgURL, 'utf8').then((data) => JSON.parse(data));
 
 		const pkgVersion = pkgJson.version;
 
-		assert.ok(proc.stdout.includes(`v${pkgVersion}`));
-		assert.equal(proc.exitCode, 0);
+		assert.ok(result.stdout.includes(`v${pkgVersion}`));
+		assert.equal(result.exitCode, 0);
 
 		// On Linux we only check if we have Wayland or x11. In Codespaces it falsely reports that it does have x11
 		if (
 			platform === 'linux' &&
 			((!process.env.WAYLAND_DISPLAY && !process.env.DISPLAY) || process.env.CODESPACES)
 		) {
-			assert.ok(proc.stdout.includes('Please manually copy the text above'));
+			assert.ok(result.stdout.includes('Please manually copy the text above'));
 		} else {
-			assert.ok(proc.stdout.includes('Copied to clipboard!'));
+			assert.ok(result.stdout.includes('Copied to clipboard!'));
 			const clipboardContent = await readFromClipboard();
 			assert.ok(clipboardContent.includes(`v${pkgVersion}`));
 		}
@@ -240,13 +240,10 @@ describe('astro cli', () => {
 			timeout: 35000,
 		},
 		async () => {
-			let proc = undefined;
 			const projectRootURL = new URL('./fixtures/astro-check-no-errors/', import.meta.url);
-			try {
-				proc = await cli('check', '--root', fileURLToPath(projectRootURL));
-			} catch {}
+			const result = await cli('check', '--root', fileURLToPath(projectRootURL)).getResult();
 
-			assert.equal(proc?.stdout.includes('0 errors'), true);
+			assert.equal(result.stdout.includes('0 errors'), true);
 		},
 	);
 
@@ -256,18 +253,10 @@ describe('astro cli', () => {
 			timeout: 35000,
 		},
 		async () => {
-			let stdout = undefined;
 			const projectRootURL = new URL('./fixtures/astro-check-errors/', import.meta.url);
+			const result = await cli('check', '--root', fileURLToPath(projectRootURL)).getResult();
 
-			// When `astro check` finds errors, it returns an error code. As such, we need to wrap this
-			// in a try/catch because otherwise Mocha will always report this test as a fail
-			try {
-				await cli('check', '--root', fileURLToPath(projectRootURL));
-			} catch (err) {
-				stdout = err.toString();
-			}
-
-			assert.equal(stdout.includes('1 error'), true);
+			assert.equal(result.stdout.includes('1 error'), true);
 		},
 	);
 
@@ -276,7 +265,7 @@ describe('astro cli', () => {
 		const pkgVersion = await fs.readFile(pkgURL, 'utf8').then((data) => JSON.parse(data).version);
 
 		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
-		const proc = cli('dev', '--root', fileURLToPath(projectRootURL));
+		const { proc } = cli('dev', '--root', fileURLToPath(projectRootURL));
 		const { messages } = await parseCliDevStart(proc);
 
 		const message = messages.join('\n');
