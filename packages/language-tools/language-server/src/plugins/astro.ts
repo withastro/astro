@@ -26,7 +26,6 @@ export const create = (): LanguageServicePlugin => {
 				interFileDependencies: false,
 				workspaceDiagnostics: false,
 			},
-			codeLensProvider: {},
 		},
 		create(context): LanguageServicePluginInstance {
 			return {
