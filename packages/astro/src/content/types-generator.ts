@@ -359,9 +359,7 @@ async function getContentLayerSchema<T extends keyof ContentConfig['collections'
 		collection.loader.schema
 	) {
 		let schema = collection.loader.schema;
-		if (typeof schema === 'function') {
-			schema = await schema();
-		}
+		// TODO: get schema returned by load
 		if (schema) {
 			schemaCache.set(collectionKey, await schema);
 			return schema;
