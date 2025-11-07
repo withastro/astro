@@ -1,5 +1,6 @@
 ---
 'astro': major
+'@astrojs/language-server': patch
 ---
 
 Removes `Astro.glob()`
