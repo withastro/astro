@@ -2,7 +2,7 @@ import type { SSRManifest, SSRManifestI18n } from '../core/app/types.js';
 import { REROUTE_DIRECTIVE_HEADER, ROUTE_TYPE_HEADER } from '../core/constants.js';
 import { isRequestServerIsland, requestIs404Or500 } from '../core/routing/match.js';
 import type { MiddlewareHandler } from '../types/public/common.js';
-import type { APIContext } from '../types/public/context.js';
+import type { EndpointContext } from '../types/public/context.js';
 import {
 	type MiddlewarePayload,
 	normalizeTheLocale,
@@ -31,7 +31,7 @@ export function createI18nMiddleware(
 	const _requestHasLocale = requestHasLocale(payload.locales);
 	const _redirectToFallback = redirectToFallback(payload);
 
-	const prefixAlways = (context: APIContext, response: Response): Response | undefined => {
+	const prefixAlways = (context: EndpointContext, response: Response): Response | undefined => {
 		const url = context.url;
 		if (url.pathname === base + '/' || url.pathname === base) {
 			return _redirectToDefaultLocale(context);
@@ -45,7 +45,7 @@ export function createI18nMiddleware(
 		return undefined;
 	};
 
-	const prefixOtherLocales = (context: APIContext, response: Response): Response | undefined => {
+	const prefixOtherLocales = (context: EndpointContext, response: Response): Response | undefined => {
 		let pathnameContainsDefaultLocale = false;
 		const url = context.url;
 		for (const segment of url.pathname.split('/')) {

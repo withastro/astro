@@ -5,7 +5,7 @@ import { AstroError } from '../../core/errors/errors.js';
 import { ActionCalledFromServerError, ActionNotFoundError } from '../../core/errors/errors-data.js';
 import { removeTrailingForwardSlash } from '../../core/path.js';
 import { apiContextRoutesSymbol } from '../../core/render-context.js';
-import type { APIContext } from '../../types/public/index.js';
+import type { EndpointContext } from '../../types/public/index.js';
 import { ACTION_RPC_ROUTE_PATTERN } from '../consts.js';
 import {
 	ACTION_QUERY_PARAMS,
@@ -19,12 +19,12 @@ import {
 } from './shared.js';
 import type { Locals } from './utils.js';
 import {
-	ACTION_API_CONTEXT_SYMBOL,
-	type ActionAPIContext,
+	ACTION_ENDPOINT_CONTEXT_SYMBOL,
+	type ActionEndpointContext,
 	type ErrorInferenceObject,
 	formContentTypes,
 	hasContentType,
-	isActionAPIContext,
+	isActionEndpointContext,
 	type MaybePromise,
 } from './utils.js';
 
@@ -33,8 +33,8 @@ export * from './shared.js';
 export type ActionAccept = 'form' | 'json';
 
 export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z.ZodType
-	? (input: z.infer<TInputSchema>, context: ActionAPIContext) => MaybePromise<TOutput>
-	: (input: any, context: ActionAPIContext) => MaybePromise<TOutput>;
+	? (input: z.infer<TInputSchema>, context: ActionEndpointContext) => MaybePromise<TOutput>
+	: (input: any, context: ActionEndpointContext) => MaybePromise<TOutput>;
 
 export type ActionReturnType<T extends ActionHandler<any, any>> = Awaited<ReturnType<T>>;
 
@@ -83,16 +83,16 @@ export function defineAction<
 			? getFormServerHandler(handler, inputSchema)
 			: getJsonServerHandler(handler, inputSchema);
 
-	async function safeServerHandler(this: ActionAPIContext, unparsedInput: unknown) {
-		// The ActionAPIContext should always contain the `params` property
-		if (typeof this === 'function' || !isActionAPIContext(this)) {
+	async function safeServerHandler(this: ActionEndpointContext, unparsedInput: unknown) {
+		// The ActionEndpointContext should always contain the `params` property
+		if (typeof this === 'function' || !isActionEndpointContext(this)) {
 			throw new AstroError(ActionCalledFromServerError);
 		}
 		return callSafely(() => serverHandler(unparsedInput, this));
 	}
 
 	Object.assign(safeServerHandler, {
-		orThrow(this: ActionAPIContext, unparsedInput: unknown) {
+		orThrow(this: ActionEndpointContext, unparsedInput: unknown) {
 			if (typeof this === 'function') {
 				throw new AstroError(ActionCalledFromServerError);
 			}
@@ -107,7 +107,7 @@ function getFormServerHandler<TOutput, TInputSchema extends z.ZodType>(
 	handler: ActionHandler<TInputSchema, TOutput>,
 	inputSchema?: TInputSchema,
 ) {
-	return async (unparsedInput: unknown, context: ActionAPIContext): Promise<Awaited<TOutput>> => {
+	return async (unparsedInput: unknown, context: ActionEndpointContext): Promise<Awaited<TOutput>> => {
 		if (!(unparsedInput instanceof FormData)) {
 			throw new ActionError({
 				code: 'UNSUPPORTED_MEDIA_TYPE',
@@ -134,7 +134,7 @@ function getJsonServerHandler<TOutput, TInputSchema extends z.ZodType>(
 	handler: ActionHandler<TInputSchema, TOutput>,
 	inputSchema?: TInputSchema,
 ) {
-	return async (unparsedInput: unknown, context: ActionAPIContext): Promise<Awaited<TOutput>> => {
+	return async (unparsedInput: unknown, context: ActionEndpointContext): Promise<Awaited<TOutput>> => {
 		if (unparsedInput instanceof FormData) {
 			throw new ActionError({
 				code: 'UNSUPPORTED_MEDIA_TYPE',
@@ -267,7 +267,7 @@ export type AstroActionContext = {
 /**
  * Access information about Action requests from middleware.
  */
-export function getActionContext(context: APIContext): AstroActionContext {
+export function getActionContext(context: EndpointContext): AstroActionContext {
 	const callerInfo = getCallerInfo(context);
 
 	// Prevents action results from being handled on a rewrite.
@@ -322,7 +322,7 @@ export function getActionContext(context: APIContext): AstroActionContext {
 
 				// Clones the context, preserving accessors and methods but omitting
 				// the properties that are not needed in the action handler.
-				const actionAPIContext = Object.create(
+				const actionEndpointContext = Object.create(
 					Object.getPrototypeOf(context),
 					Object.fromEntries(
 						Object.entries(Object.getOwnPropertyDescriptors(context)).filter(
@@ -331,8 +331,8 @@ export function getActionContext(context: APIContext): AstroActionContext {
 					),
 				);
 
-				Reflect.set(actionAPIContext, ACTION_API_CONTEXT_SYMBOL, true);
-				const handler = baseAction.bind(actionAPIContext satisfies ActionAPIContext);
+				Reflect.set(actionEndpointContext, ACTION_ENDPOINT_CONTEXT_SYMBOL, true);
+				const handler = baseAction.bind(actionEndpointContext satisfies ActionEndpointContext);
 				return handler(input);
 			},
 		};
@@ -352,7 +352,7 @@ export function getActionContext(context: APIContext): AstroActionContext {
 	};
 }
 
-function getCallerInfo(ctx: APIContext) {
+function getCallerInfo(ctx: EndpointContext) {
 	if (ctx.routePattern === ACTION_RPC_ROUTE_PATTERN) {
 		return { from: 'rpc', name: ctx.url.pathname.replace(/^.*\/_actions\//, '') } as const;
 	}

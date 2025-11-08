@@ -23,7 +23,7 @@ vite-plugin-astro-server --------- DevPipeline ------ Pipeline ------------- Ren
                                                      /                                     \      used by /
                                                     /                               creates \            /
                              creates               / implements                              \          /
-               AstroBuilder --------- BuildPipeline                                           APIContext
+               AstroBuilder --------- BuildPipeline                                           EndpointContext
                                                                                                         \
                                                                                                          \
                                                                                                   used by \

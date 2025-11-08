@@ -9,12 +9,12 @@ import {
 import { appendForwardSlash as _appendForwardSlash } from '../../core/path.js';
 import { ACTION_QUERY_PARAMS as _ACTION_QUERY_PARAMS } from '../consts.js';
 import type {
-	ActionAPIContext as _ActionAPIContext,
+	ActionEndpointContext as _ActionEndpointContext,
 	ErrorInferenceObject,
 	MaybePromise,
 } from './utils.js';
 
-export type ActionAPIContext = _ActionAPIContext;
+export type ActionEndpointContext = _ActionEndpointContext;
 export const ACTION_QUERY_PARAMS = _ACTION_QUERY_PARAMS;
 
 export const appendForwardSlash = _appendForwardSlash;

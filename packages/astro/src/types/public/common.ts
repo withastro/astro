@@ -1,6 +1,6 @@
 import type { BundledLanguage, LanguageRegistration, SpecialLanguage } from 'shiki';
 import type { OmitIndexSignature, Simplify } from '../../type-utils.js';
-import type { APIContext } from './context.js';
+import type { EndpointContext } from './context.js';
 
 /**
  * getStaticPaths() options
@@ -99,16 +99,24 @@ export type PaginateFunction = <
 	>;
 }[];
 
+export type EndpointRoute<
+	EndpointProps extends Record<string, any> = Record<string, any>,
+	EndpointParams extends Record<string, string | undefined> = Record<string, string | undefined>,
+> = (context: EndpointContext<EndpointProps, EndpointParams>) => Response | Promise<Response>;
+
+/**
+ * @deprecated Use `EndpointRoute` instead. This type will be removed in Astro 7.0.
+ */
 export type APIRoute<
 	APIProps extends Record<string, any> = Record<string, any>,
 	APIParams extends Record<string, string | undefined> = Record<string, string | undefined>,
-> = (context: APIContext<APIProps, APIParams>) => Response | Promise<Response>;
+> = EndpointRoute<APIProps, APIParams>;
 
 export type RewritePayload = string | URL | Request;
 
 export type MiddlewareNext = (rewritePayload?: RewritePayload) => Promise<Response>;
 export type MiddlewareHandler = (
-	context: APIContext,
+	context: EndpointContext,
 	next: MiddlewareNext,
 ) => Promise<Response> | Response | Promise<void> | void;
 

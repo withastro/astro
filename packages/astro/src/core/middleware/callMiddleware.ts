@@ -3,7 +3,7 @@ import type {
 	MiddlewareNext,
 	RewritePayload,
 } from '../../types/public/common.js';
-import type { APIContext } from '../../types/public/context.js';
+import type { EndpointContext } from '../../types/public/context.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
 /**
@@ -37,14 +37,14 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
  * ```
  *
  * @param onRequest The function called which accepts a `context` and a `resolve` function
- * @param apiContext The API context
+ * @param endpointContext The API context
  * @param responseFunction A callback function that should return a promise with the response
  */
 export async function callMiddleware(
 	onRequest: MiddlewareHandler,
-	apiContext: APIContext,
+	endpointContext: EndpointContext,
 	responseFunction: (
-		apiContext: APIContext,
+		endpointContext: EndpointContext,
 		rewritePayload?: RewritePayload,
 	) => Promise<Response> | Response,
 ): Promise<Response> {
@@ -52,12 +52,12 @@ export async function callMiddleware(
 	let responseFunctionPromise: Promise<Response> | Response | undefined = undefined;
 	const next: MiddlewareNext = async (payload) => {
 		nextCalled = true;
-		responseFunctionPromise = responseFunction(apiContext, payload);
-		// We need to pass the APIContext pass to `callMiddleware` because it can be mutated across middleware functions
+		responseFunctionPromise = responseFunction(endpointContext, payload);
+		// We need to pass the EndpointContext pass to `callMiddleware` because it can be mutated across middleware functions
 		return responseFunctionPromise;
 	};
 
-	let middlewarePromise = onRequest(apiContext, next);
+	let middlewarePromise = onRequest(endpointContext, next);
 
 	return await Promise.resolve(middlewarePromise).then(async (value) => {
 		// first we check if `next` was called

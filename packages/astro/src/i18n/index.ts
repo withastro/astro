@@ -5,12 +5,12 @@ import { REROUTE_DIRECTIVE_HEADER } from '../core/constants.js';
 import { i18nNoLocaleFoundInPath, MissingLocale } from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
 import type { AstroConfig, Locales, ValidRedirectStatus } from '../types/public/config.js';
-import type { APIContext } from '../types/public/context.js';
+import type { EndpointContext } from '../types/public/context.js';
 import { createI18nMiddleware } from './middleware.js';
 import type { RoutingStrategies } from './utils.js';
 
 export function requestHasLocale(locales: Locales) {
-	return function (context: APIContext): boolean {
+	return function (context: EndpointContext): boolean {
 		return pathHasLocale(context.url.pathname, locales);
 	};
 }
@@ -315,7 +315,7 @@ export function redirectToDefaultLocale({
 	base,
 	defaultLocale,
 }: MiddlewarePayload) {
-	return function (context: APIContext, statusCode?: ValidRedirectStatus) {
+	return function (context: EndpointContext, statusCode?: ValidRedirectStatus) {
 		if (shouldAppendForwardSlash(trailingSlash, format)) {
 			return context.redirect(`${appendForwardSlash(joinPaths(base, defaultLocale))}`, statusCode);
 		} else {
@@ -326,7 +326,7 @@ export function redirectToDefaultLocale({
 
 // NOTE: public function exported to the users via `astro:i18n` module
 export function notFound({ base, locales, fallback }: MiddlewarePayload) {
-	return function (context: APIContext, response?: Response): Response | undefined {
+	return function (context: EndpointContext, response?: Response): Response | undefined {
 		if (
 			response?.headers.get(REROUTE_DIRECTIVE_HEADER) === 'no' &&
 			typeof fallback === 'undefined'
@@ -361,7 +361,7 @@ export function notFound({ base, locales, fallback }: MiddlewarePayload) {
 }
 
 // NOTE: public function exported to the users via `astro:i18n` module
-export type RedirectToFallback = (context: APIContext, response: Response) => Promise<Response>;
+export type RedirectToFallback = (context: EndpointContext, response: Response) => Promise<Response>;
 
 export function redirectToFallback({
 	fallback,
@@ -371,7 +371,7 @@ export function redirectToFallback({
 	base,
 	fallbackType,
 }: MiddlewarePayload) {
-	return async function (context: APIContext, response: Response): Promise<Response> {
+	return async function (context: EndpointContext, response: Response): Promise<Response> {
 		if (response.status >= 300 && fallback) {
 			const fallbackKeys = fallback ? Object.keys(fallback) : [];
 			// we split the URL using the `/`, and then check in the returned array we have the locale

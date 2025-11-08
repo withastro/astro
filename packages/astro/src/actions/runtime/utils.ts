@@ -1,4 +1,4 @@
-import type { APIContext } from '../../types/public/context.js';
+import type { EndpointContext } from '../../types/public/context.js';
 import type { SerializedActionResult } from './shared.js';
 
 export type ActionPayload = {
@@ -10,7 +10,9 @@ export type Locals = {
 	_actionPayload: ActionPayload;
 };
 
-export const ACTION_API_CONTEXT_SYMBOL = Symbol.for('astro.actionAPIContext');
+export const ACTION_ENDPOINT_CONTEXT_SYMBOL = Symbol.for('astro.actionEndpointContext');
+/** @deprecated Use ACTION_ENDPOINT_CONTEXT_SYMBOL instead. This will be removed in Astro 7.0. */
+export const ACTION_API_CONTEXT_SYMBOL = ACTION_ENDPOINT_CONTEXT_SYMBOL;
 
 export const formContentTypes = ['application/x-www-form-urlencoded', 'multipart/form-data'];
 
@@ -22,8 +24,9 @@ export function hasContentType(contentType: string, expected: string[]) {
 	return expected.some((t) => type === t);
 }
 
-export type ActionAPIContext = Pick<
-	APIContext,
+export type ActionEndpointContext = Pick<
+	EndpointContext,
+	| 'rewrite'
 	| 'request'
 	| 'url'
 	| 'isPrerendered'
@@ -42,6 +45,9 @@ export type ActionAPIContext = Pick<
 	| 'csp'
 >;
 
+/** @deprecated Use ActionEndpointContext instead. This type will be removed in Astro 7.0. */
+export type ActionAPIContext = ActionEndpointContext;
+
 export type MaybePromise<T> = T | Promise<T>;
 
 /**
@@ -55,7 +61,10 @@ export type MaybePromise<T> = T | Promise<T>;
  */
 export type ErrorInferenceObject = Record<string, any>;
 
-export function isActionAPIContext(ctx: ActionAPIContext): boolean {
-	const symbol = Reflect.get(ctx, ACTION_API_CONTEXT_SYMBOL);
+export function isActionEndpointContext(ctx: ActionEndpointContext): boolean {
+	const symbol = Reflect.get(ctx, ACTION_ENDPOINT_CONTEXT_SYMBOL);
 	return symbol === true;
 }
+
+/** @deprecated Use isActionEndpointContext instead. This function will be removed in Astro 7.0. */
+export const isActionAPIContext = isActionEndpointContext;

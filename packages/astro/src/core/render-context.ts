@@ -1,7 +1,7 @@
 import colors from 'picocolors';
 import { getActionContext } from '../actions/runtime/server.js';
 import { deserializeActionResult } from '../actions/runtime/shared.js';
-import type { ActionAPIContext } from '../actions/runtime/utils.js';
+import type { ActionEndpointContext } from '../actions/runtime/utils.js';
 import { createCallAction, createGetActionResult, hasActionPayload } from '../actions/utils.js';
 import {
 	computeCurrentLocale,
@@ -12,7 +12,11 @@ import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, Props, RewritePayload } from '../types/public/common.js';
-import type { APIContext, AstroGlobal, AstroSharedContextCsp } from '../types/public/context.js';
+import type {
+	EndpointContext,
+	AstroGlobal,
+	AstroSharedContextCsp,
+} from '../types/public/context.js';
 import type { RouteData, SSRResult } from '../types/public/internal.js';
 import type { SSRActions } from './app/types.js';
 import {
@@ -36,7 +40,7 @@ import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from '.
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session.js';
 
-export const apiContextRoutesSymbol = Symbol.for('context.routes');
+export const endpointContextRoutesSymbol = Symbol.for('context.routes');
 /**
  * Each request is rendered using a `RenderContext`.
  * It contains data unique to each request. It is responsible for executing middleware, calling endpoints, and rendering the page by gathering necessary data from a `Pipeline`.
@@ -157,8 +161,8 @@ export class RenderContext {
 						serverLike,
 						base: manifest.base,
 					});
-		const actionApiContext = this.createActionAPIContext();
-		const apiContext = this.createAPIContext(props, actionApiContext);
+		const actionEndpointContext = this.createActionEndpointContext();
+		const endpointContext = this.createEndpointContext(props, actionEndpointContext);
 
 		this.counter++;
 		if (this.counter === 4) {
@@ -169,7 +173,7 @@ export class RenderContext {
 					'Astro detected a loop where you tried to call the rewriting logic more than four times.',
 			});
 		}
-		const lastNext = async (ctx: APIContext, payload?: RewritePayload) => {
+		const lastNext = async (ctx: EndpointContext, payload?: RewritePayload) => {
 			if (payload) {
 				const oldPathname = this.pathname;
 				pipeline.logger.debug('router', 'Called rewriting to:', payload);
@@ -246,7 +250,7 @@ export class RenderContext {
 				case 'redirect':
 					return renderRedirect(this);
 				case 'page': {
-					this.result = await this.createResult(componentInstance!, actionApiContext);
+					this.result = await this.createResult(componentInstance!, actionEndpointContext);
 					try {
 						response = await renderPage(
 							this.result,
@@ -293,7 +297,7 @@ export class RenderContext {
 			return renderRedirect(this);
 		}
 
-		const response = await callMiddleware(middleware, apiContext, lastNext);
+		const response = await callMiddleware(middleware, endpointContext, lastNext);
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {
 			response.headers.delete(ROUTE_TYPE_HEADER);
 		}
@@ -304,15 +308,11 @@ export class RenderContext {
 		return response;
 	}
 
-	createAPIContext(props: APIContext['props'], context: ActionAPIContext): APIContext {
+	createEndpointContext(props: EndpointContext['props'], context: ActionEndpointContext): EndpointContext {
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
 
-		const rewrite = async (reroutePayload: RewritePayload) => {
-			return await this.#executeRewrite(reroutePayload);
-		};
-
-		Reflect.set(context, apiContextRoutesSymbol, this.pipeline);
+		Reflect.set(context, endpointContextRoutesSymbol, this.pipeline);
 
 		return Object.assign(context, {
 			props,
@@ -381,7 +381,7 @@ export class RenderContext {
 		return await this.render(componentInstance);
 	}
 
-	createActionAPIContext(): ActionAPIContext {
+	createActionEndpointContext(): ActionEndpointContext {
 		const renderContext = this;
 		const { params, pipeline, url } = this;
 
@@ -474,7 +474,7 @@ export class RenderContext {
 		};
 	}
 
-	async createResult(mod: ComponentInstance, ctx: ActionAPIContext): Promise<SSRResult> {
+	async createResult(mod: ComponentInstance, ctx: ActionEndpointContext): Promise<SSRResult> {
 		const { cookies, pathname, pipeline, routeData, status } = this;
 		const { clientDirectives, inlinedScripts, compressHTML, manifest, renderers, resolve } =
 			pipeline;
@@ -584,15 +584,23 @@ export class RenderContext {
 		result: SSRResult,
 		props: Record<string, any>,
 		slotValues: Record<string, any> | null,
-		apiContext: ActionAPIContext,
+		endpointContext: ActionEndpointContext,
 	): AstroGlobal {
 		let astroPagePartial;
 		// During rewriting, we must recompute the Astro global, because we need to purge the previous params/props/etc.
 		if (this.isRewriting) {
-			astroPagePartial = this.#astroPagePartial = this.createAstroPagePartial(result, apiContext);
+			astroPagePartial = this.#astroPagePartial = this.createAstroPagePartial(
+				result,
+				astroStaticPartial,
+				endpointContext,
+			);
 		} else {
 			// Create page partial with static partial so they can be cached together.
-			astroPagePartial = this.#astroPagePartial ??= this.createAstroPagePartial(result, apiContext);
+			astroPagePartial = this.#astroPagePartial ??= this.createAstroPagePartial(
+				result,
+				astroStaticPartial,
+				endpointContext,
+			);
 		}
 		// Create component-level partials. `Astro.self` is added by the compiler.
 		const astroComponentPartial = { props, self: null };
@@ -623,7 +631,8 @@ export class RenderContext {
 
 	createAstroPagePartial(
 		result: SSRResult,
-		apiContext: ActionAPIContext,
+		astroStaticPartial: AstroGlobalPartial,
+		endpointContext: ActionEndpointContext,
 	): Omit<AstroGlobal, 'props' | 'self' | 'slots'> {
 		const renderContext = this;
 		const { cookies, locals, params, pipeline, url } = this;
@@ -642,7 +651,7 @@ export class RenderContext {
 			return await this.#executeRewrite(reroutePayload);
 		};
 
-		const callAction = createCallAction(apiContext);
+		const callAction = createCallAction(endpointContext);
 
 		return {
 			generator: ASTRO_GENERATOR,
@@ -757,10 +766,10 @@ export class RenderContext {
 	}
 
 	/**
-	 * API Context may be created multiple times per request, i18n data needs to be computed only once.
-	 * So, it is computed and saved here on creation of the first APIContext and reused for later ones.
+	 * Endpoint Context may be created multiple times per request, i18n data needs to be computed only once.
+	 * So, it is computed and saved here on creation of the first EndpointContext and reused for later ones.
 	 */
-	#currentLocale: APIContext['currentLocale'];
+	#currentLocale: EndpointContext['currentLocale'];
 
 	computeCurrentLocale() {
 		const {
@@ -810,7 +819,7 @@ export class RenderContext {
 		return this.#currentLocale;
 	}
 
-	#preferredLocale: APIContext['preferredLocale'];
+	#preferredLocale: EndpointContext['preferredLocale'];
 
 	computePreferredLocale() {
 		const {
@@ -821,7 +830,7 @@ export class RenderContext {
 		return (this.#preferredLocale ??= computePreferredLocale(request, i18n.locales));
 	}
 
-	#preferredLocaleList: APIContext['preferredLocaleList'];
+	#preferredLocaleList: EndpointContext['preferredLocaleList'];
 
 	computePreferredLocaleList() {
 		const {

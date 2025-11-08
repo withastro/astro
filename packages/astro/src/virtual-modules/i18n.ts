@@ -7,7 +7,7 @@ import { toFallbackType, toRoutingStrategy } from '../i18n/utils.js';
 import type { I18nInternalConfig } from '../i18n/vite-plugin-i18n.js';
 import type { MiddlewareHandler } from '../types/public/common.js';
 import type { AstroConfig, ValidRedirectStatus } from '../types/public/config.js';
-import type { APIContext } from '../types/public/context.js';
+import type { EndpointContext } from '../types/public/context.js';
 
 const { trailingSlash, format, site, i18n, isBuild } =
 	// @ts-expect-error
@@ -245,11 +245,11 @@ export const pathHasLocale = (path: string) => I18nInternals.pathHasLocale(path,
  *
  * This function returns a redirect to the default locale configured in the
  *
- * @param {APIContext} context The context passed to the middleware
+ * @param {EndpointContext} context The context passed to the middleware
  * @param {ValidRedirectStatus?} statusCode An optional status code for the redirect.
  */
 export let redirectToDefaultLocale: (
-	context: APIContext,
+	context: EndpointContext,
 	statusCode?: ValidRedirectStatus,
 ) => Response | undefined;
 
@@ -276,11 +276,11 @@ if (i18n?.routing === 'manual') {
  *
  * When a `Response` is passed, the new `Response` emitted by this function will contain the same headers of the original response.
  *
- * @param {APIContext} context The context passed to the middleware
+ * @param {EndpointContext} context The context passed to the middleware
  * @param {Response?} response An optional `Response` in case you're handling a `Response` coming from the `next` function.
  *
  */
-export let notFound: (context: APIContext, response?: Response) => Response | undefined;
+export let notFound: (context: EndpointContext, response?: Response) => Response | undefined;
 
 if (i18n?.routing === 'manual') {
 	notFound = I18nInternals.notFound({
@@ -299,11 +299,11 @@ if (i18n?.routing === 'manual') {
 }
 
 /**
- * Checks whether the current URL contains a configured locale. Internally, this function will use `APIContext#url.pathname`
+ * Checks whether the current URL contains a configured locale. Internally, this function will use `EndpointContext#url.pathname`
  *
- * @param {APIContext} context The context passed to the middleware
+ * @param {EndpointContext} context The context passed to the middleware
  */
-export let requestHasLocale: (context: APIContext) => boolean;
+export let requestHasLocale: (context: EndpointContext) => boolean;
 
 if (i18n?.routing === 'manual') {
 	requestHasLocale = I18nInternals.requestHasLocale(locales);
@@ -314,7 +314,7 @@ if (i18n?.routing === 'manual') {
 /**
  * Allows to use the built-in fallback system of Astro
  *
- * @param {APIContext} context The context passed to the middleware
+ * @param {EndpointContext} context The context passed to the middleware
  * @param {Promise<Response>} response An optional `Response` in case you're handling a `Response` coming from the `next` function.
  */
 export let redirectToFallback: RedirectToFallback;

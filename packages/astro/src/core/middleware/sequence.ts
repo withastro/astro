@@ -1,5 +1,5 @@
 import type { MiddlewareHandler, RewritePayload } from '../../types/public/common.js';
-import type { APIContext } from '../../types/public/context.js';
+import type { EndpointContext } from '../../types/public/context.js';
 import { ForbiddenRewrite } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
 import { getParams, type Pipeline } from '../render/index.js';
@@ -27,7 +27,7 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 		let carriedPayload: RewritePayload | undefined = undefined;
 		return applyHandle(0, context);
 
-		function applyHandle(i: number, handleContext: APIContext) {
+		function applyHandle(i: number, handleContext: EndpointContext) {
 			const handle = filtered[i];
 			// @ts-expect-error
 			// SAFETY: Usually `next` always returns something in user land, but in `sequence` we are actually

@@ -5,7 +5,7 @@ import {
 	computePreferredLocaleList,
 } from '../../i18n/utils.js';
 import type { MiddlewareHandler, Params, RewritePayload } from '../../types/public/common.js';
-import type { APIContext, AstroSharedContextCsp } from '../../types/public/context.js';
+import type { EndpointContext, AstroSharedContextCsp } from '../../types/public/context.js';
 import { ASTRO_GENERATOR } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -55,7 +55,7 @@ function createContext({
 	userDefinedLocales = [],
 	defaultLocale = '',
 	locals = {},
-}: CreateContext): APIContext {
+}: CreateContext): EndpointContext {
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;
 	let currentLocale: string | undefined = undefined;
@@ -68,7 +68,7 @@ function createContext({
 		// return dummy response
 		return Promise.resolve(new Response(null));
 	};
-	const context: Omit<APIContext, 'getActionResult' | 'callAction'> = {
+	const context: Omit<EndpointContext, 'getActionResult' | 'callAction'> = {
 		cookies: new AstroCookies(request),
 		request,
 		params,

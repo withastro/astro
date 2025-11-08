@@ -1,6 +1,6 @@
 import { shouldAppendTrailingSlash } from 'virtual:astro:actions/options';
 import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
-import type { APIContext } from '../../types/public/context.js';
+import type { EndpointContext } from '../../types/public/context.js';
 import type { ActionClient, SafeResult } from './server.js';
 import {
 	ACTION_QUERY_PARAMS,
@@ -13,7 +13,7 @@ import {
 
 export * from 'virtual:astro:actions/runtime';
 
-const apiContextRoutesSymbol = Symbol.for('context.routes');
+const endpointContextRoutesSymbol = Symbol.for('context.routes');
 const ENCODED_DOT = '%2E';
 
 function toActionProxy(actionCallback: Record<string | symbol, any> = {}, aggregatedPath = '') {
@@ -25,7 +25,7 @@ function toActionProxy(actionCallback: Record<string | symbol, any> = {}, aggreg
 			// Add the key, encoding dots so they're not interpreted as nested properties.
 			const path =
 				aggregatedPath + encodeURIComponent(objKey.toString()).replaceAll('.', ENCODED_DOT);
-			function action(this: APIContext | undefined, param: any) {
+			function action(this: EndpointContext | undefined, param: any) {
 				return handleAction(param, path, this);
 			}
 
@@ -50,7 +50,7 @@ function toActionProxy(actionCallback: Record<string | symbol, any> = {}, aggreg
 				// Note: `orThrow` does not have progressive enhancement info.
 				// If you want to throw exceptions,
 				//  you must handle those exceptions with client JS.
-				async orThrow(this: APIContext | undefined, param: any) {
+				async orThrow(this: EndpointContext | undefined, param: any) {
 					const { data, error } = await handleAction(param, path, this);
 					if (error) throw error;
 					return data;
@@ -79,11 +79,11 @@ export function getActionPath(action: ActionClient<any, any, any>) {
 async function handleAction(
 	param: any,
 	path: string,
-	context: APIContext | undefined,
+	context: EndpointContext | undefined,
 ): Promise<SafeResult<any, any>> {
 	// When running server-side, import the action and call it.
 	if (import.meta.env.SSR && context) {
-		const pipeline = Reflect.get(context, apiContextRoutesSymbol);
+		const pipeline = Reflect.get(context, endpointContextRoutesSymbol);
 		if (!pipeline) {
 			throw astroCalledServerError();
 		}

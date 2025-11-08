@@ -827,9 +827,9 @@ export const MiddlewareNotAResponse = {
  *
  * An endpoint must return either a `Response`, or a `Promise` that resolves with a `Response`. For example:
  * ```ts
- * import type { APIContext } from 'astro';
+ * import type { EndpointContext } from 'astro';
  *
- * export async function GET({ request, url, cookies }: APIContext): Promise<Response> {
+ * export async function GET({ request, url, cookies }: EndpointContext): Promise<Response> {
  *     return Response.json({
  *         success: true,
  *         result: 'Data from Astro Endpoint!'

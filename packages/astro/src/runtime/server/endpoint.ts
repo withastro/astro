@@ -3,15 +3,15 @@ import { REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER } from '../../core/co
 import { AstroError } from '../../core/errors/errors.js';
 import { EndpointDidNotReturnAResponse } from '../../core/errors/errors-data.js';
 import type { Logger } from '../../core/logger/core.js';
-import type { APIRoute } from '../../types/public/common.js';
-import type { APIContext } from '../../types/public/context.js';
+import type { EndpointRoute } from '../../types/public/common.js';
+import type { EndpointContext } from '../../types/public/context.js';
 
 /** Renders an endpoint request to completion, returning the body. */
 export async function renderEndpoint(
 	mod: {
-		[method: string]: APIRoute;
+		[method: string]: EndpointRoute;
 	},
-	context: APIContext,
+	context: EndpointContext,
 	isPrerendered: boolean,
 	logger: Logger,
 ) {
@@ -35,7 +35,7 @@ export async function renderEndpoint(
 	if (handler === undefined) {
 		logger.warn(
 			'router',
-			`No API Route handler exists for the method "${method}" for the route "${url.pathname}".\n` +
+			`No endpoint handler exists for the method "${method}" for the route "${url.pathname}".\n` +
 				`Found handlers: ${Object.keys(mod)
 					.map((exp) => JSON.stringify(exp))
 					.join(', ')}\n` +
