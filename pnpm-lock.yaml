@@ -1839,12 +1839,6 @@ importers:
 
   packages/astro/test/fixtures/alias-tsconfig/deps/namespace-package: {}
 
-  packages/astro/test/fixtures/api-routes:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/asset-url-base:
     dependencies:
       astro:
@@ -3158,6 +3152,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/endpoints:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/entry-file-names:
     dependencies:
       '@astrojs/preact':
@@ -4080,15 +4080,6 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
 
-  packages/astro/test/fixtures/ssr-api-route:
-    dependencies:
-      '@astrojs/node':
-        specifier: workspace:*
-        version: link:../../../../integrations/node
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/ssr-assets:
     dependencies:
       astro:
@@ -4097,6 +4088,15 @@ importers:
 
   packages/astro/test/fixtures/ssr-dynamic:
     dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/ssr-endpoint:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
       astro:
         specifier: workspace:*
         version: link:../../..
