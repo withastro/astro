@@ -1,6 +1,6 @@
-import type { APIRoute } from 'astro';
+import type { EndpointHandler } from 'astro';
 
-export const GET: APIRoute = async ({ params }) => {
+export const GET: EndpointHandler = async ({ params }) => {
   return new Response(
     JSON.stringify({
       path: params.slug,

@@ -1,7 +1,7 @@
-import type { APIRoute } from 'astro';
+import type { EndpointHandler } from 'astro';
 import image from '../assets/astro.svg';
 
-export const GET: APIRoute = async ({ session, request }) =>
+export const GET: EndpointHandler = async ({ session, request }) =>
 	Response.json({
 		image,
 	});

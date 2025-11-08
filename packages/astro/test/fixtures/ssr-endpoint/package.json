@@ -1,5 +1,5 @@
 {
-  "name": "@test/ssr-api-route",
+  "name": "@test/ssr-endpoint",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

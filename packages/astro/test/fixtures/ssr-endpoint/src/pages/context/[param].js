@@ -1,5 +1,5 @@
 /**
- * @param {import('astro').APIContext} api
+ * @param {import('astro').EndpointContext} api
  */
 export function GET(ctx) {
 	return Response.json({

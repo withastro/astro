@@ -1,4 +1,4 @@
-import type { APIContext } from 'astro';
+import type { EndpointContext } from 'astro';
 
 const encoder = new TextEncoder();
 
@@ -7,7 +7,7 @@ declare global {
 	var __requestAbortState: { aborted: boolean; events: string[] } | undefined;
 }
 
-export const GET = ({ request }: APIContext) => {
+export const GET = ({ request }: EndpointContext) => {
 	globalThis.__requestAbortState = { aborted: false, events: ['started'] };
 
 	const stream = new ReadableStream<Uint8Array>({

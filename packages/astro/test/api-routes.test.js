@@ -2,12 +2,12 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
-describe('API routes', () => {
+describe('Endpoints', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/api-routes/' });
+		fixture = await loadFixture({ root: './fixtures/endpoints/' });
 		await fixture.build();
 	});
 

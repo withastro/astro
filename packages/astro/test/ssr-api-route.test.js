@@ -4,9 +4,9 @@ import { after, before, describe, it } from 'node:test';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
-describe('API routes in SSR', () => {
+describe('Endpoints in SSR', () => {
 	const config = {
-		root: './fixtures/ssr-api-route/',
+		root: './fixtures/ssr-endpoint/',
 		output: 'server',
 		site: 'https://mysite.dev/subsite/',
 		base: '/blog',
@@ -125,7 +125,7 @@ describe('API routes in SSR', () => {
 		it('Can be passed binary data from multipart formdata', async () => {
 			const formData = new FormData();
 			const raw = await fs.promises.readFile(
-				new URL('./fixtures/ssr-api-route/src/images/penguin.jpg', import.meta.url),
+				new URL('./fixtures/ssr-endpoint/src/images/penguin.jpg', import.meta.url),
 			);
 			const file = new File([raw], 'penguin.jpg', { type: 'text/jpg' });
 			formData.set('file', file, 'penguin.jpg');

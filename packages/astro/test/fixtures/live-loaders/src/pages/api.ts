@@ -1,9 +1,9 @@
-import type { APIRoute } from 'astro';
+import type { EndpointHandler } from 'astro';
 import { getLiveCollection, getLiveEntry } from 'astro:content';
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ url }) => {
+export const GET: EndpointHandler = async ({ url }) => {
 	const addToAge = url.searchParams.get('addToAge');
 	const returnInvalid = url.searchParams.has('returnInvalid');
 	const filter = addToAge ? { addToAge: parseInt(addToAge), returnInvalid } : undefined;

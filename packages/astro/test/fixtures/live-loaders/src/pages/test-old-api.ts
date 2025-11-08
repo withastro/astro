@@ -1,9 +1,9 @@
-import type { APIRoute } from 'astro';
+import type { EndpointHandler } from 'astro';
 import { getCollection } from 'astro:content';
 
 export const prerender = false;
 
-export const GET: APIRoute = async () => {
+export const GET: EndpointHandler = async () => {
 	try {
 		// @ts-ignore This should throw an error because liveStuff is a live collection
 		const collection = await getCollection('liveStuff');

@@ -1,9 +1,9 @@
-import type { APIRoute } from 'astro';
+import type { EndpointHandler } from 'astro';
 
 // No undefined so should not error
 const slugs = ['one'];
 
-export const GET: APIRoute = ({ params }) => {
+export const GET: EndpointHandler = ({ params }) => {
 	return Response.json({
 		slug: params.slug || 'index',
 	});

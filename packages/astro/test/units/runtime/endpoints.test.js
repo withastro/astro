@@ -9,7 +9,7 @@ import {
 	defaultLogger,
 } from '../test-utils.js';
 
-const root = new URL('../../fixtures/api-routes/', import.meta.url);
+const root = new URL('../../fixtures/endpoints/', import.meta.url);
 const fileSystem = {
 	'/src/pages/incorrect.ts': `export const GET = _ => {}`,
 	'/src/pages/headers.ts': `export const GET = () => { return new Response('content', { status: 201, headers: { Test: 'value' } }) }`,

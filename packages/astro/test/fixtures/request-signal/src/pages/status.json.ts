@@ -1,11 +1,11 @@
-import type { APIContext } from 'astro';
+import type { EndpointContext } from 'astro';
 
 declare global {
 	// eslint-disable-next-line no-var
 	var __requestAbortState: { aborted: boolean; events: string[] } | undefined;
 }
 
-export const GET = ({ request }: APIContext) => {
+export const GET = ({ request }: EndpointContext) => {
 	const url = new URL(request.url);
 	const shouldReset = url.searchParams.get('reset') === '1';
 	const state = globalThis.__requestAbortState ?? { aborted: false, events: [] };

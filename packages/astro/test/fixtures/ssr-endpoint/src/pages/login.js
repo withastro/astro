@@ -1,4 +1,4 @@
-/** @type {import('astro').APIRoute} */
+/** @type {import('astro').EndpointHandler} */
 export function POST({ cookies }) {
 	cookies.set('foo', 'foo', {
 		httpOnly: true

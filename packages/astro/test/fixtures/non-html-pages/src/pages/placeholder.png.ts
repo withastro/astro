@@ -1,8 +1,8 @@
 import { promises as fs } from 'node:fs';
 
-import type { APIRoute } from 'astro';
+import type { EndpointHandler } from 'astro';
 
-export const GET: APIRoute = async function get(ctx) {
+export const GET: EndpointHandler = async function get(ctx) {
 	try {
 		// Image is in the public domain. Sourced from
 		// https://en.wikipedia.org/wiki/File:Portrait_placeholder.png

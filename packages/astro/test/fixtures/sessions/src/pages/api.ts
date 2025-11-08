@@ -1,6 +1,6 @@
-import type { APIRoute } from 'astro';
+import type { EndpointHandler } from 'astro';
 
-export const GET: APIRoute = async (context) => {
+export const GET: EndpointHandler = async (context) => {
 	const url = new URL(context.url, 'http://localhost');
 	let value = url.searchParams.get('set');
 	if (value) {

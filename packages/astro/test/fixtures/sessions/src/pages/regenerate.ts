@@ -1,6 +1,6 @@
-import type { APIRoute } from 'astro';
+import type { EndpointHandler } from 'astro';
 
-export const GET: APIRoute = async (context) => {
+export const GET: EndpointHandler = async (context) => {
 	await context.session.regenerate();
 	return Response.json({});
 };
