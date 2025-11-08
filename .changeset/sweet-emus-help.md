@@ -2,18 +2,21 @@
 'astro': major
 ---
 
-### [deprecated]: `APIRoute` type annotations for endpoints
-In Astro v5.x, endpoints were frequently authored using manual type annotations with the `APIRoute` type.
+### [deprecated]: `APIRoute` and `APIContext` types
 
-Astro v6.0 now includes a `defineEndpoint` utility to improve endpoint authoring. The new `EndpointHandler` type is identical to the deprecated `APIRoute` type.
+In Astro v5.x, endpoints used confusingly named `APIRoute` and `APIContext` types.
+
+Astro v6.0 exposes new `EndpointHandler` and `EndpointContext` types to better align with the documentation. The deprecated types will be removed in a future major version of Astro.
+
+As a convenience, Astro v6.0 adds a new `defineEndpoint` utility from the `astro:endpoint` module.
 
 #### What should I do?
 
-Update endpoint definitions to use the `defineEndpoint` utility, removing any manual `APIRoute` and `APIContext` annotations.
+Update your endpoints to use the `defineEndpoint` utility instead of manual type annotations.
 
-```ts title="src/pages/api/ping.ts" ins="defineEndpoint(" ins=")\n" del=": APIRoute" del=": APIRoute" del="import type { APIContext, APIRoute } from 'astro';" ins="import { defineEndpoint } from 'astro:endpoint';"
-import type { APIContext, APIRoute } from 'astro';
-import { defineEndpoint } from 'astro:endpoint';
+```diff lang="ts"
+- import type { APIContext, APIRoute } from 'astro';
++ import { defineEndpoint } from 'astro:endpoint';
 
 - export const GET: APIRoute = ({ cookies }: APIContext) => {
 + export const GET = defineEndpoint(({ cookies }) => {
@@ -29,11 +32,9 @@ import { defineEndpoint } from 'astro:endpoint';
 + })
 ```
 
-For code that still requires manual type annotations, replace `APIRoute` and `APIContext` types with `EndpointHandler` and `EndpointContext`.
+Alternatively, replace the `APIRoute` import with `EndpointHandler` and the `APIContext` import with `EndpointContext`.
 
 ```diff lang="ts"
-- import { APIRoute } from 'astro';
-+ import { defineEndpoint } from 'astro:endpoint';
-- export const myEndpointHandler: APIRoute = (ctx) => { /* */ }
-+ export const myEndpointHandler = defineEndpoint((ctx) => { /* */ })
+- import type { APIRoute, APIContext } from 'astro';
++ import type { EndpointHandler, EndpointContext } from 'astro';
 ```
