@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "recommendations": [
     "astro-build.astro-vscode",
     "esbenp.prettier-vscode",
@@ -6,5 +7,8 @@
     "dbaeumer.vscode-eslint",
     "biomejs.biome"
   ],
+=======
+  "recommendations": ["astro-build.astro-vscode", "unifiedjs.vscode-mdx"],
+>>>>>>> 944bd7d58f (feat(site): UI redesign — header, dark mode, blog tags & search, reading time utility, color audit)
   "unwantedRecommendations": []
 }

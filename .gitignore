@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 node_modules/
 dist/
 *.tsbuildinfo
@@ -42,3 +43,29 @@ examples/**/env.d.ts
 # want to share with others (see
 # https://github.com/withastro/astro/pull/11759#discussion_r1721444711)
 *.code-workspace
+=======
+# build output
+dist/
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+# environment variables
+.env
+.env.production
+
+# macOS-specific files
+.DS_Store
+
+# jetbrains setting folder
+.idea/
+>>>>>>> 944bd7d58f (feat(site): UI redesign — header, dark mode, blog tags & search, reading time utility, color audit)

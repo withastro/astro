@@ -1,5 +1,16 @@
+<<<<<<< HEAD
 // Yes this file is intentionally empty!
 // ---
 // Having a blank `tsconfig.json` file prevents TypeScript from crawling up your directory tree
 // and possibly picking up a parent `tsconfig.json` (which, unsurprisingly, is very hard to debug)
 {}
+=======
+{
+  "extends": "astro/tsconfigs/strict",
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"],
+  "compilerOptions": {
+    "strictNullChecks": true
+  }
+}
+>>>>>>> 944bd7d58f (feat(site): UI redesign — header, dark mode, blog tags & search, reading time utility, color audit)

@@ -1,8 +1,12 @@
+<<<<<<< HEAD
 // A launch configuration that compiles the extension and then opens it inside a new window
+=======
+>>>>>>> 944bd7d58f (feat(site): UI redesign — header, dark mode, blog tags & search, reading time utility, color audit)
 {
   "version": "0.2.0",
   "configurations": [
     {
+<<<<<<< HEAD
       "name": "Launch Client",
       "type": "extensionHost",
       "request": "launch",
@@ -24,6 +28,12 @@
     {
       "name": "Launch Extension",
       "configurations": ["Launch Client", "Attach to Server"]
+=======
+      "command": "./node_modules/.bin/astro dev",
+      "name": "Development server",
+      "request": "launch",
+      "type": "node-terminal"
+>>>>>>> 944bd7d58f (feat(site): UI redesign — header, dark mode, blog tags & search, reading time utility, color audit)
     }
   ]
 }
