@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { isParentDirectory } from '@astrojs/internal-helpers/path';
-import type { APIRoute } from '../../types/public/common.js';
+import type { EndpointHandler } from '../../types/public/common.js';
 import { handleImageRequest, loadRemoteImage } from './shared.js';
 
 function replaceFileSystemReferences(src: string) {
@@ -41,7 +41,7 @@ async function loadLocalImage(src: string, url: URL) {
 /**
  * Endpoint used in dev and SSR to serve optimized images by the base image services
  */
-export const GET: APIRoute = async ({ request }) => {
+export const GET: EndpointHandler = async ({ request }) => {
 	if (!import.meta.env.DEV) {
 		console.error('The dev image endpoint can only be used in dev mode.');
 		return new Response('Invalid endpoint', { status: 500 });

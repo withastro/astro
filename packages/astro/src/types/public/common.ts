@@ -99,18 +99,18 @@ export type PaginateFunction = <
 	>;
 }[];
 
-export type EndpointRoute<
+export type EndpointHandler<
 	EndpointProps extends Record<string, any> = Record<string, any>,
 	EndpointParams extends Record<string, string | undefined> = Record<string, string | undefined>,
 > = (context: EndpointContext<EndpointProps, EndpointParams>) => Response | Promise<Response>;
 
 /**
- * @deprecated Use `EndpointRoute` instead. This type will be removed in Astro 7.0.
+ * @deprecated Use `EndpointHandler` instead. This type will be removed in a future version of Astro.
  */
 export type APIRoute<
 	APIProps extends Record<string, any> = Record<string, any>,
 	APIParams extends Record<string, string | undefined> = Record<string, string | undefined>,
-> = EndpointRoute<APIProps, APIParams>;
+> = EndpointHandler<APIProps, APIParams>;
 
 export type RewritePayload = string | URL | Request;
 

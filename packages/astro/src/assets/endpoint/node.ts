@@ -3,7 +3,7 @@ import { outDir } from 'astro:assets';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { isParentDirectory } from '@astrojs/internal-helpers/path';
-import type { APIRoute } from '../../types/public/common.js';
+import type { EndpointHandler } from '../../types/public/common.js';
 import { handleImageRequest } from './shared.js';
 
 async function loadLocalImage(src: string, url: URL) {
@@ -34,7 +34,7 @@ async function loadLocalImage(src: string, url: URL) {
 /**
  * Endpoint used in dev and SSR to serve optimized images by the base image services
  */
-export const GET: APIRoute = async ({ request }) => {
+export const GET: EndpointHandler = async ({ request }) => {
 	try {
 		return await handleImageRequest({ request, loadLocalImage });
 	} catch (err: unknown) {

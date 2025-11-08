@@ -3,13 +3,13 @@ import { REROUTABLE_STATUS_CODES, REROUTE_DIRECTIVE_HEADER } from '../../core/co
 import { AstroError } from '../../core/errors/errors.js';
 import { EndpointDidNotReturnAResponse } from '../../core/errors/errors-data.js';
 import type { Logger } from '../../core/logger/core.js';
-import type { EndpointRoute } from '../../types/public/common.js';
+import type { EndpointHandler } from '../../types/public/common.js';
 import type { EndpointContext } from '../../types/public/context.js';
 
 /** Renders an endpoint request to completion, returning the body. */
 export async function renderEndpoint(
 	mod: {
-		[method: string]: EndpointRoute;
+		[method: string]: EndpointHandler;
 	},
 	context: EndpointContext,
 	isPrerendered: boolean,

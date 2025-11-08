@@ -3,7 +3,7 @@ import { imageConfig } from 'astro:assets';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import * as mime from 'mrmime';
-import type { APIRoute } from '../../types/public/common.js';
+import type { EndpointHandler } from '../../types/public/common.js';
 import { getConfiguredImageService } from '../internal.js';
 import { etag } from '../utils/etag.js';
 
@@ -27,7 +27,7 @@ async function loadRemoteImage(src: URL, headers: Headers) {
 /**
  * Endpoint used in dev and SSR to serve optimized images by the base image services
  */
-export const GET: APIRoute = async ({ request }) => {
+export const GET: EndpointHandler = async ({ request }) => {
 	try {
 		const imageService = await getConfiguredImageService();
 

@@ -214,6 +214,10 @@ export async function createVite(
 					replacement: 'astro/virtual-modules/middleware.js',
 				},
 				{
+					find: 'astro:endpoint',
+					replacement: 'astro/virtual-modules/endpoint.js',
+				},
+				{
 					find: 'astro:schema',
 					replacement: 'astro/zod',
 				},

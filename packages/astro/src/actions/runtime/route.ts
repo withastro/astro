@@ -1,7 +1,7 @@
-import type { EndpointRoute } from '../../types/public/common.js';
+import type { EndpointHandler } from '../../types/public/common.js';
 import { getActionContext } from './server.js';
 
-export const POST: EndpointRoute = async (context) => {
+export const POST: EndpointHandler = async (context) => {
 	const { action, serializeActionResult } = getActionContext(context);
 
 	if (action?.calledFrom !== 'rpc') {

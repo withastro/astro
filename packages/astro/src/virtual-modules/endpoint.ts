@@ -1,0 +1,1 @@
+export { defineEndpoint } from '../core/endpoint/index.js';
