@@ -3,7 +3,7 @@ import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Endpoints', () => {
-	/** @type {import('./test-utils').Fixture} */
+	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
 
 	before(async () => {

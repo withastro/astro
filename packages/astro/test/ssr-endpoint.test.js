@@ -54,6 +54,17 @@ describe('Endpoints in SSR', () => {
 			assert.equal(data.site, 'https://mysite.dev/subsite/');
 		});
 
+		describe('defineEndpoint', () => {
+			it('Can load the endpoint', async () => {
+				const request = new Request('http://example.com/define');
+				const response = await app.render(request);
+				assert.equal(response.status, 200);
+				const body = await response.json();
+				assert.equal(body.ok, true);
+				assert.equal(body.test, 'defineEndpoint');
+			});
+		})
+
 		describe('custom status', () => {
 			it('should return a custom status code and empty body for HEAD', async () => {
 				const request = new Request('http://example.com/custom-status', { method: 'HEAD' });
