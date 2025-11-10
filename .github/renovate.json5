@@ -16,7 +16,8 @@
     "pnpmDedupe"
   ],
   "ignorePaths": [
-    "**/node_modules/**"
+    "**/node_modules/**",
+    "**/astro-info-versions/**"
   ],
   "packageRules": [
     {
