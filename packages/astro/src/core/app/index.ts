@@ -251,7 +251,9 @@ export class App {
 					// Include validated port if available, otherwise use port from forwardedHost if present
 					const portFromHost = sanitized.includes(':') ? sanitized.split(':')[1] : undefined;
 					const portForValidation = result.port || portFromHost;
-					const hostWithPort = portForValidation ? `${hostnameOnly}:${portForValidation}` : hostnameOnly;
+					const hostWithPort = portForValidation
+						? `${hostnameOnly}:${portForValidation}`
+						: hostnameOnly;
 					const testUrl = new URL(`${protoForValidation}://${hostWithPort}`);
 					const isAllowed = allowedDomains.some((pattern) => matchPattern(testUrl, pattern));
 					if (isAllowed) {
