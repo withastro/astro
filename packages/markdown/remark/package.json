@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "6.3.8",
+  "version": "7.0.0-alpha.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",

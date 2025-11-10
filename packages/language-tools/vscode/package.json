@@ -246,7 +246,7 @@
     "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot"
   },
   "devDependencies": {
-    "@astrojs/language-server": "^2.16.0",
+    "@astrojs/language-server": "^2.16.1-alpha.0",
     "@astrojs/ts-plugin": "^1.10.5",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
