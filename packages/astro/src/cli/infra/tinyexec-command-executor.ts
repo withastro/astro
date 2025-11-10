@@ -4,13 +4,19 @@ import type { CommandExecutor } from '../definitions.js';
 export function createTinyexecCommandExecutor(): CommandExecutor {
 	return {
 		async execute(command, args, options) {
-			return await x(command, args, {
+			const proc = x(command, args, {
 				throwOnError: true,
 				nodeOptions: {
 					cwd: options?.cwd,
 					env: options?.env,
+					shell: options?.shell,
+					stdio: options?.stdio,
 				},
-			}).then(
+			});
+			if (options?.input) {
+				proc.process?.stdin?.end(options.input);
+			}
+			return await proc.then(
 				(o) => o,
 				(e) => {
 					if (e instanceof NonZeroExitError) {
