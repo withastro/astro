@@ -181,7 +181,7 @@ export class App {
 	static sanitizeHost(hostname: string | string[] | undefined): string | undefined {
 		if (!hostname || typeof hostname !== 'string') return hostname;
 		// Reject any hostname containing path separators - they're invalid
-		if (hostname.includes('/')) return undefined;
+		if (/[/\\]/.test(hostname)) return undefined;
 		return hostname;
 	}
 
@@ -227,11 +227,10 @@ export class App {
 		if (forwardedHost && forwardedHost.length > 0 && allowedDomains && allowedDomains.length > 0) {
 			const protoForValidation = result.protocol || 'https';
 			const sanitized = App.sanitizeHost(forwardedHost);
-			// Extract port from sanitized hostname if present (e.g., "example.com:3000" -> "example.com")
-			const hostWithoutPort = sanitized?.split(':')[0];
-			if (sanitized && hostWithoutPort) {
+			if (sanitized) {
 				try {
-					const testUrl = new URL(`${protoForValidation}://${hostWithoutPort}`);
+					// Use full hostname:port for validation so patterns with ports match correctly
+					const testUrl = new URL(`${protoForValidation}://${sanitized}`);
 					const isAllowed = allowedDomains.some((pattern) => matchPattern(testUrl, pattern));
 					if (isAllowed) {
 						result.host = sanitized;

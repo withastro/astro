@@ -148,9 +148,39 @@ describe('NodeApp', () => {
 				// Path separators in host are rejected, falls back to Host header
 				assert.equal(result.url, 'https://example.com/');
 			});
+
+		it('rejects x-forwarded-host with backslash path separator (path injection attempt)', () => {
+			const result = NodeApp.createRequest(
+				{
+					...mockNodeRequest,
+					headers: {
+						host: 'example.com',
+						'x-forwarded-host': 'example.com\\admin',
+					},
+				},
+				{ allowedDomains: [{ hostname: 'example.com', protocol: 'https' }] },
+			);
+			// Backslash separator in host is rejected, falls back to Host header
+			assert.equal(result.url, 'https://example.com/');
 		});
 
-		it('rejects Host header with path separator (path injection attempt)', () => {
+		it('parses x-forwarded-host with embedded port when allowedDomains has port pattern', () => {
+			const result = NodeApp.createRequest(
+				{
+					...mockNodeRequest,
+					headers: {
+						host: 'example.com',
+						'x-forwarded-host': 'example.com:3000',
+					},
+				},
+				{ allowedDomains: [{ hostname: 'example.com', port: '3000' }] },
+			);
+			// X-Forwarded-Host with port should match pattern that includes port
+			assert.equal(result.url, 'https://example.com:3000/');
+		});
+	});
+
+	it('rejects Host header with path separator (path injection attempt)', () => {
 			const result = NodeApp.createRequest({
 				...mockNodeRequest,
 				headers: {
@@ -158,6 +188,17 @@ describe('NodeApp', () => {
 				},
 			});
 			// Host header with path is rejected, resulting in undefined hostname
+			assert.equal(result.url, 'https://undefined/');
+		});
+
+		it('rejects Host header with backslash path separator (path injection attempt)', () => {
+			const result = NodeApp.createRequest({
+				...mockNodeRequest,
+				headers: {
+					host: 'example.com\\admin',
+				},
+			});
+			// Host header with backslash is rejected, resulting in undefined hostname
 			assert.equal(result.url, 'https://undefined/');
 		});
 
