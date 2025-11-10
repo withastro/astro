@@ -24,7 +24,7 @@ declare module 'virtual:astro:actions/entrypoint' {
 	export const server: SSRActions;
 }
 
-declare module 'virtual:astro:serialized-manifest' {
+declare module 'virtual:astro:manifest' {
 	import type { SSRManifest } from './src/index.js';
 	export const manifest: SSRManifest;
 }

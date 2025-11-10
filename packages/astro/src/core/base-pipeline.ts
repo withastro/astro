@@ -13,6 +13,7 @@ import type {
 	SSRResult,
 } from '../types/public/internal.js';
 import { createOriginCheckMiddleware } from './app/middlewares.js';
+import type { ServerIslandMappings } from './app/types.js';
 import type { SinglePageBuiltModule } from './build/types.js';
 import { ActionNotFoundError } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
@@ -35,6 +36,7 @@ export abstract class Pipeline {
 	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
 	resolvedActions: SSRActions | undefined = undefined;
 	resolvedSessionDriver: SessionDriver | null | undefined = undefined;
+	resolvedServerIslands: ServerIslandMappings | undefined = undefined;
 
 	constructor(
 		readonly logger: Logger,
@@ -72,6 +74,7 @@ export abstract class Pipeline {
 
 		readonly actions = manifest.actions,
 		readonly sessionDriver = manifest.sessionDriver,
+		readonly serverIslands = manifest.serverIslandMappings,
 	) {
 		this.internalMiddleware = [];
 		// We do use our middleware only if the user isn't using the manual setup
@@ -138,7 +141,8 @@ export abstract class Pipeline {
 		if (this.resolvedActions) {
 			return this.resolvedActions;
 		} else if (this.actions) {
-			return this.actions();
+			this.resolvedActions = await this.actions();
+			return this.resolvedActions;
 		}
 		return NOOP_ACTIONS_MOD;
 	}
@@ -159,6 +163,22 @@ export abstract class Pipeline {
 		// No driver configured
 		this.resolvedSessionDriver = null;
 		return null;
+	}
+
+	async getServerIslands(): Promise<ServerIslandMappings> {
+		if (this.resolvedServerIslands !== undefined) {
+			return this.resolvedServerIslands;
+		}
+
+		if (this.serverIslands) {
+			this.resolvedServerIslands = await this.serverIslands();
+			return this.resolvedServerIslands;
+		}
+
+		return {
+			serverIslandMap: new Map(),
+			serverIslandNameMap: new Map(),
+		};
 	}
 
 	async getAction(path: string): Promise<ActionClient<unknown, ActionAccept, ZodType>> {

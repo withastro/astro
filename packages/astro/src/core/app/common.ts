@@ -36,7 +36,7 @@ export function deserializeManifest(
 	const componentMetadata = new Map(serializedManifest.componentMetadata);
 	const inlinedScripts = new Map(serializedManifest.inlinedScripts);
 	const clientDirectives = new Map(serializedManifest.clientDirectives);
-	const serverIslandNameMap = new Map(serializedManifest.serverIslandNameMap);
+	// const serverIslandNameMap = new Map(serializedManifest.serverIslandNameMap);
 	const key = decodeKey(serializedManifest.key);
 
 	return {
@@ -57,7 +57,11 @@ export function deserializeManifest(
 		inlinedScripts,
 		clientDirectives,
 		routes,
-		serverIslandNameMap,
+		// serverIslandMappings() {
+		// 	return {
+		// 		serverIslandNameMap,
+		// 	};
+		// },
 		key,
 	};
 }

@@ -139,12 +139,7 @@ export class ServerIslandComponent {
 		const componentExport = this.getComponentExport();
 		let componentId = this.result.serverIslandNameMap.get(componentPath);
 		if (!componentId) {
-			// @ts-expect-error virtual module
-			const { serverIslandNameMap } = await import('virtual:astro-server-island-manifest');
-			componentId = serverIslandNameMap.get(componentPath);
-			if (!componentId) {
-				throw new Error(`Could not find server component name ${componentPath}`);
-			}
+			throw new Error(`Could not find server component name ${componentPath}`);
 		}
 
 		// Remove internal props

@@ -1,4 +1,3 @@
-import type { SSRManifest } from '../core/app/types.js';
 import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
 import type { Logger } from '../core/logger/core.js';
@@ -63,8 +62,6 @@ export interface AstroSettings {
 	 * - the user is on the latest version already
 	 */
 	latestAstroVersion: string | undefined;
-	serverIslandMap: NonNullable<SSRManifest['serverIslandMap']>;
-	serverIslandNameMap: NonNullable<SSRManifest['serverIslandNameMap']>;
 	// This makes content optional. Internal only so it's not optional on InjectedType
 	injectedTypes: Array<Omit<InjectedType, 'content'> & Partial<Pick<InjectedType, 'content'>>>;
 	/**

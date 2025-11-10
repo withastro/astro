@@ -1,16 +1,21 @@
 import MagicString from 'magic-string';
 import type { ConfigEnv, DevEnvironment, Plugin as VitePlugin } from 'vite';
+import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroPluginOptions } from '../../types/astro.js';
 import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
+import { addRollupInput } from '../build/add-rollup-input.js';
+import type { BuildInternals } from '../build/internal.js';
+import type { StaticBuildOptions } from '../build/types.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
-export const VIRTUAL_ISLAND_MAP_ID = '@astro-server-islands';
-const RESOLVED_VIRTUAL_ISLAND_MAP_ID = '\0' + VIRTUAL_ISLAND_MAP_ID;
-
-const SERVER_ISLAND_MANIFEST = 'virtual:astro-server-island-manifest';
+export const SERVER_ISLAND_MANIFEST = 'virtual:astro:server-island-manifest';
 const RESOLVED_SERVER_ISLAND_MANIFEST = '\0' + SERVER_ISLAND_MANIFEST;
 
-const serverIslandPlaceholder = "'$$server-islands$$'";
+const serverIslandPlaceholderMap = "'$$server-islands-map$$'";
+const serverIslandPlaceholderNameMap = "'$$server-islands-name-map$$'";
+
+const serverIslandMap = new Map();
+const serverIslandNameMap = new Map();
 
 export function vitePluginServerIslands({ settings }: AstroPluginOptions): VitePlugin {
 	let command: ConfigEnv['command'] = 'serve';
@@ -26,115 +31,152 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 			ssrEnvironment = server.environments.ssr;
 		},
 		resolveId(name) {
-			if (name === VIRTUAL_ISLAND_MAP_ID) {
-				return RESOLVED_VIRTUAL_ISLAND_MAP_ID;
-			}
 			if (name === SERVER_ISLAND_MANIFEST) {
 				return RESOLVED_SERVER_ISLAND_MANIFEST;
 			}
 		},
 		load(id) {
-			if (id === RESOLVED_VIRTUAL_ISLAND_MAP_ID) {
-				return { code: `export const serverIslandMap = ${serverIslandPlaceholder};` };
-			}
 			if (id === RESOLVED_SERVER_ISLAND_MANIFEST) {
-				let mapSource = 'new Map([';
-				for (let [resolvedPath, name] of settings.serverIslandNameMap) {
-					mapSource += `\n\t['${name}', () => import(/* @vite-ignore */'${resolvedPath}')],`;
-				}
-				mapSource += '\n]);';
-
 				return {
-					code: `export const serverIslandNameMap = new Map(${JSON.stringify(
-						Array.from(settings.serverIslandNameMap.entries()),
-					)});\nexport const serverIslandMap = ${mapSource}
-					;`,
+					code: `
+					export const serverIslandMap = ${serverIslandPlaceholderMap};\n\nexport const serverIslandNameMap = ${serverIslandPlaceholderNameMap};
+					`,
 				};
 			}
 		},
-		transform(_code, id) {
+
+		async transform(_code, id) {
 			// We run the transform for all file extensions to support transformed files, eg. mdx
 			const info = this.getModuleInfo(id);
-			if (!info?.meta?.astro) return;
 
-			const astro = info.meta.astro as AstroPluginMetadata['astro'];
+			const astro = info ? (info.meta.astro as AstroPluginMetadata['astro']) : undefined;
 
 			let hasAddedIsland = false;
 
-			for (const comp of astro.serverComponents) {
-				if (!settings.serverIslandNameMap.has(comp.resolvedPath)) {
-					if (!settings.adapter) {
-						throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
-					}
-					let name = comp.localName;
-					let idx = 1;
-
-					while (true) {
-						// Name not taken, let's use it.
-						if (!settings.serverIslandMap.has(name)) {
-							break;
+			if (astro) {
+				for (const comp of astro.serverComponents) {
+					if (!serverIslandNameMap.has(comp.resolvedPath)) {
+						if (!settings.adapter) {
+							throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
 						}
-						// Increment a number onto the name: Avatar -> Avatar1
-						name += idx++;
+						let name = comp.localName;
+						let idx = 1;
+
+						while (true) {
+							// Name not taken, let's use it.
+							if (!serverIslandMap.has(name)) {
+								break;
+							}
+							// Increment a number onto the name: Avatar -> Avatar1
+							name += idx++;
+						}
+
+						// Append the name map, for prod
+						serverIslandNameMap.set(comp.resolvedPath, name);
+						serverIslandMap.set(name, comp.resolvedPath);
+
+						// Build mode
+						if (command === 'build') {
+							let referenceId = this.emitFile({
+								type: 'chunk',
+								id: comp.specifier,
+								importer: id,
+								name: comp.localName,
+							});
+							referenceIdMap.set(comp.resolvedPath, referenceId);
+						}
+						hasAddedIsland = true;
 					}
-
-					// Append the name map, for prod
-					settings.serverIslandNameMap.set(comp.resolvedPath, name);
-					settings.serverIslandMap.set(name, () => {
-						return import(/* @vite-ignore */ comp.resolvedPath);
-					});
-
-					// Build mode
-					if (command === 'build') {
-						let referenceId = this.emitFile({
-							type: 'chunk',
-							id: comp.specifier,
-							importer: id,
-							name: comp.localName,
-						});
-
-						referenceIdMap.set(comp.resolvedPath, referenceId);
-					}
-					hasAddedIsland = true;
 				}
 			}
 			if (hasAddedIsland && ssrEnvironment) {
 				// In dev, we need to clear the module graph so that Vite knows to re-transform
 				// the module with the new island information.
-				for (const modId of [VIRTUAL_ISLAND_MAP_ID, SERVER_ISLAND_MANIFEST]) {
-					const mod = ssrEnvironment.moduleGraph.getModuleById(modId);
-					if (mod) {
-						ssrEnvironment.moduleGraph.invalidateModule(mod);
+				const mod = ssrEnvironment.moduleGraph.getModuleById(SERVER_ISLAND_MANIFEST);
+				if (mod) {
+					console.log('INVALIDATE');
+					ssrEnvironment.moduleGraph.invalidateModule(mod);
+				}
+			}
+
+			if (id === RESOLVED_SERVER_ISLAND_MANIFEST) {
+				if (command === 'build' && settings.buildOutput) {
+					const hasServerIslands = serverIslandNameMap.size > 0;
+					// Error if there are server islands but no adapter provided.
+					if (hasServerIslands && settings.buildOutput !== 'server') {
+						throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
 					}
 				}
+				let mapSource = 'new Map([\n\t';
+				for (let [name, path] of serverIslandMap) {
+					mapSource += `\n\t['${name}', () => import('${path}')],`;
+				}
+				mapSource += ']);';
+
+				return {
+					code: `
+					export const serverIslandMap = ${mapSource};
+					\n\nexport const serverIslandNameMap = new Map(${JSON.stringify(Array.from(serverIslandNameMap.entries()), null, 2)});
+					`,
+				};
 			}
 		},
 		renderChunk(code) {
-			if (code.includes(serverIslandPlaceholder)) {
-				// If there's no reference, we can fast-path to an empty map replacement
-				// without sourcemaps as it doesn't shift rows
+			if (code.includes(serverIslandPlaceholderMap)) {
 				if (referenceIdMap.size === 0) {
+					// If there's no reference, we can fast-path to an empty map replacement
+					// without sourcemaps as it doesn't shift rows
 					return {
-						code: code.replace(serverIslandPlaceholder, 'new Map();'),
+						code: code.replace(serverIslandPlaceholderMap, 'new Map();'),
 						map: null,
 					};
 				}
-
 				let mapSource = 'new Map([';
+				let nameMapSource = 'new Map(';
 				for (let [resolvedPath, referenceId] of referenceIdMap) {
 					const fileName = this.getFileName(referenceId);
-					const islandName = settings.serverIslandNameMap.get(resolvedPath)!;
+					const islandName = serverIslandNameMap.get(resolvedPath)!;
 					mapSource += `\n\t['${islandName}', () => import('./${fileName}')],`;
 				}
-				mapSource += '\n]);';
+				nameMapSource += `${JSON.stringify(Array.from(serverIslandNameMap.entries()), null, 2)}`;
+				mapSource += '\n])';
+				nameMapSource += '\n)';
 				referenceIdMap.clear();
 
 				const ms = new MagicString(code);
-				ms.replace(serverIslandPlaceholder, mapSource);
+				ms.replace(serverIslandPlaceholderMap, mapSource);
+				ms.replace(serverIslandPlaceholderNameMap, nameMapSource);
 				return {
 					code: ms.toString(),
 					map: ms.generateMap({ hires: 'boundary' }),
 				};
+			}
+		},
+	};
+}
+
+/**
+ * This plugin is used to retrieve the final entry point of the bundled actions.ts file
+ * @param opts
+ * @param internals
+ */
+export function vitePluginServerIslandsBuild(
+	opts: StaticBuildOptions,
+	internals: BuildInternals,
+): VitePlugin {
+	return {
+		name: '@astro/plugin-server-islands-build',
+
+		options(options) {
+			return addRollupInput(options, [SERVER_ISLAND_MANIFEST]);
+		},
+
+		writeBundle(_, bundle) {
+			for (const [chunkName, chunk] of Object.entries(bundle)) {
+				if (chunk.type !== 'asset' && chunk.facadeModuleId === RESOLVED_SERVER_ISLAND_MANIFEST) {
+					const outputDirectory = getServerOutputDirectory(opts.settings);
+					internals.serverIslandsEntryPoint = new URL(chunkName, outputDirectory);
+				}
 			}
 		},
 	};

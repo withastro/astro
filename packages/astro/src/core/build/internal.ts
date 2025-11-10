@@ -90,6 +90,7 @@ export interface BuildInternals {
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint: URL | undefined;
 	astroActionsEntryPoint: URL | undefined;
+	serverIslandsEntryPoint: URL | undefined;
 
 	/**
 	 * Chunks in the bundle that are only used in prerendering that we can delete later
@@ -110,9 +111,7 @@ export function createBuildInternals(): BuildInternals {
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
 		pagesByScriptId: new Map(),
-
 		propagatedStylesMap: new Map(),
-
 		discoveredHydratedComponents: new Map(),
 		discoveredClientOnlyComponents: new Map(),
 		discoveredScripts: new Set(),
@@ -121,6 +120,7 @@ export function createBuildInternals(): BuildInternals {
 		prerenderOnlyChunks: [],
 		astroActionsEntryPoint: undefined,
 		middlewareEntryPoint: undefined,
+		serverIslandsEntryPoint: undefined,
 		clientChunksAndAssets: new Set(),
 	};
 }

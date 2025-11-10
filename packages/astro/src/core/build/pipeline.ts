@@ -138,6 +138,12 @@ export class BuildPipeline extends Pipeline {
 				}
 			: manifest.middleware;
 
+		const serverIslandMappings = internals.serverIslandsEntryPoint
+			? async function () {
+					return import(internals.serverIslandsEntryPoint.toString());
+				}
+			: manifest.serverIslandMappings;
+
 		if (!renderers) {
 			throw new Error(
 				"Astro couldn't find the emitted renderers. This is an internal error, please file an issue.",
@@ -147,6 +153,7 @@ export class BuildPipeline extends Pipeline {
 			...manifest,
 			renderers: renderers.renderers as SSRLoadedRenderer[],
 			middleware,
+			serverIslandMappings,
 		};
 	}
 

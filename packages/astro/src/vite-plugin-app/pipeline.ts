@@ -49,10 +49,6 @@ export class AstroServerPipeline extends Pipeline {
 		const serverLike = settings?.buildOutput === 'server';
 		const streaming = true;
 		super(logger, manifest, 'development', [], resolve, serverLike, streaming);
-		if (settings) {
-			manifest.serverIslandMap = settings.serverIslandMap;
-			manifest.serverIslandNameMap = settings.serverIslandNameMap;
-		}
 	}
 
 	static create(

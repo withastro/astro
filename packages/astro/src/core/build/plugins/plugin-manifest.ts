@@ -43,7 +43,7 @@ import { makePageDataKey } from './util.js';
 /**
  * Unified manifest system architecture:
  *
- * The serialized manifest (virtual:astro:serialized-manifest) is now the single source of truth
+ * The serialized manifest (virtual:astro:manifest) is now the single source of truth
  * for both dev and production builds:
  *
  * - In dev: The serialized manifest is used directly (pre-computed manifest data)
@@ -379,7 +379,7 @@ async function buildManifest(
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		allowedDomains: settings.config.security?.allowedDomains,
-		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
+		// serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		key: encodedKey,
 		sessionConfig: settings.config.session,
 		csp,
