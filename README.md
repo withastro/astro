@@ -69,6 +69,10 @@ Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll 
 | [@astrojs/db](packages/db)                              | [![@astrojs/db version](https://img.shields.io/npm/v/@astrojs/db.svg?label=%20)](packages/db/CHANGELOG.md)                                      |
 | [@astrojs/rss](packages/astro-rss)                      | [![@astrojs/rss version](https://img.shields.io/npm/v/@astrojs/rss.svg?label=%20)](packages/astro-rss/CHANGELOG.md)                             |
 | [@astrojs/netlify](packages/integrations/netlify)       | [![@astrojs/netlify version](https://img.shields.io/npm/v/@astrojs/netlify.svg?label=%20)](packages/integrations/netlify/CHANGELOG.md)          |
+| [@astrojs/check](packages/language-tools/astro-check) | [![astro-check version](https://img.shields.io/npm/v/@astrojs/check.svg?label=%20)](packages/language-tools/astro-check/CHANGELOG.md)                          |
+| [@astrojs/language-server](packages/language-tools/language-server) | [![@astrojs/language-server version](https://img.shields.io/npm/v/@astrojs/language-server.svg?label=%20)](packages/language-tools/language-server/CHANGELOG.md)                          |
+| [@astrojs/ts-plugin](packages/language-tools/ts-plugin) | [![@astrojs/ts-plugin version](https://img.shields.io/npm/v/@astrojs/ts-plugin.svg?label=%20)](packages/language-tools/ts-plugin/CHANGELOG.md)                          |
+| [astro-vscode](packages/language-tools/vscode) | [![astro-vscode version](https://img.shields.io/npm/v/astro-vscode.svg?label=%20)](packages/language-tools/vscode/CHANGELOG.md)                          |
 
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6178/badge)](https://bestpractices.coreinfrastructure.org/projects/6178)
 
@@ -77,7 +81,7 @@ Several official projects are maintained outside of this repo:
 | Project                                                             | Repository                                                              |
 | ------------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | [@astrojs/compiler](https://github.com/withastro/compiler)          | [withastro/compiler](https://github.com/withastro/compiler)             |
-| [Astro Language Tools](https://github.com/withastro/language-tools) | [withastro/language-tools](https://github.com/withastro/language-tools) |
+| [Starlight](https://github.com/withastro/starlight) | [withastro/starlight](https://github.com/withastro/starlight) |
 
 ## Links
 

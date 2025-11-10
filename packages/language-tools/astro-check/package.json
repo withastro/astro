@@ -4,7 +4,7 @@
   "version": "0.9.5",
   "author": "withastro",
   "license": "MIT",
-  "homepage": "https://github.com/withastro/language-tools/tree/main/packages/astro-check",
+  "homepage": "https://github.com/withastro/astro/tree/main/packages/language-tools/astro-check",
   "repository": {
     "type": "git",
     "url": "https://github.com/withastro/astro.git",
