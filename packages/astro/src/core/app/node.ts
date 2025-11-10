@@ -103,7 +103,10 @@ export class NodeApp extends App {
 
 		const protocol = validated.protocol ?? providedProtocol;
 		// validated.host is already sanitized, only sanitize providedHostname
-		const hostname = validated.host ?? App.sanitizeHost(providedHostname);
+		const sanitizedProvidedHostname = App.sanitizeHost(
+			typeof providedHostname === 'string' ? providedHostname : undefined,
+		);
+		const hostname = validated.host ?? sanitizedProvidedHostname;
 		const port = validated.port;
 
 		let url: URL;

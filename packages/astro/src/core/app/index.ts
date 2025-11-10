@@ -178,8 +178,8 @@ export class App {
 	 * Validate a hostname by rejecting any with path separators.
 	 * Prevents path injection attacks. Invalid hostnames return undefined.
 	 */
-	static sanitizeHost(hostname: string | string[] | undefined): string | undefined {
-		if (!hostname || typeof hostname !== 'string') return hostname;
+	static sanitizeHost(hostname: string | undefined): string | undefined {
+		if (!hostname) return undefined;
 		// Reject any hostname containing path separators - they're invalid
 		if (/[/\\]/.test(hostname)) return undefined;
 		return hostname;
