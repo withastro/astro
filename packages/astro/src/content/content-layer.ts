@@ -21,7 +21,7 @@ import type { MutableDataStore } from './mutable-data-store.js';
 import {
 	type ContentObservable,
 	getEntryConfigByExtMap,
-	getEntryDataAndImages,
+	getEntryData,
 	globalContentConfigObserver,
 	loaderReturnSchema,
 	safeStringify,
@@ -267,29 +267,22 @@ class ContentLayer {
 					return;
 				}
 
-				const collectionWithResolvedSchema = { ...collection, schema };
-
-				const parseData: LoaderContext['parseData'] = async ({ id, data, filePath = '' }) => {
-					const { data: parsedData } = await getEntryDataAndImages(
-						{
-							id,
-							collection: name,
-							unvalidatedData: data,
-							_internal: {
-								rawData: undefined,
-								filePath,
-							},
-						},
-						collectionWithResolvedSchema,
-						false,
-					);
-
-					return parsedData;
-				};
-
 				const context = await this.#getLoaderContext({
 					collectionName: name,
-					parseData,
+					parseData: ({ id, data, filePath = '' }) =>
+						getEntryData(
+							{
+								id,
+								collection: name,
+								unvalidatedData: data,
+								_internal: {
+									rawData: undefined,
+									filePath,
+								},
+							},
+							{ ...collection, schema },
+							false,
+						),
 					loaderName: collection.loader.name,
 					refreshContextData: options?.context,
 				});

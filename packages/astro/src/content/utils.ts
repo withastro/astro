@@ -24,6 +24,7 @@ import {
 	LIVE_CONTENT_TYPE,
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
+import type { LoaderContext } from './loaders/types.js';
 import { createImage } from './runtime-assets.js';
 
 const entryTypeSchema = z
@@ -59,25 +60,11 @@ const collectionConfigParser = z.union([
 			z.function(),
 			z.object({
 				name: z.string(),
-				load: z.function(
-					z.tuple(
-						[
-							z.object({
-								collection: z.string(),
-								store: z.any(),
-								meta: z.any(),
-								logger: z.any(),
-								config: z.any(),
-								entryTypes: z.any(),
-								parseData: z.any(),
-								renderMarkdown: z.any(),
-								generateDigest: z.function(z.tuple([z.any()], z.string())),
-								watcher: z.any().optional(),
-								refreshContextData: z.record(z.unknown()).optional(),
-							}),
-						],
-						z.unknown(),
-					),
+				load: z.function().args(z.custom<LoaderContext>()).returns(
+					z.custom<{
+						schema?: any;
+						types?: string;
+					} | void>(),
 				),
 				schema: z.any().optional(),
 				render: z.function(z.tuple([z.any()], z.unknown())).optional(),
@@ -121,7 +108,7 @@ export function parseEntrySlug({
 	}
 }
 
-export async function getEntryDataAndImages<
+export async function getEntryData<
 	TInputData extends Record<string, unknown> = Record<string, unknown>,
 	TOutputData extends TInputData = TInputData,
 >(
@@ -134,12 +121,10 @@ export async function getEntryDataAndImages<
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
 	pluginContext?: PluginContext,
-): Promise<{ data: TOutputData; imageImports: Array<string> }> {
+): Promise<TOutputData> {
 	let data = entry.unvalidatedData as TOutputData;
 
 	let schema = collectionConfig.schema;
-
-	const imageImports = new Set<string>();
 
 	if (typeof schema === 'function') {
 		if (pluginContext) {
@@ -169,7 +154,6 @@ export async function getEntryDataAndImages<
 						) {
 							normalizedPath = `./${val}`;
 						}
-						imageImports.add(normalizedPath);
 						return `${IMAGE_IMPORT_PREFIX}${normalizedPath}`;
 					}),
 			});
@@ -212,26 +196,6 @@ export async function getEntryDataAndImages<
 		}
 	}
 
-	return { data, imageImports: Array.from(imageImports) };
-}
-
-export async function getEntryData(
-	entry: {
-		id: string;
-		collection: string;
-		unvalidatedData: Record<string, unknown>;
-		_internal: EntryInternal;
-	},
-	collectionConfig: CollectionConfig,
-	shouldEmitFile: boolean,
-	pluginContext?: PluginContext,
-) {
-	const { data } = await getEntryDataAndImages(
-		entry,
-		collectionConfig,
-		shouldEmitFile,
-		pluginContext,
-	);
 	return data;
 }
 
