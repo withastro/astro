@@ -38,10 +38,10 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
-    "@cloudflare/workers-types": "^4.20251014.0",
+    "@cloudflare/workers-types": "^4.20251106.1",
     "tinyglobby": "^0.2.15",
     "vite": "^6.4.1",
-    "wrangler": "4.45.3"
+    "wrangler": "4.46.0"
   },
   "peerDependencies": {
     "astro": "^5.7.0"
