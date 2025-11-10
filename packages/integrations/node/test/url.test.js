@@ -135,7 +135,7 @@ describe('URL', () => {
 		assert.equal($('body').text(), 'https://legitimate.example.com/');
 	});
 
-	it('accepts any port when port not specified in allowedDomains', async () => {
+	it('rejects port in forwarded host when port not in allowedDomains', async () => {
 		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
 		const { req, res, text } = createRequestAndResponse({
 			headers: {
@@ -152,9 +152,8 @@ describe('URL', () => {
 		const html = await text();
 		const $ = cheerio.load(html);
 
-		// When no port is specified in allowedDomains pattern, any port is accepted
-		// This validates that port validation works (it's checking and passing)
-		assert.equal($('body').text(), 'https://abc.xyz:8080/');
+		// Port 8080 not in allowedDomains (only 444), so should fall back to Host header
+		assert.equal($('body').text(), 'https://localhost:3000/');
 	});
 
 	it('rejects empty X-Forwarded-Host with allowedDomains configured', async () => {
