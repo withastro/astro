@@ -7,6 +7,7 @@ import type {
 	ShikiConfig,
 	SyntaxHighlightConfigType,
 } from '@astrojs/markdown-remark';
+import type { Config as SvgoConfig } from 'svgo';
 import type { BuiltinDriverName, BuiltinDriverOptions, Driver, Storage } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { AstroFontProvider, FontFamily } from '../../assets/fonts/types.js';
@@ -2537,6 +2538,50 @@ export interface AstroUserConfig<
 		 * See the [experimental Chrome DevTools workspace feature documentation](https://docs.astro.build/en/reference/experimental-flags/chrome-devtools-workspace/) for more information.
 		 */
 		chromeDevtoolsWorkspace?: boolean;
+
+		/**
+		 * @name experimental.svgo
+		 * @type {boolean | SvgoConfig}
+		 * @default `false`
+		 * @description
+		 * Enable SVG optimization using SVGO during build time.
+		 *
+		 * Set to `true` to enable optimization with default settings, or pass a configuration
+		 * object to customize SVGO behavior.
+		 *
+		 * When enabled, all imported SVG files will be optimized for smaller file sizes
+		 * and better performance while maintaining visual quality.
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     // Enable with defaults
+		 *     svgo: true
+		 *   }
+		 * }
+		 * ```
+		 *
+		 * To customize optimization, pass a [SVGO configuration object](https://svgo.dev/):
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     svgo: {
+		 *       plugins: [
+		 *         'preset-default',
+		 *         {
+		 *           name: 'removeViewBox',
+		 *           active: false
+		 *         }
+		 *       ]
+		 *     }
+		 *   }
+		 * }
+		 * ```
+		 *
+		 * See the [experimental SVGO optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
+		 */
+		svgo?: boolean | SvgoConfig;
 	};
 }
 
