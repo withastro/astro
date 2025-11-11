@@ -1321,9 +1321,9 @@ test.describe('View Transitions', () => {
 	test('should prefetch on hover by default', async ({ page, astro }) => {
 		/** @type {string[]} */
 		const reqUrls = [];
-		page.on('request', (req) => {
+		page.on('request', (request) => {
 			if (request.isNavigationRequest) {
-				reqUrls.push(new URL(req.url()).pathname);
+				reqUrls.push(new URL(request.url()).pathname);
 			}
 		});
 		await page.goto(astro.resolveUrl('/prefetch'));
