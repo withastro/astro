@@ -1328,10 +1328,8 @@ test.describe('View Transitions', () => {
 		});
 		await page.goto(astro.resolveUrl('/prefetch'));
 		expect(reqUrls).not.toContainEqual('/one');
-		await Promise.all([
-			page.waitForEvent('request'), // wait prefetch request
-			page.locator('#prefetch-one').hover(),
-		]);
+		await page.locator('#prefetch-one').hover();
+		await page.waitForEvent('request'); // wait prefetch request
 		expect(reqUrls).toContainEqual('/one');
 	});
 
