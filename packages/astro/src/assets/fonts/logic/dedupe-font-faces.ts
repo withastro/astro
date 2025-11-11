@@ -25,8 +25,6 @@ export function dedupeFontFaces(
 			const id = 'name' in source ? source.name : source.url;
 			return !ids.has(id) && ids.add(id);
 		});
-
-		result.push(font);
 	}
 	return result;
 }
