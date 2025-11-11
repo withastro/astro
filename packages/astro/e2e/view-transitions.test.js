@@ -42,6 +42,18 @@ function collectPreloads(page) {
 	});
 }
 
+function collectHashChanges(page) {
+	return page.evaluate(() => {
+		window.hashchanges = [];
+		window.addEventListener('hashchange', (e) => {
+			window.hashchanges.push({
+				oldURL: e.oldURL,
+				newURL: e.newURL,
+			});
+		});
+	});
+}
+
 async function nativeViewTransition(page) {
 	return page.evaluate(() => document.startViewTransition !== undefined);
 }
@@ -1713,5 +1725,53 @@ test.describe('View Transitions', () => {
 		await page.click('#a1');
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		expect(lines.join('')).toBe('');
+	});
+
+	test('hashchange event fires for same-page hash navigation', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/long-page'));
+		await collectHashChanges(page);
+
+		// navigate to hash on same page
+		await page.click('#click-scroll-down');
+		await page.waitForTimeout(100);
+
+		// check hashchange event was fired
+		const events = await page.evaluate(() => window.hashchanges);
+		expect(events.length).toBe(1);
+		expect(events[0].oldURL).toContain('/long-page');
+		expect(events[0].newURL).toContain('/long-page#click-one-again');
+		expect(events[0].oldURL).not.toContain('#');
+	});
+
+	test('hashchange event fires for back/forward with hash', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/long-page'));
+		await collectHashChanges(page);
+
+		// navigate to hash
+		await page.click('#click-scroll-down');
+		await page.waitForTimeout(100);
+
+		await page.goBack();
+		await page.waitForTimeout(100);
+
+		// should have two hashchange events
+		const events = await page.evaluate(() => window.hashchanges);
+		expect(events.length).toBe(2);
+		expect(events[1].oldURL).toContain('#click-one-again');
+		expect(events[1].newURL).toContain('/long-page');
+		expect(events[1].newURL).not.toContain('#');
+	});
+
+	test('hashchange event does NOT fire for cross-page navigation', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/one'));
+		await collectHashChanges(page);
+
+		// navigate to different page
+		await page.click('#click-two');
+		await page.waitForTimeout(100);
+
+		// should have zero hashchange events
+		const events = await page.evaluate(() => window.hashchanges);
+		expect(events.length).toBe(0);
 	});
 });
