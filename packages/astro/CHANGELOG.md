@@ -123,12 +123,18 @@
 
 ### Patch Changes
 
+- Updated dependencies [[`727b0a2`](https://github.com/withastro/astro/commit/727b0a205eb765f1c36f13a73dfc69e17e44df8f)]:
+  - @astrojs/markdown-remark@7.0.0-alpha.0
+
+## 5.15.5
+
+### Patch Changes
+
 - [#14712](https://github.com/withastro/astro/pull/14712) [`91780cf`](https://github.com/withastro/astro/commit/91780cffa7cf97cc22694d55962710609a5475b0) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where build's `process.env` would be inlined in the server output
 
 - [#14713](https://github.com/withastro/astro/pull/14713) [`666d5a7`](https://github.com/withastro/astro/commit/666d5a7ef486aa57f20f87b6cb210619dabd9c4c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves fallbacks generation when using the experimental Fonts API
 
-- Updated dependencies [[`727b0a2`](https://github.com/withastro/astro/commit/727b0a205eb765f1c36f13a73dfc69e17e44df8f)]:
-  - @astrojs/markdown-remark@7.0.0-alpha.0
+- [#14743](https://github.com/withastro/astro/pull/14743) [`dafbb1b`](https://github.com/withastro/astro/commit/dafbb1ba29912099c4faff1440033edc768af8b4) Thanks [@matthewp](https://github.com/matthewp)! - Improves `X-Forwarded` header validation to prevent cache poisoning and header injection attacks. Now properly validates `X-Forwarded-Proto`, `X-Forwarded-Host`, and `X-Forwarded-Port` headers against configured `allowedDomains` patterns, rejecting malformed or suspicious values. This is especially important when running behind a reverse proxy or load balancer.
 
 ## 5.15.4
 
