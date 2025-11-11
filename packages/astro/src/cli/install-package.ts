@@ -106,12 +106,12 @@ async function installPackage(
 					env: { NODE_ENV: undefined },
 				},
 			});
-			spinner.stop();
+			spinner.stop('Dependencies installed.');
 
 			return true;
 		} catch (err) {
 			logger.debug('add', 'Error installing dependencies', err);
-			spinner.stop(undefined, 2);
+			spinner.error('Failed to install dependencies.');
 
 			return false;
 		}

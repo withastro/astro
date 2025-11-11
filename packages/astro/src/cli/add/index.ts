@@ -776,10 +776,10 @@ async function tryToInstallIntegrations({
 					env: { NODE_ENV: undefined },
 				},
 			});
-			spinner.stop();
+			spinner.stop('Dependencies installed.');
 			return UpdateResult.updated;
 		} catch (err: any) {
-			spinner.stop(undefined, 2);
+			spinner.error('Error installing dependencies.');
 			logger.debug('add', 'Error installing dependencies', err);
 			// NOTE: `err.stdout` can be an empty string, so log the full error instead for a more helpful log
 			console.error('\n', err.stdout || err.message, '\n');
@@ -892,11 +892,11 @@ async function validateIntegrations(
 				};
 			}),
 		);
-		spinner.stop();
+		spinner.stop('Resolved packages.');
 		return integrationEntries;
 	} catch (e) {
 		if (e instanceof Error) {
-			spinner.stop(e.message, 2);
+			spinner.error(e.message);
 			process.exit(1);
 		} else {
 			throw e;
