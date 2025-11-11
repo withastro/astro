@@ -205,7 +205,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					return null;
 			}
 		},
-		async transform(source, id) {
+		async transform(source, id, options) {
 			if (hasSpecialQueries(id)) return;
 
 			const parsedId = parseAstroRequest(id);
@@ -225,6 +225,15 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				}
 
 				return;
+			}
+
+			// If an Astro component is imported in code used on the client, we return an empty
+			// module so that Vite doesn’t bundle the server-side Astro code for the client.
+			if (!options?.ssr) {
+				return {
+					code: 'export default {}',
+					meta: { vite: { lang: 'ts' } },
+				};
 			}
 
 			const filename = normalizePath(parsedId.filename);
