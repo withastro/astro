@@ -32,6 +32,7 @@ export function parseQuality(quality: string): string | number {
 
 type ImageConfig<T> = Omit<AstroConfig['image'], 'service'> & {
 	service: { entrypoint: string; config: T };
+	assetQueryParams?: URLSearchParams;
 };
 
 interface SharedServiceProps<T extends Record<string, any> = Record<string, any>> {
@@ -368,7 +369,17 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		});
 
 		const imageEndpoint = joinPaths(import.meta.env.BASE_URL, imageConfig.endpoint.route);
-		return `${imageEndpoint}?${searchParams}`;
+		let url = `${imageEndpoint}?${searchParams}`;
+
+		// Append assetQueryParams if available (for adapter-level tracking like skew protection)
+		if (imageConfig.assetQueryParams) {
+			const assetQueryString = imageConfig.assetQueryParams.toString();
+			if (assetQueryString) {
+				url += '&' + assetQueryString;
+			}
+		}
+
+		return url;
 	},
 	parseURL(url) {
 		const params = url.searchParams;

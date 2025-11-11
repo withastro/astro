@@ -69,7 +69,7 @@ describe('fonts orchestrate()', () => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = createRemoteUrlProxyContentResolver();
 				return createUrlProxy({
-					urlResolver: createDevUrlResolver({ base: 'test' }),
+					urlResolver: createDevUrlResolver({ base: 'test', searchParams: new URLSearchParams() }),
 					cssVariable,
 					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
 					dataCollector,

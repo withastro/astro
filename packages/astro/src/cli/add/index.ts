@@ -25,7 +25,6 @@ import type { Logger } from '../../core/logger/core.js';
 import * as msg from '../../core/messages.js';
 import { printHelp } from '../../core/messages.js';
 import { appendForwardSlash } from '../../core/path.js';
-import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { ensureProcessNodeEnv, parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { exec } from '../exec.js';
@@ -109,7 +108,6 @@ const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 
 export async function add(names: string[], { flags }: AddOptions) {
 	ensureProcessNodeEnv('production');
-	applyPolyfill();
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 	const { userConfig } = await resolveConfig(inlineConfig, 'add');
 	telemetry.record(eventCliSession('add', userConfig));

@@ -1,5 +1,52 @@
 # astro
 
+## 5.15.5
+
+### Patch Changes
+
+- [#14712](https://github.com/withastro/astro/pull/14712) [`91780cf`](https://github.com/withastro/astro/commit/91780cffa7cf97cc22694d55962710609a5475b0) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where build's `process.env` would be inlined in the server output
+
+- [#14713](https://github.com/withastro/astro/pull/14713) [`666d5a7`](https://github.com/withastro/astro/commit/666d5a7ef486aa57f20f87b6cb210619dabd9c4c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves fallbacks generation when using the experimental Fonts API
+
+- [#14743](https://github.com/withastro/astro/pull/14743) [`dafbb1b`](https://github.com/withastro/astro/commit/dafbb1ba29912099c4faff1440033edc768af8b4) Thanks [@matthewp](https://github.com/matthewp)! - Improves `X-Forwarded` header validation to prevent cache poisoning and header injection attacks. Now properly validates `X-Forwarded-Proto`, `X-Forwarded-Host`, and `X-Forwarded-Port` headers against configured `allowedDomains` patterns, rejecting malformed or suspicious values. This is especially important when running behind a reverse proxy or load balancer.
+
+## 5.15.4
+
+### Patch Changes
+
+- [#14703](https://github.com/withastro/astro/pull/14703) [`970ac0f`](https://github.com/withastro/astro/commit/970ac0f51172e1e6bff4440516a851e725ac3097) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Adds missing documentation for some public utilities exported from `astro:i18n`.
+
+- [#14715](https://github.com/withastro/astro/pull/14715) [`3d55c5d`](https://github.com/withastro/astro/commit/3d55c5d0fb520d470b33d391e5b68861f5b51271) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds support for client hydration in `getContainerRenderer()`
+
+  The `getContainerRenderer()` function is exported by Astro framework integrations to simplify the process of rendering framework components when using the experimental Container API inside a Vite or Vitest environment. This update adds the client hydration entrypoint to the returned object, enabling client-side interactivity for components rendered using this function. Previously this required users to manually call `container.addClientRenderer()` with the appropriate client renderer entrypoint.
+
+  See [the `container-with-vitest` demo](https://github.com/withastro/astro/blob/main/examples/container-with-vitest/test/ReactWrapper.test.ts) for a usage example, and [the Container API documentation](https://docs.astro.build/en/reference/container-reference/#renderers-option) for more information on using framework components with the experimental Container API.
+
+- [#14711](https://github.com/withastro/astro/pull/14711) [`a4d284d`](https://github.com/withastro/astro/commit/a4d284dad1c437fa64773f43d030a3e504d783e1) Thanks [@deining](https://github.com/deining)! - Fixes typos in documenting our error messages and public APIs.
+
+- [#14701](https://github.com/withastro/astro/pull/14701) [`9be54c7`](https://github.com/withastro/astro/commit/9be54c77cf8c65d253a70e9b7a8ff144a0f95d66) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where the experimental Fonts API would filter available font files too aggressively, which could prevent the download of woff files when using the google provider
+
+## 5.15.3
+
+### Patch Changes
+
+- [#14627](https://github.com/withastro/astro/pull/14627) [`b368de0`](https://github.com/withastro/astro/commit/b368de099e74f5d65c5e8f9799c9c3e0217714ae) Thanks [@matthewp](https://github.com/matthewp)! - Fixes skew protection support for images and font URLs
+
+  Adapter-level query parameters (`assetQueryParams`) are now applied to all image and font asset URLs, including:
+  - Dynamic optimized images via `/_image` endpoint
+  - Static optimized image files
+  - Font preload tags and font requests when using the experimental Fonts API
+
+- [#14631](https://github.com/withastro/astro/pull/14631) [`3ad33f9`](https://github.com/withastro/astro/commit/3ad33f97429fedc1a873c50b54f3cd5e0d95bec8) Thanks [@KurtGokhan](https://github.com/KurtGokhan)! - Adds the `astro/jsx-dev-runtime` export as an alias for `astro/jsx-runtime`
+
+## 5.15.2
+
+### Patch Changes
+
+- [#14623](https://github.com/withastro/astro/pull/14623) [`c5fe295`](https://github.com/withastro/astro/commit/c5fe295c41c8bc3b9f85727c3635e9ddc67f0030) Thanks [@delucis](https://github.com/delucis)! - Fixes a leak of server runtime code when importing SVGs in client-side code. Previously, when importing an SVG file in client code, Astro could end up adding code for rendering SVGs on the server to the client bundle.
+
+- [#14621](https://github.com/withastro/astro/pull/14621) [`e3175d9`](https://github.com/withastro/astro/commit/e3175d9ccbf070150ab2229b2564ca0b12a86c30) Thanks [@GameRoMan](https://github.com/GameRoMan)! - Updates `vite` version to fix CVE
+
 ## 5.15.1
 
 ### Patch Changes

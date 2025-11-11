@@ -1624,7 +1624,7 @@ test.describe('View Transitions', () => {
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 		// This test would be more important for a browser without native view transitions
-		// as those do not have automatic cancelation of transitions.
+		// as those do not have automatic cancellation of transitions.
 		// For simulated view transitions, the last line would be missing
 		// as enter and exit animations don't run in parallel.
 

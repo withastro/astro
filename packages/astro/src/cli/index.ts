@@ -1,4 +1,5 @@
 import yargs from 'yargs-parser';
+import { apply as applyPolyfill } from '../core/polyfill.js';
 
 type CLICommand =
 	| 'help'
@@ -51,6 +52,8 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
  * to present user-friendly error output where the fn is called.
  **/
 async function runCommand(cmd: string, flags: yargs.Arguments) {
+	applyPolyfill();
+
 	const [
 		{ createLoggerFromFlags },
 		{ createPicocolorsTextStyler },
@@ -109,21 +112,25 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		case 'docs': {
 			const [
 				{ createTinyexecCommandExecutor },
-				{ createProcessPlatformProvider },
+				{ createProcessOperatingSystemProvider },
+				{ createProcessCloudIdeProvider },
 				{ openDocsCommand },
 			] = await Promise.all([
-				import('./docs/infra/tinyexec-command-executor.js'),
-				import('./docs/infra/process-platform-provider.js'),
+				import('./infra/tinyexec-command-executor.js'),
+				import('./infra/process-operating-system-provider.js'),
+				import('./docs/infra/process-cloud-ide-provider.js'),
 				import('./docs/core/open-docs.js'),
 			]);
 			const commandExecutor = createTinyexecCommandExecutor();
-			const platformProvider = createProcessPlatformProvider();
+			const operatingSystemProvider = createProcessOperatingSystemProvider();
+			const cloudIdeProvider = createProcessCloudIdeProvider();
 
 			return await runner.run(openDocsCommand, {
 				url: 'https://docs.astro.build/',
 				logger,
 				commandExecutor,
-				platformProvider,
+				operatingSystemProvider,
+				cloudIdeProvider,
 			});
 		}
 		case 'telemetry': {
@@ -201,7 +208,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			if (flags.watch) {
 				return await new Promise(() => {}); // lives forever
 			} else {
-				return process.exit(checkServer ? 1 : 0);
+				return process.exit(typeof checkServer === 'boolean' && checkServer ? 1 : 0);
 			}
 		}
 	}
