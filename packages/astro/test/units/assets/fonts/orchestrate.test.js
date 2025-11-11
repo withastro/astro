@@ -50,6 +50,18 @@ describe('fonts orchestrate()', () => {
 						},
 					],
 				},
+				{
+					name: 'Test',
+					cssVariable: '--test',
+					provider: 'local',
+					variants: [
+						{
+							weight: '500',
+							style: 'normal',
+							src: ['./my-font.woff2', './my-font.woff'],
+						},
+					],
+				},
 			],
 			hasher,
 			remoteFontProviderResolver: createRemoteFontProviderResolver({

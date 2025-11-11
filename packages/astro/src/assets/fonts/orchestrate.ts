@@ -28,6 +28,7 @@ import type {
 	FontFileDataMap,
 	InternalConsumableMap,
 	PreloadData,
+	ResolvedFontFamily,
 } from './types.js';
 import {
 	pickFontFaceProperty,
@@ -122,16 +123,36 @@ export async function orchestrate({
 	 */
 	const consumableMap: ConsumableMap = new Map();
 
-	for (const family of resolvedFamilies) {
-		const preloadData: Array<PreloadData> = [];
-		const consumableMapValue: Array<FontData> = [];
-		let css = '';
-
+	interface Obj {
+		family: ResolvedFontFamily;
+		fonts: Array<unifont.FontFaceData>;
+		fallbacks: Array<string>;
 		/**
 		 * Holds a list of font files to be used for optimized fallbacks generation
 		 */
-		const collectedFonts: Array<CollectedFontForMetrics> = [];
-		const fallbacks = family.fallbacks ?? defaults.fallbacks ?? [];
+		collectedFonts: Array<CollectedFontForMetrics>;
+		preloadData: Array<PreloadData>;
+	}
+
+	const temp = new Map<string, Obj>();
+
+	function tempKey(family: ResolvedFontFamily): string {
+		return `${family.cssVariable}:${family.name}:${typeof family.provider === 'string' ? family.provider : family.provider.name!}`;
+	}
+
+	for (const family of resolvedFamilies) {
+		const key = tempKey(family);
+		let obj = temp.get(key);
+		if (!obj) {
+			obj = {
+				family,
+				fonts: [],
+				fallbacks: family.fallbacks ?? defaults.fallbacks ?? [],
+				collectedFonts: [],
+				preloadData: [],
+			};
+			temp.set(key, obj);
+		}
 
 		/**
 		 * Allows collecting and transforming original URLs from providers, so the Vite
@@ -144,25 +165,23 @@ export async function orchestrate({
 				fontFileDataMap.set(hash, { url, init });
 			},
 			savePreload: (preload) => {
-				preloadData.push(preload);
+				obj.preloadData.push(preload);
 			},
 			saveFontData: (collected) => {
 				if (
-					fallbacks &&
-					fallbacks.length > 0 &&
+					obj.fallbacks &&
+					obj.fallbacks.length > 0 &&
 					// If the same data has already been sent for this family, we don't want to have
 					// duplicated fallbacks. Such scenario can occur with unicode ranges.
-					!collectedFonts.some((f) => JSON.stringify(f.data) === JSON.stringify(collected.data))
+					!obj.collectedFonts.some((f) => JSON.stringify(f.data) === JSON.stringify(collected.data))
 				) {
 					// If a family has fallbacks, we store the first url we get that may
 					// be used for the fallback generation.
-					collectedFonts.push(collected);
+					obj.collectedFonts.push(collected);
 				}
 			},
 			cssVariable: family.cssVariable,
 		});
-
-		let fonts: Array<unifont.FontFaceData>;
 
 		if (family.provider === LOCAL_PROVIDER_NAME) {
 			const result = resolveLocalFont({
@@ -172,7 +191,7 @@ export async function orchestrate({
 				fontFileReader,
 			});
 			// URLs are already proxied at this point so no further processing is required
-			fonts = result.fonts;
+			obj.fonts.push(...result.fonts);
 		} else {
 			const result = await resolveFont(
 				family.name,
@@ -202,8 +221,17 @@ export async function orchestrate({
 				}
 			}
 			// The data returned by the remote provider contains original URLs. We proxy them.
-			fonts = normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy, fontTypeExtractor });
+			obj.fonts.push(
+				...normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy, fontTypeExtractor }),
+			);
 		}
+
+		// TODO: dedupe fonts
+	}
+
+	for (const { family, fonts, fallbacks, collectedFonts, preloadData } of temp.values()) {
+		const consumableMapValue: Array<FontData> = [];
+		let css = '';
 
 		for (const data of fonts) {
 			css += cssRenderer.generateFontFace(
