@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/vercel",
   "description": "Deploy your site to Vercel",
-  "version": "9.0.0",
+  "version": "10.0.0-alpha.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -57,7 +57,7 @@
     "tinyglobby": "^0.2.15"
   },
   "peerDependencies": {
-    "astro": "^5.0.0"
+    "astro": "^6.0.0-alpha.0"
   },
   "devDependencies": {
     "astro": "workspace:*",

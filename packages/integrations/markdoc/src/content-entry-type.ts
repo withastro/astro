@@ -49,10 +49,7 @@ export async function getContentEntryType({
 			const userMarkdocConfig = markdocConfigResult?.config ?? {};
 			const markdocConfigUrl = markdocConfigResult?.fileUrl;
 			const pluginContext = this;
-			const markdocConfig = await setupConfig(
-				userMarkdocConfig,
-				options,
-			);
+			const markdocConfig = await setupConfig(userMarkdocConfig, options);
 			const filePath = fileURLToPath(fileUrl);
 			raiseValidationErrors({
 				ast,

@@ -25,6 +25,7 @@ import {
 	PROPAGATED_ASSET_FLAG,
 	REFERENCE_SYMBOL,
 } from './consts.js';
+import type { LoaderContext } from './loaders/types.js';
 import { createImage } from './runtime-assets.js';
 
 const entryTypeSchema = z
@@ -60,7 +61,7 @@ const collectionConfigParser = z.union([
 			z.function(),
 			z.object({
 				name: z.string(),
-				load: z.function().returns(
+				load: z.function().args(z.custom<LoaderContext>()).returns(
 					z.custom<{
 						schema?: any;
 						types?: string;

@@ -1,5 +1,11 @@
 # @astrojs/upgrade
 
+## 0.7.0-alpha.0
+
+### Minor Changes
+
+- [#14427](https://github.com/withastro/astro/pull/14427) [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://deploy-preview-12322--astro-docs-2.netlify.app/en/guides/upgrade-to/v6/#node-22))
+
 ## 0.6.2
 
 ### Patch Changes
