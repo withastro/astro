@@ -5,6 +5,7 @@ import { createBuildTimeAstroVersionProvider } from '../../../dist/cli/infra/bui
 import { createCliCommandRunner } from '../../../dist/cli/infra/cli-command-runner.js';
 import { createLoggerHelpDisplay } from '../../../dist/cli/infra/logger-help-display.js';
 import { createPassthroughTextStyler } from '../../../dist/cli/infra/passthrough-text-styler.js';
+import { createProcessOperatingSystemProvider } from '../../../dist/cli/infra/process-operating-system-provider.js';
 import packageJson from '../../../package.json' with { type: 'json' };
 import { createSpyLogger } from '../test-utils.js';
 import { createFakeAstroVersionProvider, createSpyHelpDisplay } from './utils.js';
@@ -155,6 +156,16 @@ Starts a local server to serve your static dist/ directory.
 						},
 					]);
 				});
+			});
+		});
+
+		describe('createProcessOperatingSystemProvider()', () => {
+			it('returns the value from process.platform', () => {
+				const operatingSystemProvider = createProcessOperatingSystemProvider();
+
+				const platform = operatingSystemProvider.getName();
+
+				assert.equal(platform, process.platform);
 			});
 		});
 	});

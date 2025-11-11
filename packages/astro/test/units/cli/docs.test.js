@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { openDocsCommand } from '../../../dist/cli/docs/core/open-docs.js';
 import { createProcessCloudIdeProvider } from '../../../dist/cli/docs/infra/process-cloud-ide-provider.js';
-import { createProcessOperatingSystemProvider } from '../../../dist/cli/infra/process-operating-system-provider.js';
 import { createSpyLogger } from '../test-utils.js';
 import {
 	createFakeCloudIdeProvider,
@@ -58,16 +57,6 @@ describe('CLI docs', () => {
 	});
 
 	describe('infra', () => {
-		describe('createProcessOperatingSystemProvider()', () => {
-			it('returns the value from process.platform', () => {
-				const operatingSystemProvider = createProcessOperatingSystemProvider();
-
-				const platform = operatingSystemProvider.getName();
-
-				assert.equal(platform, process.platform);
-			});
-		});
-
 		describe('createProcessCloudIdeProvider()', () => {
 			/** @type {string | undefined} */
 			let prev;

@@ -104,6 +104,102 @@ describe('NodeApp', () => {
 				});
 				assert.equal(result.url, 'https://example.com/');
 			});
+
+			it('rejects empty x-forwarded-host and falls back to host header', () => {
+				const result = NodeApp.createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'legitimate.example.com',
+							'x-forwarded-host': '',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				assert.equal(result.url, 'https://legitimate.example.com/');
+			});
+
+			it('rejects x-forwarded-host with path separator (path injection attempt)', () => {
+				const result = NodeApp.createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-host': 'example.com/admin',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com', protocol: 'https' }] },
+				);
+				// Path separator in host is rejected, falls back to Host header
+				assert.equal(result.url, 'https://example.com/');
+			});
+
+			it('rejects x-forwarded-host with multiple path segments', () => {
+				const result = NodeApp.createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-host': 'example.com/admin/users',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com', protocol: 'https' }] },
+				);
+				// Path separators in host are rejected, falls back to Host header
+				assert.equal(result.url, 'https://example.com/');
+			});
+
+			it('rejects x-forwarded-host with backslash path separator (path injection attempt)', () => {
+				const result = NodeApp.createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-host': 'example.com\\admin',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com', protocol: 'https' }] },
+				);
+				// Backslash separator in host is rejected, falls back to Host header
+				assert.equal(result.url, 'https://example.com/');
+			});
+
+			it('parses x-forwarded-host with embedded port when allowedDomains has port pattern', () => {
+				const result = NodeApp.createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-host': 'example.com:3000',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com', port: '3000' }] },
+				);
+				// X-Forwarded-Host with port should match pattern that includes port
+				assert.equal(result.url, 'https://example.com:3000/');
+			});
+		});
+
+		it('rejects Host header with path separator (path injection attempt)', () => {
+			const result = NodeApp.createRequest({
+				...mockNodeRequest,
+				headers: {
+					host: 'example.com/admin',
+				},
+			});
+			// Host header with path is rejected, resulting in undefined hostname
+			assert.equal(result.url, 'https://undefined/');
+		});
+
+		it('rejects Host header with backslash path separator (path injection attempt)', () => {
+			const result = NodeApp.createRequest({
+				...mockNodeRequest,
+				headers: {
+					host: 'example.com\\admin',
+				},
+			});
+			// Host header with backslash is rejected, resulting in undefined hostname
+			assert.equal(result.url, 'https://undefined/');
 		});
 
 		describe('x-forwarded-proto', () => {
@@ -140,10 +236,93 @@ describe('NodeApp', () => {
 				});
 				assert.equal(result.url, 'https://example.com/');
 			});
+
+			it('rejects malicious x-forwarded-proto with URL injection (https://www.malicious-url.com/?tank=)', () => {
+				const result = NodeApp.createRequest({
+					...mockNodeRequest,
+					headers: {
+						host: 'example.com',
+						'x-forwarded-proto': 'https://www.malicious-url.com/?tank=',
+					},
+				});
+				assert.equal(result.url, 'https://example.com/');
+			});
+
+			it('rejects malicious x-forwarded-proto with middleware bypass attempt (x:admin?)', () => {
+				const result = NodeApp.createRequest({
+					...mockNodeRequest,
+					headers: {
+						host: 'example.com',
+						'x-forwarded-proto': 'x:admin?',
+					},
+				});
+				assert.equal(result.url, 'https://example.com/');
+			});
+
+			it('rejects malicious x-forwarded-proto with cache poison attempt (https://localhost/vulnerable?)', () => {
+				const result = NodeApp.createRequest({
+					...mockNodeRequest,
+					headers: {
+						host: 'example.com',
+						'x-forwarded-proto': 'https://localhost/vulnerable?',
+					},
+				});
+				assert.equal(result.url, 'https://example.com/');
+			});
+
+			it('rejects malicious x-forwarded-proto with XSS attempt (javascript:alert(document.cookie)//)', () => {
+				const result = NodeApp.createRequest({
+					...mockNodeRequest,
+					headers: {
+						host: 'example.com',
+						'x-forwarded-proto': 'javascript:alert(document.cookie)//',
+					},
+				});
+				assert.equal(result.url, 'https://example.com/');
+			});
+
+			it('rejects empty x-forwarded-proto and falls back to encrypted property', () => {
+				const result = NodeApp.createRequest({
+					...mockNodeRequest,
+					headers: {
+						host: 'example.com',
+						'x-forwarded-proto': '',
+					},
+				});
+				assert.equal(result.url, 'https://example.com/');
+			});
 		});
 
 		describe('x-forwarded-port', () => {
-			it('parses port from single-value x-forwarded-port header', () => {
+			it('parses port from single-value x-forwarded-port header (with allowedDomains)', () => {
+				const result = NodeApp.createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-port': '8443',
+						},
+					},
+					{ allowedDomains: [{ port: '8443' }] },
+				);
+				assert.equal(result.url, 'https://example.com:8443/');
+			});
+
+			it('parses port from multi-value x-forwarded-port header (with allowedDomains)', () => {
+				const result = NodeApp.createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-port': '8443,3000',
+						},
+					},
+					{ allowedDomains: [{ port: '8443' }] },
+				);
+				assert.equal(result.url, 'https://example.com:8443/');
+			});
+
+			it('rejects x-forwarded-port without allowedDomains patterns (strict security default)', () => {
 				const result = NodeApp.createRequest({
 					...mockNodeRequest,
 					headers: {
@@ -151,18 +330,7 @@ describe('NodeApp', () => {
 						'x-forwarded-port': '8443',
 					},
 				});
-				assert.equal(result.url, 'https://example.com:8443/');
-			});
-
-			it('parses port from multi-value x-forwarded-port header', () => {
-				const result = NodeApp.createRequest({
-					...mockNodeRequest,
-					headers: {
-						host: 'example.com',
-						'x-forwarded-port': '8443,3000',
-					},
-				});
-				assert.equal(result.url, 'https://example.com:8443/');
+				assert.equal(result.url, 'https://example.com/');
 			});
 
 			it('prefers port from host', () => {
@@ -176,14 +344,13 @@ describe('NodeApp', () => {
 				assert.equal(result.url, 'https://example.com:3000/');
 			});
 
-			it('prefers port from x-forwarded-host', () => {
+			it('uses port embedded in x-forwarded-host', () => {
 				const result = NodeApp.createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
-							host: 'example.com:443',
+							host: 'example.com',
 							'x-forwarded-host': 'example.com:3000',
-							'x-forwarded-port': '443',
 						},
 					},
 					{ allowedDomains: [{ hostname: 'example.com' }] },
