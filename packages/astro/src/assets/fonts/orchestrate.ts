@@ -142,11 +142,23 @@ export async function orchestrate({
 	>();
 
 	// First loop: we try to merge families. This is useful for advanced cases, where eg. you want
-	// 500, 600, 700 as normal but also 500 as italic. That requires 2 families 
+	// 500, 600, 700 as normal but also 500 as italic. That requires 2 families
 	for (const family of resolvedFamilies) {
 		const key = `${family.cssVariable}:${family.name}:${typeof family.provider === 'string' ? family.provider : family.provider.name!}`;
 		let resolvedFamily = resolvedFamiliesMap.get(key);
 		if (!resolvedFamily) {
+			if (
+				Array.from(resolvedFamiliesMap.keys()).find((k) => k.startsWith(`${family.cssVariable}:`))
+			) {
+				logger.warn(
+					'assets',
+					`Several font families have been registered for the ${bold(family.cssVariable)} cssVariable but they do not share the same name and provider.`,
+				);
+				logger.warn(
+					'assets',
+					'These families will not be merged together. The last occurrence will override previous families for this cssVariable. Review your Astro configuration.',
+				);
+			}
 			resolvedFamily = {
 				family,
 				fonts: [],
@@ -218,7 +230,11 @@ export async function orchestrate({
 					`No data found for font family ${bold(family.name)}. Review your configuration`,
 				);
 				const availableFamilies = await listFonts([family.provider.name!]);
-				if (availableFamilies && !availableFamilies.includes(family.name)) {
+				if (
+					availableFamilies &&
+					availableFamilies.length > 0 &&
+					!availableFamilies.includes(family.name)
+				) {
 					logger.warn(
 						'assets',
 						`${bold(family.name)} font family cannot be retrieved by the provider. Did you mean ${bold(stringMatcher.getClosestMatch(family.name, availableFamilies))}?`,
