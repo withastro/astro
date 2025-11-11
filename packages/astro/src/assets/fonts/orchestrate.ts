@@ -124,6 +124,9 @@ export async function orchestrate({
 	 */
 	const consumableMap: ConsumableMap = new Map();
 
+	/**
+	 * Holds family data by a key, to allow merging families
+	 */
 	const resolvedFamiliesMap = new Map<
 		string,
 		{
@@ -138,6 +141,8 @@ export async function orchestrate({
 		}
 	>();
 
+	// First loop: we try to merge families. This is useful for advanced cases, where eg. you want
+	// 500, 600, 700 as normal but also 500 as italic. That requires 2 families 
 	for (const family of resolvedFamilies) {
 		const key = `${family.cssVariable}:${family.name}:${typeof family.provider === 'string' ? family.provider : family.provider.name!}`;
 		let resolvedFamily = resolvedFamiliesMap.get(key);
@@ -226,10 +231,9 @@ export async function orchestrate({
 				normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy, fontTypeExtractor }),
 			);
 		}
-
-		// TODO: dedupe fonts
 	}
 
+	// We know about all the families, let's generate css, fallbacks and more
 	for (const {
 		family,
 		fonts,
@@ -237,9 +241,6 @@ export async function orchestrate({
 		collectedFonts,
 		preloadData,
 	} of resolvedFamiliesMap.values()) {
-		// console.log(family.cssVariable);
-		// console.dir(fonts, { depth: null });
-		// console.log("\n")
 		const consumableMapValue: Array<FontData> = [];
 		let css = '';
 
