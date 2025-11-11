@@ -14,6 +14,7 @@ import type {
 	SystemFallbacksProvider,
 	UrlProxy,
 } from './definitions.js';
+import { dedupeFontFaces } from './logic/dedupe-font-faces.js';
 import { extractUnifontProviders } from './logic/extract-unifont-providers.js';
 import { normalizeRemoteFontFaces } from './logic/normalize-remote-font-faces.js';
 import { type CollectedFontForMetrics, optimizeFallbacks } from './logic/optimize-fallbacks.js';
@@ -123,35 +124,32 @@ export async function orchestrate({
 	 */
 	const consumableMap: ConsumableMap = new Map();
 
-	interface Obj {
-		family: ResolvedFontFamily;
-		fonts: Array<unifont.FontFaceData>;
-		fallbacks: Array<string>;
-		/**
-		 * Holds a list of font files to be used for optimized fallbacks generation
-		 */
-		collectedFonts: Array<CollectedFontForMetrics>;
-		preloadData: Array<PreloadData>;
-	}
-
-	const temp = new Map<string, Obj>();
-
-	function tempKey(family: ResolvedFontFamily): string {
-		return `${family.cssVariable}:${family.name}:${typeof family.provider === 'string' ? family.provider : family.provider.name!}`;
-	}
+	const resolvedFamiliesMap = new Map<
+		string,
+		{
+			family: ResolvedFontFamily;
+			fonts: Array<unifont.FontFaceData>;
+			fallbacks: Array<string>;
+			/**
+			 * Holds a list of font files to be used for optimized fallbacks generation
+			 */
+			collectedFonts: Array<CollectedFontForMetrics>;
+			preloadData: Array<PreloadData>;
+		}
+	>();
 
 	for (const family of resolvedFamilies) {
-		const key = tempKey(family);
-		let obj = temp.get(key);
-		if (!obj) {
-			obj = {
+		const key = `${family.cssVariable}:${family.name}:${typeof family.provider === 'string' ? family.provider : family.provider.name!}`;
+		let resolvedFamily = resolvedFamiliesMap.get(key);
+		if (!resolvedFamily) {
+			resolvedFamily = {
 				family,
 				fonts: [],
 				fallbacks: family.fallbacks ?? defaults.fallbacks ?? [],
 				collectedFonts: [],
 				preloadData: [],
 			};
-			temp.set(key, obj);
+			resolvedFamiliesMap.set(key, resolvedFamily);
 		}
 
 		/**
@@ -165,19 +163,21 @@ export async function orchestrate({
 				fontFileDataMap.set(hash, { url, init });
 			},
 			savePreload: (preload) => {
-				obj.preloadData.push(preload);
+				resolvedFamily.preloadData.push(preload);
 			},
 			saveFontData: (collected) => {
 				if (
-					obj.fallbacks &&
-					obj.fallbacks.length > 0 &&
+					resolvedFamily.fallbacks &&
+					resolvedFamily.fallbacks.length > 0 &&
 					// If the same data has already been sent for this family, we don't want to have
 					// duplicated fallbacks. Such scenario can occur with unicode ranges.
-					!obj.collectedFonts.some((f) => JSON.stringify(f.data) === JSON.stringify(collected.data))
+					!resolvedFamily.collectedFonts.some(
+						(f) => JSON.stringify(f.data) === JSON.stringify(collected.data),
+					)
 				) {
 					// If a family has fallbacks, we store the first url we get that may
 					// be used for the fallback generation.
-					obj.collectedFonts.push(collected);
+					resolvedFamily.collectedFonts.push(collected);
 				}
 			},
 			cssVariable: family.cssVariable,
@@ -191,7 +191,7 @@ export async function orchestrate({
 				fontFileReader,
 			});
 			// URLs are already proxied at this point so no further processing is required
-			obj.fonts.push(...result.fonts);
+			resolvedFamily.fonts.push(...result.fonts);
 		} else {
 			const result = await resolveFont(
 				family.name,
@@ -221,15 +221,25 @@ export async function orchestrate({
 				}
 			}
 			// The data returned by the remote provider contains original URLs. We proxy them.
-			obj.fonts.push(
-				...normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy, fontTypeExtractor }),
+			resolvedFamily.fonts = dedupeFontFaces(
+				resolvedFamily.fonts,
+				normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy, fontTypeExtractor }),
 			);
 		}
 
 		// TODO: dedupe fonts
 	}
 
-	for (const { family, fonts, fallbacks, collectedFonts, preloadData } of temp.values()) {
+	for (const {
+		family,
+		fonts,
+		fallbacks,
+		collectedFonts,
+		preloadData,
+	} of resolvedFamiliesMap.values()) {
+		// console.log(family.cssVariable);
+		// console.dir(fonts, { depth: null });
+		// console.log("\n")
 		const consumableMapValue: Array<FontData> = [];
 		let css = '';
 
