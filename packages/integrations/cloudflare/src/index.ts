@@ -148,6 +148,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	);
 
 	let _routes: IntegrationResolvedRoute[];
+	let _platformProxy: Awaited<ReturnType<typeof getPlatformProxy>> | undefined;
 
 	const SESSION_KV_BINDING_NAME = args?.sessionKVBindingName ?? 'SESSION';
 
@@ -203,6 +204,21 @@ export default function createIntegration(args?: Options): AstroIntegration {
 										return { id: source, external: true };
 									}
 									return null;
+								},
+							},
+							{
+								name: 'vite:cf-cleanup',
+								async closeBundle() {
+									if (_platformProxy) {
+										await _platformProxy.dispose();
+										_platformProxy = undefined;
+									}
+								},
+								async buildEnd() {
+									if (_platformProxy) {
+										await _platformProxy.dispose();
+										_platformProxy = undefined;
+									}
 								},
 							},
 						],
@@ -266,6 +282,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			'astro:server:setup': async ({ server }) => {
 				if ((args?.platformProxy?.enabled ?? true) === true) {
 					const platformProxy = await getPlatformProxy(args?.platformProxy);
+					_platformProxy = platformProxy;
 
 					// Ensures the dev server doesn't hang
 					server.httpServer?.on('close', async () => {
