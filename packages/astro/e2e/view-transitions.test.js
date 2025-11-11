@@ -1294,7 +1294,7 @@ test.describe('View Transitions', () => {
 		let navigated;
 		await page.goto(astro.resolveUrl('/form-with-hash#test'));
 		page.on('request', (request) => {
-			if (request.isNavigationRequest()) {
+			if (request.resourceType() !== 'websocket') {
 				expect(request.method()).toBe('POST');
 				navigated = true;
 			}
@@ -1322,7 +1322,7 @@ test.describe('View Transitions', () => {
 		/** @type {string[]} */
 		const reqUrls = [];
 		page.on('request', (request) => {
-			if (request.isNavigationRequest()) {
+			if (request.resourceType() !== 'websocket') {
 				reqUrls.push(new URL(request.url()).pathname);
 			}
 		});
