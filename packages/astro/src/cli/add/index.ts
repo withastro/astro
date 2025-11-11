@@ -1012,7 +1012,7 @@ async function askToContinue({ flags }: { flags: Flags }): Promise<boolean> {
 	if (flags.yes || flags.y) return true;
 
 	const response = await clack.confirm({
-		message: 'Continue?',
+		message: colors.bold('Continue?'),
 		initialValue: true,
 	});
 

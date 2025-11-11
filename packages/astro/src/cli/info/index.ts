@@ -125,7 +125,7 @@ async function copyToClipboard(text: string, force?: boolean) {
 
 	if (!force) {
 		const shouldCopy = await clack.confirm({
-			message: 'Copy to clipboard?',
+			message: colors.bold('Copy to clipboard?'),
 			initialValue: true,
 		});
 

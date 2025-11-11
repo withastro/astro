@@ -90,7 +90,7 @@ async function installPackage(
 	} else {
 		response =
 			(await clack.confirm({
-				message: 'Continue?',
+				message: colors.bold('Continue?'),
 				initialValue: true,
 			})) === true;
 	}
