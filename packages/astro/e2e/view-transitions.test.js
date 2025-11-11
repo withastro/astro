@@ -1268,7 +1268,7 @@ test.describe('View Transitions', () => {
 	}) => {
 		await page.goto(astro.resolveUrl('/form-six'));
 		page.on('request', (request) => {
-			if (request.isNavigationRequest) {
+			if (request.isNavigationRequest()) {
 				expect(request.url()).toContain('/bar');
 			}
 		});
@@ -1282,7 +1282,7 @@ test.describe('View Transitions', () => {
 	}) => {
 		await page.goto(astro.resolveUrl('/form-seven'));
 		page.on('request', (request) => {
-			if (request.isNavigationRequest) {
+			if (request.isNavigationRequest()) {
 				expect(request.method()).toBe('GET');
 			}
 		});
@@ -1294,7 +1294,7 @@ test.describe('View Transitions', () => {
 		let navigated;
 		await page.goto(astro.resolveUrl('/form-with-hash#test'));
 		page.on('request', (request) => {
-			if (request.isNavigationRequest) {
+			if (request.isNavigationRequest()) {
 				expect(request.method()).toBe('POST');
 				navigated = true;
 			}
@@ -1322,7 +1322,7 @@ test.describe('View Transitions', () => {
 		/** @type {string[]} */
 		const reqUrls = [];
 		page.on('request', (request) => {
-			if (request.isNavigationRequest) {
+			if (request.isNavigationRequest()) {
 				reqUrls.push(new URL(request.url()).pathname);
 			}
 		});
@@ -1422,7 +1422,7 @@ test.describe('View Transitions', () => {
 
 		let requests = [];
 		page.on('request', (request) => {
-			if (request.isNavigationRequest) {
+			if (request.isNavigationRequest()) {
 				requests.push(`${request.method()} ${request.url()}`);
 			}
 		});
