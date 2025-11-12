@@ -297,10 +297,6 @@ export class App {
 		});
 	}
 
-	set setManifestData(newManifestData: RoutesList) {
-		this.#manifestData = newManifestData;
-	}
-
 	removeBase(pathname: string) {
 		if (pathname.startsWith(this.#manifest.base)) {
 			return pathname.slice(this.#baseWithoutTrailingSlash.length + 1);
