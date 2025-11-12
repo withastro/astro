@@ -7,7 +7,7 @@ import colors from 'picocolors';
 import type { PluginContext } from 'rollup';
 import type { ViteDevServer } from 'vite';
 import xxhash from 'xxhash-wasm';
-import { z } from 'zod';
+import { type ZodSchema, z } from 'zod';
 import { AstroError, AstroErrorData, errorMap, MarkdownError } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
@@ -60,14 +60,19 @@ const collectionConfigParser = z.union([
 			z.function(),
 			z.object({
 				name: z.string(),
-				load: z.function().args(z.custom<LoaderContext>()).returns(
-					z.custom<{
-						schema?: any;
-						types?: string;
-					} | void>(),
-				),
-				schema: z.any().optional(),
-				render: z.function(z.tuple([z.any()], z.unknown())).optional(),
+				load: z.function().args(z.custom<LoaderContext>()).returns(z.promise(z.void())),
+				schema: z.custom<ZodSchema>((v) => '_def' in v).optional(),
+				getSchemaContext: z
+					.function()
+					.returns(
+						z.promise(
+							z.object({
+								schema: z.custom<ZodSchema>((v) => '_def' in v),
+								types: z.string(),
+							}),
+						),
+					)
+					.optional(),
 			}),
 		]),
 	}),

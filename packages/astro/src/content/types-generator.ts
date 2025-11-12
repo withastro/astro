@@ -342,13 +342,13 @@ function normalizeConfigPath(from: string, to: string) {
 	return `"${isRelativePath(configPath) ? '' : './'}${normalizedPath}"` as const;
 }
 
-const schemaCache = new Map<string, ZodSchema>();
+const schemaContextResultCache = new Map<string, { schema: ZodSchema; types: string }>();
 
-async function getContentLayerSchema<T extends keyof ContentConfig['collections']>(
+async function getSchemaContextResult<T extends keyof ContentConfig['collections']>(
 	collection: ContentConfig['collections'][T],
 	collectionKey: T,
-): Promise<ZodSchema | undefined> {
-	const cached = schemaCache.get(collectionKey);
+) {
+	const cached = schemaContextResultCache.get(collectionKey);
 	if (cached) {
 		return cached;
 	}
@@ -356,17 +356,27 @@ async function getContentLayerSchema<T extends keyof ContentConfig['collections'
 	if (
 		collection?.type === CONTENT_LAYER_TYPE &&
 		typeof collection.loader === 'object' &&
-		collection.loader.schema
+		!collection.loader.schema &&
+		collection.loader.getSchemaContext
 	) {
-		let schema = collection.loader.schema;
-		if (typeof schema === 'function') {
-			schema = await schema();
-		}
-		if (schema) {
-			schemaCache.set(collectionKey, await schema);
-			return schema;
-		}
+		const result = await collection.loader.getSchemaContext();
+		schemaContextResultCache.set(collectionKey, result);
+		return result;
 	}
+}
+
+async function getContentLayerSchema<T extends keyof ContentConfig['collections']>(
+	collection: ContentConfig['collections'][T],
+	collectionKey: T,
+): Promise<ZodSchema | undefined> {
+	if (collection?.type !== CONTENT_LAYER_TYPE || typeof collection.loader === 'function') {
+		return;
+	}
+	if (collection.loader.schema) {
+		return collection.loader.schema;
+	}
+	const result = await getSchemaContextResult(collection, collectionKey);
+	return result?.schema;
 }
 
 async function typeForCollection<T extends keyof ContentConfig['collections']>(
@@ -376,24 +386,20 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	if (collection?.schema) {
 		return `InferEntrySchema<${collectionKey}>`;
 	}
-	if (!collection?.type) {
+	if (!collection?.type || typeof collection.loader === 'function') {
 		return 'any';
 	}
-	const schema = await getContentLayerSchema(collection, collectionKey);
-	if (!schema) {
+	if (collection.loader.schema) {
+		// TODO: this only works if a loader has info about its schema
+		return `InferLoaderSchema<${collectionKey}>`;
+	}
+	const result = await getSchemaContextResult(collection, collectionKey);
+	if (!result) {
 		return 'any';
 	}
-	try {
-		const zodToTs = await import('zod-to-ts');
-		const ast = zodToTs.zodToTs(schema);
-		return zodToTs.printNode(ast.node);
-	} catch (err: any) {
-		// zod-to-ts is sad if we don't have TypeScript installed, but that's fine as we won't be needing types in that case
-		if (err.message.includes("Cannot find package 'typescript'")) {
-			return 'any';
-		}
-		throw err;
-	}
+	// TODO: inject result.types
+	const relativePath = 'TODO:';
+	return `import(${relativePath}).Collection`;
 }
 
 async function writeContentFiles({
@@ -487,7 +493,12 @@ async function writeContentFiles({
 			const key = JSON.parse(collectionKey);
 
 			contentCollectionManifest.collections.push({
-				hasSchema: Boolean(collectionConfig?.schema || schemaCache.has(collectionKey)),
+				hasSchema: Boolean(
+					collectionConfig &&
+						(collectionConfig.schema ||
+							(typeof collectionConfig.loader !== 'function' &&
+								(collectionConfig.loader.schema || schemaContextResultCache.has(collectionKey)))),
+				),
 				name: key,
 			});
 
