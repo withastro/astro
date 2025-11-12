@@ -1,6 +1,10 @@
 import type * as unifont from 'unifont';
 import { sortObjectByKey } from '../utils.js';
 
+function computeIdFromSource(source: unifont.LocalFontSource | unifont.RemoteFontSource): string {
+	return 'name' in source ? source.name : source.url;
+}
+
 export function dedupeFontFaces(
 	current: Array<unifont.FontFaceData>,
 	incoming: Array<unifont.FontFaceData>,
@@ -19,12 +23,14 @@ export function dedupeFontFaces(
 			continue;
 		}
 
-		const ids = new Set<string>();
+		const ids = new Set(existing.src.map((source) => computeIdFromSource(source)));
 
-		existing.src = [...existing.src, ...font.src].filter((source) => {
-			const id = 'name' in source ? source.name : source.url;
-			return !ids.has(id) && ids.add(id);
-		});
+		existing.src.push(
+			...font.src.filter((source) => {
+				const id = computeIdFromSource(source);
+				return !ids.has(id) && ids.add(id);
+			}),
+		);
 	}
 	return result;
 }
