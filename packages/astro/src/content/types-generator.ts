@@ -391,7 +391,6 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 		return { type: 'any' };
 	}
 	if (collection.loader.schema) {
-		// TODO: this only works if a loader has info about its schema
 		return { type: `InferLoaderSchema<${collectionKey}>` };
 	}
 	const result = await getSchemaContextResult(collection, collectionKey);

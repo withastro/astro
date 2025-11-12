@@ -49,7 +49,7 @@ export interface LoaderContext {
 	entryTypes: Map<string, ContentEntryType>;
 }
 
-export type Loader = {
+export type Loader<T extends ZodSchema = ZodSchema> = {
 	/** Unique name of the loader, e.g. the npm package name */
 	name: string;
 	/** Do the actual loading of the data */
@@ -57,7 +57,7 @@ export type Loader = {
 } & (
 	| {
 			/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
-			schema?: ZodSchema;
+			schema?: T;
 			getSchemaContext?: never;
 	  }
 	| {
