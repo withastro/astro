@@ -490,9 +490,6 @@ importers:
       '@rollup/pluginutils':
         specifier: ^5.3.0
         version: 5.3.0(rollup@4.53.1)
-      acorn:
-        specifier: ^8.15.0
-        version: 8.15.0
       aria-query:
         specifier: ^5.3.2
         version: 5.3.2
