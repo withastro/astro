@@ -176,7 +176,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "workspace:*",
-    "@playwright/test": "1.51.1",
+    "@playwright/test": "1.56.1",
     "@types/aria-query": "^5.0.4",
     "@types/common-ancestor-path": "^1.0.2",
     "@types/cssesc": "^3.0.2",
