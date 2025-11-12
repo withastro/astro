@@ -37,7 +37,7 @@ export function resolveLocalFont({
 			// We proxy each source
 			data.src = variant.src.map((source, index) => {
 				// We only try to infer for the first source. Indeed if it doesn't work, the function
-				// call will throw an error so that will be interruped anyways
+				// call will throw an error so that will be interrupted anyways
 				if (shouldInfer && index === 0) {
 					const result = fontFileReader.extract({ family: family.name, url: source.url });
 					if (variant.weight === undefined) data.weight = result.weight;

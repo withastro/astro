@@ -20,9 +20,8 @@ import { createBuildUrlProxyHashResolver } from '../../../../dist/assets/fonts/i
 import { createDevUrlResolver } from '../../../../dist/assets/fonts/implementations/url-resolver.js';
 import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
 import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
-import { defaultLogger } from '../../test-utils.js';
+import { createSpyLogger, defaultLogger } from '../../test-utils.js';
 import {
-	createSpyLogger,
 	createSpyStorage,
 	fakeFontMetricsResolver,
 	fakeHasher,
@@ -70,7 +69,7 @@ describe('fonts orchestrate()', () => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = createRemoteUrlProxyContentResolver();
 				return createUrlProxy({
-					urlResolver: createDevUrlResolver({ base: 'test' }),
+					urlResolver: createDevUrlResolver({ base: 'test', searchParams: new URLSearchParams() }),
 					cssVariable,
 					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
 					dataCollector,
@@ -99,6 +98,9 @@ describe('fonts orchestrate()', () => {
 			{
 				url: joinPaths('/test', fileURLToPath(new URL('my-font.woff2.woff2', root))),
 				type: 'woff2',
+				weight: '400',
+				style: 'normal',
+				subset: undefined,
 			},
 		]);
 		// Uses the hash
@@ -230,7 +232,13 @@ describe('fonts orchestrate()', () => {
 		assert.deepStrictEqual([...internalConsumableMap.keys()], ['--test']);
 		const entry = internalConsumableMap.get('--test');
 		assert.deepStrictEqual(entry?.preloadData, [
-			{ url: 'https://example.com/foo.woff2.woff2', type: 'woff2' },
+			{
+				url: 'https://example.com/foo.woff2.woff2',
+				type: 'woff2',
+				weight: '400',
+				style: 'normal',
+				subset: undefined,
+			},
 		]);
 		// Uses the hash
 		assert.equal(entry?.css.includes('font-family:Test-'), true);

@@ -1,7 +1,16 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.2.6/schema.json",
   "files": {
-    "includes": ["**", "!**/smoke/**", "!**/fixtures/**", "!**/_temp-fixtures/**", "!**/vendor/**"]
+    "includes": [
+      "**",
+      "!**/smoke/**",
+      "!**/fixtures/**",
+      "!**/fixture/**",
+      "!**/_temp-fixtures/**",
+      "!**/vendor/**",
+      "packages/language-tools/vscode/syntaxes/*.json",
+      "!**/.vscode-test/**"
+    ]
   },
   "vcs": {
     "enabled": true,
@@ -24,6 +33,10 @@
   },
   "linter": {
     "enabled": true,
+
+    "domains": {
+      "test": "recommended"
+    },
     "rules": {
       "recommended": false,
       "style": {
@@ -94,23 +107,15 @@
       }
     },
     {
-      // We don"t want to have node modules in code that should be runtime agnostic
-      "includes": ["**/packages/astro/src/runtime/**/*.ts"],
+      // We don't want to have node modules in code that should be runtime agnostic
+      "includes": [
+        "**/packages/astro/src/**/runtime/**/*.ts",
+        "**/packages/astro/src/**/runtime.ts"
+      ],
       "linter": {
         "rules": {
           "correctness": {
             "noNodejsModules": "error"
-          }
-        }
-      }
-    },
-    {
-      "includes": ["**/*.test.js"],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noFocusedTests": "error",
-            "noConsole": "off"
           }
         }
       }
@@ -152,19 +157,6 @@
         "rules": {
           "suspicious": {
             "noConsole": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": [
-        "**/packages/astro/src/**/runtime/**/*.ts",
-        "**/packages/astro/src/**/runtime.ts"
-      ],
-      "linter": {
-        "rules": {
-          "correctness": {
-            "noNodejsModules": "error"
           }
         }
       }

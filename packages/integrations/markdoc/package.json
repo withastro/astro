@@ -77,9 +77,9 @@
     "@types/markdown-it": "^14.1.2",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "devalue": "^5.3.2",
+    "devalue": "^5.4.2",
     "linkedom": "^0.18.12",
-    "vite": "^6.3.6"
+    "vite": "^6.4.0"
   },
   "engines": {
     "node": "18.20.8 || ^20.3.0 || >=22.0.0"
