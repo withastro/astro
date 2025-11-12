@@ -8,7 +8,7 @@ import { glob as tinyglobby } from 'tinyglobby';
 import type { ContentEntryRenderFunction, ContentEntryType } from '../../types/public/content.js';
 import type { RenderedContent } from '../data-store.js';
 import { getContentEntryIdAndSlug, posixRelative } from '../utils.js';
-import type { Loader } from './types.js';
+import { defineContentLoader } from './config.js';
 
 interface GenerateIdOptions {
 	/** The path to the entry file, relative to the base directory. */
@@ -57,7 +57,7 @@ function checkPrefix(pattern: string | Array<string>, prefix: string) {
  * @param pattern A glob pattern to match files, relative to the content directory.
  */
 
-export function glob(globOptions: GlobOptions): Loader {
+export function glob(globOptions: GlobOptions) {
 	if (checkPrefix(globOptions.pattern, '../')) {
 		throw new Error(
 			'Glob patterns cannot start with `../`. Set the `base` option to a parent directory instead.',
@@ -73,7 +73,7 @@ export function glob(globOptions: GlobOptions): Loader {
 
 	const fileToIdMap = new Map<string, string>();
 
-	return {
+	return defineContentLoader({
 		name: 'glob-loader',
 		load: async ({ config, logger, watcher, parseData, store, generateDigest, entryTypes }) => {
 			const renderFunctionByContentType = new WeakMap<
@@ -315,5 +315,5 @@ export function glob(globOptions: GlobOptions): Loader {
 				}
 			});
 		},
-	};
+	});
 }
