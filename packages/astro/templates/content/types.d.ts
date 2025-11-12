@@ -104,6 +104,9 @@ declare module 'astro:content' {
 	type InferEntrySchema<C extends keyof DataEntryMap> = import('astro/zod').infer<
 		ReturnTypeOrOriginal<Required<ContentConfig['collections'][C]>['schema']>
 	>;
+	type InferLoaderSchema<C extends keyof DataEntryMap> = import('astro/zod').infer<
+		ReturnTypeOrOriginal<Required<ContentConfig['collections'][C]>['loader']['schema']>
+	>;
 
 	type DataEntryMap = {
 		// @@DATA_ENTRY_MAP@@

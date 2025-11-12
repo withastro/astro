@@ -11,6 +11,7 @@ import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType } from '../types/public/content.js';
+import type { InjectedType } from '../types/public/integrations.js';
 import {
 	COLLECTIONS_DIR,
 	CONTENT_LAYER_TYPE,
@@ -382,24 +383,29 @@ async function getContentLayerSchema<T extends keyof ContentConfig['collections'
 async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	collection: ContentConfig['collections'][T] | undefined,
 	collectionKey: T,
-): Promise<string> {
+): Promise<{ type: string; injectedType?: InjectedType }> {
 	if (collection?.schema) {
-		return `InferEntrySchema<${collectionKey}>`;
+		return { type: `InferEntrySchema<${collectionKey}>` };
 	}
 	if (!collection?.type || typeof collection.loader === 'function') {
-		return 'any';
+		return { type: 'any' };
 	}
 	if (collection.loader.schema) {
 		// TODO: this only works if a loader has info about its schema
-		return `InferLoaderSchema<${collectionKey}>`;
+		return { type: `InferLoaderSchema<${collectionKey}>` };
 	}
 	const result = await getSchemaContextResult(collection, collectionKey);
 	if (!result) {
-		return 'any';
+		return { type: 'any' };
 	}
-	// TODO: inject result.types
-	const relativePath = 'TODO:';
-	return `import(${relativePath}).Collection`;
+	const filename = `loaders/${collectionKey}.ts`;
+	return {
+		type: `import(${filename}).Collection`,
+		injectedType: {
+			filename,
+			content: result.types,
+		},
+	};
 }
 
 async function writeContentFiles({
@@ -466,7 +472,21 @@ async function writeContentFiles({
 			return;
 		}
 
-		const dataType = await typeForCollection(collectionConfig, collectionKey);
+		const { type: dataType, injectedType } = await typeForCollection(
+			collectionConfig,
+			collectionKey,
+		);
+
+		if (injectedType) {
+			if (settings.injectedTypes.some((t) => t.filename === CONTENT_TYPES_FILE)) {
+				// If it's the first time, we inject types the usual way. sync() will handle creating files and references. If it's not the first time, we just override the dts content
+				const url = new URL(injectedType.filename, settings.dotAstroDir);
+				await fs.promises.mkdir(path.dirname(fileURLToPath(url)), { recursive: true });
+				await fs.promises.writeFile(url, injectedType.content, 'utf-8');
+			} else {
+				settings.injectedTypes.push(injectedType);
+			}
+		}
 
 		dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  body?: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent;\n  filePath?: string;\n}>;\n`;
 
