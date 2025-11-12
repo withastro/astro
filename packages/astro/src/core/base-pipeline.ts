@@ -34,9 +34,7 @@ import type { SessionDriver } from './session.js';
 export abstract class Pipeline {
 	readonly internalMiddleware: MiddlewareHandler[];
 	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
-	resolvedActions: SSRActions | undefined = undefined;
 	resolvedSessionDriver: SessionDriver | null | undefined = undefined;
-	resolvedServerIslands: ServerIslandMappings | undefined = undefined;
 
 	constructor(
 		readonly logger: Logger,
@@ -133,16 +131,9 @@ export abstract class Pipeline {
 		}
 	}
 
-	setActions(actions: SSRActions) {
-		this.resolvedActions = actions;
-	}
-
 	async getActions(): Promise<SSRActions> {
-		if (this.resolvedActions) {
-			return this.resolvedActions;
-		} else if (this.actions) {
-			this.resolvedActions = await this.actions();
-			return this.resolvedActions;
+		if (this.actions) {
+			return this.actions();
 		}
 		return NOOP_ACTIONS_MOD;
 	}
@@ -166,13 +157,8 @@ export abstract class Pipeline {
 	}
 
 	async getServerIslands(): Promise<ServerIslandMappings> {
-		if (this.resolvedServerIslands !== undefined) {
-			return this.resolvedServerIslands;
-		}
-
 		if (this.serverIslands) {
-			this.resolvedServerIslands = await this.serverIslands();
-			return this.resolvedServerIslands;
+			return this.serverIslands();
 		}
 
 		return {

@@ -89,12 +89,12 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 					}
 				}
 			}
+
 			if (hasAddedIsland && ssrEnvironment) {
 				// In dev, we need to clear the module graph so that Vite knows to re-transform
 				// the module with the new island information.
-				const mod = ssrEnvironment.moduleGraph.getModuleById(SERVER_ISLAND_MANIFEST);
+				const mod = ssrEnvironment.moduleGraph.getModuleById(RESOLVED_SERVER_ISLAND_MANIFEST);
 				if (mod) {
-					console.log('INVALIDATE');
 					ssrEnvironment.moduleGraph.invalidateModule(mod);
 				}
 			}
@@ -121,6 +121,7 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 				};
 			}
 		},
+
 		renderChunk(code) {
 			if (code.includes(serverIslandPlaceholderMap)) {
 				if (referenceIdMap.size === 0) {

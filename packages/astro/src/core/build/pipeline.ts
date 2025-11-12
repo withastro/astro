@@ -140,6 +140,7 @@ export class BuildPipeline extends Pipeline {
 
 		const serverIslandMappings = internals.serverIslandsEntryPoint
 			? async function () {
+					// @ts-expect-error: the compiler can't understand the previous check
 					return import(internals.serverIslandsEntryPoint.toString());
 				}
 			: manifest.serverIslandMappings;

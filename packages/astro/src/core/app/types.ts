@@ -173,8 +173,6 @@ export type SerializedSSRManifest = Omit<
 	componentMetadata: [string, SSRComponentMetadata][];
 	inlinedScripts: [string, string][];
 	clientDirectives: [string, string][];
-	// TODO check if we need it
-	// serverIslandNameMap: [string, string][];
 	key: string;
 };
 

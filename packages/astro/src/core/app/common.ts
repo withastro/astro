@@ -57,11 +57,6 @@ export function deserializeManifest(
 		inlinedScripts,
 		clientDirectives,
 		routes,
-		// serverIslandMappings() {
-		// 	return {
-		// 		serverIslandNameMap,
-		// 	};
-		// },
 		key,
 	};
 }

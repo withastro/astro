@@ -135,7 +135,6 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 		key: await encodeKey(hasEnvironmentKey() ? await getEnvironmentKey() : await createKey()),
 		sessionConfig: settings.config.session,
 		csp,
-		// serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		devToolbar: {
 			enabled:
 				settings.config.devToolbar.enabled &&

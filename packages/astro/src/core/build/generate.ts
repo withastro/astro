@@ -88,7 +88,6 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 			? await import(internals.astroActionsEntryPoint.toString()).then((mod) => mod)
 			: NOOP_ACTIONS_MOD;
 
-		console.log('internals.serverIslandsEntrypoint', internals.serverIslandsEntryPoint);
 		const serverIslandMappings: ServerIslandMappings = internals.serverIslandsEntryPoint
 			? await import(internals.serverIslandsEntryPoint.toString()).then((mod) => mod)
 			: {
