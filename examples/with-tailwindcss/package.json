@@ -13,7 +13,7 @@
     "@astrojs/mdx": "^5.0.0-alpha.0",
     "@tailwindcss/vite": "^4.1.16",
     "@types/canvas-confetti": "^1.9.0",
-    "astro": "^6.0.0-alpha.0",
+    "astro": "^6.0.0-alpha.1",
     "canvas-confetti": "^1.9.3",
     "tailwindcss": "^4.1.16"
   }
