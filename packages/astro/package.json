@@ -167,8 +167,7 @@
     "yargs-parser": "^21.1.1",
     "yocto-spinner": "^0.2.3",
     "zod": "^3.25.76",
-    "zod-to-json-schema": "^3.24.6",
-    "zod-to-ts": "^1.2.0"
+    "zod-to-json-schema": "^3.24.6"
   },
   "optionalDependencies": {
     "sharp": "^0.34.0"
