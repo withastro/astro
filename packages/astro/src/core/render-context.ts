@@ -14,7 +14,7 @@ import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, Props, RewritePayload } from '../types/public/common.js';
 import type { APIContext, AstroGlobal, AstroSharedContextCsp } from '../types/public/context.js';
 import type { RouteData, SSRResult } from '../types/public/internal.js';
-import type { SSRActions } from './app/types.js';
+import type { ServerIslandMappings, SSRActions } from './app/types.js';
 import {
 	ASTRO_GENERATOR,
 	REROUTE_DIRECTIVE_HEADER,
@@ -65,6 +65,7 @@ export class RenderContext {
 		public locals: App.Locals,
 		readonly middleware: MiddlewareHandler,
 		readonly actions: SSRActions,
+		readonly serverIslands: ServerIslandMappings,
 		// It must be a DECODED pathname
 		public pathname: string,
 		public request: Request,
@@ -108,6 +109,7 @@ export class RenderContext {
 		const pipelineMiddleware = await pipeline.getMiddleware();
 		const pipelineActions = await pipeline.getActions();
 		const pipelineSessionDriver = await pipeline.getSessionDriver();
+		const serverIslands = await pipeline.getServerIslands();
 		setOriginPathname(
 			request,
 			pathname,
@@ -124,11 +126,13 @@ export class RenderContext {
 						pipelineSessionDriver,
 					)
 				: undefined;
+
 		return new RenderContext(
 			pipeline,
 			locals,
 			sequence(...pipeline.internalMiddleware, pipelineMiddleware),
 			pipelineActions,
+			serverIslands,
 			pathname,
 			request,
 			routeData,
@@ -558,7 +562,7 @@ export class RenderContext {
 			scripts,
 			styles,
 			actionResult,
-			serverIslandNameMap: manifest.serverIslandNameMap ?? new Map(),
+			serverIslandNameMap: this.serverIslands.serverIslandNameMap ?? new Map(),
 			key: manifest.key,
 			trailingSlash: manifest.trailingSlash,
 			_metadata: {

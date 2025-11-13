@@ -1,10 +1,12 @@
 import type { Plugin as VitePlugin } from 'vite';
+import { ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID } from '../../../actions/consts.js';
 import { SERIALIZED_MANIFEST_ID } from '../../../manifest/serialized.js';
 import type { AstroAdapter } from '../../../types/public/index.js';
 import { ASTRO_RENDERERS_MODULE_ID } from '../../../vite-plugin-renderers/index.js';
 import { MIDDLEWARE_MODULE_ID } from '../../middleware/vite-plugin.js';
 import { routeIsRedirect } from '../../redirects/index.js';
-import { VIRTUAL_ISLAND_MAP_ID } from '../../server-islands/vite-plugin-server-islands.js';
+import { SERVER_ISLAND_MANIFEST } from '../../server-islands/vite-plugin-server-islands.js';
+import { VIRTUAL_SESSION_DRIVER_ID } from '../../session/vite-plugin.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
@@ -174,14 +176,16 @@ function generateSSRCode(adapter: AstroAdapter) {
 		`import { renderers } from '${ASTRO_RENDERERS_MODULE_ID}';`,
 		`import * as serverEntrypointModule from '${ADAPTER_VIRTUAL_MODULE_ID}';`,
 		`import { manifest as defaultManifest } from '${SERIALIZED_MANIFEST_ID}';`,
-		`import { serverIslandMap } from '${VIRTUAL_ISLAND_MAP_ID}';`,
 	];
 
 	const contents = [
 		edgeMiddleware ? `const middleware = (_, next) => next()` : '',
 		`const _manifest = Object.assign(defaultManifest, {`,
 		`    pageMap,`,
-		`    serverIslandMap,`,
+		`    renderers,`,
+		`    serverIslandMappings: () => import('${SERVER_ISLAND_MANIFEST}'),`,
+		`    actions: () => import('${ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID}'),`,
+		`    sessionDriver: () => import('${VIRTUAL_SESSION_DRIVER_ID}'),`,
 		`    middleware: ${edgeMiddleware ? 'undefined' : `() => import("${MIDDLEWARE_MODULE_ID}")`}`,
 		`});`,
 		`const _args = ${adapter.args ? JSON.stringify(adapter.args, null, 4) : 'undefined'};`,

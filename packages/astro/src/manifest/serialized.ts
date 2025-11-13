@@ -1,4 +1,5 @@
 import type { Plugin } from 'vite';
+import { ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID } from '../actions/consts.js';
 import { getInfoOutput } from '../cli/info/index.js';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/index.js';
@@ -15,9 +16,14 @@ import {
 	shouldTrackCspHashes,
 } from '../core/csp/common.js';
 import { createKey, encodeKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
+import { MIDDLEWARE_MODULE_ID } from '../core/middleware/vite-plugin.js';
+import { SERVER_ISLAND_MANIFEST } from '../core/server-islands/vite-plugin-server-islands.js';
+import { VIRTUAL_SESSION_DRIVER_ID } from '../core/session/vite-plugin.js';
 import type { AstroSettings } from '../types/astro.js';
+import { ASTRO_RENDERERS_MODULE_ID } from '../vite-plugin-renderers/index.js';
+import { ASTRO_ROUTES_MODULE_ID } from '../vite-plugin-routes/index.js';
 
-export const SERIALIZED_MANIFEST_ID = 'virtual:astro:serialized-manifest';
+export const SERIALIZED_MANIFEST_ID = 'virtual:astro:manifest';
 export const SERIALIZED_MANIFEST_RESOLVED_ID = '\0' + SERIALIZED_MANIFEST_ID;
 
 export function serializedManifestPlugin({
@@ -50,7 +56,19 @@ export function serializedManifestPlugin({
 				}
 				const code = `
 					import { deserializeManifest as _deserializeManifest } from 'astro/app';
-					export const manifest = _deserializeManifest((${manifestData}));
+					import { renderers } from '${ASTRO_RENDERERS_MODULE_ID}';
+					import { routes } from '${ASTRO_ROUTES_MODULE_ID}';
+					
+					const _manifest = _deserializeManifest((${manifestData}));
+					const manifest = Object.assign(_manifest, {
+					  renderers,
+					  actions: () => import('${ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID}'),
+					  middleware: () => import('${MIDDLEWARE_MODULE_ID}'),
+					  sessionDriver: () => import('${VIRTUAL_SESSION_DRIVER_ID}'),
+					  serverIslandMappings: () => import('${SERVER_ISLAND_MANIFEST}'),
+					  routes,
+					})
+					export { manifest }
 				`;
 				return { code };
 			}
@@ -117,7 +135,6 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 		key: await encodeKey(hasEnvironmentKey() ? await getEnvironmentKey() : await createKey()),
 		sessionConfig: settings.config.session,
 		csp,
-		serverIslandNameMap: [],
 		devToolbar: {
 			enabled:
 				settings.config.devToolbar.enabled &&

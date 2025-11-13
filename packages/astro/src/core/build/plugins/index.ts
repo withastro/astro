@@ -13,6 +13,7 @@ import { pluginPages } from './plugin-pages.js';
 import { pluginPrerender } from './plugin-prerender.js';
 import { pluginRenderers } from './plugin-renderers.js';
 import { pluginScripts } from './plugin-scripts.js';
+import { pluginServerIslands } from './plugin-server-islands.js';
 import { pluginSSR } from './plugin-ssr.js';
 
 export function registerAllPlugins({ internals, options, register }: AstroBuildPluginContainer) {
@@ -23,6 +24,7 @@ export function registerAllPlugins({ internals, options, register }: AstroBuildP
 	register(pluginRenderers(options));
 	register(pluginMiddleware(options, internals));
 	register(pluginActions(options, internals));
+	register(pluginServerIslands(options, internals));
 	register(pluginPages(options, internals));
 	register(pluginCSS(options, internals));
 	register(astroHeadBuildPlugin(internals));

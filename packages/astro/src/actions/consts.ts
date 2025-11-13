@@ -6,8 +6,9 @@ export const VIRTUAL_MODULE_ID = 'astro:actions';
 export const RUNTIME_VIRTUAL_MODULE_ID = 'virtual:astro:actions/runtime';
 export const RESOLVED_RUNTIME_VIRTUAL_MODULE_ID = '\0' + RUNTIME_VIRTUAL_MODULE_ID;
 
-export const ENTRYPOINT_VIRTUAL_MODULE_ID = 'virtual:astro:actions/entrypoint';
-export const RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID = '\0' + ENTRYPOINT_VIRTUAL_MODULE_ID;
+export const ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID = 'virtual:astro:actions/entrypoint';
+export const ACTIONS_RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID =
+	'\0' + ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID;
 
 /** Used to pass data from the config to the main virtual module */
 export const OPTIONS_VIRTUAL_MODULE_ID = 'virtual:astro:actions/options';

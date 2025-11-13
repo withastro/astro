@@ -29,7 +29,13 @@ import type {
 	SSRLoadedRenderer,
 } from '../../types/public/internal.js';
 import { toFallbackType, toRoutingStrategy } from '../app/common.js';
-import type { SSRActions, SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../app/types.js';
+import type {
+	ServerIslandMappings,
+	SSRActions,
+	SSRManifest,
+	SSRManifestCSP,
+	SSRManifestI18n,
+} from '../app/types.js';
 import {
 	getAlgorithm,
 	getDirectives,
@@ -79,14 +85,23 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 			: NOOP_MIDDLEWARE_FN;
 
 		const actions: SSRActions = internals.astroActionsEntryPoint
-			? await import(internals.astroActionsEntryPoint.toString()).then((mod) => mod)
+			? await import(internals.astroActionsEntryPoint.toString())
 			: NOOP_ACTIONS_MOD;
+
+		const serverIslandMappings: ServerIslandMappings = internals.serverIslandsEntryPoint
+			? await import(internals.serverIslandsEntryPoint.toString())
+			: {
+					serverIslandMap: new Map(),
+					serverIslandNameMap: new Map(),
+				};
+
 		manifest = await createBuildManifest(
 			options.settings,
 			internals,
 			renderers.renderers as SSRLoadedRenderer[],
 			middleware,
 			actions,
+			serverIslandMappings,
 			options.key,
 		);
 	}
@@ -701,6 +716,7 @@ async function createBuildManifest(
 	renderers: SSRLoadedRenderer[],
 	middleware: MiddlewareHandler,
 	actions: SSRActions,
+	serverIslandMappings: ServerIslandMappings,
 	key: Promise<CryptoKey>,
 ): Promise<SSRManifest> {
 	let i18nManifest: SSRManifestI18n | undefined = undefined;
@@ -773,6 +789,7 @@ async function createBuildManifest(
 			};
 		},
 		actions: () => actions,
+		serverIslandMappings: () => serverIslandMappings,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key,

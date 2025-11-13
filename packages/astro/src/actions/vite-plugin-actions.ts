@@ -7,9 +7,9 @@ import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { getServerOutputDirectory } from '../prerender/utils.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
-	ENTRYPOINT_VIRTUAL_MODULE_ID,
+	ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID,
+	ACTIONS_RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID,
 	OPTIONS_VIRTUAL_MODULE_ID,
-	RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID,
 	RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID,
 	RESOLVED_OPTIONS_VIRTUAL_MODULE_ID,
 	RESOLVED_RUNTIME_VIRTUAL_MODULE_ID,
@@ -31,14 +31,14 @@ export function vitePluginActionsBuild(
 		name: '@astro/plugin-actions-build',
 
 		options(options) {
-			return addRollupInput(options, [ENTRYPOINT_VIRTUAL_MODULE_ID]);
+			return addRollupInput(options, [ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID]);
 		},
 
 		writeBundle(_, bundle) {
 			for (const [chunkName, chunk] of Object.entries(bundle)) {
 				if (
 					chunk.type !== 'asset' &&
-					chunk.facadeModuleId === RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID
+					chunk.facadeModuleId === ACTIONS_RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID
 				) {
 					const outputDirectory = getServerOutputDirectory(opts.settings);
 					internals.astroActionsEntryPoint = new URL(chunkName, outputDirectory);
@@ -73,7 +73,7 @@ export function vitePluginActions({
 				return RESOLVED_OPTIONS_VIRTUAL_MODULE_ID;
 			}
 
-			if (id === ENTRYPOINT_VIRTUAL_MODULE_ID) {
+			if (id === ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID) {
 				const resolvedModule = await this.resolve(
 					`${decodeURI(new URL('actions', settings.config.srcDir).pathname)}`,
 				);
@@ -83,7 +83,7 @@ export function vitePluginActions({
 				}
 
 				resolvedActionsId = resolvedModule.id;
-				return RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID;
+				return ACTIONS_RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID;
 			}
 		},
 		async configureServer(server) {
@@ -103,7 +103,7 @@ export function vitePluginActions({
 				return { code: 'export const server = {}' };
 			}
 
-			if (id === RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID) {
+			if (id === ACTIONS_RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID) {
 				return { code: `export { server } from ${JSON.stringify(resolvedActionsId)};` };
 			}
 

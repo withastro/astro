@@ -1,7 +1,6 @@
 import type http from 'node:http';
-import { renderers } from 'virtual:astro:renderers';
+import { manifest } from 'virtual:astro:manifest';
 import { routes } from 'virtual:astro:routes';
-import { manifest as serializedManifest } from 'virtual:astro:serialized-manifest';
 import type { RouteInfo } from '../core/app/types.js';
 import { Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
@@ -20,14 +19,6 @@ export default async function createAstroServerApp(
 		level: 'info',
 	});
 	const routesList: RoutesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
-
-	// Merge renderers into the serialized manifest
-	const manifest = Object.assign(serializedManifest, {
-		renderers,
-		sessionDriver: () => import('virtual:astro:session-driver'),
-		actions: () => import('virtual:astro:actions/entrypoint'),
-		middleware: () => import('virtual:astro:middleware'),
-	});
 
 	const app = await AstroServerApp.create(manifest, routesList, logger, loader, settings);
 	return {

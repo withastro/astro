@@ -22,7 +22,7 @@ type Payload = {
 	routesList: RoutesList;
 };
 
-const ASTRO_ROUTES_MODULE_ID = 'virtual:astro:routes';
+export const ASTRO_ROUTES_MODULE_ID = 'virtual:astro:routes';
 const ASTRO_ROUTES_MODULE_ID_RESOLVED = '\0' + ASTRO_ROUTES_MODULE_ID;
 
 const KNOWN_FILE_EXTENSIONS = ['.astro', '.js', '.ts'];

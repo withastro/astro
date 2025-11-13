@@ -501,7 +501,7 @@ export async function createRoutesList(
 		...[...filteredFiledBasedRoutes, ...injectedRoutes, ...redirectRoutes].sort(routeComparator),
 	];
 
-	if (!skipBuildOutputAssignment) {
+	if (skipBuildOutputAssignment !== true) {
 		settings.buildOutput = getPrerenderDefault(config) ? 'static' : 'server';
 	}
 
