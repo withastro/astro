@@ -19,17 +19,13 @@ import { runHookBuildGenerated, toIntegrationResolvedRoute } from '../../integra
 import type { GetStaticPathsItem } from '../../types/public/common.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { IntegrationResolvedRoute, RouteToHeaders } from '../../types/public/index.js';
-import type {
-	RouteData,
-	RouteType,
-	SSRError,
-} from '../../types/public/internal.js';
+import type { RouteData, RouteType, SSRError } from '../../types/public/internal.js';
+import type { BaseApp } from '../app/base.js';
 import type { SSRManifest } from '../app/types.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getRedirectLocationOrThrow, routeIsRedirect } from '../redirects/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
-import type { BaseApp } from '../app/base.js';
 import { createRequest } from '../request.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { matchRoute } from '../routing/match.js';
@@ -46,7 +42,6 @@ export async function generatePages(
 	internals: BuildInternals,
 	prerenderOutputDir: URL,
 ) {
-
 	const generatePagesTimer = performance.now();
 	const ssr = options.settings.buildOutput === 'server';
 	// Import from the single prerender entrypoint

@@ -70,7 +70,6 @@ export class DevApp extends BaseApp<DevPipeline> {
 				
 				return response;
 			} catch (_err) {
-				console.log("RENDERED ERROR", _err)
 				if (skipMiddleware === false) {
 					return this.renderError(request, {
 						clientAddress: undefined,

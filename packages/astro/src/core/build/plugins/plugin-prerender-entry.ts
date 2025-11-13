@@ -6,7 +6,7 @@ import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
 import { getVirtualModulePageName } from './util.js';
 
 const PAGES_VIRTUAL_MODULE_ID = 'virtual:astro:pages';
-export const RESOLVED_PAGES_VIRTUAL_MODULE_ID = '\0' + PAGES_VIRTUAL_MODULE_ID;
+const RESOLVED_PAGES_VIRTUAL_MODULE_ID = '\0' + PAGES_VIRTUAL_MODULE_ID;
 
 export function pluginPrerenderEntry(
 	options: StaticBuildOptions,

@@ -3,9 +3,6 @@ import * as path from 'node:path';
 import type { OutputBundle } from 'rollup';
 import type { PluginOption } from 'vite';
 
-export interface CloudflareModulePluginExtra {
-}
-
 type ModuleType = 'CompiledWasm' | 'Text' | 'Data';
 
 /**
@@ -24,7 +21,7 @@ type ModuleType = 'CompiledWasm' | 'Text' | 'Data';
  */
 export function cloudflareModuleLoader(
 	enabled: boolean,
-): PluginOption & CloudflareModulePluginExtra {
+): PluginOption {
 	/**
 	 * It's likely that eventually cloudflare will add support for custom extensions, like they do in vanilla cloudflare workers,
 	 * by adding rules to your wrangler.tome
