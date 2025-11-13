@@ -45,6 +45,11 @@ export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
 
 type ImportComponentInstance = () => Promise<SinglePageBuiltModule>;
 
+export type ServerIslandMappings = {
+	serverIslandMap?: Map<string, () => Promise<ComponentInstance>>;
+	serverIslandNameMap?: Map<string, string>;
+};
+
 export type AssetsPrefix =
 	| string
 	| ({
@@ -79,8 +84,7 @@ export type SSRManifest = {
 	componentMetadata: SSRResult['componentMetadata'];
 	pageModule?: SinglePageBuiltModule;
 	pageMap?: Map<ComponentPath, ImportComponentInstance>;
-	serverIslandMap?: Map<string, () => Promise<ComponentInstance>>;
-	serverIslandNameMap?: Map<string, string>;
+	serverIslandMappings?: () => Promise<ServerIslandMappings> | ServerIslandMappings;
 	key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
@@ -169,7 +173,6 @@ export type SerializedSSRManifest = Omit<
 	componentMetadata: [string, SSRComponentMetadata][];
 	inlinedScripts: [string, string][];
 	clientDirectives: [string, string][];
-	serverIslandNameMap: [string, string][];
 	key: string;
 };
 

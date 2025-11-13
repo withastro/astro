@@ -4,6 +4,7 @@ export const prerender = false;
 import { getCollection, getEntry, render } from 'astro:content';
 import Hello from '../components/Hello.tsx';
 import Island from '../components/Island.astro';
+import IslandProps from '../components/IslandProps.astro';
 import { Font } from 'astro:assets';
 
 
@@ -13,6 +14,8 @@ const first = await getEntry('blog', 1);
 const dogs = await getCollection('dogs');
 const increment = await getEntry('increment', 'value');
 const { Content } = await render(increment);
+
+const surnamne = Astro.url.searchParams.get('surname');
 ---
 
 <html>
@@ -44,6 +47,7 @@ const { Content } = await render(increment);
 		<Hello client:load />
 	</div>
 	<Island server:defer/>
+	<IslandProps server:defer name="Aria" surname={surnamne}/>
 	<ul>
 		{dogs.map(dog => (
 			<li><a href={`/dogs/${dog.id}`}>{ dog.data?.breed }</a></li>

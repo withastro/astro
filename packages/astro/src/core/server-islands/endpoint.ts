@@ -109,12 +109,9 @@ export function createEndpoint(manifest: SSRManifest) {
 			return data;
 		}
 
-		let imp = manifest.serverIslandMap?.get(componentId);
-		if (!imp) {
-			// @ts-expect-error virtual module
-			const { serverIslandMap } = await import('virtual:astro-server-island-manifest');
-			imp = serverIslandMap.get(componentId);
-		}
+		const serverIslandMappings = await manifest.serverIslandMappings?.();
+		const serverIslandMap = await serverIslandMappings?.serverIslandMap;
+		let imp = serverIslandMap?.get(componentId);
 		if (!imp) {
 			return new Response(null, {
 				status: 404,
@@ -124,7 +121,6 @@ export function createEndpoint(manifest: SSRManifest) {
 
 		const key = await manifest.key;
 		const encryptedProps = data.encryptedProps;
-
 		const propString = encryptedProps === '' ? '{}' : await decryptString(key, encryptedProps);
 		const props = JSON.parse(propString);
 

@@ -49,7 +49,6 @@ export async function generatePages(
 
 	const generatePagesTimer = performance.now();
 	const ssr = options.settings.buildOutput === 'server';
-
 	// Import from the single prerender entrypoint
 	const prerenderEntryUrl = new URL('prerender-entry.mjs', prerenderOutputDir);
 	const prerenderEntry = await import(prerenderEntryUrl.toString());

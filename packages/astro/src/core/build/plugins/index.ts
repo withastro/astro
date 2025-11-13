@@ -31,5 +31,5 @@ export function getAllBuildPlugins(
 		pluginPrerenderEntry(options, internals),
 		pluginScripts(internals),
 		...pluginSSR(options, internals),
-	].filter(Boolean) as Array<VitePlugin | VitePlugin[]>;
+	].filter(Boolean) as Array<VitePlugin | VitePlugin[] | undefined>;
 }

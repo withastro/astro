@@ -13,6 +13,7 @@ import type {
 	SSRResult,
 } from '../types/public/internal.js';
 import { createOriginCheckMiddleware } from './app/middlewares.js';
+import type { ServerIslandMappings } from './app/types.js';
 import type { SinglePageBuiltModule } from './build/types.js';
 import { ActionNotFoundError } from './errors/errors-data.js';
 import { AstroError } from './errors/index.js';
@@ -72,6 +73,7 @@ export abstract class Pipeline {
 
 		readonly actions = manifest.actions,
 		readonly sessionDriver = manifest.sessionDriver,
+		readonly serverIslands = manifest.serverIslandMappings,
 	) {
 		this.internalMiddleware = [];
 		// We do use our middleware only if the user isn't using the manual setup
@@ -130,10 +132,6 @@ export abstract class Pipeline {
 		}
 	}
 
-	setActions(actions: SSRActions) {
-		this.resolvedActions = actions;
-	}
-
 	async getActions(): Promise<SSRActions> {
 		if (this.resolvedActions) {
 			return this.resolvedActions;
@@ -159,6 +157,17 @@ export abstract class Pipeline {
 		// No driver configured
 		this.resolvedSessionDriver = null;
 		return null;
+	}
+
+	async getServerIslands(): Promise<ServerIslandMappings> {
+		if (this.serverIslands) {
+			return this.serverIslands();
+		}
+
+		return {
+			serverIslandMap: new Map(),
+			serverIslandNameMap: new Map(),
+		};
 	}
 
 	async getAction(path: string): Promise<ActionClient<unknown, ActionAccept, ZodType>> {

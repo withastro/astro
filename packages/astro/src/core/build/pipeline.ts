@@ -96,7 +96,6 @@ export class BuildPipeline extends Pipeline {
 		return new BuildPipeline(internals, manifest, options);
 	}
 
-
 	headElements(routeData: RouteData): Pick<SSRResult, 'scripts' | 'styles' | 'links'> {
 		const {
 			internals,

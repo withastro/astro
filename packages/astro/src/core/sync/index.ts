@@ -227,7 +227,7 @@ async function syncContentCollections(
 			fsMod: fs,
 		},
 		logger,
-		{ dev: true, skipBuildOutputAssignment: false },
+		{ dev: true, skipBuildOutputAssignment: true },
 	);
 
 	// Needed to load content config

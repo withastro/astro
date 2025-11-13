@@ -1,4 +1,4 @@
-import { manifest } from 'astro/app/runtime/manifest';
+import { manifest } from 'virtual:astro:manifest';
 import * as serverEntrypointModule from 'virtual:astro:adapter-entrypoint';
 import { args } from 'virtual:astro:adapter-config';
 

@@ -1,4 +1,4 @@
-import { manifest } from './runtime/manifest.js';
+import { manifest } from 'virtual:astro:manifest';
 import { App } from './app.js';
 import type { BaseApp } from './base.js';
 import { DevApp } from './dev/app.js';

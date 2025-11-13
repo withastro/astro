@@ -108,9 +108,7 @@ export function createBuildInternals(): BuildInternals {
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
 		pagesByScriptId: new Map(),
-
 		propagatedStylesMap: new Map(),
-
 		discoveredHydratedComponents: new Map(),
 		discoveredClientOnlyComponents: new Map(),
 		discoveredScripts: new Set(),

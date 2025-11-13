@@ -1,5 +1,5 @@
 import { createApp } from 'astro/app/entrypoint';
-import { manifest as _manifest, renderers } from 'astro/app/runtime/manifest';
+import { manifest as _manifest, renderers } from 'virtual:astro:manifest';
 import { server as actions } from 'virtual:astro:actions/entrypoint';
 
 const app = createApp();
