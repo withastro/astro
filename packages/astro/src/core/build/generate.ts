@@ -85,11 +85,11 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 			: NOOP_MIDDLEWARE_FN;
 
 		const actions: SSRActions = internals.astroActionsEntryPoint
-			? await import(internals.astroActionsEntryPoint.toString()).then((mod) => mod)
+			? await import(internals.astroActionsEntryPoint.toString())
 			: NOOP_ACTIONS_MOD;
 
 		const serverIslandMappings: ServerIslandMappings = internals.serverIslandsEntryPoint
-			? await import(internals.serverIslandsEntryPoint.toString()).then((mod) => mod)
+			? await import(internals.serverIslandsEntryPoint.toString())
 			: {
 					serverIslandMap: new Map(),
 					serverIslandNameMap: new Map(),
