@@ -3,7 +3,6 @@ import os from 'node:os';
 import { bgGreen, black, blue, bold, dim, green, magenta, red, yellow } from 'kleur/colors';
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
-import { NOOP_ACTIONS_MOD } from '../../actions/noop-actions.js';
 import {
 	generateImagesForPath,
 	getStaticImageList,
@@ -17,33 +16,17 @@ import {
 	trimSlashes,
 } from '../../core/path.js';
 import { runHookBuildGenerated, toIntegrationResolvedRoute } from '../../integrations/hooks.js';
-import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
-import type { GetStaticPathsItem, MiddlewareHandler } from '../../types/public/common.js';
+import type { GetStaticPathsItem } from '../../types/public/common.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { IntegrationResolvedRoute, RouteToHeaders } from '../../types/public/index.js';
 import type {
 	RouteData,
 	RouteType,
 	SSRError,
-	SSRLoadedRenderer,
 } from '../../types/public/internal.js';
-import { toFallbackType, toRoutingStrategy } from '../app/common.js';
-import type { SSRActions, SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../app/types.js';
-import {
-	getAlgorithm,
-	getDirectives,
-	getScriptHashes,
-	getScriptResources,
-	getStrictDynamic,
-	getStyleHashes,
-	getStyleResources,
-	shouldTrackCspHashes,
-	trackScriptHashes,
-	trackStyleHashes,
-} from '../csp/common.js';
+import type { SSRManifest } from '../app/types.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
 import { getRedirectLocationOrThrow, routeIsRedirect } from '../redirects/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import type { BaseApp } from '../app/base.js';
@@ -55,7 +38,7 @@ import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
-import type { PageBuildData, StaticBuildOptions } from './types.js';
+import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 
 export async function generatePages(
@@ -63,36 +46,16 @@ export async function generatePages(
 	internals: BuildInternals,
 	prerenderOutputDir: URL,
 ) {
+
 	const generatePagesTimer = performance.now();
 	const ssr = options.settings.buildOutput === 'server';
-	let manifest: SSRManifest;
 
 	// Import from the single prerender entrypoint
 	const prerenderEntryUrl = new URL('prerender-entry.mjs', prerenderOutputDir);
 	const prerenderEntry = await import(prerenderEntryUrl.toString());
 
-	// Extract middleware from the prerender entrypoint
-	const middleware: MiddlewareHandler = prerenderEntry.middleware
-		? await prerenderEntry.middleware().then((mod: any) => mod.onRequest)
-		: NOOP_MIDDLEWARE_FN;
-
-	// Extract actions from the prerender entrypoint
-	const actions: SSRActions = prerenderEntry.actions ?? NOOP_ACTIONS_MOD;
-
-	if (ssr) {
-		// For server builds, use the prerender manifest
-		manifest = prerenderEntry.manifest;
-	} else {
-		// For static builds, create manifest from prerender output
-		manifest = await createBuildManifest(
-			options.settings,
-			internals,
-			prerenderEntry.renderers as SSRLoadedRenderer[],
-			middleware,
-			actions,
-			options.key,
-		);
-	}
+	// Grab the manifest and create the pipeline
+	const manifest: SSRManifest = prerenderEntry.manifest;
 	const pipeline = BuildPipeline.create({ internals, manifest, options });
 	const { config, logger } = pipeline;
 
@@ -109,7 +72,7 @@ export async function generatePages(
 	const routeToHeaders: RouteToHeaders = new Map();
 
 	const app = prerenderEntry.app as BaseApp;
-	const pageMap = prerenderEntry.pageMap as Map<string, () => Promise<ComponentInstance>>;
+	const pageMap = prerenderEntry.pageMap as Map<string, () => Promise<SinglePageBuiltModule>>;
 
 	if (ssr) {
 		for (const [pageData, _] of pagesToGenerate) {
@@ -235,7 +198,7 @@ const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
 
 async function generatePage(
 	app: BaseApp,
-	pageMap: Map<string, () => Promise<ComponentInstance>>,
+	pageMap: Map<string, () => Promise<SinglePageBuiltModule>>,
 	pageData: PageBuildData,
 	builtPaths: Set<string>,
 	pipeline: BuildPipeline,
@@ -329,7 +292,7 @@ function* eachRouteInRouteData(data: PageBuildData) {
 async function getPathsForRoute(
 	route: RouteData,
 	componentPath: string,
-	pageMap: Map<string, () => Promise<ComponentInstance>>,
+	pageMap: Map<string, () => Promise<SinglePageBuiltModule>>,
 	pipeline: BuildPipeline,
 	builtPaths: Set<string>,
 ): Promise<Array<string>> {
@@ -346,7 +309,8 @@ async function getPathsForRoute(
 				`Unable to find module for ${componentPath}. This is unexpected and likely a bug in Astro, please report.`,
 			);
 		}
-		const mod = await pageModuleFn();
+		const pageModule = await pageModuleFn();
+		const mod = await pageModule.page();
 
 		const staticPaths = await callGetStaticPaths({
 			mod,
@@ -665,99 +629,4 @@ function getPrettyRouteName(route: RouteData): string {
 		return /.*node_modules\/(.+)/.exec(route.component)?.[1] ?? route.component;
 	}
 	return route.component;
-}
-
-/**
- * It creates a `SSRManifest` from the `AstroSettings`.
- *
- * Renderers needs to be pulled out from the page module emitted during the build.
- */
-async function createBuildManifest(
-	settings: AstroSettings,
-	internals: BuildInternals,
-	renderers: SSRLoadedRenderer[],
-	middleware: MiddlewareHandler,
-	actions: SSRActions,
-	key: Promise<CryptoKey>,
-): Promise<SSRManifest> {
-	let i18nManifest: SSRManifestI18n | undefined = undefined;
-	let csp: SSRManifestCSP | undefined = undefined;
-
-	if (settings.config.i18n) {
-		i18nManifest = {
-			fallback: settings.config.i18n.fallback,
-			fallbackType: toFallbackType(settings.config.i18n.routing),
-			strategy: toRoutingStrategy(settings.config.i18n.routing, settings.config.i18n.domains),
-			defaultLocale: settings.config.i18n.defaultLocale,
-			locales: settings.config.i18n.locales,
-			domainLookupTable: {},
-			domains: settings.config.i18n.domains,
-		};
-	}
-
-	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
-		const algorithm = getAlgorithm(settings.config.experimental.csp);
-		const scriptHashes = [
-			...getScriptHashes(settings.config.experimental.csp),
-			...(await trackScriptHashes(internals, settings, algorithm)),
-		];
-		const styleHashes = [
-			...getStyleHashes(settings.config.experimental.csp),
-			...settings.injectedCsp.styleHashes,
-			...(await trackStyleHashes(internals, settings, algorithm)),
-		];
-
-		csp = {
-			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
-				? 'adapter'
-				: undefined,
-			styleHashes,
-			styleResources: getStyleResources(settings.config.experimental.csp),
-			scriptHashes,
-			scriptResources: getScriptResources(settings.config.experimental.csp),
-			algorithm,
-			directives: getDirectives(settings),
-			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
-		};
-	}
-	return {
-		rootDir: settings.config.root,
-		srcDir: settings.config.srcDir,
-		buildClientDir: settings.config.build.client,
-		buildServerDir: settings.config.build.server,
-		publicDir: settings.config.publicDir,
-		outDir: settings.config.outDir,
-		cacheDir: settings.config.cacheDir,
-		trailingSlash: settings.config.trailingSlash,
-		assets: new Set(),
-		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),
-		inlinedScripts: internals.inlinedScripts,
-		routes: [],
-		adapterName: settings.adapter?.name ?? '',
-		clientDirectives: settings.clientDirectives,
-		compressHTML: settings.config.compressHTML,
-		renderers,
-		base: settings.config.base,
-		userAssetsBase: settings.config?.vite?.base,
-		assetsPrefix: settings.config.build.assetsPrefix,
-		site: settings.config.site,
-		componentMetadata: internals.componentMetadata,
-		i18n: i18nManifest,
-		buildFormat: settings.config.build.format,
-		middleware() {
-			return {
-				onRequest: middleware,
-			};
-		},
-		actions: () => actions,
-		checkOrigin:
-			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
-		key,
-		csp,
-		devToolbar: {
-			latestAstroVersion: settings.latestAstroVersion,
-			enabled: false,
-			debugInfoOutput: '',
-		},
-	};
 }

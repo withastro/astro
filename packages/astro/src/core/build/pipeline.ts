@@ -145,23 +145,6 @@ export class BuildPipeline extends Pipeline {
 	retrieveRoutesToGenerate(): Map<PageBuildData, string> {
 		const pages = new Map<PageBuildData, string>();
 
-		for (const [virtualModulePageName, filePath] of this.internals.entrySpecifierToBundleMap) {
-			// virtual pages are emitted with the 'plugin-pages' prefix
-			if (virtualModulePageName.includes(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
-				let pageDatas: PageBuildData[] = [];
-				pageDatas.push(
-					...getPagesFromVirtualModulePageName(
-						this.internals,
-						ASTRO_PAGE_RESOLVED_MODULE_ID,
-						virtualModulePageName,
-					),
-				);
-				for (const pageData of pageDatas) {
-					pages.set(pageData, filePath);
-				}
-			}
-		}
-
 		for (const pageData of this.internals.pagesByKeys.values()) {
 			if (routeIsRedirect(pageData.route)) {
 				pages.set(pageData, pageData.component);
@@ -183,6 +166,10 @@ export class BuildPipeline extends Pipeline {
 					// it exists, added it to pages to render, using the file path that we just retrieved
 					pages.set(pageData, filePath);
 				}
+			}
+			// Regular page
+			else {
+				pages.set(pageData, '');
 			}
 		}
 

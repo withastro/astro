@@ -13,7 +13,7 @@ export function pluginPages(opts: StaticBuildOptions, internals: BuildInternals)
 	return {
 		name: '@astro/plugin-build-pages',
 		applyToEnvironment(environment) {
-			return environment.name === 'ssr';
+			return environment.name === 'ssr' || environment.name === 'prerender';
 		},
 		options(options) {
 			if (opts.settings.buildOutput === 'static') {

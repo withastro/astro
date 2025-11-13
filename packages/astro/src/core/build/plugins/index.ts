@@ -5,7 +5,7 @@ import { pluginAnalyzer } from './plugin-analyzer.js';
 import { pluginComponentEntry } from './plugin-component-entry.js';
 import { pluginCSS } from './plugin-css.js';
 import { pluginInternals } from './plugin-internals.js';
-import { pluginManifest } from './plugin-manifest.js';
+import { pluginManifestBuild } from './plugin-manifest.js';
 import { pluginMiddleware } from './plugin-middleware.js';
 import { pluginPages } from './plugin-pages.js';
 import { pluginPrerender } from './plugin-prerender.js';
@@ -17,13 +17,11 @@ export function getAllBuildPlugins(
 	internals: any,
 	options: any,
 ): Array<VitePlugin | VitePlugin[] | undefined> {
-	const manifestPlugin = pluginManifest(options, internals);
-
 	return [
 		pluginComponentEntry(internals),
 		pluginAnalyzer(internals),
 		pluginInternals(options, internals),
-		manifestPlugin.vitePlugin,
+		pluginManifestBuild(internals),
 		pluginMiddleware(options, internals),
 		pluginActions(options, internals),
 		pluginPages(options, internals),

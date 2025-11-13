@@ -19,8 +19,8 @@ import { getOutDirWithinCwd } from './common.js';
 import { CHUNKS_PATH } from './consts.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
-import { type AstroBuildPluginContainer, createPluginContainer } from './plugin.js';
 import { getAllBuildPlugins } from './plugins/index.js';
+import { manifestBuildPostHook } from './plugins/plugin-manifest.js';
 import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
 import { RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
@@ -61,8 +61,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	// Build your project (SSR application code, assets, client JS, etc.)
 	const ssrTime = performance.now();
 	opts.logger.info('build', `Building ${settings.buildOutput} entrypoints...`);
-	const container = createPluginContainer(opts, internals);
-	const { ssrOutput, prerenderOutput, clientOutput } = await ssrBuild(opts, internals);
+	const { ssrOutput, prerenderOutput, clientOutput } = await buildEnvironments(opts, internals);
 	opts.logger.info('build', green(`✓ Completed in ${getTimeStat(ssrTime, performance.now())}.`));
 
 	settings.timer.end('SSR build');
@@ -71,13 +70,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	const ssrOutputs = viteBuildReturnToRollupOutputs(ssrOutput);
 	const clientOutputs = viteBuildReturnToRollupOutputs(clientOutput ?? []);
 	const prerenderOutputs = viteBuildReturnToRollupOutputs(prerenderOutput);
-	await runPostBuildHooks(container, ssrOutputs, clientOutputs, prerenderOutputs);
-
-	// Free up memory
-	internals.ssrEntryChunk = undefined;
-	if (opts.teardownCompiler) {
-		teardown();
-	}
+	await runManifestInjection(opts, internals, ssrOutputs, clientOutputs, prerenderOutputs);
 
 	// Store prerender output directory for use in page generation
 	const prerenderOutputDir = new URL('./.prerender/', getServerOutputDirectory(settings));
@@ -109,7 +102,7 @@ export async function staticBuild(
 	}
 }
 
-async function ssrBuild(
+async function buildEnvironments(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 ) {
@@ -259,16 +252,56 @@ async function ssrBuild(
 	return { ssrOutput, prerenderOutput, clientOutput };
 }
 
-async function runPostBuildHooks(
-	container: AstroBuildPluginContainer,
+type MutateChunk = (chunk: vite.Rollup.OutputChunk, targets: string[], newCode: string) => void;
+
+async function runManifestInjection(
+	opts: StaticBuildOptions,
+	internals: BuildInternals,
 	ssrOutputs: vite.Rollup.RollupOutput[],
 	clientOutputs: vite.Rollup.RollupOutput[],
 	prerenderOutputs: vite.Rollup.RollupOutput[],
 ) {
-	const mutations = await container.runPostHook(ssrOutputs, clientOutputs, prerenderOutputs);
-	const config = container.options.settings.config;
-	const build = container.options.settings.config.build;
-	const serverOutputDir = getServerOutputDirectory(container.options.settings);
+	const mutations = new Map<
+		string,
+		{
+			targets: string[];
+			code: string;
+		}
+	>();
+
+	const mutate: MutateChunk = (chunk, targets, newCode) => {
+		chunk.code = newCode;
+		mutations.set(chunk.fileName, {
+			targets,
+			code: newCode,
+		});
+	};
+
+	await manifestBuildPostHook(opts, internals, {
+		ssrOutputs,
+		clientOutputs,
+		prerenderOutputs,
+		mutate,
+	});
+
+	await writeMutatedChunks(opts, mutations, prerenderOutputs);
+}
+
+async function writeMutatedChunks(
+	opts: StaticBuildOptions,
+	mutations: Map<
+		string,
+		{
+			targets: string[];
+			code: string;
+		}
+	>,
+	prerenderOutputs: vite.Rollup.RollupOutput[],
+) {
+	const { settings } = opts;
+	const config = settings.config;
+	const build = settings.config.build;
+	const serverOutputDir = getServerOutputDirectory(settings);
 
 	for (const [fileName, mutation] of mutations) {
 		let root: URL;
@@ -283,7 +316,7 @@ async function runPostBuildHooks(
 		if (isPrerender) {
 			// Write to prerender directory
 			root = new URL('./.prerender/', serverOutputDir);
-		} else if (container.options.settings.buildOutput === 'server') {
+		} else if (settings.buildOutput === 'server') {
 			root = mutation.targets.includes('server') ? build.server : build.client;
 		} else {
 			root = getOutDirWithinCwd(config.outDir);

@@ -84,8 +84,6 @@ export interface BuildInternals {
 	// A list of all statics chunks and assets that are built in the client
 	clientChunksAndAssets: Set<string>;
 
-	// The SSR entry chunk. Kept in internals to share between ssr/client build steps
-	ssrEntryChunk?: Rollup.OutputChunk;
 	manifestFileName?: string;
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint: URL | undefined;

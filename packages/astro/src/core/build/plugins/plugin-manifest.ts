@@ -49,9 +49,9 @@ import { makePageDataKey } from './util.js';
  *   2. plugin-manifest injects the real build-specific data at the end
  *
  * This flow eliminates dual virtual modules and simplifies the architecture:
- * - manifestBuildPlugin: Registers SERIALIZED_MANIFEST_ID as Vite input
- * - manifestBuildPlugin.generateBundle: Tracks the serialized manifest chunk filename
- * - pluginManifest.build:post: Finds the chunk, computes final manifest data, and replaces the token
+ * - pluginManifestBuild: Registers SERIALIZED_MANIFEST_ID as Vite input
+ * - pluginManifestBuild.generateBundle: Tracks the serialized manifest chunk filename
+ * - manifestBuildPostHook: Finds the chunk, computes final manifest data, and replaces the token
  *
  * The placeholder mechanism allows serialized.ts to emit during vite build without knowing
  * the final build-specific data (routes, assets, CSP hashes, etc) that's only available
@@ -67,14 +67,14 @@ const replaceExp = new RegExp(`['"]${MANIFEST_REPLACE}['"]`, 'g');
  * - Tracking the manifest chunk filename for later injection
  * - Ensuring manifest chunk always rebuilds (cache busting via augmentChunkHash)
  *
- * Does NOT handle the actual manifest computation or injection - that's done in pluginManifest.build:post
+ * Does NOT handle the actual manifest computation or injection - that's done in manifestBuildPostHook
  */
-function manifestBuildPlugin(internals: BuildInternals): VitePlugin {
+export function pluginManifestBuild(internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/plugin-manifest-build',
 		enforce: 'post',
 		applyToEnvironment(environment) {
-			return environment.name === 'ssr';
+			return environment.name === 'ssr' || environment.name === 'prerender';
 		},
 
 		augmentChunkHash(chunkInfo) {
@@ -97,76 +97,72 @@ function manifestBuildPlugin(internals: BuildInternals): VitePlugin {
 }
 
 /**
- * High-level Astro build plugin that orchestrates manifest injection.
- * Coordinates two stages: Vite plugin setup (build:before) and manifest injection (build:post)
+ * Post-build hook that injects the computed manifest into bundled chunks.
+ * Finds the serialized manifest chunk and replaces the placeholder token with real data.
  */
-export function pluginManifest(
+export async function manifestBuildPostHook(
 	options: StaticBuildOptions,
 	internals: BuildInternals,
-): { vitePlugin: VitePlugin; buildPostHook: Function } {
-	return {
-		vitePlugin: manifestBuildPlugin(internals),
-		buildPostHook: async function manifestBuildPostHook({ ssrOutputs, prerenderOutputs, mutate }: any) {
-				let manifestEntryChunk: OutputChunk | undefined;
+	{ ssrOutputs, prerenderOutputs, mutate }: any,
+) {
+	let manifestEntryChunk: OutputChunk | undefined;
 
-				// Find the serialized manifest chunk in SSR outputs
-				for (const output of ssrOutputs) {
-					for (const chunk of output.output) {
-						if (chunk.type === 'asset') {
-							continue;
-						}
-						if (chunk.code && chunk.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID)) {
-							manifestEntryChunk = chunk as OutputChunk;
-							break;
-						}
-					}
-					if (manifestEntryChunk) {
-						break;
-					}
+	// Find the serialized manifest chunk in SSR outputs
+	for (const output of ssrOutputs) {
+		for (const chunk of output.output) {
+			if (chunk.type === 'asset') {
+				continue;
+			}
+			if (chunk.code && chunk.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID)) {
+				manifestEntryChunk = chunk as OutputChunk;
+				break;
+			}
+		}
+		if (manifestEntryChunk) {
+			break;
+		}
+	}
+
+	if (!manifestEntryChunk) {
+		throw new Error(`Did not find serialized manifest chunk for SSR`);
+	}
+
+	const manifest = await createManifest(options, internals);
+	const shouldPassMiddlewareEntryPoint =
+		options.settings.adapter?.adapterFeatures?.edgeMiddleware;
+	await runHookBuildSsr({
+		config: options.settings.config,
+		manifest,
+		logger: options.logger,
+		middlewareEntryPoint: shouldPassMiddlewareEntryPoint
+			? internals.middlewareEntryPoint
+			: undefined,
+	});
+	const code = injectManifest(manifest, manifestEntryChunk);
+	mutate(manifestEntryChunk, ['server'], code);
+
+	// Also inject manifest into prerender outputs if available
+	if (prerenderOutputs) {
+		let prerenderManifestChunk: OutputChunk | undefined;
+		for (const output of prerenderOutputs) {
+			for (const chunk of output.output) {
+				if (chunk.type === 'asset') {
+					continue;
 				}
-
-				if (!manifestEntryChunk) {
-					throw new Error(`Did not find serialized manifest chunk for SSR`);
+				if (chunk.code && chunk.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID)) {
+					prerenderManifestChunk = chunk as OutputChunk;
+					break;
 				}
-
-				const manifest = await createManifest(options, internals);
-				const shouldPassMiddlewareEntryPoint =
-					options.settings.adapter?.adapterFeatures?.edgeMiddleware;
-				await runHookBuildSsr({
-					config: options.settings.config,
-					manifest,
-					logger: options.logger,
-					middlewareEntryPoint: shouldPassMiddlewareEntryPoint
-						? internals.middlewareEntryPoint
-						: undefined,
-				});
-				const code = injectManifest(manifest, manifestEntryChunk);
-				mutate(manifestEntryChunk, ['server'], code);
-
-				// Also inject manifest into prerender outputs if available
-				if (prerenderOutputs) {
-					let prerenderManifestChunk: OutputChunk | undefined;
-					for (const output of prerenderOutputs) {
-						for (const chunk of output.output) {
-							if (chunk.type === 'asset') {
-								continue;
-							}
-							if (chunk.code && chunk.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID)) {
-								prerenderManifestChunk = chunk as OutputChunk;
-								break;
-							}
-						}
-						if (prerenderManifestChunk) {
-							break;
-						}
-					}
-					if (prerenderManifestChunk) {
-						const prerenderCode = injectManifest(manifest, prerenderManifestChunk);
-						mutate(prerenderManifestChunk, ['server'], prerenderCode);
-					}
-				}
-		},
-	};
+			}
+			if (prerenderManifestChunk) {
+				break;
+			}
+		}
+		if (prerenderManifestChunk) {
+			const prerenderCode = injectManifest(manifest, prerenderManifestChunk);
+			mutate(prerenderManifestChunk, ['server'], prerenderCode);
+		}
+	}
 }
 
 async function createManifest(

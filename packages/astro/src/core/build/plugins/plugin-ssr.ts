@@ -106,14 +106,6 @@ function vitePluginSSR(
 					internals.staticFiles.add(chunk.fileName);
 				}
 			}
-			for (const [, chunk] of Object.entries(bundle)) {
-				if (chunk.type === 'asset') {
-					continue;
-				}
-				if (chunk.modules[RESOLVED_SSR_VIRTUAL_MODULE_ID]) {
-					internals.ssrEntryChunk = chunk;
-				}
-			}
 		},
 	};
 }
