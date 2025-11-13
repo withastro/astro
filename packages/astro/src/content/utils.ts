@@ -61,7 +61,27 @@ const collectionConfigParser = z.union([
 			z.object({
 				name: z.string(),
 				load: z.function().args(z.custom<LoaderContext>()).returns(z.promise(z.void())),
-				schema: z.custom<ZodSchema>((v) => '_def' in v).optional(),
+				schema: z
+					.any()
+					.superRefine((v, ctx) => {
+						if (typeof v === 'function') {
+							ctx.addIssue({
+								code: z.ZodIssueCode.custom,
+								// TODO: should the message say to open an issue on the loader's repo?
+								message:
+									'Since Astro 6, a loader schema cannot be a function. Check the docs: TODO:',
+							});
+							return z.NEVER;
+						}
+						if (!('_def' in v)) {
+							ctx.addIssue({
+								code: z.ZodIssueCode.custom,
+								message: 'Invalid Zod schema',
+							});
+							return z.NEVER;
+						}
+					})
+					.optional(),
 				getSchemaContext: z
 					.function()
 					.returns(
