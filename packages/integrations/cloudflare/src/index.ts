@@ -21,7 +21,6 @@ import type { PluginOption } from 'vite';
 import { defaultClientConditions } from 'vite';
 import { type GetPlatformProxyOptions, getPlatformProxy } from 'wrangler';
 import {
-	type CloudflareModulePluginExtra,
 	cloudflareModuleLoader,
 } from './utils/cloudflare-module-loader.js';
 import { createGetEnv } from './utils/env.js';
@@ -162,7 +161,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let finalBuildOutput: HookParameters<'astro:config:done'>['buildOutput'];
 
-	const cloudflareModulePlugin: PluginOption & CloudflareModulePluginExtra = cloudflareModuleLoader(
+	const cloudflareModulePlugin: PluginOption = cloudflareModuleLoader(
 		args?.cloudflareModules ?? true,
 	);
 
