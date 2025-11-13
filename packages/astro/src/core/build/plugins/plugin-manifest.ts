@@ -6,7 +6,6 @@ import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
 import {
-	SERIALIZED_MANIFEST_ID,
 	SERIALIZED_MANIFEST_RESOLVED_ID,
 } from '../../../manifest/serialized.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
@@ -33,10 +32,8 @@ import {
 import { encodeKey } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { DEFAULT_COMPONENTS } from '../../routing/default.js';
-import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
-import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { makePageDataKey } from './util.js';
 
@@ -76,9 +73,8 @@ function manifestBuildPlugin(internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/plugin-manifest-build',
 		enforce: 'post',
-
-		options(opts) {
-			return addRollupInput(opts, [SERIALIZED_MANIFEST_ID]);
+		applyToEnvironment(environment) {
+			return environment.name === 'ssr';
 		},
 
 		augmentChunkHash(chunkInfo) {
@@ -107,26 +103,10 @@ function manifestBuildPlugin(internals: BuildInternals): VitePlugin {
 export function pluginManifest(
 	options: StaticBuildOptions,
 	internals: BuildInternals,
-): AstroBuildPlugin {
+): { vitePlugin: VitePlugin; buildPostHook: Function } {
 	return {
-		targets: ['server'],
-		hooks: {
-			'build:before': () => {
-				return {
-					vitePlugin: manifestBuildPlugin(internals),
-				};
-			},
-
-			/**
-			 * Post-build manifest injection stage:
-			 * 1. Finds the serialized manifest chunk (contains MANIFEST_REPLACE token)
-			 * 2. Computes final manifest data (routes, assets, CSP hashes, etc)
-			 * 3. Replaces the placeholder token with actual manifest JSON
-			 *
-			 * This is split from Vite plugin because final manifest data depends on build outputs
-			 * that only exist after bundling completes.
-			 */
-			'build:post': async ({ ssrOutputs, mutate }) => {
+		vitePlugin: manifestBuildPlugin(internals),
+		buildPostHook: async function manifestBuildPostHook({ ssrOutputs, prerenderOutputs, mutate }: any) {
 				let manifestEntryChunk: OutputChunk | undefined;
 
 				// Find the serialized manifest chunk in SSR outputs
@@ -162,7 +142,29 @@ export function pluginManifest(
 				});
 				const code = injectManifest(manifest, manifestEntryChunk);
 				mutate(manifestEntryChunk, ['server'], code);
-			},
+
+				// Also inject manifest into prerender outputs if available
+				if (prerenderOutputs) {
+					let prerenderManifestChunk: OutputChunk | undefined;
+					for (const output of prerenderOutputs) {
+						for (const chunk of output.output) {
+							if (chunk.type === 'asset') {
+								continue;
+							}
+							if (chunk.code && chunk.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID)) {
+								prerenderManifestChunk = chunk as OutputChunk;
+								break;
+							}
+						}
+						if (prerenderManifestChunk) {
+							break;
+						}
+					}
+					if (prerenderManifestChunk) {
+						const prerenderCode = injectManifest(manifest, prerenderManifestChunk);
+						mutate(prerenderManifestChunk, ['server'], prerenderCode);
+					}
+				}
 		},
 	};
 }

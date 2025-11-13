@@ -222,7 +222,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					session,
 					vite: {
 						plugins: [
-							command === 'build' ? undefined : cfVitePlugin({ viteEnvironment: { name: 'ssr' } }),
+							cfVitePlugin({ viteEnvironment: { name: 'ssr' } }),
 							// https://developers.cloudflare.com/pages/functions/module-support/
 							// Allows imports of '.wasm', '.bin', and '.txt' file types
 							cloudflareModulePlugin,
@@ -394,8 +394,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 			},
 			'astro:build:done': async ({ pages, dir, logger, assets }) => {
-				await cloudflareModulePlugin.afterBuildCompleted(_config);
-
 				let redirectsExists = false;
 				try {
 					const redirectsStat = await stat(new URL('./_redirects', _config.outDir));

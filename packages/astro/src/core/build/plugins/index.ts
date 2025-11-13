@@ -1,9 +1,7 @@
-import { astroConfigBuildPlugin } from '../../../content/vite-plugin-content-assets.js';
+import type { Plugin as VitePlugin } from 'vite';
 import { astroHeadBuildPlugin } from '../../../vite-plugin-head/index.js';
-import type { AstroBuildPluginContainer } from '../plugin.js';
 import { pluginActions } from './plugin-actions.js';
 import { pluginAnalyzer } from './plugin-analyzer.js';
-import { pluginChunks } from './plugin-chunks.js';
 import { pluginComponentEntry } from './plugin-component-entry.js';
 import { pluginCSS } from './plugin-css.js';
 import { pluginInternals } from './plugin-internals.js';
@@ -11,24 +9,29 @@ import { pluginManifest } from './plugin-manifest.js';
 import { pluginMiddleware } from './plugin-middleware.js';
 import { pluginPages } from './plugin-pages.js';
 import { pluginPrerender } from './plugin-prerender.js';
-import { pluginRenderers } from './plugin-renderers.js';
+import { pluginPrerenderEntry } from './plugin-prerender-entry.js';
 import { pluginScripts } from './plugin-scripts.js';
 import { pluginSSR } from './plugin-ssr.js';
 
-export function registerAllPlugins({ internals, options, register }: AstroBuildPluginContainer) {
-	register(pluginComponentEntry(internals));
-	register(pluginAnalyzer(internals));
-	register(pluginInternals(options, internals));
-	register(pluginManifest(options, internals));
-	register(pluginRenderers(options));
-	register(pluginMiddleware(options, internals));
-	register(pluginActions(options, internals));
-	register(pluginPages(options, internals));
-	register(pluginCSS(options, internals));
-	register(astroHeadBuildPlugin(internals));
-	register(pluginPrerender(options, internals));
-	register(astroConfigBuildPlugin(options, internals));
-	register(pluginScripts(internals));
-	register(pluginSSR(options, internals));
-	register(pluginChunks());
+export function getAllBuildPlugins(
+	internals: any,
+	options: any,
+): Array<VitePlugin | VitePlugin[] | undefined> {
+	const manifestPlugin = pluginManifest(options, internals);
+
+	return [
+		pluginComponentEntry(internals),
+		pluginAnalyzer(internals),
+		pluginInternals(options, internals),
+		manifestPlugin.vitePlugin,
+		pluginMiddleware(options, internals),
+		pluginActions(options, internals),
+		pluginPages(options, internals),
+		...pluginCSS(options, internals),
+		astroHeadBuildPlugin(internals),
+		pluginPrerender(options, internals),
+		pluginPrerenderEntry(options, internals),
+		pluginScripts(internals),
+		...pluginSSR(options, internals),
+	].filter(Boolean) as Array<VitePlugin | VitePlugin[]>;
 }

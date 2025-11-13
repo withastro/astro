@@ -24,6 +24,7 @@ export type AstroBuildPlugin = {
 		'build:post'?: (opts: {
 			ssrOutputs: RollupOutputArray;
 			clientOutputs: RollupOutputArray;
+			prerenderOutputs?: RollupOutputArray;
 			mutate: MutateChunk;
 		}) => void | Promise<void>;
 	};
@@ -49,26 +50,7 @@ export function createPluginContainer(options: StaticBuildOptions, internals: Bu
 		},
 
 		// Hooks
-		async runBeforeHook(target: BuildTarget, input: Set<string>) {
-			let targetPlugins = plugins.get(target) ?? [];
-			let vitePlugins: Array<VitePlugin | VitePlugin[]> = [];
-			let lastVitePlugins: Array<VitePlugin | VitePlugin[]> = [];
-			for (const plugin of targetPlugins) {
-				if (plugin.hooks?.['build:before']) {
-					let result = await plugin.hooks['build:before']({ target, input });
-					if (result.vitePlugin) {
-						vitePlugins.push(result.vitePlugin);
-					}
-				}
-			}
-
-			return {
-				vitePlugins,
-				lastVitePlugins,
-			};
-		},
-
-		async runPostHook(ssrOutputs: Rollup.RollupOutput[], clientOutputs: Rollup.RollupOutput[]) {
+		async runPostHook(ssrOutputs: Rollup.RollupOutput[], clientOutputs: Rollup.RollupOutput[], prerenderOutputs?: Rollup.RollupOutput[]) {
 			const mutations = new Map<
 				string,
 				{
@@ -91,6 +73,7 @@ export function createPluginContainer(options: StaticBuildOptions, internals: Bu
 					await postHook({
 						ssrOutputs,
 						clientOutputs,
+						prerenderOutputs,
 						mutate,
 					});
 				}

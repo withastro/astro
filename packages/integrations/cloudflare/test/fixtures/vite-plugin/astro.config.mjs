@@ -11,6 +11,9 @@ export default defineConfig({
 		imageService: 'cloudflare-binding',
 		sessionKVBindingName: "SESSION"
 	}),
+	build: {
+		inlineStylesheets: 'never'
+	},
 	vite: {
 		resolve: {
 			alias: {

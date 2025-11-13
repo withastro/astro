@@ -22,7 +22,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 	return {
 		name: '@astro/plugin-middleware',
 		applyToEnvironment(environment) {
-			return environment.name === 'ssr' || environment.name === 'astro';
+			return environment.name === 'ssr' || environment.name === 'astro' || environment.name === 'prerender';
 		},
 		async resolveId(id) {
 			if (id === MIDDLEWARE_MODULE_ID) {
@@ -106,11 +106,20 @@ export function vitePluginMiddlewareBuild(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 ): VitePlugin {
+	let canSplitMiddleware = true;
 	return {
 		name: '@astro/plugin-middleware-build',
 
+		configResolved(config) {
+			canSplitMiddleware = config.ssr.target !== 'webworker';
+		},
+
 		options(options) {
-			return addRollupInput(options, [MIDDLEWARE_MODULE_ID]);
+			if(canSplitMiddleware) {
+				return addRollupInput(options, [MIDDLEWARE_MODULE_ID]);
+			} else {
+				// TODO warn if edge middleware is enabled
+			}
 		},
 
 		writeBundle(_, bundle) {

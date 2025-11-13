@@ -1,20 +1,8 @@
-import { renderers } from 'virtual:astro:renderers';
-import { routes } from 'virtual:astro:routes';
-import { manifest as serializedManifest } from 'virtual:astro:serialized-manifest';
+import { manifest } from './runtime/manifest.js';
 import { App } from './app.js';
 import type { BaseApp } from './base.js';
 import { DevApp } from './dev/app.js';
 import { createConsoleLogger } from './logging.js';
-import type { SSRManifest } from './types.js';
-
-const manifest: SSRManifest = Object.assign(serializedManifest, {
-	renderers,
-	actions: () => import('virtual:astro:actions/entrypoint'),
-	middleware: () => import('virtual:astro:middleware'),
-	// TODO: restore this after we fix the importing of the virtual module
-	sessionDriver: () => null,
-	routes,
-});
 
 export function createApp(dev = import.meta.env.DEV): BaseApp {
 	if (dev) {

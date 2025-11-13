@@ -4,7 +4,7 @@ import type { AstroPluginOptions } from '../../types/astro.js';
 import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
-export const VIRTUAL_ISLAND_MAP_ID = '@astro-server-islands';
+export const VIRTUAL_ISLAND_MAP_ID = 'virtual:astro:server-islands';
 const RESOLVED_VIRTUAL_ISLAND_MAP_ID = '\0' + VIRTUAL_ISLAND_MAP_ID;
 
 const SERVER_ISLAND_MANIFEST = 'virtual:astro-server-island-manifest';

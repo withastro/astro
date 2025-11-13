@@ -1,12 +1,9 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import * as url from 'node:url';
-import type { AstroConfig } from 'astro';
 import type { OutputBundle } from 'rollup';
 import type { PluginOption } from 'vite';
 
 export interface CloudflareModulePluginExtra {
-	afterBuildCompleted(config: AstroConfig): Promise<void>;
 }
 
 type ModuleType = 'CompiledWasm' | 'Text' | 'Data';
@@ -44,6 +41,9 @@ export function cloudflareModuleLoader(
 	return {
 		name: 'vite:cf-module-loader',
 		enforce: 'pre',
+		applyToEnvironment(environment) {
+			return environment.name === 'ssr' || environment.name === 'client';
+		},
 		configResolved(config) {
 			isDev = config.command === 'serve';
 		},
@@ -55,7 +55,7 @@ export function cloudflareModuleLoader(
 					rollupOptions: {
 						// mark the wasm files as external so that they are not bundled and instead are loaded from the files
 						external: extensions.map(
-							(x) => new RegExp(`^${MAGIC_STRING}.+${escapeRegExp(x)}.mjs$`, 'i'),
+							(x) => new RegExp(`^${MAGIC_STRING}.+${escapeRegExp(x)}$`, 'i'),
 						),
 					},
 				},
@@ -96,21 +96,21 @@ export function cloudflareModuleLoader(
 			const assetName = `${path.basename(filePath).split('.')[0]}.${hash}${extension}`;
 			this.emitFile({
 				type: 'asset',
-				// emit the data explicitly as an esset with `fileName` rather than `name` so that
+				// emit the data explicitly as an asset with `fileName` rather than `name` so that
 				// vite doesn't give it a random hash-id in its name--We need to be able to easily rewrite from
-				// the .mjs loader and the actual wasm asset later in the ESbuild for the worker
+				// the loader and the actual asset later in the build for the worker
 				fileName: assetName,
 				source: data,
 			});
 
-			// however, by default, the SSG generator cannot import the .wasm as a module, so embed as a base64 string
+			// however, by default, the SSG generator cannot import the asset as a module, so embed as a base64 string
 			const chunkId = this.emitFile({
 				type: 'prebuilt-chunk',
-				fileName: `${assetName}.mjs`,
+				fileName: `${assetName}`,
 				code: inlineModule,
 			});
 
-			return `import module from "${MAGIC_STRING}${chunkId}${extension}.mjs";export default module;`;
+			return `import module from "${MAGIC_STRING}${chunkId}${extension}";export default module;`;
 		},
 
 		// output original wasm file relative to the chunk now that chunking has been achieved
@@ -119,14 +119,13 @@ export function cloudflareModuleLoader(
 
 			if (!code.includes(MAGIC_STRING)) return;
 
-			// SSR will need the .mjs suffix removed from the import before this works in cloudflare, but this is done as a final step
-			// so as to support prerendering from nodejs runtime
+			// output original asset file relative to the chunk now that chunking has been achieved
 			let replaced = code;
 			for (const ext of extensions) {
 				const extension = ext.replace(/\?\w+$/, '');
 				// chunk id can be many things, (alpha numeric, dollars, or underscores, maybe more)
 				replaced = replaced.replaceAll(
-					new RegExp(`${MAGIC_STRING}([^\\s]+?)${escapeRegExp(extension)}\\.mjs`, 'g'),
+					new RegExp(`${MAGIC_STRING}([^\\s]+?)${escapeRegExp(extension)}`, 'g'),
 					(_s, assetId) => {
 						const fileName = this.getFileName(assetId);
 						const relativePath = path
@@ -136,7 +135,7 @@ export function cloudflareModuleLoader(
 						// record this replacement for later, to adjust it to import the unbundled asset
 						replacements.push({
 							chunkName: chunk.name,
-							cloudflareImport: relativePath.replace(/\.mjs$/, ''),
+							cloudflareImport: relativePath,
 							nodejsImport: relativePath,
 						});
 						return `./${relativePath}`;
@@ -166,35 +165,6 @@ export function cloudflareModuleLoader(
 					}
 					replacement.fileName.push(chunk.fileName);
 				}
-			}
-		},
-
-		/**
-		 * Once prerendering is complete, restore the imports in the _worker.js to cloudflare compatible ones, removing the .mjs suffix.
-		 */
-		async afterBuildCompleted(config: AstroConfig) {
-			const baseDir = url.fileURLToPath(config.outDir);
-			const replacementsByFileName = new Map<string, Replacement[]>();
-			for (const replacement of replacements) {
-				if (!replacement.fileName) {
-					continue;
-				}
-				for (const fileName of replacement.fileName) {
-					const repls = replacementsByFileName.get(fileName) || [];
-					if (!repls.length) {
-						replacementsByFileName.set(fileName, repls);
-					}
-					repls.push(replacement);
-				}
-			}
-			for (const [fileName, repls] of replacementsByFileName.entries()) {
-				const filepath = path.join(baseDir, '_worker.js', fileName);
-				const contents = await fs.readFile(filepath, 'utf-8');
-				let updated = contents;
-				for (const replacement of repls) {
-					updated = updated.replaceAll(replacement.nodejsImport, replacement.cloudflareImport);
-				}
-				await fs.writeFile(filepath, updated, 'utf-8');
 			}
 		},
 	};

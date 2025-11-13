@@ -3,16 +3,18 @@ import { ASTRO_RENDERERS_MODULE_ID } from '../../../vite-plugin-renderers/index.
 import { routeIsRedirect } from '../../redirects/index.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal.js';
-import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { getPagesFromVirtualModulePageName, getVirtualModulePageName } from './util.js';
 
 export const ASTRO_PAGE_MODULE_ID = '@astro-page:';
 export const ASTRO_PAGE_RESOLVED_MODULE_ID = '\0' + ASTRO_PAGE_MODULE_ID;
 
-function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
+export function pluginPages(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/plugin-build-pages',
+		applyToEnvironment(environment) {
+			return environment.name === 'ssr';
+		},
 		options(options) {
 			if (opts.settings.buildOutput === 'static') {
 				const inputs = new Set<string>();
@@ -54,19 +56,6 @@ function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): V
 					}
 				}
 			}
-		},
-	};
-}
-
-export function pluginPages(opts: StaticBuildOptions, internals: BuildInternals): AstroBuildPlugin {
-	return {
-		targets: ['server'],
-		hooks: {
-			'build:before': () => {
-				return {
-					vitePlugin: vitePluginPages(opts, internals),
-				};
-			},
 		},
 	};
 }

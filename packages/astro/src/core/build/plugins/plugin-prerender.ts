@@ -1,13 +1,24 @@
 import type { Rollup, Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
-import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugin-pages.js';
 import { getPagesFromVirtualModulePageName } from './util.js';
 
-function vitePluginPrerender(internals: BuildInternals): VitePlugin {
+export function pluginPrerender(
+	opts: StaticBuildOptions,
+	internals: BuildInternals,
+): VitePlugin | undefined {
+	// Static output can skip prerender completely because we're already rendering all pages
+	if (opts.settings.buildOutput === 'static') {
+		return undefined;
+	}
+
 	return {
 		name: 'astro:rollup-plugin-prerender',
+
+		applyToEnvironment(environment) {
+			return environment.name === 'ssr';
+		},
 
 		generateBundle(_, bundle) {
 			const moduleIds = this.getModuleIds();
@@ -80,25 +91,4 @@ function getNonPrerenderOnlyChunks(bundle: Rollup.OutputBundle, internals: Build
 	}
 
 	return nonPrerenderOnlyChunks;
-}
-
-export function pluginPrerender(
-	opts: StaticBuildOptions,
-	internals: BuildInternals,
-): AstroBuildPlugin {
-	// Static output can skip prerender completely because we're already rendering all pages
-	if (opts.settings.buildOutput === 'static') {
-		return { targets: ['server'] };
-	}
-
-	return {
-		targets: ['server'],
-		hooks: {
-			'build:before': () => {
-				return {
-					vitePlugin: vitePluginPrerender(internals),
-				};
-			},
-		},
-	};
 }

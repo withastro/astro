@@ -1,27 +1,24 @@
 import type { Plugin as VitePlugin } from 'vite';
-import { SERIALIZED_MANIFEST_ID } from '../../../manifest/serialized.js';
 import type { AstroAdapter } from '../../../types/public/index.js';
-import { ASTRO_RENDERERS_MODULE_ID } from '../../../vite-plugin-renderers/index.js';
-import { MIDDLEWARE_MODULE_ID } from '../../middleware/vite-plugin.js';
-import { routeIsRedirect } from '../../redirects/index.js';
-import { VIRTUAL_ISLAND_MAP_ID } from '../../server-islands/vite-plugin-server-islands.js';
-import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal.js';
-import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
-import { ASTRO_PAGE_MODULE_ID } from './plugin-pages.js';
-import { getVirtualModulePageName } from './util.js';
 
-const SSR_VIRTUAL_MODULE_ID = '@astrojs-ssr-virtual-entry';
+const SSR_VIRTUAL_MODULE_ID = 'virtual:astro:legacy-ssr-entry';
 export const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
 
-const ADAPTER_VIRTUAL_MODULE_ID = '@astrojs-ssr-adapter';
+const ADAPTER_VIRTUAL_MODULE_ID = 'virtual:astro:adapter-entrypoint';
 const RESOLVED_ADAPTER_VIRTUAL_MODULE_ID = '\0' + ADAPTER_VIRTUAL_MODULE_ID;
+
+const ADAPTER_CONFIG_VIRTUAL_MODULE_ID = 'virtual:astro:adapter-config';
+const RESOLVED_ADAPTER_CONFIG_VIRTUAL_MODULE_ID = '\0' + ADAPTER_CONFIG_VIRTUAL_MODULE_ID;
 
 function vitePluginAdapter(adapter: AstroAdapter): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-adapter',
 		enforce: 'post',
+		applyToEnvironment(environment) {
+			return environment.name === 'ssr';
+		},
 		resolveId(id) {
 			if (id === ADAPTER_VIRTUAL_MODULE_ID) {
 				return RESOLVED_ADAPTER_VIRTUAL_MODULE_ID;
@@ -40,75 +37,66 @@ export default _serverEntrypoint.default;`,
 	};
 }
 
+function vitePluginAdapterConfig(adapter: AstroAdapter): VitePlugin {
+	return {
+		name: '@astrojs/vite-plugin-astro-adapter-config',
+		enforce: 'post',
+		applyToEnvironment(environment) {
+			return environment.name === 'ssr';
+		},
+		resolveId(id) {
+			if (id === ADAPTER_CONFIG_VIRTUAL_MODULE_ID) {
+				return RESOLVED_ADAPTER_CONFIG_VIRTUAL_MODULE_ID;
+			}
+		},
+		load(id) {
+			if (id === RESOLVED_ADAPTER_CONFIG_VIRTUAL_MODULE_ID) {
+				return {
+					code: `export const args = ${adapter.args ? JSON.stringify(adapter.args, null, 2) : 'undefined'};
+export const exports = ${adapter.exports ? JSON.stringify(adapter.exports) : 'undefined'};
+export const adapterFeatures = ${adapter.adapterFeatures ? JSON.stringify(adapter.adapterFeatures, null, 2) : 'undefined'};
+export const serverEntrypoint = ${JSON.stringify(adapter.serverEntrypoint)};`,
+				};
+			}
+		},
+	};
+}
+
 function vitePluginSSR(
 	internals: BuildInternals,
 	adapter: AstroAdapter,
-	options: StaticBuildOptions,
+	_options: StaticBuildOptions,
 ): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr-server',
 		enforce: 'post',
-		options(opts) {
-			const inputs = new Set<string>();
-
-			for (const pageData of Object.values(options.allPages)) {
-				if (routeIsRedirect(pageData.route)) {
-					continue;
-				}
-				inputs.add(getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component));
-			}
-
-			const adapterServerEntrypoint = options.settings.adapter?.serverEntrypoint;
-			if (adapterServerEntrypoint) {
-				inputs.add(ADAPTER_VIRTUAL_MODULE_ID);
-			}
-
-			inputs.add(SSR_VIRTUAL_MODULE_ID);
-			return addRollupInput(opts, Array.from(inputs));
+		applyToEnvironment(environment) {
+			return environment.name === 'ssr';
 		},
 		resolveId(id) {
 			if (id === SSR_VIRTUAL_MODULE_ID) {
 				return RESOLVED_SSR_VIRTUAL_MODULE_ID;
 			}
 		},
-		async load(id) {
+		load(id) {
 			if (id === RESOLVED_SSR_VIRTUAL_MODULE_ID) {
-				const { allPages } = options;
-				const imports: string[] = [];
-				const contents: string[] = [];
 				const exports: string[] = [];
-				let i = 0;
-				const pageMap: string[] = [];
 
-				for (const pageData of Object.values(allPages)) {
-					if (routeIsRedirect(pageData.route)) {
-						continue;
-					}
-					const virtualModuleName = getVirtualModulePageName(
-						ASTRO_PAGE_MODULE_ID,
-						pageData.component,
+				if (adapter.exports) {
+					exports.push(
+						...(adapter.exports?.map((name) => {
+							if (name === 'default') {
+								return `export default _exports.default;`;
+							} else {
+								return `export const ${name} = _exports['${name}'];`;
+							}
+						}) ?? []),
 					);
-					let module = await this.resolve(virtualModuleName);
-					if (module) {
-						const variable = `_page${i}`;
-						// we need to use the non-resolved ID in order to resolve correctly the virtual module
-						imports.push(`const ${variable} = () => import("${virtualModuleName}");`);
-
-						const pageData2 = internals.pagesByKeys.get(pageData.key);
-						// Always add to pageMap even if pageData2 is missing from internals
-						// This ensures error pages like 500.astro are included in the build
-						pageMap.push(
-							`[${JSON.stringify(pageData2?.component || pageData.component)}, ${variable}]`,
-						);
-						i++;
-					}
 				}
-				contents.push(`const pageMap = new Map([\n    ${pageMap.join(',\n    ')}\n]);`);
-				exports.push(`export { pageMap }`);
-				const ssrCode = generateSSRCode(adapter);
-				imports.push(...ssrCode.imports);
-				contents.push(...ssrCode.contents);
-				return { code: [...imports, ...contents, ...exports].join('\n') };
+
+				return {
+					code: `import _exports from 'astro/entrypoints/legacy';\n${exports.join('\n')}`,
+				};
 			}
 		},
 		async generateBundle(_opts, bundle) {
@@ -133,79 +121,17 @@ function vitePluginSSR(
 export function pluginSSR(
 	options: StaticBuildOptions,
 	internals: BuildInternals,
-): AstroBuildPlugin {
+): VitePlugin[] {
+	// We check before this point if there's an adapter, so we can safely assume it exists here.
+	const adapter = options.settings.adapter!;
 	const ssr = options.settings.buildOutput === 'server';
-	return {
-		targets: ['server'],
-		hooks: {
-			'build:before': () => {
-				// We check before this point if there's an adapter, so we can safely assume it exists here.
-				const adapter = options.settings.adapter!;
-				const ssrPlugin = ssr && vitePluginSSR(internals, adapter, options);
-				const vitePlugin = [vitePluginAdapter(adapter)];
-				if (ssrPlugin) {
-					vitePlugin.unshift(ssrPlugin);
-				}
 
-				return {
-					enforce: 'after-user-plugins',
-					vitePlugin: vitePlugin,
-				};
-			},
-			'build:post': async () => {
-				if (!ssr) {
-					return;
-				}
+	const plugins: VitePlugin[] = [vitePluginAdapter(adapter), vitePluginAdapterConfig(adapter)];
 
-				if (!internals.ssrEntryChunk) {
-					throw new Error(`Did not generate an entry chunk for SSR`);
-				}
-				// Mutate the filename
-				internals.ssrEntryChunk.fileName = options.settings.config.build.serverEntry;
-			},
-		},
-	};
+	if (ssr) {
+		plugins.unshift(vitePluginSSR(internals, adapter, options));
+	}
+
+	return plugins;
 }
 
-function generateSSRCode(adapter: AstroAdapter) {
-	const edgeMiddleware = adapter?.adapterFeatures?.edgeMiddleware ?? false;
-
-	const imports = [
-		`import { renderers } from '${ASTRO_RENDERERS_MODULE_ID}';`,
-		`import * as serverEntrypointModule from '${ADAPTER_VIRTUAL_MODULE_ID}';`,
-		`import { manifest as defaultManifest } from '${SERIALIZED_MANIFEST_ID}';`,
-		`import { serverIslandMap } from '${VIRTUAL_ISLAND_MAP_ID}';`,
-	];
-
-	const contents = [
-		edgeMiddleware ? `const middleware = (_, next) => next()` : '',
-		`const _manifest = Object.assign(defaultManifest, {`,
-		`    pageMap,`,
-		`    serverIslandMap,`,
-		`    middleware: ${edgeMiddleware ? 'undefined' : `() => import("${MIDDLEWARE_MODULE_ID}")`}`,
-		`});`,
-		`const _args = ${adapter.args ? JSON.stringify(adapter.args, null, 4) : 'undefined'};`,
-		adapter.exports
-			? `const _exports = serverEntrypointModule.createExports?.(_manifest, _args) || serverEntrypointModule;`
-			: '',
-		...(adapter.exports?.map((name) => {
-			if (name === 'default') {
-				return `export default _exports.default;`;
-			} else {
-				return `export const ${name} = _exports['${name}'];`;
-			}
-		}) ?? []),
-		// NOTE: This is intentionally obfuscated!
-		// Do NOT simplify this to something like `serverEntrypointModule.start?.(_manifest, _args)`
-		// They are NOT equivalent! Some bundlers will throw if `start` is not exported, but we
-		// only want to silently ignore it... hence the dynamic, obfuscated weirdness.
-		`const _start = 'start';
-if (Object.prototype.hasOwnProperty.call(serverEntrypointModule, _start)) {
-	serverEntrypointModule[_start](_manifest, _args);
-}`,
-	];
-	return {
-		imports,
-		contents,
-	};
-}

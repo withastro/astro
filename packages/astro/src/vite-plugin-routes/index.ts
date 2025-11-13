@@ -90,7 +90,7 @@ export default async function astroPluginRoutes({
 		},
 
 		applyToEnvironment(environment) {
-			return environment.name === 'astro' || environment.name === 'ssr';
+			return environment.name === 'astro' || environment.name === 'ssr' || environment.name === 'prerender';
 		},
 
 		load(id) {

@@ -17,7 +17,6 @@ import {
 	trimSlashes,
 } from '../../core/path.js';
 import { runHookBuildGenerated, toIntegrationResolvedRoute } from '../../integrations/hooks.js';
-import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
 import type { GetStaticPathsItem, MiddlewareHandler } from '../../types/public/common.js';
 import type { AstroConfig } from '../../types/public/config.js';
@@ -47,44 +46,48 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
 import { getRedirectLocationOrThrow, routeIsRedirect } from '../redirects/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
-import { RenderContext } from '../render-context.js';
+import type { BaseApp } from '../app/base.js';
 import { createRequest } from '../request.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { matchRoute } from '../routing/match.js';
 import { stringifyParams } from '../routing/params.js';
 import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
-import { type BuildInternals, cssOrder, hasPrerenderedPages, mergeInlineCss } from './internal.js';
+import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
-import type {
-	PageBuildData,
-	SinglePageBuiltModule,
-	StaticBuildOptions,
-	StylesheetAsset,
-} from './types.js';
+import type { PageBuildData, StaticBuildOptions } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 
-export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
+export async function generatePages(
+	options: StaticBuildOptions,
+	internals: BuildInternals,
+	prerenderOutputDir: URL,
+) {
 	const generatePagesTimer = performance.now();
 	const ssr = options.settings.buildOutput === 'server';
 	let manifest: SSRManifest;
-	if (ssr) {
-		manifest = await BuildPipeline.retrieveManifest(options.settings, internals);
-	} else {
-		const baseDirectory = getServerOutputDirectory(options.settings);
-		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
-		const renderers = await import(renderersEntryUrl.toString());
-		const middleware: MiddlewareHandler = internals.middlewareEntryPoint
-			? await import(internals.middlewareEntryPoint.toString()).then((mod) => mod.onRequest)
-			: NOOP_MIDDLEWARE_FN;
 
-		const actions: SSRActions = internals.astroActionsEntryPoint
-			? await import(internals.astroActionsEntryPoint.toString()).then((mod) => mod)
-			: NOOP_ACTIONS_MOD;
+	// Import from the single prerender entrypoint
+	const prerenderEntryUrl = new URL('prerender-entry.mjs', prerenderOutputDir);
+	const prerenderEntry = await import(prerenderEntryUrl.toString());
+
+	// Extract middleware from the prerender entrypoint
+	const middleware: MiddlewareHandler = prerenderEntry.middleware
+		? await prerenderEntry.middleware().then((mod: any) => mod.onRequest)
+		: NOOP_MIDDLEWARE_FN;
+
+	// Extract actions from the prerender entrypoint
+	const actions: SSRActions = prerenderEntry.actions ?? NOOP_ACTIONS_MOD;
+
+	if (ssr) {
+		// For server builds, use the prerender manifest
+		manifest = prerenderEntry.manifest;
+	} else {
+		// For static builds, create manifest from prerender output
 		manifest = await createBuildManifest(
 			options.settings,
 			internals,
-			renderers.renderers as SSRLoadedRenderer[],
+			prerenderEntry.renderers as SSRLoadedRenderer[],
 			middleware,
 			actions,
 			options.key,
@@ -104,8 +107,12 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 	const builtPaths = new Set<string>();
 	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
 	const routeToHeaders: RouteToHeaders = new Map();
+
+	const app = prerenderEntry.app as BaseApp;
+	const pageMap = prerenderEntry.pageMap as Map<string, () => Promise<ComponentInstance>>;
+
 	if (ssr) {
-		for (const [pageData, filePath] of pagesToGenerate) {
+		for (const [pageData, _] of pagesToGenerate) {
 			if (pageData.route.prerender) {
 				// i18n domains won't work with pre rendered routes at the moment, so we need to throw an error
 				if (config.i18n?.domains && Object.keys(config.i18n.domains).length > 0) {
@@ -115,16 +122,12 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 					});
 				}
 
-				const ssrEntryPage = await pipeline.retrieveSsrEntry(pageData.route, filePath);
-
-				const ssrEntry = ssrEntryPage as SinglePageBuiltModule;
-				await generatePage(pageData, ssrEntry, builtPaths, pipeline, routeToHeaders);
+				await generatePage(app, pageMap, pageData, builtPaths, pipeline, routeToHeaders);
 			}
 		}
 	} else {
-		for (const [pageData, filePath] of pagesToGenerate) {
-			const entry = await pipeline.retrieveSsrEntry(pageData.route, filePath);
-			await generatePage(pageData, entry, builtPaths, pipeline, routeToHeaders);
+		for (const [pageData, _] of pagesToGenerate) {
+			await generatePage(app, pageMap, pageData, builtPaths, pipeline, routeToHeaders);
 		}
 	}
 	logger.info(
@@ -231,36 +234,15 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
 
 async function generatePage(
+	app: BaseApp,
+	pageMap: Map<string, () => Promise<ComponentInstance>>,
 	pageData: PageBuildData,
-	ssrEntry: SinglePageBuiltModule,
 	builtPaths: Set<string>,
 	pipeline: BuildPipeline,
 	routeToHeaders: RouteToHeaders,
 ) {
 	// prepare information we need
 	const { config, logger } = pipeline;
-	const pageModulePromise = ssrEntry.page;
-
-	// Calculate information of the page, like scripts, links and styles
-	const styles = pageData.styles
-		.sort(cssOrder)
-		.map(({ sheet }) => sheet)
-		.reduce(mergeInlineCss, []);
-	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
-	const linkIds: [] = [];
-	if (!pageModulePromise) {
-		throw new Error(
-			`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`,
-		);
-	}
-	const pageModule = await pageModulePromise();
-	const generationOptions: Readonly<GeneratePathOptions> = {
-		pageData,
-		linkIds,
-		scripts: null,
-		styles,
-		mod: pageModule,
-	};
 
 	async function generatePathWithLogs(
 		path: string,
@@ -284,9 +266,9 @@ async function generatePage(
 		}
 
 		const created = await generatePath(
+			app,
 			path,
 			pipeline,
-			generationOptions,
 			route,
 			integrationRoute,
 			routeToHeaders,
@@ -315,7 +297,7 @@ async function generatePage(
 		logger.info(null, `${icon} ${getPrettyRouteName(route)}`);
 
 		// Get paths for the route, calling getStaticPaths if needed.
-		const paths = await getPathsForRoute(route, pageModule, pipeline, builtPaths);
+		const paths = await getPathsForRoute(route, pageData.component, pageMap, pipeline, builtPaths);
 
 		// Generate each paths
 		if (config.build.concurrency > 1) {
@@ -346,7 +328,8 @@ function* eachRouteInRouteData(data: PageBuildData) {
 
 async function getPathsForRoute(
 	route: RouteData,
-	mod: ComponentInstance,
+	componentPath: string,
+	pageMap: Map<string, () => Promise<ComponentInstance>>,
 	pipeline: BuildPipeline,
 	builtPaths: Set<string>,
 ): Promise<Array<string>> {
@@ -356,6 +339,15 @@ async function getPathsForRoute(
 		paths.push(route.pathname);
 		builtPaths.add(removeTrailingForwardSlash(route.pathname));
 	} else {
+		// Load page module only when we need it for getStaticPaths
+		const pageModuleFn = pageMap.get(componentPath);
+		if (!pageModuleFn) {
+			throw new Error(
+				`Unable to find module for ${componentPath}. This is unexpected and likely a bug in Astro, please report.`,
+			);
+		}
+		const mod = await pageModuleFn();
+
 		const staticPaths = await callGetStaticPaths({
 			mod,
 			route,
@@ -524,31 +516,22 @@ function getUrlForPath(
 	return new URL(buildPathname, origin);
 }
 
-interface GeneratePathOptions {
-	pageData: PageBuildData;
-	linkIds: string[];
-	scripts: { type: 'inline' | 'external'; value: string } | null;
-	styles: StylesheetAsset[];
-	mod: ComponentInstance;
-}
-
 /**
- *
- * @param pathname
- * @param pipeline
- * @param gopts
- * @param route
+ * Render a single pathname for a route using app.render()
+ * @param app The pre-initialized Astro App
+ * @param pathname The pathname to render
+ * @param pipeline BuildPipeline for metadata
+ * @param route The route data
  * @return {Promise<boolean | undefined>} If `false` the file hasn't been created. If `undefined` it's expected to not be created.
  */
 async function generatePath(
+	app: BaseApp,
 	pathname: string,
 	pipeline: BuildPipeline,
-	gopts: GeneratePathOptions,
 	route: RouteData,
 	integrationRoute: IntegrationResolvedRoute,
 	routeToHeaders: RouteToHeaders,
 ): Promise<boolean | undefined> {
-	const { mod } = gopts;
 	const { config, logger, options } = pipeline;
 	logger.debug('build', `Generating: ${pathname}`);
 
@@ -605,20 +588,14 @@ async function generatePath(
 		isPrerendered: true,
 		routePattern: route.component,
 	});
-	const renderContext = await RenderContext.create({
-		pipeline,
-		pathname: pathname,
-		request,
-		routeData: route,
-		clientAddress: undefined,
-	});
 
 	let body: string | Uint8Array;
 	let response: Response;
 	try {
-		response = await renderContext.render(mod);
+		response = await app.render(request, { routeData: route });
 	} catch (err) {
-		if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
+		logger.error('build', `Caught error rendering ${pathname}: ${err}`);
+		if (err && !AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
 			(err as SSRError).id = route.component;
 		}
 		throw err;

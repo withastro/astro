@@ -1,10 +1,8 @@
-import { getServerOutputDirectory } from '../../prerender/utils.js';
-import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
+import type { ComponentInstance } from '../../types/astro.js';
 import type { RewritePayload } from '../../types/public/common.js';
 import type {
 	RouteData,
 	SSRElement,
-	SSRLoadedRenderer,
 	SSRResult,
 } from '../../types/public/internal.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
@@ -98,57 +96,6 @@ export class BuildPipeline extends Pipeline {
 		return new BuildPipeline(internals, manifest, options);
 	}
 
-	/**
-	 * The SSR build emits two important files:
-	 * - dist/server/manifest.mjs
-	 * - dist/renderers.mjs
-	 *
-	 * These two files, put together, will be used to generate the pages.
-	 *
-	 * ## Errors
-	 *
-	 * It will throw errors if the previous files can't be found in the file system.
-	 *
-	 * @param staticBuildOptions
-	 */
-	static async retrieveManifest(
-		settings: AstroSettings,
-		internals: BuildInternals,
-	): Promise<SSRManifest> {
-		const baseDirectory = getServerOutputDirectory(settings);
-		const manifestEntryUrl = new URL(
-			`${internals.manifestFileName}?time=${Date.now()}`,
-			baseDirectory,
-		);
-		const { manifest } = await import(manifestEntryUrl.toString());
-		if (!manifest) {
-			throw new Error(
-				"Astro couldn't find the emitted manifest. This is an internal error, please file an issue.",
-			);
-		}
-
-		const renderersEntryUrl = new URL(`renderers.mjs?time=${Date.now()}`, baseDirectory);
-		const renderers = await import(renderersEntryUrl.toString());
-
-		const middleware = internals.middlewareEntryPoint
-			? async function () {
-					// @ts-expect-error: the compiler can't understand the previous check
-					const mod = await import(internals.middlewareEntryPoint.toString());
-					return { onRequest: mod.onRequest };
-				}
-			: manifest.middleware;
-
-		if (!renderers) {
-			throw new Error(
-				"Astro couldn't find the emitted renderers. This is an internal error, please file an issue.",
-			);
-		}
-		return {
-			...manifest,
-			renderers: renderers.renderers as SSRLoadedRenderer[],
-			middleware,
-		};
-	}
 
 	headElements(routeData: RouteData): Pick<SSRResult, 'scripts' | 'styles' | 'links'> {
 		const {
@@ -246,6 +193,22 @@ export class BuildPipeline extends Pipeline {
 		return pages;
 	}
 
+
+	async tryRewrite(payload: RewritePayload, request: Request): Promise<TryRewriteResult> {
+		const { routeData, pathname, newUrl } = findRouteToRewrite({
+			payload,
+			request,
+			routes: this.options.routesList.routes,
+			trailingSlash: this.config.trailingSlash,
+			buildFormat: this.config.build.format,
+			base: this.config.base,
+			outDir: this.serverLike ? this.manifest.buildClientDir : this.manifest.outDir,
+		});
+
+		const componentInstance = await this.getComponentByRoute(routeData);
+		return { routeData, componentInstance, newUrl, pathname };
+	}
+
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
 		if (this.#componentsInterner.has(routeData)) {
 			// SAFETY: checked before
@@ -263,21 +226,6 @@ export class BuildPipeline extends Pipeline {
 		const filePath = this.#routesByFilePath.get(routeData)!;
 		const module = await this.retrieveSsrEntry(routeData, filePath);
 		return module.page();
-	}
-
-	async tryRewrite(payload: RewritePayload, request: Request): Promise<TryRewriteResult> {
-		const { routeData, pathname, newUrl } = findRouteToRewrite({
-			payload,
-			request,
-			routes: this.options.routesList.routes,
-			trailingSlash: this.config.trailingSlash,
-			buildFormat: this.config.build.format,
-			base: this.config.base,
-			outDir: this.serverLike ? this.manifest.buildClientDir : this.manifest.outDir,
-		});
-
-		const componentInstance = await this.getComponentByRoute(routeData);
-		return { routeData, componentInstance, newUrl, pathname };
 	}
 
 	async retrieveSsrEntry(route: RouteData, filePath: string): Promise<SinglePageBuiltModule> {
