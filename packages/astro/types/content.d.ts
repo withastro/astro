@@ -8,17 +8,7 @@ declare module 'astro:content' {
 		BaseSchema,
 		SchemaContext,
 	} from 'astro/content/config';
-
-	export function defineLiveCollection<
-		L extends import('astro/loaders').LiveLoader,
-		S extends import('astro/content/config').BaseSchema | undefined = undefined,
-	>(
-		config: import('astro/content/config').LiveCollectionConfig<L, S>,
-	): import('astro/content/config').LiveCollectionConfig<L, S>;
-
-	export function defineCollection<S extends import('astro/content/config').BaseSchema>(
-		config: import('astro/content/config').CollectionConfig<S>,
-	): import('astro/content/config').CollectionConfig<S>;
+	export { defineLiveCollection, defineCollection } from 'astro/content/config';
 
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */
 	export const getEntryBySlug: (...args: any[]) => any;
