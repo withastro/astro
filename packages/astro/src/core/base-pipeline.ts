@@ -34,6 +34,7 @@ import type { SessionDriver } from './session.js';
 export abstract class Pipeline {
 	readonly internalMiddleware: MiddlewareHandler[];
 	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
+	resolvedActions: SSRActions | undefined = undefined;
 	resolvedSessionDriver: SessionDriver | null | undefined = undefined;
 
 	constructor(
@@ -132,7 +133,9 @@ export abstract class Pipeline {
 	}
 
 	async getActions(): Promise<SSRActions> {
-		if (this.actions) {
+		if (this.resolvedActions) {
+			return this.resolvedActions;
+		} else if (this.actions) {
 			return this.actions();
 		}
 		return NOOP_ACTIONS_MOD;
