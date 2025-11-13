@@ -157,44 +157,44 @@ export function defineLiveCollection<
 }
 
 export function defineCollection<
-		TSchema extends BaseSchema,
-		TLoader extends LoaderConstraint<{ id: string }>,
-	>(config: CollectionConfig<TSchema, TLoader>): CollectionConfig<TSchema, TLoader> {
-		const importerFilename = getImporterFilename();
+	TSchema extends BaseSchema,
+	TLoader extends LoaderConstraint<{ id: string }>,
+>(config: CollectionConfig<TSchema, TLoader>): CollectionConfig<TSchema, TLoader> {
+	const importerFilename = getImporterFilename();
 
-		if (importerFilename?.includes('live.config')) {
-			throw new AstroError({
-				...AstroErrorData.LiveContentConfigError,
-				message: AstroErrorData.LiveContentConfigError.message(
-					'Collections in a live config file must use `defineLiveCollection`.',
-					importerFilename,
-				),
-			});
-		}
-
-		if (!('loader' in config)) {
-			throw new AstroError({
-				...AstroErrorData.ContentCollectionMissingLoader,
-				message: AstroErrorData.ContentCollectionMissingLoader.message(importerFilename),
-			});
-		}
-
-		if (config.type && config.type !== CONTENT_LAYER_TYPE) {
-			throw new AstroError({
-				...AstroErrorData.ContentCollectionInvalidType,
-				message: AstroErrorData.ContentCollectionInvalidType.message(config.type, importerFilename),
-			});
-		}
-
-		if (
-			typeof config.loader === 'object' &&
-			typeof config.loader.load !== 'function' &&
-			('loadEntry' in config.loader || 'loadCollection' in config.loader)
-		) {
-			throw new AstroUserError(
-				`Live content collections must be defined in "src/live.config.ts" file. Check your collection definitions in "${importerFilename ?? 'your content config file'}" to ensure you are not using a live loader.`,
-			);
-		}
-		config.type = CONTENT_LAYER_TYPE;
-		return config;
+	if (importerFilename?.includes('live.config')) {
+		throw new AstroError({
+			...AstroErrorData.LiveContentConfigError,
+			message: AstroErrorData.LiveContentConfigError.message(
+				'Collections in a live config file must use `defineLiveCollection`.',
+				importerFilename,
+			),
+		});
 	}
+
+	if (!('loader' in config)) {
+		throw new AstroError({
+			...AstroErrorData.ContentCollectionMissingLoader,
+			message: AstroErrorData.ContentCollectionMissingLoader.message(importerFilename),
+		});
+	}
+
+	if (config.type && config.type !== CONTENT_LAYER_TYPE) {
+		throw new AstroError({
+			...AstroErrorData.ContentCollectionInvalidType,
+			message: AstroErrorData.ContentCollectionInvalidType.message(config.type, importerFilename),
+		});
+	}
+
+	if (
+		typeof config.loader === 'object' &&
+		typeof config.loader.load !== 'function' &&
+		('loadEntry' in config.loader || 'loadCollection' in config.loader)
+	) {
+		throw new AstroUserError(
+			`Live content collections must be defined in "src/live.config.ts" file. Check your collection definitions in "${importerFilename ?? 'your content config file'}" to ensure you are not using a live loader.`,
+		);
+	}
+	config.type = CONTENT_LAYER_TYPE;
+	return config;
+}

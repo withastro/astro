@@ -50,26 +50,26 @@ export interface LoaderContext {
 }
 
 export type Loader<T extends ZodSchema = never> = {
-		/** Unique name of the loader, e.g. the npm package name */
-		name: string;
-		/** Do the actual loading of the data */
-		load: (context: LoaderContext) => Promise<void>;
-	} & ([T] extends [never]
-		?
-				| {
-						/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
-						schema?: T;
-				  }
-				| {
-						getSchemaContext?: () => Promise<{
-							schema: ZodSchema;
-							types: string;
-						}>;
-				  }
-		: {
-				/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
-				schema: T;
-			});
+	/** Unique name of the loader, e.g. the npm package name */
+	name: string;
+	/** Do the actual loading of the data */
+	load: (context: LoaderContext) => Promise<void>;
+} & ([T] extends [never]
+	?
+			| {
+					/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
+					schema?: T;
+			  }
+			| {
+					getSchemaContext?: () => Promise<{
+						schema: ZodSchema;
+						types: string;
+					}>;
+			  }
+	: {
+			/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
+			schema: T;
+		});
 
 export interface LoadEntryContext<TEntryFilter = never> {
 	filter: TEntryFilter extends never ? { id: string } : TEntryFilter;

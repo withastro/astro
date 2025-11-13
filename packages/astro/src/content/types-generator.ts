@@ -397,7 +397,7 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	if (!result) {
 		return { type: 'any' };
 	}
-	const filename = `loaders/${collectionKey.slice(1,-1)}.ts`;
+	const filename = `loaders/${collectionKey.slice(1, -1)}.ts`;
 	return {
 		type: `import("./${filename}").Collection`,
 		injectedType: {
