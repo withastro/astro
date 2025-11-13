@@ -2727,6 +2727,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/content-layer-loader-schema-function:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/content-layer-markdoc:
     dependencies:
       '@astrojs/markdoc':

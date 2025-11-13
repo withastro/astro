@@ -67,6 +67,7 @@ const collectionConfigParser = z.union([
 						if (typeof v === 'function') {
 							ctx.addIssue({
 								code: z.ZodIssueCode.custom,
+								// TODO: remove in Astro 7
 								// TODO: should the message say to open an issue on the loader's repo?
 								message:
 									'Since Astro 6, a loader schema cannot be a function. Check the docs: TODO:',
