@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { teardown } from '@astrojs/compiler';
 import { green } from 'kleur/colors';
 import { glob } from 'tinyglobby';
 import * as vite from 'vite';

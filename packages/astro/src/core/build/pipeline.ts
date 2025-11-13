@@ -16,8 +16,8 @@ import { createDefaultRoutes } from '../routing/default.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import { getOutDirWithinCwd } from './common.js';
 import { type BuildInternals, cssOrder, getPageData, mergeInlineCss } from './internal.js';
-import { ASTRO_PAGE_MODULE_ID, ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
-import { getPagesFromVirtualModulePageName, getVirtualModulePageName } from './plugins/util.js';
+import { ASTRO_PAGE_MODULE_ID } from './plugins/plugin-pages.js';
+import { getVirtualModulePageName } from './plugins/util.js';
 import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
 

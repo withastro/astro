@@ -1,13 +1,5 @@
 import type { Plugin as VitePlugin } from 'vite';
-import { ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID } from '../../../actions/consts.js';
-import { SERIALIZED_MANIFEST_ID } from '../../../manifest/serialized.js';
 import type { AstroAdapter } from '../../../types/public/index.js';
-import { ASTRO_RENDERERS_MODULE_ID } from '../../../vite-plugin-renderers/index.js';
-import { MIDDLEWARE_MODULE_ID } from '../../middleware/vite-plugin.js';
-import { routeIsRedirect } from '../../redirects/index.js';
-import { SERVER_ISLAND_MANIFEST } from '../../server-islands/vite-plugin-server-islands.js';
-import { VIRTUAL_SESSION_DRIVER_ID } from '../../session/vite-plugin.js';
-import { addRollupInput } from '../add-rollup-input.js';
 import type { BuildInternals } from '../internal.js';
 import type { StaticBuildOptions } from '../types.js';
 
