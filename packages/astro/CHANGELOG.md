@@ -1,5 +1,11 @@
 # astro
 
+## 6.0.0-alpha.1
+
+### Major Changes
+
+- [#14758](https://github.com/withastro/astro/pull/14758) [`010f773`](https://github.com/withastro/astro/commit/010f7731becbaaba347da21ef07b8a410e31442a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `setManifestData` method from `App` and `NodeApp` (Adapter API) - ([v6 upgrade guidance](https://deploy-preview-12322--astro-docs-2.netlify.app/en/guides/upgrade-to/v6/#removed-appsetmanifestdata-adapter-api))
+
 ## 6.0.0-alpha.0
 
 ### Major Changes
