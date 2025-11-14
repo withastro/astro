@@ -91,11 +91,6 @@ export interface BuildInternals {
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint: URL | undefined;
 	astroActionsEntryPoint: URL | undefined;
-
-	/**
-	 * Chunks in the bundle that are only used in prerendering that we can delete later
-	 */
-	prerenderOnlyChunks: Rollup.OutputChunk[];
 }
 
 /**
@@ -118,7 +113,6 @@ export function createBuildInternals(): BuildInternals {
 		discoveredScripts: new Set(),
 		staticFiles: new Set(),
 		componentMetadata: new Map(),
-		prerenderOnlyChunks: [],
 		astroActionsEntryPoint: undefined,
 		middlewareEntryPoint: undefined,
 		clientChunksAndAssets: new Set(),
