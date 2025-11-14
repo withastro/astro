@@ -27,5 +27,5 @@ export function getAllBuildPlugins(
 		pluginPrerender(options, internals),
 		pluginScripts(internals),
 		...pluginSSR(options, internals),
-	].filter(Boolean) as Array<VitePlugin | VitePlugin[] | undefined>;
+	].filter(Boolean);
 }
