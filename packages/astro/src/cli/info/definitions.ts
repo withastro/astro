@@ -25,3 +25,7 @@ export interface AstroConfigResolver {
 export interface Prompt {
 	confirm: (input: { message: string; defaultValue?: boolean }) => Promise<boolean>;
 }
+
+export interface PackageManagerUserAgentProvider {
+	getUserAgent: () => string | null;
+}

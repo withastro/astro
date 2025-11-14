@@ -1,20 +1,21 @@
 import type { CommandExecutor } from '../../definitions.js';
-import type { PackageManager } from '../definitions.js';
+import type { PackageManager, PackageManagerUserAgentProvider } from '../definitions.js';
 
 interface Options {
-	configUserAgent: string | undefined;
+	packageManagerUserAgentProvider: PackageManagerUserAgentProvider;
 	commandExecutor: CommandExecutor;
 }
 
 export async function getPackageManager({
-	configUserAgent,
+	packageManagerUserAgentProvider,
 	commandExecutor,
 }: Options): Promise<PackageManager> {
-	if (!configUserAgent) {
+	const userAgent = packageManagerUserAgentProvider.getUserAgent();
+	if (!userAgent) {
 		const { createNoopPackageManager } = await import('../infra/noop-package-manager.js');
 		return createNoopPackageManager();
 	}
-	const specifier = configUserAgent.split(' ')[0];
+	const specifier = userAgent.split(' ')[0];
 	const _name = specifier.substring(0, specifier.lastIndexOf('/'));
 	const name = _name === 'npminstall' ? 'cnpm' : _name;
 
