@@ -253,6 +253,9 @@ async function buildEnvironments(
 	const prerenderOutput = await builder.build(builder.environments.prerender);
 
 	// Build client environment
+	// We must discover client inputs after SSR build because hydration/client-only directives
+	// are only detected during SSR. We mutate the config here since the builder was already created
+	// and this is the only way to update the input after instantiation.
 	internals.clientInput = getClientInput(internals, settings);
 	builder.environments.client.config.build.rollupOptions.input = Array.from(internals.clientInput);
 	const clientOutput = await builder.build(builder.environments.client);
