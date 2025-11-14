@@ -11,7 +11,6 @@ import { z } from 'zod';
 import { AstroError, AstroErrorData, errorMap, MarkdownError } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
-import { appendForwardSlash } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
@@ -25,17 +24,8 @@ import {
 	LIVE_CONTENT_TYPE,
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
-import { glob } from './loaders/glob.js';
+import type { LoaderContext } from './loaders/types.js';
 import { createImage } from './runtime-assets.js';
-
-/**
- * A map from a collection + slug to the local file path.
- * This is used internally to resolve entry imports when using `getEntry()`.
- * @see `templates/content/module.mjs`
- */
-export type ContentLookupMap = {
-	[collectionName: string]: { type: 'content' | 'data'; entries: { [lookupId: string]: string } };
-};
 
 const entryTypeSchema = z
 	.object({
@@ -64,46 +54,22 @@ export const loaderReturnSchema = z.union([
 
 const collectionConfigParser = z.union([
 	z.object({
-		type: z.literal('content').optional().default('content'),
-		schema: z.any().optional(),
-	}),
-	z.object({
-		type: z.literal('data'),
-		schema: z.any().optional(),
-	}),
-	z.object({
 		type: z.literal(CONTENT_LAYER_TYPE),
 		schema: z.any().optional(),
 		loader: z.union([
 			z.function(),
 			z.object({
 				name: z.string(),
-				load: z.function(
-					z.tuple(
-						[
-							z.object({
-								collection: z.string(),
-								store: z.any(),
-								meta: z.any(),
-								logger: z.any(),
-								config: z.any(),
-								entryTypes: z.any(),
-								parseData: z.any(),
-								renderMarkdown: z.any(),
-								generateDigest: z.function(z.tuple([z.any()], z.string())),
-								watcher: z.any().optional(),
-								refreshContextData: z.record(z.unknown()).optional(),
-							}),
-						],
-						z.unknown(),
-					),
+				load: z.function().args(z.custom<LoaderContext>()).returns(
+					z.custom<{
+						schema?: any;
+						types?: string;
+					} | void>(),
 				),
 				schema: z.any().optional(),
 				render: z.function(z.tuple([z.any()], z.unknown())).optional(),
 			}),
 		]),
-		/** deprecated */
-		_legacy: z.boolean().optional(),
 	}),
 	z.object({
 		type: z.literal(LIVE_CONTENT_TYPE).optional().default(LIVE_CONTENT_TYPE),
@@ -142,7 +108,7 @@ export function parseEntrySlug({
 	}
 }
 
-export async function getEntryDataAndImages<
+export async function getEntryData<
 	TInputData extends Record<string, unknown> = Record<string, unknown>,
 	TOutputData extends TInputData = TInputData,
 >(
@@ -154,31 +120,16 @@ export async function getEntryDataAndImages<
 	},
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
-	experimentalSvgEnabled: boolean,
 	pluginContext?: PluginContext,
-): Promise<{ data: TOutputData; imageImports: Array<string> }> {
-	let data: TOutputData;
-	// Legacy content collections have 'slug' removed
-	if (collectionConfig.type === 'content' || (collectionConfig as any)._legacy) {
-		const { slug, ...unvalidatedData } = entry.unvalidatedData;
-		data = unvalidatedData as TOutputData;
-	} else {
-		data = entry.unvalidatedData as TOutputData;
-	}
+): Promise<TOutputData> {
+	let data = entry.unvalidatedData as TOutputData;
 
 	let schema = collectionConfig.schema;
-
-	const imageImports = new Set<string>();
 
 	if (typeof schema === 'function') {
 		if (pluginContext) {
 			schema = schema({
-				image: createImage(
-					pluginContext,
-					shouldEmitFile,
-					entry._internal.filePath,
-					experimentalSvgEnabled,
-				),
+				image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
 			});
 		} else if (collectionConfig.type === CONTENT_LAYER_TYPE) {
 			schema = schema({
@@ -203,7 +154,6 @@ export async function getEntryDataAndImages<
 						) {
 							normalizedPath = `./${val}`;
 						}
-						imageImports.add(normalizedPath);
 						return `${IMAGE_IMPORT_PREFIX}${normalizedPath}`;
 					}),
 			});
@@ -211,20 +161,6 @@ export async function getEntryDataAndImages<
 	}
 
 	if (schema) {
-		// Catch reserved `slug` field inside content schemas
-		// Note: will not warn for `z.union` or `z.intersection` schemas
-		if (
-			collectionConfig.type === 'content' &&
-			typeof schema === 'object' &&
-			'shape' in schema &&
-			schema.shape.slug
-		) {
-			throw new AstroError({
-				...AstroErrorData.ContentSchemaContainsSlugError,
-				message: AstroErrorData.ContentSchemaContainsSlugError.message(entry.collection),
-			});
-		}
-
 		// Use `safeParseAsync` to allow async transforms
 		let formattedError;
 		const parsed = await (schema as z.ZodSchema).safeParseAsync(data, {
@@ -239,13 +175,13 @@ export async function getEntryDataAndImages<
 			data = parsed.data as TOutputData;
 		} else {
 			if (!formattedError) {
-				const errorType =
-					collectionConfig.type === 'content'
-						? AstroErrorData.InvalidContentEntryFrontmatterError
-						: AstroErrorData.InvalidContentEntryDataError;
 				formattedError = new AstroError({
-					...errorType,
-					message: errorType.message(entry.collection, entry.id, parsed.error),
+					...AstroErrorData.InvalidContentEntryDataError,
+					message: AstroErrorData.InvalidContentEntryDataError.message(
+						entry.collection,
+						entry.id,
+						parsed.error,
+					),
 					location: {
 						file: entry._internal?.filePath,
 						line: getYAMLErrorLine(
@@ -260,28 +196,6 @@ export async function getEntryDataAndImages<
 		}
 	}
 
-	return { data, imageImports: Array.from(imageImports) };
-}
-
-export async function getEntryData(
-	entry: {
-		id: string;
-		collection: string;
-		unvalidatedData: Record<string, unknown>;
-		_internal: EntryInternal;
-	},
-	collectionConfig: CollectionConfig,
-	shouldEmitFile: boolean,
-	experimentalSvgEnabled: boolean,
-	pluginContext?: PluginContext,
-) {
-	const { data } = await getEntryDataAndImages(
-		entry,
-		collectionConfig,
-		shouldEmitFile,
-		experimentalSvgEnabled,
-		pluginContext,
-	);
 	return data;
 }
 
@@ -561,116 +475,20 @@ async function loadContentConfig({
 		console.error(
 			`${colors.green('[content]')} There was a problem with your content config:\n\n${message}\n`,
 		);
-		if (settings.config.experimental.liveContentCollections) {
-			const liveCollections = Object.entries(unparsedConfig.collections ?? {}).filter(
-				([, collection]: [string, any]) => collection?.type === LIVE_CONTENT_TYPE,
-			);
-			if (liveCollections.length > 0) {
-				throw new AstroError({
-					...AstroErrorData.LiveContentConfigError,
-					message: AstroErrorData.LiveContentConfigError.message(
-						'Live collections must be defined in a `src/live.config.ts` file.',
-						path.relative(fileURLToPath(settings.config.root), configPathname),
-					),
-				});
-			}
+		const liveCollections = Object.entries(unparsedConfig.collections ?? {}).filter(
+			([, collection]: [string, any]) => collection?.type === LIVE_CONTENT_TYPE,
+		);
+		if (liveCollections.length > 0) {
+			throw new AstroError({
+				...AstroErrorData.LiveContentConfigError,
+				message: AstroErrorData.LiveContentConfigError.message(
+					'Live collections must be defined in a `src/live.config.ts` file.',
+					path.relative(fileURLToPath(settings.config.root), configPathname),
+				),
+			});
 		}
 		return undefined;
 	}
-}
-
-async function autogenerateCollections({
-	config,
-	settings,
-	fs,
-}: {
-	config?: ContentConfig;
-	settings: AstroSettings;
-	fs: typeof fsMod;
-}): Promise<ContentConfig | undefined> {
-	if (settings.config.legacy.collections) {
-		return config;
-	}
-	const contentDir = new URL('./content/', settings.config.srcDir);
-
-	const collections: Record<string, CollectionConfig> = config?.collections ?? {};
-
-	const contentExts = getContentEntryExts(settings);
-	const dataExts = getDataEntryExts(settings);
-
-	const contentPattern = globWithUnderscoresIgnored('', contentExts);
-	const dataPattern = globWithUnderscoresIgnored('', dataExts);
-	let usesContentLayer = false;
-	for (const collectionName of Object.keys(collections)) {
-		if (
-			collections[collectionName]?.type === 'content_layer' ||
-			collections[collectionName]?.type === 'live'
-		) {
-			usesContentLayer = true;
-			// This is already a content layer, skip
-			continue;
-		}
-
-		const isDataCollection = collections[collectionName]?.type === 'data';
-		const base = new URL(`${collectionName}/`, contentDir);
-		// Only "content" collections need special legacy handling
-		const _legacy = !isDataCollection || undefined;
-		collections[collectionName] = {
-			...collections[collectionName],
-			type: 'content_layer',
-			_legacy,
-			loader: glob({
-				base,
-				pattern: isDataCollection ? dataPattern : contentPattern,
-				_legacy,
-				// Legacy data collections IDs aren't slugified
-				generateId: isDataCollection
-					? ({ entry }) =>
-							getDataEntryId({
-								entry: new URL(entry, base),
-								collection: collectionName,
-								contentDir,
-							})
-					: undefined,
-
-				// Zod weirdness has trouble with typing the args to the load function
-			}) as any,
-		};
-	}
-	if (!usesContentLayer && fs.existsSync(contentDir)) {
-		// If the user hasn't defined any collections using the content layer, we'll try and help out by checking for
-		// any orphaned folders in the content directory and creating collections for them.
-		const orphanedCollections = [];
-		for (const entry of await fs.promises.readdir(contentDir, { withFileTypes: true })) {
-			const collectionName = entry.name;
-			if (['_', '.'].includes(collectionName.at(0) ?? '')) {
-				continue;
-			}
-			if (entry.isDirectory() && !(collectionName in collections)) {
-				orphanedCollections.push(collectionName);
-				const base = new URL(`${collectionName}/`, contentDir);
-				collections[collectionName] = {
-					type: 'content_layer',
-					loader: glob({
-						base,
-						pattern: contentPattern,
-						_legacy: true,
-					}) as any,
-				};
-			}
-		}
-		if (orphanedCollections.length > 0) {
-			console.warn(
-				`
-Auto-generating collections for folders in "src/content/" that are not defined as collections.
-This is deprecated, so you should define these collections yourself in "src/content.config.ts".
-The following collections have been auto-generated: ${orphanedCollections
-					.map((name) => colors.green(name))
-					.join(', ')}\n`,
-			);
-		}
-	}
-	return { ...config, collections };
 }
 
 export async function reloadContentConfigObserver({
@@ -685,11 +503,6 @@ export async function reloadContentConfigObserver({
 	observer.set({ status: 'loading' });
 	try {
 		let config = await loadContentConfig(loadContentConfigOpts);
-
-		config = await autogenerateCollections({
-			config,
-			...loadContentConfigOpts,
-		});
 
 		if (config) {
 			observer.set({ status: 'loaded', config });
@@ -760,18 +573,23 @@ export type ContentPaths = {
 };
 
 export function getContentPaths(
-	{
-		srcDir,
-		legacy,
-		root,
-		experimental,
-	}: Pick<AstroConfig, 'root' | 'srcDir' | 'legacy' | 'experimental'>,
+	{ srcDir, root }: Pick<AstroConfig, 'root' | 'srcDir'>,
 	fs: typeof fsMod = fsMod,
 ): ContentPaths {
-	const configStats = searchConfig(fs, srcDir, legacy?.collections);
-	const liveConfigStats = experimental?.liveContentCollections
-		? searchLiveConfig(fs, srcDir)
-		: { exists: false, url: new URL('./', srcDir) };
+	const configStats = searchConfig(fs, srcDir);
+
+	if (!configStats.exists) {
+		const legacyConfigStats = searchLegacyConfig(fs, srcDir);
+		if (legacyConfigStats.exists) {
+			const relativePath = path.relative(fileURLToPath(root), fileURLToPath(legacyConfigStats.url));
+			throw new AstroError({
+				...AstroErrorData.LegacyContentConfigError,
+				message: AstroErrorData.LegacyContentConfigError.message(relativePath),
+			});
+		}
+	}
+
+	const liveConfigStats = searchLiveConfig(fs, srcDir);
 	const pkgBase = new URL('../../', import.meta.url);
 	return {
 		root: new URL('./', root),
@@ -784,19 +602,22 @@ export function getContentPaths(
 	};
 }
 
-function searchConfig(
-	fs: typeof fsMod,
-	srcDir: URL,
-	legacy?: boolean,
-): { exists: boolean; url: URL } {
+function searchConfig(fs: typeof fsMod, srcDir: URL): { exists: boolean; url: URL } {
 	const paths = [
-		...(legacy
-			? []
-			: ['content.config.mjs', 'content.config.js', 'content.config.mts', 'content.config.ts']),
-		'content/config.mjs',
-		'content/config.js',
-		'content/config.mts',
+		'content.config.mjs',
+		'content.config.js',
+		'content.config.mts',
+		'content.config.ts',
+	];
+	return search(fs, srcDir, paths);
+}
+
+function searchLegacyConfig(fs: typeof fsMod, srcDir: URL): { exists: boolean; url: URL } {
+	const paths = [
 		'content/config.ts',
+		'content/config.js',
+		'content/config.mjs',
+		'content/config.mts',
 	];
 	return search(fs, srcDir, paths);
 }
@@ -849,29 +670,12 @@ export async function getEntrySlug({
 	return parseEntrySlug({ generatedSlug, frontmatterSlug, id, collection });
 }
 
-export function getExtGlob(exts: string[]) {
-	return exts.length === 1
-		? // Wrapping {...} breaks when there is only one extension
-			exts[0]
-		: `{${exts.join(',')}}`;
-}
-
 export function hasAssetPropagationFlag(id: string): boolean {
 	try {
 		return new URL(id, 'file://').searchParams.has(PROPAGATED_ASSET_FLAG);
 	} catch {
 		return false;
 	}
-}
-
-export function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
-	const extGlob = getExtGlob(exts);
-	const contentDir = relContentDir.length > 0 ? appendForwardSlash(relContentDir) : relContentDir;
-	return [
-		`${contentDir}**/*${extGlob}`,
-		`!${contentDir}**/_*/**/*${extGlob}`,
-		`!${contentDir}**/_*${extGlob}`,
-	];
 }
 
 /**

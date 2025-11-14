@@ -13,11 +13,9 @@ const isValidIdentifierRe = /^[_$a-zA-Z][\w$]*$/;
 function getPrivateEnv({
 	fullEnv,
 	viteConfig,
-	useStatic,
 }: {
 	fullEnv: Record<string, string>;
 	viteConfig: AstroConfig['vite'];
-	useStatic: boolean;
 }): Record<string, string> {
 	let envPrefixes: string[] = ['PUBLIC_'];
 	if (viteConfig.envPrefix) {
@@ -32,24 +30,7 @@ function getPrivateEnv({
 		if (!isValidIdentifierRe.test(key) || envPrefixes.some((prefix) => key.startsWith(prefix))) {
 			continue;
 		}
-		// Only replace with process.env if not static
-		// TODO: make static the default and only way to do this in Astro 6
-		if (!useStatic && typeof process.env[key] !== 'undefined') {
-			let value = process.env[key];
-			// Replacements are always strings, so try to convert to strings here first
-			if (typeof value !== 'string') {
-				value = `${value}`;
-			}
-			// Boolean values should be inlined to support `export const prerender`
-			// We already know that these are NOT sensitive values, so inlining is safe
-			if (value === '0' || value === '1' || value === 'true' || value === 'false') {
-				privateEnv[key] = value;
-			} else {
-				privateEnv[key] = `process.env.${key}`;
-			}
-		} else {
-			privateEnv[key] = JSON.stringify(fullEnv[key]);
-		}
+		privateEnv[key] = JSON.stringify(fullEnv[key]);
 	}
 	return privateEnv;
 }
@@ -57,12 +38,11 @@ function getPrivateEnv({
 interface EnvLoaderOptions {
 	mode: string;
 	config: AstroConfig;
-	useStatic: boolean;
 }
 
-function getEnv({ mode, config, useStatic }: EnvLoaderOptions) {
+function getEnv({ mode, config }: EnvLoaderOptions) {
 	const loaded = loadEnv(mode, config.vite.envDir ?? fileURLToPath(config.root), '');
-	const privateEnv = getPrivateEnv({ fullEnv: loaded, viteConfig: config.vite, useStatic });
+	const privateEnv = getPrivateEnv({ fullEnv: loaded, viteConfig: config.vite });
 
 	return { loaded, privateEnv };
 }

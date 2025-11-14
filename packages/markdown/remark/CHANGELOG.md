@@ -1,5 +1,16 @@
 # @astrojs/markdown-remark
 
+## 7.0.0-alpha.0
+
+### Major Changes
+
+- [#14494](https://github.com/withastro/astro/pull/14494) [`727b0a2`](https://github.com/withastro/astro/commit/727b0a205eb765f1c36f13a73dfc69e17e44df8f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates Markdown heading ID generation - ([v6 upgrade guidance](https://deploy-preview-12322--astro-docs-2.netlify.app/en/guides/upgrade-to/v6/#changed-markdown-heading-id-generation))
+
+### Patch Changes
+
+- Updated dependencies [[`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf)]:
+  - @astrojs/prism@4.0.0-alpha.0
+
 ## 6.3.8
 
 ### Patch Changes

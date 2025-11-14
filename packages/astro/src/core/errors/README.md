@@ -97,7 +97,7 @@ If the error cannot be triggered at all anymore, it can deprecated by adding a `
 ```js
 /**
  * @docs
- * @deprecated Removed in Astro v9.8.6 as it is no longer relevant due to...
+ * @deprecated This error was removed in Astro v6.0.0 along with the removal of...
  */
 ```
 
