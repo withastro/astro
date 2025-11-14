@@ -21,7 +21,6 @@ import type { PluginOption } from 'vite';
 import { defaultClientConditions } from 'vite';
 import { type GetPlatformProxyOptions, getPlatformProxy } from 'wrangler';
 import {
-	type CloudflareModulePluginExtra,
 	cloudflareModuleLoader,
 } from './utils/cloudflare-module-loader.js';
 import { createGetEnv } from './utils/env.js';
@@ -162,7 +161,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let finalBuildOutput: HookParameters<'astro:config:done'>['buildOutput'];
 
-	const cloudflareModulePlugin: PluginOption & CloudflareModulePluginExtra = cloudflareModuleLoader(
+	const cloudflareModulePlugin: PluginOption = cloudflareModuleLoader(
 		args?.cloudflareModules ?? true,
 	);
 
@@ -222,7 +221,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					session,
 					vite: {
 						plugins: [
-							command === 'build' ? undefined : cfVitePlugin({ viteEnvironment: { name: 'ssr' } }),
+							cfVitePlugin({ viteEnvironment: { name: 'ssr' } }),
 							// https://developers.cloudflare.com/pages/functions/module-support/
 							// Allows imports of '.wasm', '.bin', and '.txt' file types
 							cloudflareModulePlugin,
@@ -394,8 +393,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 			},
 			'astro:build:done': async ({ pages, dir, logger, assets }) => {
-				await cloudflareModulePlugin.afterBuildCompleted(_config);
-
 				let redirectsExists = false;
 				try {
 					const redirectsStat = await stat(new URL('./_redirects', _config.outDir));

@@ -1,6 +1,5 @@
 import type fsMod from 'node:fs';
 import type { Plugin as VitePlugin } from 'vite';
-import { addRollupInput } from '../core/build/add-rollup-input.js';
 import type { BuildInternals } from '../core/build/internal.js';
 import type { StaticBuildOptions } from '../core/build/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
@@ -30,8 +29,8 @@ export function vitePluginActionsBuild(
 	return {
 		name: '@astro/plugin-actions-build',
 
-		options(options) {
-			return addRollupInput(options, [ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID]);
+		applyToEnvironment(environment) {
+			return environment.name === 'ssr';
 		},
 
 		writeBundle(_, bundle) {

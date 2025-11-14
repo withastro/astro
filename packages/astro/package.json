@@ -48,6 +48,8 @@
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",
     "./app/entrypoint": "./dist/core/app/entrypoint.js",
+    "./entrypoints/prerender": "./dist/entrypoints/prerender.js",
+    "./entrypoints/legacy": "./dist/entrypoints/legacy.js",
     "./client/*": "./dist/runtime/client/*",
     "./components": "./components/index.ts",
     "./components/*": "./components/*",

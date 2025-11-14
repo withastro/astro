@@ -111,6 +111,13 @@ export interface AstroAdapter {
 	args?: any;
 	adapterFeatures?: AstroAdapterFeatures;
 	/**
+	 * Determines how the adapter's entrypoint is handled during the build.
+	 * - `'self'`: The adapter defines its own entrypoint and sets rollupOptions.input
+	 * - `'legacy-dynamic'`: Uses the virtual module entrypoint with dynamic exports
+	 * @default 'legacy-dynamic'
+	 */
+	entryType?: 'self' | 'legacy-dynamic';
+	/**
 	 * List of features supported by an adapter.
 	 *
 	 * If the adapter is not able to handle certain configurations, Astro will throw an error.

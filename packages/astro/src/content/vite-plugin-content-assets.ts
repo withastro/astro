@@ -1,14 +1,9 @@
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isRunnableDevEnvironment, type Plugin } from 'vite';
-import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
-import type { BuildInternals } from '../core/build/internal.js';
-import type { AstroBuildPlugin } from '../core/build/plugin.js';
-import type { StaticBuildOptions } from '../core/build/types.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { createViteLoader } from '../core/module-loader/vite.js';
-import { joinPaths, prependForwardSlash } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
 import { getStylesForURL } from '../vite-plugin-astro-server/css.js';
 import {
@@ -124,64 +119,3 @@ export function astroContentAssetPropagationPlugin({
 	};
 }
 
-export function astroConfigBuildPlugin(
-	options: StaticBuildOptions,
-	internals: BuildInternals,
-): AstroBuildPlugin {
-	return {
-		targets: ['server'],
-		hooks: {
-			'build:post': ({ ssrOutputs, mutate }) => {
-				const outputs = ssrOutputs.flatMap((o) => o.output);
-				const prependBase = (src: string) => {
-					const { assetsPrefix } = options.settings.config.build;
-					if (assetsPrefix) {
-						const fileExtension = extname(src);
-						const pf = getAssetsPrefix(fileExtension, assetsPrefix);
-						return joinPaths(pf, src);
-					} else {
-						return prependForwardSlash(joinPaths(options.settings.config.base, src));
-					}
-				};
-				for (const chunk of outputs) {
-					if (chunk.type === 'chunk' && chunk.code.includes(LINKS_PLACEHOLDER)) {
-						const entryStyles = new Set<string>();
-						const entryLinks = new Set<string>();
-
-						for (const id of chunk.moduleIds) {
-							const _entryCss = internals.propagatedStylesMap.get(id);
-							if (_entryCss) {
-								// TODO: Separating styles and links this way is not ideal. The `entryCss` list is order-sensitive
-								// and splitting them into two sets causes the order to be lost, because styles are rendered after
-								// links. Refactor this away in the future.
-								for (const value of _entryCss) {
-									if (value.type === 'inline') entryStyles.add(value.content);
-									if (value.type === 'external') entryLinks.add(value.src);
-								}
-							}
-						}
-
-						let newCode = chunk.code;
-						if (entryStyles.size) {
-							newCode = newCode.replace(
-								JSON.stringify(STYLES_PLACEHOLDER),
-								JSON.stringify(Array.from(entryStyles)),
-							);
-						} else {
-							newCode = newCode.replace(JSON.stringify(STYLES_PLACEHOLDER), '[]');
-						}
-						if (entryLinks.size) {
-							newCode = newCode.replace(
-								JSON.stringify(LINKS_PLACEHOLDER),
-								JSON.stringify(Array.from(entryLinks).map(prependBase)),
-							);
-						} else {
-							newCode = newCode.replace(JSON.stringify(LINKS_PLACEHOLDER), '[]');
-						}
-						mutate(chunk, ['server'], newCode);
-					}
-				}
-			},
-		},
-	};
-}

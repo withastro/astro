@@ -33,6 +33,7 @@ import htmlVitePlugin from '../vite-plugin-html/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
+import { pluginPage, pluginPages } from '../vite-plugin-pages/index.js';
 import vitePluginRenderers from '../vite-plugin-renderers/index.js';
 import astroPluginRoutes from '../vite-plugin-routes/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
@@ -148,6 +149,8 @@ export async function createVite(
 			vitePluginRenderers({ settings }),
 			await astroPluginRoutes({ routesList, settings, logger, fsMod: fs }),
 			astroVirtualManifestPlugin(),
+			pluginPage({ routesList }),
+			pluginPages({ routesList }),
 			configAliasVitePlugin({ settings }),
 			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
 			astroVitePlugin({ settings, logger }),

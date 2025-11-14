@@ -1,11 +1,7 @@
 import MagicString from 'magic-string';
 import type { ConfigEnv, DevEnvironment, Plugin as VitePlugin } from 'vite';
-import { getServerOutputDirectory } from '../../prerender/utils.js';
 import type { AstroPluginOptions } from '../../types/astro.js';
 import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
-import { addRollupInput } from '../build/add-rollup-input.js';
-import type { BuildInternals } from '../build/internal.js';
-import type { StaticBuildOptions } from '../build/types.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 
 export const SERVER_ISLAND_MANIFEST = 'virtual:astro:server-island-manifest';
@@ -152,33 +148,6 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 					code: ms.toString(),
 					map: ms.generateMap({ hires: 'boundary' }),
 				};
-			}
-		},
-	};
-}
-
-/**
- * This plugin is used to retrieve the final entry point of the bundled actions.ts file
- * @param opts
- * @param internals
- */
-export function vitePluginServerIslandsBuild(
-	opts: StaticBuildOptions,
-	internals: BuildInternals,
-): VitePlugin {
-	return {
-		name: '@astro/plugin-server-islands-build',
-
-		options(options) {
-			return addRollupInput(options, [SERVER_ISLAND_MANIFEST]);
-		},
-
-		writeBundle(_, bundle) {
-			for (const [chunkName, chunk] of Object.entries(bundle)) {
-				if (chunk.type !== 'asset' && chunk.facadeModuleId === RESOLVED_SERVER_ISLAND_MANIFEST) {
-					const outputDirectory = getServerOutputDirectory(opts.settings);
-					internals.serverIslandsEntryPoint = new URL(chunkName, outputDirectory);
-				}
 			}
 		},
 	};

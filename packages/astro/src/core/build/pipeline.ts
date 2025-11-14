@@ -1,12 +1,12 @@
-import { getServerOutputDirectory } from '../../prerender/utils.js';
-import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
+import type { ComponentInstance } from '../../types/astro.js';
 import type { RewritePayload } from '../../types/public/common.js';
 import type {
 	RouteData,
 	SSRElement,
-	SSRLoadedRenderer,
 	SSRResult,
 } from '../../types/public/internal.js';
+import { VIRTUAL_PAGE_MODULE_ID } from '../../vite-plugin-pages/index.js';
+import { getVirtualModulePageName } from '../../vite-plugin-pages/util.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
 import type { TryRewriteResult } from '../base-pipeline.js';
@@ -18,8 +18,6 @@ import { createDefaultRoutes } from '../routing/default.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import { getOutDirWithinCwd } from './common.js';
 import { type BuildInternals, cssOrder, getPageData, mergeInlineCss } from './internal.js';
-import { ASTRO_PAGE_MODULE_ID, ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
-import { getPagesFromVirtualModulePageName, getVirtualModulePageName } from './plugins/util.js';
 import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
 
@@ -98,66 +96,6 @@ export class BuildPipeline extends Pipeline {
 		return new BuildPipeline(internals, manifest, options);
 	}
 
-	/**
-	 * The SSR build emits two important files:
-	 * - dist/server/manifest.mjs
-	 * - dist/renderers.mjs
-	 *
-	 * These two files, put together, will be used to generate the pages.
-	 *
-	 * ## Errors
-	 *
-	 * It will throw errors if the previous files can't be found in the file system.
-	 *
-	 * @param staticBuildOptions
-	 */
-	static async retrieveManifest(
-		settings: AstroSettings,
-		internals: BuildInternals,
-	): Promise<SSRManifest> {
-		const baseDirectory = getServerOutputDirectory(settings);
-		const manifestEntryUrl = new URL(
-			`${internals.manifestFileName}?time=${Date.now()}`,
-			baseDirectory,
-		);
-		const { manifest } = await import(manifestEntryUrl.toString());
-		if (!manifest) {
-			throw new Error(
-				"Astro couldn't find the emitted manifest. This is an internal error, please file an issue.",
-			);
-		}
-
-		const renderersEntryUrl = new URL(`renderers.mjs?time=${Date.now()}`, baseDirectory);
-		const renderers = await import(renderersEntryUrl.toString());
-
-		const middleware = internals.middlewareEntryPoint
-			? async function () {
-					// @ts-expect-error: the compiler can't understand the previous check
-					const mod = await import(internals.middlewareEntryPoint.toString());
-					return { onRequest: mod.onRequest };
-				}
-			: manifest.middleware;
-
-		const serverIslandMappings = internals.serverIslandsEntryPoint
-			? async function () {
-					// @ts-expect-error: the compiler can't understand the previous check
-					return import(internals.serverIslandsEntryPoint.toString());
-				}
-			: manifest.serverIslandMappings;
-
-		if (!renderers) {
-			throw new Error(
-				"Astro couldn't find the emitted renderers. This is an internal error, please file an issue.",
-			);
-		}
-		return {
-			...manifest,
-			renderers: renderers.renderers as SSRLoadedRenderer[],
-			middleware,
-			serverIslandMappings,
-		};
-	}
-
 	headElements(routeData: RouteData): Pick<SSRResult, 'scripts' | 'styles' | 'links'> {
 		const {
 			internals,
@@ -206,23 +144,6 @@ export class BuildPipeline extends Pipeline {
 	retrieveRoutesToGenerate(): Map<PageBuildData, string> {
 		const pages = new Map<PageBuildData, string>();
 
-		for (const [virtualModulePageName, filePath] of this.internals.entrySpecifierToBundleMap) {
-			// virtual pages are emitted with the 'plugin-pages' prefix
-			if (virtualModulePageName.includes(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
-				let pageDatas: PageBuildData[] = [];
-				pageDatas.push(
-					...getPagesFromVirtualModulePageName(
-						this.internals,
-						ASTRO_PAGE_RESOLVED_MODULE_ID,
-						virtualModulePageName,
-					),
-				);
-				for (const pageData of pageDatas) {
-					pages.set(pageData, filePath);
-				}
-			}
-		}
-
 		for (const pageData of this.internals.pagesByKeys.values()) {
 			if (routeIsRedirect(pageData.route)) {
 				pages.set(pageData, pageData.component);
@@ -237,13 +158,18 @@ export class BuildPipeline extends Pipeline {
 				// The values of the map are the actual `.mjs` files that are generated during the build
 
 				// Here, we take the component path and transform it in the virtual module name
-				const moduleSpecifier = getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component);
+				const moduleSpecifier = getVirtualModulePageName(VIRTUAL_PAGE_MODULE_ID, pageData.component);
 				// We retrieve the original JS module
 				const filePath = this.internals.entrySpecifierToBundleMap.get(moduleSpecifier);
 				if (filePath) {
 					// it exists, added it to pages to render, using the file path that we just retrieved
 					pages.set(pageData, filePath);
 				}
+			}
+			// Regular page
+			else {
+			// TODO: The value doesn't matter anymore. In a future refactor, we can remove it from the Map entirely.
+				pages.set(pageData, '');
 			}
 		}
 
@@ -353,6 +279,6 @@ function createEntryURL(filePath: string, outFolder: URL) {
  * For a given pageData, returns the entry file path—aka a resolved virtual module in our internals' specifiers.
  */
 function getEntryFilePath(internals: BuildInternals, pageData: RouteData) {
-	const id = '\x00' + getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component);
+	const id = '\x00' + getVirtualModulePageName(VIRTUAL_PAGE_MODULE_ID, pageData.component);
 	return internals.entrySpecifierToBundleMap.get(id);
 }

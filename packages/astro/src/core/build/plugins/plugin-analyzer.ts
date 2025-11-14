@@ -7,11 +7,13 @@ import {
 	trackClientOnlyPageDatas,
 	trackScriptPageDatas,
 } from '../internal.js';
-import type { AstroBuildPlugin } from '../plugin.js';
 
-function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
+export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/rollup-plugin-astro-analyzer',
+		applyToEnvironment(environment) {
+			return environment.name === 'ssr' || environment.name === 'prerender';
+		},
 		async generateBundle() {
 			const ids = this.getModuleIds();
 
@@ -80,19 +82,6 @@ function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 					}
 				}
 			}
-		},
-	};
-}
-
-export function pluginAnalyzer(internals: BuildInternals): AstroBuildPlugin {
-	return {
-		targets: ['server'],
-		hooks: {
-			'build:before': () => {
-				return {
-					vitePlugin: vitePluginAnalyzer(internals),
-				};
-			},
 		},
 	};
 }

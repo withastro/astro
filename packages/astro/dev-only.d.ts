@@ -49,3 +49,24 @@ declare module 'virtual:astro:session-driver' {
 	import type { Driver } from 'unstorage';
 	export const driver: Driver;
 }
+
+declare module 'virtual:astro:pages' {
+	export const pageMap: Map<string, () => Promise<any>>;
+}
+
+declare module 'virtual:astro:server-islands' {
+	export const serverIslandMap: Map<string, () => Promise<any>>;
+}
+
+declare module 'virtual:astro:adapter-entrypoint' {
+	export const createExports: ((manifest: any, args: any) => any) | undefined;
+	export const start: ((manifest: any, args: any) => void) | undefined;
+	export default any;
+}
+
+declare module 'virtual:astro:adapter-config' {
+	export const args: any;
+	export const exports: string[] | undefined;
+	export const adapterFeatures: any;
+	export const serverEntrypoint: string;
+}
