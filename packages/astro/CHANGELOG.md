@@ -1,5 +1,13 @@
 # astro
 
+## 5.15.7
+
+### Patch Changes
+
+- [#14765](https://github.com/withastro/astro/pull/14765) [`03fb47c`](https://github.com/withastro/astro/commit/03fb47c0106fda823e4dc89ed98d282ecb5258a0) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `process.env` wouldn't be properly populated during the build
+
+- [#14690](https://github.com/withastro/astro/pull/14690) [`ae7197d`](https://github.com/withastro/astro/commit/ae7197d35676b3745dc9ca71aecbcf3bbbfffb30) Thanks [@fredriknorlin](https://github.com/fredriknorlin)! - Fixes a bug where Astro's i18n fallback system with `fallbackType: 'rewrite'` would not generate fallback files for pages whose filename started with a locale key.
+
 ## 5.15.6
 
 ### Patch Changes
