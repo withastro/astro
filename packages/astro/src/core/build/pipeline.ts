@@ -5,6 +5,8 @@ import type {
 	SSRElement,
 	SSRResult,
 } from '../../types/public/internal.js';
+import { VIRTUAL_PAGE_MODULE_ID } from '../../vite-plugin-pages/index.js';
+import { getVirtualModulePageName } from '../../vite-plugin-pages/util.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
 import type { TryRewriteResult } from '../base-pipeline.js';
@@ -16,8 +18,6 @@ import { createDefaultRoutes } from '../routing/default.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import { getOutDirWithinCwd } from './common.js';
 import { type BuildInternals, cssOrder, getPageData, mergeInlineCss } from './internal.js';
-import { VIRTUAL_PAGE_MODULE_ID } from '../../vite-plugin-pages/index.js';
-import { getVirtualModulePageName } from '../../vite-plugin-pages/util.js';
 import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
 

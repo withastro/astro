@@ -1,8 +1,8 @@
 import type { Plugin as VitePlugin } from 'vite';
+import { vitePluginActionsBuild } from '../../../actions/vite-plugin-actions.js';
+import { astroHeadBuildPlugin } from '../../../vite-plugin-head/index.js';
 import type { BuildInternals } from '../internal.js';
 import type { StaticBuildOptions } from '../types.js';
-import { astroHeadBuildPlugin } from '../../../vite-plugin-head/index.js';
-import { vitePluginActionsBuild } from '../../../actions/vite-plugin-actions.js';
 import { pluginAnalyzer } from './plugin-analyzer.js';
 import { pluginComponentEntry } from './plugin-component-entry.js';
 import { pluginCSS } from './plugin-css.js';

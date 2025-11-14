@@ -1,8 +1,6 @@
-import type { Rollup, Plugin as VitePlugin } from 'vite';
+import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import type { StaticBuildOptions } from '../types.js';
-import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../../vite-plugin-pages/index.js';
-import { getPagesFromVirtualModulePageName } from './util.js';
 
 export function pluginPrerender(
 	_opts: StaticBuildOptions,

@@ -1,11 +1,10 @@
 import { fileURLToPath } from 'node:url';
 import type { OutputChunk } from 'rollup';
 import { glob } from 'tinyglobby';
-import type { Plugin as VitePlugin } from 'vite';
+import type * as vite from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
-import * as vite from 'vite';
 import {
 	SERIALIZED_MANIFEST_RESOLVED_ID,
 } from '../../../manifest/serialized.js';
