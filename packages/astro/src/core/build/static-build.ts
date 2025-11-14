@@ -100,6 +100,15 @@ export async function staticBuild(
 	}
 }
 
+/**
+ * Builds all Vite environments (SSR, prerender, client) in sequence.
+ *
+ * - SSR: Built only when buildOutput='server', generates the server entry point
+ * - Prerender: Always built, generates static prerenderable routes
+ * - Client: Built last with discovered hydration and client-only components
+ *
+ * Returns outputs from each environment for post-build processing.
+ */
 async function buildEnvironments(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
