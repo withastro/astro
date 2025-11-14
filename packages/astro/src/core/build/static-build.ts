@@ -297,6 +297,11 @@ async function runManifestInjection(
 	await writeMutatedChunks(opts, mutations, prerenderOutputs);
 }
 
+/**
+ * Writes chunks that were modified by post-build hooks (e.g., manifest injection).
+ * Mutations are collected during the manifest hook and persisted here to the
+ * appropriate output directories (server, client, or prerender).
+ */
 async function writeMutatedChunks(
 	opts: StaticBuildOptions,
 	mutations: Map<
@@ -339,6 +344,11 @@ async function writeMutatedChunks(
 	}
 }
 
+/**
+ * Moves prerender and SSR assets to the client directory.
+ * In server mode, assets are initially scattered across server and prerender
+ * directories but need to be consolidated in the client directory for serving.
+ */
 async function ssrMoveAssets(opts: StaticBuildOptions, prerenderOutputDir: URL) {
 	opts.logger.info('build', 'Rearranging server assets...');
 	const serverRoot =
