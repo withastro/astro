@@ -49,3 +49,8 @@ declare module 'virtual:astro:session-driver' {
 	import type { Driver } from 'unstorage';
 	export const driver: Driver;
 }
+
+declare module 'virtual:astro:dev-css' {
+	import type { ImportedDevStyles } from './src/vite-plugin-routes/css.js';
+	export const css: Set<ImportedDevStyles>;
+}

@@ -26,16 +26,16 @@ export type StylesheetAsset =
 	| { type: 'inline'; content: string }
 	| { type: 'external'; src: string };
 
+export type ScriptAsset =
+	| { children: string; stage: string }
+	// Hoisted
+	| { type: 'inline' | 'external'; value: string };
+
 export interface RouteInfo {
 	routeData: RouteData;
 	file: string;
 	links: string[];
-	scripts: // Integration injected
-	(
-		| { children: string; stage: string }
-		// Hoisted
-		| { type: 'inline' | 'external'; value: string }
-	)[];
+	scripts: ScriptAsset[];
 	styles: StylesheetAsset[];
 }
 
