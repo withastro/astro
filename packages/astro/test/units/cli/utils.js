@@ -99,3 +99,41 @@ export function createSpyCommandExecutor() {
 
 	return { inputs, commandExecutor };
 }
+
+/**
+ * @param {import("../../../dist/cli/info/domain/debug-info.js").DebugInfo} debugInfo
+ * @returns {import("../../../dist/cli/info/definitions.js").DebugInfoProvider}
+ */
+export function createFakeDebugInfoProvider(debugInfo) {
+	return {
+		async get() {
+			return debugInfo;
+		},
+	};
+}
+
+export function createSpyClipboard() {
+	/** @type {Array<string>} */
+	const texts = [];
+
+	/** @type {import("../../../dist/cli/info/definitions.js").Clipboard} */
+	const clipboard = {
+		async copy(text) {
+			texts.push(text);
+		},
+	};
+
+	return { texts, clipboard };
+}
+
+/**
+ * @param {string | null} userAgent
+ * @returns {import("../../../dist/cli/info/definitions.js").PackageManagerUserAgentProvider}
+ */
+export function createFakePackageManagerUserAgentProvider(userAgent) {
+	return {
+		getUserAgent() {
+			return userAgent;
+		},
+	};
+}
