@@ -5,8 +5,8 @@ import type { RoutesList } from '../types/astro.js';
 import { VIRTUAL_PAGE_MODULE_ID } from './page.js';
 import { getVirtualModulePageName } from './util.js';
 
-export const VIRTUAL_PAGES_MODULE_ID = 'virtual:astro:pages';
-export const VIRTUAL_PAGES_RESOLVED_MODULE_ID = '\0' + VIRTUAL_PAGES_MODULE_ID;
+const VIRTUAL_PAGES_MODULE_ID = 'virtual:astro:pages';
+const VIRTUAL_PAGES_RESOLVED_MODULE_ID = '\0' + VIRTUAL_PAGES_MODULE_ID;
 
 interface PagesPluginOptions {
 	routesList: RoutesList;

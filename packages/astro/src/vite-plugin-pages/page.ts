@@ -64,6 +64,6 @@ export function pluginPage({ routesList }: PagePluginOptions): VitePlugin {
  * From the VirtualModulePageName, get the component path.
  * Remember that the component can be use by multiple routes.
  */
-export function getComponentFromVirtualModulePageName(virtualModulePrefix: string, id: string): string {
+function getComponentFromVirtualModulePageName(virtualModulePrefix: string, id: string): string {
 	return id.slice(virtualModulePrefix.length).replace(/@_@/g, '.');
 }
