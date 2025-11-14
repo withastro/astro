@@ -88,8 +88,6 @@ export class DevApp extends BaseApp<DevPipeline> {
 			const custom400 = getCustom400Route(this.manifestData);
 			if(custom400) {
 				return renderRoute(custom400);
-			} else {
-				throw new Error("COULD NOT FIND 404 COMPONENT");
 			}
 		}
 

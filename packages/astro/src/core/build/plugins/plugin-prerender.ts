@@ -7,12 +7,7 @@ import { getPagesFromVirtualModulePageName } from './util.js';
 export function pluginPrerender(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
-): VitePlugin | undefined {
-	// Static output can skip prerender completely because we're already rendering all pages
-	if (opts.settings.buildOutput === 'static') {
-		return undefined;
-	}
-
+): VitePlugin {
 	return {
 		name: 'astro:rollup-plugin-prerender',
 
