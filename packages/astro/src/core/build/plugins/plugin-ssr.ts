@@ -70,7 +70,6 @@ export const serverEntrypoint = ${JSON.stringify(adapter.serverEntrypoint)};`,
 function vitePluginSSR(
 	internals: BuildInternals,
 	adapter: AstroAdapter,
-	_options: StaticBuildOptions,
 ): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr-server',
@@ -126,7 +125,7 @@ export function pluginSSR(
 	const plugins: VitePlugin[] = [vitePluginAdapter(adapter), vitePluginAdapterConfig(adapter)];
 
 	if (ssr) {
-		plugins.unshift(vitePluginSSR(internals, adapter, options));
+		plugins.unshift(vitePluginSSR(internals, adapter));
 	}
 
 	return plugins;
