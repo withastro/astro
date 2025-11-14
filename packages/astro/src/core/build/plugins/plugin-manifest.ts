@@ -63,41 +63,6 @@ export const MANIFEST_REPLACE = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"]${MANIFEST_REPLACE}['"]`, 'g');
 
 /**
- * Low-level Vite plugin that handles:
- * - Registering the serialized manifest as a build input
- * - Tracking the manifest chunk filename for later injection
- * - Ensuring manifest chunk always rebuilds (cache busting via augmentChunkHash)
- *
- * Does NOT handle the actual manifest computation or injection - that's done in manifestBuildPostHook
- */
-export function pluginManifestBuild(internals: BuildInternals): VitePlugin {
-	return {
-		name: '@astro/plugin-manifest-build',
-		enforce: 'post',
-		applyToEnvironment(environment) {
-			return environment.name === 'ssr' || environment.name === 'prerender';
-		},
-
-		augmentChunkHash(chunkInfo) {
-			if (chunkInfo.facadeModuleId === SERIALIZED_MANIFEST_RESOLVED_ID) {
-				return Date.now().toString();
-			}
-		},
-
-		async generateBundle(_opts, bundle) {
-			for (const [chunkName, chunk] of Object.entries(bundle)) {
-				if (chunk.type === 'asset') {
-					continue;
-				}
-				if (chunk.facadeModuleId === SERIALIZED_MANIFEST_RESOLVED_ID) {
-					internals.manifestFileName = chunkName;
-				}
-			}
-		},
-	};
-}
-
-/**
  * Post-build hook that injects the computed manifest into bundled chunks.
  * Finds the serialized manifest chunk and replaces the placeholder token with real data.
  */
