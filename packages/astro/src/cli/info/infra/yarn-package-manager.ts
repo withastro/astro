@@ -25,6 +25,7 @@ export function createYarnPackageManager({ commandExecutor }: Options): PackageM
 			return 'yarn';
 		},
 		async getPackageVersion(name) {
+			// https://yarnpkg.com/cli/why
 			const { stdout } = await commandExecutor.execute('yarn', ['why', name, '--json'], {
 				shell: true,
 			});

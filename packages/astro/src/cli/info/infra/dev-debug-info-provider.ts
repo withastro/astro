@@ -10,6 +10,9 @@ interface Options {
 	operatingSystemProvider: OperatingSystemProvider;
 }
 
+/**
+ * Returns light debug info (eg. no versions), to avoid slowing down the dev server
+ */
 export function createDevDebugInfoProvider({
 	config,
 	astroVersionProvider,

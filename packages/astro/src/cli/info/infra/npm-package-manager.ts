@@ -16,6 +16,7 @@ export function createNpmPackageManager({ commandExecutor }: Options): PackageMa
 			return 'npm';
 		},
 		async getPackageVersion(name) {
+			// https://docs.npmjs.com/cli/v9/commands/npm-ls
 			const { stdout } = await commandExecutor.execute('npm', ['ls', name, '--json', '--depth=1'], {
 				shell: true,
 			});

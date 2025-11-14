@@ -96,6 +96,8 @@ export class DevPipeline extends Pipeline {
 					root: fileURLToPath(settings.config.root),
 					version: ASTRO_VERSION,
 					latestAstroVersion: settings.latestAstroVersion,
+					// TODO: investigate requesting the debug info on button click to defer
+					// execution as much as possible
 					debugInfo: await this.getDebugInfo(),
 				};
 

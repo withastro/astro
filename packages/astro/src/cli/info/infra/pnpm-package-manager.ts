@@ -20,6 +20,7 @@ export function createPnpmPackageManager({ commandExecutor }: Options): PackageM
 			return 'pnpm';
 		},
 		async getPackageVersion(name) {
+			// https://pnpm.io/cli/why
 			const { stdout } = await commandExecutor.execute('pnpm', ['why', name, '--json'], {
 				shell: true,
 			});
