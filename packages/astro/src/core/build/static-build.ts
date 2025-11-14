@@ -214,6 +214,7 @@ async function buildEnvironments(
 					emptyOutDir: false,
 					outDir: fileURLToPath(getClientOutputDirectory(settings)),
 					copyPublicDir: ssr,
+					sourcemap: false,
 					rollupOptions: {
 						preserveEntrySignatures: 'exports-only',
 					}
