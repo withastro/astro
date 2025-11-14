@@ -16,8 +16,8 @@ import { createDefaultRoutes } from '../routing/default.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import { getOutDirWithinCwd } from './common.js';
 import { type BuildInternals, cssOrder, getPageData, mergeInlineCss } from './internal.js';
-import { ASTRO_PAGE_MODULE_ID } from './plugins/plugin-pages.js';
-import { getVirtualModulePageName } from './plugins/util.js';
+import { VIRTUAL_PAGE_MODULE_ID } from '../../vite-plugin-pages/index.js';
+import { getVirtualModulePageName } from '../../vite-plugin-pages/util.js';
 import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { i18nHasFallback } from './util.js';
 
@@ -158,7 +158,7 @@ export class BuildPipeline extends Pipeline {
 				// The values of the map are the actual `.mjs` files that are generated during the build
 
 				// Here, we take the component path and transform it in the virtual module name
-				const moduleSpecifier = getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component);
+				const moduleSpecifier = getVirtualModulePageName(VIRTUAL_PAGE_MODULE_ID, pageData.component);
 				// We retrieve the original JS module
 				const filePath = this.internals.entrySpecifierToBundleMap.get(moduleSpecifier);
 				if (filePath) {
@@ -279,6 +279,6 @@ function createEntryURL(filePath: string, outFolder: URL) {
  * For a given pageData, returns the entry file path—aka a resolved virtual module in our internals' specifiers.
  */
 function getEntryFilePath(internals: BuildInternals, pageData: RouteData) {
-	const id = '\x00' + getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component);
+	const id = '\x00' + getVirtualModulePageName(VIRTUAL_PAGE_MODULE_ID, pageData.component);
 	return internals.entrySpecifierToBundleMap.get(id);
 }

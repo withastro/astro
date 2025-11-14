@@ -21,6 +21,7 @@ import astroVirtualManifestPlugin from '../manifest/virtual-module.js';
 import astroPrefetch from '../prefetch/vite-plugin-prefetch.js';
 import astroDevToolbar from '../toolbar/vite-plugin-dev-toolbar.js';
 import astroTransitions from '../transitions/vite-plugin-transitions.js';
+import { pluginPage, pluginPages } from '../vite-plugin-pages/index.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
 import { vitePluginApp } from '../vite-plugin-app/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
@@ -148,6 +149,8 @@ export async function createVite(
 			vitePluginRenderers({ settings }),
 			await astroPluginRoutes({ routesList, settings, logger, fsMod: fs }),
 			astroVirtualManifestPlugin(),
+			pluginPage({ routesList }),
+			pluginPages({ routesList }),
 			configAliasVitePlugin({ settings }),
 			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
 			astroVitePlugin({ settings, logger }),

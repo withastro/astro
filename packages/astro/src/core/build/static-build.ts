@@ -20,7 +20,7 @@ import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { getAllBuildPlugins } from './plugins/index.js';
 import { manifestBuildPostHook } from './plugins/plugin-manifest.js';
-import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
+import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/index.js';
 import { RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
@@ -163,9 +163,9 @@ async function buildEnvironments(
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
 					entryFileNames(chunkInfo) {
-						if (chunkInfo.facadeModuleId?.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
+						if (chunkInfo.facadeModuleId?.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)) {
 							return makeAstroPageEntryPointFileName(
-								ASTRO_PAGE_RESOLVED_MODULE_ID,
+								VIRTUAL_PAGE_RESOLVED_MODULE_ID,
 								chunkInfo.facadeModuleId,
 								routes,
 							);
@@ -257,7 +257,7 @@ async function runManifestInjection(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 	ssrOutputs: vite.Rollup.RollupOutput[],
-	clientOutputs: vite.Rollup.RollupOutput[],
+	_clientOutputs: vite.Rollup.RollupOutput[],
 	prerenderOutputs: vite.Rollup.RollupOutput[],
 ) {
 	const mutations = new Map<

@@ -1,7 +1,7 @@
 import type { Rollup, Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import type { StaticBuildOptions } from '../types.js';
-import { ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugin-pages.js';
+import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../../vite-plugin-pages/index.js';
 import { getPagesFromVirtualModulePageName } from './util.js';
 
 export function pluginPrerender(
@@ -50,10 +50,10 @@ function getNonPrerenderOnlyChunks(bundle: Rollup.OutputBundle, internals: Build
 	for (const chunk of chunks) {
 		if (chunk.type === 'chunk' && chunk.isEntry) {
 			// See if this entry chunk is prerendered, if so, skip it
-			if (chunk.facadeModuleId?.startsWith(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
+			if (chunk.facadeModuleId?.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)) {
 				const pageDatas = getPagesFromVirtualModulePageName(
 					internals,
-					ASTRO_PAGE_RESOLVED_MODULE_ID,
+					VIRTUAL_PAGE_RESOLVED_MODULE_ID,
 					chunk.facadeModuleId,
 				);
 				const prerender = pageDatas.every((pageData) => pageData.route.prerender);

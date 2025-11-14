@@ -7,9 +7,7 @@ import { pluginCSS } from './plugin-css.js';
 import { pluginInternals } from './plugin-internals.js';
 import { pluginManifestBuild } from './plugin-manifest.js';
 import { pluginMiddleware } from './plugin-middleware.js';
-import { pluginPages } from './plugin-pages.js';
 import { pluginPrerender } from './plugin-prerender.js';
-import { pluginPrerenderEntry } from './plugin-prerender-entry.js';
 import { pluginScripts } from './plugin-scripts.js';
 import { pluginSSR } from './plugin-ssr.js';
 
@@ -24,11 +22,9 @@ export function getAllBuildPlugins(
 		pluginManifestBuild(internals),
 		pluginMiddleware(options, internals),
 		pluginActions(options, internals),
-		pluginPages(options, internals),
 		...pluginCSS(options, internals),
 		astroHeadBuildPlugin(internals),
 		pluginPrerender(options, internals),
-		pluginPrerenderEntry(options, internals),
 		pluginScripts(internals),
 		...pluginSSR(options, internals),
 	].filter(Boolean) as Array<VitePlugin | VitePlugin[] | undefined>;
