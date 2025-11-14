@@ -92,7 +92,6 @@ export async function staticBuild(
 	} else if (settings.buildOutput === 'server') {
 		settings.timer.start('Server generate');
 		await generatePages(opts, internals, prerenderOutputDir);
-		await cleanStaticOutput(opts, internals);
 		// Move prerender and SSR assets to client directory before cleaning up
 		await ssrMoveAssets(opts, prerenderOutputDir);
 		// Clean up prerender directory after generation
@@ -326,38 +325,6 @@ async function writeMutatedChunks(
 		await fs.promises.mkdir(new URL('./', fileURL), { recursive: true });
 		await fs.promises.writeFile(fileURL, mutation.code, 'utf-8');
 	}
-}
-
-/**
- * Remove chunks that are used for prerendering only
- */
-async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInternals) {
-	const ssr = opts.settings.buildOutput === 'server';
-	const out = ssr
-		? opts.settings.config.build.server
-		: getOutDirWithinCwd(opts.settings.config.outDir);
-	await Promise.all(
-		internals.prerenderOnlyChunks.map(async (chunk) => {
-			const url = new URL(chunk.fileName, out);
-			try {
-				// Entry chunks may be referenced by non-deleted code, so we don't actually delete it
-				// but only empty its content. These chunks should never be executed in practice, but
-				// it should prevent broken import paths if adapters do a secondary bundle.
-				if (chunk.isEntry || chunk.isDynamicEntry) {
-					await fs.promises.writeFile(
-						url,
-						"// Contents removed by Astro as it's used for prerendering only",
-						'utf-8',
-					);
-				} else {
-					await fs.promises.unlink(url);
-				}
-			} catch {
-				// Best-effort only. Sometimes some chunks may be deleted by other plugins, like pure CSS chunks,
-				// so they may already not exist.
-			}
-		}),
-	);
 }
 
 async function ssrMoveAssets(opts: StaticBuildOptions, prerenderOutputDir: URL) {
