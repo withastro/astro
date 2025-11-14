@@ -354,7 +354,15 @@ export function getActionContext(context: APIContext): AstroActionContext {
 
 function getCallerInfo(ctx: APIContext) {
 	if (ctx.routePattern === ACTION_RPC_ROUTE_PATTERN) {
-		return { from: 'rpc', name: ctx.url.pathname.replace(/^.*\/_actions\//, '') } as const;
+		// The pathname has been decoded globally by the time it reaches here.
+		// We need to extract the action name and re-encode dots before passing to pipeline.getAction()
+		// This is because pipeline.getAction() splits by dots for nested actions,
+		// but literal dots in action names (like 'with.dot') should not be split.
+		const pathname = ctx.url.pathname;
+		const actionName = pathname.replace(/^.*\/_actions\//, '');
+		// Re-encode dots so they aren't treated as namespace separators
+		const encodedActionName = actionName.replace(/\./g, '%2E');
+		return { from: 'rpc', name: encodedActionName } as const;
 	}
 	const queryParam = ctx.url.searchParams.get(ACTION_QUERY_PARAMS.actionName);
 	if (queryParam) {
