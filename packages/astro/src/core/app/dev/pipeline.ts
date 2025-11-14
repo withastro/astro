@@ -88,7 +88,18 @@ export class DevPipeline extends Pipeline {
 			scripts.add({ props: {}, children });
 		}
 
-		return { links, styles, scripts };
+		const { css } = await import('virtual:astro:dev-css');
+
+		// Pass framework CSS in as style tags to be appended to the page.
+		for (const { id, url: src, content } of css) {
+			// Vite handles HMR for styles injected as scripts
+			scripts.add({ props: { type: 'module', src }, children: '' });
+			// But we still want to inject the styles to avoid FOUC. The style tags
+			// should emulate what Vite injects so further HMR works as expected.
+			styles.add({ props: { 'data-vite-dev-id': id }, children: content });
+		}
+
+		return { scripts, styles, links };
 	}
 
 	componentMetadata() {}
