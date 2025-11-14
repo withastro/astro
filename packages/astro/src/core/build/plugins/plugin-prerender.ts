@@ -5,7 +5,7 @@ import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../../vite-plugin-pages/inde
 import { getPagesFromVirtualModulePageName } from './util.js';
 
 export function pluginPrerender(
-	opts: StaticBuildOptions,
+	_opts: StaticBuildOptions,
 	internals: BuildInternals,
 ): VitePlugin {
 	return {
