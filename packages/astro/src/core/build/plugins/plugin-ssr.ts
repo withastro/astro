@@ -37,6 +37,11 @@ export default _serverEntrypoint.default;`,
 	};
 }
 
+/**
+ * Vite plugin that exposes adapter configuration as a virtual module.
+ * Makes adapter config (args, exports, features, entrypoint) available at runtime
+ * so the adapter can access its own configuration during SSR.
+ */
 function vitePluginAdapterConfig(adapter: AstroAdapter): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-adapter-config',
