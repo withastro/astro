@@ -22,6 +22,7 @@ import { VIRTUAL_SESSION_DRIVER_ID } from '../core/session/vite-plugin.js';
 import type { AstroSettings } from '../types/astro.js';
 import { ASTRO_RENDERERS_MODULE_ID } from '../vite-plugin-renderers/index.js';
 import { ASTRO_ROUTES_MODULE_ID } from '../vite-plugin-routes/index.js';
+import { PAGES_VIRTUAL_MODULE_ID } from '../core/build/plugins/plugin-prerender-entry.js';
 
 export const SERIALIZED_MANIFEST_ID = 'virtual:astro:manifest';
 export const SERIALIZED_MANIFEST_RESOLVED_ID = '\0' + SERIALIZED_MANIFEST_ID;
@@ -58,6 +59,7 @@ export function serializedManifestPlugin({
 					import { deserializeManifest as _deserializeManifest } from 'astro/app';
 					import { renderers } from '${ASTRO_RENDERERS_MODULE_ID}';
 					import { routes } from '${ASTRO_ROUTES_MODULE_ID}';
+					import { pageMap } from '${PAGES_VIRTUAL_MODULE_ID}';
 					
 					const _manifest = _deserializeManifest((${manifestData}));
 					const manifest = Object.assign(_manifest, {
@@ -67,6 +69,7 @@ export function serializedManifestPlugin({
 					  sessionDriver: () => import('${VIRTUAL_SESSION_DRIVER_ID}'),
 					  serverIslandMappings: () => import('${SERVER_ISLAND_MANIFEST}'),
 					  routes,
+					  pageMap,
 					})
 					export { manifest }
 				`;

@@ -238,14 +238,14 @@ async function buildEnvironments(
 	const builder = await vite.createBuilder(updatedViteBuildConfig);
 
 	// Build ssr environment for server output
-	const ssrOutput = await builder.build(builder.environments.ssr);
+	const ssrOutput = settings.buildOutput === 'static' ? [] : await builder.build(builder.environments.ssr);
 
 	// Build prerender environment for static generation
 	const prerenderOutput = await builder.build(builder.environments.prerender);
 
 	// Build client environment
-	const clientInput = getClientInput(internals, settings);
-	builder.environments.client.config.build.rollupOptions.input = Array.from(clientInput);
+	internals.clientInput = getClientInput(internals, settings);
+	builder.environments.client.config.build.rollupOptions.input = Array.from(internals.clientInput);
 	const clientOutput = await builder.build(builder.environments.client);
 
 	return { ssrOutput, prerenderOutput, clientOutput };
@@ -278,7 +278,6 @@ async function runManifestInjection(
 
 	await manifestBuildPostHook(opts, internals, {
 		ssrOutputs,
-		clientOutputs,
 		prerenderOutputs,
 		mutate,
 	});

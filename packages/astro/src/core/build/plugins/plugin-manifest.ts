@@ -5,6 +5,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
+import * as vite from 'vite';
 import {
 	SERIALIZED_MANIFEST_RESOLVED_ID,
 } from '../../../manifest/serialized.js';
@@ -103,46 +104,53 @@ export function pluginManifestBuild(internals: BuildInternals): VitePlugin {
 export async function manifestBuildPostHook(
 	options: StaticBuildOptions,
 	internals: BuildInternals,
-	{ ssrOutputs, prerenderOutputs, mutate }: any,
+	{ ssrOutputs, prerenderOutputs, mutate }: {
+		ssrOutputs: vite.Rollup.RollupOutput[],
+		prerenderOutputs: vite.Rollup.RollupOutput[],
+		mutate: (chunk: OutputChunk, envs: ['server'], code: string) => void;
+	},
 ) {
-	let manifestEntryChunk: OutputChunk | undefined;
+	const manifest = await createManifest(options, internals);
+	
+	if(ssrOutputs.length > 0) {
+		let manifestEntryChunk: OutputChunk | undefined;
 
-	// Find the serialized manifest chunk in SSR outputs
-	for (const output of ssrOutputs) {
-		for (const chunk of output.output) {
-			if (chunk.type === 'asset') {
-				continue;
+		// Find the serialized manifest chunk in SSR outputs
+		for (const output of ssrOutputs) {
+			for (const chunk of output.output) {
+				if (chunk.type === 'asset') {
+					continue;
+				}
+				if (chunk.code && chunk.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID)) {
+					manifestEntryChunk = chunk as OutputChunk;
+					break;
+				}
 			}
-			if (chunk.code && chunk.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID)) {
-				manifestEntryChunk = chunk as OutputChunk;
+			if (manifestEntryChunk) {
 				break;
 			}
 		}
-		if (manifestEntryChunk) {
-			break;
+
+		if (!manifestEntryChunk) {
+			throw new Error(`Did not find serialized manifest chunk for SSR`);
 		}
-	}
 
-	if (!manifestEntryChunk) {
-		throw new Error(`Did not find serialized manifest chunk for SSR`);
+		const shouldPassMiddlewareEntryPoint =
+			options.settings.adapter?.adapterFeatures?.edgeMiddleware;
+		await runHookBuildSsr({
+			config: options.settings.config,
+			manifest,
+			logger: options.logger,
+			middlewareEntryPoint: shouldPassMiddlewareEntryPoint
+				? internals.middlewareEntryPoint
+				: undefined,
+		});
+		const code = injectManifest(manifest, manifestEntryChunk);
+		mutate(manifestEntryChunk, ['server'], code);
 	}
-
-	const manifest = await createManifest(options, internals);
-	const shouldPassMiddlewareEntryPoint =
-		options.settings.adapter?.adapterFeatures?.edgeMiddleware;
-	await runHookBuildSsr({
-		config: options.settings.config,
-		manifest,
-		logger: options.logger,
-		middlewareEntryPoint: shouldPassMiddlewareEntryPoint
-			? internals.middlewareEntryPoint
-			: undefined,
-	});
-	const code = injectManifest(manifest, manifestEntryChunk);
-	mutate(manifestEntryChunk, ['server'], code);
 
 	// Also inject manifest into prerender outputs if available
-	if (prerenderOutputs) {
+	if (prerenderOutputs?.length > 0) {
 		let prerenderManifestChunk: OutputChunk | undefined;
 		for (const output of prerenderOutputs) {
 			for (const chunk of output.output) {

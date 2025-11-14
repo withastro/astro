@@ -49,7 +49,8 @@ export function pluginInternals(
 		async generateBundle(_options, bundle) {
 			const promises = [];
 			const mapping = new Map<string, Set<string>>();
-			for (const specifier of input) {
+			const allInput = new Set([...input, ...internals.clientInput]);
+			for (const specifier of allInput) {
 				promises.push(
 					this.resolve(specifier).then((result) => {
 						if (result) {

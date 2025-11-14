@@ -84,6 +84,9 @@ export interface BuildInternals {
 	// A list of all statics chunks and assets that are built in the client
 	clientChunksAndAssets: Set<string>;
 
+	// All of the input modules for the client.
+	clientInput: Set<string>;
+
 	manifestFileName?: string;
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint: URL | undefined;
@@ -101,6 +104,7 @@ export interface BuildInternals {
  */
 export function createBuildInternals(): BuildInternals {
 	return {
+		clientInput: new Set(),
 		cssModuleToChunkIdMap: new Map(),
 		inlinedScripts: new Map(),
 		entrySpecifierToBundleMap: new Map<string, string>(),
