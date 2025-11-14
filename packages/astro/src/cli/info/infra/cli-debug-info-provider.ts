@@ -39,19 +39,18 @@ export function createCliDebugInfoProvider({
 			}
 			debugInfo.push(['Adapter', adapter]);
 
-			const integrations = config.integrations
-				.map(async (i) => {
-					if (!i.name) return;
+			const integrations = config.integrations.map(async (i) => {
+				if (!i.name) return;
 
-					let version: string | undefined;
-					try {
-						version = await packageManager.getPackageVersion(i.name);
-					} catch {
-						version = undefined;
-					}
+				let version: string | undefined;
+				try {
+					version = await packageManager.getPackageVersion(i.name);
+				} catch {
+					version = undefined;
+				}
 
-					return `${i.name}${version ? ` (${version})` : ''}`;
-				});
+				return `${i.name}${version ? ` (${version})` : ''}`;
+			});
 
 			const awaitedIntegrations = (await Promise.all(integrations)).filter(
 				(e) => typeof e === 'string',
