@@ -11,7 +11,7 @@ export function pluginMiddleware(
 	return {
 		...plugin,
 		applyToEnvironment(environment) {
-			return environment.name === 'ssr' || environment.name === 'prerender';
+			return environment.name === 'ssr';
 		},
 	};
 }
