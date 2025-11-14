@@ -11,6 +11,7 @@ export function createCliAstroConfigResolver({ flags }: Options): AstroConfigRes
 	return {
 		async resolve() {
 			const { astroConfig } = await resolveConfig(
+				// TODO: consider testing flags => astro inline config
 				{
 					// Inline-only configs
 					configFile: typeof flags.config === 'string' ? flags.config : undefined,

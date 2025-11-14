@@ -3,10 +3,13 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { getPackageManager } from '../../../dist/cli/info/core/get-package-manager.js';
 import { infoCommand } from '../../../dist/cli/info/core/info.js';
+import { createCliClipboard } from '../../../dist/cli/info/infra/cli-clipboard.js';
 import { createSpyLogger } from '../test-utils.js';
 import {
 	createFakeDebugInfoProvider,
+	createFakeOperatingSystemProvider,
 	createFakePackageManagerUserAgentProvider,
+	createFakePrompt,
 	createPassthroughCommandRunner,
 	createSpyClipboard,
 	createSpyCommandExecutor,
@@ -143,5 +146,38 @@ describe('CLI info', () => {
 		});
 	});
 
-	describe('infra', () => {});
+	describe('infra', () => {
+		describe('createCliClipboard()', () => {
+			it('aborts early if no copy command can be found', async () => {
+				const { commandExecutor, inputs } = createSpyCommandExecutor({ fail: true });
+				const { logger, logs } = createSpyLogger();
+				const operatingSystemProvider = createFakeOperatingSystemProvider('aix');
+				const prompt = createFakePrompt(true);
+
+				const clipboard = createCliClipboard({
+					commandExecutor,
+					logger,
+					operatingSystemProvider,
+					prompt,
+				});
+				await clipboard.copy('foo bar');
+
+				assert.equal(inputs.length, 2);
+				assert.equal(logs[0].type, 'warn');
+				assert.equal(logs[0].message, 'Clipboard command not found!');
+				assert.equal(logs[1].type, 'info');
+				assert.equal(logs[1].message, 'Please manually copy the text above.');
+			});
+
+			it('aborts if user does not confirm', async () => {
+				// TODO:
+			});
+
+			it('copies correctly', async () => {
+				// TODO:
+			});
+		});
+
+		// TODO:
+	});
 });

@@ -83,7 +83,7 @@ export function createFakeOperatingSystemProvider(platform) {
 	};
 }
 
-export function createSpyCommandExecutor() {
+export function createSpyCommandExecutor({ fail = false } = {}) {
 	/** @type {Array<{ command: string; args?: Array<string> }>} */
 	const inputs = [];
 
@@ -91,6 +91,9 @@ export function createSpyCommandExecutor() {
 	const commandExecutor = {
 		async execute(command, args) {
 			inputs.push({ command, args });
+			if (fail) {
+				throw new Error('Command execution failed');
+			}
 			return {
 				stdout: '',
 			};
@@ -134,6 +137,18 @@ export function createFakePackageManagerUserAgentProvider(userAgent) {
 	return {
 		getUserAgent() {
 			return userAgent;
+		},
+	};
+}
+
+/**
+ * @param {boolean} confirmed
+ * @returns {import("../../../dist/cli/info/definitions.js").Prompt}
+ * */
+export function createFakePrompt(confirmed) {
+	return {
+		async confirm() {
+			return confirmed;
 		},
 	};
 }

@@ -52,7 +52,7 @@ export function createCliClipboard({
 			const platform = operatingSystemProvider.getName();
 			const input = await getExecInputForPlatform({ platform, commandExecutor });
 			if (!input) {
-				logger.error('SKIP_FORMAT', 'Clipboard command not found!');
+				logger.warn('SKIP_FORMAT', 'Clipboard command not found!');
 				logger.info('SKIP_FORMAT', 'Please manually copy the text above.');
 				return;
 			}
