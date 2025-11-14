@@ -111,11 +111,15 @@ export function vitePluginMiddlewareBuild(
 		name: '@astro/plugin-middleware-build',
 
 		configResolved(config) {
+			// Cloudflare Workers (webworker target) can't have multiple entrypoints,
+			// so we only add middleware as a separate bundle for other targets (Node, Deno, etc).
 			canSplitMiddleware = config.ssr.target !== 'webworker';
 		},
 
 		options(options) {
 			if(canSplitMiddleware) {
+				// Add middleware as a separate rollup input for environments that support multiple entrypoints.
+				// This allows the middleware to be bundled independently.
 				return addRollupInput(options, [MIDDLEWARE_MODULE_ID]);
 			} else {
 				// TODO warn if edge middleware is enabled

@@ -2,7 +2,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import type { StaticBuildOptions } from '../types.js';
 import { astroHeadBuildPlugin } from '../../../vite-plugin-head/index.js';
-import { pluginActions } from './plugin-actions.js';
+import { vitePluginActionsBuild } from '../../../actions/vite-plugin-actions.js';
 import { pluginAnalyzer } from './plugin-analyzer.js';
 import { pluginComponentEntry } from './plugin-component-entry.js';
 import { pluginCSS } from './plugin-css.js';
@@ -21,7 +21,7 @@ export function getAllBuildPlugins(
 		pluginAnalyzer(internals),
 		pluginInternals(options, internals),
 		pluginMiddleware(options, internals),
-		pluginActions(options, internals),
+		vitePluginActionsBuild(options, internals),
 		...pluginCSS(options, internals),
 		astroHeadBuildPlugin(internals),
 		pluginPrerender(options, internals),

@@ -29,6 +29,10 @@ export function vitePluginActionsBuild(
 	return {
 		name: '@astro/plugin-actions-build',
 
+		applyToEnvironment(environment) {
+			return environment.name === 'ssr';
+		},
+
 		writeBundle(_, bundle) {
 			for (const [chunkName, chunk] of Object.entries(bundle)) {
 				if (
