@@ -103,7 +103,7 @@ export function cloudflareModuleLoader(
 			// however, by default, the SSG generator cannot import the asset as a module, so embed as a base64 string
 			const chunkId = this.emitFile({
 				type: 'prebuilt-chunk',
-				fileName: `${assetName}`,
+				fileName: assetName,
 				code: inlineModule,
 			});
 
