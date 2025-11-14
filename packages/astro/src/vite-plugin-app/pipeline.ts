@@ -21,7 +21,6 @@ import type {
 	SSRLoadedRenderer,
 	SSRManifest,
 } from '../types/public/index.js';
-import { getStylesForURL } from '../vite-plugin-astro-server/css.js';
 import { getComponentMetadata } from '../vite-plugin-astro-server/metadata.js';
 import { createResolve } from '../vite-plugin-astro-server/resolve.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
@@ -117,15 +116,13 @@ export class AstroServerPipeline extends Pipeline {
 			}
 		}
 
+		const { css } = await import('virtual:astro:dev-css');
+
 		// Pass framework CSS in as style tags to be appended to the page.
 		const links = new Set<SSRElement>();
-		const { urls, styles: _styles } = await getStylesForURL(filePath, loader);
-		for (const href of urls) {
-			links.add({ props: { rel: 'stylesheet', href }, children: '' });
-		}
 
 		const styles = new Set<SSRElement>();
-		for (const { id, url: src, content } of _styles) {
+		for (const { id, url: src, content } of css) {
 			// Vite handles HMR for styles injected as scripts
 			scripts.add({ props: { type: 'module', src }, children: '' });
 			// But we still want to inject the styles to avoid FOUC. The style tags

@@ -24,7 +24,7 @@ const surnamne = Astro.url.searchParams.get('surname');
 	<Font cssVariable='--font-roboto' preload />
 	<title>Index</title>
 </head>
-<body style="font-family: var(--font-roboto)">
+<body>
 	<p>Last updated: {increment.data.lastUpdated.toLocaleTimeString()}</p>
 
 	<h2>Translations</h2>
@@ -67,4 +67,11 @@ const surnamne = Astro.url.searchParams.get('surname');
 </body>
 </html>
 
+
+<style>
+	body {
+		background: antiquewhite;
+		font-family: var(--font-roboto);
+	}
+</style>
 

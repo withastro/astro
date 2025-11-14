@@ -1,11 +1,13 @@
 import { extname } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { isRunnableDevEnvironment, type Plugin } from 'vite';
+import { fileURLToPath } from 'node:url';
+import { isRunnableDevEnvironment, type Plugin, type RunnableDevEnvironment } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { createViteLoader } from '../core/module-loader/vite.js';
+import { wrapId } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
-import { getStylesForURL } from '../vite-plugin-astro-server/css.js';
+import { isBuildableCSSRequest } from '../vite-plugin-astro-server/util.js';
+import { crawlGraph } from '../vite-plugin-astro-server/vite.js';
 import {
 	CONTENT_IMAGE_FLAG,
 	CONTENT_RENDER_FLAG,
@@ -80,7 +82,7 @@ export function astroContentAssetPropagationPlugin({
 						styles,
 						urls,
 						crawledFiles: styleCrawledFiles,
-					} = await getStylesForURL(pathToFileURL(basePath), devModuleLoader);
+					} = await getStylesForURL(basePath, devModuleLoader.getSSREnvironment());
 
 					// Register files we crawled to be able to retrieve the rendered styles and scripts,
 					// as when they get updated, we need to re-transform ourselves.
@@ -119,3 +121,67 @@ export function astroContentAssetPropagationPlugin({
 	};
 }
 
+interface ImportedDevStyle {
+	id: string;
+	url: string;
+	content: string;
+}
+const INLINE_QUERY_REGEX = /(?:\?|&)inline(?:$|&)/;
+
+/** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
+export async function getStylesForURL(
+	filePath: string,
+	environment: RunnableDevEnvironment,
+): Promise<{ urls: Set<string>; styles: ImportedDevStyle[]; crawledFiles: Set<string> }> {
+	const importedCssUrls = new Set<string>();
+	// Map of url to injected style object. Use a `url` key to deduplicate styles
+	const importedStylesMap = new Map<string, ImportedDevStyle>();
+	const crawledFiles = new Set<string>();
+
+	for await (const importedModule of crawlGraph(environment, filePath, false)) {
+		if (importedModule.file) {
+			crawledFiles.add(importedModule.file);
+		}
+		if (isBuildableCSSRequest(importedModule.url)) {
+			// In dev, we inline all styles if possible
+			let css = '';
+			// If this is a plain CSS module, the default export should be a string
+			if (typeof importedModule.ssrModule?.default === 'string') {
+				css = importedModule.ssrModule.default;
+			}
+			// Else try to load it
+			else {
+				let modId = importedModule.url;
+				// Mark url with ?inline so Vite will return the CSS as plain string, even for CSS modules
+				if (!INLINE_QUERY_REGEX.test(importedModule.url)) {
+					if (importedModule.url.includes('?')) {
+						modId = importedModule.url.replace('?', '?inline&');
+					} else {
+						modId += '?inline';
+					}
+				}
+				try {
+					// The SSR module is possibly not loaded. Load it if it's null.
+					const ssrModule = await environment.runner.import(modId);
+					css = ssrModule.default;
+				} catch {
+					// The module may not be inline-able, e.g. SCSS partials. Skip it as it may already
+					// be inlined into other modules if it happens to be in the graph.
+					continue;
+				}
+			}
+
+			importedStylesMap.set(importedModule.url, {
+				id: wrapId(importedModule.id ?? importedModule.url),
+				url: wrapId(importedModule.url),
+				content: css,
+			});
+		}
+	}
+
+	return {
+		urls: importedCssUrls,
+		styles: [...importedStylesMap.values()],
+		crawledFiles,
+	};
+}
