@@ -152,7 +152,7 @@
           "scope": "resource",
           "type": "boolean",
           "default": true,
-          "markdownDescription": "Enable the auto import cache. Yields a faster intellisense when automatically importing a file, but can cause issues with new files not being detected. Change is applied on restart. See [#1035](https://github.com/withastro/language-tools/issues/1035)."
+          "markdownDescription": "Enable the auto import cache. Yields a faster intellisense when automatically importing a file, but can cause issues with new files not being detected. Change is applied on restart. See [#14642](https://github.com/withastro/astro/issues/14642)."
         },
         "astro.updateImportsOnFileMove.enabled": {
           "scope": "resource",
