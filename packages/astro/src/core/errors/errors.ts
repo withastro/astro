@@ -74,7 +74,7 @@ export class AstroError extends Error {
 	}
 
 	static is(err: unknown): err is AstroError {
-		return (err as AstroError).type === 'AstroError';
+		return err != null && (err as AstroError).type === 'AstroError';
 	}
 }
 
@@ -86,7 +86,7 @@ export class CompilerError extends AstroError {
 	}
 
 	static is(err: unknown): err is CompilerError {
-		return (err as CompilerError).type === 'CompilerError';
+		return err != null && (err as CompilerError).type === 'CompilerError';
 	}
 }
 
@@ -94,7 +94,7 @@ export class CSSError extends AstroError {
 	type: ErrorTypes = 'CSSError';
 
 	static is(err: unknown): err is CSSError {
-		return (err as CSSError).type === 'CSSError';
+		return err != null && (err as CSSError).type === 'CSSError';
 	}
 }
 
@@ -102,7 +102,7 @@ export class MarkdownError extends AstroError {
 	type: ErrorTypes = 'MarkdownError';
 
 	static is(err: unknown): err is MarkdownError {
-		return (err as MarkdownError).type === 'MarkdownError';
+		return err != null && (err as MarkdownError).type === 'MarkdownError';
 	}
 }
 
@@ -110,7 +110,7 @@ export class InternalError extends AstroError {
 	type: ErrorTypes = 'InternalError';
 
 	static is(err: unknown): err is InternalError {
-		return (err as InternalError).type === 'InternalError';
+		return err != null && (err as InternalError).type === 'InternalError';
 	}
 }
 
@@ -127,7 +127,7 @@ export class AggregateError extends AstroError {
 	}
 
 	static is(err: unknown): err is AggregateError {
-		return (err as AggregateError).type === 'AggregateError';
+		return err != null && (err as AggregateError).type === 'AggregateError';
 	}
 }
 
@@ -191,6 +191,6 @@ export class AstroUserError extends Error {
 	}
 
 	static is(err: unknown): err is AstroUserError {
-		return (err as AstroUserError).type === 'AstroUserError';
+		return err != null && (err as AstroUserError).type === 'AstroUserError';
 	}
 }
