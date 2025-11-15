@@ -1,16 +1,14 @@
 import fsMod, { existsSync, promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import boxen from 'boxen';
+import * as clack from '@clack/prompts';
 import { diffWords } from 'diff';
 import { type ASTNode, builders, generateCode, loadFile, type ProxifiedModule } from 'magicast';
 import { getDefaultExportOptions } from 'magicast/helpers';
 import { detect, resolveCommand } from 'package-manager-detector';
 import colors from 'picocolors';
-import prompts from 'prompts';
 import maxSatisfying from 'semver/ranges/max-satisfying.js';
 import type yargsParser from 'yargs-parser';
-import yoctoSpinner from 'yocto-spinner';
 import {
 	loadTSConfig,
 	resolveConfig,
@@ -445,19 +443,19 @@ export async function add(names: string[], { flags }: AddOptions) {
 				),
 			);
 			if (integrations.find((integration) => integration.integrationName === 'tailwind')) {
-				const code = boxen(getDiffContent('---\n---', "---\nimport '../styles/global.css'\n---")!, {
-					margin: 0.5,
-					padding: 0.5,
-					borderStyle: 'round',
-					title: 'src/layouts/Layout.astro',
-				});
 				logger.warn(
 					'SKIP_FORMAT',
 					msg.actionRequired(
 						'You must import your Tailwind stylesheet, e.g. in a shared layout:\n',
 					),
 				);
-				logger.info('SKIP_FORMAT', code + '\n');
+				clack.box(
+					getDiffContent('---\n---', "---\nimport '../styles/global.css'\n---")!,
+					'src/layouts/Layout.astro',
+					{
+						rounded: true,
+					},
+				);
 			}
 		}
 	}
@@ -643,17 +641,14 @@ async function updateAstroConfig({
 		return UpdateResult.none;
 	}
 
-	const message = `\n${boxen(diff, {
-		margin: 0.5,
-		padding: 0.5,
-		borderStyle: 'round',
-		title: configURL.pathname.split('/').pop(),
-	})}\n`;
-
 	logger.info(
 		'SKIP_FORMAT',
-		`\n  ${magenta('Astro will make the following changes to your config file:')}\n${message}`,
+		`\n  ${magenta('Astro will make the following changes to your config file:')}`,
 	);
+
+	clack.box(diff, configURL.pathname.split('/').pop(), {
+		rounded: true,
+	});
 
 	if (logAdapterInstructions) {
 		logger.info(
@@ -758,20 +753,19 @@ async function tryToInstallIntegrations({
 	);
 
 	const coloredOutput = `${bold(installCommand.command)} ${installCommand.args.join(' ')} ${cyan(installSpecifiers.join(' '))}`;
-	const message = `\n${boxen(coloredOutput, {
-		margin: 0.5,
-		padding: 0.5,
-		borderStyle: 'round',
-	})}\n`;
 	logger.info(
 		'SKIP_FORMAT',
 		`\n  ${magenta('Astro will run the following command:')}\n  ${dim(
 			'If you skip this step, you can always run it yourself later',
-		)}\n${message}`,
+		)}`,
 	);
+	clack.box(coloredOutput, undefined, {
+		rounded: true,
+	});
 
 	if (await askToContinue({ flags })) {
-		const spinner = yoctoSpinner({ text: 'Installing dependencies...' }).start();
+		const spinner = clack.spinner();
+		spinner.start('Installing dependencies...');
 		try {
 			await exec(installCommand.command, [...installCommand.args, ...installSpecifiers], {
 				nodeOptions: {
@@ -780,10 +774,10 @@ async function tryToInstallIntegrations({
 					env: { NODE_ENV: undefined },
 				},
 			});
-			spinner.success();
+			spinner.stop('Dependencies installed.');
 			return UpdateResult.updated;
 		} catch (err: any) {
-			spinner.error();
+			spinner.error('Error installing dependencies.');
 			logger.debug('add', 'Error installing dependencies', err);
 			// NOTE: `err.stdout` can be an empty string, so log the full error instead for a more helpful log
 			console.error('\n', err.stdout || err.message, '\n');
@@ -798,7 +792,8 @@ async function validateIntegrations(
 	integrations: string[],
 	flags: yargsParser.Arguments,
 ): Promise<IntegrationInfo[]> {
-	const spinner = yoctoSpinner({ text: 'Resolving packages...' }).start();
+	const spinner = clack.spinner();
+	spinner.start('Resolving packages...');
 	try {
 		const integrationEntries = await Promise.all(
 			integrations.map(async (integration): Promise<IntegrationInfo> => {
@@ -816,9 +811,9 @@ async function validateIntegrations(
 					const firstPartyPkgCheck = await fetchPackageJson('@astrojs', name, tag);
 					if (firstPartyPkgCheck instanceof Error) {
 						if (firstPartyPkgCheck.message) {
-							spinner.warning(yellow(firstPartyPkgCheck.message));
+							spinner.message(yellow(firstPartyPkgCheck.message));
 						}
-						spinner.warning(yellow(`${bold(integration)} is not an official Astro package.`));
+						spinner.message(yellow(`${bold(integration)} is not an official Astro package.`));
 						if (!(await askToContinue({ flags }))) {
 							throw new Error(
 								`No problem! Find our official integrations at ${cyan(
@@ -826,7 +821,7 @@ async function validateIntegrations(
 								)}`,
 							);
 						}
-						spinner.start('Resolving with third party packages...');
+						spinner.message('Resolving with third party packages...');
 						pkgType = 'third-party';
 					} else {
 						pkgType = 'first-party';
@@ -837,7 +832,7 @@ async function validateIntegrations(
 					const thirdPartyPkgCheck = await fetchPackageJson(scope, name, tag);
 					if (thirdPartyPkgCheck instanceof Error) {
 						if (thirdPartyPkgCheck.message) {
-							spinner.warning(yellow(thirdPartyPkgCheck.message));
+							spinner.message(yellow(thirdPartyPkgCheck.message));
 						}
 						throw new Error(`Unable to fetch ${bold(integration)}. Does the package exist?`);
 					} else {
@@ -895,7 +890,7 @@ async function validateIntegrations(
 				};
 			}),
 		);
-		spinner.success();
+		spinner.stop('Resolved packages.');
 		return integrationEntries;
 	} catch (e) {
 		if (e instanceof Error) {
@@ -954,17 +949,14 @@ async function updateTSConfig(
 		return UpdateResult.none;
 	}
 
-	const message = `\n${boxen(diff, {
-		margin: 0.5,
-		padding: 0.5,
-		borderStyle: 'round',
-		title: configFileName,
-	})}\n`;
-
 	logger.info(
 		'SKIP_FORMAT',
-		`\n  ${magenta(`Astro will make the following changes to your ${configFileName}:`)}\n${message}`,
+		`\n  ${magenta(`Astro will make the following changes to your ${configFileName}:`)}`,
 	);
+
+	clack.box(diff, configFileName, {
+		rounded: true,
+	});
 
 	// Every major framework, apart from Vue and Svelte requires different `jsxImportSource`, as such it's impossible to config
 	// all of them in the same `tsconfig.json`. However, Vue only need `"jsx": "preserve"` for template intellisense which
@@ -1017,14 +1009,12 @@ function parseIntegrationName(spec: string) {
 async function askToContinue({ flags }: { flags: Flags }): Promise<boolean> {
 	if (flags.yes || flags.y) return true;
 
-	const response = await prompts({
-		type: 'confirm',
-		name: 'askToContinue',
-		message: 'Continue?',
-		initial: true,
+	const response = await clack.confirm({
+		message: colors.bold('Continue?'),
+		initialValue: true,
 	});
 
-	return Boolean(response.askToContinue);
+	return response === true;
 }
 
 function getDiffContent(input: string, output: string): string | null {

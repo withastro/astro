@@ -1,7 +1,7 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { arch, platform } from 'node:os';
+import * as clack from '@clack/prompts';
 import colors from 'picocolors';
-import prompts from 'prompts';
 import { resolveConfig } from '../../core/config/index.js';
 import { ASTRO_VERSION } from '../../core/constants.js';
 import type { AstroConfig, AstroUserConfig } from '../../types/public/config.js';
@@ -122,14 +122,12 @@ async function copyToClipboard(text: string, force?: boolean) {
 	}
 
 	if (!force) {
-		const { shouldCopy } = await prompts({
-			type: 'confirm',
-			name: 'shouldCopy',
-			message: 'Copy to clipboard?',
-			initial: true,
+		const shouldCopy = await clack.confirm({
+			message: colors.bold('Copy to clipboard?'),
+			initialValue: true,
 		});
 
-		if (!shouldCopy) return;
+		if (shouldCopy !== true) return;
 	}
 
 	try {
