@@ -38,6 +38,9 @@ export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z.ZodTyp
 
 export type ActionReturnType<T extends ActionHandler<any, any>> = Awaited<ReturnType<T>>;
 
+export type ActionInputSchema<T extends ActionHandler<any, any>> =
+  T extends ActionHandler<infer TInputSchema extends z.ZodType, any> ? TInputSchema : never
+
 export type ActionClient<
 	TOutput,
 	TAccept extends ActionAccept | undefined,
