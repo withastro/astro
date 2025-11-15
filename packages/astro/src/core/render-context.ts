@@ -74,10 +74,9 @@ export class RenderContext {
 		const url = new URL(requestUrl);
 		try {
 			url.pathname = decodeURI(url.pathname);
-		} catch {
-			// If decoding fails, keep the original pathname
+		} finally {
+			return url;
 		}
-		return url;
 	}
 
 	/**
