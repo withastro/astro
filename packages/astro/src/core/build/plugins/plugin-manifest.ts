@@ -75,7 +75,7 @@ export async function manifestBuildPostHook(
 	},
 ) {
 	const manifest = await createManifest(options, internals);
-	
+
 	if(ssrOutputs.length > 0) {
 		let manifestEntryChunk: OutputChunk | undefined;
 
@@ -153,7 +153,8 @@ async function createManifest(
 
 	const staticFiles = internals.staticFiles;
 	const encodedKey = await encodeKey(await buildOpts.key);
-	return await buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
+	const manifest = await buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
+	return manifest;
 }
 
 /**
@@ -208,31 +209,9 @@ async function buildManifest(
 	}
 
 	for (const route of opts.routesList.routes) {
-		if (!route.prerender) continue;
-		if (!route.pathname) continue;
-
-		const outFolder = getOutFolder(opts.settings, route.pathname, route);
-		const outFile = getOutFile(opts.settings.config, outFolder, route.pathname, route);
-		const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
-		routes.push({
-			file,
-			links: [],
-			scripts: [],
-			styles: [],
-			routeData: serializeRouteData(route, settings.config.trailingSlash),
-		});
-		staticFiles.push(file);
-	}
-
-	const needsStaticHeaders = settings.adapter?.adapterFeatures?.experimentalStaticHeaders ?? false;
-
-	for (const route of opts.routesList.routes) {
 		const pageData = internals.pagesByKeys.get(makePageDataKey(route.route, route.component));
 		if (!pageData) continue;
 
-		if (route.prerender && route.type !== 'redirect' && !needsStaticHeaders) {
-			continue;
-		}
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (settings.scripts.some((script) => script.stage === 'page')) {
 			const src = entryModules[PAGE_SCRIPT_ID];
@@ -264,6 +243,14 @@ async function buildManifest(
 			styles,
 			routeData: serializeRouteData(route, settings.config.trailingSlash),
 		});
+
+		// Add the built .html file as a staticFile
+		if(route.prerender && route.pathname) {
+			const outFolder = getOutFolder(opts.settings, route.pathname, route);
+			const outFile = getOutFile(opts.settings.config, outFolder, route.pathname, route);
+			const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
+			staticFiles.push(file);
+		}
 	}
 
 	/**

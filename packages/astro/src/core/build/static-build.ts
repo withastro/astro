@@ -225,6 +225,11 @@ async function buildEnvironments(
 					sourcemap: false,
 					rollupOptions: {
 						preserveEntrySignatures: 'exports-only',
+						output: {
+							entryFileNames: `${settings.config.build.assets}/[name].[hash].js`,
+							chunkFileNames: `${settings.config.build.assets}/[name].[hash].js`,
+							assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
+						},
 					}
 				},
 			},
