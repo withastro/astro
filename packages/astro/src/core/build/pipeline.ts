@@ -5,7 +5,7 @@ import type {
 	SSRElement,
 	SSRResult,
 } from '../../types/public/internal.js';
-import { VIRTUAL_PAGE_MODULE_ID } from '../../vite-plugin-pages/index.js';
+import { VIRTUAL_PAGE_MODULE_ID, VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/index.js';
 import { getVirtualModulePageName } from '../../vite-plugin-pages/util.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
@@ -18,8 +18,7 @@ import { createDefaultRoutes } from '../routing/default.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import { getOutDirWithinCwd } from './common.js';
 import { type BuildInternals, cssOrder, getPageData, mergeInlineCss } from './internal.js';
-import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
-import { i18nHasFallback } from './util.js';
+import type { SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 
 /**
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
@@ -141,40 +140,21 @@ export class BuildPipeline extends Pipeline {
 	 * It collects the routes to generate during the build.
 	 * It returns a map of page information and their relative entry point as a string.
 	 */
-	retrieveRoutesToGenerate(): Map<PageBuildData, string> {
-		const pages = new Map<PageBuildData, string>();
+	retrieveRoutesToGenerate(): Map<RouteData, string> {
+		const pages = new Map<RouteData, string>();
 
-		for (const pageData of this.internals.pagesByKeys.values()) {
-			if (routeIsRedirect(pageData.route)) {
-				pages.set(pageData, pageData.component);
-			} else if (
-				routeIsFallback(pageData.route) &&
-				(i18nHasFallback(this.config) ||
-					(routeIsFallback(pageData.route) && pageData.route.route === '/'))
-			) {
-				// The original component is transformed during the first build, so we have to retrieve
-				// the actual `.mjs` that was created.
-				// During the build, we transform the names of our pages with some weird name, and those weird names become the keys of a map.
-				// The values of the map are the actual `.mjs` files that are generated during the build
+		for(const { routeData } of this.manifest.routes) {
+			// Here, we take the component path and transform it in the virtual module name
+			const moduleSpecifier = getVirtualModulePageName(VIRTUAL_PAGE_RESOLVED_MODULE_ID, routeData.component);
+			// We retrieve the original JS module
+			const filePath = this.internals.entrySpecifierToBundleMap.get(moduleSpecifier);
+			if (filePath) {
+				// it exists, added it to pages to render, using the file path that we just retrieved
+				pages.set(routeData, filePath);
 
-				// Here, we take the component path and transform it in the virtual module name
-				const moduleSpecifier = getVirtualModulePageName(VIRTUAL_PAGE_MODULE_ID, pageData.component);
-				// We retrieve the original JS module
-				const filePath = this.internals.entrySpecifierToBundleMap.get(moduleSpecifier);
-				if (filePath) {
-					// it exists, added it to pages to render, using the file path that we just retrieved
-					pages.set(pageData, filePath);
-				}
+				// Populate the cache
+				this.#routesByFilePath.set(routeData, filePath);
 			}
-			// Regular page
-			else {
-			// TODO: The value doesn't matter anymore. In a future refactor, we can remove it from the Map entirely.
-				pages.set(pageData, '');
-			}
-		}
-
-		for (const [buildData, filePath] of pages.entries()) {
-			this.#routesByFilePath.set(buildData.route, filePath);
 		}
 
 		return pages;

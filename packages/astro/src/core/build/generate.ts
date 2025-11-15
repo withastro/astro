@@ -34,7 +34,7 @@ import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
-import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
+import type { SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 
 export async function generatePages(
@@ -62,29 +62,29 @@ export async function generatePages(
 	const verb = ssr ? 'prerendering' : 'generating';
 	logger.info('SKIP_FORMAT', `\n${bgGreen(black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
-	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
+	const pagesToGenerate = pipeline.retrieveRoutesToGenerate()
 	const routeToHeaders: RouteToHeaders = new Map();
 
 	const app = prerenderEntry.app as BaseApp;
 	const pageMap = prerenderEntry.pageMap as Map<string, () => Promise<SinglePageBuiltModule>>;
 
 	if (ssr) {
-		for (const [pageData, _] of pagesToGenerate) {
-			if (pageData.route.prerender) {
+		for (const [routeData, _] of pagesToGenerate) {
+			if (routeData.prerender) {
 				// i18n domains won't work with pre rendered routes at the moment, so we need to throw an error
 				if (config.i18n?.domains && Object.keys(config.i18n.domains).length > 0) {
 					throw new AstroError({
 						...NoPrerenderedRoutesWithDomains,
-						message: NoPrerenderedRoutesWithDomains.message(pageData.component),
+						message: NoPrerenderedRoutesWithDomains.message(routeData.component),
 					});
 				}
 
-				await generatePage(app, pageMap, pageData, builtPaths, pipeline, routeToHeaders);
+				await generatePage(app, pageMap, routeData, builtPaths, pipeline, routeToHeaders);
 			}
 		}
 	} else {
-		for (const [pageData, _] of pagesToGenerate) {
-			await generatePage(app, pageMap, pageData, builtPaths, pipeline, routeToHeaders);
+		for (const [routeData, _] of pagesToGenerate) {
+			await generatePage(app, pageMap, routeData, builtPaths, pipeline, routeToHeaders);
 		}
 	}
 	logger.info(
@@ -193,7 +193,7 @@ const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
 async function generatePage(
 	app: BaseApp,
 	pageMap: Map<string, () => Promise<SinglePageBuiltModule>>,
-	pageData: PageBuildData,
+	routeData: RouteData,
 	builtPaths: Set<string>,
 	pipeline: BuildPipeline,
 	routeToHeaders: RouteToHeaders,
@@ -212,7 +212,7 @@ async function generatePage(
 		const timeStart = performance.now();
 		pipeline.logger.debug('build', `Generating: ${path}`);
 
-		const filePath = getOutputFilename(config, path, pageData.route);
+		const filePath = getOutputFilename(config, path, routeData);
 		const lineIcon =
 			(index === paths.length - 1 && !isConcurrent) || paths.length === 1 ? '└─' : '├─';
 
@@ -245,7 +245,7 @@ async function generatePage(
 	}
 
 	// Now we explode the routes. A route render itself, and it can render its fallbacks (i18n routing)
-	for (const route of eachRouteInRouteData(pageData)) {
+	for (const route of eachRouteInRouteData(routeData)) {
 		const integrationRoute = toIntegrationResolvedRoute(route, pipeline.manifest.trailingSlash);
 		const icon =
 			route.type === 'page' || route.type === 'redirect' || route.type === 'fallback'
@@ -254,7 +254,7 @@ async function generatePage(
 		logger.info(null, `${icon} ${getPrettyRouteName(route)}`);
 
 		// Get paths for the route, calling getStaticPaths if needed.
-		const paths = await getPathsForRoute(route, pageData.component, pageMap, pipeline, builtPaths);
+		const paths = await getPathsForRoute(route, routeData.component, pageMap, pipeline, builtPaths);
 
 		// Generate each paths
 		if (config.build.concurrency > 1) {
@@ -276,9 +276,9 @@ async function generatePage(
 	}
 }
 
-function* eachRouteInRouteData(data: PageBuildData) {
-	yield data.route;
-	for (const fallbackRoute of data.route.fallbackRoutes) {
+function* eachRouteInRouteData(route: RouteData) {
+	yield route;
+	for (const fallbackRoute of route.fallbackRoutes) {
 		yield fallbackRoute;
 	}
 }

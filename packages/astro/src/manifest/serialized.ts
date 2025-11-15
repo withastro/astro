@@ -68,10 +68,10 @@ export function serializedManifestPlugin({
 					  middleware: () => import('${MIDDLEWARE_MODULE_ID}'),
 					  sessionDriver: () => import('${VIRTUAL_SESSION_DRIVER_ID}'),
 					  serverIslandMappings: () => import('${SERVER_ISLAND_MANIFEST}'),
-					  routes,
+					  routes: _manifest.routes ?? routes,
 					  pageMap,
-					})
-					export { manifest }
+					});
+					export { manifest };
 				`;
 				return { code };
 			}
