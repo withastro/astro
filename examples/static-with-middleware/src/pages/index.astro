@@ -1,0 +1,122 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+
+export const entries = await getCollection('entries');
+---
+
+<Layout title="Home">
+	<h2>Static Pages with Middleware Demo</h2>
+	<p>This project demonstrates how to protect static pages with runtime middleware using cookies and authentication.</p>
+
+	<section>
+		<h2>Try the Auth Flow</h2>
+		<ol>
+			<li>Click on "Protected Dashboard" below (you'll be redirected to login)</li>
+			<li>Use credentials: <code>demo</code> / <code>password</code></li>
+			<li>You'll be redirected back to the dashboard</li>
+			<li>The dashboard is a <strong>static page</strong> protected by middleware!</li>
+		</ol>
+		
+		<div class="actions">
+			<a href="/dashboard" class="button">🔒 Protected Dashboard</a>
+			<a href="/login" class="button secondary">Login Page</a>
+		</div>
+	</section>
+
+	<section>
+		<h2>Blog Entries</h2>
+		<ul>
+			{entries.map((entry) => (
+				<li>
+					<a href={`/entries/${entry.id}`}>
+						{entry.data.title}
+						{entry.id === 'secret-post' && <span class="badge">🔒 Protected</span>}
+					</a>
+				</li>
+			))}
+		</ul>
+	</section>
+
+	<section class="info-box">
+		<h3>How It Works</h3>
+		<ul>
+			<li><strong>Build time:</strong> Pages are prerendered as static HTML</li>
+			<li><strong>Runtime:</strong> Middleware runs on Node.js server before serving static files</li>
+			<li><strong>Cookies:</strong> Full access to cookies, headers, and request context</li>
+			<li><strong>Performance:</strong> Assets (CSS/JS/images) skip middleware</li>
+		</ul>
+	</section>
+</Layout>
+
+<style>
+	section {
+		margin: 2rem 0;
+	}
+
+	ol, ul {
+		padding-left: 1.5rem;
+	}
+
+	li {
+		margin: 0.5rem 0;
+	}
+
+	code {
+		background: #f4f4f4;
+		padding: 0.2rem 0.4rem;
+		border-radius: 3px;
+		font-family: 'Courier New', monospace;
+		font-size: 0.9em;
+	}
+
+	.actions {
+		display: flex;
+		gap: 1rem;
+		margin: 1.5rem 0;
+	}
+
+	.button {
+		padding: 0.75rem 1.5rem;
+		background: #0070f3;
+		color: white;
+		border-radius: 4px;
+		font-weight: 500;
+		text-decoration: none;
+		transition: background 0.2s;
+	}
+
+	.button:hover {
+		background: #0051cc;
+		text-decoration: none;
+	}
+
+	.button.secondary {
+		background: #666;
+	}
+
+	.button.secondary:hover {
+		background: #555;
+	}
+
+	.badge {
+		background: #ffc107;
+		color: #000;
+		padding: 0.2rem 0.5rem;
+		border-radius: 3px;
+		font-size: 0.75em;
+		margin-left: 0.5rem;
+	}
+
+	.info-box {
+		background: #f8f9fa;
+		border-left: 4px solid #0070f3;
+		padding: 1.5rem;
+		border-radius: 4px;
+	}
+
+	.info-box h3 {
+		margin-top: 0;
+		color: #0070f3;
+	}
+</style>
