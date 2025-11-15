@@ -1,8 +1,27 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+
 import * as cheerio from 'cheerio';
+
+import { encryptString } from '../dist/core/encryption.js';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
+
+// Helper to create encryption key from test key string
+async function createKeyFromString(keyString) {
+	const binaryString = atob(keyString);
+	const bytes = new Uint8Array(binaryString.length);
+	for (let i = 0; i < binaryString.length; i++) {
+		bytes[i] = binaryString.charCodeAt(i);
+	}
+	return await crypto.subtle.importKey(
+		'raw',
+		bytes,
+		{ name: 'AES-GCM' },
+		false,
+		['encrypt', 'decrypt']
+	);
+}
 
 describe('Server islands', () => {
 	describe('SSR', () => {
@@ -50,7 +69,7 @@ describe('Server islands', () => {
 					body: JSON.stringify({
 						componentExport: 'default',
 						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
-						slots: {},
+						encryptedSlots: '',
 					}),
 				});
 				assert.equal(res.headers.get('x-robots-tag'), 'noindex');
@@ -62,7 +81,7 @@ describe('Server islands', () => {
 					body: JSON.stringify({
 						componentExport: 'default',
 						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
-						slots: {},
+						encryptedSlots: '',
 					}),
 				});
 				const works = res.headers.get('X-Works');
@@ -98,6 +117,56 @@ describe('Server islands', () => {
 					'should re-encrypt props on each request with a different IV',
 				);
 			});
+
+			it('rejects plaintext slots', async () => {
+				const res = await fixture.fetch('/_server-islands/Island', {
+					method: 'POST',
+					body: JSON.stringify({
+						componentExport: 'default',
+						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						slots: { xss: '<img src=x onerror=alert(0)>' },
+					}),
+				});
+				assert.equal(res.status, 400, 'should reject unencrypted slots');
+			});
+
+			it('rejects plaintext slots with XSS payload via GET', async () => {
+				const res = await fixture.fetch('/_server-islands/Island?e=file&s=%7B%22xss%22%3A%22%3Cimg%20src%3Dx%20onerror%3Dalert(0)%3E%22%7D');
+				assert.equal(res.status, 400, 'should reject plaintext slots with XSS');
+			});
+
+			it('accepts encrypted slots via POST', async () => {
+				const key = await createKeyFromString('eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=');
+				const slotsToEncrypt = { content: '<p>Safe slot content</p>' };
+				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt));
+
+				const res = await fixture.fetch('/_server-islands/Island', {
+					method: 'POST',
+					body: JSON.stringify({
+						componentExport: 'default',
+						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						encryptedSlots: encryptedSlots,
+					}),
+				});
+				assert.equal(res.status, 200, 'should accept encrypted slots');
+			});
+
+			it('accepts encrypted slots with XSS payload via POST', async () => {
+				const key = await createKeyFromString('eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=');
+				const slotsToEncrypt = { xss: '<img src=x onerror=alert(0)>' };
+				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt));
+
+				const res = await fixture.fetch('/_server-islands/Island', {
+					method: 'POST',
+					body: JSON.stringify({
+						componentExport: 'default',
+						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						encryptedSlots: encryptedSlots,
+					}),
+				});
+				assert.equal(res.status, 200, 'should accept even XSS in encrypted slots (safe when encrypted)');
+			});
+
 			it('supports mdx', async () => {
 				const res = await fixture.fetch('/test');
 				assert.equal(res.status, 200);
@@ -157,7 +226,7 @@ describe('Server islands', () => {
 					body: JSON.stringify({
 						componentExport: 'default',
 						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
-						slots: {},
+						encryptedSlots: '',
 					}),
 					headers: {
 						origin: 'http://example.com',
@@ -201,6 +270,77 @@ describe('Server islands', () => {
 					'should re-encrypt props on each request with a different IV',
 				);
 			});
+
+			it('rejects plaintext slots', async () => {
+				const app = await fixture.loadTestAdapterApp();
+				const request = new Request('http://example.com/_server-islands/Island', {
+					method: 'POST',
+					body: JSON.stringify({
+						componentExport: 'default',
+						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						slots: { xss: '<img src=x onerror=alert(0)>' },
+					}),
+					headers: {
+						origin: 'http://example.com',
+					},
+				});
+				const response = await app.render(request);
+				assert.equal(response.status, 400, 'should reject unencrypted slots');
+			});
+
+			it('rejects plaintext slots with XSS payload via GET', async () => {
+				const app = await fixture.loadTestAdapterApp();
+				const request = new Request('http://example.com/_server-islands/Island?e=file&s=%7B%22xss%22%3A%22%3Cimg%20src%3Dx%20onerror%3Dalert(0)%3E%22%7D', {
+					headers: {
+						origin: 'http://example.com',
+					},
+				});
+				const response = await app.render(request);
+				assert.equal(response.status, 400, 'should reject plaintext slots with XSS');
+			});
+
+			it('accepts encrypted slots via POST', async () => {
+				const app = await fixture.loadTestAdapterApp();
+				const key = await createKeyFromString('eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=');
+				const slotsToEncrypt = { content: '<p>Safe slot content</p>' };
+				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt));
+
+				const request = new Request('http://example.com/_server-islands/Island', {
+					method: 'POST',
+					body: JSON.stringify({
+						componentExport: 'default',
+						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						encryptedSlots: encryptedSlots,
+					}),
+					headers: {
+						origin: 'http://example.com',
+					},
+				});
+				const response = await app.render(request);
+				assert.equal(response.status, 200, 'should accept encrypted slots');
+			});
+
+			it('accepts encrypted slots with XSS payload via POST', async () => {
+				const app = await fixture.loadTestAdapterApp();
+				const key = await createKeyFromString('eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=');
+				const slotsToEncrypt = { xss: '<img src=x onerror=alert(0)>' };
+				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt));
+
+				const request = new Request('http://example.com/_server-islands/Island', {
+					method: 'POST',
+					body: JSON.stringify({
+						componentExport: 'default',
+						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						encryptedSlots: encryptedSlots,
+					}),
+					headers: {
+						origin: 'http://example.com',
+					},
+				});
+				const response = await app.render(request);
+				assert.equal(response.status, 200, 'should accept even XSS in encrypted slots (safe when encrypted)');
+			});
+
 			it('supports mdx', async () => {
 				const app = await fixture.loadTestAdapterApp();
 				const request = new Request('http://example.com/test/');
