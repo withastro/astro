@@ -1,0 +1,16 @@
+---
+import {ClientRouter} from "astro:transitions";
+---
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<ClientRouter />
+		<title>Page 3</title>
+		<script is:inline>console.log('[test] 1');</script>
+		<script is:inline data-astro-rerun>console.log('[test] 2');</script>
+		<script is:inline data-astro-rerun>console.log('[test] 3');</script>
+	</head>
+	<body>
+		<a id="link" href="/page1-with-scripts">to page 1</a>
+	</body>
+</html>

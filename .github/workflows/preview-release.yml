@@ -1,0 +1,102 @@
+name: Preview release
+
+on:
+  pull_request:
+    branches: [main]
+    types: [labeled]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: write
+
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+  FORCE_COLOR: true
+  ASTRO_TELEMETRY_DISABLED: true
+  # 7 GiB by default on GitHub, setting to 6 GiB
+  # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+  NODE_OPTIONS: --max-old-space-size=6144
+
+jobs:
+  preview:
+    if: ${{ github.repository_owner == 'withastro' && github.event.label.name == 'pr preview' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      issues: write
+      pull-requests: write
+    name: Publish preview release
+    timeout-minutes: 5
+    steps:
+      - name: Disable git crlf
+        run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          # Changeset needs access to the main branch to find pending changesets
+          fetch-depth: 0
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build Packages
+        run: pnpm run build
+
+      - name: Get changeset status
+        id: changeset-status
+        run: |
+          pnpm changeset status --output changes.json
+          echo "changes-output=$(cat changes.json | jq -c .)" >> $GITHUB_OUTPUT
+
+      - name: Get pnpm packages
+        id: pnpm-packages
+        run: |
+          pnpm list --recursive --depth -1 --json >> pnpm.json
+          echo "packages-output=$(cat pnpm.json | jq -c .)" >> $GITHUB_OUTPUT
+
+      - name: Compute affected packages
+        id: compute-affected-packages
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        env:
+          CHANGES: ${{ steps.changeset-status.outputs.changes-output }}
+          PACKAGES: ${{ steps.pnpm-packages.outputs.packages-output }}
+        with:
+          script: |
+              const { relative } = require('node:path');
+              const changes = JSON.parse(process.env.CHANGES);
+              const packages = JSON.parse(process.env.PACKAGES);
+              const packagesMap = Object.fromEntries(packages.map(p => [p.name, relative(process.cwd(), p.path)]));
+              const affectedPackages = [...new Set(changes.changesets.map(c => c.releases.map(r=> packagesMap[r.name])).flat())]
+              core.setOutput('affected-packages', JSON.stringify(affectedPackages));
+
+      # This step doesn't work for forks
+      - name: Remove Preview Label
+        uses: actions-ecosystem/action-remove-labels@2ce5d41b4b6aa8503e285553f75ed56e0a40bae0 # v1.3.0
+        with:
+          labels: "pr preview"
+
+      - name: Publish packages
+        env:
+          AFFECTED_PACKAGES: ${{ steps.compute-affected-packages.outputs.affected-packages }}
+        run: |
+          packages=$(echo $AFFECTED_PACKAGES | jq -r '.[]' | tr '\n' ' ')
+          if [ -n "$packages" ]; then
+            pnpm dlx pkg-pr-new publish --pnpm --compact --no-template $packages
+          else
+            echo "No affected packages to publish"
+          fi
