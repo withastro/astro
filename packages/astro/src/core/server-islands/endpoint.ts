@@ -69,7 +69,7 @@ async function getRequestData(request: Request): Promise<Response | RenderOption
 			return {
 				componentExport: params.get('e')!,
 				encryptedProps: params.get('p')!,
-				encryptedSlots: encryptedSlots,
+				encryptedSlots,
 			};
 		}
 		case 'POST': {
