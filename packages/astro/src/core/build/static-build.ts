@@ -258,7 +258,7 @@ async function buildEnvironments(
 	// and this is the only way to update the input after instantiation.
 	internals.clientInput = getClientInput(internals, settings);
 	builder.environments.client.config.build.rollupOptions.input = Array.from(internals.clientInput);
-	const clientOutput = await builder.build(builder.environments.client);
+	const clientOutput = internals.clientInput.size === 0 ? [] : await builder.build(builder.environments.client);
 
 	return { ssrOutput, prerenderOutput, clientOutput };
 }
