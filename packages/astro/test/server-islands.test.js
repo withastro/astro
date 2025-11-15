@@ -14,13 +14,10 @@ async function createKeyFromString(keyString) {
 	for (let i = 0; i < binaryString.length; i++) {
 		bytes[i] = binaryString.charCodeAt(i);
 	}
-	return await crypto.subtle.importKey(
-		'raw',
-		bytes,
-		{ name: 'AES-GCM' },
-		false,
-		['encrypt', 'decrypt']
-	);
+	return await crypto.subtle.importKey('raw', bytes, { name: 'AES-GCM' }, false, [
+		'encrypt',
+		'decrypt',
+	]);
 }
 
 describe('Server islands', () => {
@@ -131,7 +128,9 @@ describe('Server islands', () => {
 			});
 
 			it('rejects plaintext slots with XSS payload via GET', async () => {
-				const res = await fixture.fetch('/_server-islands/Island?e=file&s=%7B%22xss%22%3A%22%3Cimg%20src%3Dx%20onerror%3Dalert(0)%3E%22%7D');
+				const res = await fixture.fetch(
+					'/_server-islands/Island?e=file&s=%7B%22xss%22%3A%22%3Cimg%20src%3Dx%20onerror%3Dalert(0)%3E%22%7D',
+				);
 				assert.equal(res.status, 400, 'should reject plaintext slots with XSS');
 			});
 
@@ -164,7 +163,11 @@ describe('Server islands', () => {
 						encryptedSlots: encryptedSlots,
 					}),
 				});
-				assert.equal(res.status, 200, 'should accept even XSS in encrypted slots (safe when encrypted)');
+				assert.equal(
+					res.status,
+					200,
+					'should accept even XSS in encrypted slots (safe when encrypted)',
+				);
 			});
 
 			it('supports mdx', async () => {
@@ -290,11 +293,14 @@ describe('Server islands', () => {
 
 			it('rejects plaintext slots with XSS payload via GET', async () => {
 				const app = await fixture.loadTestAdapterApp();
-				const request = new Request('http://example.com/_server-islands/Island?e=file&s=%7B%22xss%22%3A%22%3Cimg%20src%3Dx%20onerror%3Dalert(0)%3E%22%7D', {
-					headers: {
-						origin: 'http://example.com',
+				const request = new Request(
+					'http://example.com/_server-islands/Island?e=file&s=%7B%22xss%22%3A%22%3Cimg%20src%3Dx%20onerror%3Dalert(0)%3E%22%7D',
+					{
+						headers: {
+							origin: 'http://example.com',
+						},
 					},
-				});
+				);
 				const response = await app.render(request);
 				assert.equal(response.status, 400, 'should reject plaintext slots with XSS');
 			});
@@ -338,7 +344,11 @@ describe('Server islands', () => {
 					},
 				});
 				const response = await app.render(request);
-				assert.equal(response.status, 200, 'should accept even XSS in encrypted slots (safe when encrypted)');
+				assert.equal(
+					response.status,
+					200,
+					'should accept even XSS in encrypted slots (safe when encrypted)',
+				);
 			});
 
 			it('supports mdx', async () => {
