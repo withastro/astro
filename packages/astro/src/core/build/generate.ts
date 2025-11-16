@@ -45,7 +45,8 @@ export async function generatePages(
 	const generatePagesTimer = performance.now();
 	const ssr = options.settings.buildOutput === 'server';
 	// Import from the single prerender entrypoint
-	const prerenderEntryUrl = new URL('prerender-entry.mjs', prerenderOutputDir);
+	const prerenderEntryFileName = internals.prerenderEntryFileName ?? 'prerender-entry.mjs';
+	const prerenderEntryUrl = new URL(prerenderEntryFileName, prerenderOutputDir);
 	const prerenderEntry = await import(prerenderEntryUrl.toString());
 
 	// Grab the manifest and create the pipeline
@@ -62,7 +63,7 @@ export async function generatePages(
 	const verb = ssr ? 'prerendering' : 'generating';
 	logger.info('SKIP_FORMAT', `\n${bgGreen(black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
-	const pagesToGenerate = pipeline.retrieveRoutesToGenerate()
+	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
 	const routeToHeaders: RouteToHeaders = new Map();
 
 	const app = prerenderEntry.app as BaseApp;

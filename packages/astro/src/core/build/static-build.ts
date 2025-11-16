@@ -205,11 +205,12 @@ async function buildEnvironments(
 			...(viteConfig.environments ?? {}),
 			prerender: {
 				build: {
+					emitAssets: true,
 					outDir: fileURLToPath(new URL('./.prerender/', out)),
 					rollupOptions: {
 						input: 'astro/entrypoints/prerender',
 						output: {
-							entryFileNames: 'prerender-entry.mjs',
+							entryFileNames: 'prerender-entry.[hash].mjs',
 							format: 'esm',
 						},
 					},
@@ -218,6 +219,7 @@ async function buildEnvironments(
 			},
 			client: {
 				build: {
+					emitAssets: true,
 					target: 'esnext',
 					emptyOutDir: false,
 					outDir: fileURLToPath(getClientOutputDirectory(settings)),
@@ -257,6 +259,9 @@ async function buildEnvironments(
 	// Build prerender environment for static generation
 	const prerenderOutput = await builder.build(builder.environments.prerender);
 
+	// Extract prerender entry filename and store in internals
+	extractPrerenderEntryFileName(internals, prerenderOutput);
+
 	// Build client environment
 	// We must discover client inputs after SSR build because hydration/client-only directives
 	// are only detected during SSR. We mutate the config here since the builder was already created
@@ -269,6 +274,29 @@ async function buildEnvironments(
 }
 
 type MutateChunk = (chunk: vite.Rollup.OutputChunk, targets: string[], newCode: string) => void;
+
+/**
+ * Extracts the prerender entry filename from the build output
+ * and stores it in internals for later retrieval in generatePages.
+ */
+function extractPrerenderEntryFileName(
+	internals: BuildInternals,
+	prerenderOutput: vite.Rollup.RollupOutput | vite.Rollup.RollupOutput[],
+) {
+	const outputs = Array.isArray(prerenderOutput) ? prerenderOutput : [prerenderOutput];
+
+	for (const output of outputs) {
+		for (const chunk of output.output) {
+			if (chunk.type !== 'asset' && 'fileName' in chunk) {
+				const fileName = chunk.fileName;
+				if (fileName.startsWith('prerender-entry')) {
+					internals.prerenderEntryFileName = fileName;
+					return;
+				}
+			}
+		}
+	}
+}
 
 async function runManifestInjection(
 	opts: StaticBuildOptions,

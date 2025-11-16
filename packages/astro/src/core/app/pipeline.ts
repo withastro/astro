@@ -47,11 +47,12 @@ export class AppPipeline extends Pipeline {
 	}
 
 	async headElements(routeData: RouteData): Promise<HeadElements> {
+		const { assetsPrefix, base } = this.manifest;
 		const routeInfo = this.manifest.routes.find((route) => route.routeData === routeData);
 		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 		const links = new Set<never>();
 		const scripts = new Set<SSRElement>();
-		const styles = createStylesheetElementSet(routeInfo?.styles ?? []);
+		const styles = createStylesheetElementSet(routeInfo?.styles ?? [], base, assetsPrefix);
 
 		for (const script of routeInfo?.scripts ?? []) {
 			if ('stage' in script) {
@@ -62,7 +63,7 @@ export class AppPipeline extends Pipeline {
 					});
 				}
 			} else {
-				scripts.add(createModuleScriptElement(script));
+				scripts.add(createModuleScriptElement(script, base, assetsPrefix));
 			}
 		}
 		return { links, styles, scripts };
