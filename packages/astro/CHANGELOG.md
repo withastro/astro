@@ -1,5 +1,67 @@
 # astro
 
+## 5.15.8
+
+### Patch Changes
+
+- [#14772](https://github.com/withastro/astro/pull/14772) [`00c579a`](https://github.com/withastro/astro/commit/00c579a23322d92459e4ccad0ec365c4d1980a5d) Thanks [@matthewp](https://github.com/matthewp)! - Improves the security of Server Islands slots by encrypting them before transmission to the browser, matching the security model used for props. This improves the integrity of slot content and prevents injection attacks, even when component templates don't explicitly support slots.
+
+  Slots continue to work as expected for normal usage—this change has no breaking changes for legitimate requests.
+
+- [#14771](https://github.com/withastro/astro/pull/14771) [`6f80081`](https://github.com/withastro/astro/commit/6f800813516b07bbe12c666a92937525fddb58ce) Thanks [@matthewp](https://github.com/matthewp)! - Fix middleware pathname matching by normalizing URL-encoded paths
+
+  Middleware now receives normalized pathname values, ensuring that encoded paths like `/%61dmin` are properly decoded to `/admin` before middleware checks. This prevents potential security issues where middleware checks might be bypassed through URL encoding.
+
+## 5.15.7
+
+### Patch Changes
+
+- [#14765](https://github.com/withastro/astro/pull/14765) [`03fb47c`](https://github.com/withastro/astro/commit/03fb47c0106fda823e4dc89ed98d282ecb5258a0) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `process.env` wouldn't be properly populated during the build
+
+- [#14690](https://github.com/withastro/astro/pull/14690) [`ae7197d`](https://github.com/withastro/astro/commit/ae7197d35676b3745dc9ca71aecbcf3bbbfffb30) Thanks [@fredriknorlin](https://github.com/fredriknorlin)! - Fixes a bug where Astro's i18n fallback system with `fallbackType: 'rewrite'` would not generate fallback files for pages whose filename started with a locale key.
+
+## 5.15.6
+
+### Patch Changes
+
+- [#14751](https://github.com/withastro/astro/pull/14751) [`18c55e1`](https://github.com/withastro/astro/commit/18c55e15eaef56cbe06626b6bdb43ab250ab6f49) Thanks [@delucis](https://github.com/delucis)! - Fixes hydration of client components when running the dev server and using a barrel file that re-exports both Astro and UI framework components.
+
+- [#14750](https://github.com/withastro/astro/pull/14750) [`35122c2`](https://github.com/withastro/astro/commit/35122c278f987f9213b8e1094382398a16090aff) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the experimental Fonts API to log a warning if families with a conflicting `cssVariable` are provided
+
+- [#14737](https://github.com/withastro/astro/pull/14737) [`74c8852`](https://github.com/withastro/astro/commit/74c8852c534cc23217a78979e10885429b290e0b) Thanks [@Arecsu](https://github.com/Arecsu)! - Fixes an error when using `transition:persist` with components that use declarative Shadow DOM. Astro now avoids re-attaching a shadow root if one already exists, preventing `"Unable to re-attach to existing ShadowDOM"` navigation errors.
+
+- [#14750](https://github.com/withastro/astro/pull/14750) [`35122c2`](https://github.com/withastro/astro/commit/35122c278f987f9213b8e1094382398a16090aff) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the experimental Fonts API to allow for more granular configuration of remote font families
+
+  A font family is defined by a combination of properties such as weights and styles (e.g. `weights: [500, 600]` and `styles: ["normal", "bold"]`), but you may want to download only certain combinations of these.
+
+  For greater control over which font files are downloaded, you can specify the same font (ie. with the same `cssVariable`, `name`, and `provider` properties) multiple times with different combinations. Astro will merge the results and download only the required files. For example, it is possible to download normal `500` and `600` while downloading only italic `500`:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig, fontProviders } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      fonts: [
+        {
+          name: 'Roboto',
+          cssVariable: '--roboto',
+          provider: fontProviders.google(),
+          weights: [500, 600],
+          styles: ['normal'],
+        },
+        {
+          name: 'Roboto',
+          cssVariable: '--roboto',
+          provider: fontProviders.google(),
+          weights: [500],
+          styles: ['italic'],
+        },
+      ],
+    },
+  });
+  ```
+
 ## 5.15.5
 
 ### Patch Changes
