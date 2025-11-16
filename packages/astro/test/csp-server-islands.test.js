@@ -49,7 +49,7 @@ describe('Server islands', () => {
 					body: JSON.stringify({
 						componentExport: 'default',
 						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
-						slots: {},
+						encryptedSlots: '',
 					}),
 					headers: {
 						origin: 'http://example.com',

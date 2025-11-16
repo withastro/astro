@@ -61,7 +61,7 @@ export class RenderContext {
 		public clientAddress: string | undefined,
 		protected cookies = new AstroCookies(request),
 		public params = getParams(routeData, pathname),
-		protected url = new URL(request.url),
+		protected url = RenderContext.#createNormalizedUrl(request.url),
 		public props: Props = {},
 		public partial: undefined | boolean = undefined,
 		public shouldInjectCspMetaTags = !!pipeline.manifest.csp,
@@ -69,6 +69,15 @@ export class RenderContext {
 			? new AstroSession(cookies, pipeline.manifest.sessionConfig, pipeline.runtimeMode)
 			: undefined,
 	) {}
+
+	static #createNormalizedUrl(requestUrl: string): URL {
+		const url = new URL(requestUrl);
+		try {
+			url.pathname = decodeURI(url.pathname);
+		} finally {
+			return url;
+		}
+	}
 
 	/**
 	 * A flag that tells the render content if the rewriting was triggered
@@ -217,7 +226,7 @@ export class RenderContext {
 					);
 				}
 				this.isRewriting = true;
-				this.url = new URL(this.request.url);
+				this.url = RenderContext.#createNormalizedUrl(this.request.url);
 				this.params = getParams(routeData, pathname);
 				this.pathname = pathname;
 				this.status = 200;
@@ -362,7 +371,7 @@ export class RenderContext {
 				this.routeData.route,
 			);
 		}
-		this.url = new URL(this.request.url);
+		this.url = RenderContext.#createNormalizedUrl(this.request.url);
 		const newCookies = new AstroCookies(this.request);
 		if (this.cookies) {
 			newCookies.merge(this.cookies);
