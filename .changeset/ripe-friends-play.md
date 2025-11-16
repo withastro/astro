@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Change `passthroughImageService` so it does not generate webp.
+Fixes the behavior of `passthroughImageService` so it does not generate webp.
