@@ -2,4 +2,5 @@
 '@astrojs/cloudflare': patch
 ---
 
-Removal of duplicate helper function definitions in utils/assets.ts
+Fixes duplicate import warnings during build
+
