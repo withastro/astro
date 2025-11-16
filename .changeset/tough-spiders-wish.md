@@ -2,5 +2,5 @@
 '@astrojs/cloudflare': patch
 ---
 
-Fixes duplicate import warnings during build
+Fixes build warnings about external module imports that appeared when building projects using the Cloudflare adapter. These warnings no longer appear during the build process.
 
