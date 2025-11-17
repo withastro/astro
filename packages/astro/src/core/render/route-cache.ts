@@ -16,7 +16,6 @@ import { generatePaginateFunction } from './paginate.js';
 
 interface CallGetStaticPathsOptions {
 	mod: ComponentInstance | undefined;
-	logger: Logger;
 	route: RouteData;
 	routeCache: RouteCache;
 	ssr: boolean;

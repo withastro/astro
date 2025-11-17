@@ -316,7 +316,6 @@ async function getPathsForRoute(
 			mod,
 			route,
 			routeCache,
-			logger,
 			ssr: manifest.serverLike,
 			base: manifest.base,
 			trailingSlash: manifest.trailingSlash,
