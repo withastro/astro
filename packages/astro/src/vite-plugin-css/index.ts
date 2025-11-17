@@ -36,11 +36,7 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 				return next();
 			});
 		},
-
-		applyToEnvironment(env) {
-			return env.name === 'ssr' || env.name === 'astro';
-		},
-
+		
 		resolveId(id) {
 			if (id === MODULE_DEV_CSS) {
 				return RESOLVED_MODULE_DEV_CSS;

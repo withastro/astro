@@ -122,6 +122,7 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 		trailingSlash: settings.config.trailingSlash,
 		buildFormat: settings.config.build.format,
 		compressHTML: settings.config.compressHTML,
+		serverLike: settings.buildOutput === 'server',
 		assets: [],
 		entryModules: {},
 		routes: [],

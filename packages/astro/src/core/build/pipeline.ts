@@ -1,11 +1,10 @@
 import type { ComponentInstance } from '../../types/astro.js';
 import type { RewritePayload } from '../../types/public/common.js';
-import type {
-	RouteData,
-	SSRElement,
-	SSRResult,
-} from '../../types/public/internal.js';
-import { VIRTUAL_PAGE_MODULE_ID, VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/index.js';
+import type { RouteData, SSRElement, SSRResult } from '../../types/public/internal.js';
+import {
+	VIRTUAL_PAGE_MODULE_ID,
+	VIRTUAL_PAGE_RESOLVED_MODULE_ID,
+} from '../../vite-plugin-pages/index.js';
 import { getVirtualModulePageName } from '../../vite-plugin-pages/util.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
@@ -24,6 +23,10 @@ import type { SinglePageBuiltModule, StaticBuildOptions } from './types.js';
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
  */
 export class BuildPipeline extends Pipeline {
+	getName(): string {
+		return 'BuildPipeline';
+	}
+
 	#componentsInterner: WeakMap<RouteData, SinglePageBuiltModule> = new WeakMap<
 		RouteData,
 		SinglePageBuiltModule
@@ -69,17 +72,14 @@ export class BuildPipeline extends Pipeline {
 			return assetLink;
 		}
 
-		const serverLike = settings.buildOutput === 'server';
 		// We can skip streaming in SSG for performance as writing as strings are faster
-		const streaming = serverLike;
 		super(
 			options.logger,
 			manifest,
 			options.runtimeMode,
 			manifest.renderers,
 			resolve,
-			serverLike,
-			streaming,
+			manifest.serverLike,
 		);
 	}
 
@@ -143,9 +143,12 @@ export class BuildPipeline extends Pipeline {
 	retrieveRoutesToGenerate(): Map<RouteData, string> {
 		const pages = new Map<RouteData, string>();
 
-		for(const { routeData } of this.manifest.routes) {
+		for (const { routeData } of this.manifest.routes) {
 			// Here, we take the component path and transform it in the virtual module name
-			const moduleSpecifier = getVirtualModulePageName(VIRTUAL_PAGE_RESOLVED_MODULE_ID, routeData.component);
+			const moduleSpecifier = getVirtualModulePageName(
+				VIRTUAL_PAGE_RESOLVED_MODULE_ID,
+				routeData.component,
+			);
 			// We retrieve the original JS module
 			const filePath = this.internals.entrySpecifierToBundleMap.get(moduleSpecifier);
 			if (filePath) {
@@ -187,7 +190,7 @@ export class BuildPipeline extends Pipeline {
 			trailingSlash: this.config.trailingSlash,
 			buildFormat: this.config.build.format,
 			base: this.config.base,
-			outDir: this.serverLike ? this.manifest.buildClientDir : this.manifest.outDir,
+			outDir: this.manifest.serverLike ? this.manifest.buildClientDir : this.manifest.outDir,
 		});
 
 		const componentInstance = await this.getComponentByRoute(routeData);

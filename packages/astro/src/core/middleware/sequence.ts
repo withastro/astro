@@ -59,7 +59,7 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 						// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
 						// so Astro can't retrieve it from the emitted manifest.
 						if (
-							pipeline.serverLike === true &&
+							pipeline.manifest.serverLike === true &&
 							handleContext.isPrerendered === false &&
 							routeData.prerender === true
 						) {

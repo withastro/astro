@@ -46,10 +46,7 @@ export abstract class Pipeline {
 		readonly runtimeMode: RuntimeMode,
 		readonly renderers: SSRLoadedRenderer[],
 		readonly resolve: (s: string) => Promise<string>,
-		/**
-		 * Based on Astro config's `output` option, `true` if "server" or "hybrid".
-		 */
-		readonly serverLike: boolean,
+
 		readonly streaming: boolean,
 		/**
 		 * Used to provide better error messages for `Astro.clientAddress`
@@ -105,6 +102,11 @@ export abstract class Pipeline {
 	 * @param routeData
 	 */
 	abstract getComponentByRoute(routeData: RouteData): Promise<ComponentInstance>;
+
+	/**
+	 * The current name of the pipeline. Useful for debugging
+	 */
+	abstract getName(): string;
 
 	/**
 	 * Resolves the middleware from the manifest, and returns the `onRequest` function. If `onRequest` isn't there,

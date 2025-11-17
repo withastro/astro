@@ -75,6 +75,13 @@ export type SSRManifest = {
 	assetsPrefix?: AssetsPrefix;
 	renderers: SSRLoadedRenderer[];
 	/**
+	 * Based on Astro config's `output` option, `true` if "server" or "hybrid".
+	 *
+	 * Whether this application is SSR-like. If so, this has some implications, such as
+	 * the creation of `dist/client` and `dist/server` folders.
+	 */
+	serverLike: boolean;
+	/**
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
 	clientDirectives: Map<string, string>;

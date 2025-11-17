@@ -164,7 +164,7 @@ export class RenderContext {
 		slots: Record<string, any> = {},
 	): Promise<Response> {
 		const { middleware, pipeline } = this;
-		const { logger, serverLike, streaming, manifest } = pipeline;
+		const { logger, streaming, manifest } = pipeline;
 
 		const props =
 			Object.keys(this.props).length > 0
@@ -175,7 +175,7 @@ export class RenderContext {
 						routeCache: this.pipeline.routeCache,
 						pathname: this.pathname,
 						logger,
-						serverLike,
+						serverLike: manifest.serverLike,
 						base: manifest.base,
 						trailingSlash: manifest.trailingSlash,
 					});
@@ -207,7 +207,7 @@ export class RenderContext {
 				// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
 				// so Astro can't retrieve it from the emitted manifest.
 				if (
-					this.pipeline.serverLike === true &&
+					this.pipeline.manifest.serverLike === true &&
 					this.routeData.prerender === false &&
 					routeData.prerender === true
 				) {
@@ -360,7 +360,7 @@ export class RenderContext {
 		// Allow i18n fallback rewrites - if the target route has fallback routes, this is likely an i18n scenario
 		const isI18nFallback = routeData.fallbackRoutes && routeData.fallbackRoutes.length > 0;
 		if (
-			this.pipeline.serverLike &&
+			this.pipeline.manifest.serverLike &&
 			!this.routeData.prerender &&
 			routeData.prerender &&
 			!isI18nFallback
