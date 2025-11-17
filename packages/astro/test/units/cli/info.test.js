@@ -4,8 +4,10 @@ import { describe, it } from 'node:test';
 import { getPackageManager } from '../../../dist/cli/info/core/get-package-manager.js';
 import { infoCommand } from '../../../dist/cli/info/core/info.js';
 import { createCliClipboard } from '../../../dist/cli/info/infra/cli-clipboard.js';
+import { createCliDebugInfoProvider } from '../../../dist/cli/info/infra/cli-debug-info-provider.js';
 import { createSpyLogger } from '../test-utils.js';
 import {
+	createFakeAstroVersionProvider,
 	createFakeDebugInfoProvider,
 	createFakeOperatingSystemProvider,
 	createFakePackageManagerUserAgentProvider,
@@ -211,6 +213,64 @@ describe('CLI info', () => {
 					args: undefined,
 					input: text,
 				});
+			});
+		});
+
+		describe('createCliDebugInfoProvider()', () => {
+			it('returns basic infos', async () => {
+				const astroVersionProvider = createFakeAstroVersionProvider('5.5.5');
+				const operatingSystemProvider = createFakeOperatingSystemProvider('win32');
+
+				const debugInfoProvider = createCliDebugInfoProvider({
+					config: {
+						output: 'static',
+						adapter: undefined,
+						integrations: [],
+					},
+					astroVersionProvider,
+					operatingSystemProvider,
+					packageManager: {
+						getName: () => 'pnpm',
+						getPackageVersion: async () => {
+							return undefined;
+						},
+					},
+				});
+				const debugInfo = await debugInfoProvider.get();
+
+				assert.deepStrictEqual(debugInfo, [
+					['Astro', 'v5.5.5'],
+					['Node', 'v22.19.0'],
+					['System', 'win32'],
+					['Package Manager', 'pnpm'],
+					['Output', 'static'],
+					['Adapter', 'none'],
+					['Integrations', 'none'],
+				]);
+			});
+
+			it('handles the vite version', async () => {
+				// TODO:
+			});
+
+			it('handles the adapter', async () => {
+				// TODO:
+			});
+
+			it('handles the adapter version', async () => {
+				// TODO:
+			});
+
+			it('skips integrations without names', async () => {
+				// TODO:
+			});
+
+			it('handles integrations versions', async () => {
+				// TODO:
+			});
+
+			it('skips versions for non package integrations', async () => {
+				// TODO:
 			});
 		});
 
