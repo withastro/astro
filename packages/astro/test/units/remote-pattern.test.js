@@ -138,18 +138,21 @@ describe('remote-pattern', () => {
 
 	describe('remote is allowed', () => {
 		it('allows remote URLs based on patterns', async () => {
-			const patterns = {domains: [], remotePatterns: [
-				{
-					protocol: 'https',
-					hostname: '**.astro.build',
-					pathname: '/en/**',
-				},
-				{
-					protocol: 'http',
-					hostname: 'preview.docs.astro.build',
-					port: '8080',
-				},
-			]};
+			const patterns = {
+				domains: [],
+				remotePatterns: [
+					{
+						protocol: 'https',
+						hostname: '**.astro.build',
+						pathname: '/en/**',
+					},
+					{
+						protocol: 'http',
+						hostname: 'preview.docs.astro.build',
+						port: '8080',
+					},
+				],
+			};
 
 			assert.equal(isRemoteAllowed(url1, patterns), true);
 			assert.equal(isRemoteAllowed(url2, patterns), true);
