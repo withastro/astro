@@ -132,7 +132,7 @@ export function createEndpoint(manifest: SSRManifest) {
 			try {
 				const propString = await decryptString(key, encryptedProps);
 				props = JSON.parse(propString);
-			} catch (err) {
+			} catch () {
 				return badRequest('Encrypted props value is invalid.');
 			}
 		}
