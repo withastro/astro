@@ -26,6 +26,8 @@ import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
 import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
 
+const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
+
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
 
@@ -205,11 +207,12 @@ async function buildEnvironments(
 			...(viteConfig.environments ?? {}),
 			prerender: {
 				build: {
+					emitAssets: true,
 					outDir: fileURLToPath(new URL('./.prerender/', out)),
 					rollupOptions: {
 						input: 'astro/entrypoints/prerender',
 						output: {
-							entryFileNames: 'prerender-entry.mjs',
+							entryFileNames: `${PRERENDER_ENTRY_FILENAME_PREFIX}.[hash].mjs`,
 							format: 'esm',
 						},
 					},
@@ -218,6 +221,7 @@ async function buildEnvironments(
 			},
 			client: {
 				build: {
+					emitAssets: true,
 					target: 'esnext',
 					emptyOutDir: false,
 					outDir: fileURLToPath(getClientOutputDirectory(settings)),
@@ -225,6 +229,11 @@ async function buildEnvironments(
 					sourcemap: false,
 					rollupOptions: {
 						preserveEntrySignatures: 'exports-only',
+						output: {
+							entryFileNames: `${settings.config.build.assets}/[name].[hash].js`,
+							chunkFileNames: `${settings.config.build.assets}/[name].[hash].js`,
+							assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
+						},
 					}
 				},
 			},
@@ -252,6 +261,9 @@ async function buildEnvironments(
 	// Build prerender environment for static generation
 	const prerenderOutput = await builder.build(builder.environments.prerender);
 
+	// Extract prerender entry filename and store in internals
+	extractPrerenderEntryFileName(internals, prerenderOutput);
+
 	// Build client environment
 	// We must discover client inputs after SSR build because hydration/client-only directives
 	// are only detected during SSR. We mutate the config here since the builder was already created
@@ -264,6 +276,42 @@ async function buildEnvironments(
 }
 
 type MutateChunk = (chunk: vite.Rollup.OutputChunk, targets: string[], newCode: string) => void;
+
+/**
+ * Finds and returns the prerender entry filename from the build output.
+ * Throws an error if no prerender entry file is found.
+ */
+function getPrerenderEntryFileName(
+	prerenderOutput: vite.Rollup.RollupOutput | vite.Rollup.RollupOutput[] | vite.Rollup.RollupWatcher,
+): string {
+	const outputs = viteBuildReturnToRollupOutputs(prerenderOutput as any);
+
+	for (const output of outputs) {
+		for (const chunk of output.output) {
+			if (chunk.type !== 'asset' && 'fileName' in chunk) {
+				const fileName = chunk.fileName;
+				if (fileName.startsWith(PRERENDER_ENTRY_FILENAME_PREFIX)) {
+					return fileName;
+				}
+			}
+		}
+	}
+
+	throw new Error(
+		'Could not find the prerender entry point in the build output. This is likely a bug in Astro.'
+	);
+}
+
+/**
+ * Extracts the prerender entry filename from the build output
+ * and stores it in internals for later retrieval in generatePages.
+ */
+function extractPrerenderEntryFileName(
+	internals: BuildInternals,
+	prerenderOutput: vite.Rollup.RollupOutput | vite.Rollup.RollupOutput[] | vite.Rollup.RollupWatcher,
+) {
+	internals.prerenderEntryFileName = getPrerenderEntryFileName(prerenderOutput);
+}
 
 async function runManifestInjection(
 	opts: StaticBuildOptions,

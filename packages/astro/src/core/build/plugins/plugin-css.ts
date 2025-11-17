@@ -45,7 +45,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		name: 'astro:rollup-plugin-build-css',
 
 		applyToEnvironment(environment) {
-			return environment.name === 'client' || environment.name === 'ssr';
+			return environment.name === 'client' || environment.name === 'ssr' || environment.name === 'prerender';
 		},
 
 		async generateBundle(_outputOptions, bundle) {
@@ -105,7 +105,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		name: 'astro:rollup-plugin-single-css',
 		enforce: 'post',
 		applyToEnvironment(environment) {
-			return environment.name === 'client' || environment.name === 'ssr';
+			return environment.name === 'client' || environment.name === 'ssr' || environment.name === 'prerender';
 		},
 		configResolved(config) {
 			resolvedConfig = config;
@@ -131,7 +131,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		name: 'astro:rollup-plugin-inline-stylesheets',
 		enforce: 'post',
 		applyToEnvironment(environment) {
-			return environment.name === 'client' || environment.name === 'ssr';
+			return environment.name === 'client' || environment.name === 'ssr' || environment.name === 'prerender';
 		},
 		configResolved(config) {
 			assetsInlineLimit = config.build.assetsInlineLimit;

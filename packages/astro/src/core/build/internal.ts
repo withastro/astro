@@ -87,6 +87,7 @@ export interface BuildInternals {
 	clientInput: Set<string>;
 
 	manifestFileName?: string;
+	prerenderEntryFileName?: string;
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint: URL | undefined;
 	astroActionsEntryPoint: URL | undefined;
