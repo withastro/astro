@@ -26,7 +26,7 @@ import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
 import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
 
-export const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
+const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
