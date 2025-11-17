@@ -40,7 +40,7 @@
     "@astrojs/underscore-redirects": "workspace:*",
     "@cloudflare/workers-types": "^4.20251106.1",
     "tinyglobby": "^0.2.15",
-    "vite": "^6.4.1",
+    "vite": "^7.2.2",
     "wrangler": "4.46.0"
   },
   "peerDependencies": {
