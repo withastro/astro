@@ -1,4 +1,4 @@
-import type { GetStaticPathsItem, Params } from '../../types/public/common.js';
+import type { GetStaticPathsItem } from '../../types/public/common.js';
 import type { AstroConfig } from '../../types/public/index.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { trimSlashes } from '../path.js';
