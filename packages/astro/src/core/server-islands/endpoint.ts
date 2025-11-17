@@ -138,9 +138,18 @@ export function createEndpoint(manifest: SSRManifest) {
 		}
 
 		// Decrypt slots
+		let decryptedSlots = {}
+
 		const encryptedSlots = data.encryptedSlots;
-		const slotsString = encryptedSlots === '' ? '{}' : await decryptString(key, encryptedSlots);
-		const decryptedSlots = JSON.parse(slotsString);
+
+		if (encryptedSlots !== '') {
+			try {
+				const slotsString = await decryptString(key, encryptedSlots);
+				decryptedSlots = JSON.parse(slotsString);
+			} catch (_e) {
+				return badRequest('Encrypted slots value is invalid.');
+			}
+		}
 
 		const componentModule = await imp();
 		let Component = (componentModule as any)[data.componentExport];

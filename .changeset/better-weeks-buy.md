@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Add handling of invalid encrypted props in server islands.
+Add handling of invalid encrypted props and slots in server islands.

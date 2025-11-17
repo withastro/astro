@@ -163,6 +163,20 @@ describe('Server islands', () => {
 				assert.equal(res.status, 200, 'should accept encrypted slots');
 			});
 
+			it('rejects invalid encrypted slots via POST', async () => {
+
+				const res = await fixture.fetch('/_server-islands/Island', {
+					method: 'POST',
+					body: JSON.stringify({
+						componentExport: 'default',
+						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						// hard-coded invalid encrypted slot value:
+						encryptedSlots: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLE',
+					}),
+				});
+				assert.equal(res.status, 400, 'should reject invalid encrypted slots');
+			});
+
 			it('accepts encrypted slots with XSS payload via POST', async () => {
 				const key = await createKeyFromString('eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=');
 				const slotsToEncrypt = { xss: '<img src=x onerror=alert(0)>' };
@@ -355,6 +369,25 @@ describe('Server islands', () => {
 				});
 				const response = await app.render(request);
 				assert.equal(response.status, 200, 'should accept encrypted slots');
+			});
+
+			it('rejects invalid encrypted slots via POST', async () => {
+				const app = await fixture.loadTestAdapterApp();
+
+				const request = new Request('http://example.com/_server-islands/Island', {
+					method: 'POST',
+					body: JSON.stringify({
+						componentExport: 'default',
+						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						// hard-coded invalid encrypted slot value:
+						encryptedSlots: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLE',
+					}),
+					headers: {
+						origin: 'http://example.com',
+					},
+				});
+				const response = await app.render(request);
+				assert.equal(response.status, 400, 'should reject invalid encrypted slots');
 			});
 
 			it('accepts encrypted slots with XSS payload via POST', async () => {
