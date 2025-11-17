@@ -84,13 +84,13 @@ export function createFakeOperatingSystemProvider(platform) {
 }
 
 export function createSpyCommandExecutor({ fail = false } = {}) {
-	/** @type {Array<{ command: string; args?: Array<string> }>} */
+	/** @type {Array<{ command: string; args: Array<string> | undefined; input: string | undefined }>} */
 	const inputs = [];
 
 	/** @type {import("../../../dist/cli/definitions.js").CommandExecutor} */
 	const commandExecutor = {
-		async execute(command, args) {
-			inputs.push({ command, args });
+		async execute(command, args, options) {
+			inputs.push({ command, args, input: options?.input });
 			if (fail) {
 				throw new Error('Command execution failed');
 			}

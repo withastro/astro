@@ -1,12 +1,9 @@
 // @ts-check
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
 import { describe, it } from 'node:test';
 import { getPackageManager } from '../../../dist/cli/info/core/get-package-manager.js';
 import { infoCommand } from '../../../dist/cli/info/core/info.js';
 import { createCliClipboard } from '../../../dist/cli/info/infra/cli-clipboard.js';
-import { createProcessOperatingSystemProvider } from '../../../dist/cli/infra/process-operating-system-provider.js';
-import { createTinyexecCommandExecutor } from '../../../dist/cli/infra/tinyexec-command-executor.js';
 import { createSpyLogger } from '../test-utils.js';
 import {
 	createFakeDebugInfoProvider,
@@ -151,48 +148,6 @@ describe('CLI info', () => {
 
 	describe('infra', () => {
 		describe('createCliClipboard()', () => {
-			function readFromClipboard() {
-				const system = process.platform;
-				let command = '';
-				/** @type {Array<string>} */
-				let args = [];
-
-				if (system === 'darwin') {
-					command = 'pbpaste';
-				} else if (system === 'win32') {
-					command = 'powershell';
-					args = ['-command', 'Get-Clipboard'];
-				} else {
-					/** @type {Array<[string, Array<string>]>} */
-					const unixCommands = [
-						['xclip', ['-sel', 'clipboard', '-o']],
-						['wl-paste', []],
-					];
-					for (const [unixCommand, unixArgs] of unixCommands) {
-						try {
-							const output = spawnSync('which', [unixCommand], { encoding: 'utf8' });
-							if (output.stdout.trim()) {
-								command = unixCommand;
-								args = unixArgs;
-								break;
-							}
-						} catch {
-							continue;
-						}
-					}
-				}
-
-				if (!command) {
-					throw new Error('Clipboard read command not found!');
-				}
-
-				const result = spawnSync(command, args, { encoding: 'utf8' });
-				if (result.error) {
-					throw result.error;
-				}
-				return result.stdout.trim();
-			}
-
 			it('aborts early if no copy command can be found', async () => {
 				const { commandExecutor, inputs } = createSpyCommandExecutor({ fail: true });
 				const { logger, logs } = createSpyLogger();
@@ -215,7 +170,7 @@ describe('CLI info', () => {
 			});
 
 			it('aborts if user does not confirm', async () => {
-				const { commandExecutor } = createSpyCommandExecutor();
+				const { commandExecutor, inputs } = createSpyCommandExecutor();
 				const { logger, logs } = createSpyLogger();
 				const operatingSystemProvider = createFakeOperatingSystemProvider('win32');
 				const prompt = createFakePrompt(false);
@@ -230,13 +185,13 @@ describe('CLI info', () => {
 				await clipboard.copy(text);
 
 				assert.equal(logs.length, 0);
-				assert.notEqual(readFromClipboard(), text);
+				assert.equal(inputs.length, 0);
 			});
 
 			it('copies correctly', async () => {
-				const commandExecutor = createTinyexecCommandExecutor();
+				const { commandExecutor, inputs } = createSpyCommandExecutor();
 				const { logger, logs } = createSpyLogger();
-				const operatingSystemProvider = createProcessOperatingSystemProvider();
+				const operatingSystemProvider = createFakeOperatingSystemProvider('win32');
 				const prompt = createFakePrompt(true);
 
 				const clipboard = createCliClipboard({
@@ -250,7 +205,12 @@ describe('CLI info', () => {
 
 				assert.equal(logs[0].type, 'info');
 				assert.equal(logs[0].message, 'Copied to clipboard!');
-				assert.equal(readFromClipboard(), text);
+				assert.equal(inputs.length, 1);
+				assert.deepStrictEqual(inputs[0], {
+					command: 'clip',
+					args: undefined,
+					input: text,
+				});
 			});
 		});
 
