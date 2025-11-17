@@ -120,7 +120,8 @@ describe('Server islands', () => {
 					method: 'POST',
 					body: JSON.stringify({
 						componentExport: 'default',
-						encryptedProps: '_invalid_string_',
+						// not the expected value:
+						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLE',
 						encryptedSlots: '',
 					}),
 				});
@@ -292,7 +293,8 @@ describe('Server islands', () => {
 					method: 'POST',
 					body: JSON.stringify({
 						componentExport: 'default',
-						encryptedProps: '_invalid_string_',
+						// not the expected value:
+						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLE',
 						encryptedSlots: '',
 					}),
 					headers: {
