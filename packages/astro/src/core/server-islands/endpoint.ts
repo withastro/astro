@@ -126,8 +126,16 @@ export function createEndpoint(manifest: SSRManifest) {
 		const key = await manifest.key;
 		const encryptedProps = data.encryptedProps;
 
-		const propString = encryptedProps === '' ? '{}' : await decryptString(key, encryptedProps);
-		const props = JSON.parse(propString);
+		let props = {};
+
+		if (encryptedProps !== '') {
+			try {
+				const propString = await decryptString(key, encryptedProps);
+				props = JSON.parse(propString);
+			} catch (err) {
+				return badRequest('Encrypted props value is invalid.');
+			}
+		}
 
 		// Decrypt slots
 		const encryptedSlots = data.encryptedSlots;

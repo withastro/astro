@@ -89,7 +89,7 @@ describe('Server islands', () => {
 				assert.equal(res.status, 200);
 				const html = await res.text();
 				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
-				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
 			it('re-encrypts props on each request', async () => {
@@ -99,7 +99,7 @@ describe('Server islands', () => {
 				const fetchMatch = html.match(
 					/fetch\('\/_server-islands\/ComponentWithProps\?[^']*p=([^&']*)/,
 				);
-				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				const firstProps = fetchMatch[1];
 				const secondRes = await fixture.fetch('/includeComponentWithProps/');
 				assert.equal(secondRes.status, 200);
@@ -107,12 +107,24 @@ describe('Server islands', () => {
 				const secondFetchMatch = secondHtml.match(
 					/fetch\('\/_server-islands\/ComponentWithProps\?[^']*p=([^&']*)/,
 				);
-				assert.equal(secondFetchMatch.length, 2, 'should include props in the query	string');
+				assert.equal(secondFetchMatch.length, 2, 'should include props in the query string');
 				assert.notEqual(
 					secondFetchMatch[1],
 					firstProps,
 					'should re-encrypt props on each request with a different IV',
 				);
+			});
+
+			it('rejects invalid props', async () => {
+				const res = await fixture.fetch('/_server-islands/Island', {
+					method: 'POST',
+					body: JSON.stringify({
+						componentExport: 'default',
+						encryptedProps: '_invalid_string_',
+						encryptedSlots: '',
+					}),
+				});
+				assert.equal(res.status, 400);
 			});
 
 			it('rejects plaintext slots', async () => {
@@ -175,7 +187,7 @@ describe('Server islands', () => {
 				assert.equal(res.status, 200);
 				const html = await res.text();
 				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
-				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
 
@@ -184,7 +196,7 @@ describe('Server islands', () => {
 				assert.equal(res.status, 200);
 				const html = await res.text();
 				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
-				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
 
@@ -193,7 +205,7 @@ describe('Server islands', () => {
 				assert.equal(res.status, 200);
 				const html = await res.text();
 				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
-				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
 		});
@@ -245,7 +257,7 @@ describe('Server islands', () => {
 				assert.equal(response.status, 200);
 				const html = await response.text();
 				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
-				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
 			it('re-encrypts props on each request', async () => {
@@ -257,7 +269,7 @@ describe('Server islands', () => {
 				const fetchMatch = html.match(
 					/fetch\('\/_server-islands\/ComponentWithProps\?[^']*p=([^&']*)/,
 				);
-				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				const firstProps = fetchMatch[1];
 				const secondRequest = new Request('http://example.com/includeComponentWithProps/');
 				const secondResponse = await app.render(secondRequest);
@@ -266,12 +278,29 @@ describe('Server islands', () => {
 				const secondFetchMatch = secondHtml.match(
 					/fetch\('\/_server-islands\/ComponentWithProps\?[^']*p=([^&']*)/,
 				);
-				assert.equal(secondFetchMatch.length, 2, 'should include props in the query	string');
+				assert.equal(secondFetchMatch.length, 2, 'should include props in the query string');
 				assert.notEqual(
 					secondFetchMatch[1],
 					firstProps,
 					'should re-encrypt props on each request with a different IV',
 				);
+			});
+
+			it('rejects invalid props', async () => {
+				const app = await fixture.loadTestAdapterApp();
+				const request = new Request('http://example.com/_server-islands/Island', {
+					method: 'POST',
+					body: JSON.stringify({
+						componentExport: 'default',
+						encryptedProps: '_invalid_string_',
+						encryptedSlots: '',
+					}),
+					headers: {
+						origin: 'http://example.com',
+					},
+				});
+				const response = await app.render(request);
+				assert.equal(response.status, 400);
 			});
 
 			it('rejects plaintext slots', async () => {
@@ -358,7 +387,7 @@ describe('Server islands', () => {
 				assert.equal(res.status, 200);
 				const html = await res.text();
 				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
-				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+				assert.equal(fetchMatch.length, 2, 'should include props in the query string');
 				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
 			});
 		});
