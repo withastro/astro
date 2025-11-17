@@ -1,5 +1,17 @@
 # astro
 
+## 5.15.8
+
+### Patch Changes
+
+- [#14772](https://github.com/withastro/astro/pull/14772) [`00c579a`](https://github.com/withastro/astro/commit/00c579a23322d92459e4ccad0ec365c4d1980a5d) Thanks [@matthewp](https://github.com/matthewp)! - Improves the security of Server Islands slots by encrypting them before transmission to the browser, matching the security model used for props. This improves the integrity of slot content and prevents injection attacks, even when component templates don't explicitly support slots.
+
+  Slots continue to work as expected for normal usage—this change has no breaking changes for legitimate requests.
+
+- [#14771](https://github.com/withastro/astro/pull/14771) [`6f80081`](https://github.com/withastro/astro/commit/6f800813516b07bbe12c666a92937525fddb58ce) Thanks [@matthewp](https://github.com/matthewp)! - Fix middleware pathname matching by normalizing URL-encoded paths
+
+  Middleware now receives normalized pathname values, ensuring that encoded paths like `/%61dmin` are properly decoded to `/admin` before middleware checks. This prevents potential security issues where middleware checks might be bypassed through URL encoding.
+
 ## 5.15.7
 
 ### Patch Changes
