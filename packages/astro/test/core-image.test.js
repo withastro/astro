@@ -28,9 +28,6 @@ describe('astro:image', () => {
 					domains: ['avatars.githubusercontent.com'],
 					remotePatterns: [
 						{
-							protocol: 'https',
-						},
-						{
 							protocol: 'data',
 						},
 					],
