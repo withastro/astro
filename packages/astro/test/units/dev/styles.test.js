@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import { getStylesForURL } from '../../../dist/content/vite-plugin-content-assets.js';
 import { viteID } from '../../../dist/core/util.js';
-import { getStylesForURL } from '../../../dist/vite-plugin-astro-server/css.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
