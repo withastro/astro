@@ -26,6 +26,8 @@ import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
 import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
 
+export const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
+
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
 
@@ -210,7 +212,7 @@ async function buildEnvironments(
 					rollupOptions: {
 						input: 'astro/entrypoints/prerender',
 						output: {
-							entryFileNames: 'prerender-entry.[hash].mjs',
+							entryFileNames: `${PRERENDER_ENTRY_FILENAME_PREFIX}.[hash].mjs`,
 							format: 'esm',
 						},
 					},
@@ -276,6 +278,31 @@ async function buildEnvironments(
 type MutateChunk = (chunk: vite.Rollup.OutputChunk, targets: string[], newCode: string) => void;
 
 /**
+ * Finds and returns the prerender entry filename from the build output.
+ * Throws an error if no prerender entry file is found.
+ */
+function getPrerenderEntryFileName(
+	prerenderOutput: vite.Rollup.RollupOutput | vite.Rollup.RollupOutput[],
+): string {
+	const outputs = Array.isArray(prerenderOutput) ? prerenderOutput : [prerenderOutput];
+
+	for (const output of outputs) {
+		for (const chunk of output.output) {
+			if (chunk.type !== 'asset' && 'fileName' in chunk) {
+				const fileName = chunk.fileName;
+				if (fileName.startsWith(PRERENDER_ENTRY_FILENAME_PREFIX)) {
+					return fileName;
+				}
+			}
+		}
+	}
+
+	throw new Error(
+		'Could not find the prerender entry point in the build output. This is likely a bug in Astro.'
+	);
+}
+
+/**
  * Extracts the prerender entry filename from the build output
  * and stores it in internals for later retrieval in generatePages.
  */
@@ -283,19 +310,7 @@ function extractPrerenderEntryFileName(
 	internals: BuildInternals,
 	prerenderOutput: vite.Rollup.RollupOutput | vite.Rollup.RollupOutput[],
 ) {
-	const outputs = Array.isArray(prerenderOutput) ? prerenderOutput : [prerenderOutput];
-
-	for (const output of outputs) {
-		for (const chunk of output.output) {
-			if (chunk.type !== 'asset' && 'fileName' in chunk) {
-				const fileName = chunk.fileName;
-				if (fileName.startsWith('prerender-entry')) {
-					internals.prerenderEntryFileName = fileName;
-					return;
-				}
-			}
-		}
-	}
+	internals.prerenderEntryFileName = getPrerenderEntryFileName(prerenderOutput);
 }
 
 async function runManifestInjection(

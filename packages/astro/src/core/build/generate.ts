@@ -33,6 +33,7 @@ import { stringifyParams } from '../routing/params.js';
 import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
+import { PRERENDER_ENTRY_FILENAME_PREFIX } from './static-build.js';
 import { BuildPipeline } from './pipeline.js';
 import type { SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
@@ -45,7 +46,12 @@ export async function generatePages(
 	const generatePagesTimer = performance.now();
 	const ssr = options.settings.buildOutput === 'server';
 	// Import from the single prerender entrypoint
-	const prerenderEntryFileName = internals.prerenderEntryFileName ?? 'prerender-entry.mjs';
+	const prerenderEntryFileName = internals.prerenderEntryFileName;
+	if (!prerenderEntryFileName) {
+		throw new Error(
+			`Prerender entry filename not found in build internals. This is likely a bug in Astro.`
+		);
+	}
 	const prerenderEntryUrl = new URL(prerenderEntryFileName, prerenderOutputDir);
 	const prerenderEntry = await import(prerenderEntryUrl.toString());
 

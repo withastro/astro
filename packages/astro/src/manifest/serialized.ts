@@ -68,6 +68,8 @@ export function serializedManifestPlugin({
 					  middleware: () => import('${MIDDLEWARE_MODULE_ID}'),
 					  sessionDriver: () => import('${VIRTUAL_SESSION_DRIVER_ID}'),
 					  serverIslandMappings: () => import('${SERVER_ISLAND_MANIFEST}'),
+					  // _manifest.routes contains enriched route info with scripts and styles,
+					  // while routes only has raw route data. Fallback to routes if _manifest.routes is not available.
 					  routes: _manifest.routes ?? routes,
 					  pageMap,
 					});
