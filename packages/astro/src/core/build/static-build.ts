@@ -88,6 +88,8 @@ export async function staticBuild(
 	if (settings.buildOutput === 'static') {
 		settings.timer.start('Static generate');
 		await generatePages(opts, internals, prerenderOutputDir);
+		// Move prerender and SSR assets to client directory before cleaning up
+		await ssrMoveAssets(opts, prerenderOutputDir);
 		// Clean up prerender directory after generation
 		await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
 		settings.timer.end('Static generate');
@@ -399,11 +401,9 @@ async function writeMutatedChunks(
  */
 async function ssrMoveAssets(opts: StaticBuildOptions, prerenderOutputDir: URL) {
 	opts.logger.info('build', 'Rearranging server assets...');
-	const serverRoot =
-		opts.settings.buildOutput === 'static'
-			? opts.settings.config.build.client
-			: opts.settings.config.build.server;
-	const clientRoot = opts.settings.config.build.client;
+	const isFullyStaticSite = opts.settings.buildOutput === 'static';
+	const serverRoot = opts.settings.config.build.server;
+	const clientRoot = isFullyStaticSite ? opts.settings.config.outDir : opts.settings.config.build.client;
 	const assets = opts.settings.config.build.assets;
 	const serverAssets = new URL(`./${assets}/`, appendForwardSlash(serverRoot.toString()));
 	const clientAssets = new URL(`./${assets}/`, appendForwardSlash(clientRoot.toString()));
@@ -424,6 +424,11 @@ async function ssrMoveAssets(opts: StaticBuildOptions, prerenderOutputDir: URL) 
 				return fs.promises.rename(currentUrl, clientUrl);
 			}),
 		);
+	}
+
+	// If this is fully static site, we don't need to do the next parts at all.
+	if(isFullyStaticSite) {
+		return;
 	}
 
 	// Move SSR assets
