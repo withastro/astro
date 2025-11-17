@@ -16,14 +16,13 @@ export function stringifyParams(
 	trailingSlash: AstroConfig['trailingSlash'],
 ) {
 	// validate parameter values then stringify each value
-	const validatedParams = Object.entries(params).reduce((acc, next) => {
-		validateGetStaticPathsParameter(next, route.component);
-		const [key, value] = next;
+	const validatedParams: Record<string, string> = {};
+	for (const [key, value] of Object.entries(params)) {
+		validateGetStaticPathsParameter([key, value], route.component);
 		if (value !== undefined) {
-			acc[key] = trimSlashes(value);
+			validatedParams[key] = trimSlashes(value);
 		}
-		return acc;
-	}, {} as Params);
+	}
 
 	return getRouteGenerator(route.segments, trailingSlash)(validatedParams);
 }
