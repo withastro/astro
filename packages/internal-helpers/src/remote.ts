@@ -61,11 +61,14 @@ export function matchHostname(url: URL, hostname?: string, allowWildcard = false
 		return slicedHostname !== url.hostname && url.hostname.endsWith(slicedHostname);
 	} else if (hostname.startsWith('*.')) {
 		const slicedHostname = hostname.slice(1); // * length
-		const additionalSubdomains = url.hostname
-			.replace(slicedHostname, '')
-			.split('.')
-			.filter(Boolean);
-		return additionalSubdomains.length === 1;
+		// Check if url hostname ends with the base domain
+		if (!url.hostname.endsWith(slicedHostname)) {
+			return false;
+		}
+		// Extract the subdomain part (before the base domain, excluding the dot)
+		const subdomainWithDot = url.hostname.slice(0, -(slicedHostname.length - 1));
+		// Should be exactly one subdomain part followed by a dot
+		return subdomainWithDot.endsWith('.') && !subdomainWithDot.slice(0, -1).includes('.');
 	}
 
 	return false;

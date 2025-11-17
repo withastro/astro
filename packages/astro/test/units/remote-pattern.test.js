@@ -58,6 +58,18 @@ describe('remote-pattern', () => {
 			assert.equal(matchHostname(url3, '**.astro.build', true), false);
 		});
 
+		it('rejects hostname without dots when using single wildcard (*.domain.com)', async () => {
+			// hostnames without dots (like localhost) should not match *.astro.build
+			const localhostUrl = new URL('http://localhost/');
+			assert.equal(matchHostname(localhostUrl, '*.astro.build', true), false);
+
+			const bareHostnameUrl = new URL('http://example/');
+			assert.equal(matchHostname(bareHostnameUrl, '*.victim.com', true), false);
+
+			const internalUrl = new URL('http://internal/');
+			assert.equal(matchHostname(internalUrl, '*.astro.build', true), false);
+		});
+
 		it('matches pathname (no wildcards)', async () => {
 			// undefined
 			assert.equal(matchPathname(url1), true);
