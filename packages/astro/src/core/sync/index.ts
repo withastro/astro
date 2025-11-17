@@ -251,7 +251,23 @@ async function syncContentCollections(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logger, mode, command: 'build', fs, sync: true, routesList, manifest },
+			{
+				settings: {
+					...settings,
+					buildOutput: undefined,
+					injectedCsp: {
+						fontResources: new Set(),
+						styleHashes: [],
+					},
+				},
+				logger,
+				mode,
+				command: 'build',
+				fs,
+				sync: true,
+				routesList,
+				manifest,
+			},
 		),
 	);
 

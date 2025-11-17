@@ -67,7 +67,7 @@ interface Options {
 }
 
 export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
-	if (sync || !settings.config.experimental.fonts) {
+	if (!settings.config.experimental.fonts) {
 		// This is required because the virtual module may be imported as
 		// a side effect
 		// TODO: remove once fonts are stabilized
@@ -319,7 +319,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 		},
 		async buildEnd() {
-			if (settings.config.experimental.fonts!.length === 0) {
+			if (sync || settings.config.experimental.fonts!.length === 0) {
 				cleanup();
 				return;
 			}
