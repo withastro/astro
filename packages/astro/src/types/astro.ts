@@ -92,3 +92,9 @@ export interface AstroPluginOptions {
 	settings: AstroSettings;
 	logger: Logger;
 }
+
+export interface ImportedDevStyle {
+	id: string;
+	url: string;
+	content: string;
+}

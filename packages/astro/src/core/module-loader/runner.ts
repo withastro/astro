@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
 import type * as fs from 'node:fs';
-import type { EnvironmentModuleNode } from 'vite';
+import type { EnvironmentModuleNode, RunnableDevEnvironment } from 'vite';
 import type { TypedEventEmitter } from '../../types/typed-emitter.js';
 
 // This is a generic interface for a module loader. In the astro cli this is
@@ -43,6 +43,7 @@ export interface ModuleLoader {
 	webSocketSend: (msg: any) => void;
 	isHttps: () => boolean;
 	events: TypedEventEmitter<LoaderEvents>;
+	getSSREnvironment: () => RunnableDevEnvironment;
 }
 
 export interface ModuleInfo {
@@ -76,6 +77,9 @@ export function createLoader(overrides: Partial<ModuleLoader>): ModuleLoader {
 		webSocketSend() {},
 		isHttps() {
 			return true;
+		},
+		getSSREnvironment() {
+			throw new Error('Not implemented');
 		},
 		events: new EventEmitter() as ModuleLoaderEventEmitter,
 

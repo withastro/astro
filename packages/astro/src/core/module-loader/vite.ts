@@ -108,6 +108,9 @@ export function createViteLoader(
 		webSocketSend(msg) {
 			return viteServer.environments.client.hot.send(msg);
 		},
+		getSSREnvironment() {
+			return viteServer.environments.ssr as RunnableDevEnvironment;
+		},
 		isHttps() {
 			return !!ssrEnvironment.config.server.https;
 		},

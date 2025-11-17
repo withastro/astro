@@ -70,3 +70,8 @@ declare module 'virtual:astro:adapter-config' {
 	export const adapterFeatures: any;
 	export const serverEntrypoint: string;
 }
+
+declare module 'virtual:astro:dev-css' {
+	import type { ImportedDevStyles } from './src/types/astro.js';
+	export const css: Set<ImportedDevStyles>;
+}
