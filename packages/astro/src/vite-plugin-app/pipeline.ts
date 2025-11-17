@@ -26,6 +26,10 @@ import { createResolve } from '../vite-plugin-astro-server/resolve.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 
 export class AstroServerPipeline extends Pipeline {
+	getName(): string {
+		return 'AstroServerPipeline';
+	}
+
 	// renderers are loaded on every request,
 	// so it needs to be mutable here unlike in other environments
 	override renderers = new Array<SSRLoadedRenderer>();
@@ -45,9 +49,8 @@ export class AstroServerPipeline extends Pipeline {
 		readonly defaultRoutes = createDefaultRoutes(manifest),
 	) {
 		const resolve = createResolve(loader, manifest.rootDir);
-		const serverLike = settings?.buildOutput === 'server';
 		const streaming = true;
-		super(logger, manifest, 'development', [], resolve, serverLike, streaming);
+		super(logger, manifest, 'development', [], resolve, streaming);
 	}
 
 	static create(

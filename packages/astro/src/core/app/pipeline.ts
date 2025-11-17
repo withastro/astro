@@ -10,6 +10,10 @@ import {
 import { findRouteToRewrite } from '../routing/rewrite.js';
 
 export class AppPipeline extends Pipeline {
+	getName(): string {
+		return 'AppPipeline';
+	}
+
 	static create({
 		logger,
 		manifest,
@@ -32,7 +36,6 @@ export class AppPipeline extends Pipeline {
 			'production',
 			manifest.renderers,
 			resolve,
-			true,
 			streaming,
 			undefined,
 			undefined,
@@ -84,7 +87,7 @@ export class AppPipeline extends Pipeline {
 			trailingSlash: this.manifest.trailingSlash,
 			buildFormat: this.manifest.buildFormat,
 			base: this.manifest.base,
-			outDir: this.serverLike ? this.manifest.buildClientDir : this.manifest.outDir,
+			outDir: this.manifest?.serverLike ? this.manifest.buildClientDir : this.manifest.outDir,
 		});
 
 		const componentInstance = await this.getComponentByRoute(routeData);

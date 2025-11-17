@@ -485,7 +485,7 @@ async function matchRoute(
 	pipeline: AstroServerPipeline,
 	manifest: SSRManifest,
 ): Promise<MatchedRoute | undefined> {
-	const { logger, routeCache, serverLike } = pipeline;
+	const { logger, routeCache } = pipeline;
 	const matches = matchAllRoutes(pathname, routesList);
 
 	const preloadedMatches = await getSortedPreloadedMatches({
@@ -504,7 +504,7 @@ async function matchRoute(
 				routeCache,
 				pathname: pathname,
 				logger,
-				serverLike,
+				serverLike: pipeline.manifest.serverLike,
 				base: manifest.base,
 				trailingSlash: manifest.trailingSlash,
 			});

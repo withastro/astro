@@ -13,6 +13,10 @@ import { findRouteToRewrite } from '../../routing/rewrite.js';
 type DevPipelineCreate = Pick<DevPipeline, 'logger' | 'manifest' | 'streaming'>;
 
 export class DevPipeline extends Pipeline {
+	getName(): string {
+		return 'DevPipeline';
+	}
+
 	static create({ logger, manifest, streaming }: DevPipelineCreate) {
 		async function resolve(specifier: string): Promise<string> {
 			if (specifier.startsWith('/')) {
@@ -28,7 +32,6 @@ export class DevPipeline extends Pipeline {
 			'production',
 			manifest.renderers,
 			resolve,
-			true,
 			streaming,
 			undefined,
 			undefined,
@@ -126,7 +129,7 @@ export class DevPipeline extends Pipeline {
 			trailingSlash: this.manifest.trailingSlash,
 			buildFormat: this.manifest.buildFormat,
 			base: this.manifest.base,
-			outDir: this.serverLike ? this.manifest.buildClientDir : this.manifest.outDir,
+			outDir: this.manifest?.serverLike ? this.manifest.buildClientDir : this.manifest.outDir,
 		});
 
 		const componentInstance = await this.getComponentByRoute(routeData);

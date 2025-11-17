@@ -48,7 +48,7 @@ export async function generatePages(
 	const prerenderEntryFileName = internals.prerenderEntryFileName;
 	if (!prerenderEntryFileName) {
 		throw new Error(
-			`Prerender entry filename not found in build internals. This is likely a bug in Astro.`
+			`Prerender entry filename not found in build internals. This is likely a bug in Astro.`,
 		);
 	}
 	const prerenderEntryUrl = new URL(prerenderEntryFileName, prerenderOutputDir);
@@ -296,7 +296,7 @@ async function getPathsForRoute(
 	pipeline: BuildPipeline,
 	builtPaths: Set<string>,
 ): Promise<Array<string>> {
-	const { logger, options, routeCache, serverLike, manifest } = pipeline;
+	const { logger, options, routeCache, manifest } = pipeline;
 	let paths: Array<string> = [];
 	if (route.pathname) {
 		paths.push(route.pathname);
@@ -317,7 +317,7 @@ async function getPathsForRoute(
 			route,
 			routeCache,
 			logger,
-			ssr: serverLike,
+			ssr: manifest.serverLike,
 			base: manifest.base,
 			trailingSlash: manifest.trailingSlash,
 		}).catch((err) => {
