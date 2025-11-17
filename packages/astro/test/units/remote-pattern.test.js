@@ -1,6 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+	isRemoteAllowed,
 	matchHostname,
 	matchPathname,
 	matchPattern,
@@ -13,6 +14,7 @@ describe('remote-pattern', () => {
 	const url2 = new URL('http://preview.docs.astro.build:8080/');
 	const url3 = new URL('https://astro.build/');
 	const url4 = new URL('https://example.co/');
+	const url5 = new URL('data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==');
 
 	describe('remote pattern matchers', () => {
 		it('matches protocol', async () => {
@@ -22,6 +24,7 @@ describe('remote-pattern', () => {
 			// defined, true/false
 			assert.equal(matchProtocol(url1, 'http'), false);
 			assert.equal(matchProtocol(url1, 'https'), true);
+			assert.equal(matchProtocol(url5, 'data'), true);
 		});
 
 		it('matches port', async () => {
@@ -123,6 +126,36 @@ describe('remote-pattern', () => {
 				}),
 				false,
 			);
+
+			assert.equal(
+				matchPattern(url5, {
+					protocol: 'data',
+				}),
+				true,
+			);
+		});
+	});
+
+	describe('remote is allowed', () => {
+		it('allows remote URLs based on patterns', async () => {
+			const patterns = {domains: [], remotePatterns: [
+				{
+					protocol: 'https',
+					hostname: '**.astro.build',
+					pathname: '/en/**',
+				},
+				{
+					protocol: 'http',
+					hostname: 'preview.docs.astro.build',
+					port: '8080',
+				},
+			]};
+
+			assert.equal(isRemoteAllowed(url1, patterns), true);
+			assert.equal(isRemoteAllowed(url2, patterns), true);
+			assert.equal(isRemoteAllowed(url3, patterns), false);
+			assert.equal(isRemoteAllowed(url4, patterns), false);
+			assert.equal(isRemoteAllowed(url5, patterns), false);
 		});
 	});
 });
