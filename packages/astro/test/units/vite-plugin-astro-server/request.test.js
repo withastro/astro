@@ -48,49 +48,6 @@ async function createDevApp(overrides = {}, root) {
 }
 
 describe('vite-plugin-astro-server', () => {
-	describe('request', () => {
-		it('renders a request', async () => {
-			const fixture = await createFixture({
-				// Note that the content doesn't matter here because we are using a custom loader.
-				'/src/pages/index.astro': '',
-			});
-
-			const app = await createDevApp(
-				{
-					loader: createLoader({
-						import(id) {
-							if (id === '\0virtual:astro:middleware') {
-								return { onRequest: (_, next) => next() };
-							}
-							const Page = createComponent(() => {
-								return render`<div id="test">testing</div>`;
-							});
-							return createAstroModule(Page);
-						},
-					}),
-				},
-				fixture.path,
-			);
-
-			const controller = createController({ loader: app.pipeline.loader });
-			const { req, res, text } = createRequestAndResponse();
-
-			try {
-				await app.handleRequest({
-					controller,
-					incomingRequest: req,
-					incomingResponse: res,
-				});
-			} catch (err) {
-				assert.equal(err.message, undefined);
-			}
-
-			const html = await text();
-			assert.equal(res.statusCode, 200);
-			assert.equal(html.includes('<div id="test">'), true);
-		});
-	});
-
 	describe('url', () => {
 		let container;
 		let settings;

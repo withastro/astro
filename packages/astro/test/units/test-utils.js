@@ -110,7 +110,6 @@ export function createBasicPipeline(options = {}) {
 		options.mode ?? 'development',
 		options.renderers ?? [],
 		options.resolve ?? ((s) => Promise.resolve(s)),
-		options.serverLike ?? true,
 		options.streaming ?? true,
 		options.adapterName,
 		options.clientDirectives ?? getDefaultClientDirectives(),
