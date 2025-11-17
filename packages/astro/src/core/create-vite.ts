@@ -22,6 +22,7 @@ import astroPrefetch from '../prefetch/vite-plugin-prefetch.js';
 import astroDevToolbar from '../toolbar/vite-plugin-dev-toolbar.js';
 import astroTransitions from '../transitions/vite-plugin-transitions.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
+import { vitePluginAdapterConfig } from '../vite-plugin-adapter-config/index.js';
 import { vitePluginApp } from '../vite-plugin-app/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
@@ -163,6 +164,7 @@ export async function createVite(
 			astroDevCssPlugin({ routesList, command }),
 			importMetaEnv({ envLoader }),
 			astroEnv({ settings, sync, envLoader }),
+			vitePluginAdapterConfig(settings),
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
 			astroIntegrationsContainerPlugin({ settings, logger }),

@@ -69,7 +69,7 @@ describe('fonts orchestrate()', () => {
 				const dataCollector = createDataCollector(params);
 				const contentResolver = createRemoteUrlProxyContentResolver();
 				return createUrlProxy({
-					urlResolver: createDevUrlResolver({ base: 'test' }),
+					urlResolver: createDevUrlResolver({ base: 'test', searchParams: new URLSearchParams() }),
 					cssVariable,
 					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
 					dataCollector,
@@ -98,6 +98,9 @@ describe('fonts orchestrate()', () => {
 			{
 				url: joinPaths('/test', fileURLToPath(new URL('my-font.woff2.woff2', root))),
 				type: 'woff2',
+				weight: '400',
+				style: 'normal',
+				subset: undefined,
 			},
 		]);
 		// Uses the hash
@@ -229,7 +232,13 @@ describe('fonts orchestrate()', () => {
 		assert.deepStrictEqual([...internalConsumableMap.keys()], ['--test']);
 		const entry = internalConsumableMap.get('--test');
 		assert.deepStrictEqual(entry?.preloadData, [
-			{ url: 'https://example.com/foo.woff2.woff2', type: 'woff2' },
+			{
+				url: 'https://example.com/foo.woff2.woff2',
+				type: 'woff2',
+				weight: '400',
+				style: 'normal',
+				subset: undefined,
+			},
 		]);
 		// Uses the hash
 		assert.equal(entry?.css.includes('font-family:Test-'), true);
@@ -417,5 +426,182 @@ describe('fonts orchestrate()', () => {
 					'**Test** font family cannot be retrieved by the provider. Did you mean **Testi**?',
 			},
 		]);
+	});
+
+	it('warns if conflicting unmergeable families exist', async () => {
+		const fakeUnifontProvider = defineFontProvider('test', () => {
+			return {
+				resolveFont: () => {
+					return {
+						fonts: [
+							{
+								src: [
+									{ url: 'https://example.com/foo.woff2' },
+									{ url: 'https://example.com/foo.woff' },
+								],
+							},
+						],
+					};
+				},
+			};
+		});
+		const fakeAstroProvider = defineAstroFontProvider({
+			entrypoint: 'test',
+		});
+
+		const root = new URL(import.meta.url);
+		const { storage } = createSpyStorage();
+		const errorHandler = simpleErrorHandler;
+		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
+		const hasher = fakeHasher;
+		const { logs, logger } = createSpyLogger();
+
+		await orchestrate({
+			families: [
+				{
+					name: 'Test',
+					cssVariable: '--test',
+					provider: fakeAstroProvider,
+					fallbacks: ['serif'],
+				},
+				{
+					name: 'Foo',
+					cssVariable: '--test',
+					provider: fakeAstroProvider,
+					fallbacks: ['serif'],
+				},
+			],
+			hasher,
+			remoteFontProviderResolver: createRemoteFontProviderResolver({
+				root,
+				errorHandler,
+				modResolver: {
+					resolve: async () => ({
+						provider: fakeUnifontProvider,
+					}),
+				},
+			}),
+			localProviderUrlResolver: createRequireLocalProviderUrlResolver({ root }),
+			storage,
+			cssRenderer: createMinifiableCssRenderer({ minify: true }),
+			systemFallbacksProvider: createSystemFallbacksProvider(),
+			fontMetricsResolver: fakeFontMetricsResolver,
+			fontTypeExtractor,
+			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			logger,
+			createUrlProxy: ({ local, cssVariable, ...params }) => {
+				const dataCollector = createDataCollector(params);
+				const contentResolver = createRemoteUrlProxyContentResolver();
+				return createUrlProxy({
+					urlResolver: {
+						resolve: (hash) => hash,
+						getCspResources: () => [],
+					},
+					cssVariable,
+					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
+					dataCollector,
+				});
+			},
+			defaults: DEFAULTS,
+			bold: markdownBold,
+			stringMatcher: createLevenshteinStringMatcher(),
+		});
+
+		assert.deepStrictEqual(logs, [
+			{
+				label: 'assets',
+				message:
+					'Several font families have been registered for the **--test** cssVariable but they do not share the same name and provider.',
+				type: 'warn',
+			},
+			{
+				label: 'assets',
+				message:
+					'These families will not be merged together. The last occurrence will override previous families for this cssVariable. Review your Astro configuration.',
+				type: 'warn',
+			},
+		]);
+	});
+
+	it('does not if mergeable families exist', async () => {
+		const fakeUnifontProvider = defineFontProvider('test', () => {
+			return {
+				resolveFont: () => {
+					return {
+						fonts: [
+							{
+								src: [
+									{ url: 'https://example.com/foo.woff2' },
+									{ url: 'https://example.com/foo.woff' },
+								],
+							},
+						],
+					};
+				},
+			};
+		});
+		const fakeAstroProvider = defineAstroFontProvider({
+			entrypoint: 'test',
+		});
+
+		const root = new URL(import.meta.url);
+		const { storage } = createSpyStorage();
+		const errorHandler = simpleErrorHandler;
+		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
+		const hasher = fakeHasher;
+		const { logs, logger } = createSpyLogger();
+
+		await orchestrate({
+			families: [
+				{
+					name: 'Test',
+					cssVariable: '--test',
+					provider: fakeAstroProvider,
+					fallbacks: ['serif'],
+				},
+				{
+					name: 'Test',
+					cssVariable: '--test',
+					provider: fakeAstroProvider,
+					fallbacks: ['serif'],
+				},
+			],
+			hasher,
+			remoteFontProviderResolver: createRemoteFontProviderResolver({
+				root,
+				errorHandler,
+				modResolver: {
+					resolve: async () => ({
+						provider: fakeUnifontProvider,
+					}),
+				},
+			}),
+			localProviderUrlResolver: createRequireLocalProviderUrlResolver({ root }),
+			storage,
+			cssRenderer: createMinifiableCssRenderer({ minify: true }),
+			systemFallbacksProvider: createSystemFallbacksProvider(),
+			fontMetricsResolver: fakeFontMetricsResolver,
+			fontTypeExtractor,
+			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			logger,
+			createUrlProxy: ({ local, cssVariable, ...params }) => {
+				const dataCollector = createDataCollector(params);
+				const contentResolver = createRemoteUrlProxyContentResolver();
+				return createUrlProxy({
+					urlResolver: {
+						resolve: (hash) => hash,
+						getCspResources: () => [],
+					},
+					cssVariable,
+					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
+					dataCollector,
+				});
+			},
+			defaults: DEFAULTS,
+			bold: markdownBold,
+			stringMatcher: createLevenshteinStringMatcher(),
+		});
+
+		assert.deepStrictEqual(logs, []);
 	});
 });

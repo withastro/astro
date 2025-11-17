@@ -115,6 +115,7 @@ export type SSRManifest = {
 
 		debugInfoOutput: string | undefined;
 	};
+	internalFetchHeaders?: Record<string, string>;
 };
 
 export type SSRActions = {

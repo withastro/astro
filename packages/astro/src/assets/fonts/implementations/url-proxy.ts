@@ -1,4 +1,5 @@
 import type { DataCollector, UrlProxy, UrlProxyHashResolver, UrlResolver } from '../definitions.js';
+import { renderFontWeight } from '../utils.js';
 
 export function createUrlProxy({
 	hashResolver,
@@ -19,7 +20,15 @@ export function createUrlProxy({
 			dataCollector.collect({
 				url: originalUrl,
 				hash,
-				preload: collectPreload ? { url, type } : null,
+				preload: collectPreload
+					? {
+							url,
+							type,
+							weight: renderFontWeight(data.weight),
+							style: data.style,
+							subset: data.subset,
+						}
+					: null,
 				data,
 				init,
 			});

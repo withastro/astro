@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseFrontmatter } from '@astrojs/markdown-remark';
 import { slug as githubSlug } from 'github-slugger';
-import { green, red } from 'kleur/colors';
+import colors from 'picocolors';
 import type { PluginContext } from 'rollup';
 import type { RunnableDevEnvironment } from 'vite';
 import xxhash from 'xxhash-wasm';
@@ -24,6 +24,7 @@ import {
 	LIVE_CONTENT_TYPE,
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
+import type { LoaderContext } from './loaders/types.js';
 import { createImage } from './runtime-assets.js';
 
 const entryTypeSchema = z
@@ -59,25 +60,11 @@ const collectionConfigParser = z.union([
 			z.function(),
 			z.object({
 				name: z.string(),
-				load: z.function(
-					z.tuple(
-						[
-							z.object({
-								collection: z.string(),
-								store: z.any(),
-								meta: z.any(),
-								logger: z.any(),
-								config: z.any(),
-								entryTypes: z.any(),
-								parseData: z.any(),
-								renderMarkdown: z.any(),
-								generateDigest: z.function(z.tuple([z.any()], z.string())),
-								watcher: z.any().optional(),
-								refreshContextData: z.record(z.unknown()).optional(),
-							}),
-						],
-						z.unknown(),
-					),
+				load: z.function().args(z.custom<LoaderContext>()).returns(
+					z.custom<{
+						schema?: any;
+						types?: string;
+					} | void>(),
 				),
 				schema: z.any().optional(),
 				render: z.function(z.tuple([z.any()], z.unknown())).optional(),
@@ -121,7 +108,7 @@ export function parseEntrySlug({
 	}
 }
 
-export async function getEntryDataAndImages<
+export async function getEntryData<
 	TInputData extends Record<string, unknown> = Record<string, unknown>,
 	TOutputData extends TInputData = TInputData,
 >(
@@ -134,12 +121,10 @@ export async function getEntryDataAndImages<
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
 	pluginContext?: PluginContext,
-): Promise<{ data: TOutputData; imageImports: Array<string> }> {
+): Promise<TOutputData> {
 	let data = entry.unvalidatedData as TOutputData;
 
 	let schema = collectionConfig.schema;
-
-	const imageImports = new Set<string>();
 
 	if (typeof schema === 'function') {
 		if (pluginContext) {
@@ -150,8 +135,26 @@ export async function getEntryDataAndImages<
 			schema = schema({
 				image: () =>
 					z.string().transform((val) => {
-						imageImports.add(val);
-						return `${IMAGE_IMPORT_PREFIX}${val}`;
+						// Normalize bare filenames to relative paths for consistent resolution
+						// This ensures bare filenames like "cover.jpg" work the same way as in markdown frontmatter
+						// Skip normalization for:
+						// - Relative paths (./foo, ../foo)
+						// - Absolute paths (/foo)
+						// - URLs (http://...)
+						// - Aliases (~/, @/, etc.)
+						let normalizedPath = val;
+						if (
+							val &&
+							!val.startsWith('./') &&
+							!val.startsWith('../') &&
+							!val.startsWith('/') &&
+							!val.startsWith('~') &&
+							!val.startsWith('@') &&
+							!val.includes('://')
+						) {
+							normalizedPath = `./${val}`;
+						}
+						return `${IMAGE_IMPORT_PREFIX}${normalizedPath}`;
 					}),
 			});
 		}
@@ -193,26 +196,6 @@ export async function getEntryDataAndImages<
 		}
 	}
 
-	return { data, imageImports: Array.from(imageImports) };
-}
-
-export async function getEntryData(
-	entry: {
-		id: string;
-		collection: string;
-		unvalidatedData: Record<string, unknown>;
-		_internal: EntryInternal;
-	},
-	collectionConfig: CollectionConfig,
-	shouldEmitFile: boolean,
-	pluginContext?: PluginContext,
-) {
-	const { data } = await getEntryDataAndImages(
-		entry,
-		collectionConfig,
-		shouldEmitFile,
-		pluginContext,
-	);
 	return data;
 }
 
@@ -486,24 +469,22 @@ async function loadContentConfig({
 		return { ...config.data, digest };
 	} else {
 		const message = config.error.issues
-			.map((issue) => `  → ${green(issue.path.join('.'))}: ${red(issue.message)}`)
+			.map((issue) => `  → ${colors.green(issue.path.join('.'))}: ${colors.red(issue.message)}`)
 			.join('\n');
 		console.error(
-			`${green('[content]')} There was a problem with your content config:\n\n${message}\n`,
+			`${colors.green('[content]')} There was a problem with your content config:\n\n${message}\n`,
 		);
-		if (settings.config.experimental.liveContentCollections) {
-			const liveCollections = Object.entries(unparsedConfig.collections ?? {}).filter(
-				([, collection]: [string, any]) => collection?.type === LIVE_CONTENT_TYPE,
-			);
-			if (liveCollections.length > 0) {
-				throw new AstroError({
-					...AstroErrorData.LiveContentConfigError,
-					message: AstroErrorData.LiveContentConfigError.message(
-						'Live collections must be defined in a `src/live.config.ts` file.',
-						path.relative(fileURLToPath(settings.config.root), configPathname),
-					),
-				});
-			}
+		const liveCollections = Object.entries(unparsedConfig.collections ?? {}).filter(
+			([, collection]: [string, any]) => collection?.type === LIVE_CONTENT_TYPE,
+		);
+		if (liveCollections.length > 0) {
+			throw new AstroError({
+				...AstroErrorData.LiveContentConfigError,
+				message: AstroErrorData.LiveContentConfigError.message(
+					'Live collections must be defined in a `src/live.config.ts` file.',
+					path.relative(fileURLToPath(settings.config.root), configPathname),
+				),
+			});
 		}
 		return undefined;
 	}
@@ -591,7 +572,7 @@ export type ContentPaths = {
 };
 
 export function getContentPaths(
-	{ srcDir, root, experimental }: Pick<AstroConfig, 'root' | 'srcDir' | 'experimental'>,
+	{ srcDir, root }: Pick<AstroConfig, 'root' | 'srcDir'>,
 	fs: typeof fsMod = fsMod,
 ): ContentPaths {
 	const configStats = searchConfig(fs, srcDir);
@@ -607,9 +588,7 @@ export function getContentPaths(
 		}
 	}
 
-	const liveConfigStats = experimental?.liveContentCollections
-		? searchLiveConfig(fs, srcDir)
-		: { exists: false, url: new URL('./', srcDir) };
+	const liveConfigStats = searchLiveConfig(fs, srcDir);
 	const pkgBase = new URL('../../', import.meta.url);
 	return {
 		root: new URL('./', root),

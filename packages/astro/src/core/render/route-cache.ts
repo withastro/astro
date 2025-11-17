@@ -18,7 +18,6 @@ interface CallGetStaticPathsOptions {
 	mod: ComponentInstance | undefined;
 	route: RouteData;
 	routeCache: RouteCache;
-	logger: Logger;
 	ssr: boolean;
 	base: AstroConfig['base'];
 	trailingSlash: AstroConfig['trailingSlash'];
@@ -28,7 +27,6 @@ export async function callGetStaticPaths({
 	mod,
 	route,
 	routeCache,
-	logger,
 	ssr,
 	base,
 	trailingSlash,
@@ -65,7 +63,7 @@ export async function callGetStaticPaths({
 		routePattern: route.route,
 	});
 
-	validateGetStaticPathsResult(staticPaths, logger, route);
+	validateGetStaticPathsResult(staticPaths, route);
 
 	const keyedStaticPaths = staticPaths as GetStaticPathsResultKeyed;
 	keyedStaticPaths.keyed = new Map<string, GetStaticPathsItem>();

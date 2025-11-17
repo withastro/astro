@@ -1,8 +1,21 @@
+import { detect, resolveCommand } from 'package-manager-detector';
+import colors from 'picocolors';
+import type { ResolvedServerUrls } from 'vite';
+import type { ZodError } from 'zod';
+import { getDocsForError, renderErrorMarkdown } from './errors/dev/utils.js';
 import {
-	bgCyan,
+	AstroError,
+	AstroUserError,
+	CompilerError,
+	type ErrorWithMetadata,
+} from './errors/index.js';
+import { padMultilineString } from './util.js';
+
+const {
 	bgGreen,
-	bgWhite,
 	bgYellow,
+	bgCyan,
+	bgWhite,
 	black,
 	blue,
 	bold,
@@ -12,18 +25,7 @@ import {
 	red,
 	underline,
 	yellow,
-} from 'kleur/colors';
-import { detect, resolveCommand } from 'package-manager-detector';
-import type { ResolvedServerUrls } from 'vite';
-import type { ZodError } from 'zod';
-import { getDocsForError, renderErrorMarkdown } from './errors/dev/runtime.js';
-import {
-	AstroError,
-	AstroUserError,
-	CompilerError,
-	type ErrorWithMetadata,
-} from './errors/index.js';
-import { padMultilineString } from './util.js';
+} = colors;
 
 /**
  * Prestyled messages for the CLI. Used by astro CLI commands.
@@ -333,6 +335,7 @@ export function formatErrorMessage(err: ErrorWithMetadata, showFullStacktrace: b
 	return output.join('\n');
 }
 
+/** @deprecated Migrate to HelpDisplay */
 export function printHelp({
 	commandName,
 	headline,

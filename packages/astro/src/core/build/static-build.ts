@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { green } from 'kleur/colors';
+import colors from 'picocolors';
 import { glob } from 'tinyglobby';
 import * as vite from 'vite';
 import { type BuildInternals, createBuildInternals } from '../../core/build/internal.js';
@@ -63,7 +63,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	const ssrTime = performance.now();
 	opts.logger.info('build', `Building ${settings.buildOutput} entrypoints...`);
 	const { ssrOutput, prerenderOutput, clientOutput } = await buildEnvironments(opts, internals);
-	opts.logger.info('build', green(`✓ Completed in ${getTimeStat(ssrTime, performance.now())}.`));
+	opts.logger.info('build', colors.green(`✓ Completed in ${getTimeStat(ssrTime, performance.now())}.`));
 
 	settings.timer.end('SSR build');
 

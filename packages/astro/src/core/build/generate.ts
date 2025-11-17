@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import os from 'node:os';
-import { bgGreen, black, blue, bold, dim, green, magenta, red, yellow } from 'kleur/colors';
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
+import colors from 'picocolors';
 import {
 	generateImagesForPath,
 	getStaticImageList,
@@ -66,7 +66,7 @@ export async function generatePages(
 	}
 
 	const verb = ssr ? 'prerendering' : 'generating';
-	logger.info('SKIP_FORMAT', `\n${bgGreen(black(` ${verb} static routes `))}`);
+	logger.info('SKIP_FORMAT', `\n${colors.bgGreen(colors.black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
 	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
 	const routeToHeaders: RouteToHeaders = new Map();
@@ -95,12 +95,12 @@ export async function generatePages(
 	}
 	logger.info(
 		null,
-		green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`),
+		colors.green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`),
 	);
 
 	const staticImageList = getStaticImageList();
 	if (staticImageList.size) {
-		logger.info('SKIP_FORMAT', `${bgGreen(black(` generating optimized images `))}`);
+		logger.info('SKIP_FORMAT', `${colors.bgGreen(colors.black(` generating optimized images `))}`);
 
 		const totalCount = Array.from(staticImageList.values())
 			.map((x) => x.transforms.size)
@@ -182,7 +182,7 @@ export async function generatePages(
 
 		await queue.onIdle();
 		const assetsTimeEnd = performance.now();
-		logger.info(null, green(`✓ Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`));
+		logger.info(null, colors.green(`✓ Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`));
 
 		delete globalThis?.astroAsset?.addStaticImage;
 	}
@@ -225,7 +225,7 @@ async function generatePage(
 		// Log the rendering path first if not concurrent. We'll later append the time taken to render.
 		// We skip if it's concurrent as the logs may overlap
 		if (!isConcurrent) {
-			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
+			logger.info(null, `  ${colors.blue(lineIcon)} ${colors.dim(filePath)}`, false);
 		}
 
 		const created = await generatePath(
@@ -239,12 +239,12 @@ async function generatePage(
 
 		const timeEnd = performance.now();
 		const isSlow = timeEnd - timeStart > THRESHOLD_SLOW_RENDER_TIME_MS;
-		const timeIncrease = (isSlow ? red : dim)(`(+${getTimeStat(timeStart, timeEnd)})`);
+		const timeIncrease = (isSlow ? colors.red : colors.dim)(`(+${getTimeStat(timeStart, timeEnd)})`);
 		const notCreated =
-			created === false ? yellow('(file not created, response body was empty)') : '';
+			created === false ? colors.yellow('(file not created, response body was empty)') : '';
 
 		if (isConcurrent) {
-			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${timeIncrease} ${notCreated}`);
+			logger.info(null, `  ${colors.blue(lineIcon)} ${colors.dim(filePath)} ${timeIncrease} ${notCreated}`);
 		} else {
 			logger.info('SKIP_FORMAT', ` ${timeIncrease} ${notCreated}`);
 		}
@@ -255,8 +255,8 @@ async function generatePage(
 		const integrationRoute = toIntegrationResolvedRoute(route, pipeline.manifest.trailingSlash);
 		const icon =
 			route.type === 'page' || route.type === 'redirect' || route.type === 'fallback'
-				? green('▶')
-				: magenta('λ');
+				? colors.green('▶')
+				: colors.magenta('λ');
 		logger.info(null, `${icon} ${getPrettyRouteName(route)}`);
 
 		// Get paths for the route, calling getStaticPaths if needed.
@@ -316,7 +316,6 @@ async function getPathsForRoute(
 			mod,
 			route,
 			routeCache,
-			logger,
 			ssr: serverLike,
 			base: manifest.base,
 			trailingSlash: manifest.trailingSlash,
@@ -328,7 +327,7 @@ async function getPathsForRoute(
 		const label = staticPaths.length === 1 ? 'page' : 'pages';
 		logger.debug(
 			'build',
-			`├── ${bold(green('√'))} ${route.component} → ${magenta(`[${staticPaths.length} ${label}]`)}`,
+			`├── ${colors.bold(colors.green('√'))} ${route.component} → ${colors.magenta(`[${staticPaths.length} ${label}]`)}`,
 		);
 
 		paths = staticPaths

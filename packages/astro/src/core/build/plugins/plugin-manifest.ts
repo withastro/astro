@@ -183,13 +183,21 @@ async function buildManifest(
 		staticFiles.push(entryModules[PAGE_SCRIPT_ID]);
 	}
 
+	const assetQueryParams = settings.adapter?.client?.assetQueryParams;
+	const assetQueryString = assetQueryParams ? assetQueryParams.toString() : undefined;
+
 	const prefixAssetPath = (pth: string) => {
+		let result = '';
 		if (settings.config.build.assetsPrefix) {
 			const pf = getAssetsPrefix(fileExtension(pth), settings.config.build.assetsPrefix);
-			return joinPaths(pf, pth);
+			result = joinPaths(pf, pth);
 		} else {
-			return prependForwardSlash(joinPaths(settings.config.base, pth));
+			result = prependForwardSlash(joinPaths(settings.config.base, pth));
 		}
+		if (assetQueryString) {
+			result += '?' + assetQueryString;
+		}
+		return result;
 	};
 
 	// Default components follow a special flow during build. We prevent their processing earlier
@@ -309,6 +317,18 @@ async function buildManifest(
 		};
 	}
 
+	// Get internal fetch headers from adapter config
+	let internalFetchHeaders: Record<string, string> | undefined = undefined;
+	if (settings.adapter?.client?.internalFetchHeaders) {
+		const headers =
+			typeof settings.adapter.client.internalFetchHeaders === 'function'
+				? settings.adapter.client.internalFetchHeaders()
+				: settings.adapter.client.internalFetchHeaders;
+		if (Object.keys(headers).length > 0) {
+			internalFetchHeaders = headers;
+		}
+	}
+
 	return {
 		rootDir: opts.settings.config.root.toString(),
 		cacheDir: opts.settings.config.cacheDir.toString(),
@@ -344,5 +364,6 @@ async function buildManifest(
 			latestAstroVersion: settings.latestAstroVersion,
 			debugInfoOutput: '',
 		},
+		internalFetchHeaders,
 	};
 }

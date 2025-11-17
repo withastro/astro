@@ -80,7 +80,7 @@ export interface BuildInternals {
 	// A list of all static files created during the build. Used for SSR.
 	staticFiles: Set<string>;
 
-	// A list of all statics chunks and assets that are built in the client
+	// A list of all static chunks and assets that are built in the client
 	clientChunksAndAssets: Set<string>;
 
 	// All of the input modules for the client.

@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers/Pages",
-  "version": "12.6.10",
+  "version": "13.0.0-alpha.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -47,15 +47,14 @@
     "wrangler": "4.44.0"
   },
   "peerDependencies": {
-    "astro": "^5.7.0"
+    "astro": "^6.0.0-alpha.0"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.1.2",
-    "devalue": "^5.3.2",
-    "execa": "^8.0.1",
-    "rollup": "^4.52.3"
+    "devalue": "^5.4.2",
+    "rollup": "^4.52.5"
   },
   "publishConfig": {
     "provenance": true

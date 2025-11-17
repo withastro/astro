@@ -145,7 +145,7 @@ export function cloudflareModuleLoader(
 
 		generateBundle(_, bundle: OutputBundle) {
 			// associate the chunk name to the final file name. After the prerendering is done, we can use this to replace the imports in the _worker.js
-			// in a targetted way
+			// in a targeted way
 			const replacementsByChunkName = new Map<string, Replacement[]>();
 			for (const replacement of replacements) {
 				const repls = replacementsByChunkName.get(replacement.chunkName) || [];

@@ -128,8 +128,8 @@ interface ImportedDevStyle {
 }
 const INLINE_QUERY_REGEX = /(?:\?|&)inline(?:$|&)/;
 
-/** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
-export async function getStylesForURL(
+/** Given a filePath URL, crawl Vite's module graph to find all style imports. */
+async function getStylesForURL(
 	filePath: string,
 	environment: RunnableDevEnvironment,
 ): Promise<{ urls: Set<string>; styles: ImportedDevStyle[]; crawledFiles: Set<string> }> {

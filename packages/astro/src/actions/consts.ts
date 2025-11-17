@@ -1,6 +1,7 @@
 export const ACTIONS_TYPES_FILE = 'actions.d.ts';
 
 export const VIRTUAL_MODULE_ID = 'astro:actions';
+export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 
 /** Used to expose shared utilities, with server or client specific implementations */
 export const RUNTIME_VIRTUAL_MODULE_ID = 'virtual:astro:actions/runtime';

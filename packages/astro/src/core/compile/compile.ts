@@ -46,6 +46,8 @@ export async function compile({
 			normalizedFilename: normalizeFilename(filename, astroConfig.root),
 			sourcemap: 'both',
 			internalURL: 'astro/compiler-runtime',
+			// TODO: remove in Astro v7
+			astroGlobalArgs: JSON.stringify(astroConfig.site),
 			scopedStyleStrategy: astroConfig.scopedStyleStrategy,
 			resultScopedSlot: true,
 			transitionsAnimationURL: 'astro/components/viewtransitions.css',

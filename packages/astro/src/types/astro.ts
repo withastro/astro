@@ -3,7 +3,7 @@ import type { TSConfig } from '../core/config/tsconfig.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroPreferences } from '../preferences/index.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
-import type { GetStaticPathsOptions, GetStaticPathsResult } from './public/common.js';
+import type { GetStaticPaths } from './public/common.js';
 import type { AstroConfig } from './public/config.js';
 import type { ContentEntryType, DataEntryType } from './public/content.js';
 import type {
@@ -81,7 +81,7 @@ export interface ComponentInstance {
 	css?: string[];
 	partial?: boolean;
 	prerender?: boolean;
-	getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
+	getStaticPaths?: GetStaticPaths;
 }
 
 export interface RoutesList {

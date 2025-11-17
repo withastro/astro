@@ -20,7 +20,7 @@ export function stringifyParams(
 		validateGetStaticPathsParameter(next, route.component);
 		const [key, value] = next;
 		if (value !== undefined) {
-			acc[key] = typeof value === 'string' ? trimSlashes(value) : value.toString();
+			acc[key] = trimSlashes(value);
 		}
 		return acc;
 	}, {} as Params);

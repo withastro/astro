@@ -251,6 +251,7 @@ export interface SSRResult {
 	styleResources: SSRManifestCSP['styleResources'];
 	directives: SSRManifestCSP['directives'];
 	isStrictDynamic: SSRManifestCSP['isStrictDynamic'];
+	internalFetchHeaders?: Record<string, string>;
 }
 
 /**

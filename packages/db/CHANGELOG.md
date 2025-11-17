@@ -1,5 +1,23 @@
 # @astrojs/db
 
+## 0.19.0-alpha.0
+
+### Minor Changes
+
+- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://deploy-preview-12322--astro-docs-2.netlify.app/en/guides/upgrade-to/v6/#vite-70))
+
+## 0.18.2
+
+### Patch Changes
+
+- [#14621](https://github.com/withastro/astro/pull/14621) [`e3175d9`](https://github.com/withastro/astro/commit/e3175d9ccbf070150ab2229b2564ca0b12a86c30) Thanks [@GameRoMan](https://github.com/GameRoMan)! - Updates `vite` version to fix CVE
+
+## 0.18.1
+
+### Patch Changes
+
+- [#14598](https://github.com/withastro/astro/pull/14598) [`7b45c65`](https://github.com/withastro/astro/commit/7b45c65c62e37d4225fb14ea378e2301de31cbea) Thanks [@delucis](https://github.com/delucis)! - Reduces terminal text styling dependency size by switching from `kleur` to `picocolors`
+
 ## 0.18.0
 
 ### Minor Changes

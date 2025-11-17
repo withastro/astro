@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { Pipeline } from '../../core/base-pipeline.js';
 import { shouldAppendForwardSlash } from '../../core/build/util.js';
 import { AstroError } from '../../core/errors/errors.js';
-import { ActionCalledFromServerError } from '../../core/errors/errors-data.js';
+import { ActionCalledFromServerError, ActionNotFoundError } from '../../core/errors/errors-data.js';
 import { removeTrailingForwardSlash } from '../../core/path.js';
 import { apiContextRoutesSymbol } from '../../core/render-context.js';
 import type { APIContext } from '../../types/public/index.js';
@@ -290,7 +290,24 @@ export function getActionContext(context: APIContext): AstroActionContext {
 					? removeTrailingForwardSlash(callerInfo.name)
 					: callerInfo.name;
 
-				const baseAction = await pipeline.getAction(callerInfoName);
+				let baseAction;
+				try {
+					baseAction = await pipeline.getAction(callerInfoName);
+				} catch (error) {
+					// Check if this is an ActionNotFoundError by comparing the name property
+					// We use this approach instead of instanceof because the error might be
+					// a different instance of the AstroError class depending on the environment
+					if (
+						error instanceof Error &&
+						'name' in error &&
+						typeof error.name === 'string' &&
+						error.name === ActionNotFoundError.name
+					) {
+						return { data: undefined, error: new ActionError({ code: 'NOT_FOUND' }) };
+					}
+					throw error;
+				}
+
 				let input;
 				try {
 					input = await parseRequestBody(context.request);

@@ -12,8 +12,6 @@ import type { AstroConfig, ValidRedirectStatus } from '../types/public/config.js
 import type { APIContext } from '../types/public/context.js';
 import type { ServerDeserializedManifest } from '../types/public/index.js';
 
-export { normalizeTheLocale, toCodes, toPaths } from '../i18n/index.js';
-
 const { trailingSlash, site, i18n, build } = config as ServerDeserializedManifest;
 const { format } = build;
 const isBuild = import.meta.env.PROD;
@@ -239,9 +237,9 @@ export const getLocaleByPath = (path: string) => I18nInternals.getLocaleByPath(p
  *
  * ```js
  * import { pathHasLocale } from "astro:i18n";
- * getLocaleByPath("italiano"); // returns `true`
- * getLocaleByPath("es"); // returns `true`
- * getLocaleByPath("it-VT"); // returns `false`
+ * pathHasLocale("italiano"); // returns `true`
+ * pathHasLocale("es"); // returns `true`
+ * pathHasLocale("it-VT"); // returns `false`
  * ```
  */
 export const pathHasLocale = (path: string) => I18nInternals.pathHasLocale(path, locales);
@@ -317,7 +315,7 @@ if (i18n?.routing === 'manual') {
 }
 
 /**
- * Allows to use the build-in fallback system of Astro
+ * Allows to use the built-in fallback system of Astro
  *
  * @param {APIContext} context The context passed to the middleware
  * @param {Promise<Response>} response An optional `Response` in case you're handling a `Response` coming from the `next` function.
@@ -392,3 +390,88 @@ if (i18n?.routing === 'manual') {
 } else {
 	middleware = noop('middleware');
 }
+
+/**
+ * Replaces underscores (`_`) with hyphens (`-`) in the given locale before
+ * returning a lowercase version.
+ *
+ * @param {string} locale A locale code to normalize.
+ * @returns {string} The normalized locale.
+ *
+ * ## Example
+ *
+ * ```js
+ * import { normalizeTheLocale } from "astro:i18n";
+ * normalizeTheLocale("it_VT") // returns `it-vt`
+ * ```
+ */
+export const normalizeTheLocale = I18nInternals.normalizeTheLocale;
+
+/**
+ * Retrieves the configured locale codes for each locale defined in your
+ * configuration. When multiple codes are associated to a locale, only the
+ * first one will be added to the array.
+ *
+ * @param {Locales} locales The configured locales.
+ * @returns {string[]} The configured locales codes.
+ *
+ * ## Example
+ *
+ * Given the following configuration:
+ *
+ * ```js
+ * // astro.config.mjs
+ *
+ * export default defineConfig({
+ * 	i18n: {
+ * 		locales: [
+ * 			{ codes: ["it-VT", "it"], path: "italiano" },
+ * 			"es"
+ * 		]
+ * 	}
+ * })
+ * ```
+ *
+ * Here's a use case:
+ *
+ * ```js
+ * import { i18n } from "astro:config/client";
+ * import { toCodes } from "astro:i18n";
+ * toCodes(i18n.locales); // ["it-VT", "es"]
+ * ```
+ */
+export const toCodes = I18nInternals.toCodes;
+
+/**
+ * Retrieves the configured locale paths for each locale defined in your
+ * configuration.
+ *
+ * @param {Locales} locales The configured locales.
+ * @returns {string[]} The configured locales paths.
+ *
+ * ## Example
+ *
+ * Given the following configuration:
+ *
+ * ```js
+ * // astro.config.mjs
+ *
+ * export default defineConfig({
+ * 	i18n: {
+ * 		locales: [
+ * 			{ codes: ["it-VT", "it"], path: "italiano" },
+ * 			"es"
+ * 		]
+ * 	}
+ * })
+ * ```
+ *
+ * Here's a use case:
+ *
+ * ```js
+ * import { i18n } from "astro:config/client";
+ * import { toPaths } from "astro:i18n";
+ * toPaths(i18n.locales); // ["italiano", "es"]
+ * ```
+ */
+export const toPaths = I18nInternals.toPaths;

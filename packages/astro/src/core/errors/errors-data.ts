@@ -324,8 +324,9 @@ export const GetStaticPathsExpectedParams = {
  * export async function getStaticPaths() {
  * 	return [
  * 		{ params: { id: '1' } } // Works
- * 		{ params: { id: 2 } } // Works
+ * 		{ params: { id: 2 } } // Does not work
  * 		{ params: { id: false } } // Does not work
+ * 		{ params: { id: [1, 2] } } // Does not work
  * 	];
  * }
  * ---
@@ -337,8 +338,8 @@ export const GetStaticPathsExpectedParams = {
  * ---
  * export async function getStaticPaths() {
  * 	return [
- * 		{ params: { id: 1 } } // /route/1
- * 		{ params: { id: 2 } } // /route/2
+ * 		{ params: { id: '1' } } // /route/1
+ * 		{ params: { id: '2' } } // /route/2
  * 		{ params: { id: undefined } } // /route/
  * 	];
  * }
@@ -347,9 +348,9 @@ export const GetStaticPathsExpectedParams = {
  */
 export const GetStaticPathsInvalidRouteParam = {
 	name: 'GetStaticPathsInvalidRouteParam',
-	title: 'Invalid value for `getStaticPaths` route parameter.',
-	message: (key: string, value: any, valueType: any) =>
-		`Invalid getStaticPaths route parameter for \`${key}\`. Expected undefined, a string or a number, received \`${valueType}\` (\`${value}\`)`,
+	title: 'Invalid route parameter returned by `getStaticPaths()`.',
+	message: (key: string, value: any, valueType: string) =>
+		`Invalid \`getStaticPaths()\` route parameter for \`${key}\`. Expected a string or undefined, received \`${valueType}\` (\`${value}\`)`,
 	hint: 'See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on getStaticPaths.',
 } satisfies ErrorData;
 /**
@@ -1324,7 +1325,7 @@ export const UnknownFilesystemError = {
  * @description
  * Cannot extract the font type from the given URL.
  * @message
- * An error occured while trying to extract the font type from the given URL.
+ * An error occurred while trying to extract the font type from the given URL.
  */
 export const CannotExtractFontType = {
 	name: 'CannotExtractFontType',
@@ -1338,7 +1339,7 @@ export const CannotExtractFontType = {
  * @description
  * Cannot determine weight and style from font file, update your family config and set `weight` and `style` manually instead.
  * @message
- * An error occured while determining the weight and style from the local font file.
+ * An error occurred while determining the weight and style from the local font file.
  */
 export const CannotDetermineWeightAndStyleFromFontFile = {
 	name: 'CannotDetermineWeightAndStyleFromFontFile',
@@ -1353,7 +1354,7 @@ export const CannotDetermineWeightAndStyleFromFontFile = {
  * @description
  * Cannot fetch the given font file
  * @message
- * An error occured while fetching font file from the given URL.
+ * An error occurred while fetching font file from the given URL.
  */
 export const CannotFetchFontFile = {
 	name: 'CannotFetchFontFile',
@@ -1372,7 +1373,7 @@ export const CannotFetchFontFile = {
 export const CannotLoadFontProvider = {
 	name: 'CannotLoadFontProvider',
 	title: 'Cannot load font provider',
-	message: (entrypoint: string) => `An error occured while loading the "${entrypoint}" provider.`,
+	message: (entrypoint: string) => `An error occurred while loading the "${entrypoint}" provider.`,
 	hint: 'This is an issue with the font provider. Please open an issue on their repository.',
 } satisfies ErrorData;
 

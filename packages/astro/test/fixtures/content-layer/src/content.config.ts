@@ -253,6 +253,17 @@ const songs = defineCollection({
         }),
 });
 
+const rockets = defineCollection({
+	loader: file('src/data/rockets.json'),
+	schema: ({ image }) =>
+		z.object({
+			id: z.string(),
+			name: z.string(),
+			manufacturer: z.string(),
+			image: image(),
+		}),
+});
+
 export const collections = {
 	blog,
 	dogs,
@@ -270,6 +281,7 @@ export const collections = {
 	songs,
 	probes,
 	rodents,
+	rockets,
 	notADirectory,
 	nothingMatches
 };

@@ -79,13 +79,10 @@ const SUPPORTED_NODE_VERSIONS: Record<
 	  }
 	| {
 			status: 'deprecated';
-			removal: Date;
 	  }
 > = {
 	18: {
-		status: 'retiring',
-		removal: new Date('September 1 2025'),
-		warnDate: new Date('October 1 2024'),
+		status: 'deprecated',
 	},
 	20: {
 		status: 'available',
@@ -128,6 +125,21 @@ function getAdapter({
 			sharpImageService: 'stable',
 			i18nDomains: 'experimental',
 			envGetSecret: 'stable',
+		},
+		client: {
+			internalFetchHeaders: skewProtection
+				? (): Record<string, string> => {
+						const deploymentId = process.env.VERCEL_DEPLOYMENT_ID;
+						if (deploymentId) {
+							return { 'x-deployment-id': deploymentId };
+						}
+						return {};
+					}
+				: undefined,
+			assetQueryParams:
+				skewProtection && process.env.VERCEL_DEPLOYMENT_ID
+					? new URLSearchParams({ dpl: process.env.VERCEL_DEPLOYMENT_ID })
+					: undefined,
 		},
 	};
 }
@@ -210,7 +222,7 @@ export default function vercelAdapter({
 	edgeMiddleware = false,
 	maxDuration,
 	isr = false,
-	skewProtection = false,
+	skewProtection = process.env.VERCEL_SKEW_PROTECTION_ENABLED === '1',
 	experimentalStaticHeaders = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	if (maxDuration) {
@@ -739,13 +751,10 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 		return `nodejs${major}.x`;
 	}
 	if (support.status === 'deprecated') {
-		const removeDate = new Intl.DateTimeFormat(undefined, {
-			dateStyle: 'long',
-		}).format(support.removal);
 		logger.warn(
 			`\n` +
 				`\tYour project is being built for Node.js ${major} as the runtime.\n` +
-				`\tThis version is deprecated by Vercel Serverless Functions, and scheduled to be disabled on ${removeDate}.\n` +
+				`\tThis version is deprecated by Vercel Serverless Functions.\n` +
 				`\tConsider upgrading your local version to 22.\n`,
 		);
 		return `nodejs${major}.x`;

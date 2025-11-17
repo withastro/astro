@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { bold } from 'kleur/colors';
+import colors from 'picocolors';
 import type { Plugin, RunnableDevEnvironment } from 'vite';
 import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
 import { generateCspDigest } from '../../core/encryption.js';
@@ -185,7 +185,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				});
 			},
 			defaults: DEFAULTS,
-			bold,
+			bold: colors.bold,
 			stringMatcher,
 		});
 		// We initialize shared variables here and reset them in buildEnd
@@ -223,6 +223,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					urlResolver: createBuildUrlResolver({
 						base: baseUrl,
 						assetsPrefix: settings.config.build.assetsPrefix,
+						searchParams: settings.adapter?.client?.assetQueryParams ?? new URLSearchParams(),
 					}),
 					createHashResolver: (dependencies) => createBuildUrlProxyHashResolver(dependencies),
 				});
@@ -236,7 +237,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					environment: server.environments.astro as RunnableDevEnvironment,
 				}),
 				cssRenderer: createMinifiableCssRenderer({ minify: false }),
-				urlResolver: createDevUrlResolver({ base: baseUrl }),
+				urlResolver: createDevUrlResolver({
+					base: baseUrl,
+					searchParams: settings.adapter?.client?.assetQueryParams ?? new URLSearchParams(),
+				}),
 				createHashResolver: (dependencies) =>
 					createDevUrlProxyHashResolver({
 						baseHashResolver: createBuildUrlProxyHashResolver(dependencies),

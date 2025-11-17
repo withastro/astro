@@ -1,7 +1,7 @@
 import type fsMod from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { bold } from 'kleur/colors';
+import colors from 'picocolors';
 import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { serializeRouteData } from '../core/app/index.js';
 import type { SerializedRouteInfo } from '../core/app/types.js';
@@ -147,7 +147,7 @@ export default async function astroPluginRoutes({
 			) {
 				logger.warn(
 					'router',
-					`getStaticPaths() ignored in dynamic page ${bold(
+					`getStaticPaths() ignored in dynamic page ${colors.bold(
 						rootRelativePath(settings.config.root, fileURL, true),
 					)}. Add \`export const prerender = true;\` to prerender the page as static HTML during the build process.`,
 				);
