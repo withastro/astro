@@ -33,7 +33,6 @@ import { stringifyParams } from '../routing/params.js';
 import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
-import { PRERENDER_ENTRY_FILENAME_PREFIX } from './static-build.js';
 import { BuildPipeline } from './pipeline.js';
 import type { SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';

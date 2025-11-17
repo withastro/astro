@@ -282,9 +282,9 @@ type MutateChunk = (chunk: vite.Rollup.OutputChunk, targets: string[], newCode: 
  * Throws an error if no prerender entry file is found.
  */
 function getPrerenderEntryFileName(
-	prerenderOutput: vite.Rollup.RollupOutput | vite.Rollup.RollupOutput[],
+	prerenderOutput: vite.Rollup.RollupOutput | vite.Rollup.RollupOutput[] | vite.Rollup.RollupWatcher,
 ): string {
-	const outputs = Array.isArray(prerenderOutput) ? prerenderOutput : [prerenderOutput];
+	const outputs = viteBuildReturnToRollupOutputs(prerenderOutput as any);
 
 	for (const output of outputs) {
 		for (const chunk of output.output) {
@@ -308,7 +308,7 @@ function getPrerenderEntryFileName(
  */
 function extractPrerenderEntryFileName(
 	internals: BuildInternals,
-	prerenderOutput: vite.Rollup.RollupOutput | vite.Rollup.RollupOutput[],
+	prerenderOutput: vite.Rollup.RollupOutput | vite.Rollup.RollupOutput[] | vite.Rollup.RollupWatcher,
 ) {
 	internals.prerenderEntryFileName = getPrerenderEntryFileName(prerenderOutput);
 }
