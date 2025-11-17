@@ -254,6 +254,7 @@ async function syncContentCollections(
 			{
 				settings: {
 					...settings,
+					// Prevent mutation by vite plugins during sync
 					buildOutput: undefined,
 					injectedCsp: {
 						fontResources: new Set(),
