@@ -138,7 +138,7 @@ export function createEndpoint(manifest: SSRManifest) {
 		}
 
 		// Decrypt slots
-		let decryptedSlots: Record<string, any> = {}
+		let decryptedSlots: Record<string, any> = {};
 
 		const encryptedSlots = data.encryptedSlots;
 

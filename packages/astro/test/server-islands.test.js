@@ -164,7 +164,6 @@ describe('Server islands', () => {
 			});
 
 			it('rejects invalid encrypted slots via POST', async () => {
-
 				const res = await fixture.fetch('/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
