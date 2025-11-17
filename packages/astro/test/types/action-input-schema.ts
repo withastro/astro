@@ -1,10 +1,6 @@
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
-import {
-	type ActionInputSchema,
-	defineAction,
-	type SafeResult,
-} from '../../dist/actions/runtime/server.js';
+import { type ActionInputSchema, defineAction } from '../../dist/actions/runtime/server.js';
 import { z } from '../../dist/zod.js';
 
 describe('ActionInputSchema', () => {
@@ -24,9 +20,7 @@ describe('ActionInputSchema', () => {
 					handler: () => undefined,
 				});
 
-				expectTypeOf<ActionInputSchema<typeof _action>>().toEqualTypeOf<
-					typeof inputSchema
-				>();
+				expectTypeOf<ActionInputSchema<typeof _action>>().toEqualTypeOf<typeof inputSchema>();
 			});
 
 			it('Infers action input value', async () => {
@@ -39,9 +33,10 @@ describe('ActionInputSchema', () => {
 					input: schema,
 					handler: () => undefined,
 				});
-				expectTypeOf<z.input<ActionInputSchema<typeof _action>>>().toEqualTypeOf<
-					{ name: string; age: number }
-				>();
+				expectTypeOf<z.input<ActionInputSchema<typeof _action>>>().toEqualTypeOf<{
+					name: string;
+					age: number;
+				}>();
 			});
 
 			it('Infers action input schema when input is omitted', async () => {
@@ -53,5 +48,4 @@ describe('ActionInputSchema', () => {
 			});
 		});
 	}
- 
 });
