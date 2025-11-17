@@ -5,9 +5,7 @@ import type * as vite from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
-import {
-	SERIALIZED_MANIFEST_RESOLVED_ID,
-} from '../../../manifest/serialized.js';
+import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../../manifest/serialized.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { toFallbackType } from '../../app/common.js';
 import { serializeRouteData, toRoutingStrategy } from '../../app/index.js';
@@ -68,15 +66,19 @@ const replaceExp = new RegExp(`['"]${MANIFEST_REPLACE}['"]`, 'g');
 export async function manifestBuildPostHook(
 	options: StaticBuildOptions,
 	internals: BuildInternals,
-	{ ssrOutputs, prerenderOutputs, mutate }: {
-		ssrOutputs: vite.Rollup.RollupOutput[],
-		prerenderOutputs: vite.Rollup.RollupOutput[],
+	{
+		ssrOutputs,
+		prerenderOutputs,
+		mutate,
+	}: {
+		ssrOutputs: vite.Rollup.RollupOutput[];
+		prerenderOutputs: vite.Rollup.RollupOutput[];
 		mutate: (chunk: OutputChunk, envs: ['server'], code: string) => void;
 	},
 ) {
 	const manifest = await createManifest(options, internals);
 
-	if(ssrOutputs.length > 0) {
+	if (ssrOutputs.length > 0) {
 		let manifestEntryChunk: OutputChunk | undefined;
 
 		// Find the serialized manifest chunk in SSR outputs
@@ -253,7 +255,7 @@ async function buildManifest(
 		});
 
 		// Add the built .html file as a staticFile
-		if(route.prerender && route.pathname) {
+		if (route.prerender && route.pathname) {
 			const outFolder = getOutFolder(opts.settings, route.pathname, route);
 			const outFile = getOutFile(opts.settings.config, outFolder, route.pathname, route);
 			const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
@@ -339,6 +341,7 @@ async function buildManifest(
 		buildServerDir: opts.settings.config.build.server.toString(),
 		adapterName: opts.settings.adapter?.name ?? '',
 		routes,
+		serverLike: opts.settings.buildOutput === 'server',
 		site: settings.config.site,
 		base: settings.config.base,
 		userAssetsBase: settings.config?.vite?.base,

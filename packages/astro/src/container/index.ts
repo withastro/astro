@@ -148,6 +148,7 @@ function createManifest(
 		trailingSlash: manifest?.trailingSlash ?? ASTRO_CONFIG_DEFAULTS.trailingSlash,
 		buildFormat: manifest?.buildFormat ?? ASTRO_CONFIG_DEFAULTS.build.format,
 		compressHTML: manifest?.compressHTML ?? ASTRO_CONFIG_DEFAULTS.compressHTML,
+		serverLike: manifest?.serverLike ?? false,
 		assets: manifest?.assets ?? new Set(),
 		assetsPrefix: manifest?.assetsPrefix ?? undefined,
 		entryModules: manifest?.entryModules ?? {},
@@ -257,6 +258,7 @@ type AstroContainerManifest = Pick<
 	| 'cacheDir'
 	| 'csp'
 	| 'allowedDomains'
+	| 'serverLike'
 >;
 
 type AstroContainerConstructor = {
@@ -290,7 +292,6 @@ export class experimental_AstroContainer {
 			}),
 			manifest: createManifest(manifest, renderers),
 			streaming,
-			serverLike: true,
 			renderers: renderers ?? manifest?.renderers ?? [],
 			resolve: async (specifier: string) => {
 				if (this.#withManifest) {
