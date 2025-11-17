@@ -31,7 +31,8 @@ describe('CSS', function () {
 				html = await fixture.readFile('/index.html');
 				$ = cheerio.load(html);
 				const bundledCSSHREF = $('link[rel=stylesheet][href^=/_astro/]').attr('href');
-				bundledCSS = (await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/')))
+				const bundledCSSFilePath = bundledCSSHREF.replace(/^\/?/, '/');
+				bundledCSS = (await fixture.readFile(bundledCSSFilePath))
 					.replace(/\s/g, '')
 					.replace('/n', '');
 			},
