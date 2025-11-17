@@ -1,6 +1,6 @@
 import type { Plugin, RunnableDevEnvironment } from 'vite';
 import { wrapId } from '../core/util.js';
-import type { RoutesList } from '../types/astro.js';
+import type { ImportedDevStyle, RoutesList } from '../types/astro.js';
 import type { RouteData } from '../types/public/index.js';
 import { isBuildableCSSRequest } from '../vite-plugin-astro-server/util.js';
 
@@ -9,7 +9,7 @@ interface AstroVitePluginOptions {
 	command: 'dev' | 'build';
 }
 
-export const MODULE_DEV_CSS = 'virtual:astro:dev-css';
+const MODULE_DEV_CSS = 'virtual:astro:dev-css';
 const RESOLVED_MODULE_DEV_CSS = '\0' + MODULE_DEV_CSS;
 
 /**
@@ -92,10 +92,4 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 			}
 		},
 	};
-}
-
-export interface ImportedDevStyle {
-	id: string;
-	url: string;
-	content: string;
 }

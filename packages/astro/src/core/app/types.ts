@@ -26,7 +26,7 @@ export type StylesheetAsset =
 	| { type: 'inline'; content: string }
 	| { type: 'external'; src: string };
 
-export type ScriptAsset =
+type ScriptAsset =
 	| { children: string; stage: string }
 	// Hoisted
 	| { type: 'inline' | 'external'; value: string };

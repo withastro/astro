@@ -72,6 +72,6 @@ declare module 'virtual:astro:adapter-config' {
 }
 
 declare module 'virtual:astro:dev-css' {
-	import type { ImportedDevStyles } from './src/vite-plugin-routes/css.js';
+	import type { ImportedDevStyles } from './src/types/astro.js;
 	export const css: Set<ImportedDevStyles>;
 }
