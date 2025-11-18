@@ -418,7 +418,6 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			session = renderContext.session;
 			response = await renderContext.render(componentInstance);
 		} catch (err: any) {
-			console.log(err);
 			this.logger.error(null, err.stack || err.message || String(err));
 			return this.renderError(request, {
 				locals,
