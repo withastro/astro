@@ -119,6 +119,21 @@ describe('NodeApp', () => {
 				assert.equal(result.url, 'https://legitimate.example.com/');
 			});
 
+			it('rejects x-forwarded-host with no dots (e.g. localhost) against single wildcard pattern', () => {
+				const result = NodeApp.createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-host': 'localhost',
+						},
+					},
+					{ allowedDomains: [{ hostname: '*.victim.com' }] },
+				);
+				// localhost should not match *.victim.com, fallback to host header
+				assert.equal(result.url, 'https://example.com/');
+			});
+
 			it('rejects x-forwarded-host with path separator (path injection attempt)', () => {
 				const result = NodeApp.createRequest(
 					{
