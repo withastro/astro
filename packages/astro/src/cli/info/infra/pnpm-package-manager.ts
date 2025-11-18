@@ -20,27 +20,31 @@ export function createPnpmPackageManager({ commandExecutor }: Options): PackageM
 			return 'pnpm';
 		},
 		async getPackageVersion(name) {
-			// https://pnpm.io/cli/why
-			const { stdout } = await commandExecutor.execute('pnpm', ['why', name, '--json'], {
-				shell: true,
-			});
+			try {
+				// https://pnpm.io/cli/why
+				const { stdout } = await commandExecutor.execute('pnpm', ['why', name, '--json'], {
+					shell: true,
+				});
 
-			const parsedOutput = JSON.parse(stdout) as Array<BareNpmLikeVersionOutput>;
+				const parsedOutput = JSON.parse(stdout) as Array<BareNpmLikeVersionOutput>;
 
-			const deps = parsedOutput[0].dependencies;
+				const deps = parsedOutput[0].dependencies;
 
-			if (parsedOutput.length === 0 || !deps) {
+				if (parsedOutput.length === 0 || !deps) {
+					return undefined;
+				}
+
+				const userProvidedDependency = deps[name];
+
+				if (userProvidedDependency) {
+					return formatPnpmVersionOutput(userProvidedDependency.version);
+				}
+
+				const astroDependency = deps.astro?.dependencies[name];
+				return astroDependency ? formatPnpmVersionOutput(astroDependency.version) : undefined;
+			} catch {
 				return undefined;
 			}
-
-			const userProvidedDependency = deps[name];
-
-			if (userProvidedDependency) {
-				return formatPnpmVersionOutput(userProvidedDependency.version);
-			}
-
-			const astroDependency = deps.astro?.dependencies[name];
-			return astroDependency ? formatPnpmVersionOutput(astroDependency.version) : undefined;
 		},
 	};
 }

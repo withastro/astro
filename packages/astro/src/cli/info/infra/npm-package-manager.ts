@@ -16,22 +16,30 @@ export function createNpmPackageManager({ commandExecutor }: Options): PackageMa
 			return 'npm';
 		},
 		async getPackageVersion(name) {
-			// https://docs.npmjs.com/cli/v9/commands/npm-ls
-			const { stdout } = await commandExecutor.execute('npm', ['ls', name, '--json', '--depth=1'], {
-				shell: true,
-			});
-			const parsedNpmOutput = JSON.parse(stdout) as BareNpmLikeVersionOutput;
+			try {
+				// https://docs.npmjs.com/cli/v9/commands/npm-ls
+				const { stdout } = await commandExecutor.execute(
+					'npm',
+					['ls', name, '--json', '--depth=1'],
+					{
+						shell: true,
+					},
+				);
+				const parsedNpmOutput = JSON.parse(stdout) as BareNpmLikeVersionOutput;
 
-			if (!parsedNpmOutput.dependencies) {
+				if (!parsedNpmOutput.dependencies) {
+					return undefined;
+				}
+
+				if (parsedNpmOutput.dependencies[name]) {
+					return `v${parsedNpmOutput.dependencies[name].version}`;
+				}
+
+				const astro = parsedNpmOutput.dependencies.astro;
+				return astro ? `v${astro.dependencies[name].version}` : undefined;
+			} catch {
 				return undefined;
 			}
-
-			if (parsedNpmOutput.dependencies[name]) {
-				return `v${parsedNpmOutput.dependencies[name].version}`;
-			}
-
-			const astro = parsedNpmOutput.dependencies.astro;
-			return astro ? `v${astro.dependencies[name].version}` : undefined;
 		},
 	};
 }

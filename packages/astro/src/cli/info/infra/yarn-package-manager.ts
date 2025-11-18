@@ -25,18 +25,22 @@ export function createYarnPackageManager({ commandExecutor }: Options): PackageM
 			return 'yarn';
 		},
 		async getPackageVersion(name) {
-			// https://yarnpkg.com/cli/why
-			const { stdout } = await commandExecutor.execute('yarn', ['why', name, '--json'], {
-				shell: true,
-			});
+			try {
+				// https://yarnpkg.com/cli/why
+				const { stdout } = await commandExecutor.execute('yarn', ['why', name, '--json'], {
+					shell: true,
+				});
 
-			const hasUserDefinition = stdout.includes('workspace:.');
+				const hasUserDefinition = stdout.includes('workspace:.');
 
-			for (const line of stdout.split('\n')) {
-				if (hasUserDefinition && line.includes('workspace:.'))
-					return getYarnOutputDepVersion(name, line);
-				if (!hasUserDefinition && line.includes('astro@'))
-					return getYarnOutputDepVersion(name, line);
+				for (const line of stdout.split('\n')) {
+					if (hasUserDefinition && line.includes('workspace:.'))
+						return getYarnOutputDepVersion(name, line);
+					if (!hasUserDefinition && line.includes('astro@'))
+						return getYarnOutputDepVersion(name, line);
+				}
+			} catch {
+				return undefined;
 			}
 		},
 	};
