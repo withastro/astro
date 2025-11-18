@@ -28,4 +28,5 @@ onlyBuiltDependencies:
   - 'workerd'
   - '@biomejs/biome'
   - 'sharp'
-trustPolicy: 'no-downgrade'
+# TODO: enable when viable
+# trustPolicy: 'no-downgrade'
