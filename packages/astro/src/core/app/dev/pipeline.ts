@@ -9,6 +9,7 @@ import { type HeadElements, Pipeline, type TryRewriteResult } from '../../base-p
 import { ASTRO_VERSION } from '../../constants.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../../render/ssr-element.js';
 import { findRouteToRewrite } from '../../routing/rewrite.js';
+import { getVirtualModulePageName } from '../../../vite-plugin-pages/util.js';
 
 type DevPipelineCreate = Pick<DevPipeline, 'logger' | 'manifest' | 'streaming'>;
 
@@ -92,7 +93,7 @@ export class DevPipeline extends Pipeline {
 			scripts.add({ props: {}, children });
 		}
 
-		const { css } = await import('virtual:astro:dev-css');
+		const { css } = await import(getVirtualModulePageName('virtual:astro:dev-css:', routeData.component));
 
 		// Pass framework CSS in as style tags to be appended to the page.
 		for (const { id, url: src, content } of css) {
