@@ -298,6 +298,9 @@ async function getPathsForRoute(
 	builtPaths: Set<string>,
 ): Promise<Array<string>> {
 	const { logger, options, manifest } = pipeline;
+	// TODO: investigate if BuildPipeline can be removed. We already have app.pipeline
+	// which contains routeCache and other pipeline data. Eventually all pipeline info
+	// should come from app.pipeline and BuildPipeline can be eliminated.
 	const { routeCache } = app.pipeline;
 	let paths: Array<string> = [];
 	if (route.pathname) {
