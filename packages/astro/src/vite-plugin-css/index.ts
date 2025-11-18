@@ -1,9 +1,7 @@
 import type { Plugin, RunnableDevEnvironment } from 'vite';
 import { wrapId } from '../core/util.js';
 import type { ImportedDevStyle, RoutesList } from '../types/astro.js';
-import type { RouteData } from '../types/public/index.js';
 import { isBuildableCSSRequest } from '../vite-plugin-astro-server/util.js';
-import { getVirtualModulePageName } from '../vite-plugin-pages/util.js';
 
 interface AstroVitePluginOptions {
 	routesList: RoutesList;

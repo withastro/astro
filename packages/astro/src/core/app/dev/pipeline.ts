@@ -5,11 +5,11 @@ import type {
 	RouteData,
 	SSRElement,
 } from '../../../types/public/index.js';
+import { getVirtualModulePageName } from '../../../vite-plugin-pages/util.js';
 import { type HeadElements, Pipeline, type TryRewriteResult } from '../../base-pipeline.js';
 import { ASTRO_VERSION } from '../../constants.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../../render/ssr-element.js';
 import { findRouteToRewrite } from '../../routing/rewrite.js';
-import { getVirtualModulePageName } from '../../../vite-plugin-pages/util.js';
 
 type DevPipelineCreate = Pick<DevPipeline, 'logger' | 'manifest' | 'streaming'>;
 
