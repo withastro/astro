@@ -260,7 +260,7 @@ async function generatePage(
 		logger.info(null, `${icon} ${getPrettyRouteName(route)}`);
 
 		// Get paths for the route, calling getStaticPaths if needed.
-		const paths = await getPathsForRoute(route, routeData.component, pageMap, pipeline, builtPaths);
+		const paths = await getPathsForRoute(route, routeData.component, pageMap, app, pipeline, builtPaths);
 
 		// Generate each paths
 		if (config.build.concurrency > 1) {
@@ -293,10 +293,15 @@ async function getPathsForRoute(
 	route: RouteData,
 	componentPath: string,
 	pageMap: Map<string, () => Promise<SinglePageBuiltModule>>,
+	app: BaseApp,
 	pipeline: BuildPipeline,
 	builtPaths: Set<string>,
 ): Promise<Array<string>> {
-	const { logger, options, routeCache, manifest } = pipeline;
+	const { logger, options, manifest } = pipeline;
+	// TODO: investigate if BuildPipeline can be removed. We already have app.pipeline
+	// which contains routeCache and other pipeline data. Eventually all pipeline info
+	// should come from app.pipeline and BuildPipeline can be eliminated.
+	const { routeCache } = app.pipeline;
 	let paths: Array<string> = [];
 	if (route.pathname) {
 		paths.push(route.pathname);
