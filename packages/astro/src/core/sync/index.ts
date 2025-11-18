@@ -252,10 +252,12 @@ async function syncContentCollections(
 				logLevel: 'silent',
 			},
 			{
+				// Prevent mutation of specific properties by vite plugins during sync
 				settings: {
 					...settings,
 					// Prevent mutation by vite plugins during sync
 					buildOutput: undefined,
+					// Sync causes font resources and style hashes to be duplicated
 					injectedCsp: {
 						fontResources: new Set(),
 						styleHashes: [],
