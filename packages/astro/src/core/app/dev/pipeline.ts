@@ -5,7 +5,7 @@ import type {
 	RouteData,
 	SSRElement,
 } from '../../../types/public/index.js';
-import { getVirtualModulePageName } from '../../../vite-plugin-pages/util.js';
+import { getDevCSSModuleName } from '../../../vite-plugin-css/util.js';
 import { type HeadElements, Pipeline, type TryRewriteResult } from '../../base-pipeline.js';
 import { ASTRO_VERSION } from '../../constants.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../../render/ssr-element.js';
@@ -93,7 +93,7 @@ export class DevPipeline extends Pipeline {
 			scripts.add({ props: {}, children });
 		}
 
-		const { css } = await import(getVirtualModulePageName('virtual:astro:dev-css:', routeData.component));
+		const { css } = await import(getDevCSSModuleName(routeData.component));
 
 		// Pass framework CSS in as style tags to be appended to the page.
 		for (const { id, url: src, content } of css) {
