@@ -17,6 +17,7 @@ import type {
 } from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import type { CspDirective } from '../csp/config.js';
+import type { LoggerLevel } from '../logger/core.js';
 import type { SessionDriver } from '../session.js';
 import type { RoutingStrategies } from './common.js';
 
@@ -123,6 +124,7 @@ export type SSRManifest = {
 		debugInfoOutput: string | undefined;
 	};
 	internalFetchHeaders?: Record<string, string>;
+	logLevel: LoggerLevel;
 };
 
 export type SSRActions = {

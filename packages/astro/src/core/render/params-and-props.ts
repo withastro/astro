@@ -87,11 +87,16 @@ export function getParams(route: RouteData, pathname: string): Params {
 	if (!route.params.length) return {};
 	// The RegExp pattern expects a decoded string, but the pathname is encoded
 	// when the URL contains non-English characters.
+	let path = pathname;
+	// The path could contain `.html` at the end. We remove it so we can correctly the parameters
+	// with the generated keyed parameters.
+	if (pathname.endsWith('.html')) {
+		path = path.slice(0, -5);
+	}
+
 	const paramsMatch =
-		route.pattern.exec(pathname) ||
-		route.fallbackRoutes
-			.map((fallbackRoute) => fallbackRoute.pattern.exec(pathname))
-			.find((x) => x);
+		route.pattern.exec(path) ||
+		route.fallbackRoutes.map((fallbackRoute) => fallbackRoute.pattern.exec(path)).find((x) => x);
 	if (!paramsMatch) return {};
 	const params: Params = {};
 	route.params.forEach((key, i) => {

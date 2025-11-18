@@ -108,15 +108,16 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	pipeline: P;
 	adapterLogger: AstroIntegrationLogger;
 	baseWithoutTrailingSlash: string;
-	logger = new Logger({
-		dest: consoleLogDestination,
-		level: 'info',
-	});
+	logger: Logger;
 	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
 		this.manifest = manifest;
 		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
 		this.baseWithoutTrailingSlash = removeTrailingForwardSlash(manifest.base);
 		this.pipeline = this.createPipeline(streaming, manifest, ...args);
+		this.logger = new Logger({
+			dest: consoleLogDestination,
+			level: manifest.logLevel,
+		});
 		this.adapterLogger = new AstroIntegrationLogger(this.logger.options, manifest.adapterName);
 		// This is necessary to allow running middlewares for 404 in SSR. There's special handling
 		// to return the host 404 if the user doesn't provide a custom 404

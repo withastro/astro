@@ -58,7 +58,10 @@ export async function generatePages(
 	// Grab the manifest and create the pipeline
 	const manifest: SSRManifest = prerenderEntry.manifest;
 	const pipeline = BuildPipeline.create({ internals, manifest, options });
-	const { config, logger } = pipeline;
+	const app = prerenderEntry.app as BaseApp;
+
+	const { config } = pipeline;
+	const logger = app.logger;
 
 	// HACK! `astro:assets` relies on a global to know if its running in dev, prod, ssr, ssg, full moon
 	// If we don't delete it here, it's technically not impossible (albeit improbable) for it to leak
@@ -72,7 +75,6 @@ export async function generatePages(
 	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
 	const routeToHeaders: RouteToHeaders = new Map();
 
-	const app = prerenderEntry.app as BaseApp;
 	if (ssr) {
 		for (const routeData of pagesToGenerate) {
 			if (routeData.prerender) {
@@ -203,7 +205,8 @@ async function generatePage(
 	routeToHeaders: RouteToHeaders,
 ) {
 	// prepare information we need
-	const { config, logger } = pipeline;
+	const logger = app.logger;
+	const { config } = pipeline;
 
 	async function generatePathWithLogs(
 		path: string,
@@ -214,7 +217,7 @@ async function generatePage(
 		isConcurrent: boolean,
 	) {
 		const timeStart = performance.now();
-		pipeline.logger.debug('build', `Generating: ${path}`);
+		logger.debug('build', `Generating: ${path}`);
 
 		const filePath = getOutputFilename(config, path, routeData);
 		const lineIcon =
@@ -298,7 +301,8 @@ async function getPathsForRoute(
 	pipeline: BuildPipeline,
 	builtPaths: Set<string>,
 ): Promise<Array<string>> {
-	const { logger, options, manifest } = pipeline;
+	const { options, manifest } = pipeline;
+	const logger = app.logger;
 	// TODO: investigate if BuildPipeline can be removed. We already have app.pipeline
 	// which contains routeCache and other pipeline data. Eventually all pipeline info
 	// should come from app.pipeline and BuildPipeline can be eliminated.
@@ -506,7 +510,8 @@ async function generatePath(
 	integrationRoute: IntegrationResolvedRoute,
 	routeToHeaders: RouteToHeaders,
 ): Promise<boolean | undefined> {
-	const { config, logger, options } = pipeline;
+	const { config, options } = pipeline;
+	const logger = app.logger;
 	logger.debug('build', `Generating: ${pathname}`);
 
 	// This adds the page name to the array so it can be shown as part of stats.
@@ -548,10 +553,10 @@ async function generatePath(
 
 	const url = getUrlForPath(
 		pathname,
-		config.base,
+		app.manifest.base,
 		options.origin,
-		config.build.format,
-		config.trailingSlash,
+		app.manifest.buildFormat,
+		app.manifest.trailingSlash,
 		route.type,
 	);
 

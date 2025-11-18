@@ -368,5 +368,6 @@ async function buildManifest(
 			debugInfoOutput: '',
 		},
 		internalFetchHeaders,
+		logLevel: settings.logLevel,
 	};
 }

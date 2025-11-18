@@ -11,17 +11,14 @@ import {
 } from '../render/ssr-element.js';
 import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/index.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
+import { createConsoleLogger } from './logging.js';
 
 export class AppPipeline extends Pipeline {
 	getName(): string {
 		return 'AppPipeline';
 	}
 
-	static create({
-		logger,
-		manifest,
-		streaming,
-	}: Pick<AppPipeline, 'logger' | 'manifest' | 'streaming'>) {
+	static create({ manifest, streaming }: Pick<AppPipeline, 'manifest' | 'streaming'>) {
 		const resolve = async function resolve(specifier: string) {
 			if (!(specifier in manifest.entryModules)) {
 				throw new Error(`Unable to resolve [${specifier}]`);
@@ -33,6 +30,7 @@ export class AppPipeline extends Pipeline {
 				return createAssetLink(bundlePath, manifest.base, manifest.assetsPrefix);
 			}
 		};
+		const logger = createConsoleLogger(manifest.logLevel);
 		const pipeline = new AppPipeline(
 			logger,
 			manifest,

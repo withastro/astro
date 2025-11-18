@@ -22,7 +22,6 @@ class MyApp extends BaseApp {
 
 	createPipeline(streaming: boolean) {
 		return AppPipeline.create({
-			logger: this.logger,
 			manifest: this.manifest,
 			streaming,
 		});

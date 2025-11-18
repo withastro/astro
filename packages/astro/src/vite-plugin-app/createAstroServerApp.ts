@@ -16,7 +16,7 @@ export default async function createAstroServerApp(
 ) {
 	const logger = new Logger({
 		dest: nodeLogDestination,
-		level: 'info',
+		level: settings.logLevel,
 	});
 	const routesList: RoutesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
 

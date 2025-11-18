@@ -250,5 +250,6 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 			latestAstroVersion: settings.latestAstroVersion,
 			debugInfoOutput: '',
 		},
+		logLevel: settings.logLevel,
 	};
 }
