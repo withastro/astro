@@ -151,5 +151,6 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 				print: false,
 			}),
 		},
+		logLevel: settings.logLevel,
 	};
 }

@@ -6,7 +6,7 @@ import { createConsoleLogger } from './logging.js';
 
 export function createApp(dev = import.meta.env.DEV): BaseApp {
 	if (dev) {
-		const logger = createConsoleLogger('debug');
+		const logger = createConsoleLogger(manifest.logLevel);
 		return new DevApp(manifest, true, logger);
 	} else {
 		return new App(manifest);

@@ -64,7 +64,11 @@ export default async function build(
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
 	telemetry.record(eventCliSession('build', userConfig));
 
-	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
+	const settings = await createSettings(
+		astroConfig,
+		inlineConfig.logLevel,
+		fileURLToPath(astroConfig.root),
+	);
 
 	if (inlineConfig.force) {
 		// isDev is always false, because it's interested in the build command, not the output type

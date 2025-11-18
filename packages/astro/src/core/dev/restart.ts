@@ -84,7 +84,11 @@ async function restartContainer(container: Container): Promise<Container | Error
 				"Astro's Content Security Policy (CSP) does not work in development mode. To verify your CSP implementation, build the project and run the preview server.",
 			);
 		}
-		const settings = await createSettings(astroConfig, fileURLToPath(existingSettings.config.root));
+		const settings = await createSettings(
+			astroConfig,
+			container.inlineConfig.logLevel,
+			fileURLToPath(existingSettings.config.root),
+		);
 		await close();
 		return await createRestartedContainer(container, settings);
 	} catch (_err) {
@@ -134,7 +138,11 @@ export async function createContainerWithAutomaticRestart({
 	}
 	telemetry.record(eventCliSession('dev', userConfig));
 
-	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
+	const settings = await createSettings(
+		astroConfig,
+		inlineConfig?.logLevel,
+		fileURLToPath(astroConfig.root),
+	);
 
 	const initialContainer = await createContainer({
 		settings,

@@ -171,6 +171,7 @@ function createManifest(
 			latestAstroVersion: undefined,
 			debugInfoOutput: '',
 		},
+		logLevel: 'silent',
 	};
 }
 
