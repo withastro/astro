@@ -164,7 +164,7 @@ export const remoteFontFamilySchema = requiredFamilyAttributesSchema
 			 */
 			styles: z.array(styleSchema).nonempty().optional(),
 			/**
-			 * @default `["cyrillic-ext", "cyrillic", "greek-ext", "greek", "vietnamese", "latin-ext", "latin"]`
+			 * @default `["latin"]`
 			 *
 			 * An array of [font subsets](https://knaap.dev/posts/font-subsetting/):
 			 */
