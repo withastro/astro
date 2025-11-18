@@ -263,7 +263,7 @@ async function generatePage(
 		logger.info(null, `${icon} ${getPrettyRouteName(route)}`);
 
 		// Get paths for the route, calling getStaticPaths if needed.
-		const paths = await getPathsForRoute(app, route, app, pipeline, builtPaths);
+		const paths = await getPathsForRoute(route, app, pipeline, builtPaths);
 
 		// Generate each paths
 		if (config.build.concurrency > 1) {
@@ -293,7 +293,6 @@ function* eachRouteInRouteData(route: RouteData) {
 }
 
 async function getPathsForRoute(
-	app: BaseApp,
 	route: RouteData,
 	app: BaseApp,
 	pipeline: BuildPipeline,

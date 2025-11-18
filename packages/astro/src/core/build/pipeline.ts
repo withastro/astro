@@ -38,12 +38,9 @@ export class BuildPipeline extends Pipeline {
 	#routesByFilePath: WeakMap<RouteData, string> = new WeakMap<RouteData, string>();
 
 	get outFolder() {
-		const out =
-			this.settings.buildOutput === 'server'
-				? this.settings.config.build.server
-				: getOutDirWithinCwd(this.settings.config.outDir);
-
-		return new URL('./.prerender/', out);
+		return this.settings.buildOutput === 'server'
+			? this.settings.config.build.server
+			: getOutDirWithinCwd(this.settings.config.outDir);
 	}
 
 	private constructor(
@@ -285,7 +282,7 @@ function getEntryFilePath(internals: BuildInternals, pageData: RouteData) {
 	return internals.entrySpecifierToBundleMap.get(id);
 }
 
-export function i18nHasFallback(manifest: SSRManifest): boolean {
+function i18nHasFallback(manifest: SSRManifest): boolean {
 	if (manifest.i18n && manifest.i18n.fallback) {
 		// we have some fallback and the control is not none
 		return Object.keys(manifest.i18n.fallback).length > 0;
