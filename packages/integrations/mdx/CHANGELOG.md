@@ -1,5 +1,12 @@
 # @astrojs/mdx
 
+## 4.3.11
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/markdown-remark@6.3.9
+
 ## 4.3.10
 
 ### Patch Changes

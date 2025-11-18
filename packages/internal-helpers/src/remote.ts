@@ -128,13 +128,8 @@ export function isRemoteAllowed(
 
 	const url = new URL(src);
 
-	// Data URLs are always allowed
-	if (url.protocol === 'data:') {
-		return true;
-	}
-
 	// Non-http(s) protocols are never allowed
-	if (!['http:', 'https:'].includes(url.protocol)) {
+	if (!['http:', 'https:', 'data:'].includes(url.protocol)) {
 		return false;
 	}
 

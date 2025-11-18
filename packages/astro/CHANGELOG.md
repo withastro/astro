@@ -1,5 +1,42 @@
 # astro
 
+## 5.15.9
+
+### Patch Changes
+
+- [#14786](https://github.com/withastro/astro/pull/14786) [`758a891`](https://github.com/withastro/astro/commit/758a891112839a108479fd0489a1785640b31ecf) Thanks [@mef](https://github.com/mef)! - Add handling of invalid encrypted props and slots in server islands.
+
+- [#14783](https://github.com/withastro/astro/pull/14783) [`504958f`](https://github.com/withastro/astro/commit/504958fe7fccd7bffc177a1f4b1bf4e22989470e) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves the experimental Fonts API build log to show the number of downloaded files. This can help spotting excessive downloading because of misconfiguration
+
+- [#14791](https://github.com/withastro/astro/pull/14791) [`9e9c528`](https://github.com/withastro/astro/commit/9e9c528191b6f5e06db9daf6ad26b8f68016e533) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Changes the remote protocol checks for images to require explicit authorization in order to use data URIs.
+
+  In order to allow data URIs for remote images, you will need to update your `astro.config.mjs` file to include the following configuration:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    images: {
+      remotePatterns: [
+        {
+          protocol: 'data',
+        },
+      ],
+    },
+  });
+  ```
+
+- [#14787](https://github.com/withastro/astro/pull/14787) [`0f75f6b`](https://github.com/withastro/astro/commit/0f75f6bc637d547e07324e956db21d9f245a3e8e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes wildcard hostname pattern matching to correctly reject hostnames without dots
+
+  Previously, hostnames like `localhost` or other single-part names would incorrectly match patterns like `*.example.com`. The wildcard matching logic has been corrected to ensure that only valid subdomains matching the pattern are accepted.
+
+- [#14776](https://github.com/withastro/astro/pull/14776) [`3537876`](https://github.com/withastro/astro/commit/3537876fde3bdb2a0ded99cc9b00d53f66160a7f) Thanks [@ktym4a](https://github.com/ktym4a)! - Fixes the behavior of `passthroughImageService` so it does not generate webp.
+
+- Updated dependencies [[`9e9c528`](https://github.com/withastro/astro/commit/9e9c528191b6f5e06db9daf6ad26b8f68016e533), [`0f75f6b`](https://github.com/withastro/astro/commit/0f75f6bc637d547e07324e956db21d9f245a3e8e)]:
+  - @astrojs/internal-helpers@0.7.5
+  - @astrojs/markdown-remark@6.3.9
+
 ## 5.15.8
 
 ### Patch Changes
