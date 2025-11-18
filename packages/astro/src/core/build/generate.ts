@@ -74,7 +74,7 @@ export async function generatePages(
 
 	const app = prerenderEntry.app as BaseApp;
 	if (ssr) {
-		for (const [routeData, _] of pagesToGenerate) {
+		for (const routeData of pagesToGenerate) {
 			if (routeData.prerender) {
 				// i18n domains won't work with pre rendered routes at the moment, so we need to throw an error
 				if (config.i18n?.domains && Object.keys(config.i18n.domains).length > 0) {
@@ -88,7 +88,7 @@ export async function generatePages(
 			}
 		}
 	} else {
-		for (const [routeData, _] of pagesToGenerate) {
+		for (const routeData of pagesToGenerate) {
 			await generatePage(app, routeData, builtPaths, pipeline, routeToHeaders);
 		}
 	}
