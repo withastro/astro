@@ -253,27 +253,164 @@ describe('CLI info', () => {
 			});
 
 			it('handles the vite version', async () => {
-				// TODO:
+				const astroVersionProvider = createFakeAstroVersionProvider('5.5.5');
+				const operatingSystemProvider = createFakeOperatingSystemProvider('win32');
+				const nodeVersionProvider = createFakeNodeVersionProvider('v10.1.7');
+
+				const debugInfoProvider = createCliDebugInfoProvider({
+					config: {
+						output: 'static',
+						adapter: undefined,
+						integrations: [],
+					},
+					astroVersionProvider,
+					operatingSystemProvider,
+					packageManager: {
+						getName: () => 'pnpm',
+						getPackageVersion: async (name) => {
+							if (name === 'vite') {
+								return 'v1.2.3';
+							}
+							return undefined;
+						},
+					},
+					nodeVersionProvider,
+				});
+				const debugInfo = await debugInfoProvider.get();
+
+				assert.deepStrictEqual(debugInfo, [
+					['Astro', 'v5.5.5'],
+					['Vite', 'v1.2.3'],
+					['Node', 'v10.1.7'],
+					['System', 'win32'],
+					['Package Manager', 'pnpm'],
+					['Output', 'static'],
+					['Adapter', 'none'],
+					['Integrations', 'none'],
+				]);
 			});
 
-			it('handles the adapter', async () => {
-				// TODO:
+			it('handles the adapter with no version', async () => {
+				const astroVersionProvider = createFakeAstroVersionProvider('5.5.5');
+				const operatingSystemProvider = createFakeOperatingSystemProvider('win32');
+				const nodeVersionProvider = createFakeNodeVersionProvider('v10.1.7');
+
+				const debugInfoProvider = createCliDebugInfoProvider({
+					config: {
+						output: 'static',
+						adapter: {
+							name: '@astrojs/node',
+							hooks: {},
+						},
+						integrations: [],
+					},
+					astroVersionProvider,
+					operatingSystemProvider,
+					packageManager: {
+						getName: () => 'pnpm',
+						getPackageVersion: async () => {
+							return undefined;
+						},
+					},
+					nodeVersionProvider,
+				});
+				const debugInfo = await debugInfoProvider.get();
+
+				assert.deepStrictEqual(debugInfo, [
+					['Astro', 'v5.5.5'],
+					['Node', 'v10.1.7'],
+					['System', 'win32'],
+					['Package Manager', 'pnpm'],
+					['Output', 'static'],
+					['Adapter', '@astrojs/node'],
+					['Integrations', 'none'],
+				]);
 			});
 
 			it('handles the adapter version', async () => {
-				// TODO:
+				const astroVersionProvider = createFakeAstroVersionProvider('5.5.5');
+				const operatingSystemProvider = createFakeOperatingSystemProvider('win32');
+				const nodeVersionProvider = createFakeNodeVersionProvider('v10.1.7');
+
+				const debugInfoProvider = createCliDebugInfoProvider({
+					config: {
+						output: 'static',
+						adapter: {
+							name: '@astrojs/node',
+							hooks: {},
+						},
+						integrations: [],
+					},
+					astroVersionProvider,
+					operatingSystemProvider,
+					packageManager: {
+						getName: () => 'pnpm',
+						getPackageVersion: async (name) => {
+							if (name === '@astrojs/node') {
+								return 'v6.5.4'
+							}
+							return undefined;
+						},
+					},
+					nodeVersionProvider,
+				});
+				const debugInfo = await debugInfoProvider.get();
+
+				assert.deepStrictEqual(debugInfo, [
+					['Astro', 'v5.5.5'],
+					['Node', 'v10.1.7'],
+					['System', 'win32'],
+					['Package Manager', 'pnpm'],
+					['Output', 'static'],
+					['Adapter', '@astrojs/node (v6.5.4)'],
+					['Integrations', 'none'],
+				]);
 			});
 
-			it('skips integrations without names', async () => {
-				// TODO:
-			});
+			it('handles integrations', async () => {
+				const astroVersionProvider = createFakeAstroVersionProvider('5.5.5');
+				const operatingSystemProvider = createFakeOperatingSystemProvider('win32');
+				const nodeVersionProvider = createFakeNodeVersionProvider('v10.1.7');
 
-			it('handles integrations versions', async () => {
-				// TODO:
-			});
+				const debugInfoProvider = createCliDebugInfoProvider({
+					config: {
+						output: 'static',
+						adapter: undefined,
+						integrations: [
+							{
+								name: 'foo',
+								hooks: {}
+							},
+							{
+								name: 'bar',
+								hooks: {}
+							}
+						],
+					},
+					astroVersionProvider,
+					operatingSystemProvider,
+					packageManager: {
+						getName: () => 'pnpm',
+						getPackageVersion: async (name) => {
+							if (name === 'bar') {
+								return 'v6.6.6'
+							}
+							return undefined;
+						},
+					},
+					nodeVersionProvider,
+				});
+				const debugInfo = await debugInfoProvider.get();
 
-			it('skips versions for non package integrations', async () => {
-				// TODO:
+				assert.deepStrictEqual(debugInfo, [
+					['Astro', 'v5.5.5'],
+					['Node', 'v10.1.7'],
+					['System', 'win32'],
+					['Package Manager', 'pnpm'],
+					['Output', 'static'],
+					['Adapter', 'none'],
+					['Integrations', ['foo', 'bar (v6.6.6)']],
+				]);
 			});
 		});
 

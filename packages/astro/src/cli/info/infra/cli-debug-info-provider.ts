@@ -11,6 +11,14 @@ interface Options {
 	nodeVersionProvider: NodeVersionProvider;
 }
 
+function withVersion(name: string, version: string | undefined): string {
+	let result = name;
+	if (version) {
+		result += ` (${version})`;
+	}
+	return result;
+}
+
 export function createCliDebugInfoProvider({
 	config,
 	astroVersionProvider,
@@ -34,34 +42,23 @@ export function createCliDebugInfoProvider({
 				debugInfo.splice(1, 0, ['Vite', viteVersion]);
 			}
 
-			let adapter = 'none';
-			if (config.adapter) {
-				const adapterVersion = await packageManager.getPackageVersion(config.adapter.name);
-				adapter = `${config.adapter.name}${adapterVersion ? ` (${adapterVersion})` : ''}`;
-			}
-			debugInfo.push(['Adapter', adapter]);
+			debugInfo.push([
+				'Adapter',
+				config.adapter
+					? withVersion(
+							config.adapter.name,
+							await packageManager.getPackageVersion(config.adapter.name),
+						)
+					: 'none',
+			]);
 
-			const integrations = config.integrations.map(async (i) => {
-				if (!i.name) return;
-
-				let version: string | undefined;
-				try {
-					version = await packageManager.getPackageVersion(i.name);
-				} catch {
-					version = undefined;
-				}
-
-				return `${i.name}${version ? ` (${version})` : ''}`;
-			});
-
-			const awaitedIntegrations = (await Promise.all(integrations)).filter(
-				(e) => typeof e === 'string',
+			const integrations = await Promise.all(
+				config.integrations.map(async ({ name }) =>
+					withVersion(name, await packageManager.getPackageVersion(name)),
+				),
 			);
 
-			debugInfo.push([
-				'Integrations',
-				awaitedIntegrations.length > 0 ? awaitedIntegrations : 'none',
-			]);
+			debugInfo.push(['Integrations', integrations.length > 0 ? integrations : 'none']);
 
 			return debugInfo;
 		},

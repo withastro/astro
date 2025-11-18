@@ -30,7 +30,7 @@ export function createDevDebugInfoProvider({
 				['Adapter', config.adapter?.name ?? 'none'],
 			];
 
-			const integrations = config.integrations.map((i) => i.name).filter(Boolean);
+			const integrations = config.integrations.map((integration) => integration.name);
 
 			debugInfo.push(['Integrations', integrations.length > 0 ? integrations : 'none']);
 
