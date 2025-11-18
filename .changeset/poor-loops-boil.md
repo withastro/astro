@@ -1,5 +1,5 @@
 ---
-'astro': patch
+'astro': minor
 ---
 
 Adds the `ActionInputSchema` utility type to infer an action's input zod schema.
