@@ -96,8 +96,10 @@ export class DevPipeline extends Pipeline {
 					root: fileURLToPath(settings.config.root),
 					version: ASTRO_VERSION,
 					latestAstroVersion: settings.latestAstroVersion,
-					// TODO: investigate requesting the debug info on button click to defer
-					// execution as much as possible
+					// TODO: Currently the debug info is always fetched, which slows things down.
+					// We should look into not loading it if the dev toolbar is disabled. And when
+					// enabled, it would nice to request the debug info through import.meta.hot
+					// when the button is click to defer execution as much as possible
 					debugInfo: await this.getDebugInfo(),
 				};
 

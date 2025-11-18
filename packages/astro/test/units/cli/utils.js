@@ -83,6 +83,12 @@ export function createFakeOperatingSystemProvider(platform) {
 	};
 }
 
+/**
+ *
+ * @param {object} options
+ * @param {boolean} [options.fail=false] Forces execute() to throw an error. This is useful to test error handling
+ * @returns
+ */
 export function createSpyCommandExecutor({ fail = false } = {}) {
 	/** @type {Array<{ command: string; args: Array<string> | undefined; input: string | undefined }>} */
 	const inputs = [];

@@ -12,7 +12,7 @@ interface Options {
 }
 
 /**
- * Returns light debug info (eg. no versions), to avoid slowing down the dev server
+ * Returns debug info without any package versions, to avoid slowing down the dev server
  */
 export function createDevDebugInfoProvider({
 	config,

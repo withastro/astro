@@ -78,7 +78,8 @@ export default function createVitePluginAstroServer({
 				settings,
 				async getDebugInfo() {
 					if (!debugInfo) {
-						// TODO: do not import from CLI
+						// TODO: do not import from CLI. Currently the code is located under src/cli/infra
+						// but some will have to be moved to src/infra
 						const debugInfoProvider = createDevDebugInfoProvider({
 							config: settings.config,
 							astroVersionProvider: createBuildTimeAstroVersionProvider(),

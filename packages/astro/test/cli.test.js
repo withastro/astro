@@ -9,6 +9,10 @@ import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
 import { cli, cliServerLogSetup, loadFixture, parseCliDevStart } from './test-utils.js';
 
+/**
+ * Throws an error if no command is found for the current OS.
+ * @returns {string}
+ */
 function readFromClipboard() {
 	const system = process.platform;
 	let command = '';
