@@ -10,6 +10,7 @@ import { normalizePath } from 'vite';
 import { getPackageManager } from '../cli/info/core/get-package-manager.js';
 import { createDevDebugInfoProvider } from '../cli/info/infra/dev-debug-info-provider.js';
 import { createNpmPackageManagerUserAgentProvider } from '../cli/info/infra/npm-package-manager-user-agent-provider.js';
+import { createProcessNodeVersionProvider } from '../cli/info/infra/process-node-version-provider.js';
 import { createStyledDebugInfoFormatter } from '../cli/info/infra/styled-debug-info-formatter.js';
 import { createBuildTimeAstroVersionProvider } from '../cli/infra/build-time-astro-version-provider.js';
 import { createPassthroughTextStyler } from '../cli/infra/passthrough-text-styler.js';
@@ -86,6 +87,7 @@ export default function createVitePluginAstroServer({
 								packageManagerUserAgentProvider: createNpmPackageManagerUserAgentProvider(),
 								commandExecutor: createTinyexecCommandExecutor(),
 							}),
+							nodeVersionProvider: createProcessNodeVersionProvider(),
 						});
 						const debugInfoFormatter = createStyledDebugInfoFormatter({
 							textStyler: createPassthroughTextStyler(),
