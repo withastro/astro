@@ -38,9 +38,12 @@ export class BuildPipeline extends Pipeline {
 	#routesByFilePath: WeakMap<RouteData, string> = new WeakMap<RouteData, string>();
 
 	get outFolder() {
-		return this.settings.buildOutput === 'server'
-			? this.settings.config.build.server
-			: getOutDirWithinCwd(this.settings.config.outDir);
+		const out =
+			this.settings.buildOutput === 'server'
+				? this.settings.config.build.server
+				: getOutDirWithinCwd(this.settings.config.outDir);
+
+		return new URL('./.prerender/', out);
 	}
 
 	private constructor(
@@ -144,6 +147,12 @@ export class BuildPipeline extends Pipeline {
 		const pages = new Map<RouteData, string>();
 
 		for (const { routeData } of this.manifest.routes) {
+			if (routeIsRedirect(routeData)) {
+				// the component path isn't really important for redirects
+				pages.set(routeData, '');
+				continue;
+			}
+
 			// Here, we take the component path and transform it in the virtual module name
 			const moduleSpecifier = getVirtualModulePageName(
 				VIRTUAL_PAGE_RESOLVED_MODULE_ID,
@@ -202,6 +211,7 @@ export class BuildPipeline extends Pipeline {
 			// SAFETY: it is checked inside the if
 			return this.#componentsInterner.get(route)!;
 		}
+
 		let entry;
 		if (routeIsRedirect(route)) {
 			entry = await this.#getEntryForRedirectRoute(route, this.outFolder);

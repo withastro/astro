@@ -8,4 +8,8 @@ const { pageMap, renderers } = _manifest;
 // Export middleware lazy-loaded
 const middleware = () => import('virtual:astro:middleware');
 
-export { app, pageMap, _manifest as manifest, renderers, middleware, actions };
+Object.assign(_manifest, {
+	pageMap,
+});
+
+export { app, _manifest as manifest, renderers, middleware, actions };

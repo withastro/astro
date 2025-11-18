@@ -34,7 +34,7 @@ import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
-import type { SinglePageBuiltModule, StaticBuildOptions } from './types.js';
+import type { StaticBuildOptions } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 
 export async function generatePages(
@@ -72,8 +72,6 @@ export async function generatePages(
 	const routeToHeaders: RouteToHeaders = new Map();
 
 	const app = prerenderEntry.app as BaseApp;
-	const pageMap = prerenderEntry.pageMap as Map<string, () => Promise<SinglePageBuiltModule>>;
-
 	if (ssr) {
 		for (const [routeData, _] of pagesToGenerate) {
 			if (routeData.prerender) {
@@ -85,12 +83,12 @@ export async function generatePages(
 					});
 				}
 
-				await generatePage(app, pageMap, routeData, builtPaths, pipeline, routeToHeaders);
+				await generatePage(app, routeData, builtPaths, pipeline, routeToHeaders);
 			}
 		}
 	} else {
 		for (const [routeData, _] of pagesToGenerate) {
-			await generatePage(app, pageMap, routeData, builtPaths, pipeline, routeToHeaders);
+			await generatePage(app, routeData, builtPaths, pipeline, routeToHeaders);
 		}
 	}
 	logger.info(
@@ -198,7 +196,6 @@ const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
 
 async function generatePage(
 	app: BaseApp,
-	pageMap: Map<string, () => Promise<SinglePageBuiltModule>>,
 	routeData: RouteData,
 	builtPaths: Set<string>,
 	pipeline: BuildPipeline,
@@ -239,12 +236,17 @@ async function generatePage(
 
 		const timeEnd = performance.now();
 		const isSlow = timeEnd - timeStart > THRESHOLD_SLOW_RENDER_TIME_MS;
-		const timeIncrease = (isSlow ? colors.red : colors.dim)(`(+${getTimeStat(timeStart, timeEnd)})`);
+		const timeIncrease = (isSlow ? colors.red : colors.dim)(
+			`(+${getTimeStat(timeStart, timeEnd)})`,
+		);
 		const notCreated =
 			created === false ? colors.yellow('(file not created, response body was empty)') : '';
 
 		if (isConcurrent) {
-			logger.info(null, `  ${colors.blue(lineIcon)} ${colors.dim(filePath)} ${timeIncrease} ${notCreated}`);
+			logger.info(
+				null,
+				`  ${colors.blue(lineIcon)} ${colors.dim(filePath)} ${timeIncrease} ${notCreated}`,
+			);
 		} else {
 			logger.info('SKIP_FORMAT', ` ${timeIncrease} ${notCreated}`);
 		}
@@ -260,7 +262,7 @@ async function generatePage(
 		logger.info(null, `${icon} ${getPrettyRouteName(route)}`);
 
 		// Get paths for the route, calling getStaticPaths if needed.
-		const paths = await getPathsForRoute(route, routeData.component, pageMap, app, pipeline, builtPaths);
+		const paths = await getPathsForRoute(route, app, pipeline, builtPaths);
 
 		// Generate each paths
 		if (config.build.concurrency > 1) {
@@ -291,8 +293,6 @@ function* eachRouteInRouteData(route: RouteData) {
 
 async function getPathsForRoute(
 	route: RouteData,
-	componentPath: string,
-	pageMap: Map<string, () => Promise<SinglePageBuiltModule>>,
 	app: BaseApp,
 	pipeline: BuildPipeline,
 	builtPaths: Set<string>,
@@ -308,18 +308,16 @@ async function getPathsForRoute(
 		builtPaths.add(removeTrailingForwardSlash(route.pathname));
 	} else {
 		// Load page module only when we need it for getStaticPaths
-		const pageModuleFn = pageMap.get(componentPath);
-		if (!pageModuleFn) {
+		const pageModule = await pipeline.getComponentByRoute(route);
+		if (!pageModule) {
 			throw new Error(
-				`Unable to find module for ${componentPath}. This is unexpected and likely a bug in Astro, please report.`,
+				`Unable to find module for ${route.component}. This is unexpected and likely a bug in Astro, please report.`,
 			);
 		}
-		const pageModule = await pageModuleFn();
-		const mod = await pageModule.page();
 
 		const staticPaths = await callGetStaticPaths({
-			mod,
-			route,
+			mod: pageModule,
+			route: routeIsRedirect(route) ? route.redirectRoute : route,
 			routeCache,
 			ssr: manifest.serverLike,
 			base: manifest.base,
