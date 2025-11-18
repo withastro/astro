@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Adds the `ActionInputSchema` utility type to automatically determine the TypeScript type of an action's input based on its Zod schema
+Adds the `ActionInputSchema` utility type to automatically infer the TypeScript type of an action's input based on its Zod schema
 
 For example, this type can be used to retrieve the input type of a form action:
 
