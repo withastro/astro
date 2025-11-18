@@ -95,9 +95,20 @@ export default async function astroPluginRoutes({
 
 		load(id) {
 			if (id === ASTRO_ROUTES_MODULE_ID_RESOLVED) {
+				const environmentName = this.environment.name;
+				const filteredRoutes = serializedRouteInfo.filter(routeInfo => {
+					// In prerender, filter to only the routes that need prerendering.
+					if(environmentName === 'prerender') {
+						return routeInfo.routeData.prerender;
+					}
+					// TODO we can likely do the opposite as well, filter out prerendered routes
+					// from the ssr output, but do not feel confident it won't break tests yet. 
+					return true;
+				});
+
 				const code = `
 				import { deserializeRouteInfo } from 'astro/app';
-				const serializedData = ${JSON.stringify(serializedRouteInfo)};
+				const serializedData = ${JSON.stringify(filteredRoutes)};
 				const routes = serializedData.map(deserializeRouteInfo);
 				export { routes };
 				`;
