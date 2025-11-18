@@ -4,7 +4,7 @@
 
 Adds the `ActionInputSchema` utility type to infer an action's input zod schema.
 
-Example usage:
+For example, this type can be used to retrieve the input type of a form action:
 
 ```ts
 import { type ActionInputSchema, defineAction } from 'astro:actions';
