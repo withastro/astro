@@ -1,4 +1,4 @@
-import { routeIsRedirect } from '../core/redirects/index.js';
+import { routeIsRedirect } from '../core/routing/index.js';
 import { routeComparator } from '../core/routing/priority.js';
 import type { RouteData, SSRManifest } from '../types/public/internal.js';
 import type { AstroServerPipeline } from '../vite-plugin-app/pipeline.js';

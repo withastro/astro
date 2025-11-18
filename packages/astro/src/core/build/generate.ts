@@ -24,10 +24,11 @@ import type { BaseApp } from '../app/base.js';
 import type { SSRManifest } from '../app/types.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { getRedirectLocationOrThrow, routeIsRedirect } from '../redirects/index.js';
+import { getRedirectLocationOrThrow } from '../redirects/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import { createRequest } from '../request.js';
 import { redirectTemplate } from '../routing/3xx.js';
+import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import { matchRoute } from '../routing/match.js';
 import { stringifyParams } from '../routing/params.js';
 import { getOutputFilename } from '../util.js';
@@ -262,7 +263,7 @@ async function generatePage(
 		logger.info(null, `${icon} ${getPrettyRouteName(route)}`);
 
 		// Get paths for the route, calling getStaticPaths if needed.
-		const paths = await getPathsForRoute(route, app, pipeline, builtPaths);
+		const paths = await getPathsForRoute(app, route, app, pipeline, builtPaths);
 
 		// Generate each paths
 		if (config.build.concurrency > 1) {
@@ -292,6 +293,7 @@ function* eachRouteInRouteData(route: RouteData) {
 }
 
 async function getPathsForRoute(
+	app: BaseApp,
 	route: RouteData,
 	app: BaseApp,
 	pipeline: BuildPipeline,
@@ -308,16 +310,23 @@ async function getPathsForRoute(
 		builtPaths.add(removeTrailingForwardSlash(route.pathname));
 	} else {
 		// Load page module only when we need it for getStaticPaths
-		const pageModule = await pipeline.getComponentByRoute(route);
+		const pageModule = await app.pipeline.getComponentByRoute(route);
+
 		if (!pageModule) {
 			throw new Error(
 				`Unable to find module for ${route.component}. This is unexpected and likely a bug in Astro, please report.`,
 			);
 		}
 
+		const routeToProcess = routeIsRedirect(route)
+			? route.redirectRoute
+			: routeIsFallback(route)
+				? getFallbackRoute(route, pipeline.manifest.routes)
+				: route;
+
 		const staticPaths = await callGetStaticPaths({
 			mod: pageModule,
-			route: routeIsRedirect(route) ? route.redirectRoute : route,
+			route: routeToProcess ?? route,
 			routeCache,
 			ssr: manifest.serverLike,
 			base: manifest.base,

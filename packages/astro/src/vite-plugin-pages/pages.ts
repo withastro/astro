@@ -1,6 +1,6 @@
 import type { Plugin as VitePlugin } from 'vite';
-import { routeIsRedirect } from '../core/redirects/index.js';
 import { DEFAULT_COMPONENTS } from '../core/routing/default.js';
+import { routeIsRedirect } from '../core/routing/index.js';
 import type { RoutesList } from '../types/astro.js';
 import { VIRTUAL_PAGE_MODULE_ID } from './page.js';
 import { getVirtualModulePageName } from './util.js';

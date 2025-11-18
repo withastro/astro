@@ -14,7 +14,7 @@ import type { RouteData } from '../../types/public/internal.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/index.js';
 import { RESOLVED_ASTRO_RENDERERS_MODULE_ID } from '../../vite-plugin-renderers/index.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { routeIsRedirect } from '../redirects/index.js';
+import { routeIsRedirect } from '../routing/index.js';
 import { getOutDirWithinCwd } from './common.js';
 import { CHUNKS_PATH } from './consts.js';
 import { generatePages } from './generate.js';
@@ -63,7 +63,10 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	const ssrTime = performance.now();
 	opts.logger.info('build', `Building ${settings.buildOutput} entrypoints...`);
 	const { ssrOutput, prerenderOutput, clientOutput } = await buildEnvironments(opts, internals);
-	opts.logger.info('build', colors.green(`✓ Completed in ${getTimeStat(ssrTime, performance.now())}.`));
+	opts.logger.info(
+		'build',
+		colors.green(`✓ Completed in ${getTimeStat(ssrTime, performance.now())}.`),
+	);
 
 	settings.timer.end('SSR build');
 
@@ -113,10 +116,7 @@ export async function staticBuild(
  *
  * Returns outputs from each environment for post-build processing.
  */
-async function buildEnvironments(
-	opts: StaticBuildOptions,
-	internals: BuildInternals,
-) {
+async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInternals) {
 	const { allPages, settings, viteConfig } = opts;
 	const ssr = settings.buildOutput === 'server';
 	const out = getServerOutputDirectory(settings);
@@ -236,15 +236,15 @@ async function buildEnvironments(
 							chunkFileNames: `${settings.config.build.assets}/[name].[hash].js`,
 							assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 						},
-					}
+					},
 				},
 			},
 			ssr: {
 				build: {
 					outDir: fileURLToPath(getServerOutputDirectory(settings)),
-				}
-			}
-		}
+				},
+			},
+		},
 	};
 
 	const updatedViteBuildConfig = await runHookBuildSetup({
@@ -258,7 +258,8 @@ async function buildEnvironments(
 	const builder = await vite.createBuilder(updatedViteBuildConfig);
 
 	// Build ssr environment for server output
-	const ssrOutput = settings.buildOutput === 'static' ? [] : await builder.build(builder.environments.ssr);
+	const ssrOutput =
+		settings.buildOutput === 'static' ? [] : await builder.build(builder.environments.ssr);
 
 	// Build prerender environment for static generation
 	const prerenderOutput = await builder.build(builder.environments.prerender);
@@ -272,7 +273,8 @@ async function buildEnvironments(
 	// and this is the only way to update the input after instantiation.
 	internals.clientInput = getClientInput(internals, settings);
 	builder.environments.client.config.build.rollupOptions.input = Array.from(internals.clientInput);
-	const clientOutput = internals.clientInput.size === 0 ? [] : await builder.build(builder.environments.client);
+	const clientOutput =
+		internals.clientInput.size === 0 ? [] : await builder.build(builder.environments.client);
 
 	return { ssrOutput, prerenderOutput, clientOutput };
 }
@@ -284,7 +286,10 @@ type MutateChunk = (chunk: vite.Rollup.OutputChunk, targets: string[], newCode: 
  * Throws an error if no prerender entry file is found.
  */
 function getPrerenderEntryFileName(
-	prerenderOutput: vite.Rollup.RollupOutput | vite.Rollup.RollupOutput[] | vite.Rollup.RollupWatcher,
+	prerenderOutput:
+		| vite.Rollup.RollupOutput
+		| vite.Rollup.RollupOutput[]
+		| vite.Rollup.RollupWatcher,
 ): string {
 	const outputs = viteBuildReturnToRollupOutputs(prerenderOutput as any);
 
@@ -300,7 +305,7 @@ function getPrerenderEntryFileName(
 	}
 
 	throw new Error(
-		'Could not find the prerender entry point in the build output. This is likely a bug in Astro.'
+		'Could not find the prerender entry point in the build output. This is likely a bug in Astro.',
 	);
 }
 
@@ -310,7 +315,10 @@ function getPrerenderEntryFileName(
  */
 function extractPrerenderEntryFileName(
 	internals: BuildInternals,
-	prerenderOutput: vite.Rollup.RollupOutput | vite.Rollup.RollupOutput[] | vite.Rollup.RollupWatcher,
+	prerenderOutput:
+		| vite.Rollup.RollupOutput
+		| vite.Rollup.RollupOutput[]
+		| vite.Rollup.RollupWatcher,
 ) {
 	internals.prerenderEntryFileName = getPrerenderEntryFileName(prerenderOutput);
 }
@@ -372,10 +380,8 @@ async function writeMutatedChunks(
 		let root: URL;
 
 		// Check if this is a prerender file by looking for it in prerender outputs
-		const isPrerender = prerenderOutputs.some(output =>
-			output.output.some(chunk =>
-				chunk.type !== 'asset' && (chunk as any).fileName === fileName
-			)
+		const isPrerender = prerenderOutputs.some((output) =>
+			output.output.some((chunk) => chunk.type !== 'asset' && (chunk as any).fileName === fileName),
 		);
 
 		if (isPrerender) {
@@ -403,11 +409,16 @@ async function ssrMoveAssets(opts: StaticBuildOptions, prerenderOutputDir: URL) 
 	opts.logger.info('build', 'Rearranging server assets...');
 	const isFullyStaticSite = opts.settings.buildOutput === 'static';
 	const serverRoot = opts.settings.config.build.server;
-	const clientRoot = isFullyStaticSite ? opts.settings.config.outDir : opts.settings.config.build.client;
+	const clientRoot = isFullyStaticSite
+		? opts.settings.config.outDir
+		: opts.settings.config.build.client;
 	const assets = opts.settings.config.build.assets;
 	const serverAssets = new URL(`./${assets}/`, appendForwardSlash(serverRoot.toString()));
 	const clientAssets = new URL(`./${assets}/`, appendForwardSlash(clientRoot.toString()));
-	const prerenderAssets = new URL(`./${assets}/`, appendForwardSlash(prerenderOutputDir.toString()));
+	const prerenderAssets = new URL(
+		`./${assets}/`,
+		appendForwardSlash(prerenderOutputDir.toString()),
+	);
 
 	// Move prerender assets first
 	const prerenderFiles = await glob(`**/*`, {
@@ -427,7 +438,7 @@ async function ssrMoveAssets(opts: StaticBuildOptions, prerenderOutputDir: URL) 
 	}
 
 	// If this is fully static site, we don't need to do the next parts at all.
-	if(isFullyStaticSite) {
+	if (isFullyStaticSite) {
 		return;
 	}
 
@@ -452,7 +463,10 @@ async function ssrMoveAssets(opts: StaticBuildOptions, prerenderOutputDir: URL) 
 	}
 }
 
-function getClientInput(internals: BuildInternals, settings: StaticBuildOptions['settings']): Set<string> {
+function getClientInput(
+	internals: BuildInternals,
+	settings: StaticBuildOptions['settings'],
+): Set<string> {
 	const rendererClientEntrypoints = settings.renderers
 		.map((r) => r.clientEntrypoint)
 		.filter((a) => typeof a === 'string') as string[];

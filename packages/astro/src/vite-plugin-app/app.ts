@@ -18,12 +18,11 @@ import { type AstroError, createSafeError, isAstroError } from '../core/errors/i
 import type { Logger } from '../core/logger/core.js';
 import { req } from '../core/messages.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
-import { routeIsRedirect } from '../core/redirects/index.js';
 import { getProps } from '../core/render/index.js';
 import type { CreateRenderContext, RenderContext } from '../core/render-context.js';
 import { createRequest } from '../core/request.js';
 import { redirectTemplate } from '../core/routing/3xx.js';
-import { matchAllRoutes } from '../core/routing/index.js';
+import { matchAllRoutes, routeIsRedirect } from '../core/routing/index.js';
 import { isRoute404, isRoute500 } from '../core/routing/match.js';
 import { PERSIST_SYMBOL } from '../core/session.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';

@@ -2,11 +2,14 @@ import type { ComponentInstance } from '../../types/astro.js';
 import type { RewritePayload } from '../../types/public/common.js';
 import type { RouteData, SSRElement } from '../../types/public/internal.js';
 import { type HeadElements, Pipeline, type TryRewriteResult } from '../base-pipeline.js';
+import type { SinglePageBuiltModule } from '../build/types.js';
+import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import {
 	createAssetLink,
 	createModuleScriptElement,
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
+import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/index.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 
 export class AppPipeline extends Pipeline {
@@ -77,6 +80,45 @@ export class AppPipeline extends Pipeline {
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
 		const module = await this.getModuleForRoute(routeData);
 		return module.page();
+	}
+
+	async getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
+		for (const defaultRoute of this.defaultRoutes) {
+			if (route.component === defaultRoute.component) {
+				return {
+					page: () => Promise.resolve(defaultRoute.instance),
+					renderers: [],
+				};
+			}
+		}
+		let routeToProcess = route;
+		if (routeIsRedirect(route)) {
+			if (route.redirectRoute) {
+				// This is a static redirect
+				routeToProcess = route.redirectRoute;
+			} else {
+				// This is an external redirect, so we return a component stub
+				return RedirectSinglePageBuiltModule;
+			}
+		} else if (routeIsFallback(route)) {
+			// This is a i18n fallback route
+			routeToProcess = getFallbackRoute(route, this.manifest.routes);
+		}
+
+		if (this.manifest.pageMap) {
+			const importComponentInstance = this.manifest.pageMap.get(routeToProcess.component);
+			if (!importComponentInstance) {
+				throw new Error(
+					`Unexpectedly unable to find a component instance for route ${route.route}`,
+				);
+			}
+			return await importComponentInstance();
+		} else if (this.manifest.pageModule) {
+			return this.manifest.pageModule;
+		}
+		throw new Error(
+			"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue.",
+		);
 	}
 
 	async tryRewrite(payload: RewritePayload, request: Request): Promise<TryRewriteResult> {
