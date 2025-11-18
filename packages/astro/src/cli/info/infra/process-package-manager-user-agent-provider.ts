@@ -1,6 +1,6 @@
 import type { PackageManagerUserAgentProvider } from '../definitions.js';
 
-export function createNpmPackageManagerUserAgentProvider(): PackageManagerUserAgentProvider {
+export function createProcessPackageManagerUserAgentProvider(): PackageManagerUserAgentProvider {
 	return {
 		getUserAgent() {
 			// https://docs.npmjs.com/cli/v8/using-npm/config#user-agent
