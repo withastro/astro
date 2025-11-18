@@ -94,6 +94,26 @@ describe('Middleware in DEV mode', () => {
 		assert.notEqual(headers.get('set-cookie'), null);
 	});
 
+	describe('Path encoding in middleware', () => {
+		it('should protect /admin route with auth check', async () => {
+			const res = await fixture.fetch('/admin', { redirect: 'manual' });
+			assert.equal(res.status, 302);
+			assert.equal(res.headers.get('location'), '/');
+		});
+
+		it('should NOT allow accessing /admin with url encoding', async () => {
+			const res = await fixture.fetch('/%61dmin', { redirect: 'manual' });
+			assert.equal(res.status, 302);
+			assert.equal(res.headers.get('location'), '/');
+		});
+
+		it('should NOT allow accessing /admin with fully encoded path', async () => {
+			const res = await fixture.fetch('/%61%64%6d%69%6e', { redirect: 'manual' });
+			assert.equal(res.status, 302);
+			assert.equal(res.headers.get('location'), '/');
+		});
+	});
+
 	describe('Integration hooks', () => {
 		it('Integration middleware marked as "pre" runs', async () => {
 			const res = await fixture.fetch('/integration-pre');
@@ -333,6 +353,36 @@ describe('Middleware API in PROD mode, SSR', () => {
 	it('can set locals for prerendered pages to use', async () => {
 		const text = await fixture.readFile('/client/prerendered/index.html');
 		assert.equal(text.includes('<p>yes they can!</p>'), true);
+	});
+
+	describe('Path encoding in middleware', () => {
+		it('should allow accessing /admin with valid auth header', async () => {
+			const request = new Request('http://example.com/admin', {
+				headers: { Authorization: 'Bearer token123' },
+			});
+			const response = await app.render(request);
+			assert.equal(response.status, 200);
+			const html = await response.text();
+			assert.equal(html.includes('Admin Panel'), true);
+		});
+
+		it('should NOT allow accessing /admin without auth header', async () => {
+			const request = new Request('http://example.com/admin');
+			const response = await app.render(request);
+			assert.equal(response.status, 302);
+		});
+
+		it('should NOT allow accessing /admin with url encoding', async () => {
+			const request = new Request('http://example.com/%61dmin');
+			const response = await app.render(request);
+			assert.equal(response.status, 302);
+		});
+
+		it('should NOT allow accessing /admin with fully encoded path', async () => {
+			const request = new Request('http://example.com/%61%64%6d%69%6e');
+			const response = await app.render(request);
+			assert.equal(response.status, 302);
+		});
 	});
 
 	// keep this last

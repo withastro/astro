@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: remove triage
         if: contains(github.event.label.description, '(priority)') && contains(github.event.issue.labels.*.name, 'needs triage')
-        uses: actions-cool/issues-helper@45d75b6cf72bf4f254be6230cb887ad002702491 # v3.6.3
+        uses: actions-cool/issues-helper@9861779a695cf1898bd984c727f685f351cfc372 # v3.7.2
         with:
           actions: "remove-labels"
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -20,7 +20,7 @@ jobs:
 
       - name: needs repro
         if: github.event.label.name == 'needs repro'
-        uses: actions-cool/issues-helper@45d75b6cf72bf4f254be6230cb887ad002702491 # v3.6.3
+        uses: actions-cool/issues-helper@9861779a695cf1898bd984c727f685f351cfc372 # v3.7.2
         with:
           actions: "create-comment, remove-labels"
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -30,7 +30,7 @@ jobs:
           labels: "needs triage"
       - name: wontfix
         if: github.event.label.name == 'wontfix'
-        uses: actions-cool/issues-helper@45d75b6cf72bf4f254be6230cb887ad002702491 # v3.6.3
+        uses: actions-cool/issues-helper@9861779a695cf1898bd984c727f685f351cfc372 # v3.7.2
         with:
           actions: "create-comment, close-issue"
           token: ${{ secrets.GITHUB_TOKEN }}

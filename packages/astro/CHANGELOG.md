@@ -1,5 +1,114 @@
 # astro
 
+## 5.15.9
+
+### Patch Changes
+
+- [#14786](https://github.com/withastro/astro/pull/14786) [`758a891`](https://github.com/withastro/astro/commit/758a891112839a108479fd0489a1785640b31ecf) Thanks [@mef](https://github.com/mef)! - Add handling of invalid encrypted props and slots in server islands.
+
+- [#14783](https://github.com/withastro/astro/pull/14783) [`504958f`](https://github.com/withastro/astro/commit/504958fe7fccd7bffc177a1f4b1bf4e22989470e) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves the experimental Fonts API build log to show the number of downloaded files. This can help spotting excessive downloading because of misconfiguration
+
+- [#14791](https://github.com/withastro/astro/pull/14791) [`9e9c528`](https://github.com/withastro/astro/commit/9e9c528191b6f5e06db9daf6ad26b8f68016e533) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Changes the remote protocol checks for images to require explicit authorization in order to use data URIs.
+
+  In order to allow data URIs for remote images, you will need to update your `astro.config.mjs` file to include the following configuration:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    images: {
+      remotePatterns: [
+        {
+          protocol: 'data',
+        },
+      ],
+    },
+  });
+  ```
+
+- [#14787](https://github.com/withastro/astro/pull/14787) [`0f75f6b`](https://github.com/withastro/astro/commit/0f75f6bc637d547e07324e956db21d9f245a3e8e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes wildcard hostname pattern matching to correctly reject hostnames without dots
+
+  Previously, hostnames like `localhost` or other single-part names would incorrectly match patterns like `*.example.com`. The wildcard matching logic has been corrected to ensure that only valid subdomains matching the pattern are accepted.
+
+- [#14776](https://github.com/withastro/astro/pull/14776) [`3537876`](https://github.com/withastro/astro/commit/3537876fde3bdb2a0ded99cc9b00d53f66160a7f) Thanks [@ktym4a](https://github.com/ktym4a)! - Fixes the behavior of `passthroughImageService` so it does not generate webp.
+
+- Updated dependencies [[`9e9c528`](https://github.com/withastro/astro/commit/9e9c528191b6f5e06db9daf6ad26b8f68016e533), [`0f75f6b`](https://github.com/withastro/astro/commit/0f75f6bc637d547e07324e956db21d9f245a3e8e)]:
+  - @astrojs/internal-helpers@0.7.5
+  - @astrojs/markdown-remark@6.3.9
+
+## 5.15.8
+
+### Patch Changes
+
+- [#14772](https://github.com/withastro/astro/pull/14772) [`00c579a`](https://github.com/withastro/astro/commit/00c579a23322d92459e4ccad0ec365c4d1980a5d) Thanks [@matthewp](https://github.com/matthewp)! - Improves the security of Server Islands slots by encrypting them before transmission to the browser, matching the security model used for props. This improves the integrity of slot content and prevents injection attacks, even when component templates don't explicitly support slots.
+
+  Slots continue to work as expected for normal usage—this change has no breaking changes for legitimate requests.
+
+- [#14771](https://github.com/withastro/astro/pull/14771) [`6f80081`](https://github.com/withastro/astro/commit/6f800813516b07bbe12c666a92937525fddb58ce) Thanks [@matthewp](https://github.com/matthewp)! - Fix middleware pathname matching by normalizing URL-encoded paths
+
+  Middleware now receives normalized pathname values, ensuring that encoded paths like `/%61dmin` are properly decoded to `/admin` before middleware checks. This prevents potential security issues where middleware checks might be bypassed through URL encoding.
+
+## 5.15.7
+
+### Patch Changes
+
+- [#14765](https://github.com/withastro/astro/pull/14765) [`03fb47c`](https://github.com/withastro/astro/commit/03fb47c0106fda823e4dc89ed98d282ecb5258a0) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `process.env` wouldn't be properly populated during the build
+
+- [#14690](https://github.com/withastro/astro/pull/14690) [`ae7197d`](https://github.com/withastro/astro/commit/ae7197d35676b3745dc9ca71aecbcf3bbbfffb30) Thanks [@fredriknorlin](https://github.com/fredriknorlin)! - Fixes a bug where Astro's i18n fallback system with `fallbackType: 'rewrite'` would not generate fallback files for pages whose filename started with a locale key.
+
+## 5.15.6
+
+### Patch Changes
+
+- [#14751](https://github.com/withastro/astro/pull/14751) [`18c55e1`](https://github.com/withastro/astro/commit/18c55e15eaef56cbe06626b6bdb43ab250ab6f49) Thanks [@delucis](https://github.com/delucis)! - Fixes hydration of client components when running the dev server and using a barrel file that re-exports both Astro and UI framework components.
+
+- [#14750](https://github.com/withastro/astro/pull/14750) [`35122c2`](https://github.com/withastro/astro/commit/35122c278f987f9213b8e1094382398a16090aff) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the experimental Fonts API to log a warning if families with a conflicting `cssVariable` are provided
+
+- [#14737](https://github.com/withastro/astro/pull/14737) [`74c8852`](https://github.com/withastro/astro/commit/74c8852c534cc23217a78979e10885429b290e0b) Thanks [@Arecsu](https://github.com/Arecsu)! - Fixes an error when using `transition:persist` with components that use declarative Shadow DOM. Astro now avoids re-attaching a shadow root if one already exists, preventing `"Unable to re-attach to existing ShadowDOM"` navigation errors.
+
+- [#14750](https://github.com/withastro/astro/pull/14750) [`35122c2`](https://github.com/withastro/astro/commit/35122c278f987f9213b8e1094382398a16090aff) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the experimental Fonts API to allow for more granular configuration of remote font families
+
+  A font family is defined by a combination of properties such as weights and styles (e.g. `weights: [500, 600]` and `styles: ["normal", "bold"]`), but you may want to download only certain combinations of these.
+
+  For greater control over which font files are downloaded, you can specify the same font (ie. with the same `cssVariable`, `name`, and `provider` properties) multiple times with different combinations. Astro will merge the results and download only the required files. For example, it is possible to download normal `500` and `600` while downloading only italic `500`:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig, fontProviders } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      fonts: [
+        {
+          name: 'Roboto',
+          cssVariable: '--roboto',
+          provider: fontProviders.google(),
+          weights: [500, 600],
+          styles: ['normal'],
+        },
+        {
+          name: 'Roboto',
+          cssVariable: '--roboto',
+          provider: fontProviders.google(),
+          weights: [500],
+          styles: ['italic'],
+        },
+      ],
+    },
+  });
+  ```
+
+## 5.15.5
+
+### Patch Changes
+
+- [#14712](https://github.com/withastro/astro/pull/14712) [`91780cf`](https://github.com/withastro/astro/commit/91780cffa7cf97cc22694d55962710609a5475b0) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where build's `process.env` would be inlined in the server output
+
+- [#14713](https://github.com/withastro/astro/pull/14713) [`666d5a7`](https://github.com/withastro/astro/commit/666d5a7ef486aa57f20f87b6cb210619dabd9c4c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves fallbacks generation when using the experimental Fonts API
+
+- [#14743](https://github.com/withastro/astro/pull/14743) [`dafbb1b`](https://github.com/withastro/astro/commit/dafbb1ba29912099c4faff1440033edc768af8b4) Thanks [@matthewp](https://github.com/matthewp)! - Improves `X-Forwarded` header validation to prevent cache poisoning and header injection attacks. Now properly validates `X-Forwarded-Proto`, `X-Forwarded-Host`, and `X-Forwarded-Port` headers against configured `allowedDomains` patterns, rejecting malformed or suspicious values. This is especially important when running behind a reverse proxy or load balancer.
+
 ## 5.15.4
 
 ### Patch Changes

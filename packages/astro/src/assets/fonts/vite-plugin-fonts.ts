@@ -333,7 +333,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
 				}
 				if (fontFileDataMap) {
-					logger.info('assets', 'Copying fonts...');
+					logger.info(
+						'assets',
+						`Copying fonts (${fontFileDataMap.size} file${fontFileDataMap.size === 1 ? '' : 's'})...`,
+					);
 					await Promise.all(
 						Array.from(fontFileDataMap.entries()).map(async ([hash, associatedData]) => {
 							const data = await fontFetcher!.fetch({ hash, ...associatedData });
