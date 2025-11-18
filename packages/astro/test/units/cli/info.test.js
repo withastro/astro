@@ -6,6 +6,8 @@ import { infoCommand } from '../../../dist/cli/info/core/info.js';
 import { createCliClipboard } from '../../../dist/cli/info/infra/cli-clipboard.js';
 import { createCliDebugInfoProvider } from '../../../dist/cli/info/infra/cli-debug-info-provider.js';
 import { createDevDebugInfoProvider } from '../../../dist/cli/info/infra/dev-debug-info-provider.js';
+import { createNpmPackageManagerUserAgentProvider } from '../../../dist/cli/info/infra/npm-package-manager-user-agent-provider.js';
+import { createProcessNodeVersionProvider } from '../../../dist/cli/info/infra/process-node-version-provider.js';
 import { createSpyLogger } from '../test-utils.js';
 import {
 	createFakeAstroVersionProvider,
@@ -572,7 +574,15 @@ describe('CLI info', () => {
 			});
 		});
 
-		// TODO: createNpmPackageManagerUserAgentProvider
-		// TODO: createNpmPackageManagerUserAgentProvider
+		it('createNpmPackageManagerUserAgentProvider()', () => {
+			assert.equal(
+				createNpmPackageManagerUserAgentProvider().getUserAgent(),
+				process.env.npm_config_user_agent ?? null,
+			);
+		});
+
+		it('createProcessNodeVersionProvider()', () => {
+			assert.equal(createProcessNodeVersionProvider().get(), process.version);
+		});
 	});
 });
