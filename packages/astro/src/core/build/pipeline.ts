@@ -9,11 +9,11 @@ import { getVirtualModulePageName } from '../../vite-plugin-pages/util.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SSRManifest } from '../app/types.js';
 import type { TryRewriteResult } from '../base-pipeline.js';
-import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
 import { Pipeline } from '../render/index.js';
 import { createAssetLink, createStylesheetElementSet } from '../render/ssr-element.js';
 import { createDefaultRoutes } from '../routing/default.js';
+import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import { getOutDirWithinCwd } from './common.js';
 import { type BuildInternals, cssOrder, getPageData, mergeInlineCss } from './internal.js';
@@ -144,6 +144,17 @@ export class BuildPipeline extends Pipeline {
 		const pages = new Map<RouteData, string>();
 
 		for (const { routeData } of this.manifest.routes) {
+			if (routeIsRedirect(routeData)) {
+				// the component path isn't really important for redirects
+				pages.set(routeData, '');
+				continue;
+			}
+
+			if (routeIsFallback(routeData) && i18nHasFallback(this.manifest)) {
+				pages.set(routeData, '');
+				continue;
+			}
+
 			// Here, we take the component path and transform it in the virtual module name
 			const moduleSpecifier = getVirtualModulePageName(
 				VIRTUAL_PAGE_RESOLVED_MODULE_ID,
@@ -202,6 +213,7 @@ export class BuildPipeline extends Pipeline {
 			// SAFETY: it is checked inside the if
 			return this.#componentsInterner.get(route)!;
 		}
+
 		let entry;
 		if (routeIsRedirect(route)) {
 			entry = await this.#getEntryForRedirectRoute(route, this.outFolder);
@@ -222,8 +234,12 @@ export class BuildPipeline extends Pipeline {
 		if (route.type !== 'fallback') {
 			throw new Error(`Expected a redirect route.`);
 		}
-		if (route.redirectRoute) {
-			const filePath = getEntryFilePath(this.internals, route.redirectRoute);
+
+		// Retrieve the route where we should fall back
+		let fallbackRoute = getFallbackRoute(route, this.manifest.routes);
+
+		if (fallbackRoute) {
+			const filePath = getEntryFilePath(this.internals, fallbackRoute);
 			if (filePath) {
 				const url = createEntryURL(filePath, outFolder);
 				const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
@@ -264,4 +280,13 @@ function createEntryURL(filePath: string, outFolder: URL) {
 function getEntryFilePath(internals: BuildInternals, pageData: RouteData) {
 	const id = '\x00' + getVirtualModulePageName(VIRTUAL_PAGE_MODULE_ID, pageData.component);
 	return internals.entrySpecifierToBundleMap.get(id);
+}
+
+function i18nHasFallback(manifest: SSRManifest): boolean {
+	if (manifest.i18n && manifest.i18n.fallback) {
+		// we have some fallback and the control is not none
+		return Object.keys(manifest.i18n.fallback).length > 0;
+	}
+
+	return false;
 }

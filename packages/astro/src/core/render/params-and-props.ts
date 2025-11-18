@@ -5,8 +5,7 @@ import type { RouteData } from '../../types/public/internal.js';
 import { DEFAULT_404_COMPONENT } from '../constants.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
-import { routeIsFallback } from '../redirects/helpers.js';
-import { routeIsRedirect } from '../redirects/index.js';
+import { routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import type { RouteCache } from './route-cache.js';
 import { callGetStaticPaths, findPathItemByKey } from './route-cache.js';
 
