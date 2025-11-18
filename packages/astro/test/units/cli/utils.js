@@ -152,3 +152,16 @@ export function createFakePrompt(confirmed) {
 		},
 	};
 }
+
+/**
+ *
+ * @param {`v${string}`} version
+ * @returns {import("../../../dist/cli/info/definitions.js").NodeVersionProvider}
+ */
+export function createFakeNodeVersionProvider(version) {
+	return {
+		get() {
+			return version;
+		},
+	};
+}

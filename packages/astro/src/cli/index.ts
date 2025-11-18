@@ -100,6 +100,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				{ createProcessOperatingSystemProvider },
 				{ createCliAstroConfigResolver },
 				{ createNpmPackageManagerUserAgentProvider },
+				{ createProcessNodeVersionProvider },
 				{ createCliDebugInfoProvider },
 				{ createTinyexecCommandExecutor },
 				{ getPackageManager },
@@ -112,6 +113,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				import('./infra/process-operating-system-provider.js'),
 				import('./info/infra/cli-astro-config-resolver.js'),
 				import('./info/infra/npm-package-manager-user-agent-provider.js'),
+				import('./info/infra/process-node-version-provider.js'),
 				import('./info/infra/cli-debug-info-provider.js'),
 				import('./infra/tinyexec-command-executor.js'),
 				import('./info/core/get-package-manager.js'),
@@ -125,6 +127,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			const astroConfigResolver = createCliAstroConfigResolver({ flags });
 			const commandExecutor = createTinyexecCommandExecutor();
 			const packageManagerUserAgentProvider = createNpmPackageManagerUserAgentProvider();
+			const nodeVersionProvider = createProcessNodeVersionProvider();
 			const debugInfoProvider = createCliDebugInfoProvider({
 				config: await astroConfigResolver.resolve(),
 				astroVersionProvider,
@@ -133,6 +136,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 					packageManagerUserAgentProvider,
 					commandExecutor,
 				}),
+				nodeVersionProvider,
 			});
 			const prompt = createPromptsPrompt({ force: flags.copy });
 			const clipboard = createCliClipboard({

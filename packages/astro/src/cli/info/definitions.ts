@@ -29,3 +29,7 @@ export interface Prompt {
 export interface PackageManagerUserAgentProvider {
 	getUserAgent: () => string | null;
 }
+
+export interface NodeVersionProvider {
+	get: () => string;
+}

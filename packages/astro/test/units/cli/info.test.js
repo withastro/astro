@@ -9,6 +9,7 @@ import { createSpyLogger } from '../test-utils.js';
 import {
 	createFakeAstroVersionProvider,
 	createFakeDebugInfoProvider,
+	createFakeNodeVersionProvider,
 	createFakeOperatingSystemProvider,
 	createFakePackageManagerUserAgentProvider,
 	createFakePrompt,
@@ -220,6 +221,7 @@ describe('CLI info', () => {
 			it('returns basic infos', async () => {
 				const astroVersionProvider = createFakeAstroVersionProvider('5.5.5');
 				const operatingSystemProvider = createFakeOperatingSystemProvider('win32');
+				const nodeVersionProvider = createFakeNodeVersionProvider('v10.1.7');
 
 				const debugInfoProvider = createCliDebugInfoProvider({
 					config: {
@@ -235,12 +237,13 @@ describe('CLI info', () => {
 							return undefined;
 						},
 					},
+					nodeVersionProvider,
 				});
 				const debugInfo = await debugInfoProvider.get();
 
 				assert.deepStrictEqual(debugInfo, [
 					['Astro', 'v5.5.5'],
-					['Node', 'v22.19.0'],
+					['Node', 'v10.1.7'],
 					['System', 'win32'],
 					['Package Manager', 'pnpm'],
 					['Output', 'static'],
