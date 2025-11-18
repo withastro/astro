@@ -140,32 +140,37 @@ export class BuildPipeline extends Pipeline {
 	 * It collects the routes to generate during the build.
 	 * It returns a map of page information and their relative entry point as a string.
 	 */
-	retrieveRoutesToGenerate(): Map<RouteData, string> {
-		const pages = new Map<RouteData, string>();
+	retrieveRoutesToGenerate(): Set<RouteData> {
+		const pages = new Set<RouteData>();
 
 		for (const { routeData } of this.manifest.routes) {
 			if (routeIsRedirect(routeData)) {
 				// the component path isn't really important for redirects
-				pages.set(routeData, '');
+				pages.add(routeData);
 				continue;
 			}
 
 			if (routeIsFallback(routeData) && i18nHasFallback(this.manifest)) {
-				pages.set(routeData, '');
+				pages.add(routeData);
 				continue;
 			}
+
+			// A regular page, add it to the set
+			pages.add(routeData);
+
+			// TODO The following is almost definitely legacy. We can remove it when we confirm
+			// getComponentByRoute is not actually used.
 
 			// Here, we take the component path and transform it in the virtual module name
 			const moduleSpecifier = getVirtualModulePageName(
 				VIRTUAL_PAGE_RESOLVED_MODULE_ID,
 				routeData.component,
 			);
+			
 			// We retrieve the original JS module
 			const filePath = this.internals.entrySpecifierToBundleMap.get(moduleSpecifier);
+			
 			if (filePath) {
-				// it exists, added it to pages to render, using the file path that we just retrieved
-				pages.set(routeData, filePath);
-
 				// Populate the cache
 				this.#routesByFilePath.set(routeData, filePath);
 			}
@@ -174,6 +179,7 @@ export class BuildPipeline extends Pipeline {
 		return pages;
 	}
 
+	// TODO This method can almost definitely be removed and we don't use it.
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
 		if (this.#componentsInterner.has(routeData)) {
 			// SAFETY: checked before
