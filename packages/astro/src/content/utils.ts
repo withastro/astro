@@ -63,17 +63,17 @@ const collectionConfigParser = z.union([
 				load: z.function().args(z.custom<LoaderContext>()).returns(z.promise(z.void())),
 				schema: z
 					.any()
-					.superRefine((v, ctx) => {
+					.transform((v) => {
 						if (typeof v === 'function') {
-							ctx.addIssue({
-								code: z.ZodIssueCode.custom,
-								// TODO: remove in Astro 7
-								message:
-									'Since Astro 6, a loader schema cannot be a function. Report it to the loader author or check the docs: TODO:',
-							});
-							return z.NEVER;
+							console.warn(
+								`Since Astro 6, a loader schema cannot be a function. It is ignored and will break in a future major. Report it to the loader author or check the docs: TODO:`,
+							);
+							return undefined;
 						}
-						if (!('_def' in v)) {
+						return v;
+					})
+					.superRefine((v, ctx) => {
+						if (v !== undefined && !('_def' in v)) {
 							ctx.addIssue({
 								code: z.ZodIssueCode.custom,
 								message: 'Invalid Zod schema',

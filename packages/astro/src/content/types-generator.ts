@@ -513,10 +513,14 @@ async function writeContentFiles({
 
 			contentCollectionManifest.collections.push({
 				hasSchema: Boolean(
-					collectionConfig &&
-						(collectionConfig.schema ||
-							(typeof collectionConfig.loader !== 'function' &&
-								(collectionConfig.loader.schema || schemaContextResultCache.has(collectionKey)))),
+					// Is there a user provided schema or
+					collectionConfig?.schema ||
+						// Is it a loader object and
+						(typeof collectionConfig?.loader !== 'function' &&
+							// Is it a loader static schema or
+							(collectionConfig?.loader.schema ||
+								// is it a loader dynamic schema
+								schemaContextResultCache.has(collectionKey))),
 				),
 				name: key,
 			});
