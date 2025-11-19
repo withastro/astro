@@ -15,7 +15,7 @@ export default async function createAstroServerApp(
 	loader: ModuleLoader,
 	logger?: Logger,
 ) {
-	const actualLogger = logger || new Logger({
+	const actualLogger = logger ?? new Logger({
 		dest: nodeLogDestination,
 		level: settings.logLevel,
 	});
