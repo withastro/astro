@@ -1,5 +1,6 @@
 import type { GetModuleInfo } from 'rollup';
 import type { BuildOptions, ResolvedConfig, Plugin as VitePlugin } from 'vite';
+import { isCSSRequest } from 'vite';
 import { hasAssetPropagationFlag } from '../../../content/index.js';
 import {
 	getParentExtendedModuleInfos,
@@ -49,6 +50,46 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		},
 
 		async generateBundle(_outputOptions, bundle) {
+			// Collect CSS modules that were bundled during SSR build for deduplication in client build
+			if (this.environment?.name === 'ssr' || this.environment?.name === 'prerender') {
+				for (const [, chunk] of Object.entries(bundle)) {
+					if (chunk.type !== 'chunk') continue;
+
+					// Track all CSS modules that are bundled during SSR
+					// so we can avoid creating separate CSS files for them in client build
+					for (const moduleId of Object.keys(chunk.modules || {})) {
+						if (isCSSRequest(moduleId)) {
+							internals.cssModuleToChunkIdMap.set(moduleId, chunk.fileName);
+						}
+					}
+				}
+			}
+
+			// Remove CSS files from client bundle that were already bundled with pages during SSR
+			if (this.environment?.name === 'client') {
+				for (const [, item] of Object.entries(bundle)) {
+					if (item.type !== 'chunk') continue;
+					if ('viteMetadata' in item === false) continue;
+					const meta = item.viteMetadata as ViteMetadata;
+
+					// Check if this chunk contains CSS modules that were already in SSR
+					const allModules = Object.keys(item.modules || {});
+					const cssModules = allModules.filter(m => isCSSRequest(m));
+
+					if (cssModules.length > 0) {
+						// Check if ALL CSS modules in this chunk were already bundled in SSR
+						const allCssInSSR = cssModules.every(moduleId => internals.cssModuleToChunkIdMap.has(moduleId));
+
+						if (allCssInSSR && shouldDeleteCSSChunk(allModules, internals)) {
+							// Delete the CSS assets that were imported by this chunk
+							for (const cssId of meta.importedCss) {
+								delete bundle[cssId];
+							}
+						}
+					}
+				}
+			}
+
 			for (const [, chunk] of Object.entries(bundle)) {
 				if (chunk.type !== 'chunk') continue;
 				if ('viteMetadata' in chunk === false) continue;
@@ -202,6 +243,49 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 }
 
 /***** UTILITY FUNCTIONS *****/
+
+/**
+ * Check if a CSS chunk should be deleted. Only delete if it contains client-only or hydrated
+ * components that are NOT also used on other pages.
+ */
+function shouldDeleteCSSChunk(
+	allModules: string[],
+	internals: BuildInternals,
+): boolean {
+	// Find all components in this chunk that are client-only or hydrated
+	const componentPaths = new Set<string>();
+
+	for (const componentPath of internals.discoveredClientOnlyComponents.keys()) {
+		if (allModules.some(m => m.includes(componentPath))) {
+			componentPaths.add(componentPath);
+		}
+	}
+
+	for (const componentPath of internals.discoveredHydratedComponents.keys()) {
+		if (allModules.some(m => m.includes(componentPath))) {
+			componentPaths.add(componentPath);
+		}
+	}
+
+	// If no special components found, don't delete
+	if (componentPaths.size === 0) return false;
+
+	// Check if any component is used on non-client-only pages
+	for (const componentPath of componentPaths) {
+		const pagesUsingClientOnly = internals.pagesByClientOnly.get(componentPath);
+		if (pagesUsingClientOnly) {
+			// If every page using this component is in the client-only set, it's safe to delete
+			// Otherwise, keep the CSS for pages that use it normally
+			for (const pageData of internals.pagesByKeys.values()) {
+				if (!pagesUsingClientOnly.has(pageData)) {
+					return false;
+				}
+			}
+		}
+	}
+
+	return true;
+}
 
 function* getParentClientOnlys(
 	id: string,
