@@ -79,3 +79,8 @@ declare module 'virtual:astro:dev-css' {
 	import type { ImportedDevStyles } from './src/types/astro.js';
 	export const css: Set<ImportedDevStyles>;
 }
+
+declare module 'virtual:astro:logger' {
+	import type { Logger } from './src/core/logger/core.js';
+	export const logger: Logger;
+}
