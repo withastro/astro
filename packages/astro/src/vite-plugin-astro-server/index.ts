@@ -1,2 +1,5 @@
 export { createController, runWithErrorHandling } from './controller.js';
-export { default as vitePluginAstroServer, createVitePluginAstroServerClient as vitePluginAstroServerClient  } from './plugin.js';
+export {
+	createVitePluginAstroServerClient as vitePluginAstroServerClient,
+	default as vitePluginAstroServer,
+} from './plugin.js';
