@@ -10,7 +10,7 @@ export function createProcessOperatingSystemProvider(): OperatingSystemProvider 
 	const platform = process.platform;
 	return {
 		get name() {
-			return platform
+			return platform;
 		},
 		get displayName() {
 			const system = PLATFORM_TO_OS[platform] ?? platform;
