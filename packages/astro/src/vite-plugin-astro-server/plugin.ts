@@ -59,7 +59,7 @@ export default function createVitePluginAstroServer({
 			const loader = createViteLoader(viteServer, environment);
 			const { default: createAstroServerApp } = await environment.runner.import(ASTRO_DEV_APP_ID);
 			const controller = createController({ loader });
-			const { handler } = await createAstroServerApp(controller, settings, loader);
+			const { handler } = await createAstroServerApp(controller, settings, loader, logger);
 			const { manifest } = await environment.runner.import<{
 				manifest: SSRManifest;
 			}>(SERIALIZED_MANIFEST_ID);

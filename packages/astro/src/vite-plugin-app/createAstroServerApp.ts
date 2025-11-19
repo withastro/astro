@@ -13,14 +13,15 @@ export default async function createAstroServerApp(
 	controller: DevServerController,
 	settings: AstroSettings,
 	loader: ModuleLoader,
+	logger?: Logger,
 ) {
-	const logger = new Logger({
+	const actualLogger = logger ?? new Logger({
 		dest: nodeLogDestination,
 		level: settings.logLevel,
 	});
 	const routesList: RoutesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
 
-	const app = await AstroServerApp.create(manifest, routesList, logger, loader, settings);
+	const app = await AstroServerApp.create(manifest, routesList, actualLogger, loader, settings);
 	return {
 		handler(incomingRequest: http.IncomingMessage, incomingResponse: http.ServerResponse) {
 			app.handleRequest({
