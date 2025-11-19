@@ -67,7 +67,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 
 			// Remove CSS files from client bundle that were already bundled with pages during SSR
 			if (this.environment?.name === 'client') {
-				for (const [bundleId, item] of Object.entries(bundle)) {
+				for (const [, item] of Object.entries(bundle)) {
 					if (item.type !== 'chunk') continue;
 					if ('viteMetadata' in item === false) continue;
 					const meta = item.viteMetadata as ViteMetadata;
