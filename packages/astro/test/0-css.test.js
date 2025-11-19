@@ -330,6 +330,27 @@ describe('CSS', function () {
 				assert.equal(el.text(), '.foo {color: red;}');
 			});
 		});
+
+		it('remove unused styles from client:load components', async () => {
+			const bundledAssets = await fixture.readdir('./_astro');
+			// SvelteDynamic styles is already included in the main page css asset
+			const unusedCssAsset = bundledAssets.find((asset) => /SvelteDynamic\..*\.css/.test(asset));
+			assert.equal(unusedCssAsset, undefined, 'Found unused style ' + unusedCssAsset);
+
+			let foundVitePreloadCSS = false;
+			const bundledJS = await fixture.glob('**/*.?(m)js');
+			for (const filename of bundledJS) {
+				const content = await fixture.readFile(filename);
+				if (content.match(/ReactDynamic\..*\.css/)) {
+					foundVitePreloadCSS = filename;
+				}
+			}
+			assert.equal(
+				foundVitePreloadCSS,
+				false,
+				'Should not have found a preload for the dynamic CSS',
+			);
+		});
 	});
 
 	// with "build" handling CSS checking, the dev tests are mostly testing the paths resolve in dev
@@ -411,29 +432,8 @@ describe('CSS', function () {
 			assert.equal(allInjectedStyles.includes('.vue-css{'), true);
 			assert.equal(allInjectedStyles.includes('.vue-sass{'), true);
 			assert.equal(allInjectedStyles.includes('.vue-scss{'), true);
-			assert.equal(allInjectedStyles.includes('.vue-scoped[data-v-'), true);
+			assert.equal(allInjectedStyles.includes('.vue-scoped{'), true);
 			assert.equal(allInjectedStyles.includes('._vueModules_'), true);
-		});
-
-		it('remove unused styles from client:load components', async () => {
-			const bundledAssets = await fixture.readdir('./_astro');
-			// SvelteDynamic styles is already included in the main page css asset
-			const unusedCssAsset = bundledAssets.find((asset) => /SvelteDynamic\..*\.css/.test(asset));
-			assert.equal(unusedCssAsset, undefined, 'Found unused style ' + unusedCssAsset);
-
-			let foundVitePreloadCSS = false;
-			const bundledJS = await fixture.glob('**/*.?(m)js');
-			for (const filename of bundledJS) {
-				const content = await fixture.readFile(filename);
-				if (content.match(/ReactDynamic\..*\.css/)) {
-					foundVitePreloadCSS = filename;
-				}
-			}
-			assert.equal(
-				foundVitePreloadCSS,
-				false,
-				'Should not have found a preload for the dynamic CSS',
-			);
 		});
 
 		it('.module.css ordering', () => {
