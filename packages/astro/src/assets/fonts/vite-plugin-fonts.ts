@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import type { Plugin } from 'vite';
 import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
 import { generateCspDigest } from '../../core/encryption.js';
@@ -333,7 +333,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
 				}
 				if (fontFileDataMap) {
-					logger.info('assets', 'Copying fonts...');
+					logger.info(
+						'assets',
+						`Copying fonts (${fontFileDataMap.size} file${fontFileDataMap.size === 1 ? '' : 's'})...`,
+					);
 					await Promise.all(
 						Array.from(fontFileDataMap.entries()).map(async ([hash, associatedData]) => {
 							const data = await fontFetcher!.fetch({ hash, ...associatedData });

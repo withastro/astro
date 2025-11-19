@@ -2,7 +2,7 @@ import { createRequire } from 'node:module';
 import * as clack from '@clack/prompts';
 import ci from 'ci-info';
 import { detect, resolveCommand } from 'package-manager-detector';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import type { Logger } from '../core/logger/core.js';
 import { exec } from './exec.js';
 

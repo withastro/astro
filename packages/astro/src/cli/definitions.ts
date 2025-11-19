@@ -17,7 +17,7 @@ export interface TextStyler {
 }
 
 export interface AstroVersionProvider {
-	getVersion: () => string;
+	readonly version: string;
 }
 
 export interface CommandRunner {
@@ -39,6 +39,6 @@ export interface CommandExecutor {
 }
 
 export interface OperatingSystemProvider {
-	getName: () => NodeJS.Platform;
-	getDisplayName: () => string;
+	readonly name: NodeJS.Platform;
+	readonly displayName: string;
 }
