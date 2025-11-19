@@ -1,9 +1,9 @@
 import { extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isRunnableDevEnvironment, type OutputChunk, type Plugin, type RunnableDevEnvironment } from 'vite';
 import type * as vite from 'vite';
-import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { isRunnableDevEnvironment, type Plugin, type RunnableDevEnvironment } from 'vite';
 import type { BuildInternals } from '../core/build/internal.js';
+import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { createViteLoader } from '../core/module-loader/vite.js';
 import { wrapId } from '../core/util.js';
@@ -202,15 +202,17 @@ export async function contentAssetsBuildPostHook(
 	}: {
 		ssrOutputs: vite.Rollup.RollupOutput[];
 		prerenderOutputs: vite.Rollup.RollupOutput[];
-		mutate: (chunk: OutputChunk, envs: ['server'], code: string) => void;
+		mutate: (chunk: vite.Rollup.OutputChunk, envs: ['server'], code: string) => void;
 	},
 ) {
 	// Flatten all output chunks from both SSR and prerender builds
-	const outputs = ssrOutputs.flatMap((o) => o.output).concat(
-		...(Array.isArray(prerenderOutputs) ? prerenderOutputs : [prerenderOutputs]).flatMap(
-			(o) => o.output,
-		),
-	);
+	const outputs = ssrOutputs
+		.flatMap((o) => o.output)
+		.concat(
+			...(Array.isArray(prerenderOutputs) ? prerenderOutputs : [prerenderOutputs]).flatMap(
+				(o) => o.output,
+			),
+		);
 
 	// Process each chunk that contains placeholder placeholders for styles/links
 	for (const chunk of outputs) {
@@ -257,6 +259,6 @@ export async function contentAssetsBuildPostHook(
 			newCode = newCode.replace(JSON.stringify(LINKS_PLACEHOLDER), '[]');
 		}
 		// Persist the mutation for writing to disk
-		mutate(chunk as OutputChunk, ['server'], newCode);
+		mutate(chunk as vite.Rollup.OutputChunk, ['server'], newCode);
 	}
 }
