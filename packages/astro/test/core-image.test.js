@@ -134,7 +134,7 @@ describe('astro:image', () => {
 				assert.equal(res.status, 200);
 			});
 
-			it("errors when an ESM imported image's src is passed to Image/getImage instead of the full import", async () => {
+			it("errors when an ESM imported image's src is passed to Image/getImage instead of the full import", {only: true}, async () => {
 				logs.length = 0;
 				let res = await fixture.fetch('/error-image-src-passed');
 				await res.text();

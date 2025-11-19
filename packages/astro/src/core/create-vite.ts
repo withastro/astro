@@ -41,7 +41,7 @@ import astroPluginRoutes from '../vite-plugin-routes/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
-import { setCurrentLogger, vitePluginLogger } from '../vite-plugin-logger/index.js';
+
 import type { Logger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
@@ -95,8 +95,7 @@ export async function createVite(
 	commandConfig: vite.InlineConfig,
 	{ settings, logger, mode, command, fs = nodeFs, sync, routesList }: CreateViteOptions,
 ): Promise<vite.InlineConfig> {
-	// Set the current logger for the virtual logger module
-	setCurrentLogger(logger);
+
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
 		isBuild: command === 'build',
@@ -150,7 +149,6 @@ export async function createVite(
 			exclude: ['astro', 'node-fetch'],
 		},
 		plugins: [
-			vitePluginLogger(),
 			serializedManifestPlugin({ settings, command }),
 			vitePluginRenderers({ settings }),
 			await astroPluginRoutes({ routesList, settings, logger, fsMod: fs }),
