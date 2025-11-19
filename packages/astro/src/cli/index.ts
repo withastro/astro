@@ -96,9 +96,65 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			return;
 		}
 		case 'info': {
-			const { printInfo } = await import('./info/index.js');
-			await printInfo({ flags });
-			return;
+			const [
+				{ createProcessOperatingSystemProvider },
+				{ createCliAstroConfigResolver },
+				{ createProcessPackageManagerUserAgentProvider },
+				{ createProcessNodeVersionProvider },
+				{ createCliDebugInfoProvider },
+				{ createTinyexecCommandExecutor },
+				{ getPackageManager },
+				{ createStyledDebugInfoFormatter },
+				{ createPromptsPrompt },
+				{ createCliClipboard },
+				{ createPassthroughTextStyler },
+				{ infoCommand },
+			] = await Promise.all([
+				import('./infra/process-operating-system-provider.js'),
+				import('./info/infra/cli-astro-config-resolver.js'),
+				import('./info/infra/process-package-manager-user-agent-provider.js'),
+				import('./info/infra/process-node-version-provider.js'),
+				import('./info/infra/cli-debug-info-provider.js'),
+				import('./infra/tinyexec-command-executor.js'),
+				import('./info/core/get-package-manager.js'),
+				import('./info/infra/styled-debug-info-formatter.js'),
+				import('./info/infra/prompts-prompt.js'),
+				import('./info/infra/cli-clipboard.js'),
+				import('./infra/passthrough-text-styler.js'),
+				import('./info/core/info.js'),
+			]);
+			const operatingSystemProvider = createProcessOperatingSystemProvider();
+			const astroConfigResolver = createCliAstroConfigResolver({ flags });
+			const commandExecutor = createTinyexecCommandExecutor();
+			const packageManagerUserAgentProvider = createProcessPackageManagerUserAgentProvider();
+			const nodeVersionProvider = createProcessNodeVersionProvider();
+			const debugInfoProvider = createCliDebugInfoProvider({
+				config: await astroConfigResolver.resolve(),
+				astroVersionProvider,
+				operatingSystemProvider,
+				packageManager: await getPackageManager({
+					packageManagerUserAgentProvider,
+					commandExecutor,
+				}),
+				nodeVersionProvider,
+			});
+			const prompt = createPromptsPrompt({ force: flags.copy });
+			const clipboard = createCliClipboard({
+				commandExecutor,
+				logger,
+				operatingSystemProvider,
+				prompt,
+			});
+
+			return await runner.run(infoCommand, {
+				logger,
+				debugInfoProvider,
+				getDebugInfoFormatter: ({ pretty }) =>
+					createStyledDebugInfoFormatter({
+						textStyler: pretty ? textStyler : createPassthroughTextStyler(),
+					}),
+				clipboard,
+			});
 		}
 		case 'create-key': {
 			const [{ createCryptoKeyGenerator }, { createKeyCommand }] = await Promise.all([
