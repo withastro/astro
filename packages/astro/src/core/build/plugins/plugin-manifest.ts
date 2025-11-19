@@ -228,7 +228,7 @@ async function buildManifest(
 
 			scripts.push({
 				type: 'external',
-				value: prefixAssetPath(src),
+				value: src,
 			});
 		}
 
@@ -238,7 +238,6 @@ async function buildManifest(
 		const styles = pageData.styles
 			.sort(cssOrder)
 			.map(({ sheet }) => sheet)
-			.map((s) => (s.type === 'external' ? { ...s, src: prefixAssetPath(s.src) } : s))
 			.reduce(mergeInlineCss, []);
 
 		routes.push({

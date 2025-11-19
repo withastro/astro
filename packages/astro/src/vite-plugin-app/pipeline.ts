@@ -24,6 +24,7 @@ import type {
 } from '../types/public/index.js';
 import { getComponentMetadata } from '../vite-plugin-astro-server/metadata.js';
 import { createResolve } from '../vite-plugin-astro-server/resolve.js';
+import { getDevCSSModuleName } from '../vite-plugin-css/util.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 
 export class AstroServerPipeline extends Pipeline {
@@ -120,7 +121,7 @@ export class AstroServerPipeline extends Pipeline {
 			}
 		}
 
-		const { css } = await import('virtual:astro:dev-css');
+		const { css } = await loader.import(getDevCSSModuleName(routeData.component));
 
 		// Pass framework CSS in as style tags to be appended to the page.
 		const links = new Set<SSRElement>();

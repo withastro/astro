@@ -235,6 +235,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 							entryFileNames: `${settings.config.build.assets}/[name].[hash].js`,
 							chunkFileNames: `${settings.config.build.assets}/[name].[hash].js`,
 							assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
+							...viteConfig.environments?.client?.build?.rollupOptions?.output,
 						},
 					},
 				},
