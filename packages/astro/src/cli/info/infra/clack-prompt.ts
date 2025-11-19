@@ -13,7 +13,7 @@ export function createClackPrompt({ force }: Options): Prompt {
 			}
 			return await confirm({
 				message,
-				initial: defaultValue,
+				initialValue: defaultValue,
 			});
 		},
 	};
