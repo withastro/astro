@@ -1,7 +1,9 @@
 import { extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isRunnableDevEnvironment, type Plugin, type RunnableDevEnvironment } from 'vite';
+import { isRunnableDevEnvironment, type OutputChunk, type Plugin, type RunnableDevEnvironment } from 'vite';
+import type * as vite from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import type { BuildInternals } from '../core/build/internal.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import { createViteLoader } from '../core/module-loader/vite.js';
 import { wrapId } from '../core/util.js';
@@ -184,4 +186,77 @@ async function getStylesForURL(
 		styles: [...importedStylesMap.values()],
 		crawledFiles,
 	};
+}
+
+/**
+ * Post-build hook that injects propagated styles into content collection chunks.
+ * Finds chunks with LINKS_PLACEHOLDER and STYLES_PLACEHOLDER, and replaces them
+ * with actual styles from propagatedStylesMap.
+ */
+export async function contentAssetsBuildPostHook(
+	internals: BuildInternals,
+	{
+		ssrOutputs,
+		prerenderOutputs,
+		mutate,
+	}: {
+		ssrOutputs: vite.Rollup.RollupOutput[];
+		prerenderOutputs: vite.Rollup.RollupOutput[];
+		mutate: (chunk: OutputChunk, envs: ['server'], code: string) => void;
+	},
+) {
+	// Flatten all output chunks from both SSR and prerender builds
+	const outputs = ssrOutputs.flatMap((o) => o.output).concat(
+		...(Array.isArray(prerenderOutputs) ? prerenderOutputs : [prerenderOutputs]).flatMap(
+			(o) => o.output,
+		),
+	);
+
+	// Process each chunk that contains placeholder placeholders for styles/links
+	for (const chunk of outputs) {
+		if (chunk.type !== 'chunk') continue;
+		// Skip chunks that don't have content placeholders to inject
+		if (!chunk.code.includes(LINKS_PLACEHOLDER)) continue;
+
+		const entryStyles = new Set<string>();
+		const entryLinks = new Set<string>();
+
+		// For each module in this chunk, look up propagated styles from the map
+		for (const id of chunk.moduleIds) {
+			const entryCss = internals.propagatedStylesMap.get(id);
+			if (entryCss) {
+				// Collect both inline content and external links
+				// TODO: Separating styles and links this way is not ideal. The `entryCss` list is order-sensitive
+				// and splitting them into two sets causes the order to be lost, because styles are rendered after
+				// links. Refactor this away in the future.
+				for (const value of entryCss) {
+					if (value.type === 'inline') entryStyles.add(value.content);
+					if (value.type === 'external') entryLinks.add(value.src);
+				}
+			}
+		}
+
+		// Replace placeholders with actual styles and links
+		let newCode = chunk.code;
+		if (entryStyles.size) {
+			newCode = newCode.replace(
+				JSON.stringify(STYLES_PLACEHOLDER),
+				JSON.stringify(Array.from(entryStyles)),
+			);
+		} else {
+			// Replace with empty array if no styles found
+			newCode = newCode.replace(JSON.stringify(STYLES_PLACEHOLDER), '[]');
+		}
+		if (entryLinks.size) {
+			newCode = newCode.replace(
+				JSON.stringify(LINKS_PLACEHOLDER),
+				JSON.stringify(Array.from(entryLinks)),
+			);
+		} else {
+			// Replace with empty array if no links found
+			newCode = newCode.replace(JSON.stringify(LINKS_PLACEHOLDER), '[]');
+		}
+		// Persist the mutation for writing to disk
+		mutate(chunk as OutputChunk, ['server'], newCode);
+	}
 }

@@ -93,49 +93,49 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 			return environment.name === 'ssr' || environment.name === 'prerender';
 		},
 		generateBundle(_opts, bundle) {
-							const map: SSRResult['componentMetadata'] = internals.componentMetadata;
-							function getOrCreateMetadata(id: string): SSRComponentMetadata {
-								if (map.has(id)) return map.get(id)!;
-								const metadata: SSRComponentMetadata = {
-									propagation: 'none',
-									containsHead: false,
-								};
-								map.set(id, metadata);
-								return metadata;
+			const map: SSRResult['componentMetadata'] = internals.componentMetadata;
+			function getOrCreateMetadata(id: string): SSRComponentMetadata {
+				if (map.has(id)) return map.get(id)!;
+				const metadata: SSRComponentMetadata = {
+					propagation: 'none',
+					containsHead: false,
+				};
+				map.set(id, metadata);
+				return metadata;
+			}
+
+			for (const [, output] of Object.entries(bundle)) {
+				if (output.type !== 'chunk') continue;
+				for (const [id, mod] of Object.entries(output.modules)) {
+					const modinfo = this.getModuleInfo(id);
+
+					// <head> tag in the tree
+					if (modinfo) {
+						const meta = getAstroMetadata(modinfo);
+						if (meta?.containsHead) {
+							for (const pageInfo of getTopLevelPageModuleInfos(id, this)) {
+								let metadata = getOrCreateMetadata(pageInfo.id);
+								metadata.containsHead = true;
 							}
-
-							for (const [, output] of Object.entries(bundle)) {
-								if (output.type !== 'chunk') continue;
-								for (const [id, mod] of Object.entries(output.modules)) {
-									const modinfo = this.getModuleInfo(id);
-
-									// <head> tag in the tree
-									if (modinfo) {
-										const meta = getAstroMetadata(modinfo);
-										if (meta?.containsHead) {
-											for (const pageInfo of getTopLevelPageModuleInfos(id, this)) {
-												let metadata = getOrCreateMetadata(pageInfo.id);
-												metadata.containsHead = true;
-											}
-										}
-										if (meta?.propagation === 'self') {
-											for (const info of getParentModuleInfos(id, this)) {
-												let metadata = getOrCreateMetadata(info.id);
-												if (metadata.propagation !== 'self') {
-													metadata.propagation = 'in-tree';
-												}
-											}
-										}
-									}
-
-									// Head propagation (aka bubbling)
-									if (mod.code && injectExp.test(mod.code)) {
-										for (const info of getParentModuleInfos(id, this)) {
-											getOrCreateMetadata(info.id).propagation = 'in-tree';
-										}
-									}
+						}
+						if (meta?.propagation === 'self') {
+							for (const info of getParentModuleInfos(id, this)) {
+								let metadata = getOrCreateMetadata(info.id);
+								if (metadata.propagation !== 'self') {
+									metadata.propagation = 'in-tree';
 								}
 							}
-						},
+						}
+					}
+
+					// Head propagation (aka bubbling)
+					if (mod.code && injectExp.test(mod.code)) {
+						for (const info of getParentModuleInfos(id, this)) {
+							getOrCreateMetadata(info.id).propagation = 'in-tree';
+						}
+					}
+				}
+			}
+		},
 	};
 }
