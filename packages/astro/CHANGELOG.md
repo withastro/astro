@@ -126,6 +126,48 @@
 - Updated dependencies [[`727b0a2`](https://github.com/withastro/astro/commit/727b0a205eb765f1c36f13a73dfc69e17e44df8f)]:
   - @astrojs/markdown-remark@7.0.0-alpha.0
 
+## 5.15.6
+
+### Patch Changes
+
+- [#14751](https://github.com/withastro/astro/pull/14751) [`18c55e1`](https://github.com/withastro/astro/commit/18c55e15eaef56cbe06626b6bdb43ab250ab6f49) Thanks [@delucis](https://github.com/delucis)! - Fixes hydration of client components when running the dev server and using a barrel file that re-exports both Astro and UI framework components.
+
+- [#14750](https://github.com/withastro/astro/pull/14750) [`35122c2`](https://github.com/withastro/astro/commit/35122c278f987f9213b8e1094382398a16090aff) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the experimental Fonts API to log a warning if families with a conflicting `cssVariable` are provided
+
+- [#14737](https://github.com/withastro/astro/pull/14737) [`74c8852`](https://github.com/withastro/astro/commit/74c8852c534cc23217a78979e10885429b290e0b) Thanks [@Arecsu](https://github.com/Arecsu)! - Fixes an error when using `transition:persist` with components that use declarative Shadow DOM. Astro now avoids re-attaching a shadow root if one already exists, preventing `"Unable to re-attach to existing ShadowDOM"` navigation errors.
+
+- [#14750](https://github.com/withastro/astro/pull/14750) [`35122c2`](https://github.com/withastro/astro/commit/35122c278f987f9213b8e1094382398a16090aff) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the experimental Fonts API to allow for more granular configuration of remote font families
+
+  A font family is defined by a combination of properties such as weights and styles (e.g. `weights: [500, 600]` and `styles: ["normal", "bold"]`), but you may want to download only certain combinations of these.
+
+  For greater control over which font files are downloaded, you can specify the same font (ie. with the same `cssVariable`, `name`, and `provider` properties) multiple times with different combinations. Astro will merge the results and download only the required files. For example, it is possible to download normal `500` and `600` while downloading only italic `500`:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig, fontProviders } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      fonts: [
+        {
+          name: 'Roboto',
+          cssVariable: '--roboto',
+          provider: fontProviders.google(),
+          weights: [500, 600],
+          styles: ['normal'],
+        },
+        {
+          name: 'Roboto',
+          cssVariable: '--roboto',
+          provider: fontProviders.google(),
+          weights: [500],
+          styles: ['italic'],
+        },
+      ],
+    },
+  });
+  ```
+
 ## 5.15.5
 
 ### Patch Changes
