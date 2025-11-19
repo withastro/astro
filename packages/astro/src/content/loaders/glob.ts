@@ -2,7 +2,7 @@ import { existsSync, promises as fs } from 'node:fs';
 import { relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import pLimit from 'p-limit';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import picomatch from 'picomatch';
 import { glob as tinyglobby } from 'tinyglobby';
 import type { ContentEntryRenderFunction, ContentEntryType } from '../../types/public/content.js';

@@ -1,7 +1,7 @@
 import type fsMod from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import type { ViteDevServer } from 'vite';
 import { loadTSConfig } from '../core/config/tsconfig.js';
 import type { Logger } from '../core/logger/core.js';

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import type http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { performance } from 'node:perf_hooks';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
 import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';

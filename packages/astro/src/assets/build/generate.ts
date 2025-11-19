@@ -1,6 +1,6 @@
 import fs, { readFileSync } from 'node:fs';
 import { basename } from 'node:path/posix';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import { getOutDirWithinCwd } from '../../core/build/common.js';
 import type { BuildPipeline } from '../../core/build/pipeline.js';
 import { getTimeStat } from '../../core/build/util.js';
