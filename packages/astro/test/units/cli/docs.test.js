@@ -76,7 +76,7 @@ describe('CLI docs', () => {
 				process.env.GITPOD_REPO_ROOT = '/foo/bar/';
 				const cloudIdeaProvider = createProcessCloudIdeProvider();
 
-				const platform = cloudIdeaProvider.getName();
+				const platform = cloudIdeaProvider.name;
 
 				assert.equal(platform, 'gitpod');
 			});
