@@ -19,3 +19,14 @@ overrides:
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@biomejs/*'
+peerDependencyRules:
+  allowAny:
+    - 'astro'
+    - 'vite'
+onlyBuiltDependencies:
+  - 'esbuild'
+  - 'workerd'
+  - '@biomejs/biome'
+  - 'sharp'
+# TODO: enable when viable
+# trustPolicy: 'no-downgrade'
