@@ -611,8 +611,12 @@ export default function netlifyIntegration(
 
 				const vitePluginOptions: NetlifyPluginOptions = {
 					images: {
-						// We don't need to disable the feature, because if the user disables it
-						// we'll disable the whole image service.
+						// If features is an object, use the `images` property
+						// Otherwise, use the boolean value of `features`, defaulting to true
+						enabled:
+							typeof features === 'object'
+								? (features.images ?? true)
+								: features === true,
 						remoteURLPatterns: remoteImagesFromAstroConfig(config, logger),
 					},
 					environmentVariables: {
