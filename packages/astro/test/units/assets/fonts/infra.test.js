@@ -7,23 +7,23 @@ import {
 	renderCssVariable,
 	renderFontFace,
 	withFamily,
-} from '../../../../dist/assets/fonts/implementations/css-renderer.js';
-import { createDataCollector } from '../../../../dist/assets/fonts/implementations/data-collector.js';
-import { createAstroErrorHandler } from '../../../../dist/assets/fonts/implementations/error-handler.js';
-import { createCachedFontFetcher } from '../../../../dist/assets/fonts/implementations/font-fetcher.js';
-import { createCapsizeFontMetricsResolver } from '../../../../dist/assets/fonts/implementations/font-metrics-resolver.js';
-import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
+} from '../../../../dist/assets/fonts/infra/css-renderer.js';
+import { createDataCollector } from '../../../../dist/assets/fonts/infra/data-collector.js';
+import { createAstroErrorHandler } from '../../../../dist/assets/fonts/infra/error-handler.js';
+import { createCachedFontFetcher } from '../../../../dist/assets/fonts/infra/font-fetcher.js';
+import { createCapsizeFontMetricsResolver } from '../../../../dist/assets/fonts/infra/font-metrics-resolver.js';
+import { createFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
 import {
 	createBuildUrlProxyHashResolver,
 	createDevUrlProxyHashResolver,
-} from '../../../../dist/assets/fonts/implementations/url-proxy-hash-resolver.js';
+} from '../../../../dist/assets/fonts/infra/url-proxy-hash-resolver.js';
 import {
 	createBuildUrlResolver,
 	createDevUrlResolver,
-} from '../../../../dist/assets/fonts/implementations/url-resolver.js';
+} from '../../../../dist/assets/fonts/infra/url-resolver.js';
 import { createSpyStorage, fakeHasher, simpleErrorHandler } from './utils.js';
 
-describe('fonts implementations', () => {
+describe('fonts infra', () => {
 	describe('createMinifiableCssRenderer()', () => {
 		describe('renderFontFace()', () => {
 			it('filters undefined properties properly', () => {
@@ -67,7 +67,7 @@ describe('fonts implementations', () => {
 		const map = new Map();
 		/** @type {Array<import('../../../../dist/assets/fonts/types.js').PreloadData>} */
 		const preloadData = [];
-		/** @type {Array<import('../../../../dist/assets/fonts/logic/optimize-fallbacks.js').CollectedFontForMetrics>} */
+		/** @type {Array<import('../../../../dist/assets/fonts/core/optimize-fallbacks.js').CollectedFontForMetrics>} */
 		const collectedFonts = [];
 
 		const dataCollector = createDataCollector({
