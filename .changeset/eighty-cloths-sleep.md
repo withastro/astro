@@ -2,4 +2,4 @@
 'astro': minor
 ---
 
-Add hint to use `--yes` flag with `astro add`
+Adds a hint for code agents to use the `--yes` flag to skip prompts when running `astro add`
