@@ -44,22 +44,6 @@ const inferSymbol = Symbol('#infer');
  * Infer the input zod schema of an action.
  *
  * @see https://docs.astro.build/en/reference/modules/astro-actions/#actioninputschema
- *
- * @example
- * import { type ActionInputSchema, defineAction } from 'astro:actions';
- * import { z } from 'astro/zod';
- *
- * const action = defineAction({
- *   accept: 'form',
- *   input: z.object({ name: z.string() }),
- *   handler: ({ name }) => ({ message: `Welcome, ${name}!` }),
- * });
- *
- * type Schema = ActionInputSchema<typeof action>;
- * // typeof z.object({ name: z.string() })
- *
- * type Input = z.input<Schema>;
- * // { name: string }
  */
 export type ActionInputSchema<T extends ActionClient<any, any, any>> = T extends {
 	[inferSymbol]: any;
