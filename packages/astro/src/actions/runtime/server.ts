@@ -41,7 +41,7 @@ export type ActionReturnType<T extends ActionHandler<any, any>> = Awaited<Return
 const inferSymbol = Symbol('#infer');
 
 /**
- * Infer the input zod schema of an action.
+ * Infers the type of an action's input based on its Zod schema
  *
  * @see https://docs.astro.build/en/reference/modules/astro-actions/#actioninputschema
  */
