@@ -20,10 +20,14 @@ function filterRequiredMetrics({
 	};
 }
 
-// Source: https://github.com/unjs/fontaine/blob/f00f84032c5d5da72c8798eae4cd68d3ddfbf340/src/css.ts#L7
-function toPercentage(value: number, fractionDigits = 4) {
-	const percentage = value * 100;
-	return `${+percentage.toFixed(fractionDigits)}%`;
+// Source: https://github.com/seek-oss/capsize/blob/b752693428b45994442433f7e3476ca4e3e3c507/packages/core/src/round.ts
+function round(value: number) {
+	return parseFloat(value.toFixed(4));
+}
+
+// Source: https://github.com/seek-oss/capsize/blob/b752693428b45994442433f7e3476ca4e3e3c507/packages/core/src/createFontStack.ts#L5
+function toPercentString(value: number) {
+	return `${round(value * 100)}%`;
 }
 
 export function createCapsizeFontMetricsResolver({
@@ -40,7 +44,8 @@ export function createCapsizeFontMetricsResolver({
 			cache[name] ??= filterRequiredMetrics(await fromBuffer(await fontFetcher.fetch(input)));
 			return cache[name];
 		},
-		// Source: https://github.com/unjs/fontaine/blob/f00f84032c5d5da72c8798eae4cd68d3ddfbf340/src/css.ts#L170
+		// Adapted from Capsize
+		// Source: https://github.com/seek-oss/capsize/blob/b752693428b45994442433f7e3476ca4e3e3c507/packages/core/src/createFontStack.ts
 		generateFontFace({
 			metrics,
 			fallbackMetrics,
@@ -51,7 +56,11 @@ export function createCapsizeFontMetricsResolver({
 			// Calculate size adjust
 			const preferredFontXAvgRatio = metrics.xWidthAvg / metrics.unitsPerEm;
 			const fallbackFontXAvgRatio = fallbackMetrics.xWidthAvg / fallbackMetrics.unitsPerEm;
-			const sizeAdjust = preferredFontXAvgRatio / fallbackFontXAvgRatio;
+
+			const sizeAdjust =
+				preferredFontXAvgRatio && fallbackFontXAvgRatio
+					? preferredFontXAvgRatio / fallbackFontXAvgRatio
+					: 1;
 
 			const adjustedEmSquare = metrics.unitsPerEm * sizeAdjust;
 
@@ -60,13 +69,27 @@ export function createCapsizeFontMetricsResolver({
 			const descentOverride = Math.abs(metrics.descent) / adjustedEmSquare;
 			const lineGapOverride = metrics.lineGap / adjustedEmSquare;
 
+			// Calculate metric overrides for fallback font
+			const fallbackAscentOverride = fallbackMetrics.ascent / adjustedEmSquare;
+			const fallbackDescentOverride = Math.abs(fallbackMetrics.descent) / adjustedEmSquare;
+			const fallbackLineGapOverride = fallbackMetrics.lineGap / adjustedEmSquare;
+
 			return cssRenderer.generateFontFace(fallbackName, {
 				...properties,
 				src: renderFontSrc([{ name: fallbackFontName }]),
-				'size-adjust': toPercentage(sizeAdjust),
-				'ascent-override': toPercentage(ascentOverride),
-				'descent-override': toPercentage(descentOverride),
-				'line-gap-override': toPercentage(lineGapOverride),
+				'size-adjust': sizeAdjust && sizeAdjust !== 1 ? toPercentString(sizeAdjust) : undefined,
+				'ascent-override':
+					ascentOverride && ascentOverride !== fallbackAscentOverride
+						? toPercentString(ascentOverride)
+						: undefined,
+				'descent-override':
+					descentOverride && descentOverride !== fallbackDescentOverride
+						? toPercentString(descentOverride)
+						: undefined,
+				'line-gap-override':
+					lineGapOverride !== fallbackLineGapOverride
+						? toPercentString(lineGapOverride)
+						: undefined,
 			});
 		},
 	};
