@@ -1208,174 +1208,173 @@ describe('[SSG] i18n routing', () => {
 		});
 	});
 
-	describe('current locale', () => {
-		describe('with [prefix-other-locales]', () => {
-			/** @type {import('./test-utils').Fixture} */
-			let fixture;
+	describe('with [prefix-other-locales]', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
 
-			before(async () => {
-				fixture = await loadFixture({
-					root: './fixtures/i18n-routing/',
-				});
-				await fixture.build();
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing/',
 			});
-
-			it('should return the default locale', async () => {
-				let html = await fixture.readFile('/current-locale/index.html');
-				assert.equal(html.includes('Current Locale: es'), true);
-			});
-
-			it('should return the default locale when rendering a route with spread operator', async () => {
-				const html = await fixture.readFile('/blog/es/index.html');
-				assert.equal(html.includes('Current Locale: es'), true);
-			});
-
-			it('should return the default locale of the current URL', async () => {
-				const html = await fixture.readFile('/pt/start/index.html');
-				assert.equal(html.includes('Current Locale: pt'), true);
-			});
-
-			it('should return the default locale when a route is dynamic', async () => {
-				const html = await fixture.readFile('/dynamic/lorem/index.html');
-				assert.equal(html.includes('Current Locale: es'), true);
-			});
-
-			it('should returns the correct locale when requesting a locale via path', async () => {
-				const html = await fixture.readFile('/spanish/index.html');
-				assert.equal(html.includes('Current Locale: es'), true);
-			});
+			await fixture.build();
 		});
 
-		describe('with [pathname-prefix-always]', () => {
-			/** @type {import('./test-utils').Fixture} */
-			let fixture;
-
-			before(async () => {
-				fixture = await loadFixture({
-					root: './fixtures/i18n-routing-prefix-always/',
-				});
-				await fixture.build();
-			});
-
-			it('should return the locale of the current URL (en)', async () => {
-				const html = await fixture.readFile('/en/start/index.html');
-				assert.equal(html.includes('Current Locale: en'), true);
-			});
-
-			it('should return the locale of the current URL (pt)', async () => {
-				const html = await fixture.readFile('/pt/start/index.html');
-				assert.equal(html.includes('Current Locale: pt'), true);
-			});
+		it('should return the default locale', async () => {
+			let html = await fixture.readFile('/current-locale/index.html');
+			assert.equal(html.includes('Current Locale: es'), true);
 		});
 
-		describe('when `build.format` is `file`, locales array contains objects, and locale indexes use getStaticPaths', () => {
-			/** @type {import('./test-utils').Fixture} */
-			let fixture;
-
-			before(async () => {
-				fixture = await loadFixture({
-					root: './fixtures/i18n-locale-index-format-file/',
-					i18n: {
-						defaultLocale: 'en-us',
-						locales: [
-							{
-								path: 'en-us',
-								codes: ['en-US'],
-							},
-							{
-								path: 'es-mx',
-								codes: ['es-MX'],
-							},
-							{
-								path: 'fr-fr',
-								codes: ['fr-FR'],
-							},
-						],
-						routing: {
-							prefixDefaultLocale: true,
-							redirectToDefaultLocale: false,
-						},
-					},
-				});
-				await fixture.build();
-			});
-
-			it('should return the locale code of the current URL (en-US)', async () => {
-				const html = await fixture.readFile('/en-us.html');
-				assert.equal(html.includes('currentLocale: en-US'), true);
-			});
-
-			it('should return the locale code of the current URL (es-MX)', async () => {
-				const html = await fixture.readFile('/es-mx.html');
-				assert.equal(html.includes('currentLocale: es-MX'), true);
-			});
-
-			it('should return the locale code of the current URL (fr-FR)', async () => {
-				const html = await fixture.readFile('/fr-fr.html');
-				assert.equal(html.includes('currentLocale: fr-FR'), true);
-			});
+		it('should return the default locale when rendering a route with spread operator', async () => {
+			const html = await fixture.readFile('/blog/es/index.html');
+			assert.equal(html.includes('Current Locale: es'), true);
 		});
 
-		describe('when `build.format` is `file`, locales array contains strings, and locale indexes use getStaticPaths', () => {
-			/** @type {import('./test-utils').Fixture} */
-			let fixture;
-
-			before(async () => {
-				fixture = await loadFixture({
-					root: './fixtures/i18n-locale-index-format-file/',
-					i18n: {
-						defaultLocale: 'en-us',
-						locales: ['en-us', 'es-mx', 'fr-fr'],
-						routing: {
-							prefixDefaultLocale: true,
-							redirectToDefaultLocale: false,
-						},
-					},
-				});
-				await fixture.build();
-			});
-
-			it('should return the locale of the current URL (en-us)', async () => {
-				const html = await fixture.readFile('/en-us.html');
-				assert.equal(html.includes('currentLocale: en-us'), true);
-			});
-
-			it('should return the locale of the current URL (es-mx)', async () => {
-				const html = await fixture.readFile('/es-mx.html');
-				assert.equal(html.includes('currentLocale: es-mx'), true);
-			});
-
-			it('should return the locale of the current URL (fr-fr)', async () => {
-				const html = await fixture.readFile('/fr-fr.html');
-				assert.equal(html.includes('currentLocale: fr-fr'), true);
-			});
+		it('should return the default locale of the current URL', async () => {
+			const html = await fixture.readFile('/pt/start/index.html');
+			assert.equal(html.includes('Current Locale: pt'), true);
 		});
 
-		describe('with dynamic paths', async () => {
-			/** @type {import('./test-utils').Fixture} */
-			let fixture;
-			let devServer;
+		it('should return the default locale when a route is dynamic', async () => {
+			const html = await fixture.readFile('/dynamic/lorem/index.html');
+			assert.equal(html.includes('Current Locale: es'), true);
+		});
 
-			before(async () => {
-				fixture = await loadFixture({
-					root: './fixtures/i18n-routing/',
-				});
-				devServer = await fixture.startDevServer();
-			});
+		it('should returns the correct locale when requesting a locale via path', async () => {
+			const html = await fixture.readFile('/spanish/index.html');
+			assert.equal(html.includes('Current Locale: es'), true);
+		});
+	});
 
-			afterEach(async () => {
-				devServer.stop();
-			});
+	describe('with [pathname-prefix-always]', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
 
-			it('should return the correct current locale', async () => {
-				let html = await fixture.fetch('/en').then((r) => r.text());
-				assert.match(html, /en/);
-				html = await fixture.fetch('/ru').then((r) => r.text());
-				assert.match(html, /ru/);
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-prefix-always/',
 			});
+			await fixture.build();
+		});
+
+		it('should return the locale of the current URL (en)', async () => {
+			const html = await fixture.readFile('/en/start/index.html');
+			assert.equal(html.includes('Current Locale: en'), true);
+		});
+
+		it('should return the locale of the current URL (pt)', async () => {
+			const html = await fixture.readFile('/pt/start/index.html');
+			assert.equal(html.includes('Current Locale: pt'), true);
+		});
+	});
+
+	describe('with dynamic paths', async () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+		let devServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing/',
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		afterEach(async () => {
+			devServer.stop();
+		});
+
+		it('should return the correct current locale', async () => {
+			let html = await fixture.fetch('/en').then((r) => r.text());
+			assert.match(html, /en/);
+			html = await fixture.fetch('/ru').then((r) => r.text());
+			assert.match(html, /ru/);
 		});
 	});
 });
+
+describe('[SSG] i18n routing when `build.format` is `file`, locales array contains objects, and locale indexes use getStaticPaths', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-locale-index-format-file/',
+			i18n: {
+				defaultLocale: 'en-us',
+				locales: [
+					{
+						path: 'en-us',
+						codes: ['en-US'],
+					},
+					{
+						path: 'es-mx',
+						codes: ['es-MX'],
+					},
+					{
+						path: 'fr-fr',
+						codes: ['fr-FR'],
+					},
+				],
+				routing: {
+					prefixDefaultLocale: true,
+					redirectToDefaultLocale: false,
+				},
+			},
+		});
+		await fixture.build();
+	});
+
+	it('should return the locale code of the current URL (en-US)', async () => {
+		const html = await fixture.readFile('/en-us.html');
+		assert.equal(html.includes('currentLocale: en-US'), true);
+	});
+
+	it('should return the locale code of the current URL (es-MX)', async () => {
+		const html = await fixture.readFile('/es-mx.html');
+		assert.equal(html.includes('currentLocale: es-MX'), true);
+	});
+
+	it('should return the locale code of the current URL (fr-FR)', async () => {
+		const html = await fixture.readFile('/fr-fr.html');
+		assert.equal(html.includes('currentLocale: fr-FR'), true);
+	});
+});
+
+describe('[SSG] i18n routing when `build.format` is `file`, locales array contains strings, and locale indexes use getStaticPaths', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/i18n-locale-index-format-file/',
+			i18n: {
+				defaultLocale: 'en-us',
+				locales: ['en-us', 'es-mx', 'fr-fr'],
+				routing: {
+					prefixDefaultLocale: true,
+					redirectToDefaultLocale: false,
+				},
+			},
+		});
+		await fixture.build();
+	});
+
+	it('should return the locale of the current URL (en-us)', async () => {
+		const html = await fixture.readFile('/en-us.html');
+		assert.equal(html.includes('currentLocale: en-us'), true);
+	});
+
+	it('should return the locale of the current URL (es-mx)', async () => {
+		const html = await fixture.readFile('/es-mx.html');
+		assert.equal(html.includes('currentLocale: es-mx'), true);
+	});
+
+	it('should return the locale of the current URL (fr-fr)', async () => {
+		const html = await fixture.readFile('/fr-fr.html');
+		assert.equal(html.includes('currentLocale: fr-fr'), true);
+	});
+});
+
 describe('[SSR] i18n routing', () => {
 	let app;
 
