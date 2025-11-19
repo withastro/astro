@@ -6,8 +6,8 @@ import { infoCommand } from '../../../dist/cli/info/core/info.js';
 import { createCliClipboard } from '../../../dist/cli/info/infra/cli-clipboard.js';
 import { createCliDebugInfoProvider } from '../../../dist/cli/info/infra/cli-debug-info-provider.js';
 import { createDevDebugInfoProvider } from '../../../dist/cli/info/infra/dev-debug-info-provider.js';
-import { createProcessPackageManagerUserAgentProvider } from '../../../dist/cli/info/infra/process-package-manager-user-agent-provider.js';
 import { createProcessNodeVersionProvider } from '../../../dist/cli/info/infra/process-node-version-provider.js';
+import { createProcessPackageManagerUserAgentProvider } from '../../../dist/cli/info/infra/process-package-manager-user-agent-provider.js';
 import { createSpyLogger } from '../test-utils.js';
 import {
 	createFakeAstroVersionProvider,
