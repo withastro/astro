@@ -24,9 +24,9 @@ export function createDevDebugInfoProvider({
 	return {
 		async get() {
 			const debugInfo: DebugInfo = [
-				['Astro', `v${astroVersionProvider.getVersion()}`],
+				['Astro', `v${astroVersionProvider.version}`],
 				['Node', nodeVersionProvider.get()],
-				['System', operatingSystemProvider.getDisplayName()],
+				['System', operatingSystemProvider.displayName],
 				['Package Manager', packageManager.getName()],
 				['Output', config.output],
 				['Adapter', config.adapter?.name ?? 'none'],

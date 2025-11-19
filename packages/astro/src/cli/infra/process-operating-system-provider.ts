@@ -9,10 +9,10 @@ const PLATFORM_TO_OS: Partial<Record<NodeJS.Platform, string>> = {
 export function createProcessOperatingSystemProvider(): OperatingSystemProvider {
 	const platform = process.platform;
 	return {
-		getName() {
-			return platform;
+		get name() {
+			return platform
 		},
-		getDisplayName() {
+		get displayName() {
 			const system = PLATFORM_TO_OS[platform] ?? platform;
 			return `${system} (${process.arch})`;
 		},

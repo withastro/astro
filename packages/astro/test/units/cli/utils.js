@@ -50,7 +50,7 @@ export function createSpyHelpDisplay(shouldFire) {
  * */
 export function createFakeAstroVersionProvider(version) {
 	return {
-		getVersion() {
+		get version() {
 			return version;
 		},
 	};
@@ -62,7 +62,7 @@ export function createFakeAstroVersionProvider(version) {
  * */
 export function createFakeCloudIdeProvider(cloudIde) {
 	return {
-		getName() {
+		get name() {
 			return cloudIde;
 		},
 	};
@@ -74,10 +74,10 @@ export function createFakeCloudIdeProvider(cloudIde) {
  */
 export function createFakeOperatingSystemProvider(platform) {
 	return {
-		getName() {
+		get name() {
 			return platform;
 		},
-		getDisplayName() {
+		get displayName() {
 			return platform;
 		},
 	};

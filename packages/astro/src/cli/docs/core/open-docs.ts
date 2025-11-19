@@ -36,7 +36,7 @@ export const openDocsCommand = defineCommand({
 		description: `Launches the Astro Docs website directly from the terminal.`,
 	},
 	async run({ url, operatingSystemProvider, logger, commandExecutor, cloudIdeProvider }: Options) {
-		const platform = cloudIdeProvider.getName() ?? operatingSystemProvider.getName();
+		const platform = cloudIdeProvider.name ?? operatingSystemProvider.name;
 		const input = getExecInputForPlatform(platform);
 		if (!input) {
 			logger.error(
