@@ -1,15 +1,16 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.6/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.6/schema.json",
   "files": {
     "includes": [
       "**",
-      "!**/smoke/**",
-      "!**/fixtures/**",
-      "!**/fixture/**",
-      "!**/_temp-fixtures/**",
-      "!**/vendor/**",
+      "!**/vendor",
+      "!!**/smoke",
+      "!!**/fixtures",
+      "!!**/fixture",
+      "!!**/_temp-fixtures",
+      "!!**/dist",
       "packages/language-tools/vscode/syntaxes/*.json",
-      "!**/.vscode-test/**"
+      "!!**/.vscode-test"
     ]
   },
   "vcs": {

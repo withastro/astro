@@ -4,6 +4,12 @@ import { baseService, type LocalImageService } from './service.js';
 const noopService: LocalImageService = {
 	...baseService,
 	propertiesToHash: ['src'],
+	async validateOptions(options, imageConfig) {
+		const newOptions = await (baseService.validateOptions?.(options, imageConfig) ?? options);
+		delete newOptions.format;
+
+		return newOptions;
+	},
 	async transform(inputBuffer, transformOptions) {
 		return {
 			data: inputBuffer,

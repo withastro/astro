@@ -143,7 +143,13 @@ describe('Route matching', () => {
 
 		const loader = createViteLoader(container.viteServer);
 		const manifest = createDevelopmentManifest(container.settings);
-		pipeline = DevPipeline.create(undefined, { loader, logger: defaultLogger, manifest, settings });
+		pipeline = DevPipeline.create(undefined, {
+			loader,
+			logger: defaultLogger,
+			manifest,
+			settings,
+			getDebugInfo: async () => '',
+		});
 		manifestData = await createRoutesList(
 			{
 				cwd: fixture.path,

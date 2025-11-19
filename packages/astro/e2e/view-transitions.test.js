@@ -1146,7 +1146,11 @@ test.describe('View Transitions', () => {
 
 	test('form POST that action for cross-origin is opt-out', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/form-five'));
-		page.on('request', (request) => expect(request.method()).toBe('POST'));
+		page.on('request', (request) => {
+			if (request.isNavigationRequest()) {
+				expect(request.method()).toBe('POST');
+			}
+		});
 		// Submit the form
 		await page.click('#submit');
 	});
@@ -1264,7 +1268,9 @@ test.describe('View Transitions', () => {
 	}) => {
 		await page.goto(astro.resolveUrl('/form-six'));
 		page.on('request', (request) => {
-			expect(request.url()).toContain('/bar');
+			if (request.isNavigationRequest()) {
+				expect(request.url()).toContain('/bar');
+			}
 		});
 		// Submit the form
 		await page.click('#submit');
@@ -1276,7 +1282,9 @@ test.describe('View Transitions', () => {
 	}) => {
 		await page.goto(astro.resolveUrl('/form-seven'));
 		page.on('request', (request) => {
-			expect(request.method()).toBe('GET');
+			if (request.isNavigationRequest()) {
+				expect(request.method()).toBe('GET');
+			}
 		});
 		// Submit the form
 		await page.click('#submit');
@@ -1286,8 +1294,11 @@ test.describe('View Transitions', () => {
 		let navigated;
 		await page.goto(astro.resolveUrl('/form-with-hash#test'));
 		page.on('request', (request) => {
-			expect(request.method()).toBe('POST');
-			navigated = true;
+			// Vite HMR request
+			if (request.resourceType() !== 'websocket') {
+				expect(request.method()).toBe('POST');
+				navigated = true;
+			}
 		});
 		// Submit the form
 		await page.click('#submit');
@@ -1311,15 +1322,16 @@ test.describe('View Transitions', () => {
 	test('should prefetch on hover by default', async ({ page, astro }) => {
 		/** @type {string[]} */
 		const reqUrls = [];
-		page.on('request', (req) => {
-			reqUrls.push(new URL(req.url()).pathname);
+		page.on('request', (request) => {
+			// Vite HMR request
+			if (request.resourceType() !== 'websocket') {
+				reqUrls.push(new URL(request.url()).pathname);
+			}
 		});
 		await page.goto(astro.resolveUrl('/prefetch'));
 		expect(reqUrls).not.toContainEqual('/one');
-		await Promise.all([
-			page.waitForEvent('request'), // wait prefetch request
-			page.locator('#prefetch-one').hover(),
-		]);
+		await page.locator('#prefetch-one').hover();
+		await page.waitForEvent('request'); // wait prefetch request
 		expect(reqUrls).toContainEqual('/one');
 	});
 
@@ -1409,7 +1421,11 @@ test.describe('View Transitions', () => {
 		await page.goto(astro.resolveUrl('/dialog'));
 
 		let requests = [];
-		page.on('request', (request) => requests.push(`${request.method()} ${request.url()}`));
+		page.on('request', (request) => {
+			if (request.isNavigationRequest()) {
+				requests.push(`${request.method()} ${request.url()}`);
+			}
+		});
 
 		await page.click('#open');
 		await expect(page.locator('dialog')).toHaveAttribute('open');
