@@ -1,4 +1,4 @@
-import colors from 'picocolors';
+import colors from 'piccolore';
 import { printHelp } from '../../core/messages.js';
 import previewServer from '../../core/preview/index.js';
 import { type Flags, flagsToAstroInlineConfig } from '../flags.js';

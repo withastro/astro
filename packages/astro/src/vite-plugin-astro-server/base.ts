@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import type * as vite from 'vite';
 import type { Logger } from '../core/logger/core.js';
 import { notFoundTemplate, subpathNotUsedTemplate } from '../template/4xx.js';
