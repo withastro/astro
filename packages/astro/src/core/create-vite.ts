@@ -25,7 +25,7 @@ import type { AstroSettings, RoutesList } from '../types/astro.js';
 import { vitePluginAdapterConfig } from '../vite-plugin-adapter-config/index.js';
 import { vitePluginApp } from '../vite-plugin-app/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
-import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
+import { vitePluginAstroServer, vitePluginAstroServerClient } from '../vite-plugin-astro-server/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import { astroDevCssPlugin } from '../vite-plugin-css/index.js';
 import vitePluginFileURL from '../vite-plugin-fileurl/index.js';
@@ -161,6 +161,7 @@ export async function createVite(
 			// the build to run very slow as the filewatcher is triggered often.
 			command === 'dev' && vitePluginApp(),
 			command === 'dev' && vitePluginAstroServer({ settings, logger }),
+			command === 'dev' && vitePluginAstroServerClient(),
 			astroDevCssPlugin({ routesList, command }),
 			importMetaEnv({ envLoader }),
 			astroEnv({ settings, sync, envLoader }),
