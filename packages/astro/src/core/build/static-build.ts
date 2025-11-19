@@ -90,9 +90,10 @@ export async function staticBuild(
 	const { settings } = opts;
 	if (settings.buildOutput === 'static') {
 		settings.timer.start('Static generate');
-		await generatePages(opts, internals, prerenderOutputDir);
 		// Move prerender and SSR assets to client directory before cleaning up
 		await ssrMoveAssets(opts, prerenderOutputDir);
+		// Generate the pages
+		await generatePages(opts, internals, prerenderOutputDir);
 		// Clean up prerender directory after generation
 		await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
 		settings.timer.end('Static generate');
