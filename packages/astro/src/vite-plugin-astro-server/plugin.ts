@@ -167,6 +167,23 @@ export default function createVitePluginAstroServer({
 	};
 }
 
+export function createVitePluginAstroServerClient(): vite.Plugin {
+	return {
+		name: 'astro:server-client',
+		applyToEnvironment(environment) {
+			return environment.name === 'client';
+		},
+		transform(code, id, opts = {}) {
+			if (opts.ssr) return;
+			if (!id.includes('vite/dist/client/client.mjs')) return;
+
+			// Replace the Vite overlay with ours
+			return patchOverlay(code);
+		}
+	}
+}
+
+
 /**
  * It creates a `SSRManifest` from the `AstroSettings`.
  *
