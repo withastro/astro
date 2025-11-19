@@ -5,8 +5,7 @@ import toml from 'smol-toml';
 import { FileGlobNotSupported, FileParserNotFound } from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/index.js';
 import { posixRelative } from '../utils.js';
-import { defineContentLoader } from './config.js';
-import type { LoaderContext } from './types.js';
+import type { Loader, LoaderContext } from './types.js';
 
 interface FileOptions {
 	/**
@@ -23,7 +22,7 @@ interface FileOptions {
  * @param fileName The path to the JSON file to load, relative to the content directory.
  * @param options Additional options for the file loader
  */
-export function file(fileName: string, options?: FileOptions) {
+export function file(fileName: string, options?: FileOptions): Loader {
 	if (fileName.includes('*')) {
 		throw new AstroError(FileGlobNotSupported);
 	}
@@ -103,7 +102,7 @@ export function file(fileName: string, options?: FileOptions) {
 		}
 	}
 
-	return defineContentLoader({
+	return {
 		name: 'file-loader',
 		load: async (context) => {
 			const { config, logger, watcher } = context;
@@ -126,5 +125,5 @@ export function file(fileName: string, options?: FileOptions) {
 				}
 			});
 		},
-	});
+	};
 }
