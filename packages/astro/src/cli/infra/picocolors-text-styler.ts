@@ -1,4 +1,4 @@
-import colors from 'picocolors';
+import colors from 'piccolore';
 import type { TextStyler } from '../definitions.js';
 
 export function createPicocolorsTextStyler(): TextStyler {

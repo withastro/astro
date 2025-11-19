@@ -6,7 +6,7 @@ import { diffWords } from 'diff';
 import { type ASTNode, builders, generateCode, loadFile, type ProxifiedModule } from 'magicast';
 import { getDefaultExportOptions } from 'magicast/helpers';
 import { detect, resolveCommand } from 'package-manager-detector';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import prompts from 'prompts';
 import maxSatisfying from 'semver/ranges/max-satisfying.js';
 import type yargsParser from 'yargs-parser';

@@ -1,4 +1,4 @@
-import colors from 'picocolors';
+import colors from 'piccolore';
 import { getActionContext } from '../actions/runtime/server.js';
 import { deserializeActionResult } from '../actions/runtime/shared.js';
 import type { ActionAPIContext } from '../actions/runtime/utils.js';

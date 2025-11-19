@@ -587,9 +587,9 @@ importers:
       package-manager-detector:
         specifier: ^1.5.0
         version: 1.5.0
-      picocolors:
-        specifier: ^1.1.1
-        version: 1.1.1
+      piccolore:
+        specifier: ^0.1.3
+        version: 0.1.3
       picomatch:
         specifier: ^4.0.3
         version: 4.0.3
@@ -785,9 +785,9 @@ importers:
       fast-xml-parser:
         specifier: ^5.3.0
         version: 5.3.0
-      picocolors:
-        specifier: ^1.1.1
-        version: 1.1.1
+      piccolore:
+        specifier: ^0.1.3
+        version: 0.1.3
     devDependencies:
       '@types/xml2js':
         specifier: ^0.4.14
@@ -1675,9 +1675,9 @@ importers:
 
   packages/astro/performance:
     dependencies:
-      picocolors:
-        specifier: ^1.1.1
-        version: 1.1.1
+      piccolore:
+        specifier: ^0.1.3
+        version: 0.1.3
 
   packages/astro/performance/fixtures/md:
     dependencies:
@@ -4576,9 +4576,9 @@ importers:
       nanoid:
         specifier: ^5.1.6
         version: 5.1.6
-      picocolors:
-        specifier: ^1.1.1
-        version: 1.1.1
+      piccolore:
+        specifier: ^0.1.3
+        version: 0.1.3
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
@@ -5233,9 +5233,9 @@ importers:
       hast-util-to-html:
         specifier: ^9.0.5
         version: 9.0.5
-      picocolors:
-        specifier: ^1.1.1
-        version: 1.1.1
+      piccolore:
+        specifier: ^0.1.3
+        version: 0.1.3
       rehype-raw:
         specifier: ^7.0.0
         version: 7.0.0
@@ -6799,9 +6799,9 @@ importers:
       p-limit:
         specifier: ^6.2.0
         version: 6.2.0
-      picocolors:
-        specifier: ^1.1.1
-        version: 1.1.1
+      piccolore:
+        specifier: ^0.1.3
+        version: 0.1.3
       tinyglobby:
         specifier: ^0.2.15
         version: 0.2.15
@@ -13727,6 +13727,9 @@ packages:
 
   periscopic@3.1.0:
     resolution: {integrity: sha512-vKiQ8RRtkl9P+r/+oefh25C3fhybptkHKCZSPlcXiJux2tJF55GnEj3BVn4A5gKfq9NWWXXrxkHBwVPUfH0opw==}
+
+  piccolore@0.1.3:
+    resolution: {integrity: sha512-o8bTeDWjE086iwKrROaDf31K0qC/BENdm15/uH9usSC/uZjJOKb2YGiVHfLY4GhwsERiPI1jmwI2XrA7ACOxVw==}
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -23346,6 +23349,8 @@ snapshots:
       '@types/estree': 1.0.8
       estree-walker: 3.0.3
       is-reference: 3.0.3
+
+  piccolore@0.1.3: {}
 
   picocolors@1.1.1: {}
 
