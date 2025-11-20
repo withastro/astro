@@ -1,6 +1,6 @@
 import { server as actions } from 'virtual:astro:actions/entrypoint';
 import { manifest  } from 'virtual:astro:manifest';
-import { BuildApp } from '../core/build/app.js';
+import { BuildApp } from '../core/build/index.js';
 
 const app = new BuildApp(manifest);
 const { renderers } = manifest;
