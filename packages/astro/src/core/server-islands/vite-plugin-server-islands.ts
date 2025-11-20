@@ -31,9 +31,6 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 				return RESOLVED_SERVER_ISLAND_MANIFEST;
 			}
 		},
-		shouldTransformCachedModule() {
-			return true;
-		},
 		load(id) {
 			if (id === RESOLVED_SERVER_ISLAND_MANIFEST) {
 				return {
