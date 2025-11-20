@@ -2523,3 +2523,4 @@ describe('i18n routing with server islands and base path', () => {
 		assert.equal(serverIslandScript.length, 1, 'has the island script');
 	});
 });
+});

@@ -9,26 +9,6 @@ import {
 	defaultLogger,
 } from '../test-utils.js';
 
-async function createDevPipeline(overrides = {}, root) {
-	const settings = overrides.settings ?? (await createBasicSettings({ root }));
-	const loader = overrides.loader ?? createLoader();
-	const manifest = createDevelopmentManifest(settings);
-	const routesList = await createRoutesList(
-		{
-			cwd: root,
-			settings: settings,
-		},
-		defaultLogger,
-	);
-	return DevPipeline.create(routesList, {
-		loader,
-		logger: defaultLogger,
-		manifest,
-		settings,
-		getDebugInfo: async () => '',
-	});
-}
-
 describe('vite-plugin-astro-server', () => {
 	describe('url', () => {
 		let container;
