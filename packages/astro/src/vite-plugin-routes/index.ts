@@ -1,7 +1,7 @@
 import type fsMod from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { serializeRouteData } from '../core/app/index.js';
 import type { SerializedRouteInfo } from '../core/app/types.js';
@@ -90,19 +90,23 @@ export default async function astroPluginRoutes({
 		},
 
 		applyToEnvironment(environment) {
-			return environment.name === 'astro' || environment.name === 'ssr' || environment.name === 'prerender';
+			return (
+				environment.name === 'astro' ||
+				environment.name === 'ssr' ||
+				environment.name === 'prerender'
+			);
 		},
 
 		load(id) {
 			if (id === ASTRO_ROUTES_MODULE_ID_RESOLVED) {
 				const environmentName = this.environment.name;
-				const filteredRoutes = serializedRouteInfo.filter(routeInfo => {
+				const filteredRoutes = serializedRouteInfo.filter((routeInfo) => {
 					// In prerender, filter to only the routes that need prerendering.
-					if(environmentName === 'prerender') {
+					if (environmentName === 'prerender') {
 						return routeInfo.routeData.prerender;
 					}
 					// TODO we can likely do the opposite as well, filter out prerendered routes
-					// from the ssr output, but do not feel confident it won't break tests yet. 
+					// from the ssr output, but do not feel confident it won't break tests yet.
 					return true;
 				});
 

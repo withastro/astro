@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseFrontmatter } from '@astrojs/markdown-remark';
 import { slug as githubSlug } from 'github-slugger';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import type { PluginContext } from 'rollup';
 import type { RunnableDevEnvironment } from 'vite';
 import xxhash from 'xxhash-wasm';

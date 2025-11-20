@@ -2,7 +2,7 @@ import fsMod from 'node:fs';
 import { dirname, relative } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import { createServer, type FSWatcher, type HotPayload } from 'vite';
 import { syncFonts } from '../../assets/fonts/sync.js';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';

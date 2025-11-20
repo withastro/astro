@@ -1,9 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import { glob } from 'tinyglobby';
 import * as vite from 'vite';
+import { contentAssetsBuildPostHook } from '../../content/vite-plugin-content-assets.js';
 import { type BuildInternals, createBuildInternals } from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
@@ -349,6 +350,12 @@ async function runManifestInjection(
 	};
 
 	await manifestBuildPostHook(opts, internals, {
+		ssrOutputs,
+		prerenderOutputs,
+		mutate,
+	});
+
+	await contentAssetsBuildPostHook(internals, {
 		ssrOutputs,
 		prerenderOutputs,
 		mutate,

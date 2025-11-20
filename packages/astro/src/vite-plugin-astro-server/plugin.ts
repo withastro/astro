@@ -179,10 +179,9 @@ export function createVitePluginAstroServerClient(): vite.Plugin {
 
 			// Replace the Vite overlay with ours
 			return patchOverlay(code);
-		}
-	}
+		},
+	};
 }
-
 
 /**
  * It creates a `SSRManifest` from the `AstroSettings`.

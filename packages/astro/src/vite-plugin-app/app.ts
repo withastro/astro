@@ -51,8 +51,9 @@ export class AstroServerApp extends BaseApp<AstroServerPipeline> {
 		manifestData: RoutesList,
 		loader: ModuleLoader,
 		settings: AstroSettings,
+		getDebugInfo: () => Promise<string>,
 	) {
-		super(manifest, streaming, settings, logger, loader, manifestData);
+		super(manifest, streaming, settings, logger, loader, manifestData, getDebugInfo);
 		this.settings = settings;
 		this.logger = logger;
 		this.loader = loader;
@@ -65,8 +66,9 @@ export class AstroServerApp extends BaseApp<AstroServerPipeline> {
 		logger: Logger,
 		loader: ModuleLoader,
 		settings: AstroSettings,
+		getDebugInfo: () => Promise<string>,
 	): Promise<AstroServerApp> {
-		return new AstroServerApp(manifest, true, logger, routesList, loader, settings);
+		return new AstroServerApp(manifest, true, logger, routesList, loader, settings, getDebugInfo);
 	}
 
 	createPipeline(
@@ -76,12 +78,14 @@ export class AstroServerApp extends BaseApp<AstroServerPipeline> {
 		logger: Logger,
 		loader: ModuleLoader,
 		manifestData: RoutesList,
+		getDebugInfo: () => Promise<string>,
 	): AstroServerPipeline {
 		return AstroServerPipeline.create(manifestData, {
 			loader,
 			logger,
 			manifest,
 			settings,
+			getDebugInfo,
 		});
 	}
 

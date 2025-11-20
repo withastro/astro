@@ -30,7 +30,7 @@ export class DevPipeline extends Pipeline {
 		const pipeline = new DevPipeline(
 			logger,
 			manifest,
-			'production',
+			'development',
 			manifest.renderers,
 			resolve,
 			streaming,

@@ -1,6 +1,5 @@
 import type { Plugin } from 'vite';
 import { ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID } from '../actions/consts.js';
-import { getInfoOutput } from '../cli/info/index.js';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/index.js';
 import type { SerializedSSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
@@ -154,10 +153,7 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 				settings.config.devToolbar.enabled &&
 				(await settings.preferences.get('devToolbar.enabled')),
 			latestAstroVersion: settings.latestAstroVersion,
-			debugInfoOutput: await getInfoOutput({
-				userConfig: settings.config,
-				print: false,
-			}),
+			debugInfoOutput: '',
 		},
 		logLevel: settings.logLevel,
 	};

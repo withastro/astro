@@ -4,7 +4,7 @@ import { Http2ServerResponse } from 'node:http2';
 import type { Socket } from 'node:net';
 import type { RemotePattern } from '../../types/public/config.js';
 import { clientAddressSymbol, nodeRequestAbortControllerCleanupSymbol } from '../constants.js';
-import { deserializeManifest } from './common.js';
+import { deserializeManifest } from './manifest.js';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import type { RenderOptions } from './index.js';
 import { App } from './index.js';
