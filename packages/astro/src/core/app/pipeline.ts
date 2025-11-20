@@ -9,7 +9,7 @@ import {
 	createModuleScriptElement,
 	createStylesheetElementSet,
 } from '../render/ssr-element.js';
-import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/index.js';
+import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import { createConsoleLogger } from './logging.js';
 

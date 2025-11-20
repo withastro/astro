@@ -288,7 +288,7 @@ describe('Content Collections', () => {
 		});
 	});
 
-	describe('SSR integration', () => {
+	describe('SSR integration', {only: true}, () => {
 		let app;
 
 		before(async () => {

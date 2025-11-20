@@ -111,7 +111,7 @@ export default async function astroPluginRoutes({
 				});
 
 				const code = `
-				import { deserializeRouteInfo } from 'astro/app';
+				import { deserializeRouteInfo } from 'astro/app/manifest';
 				const serializedData = ${JSON.stringify(filteredRoutes)};
 				const routes = serializedData.map(deserializeRouteInfo);
 				export { routes };

@@ -62,7 +62,7 @@ export function serializedManifestPlugin({
 					manifestData = JSON.stringify(serialized);
 				}
 				const code = `
-					import { deserializeManifest as _deserializeManifest } from 'astro/app';
+					import { deserializeManifest as _deserializeManifest } from 'astro/app/common';
 					import { renderers } from '${ASTRO_RENDERERS_MODULE_ID}';
 					import { routes } from '${ASTRO_ROUTES_MODULE_ID}';
 					import { pageMap } from '${VIRTUAL_PAGES_MODULE_ID}';

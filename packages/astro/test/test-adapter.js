@@ -46,7 +46,8 @@ export default function ({
 									if (id === '@my-ssr') {
 										return {
 											code: `
-											import { App, AppPipeline } from 'astro/app';
+											import { App } from 'astro/app/app';
+											import { AppPipeline } from 'astro/app/pipeline';
 											import fs from 'fs';
 
 											${
