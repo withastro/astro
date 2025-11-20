@@ -74,7 +74,7 @@ export class AstroError extends Error {
 	}
 
 	static is(err: unknown): err is AstroError {
-		return err != null && (err as AstroError).type === 'AstroError';
+		return (err as AstroError)?.type === 'AstroError';
 	}
 }
 
@@ -86,7 +86,7 @@ export class CompilerError extends AstroError {
 	}
 
 	static is(err: unknown): err is CompilerError {
-		return err != null && (err as CompilerError).type === 'CompilerError';
+		return (err as CompilerError)?.type === 'CompilerError';
 	}
 }
 
@@ -94,7 +94,7 @@ export class CSSError extends AstroError {
 	type: ErrorTypes = 'CSSError';
 
 	static is(err: unknown): err is CSSError {
-		return err != null && (err as CSSError).type === 'CSSError';
+		return (err as CSSError)?.type === 'CSSError';
 	}
 }
 
@@ -102,7 +102,7 @@ export class MarkdownError extends AstroError {
 	type: ErrorTypes = 'MarkdownError';
 
 	static is(err: unknown): err is MarkdownError {
-		return err != null && (err as MarkdownError).type === 'MarkdownError';
+		return (err as MarkdownError)?.type === 'MarkdownError';
 	}
 }
 
@@ -110,7 +110,7 @@ export class InternalError extends AstroError {
 	type: ErrorTypes = 'InternalError';
 
 	static is(err: unknown): err is InternalError {
-		return err != null && (err as InternalError).type === 'InternalError';
+		return (err as InternalError)?.type === 'InternalError';
 	}
 }
 
@@ -127,31 +127,31 @@ export class AggregateError extends AstroError {
 	}
 
 	static is(err: unknown): err is AggregateError {
-		return err != null && (err as AggregateError).type === 'AggregateError';
+		return (err as AggregateError)?.type === 'AggregateError';
 	}
 }
 
 const astroConfigZodErrors = new WeakSet<ZodError>();
 
 /**
- * Check if an error is a ZodError from an AstroConfig validation.
- * Used to suppress formatting a ZodError if needed.
- */
+	* Check if an error is a ZodError from an AstroConfig validation.
+	* Used to suppress formatting a ZodError if needed.
+	*/
 export function isAstroConfigZodError(error: unknown): error is ZodError {
 	return astroConfigZodErrors.has(error as ZodError);
 }
 
 /**
- * Track that a ZodError comes from an AstroConfig validation.
- */
+	* Track that a ZodError comes from an AstroConfig validation.
+	*/
 export function trackAstroConfigZodError(error: ZodError): void {
 	astroConfigZodErrors.add(error);
 }
 
 /**
- * Generic object representing an error with all possible data
- * Compatible with both Astro's and Vite's errors
- */
+	* Generic object representing an error with all possible data
+	* Compatible with both Astro's and Vite's errors
+	*/
 export interface ErrorWithMetadata {
 	[name: string]: any;
 	name: string;
@@ -174,14 +174,14 @@ export interface ErrorWithMetadata {
 }
 
 /**
- * Special error that is exposed to users.
- * Compared to AstroError, it contains a subset of information.
- */
+	* Special error that is exposed to users.
+	* Compared to AstroError, it contains a subset of information.
+	*/
 export class AstroUserError extends Error {
 	type: ErrorTypes = 'AstroUserError';
 	/**
-	 * A message that explains to the user how they can fix the error.
-	 */
+		* A message that explains to the user how they can fix the error.
+		*/
 	hint: string | undefined;
 	name = 'AstroUserError';
 	constructor(message: string, hint?: string) {
@@ -191,6 +191,6 @@ export class AstroUserError extends Error {
 	}
 
 	static is(err: unknown): err is AstroUserError {
-		return err != null && (err as AstroUserError).type === 'AstroUserError';
+		return (err as AstroUserError)?.type === 'AstroUserError';
 	}
 }
