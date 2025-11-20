@@ -19,7 +19,9 @@ const ASTRO_CSS_EXTENSION_POST_PATTERN = '@_@';
  * Inverse function of getVirtualModulePageName().
  */
 function getComponentFromVirtualModuleCssName(virtualModulePrefix: string, id: string): string {
-	return id.slice(virtualModulePrefix.length).replace(new RegExp(ASTRO_CSS_EXTENSION_POST_PATTERN, 'g'), '.');
+	return id
+		.slice(virtualModulePrefix.length)
+		.replace(new RegExp(ASTRO_CSS_EXTENSION_POST_PATTERN, 'g'), '.');
 }
 
 /**
@@ -56,7 +58,10 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 				};
 			}
 			if (id.startsWith(RESOLVED_MODULE_DEV_CSS_PREFIX)) {
-				const componentPath = getComponentFromVirtualModuleCssName(RESOLVED_MODULE_DEV_CSS_PREFIX, id);
+				const componentPath = getComponentFromVirtualModuleCssName(
+					RESOLVED_MODULE_DEV_CSS_PREFIX,
+					id,
+				);
 				const cssSet = routeCssMap.get(componentPath) || new Set<ImportedDevStyle>();
 				return {
 					code: `export const css = new Set(${JSON.stringify(Array.from(cssSet.values()))})`,
