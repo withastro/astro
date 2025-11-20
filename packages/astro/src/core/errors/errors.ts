@@ -134,24 +134,24 @@ export class AggregateError extends AstroError {
 const astroConfigZodErrors = new WeakSet<ZodError>();
 
 /**
-	* Check if an error is a ZodError from an AstroConfig validation.
-	* Used to suppress formatting a ZodError if needed.
-	*/
+ * Check if an error is a ZodError from an AstroConfig validation.
+ * Used to suppress formatting a ZodError if needed.
+ */
 export function isAstroConfigZodError(error: unknown): error is ZodError {
 	return astroConfigZodErrors.has(error as ZodError);
 }
 
 /**
-	* Track that a ZodError comes from an AstroConfig validation.
-	*/
+ * Track that a ZodError comes from an AstroConfig validation.
+ */
 export function trackAstroConfigZodError(error: ZodError): void {
 	astroConfigZodErrors.add(error);
 }
 
 /**
-	* Generic object representing an error with all possible data
-	* Compatible with both Astro's and Vite's errors
-	*/
+ * Generic object representing an error with all possible data
+ * Compatible with both Astro's and Vite's errors
+ */
 export interface ErrorWithMetadata {
 	[name: string]: any;
 	name: string;
@@ -174,14 +174,14 @@ export interface ErrorWithMetadata {
 }
 
 /**
-	* Special error that is exposed to users.
-	* Compared to AstroError, it contains a subset of information.
-	*/
+ * Special error that is exposed to users.
+ * Compared to AstroError, it contains a subset of information.
+ */
 export class AstroUserError extends Error {
 	type: ErrorTypes = 'AstroUserError';
 	/**
-		* A message that explains to the user how they can fix the error.
-		*/
+	 * A message that explains to the user how they can fix the error.
+	 */
 	hint: string | undefined;
 	name = 'AstroUserError';
 	constructor(message: string, hint?: string) {
