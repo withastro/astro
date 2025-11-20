@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes unhandled rejection bug where undefined error values caused TypeError in error type checking methods
+Fixes an unhandled rejection issue when using Astro with Vercel Workflow DevKit
