@@ -98,10 +98,10 @@ export class AstroServerPipeline extends Pipeline {
 						version: ASTRO_VERSION,
 						latestAstroVersion: settings.latestAstroVersion,
 						// TODO: Currently the debug info is always fetched, which slows things down.
-					// We should look into not loading it if the dev toolbar is disabled. And when
-					// enabled, it would nice to request the debug info through import.meta.hot
-					// when the button is click to defer execution as much as possible
-					debugInfo: await this.getDebugInfo(),
+						// We should look into not loading it if the dev toolbar is disabled. And when
+						// enabled, it would nice to request the debug info through import.meta.hot
+						// when the button is click to defer execution as much as possible
+						debugInfo: await this.getDebugInfo(),
 					};
 
 					// Additional data for the dev overlay

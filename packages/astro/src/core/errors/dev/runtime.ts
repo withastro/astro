@@ -1,5 +1,5 @@
 import { escape } from 'html-escaper';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import { AstroErrorData, type ErrorWithMetadata } from '../index.js';
 
 /**

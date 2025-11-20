@@ -63,11 +63,11 @@ export class DevApp extends BaseApp<DevPipeline> {
 				renderContext.props.error = error;
 				const response = await renderContext.render(preloadedComponent);
 
-				if(error) {
+				if (error) {
 					// Log useful information that the custom 500 page may not display unlike the default error overlay
 					this.logger.error('router', (error as AstroError).stack || (error as AstroError).message);
 				}
-				
+
 				return response;
 			} catch (_err) {
 				if (skipMiddleware === false) {
@@ -84,15 +84,15 @@ export class DevApp extends BaseApp<DevPipeline> {
 			}
 		};
 
-		if(status === 404) {
+		if (status === 404) {
 			const custom400 = getCustom400Route(this.manifestData);
-			if(custom400) {
+			if (custom400) {
 				return renderRoute(custom400);
 			}
 		}
 
 		const custom500 = getCustom500Route(this.manifestData);
-		
+
 		// Show dev overlay
 		if (!custom500) {
 			throw error;
