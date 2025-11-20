@@ -412,7 +412,7 @@ async function getPathsForRoute(
 
 				// Current route is lower-priority than matchedRoute.
 				// Path will be skipped due to collision.
-				if (config.experimental.failOnPrerenderConflict) {
+				if (config.prerenderConflictBehavior === 'error') {
 					throw new AstroError({
 						...AstroErrorData.PrerenderRouteConflict,
 						message: AstroErrorData.PrerenderRouteConflict.message(
@@ -422,7 +422,7 @@ async function getPathsForRoute(
 						),
 						hint: AstroErrorData.PrerenderRouteConflict.hint(matchedRoute.route, route.route),
 					});
-				} else {
+				} else if (config.prerenderConflictBehavior === 'warning') {
 					const msg = AstroErrorData.PrerenderRouteConflict.message(
 						matchedRoute.route,
 						route.route,

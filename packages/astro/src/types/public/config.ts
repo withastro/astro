@@ -2031,6 +2031,20 @@ export interface AstroUserConfig<
 
 	/**
 	 *
+	 * @name prerenderConflictBehavior
+	 * @type {'warning' | 'error' | 'ignore'}
+	 * @default `'warning'`
+	 * @version 6.0
+	 * @description
+	 * When two routes generate the same prerendered URL, defines Astro's behavior:
+	 * - Error: fail the build
+	 * - Warning (default): logs a warning when conflicts occur and the highest-priority route wins
+	 * - Ignore: silently picks the highest-priority route when conflicts occur
+	 */
+	prerenderConflictBehavior?: 'warning' | 'error' | 'ignore';
+
+	/**
+	 *
 	 * @kind heading
 	 * @name Legacy Flags
 	 * @description
@@ -2084,18 +2098,6 @@ export interface AstroUserConfig<
 		 * See the [Prefetch Guide](https://docs.astro.build/en/guides/prefetch/) for more `prefetch` options and usage.
 		 */
 		clientPrerender?: boolean;
-
-		/**
-		 *
-		 * @name experimental.failOnPrerenderConflict
-		 * @type {boolean}
-		 * @default `false`
-		 * @version 5.x
-		 * @description
-		 * When two routes generate the same prerendered URL, fail the build instead of skipping one.
-		 * If disabled (default), a warning is logged when conflicts occur and the highest-priority route wins.
-		 */
-		failOnPrerenderConflict?: boolean;
 
 		/**
 		 *
