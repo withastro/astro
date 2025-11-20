@@ -65,7 +65,7 @@ export interface RouteData {
 	/**
 	 * The paths of the physical files emitted by this route. When a route **isn't** prerendered, the value is either `undefined` or an empty array.
 	 */
-	distURL?: URL[];
+	distURL: URL[];
 	/**
 	 *
 	 * regex used for matching an input URL against a requested route

@@ -1,8 +1,8 @@
 import { server as actions } from 'virtual:astro:actions/entrypoint';
 import { manifest as _manifest } from 'virtual:astro:manifest';
-import { createApp } from 'astro/app/entrypoint';
+import { BuildApp } from '../core/build/app.js';
 
-const app = createApp();
+const app = new BuildApp(_manifest);
 const { renderers } = _manifest;
 
 // Export middleware lazy-loaded

@@ -7,6 +7,7 @@ import {
 } from '../../vite-plugin-pages/index.js';
 import { getVirtualModulePageName } from '../../vite-plugin-pages/util.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
+import { createConsoleLogger } from '../app/index.js';
 import type { SSRManifest } from '../app/types.js';
 import type { TryRewriteResult } from '../base-pipeline.js';
 import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
@@ -23,6 +24,9 @@ import type { SinglePageBuiltModule, StaticBuildOptions } from './types.js';
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
  */
 export class BuildPipeline extends Pipeline {
+	internals: BuildInternals | undefined;
+	options: StaticBuildOptions | undefined;
+
 	getName(): string {
 		return 'BuildPipeline';
 	}
@@ -37,18 +41,36 @@ export class BuildPipeline extends Pipeline {
 	 */
 	#routesByFilePath: WeakMap<RouteData, string> = new WeakMap<RouteData, string>();
 
+	getSettings() {
+		if (!this.options) {
+			throw new Error('No options defined');
+		}
+		return this.options.settings;
+	}
+
+	getOptions() {
+		if (!this.options) {
+			throw new Error('No options defined');
+		}
+		return this.options;
+	}
+
+	getInternals() {
+		if (!this.internals) {
+			throw new Error('No internals defined');
+		}
+		return this.internals;
+	}
+
 	get outFolder() {
-		return this.settings.buildOutput === 'server'
-			? this.settings.config.build.server
-			: getOutDirWithinCwd(this.settings.config.outDir);
+		const settings = this.getSettings();
+		return settings.buildOutput === 'server'
+			? settings.config.build.server
+			: getOutDirWithinCwd(settings.config.outDir);
 	}
 
 	private constructor(
-		readonly internals: BuildInternals,
 		readonly manifest: SSRManifest,
-		readonly options: StaticBuildOptions,
-		readonly config = options.settings.config,
-		readonly settings = options.settings,
 		readonly defaultRoutes = createDefaultRoutes(manifest),
 	) {
 		const resolveCache = new Map<string, string>();
@@ -71,36 +93,34 @@ export class BuildPipeline extends Pipeline {
 			resolveCache.set(specifier, assetLink);
 			return assetLink;
 		}
-
+		const logger = createConsoleLogger(manifest.logLevel);
 		// We can skip streaming in SSG for performance as writing as strings are faster
-		super(
-			options.logger,
-			manifest,
-			options.runtimeMode,
-			manifest.renderers,
-			resolve,
-			manifest.serverLike,
-		);
+		super(logger, manifest, 'production', manifest.renderers, resolve, manifest.serverLike);
 	}
 
 	getRoutes(): RouteData[] {
-		return this.options.routesList.routes;
+		return this.getOptions().routesList.routes;
 	}
 
-	static create({
-		internals,
-		manifest,
-		options,
-	}: Pick<BuildPipeline, 'internals' | 'manifest' | 'options'>) {
-		return new BuildPipeline(internals, manifest, options);
+	static create({ manifest }: Pick<BuildPipeline, 'manifest'>) {
+		return new BuildPipeline(manifest);
+	}
+
+	public setInternals(internals: BuildInternals) {
+		this.internals = internals;
+	}
+
+	public setOptions(options: StaticBuildOptions) {
+		this.options = options;
 	}
 
 	headElements(routeData: RouteData): Pick<SSRResult, 'scripts' | 'styles' | 'links'> {
 		const {
-			internals,
 			manifest: { assetsPrefix, base },
-			settings,
 		} = this;
+
+		const settings = this.getSettings();
+		const internals = this.getInternals();
 		const links = new Set<never>();
 		const pageBuildData = getPageData(internals, routeData.route, routeData.component);
 		const scripts = new Set<SSRElement>();
@@ -166,10 +186,10 @@ export class BuildPipeline extends Pipeline {
 				VIRTUAL_PAGE_RESOLVED_MODULE_ID,
 				routeData.component,
 			);
-			
+
 			// We retrieve the original JS module
-			const filePath = this.internals.entrySpecifierToBundleMap.get(moduleSpecifier);
-			
+			const filePath = this.internals?.entrySpecifierToBundleMap.get(moduleSpecifier);
+
 			if (filePath) {
 				// Populate the cache
 				this.#routesByFilePath.set(routeData, filePath);
@@ -179,34 +199,58 @@ export class BuildPipeline extends Pipeline {
 		return pages;
 	}
 
-	// TODO This method can almost definitely be removed and we don't use it.
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
-		if (this.#componentsInterner.has(routeData)) {
-			// SAFETY: checked before
-			const entry = this.#componentsInterner.get(routeData)!;
-			return await entry.page();
-		}
+		const module = await this.getModuleForRoute(routeData);
+		return module.page();
+	}
 
-		for (const route of this.defaultRoutes) {
-			if (route.component === routeData.component) {
-				return route.instance;
+	async getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
+		for (const defaultRoute of this.defaultRoutes) {
+			if (route.component === defaultRoute.component) {
+				return {
+					page: () => Promise.resolve(defaultRoute.instance),
+					renderers: [],
+				};
 			}
 		}
+		let routeToProcess = route;
+		if (routeIsRedirect(route)) {
+			if (route.redirectRoute) {
+				// This is a static redirect
+				routeToProcess = route.redirectRoute;
+			} else {
+				// This is an external redirect, so we return a component stub
+				return RedirectSinglePageBuiltModule;
+			}
+		} else if (routeIsFallback(route)) {
+			// This is a i18n fallback route
+			routeToProcess = getFallbackRoute(route, this.manifest.routes);
+		}
 
-		// SAFETY: the pipeline calls `retrieveRoutesToGenerate`, which is in charge to fill the cache.
-		const filePath = this.#routesByFilePath.get(routeData)!;
-		const module = await this.retrieveSsrEntry(routeData, filePath);
-		return module.page();
+		if (this.manifest.pageMap) {
+			const importComponentInstance = this.manifest.pageMap.get(routeToProcess.component);
+			if (!importComponentInstance) {
+				throw new Error(
+					`Unexpectedly unable to find a component instance for route ${route.route}`,
+				);
+			}
+			return await importComponentInstance();
+		} else if (this.manifest.pageModule) {
+			return this.manifest.pageModule;
+		}
+		throw new Error(
+			"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue.",
+		);
 	}
 
 	async tryRewrite(payload: RewritePayload, request: Request): Promise<TryRewriteResult> {
 		const { routeData, pathname, newUrl } = findRouteToRewrite({
 			payload,
 			request,
-			routes: this.options.routesList.routes,
-			trailingSlash: this.config.trailingSlash,
-			buildFormat: this.config.build.format,
-			base: this.config.base,
+			routes: this.manifest.routes.map((routeInfo) => routeInfo.routeData),
+			trailingSlash: this.manifest.trailingSlash,
+			buildFormat: this.manifest.buildFormat,
+			base: this.manifest.base,
 			outDir: this.manifest.serverLike ? this.manifest.buildClientDir : this.manifest.outDir,
 		});
 
@@ -237,6 +281,7 @@ export class BuildPipeline extends Pipeline {
 		route: RouteData,
 		outFolder: URL,
 	): Promise<SinglePageBuiltModule> {
+		const internals = this.getInternals();
 		if (route.type !== 'fallback') {
 			throw new Error(`Expected a redirect route.`);
 		}
@@ -245,7 +290,7 @@ export class BuildPipeline extends Pipeline {
 		let fallbackRoute = getFallbackRoute(route, this.manifest.routes);
 
 		if (fallbackRoute) {
-			const filePath = getEntryFilePath(this.internals, fallbackRoute);
+			const filePath = getEntryFilePath(internals, fallbackRoute);
 			if (filePath) {
 				const url = createEntryURL(filePath, outFolder);
 				const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
@@ -260,11 +305,12 @@ export class BuildPipeline extends Pipeline {
 		route: RouteData,
 		outFolder: URL,
 	): Promise<SinglePageBuiltModule> {
+		const internals = this.getInternals();
 		if (route.type !== 'redirect') {
 			throw new Error(`Expected a redirect route.`);
 		}
 		if (route.redirectRoute) {
-			const filePath = getEntryFilePath(this.internals, route.redirectRoute);
+			const filePath = getEntryFilePath(internals, route.redirectRoute);
 			if (filePath) {
 				const url = createEntryURL(filePath, outFolder);
 				const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());

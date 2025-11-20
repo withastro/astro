@@ -165,7 +165,6 @@ export class RenderContext {
 	): Promise<Response> {
 		const { middleware, pipeline } = this;
 		const { logger, streaming, manifest } = pipeline;
-
 		const props =
 			Object.keys(this.props).length > 0
 				? this.props

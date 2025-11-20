@@ -47,17 +47,21 @@ const STATUS_CODE_PAGES = new Set(['/404', '/500']);
  * Handles both "/foo" and "foo" `name` formats.
  * Handles `/404` and `/` correctly.
  */
-export function getOutputFilename(astroConfig: AstroConfig, name: string, routeData: RouteData) {
+export function getOutputFilename(
+	buildFormat: NonNullable<AstroConfig['build']>['format'],
+	name: string,
+	routeData: RouteData,
+) {
 	if (routeData.type === 'endpoint') {
 		return name;
 	}
 	if (name === '/' || name === '') {
 		return path.posix.join(name, 'index.html');
 	}
-	if (astroConfig.build.format === 'file' || STATUS_CODE_PAGES.has(name)) {
+	if (buildFormat === 'file' || STATUS_CODE_PAGES.has(name)) {
 		return `${removeTrailingForwardSlash(name || 'index')}.html`;
 	}
-	if (astroConfig.build.format === 'preserve' && !routeData.isIndex) {
+	if (buildFormat === 'preserve' && !routeData.isIndex) {
 		return `${removeTrailingForwardSlash(name || 'index')}.html`;
 	}
 	return path.posix.join(name, 'index.html');

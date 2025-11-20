@@ -20,8 +20,6 @@ import type { GetStaticPathsItem } from '../../types/public/common.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { IntegrationResolvedRoute, RouteToHeaders } from '../../types/public/index.js';
 import type { RouteData, RouteType, SSRError } from '../../types/public/internal.js';
-import type { BaseApp } from '../app/base.js';
-import type { SSRManifest } from '../app/types.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getRedirectLocationOrThrow } from '../redirects/index.js';
@@ -32,9 +30,9 @@ import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/h
 import { matchRoute } from '../routing/match.js';
 import { stringifyParams } from '../routing/params.js';
 import { getOutputFilename } from '../util.js';
+import type { BuildApp } from './app.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
-import { BuildPipeline } from './pipeline.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 
@@ -56,11 +54,10 @@ export async function generatePages(
 	const prerenderEntry = await import(prerenderEntryUrl.toString());
 
 	// Grab the manifest and create the pipeline
-	const manifest: SSRManifest = prerenderEntry.manifest;
-	const pipeline = BuildPipeline.create({ internals, manifest, options });
-	const app = prerenderEntry.app as BaseApp;
+	const app = prerenderEntry.app as BuildApp;
+	app.setInternals(internals);
+	app.setOptions(options);
 
-	const { config } = pipeline;
 	const logger = app.logger;
 
 	// HACK! `astro:assets` relies on a global to know if its running in dev, prod, ssr, ssg, full moon
@@ -72,26 +69,26 @@ export async function generatePages(
 	const verb = ssr ? 'prerendering' : 'generating';
 	logger.info('SKIP_FORMAT', `\n${colors.bgGreen(colors.black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
-	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
+	const pagesToGenerate = app.pipeline.retrieveRoutesToGenerate();
 	const routeToHeaders: RouteToHeaders = new Map();
 
 	if (ssr) {
 		for (const routeData of pagesToGenerate) {
 			if (routeData.prerender) {
 				// i18n domains won't work with pre rendered routes at the moment, so we need to throw an error
-				if (config.i18n?.domains && Object.keys(config.i18n.domains).length > 0) {
+				if (app.manifest.i18n?.domains && Object.keys(app.manifest.i18n.domains).length > 0) {
 					throw new AstroError({
 						...NoPrerenderedRoutesWithDomains,
 						message: NoPrerenderedRoutesWithDomains.message(routeData.component),
 					});
 				}
 
-				await generatePage(app, routeData, builtPaths, pipeline, routeToHeaders);
+				await generatePage(app, routeData, builtPaths, routeToHeaders);
 			}
 		}
 	} else {
 		for (const routeData of pagesToGenerate) {
-			await generatePage(app, routeData, builtPaths, pipeline, routeToHeaders);
+			await generatePage(app, routeData, builtPaths, routeToHeaders);
 		}
 	}
 	logger.info(
@@ -107,7 +104,7 @@ export async function generatePages(
 			.map((x) => x.transforms.size)
 			.reduce((a, b) => a + b, 0);
 		const cpuCount = os.cpus().length;
-		const assetsCreationPipeline = await prepareAssetsGenerationEnv(pipeline, totalCount);
+		const assetsCreationPipeline = await prepareAssetsGenerationEnv(app, totalCount);
 		const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
 
 		const assetsTimer = performance.now();
@@ -198,15 +195,14 @@ export async function generatePages(
 const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
 
 async function generatePage(
-	app: BaseApp,
+	app: BuildApp,
 	routeData: RouteData,
 	builtPaths: Set<string>,
-	pipeline: BuildPipeline,
 	routeToHeaders: RouteToHeaders,
 ) {
 	// prepare information we need
 	const logger = app.logger;
-	const { config } = pipeline;
+	const { config } = app.getSettings();
 
 	async function generatePathWithLogs(
 		path: string,
@@ -219,7 +215,7 @@ async function generatePage(
 		const timeStart = performance.now();
 		logger.debug('build', `Generating: ${path}`);
 
-		const filePath = getOutputFilename(config, path, routeData);
+		const filePath = getOutputFilename(app.manifest.buildFormat, path, routeData);
 		const lineIcon =
 			(index === paths.length - 1 && !isConcurrent) || paths.length === 1 ? '└─' : '├─';
 
@@ -229,14 +225,7 @@ async function generatePage(
 			logger.info(null, `  ${colors.blue(lineIcon)} ${colors.dim(filePath)}`, false);
 		}
 
-		const created = await generatePath(
-			app,
-			path,
-			pipeline,
-			route,
-			integrationRoute,
-			routeToHeaders,
-		);
+		const created = await generatePath(app, path, route, integrationRoute, routeToHeaders);
 
 		const timeEnd = performance.now();
 		const isSlow = timeEnd - timeStart > THRESHOLD_SLOW_RENDER_TIME_MS;
@@ -258,7 +247,7 @@ async function generatePage(
 
 	// Now we explode the routes. A route render itself, and it can render its fallbacks (i18n routing)
 	for (const route of eachRouteInRouteData(routeData)) {
-		const integrationRoute = toIntegrationResolvedRoute(route, pipeline.manifest.trailingSlash);
+		const integrationRoute = toIntegrationResolvedRoute(route, app.manifest.trailingSlash);
 		const icon =
 			route.type === 'page' || route.type === 'redirect' || route.type === 'fallback'
 				? colors.green('▶')
@@ -266,7 +255,7 @@ async function generatePage(
 		logger.info(null, `${icon} ${getPrettyRouteName(route)}`);
 
 		// Get paths for the route, calling getStaticPaths if needed.
-		const paths = await getPathsForRoute(route, app, pipeline, builtPaths);
+		const paths = await getPathsForRoute(route, app, builtPaths);
 
 		// Generate each paths
 		if (config.build.concurrency > 1) {
@@ -297,16 +286,14 @@ function* eachRouteInRouteData(route: RouteData) {
 
 async function getPathsForRoute(
 	route: RouteData,
-	app: BaseApp,
-	pipeline: BuildPipeline,
+	app: BuildApp,
 	builtPaths: Set<string>,
 ): Promise<Array<string>> {
-	const { options, manifest } = pipeline;
 	const logger = app.logger;
-	// TODO: investigate if BuildPipeline can be removed. We already have app.pipeline
 	// which contains routeCache and other pipeline data. Eventually all pipeline info
 	// should come from app.pipeline and BuildPipeline can be eliminated.
 	const { routeCache } = app.pipeline;
+	const manifest = app.getManifest();
 	let paths: Array<string> = [];
 	if (route.pathname) {
 		paths.push(route.pathname);
@@ -324,7 +311,7 @@ async function getPathsForRoute(
 		const routeToProcess = routeIsRedirect(route)
 			? route.redirectRoute
 			: routeIsFallback(route)
-				? getFallbackRoute(route, pipeline.manifest.routes)
+				? getFallbackRoute(route, manifest.routes)
 				: route;
 
 		const staticPaths = await callGetStaticPaths({
@@ -348,7 +335,7 @@ async function getPathsForRoute(
 		paths = staticPaths
 			.map((staticPath) => {
 				try {
-					return stringifyParams(staticPath.params, route, manifest.trailingSlash);
+					return stringifyParams(staticPath.params, route, app.manifest.trailingSlash);
 				} catch (e) {
 					if (e instanceof TypeError) {
 						throw getInvalidRouteSegmentError(e, route, staticPath);
@@ -368,7 +355,7 @@ async function getPathsForRoute(
 				// NOTE: The same URL may match multiple routes in the manifest.
 				// Routing priority needs to be verified here for any duplicate
 				// paths to ensure routing priority rules are enforced in the final build.
-				const matchedRoute = matchRoute(decodeURI(staticPath), options.routesList);
+				const matchedRoute = matchRoute(decodeURI(staticPath), app.manifestData);
 
 				if (!matchedRoute) {
 					// No route matched this path, so we can skip it.
@@ -380,9 +367,10 @@ async function getPathsForRoute(
 					return true;
 				}
 
+				const { config } = app.getSettings();
 				// Current route is lower-priority than matchedRoute.
 				// Path will be skipped due to collision.
-				if (pipeline.config.experimental.failOnPrerenderConflict) {
+				if (config.experimental.failOnPrerenderConflict) {
 					throw new AstroError({
 						...AstroErrorData.PrerenderRouteConflict,
 						message: AstroErrorData.PrerenderRouteConflict.message(
@@ -498,20 +486,19 @@ function getUrlForPath(
  * Render a single pathname for a route using app.render()
  * @param app The pre-initialized Astro App
  * @param pathname The pathname to render
- * @param pipeline BuildPipeline for metadata
  * @param route The route data
  * @return {Promise<boolean | undefined>} If `false` the file hasn't been created. If `undefined` it's expected to not be created.
  */
 async function generatePath(
-	app: BaseApp,
+	app: BuildApp,
 	pathname: string,
-	pipeline: BuildPipeline,
 	route: RouteData,
 	integrationRoute: IntegrationResolvedRoute,
 	routeToHeaders: RouteToHeaders,
 ): Promise<boolean | undefined> {
-	const { config, options } = pipeline;
 	const logger = app.logger;
+	const options = app.getOptions();
+	const settings = app.getSettings();
 	logger.debug('build', `Generating: ${pathname}`);
 
 	// This adds the page name to the array so it can be shown as part of stats.
@@ -523,17 +510,18 @@ async function generatePath(
 	// with the same path
 	if (route.type === 'fallback' && route.pathname !== '/') {
 		if (
-			Object.values(options.allPages).some((val) => {
-				if (val.route.pattern.test(pathname)) {
+			app.manifest.routes.some((val) => {
+				const { routeData } = val;
+				if (routeData.pattern.test(pathname)) {
 					// Check if we've matched a dynamic route
-					if (val.route.params && val.route.params.length !== 0) {
+					if (routeData.params && routeData.params.length !== 0) {
 						// Make sure the pathname matches an entry in distURL
 						if (
-							val.route.distURL &&
-							!val.route.distURL.find(
+							routeData.distURL &&
+							!routeData.distURL.find(
 								(url) =>
 									url.href
-										.replace(config.outDir.toString(), '')
+										.replace(app.manifest.outDir.toString(), '')
 										.replace(/(?:\/index\.html|\.html)$/, '') == trimSlashes(pathname),
 							)
 						) {
@@ -584,11 +572,11 @@ async function generatePath(
 	if (response.status >= 300 && response.status < 400) {
 		// Adapters may handle redirects themselves, turning off Astro's redirect handling using `config.build.redirects` in the process.
 		// In that case, we skip rendering static files for the redirect routes.
-		if (routeIsRedirect(route) && !config.build.redirects) {
+		if (routeIsRedirect(route) && !settings.config.build.redirects) {
 			return undefined;
 		}
 		const locationSite = getRedirectLocationOrThrow(responseHeaders);
-		const siteURL = config.site;
+		const siteURL = settings.config.site;
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(request.url).pathname;
 		body = redirectTemplate({
@@ -597,7 +585,7 @@ async function generatePath(
 			relativeLocation: locationSite,
 			from: fromPath,
 		});
-		if (config.compressHTML === true) {
+		if (settings.config.compressHTML === true) {
 			body = body.replaceAll('\n', '');
 		}
 		// A dynamic redirect, set the location so that integrations know about it.
@@ -613,8 +601,8 @@ async function generatePath(
 	// We encode the path because some paths will received encoded characters, e.g. /[page] VS /%5Bpage%5D.
 	// Node.js decodes the paths, so to avoid a clash between paths, do encode paths again, so we create the correct files and folders requested by the user.
 	const encodedPath = encodeURI(pathname);
-	const outFolder = getOutFolder(pipeline.settings, encodedPath, route);
-	const outFile = getOutFile(config, outFolder, encodedPath, route);
+	const outFolder = getOutFolder(settings, encodedPath, route);
+	const outFile = getOutFile(app.manifest.buildFormat, outFolder, encodedPath, route);
 	if (route.distURL) {
 		route.distURL.push(outFile);
 	} else {
@@ -622,8 +610,8 @@ async function generatePath(
 	}
 
 	if (
-		pipeline.settings.adapter?.adapterFeatures?.experimentalStaticHeaders &&
-		pipeline.settings.config.experimental?.csp
+		settings.adapter?.adapterFeatures?.experimentalStaticHeaders &&
+		settings.config.experimental?.csp
 	) {
 		routeToHeaders.set(pathname, { headers: responseHeaders, route: integrationRoute });
 	}
