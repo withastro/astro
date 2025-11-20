@@ -163,6 +163,9 @@ export class BuildPipeline extends Pipeline {
 	retrieveRoutesToGenerate(): Set<RouteData> {
 		const pages = new Set<RouteData>();
 
+		// Keep a list of the default routes names for faster lookup
+		const defaultRouteComponents = new Set(this.defaultRoutes.map(route => route.component));
+
 		for (const { routeData } of this.manifest.routes) {
 			if (routeIsRedirect(routeData)) {
 				// the component path isn't really important for redirects
@@ -172,6 +175,11 @@ export class BuildPipeline extends Pipeline {
 
 			if (routeIsFallback(routeData) && i18nHasFallback(this.manifest)) {
 				pages.add(routeData);
+				continue;
+			}
+
+			// Default routes like the server islands route, should not be generated
+			if(defaultRouteComponents.has(routeData.component)) {
 				continue;
 			}
 
