@@ -15,6 +15,7 @@ export const DEFAULT_404_ROUTE: RouteData = {
 	fallbackRoutes: [],
 	isIndex: false,
 	origin: 'internal',
+	distURL: [],
 };
 
 export function ensure404Route(manifest: RoutesList) {

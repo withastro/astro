@@ -33,6 +33,7 @@ function getServerIslandRouteData(config: ConfigFields) {
 		fallbackRoutes: [],
 		route: SERVER_ISLAND_ROUTE,
 		origin: 'internal',
+		distURL: [],
 	};
 	return route;
 }

@@ -148,6 +148,7 @@ function createManifest(
 		trailingSlash: manifest?.trailingSlash ?? ASTRO_CONFIG_DEFAULTS.trailingSlash,
 		buildFormat: manifest?.buildFormat ?? ASTRO_CONFIG_DEFAULTS.build.format,
 		compressHTML: manifest?.compressHTML ?? ASTRO_CONFIG_DEFAULTS.compressHTML,
+		assetsDir: manifest?.assetsDir ?? ASTRO_CONFIG_DEFAULTS.build.assets,
 		serverLike: manifest?.serverLike ?? false,
 		assets: manifest?.assets ?? new Set(),
 		assetsPrefix: manifest?.assetsPrefix ?? undefined,
@@ -260,6 +261,7 @@ type AstroContainerManifest = Pick<
 	| 'csp'
 	| 'allowedDomains'
 	| 'serverLike'
+	| 'assetsDir'
 >;
 
 type AstroContainerConstructor = {
@@ -597,6 +599,7 @@ export class experimental_AstroContainer {
 			fallbackRoutes: [],
 			isIndex: false,
 			origin: 'internal',
+			distURL: [],
 		};
 	}
 

@@ -256,7 +256,12 @@ async function buildManifest(
 		// Add the built .html file as a staticFile
 		if (route.prerender && route.pathname) {
 			const outFolder = getOutFolder(opts.settings, route.pathname, route);
-			const outFile = getOutFile(opts.settings.config, outFolder, route.pathname, route);
+			const outFile = getOutFile(
+				opts.settings.config.build.format,
+				outFolder,
+				route.pathname,
+				route,
+			);
 			const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
 			staticFiles.push(file);
 		}
@@ -339,6 +344,7 @@ async function buildManifest(
 		buildClientDir: opts.settings.config.build.client.toString(),
 		buildServerDir: opts.settings.config.build.server.toString(),
 		adapterName: opts.settings.adapter?.name ?? '',
+		assetsDir: opts.settings.config.build.assets,
 		routes,
 		serverLike: opts.settings.buildOutput === 'server',
 		site: settings.config.site,

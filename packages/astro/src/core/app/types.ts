@@ -106,6 +106,7 @@ export type SSRManifest = {
 	outDir: URL;
 	rootDir: URL;
 	publicDir: URL;
+	assetsDir: string;
 	buildClientDir: URL;
 	buildServerDir: URL;
 	csp: SSRManifestCSP | undefined;

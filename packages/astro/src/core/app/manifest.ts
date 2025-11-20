@@ -38,6 +38,7 @@ export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteDa
 		}),
 		isIndex: rawRouteData.isIndex,
 		origin: rawRouteData.origin,
+		distURL: rawRouteData.distURL,
 	};
 }
 

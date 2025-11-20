@@ -322,8 +322,8 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		return pathname;
 	}
 
-	async render(request: Request, renderOptions?: RenderOptions): Promise<Response> {
-		let routeData: RouteData | undefined;
+	public async render(request: Request, renderOptions?: RenderOptions): Promise<Response> {
+		let routeData: RouteData | undefined = renderOptions?.routeData;
 		let locals: object | undefined;
 		let clientAddress: string | undefined;
 		let addCookieHeader: boolean | undefined;
@@ -405,7 +405,6 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		try {
 			// Load route module. We also catch its error here if it fails on initialization
 			const componentInstance = await this.pipeline.getComponentByRoute(routeData);
-
 			const renderContext = await this.createRenderContext({
 				pipeline: this.pipeline,
 				locals,
@@ -638,5 +637,9 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		if (route.endsWith('/404')) return 404;
 		if (route.endsWith('/500')) return 500;
 		return 200;
+	}
+
+	public getManifest() {
+		return this.pipeline.manifest;
 	}
 }

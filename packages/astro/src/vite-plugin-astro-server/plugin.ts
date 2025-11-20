@@ -236,6 +236,7 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		trailingSlash: settings.config.trailingSlash,
 		buildFormat: settings.config.build.format,
 		compressHTML: settings.config.compressHTML,
+		assetsDir: settings.config.build.assets,
 		serverLike: settings.buildOutput === 'server',
 		assets: new Set(),
 		entryModules: {},

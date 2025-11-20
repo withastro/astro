@@ -52,5 +52,6 @@ function getImageEndpointData(
 		prerender: false,
 		fallbackRoutes: [],
 		origin: 'internal',
+		distURL: [],
 	};
 }
