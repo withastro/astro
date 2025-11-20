@@ -106,6 +106,18 @@ describe('CSS', function () {
 				assert.match(style, /\.comp-c\{/);
 				assert.doesNotMatch(style, /\.comp-b/);
 			});
+
+			it('CSS modules imported in both frontmatter and script should not duplicate', async () => {
+				const duplicateHtml = await fixture.readFile('/css-module-duplicate/index.html');
+				const $duplicate = cheerio.load(duplicateHtml);
+				const cssHref = $duplicate('link[rel=stylesheet][href^=/_astro/]').attr('href');
+				const css = await fixture.readFile(cssHref.replace(/^\/?/, '/'));
+
+				const normalizedCSS = css.replace(/\s+/g, '');
+
+				assert.equal((normalizedCSS.match(/\._duplicate-blue_\w+\{[^}]+\}/gi) || []).length, 1);
+				assert.equal((normalizedCSS.match(/\._duplicate-red_\w+\{[^}]+\}/gi) || []).length, 1);
+			});
 		});
 
 		describe('Styles in src/', () => {
