@@ -44,7 +44,6 @@ export default function createVitePluginAstroServer({
 	settings,
 	logger,
 }: AstroPluginOptions): vite.Plugin {
-	let debugInfo: string | null = null;
 	return {
 		name: 'astro:server',
 		applyToEnvironment(environment) {
@@ -180,10 +179,9 @@ export function createVitePluginAstroServerClient(): vite.Plugin {
 
 			// Replace the Vite overlay with ours
 			return patchOverlay(code);
-		}
-	}
+		},
+	};
 }
-
 
 /**
  * It creates a `SSRManifest` from the `AstroSettings`.
