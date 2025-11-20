@@ -44,6 +44,7 @@ export default function createVitePluginAstroServer({
 	settings,
 	logger,
 }: AstroPluginOptions): vite.Plugin {
+	let debugInfo: string | null = null;
 	return {
 		name: 'astro:server',
 		applyToEnvironment(environment) {

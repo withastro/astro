@@ -2089,6 +2089,17 @@ export const SessionStorageSaveError = {
 	hint: 'For more information, see https://docs.astro.build/en/guides/sessions/',
 } satisfies ErrorData;
 
+/**
+ * @docs
+ * @message An error occurred while optimizing the SVG file with SVGO.
+ */
+export const CannotOptimizeSvg = {
+	name: 'CannotOptimizeSvg',
+	title: 'Cannot optimize SVG',
+	message: (path: string) => `An error occurred while optimizing SVG file "${path}" with SVGO.`,
+	hint: 'Review the included SVGO error message provided for guidance.',
+} satisfies ErrorData;
+
 /*
  * Adding an error? Follow these steps:
  * 1. Determine in which category it belongs (Astro, Vite, CSS, Content Collections etc.)

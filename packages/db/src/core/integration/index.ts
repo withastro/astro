@@ -3,7 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AstroIntegration, HookParameters } from 'astro';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import {
 	createServer,
 	type HotPayload,

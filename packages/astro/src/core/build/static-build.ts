@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import { glob } from 'tinyglobby';
 import * as vite from 'vite';
 import { type BuildInternals, createBuildInternals } from '../../core/build/internal.js';

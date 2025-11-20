@@ -33,6 +33,22 @@ export function astroEnv({ settings, sync, envLoader }: AstroEnvPluginParams): P
 		config(_, { command }) {
 			isBuild = command === 'build';
 		},
+		buildStart() {
+			if (!isBuild || populated) {
+				return;
+			}
+
+			const loadedEnv = envLoader.get();
+
+			// During the build, we populate process.env so that secrets can work
+			for (const [key, value] of Object.entries(loadedEnv)) {
+				if (value !== undefined) {
+					process.env[key] = value;
+				}
+			}
+
+			populated = true;
+		},
 		resolveId(id) {
 			if (id === CLIENT_VIRTUAL_MODULE_ID) {
 				return RESOLVED_CLIENT_VIRTUAL_MODULE_ID;
@@ -58,16 +74,6 @@ export function astroEnv({ settings, sync, envLoader }: AstroEnvPluginParams): P
 
 			if (id === RESOLVED_CLIENT_VIRTUAL_MODULE_ID || id === RESOLVED_SERVER_VIRTUAL_MODULE_ID) {
 				const loadedEnv = envLoader.get();
-
-				// During the build, we populate process.env so that secrets can work
-				if (isBuild && !populated) {
-					for (const [key, value] of Object.entries(loadedEnv)) {
-						if (value !== undefined) {
-							process.env[key] = value;
-						}
-					}
-					populated = true;
-				}
 
 				const validatedVariables = validatePublicVariables({
 					schema,

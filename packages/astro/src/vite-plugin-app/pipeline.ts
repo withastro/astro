@@ -1,5 +1,4 @@
 import { fileURLToPath } from 'node:url';
-import { getInfoOutput } from '../cli/info/index.js';
 import { type HeadElements, Pipeline, type TryRewriteResult } from '../core/base-pipeline.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import { enhanceViteSSRError } from '../core/errors/dev/index.js';
@@ -47,7 +46,8 @@ export class AstroServerPipeline extends Pipeline {
 		readonly loader: ModuleLoader,
 		readonly logger: Logger,
 		readonly manifest: SSRManifest,
-		readonly settings: AstroSettings | undefined,
+		readonly settings: AstroSettings,
+		readonly getDebugInfo: () => Promise<string>,
 		readonly defaultRoutes = createDefaultRoutes(manifest),
 	) {
 		const resolve = createResolve(loader, manifest.rootDir);
@@ -62,9 +62,10 @@ export class AstroServerPipeline extends Pipeline {
 			logger,
 			manifest,
 			settings,
-		}: Pick<AstroServerPipeline, 'loader' | 'logger' | 'manifest' | 'settings'>,
+			getDebugInfo,
+		}: Pick<AstroServerPipeline, 'loader' | 'logger' | 'manifest' | 'settings' | 'getDebugInfo'>,
 	) {
-		const pipeline = new AstroServerPipeline(loader, logger, manifest, settings);
+		const pipeline = new AstroServerPipeline(loader, logger, manifest, settings, getDebugInfo);
 		pipeline.routesList = manifestData;
 		return pipeline;
 	}
@@ -96,7 +97,11 @@ export class AstroServerPipeline extends Pipeline {
 						root: fileURLToPath(settings.config.root),
 						version: ASTRO_VERSION,
 						latestAstroVersion: settings.latestAstroVersion,
-						debugInfo: await getInfoOutput({ userConfig: settings.config, print: false }),
+						// TODO: Currently the debug info is always fetched, which slows things down.
+					// We should look into not loading it if the dev toolbar is disabled. And when
+					// enabled, it would nice to request the debug info through import.meta.hot
+					// when the button is click to defer execution as much as possible
+					debugInfo: await this.getDebugInfo(),
 					};
 
 					// Additional data for the dev overlay

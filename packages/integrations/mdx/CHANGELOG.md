@@ -16,6 +16,19 @@
   - astro@6.0.0-alpha.0
   - @astrojs/markdown-remark@7.0.0-alpha.0
 
+## 4.3.12
+
+### Patch Changes
+
+- [#14813](https://github.com/withastro/astro/pull/14813) [`e1dd377`](https://github.com/withastro/astro/commit/e1dd377398a3dcf6ba0697dc8d4bde6d77a45700) Thanks [@ematipico](https://github.com/ematipico)! - Removes `picocolors` as dependency in favor of the fork `piccolore`.
+
+## 4.3.11
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/markdown-remark@6.3.9
+
 ## 4.3.10
 
 ### Patch Changes
