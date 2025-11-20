@@ -45,7 +45,7 @@ export function injectServerIslandRoute(config: ConfigFields, routeManifest: Rou
 type RenderOptions = {
 	componentExport: string;
 	encryptedProps: string;
-	slots: Record<string, string>;
+	encryptedSlots: string;
 };
 
 function badRequest(reason: string) {
@@ -65,24 +65,29 @@ async function getRequestData(request: Request): Promise<Response | RenderOption
 				return badRequest('Missing required query parameters.');
 			}
 
-			const rawSlots = params.get('s')!;
-			try {
-				return {
-					componentExport: params.get('e')!,
-					encryptedProps: params.get('p')!,
-					slots: JSON.parse(rawSlots),
-				};
-			} catch {
-				return badRequest('Invalid slots format.');
-			}
+			const encryptedSlots = params.get('s')!;
+			return {
+				componentExport: params.get('e')!,
+				encryptedProps: params.get('p')!,
+				encryptedSlots,
+			};
 		}
 		case 'POST': {
 			try {
 				const raw = await request.text();
 				const data = JSON.parse(raw) as RenderOptions;
+
+				// Validate that slots is not plaintext
+				if ('slots' in data && typeof (data as any).slots === 'object') {
+					return badRequest('Plaintext slots are not allowed. Slots must be encrypted.');
+				}
+
 				return data;
-			} catch {
-				return badRequest('Request format is invalid.');
+			} catch (e) {
+				if (e instanceof SyntaxError) {
+					return badRequest('Request format is invalid.');
+				}
+				throw e;
 			}
 		}
 		default: {
@@ -121,15 +126,37 @@ export function createEndpoint(manifest: SSRManifest) {
 		const key = await manifest.key;
 		const encryptedProps = data.encryptedProps;
 
-		const propString = encryptedProps === '' ? '{}' : await decryptString(key, encryptedProps);
-		const props = JSON.parse(propString);
+		let props = {};
+
+		if (encryptedProps !== '') {
+			try {
+				const propString = await decryptString(key, encryptedProps);
+				props = JSON.parse(propString);
+			} catch (_e) {
+				return badRequest('Encrypted props value is invalid.');
+			}
+		}
+
+		// Decrypt slots
+		let decryptedSlots: Record<string, any> = {};
+
+		const encryptedSlots = data.encryptedSlots;
+
+		if (encryptedSlots !== '') {
+			try {
+				const slotsString = await decryptString(key, encryptedSlots);
+				decryptedSlots = JSON.parse(slotsString);
+			} catch (_e) {
+				return badRequest('Encrypted slots value is invalid.');
+			}
+		}
 
 		const componentModule = await imp();
 		let Component = (componentModule as any)[data.componentExport];
 
 		const slots: ComponentSlots = {};
-		for (const prop in data.slots) {
-			slots[prop] = createSlotValueFromString(data.slots[prop]);
+		for (const prop in decryptedSlots) {
+			slots[prop] = createSlotValueFromString(decryptedSlots[prop]);
 		}
 
 		// Prevent server islands from being indexed

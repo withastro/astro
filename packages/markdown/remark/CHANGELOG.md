@@ -11,6 +11,13 @@
 - Updated dependencies [[`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf)]:
   - @astrojs/prism@4.0.0-alpha.0
 
+## 6.3.9
+
+### Patch Changes
+
+- Updated dependencies [[`9e9c528`](https://github.com/withastro/astro/commit/9e9c528191b6f5e06db9daf6ad26b8f68016e533), [`0f75f6b`](https://github.com/withastro/astro/commit/0f75f6bc637d547e07324e956db21d9f245a3e8e)]:
+  - @astrojs/internal-helpers@0.7.5
+
 ## 6.3.8
 
 ### Patch Changes

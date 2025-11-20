@@ -54,7 +54,7 @@ describe('CLI shared', () => {
 			it('returns the value from the build', () => {
 				const astroVersionProvider = createBuildTimeAstroVersionProvider();
 
-				assert.equal(astroVersionProvider.getVersion(), packageJson.version);
+				assert.equal(astroVersionProvider.version, packageJson.version);
 			});
 		});
 
@@ -163,7 +163,7 @@ Starts a local server to serve your static dist/ directory.
 			it('returns the value from process.platform', () => {
 				const operatingSystemProvider = createProcessOperatingSystemProvider();
 
-				const platform = operatingSystemProvider.getName();
+				const platform = operatingSystemProvider.name;
 
 				assert.equal(platform, process.platform);
 			});
