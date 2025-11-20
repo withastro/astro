@@ -3,6 +3,7 @@ import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 
 const astroEntryPrefix = '\0astro-entry:';
+const astroEntrySuffix = ".mjs";
 
 /**
  * When adding hydrated or client:only components as Rollup inputs, sometimes we're not using all
@@ -44,10 +45,16 @@ function vitePluginComponentEntry(internals: BuildInternals): VitePlugin {
 			// Astro passes an array of inputs by default. Even though other Vite plugins could
 			// change this to an object, it shouldn't happen in practice as our plugin runs first.
 			if (Array.isArray(rollupInput)) {
-				// @ts-expect-error input is definitely defined here, but typescript thinks it doesn't
-				config.build.rollupOptions.input = rollupInput.map((id) => {
+				// input is definitely defined here
+				config.build!.rollupOptions!.input = rollupInput.map((id) => {
 					if (componentToExportNames.has(id)) {
-						return astroEntryPrefix + id;
+						// We need to add the suffix to the id so that this file is always treated 
+						// as a JS module. This can avoid other single-file-component plugins treating 
+						// this as a component. 
+						// 
+						// For example, if the id ends with `.svelte`, it will be treated as a Svelte 
+						// component by `@sveltejs/vite-plugin-svelte`, which is not what we want.
+						return astroEntryPrefix + id + astroEntrySuffix;
 					} else {
 						return id;
 					}
@@ -61,7 +68,7 @@ function vitePluginComponentEntry(internals: BuildInternals): VitePlugin {
 		},
 		async load(id) {
 			if (id.startsWith(astroEntryPrefix)) {
-				const componentId = id.slice(astroEntryPrefix.length);
+				const componentId = id.slice(astroEntryPrefix.length, -astroEntrySuffix.length);
 				const exportNames = componentToExportNames.get(componentId);
 				if (exportNames) {
 					return {
@@ -74,7 +81,7 @@ function vitePluginComponentEntry(internals: BuildInternals): VitePlugin {
 }
 
 export function normalizeEntryId(id: string): string {
-	return id.startsWith(astroEntryPrefix) ? id.slice(astroEntryPrefix.length) : id;
+	return id.startsWith(astroEntryPrefix) ? id.slice(astroEntryPrefix.length, -astroEntrySuffix.length) : id;
 }
 
 export function pluginComponentEntry(internals: BuildInternals): AstroBuildPlugin {
