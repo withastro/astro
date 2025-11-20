@@ -31,6 +31,9 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 				return RESOLVED_SERVER_ISLAND_MANIFEST;
 			}
 		},
+		shouldTransformCachedModule() {
+			return true;
+		},
 		load(id) {
 			if (id === RESOLVED_SERVER_ISLAND_MANIFEST) {
 				return {
@@ -46,8 +49,6 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 			const info = this.getModuleInfo(id);
 
 			const astro = info ? (info.meta.astro as AstroPluginMetadata['astro']) : undefined;
-
-			let hasAddedIsland = false;
 
 			if (astro) {
 				for (const comp of astro.serverComponents) {
@@ -81,12 +82,11 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 							});
 							referenceIdMap.set(comp.resolvedPath, referenceId);
 						}
-						hasAddedIsland = true;
 					}
 				}
 			}
 
-			if (hasAddedIsland && ssrEnvironment) {
+			if (serverIslandNameMap.size > 0 && serverIslandMap.size > 0 && ssrEnvironment) {
 				// In dev, we need to clear the module graph so that Vite knows to re-transform
 				// the module with the new island information.
 				const mod = ssrEnvironment.moduleGraph.getModuleById(RESOLVED_SERVER_ISLAND_MANIFEST);
@@ -100,22 +100,24 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 					const hasServerIslands = serverIslandNameMap.size > 0;
 					// Error if there are server islands but no adapter provided.
 					if (hasServerIslands && settings.buildOutput !== 'server') {
-						// TODO: re-enable once we fix the build
-						// throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
+						throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
 					}
 				}
-				let mapSource = 'new Map([\n\t';
-				for (let [name, path] of serverIslandMap) {
-					mapSource += `\n\t['${name}', () => import('${path}')],`;
-				}
-				mapSource += ']);';
 
-				return {
-					code: `
+				if (serverIslandNameMap.size > 0 && serverIslandMap.size > 0) {
+					let mapSource = 'new Map([\n\t';
+					for (let [name, path] of serverIslandMap) {
+						mapSource += `\n\t['${name}', () => import('${path}')],`;
+					}
+					mapSource += ']);';
+
+					return {
+						code: `
 					export const serverIslandMap = ${mapSource};
 					\n\nexport const serverIslandNameMap = new Map(${JSON.stringify(Array.from(serverIslandNameMap.entries()), null, 2)});
 					`,
-				};
+					};
+				}
 			}
 		},
 
@@ -125,7 +127,9 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 					// If there's no reference, we can fast-path to an empty map replacement
 					// without sourcemaps as it doesn't shift rows
 					return {
-						code: code.replace(serverIslandPlaceholderMap, 'new Map();'),
+						code: code
+							.replace(serverIslandPlaceholderMap, 'new Map();')
+							.replace(serverIslandPlaceholderNameMap, 'new Map()'),
 						map: null,
 					};
 				}
