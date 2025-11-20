@@ -1,14 +1,14 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+	AggregateError,
 	AstroError,
+	AstroUserError,
 	CompilerError,
 	CSSError,
-	MarkdownError,
 	InternalError,
-	AggregateError,
-	AstroUserError,
 	isAstroError,
+	MarkdownError,
 } from '../../../dist/core/errors/errors.js';
 
 describe('Error type checking', () => {
