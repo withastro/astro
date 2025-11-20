@@ -28,7 +28,7 @@ export default function svelteIntegration(options?: Options): AstroIntegration {
 							svelte({
 								...(options ?? {}),
 								exclude: [
-									// Ensure Svelte vite plugin from mathching virtual ids starting with "\0astro-entry:"
+									// Avoid Svelte vite plugin from mathching virtual ids starting with "\0astro-entry:"
 									/\0/,
 									options?.exclude ?? [],
 								].flat(),
