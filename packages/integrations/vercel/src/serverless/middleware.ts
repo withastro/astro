@@ -9,7 +9,9 @@ import {
 	NODE_PATH,
 } from '../index.js';
 
-const NODE_BUILTINS_FILTER = new RegExp(builtinModules.map((mod) => `(^${mod}$|^node:${mod}$)`).join('|'));
+const NODE_BUILTINS_FILTER = new RegExp(
+	builtinModules.map((mod) => `(^${mod}$|^node:${mod}$)`).join('|'),
+);
 
 /**
  * It generates the Vercel Edge Middleware file.
