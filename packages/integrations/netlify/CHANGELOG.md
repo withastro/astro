@@ -1,5 +1,14 @@
 # @astrojs/netlify
 
+## 6.6.2
+
+### Patch Changes
+
+- [#14716](https://github.com/withastro/astro/pull/14716) [`0419985`](https://github.com/withastro/astro/commit/0419985d9453668f2faf38ee9a84882633c8d8be) Thanks [@serhalp](https://github.com/serhalp)! - Upgrades the `@netlify/functions` dependency to v5. This removes 82 MB and 310 dependencies from the dependency tree
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 6.6.1
 
 ### Patch Changes
