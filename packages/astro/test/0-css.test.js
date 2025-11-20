@@ -332,15 +332,15 @@ describe('CSS', function () {
 
 		describe('CSS Module Duplication (Issue #13491)', () => {
 			it('CSS modules imported in both frontmatter and script should not duplicate', async () => {
-				const html = await fixture.readFile('/css-module-duplicate/index.html');
-				const $ = cheerio.load(html);
-				const cssHref = $('link[rel=stylesheet][href^=/_astro/]').attr('href');
+				const duplicateHtml = await fixture.readFile('/css-module-duplicate/index.html');
+				const $duplicate = cheerio.load(duplicateHtml);
+				const cssHref = $duplicate('link[rel=stylesheet][href^=/_astro/]').attr('href');
 				const css = await fixture.readFile(cssHref.replace(/^\/?/, '/'));
 
 				// Normalize CSS by removing all whitespace
 				const normalizedCSS = css.replace(/\s+/g, '');
-				const blueMatches = normalizedCSS.match(/\._duplicate-blue_[a-z0-9_]+\{[^}]+\}/gi) || [];
-				const redMatches = normalizedCSS.match(/\._duplicate-red_[a-z0-9_]+\{[^}]+\}/gi) || [];
+				const blueMatches = normalizedCSS.match(/\._duplicate-blue_\w+\{[^}]+\}/gi) || [];
+				const redMatches = normalizedCSS.match(/\._duplicate-red_\w+\{[^}]+\}/gi) || [];
 
 				assert.equal(
 					blueMatches.length,
