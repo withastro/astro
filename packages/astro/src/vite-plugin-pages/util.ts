@@ -1,4 +1,4 @@
-import { extname } from 'node:path';
+import { fileExtension } from '@astrojs/internal-helpers/path';
 
 // This is an arbitrary string that we use to replace the dot of the extension.
 const ASTRO_PAGE_EXTENSION_POST_PATTERN = '@_@';
@@ -10,7 +10,7 @@ const ASTRO_PAGE_EXTENSION_POST_PATTERN = '@_@';
  * @param path Page component path
  */
 export function getVirtualModulePageName(virtualModulePrefix: string, path: string): string {
-	const extension = extname(path);
+	const extension = fileExtension(path);
 	return (
 		virtualModulePrefix +
 		(extension.startsWith('.')
