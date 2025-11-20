@@ -45,8 +45,7 @@ function vitePluginComponentEntry(internals: BuildInternals): VitePlugin {
 			// Astro passes an array of inputs by default. Even though other Vite plugins could
 			// change this to an object, it shouldn't happen in practice as our plugin runs first.
 			if (Array.isArray(rollupInput)) {
-				// input is definitely defined here
-				config.build!.rollupOptions!.input = rollupInput.map((id) => {
+				config!.build!.rollupOptions!.input = rollupInput.map((id) => {
 					if (componentToExportNames.has(id)) {
 						// We need to add the suffix to the id so that this file is always treated 
 						// as a JS module. This can avoid other single-file-component plugins treating 
