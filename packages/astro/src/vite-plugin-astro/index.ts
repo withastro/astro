@@ -206,7 +206,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					return null;
 			}
 		},
-		async transform(source, id, options) {
+		async transform(source, id) {
 			if (hasSpecialQueries(id)) return;
 
 			const parsedId = parseAstroRequest(id);
