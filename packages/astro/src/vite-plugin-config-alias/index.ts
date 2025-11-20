@@ -1,8 +1,9 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import type { CompilerOptions } from 'typescript';
-import { normalizePath, type Plugin as VitePlugin } from 'vite';
+import { normalizePath, type ResolvedConfig, type Plugin as VitePlugin } from 'vite';
+
 import type { AstroSettings } from '../types/astro.js';
-import fs from 'node:fs';
 
 type Alias = {
 	find: RegExp;
@@ -97,7 +98,9 @@ const getViteResolveAlias = (settings: AstroSettings) => {
 			};
 
 			aliases.push({
-				find: new RegExp(`^${aliasPattern.replace(/[\\^$+?.()|[\]{}]/g, '\\$&').replace(/\*/g, '(.+)')}$`),
+				find: new RegExp(
+					`^${aliasPattern.replace(/[\\^$+?.()|[\]{}]/g, '\\$&').replace(/\*/g, '(.+)')}$`,
+				),
 				replacement: aliasPattern.includes('*') ? '$1' : aliasPattern,
 				customResolver,
 			});
@@ -190,7 +193,7 @@ function patchCreateResolver(config: ResolvedConfig, postPlugin: VitePlugin) {
 				ssr,
 			};
 
-			const result = await resolver.apply(resolver, args2);
+			const result = await resolver.apply(_createResolver, args2);
 			if (result) return result;
 
 			// @ts-expect-error resolveId exists
