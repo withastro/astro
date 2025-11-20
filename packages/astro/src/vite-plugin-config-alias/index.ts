@@ -1,7 +1,8 @@
 import path from 'node:path';
 import type { CompilerOptions } from 'typescript';
-import { normalizePath, type ResolvedConfig, type Plugin as VitePlugin } from 'vite';
+import { normalizePath, type Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../types/astro.js';
+import fs from 'node:fs';
 
 type Alias = {
 	find: RegExp;
@@ -65,6 +66,47 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	return aliases;
 };
 
+/** Generate vite.resolve.alias entries from tsconfig paths */
+const getViteResolveAlias = (settings: AstroSettings) => {
+	const { tsConfig, tsConfigPath } = settings;
+	if (!tsConfig || !tsConfigPath || !tsConfig.compilerOptions) return [];
+
+	const { baseUrl, paths } = tsConfig.compilerOptions as CompilerOptions;
+	const effectiveBaseUrl = baseUrl ?? (paths ? '.' : undefined);
+	if (!effectiveBaseUrl) return [];
+
+	const resolvedBaseUrl = path.resolve(path.dirname(tsConfigPath), effectiveBaseUrl);
+	const aliases: Array<{ find: string | RegExp; replacement: string; customResolver?: any }> = [];
+
+	// Build aliases with custom resolver that tries multiple paths
+	if (paths) {
+		for (const [aliasPattern, values] of Object.entries(paths)) {
+			const resolvedValues = values.map((v) => path.resolve(resolvedBaseUrl, v));
+
+			const customResolver = (id: string) => {
+				// Try each path in order
+				// id is already the wildcard part (e.g., 'extra.css' for '@styles/*')
+				// resolvedValues still have the * in them, so replace * with id
+				for (const resolvedValue of resolvedValues) {
+					const resolved = resolvedValue.replace('*', id);
+					if (fs.existsSync(resolved)) {
+						return resolved;
+					}
+				}
+				return null;
+			};
+
+			aliases.push({
+				find: new RegExp(`^${aliasPattern.replace(/[\\^$+?.()|[\]{}]/g, '\\$&').replace(/\*/g, '(.+)')}$`),
+				replacement: aliasPattern.includes('*') ? '$1' : aliasPattern,
+				customResolver,
+			});
+		}
+	}
+
+	return aliases;
+};
+
 /** Returns a Vite plugin used to alias paths from tsconfig.json and jsconfig.json. */
 export default function configAliasVitePlugin({
 	settings,
@@ -78,6 +120,14 @@ export default function configAliasVitePlugin({
 		name: 'astro:tsconfig-alias',
 		// use post to only resolve ids that all other plugins before it can't
 		enforce: 'post',
+		config() {
+			// Return vite.resolve.alias config with custom resolvers
+			return {
+				resolve: {
+					alias: getViteResolveAlias(settings),
+				},
+			};
+		},
 		configResolved(config) {
 			patchCreateResolver(config, plugin);
 		},
@@ -107,6 +157,7 @@ export default function configAliasVitePlugin({
 	return plugin;
 }
 
+// TODO this is a deprecated API and should be removed when its safe to do so
 /**
  * Vite's `createResolver` is used to resolve various things, including CSS `@import`.
  * However, there's no way to extend this resolver, besides patching it. This function
@@ -139,7 +190,7 @@ function patchCreateResolver(config: ResolvedConfig, postPlugin: VitePlugin) {
 				ssr,
 			};
 
-			const result = await resolver.apply(_createResolver, args2);
+			const result = await resolver.apply(resolver, args2);
 			if (result) return result;
 
 			// @ts-expect-error resolveId exists
