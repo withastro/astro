@@ -56,7 +56,6 @@
     "./app/node": "./dist/core/app/node.js",
     "./app/pipeline": "./dist/core/app/pipeline.js",
     "./app/entrypoint": "./dist/core/app/entrypoint.js",
-    "./app/entrypoint.prod": "./dist/core/app/entrypoint.prod.js",
     "./entrypoints/prerender": "./dist/entrypoints/prerender.js",
     "./entrypoints/legacy": "./dist/entrypoints/legacy.js",
     "./client/*": "./dist/runtime/client/*",
