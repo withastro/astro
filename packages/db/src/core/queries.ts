@@ -191,8 +191,7 @@ function getDefaultValueSql(columnName: string, column: DBColumnWithDefault): st
 			try {
 				stringified = JSON.stringify(column.schema.default);
 			} catch {
-				// biome-ignore lint/suspicious/noConsole: allowed
-				console.log(
+				console.info(
 					`Invalid default value for column ${colors.bold(
 						columnName,
 					)}. Defaults must be valid JSON when using the \`json()\` type.`,

@@ -6,5 +6,5 @@ export function getStaticPaths() {
 }
 
 export function GET() {
-  return new Response('console.log("fileContent");')
+  return new Response('console.info("fileContent");')
 }

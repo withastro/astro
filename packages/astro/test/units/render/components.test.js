@@ -9,7 +9,7 @@ describe('core/render components', () => {
 			'/src/pages/index.astro': `
 				---
 				const TagA = 'p style=color:red;'
-				const TagB = 'p><script id="pwnd">console.log("pwnd")</script>'
+				const TagB = 'p><script id="pwnd">console.info("pwnd")</script>'
 				---
 				<html>
 					<head><title>testing</title></head>

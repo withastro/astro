@@ -1,1 +1,1 @@
-console.log("I AM IMPORTED INLINE");
+console.info("I AM IMPORTED INLINE");

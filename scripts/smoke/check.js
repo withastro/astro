@@ -12,7 +12,7 @@ function checkExamples() {
 	let examples = readdirSync('./examples', { withFileTypes: true });
 	examples = examples.filter((dirent) => dirent.isDirectory()).filter((dirent) => !skippedExamples.includes(dirent.name));
 
-	console.log(`Running astro check on ${examples.length} examples...`);
+	console.info(`Running astro check on ${examples.length} examples...`);
 
 	// Run astro check in parallel with 5 at most
 	const checkPromises = [];
@@ -61,7 +61,7 @@ function checkExamples() {
 			process.exit(1);
 		}
 
-		console.log('No errors found!');
+		console.info('No errors found!');
 	});
 }
 

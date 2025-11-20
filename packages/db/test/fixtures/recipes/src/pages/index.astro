@@ -10,7 +10,7 @@ const ingredientsByRecipe = await db
 	.from(Ingredient)
 	.innerJoin(Recipe, eq(Ingredient.recipeId, Recipe.id));
 
-console.log(ingredientsByRecipe);
+console.info(ingredientsByRecipe);
 ---
 
 <h2>Shopping list</h2>

@@ -1,1 +1,1 @@
-console.log('no hoist nonmodule');
+console.info('no hoist nonmodule');

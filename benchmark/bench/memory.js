@@ -17,7 +17,7 @@ export async function run(projectDir, outputFile) {
 	const root = fileURLToPath(projectDir);
 	const outputFilePath = fileURLToPath(outputFile);
 
-	console.log('Building and benchmarking...');
+	console.info('Building and benchmarking...');
 	await exec('node', ['--expose-gc', '--max_old_space_size=10000', astroBin, 'build'], {
 		nodeOptions: {
 			cwd: root,
@@ -29,15 +29,15 @@ export async function run(projectDir, outputFile) {
 		throwOnError: true,
 	});
 
-	console.log('Raw results written to', outputFilePath);
+	console.info('Raw results written to', outputFilePath);
 
-	console.log('Result preview:');
-	console.log('='.repeat(10));
-	console.log(`#### Memory\n\n`);
-	console.log(printResult(JSON.parse(await fs.readFile(outputFilePath, 'utf-8'))));
-	console.log('='.repeat(10));
+	console.info('Result preview:');
+	console.info('='.repeat(10));
+	console.info(`#### Memory\n\n`);
+	console.info(printResult(JSON.parse(await fs.readFile(outputFilePath, 'utf-8'))));
+	console.info('='.repeat(10));
 
-	console.log('Done!');
+	console.info('Done!');
 }
 
 /**

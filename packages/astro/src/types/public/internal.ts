@@ -63,7 +63,7 @@ export interface RouteData {
 	 * For a route such as `/blog/[...id].astro`, the `generate` function would return something like this:
 	 *
 	 * ```js
-	 * console.log(generate({ id: 'presentation' })) // will log `/blog/presentation`
+	 * console.info(generate({ id: 'presentation' })) // will log `/blog/presentation`
 	 * ```
 	 */
 	generate: (data?: any) => string;

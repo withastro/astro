@@ -7,7 +7,7 @@ import { makeProject } from './bench/_util.js';
 const args = mri(process.argv.slice(2));
 
 if (args.help || args.h) {
-	console.log(`\
+	console.info(`\
 astro-benchmark <command> [options]
 
 Command

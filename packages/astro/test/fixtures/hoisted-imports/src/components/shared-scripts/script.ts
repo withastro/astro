@@ -1,1 +1,1 @@
-console.log('shared-scripts');
+console.info('shared-scripts');

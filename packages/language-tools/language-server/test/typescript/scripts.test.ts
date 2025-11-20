@@ -10,7 +10,7 @@ describe('TypeScript - Diagnostics', async () => {
 
 	it('treats script tags as modules', async () => {
 		const document = await languageServer.openFakeDocument(
-			'<script>import * as path from "node:path";path;const hello = "Hello, Astro!";</script><script>console.log(hello);</script>',
+			'<script>import * as path from "node:path";path;const hello = "Hello, Astro!";</script><script>console.info(hello);</script>',
 			'astro',
 		);
 		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
@@ -22,7 +22,7 @@ describe('TypeScript - Diagnostics', async () => {
 
 	it('treats inline script tags as not isolated modules', async () => {
 		const document = await languageServer.openFakeDocument(
-			'<script is:inline>const hello = "Hello, Astro!";</script><script is:inline>console.log(hello);</script>',
+			'<script is:inline>const hello = "Hello, Astro!";</script><script is:inline>console.info(hello);</script>',
 			'astro',
 		);
 

@@ -9,7 +9,7 @@ export default defineToolbarApp({
 		myButton.innerText = 'Click me!';
 
 		myButton.addEventListener('click', () => {
-			console.log('Clicked!');
+			console.info('Clicked!');
 		});
 
 		app.toggleNotification({

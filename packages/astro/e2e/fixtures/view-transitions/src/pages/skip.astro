@@ -10,7 +10,7 @@ import Layout from '../components/Layout.astro';
 	const observer = new MutationObserver((mutations) => {
 		for (const mutation of mutations) {
 			if (mutation.type === 'attributes') {
-					console.log('[test]', mutation.attributeName, 
+					console.info('[test]', mutation.attributeName, 
 						(mutation.target as HTMLElement).getAttribute(mutation.attributeName!));
 			}
 		}

@@ -5,7 +5,7 @@ import { createMarkdownProcessor } from '../dist/index.js';
 describe('highlight', () => {
 	it('highlights using shiki by default', async () => {
 		const processor = await createMarkdownProcessor();
-		const { code } = await processor.render('```js\nconsole.log("Hello, world!");\n```');
+		const { code } = await processor.render('```js\nconsole.info("Hello, world!");\n```');
 		assert.match(code, /background-color:/);
 	});
 
@@ -22,7 +22,7 @@ describe('highlight', () => {
 				type: 'prism',
 			},
 		});
-		const { code } = await processor.render('```js\nconsole.log("Hello, world!");\n```');
+		const { code } = await processor.render('```js\nconsole.info("Hello, world!");\n```');
 		assert.ok(code.includes('token'));
 	});
 

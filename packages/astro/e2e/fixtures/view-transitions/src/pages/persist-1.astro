@@ -18,7 +18,7 @@ import Layout from '../components/Layout.astro';
 
 	document.addEventListener('astro:after-swap', () => {
 		const textInput = document.querySelector<HTMLInputElement>("form input:first-of-type")!;
-		console.log(textInput === document.activeElement, textInput.value, textInput.selectionStart, textInput.selectionEnd);
+		console.info(textInput === document.activeElement, textInput.value, textInput.selectionStart, textInput.selectionEnd);
 		const checkBox = document.querySelector<HTMLInputElement>("form input:nth-of-type(2)")!;
 		checkBox.checked = true;
 		checkBox.focus();

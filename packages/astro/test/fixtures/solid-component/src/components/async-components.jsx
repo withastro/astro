@@ -10,9 +10,9 @@ export function AsyncComponent(props) {
 	const id = createUniqueId();
 
 	const [data] = createResource(async () => {
-		// console.log("Start rendering async component " + props.title);
+		// console.info("Start rendering async component " + props.title);
 		await sleep(props.delay ?? SLEEP_MS);
-		// console.log("Finish rendering async component " + props.title);
+		// console.info("Finish rendering async component " + props.title);
 		return 'Async result for component id=' + id;
 	});
 

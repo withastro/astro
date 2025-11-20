@@ -4,7 +4,7 @@ if (Astro.request.method === 'POST') {
 	try {
 		data = await Astro.request.text();
 	} catch (e) {
-		console.log(e)
+		console.info(e)
 	}
 }
 

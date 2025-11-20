@@ -8,7 +8,7 @@
 #              ^^^^^^^^^^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.lang.javascript.astro meta.tag.start.astro meta.attribute.type.astro string.quoted.astro
 #                             ^ source.astro meta.scope.tag.script.astro meta.script.astro meta.lang.javascript.astro meta.tag.start.astro meta.attribute.type.astro string.quoted.astro punctuation.definition.string.end.astro
 #                              ^ source.astro meta.scope.tag.script.astro meta.script.astro meta.lang.javascript.astro meta.tag.start.astro punctuation.definition.tag.end.astro
->	console.log("")
+>	console.info("")
 #^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.lang.javascript.astro meta.embedded.block.astro source.js
 ></script>
 #^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
@@ -25,7 +25,7 @@
 #              ^^^^^^^^^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.lang.partytown.astro meta.tag.start.astro meta.attribute.type.astro string.quoted.astro
 #                            ^ source.astro meta.scope.tag.script.astro meta.script.astro meta.lang.partytown.astro meta.tag.start.astro meta.attribute.type.astro string.quoted.astro punctuation.definition.string.end.astro
 #                             ^ source.astro meta.scope.tag.script.astro meta.script.astro meta.lang.partytown.astro meta.tag.start.astro punctuation.definition.tag.end.astro
->	console.log("")
+>	console.info("")
 #^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.lang.partytown.astro meta.embedded.block.astro source.js
 ></script>
 #^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
@@ -42,7 +42,7 @@
 #              ^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.lang.javascript.astro meta.tag.start.astro meta.attribute.type.astro string.quoted.astro
 #                                    ^ source.astro meta.scope.tag.script.astro meta.script.astro meta.lang.javascript.astro meta.tag.start.astro meta.attribute.type.astro string.quoted.astro punctuation.definition.string.end.astro
 #                                     ^ source.astro meta.scope.tag.script.astro meta.script.astro meta.lang.javascript.astro meta.tag.start.astro punctuation.definition.tag.end.astro
->	console.log("")
+>	console.info("")
 #^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.lang.javascript.astro meta.embedded.block.astro source.js
 ></script>
 #^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
@@ -59,7 +59,7 @@
 #              ^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.lang.node.astro meta.tag.start.astro meta.attribute.type.astro string.quoted.astro
 #                              ^ source.astro meta.scope.tag.script.astro meta.script.astro meta.lang.node.astro meta.tag.start.astro meta.attribute.type.astro string.quoted.astro punctuation.definition.string.end.astro
 #                               ^ source.astro meta.scope.tag.script.astro meta.script.astro meta.lang.node.astro meta.tag.start.astro punctuation.definition.tag.end.astro
->	console.log("")
+>	console.info("")
 #^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.lang.node.astro meta.embedded.block.astro source.js
 ></script>
 #^^ source.astro meta.scope.tag.script.astro meta.script.astro meta.tag.end.astro punctuation.definition.tag.begin.astro

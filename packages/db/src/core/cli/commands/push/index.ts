@@ -36,9 +36,9 @@ export async function cmd({
 
 	// // push the database schema
 	if (migrationQueries.length === 0) {
-		console.log('Database schema is up to date.');
+		console.info('Database schema is up to date.');
 	} else {
-		console.log(`Database schema is out of date.`);
+		console.info(`Database schema is out of date.`);
 	}
 
 	if (isForceReset) {
@@ -50,20 +50,20 @@ export async function cmd({
 		});
 
 		if (!begin) {
-			console.log('Canceled.');
+			console.info('Canceled.');
 			process.exit(0);
 		}
 
-		console.log(`Force-pushing to the database. All existing data will be erased.`);
+		console.info(`Force-pushing to the database. All existing data will be erased.`);
 	} else if (confirmations.length > 0) {
-		console.log('\n' + formatDataLossMessage(confirmations) + '\n');
+		console.info('\n' + formatDataLossMessage(confirmations) + '\n');
 		throw new Error('Exiting.');
 	}
 
 	if (isDryRun) {
-		console.log('Statements:', JSON.stringify(migrationQueries, undefined, 2));
+		console.info('Statements:', JSON.stringify(migrationQueries, undefined, 2));
 	} else {
-		console.log(`Pushing database schema updates...`);
+		console.info(`Pushing database schema updates...`);
 		await pushSchema({
 			statements: migrationQueries,
 			dbInfo,

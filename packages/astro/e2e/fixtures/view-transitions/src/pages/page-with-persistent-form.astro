@@ -11,7 +11,7 @@ import Layout from '../components/Layout.astro';
 		import {navigate} from "astro:transitions/client"
 		const form = document.querySelector("form");
 		form.addEventListener("submit", (e) => {
-			console.log("submit");
+			console.info("submit");
 			e.preventDefault();
 			navigate(`${location.pathname}?name=${input.value}`,{history: "replace"});
 			return false;

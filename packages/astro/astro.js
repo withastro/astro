@@ -65,14 +65,14 @@ Please upgrade Node.js to a supported version: "${engines}"\n`);
 				break;
 			}
 		}
-		console.log(
+		console.info(
 			`${ci.name} CI Environment Detected!\nAdditional steps may be needed to set your Node.js version:`,
 		);
-		console.log(`Documentation: https://docs.astro.build/en/guides/deploy/`);
+		console.info(`Documentation: https://docs.astro.build/en/guides/deploy/`);
 		if (CI_INSTRUCTIONS[platform]) {
-			console.log(`${ci.name} Documentation: ${CI_INSTRUCTIONS[platform]}`);
+			console.info(`${ci.name} Documentation: ${CI_INSTRUCTIONS[platform]}`);
 		}
-		console.log(``);
+		console.info(``);
 	}
 
 	process.exit(1);

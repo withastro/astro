@@ -4,7 +4,7 @@ import { sequence } from 'astro:middleware';
 export const mid1: MiddlewareHandler = async ({ cookies, url, rewrite, request }, next) => {
 	cookies.set('cookie1', 'Cookie from middleware 1');
 	if (url.pathname === '/') {
-		console.log('Rewriting');
+		console.info('Rewriting');
 		return rewrite('/another');
 	}
 	return next();

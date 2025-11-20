@@ -11,7 +11,7 @@ export default function Counter(props) {
 						<Match when={page % 2 === 0}>
 							<button
 								onClick={() => {
-									console.log(page);
+									console.info(page);
 								}}
 							>
 								even {page}
@@ -20,7 +20,7 @@ export default function Counter(props) {
 						<Match when={page % 2 === 1}>
 							<button
 								onClick={() => {
-									console.log(page);
+									console.info(page);
 								}}
 							>
 								odd {page}

@@ -39,7 +39,7 @@ describe('AstroCheck', async () => {
 		assert.notStrictEqual(result.fileResult[0].fileContent, undefined);
 		assert.deepStrictEqual(
 			result.fileResult[0].fileContent,
-			`---${os.EOL}console.log(doesntExist);${os.EOL}---${os.EOL}`,
+			`---${os.EOL}console.info(doesntExist);${os.EOL}---${os.EOL}`,
 		);
 	});
 

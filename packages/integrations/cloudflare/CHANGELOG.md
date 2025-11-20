@@ -156,7 +156,7 @@
         },
         async queue(batch, _env) {
           let messages = JSON.stringify(batch.messages);
-          console.log(`consumed from our queue: ${messages}`);
+          console.info(`consumed from our queue: ${messages}`);
         },
       } satisfies ExportedHandler<Env>,
       MyDurableObject,

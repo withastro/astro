@@ -9,12 +9,12 @@ export default function Counter(props) {
 			id={props.id + '-' + type}
       data-type={type}
       ref={(el) =>
-        console.log(
+        console.info(
           ` ${type} ${type == el.dataset.type ? '==' : '!='} ${el.dataset.type}`
         )
       }
       onClick={() => {
-        console.log('click');
+        console.info('click');
         setCount((p) => ++p);
       }}
     >

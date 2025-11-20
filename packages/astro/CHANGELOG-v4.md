@@ -1512,7 +1512,7 @@
     await actions.like(new FormData());
   } catch (error) {
     if (isInputError(error)) {
-      console.log(error.fields);
+      console.info(error.fields);
     }
   }
   ```
@@ -1644,7 +1644,7 @@
 
   const code = `const foo = 'hello'
   const bar = ' world'
-  console.log(foo + bar) // [!code focus]
+  console.info(foo + bar) // [!code focus]
   `;
   ---
 
@@ -2534,11 +2534,11 @@
     init(canvas, app, server) {
 
   -    app.addEventListener("app-toggled", (e) => {
-  -      console.log(`App is now ${state ? "enabled" : "disabled"}`);.
+  -      console.info(`App is now ${state ? "enabled" : "disabled"}`);.
   -    });
 
   +    app.onToggled(({ state }) => {
-  +        console.log(`App is now ${state ? "enabled" : "disabled"}`);
+  +        console.info(`App is now ${state ? "enabled" : "disabled"}`);
   +    });
 
   -    if (import.meta.hot) {
@@ -2549,12 +2549,12 @@
 
   -    if (import.meta.hot) {
   -      import.meta.hot.on("my-server-event", (data: {message: string}) => {
-  -        console.log(data.message);
+  -        console.info(data.message);
   -      });
   -    }
 
   +    server.on<{ message: string }>("my-server-event", (data) => {
-  +      console.log(data.message); // data is typed using the type parameter
+  +      console.info(data.message); // data is typed using the type parameter
   +    });
     },
   })
@@ -2565,7 +2565,7 @@
   ```ts
   "astro:server:setup": ({ toolbar }) => {
     toolbar.on<{ message: string }>("my-app:my-client-event", (data) => {
-      console.log(data.message);
+      console.info(data.message);
       toolbar.send("my-server-event", { message: "hello" });
     });
   }

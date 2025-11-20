@@ -1,2 +1,2 @@
 let variable = 'foo';
-console.log(`${variable} bar`);
+console.info(`${variable} bar`);

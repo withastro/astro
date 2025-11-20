@@ -10,7 +10,7 @@ import Layout from '../components/Layout.astro';
 <script>
 	document.addEventListener('astro:after-swap', () => {
 		const checkBox = document.querySelector<HTMLInputElement>("form input:nth-of-type(2)")!;
-		console.log(checkBox === document.activeElement, checkBox.checked);
+		console.info(checkBox === document.activeElement, checkBox.checked);
 	}, {once:true});
 </script>
 

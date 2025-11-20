@@ -16,11 +16,11 @@ describe('sessions', () => {
 		wrangler = wranglerCli(fileURLToPath(root));
 		await new Promise((resolve) => {
 			wrangler.stdout.on('data', (data) => {
-				// console.log('[stdout]', data.toString());
+				// console.info('[stdout]', data.toString());
 				if (data.toString().includes('http://127.0.0.1:8788')) resolve();
 			});
 			wrangler.stderr.on('data', (_data) => {
-				// console.log('[stderr]', _data.toString());
+				// console.info('[stderr]', _data.toString());
 			});
 		});
 	});

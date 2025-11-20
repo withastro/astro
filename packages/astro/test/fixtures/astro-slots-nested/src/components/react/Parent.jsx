@@ -4,7 +4,7 @@ export default function Parent({ children }) {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    console.log('mount');
+    console.info('mount');
   }, []);
 
   return (

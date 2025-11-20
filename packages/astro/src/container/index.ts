@@ -464,7 +464,7 @@ export class experimental_AstroContainer {
 	 * const container = await AstroContainer.create();
 	 * const result = await container.renderToString(Card);
 	 *
-	 * console.log(result); // it's a string
+	 * console.info(result); // it's a string
 	 * ```
 	 *
 	 *
@@ -495,7 +495,7 @@ export class experimental_AstroContainer {
 	 * const container = await AstroContainer.create();
 	 * const response = await container.renderToResponse(Card);
 	 *
-	 * console.log(response.status); // it's a number
+	 * console.info(response.status); // it's a number
 	 * ```
 	 *
 	 *

@@ -1022,7 +1022,7 @@ describe('[SSG] i18n routing', () => {
 		it('should render the page with client scripts', async () => {
 			let html = await fixture.readFile('/index.html');
 			let $ = cheerio.load(html);
-			assert.equal($('script').text().includes('console.log("this is a script")'), true);
+			assert.equal($('script').text().includes('console.info("this is a script")'), true);
 		});
 
 		describe('with localised index pages', () => {

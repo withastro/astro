@@ -465,7 +465,7 @@
     const response = await fetch('...');
     const data = await response.json();
 
-    console.log(routePattern); // [...locale]/[files]/[slug]
+    console.info(routePattern); // [...locale]/[files]/[slug]
 
     // Call your custom helper with `routePattern` to generate the static paths
     return data.flatMap((file) => getLocalizedData(file, routePattern));
@@ -2203,7 +2203,7 @@
   const container = await AstroContainer.create();
   container.insertPageRoute('/generic-error', GenericError);
   const result = await container.renderToString(Post);
-  console.log(result); // this should print the response from GenericError.astro
+  console.info(result); // this should print the response from GenericError.astro
   ```
 
   This new method only works for page routes, which means that endpoints aren't supported.
@@ -3691,7 +3691,7 @@
       name: 'my-integration',
       hooks: {
         'astro:routes:resolved': ({ routes }) => {
-          console.log(routes);
+          console.info(routes);
         },
       },
     };
@@ -3721,7 +3721,7 @@
   +                        Object.assign(route, { distURL })
   +                    }
   +                }
-                  console.log(routes)
+                  console.info(routes)
               }
           }
       }
@@ -3849,7 +3849,7 @@
   // src/middleware.js
 
   export const onRequest = (ctx, next) => {
-    console.log(ctx.isPrerendered); // it will log true
+    console.info(ctx.isPrerendered); // it will log true
     return next();
   };
   ```
@@ -3932,7 +3932,7 @@
   ---
   // src/pages/blog/[slug].astro
   const route = Astro.routePattern;
-  console.log(route); // it will log "blog/[slug]"
+  console.info(route); // it will log "blog/[slug]"
   ---
   ```
 
@@ -3940,7 +3940,7 @@
   // src/pages/index.js
 
   export const GET = (ctx) => {
-    console.log(ctx.routePattern); // it will log src/pages/index.js
+    console.info(ctx.routePattern); // it will log src/pages/index.js
     return new Response.json({ loreum: 'ipsum' });
   };
   ```
@@ -4492,7 +4492,7 @@
       name: 'my-integration',
       hooks: {
         'astro:routes:resolved': ({ routes }) => {
-          console.log(routes);
+          console.info(routes);
         },
       },
     };
@@ -4522,7 +4522,7 @@
   +                        Object.assign(route, { distURL })
   +                    }
   +                }
-                  console.log(routes)
+                  console.info(routes)
               }
           }
       }
@@ -5344,7 +5344,7 @@
   // src/middleware.js
 
   export const onRequest = (ctx, next) => {
-    console.log(ctx.isPrerendered); // it will log true
+    console.info(ctx.isPrerendered); // it will log true
     return next();
   };
   ```
@@ -5619,7 +5619,7 @@
   ---
   // src/pages/blog/[slug].astro
   const route = Astro.routePattern;
-  console.log(route); // it will log "blog/[slug]"
+  console.info(route); // it will log "blog/[slug]"
   ---
   ```
 
@@ -5627,7 +5627,7 @@
   // src/pages/index.js
 
   export const GET = (ctx) => {
-    console.log(ctx.routePattern); // it will log src/pages/index.js
+    console.info(ctx.routePattern); // it will log src/pages/index.js
     return new Response.json({ loreum: 'ipsum' });
   };
   ```

@@ -10,4 +10,4 @@ while ((m = resultRegex.exec(benchLogs))) {
 	processedLog += m[1] + '\n';
 }
 
-console.log(processedLog);
+console.info(processedLog);

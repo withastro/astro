@@ -22,11 +22,11 @@ export async function cli({
 			return await cmd({ astroConfig, dbConfig, flags });
 		}
 		case 'gen': {
-			console.log('"astro db gen" is no longer needed! Visit the docs for more information.');
+			console.info('"astro db gen" is no longer needed! Visit the docs for more information.');
 			return;
 		}
 		case 'sync': {
-			console.log('"astro db sync" is no longer needed! Visit the docs for more information.');
+			console.info('"astro db sync" is no longer needed! Visit the docs for more information.');
 			return;
 		}
 		case 'push': {

@@ -22,19 +22,19 @@ let undef: undefined;
   </head>
   <body>
     <script id="inline" define:vars={{ foo }}>
-			console.log(foo);
+			console.info(foo);
 		</script>
     <script id="inline-2" define:vars={{ foo }}>
-			console.log(foo);
+			console.info(foo);
 		</script>
 		<script id="inline-3" define:vars={{ 'dash-case': foo }}>
-			console.log(foo);
+			console.info(foo);
 		</script>
 		<script id="inline-4" define:vars={{ bar }}>
-			console.log(bar);
+			console.info(bar);
 		</script>
 		<script id="inline-5" define:vars={{ undef }}>
-			console.log(undef);
+			console.info(undef);
 		</script>
     <div id="compound-style" style={{ color: `var(--fg)` }}></div>
 		<Title />

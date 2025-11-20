@@ -1,1 +1,1 @@
-console.log(doesntExistTS);
+console.info(doesntExistTS);

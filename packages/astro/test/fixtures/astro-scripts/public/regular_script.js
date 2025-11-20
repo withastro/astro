@@ -1,1 +1,1 @@
-console.log('here i am');
+console.info('here i am');

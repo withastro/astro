@@ -16,14 +16,14 @@ export function createExports(manifest: SSRManifest) {
 	return {
 		default: {
 			async fetch(request, env, ctx) {
-				console.log("env", env)
+				console.info("env", env)
 				await env.MY_QUEUE.send("log");
 				// @ts-expect-error - The types are identical, I don't get why this is an error.
 				return handle(manifest, app, request, env, ctx);
 			},
 			async queue(batch, _env) {
 				let messages = JSON.stringify(batch.messages);
-    		console.log(`consumed from our queue: ${messages}`);
+    		console.info(`consumed from our queue: ${messages}`);
 			}
 		} satisfies ExportedHandler<Env>,
 		MyDurableObject: MyDurableObject,

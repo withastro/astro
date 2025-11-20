@@ -5,7 +5,7 @@ if (Astro.request.method === 'POST') {
 		const data = await Astro.request.json();
 		email = data.email?.toString().trim();
 	} catch (e) {
-		console.log(e)
+		console.info(e)
 	}
 }
 ---

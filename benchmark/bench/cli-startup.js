@@ -12,24 +12,24 @@ export const defaultProject = 'render-default';
 export async function run(projectDir) {
 	const root = fileURLToPath(projectDir);
 
-	console.log('Benchmarking `astro --help`...');
+	console.info('Benchmarking `astro --help`...');
 	const helpStat = await benchmarkCommand('node', [astroBin, '--help'], root);
-	console.log('Done');
+	console.info('Done');
 
-	console.log('Benchmarking `astro preferences list`...');
+	console.info('Benchmarking `astro preferences list`...');
 	const infoStat = await benchmarkCommand('node', [astroBin, 'preferences', 'list'], root);
-	console.log('Done');
+	console.info('Done');
 
-	console.log('Result preview:');
-	console.log('='.repeat(10));
-	console.log(`#### CLI Startup\n\n`);
-	console.log(
+	console.info('Result preview:');
+	console.info('='.repeat(10));
+	console.info(`#### CLI Startup\n\n`);
+	console.info(
 		printResult({
 			'astro --help': helpStat,
 			'astro info': infoStat,
 		}),
 	);
-	console.log('='.repeat(10));
+	console.info('='.repeat(10));
 }
 
 /**

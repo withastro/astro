@@ -131,17 +131,17 @@ async function getPreference(
 		if (value && typeof value === 'object' && !Array.isArray(value)) {
 			if (Object.keys(value).length === 0) {
 				value = dlv(DEFAULT_PREFERENCES, key);
-				console.log(msg.preferenceDefaultIntro(key));
+				console.info(msg.preferenceDefaultIntro(key));
 			}
 			prettyPrint({ [key]: value });
 			return 0;
 		}
 		if (value === undefined) {
 			const defaultValue = await settings.preferences.get(key);
-			console.log(msg.preferenceDefault(key, defaultValue));
+			console.info(msg.preferenceDefault(key, defaultValue));
 			return 0;
 		}
-		console.log(msg.preferenceGet(key, value));
+		console.info(msg.preferenceGet(key, value));
 		return 0;
 	} catch {}
 	return 1;
@@ -160,7 +160,7 @@ async function setPreference(
 		}
 
 		await settings.preferences.set(key, coerce(key, value), { location });
-		console.log(msg.preferenceSet(key, value));
+		console.info(msg.preferenceSet(key, value));
 		return 0;
 	} catch (e) {
 		if (e instanceof Error) {
@@ -178,7 +178,7 @@ async function enablePreference(
 ) {
 	try {
 		await settings.preferences.set(key, true, { location });
-		console.log(msg.preferenceEnabled(key.replace('.enabled', '')));
+		console.info(msg.preferenceEnabled(key.replace('.enabled', '')));
 		return 0;
 	} catch {}
 	return 1;
@@ -191,7 +191,7 @@ async function disablePreference(
 ) {
 	try {
 		await settings.preferences.set(key, false, { location });
-		console.log(msg.preferenceDisabled(key.replace('.enabled', '')));
+		console.info(msg.preferenceDisabled(key.replace('.enabled', '')));
 		return 0;
 	} catch {}
 	return 1;
@@ -204,7 +204,7 @@ async function resetPreference(
 ) {
 	try {
 		await settings.preferences.set(key, undefined as any, { location });
-		console.log(msg.preferenceReset(key));
+		console.info(msg.preferenceReset(key));
 		return 0;
 	} catch {}
 	return 1;
@@ -240,7 +240,7 @@ function userValues(
 async function listPreferences(settings: AstroSettings, { location, json }: SubcommandOptions) {
 	if (json) {
 		const resolved = await settings.preferences.getAll();
-		console.log(JSON.stringify(resolved, null, 2));
+		console.info(JSON.stringify(resolved, null, 2));
 		return 0;
 	}
 	const { global, project, fromAstroConfig, defaults } = await settings.preferences.list({
@@ -257,11 +257,11 @@ async function listPreferences(settings: AstroSettings, { location, json }: Subc
 		const badge = bgGreen(black(` Your Preferences `));
 		const table = formatTable(flatUser, ['Preference', 'Value']);
 
-		console.log(['', badge, table].join('\n'));
+		console.info(['', badge, table].join('\n'));
 	} else {
 		const badge = bgGreen(black(` Your Preferences `));
 		const message = dim('No preferences set');
-		console.log(['', badge, '', message].join('\n'));
+		console.info(['', badge, '', message].join('\n'));
 	}
 	const flatUnset = annotate(Object.assign({}, flatDefault), '');
 	for (const key of userKeys) {
@@ -273,17 +273,17 @@ async function listPreferences(settings: AstroSettings, { location, json }: Subc
 		const badge = bgGreen(black(` Default Preferences `));
 		const table = formatTable(flatUnset, ['Preference', 'Value']);
 
-		console.log(['', badge, table].join('\n'));
+		console.info(['', badge, table].join('\n'));
 	} else {
 		const badge = bgGreen(black(` Default Preferences `));
 		const message = dim('All preferences have been set');
-		console.log(['', badge, '', message].join('\n'));
+		console.info(['', badge, '', message].join('\n'));
 	}
 	if (
 		fromAstroConfig.devToolbar?.enabled === false &&
 		flatUser['devToolbar.enabled']?.value !== false
 	) {
-		console.log(
+		console.info(
 			yellow(
 				'The dev toolbar is currently disabled. To enable it, set devToolbar: {enabled: true} in your astroConfig file.',
 			),
@@ -296,7 +296,7 @@ async function listPreferences(settings: AstroSettings, { location, json }: Subc
 function prettyPrint(value: Record<string, string | number | boolean>) {
 	const flattened = flattie(value);
 	const table = formatTable(flattened, ['Preference', 'Value']);
-	console.log(table);
+	console.info(table);
 }
 
 const chars = {

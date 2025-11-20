@@ -19,7 +19,7 @@ export const defaultProject = 'render-default';
 export async function run(projectDir, outputFile) {
 	const root = fileURLToPath(projectDir);
 
-	console.log('Building...');
+	console.info('Building...');
 	await exec(astroBin, ['build'], {
 		nodeOptions: {
 			cwd: root,
@@ -28,7 +28,7 @@ export async function run(projectDir, outputFile) {
 		throwOnError: true,
 	});
 
-	console.log('Previewing...');
+	console.info('Previewing...');
 	const previewProcess = exec(astroBin, ['preview', '--port', port], {
 		nodeOptions: {
 			cwd: root,
@@ -37,27 +37,27 @@ export async function run(projectDir, outputFile) {
 		throwOnError: true,
 	});
 
-	console.log('Waiting for server ready...');
+	console.info('Waiting for server ready...');
 	await waitUntilBusy(port, { timeout: 5000 });
 
-	console.log('Running benchmark...');
+	console.info('Running benchmark...');
 	const result = await benchmarkRenderTime();
 
-	console.log('Killing server...');
+	console.info('Killing server...');
 	if (!previewProcess.kill('SIGTERM')) {
 		console.warn('Failed to kill server process id:', previewProcess.pid);
 	}
 
-	console.log('Writing results to', fileURLToPath(outputFile));
+	console.info('Writing results to', fileURLToPath(outputFile));
 	await fs.writeFile(outputFile, JSON.stringify(result, null, 2));
 
-	console.log('Result preview:');
-	console.log('='.repeat(10));
-	console.log(`#### Render\n\n`);
-	console.log(printResult(result));
-	console.log('='.repeat(10));
+	console.info('Result preview:');
+	console.info('='.repeat(10));
+	console.info(`#### Render\n\n`);
+	console.info(printResult(result));
+	console.info('='.repeat(10));
 
-	console.log('Done!');
+	console.info('Done!');
 }
 
 export async function benchmarkRenderTime(portToListen = port) {

@@ -10,8 +10,8 @@ describe('isStyleOnlyChanged', () => {
 	});
 
 	it('should return false if script has changed', () => {
-		const oldCode = '<script>console.log("Hello");</script><style>body { color: red; }</style>';
-		const newCode = '<script>console.log("Hi");</script><style>body { color: red; }</style>';
+		const oldCode = '<script>console.info("Hello");</script><style>body { color: red; }</style>';
+		const newCode = '<script>console.info("Hi");</script><style>body { color: red; }</style>';
 		assert.equal(isStyleOnlyChanged(oldCode, newCode), false);
 	});
 

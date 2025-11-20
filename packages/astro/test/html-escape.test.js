@@ -31,7 +31,7 @@ describe('HTML Escape', () => {
 			assert.equal(ce.attr('x-data'), '`${test}`');
 
 			const script = $('script');
-			assert.equal(script.text(), 'console.log(`hello ${"world"}!`)');
+			assert.equal(script.text(), 'console.info(`hello ${"world"}!`)');
 		});
 	});
 
@@ -64,7 +64,7 @@ describe('HTML Escape', () => {
 			assert.equal(ce.attr('x-data'), '`${test}`');
 
 			const script = $('script');
-			assert.equal(script.text(), 'console.log(`hello ${"world"}!`)');
+			assert.equal(script.text(), 'console.info(`hello ${"world"}!`)');
 		});
 	});
 });

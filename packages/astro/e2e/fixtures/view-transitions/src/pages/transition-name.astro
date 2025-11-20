@@ -31,7 +31,7 @@ import Layout from '../components/Layout.astro';
 		if (event instanceof AnimationEvent) {
 			const name = event.animationName;
 			const match = name.match(/^-ua-view-transition-group-anim-(.*)$/)
-			if (match) console.log("anim:",match[1]);
+			if (match) console.info("anim:",match[1]);
 		}
 	}
 </script>

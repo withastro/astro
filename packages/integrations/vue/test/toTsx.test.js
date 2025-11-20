@@ -12,7 +12,7 @@ describe('toTSX function', () => {
       <script setup>
         // This is a comment in script setup
         // defineProps(['msg']);
-				// console.log('foo)
+				// console.info('foo)
       </script>
     `;
 
@@ -36,7 +36,7 @@ describe('toTSX function', () => {
 					msg: String
 				});
 				const handleClick = () => {
-					console.log('foo');
+					console.info('foo');
 				}
       </script>
     `;

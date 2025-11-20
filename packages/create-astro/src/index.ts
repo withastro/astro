@@ -18,8 +18,7 @@ process.on('SIGTERM', exit);
 
 export async function main() {
 	// Add some extra spacing from the noisy npm/pnpm init output
-	// biome-ignore lint/suspicious/noConsole: allowed
-	console.log('');
+	console.info('');
 	// NOTE: In the v7.x version of npm, the default behavior of `npm init` was changed
 	// to no longer require `--` to pass args and instead pass `--` directly to us. This
 	// broke our arg parser, since `--` is a special kind of flag. Filtering for `--` here
@@ -46,8 +45,7 @@ export async function main() {
 		await step(ctx);
 	}
 
-	// biome-ignore lint/suspicious/noConsole: allowed
-	console.log('');
+	console.info('');
 
 	const labels = {
 		start: 'Project initializing...',

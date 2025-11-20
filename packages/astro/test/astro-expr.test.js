@@ -106,7 +106,7 @@ describe('Expressions', () => {
 
 		assert.equal($('body').children().length, 2);
 		assert.equal(
-			$('body').html().includes('&lt;script&gt;console.log("pwnd")&lt;/script&gt;'),
+			$('body').html().includes('&lt;script&gt;console.info("pwnd")&lt;/script&gt;'),
 			true,
 		);
 		assert.equal($('#trusted').length, 1);

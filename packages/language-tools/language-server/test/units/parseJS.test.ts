@@ -5,7 +5,7 @@ import { extractScriptTags } from '../../dist/core/parseJS.js';
 
 describe('parseJS - Can find all the scripts in an Astro file', () => {
 	it('Can find all the scripts in an Astro file, including nested tags', () => {
-		const input = `<script>console.log('hi')</script><div><script>console.log('hi2')</script></div>`;
+		const input = `<script>console.info('hi')</script><div><script>console.info('hi2')</script></div>`;
 		const { ranges } = astro2tsx(input, 'file.astro');
 		const scriptTags = extractScriptTags(ranges.scripts);
 
@@ -21,7 +21,7 @@ describe('parseJS - Can find all the scripts in an Astro file', () => {
 	});
 
 	it('returns the proper capabilities for inline script tags', async () => {
-		const input = `<script is:inline>console.log('hi')</script>`;
+		const input = `<script is:inline>console.info('hi')</script>`;
 		const { ranges } = astro2tsx(input, 'file.astro');
 		const scriptTags = extractScriptTags(ranges.scripts);
 

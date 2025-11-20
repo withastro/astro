@@ -13,13 +13,13 @@ const routes = [
 		description: 'matches /injected-a to to-inject.astro',
 		url: '/injected-a',
 		h1: 'to-inject.astro',
-		scriptContent: 'console.log("to-inject.astro");',
+		scriptContent: 'console.info("to-inject.astro");',
 	},
 	{
 		description: 'matches /injected-b to to-inject.astro',
 		url: '/injected-b',
 		h1: 'to-inject.astro',
-		scriptContent: 'console.log("to-inject.astro");',
+		scriptContent: 'console.info("to-inject.astro");',
 	},
 	{
 		description: 'matches /dynamic-a/id-1 to [id].astro',

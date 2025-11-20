@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 // accessing browser globals as side effects is allowed if the component is client:only
-console.log(document.title)
+console.info(document.title)
 
 /** a counter written in React */
 export function Counter({ children, id }) {

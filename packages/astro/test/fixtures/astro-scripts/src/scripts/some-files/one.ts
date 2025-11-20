@@ -1,1 +1,1 @@
-console.log('some-files/one');
+console.info('some-files/one');

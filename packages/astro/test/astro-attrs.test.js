@@ -101,6 +101,6 @@ describe('Attributes', async () => {
 		const html = await fixture.readFile('/namespaced-component/index.html');
 		const $ = cheerio.load(html);
 
-		assert.deepEqual($('span').attr('on:click'), '(event) => console.log(event)');
+		assert.deepEqual($('span').attr('on:click'), '(event) => console.info(event)');
 	});
 });

@@ -2,9 +2,9 @@
 #^^^ source.astro comment
 >const cool = "our frontmatter"
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro source.ts
->console.log("Hello, World!")
+>console.info("Hello, World!")
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro source.ts
->console.log(`This is ${cool}!`)
+>console.info(`This is ${cool}!`)
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro source.ts
 >---
 #^^^ source.astro comment

@@ -21,12 +21,12 @@ export function calculateStat(numbers) {
 }
 
 export async function makeProject(name) {
-	console.log('Making project:', name);
+	console.info('Making project:', name);
 	const projectDir = new URL(`../projects/${name}/`, import.meta.url);
 
 	const makeProjectMod = await import(`../make-project/${name}.js`);
 	await makeProjectMod.run(projectDir);
 
-	console.log('Finished making project:', name);
+	console.info('Finished making project:', name);
 	return projectDir;
 }

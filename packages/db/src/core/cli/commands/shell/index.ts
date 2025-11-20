@@ -26,7 +26,7 @@ export async function cmd({
 	if (flags.remote) {
 		const db = createRemoteDatabaseClient(dbInfo);
 		const result = await db.run(sql.raw(query));
-		console.log(result);
+		console.info(result);
 	} else {
 		const { ASTRO_DATABASE_FILE } = getAstroEnv();
 		const dbUrl = normalizeDatabaseUrl(
@@ -35,6 +35,6 @@ export async function cmd({
 		);
 		const db = createLocalDatabaseClient({ url: dbUrl });
 		const result = await db.run(sql.raw(query));
-		console.log(result);
+		console.info(result);
 	}
 }

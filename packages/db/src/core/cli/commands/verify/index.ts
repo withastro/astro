@@ -44,9 +44,9 @@ export async function cmd({
 	}
 
 	if (isJson) {
-		console.log(JSON.stringify(result));
+		console.info(JSON.stringify(result));
 	} else {
-		console.log(result.message);
+		console.info(result.message);
 	}
 
 	process.exit(result.exitCode);

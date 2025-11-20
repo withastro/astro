@@ -1,1 +1,1 @@
-console.log('external!');
+console.info('external!');

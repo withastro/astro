@@ -65,5 +65,5 @@ export function printHelp({
 		message.push(linebreak(), `${description}`);
 	}
 
-	console.log(message.join('\n') + '\n');
+	console.info(message.join('\n') + '\n');
 }

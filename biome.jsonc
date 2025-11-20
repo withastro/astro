@@ -48,7 +48,7 @@
       "suspicious": {
         // This one is specific to catch `console.log`. The rest of logs are permitted
         "noConsole": {
-          "level": "warn",
+          "level": "error",
           "options": {
             "allow": ["error", "warn", "info", "debug"]
           }
@@ -128,36 +128,6 @@
           "correctness": {
             "noUnusedVariables": "off",
             "noUnusedImports": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": ["**/packages/integrations/**/*.ts"],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noConsole": {
-              "level": "error",
-              "options": {
-                "allow": ["warn", "error", "info", "debug"]
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "includes": [
-        "**/packages/db/**/cli/**/*.ts",
-        "**/benchmark/**/*.js",
-        "**/packages/astro/src/cli/**/*.ts",
-        "**/packages/astro/astro.js"
-      ],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noConsole": "off"
           }
         }
       }

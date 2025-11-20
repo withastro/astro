@@ -1,7 +1,7 @@
 import { defineCollection, z } from "astro:content";
 import { FOO } from "astro:env/client"
 
-console.log({ FOO, BAR: import.meta.env.BAR })
+console.info({ FOO, BAR: import.meta.env.BAR })
 
 export const collections = {
     foo: defineCollection({

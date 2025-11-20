@@ -1,1 +1,1 @@
-console.log('no hoist module');
+console.info('no hoist module');

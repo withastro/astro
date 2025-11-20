@@ -32,7 +32,7 @@ describe('MDX script style raw', () => {
 
 			const scriptContent = document.getElementById('test-script').innerHTML;
 			assert.equal(
-				scriptContent.includes("console.log('raw script')"),
+				scriptContent.includes("console.info('raw script')"),
 				true,
 				'script should not be html-escaped',
 			);
@@ -59,7 +59,7 @@ describe('MDX script style raw', () => {
 
 			const scriptContent = document.getElementById('test-script').innerHTML;
 			assert.equal(
-				scriptContent.includes("console.log('raw script')"),
+				scriptContent.includes("console.info('raw script')"),
 				true,
 				'script should not be html-escaped',
 			);

@@ -1,1 +1,1 @@
-console.log('another external');
+console.info('another external');

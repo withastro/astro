@@ -8,7 +8,7 @@ import { ClientRouter } from 'astro:transitions';
 		<script is:inline>
 			// let playwright know when navigate() is done
 			document.addEventListener('astro:before-swap', (e) => {
-				e.viewTransition.ready.then(()=>console.log("ready"))
+				e.viewTransition.ready.then(()=>console.info("ready"))
 			});
 		</script>
   </head>

@@ -9,8 +9,7 @@ const preview: CreatePreviewServer = async function ({ serverEntrypoint, host, p
 	server.listen(port, host);
 	enableDestroy(server);
 
-	// biome-ignore lint/suspicious/noConsole: allowed
-	console.log(`Preview server listening on http://${host}:${port}`);
+	console.info(`Preview server listening on http://${host}:${port}`);
 
 	// Resolves once the server is closed
 	const closed = new Promise<void>((resolve, reject) => {

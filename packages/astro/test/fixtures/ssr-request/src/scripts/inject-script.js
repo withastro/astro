@@ -1,1 +1,1 @@
-console.log("this is injected by injectScript");
+console.info("this is injected by injectScript");

@@ -54,7 +54,7 @@ describe('Inline scripts in SSR', () => {
 		it('Inlined scripts get included without base path in the script', async () => {
 			const html = await fetchHTML(fixture, '/hello/');
 			const $ = cheerioLoad(html);
-			assert.equal($('script').html(), 'console.log("hello world");');
+			assert.equal($('script').html(), 'console.info("hello world");');
 		});
 	});
 });

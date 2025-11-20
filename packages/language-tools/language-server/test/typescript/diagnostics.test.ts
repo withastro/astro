@@ -77,7 +77,7 @@ describe('TypeScript - Diagnostics', async () => {
 
 	it('can get diagnostics in script tags', async () => {
 		const document = await languageServer.openFakeDocument(
-			`<script>const something: string = "Hello";something;</script><div><script>console.log(doesnotexist);</script></div>`,
+			`<script>const something: string = "Hello";something;</script><div><script>console.info(doesnotexist);</script></div>`,
 			'astro',
 		);
 		const diagnostics = (await languageServer.handle.sendDocumentDiagnosticRequest(
