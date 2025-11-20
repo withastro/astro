@@ -230,6 +230,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					emptyOutDir: false,
 					outDir: fileURLToPath(getClientOutputDirectory(settings)),
 					copyPublicDir: ssr,
+					minify: true,
 					sourcemap: false,
 					rollupOptions: {
 						preserveEntrySignatures: 'exports-only',

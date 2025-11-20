@@ -232,7 +232,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 			// If an Astro component is imported in code used on the client, we return an empty
 			// module so that Vite doesn’t bundle the server-side Astro code for the client.
-			if (!options?.ssr) {
+			if (this.environment.name === 'client') {
 				return {
 					code: `export default import.meta.env.DEV
 									? () => {
