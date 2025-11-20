@@ -211,7 +211,22 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				internals.pagesByKeys.forEach((pageData) => {
 					const orderingInfo = pagesToCss[pageData.moduleSpecifier]?.[stylesheet.fileName];
 					if (orderingInfo !== undefined) {
-						pageData.styles.push({ ...orderingInfo, sheet });
+						// Check if this stylesheet has already been added to avoid duplicates
+						// This can happen when CSS modules are imported in both frontmatter and <script> tags
+						const isDuplicate = pageData.styles.some((s) => {
+							if (s.sheet.type !== sheet.type) return false;
+							if (sheet.type === 'inline' && s.sheet.type === 'inline') {
+								return s.sheet.content === sheet.content;
+							}
+							if (sheet.type === 'external' && s.sheet.type === 'external') {
+								return s.sheet.src === sheet.src;
+							}
+							return false;
+						});
+
+						if (!isDuplicate) {
+							pageData.styles.push({ ...orderingInfo, sheet });
+						}
 						sheetAddedToPage = true;
 					}
 				});

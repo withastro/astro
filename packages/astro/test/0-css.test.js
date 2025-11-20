@@ -329,6 +329,31 @@ describe('CSS', function () {
 				assert.equal(el.text(), '.foo {color: red;}');
 			});
 		});
+
+		describe('CSS Module Duplication (Issue #13491)', () => {
+			it('CSS modules imported in both frontmatter and script should not duplicate', async () => {
+				const html = await fixture.readFile('/css-module-duplicate/index.html');
+				const $ = cheerio.load(html);
+				const cssHref = $('link[rel=stylesheet][href^=/_astro/]').attr('href');
+				const css = await fixture.readFile(cssHref.replace(/^\/?/, '/'));
+
+				// Normalize CSS by removing all whitespace
+				const normalizedCSS = css.replace(/\s+/g, '');
+				const blueMatches = normalizedCSS.match(/\._duplicate-blue_[a-z0-9_]+\{[^}]+\}/gi) || [];
+				const redMatches = normalizedCSS.match(/\._duplicate-red_[a-z0-9_]+\{[^}]+\}/gi) || [];
+
+				assert.equal(
+					blueMatches.length,
+					1,
+					`Expected duplicate-blue style to appear once, but found ${blueMatches.length} times`,
+				);
+				assert.equal(
+					redMatches.length,
+					1,
+					`Expected duplicate-red style to appear once, but found ${redMatches.length} times`,
+				);
+			});
+		});
 	});
 
 	// with "build" handling CSS checking, the dev tests are mostly testing the paths resolve in dev
