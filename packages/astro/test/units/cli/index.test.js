@@ -4,13 +4,11 @@ import { describe, it } from 'node:test';
 import { createBuildTimeAstroVersionProvider } from '../../../dist/cli/infra/build-time-astro-version-provider.js';
 import { createCliCommandRunner } from '../../../dist/cli/infra/cli-command-runner.js';
 import { createLoggerHelpDisplay } from '../../../dist/cli/infra/logger-help-display.js';
+import { createPassthroughTextStyler } from '../../../dist/cli/infra/passthrough-text-styler.js';
+import { createProcessOperatingSystemProvider } from '../../../dist/cli/infra/process-operating-system-provider.js';
 import packageJson from '../../../package.json' with { type: 'json' };
 import { createSpyLogger } from '../test-utils.js';
-import {
-	createFakeAstroVersionProvider,
-	createPassthroughTextStyler,
-	createSpyHelpDisplay,
-} from './utils.js';
+import { createFakeAstroVersionProvider, createSpyHelpDisplay } from './utils.js';
 
 describe('CLI shared', () => {
 	describe('infra', () => {
@@ -56,7 +54,7 @@ describe('CLI shared', () => {
 			it('returns the value from the build', () => {
 				const astroVersionProvider = createBuildTimeAstroVersionProvider();
 
-				assert.equal(astroVersionProvider.getVersion(), packageJson.version);
+				assert.equal(astroVersionProvider.version, packageJson.version);
 			});
 		});
 
@@ -158,6 +156,16 @@ Starts a local server to serve your static dist/ directory.
 						},
 					]);
 				});
+			});
+		});
+
+		describe('createProcessOperatingSystemProvider()', () => {
+			it('returns the value from process.platform', () => {
+				const operatingSystemProvider = createProcessOperatingSystemProvider();
+
+				const platform = operatingSystemProvider.name;
+
+				assert.equal(platform, process.platform);
 			});
 		});
 	});

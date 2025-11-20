@@ -2,12 +2,11 @@ import { fileURLToPath } from 'node:url';
 import { formatWithOptions } from 'node:util';
 import dlv from 'dlv';
 import { flattie } from 'flattie';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import { resolveConfig } from '../../core/config/config.js';
 import { createSettings } from '../../core/config/settings.js';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
 import * as msg from '../../core/messages.js';
-import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { DEFAULT_PREFERENCES } from '../../preferences/defaults.js';
 import { coerce, isValidKey, type PreferenceKey } from '../../preferences/index.js';
 import type { AstroSettings } from '../../types/astro.js';
@@ -43,7 +42,6 @@ export async function preferences(
 	value: string | undefined,
 	{ flags }: PreferencesOptions,
 ): Promise<number> {
-	applyPolyfill();
 	if (!isValidSubcommand(subcommand) || flags?.help || flags?.h) {
 		msg.printHelp({
 			commandName: 'astro preferences',

@@ -1,12 +1,13 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
-import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/implementations/system-fallbacks-provider.js';
-import { extractUnifontProviders } from '../../../../dist/assets/fonts/logic/extract-unifont-providers.js';
-import { normalizeRemoteFontFaces } from '../../../../dist/assets/fonts/logic/normalize-remote-font-faces.js';
-import { optimizeFallbacks } from '../../../../dist/assets/fonts/logic/optimize-fallbacks.js';
-import { resolveFamily } from '../../../../dist/assets/fonts/logic/resolve-families.js';
+import { dedupeFontFaces } from '../../../../dist/assets/fonts/core/dedupe-font-faces.js';
+import { extractUnifontProviders } from '../../../../dist/assets/fonts/core/extract-unifont-providers.js';
+import { normalizeRemoteFontFaces } from '../../../../dist/assets/fonts/core/normalize-remote-font-faces.js';
+import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-fallbacks.js';
+import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-families.js';
+import { createFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
+import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/infra/system-fallbacks-provider.js';
 import {
 	createSpyUrlProxy,
 	fakeFontMetricsResolver,
@@ -14,7 +15,7 @@ import {
 	simpleErrorHandler,
 } from './utils.js';
 
-describe('fonts logic', () => {
+describe('fonts core', () => {
 	describe('resolveFamily()', () => {
 		it('removes quotes correctly', async () => {
 			const hasher = { ...fakeHasher, hashObject: () => 'xxx' };
@@ -792,6 +793,219 @@ describe('fonts logic', () => {
 					},
 				},
 			]);
+		});
+	});
+
+	describe('dedupeFontFaces()', () => {
+		it('returns current if incoming is empty', () => {
+			assert.deepStrictEqual(
+				dedupeFontFaces(
+					[
+						{
+							src: [],
+							display: 'swap',
+						},
+					],
+					[],
+				),
+				[
+					{
+						src: [],
+						display: 'swap',
+					},
+				],
+			);
+		});
+
+		it('returns incoming if current is empty', () => {
+			assert.deepStrictEqual(
+				dedupeFontFaces(
+					[],
+					[
+						{
+							src: [],
+							display: 'swap',
+						},
+					],
+				),
+				[
+					{
+						src: [],
+						display: 'swap',
+					},
+				],
+			);
+		});
+
+		it('appends incoming if there is no match with current', () => {
+			assert.deepStrictEqual(
+				dedupeFontFaces(
+					[
+						{
+							src: [
+								{
+									name: 'Foo',
+								},
+							],
+							weight: 400,
+						},
+					],
+					[
+						{
+							src: [
+								{
+									name: 'Bar',
+								},
+							],
+							weight: 500,
+						},
+					],
+				),
+				[
+					{
+						src: [
+							{
+								name: 'Foo',
+							},
+						],
+						weight: 400,
+					},
+					{
+						src: [
+							{
+								name: 'Bar',
+							},
+						],
+						weight: 500,
+					},
+				],
+			);
+		});
+
+		it('merges incoming sources into current if there is a match', () => {
+			assert.deepStrictEqual(
+				dedupeFontFaces(
+					[
+						{
+							src: [
+								{
+									name: 'Foo',
+								},
+							],
+							weight: 300,
+						},
+					],
+					[
+						{
+							src: [
+								{
+									name: 'Bar',
+								},
+							],
+							weight: 300,
+						},
+					],
+				),
+				[
+					{
+						src: [
+							{
+								name: 'Foo',
+							},
+							{
+								name: 'Bar',
+							},
+						],
+						weight: 300,
+					},
+				],
+			);
+		});
+
+		it('dedupes local sources', () => {
+			assert.deepStrictEqual(
+				dedupeFontFaces(
+					[
+						{
+							src: [
+								{
+									name: 'Foo',
+								},
+							],
+							weight: 300,
+						},
+					],
+					[
+						{
+							src: [
+								{
+									name: 'Foo',
+								},
+								{
+									name: 'Bar',
+								},
+							],
+							weight: 300,
+						},
+					],
+				),
+				[
+					{
+						src: [
+							{
+								name: 'Foo',
+							},
+							{
+								name: 'Bar',
+							},
+						],
+						weight: 300,
+					},
+				],
+			);
+		});
+
+		it('dedupes remote sources', () => {
+			assert.deepStrictEqual(
+				dedupeFontFaces(
+					[
+						{
+							src: [
+								{
+									url: 'https://example.com/foo.woff2',
+								},
+							],
+							weight: 300,
+						},
+					],
+					[
+						{
+							src: [
+								{
+									url: 'https://example.com/foo.woff2',
+								},
+								{
+									url: 'https://example.com/bar.woff2',
+								},
+							],
+							weight: 300,
+						},
+					],
+				),
+				[
+					{
+						src: [
+							{
+								url: 'https://example.com/foo.woff2',
+							},
+							{
+								url: 'https://example.com/bar.woff2',
+							},
+						],
+						weight: 300,
+					},
+				],
+			);
 		});
 	});
 });

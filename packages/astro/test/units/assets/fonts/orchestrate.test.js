@@ -5,19 +5,19 @@ import { fileURLToPath } from 'node:url';
 import { defineFontProvider } from 'unifont';
 import { joinPaths } from '../../../../../internal-helpers/dist/path.js';
 import { DEFAULTS } from '../../../../dist/assets/fonts/constants.js';
-import { createMinifiableCssRenderer } from '../../../../dist/assets/fonts/implementations/css-renderer.js';
-import { createDataCollector } from '../../../../dist/assets/fonts/implementations/data-collector.js';
-import { createFontaceFontFileReader } from '../../../../dist/assets/fonts/implementations/font-file-reader.js';
-import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
-import { createLevenshteinStringMatcher } from '../../../../dist/assets/fonts/implementations/levenshtein-string-matcher.js';
-import { createRequireLocalProviderUrlResolver } from '../../../../dist/assets/fonts/implementations/local-provider-url-resolver.js';
-import { createBuildRemoteFontProviderModResolver } from '../../../../dist/assets/fonts/implementations/remote-font-provider-mod-resolver.js';
-import { createRemoteFontProviderResolver } from '../../../../dist/assets/fonts/implementations/remote-font-provider-resolver.js';
-import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/implementations/system-fallbacks-provider.js';
-import { createUrlProxy } from '../../../../dist/assets/fonts/implementations/url-proxy.js';
-import { createRemoteUrlProxyContentResolver } from '../../../../dist/assets/fonts/implementations/url-proxy-content-resolver.js';
-import { createBuildUrlProxyHashResolver } from '../../../../dist/assets/fonts/implementations/url-proxy-hash-resolver.js';
-import { createDevUrlResolver } from '../../../../dist/assets/fonts/implementations/url-resolver.js';
+import { createMinifiableCssRenderer } from '../../../../dist/assets/fonts/infra/css-renderer.js';
+import { createDataCollector } from '../../../../dist/assets/fonts/infra/data-collector.js';
+import { createFontaceFontFileReader } from '../../../../dist/assets/fonts/infra/font-file-reader.js';
+import { createFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
+import { createLevenshteinStringMatcher } from '../../../../dist/assets/fonts/infra/levenshtein-string-matcher.js';
+import { createRequireLocalProviderUrlResolver } from '../../../../dist/assets/fonts/infra/local-provider-url-resolver.js';
+import { createBuildRemoteFontProviderModResolver } from '../../../../dist/assets/fonts/infra/remote-font-provider-mod-resolver.js';
+import { createRemoteFontProviderResolver } from '../../../../dist/assets/fonts/infra/remote-font-provider-resolver.js';
+import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/infra/system-fallbacks-provider.js';
+import { createUrlProxy } from '../../../../dist/assets/fonts/infra/url-proxy.js';
+import { createRemoteUrlProxyContentResolver } from '../../../../dist/assets/fonts/infra/url-proxy-content-resolver.js';
+import { createBuildUrlProxyHashResolver } from '../../../../dist/assets/fonts/infra/url-proxy-hash-resolver.js';
+import { createDevUrlResolver } from '../../../../dist/assets/fonts/infra/url-resolver.js';
 import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
 import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
 import { createSpyLogger, defaultLogger } from '../../test-utils.js';
@@ -426,5 +426,182 @@ describe('fonts orchestrate()', () => {
 					'**Test** font family cannot be retrieved by the provider. Did you mean **Testi**?',
 			},
 		]);
+	});
+
+	it('warns if conflicting unmergeable families exist', async () => {
+		const fakeUnifontProvider = defineFontProvider('test', () => {
+			return {
+				resolveFont: () => {
+					return {
+						fonts: [
+							{
+								src: [
+									{ url: 'https://example.com/foo.woff2' },
+									{ url: 'https://example.com/foo.woff' },
+								],
+							},
+						],
+					};
+				},
+			};
+		});
+		const fakeAstroProvider = defineAstroFontProvider({
+			entrypoint: 'test',
+		});
+
+		const root = new URL(import.meta.url);
+		const { storage } = createSpyStorage();
+		const errorHandler = simpleErrorHandler;
+		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
+		const hasher = fakeHasher;
+		const { logs, logger } = createSpyLogger();
+
+		await orchestrate({
+			families: [
+				{
+					name: 'Test',
+					cssVariable: '--test',
+					provider: fakeAstroProvider,
+					fallbacks: ['serif'],
+				},
+				{
+					name: 'Foo',
+					cssVariable: '--test',
+					provider: fakeAstroProvider,
+					fallbacks: ['serif'],
+				},
+			],
+			hasher,
+			remoteFontProviderResolver: createRemoteFontProviderResolver({
+				root,
+				errorHandler,
+				modResolver: {
+					resolve: async () => ({
+						provider: fakeUnifontProvider,
+					}),
+				},
+			}),
+			localProviderUrlResolver: createRequireLocalProviderUrlResolver({ root }),
+			storage,
+			cssRenderer: createMinifiableCssRenderer({ minify: true }),
+			systemFallbacksProvider: createSystemFallbacksProvider(),
+			fontMetricsResolver: fakeFontMetricsResolver,
+			fontTypeExtractor,
+			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			logger,
+			createUrlProxy: ({ local, cssVariable, ...params }) => {
+				const dataCollector = createDataCollector(params);
+				const contentResolver = createRemoteUrlProxyContentResolver();
+				return createUrlProxy({
+					urlResolver: {
+						resolve: (hash) => hash,
+						getCspResources: () => [],
+					},
+					cssVariable,
+					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
+					dataCollector,
+				});
+			},
+			defaults: DEFAULTS,
+			bold: markdownBold,
+			stringMatcher: createLevenshteinStringMatcher(),
+		});
+
+		assert.deepStrictEqual(logs, [
+			{
+				label: 'assets',
+				message:
+					'Several font families have been registered for the **--test** cssVariable but they do not share the same name and provider.',
+				type: 'warn',
+			},
+			{
+				label: 'assets',
+				message:
+					'These families will not be merged together. The last occurrence will override previous families for this cssVariable. Review your Astro configuration.',
+				type: 'warn',
+			},
+		]);
+	});
+
+	it('does not if mergeable families exist', async () => {
+		const fakeUnifontProvider = defineFontProvider('test', () => {
+			return {
+				resolveFont: () => {
+					return {
+						fonts: [
+							{
+								src: [
+									{ url: 'https://example.com/foo.woff2' },
+									{ url: 'https://example.com/foo.woff' },
+								],
+							},
+						],
+					};
+				},
+			};
+		});
+		const fakeAstroProvider = defineAstroFontProvider({
+			entrypoint: 'test',
+		});
+
+		const root = new URL(import.meta.url);
+		const { storage } = createSpyStorage();
+		const errorHandler = simpleErrorHandler;
+		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
+		const hasher = fakeHasher;
+		const { logs, logger } = createSpyLogger();
+
+		await orchestrate({
+			families: [
+				{
+					name: 'Test',
+					cssVariable: '--test',
+					provider: fakeAstroProvider,
+					fallbacks: ['serif'],
+				},
+				{
+					name: 'Test',
+					cssVariable: '--test',
+					provider: fakeAstroProvider,
+					fallbacks: ['serif'],
+				},
+			],
+			hasher,
+			remoteFontProviderResolver: createRemoteFontProviderResolver({
+				root,
+				errorHandler,
+				modResolver: {
+					resolve: async () => ({
+						provider: fakeUnifontProvider,
+					}),
+				},
+			}),
+			localProviderUrlResolver: createRequireLocalProviderUrlResolver({ root }),
+			storage,
+			cssRenderer: createMinifiableCssRenderer({ minify: true }),
+			systemFallbacksProvider: createSystemFallbacksProvider(),
+			fontMetricsResolver: fakeFontMetricsResolver,
+			fontTypeExtractor,
+			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			logger,
+			createUrlProxy: ({ local, cssVariable, ...params }) => {
+				const dataCollector = createDataCollector(params);
+				const contentResolver = createRemoteUrlProxyContentResolver();
+				return createUrlProxy({
+					urlResolver: {
+						resolve: (hash) => hash,
+						getCspResources: () => [],
+					},
+					cssVariable,
+					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
+					dataCollector,
+				});
+			},
+			defaults: DEFAULTS,
+			bold: markdownBold,
+			stringMatcher: createLevenshteinStringMatcher(),
+		});
+
+		assert.deepStrictEqual(logs, []);
 	});
 });

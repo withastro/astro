@@ -3,13 +3,55 @@ import { spawnSync } from 'node:child_process';
 import { promises as fs, readFileSync } from 'node:fs';
 import { isIPv4 } from 'node:net';
 import { join } from 'node:path';
-import { platform } from 'node:process';
 import { Writable } from 'node:stream';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
-import { readFromClipboard } from '../dist/cli/info/index.js';
 import { cli, cliServerLogSetup, loadFixture, parseCliDevStart } from './test-utils.js';
+
+/**
+ * Throws an error if no command is found for the current OS.
+ * @returns {string}
+ */
+function readFromClipboard() {
+	const system = process.platform;
+	let command = '';
+	let args = [];
+
+	if (system === 'darwin') {
+		command = 'pbpaste';
+	} else if (system === 'win32') {
+		command = 'powershell';
+		args = ['-command', 'Get-Clipboard'];
+	} else {
+		const unixCommands = [
+			['xclip', ['-sel', 'clipboard', '-o']],
+			['wl-paste', []],
+		];
+		for (const [unixCommand, unixArgs] of unixCommands) {
+			try {
+				const output = spawnSync('which', [unixCommand], { encoding: 'utf8' });
+				if (output.stdout.trim()) {
+					command = unixCommand;
+					args = unixArgs;
+					break;
+				}
+			} catch {
+				continue;
+			}
+		}
+	}
+
+	if (!command) {
+		throw new Error('Clipboard read command not found!');
+	}
+
+	const result = spawnSync(command, args, { encoding: 'utf8' });
+	if (result.error) {
+		throw result.error;
+	}
+	return result.stdout.trim();
+}
 
 describe('astro cli', () => {
 	const cliServerLogSetupWithFixture = (flags, cmd) => {
@@ -93,7 +135,7 @@ describe('astro cli', () => {
 
 		// On Linux we only check if we have Wayland or x11. In Codespaces it falsely reports that it does have x11
 		if (
-			platform === 'linux' &&
+			process.platform === 'linux' &&
 			((!process.env.WAYLAND_DISPLAY && !process.env.DISPLAY) || process.env.CODESPACES)
 		) {
 			assert.ok(result.stdout.includes('Please manually copy the text above'));

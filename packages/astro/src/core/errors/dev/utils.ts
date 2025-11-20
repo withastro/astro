@@ -3,7 +3,7 @@ import { isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
 import { escape } from 'html-escaper';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import type { ESBuildTransformResult } from 'vite';
 import type { SSRError } from '../../../types/public/internal.js';
 import { removeLeadingForwardSlashWindows } from '../../path.js';

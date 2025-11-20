@@ -1,3 +1,4 @@
+import type { StdioOptions } from 'node:child_process';
 import type { AnyCommand } from './domain/command.js';
 import type { HelpPayload } from './domain/help-payload.js';
 
@@ -16,9 +17,28 @@ export interface TextStyler {
 }
 
 export interface AstroVersionProvider {
-	getVersion: () => string;
+	readonly version: string;
 }
 
 export interface CommandRunner {
 	run: <T extends AnyCommand>(command: T, ...args: Parameters<T['run']>) => ReturnType<T['run']>;
+}
+
+export interface CommandExecutor {
+	execute: (
+		command: string,
+		args?: Array<string>,
+		options?: {
+			cwd?: string;
+			env?: Record<string, string | undefined>;
+			shell?: boolean;
+			input?: string;
+			stdio?: StdioOptions;
+		},
+	) => Promise<{ stdout: string }>;
+}
+
+export interface OperatingSystemProvider {
+	readonly name: NodeJS.Platform;
+	readonly displayName: string;
 }
