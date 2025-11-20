@@ -27,7 +27,13 @@ async function createDevPipeline(overrides = {}, root) {
 		},
 		defaultLogger,
 	);
-	return DevPipeline.create(routesList, { loader, logger: defaultLogger, manifest, settings });
+	return DevPipeline.create(routesList, {
+		loader,
+		logger: defaultLogger,
+		manifest,
+		settings,
+		getDebugInfo: async () => '',
+	});
 }
 
 describe('vite-plugin-astro-server', () => {

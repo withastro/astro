@@ -3,7 +3,7 @@ import type { Options as AcornOpts } from 'acorn';
 import { parse } from 'acorn';
 import type { AstroConfig, AstroIntegrationLogger, SSRError } from 'astro';
 import type { MdxjsEsm } from 'mdast-util-mdx';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import type { PluggableList } from 'unified';
 
 function appendForwardSlash(path: string) {

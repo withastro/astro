@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pLimit from 'p-limit';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import { injectImageEndpoint } from '../../../assets/endpoint/config.js';
 import { toRoutingStrategy } from '../../../i18n/utils.js';
 import { runHookRoutesResolved } from '../../../integrations/hooks.js';
