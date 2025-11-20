@@ -9,7 +9,6 @@ import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
-import type { AstroConfig } from '../types/public/config.js';
 import type {
 	ContentEntryModule,
 	ContentEntryType,
@@ -105,7 +104,7 @@ export function astroContentImportPlugin({
 						fileId,
 						entryConfigByExt: dataEntryConfigByExt,
 						contentDir,
-						config: settings.config,
+						settings,
 						fs,
 						pluginContext: this,
 						shouldEmitFile,
@@ -128,7 +127,7 @@ export const _internal = {
 						fileId,
 						entryConfigByExt: contentEntryConfigByExt,
 						contentDir,
-						config: settings.config,
+						settings,
 						fs,
 						pluginContext: this,
 						shouldEmitFile,
@@ -210,7 +209,7 @@ type GetEntryModuleParams<TEntryType extends ContentEntryType | DataEntryType> =
 	contentDir: URL;
 	pluginContext: PluginContext;
 	entryConfigByExt: Map<string, TEntryType>;
-	config: AstroConfig;
+	settings: AstroSettings;
 	shouldEmitFile: boolean;
 };
 
@@ -248,6 +247,7 @@ async function getContentEntryModule(
 				// FUTURE: Remove in this in v6
 				id.endsWith('.svg'),
 				pluginContext,
+				params.settings,
 			)
 		: unvalidatedData;
 
@@ -285,6 +285,7 @@ async function getDataEntryModule(
 				// FUTURE: Remove in this in v6
 				id.endsWith('.svg'),
 				pluginContext,
+				params.settings,
 			)
 		: unvalidatedData;
 

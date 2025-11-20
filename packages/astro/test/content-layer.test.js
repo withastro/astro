@@ -291,6 +291,11 @@ describe('Content Layer', () => {
 			assert.equal(json.rockets[1].data.image.format, 'jpg');
 		});
 
+		it('loads images with tsconfig aliases in JSON', async () => {
+			assert.ok(json.rockets[2].data.image.src.startsWith('/_astro'));
+			assert.equal(json.rockets[2].data.image.format, 'jpg');
+		});
+
 		it('renders images from frontmatter', async () => {
 			assert.ok($('img[alt="Lunar Module"]').attr('src').startsWith('/_astro'));
 		});

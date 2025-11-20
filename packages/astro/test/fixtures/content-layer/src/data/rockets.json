@@ -10,5 +10,11 @@
     "name": "Saturn V",
     "manufacturer": "NASA",
     "image": "./shuttle.jpg"
+  },
+  {
+    "id": "apollo-11",
+    "name": "Apollo 11",
+    "manufacturer": "NASA",
+    "image": "$images/shuttle.jpg"
   }
 ]
