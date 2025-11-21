@@ -253,8 +253,8 @@ class ContentLayer {
 
 				if (!schema && typeof collection.loader === 'object') {
 					schema = collection.loader.schema;
-					if (typeof schema === 'function') {
-						schema = await schema();
+					if (!schema && collection.loader.getSchemaContext) {
+						({ schema } = await collection.loader.getSchemaContext());
 					}
 				}
 
