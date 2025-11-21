@@ -26,7 +26,7 @@ function safeParseAst(fileName: string, input: string, parseOptions: ParseOption
 		return parseResult;
 	} catch (e) {
 		console.error(
-			`There was an error parsing ${fileName}'s AST. An empty AST will be returned instead to avoid breaking the server. Please create an issue: https://github.com/withastro/language-tools/issues\nError: ${e}.`,
+			`There was an error parsing ${fileName}'s AST. An empty AST will be returned instead to avoid breaking the server. Please create an issue: https://github.com/withastro/astro/issues\nError: ${e}.`,
 		);
 
 		return {
@@ -44,7 +44,7 @@ function safeParseAst(fileName: string, input: string, parseOptions: ParseOption
 						length: input.length,
 					},
 					severity: 1,
-					text: `The Astro compiler encountered an unknown error while parsing this file's AST. Please create an issue with your code and the error shown in the server's logs: https://github.com/withastro/language-tools/issues`,
+					text: `The Astro compiler encountered an unknown error while parsing this file's AST. Please create an issue with your code and the error shown in the server's logs: https://github.com/withastro/astro/issues`,
 				},
 			],
 		};
