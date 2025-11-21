@@ -19,6 +19,15 @@ export function pluginNoop(): vite.Plugin {
 			if(id === RESOLVED_NOOP_MODULE_ID) {
 				return '';
 			}
+		},
+		generateBundle(_options, bundle) {
+			// Delete this bundle so that its not written out to disk.
+			for(const [name, chunk] of Object.entries(bundle)) {
+				if(chunk.type === 'asset') continue;
+				if(chunk.facadeModuleId === RESOLVED_NOOP_MODULE_ID) {
+					delete bundle[name];
+				}
+			}
 		}
 	}
 }
