@@ -422,7 +422,7 @@ async function getPathsForRoute(
 						),
 						hint: AstroErrorData.PrerenderRouteConflict.hint(matchedRoute.route, route.route),
 					});
-				} else if (config.prerenderConflictBehavior === 'warning') {
+				} else if (config.prerenderConflictBehavior === 'warn') {
 					const msg = AstroErrorData.PrerenderRouteConflict.message(
 						matchedRoute.route,
 						route.route,

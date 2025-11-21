@@ -550,16 +550,16 @@ export interface AstroUserConfig<
 	/**
 	 *
 	 * @name prerenderConflictBehavior
-	 * @type {'warning' | 'error' | 'ignore'}
-	 * @default `'warning'`
+	 * @type {'error' | 'warn' | 'ignore'}
+	 * @default `'warn'`
 	 * @version 6.0
 	 * @description
 	 * Determines the default behavior when two routes generate the same prerendered URL:
 	 * - `error`: fail the build and display an error, forcing you to resolve the conflict
-	 * - `warning` (default): log a warning when conflicts occur, but build using the highest-priority route
+	 * - `warn` (default): log a warning when conflicts occur, but build using the highest-priority route
 	 * - `ignore`: silently build using the highest-priority route when conflicts occur
 	 */
-	prerenderConflictBehavior?: 'warning' | 'error' | 'ignore';
+	prerenderConflictBehavior?: 'error' | 'warn' | 'ignore';
 
 	/**
 	 * @docs

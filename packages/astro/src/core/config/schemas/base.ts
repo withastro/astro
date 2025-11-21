@@ -95,7 +95,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		validateSecrets: false,
 	},
 	session: undefined,
-	prerenderConflictBehavior: 'warning',
+	prerenderConflictBehavior: 'warn',
 	experimental: {
 		clientPrerender: false,
 		contentIntellisense: false,
@@ -464,7 +464,7 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional(),
 	prerenderConflictBehavior: z
-		.enum(['error', 'warning', 'ignore'])
+		.enum(['error', 'warn', 'ignore'])
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.prerenderConflictBehavior),
 	experimental: z

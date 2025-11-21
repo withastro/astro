@@ -9,7 +9,7 @@ By default, Astro warns you during the build about any conflicts between multipl
 With the new `prerenderConflictBehavior` configuration option, you can now configure this further:
 
 - `prerenderConflictBehavior: 'error'` fails the build
-- `prerenderConflictBehavior: 'warning'` (default) logs a warning and the highest-priority route wins
+- `prerenderConflictBehavior: 'warn'` (default) logs a warning and the highest-priority route wins
 - `prerenderConflictBehavior: 'ignore'` silently picks the highest-priority route when conflicts occur
 
 ```diff
