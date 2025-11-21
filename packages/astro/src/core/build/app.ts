@@ -17,6 +17,7 @@ export class BuildApp extends BaseApp<BuildPipeline> {
 
 	public setOptions(options: StaticBuildOptions) {
 		this.pipeline.setOptions(options);
+		this.logger = options.logger;
 	}
 
 	public getOptions() {

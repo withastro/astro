@@ -26,6 +26,7 @@ import { RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
 import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
+import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -120,8 +121,6 @@ export async function staticBuild(
  */
 async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInternals) {
 	const { allPages, settings, viteConfig } = opts;
-	const ssr = settings.buildOutput === 'server';
-	const out = getServerOutputDirectory(settings);
 	const routes = Object.values(allPages).flatMap((pageData) => pageData.route);
 
 	// Determine if we should use the legacy-dynamic entrypoint
@@ -141,9 +140,8 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			cssMinify: viteConfig.build?.minify == null ? true : !!viteConfig.build?.minify,
 			...viteConfig.build,
 			emptyOutDir: false,
+			copyPublicDir: false,
 			manifest: false,
-			outDir: fileURLToPath(out),
-			copyPublicDir: !ssr,
 			rollupOptions: {
 				...viteConfig.build?.rollupOptions,
 				// Setting as `exports-only` allows us to safely delete inputs that are only used during prerendering
@@ -212,7 +210,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			prerender: {
 				build: {
 					emitAssets: true,
-					outDir: fileURLToPath(new URL('./.prerender/', out)),
+					outDir: fileURLToPath(new URL('./.prerender/', getServerOutputDirectory(settings))),
 					rollupOptions: {
 						input: 'astro/entrypoints/prerender',
 						output: {
@@ -228,9 +226,8 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				build: {
 					emitAssets: true,
 					target: 'esnext',
-					emptyOutDir: false,
 					outDir: fileURLToPath(getClientOutputDirectory(settings)),
-					copyPublicDir: ssr,
+					copyPublicDir: true,
 					sourcemap: viteConfig.environments?.client?.build?.sourcemap ?? false,
 					minify: true,
 					rollupOptions: {
@@ -282,9 +279,14 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	// are only detected during SSR. We mutate the config here since the builder was already created
 	// and this is the only way to update the input after instantiation.
 	internals.clientInput = getClientInput(internals, settings);
+	if(!internals.clientInput.size) {
+		// At least 1 input is required to do a build, otherwise Vite throws.
+		// We need the client build to happen in order to copy over the `public/` folder
+		// So using the noop plugin here which will give us an input that just gets thrown away.
+		internals.clientInput.add(NOOP_MODULE_ID);
+	}
 	builder.environments.client.config.build.rollupOptions.input = Array.from(internals.clientInput);
-	const clientOutput =
-		internals.clientInput.size === 0 ? [] : await builder.build(builder.environments.client);
+	const clientOutput = await builder.build(builder.environments.client);
 
 	return { ssrOutput, prerenderOutput, clientOutput };
 }

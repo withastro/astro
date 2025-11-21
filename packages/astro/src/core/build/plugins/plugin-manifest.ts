@@ -188,6 +188,8 @@ async function buildManifest(
 	const assetQueryParams = settings.adapter?.client?.assetQueryParams;
 	const assetQueryString = assetQueryParams ? assetQueryParams.toString() : undefined;
 
+	const appendAssetQuery = (pth: string) => assetQueryString ? `${pth}?${assetQueryString}` : pth;
+
 	const prefixAssetPath = (pth: string) => {
 		let result = '';
 		if (settings.config.build.assetsPrefix) {
@@ -228,7 +230,7 @@ async function buildManifest(
 
 			scripts.push({
 				type: 'external',
-				value: src,
+				value: appendAssetQuery(src),
 			});
 		}
 
@@ -238,6 +240,7 @@ async function buildManifest(
 		const styles = pageData.styles
 			.sort(cssOrder)
 			.map(({ sheet }) => sheet)
+			.map((s) => (s.type === 'external' ? { ...s, src: appendAssetQuery(s.src) } : s))
 			.reduce(mergeInlineCss, []);
 
 		routes.push({

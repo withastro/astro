@@ -11,6 +11,7 @@ import { pluginMiddleware } from './plugin-middleware.js';
 import { pluginPrerender } from './plugin-prerender.js';
 import { pluginScripts } from './plugin-scripts.js';
 import { pluginSSR } from './plugin-ssr.js';
+import { pluginNoop } from './plugin-noop.js';
 
 export function getAllBuildPlugins(
 	internals: BuildInternals,
@@ -27,5 +28,6 @@ export function getAllBuildPlugins(
 		pluginPrerender(options, internals),
 		pluginScripts(internals),
 		...pluginSSR(options, internals),
+		pluginNoop(),
 	].filter(Boolean);
 }
