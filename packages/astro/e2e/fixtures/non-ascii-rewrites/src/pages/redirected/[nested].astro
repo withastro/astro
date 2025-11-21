@@ -1,0 +1,26 @@
+---
+import type { GetStaticPaths } from "astro"
+export const getStaticPaths = (() => {
+  const paths = [
+    { params: { nested: "hello" } },
+    { params: { nested: "héllo" } },
+    {
+      params: { nested: encodeURIComponent("héllo") },
+    },
+  ]
+  return paths
+}) satisfies GetStaticPaths
+
+const { nested } = Astro.params
+---
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+Got nested = {nested}
+</body>
+</html>
