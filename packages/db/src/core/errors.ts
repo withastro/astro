@@ -1,4 +1,4 @@
-import colors from 'picocolors';
+import colors from 'piccolore';
 
 export const MISSING_EXECUTE_PATH_ERROR = `${colors.red(
 	'▶ No file path provided.',

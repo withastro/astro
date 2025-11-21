@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { formatWithOptions } from 'node:util';
 import dlv from 'dlv';
 import { flattie } from 'flattie';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import { resolveConfig } from '../../core/config/config.js';
 import { createSettings } from '../../core/config/settings.js';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';

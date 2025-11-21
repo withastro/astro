@@ -38,6 +38,19 @@ export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z.ZodTyp
 
 export type ActionReturnType<T extends ActionHandler<any, any>> = Awaited<ReturnType<T>>;
 
+const inferSymbol = Symbol('#infer');
+
+/**
+ * Infers the type of an action's input based on its Zod schema
+ *
+ * @see https://docs.astro.build/en/reference/modules/astro-actions/#actioninputschema
+ */
+export type ActionInputSchema<T extends ActionClient<any, any, any>> = T extends {
+	[inferSymbol]: any;
+}
+	? T[typeof inferSymbol]
+	: never;
+
 export type ActionClient<
 	TOutput,
 	TAccept extends ActionAccept | undefined,
@@ -57,6 +70,7 @@ export type ActionClient<
 			orThrow: (
 				input: TAccept extends 'form' ? FormData : z.input<TInputSchema>,
 			) => Promise<Awaited<TOutput>>;
+			[inferSymbol]: TInputSchema;
 		}
 	: ((input?: any) => Promise<SafeResult<never, Awaited<TOutput>>>) & {
 			orThrow: (input?: any) => Promise<Awaited<TOutput>>;

@@ -6,6 +6,12 @@
 
 - [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://deploy-preview-12322--astro-docs-2.netlify.app/en/guides/upgrade-to/v6/#vite-70))
 
+## 0.18.3
+
+### Patch Changes
+
+- [#14813](https://github.com/withastro/astro/pull/14813) [`e1dd377`](https://github.com/withastro/astro/commit/e1dd377398a3dcf6ba0697dc8d4bde6d77a45700) Thanks [@ematipico](https://github.com/ematipico)! - Removes `picocolors` as dependency in favor of the fork `piccolore`.
+
 ## 0.18.2
 
 ### Patch Changes

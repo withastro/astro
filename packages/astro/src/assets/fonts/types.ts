@@ -8,7 +8,7 @@ import type {
 	styleSchema,
 } from './config.js';
 import type { FONT_TYPES, GENERIC_FALLBACK_NAMES } from './constants.js';
-import type { CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
+import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 
 export type AstroFontProvider = z.infer<typeof fontProviderSchema>;
 

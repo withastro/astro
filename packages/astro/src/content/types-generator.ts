@@ -1,7 +1,7 @@
 import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import { normalizePath, type ViteDevServer } from 'vite';
 import { type ZodSchema, z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';

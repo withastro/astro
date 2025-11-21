@@ -18,3 +18,16 @@ overrides:
 # minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@biomejs/*'
+  # Temporary, so we can install the fork
+  - 'piccolore'
+peerDependencyRules:
+  allowAny:
+    - 'astro'
+    - 'vite'
+onlyBuiltDependencies:
+  - 'esbuild'
+  - 'workerd'
+  - '@biomejs/biome'
+  - 'sharp'
+# TODO: enable when viable
+# trustPolicy: 'no-downgrade'

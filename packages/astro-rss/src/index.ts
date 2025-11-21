@@ -1,6 +1,6 @@
 import { z } from 'astro/zod';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import { rssSchema } from './schema.js';
 import { createCanonicalURL, errorMap, isValidURL } from './util.js';
 

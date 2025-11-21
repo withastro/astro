@@ -1,7 +1,7 @@
 import fsMod from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { fileURLToPath } from 'node:url';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import { mergeConfig as mergeViteConfig } from 'vite';
 import astroIntegrationActionsRouteHandler from '../actions/integration.js';
