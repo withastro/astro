@@ -1,5 +1,11 @@
 # @astrojs/upgrade
 
+## 0.6.3
+
+### Patch Changes
+
+- Fixed issue where upgrading projects with `@astrojs/tailwind` using `bunx @astrojs/upgrade` would fail with "migration tool can only be run on v3 project" error. The upgrade tool now properly handles the deprecated `@astrojs/tailwind` integration by showing a deprecation warning and guiding users to migrate to `@tailwindcss/vite` instead of attempting to upgrade to the deprecated v6.0.0.
+
 ## 0.6.2
 
 ### Patch Changes

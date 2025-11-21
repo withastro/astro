@@ -136,6 +136,16 @@ async function verifyVersions(
 }
 
 async function resolveTargetVersion(packageInfo: PackageInfo, registry: string): Promise<void> {
+	// Special handling for deprecated @astrojs/tailwind integration
+	// to prevent upgrade to v6.0.0 which is deprecated in favor of @tailwindcss/vite
+	if (packageInfo.name === '@astrojs/tailwind') {
+		packageInfo.isMajor = true;
+		packageInfo.changelogURL = 'https://tailwindcss.com/docs/installation/framework-guides/astro';
+		packageInfo.changelogTitle = 'Migrate to @tailwindcss/vite plugin';
+		// Don't upgrade @astrojs/tailwind, user should migrate to @tailwindcss/vite
+		return;
+	}
+	
 	const packageMetadata = await fetch(`${registry}/${packageInfo.name}`, {
 		headers: { accept: 'application/vnd.npm.install-v1+json' },
 	});

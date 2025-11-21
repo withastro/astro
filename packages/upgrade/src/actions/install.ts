@@ -32,6 +32,15 @@ export async function install(
 ) {
 	await banner();
 	newline();
+	
+	// Special handling for deprecated @astrojs/tailwind
+	const tailwindPackage = ctx.packages.find(pkg => pkg.name === '@astrojs/tailwind');
+	if (tailwindPackage) {
+		await warn('deprecated', `@astrojs/tailwind is deprecated in favor of @tailwindcss/vite`);
+		await info('migrate', 'Please follow the migration guide: https://tailwindcss.com/docs/installation/framework-guides/astro');
+		newline();
+	}
+	
 	const { current, dependencies, devDependencies } = filterPackages(ctx);
 	const toInstall = [...dependencies, ...devDependencies].sort(sortPackages);
 	for (const packageInfo of current.sort(sortPackages)) {
@@ -90,7 +99,13 @@ function filterPackages(ctx: Pick<Context, 'packages'>) {
 	const dependencies: PackageInfo[] = [];
 	const devDependencies: PackageInfo[] = [];
 	for (const packageInfo of ctx.packages) {
-		const { currentVersion, targetVersion, isDevDependency } = packageInfo;
+		const { currentVersion, targetVersion, isDevDependency, name } = packageInfo;
+		
+		// Skip @astrojs/tailwind as it's deprecated and should not be upgraded
+		if (name === '@astrojs/tailwind') {
+			continue;
+		}
+		
 		// Remove prefix from version before comparing
 		if (currentVersion.replace(/^\D+/, '') === targetVersion.replace(/^\D+/, '')) {
 			current.push(packageInfo);
