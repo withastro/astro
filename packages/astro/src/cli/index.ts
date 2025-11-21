@@ -105,7 +105,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				{ createTinyexecCommandExecutor },
 				{ getPackageManager },
 				{ createStyledDebugInfoFormatter },
-				{ createPromptsPrompt },
+				{ createClackPrompt },
 				{ createCliClipboard },
 				{ createPassthroughTextStyler },
 				{ infoCommand },
@@ -118,7 +118,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				import('./infra/tinyexec-command-executor.js'),
 				import('./info/core/get-package-manager.js'),
 				import('./info/infra/styled-debug-info-formatter.js'),
-				import('./info/infra/prompts-prompt.js'),
+				import('./info/infra/clack-prompt.js'),
 				import('./info/infra/cli-clipboard.js'),
 				import('./infra/passthrough-text-styler.js'),
 				import('./info/core/info.js'),
@@ -138,7 +138,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				}),
 				nodeVersionProvider,
 			});
-			const prompt = createPromptsPrompt({ force: flags.copy });
+			const prompt = createClackPrompt({ force: flags.copy });
 			const clipboard = createCliClipboard({
 				commandExecutor,
 				logger,
