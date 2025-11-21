@@ -1,5 +1,4 @@
 import yargs from 'yargs-parser';
-import { apply as applyPolyfill } from '../core/polyfill.js';
 
 type CLICommand =
 	| 'help'
@@ -52,8 +51,6 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
  * to present user-friendly error output where the fn is called.
  **/
 async function runCommand(cmd: string, flags: yargs.Arguments) {
-	applyPolyfill();
-
 	const [
 		{ createLoggerFromFlags },
 		{ createPiccoloreTextStyler },

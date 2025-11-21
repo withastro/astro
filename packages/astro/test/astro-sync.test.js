@@ -150,9 +150,7 @@ describe('astro sync', () => {
 				'.astro/content.d.ts',
 				`"blog": Record<string, {
   id: string;
-  render(): Render[".md"];
-  slug: string;
-  body: string;
+  body?: string;
   collection: "blog";
   data: InferEntrySchema<"blog">;
   rendered?: RenderedContent;
@@ -171,13 +169,6 @@ describe('astro sync', () => {
 }>;`,
 				'Types file does not include empty collection type',
 			);
-		});
-
-		it('does not write individual types for entries when emulating legacy collections', async () => {
-			await fixture.load('./fixtures/content-collections/');
-			fixture.clean();
-			await fixture.whenSyncing();
-			fixture.thenFileContentShouldNotInclude('.astro/content.d.ts', 'id: "one.md"');
 		});
 	});
 

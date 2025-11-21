@@ -3,7 +3,6 @@ import { viteID } from '../dist/core/util.js';
 /**
  * @typedef {import('../src/types/public/integrations.js').AstroAdapter} AstroAdapter
  * @typedef {import('../src/types/public/integrations.js').AstroIntegration} AstroIntegration
- * @typedef {import('../src/types/public/integrations.js').HookParameters<"astro:build:ssr">['entryPoints']} EntryPoints
  * @typedef {import('../src/types/public/integrations.js').HookParameters<"astro:build:ssr">['middlewareEntryPoint']} MiddlewareEntryPoint
  * @typedef {import('../src/types/public/integrations.js').HookParameters<"astro:build:done">['routes']} Routes
  */
@@ -13,9 +12,7 @@ import { viteID } from '../dist/core/util.js';
  * @param {{
  * 	provideAddress?: boolean;
  * 	extendAdapter?: AstroAdapter;
- * 	setEntryPoints?: (entryPoints: EntryPoints) => void;
  * 	setMiddlewareEntryPoint?: (middlewareEntryPoint: MiddlewareEntryPoint) => void;
- * 	setRoutes?: (routes: Routes) => void;
  * 	env: Record<string, string | undefined>;
  * }} param0
  * @returns {AstroIntegration}
@@ -24,9 +21,7 @@ export default function ({
 	provideAddress = true,
 	staticHeaders = false,
 	extendAdapter,
-	setEntryPoints,
 	setMiddlewareEntryPoint,
-	setRoutes,
 	setManifest,
 	setRouteToHeaders,
 	env,
@@ -81,12 +76,13 @@ export default function ({
 														return new Response(data);
 													}
 
-													${
-														provideAddress
-															? `request[Symbol.for('astro.clientAddress')] = clientAddress ?? '0.0.0.0';`
-															: ''
-													}
-													return super.render(request, { routeData, locals, addCookieHeader, prerenderedErrorPageFetch });
+													return super.render(request, {
+														routeData,
+														locals,
+														addCookieHeader,
+														prerenderedErrorPageFetch,
+													${provideAddress ? `clientAddress: clientAddress ?? '0.0.0.0',` : ''}
+													});
 												}
 											}
 
@@ -125,20 +121,12 @@ export default function ({
 					...extendAdapter,
 				});
 			},
-			'astro:build:ssr': ({ entryPoints, middlewareEntryPoint, manifest }) => {
-				if (setEntryPoints) {
-					setEntryPoints(entryPoints);
-				}
+			'astro:build:ssr': ({ middlewareEntryPoint, manifest }) => {
 				if (setMiddlewareEntryPoint) {
 					setMiddlewareEntryPoint(middlewareEntryPoint);
 				}
 				if (setManifest) {
 					setManifest(manifest);
-				}
-			},
-			'astro:build:done': ({ routes }) => {
-				if (setRoutes) {
-					setRoutes(routes);
 				}
 			},
 			'astro:build:generated': ({ experimentalRouteToHeaders }) => {

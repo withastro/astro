@@ -141,7 +141,7 @@ export class AstroCheck {
 			getSvelteLanguagePlugin(),
 			getVueLanguagePlugin(),
 		];
-		const services = [...createTypeScriptServices(this.ts), createAstroService(this.ts)];
+		const services = [...createTypeScriptServices(this.ts), createAstroService()];
 
 		if (tsconfigPath) {
 			const includeProjectReference = false; // #920

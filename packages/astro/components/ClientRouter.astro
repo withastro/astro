@@ -3,11 +3,6 @@ type Fallback = 'none' | 'animate' | 'swap';
 
 export interface Props {
 	fallback?: Fallback;
-	/** @deprecated handleForms is enabled by default in Astro 4.0
-	 *
-	 * Set `data-astro-reload` on your form to opt-out of the default behavior.
-	 */
-	handleForms?: boolean;
 }
 
 const { fallback = 'animate' } = Astro.props;

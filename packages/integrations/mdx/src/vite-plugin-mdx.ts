@@ -9,7 +9,6 @@ import { safeParseFrontmatter } from './utils.js';
 export interface VitePluginMdxOptions {
 	mdxOptions: MdxOptions;
 	srcDir: URL;
-	experimentalHeadingIdCompat: boolean;
 }
 
 // NOTE: Do not destructure `opts` as we're assigning a reference that will be mutated later
@@ -64,7 +63,6 @@ export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 			if (!processor) {
 				processor = createMdxProcessor(opts.mdxOptions, {
 					sourcemap: sourcemapEnabled,
-					experimentalHeadingIdCompat: opts.experimentalHeadingIdCompat,
 				});
 			}
 

@@ -6,43 +6,49 @@ import { Position } from '@volar/language-server';
 import { getLanguageServer, type LanguageServer } from '../server.ts';
 import { fixtureDir } from '../utils.ts';
 
-describe('Content Intellisense - Go To Everywhere', async () => {
-	let languageServer: LanguageServer;
+describe(
+	'Content Intellisense - Go To Everywhere',
+	{ skip: parseInt(process.versions.node) === 20 },
+	async () => {
+		let languageServer: LanguageServer;
 
-	before(async () => (languageServer = await getLanguageServer()));
-
-	it('Provide definitions for keys', async () => {
-		const document = await languageServer.handle.openTextDocument(
-			path.join(fixtureDir, 'src', 'content', 'blog', 'definitions.md'),
-			'markdown',
-		);
-
-		const definitions = (await languageServer.handle.sendDefinitionRequest(
-			document.uri,
-			Position.create(1, 2),
-		)) as LocationLink[];
-
-		const targetUris = definitions?.map((definition) => definition.targetUri);
-		assert.strictEqual(
-			targetUris.every((uri) => uri.endsWith('config.ts')),
-			true,
-		);
-
-		const { targetRange, targetSelectionRange, originSelectionRange } = definitions[0];
-
-		assert.deepStrictEqual(targetRange, {
-			start: { line: 5, character: 2 },
-			end: { line: 5, character: 65 },
+		before(async () => {
+			languageServer = await getLanguageServer();
 		});
 
-		assert.deepStrictEqual(targetSelectionRange, {
-			start: { line: 5, character: 2 },
-			end: { line: 5, character: 7 },
-		});
+		it('Provide definitions for keys', async () => {
+			const document = await languageServer.handle.openTextDocument(
+				path.join(fixtureDir, 'src', 'content', 'blog', 'definitions.md'),
+				'markdown',
+			);
 
-		assert.deepStrictEqual(originSelectionRange, {
-			start: { line: 1, character: 0 },
-			end: { line: 1, character: 5 },
+			const definitions = (await languageServer.handle.sendDefinitionRequest(
+				document.uri,
+				Position.create(1, 2),
+			)) as LocationLink[];
+
+			const targetUris = definitions?.map((definition) => definition.targetUri);
+			assert.strictEqual(
+				targetUris.every((uri) => uri.endsWith('config.ts')),
+				true,
+			);
+
+			const { targetRange, targetSelectionRange, originSelectionRange } = definitions[0];
+
+			assert.deepStrictEqual(targetRange, {
+				start: { line: 6, character: 2 },
+				end: { line: 6, character: 65 },
+			});
+
+			assert.deepStrictEqual(targetSelectionRange, {
+				start: { line: 6, character: 2 },
+				end: { line: 6, character: 7 },
+			});
+
+			assert.deepStrictEqual(originSelectionRange, {
+				start: { line: 1, character: 0 },
+				end: { line: 1, character: 5 },
+			});
 		});
-	});
-});
+	},
+);

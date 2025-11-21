@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { AstroConfig, AstroIntegration } from 'astro';
+import type { AstroConfig, AstroIntegration, IntegrationResolvedRoute } from 'astro';
 import type { EnumChangefreq, LinkItem as LinkItemBase, SitemapItemLoose } from 'sitemap';
 import { ZodError } from 'zod';
 
@@ -76,17 +76,22 @@ const isStatusCodePage = (locales: string[]) => {
 	};
 };
 const createPlugin = (options?: SitemapOptions): AstroIntegration => {
+	let _routes: Array<IntegrationResolvedRoute>;
 	let config: AstroConfig;
 
 	return {
 		name: PKG_NAME,
 
 		hooks: {
+			'astro:routes:resolved': ({ routes }) => {
+				_routes = routes;
+			},
+
 			'astro:config:done': async ({ config: cfg }) => {
 				config = cfg;
 			},
 
-			'astro:build:done': async ({ dir, routes, pages, logger }) => {
+			'astro:build:done': async ({ dir, pages, logger }) => {
 				try {
 					if (!config.site) {
 						logger.warn(
@@ -112,7 +117,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							return new URL(fullPath, finalSiteUrl).href;
 						});
 
-					const routeUrls = routes.reduce<string[]>((urls, r) => {
+					const routeUrls = _routes.reduce<string[]>((urls, r) => {
 						// Only expose pages, not endpoints or redirects
 						if (r.type !== 'page') return urls;
 
@@ -120,7 +125,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						 * Dynamic URLs have entries with `undefined` pathnames
 						 */
 						if (r.pathname) {
-							if (shouldIgnoreStatus(r.pathname ?? r.route)) return urls;
+							if (shouldIgnoreStatus(r.pathname ?? r.pattern)) return urls;
 
 							// `finalSiteUrl` may end with a trailing slash
 							// or not because of base paths.

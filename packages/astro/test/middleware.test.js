@@ -399,8 +399,8 @@ describe('Middleware API in PROD mode, SSR', () => {
 						edgeMiddleware: true,
 					},
 				},
-				setMiddlewareEntryPoint(entryPointsOrMiddleware) {
-					middlewarePath = entryPointsOrMiddleware;
+				setMiddlewareEntryPoint(middlewareEntryPoint) {
+					middlewarePath = middlewareEntryPoint;
 				},
 			}),
 		});
