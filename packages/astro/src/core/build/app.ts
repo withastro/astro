@@ -31,7 +31,10 @@ export class BuildApp extends BaseApp<BuildPipeline> {
 		if (options.status === 500) {
 			throw options.error;
 		} else {
-			return super.renderError(request, options);
+			return super.renderError(request, {
+				...options,
+				prerenderedErrorPageFetch: undefined
+			});
 		}
 	}
 }

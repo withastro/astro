@@ -91,7 +91,7 @@ export interface RenderErrorOptions {
 	 */
 	error?: unknown;
 	clientAddress: string | undefined;
-	prerenderedErrorPageFetch: (url: ErrorPagePath) => Promise<Response>;
+	prerenderedErrorPageFetch: ((url: ErrorPagePath) => Promise<Response>) | undefined;
 }
 
 type ErrorPagePath =
@@ -500,7 +500,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			if (errorRouteData.prerender) {
 				const maybeDotHtml = errorRouteData.route.endsWith(`/${status}`) ? '.html' : '';
 				const statusURL = new URL(`${this.baseWithoutTrailingSlash}/${status}${maybeDotHtml}`, url);
-				if (statusURL.toString() !== request.url) {
+				if (statusURL.toString() !== request.url && prerenderedErrorPageFetch) {
 					const response = await prerenderedErrorPageFetch(statusURL.toString() as ErrorPagePath);
 
 					// In order for the response of the remote to be usable as a response
