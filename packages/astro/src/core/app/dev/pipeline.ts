@@ -94,7 +94,7 @@ export class DevPipeline extends Pipeline {
 
 		const { devCSSMap } = await import('virtual:astro:dev-css-all');
 
-		let css: Set<ImportedDevStyle> = new Set();
+		let css = new Set<ImportedDevStyle>();
 		try {
 			const importer = devCSSMap.get(routeData.component);
 			if(importer) {

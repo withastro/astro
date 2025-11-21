@@ -55,8 +55,7 @@ function* collectCSSWithOrder(
 	}
 
 	// Recursively walk imported modules (depth-first)
-	for (let idx = 0; idx < imported.length; idx++) {
-		const imp = imported[idx];
+	for (const imp of imported) {
 		if (imp.id && !seen.has(imp?.id)) {
 			yield* collectCSSWithOrder(imp.id, imp, seen);
 		}
@@ -105,7 +104,7 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 				);
 
 				// Collect CSS by walking the dependency tree from the component
-				const cssWithOrder: Map<string, ImportedDevStyle> = new Map();
+				const cssWithOrder = new Map<string, ImportedDevStyle>();
 
 				// The virtual module name for this page, like virtual:astro:dev-css:index@_@astro
 				const componentPageId = getVirtualModulePageNameForComponent(componentPath);
@@ -141,7 +140,7 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 
 				const cssArray = Array.from(cssWithOrder.values());
 				// Remove the temporary fields added during collection
-				const cleanedCss = cssArray.map(({ content, id, url }) => ({ content, id, url }));
+				const cleanedCss = cssArray.map(({ content, id: cssId, url }) => ({ content, id: cssId, url }));
 				return {
 					code: `export const css = new Set(${JSON.stringify(cleanedCss)})`,
 				};
