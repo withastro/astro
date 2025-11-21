@@ -10,13 +10,12 @@ const RESOLVED_SERVER_ISLAND_MANIFEST = '\0' + SERVER_ISLAND_MANIFEST;
 const serverIslandPlaceholderMap = "'$$server-islands-map$$'";
 const serverIslandPlaceholderNameMap = "'$$server-islands-name-map$$'";
 
-const serverIslandMap = new Map();
-const serverIslandNameMap = new Map();
-
 export function vitePluginServerIslands({ settings }: AstroPluginOptions): VitePlugin {
 	let command: ConfigEnv['command'] = 'serve';
 	let ssrEnvironment: DevEnvironment | null = null;
 	const referenceIdMap = new Map<string, string>();
+	const serverIslandMap = new Map();
+	const serverIslandNameMap = new Map();
 	return {
 		name: 'astro:server-islands',
 		enforce: 'post',
