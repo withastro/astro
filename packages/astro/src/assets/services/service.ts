@@ -222,7 +222,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 
 		// If the user didn't specify a format, we'll default to `webp`. It offers the best ratio of compatibility / quality
 		// In the future, hopefully we can replace this with `avif`, alas, Edge. See https://caniuse.com/avif
-		if (!options.format) {
+		if (!options.format && !options["isNoop"]) {
 			options.format = DEFAULT_OUTPUT_FORMAT;
 		}
 
