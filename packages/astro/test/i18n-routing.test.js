@@ -2524,4 +2524,3 @@ describe('[SSG] i18n routing', () => {
 		});
 	});
 });
-});
