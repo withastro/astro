@@ -216,6 +216,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 						output: {
 							entryFileNames: `${PRERENDER_ENTRY_FILENAME_PREFIX}.[hash].mjs`,
 							format: 'esm',
+							...viteConfig.environments?.prerender?.build?.rollupOptions?.output,
 						},
 					},
 					ssr: true,
@@ -227,6 +228,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					target: 'esnext',
 					outDir: fileURLToPath(getClientOutputDirectory(settings)),
 					copyPublicDir: true,
+					minify: true,
 					sourcemap: false,
 					rollupOptions: {
 						preserveEntrySignatures: 'exports-only',
@@ -242,6 +244,11 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			ssr: {
 				build: {
 					outDir: fileURLToPath(getServerOutputDirectory(settings)),
+					rollupOptions: {
+						output: {
+							...viteConfig.environments?.ssr?.build?.rollupOptions?.output
+						}
+					}
 				},
 			},
 		},
