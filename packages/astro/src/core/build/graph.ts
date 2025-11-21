@@ -1,6 +1,6 @@
 import type { GetModuleInfo, ModuleInfo } from 'rollup';
 
-import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/index.js';
+import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/const.js';
 
 interface ExtendedModuleInfo {
 	info: ModuleInfo;

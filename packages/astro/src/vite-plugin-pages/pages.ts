@@ -2,7 +2,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import { DEFAULT_COMPONENTS } from '../core/routing/default.js';
 import { routeIsRedirect } from '../core/routing/index.js';
 import type { RoutesList } from '../types/astro.js';
-import { VIRTUAL_PAGE_MODULE_ID } from './page.js';
+import { VIRTUAL_PAGE_MODULE_ID } from './const.js';
 import { getVirtualModulePageName } from './util.js';
 
 export const VIRTUAL_PAGES_MODULE_ID = 'virtual:astro:pages';

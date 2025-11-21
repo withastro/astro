@@ -4,9 +4,7 @@ import { DEFAULT_COMPONENTS } from '../core/routing/default.js';
 import { routeIsRedirect } from '../core/routing/index.js';
 import type { RoutesList } from '../types/astro.js';
 import { ASTRO_RENDERERS_MODULE_ID } from '../vite-plugin-renderers/index.js';
-
-export const VIRTUAL_PAGE_MODULE_ID = 'virtual:astro:page:';
-export const VIRTUAL_PAGE_RESOLVED_MODULE_ID = '\0' + VIRTUAL_PAGE_MODULE_ID;
+import { VIRTUAL_PAGE_MODULE_ID, VIRTUAL_PAGE_RESOLVED_MODULE_ID } from './const.js';
 
 interface PagePluginOptions {
 	routesList: RoutesList;
