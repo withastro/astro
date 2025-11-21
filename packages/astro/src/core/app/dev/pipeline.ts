@@ -1,4 +1,4 @@
-import type { ComponentInstance } from '../../../types/astro.js';
+import type { ComponentInstance, ImportedDevStyle } from '../../../types/astro.js';
 import type {
 	DevToolbarMetadata,
 	RewritePayload,
@@ -93,7 +93,18 @@ export class DevPipeline extends Pipeline {
 			scripts.add({ props: {}, children });
 		}
 
-		const { css } = await import(getDevCSSModuleName(routeData.component));
+		const { devCSSMap } = await import('virtual:astro:dev-css-all');
+
+		let css: Set<ImportedDevStyle> = new Set();
+		try {
+			const importer = devCSSMap.get(routeData.component);
+			if(importer) {
+				const cssModule = await importer();
+				css = cssModule.css;				
+			}
+		} catch {
+			// An unknown route, ignore
+		}
 
 		// Pass framework CSS in as style tags to be appended to the page.
 		for (const { id, url: src, content } of css) {
