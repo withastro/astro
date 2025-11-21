@@ -5,7 +5,6 @@ import type {
 	RouteData,
 	SSRElement,
 } from '../../../types/public/index.js';
-import { getDevCSSModuleName } from '../../../vite-plugin-css/util.js';
 import { type HeadElements, Pipeline, type TryRewriteResult } from '../../base-pipeline.js';
 import { ASTRO_VERSION } from '../../constants.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../../render/ssr-element.js';
