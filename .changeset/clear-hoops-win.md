@@ -1,5 +1,5 @@
 ---
-'astro': major
+'astro': patch
 ---
 
-revise format-handling logic in noop.ts and service.ts
+Fixes a bug where removing format prevented SVG images from rendering in the browser
