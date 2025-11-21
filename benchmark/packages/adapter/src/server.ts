@@ -1,8 +1,8 @@
 import * as fs from 'node:fs';
 import type { SSRManifest } from 'astro';
-import { App } from 'astro/app';
+import { AppPipeline, BaseApp } from 'astro/app';
 
-class MyApp extends App {
+class MyApp extends BaseApp {
 	#manifest: SSRManifest | undefined;
 	constructor(manifest: SSRManifest, streaming = false) {
 		super(manifest, streaming);
@@ -18,6 +18,13 @@ class MyApp extends App {
 		}
 
 		return super.render(request);
+	}
+
+	createPipeline(streaming: boolean) {
+		return AppPipeline.create({
+			manifest: this.manifest,
+			streaming,
+		});
 	}
 }
 

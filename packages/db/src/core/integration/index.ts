@@ -6,7 +6,7 @@ import type { AstroIntegration, HookParameters } from 'astro';
 import colors from 'piccolore';
 import {
 	createServer,
-	type HMRPayload,
+	type HotPayload,
 	loadEnv,
 	mergeConfig,
 	type UserConfig,
@@ -253,8 +253,8 @@ async function getTempViteServer({ viteConfig }: { viteConfig: UserConfig }) {
 		}),
 	);
 
-	const hotSend = tempViteServer.hot.send;
-	tempViteServer.hot.send = (payload: HMRPayload) => {
+	const hotSend = tempViteServer.environments.client.hot.send;
+	tempViteServer.environments.client.hot.send = (payload: HotPayload) => {
 		if (payload.type === 'error') {
 			throw payload.err;
 		}

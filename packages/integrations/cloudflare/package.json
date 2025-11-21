@@ -19,10 +19,12 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/cloudflare/",
   "exports": {
     ".": "./dist/index.js",
+    "./entrypoints/server": "./dist/entrypoints/server.js",
     "./entrypoints/server.js": "./dist/entrypoints/server.js",
     "./entrypoints/middleware.js": "./dist/entrypoints/middleware.js",
     "./image-service": "./dist/entrypoints/image-service.js",
     "./image-endpoint": "./dist/entrypoints/image-endpoint.js",
+    "./image-transform-endpoint": "./dist/entrypoints/image-transform-endpoint.js",
     "./handler": "./dist/utils/handler.js",
     "./package.json": "./package.json"
   },
@@ -38,10 +40,11 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
-    "@cloudflare/workers-types": "^4.20251106.1",
+    "@cloudflare/vite-plugin": "^1.13.14",
+    "@cloudflare/workers-types": "^4.20251014.0",
     "tinyglobby": "^0.2.15",
-    "vite": "^7.1.7",
-    "wrangler": "4.46.0"
+    "vite": "^7.1.12",
+    "wrangler": "4.44.0"
   },
   "peerDependencies": {
     "astro": "^6.0.0-alpha.0"

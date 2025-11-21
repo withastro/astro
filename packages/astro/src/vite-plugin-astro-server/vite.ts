@@ -1,9 +1,8 @@
 import npath from 'node:path';
+import { type EnvironmentModuleNode, isCSSRequest, type RunnableDevEnvironment } from 'vite';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../core/constants.js';
-import type { ModuleLoader, ModuleNode } from '../core/module-loader/index.js';
 import { unwrapId } from '../core/util.js';
 import { hasSpecialQueries } from '../vite-plugin-utils/index.js';
-import { isCSSRequest } from './util.js';
 
 /**
  * List of file extensions signalling we can (and should) SSR ahead-of-time
@@ -15,22 +14,22 @@ const STRIP_QUERY_PARAMS_REGEX = /\?.*$/;
 
 /** recursively crawl the module graph to get all style files imported by parent id */
 export async function* crawlGraph(
-	loader: ModuleLoader,
+	environment: RunnableDevEnvironment,
 	_id: string,
 	isRootFile: boolean,
 	scanned = new Set<string>(),
-): AsyncGenerator<ModuleNode, void, unknown> {
+): AsyncGenerator<EnvironmentModuleNode, void, unknown> {
 	const id = unwrapId(_id);
-	const importedModules = new Set<ModuleNode>();
+	const importedModules = new Set<EnvironmentModuleNode>();
 
 	const moduleEntriesForId = isRootFile
 		? // "getModulesByFile" pulls from a delayed module cache (fun implementation detail),
 			// So we can get up-to-date info on initial server load.
 			// Needed for slower CSS preprocessing like Tailwind
-			(loader.getModulesByFile(id) ?? new Set())
+			(environment.moduleGraph.getModulesByFile(id) ?? new Set())
 		: // For non-root files, we're safe to pull from "getModuleById" based on testing.
 			// TODO: Find better invalidation strategy to use "getModuleById" in all cases!
-			new Set([loader.getModuleById(id)]);
+			new Set([environment.moduleGraph.getModuleById(id)]);
 
 	// Collect all imported modules for the module(s).
 	for (const entry of moduleEntriesForId) {
@@ -83,10 +82,10 @@ export async function* crawlGraph(
 					// Should not SSR a module with ?astroPropagatedAssets
 					!isPropagationStoppingPoint
 				) {
-					const mod = loader.getModuleById(importedModule.id);
+					const mod = environment.moduleGraph.getModuleById(importedModule.id);
 					if (!mod?.ssrModule) {
 						try {
-							await loader.import(importedModule.id);
+							await environment.runner.import(importedModule.id);
 						} catch {
 							/** Likely an out-of-date module entry! Silently continue. */
 						}
@@ -111,13 +110,13 @@ export async function* crawlGraph(
 		}
 
 		yield importedModule;
-		yield* crawlGraph(loader, importedModule.id, false, scanned);
+		yield* crawlGraph(environment, importedModule.id, false, scanned);
 	}
 }
 
 // Verify true imports. If the child module has the parent as an importers, it's
 // a real import.
-function isImportedBy(parent: string, entry: ModuleNode) {
+function isImportedBy(parent: string, entry: EnvironmentModuleNode) {
 	for (const importer of entry.importers) {
 		if (importer.id === parent) {
 			return true;

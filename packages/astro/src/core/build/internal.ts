@@ -1,4 +1,3 @@
-import type { Rollup } from 'vite';
 import type { SSRResult } from '../../types/public/internal.js';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
@@ -84,19 +83,14 @@ export interface BuildInternals {
 	// A list of all static chunks and assets that are built in the client
 	clientChunksAndAssets: Set<string>;
 
-	// The SSR entry chunk. Kept in internals to share between ssr/client build steps
-	ssrEntryChunk?: Rollup.OutputChunk;
-	// The SSR manifest entry chunk.
-	manifestEntryChunk?: Rollup.OutputChunk;
+	// All of the input modules for the client.
+	clientInput: Set<string>;
+
 	manifestFileName?: string;
+	prerenderEntryFileName?: string;
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint: URL | undefined;
 	astroActionsEntryPoint: URL | undefined;
-
-	/**
-	 * Chunks in the bundle that are only used in prerendering that we can delete later
-	 */
-	prerenderOnlyChunks: Rollup.OutputChunk[];
 }
 
 /**
@@ -105,6 +99,7 @@ export interface BuildInternals {
  */
 export function createBuildInternals(): BuildInternals {
 	return {
+		clientInput: new Set(),
 		cssModuleToChunkIdMap: new Map(),
 		inlinedScripts: new Map(),
 		entrySpecifierToBundleMap: new Map<string, string>(),
@@ -112,15 +107,12 @@ export function createBuildInternals(): BuildInternals {
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
 		pagesByScriptId: new Map(),
-
 		propagatedStylesMap: new Map(),
-
 		discoveredHydratedComponents: new Map(),
 		discoveredClientOnlyComponents: new Map(),
 		discoveredScripts: new Set(),
 		staticFiles: new Set(),
 		componentMetadata: new Map(),
-		prerenderOnlyChunks: [],
 		astroActionsEntryPoint: undefined,
 		middlewareEntryPoint: undefined,
 		clientChunksAndAssets: new Set(),

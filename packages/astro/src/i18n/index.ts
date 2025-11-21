@@ -1,4 +1,5 @@
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
+import type { RoutingStrategies } from '../core/app/common.js';
 import type { SSRManifest } from '../core/app/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { REROUTE_DIRECTIVE_HEADER } from '../core/constants.js';
@@ -7,7 +8,6 @@ import { AstroError } from '../core/errors/index.js';
 import type { AstroConfig, Locales, ValidRedirectStatus } from '../types/public/config.js';
 import type { APIContext } from '../types/public/context.js';
 import { createI18nMiddleware } from './middleware.js';
-import type { RoutingStrategies } from './utils.js';
 
 export function requestHasLocale(locales: Locales) {
 	return function (context: APIContext): boolean {
@@ -42,7 +42,7 @@ type GetLocaleRelativeUrl = GetLocaleOptions & {
 	base: string;
 	locales: Locales;
 	trailingSlash: AstroConfig['trailingSlash'];
-	format: AstroConfig['build']['format'];
+	format: NonNullable<AstroConfig['build']['format']>;
 	strategy?: RoutingStrategies;
 	defaultLocale: string;
 	domains: Record<string, string> | undefined;

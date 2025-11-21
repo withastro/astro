@@ -19,26 +19,18 @@ export class ContainerPipeline extends Pipeline {
 		SinglePageBuiltModule
 	>();
 
+	getName(): string {
+		return 'ContainerPipeline';
+	}
+
 	static create({
 		logger,
 		manifest,
 		renderers,
 		resolve,
-		serverLike,
 		streaming,
-	}: Pick<
-		ContainerPipeline,
-		'logger' | 'manifest' | 'renderers' | 'resolve' | 'serverLike' | 'streaming'
-	>) {
-		return new ContainerPipeline(
-			logger,
-			manifest,
-			'development',
-			renderers,
-			resolve,
-			serverLike,
-			streaming,
-		);
+	}: Pick<ContainerPipeline, 'logger' | 'manifest' | 'renderers' | 'resolve' | 'streaming'>) {
+		return new ContainerPipeline(logger, manifest, 'development', renderers, resolve, streaming);
 	}
 
 	componentMetadata(_routeData: RouteData): Promise<SSRResult['componentMetadata']> | void {}

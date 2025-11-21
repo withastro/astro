@@ -57,7 +57,7 @@ export async function callMiddleware(
 		return responseFunctionPromise;
 	};
 
-	let middlewarePromise = onRequest(apiContext, next);
+	const middlewarePromise = onRequest(apiContext, next);
 
 	return await Promise.resolve(middlewarePromise).then(async (value) => {
 		// first we check if `next` was called

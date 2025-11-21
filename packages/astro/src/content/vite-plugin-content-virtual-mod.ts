@@ -28,12 +28,13 @@ interface AstroContentVirtualModPluginParams {
 	fs: typeof nodeFs;
 }
 
-function invalidateDataStore(server: ViteDevServer) {
-	const module = server.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
+function invalidateDataStore(viteServer: ViteDevServer) {
+	const environment = viteServer.environments.ssr;
+	const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
 	if (module) {
-		server.moduleGraph.invalidateModule(module);
+		environment.moduleGraph.invalidateModule(module);
 	}
-	server.ws.send({
+	viteServer.environments.client.hot.send({
 		type: 'full-reload',
 		path: '*',
 	});

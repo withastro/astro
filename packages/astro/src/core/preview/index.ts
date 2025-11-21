@@ -27,7 +27,11 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig ?? {}, 'preview');
 	telemetry.record(eventCliSession('preview', userConfig));
 
-	const _settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
+	const _settings = await createSettings(
+		astroConfig,
+		inlineConfig.logLevel,
+		fileURLToPath(astroConfig.root),
+	);
 
 	const settings = await runHookConfigSetup({
 		settings: _settings,

@@ -86,7 +86,7 @@ export class AstroComponentInstance {
 
 // Issue warnings for invalid props for Astro components
 function validateComponentProps(
-	props: any,
+	props: ComponentProps,
 	clientDirectives: SSRResult['clientDirectives'],
 	displayName: string,
 ) {

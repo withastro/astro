@@ -1,3 +1,3 @@
-export type { LoaderEvents, ModuleInfo, ModuleLoader, ModuleNode } from './loader.js';
-export { createLoader } from './loader.js';
+export type { LoaderEvents, ModuleInfo, ModuleLoader } from './runner.js';
+export { createLoader } from './runner.js';
 export { createViteLoader } from './vite.js';

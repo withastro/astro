@@ -1,6 +1,6 @@
 import type fsType from 'node:fs';
 import { pathToFileURL } from 'node:url';
-import { createServer, type ViteDevServer } from 'vite';
+import { createServer, isRunnableDevEnvironment, type ViteDevServer } from 'vite';
 import loadFallbackPlugin from '../../vite-plugin-load-fallback/index.js';
 import { debug } from '../logger/core.js';
 
@@ -50,8 +50,12 @@ export async function loadConfigWithVite({
 	let server: ViteDevServer | undefined;
 	try {
 		server = await createViteServer(root, fs);
-		const mod = await server.ssrLoadModule(configPath, { fixStacktrace: true });
-		return mod.default ?? {};
+		if (isRunnableDevEnvironment(server.environments.ssr)) {
+			const mod = await server.environments.ssr.runner.import(configPath);
+			return mod.default ?? {};
+		} else {
+			return {};
+		}
 	} finally {
 		if (server) {
 			await server.close();

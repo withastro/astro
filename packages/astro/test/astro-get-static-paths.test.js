@@ -6,13 +6,25 @@ import { loadFixture } from './test-utils.js';
 
 const root = new URL('./fixtures/astro-get-static-paths/', import.meta.url);
 
+const paramsTypePlugin  = (type = 'string') => ({
+	name: 'vite-plugin-param-type',
+	resolveId(name) {
+		if(name ==='virtual:my:param:type') {
+			return '\0virtual:my:param:type';
+		}
+	},
+	load(id) {
+		if(id === '\0virtual:my:param:type') {
+			return `export const paramType = ${JSON.stringify(type)}`;
+		}
+	}
+});
+
 function resetFlags() {
 	// reset the flag used by [...calledTwiceTest].astro between each test
-	// @ts-expect-error not typed
 	globalThis.isCalledOnce = false;
 
 	// reset the flag used by [...invalidParamsTypeTest].astro between each test
-	// @ts-expect-error not typed
 	globalThis.getStaticPathsParamsType = undefined;
 }
 
@@ -26,6 +38,9 @@ describe('getStaticPaths - build calls', () => {
 			site: 'https://mysite.dev/',
 			trailingSlash: 'never',
 			base: '/blog',
+			vite: {
+				plugins: [paramsTypePlugin()]
+			}
 		});
 		await fixture.build({});
 	});
@@ -57,6 +72,9 @@ describe('getStaticPaths - dev calls', () => {
 		fixture = await loadFixture({
 			root,
 			site: 'https://mysite.dev/',
+			vite: {
+				plugins: [paramsTypePlugin()]
+			}
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -182,6 +200,9 @@ describe('throws if an invalid Astro property is accessed', () => {
 		fixture = await loadFixture({
 			root,
 			site: 'https://mysite.dev/',
+			vite: {
+				plugins: [paramsTypePlugin()]
+			}
 		});
 		await fixture.editFile(
 			'/src/pages/food/[name].astro',
@@ -216,6 +237,9 @@ describe('throws if an invalid params type is returned', () => {
 			const fixture = await loadFixture({
 				root,
 				site: 'https://mysite.dev/',
+				vite: {
+					plugins: [paramsTypePlugin(type)]
+				}
 			});
 			await fixture.build({});
 		} catch (err) {
@@ -225,22 +249,64 @@ describe('throws if an invalid params type is returned', () => {
 		}
 	};
 
-	const validTypes = ['string', 'undefined'];
-	const invalidTypes = ['number', 'boolean', 'array', 'null', 'object', 'bigint', 'function'];
+	// Valid types
+	it('does build for param type string', async () => {
+		const err = await build('string');
+		assert.equal(err, undefined);
+	});
 
-	for (const type of validTypes) {
-		it(`does build for param type ${type}`, async () => {
-			const err = await build(type);
-			assert.equal(err, undefined);
-		});
-	}
+	it('does build for param type undefined', async () => {
+		const err = await build('undefined');
+		assert.equal(err, undefined);
+	});
 
-	for (const type of invalidTypes) {
-		it(`does not build for param type ${type}`, async () => {
-			const err = await build(type);
-			assert.equal(err instanceof Error, true);
-			// @ts-ignore
-			assert.equal(err.title, 'Invalid route parameter returned by `getStaticPaths()`.');
-		});
-	}
+	// Invalid types
+	it('does not build for param type number', async () => {
+		const err = await build('number');
+		assert.equal(err instanceof Error, true);
+		// @ts-ignore
+		assert.equal(err.title, 'Invalid route parameter returned by `getStaticPaths()`.');
+	});
+
+	it('does not build for param type boolean', async () => {
+		const err = await build('boolean');
+		assert.equal(err instanceof Error, true);
+		// @ts-ignore
+		assert.equal(err.title, 'Invalid route parameter returned by `getStaticPaths()`.');
+	});
+
+	it('does not build for param type array', async () => {
+		const err = await build('array');
+		assert.equal(err instanceof Error, true);
+		// @ts-ignore
+		assert.equal(err.title, 'Invalid route parameter returned by `getStaticPaths()`.');
+	});
+
+	it('does not build for param type null', async () => {
+		const err = await build('null');
+		assert.equal(err instanceof Error, true);
+		// @ts-ignore
+		assert.equal(err.title, 'Invalid route parameter returned by `getStaticPaths()`.');
+	});
+
+	it('does not build for param type object', async () => {
+		const err = await build('object');
+		assert.equal(err instanceof Error, true);
+		// @ts-ignore
+		assert.equal(err.title, 'Invalid route parameter returned by `getStaticPaths()`.');
+	});
+
+	it('does not build for param type bigint', async () => {
+		const err = await build('bigint');
+		assert.equal(err instanceof Error, true);
+		// @ts-ignore
+		assert.equal(err.title, 'Invalid route parameter returned by `getStaticPaths()`.');
+	});
+
+	it('does not build for param type function', async () => {
+		const err = await build('function');
+		assert.equal(err instanceof Error, true);
+		// @ts-ignore
+		assert.equal(err.title, 'Invalid route parameter returned by `getStaticPaths()`.');
+	});
 });

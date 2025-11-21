@@ -124,9 +124,17 @@ export interface AstroAdapter {
 	name: string;
 	serverEntrypoint?: string | URL;
 	previewEntrypoint?: string | URL;
+	devEntrypoint?: string | URL;
 	exports?: string[];
 	args?: any;
 	adapterFeatures?: AstroAdapterFeatures;
+	/**
+	 * Determines how the adapter's entrypoint is handled during the build.
+	 * - `'self'`: The adapter defines its own entrypoint and sets rollupOptions.input
+	 * - `'legacy-dynamic'`: Uses the virtual module entrypoint with dynamic exports
+	 * @default 'legacy-dynamic'
+	 */
+	entryType?: 'self' | 'legacy-dynamic';
 	/**
 	 * List of features supported by an adapter.
 	 *
@@ -285,10 +293,7 @@ export type HeaderPayload = {
 };
 
 export interface IntegrationResolvedRoute
-	extends Pick<
-		RouteData,
-		'generate' | 'params' | 'pathname' | 'segments' | 'type' | 'redirect' | 'origin'
-	> {
+	extends Pick<RouteData, 'params' | 'pathname' | 'segments' | 'type' | 'redirect' | 'origin'> {
 	/**
 	 * {@link RouteData.route}
 	 */
@@ -313,4 +318,20 @@ export interface IntegrationResolvedRoute
 	 * {@link RouteData.redirectRoute}
 	 */
 	redirectRoute?: IntegrationResolvedRoute;
+
+	/**
+	 * @param {any} data The optional parameters of the route
+	 *
+	 * @description
+	 * A function that accepts a list of params, interpolates them with the route pattern, and returns the path name of the route.
+	 *
+	 * ## Example
+	 *
+	 * For a route such as `/blog/[...id].astro`, the `generate` function would return something like this:
+	 *
+	 * ```js
+	 * console.log(generate({ id: 'presentation' })) // will log `/blog/presentation`
+	 * ```
+	 */
+	generate: (data?: any) => string;
 }

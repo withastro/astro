@@ -7,7 +7,8 @@ import { eventCliSession, telemetry } from '../../events/index.js';
 import { SETTINGS_FILE } from '../../preferences/constants.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
-import { createNodeLogger, createSettings, resolveConfig } from '../config/index.js';
+import { createSettings, resolveConfig } from '../config/index.js';
+import { createNodeLogger } from '../config/logging.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { isAstroConfigZodError } from '../errors/errors.js';
 import { createSafeError } from '../errors/index.js';
@@ -83,7 +84,11 @@ async function restartContainer(container: Container): Promise<Container | Error
 				"Astro's Content Security Policy (CSP) does not work in development mode. To verify your CSP implementation, build the project and run the preview server.",
 			);
 		}
-		const settings = await createSettings(astroConfig, fileURLToPath(existingSettings.config.root));
+		const settings = await createSettings(
+			astroConfig,
+			container.inlineConfig.logLevel,
+			fileURLToPath(existingSettings.config.root),
+		);
 		await close();
 		return await createRestartedContainer(container, settings);
 	} catch (_err) {
@@ -96,7 +101,7 @@ async function restartContainer(container: Container): Promise<Container | Error
 			);
 		}
 		// Inform connected clients of the config error
-		container.viteServer.hot.send({
+		container.viteServer.environments.client.hot.send({
 			type: 'error',
 			err: {
 				message: error.message,
@@ -133,7 +138,11 @@ export async function createContainerWithAutomaticRestart({
 	}
 	telemetry.record(eventCliSession('dev', userConfig));
 
-	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
+	const settings = await createSettings(
+		astroConfig,
+		inlineConfig?.logLevel,
+		fileURLToPath(astroConfig.root),
+	);
 
 	const initialContainer = await createContainer({
 		settings,

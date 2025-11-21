@@ -40,7 +40,7 @@
     "test:e2e:hosts": "turbo run test:hosted",
     "benchmark": "astro-benchmark",
     "lint": "biome lint && knip && eslint . --report-unused-disable-directives-severity=warn --concurrency=auto",
-    "lint:ci": "biome ci --formatter-enabled=false --reporter=github && eslint . --concurrency=auto --report-unused-disable-directives-severity=warn && knip",
+    "lint:ci": "biome ci --formatter-enabled=false --enforce-assist=false --reporter=github && eslint . --concurrency=auto --report-unused-disable-directives-severity=warn && knip",
     "lint:fix": "biome lint --write --unsafe",
     "publint": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --no-bail exec publint",
     "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format",

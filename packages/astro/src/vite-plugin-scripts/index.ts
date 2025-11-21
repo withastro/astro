@@ -1,4 +1,4 @@
-import type { ConfigEnv, Plugin as VitePlugin } from 'vite';
+import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../types/astro.js';
 import type { InjectedScriptStage } from '../types/public/integrations.js';
 
@@ -13,13 +13,8 @@ export const PAGE_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${'page' as InjectedScriptStag
 export const PAGE_SSR_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${'page-ssr' as InjectedScriptStage}.js`;
 
 export default function astroScriptsPlugin({ settings }: { settings: AstroSettings }): VitePlugin {
-	let env: ConfigEnv | undefined = undefined;
 	return {
 		name: 'astro:scripts',
-
-		config(_config, _env) {
-			env = _env;
-		},
 
 		async resolveId(id) {
 			if (id.startsWith(SCRIPT_ID_PREFIX)) {
@@ -57,8 +52,7 @@ export default function astroScriptsPlugin({ settings }: { settings: AstroSettin
 		},
 		buildStart() {
 			const hasHydrationScripts = settings.scripts.some((s) => s.stage === 'before-hydration');
-			const isSsrBuild = env?.isSsrBuild;
-			if (hasHydrationScripts && env?.command === 'build' && !isSsrBuild) {
+			if (hasHydrationScripts && ['prerender', 'ssr'].includes(this.environment.name)) {
 				this.emitFile({
 					type: 'chunk',
 					id: BEFORE_HYDRATION_SCRIPT_ID,
