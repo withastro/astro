@@ -30,6 +30,29 @@ export interface UserOptions {
 	 * static files are hosted on a different domain. Do not include a path in the URL: it will be ignored.
 	 */
 	experimentalErrorPageHost?: string | URL;
+
+	/**
+	 * Run middleware on request, even for prerendered (static) pages.
+	 *
+	 * If enabled, middleware will execute before serving static HTML files,
+	 * allowing access to cookies, headers, and query parameters for authentication,
+	 * personalization, and other request-based logic. Middleware will not run during build time.
+	 * 
+	 * **Important limitations:**
+	 * - `Astro.cookies` and `context.locals` accessed in page components will NOT reflect
+	 *   middleware changes, as pages are prerendered during build time. Only middleware
+	 *   has access to the runtime request context.
+	 * - CSRF/origin checking is automatically disabled for prerendered pages to allow
+	 *   static file serving. Implement your own security checks in middleware if needed.
+	 * - Middleware runs on every request to HTML pages, which may impact performance
+	 *   compared to purely static serving.
+	 * 
+	 * **Note:** This option specifically enables middleware for static/prerendered pages.
+	 * For SSR/hybrid pages, middleware runs by default without this option.
+	 * 
+	 * @default false
+	 */
+	runMiddlewareOnRequest?: boolean;
 }
 
 export interface Options extends UserOptions {
@@ -40,6 +63,7 @@ export interface Options extends UserOptions {
 	assets: string;
 	trailingSlash?: SSRManifest['trailingSlash'];
 	experimentalStaticHeaders: boolean;
+	runMiddlewareOnRequest: boolean;
 }
 
 export type RequestHandler = (...args: RequestHandlerParams) => void | Promise<void>;
