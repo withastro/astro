@@ -280,11 +280,13 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	// and this is the only way to update the input after instantiation.
 	internals.clientInput = getClientInput(internals, settings);
 	if(!internals.clientInput.size) {
+		// At least 1 input is required to do a build, otherwise Vite throws.
+		// We need the client build to happen in order to copy over the `public/` folder
+		// So using the noop plugin here which will give us an input that just gets thrown away.
 		internals.clientInput.add(NOOP_MODULE_ID);
 	}
 	builder.environments.client.config.build.rollupOptions.input = Array.from(internals.clientInput);
-	const clientOutput =
-		internals.clientInput.size === 0 ? [] : await builder.build(builder.environments.client);
+	const clientOutput = await builder.build(builder.environments.client);
 
 	return { ssrOutput, prerenderOutput, clientOutput };
 }

@@ -1,6 +1,5 @@
 import { BaseApp, type RenderErrorOptions } from '../app/index.js';
 import type { SSRManifest } from '../app/types.js';
-import type { Logger } from '../logger/core.js';
 import type { BuildInternals } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
 import type { StaticBuildOptions } from './types.js';
@@ -12,16 +11,13 @@ export class BuildApp extends BaseApp<BuildPipeline> {
 		});
 	}
 
-	setLogger(logger: Logger) {
-		this.logger = logger;
-	}
-
 	public setInternals(internals: BuildInternals) {
 		this.pipeline.setInternals(internals);
 	}
 
 	public setOptions(options: StaticBuildOptions) {
 		this.pipeline.setOptions(options);
+		this.logger = options.logger;
 	}
 
 	public getOptions() {

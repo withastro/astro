@@ -57,7 +57,6 @@ export async function generatePages(
 	const app = prerenderEntry.app as BuildApp;
 	app.setInternals(internals);
 	app.setOptions(options);
-	app.setLogger(options.logger);
 
 	const logger = app.logger;
 
