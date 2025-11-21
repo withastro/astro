@@ -228,8 +228,8 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					target: 'esnext',
 					outDir: fileURLToPath(getClientOutputDirectory(settings)),
 					copyPublicDir: true,
+					sourcemap: viteConfig.environments?.client?.build?.sourcemap ?? false,
 					minify: true,
-					sourcemap: false,
 					rollupOptions: {
 						preserveEntrySignatures: 'exports-only',
 						output: {
