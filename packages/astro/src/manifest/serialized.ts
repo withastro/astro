@@ -68,6 +68,8 @@ export function serializedManifestPlugin({
 					import { pageMap } from '${VIRTUAL_PAGES_MODULE_ID}';
 
 					const _manifest = _deserializeManifest((${manifestData}));
+					const manifestRoutes = import.meta.env.DEV ? routes : _manifest.routes;
+					
 					const manifest = Object.assign(_manifest, {
 					  renderers,
 					  actions: () => import('${ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID}'),
@@ -76,7 +78,7 @@ export function serializedManifestPlugin({
 					  serverIslandMappings: () => import('${SERVER_ISLAND_MANIFEST}'),
 					  // _manifest.routes contains enriched route info with scripts and styles,
 					  // while routes only has raw route data. Fallback to routes if _manifest.routes is not available.
-					  routes: _manifest.routes ?? routes,
+					  routes: manifestRoutes,
 					  pageMap,
 					});
 					export { manifest };
