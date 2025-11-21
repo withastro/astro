@@ -98,6 +98,8 @@ const getViteResolveAlias = (settings: AstroSettings) => {
 			};
 
 			aliases.push({
+				// Build regex from alias pattern (e.g., '@styles/*' -> /^@styles\/(.+)$/)
+				// First, escape special regex chars. Then replace * with a capture group (.+)
 				find: new RegExp(
 					`^${aliasPattern.replace(/[\\^$+?.()|[\]{}]/g, '\\$&').replace(/\*/g, '(.+)')}$`,
 				),
@@ -160,14 +162,14 @@ export default function configAliasVitePlugin({
 	return plugin;
 }
 
-// TODO this is a deprecated API and should be removed when its safe to do so
 /**
  * Vite's `createResolver` is used to resolve various things, including CSS `@import`.
- * However, there's no way to extend this resolver, besides patching it. This function
- * patches and adds a Vite plugin whose `resolveId` will be used to resolve before the
- * internal plugins in `createResolver`.
+ * We use vite.resolve.alias with custom resolvers to handle tsconfig paths in most cases,
+ * but for CSS imports, we still need to patch createResolver as vite.resolve.alias
+ * doesn't apply there. This function patches createResolver to inject our custom resolver.
  *
- * Vite may simplify this soon: https://github.com/vitejs/vite/pull/10555
+ * TODO: Remove this function once all tests pass with only the vite.resolve.alias approach,
+ * which means CSS @import resolution will work without patching createResolver.
  */
 function patchCreateResolver(config: ResolvedConfig, postPlugin: VitePlugin) {
 	const _createResolver = config.createResolver;
