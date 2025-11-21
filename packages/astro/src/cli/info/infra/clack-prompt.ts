@@ -11,10 +11,12 @@ export function createClackPrompt({ force }: Options): Prompt {
 			if (force) {
 				return true;
 			}
-			return await confirm({
+			const response = await confirm({
 				message,
 				initialValue: defaultValue,
 			});
+			// Response is a symbol when cancelled
+			return response === true;
 		},
 	};
 }
