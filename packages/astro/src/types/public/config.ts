@@ -548,6 +548,20 @@ export interface AstroUserConfig<
 	scopedStyleStrategy?: 'where' | 'class' | 'attribute';
 
 	/**
+	 *
+	 * @name prerenderConflictBehavior
+	 * @type {'warning' | 'error' | 'ignore'}
+	 * @default `'warning'`
+	 * @version 6.0
+	 * @description
+	 * Determines the default behavior when two routes generate the same prerendered URL:
+	 * - `error`: fail the build and display an error, forcing you to resolve the conflict
+	 * - `warning` (default): log a warning when conflicts occur, but build using the highest-priority route
+	 * - `ignore`: silently build using the highest-priority route when conflicts occur
+	 */
+	prerenderConflictBehavior?: 'warning' | 'error' | 'ignore';
+
+	/**
 	 * @docs
 	 * @name security
 	 * @type {Record<"checkOrigin", boolean> | undefined}
@@ -2028,20 +2042,6 @@ export interface AstroUserConfig<
 		 */
 		validateSecrets?: boolean;
 	};
-
-	/**
-	 *
-	 * @name prerenderConflictBehavior
-	 * @type {'warning' | 'error' | 'ignore'}
-	 * @default `'warning'`
-	 * @version 6.0
-	 * @description
-	 * When two routes generate the same prerendered URL, defines Astro's behavior:
-	 * - Error: fail the build
-	 * - Warning (default): logs a warning when conflicts occur and the highest-priority route wins
-	 * - Ignore: silently picks the highest-priority route when conflicts occur
-	 */
-	prerenderConflictBehavior?: 'warning' | 'error' | 'ignore';
 
 	/**
 	 *
