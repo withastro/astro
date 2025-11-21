@@ -16,6 +16,7 @@ import { normalizePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { ContentEntryType, DataEntryType } from '../types/public/content.js';
+import { getConfigAlias } from '../vite-plugin-config-alias/index.js';
 import {
 	type CONTENT_FLAGS,
 	CONTENT_LAYER_TYPE,
@@ -155,7 +156,8 @@ export async function getEntryDataAndImages<
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
 	experimentalSvgEnabled: boolean,
-	pluginContext?: PluginContext,
+	pluginContext: PluginContext | undefined = undefined,
+	astroSettings: AstroSettings,
 ): Promise<{ data: TOutputData; imageImports: Array<string> }> {
 	let data: TOutputData;
 	// Legacy content collections have 'slug' removed
@@ -169,6 +171,7 @@ export async function getEntryDataAndImages<
 	let schema = collectionConfig.schema;
 
 	const imageImports = new Set<string>();
+	const importAliases = getConfigAlias(astroSettings);
 
 	if (typeof schema === 'function') {
 		if (pluginContext) {
@@ -190,7 +193,7 @@ export async function getEntryDataAndImages<
 						// - Relative paths (./foo, ../foo)
 						// - Absolute paths (/foo)
 						// - URLs (http://...)
-						// - Aliases (~/, @/, etc.)
+						// - Aliases (~/, @/, tsconfig aliases)
 						let normalizedPath = val;
 						if (
 							val &&
@@ -199,7 +202,8 @@ export async function getEntryDataAndImages<
 							!val.startsWith('/') &&
 							!val.startsWith('~') &&
 							!val.startsWith('@') &&
-							!val.includes('://')
+							!val.includes('://') &&
+							!importAliases?.some((alias) => alias.find.test(val))
 						) {
 							normalizedPath = `./${val}`;
 						}
@@ -273,7 +277,8 @@ export async function getEntryData(
 	collectionConfig: CollectionConfig,
 	shouldEmitFile: boolean,
 	experimentalSvgEnabled: boolean,
-	pluginContext?: PluginContext,
+	pluginContext: PluginContext | undefined = undefined,
+	astroSettings: AstroSettings,
 ) {
 	const { data } = await getEntryDataAndImages(
 		entry,
@@ -281,6 +286,7 @@ export async function getEntryData(
 		shouldEmitFile,
 		experimentalSvgEnabled,
 		pluginContext,
+		astroSettings,
 	);
 	return data;
 }
