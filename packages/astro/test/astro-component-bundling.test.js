@@ -45,8 +45,7 @@ describe('Component bundling', () => {
 			await fixture.build();
 		});
 
-		// Not sure how this can possibly work, we bundle the module as an entrypoint.
-		it.skip('should treeshake FooComponent', async () => {
+		it('should treeshake FooComponent', {skip: "Not sure how this can possibly work, we bundle the module as an entrypoint."}, async () => {
 			const astroChunkDir = await fixture.readdir('/_astro');
 			const manyComponentsChunkName = astroChunkDir.find((chunk) =>
 				chunk.startsWith('ManyComponents'),
