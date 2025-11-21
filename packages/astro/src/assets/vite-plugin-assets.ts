@@ -268,7 +268,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							});
 							// We know that the contents are present, as we only emit this property for SVG files
 							return {
-								code: makeSvgComponent(imageMetadata, contents, settings.config.experimental.svgo),
+								code: makeSvgComponent(imageMetadata, contents, settings.config.svgo),
 							};
 						}
 						return {

@@ -13,7 +13,7 @@ function parseSvg({
 }: {
 	path: string;
 	contents: string;
-	svgoConfig: AstroConfig['experimental']['svgo'];
+	svgoConfig: AstroConfig['svgo'];
 }) {
 	let processedContents = contents;
 	if (svgoConfig) {
@@ -47,7 +47,7 @@ function parseSvg({
 export function makeSvgComponent(
 	meta: ImageMetadata,
 	contents: Buffer | string,
-	svgoConfig: AstroConfig['experimental']['svgo'],
+	svgoConfig: AstroConfig['svgo'],
 ): string {
 	const file = typeof contents === 'string' ? contents : contents.toString('utf-8');
 	const { attributes, body: children } = parseSvg({
