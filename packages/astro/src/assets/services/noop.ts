@@ -5,10 +5,13 @@ const noopService: LocalImageService = {
 	...baseService,
 	propertiesToHash: ['src'],
 	async validateOptions(options, imageConfig) {
-		const newOptions = await (baseService.validateOptions?.(options, imageConfig) ?? options);
-		delete newOptions.format;
-
-		return newOptions;
+		if (baseService.validateOptions) {
+			options["isNoop"] = true;
+			const validatedOptions = await baseService.validateOptions(options, imageConfig);
+			delete validatedOptions["isNoop"];
+			return validatedOptions;
+		}
+		return options;
 	},
 	async transform(inputBuffer, transformOptions) {
 		return {
