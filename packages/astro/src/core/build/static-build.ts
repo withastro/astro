@@ -231,8 +231,8 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					emptyOutDir: false,
 					outDir: fileURLToPath(getClientOutputDirectory(settings)),
 					copyPublicDir: ssr,
+					sourcemap: viteConfig.environments?.client?.build?.sourcemap ?? false,
 					minify: true,
-					sourcemap: false,
 					rollupOptions: {
 						preserveEntrySignatures: 'exports-only',
 						output: {
