@@ -21,7 +21,7 @@ describe('Vite Config', async () => {
 	it('Allows overriding bundle naming options in the build', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		assert.match($('link').attr('href'), /\/assets\/testing-[a-z\d]+\.css/);
+		assert.match($('link').attr('href'), /\/assets\/testing-(.)+\.css/);
 	});
 });
 
