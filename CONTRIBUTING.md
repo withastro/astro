@@ -333,6 +333,75 @@ There are 3 contexts in which code executes:
 
 Understanding in which environment code runs, and at which stage in the process, can help clarify thinking about what Astro is doing. It also helps with debugging, for instance, if you’re working within `src/core/`, you know that your code isn’t executing within Vite, so you don’t have to debug Vite’s setup. But you will have to debug vite inside `runtime/server/`.
 
+### Making code testable
+
+To make (unit) testing easier, you should decouple business (core) logic from its dependencies (infrastructure). We started adopting the following file structure, that can be applied per feature (eg. fonts, cli, etc):
+
+- `core/`: Contains the core logic. Each file should should be dedicated to one function. For example `create-key.ts`:
+
+  ```ts
+  import type { KeyGenerator, Logger } from '../definitions.js';
+
+  interface Options {
+    keyGenerator: KeyGenerator;
+    logger: Logger;
+  }
+
+  export async function createKey({ keyGenerator, logger }: Options) {
+    const key = await keyGenerator.generate();
+    logger.info(`Key created: ${key}`)
+  }
+  ```
+
+- `definitions.ts`: Contains definitions for infrastructure. For example:
+
+  ```ts
+  export interface KeyGenerator {
+    generate: () => Promise<string>;
+  }
+  ```
+
+- `infra/`: Contains implementations of infrastructure. The filename and the function/class name must represent how it's implemented. For example `picocolors-text-styler.ts`:
+
+  ```ts
+  import colors from 'picocolors';
+  import type { TextStyler } from '../definitions.js';
+
+  export function createPicocolorsTextStyler(): TextStyler {
+    return colors;
+  }
+  ```
+
+- `domain/`: Contains reusable data types. You can choose the create one file per to be explicit (like for `infra`) or one `domain.ts` file. For example `domain/help-payload.ts`:
+
+  ```ts
+  export interface HelpPayload {
+    commandName: string;
+    headline?: string;
+    usage?: string;
+    tables?: Record<string, [command: string, help: string][]>;
+    description?: string;
+  }
+  ```
+
+You can now compose this code more easily. Remember to unit test at least core logic, and infrastructure if possible. **Do not test what you're not afraid of breaking**, eg. for `createPicocolorsTextStyler()` we trust `picocolors` to do its job correctly.
+
+Using the abstractions from `definitions.ts`, create test specific abstractions. For example:
+
+```js
+/**
+ * @param {string} key
+ * @returns {import("../../../dist/cli/create-key/definitions.js").KeyGenerator}
+ * */
+export function createFakeKeyGenerator(key) {
+	return {
+		async generate() {
+			return key;
+		},
+	};
+}
+```
+
 ## Branches
 
 ### `main`
