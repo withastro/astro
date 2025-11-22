@@ -18,7 +18,6 @@ import {
 	STYLES_PLACEHOLDER,
 } from './consts.js';
 import { hasContentFlag } from './utils.js';
-import type { BuildOptions } from 'esbuild';
 import type { StaticBuildOptions } from '../core/build/types.js';
 import { joinPaths, prependForwardSlash, slash } from '@astrojs/internal-helpers/path';
 
