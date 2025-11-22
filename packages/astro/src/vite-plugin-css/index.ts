@@ -53,6 +53,10 @@ function* collectCSSWithOrder(
 		};
 		return;
 	}
+	// ?raw imports the underlying css but is handled as a string in the JS.
+	else if(id.endsWith('?raw')) {
+		return;
+	}
 
 	// Recursively walk imported modules (depth-first)
 	for (const imp of imported) {
