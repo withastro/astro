@@ -117,7 +117,7 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 			}
 		},
 
-		renderChunk(code) {
+		renderChunk(code, chunk) {
 			if (code.includes(serverIslandPlaceholderMap)) {
 				if (referenceIdMap.size === 0) {
 					// If there's no reference, we can fast-path to an empty map replacement
@@ -129,12 +129,18 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 						map: null,
 					};
 				}
+				// The server island modules are in chunks/
+				// This checks if this module is also in chunks/ and if so
+				// make the import like import('../chunks/name.mjs')
+				// TODO we could possibly refactor this to not need to emit separate chunks.
+				const isRelativeChunk = !chunk.isEntry;
+				const dots = isRelativeChunk ? '..' : '.';
 				let mapSource = 'new Map([';
 				let nameMapSource = 'new Map(';
 				for (let [resolvedPath, referenceId] of referenceIdMap) {
 					const fileName = this.getFileName(referenceId);
 					const islandName = serverIslandNameMap.get(resolvedPath)!;
-					mapSource += `\n\t['${islandName}', () => import('./${fileName}')],`;
+					mapSource += `\n\t['${islandName}', () => import('${dots}/${fileName}')],`;
 				}
 				nameMapSource += `${JSON.stringify(Array.from(serverIslandNameMap.entries()), null, 2)}`;
 				mapSource += '\n])';
