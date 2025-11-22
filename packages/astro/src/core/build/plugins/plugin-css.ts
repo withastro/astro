@@ -41,12 +41,29 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const pagesToCss: Record<string, Record<string, { order: number; depth: number }>> = {};
 	// Map of module Ids (usually something like `/Users/...blog.mdx?astroPropagatedAssets`) to its imported CSS
 	const moduleIdToPropagatedCss: Record<string, Set<string>> = {};
+	// Keep track of CSS that has been bundled to avoid duplication between ssr and prerender.
+	const cssModulesInBundles = new Set();
 
 	const cssBuildPlugin: VitePlugin = {
 		name: 'astro:rollup-plugin-build-css',
 
 		applyToEnvironment(environment) {
 			return environment.name === 'client' || environment.name === 'ssr' || environment.name === 'prerender';
+		},
+
+		transform(_code, id) {
+			if(isCSSRequest(id)) {
+				// In prerender, don't rebundle CSS that was already bundled in SSR.
+				// Return an empty string here to prevent it.
+				if(this.environment.name === 'prerender') {
+					if(cssModulesInBundles.has(id)) {
+						return {
+							code: ''
+						}
+					}
+				}
+				cssModulesInBundles.add(id);
+			}
 		},
 
 		async generateBundle(_outputOptions, bundle) {
