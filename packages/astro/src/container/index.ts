@@ -1,4 +1,3 @@
-import './polyfill.js';
 import { posix } from 'node:path';
 import { getDefaultClientDirectives } from '../core/client-directive/index.js';
 import { ASTRO_CONFIG_DEFAULTS } from '../core/config/schemas/index.js';

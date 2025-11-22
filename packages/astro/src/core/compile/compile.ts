@@ -57,14 +57,12 @@ export async function compile({
 				astroConfig.devToolbar &&
 				astroConfig.devToolbar.enabled &&
 				(await preferences.get('devToolbar.enabled')),
-			renderScript: true,
 			preprocessStyle: createStylePreprocessor({
 				filename,
 				viteConfig,
 				cssPartialCompileResults,
 				cssTransformErrors,
 			}),
-			experimentalScriptOrder: astroConfig.experimental.preserveScriptOrder ?? false,
 			async resolvePath(specifier) {
 				return resolvePath(specifier, filename);
 			},

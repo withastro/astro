@@ -6,7 +6,7 @@ import type { AstroCookies } from '../../core/cookies/cookies.js';
 import type { AstroComponentInstance, ServerIslandComponent } from '../../runtime/server/index.js';
 import type { Params } from './common.js';
 import type { AstroConfig, RedirectConfig } from './config.js';
-import type { AstroGlobal, AstroGlobalPartial } from './context.js';
+import type { AstroGlobal } from './context.js';
 import type { AstroRenderer } from './integrations.js';
 
 export type { SSRActions, SSRManifest, SSRManifestCSP } from '../../core/app/types.js';
@@ -221,11 +221,7 @@ export interface SSRResult {
 	links: Set<SSRElement>;
 	componentMetadata: Map<string, SSRComponentMetadata>;
 	inlinedScripts: Map<string, string>;
-	createAstro(
-		Astro: AstroGlobalPartial,
-		props: Record<string, any>,
-		slots: Record<string, any> | null,
-	): AstroGlobal;
+	createAstro(props: Record<string, any>, slots: Record<string, any> | null): AstroGlobal;
 	params: Params;
 	resolve: (s: string) => Promise<string>;
 	response: AstroGlobal['response'];

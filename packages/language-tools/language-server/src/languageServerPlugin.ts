@@ -48,7 +48,7 @@ export function getLanguageServicePlugins(
 		}),
 		createTypeScriptTwoSlashService(ts),
 		createTypescriptAddonsService(),
-		createAstroService(ts),
+		createAstroService(),
 		getPrettierService(),
 		createYAMLService(collectionConfig),
 	];

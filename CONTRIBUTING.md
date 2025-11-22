@@ -11,8 +11,8 @@ We welcome contributions of any size and skill level. As an open source project,
 ### Prerequisites
 
 ```shell
-node: "^>=18.20.8"
-pnpm: "^9.12.1"
+node: "^>=22.12.0"
+pnpm: "^10.17.0"
 # otherwise, your build will fail
 ```
 

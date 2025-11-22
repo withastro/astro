@@ -1,7 +1,20 @@
+// @ts-check
 import assert from 'node:assert/strict';
 import { after, afterEach, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
+
+const root = new URL('./fixtures/astro-get-static-paths/', import.meta.url);
+
+function resetFlags() {
+	// reset the flag used by [...calledTwiceTest].astro between each test
+	// @ts-expect-error not typed
+	globalThis.isCalledOnce = false;
+
+	// reset the flag used by [...invalidParamsTypeTest].astro between each test
+	// @ts-expect-error not typed
+	globalThis.getStaticPathsParamsType = undefined;
+}
 
 describe('getStaticPaths - build calls', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -9,17 +22,16 @@ describe('getStaticPaths - build calls', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-get-static-paths/',
+			root,
 			site: 'https://mysite.dev/',
 			trailingSlash: 'never',
 			base: '/blog',
 		});
-		await fixture.build();
+		await fixture.build({});
 	});
 
 	afterEach(() => {
-		// reset the flag used by [...calledTwiceTest].astro between each test
-		globalThis.isCalledOnce = false;
+		resetFlags();
 	});
 
 	it('is only called once during build', () => {
@@ -36,20 +48,21 @@ describe('getStaticPaths - build calls', () => {
 });
 
 describe('getStaticPaths - dev calls', () => {
+	/** @type {import('./test-utils').Fixture} */
 	let fixture;
+	/** @type {import('./test-utils').DevServer} */
 	let devServer;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-get-static-paths/',
+			root,
 			site: 'https://mysite.dev/',
 		});
 		devServer = await fixture.startDevServer();
 	});
 
 	afterEach(() => {
-		// reset the flag used by [...calledTwiceTest].astro between each test
-		globalThis.isCalledOnce = false;
+		resetFlags();
 	});
 
 	after(async () => {
@@ -97,7 +110,7 @@ describe('getStaticPaths - dev calls', () => {
 		});
 
 		it('resolves 200 on matching static path - numeric params', async () => {
-			// route provided with { params: { year: 2022, slug: "post-2" }}
+			// route provided with { params: { year: "2022", slug: "post-2" }}
 			const res = await fixture.fetch('/blog/2022/post-2');
 			assert.equal(res.status, 200);
 		});
@@ -135,4 +148,99 @@ describe('getStaticPaths - dev calls', () => {
 		const res = await fixture.fetch('/pizza/parmesan-and-olives');
 		assert.equal(res.status, 200);
 	});
+
+	it('warns if Astro.generator or Astro.site is accessed', async () => {
+		const originalWarn = console.warn;
+		/** @type {Array<string>} */
+		const logs = [];
+		console.warn = (...args) => {
+			logs.push(...args);
+			return originalWarn(...args);
+		};
+		const res = await fixture.fetch('/food/tacos');
+		console.warn = originalWarn;
+		assert.equal(res.status, 200);
+		assert.deepStrictEqual(logs, [
+			'Astro.generator inside getStaticPaths is deprecated and will be removed in a future major version of Astro.',
+			'Astro.site inside getStaticPaths is deprecated and will be removed in a future major version of Astro. Use import.meta.env.SITE instead',
+		]);
+
+		const html = await res.text();
+		const $ = cheerio.load(html);
+
+		assert.equal($('#generator').text().startsWith('Astro v'), true);
+		// For some reason site is always undefined
+		assert.equal($('#site').text(), 'https://mysite.dev/');
+	});
+});
+
+describe('throws if an invalid Astro property is accessed', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root,
+			site: 'https://mysite.dev/',
+		});
+		await fixture.editFile(
+			'/src/pages/food/[name].astro',
+			(prev) => prev.replace('getStaticPaths() {', 'getStaticPaths() {\nAstro.getActionResult;'),
+			false,
+		);
+	});
+
+	after(async () => {
+		fixture.resetAllFiles();
+	});
+
+	it('does not build', async () => {
+		try {
+			await fixture.build({});
+			assert.fail();
+		} catch (err) {
+			assert.equal(err instanceof Error, true);
+			// @ts-ignore
+			assert.equal(err.title, 'Unavailable Astro global in getStaticPaths()');
+		}
+	});
+});
+
+describe('throws if an invalid params type is returned', () => {
+	/**
+	 * @param type {string}
+	 */
+	const build = async (type) => {
+		try {
+			globalThis.getStaticPathsParamsType = type;
+			const fixture = await loadFixture({
+				root,
+				site: 'https://mysite.dev/',
+			});
+			await fixture.build({});
+		} catch (err) {
+			return err;
+		} finally {
+			resetFlags();
+		}
+	};
+
+	const validTypes = ['string', 'undefined'];
+	const invalidTypes = ['number', 'boolean', 'array', 'null', 'object', 'bigint', 'function'];
+
+	for (const type of validTypes) {
+		it(`does build for param type ${type}`, async () => {
+			const err = await build(type);
+			assert.equal(err, undefined);
+		});
+	}
+
+	for (const type of invalidTypes) {
+		it(`does not build for param type ${type}`, async () => {
+			const err = await build(type);
+			assert.equal(err instanceof Error, true);
+			// @ts-ignore
+			assert.equal(err.title, 'Invalid route parameter returned by `getStaticPaths()`.');
+		});
+	}
 });

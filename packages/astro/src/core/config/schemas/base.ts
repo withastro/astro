@@ -84,9 +84,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	integrations: [],
 	markdown: markdownConfigDefaults,
 	vite: {},
-	legacy: {
-		collections: false,
-	},
+	legacy: {},
 	redirects: {},
 	security: {
 		checkOrigin: true,
@@ -97,16 +95,12 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		validateSecrets: false,
 	},
 	session: undefined,
+	prerenderConflictBehavior: 'warn',
 	experimental: {
 		clientPrerender: false,
 		contentIntellisense: false,
-		headingIdCompat: false,
-		preserveScriptOrder: false,
-		liveContentCollections: false,
 		csp: false,
-		staticImportMetaEnv: false,
 		chromeDevtoolsWorkspace: false,
-		failOnPrerenderConflict: false,
 		svgo: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
@@ -412,8 +406,7 @@ export const AstroConfigSchema = z.object({
 					.or(
 						z.object({
 							prefixDefaultLocale: z.boolean().optional().default(false),
-							// TODO: Astro 6.0 change to false
-							redirectToDefaultLocale: z.boolean().optional().default(true),
+							redirectToDefaultLocale: z.boolean().optional().default(false),
 							fallbackType: z.enum(['redirect', 'rewrite']).optional().default('redirect'),
 						}),
 					)
@@ -470,6 +463,10 @@ export const AstroConfigSchema = z.object({
 			ttl: z.number().optional(),
 		})
 		.optional(),
+	prerenderConflictBehavior: z
+		.enum(['error', 'warn', 'ignore'])
+		.optional()
+		.default(ASTRO_CONFIG_DEFAULTS.prerenderConflictBehavior),
 	experimental: z
 		.object({
 			clientPrerender: z
@@ -480,19 +477,7 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
-			headingIdCompat: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.headingIdCompat),
-			preserveScriptOrder: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.preserveScriptOrder),
 			fonts: z.array(z.union([localFontFamilySchema, remoteFontFamilySchema])).optional(),
-			liveContentCollections: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.liveContentCollections),
 			csp: z
 				.union([
 					z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
@@ -516,18 +501,10 @@ export const AstroConfigSchema = z.object({
 				])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
-			staticImportMetaEnv: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.staticImportMetaEnv),
 			chromeDevtoolsWorkspace: z
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.chromeDevtoolsWorkspace),
-			failOnPrerenderConflict: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.failOnPrerenderConflict),
 			svgo: z
 				.union([z.boolean(), z.custom<SvgoConfig>((value) => value && typeof value === 'object')])
 				.optional()
@@ -537,11 +514,7 @@ export const AstroConfigSchema = z.object({
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,
 		)
 		.default({}),
-	legacy: z
-		.object({
-			collections: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.legacy.collections),
-		})
-		.default({}),
+	legacy: z.object({}).default({}),
 });
 
 export type AstroConfigType = z.infer<typeof AstroConfigSchema>;

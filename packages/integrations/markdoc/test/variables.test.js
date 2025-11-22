@@ -32,8 +32,7 @@ describe('Markdoc - Variables', () => {
 			const html = await res.text();
 			const { document } = parseHTML(html);
 			assert.equal(document.querySelector('h1')?.textContent, 'Processed by schema: Test entry');
-			assert.equal(document.getElementById('id')?.textContent?.trim(), 'id: entry.mdoc');
-			assert.equal(document.getElementById('slug')?.textContent?.trim(), 'slug: entry');
+			assert.equal(document.getElementById('id')?.textContent?.trim(), 'id: entry');
 			assert.equal(document.getElementById('collection')?.textContent?.trim(), 'collection: blog');
 		});
 	});
@@ -47,8 +46,7 @@ describe('Markdoc - Variables', () => {
 			const html = await baseFixture.readFile('/index.html');
 			const { document } = parseHTML(html);
 			assert.equal(document.querySelector('h1')?.textContent, 'Processed by schema: Test entry');
-			assert.equal(document.getElementById('id')?.textContent?.trim(), 'id: entry.mdoc');
-			assert.equal(document.getElementById('slug')?.textContent?.trim(), 'slug: entry');
+			assert.equal(document.getElementById('id')?.textContent?.trim(), 'id: entry');
 			assert.equal(document.getElementById('collection')?.textContent?.trim(), 'collection: blog');
 		});
 	});

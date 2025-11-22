@@ -5,7 +5,7 @@ import { parseFrontmatter } from '@astrojs/markdown-remark';
 import type { Config as MarkdocConfig, Node } from '@markdoc/markdoc';
 import Markdoc from '@markdoc/markdoc';
 import type { AstroConfig, ContentEntryType } from 'astro';
-import { emitESMImage } from 'astro/assets/utils';
+import { emitImageMetadata } from 'astro/assets/utils';
 import type { Rollup, ErrorPayload as ViteErrorPayload } from 'vite';
 import type { ComponentConfig } from './config.js';
 import { htmlTokenTransform } from './html/transform/html-token-transform.js';
@@ -49,11 +49,7 @@ export async function getContentEntryType({
 			const userMarkdocConfig = markdocConfigResult?.config ?? {};
 			const markdocConfigUrl = markdocConfigResult?.fileUrl;
 			const pluginContext = this;
-			const markdocConfig = await setupConfig(
-				userMarkdocConfig,
-				options,
-				astroConfig.experimental.headingIdCompat,
-			);
+			const markdocConfig = await setupConfig(userMarkdocConfig, options);
 			const filePath = fileURLToPath(fileUrl);
 			raiseValidationErrors({
 				ast,
@@ -121,7 +117,6 @@ markdocConfig.nodes = { ...assetsConfig.nodes, ...markdocConfig.nodes };
 
 ${getStringifiedImports(componentConfigByTagMap, 'Tag', astroConfig.root)}
 ${getStringifiedImports(componentConfigByNodeMap, 'Node', astroConfig.root)}
-const experimentalHeadingIdCompat = ${JSON.stringify(astroConfig.experimental.headingIdCompat || false)}
 
 const tagComponentMap = ${getStringifiedMap(componentConfigByTagMap, 'Tag')};
 const nodeComponentMap = ${getStringifiedMap(componentConfigByNodeMap, 'Node')};
@@ -132,15 +127,14 @@ const stringifiedAst = ${JSON.stringify(
 				/* Double stringify to encode *as* stringified JSON */ JSON.stringify(ast),
 			)};
 
-export const getHeadings = createGetHeadings(stringifiedAst, markdocConfig, options, experimentalHeadingIdCompat);
+export const getHeadings = createGetHeadings(stringifiedAst, markdocConfig, options);
 export const Content = createContentComponent(
 	Renderer,
 	stringifiedAst,
 	markdocConfig,
-  options,
+	options,
 	tagComponentMap,
 	nodeComponentMap,
-	experimentalHeadingIdCompat,
 )`;
 			return { code: res };
 		},
@@ -319,13 +313,7 @@ async function emitOptimizedImages(
 				const resolved = await ctx.pluginContext.resolve(node.attributes.src, ctx.filePath);
 
 				if (resolved?.id && fs.existsSync(new URL(prependForwardSlash(resolved.id), 'file://'))) {
-					const src = await emitESMImage(
-						resolved.id,
-						ctx.pluginContext.meta.watchMode,
-						// FUTURE: Remove in this in v6
-						resolved.id.endsWith('.svg'),
-						ctx.pluginContext.emitFile,
-					);
+					const src = await emitImageMetadata(resolved.id, ctx.pluginContext.emitFile);
 
 					const fsPath = resolved.id;
 

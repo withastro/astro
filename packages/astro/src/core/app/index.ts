@@ -297,10 +297,6 @@ export class App {
 		});
 	}
 
-	set setManifestData(newManifestData: RoutesList) {
-		this.#manifestData = newManifestData;
-	}
-
 	removeBase(pathname: string) {
 		if (pathname.startsWith(this.#manifest.base)) {
 			return pathname.slice(this.#baseWithoutTrailingSlash.length + 1);
@@ -449,14 +445,18 @@ export class App {
 		return pathname;
 	}
 
-	async render(request: Request, renderOptions?: RenderOptions): Promise<Response> {
-		let routeData: RouteData | undefined;
-		let locals: object | undefined;
-		let clientAddress: string | undefined;
-		let addCookieHeader: boolean | undefined;
+	async render(
+		request: Request,
+		{
+			addCookieHeader,
+			clientAddress = Reflect.get(request, clientAddressSymbol),
+			locals,
+			prerenderedErrorPageFetch = fetch,
+			routeData,
+		}: RenderOptions = {},
+	): Promise<Response> {
 		const url = new URL(request.url);
 		const redirect = this.#redirectTrailingSlash(url.pathname);
-		const prerenderedErrorPageFetch = renderOptions?.prerenderedErrorPageFetch ?? fetch;
 
 		if (redirect !== url.pathname) {
 			const status = request.method === 'GET' ? 301 : 308;
@@ -475,11 +475,6 @@ export class App {
 				},
 			);
 		}
-
-		addCookieHeader = renderOptions?.addCookieHeader;
-		clientAddress = renderOptions?.clientAddress ?? Reflect.get(request, clientAddressSymbol);
-		routeData = renderOptions?.routeData;
-		locals = renderOptions?.locals;
 
 		if (routeData) {
 			this.#logger.debug(

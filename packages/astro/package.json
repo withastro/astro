@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "5.16.0",
+  "version": "6.0.0-alpha.0",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -77,14 +77,14 @@
     "./virtual-modules/*": "./dist/virtual-modules/*"
   },
   "bin": {
-    "astro": "astro.js"
+    "astro": "./bin/astro.mjs"
   },
   "files": [
     "components/*.{astro,css,ts}",
     "tsconfigs",
     "dist",
     "types",
-    "astro.js",
+    "bin",
     "env.d.ts",
     "client.d.ts",
     "jsx-runtime.d.ts",
@@ -110,14 +110,13 @@
     "test:integration": "astro-scripts test \"test/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/compiler": "^2.13.0",
+    "@astrojs/compiler": "0.0.0-render-script-20251003120459",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
     "@capsizecss/unpack": "^3.0.1",
     "@oslojs/encoding": "^1.1.0",
     "@rollup/pluginutils": "^5.3.0",
-    "acorn": "^8.15.0",
     "aria-query": "^5.3.2",
     "axobject-query": "^4.1.0",
     "boxen": "8.0.1",
@@ -134,13 +133,11 @@
     "dset": "^3.1.4",
     "es-module-lexer": "^1.7.0",
     "esbuild": "^0.25.0",
-    "estree-walker": "^3.0.3",
     "flattie": "^1.1.1",
     "fontace": "~0.3.1",
     "github-slugger": "^2.0.0",
     "html-escaper": "3.0.3",
     "http-cache-semantics": "^4.2.0",
-    "import-meta-resolve": "^4.2.0",
     "js-yaml": "^4.1.1",
     "magic-string": "^0.30.21",
     "magicast": "^0.5.1",
@@ -165,7 +162,7 @@
     "unist-util-visit": "^5.0.0",
     "unstorage": "^1.17.2",
     "vfile": "^6.0.3",
-    "vite": "^6.4.1",
+    "vite": "^7.1.7",
     "vitefu": "^1.1.1",
     "xxhash-wasm": "^1.1.0",
     "yargs-parser": "^21.1.1",
@@ -215,7 +212,7 @@
     "vitest": "^3.2.4"
   },
   "engines": {
-    "node": "18.20.8 || ^20.3.0 || >=22.0.0",
+    "node": "^20.19.5 || >=22.12.0",
     "npm": ">=9.6.5",
     "pnpm": ">=7.1.0"
   },

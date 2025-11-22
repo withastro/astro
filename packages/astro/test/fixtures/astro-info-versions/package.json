@@ -10,7 +10,7 @@
     "astro": "workspace:*",
     "react": "19.1.1",
     "react-dom": "19.1.1",
-    "vite": "6.4.1"
+    "vite": "7.1.7"
   },
   "scripts": {
     "astro": "astro"

@@ -23,7 +23,6 @@ import astroTransitions from '../transitions/vite-plugin-transitions.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
 import { vitePluginAdapterConfig } from '../vite-plugin-adapter-config/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
-import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import vitePluginFileURL from '../vite-plugin-fileurl/index.js';
@@ -129,7 +128,6 @@ export async function createVite(
 	const envLoader = createEnvLoader({
 		mode,
 		config: settings.config,
-		useStatic: settings.config.experimental.staticImportMetaEnv,
 	});
 
 	// Start with the Vite configuration that Astro core needs
@@ -160,7 +158,6 @@ export async function createVite(
 			vitePluginAdapterConfig(settings),
 			markdownVitePlugin({ settings, logger }),
 			htmlVitePlugin(),
-			astroPostprocessVitePlugin(),
 			astroIntegrationsContainerPlugin({ settings, logger }),
 			astroScriptsPageSSRPlugin({ settings }),
 			astroHeadPlugin(),

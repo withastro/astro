@@ -801,5 +801,5 @@ function getOverlayCode() {
 }
 
 export function patchOverlay(code: string) {
-	return code.replace('class ErrorOverlay', getOverlayCode() + '\nclass ViteErrorOverlay');
+	return code.replace('var ErrorOverlay', getOverlayCode() + '\nvar ViteErrorOverlay');
 }
