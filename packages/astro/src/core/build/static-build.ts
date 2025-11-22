@@ -364,7 +364,7 @@ async function runManifestInjection(
 		mutate,
 	});
 
-	await contentAssetsBuildPostHook(internals, {
+	await contentAssetsBuildPostHook(opts, internals, {
 		ssrOutputs,
 		prerenderOutputs,
 		mutate,
