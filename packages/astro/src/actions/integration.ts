@@ -40,9 +40,7 @@ export default function astroIntegrationActionsRouteHandler({
 				settings.injectedTypes.push({
 					filename: ACTIONS_TYPES_FILE,
 					content: `declare module "astro:actions" {
-	type Actions = typeof import(${stringifiedActionsImport})["server"];
-
-	export const actions: Actions;
+	export const actions: typeof import(${stringifiedActionsImport})["server"];
 }`,
 				});
 			},
