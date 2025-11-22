@@ -2,7 +2,6 @@ import type { ComponentInstance } from '../../types/astro.js';
 import type { RewritePayload } from '../../types/public/common.js';
 import type { RouteData, SSRElement, SSRResult } from '../../types/public/internal.js';
 import {
-	VIRTUAL_PAGE_MODULE_ID,
 	VIRTUAL_PAGE_RESOLVED_MODULE_ID,
 } from '../../vite-plugin-pages/const.js';
 import { getVirtualModulePageName } from '../../vite-plugin-pages/util.js';
@@ -10,14 +9,14 @@ import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-sc
 import { createConsoleLogger } from '../app/index.js';
 import type { SSRManifest } from '../app/types.js';
 import type { TryRewriteResult } from '../base-pipeline.js';
-import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import { Pipeline } from '../render/index.js';
+import { RedirectSinglePageBuiltModule } from '../redirects/component.js';
+import { Pipeline } from '../base-pipeline.js';
 import { createAssetLink, createStylesheetElementSet } from '../render/ssr-element.js';
 import { createDefaultRoutes } from '../routing/default.js';
 import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
-import { getOutDirWithinCwd } from './common.js';
-import { type BuildInternals, cssOrder, getPageData, mergeInlineCss } from './internal.js';
+import type { BuildInternals } from './internal.js';
+import { cssOrder, mergeInlineCss, getPageData } from './runtime.js';
 import type { SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 
 /**
@@ -31,10 +30,6 @@ export class BuildPipeline extends Pipeline {
 		return 'BuildPipeline';
 	}
 
-	#componentsInterner: WeakMap<RouteData, SinglePageBuiltModule> = new WeakMap<
-		RouteData,
-		SinglePageBuiltModule
-	>();
 	/**
 	 * This cache is needed to map a single `RouteData` to its file path.
 	 * @private
@@ -60,13 +55,6 @@ export class BuildPipeline extends Pipeline {
 			throw new Error('No internals defined');
 		}
 		return this.internals;
-	}
-
-	get outFolder() {
-		const settings = this.getSettings();
-		return settings.buildOutput === 'server'
-			? settings.config.build.server
-			: getOutDirWithinCwd(settings.config.outDir);
 	}
 
 	private constructor(
@@ -151,6 +139,7 @@ export class BuildPipeline extends Pipeline {
 				});
 			}
 		}
+
 		return { scripts, styles, links };
 	}
 
@@ -265,81 +254,6 @@ export class BuildPipeline extends Pipeline {
 		const componentInstance = await this.getComponentByRoute(routeData);
 		return { routeData, componentInstance, newUrl, pathname };
 	}
-
-	async retrieveSsrEntry(route: RouteData, filePath: string): Promise<SinglePageBuiltModule> {
-		if (this.#componentsInterner.has(route)) {
-			// SAFETY: it is checked inside the if
-			return this.#componentsInterner.get(route)!;
-		}
-
-		let entry;
-		if (routeIsRedirect(route)) {
-			entry = await this.#getEntryForRedirectRoute(route, this.outFolder);
-		} else if (routeIsFallback(route)) {
-			entry = await this.#getEntryForFallbackRoute(route, this.outFolder);
-		} else {
-			const ssrEntryURLPage = createEntryURL(filePath, this.outFolder);
-			entry = await import(ssrEntryURLPage.toString());
-		}
-		this.#componentsInterner.set(route, entry);
-		return entry;
-	}
-
-	async #getEntryForFallbackRoute(
-		route: RouteData,
-		outFolder: URL,
-	): Promise<SinglePageBuiltModule> {
-		const internals = this.getInternals();
-		if (route.type !== 'fallback') {
-			throw new Error(`Expected a redirect route.`);
-		}
-
-		// Retrieve the route where we should fall back
-		let fallbackRoute = getFallbackRoute(route, this.manifest.routes);
-
-		if (fallbackRoute) {
-			const filePath = getEntryFilePath(internals, fallbackRoute);
-			if (filePath) {
-				const url = createEntryURL(filePath, outFolder);
-				const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
-				return ssrEntryPage;
-			}
-		}
-
-		return RedirectSinglePageBuiltModule;
-	}
-
-	async #getEntryForRedirectRoute(
-		route: RouteData,
-		outFolder: URL,
-	): Promise<SinglePageBuiltModule> {
-		const internals = this.getInternals();
-		if (route.type !== 'redirect') {
-			throw new Error(`Expected a redirect route.`);
-		}
-		if (route.redirectRoute) {
-			const filePath = getEntryFilePath(internals, route.redirectRoute);
-			if (filePath) {
-				const url = createEntryURL(filePath, outFolder);
-				const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
-				return ssrEntryPage;
-			}
-		}
-
-		return RedirectSinglePageBuiltModule;
-	}
-}
-
-function createEntryURL(filePath: string, outFolder: URL) {
-	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
-}
-
-/**
- * For a given pageData, returns the entry file path—aka a resolved virtual module in our internals' specifiers.
- */
-function getEntryFilePath(internals: BuildInternals, pageData: RouteData) {
-	const id = '\x00' + getVirtualModulePageName(VIRTUAL_PAGE_MODULE_ID, pageData.component);
-	return internals.entrySpecifierToBundleMap.get(id);
 }
 
 function i18nHasFallback(manifest: SSRManifest): boolean {

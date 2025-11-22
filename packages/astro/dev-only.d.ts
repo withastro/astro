@@ -79,3 +79,8 @@ declare module 'virtual:astro:dev-css' {
 	import type { ImportedDevStyles } from './src/types/astro.js';
 	export const css: Set<ImportedDevStyles>;
 }
+
+declare module 'virtual:astro:dev-css-all' {
+	import type { ImportedDevStyles } from './src/types/astro.js';
+	export const devCSSMap: Map<string, () => Promise<{ css: Set<ImportedDevStyles> }>>;
+}

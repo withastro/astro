@@ -9,6 +9,7 @@ import {
 	prepareAssetsGenerationEnv,
 } from '../../assets/build/generate.js';
 import {
+	collapseDuplicateTrailingSlashes,
 	isRelativePath,
 	joinPaths,
 	removeLeadingForwardSlash,
@@ -470,7 +471,7 @@ function getUrlForPath(
 	}
 	let buildPathname: string;
 	if (pathname === '/' || pathname === '') {
-		buildPathname = base;
+		buildPathname = collapseDuplicateTrailingSlashes(base + ending, trailingSlash !== 'never');
 	} else if (routeType === 'endpoint') {
 		const buildPathRelative = removeLeadingForwardSlash(pathname);
 		buildPathname = joinPaths(base, buildPathRelative);

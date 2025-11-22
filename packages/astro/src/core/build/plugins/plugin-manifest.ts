@@ -31,7 +31,8 @@ import { encodeKey } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { DEFAULT_COMPONENTS } from '../../routing/default.js';
 import { getOutFile, getOutFolder } from '../common.js';
-import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
+import type { BuildInternals } from '../internal.js';
+import { cssOrder, mergeInlineCss } from '../runtime.js';
 import type { StaticBuildOptions } from '../types.js';
 import { makePageDataKey } from './util.js';
 

@@ -59,6 +59,8 @@ describe('SSR dev', () => {
 	});
 
 	it('island is not indexed', async () => {
+		// Page has to be fetched in order for island modules to be loaded
+		await fixture.fetch('/');
 		const res = await fixture.fetch('/_server-islands/Island', {
 			method: 'POST',
 			body: JSON.stringify({

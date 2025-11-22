@@ -41,12 +41,29 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const pagesToCss: Record<string, Record<string, { order: number; depth: number }>> = {};
 	// Map of module Ids (usually something like `/Users/...blog.mdx?astroPropagatedAssets`) to its imported CSS
 	const moduleIdToPropagatedCss: Record<string, Set<string>> = {};
+	// Keep track of CSS that has been bundled to avoid duplication between ssr and prerender.
+	const cssModulesInBundles = new Set();
 
 	const cssBuildPlugin: VitePlugin = {
 		name: 'astro:rollup-plugin-build-css',
 
 		applyToEnvironment(environment) {
 			return environment.name === 'client' || environment.name === 'ssr' || environment.name === 'prerender';
+		},
+
+		transform(_code, id) {
+			if(isCSSRequest(id)) {
+				// In prerender, don't rebundle CSS that was already bundled in SSR.
+				// Return an empty string here to prevent it.
+				if(this.environment.name === 'prerender') {
+					if(cssModulesInBundles.has(id)) {
+						return {
+							code: ''
+						}
+					}
+				}
+				cssModulesInBundles.add(id);
+			}
 		},
 
 		async generateBundle(_outputOptions, bundle) {
@@ -114,6 +131,9 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 
 				// For this CSS chunk, walk parents until you find a page. Add the CSS to that page.
 				for (const id of Object.keys(chunk.modules)) {
+					// Only walk up for dependencies that are CSS
+					if(!isCSSRequest(id)) continue;
+
 					const parentModuleInfos = getParentExtendedModuleInfos(id, this, hasAssetPropagationFlag);
 					for (const { info: pageInfo, depth, order } of parentModuleInfos) {
 						if (hasAssetPropagationFlag(pageInfo.id)) {
@@ -186,6 +206,13 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					typeof stylesheet.source !== 'string'
 				)
 					return;
+
+				// Delete empty CSS chunks. In prerender these are likely duplicates
+				// from SSR.
+				if(stylesheet.source.length === 0) {
+					delete bundle[id];
+					return;
+				}
 
 				const toBeInlined =
 					inlineConfig === 'always'

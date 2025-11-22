@@ -99,11 +99,18 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 	it('supports custom vite.build.rollupOptions.output.assetFileNames', async () => {
 		fixture = await loadFixture({
 			...defaultSettings,
+			build: {
+				assets: 'images'
+			},
 			vite: {
-				build: {
-					rollupOptions: {
-						output: {
-							assetFileNames: 'images/hello_[name].[ext]',
+				environments: {
+					prerender: {
+						build: {
+							rollupOptions: {
+								output: {
+									assetFileNames: 'images/hello_[name].[ext]',
+								},
+							},
 						},
 					},
 				},
@@ -125,11 +132,18 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 	it('supports complex vite.build.rollupOptions.output.assetFileNames', async () => {
 		fixture = await loadFixture({
 			...defaultSettings,
+			build: {
+				assets: 'assets'
+			},
 			vite: {
-				build: {
-					rollupOptions: {
-						output: {
-							assetFileNames: 'assets/[hash]/[name][extname]',
+				environments: {
+					prerender: {
+						build: {
+							rollupOptions: {
+								output: {
+									assetFileNames: 'assets/[hash]/[name][extname]',
+								},
+							},
 						},
 					},
 				},
@@ -153,15 +167,20 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 		fixture = await loadFixture({
 			...defaultSettings,
 			vite: {
-				build: {
-					rollupOptions: {
-						output: {
-							assetFileNames: 'images/hello_[name].[ext]',
+				environments: {
+					prerender: {
+						build: {
+							rollupOptions: {
+								output: {
+									assetFileNames: 'images/hello_[name].[ext]',
+								},
+							},
 						},
 					},
 				},
 			},
 			build: {
+				assets: 'images',
 				assetsPrefix: 'https://cdn.example.com/',
 			},
 		});
