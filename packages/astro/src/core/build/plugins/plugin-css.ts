@@ -204,6 +204,13 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				)
 					return;
 
+				// Delete empty CSS chunks. In prerender these are likely duplicates
+				// from SSR.
+				if(stylesheet.source.length === 0) {
+					delete bundle[id];
+					return;
+				}
+
 				const toBeInlined =
 					inlineConfig === 'always'
 						? true
