@@ -131,6 +131,9 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 
 				// For this CSS chunk, walk parents until you find a page. Add the CSS to that page.
 				for (const id of Object.keys(chunk.modules)) {
+					// Only walk up for dependencies that are CSS
+					if(!isCSSRequest(id)) continue;
+
 					const parentModuleInfos = getParentExtendedModuleInfos(id, this, hasAssetPropagationFlag);
 					for (const { info: pageInfo, depth, order } of parentModuleInfos) {
 						if (hasAssetPropagationFlag(pageInfo.id)) {
