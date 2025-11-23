@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-fix: Correctly mark `Astro.glob` as deprecated in JSDoc
+Fixes `Astro.glob` to be correctly marked as deprecated
