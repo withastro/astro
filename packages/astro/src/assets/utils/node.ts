@@ -96,7 +96,8 @@ export async function emitImageMetadata(
 	Object.defineProperty(emittedImage, 'fsPath', {
 		enumerable: false,
 		writable: false,
-		value: id,
+		// Use url.href here because referencedImages relies on unix-style paths
+		value: url.href,
 	});
 
 	// Build
