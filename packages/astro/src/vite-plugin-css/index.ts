@@ -49,7 +49,7 @@ function* collectCSSWithOrder(
 			id,
 			idKey: id,
 			content: '',
-			url: wrapId(id),
+			url: wrapId(mod.url),
 		};
 		return;
 	}
