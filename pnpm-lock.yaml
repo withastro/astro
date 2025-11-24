@@ -5982,14 +5982,14 @@ importers:
   packages/integrations/svelte/test/fixtures/async-rendering:
     dependencies:
       '@astrojs/svelte':
-        specifier: ^7.1.1
-        version: 7.2.2(@types/node@22.18.0)(astro@5.15.8(@azure/identity@4.13.0)(@netlify/blobs@10.4.1)(@types/node@22.18.0)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.2)(sass@1.94.0)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1))(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(svelte@5.41.0)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
+        specifier: workspace:*
+        version: link:../../..
       astro:
-        specifier: ^5.13.10
-        version: 5.15.8(@azure/identity@4.13.0)(@netlify/blobs@10.4.1)(@types/node@22.18.0)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.2)(sass@1.94.0)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
+        specifier: workspace:*
+        version: link:../../../../../astro
       svelte:
-        specifier: ^5.39.3
-        version: 5.41.0
+        specifier: ^5.43.14
+        version: 5.43.14
 
   packages/integrations/vercel:
     dependencies:
@@ -6841,9 +6841,6 @@ packages:
   '@astrojs/compiler@2.12.2':
     resolution: {integrity: sha512-w2zfvhjNCkNMmMMOn5b0J8+OmUaBL1o40ipMvqcG6NRpdC+lKxmTi48DT8Xw0SzJ3AfmeFLB45zXZXtmbsjcgw==}
 
-  '@astrojs/compiler@2.13.0':
-    resolution: {integrity: sha512-mqVORhUJViA28fwHYaWmsXSzLO9osbdZ5ImUfxBarqsYdMlPbqAqGJCxsNzvppp1BEzc1mJNjOVvQqeDN8Vspw==}
-
   '@astrojs/internal-helpers@0.7.1':
     resolution: {integrity: sha512-7dwEVigz9vUWDw3nRwLQ/yH/xYovlUA0ZD86xoeKEBmkz9O6iELG1yri67PgAPW6VLL/xInA4t7H0CK6VmtkKQ==}
 
@@ -6906,10 +6903,6 @@ packages:
       astro: ^5.0.0
       svelte: ^5.1.16
       typescript: ^5.3.3
-
-  '@astrojs/telemetry@3.3.0':
-    resolution: {integrity: sha512-UFBgfeldP06qu6khs/yY+q1cDAaArM2/7AEIqQ9Cuvf7B1hNLq0xDrZkct+QoIGyjq56y8IaE2I3CTvG99mlhQ==}
-    engines: {node: 18.20.8 || ^20.3.0 || >=22.0.0}
 
   '@astrojs/vue@5.1.3':
     resolution: {integrity: sha512-4721964tsbx6Y+rXHYOOJc8QAXUvW3wfiy82hU7aVqGaE5SFtrrTD/OHICe1r03rUpTZ7nKKUPWW5dRYAigC3Q==}
@@ -10642,11 +10635,6 @@ packages:
   astro-remote@0.3.4:
     resolution: {integrity: sha512-jL5skNQLA0YBc1R3bVGXyHew3FqGqsT7AgLzWAVeTLzFkwVMUYvs4/lKJSmS7ygcF1GnHnoKG6++8GL9VtWwGQ==}
     engines: {node: '>=18.14.1'}
-
-  astro@5.15.8:
-    resolution: {integrity: sha512-QiiRnNPdxCcAGO2UlO07o+QeGgRfEC5Dlm0x35WPB/ixFK1T2bsNB6KaXri70cVkYY1GYgoRtrWv3HCR26o9aw==}
-    engines: {node: 18.20.8 || ^20.3.0 || >=22.0.0, npm: '>=9.6.5', pnpm: '>=7.1.0'}
-    hasBin: true
 
   async-sema@3.1.1:
     resolution: {integrity: sha512-tLRNUXati5MFePdAk8dw7Qt7DpxPB60ofAgn8WRhW6a2rcimZnYBP9oxHiv0OHy+Wz7kPMG+t4LGdt31+4EmGg==}
@@ -14866,10 +14854,6 @@ packages:
     resolution: {integrity: sha512-eeEgGc2DtiUil5ANdtd8vPwt9AgaMdnuUFnPft9F5oMvU/FHu5IHFic+p1dR/UOB7XU2mX2yHW+NcTch4DCh5Q==}
     engines: {node: '>=16'}
 
-  svelte@5.41.0:
-    resolution: {integrity: sha512-mP3vFFv5OUM5JN189+nJVW74kQ1dGqUrXTEzvCEVZqessY0GxZDls1nWVvt4Sxyv2USfQvAZO68VRaeIZvpzKg==}
-    engines: {node: '>=18'}
-
   svelte@5.43.14:
     resolution: {integrity: sha512-pHeUrp1A5S6RGaXhJB7PtYjL1VVjbVrJ2EfuAoPu9/1LeoMaJa/pcdCsCSb0gS4eUHAHnhCbUDxORZyvGK6kOQ==}
     engines: {node: '>=18'}
@@ -16228,8 +16212,6 @@ snapshots:
 
   '@astrojs/compiler@2.12.2': {}
 
-  '@astrojs/compiler@2.13.0': {}
-
   '@astrojs/internal-helpers@0.7.1': {}
 
   '@astrojs/internal-helpers@0.7.4': {}
@@ -16361,28 +16343,6 @@ snapshots:
       - tsx
       - yaml
 
-  '@astrojs/svelte@7.2.2(@types/node@22.18.0)(astro@5.15.8(@azure/identity@4.13.0)(@netlify/blobs@10.4.1)(@types/node@22.18.0)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.2)(sass@1.94.0)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1))(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(svelte@5.41.0)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)':
-    dependencies:
-      '@sveltejs/vite-plugin-svelte': 5.1.1(svelte@5.41.0)(vite@6.4.1(@types/node@22.18.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(yaml@2.8.1))
-      astro: 5.15.8(@azure/identity@4.13.0)(@netlify/blobs@10.4.1)(@types/node@22.18.0)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.2)(sass@1.94.0)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
-      svelte: 5.41.0
-      svelte2tsx: 0.7.42(svelte@5.41.0)(typescript@5.9.3)
-      typescript: 5.9.3
-      vite: 6.4.1(@types/node@22.18.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(yaml@2.8.1)
-    transitivePeerDependencies:
-      - '@types/node'
-      - jiti
-      - less
-      - lightningcss
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - yaml
-
   '@astrojs/svelte@7.2.2(@types/node@22.18.0)(astro@packages+astro)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(svelte@5.43.8)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)':
     dependencies:
       '@sveltejs/vite-plugin-svelte': 5.1.1(svelte@5.43.8)(vite@6.4.1(@types/node@22.18.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(yaml@2.8.1))
@@ -16404,18 +16364,6 @@ snapshots:
       - terser
       - tsx
       - yaml
-
-  '@astrojs/telemetry@3.3.0':
-    dependencies:
-      ci-info: 4.3.1
-      debug: 4.4.3(supports-color@8.1.1)
-      dlv: 1.1.3
-      dset: 3.1.4
-      is-docker: 3.0.0
-      is-wsl: 3.1.0
-      which-pm-runs: 1.1.0
-    transitivePeerDependencies:
-      - supports-color
 
   '@astrojs/vue@5.1.3(@types/node@22.18.0)(astro@packages+astro)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(vue@3.5.24(typescript@5.9.3))(yaml@2.8.1)':
     dependencies:
@@ -19147,15 +19095,6 @@ snapshots:
     dependencies:
       acorn: 8.15.0
 
-  '@sveltejs/vite-plugin-svelte-inspector@4.0.1(@sveltejs/vite-plugin-svelte@5.1.1(svelte@5.41.0)(vite@6.4.1(@types/node@22.18.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(yaml@2.8.1)))(svelte@5.41.0)(vite@6.4.1(@types/node@22.18.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(yaml@2.8.1))':
-    dependencies:
-      '@sveltejs/vite-plugin-svelte': 5.1.1(svelte@5.41.0)(vite@6.4.1(@types/node@22.18.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(yaml@2.8.1))
-      debug: 4.4.3(supports-color@8.1.1)
-      svelte: 5.41.0
-      vite: 6.4.1(@types/node@22.18.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(yaml@2.8.1)
-    transitivePeerDependencies:
-      - supports-color
-
   '@sveltejs/vite-plugin-svelte-inspector@4.0.1(@sveltejs/vite-plugin-svelte@5.1.1(svelte@5.43.14)(vite@7.1.12(@types/node@22.18.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(yaml@2.8.1)))(svelte@5.43.14)(vite@7.1.12(@types/node@22.18.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(yaml@2.8.1))':
     dependencies:
       '@sveltejs/vite-plugin-svelte': 5.1.1(svelte@5.43.14)(vite@7.1.12(@types/node@22.18.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(yaml@2.8.1))
@@ -19171,19 +19110,6 @@ snapshots:
       debug: 4.4.3(supports-color@8.1.1)
       svelte: 5.43.8
       vite: 6.4.1(@types/node@22.18.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(yaml@2.8.1)
-    transitivePeerDependencies:
-      - supports-color
-
-  '@sveltejs/vite-plugin-svelte@5.1.1(svelte@5.41.0)(vite@6.4.1(@types/node@22.18.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(yaml@2.8.1))':
-    dependencies:
-      '@sveltejs/vite-plugin-svelte-inspector': 4.0.1(@sveltejs/vite-plugin-svelte@5.1.1(svelte@5.41.0)(vite@6.4.1(@types/node@22.18.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(yaml@2.8.1)))(svelte@5.41.0)(vite@6.4.1(@types/node@22.18.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(yaml@2.8.1))
-      debug: 4.4.3(supports-color@8.1.1)
-      deepmerge: 4.3.1
-      kleur: 4.1.5
-      magic-string: 0.30.21
-      svelte: 5.41.0
-      vite: 6.4.1(@types/node@22.18.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(yaml@2.8.1)
-      vitefu: 1.1.1(vite@6.4.1(@types/node@22.18.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(yaml@2.8.1))
     transitivePeerDependencies:
       - supports-color
 
@@ -20416,107 +20342,6 @@ snapshots:
       marked-footnote: 1.4.0(marked@12.0.2)
       marked-smartypants: 1.1.10(marked@12.0.2)
       ultrahtml: 1.6.0
-
-  astro@5.15.8(@azure/identity@4.13.0)(@netlify/blobs@10.4.1)(@types/node@22.18.0)(@vercel/functions@2.2.13)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.2)(sass@1.94.0)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1):
-    dependencies:
-      '@astrojs/compiler': 2.13.0
-      '@astrojs/internal-helpers': 0.7.4
-      '@astrojs/markdown-remark': 6.3.8
-      '@astrojs/telemetry': 3.3.0
-      '@capsizecss/unpack': 3.0.1
-      '@oslojs/encoding': 1.1.0
-      '@rollup/pluginutils': 5.3.0(rollup@4.53.2)
-      acorn: 8.15.0
-      aria-query: 5.3.2
-      axobject-query: 4.1.0
-      boxen: 8.0.1
-      ci-info: 4.3.1
-      clsx: 2.1.1
-      common-ancestor-path: 1.0.1
-      cookie: 1.0.2
-      cssesc: 3.0.0
-      debug: 4.4.3(supports-color@8.1.1)
-      deterministic-object-hash: 2.0.2
-      devalue: 5.5.0
-      diff: 5.2.0
-      dlv: 1.1.3
-      dset: 3.1.4
-      es-module-lexer: 1.7.0
-      esbuild: 0.25.5
-      estree-walker: 3.0.3
-      flattie: 1.1.1
-      fontace: 0.3.1
-      github-slugger: 2.0.0
-      html-escaper: 3.0.3
-      http-cache-semantics: 4.2.0
-      import-meta-resolve: 4.2.0
-      js-yaml: 4.1.1
-      magic-string: 0.30.21
-      magicast: 0.5.1
-      mrmime: 2.0.1
-      neotraverse: 0.6.18
-      p-limit: 6.2.0
-      p-queue: 8.1.1
-      package-manager-detector: 1.5.0
-      picocolors: 1.1.1
-      picomatch: 4.0.3
-      prompts: 2.4.2
-      rehype: 13.0.2
-      semver: 7.7.3
-      shiki: 3.15.0
-      smol-toml: 1.5.2
-      tinyexec: 1.0.2
-      tinyglobby: 0.2.15
-      tsconfck: 3.1.6(typescript@5.9.3)
-      ultrahtml: 1.6.0
-      unifont: 0.6.0
-      unist-util-visit: 5.0.0
-      unstorage: 1.17.2(@azure/identity@4.13.0)(@netlify/blobs@10.4.1)(@vercel/functions@2.2.13)
-      vfile: 6.0.3
-      vite: 6.4.1(@types/node@22.18.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(yaml@2.8.1)
-      vitefu: 1.1.1(vite@6.4.1(@types/node@22.18.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(yaml@2.8.1))
-      xxhash-wasm: 1.1.0
-      yargs-parser: 21.1.1
-      yocto-spinner: 0.2.3
-      zod: 3.25.76
-      zod-to-json-schema: 3.24.6(zod@3.25.76)
-      zod-to-ts: 1.2.0(typescript@5.9.3)(zod@3.25.76)
-    optionalDependencies:
-      sharp: 0.34.3
-    transitivePeerDependencies:
-      - '@azure/app-configuration'
-      - '@azure/cosmos'
-      - '@azure/data-tables'
-      - '@azure/identity'
-      - '@azure/keyvault-secrets'
-      - '@azure/storage-blob'
-      - '@capacitor/preferences'
-      - '@deno/kv'
-      - '@netlify/blobs'
-      - '@planetscale/database'
-      - '@types/node'
-      - '@upstash/redis'
-      - '@vercel/blob'
-      - '@vercel/functions'
-      - '@vercel/kv'
-      - aws4fetch
-      - db0
-      - idb-keyval
-      - ioredis
-      - jiti
-      - less
-      - lightningcss
-      - rollup
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - typescript
-      - uploadthing
-      - yaml
 
   async-sema@3.1.1: {}
 
@@ -25584,13 +25409,6 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte2tsx@0.7.42(svelte@5.41.0)(typescript@5.9.3):
-    dependencies:
-      dedent-js: 1.0.1
-      pascal-case: 3.1.2
-      svelte: 5.41.0
-      typescript: 5.9.3
-
   svelte2tsx@0.7.42(svelte@5.43.14)(typescript@5.9.3):
     dependencies:
       dedent-js: 1.0.1
@@ -25621,23 +25439,6 @@ snapshots:
       locate-character: 3.0.0
       magic-string: 0.30.21
       periscopic: 3.1.0
-
-  svelte@5.41.0:
-    dependencies:
-      '@jridgewell/remapping': 2.3.5
-      '@jridgewell/sourcemap-codec': 1.5.5
-      '@sveltejs/acorn-typescript': 1.0.5(acorn@8.15.0)
-      '@types/estree': 1.0.8
-      acorn: 8.15.0
-      aria-query: 5.3.2
-      axobject-query: 4.1.0
-      clsx: 2.1.1
-      esm-env: 1.2.2
-      esrap: 2.1.0
-      is-reference: 3.0.3
-      locate-character: 3.0.0
-      magic-string: 0.30.21
-      zimmerframe: 1.1.2
 
   svelte@5.43.14:
     dependencies:
