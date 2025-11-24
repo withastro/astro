@@ -21,3 +21,6 @@ jobs:
 
       - name: Create Diff
         uses: e18e/action-dependency-diff@d8853a053c2a8a2a428eee0edbaa4f8934f55cdb # v1.4.1
+        with:
+          # We’re using this package primarily to track size changes, not as worried about duplicates
+          duplicate-threshold: 100
