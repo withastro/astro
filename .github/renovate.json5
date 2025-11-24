@@ -16,7 +16,11 @@
     "pnpmDedupe"
   ],
   "ignorePaths": [
-    "**/node_modules/**"
+    "**/node_modules/**",
+    // This fixture depends on the versions in its package.json not being modified by
+    // CI because PNPM would link the local versions of the packages instead of installing
+    // them from NPM, leading to the tests depending on the fixture failing.
+    "**/astro-info-versions/**"
   ],
   "packageRules": [
     {
@@ -59,6 +63,15 @@
         "packages/integrations/preact/**",
         "packages/integrations/svelte/**",
         "packages/integrations/vue/**",
+      ]
+    },
+    {
+      "groupName": "language tools",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "packages/language-tools/**"
       ]
     }
   ],

@@ -1,6 +1,6 @@
 import type { SQL } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import {
 	FOREIGN_KEY_DNE_ERROR,
 	FOREIGN_KEY_REFERENCES_EMPTY_ERROR,

@@ -28,7 +28,10 @@ import type {
 } from '../types/public/internal.js';
 import { ContainerPipeline } from './pipeline.js';
 
-/** Public type, used for integrations to define a renderer for the container API */
+/**
+ * Public type, used for integrations to define a renderer for the container API
+ * @deprecated Use `AstroRenderer` instead.
+ */
 export type ContainerRenderer = {
 	/**
 	 * The name of the renderer.

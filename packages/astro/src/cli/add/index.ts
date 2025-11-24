@@ -6,7 +6,7 @@ import { diffWords } from 'diff';
 import { type ASTNode, builders, generateCode, loadFile, type ProxifiedModule } from 'magicast';
 import { getDefaultExportOptions } from 'magicast/helpers';
 import { detect, resolveCommand } from 'package-manager-detector';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import prompts from 'prompts';
 import maxSatisfying from 'semver/ranges/max-satisfying.js';
 import type yargsParser from 'yargs-parser';
@@ -27,7 +27,6 @@ import type { Logger } from '../../core/logger/core.js';
 import * as msg from '../../core/messages.js';
 import { printHelp } from '../../core/messages.js';
 import { appendForwardSlash } from '../../core/path.js';
-import { apply as applyPolyfill } from '../../core/polyfill.js';
 import { ensureProcessNodeEnv, parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';
 import { exec } from '../exec.js';
@@ -111,7 +110,6 @@ const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 
 export async function add(names: string[], { flags }: AddOptions) {
 	ensureProcessNodeEnv('production');
-	applyPolyfill();
 	const inlineConfig = flagsToAstroInlineConfig(flags);
 	const { userConfig } = await resolveConfig(inlineConfig, 'add');
 	telemetry.record(eventCliSession('add', userConfig));
@@ -159,7 +157,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 	const cwd = inlineConfig.root;
 	const logger = createLoggerFromFlags(flags);
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
-	const integrations = await validateIntegrations(integrationNames, flags);
+	const integrations = await validateIntegrations(integrationNames, flags, logger);
 	let installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logger });
 	const rootPath = resolveRoot(cwd);
 	const root = pathToFileURL(rootPath);
@@ -218,7 +216,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 						`\n  ${magenta(`Astro will scaffold ${green('./wrangler.jsonc')}.`)}\n`,
 					);
 
-					if (await askToContinue({ flags })) {
+					if (await askToContinue({ flags, logger })) {
 						const data = await getPackageJson();
 
 						await fs.writeFile(
@@ -239,7 +237,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 						`\n  ${magenta(`Astro will scaffold ${green('./public/.assetsignore')}.`)}\n`,
 					);
 
-					if (await askToContinue({ flags })) {
+					if (await askToContinue({ flags, logger })) {
 						if (!existsSync(dir)) {
 							await fs.mkdir(dir);
 						}
@@ -258,7 +256,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 						`\n  ${magenta(`Astro will scaffold ${green('./src/styles/global.css')}.`)}\n`,
 					);
 
-					if (await askToContinue({ flags })) {
+					if (await askToContinue({ flags, logger })) {
 						if (!existsSync(dir)) {
 							await fs.mkdir(dir);
 						}
@@ -295,7 +293,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 						)}\n`,
 					);
 
-					if (await askToContinue({ flags })) {
+					if (await askToContinue({ flags, logger })) {
 						await fs.mkdir(new URL('./db', root));
 						await Promise.all([
 							fs.writeFile(new URL('./db/config.ts', root), STUBS.DB_CONFIG, { encoding: 'utf-8' }),
@@ -668,7 +666,7 @@ async function updateAstroConfig({
 		);
 	}
 
-	if (await askToContinue({ flags })) {
+	if (await askToContinue({ flags, logger })) {
 		await fs.writeFile(fileURLToPath(configURL), output, { encoding: 'utf-8' });
 		logger.debug('add', `Updated astro config`);
 		return UpdateResult.updated;
@@ -772,7 +770,7 @@ async function tryToInstallIntegrations({
 		)}\n${message}`,
 	);
 
-	if (await askToContinue({ flags })) {
+	if (await askToContinue({ flags, logger })) {
 		const spinner = yoctoSpinner({ text: 'Installing dependencies...' }).start();
 		try {
 			await exec(installCommand.command, [...installCommand.args, ...installSpecifiers], {
@@ -799,6 +797,7 @@ async function tryToInstallIntegrations({
 async function validateIntegrations(
 	integrations: string[],
 	flags: yargsParser.Arguments,
+	logger: Logger,
 ): Promise<IntegrationInfo[]> {
 	const spinner = yoctoSpinner({ text: 'Resolving packages...' }).start();
 	try {
@@ -821,7 +820,7 @@ async function validateIntegrations(
 							spinner.warning(yellow(firstPartyPkgCheck.message));
 						}
 						spinner.warning(yellow(`${bold(integration)} is not an official Astro package.`));
-						if (!(await askToContinue({ flags }))) {
+						if (!(await askToContinue({ flags, logger }))) {
 							throw new Error(
 								`No problem! Find our official integrations at ${cyan(
 									'https://astro.build/integrations',
@@ -989,7 +988,7 @@ async function updateTSConfig(
 		);
 	}
 
-	if (await askToContinue({ flags })) {
+	if (await askToContinue({ flags, logger })) {
 		await fs.writeFile(inputConfig.tsconfigFile, output, {
 			encoding: 'utf-8',
 		});
@@ -1016,9 +1015,20 @@ function parseIntegrationName(spec: string) {
 	return { scope, name, tag };
 }
 
-async function askToContinue({ flags }: { flags: Flags }): Promise<boolean> {
-	if (flags.yes || flags.y) return true;
+let hasHintedAboutYesFlag = false;
 
+async function askToContinue({
+	flags,
+	logger,
+}: {
+	flags: Flags;
+	logger: Logger;
+}): Promise<boolean> {
+	if (flags.yes || flags.y) return true;
+	if (!hasHintedAboutYesFlag) {
+		hasHintedAboutYesFlag = true;
+		logger.info('SKIP_FORMAT', dim('  To run this command without prompts, pass the --yes flag\n'));
+	}
 	const response = await prompts({
 		type: 'confirm',
 		name: 'askToContinue',
@@ -1080,7 +1090,7 @@ async function setupIntegrationConfig(opts: {
 			'SKIP_FORMAT',
 			`\n  ${magenta(`Astro will generate a minimal ${bold(opts.defaultConfigFile)} file.`)}\n`,
 		);
-		if (await askToContinue({ flags: opts.flags })) {
+		if (await askToContinue({ flags: opts.flags, logger })) {
 			await fs.writeFile(
 				fileURLToPath(new URL(opts.defaultConfigFile, opts.root)),
 				opts.defaultConfigContent,
