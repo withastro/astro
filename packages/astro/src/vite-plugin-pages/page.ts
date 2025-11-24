@@ -3,7 +3,6 @@ import { prependForwardSlash } from '../core/path.js';
 import { DEFAULT_COMPONENTS } from '../core/routing/default.js';
 import { routeIsRedirect } from '../core/routing/index.js';
 import type { RoutesList } from '../types/astro.js';
-import { ASTRO_RENDERERS_MODULE_ID } from '../vite-plugin-renderers/index.js';
 import { VIRTUAL_PAGE_MODULE_ID, VIRTUAL_PAGE_RESOLVED_MODULE_ID } from './const.js';
 
 interface PagePluginOptions {
@@ -47,9 +46,6 @@ export function pluginPage({ routesList }: PagePluginOptions): VitePlugin {
 
 					imports.push(`import * as _page from ${JSON.stringify(astroModuleId)};`);
 					exports.push(`export const page = () => _page`);
-
-					imports.push(`import { renderers } from "${ASTRO_RENDERERS_MODULE_ID}";`);
-					exports.push(`export { renderers };`);
 
 					return { code: `${imports.join('\n')}\n${exports.join('\n')}` };
 				}

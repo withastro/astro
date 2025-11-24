@@ -76,7 +76,6 @@ export class ContainerPipeline extends Pipeline {
 			page() {
 				return Promise.resolve(componentInstance);
 			},
-			renderers: this.manifest.renderers,
 			onRequest: this.resolvedMiddleware,
 		});
 	}

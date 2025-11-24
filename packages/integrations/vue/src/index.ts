@@ -61,9 +61,9 @@ function virtualAppEntrypoint(options?: Options): Plugin {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
 				if (appEntrypoint) {
 					return `\
-import * as mod from ${JSON.stringify(appEntrypoint)};
-
 export const setup = async (app) => {
+	const mod = await import(${JSON.stringify(appEntrypoint)});
+
 	if ('default' in mod) {
 		await mod.default(app);
 	} else {

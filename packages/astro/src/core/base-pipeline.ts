@@ -205,7 +205,6 @@ export abstract class Pipeline {
 			if (route.component === defaultRoute.component) {
 				return {
 					page: () => Promise.resolve(defaultRoute.instance),
-					renderers: [],
 				};
 			}
 		}
