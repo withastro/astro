@@ -172,6 +172,14 @@ export function glob(globOptions: GlobOptions): Loader {
 					}
 
 					let render = renderFunctionByContentType.get(entryType);
+
+					if (store.has(id)) {
+						logger.warn(
+							`Duplicate content entry ID "${id}" detected. ` +
+							` The file "${filePath}" will override a previously loaded entry.`
+						);
+					}
+
 					if (!render) {
 						render = await entryType.getRenderFunction(config);
 						// Cache the render function for this content type, so it can re-use parsers and other expensive setup
