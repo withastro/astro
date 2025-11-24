@@ -66,7 +66,7 @@
     "@changesets/cli": "^2.29.7",
     "@types/node": "^18.19.115",
     "esbuild": "0.25.5",
-    "eslint": "^9.38.0",
+    "eslint": "^9.39.1",
     "eslint-plugin-regexp": "^2.10.0",
     "knip": "5.61.3",
     "only-allow": "^1.2.1",
@@ -74,8 +74,8 @@
     "prettier-plugin-astro": "^0.14.1",
     "publint": "^0.3.15",
     "tinyglobby": "^0.2.15",
-    "turbo": "^2.5.8",
+    "turbo": "^2.6.1",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.46.2"
+    "typescript-eslint": "^8.47.0"
   }
 }
