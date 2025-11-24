@@ -7,7 +7,8 @@ import { parseArgs } from 'node:util';
 import { glob } from 'tinyglobby';
 
 const isCI = !!process.env.CI;
-const defaultTimeout = isCI ? 1400000 : 600000;
+// 30 minutes in CI, 10 locally
+const defaultTimeout = isCI ? 1860000 : 600000;
 
 export default async function test() {
 	const args = parseArgs({

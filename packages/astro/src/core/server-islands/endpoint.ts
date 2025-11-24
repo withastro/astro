@@ -127,7 +127,7 @@ export function createEndpoint(manifest: SSRManifest) {
 
 		const key = await manifest.key;
 		const encryptedProps = data.encryptedProps;
-let props = {};
+		let props = {};
 
 		if (encryptedProps !== '') {
 			try {

@@ -96,7 +96,7 @@ export async function emitImageMetadata(
 	Object.defineProperty(emittedImage, 'fsPath', {
 		enumerable: false,
 		writable: false,
-		value: id,
+		value: fileURLToNormalizedPath(url),
 	});
 
 	// Build

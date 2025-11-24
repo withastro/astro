@@ -18,6 +18,7 @@ import {
 	STYLES_PLACEHOLDER,
 } from './consts.js';
 import { hasContentFlag } from './utils.js';
+import { joinPaths, prependForwardSlash, slash } from '@astrojs/internal-helpers/path';
 
 export function astroContentAssetPropagationPlugin({
 	settings,
@@ -194,6 +195,7 @@ async function getStylesForURL(
  * with actual styles from propagatedStylesMap.
  */
 export async function contentAssetsBuildPostHook(
+	base: string,
 	internals: BuildInternals,
 	{
 		ssrOutputs,
@@ -233,7 +235,7 @@ export async function contentAssetsBuildPostHook(
 				// links. Refactor this away in the future.
 				for (const value of entryCss) {
 					if (value.type === 'inline') entryStyles.add(value.content);
-					if (value.type === 'external') entryLinks.add(value.src);
+					if (value.type === 'external') entryLinks.add(prependForwardSlash(joinPaths(base, slash(value.src))));
 				}
 			}
 		}

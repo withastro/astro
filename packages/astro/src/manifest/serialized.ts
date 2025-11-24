@@ -68,15 +68,20 @@ export function serializedManifestPlugin({
 					import { pageMap } from '${VIRTUAL_PAGES_MODULE_ID}';
 
 					const _manifest = _deserializeManifest((${manifestData}));
+
+				  // _manifest.routes contains enriched route info with scripts and styles,
+				  // TODO port this info over to virtual:astro:routes to prevent the need to
+				  // have this duplication
+					const isDev = ${JSON.stringify(command === 'dev')};
+					const manifestRoutes = isDev ? routes : _manifest.routes;
+					
 					const manifest = Object.assign(_manifest, {
 					  renderers,
 					  actions: () => import('${ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID}'),
 					  middleware: () => import('${MIDDLEWARE_MODULE_ID}'),
 					  sessionDriver: () => import('${VIRTUAL_SESSION_DRIVER_ID}'),
 					  serverIslandMappings: () => import('${SERVER_ISLAND_MANIFEST}'),
-					  // _manifest.routes contains enriched route info with scripts and styles,
-					  // while routes only has raw route data. Fallback to routes if _manifest.routes is not available.
-					  routes: _manifest.routes ?? routes,
+					  routes: manifestRoutes,
 					  pageMap,
 					});
 					export { manifest };

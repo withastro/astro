@@ -1,4 +1,5 @@
 import { fileExtension } from '@astrojs/internal-helpers/path';
+import { VIRTUAL_PAGE_MODULE_ID } from './const.js';
 
 // This is an arbitrary string that we use to replace the dot of the extension.
 const ASTRO_PAGE_EXTENSION_POST_PATTERN = '@_@';
@@ -17,4 +18,12 @@ export function getVirtualModulePageName(virtualModulePrefix: string, path: stri
 			? path.slice(0, -extension.length) + extension.replace('.', ASTRO_PAGE_EXTENSION_POST_PATTERN)
 			: path)
 	);
+}
+
+export function getVirtualModulePageNameForComponent(component: string) {
+	const virtualModuleName = getVirtualModulePageName(
+		VIRTUAL_PAGE_MODULE_ID,
+		component,
+	);
+	return virtualModuleName;
 }
