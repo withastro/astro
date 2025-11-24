@@ -47,7 +47,7 @@ function* collectCSSWithOrder(
 	// Check if this module is CSS and should be collected
 	if (isBuildableCSSRequest(id)) {
 		yield {
-			id,
+			id: wrapId(mod.id ?? mod.url),
 			idKey: id,
 			content: '',
 			url: prependForwardSlash(wrapId(mod.url)),
