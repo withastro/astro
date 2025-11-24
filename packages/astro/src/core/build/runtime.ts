@@ -56,6 +56,10 @@ export function cssOrder(a: OrderInfo, b: OrderInfo) {
 	}
 }
 
+/**
+ * Merges inline CSS into as few stylesheets as possible,
+ * preserving ordering when there are non-inlined in between.
+ */
 export function mergeInlineCss(
 	acc: Array<StylesheetAsset>,
 	current: StylesheetAsset,
