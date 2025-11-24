@@ -38,6 +38,15 @@ describe('Using Astro.response in SSR', () => {
 		assert.equal(headers.get('one-two'), 'three');
 	});
 
+	it('Returns the page, not the custom 404.astro', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/status-code');
+		const response = await app.render(request);
+		const html = await response.text()
+		assert.equal(html.includes('<h1>Testing</h1>'), true);
+		assert.equal(html.includes('<h1>Custom 404</h1>'), false);
+	});
+
 	it('Can add headers', async () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/some-header');
