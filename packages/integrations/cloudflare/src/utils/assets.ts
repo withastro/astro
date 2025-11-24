@@ -1,8 +1,5 @@
 import { isRemotePath } from '@astrojs/internal-helpers/path';
-import {
-	matchHostname,
-	matchPattern,
-} from '@astrojs/internal-helpers/remote';
+import { matchHostname, matchPattern } from '@astrojs/internal-helpers/remote';
 import type { AstroConfig } from 'astro';
 
 export function isRemoteAllowed(
