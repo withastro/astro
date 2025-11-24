@@ -94,15 +94,13 @@ export class DevPipeline extends Pipeline {
 
 		const { devCSSMap } = await import('virtual:astro:dev-css-all');
 
+		const importer = devCSSMap.get(routeData.component);
 		let css = new Set<ImportedDevStyle>();
-		try {
-			const importer = devCSSMap.get(routeData.component);
-			if(importer) {
-				const cssModule = await importer();
-				css = cssModule.css;				
-			}
-		} catch {
-			// An unknown route, ignore
+		if(importer) {
+			const cssModule = await importer();
+			css = cssModule.css;				
+		} else {
+			this.logger.warn('assets', `Unable to find CSS for ${routeData.component}. This is likely a bug in Astro.`);
 		}
 
 		// Pass framework CSS in as style tags to be appended to the page.
