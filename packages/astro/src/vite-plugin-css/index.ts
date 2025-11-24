@@ -5,6 +5,7 @@ import type * as vite from 'vite';
 import { isBuildableCSSRequest } from '../vite-plugin-astro-server/util.js';
 import { getVirtualModulePageNameForComponent } from '../vite-plugin-pages/util.js';
 import { getDevCSSModuleName } from './util.js';
+import { prependForwardSlash } from '@astrojs/internal-helpers/path';
 
 interface AstroVitePluginOptions {
 	routesList: RoutesList;
@@ -46,10 +47,10 @@ function* collectCSSWithOrder(
 	// Check if this module is CSS and should be collected
 	if (isBuildableCSSRequest(id)) {
 		yield {
-			id,
+			id: wrapId(mod.id ?? mod.url),
 			idKey: id,
 			content: '',
-			url: wrapId(id),
+			url: prependForwardSlash(wrapId(mod.url)),
 		};
 		return;
 	}

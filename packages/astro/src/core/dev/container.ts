@@ -89,7 +89,11 @@ export async function createContainer({
 			fsMod: nodeFs,
 		},
 		logger,
-		{ dev: true, skipBuildOutputAssignment: false },
+		{
+			dev: true,
+			// If the adapter explicitly set a buildOutput, don't override it
+			skipBuildOutputAssignment: !!settings.adapter?.adapterFeatures?.buildOutput
+		},
 	);
 	const viteConfig = await createVite(
 		{
