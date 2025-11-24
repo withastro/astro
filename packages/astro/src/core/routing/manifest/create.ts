@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pLimit from 'p-limit';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import { injectImageEndpoint } from '../../../assets/endpoint/config.js';
 import { toRoutingStrategy } from '../../../i18n/utils.js';
 import { runHookRoutesResolved } from '../../../integrations/hooks.js';
@@ -255,7 +255,7 @@ function createFileBasedRoutes(
 }
 
 // Get trailing slash rule for a path, based on the config and whether the path has an extension.
-// TODO: in Astro 6, change endpoints with extentions to use 'never'
+// TODO: in Astro 6, change endpoints with extensions to use 'never'
 const trailingSlashForPath = (
 	pathname: string | null,
 	config: AstroConfig,
@@ -565,7 +565,7 @@ export async function createRoutesList(
 		const setRoutes = new Set(routes.filter((route) => route.type === 'page'));
 
 		// First loop
-		// We loop over the locales minus the default locale and add only the routes that contain `/<locale>`.
+		// We loop over all locales except the default, adding routes that include the locale as a path segment.
 		const filteredLocales = i18n.locales
 			.filter((loc) => {
 				if (typeof loc === 'string') {
@@ -581,7 +581,8 @@ export async function createRoutesList(
 			});
 		for (const locale of filteredLocales) {
 			for (const route of setRoutes) {
-				if (!route.route.includes(`/${locale}`)) {
+				const hasLocaleInRoute = route.route.split('/').includes(locale);
+				if (!hasLocaleInRoute) {
 					continue;
 				}
 				const currentRoutes = routesByLocale.get(locale);

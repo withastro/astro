@@ -1,18 +1,17 @@
 import type { Logger } from '../../../core/logger/core.js';
+import type { CommandExecutor, OperatingSystemProvider } from '../../definitions.js';
 import { defineCommand } from '../../domain/command.js';
-import type { CommandExecutor, PlatformProvider } from '../definitions.js';
-import type { Platform } from '../domains/platform.js';
+import type { CloudIdeProvider } from '../definitions.js';
 
 interface Options {
 	url: string;
-	platformProvider: PlatformProvider;
+	operatingSystemProvider: OperatingSystemProvider;
 	logger: Logger;
 	commandExecutor: CommandExecutor;
+	cloudIdeProvider: CloudIdeProvider;
 }
 
-function getExecInputForPlatform(
-	platform: Platform,
-): [command: string, args?: Array<string>] | null {
+function getExecInputForPlatform(platform: string): [command: string, args?: Array<string>] | null {
 	switch (platform) {
 		case 'android':
 		case 'linux':
@@ -23,13 +22,6 @@ function getExecInputForPlatform(
 			return ['cmd', ['/c', 'start']];
 		case 'gitpod':
 			return ['/ide/bin/remote-cli/gitpod-code', ['--openExternal']];
-		case 'aix':
-		case 'freebsd':
-		case 'haiku':
-		case 'openbsd':
-		case 'sunos':
-		case 'cygwin':
-		case 'netbsd':
 		default:
 			return null;
 	}
@@ -43,8 +35,8 @@ export const openDocsCommand = defineCommand({
 		},
 		description: `Launches the Astro Docs website directly from the terminal.`,
 	},
-	async run({ url, platformProvider, logger, commandExecutor }: Options) {
-		const platform = platformProvider.get();
+	async run({ url, operatingSystemProvider, logger, commandExecutor, cloudIdeProvider }: Options) {
+		const platform = cloudIdeProvider.name ?? operatingSystemProvider.name;
 		const input = getExecInputForPlatform(platform);
 		if (!input) {
 			logger.error(

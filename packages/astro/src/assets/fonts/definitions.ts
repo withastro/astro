@@ -1,5 +1,5 @@
 import type * as unifont from 'unifont';
-import type { CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
+import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type {
 	AstroFontProvider,

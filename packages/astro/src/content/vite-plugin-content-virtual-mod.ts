@@ -85,7 +85,7 @@ export function astroContentVirtualModPlugin({
 		async resolveId(id, importer) {
 			if (id === VIRTUAL_MODULE_ID) {
 				// Live content config can't import the virtual module directly,
-				// because it would create a circular dependency from the colleciton exports.
+				// because it would create a circular dependency from the collection exports.
 				// Instead, we resolve the config util module, because that's all that it should use anyway.
 				if (liveConfig && importer && liveConfig === normalizePath(importer)) {
 					return this.resolve('astro/virtual-modules/live-config', importer, {

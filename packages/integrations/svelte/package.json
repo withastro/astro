@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/svelte",
-  "version": "7.2.0",
+  "version": "7.2.2",
   "description": "Use Svelte components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -38,7 +38,7 @@
   "dependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.1.1",
     "svelte2tsx": "^0.7.42",
-    "vite": "^6.3.6"
+    "vite": "^6.4.1"
   },
   "devDependencies": {
     "astro": "workspace:*",

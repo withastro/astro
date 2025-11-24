@@ -1,5 +1,17 @@
 # @astrojs/db
 
+## 0.18.3
+
+### Patch Changes
+
+- [#14813](https://github.com/withastro/astro/pull/14813) [`e1dd377`](https://github.com/withastro/astro/commit/e1dd377398a3dcf6ba0697dc8d4bde6d77a45700) Thanks [@ematipico](https://github.com/ematipico)! - Removes `picocolors` as dependency in favor of the fork `piccolore`.
+
+## 0.18.2
+
+### Patch Changes
+
+- [#14621](https://github.com/withastro/astro/pull/14621) [`e3175d9`](https://github.com/withastro/astro/commit/e3175d9ccbf070150ab2229b2564ca0b12a86c30) Thanks [@GameRoMan](https://github.com/GameRoMan)! - Updates `vite` version to fix CVE
+
 ## 0.18.1
 
 ### Patch Changes

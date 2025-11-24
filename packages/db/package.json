@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/db",
-  "version": "0.18.1",
+  "version": "0.18.3",
   "description": "Add libSQL support to your Astro site",
   "license": "MIT",
   "repository": {
@@ -76,7 +76,7 @@
     "deep-diff": "^1.0.2",
     "drizzle-orm": "^0.42.0",
     "nanoid": "^5.1.6",
-    "picocolors": "^1.1.1",
+    "piccolore": "^0.1.3",
     "prompts": "^2.4.2",
     "yargs-parser": "^21.1.1",
     "zod": "^3.25.76"
@@ -90,6 +90,6 @@
     "cheerio": "1.1.2",
     "expect-type": "^1.2.2",
     "typescript": "^5.9.3",
-    "vite": "^6.4.0"
+    "vite": "^6.4.1"
   }
 }

@@ -12,7 +12,7 @@ We welcome contributions of any size and skill level. As an open source project,
 
 ```shell
 node: "^>=18.20.8"
-pnpm: "^9.12.1"
+pnpm: "^10.21.0"
 # otherwise, your build will fail
 ```
 
@@ -76,6 +76,10 @@ During the development process, you may want to test your changes to ensure they
 3. Create a separate project and use your local Astro through [`pnpm link`](https://pnpm.io/cli/link). This is helpful if you're making bigger changes and want to test them in a separate project.
 
 Overall, it's up to personal preference which method to use. For smaller changes, using the examples folder may be sufficient. For larger changes, using a separate project may be more appropriate.
+
+#### Contributing to language tooling
+
+For information on contributing to the language tooling (VS Code extension, language server, etc.), see [packages/language-tools/CONTRIBUTING.md](./packages/language-tools/CONTRIBUTING.md).
 
 #### Naming convention and APIs usage
 

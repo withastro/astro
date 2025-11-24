@@ -8,7 +8,7 @@ const root = new URL('./fixtures/compile-image-service/', import.meta.url);
 describe('CompileImageService', () => {
 	let wrangler;
 	before(async () => {
-		await astroCli(fileURLToPath(root), 'build');
+		await astroCli(fileURLToPath(root), 'build').getResult();
 
 		wrangler = wranglerCli(fileURLToPath(root));
 		await new Promise((resolve) => {
