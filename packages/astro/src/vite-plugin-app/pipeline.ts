@@ -132,12 +132,12 @@ export class AstroServerPipeline extends Pipeline {
 		const links = new Set<SSRElement>();
 
 		const styles = new Set<SSRElement>();
-		for (const { url: src, content } of css) {
+		for (const { id, url: src, content } of css) {
 			// Vite handles HMR for styles injected as scripts
 			scripts.add({ props: { type: 'module', src }, children: '' });
 			// But we still want to inject the styles to avoid FOUC. The style tags
 			// should emulate what Vite injects so further HMR works as expected.
-			styles.add({ props: { 'data-vite-dev-id': src }, children: content });
+			styles.add({ props: { 'data-vite-dev-id': id }, children: content });
 		}
 
 		return { scripts, styles, links };

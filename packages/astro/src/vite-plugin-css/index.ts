@@ -50,7 +50,7 @@ function* collectCSSWithOrder(
 			id,
 			idKey: id,
 			content: '',
-			url: prependForwardSlash(wrapId(id)),
+			url: prependForwardSlash(wrapId(mod.url)),
 		};
 		return;
 	}
