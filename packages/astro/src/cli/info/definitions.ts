@@ -14,7 +14,7 @@ export interface Clipboard {
 }
 
 export interface PackageManager {
-	getName: () => string;
+	readonly name: string;
 	getPackageVersion: (name: string) => Promise<string | undefined>;
 }
 
