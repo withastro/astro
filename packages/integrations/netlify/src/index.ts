@@ -614,9 +614,9 @@ export default function netlifyIntegration(
 						// If features is an object, use the `images` property
 						// Otherwise, use the boolean value of `features`, defaulting to true
 						enabled:
-							typeof features === 'object'
-								? (features.images ?? true)
-								: features === true,
+							typeof features === "object"
+								? features.images ?? true
+								: features === true || features === undefined,
 						remoteURLPatterns: remoteImagesFromAstroConfig(config, logger),
 					},
 					environmentVariables: {
