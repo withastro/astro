@@ -18,12 +18,24 @@ export async function logListeningOn(
 	const { port } = server.address() as AddressInfo;
 	const address = getNetworkAddress(protocol, host, port);
 
+	// If ASTRO_NODE_LOGGING is explicitly enabled, output directly to console
+	// This bypasses the logger's log level which may be set to 'silent' during tests
+	const useDirectLogging = process.env.ASTRO_NODE_LOGGING === 'enabled';
+
 	if (host === undefined || wildcardHosts.has(host)) {
-		logger.info(
-			`Server listening on \n  local: ${address.local[0]} \t\n  network: ${address.network[0]}\n`,
-		);
+		const message = `Server listening on \n  local: ${address.local[0]} \t\n  network: ${address.network[0]}\n`;
+		if (useDirectLogging) {
+			console.log(message);
+		} else {
+			logger.info(message);
+		}
 	} else {
-		logger.info(`Server listening on ${address.local[0]}`);
+		const message = `Server listening on ${address.local[0]}`;
+		if (useDirectLogging) {
+			console.log(message);
+		} else {
+			logger.info(message);
+		}
 	}
 }
 

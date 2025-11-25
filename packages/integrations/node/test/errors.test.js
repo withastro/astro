@@ -37,9 +37,16 @@ describe('Errors', () => {
 		});
 
 		await new Promise((resolve, reject) => {
+			const timeout = setTimeout(() => reject(new Error('Server took too long to start, or never logged its start')), 5000);
 			worker.stdout.on('data', (data) => {
-				setTimeout(() => reject('Server took too long to start'), 1000);
-				if (data.toString().includes('Server listening on http://localhost:4321')) resolve();
+				if (data.toString().includes('Server listening on http://localhost:4321')) {
+					clearTimeout(timeout);
+					resolve();
+				}
+			});
+			worker.on('error', (error) => {
+				clearTimeout(timeout);
+				reject(error);
 			});
 		});
 
