@@ -29,9 +29,11 @@ export const SERIALIZED_MANIFEST_RESOLVED_ID = '\0' + SERIALIZED_MANIFEST_ID;
 export function serializedManifestPlugin({
 	settings,
 	command,
+	sync
 }: {
 	settings: AstroSettings;
 	command: 'dev' | 'build';
+	sync: boolean;
 }): Plugin {
 	return {
 		name: SERIALIZED_MANIFEST_ID,
@@ -53,7 +55,7 @@ export function serializedManifestPlugin({
 		async load(id) {
 			if (id === SERIALIZED_MANIFEST_RESOLVED_ID) {
 				let manifestData: string;
-				if (command === 'build') {
+				if (command === 'build' && !sync) {
 					// Emit placeholder token that will be replaced by plugin-manifest.ts in build:post
 					// See plugin-manifest.ts for full architecture explanation
 					manifestData = `'${MANIFEST_REPLACE}'`;

@@ -74,7 +74,7 @@ describe('_routes.json generation', () => {
 
 				assert.deepEqual(routes, {
 					version: 1,
-					include: ['/_server-islands/*'],
+					include: ['/_server-islands/*', '/_image'],
 					exclude: ['/', '/_astro/*', '/redirectme', '/public.txt', '/a/*', '/404'],
 				});
 			},

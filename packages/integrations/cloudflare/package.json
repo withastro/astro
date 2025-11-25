@@ -40,11 +40,11 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
-    "@cloudflare/vite-plugin": "^1.13.14",
-    "@cloudflare/workers-types": "^4.20251014.0",
+    "@cloudflare/vite-plugin": "^1.15.2",
+    "@cloudflare/workers-types": "^4.20251125.0",
     "tinyglobby": "^0.2.15",
     "vite": "^7.1.12",
-    "wrangler": "4.44.0"
+    "wrangler": "4.50.0"
   },
   "peerDependencies": {
     "astro": "^6.0.0-alpha.0"

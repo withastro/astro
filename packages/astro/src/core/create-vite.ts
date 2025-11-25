@@ -149,7 +149,7 @@ export async function createVite(
 			exclude: ['astro', 'node-fetch'],
 		},
 		plugins: [
-			serializedManifestPlugin({ settings, command }),
+			serializedManifestPlugin({ settings, command, sync }),
 			vitePluginRenderers({ settings }),
 			await astroPluginRoutes({ routesList, settings, logger, fsMod: fs }),
 			astroVirtualManifestPlugin(),

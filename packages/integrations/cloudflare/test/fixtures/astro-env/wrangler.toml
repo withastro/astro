@@ -1,4 +1,5 @@
 name = "astro-env"
+main = "@astrojs/cloudflare/entrypoints/server"
 
 [vars]
 API_URL = "https://google.de"
