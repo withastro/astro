@@ -24,7 +24,6 @@ describe('ExternalImageService', () => {
 			absolute: true,
 			flush: true,
 		});
-		console.log(files);
 		const outFileToCheck = readFileSync(files[0], 'utf-8');
 		assert.equal(outFileToCheck.includes('cdn-cgi/image'), true);
 	});

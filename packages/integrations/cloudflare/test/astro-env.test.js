@@ -77,7 +77,6 @@ describe(
 			it('runtime', async () => {
 				const res = await fixture.fetch('/');
 				const html = await res.text();
-				console.log(html);
 				const $ = cheerio.load(html);
 				assert.equal(
 					$('#runtime').text().includes('https://google.de') &&
