@@ -19,9 +19,7 @@ type ModuleType = 'CompiledWasm' | 'Text' | 'Data';
  * @param enabled - if true, will load all cloudflare pages supported types
  * @returns Vite plugin with additional extension method to hook into astro build
  */
-export function cloudflareModuleLoader(
-	enabled: boolean,
-): PluginOption {
+export function cloudflareModuleLoader(enabled: boolean): PluginOption {
 	/**
 	 * It's likely that eventually cloudflare will add support for custom extensions, like they do in vanilla cloudflare workers,
 	 * by adding rules to your wrangler.tome

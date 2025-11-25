@@ -1,4 +1,5 @@
 name = "test"
+main = "@astrojs/cloudflare/entrypoints/server"
 
 kv_namespaces = [
     { binding = "KV", id = "<YOUR_ID>", preview_id = "<YOUR_ID>" },

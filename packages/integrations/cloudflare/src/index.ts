@@ -1,4 +1,4 @@
-import { createReadStream } from 'node:fs';
+import { createReadStream, existsSync, writeFileSync } from 'node:fs';
 import { appendFile, stat } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline/promises';
@@ -9,7 +9,7 @@ import {
 	removeLeadingForwardSlash,
 } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
-import { cloudflare as cfVitePlugin } from '@cloudflare/vite-plugin';
+import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import type {
 	AstroConfig,
 	AstroIntegration,
@@ -20,9 +20,7 @@ import { AstroError } from 'astro/errors';
 import type { PluginOption } from 'vite';
 import { defaultClientConditions } from 'vite';
 import { type GetPlatformProxyOptions, getPlatformProxy } from 'wrangler';
-import {
-	cloudflareModuleLoader,
-} from './utils/cloudflare-module-loader.js';
+import { cloudflareModuleLoader } from './utils/cloudflare-module-loader.js';
 import { createGetEnv } from './utils/env.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { type ImageService, setImageConfig } from './utils/image-config.js';
@@ -179,6 +177,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				logger,
 				addWatchFile,
 				addMiddleware,
+				createCodegenDir,
 			}) => {
 				let session = config.session;
 
@@ -210,6 +209,13 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						},
 					};
 				}
+				const cfPluginConfig: PluginConfig = { viteEnvironment: { name: 'ssr' } };
+				if (!hasWranglerConfig(config.root)) {
+					const codegenDir = createCodegenDir();
+					const cachedFile = new URL('wrangler.json', codegenDir);
+					writeFileSync(cachedFile, wranglerTemplate(), 'utf-8');
+					cfPluginConfig.configPath = cachedFile.pathname;
+				}
 
 				updateConfig({
 					build: {
@@ -221,7 +227,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					session,
 					vite: {
 						plugins: [
-							cfVitePlugin({ viteEnvironment: { name: 'ssr' } }),
+							cfVitePlugin(cfPluginConfig),
 							// https://developers.cloudflare.com/pages/functions/module-support/
 							// Allows imports of '.wasm', '.bin', and '.txt' file types
 							cloudflareModulePlugin,
@@ -254,6 +260,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					},
 					image: setImageConfig(args?.imageService ?? 'compile', config.image, command, logger),
 				});
+
 				if (args?.platformProxy?.configPath) {
 					addWatchFile(new URL(args.platformProxy.configPath, config.root));
 				} else {
@@ -261,6 +268,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					addWatchFile(new URL('./wrangler.json', config.root));
 					addWatchFile(new URL('./wrangler.jsonc', config.root));
 				}
+
 				addMiddleware({
 					entrypoint: '@astrojs/cloudflare/entrypoints/middleware.js',
 					order: 'pre',
@@ -477,4 +485,36 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			},
 		},
 	};
+}
+
+function hasWranglerConfig(root: URL) {
+	return (
+		existsSync(new URL('wrangler.jsonc', root)) ||
+		existsSync(new URL('wranger.toml', root)) ||
+		existsSync(new URL('wranger.json', root))
+	);
+}
+
+function wranglerTemplate(): string {
+	const wrangler = {
+		// TODO: better way to handle name, maybe package.json#name ?
+		name: 'test-application',
+		compatibility_date: '2024-11-01',
+		main: '@astrojs/cloudflare/entrypoints/server',
+		assets: {
+			directory: './dist',
+			binding: 'ASSETS',
+		},
+		images: {
+			binding: 'IMAGES',
+		},
+		kv_namespaces: [
+			{
+				binding: 'SESSION',
+				id: 'SESSION',
+			},
+		],
+	};
+
+	return JSON.stringify(wrangler, null, 2);
 }

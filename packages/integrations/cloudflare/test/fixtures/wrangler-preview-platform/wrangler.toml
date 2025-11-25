@@ -1,4 +1,5 @@
 name = "test"
+main = "@astrojs/cloudflare/entrypoint/server"
 
 [vars]
 COOL = "ME"
