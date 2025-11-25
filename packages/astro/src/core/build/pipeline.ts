@@ -206,7 +206,6 @@ export class BuildPipeline extends Pipeline {
 			if (route.component === defaultRoute.component) {
 				return {
 					page: () => Promise.resolve(defaultRoute.instance),
-					renderers: [],
 				};
 			}
 		}
