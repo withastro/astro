@@ -1,19 +1,14 @@
-import type {
-	ErrorHandler,
-	RemoteFontProviderModResolver,
-	RemoteFontProviderResolver,
-} from '../definitions.js';
+import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
+import type { RemoteFontProviderModResolver, RemoteFontProviderResolver } from '../definitions.js';
 import type { ResolvedFontProvider } from '../types.js';
 import { resolveEntrypoint } from '../utils.js';
 
 function validateMod({
 	mod,
 	entrypoint,
-	errorHandler,
 }: {
 	mod: any;
 	entrypoint: string;
-	errorHandler: ErrorHandler;
 }): Pick<ResolvedFontProvider, 'provider'> {
 	// We do not throw astro errors directly to avoid duplication. Instead, we throw an error to be used as cause
 	try {
@@ -29,24 +24,22 @@ function validateMod({
 			provider: mod.provider,
 		};
 	} catch (cause) {
-		throw errorHandler.handle({
-			type: 'cannot-load-font-provider',
-			data: {
-				entrypoint,
+		throw new AstroError(
+			{
+				...AstroErrorData.CannotLoadFontProvider,
+				message: AstroErrorData.CannotLoadFontProvider.message(entrypoint),
 			},
-			cause,
-		});
+			{ cause },
+		);
 	}
 }
 
 export function createRemoteFontProviderResolver({
 	root,
 	modResolver,
-	errorHandler,
 }: {
 	root: URL;
 	modResolver: RemoteFontProviderModResolver;
-	errorHandler: ErrorHandler;
 }): RemoteFontProviderResolver {
 	return {
 		async resolve({ entrypoint, config }) {
@@ -55,7 +48,6 @@ export function createRemoteFontProviderResolver({
 			const { provider } = validateMod({
 				mod,
 				entrypoint: id,
-				errorHandler,
 			});
 			return { config, provider };
 		},

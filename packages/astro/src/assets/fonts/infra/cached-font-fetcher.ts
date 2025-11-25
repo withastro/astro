@@ -1,16 +1,15 @@
 import { isAbsolute } from 'node:path';
 import type { Storage } from 'unstorage';
-import type { ErrorHandler, FontFetcher } from '../definitions.js';
+import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
+import type { FontFetcher } from '../definitions.js';
 import { cache } from '../utils.js';
 
 export function createCachedFontFetcher({
 	storage,
-	errorHandler,
 	fetch,
 	readFile,
 }: {
 	storage: Storage;
-	errorHandler: ErrorHandler;
 	fetch: (url: string, init?: RequestInit) => Promise<Response>;
 	readFile: (url: string) => Promise<Buffer>;
 }): FontFetcher {
@@ -27,11 +26,13 @@ export function createCachedFontFetcher({
 					}
 					return Buffer.from(await response.arrayBuffer());
 				} catch (cause) {
-					throw errorHandler.handle({
-						type: 'cannot-fetch-font-file',
-						data: { url },
-						cause,
-					});
+					throw new AstroError(
+						{
+							...AstroErrorData.CannotFetchFontFile,
+							message: AstroErrorData.CannotFetchFontFile.message(url),
+						},
+						{ cause },
+					);
 				}
 			});
 		},
