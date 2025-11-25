@@ -336,7 +336,19 @@ if (i18n?.routing === 'manual') {
 }
 
 type OnlyObject<T> = T extends object ? T : never;
-type NewAstroRoutingConfigWithoutManual = OnlyObject<NonNullable<AstroConfig['i18n']>['routing']>;
+
+export type I18nMiddlewareOptions = {
+	fallbackType: OnlyObject<NonNullable<AstroConfig['i18n']>['routing']>['fallbackType'];
+} & (
+	| {
+			prefixDefaultLocale: false;
+			redirectToDefaultLocale: false;
+	  }
+	| {
+			prefixDefaultLocale: true;
+			redirectToDefaultLocale: boolean;
+	  }
+);
 
 /**
  * @param {AstroConfig['i18n']['routing']} customOptions
@@ -368,10 +380,10 @@ type NewAstroRoutingConfigWithoutManual = OnlyObject<NonNullable<AstroConfig['i1
  *
  * ```
  */
-export let middleware: (customOptions: NewAstroRoutingConfigWithoutManual) => MiddlewareHandler;
+export let middleware: (customOptions: I18nMiddlewareOptions) => MiddlewareHandler;
 
 if (i18n?.routing === 'manual') {
-	middleware = (customOptions: NewAstroRoutingConfigWithoutManual) => {
+	middleware = (customOptions) => {
 		strategy = toRoutingStrategy(customOptions, {});
 		fallbackType = toFallbackType(customOptions);
 		const manifest: SSRManifest['i18n'] = {
