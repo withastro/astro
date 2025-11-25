@@ -8,16 +8,8 @@ import { loadFixture } from '../../astro/test/test-utils.js';
 import { clearEnvironment, initializeRemoteDb } from './test-utils.js';
 
 describe('astro:db local database', () => {
-	let fixture;
-	before(async () => {
-		fixture = await loadFixture({
-			root: new URL('./fixtures/libsql-remote/', import.meta.url),
-			output: 'server',
-			adapter: testAdapter(),
-		});
-	});
-
 	describe('build --remote with local libSQL file (absolute path)', () => {
+		let fixture;
 		before(async () => {
 			clearEnvironment();
 
@@ -27,6 +19,15 @@ describe('astro:db local database', () => {
 
 			process.env.ASTRO_INTERNAL_TEST_REMOTE = true;
 			process.env.ASTRO_DB_REMOTE_URL = absoluteFileUrl.toString();
+
+			const root = new URL('./fixtures/libsql-remote/', import.meta.url);
+			fixture = await loadFixture({
+				root,
+				outDir: fileURLToPath(new URL('./dist/absolute/', root)),
+				output: 'server',
+				adapter: testAdapter(),
+			});
+
 			await fixture.build();
 			await initializeRemoteDb(fixture.config);
 		});
@@ -45,6 +46,7 @@ describe('astro:db local database', () => {
 	});
 
 	describe('build --remote with local libSQL file (relative path)', () => {
+		let fixture;
 		before(async () => {
 			clearEnvironment();
 
@@ -56,6 +58,15 @@ describe('astro:db local database', () => {
 
 			process.env.ASTRO_INTERNAL_TEST_REMOTE = true;
 			process.env.ASTRO_DB_REMOTE_URL = `file:${prodDbPath}`;
+
+			const root = new URL('./fixtures/libsql-remote/', import.meta.url);
+			fixture = await loadFixture({
+				root,
+				outDir: fileURLToPath(new URL('./dist/relative/', root)),
+				output: 'server',
+				adapter: testAdapter(),
+			});
+
 			await fixture.build();
 			await initializeRemoteDb(fixture.config);
 		});
