@@ -5,36 +5,29 @@ import { fileURLToPath } from 'node:url';
 import { defineFontProvider } from 'unifont';
 import { joinPaths } from '../../../../../internal-helpers/dist/path.js';
 import { DEFAULTS } from '../../../../dist/assets/fonts/constants.js';
-import { createMinifiableCssRenderer } from '../../../../dist/assets/fonts/infra/css-renderer.js';
+import { createMinifiableCssRenderer } from '../../../../dist/assets/fonts/infra/minifiable-css-renderer.js';
 import { createDataCollector } from '../../../../dist/assets/fonts/infra/data-collector.js';
-import { createFontaceFontFileReader } from '../../../../dist/assets/fonts/infra/font-file-reader.js';
+import { createFontaceFontFileReader } from '../../../../dist/assets/fonts/infra/fontace-font-file-reader.js';
 import { createFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
 import { createLevenshteinStringMatcher } from '../../../../dist/assets/fonts/infra/levenshtein-string-matcher.js';
-import { createRequireLocalProviderUrlResolver } from '../../../../dist/assets/fonts/infra/local-provider-url-resolver.js';
-import { createBuildRemoteFontProviderModResolver } from '../../../../dist/assets/fonts/infra/remote-font-provider-mod-resolver.js';
+import { createRequireLocalProviderUrlResolver } from '../../../../dist/assets/fonts/infra/require-local-provider-url-resolver.js';
+import { createBuildRemoteFontProviderModResolver } from '../../../../dist/assets/fonts/infra/build-remote-font-provider-mod-resolver.js';
 import { createRemoteFontProviderResolver } from '../../../../dist/assets/fonts/infra/remote-font-provider-resolver.js';
 import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/infra/system-fallbacks-provider.js';
 import { createUrlProxy } from '../../../../dist/assets/fonts/infra/url-proxy.js';
 import { createRemoteUrlProxyContentResolver } from '../../../../dist/assets/fonts/infra/url-proxy-content-resolver.js';
-import { createBuildUrlProxyHashResolver } from '../../../../dist/assets/fonts/infra/url-proxy-hash-resolver.js';
-import { createDevUrlResolver } from '../../../../dist/assets/fonts/infra/url-resolver.js';
+import { createBuildUrlProxyHashResolver } from '../../../../dist/assets/fonts/infra/build-url-proxy-hash-resolver.js';
+import { createDevUrlResolver } from '../../../../dist/assets/fonts/infra/dev-url-resolver.js';
 import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
 import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
 import { createSpyLogger, defaultLogger } from '../../test-utils.js';
-import {
-	createSpyStorage,
-	fakeFontMetricsResolver,
-	fakeHasher,
-	markdownBold,
-	simpleErrorHandler,
-} from './utils.js';
+import { createSpyStorage, fakeFontMetricsResolver, fakeHasher, markdownBold } from './utils.js';
 
 describe('fonts orchestrate()', () => {
 	it('works with local fonts', async () => {
 		const root = new URL(import.meta.url);
 		const { storage } = createSpyStorage();
-		const errorHandler = simpleErrorHandler;
-		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
+		const fontTypeExtractor = createFontTypeExtractor();
 		const hasher = fakeHasher;
 		const { fontFileDataMap, internalConsumableMap, consumableMap } = await orchestrate({
 			families: [
@@ -54,7 +47,6 @@ describe('fonts orchestrate()', () => {
 			hasher,
 			remoteFontProviderResolver: createRemoteFontProviderResolver({
 				root,
-				errorHandler,
 				modResolver: createBuildRemoteFontProviderModResolver(),
 			}),
 			localProviderUrlResolver: createRequireLocalProviderUrlResolver({ root }),
@@ -63,7 +55,7 @@ describe('fonts orchestrate()', () => {
 			systemFallbacksProvider: createSystemFallbacksProvider(),
 			fontMetricsResolver: fakeFontMetricsResolver,
 			fontTypeExtractor,
-			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			fontFileReader: createFontaceFontFileReader(),
 			logger: defaultLogger,
 			createUrlProxy: ({ local, cssVariable, ...params }) => {
 				const dataCollector = createDataCollector(params);
@@ -168,8 +160,7 @@ describe('fonts orchestrate()', () => {
 
 		const root = new URL(import.meta.url);
 		const { storage } = createSpyStorage();
-		const errorHandler = simpleErrorHandler;
-		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
+		const fontTypeExtractor = createFontTypeExtractor();
 		const hasher = fakeHasher;
 		const { fontFileDataMap, internalConsumableMap, consumableMap } = await orchestrate({
 			families: [
@@ -183,7 +174,6 @@ describe('fonts orchestrate()', () => {
 			hasher,
 			remoteFontProviderResolver: createRemoteFontProviderResolver({
 				root,
-				errorHandler,
 				modResolver: {
 					resolve: async () => ({
 						provider: fakeUnifontProvider,
@@ -196,7 +186,7 @@ describe('fonts orchestrate()', () => {
 			systemFallbacksProvider: createSystemFallbacksProvider(),
 			fontMetricsResolver: fakeFontMetricsResolver,
 			fontTypeExtractor,
-			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			fontFileReader: createFontaceFontFileReader(),
 			logger: defaultLogger,
 			createUrlProxy: ({ local, cssVariable, ...params }) => {
 				const dataCollector = createDataCollector(params);
@@ -289,8 +279,7 @@ describe('fonts orchestrate()', () => {
 
 		const root = new URL(import.meta.url);
 		const { storage } = createSpyStorage();
-		const errorHandler = simpleErrorHandler;
-		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
+		const fontTypeExtractor = createFontTypeExtractor();
 		const hasher = fakeHasher;
 		const { logs, logger } = createSpyLogger();
 
@@ -306,7 +295,6 @@ describe('fonts orchestrate()', () => {
 			hasher,
 			remoteFontProviderResolver: createRemoteFontProviderResolver({
 				root,
-				errorHandler,
 				modResolver: {
 					resolve: async () => ({
 						provider: fakeUnifontProvider,
@@ -319,7 +307,7 @@ describe('fonts orchestrate()', () => {
 			systemFallbacksProvider: createSystemFallbacksProvider(),
 			fontMetricsResolver: fakeFontMetricsResolver,
 			fontTypeExtractor,
-			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			fontFileReader: createFontaceFontFileReader(),
 			logger,
 			createUrlProxy: ({ local, cssVariable, ...params }) => {
 				const dataCollector = createDataCollector(params);
@@ -363,8 +351,7 @@ describe('fonts orchestrate()', () => {
 
 		const root = new URL(import.meta.url);
 		const { storage } = createSpyStorage();
-		const errorHandler = simpleErrorHandler;
-		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
+		const fontTypeExtractor = createFontTypeExtractor();
 		const hasher = fakeHasher;
 		const { logs, logger } = createSpyLogger();
 
@@ -380,7 +367,6 @@ describe('fonts orchestrate()', () => {
 			hasher,
 			remoteFontProviderResolver: createRemoteFontProviderResolver({
 				root,
-				errorHandler,
 				modResolver: {
 					resolve: async () => ({
 						provider: fakeUnifontProvider,
@@ -393,7 +379,7 @@ describe('fonts orchestrate()', () => {
 			systemFallbacksProvider: createSystemFallbacksProvider(),
 			fontMetricsResolver: fakeFontMetricsResolver,
 			fontTypeExtractor,
-			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			fontFileReader: createFontaceFontFileReader(),
 			logger,
 			createUrlProxy: ({ local, cssVariable, ...params }) => {
 				const dataCollector = createDataCollector(params);
@@ -451,8 +437,7 @@ describe('fonts orchestrate()', () => {
 
 		const root = new URL(import.meta.url);
 		const { storage } = createSpyStorage();
-		const errorHandler = simpleErrorHandler;
-		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
+		const fontTypeExtractor = createFontTypeExtractor();
 		const hasher = fakeHasher;
 		const { logs, logger } = createSpyLogger();
 
@@ -474,7 +459,6 @@ describe('fonts orchestrate()', () => {
 			hasher,
 			remoteFontProviderResolver: createRemoteFontProviderResolver({
 				root,
-				errorHandler,
 				modResolver: {
 					resolve: async () => ({
 						provider: fakeUnifontProvider,
@@ -487,7 +471,7 @@ describe('fonts orchestrate()', () => {
 			systemFallbacksProvider: createSystemFallbacksProvider(),
 			fontMetricsResolver: fakeFontMetricsResolver,
 			fontTypeExtractor,
-			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			fontFileReader: createFontaceFontFileReader(),
 			logger,
 			createUrlProxy: ({ local, cssVariable, ...params }) => {
 				const dataCollector = createDataCollector(params);
@@ -546,8 +530,7 @@ describe('fonts orchestrate()', () => {
 
 		const root = new URL(import.meta.url);
 		const { storage } = createSpyStorage();
-		const errorHandler = simpleErrorHandler;
-		const fontTypeExtractor = createFontTypeExtractor({ errorHandler });
+		const fontTypeExtractor = createFontTypeExtractor();
 		const hasher = fakeHasher;
 		const { logs, logger } = createSpyLogger();
 
@@ -569,7 +552,6 @@ describe('fonts orchestrate()', () => {
 			hasher,
 			remoteFontProviderResolver: createRemoteFontProviderResolver({
 				root,
-				errorHandler,
 				modResolver: {
 					resolve: async () => ({
 						provider: fakeUnifontProvider,
@@ -582,7 +564,7 @@ describe('fonts orchestrate()', () => {
 			systemFallbacksProvider: createSystemFallbacksProvider(),
 			fontMetricsResolver: fakeFontMetricsResolver,
 			fontTypeExtractor,
-			fontFileReader: createFontaceFontFileReader({ errorHandler }),
+			fontFileReader: createFontaceFontFileReader(),
 			logger,
 			createUrlProxy: ({ local, cssVariable, ...params }) => {
 				const dataCollector = createDataCollector(params);
