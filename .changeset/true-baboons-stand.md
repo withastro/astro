@@ -1,5 +1,5 @@
 ---
-'@astrojs/netlify': minor
+'@astrojs/netlify': patch
 ---
 
-allow turning the local Netlify Image CDN on/off in dev
+Fixes a case where disabling the local image CDN wasn't possible
