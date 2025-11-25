@@ -1,6 +1,14 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { createBuildUrlProxyHashResolver } from '../../../../dist/assets/fonts/infra/build-url-proxy-hash-resolver.js';
+import { createBuildUrlResolver } from '../../../../dist/assets/fonts/infra/build-url-resolver.js';
+import { createCachedFontFetcher } from '../../../../dist/assets/fonts/infra/cached-font-fetcher.js';
+import { createCapsizeFontMetricsResolver } from '../../../../dist/assets/fonts/infra/capsize-font-metrics-resolver.js';
+import { createDataCollector } from '../../../../dist/assets/fonts/infra/data-collector.js';
+import { createDevUrlProxyHashResolver } from '../../../../dist/assets/fonts/infra/dev-url-proxy-hash-resolver.js';
+import { createDevUrlResolver } from '../../../../dist/assets/fonts/infra/dev-url-resolver.js';
+import { createFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
 import {
 	createMinifiableCssRenderer,
 	handleValueWithSpaces,
@@ -8,14 +16,6 @@ import {
 	renderFontFace,
 	withFamily,
 } from '../../../../dist/assets/fonts/infra/minifiable-css-renderer.js';
-import { createDataCollector } from '../../../../dist/assets/fonts/infra/data-collector.js';
-import { createCachedFontFetcher } from '../../../../dist/assets/fonts/infra/cached-font-fetcher.js';
-import { createCapsizeFontMetricsResolver } from '../../../../dist/assets/fonts/infra/capsize-font-metrics-resolver.js';
-import { createFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
-import { createBuildUrlProxyHashResolver } from '../../../../dist/assets/fonts/infra/build-url-proxy-hash-resolver.js';
-import { createDevUrlProxyHashResolver } from '../../../../dist/assets/fonts/infra/dev-url-proxy-hash-resolver.js';
-import { createBuildUrlResolver } from '../../../../dist/assets/fonts/infra/build-url-resolver.js';
-import { createDevUrlResolver } from '../../../../dist/assets/fonts/infra/dev-url-resolver.js';
 import { createSpyStorage, fakeHasher } from './utils.js';
 
 describe('fonts infra', () => {

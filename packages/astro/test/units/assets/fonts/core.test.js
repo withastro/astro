@@ -8,11 +8,7 @@ import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-f
 import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-families.js';
 import { createFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
 import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/infra/system-fallbacks-provider.js';
-import {
-	createSpyUrlProxy,
-	fakeFontMetricsResolver,
-	fakeHasher,
-} from './utils.js';
+import { createSpyUrlProxy, fakeFontMetricsResolver, fakeHasher } from './utils.js';
 
 describe('fonts core', () => {
 	describe('resolveFamily()', () => {
