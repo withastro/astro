@@ -607,25 +607,28 @@ export default function netlifyIntegration(
 					};
 				}
 
-				const features = integrationConfig?.devFeatures;
+				const features =
+					typeof integrationConfig?.devFeatures === 'boolean'
+						? {
+								images: integrationConfig.devFeatures,
+								environmentVariables: integrationConfig.devFeatures,
+							}
+						: {
+								images: integrationConfig?.devFeatures?.images ?? true,
+								environmentVariables: integrationConfig?.devFeatures?.environmentVariables ?? false,
+							};
 
 				const vitePluginOptions: NetlifyPluginOptions = {
 					images: {
 						// If features is an object, use the `images` property
 						// Otherwise, use the boolean value of `features`, defaulting to true
-						enabled:
-							typeof features === "object"
-								? features.images ?? true
-								: features === true || features === undefined,
+						enabled: features.images,
 						remoteURLPatterns: remoteImagesFromAstroConfig(config, logger),
 					},
 					environmentVariables: {
 						// If features is an object, use the `environmentVariables` property
 						// Otherwise, use the boolean value of `features`, defaulting to false
-						enabled:
-							typeof features === 'object'
-								? (features.environmentVariables ?? false)
-								: features === true,
+						enabled: features.environmentVariables,
 					},
 				};
 
