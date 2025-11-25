@@ -25,6 +25,7 @@ export async function logListeningOn(
 	if (host === undefined || wildcardHosts.has(host)) {
 		const message = `Server listening on \n  local: ${address.local[0]} \t\n  network: ${address.network[0]}\n`;
 		if (useDirectLogging) {
+			// biome-ignore lint/suspicious/noConsole: allowed
 			console.log(message);
 		} else {
 			logger.info(message);
@@ -32,6 +33,7 @@ export async function logListeningOn(
 	} else {
 		const message = `Server listening on ${address.local[0]}`;
 		if (useDirectLogging) {
+			// biome-ignore lint/suspicious/noConsole: allowed
 			console.log(message);
 		} else {
 			logger.info(message);
