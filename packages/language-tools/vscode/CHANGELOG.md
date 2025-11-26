@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- [#14584](https://github.com/withastro/astro/pull/14584) [`3c7ab17`](https://github.com/withastro/astro/commit/3c7ab178da26d095777495bcee94b468937936a3) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a new setting for disabling the Auto Import Cache. The cache can cause an issue where new files are not able to be automatically imported using autocomplete in certain cases. Check https://github.com/withastro/language-tools/issues/1035 for more details.
+- [#14584](https://github.com/withastro/astro/pull/14584) [`3c7ab17`](https://github.com/withastro/astro/commit/3c7ab178da26d095777495bcee94b468937936a3) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a new setting for disabling the Auto Import Cache. The cache can cause an issue where new files are not able to be automatically imported using autocomplete in certain cases. Check https://github.com/withastro/astro/issues/14642 for more details.
 
 ## 2.15.5
 
@@ -29,7 +29,7 @@
 
 ### Patch Changes
 
-- 43f66cd: Fixes publishing on OpenVSX. For full changelogs between 2.11.0 and this version, please see [CHANGELOG.md](https://github.com/withastro/language-tools/blob/main/packages/vscode/CHANGELOG.md) in the repository.
+- 43f66cd: Fixes publishing on OpenVSX. For full changelogs between 2.11.0 and this version, please see [CHANGELOG.md](https://github.com/withastro/astro/blob/main/packages/language-tools/vscode/CHANGELOG.md) in the repository.
 
 ## 2.15.1
 
