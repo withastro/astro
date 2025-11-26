@@ -157,19 +157,19 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			});
 		}
 		case 'create-key': {
-			const [{ createCryptoKeyGenerator }, { createKeyCommand }] = await Promise.all([
+			const [{ CryptoKeyGenerator }, { createKeyCommand }] = await Promise.all([
 				import('./create-key/infra/crypto-key-generator.js'),
 				import('./create-key/core/create-key.js'),
 			]);
 
-			const keyGenerator = createCryptoKeyGenerator();
+			const keyGenerator = new CryptoKeyGenerator();
 			return await runner.run(createKeyCommand, { logger, keyGenerator });
 		}
 		case 'docs': {
 			const [
 				{ createTinyexecCommandExecutor },
 				{ createProcessOperatingSystemProvider },
-				{ createProcessCloudIdeProvider },
+				{ ProcessCloudIdeProvider },
 				{ openDocsCommand },
 			] = await Promise.all([
 				import('./infra/tinyexec-command-executor.js'),
@@ -179,7 +179,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			]);
 			const commandExecutor = createTinyexecCommandExecutor();
 			const operatingSystemProvider = createProcessOperatingSystemProvider();
-			const cloudIdeProvider = createProcessCloudIdeProvider();
+			const cloudIdeProvider = new ProcessCloudIdeProvider();
 
 			return await runner.run(openDocsCommand, {
 				url: 'https://docs.astro.build/',
