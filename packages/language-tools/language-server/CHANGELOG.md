@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 2.16.1
+
+### Patch Changes
+
+- [#14740](https://github.com/withastro/astro/pull/14740) [`abfed97`](https://github.com/withastro/astro/commit/abfed97d45ab04c625d6463f9be1e5b1d23c3573) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes link targets in documentation following repository relocation.
+
 ## 2.16.0
 
 ### Minor Changes

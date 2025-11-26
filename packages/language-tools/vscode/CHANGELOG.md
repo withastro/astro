@@ -1,5 +1,13 @@
 # astro-vscode
 
+## 2.16.1
+
+### Patch Changes
+
+- [#14740](https://github.com/withastro/astro/pull/14740) [`abfed97`](https://github.com/withastro/astro/commit/abfed97d45ab04c625d6463f9be1e5b1d23c3573) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes link targets in documentation following repository relocation.
+
+- [#14710](https://github.com/withastro/astro/pull/14710) [`c6903cd`](https://github.com/withastro/astro/commit/c6903cd6ce20e17d6604ea3412bd66ea8387d079) Thanks [@RomanHauksson](https://github.com/RomanHauksson)! - Fixes the displayed description for the Content-intellisense setting to refer to the correct configuration file option
+
 ## 2.16.0
 
 ### Minor Changes
