@@ -1,5 +1,8 @@
 import type { SSRManifest } from '../core/app/types.js';
-import { IncorrectStrategyForI18n } from '../core/errors/errors-data.js';
+import {
+	IncorrectStrategyForI18n,
+	InvalidI18nMiddlewareConfiguration,
+} from '../core/errors/errors-data.js';
 import { AstroError } from '../core/errors/index.js';
 import type { RedirectToFallback } from '../i18n/index.js';
 import * as I18nInternals from '../i18n/index.js';
@@ -384,6 +387,13 @@ export let middleware: (customOptions: I18nMiddlewareOptions) => MiddlewareHandl
 
 if (i18n?.routing === 'manual') {
 	middleware = (customOptions) => {
+		if (
+			customOptions.prefixDefaultLocale === false &&
+			// @ts-expect-error types do not allow this but we also check at runtime
+			customOptions.redirectToDefaultLocale === true
+		) {
+			throw new AstroError(InvalidI18nMiddlewareConfiguration);
+		}
 		strategy = toRoutingStrategy(customOptions, {});
 		fallbackType = toFallbackType(customOptions);
 		const manifest: SSRManifest['i18n'] = {
