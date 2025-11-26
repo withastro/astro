@@ -21,6 +21,7 @@ describe('AstroDevPlatform', () => {
 	it('exists', async () => {
 		const res = await fixture.fetch('/');
 		const html = await res.text();
+		console.log("HTML", html);
 		const $ = cheerio.load(html);
 		assert.equal($('#hasRuntime').text().includes('true'), true);
 	});
