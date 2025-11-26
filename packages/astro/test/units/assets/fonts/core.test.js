@@ -8,12 +8,7 @@ import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-f
 import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-families.js';
 import { createFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
 import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/infra/system-fallbacks-provider.js';
-import {
-	createSpyUrlProxy,
-	fakeFontMetricsResolver,
-	fakeHasher,
-	simpleErrorHandler,
-} from './utils.js';
+import { createSpyUrlProxy, fakeFontMetricsResolver, fakeHasher } from './utils.js';
 
 describe('fonts core', () => {
 	describe('resolveFamily()', () => {
@@ -347,7 +342,7 @@ describe('fonts core', () => {
 				normalizeRemoteFontFaces({
 					fonts: [],
 					urlProxy,
-					fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+					fontTypeExtractor: createFontTypeExtractor(),
 				}).length,
 				0,
 			);
@@ -380,7 +375,7 @@ describe('fonts core', () => {
 						},
 					],
 					urlProxy,
-					fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+					fontTypeExtractor: createFontTypeExtractor(),
 				}).length,
 				5,
 			);
@@ -405,7 +400,7 @@ describe('fonts core', () => {
 						src: [{ url: '/2', format: 'woff2' }],
 					},
 				],
-				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+				fontTypeExtractor: createFontTypeExtractor(),
 			});
 			assert.deepStrictEqual(collected, [
 				{
@@ -456,7 +451,7 @@ describe('fonts core', () => {
 						],
 					},
 				],
-				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+				fontTypeExtractor: createFontTypeExtractor(),
 			});
 			assert.deepStrictEqual(collected, [
 				{
@@ -506,7 +501,7 @@ describe('fonts core', () => {
 						src: [{ url: '/2', format: 'woff2' }, { name: 'Foo' }, { url: '/also-ignored.ttf' }],
 					},
 				],
-				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+				fontTypeExtractor: createFontTypeExtractor(),
 			});
 			assert.deepStrictEqual(fonts, [
 				{
@@ -589,7 +584,7 @@ describe('fonts core', () => {
 						src: [{ url: '//example.com/font.woff2' }, { url: 'http://example.com/font.woff' }],
 					},
 				],
-				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+				fontTypeExtractor: createFontTypeExtractor(),
 			});
 
 			assert.deepStrictEqual(fonts, [

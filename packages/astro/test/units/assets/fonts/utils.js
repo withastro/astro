@@ -41,13 +41,6 @@ export function createSpyStorage() {
 	return { storage, store };
 }
 
-/** @type {import('../../../../dist/assets/fonts/definitions').ErrorHandler} */
-export const simpleErrorHandler = {
-	handle(input) {
-		return new Error(input.type, { cause: input.cause });
-	},
-};
-
 /** @type {import('../../../../dist/assets/fonts/definitions').Hasher} */
 export const fakeHasher = {
 	hashString: (input) => input,
