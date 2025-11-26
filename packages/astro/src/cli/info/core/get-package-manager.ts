@@ -10,12 +10,11 @@ export async function getPackageManager({
 	packageManagerUserAgentProvider,
 	commandExecutor,
 }: Options): Promise<PackageManager> {
-	const userAgent = packageManagerUserAgentProvider.getUserAgent();
-	if (!userAgent) {
+	if (!packageManagerUserAgentProvider.userAgent) {
 		const { NoopPackageManager } = await import('../infra/noop-package-manager.js');
 		return new NoopPackageManager();
 	}
-	const specifier = userAgent.split(' ')[0];
+	const specifier = packageManagerUserAgentProvider.userAgent.split(' ')[0];
 	const _name = specifier.substring(0, specifier.lastIndexOf('/'));
 	const name = _name === 'npminstall' ? 'cnpm' : _name;
 

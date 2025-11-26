@@ -27,9 +27,9 @@ export interface Prompt {
 }
 
 export interface PackageManagerUserAgentProvider {
-	getUserAgent: () => string | null;
+	readonly userAgent: string | null;
 }
 
 export interface NodeVersionProvider {
-	get: () => string;
+	readonly version: string;
 }
