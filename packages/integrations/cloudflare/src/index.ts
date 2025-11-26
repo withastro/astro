@@ -229,19 +229,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite: {
 						ssr: {
 							optimizeDeps: {
-								include: [
-									'html-escaper',
-									'clsx',
-									'@oslojs/encoding',
-									'zod',
-									'cssesc',
-									'cookie',
-									'devalue',
-									'es-module-lexer',
-									'unstorage',
-									'react',
-									'react-dom/server',
-								],
+								// Disabled to prevent "prebundle" errors on first dev
+								// This can be removed when the issue is resolved with Cloudflare
+								noDiscovery: true,
 							},
 						},
 						plugins: [
