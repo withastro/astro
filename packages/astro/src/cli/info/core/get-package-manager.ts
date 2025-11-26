@@ -33,8 +33,8 @@ export async function getPackageManager({
 			return createYarnPackageManager({ commandExecutor });
 		}
 		case 'bun': {
-			const { BunPackageManager } = await import('../infra/bun-package-manager.js');
-			return new BunPackageManager();
+			const { createBunPackageManager } = await import('../infra/bun-package-manager.js');
+			return createBunPackageManager();
 		}
 		default: {
 			const { createNoopPackageManager } = await import('../infra/noop-package-manager.js');
