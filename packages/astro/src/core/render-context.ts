@@ -8,6 +8,7 @@ import {
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../i18n/utils.js';
+import { validateAndDecodePathname } from './util/pathname.js';
 import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
 import type { ComponentInstance } from '../types/astro.js';
@@ -73,10 +74,19 @@ export class RenderContext {
 	static #createNormalizedUrl(requestUrl: string): URL {
 		const url = new URL(requestUrl);
 		try {
-			url.pathname = decodeURI(url.pathname);
-		} finally {
-			return url;
+			// Decode and validate pathname to prevent multi-level encoding bypass attacks
+			url.pathname = validateAndDecodePathname(url.pathname);
+		} catch {
+			// If validation fails, return URL with pathname as-is
+			// This will be caught elsewhere in the request handling pipeline
+			// For now, just decode without validation to maintain compatibility
+			try {
+				url.pathname = decodeURI(url.pathname);
+			} catch {
+				// If even basic decoding fails, return URL as-is
+			}
 		}
+		return url;
 	}
 
 	/**

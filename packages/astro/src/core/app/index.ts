@@ -7,6 +7,7 @@ import { matchPattern, type RemotePattern } from '../../assets/utils/remotePatte
 import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
+import { validateAndDecodePathname } from '../util/pathname.js';
 import {
 	clientAddressSymbol,
 	DEFAULT_404_COMPONENT,
@@ -319,7 +320,7 @@ export class App {
 		const url = new URL(request.url);
 		const pathname = prependForwardSlash(this.removeBase(url.pathname));
 		try {
-			return decodeURI(pathname);
+			return validateAndDecodePathname(pathname);
 		} catch (e: any) {
 			this.getAdapterLogger().error(e.toString());
 			return pathname;
@@ -342,7 +343,13 @@ export class App {
 		if (!pathname) {
 			pathname = prependForwardSlash(this.removeBase(url.pathname));
 		}
-		let routeData = matchRoute(decodeURI(pathname), this.#manifestData);
+		try {
+			pathname = validateAndDecodePathname(pathname);
+		} catch {
+			// Invalid encoding detected - return no match
+			return undefined;
+		}
+		let routeData = matchRoute(pathname, this.#manifestData);
 
 		if (!routeData) return undefined;
 		if (allowPrerenderedRoutes) {

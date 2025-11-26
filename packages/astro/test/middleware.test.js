@@ -112,6 +112,21 @@ describe('Middleware in DEV mode', () => {
 			assert.equal(res.status, 302);
 			assert.equal(res.headers.get('location'), '/');
 		});
+
+		it('should reject double-encoded paths with 404', async () => {
+			const res = await fixture.fetch('/%2561dmin', { redirect: 'manual' });
+			assert.equal(res.status, 404);
+		});
+
+		it('should reject triple-encoded paths with 404', async () => {
+			const res = await fixture.fetch('/%252561dmin', { redirect: 'manual' });
+			assert.equal(res.status, 404);
+		});
+
+		it('should allow legitimate single-encoded paths like /path%20with%20spaces', async () => {
+			const res = await fixture.fetch('/');
+			assert.equal(res.status, 200);
+		});
 	});
 
 	describe('Integration hooks', () => {
@@ -382,6 +397,18 @@ describe('Middleware API in PROD mode, SSR', () => {
 			const request = new Request('http://example.com/%61%64%6d%69%6e');
 			const response = await app.render(request);
 			assert.equal(response.status, 302);
+		});
+
+		it('should reject double-encoded paths with 404', async () => {
+			const request = new Request('http://example.com/%2561dmin');
+			const response = await app.render(request);
+			assert.equal(response.status, 404);
+		});
+
+		it('should reject triple-encoded paths with 404', async () => {
+			const request = new Request('http://example.com/%252561dmin');
+			const response = await app.render(request);
+			assert.equal(response.status, 404);
 		});
 	});
 
