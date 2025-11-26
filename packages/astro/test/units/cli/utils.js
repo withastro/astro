@@ -14,8 +14,9 @@
 /** @implements {CommandRunner} */
 export class PassthroughCommandRunner {
 	/**
-	 * @param {AnyCommand} command
-	 * @param  {...any} args
+	 * @template {AnyCommand} T
+	 * @param {T} command
+	 * @param  {Parameters<T['run']>} args
 	 */
 	run(command, ...args) {
 		return command.run(...args);
