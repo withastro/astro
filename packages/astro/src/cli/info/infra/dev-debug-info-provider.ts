@@ -27,7 +27,7 @@ export function createDevDebugInfoProvider({
 				['Astro', `v${astroVersionProvider.version}`],
 				['Node', nodeVersionProvider.get()],
 				['System', operatingSystemProvider.displayName],
-				['Package Manager', packageManager.getName()],
+				['Package Manager', packageManager.name],
 				['Output', config.output],
 				['Adapter', config.adapter?.name ?? 'none'],
 			];

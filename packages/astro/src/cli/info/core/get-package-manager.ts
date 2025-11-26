@@ -12,8 +12,8 @@ export async function getPackageManager({
 }: Options): Promise<PackageManager> {
 	const userAgent = packageManagerUserAgentProvider.getUserAgent();
 	if (!userAgent) {
-		const { createNoopPackageManager } = await import('../infra/noop-package-manager.js');
-		return createNoopPackageManager();
+		const { NoopPackageManager } = await import('../infra/noop-package-manager.js');
+		return new NoopPackageManager();
 	}
 	const specifier = userAgent.split(' ')[0];
 	const _name = specifier.substring(0, specifier.lastIndexOf('/'));
@@ -21,24 +21,24 @@ export async function getPackageManager({
 
 	switch (name) {
 		case 'pnpm': {
-			const { createPnpmPackageManager } = await import('../infra/pnpm-package-manager.js');
-			return createPnpmPackageManager({ commandExecutor });
+			const { PnpmPackageManager } = await import('../infra/pnpm-package-manager.js');
+			return new PnpmPackageManager({ commandExecutor });
 		}
 		case 'npm': {
-			const { createNpmPackageManager } = await import('../infra/npm-package-manager.js');
-			return createNpmPackageManager({ commandExecutor });
+			const { NpmPackageManager } = await import('../infra/npm-package-manager.js');
+			return new NpmPackageManager({ commandExecutor });
 		}
 		case 'yarn': {
-			const { createYarnPackageManager } = await import('../infra/yarn-package-manager.js');
-			return createYarnPackageManager({ commandExecutor });
+			const { YarnPackageManager } = await import('../infra/yarn-package-manager.js');
+			return new YarnPackageManager({ commandExecutor });
 		}
 		case 'bun': {
 			const { BunPackageManager } = await import('../infra/bun-package-manager.js');
 			return new BunPackageManager();
 		}
 		default: {
-			const { createNoopPackageManager } = await import('../infra/noop-package-manager.js');
-			return createNoopPackageManager();
+			const { NoopPackageManager } = await import('../infra/noop-package-manager.js');
+			return new NoopPackageManager();
 		}
 	}
 }
