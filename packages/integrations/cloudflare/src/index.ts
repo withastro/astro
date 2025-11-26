@@ -1,4 +1,4 @@
-import { createReadStream, existsSync, writeFileSync } from 'node:fs';
+import { createReadStream, writeFileSync } from 'node:fs';
 import { appendFile, stat } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline/promises';
@@ -25,6 +25,7 @@ import { createGetEnv } from './utils/env.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { type ImageService, setImageConfig } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
+import { hasWranglerConfig, wranglerTemplate } from './wrangler.js';
 
 export type { Runtime } from './utils/handler.js';
 
@@ -299,6 +300,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						edgeMiddleware: false,
 						buildOutput: 'server',
 					},
+					previewEntrypoint: '@astrojs/cloudflare/entrypoints/preview',
 					supportedAstroFeatures: {
 						serverOutput: 'stable',
 						hybridOutput: 'stable',
@@ -485,36 +487,4 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			},
 		},
 	};
-}
-
-function hasWranglerConfig(root: URL) {
-	return (
-		existsSync(new URL('wrangler.jsonc', root)) ||
-		existsSync(new URL('wranger.toml', root)) ||
-		existsSync(new URL('wranger.json', root))
-	);
-}
-
-function wranglerTemplate(): string {
-	const wrangler = {
-		// TODO: better way to handle name, maybe package.json#name ?
-		name: 'test-application',
-		compatibility_date: '2024-11-01',
-		main: '@astrojs/cloudflare/entrypoints/server',
-		assets: {
-			directory: './dist',
-			binding: 'ASSETS',
-		},
-		images: {
-			binding: 'IMAGES',
-		},
-		kv_namespaces: [
-			{
-				binding: 'SESSION',
-				id: 'SESSION',
-			},
-		],
-	};
-
-	return JSON.stringify(wrangler, null, 2);
 }
