@@ -1,5 +1,5 @@
 import * as assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import cloudflare from '../dist/index.js';
 import { loadFixture } from './_test-utils.js';
 
@@ -40,6 +40,10 @@ describe('_routes.json generation', () => {
 			});
 			await fixture.build();
 		});
+		
+		after(async () => {
+			await fixture.clean();
+		})
 
 		it('creates a wildcard `include` and `exclude` only for static assets and redirects', async () => {
 			const _routesJson = await fixture.readFile('/_routes.json');

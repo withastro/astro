@@ -95,7 +95,7 @@ describe('sessions with custom options', () => {
 		await assert.doesNotReject(
 			async () => {
 				fixture = await loadFixture({
-					root,
+					root: './fixtures/sessions/',
 					adapter: cloudflare({}),
 					session: {
 						cookie: 'custom-session',
