@@ -5,7 +5,7 @@ import { loadFixture } from './_test-utils.js';
 
 describe(
 	'CloudflareModuleLoading',
-	{ skip: 'Requires the preview server', todo: 'Enable once the preview server is supported' },
+	{ skip: 'Module loader is not working', todo: 'Make sure that the web assembly loader works' },
 	() => {
 		let fixture;
 		let previewServer;
@@ -18,8 +18,8 @@ describe(
 		});
 
 		after(async () => {
-			await fixture.clean();
 			await previewServer.stop();
+			await fixture.clean();
 		});
 
 		it('can render server side', async () => {

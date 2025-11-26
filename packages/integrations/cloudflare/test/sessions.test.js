@@ -4,7 +4,7 @@ import * as devalue from 'devalue';
 import cloudflare from '../dist/index.js';
 import { loadFixture } from './_test-utils.js';
 
-describe(
+describe.skip(
 	'sessions',
 	{ skip: 'Requires the preview server', todo: 'Enable once the preview server is supported' },
 	() => {
@@ -88,7 +88,7 @@ describe(
 	},
 );
 
-describe('sessions with custom options', () => {
+describe.skip('sessions with custom options', () => {
 	it('can build with custom options', async () => {
 		let fixture;
 

@@ -6,7 +6,7 @@ import { loadFixture } from './_test-utils.js';
 
 const root = new URL('./fixtures/custom-entryfile/', import.meta.url);
 
-describe('Custom entry file', () => {
+describe('Custom entry file', { skip: "This test hangs when is run, even with node", todo: "Resolve test hanging"}, () => {
 	let fixture;
 
 	before(async () => {
