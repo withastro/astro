@@ -27,7 +27,6 @@ describe(
 			const res = await fixture.fetch('/');
 			assert.equal(res.status, 200);
 			const html = await res.text();
-			console.log(html);
 			const $ = cheerio.load(html);
 			assert.equal($('.solid').text(), 'Solid Content');
 		});
