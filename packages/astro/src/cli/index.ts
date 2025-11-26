@@ -57,7 +57,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	const [
 		{ createLoggerFromFlags },
 		{ createPiccoloreTextStyler },
-		{ createBuildTimeAstroVersionProvider },
+		{ BuildTimeAstroVersionProvider },
 		{ createLoggerHelpDisplay },
 		{ createCliCommandRunner },
 	] = await Promise.all([
@@ -69,7 +69,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	]);
 	const logger = createLoggerFromFlags(flags);
 	const textStyler = createPiccoloreTextStyler();
-	const astroVersionProvider = createBuildTimeAstroVersionProvider();
+	const astroVersionProvider = new BuildTimeAstroVersionProvider();
 	const helpDisplay = createLoggerHelpDisplay({
 		logger,
 		flags,
@@ -104,8 +104,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				{ CliDebugInfoProvider },
 				{ createTinyexecCommandExecutor },
 				{ getPackageManager },
-				{ createStyledDebugInfoFormatter },
-				{ createPromptsPrompt },
+				{ StyledDebugInfoFormatter },
+				{ PromptsPrompt },
 				{ CliClipboard },
 				{ createPassthroughTextStyler },
 				{ infoCommand },
@@ -138,7 +138,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				}),
 				nodeVersionProvider,
 			});
-			const prompt = createPromptsPrompt({ force: flags.copy });
+			const prompt = new PromptsPrompt({ force: flags.copy });
 			const clipboard = new CliClipboard({
 				commandExecutor,
 				logger,
@@ -150,7 +150,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				logger,
 				debugInfoProvider,
 				getDebugInfoFormatter: ({ pretty }) =>
-					createStyledDebugInfoFormatter({
+					new StyledDebugInfoFormatter({
 						textStyler: pretty ? textStyler : createPassthroughTextStyler(),
 					}),
 				clipboard,

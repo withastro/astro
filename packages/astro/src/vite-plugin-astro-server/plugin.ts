@@ -11,8 +11,8 @@ import { getPackageManager } from '../cli/info/core/get-package-manager.js';
 import { DevDebugInfoProvider } from '../cli/info/infra/dev-debug-info-provider.js';
 import { ProcessNodeVersionProvider } from '../cli/info/infra/process-node-version-provider.js';
 import { ProcessPackageManagerUserAgentProvider } from '../cli/info/infra/process-package-manager-user-agent-provider.js';
-import { createStyledDebugInfoFormatter } from '../cli/info/infra/styled-debug-info-formatter.js';
-import { createBuildTimeAstroVersionProvider } from '../cli/infra/build-time-astro-version-provider.js';
+import { StyledDebugInfoFormatter } from '../cli/info/infra/styled-debug-info-formatter.js';
+import { BuildTimeAstroVersionProvider } from '../cli/infra/build-time-astro-version-provider.js';
 import { createPassthroughTextStyler } from '../cli/infra/passthrough-text-styler.js';
 import { createProcessOperatingSystemProvider } from '../cli/infra/process-operating-system-provider.js';
 import { createTinyexecCommandExecutor } from '../cli/infra/tinyexec-command-executor.js';
@@ -82,7 +82,7 @@ export default function createVitePluginAstroServer({
 						// but some will have to be moved to src/infra
 						const debugInfoProvider = new DevDebugInfoProvider({
 							config: settings.config,
-							astroVersionProvider: createBuildTimeAstroVersionProvider(),
+							astroVersionProvider: new BuildTimeAstroVersionProvider(),
 							operatingSystemProvider: createProcessOperatingSystemProvider(),
 							packageManager: await getPackageManager({
 								packageManagerUserAgentProvider: new ProcessPackageManagerUserAgentProvider(),
@@ -90,7 +90,7 @@ export default function createVitePluginAstroServer({
 							}),
 							nodeVersionProvider: new ProcessNodeVersionProvider(),
 						});
-						const debugInfoFormatter = createStyledDebugInfoFormatter({
+						const debugInfoFormatter = new StyledDebugInfoFormatter({
 							textStyler: createPassthroughTextStyler(),
 						});
 						debugInfo = debugInfoFormatter.format(await debugInfoProvider.get());
