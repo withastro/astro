@@ -4,7 +4,6 @@ import { loadFixture } from './_test-utils.js';
 
 describe(
 	'CompileImageService',
-	{ skip: 'Requires the preview server', todo: 'Enable once the preview server is supported' },
 	() => {
 		let fixture;
 		let previewServer;

@@ -3,28 +3,32 @@ import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './_test-utils.js';
 
-describe('SolidJS', 	{ skip: 'Requires the preview server', todo: 'Enable once the preview server is supported' },
+describe(
+	'SolidJS',
+	{ skip: 'Incorrect rendering', todo: 'There are some caching issues? It renders svelte content' },
 	() => {
-	let fixture;
-	let previewServer;
+		let fixture;
+		let previewServer;
 
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/with-svelte/',
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/with-svelte/',
+			});
+			await fixture.build();
+			previewServer = await fixture.preview();
 		});
-		await fixture.build();
-		previewServer = await fixture.preview();
-	});
 
-	after(async () => {
-		await previewServer.stop();
-	});
+		after(async () => {
+			await previewServer.stop();
+			await fixture.clean();
+		});
 
-	it('renders the solid component', async () => {
-		const res = await fixture.fetch('/');
-		assert.equal(res.status, 200);
-		const html = await res.text();
-		const $ = cheerio.load(html);
-		assert.equal($('.solid').text(), 'Solid Content');
-	});
-});
+		it('renders the solid component', async () => {
+			const res = await fixture.fetch('/');
+			assert.equal(res.status, 200);
+			const html = await res.text();
+			const $ = cheerio.load(html);
+			assert.equal($('.solid').text(), 'Solid Content');
+		});
+	},
+);
