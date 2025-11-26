@@ -6365,7 +6365,7 @@ importers:
   packages/language-tools/astro-check:
     dependencies:
       '@astrojs/language-server':
-        specifier: ^2.15.0
+        specifier: ^2.16.1
         version: link:../language-server
       chokidar:
         specifier: ^4.0.1
@@ -6562,10 +6562,10 @@ importers:
         version: 0.14.1
     devDependencies:
       '@astrojs/language-server':
-        specifier: ^2.16.0
+        specifier: ^2.16.1
         version: link:../language-server
       '@astrojs/ts-plugin':
-        specifier: ^1.10.5
+        specifier: ^1.10.6
         version: link:../ts-plugin
       '@types/glob':
         specifier: ^8.1.0
