@@ -227,6 +227,23 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					},
 					session,
 					vite: {
+						ssr: {
+							optimizeDeps: {
+								include: [
+									'html-escaper',
+									'clsx',
+									'@oslojs/encoding',
+									'zod',
+									'cssesc',
+									'cookie',
+									'devalue',
+									'es-module-lexer',
+									'unstorage',
+									'react',
+									'react-dom/server',
+								],
+							},
+						},
 						plugins: [
 							cfVitePlugin(cfPluginConfig),
 							// https://developers.cloudflare.com/pages/functions/module-support/
