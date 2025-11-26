@@ -1171,7 +1171,7 @@ export const MissingMiddlewareForInternationalization = {
 /**
  * @docs
  * @description
- * Astro throws an error if the user passes an invalid configuration to the i18n middleware.
+ * An invalid i18n middleware configuration  was detected.
  */
 export const InvalidI18nMiddlewareConfiguration = {
 	name: 'InvalidI18nMiddlewareConfiguration',
