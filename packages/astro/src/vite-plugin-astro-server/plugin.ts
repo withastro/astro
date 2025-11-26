@@ -13,9 +13,9 @@ import { ProcessNodeVersionProvider } from '../cli/info/infra/process-node-versi
 import { ProcessPackageManagerUserAgentProvider } from '../cli/info/infra/process-package-manager-user-agent-provider.js';
 import { StyledDebugInfoFormatter } from '../cli/info/infra/styled-debug-info-formatter.js';
 import { BuildTimeAstroVersionProvider } from '../cli/infra/build-time-astro-version-provider.js';
-import { createPassthroughTextStyler } from '../cli/infra/passthrough-text-styler.js';
-import { createProcessOperatingSystemProvider } from '../cli/infra/process-operating-system-provider.js';
-import { createTinyexecCommandExecutor } from '../cli/infra/tinyexec-command-executor.js';
+import { PassthroughTextStyler } from '../cli/infra/passthrough-text-styler.js';
+import { ProcessOperatingSystemProvider } from '../cli/infra/process-operating-system-provider.js';
+import { TinyexecCommandExecutor } from '../cli/infra/tinyexec-command-executor.js';
 import type { SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
 import {
 	getAlgorithm,
@@ -83,15 +83,15 @@ export default function createVitePluginAstroServer({
 						const debugInfoProvider = new DevDebugInfoProvider({
 							config: settings.config,
 							astroVersionProvider: new BuildTimeAstroVersionProvider(),
-							operatingSystemProvider: createProcessOperatingSystemProvider(),
+							operatingSystemProvider: new ProcessOperatingSystemProvider(),
 							packageManager: await getPackageManager({
 								packageManagerUserAgentProvider: new ProcessPackageManagerUserAgentProvider(),
-								commandExecutor: createTinyexecCommandExecutor(),
+								commandExecutor: new TinyexecCommandExecutor(),
 							}),
 							nodeVersionProvider: new ProcessNodeVersionProvider(),
 						});
 						const debugInfoFormatter = new StyledDebugInfoFormatter({
-							textStyler: createPassthroughTextStyler(),
+							textStyler: new PassthroughTextStyler(),
 						});
 						debugInfo = debugInfoFormatter.format(await debugInfoProvider.get());
 					}
