@@ -24,7 +24,7 @@
     "color": "#17191E",
     "theme": "dark"
   },
-  "version": "2.16.0",
+  "version": "2.16.1",
   "author": "withastro",
   "license": "MIT",
   "publisher": "astro-build",
@@ -146,13 +146,13 @@
           "scope": "resource",
           "type": "boolean",
           "default": false,
-          "description": "Enable experimental support for content collection intellisense inside Markdown, MDX and Markdoc. Note that this require also enabling the feature in your Astro config (experimental.contentCollectionIntellisense) (Astro 4.14+)"
+          "description": "Enable experimental support for content collection intellisense inside Markdown, MDX and Markdoc. Note that this requires also enabling the feature in your Astro config (experimental.contentIntellisense) (Astro 4.14+)"
         },
         "astro.auto-import-cache.enabled": {
           "scope": "resource",
           "type": "boolean",
           "default": true,
-          "markdownDescription": "Enable the auto import cache. Yields a faster intellisense when automatically importing a file, but can cause issues with new files not being detected. Change is applied on restart. See [#1035](https://github.com/withastro/language-tools/issues/1035)."
+          "markdownDescription": "Enable the auto import cache. Yields a faster intellisense when automatically importing a file, but can cause issues with new files not being detected. Change is applied on restart. See [#14642](https://github.com/withastro/astro/issues/14642)."
         },
         "astro.updateImportsOnFileMove.enabled": {
           "scope": "resource",
@@ -246,8 +246,8 @@
     "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot"
   },
   "devDependencies": {
-    "@astrojs/language-server": "^2.16.0",
-    "@astrojs/ts-plugin": "^1.10.5",
+    "@astrojs/language-server": "^2.16.1",
+    "@astrojs/ts-plugin": "^1.10.6",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "^20.9.0",

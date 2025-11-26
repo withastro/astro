@@ -1,8 +1,8 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createFontaceFontFileReader } from '../../../../dist/assets/fonts/infra/font-file-reader.js';
 import { createFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
+import { createFontaceFontFileReader } from '../../../../dist/assets/fonts/infra/fontace-font-file-reader.js';
 import * as adobeEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/adobe.js';
 import * as bunnyEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/bunny.js';
 import * as fontshareEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontshare.js';
@@ -10,7 +10,7 @@ import * as fontsourceEntrypoint from '../../../../dist/assets/fonts/providers/e
 import * as googleEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/google.js';
 import { resolveLocalFont } from '../../../../dist/assets/fonts/providers/local.js';
 import { fontProviders } from '../../../../dist/config/entrypoint.js';
-import { createSpyUrlProxy, simpleErrorHandler } from './utils.js';
+import { createSpyUrlProxy } from './utils.js';
 
 describe('fonts providers', () => {
 	describe('config objects', () => {
@@ -59,7 +59,7 @@ describe('fonts providers', () => {
 	});
 
 	describe('resolveLocalFont()', () => {
-		const fontTypeExtractor = createFontTypeExtractor({ errorHandler: simpleErrorHandler });
+		const fontTypeExtractor = createFontTypeExtractor();
 
 		it('proxies URLs correctly', () => {
 			const { collected, urlProxy } = createSpyUrlProxy();
@@ -84,7 +84,7 @@ describe('fonts providers', () => {
 						},
 					],
 				},
-				fontFileReader: createFontaceFontFileReader({ errorHandler: simpleErrorHandler }),
+				fontFileReader: createFontaceFontFileReader(),
 			});
 			assert.deepStrictEqual(collected, [
 				{
@@ -134,7 +134,7 @@ describe('fonts providers', () => {
 						},
 					],
 				},
-				fontFileReader: createFontaceFontFileReader({ errorHandler: simpleErrorHandler }),
+				fontFileReader: createFontaceFontFileReader(),
 			});
 			assert.deepStrictEqual(collected, [
 				{
@@ -173,7 +173,7 @@ describe('fonts providers', () => {
 			const { fonts } = resolveLocalFont({
 				urlProxy,
 				fontTypeExtractor,
-				fontFileReader: createFontaceFontFileReader({ errorHandler: simpleErrorHandler }),
+				fontFileReader: createFontaceFontFileReader(),
 				family: {
 					name: 'Test',
 					nameWithHash: 'Test-xxx',

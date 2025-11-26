@@ -1,5 +1,14 @@
 # @astrojs/cloudflare
 
+## 12.6.12
+
+### Patch Changes
+
+- [#14777](https://github.com/withastro/astro/pull/14777) [`9720b70`](https://github.com/withastro/astro/commit/9720b7009cc73674fe1dd6d4b4835d776cb65e81) Thanks [@iclectic](https://github.com/iclectic)! - Updates assets handling to use `@astrojs/internal-helpers`
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 12.6.11
 
 ### Patch Changes
