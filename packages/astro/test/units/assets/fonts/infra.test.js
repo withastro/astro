@@ -1,27 +1,22 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { createBuildUrlProxyHashResolver } from '../../../../dist/assets/fonts/infra/build-url-proxy-hash-resolver.js';
+import { createBuildUrlResolver } from '../../../../dist/assets/fonts/infra/build-url-resolver.js';
+import { createCachedFontFetcher } from '../../../../dist/assets/fonts/infra/cached-font-fetcher.js';
+import { createCapsizeFontMetricsResolver } from '../../../../dist/assets/fonts/infra/capsize-font-metrics-resolver.js';
+import { createDataCollector } from '../../../../dist/assets/fonts/infra/data-collector.js';
+import { createDevUrlProxyHashResolver } from '../../../../dist/assets/fonts/infra/dev-url-proxy-hash-resolver.js';
+import { createDevUrlResolver } from '../../../../dist/assets/fonts/infra/dev-url-resolver.js';
+import { createFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
 import {
 	createMinifiableCssRenderer,
 	handleValueWithSpaces,
 	renderCssVariable,
 	renderFontFace,
 	withFamily,
-} from '../../../../dist/assets/fonts/infra/css-renderer.js';
-import { createDataCollector } from '../../../../dist/assets/fonts/infra/data-collector.js';
-import { createAstroErrorHandler } from '../../../../dist/assets/fonts/infra/error-handler.js';
-import { createCachedFontFetcher } from '../../../../dist/assets/fonts/infra/font-fetcher.js';
-import { createCapsizeFontMetricsResolver } from '../../../../dist/assets/fonts/infra/font-metrics-resolver.js';
-import { createFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
-import {
-	createBuildUrlProxyHashResolver,
-	createDevUrlProxyHashResolver,
-} from '../../../../dist/assets/fonts/infra/url-proxy-hash-resolver.js';
-import {
-	createBuildUrlResolver,
-	createDevUrlResolver,
-} from '../../../../dist/assets/fonts/infra/url-resolver.js';
-import { createSpyStorage, fakeHasher, simpleErrorHandler } from './utils.js';
+} from '../../../../dist/assets/fonts/infra/minifiable-css-renderer.js';
+import { createSpyStorage, fakeHasher } from './utils.js';
 
 describe('fonts infra', () => {
 	describe('createMinifiableCssRenderer()', () => {
@@ -173,40 +168,6 @@ describe('fonts infra', () => {
 		]);
 	});
 
-	it('createAstroErrorHandler()', () => {
-		const errorHandler = createAstroErrorHandler();
-		assert.equal(
-			errorHandler.handle({ type: 'cannot-extract-font-type', data: { url: '' }, cause: null })
-				.name,
-			'CannotExtractFontType',
-		);
-		assert.equal(
-			errorHandler.handle({ type: 'cannot-fetch-font-file', data: { url: '' }, cause: null }).name,
-			'CannotFetchFontFile',
-		);
-		assert.equal(
-			errorHandler.handle({
-				type: 'cannot-load-font-provider',
-				data: { entrypoint: '' },
-				cause: null,
-			}).name,
-			'CannotLoadFontProvider',
-		);
-		assert.equal(
-			errorHandler.handle({ type: 'unknown-fs-error', data: {}, cause: null }).name,
-			'UnknownFilesystemError',
-		);
-
-		assert.equal(
-			errorHandler.handle({
-				type: 'cannot-extract-font-type',
-				data: { url: '' },
-				cause: 'whatever',
-			}).cause,
-			'whatever',
-		);
-	});
-
 	describe('createCachedFontFetcher()', () => {
 		/**
 		 *
@@ -256,7 +217,6 @@ describe('fonts infra', () => {
 			const { storage, store } = createSpyStorage();
 			const fontFetcher = createCachedFontFetcher({
 				storage,
-				errorHandler: simpleErrorHandler,
 				readFile,
 				fetch,
 			});
@@ -276,7 +236,6 @@ describe('fonts infra', () => {
 			const { storage } = createSpyStorage();
 			const fontFetcher = createCachedFontFetcher({
 				storage,
-				errorHandler: simpleErrorHandler,
 				readFile,
 				fetch,
 			});
@@ -293,7 +252,6 @@ describe('fonts infra', () => {
 			const { storage } = createSpyStorage();
 			const fontFetcher = createCachedFontFetcher({
 				storage,
-				errorHandler: simpleErrorHandler,
 				readFile,
 				fetch,
 			});
@@ -310,7 +268,6 @@ describe('fonts infra', () => {
 			const { storage } = createSpyStorage();
 			const fontFetcher = createCachedFontFetcher({
 				storage,
-				errorHandler: simpleErrorHandler,
 				readFile,
 				fetch,
 			});
@@ -319,14 +276,12 @@ describe('fonts infra', () => {
 				.fetch({ hash: 'abc', url: '/foo/bar', init: null })
 				.catch((err) => err);
 			assert.equal(error instanceof Error, true);
-			assert.equal(error.message, 'cannot-fetch-font-file');
 			assert.equal(error.cause, 'fs error');
 
 			error = await fontFetcher
 				.fetch({ hash: 'abc', url: 'https://example.com', init: null })
 				.catch((err) => err);
 			assert.equal(error instanceof Error, true);
-			assert.equal(error.message, 'cannot-fetch-font-file');
 			assert.equal(error.cause instanceof Error, true);
 			assert.equal(error.cause.message.includes('Response was not successful'), true);
 		});
@@ -385,7 +340,7 @@ describe('fonts infra', () => {
 			['/home/documents/project/font.ttf', 'ttf'],
 		];
 
-		const fontTypeExtractor = createFontTypeExtractor({ errorHandler: simpleErrorHandler });
+		const fontTypeExtractor = createFontTypeExtractor();
 
 		for (const [input, check] of data) {
 			try {
@@ -520,12 +475,10 @@ describe('fonts infra', () => {
 
 	it('createDevUrlProxyHashResolver()', () => {
 		const resolver = createDevUrlProxyHashResolver({
-			baseHashResolver: createBuildUrlProxyHashResolver({
-				hasher: fakeHasher,
-				contentResolver: {
-					resolve: (url) => url,
-				},
-			}),
+			hasher: fakeHasher,
+			contentResolver: {
+				resolve: (url) => url,
+			},
 		});
 		assert.equal(
 			resolver.resolve({
