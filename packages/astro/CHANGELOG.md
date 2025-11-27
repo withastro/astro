@@ -1,5 +1,13 @@
 # astro
 
+## 5.16.2
+
+### Patch Changes
+
+- [#14876](https://github.com/withastro/astro/pull/14876) [`b43dc7f`](https://github.com/withastro/astro/commit/b43dc7f28d582f22a4b28aa3a712af247c908dc3) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a vite warning log during builds when using npm
+
+- [#14884](https://github.com/withastro/astro/pull/14884) [`10273e0`](https://github.com/withastro/astro/commit/10273e01357e515050f8233442a7252b51cad364) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where setting the status of a page to `404` in ssr would show an empty page (or `404.astro` page if provided) instead of using the current page
+
 ## 5.16.1
 
 ### Patch Changes
