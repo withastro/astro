@@ -95,12 +95,12 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		validateSecrets: false,
 	},
 	session: undefined,
+	prerenderConflictBehavior: 'warn',
 	experimental: {
 		clientPrerender: false,
 		contentIntellisense: false,
 		csp: false,
 		chromeDevtoolsWorkspace: false,
-		failOnPrerenderConflict: false,
 		svgo: false,
 	},
 } satisfies AstroUserConfig & { server: { open: boolean } };
@@ -463,6 +463,10 @@ export const AstroConfigSchema = z.object({
 			ttl: z.number().optional(),
 		})
 		.optional(),
+	prerenderConflictBehavior: z
+		.enum(['error', 'warn', 'ignore'])
+		.optional()
+		.default(ASTRO_CONFIG_DEFAULTS.prerenderConflictBehavior),
 	experimental: z
 		.object({
 			clientPrerender: z
@@ -501,10 +505,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.chromeDevtoolsWorkspace),
-			failOnPrerenderConflict: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.failOnPrerenderConflict),
 			svgo: z
 				.union([z.boolean(), z.custom<SvgoConfig>((value) => value && typeof value === 'object')])
 				.optional()
