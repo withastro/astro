@@ -1,10 +1,10 @@
 {
   "name": "@astrojs/check",
   "description": "Type checking and diagnostics for Astro projects",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "author": "withastro",
   "license": "MIT",
-  "homepage": "https://github.com/withastro/language-tools/tree/main/packages/astro-check",
+  "homepage": "https://github.com/withastro/astro/tree/main/packages/language-tools/astro-check",
   "repository": {
     "type": "git",
     "url": "https://github.com/withastro/astro.git",
@@ -27,7 +27,7 @@
     "test": "astro-scripts test \"**/*.test.ts\"  --tsx true"
   },
   "dependencies": {
-    "@astrojs/language-server": "^2.15.0",
+    "@astrojs/language-server": "^2.16.1",
     "chokidar": "^4.0.1",
     "kleur": "^4.1.5",
     "yargs": "^17.7.2"

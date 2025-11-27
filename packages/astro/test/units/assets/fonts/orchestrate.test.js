@@ -20,7 +20,7 @@ import { createUrlProxy } from '../../../../dist/assets/fonts/infra/url-proxy.js
 import { createRemoteUrlProxyContentResolver } from '../../../../dist/assets/fonts/infra/url-proxy-content-resolver.js';
 import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
 import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
-import { createSpyLogger, defaultLogger } from '../../test-utils.js';
+import { defaultLogger, SpyLogger } from '../../test-utils.js';
 import { createSpyStorage, fakeFontMetricsResolver, fakeHasher, markdownBold } from './utils.js';
 
 describe('fonts orchestrate()', () => {
@@ -281,7 +281,7 @@ describe('fonts orchestrate()', () => {
 		const { storage } = createSpyStorage();
 		const fontTypeExtractor = createFontTypeExtractor();
 		const hasher = fakeHasher;
-		const { logs, logger } = createSpyLogger();
+		const logger = new SpyLogger();
 
 		await orchestrate({
 			families: [
@@ -327,7 +327,7 @@ describe('fonts orchestrate()', () => {
 			stringMatcher: createLevenshteinStringMatcher(),
 		});
 
-		assert.deepStrictEqual(logs, [
+		assert.deepStrictEqual(logger.logs, [
 			{
 				type: 'warn',
 				label: 'assets',
@@ -353,7 +353,7 @@ describe('fonts orchestrate()', () => {
 		const { storage } = createSpyStorage();
 		const fontTypeExtractor = createFontTypeExtractor();
 		const hasher = fakeHasher;
-		const { logs, logger } = createSpyLogger();
+		const logger = new SpyLogger();
 
 		await orchestrate({
 			families: [
@@ -399,7 +399,7 @@ describe('fonts orchestrate()', () => {
 			stringMatcher: createLevenshteinStringMatcher(),
 		});
 
-		assert.deepStrictEqual(logs, [
+		assert.deepStrictEqual(logger.logs, [
 			{
 				type: 'warn',
 				label: 'assets',
@@ -439,7 +439,7 @@ describe('fonts orchestrate()', () => {
 		const { storage } = createSpyStorage();
 		const fontTypeExtractor = createFontTypeExtractor();
 		const hasher = fakeHasher;
-		const { logs, logger } = createSpyLogger();
+		const logger = new SpyLogger();
 
 		await orchestrate({
 			families: [
@@ -491,7 +491,7 @@ describe('fonts orchestrate()', () => {
 			stringMatcher: createLevenshteinStringMatcher(),
 		});
 
-		assert.deepStrictEqual(logs, [
+		assert.deepStrictEqual(logger.logs, [
 			{
 				label: 'assets',
 				message:
@@ -532,7 +532,7 @@ describe('fonts orchestrate()', () => {
 		const { storage } = createSpyStorage();
 		const fontTypeExtractor = createFontTypeExtractor();
 		const hasher = fakeHasher;
-		const { logs, logger } = createSpyLogger();
+		const logger = new SpyLogger();
 
 		await orchestrate({
 			families: [
@@ -584,6 +584,6 @@ describe('fonts orchestrate()', () => {
 			stringMatcher: createLevenshteinStringMatcher(),
 		});
 
-		assert.deepStrictEqual(logs, []);
+		assert.deepStrictEqual(logger.logs, []);
 	});
 });

@@ -2,7 +2,7 @@
 
 This package powers the `astro check` CLI command for running type checking and diagnostics in Astro projects.
 
-This package's internal logic is powered by [the Astro language server](https://github.com/withastro/language-tools/blob/main/packages/language-server/src/check.ts).
+This package's internal logic is powered by [the Astro language server](https://github.com/withastro/astro/blob/main/packages/language-tools/language-server/src/check.ts).
 
 ## Documentation
 
@@ -30,9 +30,9 @@ Copyright (c) 2022–present [Astro][astro]
 
 [astro]: https://astro.build/
 [docs]: https://docs.astro.build/en/guides/typescript/#type-checking
-[contributing]: https://github.com/withastro/language-tools/blob/main/CONTRIBUTING.md
+[contributing]: https://github.com/withastro/astro/blob/main/packages/language-tools/CONTRIBUTING.md
 [coc]: https://github.com/withastro/.github/blob/main/CODE_OF_CONDUCT.md
 [community]: https://github.com/withastro/.github/blob/main/COMMUNITY_GUIDE.md
 [discord]: https://astro.build/chat/
-[issues]: https://github.com/withastro/language-tools/issues
+[issues]: https://github.com/withastro/astro/issues
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/

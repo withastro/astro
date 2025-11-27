@@ -559,6 +559,9 @@ export class App {
 
 		if (
 			REROUTABLE_STATUS_CODES.includes(response.status) &&
+			// If the body isn't null, that means the user sets the 404 status
+			// but uses the current route to handle the 404
+			response.body === null &&
 			response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 		) {
 			return this.#renderError(request, {
