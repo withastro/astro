@@ -383,7 +383,7 @@ This file can contain as many types as necessary. Breaking down some logic often
 
 ##### `core/`
 
-Contains the core logic of the feature. Each file should should be dedicated to one export (could be a function or an instance of a domain entity if it makes sense). For example `create-key.ts`:
+Contains the core logic of the feature. Each file should be dedicated to one export (could be a function or an instance of a domain entity if it makes sense). For example `create-key.ts`:
 
 ```ts
 import type { KeyGenerator, Logger } from '../definitions.js';
@@ -399,13 +399,13 @@ export async function createKey({ keyGenerator, logger }: Options) {
 }
 ```
 
-It should almost always reference types you defined above, and compose them together. If you can't test conveniently part of it, or have to mock, introduce new infrastructure.
+It should almost always reference types you defined in `definitions.ts`, and compose them together. If you can't test conveniently part of it, or have to mock, introduce new infrastructure.
 
-Note: the file itself can contain several functions or varuables, that are used locally by the export.
+Note: the file itself can contain several functions or variables, that are used locally by the export.
 
 ##### `infra/`
 
-Contains implementations of infrastructure. The filename and the function/class name must represent how it's implemented. For example `crypto-key-generator.ts`:
+Contains implementations of infrastructure. The filename and the class name must represent how it's implemented. For example `crypto-key-generator.ts`:
 
 ```ts
 import type { KeyGenerator } from '../definitions.js';
@@ -460,11 +460,13 @@ export class CryptoKeyGenerator implements KeyGenerator {
 }
 ```
 
+We recommend using classes and the `implements` keyword.
+
 ##### `domain/`
 
 Contains reusable data types or abstractions. You can choose the create one file per abstraction to be explicit (like for `infra/`) or one `domain.ts` file.
 
-Our examples so far do not need domain abstraction. But let's imagine we're building a cli, we could have `domain/help-payload.ts`:
+Our examples so far do not need domain abstraction. But let's imagine we're building a CLI, we could have `domain/help-payload.ts`:
 
 ```ts
 export interface HelpPayload {
@@ -493,7 +495,7 @@ export function defineCommand<T extends AnyCommand>(command: T) {
 }
 ```
 
-As you can see, it doesn't have to be only a type.
+As you can see, it doesn't have to be only types. It could even be classes.
 
 #### Usage
 
@@ -502,9 +504,10 @@ With these independent bricks, you can now compose them in your public API entry
 ```ts
 import { CryptoKeyGenerator } from './create-key/infra/crypto-key-generator.js';
 import { createKey } from './create-key/core/create-key.js';
+import { FlagsLogger } from './infra/flags-logger.js';
 
-async function runCommand(command: string) {
-  const logger = createLoggerFromFlags()
+async function runCommand(command: string, flags: Flags) {
+  const logger = new FlagsLogger({ flags });
 
   switch (command) {
     case 'create-key': {
@@ -517,7 +520,7 @@ async function runCommand(command: string) {
 
 #### Testing
 
-The power of this whole architecture is to make unit testable. Because abstractions hold very specific responsabilities, we can easily mock them:
+The power of this whole architecture is to make it unit testable. Because abstractions hold very specific responsabilities, we can easily mock them:
 
 ```js
 // @ts-check
