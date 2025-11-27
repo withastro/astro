@@ -237,9 +237,8 @@
   "scripts": {
     "prebuild": "cd ../ts-plugin && pnpm build",
     "build": "tsc && pnpm prebuild && node scripts/build.mjs -- --minify",
-    "build:ci": "tsc && node scripts/build.mjs -- --minify --sourcemap",
-    "build:grammar": "node scripts/build-grammar.mjs",
     "dev": "node scripts/build.mjs -- --watch",
+    "build:grammar": "node scripts/build-grammar.mjs",
     "dev:grammar": "node scripts/build-grammar.mjs -- --watch",
     "test": "pnpm test:vscode && pnpm test:grammar",
     "test:vscode": "vscode-test",
