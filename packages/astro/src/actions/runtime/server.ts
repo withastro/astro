@@ -38,7 +38,7 @@ export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z.ZodTyp
 
 export type ActionReturnType<T extends ActionHandler<any, any>> = Awaited<ReturnType<T>>;
 
-export type InferKey = '__internalInfer' & { readonly __brand: unique symbol };
+export type InferKey = '__internalInfer';
 
 /**
  * Infers the type of an action's input based on its Zod schema
