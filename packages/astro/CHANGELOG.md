@@ -1,5 +1,27 @@
 # astro
 
+## 5.16.2
+
+### Patch Changes
+
+- [#14876](https://github.com/withastro/astro/pull/14876) [`b43dc7f`](https://github.com/withastro/astro/commit/b43dc7f28d582f22a4b28aa3a712af247c908dc3) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a vite warning log during builds when using npm
+
+- [#14884](https://github.com/withastro/astro/pull/14884) [`10273e0`](https://github.com/withastro/astro/commit/10273e01357e515050f8233442a7252b51cad364) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where setting the status of a page to `404` in ssr would show an empty page (or `404.astro` page if provided) instead of using the current page
+
+## 5.16.1
+
+### Patch Changes
+
+- [#14769](https://github.com/withastro/astro/pull/14769) [`b43ee71`](https://github.com/withastro/astro/commit/b43ee71bd0c3740f41bb641abf01e9cd970d32ee) Thanks [@adriandlam](https://github.com/adriandlam)! - Fixes an unhandled rejection issue when using Astro with Vercel Workflow DevKit
+
+- [#14761](https://github.com/withastro/astro/pull/14761) [`345eb22`](https://github.com/withastro/astro/commit/345eb22bbe449bc8aea1ebd4205fef0fc554a10b) Thanks [@ooga](https://github.com/ooga)! - Updates `button` attributes types to allow `command` and `commandfor`
+
+- [#14866](https://github.com/withastro/astro/pull/14866) [`65e214b`](https://github.com/withastro/astro/commit/65e214b07b84b67c4f5fc13646a5d99944bb10c2) Thanks [@GameRoMan](https://github.com/GameRoMan)! - Fixes `Astro.glob` to be correctly marked as deprecated
+
+- [#14894](https://github.com/withastro/astro/pull/14894) [`1ad9a5b`](https://github.com/withastro/astro/commit/1ad9a5b3e7301a6c05787879e413b82ca0268003) Thanks [@delucis](https://github.com/delucis)! - Fixes support for Astro component rendering in Vitest test suites using a “client” environment such as `happy-dom` or `jsdom`
+
+- [#14782](https://github.com/withastro/astro/pull/14782) [`abed929`](https://github.com/withastro/astro/commit/abed9294ce698980f22f8a3f6695670151915d9b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves syncing
+
 ## 5.16.0
 
 ### Minor Changes

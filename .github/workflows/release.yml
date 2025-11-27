@@ -73,11 +73,13 @@ jobs:
         if: steps.vscode-published.outputs.published == 'true'
         working-directory: ./packages/language-tools/vscode
         run: |
-          sleep 60s # wait for npm registry to update
-          rm -rf node_modules
-          npm i --workspaces=false # vsce does not support pnpm, so we need to pretend this is not a monorepo and use npm
-          npm run build
           npm run build:grammar
+          rm -rf node_modules
+          # Also delete root package.json and node_modules to avoid vsce picking up any monorepo info
+          rm ../../../package.json
+          rm -rf ../../../node_modules
+          sleep 60s # wait for npm registry to update
+          npm i --workspaces=false # vsce does not support pnpm, so we need to pretend this is not a monorepo and use npm
 
       - name: Publish to VSCode Marketplace
         if: steps.vscode-published.outputs.published == 'true'
