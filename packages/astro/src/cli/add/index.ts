@@ -1017,7 +1017,13 @@ function parseIntegrationName(spec: string) {
 
 let hasHintedAboutYesFlag = false;
 
-async function askToContinue({ flags, logger }: { flags: Flags, logger: Logger }): Promise<boolean> {
+async function askToContinue({
+	flags,
+	logger,
+}: {
+	flags: Flags;
+	logger: Logger;
+}): Promise<boolean> {
 	if (flags.yes || flags.y) return true;
 	if (!hasHintedAboutYesFlag) {
 		hasHintedAboutYesFlag = true;

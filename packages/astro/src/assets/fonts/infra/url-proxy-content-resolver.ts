@@ -1,11 +1,8 @@
 import { readFileSync } from 'node:fs';
-import type { ErrorHandler, UrlProxyContentResolver } from '../definitions.js';
+import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
+import type { UrlProxyContentResolver } from '../definitions.js';
 
-export function createLocalUrlProxyContentResolver({
-	errorHandler,
-}: {
-	errorHandler: ErrorHandler;
-}): UrlProxyContentResolver {
+export function createLocalUrlProxyContentResolver(): UrlProxyContentResolver {
 	return {
 		resolve(url) {
 			try {
@@ -14,11 +11,7 @@ export function createLocalUrlProxyContentResolver({
 				// - A font file can renamed and swapped so we would incorrectly cache it
 				return url + readFileSync(url, 'utf-8');
 			} catch (cause) {
-				throw errorHandler.handle({
-					type: 'unknown-fs-error',
-					data: {},
-					cause,
-				});
+				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
 			}
 		},
 	};

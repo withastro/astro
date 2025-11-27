@@ -1,6 +1,6 @@
 import type { Hasher, UrlProxyContentResolver, UrlProxyHashResolver } from '../definitions.js';
 
-export function createBuildUrlProxyHashResolver({
+export function createDevUrlProxyHashResolver({
 	hasher,
 	contentResolver,
 }: {
@@ -8,26 +8,13 @@ export function createBuildUrlProxyHashResolver({
 	contentResolver: UrlProxyContentResolver;
 }): UrlProxyHashResolver {
 	return {
-		resolve({ originalUrl, type }) {
-			return `${hasher.hashString(contentResolver.resolve(originalUrl))}.${type}`;
-		},
-	};
-}
-
-export function createDevUrlProxyHashResolver({
-	baseHashResolver,
-}: {
-	baseHashResolver: UrlProxyHashResolver;
-}): UrlProxyHashResolver {
-	return {
-		resolve(input) {
-			const { cssVariable, data } = input;
+		resolve({ cssVariable, data, originalUrl, type }) {
 			return [
 				cssVariable.slice(2),
 				formatWeight(data.weight),
 				data.style,
 				data.subset,
-				baseHashResolver.resolve(input),
+				`${hasher.hashString(contentResolver.resolve(originalUrl))}.${type}`,
 			]
 				.filter(Boolean)
 				.join('-');

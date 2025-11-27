@@ -1,21 +1,16 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createFontTypeExtractor } from '../../../../dist/assets/fonts/implementations/font-type-extractor.js';
-import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/implementations/system-fallbacks-provider.js';
-import { dedupeFontFaces } from '../../../../dist/assets/fonts/logic/dedupe-font-faces.js';
-import { extractUnifontProviders } from '../../../../dist/assets/fonts/logic/extract-unifont-providers.js';
-import { normalizeRemoteFontFaces } from '../../../../dist/assets/fonts/logic/normalize-remote-font-faces.js';
-import { optimizeFallbacks } from '../../../../dist/assets/fonts/logic/optimize-fallbacks.js';
-import { resolveFamily } from '../../../../dist/assets/fonts/logic/resolve-families.js';
-import {
-	createSpyUrlProxy,
-	fakeFontMetricsResolver,
-	fakeHasher,
-	simpleErrorHandler,
-} from './utils.js';
+import { dedupeFontFaces } from '../../../../dist/assets/fonts/core/dedupe-font-faces.js';
+import { extractUnifontProviders } from '../../../../dist/assets/fonts/core/extract-unifont-providers.js';
+import { normalizeRemoteFontFaces } from '../../../../dist/assets/fonts/core/normalize-remote-font-faces.js';
+import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-fallbacks.js';
+import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-families.js';
+import { createFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
+import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/infra/system-fallbacks-provider.js';
+import { createSpyUrlProxy, fakeFontMetricsResolver, fakeHasher } from './utils.js';
 
-describe('fonts logic', () => {
+describe('fonts core', () => {
 	describe('resolveFamily()', () => {
 		it('removes quotes correctly', async () => {
 			const hasher = { ...fakeHasher, hashObject: () => 'xxx' };
@@ -347,7 +342,7 @@ describe('fonts logic', () => {
 				normalizeRemoteFontFaces({
 					fonts: [],
 					urlProxy,
-					fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+					fontTypeExtractor: createFontTypeExtractor(),
 				}).length,
 				0,
 			);
@@ -380,7 +375,7 @@ describe('fonts logic', () => {
 						},
 					],
 					urlProxy,
-					fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+					fontTypeExtractor: createFontTypeExtractor(),
 				}).length,
 				5,
 			);
@@ -405,7 +400,7 @@ describe('fonts logic', () => {
 						src: [{ url: '/2', format: 'woff2' }],
 					},
 				],
-				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+				fontTypeExtractor: createFontTypeExtractor(),
 			});
 			assert.deepStrictEqual(collected, [
 				{
@@ -456,7 +451,7 @@ describe('fonts logic', () => {
 						],
 					},
 				],
-				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+				fontTypeExtractor: createFontTypeExtractor(),
 			});
 			assert.deepStrictEqual(collected, [
 				{
@@ -506,7 +501,7 @@ describe('fonts logic', () => {
 						src: [{ url: '/2', format: 'woff2' }, { name: 'Foo' }, { url: '/also-ignored.ttf' }],
 					},
 				],
-				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+				fontTypeExtractor: createFontTypeExtractor(),
 			});
 			assert.deepStrictEqual(fonts, [
 				{
@@ -589,7 +584,7 @@ describe('fonts logic', () => {
 						src: [{ url: '//example.com/font.woff2' }, { url: 'http://example.com/font.woff' }],
 					},
 				],
-				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+				fontTypeExtractor: createFontTypeExtractor(),
 			});
 
 			assert.deepStrictEqual(fonts, [

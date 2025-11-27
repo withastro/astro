@@ -251,7 +251,26 @@ async function syncContentCollections(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logger, mode, command: 'build', fs, sync: true, routesList, manifest },
+			{
+				// Prevent mutation of specific properties by vite plugins during sync
+				settings: {
+					...settings,
+					// Prevent mutation by vite plugins during sync
+					buildOutput: undefined,
+					// Sync causes font resources and style hashes to be duplicated
+					injectedCsp: {
+						fontResources: new Set(),
+						styleHashes: [],
+					},
+				},
+				logger,
+				mode,
+				command: 'build',
+				fs,
+				sync: true,
+				routesList,
+				manifest,
+			},
 		),
 	);
 
