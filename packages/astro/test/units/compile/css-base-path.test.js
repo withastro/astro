@@ -16,7 +16,6 @@ async function compileWithBase(source, base = '/') {
 			astroConfig: {
 				root: pathToFileURL('/'),
 				base,
-				experimental: {},
 				build: {
 					format: 'directory',
 				},
