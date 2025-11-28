@@ -100,6 +100,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	experimental: {
 		clientPrerender: false,
 		contentIntellisense: false,
+		contentCollectionsStrict: false,
 		headingIdCompat: false,
 		preserveScriptOrder: false,
 		liveContentCollections: false,
