@@ -105,6 +105,12 @@ const codeToStatusMap: Record<ActionErrorCode, number> = {
 	NETWORK_AUTHENTICATION_REQUIRED: 511,
 };
 
+export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z.ZodType
+	? (input: z.infer<TInputSchema>, context: ActionAPIContext) => MaybePromise<TOutput>
+	: (input: any, context: ActionAPIContext) => MaybePromise<TOutput>;
+
+export type ActionReturnType<T extends ActionHandler<any, any>> = Awaited<ReturnType<T>>;
+
 const statusToCodeMap: Record<number, ActionErrorCode> = Object.entries(codeToStatusMap).reduce(
 	// reverse the key-value pairs
 	(acc, [key, value]) => ({ ...acc, [value]: key }),

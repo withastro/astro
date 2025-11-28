@@ -19,6 +19,6 @@ declare module 'virtual:astro:actions/options' {
 	export const shouldAppendTrailingSlash: boolean;
 }
 
-declare module 'virtual:astro:actions/runtime' {
+declare module 'virtual:astro:actions/runtime/entrypoint' {
 	export * from './src/actions/runtime/entrypoints/client.js';
 }
