@@ -1376,6 +1376,7 @@ describe('[SSG] i18n routing', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/i18n-locale-index-format-file/',
+				outDir: './dist/i18n-objects',
 				i18n: {
 					defaultLocale: 'en-us',
 					locales: [
@@ -1424,6 +1425,7 @@ describe('[SSG] i18n routing', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/i18n-locale-index-format-file/',
+				outDir: './dist/i18n-strings',
 				i18n: {
 					defaultLocale: 'en-us',
 					locales: ['en-us', 'es-mx', 'fr-fr'],
