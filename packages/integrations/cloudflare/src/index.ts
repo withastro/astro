@@ -258,9 +258,14 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			'astro:routes:resolved': ({ routes }) => {
 				_routes = routes;
 			},
-			'astro:config:done': ({ setAdapter, config, buildOutput }) => {
+			'astro:config:done': ({ setAdapter, config, buildOutput, injectTypes }) => {
 				_config = config;
 				finalBuildOutput = buildOutput;
+
+				injectTypes({
+					filename: 'cloudflare.d.ts',
+					content: '/// <reference types="@astrojs/cloudflare/types.d.ts" />',
+				});
 
 				let customWorkerEntryPoint: URL | undefined;
 				if (args?.workerEntryPoint && typeof args.workerEntryPoint.path === 'string') {

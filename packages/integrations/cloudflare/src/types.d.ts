@@ -18,5 +18,3 @@ declare global {
 		readonly cf?: IncomingRequestCfProperties;
 	}
 }
-
-export type { IncomingRequestCfProperties };

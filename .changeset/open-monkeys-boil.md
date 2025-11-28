@@ -17,3 +17,8 @@ Development server now runs in workerd
   ```js
   Astro.request.cf
   ```
+
+- `Astro.locals.runtime` no longer contains the `caches` object. Instead, use the global `caches` object directly:
+  ```js
+  caches.default.put(request, response)
+  ```
