@@ -39,13 +39,6 @@ export function serializedManifestPlugin({
 		name: SERIALIZED_MANIFEST_ID,
 		enforce: 'pre',
 
-		augmentChunkHash(information) {
-			// We only augment the hash of this entrypoint
-			if (information.name === 'prerender') {
-				return Date.now().toString();
-			}
-		},
-
 		resolveId(id) {
 			if (id === SERIALIZED_MANIFEST_ID) {
 				return SERIALIZED_MANIFEST_RESOLVED_ID;
