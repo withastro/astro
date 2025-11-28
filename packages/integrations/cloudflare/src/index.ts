@@ -2,7 +2,7 @@ import { createReadStream, writeFileSync } from 'node:fs';
 import { appendFile, stat } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline/promises';
-import { pathToFileURL } from 'node:url';
+import { pathToFileURL, fileURLToPath } from 'node:url';
 import {
 	appendForwardSlash,
 	prependForwardSlash,
@@ -16,12 +16,9 @@ import type {
 	HookParameters,
 	IntegrationResolvedRoute,
 } from 'astro';
-import { AstroError } from 'astro/errors';
 import type { PluginOption } from 'vite';
 import { defaultClientConditions } from 'vite';
-import { type GetPlatformProxyOptions, getPlatformProxy } from 'wrangler';
 import { cloudflareModuleLoader } from './utils/cloudflare-module-loader.js';
-import { createGetEnv } from './utils/env.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { type ImageService, setImageConfig } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
@@ -55,13 +52,6 @@ export type Options = {
 				pattern: string;
 			}[];
 		};
-	};
-	/**
-	 * Proxy configuration for the platform.
-	 */
-	platformProxy?: GetPlatformProxyOptions & {
-		/** Toggle the proxy. Default `undefined`, which equals to `true`. */
-		enabled?: boolean;
 	};
 
 	/**
@@ -143,19 +133,6 @@ function wrapWithSlashes(path: string): string {
 	return prependForwardSlash(appendForwardSlash(path));
 }
 
-function setProcessEnv(config: AstroConfig, env: Record<string, unknown>) {
-	const getEnv = createGetEnv(env);
-
-	if (config.env?.schema) {
-		for (const key of Object.keys(config.env.schema)) {
-			const value = getEnv(key);
-			if (value !== undefined) {
-				process.env[key] = value;
-			}
-		}
-	}
-}
-
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let finalBuildOutput: HookParameters<'astro:config:done'>['buildOutput'];
@@ -177,7 +154,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				updateConfig,
 				logger,
 				addWatchFile,
-				addMiddleware,
 				createCodegenDir,
 			}) => {
 				let session = config.session;
@@ -215,7 +191,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					const codegenDir = createCodegenDir();
 					const cachedFile = new URL('wrangler.json', codegenDir);
 					writeFileSync(cachedFile, wranglerTemplate(), 'utf-8');
-					cfPluginConfig.configPath = cachedFile.pathname;
+					cfPluginConfig.configPath = fileURLToPath(cachedFile);
 				}
 
 				updateConfig({
@@ -227,6 +203,13 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					},
 					session,
 					vite: {
+						ssr: {
+							optimizeDeps: {
+								// Disabled to prevent "prebundle" errors on first dev
+								// This can be removed when the issue is resolved with Cloudflare
+								noDiscovery: true,
+							},
+						},
 						plugins: [
 							cfVitePlugin(cfPluginConfig),
 							// https://developers.cloudflare.com/pages/functions/module-support/
@@ -262,25 +245,22 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					image: setImageConfig(args?.imageService ?? 'compile', config.image, command, logger),
 				});
 
-				if (args?.platformProxy?.configPath) {
-					addWatchFile(new URL(args.platformProxy.configPath, config.root));
-				} else {
-					addWatchFile(new URL('./wrangler.toml', config.root));
-					addWatchFile(new URL('./wrangler.json', config.root));
-					addWatchFile(new URL('./wrangler.jsonc', config.root));
-				}
+				addWatchFile(new URL('./wrangler.toml', config.root));
+				addWatchFile(new URL('./wrangler.json', config.root));
+				addWatchFile(new URL('./wrangler.jsonc', config.root));
 
-				addMiddleware({
-					entrypoint: '@astrojs/cloudflare/entrypoints/middleware.js',
-					order: 'pre',
-				});
 			},
 			'astro:routes:resolved': ({ routes }) => {
 				_routes = routes;
 			},
-			'astro:config:done': ({ setAdapter, config, buildOutput }) => {
+			'astro:config:done': ({ setAdapter, config, buildOutput, injectTypes }) => {
 				_config = config;
 				finalBuildOutput = buildOutput;
+
+				injectTypes({
+					filename: 'cloudflare.d.ts',
+					content: '/// <reference types="@astrojs/cloudflare/types.d.ts" />',
+				});
 
 				let customWorkerEntryPoint: URL | undefined;
 				if (args?.workerEntryPoint && typeof args.workerEntryPoint.path === 'string') {
@@ -317,40 +297,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						envGetSecret: 'stable',
 					},
 				});
-			},
-			'astro:server:setup': async ({ server }) => {
-				if ((args?.platformProxy?.enabled ?? true) === true) {
-					const platformProxy = await getPlatformProxy(args?.platformProxy);
-
-					// Ensures the dev server doesn't hang
-					server.httpServer?.on('close', async () => {
-						await platformProxy.dispose();
-					});
-
-					setProcessEnv(_config, platformProxy.env);
-
-					const clientLocalsSymbol = Symbol.for('astro.locals');
-
-					server.middlewares.use(async function middleware(req, _res, next) {
-						Reflect.set(req, clientLocalsSymbol, {
-							runtime: {
-								env: platformProxy.env,
-								cf: platformProxy.cf,
-								caches: platformProxy.caches,
-								ctx: {
-									waitUntil: (promise: Promise<any>) => platformProxy.ctx.waitUntil(promise),
-									// Currently not available: https://developers.cloudflare.com/pages/platform/known-issues/#pages-functions
-									passThroughOnException: () => {
-										throw new AstroError(
-											'`passThroughOnException` is currently not available in Cloudflare Pages. See https://developers.cloudflare.com/pages/platform/known-issues/#pages-functions.',
-										);
-									},
-								},
-							},
-						});
-						next();
-					});
-				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {

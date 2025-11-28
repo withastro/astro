@@ -12,17 +12,12 @@ describe('AstroDevPlatform', () => {
 			logLevel: 'debug',
 		});
 		devServer = await fixture.startDevServer();
+		// Do an initial request to prime preloading
+		await fixture.fetch('/');
 	});
 
 	after(async () => {
 		await devServer.stop();
-	});
-
-	it('exists', async () => {
-		const res = await fixture.fetch('/');
-		const html = await res.text();
-		const $ = cheerio.load(html);
-		assert.equal($('#hasRuntime').text().includes('true'), true);
 	});
 
 	it('adds cf object', async () => {

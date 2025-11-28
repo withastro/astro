@@ -40,7 +40,7 @@ describe(
 			const res = await fixture.fetch('/_image?href=//placehold.co/600x400');
 			const html = await res.text();
 			const status = res.status;
-			assert.equal(html, 'Forbidden');
+			assert.equal(html, 'Blocked');
 			assert.equal(status, 403);
 		});
 
