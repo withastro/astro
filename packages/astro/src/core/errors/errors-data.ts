@@ -1177,7 +1177,7 @@ export const InvalidI18nMiddlewareConfiguration = {
 	name: 'InvalidI18nMiddlewareConfiguration',
 	title: 'Invalid internationalization middleware configuration',
 	message:
-		'The option `redirectToDefaultLocale` can be enabled only when `prefixDefaultLocale` is set to `true`, otherwise redirects might cause infinite loops. Enable the option `prefixDefaultLocale`, or change its value to `false`.',
+		'The option `redirectToDefaultLocale` can be enabled only when `prefixDefaultLocale` is also set to `true`, otherwise redirects might cause infinite loops. Enable the option `prefixDefaultLocale` to continue to use `redirectToDefaultLocale`, or ensure both are set to `false`.',
 } satisfies ErrorData;
 
 /**
