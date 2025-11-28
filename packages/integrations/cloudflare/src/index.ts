@@ -329,6 +329,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 					setProcessEnv(_config, platformProxy.env);
 
+					// @ts-expect-error
+					globalThis.__env__ ??= {};
+					// @ts-expect-error
+					globalThis.__env__[SESSION_KV_BINDING_NAME] = platformProxy.env[SESSION_KV_BINDING_NAME];
+
 					const clientLocalsSymbol = Symbol.for('astro.locals');
 
 					server.middlewares.use(async function middleware(req, _res, next) {
