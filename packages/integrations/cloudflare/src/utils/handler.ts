@@ -1,4 +1,3 @@
-// @ts-expect-error - It is safe to expect the error here.
 import { env as globalEnv } from 'cloudflare:workers';
 import { sessionKVBindingName } from 'virtual:astro-cloudflare:config';
 import type {

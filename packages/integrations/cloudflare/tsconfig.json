@@ -2,6 +2,7 @@
   "extends": "../../../tsconfig.base.json",
   "include": ["src", "virtual.d.ts"],
   "compilerOptions": {
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "types": ["@cloudflare/workers-types"]
   }
 }

@@ -154,7 +154,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				updateConfig,
 				logger,
 				addWatchFile,
-				addMiddleware,
 				createCodegenDir,
 			}) => {
 				let session = config.session;
