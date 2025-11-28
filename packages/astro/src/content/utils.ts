@@ -591,6 +591,22 @@ async function autogenerateCollections({
 	if (settings.config.legacy.collections) {
 		return config;
 	}
+
+	// If strict mode is enabled, error on any legacy collections
+	if (settings.config.experimental.contentCollectionsStrict) {
+		const collections: Record<string, CollectionConfig> = config?.collections ?? {};
+		for (const [collectionName, collection] of Object.entries(collections)) {
+			if (collection?.type === 'content' || collection?.type === 'data') {
+				throw new AstroError({
+					name: 'ContentCollectionError',
+					title: 'Invalid content collection configuration',
+					message: `Collection "${collectionName}" is using the deprecated v4 API (type: "${collection.type}"). Collections must use the Content Layer API with a loader.`,
+					hint: 'See https://docs.astro.build/en/guides/migrate-to-astro/upgrade-to/v5/#content-collections for migration information.',
+				});
+			}
+		}
+	}
+
 	const contentDir = new URL('./content/', settings.config.srcDir);
 
 	const collections: Record<string, CollectionConfig> = config?.collections ?? {};
