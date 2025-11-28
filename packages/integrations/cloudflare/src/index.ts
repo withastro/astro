@@ -2,7 +2,7 @@ import { createReadStream, writeFileSync } from 'node:fs';
 import { appendFile, stat } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline/promises';
-import { pathToFileURL } from 'node:url';
+import { pathToFileURL, fileURLToPath } from 'node:url';
 import {
 	appendForwardSlash,
 	prependForwardSlash,
@@ -192,7 +192,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					const codegenDir = createCodegenDir();
 					const cachedFile = new URL('wrangler.json', codegenDir);
 					writeFileSync(cachedFile, wranglerTemplate(), 'utf-8');
-					cfPluginConfig.configPath = cachedFile.pathname;
+					cfPluginConfig.configPath = fileURLToPath(cachedFile);
 				}
 
 				updateConfig({
