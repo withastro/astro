@@ -22,3 +22,8 @@ Development server now runs in workerd
   ```js
   caches.default.put(request, response)
   ```
+
+- `Astro.locals.runtime` object is replaced with `Astro.locals.cfContext` which contains the Cloudflare `ExecutionContext`:
+  ```js
+  const cfContext = Astro.locals.cfContext;
+  ```
