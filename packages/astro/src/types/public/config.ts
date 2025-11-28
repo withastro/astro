@@ -2164,6 +2164,19 @@ export interface AstroUserConfig<
 
 		/**
 		 *
+		 * @name experimental.contentCollectionsStrict
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.x
+		 * @description
+		 *
+		 * Enables strict mode for content collections, requiring all collections to use the Content Layer API with loaders.
+		 * When enabled, collections using the deprecated v4 API (without loaders) will throw an error during build.
+		 */
+		contentCollectionsStrict?: boolean;
+
+		/**
+		 *
 		 * @name experimental.fonts
 		 * @type {FontFamily[]}
 		 * @version 5.7
