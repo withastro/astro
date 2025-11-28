@@ -18,9 +18,7 @@ export type Env = {
 setGetEnv(createGetEnv(globalEnv as Env));
 
 export interface Runtime {
-	runtime: {
-		ctx: ExecutionContext;
-	};
+	cfContext: ExecutionContext;
 }
 
 declare global {
@@ -60,9 +58,7 @@ export async function handle(
 	}
 
 	const locals: Runtime = {
-		runtime: {
-			ctx: context
-		},
+		cfContext: context,
 	};
 
 	const response = await app.render(

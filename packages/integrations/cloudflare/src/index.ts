@@ -250,10 +250,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				addWatchFile(new URL('./wrangler.json', config.root));
 				addWatchFile(new URL('./wrangler.jsonc', config.root));
 
-				addMiddleware({
-					entrypoint: '@astrojs/cloudflare/entrypoints/middleware.js',
-					order: 'pre',
-				});
 			},
 			'astro:routes:resolved': ({ routes }) => {
 				_routes = routes;
