@@ -3,7 +3,6 @@ import { env as globalEnv } from 'cloudflare:workers';
 import { sessionKVBindingName } from 'virtual:astro-cloudflare:config';
 import type {
 	Response as CfResponse,
-	CacheStorage as CloudflareCacheStorage,
 	ExecutionContext,
 	ExportedHandlerFetchHandler,
 } from '@cloudflare/workers-types';

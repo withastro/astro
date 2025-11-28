@@ -16,12 +16,9 @@ import type {
 	HookParameters,
 	IntegrationResolvedRoute,
 } from 'astro';
-import { AstroError } from 'astro/errors';
 import type { PluginOption } from 'vite';
 import { defaultClientConditions } from 'vite';
-import { type GetPlatformProxyOptions, getPlatformProxy } from 'wrangler';
 import { cloudflareModuleLoader } from './utils/cloudflare-module-loader.js';
-import { createGetEnv } from './utils/env.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { type ImageService, setImageConfig } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
@@ -134,19 +131,6 @@ export type Options = {
 
 function wrapWithSlashes(path: string): string {
 	return prependForwardSlash(appendForwardSlash(path));
-}
-
-function setProcessEnv(config: AstroConfig, env: Record<string, unknown>) {
-	const getEnv = createGetEnv(env);
-
-	if (config.env?.schema) {
-		for (const key of Object.keys(config.env.schema)) {
-			const value = getEnv(key);
-			if (value !== undefined) {
-				process.env[key] = value;
-			}
-		}
-	}
 }
 
 export default function createIntegration(args?: Options): AstroIntegration {
@@ -262,13 +246,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					image: setImageConfig(args?.imageService ?? 'compile', config.image, command, logger),
 				});
 
-				if (args?.platformProxy?.configPath) {
-					addWatchFile(new URL(args.platformProxy.configPath, config.root));
-				} else {
-					addWatchFile(new URL('./wrangler.toml', config.root));
-					addWatchFile(new URL('./wrangler.json', config.root));
-					addWatchFile(new URL('./wrangler.jsonc', config.root));
-				}
+				addWatchFile(new URL('./wrangler.toml', config.root));
+				addWatchFile(new URL('./wrangler.json', config.root));
+				addWatchFile(new URL('./wrangler.jsonc', config.root));
 
 				addMiddleware({
 					entrypoint: '@astrojs/cloudflare/entrypoints/middleware.js',
