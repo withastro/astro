@@ -27,6 +27,7 @@
     "./image-endpoint": "./dist/entrypoints/image-endpoint.js",
     "./image-transform-endpoint": "./dist/entrypoints/image-transform-endpoint.js",
     "./handler": "./dist/utils/handler.js",
+    "./types.d.ts": "./dist/types.d.ts",
     "./package.json": "./package.json"
   },
   "files": [
