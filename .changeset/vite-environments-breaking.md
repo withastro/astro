@@ -6,5 +6,4 @@
 
 **Changes:**
 - Dev server HMR changed from `server.hot.send()` to `server.environments.client.hot.send()`
-- Integration `astro:routes:resolved` hook now receives vite environments instead of raw vite server
 - Dev toolbar and integration code accessing HMR must use the new Vite Environments API
