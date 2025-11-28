@@ -1,6 +1,6 @@
-import { defineCollection } from 'astro:content';
-import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';
+import { defineCollection } from 'astro:content';
 
 const releases = defineCollection({
 	// Load Markdown files in the src/content/releases directory.
