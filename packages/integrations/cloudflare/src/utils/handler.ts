@@ -18,11 +18,8 @@ export type Env = {
 
 setGetEnv(createGetEnv(globalEnv as Env));
 
-export interface Runtime<T extends object = object> {
+export interface Runtime {
 	runtime: {
-		env: Env & T;
-		cf: Parameters<ExportedHandlerFetchHandler>[0]['cf'];
-		caches: CloudflareCacheStorage;
 		ctx: ExecutionContext;
 	};
 }
@@ -65,19 +62,7 @@ export async function handle(
 
 	const locals: Runtime = {
 		runtime: {
-			env: env,
-			cf: request.cf,
-			caches: caches as unknown as CloudflareCacheStorage,
-			ctx: {
-				waitUntil: (promise: Promise<any>) => context.waitUntil(promise),
-				// Currently not available: https://developers.cloudflare.com/pages/platform/known-issues/#pages-functions
-				passThroughOnException: () => {
-					throw new Error(
-						'`passThroughOnException` is currently not available in Cloudflare Pages. See https://developers.cloudflare.com/pages/platform/known-issues/#pages-functions.',
-					);
-				},
-				props: {},
-			},
+			ctx: context
 		},
 	};
 

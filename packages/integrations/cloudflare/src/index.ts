@@ -56,13 +56,6 @@ export type Options = {
 			}[];
 		};
 	};
-	/**
-	 * Proxy configuration for the platform.
-	 */
-	platformProxy?: GetPlatformProxyOptions & {
-		/** Toggle the proxy. Default `undefined`, which equals to `true`. */
-		enabled?: boolean;
-	};
 
 	/**
 	 * Allow bundling cloudflare worker specific file types as importable modules. Defaults to true.
@@ -324,40 +317,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						envGetSecret: 'stable',
 					},
 				});
-			},
-			'astro:server:setup': async ({ server }) => {
-				if ((args?.platformProxy?.enabled ?? true) === true) {
-					const platformProxy = await getPlatformProxy(args?.platformProxy);
-
-					// Ensures the dev server doesn't hang
-					server.httpServer?.on('close', async () => {
-						await platformProxy.dispose();
-					});
-
-					setProcessEnv(_config, platformProxy.env);
-
-					const clientLocalsSymbol = Symbol.for('astro.locals');
-
-					server.middlewares.use(async function middleware(req, _res, next) {
-						Reflect.set(req, clientLocalsSymbol, {
-							runtime: {
-								env: platformProxy.env,
-								cf: platformProxy.cf,
-								caches: platformProxy.caches,
-								ctx: {
-									waitUntil: (promise: Promise<any>) => platformProxy.ctx.waitUntil(promise),
-									// Currently not available: https://developers.cloudflare.com/pages/platform/known-issues/#pages-functions
-									passThroughOnException: () => {
-										throw new AstroError(
-											'`passThroughOnException` is currently not available in Cloudflare Pages. See https://developers.cloudflare.com/pages/platform/known-issues/#pages-functions.',
-										);
-									},
-								},
-							},
-						});
-						next();
-					});
-				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
