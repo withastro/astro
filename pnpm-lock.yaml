@@ -4775,6 +4775,9 @@ importers:
       '@cloudflare/workers-types':
         specifier: ^4.20251125.0
         version: 4.20251125.0
+      dotenv:
+        specifier: ^17.2.3
+        version: 17.2.3
       piccolore:
         specifier: ^0.1.3
         version: 0.1.3
@@ -11454,6 +11457,10 @@ packages:
 
   dotenv@16.6.1:
     resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
+    engines: {node: '>=12'}
+
+  dotenv@17.2.3:
+    resolution: {integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==}
     engines: {node: '>=12'}
 
   dotenv@8.6.0:
@@ -21145,6 +21152,8 @@ snapshots:
       type-fest: 4.41.0
 
   dotenv@16.6.1: {}
+
+  dotenv@17.2.3: {}
 
   dotenv@8.6.0: {}
 

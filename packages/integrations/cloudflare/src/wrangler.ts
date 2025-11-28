@@ -7,8 +7,8 @@ import { existsSync } from 'node:fs';
 export function hasWranglerConfig(root: URL) {
 	return (
 		existsSync(new URL('wrangler.jsonc', root)) ||
-		existsSync(new URL('wranger.toml', root)) ||
-		existsSync(new URL('wranger.json', root))
+		existsSync(new URL('wrangler.toml', root)) ||
+		existsSync(new URL('wrangler.json', root))
 	);
 }
 
