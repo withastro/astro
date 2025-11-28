@@ -2,6 +2,6 @@
 '@astrojs/cloudflare': major
 ---
 
-Runs "astro dev" using Cloudflare Vite plugin. This means that dev runs in workerd, giving a dev experience much closer to production.
+Development server now runs in workerd
 
-TODO: add a lot more detail on what this means and what it breaks
+`astro dev` now runs your Cloudflare application using Cloudflare's workerd runtime instead of Node.js. This means your development environment is now a near-exact replica of your production environment—the same JavaScript engine, the same APIs, the same behavior. You'll catch issues during development that would have only appeared in production, and features like Durable Objects, Workers Analytics Engine, and R2 bindings work exactly as they do on Cloudflare's platform.
