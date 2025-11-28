@@ -193,8 +193,22 @@ declare module 'astro:components' {
 	export * from 'astro/components';
 }
 
+// TODO: remove in Astro 7
+/**
+ * @deprecated
+ * `import { z } from 'astro:schema'` is deprecated and will be removed
+ * in Astro 7. Use `import { z } from 'astro/zod'` instead.
+ */
 declare module 'astro:schema' {
 	export * from 'astro/zod';
+	import zod from 'astro/zod';
+
+	/**
+	 * @deprecated
+	 * `import { z } from 'astro:schema'` is deprecated and will be removed
+	 * in Astro 7. Use `import { z } from 'astro/zod'` instead.
+	 */
+	export const z = zod.z;
 }
 
 type MD = import('./dist/types/public/content.js').MarkdownInstance<Record<string, any>>;
