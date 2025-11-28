@@ -12,6 +12,8 @@ describe('AstroDevPlatform', () => {
 			logLevel: 'debug',
 		});
 		devServer = await fixture.startDevServer();
+		// Do an initial request to prime preloading
+		await fixture.fetch('/');
 	});
 
 	after(async () => {
