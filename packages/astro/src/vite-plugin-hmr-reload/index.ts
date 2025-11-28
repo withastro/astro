@@ -1,6 +1,6 @@
 import type { EnvironmentModuleNode, Plugin } from 'vite';
 
-const STYLE_EXT_REGEX = /\.css|scss|sass|less|styl|pcss$/i;
+const STYLE_EXT_REGEX = /\.(css|scss|sass|less|styl|pcss)$/i;
 
 /**
  * The very last Vite plugin to reload the browser if any SSR-only module are updated
