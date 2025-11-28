@@ -84,7 +84,9 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	integrations: [],
 	markdown: markdownConfigDefaults,
 	vite: {},
-	legacy: {},
+	legacy: {
+		collectionsBackwardsCompat: false,
+	},
 	redirects: {},
 	security: {
 		checkOrigin: true,
@@ -514,7 +516,11 @@ export const AstroConfigSchema = z.object({
 			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,
 		)
 		.default({}),
-	legacy: z.object({}).default({}),
+	legacy: z
+		.object({
+			collectionsBackwardsCompat: z.boolean().optional().default(false),
+		})
+		.default({}),
 });
 
 export type AstroConfigType = z.infer<typeof AstroConfigSchema>;

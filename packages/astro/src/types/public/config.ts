@@ -2052,7 +2052,16 @@ export interface AstroUserConfig<
 	 * These flags allow you to opt in to some deprecated or otherwise outdated behavior of Astro
 	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
 	 */
-	legacy?: Record<string, never>; // Currently no legacy flags are available.
+	legacy?: {
+		/**
+		 * Enable backwards compatibility for v4 content collections API.
+		 * Collections without loaders and using deprecated APIs like `type: 'content'` or `type: 'data'` will be allowed.
+		 * This is a temporary escape hatch for projects that have not yet migrated to the new content layer API.
+		 * @type {boolean}
+		 * @default false
+		 */
+		collectionsBackwardsCompat?: boolean;
+	};
 
 	/**
 	 *
