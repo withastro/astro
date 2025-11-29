@@ -115,10 +115,10 @@ describe('Content Layer', () => {
 		});
 
 		it('can use an async parser in `file()` loader', async () => {
-			assert.ok(json.hasOwnProperty('birdsAsync'));
-			assert.ok(Array.isArray(json.birdsAsync));
+			assert.ok(json.hasOwnProperty('loaderWithAsyncParse'));
+			assert.ok(Array.isArray(json.loaderWithAsyncParse));
 
-			const ids = json.birdsAsync.map((item) => item.data.id);
+			const ids = json.loaderWithAsyncParse.map((item) => item.data.id);
 			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch']);
 		});
 

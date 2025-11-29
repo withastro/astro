@@ -129,7 +129,7 @@ const birds = defineCollection({
 	}),
 });
 
-const birdsAsync = defineCollection({
+const birdsWithAsyncParse = defineCollection({
 	loader: file('src/data/birds.json', {
 		parser: async (text) => {
 			await new Promise((resolve) => setTimeout(resolve, 10));
@@ -137,12 +137,10 @@ const birdsAsync = defineCollection({
 		},
 	}),
 	schema: z.object({
-		breed: z.string(),
 		id: z.string(),
-		size: z.string(),
-		origin: z.string(),
-		lifespan: z.string(),
-		temperament: z.array(z.string()),
+		name: z.string(),
+		breed: z.string(),
+		age: z.number(),
 	}),
 });
 
@@ -287,7 +285,7 @@ export const collections = {
 	cats,
 	fish,
 	birds,
-	birdsAsync,
+	birdsWithAsyncParse,
 	plants,
 	numbers,
 	numbersToml,

@@ -32,7 +32,9 @@ export async function GET() {
 	const tomlLoader = await getCollection('songs');
 
 	const nestedJsonLoader = await getCollection('birds');
-	
+
+	const loaderWithAsyncParse = await getCollection('birdsWithAsyncParse');
+
 	const csvLoader = await getCollection('plants');
 
 	const rockets = await getCollection('rockets');
@@ -63,6 +65,7 @@ export async function GET() {
 			yamlLoader,
 			tomlLoader,
 			nestedJsonLoader,
+			loaderWithAsyncParse,
 			csvLoader,
 			atlantis,
 			spacecraft: spacecraft.map(({id}) => id).sort((a, b) => a.localeCompare(b)),
