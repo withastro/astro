@@ -8,7 +8,6 @@ import {
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../i18n/utils.js';
-import { validateAndDecodePathname } from './util/pathname.js';
 import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
 import type { ComponentInstance } from '../types/astro.js';
@@ -42,6 +41,7 @@ import { getParams, getProps, type Pipeline, Slots } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session.js';
+import { validateAndDecodePathname } from './util/pathname.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
 /**
