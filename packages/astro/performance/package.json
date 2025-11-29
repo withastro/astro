@@ -11,6 +11,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "picocolors": "^1.1.1"
+    "piccolore": "^0.1.3"
   }
 }

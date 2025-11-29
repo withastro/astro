@@ -38,6 +38,19 @@ export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z.ZodTyp
 
 export type ActionReturnType<T extends ActionHandler<any, any>> = Awaited<ReturnType<T>>;
 
+export type InferKey = '__internalInfer';
+
+/**
+ * Infers the type of an action's input based on its Zod schema
+ *
+ * @see https://docs.astro.build/en/reference/modules/astro-actions/#actioninputschema
+ */
+export type ActionInputSchema<T extends ActionClient<any, any, any>> = T extends {
+	[key in InferKey]: any;
+}
+	? T[InferKey]
+	: never;
+
 export type ActionClient<
 	TOutput,
 	TAccept extends ActionAccept | undefined,
@@ -57,6 +70,8 @@ export type ActionClient<
 			orThrow: (
 				input: TAccept extends 'form' ? FormData : z.input<TInputSchema>,
 			) => Promise<Awaited<TOutput>>;
+		} & {
+			[key in InferKey]: TInputSchema;
 		}
 	: ((input?: any) => Promise<SafeResult<never, Awaited<TOutput>>>) & {
 			orThrow: (input?: any) => Promise<Awaited<TOutput>>;

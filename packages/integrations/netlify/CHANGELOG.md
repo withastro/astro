@@ -1,5 +1,31 @@
 # @astrojs/netlify
 
+## 6.6.3
+
+### Patch Changes
+
+- [#14807](https://github.com/withastro/astro/pull/14807) [`c17767a`](https://github.com/withastro/astro/commit/c17767a07c9f0d449db8e16d05309c2ee9c0fbdc) Thanks [@jmgala](https://github.com/jmgala)! - Fixes a case where disabling the local image CDN wasn't possible
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.6.2
+
+### Patch Changes
+
+- [#14716](https://github.com/withastro/astro/pull/14716) [`0419985`](https://github.com/withastro/astro/commit/0419985d9453668f2faf38ee9a84882633c8d8be) Thanks [@serhalp](https://github.com/serhalp)! - Upgrades the `@netlify/functions` dependency to v5. This removes 82 MB and 310 dependencies from the dependency tree
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.6.1
+
+### Patch Changes
+
+- Updated dependencies [[`9e9c528`](https://github.com/withastro/astro/commit/9e9c528191b6f5e06db9daf6ad26b8f68016e533), [`0f75f6b`](https://github.com/withastro/astro/commit/0f75f6bc637d547e07324e956db21d9f245a3e8e)]:
+  - @astrojs/internal-helpers@0.7.5
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 6.6.0
 
 ### Minor Changes

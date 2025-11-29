@@ -1,5 +1,18 @@
 # @astrojs/vercel
 
+## 9.0.2
+
+### Patch Changes
+
+- [#14839](https://github.com/withastro/astro/pull/14839) [`9a284cd`](https://github.com/withastro/astro/commit/9a284cd1deb9384a570bea19b0d39dbf37dc5b12) Thanks [@drwpow](https://github.com/drwpow)! - fix: Allow "node:" prefix for Node builtins
+
+## 9.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`9e9c528`](https://github.com/withastro/astro/commit/9e9c528191b6f5e06db9daf6ad26b8f68016e533), [`0f75f6b`](https://github.com/withastro/astro/commit/0f75f6bc637d547e07324e956db21d9f245a3e8e)]:
+  - @astrojs/internal-helpers@0.7.5
+
 ## 9.0.0
 
 ### Major Changes

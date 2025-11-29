@@ -2,7 +2,7 @@ import fsMod from 'node:fs';
 import { dirname, relative } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import { createServer, type FSWatcher, type HMRPayload } from 'vite';
 import { syncFonts } from '../../assets/fonts/sync.js';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
@@ -251,7 +251,26 @@ async function syncContentCollections(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logger, mode, command: 'build', fs, sync: true, routesList, manifest },
+			{
+				// Prevent mutation of specific properties by vite plugins during sync
+				settings: {
+					...settings,
+					// Prevent mutation by vite plugins during sync
+					buildOutput: undefined,
+					// Sync causes font resources and style hashes to be duplicated
+					injectedCsp: {
+						fontResources: new Set(),
+						styleHashes: [],
+					},
+				},
+				logger,
+				mode,
+				command: 'build',
+				fs,
+				sync: true,
+				routesList,
+				manifest,
+			},
 		),
 	);
 

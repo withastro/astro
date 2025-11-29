@@ -1,5 +1,161 @@
 # astro
 
+## 5.16.2
+
+### Patch Changes
+
+- [#14876](https://github.com/withastro/astro/pull/14876) [`b43dc7f`](https://github.com/withastro/astro/commit/b43dc7f28d582f22a4b28aa3a712af247c908dc3) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a vite warning log during builds when using npm
+
+- [#14884](https://github.com/withastro/astro/pull/14884) [`10273e0`](https://github.com/withastro/astro/commit/10273e01357e515050f8233442a7252b51cad364) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where setting the status of a page to `404` in ssr would show an empty page (or `404.astro` page if provided) instead of using the current page
+
+## 5.16.1
+
+### Patch Changes
+
+- [#14769](https://github.com/withastro/astro/pull/14769) [`b43ee71`](https://github.com/withastro/astro/commit/b43ee71bd0c3740f41bb641abf01e9cd970d32ee) Thanks [@adriandlam](https://github.com/adriandlam)! - Fixes an unhandled rejection issue when using Astro with Vercel Workflow DevKit
+
+- [#14761](https://github.com/withastro/astro/pull/14761) [`345eb22`](https://github.com/withastro/astro/commit/345eb22bbe449bc8aea1ebd4205fef0fc554a10b) Thanks [@ooga](https://github.com/ooga)! - Updates `button` attributes types to allow `command` and `commandfor`
+
+- [#14866](https://github.com/withastro/astro/pull/14866) [`65e214b`](https://github.com/withastro/astro/commit/65e214b07b84b67c4f5fc13646a5d99944bb10c2) Thanks [@GameRoMan](https://github.com/GameRoMan)! - Fixes `Astro.glob` to be correctly marked as deprecated
+
+- [#14894](https://github.com/withastro/astro/pull/14894) [`1ad9a5b`](https://github.com/withastro/astro/commit/1ad9a5b3e7301a6c05787879e413b82ca0268003) Thanks [@delucis](https://github.com/delucis)! - Fixes support for Astro component rendering in Vitest test suites using a “client” environment such as `happy-dom` or `jsdom`
+
+- [#14782](https://github.com/withastro/astro/pull/14782) [`abed929`](https://github.com/withastro/astro/commit/abed9294ce698980f22f8a3f6695670151915d9b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves syncing
+
+## 5.16.0
+
+### Minor Changes
+
+- [#13880](https://github.com/withastro/astro/pull/13880) [`1a2ed01`](https://github.com/withastro/astro/commit/1a2ed01c92fe93843046396a2c854514747f4df8) Thanks [@azat-io](https://github.com/azat-io)! - Adds experimental SVGO optimization support for SVG assets
+
+  Astro now supports automatic SVG optimization using SVGO during build time. This experimental feature helps reduce SVG file sizes while maintaining visual quality, improving your site's performance.
+
+  To enable SVG optimization with default settings, add the following to your `astro.config.mjs`:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      svgo: true,
+    },
+  });
+  ```
+
+  To customize optimization, pass a [SVGO configuration object](https://svgo.dev/docs/plugins/):
+
+  ```js
+  export default defineConfig({
+    experimental: {
+      svgo: {
+        plugins: [
+          'preset-default',
+          {
+            name: 'removeViewBox',
+            active: false,
+          },
+        ],
+      },
+    },
+  });
+  ```
+
+  For more information on enabling and using this feature in your project, see the [experimental SVG optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/).
+
+- [#14810](https://github.com/withastro/astro/pull/14810) [`2e845fe`](https://github.com/withastro/astro/commit/2e845fe56de45c710d282ed36f92978612810b79) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds a hint for code agents to use the `--yes` flag to skip prompts when running `astro add`
+
+- [#14698](https://github.com/withastro/astro/pull/14698) [`f42ff9b`](https://github.com/withastro/astro/commit/f42ff9bd5b4c8d3e67247ee6e21f14cd2062c037) Thanks [@mauriciabad](https://github.com/mauriciabad)! - Adds the `ActionInputSchema` utility type to automatically infer the TypeScript type of an action's input based on its Zod schema
+
+  For example, this type can be used to retrieve the input type of a form action:
+
+  ```ts
+  import { type ActionInputSchema, defineAction } from 'astro:actions';
+  import { z } from 'astro/zod';
+
+  const action = defineAction({
+    accept: 'form',
+    input: z.object({ name: z.string() }),
+    handler: ({ name }) => ({ message: `Welcome, ${name}!` }),
+  });
+
+  type Schema = ActionInputSchema<typeof action>;
+  // typeof z.object({ name: z.string() })
+
+  type Input = z.input<Schema>;
+  // { name: string }
+  ```
+
+- [#14574](https://github.com/withastro/astro/pull/14574) [`4356485`](https://github.com/withastro/astro/commit/4356485b0f708c7abf93207105ddcb890a466729) Thanks [@jacobdalamb](https://github.com/jacobdalamb)! - Adds new CLI shortcuts available when running `astro preview`:
+  - `o` + `enter`: open the site in your browser
+  - `q` + `enter`: quit the preview
+  - `h` + `enter`: print all available shortcuts
+
+### Patch Changes
+
+- [#14813](https://github.com/withastro/astro/pull/14813) [`e1dd377`](https://github.com/withastro/astro/commit/e1dd377398a3dcf6ba0697dc8d4bde6d77a45700) Thanks [@ematipico](https://github.com/ematipico)! - Removes `picocolors` as dependency in favor of the fork `piccolore`.
+
+- [#14609](https://github.com/withastro/astro/pull/14609) [`d774306`](https://github.com/withastro/astro/commit/d774306c517c33276adf48f2c2ea6a0a2a4a7aa6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves `astro info`
+
+- [#14796](https://github.com/withastro/astro/pull/14796) [`c29a785`](https://github.com/withastro/astro/commit/c29a785d57f08c5526828379d748f788797d9c39) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental Fonts API only**
+
+  Updates the default `subsets` to `["latin"]`
+
+  Subsets have been a common source of confusion: they caused a lot of files to be downloaded by default. You now have to manually pick extra subsets.
+
+  Review your Astro config and update subsets if you need, for example if you need greek characters:
+
+  ```diff
+  import { defineConfig, fontProviders } from "astro/config"
+
+  export default defineConfig({
+      experimental: {
+          fonts: [{
+              name: "Roboto",
+              cssVariable: "--font-roboto",
+              provider: fontProviders.google(),
+  +            subsets: ["latin", "greek"]
+          }]
+      }
+  })
+  ```
+
+## 5.15.9
+
+### Patch Changes
+
+- [#14786](https://github.com/withastro/astro/pull/14786) [`758a891`](https://github.com/withastro/astro/commit/758a891112839a108479fd0489a1785640b31ecf) Thanks [@mef](https://github.com/mef)! - Add handling of invalid encrypted props and slots in server islands.
+
+- [#14783](https://github.com/withastro/astro/pull/14783) [`504958f`](https://github.com/withastro/astro/commit/504958fe7fccd7bffc177a1f4b1bf4e22989470e) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves the experimental Fonts API build log to show the number of downloaded files. This can help spotting excessive downloading because of misconfiguration
+
+- [#14791](https://github.com/withastro/astro/pull/14791) [`9e9c528`](https://github.com/withastro/astro/commit/9e9c528191b6f5e06db9daf6ad26b8f68016e533) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Changes the remote protocol checks for images to require explicit authorization in order to use data URIs.
+
+  In order to allow data URIs for remote images, you will need to update your `astro.config.mjs` file to include the following configuration:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    images: {
+      remotePatterns: [
+        {
+          protocol: 'data',
+        },
+      ],
+    },
+  });
+  ```
+
+- [#14787](https://github.com/withastro/astro/pull/14787) [`0f75f6b`](https://github.com/withastro/astro/commit/0f75f6bc637d547e07324e956db21d9f245a3e8e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes wildcard hostname pattern matching to correctly reject hostnames without dots
+
+  Previously, hostnames like `localhost` or other single-part names would incorrectly match patterns like `*.example.com`. The wildcard matching logic has been corrected to ensure that only valid subdomains matching the pattern are accepted.
+
+- [#14776](https://github.com/withastro/astro/pull/14776) [`3537876`](https://github.com/withastro/astro/commit/3537876fde3bdb2a0ded99cc9b00d53f66160a7f) Thanks [@ktym4a](https://github.com/ktym4a)! - Fixes the behavior of `passthroughImageService` so it does not generate webp.
+
+- Updated dependencies [[`9e9c528`](https://github.com/withastro/astro/commit/9e9c528191b6f5e06db9daf6ad26b8f68016e533), [`0f75f6b`](https://github.com/withastro/astro/commit/0f75f6bc637d547e07324e956db21d9f245a3e8e)]:
+  - @astrojs/internal-helpers@0.7.5
+  - @astrojs/markdown-remark@6.3.9
+
 ## 5.15.8
 
 ### Patch Changes

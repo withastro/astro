@@ -17,28 +17,33 @@ export interface TextStyler {
 }
 
 export interface AstroVersionProvider {
-	getVersion: () => string;
+	readonly version: string;
 }
 
 export interface CommandRunner {
-	run: <T extends AnyCommand>(command: T, ...args: Parameters<T['run']>) => ReturnType<T['run']>;
+	run: <T extends AnyCommand>(
+		command: T,
+		...args: Parameters<T['run']>
+	) => ReturnType<T['run']> | undefined;
+}
+
+export interface CommandExecutorOptions {
+	cwd?: string;
+	env?: Record<string, string | undefined>;
+	shell?: boolean;
+	input?: string;
+	stdio?: StdioOptions;
 }
 
 export interface CommandExecutor {
 	execute: (
 		command: string,
 		args?: Array<string>,
-		options?: {
-			cwd?: string;
-			env?: Record<string, string | undefined>;
-			shell?: boolean;
-			input?: string;
-			stdio?: StdioOptions;
-		},
+		options?: CommandExecutorOptions,
 	) => Promise<{ stdout: string }>;
 }
 
 export interface OperatingSystemProvider {
-	getName: () => NodeJS.Platform;
-	getDisplayName: () => string;
+	readonly name: NodeJS.Platform;
+	readonly displayName: string;
 }

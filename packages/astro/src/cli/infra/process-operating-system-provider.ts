@@ -1,20 +1,12 @@
 import type { OperatingSystemProvider } from '../definitions.js';
 
-const PLATFORM_TO_OS: Partial<Record<NodeJS.Platform, string>> = {
-	darwin: 'macOS',
-	win32: 'Windows',
-	linux: 'Linux',
-};
-
-export function createProcessOperatingSystemProvider(): OperatingSystemProvider {
-	const platform = process.platform;
-	return {
-		getName() {
-			return platform;
-		},
-		getDisplayName() {
-			const system = PLATFORM_TO_OS[platform] ?? platform;
-			return `${system} (${process.arch})`;
-		},
+export class ProcessOperatingSystemProvider implements OperatingSystemProvider {
+	readonly #platformToOs: Partial<Record<NodeJS.Platform, string>> = {
+		darwin: 'macOS',
+		win32: 'Windows',
+		linux: 'Linux',
 	};
+
+	readonly name: NodeJS.Platform = process.platform;
+	readonly displayName: string = `${this.#platformToOs[this.name] ?? this.name} (${process.arch})`;
 }

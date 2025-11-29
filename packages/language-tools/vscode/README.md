@@ -2,7 +2,7 @@
 
 > 🧑‍🚀 Not sure what Astro is? See our website at [astro.build](https://astro.build)!
 
-Provides language support for `.astro` files. This extension is powered by the [Astro language server](https://github.com/withastro/language-tools/tree/main/packages/language-server).
+Provides language support for `.astro` files. This extension is powered by the [Astro language server](https://github.com/withastro/astro/tree/main/packages/language-tools/language-server).
 
 ## Features
 

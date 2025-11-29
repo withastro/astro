@@ -40,7 +40,7 @@
     "test:e2e:hosts": "turbo run test:hosted",
     "benchmark": "astro-benchmark",
     "lint": "biome lint && knip && eslint . --report-unused-disable-directives-severity=warn --concurrency=auto",
-    "lint:ci": "biome ci --formatter-enabled=false --reporter=github && eslint . --concurrency=auto --report-unused-disable-directives-severity=warn && knip",
+    "lint:ci": "biome ci --formatter-enabled=false --enforce-assist=false --reporter=github && knip && eslint . --concurrency=auto --report-unused-disable-directives-severity=warn",
     "lint:fix": "biome lint --write --unsafe",
     "publint": "pnpm -r --filter=astro --filter=create-astro --filter=\"@astrojs/*\" --no-bail exec publint",
     "version": "changeset version && node ./scripts/deps/update-example-versions.js && pnpm install --no-frozen-lockfile && pnpm run format",
@@ -55,18 +55,18 @@
   "engines": {
     "node": "^18.20.8 || ^20.3.0 || >=22.0.0"
   },
-  "packageManager": "pnpm@10.18.3",
+  "packageManager": "pnpm@10.21.0",
   "dependencies": {
     "astro-benchmark": "workspace:*"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.5",
-    "@biomejs/biome": "2.2.6",
+    "@biomejs/biome": "2.3.6",
     "@changesets/changelog-github": "^0.5.1",
     "@changesets/cli": "^2.29.7",
     "@types/node": "^18.19.115",
     "esbuild": "0.25.5",
-    "eslint": "^9.38.0",
+    "eslint": "^9.39.1",
     "eslint-plugin-regexp": "^2.10.0",
     "knip": "5.61.3",
     "only-allow": "^1.2.1",
@@ -74,22 +74,8 @@
     "prettier-plugin-astro": "^0.14.1",
     "publint": "^0.3.15",
     "tinyglobby": "^0.2.15",
-    "turbo": "^2.5.8",
+    "turbo": "^2.6.1",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.46.2"
-  },
-  "pnpm": {
-    "peerDependencyRules": {
-      "allowAny": [
-        "astro",
-        "vite"
-      ]
-    },
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "workerd",
-      "@biomejs/biome",
-      "sharp"
-    ]
+    "typescript-eslint": "^8.47.0"
   }
 }
