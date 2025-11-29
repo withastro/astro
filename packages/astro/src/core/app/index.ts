@@ -7,7 +7,6 @@ import { matchPattern, type RemotePattern } from '../../assets/utils/remotePatte
 import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
-import { validateAndDecodePathname } from '../util/pathname.js';
 import {
 	clientAddressSymbol,
 	DEFAULT_404_COMPONENT,
@@ -33,6 +32,7 @@ import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { createDefaultRoutes } from '../routing/default.js';
 import { matchRoute } from '../routing/match.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session.js';
+import { validateAndDecodePathname } from '../util/pathname.js';
 import { AppPipeline } from './pipeline.js';
 
 export { deserializeManifest } from './common.js';

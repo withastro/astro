@@ -12,7 +12,7 @@ export function validateAndDecodePathname(pathname: string): string {
 
 	try {
 		decoded = decodeURI(pathname);
-	} catch (e) {
+	} catch (_e) {
 		throw new Error('Invalid URL encoding');
 	}
 
