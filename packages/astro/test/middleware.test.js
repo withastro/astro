@@ -124,7 +124,7 @@ describe('Middleware in DEV mode', () => {
 		});
 
 		it('should allow legitimate single-encoded paths like /path%20with%20spaces', async () => {
-			const res = await fixture.fetch('/');
+			const res = await fixture.fetch('/path%20with%20spaces');
 			assert.equal(res.status, 200);
 		});
 	});
