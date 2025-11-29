@@ -114,7 +114,7 @@ export function vitePluginActions({
 
 			if (id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID) {
 				return {
-					code: `export * from 'astro/actions/runtime/${opts?.ssr ? 'server' : 'client'}.js';`,
+					code: `export * from 'astro/actions/runtime/entrypoints/${opts?.ssr ? 'server' : 'client'}.js';`,
 				};
 			}
 

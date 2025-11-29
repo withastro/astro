@@ -12,7 +12,7 @@ import {
 	type SafeResult,
 } from './shared.js';
 
-export * from 'virtual:astro:actions/runtime/entrypoint';
+export * from 'virtual:astro:actions/runtime/entrypoints';
 
 const apiContextRoutesSymbol = Symbol.for('context.routes');
 const ENCODED_DOT = '%2E';

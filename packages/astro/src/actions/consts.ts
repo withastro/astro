@@ -4,7 +4,7 @@ export const VIRTUAL_MODULE_ID = 'astro:actions';
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 
 /** Used to expose shared utilities, with server or client specific implementations */
-export const RUNTIME_VIRTUAL_MODULE_ID = 'virtual:astro:actions/runtime/entrypoint';
+export const RUNTIME_VIRTUAL_MODULE_ID = 'virtual:astro:actions/runtime';
 export const RESOLVED_RUNTIME_VIRTUAL_MODULE_ID = '\0' + RUNTIME_VIRTUAL_MODULE_ID;
 
 export const ENTRYPOINT_VIRTUAL_MODULE_ID = 'virtual:astro:actions/entrypoint';

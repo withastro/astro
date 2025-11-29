@@ -105,6 +105,8 @@ const codeToStatusMap: Record<ActionErrorCode, number> = {
 	NETWORK_AUTHENTICATION_REQUIRED: 511,
 };
 
+export type ActionAccept = 'form' | 'json';
+
 export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z.ZodType
 	? (input: z.infer<TInputSchema>, context: ActionAPIContext) => MaybePromise<TOutput>
 	: (input: any, context: ActionAPIContext) => MaybePromise<TOutput>;

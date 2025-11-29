@@ -1,5 +1,6 @@
 import type { ZodType } from 'zod';
-import type { ActionAccept, ActionClient } from '../../actions/runtime/server.js';
+import type { ActionAccept } from '../../actions/runtime/shared.js';
+import type { ActionClient } from '../../actions/runtime/server.js';
 import type { RoutingStrategies } from '../../i18n/utils.js';
 import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
 import type { AstroMiddlewareInstance } from '../../types/public/common.js';

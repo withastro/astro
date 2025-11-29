@@ -11,6 +11,7 @@ import {
 	ACTION_QUERY_PARAMS,
 	ActionError,
 	ActionInputError,
+	type ActionAccept,
 	type ActionHandler,
 	callSafely,
 	deserializeActionResult,
@@ -27,8 +28,6 @@ import {
 	hasContentType,
 	isActionAPIContext,
 } from './utils.js';
-
-type ActionAccept = 'form' | 'json';
 
 const inferSymbol = Symbol('#infer');
 
