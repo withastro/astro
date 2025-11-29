@@ -39,7 +39,7 @@ export async function handleRequest({
 		try {
 			// Decode and validate pathname to prevent multi-level encoding bypass attacks
 			pathname = validateAndDecodePathname(url.pathname);
-		} catch (err) {
+		} catch {
 			// Multi-level encoding detected or invalid encoding - return 404
 			incomingResponse.writeHead(404, { 'Content-Type': 'text/plain' });
 			incomingResponse.end('Not Found');
