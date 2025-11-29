@@ -114,6 +114,14 @@ describe('Content Layer', () => {
 			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch']);
 		});
 
+		it('can use an async parser in `file()` loader', async () => {
+			assert.ok(json.hasOwnProperty('birdsAsync'));
+			assert.ok(Array.isArray(json.birdsAsync));
+
+			const ids = json.birdsAsync.map((item) => item.data.id);
+			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch']);
+		});
+
 		it('Returns yaml `file()` loader collection', async () => {
 			assert.ok(json.hasOwnProperty('yamlLoader'));
 			assert.ok(Array.isArray(json.yamlLoader));
