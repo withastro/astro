@@ -1,6 +1,7 @@
 import type http from 'node:http';
 import { hasFileExtension } from '@astrojs/internal-helpers/path';
 import { appendForwardSlash, removeTrailingForwardSlash } from '../core/path.js';
+import { validateAndDecodePathname } from '../core/util/pathname.js';
 import type { RoutesList } from '../types/astro.js';
 import type { DevServerController } from './controller.js';
 import { runWithErrorHandling } from './controller.js';
@@ -35,13 +36,19 @@ export async function handleRequest({
 	if (config.trailingSlash === 'never' && !incomingRequest.url) {
 		pathname = '';
 	} else {
-		// We already have a middleware that checks if there's an incoming URL that has invalid URI, so it's safe
-		// to not handle the error: packages/astro/src/vite-plugin-astro-server/base.ts
-		pathname = decodeURI(url.pathname);
+		try {
+			// Decode and validate pathname to prevent multi-level encoding bypass attacks
+			pathname = validateAndDecodePathname(url.pathname);
+		} catch {
+			// Multi-level encoding detected or invalid encoding - return 404
+			incomingResponse.writeHead(404, { 'Content-Type': 'text/plain' });
+			incomingResponse.end('Not Found');
+			return;
+		}
 	}
 
 	// Add config.base back to url before passing it to SSR
-	url.pathname = removeTrailingForwardSlash(config.base) + decodeURI(url.pathname);
+	url.pathname = removeTrailingForwardSlash(config.base) + pathname;
 
 	// Apply trailing slash configuration consistently
 	if (config.trailingSlash === 'never') {
