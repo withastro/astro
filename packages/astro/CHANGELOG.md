@@ -1,5 +1,15 @@
 # astro
 
+## 5.16.3
+
+### Patch Changes
+
+- [#14889](https://github.com/withastro/astro/pull/14889) [`4bceeb0`](https://github.com/withastro/astro/commit/4bceeb0c7183de4db0087316e2fc2d287f27ad01) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes actions types when using specific TypeScript configurations
+
+- [#14929](https://github.com/withastro/astro/pull/14929) [`e0f277d`](https://github.com/withastro/astro/commit/e0f277d9248d2fefbd0234b53f9dea8c9b750adb) Thanks [@matthewp](https://github.com/matthewp)! - Fixes authentication bypass via double URL encoding in middleware
+
+  Prevents attackers from bypassing path-based authentication checks using multi-level URL encoding (e.g., `/%2561dmin` instead of `/%61dmin`). Pathnames are now validated after decoding to ensure no additional encoding remains.
+
 ## 5.16.2
 
 ### Patch Changes
