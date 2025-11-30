@@ -7,7 +7,7 @@ export function toTSX(code: string, className: string): string {
 	`;
 
 	try {
-		let tsx = svelte2tsx(code, { mode: 'ts' }).code;
+		let tsx = svelte2tsx(code, { mode: 'ts', isTsFile: true }).code;
 		tsx = "import '@astrojs/svelte/svelte-shims.d.ts';\n" + tsx;
 
 		// New svelte2tsx output (Svelte 5)
