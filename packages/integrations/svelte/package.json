@@ -28,7 +28,8 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "src/svelte-shims.d.ts"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
