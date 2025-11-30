@@ -24,6 +24,7 @@
     "./editor": "./dist/editor.cjs",
     "./client.js": "./dist/client.svelte.js",
     "./server.js": "./dist/server.js",
+    "./svelte-shims.d.ts": "./src/svelte-shims.d.ts",
     "./package.json": "./package.json"
   },
   "files": [

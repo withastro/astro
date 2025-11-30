@@ -8,11 +8,21 @@ export function toTSX(code: string, className: string): string {
 
 	try {
 		let tsx = svelte2tsx(code, { mode: 'ts' }).code;
-		tsx = '/// <reference types="svelte2tsx/svelte-shims" />\n' + tsx;
-		result = tsx.replace(
-			'export default class extends __sveltets_2_createSvelte2TsxComponent(',
-			`export default function ${className}__AstroComponent_(_props: typeof Component.props): any {}\nlet Component = `,
-		);
+		tsx = "import '@astrojs/svelte/svelte-shims.d.ts';\n" + tsx;
+
+		// New svelte2tsx output (Svelte 5)
+		if (tsx.includes('export default $$Component;')) {
+			result = tsx.replace(
+				'export default $$Component;',
+				`export default function ${className}__AstroComponent_(_props: import('svelte').ComponentProps<typeof $$$$Component>): any {}`,
+			);
+		} else {
+			// Old svelte2tsx output
+			result = tsx.replace(
+				'export default class extends __sveltets_2_createSvelte2TsxComponent(',
+				`export default function ${className}__AstroComponent_(_props: typeof Component.props): any {}\nlet Component = `,
+			);
+		}
 	} catch {
 		return result;
 	}

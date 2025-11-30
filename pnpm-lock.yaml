@@ -6024,6 +6024,18 @@ importers:
         specifier: ^5.43.14
         version: 5.43.14
 
+  packages/integrations/svelte/test/fixtures/prop-types:
+    dependencies:
+      '@astrojs/svelte':
+        specifier: ^7.2.2
+        version: link:../../..
+      astro:
+        specifier: ^5.16.0
+        version: link:../../../../../astro
+      svelte:
+        specifier: ^5.43.14
+        version: 5.43.14
+
   packages/integrations/vercel:
     dependencies:
       '@astrojs/internal-helpers':
