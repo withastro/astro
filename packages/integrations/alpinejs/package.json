@@ -38,7 +38,7 @@
     "alpinejs": "^3.0.0"
   },
   "devDependencies": {
-    "@playwright/test": "1.56.1",
+    "@playwright/test": "1.57.0",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "vite": "^6.4.1"
