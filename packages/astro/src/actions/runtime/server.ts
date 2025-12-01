@@ -10,6 +10,7 @@ import { ACTION_RPC_ROUTE_PATTERN } from '../consts.js';
 import {
 	ACTION_QUERY_PARAMS,
 	type ActionAccept,
+	type ActionClient,
 	ActionError,
 	type ActionHandler,
 	ActionInputError,
@@ -23,49 +24,10 @@ import type { Locals } from './utils.js';
 import {
 	ACTION_API_CONTEXT_SYMBOL,
 	type ActionAPIContext,
-	type ErrorInferenceObject,
 	formContentTypes,
 	hasContentType,
 	isActionAPIContext,
 } from './utils.js';
-
-const inferSymbol = Symbol('#infer');
-
-/**
- * Infers the type of an action's input based on its Zod schema
- *
- * @see https://docs.astro.build/en/reference/modules/astro-actions/#actioninputschema
- */
-export type ActionInputSchema<T extends ActionClient<any, any, any>> = T extends {
-	[inferSymbol]: any;
-}
-	? T[typeof inferSymbol]
-	: never;
-
-export type ActionClient<
-	TOutput,
-	TAccept extends ActionAccept | undefined,
-	TInputSchema extends z.ZodType | undefined,
-> = TInputSchema extends z.ZodType
-	? ((
-			input: TAccept extends 'form' ? FormData : z.input<TInputSchema>,
-		) => Promise<
-			SafeResult<
-				z.input<TInputSchema> extends ErrorInferenceObject
-					? z.input<TInputSchema>
-					: ErrorInferenceObject,
-				Awaited<TOutput>
-			>
-		>) & {
-			queryString: string;
-			orThrow: (
-				input: TAccept extends 'form' ? FormData : z.input<TInputSchema>,
-			) => Promise<Awaited<TOutput>>;
-			[inferSymbol]: TInputSchema;
-		}
-	: ((input?: any) => Promise<SafeResult<never, Awaited<TOutput>>>) & {
-			orThrow: (input?: any) => Promise<Awaited<TOutput>>;
-		};
 
 export function defineAction<
 	TOutput,

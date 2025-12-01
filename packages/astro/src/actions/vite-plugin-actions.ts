@@ -12,9 +12,7 @@ import {
 	RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID,
 	RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID,
 	RESOLVED_OPTIONS_VIRTUAL_MODULE_ID,
-	RESOLVED_RUNTIME_VIRTUAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
-	RUNTIME_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
 import { isActionsFilePresent } from './utils.js';
@@ -66,10 +64,6 @@ export function vitePluginActions({
 				return RESOLVED_VIRTUAL_MODULE_ID;
 			}
 
-			if (id === RUNTIME_VIRTUAL_MODULE_ID) {
-				return RESOLVED_RUNTIME_VIRTUAL_MODULE_ID;
-			}
-
 			if (id === OPTIONS_VIRTUAL_MODULE_ID) {
 				return RESOLVED_OPTIONS_VIRTUAL_MODULE_ID;
 			}
@@ -101,7 +95,9 @@ export function vitePluginActions({
 		},
 		async load(id, opts) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-				return { code: `export * from 'astro/actions/runtime/virtual.js';` };
+				return {
+					code: `export * from 'astro/actions/runtime/entrypoints/${opts?.ssr ? 'server' : 'client'}.js';`,
+				};
 			}
 
 			if (id === RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID) {
@@ -110,12 +106,6 @@ export function vitePluginActions({
 
 			if (id === RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID) {
 				return { code: `export { server } from ${JSON.stringify(resolvedActionsId)};` };
-			}
-
-			if (id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID) {
-				return {
-					code: `export * from 'astro/actions/runtime/entrypoints/${opts?.ssr ? 'server' : 'client'}.js';`,
-				};
 			}
 
 			if (id === RESOLVED_OPTIONS_VIRTUAL_MODULE_ID) {

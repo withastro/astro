@@ -1,7 +1,7 @@
 import { shouldAppendTrailingSlash } from 'virtual:astro:actions/options';
 import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
 import type { APIContext } from '../../types/public/context.js';
-import type { ActionClient } from './server.js';
+import type { ActionClient } from './shared.js';
 import {
 	ACTION_QUERY_PARAMS,
 	ActionError,
@@ -11,8 +11,6 @@ import {
 	getActionQueryString,
 	type SafeResult,
 } from './shared.js';
-
-export * from 'virtual:astro:actions/runtime';
 
 const apiContextRoutesSymbol = Symbol.for('context.routes');
 const ENCODED_DOT = '%2E';
