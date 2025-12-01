@@ -4,7 +4,7 @@ import astroIslandPrebuilt from '../../runtime/server/astro-island.prebuilt.js';
 import astroIslandPrebuiltDev from '../../runtime/server/astro-island.prebuilt-dev.js';
 import { ISLAND_STYLES } from '../../runtime/server/astro-island-styles.js';
 import type { AstroSettings } from '../../types/astro.js';
-import type { AstroConfig, CspAlgorithm } from '../../types/public/index.js';
+import type { AstroConfig, CspAlgorithm, SSRManifestCSP } from '../../types/public/index.js';
 import type { BuildInternals } from '../build/internal.js';
 import { generateCspDigest } from '../encryption.js';
 import type { CspDirective } from './config.js';
@@ -162,4 +162,48 @@ export async function trackScriptHashes(
 	}
 
 	return clientScriptHashes;
+}
+
+/**
+ * `existingDirective` is something like `img-src 'self'`. Same as `newDirective.
+ *
+ * Returns `undefined` if no directive has been deduped
+ * @param existingDirective
+ * @param newDirective
+ */
+export function deduplicateDirectiveValues(
+	existingDirective: CspDirective,
+	newDirective: CspDirective,
+): CspDirective | undefined {
+	const [directiveName, ...existingValues] = existingDirective.split(' ');
+	const [newDirectiveName, ...newValues] = newDirective.split(' ');
+	if (directiveName !== newDirectiveName) {
+		return undefined;
+	}
+	const finalDirectives = Array.from(new Set([...existingValues, ...newValues]));
+
+	return `${directiveName} ${finalDirectives.join(' ')}` as CspDirective;
+}
+
+export function pushDirective(
+	directives: SSRManifestCSP['directives'],
+	newDirective: CspDirective,
+): SSRManifestCSP['directives'] {
+	const finalDirectives: SSRManifestCSP['directives'] = [];
+	let deduplicated = false;
+	for (const directive of directives) {
+		if (deduplicated) {
+			finalDirectives.push(directive);
+			continue;
+		}
+		const result = deduplicateDirectiveValues(directive, newDirective);
+		if (result) {
+			finalDirectives.push(result);
+			deduplicated = true;
+		} else {
+			finalDirectives.push(directive);
+			finalDirectives.push(newDirective);
+		}
+	}
+	return finalDirectives;
 }
