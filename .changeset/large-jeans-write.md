@@ -2,7 +2,7 @@
 'astro': patch
 ---
 
-Fixes a bug where Astro didn't deduplicate CSP resources. This would have resulted in grammatically incorrect CSP headers.
+Fixes a bug where Astro didn't deduplicate and merges CSP resources. This would have resulted in grammatically incorrect CSP headers.
 
 Now Astro correctly deduplicate CSP resources. For example, if you have a global resource in the configuration file, and then you add a 
 a new one using the runtime APIs. 
@@ -12,7 +12,10 @@ a new one using the runtime APIs.
 export default defineConfig({
   experimental: {
     csp: {
-      directives: ["img-src https://global.cdn.example.org"]
+      directives: [
+        "img-src https://global.cdn.example.org",
+        "default-src https://global.cdn.example.org"
+      ]
     }
   }
 })
@@ -22,10 +25,12 @@ export default defineConfig({
 ---
 // pages/index.astro
 Astro.csp.insertDirective("img-src https://vendor.cdn.example.org")
+Astro.csp.insertDirective("default-src https://global.cdn.example.org https://vendor.cdn.example.org")
 ---
 ```
 
 Now Astro will generate a CSP header that will contain the following resource:
 ```
 image-src https://global.cdn.example.org https://vendor.cdn.example.org
+default-src https://global.cdn.example.org https://vendor.cdn.example.org
 ```

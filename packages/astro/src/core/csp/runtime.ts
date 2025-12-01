@@ -12,8 +12,16 @@ export function deduplicateDirectiveValues(
 	existingDirective: CspDirective,
 	newDirective: CspDirective,
 ): CspDirective | undefined {
-	const [directiveName, ...existingValues] = existingDirective.split(' ');
-	const [newDirectiveName, ...newValues] = newDirective.split(' ');
+	const [directiveName, ...existingValues] = existingDirective
+		// split spaces
+		.split(/\s+/)
+		// Avoid duplicated spaces
+		.filter(Boolean);
+	const [newDirectiveName, ...newValues] = newDirective		
+		// split spaces
+		.split(/\s+/)
+		// Avoid duplicated spaces
+		.filter(Boolean);;
 	if (directiveName !== newDirectiveName) {
 		return undefined;
 	}

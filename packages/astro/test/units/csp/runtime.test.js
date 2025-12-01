@@ -7,8 +7,14 @@ import {
 } from '../../../dist/core/csp/runtime.js';
 
 describe('deduplicateDirectiveValues', () => {
-	it('deduplicates directives', () => {
+	it('merges directives', () => {
 		let result = deduplicateDirectiveValues("img-src 'self'", 'img-src https://example.com');
+
+		assert.deepStrictEqual(result, "img-src 'self' https://example.com");
+	});
+
+	it('deduplicate directives', () => {
+		let result = deduplicateDirectiveValues("img-src 'self'", "img-src 'self' https://example.com");
 
 		assert.deepStrictEqual(result, "img-src 'self' https://example.com");
 	});
@@ -23,6 +29,12 @@ describe('deduplicateDirectiveValues', () => {
 		let result = deduplicateDirectiveValues("img-src 'self'", 'font-src https://example.com');
 
 		assert.deepStrictEqual(result, undefined);
+	});
+
+	it('handle multiple spaces', () => {
+		let result = deduplicateDirectiveValues("img-src     'self'    ", "img-src    'self'     https://example.com");
+
+		assert.deepStrictEqual(result, "img-src 'self' https://example.com");
 	});
 });
 
