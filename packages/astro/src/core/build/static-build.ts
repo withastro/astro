@@ -5,12 +5,6 @@ import { teardown } from '@astrojs/compiler';
 import colors from 'piccolore';
 import { glob } from 'tinyglobby';
 import * as vite from 'vite';
-import {
-	ASSET_IMPORTS_FILE,
-	COLLECTIONS_MANIFEST_FILE,
-	DATA_STORE_FILE,
-	MODULES_IMPORTS_FILE,
-} from '../../content/consts.js';
 import { type BuildInternals, createBuildInternals } from '../../core/build/internal.js';
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
@@ -358,35 +352,6 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 	);
 }
 
-/**
- * Copy necessary files from .astro directory to outDir when outDir is outside project root.
- * These files are needed at runtime for content collections and other features.
- */
-async function copyDotAstroFiles(dotAstroDir: URL, outDir: URL) {
-	const filesToCopy = [
-		ASSET_IMPORTS_FILE,
-		MODULES_IMPORTS_FILE,
-		DATA_STORE_FILE,
-		COLLECTIONS_MANIFEST_FILE,
-	];
-
-	// Create .astro directory in outDir
-	const outDotAstroDir = new URL('.astro/', outDir);
-	await fs.promises.mkdir(outDotAstroDir, { recursive: true });
-
-	// Copy each file if it exists
-	for (const fileName of filesToCopy) {
-		const srcFile = new URL(fileName, dotAstroDir);
-		const destFile = new URL(fileName, outDotAstroDir);
-		
-		if (fs.existsSync(srcFile)) {
-			// Ensure destination directory exists for nested files
-			await fs.promises.mkdir(new URL('./', destFile), { recursive: true });
-			await fs.promises.copyFile(srcFile, destFile);
-		}
-	}
-}
-
 async function cleanServerOutput(
 	opts: StaticBuildOptions,
 	ssrOutputChunkNames: string[],
@@ -424,8 +389,16 @@ async function cleanServerOutput(
 		// Copy assets before cleaning directory if outside root
 		await fs.promises.cp(out, opts.settings.config.outDir, { recursive: true, force: true });
 		
-		// Copy necessary .astro directory files that are needed at runtime
-		await copyDotAstroFiles(opts.settings.dotAstroDir, opts.settings.config.outDir);
+		// Remove unwanted .astro content files that shouldn't exist in external outDir
+		// These files are generated but should be cleaned up for consistency
+		const dotAstroDir = new URL('.astro/', opts.settings.config.outDir);
+		if (fs.existsSync(dotAstroDir)) {
+			try {
+				await fs.promises.rm(dotAstroDir, { recursive: true, force: true });
+			} catch (error) {
+				// Ignore errors if directory doesn't exist or can't be removed
+			}
+		}
 		
 		await fs.promises.rm(out, { recursive: true });
 		return;
