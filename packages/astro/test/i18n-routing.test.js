@@ -774,6 +774,50 @@ describe('[SSG] i18n routing', () => {
 		});
 	});
 
+	describe('i18n routing with routing strategy [prefix-other-locales] with root base', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+		/** @type {import('./test-utils').DevServer} */
+		let devServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-prefix-other-locales/',
+				output: 'server',
+				adapter: testAdapter(),
+				base: '/',
+				i18n: {
+					defaultLocale: 'en',
+					locales: ['en', 'pt', 'fr'],
+					fallback: {
+						fr: 'en',
+					},
+					routing: {
+						prefixDefaultLocale: false,
+						redirectToDefaultLocale: true,
+						fallbackType: 'redirect',
+					},
+				},
+			});
+			await fixture.build();
+			devServer = await fixture.startDevServer();
+		});
+
+		afterEach(async () => {
+			devServer.stop();
+		});
+
+		it('should redirect to English page', async () => {
+			const response = await fixture.fetch('/fr', { redirect: 'manual' });
+			assert.equal(response.headers.get('Location'), '/');
+			assert.equal(response.status, 302);
+
+			const followRedirectResponse = await fixture.fetch('/fr');
+			assert.equal(followRedirectResponse.status, 200);
+			assert.equal((await followRedirectResponse.text()).includes('Hello'), true);
+		});
+	});
+
 	describe('i18n routing with routing strategy [pathname-prefix-always-no-redirect]', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
@@ -1205,6 +1249,82 @@ describe('[SSG] i18n routing', () => {
 		it('renders the page', async () => {
 			const html = await fixture.readFile('/endurance/index.html');
 			assert.equal(html.includes('Endurance'), true);
+		});
+	});
+
+	describe('i18n routing with fallback rewrite with locale-like filenames', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/i18n-routing-fallback-rewrite-filename/',
+			});
+			await fixture.build();
+		});
+
+		it('should generate fallback files for pages with without locale-like filenames', async () => {
+			let html = await fixture.readFile('/norway/index.html');
+			assert.equal(html.includes('Norway'), true);
+
+			html = await fixture.readFile('/de/norway/index.html');
+			assert.equal(html.includes('Norway'), true);
+		});
+
+		it('should generate fallback files for pages with locale-like filenames starting with locale', async () => {
+			let html = await fixture.readFile('/denmark/index.html');
+			assert.equal(html.includes('Denmark'), true);
+
+			html = await fixture.readFile('/de/denmark/index.html');
+			assert.equal(html.includes('Denmark'), true);
+		});
+
+		it('should generate fallback files for pages with locale-like filenames containing locale', async () => {
+			let html = await fixture.readFile('/index.html');
+			assert.equal(html.includes('Index'), true);
+
+			html = await fixture.readFile('/de/index.html');
+			assert.equal(html.includes('Index'), true);
+		});
+
+		it('should generate fallback files for pages in subdirectories with locale-like name starting with locale', async () => {
+			let html = await fixture.readFile('/destinations/denmark/index.html');
+			assert.equal(html.includes('Destination: Denmark'), true);
+
+			html = await fixture.readFile('/de/destinations/denmark/index.html');
+			assert.equal(html.includes('Destination: Denmark'), true);
+
+			html = await fixture.readFile('/destinations/index.html');
+			assert.equal(html.includes('Destination: Index'), true);
+
+			html = await fixture.readFile('/de/destinations/index.html');
+			assert.equal(html.includes('Destination: Index'), true);
+
+			html = await fixture.readFile('/destinations/norway/index.html');
+			assert.equal(html.includes('Destination: Norway'), true);
+
+			html = await fixture.readFile('/de/destinations/norway/index.html');
+			assert.equal(html.includes('Destination: Norway'), true);
+		});
+
+		it('should generate fallback files for pages in subdirectories with locale-like name containing locale', async () => {
+			let html = await fixture.readFile('/trade/denmark/index.html');
+			assert.equal(html.includes('Trade: Denmark'), true);
+
+			html = await fixture.readFile('/de/trade/denmark/index.html');
+			assert.equal(html.includes('Trade: Denmark'), true);
+
+			html = await fixture.readFile('/trade/index.html');
+			assert.equal(html.includes('Trade: Index'), true);
+
+			html = await fixture.readFile('/de/trade/index.html');
+			assert.equal(html.includes('Trade: Index'), true);
+
+			html = await fixture.readFile('/trade/norway/index.html');
+			assert.equal(html.includes('Trade: Norway'), true);
+
+			html = await fixture.readFile('/de/trade/norway/index.html');
+			assert.equal(html.includes('Trade: Norway'), true);
 		});
 	});
 
@@ -2096,6 +2216,13 @@ describe('i18n routing does not break assets and endpoints', () => {
 				root: './fixtures/i18n-routing-subdomain/',
 				output: 'server',
 				adapter: testAdapter(),
+				security: {
+					allowedDomains: [
+						{ hostname: 'example.pt' },
+						{ hostname: 'it.example.com' },
+						{ hostname: 'example.com' },
+					],
+				},
 			});
 			await fixture.build();
 			app = await fixture.loadTestAdapterApp();

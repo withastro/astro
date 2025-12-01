@@ -103,6 +103,16 @@ describe('getStaticPaths - dev calls', () => {
 		});
 	});
 
+	it('provides routePattern', async () => {
+		const res = await fixture.fetch('/blog/2022/post-1');
+		assert.equal(res.status, 200);
+
+		const html = await res.text();
+		const $ = cheerio.load(html);
+
+		assert.equal($('#route-pattern').text(), '/blog/[year]/[slug]');
+	});
+
 	it('resolves 200 on matching static paths', async () => {
 		// routes params provided for pages /posts/1, /posts/2, and /posts/3
 		for (const page of [1, 2, 3]) {

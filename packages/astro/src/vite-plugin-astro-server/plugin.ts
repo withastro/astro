@@ -7,6 +7,15 @@ import { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { normalizePath } from 'vite';
+import { getPackageManager } from '../cli/info/core/get-package-manager.js';
+import { DevDebugInfoProvider } from '../cli/info/infra/dev-debug-info-provider.js';
+import { ProcessNodeVersionProvider } from '../cli/info/infra/process-node-version-provider.js';
+import { ProcessPackageManagerUserAgentProvider } from '../cli/info/infra/process-package-manager-user-agent-provider.js';
+import { StyledDebugInfoFormatter } from '../cli/info/infra/styled-debug-info-formatter.js';
+import { BuildTimeAstroVersionProvider } from '../cli/infra/build-time-astro-version-provider.js';
+import { PassthroughTextStyler } from '../cli/infra/passthrough-text-styler.js';
+import { ProcessOperatingSystemProvider } from '../cli/infra/process-operating-system-provider.js';
+import { TinyexecCommandExecutor } from '../cli/infra/tinyexec-command-executor.js';
 import type { SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
 import {
 	getAlgorithm,
@@ -54,8 +63,12 @@ export default function createVitePluginAstroServer({
 	routesList,
 	manifest,
 }: AstroPluginOptions): vite.Plugin {
+	let debugInfo: string | null = null;
 	return {
 		name: 'astro:server',
+		buildEnd() {
+			debugInfo = null;
+		},
 		async configureServer(viteServer) {
 			const loader = createViteLoader(viteServer);
 			const pipeline = DevPipeline.create(routesList, {
@@ -63,6 +76,27 @@ export default function createVitePluginAstroServer({
 				logger,
 				manifest,
 				settings,
+				async getDebugInfo() {
+					if (!debugInfo) {
+						// TODO: do not import from CLI. Currently the code is located under src/cli/infra
+						// but some will have to be moved to src/infra
+						const debugInfoProvider = new DevDebugInfoProvider({
+							config: settings.config,
+							astroVersionProvider: new BuildTimeAstroVersionProvider(),
+							operatingSystemProvider: new ProcessOperatingSystemProvider(),
+							packageManager: await getPackageManager({
+								packageManagerUserAgentProvider: new ProcessPackageManagerUserAgentProvider(),
+								commandExecutor: new TinyexecCommandExecutor(),
+							}),
+							nodeVersionProvider: new ProcessNodeVersionProvider(),
+						});
+						const debugInfoFormatter = new StyledDebugInfoFormatter({
+							textStyler: new PassthroughTextStyler(),
+						});
+						debugInfo = debugInfoFormatter.format(await debugInfoProvider.get());
+					}
+					return debugInfo;
+				},
 			});
 			const controller = createController({ loader });
 			const localStorage = new AsyncLocalStorage();

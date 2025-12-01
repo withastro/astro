@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
-import { bold } from 'kleur/colors';
+import colors from 'piccolore';
 import type * as vite from 'vite';
 import type { Logger } from '../core/logger/core.js';
 import { notFoundTemplate, subpathNotUsedTemplate } from '../template/4xx.js';
@@ -54,7 +54,7 @@ export function baseMiddleware(
 
 				logger.error(
 					'router',
-					`Request URLs for ${bold(
+					`Request URLs for ${colors.bold(
 						publicDir,
 					)} assets must also include your base. "${expectedLocation}" expected, but received "${url}".`,
 				);

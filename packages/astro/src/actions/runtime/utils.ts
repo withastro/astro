@@ -1,5 +1,5 @@
 import type { APIContext, AstroSharedContext } from '../../types/public/context.js';
-import type { SerializedActionResult } from './virtual/shared.js';
+import type { SerializedActionResult } from './shared.js';
 
 export type ActionPayload = {
 	actionResult: SerializedActionResult;

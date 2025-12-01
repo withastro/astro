@@ -27,15 +27,15 @@ jobs:
       contents: write
       id-token: write
     steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
 
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: 22
+          node-version: 24
           cache: "pnpm"
 
       - name: Install dependencies
@@ -56,8 +56,42 @@ jobs:
         env:
           # Needs access to push to main
           GITHUB_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
-          # Needs access to publish to npm
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Use OIDC for npm authentication instead of NPM_TOKEN
+          NPM_TOKEN: '' # https://github.com/changesets/changesets/issues/1152#issuecomment-3190884868
+
+      - name: Check if astro-vscode was published
+        id: vscode-published
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          if echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -e '.[] | select(.name == "astro-vscode")' > /dev/null; then
+            echo "published=true" >> $GITHUB_OUTPUT
+          else
+            echo "published=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Prepare vscode folder
+        if: steps.vscode-published.outputs.published == 'true'
+        working-directory: ./packages/language-tools/vscode
+        run: |
+          npm run build:grammar
+          rm -rf node_modules
+          # Also delete root package.json and node_modules to avoid vsce picking up any monorepo info
+          rm ../../../package.json
+          rm -rf ../../../node_modules
+          sleep 60s # wait for npm registry to update
+          npm i --workspaces=false # vsce does not support pnpm, so we need to pretend this is not a monorepo and use npm
+
+      - name: Publish to VSCode Marketplace
+        if: steps.vscode-published.outputs.published == 'true'
+        working-directory: ./packages/language-tools/vscode
+        run: |
+          npx vsce publish -p ${{ secrets.VSCE_TOKEN }} --target win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
+
+      - name: Publish to OpenVSX
+        if: steps.vscode-published.outputs.published == 'true'
+        working-directory: ./packages/language-tools/vscode
+        run: |
+          npx ovsx publish -p ${{ secrets.OVSX_TOKEN }} --target win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
 
       - name: Generate Announcement
         id: message

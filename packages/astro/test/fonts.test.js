@@ -44,9 +44,10 @@ describe('astro fonts', () => {
 				experimental: {
 					fonts: [
 						{
-							name: 'Roboto',
-							cssVariable: '--font-roboto',
+							name: 'Poppins',
+							cssVariable: '--font-test',
 							provider: fontProviders.fontsource(),
+							weights: [400, 500],
 						},
 					],
 				},
@@ -65,9 +66,10 @@ describe('astro fonts', () => {
 				experimental: {
 					fonts: [
 						{
-							name: 'Roboto',
-							cssVariable: '--font-roboto',
+							name: 'Poppins',
+							cssVariable: '--font-test',
 							provider: fontProviders.fontsource(),
+							weights: [400, 500],
 						},
 					],
 				},
@@ -81,14 +83,43 @@ describe('astro fonts', () => {
 			});
 		});
 
+		it('Can filter preloads', async () => {
+			const { fixture, run } = await createDevFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Poppins',
+							cssVariable: '--font-test',
+							provider: fontProviders.fontsource(),
+							weights: [400, 500],
+						},
+					],
+				},
+			});
+			await run(async () => {
+				let res = await fixture.fetch('/preload');
+				let html = await res.text();
+				let $ = cheerio.load(html);
+				const allPreloads = $('link[rel=preload][type=font/woff2]');
+
+				res = await fixture.fetch('/granular-preload');
+				html = await res.text();
+				$ = cheerio.load(html);
+				const filteredPreloads = $('link[rel=preload][type=font/woff2]');
+
+				assert.equal(filteredPreloads.length < allPreloads.length, true);
+			});
+		});
+
 		it('Has correct headers in dev', async () => {
 			const { fixture, run } = await createDevFixture({
 				experimental: {
 					fonts: [
 						{
-							name: 'Roboto',
-							cssVariable: '--font-roboto',
+							name: 'Poppins',
+							cssVariable: '--font-test',
 							provider: fontProviders.fontsource(),
+							weights: [400, 500],
 						},
 					],
 				},
@@ -126,9 +157,10 @@ describe('astro fonts', () => {
 				experimental: {
 					fonts: [
 						{
-							name: 'Roboto',
-							cssVariable: '--font-roboto',
+							name: 'Poppins',
+							cssVariable: '--font-test',
 							provider: fontProviders.fontsource(),
+							weights: [400, 500],
 						},
 					],
 				},
@@ -141,6 +173,33 @@ describe('astro fonts', () => {
 				assert.equal(href?.startsWith('/my-base/_custom/fonts/'), true);
 			});
 		});
+
+		it('Exposes data in getFontData()', async () => {
+			const { fixture, run } = await createDevFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Poppins',
+							cssVariable: '--font-test',
+							provider: fontProviders.fontsource(),
+						},
+					],
+				},
+			});
+			await run(async () => {
+				const res = await fixture.fetch('/get-font-data');
+				const html = await res.text();
+				const $ = cheerio.load(html);
+				const content = $('#data').html();
+				if (!content) {
+					assert.fail();
+				}
+				const parsed = JSON.parse(content);
+				assert.equal(Array.isArray(parsed), true);
+				assert.equal(parsed.length > 0, true);
+				assert.equal(parsed[0].src[0].url.startsWith('/_astro/fonts/'), true);
+			});
+		});
 	});
 
 	describe('build', () => {
@@ -149,9 +208,10 @@ describe('astro fonts', () => {
 				experimental: {
 					fonts: [
 						{
-							name: 'Roboto',
-							cssVariable: '--font-roboto',
+							name: 'Poppins',
+							cssVariable: '--font-test',
 							provider: fontProviders.fontsource(),
+							weights: [400, 500],
 						},
 					],
 				},
@@ -167,9 +227,10 @@ describe('astro fonts', () => {
 				experimental: {
 					fonts: [
 						{
-							name: 'Roboto',
-							cssVariable: '--font-roboto',
+							name: 'Poppins',
+							cssVariable: '--font-test',
 							provider: fontProviders.fontsource(),
+							weights: [400, 500],
 						},
 					],
 				},
@@ -178,6 +239,31 @@ describe('astro fonts', () => {
 			const $ = cheerio.load(html);
 			const href = $('link[rel=preload][type=font/woff2]').attr('href');
 			assert.equal(href?.startsWith('/_astro/fonts/'), true);
+		});
+
+		it('Can filter preloads', async () => {
+			const { fixture } = await createBuildFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Poppins',
+							cssVariable: '--font-test',
+							provider: fontProviders.fontsource(),
+							weights: [400, 500],
+						},
+					],
+				},
+			});
+
+			let html = await fixture.readFile('/preload/index.html');
+			let $ = cheerio.load(html);
+			const allPreloads = $('link[rel=preload][type=font/woff2]');
+
+			html = await fixture.readFile('/granular-preload/index.html');
+			$ = cheerio.load(html);
+			const filteredPreloads = $('link[rel=preload][type=font/woff2]');
+
+			assert.equal(filteredPreloads.length < allPreloads.length, true);
 		});
 
 		it('Respects config to build links', async () => {
@@ -190,9 +276,10 @@ describe('astro fonts', () => {
 				experimental: {
 					fonts: [
 						{
-							name: 'Roboto',
-							cssVariable: '--font-roboto',
+							name: 'Poppins',
+							cssVariable: '--font-test',
 							provider: fontProviders.fontsource(),
+							weights: [400, 500],
 						},
 					],
 				},
@@ -203,6 +290,31 @@ describe('astro fonts', () => {
 			assert.equal(href?.startsWith('https://cdn.example.com/my-base/_custom/fonts/'), true);
 			const files = await readdir(new URL('./dist/_custom/fonts/', fixture.config.root));
 			assert.equal(files.length > 0, true);
+		});
+
+		it('Exposes data in getFontData()', async () => {
+			const { fixture } = await createBuildFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Poppins',
+							cssVariable: '--font-test',
+							provider: fontProviders.fontsource(),
+						},
+					],
+				},
+			});
+
+			const html = await fixture.readFile('/get-font-data/index.html');
+			const $ = cheerio.load(html);
+			const content = $('#data').html();
+			if (!content) {
+				assert.fail();
+			}
+			const parsed = JSON.parse(content);
+			assert.equal(Array.isArray(parsed), true);
+			assert.equal(parsed.length > 0, true);
+			assert.equal(parsed[0].src[0].url.startsWith('/_astro/fonts/'), true);
 		});
 	});
 });

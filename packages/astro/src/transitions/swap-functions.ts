@@ -108,6 +108,11 @@ function attachShadowRoots(root: Element | ShadowRoot) {
 		const mode = template.getAttribute('shadowrootmode');
 		const parent = template.parentNode;
 		if ((mode === 'closed' || mode === 'open') && parent instanceof HTMLElement) {
+			// Skip if shadow root already exists (e.g., from transition-persisted elements)
+			if (parent.shadowRoot) {
+				template.remove();
+				return;
+			}
 			const shadowRoot = parent.attachShadow({ mode });
 			shadowRoot.appendChild(template.content);
 			template.remove();

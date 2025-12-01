@@ -7,8 +7,10 @@ benchmark/results/
 **/smoke
 **/node_modules
 **/fixtures
+**/fixture
 **/vendor
 **/.vercel
+**/.vscode-test
 
 # Short-term need to format
 !packages/db/test/fixtures
@@ -30,3 +32,5 @@ pnpm-lock.yaml
 **/*.mjs
 **/*.cjs
 **/*.css
+
+CHANGELOG.md

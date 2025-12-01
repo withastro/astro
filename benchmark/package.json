@@ -19,9 +19,9 @@
     "markdown-table": "^3.0.4",
     "mri": "^1.2.0",
     "port-authority": "^2.0.1",
-    "pretty-bytes": "^7.0.1",
+    "pretty-bytes": "^7.1.0",
     "sharp": "^0.34.3",
-    "tinyexec": "^1.0.1"
+    "tinyexec": "^1.0.2"
   },
   "devDependencies": {
     "@codspeed/vitest-plugin": "4.0.1",

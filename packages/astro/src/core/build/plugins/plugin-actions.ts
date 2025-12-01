@@ -1,4 +1,4 @@
-import { vitePluginActionsBuild } from '../../../actions/plugins.js';
+import { vitePluginActionsBuild } from '../../../actions/vite-plugin-actions.js';
 import type { BuildInternals } from '../internal.js';
 import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';

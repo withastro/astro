@@ -1,14 +1,15 @@
 import { createRequire } from 'node:module';
 import boxen from 'boxen';
 import ci from 'ci-info';
-import { bold, cyan, dim, magenta } from 'kleur/colors';
 import { detect, resolveCommand } from 'package-manager-detector';
+import colors from 'piccolore';
 import prompts from 'prompts';
 import yoctoSpinner from 'yocto-spinner';
 import type { Logger } from '../core/logger/core.js';
 import { exec } from './exec.js';
 
 const require = createRequire(import.meta.url);
+const { bold, cyan, dim, magenta } = colors;
 
 type GetPackageOptions = {
 	skipAsk?: boolean;

@@ -8,7 +8,7 @@ import type {
 	styleSchema,
 } from './config.js';
 import type { FONT_TYPES, GENERIC_FALLBACK_NAMES } from './constants.js';
-import type { CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
+import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 
 export type AstroFontProvider = z.infer<typeof fontProviderSchema>;
 
@@ -62,6 +62,9 @@ export interface PreloadData {
 	 * A font type, eg. woff2, woff, ttf...
 	 */
 	type: FontType;
+	weight: string | undefined;
+	style: string | undefined;
+	subset: string | undefined;
 }
 
 export type FontFaceMetrics = Pick<
@@ -100,8 +103,23 @@ export interface CreateUrlProxyParams {
 export type FontFileDataMap = Map<FontFileData['hash'], Pick<FontFileData, 'url' | 'init'>>;
 
 /**
- * Holds associations of CSS variables and preloadData/css to be passed to the virtual module.
+ * Holds associations of CSS variables and preloadData/css to be passed to the internal virtual module.
  */
-export type ConsumableMap = Map<string, { preloadData: Array<PreloadData>; css: string }>;
+export type InternalConsumableMap = Map<string, { preloadData: Array<PreloadData>; css: string }>;
+
+export interface FontData {
+	src: Array<{ url: string; format?: string; tech?: string }>;
+	weight?: string;
+	style?: string;
+}
+
+/**
+ * Holds associations of CSS variables and font data to be exposed via virtual module.
+ */
+export type ConsumableMap = Map<string, Array<FontData>>;
 
 export type Style = z.output<typeof styleSchema>;
+
+export type PreloadFilter =
+	| boolean
+	| Array<{ weight?: string | number; style?: string; subset?: string }>;

@@ -1,4 +1,4 @@
-import type { AstroIntegration, AstroRenderer, ContainerRenderer } from 'astro';
+import type { AstroIntegration, AstroRenderer } from 'astro';
 
 const getRenderer = (): AstroRenderer => ({
     name: 'custom-renderer',
@@ -6,10 +6,7 @@ const getRenderer = (): AstroRenderer => ({
     serverEntrypoint: '@custom-renderer/server',
 })
 
-export const getContainerRenderer = (): ContainerRenderer => ({
-    name: 'custom-renderer',
-    serverEntrypoint: '@custom-renderer/server',
-})
+export { getRenderer as getContainerRenderer };
 
 export default function (): AstroIntegration {
 	return {

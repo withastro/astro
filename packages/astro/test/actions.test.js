@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
-import { serializeActionResult } from '../dist/actions/runtime/virtual/shared.js';
+import { serializeActionResult } from '../dist/actions/runtime/shared.js';
 import { REDIRECT_STATUS_CODES } from '../dist/core/constants.js';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
@@ -117,7 +117,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Handles special characters in action names', async () => {
-			for (const name of ['with%2Fslash', 'with%20space', 'with%2Edot']) {
+			for (const name of ['with%2Fslash', 'with%20space']) {
 				const res = await fixture.fetch(`/_actions/${name}`, {
 					method: 'POST',
 					body: JSON.stringify({ name: 'ben' }),
@@ -131,6 +131,19 @@ describe('Astro Actions', () => {
 				const data = devalue.parse(text);
 				assert.equal(data, 'Hello, ben!');
 			}
+		});
+
+		it('Returns 404 for non-existent action', async () => {
+			const res = await fixture.fetch('/_actions/nonExistent', {
+				method: 'POST',
+				body: JSON.stringify({}),
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+			assert.equal(res.status, 404);
+			const data = await res.json();
+			assert.equal(data.code, 'NOT_FOUND');
 		});
 
 		it('Should fail when calling an action without using Astro.callAction', async () => {
@@ -521,7 +534,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Handles special characters in action names', async () => {
-			for (const name of ['with%2Fslash', 'with%20space', 'with%2Edot']) {
+			for (const name of ['with%2Fslash', 'with%20space']) {
 				const req = new Request(`http://example.com/_actions/${name}`, {
 					method: 'POST',
 					body: JSON.stringify({ name: 'ben' }),
@@ -536,6 +549,20 @@ describe('Astro Actions', () => {
 				const data = devalue.parse(text);
 				assert.equal(data, 'Hello, ben!');
 			}
+		});
+
+		it('Returns 404 for non-existent action', async () => {
+			const req = new Request('http://example.com/_actions/nonExistent', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({}),
+			});
+			const res = await app.render(req);
+			assert.equal(res.status, 404);
+			const data = await res.json();
+			assert.equal(data.code, 'NOT_FOUND');
 		});
 	});
 });

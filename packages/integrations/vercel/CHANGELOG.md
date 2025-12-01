@@ -1,5 +1,55 @@
 # @astrojs/vercel
 
+## 9.0.2
+
+### Patch Changes
+
+- [#14839](https://github.com/withastro/astro/pull/14839) [`9a284cd`](https://github.com/withastro/astro/commit/9a284cd1deb9384a570bea19b0d39dbf37dc5b12) Thanks [@drwpow](https://github.com/drwpow)! - fix: Allow "node:" prefix for Node builtins
+
+## 9.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`9e9c528`](https://github.com/withastro/astro/commit/9e9c528191b6f5e06db9daf6ad26b8f68016e533), [`0f75f6b`](https://github.com/withastro/astro/commit/0f75f6bc637d547e07324e956db21d9f245a3e8e)]:
+  - @astrojs/internal-helpers@0.7.5
+
+## 9.0.0
+
+### Major Changes
+
+- [#14555](https://github.com/withastro/astro/pull/14555) [`5601357`](https://github.com/withastro/astro/commit/56013574348b366a5eafa82519f4bdf532df80ae) Thanks [@jacobdalamb](https://github.com/jacobdalamb)! - Updates Node v18 'retiring' notice to 'deprecated' for Vercel adapter.
+
+### Minor Changes
+
+- [#14543](https://github.com/withastro/astro/pull/14543) [`9b3241d`](https://github.com/withastro/astro/commit/9b3241d8a903ce0092905205af883cef5498d0b2) Thanks [@matthewp](https://github.com/matthewp)! - Enables skew protection for Astro sites deployed on Vercel. Skew protection ensures that your site's client and server versions stay synchronized during deployments, preventing issues where users might load assets from a newer deployment while the server is still running the older version.
+
+  Skew protection is automatically enabled on Vercel deployments when the `VERCEL_SKEW_PROTECTION_ENABLED` environment variable is set to `1`. The deployment ID is automatically included in both asset requests and API calls, allowing Vercel to serve the correct version to every user.
+
+## 8.2.11
+
+### Patch Changes
+
+- [#14570](https://github.com/withastro/astro/pull/14570) [`c96711d`](https://github.com/withastro/astro/commit/c96711d661c1beb7534a0c1d6b4fe806e656c13b) Thanks [@matthewp](https://github.com/matthewp)! - Fix regression in 8.2.7: validate densities-based srcset widths against configured sizes
+
+  When using `densities` with the Vercel image adapter, calculated widths were not being validated against Vercel's configured sizes list. This caused images to fail when using densities, as Vercel would reject the invalid widths.
+
+  This fix ensures densities-calculated widths are mapped to valid configured sizes, matching the behavior already implemented for the `widths` prop.
+
+## 8.2.10
+
+### Patch Changes
+
+- [#14536](https://github.com/withastro/astro/pull/14536) [`9261996`](https://github.com/withastro/astro/commit/9261996150f4c690c4762bf02100e44680bd480d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a bug that caused too many files to be bundled in SSR
+
+## 8.2.9
+
+### Patch Changes
+
+- [#14473](https://github.com/withastro/astro/pull/14473) [`d9634d3`](https://github.com/withastro/astro/commit/d9634d31c47f3707e6092bed7938dfcfc0fb550b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a bug that caused too many files to be bundled in SSR
+
+- Updated dependencies [[`b8ca69b`](https://github.com/withastro/astro/commit/b8ca69b97149becefaf89bf21853de9c905cdbb7)]:
+  - @astrojs/internal-helpers@0.7.4
+
 ## 8.2.8
 
 ### Patch Changes

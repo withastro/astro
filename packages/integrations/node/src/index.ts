@@ -57,7 +57,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 	return {
 		name: '@astrojs/node',
 		hooks: {
-			'astro:config:setup': async ({ updateConfig, config, logger }) => {
+			'astro:config:setup': async ({ updateConfig, config, logger, command }) => {
 				let session = config.session;
 				_config = config;
 				if (!session?.driver) {
@@ -72,10 +72,15 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 				}
 
 				updateConfig({
+					build: {
+						redirects: false,
+					},
 					image: {
 						endpoint: {
 							route: config.image.endpoint.route ?? '_image',
-							entrypoint: config.image.endpoint.entrypoint ?? 'astro/assets/endpoint/node',
+							entrypoint:
+								config.image.endpoint.entrypoint ??
+								(command === 'dev' ? 'astro/assets/endpoint/dev' : 'astro/assets/endpoint/node'),
 						},
 					},
 					session,

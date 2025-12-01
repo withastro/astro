@@ -71,7 +71,6 @@ export function createCollectionToGlobResultMap({
 
 const cacheHintSchema = z.object({
 	tags: z.array(z.string()).optional(),
-	maxAge: z.number().optional(),
 	lastModified: z.date().optional(),
 });
 
@@ -529,18 +528,12 @@ export function createGetLiveCollection({
 			// Aggregate cache hints from individual entries if any
 			if (processedEntries.length > 0) {
 				const entryTags = new Set<string>();
-				let minMaxAge: number | undefined;
 				let latestModified: Date | undefined;
 
 				for (const entry of processedEntries) {
 					if (entry.cacheHint) {
 						if (entry.cacheHint.tags) {
 							entry.cacheHint.tags.forEach((tag) => entryTags.add(tag));
-						}
-						if (typeof entry.cacheHint.maxAge === 'number') {
-							if (minMaxAge === undefined || entry.cacheHint.maxAge < minMaxAge) {
-								minMaxAge = entry.cacheHint.maxAge;
-							}
 						}
 						if (entry.cacheHint.lastModified instanceof Date) {
 							if (latestModified === undefined || entry.cacheHint.lastModified > latestModified) {
@@ -551,17 +544,11 @@ export function createGetLiveCollection({
 				}
 
 				// Merge collection and entry cache hints
-				if (entryTags.size > 0 || minMaxAge !== undefined || latestModified || cacheHint) {
+				if (entryTags.size > 0 || latestModified || cacheHint) {
 					const mergedCacheHint: CacheHint = {};
 					if (cacheHint?.tags || entryTags.size > 0) {
 						// Merge and dedupe tags
 						mergedCacheHint.tags = [...new Set([...(cacheHint?.tags || []), ...entryTags])];
-					}
-					if (cacheHint?.maxAge !== undefined || minMaxAge !== undefined) {
-						mergedCacheHint.maxAge =
-							cacheHint?.maxAge !== undefined && minMaxAge !== undefined
-								? Math.min(cacheHint.maxAge, minMaxAge)
-								: (cacheHint?.maxAge ?? minMaxAge);
 					}
 					if (cacheHint?.lastModified && latestModified) {
 						mergedCacheHint.lastModified =

@@ -1,5 +1,38 @@
 # @astrojs/internal-helpers
 
+## 0.7.5
+
+### Patch Changes
+
+- [#14791](https://github.com/withastro/astro/pull/14791) [`9e9c528`](https://github.com/withastro/astro/commit/9e9c528191b6f5e06db9daf6ad26b8f68016e533) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Changes the remote protocol checks for images to require explicit authorization in order to use data URIs.
+
+  In order to allow data URIs for remote images, you will need to update your `astro.config.mjs` file to include the following configuration:
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    images: {
+      remotePatterns: [
+        {
+          protocol: 'data',
+        },
+      ],
+    },
+  });
+  ```
+
+- [#14787](https://github.com/withastro/astro/pull/14787) [`0f75f6b`](https://github.com/withastro/astro/commit/0f75f6bc637d547e07324e956db21d9f245a3e8e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes wildcard hostname pattern matching to correctly reject hostnames without dots
+
+  Previously, hostnames like `localhost` or other single-part names would incorrectly match patterns like `*.example.com`. The wildcard matching logic has been corrected to ensure that only valid subdomains matching the pattern are accepted.
+
+## 0.7.4
+
+### Patch Changes
+
+- [`b8ca69b`](https://github.com/withastro/astro/commit/b8ca69b97149becefaf89bf21853de9c905cdbb7) Thanks [@ascorbic](https://github.com/ascorbic)! - Refactor remote path detection
+
 ## 0.7.3
 
 ### Patch Changes

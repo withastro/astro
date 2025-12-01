@@ -1,9 +1,5 @@
 import type { z } from 'zod';
-import type {
-	ActionAccept,
-	ActionClient,
-	ActionReturnType,
-} from '../../actions/runtime/virtual/server.js';
+import type { ActionAccept, ActionClient, ActionReturnType } from '../../actions/runtime/server.js';
 import type { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../core/constants.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
 import type { CspDirective, CspHash } from '../../core/csp/config.js';
@@ -221,13 +217,22 @@ export interface AstroGlobalPartial {
 	 * ```
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroglob)
-	 * @deprecated Astro.glob is deprecated and will be removed in the next major version of Astro. Use `import.meta.glob` instead: https://vitejs.dev/guide/features.html#glob-import
+	 * @deprecated `Astro.glob` is deprecated and will be removed in the next major version of Astro. Use `import.meta.glob` instead: https://vitejs.dev/guide/features.html#glob-import
 	 */
 	glob(globStr: `${any}.astro`): Promise<AstroInstance[]>;
+	/**
+	 * @deprecated `Astro.glob` is deprecated and will be removed in the next major version of Astro. Use `import.meta.glob` instead: https://vitejs.dev/guide/features.html#glob-import
+	 */
 	glob<T extends Record<string, any>>(
 		globStr: `${any}${MarkdownFileExtension}`,
 	): Promise<MarkdownInstance<T>[]>;
+	/**
+	 * @deprecated `Astro.glob` is deprecated and will be removed in the next major version of Astro. Use `import.meta.glob` instead: https://vitejs.dev/guide/features.html#glob-import
+	 */
 	glob<T extends Record<string, any>>(globStr: `${any}.mdx`): Promise<MDXInstance<T>[]>;
+	/**
+	 * @deprecated `Astro.glob` is deprecated and will be removed in the next major version of Astro. Use `import.meta.glob` instead: https://vitejs.dev/guide/features.html#glob-import
+	 */
 	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
 	/**
 	 * Returns a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option

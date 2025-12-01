@@ -1,5 +1,57 @@
 # @astrojs/svelte
 
+## 7.2.2
+
+### Patch Changes
+
+- [#14715](https://github.com/withastro/astro/pull/14715) [`3d55c5d`](https://github.com/withastro/astro/commit/3d55c5d0fb520d470b33d391e5b68861f5b51271) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds support for client hydration in `getContainerRenderer()`
+
+  The `getContainerRenderer()` function is exported by Astro framework integrations to simplify the process of rendering framework components when using the experimental Container API inside a Vite or Vitest environment. This update adds the client hydration entrypoint to the returned object, enabling client-side interactivity for components rendered using this function. Previously this required users to manually call `container.addClientRenderer()` with the appropriate client renderer entrypoint.
+
+  See [the `container-with-vitest` demo](https://github.com/withastro/astro/blob/main/examples/container-with-vitest/test/ReactWrapper.test.ts) for a usage example, and [the Container API documentation](https://docs.astro.build/en/reference/container-reference/#renderers-option) for more information on using framework components with the experimental Container API.
+
+## 7.2.1
+
+### Patch Changes
+
+- [#14621](https://github.com/withastro/astro/pull/14621) [`e3175d9`](https://github.com/withastro/astro/commit/e3175d9ccbf070150ab2229b2564ca0b12a86c30) Thanks [@GameRoMan](https://github.com/GameRoMan)! - Updates `vite` version to fix CVE
+
+## 7.2.0
+
+### Minor Changes
+
+- [#14430](https://github.com/withastro/astro/pull/14430) [`78011ba`](https://github.com/withastro/astro/commit/78011ba4ee6cce6d42d246ee7b91a48b1509a3be) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds support for async server rendering
+
+  Svelte 5.36 added experimental support for async rendering. This allows you to use `await` in your components in several new places. This worked out of the box with client-rendered components, but server-rendered components needed some extra help. This update adds support for async server rendering in Svelte components used in Astro.
+
+  To use async rendering, you must enable it in your Svelte config:
+
+  ```js
+  // svelte.config.js
+  export default {
+    compilerOptions: {
+      experimental: {
+        async: true,
+      },
+    },
+  };
+  ```
+
+  Then you can use `await` in your components:
+
+  ```svelte
+  <script>
+    let data = await fetch('/api/data').then(res => res.json());
+  </script>
+  <h1>{data.title}</h1>
+  ```
+
+  See [the Svelte docs](https://svelte.dev/docs/svelte/await-expressions) for more information on using `await` in Svelte components, including inside `$derived` blocks and directly in markup.
+
+### Patch Changes
+
+- [#14433](https://github.com/withastro/astro/pull/14433) [`9cc8f21`](https://github.com/withastro/astro/commit/9cc8f21a15492a80e2edae0e38c652174a8c3ba0) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that prevented Svelte 5.39.1+ components rendering when multiple frameworks were present
+
 ## 7.1.1
 
 ### Patch Changes

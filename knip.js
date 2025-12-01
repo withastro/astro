@@ -9,6 +9,7 @@ export default {
 		'examples/**',
 		'**/{test,e2e}/**/{fixtures,_temp-fixtures}/**',
 		'benchmark/**',
+		'packages/language-tools/**/*',
 	],
 	workspaces: {
 		'.': {
@@ -16,7 +17,9 @@ export default {
 				'@astrojs/check', // Used by the build script but not as a standard module import
 			],
 			// In smoke tests, we checkout to the docs repo so those binaries are not present in this project
-			ignoreBinaries: ['docgen', 'docgen:errors', 'playwright'],
+			// vsce and ovsx are only used in CI for publishing, and due to how we have to publish the VS Code extension have
+			// to be installed in the vscode package, but knip is expecting them to be in the root node_modules
+			ignoreBinaries: ['docgen', 'docgen:errors', 'playwright', 'vsce', 'ovsx'],
 		},
 		'packages/*': {
 			entry: [testEntry],
@@ -76,6 +79,10 @@ export default {
 		},
 		'packages/upgrade': {
 			entry: ['src/index.ts', testEntry],
+		},
+		scripts: {
+			// Used in shell script
+			ignoreDependencies: ['marked'],
 		},
 	},
 };

@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { Http2ServerResponse } from 'node:http2';
 import type { Socket } from 'node:net';
+import type { RemotePattern } from '../../types/public/config.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { clientAddressSymbol, nodeRequestAbortControllerCleanupSymbol } from '../constants.js';
 import { deserializeManifest } from './common.js';
@@ -31,6 +32,7 @@ export class NodeApp extends App {
 		if (!(req instanceof Request)) {
 			req = NodeApp.createRequest(req, {
 				skipBody: true,
+				allowedDomains: this.manifest.allowedDomains,
 			});
 		}
 		return super.match(req, allowPrerenderedRoutes);
@@ -47,7 +49,9 @@ export class NodeApp extends App {
 		maybeLocals?: object,
 	) {
 		if (!(req instanceof Request)) {
-			req = NodeApp.createRequest(req);
+			req = NodeApp.createRequest(req, {
+				allowedDomains: this.manifest.allowedDomains,
+			});
 		}
 		// @ts-expect-error The call would have succeeded against the implementation, but implementation signatures of overloads are not externally visible.
 		return super.render(req, routeDataOrOptions, maybeLocals);
@@ -66,7 +70,13 @@ export class NodeApp extends App {
 	 * })
 	 * ```
 	 */
-	static createRequest(req: NodeRequest, { skipBody = false } = {}): Request {
+	static createRequest(
+		req: NodeRequest,
+		{
+			skipBody = false,
+			allowedDomains = [],
+		}: { skipBody?: boolean; allowedDomains?: Partial<RemotePattern>[] } = {},
+	): Request {
 		const controller = new AbortController();
 
 		const isEncrypted = 'encrypted' in req.socket && req.socket.encrypted;
@@ -79,21 +89,25 @@ export class NodeApp extends App {
 				.map((e) => e.trim())?.[0];
 		};
 
-		// Get the used protocol between the end client and first proxy.
-		// NOTE: Some proxies append values with spaces and some do not.
-		// We need to handle it here and parse the header correctly.
-		// @example "https, http,http" => "http"
-		const forwardedProtocol = getFirstForwardedValue(req.headers['x-forwarded-proto']);
 		const providedProtocol = isEncrypted ? 'https' : 'http';
-		const protocol = forwardedProtocol ?? providedProtocol;
-
-		// @example "example.com,www2.example.com" => "example.com"
-		const forwardedHostname = getFirstForwardedValue(req.headers['x-forwarded-host']);
 		const providedHostname = req.headers.host ?? req.headers[':authority'];
-		const hostname = forwardedHostname ?? providedHostname;
 
-		// @example "443,8080,80" => "443"
-		const port = getFirstForwardedValue(req.headers['x-forwarded-port']);
+		// Validate forwarded headers
+		// NOTE: Header values may have commas/spaces from proxy chains, extract first value
+		const validated = App.validateForwardedHeaders(
+			getFirstForwardedValue(req.headers['x-forwarded-proto']),
+			getFirstForwardedValue(req.headers['x-forwarded-host']),
+			getFirstForwardedValue(req.headers['x-forwarded-port']),
+			allowedDomains,
+		);
+
+		const protocol = validated.protocol ?? providedProtocol;
+		// validated.host is already sanitized, only sanitize providedHostname
+		const sanitizedProvidedHostname = App.sanitizeHost(
+			typeof providedHostname === 'string' ? providedHostname : undefined,
+		);
+		const hostname = validated.host ?? sanitizedProvidedHostname;
+		const port = validated.port;
 
 		let url: URL;
 		try {

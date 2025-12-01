@@ -7,7 +7,7 @@ import { getDefaultClientDirectives } from '../../dist/core/client-directive/ind
 import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
 import { createContainer } from '../../dist/core/dev/container.js';
-import { Logger } from '../../dist/core/logger/core.js';
+import { AstroIntegrationLogger, Logger } from '../../dist/core/logger/core.js';
 import { nodeLogDestination } from '../../dist/core/logger/node.js';
 import { NOOP_MIDDLEWARE_FN } from '../../dist/core/middleware/noop-middleware.js';
 import { Pipeline } from '../../dist/core/render/index.js';
@@ -165,5 +165,43 @@ export async function runInContainer(options = {}, callback) {
 		await callback(container);
 	} finally {
 		await container.close();
+	}
+}
+
+/**
+ * @import {Logger} from '../../dist/core/logger/core'
+ */
+
+/** @implements {Logger} */
+export class SpyLogger {
+	/** @type {Array<{ type: string; label: string | null; message: string }>} */
+	#logs = [];
+	get logs() {
+		return this.#logs;
+	}
+
+	debug(label, ...messages) {
+		this.#logs.push(...messages.map((message) => ({ type: 'debug', label, message })));
+	}
+	error(label, message) {
+		this.#logs.push({ type: 'error', label, message });
+	}
+	info(label, message) {
+		this.#logs.push({ type: 'info', label, message });
+	}
+	warn(label, message) {
+		this.#logs.push({ type: 'warn', label, message });
+	}
+	options = {
+		dest: {
+			write: () => true,
+		},
+		level: /** @type {const} */ ('silent'),
+	};
+	level() {
+		return this.options.level;
+	}
+	forkIntegrationLogger(label) {
+		return new AstroIntegrationLogger(this.options, label);
 	}
 }

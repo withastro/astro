@@ -165,6 +165,12 @@ export class ServerIslandComponent {
 				? ''
 				: await encryptString(key, JSON.stringify(this.props));
 
+		// Encrypt slots
+		const slotsEncrypted =
+			Object.keys(renderedSlots).length === 0
+				? ''
+				: await encryptString(key, JSON.stringify(renderedSlots));
+
 		const hostId = await this.getHostId();
 		const slash = this.result.base.endsWith('/') ? '' : '/';
 		let serverIslandUrl = `${this.result.base}${slash}_server-islands/${componentId}${this.result.trailingSlash === 'always' ? '/' : ''}`;
@@ -173,7 +179,7 @@ export class ServerIslandComponent {
 		const potentialSearchParams = createSearchParams(
 			componentExport,
 			propsEncrypted,
-			safeJsonStringify(renderedSlots),
+			slotsEncrypted,
 		);
 		const useGETRequest = isWithinURLLimit(serverIslandUrl, potentialSearchParams);
 
@@ -186,18 +192,25 @@ export class ServerIslandComponent {
 			);
 		}
 
+		// Get adapter headers for inline script
+		const adapterHeaders = this.result.internalFetchHeaders || {};
+		const headersJson = safeJsonStringify(adapterHeaders);
+
 		const method = useGETRequest
 			? // GET request
-				`let response = await fetch('${serverIslandUrl}');`
+				`const headers = new Headers(${headersJson});
+let response = await fetch('${serverIslandUrl}', { headers });`
 			: // POST request
 				`let data = {
 	componentExport: ${safeJsonStringify(componentExport)},
 	encryptedProps: ${safeJsonStringify(propsEncrypted)},
-	slots: ${safeJsonStringify(renderedSlots)},
+	encryptedSlots: ${safeJsonStringify(slotsEncrypted)},
 };
+const headers = new Headers({ 'Content-Type': 'application/json', ...${headersJson} });
 let response = await fetch('${serverIslandUrl}', {
 	method: 'POST',
 	body: JSON.stringify(data),
+	headers,
 });`;
 
 		this.islandContent = `${method}replaceServerIsland('${hostId}', response);`;

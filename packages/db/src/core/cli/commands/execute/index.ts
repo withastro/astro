@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import type { AstroConfig } from 'astro';
-import { green } from 'kleur/colors';
+import colors from 'piccolore';
 import type { Arguments } from 'yargs-parser';
 import { isDbError } from '../../../../runtime/utils.js';
 import {
@@ -64,7 +64,7 @@ export async function cmd({
 	}
 	try {
 		await mod.default();
-		console.info(`${green('✔')} File run successfully.`);
+		console.info(`${colors.green('✔')} File run successfully.`);
 	} catch (e) {
 		if (isDbError(e)) throw new Error(EXEC_ERROR(e.message));
 		else throw e;

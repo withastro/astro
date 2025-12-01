@@ -102,6 +102,24 @@ export interface AstroAdapterFeatures {
 	experimentalStaticHeaders?: boolean;
 }
 
+/**
+ * @internal
+ * Configuration for Astro's client-side code from adapters.
+ * This is used internally to inject adapter-specific behavior into client code.
+ */
+export interface AstroAdapterClientConfig {
+	/**
+	 * Headers to inject into Astro's internal fetch calls (Actions, View Transitions, Server Islands, Prefetch).
+	 * Can be an object of headers or a function that returns headers.
+	 */
+	internalFetchHeaders?: Record<string, string> | (() => Record<string, string>);
+	/**
+	 * Query parameters to append to all asset URLs (images, stylesheets, scripts, etc.).
+	 * Useful for adapters that need to track deployment versions or other metadata.
+	 */
+	assetQueryParams?: URLSearchParams;
+}
+
 export interface AstroAdapter {
 	name: string;
 	serverEntrypoint?: string | URL;
@@ -115,6 +133,10 @@ export interface AstroAdapter {
 	 * If the adapter is not able to handle certain configurations, Astro will throw an error.
 	 */
 	supportedAstroFeatures: AstroAdapterFeatureMap;
+	/**
+	 * Configuration for Astro's client-side code.
+	 */
+	client?: AstroAdapterClientConfig;
 }
 
 export type AstroAdapterFeatureMap = {

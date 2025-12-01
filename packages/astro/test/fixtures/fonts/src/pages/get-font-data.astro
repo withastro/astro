@@ -1,0 +1,5 @@
+---
+import { getFontData } from 'astro:assets'
+---
+
+<pre id="data">{JSON.stringify(getFontData('--font-test'), null, 2)}</pre>

@@ -1,6 +1,5 @@
 import type * as unifont from 'unifont';
-import type { CollectedFontForMetrics } from './logic/optimize-fallbacks.js';
-/* eslint-disable @typescript-eslint/no-empty-object-type */
+import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 import type {
 	AstroFontProvider,
 	FontFaceMetrics,
@@ -29,26 +28,10 @@ export interface LocalProviderUrlResolver {
 	resolve: (input: string) => string;
 }
 
-type SingleErrorInput<TType extends string, TData extends Record<string, any>> = {
-	type: TType;
-	data: TData;
-	cause: unknown;
-};
-
-export type ErrorHandlerInput =
-	| SingleErrorInput<
-			'cannot-load-font-provider',
-			{
-				entrypoint: string;
-			}
-	  >
-	| SingleErrorInput<'unknown-fs-error', {}>
-	| SingleErrorInput<'cannot-fetch-font-file', { url: string }>
-	| SingleErrorInput<'cannot-extract-font-type', { url: string }>
-	| SingleErrorInput<'cannot-extract-data', { family: string; url: string }>;
-
-export interface ErrorHandler {
-	handle: (input: ErrorHandlerInput) => Error;
+interface ProxyData {
+	weight: unifont.FontFaceData['weight'];
+	style: unifont.FontFaceData['style'];
+	subset: NonNullable<unifont.FontFaceData['meta']>['subset'];
 }
 
 export interface UrlProxy {
@@ -56,7 +39,7 @@ export interface UrlProxy {
 		input: Pick<FontFileData, 'url' | 'init'> & {
 			type: FontType;
 			collectPreload: boolean;
-			data: Partial<unifont.FontFaceData>;
+			data: ProxyData;
 		},
 	) => string;
 }
@@ -73,7 +56,7 @@ export interface UrlProxyContentResolver {
 export interface DataCollector {
 	collect: (
 		input: FontFileData & {
-			data: Partial<unifont.FontFaceData>;
+			data: ProxyData;
 			preload: PreloadData | null;
 		},
 	) => void;
@@ -122,6 +105,10 @@ export interface UrlProxyHashResolver {
 		originalUrl: string;
 		type: FontType;
 		cssVariable: string;
-		data: Partial<unifont.FontFaceData>;
+		data: ProxyData;
 	}) => string;
+}
+
+export interface StringMatcher {
+	getClosestMatch: (target: string, candidates: Array<string>) => string;
 }

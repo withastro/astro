@@ -10,7 +10,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "kleur": "^4.1.5"
+  "dependencies": {
+    "piccolore": "^0.1.3"
   }
 }

@@ -1,5 +1,71 @@
 # @astrojs/netlify
 
+## 6.6.3
+
+### Patch Changes
+
+- [#14807](https://github.com/withastro/astro/pull/14807) [`c17767a`](https://github.com/withastro/astro/commit/c17767a07c9f0d449db8e16d05309c2ee9c0fbdc) Thanks [@jmgala](https://github.com/jmgala)! - Fixes a case where disabling the local image CDN wasn't possible
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.6.2
+
+### Patch Changes
+
+- [#14716](https://github.com/withastro/astro/pull/14716) [`0419985`](https://github.com/withastro/astro/commit/0419985d9453668f2faf38ee9a84882633c8d8be) Thanks [@serhalp](https://github.com/serhalp)! - Upgrades the `@netlify/functions` dependency to v5. This removes 82 MB and 310 dependencies from the dependency tree
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.6.1
+
+### Patch Changes
+
+- Updated dependencies [[`9e9c528`](https://github.com/withastro/astro/commit/9e9c528191b6f5e06db9daf6ad26b8f68016e533), [`0f75f6b`](https://github.com/withastro/astro/commit/0f75f6bc637d547e07324e956db21d9f245a3e8e)]:
+  - @astrojs/internal-helpers@0.7.5
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.6.0
+
+### Minor Changes
+
+- [#14543](https://github.com/withastro/astro/pull/14543) [`9b3241d`](https://github.com/withastro/astro/commit/9b3241d8a903ce0092905205af883cef5498d0b2) Thanks [@matthewp](https://github.com/matthewp)! - Enables Netlify's skew protection feature for Astro sites deployed on Netlify. Skew protection ensures that your site's client and server versions stay synchronized during deployments, preventing issues where users might load assets from a newer deployment while the server is still running the older version.
+
+  When you deploy to Netlify, the deployment ID is now automatically included in both asset requests and API calls, allowing Netlify to serve the correct version to every user. These are set for built-in features (Actions, View Transitions, Server Islands, Prefetch). If you are making your own fetch requests to your site, you can include the header manually using the `DEPLOY_ID` environment variable:
+
+  ```js
+  const response = await fetch('/api/endpoint', {
+    headers: {
+      'X-Netlify-Deploy-ID': import.meta.env.DEPLOY_ID,
+    },
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.5.13
+
+### Patch Changes
+
+- [#14536](https://github.com/withastro/astro/pull/14536) [`9261996`](https://github.com/withastro/astro/commit/9261996150f4c690c4762bf02100e44680bd480d) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a bug that caused too many files to be bundled in SSR
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 6.5.12
+
+### Patch Changes
+
+- [#14473](https://github.com/withastro/astro/pull/14473) [`d9634d3`](https://github.com/withastro/astro/commit/d9634d31c47f3707e6092bed7938dfcfc0fb550b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a bug that caused too many files to be bundled in SSR
+
+- Updated dependencies [[`b8ca69b`](https://github.com/withastro/astro/commit/b8ca69b97149becefaf89bf21853de9c905cdbb7)]:
+  - @astrojs/internal-helpers@0.7.4
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 6.5.11
 
 ### Patch Changes

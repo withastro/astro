@@ -1,5 +1,32 @@
 # @astrojs/cloudflare
 
+## 12.6.12
+
+### Patch Changes
+
+- [#14777](https://github.com/withastro/astro/pull/14777) [`9720b70`](https://github.com/withastro/astro/commit/9720b7009cc73674fe1dd6d4b4835d776cb65e81) Thanks [@iclectic](https://github.com/iclectic)! - Updates assets handling to use `@astrojs/internal-helpers`
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 12.6.11
+
+### Patch Changes
+
+- Updated dependencies [[`9e9c528`](https://github.com/withastro/astro/commit/9e9c528191b6f5e06db9daf6ad26b8f68016e533), [`0f75f6b`](https://github.com/withastro/astro/commit/0f75f6bc637d547e07324e956db21d9f245a3e8e)]:
+  - @astrojs/internal-helpers@0.7.5
+  - @astrojs/underscore-redirects@1.0.0
+
+## 12.6.10
+
+### Patch Changes
+
+- [`b8ca69b`](https://github.com/withastro/astro/commit/b8ca69b97149becefaf89bf21853de9c905cdbb7) Thanks [@ascorbic](https://github.com/ascorbic)! - Refactor remote path detection
+
+- Updated dependencies [[`b8ca69b`](https://github.com/withastro/astro/commit/b8ca69b97149becefaf89bf21853de9c905cdbb7)]:
+  - @astrojs/internal-helpers@0.7.4
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 12.6.9
 
 ### Patch Changes

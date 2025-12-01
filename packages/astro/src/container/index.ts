@@ -28,7 +28,10 @@ import type {
 } from '../types/public/internal.js';
 import { ContainerPipeline } from './pipeline.js';
 
-/** Public type, used for integrations to define a renderer for the container API */
+/**
+ * Public type, used for integrations to define a renderer for the container API
+ * @deprecated Use `AstroRenderer` instead.
+ */
 export type ContainerRenderer = {
 	/**
 	 * The name of the renderer.
@@ -158,6 +161,7 @@ function createManifest(
 		inlinedScripts: manifest?.inlinedScripts ?? new Map(),
 		i18n: manifest?.i18n,
 		checkOrigin: false,
+		allowedDomains: manifest?.allowedDomains ?? [],
 		middleware: manifest?.middleware ?? middlewareInstance,
 		key: createKey(),
 		csp: manifest?.csp,
@@ -247,6 +251,7 @@ type AstroContainerManifest = Pick<
 	| 'outDir'
 	| 'cacheDir'
 	| 'csp'
+	| 'allowedDomains'
 >;
 
 type AstroContainerConstructor = {

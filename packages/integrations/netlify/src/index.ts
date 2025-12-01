@@ -169,6 +169,26 @@ async function writeNetlifyFrameworkConfig(
 	);
 }
 
+async function writeSkewProtectionConfig(config: AstroConfig) {
+	const deployId = process.env.DEPLOY_ID;
+	if (!deployId) {
+		return; // Skip if not deploying to Netlify
+	}
+
+	const deployConfigDir = new URL('.netlify/v1/', config.root);
+	await mkdir(deployConfigDir, { recursive: true });
+	await writeFile(
+		new URL('./skew-protection.json', deployConfigDir),
+		JSON.stringify({
+			patterns: ['/_actions/.*', '/_server-islands/.*', '.*\\.(html)$'],
+			sources: [
+				{ type: 'header', name: 'X-Netlify-Deploy-ID' },
+				{ type: 'query', name: 'dpl' },
+			],
+		}),
+	);
+}
+
 export interface NetlifyIntegrationConfig {
 	/**
 	 * Force files to be bundled with your SSR function.
@@ -587,21 +607,28 @@ export default function netlifyIntegration(
 					};
 				}
 
-				const features = integrationConfig?.devFeatures;
+				const features =
+					typeof integrationConfig?.devFeatures === 'boolean'
+						? {
+								images: integrationConfig.devFeatures,
+								environmentVariables: integrationConfig.devFeatures,
+							}
+						: {
+								images: integrationConfig?.devFeatures?.images ?? true,
+								environmentVariables: integrationConfig?.devFeatures?.environmentVariables ?? false,
+							};
 
 				const vitePluginOptions: NetlifyPluginOptions = {
 					images: {
-						// We don't need to disable the feature, because if the user disables it
-						// we'll disable the whole image service.
+						// If features is an object, use the `images` property
+						// Otherwise, use the boolean value of `features`, defaulting to true
+						enabled: features.images,
 						remoteURLPatterns: remoteImagesFromAstroConfig(config, logger),
 					},
 					environmentVariables: {
 						// If features is an object, use the `environmentVariables` property
 						// Otherwise, use the boolean value of `features`, defaulting to false
-						enabled:
-							typeof features === 'object'
-								? (features.environmentVariables ?? false)
-								: features === true,
+						enabled: features.environmentVariables,
 					},
 				};
 
@@ -662,6 +689,18 @@ export default function netlifyIntegration(
 						sharpImageService: 'stable',
 						envGetSecret: 'stable',
 					},
+					client: {
+						internalFetchHeaders: (): Record<string, string> => {
+							const deployId = process.env.DEPLOY_ID;
+							if (deployId) {
+								return { 'X-Netlify-Deploy-ID': deployId };
+							}
+							return {};
+						},
+						assetQueryParams: process.env.DEPLOY_ID
+							? new URLSearchParams({ dpl: process.env.DEPLOY_ID })
+							: undefined,
+					},
 				});
 			},
 			'astro:build:generated': ({ experimentalRouteToHeaders }) => {
@@ -688,6 +727,7 @@ export default function netlifyIntegration(
 				}
 
 				await writeNetlifyFrameworkConfig(_config, staticHeadersMap, logger);
+				await writeSkewProtectionConfig(_config);
 			},
 
 			// local dev

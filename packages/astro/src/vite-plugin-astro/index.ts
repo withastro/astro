@@ -205,7 +205,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					return null;
 			}
 		},
-		async transform(source, id) {
+		async transform(source, id, options) {
 			if (hasSpecialQueries(id)) return;
 
 			const parsedId = parseAstroRequest(id);
@@ -228,6 +228,29 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			}
 
 			const filename = normalizePath(parsedId.filename);
+
+			// If an Astro component is imported in code used on the client, we return an empty
+			// module so that Vite doesn’t bundle the server-side Astro code for the client.
+			if (
+				!options?.ssr &&
+				// Workaround to allow tests run with Vitest in a “client” environment to still render
+				// Astro components. See https://github.com/withastro/astro/issues/14883
+				// TODO: In a future major we should remove this and require people test Astro rendering in
+				// an SSR test environment, which more closely matches the real-world Vite environment.
+				!process.env.VITEST
+			) {
+				return {
+					code: `export default import.meta.env.DEV
+									? () => {
+											throw new Error(
+												'Astro components cannot be used in the browser.\\nTried to render "${filename}".'
+											);
+										}
+									: {};`,
+					meta: { vite: { lang: 'ts' } },
+				};
+			}
+
 			const transformResult = await compile(source, filename);
 
 			const astroMetadata: AstroPluginMetadata['astro'] = {
