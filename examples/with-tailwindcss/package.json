@@ -10,11 +10,11 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^4.3.11",
-    "@tailwindcss/vite": "^4.1.16",
+    "@astrojs/mdx": "^4.3.12",
+    "@tailwindcss/vite": "^4.1.17",
     "@types/canvas-confetti": "^1.9.0",
-    "astro": "^5.15.9",
-    "canvas-confetti": "^1.9.3",
-    "tailwindcss": "^4.1.16"
+    "astro": "^5.16.3",
+    "canvas-confetti": "^1.9.4",
+    "tailwindcss": "^4.1.17"
   }
 }

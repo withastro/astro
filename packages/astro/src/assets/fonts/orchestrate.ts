@@ -1,7 +1,11 @@
 import * as unifont from 'unifont';
-import type { Storage } from 'unstorage';
 import type { Logger } from '../../core/logger/core.js';
 import { LOCAL_PROVIDER_NAME } from './constants.js';
+import { dedupeFontFaces } from './core/dedupe-font-faces.js';
+import { extractUnifontProviders } from './core/extract-unifont-providers.js';
+import { normalizeRemoteFontFaces } from './core/normalize-remote-font-faces.js';
+import { type CollectedFontForMetrics, optimizeFallbacks } from './core/optimize-fallbacks.js';
+import { resolveFamilies } from './core/resolve-families.js';
 import type {
 	CssRenderer,
 	FontFileReader,
@@ -10,15 +14,11 @@ import type {
 	Hasher,
 	LocalProviderUrlResolver,
 	RemoteFontProviderResolver,
+	Storage,
 	StringMatcher,
 	SystemFallbacksProvider,
 	UrlProxy,
 } from './definitions.js';
-import { dedupeFontFaces } from './logic/dedupe-font-faces.js';
-import { extractUnifontProviders } from './logic/extract-unifont-providers.js';
-import { normalizeRemoteFontFaces } from './logic/normalize-remote-font-faces.js';
-import { type CollectedFontForMetrics, optimizeFallbacks } from './logic/optimize-fallbacks.js';
-import { resolveFamilies } from './logic/resolve-families.js';
 import { resolveLocalFont } from './providers/local.js';
 import type {
 	ConsumableMap,

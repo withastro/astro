@@ -37,14 +37,14 @@
   },
   "dependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.1.1",
-    "svelte2tsx": "^0.7.42",
+    "svelte2tsx": "^0.7.45",
     "vite": "^6.4.1"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.1.2",
-    "svelte": "^5.39.3"
+    "svelte": "^5.43.14"
   },
   "peerDependencies": {
     "astro": "^5.0.0",
