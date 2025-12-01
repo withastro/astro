@@ -1,4 +1,4 @@
-import { createReadStream, writeFileSync } from 'node:fs';
+import { createReadStream, writeFileSync, copyFileSync, existsSync, readFileSync } from 'node:fs';
 import { appendFile, stat } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline/promises';
@@ -23,6 +23,7 @@ import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { type ImageService, setImageConfig } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
 import { hasWranglerConfig, wranglerTemplate } from './wrangler.js';
+import { parse } from 'dotenv';
 
 export type { Runtime } from './utils/handler.js';
 
@@ -192,6 +193,13 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					const cachedFile = new URL('wrangler.json', codegenDir);
 					writeFileSync(cachedFile, wranglerTemplate(), 'utf-8');
 					cfPluginConfig.configPath = fileURLToPath(cachedFile);
+
+					// Copy .dev.vars to codegen dir if it exists
+					const devVarsPath = new URL('.dev.vars', config.root);
+					const devVarsCodegenPath = new URL('.dev.vars', codegenDir);
+					if (existsSync(devVarsPath)) {
+						copyFileSync(devVarsPath, devVarsCodegenPath);
+					}
 				}
 
 				updateConfig({
@@ -253,7 +261,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			'astro:routes:resolved': ({ routes }) => {
 				_routes = routes;
 			},
-			'astro:config:done': ({ setAdapter, config, buildOutput, injectTypes }) => {
+			'astro:config:done': ({ setAdapter, config, buildOutput, injectTypes, logger }) => {
 				_config = config;
 				finalBuildOutput = buildOutput;
 
@@ -297,6 +305,18 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						envGetSecret: 'stable',
 					},
 				});
+
+				// Assign .dev.vars to process.env so astro:env can find these vars
+				const devVarsPath = new URL('.dev.vars', config.root);
+				if (existsSync(devVarsPath)) {
+					try {
+						const data = readFileSync(devVarsPath, 'utf-8');
+						const parsed = parse(data);
+						Object.assign(process.env, parsed);
+					} catch {
+						logger.error(`Unable to parse .dev.vars, variables will not be available to your application.`);
+					}
+				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {

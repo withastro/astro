@@ -1,4 +1,5 @@
 name = "test"
+compatibility_date = "2024-11-01"
 main = "@astrojs/cloudflare/entrypoints/server"
 
 kv_namespaces = [
@@ -23,8 +24,8 @@ preview_database_id = "D1_PROD"
 
 [[r2_buckets]]
 binding = 'R2'
-bucket_name = '<YOUR_BUCKET_NAME>'
+bucket_name = 'your-bucket-name'
 
 [[r2_buckets]]
 binding = 'R2_PROD'
-bucket_name = '<YOUR_BUCKET_NAME>'
+bucket_name = 'your-bucket-name'

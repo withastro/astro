@@ -44,10 +44,11 @@
     "@astrojs/underscore-redirects": "workspace:*",
     "@cloudflare/vite-plugin": "^1.15.2",
     "@cloudflare/workers-types": "^4.20251125.0",
+    "dotenv": "^17.2.3",
+    "piccolore": "^0.1.3",
     "tinyglobby": "^0.2.15",
     "vite": "^7.1.12",
-    "wrangler": "4.50.0",
-    "piccolore": "^0.1.3"
+    "wrangler": "4.50.0"
   },
   "peerDependencies": {
     "astro": "^6.0.0-alpha.0"

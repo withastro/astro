@@ -11,7 +11,7 @@ import type * as http from 'node:http';
 import colors from 'piccolore';
 import { performance } from 'node:perf_hooks';
 import { hasWranglerConfig, wranglerTemplate } from '../wrangler.js';
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, copyFileSync, existsSync } from 'node:fs';
 
 const createPreviewServer: CreatePreviewServer = async ({
 	logger,
@@ -30,7 +30,14 @@ const createPreviewServer: CreatePreviewServer = async ({
 		const codegenDir = createCodegenDir();
 		const cachedFile = new URL('wrangler.json', codegenDir);
 		writeFileSync(cachedFile, wranglerTemplate(), 'utf-8');
-		cfPluginConfig.configPath = cachedFile.pathname;
+		cfPluginConfig.configPath = fileURLToPath(cachedFile);
+
+		// Copy .dev.vars to codegen dir if it exists
+		const devVarsPath = new URL('.dev.vars', outDir);
+		const devVarsCodegenPath = new URL('.dev.vars', codegenDir);
+		if (existsSync(devVarsPath)) {
+			copyFileSync(devVarsPath, devVarsCodegenPath);
+		}
 	}
 
 	try {

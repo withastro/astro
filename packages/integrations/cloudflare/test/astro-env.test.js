@@ -5,10 +5,11 @@ import { loadFixture } from './_test-utils.js';
 
 describe(
 	'astro:env',
-	{ todo: 'Make secrets work again', skip: 'At the moment, private secrets are broken' },
 	() => {
 		describe('ssr', () => {
 			let fixture;
+			let previewServer;
+
 			before(async () => {
 				process.env.API_URL = 'https://google.de';
 				process.env.PORT = '4322';
@@ -16,10 +17,15 @@ describe(
 					root: './fixtures/astro-env/',
 				});
 				await fixture.build();
+				previewServer = await fixture.preview();
+			});
+
+			after(async () => {
+				await previewServer.stop();
 			});
 
 			it('runtime', async () => {
-				const res = await fixture.read('/');
+				const res = await fixture.fetch('/');
 				const html = await res.text();
 				const $ = cheerio.load(html);
 				assert.equal(
@@ -31,7 +37,7 @@ describe(
 			});
 
 			it('client', async () => {
-				const res = await fixture.read('/');
+				const res = await fixture.fetch('/');
 				const html = await res.text();
 				const $ = cheerio.load(html);
 				assert.equal($('#client').text().includes('https://google.de'), true);
@@ -52,7 +58,7 @@ describe(
 			});
 
 			it('action secret', async () => {
-				const res = await fixture.read('/test');
+				const res = await fixture.fetch('/test');
 				const html = await res.text();
 				const $ = cheerio.load(html);
 				assert.equal($('#secret').text().includes('123456789'), true);
@@ -68,6 +74,7 @@ describe(
 					root: './fixtures/astro-env/',
 				});
 				devServer = await fixture.startDevServer();
+				await fixture.fetch('/');
 			});
 
 			after(async () => {
