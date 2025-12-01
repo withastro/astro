@@ -78,13 +78,11 @@ export type SerializedActionResult =
 			status: 204;
 	  };
 
-export interface ActionPayload {
-	actionResult: SerializedActionResult;
-	actionName: string;
-}
-
 export interface ActionsLocals {
-	_actionPayload: ActionPayload;
+	_actionPayload: {
+		actionResult: SerializedActionResult;
+		actionName: string;
+	};
 }
 
 export type ActionAPIContext = Pick<

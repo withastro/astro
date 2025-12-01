@@ -264,9 +264,9 @@ export function astroCalledServerError(): AstroError {
 
 export const ACTION_API_CONTEXT_SYMBOL = Symbol.for('astro.actionAPIContext');
 
-export const formContentTypes = ['application/x-www-form-urlencoded', 'multipart/form-data'];
+const formContentTypes = ['application/x-www-form-urlencoded', 'multipart/form-data'];
 
-export function hasContentType(contentType: string, expected: string[]) {
+function hasContentType(contentType: string, expected: string[]) {
 	// Split off parameters like charset or boundary
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type#content-type_in_html_forms
 	const type = contentType.split(';')[0].toLowerCase();
@@ -274,7 +274,7 @@ export function hasContentType(contentType: string, expected: string[]) {
 	return expected.some((t) => type === t);
 }
 
-export function isActionAPIContext(ctx: ActionAPIContext): boolean {
+function isActionAPIContext(ctx: ActionAPIContext): boolean {
 	const symbol = Reflect.get(ctx, ACTION_API_CONTEXT_SYMBOL);
 	return symbol === true;
 }
@@ -344,7 +344,7 @@ function handleFormDataGet(
 	return validator instanceof z.ZodNumber ? Number(value) : value;
 }
 
-export function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormData) {
+function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormData) {
 	while (schema instanceof z.ZodEffects || schema instanceof z.ZodPipeline) {
 		if (schema instanceof z.ZodEffects) {
 			schema = schema._def.schema;
@@ -366,7 +366,7 @@ export function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormDat
 	return schema;
 }
 
-export async function callSafely<TOutput>(
+async function callSafely<TOutput>(
 	handler: () => MaybePromise<TOutput>,
 ): Promise<SafeResult<z.ZodType, TOutput>> {
 	try {
