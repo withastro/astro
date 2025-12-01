@@ -9,6 +9,7 @@ import { ACTION_RPC_ROUTE_PATTERN, ACTIONS_TYPES_FILE, VIRTUAL_MODULE_ID } from 
  * This integration is applied when the user is using Actions in their project.
  * It will inject the necessary routes and middlewares to handle actions.
  */
+// TODO: do not use an integration for this
 export default function astroIntegrationActionsRouteHandler({
 	settings,
 	filename,
