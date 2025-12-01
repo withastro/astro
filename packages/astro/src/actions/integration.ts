@@ -22,7 +22,7 @@ export default function astroIntegrationActionsRouteHandler({
 			async 'astro:config:setup'() {
 				settings.injectedRoutes.push({
 					pattern: ACTION_RPC_ROUTE_PATTERN,
-					entrypoint: 'astro/actions/runtime/route.js',
+					entrypoint: 'astro/actions/runtime/entrypoints/route.js',
 					prerender: false,
 					origin: 'internal',
 				});

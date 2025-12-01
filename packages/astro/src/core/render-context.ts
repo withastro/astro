@@ -1,7 +1,7 @@
 import colors from 'piccolore';
+import { deserializeActionResult } from '../actions/runtime/client.js';
 import { getActionContext } from '../actions/runtime/server.js';
-import { deserializeActionResult } from '../actions/runtime/shared.js';
-import type { ActionAPIContext } from '../actions/runtime/utils.js';
+import type { ActionAPIContext } from '../actions/runtime/types.js';
 import { createCallAction, createGetActionResult, hasActionPayload } from '../actions/utils.js';
 import {
 	computeCurrentLocale,

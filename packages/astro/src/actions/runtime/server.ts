@@ -1,33 +1,34 @@
+import { stringify as devalueStringify } from 'devalue';
 import { z } from 'zod';
 import type { Pipeline } from '../../core/base-pipeline.js';
 import { shouldAppendForwardSlash } from '../../core/build/util.js';
+import { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import { AstroError } from '../../core/errors/errors.js';
-import { ActionCalledFromServerError, ActionNotFoundError } from '../../core/errors/errors-data.js';
+import {
+	ActionCalledFromServerError,
+	ActionNotFoundError,
+	ActionsReturnedInvalidDataError,
+} from '../../core/errors/errors-data.js';
 import { removeTrailingForwardSlash } from '../../core/path.js';
 import { apiContextRoutesSymbol } from '../../core/render-context.js';
 import type { APIContext } from '../../types/public/index.js';
-import { ACTION_RPC_ROUTE_PATTERN } from '../consts.js';
+import { ACTION_QUERY_PARAMS, ACTION_RPC_ROUTE_PATTERN } from '../consts.js';
 import {
-	ACTION_QUERY_PARAMS,
-	type ActionAccept,
-	type ActionClient,
 	ActionError,
-	type ActionHandler,
 	ActionInputError,
-	callSafely,
+	actionResultErrorStack,
 	deserializeActionResult,
-	type SafeResult,
-	type SerializedActionResult,
-	serializeActionResult,
-} from './shared.js';
-import type { Locals } from './utils.js';
-import {
-	ACTION_API_CONTEXT_SYMBOL,
-	type ActionAPIContext,
-	formContentTypes,
-	hasContentType,
-	isActionAPIContext,
-} from './utils.js';
+} from './client.js';
+import type {
+	ActionAccept,
+	ActionAPIContext,
+	ActionClient,
+	ActionHandler,
+	ActionsLocals,
+	MaybePromise,
+	SafeResult,
+	SerializedActionResult,
+} from './types.js';
 
 export function defineAction<
 	TOutput,
@@ -118,94 +119,7 @@ function getJsonServerHandler<TOutput, TInputSchema extends z.ZodType>(
 	};
 }
 
-/** Transform form data to an object based on a Zod schema. */
-export function formDataToObject<T extends z.AnyZodObject>(
-	formData: FormData,
-	schema: T,
-): Record<string, unknown> {
-	const obj: Record<string, unknown> =
-		schema._def.unknownKeys === 'passthrough' ? Object.fromEntries(formData.entries()) : {};
-	for (const [key, baseValidator] of Object.entries(schema.shape)) {
-		let validator = baseValidator;
-
-		while (
-			validator instanceof z.ZodOptional ||
-			validator instanceof z.ZodNullable ||
-			validator instanceof z.ZodDefault
-		) {
-			// use default value when key is undefined
-			if (validator instanceof z.ZodDefault && !formData.has(key)) {
-				obj[key] = validator._def.defaultValue();
-			}
-			validator = validator._def.innerType;
-		}
-
-		if (!formData.has(key) && key in obj) {
-			// continue loop if form input is not found and default value is set
-			continue;
-		} else if (validator instanceof z.ZodBoolean) {
-			const val = formData.get(key);
-			obj[key] = val === 'true' ? true : val === 'false' ? false : formData.has(key);
-		} else if (validator instanceof z.ZodArray) {
-			obj[key] = handleFormDataGetAll(key, formData, validator);
-		} else {
-			obj[key] = handleFormDataGet(key, formData, validator, baseValidator);
-		}
-	}
-	return obj;
-}
-
-function handleFormDataGetAll(
-	key: string,
-	formData: FormData,
-	validator: z.ZodArray<z.ZodUnknown>,
-) {
-	const entries = Array.from(formData.getAll(key));
-	const elementValidator = validator._def.type;
-	if (elementValidator instanceof z.ZodNumber) {
-		return entries.map(Number);
-	} else if (elementValidator instanceof z.ZodBoolean) {
-		return entries.map(Boolean);
-	}
-	return entries;
-}
-
-function handleFormDataGet(
-	key: string,
-	formData: FormData,
-	validator: unknown,
-	baseValidator: unknown,
-) {
-	const value = formData.get(key);
-	if (!value) {
-		return baseValidator instanceof z.ZodOptional ? undefined : null;
-	}
-	return validator instanceof z.ZodNumber ? Number(value) : value;
-}
-
-function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormData) {
-	while (schema instanceof z.ZodEffects || schema instanceof z.ZodPipeline) {
-		if (schema instanceof z.ZodEffects) {
-			schema = schema._def.schema;
-		}
-		if (schema instanceof z.ZodPipeline) {
-			schema = schema._def.in;
-		}
-	}
-	if (schema instanceof z.ZodDiscriminatedUnion) {
-		const typeKey = schema._def.discriminator;
-		const typeValue = unparsedInput.get(typeKey);
-		if (typeof typeValue !== 'string') return schema;
-
-		const objSchema = schema._def.optionsMap.get(typeValue);
-		if (!objSchema) return schema;
-
-		return objSchema;
-	}
-	return schema;
-}
-
-export type AstroActionContext = {
+interface AstroActionContext {
 	/** Information about an incoming action request. */
 	action?: {
 		/** Whether an action was called using an RPC function or by using an HTML form action. */
@@ -229,7 +143,7 @@ export type AstroActionContext = {
 	 * Deserialize an action result to access data and error objects.
 	 */
 	deserializeActionResult: typeof deserializeActionResult;
-};
+}
 
 /**
  * Access information about Action requests from middleware.
@@ -240,7 +154,7 @@ export function getActionContext(context: APIContext): AstroActionContext {
 	// Prevents action results from being handled on a rewrite.
 	// Also prevents our *own* fallback middleware from running
 	// if the user's middleware has already handled the result.
-	const actionResultAlreadySet = Boolean((context.locals as Locals)._actionPayload);
+	const actionResultAlreadySet = Boolean((context.locals as ActionsLocals)._actionPayload);
 
 	let action: AstroActionContext['action'] = undefined;
 
@@ -306,7 +220,7 @@ export function getActionContext(context: APIContext): AstroActionContext {
 	}
 
 	function setActionResult(actionName: string, actionResult: SerializedActionResult) {
-		(context.locals as Locals)._actionPayload = {
+		(context.locals as ActionsLocals)._actionPayload = {
 			actionResult,
 			actionName,
 		};
@@ -342,4 +256,192 @@ async function parseRequestBody(request: Request) {
 		return contentLength === '0' ? undefined : await request.clone().json();
 	}
 	throw new TypeError('Unsupported content type');
+}
+
+export function astroCalledServerError(): AstroError {
+	return new AstroError(ActionCalledFromServerError);
+}
+
+export const ACTION_API_CONTEXT_SYMBOL = Symbol.for('astro.actionAPIContext');
+
+export const formContentTypes = ['application/x-www-form-urlencoded', 'multipart/form-data'];
+
+export function hasContentType(contentType: string, expected: string[]) {
+	// Split off parameters like charset or boundary
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type#content-type_in_html_forms
+	const type = contentType.split(';')[0].toLowerCase();
+
+	return expected.some((t) => type === t);
+}
+
+export function isActionAPIContext(ctx: ActionAPIContext): boolean {
+	const symbol = Reflect.get(ctx, ACTION_API_CONTEXT_SYMBOL);
+	return symbol === true;
+}
+
+/** Transform form data to an object based on a Zod schema. */
+export function formDataToObject<T extends z.AnyZodObject>(
+	formData: FormData,
+	schema: T,
+): Record<string, unknown> {
+	const obj: Record<string, unknown> =
+		schema._def.unknownKeys === 'passthrough' ? Object.fromEntries(formData.entries()) : {};
+	for (const [key, baseValidator] of Object.entries(schema.shape)) {
+		let validator = baseValidator;
+
+		while (
+			validator instanceof z.ZodOptional ||
+			validator instanceof z.ZodNullable ||
+			validator instanceof z.ZodDefault
+		) {
+			// use default value when key is undefined
+			if (validator instanceof z.ZodDefault && !formData.has(key)) {
+				obj[key] = validator._def.defaultValue();
+			}
+			validator = validator._def.innerType;
+		}
+
+		if (!formData.has(key) && key in obj) {
+			// continue loop if form input is not found and default value is set
+			continue;
+		} else if (validator instanceof z.ZodBoolean) {
+			const val = formData.get(key);
+			obj[key] = val === 'true' ? true : val === 'false' ? false : formData.has(key);
+		} else if (validator instanceof z.ZodArray) {
+			obj[key] = handleFormDataGetAll(key, formData, validator);
+		} else {
+			obj[key] = handleFormDataGet(key, formData, validator, baseValidator);
+		}
+	}
+	return obj;
+}
+
+function handleFormDataGetAll(
+	key: string,
+	formData: FormData,
+	validator: z.ZodArray<z.ZodUnknown>,
+) {
+	const entries = Array.from(formData.getAll(key));
+	const elementValidator = validator._def.type;
+	if (elementValidator instanceof z.ZodNumber) {
+		return entries.map(Number);
+	} else if (elementValidator instanceof z.ZodBoolean) {
+		return entries.map(Boolean);
+	}
+	return entries;
+}
+
+function handleFormDataGet(
+	key: string,
+	formData: FormData,
+	validator: unknown,
+	baseValidator: unknown,
+) {
+	const value = formData.get(key);
+	if (!value) {
+		return baseValidator instanceof z.ZodOptional ? undefined : null;
+	}
+	return validator instanceof z.ZodNumber ? Number(value) : value;
+}
+
+export function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormData) {
+	while (schema instanceof z.ZodEffects || schema instanceof z.ZodPipeline) {
+		if (schema instanceof z.ZodEffects) {
+			schema = schema._def.schema;
+		}
+		if (schema instanceof z.ZodPipeline) {
+			schema = schema._def.in;
+		}
+	}
+	if (schema instanceof z.ZodDiscriminatedUnion) {
+		const typeKey = schema._def.discriminator;
+		const typeValue = unparsedInput.get(typeKey);
+		if (typeof typeValue !== 'string') return schema;
+
+		const objSchema = schema._def.optionsMap.get(typeValue);
+		if (!objSchema) return schema;
+
+		return objSchema;
+	}
+	return schema;
+}
+
+export async function callSafely<TOutput>(
+	handler: () => MaybePromise<TOutput>,
+): Promise<SafeResult<z.ZodType, TOutput>> {
+	try {
+		const data = await handler();
+		return { data, error: undefined };
+	} catch (e) {
+		if (e instanceof ActionError) {
+			return { data: undefined, error: e };
+		}
+		return {
+			data: undefined,
+			error: new ActionError({
+				message: e instanceof Error ? e.message : 'Unknown error',
+				code: 'INTERNAL_SERVER_ERROR',
+			}),
+		};
+	}
+}
+
+export function serializeActionResult(res: SafeResult<any, any>): SerializedActionResult {
+	if (res.error) {
+		if (import.meta.env?.DEV) {
+			actionResultErrorStack.set(res.error.stack);
+		}
+
+		let body: Record<string, any>;
+		if (res.error instanceof ActionInputError) {
+			body = {
+				type: res.error.type,
+				issues: res.error.issues,
+				fields: res.error.fields,
+			};
+		} else {
+			body = {
+				...res.error,
+				message: res.error.message,
+			};
+		}
+
+		return {
+			type: 'error',
+			status: res.error.status,
+			contentType: 'application/json',
+			body: JSON.stringify(body),
+		};
+	}
+	if (res.data === undefined) {
+		return {
+			type: 'empty',
+			status: 204,
+		};
+	}
+	let body;
+	try {
+		body = devalueStringify(res.data, {
+			// Add support for URL objects
+			URL: (value) => value instanceof URL && value.href,
+		});
+	} catch (e) {
+		let hint = ActionsReturnedInvalidDataError.hint;
+		if (res.data instanceof Response) {
+			hint = REDIRECT_STATUS_CODES.includes(res.data.status as any)
+				? 'If you need to redirect when the action succeeds, trigger a redirect where the action is called. See the Actions guide for server and client redirect examples: https://docs.astro.build/en/guides/actions.'
+				: 'If you need to return a Response object, try using a server endpoint instead. See https://docs.astro.build/en/guides/endpoints/#server-endpoints-api-routes';
+		}
+		throw new AstroError({
+			...ActionsReturnedInvalidDataError,
+			message: ActionsReturnedInvalidDataError.message(String(e)),
+			hint,
+		});
+	}
+	return {
+		type: 'data',
+		status: 200,
+		contentType: 'application/json+devalue',
+		body,
+	};
 }

@@ -55,7 +55,7 @@
     "./components": "./components/index.ts",
     "./components/*": "./components/*",
     "./toolbar": "./dist/toolbar/index.js",
-    "./actions/runtime/*": "./dist/actions/runtime/*",
+    "./actions/runtime/entrypoints/*": "./dist/actions/runtime/entrypoints/*",
     "./assets": "./dist/assets/index.js",
     "./assets/runtime": "./dist/assets/runtime.js",
     "./assets/utils": "./dist/assets/utils/index.js",
