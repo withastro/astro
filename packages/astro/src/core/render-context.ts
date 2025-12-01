@@ -42,7 +42,7 @@ import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from '.
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session.js';
 import { validateAndDecodePathname } from './util/pathname.js';
-import { pushDirective } from './csp/common.js';
+import { pushDirective } from './csp/runtime.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
 /**
