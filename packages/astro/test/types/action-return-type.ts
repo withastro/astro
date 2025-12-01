@@ -1,10 +1,12 @@
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
 import {
-	type ActionReturnType,
 	defineAction,
-	type SafeResult,
 } from '../../dist/actions/runtime/server.js';
+import {
+	type ActionReturnType,
+	type SafeResult,
+} from '../../dist/actions/runtime/shared.js';
 import { z } from '../../dist/zod.js';
 
 describe('ActionReturnType', () => {
