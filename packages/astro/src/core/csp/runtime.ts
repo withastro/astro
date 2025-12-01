@@ -17,11 +17,11 @@ export function deduplicateDirectiveValues(
 		.split(/\s+/)
 		// Avoid duplicated spaces
 		.filter(Boolean);
-	const [newDirectiveName, ...newValues] = newDirective		
+	const [newDirectiveName, ...newValues] = newDirective
 		// split spaces
 		.split(/\s+/)
 		// Avoid duplicated spaces
-		.filter(Boolean);;
+		.filter(Boolean);
 	if (directiveName !== newDirectiveName) {
 		return undefined;
 	}
@@ -34,8 +34,11 @@ export function pushDirective(
 	directives: SSRManifestCSP['directives'],
 	newDirective: CspDirective,
 ): SSRManifestCSP['directives'] {
-	const finalDirectives: SSRManifestCSP['directives'] = [];
 	let deduplicated = false;
+	if (directives.length === 0) {
+		return [newDirective];
+	}
+	const finalDirectives: SSRManifestCSP['directives'] = [];
 	for (const directive of directives) {
 		if (deduplicated) {
 			finalDirectives.push(directive);

@@ -470,8 +470,9 @@ export class RenderContext {
 						}
 						if (renderContext?.result?.directives) {
 							renderContext.result.directives = pushDirective(
-								renderContext.result.directives, payload
-							)
+								renderContext.result.directives,
+								payload,
+							);
 						} else {
 							renderContext?.result?.directives.push(payload);
 						}
@@ -744,11 +745,13 @@ export class RenderContext {
 						if (!pipeline.manifest.csp) {
 							throw new AstroError(CspNotEnabled);
 						}
-						
+
 						if (renderContext?.result?.directives) {
 							renderContext.result.directives = pushDirective(
-								renderContext.result.directives, payload
-							)						} else {
+								renderContext.result.directives,
+								payload,
+							);
+						} else {
 							renderContext?.result?.directives.push(payload);
 						}
 					},
@@ -890,5 +893,3 @@ export class RenderContext {
 		return (this.#preferredLocaleList ??= computePreferredLocaleList(request, i18n.locales));
 	}
 }
-
-
