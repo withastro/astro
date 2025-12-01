@@ -1,46 +1,8 @@
 import type z from 'zod';
 import type { APIContext } from '../../types/public/index.js';
-import type { ActionError } from './client.js';
+import type { ActionError, codeToStatusMap } from './client.js';
 
-export type ActionErrorCode =
-	| 'BAD_REQUEST'
-	| 'UNAUTHORIZED'
-	| 'PAYMENT_REQUIRED'
-	| 'FORBIDDEN'
-	| 'NOT_FOUND'
-	| 'METHOD_NOT_ALLOWED'
-	| 'NOT_ACCEPTABLE'
-	| 'PROXY_AUTHENTICATION_REQUIRED'
-	| 'REQUEST_TIMEOUT'
-	| 'CONFLICT'
-	| 'GONE'
-	| 'LENGTH_REQUIRED'
-	| 'PRECONDITION_FAILED'
-	| 'CONTENT_TOO_LARGE'
-	| 'URI_TOO_LONG'
-	| 'UNSUPPORTED_MEDIA_TYPE'
-	| 'RANGE_NOT_SATISFIABLE'
-	| 'EXPECTATION_FAILED'
-	| 'MISDIRECTED_REQUEST'
-	| 'UNPROCESSABLE_CONTENT'
-	| 'LOCKED'
-	| 'FAILED_DEPENDENCY'
-	| 'TOO_EARLY'
-	| 'UPGRADE_REQUIRED'
-	| 'PRECONDITION_REQUIRED'
-	| 'TOO_MANY_REQUESTS'
-	| 'REQUEST_HEADER_FIELDS_TOO_LARGE'
-	| 'UNAVAILABLE_FOR_LEGAL_REASONS'
-	| 'INTERNAL_SERVER_ERROR'
-	| 'NOT_IMPLEMENTED'
-	| 'BAD_GATEWAY'
-	| 'SERVICE_UNAVAILABLE'
-	| 'GATEWAY_TIMEOUT'
-	| 'HTTP_VERSION_NOT_SUPPORTED'
-	| 'VARIANT_ALSO_NEGOTIATES'
-	| 'INSUFFICIENT_STORAGE'
-	| 'LOOP_DETECTED'
-	| 'NETWORK_AUTHENTICATION_REQUIRED';
+export type ActionErrorCode = keyof typeof codeToStatusMap;
 
 export type ActionAccept = 'form' | 'json';
 

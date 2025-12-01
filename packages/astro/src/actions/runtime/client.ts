@@ -10,7 +10,7 @@ import type {
 	SerializedActionResult,
 } from './types.js';
 
-const codeToStatusMap: Record<ActionErrorCode, number> = {
+export const codeToStatusMap = {
 	// Implemented from IANA HTTP Status Code Registry
 	// https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
 	BAD_REQUEST: 400,
@@ -51,7 +51,7 @@ const codeToStatusMap: Record<ActionErrorCode, number> = {
 	INSUFFICIENT_STORAGE: 507,
 	LOOP_DETECTED: 508,
 	NETWORK_AUTHENTICATION_REQUIRED: 511,
-};
+} satisfies Record<string, number>;
 
 const statusToCodeMap: Record<number, ActionErrorCode> = Object.entries(codeToStatusMap).reduce(
 	// reverse the key-value pairs
