@@ -1,5 +1,4 @@
 import * as unifont from 'unifont';
-import type { Storage } from 'unstorage';
 import type { Logger } from '../../core/logger/core.js';
 import { LOCAL_PROVIDER_NAME } from './constants.js';
 import { dedupeFontFaces } from './core/dedupe-font-faces.js';
@@ -15,6 +14,7 @@ import type {
 	Hasher,
 	LocalProviderUrlResolver,
 	RemoteFontProviderResolver,
+	Storage,
 	StringMatcher,
 	SystemFallbacksProvider,
 	UrlProxy,

@@ -4,38 +4,49 @@ import { getAssetsPrefix } from '../../utils/getAssetsPrefix.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from '../../utils/url.js';
 import type { UrlResolver } from '../definitions.js';
 
-export function createBuildUrlResolver({
-	base,
-	assetsPrefix,
-	searchParams,
-}: {
-	base: string;
-	assetsPrefix: AssetsPrefix;
-	searchParams: URLSearchParams;
-}): UrlResolver {
-	const resources = new Set<string>();
-	return {
-		resolve(hash) {
-			const prefix = assetsPrefix ? getAssetsPrefix(fileExtension(hash), assetsPrefix) : undefined;
-			let urlPath: string;
-			if (prefix) {
-				resources.add(prefix);
-				urlPath = joinPaths(prefix, base, hash);
-			} else {
-				resources.add("'self'");
-				urlPath = prependForwardSlash(joinPaths(base, hash));
-			}
+export class BuildUrlResolver implements UrlResolver {
+	readonly #resources = new Set<string>();
+	readonly #base: string;
+	readonly #assetsPrefix: AssetsPrefix;
+	readonly #searchParams: URLSearchParams;
 
-			// Create URL object and append searchParams if available (for adapter-level tracking like skew protection)
-			const url = createPlaceholderURL(urlPath);
-			searchParams.forEach((value, key) => {
-				url.searchParams.set(key, value);
-			});
+	constructor({
+		base,
+		assetsPrefix,
+		searchParams,
+	}: {
+		base: string;
+		assetsPrefix: AssetsPrefix;
+		searchParams: URLSearchParams;
+	}) {
+		this.#base = base;
+		this.#assetsPrefix = assetsPrefix;
+		this.#searchParams = searchParams;
+	}
 
-			return stringifyPlaceholderURL(url);
-		},
-		getCspResources() {
-			return Array.from(resources);
-		},
-	};
+	resolve(hash: string): string {
+		const prefix = this.#assetsPrefix
+			? getAssetsPrefix(fileExtension(hash), this.#assetsPrefix)
+			: undefined;
+		let urlPath: string;
+		if (prefix) {
+			this.#resources.add(prefix);
+			urlPath = joinPaths(prefix, this.#base, hash);
+		} else {
+			this.#resources.add("'self'");
+			urlPath = prependForwardSlash(joinPaths(this.#base, hash));
+		}
+
+		// Create URL object and append searchParams if available (for adapter-level tracking like skew protection)
+		const url = createPlaceholderURL(urlPath);
+		this.#searchParams.forEach((value, key) => {
+			url.searchParams.set(key, value);
+		});
+
+		return stringifyPlaceholderURL(url);
+	}
+
+	get cspResources(): Array<string> {
+		return Array.from(this.#resources);
+	}
 }
