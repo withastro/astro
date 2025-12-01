@@ -295,7 +295,7 @@ function appendSourceMap(content: string, map?: string) {
 	if (!map) return content;
 	// The \n here is on purpose inside a template literal because otherwise, in the final built version of this file, the comment would
 	// start on its own line, and some tools will think it's actually the sourcemap of this file, not of generated code.
-	return `${content}${'\n'}//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(
+	return `${content}${'\n//#'} sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(
 		map,
 	).toString('base64')}`;
 }
