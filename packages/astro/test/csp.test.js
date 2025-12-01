@@ -177,7 +177,7 @@ describe('CSP', () => {
 		);
 	});
 
-	it.only('allows injecting custom script resources and hashes based on pages, deduplicated', async () => {
+	it('allows injecting custom script resources and hashes based on pages, deduplicated', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
 			experimental: {

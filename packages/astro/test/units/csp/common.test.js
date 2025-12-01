@@ -2,8 +2,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
-	getDirectives,
 	deduplicateDirectiveValues,
+	getDirectives,
 	pushDirective,
 } from '../../../dist/core/csp/common.js';
 
