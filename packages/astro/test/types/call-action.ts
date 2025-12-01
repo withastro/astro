@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
 import { defineAction } from '../../dist/actions/runtime/server.js';
-import type { ActionReturnType } from '../../dist/actions/runtime/shared.js';
+import type { ActionReturnType } from '../../dist/actions/runtime/types.js';
 import type { APIContext } from '../../dist/types/public/context.js';
 import { z } from '../../dist/zod.js';
 

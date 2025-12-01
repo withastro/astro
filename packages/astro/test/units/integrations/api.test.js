@@ -190,7 +190,7 @@ describe('Integration API', () => {
 							},
 							{
 								isPrerendered: false,
-								entrypoint: '../../../../dist/actions/runtime/route.js',
+								entrypoint: '../../../../dist/actions/runtime/entrypoints/route.js',
 								pattern: '/_actions/[...path]',
 								params: ['...path'],
 								origin: 'internal',
@@ -245,7 +245,7 @@ describe('Integration API', () => {
 							},
 							{
 								isPrerendered: false,
-								entrypoint: '../../../../dist/actions/runtime/route.js',
+								entrypoint: '../../../../dist/actions/runtime/entrypoints/route.js',
 								pattern: '/_actions/[...path]',
 								params: ['...path'],
 								origin: 'internal',
@@ -307,7 +307,7 @@ describe('Integration API', () => {
 							},
 							{
 								isPrerendered: false,
-								entrypoint: '../../../../dist/actions/runtime/route.js',
+								entrypoint: '../../../../dist/actions/runtime/entrypoints/route.js',
 								pattern: '/_actions/[...path]',
 								params: ['...path'],
 								origin: 'internal',
