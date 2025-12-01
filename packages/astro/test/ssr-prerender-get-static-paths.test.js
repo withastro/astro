@@ -39,7 +39,7 @@ describe('Prerender', () => {
 				const $ = cheerio.load(html);
 
 				assert.equal($('#props').text(), '10');
-				assert.equal($('#url').text(), '/blog/food/tacos/');
+				assert.equal($('#url').text(), '/blog/food/tacos.html');
 			});
 		});
 
@@ -172,7 +172,7 @@ describe('Prerender', () => {
 				const $ = cheerio.load(html);
 
 				assert.equal($('#props').text(), '10');
-				assert.equal($('#url').text(), '/blog/food/tacos/');
+				assert.equal($('#url').text(), '/blog/food/tacos.html');
 			});
 		});
 
