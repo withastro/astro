@@ -2,7 +2,7 @@ import type { CspDirective } from './config.js';
 import type { SSRManifestCSP } from '../app/types.js';
 
 /**
- * `existingDirective` is something like `img-src 'self'`. Same as `newDirective.
+ * `existingDirective` is something like `img-src 'self'`. Same as `newDirective`.
  *
  * Returns `undefined` if no directive has been deduped
  * @param existingDirective

@@ -21,7 +21,7 @@ export default defineConfig({
 ```astro
 ---
 // pages/index.astro
-Astro.csp.insertDirective("image-src https://vendor.cdn.example.org")
+Astro.csp.insertDirective("img-src https://vendor.cdn.example.org")
 ---
 ```
 
