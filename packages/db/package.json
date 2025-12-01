@@ -72,7 +72,7 @@
     "test:types": "tsc --project test/types/tsconfig.json"
   },
   "dependencies": {
-    "@clack/prompts": "1.0.0-alpha.6",
+    "@clack/prompts": "1.0.0-alpha.7",
     "@libsql/client": "^0.15.15",
     "deep-diff": "^1.0.2",
     "drizzle-orm": "^0.42.0",
