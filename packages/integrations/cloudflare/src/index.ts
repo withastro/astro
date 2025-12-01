@@ -261,7 +261,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			'astro:routes:resolved': ({ routes }) => {
 				_routes = routes;
 			},
-			'astro:config:done': ({ setAdapter, config, buildOutput, injectTypes }) => {
+			'astro:config:done': ({ setAdapter, config, buildOutput, injectTypes, logger }) => {
 				_config = config;
 				finalBuildOutput = buildOutput;
 
@@ -309,11 +309,14 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				// Assign .dev.vars to process.env so astro:env can find these vars
 				const devVarsPath = new URL('.dev.vars', config.root);
 				if (existsSync(devVarsPath)) {
-					const data = readFileSync(devVarsPath, 'utf-8');
-					const parsed = parse(data);
-					Object.assign(process.env, parsed);
+					try {
+						const data = readFileSync(devVarsPath, 'utf-8');
+						const parsed = parse(data);
+						Object.assign(process.env, parsed);
+					} catch {
+						logger.error(`Unable to parse .dev.vars, variables will not be available to your application.`);
+					}
 				}
-
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
