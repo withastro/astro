@@ -42,6 +42,7 @@ import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from '.
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session.js';
 import { validateAndDecodePathname } from './util/pathname.js';
+import { pushDirective } from './csp/runtime.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
 /**
@@ -467,7 +468,14 @@ export class RenderContext {
 						if (!pipeline.manifest.csp) {
 							throw new AstroError(CspNotEnabled);
 						}
-						renderContext.result?.directives.push(payload);
+						if (renderContext?.result?.directives) {
+							renderContext.result.directives = pushDirective(
+								renderContext.result.directives,
+								payload,
+							);
+						} else {
+							renderContext?.result?.directives.push(payload);
+						}
 					},
 
 					insertScriptResource(resource) {
@@ -737,7 +745,15 @@ export class RenderContext {
 						if (!pipeline.manifest.csp) {
 							throw new AstroError(CspNotEnabled);
 						}
-						renderContext.result?.directives.push(payload);
+
+						if (renderContext?.result?.directives) {
+							renderContext.result.directives = pushDirective(
+								renderContext.result.directives,
+								payload,
+							);
+						} else {
+							renderContext?.result?.directives.push(payload);
+						}
 					},
 
 					insertScriptResource(resource) {

@@ -1,7 +1,6 @@
-// @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { getDirectives } from '../../../dist/core/csp/common.js';
+import { getDirectives, } from '../../../dist/core/csp/common.js';
 
 /**
  *
