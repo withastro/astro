@@ -37,6 +37,131 @@ import {
 	unifontFontFaceDataToProperties,
 } from './utils.js';
 
+function _computeProxyUrlsForFontProvidersUrls({
+	resolvedFamiliesMap,
+	logger,
+	bold,
+	defaults,
+	createUrlProxy,
+	fontTypeExtractor,
+	fontFileReader,
+	stringMatcher,
+}: {
+	resolvedFamiliesMap: Map<
+		string,
+		{
+			// TODO: weird to have resolvedFamily.family
+			family: ResolvedFontFamily;
+			fonts: Array<unifont.FontFaceData>;
+			fallbacks: Array<string>;
+			/**
+			 * Holds a list of font files to be used for optimized fallbacks generation
+			 */
+			collectedFonts: Array<CollectedFontForMetrics>;
+			preloadData: Array<PreloadData>;
+		}
+	>
+	logger: Logger;
+	bold: (input: string) => string;
+	defaults: Defaults;
+	createUrlProxy: (params: CreateUrlProxyParams) => UrlProxy;
+	fontTypeExtractor: FontTypeExtractor;
+	fontFileReader: FontFileReader;
+	stringMatcher: StringMatcher;
+}) {
+	/**
+	 * Holds associations of hash and original font file URLs, so they can be
+	 * downloaded whenever the hash is requested.
+	 */
+	const urlBySomeKindOfFontId: FontFileDataMap = new Map();
+
+	for (const resolvedFamily of resolvedFamiliesMap.values()) {
+		/**
+		 * Allows collecting and transforming original URLs from providers, so the Vite
+		 * plugin has control over URLs.
+		 */
+		const urlProxy = createUrlProxy({
+			local: resolvedFamily.family.provider === LOCAL_PROVIDER_NAME,
+			hasUrl: (hash) => urlBySomeKindOfFontId.has(hash),
+			saveUrl: ({ hash, url, init }) => {
+				urlBySomeKindOfFontId.set(hash, { url, init });
+			},
+			savePreload: (preload) => {
+				resolvedFamily.preloadData.push(preload);
+			},
+			saveFontData: (collected) => {
+				if (
+					resolvedFamily.fallbacks &&
+					resolvedFamily.fallbacks.length > 0 &&
+					// If the same data has already been sent for this family, we don't want to have
+					// duplicated fallbacks. Such scenario can occur with unicode ranges.
+					!resolvedFamily.collectedFonts.some(
+						(f) => JSON.stringify(f.data) === JSON.stringify(collected.data),
+					)
+				) {
+					// If a family has fallbacks, we store the first url we get that may
+					// be used for the fallback generation.
+					resolvedFamily.collectedFonts.push(collected);
+				}
+			},
+			cssVariable: resolvedFamily.family.cssVariable,
+		});
+
+		// TODO: do we need 2 branches?
+		// TODO: iterate over family font faces and call proxy
+
+		if (resolvedFamily.family.provider === LOCAL_PROVIDER_NAME) {
+			const result = resolveLocalFont({
+				family: resolvedFamily.family,
+				urlProxy,
+				fontTypeExtractor,
+				fontFileReader,
+			});
+			// URLs are already proxied at this point so no further processing is required
+			resolvedFamily.fonts.push(...result.fonts);
+		} else {
+			const result = await resolveFont(
+				resolvedFamily.family.name,
+				// We do not merge the defaults, we only provide defaults as a fallback
+				{
+					weights: resolvedFamily.family.weights ?? defaults.weights,
+					styles: resolvedFamily.family.styles ?? defaults.styles,
+					subsets: resolvedFamily.family.subsets ?? defaults.subsets,
+					fallbacks: resolvedFamily.family.fallbacks ?? defaults.fallbacks,
+				},
+				// By default, unifont goes through all providers. We use a different approach where
+				// we specify a provider per font. Name has been set while extracting unifont providers
+				// from families (inside extractUnifontProviders).
+				[resolvedFamily.family.provider.name!],
+			);
+			if (result.fonts.length === 0) {
+				logger.warn(
+					'assets',
+					`No data found for font family ${bold(resolvedFamily.family.name)}. Review your configuration`,
+				);
+				const availableFamilies = await listFonts([resolvedFamily.family.provider.name!]);
+				if (
+					availableFamilies &&
+					availableFamilies.length > 0 &&
+					!availableFamilies.includes(resolvedFamily.family.name)
+				) {
+					logger.warn(
+						'assets',
+						`${bold(resolvedFamily.family.name)} font family cannot be retrieved by the provider. Did you mean ${bold(stringMatcher.getClosestMatch(family.name, availableFamilies))}?`,
+					);
+				}
+			}
+			// The data returned by the remote provider contains original URLs. We proxy them.
+			resolvedFamily.fonts = dedupeFontFaces(
+				resolvedFamily.fonts,
+				normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy, fontTypeExtractor }),
+			);
+		}
+	}
+
+	return { resolvedFamiliesMap, fontFileDataMap: urlBySomeKindOfFontId };
+}
+
 async function _initializeUnifontThenMergeFamiliesAndResolveFonts({
 	resolvedFamilies,
 	logger,
