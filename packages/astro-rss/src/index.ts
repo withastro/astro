@@ -2,7 +2,7 @@ import { z } from 'astro/zod';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 import colors from 'piccolore';
 import { rssSchema } from './schema.js';
-import { createCanonicalURL, errorMap, isValidURL } from './util.js';
+import { createCanonicalURL, isValidURL } from './util.js';
 
 export { rssSchema };
 
@@ -59,7 +59,7 @@ type ValidatedRSSFeedItem = z.infer<typeof rssSchema>;
 type ValidatedRSSOptions = z.infer<typeof rssOptionsValidator>;
 type GlobResult = z.infer<typeof globResultValidator>;
 
-const globResultValidator = z.record(z.function().returns(z.promise(z.any())));
+const globResultValidator = z.record(z.string(), z.function({ input: [], output: z.promise(z.any()) }));
 
 const rssOptionsValidator = z.object({
 	title: z.string(),
@@ -79,7 +79,7 @@ const rssOptionsValidator = z.object({
 			}
 			return items;
 		}),
-	xmlns: z.record(z.string()).optional(),
+	xmlns: z.record(z.string(), z.unknown()).optional(),
 	stylesheet: z.union([z.string(), z.boolean()]).optional(),
 	customData: z.string().optional(),
 	trailingSlash: z.boolean().default(true),
@@ -100,14 +100,14 @@ export async function getRssString(rssOptions: RSSOptions): Promise<string> {
 }
 
 async function validateRssOptions(rssOptions: RSSOptions) {
-	const parsedResult = await rssOptionsValidator.safeParseAsync(rssOptions, { errorMap });
+	const parsedResult = await rssOptionsValidator.safeParseAsync(rssOptions);
 	if (parsedResult.success) {
 		return parsedResult.data;
 	}
 	const formattedError = new Error(
 		[
 			`[RSS] Invalid or missing options:`,
-			...parsedResult.error.errors.map((zodError) => {
+			...parsedResult.error.issues.map((zodError: any) => {
 				const path = zodError.path.join('.');
 				const message = `${zodError.message} (${path})`;
 				const code = zodError.code;
@@ -130,7 +130,7 @@ async function validateRssOptions(rssOptions: RSSOptions) {
 export function pagesGlobToRssItems(items: GlobResult): Promise<ValidatedRSSFeedItem[]> {
 	return Promise.all(
 		Object.entries(items).map(async ([filePath, getInfo]) => {
-			const { url, frontmatter } = await getInfo();
+			const { url, frontmatter } = await (getInfo as () => Promise<any>)();
 			if (url === undefined || url === null) {
 				throw new Error(
 					`[RSS] You can only glob entries within 'src/pages/' when passing import.meta.glob() directly. Consider mapping the result to an array of RSSFeedItems. See the RSS docs for usage examples: https://docs.astro.build/en/guides/rss/#2-list-of-rss-feed-objects`,
@@ -141,7 +141,7 @@ export function pagesGlobToRssItems(items: GlobResult): Promise<ValidatedRSSFeed
 					message: 'At least title or description must be provided.',
 					path: ['title', 'description'],
 				})
-				.safeParse({ ...frontmatter, link: url }, { errorMap });
+				.safeParse({ ...frontmatter, link: url });
 
 			if (parsedResult.success) {
 				return parsedResult.data;
@@ -149,7 +149,7 @@ export function pagesGlobToRssItems(items: GlobResult): Promise<ValidatedRSSFeed
 			const formattedError = new Error(
 				[
 					`[RSS] ${filePath} has invalid or missing frontmatter.\nFix the following properties:`,
-					...parsedResult.error.errors.map((zodError) => zodError.message),
+					...parsedResult.error.issues.map((zodError: any) => zodError.message),
 				].join('\n'),
 			);
 			(formattedError as any).file = filePath;

@@ -1,7 +1,7 @@
 import type { Config as LibSQLConfig } from '@libsql/client';
 import z from 'zod';
 
-const rawLibSQLOptions = z.record(z.string());
+const rawLibSQLOptions = z.record(z.string(), z.string());
 
 const parseNumber = (value: string) => z.coerce.number().parse(value);
 const parseBoolean = (value: string) => z.coerce.boolean().parse(value);
@@ -50,7 +50,7 @@ export const parseLibSQLConfig = (config: Record<string, string>): Partial<LibSQ
 		return libSQLConfigTransformed.parse(config);
 	} catch (error) {
 		if (error instanceof z.ZodError) {
-			throw new Error(`Invalid LibSQL config: ${error.errors.map((e) => e.message).join(', ')}`);
+			throw new Error(`Invalid LibSQL config: ${error.issues.map((e: any) => e.message).join(', ')}`);
 		}
 		throw error;
 	}

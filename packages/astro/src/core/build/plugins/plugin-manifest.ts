@@ -313,7 +313,7 @@ async function buildManifest(
 			fallback: settings.config.i18n.fallback,
 			fallbackType: toFallbackType(settings.config.i18n.routing),
 			strategy: toRoutingStrategy(settings.config.i18n.routing, settings.config.i18n.domains),
-			locales: settings.config.i18n.locales,
+			locales: settings.config.i18n.locales as any,
 			defaultLocale: settings.config.i18n.defaultLocale,
 			domainLookupTable,
 		};

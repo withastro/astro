@@ -45,7 +45,7 @@ const astroDBConfigSchema = z
 			.default('node'),
 	})
 	.optional()
-	.default({});
+	.default(() => ({} as any));
 
 export type AstroDBConfig = z.infer<typeof astroDBConfigSchema>;
 

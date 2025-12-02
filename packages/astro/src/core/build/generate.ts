@@ -712,7 +712,7 @@ async function createBuildManifest(
 			fallbackType: toFallbackType(settings.config.i18n.routing),
 			strategy: toRoutingStrategy(settings.config.i18n.routing, settings.config.i18n.domains),
 			defaultLocale: settings.config.i18n.defaultLocale,
-			locales: settings.config.i18n.locales,
+			locales: settings.config.i18n.locales as any,
 			domainLookupTable: {},
 		};
 	}

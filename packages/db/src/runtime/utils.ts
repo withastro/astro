@@ -3,7 +3,7 @@ import { AstroError } from 'astro/errors';
 import type { DBColumn } from '../core/types.js';
 
 export function hasPrimaryKey(column: DBColumn) {
-	return 'primaryKey' in column.schema && !!column.schema.primaryKey;
+	return 'primaryKey' in (column.schema as any) && !!(column.schema as any).primaryKey;
 }
 
 const isWindows = process?.platform === 'win32';

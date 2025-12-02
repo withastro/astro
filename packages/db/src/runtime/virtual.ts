@@ -22,20 +22,20 @@ function createColumn<S extends string, T extends Record<string, unknown>>(type:
 
 export const column = {
 	number: <T extends NumberColumnOpts>(opts: T = {} as T) => {
-		return createColumn('number', opts) satisfies { type: 'number' };
+		return createColumn('number', opts as any) satisfies { type: 'number' };
 	},
 	boolean: <T extends BooleanColumnInput['schema']>(opts: T = {} as T) => {
 		return createColumn('boolean', opts) satisfies { type: 'boolean' };
 	},
 	text: <
 		T extends TextColumnOpts,
-		const E extends T['enum'] extends readonly [string, ...string[]]
-			? Omit<T, 'enum'> & T['enum']
+		const E extends T extends { enum: infer U extends readonly [string, ...string[]] }
+			? Omit<T, 'enum'> & { enum: U }
 			: T,
 	>(
 		opts: E = {} as E,
 	) => {
-		return createColumn('text', opts) satisfies { type: 'text' };
+		return createColumn('text', opts as any) satisfies { type: 'text' };
 	},
 	date<T extends DateColumnInput['schema']>(opts: T = {} as T) {
 		return createColumn('date', opts) satisfies { type: 'date' };

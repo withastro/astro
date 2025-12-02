@@ -6,7 +6,6 @@ import type { AstroConfig } from 'astro';
 import { build as esbuild } from 'esbuild';
 import { CONFIG_FILE_NAMES, VIRTUAL_MODULE_ID } from './consts.js';
 import { INTEGRATION_TABLE_CONFLICT_ERROR } from './errors.js';
-import { errorMap } from './integration/error-map.js';
 import { getConfigVirtualModContents } from './integration/vite-plugin-db.js';
 import { dbConfigSchema } from './schemas.js';
 import './types.js';
@@ -20,7 +19,7 @@ export async function resolveDbConfig({
 	integrations,
 }: Pick<AstroConfig, 'root' | 'integrations'>) {
 	const { mod, dependencies } = await loadUserConfigFile(root);
-	const userDbConfig = dbConfigSchema.parse(mod?.default ?? {}, { errorMap });
+	const userDbConfig = dbConfigSchema.parse(mod?.default ?? {});
 	/** Resolved `astro:db` config including tables provided by integrations. */
 	const dbConfig = { tables: userDbConfig.tables ?? {} };
 
@@ -45,9 +44,7 @@ export async function resolveDbConfig({
 	for (const { name, configEntrypoint } of integrationDbConfigPaths) {
 		// TODO: config file dependencies are not tracked for integrations for now.
 		const loadedConfig = await loadIntegrationConfigFile(root, configEntrypoint);
-		const integrationDbConfig = dbConfigSchema.parse(loadedConfig.mod?.default ?? {}, {
-			errorMap,
-		});
+		const integrationDbConfig = dbConfigSchema.parse(loadedConfig.mod?.default ?? {});
 		for (const key in integrationDbConfig.tables) {
 			if (key in dbConfig.tables) {
 				const isUserConflict = key in (userDbConfig.tables ?? {});

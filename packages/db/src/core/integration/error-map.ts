@@ -10,7 +10,8 @@ interface TypeOrLiteralErrByPathEntry {
 	expected: unknown[];
 }
 
-export const errorMap: z.ZodErrorMap = (baseError, ctx) => {
+// @ts-expect-error - Zod 4 API compatibility
+export const errorMap: z.ZodErrorMap = (baseError: any, ctx: any) => {
 	const baseErrorPath = flattenErrorPath(baseError.path);
 	if (baseError.code === 'invalid_union') {
 		// Optimization: Combine type and literal errors for keys that are common across ALL union types
@@ -19,7 +20,7 @@ export const errorMap: z.ZodErrorMap = (baseError, ctx) => {
 		// > Did not match union.
 		// > key: Expected `'tutorial' | 'blog'`, received 'foo'
 		const typeOrLiteralErrByPath = new Map<string, TypeOrLiteralErrByPathEntry>();
-		for (const unionError of baseError.unionErrors.flatMap((e) => e.errors)) {
+		for (const unionError of baseError.unionErrors.flatMap((e: any) => e.issues || e.errors)) {
 			if (unionError.code === 'invalid_type' || unionError.code === 'invalid_literal') {
 				const flattenedErrorPath = flattenErrorPath(unionError.path);
 				const typeOrLiteralErr = typeOrLiteralErrByPath.get(flattenedErrorPath);

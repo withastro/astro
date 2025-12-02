@@ -104,28 +104,41 @@ export type Table<
 	schema: undefined;
 	dialect: 'sqlite';
 	columns: {
-		[K in Extract<keyof TColumns, string>]: Column<
-			TColumns[K]['type'],
-			TColumns[K]['schema'] extends { enum: infer E }
-				? E extends readonly [string, ...string[]]
-					? E
-					: string
-				: string,
-			{
-				tableName: TTableName;
-				name: K;
-				isPrimaryKey: TColumns[K]['schema'] extends { primaryKey: true } ? true : false;
-				hasDefault: TColumns[K]['schema'] extends { default: NonNullable<unknown> }
-					? true
-					: TColumns[K]['schema'] extends { primaryKey: true }
-						? true
-						: false;
-				hasRuntimeDefault: TColumns[K]['schema'] extends { default: NonNullable<unknown> }
-					? true
-					: false;
-				notNull: TColumns[K]['schema']['optional'] extends true ? false : true;
-			}
-		>;
+		[K in Extract<keyof TColumns, string>]: TColumns[K] extends { type: infer T extends string; schema: infer S }
+			? S extends { enum: infer E }
+				? Column<
+						T extends 'number' | 'boolean' | 'date' | 'json' | 'text' ? T : never,
+						E extends readonly [string, ...string[]] ? E : string,
+						{
+							tableName: TTableName;
+							name: K;
+							isPrimaryKey: S extends { primaryKey: true } ? true : false;
+							hasDefault: S extends { default: NonNullable<unknown> }
+								? true
+								: S extends { primaryKey: true }
+									? true
+									: false;
+							hasRuntimeDefault: S extends { default: NonNullable<unknown> } ? true : false;
+							notNull: S extends { optional: true } ? false : true;
+						}
+					>
+				: Column<
+						T extends 'number' | 'boolean' | 'date' | 'json' | 'text' ? T : never,
+						string,
+						{
+							tableName: TTableName;
+							name: K;
+							isPrimaryKey: S extends { primaryKey: true } ? true : false;
+							hasDefault: S extends { default: NonNullable<unknown> }
+								? true
+								: S extends { primaryKey: true }
+									? true
+									: false;
+							hasRuntimeDefault: S extends { default: NonNullable<unknown> } ? true : false;
+							notNull: S extends { optional: true } ? false : true;
+						}
+					>
+			: never;
 	};
 }>;
 

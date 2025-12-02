@@ -88,45 +88,46 @@ function columnMapper(columnName: string, column: DBColumn) {
 		| typeof integer<string, 'boolean'>
 	>;
 
+	const schema = column.schema as any;
 	switch (column.type) {
 		case 'text': {
-			c = text(columnName, { enum: column.schema.enum });
+			c = text(columnName, { enum: schema.enum });
 			// Duplicate default logic across cases to preserve type inference.
 			// No clean generic for every column builder.
-			if (column.schema.default !== undefined)
-				c = c.default(handleSerializedSQL(column.schema.default));
-			if (column.schema.primaryKey === true) c = c.primaryKey();
+			if (schema.default !== undefined)
+				c = c.default(handleSerializedSQL(schema.default));
+			if (schema.primaryKey === true) c = c.primaryKey();
 			break;
 		}
 		case 'number': {
 			c = integer(columnName);
-			if (column.schema.default !== undefined)
-				c = c.default(handleSerializedSQL(column.schema.default));
-			if (column.schema.primaryKey === true) c = c.primaryKey();
+			if (schema.default !== undefined)
+				c = c.default(handleSerializedSQL(schema.default));
+			if (schema.primaryKey === true) c = c.primaryKey();
 			break;
 		}
 		case 'boolean': {
 			c = integer(columnName, { mode: 'boolean' });
-			if (column.schema.default !== undefined)
-				c = c.default(handleSerializedSQL(column.schema.default));
+			if (schema.default !== undefined)
+				c = c.default(handleSerializedSQL(schema.default));
 			break;
 		}
 		case 'json':
 			c = jsonType(columnName);
-			if (column.schema.default !== undefined) c = c.default(column.schema.default);
+			if (schema.default !== undefined) c = c.default(schema.default);
 			break;
 		case 'date': {
 			c = dateType(columnName);
-			if (column.schema.default !== undefined) {
-				const def = handleSerializedSQL(column.schema.default);
+			if (schema.default !== undefined) {
+				const def = handleSerializedSQL(schema.default);
 				c = c.default(typeof def === 'string' ? new Date(def) : def);
 			}
 			break;
 		}
 	}
 
-	if (!column.schema.optional) c = c.notNull();
-	if (column.schema.unique) c = c.unique();
+	if (!schema.optional) c = c.notNull();
+	if (schema.unique) c = c.unique();
 	return c;
 }
 
