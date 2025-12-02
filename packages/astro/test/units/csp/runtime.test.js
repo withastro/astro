@@ -1,10 +1,7 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import {
-	deduplicateDirectiveValues,
-	pushDirective,
-} from '../../../dist/core/csp/runtime.js';
+import { deduplicateDirectiveValues, pushDirective } from '../../../dist/core/csp/runtime.js';
 
 describe('deduplicateDirectiveValues', () => {
 	it('merges directives', () => {
@@ -32,7 +29,10 @@ describe('deduplicateDirectiveValues', () => {
 	});
 
 	it('handle multiple spaces', () => {
-		let result = deduplicateDirectiveValues("img-src     'self'    ", "img-src    'self'     https://example.com");
+		let result = deduplicateDirectiveValues(
+			"img-src     'self'    ",
+			"img-src    'self'     https://example.com",
+		);
 
 		assert.deepStrictEqual(result, "img-src 'self' https://example.com");
 	});

@@ -1,5 +1,5 @@
-import type { CspDirective } from './config.js';
 import type { SSRManifestCSP } from '../app/types.js';
+import type { CspDirective } from './config.js';
 
 /**
  * `existingDirective` is something like `img-src 'self'`. Same as `newDirective`.

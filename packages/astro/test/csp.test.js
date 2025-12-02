@@ -197,12 +197,17 @@ describe('CSP', () => {
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
 		// correctness for resources
 		assert.ok(
-			meta.attr('content').toString().includes('script-src https://global.cdn.example.com https://scripts.cdn.example.com'),
+			meta
+				.attr('content')
+				.toString()
+				.includes('script-src https://global.cdn.example.com https://scripts.cdn.example.com'),
 		);
 		assert.ok(meta.attr('content').toString().includes("style-src 'self'"));
 		// correctness for hashes
 		assert.ok(meta.attr('content').toString().includes("default-src 'self';"));
-		assert.ok(meta.attr('content').toString().includes("img-src 'self' https://images.cdn.example.com;"));
+		assert.ok(
+			meta.attr('content').toString().includes("img-src 'self' https://images.cdn.example.com;"),
+		);
 	});
 
 	it('allows injecting custom styles resources and hashes based on pages', async () => {
@@ -223,11 +228,18 @@ describe('CSP', () => {
 
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
 		// correctness for resources
-		assert.ok(meta.attr('content').toString().includes('style-src https://global.cdn.example.com https://styles.cdn.example.com'));
+		assert.ok(
+			meta
+				.attr('content')
+				.toString()
+				.includes('style-src https://global.cdn.example.com https://styles.cdn.example.com'),
+		);
 		assert.ok(meta.attr('content').toString().includes("script-src 'self'"));
 		// correctness for hashes
 		assert.ok(meta.attr('content').toString().includes("default-src 'self';"));
-		assert.ok(meta.attr('content').toString().includes("img-src 'self' https://images.cdn.example.com;"));
+		assert.ok(
+			meta.attr('content').toString().includes("img-src 'self' https://images.cdn.example.com;"),
+		);
 	});
 
 	it('allows add `strict-dynamic` when enabled', async () => {
