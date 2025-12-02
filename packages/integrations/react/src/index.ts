@@ -73,11 +73,26 @@ function getViteConfiguration(
 	if (reactCompilerEnabled) {
 		if (!babel) babel = {};
 		if (typeof babel == "object") {
+			let reactCompilerPluginExists = false
 			if (!babel.plugins) babel.plugins = []
-			babel.plugins.push(['babel-plugin-react-compiler']);
+			else {
+				for (const plugin of babel.plugins) {
+					if (typeof plugin == "string" && plugin == 'babel-plugin-react-compiler') {
+						reactCompilerPluginExists = true
+						break
+					} else if (Array.isArray(plugin) && plugin[0] == 'babel-plugin-react-compiler') {
+						reactCompilerPluginExists = true
+						break
+					}
+				}
+
+				if (!reactCompilerPluginExists) babel.plugins.push(['babel-plugin-react-compiler']);
+			}
+			
+			
 		}
 	}
-	
+
 	return {
 		optimizeDeps: {
 			include: [reactConfig.client],
