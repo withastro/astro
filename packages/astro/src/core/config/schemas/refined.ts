@@ -14,8 +14,8 @@ export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((con
 		});
 	}
 
-	for (let i = 0; i < config.image.remotePatterns.length; i++) {
-		const { hostname, pathname } = config.image.remotePatterns[i];
+	for (let i = 0; i < (config.image?.remotePatterns?.length ?? 0); i++) {
+		const { hostname, pathname } = config.image!.remotePatterns![i];
 
 		if (
 			hostname &&
