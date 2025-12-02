@@ -17,6 +17,7 @@ export type ReactIntegrationOptions = Pick<
 	 * Disable streaming in React components
 	 */
 	experimentalDisableStreaming?: boolean;
+	reactCompilerEnabled?: boolean;
 };
 
 const FAST_REFRESH_PREAMBLE = react.preambleCode;
@@ -50,7 +51,7 @@ function optionsPlugin({
 				return {
 					code: `export default {
 						experimentalReactChildren: ${JSON.stringify(experimentalReactChildren)},
-						experimentalDisableStreaming: ${JSON.stringify(experimentalDisableStreaming)}
+						experimentalDisableStreaming: ${JSON.stringify(experimentalDisableStreaming)},
 					}`,
 				};
 			}
@@ -65,9 +66,18 @@ function getViteConfiguration(
 		babel,
 		experimentalReactChildren,
 		experimentalDisableStreaming,
+		reactCompilerEnabled,
 	}: ReactIntegrationOptions = {},
 	reactConfig: ReactVersionConfig,
 ) {
+	if (reactCompilerEnabled) {
+		if (!babel) babel = {};
+		if (typeof babel == "object") {
+			if (!babel.plugins) babel.plugins = []
+			babel.plugins.push(['babel-plugin-react-compiler']);
+		}
+	}
+	
 	return {
 		optimizeDeps: {
 			include: [reactConfig.client],
@@ -99,6 +109,7 @@ export default function ({
 	babel,
 	experimentalReactChildren,
 	experimentalDisableStreaming,
+	reactCompilerEnabled,
 }: ReactIntegrationOptions = {}): AstroIntegration {
 	const majorVersion = getReactMajorVersion();
 	if (!isSupportedReactVersion(majorVersion)) {
@@ -113,7 +124,7 @@ export default function ({
 				addRenderer(getRenderer(versionConfig));
 				updateConfig({
 					vite: getViteConfiguration(
-						{ include, exclude, babel, experimentalReactChildren, experimentalDisableStreaming },
+						{ include, exclude, babel, experimentalReactChildren, experimentalDisableStreaming, reactCompilerEnabled },
 						versionConfig,
 					),
 				});
