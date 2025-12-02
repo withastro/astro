@@ -68,7 +68,7 @@ async function _initializeUnifontThenMergeFamiliesAndResolveFonts({
 	 * Holds associations of hash and original font file URLs, so they can be
 	 * downloaded whenever the hash is requested.
 	 */
-	const fontFileDataMap: FontFileDataMap = new Map();
+	const urlBySomeKindOfFontId: FontFileDataMap = new Map();
 
 	/**
 	 * Holds family data by a key, to allow merging families
@@ -121,9 +121,9 @@ async function _initializeUnifontThenMergeFamiliesAndResolveFonts({
 		 */
 		const urlProxy = createUrlProxy({
 			local: family.provider === LOCAL_PROVIDER_NAME,
-			hasUrl: (hash) => fontFileDataMap.has(hash),
+			hasUrl: (hash) => urlBySomeKindOfFontId.has(hash),
 			saveUrl: ({ hash, url, init }) => {
-				fontFileDataMap.set(hash, { url, init });
+				urlBySomeKindOfFontId.set(hash, { url, init });
 			},
 			savePreload: (preload) => {
 				resolvedFamily.preloadData.push(preload);
@@ -195,7 +195,7 @@ async function _initializeUnifontThenMergeFamiliesAndResolveFonts({
 		}
 	}
 
-	return { resolvedFamiliesMap, fontFileDataMap };
+	return { resolvedFamiliesMap, fontFileDataMap: urlBySomeKindOfFontId };
 }
 
 /**
