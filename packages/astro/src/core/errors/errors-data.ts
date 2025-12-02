@@ -1684,7 +1684,9 @@ export const InvalidContentEntryDataError = {
 	message(collection: string, entryId: string, error: ZodError) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
-			...error.issues.map((zodError: any) => `  **${zodError.path.join('.')}**: ${zodError.message}`),
+			...error.issues.map(
+				(zodError: any) => `  **${zodError.path.join('.')}**: ${zodError.message}`,
+			),
 			'',
 		].join('\n');
 	},
@@ -1790,7 +1792,9 @@ export const ContentEntryDataError = {
 	message(collection: string, entryId: string, error: ZodError) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
-			...error.issues.map((zodError: any) => `  **${zodError.path.join('.')}**: ${zodError.message}`),
+			...error.issues.map(
+				(zodError: any) => `  **${zodError.path.join('.')}**: ${zodError.message}`,
+			),
 			'',
 		].join('\n');
 	},

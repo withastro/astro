@@ -184,7 +184,9 @@ export type SafeResult<TInput extends ErrorInferenceObject, TOutput> =
 			error: ActionError<TInput>;
 	  };
 
-export class ActionInputError<_T extends ErrorInferenceObject = ErrorInferenceObject> extends ActionError {
+export class ActionInputError<
+	_T extends ErrorInferenceObject = ErrorInferenceObject,
+> extends ActionError {
 	type = 'AstroActionInputError';
 
 	// We don't expose all ZodError properties.

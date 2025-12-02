@@ -358,7 +358,9 @@ async function simpleLoader<TData extends { id: string }>(
 
 		// For union errors, zod includes unionErrors in the issue
 		if (firstIssue?.unionErrors && Array.isArray(firstIssue.unionErrors)) {
-			const unionError = Array.isArray(unsafeData) ? firstIssue.unionErrors[0] : firstIssue.unionErrors[1];
+			const unionError = Array.isArray(unsafeData)
+				? firstIssue.unionErrors[0]
+				: firstIssue.unionErrors[1];
 			firstPathItem = unionError?.issues?.[0]?.path?.[0];
 		} else {
 			firstPathItem = firstIssue?.path?.[0];

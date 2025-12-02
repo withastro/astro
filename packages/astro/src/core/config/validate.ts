@@ -10,9 +10,7 @@ export async function validateConfig(
 	const AstroConfigRelativeSchema = createRelativeSchema(cmd, root);
 
 	// First-Pass Validation
-	return await validateConfigRefined(
-		await AstroConfigRelativeSchema.parseAsync(userConfig),
-	);
+	return await validateConfigRefined(await AstroConfigRelativeSchema.parseAsync(userConfig));
 }
 
 /**

@@ -56,10 +56,13 @@ const collectionConfigParser = z.union([
 			z.function({ input: [], output: z.unknown() }),
 			z.object({
 				name: z.string(),
-				load: z.function({ input: [z.custom<LoaderContext>()], output: z.custom<{
-					schema?: any;
-					types?: string;
-				} | void>() }),
+				load: z.function({
+					input: [z.custom<LoaderContext>()],
+					output: z.custom<{
+						schema?: any;
+						types?: string;
+					} | void>(),
+				}),
 				schema: z.any().optional(),
 				render: z.function({ input: [z.any()], output: z.unknown() }).optional(),
 			}),
