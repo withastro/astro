@@ -39,13 +39,8 @@ import {
 
 function _computeProxyUrlsForFontProvidersUrls({
 	resolvedFamiliesMap,
-	logger,
-	bold,
-	defaults,
 	createUrlProxy,
 	fontTypeExtractor,
-	fontFileReader,
-	stringMatcher,
 }: {
 	resolvedFamiliesMap: Map<
 		string,
@@ -61,13 +56,8 @@ function _computeProxyUrlsForFontProvidersUrls({
 			preloadData: Array<PreloadData>;
 		}
 	>;
-	logger: Logger;
-	bold: (input: string) => string;
-	defaults: Defaults;
 	createUrlProxy: (params: CreateUrlProxyParams) => UrlProxy;
 	fontTypeExtractor: FontTypeExtractor;
-	fontFileReader: FontFileReader;
-	stringMatcher: StringMatcher;
 }) {
 	/**
 	 * Holds associations of hash and original font file URLs, so they can be
@@ -143,11 +133,45 @@ function _computeProxyUrlsForFontProvidersUrls({
 			});
 		} else {
 			// The data returned by the remote provider contains original URLs. We proxy them.
-			resolvedFamily.fonts = normalizeRemoteFontFaces({
-				fonts: resolvedFamily.fonts,
-				urlProxy,
-				fontTypeExtractor,
-			});
+			resolvedFamily.fonts = resolvedFamily.fonts
+				// Collect URLs
+				.map((font) => {
+					// The index keeps track of encountered URLs. We can't use the index on font.src.map
+					// below because it may contain sources without urls, which would prevent preloading completely
+					let index = 0;
+					return {
+						...font,
+						src: font.src.map((source) => {
+							if ('name' in source) {
+								return source;
+							}
+							// We handle protocol relative URLs here, otherwise they're considered absolute by the font
+							// fetcher which will try to read them from the file system
+							const url = source.url.startsWith('//') ? `https:${source.url}` : source.url;
+							const proxied = {
+								...source,
+								originalURL: url,
+								url: urlProxy.proxy({
+									url,
+									type:
+										FONT_FORMATS.find((e) => e.format === source.format)?.type ??
+										fontTypeExtractor.extract(source.url),
+									// We only collect the first URL to avoid preloading fallback sources (eg. we only
+									// preload woff2 if woff is available)
+									collectPreload: index === 0,
+									data: {
+										weight: font.weight,
+										style: font.style,
+										subset: font.meta?.subset,
+									},
+									init: font.meta?.init ?? null,
+								}),
+							};
+							index++;
+							return proxied;
+						}),
+					};
+				});
 		}
 	}
 
