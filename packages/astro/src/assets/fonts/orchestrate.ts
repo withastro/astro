@@ -142,42 +142,12 @@ function _computeProxyUrlsForFontProvidersUrls({
 				};
 			});
 		} else {
-			const result = resolveFont(
-				resolvedFamily.family.name,
-				// We do not merge the defaults, we only provide defaults as a fallback
-				{
-					weights: resolvedFamily.family.weights ?? defaults.weights,
-					styles: resolvedFamily.family.styles ?? defaults.styles,
-					subsets: resolvedFamily.family.subsets ?? defaults.subsets,
-					fallbacks: resolvedFamily.family.fallbacks ?? defaults.fallbacks,
-				},
-				// By default, unifont goes through all providers. We use a different approach where
-				// we specify a provider per font. Name has been set while extracting unifont providers
-				// from families (inside extractUnifontProviders).
-				[resolvedFamily.family.provider.name!],
-			);
-			if (result.fonts.length === 0) {
-				logger.warn(
-					'assets',
-					`No data found for font family ${bold(resolvedFamily.family.name)}. Review your configuration`,
-				);
-				const availableFamilies = listFonts([resolvedFamily.family.provider.name!]);
-				if (
-					availableFamilies &&
-					availableFamilies.length > 0 &&
-					!availableFamilies.includes(resolvedFamily.family.name)
-				) {
-					logger.warn(
-						'assets',
-						`${bold(resolvedFamily.family.name)} font family cannot be retrieved by the provider. Did you mean ${bold(stringMatcher.getClosestMatch(family.name, availableFamilies))}?`,
-					);
-				}
-			}
 			// The data returned by the remote provider contains original URLs. We proxy them.
-			resolvedFamily.fonts = dedupeFontFaces(
-				resolvedFamily.fonts,
-				normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy, fontTypeExtractor }),
-			);
+			resolvedFamily.fonts = normalizeRemoteFontFaces({
+				fonts: resolvedFamily.fonts,
+				urlProxy,
+				fontTypeExtractor,
+			});
 		}
 	}
 
