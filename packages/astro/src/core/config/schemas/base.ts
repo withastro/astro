@@ -150,13 +150,13 @@ export const AstroConfigSchema = z.object({
 		.union([z.literal('where'), z.literal('class'), z.literal('attribute')])
 		.optional()
 		.default('attribute'),
-	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
+	adapter: z.object({ name: z.string(), hooks: z.looseObject({}).default({}) }).optional(),
 	integrations: z.preprocess(
 		// preprocess
 		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
 		// validate
 		z
-			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
+			.array(z.object({ name: z.string(), hooks: z.looseObject({}).default({}) }))
 			.default(ASTRO_CONFIG_DEFAULTS.integrations),
 	),
 	build: z
@@ -431,12 +431,10 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.security),
-	env: z
-		.object({
-			schema: EnvSchema.optional().default(ASTRO_CONFIG_DEFAULTS.env.schema),
-			validateSecrets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.env.validateSecrets),
-		})
-		.strict()
+	env: z.strictObject({
+		schema: EnvSchema.optional().default(ASTRO_CONFIG_DEFAULTS.env.schema),
+		validateSecrets: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.env.validateSecrets),
+	})
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.env),
 	session: z
@@ -467,52 +465,68 @@ export const AstroConfigSchema = z.object({
 		.enum(['error', 'warn', 'ignore'])
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.prerenderConflictBehavior),
-	experimental: z
-		.object({
-			clientPrerender: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.clientPrerender),
-			contentIntellisense: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
-			fonts: z.array(z.union([localFontFamilySchema, remoteFontFamilySchema])).optional(),
-			csp: z
-				.union([
-					z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
-					z.object({
-						algorithm: cspAlgorithmSchema,
-						directives: z.array(allowedDirectivesSchema).optional(),
-						styleDirective: z
-							.object({
-								resources: z.array(z.string()).optional(),
-								hashes: z.array(cspHashSchema).optional(),
-							})
-							.optional(),
-						scriptDirective: z
-							.object({
-								resources: z.array(z.string()).optional(),
-								hashes: z.array(cspHashSchema).optional(),
-								strictDynamic: z.boolean().optional(),
-							})
-							.optional(),
-					}),
-				])
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
-			chromeDevtoolsWorkspace: z
-				.boolean()
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.chromeDevtoolsWorkspace),
-			svgo: z
-				.union([z.boolean(), z.custom<SvgoConfig>((value) => value && typeof value === 'object')])
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.svgo),
+	experimental: z.strictObject({
+		clientPrerender: z
+			.boolean()
+			.optional()
+			.default(ASTRO_CONFIG_DEFAULTS.experimental.clientPrerender),
+		contentIntellisense: z
+			.boolean()
+			.optional()
+			.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
+		fonts: z.array(z.union([localFontFamilySchema, remoteFontFamilySchema])).optional(),
+		csp: z
+			.union([
+				z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
+				z.object({
+					algorithm: cspAlgorithmSchema,
+					directives: z.array(allowedDirectivesSchema).optional(),
+					styleDirective: z
+						.object({
+							resources: z.array(z.string()).optional(),
+							hashes: z.array(cspHashSchema).optional(),
+						})
+						.optional(),
+					scriptDirective: z
+						.object({
+							resources: z.array(z.string()).optional(),
+							hashes: z.array(cspHashSchema).optional(),
+							strictDynamic: z.boolean().optional(),
+						})
+						.optional(),
+				}),
+			])
+			.optional()
+			.default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
+		chromeDevtoolsWorkspace: z
+			.boolean()
+			.optional()
+			.default(ASTRO_CONFIG_DEFAULTS.experimental.chromeDevtoolsWorkspace),
+		svgo: z
+			.union([z.boolean(), z.custom<SvgoConfig>((value) => value && typeof value === 'object')])
+			.optional()
+			.default(ASTRO_CONFIG_DEFAULTS.experimental.svgo),
+	})
+		.superRefine((obj, ctx) => {
+			// Add validation error for invalid experimental features
+			const validKeys = new Set([
+				'clientPrerender',
+				'contentIntellisense',
+				'fonts',
+				'csp',
+				'chromeDevtoolsWorkspace',
+				'svgo',
+			]);
+			for (const key of Object.keys(obj)) {
+				if (!validKeys.has(key)) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.unrecognized_keys,
+						keys: [key],
+						message: `Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,
+					});
+				}
+			}
 		})
-		.strict(
-			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,
-		)
 		.default({}),
 	legacy: z.object({}).default({}),
 });

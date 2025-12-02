@@ -1,0 +1,413 @@
+
+> root@0.0.0 build /Users/matthew/dev/astro/next
+> turbo run build --filter=astro --filter=create-astro --filter="@astrojs/*" --filter="astro-vscode" --filter="@benchmark/*"
+
+turbo 2.5.8
+
+• Packages in scope: @astrojs/alpinejs, @astrojs/check, @astrojs/cloudflare, @astrojs/db, @astrojs/internal-helpers, @astrojs/language-server, @astrojs/markdoc, @astrojs/markdown-remark, @astrojs/mdx, @astrojs/netlify, @astrojs/node, @astrojs/partytown, @astrojs/preact, @astrojs/prism, @astrojs/react, @astrojs/rss, @astrojs/sitemap, @astrojs/solid-js, @astrojs/svelte, @astrojs/telemetry, @astrojs/ts-plugin, @astrojs/underscore-redirects, @astrojs/upgrade, @astrojs/vercel, @astrojs/vue, @astrojs/yaml2ts, @benchmark/adapter, @benchmark/timer, astro, astro-vscode, create-astro
+• Running build in 31 packages
+• Remote caching disabled
+@astrojs/yaml2ts:build: cache miss, executing 8e6aaa829048840f
+@astrojs/telemetry:build: cache miss, executing 59e4917864cdd7ef
+@astrojs/upgrade:build: cache miss, executing f3eba08202b5784e
+create-astro:build: cache miss, executing b2415cd30ca68929
+@astrojs/prism:build: cache miss, executing 689c691db58523c2
+@astrojs/internal-helpers:build: cache miss, executing 378200255b5aa6b5
+@astrojs/yaml2ts:build: 
+@astrojs/yaml2ts:build: > @astrojs/yaml2ts@0.2.2 build /Users/matthew/dev/astro/next/packages/language-tools/yaml2ts
+@astrojs/yaml2ts:build: > tsc
+@astrojs/yaml2ts:build: 
+create-astro:build: 
+create-astro:build: > create-astro@5.0.0-alpha.0 build /Users/matthew/dev/astro/next/packages/create-astro
+create-astro:build: > astro-scripts build "src/index.ts" --bundle && tsc
+create-astro:build: 
+@astrojs/internal-helpers:build: 
+@astrojs/internal-helpers:build: > @astrojs/internal-helpers@0.7.5 build /Users/matthew/dev/astro/next/packages/internal-helpers
+@astrojs/internal-helpers:build: > astro-scripts build "src/**/*.ts" && tsc -p tsconfig.json
+@astrojs/internal-helpers:build: 
+@astrojs/upgrade:build: 
+@astrojs/upgrade:build: > @astrojs/upgrade@0.7.0-alpha.0 build /Users/matthew/dev/astro/next/packages/upgrade
+@astrojs/upgrade:build: > astro-scripts build "src/index.ts" --bundle && tsc
+@astrojs/upgrade:build: 
+@astrojs/telemetry:build: 
+@astrojs/telemetry:build: > @astrojs/telemetry@3.3.0 build /Users/matthew/dev/astro/next/packages/telemetry
+@astrojs/telemetry:build: > astro-scripts build "src/**/*.ts" && tsc
+@astrojs/telemetry:build: 
+@astrojs/prism:build: 
+@astrojs/prism:build: > @astrojs/prism@4.0.0-alpha.0 build /Users/matthew/dev/astro/next/packages/astro-prism
+@astrojs/prism:build: > astro-scripts build "src/**/*.ts" && tsc -p ./tsconfig.json
+@astrojs/prism:build: 
+@astrojs/ts-plugin:build: cache miss, executing 7b382364e552daca
+@astrojs/language-server:build: cache miss, executing b17b3d9eb77eceb2
+@astrojs/markdown-remark:build: cache miss, executing f3ac34d6a49e2c5f
+@astrojs/ts-plugin:build: 
+@astrojs/ts-plugin:build: > @astrojs/ts-plugin@1.10.5 build /Users/matthew/dev/astro/next/packages/language-tools/ts-plugin
+@astrojs/ts-plugin:build: > tsc
+@astrojs/ts-plugin:build: 
+@astrojs/language-server:build: 
+@astrojs/language-server:build: > @astrojs/language-server@2.16.1-alpha.0 build /Users/matthew/dev/astro/next/packages/language-tools/language-server
+@astrojs/language-server:build: > tsc
+@astrojs/language-server:build: 
+@astrojs/markdown-remark:build: 
+@astrojs/markdown-remark:build: > @astrojs/markdown-remark@7.0.0-alpha.0 build /Users/matthew/dev/astro/next/packages/markdown/remark
+@astrojs/markdown-remark:build: > astro-scripts build "src/**/*.ts" && tsc -p tsconfig.json
+@astrojs/markdown-remark:build: 
+@astrojs/check:build: cache miss, executing 77c79c4d2fe6a7bf
+astro-vscode:build: cache miss, executing 84d627f08e0f427c
+astro-vscode:build: 
+astro-vscode:build: > astro-vscode@2.16.0 build /Users/matthew/dev/astro/next/packages/language-tools/vscode
+astro-vscode:build: > tsc && pnpm prebuild && node scripts/build.mjs -- --minify
+astro-vscode:build: 
+@astrojs/check:build: 
+@astrojs/check:build: > @astrojs/check@0.9.6-alpha.0 build /Users/matthew/dev/astro/next/packages/language-tools/astro-check
+@astrojs/check:build: > tsc
+@astrojs/check:build: 
+astro:build: cache miss, executing 1678d3254bc75ed0
+astro:build: 
+astro:build: > astro@6.0.0-alpha.0 build /Users/matthew/dev/astro/next/packages/astro
+astro:build: > pnpm run prebuild && astro-scripts build "src/**/*.{ts,js}" --copy-wasm && tsc && astro-check -- -- --root ./components
+astro:build: 
+astro-vscode:build: 
+astro-vscode:build: > astro-vscode@2.16.0 prebuild /Users/matthew/dev/astro/next/packages/language-tools/vscode
+astro-vscode:build: > cd ../ts-plugin && pnpm build
+astro-vscode:build: 
+astro:build: 
+astro:build: > astro@6.0.0-alpha.0 prebuild /Users/matthew/dev/astro/next/packages/astro
+astro:build: > astro-scripts prebuild --to-string "src/runtime/server/astro-island.ts" "src/runtime/client/{idle,load,media,only,visible}.ts"
+astro:build: 
+astro-vscode:build: 
+astro-vscode:build: > @astrojs/ts-plugin@1.10.5 build /Users/matthew/dev/astro/next/packages/language-tools/ts-plugin
+astro-vscode:build: > tsc
+astro-vscode:build: 
+astro:build: src/actions/runtime/server.ts(169,46): error TS2724: '"/Users/matthew/dev/astro/next/node_modules/.pnpm/zod@4.1.13/node_modules/zod/v4/classic/external"' has no exported member named 'AnyZodObject'. Did you mean 'ZodObject'?
+astro:build: src/actions/runtime/server.ts(185,16): error TS18046: 'validator._def.defaultValue' is of type 'unknown'.
+astro:build: src/actions/runtime/server.ts(197,51): error TS2345: Argument of type 'ZodArray<$ZodType<unknown, unknown, $ZodTypeInternals<unknown, unknown>>>' is not assignable to parameter of type 'ZodArray<ZodUnknown>'.
+astro:build:   Type '$ZodType<unknown, unknown, $ZodTypeInternals<unknown, unknown>>' is missing the following properties from type '_ZodType<$ZodUnknownInternals>': def, type, _def, _output, and 38 more.
+astro:build: src/actions/runtime/server.ts(212,6): error TS2358: The left-hand side of an 'instanceof' expression must be of type 'any', an object type or a type parameter.
+astro:build: src/actions/runtime/server.ts(214,13): error TS2358: The left-hand side of an 'instanceof' expression must be of type 'any', an object type or a type parameter.
+astro:build: src/actions/runtime/server.ts(234,29): error TS2339: Property 'ZodEffects' does not exist on type 'typeof import("/Users/matthew/dev/astro/next/node_modules/.pnpm/zod@4.1.13/node_modules/zod/v4/classic/external")'.
+astro:build: src/actions/runtime/server.ts(234,63): error TS2339: Property 'ZodPipeline' does not exist on type 'typeof import("/Users/matthew/dev/astro/next/node_modules/.pnpm/zod@4.1.13/node_modules/zod/v4/classic/external")'.
+astro:build: src/actions/runtime/server.ts(235,27): error TS2339: Property 'ZodEffects' does not exist on type 'typeof import("/Users/matthew/dev/astro/next/node_modules/.pnpm/zod@4.1.13/node_modules/zod/v4/classic/external")'.
+astro:build: src/actions/runtime/server.ts(236,25): error TS2339: Property 'schema' does not exist on type '$ZodTypeDef'.
+astro:build: src/actions/runtime/server.ts(238,27): error TS2339: Property 'ZodPipeline' does not exist on type 'typeof import("/Users/matthew/dev/astro/next/node_modules/.pnpm/zod@4.1.13/node_modules/zod/v4/classic/external")'.
+astro:build: src/actions/runtime/server.ts(239,25): error TS2339: Property 'in' does not exist on type '$ZodTypeDef'.
+astro:build: src/actions/runtime/server.ts(243,31): error TS2339: Property 'discriminator' does not exist on type '$ZodUnionDef<readonly $ZodType<unknown, unknown, $ZodTypeInternals<unknown, unknown>>[]>'.
+astro:build: src/actions/runtime/server.ts(247,33): error TS2551: Property 'optionsMap' does not exist on type '$ZodUnionDef<readonly $ZodType<unknown, unknown, $ZodTypeInternals<unknown, unknown>>[]>'. Did you mean 'options'?
+astro:build: src/actions/runtime/shared.ts(195,24): error TS2339: Property 'formErrors' does not exist on type 'ZodError<T>'.
+astro:build: src/assets/fonts/vite-plugin-fonts.ts(225,7): error TS2322: Type 'string | ({ fallback: string; } & Record<string, unknown>) | undefined' is not assignable to type 'AssetsPrefix'.
+astro:build:   Type '{ fallback: string; } & Record<string, unknown>' is not assignable to type 'AssetsPrefix'.
+astro:build: src/assets/vite-plugin-assets.ts(48,54): error TS2345: Argument of type 'string | ({ fallback: string; } & Record<string, unknown>) | undefined' is not assignable to parameter of type 'AssetsPrefix'.
+astro:build:   Type '{ fallback: string; } & Record<string, unknown>' is not assignable to type 'AssetsPrefix'.
+astro:build: src/assets/vite-plugin-assets.ts(207,48): error TS2345: Argument of type 'string | ({ fallback: string; } & Record<string, unknown>) | undefined' is not assignable to parameter of type 'AssetsPrefix'.
+astro:build:   Type '{ fallback: string; } & Record<string, unknown>' is not assignable to type 'AssetsPrefix'.
+astro:build: src/content/content-layer.ts(144,61): error TS2345: Argument of type '{ syntaxHighlight: false | "shiki" | "prism" | { type: "shiki" | "prism"; excludeLangs: string[]; }; shikiConfig: { langs: ShikiLang[]; langAlias: Record<string, string>; ... 4 more ...; defaultColor?: string | ... 1 more ... | undefined; }; ... 4 more ...; smartypants: boolean; }' is not assignable to parameter of type 'AstroMarkdownProcessorOptions'.
+astro:build:   The types of 'shikiConfig.themes' are incompatible between these types.
+astro:build:     Type 'Record<string | number | symbol, unknown>' is not assignable to type 'Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>'.
+astro:build:       'string' index signatures are incompatible.
+astro:build:         Type 'unknown' is not assignable to type 'ThemePresets | ThemeRegistration | ThemeRegistrationRaw'.
+astro:build: src/content/content-layer.ts(248,9): error TS18046: 'collection' is of type 'unknown'.
+astro:build: src/content/content-layer.ts(252,11): error TS2339: Property 'schema' does not exist on type 'unknown'.
+astro:build: src/content/content-layer.ts(254,27): error TS18046: 'collection' is of type 'unknown'.
+astro:build: src/content/content-layer.ts(255,15): error TS18046: 'collection' is of type 'unknown'.
+astro:build: src/content/content-layer.ts(264,14): error TS18046: 'collection' is of type 'unknown'.
+astro:build: src/content/content-layer.ts(265,33): error TS18046: 'collection' is of type 'unknown'.
+astro:build: src/content/content-layer.ts(283,10): error TS2698: Spread types may only be created from object types.
+astro:build: src/content/content-layer.ts(286,18): error TS18046: 'collection' is of type 'unknown'.
+astro:build: src/content/content-layer.ts(290,16): error TS18046: 'collection' is of type 'unknown'.
+astro:build: src/content/content-layer.ts(291,26): error TS18046: 'collection' is of type 'unknown'.
+astro:build: src/content/content-layer.ts(294,10): error TS18046: 'collection' is of type 'unknown'.
+astro:build: src/content/content-layer.ts(298,12): error TS18046: 'collection' is of type 'unknown'.
+astro:build: src/content/content-layer.ts(356,49): error TS2694: Namespace '"/Users/matthew/dev/astro/next/node_modules/.pnpm/zod@4.1.13/node_modules/zod/v4/classic/external"' has no exported member 'ZodInvalidUnionIssue'.
+astro:build: src/content/loaders/errors.ts(39,14): error TS2339: Property 'errors' does not exist on type 'ZodError<unknown>'.
+astro:build: src/content/loaders/errors.ts(39,26): error TS7006: Parameter 'zodError' implicitly has an 'any' type.
+astro:build: src/content/loaders/errors.ts(56,14): error TS2339: Property 'errors' does not exist on type 'ZodError<unknown>'.
+astro:build: src/content/loaders/errors.ts(56,26): error TS7006: Parameter 'zodError' implicitly has an 'any' type.
+astro:build: src/content/runtime.ts(78,5): error TS2322: Type 'unknown' is not assignable to type 'Record<string, unknown>'.
+astro:build: src/content/runtime.ts(678,37): error TS2339: Property 'path' does not exist on type '$RefinementCtx<string | { id: string; collection: string; } | { slug: string; collection: string; }>'.
+astro:build: src/content/types-generator.ts(350,33): error TS2345: Argument of type 'string | number | symbol' is not assignable to parameter of type 'string'.
+astro:build:   Type 'number' is not assignable to type 'string'.
+astro:build: src/content/types-generator.ts(356,15): error TS2339: Property 'type' does not exist on type 'NonNullable<Record<string | number | symbol, unknown>[T]>'.
+astro:build: src/content/types-generator.ts(357,21): error TS2339: Property 'loader' does not exist on type 'NonNullable<Record<string | number | symbol, unknown>[T]>'.
+astro:build: src/content/types-generator.ts(358,14): error TS2339: Property 'loader' does not exist on type 'NonNullable<Record<string | number | symbol, unknown>[T]>'.
+astro:build: src/content/types-generator.ts(360,27): error TS2339: Property 'loader' does not exist on type 'NonNullable<Record<string | number | symbol, unknown>[T]>'.
+astro:build: src/content/types-generator.ts(365,20): error TS2345: Argument of type 'string | number | symbol' is not assignable to parameter of type 'string'.
+astro:build:   Type 'number' is not assignable to type 'string'.
+astro:build: src/content/types-generator.ts(375,18): error TS2339: Property 'schema' does not exist on type 'NonNullable<Record<string | number | symbol, unknown>[T]>'.
+astro:build: src/content/types-generator.ts(376,30): error TS2731: Implicit conversion of a 'symbol' to a 'string' will fail at runtime. Consider wrapping this expression in 'String(...)'.
+astro:build: src/content/types-generator.ts(378,19): error TS2339: Property 'type' does not exist on type 'NonNullable<Record<string | number | symbol, unknown>[T]>'.
+astro:build: src/content/types-generator.ts(426,10): error TS18046: 'config' is of type 'unknown'.
+astro:build: src/content/types-generator.ts(436,22): error TS2339: Property 'type' does not exist on type '{}'.
+astro:build: src/content/types-generator.ts(438,21): error TS2339: Property 'type' does not exist on type '{}'.
+astro:build: src/content/types-generator.ts(439,41): error TS2339: Property 'type' does not exist on type '{}'.
+astro:build: src/content/types-generator.ts(448,24): error TS2339: Property 'type' does not exist on type '{}'.
+astro:build: src/content/types-generator.ts(468,22): error TS2339: Property 'schema' does not exist on type '{}'.
+astro:build: src/content/types-generator.ts(470,33): error TS2345: Argument of type '{}' is not assignable to parameter of type '{ type: "content_layer"; loader: $InferOuterFunctionType<ZodTuple<readonly $ZodType<unknown, unknown, $ZodTypeInternals<unknown, unknown>>[], null>, $ZodFunctionOut> | { ...; }; schema?: any; } | { ...; }'.
+astro:build: src/content/types-generator.ts(489,42): error TS2339: Property 'schema' does not exist on type '{}'.
+astro:build: src/content/utils.ts(32,3): error TS2769: No overload matches this call.
+astro:build:   Overload 1 of 2, '(params?: string | { error?: string | $ZodErrorMap<$ZodIssueInvalidType<unknown>> | undefined; message?: string | undefined; } | undefined): ZodString', gave the following error.
+astro:build:     Object literal may only specify known properties, and 'invalid_type_error' does not exist in type '{ error?: string | $ZodErrorMap<$ZodIssueInvalidType<unknown>> | undefined; message?: string | undefined; }'.
+astro:build:   Overload 2 of 2, '(params?: string | { error?: string | $ZodErrorMap<$ZodIssueInvalidType<unknown>> | undefined; message?: string | undefined; } | undefined): $ZodType<...>', gave the following error.
+astro:build:     Object literal may only specify known properties, and 'invalid_type_error' does not exist in type '{ error?: string | $ZodErrorMap<$ZodIssueInvalidType<unknown>> | undefined; message?: string | undefined; }'.
+astro:build: src/content/utils.ts(44,6): error TS2769: No overload matches this call.
+astro:build:   Overload 1 of 2, '(params?: string | { error?: string | $ZodErrorMap<$ZodIssueInvalidType<unknown>> | undefined; message?: string | undefined; } | undefined): ZodString', gave the following error.
+astro:build:     Object literal may only specify known properties, and 'invalid_type_error' does not exist in type '{ error?: string | $ZodErrorMap<$ZodIssueInvalidType<unknown>> | undefined; message?: string | undefined; }'.
+astro:build:   Overload 2 of 2, '(params?: string | { error?: string | $ZodErrorMap<$ZodIssueInvalidType<unknown>> | undefined; message?: string | undefined; } | undefined): $ZodType<...>', gave the following error.
+astro:build:     Object literal may only specify known properties, and 'invalid_type_error' does not exist in type '{ error?: string | $ZodErrorMap<$ZodIssueInvalidType<unknown>> | undefined; message?: string | undefined; }'.
+astro:build: src/content/utils.ts(56,28): error TS2554: Expected 0-1 arguments, but got 2.
+astro:build: src/content/utils.ts(59,60): error TS2554: Expected 0-1 arguments, but got 2.
+astro:build: src/content/utils.ts(64,44): error TS2554: Expected 0-1 arguments, but got 2.
+astro:build: src/content/utils.ts(71,35): error TS2554: Expected 0-1 arguments, but got 2.
+astro:build: src/content/utils.ts(76,17): error TS2554: Expected 2-3 arguments, but got 1.
+astro:build: src/content/utils.ts(161,4): error TS2353: Object literal may only specify known properties, and 'errorMap' does not exist in type 'ParseContext<$ZodIssue>'.
+astro:build: src/content/utils.ts(161,13): error TS7006: Parameter 'error' implicitly has an 'any' type.
+astro:build: src/content/utils.ts(161,20): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+astro:build: src/content/utils.ts(165,28): error TS2554: Expected 1 arguments, but got 2.
+astro:build: src/content/utils.ts(183,28): error TS2339: Property 'errors' does not exist on type 'ZodError<unknown>'.
+astro:build: src/content/vite-plugin-content-assets.ts(137,49): error TS2345: Argument of type 'string | ({ fallback: string; } & Record<string, unknown>)' is not assignable to parameter of type 'AssetsPrefix'.
+astro:build:   Type '{ fallback: string; } & Record<string, unknown>' is not assignable to type 'AssetsPrefix'.
+astro:build: src/content/vite-plugin-content-imports.ts(246,5): error TS2345: Argument of type '{}' is not assignable to parameter of type '{ type: "content_layer"; loader: $InferOuterFunctionType<ZodTuple<readonly $ZodType<unknown, unknown, $ZodTypeInternals<unknown, unknown>>[], null>, $ZodFunctionOut> | { ...; }; schema?: any; } | { ...; }'.
+astro:build: src/content/vite-plugin-content-imports.ts(281,5): error TS2345: Argument of type '{}' is not assignable to parameter of type '{ type: "content_layer"; loader: $InferOuterFunctionType<ZodTuple<readonly $ZodType<unknown, unknown, $ZodTypeInternals<unknown, unknown>>[], null>, $ZodFunctionOut> | { ...; }; schema?: any; } | { ...; }'.
+astro:build: src/core/build/generate.ts(715,4): error TS2322: Type '(string | { path: string; codes: string[]; })[]' is not assignable to type 'Locales'.
+astro:build:   Type 'string | { path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:     Type '{ path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:       Type '{ path: string; codes: string[]; }' is not assignable to type '{ codes: [string, ...string[]]; path: string; }'.
+astro:build:         Types of property 'codes' are incompatible.
+astro:build:           Type 'string[]' is not assignable to type '[string, ...string[]]'.
+astro:build:             Source provides no match for required element at position 0 in target.
+astro:build: src/core/build/generate.ts(764,3): error TS2322: Type 'string | ({ fallback: string; } & Record<string, unknown>) | undefined' is not assignable to type 'AssetsPrefix'.
+astro:build:   Type '{ fallback: string; } & Record<string, unknown>' is not assignable to type 'AssetsPrefix'.
+astro:build: src/core/build/plugins/plugin-manifest.ts(209,51): error TS2345: Argument of type 'string | ({ fallback: string; } & Record<string, unknown>)' is not assignable to parameter of type 'AssetsPrefix'.
+astro:build:   Type '{ fallback: string; } & Record<string, unknown>' is not assignable to type 'AssetsPrefix'.
+astro:build: src/core/build/plugins/plugin-manifest.ts(316,4): error TS2322: Type '(string | { path: string; codes: string[]; })[]' is not assignable to type 'Locales'.
+astro:build:   Type 'string | { path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:     Type '{ path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:       Type '{ path: string; codes: string[]; }' is not assignable to type '{ codes: [string, ...string[]]; path: string; }'.
+astro:build:         Types of property 'codes' are incompatible.
+astro:build:           Type 'string[]' is not assignable to type '[string, ...string[]]'.
+astro:build:             Source provides no match for required element at position 0 in target.
+astro:build: src/core/build/plugins/plugin-manifest.ts(377,3): error TS2322: Type 'string | ({ fallback: string; } & Record<string, unknown>) | undefined' is not assignable to type 'AssetsPrefix'.
+astro:build:   Type '{ fallback: string; } & Record<string, unknown>' is not assignable to type 'AssetsPrefix'.
+astro:build: src/core/config/schemas/base.ts(182,50): error TS2554: Expected 2-3 arguments, but got 1.
+astro:build: src/core/config/schemas/base.ts(191,12): error TS2769: No overload matches this call.
+astro:build:   Overload 1 of 2, '(def: { format: "file" | "preserve" | "directory"; client: URL; server: URL; assets: string; serverEntry: string; redirects: boolean; inlineStylesheets: "never" | "auto" | "always"; concurrency: number; assetsPrefix?: string | ... 1 more ... | undefined; }): ZodDefault<...>', gave the following error.
+astro:build:     Argument of type '{}' is not assignable to parameter of type '{ format: "file" | "preserve" | "directory"; client: URL; server: URL; assets: string; serverEntry: string; redirects: boolean; inlineStylesheets: "never" | "auto" | "always"; concurrency: number; assetsPrefix?: string | ... 1 more ... | undefined; }'.
+astro:build:       Type '{}' is missing the following properties from type '{ format: "file" | "preserve" | "directory"; client: URL; server: URL; assets: string; serverEntry: string; redirects: boolean; inlineStylesheets: "never" | "auto" | "always"; concurrency: number; assetsPrefix?: string | ... 1 more ... | undefined; }': format, client, server, assets, and 4 more.
+astro:build:   Overload 2 of 2, '(def: () => { format: "file" | "preserve" | "directory"; client: URL; server: URL; assets: string; serverEntry: string; redirects: boolean; inlineStylesheets: "never" | "auto" | "always"; concurrency: number; assetsPrefix?: string | ... 1 more ... | undefined; }): ZodDefault<...>', gave the following error.
+astro:build:     Argument of type '{}' is not assignable to parameter of type '() => { format: "file" | "preserve" | "directory"; client: URL; server: URL; assets: string; serverEntry: string; redirects: boolean; inlineStylesheets: "never" | "auto" | "always"; concurrency: number; assetsPrefix?: string | ... 1 more ... | undefined; }'.
+astro:build:       Type '{}' provides no match for the signature '(): { format: "file" | "preserve" | "directory"; client: URL; server: URL; assets: string; serverEntry: string; redirects: boolean; inlineStylesheets: "never" | "auto" | "always"; concurrency: number; assetsPrefix?: string | ... 1 more ... | undefined; }'.
+astro:build: src/core/config/schemas/base.ts(215,13): error TS2769: No overload matches this call.
+astro:build:   Overload 1 of 2, '(def: { open: string | boolean; host: string | boolean; port: number; allowedHosts: true | string[]; headers?: OutgoingHttpHeaders | undefined; }): ZodDefault<ZodObject<{ open: ZodDefault<...>; host: ZodDefault<...>; port: ZodDefault<...>; headers: ZodOptional<...>; allowedHosts: ZodDefault<...>; }, $strip>>', gave the following error.
+astro:build:     Argument of type '{}' is not assignable to parameter of type '{ open: string | boolean; host: string | boolean; port: number; allowedHosts: true | string[]; headers?: OutgoingHttpHeaders | undefined; }'.
+astro:build:       Type '{}' is missing the following properties from type '{ open: string | boolean; host: string | boolean; port: number; allowedHosts: true | string[]; headers?: OutgoingHttpHeaders | undefined; }': open, host, port, allowedHosts
+astro:build:   Overload 2 of 2, '(def: () => { open: string | boolean; host: string | boolean; port: number; allowedHosts: true | string[]; headers?: OutgoingHttpHeaders | undefined; }): ZodDefault<ZodObject<{ ...; }, $strip>>', gave the following error.
+astro:build:     Argument of type '{}' is not assignable to parameter of type '() => { open: string | boolean; host: string | boolean; port: number; allowedHosts: true | string[]; headers?: OutgoingHttpHeaders | undefined; }'.
+astro:build:       Type '{}' provides no match for the signature '(): { open: string | boolean; host: string | boolean; port: number; allowedHosts: true | string[]; headers?: OutgoingHttpHeaders | undefined; }'.
+astro:build: src/core/config/schemas/base.ts(262,16): error TS2554: Expected 2-3 arguments, but got 1.
+astro:build: src/core/config/schemas/base.ts(282,12): error TS2769: No overload matches this call.
+astro:build:   Overload 1 of 2, '(def: { endpoint: { route: string; entrypoint?: string | undefined; }; service: { entrypoint: string; config: Record<any, unknown>; }; domains: string[]; remotePatterns: { protocol?: string | undefined; hostname?: string | undefined; port?: string | undefined; pathname?: string | undefined; }[]; ... 4 more ...; breakpoints?: number[] | undefined; }): ZodDefault<...>', gave the following error.
+astro:build:     Argument of type '{ endpoint: { entrypoint: undefined; route: "/_image"; }; service: { entrypoint: "astro/assets/services/sharp"; config: {}; }; responsiveStyles: false; }' is not assignable to parameter of type '{ endpoint: { route: string; entrypoint?: string | undefined; }; service: { entrypoint: string; config: Record<any, unknown>; }; domains: string[]; remotePatterns: { protocol?: string | undefined; hostname?: string | undefined; port?: string | undefined; pathname?: string | undefined; }[]; ... 4 more ...; breakpoint...'.
+astro:build:       Type '{ endpoint: { entrypoint: undefined; route: "/_image"; }; service: { entrypoint: "astro/assets/services/sharp"; config: {}; }; responsiveStyles: false; }' is missing the following properties from type '{ endpoint: { route: string; entrypoint?: string | undefined; }; service: { entrypoint: string; config: Record<any, unknown>; }; domains: string[]; remotePatterns: { protocol?: string | undefined; hostname?: string | undefined; port?: string | undefined; pathname?: string | undefined; }[]; ... 4 more ...; breakpoint...': domains, remotePatterns
+astro:build:   Overload 2 of 2, '(def: () => { endpoint: { route: string; entrypoint?: string | undefined; }; service: { entrypoint: string; config: Record<any, unknown>; }; domains: string[]; remotePatterns: { protocol?: string | undefined; hostname?: string | undefined; port?: string | undefined; pathname?: string | undefined; }[]; ... 4 more ...; breakpoints?: number[] | undefined; }): ZodDefault<...>', gave the following error.
+astro:build:     Argument of type '{ endpoint: { entrypoint: undefined; route: "/_image"; }; service: { entrypoint: "astro/assets/services/sharp"; config: {}; }; responsiveStyles: false; }' is not assignable to parameter of type '() => { endpoint: { route: string; entrypoint?: string | undefined; }; service: { entrypoint: string; config: Record<any, unknown>; }; domains: string[]; remotePatterns: { protocol?: string | undefined; hostname?: string | undefined; port?: string | undefined; pathname?: string | undefined; }[]; ... 4 more ...; brea...'.
+astro:build:       Type '{ endpoint: { entrypoint: undefined; route: "/_image"; }; service: { entrypoint: "astro/assets/services/sharp"; config: {}; }; responsiveStyles: false; }' provides no match for the signature '(): { endpoint: { route: string; entrypoint?: string | undefined; }; service: { entrypoint: string; config: Record<any, unknown>; }; domains: string[]; remotePatterns: { protocol?: string | undefined; hostname?: string | undefined; port?: string | undefined; pathname?: string | undefined; }[]; ... 4 more ...; breakpoints?: number[] | undefined; }'.
+astro:build: src/core/config/schemas/base.ts(304,14): error TS2769: No overload matches this call.
+astro:build:   Overload 1 of 2, '(def: false | "shiki" | "prism" | { type: "shiki" | "prism"; excludeLangs: string[]; }): ZodDefault<ZodUnion<readonly [ZodDefault<ZodObject<{ type: ZodDefault<ZodUnion<readonly [ZodLiteral<"shiki">, ZodLiteral<"prism">]>>; excludeLangs: ZodDefault<...>; }, $strip>>, ZodDefault<...>, ZodLiteral<...>]>>', gave the following error.
+astro:build:     Argument of type 'false | SyntaxHighlightConfigType | SyntaxHighlightConfig' is not assignable to parameter of type 'false | "shiki" | "prism" | { type: "shiki" | "prism"; excludeLangs: string[]; }'.
+astro:build:       Type 'SyntaxHighlightConfig' is not assignable to type 'false | "shiki" | "prism" | { type: "shiki" | "prism"; excludeLangs: string[]; }'.
+astro:build:         Type 'SyntaxHighlightConfig' is not assignable to type '{ type: "shiki" | "prism"; excludeLangs: string[]; }'.
+astro:build:           Types of property 'excludeLangs' are incompatible.
+astro:build:             Type 'string[] | undefined' is not assignable to type 'string[]'.
+astro:build:               Type 'undefined' is not assignable to type 'string[]'.
+astro:build:   Overload 2 of 2, '(def: () => false | "shiki" | "prism" | { type: "shiki" | "prism"; excludeLangs: string[]; }): ZodDefault<ZodUnion<readonly [ZodDefault<ZodObject<{ type: ZodDefault<ZodUnion<readonly [ZodLiteral<"shiki">, ZodLiteral<"prism">]>>; excludeLangs: ZodDefault<...>; }, $strip>>, ZodDefault<...>, ZodLiteral<...>]>>', gave the following error.
+astro:build:     Argument of type 'false | SyntaxHighlightConfigType | SyntaxHighlightConfig' is not assignable to parameter of type '() => false | "shiki" | "prism" | { type: "shiki" | "prism"; excludeLangs: string[]; }'.
+astro:build:       Type 'boolean' is not assignable to type '() => false | "shiki" | "prism" | { type: "shiki" | "prism"; excludeLangs: string[]; }'.
+astro:build: src/core/config/schemas/base.ts(336,8): error TS2554: Expected 2-3 arguments, but got 1.
+astro:build: src/core/config/schemas/base.ts(351,14): error TS2769: No overload matches this call.
+astro:build:   Overload 1 of 2, '(def: { langs: ShikiLang[]; langAlias: Record<string, string>; theme: "red" | "andromeeda" | "aurora-x" | "ayu-dark" | "catppuccin-frappe" | "catppuccin-latte" | ... 54 more ... | ShikiTheme; themes: Record<...>; wrap: boolean | null; transformers: ShikiTransformer[]; defaultColor?: string | ... 1 more ... | undefined; }): ZodDefault<...>', gave the following error.
+astro:build:     Argument of type '{}' is not assignable to parameter of type '{ langs: ShikiLang[]; langAlias: Record<string, string>; theme: "red" | "andromeeda" | "aurora-x" | "ayu-dark" | "catppuccin-frappe" | "catppuccin-latte" | "catppuccin-macchiato" | ... 53 more ... | ShikiTheme; themes: Record<...>; wrap: boolean | null; transformers: ShikiTransformer[]; defaultColor?: string | ... 1...'.
+astro:build:       Type '{}' is missing the following properties from type '{ langs: ShikiLang[]; langAlias: Record<string, string>; theme: "red" | "andromeeda" | "aurora-x" | "ayu-dark" | "catppuccin-frappe" | "catppuccin-latte" | "catppuccin-macchiato" | ... 53 more ... | ShikiTheme; themes: Record<...>; wrap: boolean | null; transformers: ShikiTransformer[]; defaultColor?: string | ... 1...': langs, langAlias, theme, themes, and 2 more.
+astro:build:   Overload 2 of 2, '(def: () => { langs: ShikiLang[]; langAlias: Record<string, string>; theme: "red" | "andromeeda" | "aurora-x" | "ayu-dark" | "catppuccin-frappe" | "catppuccin-latte" | ... 54 more ... | ShikiTheme; themes: Record<...>; wrap: boolean | null; transformers: ShikiTransformer[]; defaultColor?: string | ... 1 more ... | undefined; }): ZodDefault<...>', gave the following error.
+astro:build:     Argument of type '{}' is not assignable to parameter of type '() => { langs: ShikiLang[]; langAlias: Record<string, string>; theme: "red" | "andromeeda" | "aurora-x" | "ayu-dark" | "catppuccin-frappe" | "catppuccin-latte" | ... 54 more ... | ShikiTheme; themes: Record<...>; wrap: boolean | null; transformers: ShikiTransformer[]; defaultColor?: string | ... 1 more ... | undefin...'.
+astro:build:       Type '{}' provides no match for the signature '(): { langs: ShikiLang[]; langAlias: Record<string, string>; theme: "red" | "andromeeda" | "aurora-x" | "ayu-dark" | "catppuccin-frappe" | "catppuccin-latte" | ... 54 more ... | ShikiTheme; themes: Record<...>; wrap: boolean | null; transformers: ShikiTransformer[]; defaultColor?: string | ... 1 more ... | undefined; }'.
+astro:build: src/core/config/schemas/base.ts(376,12): error TS2769: No overload matches this call.
+astro:build:   Overload 1 of 2, '(def: { syntaxHighlight: false | "shiki" | "prism" | { type: "shiki" | "prism"; excludeLangs: string[]; }; shikiConfig: { langs: ShikiLang[]; langAlias: Record<string, string>; ... 4 more ...; defaultColor?: string | ... 1 more ... | undefined; }; ... 4 more ...; smartypants: boolean; }): ZodDefault<...>', gave the following error.
+astro:build:     Argument of type '{}' is not assignable to parameter of type '{ syntaxHighlight: false | "shiki" | "prism" | { type: "shiki" | "prism"; excludeLangs: string[]; }; shikiConfig: { langs: ShikiLang[]; langAlias: Record<string, string>; ... 4 more ...; defaultColor?: string | ... 1 more ... | undefined; }; ... 4 more ...; smartypants: boolean; }'.
+astro:build:       Type '{}' is missing the following properties from type '{ syntaxHighlight: false | "shiki" | "prism" | { type: "shiki" | "prism"; excludeLangs: string[]; }; shikiConfig: { langs: ShikiLang[]; langAlias: Record<string, string>; ... 4 more ...; defaultColor?: string | ... 1 more ... | undefined; }; ... 4 more ...; smartypants: boolean; }': syntaxHighlight, shikiConfig, remarkPlugins, rehypePlugins, and 3 more.
+astro:build:   Overload 2 of 2, '(def: () => { syntaxHighlight: false | "shiki" | "prism" | { type: "shiki" | "prism"; excludeLangs: string[]; }; shikiConfig: { langs: ShikiLang[]; langAlias: Record<string, string>; ... 4 more ...; defaultColor?: string | ... 1 more ... | undefined; }; ... 4 more ...; smartypants: boolean; }): ZodDefault<...>', gave the following error.
+astro:build:     Argument of type '{}' is not assignable to parameter of type '() => { syntaxHighlight: false | "shiki" | "prism" | { type: "shiki" | "prism"; excludeLangs: string[]; }; shikiConfig: { langs: ShikiLang[]; langAlias: Record<string, string>; ... 4 more ...; defaultColor?: string | ... 1 more ... | undefined; }; ... 4 more ...; smartypants: boolean; }'.
+astro:build:       Type '{}' provides no match for the signature '(): { syntaxHighlight: false | "shiki" | "prism" | { type: "shiki" | "prism"; excludeLangs: string[]; }; shikiConfig: { langs: ShikiLang[]; langAlias: Record<string, string>; ... 4 more ...; defaultColor?: string | ... 1 more ... | undefined; }; ... 4 more ...; smartypants: boolean; }'.
+astro:build: src/core/config/schemas/base.ts(414,15): error TS2769: No overload matches this call.
+astro:build:   Overload 1 of 2, '(def: "manual" | { prefixDefaultLocale: boolean; redirectToDefaultLocale: boolean; fallbackType: "redirect" | "rewrite"; }): ZodDefault<ZodOptional<ZodUnion<[ZodLiteral<"manual">, ZodObject<{ ...; }, $strip>]>>>', gave the following error.
+astro:build:     Argument of type '{}' is not assignable to parameter of type '"manual" | { prefixDefaultLocale: boolean; redirectToDefaultLocale: boolean; fallbackType: "redirect" | "rewrite"; }'.
+astro:build:   Overload 2 of 2, '(def: () => "manual" | { prefixDefaultLocale: boolean; redirectToDefaultLocale: boolean; fallbackType: "redirect" | "rewrite"; }): ZodDefault<ZodOptional<ZodUnion<[ZodLiteral<"manual">, ZodObject<...>]>>>', gave the following error.
+astro:build:     Argument of type '{}' is not assignable to parameter of type '() => "manual" | { prefixDefaultLocale: boolean; redirectToDefaultLocale: boolean; fallbackType: "redirect" | "rewrite"; }'.
+astro:build:       Type '{}' provides no match for the signature '(): "manual" | { prefixDefaultLocale: boolean; redirectToDefaultLocale: boolean; fallbackType: "redirect" | "rewrite"; }'.
+astro:build: src/core/config/schemas/base.ts(443,15): error TS2554: Expected 2-3 arguments, but got 1.
+astro:build: src/core/config/schemas/base.ts(530,12): error TS2769: No overload matches this call.
+astro:build:   Overload 1 of 2, '(def: { clientPrerender: boolean; contentIntellisense: boolean; csp: boolean | { algorithm: "SHA-256" | "SHA-384" | "SHA-512"; directives?: (`referrer${string}` | `base-uri${string}` | `child-src${string}` | `connect-src${string}` | ... 16 more ... | `worker-src${string}`)[] | undefined; styleDirective?: { ...; } | undefined; scriptDirective?: { ...; } | undefined; }; chromeDevtoolsWorkspace: boolean; svgo: boolean | Config; fonts?: ({ ...; } | { ...; })[] | undefined; }): ZodDefault<...>', gave the following error.
+astro:build:     Argument of type '{}' is not assignable to parameter of type '{ clientPrerender: boolean; contentIntellisense: boolean; csp: boolean | { algorithm: "SHA-256" | "SHA-384" | "SHA-512"; directives?: (`referrer${string}` | `base-uri${string}` | `child-src${string}` | `connect-src${string}` | ... 16 more ... | `worker-src${string}`)[] | undefined; styleDirective?: { ...; } | undefi...'.
+astro:build:       Type '{}' is missing the following properties from type '{ clientPrerender: boolean; contentIntellisense: boolean; csp: boolean | { algorithm: "SHA-256" | "SHA-384" | "SHA-512"; directives?: (`referrer${string}` | `base-uri${string}` | `child-src${string}` | `connect-src${string}` | ... 16 more ... | `worker-src${string}`)[] | undefined; styleDirective?: { ...; } | undefi...': clientPrerender, contentIntellisense, csp, chromeDevtoolsWorkspace, svgo
+astro:build:   Overload 2 of 2, '(def: () => { clientPrerender: boolean; contentIntellisense: boolean; csp: boolean | { algorithm: "SHA-256" | "SHA-384" | "SHA-512"; directives?: (`referrer${string}` | `base-uri${string}` | `child-src${string}` | `connect-src${string}` | ... 16 more ... | `worker-src${string}`)[] | undefined; styleDirective?: { ...; } | undefined; scriptDirective?: { ...; } | undefined; }; chromeDevtoolsWorkspace: boolean; svgo: boolean | Config; fonts?: ({ ...; } | { ...; })[] | undefined; }): ZodDefault<...>', gave the following error.
+astro:build:     Argument of type '{}' is not assignable to parameter of type '() => { clientPrerender: boolean; contentIntellisense: boolean; csp: boolean | { algorithm: "SHA-256" | "SHA-384" | "SHA-512"; directives?: (`referrer${string}` | `base-uri${string}` | `child-src${string}` | `connect-src${string}` | ... 16 more ... | `worker-src${string}`)[] | undefined; styleDirective?: { ...; } | ...'.
+astro:build:       Type '{}' provides no match for the signature '(): { clientPrerender: boolean; contentIntellisense: boolean; csp: boolean | { algorithm: "SHA-256" | "SHA-384" | "SHA-512"; directives?: (`referrer${string}` | `base-uri${string}` | `child-src${string}` | `connect-src${string}` | ... 16 more ... | `worker-src${string}`)[] | undefined; styleDirective?: { ...; } | undefined; scriptDirective?: { ...; } | undefined; }; chromeDevtoolsWorkspace: boolean; svgo: boolean | Config; fonts?: ({ ...; } | { ...; })[] | undefined; }'.
+astro:build: src/core/config/schemas/relative.ts(78,51): error TS2554: Expected 2-3 arguments, but got 1.
+astro:build: src/core/config/schemas/relative.ts(88,13): error TS2769: No overload matches this call.
+astro:build:   Overload 1 of 2, '(def: { format: "file" | "preserve" | "directory"; client: URL; server: URL; assets: string; serverEntry: string; redirects: boolean; inlineStylesheets: "never" | "auto" | "always"; concurrency: number; assetsPrefix?: string | ... 1 more ... | undefined; }): ZodDefault<...>', gave the following error.
+astro:build:     Argument of type '{}' is not assignable to parameter of type '{ format: "file" | "preserve" | "directory"; client: URL; server: URL; assets: string; serverEntry: string; redirects: boolean; inlineStylesheets: "never" | "auto" | "always"; concurrency: number; assetsPrefix?: string | ... 1 more ... | undefined; }'.
+astro:build:       Type '{}' is missing the following properties from type '{ format: "file" | "preserve" | "directory"; client: URL; server: URL; assets: string; serverEntry: string; redirects: boolean; inlineStylesheets: "never" | "auto" | "always"; concurrency: number; assetsPrefix?: string | ... 1 more ... | undefined; }': format, client, server, assets, and 4 more.
+astro:build:   Overload 2 of 2, '(def: () => { format: "file" | "preserve" | "directory"; client: URL; server: URL; assets: string; serverEntry: string; redirects: boolean; inlineStylesheets: "never" | "auto" | "always"; concurrency: number; assetsPrefix?: string | ... 1 more ... | undefined; }): ZodDefault<...>', gave the following error.
+astro:build:     Argument of type '{}' is not assignable to parameter of type '() => { format: "file" | "preserve" | "directory"; client: URL; server: URL; assets: string; serverEntry: string; redirects: boolean; inlineStylesheets: "never" | "auto" | "always"; concurrency: number; assetsPrefix?: string | ... 1 more ... | undefined; }'.
+astro:build:       Type '{}' provides no match for the signature '(): { format: "file" | "preserve" | "directory"; client: URL; server: URL; assets: string; serverEntry: string; redirects: boolean; inlineStylesheets: "never" | "auto" | "always"; concurrency: number; assetsPrefix?: string | ... 1 more ... | undefined; }'.
+astro:build: src/core/config/schemas/relative.ts(117,14): error TS2769: No overload matches this call.
+astro:build:   Overload 1 of 2, '(def: { open: string | boolean; host: string | boolean; port: number; streaming: boolean; allowedHosts: true | string[]; headers?: OutgoingHttpHeaders | undefined; }): ZodDefault<...>', gave the following error.
+astro:build:     Argument of type '{}' is not assignable to parameter of type '{ open: string | boolean; host: string | boolean; port: number; streaming: boolean; allowedHosts: true | string[]; headers?: OutgoingHttpHeaders | undefined; }'.
+astro:build:       Type '{}' is missing the following properties from type '{ open: string | boolean; host: string | boolean; port: number; streaming: boolean; allowedHosts: true | string[]; headers?: OutgoingHttpHeaders | undefined; }': open, host, port, streaming, allowedHosts
+astro:build:   Overload 2 of 2, '(def: () => { open: string | boolean; host: string | boolean; port: number; streaming: boolean; allowedHosts: true | string[]; headers?: OutgoingHttpHeaders | undefined; }): ZodDefault<...>', gave the following error.
+astro:build:     Argument of type '{}' is not assignable to parameter of type '() => { open: string | boolean; host: string | boolean; port: number; streaming: boolean; allowedHosts: true | string[]; headers?: OutgoingHttpHeaders | undefined; }'.
+astro:build:       Type '{}' provides no match for the signature '(): { open: string | boolean; host: string | boolean; port: number; streaming: boolean; allowedHosts: true | string[]; headers?: OutgoingHttpHeaders | undefined; }'.
+astro:build: src/core/config/validate.ts(15,60): error TS2353: Object literal may only specify known properties, and 'errorMap' does not exist in type 'ParseContext<$ZodIssue>'.
+astro:build: src/core/config/validate.ts(25,68): error TS2353: Object literal may only specify known properties, and 'errorMap' does not exist in type 'ParseContext<$ZodIssue>'.
+astro:build: src/core/create-vite.ts(243,55): error TS2345: Argument of type 'string | ({ fallback: string; } & Record<string, unknown>)' is not assignable to parameter of type 'AssetsPrefix'.
+astro:build:   Type '{ fallback: string; } & Record<string, unknown>' is not assignable to type 'AssetsPrefix'.
+astro:build: src/core/errors/errors-data.ts(1662,13): error TS2339: Property 'errors' does not exist on type 'ZodError<unknown>'.
+astro:build: src/core/errors/errors-data.ts(1662,25): error TS7006: Parameter 'zodError' implicitly has an 'any' type.
+astro:build: src/core/errors/errors-data.ts(1687,13): error TS2339: Property 'errors' does not exist on type 'ZodError<unknown>'.
+astro:build: src/core/errors/errors-data.ts(1687,25): error TS7006: Parameter 'zodError' implicitly has an 'any' type.
+astro:build: src/core/errors/errors-data.ts(1793,13): error TS2339: Property 'errors' does not exist on type 'ZodError<unknown>'.
+astro:build: src/core/errors/errors-data.ts(1793,25): error TS7006: Parameter 'zodError' implicitly has an 'any' type.
+astro:build: src/core/errors/zod-error-map.ts(9,14): error TS2322: Type '(baseError: any, ctx: any) => string | { message: string; } | null | undefined' is not assignable to type '$ZodErrorMap<$ZodIssue>'.
+astro:build:   Target signature provides too few arguments. Expected 2 or more, but got 1.
+astro:build: src/core/errors/zod-error-map.ts(9,39): error TS7006: Parameter 'baseError' implicitly has an 'any' type.
+astro:build: src/core/errors/zod-error-map.ts(9,50): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+astro:build: src/core/errors/zod-error-map.ts(18,55): error TS7006: Parameter 'e' implicitly has an 'any' type.
+astro:build: src/core/errors/zod-error-map.ts(52,30): error TS2554: Expected 1 arguments, but got 2.
+astro:build: src/env/config.ts(16,55): error TS2322: Type '{ type: string; context: "client"; access: "public"; length?: number | undefined; includes?: string | undefined; url?: boolean | undefined; default?: string | undefined; optional?: boolean | undefined; endsWith?: string | undefined; startsWith?: string | undefined; max?: number | undefined; min?: number | undefined;...' is not assignable to type 'never'.
+astro:build:   Type '{ type: string; context: "client"; access: "public"; length?: number | undefined; includes?: string | undefined; url?: boolean | undefined; default?: string | undefined; optional?: boolean | undefined; endsWith?: string | undefined; startsWith?: string | undefined; max?: number | undefined; min?: number | undefined; }' is not assignable to type 'never'.
+astro:build: src/env/config.ts(20,55): error TS2322: Type '{ type: string; context: "client"; access: "public"; default?: number | undefined; int?: boolean | undefined; optional?: boolean | undefined; max?: number | undefined; min?: number | undefined; gt?: number | undefined; lt?: number | undefined; } | { ...; } | { ...; }' is not assignable to type 'never'.
+astro:build:   Type '{ type: string; context: "client"; access: "public"; default?: number | undefined; int?: boolean | undefined; optional?: boolean | undefined; max?: number | undefined; min?: number | undefined; gt?: number | undefined; lt?: number | undefined; }' is not assignable to type 'never'.
+astro:build: src/env/config.ts(24,58): error TS2322: Type '{ type: string; context: "client"; access: "public"; default?: boolean | undefined; optional?: boolean | undefined; } | { type: string; context: "server"; access: "public"; default?: boolean | undefined; optional?: boolean | undefined; } | { ...; }' is not assignable to type 'never'.
+astro:build:   Type '{ type: string; context: "client"; access: "public"; default?: boolean | undefined; optional?: boolean | undefined; }' is not assignable to type 'never'.
+astro:build: src/env/config.ts(28,70): error TS2322: Type '{ type: string; context: "client"; access: "public"; optional?: boolean | undefined; values: T[]; default?: NoInfer<T> | undefined; } | { type: string; context: "server"; access: "public"; optional?: boolean | undefined; values: T[]; default?: NoInfer<T> | undefined; } | { ...; }' is not assignable to type 'never'.
+astro:build:   Type '{ type: string; context: "client"; access: "public"; optional?: boolean | undefined; values: T[]; default?: NoInfer<T> | undefined; }' is not assignable to type 'never'.
+astro:build: src/env/schema.ts(92,174): error TS2339: Property 'path' does not exist on type '$RefinementCtx<{ context: "client"; access: "public"; } | { context: "server"; access: "public"; } | { context: "server"; access: "secret"; }>'.
+astro:build: src/env/schema.ts(96,17): error TS2345: Argument of type '$ZodIssueInvalidType<unknown> | $ZodIssueTooBig<unknown> | $ZodIssueTooSmall<unknown> | $ZodIssueInvalidStringFormat | ... 5 more ... | $ZodIssueCustom' is not assignable to parameter of type 'string | { [x: string]: unknown; readonly code: "invalid_type"; readonly input?: unknown; readonly expected: "string" | "number" | "bigint" | "boolean" | "symbol" | "undefined" | "object" | "function" | "map" | ... 30 more ... | "custom"; readonly path?: PropertyKey[] | undefined; readonly message?: string | undefin...'.
+astro:build:   Type '$ZodIssueInvalidType<unknown>' is not assignable to type 'string | { [x: string]: unknown; readonly code: "invalid_type"; readonly input?: unknown; readonly expected: "string" | "number" | "bigint" | "boolean" | "symbol" | "undefined" | "object" | "function" | "map" | ... 30 more ... | "custom"; readonly path?: PropertyKey[] | undefined; readonly message?: string | undefin...'.
+astro:build:     Type '$ZodIssueInvalidType<unknown>' is not assignable to type '{ [x: string]: unknown; readonly code: "invalid_type"; readonly input?: unknown; readonly expected: "string" | "number" | "bigint" | "boolean" | "symbol" | "undefined" | "object" | "function" | "map" | "set" | ... 29 more ... | "custom"; readonly path?: PropertyKey[] | undefined; readonly message?: string | undefine...'.
+astro:build:       Index signature for type 'string' is missing in type '$ZodIssueInvalidType<unknown>'.
+astro:build: src/integrations/hooks.ts(436,21): error TS18046: 'collection' is of type 'unknown'.
+astro:build: src/virtual-modules/i18n.ts(60,3): error TS2322: Type '(string | { path: string; codes: string[]; })[]' is not assignable to type 'Locales'.
+astro:build:   Type 'string | { path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:     Type '{ path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:       Type '{ path: string; codes: string[]; }' is not assignable to type '{ codes: [string, ...string[]]; path: string; }'.
+astro:build:         Types of property 'codes' are incompatible.
+astro:build:           Type 'string[]' is not assignable to type '[string, ...string[]]'.
+astro:build:             Source provides no match for required element at position 0 in target.
+astro:build: src/virtual-modules/i18n.ts(100,3): error TS2322: Type '(string | { path: string; codes: string[]; })[]' is not assignable to type 'Locales'.
+astro:build:   Type 'string | { path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:     Type '{ path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:       Type '{ path: string; codes: string[]; }' is not assignable to type '{ codes: [string, ...string[]]; path: string; }'.
+astro:build:         Types of property 'codes' are incompatible.
+astro:build:           Type 'string[]' is not assignable to type '[string, ...string[]]'.
+astro:build:             Source provides no match for required element at position 0 in target.
+astro:build: src/virtual-modules/i18n.ts(120,3): error TS2322: Type '(string | { path: string; codes: string[]; })[]' is not assignable to type 'Locales'.
+astro:build:   Type 'string | { path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:     Type '{ path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:       Type '{ path: string; codes: string[]; }' is not assignable to type '{ codes: [string, ...string[]]; path: string; }'.
+astro:build:         Types of property 'codes' are incompatible.
+astro:build:           Type 'string[]' is not assignable to type '[string, ...string[]]'.
+astro:build:             Source provides no match for required element at position 0 in target.
+astro:build: src/virtual-modules/i18n.ts(140,3): error TS2322: Type '(string | { path: string; codes: string[]; })[]' is not assignable to type 'Locales'.
+astro:build:   Type 'string | { path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:     Type '{ path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:       Type '{ path: string; codes: string[]; }' is not assignable to type '{ codes: [string, ...string[]]; path: string; }'.
+astro:build:         Types of property 'codes' are incompatible.
+astro:build:           Type 'string[]' is not assignable to type '[string, ...string[]]'.
+astro:build:             Source provides no match for required element at position 0 in target.
+astro:build: src/virtual-modules/i18n.ts(176,90): error TS2345: Argument of type '(string | { path: string; codes: string[]; })[]' is not assignable to parameter of type 'Locales'.
+astro:build:   Type 'string | { path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:     Type '{ path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:       Type '{ path: string; codes: string[]; }' is not assignable to type '{ codes: [string, ...string[]]; path: string; }'.
+astro:build:         Types of property 'codes' are incompatible.
+astro:build:           Type 'string[]' is not assignable to type '[string, ...string[]]'.
+astro:build:             Source provides no match for required element at position 0 in target.
+astro:build: src/virtual-modules/i18n.ts(208,86): error TS2345: Argument of type '(string | { path: string; codes: string[]; })[]' is not assignable to parameter of type 'Locales'.
+astro:build:   Type 'string | { path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:     Type '{ path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:       Type '{ path: string; codes: string[]; }' is not assignable to type '{ codes: [string, ...string[]]; path: string; }'.
+astro:build:         Types of property 'codes' are incompatible.
+astro:build:           Type 'string[]' is not assignable to type '[string, ...string[]]'.
+astro:build:             Source provides no match for required element at position 0 in target.
+astro:build: src/virtual-modules/i18n.ts(242,82): error TS2345: Argument of type '(string | { path: string; codes: string[]; })[]' is not assignable to parameter of type 'Locales'.
+astro:build:   Type 'string | { path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:     Type '{ path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:       Type '{ path: string; codes: string[]; }' is not assignable to type '{ codes: [string, ...string[]]; path: string; }'.
+astro:build:         Types of property 'codes' are incompatible.
+astro:build:           Type 'string[]' is not assignable to type '[string, ...string[]]'.
+astro:build:             Source provides no match for required element at position 0 in target.
+astro:build: src/virtual-modules/i18n.ts(262,3): error TS2322: Type '(string | { path: string; codes: string[]; })[]' is not assignable to type 'Locales'.
+astro:build:   Type 'string | { path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:     Type '{ path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:       Type '{ path: string; codes: string[]; }' is not assignable to type '{ codes: [string, ...string[]]; path: string; }'.
+astro:build:         Types of property 'codes' are incompatible.
+astro:build:           Type 'string[]' is not assignable to type '[string, ...string[]]'.
+astro:build:             Source provides no match for required element at position 0 in target.
+astro:build: src/virtual-modules/i18n.ts(291,3): error TS2322: Type '(string | { path: string; codes: string[]; })[]' is not assignable to type 'Locales'.
+astro:build:   Type 'string | { path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:     Type '{ path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:       Type '{ path: string; codes: string[]; }' is not assignable to type '{ codes: [string, ...string[]]; path: string; }'.
+astro:build:         Types of property 'codes' are incompatible.
+astro:build:           Type 'string[]' is not assignable to type '[string, ...string[]]'.
+astro:build:             Source provides no match for required element at position 0 in target.
+astro:build: src/virtual-modules/i18n.ts(309,52): error TS2345: Argument of type '(string | { path: string; codes: string[]; })[]' is not assignable to parameter of type 'Locales'.
+astro:build:   Type 'string | { path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:     Type '{ path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:       Type '{ path: string; codes: string[]; }' is not assignable to type '{ codes: [string, ...string[]]; path: string; }'.
+astro:build:         Types of property 'codes' are incompatible.
+astro:build:           Type 'string[]' is not assignable to type '[string, ...string[]]'.
+astro:build:             Source provides no match for required element at position 0 in target.
+astro:build: src/virtual-modules/i18n.ts(328,3): error TS2322: Type '(string | { path: string; codes: string[]; })[]' is not assignable to type 'Locales'.
+astro:build:   Type 'string | { path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:     Type '{ path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:       Type '{ path: string; codes: string[]; }' is not assignable to type '{ codes: [string, ...string[]]; path: string; }'.
+astro:build:         Types of property 'codes' are incompatible.
+astro:build:           Type 'string[]' is not assignable to type '[string, ...string[]]'.
+astro:build:             Source provides no match for required element at position 0 in target.
+astro:build: src/virtual-modules/i18n.ts(377,9): error TS2322: Type '{ strategy: RoutingStrategies; domainLookupTable: {}; fallbackType: "redirect" | "rewrite"; fallback: Record<string, string> | undefined; defaultLocale: string; locales: (string | { ...; })[]; routing: "manual" | { ...; }; domains?: Record<...> | undefined; }' is not assignable to type 'SSRManifestI18n'.
+astro:build:   Types of property 'locales' are incompatible.
+astro:build:     Type '(string | { path: string; codes: string[]; })[]' is not assignable to type 'Locales'.
+astro:build:       Type 'string | { path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:         Type '{ path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:           Type '{ path: string; codes: string[]; }' is not assignable to type '{ codes: [string, ...string[]]; path: string; }'.
+astro:build:             Types of property 'codes' are incompatible.
+astro:build:               Type 'string[]' is not assignable to type '[string, ...string[]]'.
+astro:build:                 Source provides no match for required element at position 0 in target.
+astro:build: src/vite-plugin-astro-server/plugin.ts(262,4): error TS2322: Type '(string | { path: string; codes: string[]; })[]' is not assignable to type 'Locales'.
+astro:build:   Type 'string | { path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:     Type '{ path: string; codes: string[]; }' is not assignable to type 'string | { codes: [string, ...string[]]; path: string; }'.
+astro:build:       Type '{ path: string; codes: string[]; }' is not assignable to type '{ codes: [string, ...string[]]; path: string; }'.
+astro:build:         Types of property 'codes' are incompatible.
+astro:build:           Type 'string[]' is not assignable to type '[string, ...string[]]'.
+astro:build:             Source provides no match for required element at position 0 in target.
+astro:build: src/vite-plugin-astro-server/plugin.ts(307,3): error TS2322: Type 'string | ({ fallback: string; } & Record<string, unknown>) | undefined' is not assignable to type 'AssetsPrefix'.
+astro:build:   Type '{ fallback: string; } & Record<string, unknown>' is not assignable to type 'AssetsPrefix'.
+astro:build: src/vite-plugin-markdown/content-entry-type.ts(21,51): error TS2345: Argument of type '{ syntaxHighlight: false | "shiki" | "prism" | { type: "shiki" | "prism"; excludeLangs: string[]; }; shikiConfig: { langs: ShikiLang[]; langAlias: Record<string, string>; ... 4 more ...; defaultColor?: string | ... 1 more ... | undefined; }; ... 5 more ...; image: { ...; }; }' is not assignable to parameter of type 'AstroMarkdownProcessorOptions'.
+astro:build:   The types of 'shikiConfig.themes' are incompatible between these types.
+astro:build:     Type 'Record<string | number | symbol, unknown>' is not assignable to type 'Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>'.
+astro:build:       'string' index signatures are incompatible.
+astro:build:         Type 'unknown' is not assignable to type 'ThemePresets | ThemeRegistration | ThemeRegistrationRaw'.
+astro:build: src/vite-plugin-markdown/index.ts(63,42): error TS2345: Argument of type '{ syntaxHighlight: false | "shiki" | "prism" | { type: "shiki" | "prism"; excludeLangs: string[]; }; shikiConfig: { langs: ShikiLang[]; langAlias: Record<string, string>; ... 4 more ...; defaultColor?: string | ... 1 more ... | undefined; }; ... 5 more ...; image: { ...; }; }' is not assignable to parameter of type 'AstroMarkdownProcessorOptions'.
+astro:build:   The types of 'shikiConfig.themes' are incompatible between these types.
+astro:build:     Type 'Record<string | number | symbol, unknown>' is not assignable to type 'Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>'.
+astro:build:       'string' index signatures are incompatible.
+astro:build:         Type 'unknown' is not assignable to type 'ThemePresets | ThemeRegistration | ThemeRegistrationRaw'.
+astro:build:  ELIFECYCLE  Command failed with exit code 2.
+astro:build: ERROR: command finished with error: command (/Users/matthew/dev/astro/next/packages/astro) /Users/matthew/Library/pnpm/.tools/pnpm/10.21.0/bin/pnpm run build exited (2)
+astro#build: command (/Users/matthew/dev/astro/next/packages/astro) /Users/matthew/Library/pnpm/.tools/pnpm/10.21.0/bin/pnpm run build exited (2)
+
+ Tasks:    11 successful, 12 total
+Cached:    0 cached, 12 total
+  Time:    19.07s 
+Failed:    astro#build
+
+ ERROR  run failed: command  exited (2)
+ ELIFECYCLE  Command failed with exit code 2.

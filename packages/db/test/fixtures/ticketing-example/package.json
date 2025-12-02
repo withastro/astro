@@ -21,6 +21,6 @@
     "react-dom": "^18.3.1",
     "simple-stack-form": "^0.1.12",
     "typescript": "^5.9.3",
-    "zod": "^3.25.76"
+    "zod": "^4.0.0"
   }
 }

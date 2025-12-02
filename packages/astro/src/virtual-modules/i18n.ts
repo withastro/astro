@@ -12,7 +12,9 @@ import type { APIContext } from '../types/public/context.js';
 const { trailingSlash, format, site, i18n, isBuild } =
 	// @ts-expect-error
 	__ASTRO_INTERNAL_I18N_CONFIG__ as I18nInternalConfig;
-const { defaultLocale, locales, domains, fallback, routing } = i18n!;
+const { defaultLocale, fallback, routing } = i18n!;
+const locales = i18n!.locales as any;
+const domains = i18n!.domains || undefined;
 const base = import.meta.env.BASE_URL;
 
 let strategy = toRoutingStrategy(routing, domains);

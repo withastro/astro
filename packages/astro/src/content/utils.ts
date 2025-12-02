@@ -8,7 +8,7 @@ import type { PluginContext } from 'rollup';
 import type { ViteDevServer } from 'vite';
 import xxhash from 'xxhash-wasm';
 import { z } from 'zod';
-import { AstroError, AstroErrorData, errorMap, MarkdownError } from '../core/errors/index.js';
+import { AstroError, AstroErrorData, MarkdownError } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
 import { normalizePath } from '../core/viteUtils.js';
@@ -27,28 +27,24 @@ import {
 import type { LoaderContext } from './loaders/types.js';
 import { createImage } from './runtime-assets.js';
 
-const entryTypeSchema = z
-	.object({
-		id: z.string({
-			invalid_type_error: 'Content entry `id` must be a string',
-			// Default to empty string so we can validate properly in the loader
-		}),
-	})
-	.passthrough();
+const entryTypeSchema = z.looseObject({
+	id: z.string({
+		message: 'Content entry `id` must be a string',
+		// Default to empty string so we can validate properly in the loader
+	}),
+});
 
 export const loaderReturnSchema = z.union([
 	z.array(entryTypeSchema),
 	z.record(
 		z.string(),
-		z
-			.object({
-				id: z
-					.string({
-						invalid_type_error: 'Content entry `id` must be a string',
-					})
-					.optional(),
-			})
-			.passthrough(),
+		z.looseObject({
+			id: z
+				.string({
+					message: 'Content entry `id` must be a string',
+				})
+				.optional(),
+		}),
 	),
 ]);
 
@@ -57,29 +53,27 @@ const collectionConfigParser = z.union([
 		type: z.literal(CONTENT_LAYER_TYPE),
 		schema: z.any().optional(),
 		loader: z.union([
-			z.function(),
+			z.function({ input: [], output: z.unknown() }),
 			z.object({
 				name: z.string(),
-				load: z.function().args(z.custom<LoaderContext>()).returns(
-					z.custom<{
-						schema?: any;
-						types?: string;
-					} | void>(),
-				),
+				load: z.function({ input: [z.custom<LoaderContext>()], output: z.custom<{
+					schema?: any;
+					types?: string;
+				} | void>() }),
 				schema: z.any().optional(),
-				render: z.function(z.tuple([z.any()], z.unknown())).optional(),
+				render: z.function({ input: [z.any()], output: z.unknown() }).optional(),
 			}),
 		]),
 	}),
 	z.object({
 		type: z.literal(LIVE_CONTENT_TYPE).optional().default(LIVE_CONTENT_TYPE),
 		schema: z.any().optional(),
-		loader: z.function(),
+		loader: z.function({ input: [], output: z.unknown() }),
 	}),
 ]);
 
 const contentConfigParser = z.object({
-	collections: z.record(collectionConfigParser),
+	collections: z.record(z.string(), collectionConfigParser),
 });
 
 export type CollectionConfig = z.infer<typeof collectionConfigParser>;
@@ -163,14 +157,16 @@ export async function getEntryData<
 	if (schema) {
 		// Use `safeParseAsync` to allow async transforms
 		let formattedError;
-		const parsed = await (schema as z.ZodSchema).safeParseAsync(data, {
-			errorMap(error, ctx) {
+		const parsed = await (schema as z.ZodSchema).safeParseAsync(data);
+		// In Zod 4, errorMap is passed to the schema creation, not to safeParseAsync
+		// Apply error formatting post-parse if needed
+		if (!parsed.success) {
+			parsed.error.issues.forEach((error: any) => {
 				if (error.code === 'custom' && error.params?.isHoistedAstroError) {
 					formattedError = error.params?.astroError;
 				}
-				return errorMap(error, ctx);
-			},
-		});
+			});
+		}
 		if (parsed.success) {
 			data = parsed.data as TOutputData;
 		} else {
@@ -186,7 +182,7 @@ export async function getEntryData<
 						file: entry._internal?.filePath,
 						line: getYAMLErrorLine(
 							entry._internal?.rawData,
-							String(parsed.error.errors[0].path[0]),
+							String(parsed.error.issues[0]?.path[0]),
 						),
 						column: 0,
 					},

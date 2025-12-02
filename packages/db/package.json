@@ -79,7 +79,7 @@
     "piccolore": "^0.1.3",
     "prompts": "^2.4.2",
     "yargs-parser": "^21.1.1",
-    "zod": "^3.25.76"
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@types/deep-diff": "^1.0.5",

@@ -4,7 +4,6 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import colors from 'piccolore';
 import { normalizePath, type ViteDevServer } from 'vite';
 import { type ZodSchema, z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
@@ -589,12 +588,8 @@ async function generateJSONSchema(
 		await fsMod.promises.writeFile(
 			new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
 			JSON.stringify(
-				zodToJsonSchema(zodSchemaForJson, {
+				zodSchemaForJson.toJSONSchema({
 					name: collectionKey.replace(/"/g, ''),
-					markdownDescription: true,
-					errorMessages: true,
-					// Fix for https://github.com/StefanTerdell/zod-to-json-schema/issues/110
-					dateStrategy: ['format:date-time', 'format:date', 'integer'],
 				}),
 				null,
 				2,

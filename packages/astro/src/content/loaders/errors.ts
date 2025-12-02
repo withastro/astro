@@ -36,7 +36,7 @@ export class LiveCollectionValidationError extends LiveCollectionError {
 			collection,
 			[
 				`**${collection} → ${entryId}** data does not match the collection schema.\n`,
-				...error.errors.map((zodError) => `  **${zodError.path.join('.')}**: ${zodError.message}`),
+				...error.issues.map((zodError) => `  **${zodError.path.join('.')}**: ${zodError.message}`),
 				'',
 			].join('\n'),
 		);
@@ -53,7 +53,7 @@ export class LiveCollectionCacheHintError extends LiveCollectionError {
 			collection,
 			[
 				`**${String(collection)}${entryId ? ` → ${String(entryId)}` : ''}** returned an invalid cache hint.\n`,
-				...error.errors.map((zodError) => `  **${zodError.path.join('.')}**: ${zodError.message}`),
+				...error.issues.map((zodError) => `  **${zodError.path.join('.')}**: ${zodError.message}`),
 				'',
 			].join('\n'),
 		);

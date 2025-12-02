@@ -184,7 +184,7 @@ export type SafeResult<TInput extends ErrorInferenceObject, TOutput> =
 			error: ActionError<TInput>;
 	  };
 
-export class ActionInputError<T extends ErrorInferenceObject> extends ActionError {
+export class ActionInputError<_T extends ErrorInferenceObject = ErrorInferenceObject> extends ActionError {
 	type = 'AstroActionInputError';
 
 	// We don't expose all ZodError properties.
@@ -192,7 +192,7 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 	// and we don't want to import the full ZodError object into the client.
 
 	issues: z.ZodIssue[];
-	fields: z.ZodError<T>['formErrors']['fieldErrors'];
+	fields: Record<string, string[]>;
 
 	constructor(issues: z.ZodIssue[]) {
 		super({
@@ -203,7 +203,7 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 		this.fields = {};
 		for (const issue of issues) {
 			if (issue.path.length > 0) {
-				const key = issue.path[0].toString() as keyof typeof this.fields;
+				const key = issue.path[0].toString();
 				this.fields[key] ??= [];
 				this.fields[key]?.push(issue.message);
 			}

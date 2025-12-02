@@ -166,14 +166,16 @@ function getJsonServerHandler<TOutput, TInputSchema extends z.ZodType>(
 }
 
 /** Transform form data to an object based on a Zod schema. */
-export function formDataToObject<T extends z.AnyZodObject>(
+export function formDataToObject<T extends z.ZodObject<any>>(
 	formData: FormData,
 	schema: T,
 ): Record<string, unknown> {
+	// In Zod 4, check if schema was created with z.looseObject() by checking the openapi field
+	const isLooseObject = (schema._def as any).openapi === true || (schema._def as any).unknownKeys === 'passthrough';
 	const obj: Record<string, unknown> =
-		schema._def.unknownKeys === 'passthrough' ? Object.fromEntries(formData.entries()) : {};
+		isLooseObject ? Object.fromEntries(formData.entries()) : {};
 	for (const [key, baseValidator] of Object.entries(schema.shape)) {
-		let validator = baseValidator;
+		let validator = baseValidator as z.ZodTypeAny;
 
 		while (
 			validator instanceof z.ZodOptional ||
@@ -182,9 +184,10 @@ export function formDataToObject<T extends z.AnyZodObject>(
 		) {
 			// use default value when key is undefined
 			if (validator instanceof z.ZodDefault && !formData.has(key)) {
-				obj[key] = validator._def.defaultValue();
+				const defaultValue = validator._def.defaultValue;
+				obj[key] = typeof defaultValue === 'function' ? defaultValue() : defaultValue;
 			}
-			validator = validator._def.innerType;
+			validator = (validator._def as any).innerType;
 		}
 
 		if (!formData.has(key) && key in obj) {
@@ -194,7 +197,7 @@ export function formDataToObject<T extends z.AnyZodObject>(
 			const val = formData.get(key);
 			obj[key] = val === 'true' ? true : val === 'false' ? false : formData.has(key);
 		} else if (validator instanceof z.ZodArray) {
-			obj[key] = handleFormDataGetAll(key, formData, validator);
+			obj[key] = handleFormDataGetAll(key, formData, validator as z.ZodArray<any>);
 		} else {
 			obj[key] = handleFormDataGet(key, formData, validator, baseValidator);
 		}
@@ -205,10 +208,10 @@ export function formDataToObject<T extends z.AnyZodObject>(
 function handleFormDataGetAll(
 	key: string,
 	formData: FormData,
-	validator: z.ZodArray<z.ZodUnknown>,
+	validator: z.ZodArray<any>,
 ) {
 	const entries = Array.from(formData.getAll(key));
-	const elementValidator = validator._def.type;
+	const elementValidator = (validator._def as any).type as z.ZodTypeAny;
 	if (elementValidator instanceof z.ZodNumber) {
 		return entries.map(Number);
 	} else if (elementValidator instanceof z.ZodBoolean) {
@@ -230,21 +233,25 @@ function handleFormDataGet(
 	return validator instanceof z.ZodNumber ? Number(value) : value;
 }
 
-function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormData) {
-	while (schema instanceof z.ZodEffects || schema instanceof z.ZodPipeline) {
-		if (schema instanceof z.ZodEffects) {
-			schema = schema._def.schema;
-		}
-		if (schema instanceof z.ZodPipeline) {
-			schema = schema._def.in;
+function unwrapBaseObjectSchema(schema: z.ZodTypeAny, unparsedInput: FormData): z.ZodTypeAny {
+	// Zod 4 doesn't export ZodEffects/ZodPipeline, so check via _def.type string
+	while ((schema._def as any).type === 'effects' || (schema._def as any).type === 'pipeline') {
+		const defType = (schema._def as any).type;
+		if (defType === 'effects') {
+			schema = (schema._def as any).schema;
+		} else if (defType === 'pipeline') {
+			schema = (schema._def as any).in;
 		}
 	}
-	if (schema instanceof z.ZodDiscriminatedUnion) {
-		const typeKey = schema._def.discriminator;
+	if ((schema._def as any).type === 'discriminatedUnion') {
+		const discriminatorDef = schema._def as any;
+		const typeKey = discriminatorDef.discriminator;
 		const typeValue = unparsedInput.get(typeKey);
 		if (typeof typeValue !== 'string') return schema;
 
-		const objSchema = schema._def.optionsMap.get(typeValue);
+		// In Zod 4, discriminated unions use 'optionsParsers' instead of 'optionsMap'
+		const optionsParsers = discriminatorDef.optionsParsers || discriminatorDef.optionsMap;
+		const objSchema = optionsParsers?.get?.(typeValue);
 		if (!objSchema) return schema;
 
 		return objSchema;
