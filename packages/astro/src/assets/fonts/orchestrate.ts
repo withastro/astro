@@ -97,9 +97,6 @@ function _computeProxyUrlsForFontProvidersUrls({
 			cssVariable: resolvedFamily.family.cssVariable,
 		});
 
-		// TODO: do we need 2 branches?
-		// TODO: iterate over family font faces and call proxy
-
 		if (resolvedFamily.family.provider === LOCAL_PROVIDER_NAME) {
 			resolvedFamily.fonts = resolvedFamily.fonts.map((data) => {
 				return {
