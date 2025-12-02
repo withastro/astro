@@ -35,6 +35,9 @@ import {
 	unifontFontFaceDataToProperties,
 } from './utils.js';
 
+// TODO: new functions may be doing too much still. Investigate splitting further
+// TODO: test these new functions, maybe?
+
 function computeProxyUrlsForFontProvidersUrls({
 	resolvedFamiliesMap,
 	createUrlProxy,
@@ -192,6 +195,7 @@ async function initializeUnifontThenMergeFamiliesAndResolveFonts({
 	unifontProviders: Array<unifont.Provider>;
 	storage: Storage;
 }) {
+	// TODO: pass a unifont instance as an argument instead. Might require creating an abstraction
 	const { resolveFont, listFonts } = await unifont.createUnifont(unifontProviders, {
 		storage,
 	});
@@ -308,6 +312,8 @@ async function initializeUnifontThenMergeFamiliesAndResolveFonts({
 	return { resolvedFamiliesMap };
 }
 
+// TODO: keep comment up to date
+
 /**
  * Manages how fonts are resolved:
  *
@@ -377,6 +383,8 @@ export async function orchestrate({
 	resolvedFamilies = extractedUnifontProvidersResult.families;
 	const unifontProviders = extractedUnifontProvidersResult.providers;
 
+	// TODO: move closer to usage
+
 	/**
 	 * Holds associations of CSS variables and preloadData/css to be passed to the internal virtual module.
 	 */
@@ -394,14 +402,14 @@ export async function orchestrate({
 		resolvedFamilies,
 		storage,
 		stringMatcher,
-		unifontProviders
+		unifontProviders,
 	});
 
 	const { urlBySomeKindOfFontId } = computeProxyUrlsForFontProvidersUrls({
 		createUrlProxy,
 		fontTypeExtractor,
-		resolvedFamiliesMap
-	})
+		resolvedFamiliesMap,
+	});
 
 	// We know about all the families, let's generate css, fallbacks and more
 	for (const {
@@ -468,5 +476,6 @@ export async function orchestrate({
 		consumableMap.set(family.cssVariable, consumableMapValue);
 	}
 
+	// TODO: do not rename to fontFileDataMap, requires changes by the consumer
 	return { fontFileDataMap: urlBySomeKindOfFontId, internalConsumableMap, consumableMap };
 }

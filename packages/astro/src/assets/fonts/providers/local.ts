@@ -10,6 +10,8 @@ interface Options {
 	fontFileReader: FontFileReader;
 }
 
+// TODO: remove and remove associated tests
+
 export function resolveLocalFont({
 	family,
 	urlProxy,
