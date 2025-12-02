@@ -1,6 +1,6 @@
 import * as unifont from 'unifont';
 import type { Logger } from '../../core/logger/core.js';
-import { LOCAL_PROVIDER_NAME } from './constants.js';
+import { FONT_FORMATS, LOCAL_PROVIDER_NAME } from './constants.js';
 import { dedupeFontFaces } from './core/dedupe-font-faces.js';
 import { extractUnifontProviders } from './core/extract-unifont-providers.js';
 import { normalizeRemoteFontFaces } from './core/normalize-remote-font-faces.js';
@@ -111,14 +111,36 @@ function _computeProxyUrlsForFontProvidersUrls({
 		// TODO: iterate over family font faces and call proxy
 
 		if (resolvedFamily.family.provider === LOCAL_PROVIDER_NAME) {
-			const result = resolveLocalFont({
-				family: resolvedFamily.family,
-				urlProxy,
-				fontTypeExtractor,
-				fontFileReader,
+			resolvedFamily.fonts = resolvedFamily.fonts.map((data) => {
+				return {
+					...data,
+					src: data.src.map((_source, index) => {
+						// TODO: check if there's a better way than a cast
+						const source = _source as unifont.RemoteFontSource;
+
+						const type = fontTypeExtractor.extract(source.url);
+
+						return {
+							originalURL: source.url,
+							url: urlProxy.proxy({
+								url: source.url,
+								type,
+								// We only use the first source for preloading. For example if woff2 and woff
+								// are available, we only keep woff2.
+								collectPreload: index === 0,
+								data: {
+									weight: data.weight,
+									style: data.style,
+									subset: undefined,
+								},
+								init: null,
+							}),
+							format: FONT_FORMATS.find((e) => e.type === type)?.format,
+							tech: source.tech,
+						};
+					}),
+				};
 			});
-			// URLs are already proxied at this point so no further processing is required
-			resolvedFamily.fonts.push(...result.fonts);
 		} else {
 			const result = resolveFont(
 				resolvedFamily.family.name,
