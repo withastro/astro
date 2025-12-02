@@ -9,7 +9,7 @@ import {
 	astroCalledServerError,
 	deserializeActionResult,
 	getActionQueryString,
-} from './shared.js';
+} from '../shared.js';
 
 export * from 'virtual:astro:actions/runtime';
 

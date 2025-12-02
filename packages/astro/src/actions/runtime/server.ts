@@ -1,8 +1,8 @@
-import { z } from 'zod';
+import * as z3 from 'zod/v3';
+import * as z4 from 'zod/v4/core';
 import type { Pipeline } from '../../core/base-pipeline.js';
 import { shouldAppendForwardSlash } from '../../core/build/util.js';
-import { AstroError } from '../../core/errors/errors.js';
-import { ActionCalledFromServerError, ActionNotFoundError } from '../../core/errors/errors-data.js';
+import { ActionNotFoundError } from '../../core/errors/errors-data.js';
 import { removeTrailingForwardSlash } from '../../core/path.js';
 import { apiContextRoutesSymbol } from '../../core/render-context.js';
 import type { APIContext } from '../../types/public/index.js';
@@ -11,7 +11,6 @@ import {
 	ACTION_QUERY_PARAMS,
 	ActionError,
 	ActionInputError,
-	callSafely,
 	deserializeActionResult,
 	type SafeResult,
 	type SerializedActionResult,
@@ -24,7 +23,6 @@ import {
 	type ErrorInferenceObject,
 	formContentTypes,
 	hasContentType,
-	isActionAPIContext,
 	type MaybePromise,
 } from './utils.js';
 
@@ -32,9 +30,11 @@ export * from './shared.js';
 
 export type ActionAccept = 'form' | 'json';
 
-export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z.ZodType
-	? (input: z.infer<TInputSchema>, context: ActionAPIContext) => MaybePromise<TOutput>
-	: (input: any, context: ActionAPIContext) => MaybePromise<TOutput>;
+export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z3.ZodType
+	? (input: z3.infer<TInputSchema>, context: ActionAPIContext) => MaybePromise<TOutput>
+	: TInputSchema extends z4.$ZodType
+		? (input: z4.infer<TInputSchema>, context: ActionAPIContext) => MaybePromise<TOutput>
+		: (input: any, context: ActionAPIContext) => MaybePromise<TOutput>;
 
 export type ActionReturnType<T extends ActionHandler<any, any>> = Awaited<ReturnType<T>>;
 
@@ -131,12 +131,8 @@ function getFormServerHandler<TOutput, TInputSchema extends z.ZodType>(
 
 		if (!inputSchema) return await handler(unparsedInput, context);
 
-		const baseSchema = unwrapBaseObjectSchema(inputSchema, unparsedInput);
-		const parsed = await inputSchema.safeParseAsync(
-			baseSchema instanceof z.ZodObject
-				? formDataToObject(unparsedInput, baseSchema)
-				: unparsedInput,
-		);
+		const parsed = await parseFormInput(inputSchema, unparsedInput);
+
 		if (!parsed.success) {
 			throw new ActionInputError(parsed.error.issues);
 		}
@@ -144,7 +140,26 @@ function getFormServerHandler<TOutput, TInputSchema extends z.ZodType>(
 	};
 }
 
-function getJsonServerHandler<TOutput, TInputSchema extends z.ZodType>(
+async function parseFormInput(inputSchema: z3.ZodType | z4.$ZodType, unparsedInput: FormData) {
+	if ('_zod' in inputSchema) {
+		const baseSchema = unwrapBaseZ4ObjectSchema(inputSchema, unparsedInput);
+		return await z4.safeParseAsync(
+			inputSchema,
+			baseSchema instanceof z4.$ZodObject
+				? formDataToZ4Object(unparsedInput, baseSchema)
+				: unparsedInput,
+		);
+	}
+
+	const baseSchema = unwrapBaseZ3ObjectSchema(inputSchema, unparsedInput);
+	return await inputSchema.safeParseAsync(
+		baseSchema instanceof z3.ZodObject
+			? formDataToZ3Object(unparsedInput, baseSchema)
+			: unparsedInput,
+	);
+}
+
+export function getJsonServerHandler<TOutput, TInputSchema extends z3.ZodType | z4.$ZodType>(
 	handler: ActionHandler<TInputSchema, TOutput>,
 	inputSchema?: TInputSchema,
 ) {
@@ -157,7 +172,10 @@ function getJsonServerHandler<TOutput, TInputSchema extends z.ZodType>(
 		}
 
 		if (!inputSchema) return await handler(unparsedInput, context);
-		const parsed = await inputSchema.safeParseAsync(unparsedInput);
+		const parsed =
+			'_zod' in inputSchema
+				? await z4.safeParseAsync(inputSchema, unparsedInput)
+				: await inputSchema.safeParseAsync(unparsedInput);
 		if (!parsed.success) {
 			throw new ActionInputError(parsed.error.issues);
 		}
@@ -166,7 +184,7 @@ function getJsonServerHandler<TOutput, TInputSchema extends z.ZodType>(
 }
 
 /** Transform form data to an object based on a Zod schema. */
-export function formDataToObject<T extends z.AnyZodObject>(
+export function formDataToZ3Object<T extends z3.AnyZodObject>(
 	formData: FormData,
 	schema: T,
 ): Record<string, unknown> {
@@ -176,12 +194,12 @@ export function formDataToObject<T extends z.AnyZodObject>(
 		let validator = baseValidator;
 
 		while (
-			validator instanceof z.ZodOptional ||
-			validator instanceof z.ZodNullable ||
-			validator instanceof z.ZodDefault
+			validator instanceof z3.ZodOptional ||
+			validator instanceof z3.ZodNullable ||
+			validator instanceof z3.ZodDefault
 		) {
 			// use default value when key is undefined
-			if (validator instanceof z.ZodDefault && !formData.has(key)) {
+			if (validator instanceof z3.ZodDefault && !formData.has(key)) {
 				obj[key] = validator._def.defaultValue();
 			}
 			validator = validator._def.innerType;
@@ -190,34 +208,86 @@ export function formDataToObject<T extends z.AnyZodObject>(
 		if (!formData.has(key) && key in obj) {
 			// continue loop if form input is not found and default value is set
 			continue;
-		} else if (validator instanceof z.ZodBoolean) {
+		} else if (validator instanceof z3.ZodBoolean) {
 			const val = formData.get(key);
 			obj[key] = val === 'true' ? true : val === 'false' ? false : formData.has(key);
-		} else if (validator instanceof z.ZodArray) {
-			obj[key] = handleFormDataGetAll(key, formData, validator);
+		} else if (validator instanceof z3.ZodArray) {
+			obj[key] = handleZ3FormDataGetAll(key, formData, validator);
 		} else {
-			obj[key] = handleFormDataGet(key, formData, validator, baseValidator);
+			obj[key] = handleZ3FormDataGet(key, formData, validator, baseValidator);
 		}
 	}
 	return obj;
 }
 
-function handleFormDataGetAll(
+/** Transform form data to an object based on a Zod schema. */
+export function formDataToZ4Object<T extends z4.$ZodObject>(
+	formData: FormData,
+	schema: T,
+): Record<string, unknown> {
+	const obj: Record<string, unknown> = schema._zod.def.catchall
+		? Object.fromEntries(formData.entries())
+		: {};
+	for (const [key, baseValidator] of Object.entries(schema._zod.def.shape)) {
+		let validator = baseValidator;
+
+		while (
+			validator instanceof z4.$ZodOptional ||
+			validator instanceof z4.$ZodNullable ||
+			validator instanceof z4.$ZodDefault
+		) {
+			// use default value when key is undefined
+			if (validator instanceof z4.$ZodDefault && !formData.has(key)) {
+				obj[key] =
+					validator._zod.def.defaultValue instanceof Function
+						? validator._zod.def.defaultValue()
+						: validator._zod.def.defaultValue;
+			}
+			validator = validator._zod.def.innerType;
+		}
+
+		if (!formData.has(key) && key in obj) {
+			// continue loop if form input is not found and default value is set
+			continue;
+		} else if (validator instanceof z4.$ZodBoolean) {
+			const val = formData.get(key);
+			obj[key] = val === 'true' ? true : val === 'false' ? false : formData.has(key);
+		} else if (validator instanceof z4.$ZodArray) {
+			obj[key] = handleZ4FormDataGetAll(key, formData, validator);
+		} else {
+			obj[key] = handleZ4FormDataGet(key, formData, validator, baseValidator);
+		}
+	}
+	return obj;
+}
+
+function handleZ3FormDataGetAll(
 	key: string,
 	formData: FormData,
-	validator: z.ZodArray<z.ZodUnknown>,
+	validator: z3.ZodArray<z3.ZodUnknown>,
 ) {
 	const entries = Array.from(formData.getAll(key));
 	const elementValidator = validator._def.type;
-	if (elementValidator instanceof z.ZodNumber) {
+	if (elementValidator instanceof z3.ZodNumber) {
 		return entries.map(Number);
-	} else if (elementValidator instanceof z.ZodBoolean) {
+	} else if (elementValidator instanceof z3.ZodBoolean) {
 		return entries.map(Boolean);
 	}
 	return entries;
 }
 
-function handleFormDataGet(
+function handleZ4FormDataGetAll(key: string, formData: FormData, validator: z4.$ZodArray) {
+	const entries = Array.from(formData.getAll(key));
+	const elementValidator = validator._zod.def.element;
+	if (elementValidator instanceof z4.$ZodNumber) {
+		return entries.map(Number);
+	} else if (elementValidator instanceof z4.$ZodBoolean) {
+		return entries.map(Boolean);
+	}
+	return entries;
+}
+
+function handleZ3FormDataGet(
 	key: string,
 	formData: FormData,
 	validator: unknown,
@@ -225,26 +295,58 @@ function handleFormDataGet(
 ) {
 	const value = formData.get(key);
 	if (!value) {
-		return baseValidator instanceof z.ZodOptional ? undefined : null;
+		return baseValidator instanceof z3.ZodOptional ? undefined : null;
 	}
-	return validator instanceof z.ZodNumber ? Number(value) : value;
+	return validator instanceof z3.ZodNumber ? Number(value) : value;
 }
 
-function unwrapBaseObjectSchema(schema: z.ZodType, unparsedInput: FormData) {
-	while (schema instanceof z.ZodEffects || schema instanceof z.ZodPipeline) {
-		if (schema instanceof z.ZodEffects) {
+function handleZ4FormDataGet(
+	key: string,
+	formData: FormData,
+	validator: unknown,
+	baseValidator: unknown,
+) {
+	const value = formData.get(key);
+	if (!value) {
+		return baseValidator instanceof z4.$ZodOptional ? undefined : null;
+	}
+	return validator instanceof z4.$ZodNumber ? Number(value) : value;
+}
+
+function unwrapBaseZ3ObjectSchema(schema: z3.ZodType, unparsedInput: FormData) {
+	while (schema instanceof z3.ZodEffects || schema instanceof z3.ZodPipeline) {
+		if (schema instanceof z3.ZodEffects) {
 			schema = schema._def.schema;
 		}
-		if (schema instanceof z.ZodPipeline) {
+		if (schema instanceof z3.ZodPipeline) {
 			schema = schema._def.in;
 		}
 	}
-	if (schema instanceof z.ZodDiscriminatedUnion) {
+	if (schema instanceof z3.ZodDiscriminatedUnion) {
 		const typeKey = schema._def.discriminator;
 		const typeValue = unparsedInput.get(typeKey);
 		if (typeof typeValue !== 'string') return schema;
 
 		const objSchema = schema._def.optionsMap.get(typeValue);
+		if (!objSchema) return schema;
+
+		return objSchema;
+	}
+	return schema;
+}
+
+function unwrapBaseZ4ObjectSchema(schema: z4.$ZodType, unparsedInput: FormData) {
+	if (schema instanceof z4.$ZodPipe) {
+		return schema._zod.def.in;
+	}
+	if (schema instanceof z4.$ZodDiscriminatedUnion) {
+		const typeKey = schema._zod.def.discriminator;
+		const typeValue = unparsedInput.get(typeKey);
+		if (typeof typeValue !== 'string') return schema;
+
+		const objSchema = schema._zod.def.options.find((option) =>
+			(option as any).def.shape[typeKey].values.has(typeValue),
+		);
 		if (!objSchema) return schema;
 
 		return objSchema;
