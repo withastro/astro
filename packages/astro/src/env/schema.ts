@@ -80,7 +80,7 @@ const _EnvFieldMetadata = z.union([
 	PublicServerEnvFieldMetadata,
 	SecretServerEnvFieldMetadata,
 ]);
-const EnvFieldMetadata = z.custom<z.input<typeof _EnvFieldMetadata>>().superRefine((data, ctx) => {
+const EnvFieldMetadata = z.custom<z.input<typeof _EnvFieldMetadata>>().superRefine((data, ctx: any) => {
 	const result = _EnvFieldMetadata.safeParse(data);
 	if (result.success) {
 		return;
@@ -89,11 +89,11 @@ const EnvFieldMetadata = z.custom<z.input<typeof _EnvFieldMetadata>>().superRefi
 		if (issue.code === z.ZodIssueCode.invalid_union) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
-				message: `**Invalid combination** of "access" and "context" options:\n  Secret client variables are not supported. Please review the configuration of \`env.schema.${ctx.path.at(-1)}\`.\n  Learn more at https://docs.astro.build/en/guides/environment-variables/#variable-types`,
+				message: `**Invalid combination** of "access" and "context" options:\n  Secret client variables are not supported. Please review the configuration of \`env.schema.${(ctx.path as any)?.at?.(-1)}\`.\n  Learn more at https://docs.astro.build/en/guides/environment-variables/#variable-types`,
 				path: ['context', 'access'],
 			});
 		} else {
-			ctx.addIssue(issue);
+			ctx.addIssue(issue as any);
 		}
 	}
 });

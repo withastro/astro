@@ -179,7 +179,7 @@ export const AstroConfigSchema = z.object({
 			assetsPrefix: z
 				.string()
 				.optional()
-				.or(z.object({ fallback: z.string() }).and(z.record(z.string())).optional()),
+				.or(z.object({ fallback: z.string() }).and(z.record(z.string(), z.string())).optional()),
 			serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
 			inlineStylesheets: z
@@ -188,7 +188,7 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
 			concurrency: z.number().min(1).optional().default(ASTRO_CONFIG_DEFAULTS.build.concurrency),
 		})
-		.default({}),
+		.default({} as any),
 	server: z.preprocess(
 		// preprocess
 		// NOTE: Uses the "error" command here because this is overwritten by the
@@ -212,7 +212,7 @@ export const AstroConfigSchema = z.object({
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.server.allowedHosts),
 			})
-			.default({}),
+			.default({} as any),
 	),
 	redirects: z
 		.record(
@@ -259,7 +259,7 @@ export const AstroConfigSchema = z.object({
 					entrypoint: z
 						.union([z.literal('astro/assets/services/sharp'), z.string()])
 						.default(ASTRO_CONFIG_DEFAULTS.image.service.entrypoint),
-					config: z.record(z.any()).default({}),
+					config: z.record(z.string(), z.any()).default({} as any),
 				})
 				.default(ASTRO_CONFIG_DEFAULTS.image.service),
 			domains: z.array(z.string()).default([]),
@@ -279,7 +279,7 @@ export const AstroConfigSchema = z.object({
 			breakpoints: z.array(z.number()).optional(),
 			responsiveStyles: z.boolean().default(ASTRO_CONFIG_DEFAULTS.image.responsiveStyles),
 		})
-		.default(ASTRO_CONFIG_DEFAULTS.image),
+		.default(ASTRO_CONFIG_DEFAULTS.image as any),
 	devToolbar: z
 		.object({
 			enabled: z.boolean().default(ASTRO_CONFIG_DEFAULTS.devToolbar.enabled),
@@ -301,7 +301,7 @@ export const AstroConfigSchema = z.object({
 					highlighterTypesSchema,
 					z.literal(false),
 				])
-				.default(ASTRO_CONFIG_DEFAULTS.markdown.syntaxHighlight),
+				.default(ASTRO_CONFIG_DEFAULTS.markdown.syntaxHighlight as any),
 			shikiConfig: z
 				.object({
 					langs: z
@@ -333,7 +333,7 @@ export const AstroConfigSchema = z.object({
 						.or(z.custom<ShikiTheme>())
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme!),
 					themes: z
-						.record(
+						.record(z.string(),
 							z
 								.enum(Object.keys(bundledThemes) as [BuiltinTheme, ...BuiltinTheme[]])
 								.or(z.custom<ShikiTheme>()),
@@ -348,7 +348,7 @@ export const AstroConfigSchema = z.object({
 						.array()
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.transformers!),
 				})
-				.default({}),
+				.default({} as any),
 			remarkPlugins: z
 				.union([
 					z.string(),
@@ -373,7 +373,7 @@ export const AstroConfigSchema = z.object({
 			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
 			smartypants: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
 		})
-		.default({}),
+		.default({} as any),
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
@@ -411,7 +411,7 @@ export const AstroConfigSchema = z.object({
 						}),
 					)
 					.optional()
-					.default({}),
+					.default({} as any),
 			})
 			.optional(),
 	),
@@ -440,7 +440,7 @@ export const AstroConfigSchema = z.object({
 	session: z
 		.object({
 			driver: z.string().optional(),
-			options: z.record(z.any()).optional(),
+			options: z.record(z.string(), z.any()).optional(),
 			cookie: z
 				.object({
 					name: z.string().optional(),
@@ -527,7 +527,7 @@ export const AstroConfigSchema = z.object({
 				}
 			}
 		})
-		.default({}),
+		.default({} as any),
 	legacy: z.object({}).default({}),
 });
 

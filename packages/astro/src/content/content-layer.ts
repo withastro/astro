@@ -354,7 +354,6 @@ async function simpleLoader<TData extends { id: string }>(
 	if (!parsedData.success) {
 		// Try to get detailed error info from union issues
 		const firstIssue = parsedData.error.issues[0] as any;
-		let errorMessage = `Invalid loader return data`;
 		let firstPathItem: any;
 
 		// For union errors, zod includes unionErrors in the issue

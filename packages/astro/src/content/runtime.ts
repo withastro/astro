@@ -75,7 +75,7 @@ async function parseLiveEntry(
 		return {
 			entry: {
 				...entry,
-				data: parsed.data,
+				data: parsed.data as Record<string, unknown>,
 			},
 		};
 	} catch (error) {
@@ -675,7 +675,8 @@ export function createReference() {
 						| { slug: string; collection: string },
 					ctx,
 				) => {
-					const flattenedErrorPath = ctx.path.join('.');
+					// @ts-expect-error - Zod 4 refinement context types don't properly expose path on union types
+					const flattenedErrorPath = ((ctx?.path as any) ?? []).join('.');
 
 					if (typeof lookup === 'object') {
 						// If these don't match then something is wrong with the reference

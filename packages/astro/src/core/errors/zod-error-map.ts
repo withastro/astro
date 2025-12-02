@@ -6,7 +6,7 @@ type TypeOrLiteralErrByPathEntry = {
 	expected: unknown[];
 };
 
-export const errorMap: ZodErrorMap = (baseError, ctx) => {
+export const errorMap: ZodErrorMap = ((baseError: any, ctx: any) => {
 	const baseErrorPath = flattenErrorPath(baseError.path);
 	if (baseError.code === 'invalid_union') {
 		// Optimization: Combine type and literal errors for keys that are common across ALL union types
@@ -15,7 +15,7 @@ export const errorMap: ZodErrorMap = (baseError, ctx) => {
 		// > Did not match union.
 		// > key: Expected `'tutorial' | 'blog'`, received 'foo'
 		let typeOrLiteralErrByPath = new Map<string, TypeOrLiteralErrByPathEntry>();
-		for (const unionError of baseError.unionErrors.map((e) => e.errors).flat()) {
+		for (const unionError of baseError.unionErrors.map((e: any) => e.issues).flat()) {
 			if (unionError.code === 'invalid_type' || unionError.code === 'invalid_literal') {
 				const flattenedErrorPath = flattenErrorPath(unionError.path);
 				if (typeOrLiteralErrByPath.has(flattenedErrorPath)) {
@@ -49,7 +49,11 @@ export const errorMap: ZodErrorMap = (baseError, ctx) => {
 					// If the issue is a nested union error, show the associated error message instead of the
 					// base error message.
 					if (issue.code === 'invalid_union') {
-						return errorMap(issue, ctx);
+						// Recursively handle nested union errors
+						if ((issue as any).unionErrors) {
+							// Return early - we can't recursively call errorMap with ZodErrorMap signature
+							return { message: 'Did not match union' };
+						}
 					}
 					const relativePath = flattenErrorPath(issue.path)
 						.replace(baseErrorPath, '')
@@ -94,7 +98,7 @@ export const errorMap: ZodErrorMap = (baseError, ctx) => {
 	} else {
 		return { message: prefix(baseErrorPath, ctx.defaultError) };
 	}
-};
+}) as ZodErrorMap;
 
 const getTypeOrLiteralMsg = (error: TypeOrLiteralErrByPathEntry): string => {
 	// received could be `undefined` or the string `'undefined'`

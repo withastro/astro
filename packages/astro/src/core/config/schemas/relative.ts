@@ -75,7 +75,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				assetsPrefix: z
 					.string()
 					.optional()
-					.or(z.object({ fallback: z.string() }).and(z.record(z.string())).optional()),
+					.or(z.object({ fallback: z.string() }).and(z.record(z.string(), z.string())).optional()),
 				serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 				redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
 				inlineStylesheets: z
@@ -85,7 +85,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 				concurrency: z.number().min(1).optional().default(ASTRO_CONFIG_DEFAULTS.build.concurrency),
 			})
 			.optional()
-			.default({}),
+			.default({} as any),
 		server: z.preprocess(
 			// preprocess
 			(val) => {
@@ -114,7 +114,7 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: string) {
 						.default(ASTRO_CONFIG_DEFAULTS.server.allowedHosts),
 				})
 				.optional()
-				.default({}),
+				.default({} as any),
 		),
 	}).transform((config) => {
 		// If the user changed `outDir`, we need to also update `build.client` and `build.server`
