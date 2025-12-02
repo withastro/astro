@@ -1,4 +1,4 @@
-export * as z from 'zod/v3';
+export * as z from 'zod';
 export { defineLiveCollection } from '../content/config.js';
 
 function createErrorFunction(message: string) {

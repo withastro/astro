@@ -641,7 +641,7 @@ importers:
         specifier: ^0.2.3
         version: 0.2.3
       zod:
-        specifier: ^3.25.76
+        specifier: ^3.25.76 || ^4.0.0
         version: 3.25.76
       zod-to-json-schema:
         specifier: ^3.24.6
@@ -2699,6 +2699,9 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../..
+      zod:
+        specifier: ^4.1.12
+        version: 4.1.13
 
   packages/astro/test/fixtures/content-collections-same-contents:
     dependencies:
@@ -15822,6 +15825,9 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
+  zod@4.1.13:
+    resolution: {integrity: sha512-AvvthqfqrAhNH9dnfmrfKzX5upOdjUVJYFqNSlkmGf64gRaTzlPwz99IHYnVs28qYAybvAlBV+H7pn0saFY4Ig==}
+
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
@@ -26196,5 +26202,7 @@ snapshots:
   zod@3.22.3: {}
 
   zod@3.25.76: {}
+
+  zod@4.1.13: {}
 
   zwitch@2.0.4: {}

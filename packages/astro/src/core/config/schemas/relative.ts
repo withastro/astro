@@ -1,7 +1,7 @@
 import type { OutgoingHttpHeaders } from 'node:http';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { z } from 'zod/v3';
+import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, removeTrailingForwardSlash } from '../../path.js';
 import { ASTRO_CONFIG_DEFAULTS, AstroConfigSchema } from './base.js';
 

@@ -1,9 +1,7 @@
-import type * as z3 from 'zod/v3';
 import type * as z4 from 'zod/v4/core';
 import { AstroError } from '../../core/errors/errors.js';
 import { ActionCalledFromServerError } from '../../core/errors/errors-data.js';
 import type { APIContext } from '../../types/public/context.js';
-import { checkZodSchemaCompatibility } from '../../vite-plugin-experimental-zod4/utils.js';
 import {
 	type ActionAccept,
 	type ActionClient,
@@ -73,13 +71,13 @@ export function isActionAPIContext(ctx: ActionAPIContext): boolean {
 	return symbol === true;
 }
 
-export function createDefineAction(experimentalZod4: boolean) {
+export function createDefineAction() {
 	return function defineAction<
 		TOutput,
 		TAccept extends ActionAccept | undefined = undefined,
-		TInputSchema extends z3.ZodType | z4.$ZodType | undefined = TAccept extends 'form'
+		TInputSchema extends z4.$ZodType | undefined = TAccept extends 'form'
 			? // If `input` is omitted, default to `FormData` for forms and `any` for JSON.
-				z3.ZodType<FormData>
+				z4.$ZodType<FormData>
 			: undefined,
 	>({
 		accept,
@@ -90,17 +88,6 @@ export function createDefineAction(experimentalZod4: boolean) {
 		accept?: TAccept;
 		handler: ActionHandler<TInputSchema, TOutput>;
 	}): ActionClient<TOutput, TAccept, TInputSchema> & string {
-		if (inputSchema) {
-			const error = checkZodSchemaCompatibility(
-				inputSchema,
-				experimentalZod4,
-				'content collections',
-			);
-			if (error) {
-				throw error;
-			}
-		}
-
 		const serverHandler =
 			accept === 'form'
 				? getFormServerHandler(handler, inputSchema)

@@ -1,5 +1,4 @@
 import { parse as devalueParse, stringify as devalueStringify } from 'devalue';
-import type * as z3 from 'zod/v3';
 import type * as z4 from 'zod/v4/core';
 import { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import { AstroError } from '../../core/errors/errors.js';
@@ -192,10 +191,10 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 	// Not all properties will serialize from server to client,
 	// and we don't want to import the full ZodError object into the client.
 
-	issues: z3.ZodIssue[] | z4.$ZodIssue[];
+	issues: z4.$ZodIssue[];
 	fields: { [P in keyof T]?: string[] | undefined };
 
-	constructor(issues: z3.ZodIssue[] | z4.$ZodIssue[]) {
+	constructor(issues: z4.$ZodIssue[]) {
 		super({
 			message: `Failed to validate: ${JSON.stringify(issues, null, 2)}`,
 			code: 'BAD_REQUEST',
@@ -214,7 +213,7 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 
 export async function callSafely<TOutput>(
 	handler: () => MaybePromise<TOutput>,
-): Promise<SafeResult<z3.ZodType | z4.$ZodType, TOutput>> {
+): Promise<SafeResult<z4.$ZodType, TOutput>> {
 	try {
 		const data = await handler();
 		return { data, error: undefined };

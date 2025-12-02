@@ -1,4 +1,4 @@
-import { z } from 'zod/v3';
+import { z } from 'zod';
 
 type UnionToIntersection<U> = (U extends never ? never : (arg: U) => never) extends (
 	arg: infer I,

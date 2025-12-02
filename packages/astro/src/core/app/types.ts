@@ -1,4 +1,4 @@
-import type { ZodType } from 'zod/v3';
+import type { ZodType } from 'zod';
 import type { ActionAccept, ActionClient } from '../../actions/runtime/server.js';
 import type { RoutingStrategies } from '../../i18n/utils.js';
 import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';

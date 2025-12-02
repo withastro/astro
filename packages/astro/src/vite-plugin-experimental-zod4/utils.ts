@@ -1,26 +1,11 @@
-import type * as z3 from 'zod/v3';
 import type * as z4 from 'zod/v4/core';
-import { AstroError } from '../core/errors/errors.js';
-import { InvalidZodSchemaVersion } from '../core/errors/errors-data.js';
 
+// Version compatibility check is no longer needed since only z4 is supported
 export function checkZodSchemaCompatibility(
-	schema: z3.ZodType | z4.$ZodType,
-	experimentalZod4: boolean,
-	feature: string,
-): AstroError | null {
-	if ('_zod' in schema && !experimentalZod4) {
-		return new AstroError({
-			...InvalidZodSchemaVersion,
-			message: InvalidZodSchemaVersion.message(feature, 4),
-		});
-	}
-
-	if (!('_zod' in schema) && experimentalZod4) {
-		return new AstroError({
-			...InvalidZodSchemaVersion,
-			message: InvalidZodSchemaVersion.message(feature, 3),
-		});
-	}
-
+	schema: z4.$ZodType,
+	_experimentalZod4: boolean,
+	_feature: string,
+): null {
+	// Always returns null since z4 is the only supported version
 	return null;
 }

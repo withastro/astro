@@ -1,4 +1,4 @@
-import type { ZodType } from 'zod/v3';
+import type { ZodType } from 'zod';
 import { NOOP_ACTIONS_MOD } from '../actions/noop-actions.js';
 import type { ActionAccept, ActionClient } from '../actions/runtime/server.js';
 import { createI18nMiddleware } from '../i18n/middleware.js';

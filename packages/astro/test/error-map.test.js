@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { z3ErrorMap } from '../dist/core/errors/zod-error-map.js';
+import { z4ErrorMap } from '../dist/core/errors/zod-error-map.js';
 import { z } from '../dist/zod.js';
 import { fixLineEndings } from './test-utils.js';
 
@@ -101,7 +101,7 @@ function messages(error) {
 	return error.errors.map((e) => e.message);
 }
 
-function getParseError(schema, entry, parseOpts = { errorMap: z3ErrorMap }) {
+function getParseError(schema, entry, parseOpts = { errorMap: z4ErrorMap }) {
 	const res = schema.safeParse(entry, parseOpts);
 	assert.equal(res.success, false, 'Schema should raise error');
 	return res.error;

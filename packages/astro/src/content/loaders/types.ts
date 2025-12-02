@@ -1,5 +1,4 @@
 import type { FSWatcher } from 'vite';
-import type * as z3 from 'zod/v3';
 import type * as z4 from 'zod/v4/core';
 import type { AstroIntegrationLogger } from '../../core/logger/core.js';
 import type { AstroConfig } from '../../types/public/config.js';
@@ -50,7 +49,7 @@ export interface LoaderContext {
 	entryTypes: Map<string, ContentEntryType>;
 }
 
-type ZodSchema = z3.ZodType | z4.$ZodType;
+type ZodSchema = z4.$ZodType;
 
 export interface Loader {
 	/** Unique name of the loader, e.g. the npm package name */
