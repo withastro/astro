@@ -27,7 +27,7 @@ export type SerializedRouteData = Omit<
 	};
 };
 
-type CspObject = Required<Exclude<AstroConfig['experimental']['csp'], boolean>>;
+type CspObject = Required<Exclude<AstroConfig['security']['csp'], boolean>>;
 
 export interface AstroSettings {
 	config: AstroConfig;
