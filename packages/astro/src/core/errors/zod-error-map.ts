@@ -6,16 +6,25 @@ type TypeOrLiteralErrByPathEntry = {
 	expected: unknown[];
 };
 
-export const errorMap: ZodErrorMap = ((baseError: any, ctx: any) => {
-	const baseErrorPath = flattenErrorPath(baseError.path);
-	if (baseError.code === 'invalid_union') {
+export const errorMap: ZodErrorMap = ((iss: any) => {
+	try {
+		// In Zod 4, iss.path is the path array
+		const basePath = iss.path ?? [];
+		const baseErrorPath = flattenErrorPath(basePath);
+		if (iss.code === 'invalid_union') {
 		// Optimization: Combine type and literal errors for keys that are common across ALL union types
 		// Ex. a union between `{ key: z.literal('tutorial') }` and `{ key: z.literal('blog') }` will
 		// raise a single error when `key` does not match:
 		// > Did not match union.
 		// > key: Expected `'tutorial' | 'blog'`, received 'foo'
+
+		// In Zod 4, unionErrors may not be available in customError
+		if (!iss.unionErrors) {
+			return { message: 'Did not match union.' };
+		}
+
 		let typeOrLiteralErrByPath = new Map<string, TypeOrLiteralErrByPathEntry>();
-		for (const unionError of baseError.unionErrors.map((e: any) => e.issues).flat()) {
+		for (const unionError of iss.unionErrors.map((e: any) => e.issues).flat()) {
 			if (unionError.code === 'invalid_type' || unionError.code === 'invalid_literal') {
 				const flattenedErrorPath = flattenErrorPath(unionError.path);
 				if (typeOrLiteralErrByPath.has(flattenedErrorPath)) {
@@ -23,7 +32,7 @@ export const errorMap: ZodErrorMap = ((baseError: any, ctx: any) => {
 				} else {
 					typeOrLiteralErrByPath.set(flattenedErrorPath, {
 						code: unionError.code,
-						received: (unionError as any).received,
+						received: (unionError as any).input,
 						expected: [unionError.expected],
 					});
 				}
@@ -33,7 +42,7 @@ export const errorMap: ZodErrorMap = ((baseError: any, ctx: any) => {
 		const details: string[] = [...typeOrLiteralErrByPath.entries()]
 			// If type or literal error isn't common to ALL union types,
 			// filter it out. Can lead to confusing noise.
-			.filter(([, error]) => error.expected.length === baseError.unionErrors.length)
+			.filter(([, error]) => error.expected.length === iss.unionErrors.length)
 			.map(([key, error]) =>
 				key === baseErrorPath
 					? // Avoid printing the key again if it's a base error
@@ -43,7 +52,7 @@ export const errorMap: ZodErrorMap = ((baseError: any, ctx: any) => {
 
 		if (details.length === 0) {
 			const expectedShapes: string[] = [];
-			for (const unionError of baseError.unionErrors) {
+			for (const unionError of iss.unionErrors) {
 				const expectedShape: string[] = [];
 				for (const issue of unionError.issues) {
 					// If the issue is a nested union error, show the associated error message instead of the
@@ -75,28 +84,38 @@ export const errorMap: ZodErrorMap = ((baseError: any, ctx: any) => {
 			}
 			if (expectedShapes.length) {
 				details.push('> Expected type `' + expectedShapes.join(' | ') + '`');
-				details.push('> Received `' + stringify(ctx.data) + '`');
+				details.push('> Received `' + stringify(iss.input) + '`');
 			}
 		}
 
 		return {
 			message: messages.concat(details).join('\n'),
 		};
-	} else if (baseError.code === 'invalid_literal' || baseError.code === 'invalid_type') {
+	} else if (iss.code === 'invalid_literal' || iss.code === 'invalid_type') {
 		return {
 			message: prefix(
 				baseErrorPath,
 				getTypeOrLiteralMsg({
-					code: baseError.code,
-					received: (baseError as any).received,
-					expected: [baseError.expected],
+					code: iss.code,
+					received: (iss as any).input,
+					expected: [iss.expected],
 				}),
 			),
 		};
-	} else if (baseError.message) {
-		return { message: prefix(baseErrorPath, baseError.message) };
+	} else if (iss.message) {
+		return { message: prefix(baseErrorPath, iss.message) };
+	} else if (iss.code === 'too_small') {
+		const minimum = (iss as any).minimum;
+		const inclusive = (iss as any).inclusive;
+		const msg = inclusive ? `at least ${minimum}` : `more than ${minimum}`;
+		return { message: prefix(baseErrorPath, `Array must contain ${msg} element(s)`) };
 	} else {
-		return { message: prefix(baseErrorPath, ctx.defaultError) };
+		// In Zod 4, there's no ctx.defaultError, use a default message
+		return { message: prefix(baseErrorPath, 'Invalid input') };
+	}
+	} catch (error) {
+		console.error('DEBUG errorMap error:', error);
+		throw error;
 	}
 }) as ZodErrorMap;
 
@@ -106,9 +125,9 @@ const getTypeOrLiteralMsg = (error: TypeOrLiteralErrByPathEntry): string => {
 	const expectedDeduped = new Set(error.expected);
 	switch (error.code) {
 		case 'invalid_type':
-			return `Expected type \`${unionExpectedVals(expectedDeduped)}\`, received \`${stringify(
-				error.received,
-			)}\``;
+			// For invalid_type, show the type of the received value
+			const receivedType = error.received === null ? 'null' : typeof error.received;
+			return `Expected type \`${unionExpectedVals(expectedDeduped)}\`, received \`"${receivedType}"\``;
 		case 'invalid_literal':
 			return `Expected \`${unionExpectedVals(expectedDeduped)}\`, received \`${stringify(
 				error.received,
