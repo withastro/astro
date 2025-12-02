@@ -180,7 +180,6 @@ async function _initializeUnifontThenMergeFamiliesAndResolveFonts({
 	logger,
 	bold,
 	defaults,
-	fontTypeExtractor,
 	fontFileReader,
 	stringMatcher,
 	unifontProviders,
@@ -190,7 +189,6 @@ async function _initializeUnifontThenMergeFamiliesAndResolveFonts({
 	logger: Logger;
 	bold: (input: string) => string;
 	defaults: Defaults;
-	fontTypeExtractor: FontTypeExtractor;
 	fontFileReader: FontFileReader;
 	stringMatcher: StringMatcher;
 	unifontProviders: Array<unifont.Provider>;
@@ -246,14 +244,32 @@ async function _initializeUnifontThenMergeFamiliesAndResolveFonts({
 		}
 
 		if (family.provider === LOCAL_PROVIDER_NAME) {
-			const result = resolveLocalFont({
-				family,
-				urlProxy,
-				fontTypeExtractor,
-				fontFileReader,
+			const result = family.variants.map((variant) => {
+				const shouldInfer = variant.weight === undefined || variant.style === undefined;
+
+				// We prepare the data
+				const data: unifont.FontFaceData = {
+					// If it should be inferred, we don't want to set the value
+					weight: variant.weight,
+					style: variant.style,
+					src: variant.src,
+					unicodeRange: variant.unicodeRange,
+					display: variant.display,
+					stretch: variant.stretch,
+					featureSettings: variant.featureSettings,
+					variationSettings: variant.variationSettings,
+				};
+
+				if (shouldInfer) {
+					const _result = fontFileReader.extract({ family: family.name, url: variant.src[0].url });
+					if (variant.weight === undefined) data.weight = _result.weight;
+					if (variant.style === undefined) data.style = _result.style;
+				}
+
+				return data;
 			});
 			// URLs are already proxied at this point so no further processing is required
-			resolvedFamily.fonts.push(...result.fonts);
+			resolvedFamily.fonts.push(...result);
 		} else {
 			const result = await resolveFont(
 				family.name,
