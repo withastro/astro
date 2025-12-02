@@ -60,7 +60,7 @@ function _computeProxyUrlsForFontProvidersUrls({
 			collectedFonts: Array<CollectedFontForMetrics>;
 			preloadData: Array<PreloadData>;
 		}
-	>
+	>;
 	logger: Logger;
 	bold: (input: string) => string;
 	defaults: Defaults;
@@ -120,7 +120,7 @@ function _computeProxyUrlsForFontProvidersUrls({
 			// URLs are already proxied at this point so no further processing is required
 			resolvedFamily.fonts.push(...result.fonts);
 		} else {
-			const result = await resolveFont(
+			const result = resolveFont(
 				resolvedFamily.family.name,
 				// We do not merge the defaults, we only provide defaults as a fallback
 				{
@@ -139,7 +139,7 @@ function _computeProxyUrlsForFontProvidersUrls({
 					'assets',
 					`No data found for font family ${bold(resolvedFamily.family.name)}. Review your configuration`,
 				);
-				const availableFamilies = await listFonts([resolvedFamily.family.provider.name!]);
+				const availableFamilies = listFonts([resolvedFamily.family.provider.name!]);
 				if (
 					availableFamilies &&
 					availableFamilies.length > 0 &&
@@ -172,7 +172,7 @@ async function _initializeUnifontThenMergeFamiliesAndResolveFonts({
 	fontFileReader,
 	stringMatcher,
 	unifontProviders,
-	storage
+	storage,
 }: {
 	resolvedFamilies: Array<ResolvedFontFamily>;
 	logger: Logger;
