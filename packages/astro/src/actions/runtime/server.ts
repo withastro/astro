@@ -170,9 +170,9 @@ export function formDataToObject<T extends z.ZodObject<any>>(
 	formData: FormData,
 	schema: T,
 ): Record<string, unknown> {
-	// In Zod 4, check if schema was created with z.looseObject() by checking the openapi field
-	const isLooseObject =
-		(schema._def as any).openapi === true || (schema._def as any).unknownKeys === 'passthrough';
+	// In Zod 4, passthrough() adds a 'catchall' property to _def
+	const catchall = (schema._def as any).catchall;
+	const isLooseObject = catchall !== undefined && catchall !== null;
 	const obj: Record<string, unknown> = isLooseObject ? Object.fromEntries(formData.entries()) : {};
 	for (const [key, baseValidator] of Object.entries(schema.shape)) {
 		let validator = baseValidator as z.ZodTypeAny;
@@ -207,7 +207,8 @@ export function formDataToObject<T extends z.ZodObject<any>>(
 
 function handleFormDataGetAll(key: string, formData: FormData, validator: z.ZodArray<any>) {
 	const entries = Array.from(formData.getAll(key));
-	const elementValidator = (validator._def as any).type as z.ZodTypeAny;
+	// In Zod 4, array elements are in _def.element instead of _def.type
+	const elementValidator = (validator._def as any).element as z.ZodTypeAny;
 	if (elementValidator instanceof z.ZodNumber) {
 		return entries.map(Number);
 	} else if (elementValidator instanceof z.ZodBoolean) {
