@@ -35,7 +35,7 @@ import {
 	unifontFontFaceDataToProperties,
 } from './utils.js';
 
-function _computeProxyUrlsForFontProvidersUrls({
+function computeProxyUrlsForFontProvidersUrls({
 	resolvedFamiliesMap,
 	createUrlProxy,
 	fontTypeExtractor,
@@ -173,7 +173,7 @@ function _computeProxyUrlsForFontProvidersUrls({
 	return { urlBySomeKindOfFontId };
 }
 
-async function _initializeUnifontThenMergeFamiliesAndResolveFonts({
+async function initializeUnifontThenMergeFamiliesAndResolveFonts({
 	resolvedFamilies,
 	logger,
 	bold,
@@ -386,7 +386,7 @@ export async function orchestrate({
 	 */
 	const consumableMap: ConsumableMap = new Map();
 
-	const { resolvedFamiliesMap } = await _initializeUnifontThenMergeFamiliesAndResolveFonts({
+	const { resolvedFamiliesMap } = await initializeUnifontThenMergeFamiliesAndResolveFonts({
 		bold,
 		defaults,
 		fontFileReader,
@@ -397,7 +397,7 @@ export async function orchestrate({
 		unifontProviders
 	});
 
-	const { urlBySomeKindOfFontId } = _computeProxyUrlsForFontProvidersUrls({
+	const { urlBySomeKindOfFontId } = computeProxyUrlsForFontProvidersUrls({
 		createUrlProxy,
 		fontTypeExtractor,
 		resolvedFamiliesMap
