@@ -85,11 +85,8 @@ function getViteConfiguration(
 						break
 					}
 				}
-
-				if (!reactCompilerPluginExists) babel.plugins.push('babel-plugin-react-compiler');
 			}
-			
-			
+			if (!reactCompilerPluginExists) babel.plugins.push(['babel-plugin-react-compiler']);
 		}
 	}
 
@@ -124,6 +121,7 @@ export default function ({
 	babel,
 	experimentalReactChildren,
 	experimentalDisableStreaming,
+	reactCompilerEnabled
 }: ReactIntegrationOptions = {}): AstroIntegration {
 	const majorVersion = getReactMajorVersion();
 	if (!isSupportedReactVersion(majorVersion)) {
@@ -138,7 +136,7 @@ export default function ({
 				addRenderer(getRenderer(versionConfig));
 				updateConfig({
 					vite: getViteConfiguration(
-						{ include, exclude, babel, experimentalReactChildren, experimentalDisableStreaming },
+						{ include, exclude, babel, experimentalReactChildren, experimentalDisableStreaming, reactCompilerEnabled },
 						versionConfig,
 					),
 				});
