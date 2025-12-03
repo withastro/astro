@@ -2,6 +2,4 @@
 'astro': major
 ---
 
-**RouteData.generate() removed:** The `generate()` function has been removed from RouteData.
-
-**Migration:** Remove any calls to `route.generate()`. Route generation logic is now handled internally by Astro.
+Removes `RouteData.generate` from the Integration API - ([v6 upgrade guidance](https://deploy-preview-12322--astro-docs-2.netlify.app/en/guides/upgrade-to/v6/#removed-routedatagenerate-integration-api))
