@@ -1,5 +1,5 @@
 declare module 'astro:content' {
-	export { z } from 'astro/zod';
+	import zod from 'astro/zod';
 	export type {
 		ImageFunction,
 		DataEntry,
@@ -10,8 +10,25 @@ declare module 'astro:content' {
 	} from 'astro/content/config';
 	export { defineLiveCollection } from 'astro/content/config';
 
-	/** Run `astro dev` or `astro sync` to generate high fidelity types */
-	export const defineCollection: (...args: any[]) => any;
+	// TODO: remove in Astro 7
+	/**
+	 * @deprecated
+	 * `import { z } from 'astro:content'` is deprecated and will be removed
+	 * in Astro 7. Use `import { z } from 'astro/zod'` instead.
+	 */
+	export const z = zod.z;
+
+	export function defineLiveCollection<
+		L extends import('astro/loaders').LiveLoader,
+		S extends import('astro/content/config').BaseSchema | undefined = undefined,
+	>(
+		config: import('astro/content/config').LiveCollectionConfig<L, S>,
+	): import('astro/content/config').LiveCollectionConfig<L, S>;
+
+	export function defineCollection<S extends import('astro/content/config').BaseSchema>(
+		config: import('astro/content/config').CollectionConfig<S>,
+	): import('astro/content/config').CollectionConfig<S>;
+
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */
 	export const getEntryBySlug: (...args: any[]) => any;
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */
