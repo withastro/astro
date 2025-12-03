@@ -82,7 +82,7 @@ function configEnvironmentPlugin(compat: boolean | undefined): Plugin {
 			}
 
 			if (compat) {
-				if (environmentName === 'server') {
+				if (environmentName === 'ssr' || environmentName === 'prerender') {
 					environmentOptions.optimizeDeps!.include!.push(
 						'preact/compat',
 						'preact/test-utils',
@@ -93,7 +93,10 @@ function configEnvironmentPlugin(compat: boolean | undefined): Plugin {
 					};
 				}
 
-				if (!options.resolve?.noExternal && environmentName === 'ssr') {
+				if (
+					!options.resolve?.noExternal &&
+					(environmentName === 'ssr' || environmentName === 'prerender')
+				) {
 					// noExternal React entrypoints to be bundled, resolved, and aliased by Vite
 					environmentOptions.resolve!.noExternal = [
 						'react',

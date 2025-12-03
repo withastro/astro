@@ -147,7 +147,8 @@ function configEnvironmentPlugin(): Plugin {
 
 			if (
 				environmentName === 'client' ||
-				(environmentName === 'ssr' && _options.optimizeDeps?.noDiscovery === false)
+				((environmentName === 'ssr' || environmentName === 'prerender') &&
+					_options.optimizeDeps?.noDiscovery === false)
 			) {
 				environmentOptions.optimizeDeps!.exclude = [
 					'@astrojs/vue/server.js',
@@ -160,7 +161,10 @@ function configEnvironmentPlugin(): Plugin {
 				environmentOptions.optimizeDeps!.include = ['@astrojs/vue/client.js', 'vue'];
 			}
 
-			if (environmentName === 'ssr' && _options.resolve?.noExternal !== true) {
+			if (
+				(environmentName === 'ssr' || environmentName === 'prerender') &&
+				_options.resolve?.noExternal !== true
+			) {
 				environmentOptions.resolve = {
 					external: ['vuetify', 'vueperslides', 'primevue'],
 				};

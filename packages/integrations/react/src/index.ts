@@ -76,7 +76,7 @@ function getViteConfiguration(
 				experimentalReactChildren: !!experimentalReactChildren,
 				experimentalDisableStreaming: !!experimentalDisableStreaming,
 			}),
-			environmentPlugin(reactConfig),
+			configEnvironmentPlugin(reactConfig),
 		],
 		ssr: {
 			noExternal: [
@@ -91,7 +91,7 @@ function getViteConfiguration(
 	};
 }
 
-function environmentPlugin(reactConfig: ReactVersionConfig): vite.Plugin {
+function configEnvironmentPlugin(reactConfig: ReactVersionConfig): vite.Plugin {
 	return {
 		name: '@astrojs/react:environment',
 		configEnvironment(environmentName, options): EnvironmentOptions {
@@ -104,7 +104,8 @@ function environmentPlugin(reactConfig: ReactVersionConfig): vite.Plugin {
 
 			if (
 				environmentName === 'client' ||
-				(environmentName === 'ssr' && options.optimizeDeps?.noDiscovery === false)
+				((environmentName === 'ssr' || environmentName === 'prerender') &&
+					options.optimizeDeps?.noDiscovery === false)
 			) {
 				// SAFETY: we initialized it before
 				finalOptions.optimizeDeps!.include = [
@@ -114,7 +115,7 @@ function environmentPlugin(reactConfig: ReactVersionConfig): vite.Plugin {
 					'react-dom',
 				];
 				finalOptions.optimizeDeps!.exclude = [reactConfig.server];
-				if (environmentName === 'ssr') {
+				if (environmentName === 'ssr' || environmentName === 'prerender') {
 					finalOptions.optimizeDeps!.include.push('react-dom/server');
 					if (!options.resolve?.noExternal) {
 						finalOptions.resolve!.noExternal = [
