@@ -16,13 +16,13 @@ describe('ExternalImageService', () => {
 		});
 		await fixture.build();
 	});
-	
+
 	after(async () => {
 		// await fixture.clean();
-	})
+	});
 
 	it('has correct image service', async () => {
-		const files = await glob('**/index.mjs', {
+		const files = await glob('**/image-service*', {
 			cwd: fileURLToPath(new URL('dist/_worker.js', root)),
 			filesOnly: true,
 			absolute: true,
