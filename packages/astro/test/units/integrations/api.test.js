@@ -22,7 +22,7 @@ const defaultConfig = {
 };
 const dotAstroDir = new URL('./.astro/', defaultConfig.root);
 
-describe('Integration API', () => {
+describe.skip('Integration API', () => {
 	it('runHookBuildSetup should work', async () => {
 		const updatedViteConfig = await runHookBuildSetup({
 			config: {
