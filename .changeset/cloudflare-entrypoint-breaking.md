@@ -39,7 +39,7 @@ export function createExports(manifest: SSRManifest) {
 }
 ```
 
-to:
+To create the same custom `entrypoint` using the updated API, export the following function instead:
 
 ```ts
 import { handle } from '@astrojs/cloudflare/utils/handler';
