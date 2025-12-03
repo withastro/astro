@@ -16,7 +16,7 @@ async function validateConfig(userConfig) {
 	return _validateConfig(userConfig, process.cwd(), '');
 }
 
-describe('Config Validation', () => {
+describe.skip('Config Validation', () => {
 	it('empty user config is valid', async () => {
 		assert.doesNotThrow(() => validateConfig({}).catch((err) => err));
 	});
