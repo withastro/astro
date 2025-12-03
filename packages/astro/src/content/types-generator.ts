@@ -399,7 +399,7 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	}
 	const base = `loaders/${collectionKey.slice(1, -1)}`;
 	return {
-		type: `import("./${base}.js").Collection`,
+		type: `import("./${base}.js").Entry`,
 		injectedType: {
 			filename: `${base}.ts`,
 			content: result.types,

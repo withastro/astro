@@ -41,7 +41,7 @@ export function loader(config:PostLoaderConfig): Loader {
 				userId: z.number(),
 				id: z.number(),
 			}),
-			types: /* ts */`export interface Collection {
+			types: /* ts */`export interface Entry {
 	title: string;
 	body: string;
 	userId: number;
