@@ -112,3 +112,6 @@ export const ASTRO_VITE_ENVIRONMENT_NAMES = {
 	astro: 'astro',
 	prerender: 'prerender',
 } as const;
+
+export type AstroEnvironmentNames =
+	(typeof ASTRO_VITE_ENVIRONMENT_NAMES)[keyof typeof ASTRO_VITE_ENVIRONMENT_NAMES];
