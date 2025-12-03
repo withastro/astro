@@ -66,7 +66,7 @@ const collectionConfigParser = z.union([
 					.transform((v) => {
 						if (typeof v === 'function') {
 							console.warn(
-								`Since Astro 6, a loader schema cannot be a function. It is ignored and will break in a future major. Report it to the loader author or check the docs: TODO:`,
+								`Your loader's schema is defined using a function. This is no longer supported and the schema will be ignored. Please update your loader to use the `createSchema()` utility instead, or report this to the loader author. In a future major version, this will cause the loader to break entirely.`,
 							);
 							return undefined;
 						}
