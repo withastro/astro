@@ -14,6 +14,7 @@ export {
 	defineLiveCollection,
 	renderEntry as render,
 } from 'astro/content/runtime';
+// TODO: remove in Astro 7
 export { z } from 'astro/zod';
 
 /* @@LIVE_CONTENT_CONFIG@@ */
