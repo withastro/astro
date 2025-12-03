@@ -1,0 +1,19 @@
+{
+  "name": "@test/postcss",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/solid-js": "workspace:*",
+    "@astrojs/svelte": "workspace:*",
+    "@astrojs/vue": "workspace:*",
+    "astro": "workspace:*",
+    "autoprefixer": "^10.4.22",
+    "postcss": "^8.5.6",
+    "solid-js": "^1.9.10",
+    "svelte": "^5.43.14",
+    "vue": "^3.5.24"
+  },
+  "devDependencies": {
+    "postcss-preset-env": "^10.4.0"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "name": "@astrojs/language-server",
+  "version": "2.16.2",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/language-tools/language-server"
+  },
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "files": [
+    "bin",
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "types/**/*.d.ts"
+  ],
+  "bin": {
+    "astro-ls": "./bin/nodeServer.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "sync-fixture": "pnpm --dir ./test/fixture sync",
+    "test": "pnpm sync-fixture && astro-scripts test \"**/*.test.ts\" --teardown-test ./test/misc/teardown.ts --tsx true",
+    "test:match": "pnpm run test --match"
+  },
+  "dependencies": {
+    "@astrojs/compiler": "^2.10.3",
+    "@astrojs/yaml2ts": "^0.2.2",
+    "@jridgewell/sourcemap-codec": "^1.4.15",
+    "@volar/kit": "~2.4.23",
+    "@volar/language-core": "~2.4.23",
+    "@volar/language-server": "~2.4.23",
+    "@volar/language-service": "~2.4.23",
+    "fast-glob": "^3.2.12",
+    "muggle-string": "^0.4.1",
+    "volar-service-css": "0.0.67",
+    "volar-service-emmet": "0.0.67",
+    "volar-service-html": "0.0.67",
+    "volar-service-prettier": "0.0.67",
+    "volar-service-typescript": "0.0.67",
+    "volar-service-typescript-twoslash-queries": "0.0.67",
+    "volar-service-yaml": "0.0.67",
+    "vscode-html-languageservice": "^5.5.2",
+    "vscode-uri": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.9.0",
+    "@volar/test-utils": "~2.4.23",
+    "@volar/typescript": "~2.4.23",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vscode-languageserver-protocol": "^3.17.5",
+    "vscode-languageserver-textdocument": "^1.0.11",
+    "astro-scripts": "workspace:*"
+  },
+  "peerDependencies": {
+    "prettier": "^3.0.0",
+    "prettier-plugin-astro": ">=0.11.0"
+  },
+  "peerDependenciesMeta": {
+    "prettier": {
+      "optional": true
+    },
+    "prettier-plugin-astro": {
+      "optional": true
+    }
+  }
+}

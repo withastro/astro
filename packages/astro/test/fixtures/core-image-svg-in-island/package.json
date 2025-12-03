@@ -1,0 +1,15 @@
+{
+  "name": "@test/core-image-svg-in-client",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/react": "workspace:*",
+    "astro": "workspace:*",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build"
+  }
+}
