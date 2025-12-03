@@ -234,7 +234,7 @@ const increment = defineCollection({
 				refreshContextData: z.record(z.unknown()).optional(),
 				slug: z.string().optional(),
 			}),
-			types: `export interface Collection {
+			types: /* ts */`export interface Collection {
 	lastValue: number;
 	lastUpdated: Date;
 	refreshContextData?: Record<string, unknown> | undefined;
