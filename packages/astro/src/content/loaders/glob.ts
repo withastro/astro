@@ -175,8 +175,7 @@ export function glob(globOptions: GlobOptions): Loader {
 
 					if (store.has(id)) {
 						logger.warn(
-							`Duplicate content entry ID "${id}" detected. ` +
-							` The file "${filePath}" will override a previously loaded entry.`
+							`Duplicate id "${id}" found in ${filePath}. Later items with the same id will overwrite earlier ones.`,
 						);
 					}
 
