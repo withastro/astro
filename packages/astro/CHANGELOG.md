@@ -1,5 +1,14 @@
 # astro
 
+## 5.16.4
+
+### Patch Changes
+
+- [#14940](https://github.com/withastro/astro/pull/14940) [`2cf79c2`](https://github.com/withastro/astro/commit/2cf79c23c23e3364b0e6a86394b6584112786c5b) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where Astro didn't properly combine CSP resources from the `csp` configuration with those added using the runtime API (`Astro.csp.insertDirective()`) to form grammatically correct CSP headers
+
+  Now Astro correctly deduplicate CSP resources. For example, if you have a global resource in the configuration file, and then you add a
+  a new one using the runtime APIs.
+
 ## 5.16.3
 
 ### Patch Changes
