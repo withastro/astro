@@ -197,7 +197,7 @@ describe('astro sync', () => {
 			await fixture.load('./fixtures/content-layer-loader-schema-function/');
 			fixture.clean();
 			await fixture.whenSyncing();
-			fixture.thenWarnLogsInclude('Since Astro 6, a loader schema cannot be a function.');
+			fixture.thenWarnLogsInclude("Your loader's schema is defined using a function.");
 		});
 	});
 
