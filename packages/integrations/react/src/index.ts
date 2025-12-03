@@ -86,7 +86,7 @@ function getViteConfiguration(
 					}
 				}
 
-				if (!reactCompilerPluginExists) babel.plugins.push(['babel-plugin-react-compiler']);
+				if (!reactCompilerPluginExists) babel.plugins.push('babel-plugin-react-compiler');
 			}
 			
 			
