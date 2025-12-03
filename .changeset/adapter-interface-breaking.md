@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-**setAdapter() additions:** New optional properties for adapter entrypoint handling.
+Adds new optional properties to `setAdapter()` for adapter entrypoint handling in the Adapter API
 
 **Changes:**
 - New optional properties:
