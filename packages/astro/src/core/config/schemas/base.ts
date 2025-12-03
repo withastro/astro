@@ -70,6 +70,8 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		endpoint: { entrypoint: undefined, route: '/_image' },
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
 		responsiveStyles: false,
+		domains: [],
+		remotePatterns: [],
 	},
 	devToolbar: {
 		enabled: true,
@@ -82,7 +84,10 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		allowedHosts: [],
 	},
 	integrations: [],
-	markdown: markdownConfigDefaults,
+	markdown: {
+		...markdownConfigDefaults,
+		syntaxHighlight: markdownConfigDefaults.syntaxHighlight ?? syntaxHighlightDefaults,
+	},
 	vite: {},
 	legacy: {},
 	redirects: {},
@@ -179,7 +184,7 @@ export const AstroConfigSchema = z.object({
 			assetsPrefix: z
 				.string()
 				.optional()
-				.or(z.object({ fallback: z.string() }).and(z.record(z.string())).optional()),
+				.or(z.object({ fallback: z.string() }).and(z.record(z.string(), z.string()))).optional(),
 			serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
 			inlineStylesheets: z
@@ -188,7 +193,7 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
 			concurrency: z.number().min(1).optional().default(ASTRO_CONFIG_DEFAULTS.build.concurrency),
 		})
-		.default({}),
+		.prefault({}),
 	server: z.preprocess(
 		// preprocess
 		// NOTE: Uses the "error" command here because this is overwritten by the
@@ -212,7 +217,7 @@ export const AstroConfigSchema = z.object({
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.server.allowedHosts),
 			})
-			.default({}),
+			.prefault({}),
 	),
 	redirects: z
 		.record(
@@ -259,7 +264,7 @@ export const AstroConfigSchema = z.object({
 					entrypoint: z
 						.union([z.literal('astro/assets/services/sharp'), z.string()])
 						.default(ASTRO_CONFIG_DEFAULTS.image.service.entrypoint),
-					config: z.record(z.any()).default({}),
+					config: z.record(z.string(), z.any()).default({}),
 				})
 				.default(ASTRO_CONFIG_DEFAULTS.image.service),
 			domains: z.array(z.string()).default([]),
@@ -294,8 +299,7 @@ export const AstroConfigSchema = z.object({
 							type: highlighterTypesSchema,
 							excludeLangs: z
 								.array(z.string())
-								.optional()
-								.default(syntaxHighlightDefaults.excludeLangs),
+								.optional(),
 						})
 						.default(syntaxHighlightDefaults),
 					highlighterTypesSchema,
@@ -334,10 +338,12 @@ export const AstroConfigSchema = z.object({
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme!),
 					themes: z
 						.record(
+							z.string(),
 							z
 								.enum(Object.keys(bundledThemes) as [BuiltinTheme, ...BuiltinTheme[]])
 								.or(z.custom<ShikiTheme>()),
 						)
+						.optional()
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.themes!),
 					defaultColor: z
 						.union([z.literal('light'), z.literal('dark'), z.string(), z.literal(false)])
@@ -348,7 +354,7 @@ export const AstroConfigSchema = z.object({
 						.array()
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.transformers!),
 				})
-				.default({}),
+				.prefault({}),
 			remarkPlugins: z
 				.union([
 					z.string(),
@@ -373,7 +379,7 @@ export const AstroConfigSchema = z.object({
 			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
 			smartypants: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
 		})
-		.default({}),
+		.prefault({}),
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
@@ -411,7 +417,7 @@ export const AstroConfigSchema = z.object({
 						}),
 					)
 					.optional()
-					.default({}),
+					.prefault({}),
 			})
 			.optional(),
 	),
@@ -442,7 +448,7 @@ export const AstroConfigSchema = z.object({
 	session: z
 		.object({
 			driver: z.string().optional(),
-			options: z.record(z.any()).optional(),
+			options: z.record(z.string(), z.any()).optional(),
 			cookie: z
 				.object({
 					name: z.string().optional(),
@@ -510,10 +516,7 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.svgo),
 		})
-		.strict(
-			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,
-		)
-		.default({}),
+		.prefault({}),
 	legacy: z.object({}).default({}),
 });
 

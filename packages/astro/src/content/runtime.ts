@@ -46,9 +46,9 @@ type LiveCollectionConfigMap = Record<
 	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE; schema?: z4.$ZodType }
 >;
 
-const cacheHintSchema = z4.object({
-	tags: z4.array(z4.string()).optional(),
-	lastModified: z4.date().optional(),
+const cacheHintSchema = _z4.object({
+	tags: _z4.array(_z4.string()).optional(),
+	lastModified: _z4.date().optional(),
 });
 
 async function parseLiveEntry(
@@ -76,7 +76,7 @@ async function parseLiveEntry(
 		return {
 			entry: {
 				...entry,
-				data: parsed.data,
+				data: parsed.data as Record<string, unknown>,
 			},
 		};
 	} catch (error) {

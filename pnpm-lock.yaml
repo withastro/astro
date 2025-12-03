@@ -641,14 +641,14 @@ importers:
         specifier: ^0.2.3
         version: 0.2.3
       zod:
-        specifier: ^3.25.76 || ^4.0.0
-        version: 3.25.76
+        specifier: ^4.0.0
+        version: 4.1.13
       zod-to-json-schema:
         specifier: ^3.24.6
-        version: 3.24.6(zod@3.25.76)
+        version: 3.24.6(zod@4.1.13)
       zod-to-ts:
         specifier: ^1.2.0
-        version: 1.2.0(typescript@5.9.3)(zod@3.25.76)
+        version: 1.2.0(typescript@5.9.3)(zod@4.1.13)
     devDependencies:
       '@astrojs/check':
         specifier: workspace:*
@@ -794,6 +794,9 @@ importers:
       xml2js:
         specifier: 0.6.2
         version: 0.6.2
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
 
   packages/astro/e2e/fixtures/_deps/astro-linked-lib:
     dependencies:
@@ -26190,10 +26193,19 @@ snapshots:
     dependencies:
       zod: 3.25.76
 
+  zod-to-json-schema@3.24.6(zod@4.1.13):
+    dependencies:
+      zod: 4.1.13
+
   zod-to-ts@1.2.0(typescript@5.9.3)(zod@3.25.76):
     dependencies:
       typescript: 5.9.3
       zod: 3.25.76
+
+  zod-to-ts@1.2.0(typescript@5.9.3)(zod@4.1.13):
+    dependencies:
+      typescript: 5.9.3
+      zod: 4.1.13
 
   zod-validation-error@3.5.3(zod@3.25.76):
     dependencies:

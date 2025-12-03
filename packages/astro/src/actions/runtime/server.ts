@@ -1,7 +1,8 @@
 import * as z4 from 'zod/v4/core';
 import type { Pipeline } from '../../core/base-pipeline.js';
 import { shouldAppendForwardSlash } from '../../core/build/util.js';
-import { ActionNotFoundError } from '../../core/errors/errors-data.js';
+import { AstroError } from '../../core/errors/errors.js';
+import { ActionNotFoundError, ActionCalledFromServerError } from '../../core/errors/errors-data.js';
 import { removeTrailingForwardSlash } from '../../core/path.js';
 import { apiContextRoutesSymbol } from '../../core/render-context.js';
 import type { APIContext } from '../../types/public/index.js';
@@ -14,6 +15,7 @@ import {
 	type SafeResult,
 	type SerializedActionResult,
 	serializeActionResult,
+	callSafely,
 } from './shared.js';
 import type { Locals } from './utils.js';
 import {
@@ -22,6 +24,7 @@ import {
 	type ErrorInferenceObject,
 	formContentTypes,
 	hasContentType,
+	isActionAPIContext,
 	type MaybePromise,
 } from './utils.js';
 
@@ -51,21 +54,21 @@ export type ActionInputSchema<T extends ActionClient<any, any, any>> = T extends
 export type ActionClient<
 	TOutput,
 	TAccept extends ActionAccept | undefined,
-	TInputSchema extends z.ZodType | undefined,
-> = TInputSchema extends z.ZodType
+	TInputSchema extends z4.$ZodType | undefined,
+> = TInputSchema extends z4.$ZodType
 	? ((
-			input: TAccept extends 'form' ? FormData : z.input<TInputSchema>,
+			input: TAccept extends 'form' ? FormData : z4.infer<TInputSchema>,
 		) => Promise<
 			SafeResult<
-				z.input<TInputSchema> extends ErrorInferenceObject
-					? z.input<TInputSchema>
+				z4.infer<TInputSchema> extends ErrorInferenceObject
+					? z4.infer<TInputSchema>
 					: ErrorInferenceObject,
 				Awaited<TOutput>
 			>
 		>) & {
 			queryString: string;
 			orThrow: (
-				input: TAccept extends 'form' ? FormData : z.input<TInputSchema>,
+				input: TAccept extends 'form' ? FormData : z4.infer<TInputSchema>,
 			) => Promise<Awaited<TOutput>>;
 			[inferSymbol]: TInputSchema;
 		}
@@ -76,9 +79,9 @@ export type ActionClient<
 export function defineAction<
 	TOutput,
 	TAccept extends ActionAccept | undefined = undefined,
-	TInputSchema extends z.ZodType | undefined = TAccept extends 'form'
+	TInputSchema extends z4.$ZodType | undefined = TAccept extends 'form'
 		? // If `input` is omitted, default to `FormData` for forms and `any` for JSON.
-			z.ZodType<FormData>
+			z4.$ZodType<FormData>
 		: undefined,
 >({
 	accept,
@@ -114,7 +117,7 @@ export function defineAction<
 	return safeServerHandler as ActionClient<TOutput, TAccept, TInputSchema> & string;
 }
 
-function getFormServerHandler<TOutput, TInputSchema extends z.ZodType>(
+export function getFormServerHandler<TOutput, TInputSchema extends z4.$ZodType>(
 	handler: ActionHandler<TInputSchema, TOutput>,
 	inputSchema?: TInputSchema,
 ) {

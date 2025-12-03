@@ -217,7 +217,7 @@ type GetEntryModuleParams<TEntryType extends ContentEntryType | DataEntryType> =
 async function getContentEntryModule(
 	params: GetEntryModuleParams<ContentEntryType>,
 ): Promise<ContentEntryModule> {
-	const { fileId, contentDir, pluginContext, config } = params;
+	const { fileId, contentDir, pluginContext } = params;
 	const { collectionConfig, entryConfig, entry, rawContents, collection } =
 		await getEntryModuleBaseInfo(params);
 
@@ -245,7 +245,6 @@ async function getContentEntryModule(
 				{ id, collection, _internal, unvalidatedData },
 				collectionConfig,
 				params.shouldEmitFile,
-				config.experimental.zod4,
 				pluginContext,
 			)
 		: unvalidatedData;
@@ -265,7 +264,7 @@ async function getContentEntryModule(
 async function getDataEntryModule(
 	params: GetEntryModuleParams<DataEntryType>,
 ): Promise<DataEntryModule> {
-	const { fileId, contentDir, pluginContext, config } = params;
+	const { fileId, contentDir, pluginContext } = params;
 	const { collectionConfig, entryConfig, entry, rawContents, collection } =
 		await getEntryModuleBaseInfo(params);
 
@@ -281,7 +280,6 @@ async function getDataEntryModule(
 				{ id, collection, _internal, unvalidatedData },
 				collectionConfig,
 				params.shouldEmitFile,
-				config.experimental.zod4,
 				pluginContext,
 			)
 		: unvalidatedData;

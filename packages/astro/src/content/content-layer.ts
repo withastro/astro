@@ -353,13 +353,13 @@ async function simpleLoader<TData extends { id: string }>(
 	const parsedData = loaderReturnSchema.safeParse(unsafeData);
 
 	if (!parsedData.success) {
-		const issue = parsedData.error.issues[0] as z.ZodInvalidUnionIssue;
+		const issue = parsedData.error.issues[0] as z.core.$ZodIssueInvalidUnion;
 
 		// Due to this being a union, zod will always throw an "Expected array, received object" error along with the other errors.
 		// This error is in the second position if the data is an array, and in the first position if the data is an object.
-		const parseIssue = Array.isArray(unsafeData) ? issue.unionErrors[0] : issue.unionErrors[1];
+		const parseIssue = Array.isArray(unsafeData) ? issue.errors[0] : issue.errors[1];
 
-		const error = parseIssue.errors[0];
+		const error = parseIssue[0];
 		const firstPathItem = error.path[0];
 
 		const entry = Array.isArray(unsafeData)

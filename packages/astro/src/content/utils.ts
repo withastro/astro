@@ -25,12 +25,12 @@ import {
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
 import type { LoaderContext } from './loaders/types.js';
-import { createImage } from './runtime-assets.js';
+import { createZ4Image } from './runtime-assets.js';
 
 const entryTypeSchema = z
 	.object({
 		id: z.string({
-			invalid_type_error: 'Content entry `id` must be a string',
+			error: 'Content entry `id` must be a string',
 			// Default to empty string so we can validate properly in the loader
 		}),
 	})
@@ -44,7 +44,7 @@ export const loaderReturnSchema = z.union([
 			.object({
 				id: z
 					.string({
-						invalid_type_error: 'Content entry `id` must be a string',
+						error: 'Content entry `id` must be a string',
 					})
 					.optional(),
 			})
@@ -60,14 +60,17 @@ const collectionConfigParser = z.union([
 			z.function(),
 			z.object({
 				name: z.string(),
-				load: z.function().args(z.custom<LoaderContext>()).returns(
-					z.custom<{
+				load: z.function({
+					input: [z.custom<LoaderContext>()],
+					output: z.custom<{
 						schema?: any;
 						types?: string;
 					} | void>(),
-				),
+				}),
 				schema: z.any().optional(),
-				render: z.function(z.tuple([z.any()], z.unknown())).optional(),
+				render: z.function({
+					input: [z.tuple([z.any()], z.unknown())]
+				}).optional(),
 			}),
 		]),
 	}),
@@ -79,7 +82,7 @@ const collectionConfigParser = z.union([
 ]);
 
 const contentConfigParser = z.object({
-	collections: z.record(collectionConfigParser),
+	collections: z.record(z.string(), collectionConfigParser),
 });
 
 export type CollectionConfig = z.infer<typeof collectionConfigParser>;
@@ -129,7 +132,7 @@ export async function getEntryData<
 	if (typeof schema === 'function') {
 		if (pluginContext) {
 			schema = schema({
-				image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
+				image: createZ4Image(pluginContext, shouldEmitFile, entry._internal.filePath),
 			});
 		} else if (collectionConfig.type === CONTENT_LAYER_TYPE) {
 			schema = schema({
@@ -164,11 +167,11 @@ export async function getEntryData<
 		// Use `safeParseAsync` to allow async transforms
 		let formattedError;
 		const parsed = await (schema as z.ZodSchema).safeParseAsync(data, {
-			errorMap(error, ctx) {
-				if (error.code === 'custom' && error.params?.isHoistedAstroError) {
-					formattedError = error.params?.astroError;
+			error(issue) {
+				if (issue.code === 'custom' && issue.params?.isHoistedAstroError) {
+					formattedError = issue.params?.astroError;
 				}
-				return errorMap(error, ctx);
+				return errorMap(issue);
 			},
 		});
 		if (parsed.success) {
@@ -186,7 +189,7 @@ export async function getEntryData<
 						file: entry._internal?.filePath,
 						line: getYAMLErrorLine(
 							entry._internal?.rawData,
-							String(parsed.error.errors[0].path[0]),
+							String(parsed.error.issues[0].path[0]),
 						),
 						column: 0,
 					},

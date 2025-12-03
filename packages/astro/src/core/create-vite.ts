@@ -25,7 +25,6 @@ import { vitePluginAdapterConfig } from '../vite-plugin-adapter-config/index.js'
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
-import { experimentalZod4VitePlugin } from '../vite-plugin-experimental-zod4/index.js';
 import vitePluginFileURL from '../vite-plugin-fileurl/index.js';
 import astroHeadPlugin from '../vite-plugin-head/index.js';
 import astroHmrReloadPlugin from '../vite-plugin-hmr-reload/index.js';
@@ -178,7 +177,6 @@ export async function createVite(
 			vitePluginServerIslands({ settings, logger }),
 			astroContainer(),
 			astroHmrReloadPlugin(),
-			experimentalZod4VitePlugin({ settings }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
