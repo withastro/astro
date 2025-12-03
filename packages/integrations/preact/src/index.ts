@@ -69,7 +69,6 @@ function configEnvironmentPlugin(compat: boolean | undefined): Plugin {
 		configEnvironment(environmentName, options) {
 			const environmentOptions: EnvironmentOptions = {
 				optimizeDeps: {
-					include: ['@astrojs/preact/client.js', 'preact', 'preact/jsx-runtime'],
 					exclude: ['@astrojs/preact/server.js'],
 				},
 			};
