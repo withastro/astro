@@ -17,7 +17,6 @@ import type {
 	IntegrationResolvedRoute,
 } from 'astro';
 import type { PluginOption } from 'vite';
-import { defaultClientConditions } from 'vite';
 import { cloudflareModuleLoader } from './utils/cloudflare-module-loader.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { type ImageService, setImageConfig } from './utils/image-config.js';
@@ -211,20 +210,13 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					},
 					session,
 					vite: {
-						ssr: {
-							optimizeDeps: {
-								// Disabled to prevent "prebundle" errors on first dev
-								// This can be removed when the issue is resolved with Cloudflare
-								noDiscovery: true,
-							},
-						},
 						plugins: [
 							cfVitePlugin(cfPluginConfig),
 							// https://developers.cloudflare.com/pages/functions/module-support/
 							// Allows imports of '.wasm', '.bin', and '.txt' file types
 							cloudflareModulePlugin,
 							{
-								name: 'vite:cf-imports',
+								name: '@astrojs/cloudflare:cf-imports',
 								enforce: 'pre',
 								resolveId(source) {
 									if (source.startsWith('cloudflare:')) {
@@ -234,8 +226,20 @@ export default function createIntegration(args?: Options): AstroIntegration {
 								},
 							},
 							{
+								name: '@astrojs/cloudflare:environment',
+								configEnvironment(environmentName, _options) {
+									if (environmentName === 'ssr' && _options.optimizeDeps?.noDiscovery === false) {
+										return {
+											optimizeDeps: {
+												exclude: ['unstorage/drivers/cloudflare-kv-binding'],
+											},
+										};
+									}
+								},
+							},
+							{
 								enforce: 'post',
-								name: 'vite:cf-externals',
+								name: '@astrojs/cloudflare:cf-externals',
 								applyToEnvironment: (environment) => environment.name === 'ssr',
 								config(conf) {
 									if (conf.ssr) {
@@ -256,7 +260,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				addWatchFile(new URL('./wrangler.toml', config.root));
 				addWatchFile(new URL('./wrangler.json', config.root));
 				addWatchFile(new URL('./wrangler.jsonc', config.root));
-
 			},
 			'astro:routes:resolved': ({ routes }) => {
 				_routes = routes;
@@ -314,7 +317,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						const parsed = parse(data);
 						Object.assign(process.env, parsed);
 					} catch {
-						logger.error(`Unable to parse .dev.vars, variables will not be available to your application.`);
+						logger.error(
+							`Unable to parse .dev.vars, variables will not be available to your application.`,
+						);
 					}
 				}
 			},
@@ -322,40 +327,17 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				if (target === 'server') {
 					vite.resolve ||= {};
 					vite.resolve.alias ||= {};
-
-					const aliases = [
-						{
-							find: 'react-dom/server',
-							replacement: 'react-dom/server.browser',
-						},
-					];
-
-					if (Array.isArray(vite.resolve.alias)) {
-						vite.resolve.alias = [...vite.resolve.alias, ...aliases];
-					} else {
-						for (const alias of aliases) {
-							(vite.resolve.alias as Record<string, string>)[alias.find] = alias.replacement;
-						}
-					}
-
-					// Support `workerd` and `worker` conditions for the ssr environment
-					// (previously supported in esbuild instead: https://github.com/withastro/astro/pull/7092)
 					vite.ssr ||= {};
-					vite.ssr.resolve ||= {};
-					vite.ssr.resolve.conditions ||= [...defaultClientConditions];
-					vite.ssr.resolve.conditions.push('workerd', 'worker');
-
-					vite.ssr.target = 'webworker';
 					vite.ssr.noExternal = true;
 
 					vite.build ||= {};
 					vite.build.rollupOptions ||= {};
 					vite.build.rollupOptions.output ||= {};
+					vite.build.rollupOptions.external = ['sharp'];
+
 					// @ts-expect-error
 					vite.build.rollupOptions.output.banner ||=
 						'globalThis.process ??= {}; globalThis.process.env ??= {};';
-
-					vite.build.rollupOptions.external = ['sharp'];
 
 					// Cloudflare env is only available per request. This isn't feasible for code that access env vars
 					// in a global way, so we shim their access as `process.env.*`. This is not the recommended way for users to access environment variables. But we'll add this for compatibility for chosen variables. Mainly to support `@astrojs/db`

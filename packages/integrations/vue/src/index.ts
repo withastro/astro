@@ -4,7 +4,7 @@ import vue from '@vitejs/plugin-vue';
 import type { Options as VueJsxOptions } from '@vitejs/plugin-vue-jsx';
 import { MagicString } from '@vue/compiler-sfc';
 import type { AstroIntegration, AstroRenderer, HookParameters } from 'astro';
-import type { Plugin, UserConfig } from 'vite';
+import type { EnvironmentOptions, Plugin, UserConfig } from 'vite';
 import type { VitePluginVueDevToolsOptions } from 'vite-plugin-vue-devtools';
 
 const VIRTUAL_MODULE_ID = 'virtual:@astrojs/vue/app';
@@ -113,16 +113,7 @@ async function getViteConfiguration(
 	vueOptions.compiler ??= await import('vue/compiler-sfc');
 
 	const config: UserConfig = {
-		optimizeDeps: {
-			// We add `vue` here as `@vitejs/plugin-vue` doesn't add it and we want to prevent
-			// re-optimization if the `vue` import is only encountered later.
-			include: ['@astrojs/vue/client.js', 'vue'],
-			exclude: ['@astrojs/vue/server.js', VIRTUAL_MODULE_ID],
-		},
-		plugins: [vue(vueOptions), virtualAppEntrypoint(vueOptions)],
-		ssr: {
-			noExternal: ['vuetify', 'vueperslides', 'primevue'],
-		},
+		plugins: [vue(vueOptions), virtualAppEntrypoint(vueOptions), configEnvironmentPlugin()],
 	};
 
 	if (options?.jsx) {
@@ -135,6 +126,7 @@ async function getViteConfiguration(
 		const vueDevTools = (await import('vite-plugin-vue-devtools')).default;
 		const devToolsOptions = typeof options.devtools === 'object' ? options.devtools : {};
 		config.plugins?.push(
+			configEnvironmentPlugin(),
 			vueDevTools({
 				...devToolsOptions,
 				appendTo: VIRTUAL_MODULE_ID,
@@ -143,6 +135,39 @@ async function getViteConfiguration(
 	}
 
 	return config;
+}
+
+function configEnvironmentPlugin(): Plugin {
+	return {
+		name: '@astrojs/vue:config-environment',
+		configEnvironment(environmentName, _options) {
+			const environmentOptions: EnvironmentOptions = {
+				optimizeDeps: {},
+			};
+
+			if (
+				environmentName === 'client' ||
+				(environmentName === 'ssr' && _options.optimizeDeps?.noDiscovery === false)
+			) {
+				environmentOptions.optimizeDeps!.exclude = [
+					'@astrojs/vue/server.js',
+					'vue/server-renderer',
+					VIRTUAL_MODULE_ID,
+				];
+			}
+
+			if (environmentName === 'client') {
+				environmentOptions.optimizeDeps!.include = ['@astrojs/vue/client.js', 'vue'];
+			}
+
+			if (environmentName === 'ssr' && _options.resolve?.noExternal !== true) {
+				environmentOptions.resolve = {
+					external: ['vuetify', 'vueperslides', 'primevue'],
+				};
+			}
+			return environmentOptions;
+		},
+	};
 }
 
 export default function (options?: Options): AstroIntegration {

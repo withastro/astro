@@ -1,10 +1,10 @@
 // @ts-check
 import cloudflare from '@astrojs/cloudflare';
 import { defineConfig, envField, fontProviders } from 'astro/config';
-
 import mdx from '@astrojs/mdx';
 import { fileURLToPath } from 'node:url';
 import react from '@astrojs/react';
+import vue from "@astrojs/vue"
 
 export default defineConfig({
 	adapter: cloudflare({
@@ -32,7 +32,7 @@ export default defineConfig({
 			"fr": "en"
 		}
 	},
-	integrations: [mdx(), react()],
+	integrations: [mdx(), react(), vue()],
 	env: {
 		schema: {
 			FOO: envField.string({ context: 'server', access: 'public' }),

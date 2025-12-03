@@ -3,6 +3,7 @@ export const prerender = false;
 
 import { getCollection, getEntry, render } from 'astro:content';
 import Hello from '../components/Hello.tsx';
+import HelloVue from '../components/Hello.vue';
 import Island from '../components/Island.astro';
 import IslandProps from '../components/IslandProps.astro';
 import { Font } from 'astro:assets';
@@ -45,6 +46,7 @@ const surnamne = Astro.url.searchParams.get('surname');
 	<p>Running on: {workerRuntime ?? 'unknown runtime'}</p>
 	<div id="framework">
 		<Hello client:load />
+		<HelloVue client:load />
 	</div>
 	<Island server:defer/>
 	<IslandProps server:defer name="Aria" surname={surnamne}/>

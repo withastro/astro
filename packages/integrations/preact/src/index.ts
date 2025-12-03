@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { preact, type PreactPluginOptions as VitePreactPluginOptions } from '@preact/preset-vite';
 import type { AstroIntegration, AstroRenderer, ViteUserConfig } from 'astro';
+import type { EnvironmentOptions, Plugin } from 'vite';
 
 const babelCwd = new URL('../', import.meta.url);
 
@@ -33,29 +34,9 @@ export default function ({ include, exclude, compat, devtools }: Options = {}): 
 					},
 				});
 
-				const viteConfig: ViteUserConfig = {
-					optimizeDeps: {
-						include: ['@astrojs/preact/client.js', 'preact', 'preact/jsx-runtime'],
-						exclude: ['@astrojs/preact/server.js'],
-					},
-				};
+				const viteConfig: ViteUserConfig = {};
 
-				if (compat) {
-					viteConfig.optimizeDeps!.include!.push(
-						'preact/compat',
-						'preact/test-utils',
-						'preact/compat/jsx-runtime',
-					);
-					viteConfig.resolve = {
-						dedupe: ['preact/compat', 'preact'],
-					};
-					// noExternal React entrypoints to be bundled, resolved, and aliased by Vite
-					viteConfig.ssr = {
-						noExternal: ['react', 'react-dom', 'react-dom/test-utils', 'react/jsx-runtime'],
-					};
-				}
-
-				viteConfig.plugins = [preactPlugin];
+				viteConfig.plugins = [preactPlugin, configEnvironmentPlugin(compat)];
 
 				addRenderer(getRenderer(command === 'dev'));
 				updateConfig({
@@ -78,6 +59,51 @@ export default function ({ include, exclude, compat, devtools }: Options = {}): 
 					);
 				}
 			},
+		},
+	};
+}
+
+function configEnvironmentPlugin(compat: boolean | undefined): Plugin {
+	return {
+		name: '@astrojs/preact:environment',
+		configEnvironment(environmentName, options) {
+			const environmentOptions: EnvironmentOptions = {
+				optimizeDeps: {
+					include: ['@astrojs/preact/client.js', 'preact', 'preact/jsx-runtime'],
+					exclude: ['@astrojs/preact/server.js'],
+				},
+			};
+
+			if (environmentName === 'client') {
+				environmentOptions.optimizeDeps!.include = [
+					'@astrojs/preact/client.js',
+					'preact',
+					'preact/jsx-runtime',
+				];
+			}
+
+			if (compat) {
+				environmentOptions.optimizeDeps!.include!.push(
+					'preact/compat',
+					'preact/test-utils',
+					'preact/compat/jsx-runtime',
+				);
+				environmentOptions.resolve = {
+					dedupe: ['preact/compat', 'preact'],
+				};
+
+				if (!options.resolve?.noExternal && environmentName === 'ssr') {
+					// noExternal React entrypoints to be bundled, resolved, and aliased by Vite
+					environmentOptions.resolve.noExternal = [
+						'react',
+						'react-dom',
+						'react-dom/test-utils',
+						'react/jsx-runtime',
+					];
+				}
+			}
+
+			return environmentOptions;
 		},
 	};
 }
