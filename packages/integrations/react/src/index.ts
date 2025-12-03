@@ -51,7 +51,7 @@ function optionsPlugin({
 				return {
 					code: `export default {
 						experimentalReactChildren: ${JSON.stringify(experimentalReactChildren)},
-						experimentalDisableStreaming: ${JSON.stringify(experimentalDisableStreaming)},
+						experimentalDisableStreaming: ${JSON.stringify(experimentalDisableStreaming)}
 					}`,
 				};
 			}
@@ -124,7 +124,6 @@ export default function ({
 	babel,
 	experimentalReactChildren,
 	experimentalDisableStreaming,
-	reactCompilerEnabled,
 }: ReactIntegrationOptions = {}): AstroIntegration {
 	const majorVersion = getReactMajorVersion();
 	if (!isSupportedReactVersion(majorVersion)) {
@@ -139,7 +138,7 @@ export default function ({
 				addRenderer(getRenderer(versionConfig));
 				updateConfig({
 					vite: getViteConfiguration(
-						{ include, exclude, babel, experimentalReactChildren, experimentalDisableStreaming, reactCompilerEnabled },
+						{ include, exclude, babel, experimentalReactChildren, experimentalDisableStreaming },
 						versionConfig,
 					),
 				});
