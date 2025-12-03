@@ -6,6 +6,8 @@ Custom entrypoint API has changed
 
 The `createExports()` function has been replaced with a direct export pattern. If you're using a custom `entryPoint` in your Cloudflare adapter config, update your worker file from:
 
+__my-entry.ts__
+
 ```ts
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
@@ -37,6 +39,8 @@ export function createExports(manifest: SSRManifest) {
 ```
 
 to:
+
+__my-entry.ts__
 
 ```ts
 import { handle } from '@astrojs/cloudflare/utils/handler';
