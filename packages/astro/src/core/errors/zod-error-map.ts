@@ -84,7 +84,7 @@ export const z4ErrorMap: $ZodErrorMap = (issue) => {
 				baseErrorPath,
 				getTypeOrLiteralMsg({
 					code: issue.code,
-					received: (issue as any).received,
+					received: typeof issue.input,
 					expected: [issue.expected],
 				}),
 			),
