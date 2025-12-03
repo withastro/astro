@@ -83,18 +83,20 @@ function configEnvironmentPlugin(compat: boolean | undefined): Plugin {
 			}
 
 			if (compat) {
-				environmentOptions.optimizeDeps!.include!.push(
-					'preact/compat',
-					'preact/test-utils',
-					'preact/compat/jsx-runtime',
-				);
-				environmentOptions.resolve = {
-					dedupe: ['preact/compat', 'preact'],
-				};
+				if (environmentName === 'server') {
+					environmentOptions.optimizeDeps!.include!.push(
+						'preact/compat',
+						'preact/test-utils',
+						'preact/compat/jsx-runtime',
+					);
+					environmentOptions.resolve = {
+						dedupe: ['preact/compat', 'preact'],
+					};
+				}
 
 				if (!options.resolve?.noExternal && environmentName === 'ssr') {
 					// noExternal React entrypoints to be bundled, resolved, and aliased by Vite
-					environmentOptions.resolve.noExternal = [
+					environmentOptions.resolve!.noExternal = [
 						'react',
 						'react-dom',
 						'react-dom/test-utils',
