@@ -71,6 +71,7 @@ function configEnvironmentPlugin(compat: boolean | undefined): Plugin {
 				optimizeDeps: {
 					exclude: ['@astrojs/preact/server.js'],
 				},
+				resolve: {},
 			};
 
 			if (environmentName === 'client') {
@@ -82,7 +83,7 @@ function configEnvironmentPlugin(compat: boolean | undefined): Plugin {
 			}
 
 			if (compat) {
-				if (environmentName === 'ssr' || environmentName === 'prerender') {
+				if (environmentName === 'client') {
 					environmentOptions.optimizeDeps!.include!.push(
 						'preact/compat',
 						'preact/test-utils',
