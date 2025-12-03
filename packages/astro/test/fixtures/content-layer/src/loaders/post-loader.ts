@@ -31,7 +31,7 @@ export function loader(config:PostLoaderConfig): Loader {
 			}
 			meta.set('lastSynced', String(Date.now()));
 		},
-		getSchemaContext: async () => {
+		createSchema: async () => {
 			// Simulate a delay
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 			return {

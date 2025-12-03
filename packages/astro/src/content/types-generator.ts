@@ -343,13 +343,13 @@ function normalizeConfigPath(from: string, to: string) {
 	return `"${isRelativePath(configPath) ? '' : './'}${normalizedPath}"` as const;
 }
 
-const schemaContextResultCache = new Map<string, { schema: ZodSchema; types: string }>();
+const createSchemaResultCache = new Map<string, { schema: ZodSchema; types: string }>();
 
-async function getSchemaContextResult<T extends keyof ContentConfig['collections']>(
+async function getCreateSchemaResult<T extends keyof ContentConfig['collections']>(
 	collection: ContentConfig['collections'][T],
 	collectionKey: T,
 ) {
-	const cached = schemaContextResultCache.get(collectionKey);
+	const cached = createSchemaResultCache.get(collectionKey);
 	if (cached) {
 		return cached;
 	}
@@ -358,10 +358,10 @@ async function getSchemaContextResult<T extends keyof ContentConfig['collections
 		collection?.type === CONTENT_LAYER_TYPE &&
 		typeof collection.loader === 'object' &&
 		!collection.loader.schema &&
-		collection.loader.getSchemaContext
+		collection.loader.createSchema
 	) {
-		const result = await collection.loader.getSchemaContext();
-		schemaContextResultCache.set(collectionKey, result);
+		const result = await collection.loader.createSchema();
+		createSchemaResultCache.set(collectionKey, result);
 		return result;
 	}
 }
@@ -376,7 +376,7 @@ async function getContentLayerSchema<T extends keyof ContentConfig['collections'
 	if (collection.loader.schema) {
 		return collection.loader.schema;
 	}
-	const result = await getSchemaContextResult(collection, collectionKey);
+	const result = await getCreateSchemaResult(collection, collectionKey);
 	return result?.schema;
 }
 
@@ -393,7 +393,7 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	if (collection.loader.schema) {
 		return { type: `InferLoaderSchema<${collectionKey}>` };
 	}
-	const result = await getSchemaContextResult(collection, collectionKey);
+	const result = await getCreateSchemaResult(collection, collectionKey);
 	if (!result) {
 		return { type: 'any' };
 	}
@@ -520,7 +520,7 @@ async function writeContentFiles({
 							// Is it a loader static schema or
 							(collectionConfig?.loader.schema ||
 								// is it a loader dynamic schema
-								schemaContextResultCache.has(collectionKey))),
+								createSchemaResultCache.has(collectionKey))),
 				),
 				name: key,
 			});

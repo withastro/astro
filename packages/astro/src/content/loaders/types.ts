@@ -61,7 +61,7 @@ export type Loader = {
 	  }
 	| {
 			/** Optionally, provide a function to dynamically provide a schema. Will be overridden by user-defined schema */
-			getSchemaContext?: () => Promise<{
+			createSchema?: () => Promise<{
 				schema: ZodSchema;
 				types: string;
 			}>;

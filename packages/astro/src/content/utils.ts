@@ -82,7 +82,7 @@ const collectionConfigParser = z.union([
 						}
 					})
 					.optional(),
-				getSchemaContext: z
+				createSchema: z
 					.function()
 					.returns(
 						z.promise(

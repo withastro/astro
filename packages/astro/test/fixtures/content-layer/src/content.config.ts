@@ -226,7 +226,7 @@ const increment = defineCollection({
 				rendered: await renderMarkdown(markdownContent)
 			});
 		},
-		getSchemaContext: async () => {
+		createSchema: async () => {
 			return {
 				schema: z.object({
 				lastValue: z.number(),
