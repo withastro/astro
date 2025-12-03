@@ -2,6 +2,4 @@
 'astro': major
 ---
 
-Remove astro:ssr-manifest module
-
-The `astro:ssr-manifest` module was created to allow integrations to access the manifest. It's no longer used by any integrations and is not used by Astro internally, so has been removed.
+Removes the unused `astro:ssr-manifest` virtual module - ([v6 upgrade guidance](https://deploy-preview-12322--astro-docs-2.netlify.app/en/guides/upgrade-to/v6/#removed-astrossr-manifest-virtual-module-integration-api))
