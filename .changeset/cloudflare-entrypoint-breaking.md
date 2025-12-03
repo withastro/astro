@@ -2,9 +2,12 @@
 '@astrojs/cloudflare': major
 ---
 
-Custom entrypoint API has changed
+Changes the API for creating a custom `entrypoint`, replacing the `createExports()` function with a direct export pattern. 
 
-The `createExports()` function has been replaced with a direct export pattern. If you're using a custom `entryPoint` in your Cloudflare adapter config, update your worker file from:
+#### What should I do?
+
+If you're using a custom `entryPoint` in your Cloudflare adapter config, update your existing worker file that uses `createExports()` to reflect the new, simplified pattern:
+
 
 ```ts
 import type { SSRManifest } from 'astro';
