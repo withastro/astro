@@ -12,7 +12,7 @@ const createFixture = () => {
 	/** @type {Record<string, string>} */
 	const writtenFiles = {};
 	/** @type {Array<string>} */
-	const errorLogs = [];
+	const warnLogs = [];
 
 	/**
 	 * @param {string} path
@@ -52,10 +52,10 @@ const createFixture = () => {
 				},
 			};
 
-			const originalError = console.error;
-			console.error = (message) => {
-				originalError(message);
-				errorLogs.push(message);
+			const originalWarn = console.warn;
+			console.warn = (message) => {
+				originalWarn(message);
+				warnLogs.push(message);
 			};
 
 			try {
@@ -67,7 +67,7 @@ const createFixture = () => {
 					},
 				);
 			} finally {
-				console.error = originalError;
+				console.error = originalWarn;
 			}
 		},
 		/** @param {string} path */
@@ -117,11 +117,11 @@ const createFixture = () => {
 		/**
 		 * @param {string} message
 		 */
-		thenErrorLogsInclude(message) {
-			if (errorLogs.length === 0) {
+		thenWarnLogsInclude(message) {
+			if (warnLogs.length === 0) {
 				assert.fail('No error log');
 			}
-			const index = errorLogs.findIndex((log) => log.includes(message));
+			const index = warnLogs.findIndex((log) => log.includes(message));
 			assert.equal(index !== -1, true, 'No error log found');
 		},
 	};
@@ -197,7 +197,7 @@ describe('astro sync', () => {
 			await fixture.load('./fixtures/content-layer-loader-schema-function/');
 			fixture.clean();
 			await fixture.whenSyncing();
-			fixture.thenErrorLogsInclude('Since Astro 6, a loader schema cannot be a function.');
+			fixture.thenWarnLogsInclude('Since Astro 6, a loader schema cannot be a function.');
 		});
 	});
 
