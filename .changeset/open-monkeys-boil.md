@@ -8,7 +8,9 @@ Development server now runs in workerd
 
 To accommodate this major change to your development environment, this update includes breaking changes to `Astro.locals.runtime`, removing some of its properties.
 
-**Breaking Changes:**
+#### What should I do?
+
+Update occurrences of `Astro.locals.runtime` as shown below:
 
 - `Astro.locals.runtime` no longer contains the `env` object. Instead, import it directly:
   ```js
