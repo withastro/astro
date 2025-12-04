@@ -57,8 +57,8 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.1.2",
-    "devalue": "^5.4.2",
-    "rollup": "^4.52.5"
+    "devalue": "^5.5.0",
+    "rollup": "^4.53.3"
   },
   "publishConfig": {
     "provenance": true

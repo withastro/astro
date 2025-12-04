@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "6.0.0-alpha.0",
+  "version": "6.0.0-alpha.4",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -156,7 +156,7 @@
     "rehype": "^13.0.2",
     "semver": "^7.7.3",
     "shiki": "^3.15.0",
-    "smol-toml": "^1.5.0",
+    "smol-toml": "^1.5.2",
     "svgo": "^4.0.0",
     "tinyexec": "^1.0.2",
     "tinyglobby": "^0.2.15",
@@ -164,7 +164,7 @@
     "ultrahtml": "^1.6.0",
     "unifont": "~0.6.0",
     "unist-util-visit": "^5.0.0",
-    "unstorage": "^1.17.2",
+    "unstorage": "^1.17.3",
     "vfile": "^6.0.3",
     "vite": "^7.1.7",
     "vitefu": "^1.1.1",
@@ -172,7 +172,7 @@
     "yargs-parser": "^21.1.1",
     "yocto-spinner": "^0.2.3",
     "zod": "^3.25.76",
-    "zod-to-json-schema": "^3.24.6"
+    "zod-to-json-schema": "^3.25.0"
   },
   "optionalDependencies": {
     "sharp": "^0.34.0"
@@ -207,8 +207,8 @@
     "rehype-slug": "^6.0.0",
     "rehype-toc": "^3.0.2",
     "remark-code-titles": "^0.1.2",
-    "rollup": "^4.53.2",
-    "sass": "^1.94.0",
+    "rollup": "^4.53.3",
+    "sass": "^1.94.2",
     "typescript": "^5.9.3",
     "undici": "^6.22.0",
     "unified": "^11.0.5",

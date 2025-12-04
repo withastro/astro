@@ -184,9 +184,17 @@ describe('CSP', () => {
 		);
 	});
 
-	it('allows injecting custom script resources and hashes based on pages', async () => {
+	it('allows injecting custom script resources and hashes based on pages, deduplicated', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
+			experimental: {
+				csp: {
+					directives: ["img-src 'self'"],
+					scriptDirective: {
+						resources: ['https://global.cdn.example.com'],
+					},
+				},
+			},
 		});
 		await fixture.build();
 
@@ -196,16 +204,30 @@ describe('CSP', () => {
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
 		// correctness for resources
 		assert.ok(
-			meta.attr('content').toString().includes('script-src https://scripts.cdn.example.com'),
+			meta
+				.attr('content')
+				.toString()
+				.includes('script-src https://global.cdn.example.com https://scripts.cdn.example.com'),
 		);
 		assert.ok(meta.attr('content').toString().includes("style-src 'self'"));
 		// correctness for hashes
 		assert.ok(meta.attr('content').toString().includes("default-src 'self';"));
+		assert.ok(
+			meta.attr('content').toString().includes("img-src 'self' https://images.cdn.example.com;"),
+		);
 	});
 
 	it('allows injecting custom styles resources and hashes based on pages', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
+			experimental: {
+				csp: {
+					directives: ["img-src 'self'"],
+					styleDirective: {
+						resources: ['https://global.cdn.example.com'],
+					},
+				},
+			},
 		});
 		await fixture.build();
 		const html = await fixture.readFile('/styles/index.html');
@@ -213,10 +235,18 @@ describe('CSP', () => {
 
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
 		// correctness for resources
-		assert.ok(meta.attr('content').toString().includes('style-src https://styles.cdn.example.com'));
+		assert.ok(
+			meta
+				.attr('content')
+				.toString()
+				.includes('style-src https://global.cdn.example.com https://styles.cdn.example.com'),
+		);
 		assert.ok(meta.attr('content').toString().includes("script-src 'self'"));
 		// correctness for hashes
 		assert.ok(meta.attr('content').toString().includes("default-src 'self';"));
+		assert.ok(
+			meta.attr('content').toString().includes("img-src 'self' https://images.cdn.example.com;"),
+		);
 	});
 
 	it('allows add `strict-dynamic` when enabled', async () => {
