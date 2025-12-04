@@ -56,7 +56,7 @@ export default function astroScriptsPlugin({ settings }: { settings: AstroSettin
 			if (
 				hasHydrationScripts &&
 				(this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender ||
-					this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server)
+					this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr)
 			) {
 				this.emitFile({
 					type: 'chunk',

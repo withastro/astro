@@ -19,7 +19,7 @@ export function pluginPages({ routesList }: PagesPluginOptions): VitePlugin {
 		enforce: 'post',
 		applyToEnvironment(environment) {
 			return (
-				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
 		},

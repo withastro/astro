@@ -12,7 +12,7 @@ export function pluginMiddleware(
 	return {
 		...plugin,
 		applyToEnvironment(environment) {
-			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server;
+			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},
 	};
 }

@@ -66,12 +66,12 @@ export function astroContentAssetPropagationPlugin({
 			}
 		},
 		configureServer(server) {
-			if (!isRunnableDevEnvironment(server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.server])) {
+			if (!isRunnableDevEnvironment(server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
 				return;
 			}
 			devModuleLoader = createViteLoader(
 				server,
-				server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.server] as RunnableDevEnvironment,
+				server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as RunnableDevEnvironment,
 			);
 		},
 		async transform(_, id, options) {

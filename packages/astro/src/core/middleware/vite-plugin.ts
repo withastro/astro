@@ -23,7 +23,7 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 		name: '@astro/plugin-middleware',
 		applyToEnvironment(environment) {
 			return (
-				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);

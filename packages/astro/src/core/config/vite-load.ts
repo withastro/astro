@@ -56,9 +56,9 @@ export async function loadConfigWithVite({
 	let server: ViteDevServer | undefined;
 	try {
 		server = await createViteServer(root, fs);
-		if (isRunnableDevEnvironment(server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.server])) {
+		if (isRunnableDevEnvironment(server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
 			const environment = server.environments[
-				ASTRO_VITE_ENVIRONMENT_NAMES.server
+				ASTRO_VITE_ENVIRONMENT_NAMES.ssr
 			] as RunnableDevEnvironment;
 			const mod = await environment.runner.import(configPath);
 			return mod.default ?? {};

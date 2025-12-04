@@ -48,7 +48,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		applyToEnvironment(environment) {
 			return (
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
-				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
 		},
@@ -71,7 +71,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		async generateBundle(_outputOptions, bundle) {
 			// Collect CSS modules that were bundled during SSR build for deduplication in client build
 			if (
-				this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.server ||
+				this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 				this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			) {
 				for (const [, chunk] of Object.entries(bundle)) {
@@ -175,7 +175,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		applyToEnvironment(environment) {
 			return (
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
-				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
 		},
@@ -205,7 +205,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		applyToEnvironment(environment) {
 			return (
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
-				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
 		},

@@ -18,7 +18,7 @@ function vitePluginAdapter(adapter: AstroAdapter): VitePlugin {
 		name: '@astrojs/vite-plugin-astro-adapter',
 		enforce: 'post',
 		applyToEnvironment(environment) {
-			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server;
+			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},
 		resolveId(id) {
 			if (id === ADAPTER_VIRTUAL_MODULE_ID) {
@@ -48,7 +48,7 @@ function vitePluginAdapterConfig(adapter: AstroAdapter): VitePlugin {
 		name: '@astrojs/vite-plugin-astro-adapter-config',
 		enforce: 'post',
 		applyToEnvironment(environment) {
-			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server;
+			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},
 		resolveId(id) {
 			if (id === ADAPTER_CONFIG_VIRTUAL_MODULE_ID) {
@@ -76,7 +76,7 @@ function vitePluginSSR(
 		name: '@astrojs/vite-plugin-astro-ssr-server',
 		enforce: 'post',
 		applyToEnvironment(environment) {
-			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server;
+			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},
 		resolveId(id) {
 			if (id === SSR_VIRTUAL_MODULE_ID) {

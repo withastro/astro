@@ -110,7 +110,7 @@ export function createViteLoader(
 			return viteServer.environments.client.hot.send(msg);
 		},
 		getSSREnvironment() {
-			return viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.server] as RunnableDevEnvironment;
+			return viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as RunnableDevEnvironment;
 		},
 		isHttps() {
 			return !!ssrEnvironment.config.server.https;

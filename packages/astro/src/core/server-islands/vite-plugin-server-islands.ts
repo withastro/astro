@@ -24,7 +24,7 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 			command = _command;
 		},
 		configureServer(server) {
-			ssrEnvironment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.server];
+			ssrEnvironment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 		},
 		resolveId(name) {
 			if (name === SERVER_ISLAND_MANIFEST) {

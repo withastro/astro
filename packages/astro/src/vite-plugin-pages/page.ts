@@ -15,7 +15,7 @@ export function pluginPage({ routesList }: PagePluginOptions): VitePlugin {
 		name: '@astro/plugin-page',
 		applyToEnvironment(environment) {
 			return (
-				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
 		},

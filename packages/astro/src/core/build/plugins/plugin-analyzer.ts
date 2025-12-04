@@ -14,7 +14,7 @@ export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 		name: '@astro/rollup-plugin-astro-analyzer',
 		applyToEnvironment(environment) {
 			return (
-				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
 		},

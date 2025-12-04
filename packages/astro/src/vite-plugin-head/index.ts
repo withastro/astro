@@ -48,7 +48,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 		enforce: 'pre',
 		apply: 'serve',
 		configureServer(server) {
-			environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.server];
+			environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 		},
 		resolveId(source, importer) {
 			if (importer) {
@@ -92,7 +92,7 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 		name: 'astro:head-metadata-build',
 		applyToEnvironment(environment) {
 			return (
-				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
 		},

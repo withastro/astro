@@ -13,7 +13,7 @@ export default function hmrReload(): Plugin {
 		hotUpdate: {
 			order: 'post',
 			handler({ modules, server, timestamp }) {
-				if (this.environment.name !== ASTRO_VITE_ENVIRONMENT_NAMES.server) return;
+				if (this.environment.name !== ASTRO_VITE_ENVIRONMENT_NAMES.ssr) return;
 
 				let hasSsrOnlyModules = false;
 

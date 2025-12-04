@@ -322,10 +322,10 @@ export async function createContentTypesGenerator({
 				logger,
 				settings,
 			});
-			if (!isRunnableDevEnvironment(viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.server])) {
+			if (!isRunnableDevEnvironment(viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
 				return;
 			}
-			invalidateVirtualMod(viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.server]);
+			invalidateVirtualMod(viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]);
 		}
 	}
 	return { init, queueEvent };

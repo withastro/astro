@@ -75,7 +75,7 @@ export default async function astroPluginRoutes({
 					routeData: serializeRouteData(r, settings.config.trailingSlash),
 				};
 			});
-			let environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.server];
+			let environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 			const virtualMod = environment.moduleGraph.getModuleById(ASTRO_ROUTES_MODULE_ID_RESOLVED);
 			if (!virtualMod) return;
 
@@ -93,7 +93,7 @@ export default async function astroPluginRoutes({
 		applyToEnvironment(environment) {
 			return (
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
-				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
 		},

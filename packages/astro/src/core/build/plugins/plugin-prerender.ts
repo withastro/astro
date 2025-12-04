@@ -8,7 +8,7 @@ export function pluginPrerender(_opts: StaticBuildOptions, internals: BuildInter
 		name: 'astro:rollup-plugin-prerender',
 
 		applyToEnvironment(environment) {
-			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server;
+			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},
 
 		generateBundle() {

@@ -89,7 +89,7 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 
 			async configureServer(server) {
 				environment = server.environments[
-					ASTRO_VITE_ENVIRONMENT_NAMES.server
+					ASTRO_VITE_ENVIRONMENT_NAMES.ssr
 				] as RunnableDevEnvironment;
 			},
 

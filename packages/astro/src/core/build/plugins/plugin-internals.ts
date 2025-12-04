@@ -16,7 +16,7 @@ export function pluginInternals(
 		applyToEnvironment(environment) {
 			return (
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
-				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
 		},

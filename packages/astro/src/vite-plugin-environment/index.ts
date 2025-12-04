@@ -57,7 +57,7 @@ export function vitePluginEnvironment({
 				},
 			};
 			if (
-				environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.server ||
+				environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 				environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
 				environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender ||
 				environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.client
