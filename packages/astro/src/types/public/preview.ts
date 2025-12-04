@@ -18,7 +18,7 @@ export interface PreviewServerParams {
 	logger: AstroIntegrationLogger;
 	headers?: OutgoingHttpHeaders;
 	createCodegenDir: () => URL;
-	root: URL
+	root: URL;
 }
 
 export type CreatePreviewServer = (

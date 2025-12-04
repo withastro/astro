@@ -8,6 +8,6 @@ export {
 	deserializeRouteInfo,
 	serializeRouteData,
 	serializeRouteInfo,
-	deserializeManifest
+	deserializeManifest,
 } from './manifest.js';
 export { AppPipeline } from './pipeline.js';

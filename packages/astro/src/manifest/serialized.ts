@@ -29,7 +29,7 @@ export const SERIALIZED_MANIFEST_RESOLVED_ID = '\0' + SERIALIZED_MANIFEST_ID;
 export function serializedManifestPlugin({
 	settings,
 	command,
-	sync
+	sync,
 }: {
 	settings: AstroSettings;
 	command: 'dev' | 'build';
