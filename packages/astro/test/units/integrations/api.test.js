@@ -238,60 +238,6 @@ describe('Integration API', () => {
 						);
 						await new Promise((r) => setTimeout(r, 100));
 
-					assert.deepEqual(
-						routes,
-						[
-							{
-								isPrerendered: false,
-								entrypoint: '_server-islands.astro',
-								pattern: '/_server-islands/[name]',
-								params: ['name'],
-								origin: 'internal',
-							},
-							{
-								isPrerendered: false,
-								entrypoint: '../../../../dist/actions/runtime/entrypoints/route.js',
-								pattern: '/_actions/[...path]',
-								params: ['...path'],
-								origin: 'internal',
-							},
-							{
-								isPrerendered: true,
-								entrypoint: 'src/pages/about.astro',
-								pattern: '/about',
-								params: [],
-								origin: 'project',
-							},
-							{
-								isPrerendered: true,
-								entrypoint: 'src/pages/bar.astro',
-								pattern: '/bar',
-								params: [],
-								origin: 'project',
-							},
-							{
-								isPrerendered: true,
-								entrypoint: 'src/foo.astro',
-								pattern: '/foo',
-								params: [],
-								origin: 'external',
-							},
-							{
-								isPrerendered: false,
-								entrypoint: '../../../../dist/assets/endpoint/dev.js',
-								pattern: '/_image',
-								params: [],
-								origin: 'internal',
-							},
-							{
-								isPrerendered: false,
-								entrypoint: 'astro-default-404.astro',
-								pattern: '/404',
-								params: [],
-								origin: 'internal',
-							},
-						].sort((a, b) => a.pattern.localeCompare(b.pattern)),
-					);
 						deepEqual(
 							routes,
 							[
