@@ -1,6 +1,5 @@
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { convertPathToPattern } from 'tinyglobby';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
 import { vitePluginActions } from '../actions/vite-plugin-actions.js';
@@ -50,6 +49,7 @@ import { joinPaths } from './path.js';
 import { vitePluginServerIslands } from './server-islands/vite-plugin-server-islands.js';
 import { vitePluginSessionDriver } from './session/vite-plugin.js';
 import { isObject } from './util.js';
+import { vitePluginEnvironment } from '../vite-plugin-environment/index.js';
 
 type CreateViteOptions = {
 	settings: AstroSettings;
@@ -66,30 +66,6 @@ type CreateViteOptions = {
 			command: 'build';
 	  }
 );
-
-const ALWAYS_NOEXTERNAL = [
-	// This is only because Vite's native ESM doesn't resolve "exports" correctly.
-	'astro',
-	// Vite fails on nested `.astro` imports without bundling
-	'astro/components',
-	// Handle recommended nanostores. Only @nanostores/preact is required from our testing!
-	// Full explanation and related bug report: https://github.com/withastro/astro/pull/3667
-	'@nanostores/preact',
-	// fontsource packages are CSS that need to be processed
-	'@fontsource/*',
-];
-
-// These specifiers are usually dependencies written in CJS, but loaded through Vite's transform
-// pipeline, which Vite doesn't support in development time. This hardcoded list temporarily
-// fixes things until Vite can properly handle them, or when they support ESM.
-const ONLY_DEV_EXTERNAL = [
-	// Imported by `@astrojs/prism` which exposes `<Prism/>` that is processed by Vite
-	'prismjs/components/index.js',
-	// Imported by `astro/assets` -> `packages/astro/src/core/logger/core.ts`
-	'string-width',
-	// Imported by `astro:transitions` -> packages/astro/src/runtime/server/transition.ts
-	'cssesc',
-];
 
 /** Return a base vite config as a common starting point for all Vite commands. */
 export async function createVite(
@@ -128,7 +104,6 @@ export async function createVite(
 		},
 	});
 
-	const srcDirPattern = convertPathToPattern(fileURLToPath(settings.config.srcDir));
 	const envLoader = createEnvLoader({
 		mode,
 		config: settings.config,
@@ -143,16 +118,12 @@ export async function createVite(
 		clearScreen: false, // we want to control the output, not Vite
 		customLogger: createViteLogger(logger, settings.config.vite.logLevel),
 		appType: 'custom',
-		optimizeDeps: {
-			// Scan for component code within `srcDir`
-			entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro}`],
-			exclude: ['astro', 'node-fetch'],
-		},
 		plugins: [
 			serializedManifestPlugin({ settings, command, sync }),
 			vitePluginRenderers({ settings }),
 			await astroPluginRoutes({ routesList, settings, logger, fsMod: fs }),
 			astroVirtualManifestPlugin(),
+			vitePluginEnvironment({ settings, astroPkgsConfig, command }),
 			pluginPage({ routesList }),
 			pluginPages({ routesList }),
 			configAliasVitePlugin({ settings }),
@@ -233,12 +204,6 @@ export async function createVite(
 					replacement: 'astro/components',
 				},
 			],
-			// Astro imports in third-party packages should use the same version as root
-			dedupe: ['astro'],
-		},
-		ssr: {
-			noExternal: [...ALWAYS_NOEXTERNAL, ...astroPkgsConfig.ssr.noExternal],
-			external: [...(command === 'dev' ? ONLY_DEV_EXTERNAL : []), ...astroPkgsConfig.ssr.external],
 		},
 		build: { assetsDir: settings.config.build.assets },
 		environments: {
