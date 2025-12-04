@@ -8,7 +8,7 @@ describe('collect images', async () => {
 	let processorWithHastProperties;
 
 	before(async () => {
-		processor = await createMarkdownProcessor({ image: { domains: ['example.com'] }, });
+		processor = await createMarkdownProcessor({ image: { domains: ['example.com'] } });
 		processorWithHastProperties = await createMarkdownProcessor({
 			rehypePlugins: [
 				() => {
