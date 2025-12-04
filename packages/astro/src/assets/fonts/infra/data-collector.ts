@@ -1,24 +1,38 @@
-import type { DataCollector } from '../definitions.js';
-import type { CreateUrlProxyParams } from '../types.js';
+import type { DataCollector, ProxyData } from '../definitions.js';
+import type { CreateUrlProxyParams, FontFileData, PreloadData } from '../types.js';
 
-export function createDataCollector({
-	hasUrl,
-	saveUrl,
-	savePreload,
-	saveFontData,
-}: Pick<
-	CreateUrlProxyParams,
-	'hasUrl' | 'saveUrl' | 'savePreload' | 'saveFontData'
->): DataCollector {
-	return {
-		collect({ hash, url, init, preload, data }) {
-			if (!hasUrl(hash)) {
-				saveUrl({ hash, url, init });
-				if (preload) {
-					savePreload(preload);
-				}
+// TODO: investigate converting to core logic
+export class RealDataCollector implements DataCollector {
+	readonly #hasUrl: CreateUrlProxyParams['hasUrl'];
+	readonly #saveUrl: CreateUrlProxyParams['saveUrl'];
+	readonly #savePreload: CreateUrlProxyParams['savePreload'];
+	readonly #saveFontData: CreateUrlProxyParams['saveFontData'];
+
+	constructor({
+		hasUrl,
+		saveUrl,
+		savePreload,
+		saveFontData,
+	}: Pick<CreateUrlProxyParams, 'hasUrl' | 'saveUrl' | 'savePreload' | 'saveFontData'>) {
+		this.#hasUrl = hasUrl;
+		this.#saveUrl = saveUrl;
+		this.#savePreload = savePreload;
+		this.#saveFontData = saveFontData;
+	}
+
+	collect({
+		hash,
+		url,
+		init,
+		preload,
+		data,
+	}: FontFileData & { data: ProxyData; preload: PreloadData | null }): void {
+		if (!this.#hasUrl(hash)) {
+			this.#saveUrl({ hash, url, init });
+			if (preload) {
+				this.#savePreload(preload);
 			}
-			saveFontData({ hash, url, data, init });
-		},
-	};
+		}
+		this.#saveFontData({ hash, url, data, init });
+	}
 }

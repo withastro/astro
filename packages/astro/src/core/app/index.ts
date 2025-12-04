@@ -32,6 +32,7 @@ import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { createDefaultRoutes } from '../routing/default.js';
 import { matchRoute } from '../routing/match.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session.js';
+import { validateAndDecodePathname } from '../util/pathname.js';
 import { AppPipeline } from './pipeline.js';
 
 export { deserializeManifest } from './common.js';
@@ -319,7 +320,7 @@ export class App {
 		const url = new URL(request.url);
 		const pathname = prependForwardSlash(this.removeBase(url.pathname));
 		try {
-			return decodeURI(pathname);
+			return validateAndDecodePathname(pathname);
 		} catch (e: any) {
 			this.getAdapterLogger().error(e.toString());
 			return pathname;
@@ -342,7 +343,13 @@ export class App {
 		if (!pathname) {
 			pathname = prependForwardSlash(this.removeBase(url.pathname));
 		}
-		let routeData = matchRoute(decodeURI(pathname), this.#manifestData);
+		try {
+			pathname = validateAndDecodePathname(pathname);
+		} catch {
+			// Invalid encoding detected - return no match
+			return undefined;
+		}
+		let routeData = matchRoute(pathname, this.#manifestData);
 
 		if (!routeData) return undefined;
 		if (allowPrerenderedRoutes) {
