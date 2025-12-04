@@ -171,8 +171,7 @@
     "xxhash-wasm": "^1.1.0",
     "yargs-parser": "^21.1.1",
     "yocto-spinner": "^0.2.3",
-    "zod": "^4.0.0",
-    "zod-to-json-schema": "^3.24.6"
+    "zod": "^4.0.0"
   },
   "optionalDependencies": {
     "sharp": "^0.34.0"
