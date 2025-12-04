@@ -10,7 +10,6 @@ import {
 	type ViteDevServer,
 } from 'vite';
 import { type ZodSchema, z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
