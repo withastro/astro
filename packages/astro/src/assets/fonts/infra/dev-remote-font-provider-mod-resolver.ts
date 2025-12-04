@@ -1,18 +1,18 @@
-import type { ViteDevServer } from 'vite';
+import type { RunnableDevEnvironment } from 'vite';
 import type { RemoteFontProviderModResolver } from '../definitions.js';
 
 export class DevServerRemoteFontProviderModResolver implements RemoteFontProviderModResolver {
-	readonly #server: ViteDevServer;
+	readonly #environment: RunnableDevEnvironment;
 
 	constructor({
-		server,
+		environment,
 	}: {
-		server: ViteDevServer;
+		environment: RunnableDevEnvironment;
 	}) {
-		this.#server = server;
+		this.#environment = environment;
 	}
 
 	async resolve(id: string): Promise<any> {
-		return await this.#server.ssrLoadModule(id);
+		return await this.#environment.runner.import(id);
 	}
 }

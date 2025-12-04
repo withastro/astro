@@ -257,7 +257,6 @@ async function syncContentCollections(
 				fs,
 				sync: true,
 				routesList,
-				manifest,
 			},
 		),
 	);
