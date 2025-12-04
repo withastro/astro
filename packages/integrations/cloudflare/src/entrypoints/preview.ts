@@ -21,7 +21,7 @@ const createPreviewServer: CreatePreviewServer = async ({
 	port,
 	host,
 	createCodegenDir,
-	root
+	root,
 }) => {
 	const startServerTime = performance.now();
 	let previewServer: VitePreviewServer;

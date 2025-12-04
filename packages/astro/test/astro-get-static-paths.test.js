@@ -6,18 +6,18 @@ import { loadFixture } from './test-utils.js';
 
 const root = new URL('./fixtures/astro-get-static-paths/', import.meta.url);
 
-const paramsTypePlugin  = (type = 'string') => ({
+const paramsTypePlugin = (type = 'string') => ({
 	name: 'vite-plugin-param-type',
 	resolveId(name) {
-		if(name ==='virtual:my:param:type') {
+		if (name === 'virtual:my:param:type') {
 			return '\0virtual:my:param:type';
 		}
 	},
 	load(id) {
-		if(id === '\0virtual:my:param:type') {
+		if (id === '\0virtual:my:param:type') {
 			return `export const paramType = ${JSON.stringify(type)}`;
 		}
-	}
+	},
 });
 
 function resetFlags() {
@@ -39,8 +39,8 @@ describe('getStaticPaths - build calls', () => {
 			trailingSlash: 'never',
 			base: '/blog',
 			vite: {
-				plugins: [paramsTypePlugin()]
-			}
+				plugins: [paramsTypePlugin()],
+			},
 		});
 		await fixture.build({});
 	});
@@ -73,8 +73,8 @@ describe('getStaticPaths - dev calls', () => {
 			root,
 			site: 'https://mysite.dev/',
 			vite: {
-				plugins: [paramsTypePlugin()]
-			}
+				plugins: [paramsTypePlugin()],
+			},
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -201,8 +201,8 @@ describe('throws if an invalid Astro property is accessed', () => {
 			root,
 			site: 'https://mysite.dev/',
 			vite: {
-				plugins: [paramsTypePlugin()]
-			}
+				plugins: [paramsTypePlugin()],
+			},
 		});
 		await fixture.editFile(
 			'/src/pages/food/[name].astro',
@@ -238,8 +238,8 @@ describe('throws if an invalid params type is returned', () => {
 				root,
 				site: 'https://mysite.dev/',
 				vite: {
-					plugins: [paramsTypePlugin(type)]
-				}
+					plugins: [paramsTypePlugin(type)],
+				},
 			});
 			await fixture.build({});
 		} catch (err) {

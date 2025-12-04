@@ -1,9 +1,7 @@
 import type { ComponentInstance } from '../../types/astro.js';
 import type { RewritePayload } from '../../types/public/common.js';
 import type { RouteData, SSRElement, SSRResult } from '../../types/public/internal.js';
-import {
-	VIRTUAL_PAGE_RESOLVED_MODULE_ID,
-} from '../../vite-plugin-pages/const.js';
+import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/const.js';
 import { getVirtualModulePageName } from '../../vite-plugin-pages/util.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { createConsoleLogger } from '../app/index.js';
@@ -153,7 +151,7 @@ export class BuildPipeline extends Pipeline {
 		const pages = new Set<RouteData>();
 
 		// Keep a list of the default routes names for faster lookup
-		const defaultRouteComponents = new Set(this.defaultRoutes.map(route => route.component));
+		const defaultRouteComponents = new Set(this.defaultRoutes.map((route) => route.component));
 
 		for (const { routeData } of this.manifest.routes) {
 			if (routeIsRedirect(routeData)) {
@@ -168,7 +166,7 @@ export class BuildPipeline extends Pipeline {
 			}
 
 			// Default routes like the server islands route, should not be generated
-			if(defaultRouteComponents.has(routeData.component)) {
+			if (defaultRouteComponents.has(routeData.component)) {
 				continue;
 			}
 

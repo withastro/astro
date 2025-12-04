@@ -10,7 +10,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/node": "^10.0.0-alpha.0",
-    "astro": "^6.0.0-alpha.0"
+    "@astrojs/node": "^10.0.0-alpha.1",
+    "astro": "^6.0.0-alpha.1"
   }
 }

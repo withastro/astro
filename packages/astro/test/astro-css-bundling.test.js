@@ -92,11 +92,11 @@ describe('CSS Bundling', function () {
 								rollupOptions: {
 									output: {
 										assetFileNames: 'assets/[name][extname]',
-									}
-								}
-							}
-						}
-					}
+									},
+								},
+							},
+						},
+					},
 				},
 			});
 			await fixture.build({ mode: 'production' });
