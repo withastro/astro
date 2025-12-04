@@ -23,10 +23,6 @@ declare module 'virtual:astro:actions/runtime' {
 	export * from './src/actions/runtime/client.js';
 }
 
-declare module 'virtual:astro:config/experimentalZod4' {
-	export const experimentalZod4: boolean;
-}
-
 declare module 'virtual:astro:actions/entrypoint' {
 	import type { SSRActions } from './src/index.js';
 	export const server: SSRActions;
