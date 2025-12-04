@@ -1171,6 +1171,18 @@ export const MissingMiddlewareForInternationalization = {
 /**
  * @docs
  * @description
+ * An invalid i18n middleware configuration  was detected.
+ */
+export const InvalidI18nMiddlewareConfiguration = {
+	name: 'InvalidI18nMiddlewareConfiguration',
+	title: 'Invalid internationalization middleware configuration',
+	message:
+		'The option `redirectToDefaultLocale` can be enabled only when `prefixDefaultLocale` is also set to `true`, otherwise redirects might cause infinite loops. Enable the option `prefixDefaultLocale` to continue to use `redirectToDefaultLocale`, or ensure both are set to `false`.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
  * Astro could not find an associated file with content while trying to render the route. This is an Astro error and not a user error. If restarting the dev server does not fix the problem, please file an issue.
  */
 export const CantRenderPage = {
