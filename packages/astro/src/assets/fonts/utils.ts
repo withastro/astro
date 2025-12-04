@@ -1,9 +1,8 @@
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import type * as unifont from 'unifont';
-import type { Storage } from 'unstorage';
 import { FONT_TYPES, GENERIC_FALLBACK_NAMES, LOCAL_PROVIDER_NAME } from './constants.js';
-import type { CssProperties } from './definitions.js';
+import type { CssProperties, Storage } from './definitions.js';
 import type { FontType, GenericFallbackName, ResolvedFontFamily } from './types.js';
 
 /**

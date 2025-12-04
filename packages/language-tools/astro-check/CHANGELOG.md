@@ -7,6 +7,15 @@
 - Updated dependencies [[`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485)]:
   - @astrojs/language-server@2.16.1-alpha.0
 
+## 0.9.6
+
+### Patch Changes
+
+- [#14740](https://github.com/withastro/astro/pull/14740) [`abfed97`](https://github.com/withastro/astro/commit/abfed97d45ab04c625d6463f9be1e5b1d23c3573) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes link targets in documentation following repository relocation.
+
+- Updated dependencies [[`abfed97`](https://github.com/withastro/astro/commit/abfed97d45ab04c625d6463f9be1e5b1d23c3573)]:
+  - @astrojs/language-server@2.16.1
+
 ## 0.9.5
 
 ### Patch Changes

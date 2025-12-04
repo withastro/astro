@@ -28,7 +28,7 @@ export function safeConvertToTSX(content: string, options: ConvertToTSXOptions) 
 		return tsx;
 	} catch (e) {
 		console.error(
-			`There was an error transforming ${options.filename} to TSX. An empty file will be returned instead. Please create an issue: https://github.com/withastro/language-tools/issues\nError: ${e}.`,
+			`There was an error transforming ${options.filename} to TSX. An empty file will be returned instead. Please create an issue: https://github.com/withastro/astro/issues\nError: ${e}.`,
 		);
 
 		return {
@@ -46,7 +46,7 @@ export function safeConvertToTSX(content: string, options: ConvertToTSXOptions) 
 					code: 1000,
 					location: { file: options.filename!, line: 1, column: 1, length: content.length },
 					severity: 1,
-					text: `The Astro compiler encountered an unknown error while transform this file to TSX. Please create an issue with your code and the error shown in the server's logs: https://github.com/withastro/language-tools/issues`,
+					text: `The Astro compiler encountered an unknown error while transform this file to TSX. Please create an issue with your code and the error shown in the server's logs: https://github.com/withastro/astro/issues`,
 				},
 			],
 			metaRanges: {

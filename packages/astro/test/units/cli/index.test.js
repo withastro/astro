@@ -1,21 +1,21 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createBuildTimeAstroVersionProvider } from '../../../dist/cli/infra/build-time-astro-version-provider.js';
-import { createCliCommandRunner } from '../../../dist/cli/infra/cli-command-runner.js';
-import { createLoggerHelpDisplay } from '../../../dist/cli/infra/logger-help-display.js';
-import { createPassthroughTextStyler } from '../../../dist/cli/infra/passthrough-text-styler.js';
-import { createProcessOperatingSystemProvider } from '../../../dist/cli/infra/process-operating-system-provider.js';
+import { BuildTimeAstroVersionProvider } from '../../../dist/cli/infra/build-time-astro-version-provider.js';
+import { CliCommandRunner } from '../../../dist/cli/infra/cli-command-runner.js';
+import { LoggerHelpDisplay } from '../../../dist/cli/infra/logger-help-display.js';
+import { PassthroughTextStyler } from '../../../dist/cli/infra/passthrough-text-styler.js';
+import { ProcessOperatingSystemProvider } from '../../../dist/cli/infra/process-operating-system-provider.js';
 import packageJson from '../../../package.json' with { type: 'json' };
-import { createSpyLogger } from '../test-utils.js';
-import { createFakeAstroVersionProvider, createSpyHelpDisplay } from './utils.js';
+import { SpyLogger } from '../test-utils.js';
+import { FakeAstroVersionProvider, SpyHelpDisplay } from './utils.js';
 
 describe('CLI shared', () => {
 	describe('infra', () => {
-		describe('createCliCommandRunner()', () => {
+		describe('CliCommandRunner', () => {
 			it('logs the help if it should fire', () => {
-				const { payloads, helpDisplay } = createSpyHelpDisplay(true);
-				const runner = createCliCommandRunner({ helpDisplay });
+				const helpDisplay = new SpyHelpDisplay(true);
+				const runner = new CliCommandRunner({ helpDisplay });
 				let ran = false;
 
 				runner.run({
@@ -27,13 +27,13 @@ describe('CLI shared', () => {
 					},
 				});
 
-				assert.equal(payloads.length, 1);
+				assert.equal(helpDisplay.payloads.length, 1);
 				assert.equal(ran, false);
 			});
 
 			it('does not log the help if it should not should fire', () => {
-				const { payloads, helpDisplay } = createSpyHelpDisplay(false);
-				const runner = createCliCommandRunner({ helpDisplay });
+				const helpDisplay = new SpyHelpDisplay(false);
+				const runner = new CliCommandRunner({ helpDisplay });
 				let ran = false;
 
 				runner.run({
@@ -45,26 +45,26 @@ describe('CLI shared', () => {
 					},
 				});
 
-				assert.equal(payloads.length, 0);
+				assert.equal(helpDisplay.payloads.length, 0);
 				assert.equal(ran, true);
 			});
 		});
 
-		describe('createBuildTimeAstroVersionProvider()', () => {
+		describe('BuildTimeAstroVersionProvider', () => {
 			it('returns the value from the build', () => {
-				const astroVersionProvider = createBuildTimeAstroVersionProvider();
+				const astroVersionProvider = new BuildTimeAstroVersionProvider();
 
 				assert.equal(astroVersionProvider.version, packageJson.version);
 			});
 		});
 
-		describe('createLoggerHelpDisplay()', () => {
+		describe('LoggerHelpDisplay', () => {
 			describe('shouldFire()', () => {
 				it('returns false if no relevant flag is enabled', () => {
-					const { logger, logs } = createSpyLogger();
-					const textStyler = createPassthroughTextStyler();
-					const astroVersionProvider = createFakeAstroVersionProvider('1.0.0');
-					const helpDisplay = createLoggerHelpDisplay({
+					const logger = new SpyLogger();
+					const textStyler = new PassthroughTextStyler();
+					const astroVersionProvider = new FakeAstroVersionProvider('1.0.0');
+					const helpDisplay = new LoggerHelpDisplay({
 						logger,
 						astroVersionProvider,
 						flags: {
@@ -74,14 +74,14 @@ describe('CLI shared', () => {
 					});
 
 					assert.equal(helpDisplay.shouldFire(), false);
-					assert.deepStrictEqual(logs, []);
+					assert.deepStrictEqual(logger.logs, []);
 				});
 
 				it('returns true if help flag is enabled', () => {
-					const { logger, logs } = createSpyLogger();
-					const textStyler = createPassthroughTextStyler();
-					const astroVersionProvider = createFakeAstroVersionProvider('1.0.0');
-					const helpDisplay = createLoggerHelpDisplay({
+					const logger = new SpyLogger();
+					const textStyler = new PassthroughTextStyler();
+					const astroVersionProvider = new FakeAstroVersionProvider('1.0.0');
+					const helpDisplay = new LoggerHelpDisplay({
 						logger,
 						astroVersionProvider,
 						flags: {
@@ -92,14 +92,14 @@ describe('CLI shared', () => {
 					});
 
 					assert.equal(helpDisplay.shouldFire(), true);
-					assert.deepStrictEqual(logs, []);
+					assert.deepStrictEqual(logger.logs, []);
 				});
 
 				it('returns true if h flag is enabled', () => {
-					const { logger, logs } = createSpyLogger();
-					const textStyler = createPassthroughTextStyler();
-					const astroVersionProvider = createFakeAstroVersionProvider('1.0.0');
-					const helpDisplay = createLoggerHelpDisplay({
+					const logger = new SpyLogger();
+					const textStyler = new PassthroughTextStyler();
+					const astroVersionProvider = new FakeAstroVersionProvider('1.0.0');
+					const helpDisplay = new LoggerHelpDisplay({
 						logger,
 						astroVersionProvider,
 						flags: {
@@ -110,16 +110,16 @@ describe('CLI shared', () => {
 					});
 
 					assert.equal(helpDisplay.shouldFire(), true);
-					assert.deepStrictEqual(logs, []);
+					assert.deepStrictEqual(logger.logs, []);
 				});
 			});
 
 			describe('show()', () => {
 				it('works', () => {
-					const { logger, logs } = createSpyLogger();
-					const textStyler = createPassthroughTextStyler();
-					const astroVersionProvider = createFakeAstroVersionProvider('1.0.0');
-					const helpDisplay = createLoggerHelpDisplay({
+					const logger = new SpyLogger();
+					const textStyler = new PassthroughTextStyler();
+					const astroVersionProvider = new FakeAstroVersionProvider('1.0.0');
+					const helpDisplay = new LoggerHelpDisplay({
 						logger,
 						astroVersionProvider,
 						flags: {
@@ -140,7 +140,7 @@ describe('CLI shared', () => {
 						description: 'Starts a local server to serve your static dist/ directory.',
 					});
 
-					assert.deepStrictEqual(logs, [
+					assert.deepStrictEqual(logger.logs, [
 						{
 							type: 'info',
 							label: 'SKIP_FORMAT',
@@ -159,9 +159,9 @@ Starts a local server to serve your static dist/ directory.
 			});
 		});
 
-		describe('createProcessOperatingSystemProvider()', () => {
+		describe('ProcessOperatingSystemProvider', () => {
 			it('returns the value from process.platform', () => {
-				const operatingSystemProvider = createProcessOperatingSystemProvider();
+				const operatingSystemProvider = new ProcessOperatingSystemProvider();
 
 				const platform = operatingSystemProvider.name;
 

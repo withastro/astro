@@ -53,10 +53,10 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
 async function runCommand(cmd: string, flags: yargs.Arguments) {
 	const [
 		{ createLoggerFromFlags },
-		{ createPiccoloreTextStyler },
-		{ createBuildTimeAstroVersionProvider },
-		{ createLoggerHelpDisplay },
-		{ createCliCommandRunner },
+		{ piccoloreTextStyler: textStyler },
+		{ BuildTimeAstroVersionProvider },
+		{ LoggerHelpDisplay },
+		{ CliCommandRunner },
 	] = await Promise.all([
 		import('./flags.js'),
 		import('./infra/piccolore-text-styler.js'),
@@ -65,15 +65,14 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		import('./infra/cli-command-runner.js'),
 	]);
 	const logger = createLoggerFromFlags(flags);
-	const textStyler = createPiccoloreTextStyler();
-	const astroVersionProvider = createBuildTimeAstroVersionProvider();
-	const helpDisplay = createLoggerHelpDisplay({
+	const astroVersionProvider = new BuildTimeAstroVersionProvider();
+	const helpDisplay = new LoggerHelpDisplay({
 		logger,
 		flags,
 		textStyler,
 		astroVersionProvider,
 	});
-	const runner = createCliCommandRunner({ helpDisplay });
+	const runner = new CliCommandRunner({ helpDisplay });
 
 	// These commands can run directly without parsing the user config.
 	switch (cmd) {
@@ -94,17 +93,17 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 		case 'info': {
 			const [
-				{ createProcessOperatingSystemProvider },
-				{ createCliAstroConfigResolver },
-				{ createProcessPackageManagerUserAgentProvider },
-				{ createProcessNodeVersionProvider },
-				{ createCliDebugInfoProvider },
-				{ createTinyexecCommandExecutor },
+				{ ProcessOperatingSystemProvider },
+				{ CliAstroConfigResolver },
+				{ ProcessPackageManagerUserAgentProvider },
+				{ ProcessNodeVersionProvider },
+				{ CliDebugInfoProvider },
+				{ TinyexecCommandExecutor },
 				{ getPackageManager },
-				{ createStyledDebugInfoFormatter },
-				{ createPromptsPrompt },
-				{ createCliClipboard },
-				{ createPassthroughTextStyler },
+				{ StyledDebugInfoFormatter },
+				{ PromptsPrompt },
+				{ CliClipboard },
+				{ PassthroughTextStyler },
 				{ infoCommand },
 			] = await Promise.all([
 				import('./infra/process-operating-system-provider.js'),
@@ -120,12 +119,12 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				import('./infra/passthrough-text-styler.js'),
 				import('./info/core/info.js'),
 			]);
-			const operatingSystemProvider = createProcessOperatingSystemProvider();
-			const astroConfigResolver = createCliAstroConfigResolver({ flags });
-			const commandExecutor = createTinyexecCommandExecutor();
-			const packageManagerUserAgentProvider = createProcessPackageManagerUserAgentProvider();
-			const nodeVersionProvider = createProcessNodeVersionProvider();
-			const debugInfoProvider = createCliDebugInfoProvider({
+			const operatingSystemProvider = new ProcessOperatingSystemProvider();
+			const astroConfigResolver = new CliAstroConfigResolver({ flags });
+			const commandExecutor = new TinyexecCommandExecutor();
+			const packageManagerUserAgentProvider = new ProcessPackageManagerUserAgentProvider();
+			const nodeVersionProvider = new ProcessNodeVersionProvider();
+			const debugInfoProvider = new CliDebugInfoProvider({
 				config: await astroConfigResolver.resolve(),
 				astroVersionProvider,
 				operatingSystemProvider,
@@ -135,8 +134,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				}),
 				nodeVersionProvider,
 			});
-			const prompt = createPromptsPrompt({ force: flags.copy });
-			const clipboard = createCliClipboard({
+			const prompt = new PromptsPrompt({ force: flags.copy });
+			const clipboard = new CliClipboard({
 				commandExecutor,
 				logger,
 				operatingSystemProvider,
@@ -147,26 +146,26 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				logger,
 				debugInfoProvider,
 				getDebugInfoFormatter: ({ pretty }) =>
-					createStyledDebugInfoFormatter({
-						textStyler: pretty ? textStyler : createPassthroughTextStyler(),
+					new StyledDebugInfoFormatter({
+						textStyler: pretty ? textStyler : new PassthroughTextStyler(),
 					}),
 				clipboard,
 			});
 		}
 		case 'create-key': {
-			const [{ createCryptoKeyGenerator }, { createKeyCommand }] = await Promise.all([
+			const [{ CryptoKeyGenerator }, { createKeyCommand }] = await Promise.all([
 				import('./create-key/infra/crypto-key-generator.js'),
 				import('./create-key/core/create-key.js'),
 			]);
 
-			const keyGenerator = createCryptoKeyGenerator();
+			const keyGenerator = new CryptoKeyGenerator();
 			return await runner.run(createKeyCommand, { logger, keyGenerator });
 		}
 		case 'docs': {
 			const [
-				{ createTinyexecCommandExecutor },
-				{ createProcessOperatingSystemProvider },
-				{ createProcessCloudIdeProvider },
+				{ TinyexecCommandExecutor },
+				{ ProcessOperatingSystemProvider },
+				{ ProcessCloudIdeProvider },
 				{ openDocsCommand },
 			] = await Promise.all([
 				import('./infra/tinyexec-command-executor.js'),
@@ -174,9 +173,9 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				import('./docs/infra/process-cloud-ide-provider.js'),
 				import('./docs/core/open-docs.js'),
 			]);
-			const commandExecutor = createTinyexecCommandExecutor();
-			const operatingSystemProvider = createProcessOperatingSystemProvider();
-			const cloudIdeProvider = createProcessCloudIdeProvider();
+			const commandExecutor = new TinyexecCommandExecutor();
+			const operatingSystemProvider = new ProcessOperatingSystemProvider();
+			const cloudIdeProvider = new ProcessCloudIdeProvider();
 
 			return await runner.run(openDocsCommand, {
 				url: 'https://docs.astro.build/',

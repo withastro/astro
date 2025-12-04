@@ -9,6 +9,10 @@ import {
 	NODE_PATH,
 } from '../index.js';
 
+const NODE_BUILTINS_FILTER = new RegExp(
+	builtinModules.map((mod) => `(^${mod}$|^node:${mod}$)`).join('|'),
+);
+
 /**
  * It generates the Vercel Edge Middleware file.
  *
@@ -64,10 +68,9 @@ export async function generateEdgeMiddleware(
 			{
 				name: 'esbuild-namespace-node-built-in-modules',
 				setup(build) {
-					const filter = new RegExp(builtinModules.map((mod) => `(^${mod}$)`).join('|'));
 					build.onResolve(
 						{
-							filter,
+							filter: NODE_BUILTINS_FILTER,
 						},
 						(args) => ({
 							path: 'node:' + args.path,

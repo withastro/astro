@@ -1,12 +1,22 @@
 import type { TextStyler } from '../definitions.js';
 
-export function createPassthroughTextStyler(): TextStyler {
-	return {
-		bgWhite: (msg) => msg,
-		black: (msg) => msg,
-		dim: (msg) => msg,
-		green: (msg) => msg,
-		bold: (msg) => msg,
-		bgGreen: (msg) => msg,
-	};
+export class PassthroughTextStyler implements TextStyler {
+	bgWhite(msg: string): string {
+		return msg;
+	}
+	black(msg: string): string {
+		return msg;
+	}
+	dim(msg: string): string {
+		return msg;
+	}
+	green(msg: string): string {
+		return msg;
+	}
+	bold(msg: string): string {
+		return msg;
+	}
+	bgGreen(msg: string): string {
+		return msg;
+	}
 }

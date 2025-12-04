@@ -1,23 +1,29 @@
 import prompts from 'prompts';
 import type { Prompt } from '../definitions.js';
 
-interface Options {
-	force: boolean;
-}
+export class PromptsPrompt implements Prompt {
+	readonly #force: boolean;
 
-export function createPromptsPrompt({ force }: Options): Prompt {
-	return {
-		async confirm({ message, defaultValue }) {
-			if (force) {
-				return true;
-			}
-			const { value } = await prompts({
-				type: 'confirm',
-				name: 'value',
-				message,
-				initial: defaultValue,
-			});
-			return value;
-		},
-	};
+	constructor({ force }: { force: boolean }) {
+		this.#force = force;
+	}
+
+	async confirm({
+		message,
+		defaultValue,
+	}: {
+		message: string;
+		defaultValue?: boolean;
+	}): Promise<boolean> {
+		if (this.#force) {
+			return true;
+		}
+		const { value } = await prompts({
+			type: 'confirm',
+			name: 'value',
+			message,
+			initial: defaultValue,
+		});
+		return value;
+	}
 }

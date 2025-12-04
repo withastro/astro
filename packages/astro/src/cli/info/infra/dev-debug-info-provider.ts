@@ -3,40 +3,50 @@ import type { AstroVersionProvider, OperatingSystemProvider } from '../../defini
 import type { DebugInfoProvider, NodeVersionProvider, PackageManager } from '../definitions.js';
 import type { DebugInfo } from '../domain/debug-info.js';
 
-interface Options {
-	config: Pick<AstroConfig, 'output' | 'adapter' | 'integrations'>;
-	astroVersionProvider: AstroVersionProvider;
-	packageManager: PackageManager;
-	operatingSystemProvider: OperatingSystemProvider;
-	nodeVersionProvider: NodeVersionProvider;
-}
-
 /**
  * Returns debug info without any package versions, to avoid slowing down the dev server
  */
-export function createDevDebugInfoProvider({
-	config,
-	astroVersionProvider,
-	packageManager,
-	operatingSystemProvider,
-	nodeVersionProvider,
-}: Options): DebugInfoProvider {
-	return {
-		async get() {
-			const debugInfo: DebugInfo = [
-				['Astro', `v${astroVersionProvider.version}`],
-				['Node', nodeVersionProvider.get()],
-				['System', operatingSystemProvider.displayName],
-				['Package Manager', packageManager.getName()],
-				['Output', config.output],
-				['Adapter', config.adapter?.name ?? 'none'],
-			];
+export class DevDebugInfoProvider implements DebugInfoProvider {
+	readonly #config: Pick<AstroConfig, 'output' | 'adapter' | 'integrations'>;
+	readonly #astroVersionProvider: AstroVersionProvider;
+	readonly #packageManager: PackageManager;
+	readonly #operatingSystemProvider: OperatingSystemProvider;
+	readonly #nodeVersionProvider: NodeVersionProvider;
 
-			const integrations = config.integrations.map((integration) => integration.name);
+	constructor({
+		config,
+		astroVersionProvider,
+		packageManager,
+		operatingSystemProvider,
+		nodeVersionProvider,
+	}: {
+		config: Pick<AstroConfig, 'output' | 'adapter' | 'integrations'>;
+		astroVersionProvider: AstroVersionProvider;
+		packageManager: PackageManager;
+		operatingSystemProvider: OperatingSystemProvider;
+		nodeVersionProvider: NodeVersionProvider;
+	}) {
+		this.#config = config;
+		this.#astroVersionProvider = astroVersionProvider;
+		this.#packageManager = packageManager;
+		this.#operatingSystemProvider = operatingSystemProvider;
+		this.#nodeVersionProvider = nodeVersionProvider;
+	}
 
-			debugInfo.push(['Integrations', integrations.length > 0 ? integrations : 'none']);
+	async get(): Promise<DebugInfo> {
+		const debugInfo: DebugInfo = [
+			['Astro', `v${this.#astroVersionProvider.version}`],
+			['Node', this.#nodeVersionProvider.version],
+			['System', this.#operatingSystemProvider.displayName],
+			['Package Manager', this.#packageManager.name],
+			['Output', this.#config.output],
+			['Adapter', this.#config.adapter?.name ?? 'none'],
+		];
 
-			return debugInfo;
-		},
-	};
+		const integrations = this.#config.integrations.map((integration) => integration.name);
+
+		debugInfo.push(['Integrations', integrations.length > 0 ? integrations : 'none']);
+
+		return debugInfo;
+	}
 }
