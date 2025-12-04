@@ -50,6 +50,7 @@ import { vitePluginServerIslands } from './server-islands/vite-plugin-server-isl
 import { vitePluginSessionDriver } from './session/vite-plugin.js';
 import { isObject } from './util.js';
 import { vitePluginEnvironment } from '../vite-plugin-environment/index.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from './constants.js';
 
 type CreateViteOptions = {
 	settings: AstroSettings;
@@ -208,7 +209,7 @@ export async function createVite(
 		},
 		build: { assetsDir: settings.config.build.assets },
 		environments: {
-			astro: {
+			[ASTRO_VITE_ENVIRONMENT_NAMES.astro]: {
 				// This is all that's needed to create a new RunnableDevEnvironment
 				dev: {},
 			},

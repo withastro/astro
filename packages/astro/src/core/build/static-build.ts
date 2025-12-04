@@ -27,6 +27,7 @@ import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
 import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
 import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -207,7 +208,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		base: settings.config.base,
 		environments: {
 			...(viteConfig.environments ?? {}),
-			prerender: {
+			[ASTRO_VITE_ENVIRONMENT_NAMES.prerender]: {
 				build: {
 					emitAssets: true,
 					outDir: fileURLToPath(new URL('./.prerender/', getServerOutputDirectory(settings))),
@@ -222,7 +223,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					ssr: true,
 				},
 			},
-			client: {
+			[ASTRO_VITE_ENVIRONMENT_NAMES.client]: {
 				build: {
 					emitAssets: true,
 					target: 'esnext',
@@ -241,14 +242,14 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					},
 				},
 			},
-			ssr: {
+			[ASTRO_VITE_ENVIRONMENT_NAMES.server]: {
 				build: {
 					outDir: fileURLToPath(getServerOutputDirectory(settings)),
 					rollupOptions: {
 						output: {
-							...viteConfig.environments?.ssr?.build?.rollupOptions?.output
-						}
-					}
+							...viteConfig.environments?.ssr?.build?.rollupOptions?.output,
+						},
+					},
 				},
 			},
 		},
@@ -279,7 +280,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	// are only detected during SSR. We mutate the config here since the builder was already created
 	// and this is the only way to update the input after instantiation.
 	internals.clientInput = getClientInput(internals, settings);
-	if(!internals.clientInput.size) {
+	if (!internals.clientInput.size) {
 		// At least 1 input is required to do a build, otherwise Vite throws.
 		// We need the client build to happen in order to copy over the `public/` folder
 		// So using the noop plugin here which will give us an input that just gets thrown away.

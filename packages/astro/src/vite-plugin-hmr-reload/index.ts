@@ -1,4 +1,5 @@
 import type { EnvironmentModuleNode, Plugin } from 'vite';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 /**
  * The very last Vite plugin to reload the browser if any SSR-only module are updated
@@ -12,7 +13,7 @@ export default function hmrReload(): Plugin {
 		hotUpdate: {
 			order: 'post',
 			handler({ modules, server, timestamp }) {
-				if (this.environment.name !== 'ssr') return;
+				if (this.environment.name !== ASTRO_VITE_ENVIRONMENT_NAMES.server) return;
 
 				let hasSsrOnlyModules = false;
 
