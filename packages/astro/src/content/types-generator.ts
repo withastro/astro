@@ -2,7 +2,13 @@ import type fsMod from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import colors from 'piccolore';
-import { normalizePath, type ViteDevServer } from 'vite';
+import {
+	type DevEnvironment,
+	isRunnableDevEnvironment,
+	normalizePath,
+	type RunnableDevEnvironment,
+	type ViteDevServer,
+} from 'vite';
 import { type ZodSchema, z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { AstroError } from '../core/errors/errors.js';
@@ -11,6 +17,7 @@ import type { Logger } from '../core/logger/core.js';
 import { isRelativePath } from '../core/path.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { ContentEntryType } from '../types/public/content.js';
+import type { InjectedType } from '../types/public/integrations.js';
 import {
 	COLLECTIONS_DIR,
 	CONTENT_LAYER_TYPE,
@@ -33,6 +40,7 @@ import {
 	getEntryType,
 	reloadContentConfigObserver,
 } from './utils.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
@@ -126,7 +134,13 @@ export async function createContentTypesGenerator({
 			return { shouldGenerateTypes: false };
 		}
 		if (fileType === 'config') {
-			await reloadContentConfigObserver({ fs, settings, viteServer });
+			await reloadContentConfigObserver({
+				fs,
+				settings,
+				environment: viteServer.environments[
+					ASTRO_VITE_ENVIRONMENT_NAMES.astro
+				] as RunnableDevEnvironment,
+			});
 			return { shouldGenerateTypes: true };
 		}
 
@@ -158,7 +172,7 @@ export async function createContentTypesGenerator({
 					}
 					const collectionInfo = collectionEntryMap[collectionKey];
 					if (collectionInfo.type === 'content') {
-						viteServer.hot.send({
+						viteServer.environments.client.hot.send({
 							type: 'error',
 							err: new AstroError({
 								...AstroErrorData.MixedContentDataCollectionError,
@@ -202,7 +216,7 @@ export async function createContentTypesGenerator({
 		}
 		const collectionInfo = collectionEntryMap[collectionKey];
 		if (collectionInfo.type === 'data') {
-			viteServer.hot.send({
+			viteServer.environments.client.hot.send({
 				type: 'error',
 				err: new AstroError({
 					...AstroErrorData.MixedContentDataCollectionError,
@@ -309,7 +323,10 @@ export async function createContentTypesGenerator({
 				logger,
 				settings,
 			});
-			invalidateVirtualMod(viteServer);
+			if (!isRunnableDevEnvironment(viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
+				return;
+			}
+			invalidateVirtualMod(viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]);
 		}
 	}
 	return { init, queueEvent };
@@ -317,11 +334,11 @@ export async function createContentTypesGenerator({
 
 // The virtual module contains a lookup map from slugs to content imports.
 // Invalidate whenever content types change.
-function invalidateVirtualMod(viteServer: ViteDevServer) {
-	const virtualMod = viteServer.moduleGraph.getModuleById('\0' + VIRTUAL_MODULE_ID);
+function invalidateVirtualMod(environment: DevEnvironment) {
+	const virtualMod = environment.moduleGraph.getModuleById('\0' + VIRTUAL_MODULE_ID);
 	if (!virtualMod) return;
 
-	viteServer.moduleGraph.invalidateModule(virtualMod);
+	environment.moduleGraph.invalidateModule(virtualMod);
 }
 
 /**
@@ -342,13 +359,13 @@ function normalizeConfigPath(from: string, to: string) {
 	return `"${isRelativePath(configPath) ? '' : './'}${normalizedPath}"` as const;
 }
 
-const schemaCache = new Map<string, ZodSchema>();
+const createSchemaResultCache = new Map<string, { schema: ZodSchema; types: string }>();
 
-async function getContentLayerSchema<T extends keyof ContentConfig['collections']>(
+async function getCreateSchemaResult<T extends keyof ContentConfig['collections']>(
 	collection: ContentConfig['collections'][T],
 	collectionKey: T,
-): Promise<ZodSchema | undefined> {
-	const cached = schemaCache.get(collectionKey);
+) {
+	const cached = createSchemaResultCache.get(collectionKey);
 	if (cached) {
 		return cached;
 	}
@@ -356,44 +373,54 @@ async function getContentLayerSchema<T extends keyof ContentConfig['collections'
 	if (
 		collection?.type === CONTENT_LAYER_TYPE &&
 		typeof collection.loader === 'object' &&
-		collection.loader.schema
+		!collection.loader.schema &&
+		collection.loader.createSchema
 	) {
-		let schema = collection.loader.schema;
-		if (typeof schema === 'function') {
-			schema = await schema();
-		}
-		if (schema) {
-			schemaCache.set(collectionKey, await schema);
-			return schema;
-		}
+		const result = await collection.loader.createSchema();
+		createSchemaResultCache.set(collectionKey, result);
+		return result;
 	}
+}
+
+async function getContentLayerSchema<T extends keyof ContentConfig['collections']>(
+	collection: ContentConfig['collections'][T],
+	collectionKey: T,
+): Promise<ZodSchema | undefined> {
+	if (collection?.type !== CONTENT_LAYER_TYPE || typeof collection.loader === 'function') {
+		return;
+	}
+	if (collection.loader.schema) {
+		return collection.loader.schema;
+	}
+	const result = await getCreateSchemaResult(collection, collectionKey);
+	return result?.schema;
 }
 
 async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	collection: ContentConfig['collections'][T] | undefined,
 	collectionKey: T,
-): Promise<string> {
+): Promise<{ type: string; injectedType?: InjectedType }> {
 	if (collection?.schema) {
-		return `InferEntrySchema<${collectionKey}>`;
+		return { type: `InferEntrySchema<${collectionKey}>` };
 	}
-	if (!collection?.type) {
-		return 'any';
+	if (!collection?.type || typeof collection.loader === 'function') {
+		return { type: 'any' };
 	}
-	const schema = await getContentLayerSchema(collection, collectionKey);
-	if (!schema) {
-		return 'any';
+	if (collection.loader.schema) {
+		return { type: `InferLoaderSchema<${collectionKey}>` };
 	}
-	try {
-		const zodToTs = await import('zod-to-ts');
-		const ast = zodToTs.zodToTs(schema);
-		return zodToTs.printNode(ast.node);
-	} catch (err: any) {
-		// zod-to-ts is sad if we don't have TypeScript installed, but that's fine as we won't be needing types in that case
-		if (err.message.includes("Cannot find package 'typescript'")) {
-			return 'any';
-		}
-		throw err;
+	const result = await getCreateSchemaResult(collection, collectionKey);
+	if (!result) {
+		return { type: 'any' };
 	}
+	const base = `loaders/${collectionKey.slice(1, -1)}`;
+	return {
+		type: `import("./${base}.js").Entry`,
+		injectedType: {
+			filename: `${base}.ts`,
+			content: result.types,
+		},
+	};
 }
 
 async function writeContentFiles({
@@ -413,7 +440,7 @@ async function writeContentFiles({
 	typeTemplateContent: string;
 	contentEntryTypes: Pick<ContentEntryType, 'contentModuleTypes'>[];
 	contentConfig?: ContentConfig;
-	viteServer: Pick<ViteDevServer, 'hot'>;
+	viteServer: ViteDevServer;
 	logger: Logger;
 	settings: AstroSettings;
 }) {
@@ -439,7 +466,7 @@ async function writeContentFiles({
 			collectionConfig.type !== CONTENT_LAYER_TYPE &&
 			collection.type !== collectionConfig.type
 		) {
-			viteServer.hot.send({
+			viteServer.environments.client.hot.send({
 				type: 'error',
 				err: new AstroError({
 					...AstroErrorData.ContentCollectionTypeMismatchError,
@@ -460,7 +487,21 @@ async function writeContentFiles({
 			return;
 		}
 
-		const dataType = await typeForCollection(collectionConfig, collectionKey);
+		const { type: dataType, injectedType } = await typeForCollection(
+			collectionConfig,
+			collectionKey,
+		);
+
+		if (injectedType) {
+			if (settings.injectedTypes.some((t) => t.filename === CONTENT_TYPES_FILE)) {
+				// If it's the first time, we inject types the usual way. sync() will handle creating files and references. If it's not the first time, we just override the dts content
+				const url = new URL(injectedType.filename, settings.dotAstroDir);
+				await fs.promises.mkdir(path.dirname(fileURLToPath(url)), { recursive: true });
+				await fs.promises.writeFile(url, injectedType.content, 'utf-8');
+			} else {
+				settings.injectedTypes.push(injectedType);
+			}
+		}
 
 		dataTypesStr += `${collectionKey}: Record<string, {\n  id: string;\n  body?: string;\n  collection: ${collectionKey};\n  data: ${dataType};\n  rendered?: RenderedContent;\n  filePath?: string;\n}>;\n`;
 
@@ -487,7 +528,16 @@ async function writeContentFiles({
 			const key = JSON.parse(collectionKey);
 
 			contentCollectionManifest.collections.push({
-				hasSchema: Boolean(collectionConfig?.schema || schemaCache.has(collectionKey)),
+				hasSchema: Boolean(
+					// Is there a user provided schema or
+					collectionConfig?.schema ||
+						// Is it a loader object and
+						(typeof collectionConfig?.loader !== 'function' &&
+							// Is it a loader static schema or
+							(collectionConfig?.loader.schema ||
+								// is it a loader dynamic schema
+								createSchemaResultCache.has(collectionKey))),
+				),
 				name: key,
 			});
 

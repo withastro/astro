@@ -405,8 +405,8 @@ describe('Development Routing', () => {
 			assert.equal((await response.text()).includes('none: 1'), true);
 		});
 
-		it('200 when loading /html-ext/1.html', async () => {
-			const response = await fixture.fetch('/html-ext/1.html');
+		it('200 when loading /html-ext/1.html.html', async () => {
+			const response = await fixture.fetch('/html-ext/1.html.html');
 			assert.equal(response.status, 200);
 			assert.equal((await response.text()).includes('html: 1'), true);
 		});

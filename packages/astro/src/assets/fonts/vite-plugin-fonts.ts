@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import colors from 'piccolore';
-import type { Plugin } from 'vite';
+import type { Plugin, RunnableDevEnvironment } from 'vite';
 import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
 import { generateCspDigest } from '../../core/encryption.js';
 import { collectErrorMetadata } from '../../core/errors/dev/utils.js';
@@ -59,6 +59,7 @@ import {
 import { createBuildUrlResolver, createDevUrlResolver } from './infra/url-resolver.js';
 import { orchestrate } from './orchestrate.js';
 import type { ConsumableMap, FontFileDataMap, InternalConsumableMap } from './types.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../core/constants.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -233,7 +234,11 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			await initialize({
 				// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
 				cacheDir: new URL(CACHE_DIR, settings.dotAstroDir),
-				modResolver: createDevServerRemoteFontProviderModResolver({ server }),
+				modResolver: createDevServerRemoteFontProviderModResolver({
+					environment: server.environments[
+						ASTRO_VITE_ENVIRONMENT_NAMES.astro
+					] as RunnableDevEnvironment,
+				}),
 				cssRenderer: createMinifiableCssRenderer({ minify: false }),
 				urlResolver: createDevUrlResolver({
 					base: baseUrl,

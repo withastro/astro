@@ -56,9 +56,19 @@ export interface Loader {
 	name: string;
 	/** Do the actual loading of the data */
 	load: (context: LoaderContext) => Promise<void>;
-	/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
-	schema?: ZodSchema | Promise<ZodSchema> | (() => ZodSchema | Promise<ZodSchema>);
-}
+} & (
+	| {
+			/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
+			schema?: ZodSchema;
+	  }
+	| {
+			/** Optionally, provide a function to dynamically provide a schema. Will be overridden by user-defined schema */
+			createSchema?: () => Promise<{
+				schema: ZodSchema;
+				types: string;
+			}>;
+	  }
+);
 
 export interface LoadEntryContext<TEntryFilter = never> {
 	filter: TEntryFilter extends never ? { id: string } : TEntryFilter;

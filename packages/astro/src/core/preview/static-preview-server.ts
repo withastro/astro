@@ -32,6 +32,7 @@ export default async function createStaticPreviewServer(
 			build: {
 				outDir: fileURLToPath(settings.config.outDir),
 			},
+			root: fileURLToPath(settings.config.root),
 			preview: {
 				host: settings.config.server.host,
 				port: settings.config.server.port,

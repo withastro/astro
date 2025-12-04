@@ -31,15 +31,23 @@ export function loader(config:PostLoaderConfig): Loader {
 			}
 			meta.set('lastSynced', String(Date.now()));
 		},
-		schema: async () => {
+		createSchema: async () => {
 			// Simulate a delay
 			await new Promise((resolve) => setTimeout(resolve, 1000));
-			return z.object({
+			return {
+				schema: z.object({
 				title: z.string(),
 				body: z.string(),
 				userId: z.number(),
 				id: z.number(),
-			});
+			}),
+			types: /* ts */`export interface Entry {
+	title: string;
+	body: string;
+	userId: number;
+	id: number;
+}`
+			}
 		}
 	};
 }

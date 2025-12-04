@@ -69,6 +69,8 @@ export interface MetaStore {
 
 export type BaseSchema = z4.$ZodType;
 
+export type SchemaContext = { image: Z4ImageFunction };
+
 export type LiveCollectionConfig<
 	L extends LiveLoader,
 	S extends BaseSchema | undefined = undefined,
@@ -78,20 +80,21 @@ export type LiveCollectionConfig<
 	loader: L;
 };
 
-export type CollectionConfig<S extends BaseSchema> = {
+type LoaderConstraint<TData extends { id: string }> =
+	| Loader
+	| (() =>
+			| Array<TData>
+			| Promise<Array<TData>>
+			| Record<string, Omit<TData, 'id'> & { id?: string }>
+			| Promise<Record<string, Omit<TData, 'id'> & { id?: string }>>);
+
+export type CollectionConfig<
+	TSchema extends BaseSchema,
+	TLoader extends LoaderConstraint<{ id: string }>,
+> = {
 	type?: 'content_layer';
-	schema?:
-		| S
-		| ((context: {
-				image: Z4ImageFunction;
-		  }) => S);
-	loader:
-		| Loader
-		| (() =>
-				| Array<{ id: string }>
-				| Promise<Array<{ id: string }>>
-				| Record<string, { id?: string }>
-				| Promise<Record<string, { id?: string }>>);
+	schema?: TSchema | ((context: SchemaContext) => TSchema);
+	loader: TLoader;
 };
 
 export function defineLiveCollection<
@@ -156,13 +159,10 @@ export function defineLiveCollection<
 	return config;
 }
 
-export type DefineZ4Collection = <S extends z4.$ZodType>(
-	config: CollectionConfig<S>,
-) => CollectionConfig<S>;
-
-export function defineCollection<S extends BaseSchema>(
-	config: CollectionConfig<S>,
-): CollectionConfig<S> {
+export function defineCollection<
+	TSchema extends BaseSchema,
+	TLoader extends LoaderConstraint<{ id: string }>,
+>(config: CollectionConfig<TSchema, TLoader>): CollectionConfig<TSchema, TLoader> {
 	const importerFilename = getImporterFilename();
 
 	if (importerFilename?.includes('live.config')) {

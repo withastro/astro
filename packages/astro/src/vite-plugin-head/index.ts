@@ -1,17 +1,18 @@
 import type { ModuleInfo } from 'rollup';
 import type * as vite from 'vite';
+import type { DevEnvironment } from 'vite';
 import { getParentModuleInfos, getTopLevelPageModuleInfos } from '../core/build/graph.js';
 import type { BuildInternals } from '../core/build/internal.js';
-import type { AstroBuildPlugin } from '../core/build/plugin.js';
 import type { SSRComponentMetadata, SSRResult } from '../types/public/internal.js';
 import { getAstroMetadata } from '../vite-plugin-astro/index.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 // Detect this in comments, both in .astro components and in js/ts files.
 const injectExp = /(?:^\/\/|\/\/!)\s*astro-head-inject/;
 
 export default function configHeadVitePlugin(): vite.Plugin {
-	let server: vite.ViteDevServer;
+	let environment: DevEnvironment;
 
 	function propagateMetadata<
 		P extends keyof PluginMetadata['astro'],
@@ -25,7 +26,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 	) {
 		if (seen.has(id)) return;
 		seen.add(id);
-		const mod = server.moduleGraph.getModuleById(id);
+		const mod = environment.moduleGraph.getModuleById(id);
 		const info = this.getModuleInfo(id);
 
 		if (info?.meta.astro) {
@@ -46,8 +47,8 @@ export default function configHeadVitePlugin(): vite.Plugin {
 		name: 'astro:head-metadata',
 		enforce: 'pre',
 		apply: 'serve',
-		configureServer(_server) {
-			server = _server;
+		configureServer(server) {
+			environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 		},
 		resolveId(source, importer) {
 			if (importer) {
@@ -73,24 +74,10 @@ export default function configHeadVitePlugin(): vite.Plugin {
 			}
 		},
 		transform(source, id) {
-			if (!server) {
-				return;
-			}
-
 			// TODO This could probably be removed now that this is handled in resolveId
 			let info = this.getModuleInfo(id);
 			if (info && getAstroMetadata(info)?.containsHead) {
 				propagateMetadata.call(this, id, 'containsHead', true);
-			}
-
-			// TODO This could probably be removed now that this is handled in resolveId
-			if (info && getAstroMetadata(info)?.propagation === 'self') {
-				const mod = server.moduleGraph.getModuleById(id);
-				for (const parent of mod?.importers ?? []) {
-					if (parent.id) {
-						propagateMetadata.call(this, parent.id, 'propagation', 'in-tree');
-					}
-				}
 			}
 
 			if (injectExp.test(source)) {
@@ -100,62 +87,59 @@ export default function configHeadVitePlugin(): vite.Plugin {
 	};
 }
 
-export function astroHeadBuildPlugin(internals: BuildInternals): AstroBuildPlugin {
+export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 	return {
-		targets: ['server'],
-		hooks: {
-			'build:before'() {
-				return {
-					vitePlugin: {
-						name: 'astro:head-metadata-build',
-						generateBundle(_opts, bundle) {
-							const map: SSRResult['componentMetadata'] = internals.componentMetadata;
-							function getOrCreateMetadata(id: string): SSRComponentMetadata {
-								if (map.has(id)) return map.get(id)!;
-								const metadata: SSRComponentMetadata = {
-									propagation: 'none',
-									containsHead: false,
-								};
-								map.set(id, metadata);
-								return metadata;
+		name: 'astro:head-metadata-build',
+		applyToEnvironment(environment) {
+			return (
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
+			);
+		},
+		generateBundle(_opts, bundle) {
+			const map: SSRResult['componentMetadata'] = internals.componentMetadata;
+			function getOrCreateMetadata(id: string): SSRComponentMetadata {
+				if (map.has(id)) return map.get(id)!;
+				const metadata: SSRComponentMetadata = {
+					propagation: 'none',
+					containsHead: false,
+				};
+				map.set(id, metadata);
+				return metadata;
+			}
+
+			for (const [, output] of Object.entries(bundle)) {
+				if (output.type !== 'chunk') continue;
+				for (const [id, mod] of Object.entries(output.modules)) {
+					const modinfo = this.getModuleInfo(id);
+
+					// <head> tag in the tree
+					if (modinfo) {
+						const meta = getAstroMetadata(modinfo);
+						if (meta?.containsHead) {
+							for (const pageInfo of getTopLevelPageModuleInfos(id, this)) {
+								let metadata = getOrCreateMetadata(pageInfo.id);
+								metadata.containsHead = true;
 							}
-
-							for (const [, output] of Object.entries(bundle)) {
-								if (output.type !== 'chunk') continue;
-								for (const [id, mod] of Object.entries(output.modules)) {
-									const modinfo = this.getModuleInfo(id);
-
-									// <head> tag in the tree
-									if (modinfo) {
-										const meta = getAstroMetadata(modinfo);
-										if (meta?.containsHead) {
-											for (const pageInfo of getTopLevelPageModuleInfos(id, this)) {
-												let metadata = getOrCreateMetadata(pageInfo.id);
-												metadata.containsHead = true;
-											}
-										}
-										if (meta?.propagation === 'self') {
-											for (const info of getParentModuleInfos(id, this)) {
-												let metadata = getOrCreateMetadata(info.id);
-												if (metadata.propagation !== 'self') {
-													metadata.propagation = 'in-tree';
-												}
-											}
-										}
-									}
-
-									// Head propagation (aka bubbling)
-									if (mod.code && injectExp.test(mod.code)) {
-										for (const info of getParentModuleInfos(id, this)) {
-											getOrCreateMetadata(info.id).propagation = 'in-tree';
-										}
-									}
+						}
+						if (meta?.propagation === 'self') {
+							for (const info of getParentModuleInfos(id, this)) {
+								let metadata = getOrCreateMetadata(info.id);
+								if (metadata.propagation !== 'self') {
+									metadata.propagation = 'in-tree';
 								}
 							}
-						},
-					},
-				};
-			},
+						}
+					}
+
+					// Head propagation (aka bubbling)
+					if (mod.code && injectExp.test(mod.code)) {
+						for (const info of getParentModuleInfos(id, this)) {
+							getOrCreateMetadata(info.id).propagation = 'in-tree';
+						}
+					}
+				}
+			}
 		},
 	};
 }

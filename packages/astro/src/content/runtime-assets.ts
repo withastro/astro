@@ -1,7 +1,7 @@
 import type { PluginContext } from 'rollup';
 import * as z4 from 'zod/v4';
 import type { ImageMetadata, OmitBrand } from '../assets/types.js';
-import { emitImageMetadata } from '../assets/utils/node/emitAsset.js';
+import { emitImageMetadata } from '../assets/utils/node.js';
 
 export function createZ4Image(
 	pluginContext: PluginContext,

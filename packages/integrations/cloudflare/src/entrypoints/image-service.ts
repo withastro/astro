@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { joinPaths } from '@astrojs/internal-helpers/path';
 import type { ExternalImageService } from 'astro';
 import { baseService } from 'astro/assets';
@@ -25,7 +26,6 @@ const service: ExternalImageService = {
 		}
 
 		const imageEndpoint = joinPaths(
-			// @ts-expect-error Can't recognise import.meta.env
 			import.meta.env.BASE_URL,
 			'/cdn-cgi/image',
 			resizingParams.join(','),

@@ -227,14 +227,22 @@ const increment = defineCollection({
 				rendered: await renderMarkdown(markdownContent)
 			});
 		},
-		// Example of a loader that returns an async schema function
-		schema: async () =>
-			z.object({
+		createSchema: async () => {
+			return {
+				schema: z.object({
 				lastValue: z.number(),
 				lastUpdated: z.date(),
 				refreshContextData: z.record(z.unknown()).optional(),
 				slug: z.string().optional(),
 			}),
+			types: /* ts */`export interface Entry {
+	lastValue: number;
+	lastUpdated: Date;
+	refreshContextData?: Record<string, unknown> | undefined;
+	slug?: string | undefined;
+}`
+			}
+		}
 	},
 });
 
@@ -286,4 +294,3 @@ export const collections = {
 	notADirectory,
 	nothingMatches
 };
-

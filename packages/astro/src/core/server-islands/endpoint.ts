@@ -25,7 +25,6 @@ function getServerIslandRouteData(config: ConfigFields) {
 	const route: RouteData = {
 		type: 'page',
 		component: SERVER_ISLAND_COMPONENT,
-		generate: () => '',
 		params: ['name'],
 		segments,
 		pattern: getPattern(segments, config.base, config.trailingSlash),
@@ -34,6 +33,7 @@ function getServerIslandRouteData(config: ConfigFields) {
 		fallbackRoutes: [],
 		route: SERVER_ISLAND_ROUTE,
 		origin: 'internal',
+		distURL: [],
 	};
 	return route;
 }
@@ -115,7 +115,9 @@ export function createEndpoint(manifest: SSRManifest) {
 			return data;
 		}
 
-		const imp = manifest.serverIslandMap?.get(componentId);
+		const serverIslandMappings = await manifest.serverIslandMappings?.();
+		const serverIslandMap = await serverIslandMappings?.serverIslandMap;
+		let imp = serverIslandMap?.get(componentId);
 		if (!imp) {
 			return new Response(null, {
 				status: 404,
@@ -125,7 +127,6 @@ export function createEndpoint(manifest: SSRManifest) {
 
 		const key = await manifest.key;
 		const encryptedProps = data.encryptedProps;
-
 		let props = {};
 
 		if (encryptedProps !== '') {

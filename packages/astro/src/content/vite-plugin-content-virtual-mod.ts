@@ -22,18 +22,20 @@ import {
 } from './consts.js';
 import { getDataStoreFile } from './content-layer.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
 	fs: typeof nodeFs;
 }
 
-function invalidateDataStore(server: ViteDevServer) {
-	const module = server.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
+function invalidateDataStore(viteServer: ViteDevServer) {
+	const environment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
+	const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
 	if (module) {
-		server.moduleGraph.invalidateModule(module);
+		environment.moduleGraph.invalidateModule(module);
 	}
-	server.ws.send({
+	viteServer.environments.client.hot.send({
 		type: 'full-reload',
 		path: '*',
 	});

@@ -1,6 +1,5 @@
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { convertPathToPattern } from 'tinyglobby';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
 import { vitePluginActions } from '../actions/vite-plugin-actions.js';
@@ -16,15 +15,21 @@ import { createEnvLoader } from '../env/env-loader.js';
 import { astroEnv } from '../env/vite-plugin-env.js';
 import { importMetaEnv } from '../env/vite-plugin-import-meta-env.js';
 import astroInternationalization from '../i18n/vite-plugin-i18n.js';
+import { serializedManifestPlugin } from '../manifest/serialized.js';
 import astroVirtualManifestPlugin from '../manifest/virtual-module.js';
 import astroPrefetch from '../prefetch/vite-plugin-prefetch.js';
 import astroDevToolbar from '../toolbar/vite-plugin-dev-toolbar.js';
 import astroTransitions from '../transitions/vite-plugin-transitions.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
 import { vitePluginAdapterConfig } from '../vite-plugin-adapter-config/index.js';
+import { vitePluginApp } from '../vite-plugin-app/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
-import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
+import {
+	vitePluginAstroServer,
+	vitePluginAstroServerClient,
+} from '../vite-plugin-astro-server/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
+import { astroDevCssPlugin } from '../vite-plugin-css/index.js';
 import vitePluginFileURL from '../vite-plugin-fileurl/index.js';
 import astroHeadPlugin from '../vite-plugin-head/index.js';
 import astroHmrReloadPlugin from '../vite-plugin-hmr-reload/index.js';
@@ -32,65 +37,41 @@ import htmlVitePlugin from '../vite-plugin-html/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
-import astroScannerPlugin from '../vite-plugin-scanner/index.js';
+import { pluginPage, pluginPages } from '../vite-plugin-pages/index.js';
+import vitePluginRenderers from '../vite-plugin-renderers/index.js';
+import astroPluginRoutes from '../vite-plugin-routes/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
-import { vitePluginSSRManifest } from '../vite-plugin-ssr-manifest/index.js';
-import type { SSRManifest } from './app/types.js';
 import type { Logger } from './logger/core.js';
 import { createViteLogger } from './logger/vite.js';
 import { vitePluginMiddleware } from './middleware/vite-plugin.js';
 import { joinPaths } from './path.js';
 import { vitePluginServerIslands } from './server-islands/vite-plugin-server-islands.js';
+import { vitePluginSessionDriver } from './session/vite-plugin.js';
 import { isObject } from './util.js';
+import { vitePluginEnvironment } from '../vite-plugin-environment/index.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from './constants.js';
 
 type CreateViteOptions = {
 	settings: AstroSettings;
 	logger: Logger;
 	mode: string;
 	fs?: typeof nodeFs;
-	sync: boolean;
 	routesList: RoutesList;
-	manifest: SSRManifest;
+	sync: boolean;
 } & (
 	| {
 			command: 'dev';
-			manifest: SSRManifest;
 	  }
 	| {
 			command: 'build';
-			manifest?: SSRManifest;
 	  }
 );
-
-const ALWAYS_NOEXTERNAL = [
-	// This is only because Vite's native ESM doesn't resolve "exports" correctly.
-	'astro',
-	// Vite fails on nested `.astro` imports without bundling
-	'astro/components',
-	// Handle recommended nanostores. Only @nanostores/preact is required from our testing!
-	// Full explanation and related bug report: https://github.com/withastro/astro/pull/3667
-	'@nanostores/preact',
-	// fontsource packages are CSS that need to be processed
-	'@fontsource/*',
-];
-
-// These specifiers are usually dependencies written in CJS, but loaded through Vite's transform
-// pipeline, which Vite doesn't support in development time. This hardcoded list temporarily
-// fixes things until Vite can properly handle them, or when they support ESM.
-const ONLY_DEV_EXTERNAL = [
-	// Imported by `@astrojs/prism` which exposes `<Prism/>` that is processed by Vite
-	'prismjs/components/index.js',
-	// Imported by `astro/assets` -> `packages/astro/src/core/logger/core.ts`
-	'string-width',
-	// Imported by `astro:transitions` -> packages/astro/src/runtime/server/transition.ts
-	'cssesc',
-];
 
 /** Return a base vite config as a common starting point for all Vite commands. */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
-	{ settings, logger, mode, command, fs = nodeFs, sync, routesList, manifest }: CreateViteOptions,
+	{ settings, logger, mode, command, fs = nodeFs, sync, routesList }: CreateViteOptions,
 ): Promise<vite.InlineConfig> {
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
@@ -124,7 +105,6 @@ export async function createVite(
 		},
 	});
 
-	const srcDirPattern = convertPathToPattern(fileURLToPath(settings.config.srcDir));
 	const envLoader = createEnvLoader({
 		mode,
 		config: settings.config,
@@ -139,20 +119,24 @@ export async function createVite(
 		clearScreen: false, // we want to control the output, not Vite
 		customLogger: createViteLogger(logger, settings.config.vite.logLevel),
 		appType: 'custom',
-		optimizeDeps: {
-			// Scan for component code within `srcDir`
-			entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro}`],
-			exclude: ['astro', 'node-fetch'],
-		},
 		plugins: [
-			astroVirtualManifestPlugin({ manifest }),
+			serializedManifestPlugin({ settings, command, sync }),
+			vitePluginRenderers({ settings }),
+			await astroPluginRoutes({ routesList, settings, logger, fsMod: fs }),
+			astroVirtualManifestPlugin(),
+			vitePluginEnvironment({ settings, astroPkgsConfig, command }),
+			pluginPage({ routesList }),
+			pluginPages({ routesList }),
 			configAliasVitePlugin({ settings }),
 			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
 			astroVitePlugin({ settings, logger }),
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
-			command === 'dev' && vitePluginAstroServer({ settings, logger, fs, routesList, manifest }), // manifest is only required in dev mode, where it gets created before a Vite instance is created, and get passed to this function
+			command === 'dev' && vitePluginApp(),
+			command === 'dev' && vitePluginAstroServer({ settings, logger }),
+			command === 'dev' && vitePluginAstroServerClient(),
+			astroDevCssPlugin({ routesList, command }),
 			importMetaEnv({ envLoader }),
 			astroEnv({ settings, sync, envLoader }),
 			vitePluginAdapterConfig(settings),
@@ -161,12 +145,10 @@ export async function createVite(
 			astroIntegrationsContainerPlugin({ settings, logger }),
 			astroScriptsPageSSRPlugin({ settings }),
 			astroHeadPlugin(),
-			astroScannerPlugin({ settings, logger, routesList }),
 			astroContentVirtualModPlugin({ fs, settings }),
 			astroContentImportPlugin({ fs, settings, logger }),
 			astroContentAssetPropagationPlugin({ settings }),
 			vitePluginMiddleware({ settings }),
-			vitePluginSSRManifest(),
 			astroAssetsPlugin({ fs, settings, sync, logger }),
 			astroPrefetch({ settings }),
 			astroTransitions({ settings }),
@@ -175,6 +157,7 @@ export async function createVite(
 			astroInternationalization({ settings }),
 			vitePluginActions({ fs, settings }),
 			vitePluginServerIslands({ settings, logger }),
+			vitePluginSessionDriver({ settings }),
 			astroContainer(),
 			astroHmrReloadPlugin(),
 		],
@@ -223,14 +206,14 @@ export async function createVite(
 					replacement: 'astro/components',
 				},
 			],
-			// Astro imports in third-party packages should use the same version as root
-			dedupe: ['astro'],
-		},
-		ssr: {
-			noExternal: [...ALWAYS_NOEXTERNAL, ...astroPkgsConfig.ssr.noExternal],
-			external: [...(command === 'dev' ? ONLY_DEV_EXTERNAL : []), ...astroPkgsConfig.ssr.external],
 		},
 		build: { assetsDir: settings.config.build.assets },
+		environments: {
+			[ASTRO_VITE_ENVIRONMENT_NAMES.astro]: {
+				// This is all that's needed to create a new RunnableDevEnvironment
+				dev: {},
+			},
+		},
 	};
 
 	// If the user provides a custom assets prefix, make sure assets handled by Vite

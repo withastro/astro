@@ -1,15 +1,14 @@
 import type fsMod from 'node:fs';
 import type { Plugin as VitePlugin } from 'vite';
-import { addRollupInput } from '../core/build/add-rollup-input.js';
 import type { BuildInternals } from '../core/build/internal.js';
 import type { StaticBuildOptions } from '../core/build/types.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { getServerOutputDirectory } from '../prerender/utils.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
-	ENTRYPOINT_VIRTUAL_MODULE_ID,
+	ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID,
+	ACTIONS_RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID,
 	OPTIONS_VIRTUAL_MODULE_ID,
-	RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID,
 	RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID,
 	RESOLVED_OPTIONS_VIRTUAL_MODULE_ID,
 	RESOLVED_RUNTIME_VIRTUAL_MODULE_ID,
@@ -18,6 +17,7 @@ import {
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
 import { isActionsFilePresent } from './utils.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 /**
  * This plugin is used to retrieve the final entry point of the bundled actions.ts file
@@ -31,15 +31,15 @@ export function vitePluginActionsBuild(
 	return {
 		name: '@astro/plugin-actions-build',
 
-		options(options) {
-			return addRollupInput(options, [ENTRYPOINT_VIRTUAL_MODULE_ID]);
+		applyToEnvironment(environment) {
+			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},
 
 		writeBundle(_, bundle) {
 			for (const [chunkName, chunk] of Object.entries(bundle)) {
 				if (
 					chunk.type !== 'asset' &&
-					chunk.facadeModuleId === RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID
+					chunk.facadeModuleId === ACTIONS_RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID
 				) {
 					const outputDirectory = getServerOutputDirectory(opts.settings);
 					internals.astroActionsEntryPoint = new URL(chunkName, outputDirectory);
@@ -74,7 +74,7 @@ export function vitePluginActions({
 				return RESOLVED_OPTIONS_VIRTUAL_MODULE_ID;
 			}
 
-			if (id === ENTRYPOINT_VIRTUAL_MODULE_ID) {
+			if (id === ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID) {
 				const resolvedModule = await this.resolve(
 					`${decodeURI(new URL('actions', settings.config.srcDir).pathname)}`,
 				);
@@ -84,7 +84,7 @@ export function vitePluginActions({
 				}
 
 				resolvedActionsId = resolvedModule.id;
-				return RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID;
+				return ACTIONS_RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID;
 			}
 		},
 		async configureServer(server) {
@@ -108,7 +108,7 @@ export function vitePluginActions({
 				return { code: 'export const server = {}' };
 			}
 
-			if (id === RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID) {
+			if (id === ACTIONS_RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID) {
 				return { code: `export { server } from ${JSON.stringify(resolvedActionsId)};` };
 			}
 
