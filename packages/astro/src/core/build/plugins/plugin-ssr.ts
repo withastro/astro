@@ -2,6 +2,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import type { AstroAdapter } from '../../../types/public/index.js';
 import type { BuildInternals } from '../internal.js';
 import type { StaticBuildOptions } from '../types.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
 const SSR_VIRTUAL_MODULE_ID = 'virtual:astro:legacy-ssr-entry';
 export const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
@@ -17,7 +18,7 @@ function vitePluginAdapter(adapter: AstroAdapter): VitePlugin {
 		name: '@astrojs/vite-plugin-astro-adapter',
 		enforce: 'post',
 		applyToEnvironment(environment) {
-			return environment.name === 'ssr';
+			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},
 		resolveId(id) {
 			if (id === ADAPTER_VIRTUAL_MODULE_ID) {
@@ -47,7 +48,7 @@ function vitePluginAdapterConfig(adapter: AstroAdapter): VitePlugin {
 		name: '@astrojs/vite-plugin-astro-adapter-config',
 		enforce: 'post',
 		applyToEnvironment(environment) {
-			return environment.name === 'ssr';
+			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},
 		resolveId(id) {
 			if (id === ADAPTER_CONFIG_VIRTUAL_MODULE_ID) {
@@ -75,7 +76,7 @@ function vitePluginSSR(
 		name: '@astrojs/vite-plugin-astro-ssr-server',
 		enforce: 'post',
 		applyToEnvironment(environment) {
-			return environment.name === 'ssr';
+			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},
 		resolveId(id) {
 			if (id === SSR_VIRTUAL_MODULE_ID) {

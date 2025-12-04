@@ -4,7 +4,7 @@ import type { AstroSettings } from '../../types/astro.js';
 import { addRollupInput } from '../build/add-rollup-input.js';
 import type { BuildInternals } from '../build/internal.js';
 import type { StaticBuildOptions } from '../build/types.js';
-import { MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES, MIDDLEWARE_PATH_SEGMENT_NAME } from '../constants.js';
 import { MissingMiddlewareForInternationalization } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
 import { normalizePath } from '../viteUtils.js';
@@ -22,7 +22,11 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 	return {
 		name: '@astro/plugin-middleware',
 		applyToEnvironment(environment) {
-			return environment.name === 'ssr' || environment.name === 'astro' || environment.name === 'prerender';
+			return (
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
+			);
 		},
 		async resolveId(id) {
 			if (id === MIDDLEWARE_MODULE_ID) {
@@ -117,7 +121,7 @@ export function vitePluginMiddlewareBuild(
 		},
 
 		options(options) {
-			if(canSplitMiddleware) {
+			if (canSplitMiddleware) {
 				// Add middleware as a separate rollup input for environments that support multiple entrypoints.
 				// This allows the middleware to be bundled independently.
 				return addRollupInput(options, [MIDDLEWARE_MODULE_ID]);

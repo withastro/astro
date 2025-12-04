@@ -19,6 +19,7 @@ import {
 } from './consts.js';
 import { hasContentFlag } from './utils.js';
 import { joinPaths, prependForwardSlash, slash } from '@astrojs/internal-helpers/path';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 export function astroContentAssetPropagationPlugin({
 	settings,
@@ -65,10 +66,13 @@ export function astroContentAssetPropagationPlugin({
 			}
 		},
 		configureServer(server) {
-			if (!isRunnableDevEnvironment(server.environments.ssr)) {
+			if (!isRunnableDevEnvironment(server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
 				return;
 			}
-			devModuleLoader = createViteLoader(server, server.environments.ssr);
+			devModuleLoader = createViteLoader(
+				server,
+				server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as RunnableDevEnvironment,
+			);
 		},
 		async transform(_, id, options) {
 			if (hasContentFlag(id, PROPAGATED_ASSET_FLAG)) {
@@ -235,7 +239,8 @@ export async function contentAssetsBuildPostHook(
 				// links. Refactor this away in the future.
 				for (const value of entryCss) {
 					if (value.type === 'inline') entryStyles.add(value.content);
-					if (value.type === 'external') entryLinks.add(prependForwardSlash(joinPaths(base, slash(value.src))));
+					if (value.type === 'external')
+						entryLinks.add(prependForwardSlash(joinPaths(base, slash(value.src))));
 				}
 			}
 		}

@@ -39,6 +39,7 @@ import {
 	getEntryType,
 	reloadContentConfigObserver,
 } from './utils.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 type ChokidarEvent = 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir';
 type RawContentEvent = { name: ChokidarEvent; entry: string };
@@ -135,7 +136,9 @@ export async function createContentTypesGenerator({
 			await reloadContentConfigObserver({
 				fs,
 				settings,
-				environment: viteServer.environments.astro as RunnableDevEnvironment,
+				environment: viteServer.environments[
+					ASTRO_VITE_ENVIRONMENT_NAMES.astro
+				] as RunnableDevEnvironment,
 			});
 			return { shouldGenerateTypes: true };
 		}
@@ -319,10 +322,10 @@ export async function createContentTypesGenerator({
 				logger,
 				settings,
 			});
-			if (!isRunnableDevEnvironment(viteServer.environments.ssr)) {
+			if (!isRunnableDevEnvironment(viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
 				return;
 			}
-			invalidateVirtualMod(viteServer.environments.ssr);
+			invalidateVirtualMod(viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]);
 		}
 	}
 	return { init, queueEvent };
