@@ -149,11 +149,10 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.trailingSlash),
 	output: z
-		// Keep 'hybrid' here so we can give a helpful error message.
 		.union([z.literal('static'), z.literal('server'), z.literal('hybrid')])
 		.optional()
 		.default('static')
-		.refine((val) => val !== 'hybrid', {
+		.refine((val): val is 'static' | 'server' => val !== 'hybrid', {
 			message:
 				'The `output: "hybrid"` option has been removed. Use `output: "static"` (the default) instead, which now behaves the same way.',
 		}),
