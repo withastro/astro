@@ -51,7 +51,7 @@ export interface LoaderContext {
 
 type ZodSchema = z4.$ZodType;
 
-export interface Loader {
+export type Loader = {
 	/** Unique name of the loader, e.g. the npm package name */
 	name: string;
 	/** Do the actual loading of the data */
