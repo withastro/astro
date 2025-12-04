@@ -1,4 +1,4 @@
-import type { Plugin as VitePlugin } from 'vite';
+import type { EnvironmentOptions, Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import type { StaticBuildOptions } from '../types.js';
 import { normalizeEntryId } from './plugin-component-entry.js';
@@ -21,10 +21,11 @@ export function pluginInternals(
 			);
 		},
 
-		config(config, buildEnv) {
-			if (buildEnv.command === 'build' && config.build?.ssr) {
+		configEnvironment(environmentName): EnvironmentOptions | undefined {
+			// Prender environment is only enabled during the build
+			if (environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) {
 				return {
-					ssr: {
+					resolve: {
 						// Always bundle Astro runtime when building for SSR
 						noExternal: ['astro'],
 						// Except for these packages as they're not bundle-friendly. Users with strict package installations
