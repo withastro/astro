@@ -48,7 +48,7 @@ export default function configHeadVitePlugin(): vite.Plugin {
 		enforce: 'pre',
 		apply: 'serve',
 		configureServer(server) {
-			environment = server.environments.ssr;
+			environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.server];
 		},
 		resolveId(source, importer) {
 			if (importer) {

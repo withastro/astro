@@ -75,7 +75,7 @@ export default async function astroPluginRoutes({
 					routeData: serializeRouteData(r, settings.config.trailingSlash),
 				};
 			});
-			let environment = server.environments.ssr;
+			let environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.server];
 			const virtualMod = environment.moduleGraph.getModuleById(ASTRO_ROUTES_MODULE_ID_RESOLVED);
 			if (!virtualMod) return;
 

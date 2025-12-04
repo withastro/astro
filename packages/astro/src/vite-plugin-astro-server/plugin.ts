@@ -53,10 +53,10 @@ export default function createVitePluginAstroServer({
 		async configureServer(viteServer) {
 			// Cloudflare handles its own requests
 			// TODO: let this handle non-runnable environments that don't intercept requests
-			if (!isRunnableDevEnvironment(viteServer.environments.ssr)) {
+			if (!isRunnableDevEnvironment(viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.server])) {
 				return;
 			}
-			const environment = viteServer.environments.ssr as RunnableDevEnvironment;
+			const environment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.server] as RunnableDevEnvironment;
 			const loader = createViteLoader(viteServer, environment);
 			const { default: createAstroServerApp } = await environment.runner.import(ASTRO_DEV_APP_ID);
 			const controller = createController({ loader });

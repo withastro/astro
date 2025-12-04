@@ -22,6 +22,7 @@ import {
 } from './consts.js';
 import { getDataStoreFile } from './content-layer.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
@@ -29,7 +30,7 @@ interface AstroContentVirtualModPluginParams {
 }
 
 function invalidateDataStore(viteServer: ViteDevServer) {
-	const environment = viteServer.environments.ssr;
+	const environment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.server];
 	const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
 	if (module) {
 		environment.moduleGraph.invalidateModule(module);
