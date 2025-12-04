@@ -1,3 +1,7 @@
+// @ts-expect-error This is an internal module
+import * as config from 'astro:config/server';
+import { toFallbackType } from '../core/app/common.js';
+import { toRoutingStrategy } from '../core/app/index.js';
 import type { SSRManifest } from '../core/app/types.js';
 import {
 	IncorrectStrategyForI18n,
@@ -6,15 +10,14 @@ import {
 import { AstroError } from '../core/errors/index.js';
 import type { RedirectToFallback } from '../i18n/index.js';
 import * as I18nInternals from '../i18n/index.js';
-import { toFallbackType, toRoutingStrategy } from '../i18n/utils.js';
-import type { I18nInternalConfig } from '../i18n/vite-plugin-i18n.js';
 import type { MiddlewareHandler } from '../types/public/common.js';
 import type { AstroConfig, ValidRedirectStatus } from '../types/public/config.js';
 import type { APIContext } from '../types/public/context.js';
+import type { ServerDeserializedManifest } from '../types/public/index.js';
 
-const { trailingSlash, format, site, i18n, isBuild } =
-	// @ts-expect-error
-	__ASTRO_INTERNAL_I18N_CONFIG__ as I18nInternalConfig;
+const { trailingSlash, site, i18n, build } = config as ServerDeserializedManifest;
+const { format } = build;
+const isBuild = import.meta.env.PROD;
 const { defaultLocale, locales, domains, fallback, routing } = i18n!;
 const base = import.meta.env.BASE_URL;
 
@@ -402,6 +405,7 @@ if (i18n?.routing === 'manual') {
 			domainLookupTable: {},
 			fallbackType,
 			fallback: i18n.fallback,
+			domains: i18n.domains,
 		};
 		return I18nInternals.createMiddleware(manifest, base, trailingSlash, format);
 	};

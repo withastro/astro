@@ -1,5 +1,6 @@
 import type { RedirectConfig } from '../../types/public/index.js';
 import type { RenderContext } from '../render-context.js';
+import { getRouteGenerator } from '../routing/manifest/generator.js';
 
 export function redirectIsExternal(redirect: RedirectConfig): boolean {
 	if (typeof redirect === 'string') {
@@ -34,10 +35,12 @@ function redirectRouteGenerate(renderContext: RenderContext): string {
 	const {
 		params,
 		routeData: { redirect, redirectRoute },
+		pipeline,
 	} = renderContext;
 
 	if (typeof redirectRoute !== 'undefined') {
-		return redirectRoute?.generate(params) || redirectRoute?.pathname || '/';
+		const generate = getRouteGenerator(redirectRoute.segments, pipeline.manifest.trailingSlash);
+		return generate(params) || redirectRoute?.pathname || '/';
 	} else if (typeof redirect === 'string') {
 		if (redirectIsExternal(redirect)) {
 			return redirect;

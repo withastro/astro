@@ -58,7 +58,7 @@ export function getOutFolder(
 }
 
 export function getOutFile(
-	astroConfig: AstroConfig,
+	buildFormat: NonNullable<AstroConfig['build']>['format'],
 	outFolder: URL,
 	pathname: string,
 	routeData: RouteData,
@@ -70,7 +70,7 @@ export function getOutFile(
 		case 'page':
 		case 'fallback':
 		case 'redirect':
-			switch (astroConfig.build.format) {
+			switch (buildFormat) {
 				case 'directory': {
 					if (STATUS_CODE_PAGES.has(pathname)) {
 						const baseName = npath.basename(pathname);

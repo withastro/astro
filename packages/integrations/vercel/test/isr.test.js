@@ -61,6 +61,15 @@ describe('ISR', () => {
 				src: '^/one/?$',
 				dest: '/_isr?x_astro_path=$0',
 			},
+			{
+			 src: '^/404/?$',
+			 dest: '/_isr?x_astro_path=$0'
+			},
+			{
+			 dest: '_render',
+			 src: '^/.*$',
+			 status: 404
+			}
 		]);
 	});
 });

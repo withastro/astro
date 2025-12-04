@@ -12,10 +12,11 @@ import { globalContentConfigObserver } from '../content/utils.js';
 import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
-import { mergeConfig } from '../core/config/index.js';
+import { mergeConfig } from '../core/config/merge.js';
 import { validateConfigRefined } from '../core/config/validate.js';
 import { validateSetAdapter } from '../core/dev/adapter-validation.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
+import { getRouteGenerator } from '../core/routing/manifest/generator.js';
 import { getClientOutputDirectory } from '../prerender/utils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
@@ -118,7 +119,7 @@ export function getToolbarServerCommunicationHelpers(server: ViteDevServer) {
 		 * @param payload - The payload to send
 		 */
 		send: <T>(event: string, payload: T) => {
-			server.hot.send(event, payload);
+			server.environments.client.hot.send(event, payload);
 		},
 		/**
 		 * Receive a message from a dev toolbar app.
@@ -668,27 +669,32 @@ export async function runHookRoutesResolved({
 			hookName: 'astro:routes:resolved',
 			logger,
 			params: () => ({
-				routes: routes.map((route) => toIntegrationResolvedRoute(route)),
+				routes: routes.map((route) =>
+					toIntegrationResolvedRoute(route, settings.config.trailingSlash),
+				),
 			}),
 		});
 	}
 }
 
-export function toIntegrationResolvedRoute(route: RouteData): IntegrationResolvedRoute {
+export function toIntegrationResolvedRoute(
+	route: RouteData,
+	trailingSlash: AstroConfig['trailingSlash'],
+): IntegrationResolvedRoute {
 	return {
 		isPrerendered: route.prerender,
 		entrypoint: route.component,
 		pattern: route.route,
 		params: route.params,
 		origin: route.origin,
-		generate: route.generate,
+		generate: getRouteGenerator(route.segments, trailingSlash),
 		patternRegex: route.pattern,
 		segments: route.segments,
 		type: route.type,
 		pathname: route.pathname,
 		redirect: route.redirect,
 		redirectRoute: route.redirectRoute
-			? toIntegrationResolvedRoute(route.redirectRoute)
+			? toIntegrationResolvedRoute(route.redirectRoute, trailingSlash)
 			: undefined,
 	};
 }

@@ -18,7 +18,11 @@ export function createServerState(): ServerState {
 	};
 }
 
-export function setRouteError(serverState: ServerState, pathname: string, error: Error) {
+export function setRouteError(
+	serverState: ServerState,
+	pathname: string,
+	error: Error | undefined,
+) {
 	if (serverState.routes.has(pathname)) {
 		const routeState = serverState.routes.get(pathname)!;
 		routeState.state = 'error';

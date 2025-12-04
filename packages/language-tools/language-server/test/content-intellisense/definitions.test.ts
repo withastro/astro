@@ -36,13 +36,13 @@ describe(
 			const { targetRange, targetSelectionRange, originSelectionRange } = definitions[0];
 
 			assert.deepStrictEqual(targetRange, {
-				start: { line: 6, character: 2 },
-				end: { line: 6, character: 65 },
+				start: { line: 7, character: 2 },
+				end: { line: 7, character: 65 },
 			});
 
 			assert.deepStrictEqual(targetSelectionRange, {
-				start: { line: 6, character: 2 },
-				end: { line: 6, character: 7 },
+				start: { line: 7, character: 2 },
+				end: { line: 7, character: 7 },
 			});
 
 			assert.deepStrictEqual(originSelectionRange, {

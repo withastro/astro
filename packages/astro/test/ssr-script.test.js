@@ -138,14 +138,20 @@ describe('External scripts in SSR', () => {
 				vite: {
 					build: {
 						assetsInlineLimit: 0,
-						rollupOptions: {
-							output: {
-								entryFileNames: 'assets/entry.[hash].mjs',
-								chunkFileNames: 'assets/chunks/chunk.[hash].mjs',
-								assetFileNames: 'assets/asset.[hash][extname]',
-							},
-						},
 					},
+					environments: {
+						client: {
+							build: {
+								rollupOptions: {
+									output: {
+									  entryFileNames: 'assets/entry.[hash].mjs',
+									  chunkFileNames: 'assets/chunks/chunk.[hash].mjs',
+									  assetFileNames: 'assets/asset.[hash][extname]',
+									}
+								}
+							}
+						}
+					}
 				},
 			});
 			await fixture.build();
@@ -166,14 +172,20 @@ describe('External scripts in SSR', () => {
 				vite: {
 					build: {
 						assetsInlineLimit: 0,
-						rollupOptions: {
-							output: {
-								entryFileNames: 'assets/entry.[hash].mjs',
-								chunkFileNames: 'assets/chunks/chunk.[hash].mjs',
-								assetFileNames: 'assets/asset.[hash][extname]',
-							},
-						},
 					},
+					environments: {
+						client: {
+							build: {
+								rollupOptions: {
+									output: {
+										entryFileNames: 'assets/entry.[hash].mjs',
+										chunkFileNames: 'assets/chunks/chunk.[hash].mjs',
+										assetFileNames: 'assets/asset.[hash][extname]',
+									}
+								}
+							}
+						}
+					}
 				},
 				base: '/hello',
 			});
@@ -198,14 +210,20 @@ describe('External scripts in SSR', () => {
 				vite: {
 					build: {
 						assetsInlineLimit: 0,
-						rollupOptions: {
-							output: {
-								entryFileNames: 'assets/entry.[hash].mjs',
-								chunkFileNames: 'assets/chunks/chunk.[hash].mjs',
-								assetFileNames: 'assets/asset.[hash][extname]',
-							},
-						},
 					},
+					environments: {
+						client: {
+							build: {
+								rollupOptions: {
+									output: {
+										entryFileNames: 'assets/entry.[hash].mjs',
+										chunkFileNames: 'assets/chunks/chunk.[hash].mjs',
+										assetFileNames: 'assets/asset.[hash][extname]',
+									}
+								}
+							}
+						}
+					}
 				},
 			});
 			await fixture.build();

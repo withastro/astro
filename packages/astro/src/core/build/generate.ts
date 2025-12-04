@@ -3,97 +3,63 @@ import os from 'node:os';
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
 import colors from 'piccolore';
-import { NOOP_ACTIONS_MOD } from '../../actions/noop-actions.js';
 import {
 	generateImagesForPath,
 	getStaticImageList,
 	prepareAssetsGenerationEnv,
 } from '../../assets/build/generate.js';
 import {
+	collapseDuplicateTrailingSlashes,
 	isRelativePath,
 	joinPaths,
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 	trimSlashes,
 } from '../../core/path.js';
-import { toFallbackType, toRoutingStrategy } from '../../i18n/utils.js';
 import { runHookBuildGenerated, toIntegrationResolvedRoute } from '../../integrations/hooks.js';
-import { getServerOutputDirectory } from '../../prerender/utils.js';
-import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
-import type { GetStaticPathsItem, MiddlewareHandler } from '../../types/public/common.js';
+import type { GetStaticPathsItem } from '../../types/public/common.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { IntegrationResolvedRoute, RouteToHeaders } from '../../types/public/index.js';
-import type {
-	RouteData,
-	RouteType,
-	SSRError,
-	SSRLoadedRenderer,
-} from '../../types/public/internal.js';
-import type { SSRActions, SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../app/types.js';
-import {
-	getAlgorithm,
-	getDirectives,
-	getScriptHashes,
-	getScriptResources,
-	getStrictDynamic,
-	getStyleHashes,
-	getStyleResources,
-	shouldTrackCspHashes,
-	trackScriptHashes,
-	trackStyleHashes,
-} from '../csp/common.js';
+import type { RouteData, RouteType, SSRError } from '../../types/public/internal.js';
 import { NoPrerenderedRoutesWithDomains } from '../errors/errors-data.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
-import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
-import { getRedirectLocationOrThrow, routeIsRedirect } from '../redirects/index.js';
+import { getRedirectLocationOrThrow } from '../redirects/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
-import { RenderContext } from '../render-context.js';
 import { createRequest } from '../request.js';
 import { redirectTemplate } from '../routing/3xx.js';
+import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import { matchRoute } from '../routing/match.js';
 import { stringifyParams } from '../routing/params.js';
 import { getOutputFilename } from '../util.js';
+import type { BuildApp } from './app.js';
 import { getOutFile, getOutFolder } from './common.js';
-import { type BuildInternals, cssOrder, hasPrerenderedPages, mergeInlineCss } from './internal.js';
-import { BuildPipeline } from './pipeline.js';
-import type {
-	PageBuildData,
-	SinglePageBuiltModule,
-	StaticBuildOptions,
-	StylesheetAsset,
-} from './types.js';
+import { type BuildInternals, hasPrerenderedPages } from './internal.js';
+import type { StaticBuildOptions } from './types.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 
-const { bgGreen, black, blue, bold, dim, green, magenta, red, yellow } = colors;
-
-export async function generatePages(options: StaticBuildOptions, internals: BuildInternals) {
+export async function generatePages(
+	options: StaticBuildOptions,
+	internals: BuildInternals,
+	prerenderOutputDir: URL,
+) {
 	const generatePagesTimer = performance.now();
 	const ssr = options.settings.buildOutput === 'server';
-	let manifest: SSRManifest;
-	if (ssr) {
-		manifest = await BuildPipeline.retrieveManifest(options.settings, internals);
-	} else {
-		const baseDirectory = getServerOutputDirectory(options.settings);
-		const renderersEntryUrl = new URL('renderers.mjs', baseDirectory);
-		const renderers = await import(renderersEntryUrl.toString());
-		const middleware: MiddlewareHandler = internals.middlewareEntryPoint
-			? await import(internals.middlewareEntryPoint.toString()).then((mod) => mod.onRequest)
-			: NOOP_MIDDLEWARE_FN;
-
-		const actions: SSRActions = internals.astroActionsEntryPoint
-			? await import(internals.astroActionsEntryPoint.toString()).then((mod) => mod)
-			: NOOP_ACTIONS_MOD;
-		manifest = await createBuildManifest(
-			options.settings,
-			internals,
-			renderers.renderers as SSRLoadedRenderer[],
-			middleware,
-			actions,
-			options.key,
+	// Import from the single prerender entrypoint
+	const prerenderEntryFileName = internals.prerenderEntryFileName;
+	if (!prerenderEntryFileName) {
+		throw new Error(
+			`Prerender entry filename not found in build internals. This is likely a bug in Astro.`,
 		);
 	}
-	const pipeline = BuildPipeline.create({ internals, manifest, options });
-	const { config, logger } = pipeline;
+	const prerenderEntryUrl = new URL(prerenderEntryFileName, prerenderOutputDir);
+	const prerenderEntry = await import(prerenderEntryUrl.toString());
+
+	// Grab the manifest and create the pipeline
+	const app = prerenderEntry.app as BuildApp;
+	app.setInternals(internals);
+	app.setOptions(options);
+
+	const logger = app.logger;
 
 	// HACK! `astro:assets` relies on a global to know if its running in dev, prod, ssr, ssg, full moon
 	// If we don't delete it here, it's technically not impossible (albeit improbable) for it to leak
@@ -102,47 +68,44 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 	}
 
 	const verb = ssr ? 'prerendering' : 'generating';
-	logger.info('SKIP_FORMAT', `\n${bgGreen(black(` ${verb} static routes `))}`);
+	logger.info('SKIP_FORMAT', `\n${colors.bgGreen(colors.black(` ${verb} static routes `))}`);
 	const builtPaths = new Set<string>();
-	const pagesToGenerate = pipeline.retrieveRoutesToGenerate();
+	const pagesToGenerate = app.pipeline.retrieveRoutesToGenerate();
 	const routeToHeaders: RouteToHeaders = new Map();
+
 	if (ssr) {
-		for (const [pageData, filePath] of pagesToGenerate) {
-			if (pageData.route.prerender) {
+		for (const routeData of pagesToGenerate) {
+			if (routeData.prerender) {
 				// i18n domains won't work with pre rendered routes at the moment, so we need to throw an error
-				if (config.i18n?.domains && Object.keys(config.i18n.domains).length > 0) {
+				if (app.manifest.i18n?.domains && Object.keys(app.manifest.i18n.domains).length > 0) {
 					throw new AstroError({
 						...NoPrerenderedRoutesWithDomains,
-						message: NoPrerenderedRoutesWithDomains.message(pageData.component),
+						message: NoPrerenderedRoutesWithDomains.message(routeData.component),
 					});
 				}
 
-				const ssrEntryPage = await pipeline.retrieveSsrEntry(pageData.route, filePath);
-
-				const ssrEntry = ssrEntryPage as SinglePageBuiltModule;
-				await generatePage(pageData, ssrEntry, builtPaths, pipeline, routeToHeaders);
+				await generatePage(app, routeData, builtPaths, routeToHeaders);
 			}
 		}
 	} else {
-		for (const [pageData, filePath] of pagesToGenerate) {
-			const entry = await pipeline.retrieveSsrEntry(pageData.route, filePath);
-			await generatePage(pageData, entry, builtPaths, pipeline, routeToHeaders);
+		for (const routeData of pagesToGenerate) {
+			await generatePage(app, routeData, builtPaths, routeToHeaders);
 		}
 	}
 	logger.info(
 		null,
-		green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`),
+		colors.green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`),
 	);
 
 	const staticImageList = getStaticImageList();
 	if (staticImageList.size) {
-		logger.info('SKIP_FORMAT', `${bgGreen(black(` generating optimized images `))}`);
+		logger.info('SKIP_FORMAT', `${colors.bgGreen(colors.black(` generating optimized images `))}`);
 
 		const totalCount = Array.from(staticImageList.values())
 			.map((x) => x.transforms.size)
 			.reduce((a, b) => a + b, 0);
 		const cpuCount = os.cpus().length;
-		const assetsCreationPipeline = await prepareAssetsGenerationEnv(pipeline, totalCount);
+		const assetsCreationPipeline = await prepareAssetsGenerationEnv(app, totalCount);
 		const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
 
 		const assetsTimer = performance.now();
@@ -218,7 +181,7 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 
 		await queue.onIdle();
 		const assetsTimeEnd = performance.now();
-		logger.info(null, green(`✓ Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`));
+		logger.info(null, colors.green(`✓ Completed in ${getTimeStat(assetsTimer, assetsTimeEnd)}.\n`));
 
 		delete globalThis?.astroAsset?.addStaticImage;
 	}
@@ -233,36 +196,14 @@ export async function generatePages(options: StaticBuildOptions, internals: Buil
 const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
 
 async function generatePage(
-	pageData: PageBuildData,
-	ssrEntry: SinglePageBuiltModule,
+	app: BuildApp,
+	routeData: RouteData,
 	builtPaths: Set<string>,
-	pipeline: BuildPipeline,
 	routeToHeaders: RouteToHeaders,
 ) {
 	// prepare information we need
-	const { config, logger } = pipeline;
-	const pageModulePromise = ssrEntry.page;
-
-	// Calculate information of the page, like scripts, links and styles
-	const styles = pageData.styles
-		.sort(cssOrder)
-		.map(({ sheet }) => sheet)
-		.reduce(mergeInlineCss, []);
-	// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
-	const linkIds: [] = [];
-	if (!pageModulePromise) {
-		throw new Error(
-			`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`,
-		);
-	}
-	const pageModule = await pageModulePromise();
-	const generationOptions: Readonly<GeneratePathOptions> = {
-		pageData,
-		linkIds,
-		scripts: null,
-		styles,
-		mod: pageModule,
-	};
+	const logger = app.logger;
+	const { config } = app.getSettings();
 
 	async function generatePathWithLogs(
 		path: string,
@@ -273,51 +214,49 @@ async function generatePage(
 		isConcurrent: boolean,
 	) {
 		const timeStart = performance.now();
-		pipeline.logger.debug('build', `Generating: ${path}`);
+		logger.debug('build', `Generating: ${path}`);
 
-		const filePath = getOutputFilename(config, path, pageData.route);
+		const filePath = getOutputFilename(app.manifest.buildFormat, path, routeData);
 		const lineIcon =
 			(index === paths.length - 1 && !isConcurrent) || paths.length === 1 ? '└─' : '├─';
 
 		// Log the rendering path first if not concurrent. We'll later append the time taken to render.
 		// We skip if it's concurrent as the logs may overlap
 		if (!isConcurrent) {
-			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)}`, false);
+			logger.info(null, `  ${colors.blue(lineIcon)} ${colors.dim(filePath)}`, false);
 		}
 
-		const created = await generatePath(
-			path,
-			pipeline,
-			generationOptions,
-			route,
-			integrationRoute,
-			routeToHeaders,
-		);
+		const created = await generatePath(app, path, route, integrationRoute, routeToHeaders);
 
 		const timeEnd = performance.now();
 		const isSlow = timeEnd - timeStart > THRESHOLD_SLOW_RENDER_TIME_MS;
-		const timeIncrease = (isSlow ? red : dim)(`(+${getTimeStat(timeStart, timeEnd)})`);
+		const timeIncrease = (isSlow ? colors.red : colors.dim)(
+			`(+${getTimeStat(timeStart, timeEnd)})`,
+		);
 		const notCreated =
-			created === false ? yellow('(file not created, response body was empty)') : '';
+			created === false ? colors.yellow('(file not created, response body was empty)') : '';
 
 		if (isConcurrent) {
-			logger.info(null, `  ${blue(lineIcon)} ${dim(filePath)} ${timeIncrease} ${notCreated}`);
+			logger.info(
+				null,
+				`  ${colors.blue(lineIcon)} ${colors.dim(filePath)} ${timeIncrease} ${notCreated}`,
+			);
 		} else {
 			logger.info('SKIP_FORMAT', ` ${timeIncrease} ${notCreated}`);
 		}
 	}
 
 	// Now we explode the routes. A route render itself, and it can render its fallbacks (i18n routing)
-	for (const route of eachRouteInRouteData(pageData)) {
-		const integrationRoute = toIntegrationResolvedRoute(route);
+	for (const route of eachRouteInRouteData(routeData)) {
+		const integrationRoute = toIntegrationResolvedRoute(route, app.manifest.trailingSlash);
 		const icon =
 			route.type === 'page' || route.type === 'redirect' || route.type === 'fallback'
-				? green('▶')
-				: magenta('λ');
+				? colors.green('▶')
+				: colors.magenta('λ');
 		logger.info(null, `${icon} ${getPrettyRouteName(route)}`);
 
 		// Get paths for the route, calling getStaticPaths if needed.
-		const paths = await getPathsForRoute(route, pageModule, pipeline, builtPaths);
+		const paths = await getPathsForRoute(route, app, builtPaths);
 
 		// Generate each paths
 		if (config.build.concurrency > 1) {
@@ -339,31 +278,50 @@ async function generatePage(
 	}
 }
 
-function* eachRouteInRouteData(data: PageBuildData) {
-	yield data.route;
-	for (const fallbackRoute of data.route.fallbackRoutes) {
+function* eachRouteInRouteData(route: RouteData) {
+	yield route;
+	for (const fallbackRoute of route.fallbackRoutes) {
 		yield fallbackRoute;
 	}
 }
 
 async function getPathsForRoute(
 	route: RouteData,
-	mod: ComponentInstance,
-	pipeline: BuildPipeline,
+	app: BuildApp,
 	builtPaths: Set<string>,
 ): Promise<Array<string>> {
-	const { logger, options, routeCache, serverLike, config } = pipeline;
+	const logger = app.logger;
+	// which contains routeCache and other pipeline data. Eventually all pipeline info
+	// should come from app.pipeline and BuildPipeline can be eliminated.
+	const { routeCache } = app.pipeline;
+	const manifest = app.getManifest();
 	let paths: Array<string> = [];
 	if (route.pathname) {
 		paths.push(route.pathname);
 		builtPaths.add(removeTrailingForwardSlash(route.pathname));
 	} else {
+		// Load page module only when we need it for getStaticPaths
+		const pageModule = await app.pipeline.getComponentByRoute(route);
+
+		if (!pageModule) {
+			throw new Error(
+				`Unable to find module for ${route.component}. This is unexpected and likely a bug in Astro, please report.`,
+			);
+		}
+
+		const routeToProcess = routeIsRedirect(route)
+			? route.redirectRoute
+			: routeIsFallback(route)
+				? getFallbackRoute(route, manifest.routes)
+				: route;
+
 		const staticPaths = await callGetStaticPaths({
-			mod,
-			route,
+			mod: pageModule,
+			route: routeToProcess ?? route,
 			routeCache,
-			ssr: serverLike,
-			base: config.base,
+			ssr: manifest.serverLike,
+			base: manifest.base,
+			trailingSlash: manifest.trailingSlash,
 		}).catch((err) => {
 			logger.error('build', `Failed to call getStaticPaths for ${route.component}`);
 			throw err;
@@ -372,13 +330,13 @@ async function getPathsForRoute(
 		const label = staticPaths.length === 1 ? 'page' : 'pages';
 		logger.debug(
 			'build',
-			`├── ${bold(green('√'))} ${route.component} → ${magenta(`[${staticPaths.length} ${label}]`)}`,
+			`├── ${colors.bold(colors.green('√'))} ${route.component} → ${colors.magenta(`[${staticPaths.length} ${label}]`)}`,
 		);
 
 		paths = staticPaths
 			.map((staticPath) => {
 				try {
-					return stringifyParams(staticPath.params, route);
+					return stringifyParams(staticPath.params, route, app.manifest.trailingSlash);
 				} catch (e) {
 					if (e instanceof TypeError) {
 						throw getInvalidRouteSegmentError(e, route, staticPath);
@@ -398,7 +356,7 @@ async function getPathsForRoute(
 				// NOTE: The same URL may match multiple routes in the manifest.
 				// Routing priority needs to be verified here for any duplicate
 				// paths to ensure routing priority rules are enforced in the final build.
-				const matchedRoute = matchRoute(decodeURI(staticPath), options.routesList);
+				const matchedRoute = matchRoute(decodeURI(staticPath), app.manifestData);
 
 				if (!matchedRoute) {
 					// No route matched this path, so we can skip it.
@@ -410,6 +368,7 @@ async function getPathsForRoute(
 					return true;
 				}
 
+				const { config } = app.getSettings();
 				// Current route is lower-priority than matchedRoute.
 				// Path will be skipped due to collision.
 				if (config.prerenderConflictBehavior === 'error') {
@@ -512,7 +471,7 @@ function getUrlForPath(
 	}
 	let buildPathname: string;
 	if (pathname === '/' || pathname === '') {
-		buildPathname = base;
+		buildPathname = collapseDuplicateTrailingSlashes(base + ending, trailingSlash !== 'never');
 	} else if (routeType === 'endpoint') {
 		const buildPathRelative = removeLeadingForwardSlash(pathname);
 		buildPathname = joinPaths(base, buildPathRelative);
@@ -524,32 +483,23 @@ function getUrlForPath(
 	return new URL(buildPathname, origin);
 }
 
-interface GeneratePathOptions {
-	pageData: PageBuildData;
-	linkIds: string[];
-	scripts: { type: 'inline' | 'external'; value: string } | null;
-	styles: StylesheetAsset[];
-	mod: ComponentInstance;
-}
-
 /**
- *
- * @param pathname
- * @param pipeline
- * @param gopts
- * @param route
+ * Render a single pathname for a route using app.render()
+ * @param app The pre-initialized Astro App
+ * @param pathname The pathname to render
+ * @param route The route data
  * @return {Promise<boolean | undefined>} If `false` the file hasn't been created. If `undefined` it's expected to not be created.
  */
 async function generatePath(
+	app: BuildApp,
 	pathname: string,
-	pipeline: BuildPipeline,
-	gopts: GeneratePathOptions,
 	route: RouteData,
 	integrationRoute: IntegrationResolvedRoute,
 	routeToHeaders: RouteToHeaders,
 ): Promise<boolean | undefined> {
-	const { mod } = gopts;
-	const { config, logger, options } = pipeline;
+	const logger = app.logger;
+	const options = app.getOptions();
+	const settings = app.getSettings();
 	logger.debug('build', `Generating: ${pathname}`);
 
 	// This adds the page name to the array so it can be shown as part of stats.
@@ -561,17 +511,18 @@ async function generatePath(
 	// with the same path
 	if (route.type === 'fallback' && route.pathname !== '/') {
 		if (
-			Object.values(options.allPages).some((val) => {
-				if (val.route.pattern.test(pathname)) {
+			app.manifest.routes.some((val) => {
+				const { routeData } = val;
+				if (routeData.pattern.test(pathname)) {
 					// Check if we've matched a dynamic route
-					if (val.route.params && val.route.params.length !== 0) {
+					if (routeData.params && routeData.params.length !== 0) {
 						// Make sure the pathname matches an entry in distURL
 						if (
-							val.route.distURL &&
-							!val.route.distURL.find(
+							routeData.distURL &&
+							!routeData.distURL.find(
 								(url) =>
 									url.href
-										.replace(config.outDir.toString(), '')
+										.replace(app.manifest.outDir.toString(), '')
 										.replace(/(?:\/index\.html|\.html)$/, '') == trimSlashes(pathname),
 							)
 						) {
@@ -591,10 +542,10 @@ async function generatePath(
 
 	const url = getUrlForPath(
 		pathname,
-		config.base,
+		app.manifest.base,
 		options.origin,
-		config.build.format,
-		config.trailingSlash,
+		app.manifest.buildFormat,
+		app.manifest.trailingSlash,
 		route.type,
 	);
 
@@ -605,20 +556,14 @@ async function generatePath(
 		isPrerendered: true,
 		routePattern: route.component,
 	});
-	const renderContext = await RenderContext.create({
-		pipeline,
-		pathname: pathname,
-		request,
-		routeData: route,
-		clientAddress: undefined,
-	});
 
 	let body: string | Uint8Array;
 	let response: Response;
 	try {
-		response = await renderContext.render(mod);
+		response = await app.render(request, { routeData: route });
 	} catch (err) {
-		if (!AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
+		logger.error('build', `Caught error rendering ${pathname}: ${err}`);
+		if (err && !AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
 			(err as SSRError).id = route.component;
 		}
 		throw err;
@@ -628,11 +573,11 @@ async function generatePath(
 	if (response.status >= 300 && response.status < 400) {
 		// Adapters may handle redirects themselves, turning off Astro's redirect handling using `config.build.redirects` in the process.
 		// In that case, we skip rendering static files for the redirect routes.
-		if (routeIsRedirect(route) && !config.build.redirects) {
+		if (routeIsRedirect(route) && !settings.config.build.redirects) {
 			return undefined;
 		}
 		const locationSite = getRedirectLocationOrThrow(responseHeaders);
-		const siteURL = config.site;
+		const siteURL = settings.config.site;
 		const location = siteURL ? new URL(locationSite, siteURL) : locationSite;
 		const fromPath = new URL(request.url).pathname;
 		body = redirectTemplate({
@@ -641,7 +586,7 @@ async function generatePath(
 			relativeLocation: locationSite,
 			from: fromPath,
 		});
-		if (config.compressHTML === true) {
+		if (settings.config.compressHTML === true) {
 			body = body.replaceAll('\n', '');
 		}
 		// A dynamic redirect, set the location so that integrations know about it.
@@ -657,8 +602,8 @@ async function generatePath(
 	// We encode the path because some paths will received encoded characters, e.g. /[page] VS /%5Bpage%5D.
 	// Node.js decodes the paths, so to avoid a clash between paths, do encode paths again, so we create the correct files and folders requested by the user.
 	const encodedPath = encodeURI(pathname);
-	const outFolder = getOutFolder(pipeline.settings, encodedPath, route);
-	const outFile = getOutFile(config, outFolder, encodedPath, route);
+	const outFolder = getOutFolder(settings, encodedPath, route);
+	const outFile = getOutFile(app.manifest.buildFormat, outFolder, encodedPath, route);
 	if (route.distURL) {
 		route.distURL.push(outFile);
 	} else {
@@ -666,8 +611,8 @@ async function generatePath(
 	}
 
 	if (
-		pipeline.settings.adapter?.adapterFeatures?.experimentalStaticHeaders &&
-		pipeline.settings.config.experimental?.csp
+		settings.adapter?.adapterFeatures?.experimentalStaticHeaders &&
+		settings.config.experimental?.csp
 	) {
 		routeToHeaders.set(pathname, { headers: responseHeaders, route: integrationRoute });
 	}
@@ -688,93 +633,4 @@ function getPrettyRouteName(route: RouteData): string {
 		return /.*node_modules\/(.+)/.exec(route.component)?.[1] ?? route.component;
 	}
 	return route.component;
-}
-
-/**
- * It creates a `SSRManifest` from the `AstroSettings`.
- *
- * Renderers needs to be pulled out from the page module emitted during the build.
- */
-async function createBuildManifest(
-	settings: AstroSettings,
-	internals: BuildInternals,
-	renderers: SSRLoadedRenderer[],
-	middleware: MiddlewareHandler,
-	actions: SSRActions,
-	key: Promise<CryptoKey>,
-): Promise<SSRManifest> {
-	let i18nManifest: SSRManifestI18n | undefined = undefined;
-	let csp: SSRManifestCSP | undefined = undefined;
-
-	if (settings.config.i18n) {
-		i18nManifest = {
-			fallback: settings.config.i18n.fallback,
-			fallbackType: toFallbackType(settings.config.i18n.routing),
-			strategy: toRoutingStrategy(settings.config.i18n.routing, settings.config.i18n.domains),
-			defaultLocale: settings.config.i18n.defaultLocale,
-			locales: settings.config.i18n.locales,
-			domainLookupTable: {},
-		};
-	}
-
-	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
-		const algorithm = getAlgorithm(settings.config.experimental.csp);
-		const scriptHashes = [
-			...getScriptHashes(settings.config.experimental.csp),
-			...(await trackScriptHashes(internals, settings, algorithm)),
-		];
-		const styleHashes = [
-			...getStyleHashes(settings.config.experimental.csp),
-			...settings.injectedCsp.styleHashes,
-			...(await trackStyleHashes(internals, settings, algorithm)),
-		];
-
-		csp = {
-			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
-				? 'adapter'
-				: undefined,
-			styleHashes,
-			styleResources: getStyleResources(settings.config.experimental.csp),
-			scriptHashes,
-			scriptResources: getScriptResources(settings.config.experimental.csp),
-			algorithm,
-			directives: getDirectives(settings),
-			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
-		};
-	}
-	return {
-		hrefRoot: settings.config.root.toString(),
-		srcDir: settings.config.srcDir,
-		buildClientDir: settings.config.build.client,
-		buildServerDir: settings.config.build.server,
-		publicDir: settings.config.publicDir,
-		outDir: settings.config.outDir,
-		cacheDir: settings.config.cacheDir,
-		trailingSlash: settings.config.trailingSlash,
-		assets: new Set(),
-		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),
-		inlinedScripts: internals.inlinedScripts,
-		routes: [],
-		adapterName: settings.adapter?.name ?? '',
-		clientDirectives: settings.clientDirectives,
-		compressHTML: settings.config.compressHTML,
-		renderers,
-		base: settings.config.base,
-		userAssetsBase: settings.config?.vite?.base,
-		assetsPrefix: settings.config.build.assetsPrefix,
-		site: settings.config.site,
-		componentMetadata: internals.componentMetadata,
-		i18n: i18nManifest,
-		buildFormat: settings.config.build.format,
-		middleware() {
-			return {
-				onRequest: middleware,
-			};
-		},
-		actions: () => actions,
-		checkOrigin:
-			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
-		key,
-		csp,
-	};
 }
