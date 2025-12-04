@@ -107,9 +107,16 @@ export const MIDDLEWARE_PATH_SEGMENT_NAME = 'middleware';
 
 // The environments used inside Astro
 export const ASTRO_VITE_ENVIRONMENT_NAMES = {
+	// It maps to the classic `ssr` Vite environment
 	server: 'ssr',
+	// It maps to the classic `client` Vite environment
 	client: 'client',
+	// Environment used in cases where Astro in run in non-runnable dev environments e.g. Cloudflare
+	// It's a development environment.
 	astro: 'astro',
+	// Environment used during the build for rendering static pages.
+	// If your plugin runs in `ASTRO_VITE_ENVIRONMENT_NAMES.server`, you might
+	// want to add `ASTRO_VITE_ENVIRONMENT_NAMES.prerender` too
 	prerender: 'prerender',
 } as const;
 

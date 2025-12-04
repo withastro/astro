@@ -4,6 +4,7 @@ import { DEFAULT_COMPONENTS } from '../core/routing/default.js';
 import { routeIsRedirect } from '../core/routing/index.js';
 import type { RoutesList } from '../types/astro.js';
 import { VIRTUAL_PAGE_MODULE_ID, VIRTUAL_PAGE_RESOLVED_MODULE_ID } from './const.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 interface PagePluginOptions {
 	routesList: RoutesList;
@@ -13,7 +14,10 @@ export function pluginPage({ routesList }: PagePluginOptions): VitePlugin {
 	return {
 		name: '@astro/plugin-page',
 		applyToEnvironment(environment) {
-			return environment.name === 'ssr' || environment.name === 'prerender';
+			return (
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
+			);
 		},
 		resolveId(id) {
 			if (id.startsWith(VIRTUAL_PAGE_MODULE_ID)) {

@@ -17,6 +17,7 @@ import {
 	VIRTUAL_MODULE_ID,
 } from './consts.js';
 import { isActionsFilePresent } from './utils.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 /**
  * This plugin is used to retrieve the final entry point of the bundled actions.ts file
@@ -31,7 +32,7 @@ export function vitePluginActionsBuild(
 		name: '@astro/plugin-actions-build',
 
 		applyToEnvironment(environment) {
-			return environment.name === 'ssr';
+			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server;
 		},
 
 		writeBundle(_, bundle) {

@@ -4,6 +4,7 @@ import { routeIsRedirect } from '../core/routing/index.js';
 import type { RoutesList } from '../types/astro.js';
 import { VIRTUAL_PAGE_MODULE_ID } from './const.js';
 import { getVirtualModulePageName } from './util.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 export const VIRTUAL_PAGES_MODULE_ID = 'virtual:astro:pages';
 const VIRTUAL_PAGES_RESOLVED_MODULE_ID = '\0' + VIRTUAL_PAGES_MODULE_ID;
@@ -17,7 +18,10 @@ export function pluginPages({ routesList }: PagesPluginOptions): VitePlugin {
 		name: '@astro/plugin-pages',
 		enforce: 'post',
 		applyToEnvironment(environment) {
-			return environment.name === 'ssr' || environment.name === 'prerender';
+			return (
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
+			);
 		},
 		resolveId(id) {
 			if (id === VIRTUAL_PAGES_MODULE_ID) {
