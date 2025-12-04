@@ -669,11 +669,11 @@ export function createReference() {
 				}),
 			])
 			.transform((lookup, ctx) => {
-				const flattenedErrorPath = ctx.issues[0].path?.join('.');
-
 				if (typeof lookup === 'object') {
 					// If these don't match then something is wrong with the reference
 					if (lookup.collection !== collection) {
+						const flattenedErrorPath = ctx.issues[0]?.path?.join('.');
+
 						ctx.addIssue({
 							code: 'custom',
 							message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${collection}. Received ${lookup.collection}.`,
