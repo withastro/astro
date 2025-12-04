@@ -1,5 +1,7 @@
 import type { CssProperties, CssRenderer } from '../definitions.js';
 
+// TODO: consider making these public methods
+
 export function renderFontFace(properties: CssProperties, minify: boolean): string {
 	// Line feed
 	const lf = minify ? '' : `\n`;
@@ -38,13 +40,18 @@ export function handleValueWithSpaces(value: string): string {
 	return value;
 }
 
-export function createMinifiableCssRenderer({ minify }: { minify: boolean }): CssRenderer {
-	return {
-		generateFontFace(family, properties) {
-			return renderFontFace(withFamily(family, properties), minify);
-		},
-		generateCssVariable(key, values) {
-			return renderCssVariable(key, values, minify);
-		},
-	};
+export class MinifiableCssRenderer implements CssRenderer {
+	readonly #minify: boolean;
+
+	constructor({ minify }: { minify: boolean }) {
+		this.#minify = minify;
+	}
+
+	generateFontFace(family: string, properties: CssProperties): string {
+		return renderFontFace(withFamily(family, properties), this.#minify);
+	}
+
+	generateCssVariable(key: string, values: Array<string>): string {
+		return renderCssVariable(key, values, this.#minify);
+	}
 }

@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/language-server",
-  "version": "2.16.1",
+  "version": "2.16.2",
   "author": "withastro",
   "license": "MIT",
   "repository": {
@@ -36,13 +36,13 @@
     "@volar/language-service": "~2.4.23",
     "fast-glob": "^3.2.12",
     "muggle-string": "^0.4.1",
-    "volar-service-css": "0.0.66",
-    "volar-service-emmet": "0.0.66",
-    "volar-service-html": "0.0.66",
-    "volar-service-prettier": "0.0.66",
-    "volar-service-typescript": "0.0.66",
-    "volar-service-typescript-twoslash-queries": "0.0.66",
-    "volar-service-yaml": "0.0.66",
+    "volar-service-css": "0.0.67",
+    "volar-service-emmet": "0.0.67",
+    "volar-service-html": "0.0.67",
+    "volar-service-prettier": "0.0.67",
+    "volar-service-typescript": "0.0.67",
+    "volar-service-typescript-twoslash-queries": "0.0.67",
+    "volar-service-yaml": "0.0.67",
     "vscode-html-languageservice": "^5.5.2",
     "vscode-uri": "^3.1.0"
   },

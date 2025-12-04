@@ -6,14 +6,14 @@ import { extractUnifontProviders } from '../../../../dist/assets/fonts/core/extr
 import { normalizeRemoteFontFaces } from '../../../../dist/assets/fonts/core/normalize-remote-font-faces.js';
 import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-fallbacks.js';
 import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-families.js';
-import { createFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
-import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/infra/system-fallbacks-provider.js';
-import { createSpyUrlProxy, fakeFontMetricsResolver, fakeHasher } from './utils.js';
+import { RealFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
+import { RealSystemFallbacksProvider } from '../../../../dist/assets/fonts/infra/system-fallbacks-provider.js';
+import { FakeFontMetricsResolver, FakeHasher, SpyUrlProxy } from './utils.js';
 
 describe('fonts core', () => {
 	describe('resolveFamily()', () => {
 		it('removes quotes correctly', async () => {
-			const hasher = { ...fakeHasher, hashObject: () => 'xxx' };
+			const hasher = new FakeHasher('xxx');
 			let family = await resolveFamily({
 				family: {
 					provider: 'local',
@@ -79,7 +79,7 @@ describe('fonts core', () => {
 						},
 					],
 				},
-				hasher: fakeHasher,
+				hasher: new FakeHasher(),
 				localProviderUrlResolver: {
 					resolve: (url) => url + url,
 				},
@@ -108,7 +108,7 @@ describe('fonts core', () => {
 					name: 'Test',
 					cssVariable: '--test',
 				},
-				hasher: fakeHasher,
+				hasher: new FakeHasher(),
 				localProviderUrlResolver: {
 					resolve: (url) => url,
 				},
@@ -141,7 +141,7 @@ describe('fonts core', () => {
 					],
 					fallbacks: ['foo', 'bar', 'foo'],
 				},
-				hasher: fakeHasher,
+				hasher: new FakeHasher(),
 				localProviderUrlResolver: {
 					resolve: (url) => url,
 				},
@@ -163,7 +163,7 @@ describe('fonts core', () => {
 					fallbacks: ['foo', 'bar', 'foo'],
 					unicodeRange: ['abc', 'def', 'abc'],
 				},
-				hasher: fakeHasher,
+				hasher: new FakeHasher(),
 				localProviderUrlResolver: {
 					resolve: (url) => url,
 				},
@@ -193,7 +193,7 @@ describe('fonts core', () => {
 		function createFixture(families) {
 			const result = extractUnifontProviders({
 				families,
-				hasher: fakeHasher,
+				hasher: new FakeHasher(),
 			});
 			return {
 				/**
@@ -337,12 +337,12 @@ describe('fonts core', () => {
 
 	describe('normalizeRemoteFontFaces()', () => {
 		it('filters font data based on priority', () => {
-			const { urlProxy } = createSpyUrlProxy();
+			const urlProxy = new SpyUrlProxy();
 			assert.equal(
 				normalizeRemoteFontFaces({
 					fonts: [],
 					urlProxy,
-					fontTypeExtractor: createFontTypeExtractor(),
+					fontTypeExtractor: new RealFontTypeExtractor(),
 				}).length,
 				0,
 			);
@@ -375,14 +375,14 @@ describe('fonts core', () => {
 						},
 					],
 					urlProxy,
-					fontTypeExtractor: createFontTypeExtractor(),
+					fontTypeExtractor: new RealFontTypeExtractor(),
 				}).length,
 				5,
 			);
 		});
 
 		it('proxies URLs correctly', () => {
-			const { collected, urlProxy } = createSpyUrlProxy();
+			const urlProxy = new SpyUrlProxy();
 			normalizeRemoteFontFaces({
 				urlProxy,
 				fonts: [
@@ -400,9 +400,9 @@ describe('fonts core', () => {
 						src: [{ url: '/2', format: 'woff2' }],
 					},
 				],
-				fontTypeExtractor: createFontTypeExtractor(),
+				fontTypeExtractor: new RealFontTypeExtractor(),
 			});
-			assert.deepStrictEqual(collected, [
+			assert.deepStrictEqual(urlProxy.collected, [
 				{
 					url: '/',
 					type: 'woff2',
@@ -428,7 +428,7 @@ describe('fonts core', () => {
 		});
 
 		it('collects preloads correctly', () => {
-			const { collected, urlProxy } = createSpyUrlProxy();
+			const urlProxy = new SpyUrlProxy();
 			normalizeRemoteFontFaces({
 				urlProxy,
 				fonts: [
@@ -451,9 +451,9 @@ describe('fonts core', () => {
 						],
 					},
 				],
-				fontTypeExtractor: createFontTypeExtractor(),
+				fontTypeExtractor: new RealFontTypeExtractor(),
 			});
-			assert.deepStrictEqual(collected, [
+			assert.deepStrictEqual(urlProxy.collected, [
 				{
 					url: '/',
 					type: 'woff2',
@@ -486,7 +486,7 @@ describe('fonts core', () => {
 		});
 
 		it('computes type and format correctly', () => {
-			const { collected, urlProxy } = createSpyUrlProxy();
+			const urlProxy = new SpyUrlProxy();
 			const fonts = normalizeRemoteFontFaces({
 				urlProxy,
 				fonts: [
@@ -501,7 +501,7 @@ describe('fonts core', () => {
 						src: [{ url: '/2', format: 'woff2' }, { name: 'Foo' }, { url: '/also-ignored.ttf' }],
 					},
 				],
-				fontTypeExtractor: createFontTypeExtractor(),
+				fontTypeExtractor: new RealFontTypeExtractor(),
 			});
 			assert.deepStrictEqual(fonts, [
 				{
@@ -541,7 +541,7 @@ describe('fonts core', () => {
 					weight: '500',
 				},
 			]);
-			assert.deepStrictEqual(collected, [
+			assert.deepStrictEqual(urlProxy.collected, [
 				{
 					url: '/',
 					type: 'woff2',
@@ -574,7 +574,7 @@ describe('fonts core', () => {
 		});
 
 		it('turns relative protocols into https', () => {
-			const { collected, urlProxy } = createSpyUrlProxy();
+			const urlProxy = new SpyUrlProxy();
 			const fonts = normalizeRemoteFontFaces({
 				urlProxy,
 				fonts: [
@@ -584,7 +584,7 @@ describe('fonts core', () => {
 						src: [{ url: '//example.com/font.woff2' }, { url: 'http://example.com/font.woff' }],
 					},
 				],
-				fontTypeExtractor: createFontTypeExtractor(),
+				fontTypeExtractor: new RealFontTypeExtractor(),
 			});
 
 			assert.deepStrictEqual(fonts, [
@@ -603,7 +603,7 @@ describe('fonts core', () => {
 					weight: '400',
 				},
 			]);
-			assert.deepStrictEqual(collected, [
+			assert.deepStrictEqual(urlProxy.collected, [
 				{
 					url: 'https://example.com/font.woff2',
 					collectPreload: true,
@@ -627,8 +627,8 @@ describe('fonts core', () => {
 			name: 'Test',
 			nameWithHash: 'Test-xxx',
 		};
-		const systemFallbacksProvider = createSystemFallbacksProvider();
-		const fontMetricsResolver = fakeFontMetricsResolver;
+		const systemFallbacksProvider = new RealSystemFallbacksProvider();
+		const fontMetricsResolver = new FakeFontMetricsResolver();
 
 		it('skips if there are no fallbacks', async () => {
 			assert.equal(

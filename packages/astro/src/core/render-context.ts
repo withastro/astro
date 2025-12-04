@@ -31,6 +31,7 @@ import {
 } from './constants.js';
 import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
 import { getCookiesFromResponse } from './cookies/response.js';
+import { pushDirective } from './csp/runtime.js';
 import { generateCspDigest } from './encryption.js';
 import { CspNotEnabled, ForbiddenRewrite } from './errors/errors-data.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
@@ -467,7 +468,14 @@ export class RenderContext {
 						if (!pipeline.manifest.csp) {
 							throw new AstroError(CspNotEnabled);
 						}
-						renderContext.result?.directives.push(payload);
+						if (renderContext?.result?.directives) {
+							renderContext.result.directives = pushDirective(
+								renderContext.result.directives,
+								payload,
+							);
+						} else {
+							renderContext?.result?.directives.push(payload);
+						}
 					},
 
 					insertScriptResource(resource) {
@@ -737,7 +745,15 @@ export class RenderContext {
 						if (!pipeline.manifest.csp) {
 							throw new AstroError(CspNotEnabled);
 						}
-						renderContext.result?.directives.push(payload);
+
+						if (renderContext?.result?.directives) {
+							renderContext.result.directives = pushDirective(
+								renderContext.result.directives,
+								payload,
+							);
+						} else {
+							renderContext?.result?.directives.push(payload);
+						}
 					},
 
 					insertScriptResource(resource) {

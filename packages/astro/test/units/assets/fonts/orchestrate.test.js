@@ -5,30 +5,30 @@ import { fileURLToPath } from 'node:url';
 import { defineFontProvider } from 'unifont';
 import { joinPaths } from '../../../../../internal-helpers/dist/path.js';
 import { DEFAULTS } from '../../../../dist/assets/fonts/constants.js';
-import { createBuildRemoteFontProviderModResolver } from '../../../../dist/assets/fonts/infra/build-remote-font-provider-mod-resolver.js';
-import { createBuildUrlProxyHashResolver } from '../../../../dist/assets/fonts/infra/build-url-proxy-hash-resolver.js';
-import { createDataCollector } from '../../../../dist/assets/fonts/infra/data-collector.js';
-import { createDevUrlResolver } from '../../../../dist/assets/fonts/infra/dev-url-resolver.js';
-import { createFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
-import { createFontaceFontFileReader } from '../../../../dist/assets/fonts/infra/fontace-font-file-reader.js';
-import { createLevenshteinStringMatcher } from '../../../../dist/assets/fonts/infra/levenshtein-string-matcher.js';
-import { createMinifiableCssRenderer } from '../../../../dist/assets/fonts/infra/minifiable-css-renderer.js';
-import { createRemoteFontProviderResolver } from '../../../../dist/assets/fonts/infra/remote-font-provider-resolver.js';
-import { createRequireLocalProviderUrlResolver } from '../../../../dist/assets/fonts/infra/require-local-provider-url-resolver.js';
-import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/infra/system-fallbacks-provider.js';
-import { createUrlProxy } from '../../../../dist/assets/fonts/infra/url-proxy.js';
-import { createRemoteUrlProxyContentResolver } from '../../../../dist/assets/fonts/infra/url-proxy-content-resolver.js';
+import { BuildRemoteFontProviderModResolver } from '../../../../dist/assets/fonts/infra/build-remote-font-provider-mod-resolver.js';
+import { BuildUrlProxyHashResolver } from '../../../../dist/assets/fonts/infra/build-url-proxy-hash-resolver.js';
+import { RealDataCollector } from '../../../../dist/assets/fonts/infra/data-collector.js';
+import { DevUrlResolver } from '../../../../dist/assets/fonts/infra/dev-url-resolver.js';
+import { RealFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
+import { FontaceFontFileReader } from '../../../../dist/assets/fonts/infra/fontace-font-file-reader.js';
+import { LevenshteinStringMatcher } from '../../../../dist/assets/fonts/infra/levenshtein-string-matcher.js';
+import { MinifiableCssRenderer } from '../../../../dist/assets/fonts/infra/minifiable-css-renderer.js';
+import { RealRemoteFontProviderResolver } from '../../../../dist/assets/fonts/infra/remote-font-provider-resolver.js';
+import { RemoteUrlProxyContentResolver } from '../../../../dist/assets/fonts/infra/remote-url-proxy-content-resolver.js';
+import { RequireLocalProviderUrlResolver } from '../../../../dist/assets/fonts/infra/require-local-provider-url-resolver.js';
+import { RealSystemFallbacksProvider } from '../../../../dist/assets/fonts/infra/system-fallbacks-provider.js';
+import { RealUrlProxy } from '../../../../dist/assets/fonts/infra/url-proxy.js';
 import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
 import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
 import { defaultLogger, SpyLogger } from '../../test-utils.js';
-import { createSpyStorage, fakeFontMetricsResolver, fakeHasher, markdownBold } from './utils.js';
+import { FakeFontMetricsResolver, FakeHasher, markdownBold, SpyStorage } from './utils.js';
 
 describe('fonts orchestrate()', () => {
 	it('works with local fonts', async () => {
 		const root = new URL(import.meta.url);
-		const { storage } = createSpyStorage();
-		const fontTypeExtractor = createFontTypeExtractor();
-		const hasher = fakeHasher;
+		const storage = new SpyStorage();
+		const fontTypeExtractor = new RealFontTypeExtractor();
+		const hasher = new FakeHasher();
 		const { fontFileDataMap, internalConsumableMap, consumableMap } = await orchestrate({
 			families: [
 				{
@@ -45,31 +45,31 @@ describe('fonts orchestrate()', () => {
 				},
 			],
 			hasher,
-			remoteFontProviderResolver: createRemoteFontProviderResolver({
+			remoteFontProviderResolver: new RealRemoteFontProviderResolver({
 				root,
-				modResolver: createBuildRemoteFontProviderModResolver(),
+				modResolver: new BuildRemoteFontProviderModResolver(),
 			}),
-			localProviderUrlResolver: createRequireLocalProviderUrlResolver({ root }),
+			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
 			storage,
-			cssRenderer: createMinifiableCssRenderer({ minify: true }),
-			systemFallbacksProvider: createSystemFallbacksProvider(),
-			fontMetricsResolver: fakeFontMetricsResolver,
+			cssRenderer: new MinifiableCssRenderer({ minify: true }),
+			systemFallbacksProvider: new RealSystemFallbacksProvider(),
+			fontMetricsResolver: new FakeFontMetricsResolver(),
 			fontTypeExtractor,
-			fontFileReader: createFontaceFontFileReader(),
+			fontFileReader: new FontaceFontFileReader(),
 			logger: defaultLogger,
 			createUrlProxy: ({ local, cssVariable, ...params }) => {
-				const dataCollector = createDataCollector(params);
-				const contentResolver = createRemoteUrlProxyContentResolver();
-				return createUrlProxy({
-					urlResolver: createDevUrlResolver({ base: 'test', searchParams: new URLSearchParams() }),
+				const dataCollector = new RealDataCollector(params);
+				const contentResolver = new RemoteUrlProxyContentResolver();
+				return new RealUrlProxy({
+					urlResolver: new DevUrlResolver({ base: 'test', searchParams: new URLSearchParams() }),
 					cssVariable,
-					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
+					hashResolver: new BuildUrlProxyHashResolver({ contentResolver, hasher }),
 					dataCollector,
 				});
 			},
 			defaults: DEFAULTS,
 			bold: markdownBold,
-			stringMatcher: createLevenshteinStringMatcher(),
+			stringMatcher: new LevenshteinStringMatcher(),
 		});
 		assert.deepStrictEqual(
 			[...fontFileDataMap.entries()],
@@ -159,9 +159,9 @@ describe('fonts orchestrate()', () => {
 		});
 
 		const root = new URL(import.meta.url);
-		const { storage } = createSpyStorage();
-		const fontTypeExtractor = createFontTypeExtractor();
-		const hasher = fakeHasher;
+		const storage = new SpyStorage();
+		const fontTypeExtractor = new RealFontTypeExtractor();
+		const hasher = new FakeHasher();
 		const { fontFileDataMap, internalConsumableMap, consumableMap } = await orchestrate({
 			families: [
 				{
@@ -172,7 +172,7 @@ describe('fonts orchestrate()', () => {
 				},
 			],
 			hasher,
-			remoteFontProviderResolver: createRemoteFontProviderResolver({
+			remoteFontProviderResolver: new RealRemoteFontProviderResolver({
 				root,
 				modResolver: {
 					resolve: async () => ({
@@ -180,30 +180,30 @@ describe('fonts orchestrate()', () => {
 					}),
 				},
 			}),
-			localProviderUrlResolver: createRequireLocalProviderUrlResolver({ root }),
+			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
 			storage,
-			cssRenderer: createMinifiableCssRenderer({ minify: true }),
-			systemFallbacksProvider: createSystemFallbacksProvider(),
-			fontMetricsResolver: fakeFontMetricsResolver,
+			cssRenderer: new MinifiableCssRenderer({ minify: true }),
+			systemFallbacksProvider: new RealSystemFallbacksProvider(),
+			fontMetricsResolver: new FakeFontMetricsResolver(),
 			fontTypeExtractor,
-			fontFileReader: createFontaceFontFileReader(),
+			fontFileReader: new FontaceFontFileReader(),
 			logger: defaultLogger,
 			createUrlProxy: ({ local, cssVariable, ...params }) => {
-				const dataCollector = createDataCollector(params);
-				const contentResolver = createRemoteUrlProxyContentResolver();
-				return createUrlProxy({
+				const dataCollector = new RealDataCollector(params);
+				const contentResolver = new RemoteUrlProxyContentResolver();
+				return new RealUrlProxy({
 					urlResolver: {
 						resolve: (hash) => hash,
-						getCspResources: () => [],
+						cspResources: [],
 					},
 					cssVariable,
-					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
+					hashResolver: new BuildUrlProxyHashResolver({ contentResolver, hasher }),
 					dataCollector,
 				});
 			},
 			defaults: DEFAULTS,
 			bold: markdownBold,
-			stringMatcher: createLevenshteinStringMatcher(),
+			stringMatcher: new LevenshteinStringMatcher(),
 		});
 
 		assert.deepStrictEqual(
@@ -278,9 +278,9 @@ describe('fonts orchestrate()', () => {
 		});
 
 		const root = new URL(import.meta.url);
-		const { storage } = createSpyStorage();
-		const fontTypeExtractor = createFontTypeExtractor();
-		const hasher = fakeHasher;
+		const storage = new SpyStorage();
+		const fontTypeExtractor = new RealFontTypeExtractor();
+		const hasher = new FakeHasher();
 		const logger = new SpyLogger();
 
 		await orchestrate({
@@ -293,7 +293,7 @@ describe('fonts orchestrate()', () => {
 				},
 			],
 			hasher,
-			remoteFontProviderResolver: createRemoteFontProviderResolver({
+			remoteFontProviderResolver: new RealRemoteFontProviderResolver({
 				root,
 				modResolver: {
 					resolve: async () => ({
@@ -301,30 +301,30 @@ describe('fonts orchestrate()', () => {
 					}),
 				},
 			}),
-			localProviderUrlResolver: createRequireLocalProviderUrlResolver({ root }),
+			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
 			storage,
-			cssRenderer: createMinifiableCssRenderer({ minify: true }),
-			systemFallbacksProvider: createSystemFallbacksProvider(),
-			fontMetricsResolver: fakeFontMetricsResolver,
+			cssRenderer: new MinifiableCssRenderer({ minify: true }),
+			systemFallbacksProvider: new RealSystemFallbacksProvider(),
+			fontMetricsResolver: new FakeFontMetricsResolver(),
 			fontTypeExtractor,
-			fontFileReader: createFontaceFontFileReader(),
+			fontFileReader: new FontaceFontFileReader(),
 			logger,
 			createUrlProxy: ({ local, cssVariable, ...params }) => {
-				const dataCollector = createDataCollector(params);
-				const contentResolver = createRemoteUrlProxyContentResolver();
-				return createUrlProxy({
+				const dataCollector = new RealDataCollector(params);
+				const contentResolver = new RemoteUrlProxyContentResolver();
+				return new RealUrlProxy({
 					urlResolver: {
 						resolve: (hash) => hash,
-						getCspResources: () => [],
+						cspResources: [],
 					},
 					cssVariable,
-					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
+					hashResolver: new BuildUrlProxyHashResolver({ contentResolver, hasher }),
 					dataCollector,
 				});
 			},
 			defaults: DEFAULTS,
 			bold: markdownBold,
-			stringMatcher: createLevenshteinStringMatcher(),
+			stringMatcher: new LevenshteinStringMatcher(),
 		});
 
 		assert.deepStrictEqual(logger.logs, [
@@ -350,9 +350,9 @@ describe('fonts orchestrate()', () => {
 		});
 
 		const root = new URL(import.meta.url);
-		const { storage } = createSpyStorage();
-		const fontTypeExtractor = createFontTypeExtractor();
-		const hasher = fakeHasher;
+		const storage = new SpyStorage();
+		const fontTypeExtractor = new RealFontTypeExtractor();
+		const hasher = new FakeHasher();
 		const logger = new SpyLogger();
 
 		await orchestrate({
@@ -365,7 +365,7 @@ describe('fonts orchestrate()', () => {
 				},
 			],
 			hasher,
-			remoteFontProviderResolver: createRemoteFontProviderResolver({
+			remoteFontProviderResolver: new RealRemoteFontProviderResolver({
 				root,
 				modResolver: {
 					resolve: async () => ({
@@ -373,30 +373,30 @@ describe('fonts orchestrate()', () => {
 					}),
 				},
 			}),
-			localProviderUrlResolver: createRequireLocalProviderUrlResolver({ root }),
+			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
 			storage,
-			cssRenderer: createMinifiableCssRenderer({ minify: true }),
-			systemFallbacksProvider: createSystemFallbacksProvider(),
-			fontMetricsResolver: fakeFontMetricsResolver,
+			cssRenderer: new MinifiableCssRenderer({ minify: true }),
+			systemFallbacksProvider: new RealSystemFallbacksProvider(),
+			fontMetricsResolver: new FakeFontMetricsResolver(),
 			fontTypeExtractor,
-			fontFileReader: createFontaceFontFileReader(),
+			fontFileReader: new FontaceFontFileReader(),
 			logger,
 			createUrlProxy: ({ local, cssVariable, ...params }) => {
-				const dataCollector = createDataCollector(params);
-				const contentResolver = createRemoteUrlProxyContentResolver();
-				return createUrlProxy({
+				const dataCollector = new RealDataCollector(params);
+				const contentResolver = new RemoteUrlProxyContentResolver();
+				return new RealUrlProxy({
 					urlResolver: {
 						resolve: (hash) => hash,
-						getCspResources: () => [],
+						cspResources: [],
 					},
 					cssVariable,
-					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
+					hashResolver: new BuildUrlProxyHashResolver({ contentResolver, hasher }),
 					dataCollector,
 				});
 			},
 			defaults: DEFAULTS,
 			bold: markdownBold,
-			stringMatcher: createLevenshteinStringMatcher(),
+			stringMatcher: new LevenshteinStringMatcher(),
 		});
 
 		assert.deepStrictEqual(logger.logs, [
@@ -436,9 +436,9 @@ describe('fonts orchestrate()', () => {
 		});
 
 		const root = new URL(import.meta.url);
-		const { storage } = createSpyStorage();
-		const fontTypeExtractor = createFontTypeExtractor();
-		const hasher = fakeHasher;
+		const storage = new SpyStorage();
+		const fontTypeExtractor = new RealFontTypeExtractor();
+		const hasher = new FakeHasher();
 		const logger = new SpyLogger();
 
 		await orchestrate({
@@ -457,7 +457,7 @@ describe('fonts orchestrate()', () => {
 				},
 			],
 			hasher,
-			remoteFontProviderResolver: createRemoteFontProviderResolver({
+			remoteFontProviderResolver: new RealRemoteFontProviderResolver({
 				root,
 				modResolver: {
 					resolve: async () => ({
@@ -465,30 +465,30 @@ describe('fonts orchestrate()', () => {
 					}),
 				},
 			}),
-			localProviderUrlResolver: createRequireLocalProviderUrlResolver({ root }),
+			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
 			storage,
-			cssRenderer: createMinifiableCssRenderer({ minify: true }),
-			systemFallbacksProvider: createSystemFallbacksProvider(),
-			fontMetricsResolver: fakeFontMetricsResolver,
+			cssRenderer: new MinifiableCssRenderer({ minify: true }),
+			systemFallbacksProvider: new RealSystemFallbacksProvider(),
+			fontMetricsResolver: new FakeFontMetricsResolver(),
 			fontTypeExtractor,
-			fontFileReader: createFontaceFontFileReader(),
+			fontFileReader: new FontaceFontFileReader(),
 			logger,
 			createUrlProxy: ({ local, cssVariable, ...params }) => {
-				const dataCollector = createDataCollector(params);
-				const contentResolver = createRemoteUrlProxyContentResolver();
-				return createUrlProxy({
+				const dataCollector = new RealDataCollector(params);
+				const contentResolver = new RemoteUrlProxyContentResolver();
+				return new RealUrlProxy({
 					urlResolver: {
 						resolve: (hash) => hash,
-						getCspResources: () => [],
+						cspResources: [],
 					},
 					cssVariable,
-					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
+					hashResolver: new BuildUrlProxyHashResolver({ contentResolver, hasher }),
 					dataCollector,
 				});
 			},
 			defaults: DEFAULTS,
 			bold: markdownBold,
-			stringMatcher: createLevenshteinStringMatcher(),
+			stringMatcher: new LevenshteinStringMatcher(),
 		});
 
 		assert.deepStrictEqual(logger.logs, [
@@ -529,9 +529,9 @@ describe('fonts orchestrate()', () => {
 		});
 
 		const root = new URL(import.meta.url);
-		const { storage } = createSpyStorage();
-		const fontTypeExtractor = createFontTypeExtractor();
-		const hasher = fakeHasher;
+		const storage = new SpyStorage();
+		const fontTypeExtractor = new RealFontTypeExtractor();
+		const hasher = new FakeHasher();
 		const logger = new SpyLogger();
 
 		await orchestrate({
@@ -550,7 +550,7 @@ describe('fonts orchestrate()', () => {
 				},
 			],
 			hasher,
-			remoteFontProviderResolver: createRemoteFontProviderResolver({
+			remoteFontProviderResolver: new RealRemoteFontProviderResolver({
 				root,
 				modResolver: {
 					resolve: async () => ({
@@ -558,30 +558,30 @@ describe('fonts orchestrate()', () => {
 					}),
 				},
 			}),
-			localProviderUrlResolver: createRequireLocalProviderUrlResolver({ root }),
+			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
 			storage,
-			cssRenderer: createMinifiableCssRenderer({ minify: true }),
-			systemFallbacksProvider: createSystemFallbacksProvider(),
-			fontMetricsResolver: fakeFontMetricsResolver,
+			cssRenderer: new MinifiableCssRenderer({ minify: true }),
+			systemFallbacksProvider: new RealSystemFallbacksProvider(),
+			fontMetricsResolver: new FakeFontMetricsResolver(),
 			fontTypeExtractor,
-			fontFileReader: createFontaceFontFileReader(),
+			fontFileReader: new FontaceFontFileReader(),
 			logger,
 			createUrlProxy: ({ local, cssVariable, ...params }) => {
-				const dataCollector = createDataCollector(params);
-				const contentResolver = createRemoteUrlProxyContentResolver();
-				return createUrlProxy({
+				const dataCollector = new RealDataCollector(params);
+				const contentResolver = new RemoteUrlProxyContentResolver();
+				return new RealUrlProxy({
 					urlResolver: {
 						resolve: (hash) => hash,
-						getCspResources: () => [],
+						cspResources: [],
 					},
 					cssVariable,
-					hashResolver: createBuildUrlProxyHashResolver({ contentResolver, hasher }),
+					hashResolver: new BuildUrlProxyHashResolver({ contentResolver, hasher }),
 					dataCollector,
 				});
 			},
 			defaults: DEFAULTS,
 			bold: markdownBold,
-			stringMatcher: createLevenshteinStringMatcher(),
+			stringMatcher: new LevenshteinStringMatcher(),
 		});
 
 		assert.deepStrictEqual(logger.logs, []);
