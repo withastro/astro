@@ -83,15 +83,15 @@ function configEnvironmentPlugin(compat: boolean | undefined): Plugin {
 			}
 
 			if (compat) {
+				environmentOptions.resolve = {
+					dedupe: ['preact/compat', 'preact'],
+				};
 				if (environmentName === 'client') {
 					environmentOptions.optimizeDeps!.include!.push(
 						'preact/compat',
 						'preact/test-utils',
 						'preact/compat/jsx-runtime',
 					);
-					environmentOptions.resolve = {
-						dedupe: ['preact/compat', 'preact'],
-					};
 				}
 
 				if (
