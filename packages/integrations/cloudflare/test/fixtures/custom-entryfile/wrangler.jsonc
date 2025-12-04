@@ -1,6 +1,6 @@
 {
   "compatibility_date": "2025-05-21",
-  "main": "dist/_worker.js/index.js",
+  "main": "@astrojs/cloudflare/entrypoints/server",
   "name": "astro-cloudflare-custom-entryfile",
   "assets": {
     "directory": "./dist",

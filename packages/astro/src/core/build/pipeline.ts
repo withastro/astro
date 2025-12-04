@@ -1,54 +1,64 @@
-import { getServerOutputDirectory } from '../../prerender/utils.js';
-import type { AstroSettings, ComponentInstance } from '../../types/astro.js';
+import type { ComponentInstance } from '../../types/astro.js';
 import type { RewritePayload } from '../../types/public/common.js';
-import type {
-	RouteData,
-	SSRElement,
-	SSRLoadedRenderer,
-	SSRResult,
-} from '../../types/public/internal.js';
+import type { RouteData, SSRElement, SSRResult } from '../../types/public/internal.js';
+import {
+	VIRTUAL_PAGE_RESOLVED_MODULE_ID,
+} from '../../vite-plugin-pages/const.js';
+import { getVirtualModulePageName } from '../../vite-plugin-pages/util.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
+import { createConsoleLogger } from '../app/index.js';
 import type { SSRManifest } from '../app/types.js';
 import type { TryRewriteResult } from '../base-pipeline.js';
-import { routeIsFallback, routeIsRedirect } from '../redirects/helpers.js';
-import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
-import { Pipeline } from '../render/index.js';
+import { RedirectSinglePageBuiltModule } from '../redirects/component.js';
+import { Pipeline } from '../base-pipeline.js';
 import { createAssetLink, createStylesheetElementSet } from '../render/ssr-element.js';
 import { createDefaultRoutes } from '../routing/default.js';
+import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
-import { getOutDirWithinCwd } from './common.js';
-import { type BuildInternals, cssOrder, getPageData, mergeInlineCss } from './internal.js';
-import { ASTRO_PAGE_MODULE_ID, ASTRO_PAGE_RESOLVED_MODULE_ID } from './plugins/plugin-pages.js';
-import { getPagesFromVirtualModulePageName, getVirtualModulePageName } from './plugins/util.js';
-import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
-import { i18nHasFallback } from './util.js';
+import type { BuildInternals } from './internal.js';
+import { cssOrder, mergeInlineCss, getPageData } from './runtime.js';
+import type { SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 
 /**
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
  */
 export class BuildPipeline extends Pipeline {
-	#componentsInterner: WeakMap<RouteData, SinglePageBuiltModule> = new WeakMap<
-		RouteData,
-		SinglePageBuiltModule
-	>();
+	internals: BuildInternals | undefined;
+	options: StaticBuildOptions | undefined;
+
+	getName(): string {
+		return 'BuildPipeline';
+	}
+
 	/**
 	 * This cache is needed to map a single `RouteData` to its file path.
 	 * @private
 	 */
 	#routesByFilePath: WeakMap<RouteData, string> = new WeakMap<RouteData, string>();
 
-	get outFolder() {
-		return this.settings.buildOutput === 'server'
-			? this.settings.config.build.server
-			: getOutDirWithinCwd(this.settings.config.outDir);
+	getSettings() {
+		if (!this.options) {
+			throw new Error('No options defined');
+		}
+		return this.options.settings;
+	}
+
+	getOptions() {
+		if (!this.options) {
+			throw new Error('No options defined');
+		}
+		return this.options;
+	}
+
+	getInternals() {
+		if (!this.internals) {
+			throw new Error('No internals defined');
+		}
+		return this.internals;
 	}
 
 	private constructor(
-		readonly internals: BuildInternals,
 		readonly manifest: SSRManifest,
-		readonly options: StaticBuildOptions,
-		readonly config = options.settings.config,
-		readonly settings = options.settings,
 		readonly defaultRoutes = createDefaultRoutes(manifest),
 	) {
 		const resolveCache = new Map<string, string>();
@@ -71,91 +81,34 @@ export class BuildPipeline extends Pipeline {
 			resolveCache.set(specifier, assetLink);
 			return assetLink;
 		}
-
-		const serverLike = settings.buildOutput === 'server';
+		const logger = createConsoleLogger(manifest.logLevel);
 		// We can skip streaming in SSG for performance as writing as strings are faster
-		const streaming = serverLike;
-		super(
-			options.logger,
-			manifest,
-			options.runtimeMode,
-			manifest.renderers,
-			resolve,
-			serverLike,
-			streaming,
-		);
+		super(logger, manifest, 'production', manifest.renderers, resolve, manifest.serverLike);
 	}
 
 	getRoutes(): RouteData[] {
-		return this.options.routesList.routes;
+		return this.getOptions().routesList.routes;
 	}
 
-	static create({
-		internals,
-		manifest,
-		options,
-	}: Pick<BuildPipeline, 'internals' | 'manifest' | 'options'>) {
-		return new BuildPipeline(internals, manifest, options);
+	static create({ manifest }: Pick<BuildPipeline, 'manifest'>) {
+		return new BuildPipeline(manifest);
 	}
 
-	/**
-	 * The SSR build emits two important files:
-	 * - dist/server/manifest.mjs
-	 * - dist/renderers.mjs
-	 *
-	 * These two files, put together, will be used to generate the pages.
-	 *
-	 * ## Errors
-	 *
-	 * It will throw errors if the previous files can't be found in the file system.
-	 *
-	 * @param staticBuildOptions
-	 */
-	static async retrieveManifest(
-		settings: AstroSettings,
-		internals: BuildInternals,
-	): Promise<SSRManifest> {
-		const baseDirectory = getServerOutputDirectory(settings);
-		const manifestEntryUrl = new URL(
-			`${internals.manifestFileName}?time=${Date.now()}`,
-			baseDirectory,
-		);
-		const { manifest } = await import(manifestEntryUrl.toString());
-		if (!manifest) {
-			throw new Error(
-				"Astro couldn't find the emitted manifest. This is an internal error, please file an issue.",
-			);
-		}
+	public setInternals(internals: BuildInternals) {
+		this.internals = internals;
+	}
 
-		const renderersEntryUrl = new URL(`renderers.mjs?time=${Date.now()}`, baseDirectory);
-		const renderers = await import(renderersEntryUrl.toString());
-
-		const middleware = internals.middlewareEntryPoint
-			? async function () {
-					// @ts-expect-error: the compiler can't understand the previous check
-					const mod = await import(internals.middlewareEntryPoint.toString());
-					return { onRequest: mod.onRequest };
-				}
-			: manifest.middleware;
-
-		if (!renderers) {
-			throw new Error(
-				"Astro couldn't find the emitted renderers. This is an internal error, please file an issue.",
-			);
-		}
-		return {
-			...manifest,
-			renderers: renderers.renderers as SSRLoadedRenderer[],
-			middleware,
-		};
+	public setOptions(options: StaticBuildOptions) {
+		this.options = options;
 	}
 
 	headElements(routeData: RouteData): Pick<SSRResult, 'scripts' | 'styles' | 'links'> {
 		const {
-			internals,
 			manifest: { assetsPrefix, base },
-			settings,
 		} = this;
+
+		const settings = this.getSettings();
+		const internals = this.getInternals();
 		const links = new Set<never>();
 		const pageBuildData = getPageData(internals, routeData.route, routeData.component);
 		const scripts = new Set<SSRElement>();
@@ -186,6 +139,7 @@ export class BuildPipeline extends Pipeline {
 				});
 			}
 		}
+
 		return { scripts, styles, links };
 	}
 
@@ -195,156 +149,117 @@ export class BuildPipeline extends Pipeline {
 	 * It collects the routes to generate during the build.
 	 * It returns a map of page information and their relative entry point as a string.
 	 */
-	retrieveRoutesToGenerate(): Map<PageBuildData, string> {
-		const pages = new Map<PageBuildData, string>();
+	retrieveRoutesToGenerate(): Set<RouteData> {
+		const pages = new Set<RouteData>();
 
-		for (const [virtualModulePageName, filePath] of this.internals.entrySpecifierToBundleMap) {
-			// virtual pages are emitted with the 'plugin-pages' prefix
-			if (virtualModulePageName.includes(ASTRO_PAGE_RESOLVED_MODULE_ID)) {
-				let pageDatas: PageBuildData[] = [];
-				pageDatas.push(
-					...getPagesFromVirtualModulePageName(
-						this.internals,
-						ASTRO_PAGE_RESOLVED_MODULE_ID,
-						virtualModulePageName,
-					),
-				);
-				for (const pageData of pageDatas) {
-					pages.set(pageData, filePath);
-				}
+		// Keep a list of the default routes names for faster lookup
+		const defaultRouteComponents = new Set(this.defaultRoutes.map(route => route.component));
+
+		for (const { routeData } of this.manifest.routes) {
+			if (routeIsRedirect(routeData)) {
+				// the component path isn't really important for redirects
+				pages.add(routeData);
+				continue;
 			}
-		}
 
-		for (const pageData of this.internals.pagesByKeys.values()) {
-			if (routeIsRedirect(pageData.route)) {
-				pages.set(pageData, pageData.component);
-			} else if (
-				routeIsFallback(pageData.route) &&
-				(i18nHasFallback(this.config) ||
-					(routeIsFallback(pageData.route) && pageData.route.route === '/'))
-			) {
-				// The original component is transformed during the first build, so we have to retrieve
-				// the actual `.mjs` that was created.
-				// During the build, we transform the names of our pages with some weird name, and those weird names become the keys of a map.
-				// The values of the map are the actual `.mjs` files that are generated during the build
-
-				// Here, we take the component path and transform it in the virtual module name
-				const moduleSpecifier = getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component);
-				// We retrieve the original JS module
-				const filePath = this.internals.entrySpecifierToBundleMap.get(moduleSpecifier);
-				if (filePath) {
-					// it exists, added it to pages to render, using the file path that we just retrieved
-					pages.set(pageData, filePath);
-				}
+			if (routeIsFallback(routeData) && i18nHasFallback(this.manifest)) {
+				pages.add(routeData);
+				continue;
 			}
-		}
 
-		for (const [buildData, filePath] of pages.entries()) {
-			this.#routesByFilePath.set(buildData.route, filePath);
+			// Default routes like the server islands route, should not be generated
+			if(defaultRouteComponents.has(routeData.component)) {
+				continue;
+			}
+
+			// A regular page, add it to the set
+			pages.add(routeData);
+
+			// TODO The following is almost definitely legacy. We can remove it when we confirm
+			// getComponentByRoute is not actually used.
+
+			// Here, we take the component path and transform it in the virtual module name
+			const moduleSpecifier = getVirtualModulePageName(
+				VIRTUAL_PAGE_RESOLVED_MODULE_ID,
+				routeData.component,
+			);
+
+			// We retrieve the original JS module
+			const filePath = this.internals?.entrySpecifierToBundleMap.get(moduleSpecifier);
+
+			if (filePath) {
+				// Populate the cache
+				this.#routesByFilePath.set(routeData, filePath);
+			}
 		}
 
 		return pages;
 	}
 
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
-		if (this.#componentsInterner.has(routeData)) {
-			// SAFETY: checked before
-			const entry = this.#componentsInterner.get(routeData)!;
-			return await entry.page();
-		}
+		const module = await this.getModuleForRoute(routeData);
+		return module.page();
+	}
 
-		for (const route of this.defaultRoutes) {
-			if (route.component === routeData.component) {
-				return route.instance;
+	async getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
+		for (const defaultRoute of this.defaultRoutes) {
+			if (route.component === defaultRoute.component) {
+				return {
+					page: () => Promise.resolve(defaultRoute.instance),
+				};
 			}
 		}
+		let routeToProcess = route;
+		if (routeIsRedirect(route)) {
+			if (route.redirectRoute) {
+				// This is a static redirect
+				routeToProcess = route.redirectRoute;
+			} else {
+				// This is an external redirect, so we return a component stub
+				return RedirectSinglePageBuiltModule;
+			}
+		} else if (routeIsFallback(route)) {
+			// This is a i18n fallback route
+			routeToProcess = getFallbackRoute(route, this.manifest.routes);
+		}
 
-		// SAFETY: the pipeline calls `retrieveRoutesToGenerate`, which is in charge to fill the cache.
-		const filePath = this.#routesByFilePath.get(routeData)!;
-		const module = await this.retrieveSsrEntry(routeData, filePath);
-		return module.page();
+		if (this.manifest.pageMap) {
+			const importComponentInstance = this.manifest.pageMap.get(routeToProcess.component);
+			if (!importComponentInstance) {
+				throw new Error(
+					`Unexpectedly unable to find a component instance for route ${route.route}`,
+				);
+			}
+			return await importComponentInstance();
+		} else if (this.manifest.pageModule) {
+			return this.manifest.pageModule;
+		}
+		throw new Error(
+			"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue.",
+		);
 	}
 
 	async tryRewrite(payload: RewritePayload, request: Request): Promise<TryRewriteResult> {
 		const { routeData, pathname, newUrl } = findRouteToRewrite({
 			payload,
 			request,
-			routes: this.options.routesList.routes,
-			trailingSlash: this.config.trailingSlash,
-			buildFormat: this.config.build.format,
-			base: this.config.base,
-			outDir: this.serverLike ? this.manifest.buildClientDir : this.manifest.outDir,
+			routes: this.manifest.routes.map((routeInfo) => routeInfo.routeData),
+			trailingSlash: this.manifest.trailingSlash,
+			buildFormat: this.manifest.buildFormat,
+			base: this.manifest.base,
+			outDir: this.manifest.serverLike ? this.manifest.buildClientDir : this.manifest.outDir,
 		});
 
 		const componentInstance = await this.getComponentByRoute(routeData);
 		return { routeData, componentInstance, newUrl, pathname };
 	}
-
-	async retrieveSsrEntry(route: RouteData, filePath: string): Promise<SinglePageBuiltModule> {
-		if (this.#componentsInterner.has(route)) {
-			// SAFETY: it is checked inside the if
-			return this.#componentsInterner.get(route)!;
-		}
-		let entry;
-		if (routeIsRedirect(route)) {
-			entry = await this.#getEntryForRedirectRoute(route, this.outFolder);
-		} else if (routeIsFallback(route)) {
-			entry = await this.#getEntryForFallbackRoute(route, this.outFolder);
-		} else {
-			const ssrEntryURLPage = createEntryURL(filePath, this.outFolder);
-			entry = await import(ssrEntryURLPage.toString());
-		}
-		this.#componentsInterner.set(route, entry);
-		return entry;
-	}
-
-	async #getEntryForFallbackRoute(
-		route: RouteData,
-		outFolder: URL,
-	): Promise<SinglePageBuiltModule> {
-		if (route.type !== 'fallback') {
-			throw new Error(`Expected a redirect route.`);
-		}
-		if (route.redirectRoute) {
-			const filePath = getEntryFilePath(this.internals, route.redirectRoute);
-			if (filePath) {
-				const url = createEntryURL(filePath, outFolder);
-				const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
-				return ssrEntryPage;
-			}
-		}
-
-		return RedirectSinglePageBuiltModule;
-	}
-
-	async #getEntryForRedirectRoute(
-		route: RouteData,
-		outFolder: URL,
-	): Promise<SinglePageBuiltModule> {
-		if (route.type !== 'redirect') {
-			throw new Error(`Expected a redirect route.`);
-		}
-		if (route.redirectRoute) {
-			const filePath = getEntryFilePath(this.internals, route.redirectRoute);
-			if (filePath) {
-				const url = createEntryURL(filePath, outFolder);
-				const ssrEntryPage: SinglePageBuiltModule = await import(url.toString());
-				return ssrEntryPage;
-			}
-		}
-
-		return RedirectSinglePageBuiltModule;
-	}
 }
 
-function createEntryURL(filePath: string, outFolder: URL) {
-	return new URL('./' + filePath + `?time=${Date.now()}`, outFolder);
-}
+function i18nHasFallback(manifest: SSRManifest): boolean {
+	if (manifest.i18n && manifest.i18n.fallback) {
+		// we have some fallback and the control is not none
+		return Object.keys(manifest.i18n.fallback).length > 0;
+	}
 
-/**
- * For a given pageData, returns the entry file path—aka a resolved virtual module in our internals' specifiers.
- */
-function getEntryFilePath(internals: BuildInternals, pageData: RouteData) {
-	const id = '\x00' + getVirtualModulePageName(ASTRO_PAGE_MODULE_ID, pageData.component);
-	return internals.entrySpecifierToBundleMap.get(id);
+	return false;
 }

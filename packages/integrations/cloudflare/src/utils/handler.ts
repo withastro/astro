@@ -1,55 +1,47 @@
-// @ts-expect-error - It is safe to expect the error here.
 import { env as globalEnv } from 'cloudflare:workers';
+import { sessionKVBindingName } from 'virtual:astro-cloudflare:config';
 import type {
-	CacheStorage as CloudflareCacheStorage,
+	Response as CfResponse,
 	ExecutionContext,
 	ExportedHandlerFetchHandler,
 } from '@cloudflare/workers-types';
-import type { SSRManifest } from 'astro';
-import type { App } from 'astro/app';
+import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from '../utils/env.js';
 
-type Env = {
+export type Env = {
 	[key: string]: unknown;
-	ASSETS: { fetch: (req: Request | string) => Promise<Response> };
+	ASSETS: { fetch: (req: Request | string) => Promise<CfResponse> };
 };
 
 setGetEnv(createGetEnv(globalEnv as Env));
 
-export interface Runtime<T extends object = object> {
-	runtime: {
-		env: Env & T;
-		cf: Parameters<ExportedHandlerFetchHandler>[0]['cf'];
-		caches: CloudflareCacheStorage;
-		ctx: ExecutionContext;
-	};
+export interface Runtime {
+	cfContext: ExecutionContext;
 }
 
 declare global {
-	// This is not a real global, but is injected using Vite define to allow us to specify the session binding name in the config.
-	var __ASTRO_SESSION_BINDING_NAME: string;
-
-	// Just used to pass the KV binding to unstorage.
-	var __env__: Partial<Env>;
+	// This is not a real global, but is injected using Vite define to allow us to specify the Images binding name in the config.
+	var __ASTRO_IMAGES_BINDING_NAME: string;
 }
 
 export async function handle(
-	manifest: SSRManifest,
-	app: App,
 	request: Parameters<ExportedHandlerFetchHandler>[0],
 	env: Env,
 	context: ExecutionContext,
-) {
+): Promise<CfResponse> {
+	const app = createApp(import.meta.env.DEV);
 	const { pathname } = new URL(request.url);
-	const bindingName = globalThis.__ASTRO_SESSION_BINDING_NAME;
-	// Assigning the KV binding to globalThis allows unstorage to access it for session storage.
-	// unstorage checks in globalThis and globalThis.__env__ for the binding.
-	globalThis.__env__ ??= {};
-	globalThis.__env__[bindingName] = env[bindingName];
+
+	if (env[sessionKVBindingName]) {
+		const sessionConfigOptions = app.manifest.sessionConfig?.options ?? {};
+		Object.assign(sessionConfigOptions, {
+			binding: env[sessionKVBindingName],
+		});
+	}
 
 	// static assets fallback, in case default _routes.json is not used
-	if (manifest.assets.has(pathname)) {
+	if (app.manifest.assets.has(pathname)) {
 		return env.ASSETS.fetch(request.url.replace(/\.html$/, ''));
 	}
 
@@ -65,21 +57,7 @@ export async function handle(
 	}
 
 	const locals: Runtime = {
-		runtime: {
-			env: env,
-			cf: request.cf,
-			caches: caches as unknown as CloudflareCacheStorage,
-			ctx: {
-				waitUntil: (promise: Promise<any>) => context.waitUntil(promise),
-				// Currently not available: https://developers.cloudflare.com/pages/platform/known-issues/#pages-functions
-				passThroughOnException: () => {
-					throw new Error(
-						'`passThroughOnException` is currently not available in Cloudflare Pages. See https://developers.cloudflare.com/pages/platform/known-issues/#pages-functions.',
-					);
-				},
-				props: {},
-			},
-		},
+		cfContext: context,
 	};
 
 	const response = await app.render(
@@ -88,7 +66,7 @@ export async function handle(
 			routeData,
 			locals,
 			prerenderedErrorPageFetch: async (url) => {
-				return env.ASSETS.fetch(url.replace(/\.html$/, ''));
+				return env.ASSETS.fetch(url.replace(/\.html$/, '')) as unknown as Response;
 			},
 			clientAddress: request.headers.get('cf-connecting-ip') ?? undefined,
 		},
@@ -100,5 +78,5 @@ export async function handle(
 		}
 	}
 
-	return response;
+	return response as unknown as CfResponse;
 }
