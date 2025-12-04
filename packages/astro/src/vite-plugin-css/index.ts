@@ -6,6 +6,7 @@ import { isBuildableCSSRequest } from '../vite-plugin-astro-server/util.js';
 import { getVirtualModulePageNameForComponent } from '../vite-plugin-pages/util.js';
 import { getDevCSSModuleName } from './util.js';
 import { prependForwardSlash } from '@astrojs/internal-helpers/path';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 interface AstroVitePluginOptions {
 	routesList: RoutesList;
@@ -86,7 +87,7 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 		name: MODULE_DEV_CSS,
 
 		async configureServer(server) {
-			environment = server.environments.ssr as RunnableDevEnvironment;
+			environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as RunnableDevEnvironment;
 		},
 
 		resolveId(id) {

@@ -7,12 +7,16 @@ import {
 	trackClientOnlyPageDatas,
 	trackScriptPageDatas,
 } from '../internal.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
 export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/rollup-plugin-astro-analyzer',
 		applyToEnvironment(environment) {
-			return environment.name === 'ssr' || environment.name === 'prerender';
+			return (
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
+			);
 		},
 		async generateBundle() {
 			const ids = this.getModuleIds();

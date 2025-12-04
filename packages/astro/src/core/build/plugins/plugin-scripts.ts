@@ -1,6 +1,7 @@
 import type { BuildOptions, Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import { shouldInlineAsset } from './util.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
 /**
  * Inline scripts from Astro files directly into the HTML.
@@ -12,7 +13,7 @@ export function pluginScripts(internals: BuildInternals): VitePlugin {
 		name: '@astro/plugin-scripts',
 
 		applyToEnvironment(environment) {
-			return environment.name === 'client';
+			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client;
 		},
 
 		configResolved(config) {

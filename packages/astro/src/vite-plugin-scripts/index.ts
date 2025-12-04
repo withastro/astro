@@ -1,6 +1,7 @@
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../types/astro.js';
 import type { InjectedScriptStage } from '../types/public/integrations.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 // NOTE: We can't use the virtual "\0" ID convention because we need to
 // inject these as ESM imports into actual code, where they would not
@@ -52,7 +53,11 @@ export default function astroScriptsPlugin({ settings }: { settings: AstroSettin
 		},
 		buildStart() {
 			const hasHydrationScripts = settings.scripts.some((s) => s.stage === 'before-hydration');
-			if (hasHydrationScripts && ['prerender', 'ssr'].includes(this.environment.name)) {
+			if (
+				hasHydrationScripts &&
+				(this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender ||
+					this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr)
+			) {
 				this.emitFile({
 					type: 'chunk',
 					id: BEFORE_HYDRATION_SCRIPT_ID,

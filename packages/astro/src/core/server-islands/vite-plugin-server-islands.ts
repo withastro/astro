@@ -3,6 +3,7 @@ import type { ConfigEnv, DevEnvironment, Plugin as VitePlugin } from 'vite';
 import type { AstroPluginOptions } from '../../types/astro.js';
 import type { AstroPluginMetadata } from '../../vite-plugin-astro/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 
 export const SERVER_ISLAND_MANIFEST = 'virtual:astro:server-island-manifest';
 const RESOLVED_SERVER_ISLAND_MANIFEST = '\0' + SERVER_ISLAND_MANIFEST;
@@ -23,7 +24,7 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 			command = _command;
 		},
 		configureServer(server) {
-			ssrEnvironment = server.environments.ssr;
+			ssrEnvironment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 		},
 		resolveId(name) {
 			if (name === SERVER_ISLAND_MANIFEST) {

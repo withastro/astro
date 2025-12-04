@@ -59,6 +59,7 @@ import {
 import { createBuildUrlResolver, createDevUrlResolver } from './infra/url-resolver.js';
 import { orchestrate } from './orchestrate.js';
 import type { ConsumableMap, FontFileDataMap, InternalConsumableMap } from './types.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../core/constants.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -234,7 +235,9 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
 				cacheDir: new URL(CACHE_DIR, settings.dotAstroDir),
 				modResolver: createDevServerRemoteFontProviderModResolver({
-					environment: server.environments.astro as RunnableDevEnvironment,
+					environment: server.environments[
+						ASTRO_VITE_ENVIRONMENT_NAMES.astro
+					] as RunnableDevEnvironment,
 				}),
 				cssRenderer: createMinifiableCssRenderer({ minify: false }),
 				urlResolver: createDevUrlResolver({

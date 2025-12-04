@@ -35,6 +35,7 @@ import {
 	reloadContentConfigObserver,
 	reverseSymlink,
 } from './utils.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 function getContentRendererByViteId(
 	viteId: string,
@@ -152,7 +153,7 @@ export const _internal = {
 			configureServer(viteServer) {
 				viteServer.watcher.on('all', async (event, entry) => {
 					if (CHOKIDAR_MODIFIED_EVENTS.includes(event)) {
-						const environment = viteServer.environments.ssr;
+						const environment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 
 						const entryType = getEntryType(entry, contentPaths, contentEntryExts, dataEntryExts);
 						if (!COLLECTION_TYPES_TO_INVALIDATE_ON.includes(entryType)) return;
@@ -164,7 +165,9 @@ export const _internal = {
 							await reloadContentConfigObserver({
 								fs,
 								settings,
-								environment: viteServer.environments.astro as RunnableDevEnvironment,
+								environment: viteServer.environments[
+									ASTRO_VITE_ENVIRONMENT_NAMES.astro
+								] as RunnableDevEnvironment,
 							});
 						}
 

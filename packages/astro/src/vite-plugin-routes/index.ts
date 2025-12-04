@@ -14,6 +14,7 @@ import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
 import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 type Payload = {
 	settings: AstroSettings;
@@ -74,7 +75,7 @@ export default async function astroPluginRoutes({
 					routeData: serializeRouteData(r, settings.config.trailingSlash),
 				};
 			});
-			let environment = server.environments.ssr;
+			let environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 			const virtualMod = environment.moduleGraph.getModuleById(ASTRO_ROUTES_MODULE_ID_RESOLVED);
 			if (!virtualMod) return;
 
@@ -91,9 +92,9 @@ export default async function astroPluginRoutes({
 
 		applyToEnvironment(environment) {
 			return (
-				environment.name === 'astro' ||
-				environment.name === 'ssr' ||
-				environment.name === 'prerender'
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
 		},
 
@@ -102,7 +103,7 @@ export default async function astroPluginRoutes({
 				const environmentName = this.environment.name;
 				const filteredRoutes = serializedRouteInfo.filter((routeInfo) => {
 					// In prerender, filter to only the routes that need prerendering.
-					if (environmentName === 'prerender') {
+					if (environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) {
 						return routeInfo.routeData.prerender;
 					}
 					// TODO we can likely do the opposite as well, filter out prerendered routes

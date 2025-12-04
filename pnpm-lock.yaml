@@ -643,9 +643,6 @@ importers:
       zod-to-json-schema:
         specifier: ^3.24.6
         version: 3.24.6(zod@3.25.76)
-      zod-to-ts:
-        specifier: ^1.2.0
-        version: 1.2.0(typescript@5.9.3)(zod@3.25.76)
     devDependencies:
       '@astrojs/check':
         specifier: workspace:*
@@ -2726,6 +2723,12 @@ importers:
       '@astrojs/mdx':
         specifier: workspace:*
         version: link:../../../../integrations/mdx
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
+  packages/astro/test/fixtures/content-layer-loader-schema-function:
+    dependencies:
       astro:
         specifier: workspace:*
         version: link:../../..
