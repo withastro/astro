@@ -11,6 +11,7 @@ import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
 import type { PluginMetadata as AstroPluginMetadata, CompileMetadata } from './types.js';
 import { loadId } from './utils.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 export { getAstroMetadata } from './metadata.js';
 export type { AstroPluginMetadata };
@@ -214,7 +215,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			if (!parsedId.filename.endsWith('.astro') || parsedId.query.astro) {
 				// Special edge case handling for Vite 6 beta, the style dependencies need to be registered here take affect
 				// TODO: Remove this when Vite fixes it (https://github.com/vitejs/vite/pull/18103)
-				if (this.environment.name === 'client') {
+				if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 					const astroFilename = normalizePath(normalizeFilename(parsedId.filename, config.root));
 					const compileMetadata = astroFileToCompileMetadata.get(astroFilename);
 					if (compileMetadata && parsedId.query.type === 'style' && parsedId.query.index != null) {
@@ -232,7 +233,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 			// If an Astro component is imported in code used on the client, we return an empty
 			// module so that Vite doesn’t bundle the server-side Astro code for the client.
-			if (this.environment.name === 'client') {
+			if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 				return {
 					code: `export default import.meta.env.DEV
 									? () => {

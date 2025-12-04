@@ -1,6 +1,7 @@
 import type { Plugin } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { SERIALIZED_MANIFEST_ID } from './serialized.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 const VIRTUAL_SERVER_ID = 'astro:config/server';
 const RESOLVED_VIRTUAL_SERVER_ID = '\0' + VIRTUAL_SERVER_ID;
@@ -49,7 +50,7 @@ export { base, i18n, trailingSlash, site, compressHTML, build };
 			}
 			// server
 			else if (id == RESOLVED_VIRTUAL_SERVER_ID) {
-				if (this.environment.name === 'client') {
+				if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 					throw new AstroError({
 						...AstroErrorData.ServerOnlyModule,
 						message: AstroErrorData.ServerOnlyModule.message(VIRTUAL_SERVER_ID),

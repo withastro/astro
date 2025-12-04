@@ -2,6 +2,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import type { StaticBuildOptions } from '../types.js';
 import { normalizeEntryId } from './plugin-component-entry.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
 export function pluginInternals(
 	options: StaticBuildOptions,
@@ -13,7 +14,11 @@ export function pluginInternals(
 		name: '@astro/plugin-build-internals',
 
 		applyToEnvironment(environment) {
-			return environment.name === 'client' || environment.name === 'ssr' || environment.name === 'prerender';
+			return (
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
+			);
 		},
 
 		config(config, buildEnv) {

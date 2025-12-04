@@ -6,6 +6,7 @@ import type { BuildInternals } from '../core/build/internal.js';
 import type { SSRComponentMetadata, SSRResult } from '../types/public/internal.js';
 import { getAstroMetadata } from '../vite-plugin-astro/index.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 // Detect this in comments, both in .astro components and in js/ts files.
 const injectExp = /(?:^\/\/|\/\/!)\s*astro-head-inject/;
@@ -90,7 +91,10 @@ export function astroHeadBuildPlugin(internals: BuildInternals): vite.Plugin {
 	return {
 		name: 'astro:head-metadata-build',
 		applyToEnvironment(environment) {
-			return environment.name === 'ssr' || environment.name === 'prerender';
+			return (
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
+			);
 		},
 		generateBundle(_opts, bundle) {
 			const map: SSRResult['componentMetadata'] = internals.componentMetadata;

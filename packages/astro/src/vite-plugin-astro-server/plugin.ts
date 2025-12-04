@@ -34,6 +34,7 @@ import { createController } from './controller.js';
 import { recordServerError } from './error.js';
 import { setRouteError } from './server-state.js';
 import { trailingSlashMiddleware } from './trailing-slash.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -47,7 +48,7 @@ export default function createVitePluginAstroServer({
 	return {
 		name: 'astro:server',
 		applyToEnvironment(environment) {
-			return environment.name === 'ssr';
+			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.server;
 		},
 		async configureServer(viteServer) {
 			// Cloudflare handles its own requests
@@ -171,7 +172,7 @@ export function createVitePluginAstroServerClient(): vite.Plugin {
 	return {
 		name: 'astro:server-client',
 		applyToEnvironment(environment) {
-			return environment.name === 'client';
+			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client;
 		},
 		transform(code, id, opts = {}) {
 			if (opts.ssr) return;

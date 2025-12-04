@@ -1,5 +1,6 @@
 import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
 const astroEntryPrefix = '\0astro-entry:';
 
@@ -39,7 +40,7 @@ export function pluginComponentEntry(internals: BuildInternals): VitePlugin {
 		name: '@astro/plugin-component-entry',
 		enforce: 'pre',
 		applyToEnvironment(environment) {
-			return environment.name === 'client';
+			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client;
 		},
 		config(config) {
 			const rollupInput = config.build?.rollupOptions?.input;
