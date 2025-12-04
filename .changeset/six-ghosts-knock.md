@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Add a warning when duplicate slugs are detected in content collections.
+Updates the `glob()` loader to log a warning when duplicated IDs are detected
