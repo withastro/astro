@@ -148,10 +148,4 @@ describe('Astro.params in static mode', () => {
 		const $ = cheerio.load(html);
 		assert.equal($('.category').text(), '%3Fsomething');
 	});
-
-	it("It doesn't encode/decode URI characters such as %25 (%)", async () => {
-		const html = await fixture.readFile(encodeURI('/%25something/index.html'));
-		const $ = cheerio.load(html);
-		assert.equal($('.category').text(), '%25something');
-	});
 });

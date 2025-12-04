@@ -95,7 +95,6 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 	if (!store) {
 		logger.error('content', 'Failed to create data store');
 	}
-
 	await attachContentServerListeners(restart.container);
 
 	const config = globalContentConfigObserver.get();

@@ -1,19 +1,23 @@
 import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
-import type { AstroBuildPlugin } from '../plugin.js';
 import type { StaticBuildOptions } from '../types.js';
 import { normalizeEntryId } from './plugin-component-entry.js';
 
-function vitePluginInternals(
-	input: Set<string>,
-	opts: StaticBuildOptions,
+export function pluginInternals(
+	options: StaticBuildOptions,
 	internals: BuildInternals,
 ): VitePlugin {
+	let input: Set<string>;
+
 	return {
 		name: '@astro/plugin-build-internals',
 
-		config(config, options) {
-			if (options.command === 'build' && config.build?.ssr) {
+		applyToEnvironment(environment) {
+			return environment.name === 'client' || environment.name === 'ssr' || environment.name === 'prerender';
+		},
+
+		config(config, buildEnv) {
+			if (buildEnv.command === 'build' && config.build?.ssr) {
 				return {
 					ssr: {
 						// Always bundle Astro runtime when building for SSR
@@ -28,10 +32,25 @@ function vitePluginInternals(
 			}
 		},
 
+		configResolved(config) {
+			// Get input from rollupOptions
+			const rollupInput = config.build?.rollupOptions?.input;
+			if (Array.isArray(rollupInput)) {
+				input = new Set(rollupInput);
+			} else if (typeof rollupInput === 'string') {
+				input = new Set([rollupInput]);
+			} else if (rollupInput && typeof rollupInput === 'object') {
+				input = new Set(Object.values(rollupInput) as string[]);
+			} else {
+				input = new Set();
+			}
+		},
+
 		async generateBundle(_options, bundle) {
 			const promises = [];
 			const mapping = new Map<string, Set<string>>();
-			for (const specifier of input) {
+			const allInput = new Set([...input, ...internals.clientInput]);
+			for (const specifier of allInput) {
 				promises.push(
 					this.resolve(specifier).then((result) => {
 						if (result) {
@@ -46,7 +65,7 @@ function vitePluginInternals(
 			}
 			await Promise.all(promises);
 			for (const [_, chunk] of Object.entries(bundle)) {
-				if (chunk.fileName.startsWith(opts.settings.config.build.assets)) {
+				if (chunk.fileName.startsWith(options.settings.config.build.assets)) {
 					internals.clientChunksAndAssets.add(chunk.fileName);
 				}
 
@@ -57,22 +76,6 @@ function vitePluginInternals(
 					}
 				}
 			}
-		},
-	};
-}
-
-export function pluginInternals(
-	options: StaticBuildOptions,
-	internals: BuildInternals,
-): AstroBuildPlugin {
-	return {
-		targets: ['client', 'server'],
-		hooks: {
-			'build:before': ({ input }) => {
-				return {
-					vitePlugin: vitePluginInternals(input, options, internals),
-				};
-			},
 		},
 	};
 }

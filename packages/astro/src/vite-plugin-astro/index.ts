@@ -54,14 +54,15 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			}
 			viteConfig.resolve.conditions.push('astro');
 		},
-		configResolved(viteConfig) {
+		async configResolved(viteConfig) {
+			const toolbarEnabled = await settings.preferences.get('devToolbar.enabled');
 			// Initialize `compile` function to simplify usage later
 			compile = (code, filename) => {
 				return compileAstro({
 					compileProps: {
 						astroConfig: config,
 						viteConfig,
-						preferences: settings.preferences,
+						toolbarEnabled,
 						filename,
 						source: code,
 					},
@@ -205,7 +206,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					return null;
 			}
 		},
-		async transform(source, id, options) {
+		async transform(source, id) {
 			if (hasSpecialQueries(id)) return;
 
 			const parsedId = parseAstroRequest(id);
@@ -231,7 +232,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 			// If an Astro component is imported in code used on the client, we return an empty
 			// module so that Vite doesn’t bundle the server-side Astro code for the client.
-			if (!options?.ssr) {
+			if (this.environment.name === 'client') {
 				return {
 					code: `export default import.meta.env.DEV
 									? () => {
@@ -292,7 +293,9 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 function appendSourceMap(content: string, map?: string) {
 	if (!map) return content;
-	return `${content}\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(
+	// The \n here is on purpose inside a template literal because otherwise, in the final built version of this file, the comment would
+	// start on its own line, and some tools will think it's actually the sourcemap of this file, not of generated code.
+	return `${content}${'\n//#'} sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(
 		map,
 	).toString('base64')}`;
 }

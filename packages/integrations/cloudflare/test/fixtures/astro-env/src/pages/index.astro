@@ -1,8 +1,7 @@
 ---
 import { API_URL } from "astro:env/client"
 import { PORT, API_SECRET } from "astro:env/server"
-
-const runtime = Astro.locals.runtime;
+import { env } from "cloudflare:workers"
 ---
 <html>
 	<head>
@@ -10,7 +9,7 @@ const runtime = Astro.locals.runtime;
 	</head>
 	<body>
 		<h1>Astro Env</h1>
-		<pre id="runtime">{JSON.stringify(runtime.env, null, 2)}</pre>
+		<pre id="runtime">{JSON.stringify(env, null, 2)}</pre>
 		<div>
 			<span>API_URL</span>
 			<span id="client">{API_URL}</span>

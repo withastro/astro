@@ -1,4 +1,6 @@
 ---
+// @ts-expect-error virtual mod
+import { paramType } from 'virtual:my:param:type';
 
 export function getStaticPaths ()  {
 	const map = {
@@ -15,14 +17,13 @@ export function getStaticPaths ()  {
 		bigint: BigInt(123),
 		function: setTimeout
 	}
-	const type = globalThis.getStaticPathsParamsType || "string"
-	if (!map.hasOwnProperty(type)) {
-		throw new Error(`Invalid type: ${type}`);
+	if (!map.hasOwnProperty(paramType)) {
+		throw new Error(`Invalid type: ${paramType}`);
 	}
 
 	return [{
 		params: {
-			invalidParamsTypeTest: map[type] 
+			invalidParamsTypeTest: map[paramType] 
 		}
 	}];
 };

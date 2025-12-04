@@ -18,6 +18,9 @@ import type {
 } from '../../types/public/internal.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
 import type { CspDirective } from '../csp/config.js';
+import type { LoggerLevel } from '../logger/core.js';
+import type { SessionDriver } from '../session.js';
+import type { RoutingStrategies } from './common.js';
 
 type ComponentPath = string;
 
@@ -25,16 +28,16 @@ export type StylesheetAsset =
 	| { type: 'inline'; content: string }
 	| { type: 'external'; src: string };
 
+type ScriptAsset =
+	| { children: string; stage: string }
+	// Hoisted
+	| { type: 'inline' | 'external'; value: string };
+
 export interface RouteInfo {
 	routeData: RouteData;
 	file: string;
 	links: string[];
-	scripts: // Integration injected
-	(
-		| { children: string; stage: string }
-		// Hoisted
-		| { type: 'inline' | 'external'; value: string }
-	)[];
+	scripts: ScriptAsset[];
 	styles: StylesheetAsset[];
 }
 
@@ -44,6 +47,11 @@ export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
 
 type ImportComponentInstance = () => Promise<SinglePageBuiltModule>;
 
+export type ServerIslandMappings = {
+	serverIslandMap?: Map<string, () => Promise<ComponentInstance>>;
+	serverIslandNameMap?: Map<string, string>;
+};
+
 export type AssetsPrefix =
 	| string
 	| ({
@@ -52,7 +60,6 @@ export type AssetsPrefix =
 	| undefined;
 
 export type SSRManifest = {
-	hrefRoot: string;
 	adapterName: string;
 	routes: RouteInfo[];
 	site?: string;
@@ -70,6 +77,13 @@ export type SSRManifest = {
 	assetsPrefix?: AssetsPrefix;
 	renderers: SSRLoadedRenderer[];
 	/**
+	 * Based on Astro config's `output` option, `true` if "server" or "hybrid".
+	 *
+	 * Whether this application is SSR-like. If so, this has some implications, such as
+	 * the creation of `dist/client` and `dist/server` folders.
+	 */
+	serverLike: boolean;
+	/**
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
 	clientDirectives: Map<string, string>;
@@ -79,23 +93,40 @@ export type SSRManifest = {
 	componentMetadata: SSRResult['componentMetadata'];
 	pageModule?: SinglePageBuiltModule;
 	pageMap?: Map<ComponentPath, ImportComponentInstance>;
-	serverIslandMap?: Map<string, () => Promise<ComponentInstance>>;
-	serverIslandNameMap?: Map<string, string>;
+	serverIslandMappings?: () => Promise<ServerIslandMappings> | ServerIslandMappings;
 	key: Promise<CryptoKey>;
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
 	actions?: () => Promise<SSRActions> | SSRActions;
+	sessionDriver?: () => Promise<{ default: SessionDriver | null }>;
 	checkOrigin: boolean;
 	allowedDomains?: Partial<RemotePattern>[];
 	sessionConfig?: ResolvedSessionConfig<any>;
-	cacheDir: string | URL;
-	srcDir: string | URL;
-	outDir: string | URL;
-	publicDir: string | URL;
-	buildClientDir: string | URL;
-	buildServerDir: string | URL;
+	cacheDir: URL;
+	srcDir: URL;
+	outDir: URL;
+	rootDir: URL;
+	publicDir: URL;
+	assetsDir: string;
+	buildClientDir: URL;
+	buildServerDir: URL;
 	csp: SSRManifestCSP | undefined;
+	devToolbar: {
+		// This should always be false in prod/SSR
+		enabled: boolean;
+		/**
+		 * Latest version of Astro, will be undefined if:
+		 * - unable to check
+		 * - the user has disabled the check
+		 * - the check has not completed yet
+		 * - the user is on the latest version already
+		 */
+		latestAstroVersion: string | undefined;
+
+		debugInfoOutput: string | undefined;
+	};
 	internalFetchHeaders?: Record<string, string>;
+	logLevel: LoggerLevel;
 };
 
 export type SSRActions = {
@@ -109,6 +140,7 @@ export type SSRManifestI18n = {
 	locales: Locales;
 	defaultLocale: string;
 	domainLookupTable: Record<string, string>;
+	domains: Record<string, string> | undefined;
 };
 
 export type SSRManifestCSP = {
@@ -133,13 +165,26 @@ export type SerializedSSRManifest = Omit<
 	| 'clientDirectives'
 	| 'serverIslandNameMap'
 	| 'key'
+	| 'rootDir'
+	| 'srcDir'
+	| 'cacheDir'
+	| 'outDir'
+	| 'publicDir'
+	| 'buildClientDir'
+	| 'buildServerDir'
 > & {
+	rootDir: string;
+	srcDir: string;
+	cacheDir: string;
+	outDir: string;
+	publicDir: string;
+	buildClientDir: string;
+	buildServerDir: string;
 	routes: SerializedRouteInfo[];
 	assets: string[];
 	componentMetadata: [string, SSRComponentMetadata][];
 	inlinedScripts: [string, string][];
 	clientDirectives: [string, string][];
-	serverIslandNameMap: [string, string][];
 	key: string;
 };
 

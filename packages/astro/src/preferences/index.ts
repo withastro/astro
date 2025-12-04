@@ -2,9 +2,7 @@ import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
-
 import dget from 'dlv';
-import type { AstroConfig } from '../types/public/config.js';
 import { DEFAULT_PREFERENCES, type Preferences, type PublicPreferences } from './defaults.js';
 import { PreferenceStore } from './store.js';
 
@@ -82,7 +80,10 @@ export function coerce(key: string, value: unknown) {
 	return value as any;
 }
 
-export default function createPreferences(config: AstroConfig, dotAstroDir: URL): AstroPreferences {
+export default function createPreferences(
+	config: Record<string, any>,
+	dotAstroDir: URL,
+): AstroPreferences {
 	const global = new PreferenceStore(getGlobalPreferenceDir());
 	const project = new PreferenceStore(fileURLToPath(dotAstroDir));
 	const stores: Record<PreferenceLocation, PreferenceStore> = { global, project };
