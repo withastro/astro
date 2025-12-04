@@ -16,7 +16,7 @@ async function validateConfig(userConfig) {
 	return _validateConfig(userConfig, process.cwd(), '');
 }
 
-describe.skip('Config Validation', () => {
+describe('Config Validation', () => {
 	it('empty user config is valid', async () => {
 		assert.doesNotThrow(() => validateConfig({}).catch((err) => err));
 	});
@@ -53,7 +53,8 @@ describe.skip('Config Validation', () => {
 ! integrations.0: Expected type "object", received "number"
 
 ! build.format: Did not match union.
-  > Expected "file" | "directory" | "preserve", received "invalid"`,
+  > Expected type "file" | "directory" | "preserve"
+  > Received "invalid"`,
 		);
 	});
 
@@ -85,7 +86,7 @@ describe.skip('Config Validation', () => {
 		const configError = await validateConfig({ outDir: './public/dist' }).catch((err) => err);
 		assert.equal(configError instanceof z.ZodError, true);
 		assert.equal(
-			configError.errors[0].message,
+			configError.issues[0].message,
 			'The value of `outDir` must not point to a path within the folder set as `publicDir`, this will cause an infinite loop',
 		);
 	});
@@ -100,7 +101,7 @@ describe.skip('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message,
+				configError.issues[0].message,
 				'The default locale `en` is not present in the `i18n.locales` array.',
 			);
 		});
@@ -120,8 +121,8 @@ describe.skip('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message,
-				'**i18n.locales.1.codes**: Array must contain at least 1 element(s)',
+				configError.issues[0].message,
+				'Too small: expected array to have >=1 items',
 			);
 		});
 
@@ -140,7 +141,7 @@ describe.skip('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message,
+				configError.issues[0].message,
 				'The default locale `uk` is not present in the `i18n.locales` array.',
 			);
 		});
@@ -157,7 +158,7 @@ describe.skip('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message,
+				configError.issues[0].message,
 				"The locale `it` value in the `i18n.fallback` record doesn't exist in the `i18n.locales` array.",
 			);
 		});
@@ -174,7 +175,7 @@ describe.skip('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message,
+				configError.issues[0].message,
 				"The locale `it` key in the `i18n.fallback` record doesn't exist in the `i18n.locales` array.",
 			);
 		});
@@ -191,7 +192,7 @@ describe.skip('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message,
+				configError.issues[0].message,
 				"You can't use the default locale as a key. The default locale can only be used as value.",
 			);
 		});
@@ -212,7 +213,7 @@ describe.skip('Config Validation', () => {
 				}).catch((err) => err);
 				assert.equal(configError instanceof z.ZodError, true);
 				assert.equal(
-					configError.errors[0].message,
+					configError.issues[0].message,
 					'The option `i18n.routing.redirectToDefaultLocale` can be used only when `i18n.routing.prefixDefaultLocale` is set to `true`, otherwise redirects might cause infinite loops. Remove the option `i18n.routing.redirectToDefaultLocale`, or change its value to `false`.',
 				);
 			},
@@ -232,7 +233,7 @@ describe.skip('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message,
+				configError.issues[0].message,
 				"The locale `lorem` key in the `i18n.domains` record doesn't exist in the `i18n.locales` array.",
 			);
 		});
@@ -251,7 +252,7 @@ describe.skip('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message,
+				configError.issues[0].message,
 				"The domain value must be a valid URL, and it has to start with 'https' or 'http'.",
 			);
 		});
@@ -270,7 +271,7 @@ describe.skip('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message,
+				configError.issues[0].message,
 				"The domain value must be a valid URL, and it has to start with 'https' or 'http'.",
 			);
 		});
@@ -289,7 +290,7 @@ describe.skip('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message,
+				configError.issues[0].message,
 				"The URL `https://www.example.com/blog/page/` must contain only the origin. A subsequent pathname isn't allowed here. Remove `/blog/page/`.",
 			);
 		});
@@ -307,7 +308,7 @@ describe.skip('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message,
+				configError.issues[0].message,
 				"The option `site` isn't set. When using the 'domains' strategy for `i18n`, `site` is required to create absolute URLs for locales that aren't mapped to a domain.",
 			);
 		});
@@ -326,7 +327,7 @@ describe.skip('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message,
+				configError.issues[0].message,
 				'Domain support is only available when `output` is `"server"`.',
 			);
 		});
@@ -365,8 +366,8 @@ describe.skip('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message,
-				'A valid variable name cannot start with a number.',
+				configError.issues[0].message,
+				'Invalid key in record',
 			);
 		});
 
@@ -381,7 +382,7 @@ describe.skip('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message.includes(
+				configError.issues[0].message.includes(
 					'**Invalid combination** of "access" and "context" options',
 				),
 				true,
@@ -408,7 +409,7 @@ describe.skip('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message.includes(
+				configError.issues[0].message.includes(
 					'contains invalid characters for CSS variable generation',
 				),
 				true,
@@ -421,7 +422,7 @@ describe.skip('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message.includes(
+				configError.issues[0].message.includes(
 					'contains invalid characters for CSS variable generation',
 				),
 				true,
@@ -434,7 +435,7 @@ describe.skip('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message.includes(
+				configError.issues[0].message.includes(
 					'contains invalid characters for CSS variable generation',
 				),
 				true,
@@ -447,7 +448,7 @@ describe.skip('Config Validation', () => {
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
-				configError.errors[0].message.includes(
+				configError.issues[0].message.includes(
 					'contains invalid characters for CSS variable generation',
 				),
 				true,
