@@ -11,6 +11,8 @@ const createFixture = () => {
 	let astroFixture;
 	/** @type {Record<string, string>} */
 	const writtenFiles = {};
+	/** @type {Array<string>} */
+	const warnLogs = [];
 
 	/**
 	 * @param {string} path
@@ -50,13 +52,23 @@ const createFixture = () => {
 				},
 			};
 
-			await astroFixture.sync(
-				{ root: fileURLToPath(astroFixture.config.root) },
-				{
-					// @ts-ignore
-					fs: fsMock,
-				},
-			);
+			const originalWarn = console.warn;
+			console.warn = (message) => {
+				originalWarn(message);
+				warnLogs.push(message);
+			};
+
+			try {
+				await astroFixture.sync(
+					{ root: fileURLToPath(astroFixture.config.root) },
+					{
+						// @ts-ignore
+						fs: fsMock,
+					},
+				);
+			} finally {
+				console.error = originalWarn;
+			}
 		},
 		/** @param {string} path */
 		thenFileShouldExist(path) {
@@ -101,6 +113,16 @@ const createFixture = () => {
 			} catch (error) {
 				assert.fail(`${path} is not valid TypeScript. Error: ${error.message}`);
 			}
+		},
+		/**
+		 * @param {string} message
+		 */
+		thenWarnLogsInclude(message) {
+			if (warnLogs.length === 0) {
+				assert.fail('No error log');
+			}
+			const index = warnLogs.findIndex((log) => log.includes(message));
+			assert.equal(index !== -1, true, 'No error log found');
 		},
 	};
 };
@@ -169,6 +191,13 @@ describe('astro sync', () => {
 }>;`,
 				'Types file does not include empty collection type',
 			);
+		});
+
+		it('fails when using a loader schema function', async () => {
+			await fixture.load('./fixtures/content-layer-loader-schema-function/');
+			fixture.clean();
+			await fixture.whenSyncing();
+			fixture.thenWarnLogsInclude("Your loader's schema is defined using a function.");
 		});
 	});
 
