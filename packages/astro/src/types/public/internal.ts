@@ -53,21 +53,6 @@ export interface RouteData {
 	 */
 	component: string;
 	/**
-	 * @param {any} data The optional parameters of the route
-	 *
-	 * @description
-	 * A function that accepts a list of params, interpolates them with the route pattern, and returns the path name of the route.
-	 *
-	 * ## Example
-	 *
-	 * For a route such as `/blog/[...id].astro`, the `generate` function would return something like this:
-	 *
-	 * ```js
-	 * console.log(generate({ id: 'presentation' })) // will log `/blog/presentation`
-	 * ```
-	 */
-	generate: (data?: any) => string;
-	/**
 	 * Dynamic and spread route params
 	 * ex. "/pages/[lang]/[...slug].astro" will output the params ['lang', '...slug']
 	 */
@@ -80,7 +65,7 @@ export interface RouteData {
 	/**
 	 * The paths of the physical files emitted by this route. When a route **isn't** prerendered, the value is either `undefined` or an empty array.
 	 */
-	distURL?: URL[];
+	distURL: URL[];
 	/**
 	 *
 	 * regex used for matching an input URL against a requested route

@@ -1,7 +1,6 @@
-import type { SSRManifest } from '../core/app/types.js';
 import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
-import type { Logger } from '../core/logger/core.js';
+import type { Logger, LoggerLevel } from '../core/logger/core.js';
 import type { AstroPreferences } from '../preferences/index.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
 import type { GetStaticPaths } from './public/common.js';
@@ -20,7 +19,6 @@ export type SerializedRouteData = Omit<
 	RouteData,
 	'generate' | 'pattern' | 'redirectRoute' | 'fallbackRoutes'
 > & {
-	generate: undefined;
 	pattern: string;
 	redirectRoute: SerializedRouteData | undefined;
 	fallbackRoutes: SerializedRouteData[];
@@ -64,8 +62,6 @@ export interface AstroSettings {
 	 * - the user is on the latest version already
 	 */
 	latestAstroVersion: string | undefined;
-	serverIslandMap: NonNullable<SSRManifest['serverIslandMap']>;
-	serverIslandNameMap: NonNullable<SSRManifest['serverIslandNameMap']>;
 	// This makes content optional. Internal only so it's not optional on InjectedType
 	injectedTypes: Array<Omit<InjectedType, 'content'> & Partial<Pick<InjectedType, 'content'>>>;
 	/**
@@ -77,6 +73,7 @@ export interface AstroSettings {
 		fontResources: Set<string>;
 		styleHashes: Required<CspObject['styleDirective']>['hashes'];
 	};
+	logLevel: LoggerLevel;
 }
 
 /** Generic interface for a component (Astro, Svelte, React, etc.) */
@@ -95,4 +92,10 @@ export interface RoutesList {
 export interface AstroPluginOptions {
 	settings: AstroSettings;
 	logger: Logger;
+}
+
+export interface ImportedDevStyle {
+	id: string;
+	url: string;
+	content: string;
 }

@@ -1,5 +1,5 @@
 ---
-const runtime = Astro.locals.runtime;
+const request = Astro.request;
 ---
 <html>
 	<head>
@@ -7,7 +7,6 @@ const runtime = Astro.locals.runtime;
 	</head>
 	<body>
 		<h1>Testing</h1>
-		<div id="hasRuntime">{!!runtime}</div>
-		<div id="hasCF">{!!runtime.cf?.colo}</div>
+		<div id="hasCF">{!!request.cf?.colo}</div>
 	</body>
 </html>

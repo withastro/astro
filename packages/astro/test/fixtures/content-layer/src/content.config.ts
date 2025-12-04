@@ -286,4 +286,3 @@ export const collections = {
 	notADirectory,
 	nothingMatches
 };
-

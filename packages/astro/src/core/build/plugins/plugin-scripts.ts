@@ -1,16 +1,19 @@
 import type { BuildOptions, Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
-import type { AstroBuildPlugin } from '../plugin.js';
 import { shouldInlineAsset } from './util.js';
 
 /**
  * Inline scripts from Astro files directly into the HTML.
  */
-function vitePluginScripts(internals: BuildInternals): VitePlugin {
+export function pluginScripts(internals: BuildInternals): VitePlugin {
 	let assetInlineLimit: NonNullable<BuildOptions['assetsInlineLimit']>;
 
 	return {
 		name: '@astro/plugin-scripts',
+
+		applyToEnvironment(environment) {
+			return environment.name === 'client';
+		},
 
 		configResolved(config) {
 			assetInlineLimit = config.build.assetsInlineLimit;
@@ -44,19 +47,6 @@ function vitePluginScripts(internals: BuildInternals): VitePlugin {
 					delete bundle[output.fileName];
 				}
 			}
-		},
-	};
-}
-
-export function pluginScripts(internals: BuildInternals): AstroBuildPlugin {
-	return {
-		targets: ['client'],
-		hooks: {
-			'build:before': () => {
-				return {
-					vitePlugin: vitePluginScripts(internals),
-				};
-			},
 		},
 	};
 }

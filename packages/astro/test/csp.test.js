@@ -16,6 +16,7 @@ describe('CSP', () => {
 	it('should contain the meta style hashes when CSS is imported from Astro component', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
+			outDir: './dist/csp-style-hashes',
 			adapter: testAdapter({
 				setManifest(_manifest) {
 					manifest = _manifest;
@@ -41,6 +42,7 @@ describe('CSP', () => {
 	it('should contain the meta script hashes when using client island', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
+			outDir: './dist/csp-script-hashes',
 			adapter: testAdapter({
 				setManifest(_manifest) {
 					manifest = _manifest;
@@ -67,6 +69,7 @@ describe('CSP', () => {
 	it('should generate the hash with the sha512 algorithm', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
+			outDir: './dist/sha512',
 			experimental: {
 				csp: {
 					algorithm: 'SHA-512',
@@ -84,6 +87,7 @@ describe('CSP', () => {
 	it('should generate the hash with the sha384 algorithm', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
+			outDir: './dist/sha384',
 			experimental: {
 				csp: {
 					algorithm: 'SHA-384',
@@ -102,6 +106,7 @@ describe('CSP', () => {
 	it('should render hashes provided by the user', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
+			outDir: './dist/custom-hashes',
 			experimental: {
 				csp: {
 					styleDirective: {
@@ -128,6 +133,7 @@ describe('CSP', () => {
 	it('should contain the additional directives', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
+			outDir: './dist/directives',
 			experimental: {
 				csp: {
 					directives: ["img-src 'self' 'https://example.com'"],
@@ -146,6 +152,7 @@ describe('CSP', () => {
 	it('should contain the custom resources for "script-src" and "style-src"', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
+			outDir: './dist/custom-resources',
 			experimental: {
 				csp: {
 					styleDirective: {
@@ -215,6 +222,7 @@ describe('CSP', () => {
 	it('allows add `strict-dynamic` when enabled', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
+			outDir: './dist/strict-dynamic',
 			experimental: {
 				csp: {
 					scriptDirective: {
@@ -234,6 +242,7 @@ describe('CSP', () => {
 	it("allows the use of directives that don't require values, and deprecated ones", async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
+			outDir: './dist/no-value-directives',
 			experimental: {
 				csp: {
 					directives: [
@@ -259,6 +268,7 @@ describe('CSP', () => {
 	it('should serve hashes via headers for dynamic pages, when the strategy is "auto"', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp-adapter/',
+			outDir: './dist/csp-headers',
 			adapter: testAdapter(),
 			experimental: {
 				csp: true,
@@ -358,6 +368,7 @@ describe('CSP', () => {
 		let routeToHeaders;
 		fixture = await loadFixture({
 			root: './fixtures/csp-adapter/',
+			outDir: './dist/csp-hook',
 			adapter: testAdapter({
 				staticHeaders: true,
 				setRouteToHeaders(payload) {
