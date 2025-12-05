@@ -1,17 +1,10 @@
 import { shouldAppendTrailingSlash } from 'virtual:astro:actions/options';
 import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
+import { appendForwardSlash } from '../../core/path.js';
 import type { APIContext } from '../../types/public/context.js';
-import type { ActionClient, SafeResult } from './server.js';
-import {
-	ACTION_QUERY_PARAMS,
-	ActionError,
-	appendForwardSlash,
-	astroCalledServerError,
-	deserializeActionResult,
-	getActionQueryString,
-} from './shared.js';
-
-export * from 'virtual:astro:actions/runtime';
+import { ACTION_QUERY_PARAMS } from '../consts.js';
+import { ActionError, deserializeActionResult, getActionQueryString } from './client.js';
+import type { ActionClient, SafeResult } from './types.js';
 
 const apiContextRoutesSymbol = Symbol.for('context.routes');
 const ENCODED_DOT = '%2E';
@@ -85,6 +78,7 @@ async function handleAction(
 	if (import.meta.env.SSR && context) {
 		const pipeline = Reflect.get(context, apiContextRoutesSymbol);
 		if (!pipeline) {
+			const { astroCalledServerError } = await import('./server.js');
 			throw astroCalledServerError();
 		}
 		const action = await pipeline.getAction(path);

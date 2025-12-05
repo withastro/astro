@@ -1,5 +1,5 @@
-import type { APIRoute } from '../../types/public/common.js';
-import { getActionContext } from './server.js';
+import type { APIRoute } from '../../../types/public/common.js';
+import { getActionContext } from '../server.js';
 
 export const POST: APIRoute = async (context) => {
 	const { action, serializeActionResult } = getActionContext(context);

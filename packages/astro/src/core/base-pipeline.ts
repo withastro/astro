@@ -1,6 +1,6 @@
 import type { ZodType } from 'zod';
 import { NOOP_ACTIONS_MOD } from '../actions/noop-actions.js';
-import type { ActionAccept, ActionClient } from '../actions/runtime/server.js';
+import type { ActionAccept, ActionClient } from '../actions/runtime/types.js';
 import { createI18nMiddleware } from '../i18n/middleware.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, RewritePayload } from '../types/public/common.js';
