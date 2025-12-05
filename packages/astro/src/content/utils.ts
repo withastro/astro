@@ -67,7 +67,24 @@ const collectionConfigParser = z.union([
 						types?: string;
 					} | void>(),
 				}),
-				schema: z.any().optional(),
+				schema: z.any().transform((v) => {
+						if (typeof v === 'function') {
+							console.warn(
+								`Your loader's schema is defined using a function. This is no longer supported and the schema will be ignored. Please update your loader to use the \`createSchema()\` utility instead, or report this to the loader author. In a future major version, this will cause the loader to break entirely.`,
+							);
+							return undefined;
+						}
+						return v;
+					})
+					.superRefine((v, ctx) => {
+						if (v !== undefined && !('_def' in v)) {
+							ctx.addIssue({
+								code: z.ZodIssueCode.custom,
+								message: 'Invalid Zod schema',
+							});
+							return z.NEVER;
+						}
+					}).optional(),
 				createSchema: z
 					.function({
 						input: [],
