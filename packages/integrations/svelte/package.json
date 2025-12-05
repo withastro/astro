@@ -24,10 +24,12 @@
     "./editor": "./dist/editor.cjs",
     "./client.js": "./dist/client.svelte.js",
     "./server.js": "./dist/server.js",
+    "./svelte-shims.d.ts": "./svelte-shims.d.ts",
     "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "svelte-shims.d.ts"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
