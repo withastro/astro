@@ -93,10 +93,15 @@ export function vitePluginActions({
 			server.watcher.on('add', watcherCallback);
 			server.watcher.on('change', watcherCallback);
 		},
-		async load(id, opts) {
+		async load(id) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+				if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
+					return {
+						code: `export * from 'astro/actions/runtime/entrypoints/client.js';`,
+					};
+				}
 				return {
-					code: `export * from 'astro/actions/runtime/entrypoints/${opts?.ssr ? 'server' : 'client'}.js';`,
+					code: `export * from 'astro/actions/runtime/entrypoints/server.js';`,
 				};
 			}
 
