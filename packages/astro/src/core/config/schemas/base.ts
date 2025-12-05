@@ -89,6 +89,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	security: {
 		checkOrigin: true,
 		allowedDomains: [],
+		csp: false,
 	},
 	env: {
 		schema: {},
@@ -99,7 +100,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	experimental: {
 		clientPrerender: false,
 		contentIntellisense: false,
-		csp: false,
 		chromeDevtoolsWorkspace: false,
 		svgo: false,
 	},
@@ -428,6 +428,29 @@ export const AstroConfigSchema = z.object({
 				)
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.security.allowedDomains),
+			csp: z
+				.union([
+					z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.security.csp),
+					z.object({
+						algorithm: cspAlgorithmSchema,
+						directives: z.array(allowedDirectivesSchema).optional(),
+						styleDirective: z
+							.object({
+								resources: z.array(z.string()).optional(),
+								hashes: z.array(cspHashSchema).optional(),
+							})
+							.optional(),
+						scriptDirective: z
+							.object({
+								resources: z.array(z.string()).optional(),
+								hashes: z.array(cspHashSchema).optional(),
+								strictDynamic: z.boolean().optional(),
+							})
+							.optional(),
+					}),
+				])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.security.csp),
 		})
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.security),
@@ -478,29 +501,6 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
 			fonts: z.array(z.union([localFontFamilySchema, remoteFontFamilySchema])).optional(),
-			csp: z
-				.union([
-					z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
-					z.object({
-						algorithm: cspAlgorithmSchema,
-						directives: z.array(allowedDirectivesSchema).optional(),
-						styleDirective: z
-							.object({
-								resources: z.array(z.string()).optional(),
-								hashes: z.array(cspHashSchema).optional(),
-							})
-							.optional(),
-						scriptDirective: z
-							.object({
-								resources: z.array(z.string()).optional(),
-								hashes: z.array(cspHashSchema).optional(),
-								strictDynamic: z.boolean().optional(),
-							})
-							.optional(),
-					}),
-				])
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
 			chromeDevtoolsWorkspace: z
 				.boolean()
 				.optional()

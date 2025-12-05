@@ -612,7 +612,7 @@ async function generatePath(
 
 	if (
 		settings.adapter?.adapterFeatures?.experimentalStaticHeaders &&
-		settings.config.experimental?.csp
+		settings.config.security?.csp
 	) {
 		routeToHeaders.set(pathname, { headers: responseHeaders, route: integrationRoute });
 	}

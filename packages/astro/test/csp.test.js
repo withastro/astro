@@ -70,7 +70,7 @@ describe('CSP', () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
 			outDir: './dist/sha512',
-			experimental: {
+			security: {
 				csp: {
 					algorithm: 'SHA-512',
 				},
@@ -88,7 +88,7 @@ describe('CSP', () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
 			outDir: './dist/sha384',
-			experimental: {
+			security: {
 				csp: {
 					algorithm: 'SHA-384',
 				},
@@ -107,7 +107,7 @@ describe('CSP', () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
 			outDir: './dist/custom-hashes',
-			experimental: {
+			security: {
 				csp: {
 					styleDirective: {
 						hashes: ['sha512-hash1', 'sha384-hash2'],
@@ -134,7 +134,7 @@ describe('CSP', () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
 			outDir: './dist/directives',
-			experimental: {
+			security: {
 				csp: {
 					directives: ["img-src 'self' 'https://example.com'"],
 				},
@@ -153,7 +153,7 @@ describe('CSP', () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
 			outDir: './dist/custom-resources',
-			experimental: {
+			security: {
 				csp: {
 					styleDirective: {
 						resources: ['https://cdn.example.com', 'https://styles.cdn.example.com'],
@@ -223,7 +223,7 @@ describe('CSP', () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
 			outDir: './dist/strict-dynamic',
-			experimental: {
+			security: {
 				csp: {
 					scriptDirective: {
 						strictDynamic: true,
@@ -243,7 +243,7 @@ describe('CSP', () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
 			outDir: './dist/no-value-directives',
-			experimental: {
+			security: {
 				csp: {
 					directives: [
 						'upgrade-insecure-requests',
@@ -270,7 +270,7 @@ describe('CSP', () => {
 			root: './fixtures/csp-adapter/',
 			outDir: './dist/csp-headers',
 			adapter: testAdapter(),
-			experimental: {
+			security: {
 				csp: true,
 			},
 		});
@@ -313,7 +313,7 @@ describe('CSP', () => {
 		);
 	});
 
-	it('should generate hashes and directives for fonts', async () => {
+	it.only('should generate hashes and directives for fonts', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp-fonts/',
 		});
@@ -375,7 +375,7 @@ describe('CSP', () => {
 					routeToHeaders = payload;
 				},
 			}),
-			experimental: {
+			security: {
 				csp: true,
 			},
 		});

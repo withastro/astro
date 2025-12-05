@@ -768,7 +768,7 @@ function createRoutesWithStaticHeaders(
 ): RouteWithSrc[] {
 	const vercelHeaders: RouteWithSrc[] = [];
 	for (const [pathname, { headers }] of staticHeaders.entries()) {
-		if (config.experimental.csp) {
+		if (config.security.csp) {
 			const csp = headers.get('Content-Security-Policy');
 
 			if (csp) {

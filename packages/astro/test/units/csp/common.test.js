@@ -6,7 +6,7 @@ import { getDirectives } from '../../../dist/core/csp/common.js';
 /**
  *
  * @param {{
- *  csp: import('../../../dist/types/astro.js').AstroSettings['config']['experimental']['csp'];
+ *  csp: import('../../../dist/types/astro.js').AstroSettings['config']['security']['csp'];
  *  injected: Array<string>
  * }} param0
  * @returns {import('../../../dist/types/astro.js').AstroSettings}
@@ -15,7 +15,7 @@ function buildSettings({ csp, injected }) {
 	/** @type {any} */
 	const settings = {
 		config: {
-			experimental: { csp },
+			security: { csp },
 		},
 		injectedCsp: {
 			fontResources: new Set(injected),
