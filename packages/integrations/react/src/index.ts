@@ -17,6 +17,7 @@ export type ReactIntegrationOptions = Pick<
 	 * Disable streaming in React components
 	 */
 	experimentalDisableStreaming?: boolean;
+	reactCompilerEnabled?: boolean;
 };
 
 const FAST_REFRESH_PREAMBLE = react.preambleCode;
@@ -65,9 +66,30 @@ function getViteConfiguration(
 		babel,
 		experimentalReactChildren,
 		experimentalDisableStreaming,
+		reactCompilerEnabled,
 	}: ReactIntegrationOptions = {},
 	reactConfig: ReactVersionConfig,
 ) {
+	if (reactCompilerEnabled) {
+		if (!babel) babel = {};
+		if (typeof babel == "object") {
+			let reactCompilerPluginExists = false
+			if (!babel.plugins) babel.plugins = []
+			else {
+				for (const plugin of babel.plugins) {
+					if (typeof plugin == "string" && plugin == 'babel-plugin-react-compiler') {
+						reactCompilerPluginExists = true
+						break
+					} else if (Array.isArray(plugin) && plugin[0] == 'babel-plugin-react-compiler') {
+						reactCompilerPluginExists = true
+						break
+					}
+				}
+			}
+			if (!reactCompilerPluginExists) babel.plugins.push(['babel-plugin-react-compiler']);
+		}
+	}
+
 	return {
 		optimizeDeps: {
 			include: [reactConfig.client],
@@ -99,6 +121,7 @@ export default function ({
 	babel,
 	experimentalReactChildren,
 	experimentalDisableStreaming,
+	reactCompilerEnabled
 }: ReactIntegrationOptions = {}): AstroIntegration {
 	const majorVersion = getReactMajorVersion();
 	if (!isSupportedReactVersion(majorVersion)) {
@@ -113,7 +136,7 @@ export default function ({
 				addRenderer(getRenderer(versionConfig));
 				updateConfig({
 					vite: getViteConfiguration(
-						{ include, exclude, babel, experimentalReactChildren, experimentalDisableStreaming },
+						{ include, exclude, babel, experimentalReactChildren, experimentalDisableStreaming, reactCompilerEnabled },
 						versionConfig,
 					),
 				});
