@@ -1,5 +1,20 @@
 # astro
 
+## 5.17.0
+
+### Minor Changes
+
+- [#14958](https://github.com/withastro/astro/pull/14958) [`70eb542`](https://github.com/withastro/astro/commit/70eb542f3b509cd25461d19d275b8c050ace184f) Thanks [@ascorbic](https://github.com/ascorbic)! - Gives a helpful error message if a user sets `output: "hybrid"` in their Astro config.
+
+  The option was removed in Astro 5, but lots of content online still references it, and LLMs often suggest it. It's not always clear that the replacement is `output: "static"`, rather than `output: "server"`. This change adds a helpful error message to guide humans and robots.
+
+### Patch Changes
+
+- [#14901](https://github.com/withastro/astro/pull/14901) [`ef53716`](https://github.com/withastro/astro/commit/ef53716f93237d29cf732baae2d90ecd2c9f3bbe) Thanks [@Darknab](https://github.com/Darknab)! - Updates the `glob()` loader to log a warning when duplicated IDs are detected
+
+- Updated dependencies [[`d8305f8`](https://github.com/withastro/astro/commit/d8305f8abdf92db6fa505ee9c1774553ba90b7bd)]:
+  - @astrojs/markdown-remark@6.3.10
+
 ## 5.16.4
 
 ### Patch Changes
