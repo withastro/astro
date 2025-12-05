@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import type { AstroConfig } from 'astro';
 import { build as esbuild } from 'esbuild';
 import type { AstroMarkdocConfig } from './config.js';
 import { MarkdocError } from './utils.js';
@@ -18,11 +17,11 @@ export type MarkdocConfigResult = {
 };
 
 export async function loadMarkdocConfig(
-	astroConfig: Pick<AstroConfig, 'root'>,
+	root: URL
 ): Promise<MarkdocConfigResult | undefined> {
 	let markdocConfigUrl: URL | undefined;
 	for (const filename of SUPPORTED_MARKDOC_CONFIG_FILES) {
-		const filePath = new URL(filename, astroConfig.root);
+		const filePath = new URL(filename, root);
 		if (!fs.existsSync(filePath)) continue;
 
 		markdocConfigUrl = filePath;
@@ -32,9 +31,9 @@ export async function loadMarkdocConfig(
 
 	const { code } = await bundleConfigFile({
 		markdocConfigUrl,
-		astroConfig,
+		root
 	});
-	const config: AstroMarkdocConfig = await loadConfigFromBundledFile(astroConfig.root, code);
+	const config: AstroMarkdocConfig = await loadConfigFromBundledFile(root, code);
 
 	return {
 		config,
@@ -49,15 +48,15 @@ export async function loadMarkdocConfig(
  */
 async function bundleConfigFile({
 	markdocConfigUrl,
-	astroConfig,
+	root,
 }: {
 	markdocConfigUrl: URL;
-	astroConfig: Pick<AstroConfig, 'root'>;
+	root: URL
 }): Promise<{ code: string; dependencies: string[] }> {
 	let markdocError: MarkdocError | undefined;
 
 	const result = await esbuild({
-		absWorkingDir: fileURLToPath(astroConfig.root),
+		absWorkingDir: fileURLToPath(root),
 		entryPoints: [fileURLToPath(markdocConfigUrl)],
 		outfile: 'out.js',
 		write: false,

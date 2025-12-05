@@ -1,4 +1,4 @@
-import type { AstroConfig, AstroIntegration, ContentEntryType, HookParameters } from 'astro';
+import type { AstroIntegration, ContentEntryType, HookParameters } from 'astro';
 import { getContentEntryType } from './content-entry-type.js';
 import {
 	loadMarkdocConfig,
@@ -15,18 +15,23 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 
 export default function markdocIntegration(options?: MarkdocIntegrationOptions): AstroIntegration {
 	let markdocConfigResult: MarkdocConfigResult | undefined;
-	let astroConfig: AstroConfig;
 	return {
 		name: '@astrojs/markdoc',
 		hooks: {
 			'astro:config:setup': async (params) => {
 				const { updateConfig, addContentEntryType } = params as SetupHookParams;
-				astroConfig = params.config;
 
-				markdocConfigResult = await loadMarkdocConfig(astroConfig);
+				const root = new URL(params.config.root ?? process.cwd())
+
+				markdocConfigResult = await loadMarkdocConfig(root);
 
 				addContentEntryType(
-					await getContentEntryType({ markdocConfigResult, astroConfig, options }),
+					await getContentEntryType({
+						markdocConfigResult,
+						root,
+						output: params.config.output ?? 'static',
+						options,
+					}),
 				);
 
 				updateConfig({
