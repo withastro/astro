@@ -2,7 +2,14 @@ import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
-const astroEntryPrefix = '\0astro-entry:';
+// The id prefix for ES modules (e.g. `.js`, `.jsx`, `.mts`, etc.)
+const astroEntryEsmPrefix = '\0astro-entry-esm:';
+// The id prefix for non-ES modules (e.g. `.vue`, `.svelte`, etc.)
+const astroEntryNonEsmPrefix = '\0astro-entry-non-esm:';
+// The suffix to add to non-ES module entry ids
+const astroEntryNonEsmSuffix = '.js';
+// A regex to detect if the entry id is an ES module
+const esmModuleRegex = /\.m?[tj]sx?$/i;
 
 /**
  * When adding hydrated or client:only components as Rollup inputs, sometimes we're not using all
@@ -50,7 +57,7 @@ export function pluginComponentEntry(internals: BuildInternals): VitePlugin {
 				// @ts-expect-error input is definitely defined here, but typescript thinks it doesn't
 				config.build.rollupOptions.input = rollupInput.map((id) => {
 					if (componentToExportNames.has(id)) {
-						return astroEntryPrefix + id;
+						return buildEntryId(id);
 					} else {
 						return id;
 					}
@@ -58,13 +65,13 @@ export function pluginComponentEntry(internals: BuildInternals): VitePlugin {
 			}
 		},
 		async resolveId(id) {
-			if (id.startsWith(astroEntryPrefix)) {
+			if (isEntryId(id)) {
 				return id;
 			}
 		},
 		async load(id) {
-			if (id.startsWith(astroEntryPrefix)) {
-				const componentId = id.slice(astroEntryPrefix.length);
+			if (isEntryId(id)) {
+				const componentId = normalizeEntryId(id);
 				const exportNames = componentToExportNames.get(componentId);
 				if (exportNames) {
 					return {
@@ -76,6 +83,24 @@ export function pluginComponentEntry(internals: BuildInternals): VitePlugin {
 	};
 }
 
+function isEntryId(id: string): boolean {
+	return id.startsWith(astroEntryEsmPrefix) || id.startsWith(astroEntryNonEsmPrefix);
+}
+
+function buildEntryId(id: string): string {
+	if (esmModuleRegex.test(id)) {
+		return astroEntryEsmPrefix + id;
+	} else {
+		return astroEntryNonEsmPrefix + id + astroEntryNonEsmSuffix;
+	}
+}
+
 export function normalizeEntryId(id: string): string {
-	return id.startsWith(astroEntryPrefix) ? id.slice(astroEntryPrefix.length) : id;
+	if (id.startsWith(astroEntryEsmPrefix)) {
+		return id.slice(astroEntryEsmPrefix.length);
+	} else if (id.startsWith(astroEntryNonEsmPrefix)) {
+		return id.slice(astroEntryNonEsmPrefix.length, -astroEntryNonEsmSuffix.length);
+	} else {
+		return id;
+	}
 }
