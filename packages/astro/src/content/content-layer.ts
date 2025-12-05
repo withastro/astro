@@ -284,6 +284,8 @@ class ContentLayer {
 						false,
 						// FUTURE: Remove in this in v6
 						id.endsWith('.svg'),
+						undefined,
+						this.#settings,
 					);
 
 					return parsedData;
