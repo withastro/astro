@@ -142,12 +142,12 @@ export function getFormServerHandler<TOutput, TInputSchema extends z4.$ZodType>(
 
 async function parseFormInput(inputSchema: z4.$ZodType, unparsedInput: FormData) {
 	const baseSchema = unwrapBaseZ4ObjectSchema(inputSchema, unparsedInput);
-	return await z4.safeParseAsync(
-		inputSchema,
-		baseSchema instanceof z4.$ZodObject
+	const input = baseSchema instanceof z4.$ZodObject
 			? formDataToZ4Object(unparsedInput, baseSchema)
-			: unparsedInput,
-	);
+			: unparsedInput;
+		
+	const parsed = await z4.safeParseAsync(inputSchema, input);
+	return parsed;
 }
 
 export function getJsonServerHandler<TOutput, TInputSchema extends z4.$ZodType>(
@@ -242,7 +242,7 @@ function handleZ4FormDataGet(
 
 function unwrapBaseZ4ObjectSchema(schema: z4.$ZodType, unparsedInput: FormData) {
 	if (schema instanceof z4.$ZodPipe) {
-		return schema._zod.def.in;
+		return unwrapBaseZ4ObjectSchema(schema._zod.def.in, unparsedInput);
 	}
 	if (schema instanceof z4.$ZodDiscriminatedUnion) {
 		const typeKey = schema._zod.def.discriminator;
