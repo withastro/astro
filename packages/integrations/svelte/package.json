@@ -44,11 +44,11 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.1.2",
-    "svelte": "^5.43.6"
+    "svelte": "5.43.8"
   },
   "peerDependencies": {
     "astro": "^6.0.0-alpha.0",
-    "svelte": "^5.43.6",
+    "svelte": "5.43.8",
     "typescript": "^5.3.3"
   },
   "engines": {
