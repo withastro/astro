@@ -57,18 +57,18 @@ export type ActionClient<
 	TInputSchema extends z4.$ZodType | undefined,
 > = TInputSchema extends z4.$ZodType
 	? ((
-			input: TAccept extends 'form' ? FormData : z4.infer<TInputSchema>,
+			input: TAccept extends 'form' ? FormData : z4.input<TInputSchema>,
 		) => Promise<
 			SafeResult<
-				z4.infer<TInputSchema> extends ErrorInferenceObject
-					? z4.infer<TInputSchema>
+				z4.input<TInputSchema> extends ErrorInferenceObject
+					? z4.input<TInputSchema>
 					: ErrorInferenceObject,
 				Awaited<TOutput>
 			>
 		>) & {
 			queryString: string;
 			orThrow: (
-				input: TAccept extends 'form' ? FormData : z4.infer<TInputSchema>,
+				input: TAccept extends 'form' ? FormData : z4.input<TInputSchema>,
 			) => Promise<Awaited<TOutput>>;
 			[inferSymbol]: TInputSchema;
 		}
@@ -142,10 +142,11 @@ export function getFormServerHandler<TOutput, TInputSchema extends z4.$ZodType>(
 
 async function parseFormInput(inputSchema: z4.$ZodType, unparsedInput: FormData) {
 	const baseSchema = unwrapBaseZ4ObjectSchema(inputSchema, unparsedInput);
-	const input = baseSchema instanceof z4.$ZodObject
+	const input =
+		baseSchema instanceof z4.$ZodObject
 			? formDataToZ4Object(unparsedInput, baseSchema)
 			: unparsedInput;
-		
+
 	const parsed = await z4.safeParseAsync(inputSchema, input);
 	return parsed;
 }
@@ -170,7 +171,6 @@ export function getJsonServerHandler<TOutput, TInputSchema extends z4.$ZodType>(
 		return await handler(parsed.data, context);
 	};
 }
-
 
 /** Transform form data to an object based on a Zod schema. */
 export function formDataToZ4Object<T extends z4.$ZodObject>(
@@ -213,7 +213,6 @@ export function formDataToZ4Object<T extends z4.$ZodObject>(
 	return obj;
 }
 
-
 function handleZ4FormDataGetAll(key: string, formData: FormData, validator: z4.$ZodArray) {
 	const entries = Array.from(formData.getAll(key));
 	const elementValidator = validator._zod.def.element;
@@ -224,7 +223,6 @@ function handleZ4FormDataGetAll(key: string, formData: FormData, validator: z4.$
 	}
 	return entries;
 }
-
 
 function handleZ4FormDataGet(
 	key: string,
@@ -238,7 +236,6 @@ function handleZ4FormDataGet(
 	}
 	return validator instanceof z4.$ZodNumber ? Number(value) : value;
 }
-
 
 function unwrapBaseZ4ObjectSchema(schema: z4.$ZodType, unparsedInput: FormData) {
 	if (schema instanceof z4.$ZodPipe) {
