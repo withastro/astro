@@ -231,14 +231,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 			// If an Astro component is imported in code used on the client, we return an empty
 			// module so that Vite doesn’t bundle the server-side Astro code for the client.
-			if (
-				!options?.ssr &&
-				// Workaround to allow tests run with Vitest in a “client” environment to still render
-				// Astro components. See https://github.com/withastro/astro/issues/14883
-				// TODO: In a future major we should remove this and require people test Astro rendering in
-				// an SSR test environment, which more closely matches the real-world Vite environment.
-				!process.env.VITEST
-			) {
+if (!options?.ssr) {
 				return {
 					code: `export default import.meta.env.DEV
 									? () => {
