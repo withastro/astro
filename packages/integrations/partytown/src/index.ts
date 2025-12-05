@@ -26,7 +26,7 @@ export default function createPlugin(options?: PartytownOptions): AstroIntegrati
 		name: '@astrojs/partytown',
 		hooks: {
 			'astro:config:setup': ({ config: _config, command, injectScript }) => {
-				const lib = `${appendForwardSlash(_config.base)}~partytown/`;
+				const lib = `${appendForwardSlash(_config.base ?? '/')}~partytown/`;
 				const recreateIFrameScript = `;(e=>{e.addEventListener("astro:before-swap",e=>{let r=document.body.querySelector("iframe[src*='${lib}']");if(r)e.newDocument.body.append(r)})})(document);`;
 				const partytownConfig = {
 					lib,
