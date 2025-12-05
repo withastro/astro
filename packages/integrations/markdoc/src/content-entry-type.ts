@@ -17,12 +17,10 @@ import { isComponentConfig, isValidUrl, MarkdocError, prependForwardSlash } from
 
 export async function getContentEntryType({
 	markdocConfigResult,
-	root,
-	output,
+	astroConfig,
 	options,
 }: {
-	root: URL;
-	output: AstroConfig['output'];
+	astroConfig: AstroConfig;
 	markdocConfigResult?: MarkdocConfigResult;
 	options?: MarkdocIntegrationOptions;
 }): Promise<ContentEntryType> {
@@ -58,7 +56,7 @@ export async function getContentEntryType({
 				/* Raised generics issue with Markdoc core https://github.com/markdoc/markdoc/discussions/400 */
 				markdocConfig: markdocConfig as MarkdocConfig,
 				viteId,
-				root,
+				astroConfig,
 				filePath,
 			});
 			await resolvePartials({
@@ -68,13 +66,13 @@ export async function getContentEntryType({
 				allowHTML: options?.allowHTML,
 				tokenizer,
 				pluginContext,
-				root,
+				root: astroConfig.root,
 				raisePartialValidationErrors: (partialAst, partialPath) => {
 					raiseValidationErrors({
 						ast: partialAst,
 						markdocConfig: markdocConfig as MarkdocConfig,
 						viteId,
-						root,
+						astroConfig,
 						filePath: partialPath,
 					});
 				},
@@ -101,7 +99,7 @@ export async function getContentEntryType({
 
 			await emitOptimizedImages(ast.children, {
 				hasDefaultImage: Boolean(markdocConfig.nodes.image),
-				output,
+				astroConfig,
 				pluginContext,
 				filePath,
 			});
@@ -117,8 +115,8 @@ ${
 import { assetsConfig } from '@astrojs/markdoc/runtime-assets-config';
 markdocConfig.nodes = { ...assetsConfig.nodes, ...markdocConfig.nodes };
 
-${getStringifiedImports(componentConfigByTagMap, 'Tag', root)}
-${getStringifiedImports(componentConfigByNodeMap, 'Node', root)}
+${getStringifiedImports(componentConfigByTagMap, 'Tag', astroConfig.root)}
+${getStringifiedImports(componentConfigByNodeMap, 'Node', astroConfig.root)}
 
 const tagComponentMap = ${getStringifiedMap(componentConfigByTagMap, 'Tag')};
 const nodeComponentMap = ${getStringifiedMap(componentConfigByNodeMap, 'Node')};
@@ -234,13 +232,13 @@ function raiseValidationErrors({
 	ast,
 	markdocConfig,
 	viteId,
-	root,
+	astroConfig,
 	filePath,
 }: {
 	ast: Node;
 	markdocConfig: MarkdocConfig;
 	viteId: string;
-	root: URL;
+	astroConfig: AstroConfig;
 	filePath: string;
 }) {
 	const validationErrors = Markdoc.validate(ast, markdocConfig).filter((e) => {
@@ -257,7 +255,7 @@ function raiseValidationErrors({
 	});
 
 	if (validationErrors.length) {
-		const rootRelativePath = path.relative(fileURLToPath(root), filePath);
+		const rootRelativePath = path.relative(fileURLToPath(astroConfig.root), filePath);
 		throw new MarkdocError({
 			message: [
 				`**${String(rootRelativePath)}** contains invalid content:`,
@@ -297,7 +295,7 @@ async function emitOptimizedImages(
 		hasDefaultImage: boolean;
 		pluginContext: Rollup.PluginContext;
 		filePath: string;
-		output: AstroConfig['output'];
+		astroConfig: AstroConfig;
 	},
 ) {
 	for (const node of nodeChildren) {
@@ -322,7 +320,7 @@ async function emitOptimizedImages(
 					if (src) {
 						// We cannot track images in Markdoc, Markdoc rendering always strips out the proxy. As such, we'll always
 						// assume that the image is referenced elsewhere, to be on safer side.
-						if (ctx.output === 'static') {
+						if (ctx.astroConfig.output === 'static') {
 							if (globalThis.astroAsset.referencedImages)
 								globalThis.astroAsset.referencedImages.add(fsPath);
 						}

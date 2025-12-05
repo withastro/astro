@@ -1,16 +1,12 @@
-import type { AstroUserConfig, ImageQualityPreset, ImageTransform } from 'astro';
+import type { AstroConfig, ImageQualityPreset, ImageTransform } from 'astro';
 import { isESMImportedImage } from 'astro/assets/utils';
 
-export function getDefaultImageConfig(
-	astroImageConfig:
-		| Pick<NonNullable<AstroUserConfig['image']>, 'domains' | 'remotePatterns'>
-		| undefined,
-): VercelImageConfig {
+export function getDefaultImageConfig(astroImageConfig: AstroConfig['image']): VercelImageConfig {
 	return {
 		sizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-		domains: astroImageConfig?.domains ?? [],
+		domains: astroImageConfig.domains ?? [],
 		// Cast is necessary here because Vercel's types are slightly different from ours regarding allowed protocols. Behavior should be the same, however.
-		remotePatterns: (astroImageConfig?.remotePatterns as VercelImageConfig['remotePatterns']) ?? [],
+		remotePatterns: (astroImageConfig.remotePatterns as VercelImageConfig['remotePatterns']) ?? [],
 	};
 }
 
@@ -69,7 +65,7 @@ export function getAstroImageConfig(
 	imagesConfig: VercelImageConfig | undefined,
 	command: string,
 	devImageService: DevImageService,
-	astroImageConfig: AstroUserConfig['image'],
+	astroImageConfig: AstroConfig['image'],
 ) {
 	let devService = '@astrojs/vercel/dev-image-service';
 
