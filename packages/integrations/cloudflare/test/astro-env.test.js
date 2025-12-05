@@ -84,6 +84,7 @@ describe(
 			it('runtime', async () => {
 				const res = await fixture.fetch('/');
 				const html = await res.text();
+				console.log("HTML1", html);
 				const $ = cheerio.load(html);
 				assert.equal(
 					$('#runtime').text().includes('https://google.de') &&
@@ -96,6 +97,7 @@ describe(
 			it('client', async () => {
 				const res = await fixture.fetch('/');
 				const html = await res.text();
+				console.log("HTML2", html);
 				const $ = cheerio.load(html);
 				assert.equal($('#client').text().includes('https://google.de'), true);
 			});
@@ -103,6 +105,7 @@ describe(
 			it('server', async () => {
 				const res = await fixture.fetch('/');
 				const html = await res.text();
+				console.log("HTML3", html);
 				const $ = cheerio.load(html);
 				assert.equal($('#server').text().includes('4322'), true);
 			});
@@ -110,6 +113,7 @@ describe(
 			it('secret', async () => {
 				const res = await fixture.fetch('/');
 				const html = await res.text();
+				console.log("HTML4", html);
 				const $ = cheerio.load(html);
 				assert.equal($('#secret').text().includes('123456789'), true);
 			});
@@ -117,6 +121,7 @@ describe(
 			it('action secret', async () => {
 				const res = await fixture.fetch('/');
 				const html = await res.text();
+				console.log("HTML5", html);
 				const $ = cheerio.load(html);
 				assert.equal($('#secret').text().includes('123456789'), true);
 			});
