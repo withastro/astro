@@ -145,7 +145,7 @@ export async function resolveConfig(
 		inlineUserConfig.root = root;
 	}
 
-	const userConfig = await loadConfig(root, inlineOnlyConfig.configFile, fsMod);
+	const userConfig: AstroUserConfig = await loadConfig(root, inlineOnlyConfig.configFile, fsMod);
 	const mergedConfig = mergeConfig(userConfig, inlineUserConfig);
 	// First-Pass Validation
 	let astroConfig: AstroConfig;

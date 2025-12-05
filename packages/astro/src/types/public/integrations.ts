@@ -6,7 +6,7 @@ import type { AstroIntegrationLogger } from '../../core/logger/core.js';
 import type { AdapterFeatureStability } from '../../integrations/features-validation.js';
 import type { getToolbarServerCommunicationHelpers } from '../../integrations/hooks.js';
 import type { DeepPartial } from '../../type-utils.js';
-import type { AstroConfig } from './config.js';
+import type { AstroConfig, AstroUserConfig } from './config.js';
 import type { RefreshContentOptions } from './content.js';
 import type { InternalInjectedRoute, RouteData } from './internal.js';
 import type { DevToolbarAppEntry } from './toolbar.js';
@@ -207,10 +207,10 @@ export type HookParameters<
 
 export interface BaseIntegrationHooks {
 	'astro:config:setup': (options: {
-		config: AstroConfig;
+		config: AstroUserConfig;
 		command: 'dev' | 'build' | 'preview' | 'sync';
 		isRestart: boolean;
-		updateConfig: (newConfig: DeepPartial<AstroConfig>) => AstroConfig;
+		updateConfig: (newConfig: DeepPartial<AstroUserConfig>) => AstroUserConfig;
 		addRenderer: (renderer: AstroRenderer) => void;
 		addWatchFile: (path: URL | string) => void;
 		injectScript: (stage: InjectedScriptStage, content: string) => void;

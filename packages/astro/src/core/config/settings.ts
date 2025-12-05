@@ -5,7 +5,7 @@ import toml from 'smol-toml';
 import { getContentPaths } from '../../content/index.js';
 import createPreferences from '../../preferences/index.js';
 import type { AstroSettings } from '../../types/astro.js';
-import type { AstroConfig, AstroInlineConfig } from '../../types/public/config.js';
+import type { AstroConfig, AstroInlineConfig, AstroUserConfig } from '../../types/public/config.js';
 import { markdownContentEntryType } from '../../vite-plugin-markdown/content-entry-type.js';
 import { getDefaultClientDirectives } from '../client-directive/index.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
@@ -19,15 +19,23 @@ import {
 import { AstroTimer } from './timer.js';
 import { loadTSConfig } from './tsconfig.js';
 
-export function createBaseSettings(
-	config: AstroConfig,
-	logLevel: AstroInlineConfig['logLevel'],
-): AstroSettings {
+interface BaseSettingsOptions {
+	config: AstroConfig;
+	userConfig: AstroUserConfig;
+	logLevel: AstroInlineConfig['logLevel'];
+}
+
+export function createBaseSettings({
+	config,
+	userConfig,
+	logLevel,
+}: BaseSettingsOptions): AstroSettings {
 	const { contentDir } = getContentPaths(config);
 	const dotAstroDir = new URL('.astro/', config.root);
 	const preferences = createPreferences(config, dotAstroDir);
 	return {
 		config,
+		userConfig,
 		preferences,
 		tsConfig: undefined,
 		tsConfigPath: undefined,
@@ -159,13 +167,14 @@ export function createBaseSettings(
 	};
 }
 
-export async function createSettings(
-	config: AstroConfig,
-	logLevel: AstroInlineConfig['logLevel'],
-	cwd?: string,
-): Promise<AstroSettings> {
+export async function createSettings({
+	cwd,
+	...options
+}: BaseSettingsOptions & {
+	cwd: string | undefined;
+}): Promise<AstroSettings> {
 	const tsconfig = await loadTSConfig(cwd);
-	const settings = createBaseSettings(config, logLevel);
+	const settings = createBaseSettings(options);
 
 	let watchFiles = [];
 	if (cwd) {

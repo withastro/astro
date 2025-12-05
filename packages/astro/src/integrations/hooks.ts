@@ -13,13 +13,13 @@ import type { SerializedSSRManifest } from '../core/app/types.js';
 import type { PageBuildData } from '../core/build/types.js';
 import { buildClientDirectiveEntrypoint } from '../core/client-directive/index.js';
 import { mergeConfig } from '../core/config/merge.js';
-import { validateConfigRefined } from '../core/config/validate.js';
+import { validateConfig } from '../core/config/validate.js';
 import { validateSetAdapter } from '../core/dev/adapter-validation.js';
 import type { AstroIntegrationLogger, Logger } from '../core/logger/core.js';
 import { getRouteGenerator } from '../core/routing/manifest/generator.js';
 import { getClientOutputDirectory } from '../prerender/utils.js';
 import type { AstroSettings } from '../types/astro.js';
-import type { AstroConfig } from '../types/public/config.js';
+import type { AstroConfig, AstroUserConfig } from '../types/public/config.js';
 import type {
 	ContentEntryType,
 	DataEntryType,
@@ -190,6 +190,7 @@ export async function runHookConfigSetup({
 		);
 	}
 
+	let updatedUserConfig: AstroUserConfig = { ...settings.userConfig };
 	let updatedConfig: AstroConfig = { ...settings.config };
 	let updatedSettings: AstroSettings = { ...settings, config: updatedConfig };
 	let addedClientDirectives = new Map<string, Promise<string>>();
@@ -218,7 +219,7 @@ export async function runHookConfigSetup({
 			logger,
 			params: () => {
 				const hooks: Omit<HookParameters<'astro:config:setup'>, 'logger'> = {
-					config: updatedConfig,
+					config: updatedUserConfig,
 					command,
 					isRestart,
 					addRenderer(renderer: AstroRenderer) {
@@ -244,8 +245,8 @@ export async function runHookConfigSetup({
 						updatedSettings.scripts.push({ stage, content });
 					},
 					updateConfig: (newConfig) => {
-						updatedConfig = mergeConfig(updatedConfig, newConfig);
-						return { ...updatedConfig };
+						updatedUserConfig = mergeConfig(updatedUserConfig, newConfig);
+						return { ...updatedUserConfig };
 					},
 					injectRoute: (injectRoute) => {
 						if (injectRoute.entrypoint == null && 'entryPoint' in injectRoute) {
@@ -343,7 +344,11 @@ export async function runHookConfigSetup({
 		}
 
 		try {
-			updatedConfig = await validateConfigRefined(updatedConfig);
+			updatedConfig = await validateConfig(
+				updatedUserConfig,
+				fileURLToPath(updatedConfig.root),
+				command,
+			);
 		} catch (error) {
 			integrationLogger.error('An error occurred while updating the config');
 			throw error;
@@ -355,6 +360,7 @@ export async function runHookConfigSetup({
 		updatedSettings.renderers.push(astroJSXRenderer);
 	}
 
+	updatedSettings.userConfig = updatedUserConfig;
 	updatedSettings.config = updatedConfig;
 	return updatedSettings;
 }

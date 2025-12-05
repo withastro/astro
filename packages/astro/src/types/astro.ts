@@ -4,7 +4,7 @@ import type { Logger, LoggerLevel } from '../core/logger/core.js';
 import type { AstroPreferences } from '../preferences/index.js';
 import type { AstroComponentFactory } from '../runtime/server/index.js';
 import type { GetStaticPaths } from './public/common.js';
-import type { AstroConfig } from './public/config.js';
+import type { AstroConfig, AstroUserConfig } from './public/config.js';
 import type { ContentEntryType, DataEntryType } from './public/content.js';
 import type {
 	AstroAdapter,
@@ -31,6 +31,7 @@ type CspObject = Required<Exclude<AstroConfig['experimental']['csp'], boolean>>;
 
 export interface AstroSettings {
 	config: AstroConfig;
+	userConfig: AstroUserConfig;
 	adapter: AstroAdapter | undefined;
 	preferences: AstroPreferences;
 	injectedRoutes: InternalInjectedRoute[];
