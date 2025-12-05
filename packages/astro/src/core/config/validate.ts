@@ -10,17 +10,8 @@ export async function validateConfig(
 ): Promise<AstroConfig> {
 	const AstroConfigRelativeSchema = createRelativeSchema(cmd, root);
 
-	// First-Pass Validation
-	return await validateConfigRefined(
+	return AstroConfigRefinedSchema.parse(
 		await AstroConfigRelativeSchema.parseAsync(userConfig, { errorMap }),
+		{ errorMap },
 	);
-}
-
-/**
- * Used twice:
- * - To validate the user config
- * - To validate the config after all integrations (that may have updated it)
- */
-export async function validateConfigRefined(updatedConfig: AstroConfig): Promise<AstroConfig> {
-	return await AstroConfigRefinedSchema.parseAsync(updatedConfig, { errorMap });
 }

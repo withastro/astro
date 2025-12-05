@@ -77,18 +77,23 @@ async function restartContainer(container: Container): Promise<Container | Error
 	container.restartInFlight = true;
 
 	try {
-		const { astroConfig } = await resolveConfig(container.inlineConfig, 'dev', container.fs);
+		const { astroConfig, userConfig } = await resolveConfig(
+			container.inlineConfig,
+			'dev',
+			container.fs,
+		);
 		if (astroConfig.experimental.csp) {
 			logger.warn(
 				'config',
 				"Astro's Content Security Policy (CSP) does not work in development mode. To verify your CSP implementation, build the project and run the preview server.",
 			);
 		}
-		const settings = await createSettings(
-			astroConfig,
-			container.inlineConfig.logLevel,
-			fileURLToPath(existingSettings.config.root),
-		);
+		const settings = await createSettings({
+			config: astroConfig,
+			userConfig,
+			logLevel: container.inlineConfig.logLevel,
+			cwd: fileURLToPath(existingSettings.config.root),
+		});
 		await close();
 		return await createRestartedContainer(container, settings);
 	} catch (_err) {
@@ -138,11 +143,12 @@ export async function createContainerWithAutomaticRestart({
 	}
 	telemetry.record(eventCliSession('dev', userConfig));
 
-	const settings = await createSettings(
-		astroConfig,
-		inlineConfig?.logLevel,
-		fileURLToPath(astroConfig.root),
-	);
+	const settings = await createSettings({
+		config: astroConfig,
+		userConfig,
+		logLevel: inlineConfig?.logLevel,
+		cwd: fileURLToPath(astroConfig.root),
+	});
 
 	const initialContainer = await createContainer({
 		settings,

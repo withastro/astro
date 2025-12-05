@@ -45,8 +45,13 @@ export function getViteConfig(
 			import('../integrations/hooks.js'),
 		]);
 		const logger = createNodeLogger(inlineAstroConfig);
-		const { astroConfig: config } = await resolveConfig(inlineAstroConfig, cmd);
-		let settings = await createSettings(config, inlineAstroConfig.logLevel, userViteConfig.root);
+		const { astroConfig, userConfig } = await resolveConfig(inlineAstroConfig, cmd);
+		let settings = await createSettings({
+			config: astroConfig,
+			userConfig,
+			logLevel: inlineAstroConfig.logLevel,
+			cwd: userViteConfig.root,
+		});
 		settings = await runHookConfigSetup({ settings, command: cmd, logger });
 		const routesList = await createRoutesList(
 			{
