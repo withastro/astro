@@ -154,8 +154,6 @@ export function defineLiveCollection<
 		});
 	}
 
-	// Z4 schema is the only supported version now
-
 	return config;
 }
 
@@ -199,8 +197,6 @@ export function defineCollection<
 		);
 	}
 	config.type = CONTENT_LAYER_TYPE;
-
-	// Z4 schema is the only supported version now
 
 	return config;
 }
