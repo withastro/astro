@@ -462,17 +462,17 @@ repository:
     name: meta.scope.tag.$1.astro meta.$1.astro
     patterns:
       # Injecting into `meta.lang.ld+json` doesn't seem possible, so we set it to `meta.lang.json`
-      - begin: \G(?=\s*[^>]*?(type|lang)\s*=\s*(['"]|)(?:text\/)?(application\/ld\+json)\2)
+      - begin: \G(?=[\s\S]*?(type|lang)\s*=\s*(['"]|)(?:text\/)?(application\/ld\+json)\2)
         end: (?=</|/>)
         name: meta.lang.json.astro
         patterns: [include: '#tags-lang-start-attributes']
       # Treat 'module' as JavaScript
-      - begin: \G(?=\s*[^>]*?(type|lang)\s*=\s*(['"]|)(module)\2)
+      - begin: \G(?=[\s\S]*?(type|lang)\s*=\s*(['"]|)(module)\2)
         end: (?=</|/>)
         name: meta.lang.javascript.astro
         patterns: [include: '#tags-lang-start-attributes']
       # Tags with a language specified.
-      - begin: \G(?=\s*[^>]*?(type|lang)\s*=\s*(['"]|)(?:text/|application/)?([\w\/+]+)\2)
+      - begin: \G(?=[\s\S]*?(type|lang)\s*=\s*(['"]|)(?:text/|application/)?([\w\/+]+)\2)
         end: (?=</|/>)
         name: meta.lang.$3.astro
         patterns: [include: '#tags-lang-start-attributes']
