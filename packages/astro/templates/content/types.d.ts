@@ -8,8 +8,6 @@ declare module 'astro:content' {
 		'.md': Promise<RenderResult>;
 	}
 
-	export const defineCollection: '@@DEFINE_COLLECTION@@';
-
 	export interface RenderedContent {
 		html: string;
 		metadata?: {
