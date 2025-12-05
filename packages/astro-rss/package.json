@@ -30,6 +30,7 @@
     "@types/xml2js": "^0.4.14",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
+    "zod": "^3.25.76",
     "xml2js": "0.6.2"
   },
   "dependencies": {

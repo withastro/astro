@@ -4,7 +4,7 @@ import {
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../../i18n/utils.js';
-import type { MiddlewareHandler, Params, RewritePayload } from '../../types/public/common.js';
+import type { Params, RewritePayload } from '../../types/public/common.js';
 import type { APIContext, AstroSharedContextCsp } from '../../types/public/context.js';
 import { ASTRO_GENERATOR } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
@@ -12,10 +12,6 @@ import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getClientIpAddress } from '../routing/request.js';
 import { getOriginPathname } from '../routing/rewrite.js';
 import { sequence } from './sequence.js';
-
-function defineMiddleware(fn: MiddlewareHandler) {
-	return fn;
-}
 
 /**
  * Payload for creating a context to be passed to Astro middleware
@@ -206,4 +202,5 @@ function trySerializeLocals(value: unknown) {
 }
 
 // NOTE: this export must export only the functions that will be exposed to user-land as officials APIs
-export { createContext, defineMiddleware, sequence, trySerializeLocals };
+export { createContext, sequence, trySerializeLocals };
+export { defineMiddleware } from './defineMiddleware.js';

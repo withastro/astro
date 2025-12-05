@@ -1671,7 +1671,7 @@ export const InvalidContentEntryFrontmatterError = {
 			`**${String(collection)} → ${String(
 				entryId,
 			)}** frontmatter does not match collection schema.`,
-			...error.errors.map((zodError) => zodError.message),
+			error.message,
 		].join('\n');
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
@@ -1696,7 +1696,7 @@ export const InvalidContentEntryDataError = {
 	message(collection: string, entryId: string, error: ZodError) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
-			...error.errors.map((zodError) => `  **${zodError.path.join('.')}**: ${zodError.message}`),
+			`  **: ${error.message}`,
 			'',
 		].join('\n');
 	},
@@ -1802,7 +1802,7 @@ export const ContentEntryDataError = {
 	message(collection: string, entryId: string, error: ZodError) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
-			...error.errors.map((zodError) => `  **${zodError.path.join('.')}**: ${zodError.message}`),
+			`  **: ${error.message}`,
 			'',
 		].join('\n');
 	},

@@ -1,4 +1,4 @@
-import type { ZodLiteral, ZodNumber, ZodObject, ZodString, ZodType, ZodUnion } from 'zod';
+import type * as z4 from 'zod/v4/core';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from './consts.js';
 import type { LiveLoader, Loader } from './loaders/types.js';
@@ -24,20 +24,20 @@ function getImporterFilename() {
 }
 
 // This needs to be in sync with ImageMetadata
-export type ImageFunction = () => ZodObject<{
-	src: ZodString;
-	width: ZodNumber;
-	height: ZodNumber;
-	format: ZodUnion<
+type Z4ImageFunction = () => z4.$ZodObject<{
+	src: z4.$ZodString;
+	width: z4.$ZodNumber;
+	height: z4.$ZodNumber;
+	format: z4.$ZodUnion<
 		[
-			ZodLiteral<'png'>,
-			ZodLiteral<'jpg'>,
-			ZodLiteral<'jpeg'>,
-			ZodLiteral<'tiff'>,
-			ZodLiteral<'webp'>,
-			ZodLiteral<'gif'>,
-			ZodLiteral<'svg'>,
-			ZodLiteral<'avif'>,
+			z4.$ZodLiteral<'png'>,
+			z4.$ZodLiteral<'jpg'>,
+			z4.$ZodLiteral<'jpeg'>,
+			z4.$ZodLiteral<'tiff'>,
+			z4.$ZodLiteral<'webp'>,
+			z4.$ZodLiteral<'gif'>,
+			z4.$ZodLiteral<'svg'>,
+			z4.$ZodLiteral<'avif'>,
 		]
 	>;
 }>;
@@ -67,9 +67,9 @@ export interface MetaStore {
 	has: (key: string) => boolean;
 }
 
-export type BaseSchema = ZodType;
+export type BaseSchema = z4.$ZodType;
 
-export type SchemaContext = { image: ImageFunction };
+export type SchemaContext = { image: Z4ImageFunction };
 
 export type LiveCollectionConfig<
 	L extends LiveLoader,
@@ -153,6 +153,7 @@ export function defineLiveCollection<
 			),
 		});
 	}
+
 	return config;
 }
 
@@ -196,5 +197,26 @@ export function defineCollection<
 		);
 	}
 	config.type = CONTENT_LAYER_TYPE;
+
 	return config;
 }
+
+// Allow generic `string` to avoid excessive type errors in the config
+// if `dev` is not running to update as you edit.
+// Invalid collection names will be caught at build time.
+export type Z4Reference<DataEntryMap extends Record<string, any>> = <
+	C extends keyof DataEntryMap | (string & {}),
+>(
+	collection: C,
+) => z4.$ZodPipe<
+	z4.$ZodString,
+	z4.$ZodTransform<
+		C extends keyof DataEntryMap
+			? {
+					collection: C;
+					id: string;
+				}
+			: never,
+		string
+	>
+>;

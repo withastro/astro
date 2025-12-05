@@ -1,4 +1,4 @@
-import { z } from 'astro/zod';
+import { z } from 'zod';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 import colors from 'piccolore';
 import { rssSchema } from './schema.js';

@@ -111,9 +111,9 @@ export function astroContentVirtualModPlugin({
 				return ASSET_IMPORTS_RESOLVED_STUB_ID;
 			}
 		},
-		async load(id, args) {
+		async load(id) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-				const isClient = !args?.ssr;
+				const isClient = this.environment.name === 'client';
 				const code = await generateContentEntryFile({
 					settings,
 					fs,

@@ -32,7 +32,11 @@ export function vitePluginActionsBuild(
 		name: '@astro/plugin-actions-build',
 
 		applyToEnvironment(environment) {
-			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
+			const shouldApply =
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro;
+			return shouldApply;
 		},
 
 		writeBundle(_, bundle) {
@@ -99,7 +103,7 @@ export function vitePluginActions({
 			server.watcher.on('add', watcherCallback);
 			server.watcher.on('change', watcherCallback);
 		},
-		async load(id, opts) {
+		async load(id) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
 				return { code: `export * from 'astro/actions/runtime/virtual.js';` };
 			}
@@ -113,9 +117,12 @@ export function vitePluginActions({
 			}
 
 			if (id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID) {
+				const useServerRuntime = this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+					this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender;
+
 				return {
-					code: `export * from 'astro/actions/runtime/${opts?.ssr ? 'server' : 'client'}.js';`,
-				};
+					code: `export * from 'astro/actions/runtime/${useServerRuntime ? 'server' : 'client'}.js';`,
+				}
 			}
 
 			if (id === RESOLVED_OPTIONS_VIRTUAL_MODULE_ID) {

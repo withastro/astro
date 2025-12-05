@@ -10,7 +10,6 @@ import {
 	type ViteDevServer,
 } from 'vite';
 import { type ZodSchema, z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
@@ -636,20 +635,10 @@ async function generateJSONSchema(
 	}
 
 	try {
-		await fsMod.promises.writeFile(
-			new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
-			JSON.stringify(
-				zodToJsonSchema(zodSchemaForJson, {
-					name: collectionKey.replace(/"/g, ''),
-					markdownDescription: true,
-					errorMessages: true,
-					// Fix for https://github.com/StefanTerdell/zod-to-json-schema/issues/110
-					dateStrategy: ['format:date-time', 'format:date', 'integer'],
-				}),
-				null,
-				2,
-			),
-		);
+		const schema = z.toJSONSchema(zodSchemaForJson);
+		const schemaStr = JSON.stringify(schema, null, 2);
+		const schemaJsonPath = new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir);
+		await fsMod.promises.writeFile(schemaJsonPath, schemaStr);
 	} catch (err) {
 		// This should error gracefully and not crash the dev server
 		logger.warn(

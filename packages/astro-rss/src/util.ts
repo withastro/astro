@@ -1,4 +1,4 @@
-import type { z } from 'astro/zod';
+import type { z } from 'zod';
 import type { RSSOptions } from './index.js';
 
 /** Normalize URL to its canonical form */

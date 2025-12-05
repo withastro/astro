@@ -1,7 +1,8 @@
 import type { MarkdownHeading } from '@astrojs/markdown-remark';
 import { escape } from 'html-escaper';
 import { Traverse } from 'neotraverse/modern';
-import { ZodIssueCode, z } from 'zod';
+import * as _z4 from 'zod/v4';
+import * as z4 from 'zod/v4/core';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -42,21 +43,21 @@ export {
 type LazyImport = () => Promise<any>;
 type LiveCollectionConfigMap = Record<
 	string,
-	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE; schema?: z.ZodType }
+	{ loader: LiveLoader; type: typeof LIVE_CONTENT_TYPE; schema?: z4.$ZodType }
 >;
 
-const cacheHintSchema = z.object({
-	tags: z.array(z.string()).optional(),
-	lastModified: z.date().optional(),
+const cacheHintSchema = _z4.object({
+	tags: _z4.array(_z4.string()).optional(),
+	lastModified: _z4.date().optional(),
 });
 
 async function parseLiveEntry(
 	entry: LiveDataEntry,
-	schema: z.ZodType,
+	schema: z4.$ZodType,
 	collection: string,
 ): Promise<{ entry?: LiveDataEntry; error?: LiveCollectionError }> {
 	try {
-		const parsed = await schema.safeParseAsync(entry.data);
+		const parsed = await z4.safeParseAsync(schema, entry.data);
 		if (!parsed.success) {
 			return {
 				error: new LiveCollectionValidationError(collection, entry.id, parsed.error),
@@ -75,7 +76,7 @@ async function parseLiveEntry(
 		return {
 			entry: {
 				...entry,
-				data: parsed.data,
+				data: parsed.data as Record<string, unknown>,
 			},
 		};
 	} catch (error) {
@@ -655,44 +656,36 @@ async function render({
 
 export function createReference() {
 	return function reference(collection: string) {
-		return z
+		return _z4
 			.union([
-				z.string(),
-				z.object({
-					id: z.string(),
-					collection: z.string(),
+				_z4.string(),
+				_z4.object({
+					id: _z4.string(),
+					collection: _z4.string(),
 				}),
-				z.object({
-					slug: z.string(),
-					collection: z.string(),
+				_z4.object({
+					slug: _z4.string(),
+					collection: _z4.string(),
 				}),
 			])
-			.transform(
-				(
-					lookup:
-						| string
-						| { id: string; collection: string }
-						| { slug: string; collection: string },
-					ctx,
-				) => {
-					const flattenedErrorPath = ctx.path.join('.');
+			.transform((lookup, ctx) => {
+				if (typeof lookup === 'object') {
+					// If these don't match then something is wrong with the reference
+					if (lookup.collection !== collection) {
+						const flattenedErrorPath = ctx.issues[0]?.path?.join('.');
 
-					if (typeof lookup === 'object') {
-						// If these don't match then something is wrong with the reference
-						if (lookup.collection !== collection) {
-							ctx.addIssue({
-								code: ZodIssueCode.custom,
-								message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${collection}. Received ${lookup.collection}.`,
-							});
-							return;
-						}
-						// If it is an object then we're validating later in the build, so we can check the collection at that point.
-						return lookup;
+						ctx.addIssue({
+							code: 'custom',
+							message: `**${flattenedErrorPath}**: Reference to ${collection} invalid. Expected ${collection}. Received ${lookup.collection}.`,
+						});
+						return;
 					}
+					// If it is an object then we're validating later in the build, so we can check the collection at that point.
+					return lookup;
+				}
 
-					return { id: lookup, collection };
-				},
-			);
+				return { id: lookup, collection };
+			});
 	};
 }
 

@@ -1,4 +1,15 @@
+import type * as z4 from 'zod/v4/core';
+import { AstroError } from '../../core/errors/errors.js';
+import { ActionCalledFromServerError } from '../../core/errors/errors-data.js';
 import type { APIContext } from '../../types/public/context.js';
+import {
+	type ActionAccept,
+	type ActionClient,
+	type ActionHandler,
+	callSafely,
+	getFormServerHandler,
+	getJsonServerHandler,
+} from './server.js';
 import type { SerializedActionResult } from './shared.js';
 
 export type ActionPayload = {
@@ -58,4 +69,47 @@ export type ErrorInferenceObject = Record<string, any>;
 export function isActionAPIContext(ctx: ActionAPIContext): boolean {
 	const symbol = Reflect.get(ctx, ACTION_API_CONTEXT_SYMBOL);
 	return symbol === true;
+}
+
+export function createDefineAction() {
+	return function defineAction<
+		TOutput,
+		TAccept extends ActionAccept | undefined = undefined,
+		TInputSchema extends z4.$ZodType | undefined = TAccept extends 'form'
+			? // If `input` is omitted, default to `FormData` for forms and `any` for JSON.
+				z4.$ZodType<FormData>
+			: undefined,
+	>({
+		accept,
+		input: inputSchema,
+		handler,
+	}: {
+		input?: TInputSchema;
+		accept?: TAccept;
+		handler: ActionHandler<TInputSchema, TOutput>;
+	}): ActionClient<TOutput, TAccept, TInputSchema> & string {
+		const serverHandler =
+			accept === 'form'
+				? getFormServerHandler(handler, inputSchema)
+				: getJsonServerHandler(handler, inputSchema);
+
+		async function safeServerHandler(this: ActionAPIContext, unparsedInput: unknown) {
+			// The ActionAPIContext should always contain the `params` property
+			if (typeof this === 'function' || !isActionAPIContext(this)) {
+				throw new AstroError(ActionCalledFromServerError);
+			}
+			return callSafely(() => serverHandler(unparsedInput, this));
+		}
+
+		Object.assign(safeServerHandler, {
+			orThrow(this: ActionAPIContext, unparsedInput: unknown) {
+				if (typeof this === 'function') {
+					throw new AstroError(ActionCalledFromServerError);
+				}
+				return serverHandler(unparsedInput, this);
+			},
+		});
+
+		return safeServerHandler as ActionClient<TOutput, TAccept, TInputSchema> & string;
+	};
 }
