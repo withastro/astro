@@ -1,0 +1,43 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const error = Astro.url.searchParams.get('error');
+---
+
+<Layout title="Login">
+	<main>
+		<p>You must be logged in to view protected pages.</p>
+
+		{
+			error === 'invalid' && (
+				<div class="error-message">Invalid username or password. Please try again.</div>
+			)
+		}
+
+		<div>
+			<h2>Demo Credentials (use these below)</h2>
+			<p>
+				<strong>Username:</strong> demo<br />
+				<strong>Password:</strong> password
+			</p>
+
+			<form action="/api/auth/login" method="POST">
+				<label>
+					Username
+					<input type="text" id="username" name="username" required autocomplete="username" />
+				</label>
+				<label
+					>Password
+					<input
+						type="password"
+						id="password"
+						name="password"
+						required
+						autocomplete="current-password"
+					/></label
+				>
+				<button type="submit">Sign In</button>
+			</form>
+		</div>
+	</main>
+</Layout>
