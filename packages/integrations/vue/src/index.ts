@@ -150,6 +150,9 @@ function configEnvironmentPlugin(): Plugin {
 				((environmentName === 'ssr' || environmentName === 'prerender') &&
 					_options.optimizeDeps?.noDiscovery === false)
 			) {
+				environmentOptions.optimizeDeps!.include = [
+					'vue'
+				];
 				environmentOptions.optimizeDeps!.exclude = [
 					'@astrojs/vue/server.js',
 					'vue/server-renderer',
