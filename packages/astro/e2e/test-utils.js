@@ -108,3 +108,49 @@ export async function scrollToElement(el) {
 		node.scrollIntoView({ behavior: 'auto' });
 	});
 }
+
+/**
+ * Create a spy logger that captures log messages into provided arrays
+ * @param {{info?: Array, warn?: Array, error?: Array, debug?: Array}} options - Optional arrays to push messages into
+ * @returns {import('../dist/core/logger/core').Logger}
+ */
+export function createLoggerSpy(options = {}) {
+	const infoLogs = options.info || [];
+	const warnLogs = options.warn || [];
+	const errorLogs = options.error || [];
+	const debugLogs = options.debug || [];
+
+	const logger = {
+		info(label, message) {
+			infoLogs.push({ label, message });
+		},
+		warn(label, message) {
+			warnLogs.push({ label, message });
+		},
+		error(label, message) {
+			errorLogs.push({ label, message });
+		},
+		debug(label, ...messages) {
+			debugLogs.push(...messages.map((message) => ({ label, message })));
+		},
+		options: {
+			dest: { write: () => true },
+			level: 'info',
+		},
+		level: () => 'info',
+		forkIntegrationLogger(label) {
+			const forked = {
+				info: (message) => infoLogs.push({ label, message }),
+				warn: (message) => warnLogs.push({ label, message }),
+				error: (message) => errorLogs.push({ label, message }),
+				debug: (message) => debugLogs.push({ label, message }),
+				fork: (newLabel) => {
+					return forked;
+				},
+			};
+			return forked;
+		},
+	};
+
+	return logger;
+}

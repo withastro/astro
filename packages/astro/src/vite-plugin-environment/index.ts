@@ -51,6 +51,10 @@ export function vitePluginEnvironment({
 		name: 'astro:environment',
 		configEnvironment(environmentName, _options): EnvironmentOptions {
 			const finalEnvironmentOptions: EnvironmentOptions = {
+				optimizeDeps: {
+					include: [],
+					exclude: []
+				},
 				resolve: {
 					// Astro imports in third-party packages should use the same version as root
 					dedupe: ['astro'],
@@ -76,16 +80,44 @@ export function vitePluginEnvironment({
 				if (_options.optimizeDeps?.noDiscovery === false) {
 					finalEnvironmentOptions.optimizeDeps = {
 						entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro}`],
-						exclude: ['astro', 'node-fetch'],
+						include: [],
+						exclude: ['node-fetch'],
 					};
 				}
 			}
 
 			if (environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 				finalEnvironmentOptions.optimizeDeps = {
+					include: [
+						'astro > html-escaper',
+					],
 					// Astro files can't be rendered on the client
 					entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html}`],
 				};
+			}
+			// In all ssr-like environments
+			else if(environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.ssr || environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) {
+				finalEnvironmentOptions.optimizeDeps!.include = [
+					'astro',
+					'astro/runtime/**',
+					'astro > html-escaper',
+
+					'astro > mrmime',
+					'astro > zod',
+					'astro > clsx',
+					'astro > cssesc',
+					'astro > cookie',
+					'astro > devalue',
+					'astro > @oslojs/encoding',
+					'astro > es-module-lexer',
+					'astro > unstorage',
+
+					'astro > neotraverse/modern',
+				];
+				finalEnvironmentOptions.optimizeDeps!.exclude!.push(...[
+					'astro:toolbar:internal',
+					'virtual:astro:middleware'
+				]);
 			}
 
 			return finalEnvironmentOptions;
