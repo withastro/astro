@@ -144,7 +144,7 @@ export function createLoggerSpy(options = {}) {
 				warn: (message) => warnLogs.push({ label, message }),
 				error: (message) => errorLogs.push({ label, message }),
 				debug: (message) => debugLogs.push({ label, message }),
-				fork: (newLabel) => {
+				fork: (_newLabel) => {
 					return forked;
 				},
 			};
