@@ -355,22 +355,12 @@ async function generateLookupMap({ settings, fs }: { settings: AstroSettings; fs
 									: undefined,
 						});
 					}
-					lookupMap[collection] = {
-						type: 'content',
-						entries: {
-							...lookupMap[collection]?.entries,
-							[slug]: rootRelativePath(root, filePath),
-						},
-					};
+					lookupMap[collection] ??= { type: 'content', entries: {} };
+					lookupMap[collection].entries[slug] = rootRelativePath(root, filePath);
 				} else {
 					const id = getDataEntryId({ entry: pathToFileURL(filePath), contentDir, collection });
-					lookupMap[collection] = {
-						type: 'data',
-						entries: {
-							...lookupMap[collection]?.entries,
-							[id]: rootRelativePath(root, filePath),
-						},
-					};
+					lookupMap[collection] ??= { type: 'data', entries: {} };
+					lookupMap[collection].entries[id] = rootRelativePath(root, filePath);
 				}
 			}),
 		);
