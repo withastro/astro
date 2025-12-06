@@ -89,35 +89,12 @@ export function vitePluginEnvironment({
 			if (environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 				finalEnvironmentOptions.optimizeDeps = {
 					include: [
+						// For the dev toolbar
 						'astro > html-escaper',
 					],
 					// Astro files can't be rendered on the client
 					entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html}`],
 				};
-			}
-			// In all ssr-like environments
-			else if(environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.ssr || environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) {
-				finalEnvironmentOptions.optimizeDeps!.include = [
-					'astro',
-					'astro/runtime/**',
-					'astro > html-escaper',
-
-					'astro > mrmime',
-					'astro > zod',
-					'astro > clsx',
-					'astro > cssesc',
-					'astro > cookie',
-					'astro > devalue',
-					'astro > @oslojs/encoding',
-					'astro > es-module-lexer',
-					'astro > unstorage',
-
-					'astro > neotraverse/modern',
-				];
-				finalEnvironmentOptions.optimizeDeps!.exclude!.push(...[
-					'astro:toolbar:internal',
-					'virtual:astro:middleware'
-				]);
 			}
 
 			return finalEnvironmentOptions;
