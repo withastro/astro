@@ -248,7 +248,7 @@ async function getTempViteServer({ viteConfig }: { viteConfig: UserConfig }) {
 		mergeConfig(viteConfig, {
 			server: { middlewareMode: true, hmr: false, watch: null, ws: false },
 			optimizeDeps: { noDiscovery: true },
-			ssr: { external: [] },
+			ssr: { external: ['css-tree'] },
 			logLevel: 'silent',
 		}),
 	);
