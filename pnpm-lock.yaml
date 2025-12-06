@@ -6020,7 +6020,7 @@ importers:
         specifier: ^0.7.42
         version: 0.7.42(svelte@5.43.14)(typescript@5.9.3)
       vite:
-        specifier: ^7.2.6
+        specifier: ^7.1.7
         version: 7.2.6(@types/node@22.18.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.0)(tsx@4.20.6)(yaml@2.8.1)
     devDependencies:
       astro:
@@ -6045,8 +6045,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: 5.43.6
-        version: 5.43.6
+        specifier: ^5.43.14
+        version: 5.43.14
 
   packages/integrations/vercel:
     dependencies:
@@ -14953,10 +14953,6 @@ packages:
 
   svelte@5.43.14:
     resolution: {integrity: sha512-pHeUrp1A5S6RGaXhJB7PtYjL1VVjbVrJ2EfuAoPu9/1LeoMaJa/pcdCsCSb0gS4eUHAHnhCbUDxORZyvGK6kOQ==}
-    engines: {node: '>=18'}
-
-  svelte@5.43.6:
-    resolution: {integrity: sha512-RnyO9VXI85Bmsf4b8AuQFBKFYL3LKUl+ZrifOjvlrQoboAROj5IITVLK1yOXBjwUWUn2BI5cfmurktgCzuZ5QA==}
     engines: {node: '>=18'}
 
   svelte@5.43.8:
@@ -25637,23 +25633,6 @@ snapshots:
       periscopic: 3.1.0
 
   svelte@5.43.14:
-    dependencies:
-      '@jridgewell/remapping': 2.3.5
-      '@jridgewell/sourcemap-codec': 1.5.5
-      '@sveltejs/acorn-typescript': 1.0.5(acorn@8.15.0)
-      '@types/estree': 1.0.8
-      acorn: 8.15.0
-      aria-query: 5.3.2
-      axobject-query: 4.1.0
-      clsx: 2.1.1
-      esm-env: 1.2.2
-      esrap: 2.1.0
-      is-reference: 3.0.3
-      locate-character: 3.0.0
-      magic-string: 0.30.21
-      zimmerframe: 1.1.2
-
-  svelte@5.43.6:
     dependencies:
       '@jridgewell/remapping': 2.3.5
       '@jridgewell/sourcemap-codec': 1.5.5
