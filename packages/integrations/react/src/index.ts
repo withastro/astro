@@ -72,21 +72,42 @@ function getViteConfiguration(
 ) {
 	if (reactCompilerEnabled) {
 		if (!babel) babel = {};
-		if (typeof babel == "object") {
-			let reactCompilerPluginExists = false
-			if (!babel.plugins) babel.plugins = []
+		if (typeof babel == 'object') {
+			let reactCompilerPluginExists = false;
+			if (!babel.plugins) babel.plugins = [];
 			else {
 				for (const plugin of babel.plugins) {
-					if (typeof plugin == "string" && plugin == 'babel-plugin-react-compiler') {
-						reactCompilerPluginExists = true
-						break
+					if (typeof plugin == 'string' && plugin == 'babel-plugin-react-compiler') {
+						reactCompilerPluginExists = true;
+						break;
 					} else if (Array.isArray(plugin) && plugin[0] == 'babel-plugin-react-compiler') {
-						reactCompilerPluginExists = true
-						break
+						reactCompilerPluginExists = true;
+						break;
 					}
 				}
 			}
 			if (!reactCompilerPluginExists) babel.plugins.push(['babel-plugin-react-compiler']);
+		} else if (typeof babel === 'function') {
+			let reactCompilerPluginExists = false;
+			const babelFn = babel;
+			babel = (...args) => {
+				const options = babelFn(...args);
+				if (!options.plugins) options.plugins = [];
+				else {
+					for (const plugin of options.plugins) {
+						if (typeof plugin == 'string' && plugin == 'babel-plugin-react-compiler') {
+							reactCompilerPluginExists = true;
+							break;
+						} else if (Array.isArray(plugin) && plugin[0] == 'babel-plugin-react-compiler') {
+							reactCompilerPluginExists = true;
+							break;
+						}
+					}
+				}
+				if (!reactCompilerPluginExists) options.plugins.push(['babel-plugin-react-compiler']);
+
+				return options;
+			};
 		}
 	}
 
@@ -121,7 +142,7 @@ export default function ({
 	babel,
 	experimentalReactChildren,
 	experimentalDisableStreaming,
-	reactCompilerEnabled
+	reactCompilerEnabled,
 }: ReactIntegrationOptions = {}): AstroIntegration {
 	const majorVersion = getReactMajorVersion();
 	if (!isSupportedReactVersion(majorVersion)) {
@@ -136,7 +157,14 @@ export default function ({
 				addRenderer(getRenderer(versionConfig));
 				updateConfig({
 					vite: getViteConfiguration(
-						{ include, exclude, babel, experimentalReactChildren, experimentalDisableStreaming, reactCompilerEnabled },
+						{
+							include,
+							exclude,
+							babel,
+							experimentalReactChildren,
+							experimentalDisableStreaming,
+							reactCompilerEnabled,
+						},
 						versionConfig,
 					),
 				});
