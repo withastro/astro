@@ -407,10 +407,10 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	if (collection?.schema) {
 		return { type: `InferEntrySchema<${collectionKey}>` };
 	}
-	if (!collection?.type || typeof collection.loader === 'function') {
+	if (!collection?.type || typeof collection.loader === 'function' || !collection.loader) {
 		return { type: 'any' };
 	}
-	if (collection.loader.schema) {
+	if (typeof collection.loader === 'object' && collection.loader.schema) {
 		return { type: `InferLoaderSchema<${collectionKey}>` };
 	}
 	const result = await getCreateSchemaResult(collection, collectionKey);
@@ -536,9 +536,9 @@ async function writeContentFiles({
 					// Is there a user provided schema or
 					collectionConfig?.schema ||
 						// Is it a loader object and
-						(typeof collectionConfig?.loader !== 'function' &&
+						(typeof collectionConfig?.loader === 'object' &&
 							// Is it a loader static schema or
-							(collectionConfig?.loader.schema ||
+							(collectionConfig.loader.schema ||
 								// is it a loader dynamic schema
 								createSchemaResultCache.has(collectionKey))),
 				),
