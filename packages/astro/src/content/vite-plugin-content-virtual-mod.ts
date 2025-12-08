@@ -113,7 +113,7 @@ export function astroContentVirtualModPlugin({
 		},
 		async load(id) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-				const isClient = this.environment.name === 'client';
+				const isClient = this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client;
 				const code = await generateContentEntryFile({
 					settings,
 					fs,
