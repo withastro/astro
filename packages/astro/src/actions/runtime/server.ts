@@ -2,7 +2,7 @@ import { stringify as devalueStringify } from 'devalue';
 import { z } from 'zod';
 import type { Pipeline } from '../../core/base-pipeline.js';
 import { shouldAppendForwardSlash } from '../../core/build/util.js';
-import { REDIRECT_STATUS_CODES } from '../../core/constants.js';
+import { pipelineSymbol, REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import { AstroError } from '../../core/errors/errors.js';
 import {
 	ActionCalledFromServerError,
@@ -10,7 +10,6 @@ import {
 	ActionsReturnedInvalidDataError,
 } from '../../core/errors/errors-data.js';
 import { removeTrailingForwardSlash } from '../../core/path.js';
-import { apiContextRoutesSymbol } from '../../core/render-context.js';
 import type { APIContext } from '../../types/public/index.js';
 import { ACTION_QUERY_PARAMS, ACTION_RPC_ROUTE_PATTERN } from '../consts.js';
 import {
@@ -163,7 +162,7 @@ export function getActionContext(context: APIContext): AstroActionContext {
 			calledFrom: callerInfo.from,
 			name: callerInfo.name,
 			handler: async () => {
-				const pipeline: Pipeline = Reflect.get(context, apiContextRoutesSymbol);
+				const pipeline: Pipeline = Reflect.get(context, pipelineSymbol);
 				const callerInfoName = shouldAppendForwardSlash(
 					pipeline.manifest.trailingSlash,
 					pipeline.manifest.buildFormat,

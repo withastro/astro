@@ -4,11 +4,14 @@ import { parse as devalueParse } from 'devalue';
 import type z from 'zod';
 import { ACTION_QUERY_PARAMS } from '../consts.js';
 import type {
+	ActionClient,
 	ActionErrorCode,
 	ErrorInferenceObject,
 	SafeResult,
 	SerializedActionResult,
 } from './types.js';
+import { appendForwardSlash } from '../../core/path.js';
+import type { APIContext } from '../../types/public/context.js';
 
 export const codeToStatusMap = {
 	// Implemented from IANA HTTP Status Code Registry
@@ -201,4 +204,101 @@ export const actionResultErrorStack = (function actionResultErrorStackFn() {
 export function getActionQueryString(name: string) {
 	const searchParams = new URLSearchParams({ [ACTION_QUERY_PARAMS.actionName]: name });
 	return `?${searchParams.toString()}`;
+}
+
+export function getActionPathFromString({
+	baseUrl,
+	shouldAppendTrailingSlash,
+	path: input,
+}: {
+	baseUrl: string;
+	shouldAppendTrailingSlash: boolean;
+	path: string;
+}) {
+	let path = `${baseUrl.replace(/\/$/, '')}/_actions/${new URLSearchParams(input).get(ACTION_QUERY_PARAMS.actionName)}`;
+	if (shouldAppendTrailingSlash) {
+		path = appendForwardSlash(path);
+	}
+	return path;
+}
+
+export function createGetActionPath(
+	options: Pick<
+		Parameters<typeof getActionPathFromString>[0],
+		'baseUrl' | 'shouldAppendTrailingSlash'
+	>,
+) {
+	return function getActionPath(action: ActionClient<any, any, any>) {
+		return getActionPathFromString({
+			baseUrl: options.baseUrl,
+			shouldAppendTrailingSlash: options.shouldAppendTrailingSlash,
+			path: action.toString(),
+		});
+	};
+}
+
+const ENCODED_DOT = '%2E';
+
+export function createActionsProxy({
+	actionCallback = {},
+	aggregatedPath = '',
+	handleAction,
+}: {
+	actionCallback?: Record<string | symbol, any>;
+	aggregatedPath?: string;
+	handleAction: (
+		param: any,
+		path: string,
+		context: APIContext | undefined,
+	) => Promise<SafeResult<any, any>>;
+}) {
+	return new Proxy(actionCallback, {
+		get(target, objKey) {
+			if (target.hasOwnProperty(objKey) || typeof objKey === 'symbol') {
+				return target[objKey];
+			}
+			// Add the key, encoding dots so they're not interpreted as nested properties.
+			const path =
+				aggregatedPath + encodeURIComponent(objKey.toString()).replaceAll('.', ENCODED_DOT);
+			function action(this: APIContext | undefined, param: any) {
+				return handleAction(param, path, this);
+			}
+
+			Object.assign(action, {
+				queryString: getActionQueryString(path),
+				toString: () => (action as any).queryString,
+				// redefine prototype methods as the object's own property, not the prototype's
+				bind: action.bind,
+				valueOf: () => action.valueOf,
+				// Progressive enhancement info for React.
+				$$FORM_ACTION: function () {
+					const searchParams = new URLSearchParams(action.toString());
+					return {
+						method: 'POST',
+						// `name` creates a hidden input.
+						// It's unused by Astro, but we can't turn this off.
+						// At least use a name that won't conflict with a user's formData.
+						name: '_astroAction',
+						action: '?' + searchParams.toString(),
+					};
+				},
+				// Note: `orThrow` does not have progressive enhancement info.
+				// If you want to throw exceptions,
+				//  you must handle those exceptions with client JS.
+				async orThrow(this: APIContext | undefined, param: any) {
+					const { data, error } = await handleAction(param, path, this);
+					if (error) throw error;
+					return data;
+				},
+			});
+
+			// recurse to construct queries for nested object paths
+			// ex. actions.user.admins.auth()
+			return createActionsProxy({
+				actionCallback: action,
+				aggregatedPath: path + '.',
+				handleAction,
+			});
+		},
+	});
 }
