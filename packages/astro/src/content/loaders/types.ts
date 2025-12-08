@@ -1,5 +1,5 @@
 import type { FSWatcher } from 'vite';
-import type * as z4 from 'zod/v4/core';
+import type { $ZodType } from 'zod/v4/core';
 import type { AstroIntegrationLogger } from '../../core/logger/core.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type {
