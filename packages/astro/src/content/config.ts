@@ -2,6 +2,7 @@ import type { ZodLiteral, ZodNumber, ZodObject, ZodString, ZodType, ZodUnion } f
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from './consts.js';
 import type { LiveLoader, Loader } from './loaders/types.js';
+import { glob } from './loaders/glob.js';
 
 function getImporterFilename() {
 	// Find the first line in the stack trace that doesn't include 'defineCollection' or 'getImporterFilename'
@@ -182,8 +183,24 @@ export function defineCollection<S extends BaseSchema>(
 		});
 	}
 
+	// Legacy backwards compat: auto-add glob loader for legacy collection types
+	const isLegacyType = config.type === 'content' || config.type === 'data';
+	if (isLegacyType && !('loader' in config)) {
+		const isDataCollection = config.type === 'data';
+		const pattern = isDataCollection ? '**/*.{json,yaml,yml,toml}' : '**/*.{md,mdx}';
+		return {
+			...config,
+			type: 'content_layer',
+			loader: glob({
+				pattern,
+				_legacy: true,
+			})
+		};
+	}
+
 	if ('loader' in config) {
-		if (config.type && config.type !== CONTENT_LAYER_TYPE) {
+		// Legacy backwards compat: allow legacy types with auto-added loaders
+		if (config.type && config.type !== CONTENT_LAYER_TYPE && !isLegacyType) {
 			throw new AstroUserError(
 				`Collections that use the Content Layer API must have a \`loader\` defined and no \`type\` set. Check your collection definitions in ${importerFilename ?? 'your content config file'}.`,
 			);

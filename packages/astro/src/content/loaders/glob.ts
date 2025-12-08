@@ -30,13 +30,26 @@ interface GlobOptions {
 	 * @returns The ID of the entry. Must be unique per collection.
 	 **/
 	generateId?: (options: GenerateIdOptions) => string;
+	/**
+	 * @private Internal flag for legacy backwards compat collections
+	 */
+	_legacy?: boolean;
 }
 
-function generateIdDefault({ entry, base, data }: GenerateIdOptions): string {
+function generateIdDefault({ entry, base, data }: GenerateIdOptions, isLegacy?: boolean): string {
 	if (data.slug) {
 		return data.slug as string;
 	}
 	const entryURL = new URL(encodeURI(entry), base);
+	if (isLegacy) {
+		// Legacy behavior: use ID based on path, not slug
+		const { id } = getContentEntryIdAndSlug({
+			entry: entryURL,
+			contentDir: base,
+			collection: '',
+		});
+		return id;
+	}
 	const { slug } = getContentEntryIdAndSlug({
 		entry: entryURL,
 		contentDir: base,
@@ -57,7 +70,7 @@ function checkPrefix(pattern: string | Array<string>, prefix: string) {
  * @param pattern A glob pattern to match files, relative to the content directory.
  */
 
-export function glob(globOptions: GlobOptions): Loader {
+export function glob(globOptions: GlobOptions & { _legacy: boolean; }): Loader {
 	if (checkPrefix(globOptions.pattern, '../')) {
 		throw new Error(
 			'Glob patterns cannot start with `../`. Set the `base` option to a parent directory instead.',
@@ -69,13 +82,14 @@ export function glob(globOptions: GlobOptions): Loader {
 		);
 	}
 
-	const generateId = globOptions?.generateId ?? generateIdDefault;
+	const isLegacy = globOptions._legacy;
+	const generateId = globOptions?.generateId ?? ((opts: GenerateIdOptions) => generateIdDefault(opts, isLegacy));
 
 	const fileToIdMap = new Map<string, string>();
 
 	return {
 		name: 'glob-loader',
-		load: async ({ config, logger, watcher, parseData, store, generateDigest, entryTypes }) => {
+		load: async ({ config, collection, logger, watcher, parseData, store, generateDigest, entryTypes }) => {
 			const renderFunctionByContentType = new WeakMap<
 				ContentEntryType,
 				ContentEntryRenderFunction
@@ -190,7 +204,13 @@ export function glob(globOptions: GlobOptions): Loader {
 				fileToIdMap.set(filePath, id);
 			}
 
-			const baseDir = globOptions.base ? new URL(globOptions.base, config.root) : config.root;
+			// For legacy collections, use the collection directory as base if not explicitly set
+			let baseDir: URL;
+			if (isLegacy && !globOptions.base) {
+				baseDir = new URL(`./src/content/${collection}`, config.root);
+			} else {
+				baseDir = globOptions.base ? new URL(globOptions.base, config.root) : config.root;
+			}
 
 			if (!baseDir.pathname.endsWith('/')) {
 				baseDir.pathname = `${baseDir.pathname}/`;

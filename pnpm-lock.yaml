@@ -3522,6 +3522,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/legacy-collections-backwards-compat:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/live-loaders:
     dependencies:
       '@astrojs/node':

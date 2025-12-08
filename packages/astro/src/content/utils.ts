@@ -54,6 +54,16 @@ export const loaderReturnSchema = z.union([
 
 const collectionConfigParser = z.union([
 	z.object({
+		type: z.literal('content').optional(),
+		schema: z.any().optional(),
+		loader: z.never().optional(),
+	}),
+	z.object({
+		type: z.literal('data').optional(),
+		schema: z.any().optional(),
+		loader: z.never().optional(),
+	}),
+	z.object({
 		type: z.literal(CONTENT_LAYER_TYPE),
 		schema: z.any().optional(),
 		loader: z.union([
@@ -454,7 +464,11 @@ async function loadContentConfig({
 	settings: AstroSettings;
 	viteServer: ViteDevServer;
 }): Promise<ContentConfig | undefined> {
-	const contentPaths = getContentPaths(settings.config, fs);
+	const contentPaths = getContentPaths(
+		settings.config,
+		fs,
+		settings.config.legacy?.collectionsBackwardsCompat,
+	);
 	let unparsedConfig;
 	if (!contentPaths.config.exists) {
 		return undefined;
@@ -575,22 +589,46 @@ export type ContentPaths = {
 export function getContentPaths(
 	{ srcDir, root }: Pick<AstroConfig, 'root' | 'srcDir'>,
 	fs: typeof fsMod = fsMod,
+	legacyCollectionsBackwardsCompat: boolean = false,
 ): ContentPaths {
+	const pkgBase = new URL('../../', import.meta.url);
 	const configStats = searchConfig(fs, srcDir);
 
 	if (!configStats.exists) {
 		const legacyConfigStats = searchLegacyConfig(fs, srcDir);
 		if (legacyConfigStats.exists) {
-			const relativePath = path.relative(fileURLToPath(root), fileURLToPath(legacyConfigStats.url));
-			throw new AstroError({
-				...AstroErrorData.LegacyContentConfigError,
-				message: AstroErrorData.LegacyContentConfigError.message(relativePath),
-			});
+			if (!legacyCollectionsBackwardsCompat) {
+				const relativePath = path.relative(fileURLToPath(root), fileURLToPath(legacyConfigStats.url));
+				throw new AstroError({
+					...AstroErrorData.LegacyContentConfigError,
+					message: AstroErrorData.LegacyContentConfigError.message(relativePath),
+				});
+			}
+			// Use legacy config path when backwards compat is enabled
+			return getContentPathsWithConfig(root, srcDir, pkgBase, legacyConfigStats, fs);
 		}
 	}
 
 	const liveConfigStats = searchLiveConfig(fs, srcDir);
-	const pkgBase = new URL('../../', import.meta.url);
+	return {
+		root: new URL('./', root),
+		contentDir: new URL('./content/', srcDir),
+		assetsDir: new URL('./assets/', srcDir),
+		typesTemplate: new URL('templates/content/types.d.ts', pkgBase),
+		virtualModTemplate: new URL('templates/content/module.mjs', pkgBase),
+		config: configStats,
+		liveConfig: liveConfigStats,
+	};
+}
+
+function getContentPathsWithConfig(
+	root: string | URL,
+	srcDir: URL,
+	pkgBase: URL,
+	configStats: { exists: boolean; url: URL },
+	fs: typeof fsMod,
+): ContentPaths {
+	const liveConfigStats = searchLiveConfig(fs, srcDir);
 	return {
 		root: new URL('./', root),
 		contentDir: new URL('./content/', srcDir),

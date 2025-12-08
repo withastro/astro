@@ -71,7 +71,11 @@ export function astroContentImportPlugin({
 	settings: AstroSettings;
 	logger: Logger;
 }): Plugin[] {
-	const contentPaths = getContentPaths(settings.config, fs);
+	const contentPaths = getContentPaths(
+		settings.config,
+		fs,
+		settings.config.legacy?.collectionsBackwardsCompat,
+	);
 	const contentEntryExts = getContentEntryExts(settings);
 	const dataEntryExts = getDataEntryExts(settings);
 

@@ -77,7 +77,11 @@ export async function createContentTypesGenerator({
 	viteServer,
 }: CreateContentGeneratorParams) {
 	const collectionEntryMap: CollectionEntryMap = {};
-	const contentPaths = getContentPaths(settings.config, fs);
+	const contentPaths = getContentPaths(
+		settings.config,
+		fs,
+		settings.config.legacy?.collectionsBackwardsCompat,
+	);
 	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 	const dataEntryExts = getDataEntryExts(settings);
@@ -424,7 +428,7 @@ async function writeContentFiles({
 
 	for (const [collection, config] of Object.entries(contentConfig?.collections ?? {})) {
 		collectionEntryMap[JSON.stringify(collection)] ??= {
-			type: config.type,
+			type: config.type ?? 'unknown',
 			entries: {},
 		};
 	}

@@ -301,7 +301,7 @@ class ContentLayer {
 						return simpleLoader(collection.loader as CollectionLoader<{ id: string }>, context);
 					}
 
-					if (!collection.loader.load) {
+					if (!collection.loader?.load) {
 						throw new Error(`Collection loader for ${name} does not have a load method`);
 					}
 
