@@ -1,7 +1,7 @@
 import colors from 'piccolore';
+import { deserializeActionResult } from '../actions/runtime/client.js';
 import { getActionContext } from '../actions/runtime/server.js';
-import { deserializeActionResult } from '../actions/runtime/shared.js';
-import type { ActionAPIContext } from '../actions/runtime/utils.js';
+import type { ActionAPIContext } from '../actions/runtime/types.js';
 import { createCallAction, createGetActionResult, hasActionPayload } from '../actions/utils.js';
 import {
 	computeCurrentLocale,
@@ -21,6 +21,7 @@ import {
 	REWRITE_DIRECTIVE_HEADER_KEY,
 	REWRITE_DIRECTIVE_HEADER_VALUE,
 	ROUTE_TYPE_HEADER,
+	pipelineSymbol,
 	responseSentSymbol,
 } from './constants.js';
 import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
@@ -36,7 +37,6 @@ import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from '.
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session.js';
 
-export const apiContextRoutesSymbol = Symbol.for('context.routes');
 /**
  * Each request is rendered using a `RenderContext`.
  * It contains data unique to each request. It is responsible for executing middleware, calling endpoints, and rendering the page by gathering necessary data from a `Pipeline`.
@@ -344,7 +344,7 @@ export class RenderContext {
 			return await this.#executeRewrite(reroutePayload);
 		};
 
-		Reflect.set(context, apiContextRoutesSymbol, this.pipeline);
+		Reflect.set(context, pipelineSymbol, this.pipeline);
 
 		return Object.assign(context, {
 			props,
