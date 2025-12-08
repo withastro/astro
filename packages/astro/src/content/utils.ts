@@ -25,7 +25,7 @@ import {
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
 import type { LoaderContext } from './loaders/types.js';
-import { createZ4Image } from './runtime-assets.js';
+import { createImage } from './runtime-assets.js';
 
 const entryTypeSchema = z
 	.object({
@@ -157,7 +157,7 @@ export async function getEntryData<
 	if (typeof schema === 'function') {
 		if (pluginContext) {
 			schema = schema({
-				image: createZ4Image(pluginContext, shouldEmitFile, entry._internal.filePath),
+				image: createImage(pluginContext, shouldEmitFile, entry._internal.filePath),
 			});
 		} else if (collectionConfig.type === CONTENT_LAYER_TYPE) {
 			schema = schema({
