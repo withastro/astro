@@ -102,6 +102,7 @@ export function sortObjectByKey<T extends Record<string, any>>(unordered: T): T 
 	return ordered;
 }
 
+// TODO: inline where used
 export function resolveEntrypoint(root: URL, entrypoint: string): URL {
 	const require = createRequire(root);
 

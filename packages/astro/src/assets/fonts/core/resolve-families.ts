@@ -2,7 +2,6 @@ import { LOCAL_PROVIDER_NAME } from '../constants.js';
 import type {
 	Hasher,
 	LocalProviderUrlResolver,
-	RemoteFontProviderResolver,
 } from '../definitions.js';
 import type {
 	FontFamily,
@@ -41,12 +40,10 @@ function resolveVariants({
 export async function resolveFamily({
 	family,
 	hasher,
-	remoteFontProviderResolver,
 	localProviderUrlResolver,
 }: {
 	family: FontFamily;
 	hasher: Hasher;
-	remoteFontProviderResolver: RemoteFontProviderResolver;
 	localProviderUrlResolver: LocalProviderUrlResolver;
 }): Promise<ResolvedFontFamily> {
 	// We remove quotes from the name so they can be properly resolved by providers.
@@ -74,8 +71,7 @@ export async function resolveFamily({
 		subsets: family.subsets ? dedupe(family.subsets) : undefined,
 		fallbacks: family.fallbacks ? dedupe(family.fallbacks) : undefined,
 		unicodeRange: family.unicodeRange ? dedupe(family.unicodeRange) : undefined,
-		// This will be Astro specific eventually
-		provider: await remoteFontProviderResolver.resolve(family.provider),
+		provider: family.provider,
 	};
 }
 
