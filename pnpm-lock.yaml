@@ -5849,7 +5849,7 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.0
         version: 10.28.0
 
   packages/integrations/react:
@@ -5904,7 +5904,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.25
         version: 3.5.25(typescript@5.9.3)
 
   packages/integrations/sitemap:
@@ -6009,7 +6009,7 @@ importers:
         specifier: 1.1.2
         version: 1.1.2
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.45.5
         version: 5.45.5
 
   packages/integrations/svelte/test/fixtures/async-rendering:
@@ -6018,7 +6018,7 @@ importers:
         specifier: ^7.2.2
         version: link:../../..
       astro:
-        specifier: ^5.16.0
+        specifier: ^5.16.4
         version: link:../../../../../astro
       svelte:
         specifier: 5.43.14
@@ -6030,10 +6030,10 @@ importers:
         specifier: ^7.2.2
         version: link:../../..
       astro:
-        specifier: ^5.16.0
+        specifier: ^5.16.4
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.45.5
         version: 5.45.5
 
   packages/integrations/vercel:
@@ -6262,7 +6262,7 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0(vite@6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.2)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.25(typescript@5.9.3))
       '@vue/compiler-sfc':
-        specifier: ^3.5.24
+        specifier: ^3.5.25
         version: 3.5.25
       vite:
         specifier: ^6.4.1
@@ -6284,7 +6284,7 @@ importers:
         specifier: ^0.18.12
         version: 0.18.12
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.25
         version: 3.5.25(typescript@5.9.3)
 
   packages/integrations/vue/test/fixtures/app-entrypoint:
@@ -6299,7 +6299,7 @@ importers:
         specifier: 5.1.0
         version: 5.1.0(vue@3.5.25(typescript@5.9.3))
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.25
         version: 3.5.25(typescript@5.9.3)
 
   packages/integrations/vue/test/fixtures/app-entrypoint-async:
@@ -6314,7 +6314,7 @@ importers:
         specifier: 5.1.0
         version: 5.1.0(vue@3.5.25(typescript@5.9.3))
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.25
         version: 3.5.25(typescript@5.9.3)
 
   packages/integrations/vue/test/fixtures/app-entrypoint-css:
@@ -6338,7 +6338,7 @@ importers:
         specifier: 5.1.0
         version: 5.1.0(vue@3.5.25(typescript@5.9.3))
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.25
         version: 3.5.25(typescript@5.9.3)
 
   packages/integrations/vue/test/fixtures/app-entrypoint-relative:
