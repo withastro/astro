@@ -51,14 +51,18 @@
     "./container": "./dist/container/index.js",
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",
+    "./app/entrypoint": "./dist/core/app/entrypoint.js",
+    "./entrypoints/prerender": "./dist/entrypoints/prerender.js",
+    "./entrypoints/legacy": "./dist/entrypoints/legacy.js",
     "./client/*": "./dist/runtime/client/*",
     "./components": "./components/index.ts",
     "./components/*": "./components/*",
     "./toolbar": "./dist/toolbar/index.js",
-    "./actions/runtime/*": "./dist/actions/runtime/*",
+    "./actions/runtime/entrypoints/*": "./dist/actions/runtime/entrypoints/*",
     "./assets": "./dist/assets/index.js",
     "./assets/runtime": "./dist/assets/runtime.js",
     "./assets/utils": "./dist/assets/utils/index.js",
+    "./assets/utils/node": "./dist/assets/utils/node.js",
     "./assets/utils/inferRemoteSize.js": "./dist/assets/utils/remoteProbe.js",
     "./assets/endpoint/*": "./dist/assets/endpoint/*.js",
     "./assets/services/sharp": "./dist/assets/services/sharp.js",
@@ -168,8 +172,7 @@
     "yargs-parser": "^21.1.1",
     "yocto-spinner": "^0.2.3",
     "zod": "^3.25.76",
-    "zod-to-json-schema": "^3.24.6",
-    "zod-to-ts": "^1.2.0"
+    "zod-to-json-schema": "^3.24.6"
   },
   "optionalDependencies": {
     "sharp": "^0.34.0"

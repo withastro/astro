@@ -33,17 +33,6 @@ describe('App Entrypoint', () => {
 		assert.equal($('#generics-and-blocks').text(), '1 3!!!');
 	});
 
-	it('setup included in renderer bundle', async () => {
-		const data = await fixture.readFile('/index.html');
-		const { document } = parseHTML(data);
-		const island = document.querySelector('astro-island');
-		const client = island.getAttribute('renderer-url');
-		assert.notEqual(client, undefined);
-
-		const js = await fixture.readFile(client);
-		assert.match(js, /\w+\.component\("Bar"/g);
-	});
-
 	it('loads svg components without transforming them to assets', async () => {
 		const data = await fixture.readFile('/index.html');
 		const { document } = parseHTML(data);

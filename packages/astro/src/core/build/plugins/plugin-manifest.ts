@@ -1,13 +1,14 @@
 import { fileURLToPath } from 'node:url';
 import type { OutputChunk } from 'rollup';
 import { glob } from 'tinyglobby';
-import { type BuiltinDriverName, builtinDrivers } from 'unstorage';
-import type { Plugin as VitePlugin } from 'vite';
+import type * as vite from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
-import { toFallbackType, toRoutingStrategy } from '../../../i18n/utils.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
+import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../../manifest/serialized.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
+import { toFallbackType } from '../../app/common.js';
+import { serializeRouteData, toRoutingStrategy } from '../../app/index.js';
 import type {
 	SerializedRouteInfo,
 	SerializedSSRManifest,
@@ -29,136 +30,120 @@ import {
 import { encodeKey } from '../../encryption.js';
 import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { DEFAULT_COMPONENTS } from '../../routing/default.js';
-import { serializeRouteData } from '../../routing/index.js';
-import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
-import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
-import type { AstroBuildPlugin } from '../plugin.js';
+import type { BuildInternals } from '../internal.js';
+import { cssOrder, mergeInlineCss } from '../runtime.js';
 import type { StaticBuildOptions } from '../types.js';
 import { makePageDataKey } from './util.js';
 
-const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
-const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
+/**
+ * Unified manifest system architecture:
+ *
+ * The serialized manifest (virtual:astro:manifest) is now the single source of truth
+ * for both dev and production builds:
+ *
+ * - In dev: The serialized manifest is used directly (pre-computed manifest data)
+ * - In prod: Two-stage process:
+ *   1. serialized.ts emits a placeholder (MANIFEST_REPLACE token) during bundling
+ *   2. plugin-manifest injects the real build-specific data at the end
+ *
+ * This flow eliminates dual virtual modules and simplifies the architecture:
+ * - pluginManifestBuild: Registers SERIALIZED_MANIFEST_ID as Vite input
+ * - pluginManifestBuild.generateBundle: Tracks the serialized manifest chunk filename
+ * - manifestBuildPostHook: Finds the chunk, computes final manifest data, and replaces the token
+ *
+ * The placeholder mechanism allows serialized.ts to emit during vite build without knowing
+ * the final build-specific data (routes, assets, CSP hashes, etc) that's only available
+ * after bundling completes.
+ */
 
-export const SSR_MANIFEST_VIRTUAL_MODULE_ID = '@astrojs-manifest';
-export const RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID = '\0' + SSR_MANIFEST_VIRTUAL_MODULE_ID;
+export const MANIFEST_REPLACE = '@@ASTRO_MANIFEST_REPLACE@@';
+const replaceExp = new RegExp(`['"]${MANIFEST_REPLACE}['"]`, 'g');
 
-function resolveSessionDriver(driver: string | undefined): string | null {
-	if (!driver) {
-		return null;
-	}
-	try {
-		if (driver === 'fs') {
-			return import.meta.resolve(builtinDrivers.fsLite, import.meta.url);
-		}
-		if (driver in builtinDrivers) {
-			return import.meta.resolve(builtinDrivers[driver as BuiltinDriverName], import.meta.url);
-		}
-	} catch {
-		return null;
-	}
+/**
+ * Post-build hook that injects the computed manifest into bundled chunks.
+ * Finds the serialized manifest chunk and replaces the placeholder token with real data.
+ */
+export async function manifestBuildPostHook(
+	options: StaticBuildOptions,
+	internals: BuildInternals,
+	{
+		ssrOutputs,
+		prerenderOutputs,
+		mutate,
+	}: {
+		ssrOutputs: vite.Rollup.RollupOutput[];
+		prerenderOutputs: vite.Rollup.RollupOutput[];
+		mutate: (chunk: OutputChunk, envs: ['server'], code: string) => void;
+	},
+) {
+	const manifest = await createManifest(options, internals);
 
-	return driver;
-}
+	if (ssrOutputs.length > 0) {
+		let manifestEntryChunk: OutputChunk | undefined;
 
-function vitePluginManifest(options: StaticBuildOptions, internals: BuildInternals): VitePlugin {
-	return {
-		name: '@astro/plugin-build-manifest',
-		enforce: 'post',
-		options(opts) {
-			return addRollupInput(opts, [SSR_MANIFEST_VIRTUAL_MODULE_ID]);
-		},
-		resolveId(id) {
-			if (id === SSR_MANIFEST_VIRTUAL_MODULE_ID) {
-				return RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID;
-			}
-		},
-		augmentChunkHash(chunkInfo) {
-			if (chunkInfo.facadeModuleId === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
-				return Date.now().toString();
-			}
-		},
-		load(id) {
-			if (id === RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID) {
-				const imports = [
-					`import { deserializeManifest as _deserializeManifest } from 'astro/app'`,
-					`import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest'`,
-				];
-
-				const resolvedDriver = resolveSessionDriver(options.settings.config.session?.driver);
-
-				const contents = [
-					`const manifest = _deserializeManifest('${manifestReplace}');`,
-					`if (manifest.sessionConfig) manifest.sessionConfig.driverModule = ${resolvedDriver ? `() => import(${JSON.stringify(resolvedDriver)})` : 'null'};`,
-					`_privateSetManifestDontUseThis(manifest);`,
-				];
-				const exports = [`export { manifest }`];
-
-				return { code: [...imports, ...contents, ...exports].join('\n') };
-			}
-		},
-
-		async generateBundle(_opts, bundle) {
-			for (const [chunkName, chunk] of Object.entries(bundle)) {
+		// Find the serialized manifest chunk in SSR outputs
+		for (const output of ssrOutputs) {
+			for (const chunk of output.output) {
 				if (chunk.type === 'asset') {
 					continue;
 				}
-				if (chunk.modules[RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID]) {
-					internals.manifestEntryChunk = chunk;
-					delete bundle[chunkName];
-				}
-				if (chunkName.startsWith('manifest')) {
-					internals.manifestFileName = chunkName;
+				if (chunk.code && chunk.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID)) {
+					manifestEntryChunk = chunk as OutputChunk;
+					break;
 				}
 			}
-		},
-	};
-}
+			if (manifestEntryChunk) {
+				break;
+			}
+		}
 
-export function pluginManifest(
-	options: StaticBuildOptions,
-	internals: BuildInternals,
-): AstroBuildPlugin {
-	return {
-		targets: ['server'],
-		hooks: {
-			'build:before': () => {
-				return {
-					vitePlugin: vitePluginManifest(options, internals),
-				};
-			},
+		if (!manifestEntryChunk) {
+			throw new Error(`Did not find serialized manifest chunk for SSR`);
+		}
 
-			'build:post': async ({ mutate }) => {
-				if (!internals.manifestEntryChunk) {
-					throw new Error(`Did not generate an entry chunk for SSR`);
+		const shouldPassMiddlewareEntryPoint =
+			options.settings.adapter?.adapterFeatures?.edgeMiddleware;
+		await runHookBuildSsr({
+			config: options.settings.config,
+			manifest,
+			logger: options.logger,
+			middlewareEntryPoint: shouldPassMiddlewareEntryPoint
+				? internals.middlewareEntryPoint
+				: undefined,
+		});
+		const code = injectManifest(manifest, manifestEntryChunk);
+		mutate(manifestEntryChunk, ['server'], code);
+	}
+
+	// Also inject manifest into prerender outputs if available
+	if (prerenderOutputs?.length > 0) {
+		let prerenderManifestChunk: OutputChunk | undefined;
+		for (const output of prerenderOutputs) {
+			for (const chunk of output.output) {
+				if (chunk.type === 'asset') {
+					continue;
 				}
-
-				const manifest = await createManifest(options, internals);
-				const shouldPassMiddlewareEntryPoint =
-					options.settings.adapter?.adapterFeatures?.edgeMiddleware;
-				await runHookBuildSsr({
-					config: options.settings.config,
-					manifest,
-					logger: options.logger,
-					middlewareEntryPoint: shouldPassMiddlewareEntryPoint
-						? internals.middlewareEntryPoint
-						: undefined,
-				});
-				const code = injectManifest(manifest, internals.manifestEntryChunk);
-				mutate(internals.manifestEntryChunk, ['server'], code);
-			},
-		},
-	};
+				if (chunk.code && chunk.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID)) {
+					prerenderManifestChunk = chunk as OutputChunk;
+					break;
+				}
+			}
+			if (prerenderManifestChunk) {
+				break;
+			}
+		}
+		if (prerenderManifestChunk) {
+			const prerenderCode = injectManifest(manifest, prerenderManifestChunk);
+			mutate(prerenderManifestChunk, ['server'], prerenderCode);
+		}
+	}
 }
 
 async function createManifest(
 	buildOpts: StaticBuildOptions,
 	internals: BuildInternals,
 ): Promise<SerializedSSRManifest> {
-	if (!internals.manifestEntryChunk) {
-		throw new Error(`Did not generate an entry chunk for SSR`);
-	}
-
 	// Add assets from the client build.
 	const clientStatics = new Set(
 		await glob('**/*', {
@@ -171,7 +156,8 @@ async function createManifest(
 
 	const staticFiles = internals.staticFiles;
 	const encodedKey = await encodeKey(await buildOpts.key);
-	return await buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
+	const manifest = await buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
+	return manifest;
 }
 
 /**
@@ -202,6 +188,8 @@ async function buildManifest(
 
 	const assetQueryParams = settings.adapter?.client?.assetQueryParams;
 	const assetQueryString = assetQueryParams ? assetQueryParams.toString() : undefined;
+
+	const appendAssetQuery = (pth: string) => assetQueryString ? `${pth}?${assetQueryString}` : pth;
 
 	const prefixAssetPath = (pth: string) => {
 		let result = '';
@@ -234,38 +222,16 @@ async function buildManifest(
 	}
 
 	for (const route of opts.routesList.routes) {
-		if (!route.prerender) continue;
-		if (!route.pathname) continue;
-
-		const outFolder = getOutFolder(opts.settings, route.pathname, route);
-		const outFile = getOutFile(opts.settings.config, outFolder, route.pathname, route);
-		const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
-		routes.push({
-			file,
-			links: [],
-			scripts: [],
-			styles: [],
-			routeData: serializeRouteData(route, settings.config.trailingSlash),
-		});
-		staticFiles.push(file);
-	}
-
-	const needsStaticHeaders = settings.adapter?.adapterFeatures?.experimentalStaticHeaders ?? false;
-
-	for (const route of opts.routesList.routes) {
 		const pageData = internals.pagesByKeys.get(makePageDataKey(route.route, route.component));
 		if (!pageData) continue;
 
-		if (route.prerender && route.type !== 'redirect' && !needsStaticHeaders) {
-			continue;
-		}
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (settings.scripts.some((script) => script.stage === 'page')) {
 			const src = entryModules[PAGE_SCRIPT_ID];
 
 			scripts.push({
 				type: 'external',
-				value: prefixAssetPath(src),
+				value: appendAssetQuery(src),
 			});
 		}
 
@@ -275,7 +241,7 @@ async function buildManifest(
 		const styles = pageData.styles
 			.sort(cssOrder)
 			.map(({ sheet }) => sheet)
-			.map((s) => (s.type === 'external' ? { ...s, src: prefixAssetPath(s.src) } : s))
+			.map((s) => (s.type === 'external' ? { ...s, src: appendAssetQuery(s.src) } : s))
 			.reduce(mergeInlineCss, []);
 
 		routes.push({
@@ -290,6 +256,19 @@ async function buildManifest(
 			styles,
 			routeData: serializeRouteData(route, settings.config.trailingSlash),
 		});
+
+		// Add the built .html file as a staticFile
+		if (route.prerender && route.pathname) {
+			const outFolder = getOutFolder(opts.settings, route.pathname, route);
+			const outFile = getOutFile(
+				opts.settings.config.build.format,
+				outFolder,
+				route.pathname,
+				route,
+			);
+			const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
+			staticFiles.push(file);
+		}
 	}
 
 	/**
@@ -316,6 +295,7 @@ async function buildManifest(
 			locales: settings.config.i18n.locales,
 			defaultLocale: settings.config.i18n.defaultLocale,
 			domainLookupTable,
+			domains: settings.config.i18n.domains,
 		};
 	}
 
@@ -360,7 +340,7 @@ async function buildManifest(
 	}
 
 	return {
-		hrefRoot: opts.settings.config.root.toString(),
+		rootDir: opts.settings.config.root.toString(),
 		cacheDir: opts.settings.config.cacheDir.toString(),
 		outDir: opts.settings.config.outDir.toString(),
 		srcDir: opts.settings.config.srcDir.toString(),
@@ -368,7 +348,9 @@ async function buildManifest(
 		buildClientDir: opts.settings.config.build.client.toString(),
 		buildServerDir: opts.settings.config.build.server.toString(),
 		adapterName: opts.settings.adapter?.name ?? '',
+		assetsDir: opts.settings.config.build.assets,
 		routes,
+		serverLike: opts.settings.buildOutput === 'server',
 		site: settings.config.site,
 		base: settings.config.base,
 		userAssetsBase: settings.config?.vite?.base,
@@ -386,10 +368,15 @@ async function buildManifest(
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		allowedDomains: settings.config.security?.allowedDomains,
-		serverIslandNameMap: Array.from(settings.serverIslandNameMap),
 		key: encodedKey,
 		sessionConfig: settings.config.session,
 		csp,
+		devToolbar: {
+			enabled: false,
+			latestAstroVersion: settings.latestAstroVersion,
+			debugInfoOutput: '',
+		},
 		internalFetchHeaders,
+		logLevel: settings.logLevel,
 	};
 }

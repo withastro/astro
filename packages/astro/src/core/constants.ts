@@ -77,6 +77,11 @@ export const clientLocalsSymbol = Symbol.for('astro.locals');
 export const originPathnameSymbol = Symbol.for('astro.originPathname');
 
 /**
+ * Use this symbol to set and retrieve the pipeline.
+ */
+export const pipelineSymbol = Symbol.for('astro.pipeline');
+
+/**
  * The symbol used as a field on the request object to store a cleanup callback associated with aborting the request when the underlying socket closes.
  */
 export const nodeRequestAbortControllerCleanupSymbol = Symbol.for(
@@ -104,3 +109,24 @@ export const SUPPORTED_MARKDOWN_FILE_EXTENSIONS = [
 
 // The folder name where to find the middleware
 export const MIDDLEWARE_PATH_SEGMENT_NAME = 'middleware';
+
+// The environments used inside Astro
+export const ASTRO_VITE_ENVIRONMENT_NAMES = {
+	// It maps to the classic `ssr` Vite environment
+	ssr: 'ssr',
+	// It maps to the classic `client` Vite environment
+	client: 'client',
+	// Use this environment when `ssr` isn't a runnable dev environment, and you need
+	// a runnable dev environment. A runnable dev environment allows you, for example,
+	// to load a module via `runner.import`.
+	//
+	// This environment should be used only for dev, not production.
+	astro: 'astro',
+	// Environment used during the build for rendering static pages.
+	// If your plugin runs in `ASTRO_VITE_ENVIRONMENT_NAMES.ssr`, you might
+	// want to add `ASTRO_VITE_ENVIRONMENT_NAMES.prerender` too
+	prerender: 'prerender',
+} as const;
+
+export type AstroEnvironmentNames =
+	(typeof ASTRO_VITE_ENVIRONMENT_NAMES)[keyof typeof ASTRO_VITE_ENVIRONMENT_NAMES];

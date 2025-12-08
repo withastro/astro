@@ -1,10 +1,11 @@
 import type fsMod from 'node:fs';
 import * as eslexer from 'es-module-lexer';
 import type { APIContext } from '../types/public/context.js';
-import { deserializeActionResult, getActionQueryString } from './runtime/shared.js';
-import { ACTION_API_CONTEXT_SYMBOL, type ActionAPIContext, type Locals } from './runtime/utils.js';
+import { deserializeActionResult, getActionQueryString } from './runtime/client.js';
+import { ACTION_API_CONTEXT_SYMBOL } from './runtime/server.js';
+import type { ActionAPIContext, ActionsLocals } from './runtime/types.js';
 
-export function hasActionPayload(locals: APIContext['locals']): locals is Locals {
+export function hasActionPayload(locals: APIContext['locals']): locals is ActionsLocals {
 	return '_actionPayload' in locals;
 }
 

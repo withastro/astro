@@ -1,8 +1,14 @@
 import type fsType from 'node:fs';
 import { pathToFileURL } from 'node:url';
-import { createServer, type ViteDevServer } from 'vite';
+import {
+	createServer,
+	isRunnableDevEnvironment,
+	type RunnableDevEnvironment,
+	type ViteDevServer,
+} from 'vite';
 import loadFallbackPlugin from '../../vite-plugin-load-fallback/index.js';
 import { debug } from '../logger/core.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 
 async function createViteServer(root: string, fs: typeof fsType): Promise<ViteDevServer> {
 	const viteServer = await createServer({
@@ -50,8 +56,15 @@ export async function loadConfigWithVite({
 	let server: ViteDevServer | undefined;
 	try {
 		server = await createViteServer(root, fs);
-		const mod = await server.ssrLoadModule(configPath, { fixStacktrace: true });
-		return mod.default ?? {};
+		if (isRunnableDevEnvironment(server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
+			const environment = server.environments[
+				ASTRO_VITE_ENVIRONMENT_NAMES.ssr
+			] as RunnableDevEnvironment;
+			const mod = await environment.runner.import(configPath);
+			return mod.default ?? {};
+		} else {
+			return {};
+		}
 	} finally {
 		if (server) {
 			await server.close();

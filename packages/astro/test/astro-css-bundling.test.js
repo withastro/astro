@@ -80,17 +80,23 @@ describe('CSS Bundling', function () {
 				root: './fixtures/astro-css-bundling/',
 
 				// test suite was authored when inlineStylesheets defaulted to never
-				build: { inlineStylesheets: 'never' },
+				build: {
+					inlineStylesheets: 'never',
+					assets: 'assets',
+				},
 
 				vite: {
-					build: {
-						rollupOptions: {
-							output: {
-								assetFileNames: 'assets/[name][extname]',
-								entryFileNames: '[name].js',
-							},
-						},
-					},
+					environments: {
+						prerender: {
+							build: {
+								rollupOptions: {
+									output: {
+										assetFileNames: 'assets/[name][extname]',
+									}
+								}
+							}
+						}
+					}
 				},
 			});
 			await fixture.build({ mode: 'production' });
@@ -106,10 +112,9 @@ describe('CSS Bundling', function () {
 			assert.doesNotMatch(firstFound, /[a-z]+\.[\da-z]{8}\.css/);
 		});
 
-		it('there are 2 index named CSS files', async () => {
+		it('there are 4 css files (3 pages, one shared component)', async () => {
 			const dir = await fixture.readdir('/assets');
-			const indexNamedFiles = dir.filter((name) => name.startsWith('index'));
-			assert.equal(indexNamedFiles.length, 2);
+			assert.equal(dir.length, 4);
 		});
 	});
 });

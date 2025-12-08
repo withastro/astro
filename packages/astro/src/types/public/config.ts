@@ -8,7 +8,7 @@ import type {
 	SyntaxHighlightConfigType,
 } from '@astrojs/markdown-remark';
 import type { Config as SvgoConfig } from 'svgo';
-import type { BuiltinDriverName, BuiltinDriverOptions, Driver, Storage } from 'unstorage';
+import type { BuiltinDriverName, BuiltinDriverOptions, Storage } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { AstroFontProvider, FontFamily } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
@@ -176,9 +176,7 @@ export type SessionConfig<TDriver extends SessionDriverName> =
 				? TestSessionConfig
 				: CustomSessionConfig;
 
-export type ResolvedSessionConfig<TDriver extends SessionDriverName> = SessionConfig<TDriver> & {
-	driverModule?: () => Promise<{ default: () => Driver }>;
-};
+export type ResolvedSessionConfig<TDriver extends SessionDriverName> = SessionConfig<TDriver>;
 
 export interface ViteUserConfig extends OriginalViteUserConfig {
 	ssr?: ViteSSROptions;

@@ -5,9 +5,9 @@ import { parseFrontmatter } from '@astrojs/markdown-remark';
 import { slug as githubSlug } from 'github-slugger';
 import colors from 'piccolore';
 import type { PluginContext } from 'rollup';
-import type { ViteDevServer } from 'vite';
+import type { RunnableDevEnvironment } from 'vite';
 import xxhash from 'xxhash-wasm';
-import { z } from 'zod';
+import { type ZodSchema, z } from 'zod';
 import { AstroError, AstroErrorData, errorMap, MarkdownError } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
@@ -70,14 +70,39 @@ const collectionConfigParser = z.union([
 			z.function(),
 			z.object({
 				name: z.string(),
-				load: z.function().args(z.custom<LoaderContext>()).returns(
-					z.custom<{
-						schema?: any;
-						types?: string;
-					} | void>(),
-				),
-				schema: z.any().optional(),
-				render: z.function(z.tuple([z.any()], z.unknown())).optional(),
+				load: z.function().args(z.custom<LoaderContext>()).returns(z.promise(z.void())),
+				schema: z
+					.any()
+					.transform((v) => {
+						if (typeof v === 'function') {
+							console.warn(
+								`Your loader's schema is defined using a function. This is no longer supported and the schema will be ignored. Please update your loader to use the \`createSchema()\` utility instead, or report this to the loader author. In a future major version, this will cause the loader to break entirely.`,
+							);
+							return undefined;
+						}
+						return v;
+					})
+					.superRefine((v, ctx) => {
+						if (v !== undefined && !('_def' in v)) {
+							ctx.addIssue({
+								code: z.ZodIssueCode.custom,
+								message: 'Invalid Zod schema',
+							});
+							return z.NEVER;
+						}
+					})
+					.optional(),
+				createSchema: z
+					.function()
+					.returns(
+						z.promise(
+							z.object({
+								schema: z.custom<ZodSchema>((v) => '_def' in v),
+								types: z.string(),
+							}),
+						),
+					)
+					.optional(),
 			}),
 		]),
 	}),
@@ -458,29 +483,28 @@ export function isDeferredModule(viteId: string): boolean {
 async function loadContentConfig({
 	fs,
 	settings,
-	viteServer,
+	environment,
 }: {
 	fs: typeof fsMod;
 	settings: AstroSettings;
-	viteServer: ViteDevServer;
+	environment: RunnableDevEnvironment;
 }): Promise<ContentConfig | undefined> {
 	const contentPaths = getContentPaths(
 		settings.config,
 		fs,
 		settings.config.legacy?.collectionsBackwardsCompat,
 	);
-	let unparsedConfig;
 	if (!contentPaths.config.exists) {
 		return undefined;
 	}
 	const configPathname = fileURLToPath(contentPaths.config.url);
-	unparsedConfig = await viteServer.ssrLoadModule(configPathname);
+	const unparsedConfig = await environment.runner.import(configPathname);
 
 	const config = contentConfigParser.safeParse(unparsedConfig);
 	if (config.success) {
 		// Generate a digest of the config file so we can invalidate the cache if it changes
 		const hasher = await xxhash();
-		const digest = await hasher.h64ToString(await fs.promises.readFile(configPathname, 'utf-8'));
+		const digest = hasher.h64ToString(await fs.promises.readFile(configPathname, 'utf-8'));
 		return { ...config.data, digest };
 	} else {
 		const message = config.error.issues
@@ -511,7 +535,7 @@ export async function reloadContentConfigObserver({
 }: {
 	fs: typeof fsMod;
 	settings: AstroSettings;
-	viteServer: ViteDevServer;
+	environment: RunnableDevEnvironment;
 	observer?: ContentObservable;
 }) {
 	observer.set({ status: 'loading' });

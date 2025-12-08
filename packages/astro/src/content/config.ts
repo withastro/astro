@@ -72,29 +72,6 @@ export type BaseSchema = ZodType;
 
 export type SchemaContext = { image: ImageFunction };
 
-type ContentLayerConfig<S extends BaseSchema, TData extends { id: string } = { id: string }> = {
-	type?: 'content_layer';
-	schema?: S | ((context: SchemaContext) => S);
-	loader:
-		| Loader
-		| (() =>
-				| Array<TData>
-				| Promise<Array<TData>>
-				| Record<string, Omit<TData, 'id'> & { id?: string }>
-				| Promise<Record<string, Omit<TData, 'id'> & { id?: string }>>);
-};
-
-type DataCollectionConfig<S extends BaseSchema> = {
-	type: 'data';
-	schema?: S | ((context: SchemaContext) => S);
-};
-
-type ContentCollectionConfig<S extends BaseSchema> = {
-	type?: 'content';
-	schema?: S | ((context: SchemaContext) => S);
-	loader?: never;
-};
-
 export type LiveCollectionConfig<
 	L extends LiveLoader,
 	S extends BaseSchema | undefined = undefined,
@@ -104,10 +81,22 @@ export type LiveCollectionConfig<
 	loader: L;
 };
 
-export type CollectionConfig<S extends BaseSchema> =
-	| ContentCollectionConfig<S>
-	| DataCollectionConfig<S>
-	| ContentLayerConfig<S>;
+type LoaderConstraint<TData extends { id: string }> =
+	| Loader
+	| (() =>
+			| Array<TData>
+			| Promise<Array<TData>>
+			| Record<string, Omit<TData, 'id'> & { id?: string }>
+			| Promise<Record<string, Omit<TData, 'id'> & { id?: string }>>);
+
+export type CollectionConfig<
+	TSchema extends BaseSchema,
+	TLoader extends LoaderConstraint<{ id: string }>,
+> = {
+	type?: 'content_layer';
+	schema?: TSchema | ((context: SchemaContext) => TSchema);
+	loader: TLoader;
+};
 
 export function defineLiveCollection<
 	L extends LiveLoader,
@@ -168,9 +157,10 @@ export function defineLiveCollection<
 	return config;
 }
 
-export function defineCollection<S extends BaseSchema>(
-	config: CollectionConfig<S>,
-): CollectionConfig<S> {
+export function defineCollection<
+	TSchema extends BaseSchema,
+	TLoader extends LoaderConstraint<{ id: string }>,
+>(config: CollectionConfig<TSchema, TLoader>): CollectionConfig<TSchema, TLoader> {
 	const importerFilename = getImporterFilename();
 
 	if (importerFilename?.includes('live.config')) {

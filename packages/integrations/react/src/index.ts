@@ -7,6 +7,7 @@ import {
 	type ReactVersionConfig,
 	versionsConfig,
 } from './version.js';
+import type { EnvironmentOptions } from 'vite';
 
 export type ReactIntegrationOptions = Pick<
 	ViteReactPluginOptions,
@@ -69,16 +70,13 @@ function getViteConfiguration(
 	reactConfig: ReactVersionConfig,
 ) {
 	return {
-		optimizeDeps: {
-			include: [reactConfig.client],
-			exclude: [reactConfig.server],
-		},
 		plugins: [
 			react({ include, exclude, babel }),
 			optionsPlugin({
 				experimentalReactChildren: !!experimentalReactChildren,
 				experimentalDisableStreaming: !!experimentalDisableStreaming,
 			}),
+			configEnvironmentPlugin(reactConfig),
 		],
 		ssr: {
 			noExternal: [
@@ -89,6 +87,54 @@ function getViteConfiguration(
 				'use-immer',
 				'@material-tailwind/react',
 			],
+		},
+	};
+}
+
+function configEnvironmentPlugin(reactConfig: ReactVersionConfig): vite.Plugin {
+	return {
+		name: '@astrojs/react:environment',
+		configEnvironment(environmentName, options): EnvironmentOptions {
+			const finalOptions: EnvironmentOptions = {
+				resolve: {
+					dedupe: ['react', 'react-dom'],
+				},
+				optimizeDeps: {},
+			};
+
+			if (
+				environmentName === 'client' ||
+				((environmentName === 'ssr' || environmentName === 'prerender') &&
+					options.optimizeDeps?.noDiscovery === false)
+			) {
+				// SAFETY: we initialized it before
+				finalOptions.optimizeDeps!.include = [
+					'react',
+					'react/jsx-runtime',
+					'react/jsx-dev-runtime',
+					'react-dom',
+				];
+				finalOptions.optimizeDeps!.exclude = [reactConfig.server];
+				if (environmentName === 'ssr' || environmentName === 'prerender') {
+					finalOptions.optimizeDeps!.include.push('react-dom/server');
+					if (!options.resolve?.noExternal) {
+						finalOptions.resolve!.noExternal = [
+							// These are all needed to get mui to work.
+							'@mui/material',
+							'@mui/base',
+							'@babel/runtime',
+							'use-immer',
+							'@material-tailwind/react',
+						];
+					}
+				}
+				if (environmentName === 'client') {
+					finalOptions.optimizeDeps!.include.push('react-dom/client');
+					finalOptions.optimizeDeps!.include.push(reactConfig.client);
+				}
+			}
+
+			return finalOptions;
 		},
 	};
 }

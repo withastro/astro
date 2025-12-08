@@ -4,11 +4,12 @@ import { Http2ServerResponse } from 'node:http2';
 import type { Socket } from 'node:net';
 import type { RemotePattern } from '../../types/public/config.js';
 import { clientAddressSymbol, nodeRequestAbortControllerCleanupSymbol } from '../constants.js';
-import { deserializeManifest } from './common.js';
+import { deserializeManifest } from './manifest.js';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import type { RenderOptions } from './index.js';
 import { App } from './index.js';
 import type { NodeAppHeadersJson, SerializedSSRManifest, SSRManifest } from './types.js';
+import { sanitizeHost, validateForwardedHeaders } from './validate-forwarded-headers.js';
 
 /**
  * Allow the request body to be explicitly overridden. For example, this
@@ -81,7 +82,7 @@ export class NodeApp extends App {
 
 		// Validate forwarded headers
 		// NOTE: Header values may have commas/spaces from proxy chains, extract first value
-		const validated = App.validateForwardedHeaders(
+		const validated = validateForwardedHeaders(
 			getFirstForwardedValue(req.headers['x-forwarded-proto']),
 			getFirstForwardedValue(req.headers['x-forwarded-host']),
 			getFirstForwardedValue(req.headers['x-forwarded-port']),
@@ -90,7 +91,7 @@ export class NodeApp extends App {
 
 		const protocol = validated.protocol ?? providedProtocol;
 		// validated.host is already sanitized, only sanitize providedHostname
-		const sanitizedProvidedHostname = App.sanitizeHost(
+		const sanitizedProvidedHostname = sanitizeHost(
 			typeof providedHostname === 'string' ? providedHostname : undefined,
 		);
 		const hostname = validated.host ?? sanitizedProvidedHostname;

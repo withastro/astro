@@ -1,7 +1,7 @@
 import colors from 'piccolore';
+import { deserializeActionResult } from '../actions/runtime/client.js';
 import { getActionContext } from '../actions/runtime/server.js';
-import { deserializeActionResult } from '../actions/runtime/shared.js';
-import type { ActionAPIContext } from '../actions/runtime/utils.js';
+import type { ActionAPIContext } from '../actions/runtime/types.js';
 import { createCallAction, createGetActionResult, hasActionPayload } from '../actions/utils.js';
 import {
 	computeCurrentLocale,
@@ -14,13 +14,14 @@ import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, Props, RewritePayload } from '../types/public/common.js';
 import type { APIContext, AstroGlobal, AstroSharedContextCsp } from '../types/public/context.js';
 import type { RouteData, SSRResult } from '../types/public/internal.js';
-import type { SSRActions } from './app/types.js';
+import type { ServerIslandMappings, SSRActions } from './app/types.js';
 import {
 	ASTRO_GENERATOR,
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
 	REWRITE_DIRECTIVE_HEADER_VALUE,
 	ROUTE_TYPE_HEADER,
+	pipelineSymbol,
 	responseSentSymbol,
 } from './constants.js';
 import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
@@ -36,17 +37,35 @@ import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from '.
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session.js';
 
-export const apiContextRoutesSymbol = Symbol.for('context.routes');
 /**
  * Each request is rendered using a `RenderContext`.
  * It contains data unique to each request. It is responsible for executing middleware, calling endpoints, and rendering the page by gathering necessary data from a `Pipeline`.
  */
+
+export type CreateRenderContext = Pick<
+	RenderContext,
+	'pathname' | 'pipeline' | 'request' | 'routeData' | 'clientAddress'
+> &
+	Partial<
+		Pick<
+			RenderContext,
+			| 'locals'
+			| 'status'
+			| 'props'
+			| 'partial'
+			| 'actions'
+			| 'shouldInjectCspMetaTags'
+			| 'skipMiddleware'
+		>
+	>;
+
 export class RenderContext {
 	private constructor(
 		readonly pipeline: Pipeline,
 		public locals: App.Locals,
 		readonly middleware: MiddlewareHandler,
 		readonly actions: SSRActions,
+		readonly serverIslands: ServerIslandMappings,
 		// It must be a DECODED pathname
 		public pathname: string,
 		public request: Request,
@@ -59,9 +78,8 @@ export class RenderContext {
 		public props: Props = {},
 		public partial: undefined | boolean = undefined,
 		public shouldInjectCspMetaTags = !!pipeline.manifest.csp,
-		public session: AstroSession | undefined = pipeline.manifest.sessionConfig
-			? new AstroSession(cookies, pipeline.manifest.sessionConfig, pipeline.runtimeMode)
-			: undefined,
+		public session: AstroSession | undefined = undefined,
+		public skipMiddleware = false,
 	) {}
 
 	static #createNormalizedUrl(requestUrl: string): URL {
@@ -86,7 +104,6 @@ export class RenderContext {
 
 	static async create({
 		locals = {},
-		middleware,
 		pathname,
 		pipeline,
 		request,
@@ -95,45 +112,49 @@ export class RenderContext {
 		status = 200,
 		props,
 		partial = undefined,
-		actions,
 		shouldInjectCspMetaTags,
-	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData' | 'clientAddress'> &
-		Partial<
-			Pick<
-				RenderContext,
-				| 'locals'
-				| 'middleware'
-				| 'status'
-				| 'props'
-				| 'partial'
-				| 'actions'
-				| 'shouldInjectCspMetaTags'
-			>
-		>): Promise<RenderContext> {
+		skipMiddleware = false,
+	}: CreateRenderContext): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
-		const pipelineActions = actions ?? (await pipeline.getActions());
+		const pipelineActions = await pipeline.getActions();
+		const pipelineSessionDriver = await pipeline.getSessionDriver();
+		const serverIslands = await pipeline.getServerIslands();
 		setOriginPathname(
 			request,
 			pathname,
 			pipeline.manifest.trailingSlash,
 			pipeline.manifest.buildFormat,
 		);
+		const cookies = new AstroCookies(request);
+		const session =
+			pipeline.manifest.sessionConfig && pipelineSessionDriver
+				? new AstroSession(
+						cookies,
+						pipeline.manifest.sessionConfig,
+						pipeline.runtimeMode,
+						pipelineSessionDriver,
+					)
+				: undefined;
+
 		return new RenderContext(
 			pipeline,
 			locals,
-			sequence(...pipeline.internalMiddleware, middleware ?? pipelineMiddleware),
+			sequence(...pipeline.internalMiddleware, pipelineMiddleware),
 			pipelineActions,
+			serverIslands,
 			pathname,
 			request,
 			routeData,
 			status,
 			clientAddress,
-			undefined,
+			cookies,
 			undefined,
 			undefined,
 			props,
 			partial,
 			shouldInjectCspMetaTags ?? !!pipeline.manifest.csp,
+			session,
+			skipMiddleware,
 		);
 	}
 	/**
@@ -152,8 +173,7 @@ export class RenderContext {
 		slots: Record<string, any> = {},
 	): Promise<Response> {
 		const { middleware, pipeline } = this;
-		const { logger, serverLike, streaming, manifest } = pipeline;
-
+		const { logger, streaming, manifest } = pipeline;
 		const props =
 			Object.keys(this.props).length > 0
 				? this.props
@@ -163,8 +183,9 @@ export class RenderContext {
 						routeCache: this.pipeline.routeCache,
 						pathname: this.pathname,
 						logger,
-						serverLike,
+						serverLike: manifest.serverLike,
 						base: manifest.base,
+						trailingSlash: manifest.trailingSlash,
 					});
 		const actionApiContext = this.createActionAPIContext();
 		const apiContext = this.createAPIContext(props, actionApiContext);
@@ -194,7 +215,7 @@ export class RenderContext {
 				// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
 				// so Astro can't retrieve it from the emitted manifest.
 				if (
-					this.pipeline.serverLike === true &&
+					this.pipeline.manifest.serverLike === true &&
 					this.routeData.prerender === false &&
 					routeData.prerender === true
 				) {
@@ -302,7 +323,9 @@ export class RenderContext {
 			return renderRedirect(this);
 		}
 
-		const response = await callMiddleware(middleware, apiContext, lastNext);
+		const response = this.skipMiddleware
+			? await lastNext(apiContext)
+			: await callMiddleware(middleware, apiContext, lastNext);
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {
 			response.headers.delete(ROUTE_TYPE_HEADER);
 		}
@@ -321,7 +344,7 @@ export class RenderContext {
 			return await this.#executeRewrite(reroutePayload);
 		};
 
-		Reflect.set(context, apiContextRoutesSymbol, this.pipeline);
+		Reflect.set(context, pipelineSymbol, this.pipeline);
 
 		return Object.assign(context, {
 			props,
@@ -345,7 +368,7 @@ export class RenderContext {
 		// Allow i18n fallback rewrites - if the target route has fallback routes, this is likely an i18n scenario
 		const isI18nFallback = routeData.fallbackRoutes && routeData.fallbackRoutes.length > 0;
 		if (
-			this.pipeline.serverLike &&
+			this.pipeline.manifest.serverLike &&
 			!this.routeData.prerender &&
 			routeData.prerender &&
 			!isI18nFallback
@@ -547,7 +570,7 @@ export class RenderContext {
 			scripts,
 			styles,
 			actionResult,
-			serverIslandNameMap: manifest.serverIslandNameMap ?? new Map(),
+			serverIslandNameMap: this.serverIslands.serverIslandNameMap ?? new Map(),
 			key: manifest.key,
 			trailingSlash: manifest.trailingSlash,
 			_metadata: {

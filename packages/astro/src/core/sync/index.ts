@@ -3,7 +3,7 @@ import { dirname, relative } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import colors from 'piccolore';
-import { createServer, type FSWatcher, type HMRPayload } from 'vite';
+import { createServer, type FSWatcher, type HotPayload } from 'vite';
 import { syncFonts } from '../../assets/fonts/sync.js';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
 import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
@@ -14,10 +14,8 @@ import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
-import type { AstroSettings, RoutesList } from '../../types/astro.js';
+import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
-import { createDevelopmentManifest } from '../../vite-plugin-astro-server/plugin.js';
-import type { SSRManifest } from '../app/types.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
@@ -51,8 +49,6 @@ type SyncOptions = {
 		// Cleanup can be skipped in dev as some state can be reused on updates
 		cleanup?: boolean;
 	};
-	routesList: RoutesList;
-	manifest: SSRManifest;
 	command: 'build' | 'dev' | 'sync';
 	watcher?: FSWatcher;
 };
@@ -67,14 +63,12 @@ export default async function sync(
 	if (_telemetry) {
 		telemetry.record(eventCliSession('sync', userConfig));
 	}
-	let settings = await createSettings(astroConfig, inlineConfig.root);
+	let settings = await createSettings(astroConfig, inlineConfig.logLevel, inlineConfig.root);
 	settings = await runHookConfigSetup({
 		command: 'sync',
 		settings,
 		logger,
 	});
-	const routesList = await createRoutesList({ settings, fsMod: fs }, logger);
-	const manifest = createDevelopmentManifest(settings);
 	await runHookConfigDone({ settings, logger });
 
 	return await syncInternal({
@@ -83,9 +77,7 @@ export default async function sync(
 		mode: 'production',
 		fs,
 		force: inlineConfig.force,
-		routesList,
 		command: 'sync',
-		manifest,
 	});
 }
 
@@ -124,10 +116,8 @@ export async function syncInternal({
 	settings,
 	skip,
 	force,
-	routesList,
 	command,
 	watcher,
-	manifest,
 }: SyncOptions): Promise<void> {
 	const isDev = command === 'dev';
 	if (force) {
@@ -137,7 +127,7 @@ export async function syncInternal({
 	const timerStart = performance.now();
 
 	if (!skip?.content) {
-		await syncContentCollections(settings, { mode, fs, logger, routesList, manifest });
+		await syncContentCollections(settings, { mode, fs, logger });
 		settings.timer.start('Sync content layer');
 
 		let store: MutableDataStore | undefined;
@@ -233,14 +223,17 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
  */
 async function syncContentCollections(
 	settings: AstroSettings,
-	{
-		mode,
-		logger,
-		fs,
-		routesList,
-		manifest,
-	}: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs' | 'routesList' | 'manifest'>>,
+	{ mode, logger, fs }: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs'>>,
 ): Promise<void> {
+	const routesList = await createRoutesList(
+		{
+			settings,
+			fsMod: fs,
+		},
+		logger,
+		{ dev: true, skipBuildOutputAssignment: true },
+	);
+
 	// Needed to load content config
 	const tempViteServer = await createServer(
 		await createVite(
@@ -250,14 +243,14 @@ async function syncContentCollections(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ settings, logger, mode, command: 'build', fs, sync: true, routesList, manifest },
+			{ routesList, settings, logger, mode, command: 'build', fs, sync: true },
 		),
 	);
 
 	// Patch `hot.send` to bubble up error events
 	// `hot.on('error')` does not fire for some reason
-	const hotSend = tempViteServer.hot.send;
-	tempViteServer.hot.send = (payload: HMRPayload) => {
+	const hotSend = tempViteServer.environments.client.hot.send;
+	tempViteServer.environments.client.hot.send = (payload: HotPayload) => {
 		if (payload.type === 'error') {
 			throw payload.err;
 		}
