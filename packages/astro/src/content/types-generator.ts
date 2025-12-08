@@ -10,7 +10,6 @@ import {
 	type ViteDevServer,
 } from 'vite';
 import * as z from 'zod/v4';
-import type { $ZodType } from 'zod/v4/core';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
@@ -359,7 +358,7 @@ function normalizeConfigPath(from: string, to: string) {
 	return `"${isRelativePath(configPath) ? '' : './'}${normalizedPath}"` as const;
 }
 
-const createSchemaResultCache = new Map<string, { schema: ZodSchema; types: string }>();
+const createSchemaResultCache = new Map<string, { schema: z.ZodSchema; types: string }>();
 
 async function getCreateSchemaResult<T extends keyof ContentConfig['collections']>(
 	collection: ContentConfig['collections'][T],
@@ -385,7 +384,7 @@ async function getCreateSchemaResult<T extends keyof ContentConfig['collections'
 async function getContentLayerSchema<T extends keyof ContentConfig['collections']>(
 	collection: ContentConfig['collections'][T],
 	collectionKey: T,
-): Promise<ZodSchema | undefined> {
+): Promise<z.ZodSchema | undefined> {
 	if (collection?.type !== CONTENT_LAYER_TYPE || typeof collection.loader === 'function') {
 		return;
 	}

@@ -8,7 +8,6 @@ import type { PluginContext } from 'rollup';
 import type { RunnableDevEnvironment } from 'vite';
 import xxhash from 'xxhash-wasm';
 import * as z from 'zod/v4';
-import type { $ZodType } from 'zod/v4/core';
 import { AstroError, AstroErrorData, errorMap, MarkdownError } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
@@ -91,7 +90,7 @@ const collectionConfigParser = z.union([
 						input: [],
 						output: z.promise(
 							z.object({
-								schema: z.custom<ZodSchema>((v: any) => '_def' in v),
+								schema: z.custom<z.ZodSchema>((v: any) => '_def' in v),
 								types: z.string(),
 							}),
 						),

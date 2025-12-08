@@ -69,7 +69,7 @@ export interface MetaStore {
 
 export type BaseSchema = z4.$ZodType;
 
-export type SchemaContext = { image: Z4ImageFunction };
+export type SchemaContext = { image: ImageFunction };
 
 export type LiveCollectionConfig<
 	L extends LiveLoader,
