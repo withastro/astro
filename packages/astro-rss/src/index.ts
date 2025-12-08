@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v3';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 import colors from 'piccolore';
 import { rssSchema } from './schema.js';
