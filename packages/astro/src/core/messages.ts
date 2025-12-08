@@ -1,7 +1,7 @@
 import { detect, resolveCommand } from 'package-manager-detector';
 import colors from 'piccolore';
 import type { ResolvedServerUrls } from 'vite';
-import type { ZodError } from 'zod/v4';
+import type { $ZodError } from 'zod/v4/core';
 import { getDocsForError, renderErrorMarkdown } from './errors/dev/utils.js';
 import {
 	AstroError,
@@ -237,7 +237,7 @@ function getNetworkLogging(host: string | boolean): 'none' | 'host-to-expose' | 
 
 const codeRegex = /`([^`]+)`/g;
 
-export function formatConfigErrorMessage(err: ZodError) {
+export function formatConfigErrorMessage(err: $ZodError) {
 	const errorList = err.issues.map((issue) =>
 		`! ${renderErrorMarkdown(issue.message, 'cli')}`
 			// Make text wrapped in backticks blue.

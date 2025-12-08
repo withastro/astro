@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import colors from 'piccolore';
-import { ZodError } from 'zod/v4';
+import { $ZodError } from 'zod/v4/core';
 import { eventConfigError, telemetry } from '../../events/index.js';
 import type {
 	AstroConfig,
@@ -153,7 +153,7 @@ export async function resolveConfig(
 		astroConfig = await validateConfig(mergedConfig, root, command);
 	} catch (e) {
 		// Improve config zod error messages
-		if (e instanceof ZodError) {
+		if (e instanceof $ZodError) {
 			// Mark this error so the callee can decide to suppress Zod's error if needed.
 			// We still want to throw the error to signal an error in validation.
 			trackAstroConfigZodError(e);
