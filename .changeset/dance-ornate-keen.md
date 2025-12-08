@@ -1,6 +1,5 @@
 ---
 'astro': major
-'astro-rss': patch
 ---
 
 Upgrade to Zod 4
