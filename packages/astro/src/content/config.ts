@@ -24,7 +24,7 @@ function getImporterFilename() {
 }
 
 // This needs to be in sync with ImageMetadata
-type Z4ImageFunction = () => z4.$ZodObject<{
+type ImageFunction = () => z4.$ZodObject<{
 	src: z4.$ZodString;
 	width: z4.$ZodNumber;
 	height: z4.$ZodNumber;
