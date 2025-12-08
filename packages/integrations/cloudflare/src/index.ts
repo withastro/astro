@@ -250,7 +250,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 												exclude: [
 													'unstorage/drivers/cloudflare-kv-binding',
 													'astro:toolbar:internal',
-													'virtual:astro:middleware'
+													'virtual:astro:middleware',
 												],
 											},
 										};

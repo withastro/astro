@@ -1,5 +1,6 @@
 name = "test"
-main = "@astrojs/cloudflare/entrypoint/server"
+main = "@astrojs/cloudflare/entrypoints/server"
+compatibility_date = "2025-10-30"
 
 [vars]
 COOL = "ME"

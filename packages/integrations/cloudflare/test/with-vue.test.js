@@ -5,7 +5,10 @@ import { loadFixture } from './_test-utils.js';
 
 describe(
 	'Vue',
-	{ skip: 'Error with virtual:@astrojs/vue/app', todo: 'Enable once the module is resolved by cloudflare' },
+	{
+		skip: 'Error with virtual:@astrojs/vue/app',
+		todo: 'Enable once the module is resolved by cloudflare',
+	},
 	() => {
 		let fixture;
 		let previewServer;
