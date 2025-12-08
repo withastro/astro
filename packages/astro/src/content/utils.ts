@@ -613,7 +613,7 @@ export type ContentPaths = {
 export function getContentPaths(
 	{ srcDir, root }: Pick<AstroConfig, 'root' | 'srcDir'>,
 	fs: typeof fsMod = fsMod,
-	legacyCollectionsBackwardsCompat: boolean = false,
+	legacyCollectionsBackwardsCompat = false,
 ): ContentPaths {
 	const pkgBase = new URL('../../', import.meta.url);
 	const configStats = searchConfig(fs, srcDir);
