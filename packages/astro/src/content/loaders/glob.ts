@@ -30,10 +30,6 @@ interface GlobOptions {
 	 * @returns The ID of the entry. Must be unique per collection.
 	 **/
 	generateId?: (options: GenerateIdOptions) => string;
-	/**
-	 * @private Internal flag for legacy backwards compat collections
-	 */
-	_legacy?: boolean;
 }
 
 function generateIdDefault({ entry, base, data }: GenerateIdOptions, isLegacy?: boolean): string {
@@ -65,12 +61,14 @@ function checkPrefix(pattern: string | Array<string>, prefix: string) {
 	return pattern.startsWith(prefix);
 }
 
+export const secretLegacyFlag = Symbol('astro.legacy-glob');
+
 /**
  * Loads multiple entries, using a glob pattern to match files.
  * @param pattern A glob pattern to match files, relative to the content directory.
  */
 
-export function glob(globOptions: GlobOptions & { _legacy: boolean; }): Loader {
+export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean; }): Loader {
 	if (checkPrefix(globOptions.pattern, '../')) {
 		throw new Error(
 			'Glob patterns cannot start with `../`. Set the `base` option to a parent directory instead.',
@@ -82,7 +80,7 @@ export function glob(globOptions: GlobOptions & { _legacy: boolean; }): Loader {
 		);
 	}
 
-	const isLegacy = globOptions._legacy;
+	const isLegacy = !!globOptions[secretLegacyFlag];
 	const generateId = globOptions?.generateId ?? ((opts: GenerateIdOptions) => generateIdDefault(opts, isLegacy));
 
 	const fileToIdMap = new Map<string, string>();

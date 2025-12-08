@@ -2,7 +2,7 @@ import type { ZodLiteral, ZodNumber, ZodObject, ZodString, ZodType, ZodUnion } f
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from './consts.js';
 import type { LiveLoader, Loader } from './loaders/types.js';
-import { glob } from './loaders/glob.js';
+import { glob, secretLegacyFlag } from './loaders/glob.js';
 
 function getImporterFilename() {
 	// Find the first line in the stack trace that doesn't include 'defineCollection' or 'getImporterFilename'
@@ -194,7 +194,7 @@ export function defineCollection<S extends BaseSchema>(
 			type: 'content_layer',
 			loader: glob({
 				pattern,
-				_legacy: _legacy,
+				[secretLegacyFlag]: _legacy,
 			}),
 		} as CollectionConfig<S>;
 	}
