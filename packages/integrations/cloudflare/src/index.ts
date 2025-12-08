@@ -228,10 +228,30 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							{
 								name: '@astrojs/cloudflare:environment',
 								configEnvironment(environmentName, _options) {
-									if (environmentName === 'ssr' && _options.optimizeDeps?.noDiscovery === false) {
+									const isServerEnvironment = ['ssr', 'prerender'].includes(environmentName);
+									if (isServerEnvironment && _options.optimizeDeps?.noDiscovery === false) {
 										return {
 											optimizeDeps: {
-												exclude: ['unstorage/drivers/cloudflare-kv-binding'],
+												include: [
+													'astro',
+													'astro/runtime/**',
+													'astro > html-escaper',
+													'astro > mrmime',
+													'astro > zod',
+													'astro > clsx',
+													'astro > cssesc',
+													'astro > cookie',
+													'astro > devalue',
+													'astro > @oslojs/encoding',
+													'astro > es-module-lexer',
+													'astro > unstorage',
+													'astro > neotraverse/modern',
+												],
+												exclude: [
+													'unstorage/drivers/cloudflare-kv-binding',
+													'astro:toolbar:internal',
+													'virtual:astro:middleware'
+												],
 											},
 										};
 									}

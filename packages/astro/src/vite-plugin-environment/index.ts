@@ -51,6 +51,10 @@ export function vitePluginEnvironment({
 		name: 'astro:environment',
 		configEnvironment(environmentName, _options): EnvironmentOptions {
 			const finalEnvironmentOptions: EnvironmentOptions = {
+				optimizeDeps: {
+					include: [],
+					exclude: []
+				},
 				resolve: {
 					// Astro imports in third-party packages should use the same version as root
 					dedupe: ['astro'],
@@ -76,13 +80,18 @@ export function vitePluginEnvironment({
 				if (_options.optimizeDeps?.noDiscovery === false) {
 					finalEnvironmentOptions.optimizeDeps = {
 						entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html,astro}`],
-						exclude: ['astro', 'node-fetch'],
+						include: [],
+						exclude: ['node-fetch'],
 					};
 				}
 			}
 
 			if (environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 				finalEnvironmentOptions.optimizeDeps = {
+					include: [
+						// For the dev toolbar
+						'astro > html-escaper',
+					],
 					// Astro files can't be rendered on the client
 					entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html}`],
 				};
