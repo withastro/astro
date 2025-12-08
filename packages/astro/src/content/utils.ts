@@ -826,14 +826,14 @@ export async function getEntrySlug({
 	return parseEntrySlug({ generatedSlug, frontmatterSlug, id, collection });
 }
 
-export function getExtGlob(exts: string[]) {
+function getExtGlob(exts: string[]) {
 	return exts.length === 1
 		? // Wrapping {...} breaks when there is only one extension
 			exts[0]
 		: `{${exts.join(',')}}`;
 }
 
-export function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
+function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
 	const extGlob = getExtGlob(exts);
 	const contentDir = relContentDir.length > 0 ? appendForwardSlash(relContentDir) : relContentDir;
 	return [
