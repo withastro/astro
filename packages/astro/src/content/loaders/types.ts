@@ -49,8 +49,6 @@ export interface LoaderContext {
 	entryTypes: Map<string, ContentEntryType>;
 }
 
-type ZodSchema = z4.$ZodType;
-
 export type Loader = {
 	/** Unique name of the loader, e.g. the npm package name */
 	name: string;
@@ -59,12 +57,12 @@ export type Loader = {
 } & (
 	| {
 			/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
-			schema?: ZodSchema;
+			schema?: z4.$ZodType;
 	  }
 	| {
 			/** Optionally, provide a function to dynamically provide a schema. Will be overridden by user-defined schema */
 			createSchema?: () => Promise<{
-				schema: ZodSchema;
+				schema: z4.$ZodType;
 				types: string;
 			}>;
 	  }
