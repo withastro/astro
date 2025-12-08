@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import * as z from 'zod/v4';
 import { LOCAL_PROVIDER_NAME } from './constants.js';
 
 const weightSchema = z.union([z.string(), z.number()]);
