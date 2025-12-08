@@ -1,6 +1,6 @@
-import type * as z4 from 'zod/v4/core';
+import type * as z from 'zod/v4/core';
 
-function formatZodError(error: z4.$ZodError): string[] {
+function formatZodError(error: z.$ZodError): string[] {
 	return error.issues.map((issue) => `  **${issue.path.join('.')}**: ${issue.message}`);
 }
 
@@ -35,7 +35,7 @@ export class LiveEntryNotFoundError extends LiveCollectionError {
 }
 
 export class LiveCollectionValidationError extends LiveCollectionError {
-	constructor(collection: string, entryId: string, error: z4.$ZodError) {
+	constructor(collection: string, entryId: string, error: z.$ZodError) {
 		super(
 			collection,
 			[
@@ -52,7 +52,7 @@ export class LiveCollectionValidationError extends LiveCollectionError {
 }
 
 export class LiveCollectionCacheHintError extends LiveCollectionError {
-	constructor(collection: string, entryId: string | undefined, error: z4.$ZodError) {
+	constructor(collection: string, entryId: string | undefined, error: z.$ZodError) {
 		super(
 			collection,
 			[

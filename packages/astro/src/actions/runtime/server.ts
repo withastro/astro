@@ -1,5 +1,5 @@
 import { stringify as devalueStringify } from 'devalue';
-import * as z4 from 'zod/v4/core';
+import * as z from 'zod/v4/core';
 import type { Pipeline } from '../../core/base-pipeline.js';
 import { shouldAppendForwardSlash } from '../../core/build/util.js';
 import { pipelineSymbol, REDIRECT_STATUS_CODES } from '../../core/constants.js';
@@ -32,9 +32,9 @@ import type {
 export function defineAction<
 	TOutput,
 	TAccept extends ActionAccept | undefined = undefined,
-	TInputSchema extends z4.$ZodType | undefined = TAccept extends 'form'
+	TInputSchema extends z.$ZodType | undefined = TAccept extends 'form'
 		? // If `input` is omitted, default to `FormData` for forms and `any` for JSON.
-			z4.$ZodType<FormData>
+			z.$ZodType<FormData>
 		: undefined,
 >({
 	accept,
@@ -70,7 +70,7 @@ export function defineAction<
 	return safeServerHandler as ActionClient<TOutput, TAccept, TInputSchema> & string;
 }
 
-function getFormServerHandler<TOutput, TInputSchema extends z4.$ZodType>(
+function getFormServerHandler<TOutput, TInputSchema extends z.$ZodType>(
 	handler: ActionHandler<TInputSchema, TOutput>,
 	inputSchema?: TInputSchema,
 ) {
@@ -93,18 +93,18 @@ function getFormServerHandler<TOutput, TInputSchema extends z4.$ZodType>(
 	};
 }
 
-async function parseFormInput(inputSchema: z4.$ZodType, unparsedInput: FormData) {
+async function parseFormInput(inputSchema: z.$ZodType, unparsedInput: FormData) {
 	const baseSchema = unwrapBaseZ4ObjectSchema(inputSchema, unparsedInput);
 	const input =
-		baseSchema instanceof z4.$ZodObject
+		baseSchema instanceof z.$ZodObject
 			? formDataToObject(unparsedInput, baseSchema)
 			: unparsedInput;
 
-	const parsed = await z4.safeParseAsync(inputSchema, input);
+	const parsed = await z.safeParseAsync(inputSchema, input);
 	return parsed;
 }
 
-function getJsonServerHandler<TOutput, TInputSchema extends z4.$ZodType>(
+function getJsonServerHandler<TOutput, TInputSchema extends z.$ZodType>(
 	handler: ActionHandler<TInputSchema, TOutput>,
 	inputSchema?: TInputSchema,
 ) {
@@ -117,7 +117,7 @@ function getJsonServerHandler<TOutput, TInputSchema extends z4.$ZodType>(
 		}
 
 		if (!inputSchema) return await handler(unparsedInput, context);
-		const parsed = await z4.safeParseAsync(inputSchema, unparsedInput);
+		const parsed = await z.safeParseAsync(inputSchema, unparsedInput);
 		if (!parsed.success) {
 			throw new ActionInputError(parsed.error.issues);
 		}
@@ -282,7 +282,7 @@ function isActionAPIContext(ctx: ActionAPIContext): boolean {
 }
 
 /** Transform form data to an object based on a Zod schema. */
-export function formDataToObject<T extends z4.$ZodObject>(
+export function formDataToObject<T extends z.$ZodObject>(
 	formData: FormData,
 	schema: T,
 ): Record<string, unknown> {
@@ -293,12 +293,12 @@ export function formDataToObject<T extends z4.$ZodObject>(
 		let validator = baseValidator;
 
 		while (
-			validator instanceof z4.$ZodOptional ||
-			validator instanceof z4.$ZodNullable ||
-			validator instanceof z4.$ZodDefault
+			validator instanceof z.$ZodOptional ||
+			validator instanceof z.$ZodNullable ||
+			validator instanceof z.$ZodDefault
 		) {
 			// use default value when key is undefined
-			if (validator instanceof z4.$ZodDefault && !formData.has(key)) {
+			if (validator instanceof z.$ZodDefault && !formData.has(key)) {
 				obj[key] =
 					validator._zod.def.defaultValue instanceof Function
 						? validator._zod.def.defaultValue()
@@ -310,10 +310,10 @@ export function formDataToObject<T extends z4.$ZodObject>(
 		if (!formData.has(key) && key in obj) {
 			// continue loop if form input is not found and default value is set
 			continue;
-		} else if (validator instanceof z4.$ZodBoolean) {
+		} else if (validator instanceof z.$ZodBoolean) {
 			const val = formData.get(key);
 			obj[key] = val === 'true' ? true : val === 'false' ? false : formData.has(key);
-		} else if (validator instanceof z4.$ZodArray) {
+		} else if (validator instanceof z.$ZodArray) {
 			obj[key] = handleFormDataGetAll(key, formData, validator);
 		} else {
 			obj[key] = handleFormDataGet(key, formData, validator, baseValidator);
@@ -322,12 +322,12 @@ export function formDataToObject<T extends z4.$ZodObject>(
 	return obj;
 }
 
-function handleFormDataGetAll(key: string, formData: FormData, validator: z4.$ZodArray) {
+function handleFormDataGetAll(key: string, formData: FormData, validator: z.$ZodArray) {
 	const entries = Array.from(formData.getAll(key));
 	const elementValidator = validator._zod.def.element;
-	if (elementValidator instanceof z4.$ZodNumber) {
+	if (elementValidator instanceof z.$ZodNumber) {
 		return entries.map(Number);
-	} else if (elementValidator instanceof z4.$ZodBoolean) {
+	} else if (elementValidator instanceof z.$ZodBoolean) {
 		return entries.map(Boolean);
 	}
 	return entries;
@@ -341,16 +341,16 @@ function handleFormDataGet(
 ) {
 	const value = formData.get(key);
 	if (!value) {
-		return baseValidator instanceof z4.$ZodOptional ? undefined : null;
+		return baseValidator instanceof z.$ZodOptional ? undefined : null;
 	}
-	return validator instanceof z4.$ZodNumber ? Number(value) : value;
+	return validator instanceof z.$ZodNumber ? Number(value) : value;
 }
 
-function unwrapBaseZ4ObjectSchema(schema: z4.$ZodType, unparsedInput: FormData) {
-	if (schema instanceof z4.$ZodPipe) {
+function unwrapBaseZ4ObjectSchema(schema: z.$ZodType, unparsedInput: FormData) {
+	if (schema instanceof z.$ZodPipe) {
 		return unwrapBaseZ4ObjectSchema(schema._zod.def.in, unparsedInput);
 	}
-	if (schema instanceof z4.$ZodDiscriminatedUnion) {
+	if (schema instanceof z.$ZodDiscriminatedUnion) {
 		const typeKey = schema._zod.def.discriminator;
 		const typeValue = unparsedInput.get(typeKey);
 		if (typeof typeValue !== 'string') return schema;
@@ -367,7 +367,7 @@ function unwrapBaseZ4ObjectSchema(schema: z4.$ZodType, unparsedInput: FormData) 
 
 async function callSafely<TOutput>(
 	handler: () => MaybePromise<TOutput>,
-): Promise<SafeResult<z4.$ZodType, TOutput>> {
+): Promise<SafeResult<z.$ZodType, TOutput>> {
 	try {
 		const data = await handler();
 		return { data, error: undefined };

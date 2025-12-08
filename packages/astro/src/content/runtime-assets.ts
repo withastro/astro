@@ -1,5 +1,5 @@
 import type { PluginContext } from 'rollup';
-import * as z4 from 'zod/v4';
+import * as z from 'zod/v4';
 import type { ImageMetadata, OmitBrand } from '../assets/types.js';
 import { emitImageMetadata } from '../assets/utils/node.js';
 
@@ -9,7 +9,7 @@ export function createImage(
 	entryFilePath: string,
 ) {
 	return () => {
-		return z4.string().transform(async (imagePath, ctx) => {
+		return z.string().transform(async (imagePath, ctx) => {
 			const resolvedFilePath = (await pluginContext.resolve(imagePath, entryFilePath))?.id;
 			const metadata = (await emitImageMetadata(
 				resolvedFilePath,
@@ -23,7 +23,7 @@ export function createImage(
 					fatal: true,
 				});
 
-				return z4.never();
+				return z.never();
 			}
 
 			return { ...metadata, ASTRO_ASSET: metadata.fsPath };
