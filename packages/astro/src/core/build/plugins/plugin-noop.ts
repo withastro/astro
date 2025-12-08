@@ -17,7 +17,7 @@ export function pluginNoop(): vite.Plugin {
 		},
 		load(id) {
 			if(id === RESOLVED_NOOP_MODULE_ID) {
-				return '';
+				return 'export const noop = {};';
 			}
 		},
 		generateBundle(_options, bundle) {
