@@ -65,6 +65,7 @@ export class UnifontFontResolver implements FontResolver {
 			unifontProvider._name += `-${hash}`;
 			// We set the provider name so we can tell unifont what provider to use when
 			// resolving font faces
+			// TODO: mutating is confusing. There must be a better pattern than this
 			provider.name = unifontProvider._name;
 
 			if (!hashes.has(hash)) {

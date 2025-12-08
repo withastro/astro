@@ -1,5 +1,3 @@
-import { createRequire } from 'node:module';
-import { pathToFileURL } from 'node:url';
 import type * as unifont from 'unifont';
 import { FONT_TYPES, GENERIC_FALLBACK_NAMES, LOCAL_PROVIDER_NAME } from './constants.js';
 import type { CssProperties, Storage } from './definitions.js';
@@ -100,17 +98,6 @@ export function sortObjectByKey<T extends Record<string, any>>(unordered: T): T 
 			return obj;
 		}, {} as T);
 	return ordered;
-}
-
-// TODO: inline where used
-export function resolveEntrypoint(root: URL, entrypoint: string): URL {
-	const require = createRequire(root);
-
-	try {
-		return pathToFileURL(require.resolve(entrypoint));
-	} catch {
-		return new URL(entrypoint, root);
-	}
 }
 
 export function pickFontFaceProperty<
