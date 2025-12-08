@@ -188,13 +188,12 @@ export function defineCollection<S extends BaseSchema>(
 	if (isLegacyType && !('loader' in config)) {
 		const isDataCollection = config.type === 'data';
 		const pattern = isDataCollection ? '**/*.{json,yaml,yml,toml}' : '**/*.{md,mdx}';
-		const _legacy = !isDataCollection;
 		return {
 			...config,
 			type: 'content_layer',
 			loader: glob({
 				pattern,
-				[secretLegacyFlag]: _legacy,
+				[secretLegacyFlag]: true,
 			}),
 		} as CollectionConfig<S>;
 	}
