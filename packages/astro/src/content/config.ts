@@ -201,22 +201,3 @@ export function defineCollection<
 	return config;
 }
 
-// Allow generic `string` to avoid excessive type errors in the config
-// if `dev` is not running to update as you edit.
-// Invalid collection names will be caught at build time.
-export type Z4Reference<DataEntryMap extends Record<string, any>> = <
-	C extends keyof DataEntryMap | (string & {}),
->(
-	collection: C,
-) => z4.$ZodPipe<
-	z4.$ZodString,
-	z4.$ZodTransform<
-		C extends keyof DataEntryMap
-			? {
-					collection: C;
-					id: string;
-				}
-			: never,
-		string
-	>
->;
