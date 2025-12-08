@@ -9,7 +9,8 @@ import {
 	type RunnableDevEnvironment,
 	type ViteDevServer,
 } from 'vite';
-import { type ZodSchema, z } from 'zod/v4';
+import * as z from 'zod/v4';
+import type { $ZodType } from 'zod/v4/core';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
