@@ -144,7 +144,7 @@ async function parseFormInput(inputSchema: z4.$ZodType, unparsedInput: FormData)
 	const baseSchema = unwrapBaseZ4ObjectSchema(inputSchema, unparsedInput);
 	const input =
 		baseSchema instanceof z4.$ZodObject
-			? formDataToZ4Object(unparsedInput, baseSchema)
+			? formDataToObject(unparsedInput, baseSchema)
 			: unparsedInput;
 
 	const parsed = await z4.safeParseAsync(inputSchema, input);
@@ -173,7 +173,7 @@ export function getJsonServerHandler<TOutput, TInputSchema extends z4.$ZodType>(
 }
 
 /** Transform form data to an object based on a Zod schema. */
-export function formDataToZ4Object<T extends z4.$ZodObject>(
+export function formDataToObject<T extends z4.$ZodObject>(
 	formData: FormData,
 	schema: T,
 ): Record<string, unknown> {
@@ -205,15 +205,15 @@ export function formDataToZ4Object<T extends z4.$ZodObject>(
 			const val = formData.get(key);
 			obj[key] = val === 'true' ? true : val === 'false' ? false : formData.has(key);
 		} else if (validator instanceof z4.$ZodArray) {
-			obj[key] = handleZ4FormDataGetAll(key, formData, validator);
+			obj[key] = handleFormDataGetAll(key, formData, validator);
 		} else {
-			obj[key] = handleZ4FormDataGet(key, formData, validator, baseValidator);
+			obj[key] = handleFormDataGet(key, formData, validator, baseValidator);
 		}
 	}
 	return obj;
 }
 
-function handleZ4FormDataGetAll(key: string, formData: FormData, validator: z4.$ZodArray) {
+function handleFormDataGetAll(key: string, formData: FormData, validator: z4.$ZodArray) {
 	const entries = Array.from(formData.getAll(key));
 	const elementValidator = validator._zod.def.element;
 	if (elementValidator instanceof z4.$ZodNumber) {
@@ -224,7 +224,7 @@ function handleZ4FormDataGetAll(key: string, formData: FormData, validator: z4.$
 	return entries;
 }
 
-function handleZ4FormDataGet(
+function handleFormDataGet(
 	key: string,
 	formData: FormData,
 	validator: unknown,
