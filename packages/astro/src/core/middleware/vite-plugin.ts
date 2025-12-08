@@ -9,6 +9,8 @@ import { MissingMiddlewareForInternationalization } from '../errors/errors-data.
 import { AstroError } from '../errors/index.js';
 import { normalizePath } from '../viteUtils.js';
 
+// This module name is used in Cloudflare's optmizedDeps configuration,
+// if th name changes that needs to be updated as well.
 export const MIDDLEWARE_MODULE_ID = 'virtual:astro:middleware';
 const MIDDLEWARE_RESOLVED_MODULE_ID = '\0' + MIDDLEWARE_MODULE_ID;
 const NOOP_MIDDLEWARE = '\0noop-middleware';
