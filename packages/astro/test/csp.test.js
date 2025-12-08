@@ -313,7 +313,7 @@ describe('CSP', () => {
 		);
 	});
 
-	it.only('should generate hashes and directives for fonts', async () => {
+	it('should generate hashes and directives for fonts', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp-fonts/',
 		});
