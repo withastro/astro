@@ -3,7 +3,11 @@
 import type { SharpImageServiceConfig } from '../assets/services/sharp.js';
 import type { ImageServiceConfig } from '../types/public/index.js';
 
-export { defineAstroFontProvider, fontProviders } from '../assets/fonts/providers/index.js';
+export {
+	defineAstroFontProvider,
+	fontProviders,
+	unifontToAstroFontProvider,
+} from '../assets/fonts/providers/index.js';
 export type { AstroFontProvider } from '../assets/fonts/types.js';
 export { mergeConfig } from '../core/config/merge.js';
 export { validateConfig } from '../core/config/validate.js';

@@ -1,5 +1,11 @@
+import type * as unifont from 'unifont';
 import { z } from 'zod';
 import { LOCAL_PROVIDER_NAME } from './constants.js';
+import type {
+	AstroFontProviderInitContext,
+	AstroFontProviderResolveFontOptions,
+	Awaitable,
+} from './types.js';
 
 const weightSchema = z.union([z.string(), z.number()]);
 export const styleSchema = z.enum(['normal', 'italic', 'oblique']);
@@ -82,13 +88,36 @@ const entrypointSchema = z.union([z.string(), z.instanceof(URL)]);
 export const fontProviderSchema = z
 	.object({
 		/**
-		 * URL, path relative to the root or package import.
+		 * TODO:
 		 */
-		entrypoint: entrypointSchema,
+		name: z.string(),
 		/**
-		 * Optional serializable object passed to the unifont provider.
+		 * Optional serializable object passed to the font provider.
 		 */
-		config: z.record(z.string(), z.any()).optional(),
+		options: z.record(z.string(), z.any()).optional(),
+		/**
+		 * TODO:
+		 */
+		init: z.custom<(context: AstroFontProviderInitContext) => Awaitable<void>>(
+			(v) => typeof v === 'function',
+		),
+		/**
+		 * TODO:
+		 */
+		resolveFont: z.custom<
+			(options: AstroFontProviderResolveFontOptions) => Awaitable<
+				| {
+						fonts: Array<unifont.FontFaceData>;
+				  }
+				| undefined
+			>
+		>((v) => typeof v === 'function'),
+		/**
+		 * TODO:
+		 */
+		listFonts: z
+			.custom<() => Awaitable<string[] | undefined>>((v) => typeof v === 'function')
+			.optional(),
 	})
 	.strict();
 

@@ -1,5 +1,4 @@
 import type { Font } from '@capsizecss/unpack';
-import type * as unifont from 'unifont';
 import type { z } from 'zod';
 import type {
 	fontProviderSchema,
@@ -11,12 +10,6 @@ import type { FONT_TYPES, GENERIC_FALLBACK_NAMES } from './constants.js';
 import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 
 export type AstroFontProvider = z.infer<typeof fontProviderSchema>;
-
-export interface ResolvedFontProvider {
-	name?: string;
-	provider: (config?: Record<string, any>) => unifont.Provider;
-	config?: Record<string, any>;
-}
 
 export type LocalFontFamily = z.infer<typeof localFontFamilySchema>;
 
@@ -41,7 +34,6 @@ type RemoteFontFamily = z.infer<typeof remoteFontFamilySchema>;
 export interface ResolvedRemoteFontFamily
 	extends ResolvedFontFamilyAttributes,
 		Omit<z.output<typeof remoteFontFamilySchema>, 'provider' | 'weights'> {
-	provider: ResolvedFontProvider;
 	weights?: Array<string>;
 }
 
@@ -123,3 +115,23 @@ export type Style = z.output<typeof styleSchema>;
 export type PreloadFilter =
 	| boolean
 	| Array<{ weight?: string | number; style?: string; subset?: string }>;
+
+export type Awaitable<T> = T | Promise<T>;
+
+export interface AstroFontProviderInitContext {
+	storage: {
+		getItem: {
+			<T = unknown>(key: string): Promise<T | null>;
+			<T = unknown>(key: string, init: () => Awaitable<T>): Promise<T>;
+		};
+		setItem: (key: string, value: unknown) => Awaitable<void>;
+	};
+}
+
+export interface AstroFontProviderResolveFontOptions {
+	familyName: string;
+	weights?: string[] | undefined;
+	styles?: Style[] | undefined;
+	subsets?: string[] | undefined;
+	formats?: FontType[] | undefined;
+}
