@@ -257,10 +257,6 @@ async function parseRequestBody(request: Request) {
 	throw new TypeError('Unsupported content type');
 }
 
-export function astroCalledServerError(): AstroError {
-	return new AstroError(ActionCalledFromServerError);
-}
-
 export const ACTION_API_CONTEXT_SYMBOL = Symbol.for('astro.actionAPIContext');
 
 const formContentTypes = ['application/x-www-form-urlencoded', 'multipart/form-data'];

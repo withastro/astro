@@ -1,13 +1,13 @@
-import {
-	createGetActionPath,
-	createActionsProxy,
-	getActionPathFromString,
-	getActionQueryString,
-	deserializeActionResult,
-} from '../client.js';
 import { shouldAppendTrailingSlash } from 'virtual:astro:actions/options';
 import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
-import { ActionError } from '../client.js';
+import {
+	ActionError,
+	createActionsProxy,
+	createGetActionPath,
+	deserializeActionResult,
+	getActionPathFromString,
+	getActionQueryString,
+} from '../client.js';
 
 export { ACTION_QUERY_PARAMS } from '../../consts.js';
 export {
@@ -25,11 +25,11 @@ export type {
 } from '../types.js';
 
 export function defineAction() {
-	throw new Error('[astro:action] `defineAction()` unexpectedly used on the client.');
+	throw new Error('[astro:actions] `defineAction()` unexpectedly used on the client.');
 }
 
 export function getActionContext() {
-	throw new Error('[astro:action] `getActionContext()` unexpectedly used on the client.');
+	throw new Error('[astro:actions] `getActionContext()` unexpectedly used on the client.');
 }
 
 export const getActionPath = createGetActionPath({
