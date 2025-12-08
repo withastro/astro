@@ -11,6 +11,7 @@ import { type ZodSchema, z } from 'zod';
 import { AstroError, AstroErrorData, errorMap, MarkdownError } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
+import { appendForwardSlash } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
@@ -24,6 +25,7 @@ import {
 	LIVE_CONTENT_TYPE,
 	PROPAGATED_ASSET_FLAG,
 } from './consts.js';
+import { glob, secretLegacyFlag } from './loaders/glob.js';
 import type { LoaderContext } from './loaders/types.js';
 import { createImage } from './runtime-assets.js';
 
@@ -529,6 +531,93 @@ async function loadContentConfig({
 	}
 }
 
+async function autogenerateCollections({
+	config,
+	settings,
+	fs,
+}: {
+	config?: ContentConfig;
+	settings: AstroSettings;
+	fs: typeof fsMod;
+}): Promise<ContentConfig | undefined> {
+	if (!config) {
+		return config;
+	}
+
+	if (!settings.config.legacy?.collectionsBackwardsCompat) {
+		return config;
+	}
+
+	const contentDir = new URL('./content/', settings.config.srcDir);
+	const collections: Record<string, CollectionConfig> = config.collections ?? {};
+
+	const contentExts = getContentEntryExts(settings);
+	const dataExts = getDataEntryExts(settings);
+
+	const contentPattern = globWithUnderscoresIgnored('', contentExts);
+	const dataPattern = globWithUnderscoresIgnored('', dataExts);
+
+	let usesContentLayer = false;
+	for (const collectionName of Object.keys(collections)) {
+		const collection = collections[collectionName];
+
+		if (collection?.type === CONTENT_LAYER_TYPE || collection?.type === LIVE_CONTENT_TYPE) {
+			usesContentLayer = true;
+			continue;
+		}
+
+		const isDataCollection = collection?.type === 'data';
+		const base = new URL(`${collectionName}/`, contentDir);
+
+		collections[collectionName] = {
+			...collection,
+			type: CONTENT_LAYER_TYPE,
+			loader: glob({
+				base,
+				pattern: isDataCollection ? dataPattern : contentPattern,
+				[secretLegacyFlag]: true,
+			}) as any,
+		};
+	}
+
+	if (!usesContentLayer && fs.existsSync(contentDir)) {
+		const orphanedCollections = [];
+		for (const entry of await fs.promises.readdir(contentDir, { withFileTypes: true })) {
+			const collectionName = entry.name;
+
+			if (['_', '.'].includes(collectionName.at(0) ?? '')) {
+				continue;
+			}
+
+			if (entry.isDirectory() && !(collectionName in collections)) {
+				orphanedCollections.push(collectionName);
+				const base = new URL(`${collectionName}/`, contentDir);
+				collections[collectionName] = {
+					type: CONTENT_LAYER_TYPE,
+					loader: glob({
+						base,
+						pattern: contentPattern,
+						[secretLegacyFlag]: true,
+					}) as any,
+				};
+			}
+		}
+
+		if (orphanedCollections.length > 0) {
+			console.warn(
+				`
+Auto-generating collections for folders in "src/content/" that are not defined as collections.
+This is deprecated, so you should define these collections yourself in "src/content.config.ts".
+The following collections have been auto-generated: ${orphanedCollections
+					.map((name) => colors.green(name))
+					.join(', ')}\n`,
+			);
+		}
+	}
+
+	return { ...config, collections };
+}
+
 export async function reloadContentConfigObserver({
 	observer = globalContentConfigObserver,
 	...loadContentConfigOpts
@@ -541,6 +630,11 @@ export async function reloadContentConfigObserver({
 	observer.set({ status: 'loading' });
 	try {
 		let config = await loadContentConfig(loadContentConfigOpts);
+
+		config = await autogenerateCollections({
+			config,
+			...loadContentConfigOpts,
+		});
 
 		if (config) {
 			observer.set({ status: 'loaded', config });
@@ -730,6 +824,23 @@ export async function getEntrySlug({
 		contents,
 	});
 	return parseEntrySlug({ generatedSlug, frontmatterSlug, id, collection });
+}
+
+export function getExtGlob(exts: string[]) {
+	return exts.length === 1
+		? // Wrapping {...} breaks when there is only one extension
+			exts[0]
+		: `{${exts.join(',')}}`;
+}
+
+export function globWithUnderscoresIgnored(relContentDir: string, exts: string[]): string[] {
+	const extGlob = getExtGlob(exts);
+	const contentDir = relContentDir.length > 0 ? appendForwardSlash(relContentDir) : relContentDir;
+	return [
+		`${contentDir}**/*${extGlob}`,
+		`!${contentDir}**/_*/**/*${extGlob}`,
+		`!${contentDir}**/_*${extGlob}`,
+	];
 }
 
 export function hasAssetPropagationFlag(id: string): boolean {
