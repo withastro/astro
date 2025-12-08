@@ -6,6 +6,6 @@
     "@astrojs/markdoc": "workspace:*",
     "@astrojs/preact": "workspace:*",
     "astro": "workspace:*",
-    "preact": "^10.27.2"
+    "preact": "^10.28.0"
   }
 }
