@@ -48,7 +48,6 @@ export function unifontToAstroFontProvider<T extends (options?: any) => unifont.
 				}
 			},
 			async resolveFont({ familyName, ...rest }) {
-				// TODO: need a fix in unifont upstream to allow undefined
 				return await initializedProvider?.resolveFont(familyName, rest);
 			},
 			async listFonts() {

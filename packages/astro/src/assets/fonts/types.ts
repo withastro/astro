@@ -130,8 +130,8 @@ export interface AstroFontProviderInitContext {
 
 export interface AstroFontProviderResolveFontOptions {
 	familyName: string;
-	weights?: string[] | undefined;
-	styles?: Style[] | undefined;
-	subsets?: string[] | undefined;
-	formats?: FontType[] | undefined;
+	weights: string[];
+	styles: Style[];
+	subsets: string[];
+	formats: FontType[];
 }
