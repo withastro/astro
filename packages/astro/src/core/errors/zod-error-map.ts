@@ -6,7 +6,7 @@ type TypeOrLiteralErrByPathEntry = {
 	expected: unknown[];
 };
 
-export const z4ErrorMap: $ZodErrorMap = (issue) => {
+export const errorMap: $ZodErrorMap = (issue) => {
 	const baseErrorPath = flattenErrorPath(issue.path ?? []);
 	if (issue.code === 'invalid_union') {
 		// Optimization: Combine type and literal errors for keys that are common across ALL union types
@@ -49,7 +49,7 @@ export const z4ErrorMap: $ZodErrorMap = (issue) => {
 					// If the issue is a nested union error, show the associated error message instead of the
 					// base error message.
 					if (_issue.code === 'invalid_union') {
-						return z4ErrorMap(_issue as any);
+						return errorMap(_issue as any);
 					}
 					const relativePath = flattenErrorPath(_issue.path)
 						.replace(baseErrorPath, '')
