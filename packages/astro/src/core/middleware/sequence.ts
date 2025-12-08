@@ -5,7 +5,7 @@ import { AstroError } from '../errors/index.js';
 import { getParams, type Pipeline } from '../render/index.js';
 import { apiContextRoutesSymbol } from '../render-context.js';
 import { setOriginPathname } from '../routing/rewrite.js';
-import { defineMiddleware } from './index.js';
+import { defineMiddleware } from './defineMiddleware.js';
 
 // From SvelteKit: https://github.com/sveltejs/kit/blob/master/packages/kit/src/exports/hooks/sequence.js
 /**
