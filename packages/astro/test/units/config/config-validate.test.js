@@ -2,7 +2,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { stripVTControlCharacters } from 'node:util';
-import { z } from 'zod/v4';
+import * as z from 'zod/v4';
 import { fontProviders } from '../../../dist/assets/fonts/providers/index.js';
 import { validateConfig as _validateConfig } from '../../../dist/core/config/validate.js';
 import { formatConfigErrorMessage } from '../../../dist/core/messages.js';
