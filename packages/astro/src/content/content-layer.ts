@@ -3,7 +3,7 @@ import { createMarkdownProcessor, type MarkdownProcessor } from '@astrojs/markdo
 import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
-import type { z } from 'zod/v4';
+import type * as z from 'zod/v4';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
