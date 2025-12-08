@@ -70,7 +70,7 @@ export function defineAction<
 	return safeServerHandler as ActionClient<TOutput, TAccept, TInputSchema> & string;
 }
 
-export function getFormServerHandler<TOutput, TInputSchema extends z4.$ZodType>(
+function getFormServerHandler<TOutput, TInputSchema extends z4.$ZodType>(
 	handler: ActionHandler<TInputSchema, TOutput>,
 	inputSchema?: TInputSchema,
 ) {
@@ -104,7 +104,7 @@ async function parseFormInput(inputSchema: z4.$ZodType, unparsedInput: FormData)
 	return parsed;
 }
 
-export function getJsonServerHandler<TOutput, TInputSchema extends z4.$ZodType>(
+function getJsonServerHandler<TOutput, TInputSchema extends z4.$ZodType>(
 	handler: ActionHandler<TInputSchema, TOutput>,
 	inputSchema?: TInputSchema,
 ) {
