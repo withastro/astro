@@ -1,8 +1,5 @@
 import { LOCAL_PROVIDER_NAME } from '../constants.js';
-import type {
-	Hasher,
-	LocalProviderUrlResolver,
-} from '../definitions.js';
+import type { Hasher, LocalProviderUrlResolver } from '../definitions.js';
 import type {
 	FontFamily,
 	LocalFontFamily,

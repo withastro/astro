@@ -27,7 +27,7 @@ import type {
 	Hasher,
 	UrlProxyContentResolver,
 	UrlProxyHashResolver,
-	UrlResolver
+	UrlResolver,
 } from './definitions.js';
 import { BuildUrlProxyHashResolver } from './infra/build-url-proxy-hash-resolver.js';
 import { BuildUrlResolver } from './infra/build-url-resolver.js';
@@ -44,6 +44,7 @@ import { MinifiableCssRenderer } from './infra/minifiable-css-renderer.js';
 import { RemoteUrlProxyContentResolver } from './infra/remote-url-proxy-content-resolver.js';
 import { RequireLocalProviderUrlResolver } from './infra/require-local-provider-url-resolver.js';
 import { RealSystemFallbacksProvider } from './infra/system-fallbacks-provider.js';
+import { UnifontFontResolver } from './infra/unifont-font-resolver.js';
 import { UnstorageFsStorage } from './infra/unstorage-fs-storage.js';
 import { RealUrlProxy } from './infra/url-proxy.js';
 import { XxhashHasher } from './infra/xxhash-hasher.js';
@@ -146,7 +147,12 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			families: settings.config.experimental.fonts!,
 			hasher,
 			localProviderUrlResolver,
-			storage,
+			createFontResolver: async ({ families }) =>
+				await UnifontFontResolver.create({
+					families,
+					hasher,
+					storage,
+				}),
 			cssRenderer,
 			systemFallbacksProvider,
 			fontMetricsResolver,
