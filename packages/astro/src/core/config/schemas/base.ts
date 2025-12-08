@@ -84,10 +84,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		allowedHosts: [],
 	},
 	integrations: [],
-	markdown: {
-		...markdownConfigDefaults,
-		syntaxHighlight: markdownConfigDefaults.syntaxHighlight ?? syntaxHighlightDefaults,
-	},
+	markdown: markdownConfigDefaults,
 	vite: {},
 	legacy: {},
 	redirects: {},
