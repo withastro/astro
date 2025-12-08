@@ -2,7 +2,7 @@
 // Additionally, this code, much like `types/public/config.ts`, is used to generate documentation, so make sure to pass
 // your changes by our wonderful docs team before merging!
 
-import type { ZodError } from 'zod';
+import type { ZodError } from 'zod/v4';
 
 export interface ErrorData {
 	name: string;

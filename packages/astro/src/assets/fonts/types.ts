@@ -1,6 +1,6 @@
 import type { Font } from '@capsizecss/unpack';
 import type * as unifont from 'unifont';
-import type { z } from 'zod';
+import type { z } from 'zod/v4';
 import type {
 	fontProviderSchema,
 	localFontFamilySchema,

@@ -1,7 +1,7 @@
 import { detect, resolveCommand } from 'package-manager-detector';
 import colors from 'piccolore';
 import type { ResolvedServerUrls } from 'vite';
-import type { ZodError } from 'zod';
+import type { ZodError } from 'zod/v4';
 import { getDocsForError, renderErrorMarkdown } from './errors/dev/utils.js';
 import {
 	AstroError,

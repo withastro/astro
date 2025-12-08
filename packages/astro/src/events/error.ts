@@ -1,4 +1,4 @@
-import type { ZodError } from 'zod';
+import type { ZodError } from 'zod/v4';
 import type { ErrorData } from '../core/errors/errors-data.js';
 import { AstroError, AstroErrorData, type ErrorWithMetadata } from '../core/errors/index.js';
 
