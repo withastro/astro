@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import * as z from 'zod/v4';
 
 const StringSchema = z.object({
 	type: z.literal('string'),

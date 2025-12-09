@@ -77,7 +77,7 @@ const collectionConfigParser = z.union([
 						return v;
 					})
 					.superRefine((v, ctx) => {
-						if (v !== undefined && !('_def' in v)) {
+						if (v !== undefined && !('_zod' in v)) {
 							ctx.addIssue({
 								code: z.ZodIssueCode.custom,
 								message: 'Invalid Zod schema',
@@ -90,7 +90,7 @@ const collectionConfigParser = z.union([
 						input: [],
 						output: z.promise(
 							z.object({
-								schema: z.custom<z.ZodSchema>((v: any) => '_def' in v),
+								schema: z.custom<z.ZodSchema>((v: any) => '_zod' in v),
 								types: z.string(),
 							}),
 						),

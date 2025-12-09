@@ -2,7 +2,7 @@
 // Additionally, this code, much like `types/public/config.ts`, is used to generate documentation, so make sure to pass
 // your changes by our wonderful docs team before merging!
 
-import type { ZodError } from 'zod/v4';
+import type { $ZodError } from 'zod/v4/core';
 
 export interface ErrorData {
 	name: string;
@@ -1666,7 +1666,7 @@ export const GetEntryDeprecationError = {
 export const InvalidContentEntryFrontmatterError = {
 	name: 'InvalidContentEntryFrontmatterError',
 	title: 'Content entry frontmatter does not match schema.',
-	message(collection: string, entryId: string, error: ZodError) {
+	message(collection: string, entryId: string, error: $ZodError) {
 		return [
 			`**${String(collection)} → ${String(
 				entryId,
@@ -1693,7 +1693,7 @@ export const InvalidContentEntryFrontmatterError = {
 export const InvalidContentEntryDataError = {
 	name: 'InvalidContentEntryDataError',
 	title: 'Content entry data does not match schema.',
-	message(collection: string, entryId: string, error: ZodError) {
+	message(collection: string, entryId: string, error: $ZodError) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
 			`  **: ${error.message}`,
@@ -1799,7 +1799,7 @@ export const ContentLoaderReturnsInvalidId = {
 export const ContentEntryDataError = {
 	name: 'ContentEntryDataError',
 	title: 'Content entry data does not match schema.',
-	message(collection: string, entryId: string, error: ZodError) {
+	message(collection: string, entryId: string, error: $ZodError) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
 			`  **: ${error.message}`,

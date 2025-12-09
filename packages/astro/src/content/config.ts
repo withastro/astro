@@ -69,6 +69,8 @@ export interface MetaStore {
 
 export type BaseSchema = z.$ZodType;
 
+export type { $ZodObject } from 'zod/v4/core';
+
 export type SchemaContext = { image: ImageFunction };
 
 export type LiveCollectionConfig<

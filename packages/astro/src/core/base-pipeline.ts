@@ -1,4 +1,4 @@
-import type { ZodType } from 'zod/v4';
+import type { $ZodType } from 'zod/v4/core';
 import { NOOP_ACTIONS_MOD } from '../actions/noop-actions.js';
 import type { ActionAccept, ActionClient } from '../actions/runtime/types.js';
 import { createI18nMiddleware } from '../i18n/middleware.js';
@@ -172,7 +172,7 @@ export abstract class Pipeline {
 		};
 	}
 
-	async getAction(path: string): Promise<ActionClient<unknown, ActionAccept, ZodType>> {
+	async getAction(path: string): Promise<ActionClient<unknown, ActionAccept, $ZodType>> {
 		const pathKeys = path.split('.').map((key) => decodeURIComponent(key));
 		let { server } = await this.getActions();
 

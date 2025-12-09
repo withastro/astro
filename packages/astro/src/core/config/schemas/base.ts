@@ -8,7 +8,7 @@ import type {
 import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
 import type { Config as SvgoConfig } from 'svgo';
-import { z } from 'zod/v4';
+import * as z from 'zod/v4';
 import { localFontFamilySchema, remoteFontFamilySchema } from '../../../assets/fonts/config.js';
 import { EnvSchema } from '../../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/config.js';
