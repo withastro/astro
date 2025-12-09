@@ -1,5 +1,5 @@
 ---
-'astro': minor
+'astro': patch
 ---
 
 Gives a helpful error message if a user sets `output: "hybrid"` in their Astro config. 
