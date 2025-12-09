@@ -401,7 +401,8 @@ export async function createKey({ keyGenerator, logger }: Options) {
 
 It should almost always reference types you defined in `definitions.ts`, and compose them together. If you can't test conveniently part of it, or have to mock, introduce new infrastructure.
 
-Note: the file itself can contain several functions or variables, that are used locally by the export.
+> [!NOTE]
+> The file itself can contain several functions or variables, that are used locally by the export.
 
 ##### `infra/`
 
