@@ -406,7 +406,9 @@ It should almost always reference types you defined in `definitions.ts`, and com
 
 ##### `infra/`
 
-Contains implementations of infrastructure. The filename and the class name must represent how it's implemented. For example `crypto-key-generator.ts`:
+Contains implementations of infrastructure. We recommend using classes and the `implements` keyword as it makes the code compatible with TypeScript `isolatedDeclarations` option.
+
+The filename and the class/function name must represent how it's implemented. For example `crypto-key-generator.ts`:
 
 ```ts
 import type { KeyGenerator } from '../definitions.js';
