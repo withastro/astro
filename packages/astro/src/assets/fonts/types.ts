@@ -6,7 +6,7 @@ import type { FONT_TYPES, GENERIC_FALLBACK_NAMES, LOCAL_PROVIDER_NAME } from './
 import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 
 type Weight = z.infer<typeof weightSchema>;
-type Display = z.infer<typeof displaySchema>
+type Display = z.infer<typeof displaySchema>;
 
 export interface AstroFontProvider {
 	/**
