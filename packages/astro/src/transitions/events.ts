@@ -2,10 +2,15 @@ import { updateScrollPosition } from './router.js';
 import { swap } from './swap-functions.js';
 import type { Direction, NavigationTypeString } from './types.js';
 
+/** @deprecated This will be removed in Astro 7 */
 export const TRANSITION_BEFORE_PREPARATION = 'astro:before-preparation';
+/** @deprecated This will be removed in Astro 7 */
 export const TRANSITION_AFTER_PREPARATION = 'astro:after-preparation';
+/** @deprecated This will be removed in Astro 7 */
 export const TRANSITION_BEFORE_SWAP = 'astro:before-swap';
+/** @deprecated This will be removed in Astro 7 */
 export const TRANSITION_AFTER_SWAP = 'astro:after-swap';
+/** @deprecated This will be removed in Astro 7 */
 export const TRANSITION_PAGE_LOAD = 'astro:page-load';
 
 type Events =
@@ -67,6 +72,7 @@ class BeforeEvent extends Event {
  * TransitionBeforePreparationEvent
 
  */
+/** @deprecated This will be removed in Astro 7 */
 export const isTransitionBeforePreparationEvent = (
 	value: any,
 ): value is TransitionBeforePreparationEvent => value.type === TRANSITION_BEFORE_PREPARATION;
@@ -109,7 +115,7 @@ export class TransitionBeforePreparationEvent extends BeforeEvent {
 /*
  * TransitionBeforeSwapEvent
  */
-
+/** @deprecated This will be removed in Astro 7 */
 export const isTransitionBeforeSwapEvent = (value: any): value is TransitionBeforeSwapEvent =>
 	value.type === TRANSITION_BEFORE_SWAP;
 export class TransitionBeforeSwapEvent extends BeforeEvent {
