@@ -469,7 +469,7 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.prerenderConflictBehavior),
 	experimental: z
-		.object({
+		.strictObject({
 			clientPrerender: z
 				.boolean()
 				.optional()
