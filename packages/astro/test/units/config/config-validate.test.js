@@ -122,7 +122,9 @@ describe('Config Validation', () => {
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
 				configError.issues[0].message,
-				'Too small: expected array to have >=1 items',
+				`**i18n.locales.1**: Did not match union.
+> Expected type \`string | { codes.0: string }\`
+> Received \`{ "path": "something", "codes": [] }\``,
 			);
 		});
 
