@@ -1,9 +1,6 @@
 {
   "name": "astro-cf-session",
   "compatibility_date": "2024-11-01",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
   "main": "@astrojs/cloudflare/entrypoints/server",
   "assets": {
     "directory": "./dist",
