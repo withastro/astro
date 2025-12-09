@@ -20,7 +20,7 @@ export function defaultCloudflareConfig(): PluginConfig['config'] {
 	return {
 		// TODO: better way to handle name, maybe package.json#name ?
 		name: 'test-application',
-		compatibility_date: new Date().toISOString().slice(0, 10),
+		compatibility_date: '2025-05-21',
 		main: '@astrojs/cloudflare/entrypoints/server',
 		assets: {
 			directory: './dist',
