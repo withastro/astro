@@ -18,6 +18,7 @@ export function hasWranglerConfig(root: URL) {
  */
 export function defaultCloudflareConfig(): PluginConfig['config'] {
 	return {
+		// TODO: better way to handle name, maybe package.json#name ?
 		name: 'test-application',
 		compatibility_date: new Date().toISOString().slice(0, 10),
 		main: '@astrojs/cloudflare/entrypoints/server',
