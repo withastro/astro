@@ -1,4 +1,5 @@
-import type * as z from 'zod/v4/core';
+import type * as zCore from 'zod/v4/core';
+import type * as z from 'zod/v4';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from './consts.js';
 import type { LiveLoader, Loader } from './loaders/types.js';
@@ -24,20 +25,20 @@ function getImporterFilename() {
 }
 
 // This needs to be in sync with ImageMetadata
-type ImageFunction = () => z.$ZodObject<{
-	src: z.$ZodString;
-	width: z.$ZodNumber;
-	height: z.$ZodNumber;
-	format: z.$ZodUnion<
+type ImageFunction = () => z.ZodObject<{
+	src: zCore.$ZodString;
+	width: zCore.$ZodNumber;
+	height: zCore.$ZodNumber;
+	format: zCore.$ZodUnion<
 		[
-			z.$ZodLiteral<'png'>,
-			z.$ZodLiteral<'jpg'>,
-			z.$ZodLiteral<'jpeg'>,
-			z.$ZodLiteral<'tiff'>,
-			z.$ZodLiteral<'webp'>,
-			z.$ZodLiteral<'gif'>,
-			z.$ZodLiteral<'svg'>,
-			z.$ZodLiteral<'avif'>,
+			zCore.$ZodLiteral<'png'>,
+			zCore.$ZodLiteral<'jpg'>,
+			zCore.$ZodLiteral<'jpeg'>,
+			zCore.$ZodLiteral<'tiff'>,
+			zCore.$ZodLiteral<'webp'>,
+			zCore.$ZodLiteral<'gif'>,
+			zCore.$ZodLiteral<'svg'>,
+			zCore.$ZodLiteral<'avif'>,
 		]
 	>;
 }>;
@@ -67,7 +68,7 @@ export interface MetaStore {
 	has: (key: string) => boolean;
 }
 
-export type BaseSchema = z.$ZodType;
+export type BaseSchema = zCore.$ZodType;
 
 export type { ImageFunction };
 
@@ -202,4 +203,3 @@ export function defineCollection<
 
 	return config;
 }
-
