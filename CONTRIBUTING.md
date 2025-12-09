@@ -463,8 +463,6 @@ export class CryptoKeyGenerator implements KeyGenerator {
 }
 ```
 
-We recommend using classes and the `implements` keyword.
-
 ##### `domain/`
 
 Contains reusable data types or abstractions. You can choose to create one file per abstraction to be explicit (like for `infra/`) or one `domain.ts` file.
