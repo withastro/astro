@@ -59,7 +59,7 @@ const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 });
 
 const cacheEntriesByCollection = new Map();
-const contentCollectionsStrict = @@CONTENT_COLLECTIONS_STRICT@@;
+const contentCollectionsStrict = '@@CONTENT_COLLECTIONS_STRICT@@';
 
 export const getCollection = createGetCollection({
 	contentCollectionToEntryMap,
