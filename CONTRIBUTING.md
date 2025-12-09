@@ -578,7 +578,7 @@ export class FakeKeyGenerator {
 
 Remember:
 
-- Test what you're afraid of breaking. For example if an infrastructure implementation is just a wrapper around a NPM package, you may not need to test it and instead trust the package tests
+- Try test all implementations. If an infrastructure implementation is just a wrapper around a NPM package, you may not need to test it and instead trust the package own tests
 - Always test core logic
 
 ## Branches
