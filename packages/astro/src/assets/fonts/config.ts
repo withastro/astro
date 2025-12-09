@@ -27,13 +27,6 @@ const requiredFamilyAttributesSchema = z.object({
 
 const entrypointSchema = z.union([z.string(), z.instanceof(URL)]);
 
-export const fontProviderSchema = z
-	.object({
-		entrypoint: entrypointSchema,
-		config: z.record(z.string(), z.any()).optional(),
-	})
-	.strict();
-
 export const localFontFamilySchema = z
 	.object({
 		...requiredFamilyAttributesSchema.shape,
@@ -68,7 +61,12 @@ export const remoteFontFamilySchema = z
 			weight: true,
 			style: true,
 		}).shape,
-		provider: fontProviderSchema,
+		provider: z
+			.object({
+				entrypoint: entrypointSchema,
+				config: z.record(z.string(), z.any()).optional(),
+			})
+			.strict(),
 		weights: z.array(weightSchema).nonempty().optional(),
 		styles: z.array(styleSchema).nonempty().optional(),
 		subsets: z.array(z.string()).nonempty().optional(),
