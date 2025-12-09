@@ -19,7 +19,7 @@ export function hasWranglerConfig(root: URL) {
 export function defaultCloudflareConfig(): PluginConfig['config'] {
 	return {
 		name: 'test-application',
-		compatibility_date: '2025-05-21',
+		compatibility_date: new Date().toISOString().slice(0, 10),
 		main: '@astrojs/cloudflare/entrypoints/server',
 		assets: {
 			directory: './dist',
