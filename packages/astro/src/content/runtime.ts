@@ -119,12 +119,14 @@ export function createGetCollection({
 	getRenderEntryImport,
 	cacheEntriesByCollection,
 	liveCollections,
+	contentCollectionsStrict,
 }: {
 	contentCollectionToEntryMap: CollectionToEntryMap;
 	dataCollectionToEntryMap: CollectionToEntryMap;
 	getRenderEntryImport: GetEntryImport;
 	cacheEntriesByCollection: Map<string, any[]>;
 	liveCollections: LiveCollectionConfigMap;
+	contentCollectionsStrict: boolean;
 }) {
 	return async function getCollection(
 		collection: string,
@@ -145,6 +147,18 @@ export function createGetCollection({
 		} else if (collection in dataCollectionToEntryMap) {
 			type = 'data';
 		} else if (store.hasCollection(collection)) {
+			if (contentCollectionsStrict) {
+				// Check if this is a v4 collection by looking for legacyId in first entry
+				const firstEntry = store.values<DataEntry>(collection)[0];
+				if (firstEntry?.legacyId) {
+					throw new AstroError({
+						name: 'ContentCollectionError',
+						title: 'Deprecated v4 API',
+						message: `getCollection() is not available for v4 content collections. Use getCollection() with Content Layer API collections instead for collection "${collection}".`,
+						hint: 'See https://docs.astro.build/en/guides/migrate-to-astro/upgrade-to/v5/#content-collections for migration information.',
+					});
+				}
+			}
 			// @ts-expect-error	virtual module
 			const { default: imageAssetMap } = await import('astro:asset-imports');
 
@@ -159,7 +173,7 @@ export function createGetCollection({
 				};
 
 				if (entry.legacyId) {
-					entry = emulateLegacyEntry(entry);
+					entry = emulateLegacyEntry(entry, contentCollectionsStrict);
 				}
 
 				if (hasFilter && !filter(entry)) {
@@ -233,17 +247,27 @@ export function createGetEntryBySlug({
 	getRenderEntryImport,
 	collectionNames,
 	getEntry,
+	contentCollectionsStrict,
 }: {
 	getEntryImport: GetEntryImport;
 	getRenderEntryImport: GetEntryImport;
 	collectionNames: Set<string>;
 	getEntry: ReturnType<typeof createGetEntry>;
+	contentCollectionsStrict: boolean;
 }) {
 	return async function getEntryBySlug(collection: string, slug: string) {
 		const store = await globalDataStore.get();
 
 		if (!collectionNames.has(collection)) {
 			if (store.hasCollection(collection)) {
+				if (contentCollectionsStrict) {
+					throw new AstroError({
+						name: 'ContentCollectionError',
+						title: 'Deprecated v4 API',
+						message: `getEntryBySlug() is deprecated for collections using the Content Layer API. Use getEntry() instead for collection "${collection}".`,
+						hint: 'See https://docs.astro.build/en/guides/migrate-to-astro/upgrade-to/v5/#content-collections for migration information.',
+					});
+				}
 				const entry = await getEntry(collection, slug);
 				if (entry && 'slug' in entry) {
 					return entry;
@@ -285,16 +309,26 @@ export function createGetDataEntryById({
 	getEntryImport,
 	collectionNames,
 	getEntry,
+	contentCollectionsStrict,
 }: {
 	getEntryImport: GetEntryImport;
 	collectionNames: Set<string>;
 	getEntry: ReturnType<typeof createGetEntry>;
+	contentCollectionsStrict: boolean;
 }) {
 	return async function getDataEntryById(collection: string, id: string) {
 		const store = await globalDataStore.get();
 
 		if (!collectionNames.has(collection)) {
 			if (store.hasCollection(collection)) {
+				if (contentCollectionsStrict) {
+					throw new AstroError({
+						name: 'ContentCollectionError',
+						title: 'Deprecated v4 API',
+						message: `getDataEntryById() is deprecated for collections using the Content Layer API. Use getEntry() instead for collection "${collection}".`,
+						hint: 'See https://docs.astro.build/en/guides/migrate-to-astro/upgrade-to/v5/#content-collections for migration information.',
+					});
+				}
 				return getEntry(collection, id);
 			}
 			console.warn(
@@ -333,7 +367,10 @@ type DataEntryResult = {
 
 type EntryLookupObject = { collection: string; id: string } | { collection: string; slug: string };
 
-function emulateLegacyEntry({ legacyId, ...entry }: DataEntry & { collection: string }) {
+function emulateLegacyEntry(
+	{ legacyId, ...entry }: DataEntry & { collection: string },
+	contentCollectionsStrict: boolean,
+) {
 	// Define this first so it's in scope for the render function
 	const legacyEntry = {
 		...entry,
@@ -343,7 +380,17 @@ function emulateLegacyEntry({ legacyId, ...entry }: DataEntry & { collection: st
 	return {
 		...legacyEntry,
 		// Define separately so the render function isn't included in the object passed to `renderEntry()`
-		render: () => renderEntry(legacyEntry),
+		render: () => {
+			if (contentCollectionsStrict) {
+				throw new AstroError({
+					name: 'ContentCollectionError',
+					title: 'Deprecated v4 API',
+					message: `entry.render() is deprecated for collections using the Content Layer API. Use renderEntry(entry) instead for collection "${entry.collection}".`,
+					hint: 'See https://docs.astro.build/en/guides/migrate-to-astro/upgrade-to/v5/#content-collections for migration information.',
+				});
+			}
+			return renderEntry(legacyEntry);
+		},
 	} as ContentEntryResult;
 }
 
@@ -352,11 +399,13 @@ export function createGetEntry({
 	getRenderEntryImport,
 	collectionNames,
 	liveCollections,
+	contentCollectionsStrict,
 }: {
 	getEntryImport: GetEntryImport;
 	getRenderEntryImport: GetEntryImport;
 	collectionNames: Set<string>;
 	liveCollections: LiveCollectionConfigMap;
+	contentCollectionsStrict: boolean;
 }) {
 	return async function getEntry(
 		// Can either pass collection and identifier as 2 positional args,
@@ -408,7 +457,7 @@ export function createGetEntry({
 			const { default: imageAssetMap } = await import('astro:asset-imports');
 			entry.data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
 			if (entry.legacyId) {
-				return emulateLegacyEntry({ ...entry, collection });
+				return emulateLegacyEntry({ ...entry, collection }, contentCollectionsStrict);
 			}
 			return {
 				...entry,

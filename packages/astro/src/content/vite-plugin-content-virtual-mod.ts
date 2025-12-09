@@ -261,6 +261,7 @@ async function generateContentEntryFile({
 			.replace("'@@DATA_ENTRY_GLOB_PATH@@'", dataEntryGlobResult)
 			.replace("'@@RENDER_ENTRY_GLOB_PATH@@'", renderEntryGlobResult)
 			.replace('/* @@LOOKUP_MAP_ASSIGNMENT@@ */', `lookupMap = ${JSON.stringify(lookupMap)};`)
+			.replace('@@CONTENT_COLLECTIONS_STRICT@@', String(settings.config.experimental.contentCollectionsStrict ?? false))
 			.replace(
 				'/* @@LIVE_CONTENT_CONFIG@@ */',
 				contentPaths.liveConfig.exists

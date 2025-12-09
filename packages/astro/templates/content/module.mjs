@@ -59,12 +59,15 @@ const collectionToRenderEntryMap = createCollectionToGlobResultMap({
 });
 
 const cacheEntriesByCollection = new Map();
+const contentCollectionsStrict = @@CONTENT_COLLECTIONS_STRICT@@;
+
 export const getCollection = createGetCollection({
 	contentCollectionToEntryMap,
 	dataCollectionToEntryMap,
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
 	cacheEntriesByCollection,
 	liveCollections,
+	contentCollectionsStrict,
 });
 
 export const getEntry = createGetEntry({
@@ -72,6 +75,7 @@ export const getEntry = createGetEntry({
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
 	collectionNames,
 	liveCollections,
+	contentCollectionsStrict,
 });
 
 export const getEntryBySlug = createGetEntryBySlug({
@@ -79,12 +83,14 @@ export const getEntryBySlug = createGetEntryBySlug({
 	getRenderEntryImport: createGlobLookup(collectionToRenderEntryMap),
 	collectionNames,
 	getEntry,
+	contentCollectionsStrict,
 });
 
 export const getDataEntryById = createGetDataEntryById({
 	getEntryImport: createGlobLookup(dataCollectionToEntryMap),
 	collectionNames,
 	getEntry,
+	contentCollectionsStrict,
 });
 
 export const getEntries = createGetEntries(getEntry);
