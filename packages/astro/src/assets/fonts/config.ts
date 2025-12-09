@@ -63,6 +63,7 @@ export const localFontFamilySchema = z
 export const remoteFontFamilySchema = z
 	.object({
 		...requiredFamilyAttributesSchema.shape,
+		...fallbacksSchema.shape,
 		...familyPropertiesSchema.omit({
 			weight: true,
 			style: true,
