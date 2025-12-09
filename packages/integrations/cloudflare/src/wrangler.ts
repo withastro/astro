@@ -1,4 +1,5 @@
 import { existsSync } from 'node:fs';
+import type { PluginConfig } from '@cloudflare/vite-plugin';
 
 /**
  * Checks whether a wrangler file exists at the given path
@@ -13,13 +14,12 @@ export function hasWranglerConfig(root: URL) {
 }
 
 /**
- * Creates a minimal wrangler.json file
+ * Returns the default wrangler configuration used by Astro Cloudflare configuration.
  */
-export function wranglerTemplate(): string {
-	const wrangler = {
-		// TODO: better way to handle name, maybe package.json#name ?
+export function defaultCloudflareConfig(): PluginConfig['config'] {
+	return {
 		name: 'test-application',
-		compatibility_date: '2024-11-01',
+		compatibility_date: '2025-05-21',
 		main: '@astrojs/cloudflare/entrypoints/server',
 		assets: {
 			directory: './dist',
@@ -35,6 +35,4 @@ export function wranglerTemplate(): string {
 			},
 		],
 	};
-
-	return JSON.stringify(wrangler, null, 2);
 }

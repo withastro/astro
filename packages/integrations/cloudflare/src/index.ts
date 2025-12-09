@@ -1,8 +1,8 @@
-import { createReadStream, writeFileSync, copyFileSync, existsSync, readFileSync } from 'node:fs';
+import { createReadStream, copyFileSync, existsSync, readFileSync } from 'node:fs';
 import { appendFile, stat } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline/promises';
-import { pathToFileURL, fileURLToPath } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import {
 	appendForwardSlash,
 	prependForwardSlash,
@@ -21,7 +21,7 @@ import { cloudflareModuleLoader } from './utils/cloudflare-module-loader.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { type ImageService, setImageConfig } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
-import { hasWranglerConfig, wranglerTemplate } from './wrangler.js';
+import { hasWranglerConfig, defaultCloudflareConfig } from './wrangler.js';
 import { parse } from 'dotenv';
 
 export type { Runtime } from './utils/handler.js';
@@ -188,12 +188,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 				const cfPluginConfig: PluginConfig = { viteEnvironment: { name: 'ssr' } };
 				if (!hasWranglerConfig(config.root)) {
-					const codegenDir = createCodegenDir();
-					const cachedFile = new URL('wrangler.json', codegenDir);
-					writeFileSync(cachedFile, wranglerTemplate(), 'utf-8');
-					cfPluginConfig.configPath = fileURLToPath(cachedFile);
+					cfPluginConfig.config = defaultCloudflareConfig();
 
 					// Copy .dev.vars to codegen dir if it exists
+					const codegenDir = createCodegenDir();
 					const devVarsPath = new URL('.dev.vars', config.root);
 					const devVarsCodegenPath = new URL('.dev.vars', codegenDir);
 					if (existsSync(devVarsPath)) {
