@@ -465,7 +465,7 @@ We recommend using classes and the `implements` keyword.
 
 ##### `domain/`
 
-Contains reusable data types or abstractions. You can choose the create one file per abstraction to be explicit (like for `infra/`) or one `domain.ts` file.
+Contains reusable data types or abstractions. You can choose to create one file per abstraction to be explicit (like for `infra/`) or one `domain.ts` file.
 
 Our examples so far do not need domain abstraction. But let's imagine we're building a CLI, we could have `domain/help-payload.ts`:
 
