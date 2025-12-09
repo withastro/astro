@@ -17,8 +17,12 @@ export interface PreviewServerParams {
 	base: string;
 	logger: AstroIntegrationLogger;
 	headers?: OutgoingHttpHeaders;
+	/**
+	 * DO NOT USE. This is for internal use only and might be removed soon.
+	 * @deprecated
+	 */
 	createCodegenDir: () => URL;
-	root: URL
+	root: URL;
 }
 
 export type CreatePreviewServer = (
