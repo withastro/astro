@@ -387,7 +387,7 @@ export const AstroConfigSchema = z.object({
 						z.string(),
 						z.object({
 							path: z.string(),
-							codes: z.string().array().nonempty(),
+							codes: z.tuple([z.string()], z.string()),
 						}),
 					]),
 				),
