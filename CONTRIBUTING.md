@@ -496,7 +496,7 @@ export function defineCommand<T extends AnyCommand>(command: T) {
 }
 ```
 
-As you can see, it doesn't have to be only types. It could even be classes.
+As you can see, it doesn't have to be only types. It could even be classes or functions.
 
 #### Usage
 
