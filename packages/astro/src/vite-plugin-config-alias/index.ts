@@ -206,11 +206,10 @@ function patchCreateResolver(config: ResolvedConfig, postPlugin: VitePlugin) {
 			if (result) return result;
 
 			// @ts-expect-error resolveId exists
-			const resolved = await postPlugin.resolveId.apply(fakePluginContext, [
-				id,
-				importer,
-				fakeResolveIdOpts,
-			]);
+			const resolved = await (typeof postPlugin.resolveId === 'function'
+				? postPlugin.resolveId
+				: postPlugin.resolveId?.handler
+			).apply(fakePluginContext, [id, importer, fakeResolveIdOpts]);
 			if (resolved) return resolved;
 		};
 	};
