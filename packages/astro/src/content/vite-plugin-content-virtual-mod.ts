@@ -70,7 +70,7 @@ export function astroContentVirtualModPlugin({
 		resolveId: {
 			filter: {
 				id: new RegExp(
-					`^(${VIRTUAL_MODULE_ID}|${DATA_STORE_VIRTUAL_ID}|${MODULES_MJS_ID}|${ASSET_IMPORTS_VIRTUAL_ID})$|[?&]${CONTENT_MODULE_FLAG}`,
+					`^(${VIRTUAL_MODULE_ID}|${DATA_STORE_VIRTUAL_ID}|${MODULES_MJS_ID}|${ASSET_IMPORTS_VIRTUAL_ID})$|(\\?${CONTENT_MODULE_FLAG}&)|(\\?${CONTENT_MODULE_FLAG}$)|(&${CONTENT_MODULE_FLAG}$)`,
 				),
 			},
 			async handler(id, importer) {
