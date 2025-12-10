@@ -23,12 +23,14 @@ describe('Integration buildConfig hook', () => {
 							vite: {
 								plugins: [
 									{
-										// TODO: check if @my-ssr check is useful
 										resolveId: {
 											filter: {
-												id: /^astro\/app$/,
+												id: /^(astro\/app|@my-ssr)$/,
 											},
-											handler() {
+											handler(id) {
+												if (id === '@my-ssr') {
+													return id;
+												}
 												return viteID(new URL('../dist/core/app/index.js', import.meta.url));
 											},
 										},

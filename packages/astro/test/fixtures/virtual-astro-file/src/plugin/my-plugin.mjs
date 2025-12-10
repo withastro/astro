@@ -3,10 +3,14 @@ export default function myPlugin() {
 	return {
 		enforce: 'pre',
 		name: 'virtual-astro-plugin',
-		// TODO: check if useful
-		// resolveId(id) {
-		//   if (id === pluginId) return id;
-		// },
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${pluginId}$`),
+			},
+			handler(id) {
+				return id;
+			},
+		},
 		load: {
 			filter: {
 				id: new RegExp(`^${pluginId}$`),

@@ -17,13 +17,14 @@ export default function astroScriptsPlugin({ settings }: { settings: AstroSettin
 	return {
 		name: 'astro:scripts',
 
-		// TODO: check if actually useful
-		// async resolveId(id) {
-		// 	if (id.startsWith(SCRIPT_ID_PREFIX)) {
-		// 		return id;
-		// 	}
-		// 	return undefined;
-		// },
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${SCRIPT_ID_PREFIX}`),
+			},
+			handler(id) {
+				return id;
+			},
+		},
 
 		load: {
 			filter: {

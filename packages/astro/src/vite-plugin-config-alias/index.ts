@@ -139,7 +139,6 @@ export default function configAliasVitePlugin({
 		resolveId: {
 			filter: {
 				// Everything but ids that start with virtual: or astro: OR contains \0
-				// TODO: check it works for null bytes
 				id: /^(?!virtual:|astro:)[^\0]*$/,
 			},
 			async handler(id, importer, options) {

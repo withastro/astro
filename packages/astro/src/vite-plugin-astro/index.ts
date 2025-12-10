@@ -280,14 +280,15 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 	const normalPlugin: vite.Plugin = {
 		name: 'astro:build:normal',
-		// TODO: check if this is useful. This just passes the id through AFAIK
-		// resolveId(id) {
-		// 	// If Vite resolver can't resolve the Astro request, it's likely a virtual Astro file, fallback here instead
-		// 	const parsedId = parseAstroRequest(id);
-		// 	if (parsedId.query.astro) {
-		// 		return id;
-		// 	}
-		// },
+		// If Vite resolver can't resolve the Astro request, it's likely a virtual Astro file, fallback here instead
+		resolveId: {
+			filter: {
+				id: /[?&]astro/,
+			},
+			handler(id) {
+				return id;
+			},
+		},
 	};
 
 	return [prePlugin, normalPlugin];
