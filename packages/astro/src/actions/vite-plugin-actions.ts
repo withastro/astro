@@ -59,27 +59,30 @@ export function vitePluginActions({
 	return {
 		name: VIRTUAL_MODULE_ID,
 		enforce: 'pre',
-		async resolveId(id) {
-			if (id === VIRTUAL_MODULE_ID) {
-				return RESOLVED_VIRTUAL_MODULE_ID;
-			}
-
-			if (id === OPTIONS_VIRTUAL_MODULE_ID) {
-				return RESOLVED_OPTIONS_VIRTUAL_MODULE_ID;
-			}
-
-			if (id === ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID) {
-				const resolvedModule = await this.resolve(
-					`${decodeURI(new URL('actions', settings.config.srcDir).pathname)}`,
-				);
-
-				if (!resolvedModule) {
-					return RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID;
+		resolveId: {
+			filter: {
+				id: new RegExp(
+					`^(${VIRTUAL_MODULE_ID}|${OPTIONS_VIRTUAL_MODULE_ID}|${ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID})$`,
+				),
+			},
+			async handler(id) {
+				if (id === VIRTUAL_MODULE_ID) {
+					return RESOLVED_VIRTUAL_MODULE_ID;
 				}
-
-				resolvedActionsId = resolvedModule.id;
-				return ACTIONS_RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID;
-			}
+				if (id === OPTIONS_VIRTUAL_MODULE_ID) {
+					return RESOLVED_OPTIONS_VIRTUAL_MODULE_ID;
+				}
+				if (id === ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID) {
+					const resolvedModule = await this.resolve(
+						`${decodeURI(new URL('actions', settings.config.srcDir).pathname)}`,
+					);
+					if (!resolvedModule) {
+						return RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID;
+					}
+					resolvedActionsId = resolvedModule.id;
+					return ACTIONS_RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID;
+				}
+			},
 		},
 		async configureServer(server) {
 			const filePresentOnStartup = await isActionsFilePresent(fs, settings.config.srcDir);
@@ -93,35 +96,42 @@ export function vitePluginActions({
 			server.watcher.on('add', watcherCallback);
 			server.watcher.on('change', watcherCallback);
 		},
-		async load(id) {
-			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-				if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
+		load: {
+			filter: {
+				id: new RegExp(
+					`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID}|${ACTIONS_RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID}|${RESOLVED_OPTIONS_VIRTUAL_MODULE_ID})$`,
+				),
+			},
+			async handler(id) {
+				if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+					if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
+						return {
+							code: `export * from 'astro/actions/runtime/entrypoints/client.js';`,
+						};
+					}
 					return {
-						code: `export * from 'astro/actions/runtime/entrypoints/client.js';`,
+						code: `export * from 'astro/actions/runtime/entrypoints/server.js';`,
 					};
 				}
-				return {
-					code: `export * from 'astro/actions/runtime/entrypoints/server.js';`,
-				};
-			}
 
-			if (id === RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID) {
-				return { code: 'export const server = {}' };
-			}
+				if (id === RESOLVED_NOOP_ENTRYPOINT_VIRTUAL_MODULE_ID) {
+					return { code: 'export const server = {}' };
+				}
 
-			if (id === ACTIONS_RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID) {
-				return { code: `export { server } from ${JSON.stringify(resolvedActionsId)};` };
-			}
+				if (id === ACTIONS_RESOLVED_ENTRYPOINT_VIRTUAL_MODULE_ID) {
+					return { code: `export { server } from ${JSON.stringify(resolvedActionsId)};` };
+				}
 
-			if (id === RESOLVED_OPTIONS_VIRTUAL_MODULE_ID) {
-				return {
-					code: `
+				if (id === RESOLVED_OPTIONS_VIRTUAL_MODULE_ID) {
+					return {
+						code: `
 						export const shouldAppendTrailingSlash = ${JSON.stringify(
 							shouldAppendForwardSlash(settings.config.trailingSlash, settings.config.build.format),
 						)};
 					`,
-				};
-			}
+					};
+				}
+			},
 		},
 	};
 }

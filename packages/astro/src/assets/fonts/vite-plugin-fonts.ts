@@ -308,20 +308,26 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				}
 			});
 		},
-		resolveId(id) {
-			if (id === VIRTUAL_MODULE_ID) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^(${VIRTUAL_MODULE_ID})$`),
+			},
+			handler() {
 				return RESOLVED_VIRTUAL_MODULE_ID;
-			}
+			},
 		},
-		load(id) {
-			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+		load: {
+			filter: {
+				id: new RegExp(`^(${RESOLVED_VIRTUAL_MODULE_ID})$`),
+			},
+			handler() {
 				return {
 					code: `
 						export const internalConsumableMap = new Map(${JSON.stringify(Array.from(internalConsumableMap?.entries() ?? []))});
 						export const consumableMap = new Map(${JSON.stringify(Array.from(consumableMap?.entries() ?? []))});
 					`,
 				};
-			}
+			},
 		},
 		async buildEnd() {
 			if (settings.config.experimental.fonts!.length === 0) {

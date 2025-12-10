@@ -11,6 +11,7 @@ import {
 	ASSET_IMPORTS_FILE,
 	ASSET_IMPORTS_RESOLVED_STUB_ID,
 	ASSET_IMPORTS_VIRTUAL_ID,
+	CONTENT_MODULE_FLAG,
 	CONTENT_RENDER_FLAG,
 	DATA_STORE_VIRTUAL_ID,
 	MODULES_IMPORTS_FILE,
@@ -66,50 +67,57 @@ export function astroContentVirtualModPlugin({
 				invalidateDataStore(devServer);
 			}
 		},
-		async resolveId(id, importer) {
-			if (id === VIRTUAL_MODULE_ID) {
-				// Live content config can't import the virtual module directly,
-				// because it would create a circular dependency from the collection exports.
-				// Instead, we resolve the config util module, because that's all that it should use anyway.
-				if (liveConfig && importer && liveConfig === normalizePath(importer)) {
-					return this.resolve('astro/virtual-modules/live-config', importer, {
-						skipSelf: true,
-					});
+		resolveId: {
+			filter: {
+				id: new RegExp(
+					`^(${VIRTUAL_MODULE_ID}|${DATA_STORE_VIRTUAL_ID}|${MODULES_MJS_ID}|${ASSET_IMPORTS_VIRTUAL_ID})$|[?&]${CONTENT_MODULE_FLAG}`,
+				),
+			},
+			async handler(id, importer) {
+				if (id === VIRTUAL_MODULE_ID) {
+					// Live content config can't import the virtual module directly,
+					// because it would create a circular dependency from the collection exports.
+					// Instead, we resolve the config util module, because that's all that it should use anyway.
+					if (liveConfig && importer && liveConfig === normalizePath(importer)) {
+						return this.resolve('astro/virtual-modules/live-config', importer, {
+							skipSelf: true,
+						});
+					}
+					return RESOLVED_VIRTUAL_MODULE_ID;
 				}
-				return RESOLVED_VIRTUAL_MODULE_ID;
-			}
-			if (id === DATA_STORE_VIRTUAL_ID) {
-				return RESOLVED_DATA_STORE_VIRTUAL_ID;
-			}
+				if (id === DATA_STORE_VIRTUAL_ID) {
+					return RESOLVED_DATA_STORE_VIRTUAL_ID;
+				}
 
-			if (isDeferredModule(id)) {
-				const [, query] = id.split('?');
-				const params = new URLSearchParams(query);
-				const fileName = params.get('fileName');
-				let importPath = undefined;
-				if (fileName && URL.canParse(fileName, settings.config.root.toString())) {
-					importPath = fileURLToPath(new URL(fileName, settings.config.root));
+				if (isDeferredModule(id)) {
+					const [, query] = id.split('?');
+					const params = new URLSearchParams(query);
+					const fileName = params.get('fileName');
+					let importPath = undefined;
+					if (fileName && URL.canParse(fileName, settings.config.root.toString())) {
+						importPath = fileURLToPath(new URL(fileName, settings.config.root));
+					}
+					if (importPath) {
+						return await this.resolve(`${importPath}?${CONTENT_RENDER_FLAG}`);
+					}
 				}
-				if (importPath) {
-					return await this.resolve(`${importPath}?${CONTENT_RENDER_FLAG}`);
-				}
-			}
 
-			if (id === MODULES_MJS_ID) {
-				const modules = new URL(MODULES_IMPORTS_FILE, settings.dotAstroDir);
-				if (fs.existsSync(modules)) {
-					return fileURLToPath(modules);
+				if (id === MODULES_MJS_ID) {
+					const modules = new URL(MODULES_IMPORTS_FILE, settings.dotAstroDir);
+					if (fs.existsSync(modules)) {
+						return fileURLToPath(modules);
+					}
+					return MODULES_MJS_VIRTUAL_ID;
 				}
-				return MODULES_MJS_VIRTUAL_ID;
-			}
 
-			if (id === ASSET_IMPORTS_VIRTUAL_ID) {
-				const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
-				if (fs.existsSync(assetImportsFile)) {
-					return fileURLToPath(assetImportsFile);
+				if (id === ASSET_IMPORTS_VIRTUAL_ID) {
+					const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
+					if (fs.existsSync(assetImportsFile)) {
+						return fileURLToPath(assetImportsFile);
+					}
+					return ASSET_IMPORTS_RESOLVED_STUB_ID;
 				}
-				return ASSET_IMPORTS_RESOLVED_STUB_ID;
-			}
+			},
 		},
 		async load(id, args) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {

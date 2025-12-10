@@ -30,40 +30,45 @@ export function astroContentAssetPropagationPlugin({
 	return {
 		name: 'astro:content-asset-propagation',
 		enforce: 'pre',
-		async resolveId(id, importer, opts) {
-			if (hasContentFlag(id, CONTENT_IMAGE_FLAG)) {
-				const [base, query] = id.split('?');
-				const params = new URLSearchParams(query);
-				const importerParam = params.get('importer');
+		resolveId: {
+			filter: {
+				id: new RegExp(`[?&](${CONTENT_IMAGE_FLAG}|${CONTENT_RENDER_FLAG})`),
+			},
+			async handler(id, importer, opts) {
+				if (hasContentFlag(id, CONTENT_IMAGE_FLAG)) {
+					const [base, query] = id.split('?');
+					const params = new URLSearchParams(query);
+					const importerParam = params.get('importer');
 
-				const importerPath = importerParam
-					? fileURLToPath(new URL(importerParam, settings.config.root))
-					: importer;
+					const importerPath = importerParam
+						? fileURLToPath(new URL(importerParam, settings.config.root))
+						: importer;
 
-				const resolved = await this.resolve(base, importerPath, { skipSelf: true, ...opts });
-				if (!resolved) {
-					throw new AstroError({
-						...AstroErrorData.ImageNotFound,
-						message: AstroErrorData.ImageNotFound.message(base),
-					});
-				}
-				return resolved;
-			}
-			if (hasContentFlag(id, CONTENT_RENDER_FLAG)) {
-				const base = id.split('?')[0];
-
-				for (const { extensions, handlePropagation = true } of settings.contentEntryTypes) {
-					if (handlePropagation && extensions.includes(extname(base))) {
-						return this.resolve(`${base}?${PROPAGATED_ASSET_FLAG}`, importer, {
-							skipSelf: true,
-							...opts,
+					const resolved = await this.resolve(base, importerPath, { skipSelf: true, ...opts });
+					if (!resolved) {
+						throw new AstroError({
+							...AstroErrorData.ImageNotFound,
+							message: AstroErrorData.ImageNotFound.message(base),
 						});
 					}
+					return resolved;
 				}
-				// Resolve to the base id (no content flags)
-				// if Astro doesn't need to handle propagation.
-				return this.resolve(base, importer, { skipSelf: true, ...opts });
-			}
+				if (hasContentFlag(id, CONTENT_RENDER_FLAG)) {
+					const base = id.split('?')[0];
+
+					for (const { extensions, handlePropagation = true } of settings.contentEntryTypes) {
+						if (handlePropagation && extensions.includes(extname(base))) {
+							return this.resolve(`${base}?${PROPAGATED_ASSET_FLAG}`, importer, {
+								skipSelf: true,
+								...opts,
+							});
+						}
+					}
+					// Resolve to the base id (no content flags)
+					// if Astro doesn't need to handle propagation.
+					return this.resolve(base, importer, { skipSelf: true, ...opts });
+				}
+			},
 		},
 		configureServer(server) {
 			if (!isRunnableDevEnvironment(server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
