@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 7.2.3
+
+### Patch Changes
+
+- [#14934](https://github.com/withastro/astro/pull/14934) [`4264a36`](https://github.com/withastro/astro/commit/4264a3657155ca95c9bdaa7b8d0340422212374d) Thanks [@antonyfaris](https://github.com/antonyfaris)! - Fixes an issue where Svelte 5 components used in Astro files would not have proper type checking and IntelliSense.
+
 ## 7.2.2
 
 ### Patch Changes
