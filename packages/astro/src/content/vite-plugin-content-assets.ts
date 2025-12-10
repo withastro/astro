@@ -33,7 +33,7 @@ export function astroContentAssetPropagationPlugin({
 		resolveId: {
 			filter: {
 				id: new RegExp(
-					`(\\?${CONTENT_IMAGE_FLAG}&)|(\\?${CONTENT_IMAGE_FLAG}$)|(&${CONTENT_IMAGE_FLAG}$)|(\\?${CONTENT_RENDER_FLAG}&)|(\\?${CONTENT_RENDER_FLAG}$)|(&${CONTENT_RENDER_FLAG}$)`,
+					`(\\?${CONTENT_IMAGE_FLAG}=)|(&${CONTENT_IMAGE_FLAG}=)|(\\?${CONTENT_IMAGE_FLAG}$)|(&${CONTENT_IMAGE_FLAG}$)|(\\?${CONTENT_RENDER_FLAG}=)|(&${CONTENT_RENDER_FLAG}=)|(\\?${CONTENT_RENDER_FLAG}$)|(&${CONTENT_RENDER_FLAG}$)`,
 				),
 			},
 			async handler(id, importer, opts) {

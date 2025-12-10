@@ -63,7 +63,9 @@ export default function loadFallbackPlugin({
 			},
 			load: {
 				filter: {
-					id: new RegExp(`(\\?${FALLBACK_FLAG}&)|(\\?${FALLBACK_FLAG}$)|(&${FALLBACK_FLAG}$)`),
+					id: new RegExp(
+						`(\\?${FALLBACK_FLAG}=)|(&${FALLBACK_FLAG}=)|(\\?${FALLBACK_FLAG}$)|(&${FALLBACK_FLAG}$)`,
+					),
 				},
 				async handler(id) {
 					const code = await tryLoadModule(id.slice(0, -(1 + FALLBACK_FLAG.length)));
