@@ -38,7 +38,7 @@ export default function ({
 									filter: {
 										id: /^(astro\/app|@my-ssr)$/,
 									},
-									handler() {
+									handler(id) {
 										if (id === '@my-ssr') {
 											return id;
 										}

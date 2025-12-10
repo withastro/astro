@@ -57,6 +57,14 @@ export function pluginComponentEntry(internals: BuildInternals): VitePlugin {
 				});
 			}
 		},
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${astroEntryPrefix}`),
+			},
+			handler(id) {
+				return id;
+			},
+		},
 		load: {
 			filter: {
 				id: new RegExp(`^${astroEntryPrefix}`),
