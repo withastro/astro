@@ -1,8 +1,8 @@
 import type * as vite from 'vite';
 import type { AstroSettings } from '../types/astro.js';
 
-const virtualModuleId = 'astro:prefetch';
-const resolvedVirtualModuleId = '\0' + virtualModuleId;
+const VIRTUAL_MODULE_ID = 'astro:prefetch';
+const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 const prefetchInternalModuleFsSubpath = 'astro/dist/prefetch/index.js';
 const prefetchCode = `import { init } from 'astro/virtual-modules/prefetch.js';init()`;
 
@@ -31,17 +31,23 @@ export default function astroPrefetch({ settings }: { settings: AstroSettings })
 
 	return {
 		name: 'astro:prefetch',
-		async resolveId(id) {
-			if (id === virtualModuleId) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${VIRTUAL_MODULE_ID}$`),
+			},
+			handler() {
 				if (!prefetch) throwPrefetchNotEnabledError();
-				return resolvedVirtualModuleId;
-			}
+				return RESOLVED_VIRTUAL_MODULE_ID;
+			},
 		},
-		load(id) {
-			if (id === resolvedVirtualModuleId) {
+		load: {
+			filter: {
+				id: new RegExp(`^${RESOLVED_VIRTUAL_MODULE_ID}$`),
+			},
+			handler() {
 				if (!prefetch) throwPrefetchNotEnabledError();
 				return { code: `export { prefetch } from "astro/virtual-modules/prefetch.js";` };
-			}
+			},
 		},
 		transform(code, id) {
 			// NOTE: Handle replacing the specifiers even if prefetch is disabled so View Transitions

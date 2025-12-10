@@ -29,7 +29,7 @@ export const SERIALIZED_MANIFEST_RESOLVED_ID = '\0' + SERIALIZED_MANIFEST_ID;
 export function serializedManifestPlugin({
 	settings,
 	command,
-	sync
+	sync,
 }: {
 	settings: AstroSettings;
 	command: 'dev' | 'build';
@@ -39,14 +39,20 @@ export function serializedManifestPlugin({
 		name: SERIALIZED_MANIFEST_ID,
 		enforce: 'pre',
 
-		resolveId(id) {
-			if (id === SERIALIZED_MANIFEST_ID) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${SERIALIZED_MANIFEST_ID}$`),
+			},
+			handler() {
 				return SERIALIZED_MANIFEST_RESOLVED_ID;
-			}
+			},
 		},
 
-		async load(id) {
-			if (id === SERIALIZED_MANIFEST_RESOLVED_ID) {
+		load: {
+			filter: {
+				id: new RegExp(`^${SERIALIZED_MANIFEST_RESOLVED_ID}$`),
+			},
+			async handler() {
 				let manifestData: string;
 				if (command === 'build' && !sync) {
 					// Emit placeholder token that will be replaced by plugin-manifest.ts in build:post
@@ -82,7 +88,7 @@ export function serializedManifestPlugin({
 					export { manifest };
 				`;
 				return { code };
-			}
+			},
 		},
 	};
 }
