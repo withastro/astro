@@ -119,61 +119,68 @@ export function astroContentVirtualModPlugin({
 				}
 			},
 		},
-		async load(id, args) {
-			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-				const isClient = !args?.ssr;
-				const code = await generateContentEntryFile({
-					settings,
-					fs,
-					isClient,
-				});
+		load: {
+			filter: {
+				id: new RegExp(
+					`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_DATA_STORE_VIRTUAL_ID}|${ASSET_IMPORTS_RESOLVED_STUB_ID}|${MODULES_MJS_VIRTUAL_ID})$`,
+				),
+			},
+			async handler(id, opts) {
+				if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+					const isClient = !opts?.ssr;
+					const code = await generateContentEntryFile({
+						settings,
+						fs,
+						isClient,
+					});
 
-				const astro = createDefaultAstroMetadata();
-				astro.propagation = 'in-tree';
-				return {
-					code,
-					meta: {
-						astro,
-					} satisfies AstroPluginMetadata,
-				};
-			}
-			if (id === RESOLVED_DATA_STORE_VIRTUAL_ID) {
-				if (!fs.existsSync(dataStoreFile)) {
-					return { code: 'export default new Map()' };
-				}
-				const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
-
-				try {
-					const parsed = JSON.parse(jsonData);
+					const astro = createDefaultAstroMetadata();
+					astro.propagation = 'in-tree';
 					return {
-						code: dataToEsm(parsed, {
-							compact: true,
-						}),
-						map: { mappings: '' },
+						code,
+						meta: {
+							astro,
+						} satisfies AstroPluginMetadata,
 					};
-				} catch (err) {
-					const message = 'Could not parse JSON file';
-					this.error({ message, id, cause: err });
 				}
-			}
+				if (id === RESOLVED_DATA_STORE_VIRTUAL_ID) {
+					if (!fs.existsSync(dataStoreFile)) {
+						return { code: 'export default new Map()' };
+					}
+					const jsonData = await fs.promises.readFile(dataStoreFile, 'utf-8');
 
-			if (id === ASSET_IMPORTS_RESOLVED_STUB_ID) {
-				const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
-				return {
-					code: fs.existsSync(assetImportsFile)
-						? fs.readFileSync(assetImportsFile, 'utf-8')
-						: 'export default new Map()',
-				};
-			}
+					try {
+						const parsed = JSON.parse(jsonData);
+						return {
+							code: dataToEsm(parsed, {
+								compact: true,
+							}),
+							map: { mappings: '' },
+						};
+					} catch (err) {
+						const message = 'Could not parse JSON file';
+						this.error({ message, id, cause: err });
+					}
+				}
 
-			if (id === MODULES_MJS_VIRTUAL_ID) {
-				const modules = new URL(MODULES_IMPORTS_FILE, settings.dotAstroDir);
-				return {
-					code: fs.existsSync(modules)
-						? fs.readFileSync(modules, 'utf-8')
-						: 'export default new Map()',
-				};
-			}
+				if (id === ASSET_IMPORTS_RESOLVED_STUB_ID) {
+					const assetImportsFile = new URL(ASSET_IMPORTS_FILE, settings.dotAstroDir);
+					return {
+						code: fs.existsSync(assetImportsFile)
+							? fs.readFileSync(assetImportsFile, 'utf-8')
+							: 'export default new Map()',
+					};
+				}
+
+				if (id === MODULES_MJS_VIRTUAL_ID) {
+					const modules = new URL(MODULES_IMPORTS_FILE, settings.dotAstroDir);
+					return {
+						code: fs.existsSync(modules)
+							? fs.readFileSync(modules, 'utf-8')
+							: 'export default new Map()',
+					};
+				}
+			},
 		},
 
 		configureServer(server) {

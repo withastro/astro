@@ -9,7 +9,7 @@ import type { Plugin } from 'vite';
 import { safeParseFrontmatter } from '../content/utils.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
-import { isMarkdownFile, isPage } from '../core/util.js';
+import { markdownFileIdRegex, isPage } from '../core/util.js';
 import { normalizePath } from '../core/viteUtils.js';
 import { shorthash } from '../runtime/server/shorthash.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -56,8 +56,11 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 		// A: Vite transforms all "import.meta.env" references to their values before
 		// passing to the transform hook. This lets us get the truly raw value
 		// to escape "import.meta.env" ourselves.
-		async load(id) {
-			if (isMarkdownFile(id)) {
+		load: {
+			filter: {
+				id: markdownFileIdRegex,
+			},
+			async handler(id) {
 				const { fileId, fileUrl } = getFileInfo(id, settings.config);
 				const rawFile = await fs.promises.readFile(fileId, 'utf-8');
 				const raw = safeParseFrontmatter(rawFile, id);
@@ -174,7 +177,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 						},
 					},
 				};
-			}
+			},
 		},
 	};
 }

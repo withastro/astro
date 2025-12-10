@@ -241,8 +241,11 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 			configResolved(viteConfig) {
 				resolvedConfig = viteConfig;
 			},
-			async load(id, options) {
-				if (assetRegex.test(id)) {
+			load: {
+				filter: {
+					id: assetRegex,
+				},
+				async handler(id, options) {
 					if (!globalThis.astroAsset.referencedImages)
 						globalThis.astroAsset.referencedImages = new Set();
 
@@ -293,7 +296,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							code: `export default ${JSON.stringify(imageMetadata)}`,
 						};
 					}
-				}
+				},
 			},
 		},
 		fontsPlugin({ settings, sync, logger }),
