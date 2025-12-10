@@ -34,16 +34,20 @@ export default function ({
 					vite: {
 						plugins: [
 							{
-								resolveId(id) {
-									if (id === '@my-ssr') {
-										return id;
-									} else if (id === 'astro/app') {
-										const viteId = viteID(new URL('../dist/core/app/index.js', import.meta.url));
-										return viteId;
-									}
+								// TODO: check if @my-ssr check is useful
+								resolveId: {
+									filter: {
+										id: /^astro\/app$/,
+									},
+									handler() {
+										return viteID(new URL('../dist/core/app/index.js', import.meta.url));
+									},
 								},
-								load(id) {
-									if (id === '@my-ssr') {
+								load: {
+									filter: {
+										id: /^@my-ssr$/,
+									},
+									handler() {
 										return {
 											code: `
 											import { App, AppPipeline } from 'astro/app';
@@ -102,7 +106,7 @@ export default function ({
 											}
 										`,
 										};
-									}
+									},
 								},
 							},
 						],
