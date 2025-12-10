@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AstroConfig, AstroIntegration, IntegrationResolvedRoute } from 'astro';
 import type { EnumChangefreq, LinkItem as LinkItemBase, SitemapItemLoose } from 'sitemap';
-import { ZodError } from 'zod';
+import { ZodError } from 'zod/v3';
 
 import { generateSitemap } from './generate-sitemap.js';
 import { validateOptions } from './validate-options.js';
