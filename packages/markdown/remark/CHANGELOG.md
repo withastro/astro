@@ -11,6 +11,12 @@
 - Updated dependencies [[`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf)]:
   - @astrojs/prism@4.0.0-alpha.0
 
+## 6.3.10
+
+### Patch Changes
+
+- [#14902](https://github.com/withastro/astro/pull/14902) [`d8305f8`](https://github.com/withastro/astro/commit/d8305f8abdf92db6fa505ee9c1774553ba90b7bd) Thanks [@tuyuritio](https://github.com/tuyuritio)! - Prevents HAST-only props from being directly converted into HTML attributes
+
 ## 6.3.9
 
 ### Patch Changes

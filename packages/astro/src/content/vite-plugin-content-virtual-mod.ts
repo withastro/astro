@@ -1,7 +1,8 @@
+import { dataToEsm } from '@rollup/pluginutils';
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dataToEsm } from '@rollup/pluginutils';
 import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -22,7 +23,6 @@ import {
 } from './consts.js';
 import { getDataStoreFile } from './content-layer.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;

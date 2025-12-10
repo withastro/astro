@@ -24,10 +24,12 @@
     "./editor": "./dist/editor.cjs",
     "./client.js": "./dist/client.svelte.js",
     "./server.js": "./dist/server.js",
+    "./svelte-shims.d.ts": "./svelte-shims.d.ts",
     "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "svelte-shims.d.ts"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
@@ -37,14 +39,14 @@
   },
   "dependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.1.1",
-    "svelte2tsx": "^0.7.42",
+    "svelte2tsx": "^0.7.45",
     "vite": "^7.1.7"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.1.2",
-    "svelte": "^5.43.6"
+    "svelte": "^5.45.5"
   },
   "peerDependencies": {
     "astro": "^6.0.0-alpha.0",
