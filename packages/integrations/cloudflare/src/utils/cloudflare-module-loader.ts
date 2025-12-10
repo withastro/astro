@@ -60,7 +60,7 @@ export function cloudflareModuleLoader(enabled: boolean): PluginOption {
 		load: {
 			filter: {
 				// Escape the dot in the regex
-				id: new RegExp(`(${extensions.map((e) => `\\${e}`).join('|')})$`),
+				id: new RegExp(`\.(${extensions.map((ext) => ext.slice(1)).join('|')})$`),
 			},
 			async handler(id, _) {
 				const maybeExtension = extensions.find((x) => id.endsWith(x))!;

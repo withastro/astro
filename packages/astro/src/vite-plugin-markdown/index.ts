@@ -9,13 +9,14 @@ import type { Plugin } from 'vite';
 import { safeParseFrontmatter } from '../content/utils.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
-import { markdownFileIdRegex, isPage } from '../core/util.js';
+import { isPage } from '../core/util.js';
 import { normalizePath } from '../core/viteUtils.js';
 import { shorthash } from '../runtime/server/shorthash.js';
 import type { AstroSettings } from '../types/astro.js';
 import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
-import { getFileInfo } from '../vite-plugin-utils/index.js';
+import { getFileInfo, specialQueriesRE } from '../vite-plugin-utils/index.js';
 import { getMarkdownCodeForImages, type MarkdownImagePath } from './images.js';
+import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../core/constants.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -58,7 +59,11 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 		// to escape "import.meta.env" ourselves.
 		load: {
 			filter: {
-				id: markdownFileIdRegex,
+				id: {
+					// Matches .md, .mdx, .md?, .mdx? etc
+					include: new RegExp(`\\.(${SUPPORTED_MARKDOWN_FILE_EXTENSIONS.map(ext => ext.slice(1)).join('|')})\\??`),
+					exclude: specialQueriesRE,
+				},
 			},
 			async handler(id) {
 				const { fileId, fileUrl } = getFileInfo(id, settings.config);

@@ -138,8 +138,9 @@ export default function configAliasVitePlugin({
 		},
 		resolveId: {
 			filter: {
-				// Everything but ids that start with virtual: or astro: OR contains \0
-				id: /^(?!virtual:|astro:)[^\0]*$/,
+				id: {
+					exclude: /^(?!virtual:|astro:)[^\0]*$/,
+				},
 			},
 			async handler(id, importer, options) {
 				// Handle aliases found from `compilerOptions.paths`. Unlike Vite aliases, tsconfig aliases

@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { RouteData } from '../types/public/internal.js';
-import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
 import { removeQueryString, removeTrailingForwardSlash, slash } from './path.js';
 
 /** Returns true if argument is an object of any prototype/class (but not null). */
@@ -16,10 +15,6 @@ export function isObject(value: unknown): value is Record<string, any> {
 export function isURL(value: unknown): value is URL {
 	return Object.prototype.toString.call(value) === '[object URL]';
 }
-
-export const markdownFileIdRegex = new RegExp(
-	`(?!.*(?:\\?|&)(?:url|raw|direct)(?:&|$)).*\\.(${SUPPORTED_MARKDOWN_FILE_EXTENSIONS.map((ext) => ext.slice(1)).join('|')})([^?]*)$`,
-);
 
 /** Wraps an object in an array. If an array is passed, ignore it. */
 export function arraify<T>(target: T | T[]): T[] {
