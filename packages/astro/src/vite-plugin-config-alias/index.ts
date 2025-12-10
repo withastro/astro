@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { CompilerOptions } from 'typescript';
-import { normalizePath, type ResolvedConfig, type Plugin as VitePlugin } from 'vite';
+import { normalizePath, type Plugin as VitePlugin } from 'vite';
 
 import type { AstroSettings } from '../types/astro.js';
 
@@ -133,9 +133,6 @@ export default function configAliasVitePlugin({
 				},
 			};
 		},
-		configResolved(config) {
-			patchCreateResolver(config, plugin);
-		},
 		async resolveId(id, importer, options) {
 			if (isVirtualId(id)) return;
 
@@ -160,53 +157,6 @@ export default function configAliasVitePlugin({
 	};
 
 	return plugin;
-}
-
-/**
- * Vite's `createResolver` is used to resolve various things, including CSS `@import`.
- * We use vite.resolve.alias with custom resolvers to handle tsconfig paths in most cases,
- * but for CSS imports, we still need to patch createResolver as vite.resolve.alias
- * doesn't apply there. This function patches createResolver to inject our custom resolver.
- *
- * TODO: Remove this function once all tests pass with only the vite.resolve.alias approach,
- * which means CSS @import resolution will work without patching createResolver.
- */
-function patchCreateResolver(config: ResolvedConfig, postPlugin: VitePlugin) {
-	const _createResolver = config.createResolver;
-	// @ts-expect-error override readonly property intentionally
-	config.createResolver = function (...args1: any) {
-		const resolver = _createResolver.apply(config, args1);
-		return async function (...args2: any) {
-			const id: string = args2[0];
-			const importer: string | undefined = args2[1];
-			const ssr: boolean | undefined = args2[3];
-
-			// fast path so we don't run this extensive logic in prebundling
-			if (importer?.includes('node_modules')) {
-				return resolver.apply(_createResolver, args2);
-			}
-
-			const fakePluginContext = {
-				resolve: (_id: string, _importer?: string) => resolver(_id, _importer, false, ssr),
-			};
-			const fakeResolveIdOpts = {
-				assertions: {},
-				isEntry: false,
-				ssr,
-			};
-
-			const result = await resolver.apply(_createResolver, args2);
-			if (result) return result;
-
-			// @ts-expect-error resolveId exists
-			const resolved = await postPlugin.resolveId.apply(fakePluginContext, [
-				id,
-				importer,
-				fakeResolveIdOpts,
-			]);
-			if (resolved) return resolved;
-		};
-	};
 }
 
 function isVirtualId(id: string) {
