@@ -1,8 +1,10 @@
 /// <reference types="vite/types/import-meta.d.ts" />
-/// <reference path="./types/content.d.ts" />
+
 /// <reference path="./types/actions.d.ts" />
+/// <reference path="./types/content.d.ts" />
 /// <reference path="./types/env.d.ts" />
 /// <reference path="./types/fonts.d.ts" />
+/// <reference path="./types/transitions.d.ts" />
 
 interface ImportMetaEnv {
 	// TODO: remove in Astro 7
@@ -117,46 +119,6 @@ declare module '*.avif' {
 declare module '*.svg' {
 	const Component: import('./types').SvgComponent & ImageMetadata;
 	export default Component;
-}
-
-declare module 'astro:transitions' {
-	type TransitionModule = typeof import('./dist/virtual-modules/transitions.js');
-	export const slide: TransitionModule['slide'];
-	export const fade: TransitionModule['fade'];
-	export const createAnimationScope: TransitionModule['createAnimationScope'];
-
-	type ClientRouterModule = typeof import('./components/ClientRouter.astro');
-	export const ClientRouter: ClientRouterModule['default'];
-}
-
-declare module 'astro:transitions/client' {
-	type TransitionRouterModule = typeof import('./dist/virtual-modules/transitions-router.js');
-	export const navigate: TransitionRouterModule['navigate'];
-	export const supportsViewTransitions: TransitionRouterModule['supportsViewTransitions'];
-	export const getFallback: TransitionRouterModule['getFallback'];
-	export const transitionEnabledOnThisPage: TransitionRouterModule['transitionEnabledOnThisPage'];
-
-	export type Fallback = import('./dist/virtual-modules/transitions-types.js').Fallback;
-	export type Direction = import('./dist/virtual-modules/transitions-types.ts').Direction;
-	// biome-ignore format: bug
-	export type NavigationTypeString = import('./dist/virtual-modules/transitions-types.js').NavigationTypeString;
-	export type Options = import('./dist/virtual-modules/transitions-types.js').Options;
-
-	type EventModule = typeof import('./dist/virtual-modules/transitions-events.js');
-	export const TRANSITION_BEFORE_PREPARATION: EventModule['TRANSITION_BEFORE_PREPARATION'];
-	export const TRANSITION_AFTER_PREPARATION: EventModule['TRANSITION_AFTER_PREPARATION'];
-	export const TRANSITION_BEFORE_SWAP: EventModule['TRANSITION_BEFORE_SWAP'];
-	export const TRANSITION_AFTER_SWAP: EventModule['TRANSITION_AFTER_SWAP'];
-	export const TRANSITION_PAGE_LOAD: EventModule['TRANSITION_PAGE_LOAD'];
-	// biome-ignore format: bug
-	export type TransitionBeforePreparationEvent = import('./dist/virtual-modules/transitions-events.js').TransitionBeforePreparationEvent;
-	// biome-ignore format: bug
-	export type TransitionBeforeSwapEvent = import('./dist/virtual-modules/transitions-events.js').TransitionBeforeSwapEvent;
-	export const isTransitionBeforePreparationEvent: EventModule['isTransitionBeforePreparationEvent'];
-	export const isTransitionBeforeSwapEvent: EventModule['isTransitionBeforeSwapEvent'];
-	// biome-ignore format: bug
-	type TransitionSwapFunctionModule = typeof import('./dist/virtual-modules/transitions-swap-functions.js');
-	export const swapFunctions: TransitionSwapFunctionModule['swapFunctions'];
 }
 
 declare module 'astro:prefetch' {
