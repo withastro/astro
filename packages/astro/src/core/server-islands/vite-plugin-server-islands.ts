@@ -26,19 +26,23 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 		configureServer(server) {
 			ssrEnvironment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 		},
-		resolveId(name) {
-			if (name === SERVER_ISLAND_MANIFEST) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${SERVER_ISLAND_MANIFEST}$`),
+			},
+			handler() {
 				return RESOLVED_SERVER_ISLAND_MANIFEST;
-			}
+			},
 		},
-		load(id) {
-			if (id === RESOLVED_SERVER_ISLAND_MANIFEST) {
+		load: {
+			filter: {
+				id: new RegExp(`^${RESOLVED_SERVER_ISLAND_MANIFEST}$`),
+			},
+			handler() {
 				return {
-					code: `
-					export const serverIslandMap = ${serverIslandPlaceholderMap};\n\nexport const serverIslandNameMap = ${serverIslandPlaceholderNameMap};
-					`,
+					code: `export const serverIslandMap = ${serverIslandPlaceholderMap};\n\nexport const serverIslandNameMap = ${serverIslandPlaceholderNameMap};`,
 				};
-			}
+			},
 		},
 
 		async transform(_code, id) {
