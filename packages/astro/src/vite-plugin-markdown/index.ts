@@ -39,12 +39,18 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 		buildEnd() {
 			processor = undefined;
 		},
-		async resolveId(source, importer, options) {
-			if (importer?.endsWith('.md') && source[0] !== '/') {
-				let resolved = await this.resolve(source, importer, options);
-				if (!resolved) resolved = await this.resolve('./' + source, importer, options);
-				return resolved;
-			}
+		resolveId: {
+			filter: {
+				// Do not match sources that start with /
+				id: /^[^/]/,
+			},
+			async handler(source, importer, options) {
+				if (importer?.endsWith('.md')) {
+					let resolved = await this.resolve(source, importer, options);
+					if (!resolved) resolved = await this.resolve('./' + source, importer, options);
+					return resolved;
+				}
+			},
 		},
 		// Why not the "transform" hook instead of "load" + readFile?
 		// A: Vite transforms all "import.meta.env" references to their values before
