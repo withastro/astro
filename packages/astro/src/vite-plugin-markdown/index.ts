@@ -60,8 +60,10 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 		load: {
 			filter: {
 				id: {
-					// Matches .md, .mdx, .md?, .mdx? etc
-					include: new RegExp(`\\.(${SUPPORTED_MARKDOWN_FILE_EXTENSIONS.map(ext => ext.slice(1)).join('|')})\\??`),
+					// Matches .md, .markdown, .md?, .markdown? etc
+					include: new RegExp(
+						`\\.(${SUPPORTED_MARKDOWN_FILE_EXTENSIONS.map((ext) => ext.slice(1)).join('|')})(\\?|$)`,
+					),
 					exclude: specialQueriesRE,
 				},
 			},
