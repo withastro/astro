@@ -136,26 +136,34 @@ export default function configAliasVitePlugin({
 		configResolved(config) {
 			patchCreateResolver(config, plugin);
 		},
-		async resolveId(id, importer, options) {
-			if (isVirtualId(id)) return;
+		resolveId: {
+			filter: {
+				// Everything but ids that start with virtual: or astro: OR contains \0
+				// TODO: check it works for null bytes
+				id: /^(?!virtual:|astro:)[^\0]*$/,
+			},
+			async handler(id, importer, options) {
+				// Handle aliases found from `compilerOptions.paths`. Unlike Vite aliases, tsconfig aliases
+				// are best effort only, so we have to manually replace them here, instead of using `vite.resolve.alias`
+				for (const alias of configAlias) {
+					if (alias.find.test(id)) {
+						const updatedId = id.replace(alias.find, alias.replacement);
 
-			// Handle aliases found from `compilerOptions.paths`. Unlike Vite aliases, tsconfig aliases
-			// are best effort only, so we have to manually replace them here, instead of using `vite.resolve.alias`
-			for (const alias of configAlias) {
-				if (alias.find.test(id)) {
-					const updatedId = id.replace(alias.find, alias.replacement);
+						// Vite may pass an id with "*" when resolving glob import paths
+						// Returning early allows Vite to handle the final resolution
+						// See https://github.com/withastro/astro/issues/9258#issuecomment-1838806157
+						if (updatedId.includes('*')) {
+							return updatedId;
+						}
 
-					// Vite may pass an id with "*" when resolving glob import paths
-					// Returning early allows Vite to handle the final resolution
-					// See https://github.com/withastro/astro/issues/9258#issuecomment-1838806157
-					if (updatedId.includes('*')) {
-						return updatedId;
+						const resolved = await this.resolve(updatedId, importer, {
+							skipSelf: true,
+							...options,
+						});
+						if (resolved) return resolved;
 					}
-
-					const resolved = await this.resolve(updatedId, importer, { skipSelf: true, ...options });
-					if (resolved) return resolved;
 				}
-			}
+			},
 		},
 	};
 
@@ -207,8 +215,4 @@ function patchCreateResolver(config: ResolvedConfig, postPlugin: VitePlugin) {
 			if (resolved) return resolved;
 		};
 	};
-}
-
-function isVirtualId(id: string) {
-	return id.includes('\0') || id.startsWith('virtual:') || id.startsWith('astro:');
 }
