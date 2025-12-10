@@ -7,13 +7,19 @@ const RESOLVED_VIRTUAL_CLIENT_ID = '\0' + VIRTUAL_CLIENT_ID;
 export function vitePluginAdapterConfig(settings: AstroSettings): VitePlugin {
 	return {
 		name: 'astro:adapter-config',
-		resolveId(id) {
-			if (id === VIRTUAL_CLIENT_ID) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${VIRTUAL_CLIENT_ID}$`),
+			},
+			handler() {
 				return RESOLVED_VIRTUAL_CLIENT_ID;
-			}
+			},
 		},
-		load(id, options) {
-			if (id === RESOLVED_VIRTUAL_CLIENT_ID) {
+		load: {
+			filter: {
+				id: new RegExp(`^${RESOLVED_VIRTUAL_CLIENT_ID}$`),
+			},
+			handler(_id, options) {
 				// During SSR, return empty headers to avoid any runtime issues
 				if (options?.ssr) {
 					return {
@@ -35,7 +41,7 @@ export function vitePluginAdapterConfig(settings: AstroSettings): VitePlugin {
 				return {
 					code: `export const internalFetchHeaders = ${JSON.stringify(internalFetchHeaders)};`,
 				};
-			}
+			},
 		},
 	};
 }
