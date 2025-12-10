@@ -6069,8 +6069,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.43.14
-        version: 5.45.8
+        specifier: 5.43.14
+        version: 5.43.14
 
   packages/integrations/svelte/test/fixtures/prop-types:
     dependencies:
@@ -6709,9 +6709,6 @@ importers:
       hast-util-to-text:
         specifier: ^4.0.2
         version: 4.0.2
-      import-meta-resolve:
-        specifier: ^4.2.0
-        version: 4.2.0
       js-yaml:
         specifier: ^4.1.1
         version: 4.1.1
@@ -15031,6 +15028,10 @@ packages:
   svelte@4.2.20:
     resolution: {integrity: sha512-eeEgGc2DtiUil5ANdtd8vPwt9AgaMdnuUFnPft9F5oMvU/FHu5IHFic+p1dR/UOB7XU2mX2yHW+NcTch4DCh5Q==}
     engines: {node: '>=16'}
+
+  svelte@5.43.14:
+    resolution: {integrity: sha512-pHeUrp1A5S6RGaXhJB7PtYjL1VVjbVrJ2EfuAoPu9/1LeoMaJa/pcdCsCSb0gS4eUHAHnhCbUDxORZyvGK6kOQ==}
+    engines: {node: '>=18'}
 
   svelte@5.45.8:
     resolution: {integrity: sha512-1Jh7FwVh/2Uxg0T7SeE1qFKMhwYH45b2v53bcZpW7qHa6O8iU1ByEj56PF0IQ6dU4HE5gRkic6h+vx+tclHeiw==}
@@ -25518,6 +25519,23 @@ snapshots:
       locate-character: 3.0.0
       magic-string: 0.30.21
       periscopic: 3.1.0
+
+  svelte@5.43.14:
+    dependencies:
+      '@jridgewell/remapping': 2.3.5
+      '@jridgewell/sourcemap-codec': 1.5.5
+      '@sveltejs/acorn-typescript': 1.0.6(acorn@8.15.0)
+      '@types/estree': 1.0.8
+      acorn: 8.15.0
+      aria-query: 5.3.2
+      axobject-query: 4.1.0
+      clsx: 2.1.1
+      esm-env: 1.2.2
+      esrap: 2.2.1
+      is-reference: 3.0.3
+      locate-character: 3.0.0
+      magic-string: 0.30.21
+      zimmerframe: 1.1.4
 
   svelte@5.45.8:
     dependencies:
