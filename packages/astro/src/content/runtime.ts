@@ -265,7 +265,6 @@ export function createGetEntryBySlug({
 						name: 'ContentCollectionError',
 						title: 'Deprecated v4 API',
 						message: `getEntryBySlug() is deprecated for collections using the Content Layer API. Use getEntry() instead for collection "${collection}".`,
-						hint: 'See https://docs.astro.build/en/guides/migrate-to-astro/upgrade-to/v5/#content-collections for migration information.',
 					});
 				}
 				const entry = await getEntry(collection, slug);
@@ -326,7 +325,6 @@ export function createGetDataEntryById({
 						name: 'ContentCollectionError',
 						title: 'Deprecated v4 API',
 						message: `getDataEntryById() is deprecated for collections using the Content Layer API. Use getEntry() instead for collection "${collection}".`,
-						hint: 'See https://docs.astro.build/en/guides/migrate-to-astro/upgrade-to/v5/#content-collections for migration information.',
 					});
 				}
 				return getEntry(collection, id);
