@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- [#14421](https://github.com/withastro/astro/pull/14421) [`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the previously deprecated `Astro.glob()` - ([v6 upgrade guidance](https://deploy-preview-12322--astro-docs-2.netlify.app/en/guides/upgrade-to/v6/#removed-astroglob))
+- [#14421](https://github.com/withastro/astro/pull/14421) [`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the previously deprecated `Astro.glob()` - ([v6 upgrade guidance](https://v6.astro.build/en/guides/upgrade-to/v6/#removed-astroglob))
 
 ## 2.16.2
 

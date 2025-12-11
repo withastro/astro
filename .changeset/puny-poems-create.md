@@ -11,4 +11,4 @@
 'astro': major
 ---
 
-Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://deploy-preview-12322--astro-docs-2.netlify.app/en/guides/upgrade-to/v6/#node-22))
+Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://v6.astro.build/en/guides/upgrade-to/v6/#node-22))
