@@ -187,6 +187,7 @@ describe('CSP', () => {
 	it('allows injecting custom script resources and hashes based on pages, deduplicated', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
+			outDir: './dist/inject-scripts/',
 			experimental: {
 				csp: {
 					directives: ["img-src 'self'"],
@@ -220,6 +221,7 @@ describe('CSP', () => {
 	it('allows injecting custom styles resources and hashes based on pages', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
+			outDir: './dist/inject-styles/',
 			experimental: {
 				csp: {
 					directives: ["img-src 'self'"],

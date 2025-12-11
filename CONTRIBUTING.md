@@ -202,6 +202,17 @@ When creating new tests, it's best to reference other existing test files and re
 
 - When re-using a fixture multiple times with different configurations, you should also configure unique `outDir`, `build.client`, and `build.server` values so the build output runtime isn't cached and shared by ESM between test runs.
 
+> [!IMPORTANT]
+> If tests start to fail for no apparent reason, the first thing to look at the `outDir` configuration. As build cache artifacts between runs, different tests might end up sharing some of the emitted modules.
+> To avoid this possible overlap, **make sure to add a custom `outDir` to your test case**
+> 
+> ```js
+> await loadFixture({
+>   root: "./fixtures/some-fixture",
+>   outDir: "./dist/some-folder"
+> })
+> ```
+
 ### Other useful commands
 
 ```shell
