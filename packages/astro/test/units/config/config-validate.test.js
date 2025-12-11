@@ -95,7 +95,7 @@ describe('Config Validation', () => {
 		const configError = await validateConfig({ output: 'hybrid' }).catch((err) => err);
 		assert.equal(configError instanceof z.ZodError, true);
 		assert.ok(
-			configError.errors[0].message.includes('removed'),
+			configError.issues[0].message.includes('removed'),
 			'Error message should explain that "hybrid" has been removed',
 		);
 	});
