@@ -9,7 +9,7 @@ Astro CSP is now stable. If you were already using the feature during the experi
 
 ```diff
 export default defineConfig({
-_  experimental: {
+-  experimental: {
 +  security: {
     csp: true
   }
