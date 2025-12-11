@@ -136,7 +136,7 @@ export default function configAliasVitePlugin({
 		resolveId: {
 			filter: {
 				id: {
-					exclude: /^(?!virtual:|astro:)[^\0]*$/,
+					exclude: /(?:\0|^virtual:|^astro:)/,
 				},
 			},
 			async handler(id, importer, options) {
