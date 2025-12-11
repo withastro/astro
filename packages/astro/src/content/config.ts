@@ -71,16 +71,18 @@ export type BaseSchema = ZodType;
 
 export type SchemaContext = { image: ImageFunction };
 
-type ContentLayerConfig<S extends BaseSchema, TData extends { id: string } = { id: string }> = {
+type LoaderConstraint<TData extends { id: string }> =
+	| Loader
+	| (() =>
+			| Array<TData>
+			| Promise<Array<TData>>
+			| Record<string, Omit<TData, 'id'> & { id?: string }>
+			| Promise<Record<string, Omit<TData, 'id'> & { id?: string }>>);
+
+type ContentLayerConfig<S extends BaseSchema, TLoader extends LoaderConstraint<{ id: string }>> = {
 	type?: 'content_layer';
 	schema?: S | ((context: SchemaContext) => S);
-	loader:
-		| Loader
-		| (() =>
-				| Array<TData>
-				| Promise<Array<TData>>
-				| Record<string, Omit<TData, 'id'> & { id?: string }>
-				| Promise<Record<string, Omit<TData, 'id'> & { id?: string }>>);
+	loader: TLoader;
 };
 
 type DataCollectionConfig<S extends BaseSchema> = {
@@ -103,10 +105,13 @@ export type LiveCollectionConfig<
 	loader: L;
 };
 
-export type CollectionConfig<S extends BaseSchema> =
+export type CollectionConfig<
+	S extends BaseSchema,
+	TLoader extends LoaderConstraint<{ id: string }> = LoaderConstraint<{ id: string }>,
+> =
 	| ContentCollectionConfig<S>
 	| DataCollectionConfig<S>
-	| ContentLayerConfig<S>;
+	| ContentLayerConfig<S, TLoader>;
 
 export function defineLiveCollection<
 	L extends LiveLoader,
@@ -167,9 +172,10 @@ export function defineLiveCollection<
 	return config;
 }
 
-export function defineCollection<S extends BaseSchema>(
-	config: CollectionConfig<S>,
-): CollectionConfig<S> {
+export function defineCollection<
+	S extends BaseSchema,
+	TLoader extends LoaderConstraint<{ id: string }> = LoaderConstraint<{ id: string }>,
+>(config: CollectionConfig<S, TLoader>): CollectionConfig<S, TLoader> {
 	const importerFilename = getImporterFilename();
 
 	if (importerFilename?.includes('live.config')) {
