@@ -30,7 +30,7 @@
   "//b": "DEPENDENCIES IS FOR UNBUNDLED PACKAGES",
   "dependencies": {
     "@astrojs/cli-kit": "^0.4.1",
-    "package-manager-detector": "^1.5.0",
+    "package-manager-detector": "^1.6.0",
     "semver": "^7.7.3",
     "terminal-link": "^4.0.0"
   },

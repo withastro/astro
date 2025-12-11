@@ -74,7 +74,6 @@ export default function configHeadVitePlugin(): vite.Plugin {
 			}
 		},
 		transform(source, id) {
-			// TODO This could probably be removed now that this is handled in resolveId
 			let info = this.getModuleInfo(id);
 			if (info && getAstroMetadata(info)?.containsHead) {
 				propagateMetadata.call(this, id, 'containsHead', true);

@@ -1,12 +1,28 @@
 import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
+import { visit } from 'unist-util-visit';
 import { createMarkdownProcessor } from '../dist/index.js';
 
 describe('collect images', async () => {
 	let processor;
+	let processorWithHastProperties;
 
 	before(async () => {
 		processor = await createMarkdownProcessor({ image: { domains: ['example.com'] } });
+		processorWithHastProperties = await createMarkdownProcessor({
+			rehypePlugins: [
+				() => {
+					return (tree) => {
+						visit(tree, 'element', (node) => {
+							if (node.tagName === 'img') {
+								node.properties.className = ['image-class'];
+								node.properties.htmlFor = 'some-id';
+							}
+						});
+					};
+				},
+			],
+		});
 	});
 
 	it('should collect inline image paths', async () => {
@@ -74,5 +90,17 @@ describe('collect images', async () => {
 
 		assert.deepEqual(metadata.localImagePaths, ['./img.webp']);
 		assert.deepEqual(metadata.remoteImagePaths, ['https://example.com/example.jpg']);
+	});
+
+	it('should preserve className as HTML class attribute', async () => {
+		const markdown = `Hello ![image with class](./img.png)`;
+		const fileURL = 'file.md';
+
+		const { code } = await processorWithHastProperties.render(markdown, { fileURL });
+
+		assert.equal(
+			code,
+			'<p>Hello <img class="image-class" for="some-id" __ASTRO_IMAGE_="{&#x22;src&#x22;:&#x22;./img.png&#x22;,&#x22;alt&#x22;:&#x22;image with class&#x22;,&#x22;index&#x22;:0}"></p>',
+		);
 	});
 });
