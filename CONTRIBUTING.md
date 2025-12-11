@@ -379,7 +379,7 @@ export interface KeyGenerator {
 }
 ```
 
-This file can contain as many types as necessary. Breaking down some logic often requires creating several abstractions, each with its own responsabilities.
+This file can contain as many types as necessary. Breaking down some logic often requires creating several abstractions, each with its own responsibilities.
 
 ##### `core/`
 
@@ -399,7 +399,7 @@ export async function createKey({ keyGenerator, logger }: Options) {
 }
 ```
 
-It should almost always reference types you defined in `definitions.ts`, and compose them together. If you can't test conveniently part of it, or have to mock, introduce new infrastructure.
+It should almost always reference types you defined in `definitions.ts`, and compose them together. If you can't conveniently test part of it or have to mock, introduce new infrastructure.
 
 > [!NOTE]
 > The file itself can contain several functions or variables, that are used locally by the export.
@@ -521,7 +521,7 @@ async function runCommand(command: string, flags: Flags) {
 
 #### Testing
 
-The power of this whole architecture is to make it unit testable. Because abstractions hold very specific responsabilities, we can easily mock them:
+The power of this whole architecture is to make it unit testable. Because abstractions hold very specific responsibilities, we can easily mock them:
 
 ```js
 // @ts-check
