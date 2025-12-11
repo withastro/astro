@@ -5,4 +5,4 @@
 'astro': major
 ---
 
-Updates Markdown heading ID generation - ([v6 upgrade guidance](https://v6.astro.build/en/guides/upgrade-to/v6/#changed-markdown-heading-id-generation))
+Updates Markdown heading ID generation - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-markdown-heading-id-generation))

@@ -4,7 +4,7 @@
 
 ### Major Changes
 
-- [#14494](https://github.com/withastro/astro/pull/14494) [`727b0a2`](https://github.com/withastro/astro/commit/727b0a205eb765f1c36f13a73dfc69e17e44df8f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates Markdown heading ID generation - ([v6 upgrade guidance](https://v6.astro.build/en/guides/upgrade-to/v6/#changed-markdown-heading-id-generation))
+- [#14494](https://github.com/withastro/astro/pull/14494) [`727b0a2`](https://github.com/withastro/astro/commit/727b0a205eb765f1c36f13a73dfc69e17e44df8f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates Markdown heading ID generation - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-markdown-heading-id-generation))
 
 ### Patch Changes
 
