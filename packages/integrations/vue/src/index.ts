@@ -89,16 +89,19 @@ export const setup = async (app) => {
 		// Ensure that Vue components reference appEntrypoint directly
 		// This allows Astro to associate global styles imported in this file
 		// with the pages they should be injected to
-		transform(code, id) {
-			if (!appEntrypoint) return;
-			if (id.endsWith('.vue')) {
+		transform: {
+			filter: {
+				id: /\.vue$/,
+			},
+			handler(code) {
+				if (!appEntrypoint) return;
 				const s = new MagicString(code);
 				s.prepend(`import ${JSON.stringify(appEntrypoint)};\n`);
 				return {
 					code: s.toString(),
 					map: s.generateMap({ hires: 'boundary' }),
 				};
-			}
+			},
 		},
 	};
 }
