@@ -32,9 +32,7 @@ export function astroContentAssetPropagationPlugin({
 		enforce: 'pre',
 		resolveId: {
 			filter: {
-				id: new RegExp(
-					`((?:\\?|&)${CONTENT_IMAGE_FLAG}(?:=[^&#\\s]*)?\\b)|((?:\\?|&)${CONTENT_RENDER_FLAG}(?:=[^&#\\s]*)?\\b)`,
-				),
+				id: new RegExp(`(?:\\?|&)(?:${CONTENT_IMAGE_FLAG}|${CONTENT_RENDER_FLAG})(?:&|=|$)`),
 			},
 			async handler(id, importer, opts) {
 				if (hasContentFlag(id, CONTENT_IMAGE_FLAG)) {

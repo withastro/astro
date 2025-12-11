@@ -93,7 +93,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 		},
 		load: {
 			filter: {
-				id: /(?:\?|&)astro(?:=[^&#\s]*)?\b/,
+				id: /(?:\?|&)astro(?:&|=|$)/,
 			},
 			async handler(id, opts) {
 				const parsedId = parseAstroRequest(id);
@@ -286,7 +286,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 		// If Vite resolver can't resolve the Astro request, it's likely a virtual Astro file, fallback here instead
 		resolveId: {
 			filter: {
-				id: /(?:\?|&)astro(?:=[^&#\s]*)?\b/,
+				id: /(?:\?|&)astro(?:&|=|$)/,
 			},
 			handler(id) {
 				return id;
