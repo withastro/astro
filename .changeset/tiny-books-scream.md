@@ -5,13 +5,4 @@
 'astro': minor
 ---
 
-Astro CSP is now stable. If you were already using the feature during the experimental period, you'll have to update the configuration:
-
-```diff
-export default defineConfig({
--  experimental: {
-+  security: {
-    csp: true
-  }
-})
-```
+Removes the `experimental.csp` flag and replaces it with a new configuration option `security.csp` - ([v6 upgrade guidance](https://deploy-preview-12322--astro-docs-2.netlify.app/en/guides/upgrade-to/v6/#experimental-flags))
