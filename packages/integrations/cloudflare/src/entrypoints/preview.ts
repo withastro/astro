@@ -10,8 +10,8 @@ import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-
 import type * as http from 'node:http';
 import colors from 'piccolore';
 import { performance } from 'node:perf_hooks';
-import { hasWranglerConfig, wranglerTemplate } from '../wrangler.js';
-import { writeFileSync, copyFileSync, existsSync } from 'node:fs';
+import { hasWranglerConfig, defaultCloudflareConfig } from '../wrangler.js';
+import { copyFileSync, existsSync } from 'node:fs';
 
 const createPreviewServer: CreatePreviewServer = async ({
 	logger,
@@ -21,18 +21,16 @@ const createPreviewServer: CreatePreviewServer = async ({
 	port,
 	host,
 	createCodegenDir,
-	root
+	root,
 }) => {
 	const startServerTime = performance.now();
 	let previewServer: VitePreviewServer;
 	let cfPluginConfig: PluginConfig = { viteEnvironment: { name: 'ssr' } };
 	if (!hasWranglerConfig(outDir)) {
-		const codegenDir = createCodegenDir();
-		const cachedFile = new URL('wrangler.json', codegenDir);
-		writeFileSync(cachedFile, wranglerTemplate(), 'utf-8');
-		cfPluginConfig.configPath = fileURLToPath(cachedFile);
+		cfPluginConfig.config = defaultCloudflareConfig();
 
 		// Copy .dev.vars to codegen dir if it exists
+		const codegenDir = createCodegenDir();
 		const devVarsPath = new URL('.dev.vars', outDir);
 		const devVarsCodegenPath = new URL('.dev.vars', codegenDir);
 		if (existsSync(devVarsPath)) {

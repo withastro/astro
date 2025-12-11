@@ -90,6 +90,15 @@ describe('Config Validation', () => {
 		);
 	});
 
+	it('errors with helpful message when output is "hybrid"', async () => {
+		const configError = await validateConfig({ output: 'hybrid' }).catch((err) => err);
+		assert.equal(configError instanceof z.ZodError, true);
+		assert.ok(
+			configError.errors[0].message.includes('removed'),
+			'Error message should explain that "hybrid" has been removed',
+		);
+	});
+
 	describe('i18n', async () => {
 		it('defaultLocale is not in locales', async () => {
 			const configError = await validateConfig({

@@ -1,11 +1,11 @@
 import type { MiddlewareHandler, RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
+import { pipelineSymbol } from '../constants.js';
 import { ForbiddenRewrite } from '../errors/errors-data.js';
 import { AstroError } from '../errors/index.js';
 import { getParams, type Pipeline } from '../render/index.js';
-import { apiContextRoutesSymbol } from '../render-context.js';
 import { setOriginPathname } from '../routing/rewrite.js';
-import { defineMiddleware } from './index.js';
+import { defineMiddleware } from './defineMiddleware.js';
 
 // From SvelteKit: https://github.com/sveltejs/kit/blob/master/packages/kit/src/exports/hooks/sequence.js
 /**
@@ -49,7 +49,7 @@ export function sequence(...handlers: MiddlewareHandler[]): MiddlewareHandler {
 							);
 						}
 						const oldPathname = handleContext.url.pathname;
-						const pipeline: Pipeline = Reflect.get(handleContext, apiContextRoutesSymbol);
+						const pipeline: Pipeline = Reflect.get(handleContext, pipelineSymbol);
 						const { routeData, pathname } = await pipeline.tryRewrite(
 							payload,
 							handleContext.request,

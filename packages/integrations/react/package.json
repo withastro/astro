@@ -44,7 +44,7 @@
     "vite": "^7.1.7"
   },
   "devDependencies": {
-    "@types/react": "^18.3.24",
+    "@types/react": "^18.3.27",
     "@types/react-dom": "^18.3.7",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",

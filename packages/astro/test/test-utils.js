@@ -91,7 +91,7 @@ export async function loadFixture(inlineConfig) {
 	if (!inlineConfig?.root) throw new Error("Must provide { root: './fixtures/...' }");
 
 	// Silent by default during tests to not pollute the console output
-	inlineConfig.logLevel = 'silent';
+	inlineConfig.logLevel ??= 'silent';
 	inlineConfig.vite ??= {};
 	inlineConfig.vite.logLevel = 'silent';
 

@@ -114,11 +114,32 @@ export async function staticBuild(
 /**
  * Builds all Vite environments (SSR, prerender, client) in sequence.
  *
- * - SSR: Built only when buildOutput='server', generates the server entry point
- * - Prerender: Always built, generates static prerenderable routes
- * - Client: Built last with discovered hydration and client-only components
+ * This is the core build function that orchestrates Astro's multi-environment build process.
+ * Environments are built sequentially because they have dependencies on each other.
  *
- * Returns outputs from each environment for post-build processing.
+ * ## Build Order & Dependencies
+ *
+ * 1. **SSR Environment** (built first)
+ *    - Generates the server runtime entry point
+ *    - Outputs to server directory
+ *
+ * 2. **Prerender Environment** (built second)
+ *    - Generates code for static prerenderable routes
+ *    - Entry: `astro/entrypoints/prerender`
+ *    - Outputs to `.prerender/` in server directory
+ *
+ * 3. **Client Environment** (built last)
+ *    - MUST be built after SSR/prerender because client inputs are discovered during those builds
+ *    - During SSR/prerender, Astro discovers:
+ *      - Components with hydration directives (client:*)
+ *      - Client-only components
+ *      - Page scripts
+ *    - These discoveries populate `internals.clientInput` which becomes the rollup input
+ *    - Config is mutated after builder creation to set dynamic inputs
+ *    - If no client scripts exist, uses a "noop" entrypoint to satisfy Rollup's input requirement
+ *    - public/ folder is copied during this build
+ *
+ * Returns outputs from each environment for post-build processing (manifest injection, etc).
  */
 async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInternals) {
 	const { allPages, settings, viteConfig } = opts;

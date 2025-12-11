@@ -9,7 +9,6 @@ describe('AstroDevPlatform', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-dev-platform/',
-			logLevel: 'debug',
 		});
 		devServer = await fixture.startDevServer();
 		// Do an initial request to prime preloading
@@ -34,7 +33,7 @@ describe('AstroDevPlatform', () => {
 		assert.equal($('#hasCACHE').text(), 'true');
 	});
 
-	it('adds D1 mocking', {skip: "mocking currently broken", todo: "must restore D1 mocking"},async () => {
+	it('adds D1 mocking', async () => {
 		const res = await fixture.fetch('/d1');
 		const html = await res.text();
 		const $ = cheerio.load(html);
@@ -43,7 +42,7 @@ describe('AstroDevPlatform', () => {
 		assert.equal($('#hasACCESS').text(), 'true');
 	});
 
-	it('adds R2 mocking', {skip: "mocking currently broken", todo: "must restore R2 mocking"},async () => {
+	it('adds R2 mocking', async () => {
 		const res = await fixture.fetch('/r2');
 		const html = await res.text();
 		const $ = cheerio.load(html);
@@ -52,7 +51,7 @@ describe('AstroDevPlatform', () => {
 		assert.equal($('#hasACCESS').text(), 'true');
 	});
 
-	it('adds KV mocking', {skip: "mocking currently broken", todo: "must restore kv mocking"}, async () => {
+	it('adds KV mocking', async () => {
 		const res = await fixture.fetch('/kv');
 		const html = await res.text();
 		const $ = cheerio.load(html);
