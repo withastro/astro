@@ -6,7 +6,7 @@ import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
-import { hasSpecialQueries, normalizeFilename } from '../vite-plugin-utils/index.js';
+import { normalizeFilename, specialQueriesRE } from '../vite-plugin-utils/index.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
@@ -210,71 +210,81 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				}
 			},
 		},
-		async transform(source, id) {
-			if (hasSpecialQueries(id)) return;
+		transform: {
+			filter: {
+				id: {
+					include: [/(?:\?|&)astro(?:&|=|$)/, /\.astro\?/],
+					exclude: [specialQueriesRE],
+				},
+			},
+			async handler(source, id) {
+				const parsedId = parseAstroRequest(id);
+				// ignore astro file sub-requests, e.g. Foo.astro?astro&type=script&index=0&lang.ts
+				if (!parsedId.filename.endsWith('.astro') || parsedId.query.astro) {
+					// Special edge case handling for Vite 6 beta, the style dependencies need to be registered here take affect
+					// TODO: Remove this when Vite fixes it (https://github.com/vitejs/vite/pull/18103)
+					if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
+						const astroFilename = normalizePath(normalizeFilename(parsedId.filename, config.root));
+						const compileMetadata = astroFileToCompileMetadata.get(astroFilename);
+						if (
+							compileMetadata &&
+							parsedId.query.type === 'style' &&
+							parsedId.query.index != null
+						) {
+							const result = compileMetadata.css[parsedId.query.index];
 
-			const parsedId = parseAstroRequest(id);
-			// ignore astro file sub-requests, e.g. Foo.astro?astro&type=script&index=0&lang.ts
-			if (!parsedId.filename.endsWith('.astro') || parsedId.query.astro) {
-				// Special edge case handling for Vite 6 beta, the style dependencies need to be registered here take affect
-				// TODO: Remove this when Vite fixes it (https://github.com/vitejs/vite/pull/18103)
-				if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
-					const astroFilename = normalizePath(normalizeFilename(parsedId.filename, config.root));
-					const compileMetadata = astroFileToCompileMetadata.get(astroFilename);
-					if (compileMetadata && parsedId.query.type === 'style' && parsedId.query.index != null) {
-						const result = compileMetadata.css[parsedId.query.index];
-
-						// Register dependencies from preprocessing this style
-						result.dependencies?.forEach((dep) => this.addWatchFile(dep));
+							// Register dependencies from preprocessing this style
+							result.dependencies?.forEach((dep) => this.addWatchFile(dep));
+						}
 					}
+
+					return;
 				}
 
-				return;
-			}
+				const filename = normalizePath(parsedId.filename);
 
-			const filename = normalizePath(parsedId.filename);
-
-			// If an Astro component is imported in code used on the client, we return an empty
-			// module so that Vite doesn’t bundle the server-side Astro code for the client.
-			if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
-				return {
-					code: `export default import.meta.env.DEV
+				// If an Astro component is imported in code used on the client, we return an empty
+				// module so that Vite doesn’t bundle the server-side Astro code for the client.
+				if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
+					return {
+						code: `export default import.meta.env.DEV
 									? () => {
 											throw new Error(
 												'Astro components cannot be used in the browser.\\nTried to render "${filename}".'
 											);
 										}
 									: {};`,
-					meta: { vite: { lang: 'ts' } },
+						meta: { vite: { lang: 'ts' } },
+					};
+				}
+
+				const transformResult = await compile(source, filename);
+
+				const astroMetadata: AstroPluginMetadata['astro'] = {
+					// Remove Astro components that have been mistakenly given client directives
+					// We'll warn the user about this later, but for now we'll prevent them from breaking the build
+					clientOnlyComponents: transformResult.clientOnlyComponents.filter(notAstroComponent),
+					hydratedComponents: transformResult.hydratedComponents.filter(notAstroComponent),
+					serverComponents: transformResult.serverComponents,
+					scripts: transformResult.scripts,
+					containsHead: transformResult.containsHead,
+					propagation: transformResult.propagation ? 'self' : 'none',
+					pageOptions: {},
 				};
-			}
 
-			const transformResult = await compile(source, filename);
-
-			const astroMetadata: AstroPluginMetadata['astro'] = {
-				// Remove Astro components that have been mistakenly given client directives
-				// We'll warn the user about this later, but for now we'll prevent them from breaking the build
-				clientOnlyComponents: transformResult.clientOnlyComponents.filter(notAstroComponent),
-				hydratedComponents: transformResult.hydratedComponents.filter(notAstroComponent),
-				serverComponents: transformResult.serverComponents,
-				scripts: transformResult.scripts,
-				containsHead: transformResult.containsHead,
-				propagation: transformResult.propagation ? 'self' : 'none',
-				pageOptions: {},
-			};
-
-			return {
-				code: transformResult.code,
-				map: transformResult.map,
-				meta: {
-					astro: astroMetadata,
-					vite: {
-						// Setting this vite metadata to `ts` causes Vite to resolve .js
-						// extensions to .ts files.
-						lang: 'ts',
+				return {
+					code: transformResult.code,
+					map: transformResult.map,
+					meta: {
+						astro: astroMetadata,
+						vite: {
+							// Setting this vite metadata to `ts` causes Vite to resolve .js
+							// extensions to .ts files.
+							lang: 'ts',
+						},
 					},
-				},
-			};
+				};
+			},
 		},
 		async handleHotUpdate(ctx) {
 			return handleHotUpdate(ctx, { logger, astroFileToCompileMetadata });
