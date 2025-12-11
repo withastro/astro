@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import type { RouteData } from '../types/public/internal.js';
+import { hasSpecialQueries } from '../vite-plugin-utils/index.js';
+import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
 import { removeQueryString, removeTrailingForwardSlash, slash } from './path.js';
 
 /** Returns true if argument is an object of any prototype/class (but not null). */
@@ -14,6 +16,19 @@ export function isObject(value: unknown): value is Record<string, any> {
 /** Cross-realm compatible URL */
 export function isURL(value: unknown): value is URL {
 	return Object.prototype.toString.call(value) === '[object URL]';
+}
+
+/** Check if a file is a markdown file based on its extension */
+export function isMarkdownFile(fileId: string, option?: { suffix?: string }): boolean {
+	if (hasSpecialQueries(fileId)) {
+		return false;
+	}
+	const id = removeQueryString(fileId);
+	const _suffix = option?.suffix ?? '';
+	for (let markdownFileExtension of SUPPORTED_MARKDOWN_FILE_EXTENSIONS) {
+		if (id.endsWith(`${markdownFileExtension}${_suffix}`)) return true;
+	}
+	return false;
 }
 
 /** Wraps an object in an array. If an array is passed, ignore it. */

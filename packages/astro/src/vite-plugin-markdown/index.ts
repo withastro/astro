@@ -9,7 +9,7 @@ import type { Plugin } from 'vite';
 import { safeParseFrontmatter } from '../content/utils.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
-import { isPage } from '../core/util.js';
+import { isMarkdownFile, isPage } from '../core/util.js';
 import { normalizePath } from '../core/viteUtils.js';
 import { shorthash } from '../runtime/server/shorthash.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -68,6 +68,11 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				},
 			},
 			async handler(id) {
+				// The id filter also matches file extensions in search params which we do not want.
+				// So we check another time, but at least it will run for less ids
+				if (!isMarkdownFile(id)) {
+					return;
+				}
 				const { fileId, fileUrl } = getFileInfo(id, settings.config);
 				const rawFile = await fs.promises.readFile(fileId, 'utf-8');
 				const raw = safeParseFrontmatter(rawFile, id);
