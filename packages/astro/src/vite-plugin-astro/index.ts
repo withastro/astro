@@ -12,6 +12,7 @@ import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
 import type { PluginMetadata as AstroPluginMetadata, CompileMetadata } from './types.js';
 import { loadId } from './utils.js';
+import { isAstroServerEnvironment } from '../environments.js';
 
 export { getAstroMetadata } from './metadata.js';
 export type { AstroPluginMetadata };
@@ -91,7 +92,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				astroFileToCompileMetadataWeakMap.set(config, astroFileToCompileMetadata);
 			}
 		},
-		async load(id, opts) {
+		async load(id) {
 			const parsedId = parseAstroRequest(id);
 			const query = parsedId.query;
 			if (!query.astro) {
@@ -155,7 +156,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 						throw new Error(`Requests for scripts must include an index`);
 					}
 					// SSR script only exists to make them appear in the module graph.
-					if (opts?.ssr) {
+					if (isAstroServerEnvironment(this.environment)) {
 						return {
 							code: `/* client script, empty in SSR: ${id} */`,
 						};
