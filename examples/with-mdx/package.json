@@ -13,6 +13,6 @@
     "@astrojs/mdx": "^5.0.0-alpha.0",
     "@astrojs/preact": "^5.0.0-alpha.0",
     "astro": "^6.0.0-alpha.0",
-    "preact": "^10.27.2"
+    "preact": "^10.28.0"
   }
 }
