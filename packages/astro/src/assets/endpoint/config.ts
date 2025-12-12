@@ -48,10 +48,10 @@ function getImageEndpointData(
 		segments,
 		params: [],
 		component: resolveInjectedRoute(endpointEntrypoint, settings.config.root, cwd).component,
-		generate: () => '',
 		pathname: settings.config.image.endpoint.route,
 		prerender: false,
 		fallbackRoutes: [],
 		origin: 'internal',
+		distURL: [],
 	};
 }

@@ -1,6 +1,7 @@
-import type { ConfigEnv, Plugin as VitePlugin } from 'vite';
+import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../types/astro.js';
 import type { InjectedScriptStage } from '../types/public/integrations.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 // NOTE: We can't use the virtual "\0" ID convention because we need to
 // inject these as ESM imports into actual code, where they would not
@@ -13,13 +14,8 @@ export const PAGE_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${'page' as InjectedScriptStag
 export const PAGE_SSR_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${'page-ssr' as InjectedScriptStage}.js`;
 
 export default function astroScriptsPlugin({ settings }: { settings: AstroSettings }): VitePlugin {
-	let env: ConfigEnv | undefined = undefined;
 	return {
 		name: 'astro:scripts',
-
-		config(_config, _env) {
-			env = _env;
-		},
 
 		async resolveId(id) {
 			if (id.startsWith(SCRIPT_ID_PREFIX)) {
@@ -57,8 +53,11 @@ export default function astroScriptsPlugin({ settings }: { settings: AstroSettin
 		},
 		buildStart() {
 			const hasHydrationScripts = settings.scripts.some((s) => s.stage === 'before-hydration');
-			const isSsrBuild = env?.isSsrBuild;
-			if (hasHydrationScripts && env?.command === 'build' && !isSsrBuild) {
+			if (
+				hasHydrationScripts &&
+				(this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender ||
+					this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr)
+			) {
 				this.emitFile({
 					type: 'chunk',
 					id: BEFORE_HYDRATION_SCRIPT_ID,

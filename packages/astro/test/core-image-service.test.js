@@ -111,19 +111,17 @@ describe('astro image service', () => {
 				assert.equal(height, originalHeight);
 			});
 
-			// To match old behavior, we should upscale if the requested size is larger than the original
-			it('does upscale image if requested size is larger than original and fit is unset', async () => {
+			it('does not upscale image if requested size is larger than original and fit is unset', async () => {
 				const url = new URL(src);
 				url.searchParams.set('w', '3000');
 				url.searchParams.set('h', '2000');
 				url.searchParams.delete('fit');
 				const { width, height } = await getImageDimensionsFromFixture(fixture, url);
-				assert.equal(width, 3000);
-				assert.equal(height, 2000);
+				assert.equal(width, originalWidth);
+				assert.equal(height, originalHeight);
 			});
 
-			// To match old behavior, we should upscale if the requested size is larger than the original
-			it('does not upscale is only one dimension is provided and fit is set', async () => {
+			it('does not upscale if only one dimension is provided and fit is set', async () => {
 				const url = new URL(src);
 				url.searchParams.set('w', '3000');
 				url.searchParams.delete('h');

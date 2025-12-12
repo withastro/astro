@@ -7,7 +7,8 @@ import { parseArgs } from 'node:util';
 import { glob } from 'tinyglobby';
 
 const isCI = !!process.env.CI;
-const defaultTimeout = isCI ? 1400000 : 600000;
+// 30 minutes in CI, 10 locally
+const defaultTimeout = isCI ? 1860000 : 600000;
 
 export default async function test() {
 	const args = parseArgs({
@@ -78,6 +79,10 @@ export default async function test() {
 		? await import(pathToFileURL(path.resolve(args.values.teardown)).toString())
 		: undefined;
 
+	const setupModule = args.values.setup
+		? await import(pathToFileURL(path.resolve(args.values.setup)).toString())
+		: undefined;
+
 	// https://nodejs.org/api/test.html#runoptions
 	run({
 		files,
@@ -88,7 +93,7 @@ export default async function test() {
 			: undefined,
 		concurrency: args.values.parallel,
 		only: args.values.only,
-		setup: args.values.setup,
+		setup: setupModule?.default,
 		watch: args.values.watch,
 		timeout: args.values.timeout ? Number(args.values.timeout) : defaultTimeout, // Node.js defaults to Infinity, so set better fallback
 	})

@@ -11,6 +11,12 @@ describe('API routes in SSR', () => {
 		site: 'https://mysite.dev/subsite/',
 		base: '/blog',
 		adapter: testAdapter(),
+		// Disable CSRF origin check for tests. These tests are for API route functionality,
+		// not for CSRF protection. The test client doesn't send proper origin headers,
+		// so the CSRF middleware would block requests before they reach the API handlers.
+		security: {
+			checkOrigin: false,
+		},
 	};
 
 	describe('Build', () => {

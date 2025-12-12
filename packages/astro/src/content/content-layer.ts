@@ -3,7 +3,7 @@ import { createMarkdownProcessor, type MarkdownProcessor } from '@astrojs/markdo
 import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
-import type { z } from 'zod';
+import type * as z from 'zod/v4';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -21,7 +21,7 @@ import type { MutableDataStore } from './mutable-data-store.js';
 import {
 	type ContentObservable,
 	getEntryConfigByExtMap,
-	getEntryDataAndImages,
+	getEntryData,
 	globalContentConfigObserver,
 	loaderReturnSchema,
 	safeStringify,
@@ -253,8 +253,8 @@ class ContentLayer {
 
 				if (!schema && typeof collection.loader === 'object') {
 					schema = collection.loader.schema;
-					if (typeof schema === 'function') {
-						schema = await schema();
+					if (!schema && collection.loader.createSchema) {
+						({ schema } = await collection.loader.createSchema());
 					}
 				}
 
@@ -267,31 +267,22 @@ class ContentLayer {
 					return;
 				}
 
-				const collectionWithResolvedSchema = { ...collection, schema };
-
-				const parseData: LoaderContext['parseData'] = async ({ id, data, filePath = '' }) => {
-					const { data: parsedData } = await getEntryDataAndImages(
-						{
-							id,
-							collection: name,
-							unvalidatedData: data,
-							_internal: {
-								rawData: undefined,
-								filePath,
-							},
-						},
-						collectionWithResolvedSchema,
-						false,
-						// FUTURE: Remove in this in v6
-						id.endsWith('.svg'),
-					);
-
-					return parsedData;
-				};
-
 				const context = await this.#getLoaderContext({
 					collectionName: name,
-					parseData,
+					parseData: ({ id, data, filePath = '' }) =>
+						getEntryData(
+							{
+								id,
+								collection: name,
+								unvalidatedData: data,
+								_internal: {
+									rawData: undefined,
+									filePath,
+								},
+							},
+							{ ...collection, schema },
+							false,
+						),
 					loaderName: collection.loader.name,
 					refreshContextData: options?.context,
 				});
@@ -362,13 +353,13 @@ async function simpleLoader<TData extends { id: string }>(
 	const parsedData = loaderReturnSchema.safeParse(unsafeData);
 
 	if (!parsedData.success) {
-		const issue = parsedData.error.issues[0] as z.ZodInvalidUnionIssue;
+		const issue = parsedData.error.issues[0] as z.core.$ZodIssueInvalidUnion;
 
 		// Due to this being a union, zod will always throw an "Expected array, received object" error along with the other errors.
 		// This error is in the second position if the data is an array, and in the first position if the data is an object.
-		const parseIssue = Array.isArray(unsafeData) ? issue.unionErrors[0] : issue.unionErrors[1];
+		const parseIssue = Array.isArray(unsafeData) ? issue.errors[0] : issue.errors[1];
 
-		const error = parseIssue.errors[0];
+		const error = parseIssue[0];
 		const firstPathItem = error.path[0];
 
 		const entry = Array.isArray(unsafeData)

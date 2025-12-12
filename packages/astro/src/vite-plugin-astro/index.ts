@@ -2,6 +2,7 @@ import type { HydratedComponent } from '@astrojs/compiler/types';
 import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
@@ -11,6 +12,7 @@ import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
 import type { PluginMetadata as AstroPluginMetadata, CompileMetadata } from './types.js';
 import { loadId } from './utils.js';
+import { isAstroServerEnvironment } from '../environments.js';
 
 export { getAstroMetadata } from './metadata.js';
 export type { AstroPluginMetadata };
@@ -54,14 +56,15 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			}
 			viteConfig.resolve.conditions.push('astro');
 		},
-		configResolved(viteConfig) {
+		async configResolved(viteConfig) {
+			const toolbarEnabled = await settings.preferences.get('devToolbar.enabled');
 			// Initialize `compile` function to simplify usage later
 			compile = (code, filename) => {
 				return compileAstro({
 					compileProps: {
 						astroConfig: config,
 						viteConfig,
-						preferences: settings.preferences,
+						toolbarEnabled,
 						filename,
 						source: code,
 					},
@@ -89,7 +92,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				astroFileToCompileMetadataWeakMap.set(config, astroFileToCompileMetadata);
 			}
 		},
-		async load(id, opts) {
+		async load(id) {
 			const parsedId = parseAstroRequest(id);
 			const query = parsedId.query;
 			if (!query.astro) {
@@ -153,7 +156,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 						throw new Error(`Requests for scripts must include an index`);
 					}
 					// SSR script only exists to make them appear in the module graph.
-					if (opts?.ssr) {
+					if (isAstroServerEnvironment(this.environment)) {
 						return {
 							code: `/* client script, empty in SSR: ${id} */`,
 						};
@@ -205,7 +208,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					return null;
 			}
 		},
-		async transform(source, id, options) {
+		async transform(source, id) {
 			if (hasSpecialQueries(id)) return;
 
 			const parsedId = parseAstroRequest(id);
@@ -213,7 +216,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			if (!parsedId.filename.endsWith('.astro') || parsedId.query.astro) {
 				// Special edge case handling for Vite 6 beta, the style dependencies need to be registered here take affect
 				// TODO: Remove this when Vite fixes it (https://github.com/vitejs/vite/pull/18103)
-				if (this.environment.name === 'client') {
+				if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 					const astroFilename = normalizePath(normalizeFilename(parsedId.filename, config.root));
 					const compileMetadata = astroFileToCompileMetadata.get(astroFilename);
 					if (compileMetadata && parsedId.query.type === 'style' && parsedId.query.index != null) {
@@ -231,14 +234,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 			// If an Astro component is imported in code used on the client, we return an empty
 			// module so that Vite doesn’t bundle the server-side Astro code for the client.
-			if (
-				!options?.ssr &&
-				// Workaround to allow tests run with Vitest in a “client” environment to still render
-				// Astro components. See https://github.com/withastro/astro/issues/14883
-				// TODO: In a future major we should remove this and require people test Astro rendering in
-				// an SSR test environment, which more closely matches the real-world Vite environment.
-				!process.env.VITEST
-			) {
+			if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 				return {
 					code: `export default import.meta.env.DEV
 									? () => {
@@ -299,7 +295,9 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 function appendSourceMap(content: string, map?: string) {
 	if (!map) return content;
-	return `${content}\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(
+	// The \n here is on purpose inside a template literal because otherwise, in the final built version of this file, the comment would
+	// start on its own line, and some tools will think it's actually the sourcemap of this file, not of generated code.
+	return `${content}${'\n//#'} sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(
 		map,
 	).toString('base64')}`;
 }

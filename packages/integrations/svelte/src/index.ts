@@ -1,6 +1,7 @@
 import type { Options } from '@sveltejs/vite-plugin-svelte';
 import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import type { AstroIntegration, AstroRenderer } from 'astro';
+import type { Plugin } from 'vite';
 
 function getRenderer(): AstroRenderer {
 	return {
@@ -20,14 +21,24 @@ export default function svelteIntegration(options?: Options): AstroIntegration {
 				addRenderer(getRenderer());
 				updateConfig({
 					vite: {
-						optimizeDeps: {
-							include: ['@astrojs/svelte/client.js'],
-							exclude: ['@astrojs/svelte/server.js'],
-						},
-						plugins: [svelte(options)],
+						plugins: [svelte(options), configEnvironmentPlugin()],
 					},
 				});
 			},
+		},
+	};
+}
+
+function configEnvironmentPlugin(): Plugin {
+	return {
+		name: '@astrojs/svelte:config-environment',
+		configEnvironment(environmentName) {
+			return {
+				optimizeDeps: {
+					exclude: ['@astrojs/svelte/server.js'],
+					includes: environmentName === 'client' ? ['@astrojs/svelte/client.js'] : [],
+				},
+			};
 		},
 	};
 }

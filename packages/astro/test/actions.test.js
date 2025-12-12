@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import * as devalue from 'devalue';
-import { serializeActionResult } from '../dist/actions/runtime/shared.js';
+import { serializeActionResult } from '../dist/actions/runtime/server.js';
 import { REDIRECT_STATUS_CODES } from '../dist/core/constants.js';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
@@ -148,8 +148,9 @@ describe('Astro Actions', () => {
 
 		it('Should fail when calling an action without using Astro.callAction', async () => {
 			const res = await fixture.fetch('/invalid/');
+			assert.equal(res.status, 500);
 			const text = await res.text();
-			assert.match(text, /ActionCalledFromServerError/);
+			assert.match(text, /@vite\/client/);
 		});
 	});
 

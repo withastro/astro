@@ -1,40 +1,42 @@
 import type { ComponentInstance } from '../../types/astro.js';
 import type { RewritePayload } from '../../types/public/common.js';
-import type { RouteData, SSRElement, SSRResult } from '../../types/public/internal.js';
-import { Pipeline, type TryRewriteResult } from '../base-pipeline.js';
+import type { RouteData, SSRElement } from '../../types/public/internal.js';
+import { type HeadElements, Pipeline, type TryRewriteResult } from '../base-pipeline.js';
 import type { SinglePageBuiltModule } from '../build/types.js';
-import { RedirectSinglePageBuiltModule } from '../redirects/component.js';
-import { createModuleScriptElement, createStylesheetElementSet } from '../render/ssr-element.js';
+import { RedirectSinglePageBuiltModule } from '../redirects/index.js';
+import {
+	createAssetLink,
+	createModuleScriptElement,
+	createStylesheetElementSet,
+} from '../render/ssr-element.js';
+import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
+import { createConsoleLogger } from './logging.js';
 
 export class AppPipeline extends Pipeline {
-	static create({
-		logger,
-		manifest,
-		runtimeMode,
-		renderers,
-		resolve,
-		serverLike,
-		streaming,
-		defaultRoutes,
-	}: Pick<
-		AppPipeline,
-		| 'logger'
-		| 'manifest'
-		| 'runtimeMode'
-		| 'renderers'
-		| 'resolve'
-		| 'serverLike'
-		| 'streaming'
-		| 'defaultRoutes'
-	>) {
+	getName(): string {
+		return 'AppPipeline';
+	}
+
+	static create({ manifest, streaming }: Pick<AppPipeline, 'manifest' | 'streaming'>) {
+		const resolve = async function resolve(specifier: string) {
+			if (!(specifier in manifest.entryModules)) {
+				throw new Error(`Unable to resolve [${specifier}]`);
+			}
+			const bundlePath = manifest.entryModules[specifier];
+			if (bundlePath.startsWith('data:') || bundlePath.length === 0) {
+				return bundlePath;
+			} else {
+				return createAssetLink(bundlePath, manifest.base, manifest.assetsPrefix);
+			}
+		};
+		const logger = createConsoleLogger(manifest.logLevel);
 		const pipeline = new AppPipeline(
 			logger,
 			manifest,
-			runtimeMode,
-			renderers,
+			'production',
+			manifest.renderers,
 			resolve,
-			serverLike,
 			streaming,
 			undefined,
 			undefined,
@@ -44,17 +46,17 @@ export class AppPipeline extends Pipeline {
 			undefined,
 			undefined,
 			undefined,
-			defaultRoutes,
 		);
 		return pipeline;
 	}
 
-	headElements(routeData: RouteData): Pick<SSRResult, 'scripts' | 'styles' | 'links'> {
+	async headElements(routeData: RouteData): Promise<HeadElements> {
+		const { assetsPrefix, base } = this.manifest;
 		const routeInfo = this.manifest.routes.find((route) => route.routeData === routeData);
 		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 		const links = new Set<never>();
 		const scripts = new Set<SSRElement>();
-		const styles = createStylesheetElementSet(routeInfo?.styles ?? []);
+		const styles = createStylesheetElementSet(routeInfo?.styles ?? [], base, assetsPrefix);
 
 		for (const script of routeInfo?.scripts ?? []) {
 			if ('stage' in script) {
@@ -65,7 +67,7 @@ export class AppPipeline extends Pipeline {
 					});
 				}
 			} else {
-				scripts.add(createModuleScriptElement(script));
+				scripts.add(createModuleScriptElement(script, base, assetsPrefix));
 			}
 		}
 		return { links, styles, scripts };
@@ -78,6 +80,44 @@ export class AppPipeline extends Pipeline {
 		return module.page();
 	}
 
+	async getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
+		for (const defaultRoute of this.defaultRoutes) {
+			if (route.component === defaultRoute.component) {
+				return {
+					page: () => Promise.resolve(defaultRoute.instance),
+				};
+			}
+		}
+		let routeToProcess = route;
+		if (routeIsRedirect(route)) {
+			if (route.redirectRoute) {
+				// This is a static redirect
+				routeToProcess = route.redirectRoute;
+			} else {
+				// This is an external redirect, so we return a component stub
+				return RedirectSinglePageBuiltModule;
+			}
+		} else if (routeIsFallback(route)) {
+			// This is a i18n fallback route
+			routeToProcess = getFallbackRoute(route, this.manifest.routes);
+		}
+
+		if (this.manifest.pageMap) {
+			const importComponentInstance = this.manifest.pageMap.get(routeToProcess.component);
+			if (!importComponentInstance) {
+				throw new Error(
+					`Unexpectedly unable to find a component instance for route ${route.route}`,
+				);
+			}
+			return await importComponentInstance();
+		} else if (this.manifest.pageModule) {
+			return this.manifest.pageModule;
+		}
+		throw new Error(
+			"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue.",
+		);
+	}
+
 	async tryRewrite(payload: RewritePayload, request: Request): Promise<TryRewriteResult> {
 		const { newUrl, pathname, routeData } = findRouteToRewrite({
 			payload,
@@ -86,40 +126,10 @@ export class AppPipeline extends Pipeline {
 			trailingSlash: this.manifest.trailingSlash,
 			buildFormat: this.manifest.buildFormat,
 			base: this.manifest.base,
-			outDir: this.serverLike ? this.manifest.buildClientDir : this.manifest.outDir,
+			outDir: this.manifest?.serverLike ? this.manifest.buildClientDir : this.manifest.outDir,
 		});
 
 		const componentInstance = await this.getComponentByRoute(routeData);
 		return { newUrl, pathname, componentInstance, routeData };
-	}
-
-	async getModuleForRoute(route: RouteData): Promise<SinglePageBuiltModule> {
-		for (const defaultRoute of this.defaultRoutes) {
-			if (route.component === defaultRoute.component) {
-				return {
-					page: () => Promise.resolve(defaultRoute.instance),
-					renderers: [],
-				};
-			}
-		}
-
-		if (route.type === 'redirect') {
-			return RedirectSinglePageBuiltModule;
-		} else {
-			if (this.manifest.pageMap) {
-				const importComponentInstance = this.manifest.pageMap.get(route.component);
-				if (!importComponentInstance) {
-					throw new Error(
-						`Unexpectedly unable to find a component instance for route ${route.route}`,
-					);
-				}
-				return await importComponentInstance();
-			} else if (this.manifest.pageModule) {
-				return this.manifest.pageModule;
-			}
-			throw new Error(
-				"Astro couldn't find the correct page to render, probably because it wasn't correctly mapped for SSR usage. This is an internal error, please file an issue.",
-			);
-		}
 	}
 }

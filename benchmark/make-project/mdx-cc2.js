@@ -28,10 +28,10 @@ ${loremIpsumMd}
 	}
 
 	await fs.writeFile(
-		new URL(`./src/content/config.ts`, projectDir),
+		new URL(`./src/content.config.ts`, projectDir),
 		/*ts */ `
-		import { defineCollection, z } from 'astro:content';
-		import { glob } from 'astro/loaders';
+		import { defineCollection } from 'astro:content';
+		import { z } from 'astro/zod';
 
 		const blog = defineCollection({
 			loader: glob({ pattern: '*', base: './data/blog' }),

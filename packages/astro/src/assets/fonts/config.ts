@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import { LOCAL_PROVIDER_NAME } from './constants.js';
 
 export const weightSchema = z.union([z.string(), z.number()]);
@@ -12,7 +12,7 @@ const familyPropertiesSchema = z.object({
 	stretch: z.string().optional(),
 	featureSettings: z.string().optional(),
 	variationSettings: z.string().optional(),
-	unicodeRange: z.array(z.string()).nonempty().optional(),
+	unicodeRange: z.tuple([z.string()], z.string()).optional(),
 });
 
 const fallbacksSchema = z.object({
@@ -27,29 +27,25 @@ const requiredFamilyAttributesSchema = z.object({
 
 const entrypointSchema = z.union([z.string(), z.instanceof(URL)]);
 
+const srcSchema = z.union([
+	entrypointSchema,
+	z.object({ url: entrypointSchema, tech: z.string().optional() }).strict(),
+]);
+
+const variantSchema = z
+	.object({
+		...familyPropertiesSchema.shape,
+		src: z.tuple([srcSchema], srcSchema),
+		// TODO: find a way to support subsets (through fontkit?)
+	})
+	.strict();
+
 export const localFontFamilySchema = z
 	.object({
 		...requiredFamilyAttributesSchema.shape,
 		...fallbacksSchema.shape,
 		provider: z.literal(LOCAL_PROVIDER_NAME),
-		variants: z
-			.array(
-				z
-					.object({
-						...familyPropertiesSchema.shape,
-						src: z
-							.array(
-								z.union([
-									entrypointSchema,
-									z.object({ url: entrypointSchema, tech: z.string().optional() }).strict(),
-								]),
-							)
-							.nonempty(),
-						// TODO: find a way to support subsets (through fontkit?)
-					})
-					.strict(),
-			)
-			.nonempty(),
+		variants: z.tuple([variantSchema], variantSchema),
 	})
 	.strict();
 
@@ -67,8 +63,8 @@ export const remoteFontFamilySchema = z
 				config: z.record(z.string(), z.any()).optional(),
 			})
 			.strict(),
-		weights: z.array(weightSchema).nonempty().optional(),
-		styles: z.array(styleSchema).nonempty().optional(),
-		subsets: z.array(z.string()).nonempty().optional(),
+		weights: z.tuple([weightSchema], weightSchema).optional(),
+		styles: z.tuple([styleSchema], styleSchema).optional(),
+		subsets: z.tuple([z.string()], z.string()).optional(),
 	})
 	.strict();

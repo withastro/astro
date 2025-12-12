@@ -5,12 +5,16 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	integrations: [preact()],
   vite: {
-    build: {
-      rollupOptions: {
-        output: {
-          entryFileNames: `assets/js/[name].js`,
-        },
-      },
-    },
+  	environments: {
+  		client: {
+		    build: {
+		      rollupOptions: {
+		        output: {
+		          entryFileNames: `assets/js/[name].js`,
+		        },
+		      },
+		    },
+    	},
+  	},
   },
 });

@@ -1,6 +1,6 @@
 import { createForm } from 'simple:form';
 import { useState } from 'react';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 import { Form, Input } from '../../components/Form';
 
 export const ticketForm = createForm({

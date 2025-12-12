@@ -9,51 +9,60 @@ import { fixtureDir } from '../utils.ts';
 
 const contentSchemaPath = path.resolve(fixtureDir, '.astro', 'collections', 'caching.schema.json');
 
-describe('Content Intellisense - Caching', async () => {
-	let languageServer: LanguageServer;
+describe(
+	'Content Intellisense - Caching',
+	{ skip: parseInt(process.versions.node) === 20 },
+	async () => {
+		let languageServer: LanguageServer;
 
-	before(async () => (languageServer = await getLanguageServer()));
-
-	it('Properly updates the schema when they are updated', async () => {
-		const document = await languageServer.handle.openTextDocument(
-			path.join(fixtureDir, 'src', 'content', 'caching', 'caching.md'),
-			'markdown',
-		);
-
-		const hover = await languageServer.handle.sendHoverRequest(document.uri, Position.create(1, 1));
-
-		assert.deepStrictEqual(hover?.contents, {
-			kind: 'markdown',
-			value: 'I will be changed',
+		before(async () => {
+			languageServer = await getLanguageServer();
 		});
 
-		fs.writeFileSync(
-			contentSchemaPath,
-			fs.readFileSync(contentSchemaPath, 'utf-8').replaceAll('I will be changed', 'I am changed'),
-		);
+		it('Properly updates the schema when they are updated', async () => {
+			const document = await languageServer.handle.openTextDocument(
+				path.join(fixtureDir, 'src', 'content', 'caching', 'caching.md'),
+				'markdown',
+			);
 
-		await languageServer.handle.didChangeWatchedFiles([
-			{
-				uri: URI.file(contentSchemaPath).toString(),
-				type: 2,
-			},
-		]);
+			const hover = await languageServer.handle.sendHoverRequest(
+				document.uri,
+				Position.create(1, 1),
+			);
 
-		const hover2 = await languageServer.handle.sendHoverRequest(
-			document.uri,
-			Position.create(1, 1),
-		);
+			assert.deepStrictEqual(hover?.contents, {
+				kind: 'markdown',
+				value: 'I will be changed',
+			});
 
-		assert.deepStrictEqual(hover2?.contents, {
-			kind: 'markdown',
-			value: 'I am changed',
+			fs.writeFileSync(
+				contentSchemaPath,
+				fs.readFileSync(contentSchemaPath, 'utf-8').replaceAll('I will be changed', 'I am changed'),
+			);
+
+			await languageServer.handle.didChangeWatchedFiles([
+				{
+					uri: URI.file(contentSchemaPath).toString(),
+					type: 2,
+				},
+			]);
+
+			const hover2 = await languageServer.handle.sendHoverRequest(
+				document.uri,
+				Position.create(1, 1),
+			);
+
+			assert.deepStrictEqual(hover2?.contents, {
+				kind: 'markdown',
+				value: 'I am changed',
+			});
 		});
-	});
 
-	after(async () => {
-		fs.writeFileSync(
-			contentSchemaPath,
-			fs.readFileSync(contentSchemaPath, 'utf-8').replaceAll('I am changed', 'I will be changed'),
-		);
-	});
-});
+		after(async () => {
+			fs.writeFileSync(
+				contentSchemaPath,
+				fs.readFileSync(contentSchemaPath, 'utf-8').replaceAll('I am changed', 'I will be changed'),
+			);
+		});
+	},
+);

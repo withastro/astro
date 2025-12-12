@@ -22,7 +22,7 @@ function astroClientClickDirective() {
 
 function astroClientPasswordDirective() {
   return {
-    name: 'astro-client-click',
+    name: 'astro-client-password',
     hooks: {
       'astro:config:setup': (opts) => {
         opts.addClientDirective({

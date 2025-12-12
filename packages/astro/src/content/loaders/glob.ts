@@ -56,14 +56,6 @@ function checkPrefix(pattern: string | Array<string>, prefix: string) {
  * Loads multiple entries, using a glob pattern to match files.
  * @param pattern A glob pattern to match files, relative to the content directory.
  */
-export function glob(globOptions: GlobOptions): Loader;
-/** @private */
-export function glob(
-	globOptions: GlobOptions & {
-		/** @deprecated */
-		_legacy?: true;
-	},
-): Loader;
 
 export function glob(globOptions: GlobOptions): Loader {
 	if (checkPrefix(globOptions.pattern, '../')) {
@@ -90,9 +82,6 @@ export function glob(globOptions: GlobOptions): Loader {
 			>();
 
 			const untouchedEntries = new Set(store.keys());
-			const isLegacy = (globOptions as any)._legacy;
-			// If global legacy collection handling flag is *not* enabled then this loader is used to emulate them instead
-			const emulateLegacyCollections = !config.legacy.collections;
 			async function syncData(
 				entry: string,
 				base: URL,
@@ -125,17 +114,6 @@ export function glob(globOptions: GlobOptions): Loader {
 					store.delete(oldId);
 				}
 
-				let legacyId: string | undefined;
-
-				if (isLegacy) {
-					const entryURL = new URL(encodeURI(entry), base);
-					const legacyOptions = getContentEntryIdAndSlug({
-						entry: entryURL,
-						contentDir: base,
-						collection: '',
-					});
-					legacyId = legacyOptions.id;
-				}
 				untouchedEntries.delete(id);
 
 				const existingEntry = store.get(id);
@@ -165,12 +143,6 @@ export function glob(globOptions: GlobOptions): Loader {
 					filePath,
 				});
 				if (entryType.getRenderFunction) {
-					if (isLegacy && data.layout) {
-						logger.error(
-							`The Markdown "layout" field is not supported in content collections in Astro 5. Ignoring layout for ${JSON.stringify(entry)}. Enable "legacy.collections" if you need to use the layout field.`,
-						);
-					}
-
 					let render = renderFunctionByContentType.get(entryType);
 
 					if (store.has(id)) {
@@ -206,7 +178,6 @@ export function glob(globOptions: GlobOptions): Loader {
 						digest,
 						rendered,
 						assetImports: rendered?.metadata?.imagePaths,
-						legacyId,
 					});
 
 					// todo: add an explicit way to opt in to deferred rendering
@@ -218,10 +189,9 @@ export function glob(globOptions: GlobOptions): Loader {
 						filePath: relativePath,
 						digest,
 						deferredRender: true,
-						legacyId,
 					});
 				} else {
-					store.set({ id, data: parsedData, body, filePath: relativePath, digest, legacyId });
+					store.set({ id, data: parsedData, body, filePath: relativePath, digest });
 				}
 
 				fileToIdMap.set(filePath, id);
@@ -269,11 +239,6 @@ export function glob(globOptions: GlobOptions): Loader {
 
 			const contentDir = new URL('content/', config.srcDir);
 
-			function isInContentDir(file: string) {
-				const fileUrl = new URL(file, baseDir);
-				return fileUrl.href.startsWith(contentDir.href);
-			}
-
 			const configFiles = new Set(
 				['config.js', 'config.ts', 'config.mjs'].map((file) => new URL(file, contentDir).href),
 			);
@@ -286,10 +251,6 @@ export function glob(globOptions: GlobOptions): Loader {
 			await Promise.all(
 				files.map((entry) => {
 					if (isConfigFile(entry)) {
-						return;
-					}
-					if (!emulateLegacyCollections && isInContentDir(entry)) {
-						skippedFiles.push(entry);
 						return;
 					}
 					return limit(async () => {

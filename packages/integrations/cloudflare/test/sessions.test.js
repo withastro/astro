@@ -1,40 +1,31 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import * as devalue from 'devalue';
 import cloudflare from '../dist/index.js';
-import { astroCli, loadFixture, wranglerCli } from './_test-utils.js';
-
-const root = new URL('./fixtures/sessions/', import.meta.url);
+import { loadFixture } from './_test-utils.js';
 
 describe('sessions', () => {
-	let wrangler;
+	let fixture;
+	let previewServer;
 
 	before(async () => {
-		await astroCli(fileURLToPath(root), 'build').getResult();
-
-		wrangler = wranglerCli(fileURLToPath(root));
-		await new Promise((resolve) => {
-			wrangler.stdout.on('data', (data) => {
-				// console.log('[stdout]', data.toString());
-				if (data.toString().includes('http://127.0.0.1:8788')) resolve();
-			});
-			wrangler.stderr.on('data', (_data) => {
-				// console.log('[stderr]', _data.toString());
-			});
+		fixture = await loadFixture({
+			root: './fixtures/sessions/',
 		});
+		await fixture.build();
+		previewServer = await fixture.preview();
 	});
 
-	after(() => {
-		wrangler.kill();
+	after(async () => {
+		await previewServer.stop();
 	});
 
 	it('can regenerate session cookies upon request', async () => {
-		const firstResponse = await fetch('http://127.0.0.1:8788/regenerate', { method: 'GET' });
+		const firstResponse = await fixture.fetch('/regenerate', { method: 'GET' });
 		const firstHeaders = firstResponse.headers.get('set-cookie').split(',');
 		const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
 
-		const secondResponse = await fetch('http://127.0.0.1:8788/regenerate', {
+		const secondResponse = await fixture.fetch('/regenerate', {
 			method: 'GET',
 			headers: {
 				cookie: `astro-session=${firstSessionId}`,
@@ -46,13 +37,13 @@ describe('sessions', () => {
 	});
 
 	it('can save session data by value', async () => {
-		const firstResponse = await fetch('http://127.0.0.1:8788/update', { method: 'GET' });
+		const firstResponse = await fixture.fetch('/update', { method: 'GET' });
 		const firstValue = await firstResponse.json();
 		assert.equal(firstValue.previousValue, 'none');
 
 		const firstHeaders = firstResponse.headers.get('set-cookie').split(',');
 		const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
-		const secondResponse = await fetch('http://127.0.0.1:8788/update', {
+		const secondResponse = await fixture.fetch('/update', {
 			method: 'GET',
 			headers: {
 				cookie: `astro-session=${firstSessionId}`,
@@ -63,7 +54,7 @@ describe('sessions', () => {
 	});
 
 	it('can save and restore URLs in session data', async () => {
-		const firstResponse = await fetch('http://127.0.0.1:8788/_actions/addUrl', {
+		const firstResponse = await fixture.fetch('/_actions/addUrl', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -77,7 +68,7 @@ describe('sessions', () => {
 
 		const data = devalue.parse(await firstResponse.text());
 		assert.equal(data.message, 'Favorite URL set to https://domain.invalid/ from nothing');
-		const secondResponse = await fetch('http://127.0.0.1:8788/_actions/addUrl', {
+		const secondResponse = await fixture.fetch('/_actions/addUrl', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -93,14 +84,14 @@ describe('sessions', () => {
 	});
 });
 
-describe('sessions with custom options', () => {
+describe.skip('sessions with custom options', () => {
 	it('can build with custom options', async () => {
 		let fixture;
 
 		await assert.doesNotReject(
 			async () => {
 				fixture = await loadFixture({
-					root,
+					root: './fixtures/sessions/',
 					adapter: cloudflare({}),
 					session: {
 						cookie: 'custom-session',

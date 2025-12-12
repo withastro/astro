@@ -142,7 +142,7 @@ async function writeNetlifyFrameworkConfig(
 
 	if (staticHeaders && staticHeaders.size > 0) {
 		for (const [pathname, { headers: routeHeaders }] of staticHeaders.entries()) {
-			if (config.experimental.csp) {
+			if (config.security.csp) {
 				const csp = routeHeaders.get('Content-Security-Policy');
 
 				if (csp) {
@@ -738,10 +738,11 @@ export default function netlifyIntegration(
 				if (existingSessionModule) {
 					server.moduleGraph.invalidateModule(existingSessionModule);
 				}
+
+				const clientLocalsSymbol = Symbol.for('astro.locals');
+
 				server.middlewares.use((req, _res, next) => {
-					const locals = Symbol.for('astro.locals');
-					Reflect.set(req, locals, {
-						...Reflect.get(req, locals),
+					Reflect.set(req, clientLocalsSymbol, {
 						netlify: { context: getLocalDevNetlifyContext(req) },
 					});
 					next();

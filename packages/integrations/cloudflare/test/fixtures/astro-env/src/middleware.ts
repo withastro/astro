@@ -1,4 +1,4 @@
-import { defineMiddleware } from 'astro/middleware'
+import { defineMiddleware } from 'astro:middleware'
 import { API_SECRET } from 'astro:env/server'
 
 const secret = API_SECRET
