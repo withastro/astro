@@ -14,7 +14,7 @@ import {
 	type ViteDevServer,
 } from 'vite';
 import parseArgs from 'yargs-parser';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 import { AstroDbError, isDbError } from '../../runtime/utils.js';
 import { CONFIG_FILE_NAMES, DB_PATH, VIRTUAL_MODULE_ID } from '../consts.js';
 import { EXEC_DEFAULT_EXPORT_ERROR, EXEC_ERROR } from '../errors.js';

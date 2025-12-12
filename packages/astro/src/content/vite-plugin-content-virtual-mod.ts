@@ -1,10 +1,11 @@
-import { dataToEsm } from '@rollup/pluginutils';
 import nodeFs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { dataToEsm } from '@rollup/pluginutils';
 import { normalizePath, type Plugin, type ViteDevServer } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { rootRelativePath } from '../core/viteUtils.js';
+import { isAstroClientEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroPluginMetadata } from '../vite-plugin-astro/index.js';
 import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
@@ -125,9 +126,9 @@ export function astroContentVirtualModPlugin({
 					`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_DATA_STORE_VIRTUAL_ID}|${ASSET_IMPORTS_RESOLVED_STUB_ID}|${MODULES_MJS_VIRTUAL_ID})$`,
 				),
 			},
-			async handler(id, opts) {
+			async handler(id) {
 				if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-					const isClient = !opts?.ssr;
+					const isClient = isAstroClientEnvironment(this.environment);
 					const code = await generateContentEntryFile({
 						settings,
 						fs,

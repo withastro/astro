@@ -1,12 +1,12 @@
+import { prependForwardSlash } from '@astrojs/internal-helpers/path';
+import type * as vite from 'vite';
 import type { Plugin, RunnableDevEnvironment } from 'vite';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { wrapId } from '../core/util.js';
 import type { ImportedDevStyle, RoutesList } from '../types/astro.js';
-import type * as vite from 'vite';
 import { isBuildableCSSRequest } from '../vite-plugin-astro-server/util.js';
 import { getVirtualModulePageNameForComponent } from '../vite-plugin-pages/util.js';
 import { getDevCSSModuleName } from './util.js';
-import { prependForwardSlash } from '@astrojs/internal-helpers/path';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 interface AstroVitePluginOptions {
 	routesList: RoutesList;
@@ -174,12 +174,18 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 				if (command === 'build') {
 					return;
 				}
+				if (id.startsWith(RESOLVED_MODULE_DEV_CSS_PREFIX)) {
+					const componentPath = getComponentFromVirtualModuleCssName(
+						RESOLVED_MODULE_DEV_CSS_PREFIX,
+						id,
+					);
 
-				// Cache CSS content as we see it
-				if (isBuildableCSSRequest(id)) {
-					const mod = environment?.moduleGraph.getModuleById(id);
-					if (mod) {
-						cssContentCache.set(id, code);
+					// Cache CSS content as we see it
+					if (isBuildableCSSRequest(id)) {
+						const mod = environment?.moduleGraph.getModuleById(id);
+						if (mod) {
+							cssContentCache.set(id, code);
+						}
 					}
 				}
 			},

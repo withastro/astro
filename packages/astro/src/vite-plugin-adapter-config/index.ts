@@ -1,4 +1,5 @@
 import type { Plugin as VitePlugin } from 'vite';
+import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 
 const VIRTUAL_CLIENT_ID = 'virtual:astro:adapter-config/client';
@@ -19,9 +20,9 @@ export function vitePluginAdapterConfig(settings: AstroSettings): VitePlugin {
 			filter: {
 				id: new RegExp(`^${RESOLVED_VIRTUAL_CLIENT_ID}$`),
 			},
-			handler(_id, options) {
+			handler() {
 				// During SSR, return empty headers to avoid any runtime issues
-				if (options?.ssr) {
+				if (isAstroServerEnvironment(this.environment)) {
 					return {
 						code: `export const internalFetchHeaders = {};`,
 					};

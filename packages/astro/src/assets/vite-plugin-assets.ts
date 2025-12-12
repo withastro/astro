@@ -12,6 +12,7 @@ import {
 	removeQueryString,
 } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
+import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
 	RESOLVED_VIRTUAL_MODULE_ID,
@@ -133,9 +134,9 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 				filter: {
 					id: new RegExp(`^(${VIRTUAL_SERVICE_ID}|${VIRTUAL_MODULE_ID})$`),
 				},
-				async handler(id, _importer, options) {
+				async handler(id) {
 					if (id === VIRTUAL_SERVICE_ID) {
-						if (options?.ssr) {
+						if (isAstroServerEnvironment(this.environment)) {
 							return await this.resolve(settings.config.image.service.entrypoint);
 						}
 						return await this.resolve('astro/assets/services/noop');
@@ -245,7 +246,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 				filter: {
 					id: assetRegex,
 				},
-				async handler(id, options) {
+				async handler(id) {
 					if (!globalThis.astroAsset.referencedImages)
 						globalThis.astroAsset.referencedImages = new Set();
 
@@ -274,7 +275,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					// We can only reliably determine if an image is used on the server, as we need to track its usage throughout the entire build.
 					// Since you cannot use image optimization on the client anyway, it's safe to assume that if the user imported
 					// an image on the client, it should be present in the final build.
-					if (options?.ssr) {
+					if (isAstroServerEnvironment(this.environment)) {
 						if (id.endsWith('.svg')) {
 							const contents = await fs.promises.readFile(imageMetadata.fsPath, {
 								encoding: 'utf8',

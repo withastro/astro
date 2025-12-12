@@ -20,6 +20,7 @@ import {
 import { hasContentFlag } from './utils.js';
 import { joinPaths, prependForwardSlash, slash } from '@astrojs/internal-helpers/path';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { isAstroServerEnvironment } from '../environments.js';
 
 export function astroContentAssetPropagationPlugin({
 	settings,
@@ -79,14 +80,14 @@ export function astroContentAssetPropagationPlugin({
 				server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as RunnableDevEnvironment,
 			);
 		},
-		async transform(_, id, options) {
+		async transform(_, id) {
 			if (hasContentFlag(id, PROPAGATED_ASSET_FLAG)) {
 				const basePath = id.split('?')[0];
 				let stringifiedLinks: string, stringifiedStyles: string;
 
 				// We can access the server in dev,
 				// so resolve collected styles and scripts here.
-				if (options?.ssr && devModuleLoader) {
+				if (isAstroServerEnvironment(this.environment) && devModuleLoader) {
 					if (!devModuleLoader.getModuleById(basePath)?.ssrModule) {
 						await devModuleLoader.import(basePath);
 					}

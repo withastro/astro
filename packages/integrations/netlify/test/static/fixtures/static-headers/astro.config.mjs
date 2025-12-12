@@ -7,7 +7,7 @@ export default defineConfig({
 		experimentalStaticHeaders: true
 	}),
 	site: "http://example.com",
-	experimental: {
+	security: {
 		csp: true
 	}
 });

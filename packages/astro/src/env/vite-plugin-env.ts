@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import type { Plugin } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { isAstroClientEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
 	CLIENT_VIRTUAL_MODULE_ID,
@@ -73,12 +74,15 @@ export function astroEnv({ settings, sync, envLoader }: AstroEnvPluginParams): P
 					`^(${RESOLVED_CLIENT_VIRTUAL_MODULE_ID}|${RESOLVED_SERVER_VIRTUAL_MODULE_ID}|${RESOLVED_INTERNAL_VIRTUAL_MODULE_ID})$`,
 				),
 			},
-			handler(id, options) {
+			handler(id) {
 				if (id === RESOLVED_INTERNAL_VIRTUAL_MODULE_ID) {
 					return { code: `export const schema = ${JSON.stringify(schema)};` };
 				}
 
-				if (id === RESOLVED_SERVER_VIRTUAL_MODULE_ID && !options?.ssr) {
+				if (
+					id === RESOLVED_SERVER_VIRTUAL_MODULE_ID &&
+					isAstroClientEnvironment(this.environment)
+				) {
 					throw new AstroError({
 						...AstroErrorData.ServerOnlyModule,
 						message: AstroErrorData.ServerOnlyModule.message(SERVER_VIRTUAL_MODULE_ID),
