@@ -101,9 +101,9 @@ export function importMetaEnv({ envLoader }: EnvPluginOptions): vite.Plugin {
 		transform: {
 			filter: {
 				id: {
-					include: [/import\.meta\.env/],
 					exclude: [/.*\.(html|htm|json)$/, CSS_LANGS_RE],
 				},
+				code: /import\.meta\.env/,
 			},
 			handler(source, id, options) {
 				if (!options?.ssr || viteConfig.assetsInclude(id)) {
