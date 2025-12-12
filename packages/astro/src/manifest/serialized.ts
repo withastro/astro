@@ -22,6 +22,7 @@ import type { AstroSettings } from '../types/astro.js';
 import { VIRTUAL_PAGES_MODULE_ID } from '../vite-plugin-pages/index.js';
 import { ASTRO_RENDERERS_MODULE_ID } from '../vite-plugin-renderers/index.js';
 import { ASTRO_ROUTES_MODULE_ID } from '../vite-plugin-routes/index.js';
+import { sessionConfigToManifest } from '../core/session/utils.js';
 
 export const SERIALIZED_MANIFEST_ID = 'virtual:astro:manifest';
 export const SERIALIZED_MANIFEST_RESOLVED_ID = '\0' + SERIALIZED_MANIFEST_ID;
@@ -146,7 +147,7 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key: await encodeKey(hasEnvironmentKey() ? await getEnvironmentKey() : await createKey()),
-		sessionConfig: settings.config.session,
+		session: sessionConfigToManifest(settings.config.session),
 		csp,
 		devToolbar: {
 			enabled:

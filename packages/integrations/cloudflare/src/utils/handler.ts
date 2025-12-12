@@ -34,7 +34,7 @@ export async function handle(
 	const { pathname } = new URL(request.url);
 
 	if (env[sessionKVBindingName]) {
-		const sessionConfigOptions = app.manifest.sessionConfig?.options ?? {};
+		const sessionConfigOptions = app.manifest.session?.options ?? {};
 		Object.assign(sessionConfigOptions, {
 			binding: env[sessionKVBindingName],
 		});
