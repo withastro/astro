@@ -79,8 +79,11 @@ export function astroContentAssetPropagationPlugin({
 				server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as RunnableDevEnvironment,
 			);
 		},
-		async transform(_, id, options) {
-			if (hasContentFlag(id, PROPAGATED_ASSET_FLAG)) {
+		transform: {
+			filter: {
+				id: new RegExp(`(?:\\?|&)${PROPAGATED_ASSET_FLAG}(?:&|=|$)`),
+			},
+			async handler(_, id, options) {
 				const basePath = id.split('?')[0];
 				let stringifiedLinks: string, stringifiedStyles: string;
 
@@ -128,7 +131,7 @@ export function astroContentAssetPropagationPlugin({
 				// ^ Use a default export for tools like Markdoc
 				// to catch the `__astroPropagation` identifier
 				return { code, map: { mappings: '' } };
-			}
+			},
 		},
 	};
 }

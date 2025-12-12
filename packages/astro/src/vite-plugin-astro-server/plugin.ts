@@ -56,7 +56,9 @@ export default function createVitePluginAstroServer({
 			if (!isRunnableDevEnvironment(viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
 				return;
 			}
-			const environment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as RunnableDevEnvironment;
+			const environment = viteServer.environments[
+				ASTRO_VITE_ENVIRONMENT_NAMES.ssr
+			] as RunnableDevEnvironment;
 			const loader = createViteLoader(viteServer, environment);
 			const { default: createAstroServerApp } = await environment.runner.import(ASTRO_DEV_APP_ID);
 			const controller = createController({ loader });
@@ -158,13 +160,6 @@ export default function createVitePluginAstroServer({
 				});
 			};
 		},
-		transform(code, id, opts = {}) {
-			if (opts.ssr) return;
-			if (!id.includes('vite/dist/client/client.mjs')) return;
-
-			// Replace the Vite overlay with ours
-			return patchOverlay(code);
-		},
 	};
 }
 
@@ -174,12 +169,14 @@ export function createVitePluginAstroServerClient(): vite.Plugin {
 		applyToEnvironment(environment) {
 			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client;
 		},
-		transform(code, id, opts = {}) {
-			if (opts.ssr) return;
-			if (!id.includes('vite/dist/client/client.mjs')) return;
-
-			// Replace the Vite overlay with ours
-			return patchOverlay(code);
+		transform: {
+			filter: {
+				id: /vite\/dist\/client\/client\.mjs/,
+			},
+			handler(code) {
+				// Replace the Vite overlay with ours
+				return patchOverlay(code);
+			},
 		},
 	};
 }

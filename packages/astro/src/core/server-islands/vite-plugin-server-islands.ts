@@ -45,81 +45,91 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 			},
 		},
 
-		async transform(_code, id) {
-			// We run the transform for all file extensions to support transformed files, eg. mdx
-			const info = this.getModuleInfo(id);
+		transform: {
+			filter: {
+				id: {
+					include: [
+						// Allows server islands in astro and mdx files
+						/\.(astro|mdx)$/,
+						new RegExp(`^${RESOLVED_SERVER_ISLAND_MANIFEST}$`),
+					],
+				},
+			},
+			async handler(_code, id) {
+				const info = this.getModuleInfo(id);
 
-			const astro = info ? (info.meta.astro as AstroPluginMetadata['astro']) : undefined;
+				const astro = info ? (info.meta.astro as AstroPluginMetadata['astro']) : undefined;
 
-			if (astro) {
-				for (const comp of astro.serverComponents) {
-					if (!serverIslandNameMap.has(comp.resolvedPath)) {
-						if (!settings.adapter) {
+				if (astro) {
+					for (const comp of astro.serverComponents) {
+						if (!serverIslandNameMap.has(comp.resolvedPath)) {
+							if (!settings.adapter) {
+								throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
+							}
+							let name = comp.localName;
+							let idx = 1;
+
+							while (true) {
+								// Name not taken, let's use it.
+								if (!serverIslandMap.has(name)) {
+									break;
+								}
+								// Increment a number onto the name: Avatar -> Avatar1
+								name += idx++;
+							}
+
+							// Append the name map, for prod
+							serverIslandNameMap.set(comp.resolvedPath, name);
+							serverIslandMap.set(name, comp.resolvedPath);
+
+							// Build mode
+							if (command === 'build') {
+								let referenceId = this.emitFile({
+									type: 'chunk',
+									id: comp.specifier,
+									importer: id,
+									name: comp.localName,
+								});
+								referenceIdMap.set(comp.resolvedPath, referenceId);
+							}
+						}
+					}
+				}
+
+				if (serverIslandNameMap.size > 0 && serverIslandMap.size > 0 && ssrEnvironment) {
+					// In dev, we need to clear the module graph so that Vite knows to re-transform
+					// the module with the new island information.
+					const mod = ssrEnvironment.moduleGraph.getModuleById(RESOLVED_SERVER_ISLAND_MANIFEST);
+					if (mod) {
+						ssrEnvironment.moduleGraph.invalidateModule(mod);
+					}
+				}
+
+				if (id === RESOLVED_SERVER_ISLAND_MANIFEST) {
+					if (command === 'build' && settings.buildOutput) {
+						const hasServerIslands = serverIslandNameMap.size > 0;
+						// Error if there are server islands but no adapter provided.
+						if (hasServerIslands && settings.buildOutput !== 'server') {
 							throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
 						}
-						let name = comp.localName;
-						let idx = 1;
+					}
 
-						while (true) {
-							// Name not taken, let's use it.
-							if (!serverIslandMap.has(name)) {
-								break;
-							}
-							// Increment a number onto the name: Avatar -> Avatar1
-							name += idx++;
+					if (serverIslandNameMap.size > 0 && serverIslandMap.size > 0) {
+						let mapSource = 'new Map([\n\t';
+						for (let [name, path] of serverIslandMap) {
+							mapSource += `\n\t['${name}', () => import('${path}')],`;
 						}
+						mapSource += ']);';
 
-						// Append the name map, for prod
-						serverIslandNameMap.set(comp.resolvedPath, name);
-						serverIslandMap.set(name, comp.resolvedPath);
-
-						// Build mode
-						if (command === 'build') {
-							let referenceId = this.emitFile({
-								type: 'chunk',
-								id: comp.specifier,
-								importer: id,
-								name: comp.localName,
-							});
-							referenceIdMap.set(comp.resolvedPath, referenceId);
-						}
-					}
-				}
-			}
-
-			if (serverIslandNameMap.size > 0 && serverIslandMap.size > 0 && ssrEnvironment) {
-				// In dev, we need to clear the module graph so that Vite knows to re-transform
-				// the module with the new island information.
-				const mod = ssrEnvironment.moduleGraph.getModuleById(RESOLVED_SERVER_ISLAND_MANIFEST);
-				if (mod) {
-					ssrEnvironment.moduleGraph.invalidateModule(mod);
-				}
-			}
-
-			if (id === RESOLVED_SERVER_ISLAND_MANIFEST) {
-				if (command === 'build' && settings.buildOutput) {
-					const hasServerIslands = serverIslandNameMap.size > 0;
-					// Error if there are server islands but no adapter provided.
-					if (hasServerIslands && settings.buildOutput !== 'server') {
-						throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
-					}
-				}
-
-				if (serverIslandNameMap.size > 0 && serverIslandMap.size > 0) {
-					let mapSource = 'new Map([\n\t';
-					for (let [name, path] of serverIslandMap) {
-						mapSource += `\n\t['${name}', () => import('${path}')],`;
-					}
-					mapSource += ']);';
-
-					return {
-						code: `
+						return {
+							code: `
 					export const serverIslandMap = ${mapSource};
 					\n\nexport const serverIslandNameMap = new Map(${JSON.stringify(Array.from(serverIslandNameMap.entries()), null, 2)});
 					`,
-					};
+						};
+					}
 				}
-			}
+			},
 		},
 
 		renderChunk(code, chunk) {

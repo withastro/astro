@@ -12,6 +12,7 @@ import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../internal.js'
 import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types.js';
 import { shouldInlineAsset } from './util.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
+import { CSS_LANGS_RE } from '../../viteUtils.js';
 
 /***** ASTRO PLUGIN *****/
 
@@ -53,8 +54,11 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 			);
 		},
 
-		transform(_code, id) {
-			if (isCSSRequest(id)) {
+		transform: {
+			filter: {
+				id: CSS_LANGS_RE,
+			},
+			handler(_code, id) {
 				// In prerender, don't rebundle CSS that was already bundled in SSR.
 				// Return an empty string here to prevent it.
 				if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) {
@@ -65,7 +69,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					}
 				}
 				cssModulesInBundles.add(id);
-			}
+			},
 		},
 
 		async generateBundle(_outputOptions, bundle) {
