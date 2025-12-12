@@ -30,7 +30,11 @@ export function vitePluginActionsBuild(
 		name: '@astro/plugin-actions-build',
 
 		applyToEnvironment(environment) {
-			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
+			return (
+ 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro
+			);
 		},
 
 		writeBundle(_, bundle) {

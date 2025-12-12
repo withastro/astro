@@ -28,7 +28,7 @@ describe(
 
 			assert.deepStrictEqual(hover?.contents, {
 				kind: 'markdown',
-				value: "The blog post's title.",
+				value: "The blog post's title\\.",
 			});
 		});
 	},
