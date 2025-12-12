@@ -254,6 +254,10 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				async handler(source, id) {
 					const parsedId = parseAstroRequest(id);
 
+					if (!parsedId.filename.endsWith('.astro')) {
+						return;
+					}
+
 					const filename = normalizePath(parsedId.filename);
 
 					// If an Astro component is imported in code used on the client, we return an empty
