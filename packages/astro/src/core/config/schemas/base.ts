@@ -521,7 +521,7 @@ export const AstroConfigSchema = z.object({
 		.object({
 			collectionsBackwardsCompat: z.boolean().optional().default(false),
 		})
-		.default({}),
+		.prefault({}),
 });
 
 export type AstroConfigType = z.infer<typeof AstroConfigSchema>;
