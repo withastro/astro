@@ -17,39 +17,45 @@ export default function astroScriptsPlugin({ settings }: { settings: AstroSettin
 	return {
 		name: 'astro:scripts',
 
-		async resolveId(id) {
-			if (id.startsWith(SCRIPT_ID_PREFIX)) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${SCRIPT_ID_PREFIX}`),
+			},
+			handler(id) {
 				return id;
-			}
-			return undefined;
+			},
 		},
 
-		async load(id) {
-			if (id === BEFORE_HYDRATION_SCRIPT_ID) {
-				return {
-					code: settings.scripts
-						.filter((s) => s.stage === 'before-hydration')
-						.map((s) => s.content)
-						.join('\n'),
-				};
-			}
-			if (id === PAGE_SCRIPT_ID) {
-				return {
-					code: settings.scripts
-						.filter((s) => s.stage === 'page')
-						.map((s) => s.content)
-						.join('\n'),
-				};
-			}
-			if (id === PAGE_SSR_SCRIPT_ID) {
-				return {
-					code: settings.scripts
-						.filter((s) => s.stage === 'page-ssr')
-						.map((s) => s.content)
-						.join('\n'),
-				};
-			}
-			return null;
+		load: {
+			filter: {
+				id: new RegExp(`^(${BEFORE_HYDRATION_SCRIPT_ID}|${PAGE_SCRIPT_ID}|${PAGE_SSR_SCRIPT_ID})$`),
+			},
+			handler(id) {
+				if (id === BEFORE_HYDRATION_SCRIPT_ID) {
+					return {
+						code: settings.scripts
+							.filter((s) => s.stage === 'before-hydration')
+							.map((s) => s.content)
+							.join('\n'),
+					};
+				}
+				if (id === PAGE_SCRIPT_ID) {
+					return {
+						code: settings.scripts
+							.filter((s) => s.stage === 'page')
+							.map((s) => s.content)
+							.join('\n'),
+					};
+				}
+				if (id === PAGE_SSR_SCRIPT_ID) {
+					return {
+						code: settings.scripts
+							.filter((s) => s.stage === 'page-ssr')
+							.map((s) => s.content)
+							.join('\n'),
+					};
+				}
+			},
 		},
 		buildStart() {
 			const hasHydrationScripts = settings.scripts.some((s) => s.stage === 'before-hydration');

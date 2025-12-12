@@ -17,6 +17,7 @@ export function isObject(value: unknown): value is Record<string, any> {
 export function isURL(value: unknown): value is URL {
 	return Object.prototype.toString.call(value) === '[object URL]';
 }
+
 /** Check if a file is a markdown file based on its extension */
 export function isMarkdownFile(fileId: string, option?: { suffix?: string }): boolean {
 	if (hasSpecialQueries(fileId)) {

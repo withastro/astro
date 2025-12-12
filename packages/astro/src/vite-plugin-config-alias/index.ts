@@ -133,32 +133,37 @@ export default function configAliasVitePlugin({
 				},
 			};
 		},
-		async resolveId(id, importer, options) {
-			if (isVirtualId(id)) return;
+		resolveId: {
+			filter: {
+				id: {
+					include: configAlias.map((alias) => alias.find),
+					exclude: /(?:\0|^virtual:|^astro:)/,
+				},
+			},
+			async handler(id, importer, options) {
+				// Handle aliases found from `compilerOptions.paths`. Unlike Vite aliases, tsconfig aliases
+				// are best effort only, so we have to manually replace them here, instead of using `vite.resolve.alias`
+				for (const alias of configAlias) {
+					if (alias.find.test(id)) {
+						const updatedId = id.replace(alias.find, alias.replacement);
 
-			// Handle aliases found from `compilerOptions.paths`. Unlike Vite aliases, tsconfig aliases
-			// are best effort only, so we have to manually replace them here, instead of using `vite.resolve.alias`
-			for (const alias of configAlias) {
-				if (alias.find.test(id)) {
-					const updatedId = id.replace(alias.find, alias.replacement);
+						// Vite may pass an id with "*" when resolving glob import paths
+						// Returning early allows Vite to handle the final resolution
+						// See https://github.com/withastro/astro/issues/9258#issuecomment-1838806157
+						if (updatedId.includes('*')) {
+							return updatedId;
+						}
 
-					// Vite may pass an id with "*" when resolving glob import paths
-					// Returning early allows Vite to handle the final resolution
-					// See https://github.com/withastro/astro/issues/9258#issuecomment-1838806157
-					if (updatedId.includes('*')) {
-						return updatedId;
+						const resolved = await this.resolve(updatedId, importer, {
+							skipSelf: true,
+							...options,
+						});
+						if (resolved) return resolved;
 					}
-
-					const resolved = await this.resolve(updatedId, importer, { skipSelf: true, ...options });
-					if (resolved) return resolved;
 				}
-			}
+			},
 		},
 	};
 
 	return plugin;
-}
-
-function isVirtualId(id: string) {
-	return id.includes('\0') || id.startsWith('virtual:') || id.startsWith('astro:');
 }

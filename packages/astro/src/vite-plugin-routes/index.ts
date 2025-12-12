@@ -100,8 +100,20 @@ export default async function astroPluginRoutes({
 			);
 		},
 
-		load(id) {
-			if (id === ASTRO_ROUTES_MODULE_ID_RESOLVED) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${ASTRO_ROUTES_MODULE_ID}$`),
+			},
+			handler() {
+				return ASTRO_ROUTES_MODULE_ID_RESOLVED;
+			},
+		},
+
+		load: {
+			filter: {
+				id: new RegExp(`^${ASTRO_ROUTES_MODULE_ID_RESOLVED}$`),
+			},
+			handler() {
 				const environmentName = this.environment.name;
 				const filteredRoutes = serializedRouteInfo.filter((routeInfo) => {
 					if (command === 'build') {
@@ -124,16 +136,8 @@ export default async function astroPluginRoutes({
 				export { routes };
 				`;
 
-				return {
-					code,
-				};
-			}
-		},
-
-		resolveId(id) {
-			if (id === ASTRO_ROUTES_MODULE_ID) {
-				return ASTRO_ROUTES_MODULE_ID_RESOLVED;
-			}
+				return { code };
+			},
 		},
 
 		async transform(this, code, id) {

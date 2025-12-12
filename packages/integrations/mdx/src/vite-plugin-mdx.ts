@@ -32,12 +32,18 @@ export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 				resolved.plugins.splice(jsxPluginIndex, 1);
 			}
 		},
-		async resolveId(source, importer, options) {
-			if (importer?.endsWith('.mdx') && source[0] !== '/') {
-				let resolved = await this.resolve(source, importer, options);
-				if (!resolved) resolved = await this.resolve('./' + source, importer, options);
-				return resolved;
-			}
+		resolveId: {
+			filter: {
+				// Do not match sources that start with /
+				id: /^[^/]/,
+			},
+			async handler(source, importer, options) {
+				if (importer?.endsWith('.mdx')) {
+					let resolved = await this.resolve(source, importer, options);
+					if (!resolved) resolved = await this.resolve('./' + source, importer, options);
+					return resolved;
+				}
+			},
 		},
 		// Override transform to alter code before MDX compilation
 		// ex. inject layouts

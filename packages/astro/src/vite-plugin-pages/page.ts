@@ -19,13 +19,19 @@ export function pluginPage({ routesList }: PagePluginOptions): VitePlugin {
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
 		},
-		resolveId(id) {
-			if (id.startsWith(VIRTUAL_PAGE_MODULE_ID)) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${VIRTUAL_PAGE_MODULE_ID}`),
+			},
+			handler(id) {
 				return VIRTUAL_PAGE_RESOLVED_MODULE_ID + id.slice(VIRTUAL_PAGE_MODULE_ID.length);
-			}
+			},
 		},
-		async load(id) {
-			if (id.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)) {
+		load: {
+			filter: {
+				id: new RegExp(`^${VIRTUAL_PAGE_RESOLVED_MODULE_ID}`),
+			},
+			handler(id) {
 				const componentPath = getComponentFromVirtualModulePageName(
 					VIRTUAL_PAGE_RESOLVED_MODULE_ID,
 					id,
@@ -53,7 +59,7 @@ export function pluginPage({ routesList }: PagePluginOptions): VitePlugin {
 
 					return { code: `${imports.join('\n')}\n${exports.join('\n')}` };
 				}
-			}
+			},
 		},
 	};
 }

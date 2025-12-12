@@ -4,6 +4,7 @@ import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import type { Logger } from '../core/logger/core.js';
+import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import { hasSpecialQueries, normalizeFilename } from '../vite-plugin-utils/index.js';
@@ -12,7 +13,6 @@ import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
 import type { PluginMetadata as AstroPluginMetadata, CompileMetadata } from './types.js';
 import { loadId } from './utils.js';
-import { isAstroServerEnvironment } from '../environments.js';
 
 export { getAstroMetadata } from './metadata.js';
 export type { AstroPluginMetadata };
@@ -92,121 +92,124 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				astroFileToCompileMetadataWeakMap.set(config, astroFileToCompileMetadata);
 			}
 		},
-		async load(id) {
-			const parsedId = parseAstroRequest(id);
-			const query = parsedId.query;
-			if (!query.astro) {
-				return null;
-			}
+		load: {
+			filter: {
+				id: /(?:\?|&)astro(?:&|=|$)/,
+			},
+			async handler(id) {
+				const parsedId = parseAstroRequest(id);
+				const query = parsedId.query;
 
-			// Astro scripts and styles virtual module code comes from the main Astro compilation
-			// through the metadata from `astroFileToCompileMetadata`. It should always exist as Astro
-			// modules are compiled first, then its virtual modules.
-			const filename = normalizePath(normalizeFilename(parsedId.filename, config.root));
-			let compileMetadata = astroFileToCompileMetadata.get(filename);
-			if (!compileMetadata) {
-				// If `compileMetadata` doesn't exist in dev, that means the virtual module may have been invalidated.
-				// We try to re-compile the main Astro module (`filename`) first before retrieving the metadata again.
-				if (server) {
-					const code = await loadId(server.pluginContainer, filename);
-					// `compile` should re-set `filename` in `astroFileToCompileMetadata`
-					if (code != null) await compile(code, filename);
+				// Astro scripts and styles virtual module code comes from the main Astro compilation
+				// through the metadata from `astroFileToCompileMetadata`. It should always exist as Astro
+				// modules are compiled first, then its virtual modules.
+				const filename = normalizePath(normalizeFilename(parsedId.filename, config.root));
+				let compileMetadata = astroFileToCompileMetadata.get(filename);
+				if (!compileMetadata) {
+					// If `compileMetadata` doesn't exist in dev, that means the virtual module may have been invalidated.
+					// We try to re-compile the main Astro module (`filename`) first before retrieving the metadata again.
+					if (server) {
+						const code = await loadId(server.pluginContainer, filename);
+						// `compile` should re-set `filename` in `astroFileToCompileMetadata`
+						if (code != null) await compile(code, filename);
+					}
+
+					compileMetadata = astroFileToCompileMetadata.get(filename);
+				}
+				// If the metadata still doesn't exist, that means the virtual modules are somehow compiled first,
+				// throw an error and we should investigate it.
+				if (!compileMetadata) {
+					throw new Error(
+						`No cached compile metadata found for "${id}". The main Astro module "${filename}" should have ` +
+							`compiled and filled the metadata first, before its virtual modules can be requested.`,
+					);
 				}
 
-				compileMetadata = astroFileToCompileMetadata.get(filename);
-			}
-			// If the metadata still doesn't exist, that means the virtual modules are somehow compiled first,
-			// throw an error and we should investigate it.
-			if (!compileMetadata) {
-				throw new Error(
-					`No cached compile metadata found for "${id}". The main Astro module "${filename}" should have ` +
-						`compiled and filled the metadata first, before its virtual modules can be requested.`,
-				);
-			}
+				switch (query.type) {
+					case 'style': {
+						if (typeof query.index === 'undefined') {
+							throw new Error(`Requests for Astro CSS must include an index.`);
+						}
 
-			switch (query.type) {
-				case 'style': {
-					if (typeof query.index === 'undefined') {
-						throw new Error(`Requests for Astro CSS must include an index.`);
-					}
+						const result = compileMetadata.css[query.index];
+						if (!result) {
+							throw new Error(`No Astro CSS at index ${query.index}`);
+						}
 
-					const result = compileMetadata.css[query.index];
-					if (!result) {
-						throw new Error(`No Astro CSS at index ${query.index}`);
-					}
+						// Register dependencies from preprocessing this style
+						result.dependencies?.forEach((dep) => this.addWatchFile(dep));
 
-					// Register dependencies from preprocessing this style
-					result.dependencies?.forEach((dep) => this.addWatchFile(dep));
-
-					return {
-						code: result.code,
-						// `vite.cssScopeTo` is a Vite feature that allows this CSS to be treeshaken
-						// if the Astro component's default export is not used
-						meta: result.isGlobal
-							? undefined
-							: {
-									vite: {
-										cssScopeTo: [filename, 'default'],
-									},
-								},
-					};
-				}
-				case 'script': {
-					if (typeof query.index === 'undefined') {
-						throw new Error(`Requests for scripts must include an index`);
-					}
-					// SSR script only exists to make them appear in the module graph.
-					if (isAstroServerEnvironment(this.environment)) {
 						return {
-							code: `/* client script, empty in SSR: ${id} */`,
+							code: result.code,
+							// `vite.cssScopeTo` is a Vite feature that allows this CSS to be treeshaken
+							// if the Astro component's default export is not used
+							meta: result.isGlobal
+								? undefined
+								: {
+										vite: {
+											cssScopeTo: [filename, 'default'],
+										},
+									},
 						};
 					}
-
-					const script = compileMetadata.scripts[query.index];
-					if (!script) {
-						throw new Error(`No script at index ${query.index}`);
-					}
-
-					if (script.type === 'external') {
-						const src = script.src;
-						if (src.startsWith('/') && !isBrowserPath(src)) {
-							const publicDir = config.publicDir.pathname.replace(/\/$/, '').split('/').pop() + '/';
-							throw new Error(
-								`\n\n<script src="${src}"> references an asset in the "${publicDir}" directory. Please add the "is:inline" directive to keep this asset from being bundled.\n\nFile: ${id}`,
-							);
+					case 'script': {
+						if (typeof query.index === 'undefined') {
+							throw new Error(`Requests for scripts must include an index`);
 						}
-					}
+						// SSR script only exists to make them appear in the module graph.
+						if (isAstroServerEnvironment(this.environment)) {
+							return {
+								code: `/* client script, empty in SSR: ${id} */`,
+							};
+						}
 
-					const result: SourceDescription = {
-						code: '',
-						meta: {
-							vite: {
-								lang: 'ts',
+						const script = compileMetadata.scripts[query.index];
+						if (!script) {
+							throw new Error(`No script at index ${query.index}`);
+						}
+
+						if (script.type === 'external') {
+							const src = script.src;
+							if (src.startsWith('/') && !isBrowserPath(src)) {
+								const publicDir =
+									config.publicDir.pathname.replace(/\/$/, '').split('/').pop() + '/';
+								throw new Error(
+									`\n\n<script src="${src}"> references an asset in the "${publicDir}" directory. Please add the "is:inline" directive to keep this asset from being bundled.\n\nFile: ${id}`,
+								);
+							}
+						}
+
+						const result: SourceDescription = {
+							code: '',
+							meta: {
+								vite: {
+									lang: 'ts',
+								},
 							},
-						},
-					};
+						};
 
-					switch (script.type) {
-						case 'inline': {
-							const { code, map } = script;
-							result.code = appendSourceMap(code, map);
-							break;
+						switch (script.type) {
+							case 'inline': {
+								const { code, map } = script;
+								result.code = appendSourceMap(code, map);
+								break;
+							}
+							case 'external': {
+								const { src } = script;
+								result.code = `import "${src}"`;
+								break;
+							}
 						}
-						case 'external': {
-							const { src } = script;
-							result.code = `import "${src}"`;
-							break;
-						}
+
+						return result;
 					}
-
-					return result;
+					case 'custom':
+					case 'template':
+					case undefined:
+					default:
+						return null;
 				}
-				case 'custom':
-				case 'template':
-				case undefined:
-				default:
-					return null;
-			}
+			},
 		},
 		async transform(source, id) {
 			if (hasSpecialQueries(id)) return;
@@ -281,12 +284,14 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 	const normalPlugin: vite.Plugin = {
 		name: 'astro:build:normal',
-		resolveId(id) {
-			// If Vite resolver can't resolve the Astro request, it's likely a virtual Astro file, fallback here instead
-			const parsedId = parseAstroRequest(id);
-			if (parsedId.query.astro) {
+		// If Vite resolver can't resolve the Astro request, it's likely a virtual Astro file, fallback here instead
+		resolveId: {
+			filter: {
+				id: /(?:\?|&)astro(?:&|=|$)/,
+			},
+			handler(id) {
 				return id;
-			}
+			},
 		},
 	};
 

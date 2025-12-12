@@ -12,8 +12,14 @@ import {
 	removeQueryString,
 } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
+import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
-import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
+import {
+	RESOLVED_VIRTUAL_MODULE_ID,
+	VALID_INPUT_FORMATS,
+	VIRTUAL_MODULE_ID,
+	VIRTUAL_SERVICE_ID,
+} from './consts.js';
 import { fontsPlugin } from './fonts/vite-plugin-fonts.js';
 import type { ImageTransform } from './types.js';
 import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
@@ -22,9 +28,6 @@ import { emitImageMetadata, hashTransform, propsToFilename } from './utils/node.
 import { getProxyCode } from './utils/proxy.js';
 import { makeSvgComponent } from './utils/svg.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
-import { isAstroServerEnvironment } from '../environments.js';
-
-const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
 const assetRegex = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})`, 'i');
 const assetRegexEnds = new RegExp(`\\.(${VALID_INPUT_FORMATS.join('|')})$`, 'i');
@@ -127,19 +130,27 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 			config(_, env) {
 				isBuild = env.command === 'build';
 			},
-			async resolveId(id, _importer) {
-				if (id === VIRTUAL_SERVICE_ID) {
-					if (isAstroServerEnvironment(this.environment)) {
-						return await this.resolve(settings.config.image.service.entrypoint);
+			resolveId: {
+				filter: {
+					id: new RegExp(`^(${VIRTUAL_SERVICE_ID}|${VIRTUAL_MODULE_ID})$`),
+				},
+				async handler(id) {
+					if (id === VIRTUAL_SERVICE_ID) {
+						if (isAstroServerEnvironment(this.environment)) {
+							return await this.resolve(settings.config.image.service.entrypoint);
+						}
+						return await this.resolve('astro/assets/services/noop');
 					}
-					return await this.resolve('astro/assets/services/noop');
-				}
-				if (id === VIRTUAL_MODULE_ID) {
-					return resolvedVirtualModuleId;
-				}
+					if (id === VIRTUAL_MODULE_ID) {
+						return RESOLVED_VIRTUAL_MODULE_ID;
+					}
+				},
 			},
-			load(id) {
-				if (id === resolvedVirtualModuleId) {
+			load: {
+				filter: {
+					id: new RegExp(`^(${RESOLVED_VIRTUAL_MODULE_ID})$`),
+				},
+				handler() {
 					return {
 						code: `
 							export { getConfiguredImageService, isLocalService } from "astro/assets";
@@ -186,7 +197,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							export const getFontData = createGetFontData(fontsMod);
 						`,
 					};
-				}
+				},
 			},
 			buildStart() {
 				if (!isBuild) return;
@@ -231,8 +242,11 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 			configResolved(viteConfig) {
 				resolvedConfig = viteConfig;
 			},
-			async load(id) {
-				if (assetRegex.test(id)) {
+			load: {
+				filter: {
+					id: assetRegex,
+				},
+				async handler(id) {
 					if (!globalThis.astroAsset.referencedImages)
 						globalThis.astroAsset.referencedImages = new Set();
 
@@ -283,7 +297,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							code: `export default ${JSON.stringify(imageMetadata)}`,
 						};
 					}
-				}
+				},
 			},
 		},
 		fontsPlugin({ settings, sync, logger }),

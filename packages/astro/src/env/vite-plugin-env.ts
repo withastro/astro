@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import type { Plugin } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { isAstroClientEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
 	CLIENT_VIRTUAL_MODULE_ID,
@@ -15,7 +16,6 @@ import type { EnvLoader } from './env-loader.js';
 import { type InvalidVariable, invalidVariablesToError } from './errors.js';
 import type { EnvSchema } from './schema.js';
 import { getEnvFieldType, validateEnvVariable } from './validators.js';
-import { isAstroClientEnvironment } from '../environments.js';
 
 interface AstroEnvPluginParams {
 	settings: AstroSettings;
@@ -50,53 +50,70 @@ export function astroEnv({ settings, sync, envLoader }: AstroEnvPluginParams): P
 
 			populated = true;
 		},
-		resolveId(id) {
-			if (id === CLIENT_VIRTUAL_MODULE_ID) {
-				return RESOLVED_CLIENT_VIRTUAL_MODULE_ID;
-			}
-			if (id === SERVER_VIRTUAL_MODULE_ID) {
-				return RESOLVED_SERVER_VIRTUAL_MODULE_ID;
-			}
-			if (id === INTERNAL_VIRTUAL_MODULE_ID) {
-				return RESOLVED_INTERNAL_VIRTUAL_MODULE_ID;
-			}
+		resolveId: {
+			filter: {
+				id: new RegExp(
+					`^(${CLIENT_VIRTUAL_MODULE_ID}|${SERVER_VIRTUAL_MODULE_ID}|${INTERNAL_VIRTUAL_MODULE_ID})$`,
+				),
+			},
+			handler(id) {
+				if (id === CLIENT_VIRTUAL_MODULE_ID) {
+					return RESOLVED_CLIENT_VIRTUAL_MODULE_ID;
+				}
+				if (id === SERVER_VIRTUAL_MODULE_ID) {
+					return RESOLVED_SERVER_VIRTUAL_MODULE_ID;
+				}
+				if (id === INTERNAL_VIRTUAL_MODULE_ID) {
+					return RESOLVED_INTERNAL_VIRTUAL_MODULE_ID;
+				}
+			},
 		},
-		load(id) {
-			if (id === RESOLVED_INTERNAL_VIRTUAL_MODULE_ID) {
-				return { code: `export const schema = ${JSON.stringify(schema)};` };
-			}
-
-			if (id === RESOLVED_SERVER_VIRTUAL_MODULE_ID && isAstroClientEnvironment(this.environment)) {
-				throw new AstroError({
-					...AstroErrorData.ServerOnlyModule,
-					message: AstroErrorData.ServerOnlyModule.message(SERVER_VIRTUAL_MODULE_ID),
-				});
-			}
-
-			if (id === RESOLVED_CLIENT_VIRTUAL_MODULE_ID || id === RESOLVED_SERVER_VIRTUAL_MODULE_ID) {
-				const loadedEnv = envLoader.get();
-
-				const validatedVariables = validatePublicVariables({
-					schema,
-					loadedEnv,
-					validateSecrets,
-					sync,
-				});
-				const { client, server } = getTemplates({
-					schema,
-					validatedVariables,
-					// In dev, we inline process.env to avoid freezing it
-					loadedEnv: isBuild ? null : loadedEnv,
-				});
-
-				if (id === RESOLVED_CLIENT_VIRTUAL_MODULE_ID) {
-					return { code: client };
+		load: {
+			filter: {
+				id: new RegExp(
+					`^(${RESOLVED_CLIENT_VIRTUAL_MODULE_ID}|${RESOLVED_SERVER_VIRTUAL_MODULE_ID}|${RESOLVED_INTERNAL_VIRTUAL_MODULE_ID})$`,
+				),
+			},
+			handler(id) {
+				if (id === RESOLVED_INTERNAL_VIRTUAL_MODULE_ID) {
+					return { code: `export const schema = ${JSON.stringify(schema)};` };
 				}
 
-				if (id === RESOLVED_SERVER_VIRTUAL_MODULE_ID) {
-					return { code: server };
+				if (
+					id === RESOLVED_SERVER_VIRTUAL_MODULE_ID &&
+					isAstroClientEnvironment(this.environment)
+				) {
+					throw new AstroError({
+						...AstroErrorData.ServerOnlyModule,
+						message: AstroErrorData.ServerOnlyModule.message(SERVER_VIRTUAL_MODULE_ID),
+					});
 				}
-			}
+
+				if (id === RESOLVED_CLIENT_VIRTUAL_MODULE_ID || id === RESOLVED_SERVER_VIRTUAL_MODULE_ID) {
+					const loadedEnv = envLoader.get();
+
+					const validatedVariables = validatePublicVariables({
+						schema,
+						loadedEnv,
+						validateSecrets,
+						sync,
+					});
+					const { client, server } = getTemplates({
+						schema,
+						validatedVariables,
+						// In dev, we inline process.env to avoid freezing it
+						loadedEnv: isBuild ? null : loadedEnv,
+					});
+
+					if (id === RESOLVED_CLIENT_VIRTUAL_MODULE_ID) {
+						return { code: client };
+					}
+
+					if (id === RESOLVED_SERVER_VIRTUAL_MODULE_ID) {
+						return { code: server };
+					}
+				}
+			},
 		},
 	};
 }
