@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.19.0-alpha.1
+
+### Patch Changes
+
+- [#14956](https://github.com/withastro/astro/pull/14956) [`0ff51df`](https://github.com/withastro/astro/commit/0ff51dfa3c6c615af54228e159f324034472b1a2) Thanks [@matthewp](https://github.com/matthewp)! - Updates usage of zod to own dependency rather than relying on `astro/zod`
+
 ## 0.19.0-alpha.0
 
 ### Minor Changes
