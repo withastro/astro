@@ -7,7 +7,7 @@ import colors from 'piccolore';
 import type { PluginContext } from 'rollup';
 import type { RunnableDevEnvironment } from 'vite';
 import xxhash from 'xxhash-wasm';
-import { type ZodSchema, z } from 'zod';
+import * as z from 'zod/v4';
 import { AstroError, AstroErrorData, errorMap, MarkdownError } from '../core/errors/index.js';
 import { isYAMLException } from '../core/errors/utils.js';
 import type { Logger } from '../core/logger/core.js';
@@ -32,7 +32,7 @@ import { createImage } from './runtime-assets.js';
 const entryTypeSchema = z
 	.object({
 		id: z.string({
-			invalid_type_error: 'Content entry `id` must be a string',
+			error: 'Content entry `id` must be a string',
 			// Default to empty string so we can validate properly in the loader
 		}),
 	})
@@ -46,7 +46,7 @@ export const loaderReturnSchema = z.union([
 			.object({
 				id: z
 					.string({
-						invalid_type_error: 'Content entry `id` must be a string',
+						error: 'Content entry `id` must be a string',
 					})
 					.optional(),
 			})
@@ -72,7 +72,13 @@ const collectionConfigParser = z.union([
 			z.function(),
 			z.object({
 				name: z.string(),
-				load: z.function().args(z.custom<LoaderContext>()).returns(z.promise(z.void())),
+				load: z.function({
+					input: [z.custom<LoaderContext>()],
+					output: z.custom<{
+						schema?: any;
+						types?: string;
+					} | void>(),
+				}),
 				schema: z
 					.any()
 					.transform((v) => {
@@ -85,7 +91,7 @@ const collectionConfigParser = z.union([
 						return v;
 					})
 					.superRefine((v, ctx) => {
-						if (v !== undefined && !('_def' in v)) {
+						if (v !== undefined && !('_zod' in v)) {
 							ctx.addIssue({
 								code: z.ZodIssueCode.custom,
 								message: 'Invalid Zod schema',
@@ -95,15 +101,15 @@ const collectionConfigParser = z.union([
 					})
 					.optional(),
 				createSchema: z
-					.function()
-					.returns(
-						z.promise(
+					.function({
+						input: [],
+						output: z.promise(
 							z.object({
-								schema: z.custom<ZodSchema>((v) => '_def' in v),
+								schema: z.custom<z.ZodSchema>((v: any) => '_zod' in v),
 								types: z.string(),
 							}),
 						),
-					)
+					})
 					.optional(),
 			}),
 		]),
@@ -116,7 +122,7 @@ const collectionConfigParser = z.union([
 ]);
 
 const contentConfigParser = z.object({
-	collections: z.record(collectionConfigParser),
+	collections: z.record(z.string(), collectionConfigParser),
 });
 
 export type CollectionConfig = z.infer<typeof collectionConfigParser>;
@@ -201,11 +207,11 @@ export async function getEntryData<
 		// Use `safeParseAsync` to allow async transforms
 		let formattedError;
 		const parsed = await (schema as z.ZodSchema).safeParseAsync(data, {
-			errorMap(error, ctx) {
-				if (error.code === 'custom' && error.params?.isHoistedAstroError) {
-					formattedError = error.params?.astroError;
+			error(issue) {
+				if (issue.code === 'custom' && issue.params?.isHoistedAstroError) {
+					formattedError = issue.params?.astroError;
 				}
-				return errorMap(error, ctx);
+				return errorMap(issue);
 			},
 		});
 		if (parsed.success) {
@@ -223,7 +229,7 @@ export async function getEntryData<
 						file: entry._internal?.filePath,
 						line: getYAMLErrorLine(
 							entry._internal?.rawData,
-							String(parsed.error.errors[0].path[0]),
+							String(parsed.error.issues[0].path[0]),
 						),
 						column: 0,
 					},

@@ -68,10 +68,7 @@ export const serverEntrypoint = ${JSON.stringify(adapter.serverEntrypoint)};`,
 	};
 }
 
-function vitePluginSSR(
-	internals: BuildInternals,
-	adapter: AstroAdapter,
-): VitePlugin {
+function vitePluginSSR(internals: BuildInternals, adapter: AstroAdapter): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr-server',
 		enforce: 'post',
@@ -115,10 +112,7 @@ function vitePluginSSR(
 	};
 }
 
-export function pluginSSR(
-	options: StaticBuildOptions,
-	internals: BuildInternals,
-): VitePlugin[] {
+export function pluginSSR(options: StaticBuildOptions, internals: BuildInternals): VitePlugin[] {
 	// We check before this point if there's an adapter, so we can safely assume it exists here.
 	const adapter = options.settings.adapter!;
 	const ssr = options.settings.buildOutput === 'server';
@@ -131,4 +125,3 @@ export function pluginSSR(
 
 	return plugins;
 }
-

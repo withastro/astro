@@ -29,7 +29,7 @@ export const SERIALIZED_MANIFEST_RESOLVED_ID = '\0' + SERIALIZED_MANIFEST_ID;
 export function serializedManifestPlugin({
 	settings,
 	command,
-	sync
+	sync,
 }: {
 	settings: AstroSettings;
 	command: 'dev' | 'build';
@@ -102,18 +102,18 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 		};
 	}
 
-	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
+	if (shouldTrackCspHashes(settings.config.security.csp)) {
 		csp = {
 			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
 				? 'adapter'
 				: undefined,
-			scriptHashes: getScriptHashes(settings.config.experimental.csp),
-			scriptResources: getScriptResources(settings.config.experimental.csp),
-			styleHashes: getStyleHashes(settings.config.experimental.csp),
-			styleResources: getStyleResources(settings.config.experimental.csp),
-			algorithm: getAlgorithm(settings.config.experimental.csp),
+			scriptHashes: getScriptHashes(settings.config.security.csp),
+			scriptResources: getScriptResources(settings.config.security.csp),
+			styleHashes: getStyleHashes(settings.config.security.csp),
+			styleResources: getStyleResources(settings.config.security.csp),
+			algorithm: getAlgorithm(settings.config.security.csp),
 			directives: getDirectives(settings),
-			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
+			isStrictDynamic: getStrictDynamic(settings.config.security.csp),
 		};
 	}
 

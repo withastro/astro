@@ -28,7 +28,7 @@ jobs:
       contents: write
       id-token: write
     steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       - name: Setup PNPM
         uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
@@ -74,11 +74,13 @@ jobs:
         if: steps.vscode-published.outputs.published == 'true'
         working-directory: ./packages/language-tools/vscode
         run: |
-          sleep 60s # wait for npm registry to update
-          rm -rf node_modules
-          npm i --workspaces=false # vsce does not support pnpm, so we need to pretend this is not a monorepo and use npm
-          npm run build
           npm run build:grammar
+          rm -rf node_modules
+          # Also delete root package.json and node_modules to avoid vsce picking up any monorepo info
+          rm ../../../package.json
+          rm -rf ../../../node_modules
+          sleep 60s # wait for npm registry to update
+          npm i --workspaces=false # vsce does not support pnpm, so we need to pretend this is not a monorepo and use npm
 
       - name: Publish to VSCode Marketplace
         if: steps.vscode-published.outputs.published == 'true'

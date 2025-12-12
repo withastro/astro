@@ -1,6 +1,12 @@
 import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
 import type { TransitionBeforePreparationEvent } from './events.js';
-import { doPreparation, doSwap, TRANSITION_AFTER_SWAP } from './events.js';
+import {
+	doPreparation,
+	doSwap,
+	TRANSITION_AFTER_SWAP,
+	onPageLoad,
+	triggerEvent,
+} from './events.js';
 import { detectScriptExecuted } from './swap-functions.js';
 import type { Direction, Fallback, Options } from './types.js';
 
@@ -9,7 +15,6 @@ type State = {
 	scrollX: number;
 	scrollY: number;
 };
-type Events = 'astro:page-load' | 'astro:after-swap';
 type Navigation = { controller: AbortController };
 type Transition = {
 	// The view transitions object (API and simulation)
@@ -47,8 +52,6 @@ let mostRecentTransition: Transition | undefined;
 // This variable tells us where we came from
 let originalLocation: URL;
 
-const triggerEvent = (name: Events) => document.dispatchEvent(new Event(name));
-const onPageLoad = () => triggerEvent('astro:page-load');
 const announce = () => {
 	let div = document.createElement('div');
 	div.setAttribute('aria-live', 'assertive');

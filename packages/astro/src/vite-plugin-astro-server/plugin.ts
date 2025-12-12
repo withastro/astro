@@ -9,6 +9,7 @@ import { isRunnableDevEnvironment, type RunnableDevEnvironment } from 'vite';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/index.js';
 import type { SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import {
 	getAlgorithm,
 	getDirectives,
@@ -34,7 +35,6 @@ import { createController } from './controller.js';
 import { recordServerError } from './error.js';
 import { setRouteError } from './server-state.js';
 import { trailingSlashMiddleware } from './trailing-slash.js';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -56,7 +56,9 @@ export default function createVitePluginAstroServer({
 			if (!isRunnableDevEnvironment(viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
 				return;
 			}
-			const environment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as RunnableDevEnvironment;
+			const environment = viteServer.environments[
+				ASTRO_VITE_ENVIRONMENT_NAMES.ssr
+			] as RunnableDevEnvironment;
 			const loader = createViteLoader(viteServer, environment);
 			const { default: createAstroServerApp } = await environment.runner.import(ASTRO_DEV_APP_ID);
 			const controller = createController({ loader });
@@ -205,9 +207,9 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		};
 	}
 
-	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
+	if (shouldTrackCspHashes(settings.config.security.csp)) {
 		const styleHashes = [
-			...getStyleHashes(settings.config.experimental.csp),
+			...getStyleHashes(settings.config.security.csp),
 			...settings.injectedCsp.styleHashes,
 		];
 
@@ -215,13 +217,13 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
 				? 'adapter'
 				: undefined,
-			scriptHashes: getScriptHashes(settings.config.experimental.csp),
-			scriptResources: getScriptResources(settings.config.experimental.csp),
+			scriptHashes: getScriptHashes(settings.config.security.csp),
+			scriptResources: getScriptResources(settings.config.security.csp),
 			styleHashes,
-			styleResources: getStyleResources(settings.config.experimental.csp),
-			algorithm: getAlgorithm(settings.config.experimental.csp),
+			styleResources: getStyleResources(settings.config.security.csp),
+			algorithm: getAlgorithm(settings.config.security.csp),
 			directives: getDirectives(settings),
-			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
+			isStrictDynamic: getStrictDynamic(settings.config.security.csp),
 		};
 	}
 

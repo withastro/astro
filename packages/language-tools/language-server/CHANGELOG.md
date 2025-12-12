@@ -4,13 +4,25 @@
 
 ### Patch Changes
 
-- [#14421](https://github.com/withastro/astro/pull/14421) [`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the previously deprecated `Astro.glob()` - ([v6 upgrade guidance](https://deploy-preview-12322--astro-docs-2.netlify.app/en/guides/upgrade-to/v6/#removed-astroglob))
+- [#14421](https://github.com/withastro/astro/pull/14421) [`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the previously deprecated `Astro.glob()` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-astroglob))
+
+## 2.16.2
+
+### Patch Changes
+
+- [#14950](https://github.com/withastro/astro/pull/14950) [`385be1b`](https://github.com/withastro/astro/commit/385be1bc6e1ce3fd76b0c1076d489caeed5a35d3) Thanks [@dvelasquez](https://github.com/dvelasquez)! - Fixes an issue with the volar-service-emmet that was pointing to a github username/repository instead of a npm package. This type of dependencies are not supported for Deno installations and it can break in enterprise environments that use private registries or don't have access to public github.
+
+## 2.16.1
+
+### Patch Changes
+
+- [#14740](https://github.com/withastro/astro/pull/14740) [`abfed97`](https://github.com/withastro/astro/commit/abfed97d45ab04c625d6463f9be1e5b1d23c3573) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes link targets in documentation following repository relocation.
 
 ## 2.16.0
 
 ### Minor Changes
 
-- [#14584](https://github.com/withastro/astro/pull/14584) [`3c7ab17`](https://github.com/withastro/astro/commit/3c7ab178da26d095777495bcee94b468937936a3) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a new setting for disabling the Auto Import Cache. The cache can cause an issue where new files are not able to be automatically imported using autocomplete in certain cases. Check https://github.com/withastro/language-tools/issues/1035 for more details.
+- [#14584](https://github.com/withastro/astro/pull/14584) [`3c7ab17`](https://github.com/withastro/astro/commit/3c7ab178da26d095777495bcee94b468937936a3) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a new setting for disabling the Auto Import Cache. The cache can cause an issue where new files are not able to be automatically imported using autocomplete in certain cases. Check https://github.com/withastro/astro/issues/14642 for more details.
 
 ## 2.15.5
 

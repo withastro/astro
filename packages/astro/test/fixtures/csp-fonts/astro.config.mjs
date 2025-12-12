@@ -2,10 +2,12 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-	experimental: {
+	security: {
 		csp: {
 			directives: ["font-src 'self' https://fonts.cdn.test.com"]
 		},
+	},
+	experimental: {
 		fonts: [
 			{
 				name: 'Roboto',

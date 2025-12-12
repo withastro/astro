@@ -15,12 +15,14 @@ import type { AstroSettings, RoutesList } from '../types/astro.js';
 import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { isAstroServerEnvironment } from '../environments.js';
 
 type Payload = {
 	settings: AstroSettings;
 	logger: Logger;
 	fsMod?: typeof fsMod;
 	routesList: RoutesList;
+	command: 'dev' | 'build';
 };
 
 export const ASTRO_ROUTES_MODULE_ID = 'virtual:astro:routes';
@@ -33,6 +35,7 @@ export default async function astroPluginRoutes({
 	logger,
 	fsMod,
 	routesList: initialRoutesList,
+	command,
 }: Payload): Promise<Plugin> {
 	logger.debug('update', 'Re-calculate routes');
 	let routeList = initialRoutesList;
@@ -62,8 +65,7 @@ export default async function astroPluginRoutes({
 					fsMod,
 				},
 				logger,
-				// TODO: the caller should handle this
-				{ dev: true },
+				{ dev: command === 'dev' },
 			);
 
 			serializedRouteInfo = routeList.routes.map((r): SerializedRouteInfo => {
@@ -102,12 +104,16 @@ export default async function astroPluginRoutes({
 			if (id === ASTRO_ROUTES_MODULE_ID_RESOLVED) {
 				const environmentName = this.environment.name;
 				const filteredRoutes = serializedRouteInfo.filter((routeInfo) => {
-					// In prerender, filter to only the routes that need prerendering.
-					if (environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) {
-						return routeInfo.routeData.prerender;
+					if (command === 'build') {
+						// In prerender, filter to only the routes that need prerendering.
+						if (environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) {
+							return routeInfo.routeData.prerender;
+						}
+						// In SSR, we keep the non prerendered routes
+						if (environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.ssr) {
+							return !routeInfo.routeData.prerender;
+						}
 					}
-					// TODO we can likely do the opposite as well, filter out prerendered routes
-					// from the ssr output, but do not feel confident it won't break tests yet.
 					return true;
 				});
 
@@ -130,8 +136,8 @@ export default async function astroPluginRoutes({
 			}
 		},
 
-		async transform(this, code, id, options) {
-			if (!options?.ssr) return;
+		async transform(this, code, id) {
+			if (!isAstroServerEnvironment(this.environment)) return;
 
 			const filename = normalizePath(id);
 			let fileURL: URL;

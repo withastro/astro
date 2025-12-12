@@ -1,4 +1,4 @@
-import type z from 'zod';
+import type * as z from 'zod/v4/core';
 import type { APIContext } from '../../types/public/index.js';
 import type { ActionError, codeToStatusMap } from './client.js';
 
@@ -6,13 +6,13 @@ export type ActionErrorCode = keyof typeof codeToStatusMap;
 
 export type ActionAccept = 'form' | 'json';
 
-export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z.ZodType
+export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z.$ZodType
 	? (input: z.infer<TInputSchema>, context: ActionAPIContext) => MaybePromise<TOutput>
 	: (input: any, context: ActionAPIContext) => MaybePromise<TOutput>;
 
 export type ActionReturnType<T extends ActionHandler<any, any>> = Awaited<ReturnType<T>>;
 
-const inferSymbol = Symbol('#infer');
+type InferKey = '__internalInfer';
 
 /**
  * Infers the type of an action's input based on its Zod schema
@@ -20,16 +20,16 @@ const inferSymbol = Symbol('#infer');
  * @see https://docs.astro.build/en/reference/modules/astro-actions/#actioninputschema
  */
 export type ActionInputSchema<T extends ActionClient<any, any, any>> = T extends {
-	[inferSymbol]: any;
+	[key in InferKey]: any;
 }
-	? T[typeof inferSymbol]
+	? T[InferKey]
 	: never;
 
 export type ActionClient<
 	TOutput,
 	TAccept extends ActionAccept | undefined,
-	TInputSchema extends z.ZodType | undefined,
-> = TInputSchema extends z.ZodType
+	TInputSchema extends z.$ZodType | undefined,
+> = TInputSchema extends z.$ZodType
 	? ((
 			input: TAccept extends 'form' ? FormData : z.input<TInputSchema>,
 		) => Promise<
@@ -44,7 +44,8 @@ export type ActionClient<
 			orThrow: (
 				input: TAccept extends 'form' ? FormData : z.input<TInputSchema>,
 			) => Promise<Awaited<TOutput>>;
-			[inferSymbol]: TInputSchema;
+		} & {
+			[key in InferKey]: TInputSchema;
 		}
 	: ((input?: any) => Promise<SafeResult<never, Awaited<TOutput>>>) & {
 			orThrow: (input?: any) => Promise<Awaited<TOutput>>;

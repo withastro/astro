@@ -8,7 +8,7 @@ import type {
 import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdown-remark';
 import { type BuiltinTheme, bundledThemes } from 'shiki';
 import type { Config as SvgoConfig } from 'svgo';
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import { localFontFamilySchema, remoteFontFamilySchema } from '../../../assets/fonts/config.js';
 import { EnvSchema } from '../../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/config.js';
@@ -91,6 +91,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	security: {
 		checkOrigin: true,
 		allowedDomains: [],
+		csp: false,
 	},
 	env: {
 		schema: {},
@@ -101,7 +102,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	experimental: {
 		clientPrerender: false,
 		contentIntellisense: false,
-		csp: false,
 		chromeDevtoolsWorkspace: false,
 		svgo: false,
 	},
@@ -145,9 +145,13 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.trailingSlash),
 	output: z
-		.union([z.literal('static'), z.literal('server')])
+		.union([z.literal('static'), z.literal('server'), z.literal('hybrid')])
 		.optional()
-		.default('static'),
+		.default('static')
+		.refine((val): val is 'static' | 'server' => val !== 'hybrid', {
+			message:
+				'The `output: "hybrid"` option has been removed. Use `output: "static"` (the default) instead, which now behaves the same way.',
+		}),
 	scopedStyleStrategy: z
 		.union([z.literal('where'), z.literal('class'), z.literal('attribute')])
 		.optional()
@@ -181,7 +185,8 @@ export const AstroConfigSchema = z.object({
 			assetsPrefix: z
 				.string()
 				.optional()
-				.or(z.object({ fallback: z.string() }).and(z.record(z.string())).optional()),
+				.or(z.object({ fallback: z.string() }).and(z.record(z.string(), z.string())))
+				.optional(),
 			serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
 			inlineStylesheets: z
@@ -190,7 +195,7 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
 			concurrency: z.number().min(1).optional().default(ASTRO_CONFIG_DEFAULTS.build.concurrency),
 		})
-		.default({}),
+		.prefault({}),
 	server: z.preprocess(
 		// preprocess
 		// NOTE: Uses the "error" command here because this is overwritten by the
@@ -214,7 +219,7 @@ export const AstroConfigSchema = z.object({
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.server.allowedHosts),
 			})
-			.default({}),
+			.prefault({}),
 	),
 	redirects: z
 		.record(
@@ -261,7 +266,7 @@ export const AstroConfigSchema = z.object({
 					entrypoint: z
 						.union([z.literal('astro/assets/services/sharp'), z.string()])
 						.default(ASTRO_CONFIG_DEFAULTS.image.service.entrypoint),
-					config: z.record(z.any()).default({}),
+					config: z.record(z.string(), z.any()).default({}),
 				})
 				.default(ASTRO_CONFIG_DEFAULTS.image.service),
 			domains: z.array(z.string()).default([]),
@@ -281,7 +286,7 @@ export const AstroConfigSchema = z.object({
 			breakpoints: z.array(z.number()).optional(),
 			responsiveStyles: z.boolean().default(ASTRO_CONFIG_DEFAULTS.image.responsiveStyles),
 		})
-		.default(ASTRO_CONFIG_DEFAULTS.image),
+		.prefault(ASTRO_CONFIG_DEFAULTS.image),
 	devToolbar: z
 		.object({
 			enabled: z.boolean().default(ASTRO_CONFIG_DEFAULTS.devToolbar.enabled),
@@ -294,10 +299,7 @@ export const AstroConfigSchema = z.object({
 					z
 						.object({
 							type: highlighterTypesSchema,
-							excludeLangs: z
-								.array(z.string())
-								.optional()
-								.default(syntaxHighlightDefaults.excludeLangs),
+							excludeLangs: z.array(z.string()).optional(),
 						})
 						.default(syntaxHighlightDefaults),
 					highlighterTypesSchema,
@@ -336,10 +338,12 @@ export const AstroConfigSchema = z.object({
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme!),
 					themes: z
 						.record(
+							z.string(),
 							z
 								.enum(Object.keys(bundledThemes) as [BuiltinTheme, ...BuiltinTheme[]])
 								.or(z.custom<ShikiTheme>()),
 						)
+						.optional()
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.themes!),
 					defaultColor: z
 						.union([z.literal('light'), z.literal('dark'), z.string(), z.literal(false)])
@@ -350,7 +354,7 @@ export const AstroConfigSchema = z.object({
 						.array()
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.transformers!),
 				})
-				.default({}),
+				.prefault({}),
 			remarkPlugins: z
 				.union([
 					z.string(),
@@ -375,7 +379,7 @@ export const AstroConfigSchema = z.object({
 			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
 			smartypants: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
 		})
-		.default({}),
+		.prefault({}),
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
@@ -388,7 +392,7 @@ export const AstroConfigSchema = z.object({
 						z.string(),
 						z.object({
 							path: z.string(),
-							codes: z.string().array().nonempty(),
+							codes: z.tuple([z.string()], z.string()),
 						}),
 					]),
 				),
@@ -413,7 +417,7 @@ export const AstroConfigSchema = z.object({
 						}),
 					)
 					.optional()
-					.default({}),
+					.prefault({}),
 			})
 			.optional(),
 	),
@@ -430,6 +434,29 @@ export const AstroConfigSchema = z.object({
 				)
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.security.allowedDomains),
+			csp: z
+				.union([
+					z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.security.csp),
+					z.object({
+						algorithm: cspAlgorithmSchema,
+						directives: z.array(allowedDirectivesSchema).optional(),
+						styleDirective: z
+							.object({
+								resources: z.array(z.string()).optional(),
+								hashes: z.array(cspHashSchema).optional(),
+							})
+							.optional(),
+						scriptDirective: z
+							.object({
+								resources: z.array(z.string()).optional(),
+								hashes: z.array(cspHashSchema).optional(),
+								strictDynamic: z.boolean().optional(),
+							})
+							.optional(),
+					}),
+				])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.security.csp),
 		})
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.security),
@@ -444,7 +471,7 @@ export const AstroConfigSchema = z.object({
 	session: z
 		.object({
 			driver: z.string().optional(),
-			options: z.record(z.any()).optional(),
+			options: z.record(z.string(), z.any()).optional(),
 			cookie: z
 				.object({
 					name: z.string().optional(),
@@ -470,7 +497,7 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.prerenderConflictBehavior),
 	experimental: z
-		.object({
+		.strictObject({
 			clientPrerender: z
 				.boolean()
 				.optional()
@@ -480,29 +507,6 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
 			fonts: z.array(z.union([localFontFamilySchema, remoteFontFamilySchema])).optional(),
-			csp: z
-				.union([
-					z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
-					z.object({
-						algorithm: cspAlgorithmSchema,
-						directives: z.array(allowedDirectivesSchema).optional(),
-						styleDirective: z
-							.object({
-								resources: z.array(z.string()).optional(),
-								hashes: z.array(cspHashSchema).optional(),
-							})
-							.optional(),
-						scriptDirective: z
-							.object({
-								resources: z.array(z.string()).optional(),
-								hashes: z.array(cspHashSchema).optional(),
-								strictDynamic: z.boolean().optional(),
-							})
-							.optional(),
-					}),
-				])
-				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.csp),
 			chromeDevtoolsWorkspace: z
 				.boolean()
 				.optional()
@@ -512,10 +516,7 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.svgo),
 		})
-		.strict(
-			`Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,
-		)
-		.default({}),
+		.prefault({}),
 	legacy: z
 		.object({
 			collectionsBackwardsCompat: z.boolean().optional().default(false),
