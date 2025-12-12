@@ -171,7 +171,7 @@ export function createVitePluginAstroServerClient(): vite.Plugin {
 		},
 		transform: {
 			filter: {
-				id: /id\/vite\/dist\/client\/client\.mjs/,
+				id: /vite\/dist\/client\/client\.mjs/,
 			},
 			handler(code) {
 				// Replace the Vite overlay with ours
