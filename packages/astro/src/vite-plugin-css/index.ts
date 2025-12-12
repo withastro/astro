@@ -174,18 +174,12 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 				if (command === 'build') {
 					return;
 				}
-				if (id.startsWith(RESOLVED_MODULE_DEV_CSS_PREFIX)) {
-					const componentPath = getComponentFromVirtualModuleCssName(
-						RESOLVED_MODULE_DEV_CSS_PREFIX,
-						id,
-					);
 
-					// Cache CSS content as we see it
-					if (isBuildableCSSRequest(id)) {
-						const mod = environment?.moduleGraph.getModuleById(id);
-						if (mod) {
-							cssContentCache.set(id, code);
-						}
+				// Cache CSS content as we see it
+				if (isBuildableCSSRequest(id)) {
+					const mod = environment?.moduleGraph.getModuleById(id);
+					if (mod) {
+						cssContentCache.set(id, code);
 					}
 				}
 			},
