@@ -369,6 +369,7 @@ async function buildManifest(
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		allowedDomains: settings.config.security?.allowedDomains,
 		key: encodedKey,
+		// TODO: pass less data?
 		sessionConfig: settings.config.session,
 		csp,
 		devToolbar: {

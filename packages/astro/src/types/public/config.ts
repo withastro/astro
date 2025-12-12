@@ -1,4 +1,3 @@
-import type { OutgoingHttpHeaders } from 'node:http';
 import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type {
 	RehypePlugins,
@@ -7,27 +6,27 @@ import type {
 	ShikiConfig,
 	SyntaxHighlightConfigType,
 } from '@astrojs/markdown-remark';
+import type { OutgoingHttpHeaders } from 'node:http';
 import type { Config as SvgoConfig } from 'svgo';
-import type { BuiltinDriverName, BuiltinDriverOptions, Storage } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { AstroFontProvider, FontFamily } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
-import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
+import type { SessionConfig, SessionDriverConfig, SessionDriverName } from '../../core/session/types.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
 export type { AstroFontProvider as FontProvider };
 
-export type { CspAlgorithm };
+	export type { CspAlgorithm };
 
-export type { RemotePattern };
+	export type { RemotePattern };
 
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
@@ -127,57 +126,6 @@ export type ServerConfig = {
 	open?: string | boolean;
 };
 
-export type SessionDriverName = BuiltinDriverName | 'custom' | 'test';
-
-interface CommonSessionConfig {
-	/**
-	 * Configures the session cookie. If set to a string, it will be used as the cookie name.
-	 * Alternatively, you can pass an object with additional options.
-	 */
-	cookie?:
-		| string
-		| (Omit<AstroCookieSetOptions, 'httpOnly' | 'expires' | 'encode'> & {
-				name?: string;
-		  });
-
-	/**
-	 * Default session duration in seconds. If not set, the session will be stored until deleted, or until the cookie expires.
-	 */
-	ttl?: number;
-}
-
-interface BuiltinSessionConfig<TDriver extends keyof BuiltinDriverOptions>
-	extends CommonSessionConfig {
-	driver: TDriver;
-	options?: BuiltinDriverOptions[TDriver];
-}
-
-interface CustomSessionConfig extends CommonSessionConfig {
-	/** Entrypoint for a custom session driver */
-	driver?: string;
-	options?: Record<string, unknown>;
-}
-
-interface TestSessionConfig extends CommonSessionConfig {
-	driver: 'test';
-	options: {
-		mockStorage: Storage;
-	};
-}
-
-export type SessionConfig<TDriver extends SessionDriverName> =
-	// Distributive conditional tuple trick
-	// https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
-	[TDriver] extends [never]
-		? CustomSessionConfig
-		: TDriver extends keyof BuiltinDriverOptions
-			? BuiltinSessionConfig<TDriver>
-			: TDriver extends 'test'
-				? TestSessionConfig
-				: CustomSessionConfig;
-
-export type ResolvedSessionConfig<TDriver extends SessionDriverName> = SessionConfig<TDriver>;
-
 export interface ViteUserConfig extends OriginalViteUserConfig {
 	ssr?: ViteSSROptions;
 }
@@ -198,7 +146,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  */
 export interface AstroUserConfig<
 	TLocales extends Locales = never,
-	TSession extends SessionDriverName = never,
+	TDriver extends SessionDriverName | SessionDriverConfig = never,
 > {
 	/**
 	 * @docs
@@ -1295,7 +1243,7 @@ export interface AstroUserConfig<
 	 *   }
 	 * ```
 	 */
-	session?: SessionConfig<TSession>;
+	session?: SessionConfig<TDriver>;
 
 	/**
 	 * @docs

@@ -1,4 +1,4 @@
-import { builtinDrivers, type BuiltinDriverName, type BuiltinDriverOptions } from 'unstorage';
+import { builtinDrivers, type BuiltinDriverOptions } from 'unstorage';
 import type { SessionDriverConfig } from './types.js';
 
 type WithoutDash<T> = T extends `${string}-${string}` ? never : T;
@@ -15,7 +15,7 @@ const unstorageDrivers = Object.fromEntries(
 			}),
 		]),
 ) as unknown as {
-	[K in WithoutDash<BuiltinDriverName> & keyof BuiltinDriverOptions]: (
+	[K in WithoutDash<keyof BuiltinDriverOptions> & keyof BuiltinDriverOptions]: (
 		options?: BuiltinDriverOptions[K],
 	) => SessionDriverConfig;
 };

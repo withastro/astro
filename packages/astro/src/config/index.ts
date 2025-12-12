@@ -1,11 +1,7 @@
 import type { UserConfig as ViteUserConfig, UserConfigFn as ViteUserConfigFn } from 'vite';
 import { createRoutesList } from '../core/routing/index.js';
-import type {
-	AstroInlineConfig,
-	AstroUserConfig,
-	Locales,
-	SessionDriverName,
-} from '../types/public/config.js';
+import type { AstroInlineConfig, AstroUserConfig, Locales } from '../types/public/config.js';
+import type { SessionDriverConfig, SessionDriverName } from '../core/session/types.js';
 
 /**
  * See the full Astro Configuration API Documentation
@@ -13,7 +9,7 @@ import type {
  */
 export function defineConfig<
 	const TLocales extends Locales = never,
-	const TDriver extends SessionDriverName = never,
+	const TDriver extends SessionDriverName | SessionDriverConfig = never,
 >(config: AstroUserConfig<TLocales, TDriver>) {
 	return config;
 }
