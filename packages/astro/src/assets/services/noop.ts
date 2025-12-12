@@ -8,6 +8,8 @@ const noopService: LocalImageService = {
 	async validateOptions(options) {
 		if (isESMImportedImage(options.src) && options.src.format === 'svg') {
 			options.format = 'svg';
+		} else {
+			delete options.format;
 		}
 		
 		verifyOptions(options);
