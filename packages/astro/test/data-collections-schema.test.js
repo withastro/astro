@@ -27,33 +27,28 @@ describe('Content Collections - data collections', () => {
 			const rawJson = await fixture.readFile('../.astro/collections/i18n.schema.json');
 			assert.deepEqual(
 				JSON.stringify({
-				  $schema: "https://json-schema.org/draft/2020-12/schema",
-				  type: "object",
-				  properties: {
-				    homepage: {
-				      type: "object",
-				      properties: {
-				        greeting: {
-				          type: "string"
-				        },
-				        preamble: {
-				          type: "string"
-				        }
-				      },
-				      required: [
-				        "greeting",
-				        "preamble"
-				      ],
-				      additionalProperties: false
-				    },
-				    $schema: {
-				      type: "string"
-				    }
-				  },
-				  required: [
-				    "homepage"
-				  ],
-				  additionalProperties: false
+					$schema: 'https://json-schema.org/draft/2020-12/schema',
+					type: 'object',
+					properties: {
+						homepage: {
+							type: 'object',
+							properties: {
+								greeting: {
+									type: 'string',
+								},
+								preamble: {
+									type: 'string',
+								},
+							},
+							required: ['greeting', 'preamble'],
+							additionalProperties: false,
+						},
+						$schema: {
+							type: 'string',
+						},
+					},
+					required: ['homepage'],
+					additionalProperties: false,
 				}),
 				JSON.stringify(JSON.parse(rawJson)),
 			);
@@ -68,37 +63,31 @@ describe('Content Collections - data collections', () => {
 			const rawJson = await fixture.readFile('../.astro/collections/image.schema.json');
 			assert.deepEqual(
 				JSON.stringify({
-				  $schema: "https://json-schema.org/draft/2020-12/schema",
-				  type: "object",
-				  properties: {
-				    homepage: {
-				      type: "object",
-				      properties: {
-				        greeting: {
-				          type: "string"
-				        },
-				        preamble: {
-				          type: "string"
-				        },
-				        image: {
-				          type: "string"
-				        }
-				      },
-				      required: [
-				        "greeting",
-				        "preamble",
-				        "image"
-				      ],
-				      additionalProperties: false
-				    },
-				    $schema: {
-				      type: "string"
-				    }
-				  },
-				  required: [
-				    "homepage"
-				  ],
-				  additionalProperties: false
+					$schema: 'https://json-schema.org/draft/2020-12/schema',
+					type: 'object',
+					properties: {
+						homepage: {
+							type: 'object',
+							properties: {
+								greeting: {
+									type: 'string',
+								},
+								preamble: {
+									type: 'string',
+								},
+								image: {
+									type: 'string',
+								},
+							},
+							required: ['greeting', 'preamble', 'image'],
+							additionalProperties: false,
+						},
+						$schema: {
+							type: 'string',
+						},
+					},
+					required: ['homepage'],
+					additionalProperties: false,
 				}),
 				JSON.stringify(JSON.parse(rawJson)),
 			);

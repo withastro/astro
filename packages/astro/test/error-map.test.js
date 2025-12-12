@@ -38,11 +38,7 @@ describe('Content Collections - error map', () => {
 			z.union([z.boolean(), z.number()]),
 			'not a boolean or a number, oops!',
 		);
-		assert.deepEqual(messages(error), [
-			fixLineEndings(
-				'Invalid input',
-			),
-		]);
+		assert.deepEqual(messages(error), [fixLineEndings('Invalid input')]);
 	});
 	it('Returns formatted error for union mismatch on nested object properties', () => {
 		const error = getParseError(
@@ -56,11 +52,7 @@ describe('Content Collections - error map', () => {
 			]),
 			{ type: 'integration-guide' },
 		);
-		assert.deepEqual(messages(error), [
-			fixLineEndings(
-				'Invalid input',
-			),
-		]);
+		assert.deepEqual(messages(error), [fixLineEndings('Invalid input')]);
 	});
 	it('Lets unhandled errors fall through', () => {
 		const error = getParseError(
@@ -69,9 +61,7 @@ describe('Content Collections - error map', () => {
 			}),
 			{ lang: 'jp' },
 		);
-		assert.deepEqual(messages(error), [
-			`Invalid option: expected one of "en"|"fr"`,
-		]);
+		assert.deepEqual(messages(error), [`Invalid option: expected one of "en"|"fr"`]);
 	});
 });
 

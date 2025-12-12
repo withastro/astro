@@ -15,13 +15,13 @@ export async function validateConfig(
 		await AstroConfigRelativeSchema.parseAsync(userConfig, {
 			error(issue) {
 				// If an experimental feature, give a more specific error message.
-				if(issue.path?.[0] === 'experimental') {
+				if (issue.path?.[0] === 'experimental') {
 					return {
 						message: `Invalid or outdated experimental feature.\nCheck for incorrect spelling or outdated Astro version.\nSee https://docs.astro.build/en/reference/experimental-flags/ for a list of all current experiments.`,
 					};
 				}
 				return errorMap(issue);
-			}
+			},
 		}),
 	);
 }

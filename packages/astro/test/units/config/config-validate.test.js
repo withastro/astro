@@ -376,10 +376,7 @@ describe('Config Validation', () => {
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
-			assert.equal(
-				configError.issues[0].message,
-				'Invalid key in record',
-			);
+			assert.equal(configError.issues[0].message, 'Invalid key in record');
 		});
 
 		it('Should provide a useful error for access/context invalid combinations', async () => {

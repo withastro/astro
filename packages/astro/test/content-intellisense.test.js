@@ -70,9 +70,7 @@ describe('Content Intellisense', () => {
 
 	it('has entries for content collections', async () => {
 		const collectionEntries = Object.entries(manifest.entries).filter((entry) =>
-			entry[0].includes(
-				'/packages/astro/test/fixtures/content-intellisense/src/content/blog-cc/',
-			),
+			entry[0].includes('/packages/astro/test/fixtures/content-intellisense/src/content/blog-cc/'),
 		);
 		assert.equal(collectionEntries.length, 3, "Expected 3 entries for 'blog-cc' collection");
 		assert.equal(
@@ -83,7 +81,6 @@ describe('Content Intellisense', () => {
 	});
 
 	it('has entries for content layer', async () => {
-		
 		const collectionEntries = Object.entries(manifest.entries).filter((entry) =>
 			entry[0].includes('/packages/astro/test/fixtures/content-intellisense/src/blog-cl/'),
 		);

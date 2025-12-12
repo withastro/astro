@@ -31,7 +31,7 @@ export function vitePluginActionsBuild(
 
 		applyToEnvironment(environment) {
 			return (
- 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro
 			);

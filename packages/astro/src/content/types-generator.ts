@@ -637,7 +637,10 @@ async function generateJSONSchema(
 	try {
 		const schema = z.toJSONSchema(zodSchemaForJson);
 		const schemaStr = JSON.stringify(schema, null, 2);
-		const schemaJsonPath = new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir);
+		const schemaJsonPath = new URL(
+			`./${collectionKey.replace(/"/g, '')}.schema.json`,
+			collectionSchemasDir,
+		);
 		await fsMod.promises.writeFile(schemaJsonPath, schemaStr);
 	} catch (err) {
 		// This should error gracefully and not crash the dev server

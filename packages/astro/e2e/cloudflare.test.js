@@ -83,14 +83,16 @@ function sharedTests(testRunner, infoLogs = null) {
 	// Dev-specific tests
 	if (infoLogs) {
 		testRunner('dev server logs', () => {
-			const serverStartLog = infoLogs.find(log => log.message && log.message.includes('Local'));
+			const serverStartLog = infoLogs.find((log) => log.message && log.message.includes('Local'));
 			expect(serverStartLog).toBeDefined();
 		});
 
 		testRunner('all dependencies pre-optimized, none discovered', () => {
 			// Verify that all of Astro's dependencies are pre-optimized in the Vite cache
 			// and that no new dependencies are discovered and optimized during dev server startup
-			const optimizedLog = infoLogs.find(log => log.message && log.message.includes('new dependencies optimized'));
+			const optimizedLog = infoLogs.find(
+				(log) => log.message && log.message.includes('new dependencies optimized'),
+			);
 			expect(optimizedLog).toBeUndefined();
 		});
 	}

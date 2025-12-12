@@ -67,7 +67,9 @@ const collectionConfigParser = z.union([
 						types?: string;
 					} | void>(),
 				}),
-				schema: z.any().transform((v) => {
+				schema: z
+					.any()
+					.transform((v) => {
 						if (typeof v === 'function') {
 							console.warn(
 								`Your loader's schema is defined using a function. This is no longer supported and the schema will be ignored. Please update your loader to use the \`createSchema()\` utility instead, or report this to the loader author. In a future major version, this will cause the loader to break entirely.`,
@@ -84,7 +86,8 @@ const collectionConfigParser = z.union([
 							});
 							return z.NEVER;
 						}
-					}).optional(),
+					})
+					.optional(),
 				createSchema: z
 					.function({
 						input: [],

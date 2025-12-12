@@ -58,16 +58,18 @@ export const errorMap: $ZodErrorMap = (issue) => {
 						expectedShape.push(
 							relativePath ? `${relativePath}: ${_issue.expected}` : _issue.expected,
 						);
-					} else if('values' in _issue) {
-						expectedShape.push(..._issue.values.filter(v => typeof v === 'string').map(v => `"${v}"`));
-					} else if(relativePath) {
+					} else if ('values' in _issue) {
+						expectedShape.push(
+							..._issue.values.filter((v) => typeof v === 'string').map((v) => `"${v}"`),
+						);
+					} else if (relativePath) {
 						expectedShape.push(relativePath);
 					}
 				}
 				if (expectedShape.length === 1 && !expectedShape[0]?.includes(':')) {
 					// In this case the expected shape is not an object, but probably a literal type, e.g. `['string']`.
 					expectedShapes.push(expectedShape.join(''));
-				} else if(expectedShape.length > 0) {
+				} else if (expectedShape.length > 0) {
 					expectedShapes.push(`{ ${expectedShape.join('; ')} }`);
 				}
 			}

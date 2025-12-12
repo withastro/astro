@@ -183,7 +183,8 @@ export const AstroConfigSchema = z.object({
 			assetsPrefix: z
 				.string()
 				.optional()
-				.or(z.object({ fallback: z.string() }).and(z.record(z.string(), z.string()))).optional(),
+				.or(z.object({ fallback: z.string() }).and(z.record(z.string(), z.string())))
+				.optional(),
 			serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 			redirects: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.build.redirects),
 			inlineStylesheets: z
@@ -296,9 +297,7 @@ export const AstroConfigSchema = z.object({
 					z
 						.object({
 							type: highlighterTypesSchema,
-							excludeLangs: z
-								.array(z.string())
-								.optional(),
+							excludeLangs: z.array(z.string()).optional(),
 						})
 						.default(syntaxHighlightDefaults),
 					highlighterTypesSchema,
