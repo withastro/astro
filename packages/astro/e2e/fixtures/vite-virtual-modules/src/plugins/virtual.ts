@@ -1,6 +1,6 @@
-import type { Plugin } from 'vite';
+import type { Plugin } from "vite";
 
-const VIRTUAL_MODULE_ID = 'virtual:dynamic.css';
+const VIRTUAL_MODULE_ID = "virtual:dynamic.css";
 const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`;
 
 export default {
@@ -14,11 +14,11 @@ export default {
 		},
 	},
 	load: {
-        filter: {
+		filter: {
 			id: new RegExp(`^${RESOLVED_VIRTUAL_MODULE_ID}$`),
 		},
 		handler() {
-			return 'body { background: red; }';
+			return "body { background: red; }";
 		},
 	},
 } satisfies Plugin;
