@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { stringify as devalueStringify } from 'devalue';
 import driver from 'unstorage/drivers/memory';
-import { AstroSession, PERSIST_SYMBOL } from '../../../dist/core/session.js';
+import { AstroSession, PERSIST_SYMBOL } from '../../../dist/core/session/runtime.js';
 
 // Mock dependencies
 const defaultMockCookies = {

@@ -1,8 +1,8 @@
 import './session-env';
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
-import { AstroSession } from '../../dist/core/session.js';
-import type { AstroCookies, ResolvedSessionConfig } from '../../dist/types/public/index.js';
+import { AstroSession } from '../../dist/core/session/runtime.js';
+import type { AstroCookies } from '../../dist/types/public/index.js';
 
 const defaultMockCookies = {
 	set: () => {},
@@ -10,16 +10,19 @@ const defaultMockCookies = {
 	get: () => 'astro cookie',
 };
 
-const defaultConfig: ResolvedSessionConfig<'memory'> = {
-	driver: 'memory',
-	cookie: 'test-session',
-	ttl: 60,
-	options: {},
-};
-
 // Helper to create a new session instance with mocked dependencies
 function createSession() {
-	return new AstroSession(defaultMockCookies as unknown as AstroCookies, defaultConfig);
+	return new AstroSession(
+		defaultMockCookies as unknown as AstroCookies,
+		{
+			driverName: 'memory',
+			cookie: 'test-session',
+			ttl: 60,
+			options: {},
+		},
+		'production',
+		null,
+	);
 }
 
 describe('Session', () => {
