@@ -1,5 +1,13 @@
 # astro
 
+## 5.16.6
+
+### Patch Changes
+
+- [#14982](https://github.com/withastro/astro/pull/14982) [`6849e38`](https://github.com/withastro/astro/commit/6849e3844d940f76b544822e7bd247641d61567d) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes images outside the project directory not working when using astro:assets in development mode
+
+- [#14987](https://github.com/withastro/astro/pull/14987) [`9dd9fca`](https://github.com/withastro/astro/commit/9dd9fca81e5ed3d0d55e0b1624c6515706963b1f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes SVGs not working in dev mode when using the passthrough image service
+
 ## 5.16.5
 
 ### Patch Changes
