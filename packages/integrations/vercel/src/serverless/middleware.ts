@@ -9,10 +9,6 @@ import {
 	NODE_PATH,
 } from '../index.js';
 
-const NODE_BUILTINS_FILTER = new RegExp(
-	builtinModules.map((mod) => `(^${mod}$|^node:${mod}$)`).join('|'),
-);
-
 /**
  * It generates the Vercel Edge Middleware file.
  *
@@ -45,42 +41,53 @@ export async function generateEdgeMiddleware(
 	// https://vercel.com/docs/concepts/functions/edge-middleware#create-edge-middleware
 	const bundledFilePath = fileURLToPath(outPath);
 	const esbuild = await import('esbuild');
-	await esbuild.build({
-		stdin: {
-			contents: code,
-			resolveDir: fileURLToPath(root),
-		},
-		// Vercel Edge runtime targets ESNext, because Cloudflare Workers update v8 weekly
-		// https://github.com/vercel/vercel/blob/1006f2ae9d67ea4b3cbb1073e79d14d063d42436/packages/next/scripts/build-edge-function-template.js
-		target: 'esnext',
-		platform: 'browser',
-		// esbuild automatically adds the browser, import and default conditions
-		// https://esbuild.github.io/api/#conditions
-		// https://runtime-keys.proposal.wintercg.org/#edge-light
-		conditions: ['edge-light', 'workerd', 'worker'],
-		outfile: bundledFilePath,
-		allowOverwrite: true,
-		format: 'esm',
-		bundle: true,
-		minify: false,
-		// ensure node built-in modules are namespaced with `node:`
-		plugins: [
-			{
-				name: 'esbuild-namespace-node-built-in-modules',
-				setup(build) {
-					build.onResolve(
-						{
-							filter: NODE_BUILTINS_FILTER,
-						},
-						(args) => ({
-							path: 'node:' + args.path,
-							external: true,
-						}),
-					);
-				},
+	try {
+		await esbuild.build({
+			stdin: {
+				contents: code,
+				resolveDir: fileURLToPath(root),
 			},
-		],
-	});
+			// Vercel Edge runtime targets ESNext, because Cloudflare Workers update v8 weekly
+			// https://github.com/vercel/vercel/blob/1006f2ae9d67ea4b3cbb1073e79d14d063d42436/packages/next/scripts/build-edge-function-template.js
+			target: 'esnext',
+			platform: 'browser',
+			// esbuild automatically adds the browser, import and default conditions
+			// https://esbuild.github.io/api/#conditions
+			// https://runtime-keys.proposal.wintercg.org/#edge-light
+			conditions: ['edge-light', 'workerd', 'worker'],
+			outfile: bundledFilePath,
+			allowOverwrite: true,
+			format: 'esm',
+			bundle: true,
+			minify: false,
+			// ensure node built-in modules are namespaced with `node:`
+			plugins: [
+				{
+					name: 'esbuild-namespace-node-built-in-modules',
+					setup(build) {
+						const filter = new RegExp(builtinModules.map((mod) => `(^${mod}$)`).join('|'));
+						build.onResolve(
+							{
+								filter,
+							},
+							(args) => ({
+								path: 'node:' + args.path,
+								external: true,
+							}),
+						);
+					},
+				},
+			],
+		});
+	} catch (err) {
+		if ((err as Error).message.includes('Could not resolve "node:')) {
+			logger.error(`Vercel does not allow the use of Node.js built-ins in edge functions. Please ensure your middleware code and 3rd-party packages don’t use Node built-ins.
+
+${err}`)
+		}
+		
+		throw err
+	}
 	return pathToFileURL(bundledFilePath);
 }
 
