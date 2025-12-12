@@ -3,6 +3,7 @@ import { normalizePath, type Plugin as VitePlugin } from 'vite';
 import { isPage } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import { PAGE_SSR_SCRIPT_ID } from './index.js';
+import { isAstroServerEnvironment } from '../environments.js';
 
 export default function astroScriptsPostPlugin({
 	settings,
@@ -12,8 +13,8 @@ export default function astroScriptsPostPlugin({
 	return {
 		name: 'astro:scripts:page-ssr',
 		enforce: 'post',
-		transform(this, code, id, options) {
-			if (!options?.ssr) return;
+		transform(this, code, id) {
+			if (!isAstroServerEnvironment(this.environment)) return;
 
 			const hasInjectedScript = settings.scripts.some((s) => s.stage === 'page-ssr');
 			if (!hasInjectedScript) return;
