@@ -188,7 +188,7 @@ describe('CSP', () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
 			outDir: './dist/inject-scripts/',
-			experimental: {
+			security: {
 				csp: {
 					directives: ["img-src 'self'"],
 					scriptDirective: {
@@ -222,7 +222,7 @@ describe('CSP', () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
 			outDir: './dist/inject-styles/',
-			experimental: {
+			security: {
 				csp: {
 					directives: ["img-src 'self'"],
 					styleDirective: {
