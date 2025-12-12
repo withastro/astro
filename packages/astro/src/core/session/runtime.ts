@@ -61,15 +61,23 @@ export class AstroSession {
 	#partial = true;
 	// The driver factory function provided by the pipeline
 	#driverFactory: SessionDriverFactory | null;
+	#mockStorage: Storage | null;
 
 	static #sharedStorage = new Map<string, Storage>();
 
-	constructor(
-		cookies: AstroCookies,
-		config: SSRManifestSession | undefined,
-		runtimeMode: RuntimeMode,
-		driverFactory: SessionDriverFactory | null,
-	) {
+	constructor({
+		cookies,
+		config,
+		runtimeMode,
+		driverFactory,
+		mockStorage,
+	}: {
+		cookies: AstroCookies;
+		config: SSRManifestSession | undefined;
+		runtimeMode: RuntimeMode;
+		driverFactory: SessionDriverFactory | null;
+		mockStorage: Storage | null;
+	}) {
 		if (!config) {
 			throw new AstroError({
 				...SessionStorageInitError,
@@ -97,6 +105,7 @@ export class AstroSession {
 			httpOnly: true,
 		};
 		this.#config = configRest;
+		this.#mockStorage = mockStorage;
 	}
 
 	/**
@@ -412,6 +421,10 @@ export class AstroSession {
 		if (AstroSession.#sharedStorage.has(this.#config.driverName)) {
 			this.#storage = AstroSession.#sharedStorage.get(this.#config.driverName);
 			return this.#storage!;
+		}
+
+		if (this.#mockStorage) {
+			return (this.#storage = this.#mockStorage);
 		}
 
 		// Get the driver factory from the pipeline

@@ -1,4 +1,4 @@
-import type { BuiltinDriverOptions, Storage } from 'unstorage';
+import type { BuiltinDriverOptions } from 'unstorage';
 import type { AstroCookieSetOptions } from '../cookies/cookies.js';
 
 export interface SessionDriver {
@@ -58,17 +58,6 @@ interface CustomConfig {
 	options?: Record<string, unknown>;
 }
 
-// TODO: remove test driver. Not useful with custom drivers
-interface TestConfig {
-	/** TODO: */
-	driver: 'test';
-	/** TODO: */
-	options: {
-		// TODO: use another compatible shape
-		mockStorage: Storage;
-	};
-}
-
 export type SessionConfig<TDriver extends SessionDriverName | SessionDriverConfig> =
 	BaseSessionConfig &
 		// If no session.driver is provided, default to the new shape
@@ -80,6 +69,4 @@ export type SessionConfig<TDriver extends SessionDriverName | SessionDriverConfi
 			: // Legacy shape
 				TDriver extends keyof BuiltinDriverOptions
 				? UnstorageConfig<TDriver>
-				: TDriver extends 'test'
-					? TestConfig
-					: CustomConfig;
+				: CustomConfig;

@@ -12,17 +12,18 @@ const defaultMockCookies = {
 
 // Helper to create a new session instance with mocked dependencies
 function createSession() {
-	return new AstroSession(
-		defaultMockCookies as unknown as AstroCookies,
-		{
+	return new AstroSession({
+		cookies: defaultMockCookies as unknown as AstroCookies,
+		config: {
 			driverName: 'memory',
 			cookie: 'test-session',
 			ttl: 60,
 			options: {},
 		},
-		'production',
-		null,
-	);
+		runtimeMode: 'production',
+		driverFactory: null,
+		mockStorage: null,
+	});
 }
 
 describe('Session', () => {

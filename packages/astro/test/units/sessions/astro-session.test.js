@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { stringify as devalueStringify } from 'devalue';
-import driver from 'unstorage/drivers/memory';
+import driverFactory from 'unstorage/drivers/memory';
 import { AstroSession, PERSIST_SYMBOL } from '../../../dist/core/session/runtime.js';
 
 // Mock dependencies
@@ -14,7 +14,7 @@ const defaultMockCookies = {
 const stringify = (data) => JSON.parse(devalueStringify(data));
 
 const defaultConfig = {
-	driver: 'memory',
+	driverName: 'memory',
 	cookie: 'test-session',
 	ttl: 60,
 };
@@ -26,12 +26,13 @@ function createSession(
 	mockStorage,
 	runtimeMode = 'production',
 ) {
-	if (mockStorage) {
-		config.driver = 'test';
-		config.options ??= {};
-		config.options.mockStorage = mockStorage;
-	}
-	return new AstroSession(cookies, config, runtimeMode, driver);
+	return new AstroSession({
+		cookies,
+		config,
+		runtimeMode,
+		driverFactory,
+		mockStorage
+	});
 }
 
 test('AstroSession - Basic Operations', async (t) => {
