@@ -1,5 +1,69 @@
 # astro
 
+## 6.0.0-alpha.1
+
+### Major Changes
+
+- [#14956](https://github.com/withastro/astro/pull/14956) [`0ff51df`](https://github.com/withastro/astro/commit/0ff51dfa3c6c615af54228e159f324034472b1a2) Thanks [@matthewp](https://github.com/matthewp)! - Astro v6.0 upgrades to Zod v4 for schema validation - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#zod-4))
+
+- [#14759](https://github.com/withastro/astro/pull/14759) [`d7889f7`](https://github.com/withastro/astro/commit/d7889f768a4d27e8c4ad3a0022099d19145a7d58) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates how schema types are inferred for content loaders with schemas (Loader API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/TODO:))
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Removes support for routes with percent-encoded percent signs (e.g. `%25`) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-percent-encoding-in-routes))
+
+- [#14759](https://github.com/withastro/astro/pull/14759) [`d7889f7`](https://github.com/withastro/astro/commit/d7889f768a4d27e8c4ad3a0022099d19145a7d58) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the option to define dynamic schemas in content loaders as functions and adds a new equivalent `createSchema()` property (Loader API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/TODO:))
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Removes `RouteData.generate` from the Integration API - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-routedatagenerate-adapter-api))
+
+- [#14989](https://github.com/withastro/astro/pull/14989) [`73e8232`](https://github.com/withastro/astro/commit/73e823201cc5bdd6ccab14c07ff0dca5117436ad) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates exposed `astro:transitions` internals - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-exposed-astrotransitions-internals))
+
+- [#14758](https://github.com/withastro/astro/pull/14758) [`010f773`](https://github.com/withastro/astro/commit/010f7731becbaaba347da21ef07b8a410e31442a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `setManifestData` method from `App` and `NodeApp` (Adapter API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-appsetmanifestdata-adapter-api))
+
+- [#14826](https://github.com/withastro/astro/pull/14826) [`170f64e`](https://github.com/withastro/astro/commit/170f64e977290b8f9d316b5f283bd03bae33ddde) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `experimental.failOnPrerenderConflict` flag and replaces it with a new configuration option `prerenderConflictBehavior` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
+
+- [#14923](https://github.com/withastro/astro/pull/14923) [`95a1969`](https://github.com/withastro/astro/commit/95a1969a05cc9c15f16dcf2177532882bb392581) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates `astro:schema` and `z` from `astro:content` in favor of `astro/zod` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-astroschema-and-z-from-astrocontent))
+
+- [#14844](https://github.com/withastro/astro/pull/14844) [`8d43b1d`](https://github.com/withastro/astro/commit/8d43b1d678eed5be85f99b939d55346824c03cb5) Thanks [@trueberryless](https://github.com/trueberryless)! - Removes exposed `astro:actions` internals - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-exposed-astroactions-internals))
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Changes the shape of `SSRManifest` properties and adds several new required properties in the Adapter API - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-ssrmanifest-interface-structure-adapter-api))
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Changes integration hooks and HMR access patterns in the Integration API - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-integration-hooks-and-hmr-access-patterns-integration-api))
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Removes the unused `astro:ssr-manifest` virtual module - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-astrossr-manifest-virtual-module-integration-api))
+
+### Minor Changes
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Adds new optional properties to `setAdapter()` for adapter entrypoint handling in the Adapter API
+
+  **Changes:**
+  - New optional properties:
+    - `devEntrypoint?: string | URL` - specifies custom dev server entrypoint
+    - `entryType?: 'self' | 'legacy-dynamic'` - determines if the adapter provides its own entrypoint (`'self'`) or if Astro constructs one (`'legacy-dynamic'`, default)
+
+  **Migration:** Adapter authors can optionally add these properties to support custom dev entrypoints. If not specified, adapters will use the legacy behavior.
+
+- [#14826](https://github.com/withastro/astro/pull/14826) [`170f64e`](https://github.com/withastro/astro/commit/170f64e977290b8f9d316b5f283bd03bae33ddde) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds an option `prerenderConflictBehavior` to configure the behavior of conflicting prerendered routes
+
+  By default, Astro warns you during the build about any conflicts between multiple dynamic routes that can result in the same output path. For example `/blog/[slug]` and `/blog/[...all]` both could try to prerender the `/blog/post-1` path. In such cases, Astro renders only the [highest priority route](https://docs.astro.build/en/guides/routing/#route-priority-order) for the conflicting path. This allows your site to build successfully, although you may discover that some pages are rendered by unexpected routes.
+
+  With the new `prerenderConflictBehavior` configuration option, you can now configure this further:
+  - `prerenderConflictBehavior: 'error'` fails the build
+  - `prerenderConflictBehavior: 'warn'` (default) logs a warning and the highest-priority route wins
+  - `prerenderConflictBehavior: 'ignore'` silently picks the highest-priority route when conflicts occur
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+  +    prerenderConflictBehavior: 'error',
+  });
+  ```
+
+- [#14946](https://github.com/withastro/astro/pull/14946) [`95c40f7`](https://github.com/withastro/astro/commit/95c40f7109ce240206c3951761a7bb439dd809cb) Thanks [@ematipico](https://github.com/ematipico)! - Removes the `experimental.csp` flag and replaces it with a new configuration option `security.csp` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
+
+### Patch Changes
+
+- [#14982](https://github.com/withastro/astro/pull/14982) [`6849e38`](https://github.com/withastro/astro/commit/6849e3844d940f76b544822e7bd247641d61567d) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes images outside the project directory not working when using astro:assets in development mode
+
 ## 6.0.0-alpha.0
 
 ### Major Changes
