@@ -1,5 +1,5 @@
-import { baseService, verifyOptions, type LocalImageService } from './service.js';
 import { isESMImportedImage } from '../utils/imageKind.js';
+import { baseService, type LocalImageService, verifyOptions } from './service.js';
 
 // Empty service used for platforms that don't support Sharp / users who don't want transformations.
 const noopService: LocalImageService = {
@@ -11,9 +11,9 @@ const noopService: LocalImageService = {
 		} else {
 			delete options.format;
 		}
-		
+
 		verifyOptions(options);
-		
+
 		return options;
 	},
 	async transform(inputBuffer, transformOptions) {

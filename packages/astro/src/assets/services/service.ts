@@ -143,7 +143,10 @@ export function verifyOptions(options: ImageTransform): void {
 
 	if (!isESMImportedImage(options.src)) {
 		// User passed an `/@fs/` path or a filesystem path instead of the full image.
-		if (options.src.startsWith('/@fs/') || (!isRemotePath(options.src) && !options.src.startsWith('/'))) {
+		if (
+			options.src.startsWith('/@fs/') ||
+			(!isRemotePath(options.src) && !options.src.startsWith('/'))
+		) {
 			throw new AstroError({
 				...AstroErrorData.LocalImageUsedWrongly,
 				message: AstroErrorData.LocalImageUsedWrongly.message(options.src),
@@ -217,7 +220,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		if (isESMImportedImage(options.src) && options.src.format === 'svg') {
 			options.format = 'svg';
 		}
-		
+
 		// Run verification-only checks
 		verifyOptions(options);
 

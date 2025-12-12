@@ -6,13 +6,13 @@ import { loadFixture } from './test-utils.js';
 describe('passthroughImageService', () => {
 	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
-	
+
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/passthrough-image-service/',
 		});
 	});
-	
+
 	describe('dev', () => {
 		let $;
 		let devServer;
@@ -23,7 +23,7 @@ describe('passthroughImageService', () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			$ = cheerio.load(html);
 		});
-		
+
 		after(async () => {
 			await devServer.stop();
 		});
@@ -36,11 +36,14 @@ describe('passthroughImageService', () => {
 		it('serves SVG logo with correct content type', async () => {
 			const $img = $('#logo img');
 			const src = $img.attr('src');
-			
+
 			const response = await fixture.fetch(src);
 			const contentType = response.headers.get('content-type');
-			
-			assert.ok(contentType.includes('image/svg+xml'), `Expected SVG content type, got: ${contentType}`);
+
+			assert.ok(
+				contentType.includes('image/svg+xml'),
+				`Expected SVG content type, got: ${contentType}`,
+			);
 		});
 	});
 
