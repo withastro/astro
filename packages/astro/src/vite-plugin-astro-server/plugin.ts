@@ -35,6 +35,7 @@ import { createController } from './controller.js';
 import { recordServerError } from './error.js';
 import { setRouteError } from './server-state.js';
 import { trailingSlashMiddleware } from './trailing-slash.js';
+import { sessionConfigToManifest } from '../core/session/utils.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -259,7 +260,7 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 				onRequest: NOOP_MIDDLEWARE_FN,
 			};
 		},
-		sessionConfig: settings.config.session,
+		session: sessionConfigToManifest(settings.config.session),
 		csp,
 		devToolbar: {
 			enabled:

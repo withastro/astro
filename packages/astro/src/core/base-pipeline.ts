@@ -23,7 +23,7 @@ import { sequence } from './middleware/sequence.js';
 import { RedirectSinglePageBuiltModule } from './redirects/index.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
-import type { SessionDriver } from './session/types.js';
+import type { SessionDriverFactory } from './session/types.js';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
@@ -35,7 +35,7 @@ export abstract class Pipeline {
 	readonly internalMiddleware: MiddlewareHandler[];
 	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
 	resolvedActions: SSRActions | undefined = undefined;
-	resolvedSessionDriver: SessionDriver | null | undefined = undefined;
+	resolvedSessionDriver: SessionDriverFactory | null | undefined = undefined;
 
 	constructor(
 		readonly logger: Logger,
@@ -143,7 +143,7 @@ export abstract class Pipeline {
 		return NOOP_ACTIONS_MOD;
 	}
 
-	async getSessionDriver(): Promise<SessionDriver | null> {
+	async getSessionDriver(): Promise<SessionDriverFactory | null> {
 		// Return cached value if already resolved (including null)
 		if (this.resolvedSessionDriver !== undefined) {
 			return this.resolvedSessionDriver;

@@ -18,7 +18,7 @@ import type { SinglePageBuiltModule } from '../build/types.js';
 import type { CspDirective } from '../csp/config.js';
 import type { LoggerLevel } from '../logger/core.js';
 import type { RoutingStrategies } from './common.js';
-import type { BaseSessionConfig, SessionDriver } from '../session/types.js';
+import type { BaseSessionConfig, SessionDriverFactory } from '../session/types.js';
 
 type ComponentPath = string;
 
@@ -96,7 +96,7 @@ export type SSRManifest = {
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
 	actions?: () => Promise<SSRActions> | SSRActions;
-	sessionDriver?: () => Promise<{ default: SessionDriver | null }>;
+	sessionDriver?: () => Promise<{ default: SessionDriverFactory | null }>;
 	checkOrigin: boolean;
 	allowedDomains?: Partial<RemotePattern>[];
 	session?: SSRManifestSession;
