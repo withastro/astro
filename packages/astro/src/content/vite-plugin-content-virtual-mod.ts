@@ -23,6 +23,7 @@ import {
 } from './consts.js';
 import { getDataStoreFile } from './content-layer.js';
 import { getContentPaths, isDeferredModule } from './utils.js';
+import { isAstroClientEnvironment } from '../environments.js';
 
 interface AstroContentVirtualModPluginParams {
 	settings: AstroSettings;
@@ -113,7 +114,7 @@ export function astroContentVirtualModPlugin({
 		},
 		async load(id) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-				const isClient = this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client;
+				const isClient = isAstroClientEnvironment(this.environment);
 				const code = await generateContentEntryFile({
 					settings,
 					fs,
