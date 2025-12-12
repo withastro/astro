@@ -559,7 +559,7 @@ export interface AstroUserConfig<
 	 */
 	prerenderConflictBehavior?: 'error' | 'warn' | 'ignore';
 
-		/**
+	/**
 	 * @docs
 	 * @name vite
 	 * @typeraw {ViteUserConfig}
@@ -592,7 +592,7 @@ export interface AstroUserConfig<
 	 * ```
 	 */
 	vite?: ViteUserConfig;
-	
+
 	/**
 	 * @docs
 	 * @name security
@@ -693,7 +693,7 @@ export interface AstroUserConfig<
 		 * Enabling this feature adds additional security to Astro's handling of processed and bundled scripts and styles by default, and allows you to further configure these, and additional, content types.
 		 *
 		 * This feature comes with some limitations:
-		 * - External scripts and external styles are not supported out of the box, but you can [provide your own hashes](https://v6.docs.astro.build/en/reference/configuration-reference/#hashes). 
+		 * - External scripts and external styles are not supported out of the box, but you can [provide your own hashes](https://v6.docs.astro.build/en/reference/configuration-reference/#hashes).
 		 * - [Astro's view transitions](https://v6.docs.astro.build/en/guides/view-transitions/) using the `<ClientRouter />` are not supported, but you can [consider migrating to the browser native View Transition API](https://events-3bg.pages.dev/jotter/astro-view-transitions/) instead if you are not using Astro's enhancements to the native View Transitions and Navigation APIs.
 		 * - Shiki isn't currently supported. By design, Shiki functions using inline styles.
 		 *
@@ -745,7 +745,7 @@ export interface AstroUserConfig<
 					 */
 					algorithm?: CspAlgorithm;
 
-				 /**
+					/**
 					 * @name security.csp.directives
 					 * @type {string[]}
 					 * @default `[]`
@@ -783,7 +783,6 @@ export interface AstroUserConfig<
 					 * ```
 					 */
 					directives?: CspDirective[];
-			  };
 
 					/**
 					 * @name security.csp.styleDirective
@@ -999,6 +998,7 @@ export interface AstroUserConfig<
 						 */
 						strictDynamic?: boolean;
 					};
+			  };
 	};
 
 	/**
