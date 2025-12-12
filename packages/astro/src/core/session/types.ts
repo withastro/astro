@@ -58,6 +58,7 @@ interface CustomConfig {
 	options?: Record<string, unknown>;
 }
 
+// TODO: remove test driver. Not useful with custom drivers
 interface TestConfig {
 	/** TODO: */
 	driver: 'test';

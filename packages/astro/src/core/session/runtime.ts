@@ -5,6 +5,7 @@ import { SessionStorageInitError, SessionStorageSaveError } from '../errors/erro
 import { AstroError } from '../errors/index.js';
 import type { SessionDriverFactory } from './types.js';
 import type { SSRManifestSession } from '../app/types.js';
+import { createStorage, type Storage } from 'unstorage';
 
 export const PERSIST_SYMBOL = Symbol();
 
@@ -34,7 +35,11 @@ export class AstroSession {
 	// The cookies object.
 	#cookies: AstroCookies;
 	// The session configuration.
-	#config: SSRManifestSession;
+	#config: Omit<SSRManifestSession, 'cookie'>;
+	// The cookie config
+	#cookieConfig?: AstroCookieSetOptions;
+	// The cookie name
+	#cookieName: string;
 	// The unstorage object for the session driver.
 	#storage: Storage | undefined;
 	#data: Map<string, SessionEntry> | undefined;
@@ -75,6 +80,7 @@ export class AstroSession {
 		}
 		this.#cookies = cookies;
 		this.#driverFactory = driverFactory;
+		const { cookie: cookieConfig = DEFAULT_COOKIE_NAME, ...configRest } = config;
 		let cookieConfigObject: AstroCookieSetOptions | undefined;
 		if (typeof cookieConfig === 'object') {
 			const { name = DEFAULT_COOKIE_NAME, ...rest } = cookieConfig;
@@ -90,7 +96,7 @@ export class AstroSession {
 			...cookieConfigObject,
 			httpOnly: true,
 		};
-		this.#config = config
+		this.#config = configRest;
 	}
 
 	/**
@@ -262,7 +268,7 @@ export class AstroSession {
 						...SessionStorageSaveError,
 						message: SessionStorageSaveError.message(
 							'The session data could not be serialized.',
-							this.#config.driver,
+							this.#config.driverName,
 						),
 					},
 					{ cause: err },
@@ -345,7 +351,7 @@ export class AstroSession {
 					...SessionStorageInitError,
 					message: SessionStorageInitError.message(
 						'The session data was an invalid type.',
-						this.#config.driver,
+						this.#config.driverName,
 					),
 				});
 			}
@@ -375,7 +381,7 @@ export class AstroSession {
 					...SessionStorageInitError,
 					message: SessionStorageInitError.message(
 						'The session data could not be parsed.',
-						this.#config.driver,
+						this.#config.driverName,
 					),
 				},
 				{ cause: err },
@@ -403,24 +409,9 @@ export class AstroSession {
 		// We reuse the storage object if it has already been created.
 		// We don't need to worry about the config changing because editing it
 		// will always restart the process.
-		if (AstroSession.#sharedStorage.has(this.#config.driver)) {
-			this.#storage = AstroSession.#sharedStorage.get(this.#config.driver);
+		if (AstroSession.#sharedStorage.has(this.#config.driverName)) {
+			this.#storage = AstroSession.#sharedStorage.get(this.#config.driverName);
 			return this.#storage!;
-		}
-
-		if (this.#config.driver === 'test') {
-			this.#storage = (this.#config as SessionConfig<'test'>).options.mockStorage;
-			return this.#storage!;
-		}
-		// Use fs-lite rather than fs, because fs can't be bundled. Add a default base path if not provided.
-		if (
-			this.#config.driver === 'fs' ||
-			this.#config.driver === 'fsLite' ||
-			this.#config.driver === 'fs-lite'
-		) {
-			this.#config.options ??= {};
-			this.#config.driver = 'fs-lite';
-			(this.#config.options as BuiltinDriverOptions['fs-lite']).base ??= '.astro/session';
 		}
 
 		// Get the driver factory from the pipeline
@@ -429,7 +420,7 @@ export class AstroSession {
 				...SessionStorageInitError,
 				message: SessionStorageInitError.message(
 					'Astro could not load the driver correctly. Does it exist?',
-					this.#config.driver,
+					this.#config.driverName,
 				),
 			});
 		}
@@ -438,15 +429,27 @@ export class AstroSession {
 
 		try {
 			this.#storage = createStorage({
-				driver: driver(this.#config.options),
+				driver: {
+					...driver(this.#config.options),
+					// Unused methods
+					hasItem() {
+						return false;
+					},
+					getItem() {
+						return null;
+					},
+					getKeys() {
+						return [];
+					},
+				},
 			});
-			AstroSession.#sharedStorage.set(this.#config.driver, this.#storage);
+			AstroSession.#sharedStorage.set(this.#config.driverName, this.#storage);
 			return this.#storage;
 		} catch (err) {
 			throw new AstroError(
 				{
 					...SessionStorageInitError,
-					message: SessionStorageInitError.message('Unknown error', this.#config.driver),
+					message: SessionStorageInitError.message('Unknown error', this.#config.driverName),
 				},
 				{ cause: err },
 			);

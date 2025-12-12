@@ -17,7 +17,10 @@ export function normalizeSessionDriverConfig(
 		return {
 			name: driver,
 			entrypoint: builtinDrivers[driver as keyof typeof builtinDrivers],
-			options,
+			options: {
+				base: '.astro/session',
+				...options,
+			},
 		};
 	}
 
