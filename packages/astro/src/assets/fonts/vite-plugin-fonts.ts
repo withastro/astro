@@ -188,8 +188,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		consumableMap = res.consumableMap;
 
 		// Handle CSP
-		if (shouldTrackCspHashes(settings.config.experimental.csp)) {
-			const algorithm = getAlgorithm(settings.config.experimental.csp);
+		if (shouldTrackCspHashes(settings.config.security.csp)) {
+			const algorithm = getAlgorithm(settings.config.security.csp);
 
 			// Generate a hash for each style we generate
 			for (const { css } of internalConsumableMap.values()) {

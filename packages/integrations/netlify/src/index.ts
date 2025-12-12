@@ -142,7 +142,7 @@ async function writeNetlifyFrameworkConfig(
 
 	if (staticHeaders && staticHeaders.size > 0) {
 		for (const [pathname, { headers: routeHeaders }] of staticHeaders.entries()) {
-			if (config.experimental.csp) {
+			if (config.security.csp) {
 				const csp = routeHeaders.get('Content-Security-Policy');
 
 				if (csp) {

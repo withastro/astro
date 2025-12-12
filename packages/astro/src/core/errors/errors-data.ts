@@ -1422,12 +1422,12 @@ export const FontFamilyNotFound = {
  * @description
  * The CSP feature isn't enabled
  * @message
- * The `experimental.csp` configuration isn't enabled.
+ * The `security.csp` configuration isn't enabled.
  */
 export const CspNotEnabled = {
 	name: 'CspNotEnabled',
 	title: "CSP feature isn't enabled",
-	message: "The `experimental.csp` configuration isn't enabled.",
+	message: "The `security.csp` configuration isn't enabled.",
 } satisfies ErrorData;
 
 /**
