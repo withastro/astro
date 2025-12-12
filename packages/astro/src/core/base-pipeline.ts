@@ -23,7 +23,7 @@ import { sequence } from './middleware/sequence.js';
 import { RedirectSinglePageBuiltModule } from './redirects/index.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
-import type { SessionDriver } from './session.js';
+import type { SessionDriver } from './session/types.js';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.

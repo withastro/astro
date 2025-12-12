@@ -7,6 +7,8 @@ export interface SessionDriver {
 	setItem: (key: string, value: any) => Promise<void>;
 }
 
+export type SessionDriverFactory = (config: Record<string, any> | undefined) => SessionDriver;
+
 // TODO: test schema matches
 export interface SessionDriverConfig {
 	/** TODO: */
@@ -20,7 +22,7 @@ export interface SessionDriverConfig {
 /** @deprecated */
 export type SessionDriverName = keyof BuiltinDriverOptions | 'test' | (string & {});
 
-interface BaseConfig {
+export interface BaseSessionConfig {
 	/**
 	 * Configures the session cookie. If set to a string, it will be used as the cookie name.
 	 * Alternatively, you can pass an object with additional options.
@@ -66,16 +68,17 @@ interface TestConfig {
 	};
 }
 
-export type SessionConfig<TDriver extends SessionDriverName | SessionDriverConfig> = BaseConfig &
-	// If no session.driver is provided, default to the new shape
-	[TDriver] extends [never]
-	? DriverConfig<SessionDriverConfig>
-	: // New shape
-		TDriver extends SessionDriverConfig
-		? DriverConfig<TDriver>
-		: // Legacy shape
-			TDriver extends keyof BuiltinDriverOptions
-			? UnstorageConfig<TDriver>
-			: TDriver extends 'test'
-				? TestConfig
-				: CustomConfig;
+export type SessionConfig<TDriver extends SessionDriverName | SessionDriverConfig> =
+	BaseSessionConfig &
+		// If no session.driver is provided, default to the new shape
+		[TDriver] extends [never]
+		? DriverConfig<SessionDriverConfig>
+		: // New shape
+			TDriver extends SessionDriverConfig
+			? DriverConfig<TDriver>
+			: // Legacy shape
+				TDriver extends keyof BuiltinDriverOptions
+				? UnstorageConfig<TDriver>
+				: TDriver extends 'test'
+					? TestConfig
+					: CustomConfig;

@@ -24,7 +24,7 @@ import { createRequest } from '../core/request.js';
 import { redirectTemplate } from '../core/routing/3xx.js';
 import { matchAllRoutes, routeIsRedirect } from '../core/routing/index.js';
 import { isRoute404, isRoute500 } from '../core/routing/match.js';
-import { PERSIST_SYMBOL } from '../core/session.js';
+import { PERSIST_SYMBOL } from '../core/session/runtime.js';
 import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
 import type { RouteData, SSRManifest } from '../types/public/index.js';

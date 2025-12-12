@@ -2,7 +2,7 @@ import type { z } from 'zod';
 import type { ActionAccept, ActionClient, ActionReturnType } from '../../actions/runtime/types.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
 import type { CspDirective, CspHash } from '../../core/csp/config.js';
-import type { AstroSession } from '../../core/session.js';
+import type { AstroSession } from '../../core/session/runtime.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { Params, RewritePayload } from './common.js';
 import type { ValidRedirectStatus } from './config.js';

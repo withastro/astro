@@ -7,7 +7,6 @@ import type {
 	CspAlgorithm,
 	Locales,
 	RemotePattern,
-	ResolvedSessionConfig,
 } from '../../types/public/config.js';
 import type {
 	RouteData,
@@ -18,8 +17,8 @@ import type {
 import type { SinglePageBuiltModule } from '../build/types.js';
 import type { CspDirective } from '../csp/config.js';
 import type { LoggerLevel } from '../logger/core.js';
-import type { SessionDriver } from '../session.js';
 import type { RoutingStrategies } from './common.js';
+import type { BaseSessionConfig, SessionDriver } from '../session/types.js';
 
 type ComponentPath = string;
 
@@ -100,7 +99,7 @@ export type SSRManifest = {
 	sessionDriver?: () => Promise<{ default: SessionDriver | null }>;
 	checkOrigin: boolean;
 	allowedDomains?: Partial<RemotePattern>[];
-	sessionConfig?: ResolvedSessionConfig<any>;
+	session?: SSRManifestSession;
 	cacheDir: URL;
 	srcDir: URL;
 	outDir: URL;
@@ -152,6 +151,11 @@ export type SSRManifestCSP = {
 	styleResources: string[];
 	directives: CspDirective[];
 };
+
+export interface SSRManifestSession extends BaseSessionConfig {
+	driverName: string;
+	options?: Record<string, any> | undefined;
+}
 
 /** Public type exposed through the `astro:build:ssr` integration hook */
 export type SerializedSSRManifest = Omit<
