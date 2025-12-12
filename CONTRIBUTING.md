@@ -205,12 +205,12 @@ When creating new tests, it's best to reference other existing test files and re
 > [!IMPORTANT]
 > If tests start to fail for no apparent reason, the first thing to look at the `outDir` configuration. As build cache artifacts between runs, different tests might end up sharing some of the emitted modules.
 > To avoid this possible overlap, **make sure to add a custom `outDir` to your test case**
-> 
+>
 > ```js
 > await loadFixture({
->   root: "./fixtures/some-fixture",
->   outDir: "./dist/some-folder"
-> })
+>   root: './fixtures/some-fixture',
+>   outDir: './dist/some-folder',
+> });
 > ```
 
 ### Other useful commands

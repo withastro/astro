@@ -136,7 +136,7 @@ export default function configAliasVitePlugin({
 		resolveId: {
 			filter: {
 				id: {
-					include: configAlias.map(alias => alias.find),
+					include: configAlias.map((alias) => alias.find),
 					exclude: /(?:\0|^virtual:|^astro:)/,
 				},
 			},

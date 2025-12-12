@@ -53,7 +53,7 @@ export function vitePluginEnvironment({
 			const finalEnvironmentOptions: EnvironmentOptions = {
 				optimizeDeps: {
 					include: [],
-					exclude: []
+					exclude: [],
 				},
 				resolve: {
 					// Astro imports in third-party packages should use the same version as root

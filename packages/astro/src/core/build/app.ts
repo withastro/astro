@@ -30,14 +30,14 @@ export class BuildApp extends BaseApp<BuildPipeline> {
 
 	async renderError(request: Request, options: RenderErrorOptions): Promise<Response> {
 		if (options.status === 500) {
-			if(options.response) {
-				return options.response;	
+			if (options.response) {
+				return options.response;
 			}
 			throw options.error;
 		} else {
 			return super.renderError(request, {
 				...options,
-				prerenderedErrorPageFetch: undefined
+				prerenderedErrorPageFetch: undefined,
 			});
 		}
 	}

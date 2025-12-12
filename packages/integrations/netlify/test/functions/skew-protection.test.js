@@ -42,12 +42,17 @@ describe(
 		it('Manifest contains internalFetchHeaders', async () => {
 			// The manifest is embedded in the build output
 			// Check the manifest file which contains the serialized manifest
-			const manifestURL = new URL('./fixtures/skew-protection/.netlify/build/chunks/', import.meta.url);
+			const manifestURL = new URL(
+				'./fixtures/skew-protection/.netlify/build/chunks/',
+				import.meta.url,
+			);
 
 			// Find the manifest file (it has a hash in the name)
 			const { readdir } = await import('node:fs/promises');
 			const files = await readdir(manifestURL);
-			const manifestFile = files.find((f) => f.startsWith('_virtual_astro_legacy') && f.endsWith('.mjs'));
+			const manifestFile = files.find(
+				(f) => f.startsWith('_virtual_astro_legacy') && f.endsWith('.mjs'),
+			);
 			assert.ok(manifestFile, 'Expected to find a manifest file');
 
 			const manifestContent = await readFile(new URL(manifestFile, manifestURL), 'utf-8');

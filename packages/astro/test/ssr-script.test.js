@@ -144,14 +144,14 @@ describe('External scripts in SSR', () => {
 							build: {
 								rollupOptions: {
 									output: {
-									  entryFileNames: 'assets/entry.[hash].mjs',
-									  chunkFileNames: 'assets/chunks/chunk.[hash].mjs',
-									  assetFileNames: 'assets/asset.[hash][extname]',
-									}
-								}
-							}
-						}
-					}
+										entryFileNames: 'assets/entry.[hash].mjs',
+										chunkFileNames: 'assets/chunks/chunk.[hash].mjs',
+										assetFileNames: 'assets/asset.[hash][extname]',
+									},
+								},
+							},
+						},
+					},
 				},
 			});
 			await fixture.build();
@@ -181,11 +181,11 @@ describe('External scripts in SSR', () => {
 										entryFileNames: 'assets/entry.[hash].mjs',
 										chunkFileNames: 'assets/chunks/chunk.[hash].mjs',
 										assetFileNames: 'assets/asset.[hash][extname]',
-									}
-								}
-							}
-						}
-					}
+									},
+								},
+							},
+						},
+					},
 				},
 				base: '/hello',
 			});
@@ -219,11 +219,11 @@ describe('External scripts in SSR', () => {
 										entryFileNames: 'assets/entry.[hash].mjs',
 										chunkFileNames: 'assets/chunks/chunk.[hash].mjs',
 										assetFileNames: 'assets/asset.[hash][extname]',
-									}
-								}
-							}
-						}
-					}
+									},
+								},
+							},
+						},
+					},
 				},
 			});
 			await fixture.build();
