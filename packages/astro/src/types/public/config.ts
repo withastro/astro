@@ -559,6 +559,40 @@ export interface AstroUserConfig<
 	 */
 	prerenderConflictBehavior?: 'error' | 'warn' | 'ignore';
 
+		/**
+	 * @docs
+	 * @name vite
+	 * @typeraw {ViteUserConfig}
+	 * @description
+	 *
+	 * Pass additional configuration options to Vite. Useful when Astro doesn't support some advanced configuration that you may need.
+	 *
+	 * View the full `vite` configuration object documentation on [vite.dev](https://vite.dev/config/).
+	 *
+	 * #### Examples
+	 *
+	 * ```js
+	 * {
+	 *   vite: {
+	 *     ssr: {
+	 *       // Example: Force a broken package to skip SSR processing, if needed
+	 *       external: ['broken-npm-package'],
+	 *     }
+	 *   }
+	 * }
+	 * ```
+	 *
+	 * ```js
+	 * {
+	 *   vite: {
+	 *     // Example: Add custom vite plugins directly to your Astro project
+	 *     plugins: [myPlugin()],
+	 *   }
+	 * }
+	 * ```
+	 */
+	vite?: ViteUserConfig;
+	
 	/**
 	 * @docs
 	 * @name security
@@ -654,9 +688,36 @@ export interface AstroUserConfig<
 		 * @version 6.0.0
 		 * @description
 		 *
-		 * Enables built-in support for Content Security Policy (CSP). For more information,
-		 * refer to the [CSP documentation](https://docs.astro.build/en/reference/configuration-reference/#securitycsp)
+		 * Enables support for [Content Security Policy (CSP)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP) to help minimize certain types of security threats by controlling which resources a document is allowed to load. This provides additional protection against [cross-site scripting (XSS)](https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting) attacks.
 		 *
+		 * Enabling this feature adds additional security to Astro's handling of processed and bundled scripts and styles by default, and allows you to further configure these, and additional, content types.
+		 *
+		 * This feature comes with some limitations:
+		 * - External scripts and external styles are not supported out of the box, but you can [provide your own hashes](https://v6.docs.astro.build/en/reference/configuration-reference/#hashes). 
+		 * - [Astro's view transitions](https://v6.docs.astro.build/en/guides/view-transitions/) using the `<ClientRouter />` are not supported, but you can [consider migrating to the browser native View Transition API](https://events-3bg.pages.dev/jotter/astro-view-transitions/) instead if you are not using Astro's enhancements to the native View Transitions and Navigation APIs.
+		 * - Shiki isn't currently supported. By design, Shiki functions using inline styles.
+		 *
+		 * :::note
+		 * Due to the nature of the Vite dev server, this feature isn't supported while working in `dev` mode. Instead, you can test this in your Astro project using `build` and `preview`.
+		 * :::
+		 *
+		 * When enabled, Astro will add a `<meta>` element inside the `<head>` element of each page.
+		 * This element will have the `http-equiv="content-security-policy"` attribute, and the `content` attribute will provide values for the `script-src` and `style-src` [directives](https://v6.docs.astro.build/en/reference/configuration-reference/#securitycspdirectives) based on the script and styles used in the page.
+		 *
+		 * ```html
+		 *
+		 * <head>
+		 *   <meta
+		 *     http-equiv="content-security-policy"
+		 *     content="
+		 *     script-src 'self' 'sha256-somehash';
+		 *     style-src 'self' 'sha256-somehash';
+		 *     "
+		 *   >
+		 * </head>
+		 * ```
+		 *
+		 * You can further customize the `<meta>` element by enabling this feature with a configuration object that includes additional options.
 		 */
 		csp?:
 			| boolean
@@ -684,6 +745,46 @@ export interface AstroUserConfig<
 					 */
 					algorithm?: CspAlgorithm;
 
+				 /**
+					 * @name security.csp.directives
+					 * @type {string[]}
+					 * @default `[]`
+					 * @version 6.0.0
+					 * @description
+					 *
+					 * A list of [CSP directives](https://content-security-policy.com/#directive) (beyond `script-src` and `style-src` which are included by default) that defines valid sources for specific content types. These directives are added to all pages.
+					 *
+					 * ```js title="astro.config.mjs"
+					 * import { defineConfig } from 'astro/config';
+					 *
+					 * export default defineConfig({
+					 *   security: {
+					 *     csp: {
+					 *       directives: [
+					 *         "default-src 'self'",
+					 *         "img-src 'self' https://images.cdn.example.com"
+					 *       ]
+					 *     }
+					 *   }
+					 * });
+					 * ```
+					 * After the build, the `<meta>` element will add your directives into the `content` value alongside Astro's default directives:
+					 *
+					 * ```html
+					 * <meta
+					 *   http-equiv="content-security-policy"
+					 *   content="
+					 *     default-src 'self';
+					 *     img-src 'self' 'https://images.cdn.example.com';
+					 *     script-src 'self' 'sha256-somehash';
+					 *     style-src 'self' 'sha256-somehash';
+					 *   "
+					 * >
+					 * ```
+					 */
+					directives?: CspDirective[];
+			  };
+
 					/**
 					 * @name security.csp.styleDirective
 					 * @type {{ hashes?: CspHash[], resources?: string[] }}
@@ -699,7 +800,6 @@ export interface AstroUserConfig<
 						 * @default `[]`
 						 * @version 6.0.0
 						 * @description
-						 *
 						 *
 						 * A list of additional hashes to be rendered.
 						 *
@@ -742,7 +842,6 @@ export interface AstroUserConfig<
 						 * @default `[]`
 						 * @version 6.0.0
 						 * @description
-						 *
 						 *
 						 * A list of valid sources for `style-src` directives to override Astro's default sources. This will not include `'self'` by default, and must be included in this list if you wish to keep it. These resources are added to all pages.
 						 *
@@ -798,7 +897,6 @@ export interface AstroUserConfig<
 						 * @version 6.0.0
 						 * @description
 						 *
-						 *
 						 * A list of additional hashes to be rendered.
 						 *
 						 * You must provide hashes that start with `sha384-`, `sha512-` or `sha256-`. Other values will cause a validation error. These hashes are added to all pages.
@@ -840,7 +938,6 @@ export interface AstroUserConfig<
 						 * @default `[]`
 						 * @version 6.0.0
 						 * @description
-						 *
 						 *
 						 * A list of valid sources for the `script-src` directives to override Astro's default sources. This will not include `'self'` by default, and must be included in this list if you wish to keep it. These resources are added to all pages.
 						 *
@@ -884,7 +981,6 @@ export interface AstroUserConfig<
 						 * @version 6.0.0
 						 * @description
 						 *
-						 *
 						 * Enables [the `strict-dynamic` keyword](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP#the_strict-dynamic_keyword) to support the dynamic injection of scripts.
 						 *
 						 * ```js title="astro.config.mjs"
@@ -903,81 +999,7 @@ export interface AstroUserConfig<
 						 */
 						strictDynamic?: boolean;
 					};
-
-					/**
-					 * @name security.csp.directives
-					 * @type {string[]}
-					 * @default `[]`
-					 * @version 6.0.0
-					 * @description
-					 *
-					 * A list of [CSP directives](https://content-security-policy.com/#directive) (beyond `script-src` and `style-src` which are included by default) that defines valid sources for specific content types. These directives are added to all pages.
-					 *
-					 * ```js title="astro.config.mjs"
-					 * import { defineConfig } from 'astro/config';
-					 *
-					 * export default defineConfig({
-					 *   security: {
-					 *     csp: {
-					 *       directives: [
-					 *         "default-src 'self'",
-					 *         "img-src 'self' https://images.cdn.example.com"
-					 *       ]
-					 *     }
-					 *   }
-					 * });
-					 * ```
-					 * After the build, the `<meta>` element will add your directives into the `content` value alongside Astro's default directives:
-					 *
-					 * ```html
-					 * <meta
-					 *   http-equiv="content-security-policy"
-					 *   content="
-					 *     default-src 'self';
-					 *     img-src 'self' 'https://images.cdn.example.com';
-					 *     script-src 'self' 'sha256-somehash';
-					 *     style-src 'self' 'sha256-somehash';
-					 *   "
-					 * >
-					 * ```
-					 */
-					directives?: CspDirective[];
-			  };
 	};
-
-	/**
-	 * @docs
-	 * @name vite
-	 * @typeraw {ViteUserConfig}
-	 * @description
-	 *
-	 * Pass additional configuration options to Vite. Useful when Astro doesn't support some advanced configuration that you may need.
-	 *
-	 * View the full `vite` configuration object documentation on [vite.dev](https://vite.dev/config/).
-	 *
-	 * #### Examples
-	 *
-	 * ```js
-	 * {
-	 *   vite: {
-	 *     ssr: {
-	 *       // Example: Force a broken package to skip SSR processing, if needed
-	 *       external: ['broken-npm-package'],
-	 *     }
-	 *   }
-	 * }
-	 * ```
-	 *
-	 * ```js
-	 * {
-	 *   vite: {
-	 *     // Example: Add custom vite plugins directly to your Astro project
-	 *     plugins: [myPlugin()],
-	 *   }
-	 * }
-	 * ```
-	 */
-	vite?: ViteUserConfig;
 
 	/**
 	 * @docs
