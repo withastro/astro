@@ -116,7 +116,7 @@ export function findRouteToRewrite({
 					!route.distURL.find(
 						(url) =>
 							url.href.replace(outDir.toString(), '').replace(/(?:\/index\.html|\.html)$/, '') ==
-							trimSlashes(decodedPathname),
+							trimSlashes(pathname),
 					)
 				) {
 					continue;
