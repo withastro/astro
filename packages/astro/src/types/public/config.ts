@@ -1171,6 +1171,18 @@ export interface AstroUserConfig<
 		 * This option is scoped to the entire project, to only disable the toolbar for yourself, run `npm run astro preferences disable devToolbar`. To disable the toolbar for all your Astro projects, run `npm run astro preferences disable devToolbar --global`.
 		 */
 		enabled: boolean;
+
+		/**
+		 * @docs
+		 * @name devToolbar.placement
+		 * @type {'bottom-left' | 'bottom-center' | 'bottom-right'}
+		 * @default `'bottom-center'`
+		 * @description
+		 * The default placement of the Astro Dev Toolbar on the screen.
+		 *
+		 * The user can still change the placement via the toolbar settings UI. Once changed, the user's preference is saved in `localStorage` and overrides this configuration value.
+		 */
+		placement?: 'bottom-left' | 'bottom-center' | 'bottom-right';
 	};
 
 	/**
