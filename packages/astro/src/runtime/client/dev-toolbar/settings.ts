@@ -1,4 +1,5 @@
-import type { Placement } from './ui-library/window.js';
+import type { DevToolbarMetadata } from '../../../types/public/toolbar.js';
+import { isValidPlacement, type Placement } from './ui-library/window.js';
 
 export interface Settings {
 	disableAppNotification: boolean;
@@ -15,7 +16,16 @@ export const defaultSettings = {
 export const settings = getSettings();
 
 function getSettings() {
+	// 1. Start with hardcoded defaults
 	let _settings: Settings = { ...defaultSettings };
+
+	// 2. Override with config placement (if provided)
+	const configPlacement = (globalThis as DevToolbarMetadata).__astro_dev_toolbar__?.placement;
+	if (configPlacement && isValidPlacement(configPlacement)) {
+		_settings.placement = configPlacement;
+	}
+
+	// 3. Override with localStorage (preserves user's UI choice)
 	const toolbarSettings = localStorage.getItem('astro:dev-toolbar:settings');
 
 	if (toolbarSettings) {
