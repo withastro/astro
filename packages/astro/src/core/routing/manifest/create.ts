@@ -373,7 +373,7 @@ function createRedirectRoutes(
 			component: from,
 			generate,
 			pathname: pathname || void 0,
-			prerender: getPrerenderDefault(config),
+			prerender: params.length > 0 ? false : getPrerenderDefault(config),
 			redirect: to,
 			redirectRoute: routeMap.get(destination),
 			fallbackRoutes: [],
