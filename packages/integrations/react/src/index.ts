@@ -59,6 +59,17 @@ function optionsPlugin({
 	};
 }
 
+// // Note: need to get the PluginItem type, probably from @types/babel__core
+// function isBabelPluginPresent(plugins: PluginItem[], pluginName: string): boolean {
+// 	for (const plugin of plugins) {
+// 		if (typeof plugin == 'string' && plugin == pluginName)
+// 			return true
+// 		else if (Array.isArray(plugin) && plugin[0] == pluginName)
+// 			return true
+// 	}
+// 	return false
+// }
+
 function getViteConfiguration(
 	{
 		include,
