@@ -109,6 +109,13 @@ function getViteConfiguration(
 				return options;
 			};
 		}
+
+		// @ts-ignore
+		import('babel-plugin-react-compiler').catch(() => {
+			console.warn(
+				"You need to install 'babel-plugin-react-compiler' as a dev dependency to use React Compiler in your Astro project.",
+			);
+		});
 	}
 
 	return {
