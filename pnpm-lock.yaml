@@ -2958,6 +2958,12 @@ importers:
         specifier: ^5.43.14
         version: 5.45.5
 
+  packages/astro/test/fixtures/css-double-bundle:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/css-import-as-inline:
     dependencies:
       astro:
