@@ -1,5 +1,22 @@
 # astro
 
+## 5.16.5
+
+### Patch Changes
+
+- [#14985](https://github.com/withastro/astro/pull/14985) [`c016f10`](https://github.com/withastro/astro/commit/c016f1063beddc995c4b7a60430ff8860c05b462) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where JSDoc annotations wouldn't show for fonts related APIs in the Astro config
+
+- [#14973](https://github.com/withastro/astro/pull/14973) [`ed7cc2f`](https://github.com/withastro/astro/commit/ed7cc2fd399084bdd8ba47094fe378fc8ce43048) Thanks [@amankumarpandeyin](https://github.com/amankumarpandeyin)! - Fixes performance regression and OOM errors when building medium-sized blogs with many content entries. Replaced O(n²) object spread pattern with direct mutation in `generateLookupMap`.
+
+- [#14958](https://github.com/withastro/astro/pull/14958) [`70eb542`](https://github.com/withastro/astro/commit/70eb542f3b509cd25461d19d275b8c050ace184f) Thanks [@ascorbic](https://github.com/ascorbic)! - Gives a helpful error message if a user sets `output: "hybrid"` in their Astro config.
+
+  The option was removed in Astro 5, but lots of content online still references it, and LLMs often suggest it. It's not always clear that the replacement is `output: "static"`, rather than `output: "server"`. This change adds a helpful error message to guide humans and robots.
+
+- [#14901](https://github.com/withastro/astro/pull/14901) [`ef53716`](https://github.com/withastro/astro/commit/ef53716f93237d29cf732baae2d90ecd2c9f3bbe) Thanks [@Darknab](https://github.com/Darknab)! - Updates the `glob()` loader to log a warning when duplicated IDs are detected
+
+- Updated dependencies [[`d8305f8`](https://github.com/withastro/astro/commit/d8305f8abdf92db6fa505ee9c1774553ba90b7bd)]:
+  - @astrojs/markdown-remark@6.3.10
+
 ## 5.16.4
 
 ### Patch Changes

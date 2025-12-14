@@ -1,14 +1,20 @@
-import { baseService, type LocalImageService } from './service.js';
+import { isESMImportedImage } from '../utils/imageKind.js';
+import { baseService, type LocalImageService, verifyOptions } from './service.js';
 
 // Empty service used for platforms that don't support Sharp / users who don't want transformations.
 const noopService: LocalImageService = {
 	...baseService,
 	propertiesToHash: ['src'],
-	async validateOptions(options, imageConfig) {
-		const newOptions = await (baseService.validateOptions?.(options, imageConfig) ?? options);
-		delete newOptions.format;
+	async validateOptions(options) {
+		if (isESMImportedImage(options.src) && options.src.format === 'svg') {
+			options.format = 'svg';
+		} else {
+			delete options.format;
+		}
 
-		return newOptions;
+		verifyOptions(options);
+
+		return options;
 	},
 	async transform(inputBuffer, transformOptions) {
 		return {
