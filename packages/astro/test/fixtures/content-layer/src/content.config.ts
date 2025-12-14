@@ -84,7 +84,7 @@ const spacecraft = defineCollection({
 			publishedDate: z.coerce.date(),
 			tags: z.array(z.string()),
 			heroImage: image().optional(),
-			cat: reference('cats').default('siamese'),
+			cat: reference('cats').prefault('siamese'),
 			something: z
 				.string()
 				.optional()
@@ -232,7 +232,7 @@ const increment = defineCollection({
 				schema: z.object({
 				lastValue: z.number(),
 				lastUpdated: z.date(),
-				refreshContextData: z.record(z.unknown()).optional(),
+				refreshContextData: z.record(z.string(), z.unknown()).optional(),
 				slug: z.string().optional(),
 			}),
 			types: /* ts */`export interface Entry {

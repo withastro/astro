@@ -288,7 +288,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 
 	// Build ssr environment for server output
 	const ssrOutput =
-		settings.buildOutput === 'static' ? [] : await builder.build(builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]);
+		settings.buildOutput === 'static'
+			? []
+			: await builder.build(builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]);
 
 	// Build prerender environment for static generation
 	const prerenderOutput = await builder.build(builder.environments.prerender);

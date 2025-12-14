@@ -21,9 +21,6 @@ export function getVirtualModulePageName(virtualModulePrefix: string, path: stri
 }
 
 export function getVirtualModulePageNameForComponent(component: string) {
-	const virtualModuleName = getVirtualModulePageName(
-		VIRTUAL_PAGE_MODULE_ID,
-		component,
-	);
+	const virtualModuleName = getVirtualModulePageName(VIRTUAL_PAGE_MODULE_ID, component);
 	return virtualModuleName;
 }

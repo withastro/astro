@@ -15,6 +15,7 @@ import type { AstroSettings, RoutesList } from '../types/astro.js';
 import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { isAstroServerEnvironment } from '../environments.js';
 
 type Payload = {
 	settings: AstroSettings;
@@ -135,8 +136,8 @@ export default async function astroPluginRoutes({
 			}
 		},
 
-		async transform(this, code, id, options) {
-			if (!options?.ssr) return;
+		async transform(this, code, id) {
+			if (!isAstroServerEnvironment(this.environment)) return;
 
 			const filename = normalizePath(id);
 			let fileURL: URL;

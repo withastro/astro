@@ -1,4 +1,4 @@
-import type z from 'zod';
+import type * as z from 'zod/v4/core';
 import type { APIContext } from '../../types/public/index.js';
 import type { ActionError, codeToStatusMap } from './client.js';
 
@@ -6,7 +6,7 @@ export type ActionErrorCode = keyof typeof codeToStatusMap;
 
 export type ActionAccept = 'form' | 'json';
 
-export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z.ZodType
+export type ActionHandler<TInputSchema, TOutput> = TInputSchema extends z.$ZodType
 	? (input: z.infer<TInputSchema>, context: ActionAPIContext) => MaybePromise<TOutput>
 	: (input: any, context: ActionAPIContext) => MaybePromise<TOutput>;
 
@@ -28,8 +28,8 @@ export type ActionInputSchema<T extends ActionClient<any, any, any>> = T extends
 export type ActionClient<
 	TOutput,
 	TAccept extends ActionAccept | undefined,
-	TInputSchema extends z.ZodType | undefined,
-> = TInputSchema extends z.ZodType
+	TInputSchema extends z.$ZodType | undefined,
+> = TInputSchema extends z.$ZodType
 	? ((
 			input: TAccept extends 'form' ? FormData : z.input<TInputSchema>,
 		) => Promise<

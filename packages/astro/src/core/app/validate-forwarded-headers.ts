@@ -27,9 +27,7 @@ export function validateForwardedHeaders(
 	// Validate protocol
 	if (forwardedProtocol) {
 		if (allowedDomains && allowedDomains.length > 0) {
-			const hasProtocolPatterns = allowedDomains.some(
-				(pattern) => pattern.protocol !== undefined,
-			);
+			const hasProtocolPatterns = allowedDomains.some((pattern) => pattern.protocol !== undefined);
 			if (hasProtocolPatterns) {
 				// Validate against allowedDomains patterns
 				try {

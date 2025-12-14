@@ -3,6 +3,7 @@ import MagicString from 'magic-string';
 import type * as vite from 'vite';
 import { createFilter, isCSSRequest } from 'vite';
 import type { EnvLoader } from './env-loader.js';
+import { isAstroClientEnvironment } from '../environments.js';
 
 interface EnvPluginOptions {
 	envLoader: EnvLoader;
@@ -99,9 +100,9 @@ export function importMetaEnv({ envLoader }: EnvPluginOptions): vite.Plugin {
 			}
 		},
 
-		transform(source, id, options) {
+		transform(source, id) {
 			if (
-				!options?.ssr ||
+				isAstroClientEnvironment(this.environment) ||
 				!source.includes('import.meta.env') ||
 				!filter(id) ||
 				isCSSRequest(id) ||

@@ -1,7 +1,8 @@
-import { defineCollection, z, reference } from 'astro:content';
+import { defineCollection, reference } from 'astro:content';
 import { file, glob } from 'astro/loaders';
 import { loader } from './loaders/post-loader.js';
 import { readFile } from 'fs/promises';
+import { z } from 'astro/zod';
 
 const blog = defineCollection({
 	loader: loader({ url: 'https://jsonplaceholder.typicode.com/posts' }),
@@ -82,8 +83,8 @@ const spacecraft = defineCollection({
 			description: z.string(),
 			publishedDate: z.coerce.date(),
 			tags: z.array(z.string()),
-			heroImage: image().optional(),
-			cat: reference('cats').default('siamese'),
+			heroImage: z.optional(image()),
+			cat: reference('cats').prefault('siamese'),
 			something: z
 				.string()
 				.optional()

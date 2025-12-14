@@ -40,10 +40,10 @@ describe('_routes.json generation', () => {
 			});
 			await fixture.build();
 		});
-		
+
 		after(async () => {
 			await fixture.clean();
-		})
+		});
 
 		it('creates a wildcard `include` and `exclude` only for static assets and redirects', async () => {
 			const _routesJson = await fixture.readFile('/_routes.json');
