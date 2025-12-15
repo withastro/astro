@@ -19,7 +19,7 @@ export function vitePluginMdxPostprocess(astroConfig: AstroConfig): Plugin {
 			filter: {
 				id: /\.mdx$/,
 			},
-			handler(code, id, opts) {
+			handler(code, id) {
 				const fileInfo = getFileInfo(id, astroConfig);
 				const [imports, exports] = parse(code);
 
@@ -27,7 +27,12 @@ export function vitePluginMdxPostprocess(astroConfig: AstroConfig): Plugin {
 				code = injectUnderscoreFragmentImport(code, imports);
 				code = injectMetadataExports(code, exports, fileInfo);
 				code = transformContentExport(code, exports);
-				code = annotateContentExport(code, id, !!opts?.ssr, imports);
+				code = annotateContentExport(
+					code,
+					id,
+					this.environment.name === 'ssr' || this.environment.name === 'prerender',
+					imports,
+				);
 
 				// The code transformations above are append-only, so the line/column mappings are the same
 				// and we can omit the sourcemap for performance.
