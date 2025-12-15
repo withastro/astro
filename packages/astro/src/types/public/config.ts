@@ -18,15 +18,19 @@ import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
-import type { SessionConfig, SessionDriverConfig, SessionDriverName } from '../../core/session/types.js';
+import type {
+	SessionConfig,
+	SessionDriverConfig,
+	SessionDriverName,
+} from '../../core/session/types.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
 export type { AstroFontProvider as FontProvider };
 
-	export type { CspAlgorithm };
+export type { CspAlgorithm };
 
-	export type { RemotePattern };
+export type { RemotePattern };
 
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string

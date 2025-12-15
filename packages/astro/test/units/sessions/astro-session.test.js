@@ -31,7 +31,7 @@ function createSession(
 		config,
 		runtimeMode,
 		driverFactory,
-		mockStorage
+		mockStorage,
 	});
 }
 
