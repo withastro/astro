@@ -23,7 +23,6 @@ import type {
 	SessionDriverConfig,
 	SessionDriverName,
 } from '../../core/session/types.js';
-export type { SessionDriverConfig, SessionDriver } from '../../core/session/types.js'
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
