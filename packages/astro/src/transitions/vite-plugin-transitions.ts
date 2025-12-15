@@ -60,11 +60,14 @@ export default function astroTransitions({ settings }: { settings: AstroSettings
 				}
 			},
 		},
-		transform(code, id) {
-			if (id.includes('ClientRouter.astro') && id.endsWith('.ts')) {
+		transform: {
+			filter: {
+				id: /ClientRouter\.astro.*\.ts$/,
+			},
+			handler(code) {
 				const prefetchDisabled = settings.config.prefetch === false;
 				return code.replace('__PREFETCH_DISABLED__', JSON.stringify(prefetchDisabled));
-			}
+			},
 		},
 	};
 }

@@ -49,10 +49,13 @@ export default function astroPrefetch({ settings }: { settings: AstroSettings })
 				return { code: `export { prefetch } from "astro/virtual-modules/prefetch.js";` };
 			},
 		},
-		transform(code, id) {
-			// NOTE: Handle replacing the specifiers even if prefetch is disabled so View Transitions
-			// can import the internal module and not hit runtime issues.
-			if (id.includes(prefetchInternalModuleFsSubpath)) {
+		transform: {
+			filter: {
+				// NOTE: Handle replacing the specifiers even if prefetch is disabled so View Transitions
+				// can import the internal module and not hit runtime issues.
+				id: new RegExp(`${prefetchInternalModuleFsSubpath}`),
+			},
+			handler(code) {
 				// We perform a simple replacement with padding so that the code offset is not changed and
 				// we don't have to generate a sourcemap. This has the assumption that the replaced string
 				// will always be shorter than the search string to work.
@@ -70,7 +73,7 @@ export default function astroPrefetch({ settings }: { settings: AstroSettings })
 						`${JSON.stringify(settings.config.experimental.clientPrerender)}`.padEnd(33),
 					);
 				return { code, map: null };
-			}
+			},
 		},
 	};
 }
