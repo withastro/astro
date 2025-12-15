@@ -207,7 +207,7 @@ export function glob(globOptions: GlobOptions): Loader {
 					store.set({
 						id,
 						data: parsedData,
-						body: globOptions.retainBody === false && rendered ? undefined : body,
+						body: globOptions.retainBody === false ? undefined : body,
 						filePath: relativePath,
 						digest,
 						rendered,
@@ -227,7 +227,14 @@ export function glob(globOptions: GlobOptions): Loader {
 						legacyId,
 					});
 				} else {
-					store.set({ id, data: parsedData, body, filePath: relativePath, digest, legacyId });
+					store.set({
+						id,
+						data: parsedData,
+						body: globOptions.retainBody === false ? undefined : body,
+						filePath: relativePath,
+						digest,
+						legacyId,
+					});
 				}
 
 				fileToIdMap.set(filePath, id);
