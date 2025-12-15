@@ -15,9 +15,7 @@ declare module 'astro:content' {
 			[key: string]: unknown;
 		};
 	}
-}
 
-declare module 'astro:content' {
 	type Flatten<T> = T extends { [K: string]: infer U } ? U : never;
 
 	export type CollectionKey = keyof DataEntryMap;
@@ -87,18 +85,27 @@ declare module 'astro:content' {
 		entry: DataEntryMap[C][string],
 	): Promise<RenderResult>;
 
-	export function reference<C extends keyof DataEntryMap>(
+	export function reference<
+		C extends
+			| keyof DataEntryMap
+			// Allow generic `string` to avoid excessive type errors in the config
+			// if `dev` is not running to update as you edit.
+			// Invalid collection names will be caught at build time.
+			| (string & {}),
+	>(
 		collection: C,
-	): import('astro/zod').ZodEffects<
+	): import('astro/zod').ZodPipe<
 		import('astro/zod').ZodString,
-		ReferenceDataEntry<C, keyof DataEntryMap[C]>
+		import('astro/zod').ZodTransform<
+			C extends keyof DataEntryMap
+				? {
+						collection: C;
+						id: string;
+					}
+				: never,
+			string
+		>
 	>;
-	// Allow generic `string` to avoid excessive type errors in the config
-	// if `dev` is not running to update as you edit.
-	// Invalid collection names will be caught at build time.
-	export function reference<C extends string>(
-		collection: C,
-	): import('astro/zod').ZodEffects<import('astro/zod').ZodString, never>;
 
 	type ReturnTypeOrOriginal<T> = T extends (...args: any[]) => infer R ? R : T;
 	type InferEntrySchema<C extends keyof DataEntryMap> = import('astro/zod').infer<

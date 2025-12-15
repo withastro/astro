@@ -225,9 +225,11 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			await initialize({
 				// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
 				cacheDir: new URL(CACHE_DIR, settings.dotAstroDir),
-				modResolver: new DevServerRemoteFontProviderModResolver({ environment: server.environments[
+				modResolver: new DevServerRemoteFontProviderModResolver({
+					environment: server.environments[
 						ASTRO_VITE_ENVIRONMENT_NAMES.astro
-					] as RunnableDevEnvironment }),
+					] as RunnableDevEnvironment,
+				}),
 				cssRenderer: new MinifiableCssRenderer({ minify: false }),
 				urlResolver: new DevUrlResolver({
 					base: baseUrl,

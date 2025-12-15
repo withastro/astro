@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import type { AstroConfig } from '../../../types/public/config.js';
 
 export const AstroConfigRefinedSchema = z.custom<AstroConfig>().superRefine((config, ctx) => {

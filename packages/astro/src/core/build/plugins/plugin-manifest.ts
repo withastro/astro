@@ -190,7 +190,7 @@ async function buildManifest(
 	const assetQueryParams = settings.adapter?.client?.assetQueryParams;
 	const assetQueryString = assetQueryParams ? assetQueryParams.toString() : undefined;
 
-	const appendAssetQuery = (pth: string) => assetQueryString ? `${pth}?${assetQueryString}` : pth;
+	const appendAssetQuery = (pth: string) => (assetQueryString ? `${pth}?${assetQueryString}` : pth);
 
 	const prefixAssetPath = (pth: string) => {
 		let result = '';

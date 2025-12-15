@@ -1,4 +1,4 @@
-import type { ZodError } from 'zod';
+import type { $ZodError } from 'zod/v4/core';
 import type { ErrorData } from '../core/errors/errors-data.js';
 import { AstroError, AstroErrorData, type ErrorWithMetadata } from '../core/errors/index.js';
 
@@ -40,7 +40,7 @@ export function eventConfigError({
 	cmd,
 	isFatal,
 }: {
-	err: ZodError;
+	err: $ZodError;
 	cmd: string;
 	isFatal: boolean;
 }): { eventName: string; payload: ConfigErrorEventPayload }[] {

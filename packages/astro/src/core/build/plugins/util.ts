@@ -15,7 +15,6 @@ export function makePageDataKey(route: string, componentPath: string): string {
 	return route + ASTRO_PAGE_KEY_SEPARATOR + componentPath;
 }
 
-
 export function shouldInlineAsset(
 	assetContent: string,
 	assetPath: string,

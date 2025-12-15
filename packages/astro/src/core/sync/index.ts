@@ -239,7 +239,9 @@ async function syncContentCollections(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ routesList, 				settings: {
+			{
+				routesList,
+				settings: {
 					...settings,
 					// Prevent mutation by vite plugins during sync
 					buildOutput: undefined,
@@ -248,7 +250,13 @@ async function syncContentCollections(
 						fontResources: new Set(),
 						styleHashes: [],
 					},
-				}, logger, mode, command: 'build', fs, sync: true },
+				},
+				logger,
+				mode,
+				command: 'build',
+				fs,
+				sync: true,
+			},
 		),
 	);
 

@@ -1,7 +1,7 @@
 // It's safe to import this file on both server and client
 
 import { parse as devalueParse } from 'devalue';
-import type z from 'zod';
+import type * as z from 'zod/v4/core';
 import { ACTION_QUERY_PARAMS } from '../consts.js';
 import type {
 	ActionClient,
@@ -132,10 +132,10 @@ export class ActionInputError<T extends ErrorInferenceObject> extends ActionErro
 	// Not all properties will serialize from server to client,
 	// and we don't want to import the full ZodError object into the client.
 
-	issues: z.ZodIssue[];
-	fields: z.ZodError<T>['formErrors']['fieldErrors'];
+	issues: z.$ZodIssue[];
+	fields: { [P in keyof T]?: string[] | undefined };
 
-	constructor(issues: z.ZodIssue[]) {
+	constructor(issues: z.$ZodIssue[]) {
 		super({
 			message: `Failed to validate: ${JSON.stringify(issues, null, 2)}`,
 			code: 'BAD_REQUEST',

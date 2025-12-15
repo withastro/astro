@@ -1,4 +1,4 @@
-import z from 'zod/v3';
+import z from 'zod/v4';
 
 const SessionDriverConfigSchema = z.object({
 	name: z.string(),
@@ -14,7 +14,7 @@ export const SessionSchema = z.object({
 		}),
 		SessionDriverConfigSchema,
 	]),
-	options: z.record(z.any()).optional(),
+	options: z.record(z.string(), z.any()).optional(),
 	cookie: z
 		.union([
 			z.object({
