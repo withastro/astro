@@ -335,58 +335,80 @@ Understanding in which environment code runs, and at which stage in the process,
 
 ### Making code testable
 
-To make it easier to test code in Astro, we decouple **core** logic from **infrastructure**:
+To make it easier to test code, try decoupling **business logic** from **infrastructure**:
 
 - **Infrastucture** is code that depends on external systems and/or requires aspecial environment to run. For example: DB calls, file system, randomness etc...
-- **Core** logic (or *business logic* or *domain*) is the rest. It's pure logic that's easy to run from anywhere
+- **Business logic** (or *core logic* or *domain*) is the rest. It's pure logic that's easy to run from anywhere
 
-#### File structure
+That means avoiding side-effects by making external dependencies explicit. This often means passing more things as arguments.
 
-Applying these principles can take many shapes. We adopted the following file structure for a few features (fonts, CLI):
-
-```
-feature/
-  core/
-  domain/
-  infra/
-  definitions.ts
-```
-
-If some infrastracture end up being shared with another feature, move it to a shared place that makes sense. For example:
-
-```diff
-feature-a/
-  core/
-  domain/
-  infra/
-  definitions.ts
-feature-b/
-  core/
-  domain/
-  infra/
-  definitions.ts
-+infra/
-+definitions.ts
-```
-
-##### `definition.ts`
-
-Contains types that represents our infrastructure. For example:
+In practice, that can take several shapes. Let's have a look at an example:
 
 ```ts
-export interface KeyGenerator {
-  generate: () => Promise<string>;
+// create-key.ts
+import { logger, generateKey } from '../utils.js'
+import { encodeBase64 } from '@oslojs/encoding';
+
+export async function createKey() {
+  const encoded = encodeBase64(new Uint8Array(await crypto.subtle.exportKey('raw', await generateKey())));
+  logger.info(`Key created: ${key}`)
+}
+
+// main.ts
+import { createKey } from './create-key.js'
+
+async function main() {
+  await createKey()
 }
 ```
 
-This file can contain as many types as necessary. Breaking down some logic often requires creating several abstractions, each with its own responsibilities.
+This function is very hard to test because it depends on:
+- A global logger
+- The `crypto` global
+- The `@oslojs/encoding` package
+- A `generateKey` utility function
 
-##### `core/`
-
-Contains the core logic of the feature. Each file should be dedicated to one export (could be a function or an instance of a domain entity if it makes sense). For example `create-key.ts`:
+One way to refactor this function is to move many of these things to arguments:
 
 ```ts
-import type { KeyGenerator, Logger } from '../definitions.js';
+// create-key.ts
+import type { Logger } from '../types.js';
+
+interface Options {
+  generateKey: () => Promise<void>;
+  logger: Logger;
+}
+
+export async function createKey({ generateKey, logger }: Options) {
+  const key = await generateKey();
+  logger.info(`Key created: ${key}`)
+}
+
+// main.ts
+import { createKey } from './create-key.js'
+import { logger, generateKey } from '../utils.js'
+import { encodeBase64 } from '@oslojs/encoding';
+
+async function main() {
+  await createKey({
+    logger,
+    async generateKey() {
+      return encodeBase64(new Uint8Array(await crypto.subtle.exportKey('raw', await generateKey())))
+    }
+  })
+}
+```
+
+We could take this further by writing some custom abstractions, which can be useful when some of this logic needs to shared:
+
+```ts
+// types.ts
+export interface KeyGenerator {
+  generate: () => Promise<string>;
+}
+
+// create-key.ts
+import type { KeyGenerator, Logger } from './types.js';
 
 interface Options {
   keyGenerator: KeyGenerator;
@@ -397,21 +419,9 @@ export async function createKey({ keyGenerator, logger }: Options) {
   const key = await keyGenerator.generate();
   logger.info(`Key created: ${key}`)
 }
-```
 
-It should almost always reference types you defined in `definitions.ts`, and compose them together. If you can't conveniently test part of it or have to mock, introduce new infrastructure.
-
-> [!NOTE]
-> The file itself can contain several functions or variables, that are used locally by the export.
-
-##### `infra/`
-
-Contains implementations of infrastructure. We recommend using classes and the `implements` keyword as it makes the code compatible with TypeScript `isolatedDeclarations` option.
-
-The filename and the class/function name must represent how it's implemented. For example `crypto-key-generator.ts`:
-
-```ts
-import type { KeyGenerator } from '../definitions.js';
+// crypto-key-generator.ts
+import type { KeyGenerator } from './types.js';
 import { encodeBase64 } from '@oslojs/encoding';
 
 export class CryptoKeyGenerator implements KeyGenerator {
@@ -430,98 +440,20 @@ export class CryptoKeyGenerator implements KeyGenerator {
 		return encoded;
 	}
 }
-```
 
-A given infrastructure implementation can rely on infrastructure itself. For example:
+// main.ts
+import { logger } from './utils.js'
+import { createKey } from './create-key.js'
+import { CryptoKeyGenerator } from '../crypto-key-generator.js'
 
-```ts
-import type { KeyGenerator, KeyEncoder } from '../definitions.js';
-import { encodeBase64 } from '@oslojs/encoding';
+const keyGenerator = new CryptoKeyGenerator()
 
-export class CryptoKeyGenerator implements KeyGenerator {
-  readonly #algorithm = 'AES-GCM';
-  readonly #keyEncoder: KeyEncoder;
-
-  constructor({ keyEncoder }: {
-    keyEncoder: KeyEncoder;
-  }) {
-    this.#keyEncoder = keyEncoder;
-  }
-
-	async generate(): Promise<string> {
-		const key = await crypto.subtle.generateKey(
-      {
-        name: this.#algorithm,
-        length: 256,
-      },
-      true,
-      ['encrypt', 'decrypt'],
-    );
-		const encoded = this.#keyEncoder.encode(key);
-		return encoded;
-	}
+async function main() {
+  await createKey({ logger, keyGenerator })
 }
 ```
 
-##### `domain/`
-
-Contains reusable data types or abstractions. You can choose to create one file per abstraction to be explicit (like for `infra/`) or one `domain.ts` file.
-
-Our examples so far do not need domain abstraction. But let's imagine we're building a CLI, we could have `domain/help-payload.ts`:
-
-```ts
-export interface HelpPayload {
-  commandName: string;
-  headline?: string;
-  usage?: string;
-  tables?: Record<string, [command: string, help: string][]>;
-  description?: string;
-}
-```
-
-Or `domain/command.ts`:
-
-```ts
-import type { HelpPayload } from './help-payload.js';
-
-interface Command<T extends (...args: Array<any>) => any> {
-	help: HelpPayload;
-	run: T;
-}
-
-export type AnyCommand = Command<(...args: Array<any>) => any>;
-
-export function defineCommand<T extends AnyCommand>(command: T) {
-	return command;
-}
-```
-
-As you can see, it doesn't have to be only types. It could even be classes or functions.
-
-#### Usage
-
-With these independent bricks, you can now compose them in your public API entrypoints, Vite plugin, etc. For example in the CLI:
-
-```ts
-import { CryptoKeyGenerator } from './create-key/infra/crypto-key-generator.js';
-import { createKey } from './create-key/core/create-key.js';
-import { FlagsLogger } from './infra/flags-logger.js';
-
-async function runCommand(command: string, flags: Flags) {
-  const logger = new FlagsLogger({ flags });
-
-  switch (command) {
-    case 'create-key': {
-      const keyGenerator = new CryptoKeyGenerator()
-      return await createKey({ keyGenerator, logger });
-    }
-  }
-}
-```
-
-#### Testing
-
-The power of this whole architecture is to make it unit testable. Because abstractions hold very specific responsibilities, we can easily mock them:
+The power of this structure is that it makes it easy to unit test. Because abstractions hold very specific responsibilities, we can easily mock them:
 
 ```js
 // @ts-check
@@ -579,7 +511,7 @@ export class FakeKeyGenerator {
 Remember:
 
 - Try test all implementations. If an infrastructure implementation is just a wrapper around a NPM package, you may not need to test it and instead trust the package own tests
-- Always test core logic
+- Always test business logic
 
 ## Branches
 
