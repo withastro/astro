@@ -262,7 +262,7 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 				onRequest: NOOP_MIDDLEWARE_FN,
 			};
 		},
-		session: sessionConfigToManifest(settings.config.session),
+		sessionConfig: sessionConfigToManifest(settings.config.session),
 		csp,
 		devToolbar: {
 			enabled:

@@ -147,7 +147,7 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key: await encodeKey(hasEnvironmentKey() ? await getEnvironmentKey() : await createKey()),
-		session: sessionConfigToManifest(settings.config.session),
+		sessionConfig: sessionConfigToManifest(settings.config.session),
 		csp,
 		devToolbar: {
 			enabled:

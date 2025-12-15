@@ -138,10 +138,10 @@ export class RenderContext {
 		);
 		const cookies = new AstroCookies(request);
 		const session =
-			pipeline.manifest.session && pipelineSessionDriver
+			pipeline.manifest.sessionConfig && pipelineSessionDriver
 				? new AstroSession({
 						cookies,
-						config: pipeline.manifest.session,
+						config: pipeline.manifest.sessionConfig,
 						runtimeMode: pipeline.runtimeMode,
 						driverFactory: pipelineSessionDriver,
 						mockStorage: null,

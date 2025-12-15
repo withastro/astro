@@ -370,7 +370,7 @@ async function buildManifest(
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		allowedDomains: settings.config.security?.allowedDomains,
 		key: encodedKey,
-		session: sessionConfigToManifest(settings.config.session),
+		sessionConfig: sessionConfigToManifest(settings.config.session),
 		csp,
 		devToolbar: {
 			enabled: false,
