@@ -1,12 +1,12 @@
+import { prependForwardSlash } from '@astrojs/internal-helpers/path';
+import type * as vite from 'vite';
 import type { Plugin, RunnableDevEnvironment } from 'vite';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { wrapId } from '../core/util.js';
 import type { ImportedDevStyle, RoutesList } from '../types/astro.js';
-import type * as vite from 'vite';
 import { inlineRE, isBuildableCSSRequest, rawRE } from '../vite-plugin-astro-server/util.js';
 import { getVirtualModulePageNameForComponent } from '../vite-plugin-pages/util.js';
 import { getDevCSSModuleName } from './util.js';
-import { prependForwardSlash } from '@astrojs/internal-helpers/path';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { CSS_LANGS_RE } from '../core/viteUtils.js';
 
 interface AstroVitePluginOptions {

@@ -4,6 +4,7 @@ import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import type { Logger } from '../core/logger/core.js';
+import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import { normalizeFilename, specialQueriesRE } from '../vite-plugin-utils/index.js';
@@ -128,7 +129,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 				filter: {
 					id: /(?:\?|&)astro(?:&|=|$)/,
 				},
-				async handler(id, opts) {
+				async handler(id) {
 					const parsedId = parseAstroRequest(id);
 					const query = parsedId.query;
 
@@ -189,7 +190,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 								throw new Error(`Requests for scripts must include an index`);
 							}
 							// SSR script only exists to make them appear in the module graph.
-							if (opts?.ssr) {
+							if (isAstroServerEnvironment(this.environment)) {
 								return {
 									code: `/* client script, empty in SSR: ${id} */`,
 								};

@@ -3,6 +3,7 @@ import MagicString from 'magic-string';
 import type * as vite from 'vite';
 import type { EnvLoader } from './env-loader.js';
 import { CSS_LANGS_RE } from '../core/viteUtils.js';
+import { isAstroClientEnvironment } from '../environments.js';
 
 interface EnvPluginOptions {
 	envLoader: EnvLoader;
@@ -105,8 +106,8 @@ export function importMetaEnv({ envLoader }: EnvPluginOptions): vite.Plugin {
 				},
 				code: /import\.meta\.env/,
 			},
-			handler(source, id, options) {
-				if (!options?.ssr || viteConfig.assetsInclude(id)) {
+			handler(source, id) {
+				if (isAstroClientEnvironment(this.environment) || viteConfig.assetsInclude(id)) {
 					return;
 				}
 				// Find matches for *private* env and do our own replacement.

@@ -20,6 +20,7 @@ import {
 import { hasContentFlag } from './utils.js';
 import { joinPaths, prependForwardSlash, slash } from '@astrojs/internal-helpers/path';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { isAstroServerEnvironment } from '../environments.js';
 
 export function astroContentAssetPropagationPlugin({
 	settings,
@@ -83,43 +84,44 @@ export function astroContentAssetPropagationPlugin({
 			filter: {
 				id: new RegExp(`(?:\\?|&)${PROPAGATED_ASSET_FLAG}(?:&|=|$)`),
 			},
-			async handler(_, id, options) {
-				const basePath = id.split('?')[0];
-				let stringifiedLinks: string, stringifiedStyles: string;
+			async handler(_, id) {
+				if (hasContentFlag(id, PROPAGATED_ASSET_FLAG)) {
+					const basePath = id.split('?')[0];
+					let stringifiedLinks: string, stringifiedStyles: string;
 
-				// We can access the server in dev,
-				// so resolve collected styles and scripts here.
-				if (options?.ssr && devModuleLoader) {
-					if (!devModuleLoader.getModuleById(basePath)?.ssrModule) {
-						await devModuleLoader.import(basePath);
-					}
-					const {
-						styles,
-						urls,
-						crawledFiles: styleCrawledFiles,
-					} = await getStylesForURL(basePath, devModuleLoader.getSSREnvironment());
-
-					// Register files we crawled to be able to retrieve the rendered styles and scripts,
-					// as when they get updated, we need to re-transform ourselves.
-					// We also only watch files within the user source code, as changes in node_modules
-					// are usually also ignored by Vite.
-					for (const file of styleCrawledFiles) {
-						if (!file.includes('node_modules')) {
-							this.addWatchFile(file);
+					// We can access the server in dev,
+					// so resolve collected styles and scripts here.
+					if (isAstroServerEnvironment(this.environment) && devModuleLoader) {
+						if (!devModuleLoader.getModuleById(basePath)?.ssrModule) {
+							await devModuleLoader.import(basePath);
 						}
+						const {
+							styles,
+							urls,
+							crawledFiles: styleCrawledFiles,
+						} = await getStylesForURL(basePath, devModuleLoader.getSSREnvironment());
+
+						// Register files we crawled to be able to retrieve the rendered styles and scripts,
+						// as when they get updated, we need to re-transform ourselves.
+						// We also only watch files within the user source code, as changes in node_modules
+						// are usually also ignored by Vite.
+						for (const file of styleCrawledFiles) {
+							if (!file.includes('node_modules')) {
+								this.addWatchFile(file);
+							}
+						}
+
+						stringifiedLinks = JSON.stringify([...urls]);
+						stringifiedStyles = JSON.stringify(styles.map((s) => s.content));
+					} else {
+						// Otherwise, use placeholders to inject styles and scripts
+						// during the production bundle step.
+						// @see the `astro:content-build-plugin` below.
+						stringifiedLinks = JSON.stringify(LINKS_PLACEHOLDER);
+						stringifiedStyles = JSON.stringify(STYLES_PLACEHOLDER);
 					}
 
-					stringifiedLinks = JSON.stringify([...urls]);
-					stringifiedStyles = JSON.stringify(styles.map((s) => s.content));
-				} else {
-					// Otherwise, use placeholders to inject styles and scripts
-					// during the production bundle step.
-					// @see the `astro:content-build-plugin` below.
-					stringifiedLinks = JSON.stringify(LINKS_PLACEHOLDER);
-					stringifiedStyles = JSON.stringify(STYLES_PLACEHOLDER);
-				}
-
-				const code = `
+					const code = `
 					async function getMod() {
 						return import(${JSON.stringify(basePath)});
 					}
@@ -128,9 +130,10 @@ export function astroContentAssetPropagationPlugin({
 					const defaultMod = { __astroPropagation: true, getMod, collectedLinks, collectedStyles, collectedScripts: [] };
 					export default defaultMod;
 				`;
-				// ^ Use a default export for tools like Markdoc
-				// to catch the `__astroPropagation` identifier
-				return { code, map: { mappings: '' } };
+					// ^ Use a default export for tools like Markdoc
+					// to catch the `__astroPropagation` identifier
+					return { code, map: { mappings: '' } };
+				}
 			},
 		},
 	};
