@@ -3,8 +3,13 @@ import type { AstroConfig, RouteData } from '../../types/public/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import { decodeKey } from '../encryption.js';
 import { NOOP_MIDDLEWARE_FN } from '../middleware/noop-middleware.js';
-import type { RouteInfo, SerializedSSRManifest, SSRManifest, SerializedRouteInfo } from './types.js';
-	
+import type {
+	RouteInfo,
+	SerializedSSRManifest,
+	SSRManifest,
+	SerializedRouteInfo,
+} from './types.js';
+
 export function deserializeManifest(
 	serializedManifest: SerializedSSRManifest,
 	routesList?: RoutesList,

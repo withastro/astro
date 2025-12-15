@@ -17,7 +17,7 @@ export function vitePluginMdxPostprocess(astroConfig: AstroConfig): Plugin {
 		name: '@astrojs/mdx-postprocess',
 		transform: {
 			filter: {
-				id: /\.mdx$/
+				id: /\.mdx$/,
 			},
 			handler(code, id, opts) {
 				const fileInfo = getFileInfo(id, astroConfig);
