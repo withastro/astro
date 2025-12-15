@@ -25,9 +25,12 @@ export type Locales = (string | { codes: [string, ...string[]]; path: string })[
 
 export type { AstroFontProvider as FontProvider };
 
-export type { CspAlgorithm };
+export type { CspAlgorithm, CspHash };
 
 export type { RemotePattern };
+
+export type CspStyleDirective = { hashes?: CspHash[], resources?: string[] };
+export type CspScriptDirective = { hashes?: CspHash[], resources?: string[], strictDynamic?: boolean };
 
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
@@ -723,6 +726,7 @@ export interface AstroUserConfig<
 			| boolean
 			| {
 					/**
+					 * @docs
 					 * @name security.csp.algorithm
 					 * @type {"SHA-256" | "SHA-384" | "SHA-512"}
 					 * @default `'SHA-256'`
@@ -746,6 +750,7 @@ export interface AstroUserConfig<
 					algorithm?: CspAlgorithm;
 
 					/**
+					 * @docs
 					 * @name security.csp.directives
 					 * @type {string[]}
 					 * @default `[]`
@@ -785,8 +790,9 @@ export interface AstroUserConfig<
 					directives?: CspDirective[];
 
 					/**
+					 * @docs
 					 * @name security.csp.styleDirective
-					 * @type {{ hashes?: CspHash[], resources?: string[] }}
+					 * @type {CspStyleDirective}
 					 * @default `undefined`
 					 * @version 6.0.0
 					 * @description
@@ -794,6 +800,7 @@ export interface AstroUserConfig<
 					 * A configuration object that allows you to override the default sources for the `style-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#resources) property, or to provide additional [hashes]((https://v6.docs.astro.build/en/reference/configuration-reference#hashes) to be rendered.					 */
 					styleDirective?: {
 						/**
+						 * @docs
 						 * @name security.csp.styleDirective.hashes
 						 * @type {CspHash[]}
 						 * @default `[]`
@@ -836,6 +843,7 @@ export interface AstroUserConfig<
 						hashes?: CspHash[];
 
 						/**
+						 * @docs
 						 * @name security.csp.styleDirective.resources
 						 * @type {string[]}
 						 * @default `[]`
@@ -880,8 +888,9 @@ export interface AstroUserConfig<
 					};
 
 					/**
+					 * @docs
 					 * @name security.csp.scriptDirective
-					 * @type {{ hashes?: CspHash[], resources?: string[], strictDynamic?: boolean }}
+					 * @type {CspScriptDirective}
 					 * @default `undefined`
 					 * @version 6.0.0
 					 * @description
@@ -890,6 +899,7 @@ export interface AstroUserConfig<
 					 */
 					scriptDirective?: {
 						/**
+						 * @docs
 						 * @name security.csp.scriptDirective.hashes
 						 * @type {CspHash[]}
 						 * @default `[]`
@@ -932,6 +942,7 @@ export interface AstroUserConfig<
 						hashes?: CspHash[];
 
 						/**
+						 * @docs
 						 * @name security.csp.scriptDirective.resources
 						 * @type {string[]}
 						 * @default `[]`
@@ -974,6 +985,7 @@ export interface AstroUserConfig<
 						resources?: string[];
 
 						/**
+						 * @docs
 						 * @name security.csp.scriptDirective.strictDynamic
 						 * @type {boolean}
 						 * @default `false`
