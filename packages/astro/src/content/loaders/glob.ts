@@ -30,6 +30,12 @@ interface GlobOptions {
 	 * @returns The ID of the entry. Must be unique per collection.
 	 **/
 	generateId?: (options: GenerateIdOptions) => string;
+	/**
+	 * Retains the unparsed body of the file in the data store, in addition to the rendered HTML.
+	 * If `false`, `entry.body` will be undefined if the content type has a parser.
+	 * Defaults to `true`.
+	 */
+	retainBody?: boolean;
 }
 
 function generateIdDefault({ entry, base, data }: GenerateIdOptions): string {
@@ -201,7 +207,7 @@ export function glob(globOptions: GlobOptions): Loader {
 					store.set({
 						id,
 						data: parsedData,
-						body,
+						body: globOptions.retainBody === false && rendered ? undefined : body,
 						filePath: relativePath,
 						digest,
 						rendered,
@@ -214,7 +220,7 @@ export function glob(globOptions: GlobOptions): Loader {
 					store.set({
 						id,
 						data: parsedData,
-						body,
+						body: globOptions.retainBody === false ? undefined : body,
 						filePath: relativePath,
 						digest,
 						deferredRender: true,
