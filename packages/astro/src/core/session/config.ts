@@ -7,7 +7,14 @@ export const SessionDriverConfigSchema = z.object({
 });
 
 export const SessionSchema = z.object({
-	driver: z.union([z.string(), SessionDriverConfigSchema]),
+	driver: z.union([
+		z.string().superRefine((name) => {
+			console.warn(
+				`Using deprecated \`session.driver: '${name}'\` signature. Learn how to migrate: TODO:`,
+			);
+		}),
+		SessionDriverConfigSchema,
+	]),
 	options: z.record(z.string(), z.any()).optional(),
 	cookie: z
 		.union([
