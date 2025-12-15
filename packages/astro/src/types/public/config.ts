@@ -549,7 +549,7 @@ export interface AstroUserConfig<
 	scopedStyleStrategy?: 'where' | 'class' | 'attribute';
 
 	/**
-	 *
+	 * @docs
 	 * @name prerenderConflictBehavior
 	 * @type {'error' | 'warn' | 'ignore'}
 	 * @default `'warn'`
