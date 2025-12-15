@@ -9,8 +9,6 @@ describe('Svelte Check', () => {
 		const { getResult } = cli('check', '--root', root);
 		const { exitCode, stdout } = await getResult();
 
-		console.log(exitCode, stdout);
-
 		assert.equal(exitCode, 1, 'Expected check to fail (exit code 1)');
 		assert.ok(
 			stdout.includes(`Type 'string' is not assignable to type 'number'`),
