@@ -55,7 +55,7 @@ interface UnstorageConfig<TDriver extends keyof BuiltinDriverOptions> extends Ba
 	 * Options for the unstorage driver
 	 * @deprecated Use `import { sessionDrivers } from 'astro/config'` instead. This will be removed in Astro 7
 	 */
-	options?: BuiltinDriverOptions[TDriver];
+	options?: NoInfer<BuiltinDriverOptions[TDriver]>;
 }
 
 interface CustomConfig extends BaseSessionConfig {
