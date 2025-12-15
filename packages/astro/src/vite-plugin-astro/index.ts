@@ -45,31 +45,28 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 		{
 			name: 'astro:build:css-hmr',
 			enforce: 'pre',
+			applyToEnvironment(environment) {
+				return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client;
+			},
 			transform: {
 				filter: {
 					id: {
 						include: [/(?:\?|&)astro(?:&|=|$)/],
 						// ignore astro file sub-requests, e.g. Foo.astro?astro&type=script&index=0&lang.ts
-						exclude: [specialQueriesRE, /\.astro$/, /\.astro\?/],
+						exclude: [specialQueriesRE],
 					},
 				},
 				async handler(_source, id) {
 					const parsedId = parseAstroRequest(id);
 					// Special edge case handling for Vite 6 beta, the style dependencies need to be registered here take affect
 					// TODO: Remove this when Vite fixes it (https://github.com/vitejs/vite/pull/18103)
-					if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
-						const astroFilename = normalizePath(normalizeFilename(parsedId.filename, config.root));
-						const compileMetadata = astroFileToCompileMetadata.get(astroFilename);
-						if (
-							compileMetadata &&
-							parsedId.query.type === 'style' &&
-							parsedId.query.index != null
-						) {
-							const result = compileMetadata.css[parsedId.query.index];
+					const astroFilename = normalizePath(normalizeFilename(parsedId.filename, config.root));
+					const compileMetadata = astroFileToCompileMetadata.get(astroFilename);
+					if (compileMetadata && parsedId.query.type === 'style' && parsedId.query.index != null) {
+						const result = compileMetadata.css[parsedId.query.index];
 
-							// Register dependencies from preprocessing this style
-							result.dependencies?.forEach((dep) => this.addWatchFile(dep));
-						}
+						// Register dependencies from preprocessing this style
+						result.dependencies?.forEach((dep) => this.addWatchFile(dep));
 					}
 				},
 			},
