@@ -40,6 +40,7 @@ export default defineConfig({
 			SECRET: envField.string({ context: 'server', access: 'secret' }),
 		}
 	},
+	prefetch: true,
 	experimental: {
 		fonts: [{
 			provider: fontProviders.google(),

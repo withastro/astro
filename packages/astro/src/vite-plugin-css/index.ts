@@ -17,6 +17,7 @@ const MODULE_DEV_CSS = 'virtual:astro:dev-css';
 const RESOLVED_MODULE_DEV_CSS = '\0' + MODULE_DEV_CSS;
 const MODULE_DEV_CSS_PREFIX = 'virtual:astro:dev-css:';
 const RESOLVED_MODULE_DEV_CSS_PREFIX = '\0' + MODULE_DEV_CSS_PREFIX;
+// This is used by Cloudflare optimizeDeps config
 const MODULE_DEV_CSS_ALL = 'virtual:astro:dev-css-all';
 const RESOLVED_MODULE_DEV_CSS_ALL = '\0' + MODULE_DEV_CSS_ALL;
 const ASTRO_CSS_EXTENSION_POST_PATTERN = '@_@';

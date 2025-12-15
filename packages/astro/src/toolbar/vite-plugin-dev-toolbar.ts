@@ -3,6 +3,7 @@ import { telemetry } from '../events/index.js';
 import { eventAppToggled } from '../events/toolbar.js';
 import type { AstroPluginOptions } from '../types/astro.js';
 
+// This is used by Cloudflare optimizeDeps config
 const PRIVATE_VIRTUAL_MODULE_ID = 'astro:toolbar:internal';
 const resolvedPrivateVirtualModuleId = '\0' + PRIVATE_VIRTUAL_MODULE_ID;
 

@@ -245,12 +245,25 @@ export default function createIntegration(args?: Options): AstroIntegration {
 													'astro > es-module-lexer',
 													'astro > unstorage',
 													'astro > neotraverse/modern',
+													'astro/app',
+													'astro/compiler-runtime',
 												],
 												exclude: [
 													'unstorage/drivers/cloudflare-kv-binding',
 													'astro:toolbar:internal',
 													'virtual:astro:middleware',
+													'virtual:astro:dev-css-all',
+													'virtual:astro:manifest',
+													'virtual:astro:adapter-config/client',
+													'virtual:astro-cloudflare:config',
 												],
+											},
+										};
+									} else if (environmentName === 'client') {
+										return {
+											optimizeDeps: {
+												include: ['astro/runtime/client/dev-toolbar/entrypoint.js'],
+												exclude: ['astro:toolbar:internal'],
 											},
 										};
 									}
