@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "6.0.0-alpha.0",
+  "version": "6.0.0-alpha.1",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -171,8 +171,7 @@
     "xxhash-wasm": "^1.1.0",
     "yargs-parser": "^21.1.1",
     "yocto-spinner": "^0.2.3",
-    "zod": "^3.25.76",
-    "zod-to-json-schema": "^3.25.0"
+    "zod": "^4.0.0"
   },
   "optionalDependencies": {
     "sharp": "^0.34.0"

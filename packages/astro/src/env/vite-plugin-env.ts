@@ -15,6 +15,7 @@ import type { EnvLoader } from './env-loader.js';
 import { type InvalidVariable, invalidVariablesToError } from './errors.js';
 import type { EnvSchema } from './schema.js';
 import { getEnvFieldType, validateEnvVariable } from './validators.js';
+import { isAstroClientEnvironment } from '../environments.js';
 
 interface AstroEnvPluginParams {
 	settings: AstroSettings;
@@ -60,12 +61,12 @@ export function astroEnv({ settings, sync, envLoader }: AstroEnvPluginParams): P
 				return RESOLVED_INTERNAL_VIRTUAL_MODULE_ID;
 			}
 		},
-		load(id, options) {
+		load(id) {
 			if (id === RESOLVED_INTERNAL_VIRTUAL_MODULE_ID) {
 				return { code: `export const schema = ${JSON.stringify(schema)};` };
 			}
 
-			if (id === RESOLVED_SERVER_VIRTUAL_MODULE_ID && !options?.ssr) {
+			if (id === RESOLVED_SERVER_VIRTUAL_MODULE_ID && isAstroClientEnvironment(this.environment)) {
 				throw new AstroError({
 					...AstroErrorData.ServerOnlyModule,
 					message: AstroErrorData.ServerOnlyModule.message(SERVER_VIRTUAL_MODULE_ID),

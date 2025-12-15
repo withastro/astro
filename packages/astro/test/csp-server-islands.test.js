@@ -11,7 +11,7 @@ describe('Server Islands SSR prod', () => {
 		fixture = await loadFixture({
 			root: './fixtures/server-islands/ssr',
 			adapter: testAdapter(),
-			experimental: {
+			security: {
 				csp: true,
 			},
 		});
@@ -99,7 +99,7 @@ describe('Server islands Hybrid mode', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/server-islands/hybrid',
-			experimental: {
+			security: {
 				csp: true,
 			},
 		});

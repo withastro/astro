@@ -1,6 +1,6 @@
 import type { Font } from '@capsizecss/unpack';
 import type * as unifont from 'unifont';
-import type { z } from 'zod';
+import type * as z from 'zod/v4';
 import type { displaySchema, styleSchema, weightSchema } from './config.js';
 import type { FONT_TYPES, GENERIC_FALLBACK_NAMES, LOCAL_PROVIDER_NAME } from './constants.js';
 import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';

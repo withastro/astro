@@ -92,7 +92,7 @@ export async function createContainer({
 		{
 			dev: true,
 			// If the adapter explicitly set a buildOutput, don't override it
-			skipBuildOutputAssignment: !!settings.adapter?.adapterFeatures?.buildOutput
+			skipBuildOutputAssignment: !!settings.adapter?.adapterFeatures?.buildOutput,
 		},
 	);
 	const viteConfig = await createVite(

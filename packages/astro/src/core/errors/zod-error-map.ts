@@ -1,4 +1,4 @@
-import type { ZodErrorMap } from 'zod';
+import type { $ZodErrorMap } from 'zod/v4/core';
 
 type TypeOrLiteralErrByPathEntry = {
 	code: 'invalid_type' | 'invalid_literal';
@@ -6,17 +6,17 @@ type TypeOrLiteralErrByPathEntry = {
 	expected: unknown[];
 };
 
-export const errorMap: ZodErrorMap = (baseError, ctx) => {
-	const baseErrorPath = flattenErrorPath(baseError.path);
-	if (baseError.code === 'invalid_union') {
+export const errorMap: $ZodErrorMap = (issue) => {
+	const baseErrorPath = flattenErrorPath(issue.path ?? []);
+	if (issue.code === 'invalid_union') {
 		// Optimization: Combine type and literal errors for keys that are common across ALL union types
 		// Ex. a union between `{ key: z.literal('tutorial') }` and `{ key: z.literal('blog') }` will
 		// raise a single error when `key` does not match:
 		// > Did not match union.
 		// > key: Expected `'tutorial' | 'blog'`, received 'foo'
 		let typeOrLiteralErrByPath = new Map<string, TypeOrLiteralErrByPathEntry>();
-		for (const unionError of baseError.unionErrors.map((e) => e.errors).flat()) {
-			if (unionError.code === 'invalid_type' || unionError.code === 'invalid_literal') {
+		for (const unionError of issue.errors.flat()) {
+			if (unionError.code === 'invalid_type') {
 				const flattenedErrorPath = flattenErrorPath(unionError.path);
 				if (typeOrLiteralErrByPath.has(flattenedErrorPath)) {
 					typeOrLiteralErrByPath.get(flattenedErrorPath)!.expected.push(unionError.expected);
@@ -33,7 +33,7 @@ export const errorMap: ZodErrorMap = (baseError, ctx) => {
 		const details: string[] = [...typeOrLiteralErrByPath.entries()]
 			// If type or literal error isn't common to ALL union types,
 			// filter it out. Can lead to confusing noise.
-			.filter(([, error]) => error.expected.length === baseError.unionErrors.length)
+			.filter(([, error]) => error.expected.length === issue.errors.flat().length)
 			.map(([key, error]) =>
 				key === baseErrorPath
 					? // Avoid printing the key again if it's a base error
@@ -43,56 +43,58 @@ export const errorMap: ZodErrorMap = (baseError, ctx) => {
 
 		if (details.length === 0) {
 			const expectedShapes: string[] = [];
-			for (const unionError of baseError.unionErrors) {
+			for (const unionErrors of issue.errors) {
 				const expectedShape: string[] = [];
-				for (const issue of unionError.issues) {
+				for (const _issue of unionErrors) {
 					// If the issue is a nested union error, show the associated error message instead of the
 					// base error message.
-					if (issue.code === 'invalid_union') {
-						return errorMap(issue, ctx);
+					if (_issue.code === 'invalid_union') {
+						return errorMap(_issue as any);
 					}
-					const relativePath = flattenErrorPath(issue.path)
+					const relativePath = flattenErrorPath(_issue.path)
 						.replace(baseErrorPath, '')
 						.replace(leadingPeriod, '');
-					if ('expected' in issue && typeof issue.expected === 'string') {
+					if ('expected' in _issue && typeof _issue.expected === 'string') {
 						expectedShape.push(
-							relativePath ? `${relativePath}: ${issue.expected}` : issue.expected,
+							relativePath ? `${relativePath}: ${_issue.expected}` : _issue.expected,
 						);
-					} else {
+					} else if ('values' in _issue) {
+						expectedShape.push(
+							..._issue.values.filter((v) => typeof v === 'string').map((v) => `"${v}"`),
+						);
+					} else if (relativePath) {
 						expectedShape.push(relativePath);
 					}
 				}
 				if (expectedShape.length === 1 && !expectedShape[0]?.includes(':')) {
 					// In this case the expected shape is not an object, but probably a literal type, e.g. `['string']`.
 					expectedShapes.push(expectedShape.join(''));
-				} else {
+				} else if (expectedShape.length > 0) {
 					expectedShapes.push(`{ ${expectedShape.join('; ')} }`);
 				}
 			}
 			if (expectedShapes.length) {
 				details.push('> Expected type `' + expectedShapes.join(' | ') + '`');
-				details.push('> Received `' + stringify(ctx.data) + '`');
+				details.push('> Received `' + stringify(issue.input) + '`');
 			}
 		}
 
 		return {
 			message: messages.concat(details).join('\n'),
 		};
-	} else if (baseError.code === 'invalid_literal' || baseError.code === 'invalid_type') {
+	} else if (issue.code === 'invalid_type') {
 		return {
 			message: prefix(
 				baseErrorPath,
 				getTypeOrLiteralMsg({
-					code: baseError.code,
-					received: (baseError as any).received,
-					expected: [baseError.expected],
+					code: issue.code,
+					received: typeof issue.input,
+					expected: [issue.expected],
 				}),
 			),
 		};
-	} else if (baseError.message) {
-		return { message: prefix(baseErrorPath, baseError.message) };
-	} else {
-		return { message: prefix(baseErrorPath, ctx.defaultError) };
+	} else if (issue.message) {
+		return { message: prefix(baseErrorPath, issue.message) };
 	}
 };
 
@@ -117,7 +119,7 @@ const prefix = (key: string, msg: string) => (key.length ? `**${key}**: ${msg}` 
 const unionExpectedVals = (expectedVals: Set<unknown>) =>
 	[...expectedVals].map((expectedVal) => stringify(expectedVal)).join(' | ');
 
-const flattenErrorPath = (errorPath: (string | number)[]) => errorPath.join('.');
+const flattenErrorPath = (errorPath: (string | number | symbol)[]) => errorPath.join('.');
 
 /** `JSON.stringify()` a value with spaces around object/array entries. */
 const stringify = (val: unknown) =>

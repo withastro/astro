@@ -1,5 +1,4 @@
-import type { ZodType } from 'zod';
-import type { ActionAccept, ActionClient } from '../../actions/runtime/types.js';
+import type { ActionClient } from '../../actions/runtime/types.js';
 import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
 import type { AstroMiddlewareInstance } from '../../types/public/common.js';
 import type {
@@ -129,7 +128,7 @@ export type SSRManifest = {
 };
 
 export type SSRActions = {
-	server: Record<string, ActionClient<unknown, ActionAccept, ZodType>>;
+	server: Record<string, ActionClient<any, any, any>>;
 };
 
 export type SSRManifestI18n = {

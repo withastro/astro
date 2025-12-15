@@ -36,8 +36,11 @@ describe('Public', () => {
 
 	it('should not produce empty chunk warning when building with no client JS', () => {
 		// Check for empty chunk warnings in the build logs
-		const emptyChunkWarning = buildLogs.find((log) =>
-			log.message && (log.message.includes('empty chunk') || (log.message.includes('empty') && log.message.includes('chunk')))
+		const emptyChunkWarning = buildLogs.find(
+			(log) =>
+				log.message &&
+				(log.message.includes('empty chunk') ||
+					(log.message.includes('empty') && log.message.includes('chunk'))),
 		);
 
 		if (emptyChunkWarning) {

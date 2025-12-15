@@ -22,6 +22,7 @@ import { emitImageMetadata, hashTransform, propsToFilename } from './utils/node.
 import { getProxyCode } from './utils/proxy.js';
 import { makeSvgComponent } from './utils/svg.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
+import { isAstroServerEnvironment } from '../environments.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -126,9 +127,9 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 			config(_, env) {
 				isBuild = env.command === 'build';
 			},
-			async resolveId(id, _importer, options) {
+			async resolveId(id, _importer) {
 				if (id === VIRTUAL_SERVICE_ID) {
-					if (options?.ssr) {
+					if (isAstroServerEnvironment(this.environment)) {
 						return await this.resolve(settings.config.image.service.entrypoint);
 					}
 					return await this.resolve('astro/assets/services/noop');
@@ -230,7 +231,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 			configResolved(viteConfig) {
 				resolvedConfig = viteConfig;
 			},
-			async load(id, options) {
+			async load(id) {
 				if (assetRegex.test(id)) {
 					if (!globalThis.astroAsset.referencedImages)
 						globalThis.astroAsset.referencedImages = new Set();
@@ -260,7 +261,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					// We can only reliably determine if an image is used on the server, as we need to track its usage throughout the entire build.
 					// Since you cannot use image optimization on the client anyway, it's safe to assume that if the user imported
 					// an image on the client, it should be present in the final build.
-					if (options?.ssr) {
+					if (isAstroServerEnvironment(this.environment)) {
 						if (id.endsWith('.svg')) {
 							const contents = await fs.promises.readFile(imageMetadata.fsPath, {
 								encoding: 'utf8',

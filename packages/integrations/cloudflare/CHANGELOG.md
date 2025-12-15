@@ -1,10 +1,110 @@
 # @astrojs/cloudflare
 
+## 13.0.0-alpha.1
+
+### Major Changes
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Changes the API for creating a custom `entrypoint`, replacing the `createExports()` function with a direct export pattern.
+
+  #### What should I do?
+
+  If you're using a custom `entryPoint` in your Cloudflare adapter config, update your existing worker file that uses `createExports()` to reflect the new, simplified pattern:
+
+  **my-entry.ts**
+
+  ```ts
+  import type { SSRManifest } from 'astro';
+  import { App } from 'astro/app';
+  import { handle } from '@astrojs/cloudflare/handler';
+  import { DurableObject } from 'cloudflare:workers';
+
+  class MyDurableObject extends DurableObject<Env> {
+    constructor(ctx: DurableObjectState, env: Env) {
+      super(ctx, env);
+    }
+  }
+
+  export function createExports(manifest: SSRManifest) {
+    const app = new App(manifest);
+    return {
+      default: {
+        async fetch(request, env, ctx) {
+          await env.MY_QUEUE.send('log');
+          return handle(manifest, app, request, env, ctx);
+        },
+        async queue(batch, _env) {
+          let messages = JSON.stringify(batch.messages);
+          console.log(`consumed from our queue: ${messages}`);
+        },
+      } satisfies ExportedHandler<Env>,
+      MyDurableObject: MyDurableObject,
+    };
+  }
+  ```
+
+  To create the same custom `entrypoint` using the updated API, export the following function instead:
+
+  **my-entry.ts**
+
+  ```ts
+  import { handle } from '@astrojs/cloudflare/utils/handler';
+
+  export default {
+    async fetch(request, env, ctx) {
+      await env.MY_QUEUE.send("log");
+      return handle(manifest, app, request, env, ctx);
+    },
+    async queue(batch, _env) {
+      let messages = JSON.stringify(batch.messages);
+      console.log(`consumed from our queue: ${messages}`);
+    }
+  } satisfies ExportedHandler<Env>,
+  ```
+
+  The manifest is now created internally by the adapter.
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Development server now runs in workerd
+
+  `astro dev` now runs your Cloudflare application using Cloudflare's workerd runtime instead of Node.js. This means your development environment is now a near-exact replica of your production environment—the same JavaScript engine, the same APIs, the same behavior. You'll catch issues during development that would have only appeared in production, and features like Durable Objects, Workers Analytics Engine, and R2 bindings work exactly as they do on Cloudflare's platform.
+
+  To accommodate this major change to your development environment, this update includes breaking changes to `Astro.locals.runtime`, removing some of its properties.
+
+  #### What should I do?
+
+  Update occurrences of `Astro.locals.runtime` as shown below:
+  - `Astro.locals.runtime` no longer contains the `env` object. Instead, import it directly:
+    ```js
+    import { env } from 'cloudflare:workers';
+    ```
+  - `Astro.locals.runtime` no longer contains the `cf` object. Instead, access it directly from the request:
+    ```js
+    Astro.request.cf;
+    ```
+  - `Astro.locals.runtime` no longer contains the `caches` object. Instead, use the global `caches` object directly:
+    ```js
+    caches.default.put(request, response);
+    ```
+  - `Astro.locals.runtime` object is replaced with `Astro.locals.cfContext` which contains the Cloudflare `ExecutionContext`:
+    ```js
+    const cfContext = Astro.locals.cfContext;
+    ```
+
+### Minor Changes
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Adds support for `astro preview` command
+
+  Developers can now use `astro preview` to test their Cloudflare Workers application locally before deploying. The preview runs using Cloudflare's workerd runtime, giving you a staging environment that matches production exactly—including support for KV namespaces, environment variables, and other Cloudflare-specific features.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 13.0.0-alpha.0
 
 ### Major Changes
 
-- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://deploy-preview-12322--astro-docs-2.netlify.app/en/guides/upgrade-to/v6/#vite-70))
+- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
 
 ### Patch Changes
 
