@@ -152,7 +152,7 @@ export type SSRManifestCSP = {
 };
 
 export interface SSRManifestSession extends BaseSessionConfig {
-	driverName: string;
+	driver: string;
 	options?: Record<string, any> | undefined;
 }
 

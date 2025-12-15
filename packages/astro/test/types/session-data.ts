@@ -15,7 +15,7 @@ function createSession() {
 	return new AstroSession({
 		cookies: defaultMockCookies as unknown as AstroCookies,
 		config: {
-			driverName: 'memory',
+			driver: 'memory',
 			cookie: 'test-session',
 			ttl: 60,
 			options: {},

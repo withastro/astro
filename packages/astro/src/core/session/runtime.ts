@@ -277,7 +277,7 @@ export class AstroSession {
 						...SessionStorageSaveError,
 						message: SessionStorageSaveError.message(
 							'The session data could not be serialized.',
-							this.#config.driverName,
+							this.#config.driver,
 						),
 					},
 					{ cause: err },
@@ -360,7 +360,7 @@ export class AstroSession {
 					...SessionStorageInitError,
 					message: SessionStorageInitError.message(
 						'The session data was an invalid type.',
-						this.#config.driverName,
+						this.#config.driver,
 					),
 				});
 			}
@@ -390,7 +390,7 @@ export class AstroSession {
 					...SessionStorageInitError,
 					message: SessionStorageInitError.message(
 						'The session data could not be parsed.',
-						this.#config.driverName,
+						this.#config.driver,
 					),
 				},
 				{ cause: err },
@@ -418,8 +418,8 @@ export class AstroSession {
 		// We reuse the storage object if it has already been created.
 		// We don't need to worry about the config changing because editing it
 		// will always restart the process.
-		if (AstroSession.#sharedStorage.has(this.#config.driverName)) {
-			this.#storage = AstroSession.#sharedStorage.get(this.#config.driverName);
+		if (AstroSession.#sharedStorage.has(this.#config.driver)) {
+			this.#storage = AstroSession.#sharedStorage.get(this.#config.driver);
 			return this.#storage!;
 		}
 
@@ -433,7 +433,7 @@ export class AstroSession {
 				...SessionStorageInitError,
 				message: SessionStorageInitError.message(
 					'Astro could not load the driver correctly. Does it exist?',
-					this.#config.driverName,
+					this.#config.driver,
 				),
 			});
 		}
@@ -456,13 +456,13 @@ export class AstroSession {
 					},
 				},
 			});
-			AstroSession.#sharedStorage.set(this.#config.driverName, this.#storage);
+			AstroSession.#sharedStorage.set(this.#config.driver, this.#storage);
 			return this.#storage;
 		} catch (err) {
 			throw new AstroError(
 				{
 					...SessionStorageInitError,
-					message: SessionStorageInitError.message('Unknown error', this.#config.driverName),
+					message: SessionStorageInitError.message('Unknown error', this.#config.driver),
 				},
 				{ cause: err },
 			);

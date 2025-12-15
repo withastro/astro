@@ -14,7 +14,7 @@ const defaultMockCookies = {
 const stringify = (data) => JSON.parse(devalueStringify(data));
 
 const defaultConfig = {
-	driverName: 'memory',
+	driver: 'memory',
 	cookie: 'test-session',
 	ttl: 60,
 };

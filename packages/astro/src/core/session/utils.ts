@@ -43,7 +43,7 @@ export function sessionConfigToManifest(
 	const driver = normalizeSessionDriverConfig(config.driver);
 
 	return {
-		driverName: driver.name,
+		driver: driver.name,
 		options: driver.options,
 		cookie: config.cookie,
 		ttl: config.ttl,
