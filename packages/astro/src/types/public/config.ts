@@ -25,9 +25,12 @@ export type Locales = (string | { codes: [string, ...string[]]; path: string })[
 
 export type { AstroFontProvider as FontProvider };
 
-export type { CspAlgorithm };
+export type { CspAlgorithm, CspHash };
 
 export type { RemotePattern };
+
+export type CspStyleDirective = { hashes?: CspHash[], resources?: string[] };
+export type CspScriptDirective = { hashes?: CspHash[], resources?: string[], strictDynamic?: boolean };
 
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
@@ -789,7 +792,7 @@ export interface AstroUserConfig<
 					/**
 					 * @docs
 					 * @name security.csp.styleDirective
-					 * @type {{ hashes?: CspHash[], resources?: string[] }}
+					 * @type {CspStyleDirective}
 					 * @default `undefined`
 					 * @version 6.0.0
 					 * @description
@@ -887,7 +890,7 @@ export interface AstroUserConfig<
 					/**
 					 * @docs
 					 * @name security.csp.scriptDirective
-					 * @type {{ hashes?: CspHash[], resources?: string[], strictDynamic?: boolean }}
+					 * @type {CspScriptDirective}
 					 * @default `undefined`
 					 * @version 6.0.0
 					 * @description
