@@ -445,9 +445,6 @@ export class AstroSession {
 					hasItem() {
 						return false;
 					},
-					getItem() {
-						return null;
-					},
 					getKeys() {
 						return [];
 					},

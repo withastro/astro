@@ -3,7 +3,7 @@ import type { AstroCookieSetOptions } from '../cookies/cookies.js';
 
 export interface SessionDriver {
 	removeItem: (key: string) => Promise<void>;
-	get: (key: string) => Promise<any>;
+	getItem: (key: string) => Promise<any>;
 	setItem: (key: string, value: any) => Promise<void>;
 }
 
