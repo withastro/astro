@@ -77,7 +77,7 @@ describe('AstroSession - Basic Operations', () => {
 	});
 });
 
-describe('AstroSession - Cookie Management', async () => {
+describe('AstroSession - Cookie Management', () => {
 	it('should set cookie on first value set', async () => {
 		let cookieSet = false;
 		const mockCookies = {
@@ -111,7 +111,7 @@ describe('AstroSession - Cookie Management', async () => {
 	});
 });
 
-describe('AstroSession - Session Regeneration', async () => {
+describe('AstroSession - Session Regeneration', () => {
 	it('should preserve data when regenerating session', async () => {
 		const session = createSession();
 
@@ -133,7 +133,7 @@ describe('AstroSession - Session Regeneration', async () => {
 	});
 });
 
-describe('AstroSession - Data Persistence', async () => {
+describe('AstroSession - Data Persistence', () => {
 	it('should persist data to storage', async () => {
 		let storedData;
 		const mockStorage = {
@@ -177,7 +177,7 @@ describe('AstroSession - Data Persistence', async () => {
 	});
 });
 
-describe('AstroSession - Error Handling', async () => {
+describe('AstroSession - Error Handling', () => {
 	it('should throw error when setting invalid data', async () => {
 		const session = createSession();
 
@@ -202,7 +202,7 @@ describe('AstroSession - Error Handling', async () => {
 	});
 });
 
-describe('AstroSession - Configuration', async () => {
+describe('AstroSession - Configuration', () => {
 	it('should use custom cookie name from config', async () => {
 		let cookieName;
 		const mockCookies = {
@@ -247,7 +247,7 @@ describe('AstroSession - Configuration', async () => {
 	});
 });
 
-describe('AstroSession - Sparse Data Operations', async () => {
+describe('AstroSession - Sparse Data Operations', () => {
 	it('should handle multiple operations in sparse mode', async () => {
 		const existingData = stringify(
 			new Map([
@@ -337,7 +337,7 @@ describe('AstroSession - Sparse Data Operations', async () => {
 	});
 });
 
-describe('AstroSession - Cleanup Operations', async () => {
+describe('AstroSession - Cleanup Operations', () => {
 	it('should clean up destroyed sessions on persist', async () => {
 		const removedKeys = new Set();
 		const mockStorage = {
@@ -382,7 +382,7 @@ describe('AstroSession - Cleanup Operations', async () => {
 	});
 });
 
-describe('AstroSession - Cookie Security', async () => {
+describe('AstroSession - Cookie Security', () => {
 	it('should enforce httpOnly cookie setting', async () => {
 		let cookieOptions;
 		const mockCookies = {
@@ -439,7 +439,7 @@ describe('AstroSession - Cookie Security', async () => {
 	});
 });
 
-describe('AstroSession - Storage Errors', async () => {
+describe('AstroSession - Storage Errors', () => {
 	it('should handle storage setItem failures', async () => {
 		const mockStorage = {
 			get: async () => stringify(new Map()),
