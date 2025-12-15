@@ -9,7 +9,6 @@ export interface SessionDriver {
 
 export type SessionDriverFactory = (config: Record<string, any> | undefined) => SessionDriver;
 
-// TODO: test schema matches
 export interface SessionDriverConfig {
 	/** Driver name, used to identify the driver internally */
 	name: string;

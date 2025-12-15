@@ -6,6 +6,8 @@ import type {
 	remoteFontFamilySchema,
 } from '../../src/assets/fonts/config.js';
 import type { LocalFontFamily, RemoteFontFamily } from '../../src/assets/fonts/types.js';
+import type { SessionDriverConfigSchema } from '../../src/core/session/config.js';
+import type { SessionDriverConfig } from '../../src/core/session/types.js';
 
 describe('fonts', () => {
 	it('LocalFontFamily type matches localFontFamilySchema', () => {
@@ -14,5 +16,11 @@ describe('fonts', () => {
 
 	it('RemoteFontFamily type matches remoteFontFamilySchema', () => {
 		expectTypeOf<z.input<typeof remoteFontFamilySchema>>().toEqualTypeOf<RemoteFontFamily>();
+	});
+});
+
+describe('session', () => {
+	it('SessionDriverConfig type matches SessionDriverConfigSchema', () => {
+		expectTypeOf<z.input<typeof SessionDriverConfigSchema>>().toEqualTypeOf<SessionDriverConfig>();
 	});
 });
