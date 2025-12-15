@@ -2373,9 +2373,18 @@ export interface AstroUserConfig<
 	 */
 	legacy?: {
 		/**
-		 * Enable backwards compatibility for v4 content collections API.
-		 * Collections without loaders and using deprecated APIs like `type: 'content'` or `type: 'data'` will be allowed.
-		 * This is a temporary escape hatch for projects that have not yet migrated to the new content layer API.
+		 * Enable backwards compatibility for v5 content collections.
+		 *
+		 * When enabled, restores the following v5 behaviors:
+		 * - Allows legacy config file location: `src/content/config.ts`
+		 * - Allows collections without explicit loaders (automatically wraps with glob loader)
+		 * - Supports `type: 'content'` and `type: 'data'` without loaders
+		 * - Preserves legacy entry API: `entry.slug` and `entry.render()`
+		 * - Uses path-based entry IDs instead of slug-based IDs
+		 *
+		 * This is a temporary migration helper for projects upgrading to v6.
+		 * Migrate collections to the Content Layer API, then disable this flag.
+		 *
 		 * @type {boolean}
 		 * @default false
 		 */
