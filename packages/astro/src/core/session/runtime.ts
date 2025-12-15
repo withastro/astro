@@ -61,7 +61,6 @@ export class AstroSession {
 	#partial = true;
 	// The driver factory function provided by the pipeline
 	#driverFactory: SessionDriverFactory | null;
-	#mockStorage: Storage | null;
 
 	static #sharedStorage = new Map<string, Storage>();
 
@@ -105,7 +104,9 @@ export class AstroSession {
 			httpOnly: true,
 		};
 		this.#config = configRest;
-		this.#mockStorage = mockStorage;
+		if (mockStorage) {
+			this.#storage = mockStorage;
+		}
 	}
 
 	/**
@@ -421,10 +422,6 @@ export class AstroSession {
 		if (AstroSession.#sharedStorage.has(this.#config.driver)) {
 			this.#storage = AstroSession.#sharedStorage.get(this.#config.driver);
 			return this.#storage!;
-		}
-
-		if (this.#mockStorage) {
-			return (this.#storage = this.#mockStorage);
 		}
 
 		// Get the driver factory from the pipeline
