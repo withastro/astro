@@ -52,18 +52,23 @@ describe('Astro.session', () => {
 			const mod = await import(entryURL.href);
 			handler = mod.default;
 		});
+		/** @type {(request: Request, options: {}) => Promise<Response>} */
 		let handler;
 		after(async () => {
 			await blobServer.stop();
 			delete process.env.NETLIFY;
 		});
-		async function fetchResponse(path, requestInit) {
+		/**
+		 * @param {string} path
+		 * @param {RequestInit} requestInit
+		 */
+		function fetchResponse(path, requestInit) {
 			return handler(new Request(new URL(path, 'http://example.com'), requestInit), {});
 		}
 
 		it('can regenerate session cookies upon request', async () => {
 			const firstResponse = await fetchResponse('/regenerate', { method: 'GET' });
-			const firstHeaders = firstResponse.headers.get('set-cookie').split(',');
+			const firstHeaders = firstResponse.headers.get('set-cookie')?.split(',') ?? '';
 			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
 
 			const secondResponse = await fetchResponse('/regenerate', {
@@ -72,7 +77,7 @@ describe('Astro.session', () => {
 					cookie: `astro-session=${firstSessionId}`,
 				},
 			});
-			const secondHeaders = secondResponse.headers.get('set-cookie').split(',');
+			const secondHeaders = secondResponse.headers.get('set-cookie')?.split(',') ?? '';
 			const secondSessionId = secondHeaders[0].split(';')[0].split('=')[1];
 			assert.notEqual(firstSessionId, secondSessionId);
 		});
@@ -82,7 +87,7 @@ describe('Astro.session', () => {
 			const firstValue = await firstResponse.json();
 			assert.equal(firstValue.previousValue, 'none');
 
-			const firstHeaders = firstResponse.headers.get('set-cookie').split(',');
+			const firstHeaders = firstResponse.headers.get('set-cookie')?.split(',') ?? '';
 			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
 			const secondResponse = await fetchResponse('/update', {
 				method: 'GET',
@@ -104,7 +109,7 @@ describe('Astro.session', () => {
 			});
 
 			assert.equal(firstResponse.ok, true);
-			const firstHeaders = firstResponse.headers.get('set-cookie').split(',');
+			const firstHeaders = firstResponse.headers.get('set-cookie')?.split(',') ?? '';
 			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
 
 			const data = devalue.parse(await firstResponse.text());
