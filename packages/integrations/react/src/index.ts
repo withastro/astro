@@ -59,16 +59,17 @@ function optionsPlugin({
 	};
 }
 
-// // Note: need to get the PluginItem type, probably from @types/babel__core
-// function isBabelPluginPresent(plugins: PluginItem[], pluginName: string): boolean {
-// 	for (const plugin of plugins) {
-// 		if (typeof plugin == 'string' && plugin == pluginName)
-// 			return true
-// 		else if (Array.isArray(plugin) && plugin[0] == pluginName)
-// 			return true
-// 	}
-// 	return false
-// }
+type PluginItem = NonNullable<
+	Exclude<NonNullable<ReactIntegrationOptions['babel']>, Function>['plugins']
+>[number];
+
+function isBabelPluginPresent(plugins: PluginItem[], pluginName: string): boolean {
+	for (const plugin of plugins) {
+		if (typeof plugin == 'string' && plugin == pluginName) return true;
+		else if (Array.isArray(plugin) && plugin[0] == pluginName) return true;
+	}
+	return false;
+}
 
 function getViteConfiguration(
 	{
@@ -87,15 +88,10 @@ function getViteConfiguration(
 			let reactCompilerPluginExists = false;
 			if (!babel.plugins) babel.plugins = [];
 			else {
-				for (const plugin of babel.plugins) {
-					if (typeof plugin == 'string' && plugin == 'babel-plugin-react-compiler') {
-						reactCompilerPluginExists = true;
-						break;
-					} else if (Array.isArray(plugin) && plugin[0] == 'babel-plugin-react-compiler') {
-						reactCompilerPluginExists = true;
-						break;
-					}
-				}
+				reactCompilerPluginExists = isBabelPluginPresent(
+					babel.plugins,
+					'babel-plugin-react-compiler',
+				);
 			}
 			if (!reactCompilerPluginExists) babel.plugins.push(['babel-plugin-react-compiler']);
 		} else if (typeof babel === 'function') {
@@ -105,15 +101,10 @@ function getViteConfiguration(
 				const options = babelFn(...args);
 				if (!options.plugins) options.plugins = [];
 				else {
-					for (const plugin of options.plugins) {
-						if (typeof plugin == 'string' && plugin == 'babel-plugin-react-compiler') {
-							reactCompilerPluginExists = true;
-							break;
-						} else if (Array.isArray(plugin) && plugin[0] == 'babel-plugin-react-compiler') {
-							reactCompilerPluginExists = true;
-							break;
-						}
-					}
+					reactCompilerPluginExists = isBabelPluginPresent(
+						options.plugins,
+						'babel-plugin-react-compiler',
+					);
 				}
 				if (!reactCompilerPluginExists) options.plugins.push(['babel-plugin-react-compiler']);
 
