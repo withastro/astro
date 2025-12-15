@@ -11,11 +11,11 @@ export type SessionDriverFactory = (config: Record<string, any> | undefined) => 
 
 // TODO: test schema matches
 export interface SessionDriverConfig {
-	/** TODO: */
+	/** Driver name, used to identify the driver internally */
 	name: string;
-	/** TODO: */
+	/** Serializable options used by the driver implementation */
 	options?: Record<string, any> | undefined;
-	/** TODO: */
+	/** URL, path relative to the root or package import */
 	entrypoint: string | URL;
 }
 
@@ -40,21 +40,35 @@ export interface BaseSessionConfig {
 }
 
 interface DriverConfig<TDriver extends SessionDriverConfig> {
-	/** TODO: */
+	/** Config object for a custom session driver */
 	driver: TDriver;
-	/** @deprecated TODO: */
+	/** @deprecated Pass options to the driver function directly. This will be removed in Astro 7 */
 	options?: never;
 }
 
 interface UnstorageConfig<TDriver extends keyof BuiltinDriverOptions> {
+	/**
+	 * Entrypoint for an unstorage session driver
+	 * @deprecated Use `import { sessionDrivers } from 'astro/config'` instead. This will be removed in Astro 7
+	 */
 	driver: TDriver;
+	/**
+	 * Options for the unstorage driver
+	 * @deprecated Use `import { sessionDrivers } from 'astro/config'` instead. This will be removed in Astro 7
+	 */
 	options?: BuiltinDriverOptions[TDriver];
 }
 
 interface CustomConfig {
-	/** Entrypoint for a custom session driver */
+	/**
+	 * Entrypoint for a custom session driver
+	 * @deprecated Use the object shape (type `SessionDriverConfig`). This will be removed in Astro 7
+	 */
 	driver?: string;
-	/** TODO: */
+	/**
+	 * Options for the custom session driver
+	 * @deprecated Use the object shape (type `SessionDriverConfig`). This will be removed in Astro 7
+	 */
 	options?: Record<string, unknown>;
 }
 
