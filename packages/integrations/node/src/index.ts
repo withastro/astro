@@ -10,6 +10,7 @@ import type {
 import { AstroError } from 'astro/errors';
 import { STATIC_HEADERS_FILE } from './shared.js';
 import type { Options, UserOptions } from './types.js';
+import { sessionDrivers } from 'astro/config';
 
 export function getAdapter(options: Options): AstroAdapter {
 	return {
@@ -63,11 +64,11 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 				if (!session?.driver) {
 					logger.info('Enabling sessions with filesystem storage');
 					session = {
-						...session,
-						driver: 'fs-lite',
-						options: {
+						driver: sessionDrivers.fsLite({
 							base: fileURLToPath(new URL('sessions', config.cacheDir)),
-						},
+						}),
+						cookie: session?.cookie,
+						ttl: session?.ttl,
 					};
 				}
 

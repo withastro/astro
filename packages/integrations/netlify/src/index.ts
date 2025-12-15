@@ -18,6 +18,7 @@ import { build } from 'esbuild';
 import { glob, globSync } from 'tinyglobby';
 import { copyDependenciesToFunction } from './lib/nft.js';
 import type { Args } from './ssr-function.js';
+import { sessionDrivers } from 'astro/config';
 
 const { version: packageVersion } = JSON.parse(
 	await readFile(new URL('../package.json', import.meta.url), 'utf8'),
@@ -597,13 +598,12 @@ export default function netlifyIntegration(
 					logger.info('Enabling sessions with Netlify Blobs');
 
 					session = {
-						...session,
-						driver: 'netlify-blobs',
-						options: {
+						driver: sessionDrivers.netlifyBlobs({
 							name: 'astro-sessions',
 							consistency: 'strong',
-							...session?.options,
-						},
+						}),
+						cookie: session?.cookie,
+						ttl: session?.ttl,
 					};
 				}
 
