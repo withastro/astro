@@ -28,7 +28,7 @@ export interface LocalProviderUrlResolver {
 	resolve: (input: string) => string;
 }
 
-interface ProxyData {
+export interface ProxyData {
 	weight: unifont.FontFaceData['weight'];
 	style: unifont.FontFaceData['style'];
 	subset: NonNullable<unifont.FontFaceData['meta']>['subset'];
@@ -46,7 +46,7 @@ export interface UrlProxy {
 
 export interface UrlResolver {
 	resolve: (hash: string) => string;
-	getCspResources: () => Array<string>;
+	readonly cspResources: Array<string>;
 }
 
 export interface UrlProxyContentResolver {
@@ -111,4 +111,11 @@ export interface UrlProxyHashResolver {
 
 export interface StringMatcher {
 	getClosestMatch: (target: string, candidates: Array<string>) => string;
+}
+
+export interface Storage {
+	getItem: (key: string) => Promise<any | null>;
+	getItemRaw: (key: string) => Promise<Buffer | null>;
+	setItem: (key: string, value: any) => Promise<void>;
+	setItemRaw: (key: string, value: any) => Promise<void>;
 }

@@ -73,14 +73,13 @@ jobs:
         if: steps.vscode-published.outputs.published == 'true'
         working-directory: ./packages/language-tools/vscode
         run: |
+          npm run build:grammar
           rm -rf node_modules
-          # Also delete root package.json and node_modules to avoid vsce picking up monorepo info
-          rm ../../../package.json
+          # Also delete root package.json and node_modules to avoid vsce picking up any monorepo info
+          mv ../../../package.json ../../../package.temp.json
           rm -rf ../../../node_modules
           sleep 60s # wait for npm registry to update
           npm i --workspaces=false # vsce does not support pnpm, so we need to pretend this is not a monorepo and use npm
-          npm run build
-          npm run build:grammar
 
       - name: Publish to VSCode Marketplace
         if: steps.vscode-published.outputs.published == 'true'
@@ -93,7 +92,13 @@ jobs:
         working-directory: ./packages/language-tools/vscode
         run: |
           npx ovsx publish -p ${{ secrets.OVSX_TOKEN }} --target win32-x64 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
-
+          
+      - name: Restore root package.json and node_modules
+        if: steps.vscode-published.outputs.published == 'true'
+        run: |
+          mv ./package.temp.json ./package.json
+          pnpm install
+          
       - name: Generate Announcement
         id: message
         if: steps.changesets.outputs.published == 'true'

@@ -31,6 +31,7 @@ import {
 } from './constants.js';
 import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
 import { getCookiesFromResponse } from './cookies/response.js';
+import { pushDirective } from './csp/runtime.js';
 import { generateCspDigest } from './encryption.js';
 import { CspNotEnabled, ForbiddenRewrite } from './errors/errors-data.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
@@ -41,6 +42,7 @@ import { getParams, getProps, type Pipeline, Slots } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session.js';
+import { validateAndDecodePathname } from './util/pathname.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
 /**
@@ -73,10 +75,19 @@ export class RenderContext {
 	static #createNormalizedUrl(requestUrl: string): URL {
 		const url = new URL(requestUrl);
 		try {
-			url.pathname = decodeURI(url.pathname);
-		} finally {
-			return url;
+			// Decode and validate pathname to prevent multi-level encoding bypass attacks
+			url.pathname = validateAndDecodePathname(url.pathname);
+		} catch {
+			// If validation fails, return URL with pathname as-is
+			// This will be caught elsewhere in the request handling pipeline
+			// For now, just decode without validation to maintain compatibility
+			try {
+				url.pathname = decodeURI(url.pathname);
+			} catch {
+				// If even basic decoding fails, return URL as-is
+			}
 		}
+		return url;
 	}
 
 	/**
@@ -457,7 +468,14 @@ export class RenderContext {
 						if (!pipeline.manifest.csp) {
 							throw new AstroError(CspNotEnabled);
 						}
-						renderContext.result?.directives.push(payload);
+						if (renderContext?.result?.directives) {
+							renderContext.result.directives = pushDirective(
+								renderContext.result.directives,
+								payload,
+							);
+						} else {
+							renderContext?.result?.directives.push(payload);
+						}
 					},
 
 					insertScriptResource(resource) {
@@ -727,7 +745,15 @@ export class RenderContext {
 						if (!pipeline.manifest.csp) {
 							throw new AstroError(CspNotEnabled);
 						}
-						renderContext.result?.directives.push(payload);
+
+						if (renderContext?.result?.directives) {
+							renderContext.result.directives = pushDirective(
+								renderContext.result.directives,
+								payload,
+							);
+						} else {
+							renderContext?.result?.directives.push(payload);
+						}
 					},
 
 					insertScriptResource(resource) {
