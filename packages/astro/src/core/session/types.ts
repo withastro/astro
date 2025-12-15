@@ -19,7 +19,7 @@ export interface SessionDriverConfig {
 }
 
 /** @deprecated */
-export type SessionDriverName = keyof BuiltinDriverOptions | 'test' | (string & {});
+export type SessionDriverName = keyof BuiltinDriverOptions | (string & {});
 
 export interface BaseSessionConfig {
 	/**
@@ -38,14 +38,14 @@ export interface BaseSessionConfig {
 	ttl?: number;
 }
 
-interface DriverConfig<TDriver extends SessionDriverConfig> {
+interface DriverConfig<TDriver extends SessionDriverConfig> extends BaseSessionConfig {
 	/** Config object for a custom session driver */
 	driver: TDriver;
 	/** @deprecated Pass options to the driver function directly. This will be removed in Astro 7 */
 	options?: never;
 }
 
-interface UnstorageConfig<TDriver extends keyof BuiltinDriverOptions> {
+interface UnstorageConfig<TDriver extends keyof BuiltinDriverOptions> extends BaseSessionConfig {
 	/**
 	 * Entrypoint for an unstorage session driver
 	 * @deprecated Use `import { sessionDrivers } from 'astro/config'` instead. This will be removed in Astro 7
@@ -58,7 +58,7 @@ interface UnstorageConfig<TDriver extends keyof BuiltinDriverOptions> {
 	options?: BuiltinDriverOptions[TDriver];
 }
 
-interface CustomConfig {
+interface CustomConfig extends BaseSessionConfig {
 	/**
 	 * Entrypoint for a custom session driver
 	 * @deprecated Use the object shape (type `SessionDriverConfig`). This will be removed in Astro 7
@@ -71,15 +71,12 @@ interface CustomConfig {
 	options?: Record<string, unknown>;
 }
 
-export type SessionConfig<TDriver extends SessionDriverName | SessionDriverConfig> =
-	BaseSessionConfig &
-		// If no session.driver is provided, default to the new shape
-		[TDriver] extends [never]
-		? DriverConfig<SessionDriverConfig>
-		: // New shape
-			TDriver extends SessionDriverConfig
-			? DriverConfig<TDriver>
-			: // Legacy shape
-				TDriver extends keyof BuiltinDriverOptions
-				? UnstorageConfig<TDriver>
-				: CustomConfig;
+export type SessionConfig<TDriver extends SessionDriverName | SessionDriverConfig> = [
+	TDriver,
+] extends [never]
+	? UnstorageConfig<keyof BuiltinDriverOptions>
+	: TDriver extends SessionDriverConfig
+		? DriverConfig<TDriver>
+		: TDriver extends keyof BuiltinDriverOptions
+			? UnstorageConfig<TDriver>
+			: CustomConfig;
