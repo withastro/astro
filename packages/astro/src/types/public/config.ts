@@ -1,3 +1,4 @@
+import type { OutgoingHttpHeaders } from 'node:http';
 import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type {
 	RehypePlugins,
@@ -6,7 +7,6 @@ import type {
 	ShikiConfig,
 	SyntaxHighlightConfigType,
 } from '@astrojs/markdown-remark';
-import type { OutgoingHttpHeaders } from 'node:http';
 import type { Config as SvgoConfig } from 'svgo';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { FontFamily } from '../../assets/fonts/types.js';
@@ -16,19 +16,26 @@ import type { AstroConfigType } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
 import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
-import type { EnvSchema } from '../../env/schema.js';
-import type { AstroIntegration } from './integrations.js';
 import type {
 	SessionConfig,
 	SessionDriverConfig,
 	SessionDriverName,
 } from '../../core/session/types.js';
+import type { EnvSchema } from '../../env/schema.js';
+import type { AstroIntegration } from './integrations.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
-export type { CspAlgorithm };
+export type { CspAlgorithm, CspHash };
 
 export type { RemotePattern };
+
+export type CspStyleDirective = { hashes?: CspHash[]; resources?: string[] };
+export type CspScriptDirective = {
+	hashes?: CspHash[];
+	resources?: string[];
+	strictDynamic?: boolean;
+};
 
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
@@ -496,7 +503,7 @@ export interface AstroUserConfig<
 	scopedStyleStrategy?: 'where' | 'class' | 'attribute';
 
 	/**
-	 *
+	 * @docs
 	 * @name prerenderConflictBehavior
 	 * @type {'error' | 'warn' | 'ignore'}
 	 * @default `'warn'`
@@ -506,6 +513,12 @@ export interface AstroUserConfig<
 	 * - `error`: fail the build and display an error, forcing you to resolve the conflict
 	 * - `warn` (default): log a warning when conflicts occur, but build using the highest-priority route
 	 * - `ignore`: silently build using the highest-priority route when conflicts occur
+	 *
+	 * ```js
+	 * {
+	 *   prerenderConflictBehavior: 'error'
+	 * }
+	 * ```
 	 */
 	prerenderConflictBehavior?: 'error' | 'warn' | 'ignore';
 
@@ -673,7 +686,9 @@ export interface AstroUserConfig<
 			| boolean
 			| {
 					/**
+					 * @docs
 					 * @name security.csp.algorithm
+					 * @kind h5
 					 * @type {"SHA-256" | "SHA-384" | "SHA-512"}
 					 * @default `'SHA-256'`
 					 * @version 6.0.0
@@ -696,7 +711,9 @@ export interface AstroUserConfig<
 					algorithm?: CspAlgorithm;
 
 					/**
+					 * @docs
 					 * @name security.csp.directives
+					 * @kind h5
 					 * @type {string[]}
 					 * @default `[]`
 					 * @version 6.0.0
@@ -735,8 +752,10 @@ export interface AstroUserConfig<
 					directives?: CspDirective[];
 
 					/**
+					 * @docs
 					 * @name security.csp.styleDirective
-					 * @type {{ hashes?: CspHash[], resources?: string[] }}
+					 * @kind h5
+					 * @type {CspStyleDirective}
 					 * @default `undefined`
 					 * @version 6.0.0
 					 * @description
@@ -744,7 +763,9 @@ export interface AstroUserConfig<
 					 * A configuration object that allows you to override the default sources for the `style-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#resources) property, or to provide additional [hashes]((https://v6.docs.astro.build/en/reference/configuration-reference#hashes) to be rendered.					 */
 					styleDirective?: {
 						/**
+						 * @docs
 						 * @name security.csp.styleDirective.hashes
+						 * @kind h6
 						 * @type {CspHash[]}
 						 * @default `[]`
 						 * @version 6.0.0
@@ -786,7 +807,9 @@ export interface AstroUserConfig<
 						hashes?: CspHash[];
 
 						/**
+						 * @docs
 						 * @name security.csp.styleDirective.resources
+						 * @kind h6
 						 * @type {string[]}
 						 * @default `[]`
 						 * @version 6.0.0
@@ -830,8 +853,10 @@ export interface AstroUserConfig<
 					};
 
 					/**
+					 * @docs
 					 * @name security.csp.scriptDirective
-					 * @type {{ hashes?: CspHash[], resources?: string[], strictDynamic?: boolean }}
+					 * @kind h5
+					 * @type {CspScriptDirective}
 					 * @default `undefined`
 					 * @version 6.0.0
 					 * @description
@@ -840,7 +865,9 @@ export interface AstroUserConfig<
 					 */
 					scriptDirective?: {
 						/**
+						 * @docs
 						 * @name security.csp.scriptDirective.hashes
+						 * @kind h6
 						 * @type {CspHash[]}
 						 * @default `[]`
 						 * @version 6.0.0
@@ -882,7 +909,9 @@ export interface AstroUserConfig<
 						hashes?: CspHash[];
 
 						/**
+						 * @docs
 						 * @name security.csp.scriptDirective.resources
+						 * @kind h6
 						 * @type {string[]}
 						 * @default `[]`
 						 * @version 6.0.0
@@ -924,7 +953,9 @@ export interface AstroUserConfig<
 						resources?: string[];
 
 						/**
+						 * @docs
 						 * @name security.csp.scriptDirective.strictDynamic
+						 * @kind h6
 						 * @type {boolean}
 						 * @default `false`
 						 * @version 6.0.0

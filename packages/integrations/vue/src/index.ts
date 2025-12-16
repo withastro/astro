@@ -52,13 +52,19 @@ function virtualAppEntrypoint(options?: Options): Plugin {
 					: options.appEntrypoint;
 			}
 		},
-		resolveId(id: string) {
-			if (id == VIRTUAL_MODULE_ID) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${VIRTUAL_MODULE_ID}$`),
+			},
+			handler() {
 				return RESOLVED_VIRTUAL_MODULE_ID;
-			}
+			},
 		},
-		load(id: string) {
-			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+		load: {
+			filter: {
+				id: new RegExp(`^${RESOLVED_VIRTUAL_MODULE_ID}$`),
+			},
+			handler() {
 				if (appEntrypoint) {
 					return `\
 export const setup = async (app) => {
@@ -78,21 +84,24 @@ export const setup = async (app) => {
 }`;
 				}
 				return `export const setup = () => {};`;
-			}
+			},
 		},
 		// Ensure that Vue components reference appEntrypoint directly
 		// This allows Astro to associate global styles imported in this file
 		// with the pages they should be injected to
-		transform(code, id) {
-			if (!appEntrypoint) return;
-			if (id.endsWith('.vue')) {
+		transform: {
+			filter: {
+				id: /\.vue$/,
+			},
+			handler(code) {
+				if (!appEntrypoint) return;
 				const s = new MagicString(code);
 				s.prepend(`import ${JSON.stringify(appEntrypoint)};\n`);
 				return {
 					code: s.toString(),
 					map: s.generateMap({ hires: 'boundary' }),
 				};
-			}
+			},
 		},
 	};
 }

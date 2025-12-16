@@ -161,13 +161,6 @@ export default function createVitePluginAstroServer({
 				});
 			};
 		},
-		transform(code, id, opts = {}) {
-			if (opts.ssr) return;
-			if (!id.includes('vite/dist/client/client.mjs')) return;
-
-			// Replace the Vite overlay with ours
-			return patchOverlay(code);
-		},
 	};
 }
 
@@ -177,12 +170,14 @@ export function createVitePluginAstroServerClient(): vite.Plugin {
 		applyToEnvironment(environment) {
 			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client;
 		},
-		transform(code, id, opts = {}) {
-			if (opts.ssr) return;
-			if (!id.includes('vite/dist/client/client.mjs')) return;
-
-			// Replace the Vite overlay with ours
-			return patchOverlay(code);
+		transform: {
+			filter: {
+				id: /vite\/dist\/client\/client\.mjs/,
+			},
+			handler(code) {
+				// Replace the Vite overlay with ours
+				return patchOverlay(code);
+			},
 		},
 	};
 }

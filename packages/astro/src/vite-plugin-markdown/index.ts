@@ -14,8 +14,9 @@ import { normalizePath } from '../core/viteUtils.js';
 import { shorthash } from '../runtime/server/shorthash.js';
 import type { AstroSettings } from '../types/astro.js';
 import { createDefaultAstroMetadata } from '../vite-plugin-astro/metadata.js';
-import { getFileInfo } from '../vite-plugin-utils/index.js';
+import { getFileInfo, specialQueriesRE } from '../vite-plugin-utils/index.js';
 import { getMarkdownCodeForImages, type MarkdownImagePath } from './images.js';
+import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../core/constants.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -39,19 +40,39 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 		buildEnd() {
 			processor = undefined;
 		},
-		async resolveId(source, importer, options) {
-			if (importer?.endsWith('.md') && source[0] !== '/') {
-				let resolved = await this.resolve(source, importer, options);
-				if (!resolved) resolved = await this.resolve('./' + source, importer, options);
-				return resolved;
-			}
+		resolveId: {
+			filter: {
+				// Do not match sources that start with /
+				id: /^[^/]/,
+			},
+			async handler(source, importer, options) {
+				if (importer?.endsWith('.md')) {
+					let resolved = await this.resolve(source, importer, options);
+					if (!resolved) resolved = await this.resolve('./' + source, importer, options);
+					return resolved;
+				}
+			},
 		},
 		// Why not the "transform" hook instead of "load" + readFile?
 		// A: Vite transforms all "import.meta.env" references to their values before
 		// passing to the transform hook. This lets us get the truly raw value
 		// to escape "import.meta.env" ourselves.
-		async load(id) {
-			if (isMarkdownFile(id)) {
+		load: {
+			filter: {
+				id: {
+					// Matches .md, .markdown, .md?, .markdown? etc
+					include: new RegExp(
+						`\\.(${SUPPORTED_MARKDOWN_FILE_EXTENSIONS.map((ext) => ext.slice(1)).join('|')})(\\?|$)`,
+					),
+					exclude: specialQueriesRE,
+				},
+			},
+			async handler(id) {
+				// The id filter also matches file extensions in search params which we do not want.
+				// So we check another time, but at least it will run for less ids
+				if (!isMarkdownFile(id)) {
+					return;
+				}
 				const { fileId, fileUrl } = getFileInfo(id, settings.config);
 				const rawFile = await fs.promises.readFile(fileId, 'utf-8');
 				const raw = safeParseFrontmatter(rawFile, id);
@@ -168,7 +189,7 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 						},
 					},
 				};
-			}
+			},
 		},
 	};
 }

@@ -8,15 +8,21 @@ const root = new URL('./fixtures/astro-get-static-paths/', import.meta.url);
 
 const paramsTypePlugin = (type = 'string') => ({
 	name: 'vite-plugin-param-type',
-	resolveId(name) {
-		if (name === 'virtual:my:param:type') {
+	resolveId: {
+		filter: {
+			id: /^virtual:my:param:type$/,
+		},
+		handler() {
 			return '\0virtual:my:param:type';
-		}
+		},
 	},
-	load(id) {
-		if (id === '\0virtual:my:param:type') {
+	load: {
+		filter: {
+			id: /^\0virtual:my:param:type$/,
+		},
+		handler() {
 			return `export const paramType = ${JSON.stringify(type)}`;
-		}
+		},
 	},
 });
 
