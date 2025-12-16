@@ -15,6 +15,6 @@
     "@types/canvas-confetti": "^1.9.0",
     "astro": "^6.0.0-alpha.1",
     "canvas-confetti": "^1.9.4",
-    "tailwindcss": "^4.1.17"
+    "tailwindcss": "^4.1.18"
   }
 }
