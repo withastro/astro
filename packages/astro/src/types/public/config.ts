@@ -29,8 +29,12 @@ export type { CspAlgorithm, CspHash };
 
 export type { RemotePattern };
 
-export type CspStyleDirective = { hashes?: CspHash[], resources?: string[] };
-export type CspScriptDirective = { hashes?: CspHash[], resources?: string[], strictDynamic?: boolean };
+export type CspStyleDirective = { hashes?: CspHash[]; resources?: string[] };
+export type CspScriptDirective = {
+	hashes?: CspHash[];
+	resources?: string[];
+	strictDynamic?: boolean;
+};
 
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
@@ -559,7 +563,7 @@ export interface AstroUserConfig<
 	 * - `error`: fail the build and display an error, forcing you to resolve the conflict
 	 * - `warn` (default): log a warning when conflicts occur, but build using the highest-priority route
 	 * - `ignore`: silently build using the highest-priority route when conflicts occur
-	 * 
+	 *
 	 * ```js
 	 * {
 	 *   prerenderConflictBehavior: 'error'
