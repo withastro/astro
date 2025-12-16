@@ -378,7 +378,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			'astro:build:done': async ({ pages, dir, logger, assets }) => {
 				let redirectsExists = false;
 				try {
-					const redirectsStat = await stat(new URL('./_redirects', _config.outDir));
+					const redirectsStat = await stat(new URL('./_redirects', _config.build.client));
 					if (redirectsStat.isFile()) {
 						redirectsExists = true;
 					}
@@ -389,7 +389,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				const redirects: IntegrationResolvedRoute['segments'][] = [];
 				if (redirectsExists) {
 					const rl = createInterface({
-						input: createReadStream(new URL('./_redirects', _config.outDir)),
+						input: createReadStream(new URL('./_redirects', _config.build.client)),
 						crlfDelay: Number.POSITIVE_INFINITY,
 					});
 
@@ -413,7 +413,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				let routesExists = false;
 				try {
-					const routesStat = await stat(new URL('./_routes.json', _config.outDir));
+					const routesStat = await stat(new URL('./_routes.json', _config.build.client));
 					if (routesStat.isFile()) {
 						routesExists = true;
 					}
@@ -450,7 +450,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				if (!trueRedirects.empty()) {
 					try {
 						await appendFile(
-							new URL('./_redirects', _config.outDir),
+							new URL('./_redirects', _config.build.client),
 							printAsRedirects(trueRedirects),
 						);
 					} catch (_error) {
