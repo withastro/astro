@@ -12,7 +12,7 @@ Previously, the `main` field in `wrangler.jsonc` pointed to the built output, si
 }
 ```
 
-Now that Wrangler runs in both development (via workerd) and production, we provide a default entrypoint that works for both scenarios.
+Now that Wrangler runs in both development (via workerd) and production, Astro provides a default entrypoint that works for both scenarios.
 
 #### What should I do?
 
