@@ -36,6 +36,10 @@ describe('Content Intellisense', () => {
 		assert.equal(collectionsDir.includes('data-cl.schema.json'), true);
 	});
 
+	it('generate JSON schemas for data with unrepresentable types', async () => {
+		assert.equal(collectionsDir.includes('data-dates.schema.json'), true);
+	});
+
 	it('generates a record JSON schema for the file loader', async () => {
 		const schema = JSON.parse(await fixture.readFile('../.astro/collections/data-cl.schema.json'));
 		assert.equal(schema.type, 'object');
