@@ -57,55 +57,58 @@ export function cloudflareModuleLoader(enabled: boolean): PluginOption {
 			};
 		},
 
-		async load(id, _) {
-			const maybeExtension = extensions.find((x) => id.endsWith(x));
-			const moduleType: ModuleType | undefined =
-				(maybeExtension && adaptersByExtension[maybeExtension]) || undefined;
-			if (!moduleType || !maybeExtension) {
-				return;
-			}
-			if (!enabled) {
-				throw new Error(
-					`Cloudflare module loading is experimental. The ${maybeExtension} module cannot be loaded unless you add \`cloudflareModules: true\` to your astro config.`,
-				);
-			}
+		load: {
+			filter: {
+				// Escape the dot in the regex
+				id: new RegExp(`\.(${extensions.map((ext) => ext.slice(1)).join('|')})$`),
+			},
+			async handler(id, _) {
+				const maybeExtension = extensions.find((x) => id.endsWith(x))!;
+				const moduleType = adaptersByExtension[maybeExtension];
 
-			const moduleLoader = renderers[moduleType];
+				if (!enabled) {
+					throw new Error(
+						`Cloudflare module loading is experimental. The ${maybeExtension} module cannot be loaded unless you add \`cloudflareModules: true\` to your astro config.`,
+					);
+				}
 
-			const filePath = id.replace(/\?\w+$/, '');
-			const extension = maybeExtension.replace(/\?\w+$/, '');
+				const moduleLoader = renderers[moduleType];
 
-			const data = await fs.readFile(filePath);
-			const base64 = data.toString('base64');
+				const filePath = id.replace(/\?\w+$/, '');
+				const extension = maybeExtension.replace(/\?\w+$/, '');
 
-			const inlineModule = moduleLoader(data);
+				const data = await fs.readFile(filePath);
+				const base64 = data.toString('base64');
 
-			if (isDev) {
-				// no need to wire up the assets in dev mode, just rewrite
-				return inlineModule;
-			}
-			// just some shared ID
-			const hash = hashString(base64);
-			// emit the wasm binary as an asset file, to be picked up later by the esbuild bundle for the worker.
-			// give it a shared deterministic name to make things easy for esbuild to switch on later
-			const assetName = `${path.basename(filePath).split('.')[0]}.${hash}${extension}`;
-			this.emitFile({
-				type: 'asset',
-				// emit the data explicitly as an asset with `fileName` rather than `name` so that
-				// vite doesn't give it a random hash-id in its name--We need to be able to easily rewrite from
-				// the loader and the actual asset later in the build for the worker
-				fileName: assetName,
-				source: data,
-			});
+				const inlineModule = moduleLoader(data);
 
-			// however, by default, the SSG generator cannot import the asset as a module, so embed as a base64 string
-			const chunkId = this.emitFile({
-				type: 'prebuilt-chunk',
-				fileName: assetName,
-				code: inlineModule,
-			});
+				if (isDev) {
+					// no need to wire up the assets in dev mode, just rewrite
+					return inlineModule;
+				}
+				// just some shared ID
+				const hash = hashString(base64);
+				// emit the wasm binary as an asset file, to be picked up later by the esbuild bundle for the worker.
+				// give it a shared deterministic name to make things easy for esbuild to switch on later
+				const assetName = `${path.basename(filePath).split('.')[0]}.${hash}${extension}`;
+				this.emitFile({
+					type: 'asset',
+					// emit the data explicitly as an asset with `fileName` rather than `name` so that
+					// vite doesn't give it a random hash-id in its name--We need to be able to easily rewrite from
+					// the loader and the actual asset later in the build for the worker
+					fileName: assetName,
+					source: data,
+				});
 
-			return `import module from "${MAGIC_STRING}${chunkId}${extension}";export default module;`;
+				// however, by default, the SSG generator cannot import the asset as a module, so embed as a base64 string
+				const chunkId = this.emitFile({
+					type: 'prebuilt-chunk',
+					fileName: assetName,
+					code: inlineModule,
+				});
+
+				return `import module from "${MAGIC_STRING}${chunkId}${extension}";export default module;`;
+			},
 		},
 
 		// output original wasm file relative to the chunk now that chunking has been achieved

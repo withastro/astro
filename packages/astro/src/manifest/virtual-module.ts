@@ -11,18 +11,27 @@ const RESOLVED_VIRTUAL_CLIENT_ID = '\0' + VIRTUAL_CLIENT_ID;
 export default function virtualModulePlugin(): Plugin {
 	return {
 		name: 'astro-manifest-plugin',
-		resolveId(id) {
-			// Resolve the virtual module
-			if (VIRTUAL_SERVER_ID === id) {
-				return RESOLVED_VIRTUAL_SERVER_ID;
-			} else if (VIRTUAL_CLIENT_ID === id) {
-				return RESOLVED_VIRTUAL_CLIENT_ID;
-			}
+		resolveId: {
+			filter: {
+				id: new RegExp(`^(${VIRTUAL_SERVER_ID}|${VIRTUAL_CLIENT_ID})$`),
+			},
+			handler(id) {
+				if (id === VIRTUAL_SERVER_ID) {
+					return RESOLVED_VIRTUAL_SERVER_ID;
+				}
+				if (id === VIRTUAL_CLIENT_ID) {
+					return RESOLVED_VIRTUAL_CLIENT_ID;
+				}
+			},
 		},
-		async load(id) {
-			if (id === RESOLVED_VIRTUAL_CLIENT_ID) {
-				// There's nothing wrong about using `/client` on the server
-				const code = `
+		load: {
+			filter: {
+				id: new RegExp(`^(${RESOLVED_VIRTUAL_SERVER_ID}|${RESOLVED_VIRTUAL_CLIENT_ID})$`),
+			},
+			handler(id) {
+				if (id === RESOLVED_VIRTUAL_CLIENT_ID) {
+					// There's nothing wrong about using `/client` on the server
+					const code = `
 import { manifest } from '${SERIALIZED_MANIFEST_ID}'
 import { fromRoutingStrategy } from 'astro/app';
 
@@ -46,17 +55,16 @@ const build = {
 
 export { base, i18n, trailingSlash, site, compressHTML, build };
 				`;
-				return { code };
-			}
-			// server
-			else if (id == RESOLVED_VIRTUAL_SERVER_ID) {
-				if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
-					throw new AstroError({
-						...AstroErrorData.ServerOnlyModule,
-						message: AstroErrorData.ServerOnlyModule.message(VIRTUAL_SERVER_ID),
-					});
+					return { code };
 				}
-				const code = `
+				if (id == RESOLVED_VIRTUAL_SERVER_ID) {
+					if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
+						throw new AstroError({
+							...AstroErrorData.ServerOnlyModule,
+							message: AstroErrorData.ServerOnlyModule.message(VIRTUAL_SERVER_ID),
+						});
+					}
+					const code = `
 import { manifest } from '${SERIALIZED_MANIFEST_ID}'
 import { fromRoutingStrategy } from "astro/app";
 
@@ -102,8 +110,9 @@ export {
 }; 
 
 				`;
-				return { code };
-			}
+					return { code };
+				}
+			},
 		},
 	};
 }
