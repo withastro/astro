@@ -4,8 +4,6 @@ import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline/promises';
 import { pathToFileURL } from 'node:url';
 import {
-	appendForwardSlash,
-	prependForwardSlash,
 	removeLeadingForwardSlash,
 } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
@@ -128,10 +126,6 @@ export type Options = {
 		namedExports?: string[];
 	};
 };
-
-function wrapWithSlashes(path: string): string {
-	return prependForwardSlash(appendForwardSlash(path));
-}
 
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
