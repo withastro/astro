@@ -16,7 +16,7 @@ export type Props = (LocalImageProps | RemoteImageProps) & {
 	pictureAttributes?: HTMLAttributes<'picture'>;
 };
 
-const defaultFormats = ['webp'] as const;
+const defaultFormats = ['avif', 'webp'] as const;
 const defaultFallbackFormat = 'png' as const;
 
 // Certain formats don't want PNG fallbacks:
