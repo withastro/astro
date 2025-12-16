@@ -362,6 +362,11 @@ function createRedirectRoutes(
 			});
 		}
 
+		const redirectRoute = routeMap.get(destination);
+		// Dynamic redirects can only prerender if their destination route exists in the route map.
+		// Without a destination route, we can't enumerate the possible param combinations.
+		const prerender = params.length > 0 && !redirectRoute ? false : getPrerenderDefault(config);
+
 		routes.push({
 			type: 'redirect',
 			// For backwards compatibility, a redirect is never considered an index route.
@@ -373,9 +378,9 @@ function createRedirectRoutes(
 			component: from,
 			generate,
 			pathname: pathname || void 0,
-			prerender: params.length > 0 ? false : getPrerenderDefault(config),
+			prerender,
 			redirect: to,
-			redirectRoute: routeMap.get(destination),
+			redirectRoute,
 			fallbackRoutes: [],
 			distURL: [],
 			origin: 'project',
