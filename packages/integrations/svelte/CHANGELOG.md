@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 7.2.4
+
+### Patch Changes
+
+- [#15004](https://github.com/withastro/astro/pull/15004) [`16f3994`](https://github.com/withastro/astro/commit/16f3994fdb83d1b3421491c00bfd5ac9f7e37a5c) Thanks [@antonyfaris](https://github.com/antonyfaris)! - Fixes an issue where Svelte components used in Astro files would incorrectly report type errors when using `client:*` directives.
+
 ## 7.2.3
 
 ### Patch Changes
