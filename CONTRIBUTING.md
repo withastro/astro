@@ -338,7 +338,7 @@ Understanding in which environment code runs, and at which stage in the process,
 To make it easier to test code, try decoupling **business logic** from **infrastructure**:
 
 - **Infrastucture** is code that depends on external systems and/or requires aspecial environment to run. For example: DB calls, file system, randomness etc...
-- **Business logic** (or *core logic* or *domain*) is the rest. It's pure logic that's easy to run from anywhere.
+- **Business logic** (or _core logic_ or _domain_) is the rest. It's pure logic that's easy to run from anywhere.
 
 That means avoiding side-effects by making external dependencies explicit. This often means passing more things as arguments.
 
@@ -346,23 +346,26 @@ In practice, that can take several shapes. Let's have a look at an example:
 
 ```ts
 // create-key.ts
-import { logger, generateKey } from '../utils.js'
+import { logger, generateKey } from '../utils.js';
 import { encodeBase64 } from '@oslojs/encoding';
 
 export async function createKey() {
-  const encoded = encodeBase64(new Uint8Array(await crypto.subtle.exportKey('raw', await generateKey())));
-  logger.info(`Key created: ${key}`)
+  const encoded = encodeBase64(
+    new Uint8Array(await crypto.subtle.exportKey('raw', await generateKey())),
+  );
+  logger.info(`Key created: ${key}`);
 }
 
 // main.ts
-import { createKey } from './create-key.js'
+import { createKey } from './create-key.js';
 
 async function main() {
-  await createKey()
+  await createKey();
 }
 ```
 
 This function is very hard to test because it depends on:
+
 - A global logger
 - The `crypto` global
 - The `@oslojs/encoding` package
@@ -381,21 +384,23 @@ interface Options {
 
 export async function createKey({ generateKey, logger }: Options) {
   const key = await generateKey();
-  logger.info(`Key created: ${key}`)
+  logger.info(`Key created: ${key}`);
 }
 
 // main.ts
-import { createKey } from './create-key.js'
-import { logger, generateKey } from '../utils.js'
+import { createKey } from './create-key.js';
+import { logger, generateKey } from '../utils.js';
 import { encodeBase64 } from '@oslojs/encoding';
 
 async function main() {
   await createKey({
     logger,
     async generateKey() {
-      return encodeBase64(new Uint8Array(await crypto.subtle.exportKey('raw', await generateKey())))
-    }
-  })
+      return encodeBase64(
+        new Uint8Array(await crypto.subtle.exportKey('raw', await generateKey())),
+      );
+    },
+  });
 }
 ```
 
@@ -417,7 +422,7 @@ interface Options {
 
 export async function createKey({ keyGenerator, logger }: Options) {
   const key = await keyGenerator.generate();
-  logger.info(`Key created: ${key}`)
+  logger.info(`Key created: ${key}`);
 }
 
 // crypto-key-generator.ts
@@ -427,8 +432,8 @@ import { encodeBase64 } from '@oslojs/encoding';
 export class CryptoKeyGenerator implements KeyGenerator {
   readonly #algorithm = 'AES-GCM';
 
-	async generate(): Promise<string> {
-		const key = await crypto.subtle.generateKey(
+  async generate(): Promise<string> {
+    const key = await crypto.subtle.generateKey(
       {
         name: this.#algorithm,
         length: 256,
@@ -436,20 +441,20 @@ export class CryptoKeyGenerator implements KeyGenerator {
       true,
       ['encrypt', 'decrypt'],
     );
-		const encoded = encodeBase64(new Uint8Array(await crypto.subtle.exportKey('raw', key)));
-		return encoded;
-	}
+    const encoded = encodeBase64(new Uint8Array(await crypto.subtle.exportKey('raw', key)));
+    return encoded;
+  }
 }
 
 // main.ts
-import { logger } from './utils.js'
-import { createKey } from './create-key.js'
-import { CryptoKeyGenerator } from '../crypto-key-generator.js'
+import { logger } from './utils.js';
+import { createKey } from './create-key.js';
+import { CryptoKeyGenerator } from '../crypto-key-generator.js';
 
-const keyGenerator = new CryptoKeyGenerator()
+const keyGenerator = new CryptoKeyGenerator();
 
 async function main() {
-  await createKey({ logger, keyGenerator })
+  await createKey({ logger, keyGenerator });
 }
 ```
 
@@ -464,20 +469,20 @@ import { SpyLogger } from '../test-utils.js';
 import { FakeKeyGenerator } from './utils.js';
 
 describe('CLI create-key', () => {
-	describe('core', () => {
-		describe('createKey()', () => {
-			it('logs the generated key', async () => {
-				const logger = new SpyLogger();
-				const keyGenerator = new FakeKeyGenerator('FOO');
+  describe('core', () => {
+    describe('createKey()', () => {
+      it('logs the generated key', async () => {
+        const logger = new SpyLogger();
+        const keyGenerator = new FakeKeyGenerator('FOO');
 
-				await createKey({ logger, keyGenerator });
+        await createKey({ logger, keyGenerator });
 
-				assert.equal(logger.logs[0].type, 'info');
-				assert.equal(logger.logs[0].label, 'crypto');
-				assert.match(logger.logs[0].message, /ASTRO_KEY=FOO/);
-			});
-		});
-	});
+        assert.equal(logger.logs[0].type, 'info');
+        assert.equal(logger.logs[0].label, 'crypto');
+        assert.match(logger.logs[0].message, /ASTRO_KEY=FOO/);
+      });
+    });
+  });
 });
 ```
 
@@ -492,19 +497,19 @@ It can be useful to create test specific abstractions:
 
 /** @implements {KeyGenerator} */
 export class FakeKeyGenerator {
-	/** @type {string} */
-	#key;
+  /** @type {string} */
+  #key;
 
-	/**
-	 * @param {string} key
-	 */
-	constructor(key) {
-		this.#key = key;
-	}
+  /**
+   * @param {string} key
+   */
+  constructor(key) {
+    this.#key = key;
+  }
 
-	async generate() {
-		return this.#key;
-	}
+  async generate() {
+    return this.#key;
+  }
 }
 ```
 
