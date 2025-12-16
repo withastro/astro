@@ -1,8 +1,12 @@
+import deno from '@deno/vite-plugin';
 import type fsType from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { createServer, type ViteDevServer } from 'vite';
 import loadFallbackPlugin from '../../vite-plugin-load-fallback/index.js';
 import { debug } from '../logger/core.js';
+
+declare const Deno: unknown;
+const isDeno = typeof Deno !== 'undefined';
 
 async function createViteServer(root: string, fs: typeof fsType): Promise<ViteDevServer> {
 	const viteServer = await createServer({
@@ -12,7 +16,7 @@ async function createViteServer(root: string, fs: typeof fsType): Promise<ViteDe
 		clearScreen: false,
 		appType: 'custom',
 		ssr: { external: true },
-		plugins: [loadFallbackPlugin({ fs, root: pathToFileURL(root) })],
+		plugins: [isDeno && deno(), loadFallbackPlugin({ fs, root: pathToFileURL(root) })],
 	});
 
 	return viteServer;

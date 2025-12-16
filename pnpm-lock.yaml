@@ -485,6 +485,9 @@ importers:
       '@capsizecss/unpack':
         specifier: ^3.0.1
         version: 3.0.1
+      '@deno/vite-plugin':
+        specifier: ^1.0.5
+        version: 1.0.5(vite@6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.96.0)(tsx@4.20.6)(yaml@2.8.1))
       '@oslojs/encoding':
         specifier: ^1.1.0
         version: 1.1.0
@@ -7602,6 +7605,11 @@ packages:
 
   '@dabh/diagnostics@2.0.8':
     resolution: {integrity: sha512-R4MSXTVnuMzGD7bzHdW2ZhhdPC/igELENcq5IjEverBvq5hn1SXCWcsi6eSsdWP0/Ur+SItRRjAktmdoX/8R/Q==}
+
+  '@deno/vite-plugin@1.0.5':
+    resolution: {integrity: sha512-tLja5n4dyMhcze1NzvSs2iiriBymfBlDCZIrjMTxb9O2ru0gvmV6mn5oBD2teNw5Sd92cj3YJzKwsAs8tMJXlg==}
+    peerDependencies:
+      vite: 5.x || 6.x
 
   '@dependents/detective-less@5.0.1':
     resolution: {integrity: sha512-Y6+WUMsTFWE5jb20IFP4YGa5IrGY/+a/FbOSjDF/wz9gepU2hwCYSXRHP/vPwBvwcY3SVMASt4yXxbXNXigmZQ==}
@@ -16746,6 +16754,10 @@ snapshots:
       '@so-ric/colorspace': 1.1.6
       enabled: 2.0.0
       kuler: 2.0.0
+
+  '@deno/vite-plugin@1.0.5(vite@6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.96.0)(tsx@4.20.6)(yaml@2.8.1))':
+    dependencies:
+      vite: 6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.96.0)(tsx@4.20.6)(yaml@2.8.1)
 
   '@dependents/detective-less@5.0.1':
     dependencies:

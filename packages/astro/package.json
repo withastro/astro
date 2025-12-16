@@ -115,6 +115,7 @@
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
     "@capsizecss/unpack": "^3.0.1",
+    "@deno/vite-plugin": "^1.0.5",
     "@oslojs/encoding": "^1.1.0",
     "@rollup/pluginutils": "^5.3.0",
     "acorn": "^8.15.0",
