@@ -1,6 +1,6 @@
-import deno from '@deno/vite-plugin';
 import type fsType from 'node:fs';
 import { pathToFileURL } from 'node:url';
+import deno from '@deno/vite-plugin';
 import { createServer, type ViteDevServer } from 'vite';
 import loadFallbackPlugin from '../../vite-plugin-load-fallback/index.js';
 import { debug } from '../logger/core.js';
