@@ -2,7 +2,7 @@
 '@astrojs/cloudflare': major
 ---
 
-## New wrangler entrypoint
+Updates the Wrangler entrypoint
 
 Previously, the `main` field in `wrangler.jsonc` pointed to the built output, since Wrangler only ran in production after the build completed:
 
