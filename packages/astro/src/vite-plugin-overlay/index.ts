@@ -8,11 +8,14 @@ export function vitePluginAstroServerClient(): Plugin {
 		applyToEnvironment(environment) {
 			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client;
 		},
-		transform(code, id) {
-			if (!id.includes('vite/dist/client/client.mjs')) return;
-
-			// Replace the Vite overlay with ours
-			return patchOverlay(code);
+		transform: {
+			filter: {
+				id: /vite\/dist\/client\/client\.mjs/,
+			},
+			handler(code) {
+				// Replace the Vite overlay with ours
+				return patchOverlay(code);
+			},
 		},
 	};
 }
