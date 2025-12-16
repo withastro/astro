@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.16.5
+
+### Patch Changes
+
+- [#14988](https://github.com/withastro/astro/pull/14988) [`a3a20d8`](https://github.com/withastro/astro/commit/a3a20d8c9783de10de64d2f15dacdd5afc97a5ad) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Retries failed deploy
+
 ## 2.16.4
 
 ### Patch Changes
