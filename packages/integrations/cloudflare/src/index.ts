@@ -201,7 +201,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				updateConfig({
 					build: {
-						client: new URL(`.${wrapWithSlashes(config.base)}`, config.outDir),
+						client: new URL(`./client/`, config.outDir),
 						server: new URL('./_worker.js/', config.outDir),
 						serverEntry: 'index.js',
 						redirects: false,
