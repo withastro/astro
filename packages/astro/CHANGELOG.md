@@ -183,13 +183,17 @@
 
   No other changes to your project code are required as long as you have been keeping up with Astro 5.x patch releases, which contained breaking changes to this experimental feature. If you experience problems with your live collections after upgrading to Astro v6 and removing this flag, please review the [Astro CHANGELOG from 5.10.2](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#5102) onwards for any potential updates you might have missed, or follow the [current v6 documentation for live collections](https://docs.astro.build/en/guides/content-collections/).
 
+### Patch Changes
+
+- Updated dependencies [[`727b0a2`](https://github.com/withastro/astro/commit/727b0a205eb765f1c36f13a73dfc69e17e44df8f)]:
+  - @astrojs/markdown-remark@7.0.0-alpha.0
+
 ## 5.16.6
 
 ### Patch Changes
 
 - [#14982](https://github.com/withastro/astro/pull/14982) [`6849e38`](https://github.com/withastro/astro/commit/6849e3844d940f76b544822e7bd247641d61567d) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes images outside the project directory not working when using astro:assets in development mode
-- Updated dependencies [[`727b0a2`](https://github.com/withastro/astro/commit/727b0a205eb765f1c36f13a73dfc69e17e44df8f)]:
-  - @astrojs/markdown-remark@7.0.0-alpha.0
+
 - [#14987](https://github.com/withastro/astro/pull/14987) [`9dd9fca`](https://github.com/withastro/astro/commit/9dd9fca81e5ed3d0d55e0b1624c6515706963b1f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes SVGs not working in dev mode when using the passthrough image service
 
 - [#15014](https://github.com/withastro/astro/pull/15014) [`a178422`](https://github.com/withastro/astro/commit/a178422484ed62a76b227515a798e192fdcba3b9) Thanks [@delucis](https://github.com/delucis)! - Adds support for extending the type of the props accepted by Astro’s `<Image>` component, `<Picture>` component, and `getImage()` API.
