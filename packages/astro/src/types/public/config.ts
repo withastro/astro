@@ -806,7 +806,7 @@ export interface AstroUserConfig<
 					 * @version 6.0.0
 					 * @description
 					 *
-					 * A configuration object that allows you to override the default sources for the `style-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#resources) property, or to provide additional [hashes]((https://v6.docs.astro.build/en/reference/configuration-reference#hashes) to be rendered.					 */
+					 * A configuration object that allows you to override the default sources for the `style-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#resources) property, or to provide additional [hashes](https://v6.docs.astro.build/en/reference/configuration-reference#hashes) to be rendered.					 */
 					styleDirective?: {
 						/**
 						 * @docs
