@@ -15,14 +15,20 @@ export default function vitePluginRenderers(options: PluginOptions): VitePlugin 
 		name: 'astro:plugin-renderers',
 		enforce: 'pre',
 
-		resolveId(id) {
-			if (id === ASTRO_RENDERERS_MODULE_ID) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${ASTRO_RENDERERS_MODULE_ID}$`),
+			},
+			handler() {
 				return RESOLVED_ASTRO_RENDERERS_MODULE_ID;
-			}
+			},
 		},
 
-		async load(id) {
-			if (id === RESOLVED_ASTRO_RENDERERS_MODULE_ID) {
+		load: {
+			filter: {
+				id: new RegExp(`^${RESOLVED_ASTRO_RENDERERS_MODULE_ID}$`),
+			},
+			handler() {
 				if (renderers.length > 0) {
 					const imports: string[] = [];
 					const exports: string[] = [];
@@ -39,10 +45,9 @@ export default function vitePluginRenderers(options: PluginOptions): VitePlugin 
 					exports.push(`export const renderers = [${rendererItems}];`);
 
 					return { code: `${imports.join('\n')}\n${exports.join('\n')}` };
-				} else {
-					return { code: `export const renderers = [];` };
 				}
-			}
+				return { code: `export const renderers = [];` };
+			},
 		},
 	};
 }

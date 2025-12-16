@@ -41,20 +41,26 @@ function optionsPlugin({
 	const virtualModuleId = '\0' + virtualModule;
 	return {
 		name: '@astrojs/react:opts',
-		resolveId(id) {
-			if (id === virtualModule) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${virtualModule}$`),
+			},
+			handler() {
 				return virtualModuleId;
-			}
+			},
 		},
-		load(id) {
-			if (id === virtualModuleId) {
+		load: {
+			filter: {
+				id: new RegExp(`^${virtualModuleId}$`),
+			},
+			handler() {
 				return {
 					code: `export default {
 						experimentalReactChildren: ${JSON.stringify(experimentalReactChildren)},
 						experimentalDisableStreaming: ${JSON.stringify(experimentalDisableStreaming)}
 					}`,
 				};
-			}
+			},
 		},
 	};
 }

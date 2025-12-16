@@ -559,6 +559,12 @@ export interface AstroUserConfig<
 	 * - `error`: fail the build and display an error, forcing you to resolve the conflict
 	 * - `warn` (default): log a warning when conflicts occur, but build using the highest-priority route
 	 * - `ignore`: silently build using the highest-priority route when conflicts occur
+	 * 
+	 * ```js
+	 * {
+	 *   prerenderConflictBehavior: 'error'
+	 * }
+	 * ```
 	 */
 	prerenderConflictBehavior?: 'error' | 'warn' | 'ignore';
 
@@ -728,6 +734,7 @@ export interface AstroUserConfig<
 					/**
 					 * @docs
 					 * @name security.csp.algorithm
+					 * @kind h5
 					 * @type {"SHA-256" | "SHA-384" | "SHA-512"}
 					 * @default `'SHA-256'`
 					 * @version 6.0.0
@@ -752,6 +759,7 @@ export interface AstroUserConfig<
 					/**
 					 * @docs
 					 * @name security.csp.directives
+					 * @kind h5
 					 * @type {string[]}
 					 * @default `[]`
 					 * @version 6.0.0
@@ -792,6 +800,7 @@ export interface AstroUserConfig<
 					/**
 					 * @docs
 					 * @name security.csp.styleDirective
+					 * @kind h5
 					 * @type {CspStyleDirective}
 					 * @default `undefined`
 					 * @version 6.0.0
@@ -802,6 +811,7 @@ export interface AstroUserConfig<
 						/**
 						 * @docs
 						 * @name security.csp.styleDirective.hashes
+						 * @kind h6
 						 * @type {CspHash[]}
 						 * @default `[]`
 						 * @version 6.0.0
@@ -845,6 +855,7 @@ export interface AstroUserConfig<
 						/**
 						 * @docs
 						 * @name security.csp.styleDirective.resources
+						 * @kind h6
 						 * @type {string[]}
 						 * @default `[]`
 						 * @version 6.0.0
@@ -890,6 +901,7 @@ export interface AstroUserConfig<
 					/**
 					 * @docs
 					 * @name security.csp.scriptDirective
+					 * @kind h5
 					 * @type {CspScriptDirective}
 					 * @default `undefined`
 					 * @version 6.0.0
@@ -901,6 +913,7 @@ export interface AstroUserConfig<
 						/**
 						 * @docs
 						 * @name security.csp.scriptDirective.hashes
+						 * @kind h6
 						 * @type {CspHash[]}
 						 * @default `[]`
 						 * @version 6.0.0
@@ -944,6 +957,7 @@ export interface AstroUserConfig<
 						/**
 						 * @docs
 						 * @name security.csp.scriptDirective.resources
+						 * @kind h6
 						 * @type {string[]}
 						 * @default `[]`
 						 * @version 6.0.0
@@ -987,6 +1001,7 @@ export interface AstroUserConfig<
 						/**
 						 * @docs
 						 * @name security.csp.scriptDirective.strictDynamic
+						 * @kind h6
 						 * @type {boolean}
 						 * @default `false`
 						 * @version 6.0.0
