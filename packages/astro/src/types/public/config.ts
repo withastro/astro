@@ -2373,9 +2373,9 @@ export interface AstroUserConfig<
 	 */
 	legacy?: {
 		/**
-		 * Enable backwards compatibility for v5 content collections.
+		 * Enable backwards compatibility for v4 content collections.
 		 *
-		 * When enabled, restores the following v5 behaviors:
+		 * When enabled, restores the following v4 behaviors:
 		 * - Allows legacy config file location: `src/content/config.ts`
 		 * - Allows collections without explicit loaders (automatically wraps with glob loader)
 		 * - Supports `type: 'content'` and `type: 'data'` without loaders
