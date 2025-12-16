@@ -9,7 +9,7 @@ type Alias = {
 };
 
 /** Returns a list of compiled aliases. */
-const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
+export const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	const { tsConfig, tsConfigPath } = settings;
 	if (!tsConfig || !tsConfigPath || !tsConfig.compilerOptions) return null;
 
