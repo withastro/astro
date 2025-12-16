@@ -6,28 +6,42 @@ Development server now runs in workerd
 
 `astro dev` now runs your Cloudflare application using Cloudflare's workerd runtime instead of Node.js. This means your development environment is now a near-exact replica of your production environment—the same JavaScript engine, the same APIs, the same behavior. You'll catch issues during development that would have only appeared in production, and features like Durable Objects, Workers Analytics Engine, and R2 bindings work exactly as they do on Cloudflare's platform.
 
-To accommodate this major change to your development environment, this update includes breaking changes to `Astro.locals.runtime`, removing some of its properties.
+## New runtime
+
+Previously, `Astro.locals.runtime` provided access to Cloudflare-specific APIs. These APIs have now moved to align with Cloudflare's native patterns.
 
 #### What should I do?
 
-Update occurrences of `Astro.locals.runtime` as shown below:
+Update occurrences of `Astro.locals.runtime`:
 
-- `Astro.locals.runtime` no longer contains the `env` object. Instead, import it directly:
-  ```js
-  import { env } from 'cloudflare:workers';
-  ```
+- `Astro.locals.runtime.env` → Import `env` from `cloudflare:workers`
+- `Astro.locals.runtime.cf` → Access via `Astro.request.cf`
+- `Astro.locals.runtime.caches` → Use the global `caches` object
+- `Astro.locals.runtime` (for `ExecutionContext`) → Use `Astro.locals.cfContext`
 
-- `Astro.locals.runtime` no longer contains the `cf` object. Instead, access it directly from the request:
-  ```js
-  Astro.request.cf
-  ```
+Here's an example showing how to update your code:
 
-- `Astro.locals.runtime` no longer contains the `caches` object. Instead, use the global `caches` object directly:
-  ```js
-  caches.default.put(request, response)
-  ```
+**Before:**
+```astro
+---
+const { env, cf, caches, ctx } = Astro.locals.runtime;
+const value = await env.MY_KV.get('key');
+const country = cf.country;
+await caches.default.put(request, response);
+ctx.waitUntil(promise);
+---
+<h1>Country: {country}</h1>
+```
 
-- `Astro.locals.runtime` object is replaced with `Astro.locals.cfContext` which contains the Cloudflare `ExecutionContext`:
-  ```js
-  const cfContext = Astro.locals.cfContext;
-  ```
+**After:**
+```astro
+---
+import { env } from 'cloudflare:workers';
+
+const value = await env.MY_KV.get('key');
+const country = Astro.request.cf.country;
+await caches.default.put(request, response);
+Astro.locals.cfContext.waitUntil(promise);
+---
+<h1>Country: {country}</h1>
+```
