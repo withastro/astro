@@ -2,8 +2,6 @@
 '@astrojs/cloudflare': minor
 ---
 
-## Optional wrangler configuration
-
 The wrangler configuration file is now optional. If you don't have custom Cloudflare bindings (KV, D1, Durable Objects, etc.), Astro will automatically generate a default configuration for you.
 
 #### What should I do?
