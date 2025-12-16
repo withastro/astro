@@ -250,12 +250,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 												],
 												exclude: [
 													'unstorage/drivers/cloudflare-kv-binding',
-													'astro:toolbar:internal',
-													'virtual:astro:middleware',
-													'virtual:astro:dev-css-all',
-													'virtual:astro:manifest',
-													'virtual:astro:adapter-config/client',
-													'virtual:astro-cloudflare:config',
+													'astro:*',
+													'virtual:astro:*',
+													'virtual:astro-cloudflare:*',
 												],
 											},
 										};
@@ -263,7 +260,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 										return {
 											optimizeDeps: {
 												include: ['astro/runtime/client/dev-toolbar/entrypoint.js'],
-												exclude: ['astro:toolbar:internal'],
+												exclude: ['astro:*'],
 											},
 										};
 									}
