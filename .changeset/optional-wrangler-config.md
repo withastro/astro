@@ -4,7 +4,7 @@
 
 The Wrangler configuration file is now optional. If you don't have custom Cloudflare bindings (KV, D1, Durable Objects, etc.), Astro will automatically generate a default configuration for you.
 
-#### What should I do?
+##### What should I do?
 
 If your `wrangler.jsonc` only contains basic configuration like this:
 
