@@ -338,7 +338,7 @@ Understanding in which environment code runs, and at which stage in the process,
 To make it easier to test code, try decoupling **business logic** from **infrastructure**:
 
 - **Infrastucture** is code that depends on external systems and/or requires aspecial environment to run. For example: DB calls, file system, randomness etc...
-- **Business logic** (or *core logic* or *domain*) is the rest. It's pure logic that's easy to run from anywhere
+- **Business logic** (or *core logic* or *domain*) is the rest. It's pure logic that's easy to run from anywhere.
 
 That means avoiding side-effects by making external dependencies explicit. This often means passing more things as arguments.
 
