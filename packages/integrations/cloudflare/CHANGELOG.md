@@ -1,5 +1,72 @@
 # @astrojs/cloudflare
 
+## 13.0.0-alpha.2
+
+### Major Changes
+
+- [#15037](https://github.com/withastro/astro/pull/15037) [`8641805`](https://github.com/withastro/astro/commit/8641805289d2cd852458b023c83da54bf67cd579) Thanks [@matthewp](https://github.com/matthewp)! - Updates the Wrangler entrypoint
+
+  Previously, the `main` field in `wrangler.jsonc` pointed to the built output, since Wrangler only ran in production after the build completed:
+
+  ```jsonc
+  {
+    "main": "dist/_worker.js/index.js",
+  }
+  ```
+
+  Now that Wrangler runs in both development (via workerd) and production, Astro provides a default entrypoint that works for both scenarios.
+
+  ##### What should I do?
+
+  Update your `wrangler.jsonc` to use the new entrypoint:
+
+  ```jsonc
+  {
+    "main": "@astrojs/cloudflare/entrypoints/server",
+  }
+  ```
+
+  This single entrypoint handles both `astro dev` and production deployments.
+
+### Minor Changes
+
+- [#15037](https://github.com/withastro/astro/pull/15037) [`8641805`](https://github.com/withastro/astro/commit/8641805289d2cd852458b023c83da54bf67cd579) Thanks [@matthewp](https://github.com/matthewp)! - The Wrangler configuration file is now optional. If you don't have custom Cloudflare bindings (KV, D1, Durable Objects, etc.), Astro will automatically generate a default configuration for you.
+
+  ##### What should I do?
+
+  If your `wrangler.jsonc` only contains basic configuration like this:
+
+  ```jsonc
+  {
+    "main": "@astrojs/cloudflare/entrypoints/server",
+    "compatibility_date": "2025-05-21",
+    "assets": {
+      "directory": "./dist",
+      "binding": "ASSETS",
+    },
+  }
+  ```
+
+  You can safely delete the file. Astro will handle this configuration automatically.
+
+  You only need a wrangler config file if you're using:
+  - KV namespaces
+  - D1 databases
+  - Durable Objects
+  - R2 buckets
+  - Environment variables
+  - Custom compatibility flags
+  - Other Cloudflare-specific features
+
+### Patch Changes
+
+- [#15026](https://github.com/withastro/astro/pull/15026) [`90c608c`](https://github.com/withastro/astro/commit/90c608c3f7cd3cb27ae6ec9b98a3ebf274450cc6) Thanks [@matthewp](https://github.com/matthewp)! - Improves prebundling of internal Astro modules
+
+- [#15030](https://github.com/withastro/astro/pull/15030) [`b5aa52b`](https://github.com/withastro/astro/commit/b5aa52bbe74e32956d5dd5757728626fdaa6a02c) Thanks [@ematipico](https://github.com/ematipico)! - Fixed an issue where the feature `experimental.chromeDevtoolsWorkspace` wasn't supported by the new version of the adapter.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 13.0.0-alpha.1
 
 ### Major Changes

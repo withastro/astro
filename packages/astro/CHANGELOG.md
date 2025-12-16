@@ -1,5 +1,15 @@
 # astro
 
+## 6.0.0-alpha.2
+
+### Patch Changes
+
+- [#15024](https://github.com/withastro/astro/pull/15024) [`22c48ba`](https://github.com/withastro/astro/commit/22c48ba6643ed7153400781ca1affb3e8dc1351a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where JSON schema generation would fail for unrepresentable types
+
+- [#15036](https://github.com/withastro/astro/pull/15036) [`f125a73`](https://github.com/withastro/astro/commit/f125a73ebf395d81bf44ccfce4af63a518f6f724) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes certain aliases not working when using images in JSON files with the content layer
+
+- [#15036](https://github.com/withastro/astro/pull/15036) [`f125a73`](https://github.com/withastro/astro/commit/f125a73ebf395d81bf44ccfce4af63a518f6f724) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a vite warning log during builds when using npm
+
 ## 6.0.0-alpha.1
 
 ### Major Changes
