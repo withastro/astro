@@ -3,7 +3,7 @@ import {
 	hasFileExtension,
 	isInternalPath,
 } from '@astrojs/internal-helpers/path';
-import { matchPattern, type RemotePattern } from '../../assets/utils/remotePattern.js';
+import { matchPattern, type RemotePattern } from '@astrojs/internal-helpers/remote';
 import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';

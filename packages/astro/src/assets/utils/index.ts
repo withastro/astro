@@ -5,6 +5,15 @@
  * If some functions don't need to be exposed, just import the file that contains the functions.
  */
 
+export {
+	isRemoteAllowed,
+	matchHostname,
+	matchPathname,
+	matchPattern,
+	matchPort,
+	matchProtocol,
+	type RemotePattern,
+} from '@astrojs/internal-helpers/remote';
 export { isESMImportedImage, isRemoteImage, resolveSrc } from './imageKind.js';
 export { imageMetadata } from './metadata.js';
 export {
@@ -15,14 +24,5 @@ export {
 	emitImageMetadata,
 } from './node/emitAsset.js';
 export { getOrigQueryParams } from './queryParams.js';
-export {
-	isRemoteAllowed,
-	matchHostname,
-	matchPathname,
-	matchPattern,
-	matchPort,
-	matchProtocol,
-	type RemotePattern,
-} from './remotePattern.js';
 export { inferRemoteSize } from './remoteProbe.js';
 export { hashTransform, propsToFilename } from './transformToPath.js';
