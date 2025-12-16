@@ -4,8 +4,6 @@ import type * as vite from 'vite';
 import { isRunnableDevEnvironment, type Plugin, type RunnableDevEnvironment } from 'vite';
 import type { BuildInternals } from '../core/build/internal.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import type { ModuleLoader } from '../core/module-loader/index.js';
-import { createViteLoader } from '../core/module-loader/vite.js';
 import { wrapId } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
 import { isBuildableCSSRequest } from '../vite-plugin-astro-server/util.js';
@@ -27,7 +25,7 @@ export function astroContentAssetPropagationPlugin({
 }: {
 	settings: AstroSettings;
 }): Plugin {
-	let devModuleLoader: ModuleLoader;
+	let environment: RunnableDevEnvironment | undefined = undefined;
 	return {
 		name: 'astro:content-asset-propagation',
 		enforce: 'pre',
@@ -75,10 +73,7 @@ export function astroContentAssetPropagationPlugin({
 			if (!isRunnableDevEnvironment(server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
 				return;
 			}
-			devModuleLoader = createViteLoader(
-				server,
-				server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as RunnableDevEnvironment,
-			);
+			environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as RunnableDevEnvironment;
 		},
 		transform: {
 			filter: {
@@ -91,15 +86,15 @@ export function astroContentAssetPropagationPlugin({
 
 					// We can access the server in dev,
 					// so resolve collected styles and scripts here.
-					if (isAstroServerEnvironment(this.environment) && devModuleLoader) {
-						if (!devModuleLoader.getModuleById(basePath)?.ssrModule) {
-							await devModuleLoader.import(basePath);
+					if (isAstroServerEnvironment(this.environment) && environment) {
+						if (!environment.moduleGraph.getModuleById(basePath)?.ssrModule) {
+							await environment.runner.import(basePath);
 						}
 						const {
 							styles,
 							urls,
 							crawledFiles: styleCrawledFiles,
-						} = await getStylesForURL(basePath, devModuleLoader.getSSREnvironment());
+						} = await getStylesForURL(basePath, environment);
 
 						// Register files we crawled to be able to retrieve the rendered styles and scripts,
 						// as when they get updated, we need to re-transform ourselves.

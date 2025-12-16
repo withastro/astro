@@ -46,6 +46,7 @@ export default defineConfig({
 			provider: fontProviders.google(),
 			name: "Roboto",
 			cssVariable: "--font-roboto"
-		}]
-	}
+		}],
+		chromeDevtoolsWorkspace: true
+	},
 });
