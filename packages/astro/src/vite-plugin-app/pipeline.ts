@@ -12,12 +12,7 @@ import { routeIsRedirect } from '../core/routing/index.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
 import { isPage } from '../core/util.js';
 import { resolveIdToUrl } from '../core/viteUtils.js';
-import type {
-	AstroSettings,
-	ComponentInstance,
-	ImportedDevStyle,
-	RoutesList,
-} from '../types/astro.js';
+import type { AstroSettings, ComponentInstance, RoutesList } from '../types/astro.js';
 import type {
 	DevToolbarMetadata,
 	RewritePayload,
@@ -29,6 +24,7 @@ import type {
 import { getComponentMetadata } from '../vite-plugin-astro-server/metadata.js';
 import { createResolve } from '../vite-plugin-astro-server/resolve.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
+import { getDevCSSModuleName } from '../vite-plugin-css/util.js';
 
 export class AstroServerPipeline extends Pipeline {
 	getName(): string {
@@ -130,19 +126,7 @@ export class AstroServerPipeline extends Pipeline {
 			}
 		}
 
-		const { devCSSMap } = await import('virtual:astro:dev-css-all');
-
-		const importer = devCSSMap.get(routeData.component);
-		let css = new Set<ImportedDevStyle>();
-		if (importer) {
-			const cssModule = await importer();
-			css = cssModule.css;
-		} else {
-			this.logger.warn(
-				'assets',
-				`Unable to find CSS for ${routeData.component}. This is likely a bug in Astro.`,
-			);
-		}
+		const { css } = await loader.import(getDevCSSModuleName(routeData.component));
 
 		// Pass framework CSS in as style tags to be appended to the page.
 		const links = new Set<SSRElement>();
