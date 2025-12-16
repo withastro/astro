@@ -2,6 +2,7 @@ import type { Plugin as VitePlugin } from 'vite';
 import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 
+// This is used by Cloudflare's optimizeDeps
 const VIRTUAL_CLIENT_ID = 'virtual:astro:adapter-config/client';
 const RESOLVED_VIRTUAL_CLIENT_ID = '\0' + VIRTUAL_CLIENT_ID;
 
