@@ -57,13 +57,19 @@ export function pluginComponentEntry(internals: BuildInternals): VitePlugin {
 				});
 			}
 		},
-		async resolveId(id) {
-			if (id.startsWith(astroEntryPrefix)) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${astroEntryPrefix}`),
+			},
+			handler(id) {
 				return id;
-			}
+			},
 		},
-		async load(id) {
-			if (id.startsWith(astroEntryPrefix)) {
+		load: {
+			filter: {
+				id: new RegExp(`^${astroEntryPrefix}`),
+			},
+			async handler(id) {
 				const componentId = id.slice(astroEntryPrefix.length);
 				const exportNames = componentToExportNames.get(componentId);
 				if (exportNames) {
@@ -71,7 +77,7 @@ export function pluginComponentEntry(internals: BuildInternals): VitePlugin {
 						code: `export { ${exportNames.join(', ')} } from ${JSON.stringify(componentId)}`,
 					};
 				}
-			}
+			},
 		},
 	};
 }

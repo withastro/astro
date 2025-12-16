@@ -91,28 +91,32 @@ export function astroContentImportPlugin({
 				// Get symlinks once at build start
 				symlinks = await getSymlinkedContentCollections({ contentDir, logger, fs });
 			},
-			async transform(_, viteId) {
-				if (hasContentFlag(viteId, DATA_FLAG)) {
-					// By default, Vite will resolve symlinks to their targets. We need to reverse this for
-					// content entries, so we can get the path relative to the content directory.
-					const fileId = reverseSymlink({
-						entry: viteId.split('?')[0] ?? viteId,
-						contentDir,
-						symlinks,
-					});
-					// Data collections don't need to rely on the module cache.
-					// This cache only exists for the `render()` function specific to content.
-					const { id, data, collection, _internal } = await getDataEntryModule({
-						fileId,
-						entryConfigByExt: dataEntryConfigByExt,
-						contentDir,
-						config: settings.config,
-						fs,
-						pluginContext: this,
-						shouldEmitFile,
-					});
+			transform: {
+				filter: {
+					id: new RegExp(`(?:\\?|&)(?:${DATA_FLAG}|${CONTENT_FLAG})(?:&|=|$)`),
+				},
+				async handler(_, viteId) {
+					if (hasContentFlag(viteId, DATA_FLAG)) {
+						// By default, Vite will resolve symlinks to their targets. We need to reverse this for
+						// content entries, so we can get the path relative to the content directory.
+						const fileId = reverseSymlink({
+							entry: viteId.split('?')[0] ?? viteId,
+							contentDir,
+							symlinks,
+						});
+						// Data collections don't need to rely on the module cache.
+						// This cache only exists for the `render()` function specific to content.
+						const { id, data, collection, _internal } = await getDataEntryModule({
+							fileId,
+							entryConfigByExt: dataEntryConfigByExt,
+							contentDir,
+							config: settings.config,
+							fs,
+							pluginContext: this,
+							shouldEmitFile,
+						});
 
-					const code = `
+						const code = `
 export const id = ${JSON.stringify(id)};
 export const collection = ${JSON.stringify(collection)};
 export const data = ${stringifyEntryData(data, settings.buildOutput === 'server')};
@@ -122,20 +126,20 @@ export const _internal = {
 	rawData: ${JSON.stringify(_internal.rawData)},
 };
 `;
-					return code;
-				} else if (hasContentFlag(viteId, CONTENT_FLAG)) {
-					const fileId = reverseSymlink({ entry: viteId.split('?')[0], contentDir, symlinks });
-					const { id, slug, collection, body, data, _internal } = await getContentEntryModule({
-						fileId,
-						entryConfigByExt: contentEntryConfigByExt,
-						contentDir,
-						config: settings.config,
-						fs,
-						pluginContext: this,
-						shouldEmitFile,
-					});
+						return code;
+					} else if (hasContentFlag(viteId, CONTENT_FLAG)) {
+						const fileId = reverseSymlink({ entry: viteId.split('?')[0], contentDir, symlinks });
+						const { id, slug, collection, body, data, _internal } = await getContentEntryModule({
+							fileId,
+							entryConfigByExt: contentEntryConfigByExt,
+							contentDir,
+							config: settings.config,
+							fs,
+							pluginContext: this,
+							shouldEmitFile,
+						});
 
-					const code = `
+						const code = `
 						export const id = ${JSON.stringify(id)};
 						export const collection = ${JSON.stringify(collection)};
 						export const slug = ${JSON.stringify(slug)};
@@ -147,8 +151,9 @@ export const _internal = {
 							rawData: ${JSON.stringify(_internal.rawData)},
 						};`;
 
-					return { code, map: { mappings: '' } };
-				}
+						return { code, map: { mappings: '' } };
+					}
+				},
 			},
 			configureServer(viteServer) {
 				viteServer.watcher.on('all', async (event, entry) => {
@@ -200,12 +205,21 @@ export const _internal = {
 	if (settings.contentEntryTypes.some((t) => t.getRenderModule)) {
 		plugins.push({
 			name: 'astro:content-render-imports',
-			async transform(contents, viteId) {
-				const contentRenderer = getContentRendererByViteId(viteId, settings);
-				if (!contentRenderer) return;
+			transform: {
+				filter: {
+					id: {
+						include: settings.contentEntryTypes
+							.filter((t) => t.getRenderModule)
+							.map((t) => new RegExp(`\\.(${t.extensions.map((e) => e.slice(1)).join('|')})$`)),
+					},
+				},
+				async handler(contents, viteId) {
+					const contentRenderer = getContentRendererByViteId(viteId, settings);
+					if (!contentRenderer) return;
 
-				const fileId = viteId.split('?')[0];
-				return contentRenderer.bind(this)({ viteId, contents, fileUrl: pathToFileURL(fileId) });
+					const fileId = viteId.split('?')[0];
+					return contentRenderer.bind(this)({ viteId, contents, fileUrl: pathToFileURL(fileId) });
+				},
 			},
 		});
 	}

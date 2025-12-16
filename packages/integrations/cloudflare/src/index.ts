@@ -216,11 +216,13 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							{
 								name: '@astrojs/cloudflare:cf-imports',
 								enforce: 'pre',
-								resolveId(source) {
-									if (source.startsWith('cloudflare:')) {
-										return { id: source, external: true };
-									}
-									return null;
+								resolveId: {
+									filter: {
+										id: /^cloudflare:/,
+									},
+									handler(id) {
+										return { id, external: true };
+									},
 								},
 							},
 							{

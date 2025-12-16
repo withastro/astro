@@ -1,10 +1,10 @@
 import type * as vite from 'vite';
 import type { AstroSettings } from '../types/astro.js';
 
-const virtualModuleId = 'astro:transitions';
-const resolvedVirtualModuleId = '\0' + virtualModuleId;
-const virtualClientModuleId = 'astro:transitions/client';
-const resolvedVirtualClientModuleId = '\0' + virtualClientModuleId;
+const VIRTUAL_MODULE_ID = 'astro:transitions';
+const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
+const VIRTUAL_CLIENT_MODULE_ID = 'astro:transitions/client';
+const RESOLVED_VIRTUAL_CLIENT_MODULE_ID = '\0' + VIRTUAL_CLIENT_MODULE_ID;
 
 // The virtual module for the astro:transitions namespace
 export default function astroTransitions({ settings }: { settings: AstroSettings }): vite.Plugin {
@@ -17,26 +17,35 @@ export default function astroTransitions({ settings }: { settings: AstroSettings
 				},
 			};
 		},
-		async resolveId(id) {
-			if (id === virtualModuleId) {
-				return resolvedVirtualModuleId;
-			}
-			if (id === virtualClientModuleId) {
-				return resolvedVirtualClientModuleId;
-			}
+		resolveId: {
+			filter: {
+				id: new RegExp(`^(${VIRTUAL_MODULE_ID}|${VIRTUAL_CLIENT_MODULE_ID})$`),
+			},
+			handler(id) {
+				if (id === VIRTUAL_MODULE_ID) {
+					return RESOLVED_VIRTUAL_MODULE_ID;
+				}
+				if (id === VIRTUAL_CLIENT_MODULE_ID) {
+					return RESOLVED_VIRTUAL_CLIENT_MODULE_ID;
+				}
+			},
 		},
-		load(id) {
-			if (id === resolvedVirtualModuleId) {
-				return {
-					code: `
+		load: {
+			filter: {
+				id: new RegExp(`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_VIRTUAL_CLIENT_MODULE_ID})$`),
+			},
+			handler(id) {
+				if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+					return {
+						code: `
 						export * from "astro/virtual-modules/transitions.js";
 						export { default as ClientRouter } from "astro/components/ClientRouter.astro";
 					`,
-				};
-			}
-			if (id === resolvedVirtualClientModuleId) {
-				return {
-					code: `
+					};
+				}
+				if (id === RESOLVED_VIRTUAL_CLIENT_MODULE_ID) {
+					return {
+						code: `
 						export { navigate, supportsViewTransitions, transitionEnabledOnThisPage } from "astro/virtual-modules/transitions-router.js";
 						export * from "astro/virtual-modules/transitions-types.js";
 						export {
@@ -47,14 +56,18 @@ export default function astroTransitions({ settings }: { settings: AstroSettings
 						} from "astro/virtual-modules/transitions-events.js";
 						export { swapFunctions } from "astro/virtual-modules/transitions-swap-functions.js";
 					`,
-				};
-			}
+					};
+				}
+			},
 		},
-		transform(code, id) {
-			if (id.includes('ClientRouter.astro') && id.endsWith('.ts')) {
+		transform: {
+			filter: {
+				id: /ClientRouter\.astro.*\.ts$/,
+			},
+			handler(code) {
 				const prefetchDisabled = settings.config.prefetch === false;
 				return code.replace('__PREFETCH_DISABLED__', JSON.stringify(prefetchDisabled));
-			}
+			},
 		},
 	};
 }

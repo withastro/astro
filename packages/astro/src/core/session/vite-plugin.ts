@@ -14,14 +14,20 @@ export function vitePluginSessionDriver({ settings }: { settings: AstroSettings 
 		name: VIRTUAL_SESSION_DRIVER_ID,
 		enforce: 'pre',
 
-		async resolveId(id) {
-			if (id === VIRTUAL_SESSION_DRIVER_ID) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${VIRTUAL_SESSION_DRIVER_ID}$`),
+			},
+			handler() {
 				return RESOLVED_VIRTUAL_SESSION_DRIVER_ID;
-			}
+			},
 		},
 
-		async load(id) {
-			if (id === RESOLVED_VIRTUAL_SESSION_DRIVER_ID) {
+		load: {
+			filter: {
+				id: new RegExp(`^${RESOLVED_VIRTUAL_SESSION_DRIVER_ID}$`),
+			},
+			async handler() {
 				if (settings.config.session) {
 					let sessionDriver: string;
 					if (settings.config.session.driver === 'fs') {
@@ -51,7 +57,7 @@ export function vitePluginSessionDriver({ settings }: { settings: AstroSettings 
 				} else {
 					return { code: 'export default null;' };
 				}
-			}
+			},
 		},
 	};
 }

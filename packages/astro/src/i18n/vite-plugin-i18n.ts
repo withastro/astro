@@ -3,7 +3,7 @@ import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { AstroSettings } from '../types/astro.js';
 
-const virtualModuleId = 'astro:i18n';
+const VIRTUAL_MODULE_ID = 'astro:i18n';
 
 type AstroInternationalization = {
 	settings: AstroSettings;
@@ -14,13 +14,16 @@ export default function astroInternationalization({
 }: AstroInternationalization): vite.Plugin {
 	const { i18n } = settings.config;
 	return {
-		name: 'astro:i18n',
+		name: VIRTUAL_MODULE_ID,
 		enforce: 'pre',
-		resolveId(id) {
-			if (id === virtualModuleId) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${VIRTUAL_MODULE_ID}$`),
+			},
+			handler() {
 				if (i18n === undefined) throw new AstroError(AstroErrorData.i18nNotEnabled);
 				return this.resolve('astro/virtual-modules/i18n.js');
-			}
+			},
 		},
 	};
 }
