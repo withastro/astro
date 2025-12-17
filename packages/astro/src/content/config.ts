@@ -204,7 +204,7 @@ export function defineCollection<
 			('loadEntry' in config.loader || 'loadCollection' in config.loader)
 		) {
 			throw new AstroUserError(
-				`Live content collections must be defined in "src/live.config.ts" file. Check your collection definitions in "${importerFilename ?? 'your content config file'}" to ensure you are not using a live loader.`,
+				`Live content collections must be defined in "src/live.config.ts" file. Check the loaders used in "${importerFilename ?? 'your content config file'}" to ensure you are not using a live loader to define a build-time content collection.`,
 			);
 		}
 		config.type = CONTENT_LAYER_TYPE;
