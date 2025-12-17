@@ -46,7 +46,7 @@ export async function revalidateRemoteImage(
 		...(revalidationData.etag && { 'If-None-Match': revalidationData.etag }),
 		...(revalidationData.lastModified && { 'If-Modified-Since': revalidationData.lastModified }),
 	};
-	const req = new Request(src, { headers, cache: "no-cache" });
+	const req = new Request(src, { headers, cache: 'no-cache' });
 	const res = await fetch(req);
 
 	// Asset not modified: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/304
