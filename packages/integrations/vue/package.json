@@ -38,7 +38,7 @@
   "dependencies": {
     "@vitejs/plugin-vue": "5.2.4",
     "@vitejs/plugin-vue-jsx": "^4.2.0",
-    "@vue/compiler-sfc": "^3.5.24",
+    "@vue/compiler-sfc": "^3.5.25",
     "vite": "^6.4.1",
     "vite-plugin-vue-devtools": "^7.7.9"
   },
@@ -47,7 +47,7 @@
     "astro-scripts": "workspace:*",
     "cheerio": "1.1.2",
     "linkedom": "^0.18.12",
-    "vue": "^3.5.24"
+    "vue": "^3.5.25"
   },
   "peerDependencies": {
     "astro": "^5.0.0",
