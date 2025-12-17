@@ -32,7 +32,7 @@ export function defaultCloudflareConfig(): PluginConfig['config'] {
 		kv_namespaces: [
 			{
 				binding: 'SESSION',
-				id: 'SESSION',
+				// KV with no binding gets automatically created
 			},
 		],
 	};
