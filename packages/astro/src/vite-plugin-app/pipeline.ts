@@ -26,9 +26,12 @@ import { createResolve } from '../vite-plugin-astro-server/resolve.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getDevCSSModuleName } from '../vite-plugin-css/util.js';
 
-export class AstroServerPipeline extends Pipeline {
+/**
+ * This Pipeline is used when the Vite SSR environment is runnable.
+ */
+export class RunnablePipeline extends Pipeline {
 	getName(): string {
-		return 'AstroServerPipeline';
+		return 'RunnablePipeline';
 	}
 
 	// renderers are loaded on every request,
@@ -63,9 +66,9 @@ export class AstroServerPipeline extends Pipeline {
 			manifest,
 			settings,
 			getDebugInfo,
-		}: Pick<AstroServerPipeline, 'loader' | 'logger' | 'manifest' | 'settings' | 'getDebugInfo'>,
+		}: Pick<RunnablePipeline, 'loader' | 'logger' | 'manifest' | 'settings' | 'getDebugInfo'>,
 	) {
-		const pipeline = new AstroServerPipeline(loader, logger, manifest, settings, getDebugInfo);
+		const pipeline = new RunnablePipeline(loader, logger, manifest, settings, getDebugInfo);
 		pipeline.routesList = manifestData;
 		return pipeline;
 	}

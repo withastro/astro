@@ -1,4 +1,4 @@
-import { setup } from 'virtual:@astrojs/vue/app';
+import { setup } from 'virtual:astro:vue-app';
 import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
 import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';

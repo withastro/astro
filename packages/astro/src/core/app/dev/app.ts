@@ -1,15 +1,17 @@
-import type { RoutesList } from '../../../types/astro.js';
 import type { RouteData } from '../../../types/public/index.js';
 import { MiddlewareNoDataOrNextCalled, MiddlewareNotAResponse } from '../../errors/errors-data.js';
 import { type AstroError, isAstroError } from '../../errors/index.js';
 import type { Logger } from '../../logger/core.js';
 import type { CreateRenderContext, RenderContext } from '../../render-context.js';
-import { isRoute404, isRoute500 } from '../../routing/match.js';
 import { BaseApp, type RenderErrorOptions } from '../base.js';
 import type { SSRManifest } from '../types.js';
-import { DevPipeline } from './pipeline.js';
+import { NonRunnablePipeline } from './pipeline.js';
+import { getCustom404Route, getCustom500Route } from '../../routing/helpers.js';
 
-export class DevApp extends BaseApp<DevPipeline> {
+/**
+ *
+ */
+export class DevApp extends BaseApp<NonRunnablePipeline> {
 	logger: Logger;
 	currentRenderContext: RenderContext | undefined = undefined;
 	constructor(manifest: SSRManifest, streaming = true, logger: Logger) {
@@ -17,8 +19,8 @@ export class DevApp extends BaseApp<DevPipeline> {
 		this.logger = logger;
 	}
 
-	createPipeline(streaming: boolean, manifest: SSRManifest, logger: Logger): DevPipeline {
-		return DevPipeline.create({
+	createPipeline(streaming: boolean, manifest: SSRManifest, logger: Logger): NonRunnablePipeline {
+		return NonRunnablePipeline.create({
 			logger,
 			manifest,
 			streaming,
@@ -85,9 +87,9 @@ export class DevApp extends BaseApp<DevPipeline> {
 		};
 
 		if (status === 404) {
-			const custom400 = getCustom400Route(this.manifestData);
-			if (custom400) {
-				return renderRoute(custom400);
+			const custom404 = getCustom404Route(this.manifestData);
+			if (custom404) {
+				return renderRoute(custom404);
 			}
 		}
 
@@ -100,12 +102,4 @@ export class DevApp extends BaseApp<DevPipeline> {
 			return renderRoute(custom500);
 		}
 	}
-}
-
-function getCustom500Route(manifestData: RoutesList): RouteData | undefined {
-	return manifestData.routes.find((r) => isRoute500(r.route));
-}
-
-function getCustom400Route(manifestData: RoutesList): RouteData | undefined {
-	return manifestData.routes.find((r) => isRoute404(r.route));
 }

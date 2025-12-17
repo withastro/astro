@@ -1,5 +1,7 @@
 import type { RouteData } from '../../types/public/internal.js';
 import type { RouteInfo } from '../app/types.js';
+import type { RoutesList } from '../../types/astro.js';
+import { isRoute404, isRoute500 } from './match.js';
 
 type RedirectRouteData = RouteData & {
 	redirect: string;
@@ -42,4 +44,12 @@ export function getFallbackRoute(route: RouteData, routeList: RouteInfo[]): Rout
 	}
 
 	return fallbackRoute.routeData;
+}
+
+export function getCustom404Route(manifestData: RoutesList): RouteData | undefined {
+	return manifestData.routes.find((r) => isRoute404(r.route));
+}
+
+export function getCustom500Route(manifestData: RoutesList): RouteData | undefined {
+	return manifestData.routes.find((r) => isRoute500(r.route));
 }
