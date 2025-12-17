@@ -3,9 +3,7 @@ import { appendFile, stat } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline/promises';
 import { pathToFileURL } from 'node:url';
-import {
-	removeLeadingForwardSlash,
-} from '@astrojs/internal-helpers/path';
+import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import type {
