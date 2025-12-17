@@ -214,43 +214,58 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 			throw error;
 		}
 
+		const renderRoute = async (routeData: RouteData) => {
+			try {
+				const preloadedComponent = await this.pipeline.getComponentByRoute(routeData);
+				const renderContext = await this.createRenderContext({
+					locals,
+					pipeline: this.pipeline,
+					pathname: this.getPathnameFromRequest(request),
+					skipMiddleware,
+					request,
+					routeData,
+					clientAddress,
+					status,
+					shouldInjectCspMetaTags: false,
+				});
+				renderContext.props.error = error;
+				const response = await renderContext.render(preloadedComponent);
+
+				if (error) {
+					// Log useful information that the custom 500 page may not display unlike the default error overlay
+					this.logger.error('router', (error as AstroError).stack || (error as AstroError).message);
+				}
+
+				return response;
+			} catch (_err) {
+				if (skipMiddleware === false) {
+					return this.renderError(request, {
+						clientAddress: undefined,
+						prerenderedErrorPageFetch: fetch,
+						status: 500,
+						skipMiddleware: true,
+						error: _err,
+					});
+				}
+				// If even skipping the middleware isn't enough to prevent the error, show the dev overlay
+				throw _err;
+			}
+		};
+
+		if (status === 404) {
+			const custom404 = getCustom404Route(this.manifestData);
+			if (custom404) {
+				return renderRoute(custom404);
+			}
+		}
+
 		const custom500 = getCustom500Route(this.manifestData);
+
 		// Show dev overlay
 		if (!custom500) {
 			throw error;
-		}
-
-		try {
-			const filePath500 = new URL(`./${custom500.component}`, this.manifest.rootDir);
-			const preloaded500Component = await this.pipeline.preload(custom500, filePath500);
-			const renderContext = await this.createRenderContext({
-				locals,
-				pipeline: this.pipeline,
-				pathname: this.getPathnameFromRequest(request),
-				skipMiddleware,
-				request,
-				routeData: custom500,
-				clientAddress,
-				status,
-				shouldInjectCspMetaTags: false,
-			});
-			renderContext.props.error = error;
-			const response = await renderContext.render(preloaded500Component);
-			// Log useful information that the custom 500 page may not display unlike the default error overlay
-			this.logger.error('router', (error as AstroError).stack || (error as AstroError).message);
-			return response;
-		} catch (_err) {
-			if (skipMiddleware === false) {
-				return this.renderError(request, {
-					clientAddress: undefined,
-					prerenderedErrorPageFetch: fetch,
-					status: 500,
-					skipMiddleware: true,
-					error: _err,
-				});
-			}
-			// If even skipping the middleware isn't enough to prevent the error, show the dev overlay
-			throw _err;
+		} else {
+			return renderRoute(custom500);
 		}
 	}
 }
