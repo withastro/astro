@@ -83,20 +83,16 @@ export default async function seed() {
 `,
 	CLOUDFLARE_WRANGLER_CONFIG: (name: string) => `\
 {
-	"main": "dist/_worker.js/index.js",
+	"compatibility_date": "2025-05-21",
 	"name": ${JSON.stringify(name)},
-  "compatibility_date": ${JSON.stringify(new Date().toISOString().slice(0, 10))},
-  "compatibility_flags": [
-    "nodejs_compat",
-    "global_fetch_strictly_public"
-  ],
+	"main": "@astrojs/cloudflare/entrypoints/server",
 	"assets": {
-		"binding": "ASSETS",
-		"directory": "./dist"
+		"directory": "./dist",
+		"binding": "ASSETS"
 	},
 	"observability": {
-    "enabled": true
-  }
+		"enabled": true
+	}
 }`,
 	CLOUDFLARE_ASSETSIGNORE: `_worker.js\n_routes.json`,
 };
