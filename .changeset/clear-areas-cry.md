@@ -3,4 +3,4 @@
 'astro': patch
 ---
 
-Removes an exposed internal API of the preview server
+Removes an exposed internal API of the preview server `createCodegenDir`
