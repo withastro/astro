@@ -13,7 +13,7 @@
     "@astrojs/mdx": "^5.0.0-alpha.0",
     "@astrojs/rss": "^4.0.15-alpha.0",
     "@astrojs/sitemap": "^3.6.1-alpha.1",
-    "astro": "workspace:*",
+    "astro": "6.0.0-alpha.2",
     "sharp": "^0.34.3"
   }
 }
