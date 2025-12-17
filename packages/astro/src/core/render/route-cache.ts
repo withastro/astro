@@ -42,7 +42,8 @@ export async function callGetStaticPaths({
 	validateDynamicRouteModule(mod, { ssr, route });
 
 	// No static paths in SSR mode. Return an empty RouteCacheEntry.
-	if (ssr && !route.prerender) {
+	// Also skip for redirect routes with prerender: false - these are handled at runtime.
+	if ((ssr && !route.prerender) || (route.type === 'redirect' && !route.prerender)) {
 		const entry: GetStaticPathsResultKeyed = Object.assign([], { keyed: new Map() });
 		routeCache.set(route, { ...cached, staticPaths: entry });
 		return entry;

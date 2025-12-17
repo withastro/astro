@@ -30,6 +30,11 @@ export function validateDynamicRouteModule(
 		route: RouteData;
 	},
 ) {
+	// Skip validation for redirect routes with prerender: false.
+	// These are handled at runtime and don't need getStaticPaths.
+	if (route.type === 'redirect' && !route.prerender) {
+		return;
+	}
 	if ((!ssr || route.prerender) && !mod.getStaticPaths) {
 		throw new AstroError({
 			...AstroErrorData.GetStaticPathsRequired,
