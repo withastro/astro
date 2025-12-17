@@ -1,4 +1,4 @@
-import { createReadStream, copyFileSync, existsSync, readFileSync } from 'node:fs';
+import { createReadStream, existsSync, readFileSync } from 'node:fs';
 import { appendFile, stat } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline/promises';
@@ -142,14 +142,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	return {
 		name: '@astrojs/cloudflare',
 		hooks: {
-			'astro:config:setup': ({
-				command,
-				config,
-				updateConfig,
-				logger,
-				addWatchFile,
-				createCodegenDir,
-			}) => {
+			'astro:config:setup': ({ command, config, updateConfig, logger, addWatchFile }) => {
 				let session = config.session;
 
 				if (args?.imageService === 'cloudflare-binding') {
@@ -183,14 +176,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				const cfPluginConfig: PluginConfig = { viteEnvironment: { name: 'ssr' } };
 				if (!hasWranglerConfig(config.root)) {
 					cfPluginConfig.config = defaultCloudflareConfig();
-
-					// Copy .dev.vars to codegen dir if it exists
-					const codegenDir = createCodegenDir();
-					const devVarsPath = new URL('.dev.vars', config.root);
-					const devVarsCodegenPath = new URL('.dev.vars', codegenDir);
-					if (existsSync(devVarsPath)) {
-						copyFileSync(devVarsPath, devVarsCodegenPath);
-					}
 				}
 
 				updateConfig({
@@ -241,6 +226,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 													'astro > es-module-lexer',
 													'astro > unstorage',
 													'astro > neotraverse/modern',
+													'astro > piccolore',
 													'astro/app',
 													'astro/compiler-runtime',
 												],
