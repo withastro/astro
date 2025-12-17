@@ -4,10 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { AstroIntegrationLogger } from '../../core/logger/core.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
-import {
-	runHookConfigDone,
-	runHookConfigSetup,
-} from '../../integrations/hooks.js';
+import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import type { PreviewModule, PreviewServer } from '../../types/public/preview.js';
 import { resolveConfig } from '../config/config.js';

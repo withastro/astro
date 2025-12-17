@@ -148,13 +148,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	return {
 		name: '@astrojs/cloudflare',
 		hooks: {
-			'astro:config:setup': ({
-				command,
-				config,
-				updateConfig,
-				logger,
-				addWatchFile,
-			}) => {
+			'astro:config:setup': ({ command, config, updateConfig, logger, addWatchFile }) => {
 				let session = config.session;
 
 				if (args?.imageService === 'cloudflare-binding') {
