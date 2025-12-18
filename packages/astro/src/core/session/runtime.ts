@@ -1,24 +1,16 @@
 import { stringify as rawStringify, unflatten as rawUnflatten } from 'devalue';
-
-import { type BuiltinDriverOptions, createStorage, type Driver, type Storage } from 'unstorage';
-import type {
-	ResolvedSessionConfig,
-	RuntimeMode,
-	SessionConfig,
-	SessionDriverName,
-} from '../types/public/config.js';
-import type { AstroCookieSetOptions, AstroCookies } from './cookies/cookies.js';
-import { SessionStorageInitError, SessionStorageSaveError } from './errors/errors-data.js';
-import { AstroError } from './errors/index.js';
+import type { RuntimeMode } from '../../types/public/config.js';
+import type { AstroCookieSetOptions, AstroCookies } from '../cookies/cookies.js';
+import { SessionStorageInitError, SessionStorageSaveError } from '../errors/errors-data.js';
+import { AstroError } from '../errors/index.js';
+import type { SessionDriverFactory } from './types.js';
+import type { SSRManifestSession } from '../app/types.js';
+import { createStorage, type Storage } from 'unstorage';
 
 export const PERSIST_SYMBOL = Symbol();
 
 const DEFAULT_COOKIE_NAME = 'astro-session';
 const VALID_COOKIE_REGEX = /^[\w-]+$/;
-
-export type SessionDriver<TDriver extends SessionDriverName = any> = (
-	config: SessionConfig<TDriver>['options'],
-) => import('unstorage').Driver;
 
 interface SessionEntry {
 	data: any;
@@ -39,13 +31,11 @@ const stringify: typeof rawStringify = (data, _) => {
 	});
 };
 
-export class AstroSession<TDriver extends SessionDriverName = any> {
+export class AstroSession {
 	// The cookies object.
 	#cookies: AstroCookies;
 	// The session configuration.
-	#config: Omit<ResolvedSessionConfig<TDriver>, 'cookie'> & {
-		driver: NonNullable<ResolvedSessionConfig<TDriver>['driver']>;
-	};
+	#config: Omit<SSRManifestSession, 'cookie'>;
 	// The cookie config
 	#cookieConfig?: AstroCookieSetOptions;
 	// The cookie name
@@ -70,21 +60,24 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 	// preserving in-memory changes and deletions.
 	#partial = true;
 	// The driver factory function provided by the pipeline
-	#driverFactory: SessionDriver | null | undefined;
+	#driverFactory: SessionDriverFactory | null;
 
 	static #sharedStorage = new Map<string, Storage>();
 
-	constructor(
-		cookies: AstroCookies,
-		{
-			cookie: cookieConfig = DEFAULT_COOKIE_NAME,
-			...config
-		}: NonNullable<ResolvedSessionConfig<TDriver>>,
-		runtimeMode?: RuntimeMode,
-		driverFactory?: ((config: SessionConfig<TDriver>['options']) => Driver) | null,
-	) {
-		const { driver } = config;
-		if (!driver) {
+	constructor({
+		cookies,
+		config,
+		runtimeMode,
+		driverFactory,
+		mockStorage,
+	}: {
+		cookies: AstroCookies;
+		config: SSRManifestSession | undefined;
+		runtimeMode: RuntimeMode;
+		driverFactory: SessionDriverFactory | null;
+		mockStorage: Storage | null;
+	}) {
+		if (!config) {
 			throw new AstroError({
 				...SessionStorageInitError,
 				message: SessionStorageInitError.message(
@@ -94,6 +87,7 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 		}
 		this.#cookies = cookies;
 		this.#driverFactory = driverFactory;
+		const { cookie: cookieConfig = DEFAULT_COOKIE_NAME, ...configRest } = config;
 		let cookieConfigObject: AstroCookieSetOptions | undefined;
 		if (typeof cookieConfig === 'object') {
 			const { name = DEFAULT_COOKIE_NAME, ...rest } = cookieConfig;
@@ -109,7 +103,10 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			...cookieConfigObject,
 			httpOnly: true,
 		};
-		this.#config = { ...config, driver };
+		this.#config = configRest;
+		if (mockStorage) {
+			this.#storage = mockStorage;
+		}
 	}
 
 	/**
@@ -427,21 +424,6 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 			return this.#storage!;
 		}
 
-		if (this.#config.driver === 'test') {
-			this.#storage = (this.#config as SessionConfig<'test'>).options.mockStorage;
-			return this.#storage!;
-		}
-		// Use fs-lite rather than fs, because fs can't be bundled. Add a default base path if not provided.
-		if (
-			this.#config.driver === 'fs' ||
-			this.#config.driver === 'fsLite' ||
-			this.#config.driver === 'fs-lite'
-		) {
-			this.#config.options ??= {};
-			this.#config.driver = 'fs-lite';
-			(this.#config.options as BuiltinDriverOptions['fs-lite']).base ??= '.astro/session';
-		}
-
 		// Get the driver factory from the pipeline
 		if (!this.#driverFactory) {
 			throw new AstroError({
@@ -457,7 +439,16 @@ export class AstroSession<TDriver extends SessionDriverName = any> {
 
 		try {
 			this.#storage = createStorage({
-				driver: driver(this.#config.options),
+				driver: {
+					...driver(this.#config.options),
+					// Unused methods
+					hasItem() {
+						return false;
+					},
+					getKeys() {
+						return [];
+					},
+				},
 			});
 			AstroSession.#sharedStorage.set(this.#config.driver, this.#storage);
 			return this.#storage;

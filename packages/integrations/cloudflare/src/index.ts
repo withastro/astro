@@ -19,6 +19,7 @@ import { type ImageService, setImageConfig } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
 import { hasWranglerConfig, defaultCloudflareConfig } from './wrangler.js';
 import { parse } from 'dotenv';
+import { sessionDrivers } from 'astro/config';
 
 export type { Runtime } from './utils/handler.js';
 
@@ -157,12 +158,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					);
 
 					session = {
-						...session,
-						driver: 'cloudflare-kv-binding',
-						options: {
+						driver: sessionDrivers.cloudflareKVBinding({
 							binding: SESSION_KV_BINDING_NAME,
-							...session?.options,
-						},
+						}),
+						cookie: session?.cookie,
+						ttl: session?.ttl,
 					};
 				}
 				const cfPluginConfig: PluginConfig = { viteEnvironment: { name: 'ssr' } };

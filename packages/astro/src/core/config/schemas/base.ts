@@ -13,6 +13,7 @@ import { localFontFamilySchema, remoteFontFamilySchema } from '../../../assets/f
 import { EnvSchema } from '../../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/config.js';
 import { allowedDirectivesSchema, cspAlgorithmSchema, cspHashSchema } from '../../csp/config.js';
+import { SessionSchema } from '../../session/config.js';
 
 // The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
 // Zod's compiled TypeScript would "simplify" certain values to their base representation, causing references
@@ -95,7 +96,6 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		schema: {},
 		validateSecrets: false,
 	},
-	session: undefined,
 	prerenderConflictBehavior: 'warn',
 	experimental: {
 		clientPrerender: false,
@@ -466,30 +466,7 @@ export const AstroConfigSchema = z.object({
 		.strict()
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.env),
-	session: z
-		.object({
-			driver: z.string().optional(),
-			options: z.record(z.string(), z.any()).optional(),
-			cookie: z
-				.object({
-					name: z.string().optional(),
-					domain: z.string().optional(),
-					path: z.string().optional(),
-					maxAge: z.number().optional(),
-					sameSite: z.union([z.enum(['strict', 'lax', 'none']), z.boolean()]).optional(),
-					secure: z.boolean().optional(),
-				})
-				.or(z.string())
-				.transform((val) => {
-					if (typeof val === 'string') {
-						return { name: val };
-					}
-					return val;
-				})
-				.optional(),
-			ttl: z.number().optional(),
-		})
-		.optional(),
+	session: SessionSchema.optional(),
 	prerenderConflictBehavior: z
 		.enum(['error', 'warn', 'ignore'])
 		.optional()

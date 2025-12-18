@@ -6,18 +6,11 @@ import { BlobsServer } from '@netlify/blobs/server';
 import * as devalue from 'devalue';
 import { loadFixture } from '../../../../astro/test/test-utils.js';
 import netlify from '../../dist/index.js';
+import { sessionDrivers } from 'astro/config';
 
 const token = 'mock';
 const siteID = '1';
 const dataDir = '.netlify/sessions';
-const options = {
-	name: 'test',
-	uncachedEdgeURL: `http://localhost:8971`,
-	edgeURL: `http://localhost:8971`,
-	token,
-	siteID,
-	region: 'us-east-1',
-};
 
 describe('Astro.session', () => {
 	describe('Production', () => {
@@ -41,8 +34,15 @@ describe('Astro.session', () => {
 				root: new URL('./fixtures/sessions/', import.meta.url),
 				output: 'server',
 				adapter: netlify(),
-				// @ts-ignore
-				session: { driver: '', options },
+				session: {
+					driver: sessionDrivers.netlifyBlobs({
+						name: 'test',
+						uncachedEdgeURL: `http://localhost:8971`,
+						edgeURL: `http://localhost:8971`,
+						token,
+						siteID,
+					}),
+				},
 			});
 			await fixture.build({});
 			const entryURL = new URL(

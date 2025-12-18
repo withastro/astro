@@ -36,7 +36,7 @@ import { renderRedirect } from './redirects/render.js';
 import { getParams, getProps, type Pipeline, Slots } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
-import { AstroSession } from './session.js';
+import { AstroSession } from './session/runtime.js';
 import { validateAndDecodePathname } from './util/pathname.js';
 
 /**
@@ -139,12 +139,13 @@ export class RenderContext {
 		const cookies = new AstroCookies(request);
 		const session =
 			pipeline.manifest.sessionConfig && pipelineSessionDriver
-				? new AstroSession(
+				? new AstroSession({
 						cookies,
-						pipeline.manifest.sessionConfig,
-						pipeline.runtimeMode,
-						pipelineSessionDriver,
-					)
+						config: pipeline.manifest.sessionConfig,
+						runtimeMode: pipeline.runtimeMode,
+						driverFactory: pipelineSessionDriver,
+						mockStorage: null,
+					})
 				: undefined;
 
 		return new RenderContext(

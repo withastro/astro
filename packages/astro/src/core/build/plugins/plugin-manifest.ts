@@ -35,6 +35,7 @@ import type { BuildInternals } from '../internal.js';
 import { cssOrder, mergeInlineCss } from '../runtime.js';
 import type { StaticBuildOptions } from '../types.js';
 import { makePageDataKey } from './util.js';
+import { sessionConfigToManifest } from '../../session/utils.js';
 
 /**
  * Unified manifest system architecture:
@@ -369,7 +370,7 @@ async function buildManifest(
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		allowedDomains: settings.config.security?.allowedDomains,
 		key: encodedKey,
-		sessionConfig: settings.config.session,
+		sessionConfig: sessionConfigToManifest(settings.config.session),
 		csp,
 		devToolbar: {
 			enabled: false,
