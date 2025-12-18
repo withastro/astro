@@ -7,7 +7,7 @@ import type { AstroIntegration, AstroRenderer, HookParameters } from 'astro';
 import type { EnvironmentOptions, Plugin, UserConfig } from 'vite';
 import type { VitePluginVueDevToolsOptions } from 'vite-plugin-vue-devtools';
 
-const VIRTUAL_MODULE_ID = 'virtual:@astrojs/vue/app';
+const VIRTUAL_MODULE_ID = 'virtual:astro:vue-app';
 const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`;
 
 interface Options extends VueOptions {
@@ -40,7 +40,7 @@ function virtualAppEntrypoint(options?: Options): Plugin {
 	let appEntrypoint: string | undefined;
 
 	return {
-		name: '@astrojs/vue/virtual-app',
+		name: VIRTUAL_MODULE_ID,
 		config(_, { command }) {
 			isBuild = command === 'build';
 		},

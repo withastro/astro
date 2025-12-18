@@ -1,10 +1,10 @@
 import { routeIsRedirect } from '../core/routing/index.js';
 import { routeComparator } from '../core/routing/priority.js';
 import type { RouteData, SSRManifest } from '../types/public/internal.js';
-import type { AstroServerPipeline } from '../vite-plugin-app/pipeline.js';
+import type { RunnablePipeline } from '../vite-plugin-app/pipeline.js';
 
 type GetSortedPreloadedMatchesParams = {
-	pipeline: AstroServerPipeline;
+	pipeline: RunnablePipeline;
 	matches: RouteData[];
 	manifest: SSRManifest;
 };
@@ -25,7 +25,7 @@ export async function getSortedPreloadedMatches({
 }
 
 type PreloadAndSetPrerenderStatusParams = {
-	pipeline: AstroServerPipeline;
+	pipeline: RunnablePipeline;
 	matches: RouteData[];
 	manifest: SSRManifest;
 };

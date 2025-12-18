@@ -55,7 +55,7 @@ export function writeRedirectResponse(
 	res.end();
 }
 
-export async function writeWebResponse(res: http.ServerResponse, webResponse: Response) {
+async function writeWebResponse(res: http.ServerResponse, webResponse: Response) {
 	const { status, headers, body, statusText } = webResponse;
 
 	// Attach any set-cookie headers added via Astro.cookies.set()
