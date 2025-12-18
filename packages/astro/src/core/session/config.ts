@@ -1,7 +1,7 @@
 import z from 'zod/v4';
 
 export const SessionDriverConfigSchema = z.object({
-	options: z.record(z.string(), z.any()).optional(),
+	config: z.record(z.string(), z.any()).optional(),
 	entrypoint: z.union([z.string(), z.instanceof(URL)]),
 });
 
