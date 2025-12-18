@@ -40,7 +40,7 @@ function virtualAppEntrypoint(options?: Options): Plugin {
 	let appEntrypoint: string | undefined;
 
 	return {
-		name: 'virtual:astro:dev-app',
+		name: VIRTUAL_MODULE_ID,
 		config(_, { command }) {
 			isBuild = command === 'build';
 		},
