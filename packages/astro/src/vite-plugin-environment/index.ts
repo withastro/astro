@@ -92,6 +92,7 @@ export function vitePluginEnvironment({
 						// For the dev toolbar
 						'astro > html-escaper',
 					],
+					exclude: ['astro:*', 'virtual:astro:*'],
 					// Astro files can't be rendered on the client
 					entries: [`${srcDirPattern}**/*.{jsx,tsx,vue,svelte,html}`],
 				};
