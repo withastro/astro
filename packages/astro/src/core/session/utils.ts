@@ -4,6 +4,10 @@ import type { SSRManifestSession } from '../app/types.js';
 import type { AstroConfig } from '../../types/public/index.js';
 import { fileURLToPath } from 'node:url';
 
+function isUnstorageDriver(driver: string): driver is keyof typeof builtinDrivers {
+	return driver in builtinDrivers
+}
+
 export function normalizeSessionDriverConfig(
 	driver: string | SessionDriverConfig,
 	/** @deprecated */
@@ -28,9 +32,9 @@ export function normalizeSessionDriverConfig(
 		};
 	}
 
-	if (driver in builtinDrivers) {
+	if (isUnstorageDriver(driver)) {
 		return {
-			entrypoint: builtinDrivers[driver as keyof typeof builtinDrivers],
+			entrypoint: builtinDrivers[driver],
 			options,
 		};
 	}
