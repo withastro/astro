@@ -161,10 +161,12 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 				for (const [name, value] of Object.entries(self.settings.config.server.headers ?? {})) {
 					if (value) incomingResponse.setHeader(name, value);
 				}
+				const clientAddress = incomingRequest.socket.remoteAddress;
 
 				const response = await self.render(request, {
 					locals,
 					routeData: matchedRoute.route,
+					clientAddress,
 				});
 
 				await writeSSRResult(request, response, incomingResponse);
