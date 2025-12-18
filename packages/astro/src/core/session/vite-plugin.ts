@@ -36,22 +36,18 @@ export function vitePluginSessionDriver({ settings }: { settings: AstroSettings 
 					settings.config.session.options,
 				);
 				const importerPath = fileURLToPath(import.meta.url);
-				const resolved = await this.resolve(
-					driver.entrypoint instanceof URL ? fileURLToPath(driver.entrypoint) : driver.entrypoint,
-					importerPath,
-				);
+				const resolved = await this.resolve(driver.entrypoint, importerPath);
 				if (!resolved) {
 					throw new AstroError({
 						...SessionStorageInitError,
 						message: SessionStorageInitError.message(
-							`Failed to resolve session driver: ${driver.name}`,
-							driver.name,
+							`Failed to resolve session driver: ${driver.entrypoint}`,
+							driver.entrypoint,
 						),
 					});
 				}
-				return {
-					code: `import { default as _default } from '${resolved.id}';\nexport * from '${resolved.id}';\nexport default _default;`,
-				};
+
+				return { code: `export * from '${resolved.id}';` };
 			},
 		},
 	};

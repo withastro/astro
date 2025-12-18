@@ -16,6 +16,11 @@ export interface SessionDriverConfig {
 	entrypoint: string | URL;
 }
 
+export interface NormalizedSessionDriverConfig {
+	options: Record<string, any> | undefined;
+	entrypoint: string;
+}
+
 /** @deprecated */
 export type SessionDriverName = keyof BuiltinDriverOptions | (string & {});
 
