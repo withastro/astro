@@ -1353,29 +1353,36 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @name session.driver
-	 * @type {string | undefined}
+	 * @type {SessionDriverConfig | string | undefined}
 	 * @version 5.7.0
 	 * @description
 	 *
-	 * The Unstorage driver to use for session storage.  The [Node](https://docs.astro.build/en/guides/integrations-guide/node/#sessions),
+	 * The driver to use for session storage. The [Node](https://docs.astro.build/en/guides/integrations-guide/node/#sessions),
 	 * [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/#sessions), and
 	 * [Netlify](https://docs.astro.build/en/guides/integrations-guide/netlify/#sessions) adapters automatically configure a default driver for you,
 	 * but you can specify your own if you would prefer or if you are using an adapter that does not provide one.
 	 *
 	 * The value is the "Driver name" from the [Unstorage driver documentation](https://unstorage.unjs.io/drivers).
 	 *
-	 * ```js title="astro.config.mjs" ins={4}
-	 * {
-	 *   adapter: vercel(),
+	 * ```js title="astro.config.mjs" ins={7-9} ins=" sessionDrivers "
+	 * import { defineConfig, sessionDrivers } from 'astro/config'
+	 * import vercel from '@astrojs/vercel'
+	 * 
+	 * export default defineConfig({
+	 *   adapter: vercel()
 	 *   session: {
-	 *     driver: "redis",
-	 *   },
-	 * }
+	 *     driver: sessionDrivers.redis({
+	 *       url: process.env.REDIS_URL
+	 *     }),
+	 *   }
+	 * })
 	 * ```
+	 *
 	 * :::note
 	 * Some drivers may need extra packages to be installed. Some drivers may also require environment variables or credentials to be set. See the [Unstorage documentation](https://unstorage.unjs.io/drivers) for more information.
 	 * :::
 	 *
+	 * The string signature is deprecated.
 	 */
 
 	/**
@@ -1385,6 +1392,10 @@ export interface AstroUserConfig<
 	 * @version 5.7.0
 	 * @default `{}`
 	 * @description
+	 * 
+	 * :::caution[Deprecated]
+	 * This is deprecated and will be removed in a future major version. Instead, pass options to the driver function.
+	 * :::
 	 *
 	 * The driver-specific options to use for session storage. The options depend on the driver you are using. See the [Unstorage documentation](https://unstorage.unjs.io/drivers)
 	 * for more information on the options available for each driver.
