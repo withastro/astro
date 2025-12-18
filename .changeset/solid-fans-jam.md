@@ -7,7 +7,7 @@
 
 Adds new session driver object shape
 
-It is now recommended to specify the session driver as an object:
+For greater flexibility and improved consistency with other Astro code, session drivers are now specified as an object:
 
 ```diff
 -import { defineConfig } from 'astro/config'
@@ -25,3 +25,5 @@ export default defineConfig({
   }
 })
 ```
+
+Specifying the session driver as a string has been deprecated, but will continue to work until this feature is removed completely in a future major version. The object shape is the current recommended and documented way to configure a session driver.
