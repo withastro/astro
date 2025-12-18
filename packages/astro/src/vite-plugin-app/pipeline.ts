@@ -23,8 +23,8 @@ import type {
 } from '../types/public/index.js';
 import { getComponentMetadata } from '../vite-plugin-astro-server/metadata.js';
 import { createResolve } from '../vite-plugin-astro-server/resolve.js';
-import { getDevCSSModuleName } from '../vite-plugin-css/util.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
+import { getDevCSSModuleName } from '../vite-plugin-css/util.js';
 
 export class AstroServerPipeline extends Pipeline {
 	getName(): string {

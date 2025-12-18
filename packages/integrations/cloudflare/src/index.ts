@@ -1,13 +1,9 @@
-import { createReadStream, copyFileSync, existsSync, readFileSync } from 'node:fs';
+import { createReadStream, existsSync, readFileSync } from 'node:fs';
 import { appendFile, stat } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline/promises';
 import { pathToFileURL } from 'node:url';
-import {
-	appendForwardSlash,
-	prependForwardSlash,
-	removeLeadingForwardSlash,
-} from '@astrojs/internal-helpers/path';
+import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import type {
@@ -130,10 +126,6 @@ export type Options = {
 	};
 };
 
-function wrapWithSlashes(path: string): string {
-	return prependForwardSlash(appendForwardSlash(path));
-}
-
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let finalBuildOutput: HookParameters<'astro:config:done'>['buildOutput'];
@@ -149,14 +141,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	return {
 		name: '@astrojs/cloudflare',
 		hooks: {
-			'astro:config:setup': ({
-				command,
-				config,
-				updateConfig,
-				logger,
-				addWatchFile,
-				createCodegenDir,
-			}) => {
+			'astro:config:setup': ({ command, config, updateConfig, logger, addWatchFile }) => {
 				let session = config.session;
 
 				if (args?.imageService === 'cloudflare-binding') {
@@ -189,19 +174,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				const cfPluginConfig: PluginConfig = { viteEnvironment: { name: 'ssr' } };
 				if (!hasWranglerConfig(config.root)) {
 					cfPluginConfig.config = defaultCloudflareConfig();
-
-					// Copy .dev.vars to codegen dir if it exists
-					const codegenDir = createCodegenDir();
-					const devVarsPath = new URL('.dev.vars', config.root);
-					const devVarsCodegenPath = new URL('.dev.vars', codegenDir);
-					if (existsSync(devVarsPath)) {
-						copyFileSync(devVarsPath, devVarsCodegenPath);
-					}
 				}
 
 				updateConfig({
 					build: {
-						client: new URL(`.${wrapWithSlashes(config.base)}`, config.outDir),
+						client: new URL(`./client/`, config.outDir),
 						server: new URL('./_worker.js/', config.outDir),
 						serverEntry: 'index.js',
 						redirects: false,
@@ -247,6 +224,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 													'astro > es-module-lexer',
 													'astro > unstorage',
 													'astro > neotraverse/modern',
+													'astro > piccolore',
 													'astro/app',
 													'astro/compiler-runtime',
 												],
@@ -384,7 +362,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			'astro:build:done': async ({ pages, dir, logger, assets }) => {
 				let redirectsExists = false;
 				try {
-					const redirectsStat = await stat(new URL('./_redirects', _config.outDir));
+					const redirectsStat = await stat(new URL('./_redirects', _config.build.client));
 					if (redirectsStat.isFile()) {
 						redirectsExists = true;
 					}
@@ -395,7 +373,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				const redirects: IntegrationResolvedRoute['segments'][] = [];
 				if (redirectsExists) {
 					const rl = createInterface({
-						input: createReadStream(new URL('./_redirects', _config.outDir)),
+						input: createReadStream(new URL('./_redirects', _config.build.client)),
 						crlfDelay: Number.POSITIVE_INFINITY,
 					});
 
@@ -419,7 +397,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				let routesExists = false;
 				try {
-					const routesStat = await stat(new URL('./_routes.json', _config.outDir));
+					const routesStat = await stat(new URL('./_routes.json', _config.build.client));
 					if (routesStat.isFile()) {
 						routesExists = true;
 					}
@@ -456,7 +434,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				if (!trueRedirects.empty()) {
 					try {
 						await appendFile(
-							new URL('./_redirects', _config.outDir),
+							new URL('./_redirects', _config.build.client),
 							printAsRedirects(trueRedirects),
 						);
 					} catch (_error) {

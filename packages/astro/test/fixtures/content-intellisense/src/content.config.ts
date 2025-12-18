@@ -26,6 +26,12 @@ const dataWithSchemaMisuse = defineCollection({
 	loader: file('src/$schema-misuse.json'),
 	schema: z.object({ value: z.number() }),
 });
+const dataDates = defineCollection({
+	loader: file('src/data-dates.yml'),
+	schema: z.object({
+		date: z.coerce.date()
+	})
+})
 
 export const collections = {
 	"blog-cc": blogCC,
@@ -33,4 +39,5 @@ export const collections = {
 	"data-cl": dataYML,
 	"data-cl-json": dataJSON,
 	"data-schema-misuse": dataWithSchemaMisuse,
+	"data-dates": dataDates
 };

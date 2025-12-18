@@ -11,17 +11,13 @@ export interface PreviewServer {
 export interface PreviewServerParams {
 	outDir: URL;
 	client: URL;
+	server: URL;
 	serverEntrypoint: URL;
 	host: string | undefined;
 	port: number;
 	base: string;
 	logger: AstroIntegrationLogger;
 	headers?: OutgoingHttpHeaders;
-	/**
-	 * DO NOT USE. This is for internal use only and might be removed soon.
-	 * @deprecated
-	 */
-	createCodegenDir: () => URL;
 	root: URL;
 }
 

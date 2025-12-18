@@ -168,22 +168,24 @@ export async function getEntryData<
 					z.string().transform((val) => {
 						// Normalize bare filenames to relative paths for consistent resolution
 						// This ensures bare filenames like "cover.jpg" work the same way as in markdown frontmatter
-						// Skip normalization for:
-						// - Relative paths (./foo, ../foo)
-						// - Absolute paths (/foo)
-						// - URLs (http://...)
-						// - Aliases (~/, @/, etc.)
 						let normalizedPath = val;
-						if (
-							val &&
-							!val.startsWith('./') &&
-							!val.startsWith('../') &&
-							!val.startsWith('/') &&
-							!val.startsWith('~') &&
-							!val.startsWith('@') &&
-							!val.includes('://')
-						) {
-							normalizedPath = `./${val}`;
+
+						// Skip normalization for URLs, absolute paths, and already-relative paths
+						const isUrl = val.includes('://');
+						const isAbsolute = val.startsWith('/');
+						const isRelative = val.startsWith('.');
+
+						if (val && !isUrl && !isAbsolute && !isRelative) {
+							// Check if this is a local file or an alias
+							// Resolve relative to the entry's directory
+							const entryDir = path.dirname(entry._internal.filePath);
+							const resolvedPath = path.resolve(entryDir, val);
+
+							// If the file exists, normalize to relative path
+							// Otherwise keep as-is (likely a Vite alias)
+							if (fsMod.existsSync(resolvedPath)) {
+								normalizedPath = `./${val}`;
+							}
 						}
 						return `${IMAGE_IMPORT_PREFIX}${normalizedPath}`;
 					}),

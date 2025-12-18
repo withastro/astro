@@ -1,9 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { randomUUID } from 'node:crypto';
-import { existsSync } from 'node:fs';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { IncomingMessage } from 'node:http';
-import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { isRunnableDevEnvironment, type RunnableDevEnvironment } from 'vite';
 import { toFallbackType } from '../core/app/common.js';
@@ -23,7 +19,6 @@ import {
 import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
@@ -104,49 +99,6 @@ export default function createVitePluginAstroServer({
 					handle: trailingSlashMiddleware(settings),
 				});
 
-				// Chrome DevTools workspace handler
-				// See https://chromium.googlesource.com/devtools/devtools-frontend/+/main/docs/ecosystem/automatic_workspace_folders.md
-				viteServer.middlewares.use(async function chromeDevToolsHandler(request, response, next) {
-					if (request.url !== '/.well-known/appspecific/com.chrome.devtools.json') {
-						return next();
-					}
-					if (!settings.config.experimental.chromeDevtoolsWorkspace) {
-						// Return early to stop console spam
-						response.writeHead(404);
-						response.end();
-						return;
-					}
-
-					const pluginVersion = '1.1';
-					const cacheDir = settings.config.cacheDir;
-					const configPath = new URL('./chrome-workspace.json', cacheDir);
-
-					if (!existsSync(cacheDir)) {
-						await mkdir(cacheDir, { recursive: true });
-					}
-
-					let config;
-					try {
-						config = JSON.parse(await readFile(configPath, 'utf-8'));
-						// If the cached workspace config was created with a previous version of this plugin,
-						// we throw an error so it gets recreated in the `catch` block below.
-						if (config.version !== pluginVersion) throw new Error('Cached config is outdated.');
-					} catch {
-						config = {
-							workspace: {
-								version: pluginVersion,
-								uuid: randomUUID(),
-								root: fileURLToPath(settings.config.root),
-							},
-						};
-						await writeFile(configPath, JSON.stringify(config));
-					}
-
-					response.setHeader('Content-Type', 'application/json');
-					response.end(JSON.stringify(config));
-					return;
-				});
-
 				// Note that this function has a name so other middleware can find it.
 				viteServer.middlewares.use(async function astroDevHandler(request, response) {
 					if (request.url === undefined || !request.method) {
@@ -160,24 +112,6 @@ export default function createVitePluginAstroServer({
 					});
 				});
 			};
-		},
-	};
-}
-
-export function createVitePluginAstroServerClient(): vite.Plugin {
-	return {
-		name: 'astro:server-client',
-		applyToEnvironment(environment) {
-			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client;
-		},
-		transform: {
-			filter: {
-				id: /vite\/dist\/client\/client\.mjs/,
-			},
-			handler(code) {
-				// Replace the Vite overlay with ours
-				return patchOverlay(code);
-			},
 		},
 	};
 }
