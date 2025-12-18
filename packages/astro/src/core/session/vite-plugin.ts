@@ -47,7 +47,9 @@ export function vitePluginSessionDriver({ settings }: { settings: AstroSettings 
 					});
 				}
 
-				return { code: `export * from '${resolved.id}';` };
+				return {
+					code: `import { default as _default } from '${resolved.id}';\nexport * from '${resolved.id}';\nexport default _default;`,
+				};
 			},
 		},
 	};
