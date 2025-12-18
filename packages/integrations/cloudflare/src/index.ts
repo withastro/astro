@@ -149,17 +149,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					logger.info(
 						`Enabling image processing with Cloudflare Images for production with the "${bindingName}" Images binding.`,
 					);
-					logger.info(
-						`If you see the error "Invalid binding \`${bindingName}\`" in your build output, you need to add the binding to your wrangler config file.`,
-					);
 				}
 
 				if (!session?.driver) {
 					logger.info(
 						`Enabling sessions with Cloudflare KV with the "${SESSION_KV_BINDING_NAME}" KV binding.`,
-					);
-					logger.info(
-						`If you see the error "Invalid binding \`${SESSION_KV_BINDING_NAME}\`" in your build output, you need to add the binding to your wrangler config file.`,
 					);
 
 					session = {
