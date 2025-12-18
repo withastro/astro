@@ -160,7 +160,7 @@ importers:
         specifier: ^3.6.1-alpha.1
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: 6.0.0-alpha.2
+        specifier: ^6.0.0-alpha.2
         version: link:../../packages/astro
       sharp:
         specifier: ^0.34.3
