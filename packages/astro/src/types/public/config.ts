@@ -1362,8 +1362,6 @@ export interface AstroUserConfig<
 	 * [Netlify](https://docs.astro.build/en/guides/integrations-guide/netlify/#sessions) adapters automatically configure a default driver for you,
 	 * but you can specify your own if you would prefer or if you are using an adapter that does not provide one.
 	 *
-	 * The value is the "Driver name" from the [Unstorage driver documentation](https://unstorage.unjs.io/drivers).
-	 *
 	 * ```js title="astro.config.mjs" ins={7-9} ins=" sessionDrivers "
 	 * import { defineConfig, sessionDrivers } from 'astro/config'
 	 * import vercel from '@astrojs/vercel'
@@ -1381,7 +1379,6 @@ export interface AstroUserConfig<
 	 * :::note
 	 * Some drivers may need extra packages to be installed. Some drivers may also require environment variables or credentials to be set. See the [Unstorage documentation](https://unstorage.unjs.io/drivers) for more information.
 	 * :::
-	 *
 	 */
 
 	/**

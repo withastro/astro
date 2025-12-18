@@ -9,6 +9,7 @@ export const SessionSchema = z.object({
 	driver: z.union([
 		z.string().superRefine(() => {
 			console.warn(
+				// TODO: update link to stable docs
 				`Using deprecated \`session.driver\` string signature. Learn how to migrate: https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-session-driver-string-signature`,
 			);
 		}),
