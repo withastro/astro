@@ -9,7 +9,6 @@ const unstorageDrivers = Object.fromEntries(
 		.map(([name, entrypoint]) => [
 			name,
 			(options: any): SessionDriverConfig => ({
-				name,
 				options,
 				entrypoint,
 			}),

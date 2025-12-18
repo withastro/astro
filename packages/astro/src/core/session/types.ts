@@ -10,8 +10,6 @@ export interface SessionDriver {
 export type SessionDriverFactory = (config: Record<string, any> | undefined) => SessionDriver;
 
 export interface SessionDriverConfig {
-	/** Driver name, used to identify the driver internally */
-	name: string;
 	/** Serializable options used by the driver implementation */
 	options?: Record<string, any> | undefined;
 	/** URL, path relative to the root or package import */
