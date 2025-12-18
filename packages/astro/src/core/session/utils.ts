@@ -5,7 +5,7 @@ import type { AstroConfig } from '../../types/public/index.js';
 import { fileURLToPath } from 'node:url';
 
 function isUnstorageDriver(driver: string): driver is keyof typeof builtinDrivers {
-	return driver in builtinDrivers
+	return driver in builtinDrivers;
 }
 
 export function normalizeSessionDriverConfig(

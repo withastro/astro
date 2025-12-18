@@ -1367,7 +1367,7 @@ export interface AstroUserConfig<
 	 * ```js title="astro.config.mjs" ins={7-9} ins=" sessionDrivers "
 	 * import { defineConfig, sessionDrivers } from 'astro/config'
 	 * import vercel from '@astrojs/vercel'
-	 * 
+	 *
 	 * export default defineConfig({
 	 *   adapter: vercel()
 	 *   session: {
@@ -1390,7 +1390,7 @@ export interface AstroUserConfig<
 	 * @version 5.7.0
 	 * @default `{}`
 	 * @description
-	 * 
+	 *
 	 * :::caution[Deprecated]
 	 * This is deprecated and will be removed in a future major version. Instead, pass options to the driver function.
 	 * :::
