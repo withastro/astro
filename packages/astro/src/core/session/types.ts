@@ -42,7 +42,7 @@ export interface BaseSessionConfig {
 }
 
 interface DriverConfig<TDriver extends SessionDriverConfig> extends BaseSessionConfig {
-	/** Config object for a custom session driver */
+	/** Config object for a session driver */
 	driver: TDriver;
 	/** @deprecated Pass options to the driver function directly. This will be removed in Astro 7 */
 	options?: never;
