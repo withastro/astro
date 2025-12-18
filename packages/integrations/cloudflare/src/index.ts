@@ -234,7 +234,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 										return {
 											optimizeDeps: {
 												include: ['astro/runtime/client/dev-toolbar/entrypoint.js'],
-												exclude: ['astro:*'],
 											},
 										};
 									}
