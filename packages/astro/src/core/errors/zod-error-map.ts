@@ -4,6 +4,7 @@ type TypeOrLiteralErrByPathEntry = {
 	code: 'invalid_type' | 'invalid_literal';
 	received: unknown;
 	expected: unknown[];
+	message: string | undefined;
 };
 
 export const errorMap: $ZodErrorMap = (issue) => {
@@ -25,6 +26,7 @@ export const errorMap: $ZodErrorMap = (issue) => {
 						code: unionError.code,
 						received: (unionError as any).received,
 						expected: [unionError.expected],
+						message: unionError.message
 					});
 				}
 			}
@@ -90,6 +92,7 @@ export const errorMap: $ZodErrorMap = (issue) => {
 					code: issue.code,
 					received: typeof issue.input,
 					expected: [issue.expected],
+					message: issue.message
 				}),
 			),
 		};
@@ -100,7 +103,7 @@ export const errorMap: $ZodErrorMap = (issue) => {
 
 const getTypeOrLiteralMsg = (error: TypeOrLiteralErrByPathEntry): string => {
 	// received could be `undefined` or the string `'undefined'`
-	if (typeof error.received === 'undefined' || error.received === 'undefined') return 'Required';
+	if (typeof error.received === 'undefined' || error.received === 'undefined') return error.message ?? 'Required';
 	const expectedDeduped = new Set(error.expected);
 	switch (error.code) {
 		case 'invalid_type':
