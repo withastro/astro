@@ -21,6 +21,7 @@ export function defaultCloudflareConfig(): PluginConfig['config'] {
 		// TODO: better way to handle name, maybe package.json#name ?
 		name: 'test-application',
 		compatibility_date: '2025-05-21',
+		compatibility_flags: ['global_fetch_strictly_public'],
 		main: '@astrojs/cloudflare/entrypoints/server',
 		assets: {
 			directory: './dist',

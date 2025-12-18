@@ -83,7 +83,8 @@ export default async function seed() {
 `,
 	CLOUDFLARE_WRANGLER_CONFIG: (name: string) => `\
 {
-	"compatibility_date": "2025-05-21",
+	"compatibility_date": ${JSON.stringify(new Date().toISOString().slice(0, 10))},
+	"compatibility_flags": ["global_fetch_strictly_public"],
 	"name": ${JSON.stringify(name)},
 	"main": "@astrojs/cloudflare/entrypoints/server",
 	"assets": {
