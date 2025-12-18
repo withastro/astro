@@ -12,7 +12,7 @@ export type SessionDriverFactory = (config: Record<string, any> | undefined) => 
 export interface SessionDriverConfig {
 	/** Serializable options used by the driver implementation */
 	options?: Record<string, any> | undefined;
-	/** URL, path relative to the root or package import */
+	/** URL or package import */
 	entrypoint: string | URL;
 }
 
