@@ -9,21 +9,21 @@ const unstorageDrivers = Object.fromEntries(
 		.map(([name, entrypoint]) => [
 			name,
 			name === 'fs'
-				? (options: any): SessionDriverConfig => ({
+				? (config: any): SessionDriverConfig => ({
 						entrypoint: builtinDrivers.fsLite,
-						options: {
+						config: {
 							base: '.astro/session',
-							...options,
+							...config,
 						},
 					})
-				: (options: any): SessionDriverConfig => ({
+				: (config: any): SessionDriverConfig => ({
 						entrypoint,
-						options,
+						config,
 					}),
 		]),
 ) as unknown as {
 	[K in WithoutDash<keyof BuiltinDriverOptions> & keyof BuiltinDriverOptions]: (
-		options?: BuiltinDriverOptions[K],
+		config?: BuiltinDriverOptions[K],
 	) => SessionDriverConfig;
 };
 

@@ -17,7 +17,7 @@ export function normalizeSessionDriverConfig(
 		return {
 			entrypoint:
 				driver.entrypoint instanceof URL ? fileURLToPath(driver.entrypoint) : driver.entrypoint,
-			options: driver.options,
+			config: driver.config,
 		};
 	}
 
@@ -25,7 +25,7 @@ export function normalizeSessionDriverConfig(
 	if (['fs', 'fs-lite', 'fsLite'].includes(driver)) {
 		return {
 			entrypoint: builtinDrivers.fsLite,
-			options: {
+			config: {
 				base: '.astro/session',
 				...options,
 			},
@@ -35,13 +35,13 @@ export function normalizeSessionDriverConfig(
 	if (isUnstorageDriver(driver)) {
 		return {
 			entrypoint: builtinDrivers[driver],
-			options,
+			config: options,
 		};
 	}
 
 	return {
 		entrypoint: driver,
-		options,
+		config: options,
 	};
 }
 
@@ -56,7 +56,7 @@ export function sessionConfigToManifest(
 
 	return {
 		driver: driver.entrypoint,
-		options: driver.options,
+		options: driver.config,
 		cookie: config.cookie,
 		ttl: config.ttl,
 	};
