@@ -1353,7 +1353,7 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @name session.driver
-	 * @type {SessionDriverConfig | string | undefined}
+	 * @type {SessionDriverConfig | undefined}
 	 * @version 5.7.0
 	 * @description
 	 *
@@ -1382,7 +1382,6 @@ export interface AstroUserConfig<
 	 * Some drivers may need extra packages to be installed. Some drivers may also require environment variables or credentials to be set. See the [Unstorage documentation](https://unstorage.unjs.io/drivers) for more information.
 	 * :::
 	 *
-	 * The string signature is deprecated.
 	 */
 
 	/**
