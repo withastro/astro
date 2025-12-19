@@ -6428,12 +6428,12 @@ importers:
       '@volar/language-service':
         specifier: ~2.4.23
         version: 2.4.23
-      fast-glob:
-        specifier: ^3.2.12
-        version: 3.3.3
       muggle-string:
         specifier: ^0.4.1
         version: 0.4.1
+      tinyglobby:
+        specifier: ^0.2.15
+        version: 0.2.15
       volar-service-css:
         specifier: 0.0.67
         version: 0.0.67(@volar/language-service@2.4.23)
