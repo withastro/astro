@@ -27,6 +27,18 @@ describe(
 			assert.deepEqual(resp.headers.getSetCookie(), ['foo=foo; HttpOnly', 'bar=bar; HttpOnly']);
 		});
 
+		it('Can set partitioned cookie', async () => {
+			const entryURL = new URL(
+				'./fixtures/cookies/.netlify/v1/functions/ssr/ssr.mjs',
+				import.meta.url,
+			);
+			const { default: handler } = await import(entryURL);
+			const resp = await handler(new Request('http://example.com/partitioned'), {});
+			assert.equal(resp.status, 200);
+			const cookie = resp.headers.getSetCookie()[0];
+			assert.ok(cookie.includes('Partitioned'), 'Cookie should include Partitioned attribute');
+		});
+
 		it('renders dynamic 404 page', async () => {
 			const entryURL = new URL(
 				'./fixtures/cookies/.netlify/v1/functions/ssr/ssr.mjs',
