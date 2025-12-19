@@ -90,7 +90,7 @@ export type ImageTransform = {
 	fit?: ImageFit | undefined;
 	position?: string | undefined;
 	[key: string]: any;
-};
+} & Astro.CustomImageProps;
 
 export interface GetImageResult {
 	rawOptions: ImageTransform;
@@ -231,7 +231,8 @@ type ImageSharedProps<T> = T & {
 				fit?: never;
 				position?: never;
 		  }
-	);
+	) &
+	Astro.CustomImageProps;
 
 export type LocalImageProps<T> = ImageSharedProps<T> & {
 	/**
