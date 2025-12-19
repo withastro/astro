@@ -20,7 +20,7 @@ import {
 	responseSentSymbol,
 } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
-import { AstroError, AstroErrorData } from '../errors/index.js';
+import { AstroError, AstroErrorData, isAstroError } from '../errors/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { AstroIntegrationLogger, Logger } from '../logger/core.js';
 import { type CreateRenderContext, RenderContext } from '../render-context.js';
@@ -30,6 +30,8 @@ import { matchRoute } from '../routing/match.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
+import { MiddlewareNoDataOrNextCalled, MiddlewareNotAResponse } from '../errors/errors-data.js';
+import { getCustom404Route, getCustom500Route } from '../routing/helpers.js';
 
 export interface DevMatch {
 	routeData: RouteData;
@@ -385,6 +387,14 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			if (typeof locals !== 'object') {
 				const error = new AstroError(AstroErrorData.LocalsNotAnObject);
 				this.logger.error(null, error.stack!);
+				if (import.meta.env.DEV) {
+					return this.renderDevError(request, {
+						status: 500,
+						error,
+						clientAddress,
+						prerenderedErrorPageFetch: prerenderedErrorPageFetch,
+					});
+				}
 				return this.renderError(request, {
 					status: 500,
 					error,
@@ -417,6 +427,13 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		if (!routeData) {
 			this.logger.debug('router', "Astro hasn't found routes that match " + request.url);
 			this.logger.debug('router', "Here's the available routes:\n", this.manifestData);
+			if (import.meta.env.DEV) {
+				return this.renderDevError(request, {
+					status: 404,
+					clientAddress,
+					prerenderedErrorPageFetch: prerenderedErrorPageFetch,
+				});
+			}
 			return this.renderError(request, {
 				locals,
 				status: 404,
@@ -445,6 +462,15 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			response = await renderContext.render(componentInstance);
 		} catch (err: any) {
 			this.logger.error(null, err.stack || err.message || String(err));
+			if (import.meta.env.DEV) {
+				return this.renderDevError(request, {
+					locals,
+					status: 500,
+					error: err,
+					clientAddress,
+					prerenderedErrorPageFetch: prerenderedErrorPageFetch,
+				});
+			}
 			return this.renderError(request, {
 				locals,
 				status: 500,
@@ -463,6 +489,17 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			response.body === null &&
 			response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 		) {
+			if (import.meta.env.DEV) {
+				return this.renderDevError(request, {
+					locals,
+					// We don't have an error to report here. Passing null means we pass nothing intentionally
+					// while undefined means there's no error
+					status: response.status as 404 | 500,
+					error: response.status === 500 ? null : undefined,
+					clientAddress,
+					prerenderedErrorPageFetch: prerenderedErrorPageFetch,
+				});
+			}
 			return this.renderError(request, {
 				locals,
 				response,
@@ -568,14 +605,25 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			} catch {
 				// Middleware may be the cause of the error, so we try rendering 404/500.astro without it.
 				if (skipMiddleware === false) {
-					return this.renderError(request, {
-						locals,
-						status,
-						response: originalResponse,
-						skipMiddleware: true,
-						clientAddress,
-						prerenderedErrorPageFetch,
-					});
+					if (import.meta.env.DEV) {
+						return this.renderDevError(request, {
+							locals,
+							status,
+							response: originalResponse,
+							skipMiddleware: true,
+							clientAddress,
+							prerenderedErrorPageFetch,
+						});
+					} else {
+						return this.renderError(request, {
+							locals,
+							status,
+							response: originalResponse,
+							skipMiddleware: true,
+							clientAddress,
+							prerenderedErrorPageFetch,
+						});
+					}
 				}
 			} finally {
 				await session?.[PERSIST_SYMBOL]();
@@ -587,6 +635,81 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		return response;
 	}
 
+	/**
+	 * Renders an error page during development. Differently form `BaseApp.renderError`,
+	 * this implementation tries to provide a different experience for the developer when
+	 * running the development server.
+	 *
+	 * For example, in dev we want to show the error overlay, so we rethrow the error.
+	 */
+	public async renderDevError(
+		request: Request,
+		{ locals, skipMiddleware = false, error, clientAddress, status }: RenderErrorOptions,
+	): Promise<Response> {
+		// we always throw when we have Astro errors around the middleware
+		if (
+			isAstroError(error) &&
+			[MiddlewareNoDataOrNextCalled.name, MiddlewareNotAResponse.name].includes(error.name)
+		) {
+			throw error;
+		}
+
+		const renderRoute = async (routeData: RouteData) => {
+			try {
+				const preloadedComponent = await this.pipeline.getComponentByRoute(routeData);
+				const renderContext = await this.createRenderContext({
+					locals,
+					pipeline: this.pipeline,
+					pathname: this.getPathnameFromRequest(request),
+					skipMiddleware,
+					request,
+					routeData,
+					clientAddress,
+					status,
+					shouldInjectCspMetaTags: false,
+				});
+				renderContext.props.error = error;
+				const response = await renderContext.render(preloadedComponent);
+
+				if (error) {
+					// Log useful information that the custom 500 page may not display unlike the default error overlay
+					this.logger.error('router', (error as AstroError).stack || (error as AstroError).message);
+				}
+
+				return response;
+			} catch (_err) {
+				if (skipMiddleware === false) {
+					// It's fine to use the error here because because we don't need to
+					// handle special cases.
+					return this.renderError(request, {
+						clientAddress: undefined,
+						prerenderedErrorPageFetch: fetch,
+						status: 500,
+						skipMiddleware: true,
+						error: _err,
+					});
+				}
+				// If even skipping the middleware isn't enough to prevent the error, show the dev overlay
+				throw _err;
+			}
+		};
+
+		if (status === 404) {
+			const custom404 = getCustom404Route(this.manifestData);
+			if (custom404) {
+				return renderRoute(custom404);
+			}
+		}
+
+		const custom500 = getCustom500Route(this.manifestData);
+
+		// Show dev overlay
+		if (!custom500) {
+			throw error;
+		} else {
+			return renderRoute(custom500);
+		}
+	}
 	private mergeResponses(
 		newResponse: Response,
 		originalResponse?: Response,
