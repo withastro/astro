@@ -38,7 +38,9 @@ describe('Content Collections - error map', () => {
 			z.union([z.boolean(), z.number()]),
 			'not a boolean or a number, oops!',
 		);
-		assert.deepEqual(messages(error), [fixLineEndings('Did not match union.\n> Expected type `"boolean"`, received `"string"`')]);
+		assert.deepEqual(messages(error), [
+			fixLineEndings('Did not match union.\n> Expected type `"boolean"`, received `"string"`'),
+		]);
 	});
 	it('Returns formatted error for union mismatch on nested object properties', () => {
 		const error = getParseError(
@@ -52,9 +54,13 @@ describe('Content Collections - error map', () => {
 			]),
 			{ type: 'integration-guide' },
 		);
-		assert.deepEqual(messages(error), [fixLineEndings('Did not match union.\n' +
-    '> Expected type `"tutorial" | "article"`\n' +
-    '> Received `{ "type": "integration-guide" }`')]);
+		assert.deepEqual(messages(error), [
+			fixLineEndings(
+				'Did not match union.\n' +
+					'> Expected type `"tutorial" | "article"`\n' +
+					'> Received `{ "type": "integration-guide" }`',
+			),
+		]);
 	});
 	it('Lets unhandled errors fall through', () => {
 		const error = getParseError(
