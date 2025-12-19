@@ -1,0 +1,227 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import Header from '../../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { getReadingTime, formatReadingTime } from '../../utils/readingTime';
+
+const posts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+// Get all unique tags and categories
+const allTags = [...new Set(posts.flatMap(post => post.data.tags || []))].sort();
+const allCategories = [...new Set(posts.map(post => post.data.category).filter(Boolean))].sort();
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`Blog - ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+	</head>
+	<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
+		<Header />
+		
+		<!-- Blog Header -->
+		<section class="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 py-16">
+			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+				<h1 class="text-4xl sm:text-5xl font-bold mb-4">Blog</h1>
+				<p class="text-xl text-gray-600 dark:text-gray-300">
+					Thoughts, stories, and ideas
+				</p>
+				
+				<!-- Search Bar -->
+				<div class="mt-8 max-w-2xl mx-auto">
+					<div class="relative">
+						<input 
+							type="text" 
+							id="search-input"
+							placeholder="Search posts..." 
+							class="w-full px-5 py-3 pl-12 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-blue-500 dark:focus:border-blue-400 focus:outline-none transition-colors"
+						/>
+						<svg class="absolute left-4 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+						</svg>
+					</div>
+				</div>
+
+				<!-- Tag Filter -->
+				{allTags.length > 0 && (
+					<div class="mt-6 flex flex-wrap justify-center gap-2">
+						<button 
+							data-filter="all" 
+							class="tag-filter px-4 py-2 rounded-full text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors active"
+						>
+							All Posts
+						</button>
+						{allTags.map(tag => (
+							<button 
+								data-filter={tag.toLowerCase()} 
+								class="tag-filter px-4 py-2 rounded-full text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-gray-600 transition-colors"
+							>
+								#{tag}
+							</button>
+						))}
+					</div>
+				)}
+			</div>
+		</section>
+
+		<!-- Blog Grid -->
+		<main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+			<div id="posts-container" class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+				{posts.map(async (post) => {
+					const readingTime = getReadingTime(post.body);
+					const postTags = (post.data.tags || []).map(tag => tag.toLowerCase()).join(',');
+					
+					return (
+					<article class="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden group flex flex-col post-card" data-title={post.data.title.toLowerCase()} data-description={post.data.description?.toLowerCase()} data-tags={postTags}>
+						<a href={`/blog/${post.id}/`} class="block flex-1 flex flex-col">
+							{post.data.heroImage && (
+								<div class="overflow-hidden h-48">
+									<Image 
+										width={720} 
+										height={360} 
+										src={post.data.heroImage} 
+										alt={post.data.title}
+										class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+									/>
+								</div>
+							)}
+							<div class="p-6 flex-1 flex flex-col">
+								<div class="flex items-center gap-2 mb-3 flex-wrap">
+									<time class="text-sm text-gray-500 dark:text-gray-400">
+										<FormattedDate date={post.data.pubDate} />
+									</time>
+									<span class="text-sm text-gray-500 dark:text-gray-400">•</span>
+									<span class="text-sm text-gray-500 dark:text-gray-400">
+										{formatReadingTime(readingTime)}
+									</span>
+									{post.data.category && (
+										<>
+											<span class="text-sm text-gray-500 dark:text-gray-400">•</span>
+											<span class="px-2 py-1 text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full">
+												{post.data.category}
+											</span>
+										</>
+									)}
+								</div>
+								<h2 class="text-xl font-bold mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
+									{post.data.title}
+								</h2>
+								{post.data.description && (
+									<p class="text-gray-600 dark:text-gray-300 line-clamp-3 flex-1 mb-3">
+										{post.data.description}
+									</p>
+								)}
+								
+								{/* Tags */}
+								{post.data.tags && post.data.tags.length > 0 && (
+									<div class="flex flex-wrap gap-2 mb-4">
+										{post.data.tags.slice(0, 3).map(tag => (
+											<span class="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md">
+												#{tag}
+											</span>
+										))}
+									</div>
+								)}
+								
+								<div class="mt-auto flex items-center text-blue-600 dark:text-blue-400 font-medium group-hover:gap-2 transition-all">
+									Read more
+									<svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+									</svg>
+								</div>
+							</div>
+						</a>
+					</article>
+					);
+				})}
+			</div>
+			
+			<!-- No results message -->
+			<div id="no-results" class="hidden text-center py-16">
+				<svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+				</svg>
+				<p class="text-xl text-gray-600 dark:text-gray-400">No posts found</p>
+				<p class="text-gray-500 dark:text-gray-500 mt-2">Try searching for something else</p>
+			</div>
+		</main>
+		
+		<Footer />
+
+		<script>
+			// Search functionality
+			const searchInput = document.getElementById('search-input') as HTMLInputElement;
+			const postsContainer = document.getElementById('posts-container');
+			const noResults = document.getElementById('no-results');
+			const postCards = document.querySelectorAll('.post-card') as NodeListOf<HTMLElement>;
+			const tagFilters = document.querySelectorAll('.tag-filter') as NodeListOf<HTMLButtonElement>;
+			
+			let currentTag = 'all';
+			let currentSearch = '';
+
+			// Tag filter functionality
+			tagFilters.forEach(button => {
+				button.addEventListener('click', () => {
+					currentTag = button.dataset.filter || 'all';
+					
+					// Update button styles
+					tagFilters.forEach(btn => {
+						if (btn.dataset.filter === currentTag) {
+							btn.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+							btn.classList.add('bg-blue-600', 'text-white', 'active');
+						} else {
+							btn.classList.remove('bg-blue-600', 'text-white', 'active');
+							btn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+						}
+					});
+					
+					filterPosts();
+				});
+			});
+
+			// Search functionality
+			searchInput?.addEventListener('input', (e) => {
+				currentSearch = (e.target as HTMLInputElement).value.toLowerCase();
+				filterPosts();
+			});
+			
+			function filterPosts() {
+				let visibleCount = 0;
+
+				postCards.forEach((card) => {
+					const title = card.dataset.title || '';
+					const description = card.dataset.description || '';
+					const tags = card.dataset.tags || '';
+					
+					// Check search match
+					const matchesSearch = !currentSearch || 
+						title.includes(currentSearch) || 
+						description.includes(currentSearch);
+					
+					// Check tag match
+					const matchesTag = currentTag === 'all' || 
+						tags.split(',').includes(currentTag);
+					
+					if (matchesSearch && matchesTag) {
+						card.style.display = '';
+						visibleCount++;
+					} else {
+						card.style.display = 'none';
+					}
+				});
+
+				if (visibleCount === 0) {
+					noResults?.classList.remove('hidden');
+				} else {
+					noResults?.classList.add('hidden');
+				}
+			}
+		</script>
+	</body>
+</html>

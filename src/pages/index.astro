@@ -1,0 +1,154 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { getCollection } from 'astro:content';
+import { getReadingTime, formatReadingTime } from '../utils/readingTime';
+
+const posts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+).slice(0, 3);
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+	</head>
+	<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
+		<Header />
+		
+		<!-- Hero Section -->
+		<section class="relative bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-20 sm:py-32">
+			<div class="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
+			<div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div class="text-center">
+					<h1 class="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6">
+						Welcome to
+						<span class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+							{SITE_TITLE}
+						</span>
+					</h1>
+					<p class="text-xl sm:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
+						{SITE_DESCRIPTION}
+					</p>
+					<div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+						<a href="/blog" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200">
+							Read the Blog
+						</a>
+						<a href="/about" class="px-8 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-semibold rounded-lg shadow-lg hover:shadow-xl border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transform hover:-translate-y-1 transition-all duration-200">
+							Learn More
+						</a>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Features Section -->
+		<section class="py-16 bg-white dark:bg-gray-900">
+			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+				<h2 class="text-3xl font-bold text-center mb-12">Features</h2>
+				<div class="grid md:grid-cols-3 gap-8">
+					<div class="p-6 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-800 dark:to-gray-700 hover:shadow-lg transition-shadow">
+						<div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mb-4">
+							<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+							</svg>
+						</div>
+						<h3 class="text-xl font-semibold mb-2">Lightning Fast</h3>
+						<p class="text-gray-600 dark:text-gray-300">Built with Astro for optimal performance and 100/100 Lighthouse scores.</p>
+					</div>
+					
+					<div class="p-6 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 dark:from-gray-800 dark:to-gray-700 hover:shadow-lg transition-shadow">
+						<div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mb-4">
+							<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+							</svg>
+						</div>
+						<h3 class="text-xl font-semibold mb-2">SEO Optimized</h3>
+						<p class="text-gray-600 dark:text-gray-300">SEO-friendly with canonical URLs, OpenGraph data, and sitemap support.</p>
+					</div>
+					
+					<div class="p-6 rounded-xl bg-gradient-to-br from-pink-50 to-pink-100 dark:from-gray-800 dark:to-gray-700 hover:shadow-lg transition-shadow">
+						<div class="w-12 h-12 bg-pink-600 rounded-lg flex items-center justify-center mb-4">
+							<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+							</svg>
+						</div>
+						<h3 class="text-xl font-semibold mb-2">MDX Support</h3>
+						<p class="text-gray-600 dark:text-gray-300">Write content in Markdown with full MDX component support.</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Latest Posts Section -->
+		<section class="py-16 bg-gray-50 dark:bg-gray-800">
+			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div class="flex justify-between items-center mb-12">
+					<h2 class="text-3xl font-bold">Latest Posts</h2>
+					<a href="/blog" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+						View all posts →
+					</a>
+				</div>
+				<div class="grid md:grid-cols-3 gap-8">
+					{posts.map((post) => {
+						const readingTime = getReadingTime(post.body);
+						return (
+						<article class="bg-white dark:bg-gray-900 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group">
+							<a href={`/blog/${post.id}/`} class="block">
+								{post.data.heroImage && (
+									<img 
+										src={post.data.heroImage} 
+										alt={post.data.title}
+										class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+									/>
+								)}
+								<div class="p-6">
+									<div class="flex items-center gap-2 mb-2 flex-wrap text-sm text-gray-500 dark:text-gray-400">
+										<time>
+											{post.data.pubDate.toLocaleDateString('en-us', {
+												year: 'numeric',
+												month: 'short',
+												day: 'numeric',
+											})}
+										</time>
+										<span>•</span>
+										<span>{formatReadingTime(readingTime)}</span>
+										{post.data.category && (
+											<>
+												<span>•</span>
+												<span class="px-2 py-1 text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full">
+													{post.data.category}
+												</span>
+											</>
+										)}
+									</div>
+									<h3 class="text-xl font-bold mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+										{post.data.title}
+									</h3>
+									<p class="text-gray-600 dark:text-gray-300 line-clamp-3 mb-3">
+										{post.data.description}
+									</p>
+									{post.data.tags && post.data.tags.length > 0 && (
+										<div class="flex flex-wrap gap-2">
+											{post.data.tags.slice(0, 3).map(tag => (
+												<span class="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md">
+													#{tag}
+												</span>
+											))}
+										</div>
+									)}
+								</div>
+							</a>
+						</article>
+						);
+					})}
+				</div>
+			</div>
+		</section>
+
+		<Footer />
+	</body>
+</html>
