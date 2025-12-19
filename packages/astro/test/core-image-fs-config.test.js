@@ -37,7 +37,7 @@ describe('Image optimization with Vite fs config', () => {
 			const outsidePath = fileURLToPath(
 				new URL('./fixtures/core-image-fs-config/outside/penguin-outside.jpg', import.meta.url)
 			);
-			const fsUrl = '/@fs' + outsidePath;
+			const fsUrl = '/@fs/' + outsidePath.replace(/\\/g, '/');
 			
 			// Try to load the image via the /_image endpoint
 			const imageUrl = `/_image?href=${encodeURIComponent(fsUrl)}&f=webp&w=300&h=200`;
@@ -52,7 +52,7 @@ describe('Image optimization with Vite fs config', () => {
 			const deniedPath = fileURLToPath(
 				new URL('./fixtures/core-image-fs-config-outside-denied/penguin-denied.jpg', import.meta.url)
 			);
-			const fsUrl = '/@fs' + deniedPath;
+			const fsUrl = '/@fs/' + deniedPath.replace(/\\/g, '/');
 			
 			// Try to load the image via the /_image endpoint
 			const imageUrl = `/_image?href=${encodeURIComponent(fsUrl)}&f=webp&w=300&h=200`;
@@ -68,7 +68,7 @@ describe('Image optimization with Vite fs config', () => {
 			const projectPath = fileURLToPath(
 				new URL('./fixtures/core-image-fs-config/src/sibling/penguin-sibling.jpg', import.meta.url)
 			);
-			const fsUrl = '/@fs' + projectPath;
+			const fsUrl = '/@fs/' + projectPath.replace(/\\/g, '/');
 			
 			// Try to load the image via the /_image endpoint
 			const imageUrl = `/_image?href=${encodeURIComponent(fsUrl)}&f=webp&w=300&h=200`;
