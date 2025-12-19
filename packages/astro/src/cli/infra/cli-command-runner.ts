@@ -16,8 +16,9 @@ export class CliCommandRunner implements CommandRunner {
 		command: T,
 		...args: Parameters<T['run']>
 	): ReturnType<T['run']> | undefined {
-		if (this.#helpDisplay.shouldFire()) {
-			this.#helpDisplay.show(command.help);
+		if (this.#helpDisplay.shouldFire() || command.showHelp?.(...args)) {
+			const help = typeof command.help === 'function' ? command.help(...args) : command.help;
+			this.#helpDisplay.show(help);
 			return;
 		}
 		return command.run(...args);
