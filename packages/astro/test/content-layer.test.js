@@ -434,6 +434,12 @@ describe('Content Layer', () => {
 			);
 		});
 
+		it('warns about duplicate IDs in glob() loader', () => {
+			assert.ok(
+				logs.find((log) => log.level === 'warn' && log.message.includes('Duplicate id "cassini"')),
+			);
+		});
+
 		it("warns about missing files in glob() loader's path", async () => {
 			assert.ok(
 				logs.find((log) => log.level === 'warn' && log.message.includes('No files found matching')),
@@ -579,6 +585,39 @@ describe('Content Layer', () => {
 			assert.ok(updated2.spacecraft.includes('rosalind-franklin'));
 
 			await fixture.resetAllFiles();
+		});
+
+		it('does not warn about duplicate IDs when a file is edited', async () => {
+			logs.length = 0;
+
+			await fixture.editFile('/src/content/space/endeavour.md', (prev) => {
+				return prev.replace('learn about the', 'Learn about the');
+			});
+
+			await fixture.onNextDataStoreChange();
+
+			const duplicateWarning = logs.find((log) => log.message.includes('Duplicate id "endeavour"'));
+			assert.ok(!duplicateWarning, 'Should not warn about duplicate ID when editing same file');
+
+			await fixture.resetAllFiles();
+		});
+
+		it('does not warn about duplicate IDs when a file with a slug is renamed', async () => {
+			logs.length = 0;
+
+			// cassini-2.md has slug: cassini - renaming should not cause duplicate warning
+			const oldPath = new URL('./data/space-probes/cassini-2.md', fixture.config.srcDir);
+			const newPath = new URL('./data/space-probes/cassini-renamed.md', fixture.config.srcDir);
+
+			await fs.rename(oldPath, newPath);
+			await fixture.onNextDataStoreChange();
+
+			try {
+				const duplicateWarning = logs.find((log) => log.message.includes('Duplicate id "cassini"'));
+				assert.ok(!duplicateWarning, 'Should not warn about duplicate ID when renaming file');
+			} finally {
+				await fs.rename(newPath, oldPath);
+			}
 		});
 
 		it('returns an error if we render an undefined entry', async () => {

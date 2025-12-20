@@ -142,14 +142,15 @@ export function glob(globOptions: GlobOptions): Loader {
 					data,
 					filePath,
 				});
+
+				if (existingEntry && existingEntry.filePath !== relativePath) {
+					logger.warn(
+						`Duplicate id "${id}" found in ${filePath}. Later items with the same id will overwrite earlier ones.`,
+					);
+				}
+
 				if (entryType.getRenderFunction) {
 					let render = renderFunctionByContentType.get(entryType);
-
-					if (store.has(id)) {
-						logger.warn(
-							`Duplicate id "${id}" found in ${filePath}. Later items with the same id will overwrite earlier ones.`,
-						);
-					}
 
 					if (!render) {
 						render = await entryType.getRenderFunction(config);
