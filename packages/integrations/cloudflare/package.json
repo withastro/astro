@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/cloudflare",
-  "description": "Deploy your site to Cloudflare Workers/Pages",
+  "description": "Deploy your site to Cloudflare Workers",
   "version": "13.0.0-beta.7",
   "type": "module",
   "types": "./dist/index.d.ts",
