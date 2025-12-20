@@ -5051,15 +5051,6 @@ importers:
         specifier: ^4.1.18
         version: 4.1.18
 
-  packages/integrations/cloudflare/test/fixtures/routes-json:
-    dependencies:
-      '@astrojs/cloudflare':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
-
   packages/integrations/cloudflare/test/fixtures/routing-priority:
     dependencies:
       '@astrojs/cloudflare':
