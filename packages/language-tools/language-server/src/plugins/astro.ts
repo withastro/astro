@@ -129,6 +129,7 @@ function getGlobResultAsCodeLens(globText: string, dir: string, position: Positi
 	const globResult = globSync(globText, {
 		cwd: dir,
 		onlyFiles: true,
+		expandDirectories: false,
 	});
 
 	return {
