@@ -12,7 +12,9 @@ export default defineConfig({
 		sessionKVBindingName: "SESSION"
 	}),
 	build: {
-		inlineStylesheets: 'never'
+		inlineStylesheets: 'never',
+		client: './',
+		server: './_worker.js',
 	},
 	vite: {
 		resolve: {
