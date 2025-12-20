@@ -23,7 +23,7 @@ describe('ExternalImageService', () => {
 
 	it('has correct image service', async () => {
 		const files = await glob('**/image-service*', {
-			cwd: fileURLToPath(new URL('dist/_worker.js', root)),
+			cwd: fileURLToPath(new URL('dist/server', root)),
 			filesOnly: true,
 			absolute: true,
 			flush: true,
