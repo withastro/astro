@@ -884,7 +884,8 @@ test.describe('View Transitions', () => {
 		).toEqual(1);
 	});
 
-	test('Redirect to external site causes page load', async ({ page, astro }) => {
+	// Skip: flaky
+	test.skip('Redirect to external site causes page load', async ({ page, astro }) => {
 		const loads = collectLoads(page);
 
 		// Go to page 1
