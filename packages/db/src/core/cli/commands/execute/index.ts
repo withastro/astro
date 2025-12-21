@@ -15,7 +15,7 @@ import {
 } from '../../../integration/vite-plugin-db.js';
 import { bundleFile, importBundledFile } from '../../../load-file.js';
 import type { DBConfig } from '../../../types.js';
-import { getRemoteDatabaseInfo } from '../../../utils.js';
+import { getRemoteDatabaseInfo, resolveDbAppToken } from '../../../utils.js';
 
 export async function cmd({
 	astroConfig,
@@ -41,9 +41,10 @@ export async function cmd({
 	let virtualModContents: string;
 	if (flags.remote) {
 		const dbInfo = getRemoteDatabaseInfo();
+		const appToken = resolveDbAppToken(flags, dbInfo.token);
 		virtualModContents = getRemoteVirtualModContents({
 			tables: dbConfig.tables ?? {},
-			appToken: flags.token ?? dbInfo.token,
+			appToken,
 			isBuild: false,
 			output: 'server',
 			localExecution: true,

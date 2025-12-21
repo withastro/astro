@@ -14,6 +14,7 @@ export async function cli({
 	// Most commands are `astro db foo`, but for now login/logout
 	// are also handled by this package, so first check if this is a db command.
 	const command = args[2] === 'db' ? args[3] : args[2];
+	validateDbAppTokenFlag(command, flags);
 	const { dbConfig } = await resolveDbConfig(astroConfig);
 
 	switch (command) {
@@ -66,5 +67,16 @@ export async function cli({
 			});
 			return;
 		}
+	}
+}
+
+function validateDbAppTokenFlag(command: string | undefined, flags: Arguments) {
+	if (command !== 'execute' && command !== 'push' && command !== 'verify') return;
+
+	const dbAppToken = (flags as Arguments & { dbAppToken?: unknown }).dbAppToken;
+	if (dbAppToken == null) return;
+	if (typeof dbAppToken !== 'string') {
+		console.error(`Invalid value for --db-app-token; expected a string.`);
+		process.exit(1);
 	}
 }

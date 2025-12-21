@@ -1,5 +1,6 @@
 import type { AstroConfig, AstroIntegration } from 'astro';
 import { loadEnv } from 'vite';
+import type { Arguments } from 'yargs-parser';
 import './types.js';
 
 export type VitePlugin = Required<AstroConfig['vite']>['plugins'][number];
@@ -21,6 +22,16 @@ export function getRemoteDatabaseInfo(): RemoteDatabaseInfo {
 		url: astroEnv.ASTRO_DB_REMOTE_URL,
 		token: astroEnv.ASTRO_DB_APP_TOKEN,
 	};
+}
+
+export function resolveDbAppToken(
+	flags: Arguments,
+	envToken: string | undefined,
+): string | undefined {
+	const dbAppToken = (flags as Arguments & { dbAppToken?: unknown }).dbAppToken;
+	if (typeof dbAppToken === 'string') return dbAppToken;
+
+	return envToken;
 }
 
 export function getDbDirectoryUrl(root: URL | string) {
