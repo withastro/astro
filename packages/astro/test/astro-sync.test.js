@@ -290,7 +290,11 @@ describe('astro sync', () => {
 			await astroFixture.sync({ root: fileURLToPath(astroFixture.config.root), logger });
 
 			const errorLogs = logs.filter((log) => log.level === 'error');
-			assert.equal(errorLogs.length, 0, `Expected no error logs, but got: ${JSON.stringify(errorLogs)}`);
+			assert.equal(
+				errorLogs.length,
+				0,
+				`Expected no error logs, but got: ${JSON.stringify(errorLogs)}`,
+			);
 		});
 	});
 });
