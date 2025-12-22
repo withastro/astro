@@ -195,8 +195,10 @@ class ContentLayer {
 			case 'does-not-exist':
 				// No content config file exists, skip sync silently
 				return;
-			default:
-				// It should have loaded, but didn't for some reason
+			case 'init':
+			case 'loading':
+			case undefined:
+				// Should have loaded by now, but didn't
 				logger.error(
 					`Content config not loaded, skipping sync. Status was ${contentConfig?.status}`,
 				);
