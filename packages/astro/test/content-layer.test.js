@@ -99,7 +99,7 @@ describe('Content Layer', () => {
 		it('handles negative matches in glob() loader', async () => {
 			assert.ok(json.hasOwnProperty('probes'));
 			assert.ok(Array.isArray(json.probes));
-			assert.equal(json.probes.length, 5);
+			assert.equal(json.probes.length, 6);
 			assert.ok(
 				json.probes.every(({ id }) => !id.startsWith('voyager')),
 				'Voyager probes should not be included',
@@ -605,15 +605,17 @@ describe('Content Layer', () => {
 		it('does not warn about duplicate IDs when a file with a slug is renamed', async () => {
 			logs.length = 0;
 
-			// cassini-2.md has slug: cassini - renaming should not cause duplicate warning
-			const oldPath = new URL('./data/space-probes/cassini-2.md', fixture.config.srcDir);
-			const newPath = new URL('./data/space-probes/cassini-renamed.md', fixture.config.srcDir);
+			// dawn.md has slug: dawn-mission - renaming should not cause duplicate warning
+			const oldPath = new URL('./data/space-probes/dawn.md', fixture.config.srcDir);
+			const newPath = new URL('./data/space-probes/dawn-renamed.md', fixture.config.srcDir);
 
 			await fs.rename(oldPath, newPath);
 			await fixture.onNextDataStoreChange();
 
 			try {
-				const duplicateWarning = logs.find((log) => log.message.includes('Duplicate id "cassini"'));
+				const duplicateWarning = logs.find((log) =>
+					log.message.includes('Duplicate id "dawn-mission"'),
+				);
 				assert.ok(!duplicateWarning, 'Should not warn about duplicate ID when renaming file');
 			} finally {
 				await fs.rename(newPath, oldPath);
