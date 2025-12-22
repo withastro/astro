@@ -182,15 +182,25 @@ class ContentLayer {
 			]);
 		}
 
-		if (contentConfig?.status === 'error') {
-			logger.error(`Error loading content config. Skipping sync.\n${contentConfig.error.message}`);
-			return;
-		}
-
-		// It shows as loaded with no collections even if there's no config
-		if (contentConfig?.status !== 'loaded') {
-			logger.error(`Content config not loaded, skipping sync. Status was ${contentConfig?.status}`);
-			return;
+		switch (contentConfig?.status) {
+			case 'loaded':
+				// Proceed with sync
+				break;
+			case 'error':
+				// Log error and skip sync
+				logger.error(
+					`Error loading content config. Skipping sync.\n${contentConfig.error.message}`,
+				);
+				return;
+			case 'does-not-exist':
+				// No content config file exists, skip sync silently
+				return;
+			default:
+				// It should have loaded, but didn't for some reason
+				logger.error(
+					`Content config not loaded, skipping sync. Status was ${contentConfig?.status}`,
+				);
+				return;
 		}
 
 		logger.info('Syncing content');
