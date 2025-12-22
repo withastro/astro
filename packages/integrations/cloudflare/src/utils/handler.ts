@@ -18,6 +18,12 @@ setGetEnv(createGetEnv(globalEnv as Env));
 
 export interface Runtime {
 	cfContext: ExecutionContext;
+	runtime: {
+		get env(): never;
+		get cf(): never;
+		get caches(): never;
+		get ctx(): never;
+	};
 }
 
 declare global {
@@ -58,6 +64,28 @@ export async function handle(
 
 	const locals: Runtime = {
 		cfContext: context,
+		runtime: {
+			get env(): never {
+				throw new Error(
+					`Astro.locals.runtime.env has been removed in Astro v6. Use 'import { env } from "cloudflare:workers"' instead.`,
+				);
+			},
+			get cf(): never {
+				throw new Error(
+					`Astro.locals.runtime.cf has been removed in Astro v6. Use 'Astro.request.cf' instead.`,
+				);
+			},
+			get caches(): never {
+				throw new Error(
+					`Astro.locals.runtime.caches has been removed in Astro v6. Use the global 'caches' object instead.`,
+				);
+			},
+			get ctx(): never {
+				throw new Error(
+					`Astro.locals.runtime.ctx has been removed in Astro v6. Use 'Astro.locals.cfContext' instead.`,
+				);
+			},
+		},
 	};
 
 	const response = await app.render(
