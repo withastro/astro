@@ -21,6 +21,7 @@ import {
 	defaultTSConfig,
 	type frameworkWithTSSettings,
 	presets,
+	type TSConfig,
 	updateTSConfigForFramework,
 } from '../../core/config/tsconfig.js';
 import type { Logger } from '../../core/logger/core.js';
@@ -99,6 +100,11 @@ export default async function seed() {
   }
 }`,
 	CLOUDFLARE_ASSETSIGNORE: `_worker.js\n_routes.json`,
+	CLOUDFLARE_ENV_D_TS: `type Runtime = import('@astrojs/cloudflare').Runtime<Env>;
+
+declare namespace App {
+  interface Locals extends Runtime {}
+}`,
 };
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
@@ -158,6 +164,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 	const logger = createLoggerFromFlags(flags);
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
 	const integrations = await validateIntegrations(integrationNames, flags, logger);
+	const hasCloudflareIntegration = integrations.some((integration) => integration.id === 'cloudflare');
 	let installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logger });
 	const rootPath = resolveRoot(cwd);
 	const root = pathToFileURL(rootPath);
@@ -208,7 +215,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 	switch (installResult) {
 		case UpdateResult.updated: {
-			if (integrations.find((integration) => integration.id === 'cloudflare')) {
+			if (hasCloudflareIntegration) {
 				const wranglerConfigURL = new URL('./wrangler.jsonc', configURL);
 				if (!existsSync(wranglerConfigURL)) {
 					logger.info(
@@ -245,6 +252,68 @@ export async function add(names: string[], { flags }: AddOptions) {
 					}
 				} else {
 					logger.debug('add', `Using existing .assetsignore`);
+				}
+
+				const srcDir = new URL(userConfig.srcDir ?? './src/', root);
+				const envDefinition = new URL('./env.d.ts', srcDir);
+
+				const envDisplayPath = './src/env.d.ts';
+
+				if (!existsSync(envDefinition)) {
+					logger.info(
+						'SKIP_FORMAT',
+						`\n  ${magenta(`Astro will scaffold ${green(envDisplayPath)}.`)}\n`,
+					);
+
+					const envMessage = `\n${boxen(STUBS.CLOUDFLARE_ENV_D_TS, {
+						margin: 0.5,
+						padding: 0.5,
+						borderStyle: 'round',
+						title: envDisplayPath,
+					})}\n`;
+
+					logger.info('SKIP_FORMAT', envMessage);
+
+					if (await askToContinue({ flags, logger })) {
+						if (!existsSync(srcDir)) {
+							await fs.mkdir(srcDir);
+						}
+						await fs.writeFile(envDefinition, STUBS.CLOUDFLARE_ENV_D_TS, 'utf-8');
+					}
+				} else {
+					const envFile = await fs.readFile(envDefinition, 'utf-8');
+
+					if (!envFile.includes(STUBS.CLOUDFLARE_ENV_D_TS)) {
+						logger.info(
+							'SKIP_FORMAT',
+							`\n  ${magenta(`Astro will update ${green(envDisplayPath)}.`)}\n`,
+						);
+
+						const updatedEnv = `${envFile}${envFile.endsWith('\n') ? '' : '\n'}${STUBS.CLOUDFLARE_ENV_D_TS}`;
+						const envDiff = getDiffContent(envFile, updatedEnv);
+
+						if (envDiff) {
+							const envMessage = `\n${boxen(envDiff, {
+								margin: 0.5,
+								padding: 0.5,
+								borderStyle: 'round',
+								title: envDisplayPath,
+							})}\n`;
+
+							logger.info('SKIP_FORMAT', envMessage);
+						}
+
+						if (await askToContinue({ flags, logger })) {
+							const separator = envFile.endsWith('\n') ? '' : '\n';
+							await fs.writeFile(
+								envDefinition,
+								`${envFile}${separator}${STUBS.CLOUDFLARE_ENV_D_TS}`,
+								'utf-8',
+							);
+						}
+					} else {
+						logger.debug('add', `Using existing env.d.ts`);
+					}
 				}
 			}
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
@@ -462,7 +531,9 @@ export async function add(names: string[], { flags }: AddOptions) {
 		}
 	}
 
-	const updateTSConfigResult = await updateTSConfig(cwd, logger, integrations, flags);
+	const updateTSConfigResult = await updateTSConfig(cwd, logger, integrations, flags, {
+		addIncludes: hasCloudflareIntegration ? ['./worker-configuration.d.ts'] : [],
+	});
 
 	switch (updateTSConfigResult) {
 		case UpdateResult.none: {
@@ -913,15 +984,17 @@ async function updateTSConfig(
 	logger: Logger,
 	integrationsInfo: IntegrationInfo[],
 	flags: Flags,
+	options?: { addIncludes?: string[] },
 ): Promise<UpdateResult> {
 	const integrations = integrationsInfo.map(
 		(integration) => integration.id as frameworkWithTSSettings,
 	);
+	const includesToAppend = Array.from(new Set((options?.addIncludes ?? []).filter(Boolean)));
 	const firstIntegrationWithTSSettings = integrations.find((integration) =>
 		presets.has(integration),
 	);
 
-	if (!firstIntegrationWithTSSettings) {
+	if (!firstIntegrationWithTSSettings && includesToAppend.length === 0) {
 		return UpdateResult.none;
 	}
 
@@ -943,10 +1016,13 @@ async function updateTSConfig(
 
 	const configFileName = path.basename(inputConfig.tsconfigFile);
 
-	const outputConfig = updateTSConfigForFramework(
-		inputConfig.rawConfig,
-		firstIntegrationWithTSSettings,
-	);
+	let outputConfig = firstIntegrationWithTSSettings
+		? updateTSConfigForFramework(inputConfig.rawConfig, firstIntegrationWithTSSettings)
+		: { ...inputConfig.rawConfig };
+
+	if (includesToAppend.length > 0) {
+		outputConfig = addIncludesToTSConfig(outputConfig, includesToAppend);
+	}
 
 	const output = JSON.stringify(outputConfig, null, 2);
 	const diff = getDiffContent(inputConfigText, output);
@@ -967,25 +1043,27 @@ async function updateTSConfig(
 		`\n  ${magenta(`Astro will make the following changes to your ${configFileName}:`)}\n${message}`,
 	);
 
-	// Every major framework, apart from Vue and Svelte requires different `jsxImportSource`, as such it's impossible to config
-	// all of them in the same `tsconfig.json`. However, Vue only need `"jsx": "preserve"` for template intellisense which
-	// can be compatible with some frameworks (ex: Solid)
-	const conflictingIntegrations = [...Object.keys(presets).filter((config) => config !== 'vue')];
-	const hasConflictingIntegrations =
-		integrations.filter((integration) => presets.has(integration)).length > 1 &&
-		integrations.filter((integration) => conflictingIntegrations.includes(integration)).length > 0;
+	if (firstIntegrationWithTSSettings) {
+		// Every major framework, apart from Vue and Svelte requires different `jsxImportSource`, as such it's impossible to config
+		// all of them in the same `tsconfig.json`. However, Vue only need `"jsx": "preserve"` for template intellisense which
+		// can be compatible with some frameworks (ex: Solid)
+		const conflictingIntegrations: string[] = Array.from(presets.keys()).filter((config) => config !== 'vue');
+		const hasConflictingIntegrations =
+			integrations.filter((integration) => presets.has(integration)).length > 1 &&
+			integrations.filter((integration) => conflictingIntegrations.includes(integration)).length > 0;
 
-	if (hasConflictingIntegrations) {
-		logger.info(
-			'SKIP_FORMAT',
-			red(
-				`  ${bold(
-					'Caution:',
-				)} Selected UI frameworks require conflicting tsconfig.json settings, as such only settings for ${bold(
-					firstIntegrationWithTSSettings,
-				)} were used.\n  More information: https://docs.astro.build/en/guides/typescript/#errors-typing-multiple-jsx-frameworks-at-the-same-time\n`,
-			),
-		);
+		if (hasConflictingIntegrations) {
+			logger.info(
+				'SKIP_FORMAT',
+				red(
+					`  ${bold(
+						'Caution:',
+					)} Selected UI frameworks require conflicting tsconfig.json settings, as such only settings for ${bold(
+						firstIntegrationWithTSSettings,
+					)} were used.\n  More information: https://docs.astro.build/en/guides/typescript/#errors-typing-multiple-jsx-frameworks-at-the-same-time\n`,
+				),
+			);
+		}
 	}
 
 	if (await askToContinue({ flags, logger })) {
@@ -997,6 +1075,36 @@ async function updateTSConfig(
 	} else {
 		return UpdateResult.cancelled;
 	}
+}
+
+function addIncludesToTSConfig(config: TSConfig, includesToAdd: string[]): TSConfig {
+	if (includesToAdd.length === 0) {
+		return config;
+	}
+
+	const currentIncludes = Array.isArray(config.include)
+		? [...config.include]
+		: typeof config.include === 'string'
+			? [config.include]
+			: [];
+
+	let hasChange = false;
+
+	for (const includeRef of includesToAdd) {
+		if (!currentIncludes.includes(includeRef)) {
+			currentIncludes.push(includeRef);
+			hasChange = true;
+		}
+	}
+
+	if (!hasChange) {
+		return config;
+	}
+
+	return {
+		...config,
+		include: currentIncludes,
+	};
 }
 
 function parseIntegrationName(spec: string) {
