@@ -24,7 +24,7 @@ import { getAllBuildPlugins } from './plugins/index.js';
 import { manifestBuildPostHook } from './plugins/plugin-manifest.js';
 import { RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
-import type { StaticBuildOptions } from './types.js';
+import type { StaticBuildOptions, ViteBuildReturn } from './types.js';
 import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
 import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
@@ -65,7 +65,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	// Build your project (SSR application code, assets, client JS, etc.)
 	const ssrTime = performance.now();
 	opts.logger.info('build', `Building ${settings.buildOutput} entrypoints...`);
-	const { ssrOutput, prerenderOutput, clientOutput } = await buildEnvironments(opts, internals);
+	await buildEnvironments(opts, internals);
 	opts.logger.info(
 		'build',
 		colors.green(`✓ Completed in ${getTimeStat(ssrTime, performance.now())}.`),
@@ -73,42 +73,7 @@ export async function viteBuild(opts: StaticBuildOptions) {
 
 	settings.timer.end('SSR build');
 
-	// Handle ssr output for post-build hooks
-	const ssrOutputs = viteBuildReturnToRollupOutputs(ssrOutput);
-	const clientOutputs = viteBuildReturnToRollupOutputs(clientOutput ?? []);
-	const prerenderOutputs = viteBuildReturnToRollupOutputs(prerenderOutput);
-	await runManifestInjection(opts, internals, ssrOutputs, clientOutputs, prerenderOutputs);
-
-	// Store prerender output directory for use in page generation
-	const prerenderOutputDir = new URL('./.prerender/', getServerOutputDirectory(settings));
-
-	return { internals, prerenderOutputDir };
-}
-
-export async function staticBuild(
-	opts: StaticBuildOptions,
-	internals: BuildInternals,
-	prerenderOutputDir: URL,
-) {
-	const { settings } = opts;
-	if (settings.buildOutput === 'static') {
-		settings.timer.start('Static generate');
-		// Move prerender and SSR assets to client directory before cleaning up
-		await ssrMoveAssets(opts, prerenderOutputDir);
-		// Generate the pages
-		await generatePages(opts, internals, prerenderOutputDir);
-		// Clean up prerender directory after generation
-		await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
-		settings.timer.end('Static generate');
-	} else if (settings.buildOutput === 'server') {
-		settings.timer.start('Server generate');
-		await generatePages(opts, internals, prerenderOutputDir);
-		// Move prerender and SSR assets to client directory before cleaning up
-		await ssrMoveAssets(opts, prerenderOutputDir);
-		// Clean up prerender directory after generation
-		await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
-		settings.timer.end('Server generate');
-	}
+	return { internals };
 }
 
 /**
@@ -224,7 +189,66 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			modulePreload: { polyfill: false },
 			reportCompressedSize: false,
 		},
-		plugins: [...flatPlugins, ...(viteConfig.plugins || [])],
+		plugins: [...flatPlugins, ...(viteConfig.plugins || []), {
+			name: 'astro:plugin-build-app',
+			async buildApp(builder) {
+				// Build ssr environment for server output
+				const ssrOutput =
+					settings.buildOutput === 'static'
+						? []
+						: await builder.build(builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]);
+
+				// Build prerender environment for static generation
+				const prerenderOutput = await builder.build(builder.environments.prerender);
+
+				// Extract prerender entry filename and store in internals
+				extractPrerenderEntryFileName(internals, prerenderOutput);
+
+				// Build client environment
+				// We must discover client inputs after SSR build because hydration/client-only directives
+				// are only detected during SSR. We mutate the config here since the builder was already created
+				// and this is the only way to update the input after instantiation.
+				internals.clientInput = getClientInput(internals, settings);
+				if (!internals.clientInput.size) {
+					// At least 1 input is required to do a build, otherwise Vite throws.
+					// We need the client build to happen in order to copy over the `public/` folder
+					// So using the noop plugin here which will give us an input that just gets thrown away.
+					internals.clientInput.add(NOOP_MODULE_ID);
+				}
+				builder.environments.client.config.build.rollupOptions.input = Array.from(internals.clientInput);
+				const clientOutput = await builder.build(builder.environments.client);
+
+				// Handle ssr output for post-build hooks
+				const ssrOutputs = viteBuildReturnToRollupOutputs(ssrOutput);
+				const clientOutputs = viteBuildReturnToRollupOutputs(clientOutput ?? []);
+				const prerenderOutputs = viteBuildReturnToRollupOutputs(prerenderOutput);
+				await runManifestInjection(opts, internals, ssrOutputs, clientOutputs, prerenderOutputs);	
+
+				// Generation and cleanup
+				const prerenderOutputDir = new URL('./.prerender/', getServerOutputDirectory(settings));
+
+				// TODO do we need the elif any more? Can this be streamlined to be the same?
+				if (settings.buildOutput === 'static') {
+					settings.timer.start('Static generate');
+					// Move prerender and SSR assets to client directory before cleaning up
+					await ssrMoveAssets(opts, prerenderOutputDir);
+					// Generate the pages
+					await generatePages(opts, internals, prerenderOutputDir);
+					// Clean up prerender directory after generation
+					await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
+					settings.timer.end('Static generate');
+				} else if (settings.buildOutput === 'server') {
+					settings.timer.start('Server generate');
+					await generatePages(opts, internals, prerenderOutputDir);
+					// Move prerender and SSR assets to client directory before cleaning up
+					await ssrMoveAssets(opts, prerenderOutputDir);
+					// Clean up prerender directory after generation
+					await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
+					settings.timer.end('Server generate');
+				}
+				
+			}
+		}],
 		envPrefix: viteConfig.envPrefix ?? 'PUBLIC_',
 		base: settings.config.base,
 		environments: {
@@ -285,34 +309,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	});
 
 	const builder = await vite.createBuilder(updatedViteBuildConfig);
-
-	// Build ssr environment for server output
-	const ssrOutput =
-		settings.buildOutput === 'static'
-			? []
-			: await builder.build(builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]);
-
-	// Build prerender environment for static generation
-	const prerenderOutput = await builder.build(builder.environments.prerender);
-
-	// Extract prerender entry filename and store in internals
-	extractPrerenderEntryFileName(internals, prerenderOutput);
-
-	// Build client environment
-	// We must discover client inputs after SSR build because hydration/client-only directives
-	// are only detected during SSR. We mutate the config here since the builder was already created
-	// and this is the only way to update the input after instantiation.
-	internals.clientInput = getClientInput(internals, settings);
-	if (!internals.clientInput.size) {
-		// At least 1 input is required to do a build, otherwise Vite throws.
-		// We need the client build to happen in order to copy over the `public/` folder
-		// So using the noop plugin here which will give us an input that just gets thrown away.
-		internals.clientInput.add(NOOP_MODULE_ID);
-	}
-	builder.environments.client.config.build.rollupOptions.input = Array.from(internals.clientInput);
-	const clientOutput = await builder.build(builder.environments.client);
-
-	return { ssrOutput, prerenderOutput, clientOutput };
+	await builder.buildApp();
 }
 
 type MutateChunk = (chunk: vite.Rollup.OutputChunk, targets: string[], newCode: string) => void;
