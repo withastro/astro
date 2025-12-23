@@ -324,7 +324,7 @@ function getPrerenderEntryFileName(
 		| vite.Rollup.RollupOutput[]
 		| vite.Rollup.RollupWatcher,
 ): string {
-	const outputs = viteBuildReturnToRollupOutputs(prerenderOutput as any);
+	const outputs = viteBuildReturnToRollupOutputs(prerenderOutput);
 
 	for (const output of outputs) {
 		for (const chunk of output.output) {
@@ -420,7 +420,7 @@ async function writeMutatedChunks(
 
 		// Check if this is a prerender file by looking for it in prerender outputs
 		const isPrerender = prerenderOutputs.some((output) =>
-			output.output.some((chunk) => chunk.type !== 'asset' && (chunk as any).fileName === fileName),
+			output.output.some((chunk) => chunk.type !== 'asset' && chunk.fileName === fileName),
 		);
 
 		if (isPrerender) {
