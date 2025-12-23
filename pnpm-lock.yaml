@@ -4902,6 +4902,15 @@ importers:
         specifier: 4.50.0
         version: 4.50.0(@cloudflare/workers-types@4.20251121.0)
 
+  packages/integrations/cloudflare/test/fixtures/binding-image-service:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/cloudflare/test/fixtures/compile-image-service:
     dependencies:
       '@astrojs/cloudflare':
