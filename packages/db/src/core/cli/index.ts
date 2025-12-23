@@ -71,7 +71,7 @@ export async function cli({
 }
 
 function validateDbAppTokenFlag(command: string | undefined, flags: Arguments) {
-	if (command !== 'execute' && command !== 'push' && command !== 'verify') return;
+	if (command !== 'execute' && command !== 'push' && command !== 'verify' && command !== 'shell') return;
 
 	const dbAppToken = (flags as Arguments & { dbAppToken?: unknown }).dbAppToken;
 	if (dbAppToken == null) return;
