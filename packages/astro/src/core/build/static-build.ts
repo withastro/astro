@@ -9,23 +9,18 @@ import { type BuildInternals, createBuildInternals } from '../../core/build/inte
 import { emptyDir, removeEmptyDirs } from '../../core/fs/index.js';
 import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
 import { runHookBuildSetup } from '../../integrations/hooks.js';
-import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../manifest/serialized.js';
 import { getClientOutputDirectory, getServerOutputDirectory } from '../../prerender/utils.js';
 import type { RouteData } from '../../types/public/internal.js';
-import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/const.js';
-import { RESOLVED_ASTRO_RENDERERS_MODULE_ID } from '../../vite-plugin-renderers/index.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { routeIsRedirect } from '../routing/index.js';
 import { getOutDirWithinCwd } from './common.js';
-import { CHUNKS_PATH } from './consts.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { getAllBuildPlugins } from './plugins/index.js';
 import { manifestBuildPostHook } from './plugins/plugin-manifest.js';
-import { RESOLVED_SSR_VIRTUAL_MODULE_ID } from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
-import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
+import { getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
 import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 
@@ -142,8 +137,7 @@ export async function staticBuild(
  * Returns outputs from each environment for post-build processing (manifest injection, etc).
  */
 async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInternals) {
-	const { allPages, settings, viteConfig } = opts;
-	const routes = Object.values(allPages).flatMap((pageData) => pageData.route);
+	const { settings, viteConfig } = opts;
 
 	// Determine if we should use the legacy-dynamic entrypoint
 	const entryType = settings.adapter?.entryType ?? 'legacy-dynamic';
@@ -173,48 +167,8 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					hoistTransitiveImports: false,
 					format: 'esm',
 					minifyInternalExports: true,
-					// Server chunks can't go in the assets (_astro) folder
-					// We need to keep these separate
-					chunkFileNames(chunkInfo) {
-						const { name } = chunkInfo;
-						let prefix = CHUNKS_PATH;
-						let suffix = '_[hash].mjs';
-
-						// Sometimes chunks have the `@_@astro` suffix due to SSR logic. Remove it!
-						// TODO: refactor our build logic to avoid this
-						if (name.includes(ASTRO_PAGE_EXTENSION_POST_PATTERN)) {
-							const [sanitizedName] = name.split(ASTRO_PAGE_EXTENSION_POST_PATTERN);
-							return [prefix, sanitizedName, suffix].join('');
-						}
-						// Injected routes include "pages/[name].[ext]" already. Clean those up!
-						if (name.startsWith('pages/')) {
-							const sanitizedName = name.split('.')[0];
-							return [prefix, sanitizedName, suffix].join('');
-						}
-						const encoded = encodeName(name);
-						return [prefix, encoded, suffix].join('');
-					},
 					assetFileNames: `${settings.config.build.assets}/[name].[hash][extname]`,
 					...viteConfig.build?.rollupOptions?.output,
-					entryFileNames(chunkInfo) {
-						if (chunkInfo.facadeModuleId?.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)) {
-							return makeAstroPageEntryPointFileName(
-								VIRTUAL_PAGE_RESOLVED_MODULE_ID,
-								chunkInfo.facadeModuleId,
-								routes,
-							);
-						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_VIRTUAL_MODULE_ID) {
-							return opts.settings.config.build.serverEntry;
-						} else if (chunkInfo.facadeModuleId === RESOLVED_ASTRO_RENDERERS_MODULE_ID) {
-							return 'renderers.mjs';
-						} else if (chunkInfo.facadeModuleId === SERIALIZED_MANIFEST_RESOLVED_ID) {
-							return 'manifest_[hash].mjs';
-						} else if (chunkInfo.facadeModuleId === settings.adapter?.serverEntrypoint) {
-							return 'adapter_[hash].mjs';
-						} else {
-							return '[name].mjs';
-						}
-					},
 				},
 			},
 			ssr: true,
