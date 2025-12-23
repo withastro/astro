@@ -10,7 +10,7 @@ import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-
 import type * as http from 'node:http';
 import colors from 'piccolore';
 import { performance } from 'node:perf_hooks';
-import { hasWranglerConfig, defaultCloudflareConfig } from '../wrangler.js';
+import { cloudflareConfigCustomizer } from '../wrangler.js';
 
 const createPreviewServer: CreatePreviewServer = async ({
 	logger,
@@ -23,10 +23,10 @@ const createPreviewServer: CreatePreviewServer = async ({
 }) => {
 	const startServerTime = performance.now();
 	let previewServer: VitePreviewServer;
-	let cfPluginConfig: PluginConfig = { viteEnvironment: { name: 'ssr' } };
-	if (!hasWranglerConfig(server)) {
-		cfPluginConfig.config = defaultCloudflareConfig();
-	}
+	const cfPluginConfig: PluginConfig = {
+		viteEnvironment: { name: 'ssr' },
+		config: cloudflareConfigCustomizer(),
+	};
 
 	try {
 		previewServer = await preview({

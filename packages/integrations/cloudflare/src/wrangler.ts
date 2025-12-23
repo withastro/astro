@@ -1,40 +1,54 @@
-import { existsSync } from 'node:fs';
 import type { PluginConfig } from '@cloudflare/vite-plugin';
 
-/**
- * Checks whether a wrangler file exists at the given path
- * @param root
- */
-export function hasWranglerConfig(root: URL) {
-	return (
-		existsSync(new URL('wrangler.jsonc', root)) ||
-		existsSync(new URL('wrangler.toml', root)) ||
-		existsSync(new URL('wrangler.json', root))
-	);
+export const DEFAULT_SESSION_KV_BINDING_NAME = 'SESSION';
+export const DEFAULT_IMAGES_BINDING_NAME = 'IMAGES';
+export const DEFAULT_ASSETS_BINDING_NAME = 'ASSETS';
+
+interface CloudflareConfigOptions {
+	sessionKVBindingName?: string;
+	imagesBindingName?: string | false;
 }
 
 /**
- * Returns the default wrangler configuration used by Astro Cloudflare configuration.
+ * Returns a config customizer that sets up the Astro Cloudflare defaults.
+ * Sets the main entrypoint and adds bindings for auto-provisioning.
  */
-export function defaultCloudflareConfig(): PluginConfig['config'] {
-	return {
-		// TODO: better way to handle name, maybe package.json#name ?
-		name: 'test-application',
-		compatibility_date: '2025-05-21',
-		compatibility_flags: ['global_fetch_strictly_public'],
-		main: '@astrojs/cloudflare/entrypoints/server',
-		assets: {
-			directory: './dist',
-			binding: 'ASSETS',
-		},
-		images: {
-			binding: 'IMAGES',
-		},
-		kv_namespaces: [
-			{
-				binding: 'SESSION',
-				// KV with no binding gets automatically created
-			},
-		],
+export function cloudflareConfigCustomizer(
+	options?: CloudflareConfigOptions,
+): PluginConfig['config'] {
+	const sessionKVBindingName = options?.sessionKVBindingName ?? DEFAULT_SESSION_KV_BINDING_NAME;
+	const imagesBindingName =
+		options?.imagesBindingName === false
+			? undefined
+			: (options?.imagesBindingName ?? DEFAULT_IMAGES_BINDING_NAME);
+
+	return (config) => {
+		const hasSessionBinding = config.kv_namespaces?.some(
+			(kv) => kv.binding === sessionKVBindingName,
+		);
+		const hasImagesBinding = config.images?.binding !== undefined;
+		const hasAssetsBinding = config.assets?.binding !== undefined;
+
+		return {
+			main: config.main ?? '@astrojs/cloudflare/entrypoints/server',
+			kv_namespaces: hasSessionBinding
+				? undefined
+				: [
+						{
+							binding: sessionKVBindingName,
+						},
+					],
+			images:
+				hasImagesBinding || !imagesBindingName
+					? undefined
+					: {
+							binding: imagesBindingName,
+						},
+			assets: hasAssetsBinding
+				? undefined
+				: {
+						binding: DEFAULT_ASSETS_BINDING_NAME,
+					},
+		};
 	};
 }

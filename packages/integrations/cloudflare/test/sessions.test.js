@@ -84,23 +84,25 @@ describe('sessions', () => {
 	});
 });
 
-describe.skip('sessions with custom options', () => {
-	it('can build with custom options', async () => {
-		let fixture;
+describe('sessions with custom binding name', () => {
+	let fixture;
 
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/sessions/',
+			adapter: cloudflare({
+				sessionKVBindingName: 'CUSTOM_SESSION',
+			}),
+		});
+	});
+
+	it('can build with custom session binding name', async () => {
 		await assert.doesNotReject(
 			async () => {
-				fixture = await loadFixture({
-					root: './fixtures/sessions/',
-					adapter: cloudflare({}),
-					session: {
-						cookie: 'custom-session',
-					},
-				});
 				await fixture.build();
 			},
 			undefined,
-			'Building with custom session options should not throw an error',
+			'Building with custom session binding name should not throw an error',
 		);
 	});
 });

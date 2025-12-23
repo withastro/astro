@@ -17,7 +17,11 @@ import { cloudflareModuleLoader } from './utils/cloudflare-module-loader.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { type ImageService, setImageConfig } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
-import { hasWranglerConfig, defaultCloudflareConfig } from './wrangler.js';
+import {
+	cloudflareConfigCustomizer,
+	DEFAULT_SESSION_KV_BINDING_NAME,
+	DEFAULT_IMAGES_BINDING_NAME,
+} from './wrangler.js';
 import { parse } from 'dotenv';
 import { sessionDrivers } from 'astro/config';
 
@@ -61,46 +65,24 @@ export type Options = {
 	cloudflareModules?: boolean;
 
 	/**
-	 * By default, Astro will be configured to use Cloudflare KV to store session data. If you want to use sessions,
-	 * you must create a KV namespace and declare it in your wrangler config file. You can do this with the wrangler command:
+	 * By default, Astro will be configured to use Cloudflare KV to store session data. The KV namespace
+	 * will be automatically provisioned when you deploy.
 	 *
-	 * ```sh
-	 * npx wrangler kv namespace create SESSION
-	 * ```
+	 * By default, the binding is named `SESSION`, but you can override this by providing a different name here.
+	 * If you define the binding manually in your wrangler config, Astro will use your configuration instead.
 	 *
-	 * This will log the id of the created namespace. You can then add it to your `wrangler.json` file like this:
-	 *
-	 * ```json
-	 * {
-	 *   "kv_namespaces": [
-	 *     {
-	 *       "binding": "SESSION",
-	 *       "id": "<your kv namespace id here>"
-	 *     }
-	 *   ]
-	 * }
-	 * ```
-	 * By default, the driver looks for the binding named `SESSION`, but you can override this by providing a different name here.
-	 *
-	 * See https://developers.cloudflare.com/kv/concepts/kv-namespaces/ for more details on using KV namespaces.
-	 *
+	 * See https://developers.cloudflare.com/workers/wrangler/configuration/#automatic-provisioning for more details.
 	 */
 	sessionKVBindingName?: string;
 
 	/**
-	 * When configured as `cloudflare-binding`, the Cloudflare Images binding will be used to transform images:
-	 * - https://developers.cloudflare.com/images/transform-images/bindings/
+	 * When `imageService` is set to `cloudflare-binding`, the Cloudflare Images binding will be used
+	 * to transform images. The binding will be automatically configured for you.
 	 *
-	 * By default, this will use the "IMAGES" binding name, but this can be customised in your `wrangler.json`:
+	 * By default, the binding is named `IMAGES`, but you can override this by providing a different name here.
+	 * If you define the binding manually in your wrangler config, Astro will use your configuration instead.
 	 *
-	 * ```json
-	 * {
-	 *   "images": {
-	 *     "binding": "IMAGES" // <-- this should match `imagesBindingName`
-	 *   }
-	 * }
-	 * ```
-	 *
+	 * See https://developers.cloudflare.com/images/transform-images/bindings/ for more details.
 	 */
 	imagesBindingName?: string;
 
@@ -136,7 +118,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 	let _routes: IntegrationResolvedRoute[];
 
-	const SESSION_KV_BINDING_NAME = args?.sessionKVBindingName ?? 'SESSION';
+	const sessionKVBindingName = args?.sessionKVBindingName ?? DEFAULT_SESSION_KV_BINDING_NAME;
+	const imagesBindingName = args?.imagesBindingName ?? DEFAULT_IMAGES_BINDING_NAME;
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -145,30 +128,32 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				let session = config.session;
 
 				if (args?.imageService === 'cloudflare-binding') {
-					const bindingName = args?.imagesBindingName ?? 'IMAGES';
-
 					logger.info(
-						`Enabling image processing with Cloudflare Images for production with the "${bindingName}" Images binding.`,
+						`Enabling image processing with Cloudflare Images for production with the "${imagesBindingName}" Images binding.`,
 					);
 				}
 
 				if (!session?.driver) {
 					logger.info(
-						`Enabling sessions with Cloudflare KV with the "${SESSION_KV_BINDING_NAME}" KV binding.`,
+						`Enabling sessions with Cloudflare KV with the "${sessionKVBindingName}" KV binding.`,
 					);
 
 					session = {
 						driver: sessionDrivers.cloudflareKVBinding({
-							binding: SESSION_KV_BINDING_NAME,
+							binding: sessionKVBindingName,
 						}),
 						cookie: session?.cookie,
 						ttl: session?.ttl,
 					};
 				}
-				const cfPluginConfig: PluginConfig = { viteEnvironment: { name: 'ssr' } };
-				if (!hasWranglerConfig(config.root)) {
-					cfPluginConfig.config = defaultCloudflareConfig();
-				}
+				const cfPluginConfig: PluginConfig = {
+					viteEnvironment: { name: 'ssr' },
+					config: cloudflareConfigCustomizer({
+						sessionKVBindingName: args?.sessionKVBindingName,
+						imagesBindingName:
+							args?.imageService === 'cloudflare-binding' ? args?.imagesBindingName : false,
+					}),
+				};
 
 				updateConfig({
 					build: {
@@ -252,7 +237,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 								},
 							},
 							createConfigPlugin({
-								sessionKVBindingName: SESSION_KV_BINDING_NAME,
+								sessionKVBindingName,
 							}),
 						],
 					},
