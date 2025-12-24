@@ -54,6 +54,7 @@ const ALIASES = new Map([
 
 const STUBS = {
 	ASTRO_CONFIG: `import { defineConfig } from 'astro/config';\n// https://astro.build/config\nexport default defineConfig({});`,
+	GITIGNORE: `.vercel/\n`,
 	TAILWIND_GLOBAL_CSS: `@import "tailwindcss";`,
 	SVELTE_CONFIG: `\
 import { vitePreprocess } from '@astrojs/svelte';
@@ -107,6 +108,8 @@ const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 	cloudflare: '@astrojs/cloudflare',
 	node: '@astrojs/node',
 };
+
+const GITIGNORE_ENTRIES = STUBS.GITIGNORE.trim().split('\n');
 
 export async function add(names: string[], { flags }: AddOptions) {
 	ensureProcessNodeEnv('production');
@@ -208,6 +211,10 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 	switch (installResult) {
 		case UpdateResult.updated: {
+			if (integrations.find((integration) => integration.id === 'vercel')) {
+				await ensureGitignore({ root, flags, logger });
+			}
+
 			if (integrations.find((integration) => integration.id === 'cloudflare')) {
 				const wranglerConfigURL = new URL('./wrangler.jsonc', configURL);
 				if (!existsSync(wranglerConfigURL)) {
@@ -1102,5 +1109,51 @@ async function setupIntegrationConfig(opts: {
 		}
 	} else {
 		logger.debug('add', `Using existing ${opts.integrationName} configuration`);
+	}
+}
+
+async function ensureGitignore({
+	root,
+	flags,
+	logger,
+}: {
+	root: URL;
+	flags: Flags;
+	logger: Logger;
+}) {
+	const gitignoreURL = new URL('./.gitignore', root);
+	const gitignorePath = fileURLToPath(gitignoreURL);
+
+	if (!existsSync(gitignorePath)) {
+		logger.info(
+			'SKIP_FORMAT',
+			`\n  ${magenta(`Astro will scaffold ${green('./.gitignore')}.`)}\n`,
+		);
+
+		if (await askToContinue({ flags, logger })) {
+			await fs.writeFile(gitignorePath, STUBS.GITIGNORE, { encoding: 'utf-8' });
+			logger.debug('add', `Generated default .gitignore file`);
+		}
+		return;
+	}
+
+	const existing = await fs.readFile(gitignorePath, { encoding: 'utf-8' });
+	const lines = new Set(existing.split(/\r?\n/).map((line) => line.trim()).filter(Boolean));
+	const missing = GITIGNORE_ENTRIES.filter((entry) => !lines.has(entry));
+
+	if (missing.length === 0) {
+		logger.debug('add', 'Using existing .gitignore');
+		return;
+	}
+
+	logger.info(
+		'SKIP_FORMAT',
+		`\n  ${magenta(`Astro will append entries to ${green('./.gitignore')}.`)}\n`,
+	);
+
+	if (await askToContinue({ flags, logger })) {
+		const next = `${existing.trimEnd()}\n${missing.join('\n')}\n`;
+		await fs.writeFile(gitignorePath, next, { encoding: 'utf-8' });
+		logger.debug('add', `Updated .gitignore file`);
 	}
 }
