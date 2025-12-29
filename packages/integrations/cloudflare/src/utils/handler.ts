@@ -18,12 +18,6 @@ setGetEnv(createGetEnv(globalEnv as Env));
 
 export interface Runtime {
 	cfContext: ExecutionContext;
-	runtime: {
-		get env(): never;
-		get cf(): never;
-		get caches(): never;
-		get ctx(): never;
-	};
 }
 
 declare global {
@@ -64,7 +58,10 @@ export async function handle(
 
 	const locals: Runtime = {
 		cfContext: context,
-		runtime: {
+	};
+	Object.defineProperty(locals, 'runtime', {
+		enumerable: false,
+		value: {
 			get env(): never {
 				throw new Error(
 					`Astro.locals.runtime.env has been removed in Astro v6. Use 'import { env } from "cloudflare:workers"' instead.`,
@@ -86,7 +83,7 @@ export async function handle(
 				);
 			},
 		},
-	};
+	});
 
 	const response = await app.render(
 		request as Request & Parameters<ExportedHandlerFetchHandler>[0],
