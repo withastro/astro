@@ -1,12 +1,11 @@
 import * as assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { after, before, describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { loadFixture } from './_test-utils.js';
 
 describe('Custom entry file', () => {
 	let fixture;
-	let previewServer;
 	const root = new URL('./fixtures/manual-pages-support/', import.meta.url);
 
 	before(async () => {
@@ -14,11 +13,6 @@ describe('Custom entry file', () => {
 			root: './fixtures/manual-pages-support/',
 		});
 		await fixture.build();
-		previewServer = await fixture.preview();
-	});
-
-	after(async () => {
-		await previewServer.stop();
 	});
 
 	it('has `_worker.js/index.js` file for SSR', async () => {
