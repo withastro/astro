@@ -50,8 +50,8 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@vercel/analytics": "^1.5.0",
-    "@vercel/functions": "^2.2.13",
-    "@vercel/nft": "0.30.4",
+    "@vercel/functions": "^3.3.4",
+    "@vercel/nft": "1.1.1",
     "@vercel/routing-utils": "^5.3.0",
     "esbuild": "^0.25.0",
     "tinyglobby": "^0.2.15"
