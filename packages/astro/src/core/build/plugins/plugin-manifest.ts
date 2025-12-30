@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolve as importMetaResolve } from 'import-meta-resolve';
 import type { OutputChunk } from 'rollup';
@@ -28,9 +29,10 @@ import {
 	trackStyleHashes,
 } from '../../csp/common.js';
 import { encodeKey } from '../../encryption.js';
-import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
+import { appendForwardSlash, fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
 import { DEFAULT_COMPONENTS } from '../../routing/default.js';
 import { serializeRouteData } from '../../routing/index.js';
+import { normalizePath } from '../../viteUtils.js';
 import { addRollupInput } from '../add-rollup-input.js';
 import { getOutFile, getOutFolder } from '../common.js';
 import { type BuildInternals, cssOrder, mergeInlineCss } from '../internal.js';
@@ -40,6 +42,7 @@ import { makePageDataKey } from './util.js';
 
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"]${manifestReplace}['"]`, 'g');
+const RELATIVE_PATH_PREFIX = '@@ASTRO_RELATIVE_PATH@@';
 
 export const SSR_MANIFEST_VIRTUAL_MODULE_ID = '@astrojs-manifest';
 export const RESOLVED_SSR_MANIFEST_VIRTUAL_MODULE_ID = '\0' + SSR_MANIFEST_VIRTUAL_MODULE_ID;
@@ -62,7 +65,11 @@ function resolveSessionDriver(driver: string | undefined): string | null {
 	return driver;
 }
 
-function vitePluginManifest(options: StaticBuildOptions, internals: BuildInternals): VitePlugin {
+function vitePluginManifest(
+	options: StaticBuildOptions,
+	internals: BuildInternals,
+	fileUrlPlaceholders: Map<string, string>,
+): VitePlugin {
 	return {
 		name: '@astro/plugin-build-manifest',
 		enforce: 'post',
@@ -84,18 +91,50 @@ function vitePluginManifest(options: StaticBuildOptions, internals: BuildInterna
 				const imports = [
 					`import { deserializeManifest as _deserializeManifest } from 'astro/app'`,
 					`import { _privateSetManifestDontUseThis } from 'astro:ssr-manifest'`,
+					`import { fileURLToPath } from 'node:url'`,
 				];
 
 				const resolvedDriver = resolveSessionDriver(options.settings.config.session?.driver);
 
+				const driverModuleExpression = resolvedDriver
+					? `() => import(${getDriverImportExpression(resolvedDriver, fileUrlPlaceholders)})`
+					: 'null';
+
 				const contents = [
 					`const manifest = _deserializeManifest('${manifestReplace}');`,
-					`if (manifest.sessionConfig) manifest.sessionConfig.driverModule = ${resolvedDriver ? `() => import(${JSON.stringify(resolvedDriver)})` : 'null'};`,
+					`resolveManifestPaths(manifest);`,
+					`if (manifest.sessionConfig) manifest.sessionConfig.driverModule = ${driverModuleExpression};`,
 					`_privateSetManifestDontUseThis(manifest);`,
+				];
+				const helpers = [
+					`const RELATIVE_PATH_PREFIX = ${JSON.stringify(RELATIVE_PATH_PREFIX)};`,
+					`function resolveUrlField(value) {`,
+					`	if (typeof value !== 'string') return value;`,
+					`	if (value.startsWith('file:') || value.startsWith('http:') || value.startsWith('https:')) return value;`,
+					`	return new URL(value, import.meta.url).href;`,
+					`}`,
+					`function resolvePathField(value) {`,
+					`	if (typeof value !== 'string') return value;`,
+					`	if (!value.startsWith(RELATIVE_PATH_PREFIX)) return value;`,
+					`	const relative = value.slice(RELATIVE_PATH_PREFIX.length);`,
+					`	return fileURLToPath(new URL(relative, import.meta.url));`,
+					`}`,
+					`function resolveManifestPaths(manifest) {`,
+					`	manifest.hrefRoot = resolveUrlField(manifest.hrefRoot);`,
+					`	manifest.cacheDir = resolveUrlField(manifest.cacheDir);`,
+					`	manifest.outDir = resolveUrlField(manifest.outDir);`,
+					`	manifest.srcDir = resolveUrlField(manifest.srcDir);`,
+					`	manifest.publicDir = resolveUrlField(manifest.publicDir);`,
+					`	manifest.buildClientDir = resolveUrlField(manifest.buildClientDir);`,
+					`	manifest.buildServerDir = resolveUrlField(manifest.buildServerDir);`,
+					`	if (manifest.sessionConfig?.options?.base) {`,
+					`		manifest.sessionConfig.options.base = resolvePathField(manifest.sessionConfig.options.base);`,
+					`	}`,
+					`}`,
 				];
 				const exports = [`export { manifest }`];
 
-				return { code: [...imports, ...contents, ...exports].join('\n') };
+				return { code: [...imports, ...helpers, ...contents, ...exports].join('\n') };
 			}
 		},
 
@@ -120,12 +159,13 @@ export function pluginManifest(
 	options: StaticBuildOptions,
 	internals: BuildInternals,
 ): AstroBuildPlugin {
+	const fileUrlPlaceholders = new Map<string, string>();
 	return {
 		targets: ['server'],
 		hooks: {
 			'build:before': () => {
 				return {
-					vitePlugin: vitePluginManifest(options, internals),
+					vitePlugin: vitePluginManifest(options, internals, fileUrlPlaceholders),
 				};
 			},
 
@@ -146,7 +186,12 @@ export function pluginManifest(
 						? internals.middlewareEntryPoint
 						: undefined,
 				});
-				const code = injectManifest(manifest, internals.manifestEntryChunk);
+				const code = injectManifest(
+					manifest,
+					internals.manifestEntryChunk,
+					options.settings.config.build.server,
+					fileUrlPlaceholders,
+				);
 				mutate(internals.manifestEntryChunk, ['server'], code);
 			},
 		},
@@ -179,12 +224,118 @@ async function createManifest(
 /**
  * It injects the manifest in the given output rollup chunk. It returns the new emitted code
  */
-function injectManifest(manifest: SerializedSSRManifest, chunk: Readonly<OutputChunk>) {
+function injectManifest(
+	manifest: SerializedSSRManifest,
+	chunk: Readonly<OutputChunk>,
+	serverRoot: URL,
+	fileUrlPlaceholders: Map<string, string>,
+) {
 	const code = chunk.code;
+	const chunkUrl = new URL(chunk.fileName, serverRoot);
+	const relativeManifest = makeManifestRelative(manifest, chunkUrl);
+	let nextCode = code.replace(replaceExp, () => JSON.stringify(relativeManifest));
 
-	return code.replace(replaceExp, () => {
-		return JSON.stringify(manifest);
-	});
+	nextCode = replaceFileUrlPlaceholders(nextCode, chunkUrl, fileUrlPlaceholders);
+	return nextCode;
+}
+
+function getDriverImportExpression(
+	resolvedDriver: string,
+	fileUrlPlaceholders: Map<string, string>,
+): string {
+	if (resolvedDriver.startsWith('file:')) {
+		const placeholder = createFileUrlPlaceholder(fileUrlPlaceholders, resolvedDriver);
+		return `new URL(${JSON.stringify(placeholder)}, import.meta.url)`;
+	}
+	return JSON.stringify(resolvedDriver);
+}
+
+function createFileUrlPlaceholder(fileUrlPlaceholders: Map<string, string>, value: string) {
+	const key = `@@ASTRO_MANIFEST_FILE_URL_${fileUrlPlaceholders.size}@@`;
+	fileUrlPlaceholders.set(key, value);
+	return key;
+}
+
+function replaceFileUrlPlaceholders(
+	code: string,
+	chunkUrl: URL,
+	fileUrlPlaceholders: Map<string, string>,
+) {
+	if (fileUrlPlaceholders.size === 0) return code;
+	let nextCode = code;
+	for (const [placeholder, target] of fileUrlPlaceholders) {
+		const relative = makeRelativeFileUrl(target, chunkUrl);
+		nextCode = nextCode.replaceAll(JSON.stringify(placeholder), JSON.stringify(relative));
+	}
+	return nextCode;
+}
+
+function makeManifestRelative(
+	manifest: SerializedSSRManifest,
+	chunkUrl: URL,
+): SerializedSSRManifest {
+	const sessionConfig = manifest.sessionConfig;
+	let nextSessionConfig = sessionConfig;
+	if (sessionConfig?.options?.base && typeof sessionConfig.options.base === 'string') {
+		const relativeBase = makeRelativePath(sessionConfig.options.base, chunkUrl);
+		if (relativeBase !== sessionConfig.options.base) {
+			nextSessionConfig = {
+				...sessionConfig,
+				options: {
+					...sessionConfig.options,
+					base: relativeBase,
+				},
+			};
+		}
+	}
+
+	return {
+		...manifest,
+		hrefRoot: makeRelativeFileUrl(manifest.hrefRoot, chunkUrl),
+		cacheDir: makeRelativeFileUrl(manifest.cacheDir, chunkUrl),
+		outDir: makeRelativeFileUrl(manifest.outDir, chunkUrl),
+		srcDir: makeRelativeFileUrl(manifest.srcDir, chunkUrl),
+		publicDir: makeRelativeFileUrl(manifest.publicDir, chunkUrl),
+		buildClientDir: makeRelativeFileUrl(manifest.buildClientDir, chunkUrl),
+		buildServerDir: makeRelativeFileUrl(manifest.buildServerDir, chunkUrl),
+		sessionConfig: nextSessionConfig,
+	};
+}
+
+function makeRelativeFileUrl(value: string | URL, chunkUrl: URL): string {
+	const fileUrl = typeof value === 'string' ? value : value.href;
+	if (!fileUrl.startsWith('file:')) return fileUrl;
+
+	const baseDir = fileURLToPath(new URL('./', chunkUrl));
+	const targetPath = fileURLToPath(new URL(fileUrl));
+	let relative = path.relative(baseDir, targetPath);
+
+	if (relative === '') {
+		relative = '.';
+	}
+
+	if (path.isAbsolute(relative)) {
+		return fileUrl;
+	}
+
+	relative = normalizePath(relative);
+	if (fileUrl.endsWith('/')) {
+		relative = appendForwardSlash(relative === '' ? '.' : relative);
+	}
+	return relative;
+}
+
+function makeRelativePath(value: string, chunkUrl: URL): string {
+	if (!path.isAbsolute(value)) return value;
+	const baseDir = fileURLToPath(new URL('./', chunkUrl));
+	let relative = path.relative(baseDir, value);
+	if (relative === '') {
+		relative = '.';
+	}
+	if (path.isAbsolute(relative)) {
+		return value;
+	}
+	return `${RELATIVE_PATH_PREFIX}${normalizePath(relative)}`;
 }
 
 async function buildManifest(

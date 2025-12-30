@@ -1,5 +1,9 @@
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
+import { appendForwardSlash } from '../core/path.js';
+import { normalizePath } from '../core/viteUtils.js';
 import { fromRoutingStrategy } from '../i18n/utils.js';
 import type {
 	AstroConfig,
@@ -13,10 +17,24 @@ const RESOLVED_VIRTUAL_SERVER_ID = '\0' + VIRTUAL_SERVER_ID;
 const VIRTUAL_CLIENT_ID = 'astro:config/client';
 const RESOLVED_VIRTUAL_CLIENT_ID = '\0' + VIRTUAL_CLIENT_ID;
 
+type StringifyOptions = {
+	isBuild: boolean;
+	urlPlaceholders: Map<string, string>;
+};
+
 export default function virtualModulePlugin({ manifest }: { manifest: SSRManifest }): Plugin {
+	const stringifyOptions: StringifyOptions = {
+		isBuild: false,
+		urlPlaceholders: new Map<string, string>(),
+	};
+	let outDir: string | undefined;
 	return {
 		enforce: 'pre',
 		name: 'astro-manifest-plugin',
+		configResolved(config) {
+			stringifyOptions.isBuild = config.command === 'build';
+			outDir = config.build.outDir;
+		},
 		resolveId(id) {
 			// Resolve the virtual module
 			if (VIRTUAL_SERVER_ID === id) {
@@ -29,7 +47,7 @@ export default function virtualModulePlugin({ manifest }: { manifest: SSRManifes
 			// client
 			if (id === RESOLVED_VIRTUAL_CLIENT_ID) {
 				// There's nothing wrong about using `/client` on the server
-				return { code: serializeClientConfig(manifest) };
+				return { code: serializeClientConfig(manifest, stringifyOptions) };
 			}
 			// server
 			else if (id == RESOLVED_VIRTUAL_SERVER_ID) {
@@ -39,13 +57,32 @@ export default function virtualModulePlugin({ manifest }: { manifest: SSRManifes
 						message: AstroErrorData.ServerOnlyModule.message(VIRTUAL_SERVER_ID),
 					});
 				}
-				return { code: serializeServerConfig(manifest) };
+				return { code: serializeServerConfig(manifest, stringifyOptions) };
+			}
+		},
+		generateBundle(_options, bundle) {
+			if (!stringifyOptions.isBuild || stringifyOptions.urlPlaceholders.size === 0 || !outDir)
+				return;
+
+			const outDirUrl = pathToFileURL(path.resolve(outDir) + path.sep);
+			for (const chunk of Object.values(bundle)) {
+				if (chunk.type !== 'chunk') continue;
+				let nextCode = chunk.code;
+				const chunkUrl = new URL(chunk.fileName, outDirUrl);
+				for (const [placeholder, target] of stringifyOptions.urlPlaceholders) {
+					const relative = makeRelativeFileUrl(target, chunkUrl);
+					nextCode = nextCode.replaceAll(
+						JSON.stringify(placeholder),
+						`new URL(${JSON.stringify(relative)}, import.meta.url)`,
+					);
+				}
+				chunk.code = nextCode;
 			}
 		},
 	};
 }
 
-function serializeClientConfig(manifest: SSRManifest): string {
+function serializeClientConfig(manifest: SSRManifest, options: StringifyOptions): string {
 	let i18n: AstroConfig['i18n'] | undefined = undefined;
 	if (manifest.i18n) {
 		i18n = {
@@ -68,12 +105,12 @@ function serializeClientConfig(manifest: SSRManifest): string {
 
 	const output = [];
 	for (const [key, value] of Object.entries(serClientConfig)) {
-		output.push(`export const ${key} = ${stringify(value)};`);
+		output.push(`export const ${key} = ${stringify(value, options)};`);
 	}
 	return output.join('\n') + '\n';
 }
 
-function serializeServerConfig(manifest: SSRManifest): string {
+function serializeServerConfig(manifest: SSRManifest, options: StringifyOptions): string {
 	let i18n: AstroConfig['i18n'] | undefined = undefined;
 	if (manifest.i18n) {
 		i18n = {
@@ -102,22 +139,53 @@ function serializeServerConfig(manifest: SSRManifest): string {
 	};
 	const output = [];
 	for (const [key, value] of Object.entries(serverConfig)) {
-		output.push(`export const ${key} = ${stringify(value)};`);
+		output.push(`export const ${key} = ${stringify(value, options)};`);
 	}
 	return output.join('\n') + '\n';
 }
 
-function stringify(value: any): string {
+function stringify(value: any, options: StringifyOptions): string {
 	if (Array.isArray(value)) {
-		return `[${value.map((e) => stringify(e)).join(', ')}]`;
+		return `[${value.map((e) => stringify(e, options)).join(', ')}]`;
 	}
 	if (value instanceof URL) {
+		if (value.protocol === 'file:' && options.isBuild) {
+			const placeholder = createUrlPlaceholder(options.urlPlaceholders, value.href);
+			return JSON.stringify(placeholder);
+		}
 		return `new URL(${JSON.stringify(value)})`;
 	}
 	if (typeof value === 'object') {
 		return `{\n${Object.entries(value)
-			.map(([k, v]) => `${JSON.stringify(k)}: ${stringify(v)}`)
+			.map(([k, v]) => `${JSON.stringify(k)}: ${stringify(v, options)}`)
 			.join(',\n')}\n}`;
 	}
 	return JSON.stringify(value);
+}
+
+function createUrlPlaceholder(store: Map<string, string>, value: string) {
+	const key = `@@ASTRO_CONFIG_FILE_URL_${store.size}@@`;
+	store.set(key, value);
+	return key;
+}
+
+function makeRelativeFileUrl(value: string, chunkUrl: URL): string {
+	if (!value.startsWith('file:')) return value;
+	const baseDir = fileURLToPath(new URL('./', chunkUrl));
+	const targetPath = fileURLToPath(new URL(value));
+	let relative = path.relative(baseDir, targetPath);
+
+	if (relative === '') {
+		relative = '.';
+	}
+
+	if (path.isAbsolute(relative)) {
+		return value;
+	}
+
+	relative = normalizePath(relative);
+	if (value.endsWith('/')) {
+		relative = appendForwardSlash(relative === '' ? '.' : relative);
+	}
+	return relative;
 }

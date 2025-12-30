@@ -1,5 +1,6 @@
 import type * as fsMod from 'node:fs';
-import { extname } from 'node:path';
+import path, { extname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
@@ -140,6 +141,24 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 			},
 			load(id) {
 				if (id === resolvedVirtualModuleId) {
+					const outDirExpression = (() => {
+						if (settings.buildOutput !== 'server') {
+							return `new URL(${JSON.stringify(new URL(settings.config.outDir))})`;
+						}
+
+						const serverChunksDir = new URL('chunks/', settings.config.build.server);
+						let relativeOutDir = path.relative(
+							fileURLToPath(serverChunksDir),
+							fileURLToPath(settings.config.build.client),
+						);
+
+						if (relativeOutDir === '') {
+							relativeOutDir = '.';
+						}
+
+						relativeOutDir = normalizePath(appendForwardSlash(relativeOutDir));
+						return `new URL(${JSON.stringify(relativeOutDir)}, import.meta.url)`;
+					})();
 					return {
 						code: `
 							export { getConfiguredImageService, isLocalService } from "astro/assets";
@@ -171,13 +190,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							// in the Lambda bundle, which would bloat the bundle with images.
 							// To prevent this, we mark the URL construction as pure,
 							// so that it's tree-shaken away for all platforms that don't need it.
-							export const outDir = /* #__PURE__ */ new URL(${JSON.stringify(
-								new URL(
-									settings.buildOutput === 'server'
-										? settings.config.build.client
-										: settings.config.outDir,
-								),
-							)});
+							export const outDir = /* #__PURE__ */ ${outDirExpression};
 							export const assetsDir = /* #__PURE__ */ new URL(${JSON.stringify(
 								settings.config.build.assets,
 							)}, outDir);
