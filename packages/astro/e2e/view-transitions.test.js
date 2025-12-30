@@ -884,6 +884,24 @@ test.describe('View Transitions', () => {
 		).toEqual(1);
 	});
 
+	test('Hash part of the target URL is preserved during server redirect', async ({
+		page,
+		astro,
+	}) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to page 2
+		await page.click('#click-redirect-two-hash');
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+
+		const Y = await page.evaluate(() => window.scrollY);
+		expect(Y, 'The target is further down the page').toBeGreaterThan(0);
+	});
+
 	// Skip: flaky
 	test.skip('Redirect to external site causes page load', async ({ page, astro }) => {
 		const loads = collectLoads(page);
