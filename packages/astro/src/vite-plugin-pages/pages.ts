@@ -40,7 +40,20 @@ export function pluginPages({ routesList }: PagesPluginOptions): VitePlugin {
 				const pageMap: string[] = [];
 				let i = 0;
 
-				for (const route of routesList.routes) {
+				// Filter routes based on the build environment to reduce memory usage.
+				// Each environment only builds the pages it needs:
+				// - SSR environment: builds only on-demand rendered pages (prerender: false)
+				// - Prerender environment: builds only static pages (prerender: true)
+				// - Other environments (e.g. client): get all routes
+				const envName = this.environment.name;
+				const isSSR = envName === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
+				const isPrerender = envName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender;
+				const routes =
+					isSSR || isPrerender
+						? routesList.routes.filter((route) => route.prerender === isPrerender)
+						: routesList.routes;
+
+				for (const route of routes) {
 					if (routeIsRedirect(route)) {
 						continue;
 					}
