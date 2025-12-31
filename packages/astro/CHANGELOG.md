@@ -1,5 +1,41 @@
 # astro
 
+## 5.16.6
+
+### Patch Changes
+
+- [#14982](https://github.com/withastro/astro/pull/14982) [`6849e38`](https://github.com/withastro/astro/commit/6849e3844d940f76b544822e7bd247641d61567d) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes images outside the project directory not working when using astro:assets in development mode
+
+- [#14987](https://github.com/withastro/astro/pull/14987) [`9dd9fca`](https://github.com/withastro/astro/commit/9dd9fca81e5ed3d0d55e0b1624c6515706963b1f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes SVGs not working in dev mode when using the passthrough image service
+
+- [#15014](https://github.com/withastro/astro/pull/15014) [`a178422`](https://github.com/withastro/astro/commit/a178422484ed62a76b227515a798e192fdcba3b9) Thanks [@delucis](https://github.com/delucis)! - Adds support for extending the type of the props accepted by Astro’s `<Image>` component, `<Picture>` component, and `getImage()` API.
+
+## 5.16.5
+
+### Patch Changes
+
+- [#14985](https://github.com/withastro/astro/pull/14985) [`c016f10`](https://github.com/withastro/astro/commit/c016f1063beddc995c4b7a60430ff8860c05b462) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where JSDoc annotations wouldn't show for fonts related APIs in the Astro config
+
+- [#14973](https://github.com/withastro/astro/pull/14973) [`ed7cc2f`](https://github.com/withastro/astro/commit/ed7cc2fd399084bdd8ba47094fe378fc8ce43048) Thanks [@amankumarpandeyin](https://github.com/amankumarpandeyin)! - Fixes performance regression and OOM errors when building medium-sized blogs with many content entries. Replaced O(n²) object spread pattern with direct mutation in `generateLookupMap`.
+
+- [#14958](https://github.com/withastro/astro/pull/14958) [`70eb542`](https://github.com/withastro/astro/commit/70eb542f3b509cd25461d19d275b8c050ace184f) Thanks [@ascorbic](https://github.com/ascorbic)! - Gives a helpful error message if a user sets `output: "hybrid"` in their Astro config.
+
+  The option was removed in Astro 5, but lots of content online still references it, and LLMs often suggest it. It's not always clear that the replacement is `output: "static"`, rather than `output: "server"`. This change adds a helpful error message to guide humans and robots.
+
+- [#14901](https://github.com/withastro/astro/pull/14901) [`ef53716`](https://github.com/withastro/astro/commit/ef53716f93237d29cf732baae2d90ecd2c9f3bbe) Thanks [@Darknab](https://github.com/Darknab)! - Updates the `glob()` loader to log a warning when duplicated IDs are detected
+
+- Updated dependencies [[`d8305f8`](https://github.com/withastro/astro/commit/d8305f8abdf92db6fa505ee9c1774553ba90b7bd)]:
+  - @astrojs/markdown-remark@6.3.10
+
+## 5.16.4
+
+### Patch Changes
+
+- [#14940](https://github.com/withastro/astro/pull/14940) [`2cf79c2`](https://github.com/withastro/astro/commit/2cf79c23c23e3364b0e6a86394b6584112786c5b) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where Astro didn't properly combine CSP resources from the `csp` configuration with those added using the runtime API (`Astro.csp.insertDirective()`) to form grammatically correct CSP headers
+
+  Now Astro correctly deduplicate CSP resources. For example, if you have a global resource in the configuration file, and then you add a
+  a new one using the runtime APIs.
+
 ## 5.16.3
 
 ### Patch Changes
