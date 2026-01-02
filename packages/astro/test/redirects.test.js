@@ -225,6 +225,34 @@ describe('Astro.redirect', () => {
 			});
 		});
 
+		describe('dynamic redirects to non-existent spread routes', () => {
+			before(async () => {
+				process.env.STATIC_MODE = true;
+				fixture = await loadFixture({
+					root: './fixtures/redirects/',
+					output: 'static',
+					redirects: {
+						// This redirect has dynamic params but the destination route doesn't exist
+						// This should NOT throw GetStaticPathsRequired error (issue #14709)
+						'/dynamic-to-spread/[a]/[b]': '/nonexistent/[...rest]',
+					},
+				});
+			});
+
+			it('builds successfully without GetStaticPathsRequired error', async () => {
+				// The fix ensures dynamic redirects to non-existent spread routes
+				// don't fail with GetStaticPathsRequired error
+				let error = null;
+				try {
+					await fixture.build();
+				} catch (e) {
+					error = e;
+				}
+				// Build should succeed - the redirect is handled at runtime, not prerendered
+				assert.equal(error, null);
+			});
+		});
+
 		describe('dev', () => {
 			/** @type {import('./test-utils.js').DevServer} */
 			let devServer;
