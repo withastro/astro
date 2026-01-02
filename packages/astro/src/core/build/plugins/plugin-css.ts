@@ -185,6 +185,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		},
 		async generateBundle(_outputOptions, bundle) {
 			const inlineConfig = settings.config.build.inlineStylesheets;
+
 			Object.entries(bundle).forEach(([id, stylesheet]) => {
 				if (
 					stylesheet.type !== 'asset' ||
@@ -211,7 +212,23 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				internals.pagesByKeys.forEach((pageData) => {
 					const orderingInfo = pagesToCss[pageData.moduleSpecifier]?.[stylesheet.fileName];
 					if (orderingInfo !== undefined) {
-						pageData.styles.push({ ...orderingInfo, sheet });
+						// Check if this stylesheet was already added to this page.
+						// We check both inline (by content) and external (by src) styles to prevent
+						// duplicates that can occur when CSS is imported from both a page's frontmatter
+						// and a component's script tag, or when the same plugin runs in both SSR and client builds.
+						const alreadyAdded = pageData.styles.some((s) => {
+							if (s.sheet.type === 'external' && sheet.type === 'external') {
+								return s.sheet.src === sheet.src;
+							}
+							if (s.sheet.type === 'inline' && sheet.type === 'inline') {
+								return s.sheet.content === sheet.content;
+							}
+							return false;
+						});
+
+						if (!alreadyAdded) {
+							pageData.styles.push({ ...orderingInfo, sheet });
+						}
 						sheetAddedToPage = true;
 					}
 				});
