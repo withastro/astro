@@ -1,7 +1,7 @@
 import { parse } from '@vue/compiler-sfc';
 
 export function toTSX(code: string, className: string): string {
-	let result = `export default function ${className}__AstroComponent_(_props: Record<string, any>): any {}`;
+	let result = `export default function ${className}__AstroComponent_(_props: import('@astrojs/vue/vue-shims.d.ts').PropsWithHTMLAttributes<Record<string, any>>): any {}`;
 
 	// NOTE: As you can expect, using regexes for this is not exactly the most reliable way of doing things
 	// However, I couldn't figure out a way to do it using Vue's compiler, I tried looking at how Volar does it, but I
@@ -33,7 +33,7 @@ export function toTSX(code: string, className: string): string {
 						${regularScriptBlockContent}
 						${scriptSetup.content}
 
-						export default function ${className}__AstroComponent_${propsGenericType}(_props: ${definePropsType[1]}): any {
+						export default function ${className}__AstroComponent_${propsGenericType}(_props: import('@astrojs/vue/vue-shims.d.ts').PropsWithHTMLAttributes<${definePropsType[1]}>): any {
 							<div></div>
 						}
 				`;
@@ -50,7 +50,7 @@ export function toTSX(code: string, className: string): string {
 
 					const Props = ${defineProps[0]}
 
-					export default function ${className}__AstroComponent_${propsGenericType}(_props: typeof Props): any {
+					export default function ${className}__AstroComponent_${propsGenericType}(_props: import('@astrojs/vue/vue-shims.d.ts').PropsWithHTMLAttributes<typeof Props>): any {
 						<div></div>
 					}
 				`;

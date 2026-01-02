@@ -24,10 +24,12 @@
     "./editor": "./dist/editor.cjs",
     "./client.js": "./dist/client.js",
     "./server.js": "./dist/server.js",
+    "./vue-shims.d.ts": "./vue-shims.d.ts",
     "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "vue-shims.d.ts"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
