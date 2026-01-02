@@ -7,7 +7,7 @@ import { createClient as createLocalDatabaseClient } from '../../../db-client/li
 import { createClient as createRemoteDatabaseClient } from '../../../db-client/libsql-node.js';
 import { SHELL_QUERY_MISSING_ERROR } from '../../../errors.js';
 import type { DBConfigInput } from '../../../types.js';
-import { getAstroEnv, getRemoteDatabaseInfo } from '../../../utils.js';
+import { getAstroEnv, getRemoteDatabaseInfo, resolveDbAppToken } from '../../../utils.js';
 
 export async function cmd({
 	flags,
@@ -24,7 +24,8 @@ export async function cmd({
 	}
 	const dbInfo = getRemoteDatabaseInfo();
 	if (flags.remote) {
-		const db = createRemoteDatabaseClient(dbInfo);
+		const appToken = resolveDbAppToken(flags, dbInfo.token);
+		const db = createRemoteDatabaseClient({ ...dbInfo, token: appToken });
 		const result = await db.run(sql.raw(query));
 		console.log(result);
 	} else {
