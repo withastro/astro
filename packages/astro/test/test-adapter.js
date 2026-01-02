@@ -85,7 +85,7 @@ export default function ({
 												async render(request, { routeData, clientAddress, locals, addCookieHeader, prerenderedErrorPageFetch } = {}) {
 													const url = new URL(request.url);
 													if(this.#manifest.assets.has(url.pathname)) {
-														const filePath = new URL('../../client/' + this.removeBase(url.pathname), import.meta.url);
+														const filePath = new URL(this.removeBase(url.pathname).replace(/^\\//, ''), this.#manifest.buildClientDir);
 														const data = await fs.promises.readFile(filePath);
 														return new Response(data);
 													}
