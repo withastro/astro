@@ -902,8 +902,7 @@ test.describe('View Transitions', () => {
 		expect(Y, 'The target is further down the page').toBeGreaterThan(0);
 	});
 
-	// Skip: flaky
-	test.skip('Redirect to external site causes page load', async ({ page, astro }) => {
+	test('Redirect to external site causes page load', async ({ page, astro }) => {
 		const loads = collectLoads(page);
 
 		// Go to page 1
@@ -915,7 +914,7 @@ test.describe('View Transitions', () => {
 		await page.click('#click-redirect-external');
 		// doesn't work for playwright when we are too fast
 		await page.waitForLoadState('commit', { timeout: 5000 });
-		await page.waitForURL('http://example.com/', { waitUntil: 'commit', timeout: 5000 });
+		await page.waitForURL('https://example.com/', { waitUntil: 'commit', timeout: 5000 });
 		await expect(page.locator('h1'), 'should have content').toHaveText('Example Domain');
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);
 	});
