@@ -2361,7 +2361,25 @@ export interface AstroUserConfig<
 	 * These flags allow you to opt in to some deprecated or otherwise outdated behavior of Astro
 	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
 	 */
-	legacy?: Record<string, never>; // Currently no legacy flags are available.
+	legacy?: {
+		/**
+		 * Enable backwards compatibility for v4 content collections.
+		 *
+		 * When enabled, restores the following v4 behaviors:
+		 * - Allows legacy config file location: `src/content/config.ts`
+		 * - Allows collections without explicit loaders (automatically wraps with glob loader)
+		 * - Supports `type: 'content'` and `type: 'data'` without loaders
+		 * - Preserves legacy entry API: `entry.slug` and `entry.render()`
+		 * - Uses path-based entry IDs instead of slug-based IDs
+		 *
+		 * This is a temporary migration helper for projects upgrading to v6.
+		 * Migrate collections to the Content Layer API, then disable this flag.
+		 *
+		 * @type {boolean}
+		 * @default false
+		 */
+		collectionsBackwardsCompat?: boolean;
+	};
 
 	/**
 	 *

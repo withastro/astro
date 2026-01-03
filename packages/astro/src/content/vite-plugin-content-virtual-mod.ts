@@ -55,7 +55,11 @@ export function astroContentVirtualModPlugin({
 		enforce: 'pre',
 		config(_, env) {
 			dataStoreFile = getDataStoreFile(settings, env.command === 'serve');
-			const contentPaths = getContentPaths(settings.config);
+			const contentPaths = getContentPaths(
+				settings.config,
+				undefined,
+				settings.config.legacy?.collectionsBackwardsCompat,
+			);
 			if (contentPaths.liveConfig.exists) {
 				liveConfig = normalizePath(fileURLToPath(contentPaths.liveConfig.url));
 			}
@@ -212,7 +216,11 @@ async function generateContentEntryFile({
 	fs: typeof nodeFs;
 	isClient: boolean;
 }) {
-	const contentPaths = getContentPaths(settings.config);
+	const contentPaths = getContentPaths(
+		settings.config,
+		undefined,
+		settings.config.legacy?.collectionsBackwardsCompat,
+	);
 	const relContentDir = rootRelativePath(settings.config.root, contentPaths.contentDir);
 
 	let virtualModContents: string;
