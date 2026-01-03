@@ -8,8 +8,7 @@ import vue from "@astrojs/vue"
 
 export default defineConfig({
 	adapter: cloudflare({
-		imageService: 'cloudflare-binding',
-		sessionKVBindingName: "SESSION"
+		imageService: 'passthrough',
 	}),
 	build: {
 		inlineStylesheets: 'never',
