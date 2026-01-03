@@ -1,4 +1,4 @@
-import { createElement as h } from 'react';
+import { createElement as h, memo } from 'react';
 
 /**
  * Astro passes `children` as a string of HTML, so we need
@@ -26,12 +26,10 @@ const StaticHtml = ({
 };
 
 /**
- * This tells React to opt-out of re-rendering this subtree,
- * In addition to being a performance optimization,
- * this also allows other frameworks to attach to `children`.
- *
- * See https://preactjs.com/guide/v8/external-dom-mutations
+ * React.memo is the modern functional equivalent of shouldComponentUpdate.
+ * 
+ * By returning `true` in the comparison function (the second argument),
+ * we tell React that the props are "equal" and it should skip re-rendering,
+ * effectively making this subtree static.
  */
-StaticHtml.shouldComponentUpdate = () => false;
-
-export default StaticHtml;
+export default memo(StaticHtml, () => true);
