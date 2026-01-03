@@ -25,7 +25,7 @@ import { createRoutesList } from '../routing/index.js';
 import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
-import { staticBuild, viteBuild } from './static-build.js';
+import { viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
 
@@ -213,9 +213,7 @@ class AstroBuilder {
 			key: keyPromise,
 		};
 
-		const { internals, prerenderOutputDir } = await viteBuild(opts);
-
-		await staticBuild(opts, internals, prerenderOutputDir);
+		await viteBuild(opts);
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();
