@@ -1,0 +1,15 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+export const prerender = true; // This is a static page!
+
+---
+
+<Layout title="Dashboard (Protected)">
+	<main>
+		<p>
+			This is a protected static page that only authenticated users can access. If you see this,
+			you're successfully signed in!
+		</p>
+	</main>
+</Layout>
