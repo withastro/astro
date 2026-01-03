@@ -16,6 +16,7 @@ export async function GET() {
 	const referencedEntry = await getEntry(entryWithReference.data.cat);
 
 	const spacecraft = await getCollection('spacecraft');
+	const spacecraftNoBody = await getCollection('spacecraftNoBody');
 
 	const entryWithImagePath = await getEntry('spacecraft', 'lunar-module');
 
@@ -66,6 +67,8 @@ export async function GET() {
 			csvLoader,
 			atlantis,
 			spacecraft: spacecraft.map(({id}) => id).sort((a, b) => a.localeCompare(b)),
+			spacecraftWithBody: spacecraft.map(({id, body}) => ({id, body})),
+			spacecraftNoBody: spacecraftNoBody.map(({id, body}) => ({id, body})),
 		})
 	);
 }

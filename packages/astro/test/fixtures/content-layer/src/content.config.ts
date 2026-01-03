@@ -91,6 +91,24 @@ const spacecraft = defineCollection({
 		}),
 });
 
+// Same as spacecraft, but with retainBody: false
+const spacecraftNoBody = defineCollection({
+	loader: glob({ pattern: '*.md', base: absoluteRoot, retainBody: false }),
+	schema: ({ image }) =>
+		z.object({
+			title: z.string(),
+			description: z.string(),
+			publishedDate: z.coerce.date(),
+			tags: z.array(z.string()),
+			heroImage: image().optional(),
+			cat: reference('cats').default('siamese'),
+			something: z
+				.string()
+				.optional()
+				.transform((str) => ({ type: 'test', content: str })),
+		}),
+});
+
 
 const cats = defineCollection({
 	loader: async function () {
@@ -275,6 +293,7 @@ export const collections = {
 	numbersToml,
 	numbersYaml,
 	spacecraft,
+	spacecraftNoBody,
 	increment,
 	images,
 	artists,
