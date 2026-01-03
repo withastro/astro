@@ -1424,6 +1424,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/e2e/fixtures/non-ascii-rewrites:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/e2e/fixtures/pass-js:
     dependencies:
       react:
@@ -10998,10 +11004,6 @@ packages:
     resolution: {integrity: sha512-6DnInpx7SJ2AK3+CTUE/ZM0vWTUboZCegxhC2xiIydHR9jNuTAASBrfEpHhiGOZw/nX51bHt6YQl8jsGo4y/0w==}
     engines: {node: '>= 0.6'}
 
-  cookie@0.7.2:
-    resolution: {integrity: sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==}
-    engines: {node: '>= 0.6'}
-
   cookie@1.0.2:
     resolution: {integrity: sha512-9Kr/j4O16ISv8zBBhJoi4bXOYNTkFLOqSL3UDB0njXxCXNezjeyVrJyGOWtgfs/q2km1gwBcfH8q1yEGoMYunA==}
     engines: {node: '>=18'}
@@ -20030,8 +20032,6 @@ snapshots:
 
   cookie@0.7.1: {}
 
-  cookie@0.7.2: {}
-
   cookie@1.0.2: {}
 
   copy-anything@4.0.5:
@@ -25582,7 +25582,7 @@ snapshots:
 
   youch@3.3.4:
     dependencies:
-      cookie: 0.7.2
+      cookie: 0.7.1
       mustache: 4.2.0
       stacktracey: 2.1.8
 
