@@ -187,11 +187,6 @@ export class RunnablePipeline extends Pipeline {
 		}
 	}
 
-	clearRouteCache() {
-		this.routeCache.clearAll();
-		this.componentInterner = new WeakMap<RouteData, ComponentInstance>();
-	}
-
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
 		const component = this.componentInterner.get(routeData);
 		if (component) {
