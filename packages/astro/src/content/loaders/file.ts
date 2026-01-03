@@ -7,14 +7,14 @@ import { AstroError } from '../../core/errors/index.js';
 import { posixRelative } from '../utils.js';
 import type { Loader, LoaderContext } from './types.js';
 
+type ParserOutput = Record<string, Record<string, unknown>> | Array<Record<string, unknown>>;
+
 interface FileOptions {
 	/**
 	 * the parsing function to use for this data
 	 * @default JSON.parse or yaml.load, depending on the extension of the file
 	 * */
-	parser?: (
-		text: string,
-	) => Record<string, Record<string, unknown>> | Array<Record<string, unknown>>;
+	parser?: (text: string) => Promise<ParserOutput> | ParserOutput;
 }
 
 /**
@@ -54,7 +54,7 @@ export function file(fileName: string, options?: FileOptions): Loader {
 
 		try {
 			const contents = await fs.readFile(filePath, 'utf-8');
-			data = parse!(contents);
+			data = await parse!(contents);
 		} catch (error: any) {
 			logger.error(`Error reading data from ${fileName}`);
 			logger.debug(error.message);
