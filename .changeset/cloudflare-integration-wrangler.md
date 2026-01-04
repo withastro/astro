@@ -2,4 +2,4 @@
 '@astrojs/cloudflare': patch
 ---
 
-Move wrangler to peer dependencies
+Updates `wrangler` dependency to be a `peerDependency` over a `dependency`
