@@ -244,7 +244,7 @@ importers:
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.0
-        version: 10.28.0
+        version: 10.28.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -268,13 +268,13 @@ importers:
         version: link:../../packages/integrations/preact
       '@preact/signals':
         specifier: ^2.5.1
-        version: 2.5.1(preact@10.28.0)
+        version: 2.5.1(preact@10.28.1)
       astro:
         specifier: ^5.16.6
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.0
-        version: 10.28.0
+        version: 10.28.1
 
   examples/framework-react:
     dependencies:
@@ -418,7 +418,7 @@ importers:
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.0
-        version: 10.28.0
+        version: 10.28.1
 
   examples/with-nanostores:
     dependencies:
@@ -427,7 +427,7 @@ importers:
         version: link:../../packages/integrations/preact
       '@nanostores/preact':
         specifier: ^0.5.2
-        version: 0.5.2(nanostores@0.11.4)(preact@10.28.0)
+        version: 0.5.2(nanostores@0.11.4)(preact@10.28.1)
       astro:
         specifier: ^5.16.6
         version: link:../../packages/astro
@@ -436,7 +436,7 @@ importers:
         version: 0.11.4
       preact:
         specifier: ^10.28.0
-        version: 10.28.0
+        version: 10.28.1
 
   examples/with-tailwindcss:
     dependencies:
@@ -890,7 +890,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/e2e/fixtures/astro-envs:
     dependencies:
@@ -924,7 +924,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1021,7 +1021,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/e2e/fixtures/error-cyclic:
     dependencies:
@@ -1033,7 +1033,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/e2e/fixtures/error-sass:
     dependencies:
@@ -1066,7 +1066,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1105,7 +1105,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/e2e/fixtures/i18n:
     dependencies:
@@ -1126,7 +1126,7 @@ importers:
         version: 3.3.1
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1166,7 +1166,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
     devDependencies:
       '@astrojs/mdx':
         specifier: workspace:*
@@ -1182,7 +1182,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1222,7 +1222,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1262,7 +1262,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1302,7 +1302,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1342,7 +1342,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1382,7 +1382,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1450,7 +1450,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/e2e/fixtures/preact-component:
     dependencies:
@@ -1465,7 +1465,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/e2e/fixtures/preact-lazy-component:
     dependencies:
@@ -1480,7 +1480,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/e2e/fixtures/prefetch:
     dependencies:
@@ -1934,7 +1934,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/test/fixtures/astro-check-errors:
     dependencies:
@@ -1982,7 +1982,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
       svelte:
         specifier: ^5.43.14
         version: 5.46.1
@@ -2164,7 +2164,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/test/fixtures/astro-external-files:
     dependencies:
@@ -2182,7 +2182,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/test/fixtures/astro-generator:
     dependencies:
@@ -2443,7 +2443,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/test/fixtures/astro-slots:
     dependencies:
@@ -2473,7 +2473,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -2500,7 +2500,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/test/fixtures/build-assets:
     dependencies:
@@ -2512,7 +2512,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/test/fixtures/build-concurrency:
     dependencies:
@@ -2566,7 +2566,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -2581,7 +2581,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -2762,7 +2762,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/test/fixtures/content-layer-remark-plugins:
     dependencies:
@@ -3193,7 +3193,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/test/fixtures/error-bad-js:
     dependencies:
@@ -3241,7 +3241,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
       svelte:
         specifier: ^5.43.14
         version: 5.46.1
@@ -3337,7 +3337,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/test/fixtures/i18n-double-prefix:
     dependencies:
@@ -3481,7 +3481,7 @@ importers:
     dependencies:
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -3739,7 +3739,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/test/fixtures/preact-compat-component/packages/react-lib:
     dependencies:
@@ -3754,13 +3754,13 @@ importers:
         version: link:../../../../integrations/preact
       '@preact/signals':
         specifier: 2.5.1
-        version: 2.5.1(preact@10.28.0)
+        version: 2.5.1(preact@10.28.1)
       astro:
         specifier: workspace:*
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/test/fixtures/prerender-conflict-dynamic-dynamic:
     dependencies:
@@ -3839,7 +3839,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/test/fixtures/remote-css:
     dependencies:
@@ -4004,7 +4004,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/test/fixtures/slots-react:
     dependencies:
@@ -4163,7 +4163,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/test/fixtures/ssr-error:
     dependencies:
@@ -4282,7 +4282,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/test/fixtures/ssr-split-manifest:
     dependencies:
@@ -4312,7 +4312,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/astro/test/fixtures/static-build-code-component:
     dependencies:
@@ -4339,7 +4339,7 @@ importers:
         version: link:../../..
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -5184,7 +5184,7 @@ importers:
         version: link:../../../../../astro
       preact:
         specifier: ^10.28.0
-        version: 10.28.0
+        version: 10.28.1
 
   packages/integrations/markdoc/test/fixtures/render-with-config:
     dependencies:
@@ -5386,7 +5386,7 @@ importers:
         version: link:../../../../../astro
       preact:
         specifier: ^10.27.2
-        version: 10.28.0
+        version: 10.28.1
 
   packages/integrations/mdx/test/fixtures/mdx-namespace:
     dependencies:
@@ -5831,13 +5831,13 @@ importers:
     dependencies:
       '@preact/preset-vite':
         specifier: ^2.10.2
-        version: 2.10.2(@babel/core@7.28.5)(preact@10.28.0)(vite@6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.96.0)(tsx@4.20.6)(yaml@2.8.1))
+        version: 2.10.2(@babel/core@7.28.5)(preact@10.28.1)(vite@6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.96.0)(tsx@4.20.6)(yaml@2.8.1))
       '@preact/signals':
         specifier: ^2.5.1
-        version: 2.5.1(preact@10.28.0)
+        version: 2.5.1(preact@10.28.1)
       preact-render-to-string:
-        specifier: ^6.6.3
-        version: 6.6.3(preact@10.28.0)
+        specifier: ^6.6.5
+        version: 6.6.5(preact@10.28.1)
       vite:
         specifier: ^6.4.1
         version: 6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.96.0)(tsx@4.20.6)(yaml@2.8.1)
@@ -5849,8 +5849,8 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       preact:
-        specifier: ^10.28.0
-        version: 10.28.0
+        specifier: ^10.28.1
+        version: 10.28.1
 
   packages/integrations/react:
     dependencies:
@@ -5904,7 +5904,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       vue:
-        specifier: ^3.5.25
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/integrations/sitemap:
@@ -5993,8 +5993,8 @@ importers:
         specifier: ^5.1.1
         version: 5.1.1(svelte@5.46.1)(vite@6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.96.0)(tsx@4.20.6)(yaml@2.8.1))
       svelte2tsx:
-        specifier: ^0.7.45
-        version: 0.7.45(svelte@5.46.1)(typescript@5.9.3)
+        specifier: ^0.7.46
+        version: 0.7.46(svelte@5.46.1)(typescript@5.9.3)
       vite:
         specifier: ^6.4.1
         version: 6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.96.0)(tsx@4.20.6)(yaml@2.8.1)
@@ -6009,31 +6009,31 @@ importers:
         specifier: 1.1.2
         version: 1.1.2
       svelte:
-        specifier: ^5.45.5
+        specifier: ^5.46.1
         version: 5.46.1
 
   packages/integrations/svelte/test/fixtures/async-rendering:
     dependencies:
       '@astrojs/svelte':
-        specifier: ^7.2.2
+        specifier: ^7.2.4
         version: link:../../..
       astro:
-        specifier: ^5.16.4
+        specifier: ^5.16.6
         version: link:../../../../../astro
       svelte:
-        specifier: 5.43.14
-        version: 5.43.14
+        specifier: 5.46.1
+        version: 5.46.1
 
   packages/integrations/svelte/test/fixtures/prop-types:
     dependencies:
       '@astrojs/svelte':
-        specifier: ^7.2.2
+        specifier: ^7.2.4
         version: link:../../..
       astro:
-        specifier: ^5.16.4
+        specifier: ^5.16.6
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.45.5
+        specifier: ^5.46.1
         version: 5.46.1
 
   packages/integrations/vercel:
@@ -6262,7 +6262,7 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0(vite@6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.96.0)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.26(typescript@5.9.3))
       '@vue/compiler-sfc':
-        specifier: ^3.5.25
+        specifier: ^3.5.26
         version: 3.5.26
       vite:
         specifier: ^6.4.1
@@ -6284,7 +6284,7 @@ importers:
         specifier: ^0.18.12
         version: 0.18.12
       vue:
-        specifier: ^3.5.25
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/integrations/vue/test/fixtures/app-entrypoint:
@@ -6299,7 +6299,7 @@ importers:
         specifier: 5.1.0
         version: 5.1.0(vue@3.5.26(typescript@5.9.3))
       vue:
-        specifier: ^3.5.25
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/integrations/vue/test/fixtures/app-entrypoint-async:
@@ -6314,7 +6314,7 @@ importers:
         specifier: 5.1.0
         version: 5.1.0(vue@3.5.26(typescript@5.9.3))
       vue:
-        specifier: ^3.5.25
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/integrations/vue/test/fixtures/app-entrypoint-css:
@@ -6338,7 +6338,7 @@ importers:
         specifier: 5.1.0
         version: 5.1.0(vue@3.5.26(typescript@5.9.3))
       vue:
-        specifier: ^3.5.25
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/integrations/vue/test/fixtures/app-entrypoint-relative:
@@ -13889,13 +13889,13 @@ packages:
     resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
     engines: {node: ^10 || ^12 || >=14}
 
-  preact-render-to-string@6.6.3:
-    resolution: {integrity: sha512-7oHG7jzjriqsFPkSPiPnzrQ0GcxFm6wOkYWNdStK5Ks9YlWSQQXKGBRAX4nKDdqX7HAQuRvI4pZNZMycK4WwDw==}
+  preact-render-to-string@6.6.5:
+    resolution: {integrity: sha512-O6MHzYNIKYaiSX3bOw0gGZfEbOmlIDtDfWwN1JJdc/T3ihzRT6tGGSEWE088dWrEDGa1u7101q+6fzQnO9XCPA==}
     peerDependencies:
       preact: '>=10 || >= 11.0.0-0'
 
-  preact@10.28.0:
-    resolution: {integrity: sha512-rytDAoiXr3+t6OIP3WGlDd0ouCUG1iCWzkcY3++Nreuoi17y6T5i/zRhe6uYfoVcxq6YU+sBtJouuRDsq8vvqA==}
+  preact@10.28.1:
+    resolution: {integrity: sha512-u1/ixq/lVQI0CakKNvLDEcW5zfCjUQfZdK9qqWuIJtsezuyG6pk9TWj75GMuI/EzRSZB/VAE43sNWWZfiy8psw==}
 
   prebuild-install@7.1.3:
     resolution: {integrity: sha512-8Mf2cbV7x1cXPUILADGI3wuhfqWvtiLA1iclTDbFRZkgRQS0NqsPZphna9V+HyTEadheuPmjaJMsbzKQFOzLug==}
@@ -14719,8 +14719,8 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  svelte2tsx@0.7.45:
-    resolution: {integrity: sha512-cSci+mYGygYBHIZLHlm/jYlEc1acjAHqaQaDFHdEBpUueM9kSTnPpvPtSl5VkJOU1qSJ7h1K+6F/LIUYiqC8VA==}
+  svelte2tsx@0.7.46:
+    resolution: {integrity: sha512-S++Vw3w47a8rBuhbz4JK0fcGea8tOoX1boT53Aib8+oUO2EKeOG+geXprJVTDfBlvR+IJdf3jIpR2RGwT6paQA==}
     peerDependencies:
       svelte: ^3.55 || ^4.0.0-next.0 || ^4.0 || ^5.0.0-next.0
       typescript: ^4.9.4 || ^5.0.0
@@ -14728,10 +14728,6 @@ packages:
   svelte@4.2.20:
     resolution: {integrity: sha512-eeEgGc2DtiUil5ANdtd8vPwt9AgaMdnuUFnPft9F5oMvU/FHu5IHFic+p1dR/UOB7XU2mX2yHW+NcTch4DCh5Q==}
     engines: {node: '>=16'}
-
-  svelte@5.43.14:
-    resolution: {integrity: sha512-pHeUrp1A5S6RGaXhJB7PtYjL1VVjbVrJ2EfuAoPu9/1LeoMaJa/pcdCsCSb0gS4eUHAHnhCbUDxORZyvGK6kOQ==}
-    engines: {node: '>=18'}
 
   svelte@5.46.1:
     resolution: {integrity: sha512-ynjfCHD3nP2el70kN5Pmg37sSi0EjOm9FgHYQdC4giWG/hzO3AatzXXJJgP305uIhGQxSufJLuYWtkY8uK/8RA==}
@@ -17572,10 +17568,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@nanostores/preact@0.5.2(nanostores@0.11.4)(preact@10.28.0)':
+  '@nanostores/preact@0.5.2(nanostores@0.11.4)(preact@10.28.1)':
     dependencies:
       nanostores: 0.11.4
-      preact: 10.28.0
+      preact: 10.28.1
 
   '@napi-rs/wasm-runtime@0.2.12':
     dependencies:
@@ -18194,12 +18190,12 @@ snapshots:
 
   '@polka/url@1.0.0-next.29': {}
 
-  '@preact/preset-vite@2.10.2(@babel/core@7.28.5)(preact@10.28.0)(vite@6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.96.0)(tsx@4.20.6)(yaml@2.8.1))':
+  '@preact/preset-vite@2.10.2(@babel/core@7.28.5)(preact@10.28.1)(vite@6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.96.0)(tsx@4.20.6)(yaml@2.8.1))':
     dependencies:
       '@babel/core': 7.28.5
       '@babel/plugin-transform-react-jsx': 7.27.1(@babel/core@7.28.5)
       '@babel/plugin-transform-react-jsx-development': 7.27.1(@babel/core@7.28.5)
-      '@prefresh/vite': 2.4.11(preact@10.28.0)(vite@6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.96.0)(tsx@4.20.6)(yaml@2.8.1))
+      '@prefresh/vite': 2.4.11(preact@10.28.1)(vite@6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.96.0)(tsx@4.20.6)(yaml@2.8.1))
       '@rollup/pluginutils': 4.2.1
       babel-plugin-transform-hook-names: 1.0.2(@babel/core@7.28.5)
       debug: 4.4.3(supports-color@8.1.1)
@@ -18212,27 +18208,27 @@ snapshots:
 
   '@preact/signals-core@1.12.1': {}
 
-  '@preact/signals@2.5.1(preact@10.28.0)':
+  '@preact/signals@2.5.1(preact@10.28.1)':
     dependencies:
       '@preact/signals-core': 1.12.1
-      preact: 10.28.0
+      preact: 10.28.1
 
   '@prefresh/babel-plugin@0.5.2': {}
 
-  '@prefresh/core@1.5.8(preact@10.28.0)':
+  '@prefresh/core@1.5.8(preact@10.28.1)':
     dependencies:
-      preact: 10.28.0
+      preact: 10.28.1
 
   '@prefresh/utils@1.2.1': {}
 
-  '@prefresh/vite@2.4.11(preact@10.28.0)(vite@6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.96.0)(tsx@4.20.6)(yaml@2.8.1))':
+  '@prefresh/vite@2.4.11(preact@10.28.1)(vite@6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.96.0)(tsx@4.20.6)(yaml@2.8.1))':
     dependencies:
       '@babel/core': 7.28.5
       '@prefresh/babel-plugin': 0.5.2
-      '@prefresh/core': 1.5.8(preact@10.28.0)
+      '@prefresh/core': 1.5.8(preact@10.28.1)
       '@prefresh/utils': 1.2.1
       '@rollup/pluginutils': 4.2.1
-      preact: 10.28.0
+      preact: 10.28.1
       vite: 6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.96.0)(tsx@4.20.6)(yaml@2.8.1)
     transitivePeerDependencies:
       - supports-color
@@ -23461,11 +23457,11 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  preact-render-to-string@6.6.3(preact@10.28.0):
+  preact-render-to-string@6.6.5(preact@10.28.1):
     dependencies:
-      preact: 10.28.0
+      preact: 10.28.1
 
-  preact@10.28.0: {}
+  preact@10.28.1: {}
 
   prebuild-install@7.1.3:
     dependencies:
@@ -24540,7 +24536,7 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte2tsx@0.7.45(svelte@5.46.1)(typescript@5.9.3):
+  svelte2tsx@0.7.46(svelte@5.46.1)(typescript@5.9.3):
     dependencies:
       dedent-js: 1.0.1
       scule: 1.3.0
@@ -24563,23 +24559,6 @@ snapshots:
       locate-character: 3.0.0
       magic-string: 0.30.21
       periscopic: 3.1.0
-
-  svelte@5.43.14:
-    dependencies:
-      '@jridgewell/remapping': 2.3.5
-      '@jridgewell/sourcemap-codec': 1.5.5
-      '@sveltejs/acorn-typescript': 1.0.6(acorn@8.15.0)
-      '@types/estree': 1.0.8
-      acorn: 8.15.0
-      aria-query: 5.3.2
-      axobject-query: 4.1.0
-      clsx: 2.1.1
-      esm-env: 1.2.2
-      esrap: 2.2.1
-      is-reference: 3.0.3
-      locate-character: 3.0.0
-      magic-string: 0.30.21
-      zimmerframe: 1.1.4
 
   svelte@5.46.1:
     dependencies:
