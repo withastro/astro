@@ -1,5 +1,19 @@
 # astro
 
+## 5.16.7
+
+### Patch Changes
+
+- [#14954](https://github.com/withastro/astro/pull/14954) [`7bec4bd`](https://github.com/withastro/astro/commit/7bec4bdadda1d66da1c7dc0a01ad4412a47337d9) Thanks [@volpeon](https://github.com/volpeon)! - Fixes remote images `Etag` header handling by disabling internal cache
+
+- [#15028](https://github.com/withastro/astro/pull/15028) [`87b19b8`](https://github.com/withastro/astro/commit/87b19b8df49d08ee7a7a1855f3645fe7bebf1997) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes certain aliases not working when using images in JSON files with the content layer
+
+- [#15055](https://github.com/withastro/astro/pull/15055) [`4e28db8`](https://github.com/withastro/astro/commit/4e28db8d125b693039b393111fa48d7bcc913968) Thanks [@delucis](https://github.com/delucis)! - Reduces Astro’s install size by around 8 MB
+
+- [#15088](https://github.com/withastro/astro/pull/15088) [`a19140f`](https://github.com/withastro/astro/commit/a19140fd11efbc635a391d176da54b0dc5e4a99c) Thanks [@martrapp](https://github.com/martrapp)! - Enables the ClientRouter to preserve the original hash part of the target URL during server side redirects.
+
+- [#15034](https://github.com/withastro/astro/pull/15034) [`8115752`](https://github.com/withastro/astro/commit/811575237d159ceac5d9f0a2ea3bf023df718759) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a vite warning log during builds when using npm
+
 ## 5.16.6
 
 ### Patch Changes
