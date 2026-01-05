@@ -1,24 +1,27 @@
 // @ts-expect-error
 import { root } from 'astro:config/server';
 import { readFile } from 'node:fs/promises';
-import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { isParentDirectory } from '@astrojs/internal-helpers/path';
 import type { APIRoute } from '../../types/public/common.js';
 import { handleImageRequest, loadRemoteImage } from './shared.js';
 
-function replaceFileSystemReferences(src: string) {
-	return os.platform().includes('win32') ? src.replace(/^\/@fs\//, '') : src.replace(/^\/@fs/, '');
-}
-
 async function loadLocalImage(src: string, url: URL) {
-	// Vite uses /@fs/ to denote filesystem access
+	// Vite uses /@fs/ to denote filesystem access, we can fetch those files directly
 	if (src.startsWith('/@fs/')) {
-		src = replaceFileSystemReferences(src);
-		if (!isParentDirectory(fileURLToPath(root), src)) {
+		try {
+			const res = await fetch(new URL(src, url));
+
+			if (!res.ok) {
+				return undefined;
+			}
+
+			return Buffer.from(await res.arrayBuffer());
+		} catch {
 			return undefined;
 		}
 	}
+
 	// Vite allows loading files directly from the filesystem
 	// as long as they are inside the project root.
 	if (isParentDirectory(fileURLToPath(root), src)) {

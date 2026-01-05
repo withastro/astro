@@ -672,6 +672,17 @@ declare namespace astroHTML.JSX {
 		value?: string | string[] | number | undefined | null;
 		popovertarget?: string | undefined | null;
 		popovertargetaction?: 'hide' | 'show' | 'toggle' | undefined | null;
+		command?:
+			| 'show-modal'
+			| 'close'
+			| 'request-close'
+			| 'show-popover'
+			| 'hide-popover'
+			| 'toggle-popover'
+			| (string & {})
+			| undefined
+			| null;
+		commandfor?: string | undefined | null;
 	}
 
 	interface CanvasHTMLAttributes extends HTMLAttributes {

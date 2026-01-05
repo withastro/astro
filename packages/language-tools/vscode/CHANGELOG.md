@@ -1,10 +1,42 @@
 # astro-vscode
 
+## 2.16.5
+
+### Patch Changes
+
+- [#14988](https://github.com/withastro/astro/pull/14988) [`a3a20d8`](https://github.com/withastro/astro/commit/a3a20d8c9783de10de64d2f15dacdd5afc97a5ad) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Retries failed deploy
+
+## 2.16.4
+
+### Patch Changes
+
+- [#14916](https://github.com/withastro/astro/pull/14916) [`f00aa2b`](https://github.com/withastro/astro/commit/f00aa2bf164cdf0b281a6889b47e32afdfcdad69) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Retry failed publish (again)
+
+## 2.16.3
+
+### Patch Changes
+
+- [#14911](https://github.com/withastro/astro/pull/14911) [`fcdf52f`](https://github.com/withastro/astro/commit/fcdf52fe0ec871f42bb9883d43fac67452405eca) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Retry failed publish
+
+## 2.16.2
+
+### Patch Changes
+
+- [#14909](https://github.com/withastro/astro/pull/14909) [`629d86b`](https://github.com/withastro/astro/commit/629d86b8279ea27c3a56843fd772c3fe11b27983) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes borked publish
+
+## 2.16.1
+
+### Patch Changes
+
+- [#14740](https://github.com/withastro/astro/pull/14740) [`abfed97`](https://github.com/withastro/astro/commit/abfed97d45ab04c625d6463f9be1e5b1d23c3573) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes link targets in documentation following repository relocation.
+
+- [#14710](https://github.com/withastro/astro/pull/14710) [`c6903cd`](https://github.com/withastro/astro/commit/c6903cd6ce20e17d6604ea3412bd66ea8387d079) Thanks [@RomanHauksson](https://github.com/RomanHauksson)! - Fixes the displayed description for the Content-intellisense setting to refer to the correct configuration file option
+
 ## 2.16.0
 
 ### Minor Changes
 
-- [#14584](https://github.com/withastro/astro/pull/14584) [`3c7ab17`](https://github.com/withastro/astro/commit/3c7ab178da26d095777495bcee94b468937936a3) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a new setting for disabling the Auto Import Cache. The cache can cause an issue where new files are not able to be automatically imported using autocomplete in certain cases. Check https://github.com/withastro/language-tools/issues/1035 for more details.
+- [#14584](https://github.com/withastro/astro/pull/14584) [`3c7ab17`](https://github.com/withastro/astro/commit/3c7ab178da26d095777495bcee94b468937936a3) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds a new setting for disabling the Auto Import Cache. The cache can cause an issue where new files are not able to be automatically imported using autocomplete in certain cases. Check https://github.com/withastro/astro/issues/14642 for more details.
 
 ## 2.15.5
 
@@ -29,7 +61,7 @@
 
 ### Patch Changes
 
-- 43f66cd: Fixes publishing on OpenVSX. For full changelogs between 2.11.0 and this version, please see [CHANGELOG.md](https://github.com/withastro/language-tools/blob/main/packages/vscode/CHANGELOG.md) in the repository.
+- 43f66cd: Fixes publishing on OpenVSX. For full changelogs between 2.11.0 and this version, please see [CHANGELOG.md](https://github.com/withastro/astro/blob/main/packages/language-tools/vscode/CHANGELOG.md) in the repository.
 
 ## 2.15.1
 
