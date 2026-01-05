@@ -1,5 +1,5 @@
-import type { IImage } from './interface'
-import { readInt32LE, readUInt32LE, toUTF8String } from './utils'
+import type { IImage } from './interface.ts'
+import { readInt32LE, readUInt32LE, toUTF8String } from './utils.js'
 
 export const BMP: IImage = {
   validate: (input) => toUTF8String(input, 0, 2) === 'BM',

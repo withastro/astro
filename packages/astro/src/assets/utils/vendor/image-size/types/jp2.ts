@@ -1,5 +1,5 @@
-import type { IImage } from './interface'
-import { findBox, readUInt32BE, toUTF8String } from './utils'
+import type { IImage } from './interface.ts'
+import { findBox, readUInt32BE, toUTF8String } from './utils.js'
 
 export const JP2: IImage = {
   validate(input) {

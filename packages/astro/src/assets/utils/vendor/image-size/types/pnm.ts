@@ -1,5 +1,5 @@
-import type { IImage, ISize } from './interface'
-import { toUTF8String } from './utils'
+import type { IImage, ISize } from './interface.ts'
+import { toUTF8String } from './utils.js'
 
 const PNMTypes = {
   P1: 'pbm/ascii',

@@ -1,6 +1,6 @@
-import { BitReader } from '../utils/bit-reader'
-import type { IImage } from './interface'
-import { toHexString } from './utils'
+import { BitReader } from '../utils/bit-reader.js'
+import type { IImage } from './interface.ts'
+import { toHexString } from './utils.js'
 
 function calculateImageDimension(
   reader: BitReader,

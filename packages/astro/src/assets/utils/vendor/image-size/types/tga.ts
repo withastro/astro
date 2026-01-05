@@ -1,5 +1,5 @@
-import type { IImage } from './interface'
-import { readUInt16LE } from './utils'
+import type { IImage } from './interface.ts'
+import { readUInt16LE } from './utils.js'
 
 export const TGA: IImage = {
   validate(input) {

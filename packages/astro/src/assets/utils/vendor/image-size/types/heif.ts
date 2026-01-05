@@ -1,5 +1,5 @@
-import type { IImage, ISize } from './interface'
-import { findBox, readUInt32BE, toUTF8String } from './utils'
+import type { IImage, ISize } from './interface.ts'
+import { findBox, readUInt32BE, toUTF8String } from './utils.js'
 
 const brandMap = {
   avif: 'avif',

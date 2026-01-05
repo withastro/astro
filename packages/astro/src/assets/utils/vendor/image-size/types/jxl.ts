@@ -1,6 +1,6 @@
-import type { IImage, ISize } from './interface'
-import { JXLStream } from './jxl-stream'
-import { findBox, toUTF8String } from './utils'
+import type { IImage, ISize } from './interface.ts'
+import { JXLStream } from './jxl-stream.js'
+import { findBox, toUTF8String } from './utils.js'
 
 /** Extracts the codestream from a containerized JPEG XL image */
 function extractCodestream(input: Uint8Array): Uint8Array | undefined {

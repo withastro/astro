@@ -1,5 +1,5 @@
-import type { imageType } from './types/index'
-import { typeHandlers, types } from './types/index'
+import type { imageType } from './types/index.ts'
+import { typeHandlers, types } from './types/index.js'
 
 // This map helps avoid validating for every single image type
 const firstBytes = new Map<number, imageType>([

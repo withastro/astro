@@ -1,5 +1,5 @@
-import type { IImage } from './interface'
-import { readUInt32BE } from './utils'
+import type { IImage } from './interface.ts'
+import { readUInt32BE } from './utils.js'
 
 export const J2C: IImage = {
   // TODO: this doesn't seem right. SIZ marker doesn't have to be right after the SOC

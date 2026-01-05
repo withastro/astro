@@ -1,5 +1,5 @@
-import type { IImage } from './interface'
-import { readUInt32BE, toUTF8String } from './utils'
+import type { IImage } from './interface.ts'
+import { readUInt32BE, toUTF8String } from './utils.js'
 
 const pngSignature = 'PNG\r\n\x1a\n'
 const pngImageHeaderChunkName = 'IHDR'

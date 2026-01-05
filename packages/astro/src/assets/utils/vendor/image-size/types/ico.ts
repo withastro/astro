@@ -1,5 +1,5 @@
-import type { IImage, ISize } from './interface'
-import { readUInt16LE } from './utils'
+import type { IImage, ISize } from './interface.ts'
+import { readUInt16LE } from './utils.js'
 
 const TYPE_ICON = 1
 

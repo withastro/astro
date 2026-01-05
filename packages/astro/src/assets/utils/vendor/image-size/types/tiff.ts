@@ -1,6 +1,5 @@
-import * as fs from 'node:fs'
-import type { IImage, ISize } from './interface'
-import { readUInt, readUInt64, toHexString, toUTF8String } from './utils'
+import type { IImage, ISize } from './interface.ts'
+import { readUInt, readUInt64, toHexString, toUTF8String } from './utils.js'
 
 const CONSTANTS = {
   TAG: {

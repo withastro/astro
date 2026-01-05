@@ -1,5 +1,5 @@
-import type { IImage } from './interface'
-import { readUInt32BE, toUTF8String } from './utils'
+import type { IImage } from './interface.ts'
+import { readUInt32BE, toUTF8String } from './utils.js'
 
 export const PSD: IImage = {
   validate: (input) => toUTF8String(input, 0, 4) === '8BPS',
