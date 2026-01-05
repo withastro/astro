@@ -724,7 +724,10 @@ export function getContentPaths(
 		const legacyConfigStats = searchLegacyConfig(fs, srcDir);
 		if (legacyConfigStats.exists) {
 			if (!legacyCollectionsBackwardsCompat) {
-				const relativePath = path.relative(fileURLToPath(root), fileURLToPath(legacyConfigStats.url));
+				const relativePath = path.relative(
+					fileURLToPath(root),
+					fileURLToPath(legacyConfigStats.url),
+				);
 				throw new AstroError({
 					...AstroErrorData.LegacyContentConfigError,
 					message: AstroErrorData.LegacyContentConfigError.message(relativePath),

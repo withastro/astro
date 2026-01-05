@@ -255,7 +255,8 @@ class ContentLayer {
 			this.#watcher?.removeAllTrackedListeners();
 		}
 
-		const backwardsCompatEnabled = this.#settings.config.legacy?.collectionsBackwardsCompat ?? false;
+		const backwardsCompatEnabled =
+			this.#settings.config.legacy?.collectionsBackwardsCompat ?? false;
 
 		await Promise.all(
 			Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
@@ -269,7 +270,7 @@ class ContentLayer {
 				}
 
 				let { schema } = collection;
-				const loaderName = ('loader' in collection) ? (collection as any).loader.name : 'content';
+				const loaderName = 'loader' in collection ? (collection as any).loader.name : 'content';
 
 				if (!schema && 'loader' in collection && typeof collection.loader === 'object') {
 					schema = collection.loader.schema;
@@ -281,9 +282,9 @@ class ContentLayer {
 				// If loaders are specified, only sync the specified loaders
 				if (
 					options?.loaders &&
-					('loader' in collection &&
-						(typeof collection.loader !== 'object' ||
-							!options.loaders.includes((collection as any).loader.name)))
+					'loader' in collection &&
+					(typeof collection.loader !== 'object' ||
+						!options.loaders.includes((collection as any).loader.name))
 				) {
 					return;
 				}

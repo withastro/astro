@@ -111,10 +111,7 @@ export type LiveCollectionConfig<
 export type CollectionConfig<
 	S extends BaseSchema,
 	TLoader extends LoaderConstraint<{ id: string }> = LoaderConstraint<{ id: string }>,
-> =
-	| ContentCollectionConfig<S>
-	| DataCollectionConfig<S>
-	| ContentLayerConfig<S, TLoader>;
+> = ContentCollectionConfig<S> | DataCollectionConfig<S> | ContentLayerConfig<S, TLoader>;
 
 export function defineLiveCollection<
 	L extends LiveLoader,

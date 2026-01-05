@@ -68,7 +68,7 @@ export const secretLegacyFlag = Symbol('astro.legacy-glob');
  * @param pattern A glob pattern to match files, relative to the content directory.
  */
 
-export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean; }): Loader {
+export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean }): Loader {
 	if (checkPrefix(globOptions.pattern, '../')) {
 		throw new Error(
 			'Glob patterns cannot start with `../`. Set the `base` option to a parent directory instead.',
@@ -81,13 +81,23 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean; 
 	}
 
 	const isLegacy = !!globOptions[secretLegacyFlag];
-	const generateId = globOptions?.generateId ?? ((opts: GenerateIdOptions) => generateIdDefault(opts, isLegacy));
+	const generateId =
+		globOptions?.generateId ?? ((opts: GenerateIdOptions) => generateIdDefault(opts, isLegacy));
 
 	const fileToIdMap = new Map<string, string>();
 
 	return {
 		name: 'glob-loader',
-		load: async ({ config, collection, logger, watcher, parseData, store, generateDigest, entryTypes }) => {
+		load: async ({
+			config,
+			collection,
+			logger,
+			watcher,
+			parseData,
+			store,
+			generateDigest,
+			entryTypes,
+		}) => {
 			const renderFunctionByContentType = new WeakMap<
 				ContentEntryType,
 				ContentEntryRenderFunction
