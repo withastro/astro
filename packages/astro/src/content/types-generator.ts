@@ -639,7 +639,16 @@ async function generateJSONSchema(
 	}
 
 	try {
-		const schema = z.toJSONSchema(zodSchemaForJson);
+		const schema = z.toJSONSchema(zodSchemaForJson, {
+			unrepresentable: 'any',
+			override: (ctx) => {
+				const def = ctx.zodSchema._zod.def;
+				if (def.type === 'date') {
+					ctx.jsonSchema.type = 'string';
+					ctx.jsonSchema.format = 'date-time';
+				}
+			},
+		});
 		const schemaStr = JSON.stringify(schema, null, 2);
 		const schemaJsonPath = new URL(
 			`./${collectionKey.replace(/"/g, '')}.schema.json`,

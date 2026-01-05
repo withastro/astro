@@ -17,8 +17,11 @@ export function fileURLIntegration(): AstroIntegration {
 		return {
 			name: '@astrojs/db/file-url',
 			enforce: 'pre',
-			async load(id) {
-				if (id.endsWith('?fileurl')) {
+			load: {
+				filter: {
+					id: /\?fileurl$/,
+				},
+				async handler(id) {
 					const filePath = id.slice(0, id.indexOf('?'));
 					if (command === 'build') {
 						const data = await fs.promises.readFile(filePath);
@@ -35,7 +38,7 @@ export function fileURLIntegration(): AstroIntegration {
 					else {
 						return `export default new URL(${JSON.stringify(pathToFileURL(filePath).toString())})`;
 					}
-				}
+				},
 			},
 			generateBundle() {
 				// Save file names so we can copy them back over.

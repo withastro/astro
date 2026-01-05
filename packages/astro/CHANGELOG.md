@@ -1,5 +1,66 @@
 # astro
 
+## 6.0.0-alpha.4
+
+### Major Changes
+
+- [#15049](https://github.com/withastro/astro/pull/15049) [`beddfeb`](https://github.com/withastro/astro/commit/beddfeb31e807cb472a43fa56c69f85dbadc9604) Thanks [@Ntale3](https://github.com/Ntale3)! - Removes the ability to render Astro components in Vitest client environments - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-astro-components-cannot-be-rendered-in-vitest-client-environments-container-api))
+
+### Patch Changes
+
+- [#15054](https://github.com/withastro/astro/pull/15054) [`22db567`](https://github.com/withastro/astro/commit/22db567d4cea7a4476271c101c452a2624b7d996) Thanks [@matthewp](https://github.com/matthewp)! - Improves zod union type error messages to show expected vs received types instead of generic "Invalid input"
+
+## 6.0.0-alpha.3
+
+### Major Changes
+
+- [#15006](https://github.com/withastro/astro/pull/15006) [`f361730`](https://github.com/withastro/astro/commit/f361730bc820c01a2ec3e508ac940be8077d8c04) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes session `test` driver - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-session-test-driver))
+
+- [#15006](https://github.com/withastro/astro/pull/15006) [`f361730`](https://github.com/withastro/astro/commit/f361730bc820c01a2ec3e508ac940be8077d8c04) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates session driver string signature - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-session-driver-string-signature))
+
+### Minor Changes
+
+- [#15006](https://github.com/withastro/astro/pull/15006) [`f361730`](https://github.com/withastro/astro/commit/f361730bc820c01a2ec3e508ac940be8077d8c04) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds new session driver object shape
+
+  For greater flexibility and improved consistency with other Astro code, session drivers are now specified as an object:
+
+  ```diff
+  -import { defineConfig } from 'astro/config'
+  +import { defineConfig, sessionDrivers } from 'astro/config'
+
+  export default defineConfig({
+    session: {
+  -    driver: 'redis',
+  -    options: {
+  -      url: process.env.REDIS_URL
+  -    },
+  +    driver: sessionDrivers.redis({
+  +      url: process.env.REDIS_URL
+  +    }),
+    }
+  })
+  ```
+
+  Specifying the session driver as a string has been deprecated, but will continue to work until this feature is removed completely in a future major version. The object shape is the current recommended and documented way to configure a session driver.
+
+### Patch Changes
+
+- [#15044](https://github.com/withastro/astro/pull/15044) [`7cac71b`](https://github.com/withastro/astro/commit/7cac71b89f7462e197a69d797bdfefe6c7d15689) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes an exposed internal API of the preview server
+
+- [#15047](https://github.com/withastro/astro/pull/15047) [`5580372`](https://github.com/withastro/astro/commit/55803724bb50c0fe4303c26f0df8f254e42b4d61) Thanks [@matthewp](https://github.com/matthewp)! - Fixes wrangler config template in `astro add cloudflare` to use correct entrypoint and compatibility date
+
+- [#15053](https://github.com/withastro/astro/pull/15053) [`674b63f`](https://github.com/withastro/astro/commit/674b63f26d2e3b1878bcc8d770b9895357752ae9) Thanks [@matthewp](https://github.com/matthewp)! - Excludes `astro:*` and `virtual:astro:*` from client optimizeDeps in core. Needed for prefetch users since virtual modules are now in the dependency graph.
+
+## 6.0.0-alpha.2
+
+### Patch Changes
+
+- [#15024](https://github.com/withastro/astro/pull/15024) [`22c48ba`](https://github.com/withastro/astro/commit/22c48ba6643ed7153400781ca1affb3e8dc1351a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where JSON schema generation would fail for unrepresentable types
+
+- [#15036](https://github.com/withastro/astro/pull/15036) [`f125a73`](https://github.com/withastro/astro/commit/f125a73ebf395d81bf44ccfce4af63a518f6f724) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes certain aliases not working when using images in JSON files with the content layer
+
+- [#15036](https://github.com/withastro/astro/pull/15036) [`f125a73`](https://github.com/withastro/astro/commit/f125a73ebf395d81bf44ccfce4af63a518f6f724) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a vite warning log during builds when using npm
+
 ## 6.0.0-alpha.1
 
 ### Major Changes
@@ -36,7 +97,6 @@
 
   **Changes:**
   - New optional properties:
-    - `devEntrypoint?: string | URL` - specifies custom dev server entrypoint
     - `entryType?: 'self' | 'legacy-dynamic'` - determines if the adapter provides its own entrypoint (`'self'`) or if Astro constructs one (`'legacy-dynamic'`, default)
 
   **Migration:** Adapter authors can optionally add these properties to support custom dev entrypoints. If not specified, adapters will use the legacy behavior.
@@ -59,10 +119,6 @@
   ```
 
 - [#14946](https://github.com/withastro/astro/pull/14946) [`95c40f7`](https://github.com/withastro/astro/commit/95c40f7109ce240206c3951761a7bb439dd809cb) Thanks [@ematipico](https://github.com/ematipico)! - Removes the `experimental.csp` flag and replaces it with a new configuration option `security.csp` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
-
-### Patch Changes
-
-- [#14982](https://github.com/withastro/astro/pull/14982) [`6849e38`](https://github.com/withastro/astro/commit/6849e3844d940f76b544822e7bd247641d61567d) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes images outside the project directory not working when using astro:assets in development mode
 
 ## 6.0.0-alpha.0
 
@@ -189,6 +245,16 @@
 
 - Updated dependencies [[`727b0a2`](https://github.com/withastro/astro/commit/727b0a205eb765f1c36f13a73dfc69e17e44df8f)]:
   - @astrojs/markdown-remark@7.0.0-alpha.0
+
+## 5.16.6
+
+### Patch Changes
+
+- [#14982](https://github.com/withastro/astro/pull/14982) [`6849e38`](https://github.com/withastro/astro/commit/6849e3844d940f76b544822e7bd247641d61567d) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes images outside the project directory not working when using astro:assets in development mode
+
+- [#14987](https://github.com/withastro/astro/pull/14987) [`9dd9fca`](https://github.com/withastro/astro/commit/9dd9fca81e5ed3d0d55e0b1624c6515706963b1f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes SVGs not working in dev mode when using the passthrough image service
+
+- [#15014](https://github.com/withastro/astro/pull/15014) [`a178422`](https://github.com/withastro/astro/commit/a178422484ed62a76b227515a798e192fdcba3b9) Thanks [@delucis](https://github.com/delucis)! - Adds support for extending the type of the props accepted by Astro’s `<Image>` component, `<Picture>` component, and `getImage()` API.
 
 ## 5.16.5
 

@@ -8,26 +8,36 @@ import type {
 	SyntaxHighlightConfigType,
 } from '@astrojs/markdown-remark';
 import type { Config as SvgoConfig } from 'svgo';
-import type { BuiltinDriverName, BuiltinDriverOptions, Storage } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { AstroFontProvider, FontFamily } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
-import type { AstroCookieSetOptions } from '../../core/cookies/cookies.js';
 import type { CspAlgorithm, CspDirective, CspHash } from '../../core/csp/config.js';
 import type { Logger, LoggerLevel } from '../../core/logger/core.js';
+import type {
+	SessionConfig,
+	SessionDriverConfig,
+	SessionDriverName,
+} from '../../core/session/types.js';
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
 
-export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
-
 export type { AstroFontProvider as FontProvider };
 
-export type { CspAlgorithm };
+export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
+
+export type { CspAlgorithm, CspHash };
 
 export type { RemotePattern };
+
+export type CspStyleDirective = { hashes?: CspHash[]; resources?: string[] };
+export type CspScriptDirective = {
+	hashes?: CspHash[];
+	resources?: string[];
+	strictDynamic?: boolean;
+};
 
 type NormalizeLocales<T extends Locales> = {
 	[K in keyof T]: T[K] extends string
@@ -127,57 +137,6 @@ export type ServerConfig = {
 	open?: string | boolean;
 };
 
-export type SessionDriverName = BuiltinDriverName | 'custom' | 'test';
-
-interface CommonSessionConfig {
-	/**
-	 * Configures the session cookie. If set to a string, it will be used as the cookie name.
-	 * Alternatively, you can pass an object with additional options.
-	 */
-	cookie?:
-		| string
-		| (Omit<AstroCookieSetOptions, 'httpOnly' | 'expires' | 'encode'> & {
-				name?: string;
-		  });
-
-	/**
-	 * Default session duration in seconds. If not set, the session will be stored until deleted, or until the cookie expires.
-	 */
-	ttl?: number;
-}
-
-interface BuiltinSessionConfig<TDriver extends keyof BuiltinDriverOptions>
-	extends CommonSessionConfig {
-	driver: TDriver;
-	options?: BuiltinDriverOptions[TDriver];
-}
-
-interface CustomSessionConfig extends CommonSessionConfig {
-	/** Entrypoint for a custom session driver */
-	driver?: string;
-	options?: Record<string, unknown>;
-}
-
-interface TestSessionConfig extends CommonSessionConfig {
-	driver: 'test';
-	options: {
-		mockStorage: Storage;
-	};
-}
-
-export type SessionConfig<TDriver extends SessionDriverName> =
-	// Distributive conditional tuple trick
-	// https://www.typescriptlang.org/docs/handbook/2/conditional-types.html#distributive-conditional-types
-	[TDriver] extends [never]
-		? CustomSessionConfig
-		: TDriver extends keyof BuiltinDriverOptions
-			? BuiltinSessionConfig<TDriver>
-			: TDriver extends 'test'
-				? TestSessionConfig
-				: CustomSessionConfig;
-
-export type ResolvedSessionConfig<TDriver extends SessionDriverName> = SessionConfig<TDriver>;
-
 export interface ViteUserConfig extends OriginalViteUserConfig {
 	ssr?: ViteSSROptions;
 }
@@ -198,7 +157,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  */
 export interface AstroUserConfig<
 	TLocales extends Locales = never,
-	TSession extends SessionDriverName = never,
+	TDriver extends SessionDriverName | SessionDriverConfig = never,
 > {
 	/**
 	 * @docs
@@ -546,7 +505,7 @@ export interface AstroUserConfig<
 	scopedStyleStrategy?: 'where' | 'class' | 'attribute';
 
 	/**
-	 *
+	 * @docs
 	 * @name prerenderConflictBehavior
 	 * @type {'error' | 'warn' | 'ignore'}
 	 * @default `'warn'`
@@ -556,6 +515,12 @@ export interface AstroUserConfig<
 	 * - `error`: fail the build and display an error, forcing you to resolve the conflict
 	 * - `warn` (default): log a warning when conflicts occur, but build using the highest-priority route
 	 * - `ignore`: silently build using the highest-priority route when conflicts occur
+	 *
+	 * ```js
+	 * {
+	 *   prerenderConflictBehavior: 'error'
+	 * }
+	 * ```
 	 */
 	prerenderConflictBehavior?: 'error' | 'warn' | 'ignore';
 
@@ -723,7 +688,9 @@ export interface AstroUserConfig<
 			| boolean
 			| {
 					/**
+					 * @docs
 					 * @name security.csp.algorithm
+					 * @kind h5
 					 * @type {"SHA-256" | "SHA-384" | "SHA-512"}
 					 * @default `'SHA-256'`
 					 * @version 6.0.0
@@ -746,7 +713,9 @@ export interface AstroUserConfig<
 					algorithm?: CspAlgorithm;
 
 					/**
+					 * @docs
 					 * @name security.csp.directives
+					 * @kind h5
 					 * @type {string[]}
 					 * @default `[]`
 					 * @version 6.0.0
@@ -785,16 +754,20 @@ export interface AstroUserConfig<
 					directives?: CspDirective[];
 
 					/**
+					 * @docs
 					 * @name security.csp.styleDirective
-					 * @type {{ hashes?: CspHash[], resources?: string[] }}
+					 * @kind h5
+					 * @type {CspStyleDirective}
 					 * @default `undefined`
 					 * @version 6.0.0
 					 * @description
 					 *
-					 * A configuration object that allows you to override the default sources for the `style-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#resources) property, or to provide additional [hashes]((https://v6.docs.astro.build/en/reference/configuration-reference#hashes) to be rendered.					 */
+					 * A configuration object that allows you to override the default sources for the `style-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#resources) property, or to provide additional [hashes](https://v6.docs.astro.build/en/reference/configuration-reference#hashes) to be rendered.					 */
 					styleDirective?: {
 						/**
+						 * @docs
 						 * @name security.csp.styleDirective.hashes
+						 * @kind h6
 						 * @type {CspHash[]}
 						 * @default `[]`
 						 * @version 6.0.0
@@ -836,7 +809,9 @@ export interface AstroUserConfig<
 						hashes?: CspHash[];
 
 						/**
+						 * @docs
 						 * @name security.csp.styleDirective.resources
+						 * @kind h6
 						 * @type {string[]}
 						 * @default `[]`
 						 * @version 6.0.0
@@ -880,17 +855,21 @@ export interface AstroUserConfig<
 					};
 
 					/**
+					 * @docs
 					 * @name security.csp.scriptDirective
-					 * @type {{ hashes?: CspHash[], resources?: string[], strictDynamic?: boolean }}
+					 * @kind h5
+					 * @type {CspScriptDirective}
 					 * @default `undefined`
 					 * @version 6.0.0
 					 * @description
 					 *
-					 * A configuration object that allows you to override the default sources for the `script-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#resources) property, or to provide additional [hashes]((https://v6.docs.astro.build/en/reference/configuration-reference#hashes) to be rendered.
+					 * A configuration object that allows you to override the default sources for the `script-src` directive with the [`resources`](https://v6.docs.astro.build/en/reference/configuration-reference/#resources) property, or to provide additional [hashes](https://v6.docs.astro.build/en/reference/configuration-reference#hashes) to be rendered.
 					 */
 					scriptDirective?: {
 						/**
+						 * @docs
 						 * @name security.csp.scriptDirective.hashes
+						 * @kind h6
 						 * @type {CspHash[]}
 						 * @default `[]`
 						 * @version 6.0.0
@@ -932,7 +911,9 @@ export interface AstroUserConfig<
 						hashes?: CspHash[];
 
 						/**
+						 * @docs
 						 * @name security.csp.scriptDirective.resources
+						 * @kind h6
 						 * @type {string[]}
 						 * @default `[]`
 						 * @version 6.0.0
@@ -974,7 +955,9 @@ export interface AstroUserConfig<
 						resources?: string[];
 
 						/**
+						 * @docs
 						 * @name security.csp.scriptDirective.strictDynamic
+						 * @kind h6
 						 * @type {boolean}
 						 * @default `false`
 						 * @version 6.0.0
@@ -1367,34 +1350,37 @@ export interface AstroUserConfig<
 	 *   }
 	 * ```
 	 */
-	session?: SessionConfig<TSession>;
+	session?: SessionConfig<TDriver>;
 
 	/**
 	 * @docs
 	 * @name session.driver
-	 * @type {string | undefined}
+	 * @type {SessionDriverConfig | undefined}
 	 * @version 5.7.0
 	 * @description
 	 *
-	 * The Unstorage driver to use for session storage.  The [Node](https://docs.astro.build/en/guides/integrations-guide/node/#sessions),
+	 * The driver to use for session storage. The [Node](https://docs.astro.build/en/guides/integrations-guide/node/#sessions),
 	 * [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare/#sessions), and
 	 * [Netlify](https://docs.astro.build/en/guides/integrations-guide/netlify/#sessions) adapters automatically configure a default driver for you,
 	 * but you can specify your own if you would prefer or if you are using an adapter that does not provide one.
 	 *
-	 * The value is the "Driver name" from the [Unstorage driver documentation](https://unstorage.unjs.io/drivers).
+	 * ```js title="astro.config.mjs" ins={7-9} ins=" sessionDrivers "
+	 * import { defineConfig, sessionDrivers } from 'astro/config'
+	 * import vercel from '@astrojs/vercel'
 	 *
-	 * ```js title="astro.config.mjs" ins={4}
-	 * {
-	 *   adapter: vercel(),
+	 * export default defineConfig({
+	 *   adapter: vercel()
 	 *   session: {
-	 *     driver: "redis",
-	 *   },
-	 * }
+	 *     driver: sessionDrivers.redis({
+	 *       url: process.env.REDIS_URL
+	 *     }),
+	 *   }
+	 * })
 	 * ```
+	 *
 	 * :::note
 	 * Some drivers may need extra packages to be installed. Some drivers may also require environment variables or credentials to be set. See the [Unstorage documentation](https://unstorage.unjs.io/drivers) for more information.
 	 * :::
-	 *
 	 */
 
 	/**
@@ -1404,6 +1390,10 @@ export interface AstroUserConfig<
 	 * @version 5.7.0
 	 * @default `{}`
 	 * @description
+	 *
+	 * :::caution[Deprecated]
+	 * This is deprecated and will be removed in a future major version. Instead, pass options to the driver function.
+	 * :::
 	 *
 	 * The driver-specific options to use for session storage. The options depend on the driver you are using. See the [Unstorage documentation](https://unstorage.unjs.io/drivers)
 	 * for more information on the options available for each driver.

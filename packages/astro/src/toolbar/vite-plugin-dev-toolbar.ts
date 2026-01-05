@@ -3,8 +3,9 @@ import { telemetry } from '../events/index.js';
 import { eventAppToggled } from '../events/toolbar.js';
 import type { AstroPluginOptions } from '../types/astro.js';
 
-const PRIVATE_VIRTUAL_MODULE_ID = 'astro:toolbar:internal';
-const resolvedPrivateVirtualModuleId = '\0' + PRIVATE_VIRTUAL_MODULE_ID;
+// This is used by Cloudflare optimizeDeps config
+const VIRTUAL_MODULE_ID = 'astro:toolbar:internal';
+const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 
 export default function astroDevToolbar({ settings, logger }: AstroPluginOptions): vite.Plugin {
 	let telemetryTimeout: ReturnType<typeof setTimeout>;
@@ -19,10 +20,13 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 				},
 			};
 		},
-		resolveId(id) {
-			if (id === PRIVATE_VIRTUAL_MODULE_ID) {
-				return resolvedPrivateVirtualModuleId;
-			}
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${VIRTUAL_MODULE_ID}$`),
+			},
+			handler() {
+				return RESOLVED_VIRTUAL_MODULE_ID;
+			},
 		},
 		configureServer(server) {
 			server.hot.on('astro:devtoolbar:error:load', (args) => {
@@ -56,8 +60,11 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 				}, 200);
 			});
 		},
-		async load(id) {
-			if (id === resolvedPrivateVirtualModuleId) {
+		load: {
+			filter: {
+				id: new RegExp(`^${RESOLVED_VIRTUAL_MODULE_ID}$`),
+			},
+			handler() {
 				return {
 					code: `
 						export const loadDevToolbarApps = async () => {
@@ -115,7 +122,7 @@ export default function astroDevToolbar({ settings, logger }: AstroPluginOptions
 						}
 					`,
 				};
-			}
+			},
 		},
 	};
 }

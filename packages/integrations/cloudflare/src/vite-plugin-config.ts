@@ -10,15 +10,21 @@ interface CloudflareConfig {
 export function createConfigPlugin(config: CloudflareConfig): PluginOption {
 	return {
 		name: 'vite:astro-cloudflare-config',
-		resolveId(id) {
-			if (id === VIRTUAL_CONFIG_ID) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${VIRTUAL_CONFIG_ID}$`),
+			},
+			handler() {
 				return RESOLVED_VIRTUAL_CONFIG_ID;
-			}
+			},
 		},
-		load(id) {
-			if (id === RESOLVED_VIRTUAL_CONFIG_ID) {
+		load: {
+			filter: {
+				id: new RegExp(`^${RESOLVED_VIRTUAL_CONFIG_ID}$`),
+			},
+			handler() {
 				return `export const sessionKVBindingName = ${JSON.stringify(config.sessionKVBindingName)};`;
-			}
+			},
 		},
 	};
 }

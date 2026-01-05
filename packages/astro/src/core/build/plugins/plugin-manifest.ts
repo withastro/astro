@@ -1,11 +1,10 @@
 import { fileURLToPath } from 'node:url';
-import type { OutputChunk } from 'rollup';
 import { glob } from 'tinyglobby';
-import type * as vite from 'vite';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
 import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../../manifest/serialized.js';
+import type { ExtractedChunk } from '../static-build.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { toFallbackType } from '../../app/common.js';
 import { serializeRouteData, toRoutingStrategy } from '../../app/index.js';
@@ -35,6 +34,7 @@ import type { BuildInternals } from '../internal.js';
 import { cssOrder, mergeInlineCss } from '../runtime.js';
 import type { StaticBuildOptions } from '../types.js';
 import { makePageDataKey } from './util.js';
+import { sessionConfigToManifest } from '../../session/utils.js';
 
 /**
  * Unified manifest system architecture:
@@ -68,40 +68,21 @@ export async function manifestBuildPostHook(
 	options: StaticBuildOptions,
 	internals: BuildInternals,
 	{
-		ssrOutputs,
-		prerenderOutputs,
+		chunks,
 		mutate,
 	}: {
-		ssrOutputs: vite.Rollup.RollupOutput[];
-		prerenderOutputs: vite.Rollup.RollupOutput[];
-		mutate: (chunk: OutputChunk, envs: ['server'], code: string) => void;
+		chunks: ExtractedChunk[];
+		mutate: (fileName: string, code: string, prerender: boolean) => void;
 	},
 ) {
 	const manifest = await createManifest(options, internals);
 
-	if (ssrOutputs.length > 0) {
-		let manifestEntryChunk: OutputChunk | undefined;
+	// Find SSR manifest chunk (prerender: false)
+	const ssrManifestChunk = chunks.find(
+		(c) => !c.prerender && c.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID),
+	);
 
-		// Find the serialized manifest chunk in SSR outputs
-		for (const output of ssrOutputs) {
-			for (const chunk of output.output) {
-				if (chunk.type === 'asset') {
-					continue;
-				}
-				if (chunk.code && chunk.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID)) {
-					manifestEntryChunk = chunk as OutputChunk;
-					break;
-				}
-			}
-			if (manifestEntryChunk) {
-				break;
-			}
-		}
-
-		if (!manifestEntryChunk) {
-			throw new Error(`Did not find serialized manifest chunk for SSR`);
-		}
-
+	if (ssrManifestChunk) {
 		const shouldPassMiddlewareEntryPoint =
 			options.settings.adapter?.adapterFeatures?.edgeMiddleware;
 		await runHookBuildSsr({
@@ -112,31 +93,18 @@ export async function manifestBuildPostHook(
 				? internals.middlewareEntryPoint
 				: undefined,
 		});
-		const code = injectManifest(manifest, manifestEntryChunk);
-		mutate(manifestEntryChunk, ['server'], code);
+		const code = injectManifest(manifest, ssrManifestChunk.code);
+		mutate(ssrManifestChunk.fileName, code, false);
 	}
 
-	// Also inject manifest into prerender outputs if available
-	if (prerenderOutputs?.length > 0) {
-		let prerenderManifestChunk: OutputChunk | undefined;
-		for (const output of prerenderOutputs) {
-			for (const chunk of output.output) {
-				if (chunk.type === 'asset') {
-					continue;
-				}
-				if (chunk.code && chunk.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID)) {
-					prerenderManifestChunk = chunk as OutputChunk;
-					break;
-				}
-			}
-			if (prerenderManifestChunk) {
-				break;
-			}
-		}
-		if (prerenderManifestChunk) {
-			const prerenderCode = injectManifest(manifest, prerenderManifestChunk);
-			mutate(prerenderManifestChunk, ['server'], prerenderCode);
-		}
+	// Find prerender manifest chunk
+	const prerenderManifestChunk = chunks.find(
+		(c) => c.prerender && c.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID),
+	);
+
+	if (prerenderManifestChunk) {
+		const code = injectManifest(manifest, prerenderManifestChunk.code);
+		mutate(prerenderManifestChunk.fileName, code, true);
 	}
 }
 
@@ -161,11 +129,9 @@ async function createManifest(
 }
 
 /**
- * It injects the manifest in the given output rollup chunk. It returns the new emitted code
+ * Injects the manifest into the given code string. Returns the new code.
  */
-function injectManifest(manifest: SerializedSSRManifest, chunk: Readonly<OutputChunk>) {
-	const code = chunk.code;
-
+function injectManifest(manifest: SerializedSSRManifest, code: string) {
 	return code.replace(replaceExp, () => {
 		return JSON.stringify(manifest);
 	});
@@ -369,7 +335,7 @@ async function buildManifest(
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		allowedDomains: settings.config.security?.allowedDomains,
 		key: encodedKey,
-		sessionConfig: settings.config.session,
+		sessionConfig: sessionConfigToManifest(settings.config.session),
 		csp,
 		devToolbar: {
 			enabled: false,

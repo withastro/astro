@@ -10,11 +10,14 @@ import { ASTRO_VERSION } from '../../constants.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../../render/ssr-element.js';
 import { findRouteToRewrite } from '../../routing/rewrite.js';
 
-type DevPipelineCreate = Pick<DevPipeline, 'logger' | 'manifest' | 'streaming'>;
+type DevPipelineCreate = Pick<NonRunnablePipeline, 'logger' | 'manifest' | 'streaming'>;
 
-export class DevPipeline extends Pipeline {
+/**
+ * A pipeline that can't load modules at runtime using the vite environment APIs
+ */
+export class NonRunnablePipeline extends Pipeline {
 	getName(): string {
-		return 'DevPipeline';
+		return 'NonRunnablePipeline';
 	}
 
 	static create({ logger, manifest, streaming }: DevPipelineCreate) {
@@ -26,7 +29,7 @@ export class DevPipeline extends Pipeline {
 			}
 		}
 
-		const pipeline = new DevPipeline(
+		const pipeline = new NonRunnablePipeline(
 			logger,
 			manifest,
 			'development',

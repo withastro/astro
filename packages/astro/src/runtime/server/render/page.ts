@@ -44,6 +44,7 @@ export async function renderPage(
 		}
 		return new Response(bytes, {
 			headers,
+			status: result.response.status,
 		});
 	}
 

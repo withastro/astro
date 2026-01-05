@@ -1,4 +1,4 @@
-import { matchPattern, type RemotePattern } from '../../assets/utils/remotePattern.js';
+import { matchPattern, type RemotePattern } from '@astrojs/internal-helpers/remote';
 
 /**
  * Validate a hostname by rejecting any with path separators.

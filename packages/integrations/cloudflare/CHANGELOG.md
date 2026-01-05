@@ -1,5 +1,112 @@
 # @astrojs/cloudflare
 
+## 13.0.0-alpha.3
+
+### Minor Changes
+
+- [#15006](https://github.com/withastro/astro/pull/15006) [`f361730`](https://github.com/withastro/astro/commit/f361730bc820c01a2ec3e508ac940be8077d8c04) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds new session driver object shape
+
+  For greater flexibility and improved consistency with other Astro code, session drivers are now specified as an object:
+
+  ```diff
+  -import { defineConfig } from 'astro/config'
+  +import { defineConfig, sessionDrivers } from 'astro/config'
+
+  export default defineConfig({
+    session: {
+  -    driver: 'redis',
+  -    options: {
+  -      url: process.env.REDIS_URL
+  -    },
+  +    driver: sessionDrivers.redis({
+  +      url: process.env.REDIS_URL
+  +    }),
+    }
+  })
+  ```
+
+  Specifying the session driver as a string has been deprecated, but will continue to work until this feature is removed completely in a future major version. The object shape is the current recommended and documented way to configure a session driver.
+
+### Patch Changes
+
+- [#15044](https://github.com/withastro/astro/pull/15044) [`7cac71b`](https://github.com/withastro/astro/commit/7cac71b89f7462e197a69d797bdfefe6c7d15689) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes an exposed internal API of the preview server
+
+- [#15039](https://github.com/withastro/astro/pull/15039) [`6cc96e7`](https://github.com/withastro/astro/commit/6cc96e7269eb952d8536633cab9ae7ecc75426b2) Thanks [@matthewp](https://github.com/matthewp)! - Fixes static content deployment by moving it to another folder, so Wrangler can tell the static and worker content apart
+
+- [#15045](https://github.com/withastro/astro/pull/15045) [`31074fc`](https://github.com/withastro/astro/commit/31074fc8b66e221c5d4967ed778a140d128e30a6) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where using the Vue integration with the Cloudflare adapter resulted in some runtime errors.
+
+- [#15053](https://github.com/withastro/astro/pull/15053) [`674b63f`](https://github.com/withastro/astro/commit/674b63f26d2e3b1878bcc8d770b9895357752ae9) Thanks [@matthewp](https://github.com/matthewp)! - Excludes `astro:*` and `virtual:astro:*` from client optimizeDeps in core. Needed for prefetch users since virtual modules are now in the dependency graph.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
+## 13.0.0-alpha.2
+
+### Major Changes
+
+- [#15037](https://github.com/withastro/astro/pull/15037) [`8641805`](https://github.com/withastro/astro/commit/8641805289d2cd852458b023c83da54bf67cd579) Thanks [@matthewp](https://github.com/matthewp)! - Updates the Wrangler entrypoint
+
+  Previously, the `main` field in `wrangler.jsonc` pointed to the built output, since Wrangler only ran in production after the build completed:
+
+  ```jsonc
+  {
+    "main": "dist/_worker.js/index.js",
+  }
+  ```
+
+  Now that Wrangler runs in both development (via workerd) and production, Astro provides a default entrypoint that works for both scenarios.
+
+  ##### What should I do?
+
+  Update your `wrangler.jsonc` to use the new entrypoint:
+
+  ```jsonc
+  {
+    "main": "@astrojs/cloudflare/entrypoints/server",
+  }
+  ```
+
+  This single entrypoint handles both `astro dev` and production deployments.
+
+### Minor Changes
+
+- [#15037](https://github.com/withastro/astro/pull/15037) [`8641805`](https://github.com/withastro/astro/commit/8641805289d2cd852458b023c83da54bf67cd579) Thanks [@matthewp](https://github.com/matthewp)! - The Wrangler configuration file is now optional. If you don't have custom Cloudflare bindings (KV, D1, Durable Objects, etc.), Astro will automatically generate a default configuration for you.
+
+  ##### What should I do?
+
+  If your `wrangler.jsonc` only contains basic configuration like this:
+
+  ```jsonc
+  {
+    "main": "@astrojs/cloudflare/entrypoints/server",
+    "compatibility_date": "2025-05-21",
+    "assets": {
+      "directory": "./dist",
+      "binding": "ASSETS",
+    },
+  }
+  ```
+
+  You can safely delete the file. Astro will handle this configuration automatically.
+
+  You only need a wrangler config file if you're using:
+  - KV namespaces
+  - D1 databases
+  - Durable Objects
+  - R2 buckets
+  - Environment variables
+  - Custom compatibility flags
+  - Other Cloudflare-specific features
+
+### Patch Changes
+
+- [#15026](https://github.com/withastro/astro/pull/15026) [`90c608c`](https://github.com/withastro/astro/commit/90c608c3f7cd3cb27ae6ec9b98a3ebf274450cc6) Thanks [@matthewp](https://github.com/matthewp)! - Improves prebundling of internal Astro modules
+
+- [#15030](https://github.com/withastro/astro/pull/15030) [`b5aa52b`](https://github.com/withastro/astro/commit/b5aa52bbe74e32956d5dd5757728626fdaa6a02c) Thanks [@ematipico](https://github.com/ematipico)! - Fixed an issue where the feature `experimental.chromeDevtoolsWorkspace` wasn't supported by the new version of the adapter.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 13.0.0-alpha.1
 
 ### Major Changes

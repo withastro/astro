@@ -14,15 +14,15 @@
     "@astrojs/react": "^5.0.0-alpha.0",
     "@astrojs/solid-js": "^6.0.0-alpha.0",
     "@astrojs/svelte": "^8.0.0-alpha.0",
-    "@astrojs/vue": "^6.0.0-alpha.0",
+    "@astrojs/vue": "^6.0.0-alpha.1",
     "@types/react": "^18.3.27",
     "@types/react-dom": "^18.3.7",
-    "astro": "^6.0.0-alpha.1",
+    "astro": "^6.0.0-alpha.4",
     "preact": "^10.28.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "solid-js": "^1.9.10",
-    "svelte": "^5.45.5",
+    "svelte": "^5.45.10",
     "vue": "^3.5.25"
   }
 }

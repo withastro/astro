@@ -10,41 +10,31 @@ import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-
 import type * as http from 'node:http';
 import colors from 'piccolore';
 import { performance } from 'node:perf_hooks';
-import { hasWranglerConfig, defaultCloudflareConfig } from '../wrangler.js';
-import { copyFileSync, existsSync } from 'node:fs';
+import { cloudflareConfigCustomizer } from '../wrangler.js';
 
 const createPreviewServer: CreatePreviewServer = async ({
 	logger,
 	base,
-	outDir,
+	server,
 	headers,
 	port,
 	host,
-	createCodegenDir,
 	root,
 }) => {
 	const startServerTime = performance.now();
 	let previewServer: VitePreviewServer;
-	let cfPluginConfig: PluginConfig = { viteEnvironment: { name: 'ssr' } };
-	if (!hasWranglerConfig(outDir)) {
-		cfPluginConfig.config = defaultCloudflareConfig();
-
-		// Copy .dev.vars to codegen dir if it exists
-		const codegenDir = createCodegenDir();
-		const devVarsPath = new URL('.dev.vars', outDir);
-		const devVarsCodegenPath = new URL('.dev.vars', codegenDir);
-		if (existsSync(devVarsPath)) {
-			copyFileSync(devVarsPath, devVarsCodegenPath);
-		}
-	}
+	const cfPluginConfig: PluginConfig = {
+		viteEnvironment: { name: 'ssr' },
+		config: cloudflareConfigCustomizer(),
+	};
 
 	try {
 		previewServer = await preview({
 			configFile: false,
-			base: base,
+			base,
 			appType: 'mpa',
 			build: {
-				outDir: fileURLToPath(outDir),
+				outDir: fileURLToPath(server),
 			},
 			root: fileURLToPath(root),
 			preview: {

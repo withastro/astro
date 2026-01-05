@@ -1,7 +1,6 @@
 {
   "name": "astro-cf-session",
-  "compatibility_date": "2024-11-01",
-  "main": "@astrojs/cloudflare/entrypoints/server",
+  "compatibility_date": "2025-12-22",
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS"
@@ -9,11 +8,5 @@
   "observability": {
     "enabled": true
   },
-  "kv_namespaces": [
-    {
-      "binding": "SESSION",
-      "id": "<SESSION_ID>"
-    }
-  ],
   "upload_source_maps": true
 }

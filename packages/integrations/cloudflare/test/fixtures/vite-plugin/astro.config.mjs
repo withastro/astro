@@ -40,11 +40,13 @@ export default defineConfig({
 			SECRET: envField.string({ context: 'server', access: 'secret' }),
 		}
 	},
+	prefetch: true,
 	experimental: {
 		fonts: [{
 			provider: fontProviders.google(),
 			name: "Roboto",
 			cssVariable: "--font-roboto"
-		}]
-	}
+		}],
+		chromeDevtoolsWorkspace: true
+	},
 });

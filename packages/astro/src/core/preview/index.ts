@@ -4,11 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { AstroIntegrationLogger } from '../../core/logger/core.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
-import {
-	normalizeCodegenDir,
-	runHookConfigDone,
-	runHookConfigSetup,
-} from '../../integrations/hooks.js';
+import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import type { PreviewModule, PreviewServer } from '../../types/public/preview.js';
 import { resolveConfig } from '../config/config.js';
@@ -84,20 +80,13 @@ export default async function preview(inlineConfig: AstroInlineConfig): Promise<
 	const server = await previewModule.default({
 		outDir: settings.config.outDir,
 		client: settings.config.build.client,
+		server: settings.config.build.server,
 		serverEntrypoint: new URL(settings.config.build.serverEntry, settings.config.build.server),
 		host: getResolvedHostForHttpServer(settings.config.server.host),
 		port: settings.config.server.port,
 		base: settings.config.base,
 		logger: new AstroIntegrationLogger(logger.options, settings.adapter.name),
 		headers: settings.config.server.headers,
-		createCodegenDir: () => {
-			const codegenDir = new URL(
-				normalizeCodegenDir(settings.adapter ? settings.adapter.name : '_temp'),
-				settings.dotAstroDir,
-			);
-			fs.mkdirSync(codegenDir, { recursive: true });
-			return codegenDir;
-		},
 		root: settings.config.root,
 	});
 

@@ -22,7 +22,9 @@ import type { AstroSettings } from '../types/astro.js';
 import { VIRTUAL_PAGES_MODULE_ID } from '../vite-plugin-pages/index.js';
 import { ASTRO_RENDERERS_MODULE_ID } from '../vite-plugin-renderers/index.js';
 import { ASTRO_ROUTES_MODULE_ID } from '../vite-plugin-routes/index.js';
+import { sessionConfigToManifest } from '../core/session/utils.js';
 
+// This is used by Cloudflare optimizeDeps config
 export const SERIALIZED_MANIFEST_ID = 'virtual:astro:manifest';
 export const SERIALIZED_MANIFEST_RESOLVED_ID = '\0' + SERIALIZED_MANIFEST_ID;
 
@@ -39,14 +41,20 @@ export function serializedManifestPlugin({
 		name: SERIALIZED_MANIFEST_ID,
 		enforce: 'pre',
 
-		resolveId(id) {
-			if (id === SERIALIZED_MANIFEST_ID) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${SERIALIZED_MANIFEST_ID}$`),
+			},
+			handler() {
 				return SERIALIZED_MANIFEST_RESOLVED_ID;
-			}
+			},
 		},
 
-		async load(id) {
-			if (id === SERIALIZED_MANIFEST_RESOLVED_ID) {
+		load: {
+			filter: {
+				id: new RegExp(`^${SERIALIZED_MANIFEST_RESOLVED_ID}$`),
+			},
+			async handler() {
 				let manifestData: string;
 				if (command === 'build' && !sync) {
 					// Emit placeholder token that will be replaced by plugin-manifest.ts in build:post
@@ -82,7 +90,7 @@ export function serializedManifestPlugin({
 					export { manifest };
 				`;
 				return { code };
-			}
+			},
 		},
 	};
 }
@@ -146,7 +154,7 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key: await encodeKey(hasEnvironmentKey() ? await getEnvironmentKey() : await createKey()),
-		sessionConfig: settings.config.session,
+		sessionConfig: sessionConfigToManifest(settings.config.session),
 		csp,
 		devToolbar: {
 			enabled:

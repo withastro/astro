@@ -154,14 +154,20 @@ export function glob(globOptions: GlobOptions & { [secretLegacyFlag]?: boolean; 
 					data,
 					filePath,
 				});
-				if (entryType.getRenderFunction) {
-					let render = renderFunctionByContentType.get(entryType);
 
-					if (store.has(id)) {
+				if (existingEntry && existingEntry.filePath && existingEntry.filePath !== relativePath) {
+					// Check the old file still exists - if not, this is likely a rename and
+					// the unlink event just hasn't been processed yet
+					const oldFilePath = new URL(existingEntry.filePath, config.root);
+					if (existsSync(oldFilePath)) {
 						logger.warn(
 							`Duplicate id "${id}" found in ${filePath}. Later items with the same id will overwrite earlier ones.`,
 						);
 					}
+				}
+
+				if (entryType.getRenderFunction) {
+					let render = renderFunctionByContentType.get(entryType);
 
 					if (!render) {
 						render = await entryType.getRenderFunction(config);

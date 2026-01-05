@@ -12,7 +12,7 @@ describe('Content Collections - error map', () => {
 			}),
 			{ foo: 1 },
 		);
-		assert.deepEqual(messages(error), ['Invalid input: expected string, received number']);
+		assert.deepEqual(messages(error), ['**foo**: Expected type `"string"`, received `"number"`']);
 	});
 	it('Returns formatted error for literal mismatch', () => {
 		const error = getParseError(
@@ -31,14 +31,16 @@ describe('Content Collections - error map', () => {
 			}),
 			{ foo: 'foo' },
 		);
-		assert.deepEqual(messages(error), ['Invalid input: expected string, received undefined']);
+		assert.deepEqual(messages(error), ['**bar**: Required']);
 	});
 	it('Returns formatted error for basic union mismatch', () => {
 		const error = getParseError(
 			z.union([z.boolean(), z.number()]),
 			'not a boolean or a number, oops!',
 		);
-		assert.deepEqual(messages(error), [fixLineEndings('Invalid input')]);
+		assert.deepEqual(messages(error), [
+			fixLineEndings('Did not match union.\n> Expected type `"boolean"`, received `"string"`'),
+		]);
 	});
 	it('Returns formatted error for union mismatch on nested object properties', () => {
 		const error = getParseError(
@@ -52,7 +54,13 @@ describe('Content Collections - error map', () => {
 			]),
 			{ type: 'integration-guide' },
 		);
-		assert.deepEqual(messages(error), [fixLineEndings('Invalid input')]);
+		assert.deepEqual(messages(error), [
+			fixLineEndings(
+				'Did not match union.\n' +
+					'> Expected type `"tutorial" | "article"`\n' +
+					'> Received `{ "type": "integration-guide" }`',
+			),
+		]);
 	});
 	it('Lets unhandled errors fall through', () => {
 		const error = getParseError(
@@ -73,7 +81,7 @@ function messages(error) {
 	return error.issues.map((e) => e.message);
 }
 
-function getParseError(schema, entry, parseOpts = { errorMap }) {
+function getParseError(schema, entry, parseOpts = { error: errorMap }) {
 	const res = schema.safeParse(entry, parseOpts);
 	assert.equal(res.success, false, 'Schema should raise error');
 	return res.error;

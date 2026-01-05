@@ -4,6 +4,7 @@ import * as fs from 'node:fs';
 import { beforeEach, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
+import { Logger } from '../dist/core/logger/core.js';
 import { loadFixture } from './test-utils.js';
 
 const createFixture = () => {
@@ -263,6 +264,37 @@ describe('astro sync', () => {
 				'Types file does not include `astro:actions` module declaration',
 			);
 			fixture.thenFileShouldBeValidTypescript('.astro/actions.d.ts');
+		});
+	});
+
+	describe('No content config', () => {
+		it('Syncs silently without error when content config does not exist', async () => {
+			/**
+			 * @type {import("../dist/core/logger/core.js").LogMessage[]}
+			 */
+			const logs = [];
+			const logger = new Logger({
+				level: 'debug',
+				dest: {
+					write(chunk) {
+						logs.push(chunk);
+						return true;
+					},
+				},
+			});
+
+			const astroFixture = await loadFixture({ root: './fixtures/astro-basic/' });
+			fs.rmSync(new URL('./.astro/', astroFixture.config.root), { force: true, recursive: true });
+
+			// @ts-ignore
+			await astroFixture.sync({ root: fileURLToPath(astroFixture.config.root), logger });
+
+			const errorLogs = logs.filter((log) => log.level === 'error');
+			assert.equal(
+				errorLogs.length,
+				0,
+				`Expected no error logs, but got: ${JSON.stringify(errorLogs)}`,
+			);
 		});
 	});
 });
