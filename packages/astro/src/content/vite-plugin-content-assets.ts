@@ -1,8 +1,8 @@
 import { extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type * as vite from 'vite';
 import { isRunnableDevEnvironment, type Plugin, type RunnableDevEnvironment } from 'vite';
 import type { BuildInternals } from '../core/build/internal.js';
+import type { ExtractedChunk } from '../core/build/static-build.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import { wrapId } from '../core/util.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -208,27 +208,15 @@ export async function contentAssetsBuildPostHook(
 	base: string,
 	internals: BuildInternals,
 	{
-		ssrOutputs,
-		prerenderOutputs,
+		chunks,
 		mutate,
 	}: {
-		ssrOutputs: vite.Rollup.RollupOutput[];
-		prerenderOutputs: vite.Rollup.RollupOutput[];
-		mutate: (chunk: vite.Rollup.OutputChunk, envs: ['server'], code: string) => void;
+		chunks: ExtractedChunk[];
+		mutate: (fileName: string, code: string, prerender: boolean) => void;
 	},
 ) {
-	// Flatten all output chunks from both SSR and prerender builds
-	const outputs = ssrOutputs
-		.flatMap((o) => o.output)
-		.concat(
-			...(Array.isArray(prerenderOutputs) ? prerenderOutputs : [prerenderOutputs]).flatMap(
-				(o) => o.output,
-			),
-		);
-
 	// Process each chunk that contains placeholder placeholders for styles/links
-	for (const chunk of outputs) {
-		if (chunk.type !== 'chunk') continue;
+	for (const chunk of chunks) {
 		// Skip chunks that don't have content placeholders to inject
 		if (!chunk.code.includes(LINKS_PLACEHOLDER)) continue;
 
@@ -272,6 +260,6 @@ export async function contentAssetsBuildPostHook(
 			newCode = newCode.replace(JSON.stringify(LINKS_PLACEHOLDER), '[]');
 		}
 		// Persist the mutation for writing to disk
-		mutate(chunk as vite.Rollup.OutputChunk, ['server'], newCode);
+		mutate(chunk.fileName, newCode, chunk.prerender);
 	}
 }
