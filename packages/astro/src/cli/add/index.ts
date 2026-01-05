@@ -1130,7 +1130,7 @@ async function ensureGitignore({
 	if (!existsSync(gitignorePath)) {
 		logger.info(
 			'SKIP_FORMAT',
-			`\n  ${magenta(`Astro will scaffold ${green('./.gitignore')}.`)}\n`,
+			`\n  ${magenta(`Astro will scaffold ${green(gitignorePath)}.`)}\n`,
 		);
 
 		if (await askToContinue({ flags, logger })) {
@@ -1141,8 +1141,14 @@ async function ensureGitignore({
 	}
 
 	const existing = await fs.readFile(gitignorePath, { encoding: 'utf-8' });
-	const lines = new Set(existing.split(/\r?\n/).map((line) => line.trim()).filter(Boolean));
-	const missing = GITIGNORE_ENTRIES.filter((entry) => !lines.has(entry));
+	const lines = existing.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+	const missing = GITIGNORE_ENTRIES.filter((entry) => {
+		const pattern = entry.replace(/\/$/, '');
+		return !lines.some(line =>
+			!line.startsWith('#') &&
+			line.includes(pattern)
+		);
+	});
 
 	if (missing.length === 0) {
 		logger.debug('add', 'Using existing .gitignore');
@@ -1151,7 +1157,7 @@ async function ensureGitignore({
 
 	logger.info(
 		'SKIP_FORMAT',
-		`\n  ${magenta(`Astro will append entries to ${green('./.gitignore')}.`)}\n`,
+		`\n  ${magenta(`Astro will append entries to ${green(gitignorePath)}.`)}\n`,
 	);
 
 	if (await askToContinue({ flags, logger })) {
