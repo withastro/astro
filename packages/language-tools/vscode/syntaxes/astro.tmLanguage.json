@@ -1,7 +1,9 @@
 {
   "name": "Astro",
   "scopeName": "source.astro",
-  "fileTypes": ["astro"],
+  "fileTypes": [
+    "astro"
+  ],
   "injections": {
     "L:(meta.script.astro) (meta.lang.json) - (meta source)": {
       "patterns": [
@@ -21,8 +23,19 @@
     "L:(meta.script.astro) (meta.lang.js | meta.lang.javascript | meta.lang.partytown | meta.lang.node) - (meta source)": {
       "patterns": [
         {
+          "begin": "(?<=>)(?=[^\\n]+</script[\\s>])",
+          "end": "(?=</script[\\s>])",
+          "name": "meta.embedded.block.astro",
+          "contentName": "source.js",
+          "patterns": [
+            {
+              "include": "source.js"
+            }
+          ]
+        },
+        {
           "begin": "(?<=>)(?!</)",
-          "end": "(?=</)",
+          "while": "^(?!\\s*</script[\\s>])",
           "name": "meta.embedded.block.astro",
           "contentName": "source.js",
           "patterns": [
@@ -36,8 +49,19 @@
     "L:(meta.script.astro) (meta.lang.ts | meta.lang.typescript) - (meta source)": {
       "patterns": [
         {
+          "begin": "(?<=>)(?=[^\\n]+</script[\\s>])",
+          "end": "(?=</script[\\s>])",
+          "name": "meta.embedded.block.astro",
+          "contentName": "source.ts",
+          "patterns": [
+            {
+              "include": "source.ts"
+            }
+          ]
+        },
+        {
           "begin": "(?<=>)(?!</)",
-          "end": "(?=</)",
+          "while": "^(?!\\s*</script[\\s>])",
           "name": "meta.embedded.block.astro",
           "contentName": "source.ts",
           "patterns": [
@@ -51,8 +75,19 @@
     "L:meta.script.astro - meta.lang - (meta source)": {
       "patterns": [
         {
+          "begin": "(?<=>)(?=[^\\n]+</script[\\s>])",
+          "end": "(?=</script[\\s>])",
+          "name": "meta.embedded.block.astro",
+          "contentName": "source.js",
+          "patterns": [
+            {
+              "include": "source.js"
+            }
+          ]
+        },
+        {
           "begin": "(?<=>)(?!</)",
-          "end": "(?=</)",
+          "while": "^(?!\\s*</script[\\s>])",
           "name": "meta.embedded.block.astro",
           "contentName": "source.js",
           "patterns": [
@@ -194,10 +229,28 @@
           "name": "comment"
         }
       },
-      "contentName": "source.ts",
       "patterns": [
         {
-          "include": "source.ts"
+          "begin": "(?<=\\n)(?=[^\\n]+^-{3})",
+          "end": "(?=^-{3})",
+          "name": "meta.embedded.block.astro",
+          "contentName": "source.ts",
+          "patterns": [
+            {
+              "include": "source.ts"
+            }
+          ]
+        },
+        {
+          "begin": "(?<=\\n)",
+          "while": "^(?!\\s*-{3})",
+          "name": "meta.embedded.block.astro",
+          "contentName": "source.ts",
+          "patterns": [
+            {
+              "include": "source.ts"
+            }
+          ]
         }
       ]
     },
