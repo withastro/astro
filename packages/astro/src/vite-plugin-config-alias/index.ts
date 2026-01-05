@@ -91,7 +91,7 @@ const getViteResolveAlias = (settings: AstroSettings) => {
 				for (const resolvedValue of resolvedValues) {
 					const resolved = resolvedValue.replace('*', id);
 					if (fs.existsSync(resolved)) {
-						return resolved;
+						return normalizePath(resolved);
 					}
 				}
 				return null;
