@@ -18,8 +18,7 @@ export default async function build() {
 		entryPoints: {
 			'dist/node/client': './src/client.ts',
 			'dist/node/server': './node_modules/@astrojs/language-server/bin/nodeServer.js',
-			'dist/astro-ts-plugin-bundle/index':
-				'./node_modules/@astrojs/ts-plugin/dist/index.js',
+			'dist/astro-ts-plugin-bundle/index': './node_modules/@astrojs/ts-plugin/dist/index.js',
 		},
 		bundle: true,
 		metafile: metaFile,
