@@ -513,8 +513,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       cookie:
-        specifier: ^1.0.2
-        version: 1.0.2
+        specifier: ^1.1.1
+        version: 1.1.1
       cssesc:
         specifier: ^3.0.0
         version: 3.0.0
@@ -525,7 +525,7 @@ importers:
         specifier: ^2.0.2
         version: 2.0.2
       devalue:
-        specifier: ^5.5.0
+        specifier: ^5.6.1
         version: 5.6.1
       diff:
         specifier: ^5.2.0
@@ -585,7 +585,7 @@ importers:
         specifier: ^8.1.1
         version: 8.1.1
       package-manager-detector:
-        specifier: ^1.5.0
+        specifier: ^1.6.0
         version: 1.6.0
       piccolore:
         specifier: ^0.1.3
@@ -603,10 +603,10 @@ importers:
         specifier: ^7.7.3
         version: 7.7.3
       shiki:
-        specifier: ^3.15.0
+        specifier: ^3.20.0
         version: 3.20.0
       smol-toml:
-        specifier: ^1.5.2
+        specifier: ^1.6.0
         version: 1.6.0
       svgo:
         specifier: ^4.0.0
@@ -624,8 +624,8 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0
       unifont:
-        specifier: ~0.6.0
-        version: 0.6.0
+        specifier: ~0.7.1
+        version: 0.7.1
       unist-util-visit:
         specifier: ^5.0.0
         version: 5.0.0
@@ -654,8 +654,8 @@ importers:
         specifier: ^3.25.76
         version: 3.25.76
       zod-to-json-schema:
-        specifier: ^3.25.0
-        version: 3.25.0(zod@3.25.76)
+        specifier: ^3.25.1
+        version: 3.25.1(zod@3.25.76)
       zod-to-ts:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)(zod@3.25.76)
@@ -664,8 +664,8 @@ importers:
         specifier: workspace:*
         version: link:../language-tools/astro-check
       '@playwright/test':
-        specifier: 1.56.1
-        version: 1.56.1
+        specifier: 1.57.0
+        version: 1.57.0
       '@types/aria-query':
         specifier: ^5.0.4
         version: 5.0.4
@@ -718,7 +718,7 @@ importers:
         specifier: ^0.10.0
         version: 0.10.0
       expect-type:
-        specifier: ^1.2.2
+        specifier: ^1.3.0
         version: 1.3.0
       fs-fixture:
         specifier: ^2.11.0
@@ -748,10 +748,10 @@ importers:
         specifier: ^0.1.2
         version: 0.1.2
       rollup:
-        specifier: ^4.53.3
+        specifier: ^4.54.0
         version: 4.54.0
       sass:
-        specifier: ^1.94.2
+        specifier: ^1.97.1
         version: 1.97.1
       typescript:
         specifier: ^5.9.3
@@ -814,7 +814,7 @@ importers:
   packages/astro/e2e/fixtures/actions-blog:
     dependencies:
       '@astrojs/check':
-        specifier: ^0.9.5
+        specifier: ^0.9.6
         version: link:../../../../language-tools/astro-check
       '@astrojs/db':
         specifier: workspace:*
@@ -847,7 +847,7 @@ importers:
   packages/astro/e2e/fixtures/actions-react-19:
     dependencies:
       '@astrojs/check':
-        specifier: ^0.9.5
+        specifier: ^0.9.6
         version: link:../../../../language-tools/astro-check
       '@astrojs/db':
         specifier: workspace:*
@@ -868,11 +868,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: 19.2.0
-        version: 19.2.0
+        specifier: 19.2.3
+        version: 19.2.3
       react-dom:
-        specifier: 19.2.0
-        version: 19.2.0(react@19.2.0)
+        specifier: 19.2.3
+        version: 19.2.3(react@19.2.3)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -889,7 +889,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/e2e/fixtures/astro-envs:
@@ -901,7 +901,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/astro/e2e/fixtures/client-idle-timeout:
@@ -923,7 +923,7 @@ importers:
   packages/astro/e2e/fixtures/client-only:
     dependencies:
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
       react:
         specifier: ^18.3.1
@@ -935,10 +935,10 @@ importers:
         specifier: ^1.9.10
         version: 1.9.10
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
     devDependencies:
       '@astrojs/preact':
@@ -1020,7 +1020,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/e2e/fixtures/error-cyclic:
@@ -1032,7 +1032,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/e2e/fixtures/error-sass:
@@ -1041,7 +1041,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       sass:
-        specifier: ^1.94.2
+        specifier: ^1.97.1
         version: 1.97.1
 
   packages/astro/e2e/fixtures/errors:
@@ -1065,7 +1065,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
       react:
         specifier: ^18.3.1
@@ -1074,16 +1074,16 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       sass:
-        specifier: ^1.94.2
+        specifier: ^1.97.1
         version: 1.97.1
       solid-js:
         specifier: ^1.9.10
         version: 1.9.10
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/astro/e2e/fixtures/hmr:
@@ -1092,7 +1092,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       sass:
-        specifier: ^1.94.2
+        specifier: ^1.97.1
         version: 1.97.1
 
   packages/astro/e2e/fixtures/hydration-race:
@@ -1104,7 +1104,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/e2e/fixtures/i18n:
@@ -1122,10 +1122,10 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1
       lit:
-        specifier: ^3.3.1
-        version: 3.3.1
+        specifier: ^3.3.2
+        version: 3.3.2
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
       react:
         specifier: ^18.3.1
@@ -1137,10 +1137,10 @@ importers:
         specifier: ^1.9.10
         version: 1.9.10
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
     devDependencies:
       '@astrojs/preact':
@@ -1165,7 +1165,7 @@ importers:
   packages/astro/e2e/fixtures/namespaced-component:
     dependencies:
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
     devDependencies:
       '@astrojs/mdx':
@@ -1181,7 +1181,7 @@ importers:
   packages/astro/e2e/fixtures/nested-in-preact:
     dependencies:
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
       react:
         specifier: ^18.3.1
@@ -1193,10 +1193,10 @@ importers:
         specifier: ^1.9.10
         version: 1.9.10
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
     devDependencies:
       '@astrojs/preact':
@@ -1221,7 +1221,7 @@ importers:
   packages/astro/e2e/fixtures/nested-in-react:
     dependencies:
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
       react:
         specifier: ^18.3.1
@@ -1233,10 +1233,10 @@ importers:
         specifier: ^1.9.10
         version: 1.9.10
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
     devDependencies:
       '@astrojs/preact':
@@ -1261,7 +1261,7 @@ importers:
   packages/astro/e2e/fixtures/nested-in-solid:
     dependencies:
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
       react:
         specifier: ^18.3.1
@@ -1273,10 +1273,10 @@ importers:
         specifier: ^1.9.10
         version: 1.9.10
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
     devDependencies:
       '@astrojs/preact':
@@ -1301,7 +1301,7 @@ importers:
   packages/astro/e2e/fixtures/nested-in-svelte:
     dependencies:
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
       react:
         specifier: ^18.3.1
@@ -1313,10 +1313,10 @@ importers:
         specifier: ^1.9.10
         version: 1.9.10
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
     devDependencies:
       '@astrojs/preact':
@@ -1341,7 +1341,7 @@ importers:
   packages/astro/e2e/fixtures/nested-in-vue:
     dependencies:
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
       react:
         specifier: ^18.3.1
@@ -1353,10 +1353,10 @@ importers:
         specifier: ^1.9.10
         version: 1.9.10
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
     devDependencies:
       '@astrojs/preact':
@@ -1381,7 +1381,7 @@ importers:
   packages/astro/e2e/fixtures/nested-recursive:
     dependencies:
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
       react:
         specifier: ^18.3.1
@@ -1393,10 +1393,10 @@ importers:
         specifier: ^1.9.10
         version: 1.9.10
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
     devDependencies:
       '@astrojs/preact':
@@ -1449,7 +1449,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/e2e/fixtures/preact-component:
@@ -1464,7 +1464,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/e2e/fixtures/preact-lazy-component:
@@ -1479,7 +1479,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/e2e/fixtures/prefetch:
@@ -1589,19 +1589,19 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
 
   packages/astro/e2e/fixtures/tailwindcss:
     dependencies:
       '@tailwindcss/vite':
-        specifier: ^4.1.17
+        specifier: ^4.1.18
         version: 4.1.18(vite@6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.1)(tsx@4.20.6)(yaml@2.8.1))
       astro:
         specifier: workspace:*
         version: link:../../..
       tailwindcss:
-        specifier: ^4.1.17
+        specifier: ^4.1.18
         version: 4.1.18
 
   packages/astro/e2e/fixtures/ts-resolution:
@@ -1649,10 +1649,10 @@ importers:
         specifier: ^1.9.10
         version: 1.9.10
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/astro/e2e/fixtures/vite-virtual-modules:
@@ -1673,7 +1673,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/astro/performance:
@@ -1793,10 +1793,10 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/astro/test/fixtures/actions:
@@ -1814,7 +1814,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
 
   packages/astro/test/fixtures/alias-tsconfig:
@@ -1829,7 +1829,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
 
   packages/astro/test/fixtures/alias-tsconfig-baseurl-only:
@@ -1841,7 +1841,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
 
   packages/astro/test/fixtures/alias-tsconfig-no-baseurl:
@@ -1933,13 +1933,13 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/test/fixtures/astro-check-errors:
     dependencies:
       '@astrojs/check':
-        specifier: ^0.9.5
+        specifier: ^0.9.6
         version: link:../../../../language-tools/astro-check
       astro:
         specifier: workspace:*
@@ -1951,7 +1951,7 @@ importers:
   packages/astro/test/fixtures/astro-check-no-errors:
     dependencies:
       '@astrojs/check':
-        specifier: ^0.9.5
+        specifier: ^0.9.6
         version: link:../../../../language-tools/astro-check
       astro:
         specifier: workspace:*
@@ -1981,13 +1981,13 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/astro/test/fixtures/astro-class-list:
@@ -2017,7 +2017,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
 
   packages/astro/test/fixtures/astro-client-only/pkg: {}
@@ -2109,7 +2109,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
 
   packages/astro/test/fixtures/astro-env:
@@ -2151,7 +2151,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/astro/test/fixtures/astro-expr:
@@ -2163,7 +2163,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/test/fixtures/astro-external-files:
@@ -2181,7 +2181,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/test/fixtures/astro-generator:
@@ -2418,13 +2418,13 @@ importers:
   packages/astro/test/fixtures/astro-scripts:
     dependencies:
       '@tailwindcss/vite':
-        specifier: ^4.1.17
+        specifier: ^4.1.18
         version: 4.1.18(vite@6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.1)(tsx@4.20.6)(yaml@2.8.1))
       astro:
         specifier: workspace:*
         version: link:../../..
       tailwindcss:
-        specifier: ^4.1.17
+        specifier: ^4.1.18
         version: 4.1.18
 
   packages/astro/test/fixtures/astro-sitemap-rss:
@@ -2442,7 +2442,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/test/fixtures/astro-slots:
@@ -2472,7 +2472,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
       react:
         specifier: ^18.3.1
@@ -2484,10 +2484,10 @@ importers:
         specifier: ^1.9.10
         version: 1.9.10
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/astro/test/fixtures/before-hydration:
@@ -2499,7 +2499,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/test/fixtures/build-assets:
@@ -2511,7 +2511,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/test/fixtures/build-concurrency:
@@ -2565,7 +2565,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
       react:
         specifier: ^18.3.1
@@ -2574,13 +2574,13 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
 
   packages/astro/test/fixtures/component-library-shared:
     dependencies:
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
       react:
         specifier: ^18.3.1
@@ -2632,7 +2632,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/astro/test/fixtures/content:
@@ -2761,7 +2761,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/test/fixtures/content-layer-remark-plugins:
@@ -2884,11 +2884,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^19.2.0
-        version: 19.2.0
+        specifier: ^19.2.3
+        version: 19.2.3
       react-dom:
-        specifier: ^19.2.0
-        version: 19.2.0(react@19.2.0)
+        specifier: ^19.2.3
+        version: 19.2.3(react@19.2.3)
 
   packages/astro/test/fixtures/core-image-svg-optimized:
     dependencies:
@@ -2911,11 +2911,11 @@ importers:
         specifier: workspace:*
         version: link:../../..
       react:
-        specifier: ^19.2.0
-        version: 19.2.0
+        specifier: ^19.2.3
+        version: 19.2.3
       react-dom:
-        specifier: ^19.2.0
-        version: 19.2.0(react@19.2.0)
+        specifier: ^19.2.3
+        version: 19.2.3(react@19.2.3)
 
   packages/astro/test/fixtures/csp-adapter:
     dependencies:
@@ -2955,7 +2955,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
 
   packages/astro/test/fixtures/css-import-as-inline:
@@ -3192,7 +3192,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/test/fixtures/error-bad-js:
@@ -3240,13 +3240,13 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/astro/test/fixtures/fonts:
@@ -3336,7 +3336,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/test/fixtures/i18n-double-prefix:
@@ -3480,7 +3480,7 @@ importers:
   packages/astro/test/fixtures/jsx:
     dependencies:
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
       react:
         specifier: ^18.3.1
@@ -3492,10 +3492,10 @@ importers:
         specifier: ^1.9.10
         version: 1.9.10
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
     devDependencies:
       '@astrojs/mdx':
@@ -3610,13 +3610,13 @@ importers:
   packages/astro/test/fixtures/middleware-tailwind:
     dependencies:
       '@tailwindcss/vite':
-        specifier: ^4.1.17
+        specifier: ^4.1.18
         version: 4.1.18(vite@6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.1)(tsx@4.20.6)(yaml@2.8.1))
       astro:
         specifier: workspace:*
         version: link:../../..
       tailwindcss:
-        specifier: ^4.1.17
+        specifier: ^4.1.18
         version: 4.1.18
 
   packages/astro/test/fixtures/middleware-virtual:
@@ -3707,8 +3707,8 @@ importers:
         specifier: workspace:*
         version: link:../../..
       autoprefixer:
-        specifier: ^10.4.22
-        version: 10.4.22(postcss@8.5.6)
+        specifier: ^10.4.23
+        version: 10.4.23(postcss@8.5.6)
       postcss:
         specifier: ^8.5.6
         version: 8.5.6
@@ -3716,15 +3716,15 @@ importers:
         specifier: ^1.9.10
         version: 1.9.10
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
     devDependencies:
       postcss-preset-env:
-        specifier: ^10.4.0
-        version: 10.4.0(postcss@8.5.6)
+        specifier: ^10.6.0
+        version: 10.6.0(postcss@8.5.6)
 
   packages/astro/test/fixtures/preact-compat-component:
     dependencies:
@@ -3738,7 +3738,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/test/fixtures/preact-compat-component/packages/react-lib:
@@ -3759,7 +3759,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/test/fixtures/prerender-conflict-dynamic-dynamic:
@@ -3838,7 +3838,7 @@ importers:
         specifier: 'workspace:'
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/test/fixtures/remote-css:
@@ -3961,7 +3961,7 @@ importers:
         specifier: workspace:*
         version: link:../../../..
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
 
   packages/astro/test/fixtures/server-islands/ssr:
@@ -3976,7 +3976,7 @@ importers:
         specifier: workspace:*
         version: link:../../../..
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
 
   packages/astro/test/fixtures/sessions:
@@ -4003,7 +4003,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/test/fixtures/slots-react:
@@ -4051,7 +4051,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
 
   packages/astro/test/fixtures/slots-vue:
@@ -4066,7 +4066,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/astro/test/fixtures/solid-component:
@@ -4162,7 +4162,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/test/fixtures/ssr-error:
@@ -4281,7 +4281,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/test/fixtures/ssr-split-manifest:
@@ -4311,7 +4311,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/astro/test/fixtures/static-build-code-component:
@@ -4338,7 +4338,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
       react:
         specifier: ^18.3.1
@@ -4397,7 +4397,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
 
   packages/astro/test/fixtures/svg-deduplication:
@@ -4412,13 +4412,13 @@ importers:
         specifier: workspace:*
         version: link:../../../../integrations/mdx
       '@tailwindcss/vite':
-        specifier: ^4.1.17
+        specifier: ^4.1.18
         version: 4.1.18(vite@6.4.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.1)(tsx@4.20.6)(yaml@2.8.1))
       astro:
         specifier: workspace:*
         version: link:../../..
       tailwindcss:
-        specifier: ^4.1.17
+        specifier: ^4.1.18
         version: 4.1.18
 
   packages/astro/test/fixtures/third-party-astro:
@@ -4493,7 +4493,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/astro/test/fixtures/vue-jsx:
@@ -4505,7 +4505,7 @@ importers:
         specifier: workspace:*
         version: link:../../..
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/astro/test/fixtures/vue-with-multi-renderer:
@@ -4520,10 +4520,10 @@ importers:
         specifier: workspace:*
         version: link:../../..
       svelte:
-        specifier: ^5.43.14
+        specifier: ^5.46.1
         version: 5.46.1
       vue:
-        specifier: ^3.5.24
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/astro/test/fixtures/with-endpoint-routes:
@@ -5033,7 +5033,7 @@ importers:
         version: link:../../astro-prism
       '@markdoc/markdoc':
         specifier: ^0.5.4
-        version: 0.5.4(@types/react@19.1.1)(react@19.2.0)
+        version: 0.5.4(@types/react@19.1.1)(react@19.2.3)
       esbuild:
         specifier: ^0.25.0
         version: 0.25.5
@@ -5310,7 +5310,7 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
       shiki:
-        specifier: ^3.15.0
+        specifier: ^3.20.0
         version: 3.20.0
       unified:
         specifier: ^11.0.5
@@ -5385,7 +5385,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       preact:
-        specifier: ^10.27.2
+        specifier: ^10.28.1
         version: 10.28.1
 
   packages/integrations/mdx/test/fixtures/mdx-namespace:
@@ -6043,7 +6043,7 @@ importers:
         version: link:../../internal-helpers
       '@vercel/analytics':
         specifier: ^1.6.1
-        version: 1.6.1(react@19.2.0)(svelte@5.46.1)(vue@3.5.26(typescript@5.9.3))
+        version: 1.6.1(react@19.2.3)(svelte@5.46.1)(vue@3.5.26(typescript@5.9.3))
       '@vercel/functions':
         specifier: ^2.2.13
         version: 2.2.13
@@ -7528,8 +7528,20 @@ packages:
     peerDependencies:
       postcss: ^8.4
 
+  '@csstools/postcss-position-area-property@1.0.0':
+    resolution: {integrity: sha512-fUP6KR8qV2NuUZV3Cw8itx0Ep90aRjAZxAEzC3vrl6yjFv+pFsQbR18UuQctEKmA72K9O27CoYiKEgXxkqjg8Q==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      postcss: ^8.4
+
   '@csstools/postcss-progressive-custom-properties@4.2.1':
     resolution: {integrity: sha512-uPiiXf7IEKtUQXsxu6uWtOlRMXd2QWWy5fhxHDnPdXKCQckPP3E34ZgDoZ62r2iT+UOgWsSbM4NvHE5m3mAEdw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      postcss: ^8.4
+
+  '@csstools/postcss-property-rule-prelude-list@1.0.0':
+    resolution: {integrity: sha512-IxuQjUXq19fobgmSSvUDO7fVwijDJaZMvWQugxfEUxmjBeDCVaDuMpsZ31MsTm5xbnhA+ElDi0+rQ7sQQGisFA==}
     engines: {node: '>=18'}
     peerDependencies:
       postcss: ^8.4
@@ -7560,6 +7572,18 @@ packages:
 
   '@csstools/postcss-stepped-value-functions@4.0.9':
     resolution: {integrity: sha512-h9btycWrsex4dNLeQfyU3y3w40LMQooJWFMm/SK9lrKguHDcFl4VMkncKKoXi2z5rM9YGWbUQABI8BT2UydIcA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      postcss: ^8.4
+
+  '@csstools/postcss-syntax-descriptor-syntax-production@1.0.1':
+    resolution: {integrity: sha512-GneqQWefjM//f4hJ/Kbox0C6f2T7+pi4/fqTqOFGTL3EjnvOReTqO1qUQ30CaUjkwjYq9qZ41hzarrAxCc4gow==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      postcss: ^8.4
+
+  '@csstools/postcss-system-ui-font-family@1.0.0':
+    resolution: {integrity: sha512-s3xdBvfWYfoPSBsikDXbuorcMG1nN1M6GdU0qBsGfcmNR0A/qhloQZpTxjA3Xsyrk1VJvwb2pOfiOT3at/DuIQ==}
     engines: {node: '>=18'}
     peerDependencies:
       postcss: ^8.4
@@ -9354,11 +9378,6 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@playwright/test@1.56.1':
-    resolution: {integrity: sha512-vSMYtL/zOcFpvJCW71Q/OEGQb7KYBPAdKh35WNSkaZA75JlAO8ED8UN6GUNTm3drWomcbcqRPFqQbLae8yBTdg==}
-    engines: {node: '>=18'}
-    hasBin: true
-
   '@playwright/test@1.57.0':
     resolution: {integrity: sha512-6TyEnHgd6SArQO8UO2OMTxshln3QMWBtPGrOCgs3wVEmQmwyuNtB10IZMfmYDE0riwNR1cu4q+pPcxMVtaG3TA==}
     engines: {node: '>=18'}
@@ -10533,8 +10552,8 @@ packages:
     resolution: {integrity: sha512-NaP2rQyA+tcubOJMFv2+oeW9jv2pq/t+LM6BL3cfJic0HEfscEcnWgAyU5YovE/oTHUzAgTliGdLPR+RQAWUbg==}
     hasBin: true
 
-  autoprefixer@10.4.22:
-    resolution: {integrity: sha512-ARe0v/t9gO28Bznv6GgqARmVqcWOV3mfgUPn9becPHMiD3o9BwlRgaeccZnwTpZ7Zwqrm+c1sUSsMxIzQzc8Xg==}
+  autoprefixer@10.4.23:
+    resolution: {integrity: sha512-YYTXSFulfwytnjAPlw8QHncHJmlvFKtczb8InXaAx9Q0LbfDnfEYDE55omerIJKihhmU61Ft+cAOSzQVaBUmeA==}
     engines: {node: ^10 || ^12 || >=14}
     hasBin: true
     peerDependencies:
@@ -10597,8 +10616,8 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  baseline-browser-mapping@2.8.20:
-    resolution: {integrity: sha512-JMWsdF+O8Orq3EMukbUN1QfbLK9mX2CkUmQBcW2T0s8OmdAUL5LLM/6wFwSrqXzlXB13yhyK9gTKS1rIizOduQ==}
+  baseline-browser-mapping@2.9.11:
+    resolution: {integrity: sha512-Sg0xJUNDU1sJNGdfGWhVHX0kkZ+HWcvmVymJbj6NSgZZmW/8S9Y2HQ5euytnIgakgxN6papOAWiwDo1ctFDcoQ==}
     hasBin: true
 
   bcp-47-match@2.0.3:
@@ -10664,8 +10683,8 @@ packages:
   browser-stdout@1.3.1:
     resolution: {integrity: sha512-qhAVI1+Av2X7qelOfAIYwXONood6XlZE/fXaBSmW/T5SzLAmCgzi+eiWE7fUvbHaeNBQH13UftjpXxsfLkMpgw==}
 
-  browserslist@4.27.0:
-    resolution: {integrity: sha512-AXVQwdhot1eqLihwasPElhX2tAZiBjWdJ9i/Zcj2S6QYIjkx62OKSfnobkriB81C3l4w0rVy3Nt4jaTBltYEpw==}
+  browserslist@4.28.1:
+    resolution: {integrity: sha512-ZC5Bd0LgJXgwGqUknZY/vkUQ04r8NXnJZ3yYi4vDmSiZmC/pdSN0NbNRPxZpbtO4uAfDUAFffO8IZoM3Gj8IkA==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
 
@@ -10737,8 +10756,8 @@ packages:
     resolution: {integrity: sha512-8WB3Jcas3swSvjIeA2yvCJ+Miyz5l1ZmB6HFb9R1317dt9LCQoswg/BGrmAmkWVEszSrrg4RwmO46qIm2OEnSA==}
     engines: {node: '>=16'}
 
-  caniuse-lite@1.0.30001754:
-    resolution: {integrity: sha512-x6OeBXueoAceOmotzx3PO4Zpt4rzpeIFsSr6AAePTZxSkXiYDUmpypEl7e2+8NCd9bD7bXjqyef8CJYPC1jfxg==}
+  caniuse-lite@1.0.30001762:
+    resolution: {integrity: sha512-PxZwGNvH7Ak8WX5iXzoK1KPZttBXNPuaOvI2ZYU7NrlM+d9Ov+TUvlLOBNGzVXAntMSMMlJPd+jY6ovrVjSmUw==}
 
   canvas-confetti@1.9.4:
     resolution: {integrity: sha512-yxQbJkAVrFXWNbTUjPqjF7G+g6pDotOUHGbkZq2NELZUMDpiJ85rIEazVb8GTaAptNW2miJAXbs1BtioA251Pw==}
@@ -10998,8 +11017,8 @@ packages:
     resolution: {integrity: sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==}
     engines: {node: '>= 0.6'}
 
-  cookie@1.0.2:
-    resolution: {integrity: sha512-9Kr/j4O16ISv8zBBhJoi4bXOYNTkFLOqSL3UDB0njXxCXNezjeyVrJyGOWtgfs/q2km1gwBcfH8q1yEGoMYunA==}
+  cookie@1.1.1:
+    resolution: {integrity: sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ==}
     engines: {node: '>=18'}
 
   copy-anything@4.0.5:
@@ -11084,8 +11103,8 @@ packages:
     resolution: {integrity: sha512-u/O3vwbptzhMs3L1fQE82ZSLHQQfto5gyZzwteVIEyeaY5Fc7R4dapF/BvRoSYFeqfBk4m0V1Vafq5Pjv25wvA==}
     engines: {node: '>= 6'}
 
-  cssdb@8.4.2:
-    resolution: {integrity: sha512-PzjkRkRUS+IHDJohtxkIczlxPPZqRo0nXplsYXOMBRPjcVRjj1W4DfvRgshUYTVuUigU7ptVYkFJQ7abUB0nyg==}
+  cssdb@8.6.0:
+    resolution: {integrity: sha512-7ZrRi/Z3cRL1d5I8RuXEWAkRFP3J4GeQRiyVknI4KC70RAU8hT4LysUZDe0y+fYNOktCbxE8sOPUOhyR12UqGQ==}
 
   cssesc@3.0.0:
     resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
@@ -11456,8 +11475,8 @@ packages:
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
 
-  electron-to-chromium@1.5.240:
-    resolution: {integrity: sha512-OBwbZjWgrCOH+g6uJsA2/7Twpas2OlepS9uvByJjR2datRDuKGYeD+nP8lBBks2qnB7bGJNHDUx7c/YLaT3QMQ==}
+  electron-to-chromium@1.5.267:
+    resolution: {integrity: sha512-0Drusm6MVRXSOJpGbaSVgcQsuB4hEkMpHXaVstcPmhu5LIedxs1xNK/nIxmQIU/RPC0+1/o0AVZfBTkTNJOdUw==}
 
   emmet@2.4.11:
     resolution: {integrity: sha512-23QPJB3moh/U9sT4rQzGgeyyGIrcM+GH5uVYg2C6wZIxAIJq7Ng3QLT79tl8FUwDXhyq9SusfknOrofAKqvgyQ==}
@@ -12739,8 +12758,8 @@ packages:
   lit-html@3.3.1:
     resolution: {integrity: sha512-S9hbyDu/vs1qNrithiNyeyv64c9yqiW9l+DBgI18fL+MTvOtWoFR0FWiyq1TxaYef5wNlpEmzlXoBlZEO+WjoA==}
 
-  lit@3.3.1:
-    resolution: {integrity: sha512-Ksr/8L3PTapbdXJCk+EJVB78jDodUMaP54gD24W186zGRARvwrsPfS60wae/SSCTCNZVPd1chXqio1qHQmu4NA==}
+  lit@3.3.2:
+    resolution: {integrity: sha512-NF9zbsP79l4ao2SNrH3NkfmFgN/hBYSQo90saIVI1o5GpjAdCPVstVzO1MrLOakHoEhYkrtRjPK6Ob521aoYWQ==}
 
   lite-youtube-embed@0.3.3:
     resolution: {integrity: sha512-gFfVVnj6NRjxVfJKo3qoLtpi0v5mn3AcR4eKD45wrxQuxzveFJUb+7Cr6uV6n+DjO8X3p0UzPPquhGt0H/y+NA==}
@@ -13345,8 +13364,8 @@ packages:
       '@types/node':
         optional: true
 
-  node-releases@2.0.26:
-    resolution: {integrity: sha512-S2M9YimhSjBSvYnlr5/+umAnPHE++ODwt5e2Ij6FoX45HA/s4vHdkDx1eax2pAPeAOqu4s9b7ppahsyEFdVqQA==}
+  node-releases@2.0.27:
+    resolution: {integrity: sha512-nmh3lCkYZ3grZvqcCH+fjmQ7X+H0OeZgP40OierEaAptX4XofMh5kwNbWh7lBduUzCcV/8kZ+NDLCwm2iorIlA==}
 
   node-sarif-builder@3.2.0:
     resolution: {integrity: sha512-kVIOdynrF2CRodHZeP/97Rh1syTUHBNiw17hUCIVhlhEsWlfJm19MuO56s4MdKbr22xWx6mzMnNAgXzVlIYM9Q==}
@@ -13375,10 +13394,6 @@ packages:
 
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
-    engines: {node: '>=0.10.0'}
-
-  normalize-range@0.1.2:
-    resolution: {integrity: sha512-bdok/XvKII3nUpklnV6P2hxtMNrCboOjAcyBuQnWEhO665FwrSNRxU+AqpsyvO6LgGYPspN+lu5CLtw4jPRKNA==}
     engines: {node: '>=0.10.0'}
 
   npm-run-path@5.3.0:
@@ -13689,18 +13704,8 @@ packages:
   pkg-types@1.3.1:
     resolution: {integrity: sha512-/Jm5M4RvtBFVkKWRu2BLUTNP8/M2a+UwuAX+ae4770q1qVGtfjG+WTCupoZixokjmHiry8uI+dlY8KXYV5HVVQ==}
 
-  playwright-core@1.56.1:
-    resolution: {integrity: sha512-hutraynyn31F+Bifme+Ps9Vq59hKuUCz7H1kDOcBs+2oGguKkWTU50bBWrtz34OUWmIwpBTWDxaRPXrIXkgvmQ==}
-    engines: {node: '>=18'}
-    hasBin: true
-
   playwright-core@1.57.0:
     resolution: {integrity: sha512-agTcKlMw/mjBWOnD6kFZttAAGHgi/Nw0CZ2o6JqWSbMlI219lAFLZZCyqByTsvVAJq5XA5H8cA6PrvBRpBWEuQ==}
-    engines: {node: '>=18'}
-    hasBin: true
-
-  playwright@1.56.1:
-    resolution: {integrity: sha512-aFi5B0WovBHTEvpM3DzXTUaeN6eN0qWnTkKx4NQaH4Wvcmc153PdaY2UBdSYKaGYw+UyWXSVyxDUg5DoPEttjw==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -13849,8 +13854,8 @@ packages:
     peerDependencies:
       postcss: ^8.4
 
-  postcss-preset-env@10.4.0:
-    resolution: {integrity: sha512-2kqpOthQ6JhxqQq1FSAAZGe9COQv75Aw8WbsOvQVNJ2nSevc9Yx/IKZGuZ7XJ+iOTtVon7LfO7ELRzg8AZ+sdw==}
+  postcss-preset-env@10.6.0:
+    resolution: {integrity: sha512-+LzpUSLCGHUdlZ1YZP7lp7w1MjxInJRSG0uaLyk/V/BM17iU2B7xTO7I8x3uk0WQAcLLh/ffqKzOzfaBvG7Fdw==}
     engines: {node: '>=18'}
     peerDependencies:
       postcss: ^8.4
@@ -14039,10 +14044,10 @@ packages:
     peerDependencies:
       react: ^19.1.1
 
-  react-dom@19.2.0:
-    resolution: {integrity: sha512-UlbRu4cAiGaIewkPyiRGJk0imDN2T3JjieT6spoL2UeSf5od4n5LB/mQ4ejmxhCFT1tYe8IvaFulzynWovsEFQ==}
+  react-dom@19.2.3:
+    resolution: {integrity: sha512-yELu4WmLPw5Mr/lmeEpox5rw3RETacE++JgHqQzd2dg+YbJuat3jH4ingc+WPZhxaoFzdv9y33G+F7Nl5O0GBg==}
     peerDependencies:
-      react: ^19.2.0
+      react: ^19.2.3
 
   react-refresh@0.17.0:
     resolution: {integrity: sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ==}
@@ -14056,8 +14061,8 @@ packages:
     resolution: {integrity: sha512-w8nqGImo45dmMIfljjMwOGtbmC/mk4CMYhWIicdSflH91J9TyCyczcPFXJzrZ/ZXcgGRFeP6BU0BEJTw6tZdfQ==}
     engines: {node: '>=0.10.0'}
 
-  react@19.2.0:
-    resolution: {integrity: sha512-tmbWg6W31tQLeB5cdIBOicJDJRR2KzXsV7uSK9iNfLWQ5bIZfxuPEHp7M8wiHyHnn0DD1i7w3Zmin0FtkrwoCQ==}
+  react@19.2.3:
+    resolution: {integrity: sha512-Ku/hhYbVjOQnXDZFv2+RibmLFGwFdeeKHFcOTlrt7xplBnya5OGn/hIRDsqDiSUcfORsDC7MPxwork8jBwsIWA==}
     engines: {node: '>=0.10.0'}
 
   read-package-up@11.0.0:
@@ -15028,8 +15033,8 @@ packages:
   unified@11.0.5:
     resolution: {integrity: sha512-xKvGhPWw3k84Qjh8bI3ZeJjqnyadK+GEFtazSfZv/rKeTkTjOJho6mFqh2SM96iIcZokxiOpg78GazTSg8+KHA==}
 
-  unifont@0.6.0:
-    resolution: {integrity: sha512-5Fx50fFQMQL5aeHyWnZX9122sSLckcDvcfFiBf3QYeHa7a1MKJooUy52b67moi2MJYkrfo/TWY+CoLdr/w0tTA==}
+  unifont@0.7.1:
+    resolution: {integrity: sha512-0lg9M1cMYvXof8//wZBq6EDEfbwv4++t7+dYpXeS2ypaLuZJmUFYEwTm412/1ED/Wfo/wyzSu6kNZEr9hgRNfg==}
 
   unist-util-find-after@5.0.0:
     resolution: {integrity: sha512-amQa0Ep2m6hE2g72AugUItjbuM8X8cGQnFoHk0pGfrFeT9GZhzN5SW8nRsiGKK7Aif4CrACPENkA6P/Lw6fHGQ==}
@@ -15164,8 +15169,8 @@ packages:
     resolution: {integrity: sha512-4luGP9LMYszMRZwsvyUd9MrxgEGZdZuZgpVQHEEX0lCYFESasVRvZd0EYpCkOIbJKHMuv0LskpXc/8Un+MJzEQ==}
     hasBin: true
 
-  update-browserslist-db@1.1.4:
-    resolution: {integrity: sha512-q0SPT4xyU84saUX+tomz1WLkxUbuaJnR1xWt17M7fJtEJigJeWUNGUqrauFXsHnqev9y9JTRGwk13tFBuKby4A==}
+  update-browserslist-db@1.2.3:
+    resolution: {integrity: sha512-Js0m9cx+qOgDxo0eMiFGEueWztz+d4+M3rGlmKPT+T4IS/jP4ylw3Nwpu6cpTTP8R1MAC1kF4VbdLt3ARf209w==}
     hasBin: true
     peerDependencies:
       browserslist: '>= 4.21.0'
@@ -15731,8 +15736,8 @@ packages:
     resolution: {integrity: sha512-zK7YHHz4ZXpW89AHXUPbQVGKI7uvkd3hzusTdotCg1UxyaVtg0zFJSTfW/Dq5f7OBBVnq6cZIaC8Ti4hb6dtCA==}
     engines: {node: '>= 14'}
 
-  zod-to-json-schema@3.25.0:
-    resolution: {integrity: sha512-HvWtU2UG41LALjajJrML6uQejQhNJx+JBO9IflpSja4R03iNWfKXrj6W2h7ljuLyc1nKS+9yDyL/9tD1U/yBnQ==}
+  zod-to-json-schema@3.25.1:
+    resolution: {integrity: sha512-pM/SU9d3YAggzi6MtR4h7ruuQlqKtad8e9S0fmxcMi+ueAK5Korys/aWcV9LIIHTVbj01NdzxcnXSN+O74ZIVA==}
     peerDependencies:
       zod: ^3.25 || ^4
 
@@ -15985,7 +15990,7 @@ snapshots:
     dependencies:
       '@babel/compat-data': 7.28.5
       '@babel/helper-validator-option': 7.27.1
-      browserslist: 4.27.0
+      browserslist: 4.28.1
       lru-cache: 5.1.1
       semver: 6.3.1
 
@@ -16653,10 +16658,20 @@ snapshots:
       '@csstools/utilities': 2.0.0(postcss@8.5.6)
       postcss: 8.5.6
 
+  '@csstools/postcss-position-area-property@1.0.0(postcss@8.5.6)':
+    dependencies:
+      postcss: 8.5.6
+
   '@csstools/postcss-progressive-custom-properties@4.2.1(postcss@8.5.6)':
     dependencies:
       postcss: 8.5.6
       postcss-value-parser: 4.2.0
+
+  '@csstools/postcss-property-rule-prelude-list@1.0.0(postcss@8.5.6)':
+    dependencies:
+      '@csstools/css-parser-algorithms': 3.0.5(@csstools/css-tokenizer@3.0.4)
+      '@csstools/css-tokenizer': 3.0.4
+      postcss: 8.5.6
 
   '@csstools/postcss-random-function@2.0.1(postcss@8.5.6)':
     dependencies:
@@ -16689,6 +16704,17 @@ snapshots:
   '@csstools/postcss-stepped-value-functions@4.0.9(postcss@8.5.6)':
     dependencies:
       '@csstools/css-calc': 2.1.4(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)
+      '@csstools/css-parser-algorithms': 3.0.5(@csstools/css-tokenizer@3.0.4)
+      '@csstools/css-tokenizer': 3.0.4
+      postcss: 8.5.6
+
+  '@csstools/postcss-syntax-descriptor-syntax-production@1.0.1(postcss@8.5.6)':
+    dependencies:
+      '@csstools/css-tokenizer': 3.0.4
+      postcss: 8.5.6
+
+  '@csstools/postcss-system-ui-font-family@1.0.0(postcss@8.5.6)':
+    dependencies:
       '@csstools/css-parser-algorithms': 3.0.5(@csstools/css-tokenizer@3.0.4)
       '@csstools/css-tokenizer': 3.0.4
       postcss: 8.5.6
@@ -17531,12 +17557,12 @@ snapshots:
       - encoding
       - supports-color
 
-  '@markdoc/markdoc@0.5.4(@types/react@19.1.1)(react@19.2.0)':
+  '@markdoc/markdoc@0.5.4(@types/react@19.1.1)(react@19.2.3)':
     optionalDependencies:
       '@types/linkify-it': 3.0.5
       '@types/markdown-it': 12.2.3
       '@types/react': 19.1.1
-      react: 19.2.0
+      react: 19.2.3
 
   '@mdx-js/mdx@3.1.1':
     dependencies:
@@ -17823,7 +17849,7 @@ snapshots:
     dependencies:
       '@netlify/dev-utils': 4.3.3
       '@netlify/redirect-parser': 15.0.3
-      cookie: 1.0.2
+      cookie: 1.1.1
       jsonwebtoken: 9.0.2
       netlify-redirector: 0.5.0
 
@@ -18179,10 +18205,6 @@ snapshots:
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
-
-  '@playwright/test@1.56.1':
-    dependencies:
-      playwright: 1.56.1
 
   '@playwright/test@1.57.0':
     dependencies:
@@ -18906,9 +18928,9 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@vercel/analytics@1.6.1(react@19.2.0)(svelte@5.46.1)(vue@3.5.26(typescript@5.9.3))':
+  '@vercel/analytics@1.6.1(react@19.2.3)(svelte@5.46.1)(vue@3.5.26(typescript@5.9.3))':
     optionalDependencies:
-      react: 19.2.0
+      react: 19.2.3
       svelte: 5.46.1
       vue: 3.5.26(typescript@5.9.3)
 
@@ -19574,12 +19596,11 @@ snapshots:
       subarg: 1.0.0
       timestring: 6.0.0
 
-  autoprefixer@10.4.22(postcss@8.5.6):
+  autoprefixer@10.4.23(postcss@8.5.6):
     dependencies:
-      browserslist: 4.27.0
-      caniuse-lite: 1.0.30001754
+      browserslist: 4.28.1
+      caniuse-lite: 1.0.30001762
       fraction.js: 5.3.4
-      normalize-range: 0.1.2
       picocolors: 1.1.1
       postcss: 8.5.6
       postcss-value-parser: 4.2.0
@@ -19632,7 +19653,7 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  baseline-browser-mapping@2.8.20: {}
+  baseline-browser-mapping@2.9.11: {}
 
   bcp-47-match@2.0.3: {}
 
@@ -19719,13 +19740,13 @@ snapshots:
 
   browser-stdout@1.3.1: {}
 
-  browserslist@4.27.0:
+  browserslist@4.28.1:
     dependencies:
-      baseline-browser-mapping: 2.8.20
-      caniuse-lite: 1.0.30001754
-      electron-to-chromium: 1.5.240
-      node-releases: 2.0.26
-      update-browserslist-db: 1.1.4(browserslist@4.27.0)
+      baseline-browser-mapping: 2.9.11
+      caniuse-lite: 1.0.30001762
+      electron-to-chromium: 1.5.267
+      node-releases: 2.0.27
+      update-browserslist-db: 1.2.3(browserslist@4.28.1)
 
   buffer-crc32@0.2.13: {}
 
@@ -19787,7 +19808,7 @@ snapshots:
 
   camelcase@8.0.0: {}
 
-  caniuse-lite@1.0.30001754: {}
+  caniuse-lite@1.0.30001762: {}
 
   canvas-confetti@1.9.4: {}
 
@@ -20039,7 +20060,7 @@ snapshots:
 
   cookie@0.7.2: {}
 
-  cookie@1.0.2: {}
+  cookie@1.1.1: {}
 
   copy-anything@4.0.5:
     dependencies:
@@ -20127,7 +20148,7 @@ snapshots:
 
   css-what@6.2.2: {}
 
-  cssdb@8.4.2: {}
+  cssdb@8.6.0: {}
 
   cssesc@3.0.0: {}
 
@@ -20366,7 +20387,7 @@ snapshots:
 
   ee-first@1.1.1: {}
 
-  electron-to-chromium@1.5.240: {}
+  electron-to-chromium@1.5.267: {}
 
   emmet@2.4.11:
     dependencies:
@@ -21954,7 +21975,7 @@ snapshots:
     dependencies:
       '@types/trusted-types': 2.0.7
 
-  lit@3.3.1:
+  lit@3.3.2:
     dependencies:
       '@lit/reactive-element': 2.1.1
       lit-element: 4.2.1
@@ -22837,7 +22858,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.18.12
 
-  node-releases@2.0.26: {}
+  node-releases@2.0.27: {}
 
   node-sarif-builder@3.2.0:
     dependencies:
@@ -22865,8 +22886,6 @@ snapshots:
       remove-trailing-separator: 1.1.0
 
   normalize-path@3.0.0: {}
-
-  normalize-range@0.1.2: {}
 
   npm-run-path@5.3.0:
     dependencies:
@@ -23199,15 +23218,7 @@ snapshots:
       mlly: 1.8.0
       pathe: 2.0.3
 
-  playwright-core@1.56.1: {}
-
   playwright-core@1.57.0: {}
-
-  playwright@1.56.1:
-    dependencies:
-      playwright-core: 1.56.1
-    optionalDependencies:
-      fsevents: 2.3.2
 
   playwright@1.57.0:
     dependencies:
@@ -23352,7 +23363,7 @@ snapshots:
       postcss: 8.5.6
       postcss-value-parser: 4.2.0
 
-  postcss-preset-env@10.4.0(postcss@8.5.6):
+  postcss-preset-env@10.6.0(postcss@8.5.6):
     dependencies:
       '@csstools/postcss-alpha-function': 1.0.1(postcss@8.5.6)
       '@csstools/postcss-cascade-layers': 5.0.2(postcss@8.5.6)
@@ -23381,21 +23392,25 @@ snapshots:
       '@csstools/postcss-nested-calc': 4.0.0(postcss@8.5.6)
       '@csstools/postcss-normalize-display-values': 4.0.0(postcss@8.5.6)
       '@csstools/postcss-oklab-function': 4.0.12(postcss@8.5.6)
+      '@csstools/postcss-position-area-property': 1.0.0(postcss@8.5.6)
       '@csstools/postcss-progressive-custom-properties': 4.2.1(postcss@8.5.6)
+      '@csstools/postcss-property-rule-prelude-list': 1.0.0(postcss@8.5.6)
       '@csstools/postcss-random-function': 2.0.1(postcss@8.5.6)
       '@csstools/postcss-relative-color-syntax': 3.0.12(postcss@8.5.6)
       '@csstools/postcss-scope-pseudo-class': 4.0.1(postcss@8.5.6)
       '@csstools/postcss-sign-functions': 1.1.4(postcss@8.5.6)
       '@csstools/postcss-stepped-value-functions': 4.0.9(postcss@8.5.6)
+      '@csstools/postcss-syntax-descriptor-syntax-production': 1.0.1(postcss@8.5.6)
+      '@csstools/postcss-system-ui-font-family': 1.0.0(postcss@8.5.6)
       '@csstools/postcss-text-decoration-shorthand': 4.0.3(postcss@8.5.6)
       '@csstools/postcss-trigonometric-functions': 4.0.9(postcss@8.5.6)
       '@csstools/postcss-unset-value': 4.0.0(postcss@8.5.6)
-      autoprefixer: 10.4.22(postcss@8.5.6)
-      browserslist: 4.27.0
+      autoprefixer: 10.4.23(postcss@8.5.6)
+      browserslist: 4.28.1
       css-blank-pseudo: 7.0.1(postcss@8.5.6)
       css-has-pseudo: 7.0.3(postcss@8.5.6)
       css-prefers-color-scheme: 10.0.0(postcss@8.5.6)
-      cssdb: 8.4.2
+      cssdb: 8.6.0
       postcss: 8.5.6
       postcss-attribute-case-insensitive: 7.0.1(postcss@8.5.6)
       postcss-clamp: 4.1.0(postcss@8.5.6)
@@ -23620,9 +23635,9 @@ snapshots:
       react: 19.1.1
       scheduler: 0.26.0
 
-  react-dom@19.2.0(react@19.2.0):
+  react-dom@19.2.3(react@19.2.3):
     dependencies:
-      react: 19.2.0
+      react: 19.2.3
       scheduler: 0.27.0
 
   react-refresh@0.17.0: {}
@@ -23633,7 +23648,7 @@ snapshots:
 
   react@19.1.1: {}
 
-  react@19.2.0: {}
+  react@19.2.3: {}
 
   read-package-up@11.0.0:
     dependencies:
@@ -24863,7 +24878,7 @@ snapshots:
       trough: 2.2.0
       vfile: 6.0.3
 
-  unifont@0.6.0:
+  unifont@0.7.1:
     dependencies:
       css-tree: 3.1.0
       ofetch: 1.5.1
@@ -24976,9 +24991,9 @@ snapshots:
       consola: 3.4.2
       pathe: 1.1.2
 
-  update-browserslist-db@1.1.4(browserslist@4.27.0):
+  update-browserslist-db@1.2.3(browserslist@4.28.1):
     dependencies:
-      browserslist: 4.27.0
+      browserslist: 4.28.1
       escalade: 3.2.0
       picocolors: 1.1.1
 
@@ -25598,7 +25613,7 @@ snapshots:
       compress-commons: 6.0.2
       readable-stream: 4.7.0
 
-  zod-to-json-schema@3.25.0(zod@3.25.76):
+  zod-to-json-schema@3.25.1(zod@3.25.76):
     dependencies:
       zod: 3.25.76
 
