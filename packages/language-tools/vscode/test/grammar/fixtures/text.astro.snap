@@ -1,11 +1,11 @@
 >---
 #^^^ source.astro comment
 >const cool = "our frontmatter"
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro source.ts
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.embedded.block.astro source.ts
 >console.log("Hello, World!")
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro source.ts
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.embedded.block.astro source.ts
 >console.log(`This is ${cool}!`)
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro source.ts
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.embedded.block.astro source.ts
 >---
 #^^^ source.astro comment
 >
