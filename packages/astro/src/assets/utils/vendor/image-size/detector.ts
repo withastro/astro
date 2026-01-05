@@ -22,5 +22,5 @@ export function detector(input: Uint8Array): imageType | undefined {
   if (type && typeHandlers.get(type)!.validate(input)) {
     return type
   }
-  return types.find((type) => typeHandlers.get(type)!.validate(input))
+  return types.find((imageType) => typeHandlers.get(imageType)!.validate(input))
 }

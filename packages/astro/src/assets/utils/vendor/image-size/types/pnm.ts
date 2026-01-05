@@ -20,7 +20,7 @@ const handlers: Record<string, Handler> = {
     let dimensions: string[] = []
 
     while (lines.length > 0) {
-      const line = lines.shift() as string
+      const line = lines.shift()!
       if (line[0] === '#') {
         continue
       }
@@ -39,7 +39,7 @@ const handlers: Record<string, Handler> = {
   pam: (lines) => {
     const size: Record<string, number> = {}
     while (lines.length > 0) {
-      const line = lines.shift() as string
+      const line = lines.shift()!
       if (line.length > 16 || line.charCodeAt(0) > 128) {
         continue
       }
