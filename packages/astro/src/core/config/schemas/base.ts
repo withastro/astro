@@ -85,7 +85,9 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	integrations: [],
 	markdown: markdownConfigDefaults,
 	vite: {},
-	legacy: {},
+	legacy: {
+		collectionsBackwardsCompat: false,
+	},
 	redirects: {},
 	security: {
 		checkOrigin: true,
@@ -492,7 +494,11 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.svgo),
 		})
 		.prefault({}),
-	legacy: z.object({}).default({}),
+	legacy: z
+		.object({
+			collectionsBackwardsCompat: z.boolean().optional().default(false),
+		})
+		.prefault({}),
 });
 
 export type AstroConfigType = z.infer<typeof AstroConfigSchema>;
