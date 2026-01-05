@@ -1,22 +1,24 @@
 // load all available handlers explicitly for browserify support
-import { BMP } from './bmp.js'
-import { CUR } from './cur.js'
-import { DDS } from './dds.js'
-import { GIF } from './gif.js'
-import { HEIF } from './heif.js'
-import { ICNS } from './icns.js'
-import { ICO } from './ico.js'
-import { J2C } from './j2c.js'
-import { JP2 } from './jp2.js'
-import { JPG } from './jpg.js'
-import { KTX } from './ktx.js'
-import { PNG } from './png.js'
-import { PNM } from './pnm.js'
-import { PSD } from './psd.js'
-import { SVG } from './svg.js'
-import { TGA } from './tga.js'
-import { TIFF } from './tiff.js'
-import { WEBP } from './webp.js'
+import { BMP } from './bmp'
+import { CUR } from './cur'
+import { DDS } from './dds'
+import { GIF } from './gif'
+import { HEIF } from './heif'
+import { ICNS } from './icns'
+import { ICO } from './ico'
+import { J2C } from './j2c'
+import { JP2 } from './jp2'
+import { JPG } from './jpg'
+import { JXL } from './jxl'
+import { JXLStream } from './jxl-stream'
+import { KTX } from './ktx'
+import { PNG } from './png'
+import { PNM } from './pnm'
+import { PSD } from './psd'
+import { SVG } from './svg'
+import { TGA } from './tga'
+import { TIFF } from './tiff'
+import { WEBP } from './webp'
 
 export const typeHandlers = new Map([
   ['bmp', BMP],
@@ -29,6 +31,8 @@ export const typeHandlers = new Map([
   ['j2c', J2C],
   ['jp2', JP2],
   ['jpg', JPG],
+  ['jxl', JXL],
+  ['jxl-stream', JXLStream],
   ['ktx', KTX],
   ['png', PNG],
   ['pnm', PNM],
@@ -39,6 +43,5 @@ export const typeHandlers = new Map([
   ['webp', WEBP],
 ] as const)
 
-
 export const types = Array.from(typeHandlers.keys())
-export type imageType = typeof types[number]
+export type imageType = (typeof types)[number]

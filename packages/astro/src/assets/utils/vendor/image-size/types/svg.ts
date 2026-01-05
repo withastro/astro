@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/non-nullable-type-assertion-style */
- 
-import type { IImage, ISize } from './interface.ts'
-import { toUTF8String } from './utils.js'
+import type { IImage, ISize } from './interface'
+import { toUTF8String } from './utils'
 
-type IAttributes = {
+interface IAttributes {
   width: number | null
   height: number | null
   viewbox?: IAttributes | null
@@ -19,7 +17,7 @@ const extractorRegExps = {
 }
 
 const INCH_CM = 2.54
-const units: { [unit: string]: number } = {
+const units: Record<string, number> = {
   in: 96,
   cm: 96 / INCH_CM,
   em: 16,
@@ -52,9 +50,9 @@ function parseViewbox(viewbox: string): IAttributes {
 }
 
 function parseAttributes(root: string): IAttributes {
-  const width = extractorRegExps.width.exec(root)
-  const height = extractorRegExps.height.exec(root)
-  const viewbox = extractorRegExps.viewbox.exec(root)
+  const width = root.match(extractorRegExps.width)
+  const height = root.match(extractorRegExps.height)
+  const viewbox = root.match(extractorRegExps.viewbox)
   return {
     height: height && (parseLength(height[2]) as number),
     viewbox: viewbox && (parseViewbox(viewbox[2]) as IAttributes),
@@ -94,7 +92,7 @@ export const SVG: IImage = {
   validate: (input) => svgReg.test(toUTF8String(input, 0, 1000)),
 
   calculate(input) {
-    const root = extractorRegExps.root.exec(toUTF8String(input))
+    const root = toUTF8String(input).match(extractorRegExps.root)
     if (root) {
       const attrs = parseAttributes(root[0])
       if (attrs.width && attrs.height) {

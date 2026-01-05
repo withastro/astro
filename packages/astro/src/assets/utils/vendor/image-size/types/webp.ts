@@ -1,6 +1,6 @@
 // based on https://developers.google.com/speed/webp/docs/riff_container
-import type { IImage, ISize } from './interface.ts'
-import { toHexString, toUTF8String, readInt16LE, readUInt24LE } from './utils.js'
+import type { IImage, ISize } from './interface'
+import { readInt16LE, readUInt24LE, toHexString, toUTF8String } from './utils'
 
 function calculateExtended(input: Uint8Array): ISize {
   return {
@@ -35,9 +35,9 @@ export const WEBP: IImage = {
     return riffHeader && webpHeader && vp8Header
   },
 
-  calculate(input) {
-    const chunkHeader = toUTF8String(input, 12, 16)
-    input = input.slice(20, 30)
+  calculate(_input) {
+    const chunkHeader = toUTF8String(_input, 12, 16)
+    const input = _input.slice(20, 30)
 
     // Extended webp stream signature
     if (chunkHeader === 'VP8X') {
@@ -46,10 +46,8 @@ export const WEBP: IImage = {
       const validEnd = (extendedHeader & 0x01) === 0
       if (validStart && validEnd) {
         return calculateExtended(input)
-      } else {
-        // TODO: breaking change
-        throw new TypeError('Invalid WebP')
       }
+      throw new TypeError('Invalid WebP')
     }
 
     // Lossless webp stream signature

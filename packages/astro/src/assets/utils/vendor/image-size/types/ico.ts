@@ -1,5 +1,5 @@
-import type { IImage, ISize } from './interface.ts'
-import { readUInt16LE } from './utils.js'
+import type { IImage, ISize } from './interface'
+import { readUInt16LE } from './utils'
 
 const TYPE_ICON = 1
 
@@ -61,15 +61,15 @@ export const ICO: IImage = {
 
     if (nbImages === 1) return imageSize
 
-    const imgs: ISize[] = [imageSize]
-    for (let imageIndex = 1; imageIndex < nbImages; imageIndex += 1) {
-      imgs.push(getImageSize(input, imageIndex))
+    const images: ISize[] = []
+    for (let imageIndex = 0; imageIndex < nbImages; imageIndex += 1) {
+      images.push(getImageSize(input, imageIndex))
     }
 
     return {
-      height: imageSize.height,
-      images: imgs,
       width: imageSize.width,
+      height: imageSize.height,
+      images: images,
     }
   },
 }

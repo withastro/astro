@@ -1,12 +1,16 @@
-import type { IImage } from './interface.ts'
-import { readUInt32BE, findBox } from './utils.js'
+import type { IImage } from './interface'
+import { findBox, readUInt32BE, toUTF8String } from './utils'
 
 export const JP2: IImage = {
   validate(input) {
-    if (readUInt32BE(input, 4) !== 0x6a502020 || readUInt32BE(input, 0) < 1)  return false
+    const boxType = toUTF8String(input, 4, 8)
+    if (boxType !== 'jP  ') return false
+
     const ftypBox = findBox(input, 'ftyp', 0)
     if (!ftypBox) return false
-    return readUInt32BE(input, ftypBox.offset + 4) === 0x66747970
+
+    const brand = toUTF8String(input, ftypBox.offset + 8, ftypBox.offset + 12)
+    return brand === 'jp2 '
   },
 
   calculate(input) {

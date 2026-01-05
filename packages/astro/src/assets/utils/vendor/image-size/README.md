@@ -1,3 +1,5 @@
-This code comes from https://github.com/image-size/image-size/pull/370, and is slightly modified (all import statements have file extensions added to them). 
+# Vendored image-size
 
-The `fromFile` functionality has also been removed, as it was not being used. 
+Vendored from [image-size](https://github.com/image-size/image-size) v2.0.2.
+
+Files removed: `fromFile.ts`, `index.ts`
