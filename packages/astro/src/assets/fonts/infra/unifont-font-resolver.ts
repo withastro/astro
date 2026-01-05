@@ -40,6 +40,7 @@ export class UnifontFontResolver implements FontResolver {
 			// We set the provider name so we can tell unifont what provider to use when
 			// resolving font faces
 			// TODO: mutating is confusing. Instead, keep an internal record of providers
+			// Also update PassthroughFontResolver to use the same kind of pattern
 			provider.name = unifontProvider._name;
 
 			if (!hashes.has(hash)) {
