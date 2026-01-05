@@ -1121,6 +1121,9 @@ async function ensureGitignore({
 	flags: Flags;
 	logger: Logger;
 }) {
+	if (!URL.canParse('./.gitignore', root)) {
+		return;
+	}
 	const gitignoreURL = new URL('./.gitignore', root);
 	const gitignorePath = fileURLToPath(gitignoreURL);
 
