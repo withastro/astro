@@ -3,12 +3,31 @@ import { findBox, readUInt32BE, toUTF8String } from './utils.js'
 
 const brandMap = {
   avif: 'avif',
+  avis: 'avif', // avif-sequence
   mif1: 'heif',
   msf1: 'heif', // heif-sequence
   heic: 'heic',
   heix: 'heic',
   hevc: 'heic', // heic-sequence
   hevx: 'heic', // heic-sequence
+}
+
+// Detect type by scanning ftyp box range, handling files with out-of-order brand entries
+function detectType(input: Uint8Array, start: number, end: number): string | undefined {
+  let hasAvif = false
+  let hasHeic = false
+  let hasHeif = false
+
+  for (let i = start; i <= end; i += 4) {
+    const brand = toUTF8String(input, i, i + 4)
+    if (brand === 'avif' || brand === 'avis') hasAvif = true
+    else if (brand === 'heic' || brand === 'heix' || brand === 'hevc' || brand === 'hevx') hasHeic = true
+    else if (brand === 'mif1' || brand === 'msf1') hasHeif = true
+  }
+
+  if (hasAvif) return 'avif'
+  if (hasHeic) return 'heic'
+  if (hasHeif) return 'heif'
 }
 
 export const HEIF: IImage = {
@@ -33,7 +52,7 @@ export const HEIF: IImage = {
       throw new TypeError('Invalid HEIF, no ipco box found')
     }
 
-    const type = toUTF8String(input, 8, 12)
+    const type = detectType(input, 8, metaBox!.offset)
 
     const images: ISize[] = []
     let currentOffset = ipcoBox.offset + 8
