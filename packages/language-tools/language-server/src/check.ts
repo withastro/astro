@@ -170,6 +170,7 @@ export class AstroCheck {
 						cwd: this.workspacePath,
 						ignore: ['node_modules'],
 						absolute: true,
+						// Required to avoid tinyglobby running eternally
 						expandDirectories: false,
 					});
 				},
