@@ -4,4 +4,3 @@
 
 Updates `wrangler` dependency to be a `peerDependency` over a `dependency`
 
-```
