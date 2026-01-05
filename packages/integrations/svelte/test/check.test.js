@@ -33,4 +33,49 @@ describe('Svelte Check', () => {
 		}
 		assert.equal(exitCode, 0, 'Expected check to pass (exit code 0)');
 	});
+
+	it('should pass check on valid children usage', async () => {
+		const root = fileURLToPath(new URL('./fixtures/prop-types/types/children', import.meta.url));
+		const tsConfigPath = fileURLToPath(
+			new URL('./fixtures/prop-types/tsconfig.children-pass.json', import.meta.url),
+		);
+		const { getResult } = cli('check', '--tsconfig', tsConfigPath, '--root', root);
+		const { exitCode, stdout, stderr } = await getResult();
+
+		if (exitCode !== 0) {
+			console.error(stdout);
+			console.error(stderr);
+		}
+		assert.equal(exitCode, 0, 'Expected check to pass (exit code 0)');
+	});
+
+	it('should fail check on invalid text children', async () => {
+		const root = fileURLToPath(new URL('./fixtures/prop-types/types/children', import.meta.url));
+		const tsConfigPath = fileURLToPath(
+			new URL('./fixtures/prop-types/tsconfig.children-fail.json', import.meta.url),
+		);
+		const { getResult } = cli('check', '--tsconfig', tsConfigPath, '--root', root);
+		const { exitCode, stdout } = await getResult();
+
+		assert.equal(exitCode, 1, 'Expected check to fail (exit code 1)');
+		assert.ok(
+			stdout.includes(`'Empty' components don't accept text`),
+			'Expected Empty component error',
+		);
+		assert.ok(
+			stdout.includes(`'EmptyV5' components don't accept text`),
+			'Expected EmptyV5 component error',
+		);
+	});
+
+	it('should fail check on invalid element children', { skip: true }, async () => {
+		const root = fileURLToPath(new URL('./fixtures/prop-types/types/children', import.meta.url));
+		const tsConfigPath = fileURLToPath(
+			new URL('./fixtures/prop-types/tsconfig.children-fail-element.json', import.meta.url),
+		);
+		const { getResult } = cli('check', '--tsconfig', tsConfigPath, '--root', root);
+		const { exitCode } = await getResult();
+
+		assert.equal(exitCode, 1, 'Expected check to fail (exit code 1)');
+	});
 });

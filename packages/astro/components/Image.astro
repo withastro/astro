@@ -1,8 +1,8 @@
 ---
 import { getImage, imageConfig, type LocalImageProps, type RemoteImageProps } from 'astro:assets';
-import type { UnresolvedImageTransform } from '../dist/assets/types';
+import type { UnresolvedImageTransform } from '../dist/assets/types.js';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
-import type { HTMLAttributes } from '../types';
+import type { HTMLAttributes } from '../types.js';
 
 // The TypeScript diagnostic for JSX props uses the last member of the union to suggest props, so it would be better for
 // LocalImageProps to be last. Unfortunately, when we do this the error messages that remote images get are complete nonsense
