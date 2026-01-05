@@ -15,13 +15,12 @@ const PNMTypes = {
 type ValidSignature = keyof typeof PNMTypes
 type Handler = (type: string[]) => ISize
 
-const handlers: { [type: string]: Handler } = {
+const handlers: Record<string, Handler> = {
   default: (lines) => {
     let dimensions: string[] = []
 
     while (lines.length > 0) {
-			// eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
-      const line = lines.shift() as string
+      const line = lines.shift()!
       if (line[0] === '#') {
         continue
       }
@@ -31,24 +30,22 @@ const handlers: { [type: string]: Handler } = {
 
     if (dimensions.length === 2) {
       return {
-        height: parseInt(dimensions[1], 10),
-        width: parseInt(dimensions[0], 10),
+        height: Number.parseInt(dimensions[1], 10),
+        width: Number.parseInt(dimensions[0], 10),
       }
-    } else {
-      throw new TypeError('Invalid PNM')
     }
+    throw new TypeError('Invalid PNM')
   },
   pam: (lines) => {
-    const size: { [key: string]: number } = {}
+    const size: Record<string, number> = {}
     while (lines.length > 0) {
-			// eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
-      const line = lines.shift() as string
+      const line = lines.shift()!
       if (line.length > 16 || line.charCodeAt(0) > 128) {
         continue
       }
       const [key, value] = line.split(' ')
       if (key && value) {
-        size[key.toLowerCase()] = parseInt(value, 10)
+        size[key.toLowerCase()] = Number.parseInt(value, 10)
       }
       if (size.height && size.width) {
         break
@@ -60,9 +57,8 @@ const handlers: { [type: string]: Handler } = {
         height: size.height,
         width: size.width,
       }
-    } else {
-      throw new TypeError('Invalid PAM')
     }
+    throw new TypeError('Invalid PAM')
   },
 }
 
