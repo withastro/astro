@@ -1,6 +1,6 @@
 import { z } from 'astro/zod';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
-import { yellow } from 'kleur/colors';
+import colors from 'piccolore';
 import { rssSchema } from './schema.js';
 import { createCanonicalURL, errorMap, isValidURL } from './util.js';
 
@@ -71,7 +71,7 @@ const rssOptionsValidator = z.object({
 		.transform((items) => {
 			if (!Array.isArray(items)) {
 				console.warn(
-					yellow(
+					colors.yellow(
 						'[RSS] Passing a glob result directly has been deprecated. Please migrate to the `pagesGlobToRssItems()` helper: https://docs.astro.build/en/guides/rss/',
 					),
 				);

@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/svelte",
-  "version": "7.2.0",
+  "version": "7.2.4",
   "description": "Use Svelte components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -24,10 +24,12 @@
     "./editor": "./dist/editor.cjs",
     "./client.js": "./dist/client.svelte.js",
     "./server.js": "./dist/server.js",
+    "./svelte-shims.d.ts": "./svelte-shims.d.ts",
     "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "svelte-shims.d.ts"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
@@ -37,14 +39,14 @@
   },
   "dependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.1.1",
-    "svelte2tsx": "^0.7.42",
-    "vite": "^6.3.6"
+    "svelte2tsx": "^0.7.46",
+    "vite": "^6.4.1"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.1.2",
-    "svelte": "^5.39.3"
+    "svelte": "^5.46.1"
   },
   "peerDependencies": {
     "astro": "^5.0.0",

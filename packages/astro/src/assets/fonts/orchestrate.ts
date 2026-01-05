@@ -1,7 +1,11 @@
 import * as unifont from 'unifont';
-import type { Storage } from 'unstorage';
 import type { Logger } from '../../core/logger/core.js';
 import { LOCAL_PROVIDER_NAME } from './constants.js';
+import { dedupeFontFaces } from './core/dedupe-font-faces.js';
+import { extractUnifontProviders } from './core/extract-unifont-providers.js';
+import { normalizeRemoteFontFaces } from './core/normalize-remote-font-faces.js';
+import { type CollectedFontForMetrics, optimizeFallbacks } from './core/optimize-fallbacks.js';
+import { resolveFamilies } from './core/resolve-families.js';
 import type {
 	CssRenderer,
 	FontFileReader,
@@ -10,14 +14,11 @@ import type {
 	Hasher,
 	LocalProviderUrlResolver,
 	RemoteFontProviderResolver,
+	Storage,
 	StringMatcher,
 	SystemFallbacksProvider,
 	UrlProxy,
 } from './definitions.js';
-import { extractUnifontProviders } from './logic/extract-unifont-providers.js';
-import { normalizeRemoteFontFaces } from './logic/normalize-remote-font-faces.js';
-import { type CollectedFontForMetrics, optimizeFallbacks } from './logic/optimize-fallbacks.js';
-import { resolveFamilies } from './logic/resolve-families.js';
 import { resolveLocalFont } from './providers/local.js';
 import type {
 	ConsumableMap,
@@ -28,6 +29,7 @@ import type {
 	FontFileDataMap,
 	InternalConsumableMap,
 	PreloadData,
+	ResolvedFontFamily,
 } from './types.js';
 import {
 	pickFontFaceProperty,
@@ -122,16 +124,50 @@ export async function orchestrate({
 	 */
 	const consumableMap: ConsumableMap = new Map();
 
-	for (const family of resolvedFamilies) {
-		const preloadData: Array<PreloadData> = [];
-		const consumableMapValue: Array<FontData> = [];
-		let css = '';
+	/**
+	 * Holds family data by a key, to allow merging families
+	 */
+	const resolvedFamiliesMap = new Map<
+		string,
+		{
+			family: ResolvedFontFamily;
+			fonts: Array<unifont.FontFaceData>;
+			fallbacks: Array<string>;
+			/**
+			 * Holds a list of font files to be used for optimized fallbacks generation
+			 */
+			collectedFonts: Array<CollectedFontForMetrics>;
+			preloadData: Array<PreloadData>;
+		}
+	>();
 
-		/**
-		 * Holds a list of font files to be used for optimized fallbacks generation
-		 */
-		const collectedFonts: Array<CollectedFontForMetrics> = [];
-		const fallbacks = family.fallbacks ?? defaults.fallbacks ?? [];
+	// First loop: we try to merge families. This is useful for advanced cases, where eg. you want
+	// 500, 600, 700 as normal but also 500 as italic. That requires 2 families
+	for (const family of resolvedFamilies) {
+		const key = `${family.cssVariable}:${family.name}:${typeof family.provider === 'string' ? family.provider : family.provider.name!}`;
+		let resolvedFamily = resolvedFamiliesMap.get(key);
+		if (!resolvedFamily) {
+			if (
+				Array.from(resolvedFamiliesMap.keys()).find((k) => k.startsWith(`${family.cssVariable}:`))
+			) {
+				logger.warn(
+					'assets',
+					`Several font families have been registered for the ${bold(family.cssVariable)} cssVariable but they do not share the same name and provider.`,
+				);
+				logger.warn(
+					'assets',
+					'These families will not be merged together. The last occurrence will override previous families for this cssVariable. Review your Astro configuration.',
+				);
+			}
+			resolvedFamily = {
+				family,
+				fonts: [],
+				fallbacks: family.fallbacks ?? defaults.fallbacks ?? [],
+				collectedFonts: [],
+				preloadData: [],
+			};
+			resolvedFamiliesMap.set(key, resolvedFamily);
+		}
 
 		/**
 		 * Allows collecting and transforming original URLs from providers, so the Vite
@@ -144,25 +180,25 @@ export async function orchestrate({
 				fontFileDataMap.set(hash, { url, init });
 			},
 			savePreload: (preload) => {
-				preloadData.push(preload);
+				resolvedFamily.preloadData.push(preload);
 			},
 			saveFontData: (collected) => {
 				if (
-					fallbacks &&
-					fallbacks.length > 0 &&
+					resolvedFamily.fallbacks &&
+					resolvedFamily.fallbacks.length > 0 &&
 					// If the same data has already been sent for this family, we don't want to have
 					// duplicated fallbacks. Such scenario can occur with unicode ranges.
-					!collectedFonts.some((f) => JSON.stringify(f.data) === JSON.stringify(collected.data))
+					!resolvedFamily.collectedFonts.some(
+						(f) => JSON.stringify(f.data) === JSON.stringify(collected.data),
+					)
 				) {
 					// If a family has fallbacks, we store the first url we get that may
 					// be used for the fallback generation.
-					collectedFonts.push(collected);
+					resolvedFamily.collectedFonts.push(collected);
 				}
 			},
 			cssVariable: family.cssVariable,
 		});
-
-		let fonts: Array<unifont.FontFaceData>;
 
 		if (family.provider === LOCAL_PROVIDER_NAME) {
 			const result = resolveLocalFont({
@@ -172,7 +208,7 @@ export async function orchestrate({
 				fontFileReader,
 			});
 			// URLs are already proxied at this point so no further processing is required
-			fonts = result.fonts;
+			resolvedFamily.fonts.push(...result.fonts);
 		} else {
 			const result = await resolveFont(
 				family.name,
@@ -194,7 +230,11 @@ export async function orchestrate({
 					`No data found for font family ${bold(family.name)}. Review your configuration`,
 				);
 				const availableFamilies = await listFonts([family.provider.name!]);
-				if (availableFamilies && !availableFamilies.includes(family.name)) {
+				if (
+					availableFamilies &&
+					availableFamilies.length > 0 &&
+					!availableFamilies.includes(family.name)
+				) {
 					logger.warn(
 						'assets',
 						`${bold(family.name)} font family cannot be retrieved by the provider. Did you mean ${bold(stringMatcher.getClosestMatch(family.name, availableFamilies))}?`,
@@ -202,8 +242,23 @@ export async function orchestrate({
 				}
 			}
 			// The data returned by the remote provider contains original URLs. We proxy them.
-			fonts = normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy, fontTypeExtractor });
+			resolvedFamily.fonts = dedupeFontFaces(
+				resolvedFamily.fonts,
+				normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy, fontTypeExtractor }),
+			);
 		}
+	}
+
+	// We know about all the families, let's generate css, fallbacks and more
+	for (const {
+		family,
+		fonts,
+		fallbacks,
+		collectedFonts,
+		preloadData,
+	} of resolvedFamiliesMap.values()) {
+		const consumableMapValue: Array<FontData> = [];
+		let css = '';
 
 		for (const data of fonts) {
 			css += cssRenderer.generateFontFace(

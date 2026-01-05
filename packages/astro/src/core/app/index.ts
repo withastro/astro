@@ -3,7 +3,7 @@ import {
 	hasFileExtension,
 	isInternalPath,
 } from '@astrojs/internal-helpers/path';
-import { matchPattern, type RemotePattern } from '../../assets/utils/remotePattern.js';
+import { matchPattern, type RemotePattern } from '@astrojs/internal-helpers/remote';
 import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
@@ -32,6 +32,7 @@ import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { createDefaultRoutes } from '../routing/default.js';
 import { matchRoute } from '../routing/match.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session.js';
+import { validateAndDecodePathname } from '../util/pathname.js';
 import { AppPipeline } from './pipeline.js';
 
 export { deserializeManifest } from './common.js';
@@ -175,6 +176,100 @@ export class App {
 	}
 
 	/**
+	 * Validate a hostname by rejecting any with path separators.
+	 * Prevents path injection attacks. Invalid hostnames return undefined.
+	 */
+	static sanitizeHost(hostname: string | undefined): string | undefined {
+		if (!hostname) return undefined;
+		// Reject any hostname containing path separators - they're invalid
+		if (/[/\\]/.test(hostname)) return undefined;
+		return hostname;
+	}
+
+	/**
+	 * Validate forwarded headers (proto, host, port) against allowedDomains.
+	 * Returns validated values or undefined for rejected headers.
+	 * Uses strict defaults: http/https only for proto, rejects port if not in allowedDomains.
+	 */
+	static validateForwardedHeaders(
+		forwardedProtocol?: string,
+		forwardedHost?: string,
+		forwardedPort?: string,
+		allowedDomains?: Partial<RemotePattern>[],
+	): { protocol?: string; host?: string; port?: string } {
+		const result: { protocol?: string; host?: string; port?: string } = {};
+
+		// Validate protocol
+		if (forwardedProtocol) {
+			if (allowedDomains && allowedDomains.length > 0) {
+				const hasProtocolPatterns = allowedDomains.some(
+					(pattern) => pattern.protocol !== undefined,
+				);
+				if (hasProtocolPatterns) {
+					// Validate against allowedDomains patterns
+					try {
+						const testUrl = new URL(`${forwardedProtocol}://example.com`);
+						const isAllowed = allowedDomains.some((pattern) => matchPattern(testUrl, pattern));
+						if (isAllowed) {
+							result.protocol = forwardedProtocol;
+						}
+					} catch {
+						// Invalid protocol, omit from result
+					}
+				} else if (/^https?$/.test(forwardedProtocol)) {
+					// allowedDomains exist but no protocol patterns, allow http/https
+					result.protocol = forwardedProtocol;
+				}
+			} else if (/^https?$/.test(forwardedProtocol)) {
+				// No allowedDomains, only allow http/https
+				result.protocol = forwardedProtocol;
+			}
+		}
+
+		// Validate port first
+		if (forwardedPort && allowedDomains && allowedDomains.length > 0) {
+			const hasPortPatterns = allowedDomains.some((pattern) => pattern.port !== undefined);
+			if (hasPortPatterns) {
+				// Validate against allowedDomains patterns
+				const isAllowed = allowedDomains.some((pattern) => pattern.port === forwardedPort);
+				if (isAllowed) {
+					result.port = forwardedPort;
+				}
+			}
+			// If no port patterns, reject the header (strict security default)
+		}
+
+		// Validate host (extract port from hostname for validation)
+		// Reject empty strings and sanitize to prevent path injection
+		if (forwardedHost && forwardedHost.length > 0 && allowedDomains && allowedDomains.length > 0) {
+			const protoForValidation = result.protocol || 'https';
+			const sanitized = App.sanitizeHost(forwardedHost);
+			if (sanitized) {
+				try {
+					// Extract hostname without port for validation
+					const hostnameOnly = sanitized.split(':')[0];
+					// Use full hostname:port for validation so patterns with ports match correctly
+					// Include validated port if available, otherwise use port from forwardedHost if present
+					const portFromHost = sanitized.includes(':') ? sanitized.split(':')[1] : undefined;
+					const portForValidation = result.port || portFromHost;
+					const hostWithPort = portForValidation
+						? `${hostnameOnly}:${portForValidation}`
+						: hostnameOnly;
+					const testUrl = new URL(`${protoForValidation}://${hostWithPort}`);
+					const isAllowed = allowedDomains.some((pattern) => matchPattern(testUrl, pattern));
+					if (isAllowed) {
+						result.host = sanitized;
+					}
+				} catch {
+					// Invalid host, omit from result
+				}
+			}
+		}
+
+		return result;
+	}
+
+	/**
 	 * Creates a pipeline by reading the stored manifest
 	 *
 	 * @param streaming
@@ -225,7 +320,7 @@ export class App {
 		const url = new URL(request.url);
 		const pathname = prependForwardSlash(this.removeBase(url.pathname));
 		try {
-			return decodeURI(pathname);
+			return validateAndDecodePathname(pathname);
 		} catch (e: any) {
 			this.getAdapterLogger().error(e.toString());
 			return pathname;
@@ -248,7 +343,13 @@ export class App {
 		if (!pathname) {
 			pathname = prependForwardSlash(this.removeBase(url.pathname));
 		}
-		let routeData = matchRoute(decodeURI(pathname), this.#manifestData);
+		try {
+			pathname = validateAndDecodePathname(pathname);
+		} catch {
+			// Invalid encoding detected - return no match
+			return undefined;
+		}
+		let routeData = matchRoute(pathname, this.#manifestData);
 
 		if (!routeData) return undefined;
 		if (allowPrerenderedRoutes) {
@@ -271,29 +372,19 @@ export class App {
 				this.#manifest.i18n.strategy === 'domains-prefix-other-locales' ||
 				this.#manifest.i18n.strategy === 'domains-prefix-always-no-redirect')
 		) {
-			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
-			let forwardedHost = request.headers.get('X-Forwarded-Host');
-			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto
-			let protocol = request.headers.get('X-Forwarded-Proto');
-			if (protocol) {
-				// this header doesn't have a colon at the end, so we add to be in line with URL#protocol, which does have it
-				protocol = protocol + ':';
-			} else {
-				// we fall back to the protocol of the request
-				protocol = url.protocol;
-			}
+			// Validate forwarded headers
+			const validated = App.validateForwardedHeaders(
+				request.headers.get('X-Forwarded-Proto') ?? undefined,
+				request.headers.get('X-Forwarded-Host') ?? undefined,
+				request.headers.get('X-Forwarded-Port') ?? undefined,
+				this.#manifest.allowedDomains,
+			);
 
-			// Validate X-Forwarded-Host against allowedDomains if configured
-			if (forwardedHost && !this.matchesAllowedDomains(forwardedHost, protocol?.replace(':', ''))) {
-				// If not allowed, ignore the X-Forwarded-Host header
-				forwardedHost = null;
-			}
+			// Build protocol with fallback
+			let protocol = validated.protocol ? validated.protocol + ':' : url.protocol;
 
-			let host = forwardedHost;
-			if (!host) {
-				// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Host
-				host = request.headers.get('Host');
-			}
+			// Build host with fallback
+			let host = validated.host ?? request.headers.get('Host');
 			// If we don't have a host and a protocol, it's impossible to proceed
 			if (host && protocol) {
 				// The header might have a port in their name, so we remove it
@@ -475,6 +566,9 @@ export class App {
 
 		if (
 			REROUTABLE_STATUS_CODES.includes(response.status) &&
+			// If the body isn't null, that means the user sets the 404 status
+			// but uses the current route to handle the 404
+			response.body === null &&
 			response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 		) {
 			return this.#renderError(request, {

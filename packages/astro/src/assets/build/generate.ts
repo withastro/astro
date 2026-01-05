@@ -1,6 +1,6 @@
 import fs, { readFileSync } from 'node:fs';
 import { basename } from 'node:path/posix';
-import { dim, green } from 'kleur/colors';
+import colors from 'piccolore';
 import { getOutDirWithinCwd } from '../../core/build/common.js';
 import type { BuildPipeline } from '../../core/build/pipeline.js';
 import { getTimeStat } from '../../core/build/util.js';
@@ -143,7 +143,7 @@ export async function generateImagesForPath(
 		const count = `(${env.count.current}/${env.count.total})`;
 		env.logger.info(
 			null,
-			`  ${green('▶')} ${filepath} ${dim(statsText)} ${dim(timeIncrease)} ${dim(count)}`,
+			`  ${colors.green('▶')} ${filepath} ${colors.dim(statsText)} ${colors.dim(timeIncrease)} ${colors.dim(count)}`,
 		);
 		env.count.current++;
 	}

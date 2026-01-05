@@ -3,7 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AstroIntegration, HookParameters } from 'astro';
-import { blue, yellow } from 'kleur/colors';
+import colors from 'piccolore';
 import {
 	createServer,
 	type HMRPayload,
@@ -189,7 +189,10 @@ function astroDBIntegration(options?: AstroDBConfig): AstroIntegration {
 					throw new AstroDbError(message, hint);
 				}
 
-				logger.info('database: ' + (connectToRemote ? yellow('remote') : blue('local database.')));
+				logger.info(
+					'database: ' +
+						(connectToRemote ? colors.yellow('remote') : colors.blue('local database.')),
+				);
 			},
 			'astro:build:setup': async ({ vite }) => {
 				tempViteServer = await getTempViteServer({ viteConfig: vite });

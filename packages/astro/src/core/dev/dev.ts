@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import type http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { performance } from 'node:perf_hooks';
-import { green } from 'kleur/colors';
+import colors from 'piccolore';
 import { gt, major, minor, patch } from 'semver';
 import type * as vite from 'vite';
 import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
@@ -134,7 +134,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 		logger.warn('SKIP_FORMAT', msg.fsStrictWarning());
 	}
 
-	logger.info(null, green('watching for file changes...'));
+	logger.info(null, colors.green('watching for file changes...'));
 
 	return {
 		address: devServerAddressInfo,

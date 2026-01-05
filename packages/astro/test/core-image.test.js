@@ -26,6 +26,11 @@ describe('astro:image', () => {
 				image: {
 					service: testImageService({ foo: 'bar' }),
 					domains: ['avatars.githubusercontent.com'],
+					remotePatterns: [
+						{
+							protocol: 'data',
+						},
+					],
 				},
 			});
 
@@ -159,6 +164,12 @@ describe('astro:image', () => {
 					}),
 					true,
 				);
+
+				// Verify that the images can be fetched successfully
+				for (const img of $img.toArray()) {
+					const imgRes = await fixture.fetch(img.attribs['src']);
+					assert.equal(imgRes.status, 200);
+				}
 			});
 
 			it('supports inlined imports', async () => {

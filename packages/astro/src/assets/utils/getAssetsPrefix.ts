@@ -1,12 +1,16 @@
 import type { AssetsPrefix } from '../../core/app/types.js';
 
 export function getAssetsPrefix(fileExtension: string, assetsPrefix?: AssetsPrefix): string {
-	if (!assetsPrefix) return '';
-	if (typeof assetsPrefix === 'string') return assetsPrefix;
-	// we assume the file extension has a leading '.' and we remove it
-	const dotLessFileExtension = fileExtension.slice(1);
-	if (assetsPrefix[dotLessFileExtension]) {
-		return assetsPrefix[dotLessFileExtension];
+	let prefix = '';
+	if (!assetsPrefix) {
+		prefix = '';
+	} else if (typeof assetsPrefix === 'string') {
+		prefix = assetsPrefix;
+	} else {
+		// we assume the file extension has a leading '.' and we remove it
+		const dotLessFileExtension = fileExtension.slice(1);
+		prefix = assetsPrefix[dotLessFileExtension] || assetsPrefix.fallback;
 	}
-	return assetsPrefix.fallback;
+
+	return prefix;
 }

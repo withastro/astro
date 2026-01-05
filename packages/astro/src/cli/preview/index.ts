@@ -1,4 +1,4 @@
-import { cyan } from 'kleur/colors';
+import colors from 'piccolore';
 import { printHelp } from '../../core/messages.js';
 import previewServer from '../../core/preview/index.js';
 import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
@@ -25,7 +25,7 @@ export async function preview({ flags }: PreviewOptions) {
 					['--help (-h)', 'See all available flags.'],
 				],
 			},
-			description: `Starts a local server to serve your static dist/ directory. Check ${cyan(
+			description: `Starts a local server to serve your static dist/ directory. Check ${colors.cyan(
 				'https://docs.astro.build/en/reference/cli-reference/#astro-preview',
 			)} for more information.`,
 		});

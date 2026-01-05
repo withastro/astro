@@ -85,7 +85,7 @@ export function astroContentVirtualModPlugin({
 		async resolveId(id, importer) {
 			if (id === VIRTUAL_MODULE_ID) {
 				// Live content config can't import the virtual module directly,
-				// because it would create a circular dependency from the colleciton exports.
+				// because it would create a circular dependency from the collection exports.
 				// Instead, we resolve the config util module, because that's all that it should use anyway.
 				if (liveConfig && importer && liveConfig === normalizePath(importer)) {
 					return this.resolve('astro/virtual-modules/live-config', importer, {
@@ -355,22 +355,12 @@ async function generateLookupMap({ settings, fs }: { settings: AstroSettings; fs
 									: undefined,
 						});
 					}
-					lookupMap[collection] = {
-						type: 'content',
-						entries: {
-							...lookupMap[collection]?.entries,
-							[slug]: rootRelativePath(root, filePath),
-						},
-					};
+					lookupMap[collection] ??= { type: 'content', entries: {} };
+					lookupMap[collection].entries[slug] = rootRelativePath(root, filePath);
 				} else {
 					const id = getDataEntryId({ entry: pathToFileURL(filePath), contentDir, collection });
-					lookupMap[collection] = {
-						type: 'data',
-						entries: {
-							...lookupMap[collection]?.entries,
-							[id]: rootRelativePath(root, filePath),
-						},
-					};
+					lookupMap[collection] ??= { type: 'data', entries: {} };
+					lookupMap[collection].entries[id] = rootRelativePath(root, filePath);
 				}
 			}),
 		);

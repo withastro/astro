@@ -2,8 +2,8 @@ import { parseFrontmatter } from '@astrojs/markdown-remark';
 import type { Options as AcornOpts } from 'acorn';
 import { parse } from 'acorn';
 import type { AstroConfig, AstroIntegrationLogger, SSRError } from 'astro';
-import { bold } from 'kleur/colors';
 import type { MdxjsEsm } from 'mdast-util-mdx';
+import colors from 'piccolore';
 import type { PluggableList } from 'unified';
 
 function appendForwardSlash(path: string) {
@@ -90,10 +90,10 @@ export function ignoreStringPlugins(plugins: any[], logger: AstroIntegrationLogg
 	let hasInvalidPlugin = false;
 	for (const plugin of plugins) {
 		if (typeof plugin === 'string') {
-			logger.warn(`${bold(plugin)} not applied.`);
+			logger.warn(`${colors.bold(plugin)} not applied.`);
 			hasInvalidPlugin = true;
 		} else if (Array.isArray(plugin) && typeof plugin[0] === 'string') {
-			logger.warn(`${bold(plugin[0])} not applied.`);
+			logger.warn(`${colors.bold(plugin[0])} not applied.`);
 			hasInvalidPlugin = true;
 		} else {
 			validPlugins.push(plugin);

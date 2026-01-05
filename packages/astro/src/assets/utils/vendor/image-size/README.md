@@ -1,3 +1,9 @@
-This code comes from https://github.com/image-size/image-size/pull/370, and is slightly modified (all import statements have file extensions added to them). 
+# Vendored image-size
 
-The `fromFile` functionality has also been removed, as it was not being used. 
+Vendored from [image-size](https://github.com/image-size/image-size) v2.0.2.
+
+## Changes
+
+- Files removed: `fromFile.ts`, `index.ts`
+- Added `avis` brand for AVIF sequences (`./types/heif.ts`)
+- Added `detectType()` to handle files with out-of-order ftyp brands (`./types/heif.ts`)

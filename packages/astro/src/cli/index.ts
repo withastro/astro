@@ -1,6 +1,5 @@
-import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
-import { ASTRO_VERSION } from '../core/constants.js';
+import { apply as applyPolyfill } from '../core/polyfill.js';
 
 type CLICommand =
 	| 'help'
@@ -17,48 +16,6 @@ type CLICommand =
 	| 'info'
 	| 'preferences'
 	| 'telemetry';
-
-/** Display --help flag */
-async function printAstroHelp() {
-	const { printHelp } = await import('../core/messages.js');
-	printHelp({
-		commandName: 'astro',
-		usage: '[command] [...flags]',
-		headline: 'Build faster websites.',
-		tables: {
-			Commands: [
-				['add', 'Add an integration.'],
-				['build', 'Build your project and write it to disk.'],
-				['check', 'Check your project for errors.'],
-				['create-key', 'Create a cryptography key'],
-				['db', 'Manage your Astro database.'],
-				['dev', 'Start the development server.'],
-				['docs', 'Open documentation in your web browser.'],
-				['info', 'List info about your current Astro setup.'],
-				['preview', 'Preview your build locally.'],
-				['sync', 'Generate content collection types.'],
-				['preferences', 'Configure user preferences.'],
-				['telemetry', 'Configure telemetry settings.'],
-			],
-			'Global Flags': [
-				['--config <path>', 'Specify your config file.'],
-				['--root <path>', 'Specify your project root folder.'],
-				['--site <url>', 'Specify your project site.'],
-				['--base <pathname>', 'Specify your project base.'],
-				['--verbose', 'Enable verbose logging.'],
-				['--silent', 'Disable all logging.'],
-				['--version', 'Show the version number and exit.'],
-				['--help', 'Show this help message.'],
-			],
-		},
-	});
-}
-
-/** Display --version flag */
-function printVersion() {
-	console.log();
-	console.log(`  ${colors.bgGreen(colors.black(` astro `))} ${colors.green(`v${ASTRO_VERSION}`)}`);
-}
 
 /** Determine which command the user requested */
 function resolveCommand(flags: yargs.Arguments): CLICommand {
@@ -95,35 +52,141 @@ function resolveCommand(flags: yargs.Arguments): CLICommand {
  * to present user-friendly error output where the fn is called.
  **/
 async function runCommand(cmd: string, flags: yargs.Arguments) {
+	applyPolyfill();
+
+	const [
+		{ createLoggerFromFlags },
+		{ piccoloreTextStyler: textStyler },
+		{ BuildTimeAstroVersionProvider },
+		{ LoggerHelpDisplay },
+		{ CliCommandRunner },
+	] = await Promise.all([
+		import('./flags.js'),
+		import('./infra/piccolore-text-styler.js'),
+		import('./infra/build-time-astro-version-provider.js'),
+		import('./infra/logger-help-display.js'),
+		import('./infra/cli-command-runner.js'),
+	]);
+	const logger = createLoggerFromFlags(flags);
+	const astroVersionProvider = new BuildTimeAstroVersionProvider();
+	const helpDisplay = new LoggerHelpDisplay({
+		logger,
+		flags,
+		textStyler,
+		astroVersionProvider,
+	});
+	const runner = new CliCommandRunner({ helpDisplay });
+
 	// These commands can run directly without parsing the user config.
 	switch (cmd) {
-		case 'help':
-			await printAstroHelp();
+		/** Display --help flag */
+		case 'help': {
+			const { DEFAULT_HELP_PAYLOAD } = await import('./help/index.js');
+			helpDisplay.show(DEFAULT_HELP_PAYLOAD);
 			return;
-		case 'version':
-			printVersion();
+		}
+		/** Display --version flag */
+		case 'version': {
+			const { formatVersion } = await import('./utils/format-version.js');
+			logger.info(
+				'SKIP_FORMAT',
+				formatVersion({ name: 'astro', textStyler, astroVersionProvider }),
+			);
 			return;
+		}
 		case 'info': {
-			const { printInfo } = await import('./info/index.js');
-			await printInfo({ flags });
-			return;
+			const [
+				{ ProcessOperatingSystemProvider },
+				{ CliAstroConfigResolver },
+				{ ProcessPackageManagerUserAgentProvider },
+				{ ProcessNodeVersionProvider },
+				{ CliDebugInfoProvider },
+				{ TinyexecCommandExecutor },
+				{ getPackageManager },
+				{ StyledDebugInfoFormatter },
+				{ PromptsPrompt },
+				{ CliClipboard },
+				{ PassthroughTextStyler },
+				{ infoCommand },
+			] = await Promise.all([
+				import('./infra/process-operating-system-provider.js'),
+				import('./info/infra/cli-astro-config-resolver.js'),
+				import('./info/infra/process-package-manager-user-agent-provider.js'),
+				import('./info/infra/process-node-version-provider.js'),
+				import('./info/infra/cli-debug-info-provider.js'),
+				import('./infra/tinyexec-command-executor.js'),
+				import('./info/core/get-package-manager.js'),
+				import('./info/infra/styled-debug-info-formatter.js'),
+				import('./info/infra/prompts-prompt.js'),
+				import('./info/infra/cli-clipboard.js'),
+				import('./infra/passthrough-text-styler.js'),
+				import('./info/core/info.js'),
+			]);
+			const operatingSystemProvider = new ProcessOperatingSystemProvider();
+			const astroConfigResolver = new CliAstroConfigResolver({ flags });
+			const commandExecutor = new TinyexecCommandExecutor();
+			const packageManagerUserAgentProvider = new ProcessPackageManagerUserAgentProvider();
+			const nodeVersionProvider = new ProcessNodeVersionProvider();
+			const debugInfoProvider = new CliDebugInfoProvider({
+				config: await astroConfigResolver.resolve(),
+				astroVersionProvider,
+				operatingSystemProvider,
+				packageManager: await getPackageManager({
+					packageManagerUserAgentProvider,
+					commandExecutor,
+				}),
+				nodeVersionProvider,
+			});
+			const prompt = new PromptsPrompt({ force: flags.copy });
+			const clipboard = new CliClipboard({
+				commandExecutor,
+				logger,
+				operatingSystemProvider,
+				prompt,
+			});
+
+			return await runner.run(infoCommand, {
+				logger,
+				debugInfoProvider,
+				getDebugInfoFormatter: ({ pretty }) =>
+					new StyledDebugInfoFormatter({
+						textStyler: pretty ? textStyler : new PassthroughTextStyler(),
+					}),
+				clipboard,
+			});
 		}
 		case 'create-key': {
-			const [{ createKey }, { createLoggerFromFlags }, { createCryptoKeyGenerator }] =
-				await Promise.all([
-					import('./create-key/core/create-key.js'),
-					import('./flags.js'),
-					import('./create-key/infra/crypto-key-generator.js'),
-				]);
-			const logger = createLoggerFromFlags(flags);
-			const keyGenerator = createCryptoKeyGenerator();
-			await createKey({ logger, keyGenerator });
-			return;
+			const [{ CryptoKeyGenerator }, { createKeyCommand }] = await Promise.all([
+				import('./create-key/infra/crypto-key-generator.js'),
+				import('./create-key/core/create-key.js'),
+			]);
+
+			const keyGenerator = new CryptoKeyGenerator();
+			return await runner.run(createKeyCommand, { logger, keyGenerator });
 		}
 		case 'docs': {
-			const { docs } = await import('./docs/index.js');
-			await docs({ flags });
-			return;
+			const [
+				{ TinyexecCommandExecutor },
+				{ ProcessOperatingSystemProvider },
+				{ ProcessCloudIdeProvider },
+				{ openDocsCommand },
+			] = await Promise.all([
+				import('./infra/tinyexec-command-executor.js'),
+				import('./infra/process-operating-system-provider.js'),
+				import('./docs/infra/process-cloud-ide-provider.js'),
+				import('./docs/core/open-docs.js'),
+			]);
+			const commandExecutor = new TinyexecCommandExecutor();
+			const operatingSystemProvider = new ProcessOperatingSystemProvider();
+			const cloudIdeProvider = new ProcessCloudIdeProvider();
+
+			return await runner.run(openDocsCommand, {
+				url: 'https://docs.astro.build/',
+				logger,
+				commandExecutor,
+				operatingSystemProvider,
+				cloudIdeProvider,
+			});
 		}
 		case 'telemetry': {
 			// Do not track session start, since the user may be trying to enable,
@@ -146,8 +209,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 	}
 
-	// In verbose/debug mode, we log the debug logs asap before any potential errors could appear
 	if (flags.verbose) {
+		// In verbose/debug mode, we log the debug logs asap before any potential errors could appear
 		const { enableVerboseLogging } = await import('../core/logger/node.js');
 		enableVerboseLogging();
 	}
@@ -200,7 +263,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			if (flags.watch) {
 				return await new Promise(() => {}); // lives forever
 			} else {
-				return process.exit(checkServer ? 1 : 0);
+				return process.exit(typeof checkServer === 'boolean' && checkServer ? 1 : 0);
 			}
 		}
 	}

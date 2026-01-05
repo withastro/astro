@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { bold } from 'kleur/colors';
+import colors from 'piccolore';
 import type { Plugin } from 'vite';
 import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
 import { generateCspDigest } from '../../core/encryption.js';
@@ -30,33 +30,27 @@ import type {
 	UrlProxyHashResolver,
 	UrlResolver,
 } from './definitions.js';
-import { createMinifiableCssRenderer } from './implementations/css-renderer.js';
-import { createDataCollector } from './implementations/data-collector.js';
-import { createAstroErrorHandler } from './implementations/error-handler.js';
-import { createCachedFontFetcher } from './implementations/font-fetcher.js';
-import { createFontaceFontFileReader } from './implementations/font-file-reader.js';
-import { createCapsizeFontMetricsResolver } from './implementations/font-metrics-resolver.js';
-import { createFontTypeExtractor } from './implementations/font-type-extractor.js';
-import { createXxHasher } from './implementations/hasher.js';
-import { createLevenshteinStringMatcher } from './implementations/levenshtein-string-matcher.js';
-import { createRequireLocalProviderUrlResolver } from './implementations/local-provider-url-resolver.js';
-import {
-	createBuildRemoteFontProviderModResolver,
-	createDevServerRemoteFontProviderModResolver,
-} from './implementations/remote-font-provider-mod-resolver.js';
-import { createRemoteFontProviderResolver } from './implementations/remote-font-provider-resolver.js';
-import { createFsStorage } from './implementations/storage.js';
-import { createSystemFallbacksProvider } from './implementations/system-fallbacks-provider.js';
-import { createUrlProxy } from './implementations/url-proxy.js';
-import {
-	createLocalUrlProxyContentResolver,
-	createRemoteUrlProxyContentResolver,
-} from './implementations/url-proxy-content-resolver.js';
-import {
-	createBuildUrlProxyHashResolver,
-	createDevUrlProxyHashResolver,
-} from './implementations/url-proxy-hash-resolver.js';
-import { createBuildUrlResolver, createDevUrlResolver } from './implementations/url-resolver.js';
+import { BuildRemoteFontProviderModResolver } from './infra/build-remote-font-provider-mod-resolver.js';
+import { BuildUrlProxyHashResolver } from './infra/build-url-proxy-hash-resolver.js';
+import { BuildUrlResolver } from './infra/build-url-resolver.js';
+import { CachedFontFetcher } from './infra/cached-font-fetcher.js';
+import { CapsizeFontMetricsResolver } from './infra/capsize-font-metrics-resolver.js';
+import { RealDataCollector } from './infra/data-collector.js';
+import { DevServerRemoteFontProviderModResolver } from './infra/dev-remote-font-provider-mod-resolver.js';
+import { DevUrlProxyHashResolver } from './infra/dev-url-proxy-hash-resolver.js';
+import { DevUrlResolver } from './infra/dev-url-resolver.js';
+import { RealFontTypeExtractor } from './infra/font-type-extractor.js';
+import { FontaceFontFileReader } from './infra/fontace-font-file-reader.js';
+import { LevenshteinStringMatcher } from './infra/levenshtein-string-matcher.js';
+import { LocalUrlProxyContentResolver } from './infra/local-url-proxy-content-resolver.js';
+import { MinifiableCssRenderer } from './infra/minifiable-css-renderer.js';
+import { RealRemoteFontProviderResolver } from './infra/remote-font-provider-resolver.js';
+import { RemoteUrlProxyContentResolver } from './infra/remote-url-proxy-content-resolver.js';
+import { RequireLocalProviderUrlResolver } from './infra/require-local-provider-url-resolver.js';
+import { RealSystemFallbacksProvider } from './infra/system-fallbacks-provider.js';
+import { UnstorageFsStorage } from './infra/unstorage-fs-storage.js';
+import { RealUrlProxy } from './infra/url-proxy.js';
+import { XxhashHasher } from './infra/xxhash-hasher.js';
 import { orchestrate } from './orchestrate.js';
 import type { ConsumableMap, FontFileDataMap, InternalConsumableMap } from './types.js';
 
@@ -67,7 +61,7 @@ interface Options {
 }
 
 export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
-	if (sync || !settings.config.experimental.fonts) {
+	if (!settings.config.experimental.fonts) {
 		// This is required because the virtual module may be imported as
 		// a side effect
 		// TODO: remove once fonts are stabilized
@@ -128,16 +122,14 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		const { root } = settings.config;
 		// Dependencies. Once extracted to a dedicated vite plugin, those may be passed as
 		// a Vite plugin option.
-		const hasher = await createXxHasher();
-		const errorHandler = createAstroErrorHandler();
-		const remoteFontProviderResolver = createRemoteFontProviderResolver({
+		const hasher = await XxhashHasher.create();
+		const remoteFontProviderResolver = new RealRemoteFontProviderResolver({
 			root,
 			modResolver,
-			errorHandler,
 		});
 		// TODO: remove when stabilizing
 		const pathsToWarn = new Set<string>();
-		const localProviderUrlResolver = createRequireLocalProviderUrlResolver({
+		const localProviderUrlResolver = new RequireLocalProviderUrlResolver({
 			root,
 			intercept: (path) => {
 				if (path.startsWith(fileURLToPath(settings.config.publicDir))) {
@@ -152,13 +144,13 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				}
 			},
 		});
-		const storage = createFsStorage({ base: cacheDir });
-		const systemFallbacksProvider = createSystemFallbacksProvider();
-		fontFetcher = createCachedFontFetcher({ storage, errorHandler, fetch, readFile });
-		const fontMetricsResolver = createCapsizeFontMetricsResolver({ fontFetcher, cssRenderer });
-		fontTypeExtractor = createFontTypeExtractor({ errorHandler });
-		const fontFileReader = createFontaceFontFileReader({ errorHandler });
-		const stringMatcher = createLevenshteinStringMatcher();
+		const storage = new UnstorageFsStorage({ base: cacheDir });
+		const systemFallbacksProvider = new RealSystemFallbacksProvider();
+		fontFetcher = new CachedFontFetcher({ storage, fetch, readFile });
+		const fontMetricsResolver = new CapsizeFontMetricsResolver({ fontFetcher, cssRenderer });
+		fontTypeExtractor = new RealFontTypeExtractor();
+		const fontFileReader = new FontaceFontFileReader();
+		const stringMatcher = new LevenshteinStringMatcher();
 
 		const res = await orchestrate({
 			families: settings.config.experimental.fonts!,
@@ -173,11 +165,11 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			fontFileReader,
 			logger,
 			createUrlProxy: ({ local, cssVariable, ...params }) => {
-				const dataCollector = createDataCollector(params);
+				const dataCollector = new RealDataCollector(params);
 				const contentResolver = local
-					? createLocalUrlProxyContentResolver({ errorHandler })
-					: createRemoteUrlProxyContentResolver();
-				return createUrlProxy({
+					? new LocalUrlProxyContentResolver()
+					: new RemoteUrlProxyContentResolver();
+				return new RealUrlProxy({
 					urlResolver,
 					hashResolver: createHashResolver({ hasher, contentResolver }),
 					dataCollector,
@@ -185,7 +177,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				});
 			},
 			defaults: DEFAULTS,
-			bold,
+			bold: colors.bold,
 			stringMatcher,
 		});
 		// We initialize shared variables here and reset them in buildEnd
@@ -202,8 +194,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			for (const { css } of internalConsumableMap.values()) {
 				settings.injectedCsp.styleHashes.push(await generateCspDigest(css, algorithm));
 			}
-			const resources = urlResolver.getCspResources();
-			for (const resource of resources) {
+			for (const resource of urlResolver.cspResources) {
 				settings.injectedCsp.fontResources.add(resource);
 			}
 		}
@@ -218,13 +209,14 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			if (isBuild) {
 				await initialize({
 					cacheDir: new URL(CACHE_DIR, settings.config.cacheDir),
-					modResolver: createBuildRemoteFontProviderModResolver(),
-					cssRenderer: createMinifiableCssRenderer({ minify: true }),
-					urlResolver: createBuildUrlResolver({
+					modResolver: new BuildRemoteFontProviderModResolver(),
+					cssRenderer: new MinifiableCssRenderer({ minify: true }),
+					urlResolver: new BuildUrlResolver({
 						base: baseUrl,
 						assetsPrefix: settings.config.build.assetsPrefix,
+						searchParams: settings.adapter?.client?.assetQueryParams ?? new URLSearchParams(),
 					}),
-					createHashResolver: (dependencies) => createBuildUrlProxyHashResolver(dependencies),
+					createHashResolver: (dependencies) => new BuildUrlProxyHashResolver(dependencies),
 				});
 			}
 		},
@@ -232,13 +224,13 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			await initialize({
 				// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
 				cacheDir: new URL(CACHE_DIR, settings.dotAstroDir),
-				modResolver: createDevServerRemoteFontProviderModResolver({ server }),
-				cssRenderer: createMinifiableCssRenderer({ minify: false }),
-				urlResolver: createDevUrlResolver({ base: baseUrl }),
-				createHashResolver: (dependencies) =>
-					createDevUrlProxyHashResolver({
-						baseHashResolver: createBuildUrlProxyHashResolver(dependencies),
-					}),
+				modResolver: new DevServerRemoteFontProviderModResolver({ server }),
+				cssRenderer: new MinifiableCssRenderer({ minify: false }),
+				urlResolver: new DevUrlResolver({
+					base: baseUrl,
+					searchParams: settings.adapter?.client?.assetQueryParams ?? new URLSearchParams(),
+				}),
+				createHashResolver: (dependencies) => new DevUrlProxyHashResolver(dependencies),
 			});
 			// The map is always defined at this point. Its values contains urls from remote providers
 			// as well as local paths for the local provider. We filter them to only keep the filepaths
@@ -315,7 +307,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 		},
 		async buildEnd() {
-			if (settings.config.experimental.fonts!.length === 0) {
+			if (sync || settings.config.experimental.fonts!.length === 0) {
 				cleanup();
 				return;
 			}
@@ -329,7 +321,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
 				}
 				if (fontFileDataMap) {
-					logger.info('assets', 'Copying fonts...');
+					logger.info(
+						'assets',
+						`Copying fonts (${fontFileDataMap.size} file${fontFileDataMap.size === 1 ? '' : 's'})...`,
+					);
 					await Promise.all(
 						Array.from(fontFileDataMap.entries()).map(async ([hash, associatedData]) => {
 							const data = await fontFetcher!.fetch({ hash, ...associatedData });

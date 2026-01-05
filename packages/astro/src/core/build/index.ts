@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
-import { blue, bold, green } from 'kleur/colors';
+import colors from 'piccolore';
 import type * as vite from 'vite';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
@@ -174,11 +174,14 @@ class AstroBuilder {
 		await runHookBuildStart({ config: this.settings.config, logger: this.logger });
 		this.validateConfig();
 
-		this.logger.info('build', `output: ${blue('"' + this.settings.config.output + '"')}`);
-		this.logger.info('build', `mode: ${blue('"' + this.settings.buildOutput + '"')}`);
-		this.logger.info('build', `directory: ${blue(fileURLToPath(this.settings.config.outDir))}`);
+		this.logger.info('build', `output: ${colors.blue('"' + this.settings.config.output + '"')}`);
+		this.logger.info('build', `mode: ${colors.blue('"' + this.settings.buildOutput + '"')}`);
+		this.logger.info(
+			'build',
+			`directory: ${colors.blue(fileURLToPath(this.settings.config.outDir))}`,
+		);
 		if (this.settings.adapter) {
-			this.logger.info('build', `adapter: ${green(this.settings.adapter.name)}`);
+			this.logger.info('build', `adapter: ${colors.green(this.settings.adapter.name)}`);
 		}
 		this.logger.info('build', 'Collecting build info...');
 		this.timer.loadStart = performance.now();
@@ -198,7 +201,7 @@ class AstroBuilder {
 		this.timer.buildStart = performance.now();
 		this.logger.info(
 			'build',
-			green(`✓ Completed in ${getTimeStat(this.timer.init, performance.now())}.`),
+			colors.green(`✓ Completed in ${getTimeStat(this.timer.init, performance.now())}.`),
 		);
 
 		const hasKey = hasEnvironmentKey();
@@ -302,12 +305,12 @@ class AstroBuilder {
 
 		let messages: string[] = [];
 		if (buildMode === 'static') {
-			messages = [`${pageCount} page(s) built in`, bold(total)];
+			messages = [`${pageCount} page(s) built in`, colors.bold(total)];
 		} else {
-			messages = ['Server built in', bold(total)];
+			messages = ['Server built in', colors.bold(total)];
 		}
 
 		logger.info('build', messages.join(' '));
-		logger.info('build', `${bold('Complete!')}`);
+		logger.info('build', `${colors.bold('Complete!')}`);
 	}
 }

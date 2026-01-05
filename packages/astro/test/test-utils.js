@@ -1,10 +1,9 @@
+import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
-import { execa } from 'execa';
-import * as kleur from 'kleur/colors';
 import { glob } from 'tinyglobby';
 import { Agent } from 'undici';
 import { check } from '../dist/cli/check/index.js';
@@ -17,9 +16,6 @@ import sync from '../dist/core/sync/index.js';
 
 // Disable telemetry when running tests
 process.env.ASTRO_TELEMETRY_DISABLED = true;
-
-// Disable colors when running tests
-kleur.$.enabled = false;
 
 /**
  * @typedef {import('../src/core/dev/dev').DevServer} DevServer
@@ -316,13 +312,32 @@ const cliPath = fileURLToPath(new URL('../astro.js', import.meta.url));
 
 /** Returns a process running the Astro CLI. */
 export function cli(/** @type {string[]} */ ...args) {
-	const spawned = execa('node', [cliPath, ...args], {
-		env: { ASTRO_TELEMETRY_DISABLED: true },
+	const proc = spawn('node', [cliPath, ...args], {
+		env: { ...process.env, ASTRO_TELEMETRY_DISABLED: 'true' },
 	});
+	proc.stdout.setEncoding('utf-8');
 
-	spawned.stdout.setEncoding('utf8');
-
-	return spawned;
+	return {
+		proc,
+		getResult: () =>
+			new Promise((resolve) => {
+				let stdout = '';
+				let stderr = '';
+				proc.stdout.on('data', (chunk) => {
+					stdout += chunk;
+				});
+				proc.stderr.on('data', (chunk) => {
+					stderr += chunk;
+				});
+				proc.on('close', (exitCode) => {
+					resolve({
+						exitCode,
+						stdout,
+						stderr,
+					});
+				});
+			}),
+	};
 }
 
 export async function parseCliDevStart(proc) {
@@ -357,7 +372,7 @@ export async function parseCliDevStart(proc) {
 }
 
 export async function cliServerLogSetup(flags = [], cmd = 'dev') {
-	const proc = cli(cmd, ...flags);
+	const { proc } = cli(cmd, ...flags);
 
 	const { messages } = await parseCliDevStart(proc);
 

@@ -884,6 +884,24 @@ test.describe('View Transitions', () => {
 		).toEqual(1);
 	});
 
+	test('Hash part of the target URL is preserved during server redirect', async ({
+		page,
+		astro,
+	}) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to page 2
+		await page.click('#click-redirect-two-hash');
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+
+		const Y = await page.evaluate(() => window.scrollY);
+		expect(Y, 'The target is further down the page').toBeGreaterThan(0);
+	});
+
 	test('Redirect to external site causes page load', async ({ page, astro }) => {
 		const loads = collectLoads(page);
 
@@ -896,7 +914,7 @@ test.describe('View Transitions', () => {
 		await page.click('#click-redirect-external');
 		// doesn't work for playwright when we are too fast
 		await page.waitForLoadState('commit', { timeout: 5000 });
-		await page.waitForURL('http://example.com/', { waitUntil: 'commit', timeout: 5000 });
+		await page.waitForURL('https://example.com/', { waitUntil: 'commit', timeout: 5000 });
 		await expect(page.locator('h1'), 'should have content').toHaveText('Example Domain');
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);
 	});
@@ -1146,7 +1164,11 @@ test.describe('View Transitions', () => {
 
 	test('form POST that action for cross-origin is opt-out', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/form-five'));
-		page.on('request', (request) => expect(request.method()).toBe('POST'));
+		page.on('request', (request) => {
+			if (request.isNavigationRequest()) {
+				expect(request.method()).toBe('POST');
+			}
+		});
 		// Submit the form
 		await page.click('#submit');
 	});
@@ -1264,7 +1286,9 @@ test.describe('View Transitions', () => {
 	}) => {
 		await page.goto(astro.resolveUrl('/form-six'));
 		page.on('request', (request) => {
-			expect(request.url()).toContain('/bar');
+			if (request.isNavigationRequest()) {
+				expect(request.url()).toContain('/bar');
+			}
 		});
 		// Submit the form
 		await page.click('#submit');
@@ -1276,7 +1300,9 @@ test.describe('View Transitions', () => {
 	}) => {
 		await page.goto(astro.resolveUrl('/form-seven'));
 		page.on('request', (request) => {
-			expect(request.method()).toBe('GET');
+			if (request.isNavigationRequest()) {
+				expect(request.method()).toBe('GET');
+			}
 		});
 		// Submit the form
 		await page.click('#submit');
@@ -1286,8 +1312,11 @@ test.describe('View Transitions', () => {
 		let navigated;
 		await page.goto(astro.resolveUrl('/form-with-hash#test'));
 		page.on('request', (request) => {
-			expect(request.method()).toBe('POST');
-			navigated = true;
+			// Vite HMR request
+			if (request.resourceType() !== 'websocket') {
+				expect(request.method()).toBe('POST');
+				navigated = true;
+			}
 		});
 		// Submit the form
 		await page.click('#submit');
@@ -1311,15 +1340,16 @@ test.describe('View Transitions', () => {
 	test('should prefetch on hover by default', async ({ page, astro }) => {
 		/** @type {string[]} */
 		const reqUrls = [];
-		page.on('request', (req) => {
-			reqUrls.push(new URL(req.url()).pathname);
+		page.on('request', (request) => {
+			// Vite HMR request
+			if (request.resourceType() !== 'websocket') {
+				reqUrls.push(new URL(request.url()).pathname);
+			}
 		});
 		await page.goto(astro.resolveUrl('/prefetch'));
 		expect(reqUrls).not.toContainEqual('/one');
-		await Promise.all([
-			page.waitForEvent('request'), // wait prefetch request
-			page.locator('#prefetch-one').hover(),
-		]);
+		await page.locator('#prefetch-one').hover();
+		await page.waitForEvent('request'); // wait prefetch request
 		expect(reqUrls).toContainEqual('/one');
 	});
 
@@ -1409,7 +1439,11 @@ test.describe('View Transitions', () => {
 		await page.goto(astro.resolveUrl('/dialog'));
 
 		let requests = [];
-		page.on('request', (request) => requests.push(`${request.method()} ${request.url()}`));
+		page.on('request', (request) => {
+			if (request.isNavigationRequest()) {
+				requests.push(`${request.method()} ${request.url()}`);
+			}
+		});
 
 		await page.click('#open');
 		await expect(page.locator('dialog')).toHaveAttribute('open');
@@ -1624,7 +1658,7 @@ test.describe('View Transitions', () => {
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 		// This test would be more important for a browser without native view transitions
-		// as those do not have automatic cancelation of transitions.
+		// as those do not have automatic cancellation of transitions.
 		// For simulated view transitions, the last line would be missing
 		// as enter and exit animations don't run in parallel.
 
