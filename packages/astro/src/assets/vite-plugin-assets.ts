@@ -151,6 +151,13 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							export { default as Font } from "astro/components/Font.astro";
 							import * as fontsMod from 'virtual:astro:assets/fonts/internal';
 							import { createGetFontData } from "astro/assets/fonts/runtime";
+							
+							export const viteFSConfig = ${JSON.stringify(resolvedConfig.server.fs)} ?? {};
+							
+							export const safeModulePaths = new Set(${JSON.stringify(
+								// @ts-expect-error safeModulePaths is internal to Vite
+								Array.from(resolvedConfig.safeModulePaths),
+							)} ?? []);
 
 							const assetQueryParams = ${
 								settings.adapter?.client?.assetQueryParams
