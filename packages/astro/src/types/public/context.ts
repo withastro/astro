@@ -260,7 +260,34 @@ export interface AstroSharedContext<
 	) => Promise<ActionReturnType<TAction>>;
 
 	/**
-	 * List of props passed from `getStaticPaths`. Only available to static builds.
+	 * An object containing the values of dynamic route segments matched for a request.
+	 *
+	 * In static builds, this will be the `params` returned by [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths). With on-demand rendering, `params` can be any value matching the path segments in the dynamic route pattern.
+	 *
+	 * ## Example
+	 *
+	 * ```ts
+	 * import type { APIContext } from "astro"
+	 *
+	 * export function getStaticPaths() {
+	 *   return [
+	 *     { params: { id: '0' }, props: { name: 'Sarah' } },
+	 *     { params: { id: '1' }, props: { name: 'Chris' } },
+	 *     { params: { id: '2' }, props: { name: 'Fuzzy' } },
+	 *   ];
+	 * }
+	 *
+	 * export function GET({ params }: APIContext): Response {
+	 *   return new Response(`The current id is ${params.id}.`);
+	 * }
+	 * ```
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#params)
+	 */
+	params: Params;
+
+	/**
+	 * An object containing any values that have been passed as component attributes. In static builds, this can also be the `props` returned by [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths).
 	 *
 	 * ## Example
 	 *
@@ -279,13 +306,6 @@ export interface AstroSharedContext<
 	 *   return new Response(`Hello ${props.name}!`);
 	 * }
 	 * ```
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#params)
-	 */
-	params: Params;
-
-	/**
-	 * List of props returned for this path by `getStaticPaths` (**Static Only**).
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#props)
 	 */
