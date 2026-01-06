@@ -158,6 +158,7 @@ export class PassthroughFontResolver {
 			weights: options.weights ?? [],
 			styles: options.styles ?? [],
 			subsets: options.subsets ?? [],
+			formats: options.formats ?? [],
 		});
 		return res?.fonts ?? [];
 	}
