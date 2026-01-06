@@ -26,6 +26,7 @@ declare global {
 	namespace AstroInternals {
 		export type RoutePattern = string;
 		export type Site = 'maybe';
+		export type Session = 'maybe';
 	}
 }
 

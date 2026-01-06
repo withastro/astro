@@ -276,7 +276,7 @@ export interface AstroSharedContext<
 	/**
 	 * Utility for handling sessions.
 	 */
-	session?: AstroSession;
+	session: ConditionalType<AstroSession, AstroInternals.Session>;
 	/**
 	 * Information about the current request. This is a standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
 	 */

@@ -7,7 +7,7 @@ interface Options {
 }
 
 function getCondition(enabled: boolean) {
-	return enabled ? 'enabled' : 'disabled';
+	return enabled ? "'enabled'" : "'disabled'";
 }
 
 export function syncInternals({ settings, routes }: Options) {
@@ -15,7 +15,8 @@ export function syncInternals({ settings, routes }: Options) {
 		filename: 'internals.d.ts',
 		content: `declare namespace AstroInternals {
     export type RoutePattern = (${JSON.stringify(routes.map((r) => r.route))})[number];
-	export type Site = ${JSON.stringify(getCondition(!!settings.config.site))};
+	export type Site = ${getCondition(!!settings.config.site)};
+	export type Session = ${getCondition(!!settings.config.session?.driver)};
 }`,
 	});
 }

@@ -132,6 +132,7 @@ function createContext({
 				insertStyleHash() {},
 			};
 		},
+		session: undefined,
 	};
 	return Object.assign(context, {
 		getActionResult: createGetActionResult(context.locals),
