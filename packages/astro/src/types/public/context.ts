@@ -20,7 +20,8 @@ export interface AstroGlobal<
 	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
 > extends AstroGlobalPartial,
 		AstroSharedContext<Props, Params> {
-	/** Information about the outgoing response. This is a standard [ResponseInit](https://developer.mozilla.org/en-US/docs/Web/API/Response/Response#init) object
+	/**
+	 * Information about the outgoing response. This is a standard [ResponseInit](https://developer.mozilla.org/en-US/docs/Web/API/Response/Response#init) object
 	 *
 	 * For example, to change the status code you can set a different status on this object:
 	 * ```typescript
@@ -151,16 +152,22 @@ export interface AstroSharedContext<
 	 * The address (usually IP address) of the user.
 	 *
 	 * Throws an error if used within a static site, or within a prerendered page.
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#clientaddress)
 	 */
 	clientAddress: string;
 
 	/**
 	 * Utility for getting and setting the values of cookies.
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#cookies)
 	 */
 	cookies: AstroCookies;
 
 	/**
 	 * Utility for handling sessions.
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#session)
 	 */
 	session?: AstroSession;
 
@@ -190,6 +197,8 @@ export interface AstroSharedContext<
 	/**
 	 * The origin pathname of the request URL.
 	 * Useful to track the original URL before rewrites were applied.
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#originpathname)
 	 */
 	originPathname: string;
 
@@ -207,6 +216,8 @@ export interface AstroSharedContext<
 	 *
 	 * const result = await Astro.getActionResult(actions.myAction);
 	 * ```
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#getactionresult)
 	 */
 	getActionResult: <
 		TAccept extends ActionAccept,
@@ -229,6 +240,8 @@ export interface AstroSharedContext<
 	 *
 	 * const result = await Astro.callAction(actions.getPost, { postId: 'test' });
 	 * ```
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#callaction)
 	 */
 	callAction: <
 		TAccept extends ActionAccept,
@@ -262,14 +275,15 @@ export interface AstroSharedContext<
 	 * }
 	 * ```
 	 *
-	 * [Reference](https://docs.astro.build/en/reference/api-reference/#props)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#params)
 	 */
 	params: Params;
 
 	/**
 	 * List of props returned for this path by `getStaticPaths` (**Static Only**).
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#props)
 	 */
-
 	props: Props;
 
 	/**
@@ -283,7 +297,7 @@ export interface AstroSharedContext<
 	 * }
 	 * ```
 	 *
-	 * [Reference](https://docs.astro.build/en/reference/api-reference/#redirect)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#redirect)
 	 */
 	redirect: (path: string, status?: ValidRedirectStatus) => Response;
 
@@ -299,6 +313,8 @@ export interface AstroSharedContext<
 	 *   return ctx.rewrite(new URL("../"), ctx.url);
 	 * }
 	 * ```
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#rewrite)
 	 */
 	rewrite: (rewritePayload: RewritePayload) => Promise<Response>;
 
@@ -327,7 +343,7 @@ export interface AstroSharedContext<
 	 * <h1>{greeting}</h1>
 	 * ```
 	 *
-	 * [Reference](https://docs.astro.build/en/reference/api-reference/#locals)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#locals)
 	 */
 	locals: App.Locals;
 
@@ -338,16 +354,16 @@ export interface AstroSharedContext<
 	 * and locales supported by the users's browser via the header `Accept-Language`
 	 *
 	 * For example, given `i18n.locales` equals to `['fr', 'de']`, and the `Accept-Language` value equals to `en, de;q=0.2, fr;q=0.6`, the
-	 * `Astro.preferredLanguage` will be `fr` because `en` is not supported, its [quality value] is the highest.
+	 * `Astro.preferredLanguage` will be `fr` because `en` is not supported, its [quality value](https://developer.mozilla.org/en-US/docs/Glossary/Quality_values) is the highest.
 	 *
-	 * [quality value]: https://developer.mozilla.org/en-US/docs/Glossary/Quality_values
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#preferredlocale)
 	 */
 	preferredLocale: string | undefined;
 
 	/**
 	 * Available only when `i18n` configured and in SSR.
 	 *
-	 * It represents the list of the preferred locales that are supported by the application. The list is sorted via [quality value].
+	 * It represents the list of the preferred locales that are supported by the application. The list is sorted via [quality value](https://developer.mozilla.org/en-US/docs/Glossary/Quality_values).
 	 *
 	 * For example, given `i18n.locales` equals to `['fr', 'pt', 'de']`, and the `Accept-Language` value equals to `en, de;q=0.2, fr;q=0.6`, the
 	 * `Astro.preferredLocaleList` will be equal to `['fs', 'de']` because `en` isn't supported, and `pt` isn't part of the locales contained in the
@@ -355,22 +371,28 @@ export interface AstroSharedContext<
 	 *
 	 * When the `Accept-Header` is `*`, the original `i18n.locales` are returned. The value `*` means no preferences, so Astro returns all the supported locales.
 	 *
-	 * [quality value]: https://developer.mozilla.org/en-US/docs/Glossary/Quality_values
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#preferredlocalelist)
 	 */
 	preferredLocaleList: string[] | undefined;
 
 	/**
 	 * The current locale computed from the URL of the request. It matches the locales in `i18n.locales`, and returns `undefined` otherwise.
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#currentlocale)
 	 */
 	currentLocale: string | undefined;
 
 	/**
 	 * Whether the current route is prerendered or not.
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#isprerendered)
 	 */
 	isPrerendered: boolean;
 
 	/**
 	 * It exposes utilities to control CSP headers
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/)
 	 */
 	csp: {
 		/**
@@ -381,6 +403,8 @@ export interface AstroSharedContext<
 		 * ```js
 		 * ctx.insertDirective("default-src 'self' 'unsafe-inline' https://example.com")
 		 * ```
+		 *
+		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertdirective)
 		 */
 		insertDirective: (directive: CspDirective) => void;
 
@@ -392,6 +416,8 @@ export interface AstroSharedContext<
 		 * ```js
 		 * ctx.insertStyleResource("https://styles.cdn.example.com/")
 		 * ```
+		 *
+		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstyleresource)
 		 */
 		insertStyleResource: (payload: string) => void;
 
@@ -403,6 +429,8 @@ export interface AstroSharedContext<
 		 * ```js
 		 * ctx.insertStyleHash("sha256-1234567890abcdef1234567890")
 		 * ```
+		 *
+		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstylehash)
 		 */
 		insertStyleHash: (hash: CspHash) => void;
 
@@ -414,6 +442,8 @@ export interface AstroSharedContext<
 		 * ```js
 		 * ctx.insertScriptResource("https://scripts.cdn.example.com/")
 		 * ```
+		 *
+		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscriptresource)
 		 */
 		insertScriptResource: (resource: string) => void;
 
@@ -425,6 +455,8 @@ export interface AstroSharedContext<
 		 * ```js
 		 * ctx.insertScriptHash("sha256-1234567890abcdef1234567890")
 		 * ```
+		 *
+		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscripthash)
 		 */
 		insertScriptHash: (hash: CspHash) => void;
 	};
@@ -436,6 +468,8 @@ export interface AstroSharedContext<
 	 * - The value when rendering `src/pages/index.astro` will be `/`.
 	 * - The value when rendering `src/pages/blog/[slug].astro` will be `/blog/[slug]`.
 	 * - The value when rendering `src/pages/[...path].astro` will be `/[...path]`.
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#routepattern)
 	 */
 	routePattern: string;
 }
@@ -444,7 +478,7 @@ export interface AstroSharedContext<
  * The `APIContext` is the object made available to endpoints and middleware.
  * It is a subset of the `Astro` global object available in pages.
  *
- * [Reference](https://docs.astro.build/en/reference/api-reference/)
+ * [Astro reference](https://docs.astro.build/en/reference/api-reference/)
  */
 export type APIContext<
 	Props extends Record<string, any> = Record<string, any>,
