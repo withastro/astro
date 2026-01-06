@@ -28,15 +28,15 @@
   },
   "dependencies": {
     "@astrojs/language-server": "^2.16.1",
-    "chokidar": "^4.0.1",
+    "chokidar": "^4.0.3",
     "kleur": "^4.1.5",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@types/node": "^20.9.0",
     "tinyglobby": "^0.2.15",
-    "@types/yargs": "^17.0.33",
-    "tsx": "^4.20.6",
+    "@types/yargs": "^17.0.35",
+    "tsx": "^4.21.0",
     "astro-scripts": "workspace:*"
   },
   "peerDependencies": {
