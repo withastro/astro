@@ -29,7 +29,7 @@
   "license": "MIT",
   "publisher": "astro-build",
   "engines": {
-    "vscode": "^1.999.0"
+    "vscode": "^1.90.0"
   },
   "activationEvents": [
     "workspaceContains:astro.config.*"
