@@ -8,7 +8,7 @@ import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 type Weight = z.infer<typeof weightSchema>;
 type Display = z.infer<typeof displaySchema>;
 
-export interface AstroFontProvider {
+export interface FontProvider {
 	/**
 	 * URL, path relative to the root or package import.
 	 */
@@ -149,7 +149,7 @@ export interface RemoteFontFamily
 	/**
 	 * The source of your font files. You can use a built-in provider or write your own custom provider.
 	 */
-	provider: AstroFontProvider;
+	provider: FontProvider;
 	/**
 	 * @default `[400]`
 	 *
@@ -267,7 +267,7 @@ export type PreloadFilter =
 	| boolean
 	| Array<{ weight?: string | number; style?: string; subset?: string }>;
 
-export interface AstroFontProviderResolveFontOptions {
+export interface ResolveFontOptions {
 	familyName: string;
 	weights: string[] | undefined;
 	styles: Style[] | undefined;

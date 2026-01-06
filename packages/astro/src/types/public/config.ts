@@ -10,7 +10,7 @@ import type {
 import type { Config as SvgoConfig } from 'svgo';
 import type { BuiltinDriverName, BuiltinDriverOptions, Driver, Storage } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
-import type { AstroFontProvider, FontFamily } from '../../assets/fonts/types.js';
+import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schemas/index.js';
@@ -23,7 +23,7 @@ import type { AstroIntegration } from './integrations.js';
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
-export type { AstroFontProvider as FontProvider };
+export type { FontProvider };
 
 export type { CspAlgorithm };
 

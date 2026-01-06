@@ -1,6 +1,6 @@
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
 import type { RemoteFontProviderModResolver, RemoteFontProviderResolver } from '../definitions.js';
-import type { AstroFontProvider, ResolvedFontProvider } from '../types.js';
+import type { FontProvider, ResolvedFontProvider } from '../types.js';
 import { resolveEntrypoint } from '../utils.js';
 
 // TODO: find better name
@@ -50,7 +50,7 @@ export class RealRemoteFontProviderResolver implements RemoteFontProviderResolve
 		}
 	}
 
-	async resolve({ entrypoint, config }: AstroFontProvider): Promise<ResolvedFontProvider> {
+	async resolve({ entrypoint, config }: FontProvider): Promise<ResolvedFontProvider> {
 		const id = resolveEntrypoint(this.#root, entrypoint.toString()).href;
 		const mod = await this.#modResolver.resolve(id);
 		const { provider } = this.#validateMod({
