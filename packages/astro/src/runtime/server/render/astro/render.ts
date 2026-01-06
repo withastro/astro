@@ -263,7 +263,12 @@ export async function renderToAsyncIterable(
 				throw error;
 			}
 
-			// Get the total length of all arrays.
+			// This calculates the length of the final merged array.
+			// While doing so, it also replaces consecutive strings with their
+			// concatenated Uint8Array equivalent.
+			// This is a performance optimization since `TextEncoder#encode` can be
+			// costly, so it is faster to encode one larger string than it is
+			// to encode many smaller strings.
 			let length = 0;
 			let stringToEncode = '';
 			for (let i = 0, len = buffer.length; i < len; i++) {
@@ -290,9 +295,14 @@ export async function renderToAsyncIterable(
 			let offset = 0;
 			for (let i = 0, len = buffer.length; i < len; i++) {
 				const item = buffer[i];
+				// If an item is an empty string, it must've been cleared out earlier
+				// when we converted it into a larger Uint8Array. Thus, we can skip it.
 				if (item === '') {
 					continue;
 				}
+				// TypeScript will think this is `string | Uint8Array` but, because of
+				// the encoding earlier, we know the only remaining strings are empty
+				// and have been skipped above.
 				mergedArray.set(item as Uint8Array, offset);
 				offset += item.length;
 			}
