@@ -9,6 +9,12 @@ import type { Params, RewritePayload } from './common.js';
 import type { ValidRedirectStatus } from './config.js';
 import type { AstroInstance, MarkdownInstance, MDXInstance } from './content.js';
 
+type ConditionalType<TValue, TCondition> = TCondition extends 'enabled'
+	? TValue
+	: TCondition extends 'disabled'
+		? undefined
+		: TValue | undefined;
+
 /**
  * Astro global available in all contexts in .astro files
  *
@@ -239,7 +245,7 @@ export interface AstroGlobalPartial {
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrosite)
 	 */
-	site: URL | undefined;
+	site: ConditionalType<URL, AstroInternals.Site>;
 	/**
 	 * Returns a string with the current version of Astro.
 	 *
@@ -438,7 +444,7 @@ export interface APIContext<
 	 * The site provided in the astro config, parsed as an instance of `URL`, without base.
 	 * `undefined` if the site is not provided in the config.
 	 */
-	site: URL | undefined;
+	site: ConditionalType<URL, AstroInternals.Site>;
 	/**
 	 * A human-readable string representing the Astro version used to create the project.
 	 * For example, `"Astro v1.1.1"`.
