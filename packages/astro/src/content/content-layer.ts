@@ -255,15 +255,24 @@ class ContentLayer {
 			this.#watcher?.removeAllTrackedListeners();
 		}
 
+		const backwardsCompatEnabled =
+			this.#settings.config.legacy?.collectionsBackwardsCompat ?? false;
+
 		await Promise.all(
 			Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
-				if (collection.type !== CONTENT_LAYER_TYPE) {
+				// Skip non-content_layer collections unless backwards compat is enabled
+				if (collection.type !== CONTENT_LAYER_TYPE && !backwardsCompatEnabled) {
+					return;
+				}
+				// If backwards compat is disabled, skip old-style collections
+				if (collection.type !== CONTENT_LAYER_TYPE && !('loader' in collection)) {
 					return;
 				}
 
 				let { schema } = collection;
+				const loaderName = 'loader' in collection ? (collection as any).loader.name : 'content';
 
-				if (!schema && typeof collection.loader === 'object') {
+				if (!schema && 'loader' in collection && typeof collection.loader === 'object') {
 					schema = collection.loader.schema;
 					if (!schema && collection.loader.createSchema) {
 						({ schema } = await collection.loader.createSchema());
@@ -273,8 +282,9 @@ class ContentLayer {
 				// If loaders are specified, only sync the specified loaders
 				if (
 					options?.loaders &&
+					'loader' in collection &&
 					(typeof collection.loader !== 'object' ||
-						!options.loaders.includes(collection.loader.name))
+						!options.loaders.includes((collection as any).loader.name))
 				) {
 					return;
 				}
@@ -295,19 +305,21 @@ class ContentLayer {
 							{ ...collection, schema },
 							false,
 						),
-					loaderName: collection.loader.name,
+					loaderName,
 					refreshContextData: options?.context,
 				});
 
-				if (typeof collection.loader === 'function') {
-					return simpleLoader(collection.loader as CollectionLoader<{ id: string }>, context);
-				}
+				if ('loader' in collection) {
+					if (typeof collection.loader === 'function') {
+						return simpleLoader(collection.loader as CollectionLoader<{ id: string }>, context);
+					}
 
-				if (!collection.loader.load) {
-					throw new Error(`Collection loader for ${name} does not have a load method`);
-				}
+					if (!collection.loader?.load) {
+						throw new Error(`Collection loader for ${name} does not have a load method`);
+					}
 
-				return collection.loader.load(context);
+					return collection.loader.load(context);
+				}
 			}),
 		);
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });

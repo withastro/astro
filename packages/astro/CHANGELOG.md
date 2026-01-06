@@ -1,5 +1,17 @@
 # astro
 
+## 6.0.0-alpha.5
+
+### Patch Changes
+
+- [#15064](https://github.com/withastro/astro/pull/15064) [`caf5621`](https://github.com/withastro/astro/commit/caf5621b324344fc0d46fb462c88c0d79fccca6b) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused incorrect warnings of duplicate entries to be logged by the glob loader when editing a file
+
+- [#15093](https://github.com/withastro/astro/pull/15093) [`8d5f783`](https://github.com/withastro/astro/commit/8d5f783ad8d236c9d768a629d3b929a074276ac2) Thanks [@matthewp](https://github.com/matthewp)! - Reduces build memory by filtering routes per environment so each only builds the pages it needs
+
+- [#15073](https://github.com/withastro/astro/pull/15073) [`2a39c32`](https://github.com/withastro/astro/commit/2a39c32857ad090efcfd77fb781e420f43800bc9) Thanks [@ascorbic](https://github.com/ascorbic)! - Don't log an error when there is no content config
+
+- [#15112](https://github.com/withastro/astro/pull/15112) [`5751d2b`](https://github.com/withastro/astro/commit/5751d2be14ccdcb752e11b6abdb5cdd3268a5b87) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes a Windows-specific build issue when importing an Astro component with a `<script>` tag using an import alias.
+
 ## 6.0.0-alpha.4
 
 ### Major Changes

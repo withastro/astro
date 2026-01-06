@@ -10,9 +10,16 @@ export class MyDurableObject extends DurableObject<Env> {
 
 export default {
 	async fetch(request, env, ctx) {
-		console.log("env", env)
-		await env.MY_QUEUE.send("log");
-		return handle(request, env, ctx);
+		const response = await handle(request, env, ctx);
+		// Clone response to make headers mutable, add custom header to prove custom entrypoint is used
+		return new Response(response.body, {
+			status: response.status,
+			statusText: response.statusText,
+			headers: {
+				...Object.fromEntries(response.headers.entries()),
+				'X-Custom-Entrypoint': 'true',
+			},
+		});
 	},
 
 	async queue(batch, _env) {

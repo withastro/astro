@@ -74,7 +74,8 @@ export async function prepareAssetsGenerationEnv(
 	const isServerOutput = settings.buildOutput === 'server';
 	let serverRoot: URL, clientRoot: URL;
 	if (isServerOutput) {
-		serverRoot = manifest.buildServerDir;
+		// Images are collected during prerender, which outputs to .prerender/ subdirectory
+		serverRoot = new URL('.prerender/', manifest.buildServerDir);
 		clientRoot = manifest.buildClientDir;
 	} else {
 		serverRoot = getOutDirWithinCwd(manifest.outDir);
