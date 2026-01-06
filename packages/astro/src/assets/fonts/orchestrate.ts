@@ -1,7 +1,6 @@
 import type * as unifont from 'unifont';
 import type { Logger } from '../../core/logger/core.js';
 import { LOCAL_PROVIDER_NAME } from './constants.js';
-import { dedupeFontFaces } from './core/dedupe-font-faces.js';
 import { normalizeRemoteFontFaces } from './core/normalize-remote-font-faces.js';
 import { type CollectedFontForMetrics, optimizeFallbacks } from './core/optimize-fallbacks.js';
 import { resolveFamilies } from './core/resolve-families.js';
@@ -210,6 +209,7 @@ export async function orchestrate({
 				weights: family.weights ?? defaults.weights,
 				styles: family.styles ?? defaults.styles,
 				subsets: family.subsets ?? defaults.subsets,
+				formats: family.formats ?? defaults.formats,
 			});
 			if (fonts.length === 0) {
 				logger.warn(
@@ -229,10 +229,7 @@ export async function orchestrate({
 				}
 			}
 			// The data returned by the remote provider contains original URLs. We proxy them.
-			resolvedFamily.fonts = dedupeFontFaces(
-				resolvedFamily.fonts,
-				normalizeRemoteFontFaces({ fonts, urlProxy, fontTypeExtractor }),
-			);
+			resolvedFamily.fonts = normalizeRemoteFontFaces({ fonts, urlProxy, fontTypeExtractor });
 		}
 	}
 

@@ -144,7 +144,7 @@ export interface ResolvedLocalFontFamily
 
 export interface RemoteFontFamily
 	extends RequiredFamilyAttributes,
-		Omit<FamilyProperties, 'weight' | 'style'>,
+		Omit<FamilyProperties, 'weight' | 'style' | 'subsets' | 'formats'>,
 		Fallbacks {
 	/**
 	 * The source of your font files. You can use a built-in provider or write your own custom provider.
@@ -172,6 +172,12 @@ export interface RemoteFontFamily
 	 * An array of [font subsets](https://knaap.dev/posts/font-subsetting/):
 	 */
 	subsets?: [string, ...Array<string>] | undefined;
+		/**
+	 * @default `["woff2"]`
+	 *
+	 * An array of [font formats](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/src#font_formats).
+	 */
+	formats?: [FontType, ...Array<FontType>] | undefined;
 }
 
 /** @lintignore somehow required by pickFontFaceProperty in utils */
@@ -214,7 +220,7 @@ export type GenericFallbackName = (typeof GENERIC_FALLBACK_NAMES)[number];
 export type Defaults = Partial<
 	Pick<
 		ResolvedRemoteFontFamily,
-		'weights' | 'styles' | 'subsets' | 'fallbacks' | 'optimizedFallbacks'
+		'weights' | 'styles' | 'subsets' | 'fallbacks' | 'optimizedFallbacks' | 'formats'
 	>
 >;
 
@@ -266,4 +272,5 @@ export interface AstroFontProviderResolveFontOptions {
 	weights: string[] | undefined;
 	styles: Style[] | undefined;
 	subsets: string[] | undefined;
+	formats: FontType[] | undefined;
 }
