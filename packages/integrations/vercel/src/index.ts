@@ -794,7 +794,7 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 			`\n` +
 				`\tYour project is being built for Node.js ${major} as the runtime.\n` +
 				`\tThis version is deprecated by Vercel Serverless Functions.\n` +
-				`\tConsider upgrading your local version to 22.\n`,
+				`\tConsider upgrading your local version to 24.\n`,
 		);
 		return `nodejs${major}.x`;
 	}
