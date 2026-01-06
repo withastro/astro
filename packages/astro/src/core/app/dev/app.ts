@@ -3,10 +3,12 @@ import { MiddlewareNoDataOrNextCalled, MiddlewareNotAResponse } from '../../erro
 import { type AstroError, isAstroError } from '../../errors/index.js';
 import type { Logger } from '../../logger/core.js';
 import type { CreateRenderContext, RenderContext } from '../../render-context.js';
-import { BaseApp, type RenderErrorOptions } from '../base.js';
+import { BaseApp, type DevMatch, type RenderErrorOptions } from '../base.js';
 import type { SSRManifest } from '../types.js';
 import { NonRunnablePipeline } from './pipeline.js';
 import { getCustom404Route, getCustom500Route } from '../../routing/helpers.js';
+import { matchRoute } from '../../routing/dev.js';
+import type { RunnablePipeline } from '../../../vite-plugin-app/pipeline.js';
 
 /**
  *
@@ -14,6 +16,7 @@ import { getCustom404Route, getCustom500Route } from '../../routing/helpers.js';
 export class DevApp extends BaseApp<NonRunnablePipeline> {
 	logger: Logger;
 	currentRenderContext: RenderContext | undefined = undefined;
+	resolvedPathname: string | undefined = undefined;
 	constructor(manifest: SSRManifest, streaming = true, logger: Logger) {
 		super(manifest, streaming, logger);
 		this.logger = logger;
@@ -27,13 +30,35 @@ export class DevApp extends BaseApp<NonRunnablePipeline> {
 		});
 	}
 
+	isDev(): boolean {
+		return true;
+	}
+
 	match(request: Request): RouteData | undefined {
 		return super.match(request, true);
 	}
 
+	async devMatch(pathname: string): Promise<DevMatch | undefined> {
+		const matchedRoute = await matchRoute(
+			pathname,
+			this.manifestData,
+			this.pipeline as unknown as RunnablePipeline,
+			this.manifest,
+		);
+		if (!matchedRoute) return undefined;
+
+		this.resolvedPathname = matchedRoute.resolvedPathname;
+		return {
+			routeData: matchedRoute.route,
+			resolvedPathname: matchedRoute.resolvedPathname,
+		};
+	}
+
 	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
-		this.currentRenderContext = await super.createRenderContext(payload);
-		return this.currentRenderContext;
+		return super.createRenderContext({
+			...payload,
+			pathname: this.resolvedPathname ?? payload.pathname,
+		});
 	}
 
 	async renderError(
@@ -54,7 +79,7 @@ export class DevApp extends BaseApp<NonRunnablePipeline> {
 				const renderContext = await this.createRenderContext({
 					locals,
 					pipeline: this.pipeline,
-					pathname: this.getPathnameFromRequest(request),
+					pathname: await this.getPathnameFromRequest(request),
 					skipMiddleware,
 					request,
 					routeData,

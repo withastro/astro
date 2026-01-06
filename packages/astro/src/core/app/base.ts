@@ -31,6 +31,11 @@ import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
 
+export interface DevMatch {
+	routeData: RouteData;
+	resolvedPathname: string;
+}
+
 export interface RenderOptions {
 	/**
 	 * Whether to automatically add all cookies written by `Astro.cookie.set()` to the response headers.
@@ -123,6 +128,8 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		// to return the host 404 if the user doesn't provide a custom 404
 		ensure404Route(this.manifestData);
 	}
+
+	public abstract isDev(): boolean;
 
 	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
 		return RenderContext.create(payload);
@@ -224,6 +231,16 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			return undefined;
 		}
 		return routeData;
+	}
+
+	/**
+	 * A matching route function to use in the development server.
+	 * Contrary to the `.match` function, this function resolves props and params, returning the correct
+	 * route based on the priority, segments. It also returns the correct, resolved pathname.
+	 * @param _pathname
+	 */
+	public devMatch(_pathname?: string): Promise<DevMatch | undefined> | undefined {
+		return undefined;
 	}
 
 	private computePathnameFromDomain(request: Request): string | undefined {
@@ -375,7 +392,15 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			}
 		}
 		if (!routeData) {
-			routeData = this.match(request);
+			if (this.isDev()) {
+				const result = await this.devMatch(this.getPathnameFromRequest(request));
+				if (result) {
+					routeData = result.routeData;
+				}
+			} else {
+				routeData = this.match(request);
+			}
+
 			this.logger.debug('router', 'Astro matched the following route for ' + request.url);
 			this.logger.debug('router', 'RouteData:\n' + routeData);
 		}
@@ -528,7 +553,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 					locals,
 					pipeline: this.pipeline,
 					skipMiddleware,
-					pathname: this.getPathnameFromRequest(request),
+					pathname: await this.getPathnameFromRequest(request),
 					request,
 					routeData: errorRouteData,
 					status,

@@ -8,18 +8,16 @@ type GetSortedPreloadedMatchesParams = {
 	matches: RouteData[];
 	manifest: SSRManifest;
 };
-export async function getSortedPreloadedMatches({
+export function getSortedPreloadedMatches({
 	pipeline,
 	matches,
 	manifest,
 }: GetSortedPreloadedMatchesParams) {
-	return (
-		await preloadAndSetPrerenderStatus({
-			pipeline,
-			matches,
-			manifest,
-		})
-	)
+	return preloadAndSetPrerenderStatus({
+		pipeline,
+		matches,
+		manifest,
+	})
 		.sort((a, b) => routeComparator(a.route, b.route))
 		.sort((a, b) => prioritizePrerenderedMatchesComparator(a.route, b.route));
 }
@@ -35,10 +33,10 @@ type PreloadAndSetPrerenderStatusResult = {
 	route: RouteData;
 };
 
-async function preloadAndSetPrerenderStatus({
+function preloadAndSetPrerenderStatus({
 	matches,
 	manifest,
-}: PreloadAndSetPrerenderStatusParams): Promise<PreloadAndSetPrerenderStatusResult[]> {
+}: PreloadAndSetPrerenderStatusParams): PreloadAndSetPrerenderStatusResult[] {
 	const preloaded = new Array<PreloadAndSetPrerenderStatusResult>();
 	for (const route of matches) {
 		const filePath = new URL(`./${route.component}`, manifest.rootDir);

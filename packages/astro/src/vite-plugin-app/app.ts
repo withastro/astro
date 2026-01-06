@@ -1,21 +1,17 @@
 import type http from 'node:http';
-import { prependForwardSlash, removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
+import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
 import { BaseApp, type RenderErrorOptions } from '../core/app/index.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { clientLocalsSymbol } from '../core/constants.js';
 import {
 	MiddlewareNoDataOrNextCalled,
 	MiddlewareNotAResponse,
-	NoMatchingStaticPathFound,
 } from '../core/errors/errors-data.js';
 import { type AstroError, createSafeError, isAstroError } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
-import { getProps } from '../core/render/index.js';
 import type { CreateRenderContext, RenderContext } from '../core/render-context.js';
 import { createRequest } from '../core/request.js';
-import { matchAllRoutes } from '../core/routing/index.js';
-import { getSortedPreloadedMatches } from '../prerender/routing.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
 import type { RouteData, SSRManifest } from '../types/public/index.js';
 import type { DevServerController } from '../vite-plugin-astro-server/controller.js';
@@ -24,6 +20,8 @@ import { runWithErrorHandling } from '../vite-plugin-astro-server/index.js';
 import { handle500Response, writeSSRResult } from '../vite-plugin-astro-server/response.js';
 import { RunnablePipeline } from './pipeline.js';
 import { getCustom404Route, getCustom500Route } from '../core/routing/helpers.js';
+import { matchRoute } from '../core/routing/dev.js';
+import type { DevMatch } from '../core/app/base.js';
 
 export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	settings: AstroSettings;
@@ -46,6 +44,27 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		this.logger = logger;
 		this.loader = loader;
 		this.manifestData = manifestData;
+	}
+
+	isDev(): boolean {
+		return true;
+	}
+
+	async devMatch(pathname: string): Promise<DevMatch | undefined> {
+		const matchedRoute = await matchRoute(
+			pathname,
+			this.manifestData,
+			this.pipeline as unknown as RunnablePipeline,
+			this.manifest,
+		);
+		if (!matchedRoute) {
+			return undefined;
+		}
+
+		return {
+			routeData: matchedRoute.route,
+			resolvedPathname: matchedRoute.resolvedPathname,
+		};
 	}
 
 	static async create(
@@ -131,27 +150,21 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 			controller,
 			pathname,
 			async run() {
-				const matchedRoute = await matchRoute(
-					pathname,
-					self.manifestData,
-					self.pipeline,
-					self.manifest,
-				);
+				const matchedRoute = await self.devMatch(pathname);
 				if (!matchedRoute) {
 					// This should never happen, because ensure404Route will add a 404 route if none exists.
 					throw new Error('No route matched, and default 404 route was not found.');
 				}
 
 				self.resolvedPathname = matchedRoute.resolvedPathname;
-
 				const request = createRequest({
 					url,
 					headers: incomingRequest.headers,
 					method: incomingRequest.method,
 					body,
 					logger: self.logger,
-					isPrerendered: matchedRoute?.route.prerender,
-					routePattern: matchedRoute?.route.component,
+					isPrerendered: matchedRoute.routeData.prerender,
+					routePattern: matchedRoute.routeData.component,
 				});
 
 				// This is required for adapters to set locals in dev mode. They use a dev server middleware to inject locals to the `http.IncomingRequest` object.
@@ -165,7 +178,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 
 				const response = await self.render(request, {
 					locals,
-					routeData: matchedRoute.route,
+					routeData: matchedRoute.routeData,
 					clientAddress,
 				});
 
@@ -188,17 +201,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	}
 
 	match(request: Request, _allowPrerenderedRoutes: boolean): RouteData | undefined {
-		const url = new URL(request.url);
-		// ignore requests matching public assets
-		if (this.manifest.assets.has(url.pathname)) return undefined;
-		let pathname = prependForwardSlash(this.removeBase(url.pathname));
-
-		return this.manifestData.routes.find((route) => {
-			return (
-				route.pattern.test(pathname) ||
-				route.fallbackRoutes.some((fallbackRoute) => fallbackRoute.pattern.test(pathname))
-			);
-		});
+		return super.match(request, true);
 	}
 
 	async renderError(
@@ -219,7 +222,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 				const renderContext = await this.createRenderContext({
 					locals,
 					pipeline: this.pipeline,
-					pathname: this.getPathnameFromRequest(request),
+					pathname: await this.getPathnameFromRequest(request),
 					skipMiddleware,
 					request,
 					routeData,
@@ -275,87 +278,3 @@ type HandleRequest = {
 	incomingResponse: http.ServerResponse;
 	isHttps: boolean;
 };
-
-interface MatchedRoute {
-	route: RouteData;
-	filePath: URL;
-	resolvedPathname: string;
-}
-
-async function matchRoute(
-	pathname: string,
-	routesList: RoutesList,
-	pipeline: RunnablePipeline,
-	manifest: SSRManifest,
-): Promise<MatchedRoute | undefined> {
-	const { logger, routeCache } = pipeline;
-	const matches = matchAllRoutes(pathname, routesList);
-
-	const preloadedMatches = await getSortedPreloadedMatches({
-		pipeline,
-		matches,
-		manifest,
-	});
-
-	for await (const { route: maybeRoute, filePath } of preloadedMatches) {
-		// attempt to get static paths
-		// if this fails, we have a bad URL match!
-		try {
-			await getProps({
-				mod: await pipeline.preload(maybeRoute, filePath),
-				routeData: maybeRoute,
-				routeCache,
-				pathname: pathname,
-				logger,
-				serverLike: pipeline.manifest.serverLike,
-				base: manifest.base,
-				trailingSlash: manifest.trailingSlash,
-			});
-			return {
-				route: maybeRoute,
-				filePath,
-				resolvedPathname: pathname,
-			};
-		} catch (e) {
-			// Ignore error for no matching static paths
-			if (isAstroError(e) && e.title === NoMatchingStaticPathFound.title) {
-				continue;
-			}
-			throw e;
-		}
-	}
-
-	// Try without `.html` extensions or `index.html` in request URLs to mimic
-	// routing behavior in production builds. This supports both file and directory
-	// build formats, and is necessary based on how the manifest tracks build targets.
-	const altPathname = pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
-
-	if (altPathname !== pathname) {
-		return await matchRoute(altPathname, routesList, pipeline, manifest);
-	}
-
-	if (matches.length) {
-		const possibleRoutes = matches.flatMap((route) => route.component);
-
-		logger.warn(
-			'router',
-			`${NoMatchingStaticPathFound.message(
-				pathname,
-			)}\n\n${NoMatchingStaticPathFound.hint(possibleRoutes)}`,
-		);
-	}
-
-	const custom404 = getCustom404Route(routesList);
-
-	if (custom404) {
-		const filePath = new URL(`./${custom404.component}`, manifest.rootDir);
-
-		return {
-			route: custom404,
-			filePath,
-			resolvedPathname: pathname,
-		};
-	}
-
-	return undefined;
-}

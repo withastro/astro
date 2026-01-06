@@ -12,7 +12,7 @@ import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { createVite } from '../create-vite.js';
 import type { Logger } from '../logger/core.js';
-import { createRoutesList } from '../routing/index.js';
+import { createRoutesList } from '../routing/manifest/create.js';
 import { syncInternal } from '../sync/index.js';
 import { warnMissingAdapter } from './adapter-validation.js';
 

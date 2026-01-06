@@ -1,5 +1,5 @@
 import type { UserConfig as ViteUserConfig, UserConfigFn as ViteUserConfigFn } from 'vite';
-import { createRoutesList } from '../core/routing/index.js';
+import { createRoutesList } from '../core/routing/manifest/create.js';
 import type { AstroInlineConfig, AstroUserConfig, Locales } from '../types/public/config.js';
 import type { SessionDriverConfig, SessionDriverName } from '../core/session/types.js';
 

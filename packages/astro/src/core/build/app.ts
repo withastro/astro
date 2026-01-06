@@ -11,6 +11,10 @@ export class BuildApp extends BaseApp<BuildPipeline> {
 		});
 	}
 
+	isDev(): boolean {
+		return true;
+	}
+
 	public setInternals(internals: BuildInternals) {
 		this.pipeline.setInternals(internals);
 	}
