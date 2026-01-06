@@ -1662,10 +1662,10 @@ test.describe('View Transitions', () => {
 		// For simulated view transitions, the last line would be missing
 		// as enter and exit animations don't run in parallel.
 
-		let expected = '[test] navigate to "."\n[test] navigate to /one\n[test] cancel astroFadeOut';
+		let expected = '[test] navigate to "."\n[test] navigate to /one\n[test] cancel astroFade';
 		const native = await nativeViewTransition(page);
 		if (native) {
-			expected += '\n[test] cancel astroFadeIn';
+			expected += '\n[test] cancel astroFade';
 		}
 		await page.click('#click-two');
 		expect(lines.join('\n')).toBe(expected);
@@ -1721,8 +1721,8 @@ test.describe('View Transitions', () => {
 		);
 	});
 
-	test('fallback triggers animation if not skipped', async ({ page, astro, browserName }) => {
-		test.skip(browserName !== 'firefox', 'Only makes sense for browser that uses fallback');
+	// This test only works for browsers that do not have native support for view transitions. 
+	test.skip('fallback triggers animation if not skipped', async ({ page, astro, browserName }) => {
 		let lines = [];
 		page.on('console', (msg) => {
 			msg.text().startsWith('[test]') && lines.push(msg.text().slice('[test]'.length + 1));
