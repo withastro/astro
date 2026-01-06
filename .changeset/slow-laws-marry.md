@@ -2,4 +2,4 @@
 '@astrojs/vercel': patch
 ---
 
-Vercel support for node 24
+Updates Node versions data to account for v24 as the default
