@@ -260,3 +260,10 @@ export type Style = z.output<typeof styleSchema>;
 export type PreloadFilter =
 	| boolean
 	| Array<{ weight?: string | number; style?: string; subset?: string }>;
+
+export interface AstroFontProviderResolveFontOptions {
+	familyName: string;
+	weights: string[] | undefined;
+	styles: Style[] | undefined;
+	subsets: string[] | undefined;
+}
