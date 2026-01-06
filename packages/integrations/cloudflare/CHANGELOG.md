@@ -1,5 +1,23 @@
 # @astrojs/cloudflare
 
+## 13.0.0-alpha.4
+
+### Patch Changes
+
+- [#15079](https://github.com/withastro/astro/pull/15079) [`4463a55`](https://github.com/withastro/astro/commit/4463a558a49e8ba2e079090748c65546108d3f0d) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes auto-provisioning of default bindings (SESSION KV, IMAGES, and ASSETS). Default bindings are now correctly applied whether or not you have a `wrangler.json` file.
+  Previously, these bindings were only added when no wrangler config file existed. Now they are added in both cases, unless you've already defined them yourself.
+
+- [#15075](https://github.com/withastro/astro/pull/15075) [`ee2c260`](https://github.com/withastro/astro/commit/ee2c26043daba83c6c2e09c4c1e1cb88b2e564b4) Thanks [@matthewp](https://github.com/matthewp)! - Adds deprecation errors for `Astro.locals.runtime` properties to help migrate from Astro v5 to v6
+
+  When accessing the removed `Astro.locals.runtime` properties on Cloudflare, developers now receive clear error messages explaining the migration path:
+  - `Astro.locals.runtime.env` → Use `import { env } from "cloudflare:workers"`
+  - `Astro.locals.runtime.cf` → Use `Astro.request.cf`
+  - `Astro.locals.runtime.caches` → Use the global `caches` object
+  - `Astro.locals.runtime.ctx` → Use `Astro.locals.cfContext`
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 13.0.0-alpha.3
 
 ### Minor Changes
