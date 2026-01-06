@@ -144,7 +144,7 @@ export interface AstroGlobal<
 	 * - The value when rendering `src/pages/blog/[slug].astro` will be `/blog/[slug]`.
 	 * - The value when rendering `src/pages/[...path].astro` will be `/[...path]`.
 	 */
-	routePattern: string;
+	routePattern: AstroInternals.RoutePattern;
 	/**
 	 * The <Astro.self /> element allows a component to reference itself recursively.
 	 *
@@ -601,5 +601,5 @@ export interface APIContext<
 	 * - The value when rendering `src/pages/blog/[slug].astro` will be `/blog/[slug]`.
 	 * - The value when rendering `src/pages/[...path].astro` will be `/[...path]`.
 	 */
-	routePattern: string;
+	routePattern: AstroInternals.RoutePattern;
 }

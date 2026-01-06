@@ -35,6 +35,7 @@ import type { Logger } from '../logger/core.js';
 import { createRoutesList } from '../routing/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { normalizePath } from '../viteUtils.js';
+import { syncInternals } from './internals.js';
 
 type SyncOptions = {
 	mode: string;
@@ -184,6 +185,7 @@ export async function syncInternal({
 	}
 	syncAstroEnv(settings);
 	syncFonts(settings);
+	syncInternals({ settings, routes: routesList.routes });
 
 	writeInjectedTypes(settings, fs);
 	logger.info('types', `Generated ${colors.dim(getTimeStat(timerStart, performance.now()))}`);
