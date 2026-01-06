@@ -12,7 +12,7 @@ import type { AstroInstance, MarkdownInstance, MDXInstance } from './content.js'
 /**
  * Astro global available in all contexts in .astro files
  *
- * [Astro reference](https://docs.astro.build/reference/api-reference/#astro-global)
+ * [Astro reference](https://docs.astro.build/en/reference/api-reference/)
  */
 export interface AstroGlobal<
 	Props extends Record<string, any> = Record<string, any>,
@@ -27,7 +27,7 @@ export interface AstroGlobal<
 	 * Astro.response.status = 404;
 	 * ```
 	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroresponse)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#response)
 	 */
 	response: ResponseInit & {
 		readonly headers: Headers;
@@ -36,13 +36,13 @@ export interface AstroGlobal<
 	/**
 	 * The <Astro.self /> element allows a component to reference itself recursively.
 	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroself)
+	 * [Astro reference](https://docs.astro.build/en/reference/astro-syntax/#astroself)
 	 */
 	self: Self;
 
 	/** Utility functions for modifying an Astro component’s slotted children
 	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroslots)
+	 * [Astro reference](https://docs.astro.build/en/reference/astro-syntax/#astroslots)
 	 */
 	slots: Record<string, true | undefined> & {
 		/**
@@ -55,7 +55,7 @@ export interface AstroGlobal<
 		 *	}
 		 * ```
 		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroslots)
+		 * [Astro reference](https://docs.astro.build/en/reference/astro-syntax/#astroslotshas)
 		 */
 		has(slotName: string): boolean;
 
@@ -88,7 +88,7 @@ export interface AstroGlobal<
 		 * </Component>
 		 * ```
 		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroslots)
+		 * [Astro reference](https://docs.astro.build/en/reference/astro-syntax/#astroslotsrender)
 		 */
 		render(slotName: string, args?: any[]): Promise<string>;
 	};
@@ -171,7 +171,7 @@ export interface AstroSharedContext<
 	 * const url = new URL(Astro.request.url);
 	 * ```
 	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrorequest)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#request)
 	 */
 	request: Request;
 
@@ -262,7 +262,7 @@ export interface AstroSharedContext<
 	 * }
 	 * ```
 	 *
-	 * [Reference](https://docs.astro.build/en/reference/api-reference/#contextprops)
+	 * [Reference](https://docs.astro.build/en/reference/api-reference/#props)
 	 */
 	params: Params;
 
@@ -283,7 +283,7 @@ export interface AstroSharedContext<
 	 * }
 	 * ```
 	 *
-	 * [Reference](https://docs.astro.build/en/guides/api-reference/#contextredirect)
+	 * [Reference](https://docs.astro.build/en/reference/api-reference/#redirect)
 	 */
 	redirect: (path: string, status?: ValidRedirectStatus) => Response;
 
@@ -327,7 +327,7 @@ export interface AstroSharedContext<
 	 * <h1>{greeting}</h1>
 	 * ```
 	 *
-	 * [Reference](https://docs.astro.build/en/reference/api-reference/#contextlocals)
+	 * [Reference](https://docs.astro.build/en/reference/api-reference/#locals)
 	 */
 	locals: App.Locals;
 
@@ -444,7 +444,7 @@ export interface AstroSharedContext<
  * The `APIContext` is the object made available to endpoints and middleware.
  * It is a subset of the `Astro` global object available in pages.
  *
- * [Reference](https://docs.astro.build/en/reference/api-reference/#endpoint-context)
+ * [Reference](https://docs.astro.build/en/reference/api-reference/)
  */
 export type APIContext<
 	Props extends Record<string, any> = Record<string, any>,
