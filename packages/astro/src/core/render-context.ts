@@ -826,10 +826,16 @@ export class RenderContext {
 	computeCurrentLocale() {
 		const {
 			url,
-			pipeline: { i18n },
+			pipeline: { i18n, logger },
 			routeData,
 		} = this;
-		if (!i18n) return;
+		if (!i18n) {
+			logger.warn(
+				'i18n',
+				`Astro.currentLocale was used when rendering the route ${colors.green(this.routeData.route)}, but internationalization was not configured. For more information, see https://docs.astro.build/en/guides/internationalization/`,
+			);
+			return undefined;
+		}
 
 		const { defaultLocale, locales, strategy } = i18n;
 
@@ -875,10 +881,17 @@ export class RenderContext {
 
 	computePreferredLocale() {
 		const {
-			pipeline: { i18n },
+			pipeline: { i18n, logger },
 			request,
 		} = this;
-		if (!i18n) return;
+
+		if (!i18n) {
+			logger.warn(
+				'i18n',
+				`Astro.preferredLocale was used when rendering the route ${colors.green(this.routeData.route)}, but internationalization was not configured. For more information, see https://docs.astro.build/en/guides/internationalization/`,
+			);
+			return undefined;
+		}
 		return (this.#preferredLocale ??= computePreferredLocale(request, i18n.locales));
 	}
 
@@ -886,10 +899,16 @@ export class RenderContext {
 
 	computePreferredLocaleList() {
 		const {
-			pipeline: { i18n },
+			pipeline: { i18n, logger },
 			request,
 		} = this;
-		if (!i18n) return;
+		if (!i18n) {
+			logger.warn(
+				'i18n',
+				`Astro.preferredLocaleList was used when rendering the route ${colors.green(this.routeData.route)}, but internationalization was not configured. For more information, see https://docs.astro.build/en/guides/internationalization/`,
+			);
+			return undefined;
+		}
 		return (this.#preferredLocaleList ??= computePreferredLocaleList(request, i18n.locales));
 	}
 }
