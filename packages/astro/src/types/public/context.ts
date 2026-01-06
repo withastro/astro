@@ -5,7 +5,7 @@ import type { AstroCookies } from '../../core/cookies/cookies.js';
 import type { CspDirective, CspHash } from '../../core/csp/config.js';
 import type { AstroSession } from '../../core/session.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
-import type { Params, RewritePayload } from './common.js';
+import type { RewritePayload } from './common.js';
 import type { ValidRedirectStatus } from './config.js';
 import type { AstroInstance, MarkdownInstance, MDXInstance } from './content.js';
 
@@ -17,56 +17,9 @@ import type { AstroInstance, MarkdownInstance, MDXInstance } from './content.js'
 export interface AstroGlobal<
 	Props extends Record<string, any> = Record<string, any>,
 	Self = AstroComponentFactory,
-	// eslint-disable-next-line @typescript-eslint/no-shadow
 	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
 > extends AstroGlobalPartial,
 		AstroSharedContext<Props, Params> {
-	/**
-	 * A full URL object of the request URL.
-	 * Equivalent to: `new URL(Astro.request.url)`
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#url)
-	 */
-	url: AstroSharedContext['url'];
-	/** Parameters passed to a dynamic page generated using [getStaticPaths](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
-	 *
-	 * Example usage:
-	 * ```astro
-	 * ---
-	 * export async function getStaticPaths() {
-	 *    return [
-	 *     { params: { id: '1' } },
-	 *   ];
-	 * }
-	 *
-	 * const { id } = Astro.params;
-	 * ---
-	 * <h1>{id}</h1>
-	 * ```
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroparams)
-	 */
-	params: AstroSharedContext<Props, Params>['params'];
-	/** List of props passed to this component
-	 *
-	 * A common way to get specific props is through [destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment), ex:
-	 * ```typescript
-	 * const { name } = Astro.props
-	 * ```
-	 *
-	 * [Astro reference](https://docs.astro.build/en/basics/astro-components/#component-props)
-	 */
-	props: AstroSharedContext<Props, Params>['props'];
-	/** Information about the current request. This is a standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
-	 *
-	 * For example, to get a URL object of the current URL, you can use:
-	 * ```typescript
-	 * const url = new URL(Astro.request.url);
-	 * ```
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrorequest)
-	 */
-	request: Request;
 	/** Information about the outgoing response. This is a standard [ResponseInit](https://developer.mozilla.org/en-US/docs/Web/API/Response/Response#init) object
 	 *
 	 * For example, to change the status code you can set a different status on this object:
@@ -79,78 +32,14 @@ export interface AstroGlobal<
 	response: ResponseInit & {
 		readonly headers: Headers;
 	};
-	/**
-	 * Get an action result on the server when using a form POST.
-	 * Expects the action function as a parameter.
-	 * Returns a type-safe result with the action data when
-	 * a matching POST request is received
-	 * and `undefined` otherwise.
-	 *
-	 * Example usage:
-	 *
-	 * ```typescript
-	 * import { actions } from 'astro:actions';
-	 *
-	 * const result = await Astro.getActionResult(actions.myAction);
-	 * ```
-	 */
-	getActionResult: AstroSharedContext['getActionResult'];
-	/**
-	 * Call an Action directly from an Astro page or API endpoint.
-	 * Expects the action function as the first parameter,
-	 * and the type-safe action input as the second parameter.
-	 * Returns a Promise with the action result.
-	 *
-	 * Example usage:
-	 *
-	 * ```typescript
-	 * import { actions } from 'astro:actions';
-	 *
-	 * const result = await Astro.callAction(actions.getPost, { postId: 'test' });
-	 * ```
-	 */
-	callAction: AstroSharedContext['callAction'];
-	/** Redirect to another page
-	 *
-	 * Example usage:
-	 * ```typescript
-	 * if(!isLoggedIn) {
-	 *   return Astro.redirect('/login');
-	 * }
-	 * ```
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroredirect)
-	 */
-	redirect: AstroSharedContext['redirect'];
-	/**
-	 * It rewrites to another page. As opposed to redirects, the URL won't change, and Astro will render the HTML emitted
-	 * by the rewritten URL passed as argument.
-	 *
-	 * ## Example
-	 *
-	 * ```js
-	 * if (pageIsNotEnabled) {
-	 * 	return Astro.rewrite('/fallback-page')
-	 * }
-	 * ```
-	 */
-	rewrite: AstroSharedContext['rewrite'];
 
-	/**
-	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.
-	 *
-	 * ## Example
-	 * - The value when rendering `src/pages/index.astro` will be `/`.
-	 * - The value when rendering `src/pages/blog/[slug].astro` will be `/blog/[slug]`.
-	 * - The value when rendering `src/pages/[...path].astro` will be `/[...path]`.
-	 */
-	routePattern: string;
 	/**
 	 * The <Astro.self /> element allows a component to reference itself recursively.
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroself)
 	 */
 	self: Self;
+
 	/** Utility functions for modifying an Astro component’s slotted children
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroslots)
@@ -169,6 +58,7 @@ export interface AstroGlobal<
 		 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroslots)
 		 */
 		has(slotName: string): boolean;
+
 		/**
 		 * Asynchronously renders this slot and returns a string
 		 *
@@ -207,7 +97,7 @@ export interface AstroGlobal<
 /** Union type of supported markdown file extensions */
 type MarkdownFileExtension = (typeof SUPPORTED_MARKDOWN_FILE_EXTENSIONS)[number];
 
-export interface AstroGlobalPartial {
+export interface AstroGlobalPartial extends Pick<AstroSharedContext, 'site' | 'generator'> {
 	/**
 	 * Fetch local files into your static site setup
 	 *
@@ -234,58 +124,89 @@ export interface AstroGlobalPartial {
 	 * @deprecated `Astro.glob` is deprecated and will be removed in the next major version of Astro. Use `import.meta.glob` instead: https://vitejs.dev/guide/features.html#glob-import
 	 */
 	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
-	/**
-	 * Returns a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrosite)
-	 */
-	site: URL | undefined;
-	/**
-	 * Returns a string with the current version of Astro.
-	 *
-	 * Useful for using `<meta name="generator" content={Astro.generator} />` or crediting Astro in a site footer.
-	 *
-	 * [HTML Specification for `generator`](https://html.spec.whatwg.org/multipage/semantics.html#meta-generator)
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrogenerator)
-	 */
-	generator: string;
 }
 
 // Shared types between `Astro` global and API context object
 export interface AstroSharedContext<
 	Props extends Record<string, any> = Record<string, any>,
-	RouteParams extends Record<string, string | undefined> = Record<string, string | undefined>,
+	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
 > {
+	/**
+	 * The site provided in the astro config, parsed as an instance of `URL`, without base.
+	 * `undefined` if the site is not provided in the config.
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#site)
+	 */
+	site: URL | undefined;
+
+	/**
+	 * A human-readable string representing the Astro version used to create the project.
+	 * For example, `"Astro v1.1.1"`.
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#generator)
+	 */
+	generator: string;
+
 	/**
 	 * The address (usually IP address) of the user.
 	 *
 	 * Throws an error if used within a static site, or within a prerendered page.
 	 */
 	clientAddress: string;
+
 	/**
 	 * Utility for getting and setting the values of cookies.
 	 */
 	cookies: AstroCookies;
+
 	/**
 	 * Utility for handling sessions.
 	 */
 	session?: AstroSession;
-	/**
-	 * Information about the current request. This is a standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
+
+	/** Information about the current request. This is a standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
+	 *
+	 * For example, to get a URL object of the current URL, you can use:
+	 * ```typescript
+	 * const url = new URL(Astro.request.url);
+	 * ```
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrorequest)
 	 */
 	request: Request;
+
 	/**
-	 * A full URL object of the request URL.
+	 * The url of the current request, parsed as an instance of `URL`.
+	 *
+	 * Equivalent to:
+	 * ```ts
+	 * new URL(context.request.url)
+	 * ```
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#url)
 	 */
 	url: URL;
+
 	/**
 	 * The origin pathname of the request URL.
 	 * Useful to track the original URL before rewrites were applied.
 	 */
 	originPathname: string;
+
 	/**
-	 * Get action result on the server when using a form POST.
+	 * Get an action result on the server when using a form POST.
+	 * Expects the action function as a parameter.
+	 * Returns a type-safe result with the action data when
+	 * a matching POST request is received
+	 * and `undefined` otherwise.
+	 *
+	 * Example usage:
+	 *
+	 * ```typescript
+	 * import { actions } from 'astro:actions';
+	 *
+	 * const result = await Astro.getActionResult(actions.myAction);
+	 * ```
 	 */
 	getActionResult: <
 		TAccept extends ActionAccept,
@@ -294,8 +215,20 @@ export interface AstroSharedContext<
 	>(
 		action: TAction,
 	) => ActionReturnType<TAction> | undefined;
+
 	/**
-	 * Call action handler from the server.
+	 * Call an Action directly from an Astro page or API endpoint.
+	 * Expects the action function as the first parameter,
+	 * and the type-safe action input as the second parameter.
+	 * Returns a Promise with the action result.
+	 *
+	 * Example usage:
+	 *
+	 * ```typescript
+	 * import { actions } from 'astro:actions';
+	 *
+	 * const result = await Astro.callAction(actions.getPost, { postId: 'test' });
+	 * ```
 	 */
 	callAction: <
 		TAccept extends ActionAccept,
@@ -308,176 +241,7 @@ export interface AstroSharedContext<
 		action: TAction,
 		input: Parameters<TAction>[0],
 	) => Promise<ActionReturnType<TAction>>;
-	/**
-	 * Route parameters for this request if this is a dynamic route.
-	 */
-	params: RouteParams;
-	/**
-	 * List of props returned for this path by `getStaticPaths` (**Static Only**).
-	 */
-	props: Props;
-	/**
-	 * Redirect to another page (**SSR Only**).
-	 */
-	redirect(path: string, status?: ValidRedirectStatus): Response;
 
-	/**
-	 * It rewrites to another page. As opposed to redirects, the URL won't change, and Astro will render the HTML emitted
-	 * by the rerouted URL passed as argument.
-	 *
-	 * ## Example
-	 *
-	 * ```js
-	 * if (pageIsNotEnabled) {
-	 * 	return Astro.rewrite('/fallback-page')
-	 * }
-	 * ```
-	 */
-	rewrite(rewritePayload: RewritePayload): Promise<Response>;
-
-	/**
-	 * Object accessed via Astro middleware
-	 */
-	locals: App.Locals;
-
-	/**
-	 * The current locale that is computed from the `Accept-Language` header of the browser (**SSR Only**).
-	 */
-	preferredLocale: string | undefined;
-
-	/**
-	 * The list of locales computed from the `Accept-Language` header of the browser, sorted by quality value (**SSR Only**).
-	 */
-
-	preferredLocaleList: string[] | undefined;
-
-	/**
-	 * The current locale computed from the URL of the request. It matches the locales in `i18n.locales`, and returns `undefined` otherwise.
-	 */
-	currentLocale: string | undefined;
-
-	/**
-	 * Whether the current route is prerendered or not.
-	 */
-	isPrerendered: boolean;
-
-	/**
-	 * It exposes utilities to control CSP headers
-	 */
-	csp: AstroSharedContextCsp;
-}
-
-export type AstroSharedContextCsp = {
-	/**
-	 * It adds a specific CSP directive to the route being rendered.
-	 *
-	 * ## Example
-	 *
-	 * ```js
-	 * ctx.insertDirective("default-src 'self' 'unsafe-inline' https://example.com")
-	 * ```
-	 */
-	insertDirective: (directive: CspDirective) => void;
-
-	/**
-	 * It set the resource for the directive `style-src` in the route being rendered. It overrides Astro's default.
-	 *
-	 * ## Example
-	 *
-	 * ```js
-	 * ctx.insertStyleResource("https://styles.cdn.example.com/")
-	 * ```
-	 */
-	insertStyleResource: (payload: string) => void;
-
-	/**
-	 * Insert a single style hash to the route being rendered.
-	 *
-	 * ## Example
-	 *
-	 * ```js
-	 * ctx.insertStyleHash("sha256-1234567890abcdef1234567890")
-	 * ```
-	 */
-	insertStyleHash: (hash: CspHash) => void;
-
-	/**
-	 * It set the resource for the directive `script-src` in the route being rendered.
-	 *
-	 * ## Example
-	 *
-	 * ```js
-	 * ctx.insertScriptResource("https://scripts.cdn.example.com/")
-	 * ```
-	 */
-	insertScriptResource: (resource: string) => void;
-
-	/**
-	 * Insert a single script hash to the route being rendered.
-	 *
-	 * ## Example
-	 *
-	 * ```js
-	 * ctx.insertScriptHash("sha256-1234567890abcdef1234567890")
-	 * ```
-	 */
-	insertScriptHash: (hash: CspHash) => void;
-};
-
-/**
- * The `APIContext` is the object made available to endpoints and middleware.
- * It is a subset of the `Astro` global object available in pages.
- *
- * [Reference](https://docs.astro.build/en/reference/api-reference/#endpoint-context)
- */
-export interface APIContext<
-	Props extends Record<string, any> = Record<string, any>,
-	APIParams extends Record<string, string | undefined> = Record<string, string | undefined>,
-> extends AstroSharedContext<Props, Params> {
-	/**
-	 * The site provided in the astro config, parsed as an instance of `URL`, without base.
-	 * `undefined` if the site is not provided in the config.
-	 */
-	site: URL | undefined;
-	/**
-	 * A human-readable string representing the Astro version used to create the project.
-	 * For example, `"Astro v1.1.1"`.
-	 */
-	generator: string;
-	/**
-	 * The url of the current request, parsed as an instance of `URL`.
-	 *
-	 * Equivalent to:
-	 * ```ts
-	 * new URL(context.request.url)
-	 * ```
-	 */
-	url: AstroSharedContext['url'];
-	/**
-	 * Parameters matching the page’s dynamic route pattern.
-	 * In static builds, this will be the `params` generated by `getStaticPaths`.
-	 * In SSR builds, this can be any path segments matching the dynamic route pattern.
-	 *
-	 * Example usage:
-	 * ```ts
-	 * import type { APIContext } from "astro"
-	 *
-	 * export function getStaticPaths() {
-	 *   return [
-	 *     { params: { id: '0' }, props: { name: 'Sarah' } },
-	 *     { params: { id: '1' }, props: { name: 'Chris' } },
-	 *     { params: { id: '2' }, props: { name: 'Fuzzy' } },
-	 *   ];
-	 * }
-	 *
-	 * export async function GET({ params }: APIContext) {
-	 *   return new Response(`Hello user ${params.id}!`)
-	 * }
-	 * ```
-	 *
-	 * [Reference](https://docs.astro.build/en/reference/api-reference/#contextparams)
-	 */
-	params: AstroSharedContext<Props, APIParams>['params'];
 	/**
 	 * List of props passed from `getStaticPaths`. Only available to static builds.
 	 *
@@ -500,7 +264,14 @@ export interface APIContext<
 	 *
 	 * [Reference](https://docs.astro.build/en/reference/api-reference/#contextprops)
 	 */
-	props: AstroSharedContext<Props, APIParams>['props'];
+	params: Params;
+
+	/**
+	 * List of props returned for this path by `getStaticPaths` (**Static Only**).
+	 */
+
+	props: Props;
+
 	/**
 	 * Create a response that redirects to another page.
 	 *
@@ -514,7 +285,7 @@ export interface APIContext<
 	 *
 	 * [Reference](https://docs.astro.build/en/guides/api-reference/#contextredirect)
 	 */
-	redirect: AstroSharedContext['redirect'];
+	redirect: (path: string, status?: ValidRedirectStatus) => Response;
 
 	/**
 	 * It reroutes to another page. As opposed to redirects, the URL won't change, and Astro will render the HTML emitted
@@ -529,7 +300,7 @@ export interface APIContext<
 	 * }
 	 * ```
 	 */
-	rewrite: AstroSharedContext['rewrite'];
+	rewrite: (rewritePayload: RewritePayload) => Promise<Response>;
 
 	/**
 	 * An object that middlewares can use to store extra information related to the request.
@@ -594,6 +365,71 @@ export interface APIContext<
 	currentLocale: string | undefined;
 
 	/**
+	 * Whether the current route is prerendered or not.
+	 */
+	isPrerendered: boolean;
+
+	/**
+	 * It exposes utilities to control CSP headers
+	 */
+	csp: {
+		/**
+		 * It adds a specific CSP directive to the route being rendered.
+		 *
+		 * ## Example
+		 *
+		 * ```js
+		 * ctx.insertDirective("default-src 'self' 'unsafe-inline' https://example.com")
+		 * ```
+		 */
+		insertDirective: (directive: CspDirective) => void;
+
+		/**
+		 * It set the resource for the directive `style-src` in the route being rendered. It overrides Astro's default.
+		 *
+		 * ## Example
+		 *
+		 * ```js
+		 * ctx.insertStyleResource("https://styles.cdn.example.com/")
+		 * ```
+		 */
+		insertStyleResource: (payload: string) => void;
+
+		/**
+		 * Insert a single style hash to the route being rendered.
+		 *
+		 * ## Example
+		 *
+		 * ```js
+		 * ctx.insertStyleHash("sha256-1234567890abcdef1234567890")
+		 * ```
+		 */
+		insertStyleHash: (hash: CspHash) => void;
+
+		/**
+		 * It set the resource for the directive `script-src` in the route being rendered.
+		 *
+		 * ## Example
+		 *
+		 * ```js
+		 * ctx.insertScriptResource("https://scripts.cdn.example.com/")
+		 * ```
+		 */
+		insertScriptResource: (resource: string) => void;
+
+		/**
+		 * Insert a single script hash to the route being rendered.
+		 *
+		 * ## Example
+		 *
+		 * ```js
+		 * ctx.insertScriptHash("sha256-1234567890abcdef1234567890")
+		 * ```
+		 */
+		insertScriptHash: (hash: CspHash) => void;
+	};
+
+	/**
 	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.
 	 *
 	 * ## Example
@@ -603,3 +439,14 @@ export interface APIContext<
 	 */
 	routePattern: string;
 }
+
+/**
+ * The `APIContext` is the object made available to endpoints and middleware.
+ * It is a subset of the `Astro` global object available in pages.
+ *
+ * [Reference](https://docs.astro.build/en/reference/api-reference/#endpoint-context)
+ */
+export type APIContext<
+	Props extends Record<string, any> = Record<string, any>,
+	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
+> = AstroSharedContext<Props, Params>;
