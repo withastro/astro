@@ -67,7 +67,7 @@ export class UnifontFontResolver implements FontResolver {
 			unifont: await createUnifont(this.extractUnifontProviders({ families, hasher }), {
 				storage,
 				// TODO: consider enabling, would require new astro errors
-				throwOnError: false
+				throwOnError: false,
 			}),
 		});
 	}

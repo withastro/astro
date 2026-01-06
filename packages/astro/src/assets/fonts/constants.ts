@@ -9,7 +9,7 @@ export const DEFAULTS: Defaults = {
 	// Technically serif is the browser default but most websites these days use sans-serif
 	fallbacks: ['sans-serif'],
 	optimizedFallbacks: true,
-	formats: ['woff2']
+	formats: ['woff2'],
 };
 
 /** Used to serialize data, to be used by public APIs */

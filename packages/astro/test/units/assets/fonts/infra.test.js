@@ -737,7 +737,7 @@ describe('fonts infra', () => {
 					weights: undefined,
 					styles: undefined,
 					subsets: undefined,
-					formats: undefined
+					formats: undefined,
 				}),
 				[],
 			);
@@ -748,7 +748,7 @@ describe('fonts infra', () => {
 					weights: undefined,
 					styles: undefined,
 					subsets: undefined,
-					formats: undefined
+					formats: undefined,
 				}),
 				[
 					{

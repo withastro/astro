@@ -172,7 +172,7 @@ export interface RemoteFontFamily
 	 * An array of [font subsets](https://knaap.dev/posts/font-subsetting/):
 	 */
 	subsets?: [string, ...Array<string>] | undefined;
-		/**
+	/**
 	 * @default `["woff2"]`
 	 *
 	 * An array of [font formats](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/src#font_formats).

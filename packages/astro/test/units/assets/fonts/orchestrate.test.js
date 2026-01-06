@@ -21,7 +21,12 @@ import { RealUrlProxy } from '../../../../dist/assets/fonts/infra/url-proxy.js';
 import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
 import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
 import { defaultLogger, SpyLogger } from '../../test-utils.js';
-import { FakeFontMetricsResolver, FakeHasher, markdownBold, PassthroughFontResolver } from './utils.js';
+import {
+	FakeFontMetricsResolver,
+	FakeHasher,
+	markdownBold,
+	PassthroughFontResolver,
+} from './utils.js';
 
 describe('fonts orchestrate()', () => {
 	it('works with local fonts', async () => {
