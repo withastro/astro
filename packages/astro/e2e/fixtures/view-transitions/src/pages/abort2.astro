@@ -15,7 +15,8 @@ import { ClientRouter, fade } from 'astro:transitions';
 	import {navigate } from 'astro:transitions/client';
 
 	setTimeout(()=>{
-		[...document.getAnimations()].forEach((a) => a.addEventListener('cancel', (e) => console.log("[test]", e.type, (a as CSSAnimation).animationName.substring(0, 9)))); // chop off the suffix ("In" / "Out") as we can't control the order of cancellations 
+		// chop off the suffix ("In" / "Out") as we can't control the order of cancellations and do not want to depend on it. 
+		[...document.getAnimations()].forEach((a) => a.addEventListener('cancel', (e) => console.log("[test]", e.type, (a as CSSAnimation).animationName.substring(0, 9)))); 
 		console.log("[test] navigate to /one");
 		navigate("/one");
 	}, 200);
