@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as kit from '@volar/kit';
 import { Diagnostic, DiagnosticSeverity } from '@volar/language-server';
-import fg from 'fast-glob';
+import { globSync } from 'tinyglobby';
 import { URI } from 'vscode-uri';
 import { addAstroTypes, getAstroLanguagePlugin } from './core/index.js';
 import { getSvelteLanguagePlugin } from './core/svelte.js';
@@ -166,10 +166,12 @@ export class AstroCheck {
 				languagePlugins,
 				services,
 				() => {
-					return fg.sync('**/*.astro', {
+					return globSync('**/*.astro', {
 						cwd: this.workspacePath,
 						ignore: ['node_modules'],
 						absolute: true,
+						// Required to avoid tinyglobby running eternally
+						expandDirectories: false,
 					});
 				},
 				undefined,
