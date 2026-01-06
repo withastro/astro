@@ -1,5 +1,13 @@
 # @astrojs/markdoc
 
+## 1.0.0-alpha.1
+
+### Minor Changes
+
+- [#15097](https://github.com/withastro/astro/pull/15097) [`be1b9bf`](https://github.com/withastro/astro/commit/be1b9bf3f42118a903ae0081d07ed519fa91d204) Thanks [@matthewp](https://github.com/matthewp)! - Updates internal image processing to be compatible with Astro 6. This change is internal-only and does not affect the public API.
+
+  The integration now uses Astro's new `emitImageMetadata()` function instead of the removed `emitESMImage()` function for processing images referenced in Markdoc content during build time. This ensures continued compatibility with Astro's asset processing pipeline while maintaining the same behavior for users.
+
 ## 1.0.0-alpha.0
 
 ### Minor Changes
