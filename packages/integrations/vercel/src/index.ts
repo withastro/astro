@@ -798,7 +798,7 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 		);
 		return `nodejs${major}.x`;
 	}
-	return 'nodejs22.x';
+	return 'nodejs24.x';
 }
 
 function createRoutesWithStaticHeaders(
