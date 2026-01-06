@@ -89,6 +89,9 @@ const SUPPORTED_NODE_VERSIONS: Record<
 		status: 'available',
 	},
 	22: {
+		status: 'available',
+	},
+	24: {
 		status: 'default',
 	},
 };
