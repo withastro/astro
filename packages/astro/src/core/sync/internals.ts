@@ -17,6 +17,8 @@ export function syncInternals({ settings, routes }: Options) {
     export type RoutePattern = (${JSON.stringify(routes.map((r) => r.route))})[number];
 	export type Site = ${getCondition(!!settings.config.site)};
 	export type Session = ${getCondition(!!settings.config.session?.driver)};
+	export type I18n = ${getCondition(!!settings.config.i18n)};
+	${settings.config.i18n ? `export type I18nLocale = (${JSON.stringify(settings.config.i18n.locales)})[number];` : ''}
 }`,
 	});
 }

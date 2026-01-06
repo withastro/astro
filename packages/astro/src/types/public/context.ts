@@ -349,18 +349,18 @@ export interface AstroSharedContext<
 	/**
 	 * The current locale that is computed from the `Accept-Language` header of the browser (**SSR Only**).
 	 */
-	preferredLocale: string | undefined;
+	preferredLocale: ConditionalType<AstroInternals.I18nLocale, AstroInternals.I18n> | undefined;
 
 	/**
 	 * The list of locales computed from the `Accept-Language` header of the browser, sorted by quality value (**SSR Only**).
 	 */
 
-	preferredLocaleList: string[] | undefined;
+	preferredLocaleList: ConditionalType<Array<AstroInternals.I18nLocale>, AstroInternals.I18n>;
 
 	/**
 	 * The current locale computed from the URL of the request. It matches the locales in `i18n.locales`, and returns `undefined` otherwise.
 	 */
-	currentLocale: string | undefined;
+	currentLocale: ConditionalType<AstroInternals.I18nLocale, AstroInternals.I18n>;
 
 	/**
 	 * Whether the current route is prerendered or not.
@@ -577,7 +577,7 @@ export interface APIContext<
 	 *
 	 * [quality value]: https://developer.mozilla.org/en-US/docs/Glossary/Quality_values
 	 */
-	preferredLocale: string | undefined;
+	preferredLocale: ConditionalType<AstroInternals.I18nLocale, AstroInternals.I18n> | undefined;
 
 	/**
 	 * Available only when `i18n` configured and in SSR.
@@ -592,12 +592,12 @@ export interface APIContext<
 	 *
 	 * [quality value]: https://developer.mozilla.org/en-US/docs/Glossary/Quality_values
 	 */
-	preferredLocaleList: string[] | undefined;
+	preferredLocaleList: ConditionalType<Array<AstroInternals.I18nLocale>, AstroInternals.I18n>;
 
 	/**
 	 * The current locale computed from the URL of the request. It matches the locales in `i18n.locales`, and returns `undefined` otherwise.
 	 */
-	currentLocale: string | undefined;
+	currentLocale: ConditionalType<AstroInternals.I18nLocale, AstroInternals.I18n>;
 
 	/**
 	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.

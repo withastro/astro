@@ -27,6 +27,8 @@ declare global {
 		export type RoutePattern = string;
 		export type Site = 'maybe';
 		export type Session = 'maybe';
+		export type I18n = 'maybe';
+		export type I18nLocale = string;
 	}
 }
 
