@@ -21,9 +21,11 @@ export interface AstroGlobal<
 > extends AstroGlobalPartial,
 		AstroSharedContext<Props, Params> {
 	/**
-	 * Information about the outgoing response. This is a standard [ResponseInit](https://developer.mozilla.org/en-US/docs/Web/API/Response/Response#init) object
+	 * A standard [ResponseInit](https://developer.mozilla.org/en-US/docs/Web/API/Response/Response#init) object describing the outgoing response.
 	 *
-	 * For example, to change the status code you can set a different status on this object:
+	 * ## Example
+	 *
+	 * You can change the status code by assigning a value to this property:
 	 * ```typescript
 	 * Astro.response.status = 404;
 	 * ```
@@ -35,13 +37,37 @@ export interface AstroGlobal<
 	};
 
 	/**
-	 * The <Astro.self /> element allows a component to reference itself recursively.
+	 * Allows a component to be recursively called.
+	 *
+	 * This is useful when you need to render an Astro component from within
+	 * itself. `Astro.self` accepts the same properties as the component itself.
+	 *
+	 * ## Example
+	 *
+	 * ```astro
+	 * ---
+	 * const { items } = Astro.props;
+	 * ---
+	 * <ul>
+	 *   {items.map((item) => (
+	 *     <li>
+	 *       {Array.isArray(item) ? (
+	 *         <Astro.self items={item} />
+	 *       ) : (
+	 *         item
+	 *       )}
+	 *     </li>
+	 *   ))}
+	 * </ul>
+	 * ```
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/astro-syntax/#astroself)
 	 */
 	self: Self;
 
-	/** Utility functions for modifying an Astro component’s slotted children
+	/**
+	 * An object containing utility functions for modifying an Astro component’s
+	 * slotted children.
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/astro-syntax/#astroslots)
 	 */
@@ -49,22 +75,33 @@ export interface AstroGlobal<
 		/**
 		 * Check whether content for this slot name exists
 		 *
+		 * @param {string} slotName - The name of the slot to check.
+		 * @returns {boolean} Whether the slot exists.
+		 *
 		 * ## Example
 		 *
-		 * ```typescript
-		 *	if (Astro.slots.has('default')) {
+		 * ```astro
+		 * ---
+		 * ---
+		 * <slot />
+		 * {Astro.slots.has('more') && (
 		 *   // Do something...
-		 *	}
+		 * }
 		 * ```
 		 *
 		 * [Astro reference](https://docs.astro.build/en/reference/astro-syntax/#astroslotshas)
+		 *
 		 */
 		has(slotName: string): boolean;
 
 		/**
-		 * Asynchronously renders this slot and returns a string
+		 * Asynchronously renders the contents of a slot to a string of HTML.
 		 *
-		 * ## Example
+		 * @param {string} slotName - The name of the slot to render.
+		 * @param {any[]} [args] - The additional arguments to pass to the callback.
+		 * @returns {Promise<string>} The rendered slot as HTML string.
+		 *
+		 * ## Examples
 		 *
 		 * ```astro
 		 * ---
@@ -77,8 +114,6 @@ export interface AstroGlobal<
 		 * ```
 		 *
 		 * A second parameter can be used to pass arguments to a slotted callback
-		 *
-		 * ## Example
 		 *
 		 * ```astro
 		 * ---
@@ -140,13 +175,29 @@ export interface AstroSharedContext<
 	 * The site provided in the astro config, parsed as an instance of `URL`, without base.
 	 * `undefined` if the site is not provided in the config.
 	 *
+	 * ## Example
+	 *
+	 * ```astro
+	 * <link
+	 *   rel="alternate"
+	 *   type="application/rss+xml"
+	 *   title="Your Site's Title"
+	 *   href={new URL("rss.xml", Astro.site)}
+	 * />
+	 * ```
+	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#site)
 	 */
 	site: URL | undefined;
 
 	/**
-	 * A human-readable string representing the Astro version used to create the project.
-	 * For example, `"Astro v1.1.1"`.
+	 * A human-readable string representing the Astro version used to create the project. It follows the format "Astro v5.x.x".
+	 *
+	 * ## Example
+	 *
+	 * ```astro
+	 * <meta name="generator" content={Astro.generator} />
+	 * ```
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#generator)
 	 */
@@ -157,27 +208,40 @@ export interface AstroSharedContext<
 	 *
 	 * Throws an error if used within a static site, or within a prerendered page.
 	 *
+	 * ## Example
+	 *
+	 * ```ts
+	 * import type { APIContext } from 'astro';
+	 *
+	 * export function GET({ clientAddress }: APIContext) {
+	 *   return new Response(`Your IP address is: ${clientAddress}`);
+	 * }
+	 * ```
+	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#clientaddress)
 	 */
 	clientAddress: string;
 
 	/**
-	 * Utility for getting and setting the values of cookies.
+	 * An object containing utilities for reading and manipulating the values of cookies in on-demand routes.
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#cookies)
 	 */
 	cookies: AstroCookies;
 
 	/**
-	 * Utility for handling sessions.
+	 * An object containing utilities for handling sessions in on-demand rendered routes.
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#session)
 	 */
 	session?: AstroSession;
 
-	/** Information about the current request. This is a standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
+	/**
+	 * A standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object containing information about the current request.
 	 *
-	 * For example, to get a URL object of the current URL, you can use:
+	 * ## Example
+	 *
+	 * To get a URL object of the current URL, you can use:
 	 * ```typescript
 	 * const url = new URL(Astro.request.url);
 	 * ```
@@ -187,11 +251,15 @@ export interface AstroSharedContext<
 	request: Request;
 
 	/**
-	 * The url of the current request, parsed as an instance of `URL`.
+	 * A URL object constructed from the current `request.url` value. This is
+	 * equivalent to doing `new URL(context.request.url)`.
 	 *
-	 * Equivalent to:
-	 * ```ts
-	 * new URL(context.request.url)
+	 * ## Example
+	 *
+	 * ```astro
+	 * <p>The current URL is: {Astro.url}</p>
+	 * <p>The current URL pathname is: {Astro.url.pathname}</p>
+	 * <p>The current URL origin is: {Astro.url.origin}</p>
 	 * ```
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#url)
@@ -202,20 +270,30 @@ export interface AstroSharedContext<
 	 * The origin pathname of the request URL.
 	 * Useful to track the original URL before rewrites were applied.
 	 *
+	 * ## Example
+	 *
+	 * ```astro
+	 * <p>The origin path is {Astro.originPathname}</p>
+	 * <p>The rewritten path is {Astro.url.pathname}</p>
+	 * ```
+	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#originpathname)
 	 */
 	originPathname: string;
 
 	/**
-	 * Get an action result on the server when using a form POST.
-	 * Expects the action function as a parameter.
-	 * Returns a type-safe result with the action data when
-	 * a matching POST request is received
-	 * and `undefined` otherwise.
+	 * A function that returns the result of an Action submission when using a form POST.
+	 *
+	 * This accepts an action function as an argument and returns a type-safe
+	 * data or error object when a submission is received. Otherwise, it will
+	 * return undefined.
+	 *
+	 * @param {TAction} action - The action function to process.
+	 * @returns {ActionReturnType<TAction> | undefined} An object describing the result of an action.
 	 *
 	 * ## Example
 	 *
-	 * ```typescript
+	 * ```astro
 	 * import { actions } from 'astro:actions';
 	 *
 	 * const result = await Astro.getActionResult(actions.myAction);
@@ -232,10 +310,11 @@ export interface AstroSharedContext<
 	) => ActionReturnType<TAction> | undefined;
 
 	/**
-	 * Call an Action directly from an Astro page or API endpoint.
-	 * Expects the action function as the first parameter,
-	 * and the type-safe action input as the second parameter.
-	 * Returns a Promise with the action result.
+	 * A function used to call an Action handler directly from your Astro
+	 * component or API endpoint.
+	 *
+	 * This accepts an Action function and a type-safe action input, and returns
+	 * the result of the action as a Promise.
 	 *
 	 * ## Example
 	 *
@@ -246,6 +325,9 @@ export interface AstroSharedContext<
 	 * ```
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#callaction)
+	 *
+	 * @param {TAction} action - Any Action function.
+	 * @param {Parameters<TAction>[0]} input - Any input that the given action receives.
 	 */
 	callAction: <
 		TAccept extends ActionAccept,
@@ -314,6 +396,12 @@ export interface AstroSharedContext<
 	/**
 	 * Create a response that redirects to another page.
 	 *
+	 * This accepts a custom status code when redirecting for on-demand rendered routes only.
+	 *
+	 * @param {string} path - The path to redirect to.
+	 * @param {ValidRedirectStatus} [status] - An optional HTTP status code.
+	 * @returns {Response} A Response object describing the redirection.
+	 *
 	 * ## Example
 	 *
 	 * ```ts
@@ -328,8 +416,14 @@ export interface AstroSharedContext<
 	redirect: (path: string, status?: ValidRedirectStatus) => Response;
 
 	/**
-	 * It reroutes to another page. As opposed to redirects, the URL won't change, and Astro will render the HTML emitted
-	 * by the rerouted URL passed as argument.
+	 * Allows you to serve content from a different URL or path without
+	 * redirecting the browser to a new page.
+	 *
+	 * As opposed to redirects, the URL won't change, and Astro will render the
+	 * HTML emitted by the rerouted URL passed as argument.
+	 *
+	 * @param {RewritePayload} rewritePayload - The location of the path.
+	 * @returns {Promise<Response>} A Response object describing the rewrite.
 	 *
 	 * ## Example
 	 *
@@ -360,7 +454,7 @@ export interface AstroSharedContext<
 	 *   return next();
 	 * });
 	 * ```
-	 * Inside a `.astro` file:
+	 * You can then access the value inside a `.astro` file:
 	 * ```astro
 	 * ---
 	 * // src/pages/index.astro
@@ -374,12 +468,19 @@ export interface AstroSharedContext<
 	locals: App.Locals;
 
 	/**
-	 * Available only when `i18n` configured and in SSR.
+	 * A computed value to find the best match between your visitor’s browser
+	 * language preferences and the locales supported by your site.
 	 *
-	 * It represents the preferred locale of the user. It's computed by checking the supported locales in `i18n.locales`
-	 * and locales supported by the users's browser via the header `Accept-Language`
+	 * This property is only available for routes rendered on demand and cannot
+	 * be used on prerendered, static pages.
 	 *
-	 * For example, given `i18n.locales` equals to `['fr', 'de']`, and the `Accept-Language` value equals to `en, de;q=0.2, fr;q=0.6`, the
+	 * The preferred locale of the user is computed by checking the supported
+	 * locales in `i18n.locales` and locales supported by the users's browser via
+	 * the header `Accept-Language`.
+	 *
+	 * ## Example
+	 *
+	 * Given `i18n.locales` equals to `['fr', 'de']`, and the `Accept-Language` value equals to `en, de;q=0.2, fr;q=0.6`, the
 	 * `Astro.preferredLanguage` will be `fr` because `en` is not supported, its [quality value](https://developer.mozilla.org/en-US/docs/Glossary/Quality_values) is the highest.
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#preferredlocale)
@@ -387,15 +488,22 @@ export interface AstroSharedContext<
 	preferredLocale: string | undefined;
 
 	/**
-	 * Available only when `i18n` configured and in SSR.
+	 * Represents the list of all locales, sorted via [quality value](https://developer.mozilla.org/en-US/docs/Glossary/Quality_values), that are both
+	 * requested by the browser and supported by your website.
 	 *
-	 * It represents the list of the preferred locales that are supported by the application. The list is sorted via [quality value](https://developer.mozilla.org/en-US/docs/Glossary/Quality_values).
+	 * This property is only available for routes rendered on demand and cannot
+	 * be used on prerendered, static pages.
 	 *
-	 * For example, given `i18n.locales` equals to `['fr', 'pt', 'de']`, and the `Accept-Language` value equals to `en, de;q=0.2, fr;q=0.6`, the
-	 * `Astro.preferredLocaleList` will be equal to `['fs', 'de']` because `en` isn't supported, and `pt` isn't part of the locales contained in the
+	 * When the `Accept-Header` is `*`, the original `i18n.locales` are returned.
+	 * The value `*` means no preferences, so Astro returns all the supported locales.
+	 *
+	 * ## Example
+	 *
+	 * Given `i18n.locales` equals to `['fr', 'pt', 'de']`, and the
+	 * `Accept-Language` value equals to `en, de;q=0.2, fr;q=0.6`, the
+	 * `Astro.preferredLocaleList` will be equal to `['fs', 'de']` because `en`
+	 * isn't supported, and `pt` isn't part of the locales contained in the
 	 * header.
-	 *
-	 * When the `Accept-Header` is `*`, the original `i18n.locales` are returned. The value `*` means no preferences, so Astro returns all the supported locales.
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#preferredlocalelist)
 	 */
@@ -424,6 +532,8 @@ export interface AstroSharedContext<
 		/**
 		 * It adds a specific CSP directive to the route being rendered.
 		 *
+		 * @param {CspDirective} directive - The directive to add to the current page.
+		 *
 		 * ## Example
 		 *
 		 * ```js
@@ -436,6 +546,8 @@ export interface AstroSharedContext<
 
 		/**
 		 * It set the resource for the directive `style-src` in the route being rendered. It overrides Astro's default.
+		 *
+		 * @param {string} payload - The source to insert in the `style-src` directive.
 		 *
 		 * ## Example
 		 *
@@ -450,6 +562,8 @@ export interface AstroSharedContext<
 		/**
 		 * Insert a single style hash to the route being rendered.
 		 *
+		 * @param {CspHash} hash - The hash to insert in the `style-src` directive.
+		 *
 		 * ## Example
 		 *
 		 * ```js
@@ -463,6 +577,8 @@ export interface AstroSharedContext<
 		/**
 		 * It set the resource for the directive `script-src` in the route being rendered.
 		 *
+		 * @param {string} resource - The source to insert in the `script-src` directive.
+		 *
 		 * ## Example
 		 *
 		 * ```js
@@ -475,6 +591,8 @@ export interface AstroSharedContext<
 
 		/**
 		 * Insert a single script hash to the route being rendered.
+		 *
+		 * @param {CspHash} hash - The hash to insert in the `script-src` directive.
 		 *
 		 * ## Example
 		 *
