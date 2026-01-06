@@ -49,7 +49,8 @@ export interface AstroGlobal<
 		/**
 		 * Check whether content for this slot name exists
 		 *
-		 * Example usage:
+		 * ## Example
+		 *
 		 * ```typescript
 		 *	if (Astro.slots.has('default')) {
 		 *   // Do something...
@@ -63,7 +64,8 @@ export interface AstroGlobal<
 		/**
 		 * Asynchronously renders this slot and returns a string
 		 *
-		 * Example usage:
+		 * ## Example
+		 *
 		 * ```astro
 		 * ---
 		 * let html: string = '';
@@ -76,7 +78,8 @@ export interface AstroGlobal<
 		 *
 		 * A second parameter can be used to pass arguments to a slotted callback
 		 *
-		 * Example usage:
+		 * ## Example
+		 *
 		 * ```astro
 		 * ---
 		 * html = await Astro.slots.render('default', ["Hello", "World"])
@@ -102,7 +105,8 @@ export interface AstroGlobalPartial extends Pick<AstroSharedContext, 'site' | 'g
 	/**
 	 * Fetch local files into your static site setup
 	 *
-	 * Example usage:
+	 * ## Example
+	 *
 	 * ```typescript
 	 * const posts = await Astro.glob('../pages/post/*.md');
 	 * ```
@@ -209,7 +213,7 @@ export interface AstroSharedContext<
 	 * a matching POST request is received
 	 * and `undefined` otherwise.
 	 *
-	 * Example usage:
+	 * ## Example
 	 *
 	 * ```typescript
 	 * import { actions } from 'astro:actions';
@@ -233,7 +237,7 @@ export interface AstroSharedContext<
 	 * and the type-safe action input as the second parameter.
 	 * Returns a Promise with the action result.
 	 *
-	 * Example usage:
+	 * ## Example
 	 *
 	 * ```typescript
 	 * import { actions } from 'astro:actions';
@@ -258,7 +262,8 @@ export interface AstroSharedContext<
 	/**
 	 * List of props passed from `getStaticPaths`. Only available to static builds.
 	 *
-	 * Example usage:
+	 * ## Example
+	 *
 	 * ```ts
 	 * import type { APIContext } from "astro"
 	 *
@@ -289,7 +294,8 @@ export interface AstroSharedContext<
 	/**
 	 * Create a response that redirects to another page.
 	 *
-	 * Example usage:
+	 * ## Example
+	 *
 	 * ```ts
 	 * // src/pages/secret.ts
 	 * export function GET({ redirect }) {
@@ -323,7 +329,7 @@ export interface AstroSharedContext<
 	 *
 	 * It will be made available to pages as `Astro.locals`, and to endpoints as `context.locals`.
 	 *
-	 * Example usage:
+	 * ## Example
 	 *
 	 * ```ts
 	 * // src/middleware.ts
@@ -465,6 +471,7 @@ export interface AstroSharedContext<
 	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.
 	 *
 	 * ## Example
+	 *
 	 * - The value when rendering `src/pages/index.astro` will be `/`.
 	 * - The value when rendering `src/pages/blog/[slug].astro` will be `/blog/[slug]`.
 	 * - The value when rendering `src/pages/[...path].astro` will be `/[...path]`.
