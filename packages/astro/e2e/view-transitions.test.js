@@ -1721,7 +1721,7 @@ test.describe('View Transitions', () => {
 		);
 	});
 
-	// This test only works for browsers that do not have native support for view transitions. 
+	// This test only works for browsers that do not have native support for view transitions.
 	test.skip('fallback triggers animation if not skipped', async ({ page, astro }) => {
 		let lines = [];
 		page.on('console', (msg) => {
