@@ -1,7 +1,13 @@
 import { AstroError, AstroErrorData } from '../../../../core/errors/index.js';
 import type { RouteData, SSRResult } from '../../../../types/public/internal.js';
 import { isPromise } from '../../util.js';
-import { chunkToByteArray, chunkToString, encoder, type RenderDestination } from '../common.js';
+import {
+	chunkToByteArray,
+	chunkToByteArrayOrString,
+	chunkToString,
+	encoder,
+	type RenderDestination,
+} from '../common.js';
 import { promiseWithResolvers } from '../util.js';
 import type { AstroComponentFactory } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
@@ -230,7 +236,7 @@ export async function renderToAsyncIterable(
 	// The `next` is an object `{ promise, resolve, reject }` that we use to wait
 	// for chunks to be pushed into the buffer.
 	let next: ReturnType<typeof promiseWithResolvers<void>> | null = null;
-	const buffer: Uint8Array[] = []; // []Uint8Array
+	const buffer: Array<Uint8Array | string> = []; // []Uint8Array
 	let renderingComplete = false;
 
 	const iterator: AsyncIterator<Uint8Array> = {
@@ -259,8 +265,24 @@ export async function renderToAsyncIterable(
 
 			// Get the total length of all arrays.
 			let length = 0;
+			let stringToEncode = '';
 			for (let i = 0, len = buffer.length; i < len; i++) {
-				length += buffer[i].length;
+				const bufferEntry = buffer[i];
+
+				if (typeof bufferEntry === 'string') {
+					const nextIsString = i + 1 < len && typeof buffer[i + 1] === 'string';
+					stringToEncode += bufferEntry;
+					if (!nextIsString) {
+						const encoded = encoder.encode(stringToEncode);
+						length += encoded.length;
+						stringToEncode = '';
+						buffer[i] = encoded;
+					} else {
+						buffer[i] = '';
+					}
+				} else {
+					length += bufferEntry.length;
+				}
 			}
 
 			// Create a new array with total length and merge all source arrays.
@@ -268,7 +290,10 @@ export async function renderToAsyncIterable(
 			let offset = 0;
 			for (let i = 0, len = buffer.length; i < len; i++) {
 				const item = buffer[i];
-				mergedArray.set(item, offset);
+				if (item === '') {
+					continue;
+				}
+				mergedArray.set(item as Uint8Array, offset);
 				offset += item.length;
 			}
 
@@ -304,7 +329,7 @@ export async function renderToAsyncIterable(
 			if (chunk instanceof Response) {
 				throw new AstroError(AstroErrorData.ResponseSentError);
 			}
-			const bytes = chunkToByteArray(result, chunk);
+			const bytes = chunkToByteArrayOrString(result, chunk);
 			// It might be possible that we rendered a chunk with no content, in which
 			// case we don't want to resolve the promise.
 			if (bytes.length > 0) {
