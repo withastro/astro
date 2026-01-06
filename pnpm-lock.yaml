@@ -6374,6 +6374,18 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/vue/test/fixtures/prop-types:
+    dependencies:
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      vue:
+        specifier: ^3.5.13
+        version: 3.5.26(typescript@5.9.3)
+
   packages/internal-helpers:
     devDependencies:
       astro-scripts:
