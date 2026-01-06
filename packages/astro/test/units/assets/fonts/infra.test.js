@@ -534,7 +534,7 @@ describe('fonts infra', () => {
 
 	describe('UnifontFontResolver', () => {
 		const createProvider = (/** @type {string} */ name) => () =>
-			Object.assign(() => undefined, { _name: name });
+			Object.assign(() => undefined, { _name: name, _options: undefined });
 
 		describe('static extractUnifontProviders()', () => {
 			/** @param {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} families */
@@ -698,7 +698,7 @@ describe('fonts infra', () => {
 											},
 										};
 									},
-									{ _name: 'foo' },
+									{ _name: 'foo', _options: undefined },
 								),
 						},
 					},
@@ -722,7 +722,7 @@ describe('fonts infra', () => {
 											},
 										};
 									},
-									{ _name: 'bar' },
+									{ _name: 'bar', _options: undefined },
 								),
 						},
 					},
@@ -737,6 +737,7 @@ describe('fonts infra', () => {
 					weights: undefined,
 					styles: undefined,
 					subsets: undefined,
+					formats: undefined,
 				}),
 				[],
 			);
@@ -747,6 +748,7 @@ describe('fonts infra', () => {
 					weights: undefined,
 					styles: undefined,
 					subsets: undefined,
+					formats: undefined,
 				}),
 				[
 					{
@@ -773,7 +775,7 @@ describe('fonts infra', () => {
 											},
 										};
 									},
-									{ _name: 'foo' },
+									{ _name: 'foo', _options: undefined },
 								),
 						},
 					},
@@ -792,7 +794,7 @@ describe('fonts infra', () => {
 											listFonts: async () => ['a', 'b', 'c'],
 										};
 									},
-									{ _name: 'bar' },
+									{ _name: 'bar', _options: undefined },
 								),
 						},
 					},

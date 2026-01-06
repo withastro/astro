@@ -4,10 +4,12 @@ import { LOCAL_PROVIDER_NAME } from '../constants.js';
 import type { FontResolver, Hasher, Storage } from '../definitions.js';
 import type { AstroFontProviderResolveFontOptions, ResolvedFontFamily } from '../types.js';
 
-export class UnifontFontResolver implements FontResolver {
-	readonly #unifont: Unifont;
+type NonEmptyProviders = [Provider, ...Array<Provider>];
 
-	private constructor({ unifont }: { unifont: Unifont }) {
+export class UnifontFontResolver implements FontResolver {
+	readonly #unifont: Unifont<NonEmptyProviders>;
+
+	private constructor({ unifont }: { unifont: Unifont<NonEmptyProviders> }) {
 		this.#unifont = unifont;
 	}
 
@@ -49,7 +51,7 @@ export class UnifontFontResolver implements FontResolver {
 			}
 		}
 
-		return providers;
+		return providers as NonEmptyProviders;
 	}
 
 	static async create({
@@ -64,6 +66,8 @@ export class UnifontFontResolver implements FontResolver {
 		return new UnifontFontResolver({
 			unifont: await createUnifont(this.extractUnifontProviders({ families, hasher }), {
 				storage,
+				// TODO: consider enabling, would require new astro errors
+				throwOnError: false,
 			}),
 		});
 	}

@@ -161,7 +161,7 @@
     "tinyglobby": "^0.2.15",
     "tsconfck": "^3.1.6",
     "ultrahtml": "^1.6.0",
-    "unifont": "~0.6.0",
+    "unifont": "~0.7.1",
     "unist-util-visit": "^5.0.0",
     "unstorage": "^1.17.3",
     "vfile": "^6.0.3",
