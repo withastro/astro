@@ -884,8 +884,25 @@ test.describe('View Transitions', () => {
 		).toEqual(1);
 	});
 
-	// Skip: flaky
-	test.skip('Redirect to external site causes page load', async ({ page, astro }) => {
+	test('Hash part of the target URL is preserved during server redirect', async ({
+		page,
+		astro,
+	}) => {
+		// Go to page 1
+		await page.goto(astro.resolveUrl('/one'));
+		let p = page.locator('#one');
+		await expect(p, 'should have content').toHaveText('Page 1');
+
+		// go to page 2
+		await page.click('#click-redirect-two-hash');
+		p = page.locator('#two');
+		await expect(p, 'should have content').toHaveText('Page 2');
+
+		const Y = await page.evaluate(() => window.scrollY);
+		expect(Y, 'The target is further down the page').toBeGreaterThan(0);
+	});
+
+	test('Redirect to external site causes page load', async ({ page, astro }) => {
 		const loads = collectLoads(page);
 
 		// Go to page 1
@@ -897,7 +914,7 @@ test.describe('View Transitions', () => {
 		await page.click('#click-redirect-external');
 		// doesn't work for playwright when we are too fast
 		await page.waitForLoadState('commit', { timeout: 5000 });
-		await page.waitForURL('http://example.com/', { waitUntil: 'commit', timeout: 5000 });
+		await page.waitForURL('https://example.com/', { waitUntil: 'commit', timeout: 5000 });
 		await expect(page.locator('h1'), 'should have content').toHaveText('Example Domain');
 		expect(loads.length, 'There should be 2 page loads').toEqual(2);
 	});
@@ -1645,10 +1662,10 @@ test.describe('View Transitions', () => {
 		// For simulated view transitions, the last line would be missing
 		// as enter and exit animations don't run in parallel.
 
-		let expected = '[test] navigate to "."\n[test] navigate to /one\n[test] cancel astroFadeOut';
+		let expected = '[test] navigate to "."\n[test] navigate to /one\n[test] cancel astroFade';
 		const native = await nativeViewTransition(page);
 		if (native) {
-			expected += '\n[test] cancel astroFadeIn';
+			expected += '\n[test] cancel astroFade';
 		}
 		await page.click('#click-two');
 		expect(lines.join('\n')).toBe(expected);
@@ -1704,8 +1721,8 @@ test.describe('View Transitions', () => {
 		);
 	});
 
-	test('fallback triggers animation if not skipped', async ({ page, astro, browserName }) => {
-		test.skip(browserName !== 'firefox', 'Only makes sense for browser that uses fallback');
+	// This test only works for browsers that do not have native support for view transitions.
+	test.skip('fallback triggers animation if not skipped', async ({ page, astro }) => {
 		let lines = [];
 		page.on('console', (msg) => {
 			msg.text().startsWith('[test]') && lines.push(msg.text().slice('[test]'.length + 1));

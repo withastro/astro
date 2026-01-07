@@ -21,12 +21,16 @@ import { RealUrlProxy } from '../../../../dist/assets/fonts/infra/url-proxy.js';
 import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
 import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
 import { defaultLogger, SpyLogger } from '../../test-utils.js';
-import { FakeFontMetricsResolver, FakeHasher, markdownBold, SpyStorage } from './utils.js';
+import {
+	FakeFontMetricsResolver,
+	FakeHasher,
+	markdownBold,
+	PassthroughFontResolver,
+} from './utils.js';
 
 describe('fonts orchestrate()', () => {
 	it('works with local fonts', async () => {
 		const root = new URL(import.meta.url);
-		const storage = new SpyStorage();
 		const fontTypeExtractor = new RealFontTypeExtractor();
 		const hasher = new FakeHasher();
 		const { fontFileDataMap, internalConsumableMap, consumableMap } = await orchestrate({
@@ -50,7 +54,7 @@ describe('fonts orchestrate()', () => {
 				modResolver: new BuildRemoteFontProviderModResolver(),
 			}),
 			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
-			storage,
+			createFontResolver: async ({ families }) => new PassthroughFontResolver({ families, hasher }),
 			cssRenderer: new MinifiableCssRenderer({ minify: true }),
 			systemFallbacksProvider: new RealSystemFallbacksProvider(),
 			fontMetricsResolver: new FakeFontMetricsResolver(),
@@ -159,7 +163,6 @@ describe('fonts orchestrate()', () => {
 		});
 
 		const root = new URL(import.meta.url);
-		const storage = new SpyStorage();
 		const fontTypeExtractor = new RealFontTypeExtractor();
 		const hasher = new FakeHasher();
 		const { fontFileDataMap, internalConsumableMap, consumableMap } = await orchestrate({
@@ -181,7 +184,7 @@ describe('fonts orchestrate()', () => {
 				},
 			}),
 			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
-			storage,
+			createFontResolver: async ({ families }) => new PassthroughFontResolver({ families, hasher }),
 			cssRenderer: new MinifiableCssRenderer({ minify: true }),
 			systemFallbacksProvider: new RealSystemFallbacksProvider(),
 			fontMetricsResolver: new FakeFontMetricsResolver(),
@@ -278,7 +281,6 @@ describe('fonts orchestrate()', () => {
 		});
 
 		const root = new URL(import.meta.url);
-		const storage = new SpyStorage();
 		const fontTypeExtractor = new RealFontTypeExtractor();
 		const hasher = new FakeHasher();
 		const logger = new SpyLogger();
@@ -302,7 +304,7 @@ describe('fonts orchestrate()', () => {
 				},
 			}),
 			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
-			storage,
+			createFontResolver: async ({ families }) => new PassthroughFontResolver({ families, hasher }),
 			cssRenderer: new MinifiableCssRenderer({ minify: true }),
 			systemFallbacksProvider: new RealSystemFallbacksProvider(),
 			fontMetricsResolver: new FakeFontMetricsResolver(),
@@ -350,7 +352,6 @@ describe('fonts orchestrate()', () => {
 		});
 
 		const root = new URL(import.meta.url);
-		const storage = new SpyStorage();
 		const fontTypeExtractor = new RealFontTypeExtractor();
 		const hasher = new FakeHasher();
 		const logger = new SpyLogger();
@@ -374,7 +375,7 @@ describe('fonts orchestrate()', () => {
 				},
 			}),
 			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
-			storage,
+			createFontResolver: async ({ families }) => new PassthroughFontResolver({ families, hasher }),
 			cssRenderer: new MinifiableCssRenderer({ minify: true }),
 			systemFallbacksProvider: new RealSystemFallbacksProvider(),
 			fontMetricsResolver: new FakeFontMetricsResolver(),
@@ -436,7 +437,6 @@ describe('fonts orchestrate()', () => {
 		});
 
 		const root = new URL(import.meta.url);
-		const storage = new SpyStorage();
 		const fontTypeExtractor = new RealFontTypeExtractor();
 		const hasher = new FakeHasher();
 		const logger = new SpyLogger();
@@ -466,7 +466,7 @@ describe('fonts orchestrate()', () => {
 				},
 			}),
 			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
-			storage,
+			createFontResolver: async ({ families }) => new PassthroughFontResolver({ families, hasher }),
 			cssRenderer: new MinifiableCssRenderer({ minify: true }),
 			systemFallbacksProvider: new RealSystemFallbacksProvider(),
 			fontMetricsResolver: new FakeFontMetricsResolver(),
@@ -529,7 +529,6 @@ describe('fonts orchestrate()', () => {
 		});
 
 		const root = new URL(import.meta.url);
-		const storage = new SpyStorage();
 		const fontTypeExtractor = new RealFontTypeExtractor();
 		const hasher = new FakeHasher();
 		const logger = new SpyLogger();
@@ -559,7 +558,7 @@ describe('fonts orchestrate()', () => {
 				},
 			}),
 			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
-			storage,
+			createFontResolver: async ({ families }) => new PassthroughFontResolver({ families, hasher }),
 			cssRenderer: new MinifiableCssRenderer({ minify: true }),
 			systemFallbacksProvider: new RealSystemFallbacksProvider(),
 			fontMetricsResolver: new FakeFontMetricsResolver(),
