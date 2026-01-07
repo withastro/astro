@@ -12,7 +12,6 @@ import type {
 	FontTypeExtractor,
 	Hasher,
 	LocalProviderUrlResolver,
-	RemoteFontProviderResolver,
 	StringMatcher,
 	SystemFallbacksProvider,
 	UrlProxy,
@@ -56,7 +55,6 @@ import {
 export async function orchestrate({
 	families,
 	hasher,
-	remoteFontProviderResolver,
 	localProviderUrlResolver,
 	cssRenderer,
 	systemFallbacksProvider,
@@ -72,7 +70,6 @@ export async function orchestrate({
 }: {
 	families: Array<FontFamily>;
 	hasher: Hasher;
-	remoteFontProviderResolver: RemoteFontProviderResolver;
 	localProviderUrlResolver: LocalProviderUrlResolver;
 	cssRenderer: CssRenderer;
 	systemFallbacksProvider: SystemFallbacksProvider;
@@ -93,7 +90,6 @@ export async function orchestrate({
 	const resolvedFamilies = await resolveFamilies({
 		families,
 		hasher,
-		remoteFontProviderResolver,
 		localProviderUrlResolver,
 	});
 

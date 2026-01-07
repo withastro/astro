@@ -8,15 +8,44 @@ import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 type Weight = z.infer<typeof weightSchema>;
 type Display = z.infer<typeof displaySchema>;
 
+export interface FontProviderInitContext {
+	storage: {
+		getItem: {
+			<T = unknown>(key: string): Promise<T | null>;
+			<T = unknown>(key: string, init: () => Awaitable<T>): Promise<T>;
+		};
+		setItem: (key: string, value: unknown) => Awaitable<void>;
+	};
+}
+
+type Awaitable<T> = T | Promise<T>;
+
 export interface FontProvider {
 	/**
-	 * URL, path relative to the root or package import.
+	 * TODO:
 	 */
-	entrypoint: string | URL;
+	name: string;
 	/**
 	 * Optional serializable object passed to the unifont provider.
 	 */
 	config?: Record<string, any> | undefined;
+	/**
+	 * TODO:
+	 */
+	init?: ((context: FontProviderInitContext) => Awaitable<void>) | undefined;
+	/**
+	 * TODO:
+	 */
+	resolveFont: (options: ResolveFontOptions) => Awaitable<
+		| {
+				fonts: Array<unifont.FontFaceData>;
+		  }
+		| undefined
+	>;
+	/**
+	 * TODO:
+	 */
+	listFonts?: (() => Awaitable<Array<string> | undefined>) | undefined;
 }
 
 interface RequiredFamilyAttributes {
@@ -93,12 +122,6 @@ interface FamilyProperties {
 	 * A [unicode range](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range).
 	 */
 	unicodeRange?: [string, ...Array<string>] | undefined;
-}
-
-export interface ResolvedFontProvider {
-	name?: string;
-	provider: (config?: Record<string, any>) => unifont.Provider;
-	config?: Record<string, any>;
 }
 
 type Src =
@@ -183,8 +206,7 @@ export interface RemoteFontFamily
 /** @lintignore somehow required by pickFontFaceProperty in utils */
 export interface ResolvedRemoteFontFamily
 	extends ResolvedFontFamilyAttributes,
-		Omit<RemoteFontFamily, 'provider' | 'weights'> {
-	provider: ResolvedFontProvider;
+		Omit<RemoteFontFamily, 'weights'> {
 	weights?: Array<string>;
 }
 
@@ -217,7 +239,7 @@ export type FontFaceMetrics = Pick<
 
 export type GenericFallbackName = (typeof GENERIC_FALLBACK_NAMES)[number];
 
-export type Defaults = Partial<
+export type Defaults = Required<
 	Pick<
 		ResolvedRemoteFontFamily,
 		'weights' | 'styles' | 'subsets' | 'fallbacks' | 'optimizedFallbacks' | 'formats'
@@ -269,8 +291,8 @@ export type PreloadFilter =
 
 export interface ResolveFontOptions {
 	familyName: string;
-	weights: string[] | undefined;
-	styles: Style[] | undefined;
-	subsets: string[] | undefined;
-	formats: FontType[] | undefined;
+	weights: string[];
+	styles: Style[];
+	subsets: string[];
+	formats: FontType[];
 }
