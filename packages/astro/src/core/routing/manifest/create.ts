@@ -147,7 +147,6 @@ function createFileBasedRoutes(
 			}
 			// filter out "foo.astro_tmp" files, etc
 			if (!isDir && !validPageExtensions.has(ext) && !validEndpointExtensions.has(ext)) {
-				
 				// Only warn for files that could potentially be interpreted by users has being possible extensions for pages
 				// It's otherwise not a problem for users to have other files in their pages directory, for instance colocated images.
 				if (invalidPotentialPages.has(ext)) {
