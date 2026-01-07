@@ -193,7 +193,7 @@ export interface AstroSharedContext<
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#site)
 	 */
-	site: URL | undefined;
+	site: ConditionalType<URL, AstroInternals.Site>;
 
 	/**
 	 * A human-readable string representing the Astro version used to create the project. It follows the format "Astro v5.x.x".
@@ -239,7 +239,7 @@ export interface AstroSharedContext<
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#session)
 	 */
-	session?: AstroSession;
+	session: ConditionalType<AstroSession, AstroInternals.Session>;
 
 	/**
 	 * A standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object containing information about the current request.
@@ -533,7 +533,7 @@ export interface AstroSharedContext<
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/)
 	 */
-	csp: {
+	csp: ConditionalType<{
 		/**
 		 * It adds a specific CSP directive to the route being rendered.
 		 *
@@ -608,7 +608,7 @@ export interface AstroSharedContext<
 		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscripthash)
 		 */
 		insertScriptHash: (hash: CspHash) => void;
-	};
+	}, AstroInternals.Csp>;
 
 	/**
 	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.
