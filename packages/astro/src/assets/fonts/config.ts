@@ -1,9 +1,10 @@
 import * as z from 'zod/v4';
-import { LOCAL_PROVIDER_NAME } from './constants.js';
+import { FONT_TYPES, LOCAL_PROVIDER_NAME } from './constants.js';
 
 export const weightSchema = z.union([z.string(), z.number()]);
 export const styleSchema = z.enum(['normal', 'italic', 'oblique']);
 export const displaySchema = z.enum(['auto', 'block', 'swap', 'fallback', 'optional']);
+const formatSchema = z.enum(FONT_TYPES)
 
 const familyPropertiesSchema = z.object({
 	weight: weightSchema.optional(),
@@ -66,5 +67,6 @@ export const remoteFontFamilySchema = z
 		weights: z.tuple([weightSchema], weightSchema).optional(),
 		styles: z.tuple([styleSchema], styleSchema).optional(),
 		subsets: z.tuple([z.string()], z.string()).optional(),
+		formats: z.tuple([formatSchema], formatSchema).optional(),
 	})
 	.strict();

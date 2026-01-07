@@ -15,8 +15,7 @@ packages:
 # minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@biomejs/*'
-  # Temporary, so we can install the fork
-  - 'piccolore'
+  # Temporary, so we can install new updates
   - '@cloudflare/*'
   - 'wrangler'
 peerDependencyRules:

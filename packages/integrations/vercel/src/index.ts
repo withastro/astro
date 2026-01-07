@@ -88,6 +88,9 @@ const SUPPORTED_NODE_VERSIONS: Record<
 		status: 'available',
 	},
 	22: {
+		status: 'available',
+	},
+	24: {
 		status: 'default',
 	},
 };
@@ -728,10 +731,10 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 		logger.warn(
 			`\n` +
 				`\tThe local Node.js version (${major}) is not supported by Vercel Serverless Functions.\n` +
-				`\tYour project will use Node.js 22 as the runtime instead.\n` +
-				`\tConsider switching your local version to 22.\n`,
+				`\tYour project will use Node.js 24 as the runtime instead.\n` +
+				`\tConsider switching your local version to 24.\n`,
 		);
-		return 'nodejs22.x';
+		return 'nodejs24.x';
 	}
 	if (support.status === 'default' || support.status === 'available') {
 		return `nodejs${major}.x`;
@@ -755,11 +758,11 @@ function getRuntime(process: NodeJS.Process, logger: AstroIntegrationLogger): Ru
 			`\n` +
 				`\tYour project is being built for Node.js ${major} as the runtime.\n` +
 				`\tThis version is deprecated by Vercel Serverless Functions.\n` +
-				`\tConsider upgrading your local version to 22.\n`,
+				`\tConsider upgrading your local version to 24.\n`,
 		);
 		return `nodejs${major}.x`;
 	}
-	return 'nodejs22.x';
+	return 'nodejs24.x';
 }
 
 function createRoutesWithStaticHeaders(

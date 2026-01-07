@@ -24,10 +24,12 @@
     "./editor": "./dist/editor.cjs",
     "./client.js": "./dist/client.js",
     "./server.js": "./dist/server.js",
+    "./vue-shims.d.ts": "./vue-shims.d.ts",
     "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "vue-shims.d.ts"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && astro-scripts build \"src/editor.cts\" --force-cjs --no-clean-dist && tsc",
@@ -38,7 +40,7 @@
   "dependencies": {
     "@vitejs/plugin-vue": "5.2.4",
     "@vitejs/plugin-vue-jsx": "^4.2.0",
-    "@vue/compiler-sfc": "^3.5.25",
+    "@vue/compiler-sfc": "^3.5.26",
     "vite": "^7.1.7",
     "vite-plugin-vue-devtools": "^7.7.9"
   },
@@ -47,7 +49,7 @@
     "astro-scripts": "workspace:*",
     "cheerio": "1.1.2",
     "linkedom": "^0.18.12",
-    "vue": "^3.5.25"
+    "vue": "^3.5.26"
   },
   "peerDependencies": {
     "astro": "^6.0.0-alpha.0",
