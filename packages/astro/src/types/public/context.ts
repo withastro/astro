@@ -15,23 +15,7 @@ export interface AstroGlobal<
 	Props extends Record<string, any> = Record<string, any>,
 	Self = AstroComponentFactory,
 	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
-> extends AstroSharedContext<Props, Params> {
-	/**
-	 * Returns a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrosite)
-	 */
-	site: URL | undefined;
-	/**
-	 * Returns a string with the current version of Astro.
-	 *
-	 * Useful for using `<meta name="generator" content={Astro.generator} />` or crediting Astro in a site footer.
-	 *
-	 * [HTML Specification for `generator`](https://html.spec.whatwg.org/multipage/semantics.html#meta-generator)
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrogenerator)
-	 */
-	generator: string;
+> extends APIContext<Props, Params> {
 	/**
 	 * A standard [ResponseInit](https://developer.mozilla.org/en-US/docs/Web/API/Response/Response#init) object describing the outgoing response.
 	 *
@@ -144,8 +128,13 @@ export interface AstroGlobal<
 	};
 }
 
-// Shared types between `Astro` global and API context object
-interface AstroSharedContext<
+/**
+ * The `APIContext` is the object made available to endpoints and middleware.
+ * It is a subset of the `Astro` global object available in pages.
+ *
+ * [Astro reference](https://docs.astro.build/en/reference/api-reference/)
+ */
+export interface APIContext<
 	Props extends Record<string, any> = Record<string, any>,
 	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
 > {
@@ -587,14 +576,3 @@ interface AstroSharedContext<
 	 */
 	routePattern: string;
 }
-
-/**
- * The `APIContext` is the object made available to endpoints and middleware.
- * It is a subset of the `Astro` global object available in pages.
- *
- * [Astro reference](https://docs.astro.build/en/reference/api-reference/)
- */
-export type APIContext<
-	Props extends Record<string, any> = Record<string, any>,
-	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
-> = AstroSharedContext<Props, Params>;
