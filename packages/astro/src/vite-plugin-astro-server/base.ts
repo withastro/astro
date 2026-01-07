@@ -29,7 +29,12 @@ export function baseMiddleware(
 		}
 
 		if (pathname.startsWith(devRoot)) {
-			req.url = url.replace(devRoot, devRootReplacement);
+			let newUrl = url.replace(devRoot, devRootReplacement);
+			// Ensure the URL is a valid path (e.g., /base?foo=bar -> /?foo=bar, not ?foo=bar)
+			if (newUrl !== '' && !newUrl.startsWith('/')) {
+				newUrl = '/' + newUrl;
+			}
+			req.url = newUrl;
 			return next();
 		}
 

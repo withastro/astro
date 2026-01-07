@@ -47,6 +47,12 @@ export async function handleRequest({
 		}
 	}
 
+	// Normalize root path to empty string when trailingSlash is 'never'
+	// This ensures consistent route matching for the index route (e.g., /base?query -> '')
+	if (config.trailingSlash === 'never' && pathname === '/') {
+		pathname = '';
+	}
+
 	// Add config.base back to url before passing it to SSR
 	url.pathname = removeTrailingForwardSlash(config.base) + pathname;
 
