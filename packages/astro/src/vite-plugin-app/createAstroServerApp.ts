@@ -17,6 +17,9 @@ import type { ModuleLoader } from '../core/module-loader/index.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
 import type { DevServerController } from '../vite-plugin-astro-server/controller.js';
 import { AstroServerApp } from './app.js';
+import { prepareRequest } from './prepare-request.js';
+import type { BaseApp } from '../core/app/index.js';
+import type { RunnablePipeline } from './pipeline.js';
 
 export default async function createAstroServerApp(
 	controller: DevServerController,
@@ -57,12 +60,26 @@ export default async function createAstroServerApp(
 	);
 	return {
 		handler(incomingRequest: http.IncomingMessage, incomingResponse: http.ServerResponse) {
-			app.handleRequest({
+			prepareRequest({
 				controller,
 				incomingRequest,
 				incomingResponse,
 				isHttps: loader?.isHttps() ?? false,
+				app: app as BaseApp<RunnablePipeline>,
+				loader: app.loader,
+				devServerHeaders: settings.config.server.headers,
+				run({ routeData, locals, request, resolvedPathname, clientAddress }) {
+					app.resolvedPathname = resolvedPathname;
+					return app.render(request, { routeData, locals, clientAddress });
+				},
 			});
+
+			// app.handleRequest({
+			// 	controller,
+			// 	incomingRequest,
+			// 	incomingResponse,
+			// 	isHttps: loader?.isHttps() ?? false,
+			// });
 		},
 	};
 }
