@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Group render chunks when emitting from async iterables to avoid encoding costs.
+Improves rendering performance by grouping render chunks when emitting from async iterables to avoid encoding costs
