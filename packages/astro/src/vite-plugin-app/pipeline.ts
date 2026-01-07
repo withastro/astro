@@ -40,11 +40,6 @@ export class RunnablePipeline extends Pipeline {
 
 	routesList: RoutesList | undefined;
 
-	componentInterner: WeakMap<RouteData, ComponentInstance> = new WeakMap<
-		RouteData,
-		ComponentInstance
-	>();
-
 	private constructor(
 		readonly loader: ModuleLoader,
 		readonly logger: Logger,
@@ -174,9 +169,7 @@ export class RunnablePipeline extends Pipeline {
 
 		try {
 			// Load the module from the Vite SSR Runtime.
-			const componentInstance = (await loader.import(filePath.toString())) as ComponentInstance;
-			this.componentInterner.set(routeData, componentInstance);
-			return componentInstance;
+			return (await loader.import(filePath.toString())) as ComponentInstance;
 		} catch (error) {
 			// If the error came from Markdown or CSS, we already handled it and there's no need to enhance it
 			if (MarkdownError.is(error) || CSSError.is(error) || AggregateError.is(error)) {
@@ -189,17 +182,11 @@ export class RunnablePipeline extends Pipeline {
 
 	clearRouteCache() {
 		this.routeCache.clearAll();
-		this.componentInterner = new WeakMap<RouteData, ComponentInstance>();
 	}
 
 	async getComponentByRoute(routeData: RouteData): Promise<ComponentInstance> {
-		const component = this.componentInterner.get(routeData);
-		if (component) {
-			return component;
-		} else {
-			const filePath = new URL(`${routeData.component}`, this.manifest.rootDir);
-			return await this.preload(routeData, filePath);
-		}
+		const filePath = new URL(`${routeData.component}`, this.manifest.rootDir);
+		return await this.preload(routeData, filePath);
 	}
 
 	async tryRewrite(payload: RewritePayload, request: Request): Promise<TryRewriteResult> {

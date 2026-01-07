@@ -553,7 +553,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 					locals,
 					pipeline: this.pipeline,
 					skipMiddleware,
-					pathname: await this.getPathnameFromRequest(request),
+					pathname: this.getPathnameFromRequest(request),
 					request,
 					routeData: errorRouteData,
 					status,
