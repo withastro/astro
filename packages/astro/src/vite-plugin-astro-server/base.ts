@@ -39,13 +39,7 @@ export function baseMiddleware(
 		}
 
 		if (pathname.startsWith(devRoot)) {
-			let newUrl = url.replace(devRoot, devRootReplacement);
-			// Ensure the URL is a valid path (e.g., /base?foo=bar -> /?foo=bar, not ?foo=bar)
-			// Only apply fix when we actually stripped something (devRoot !== '/')
-			if (devRoot !== '/' && newUrl !== '' && !newUrl.startsWith('/')) {
-				newUrl = '/' + newUrl;
-			}
-			req.url = newUrl;
+			req.url = url.replace(devRoot, devRootReplacement);
 			return next();
 		}
 
