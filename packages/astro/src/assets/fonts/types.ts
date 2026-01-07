@@ -27,7 +27,7 @@ export interface FontProvider {
 	 */
 	name: string;
 	/**
-	 * Optional serializable object passed to the unifont provider.
+	 * Optional serializable object used for deduplication.
 	 */
 	config?: Record<string, any> | undefined;
 	/**

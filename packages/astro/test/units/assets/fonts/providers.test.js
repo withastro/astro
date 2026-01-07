@@ -136,7 +136,7 @@ describe('fonts providers', () => {
 
 		it('computes the format correctly', () => {
 			const urlProxy = new SpyUrlProxy();
-			const { fonts } = resolveLocalFont({
+			const fonts = resolveLocalFont({
 				urlProxy,
 				fontTypeExtractor,
 				fontFileReader: new FontaceFontFileReader(),
@@ -184,7 +184,7 @@ describe('fonts providers', () => {
 		describe('properties inference', () => {
 			it('infers properties correctly', async () => {
 				const urlProxy = new SpyUrlProxy();
-				const { fonts } = resolveLocalFont({
+				const fonts = resolveLocalFont({
 					urlProxy,
 					fontTypeExtractor,
 					family: {
@@ -240,7 +240,7 @@ describe('fonts providers', () => {
 
 			it('respects what property should be inferred', async () => {
 				const urlProxy = new SpyUrlProxy();
-				const { fonts } = resolveLocalFont({
+				const fonts = resolveLocalFont({
 					urlProxy,
 					fontTypeExtractor,
 					family: {

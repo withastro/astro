@@ -38,8 +38,7 @@ import {
  * Manages how fonts are resolved:
  *
  * - families are resolved
- * - unifont providers are extracted from families
- * - unifont is initialized
+ * - font resolver is initialized
  *
  * For each family:
  * - We create a URL proxy
@@ -129,7 +128,7 @@ export async function orchestrate({
 	// First loop: we try to merge families. This is useful for advanced cases, where eg. you want
 	// 500, 600, 700 as normal but also 500 as italic. That requires 2 families
 	for (const family of resolvedFamilies) {
-		const key = `${family.cssVariable}:${family.name}:${typeof family.provider === 'string' ? family.provider : family.provider.name!}`;
+		const key = `${family.cssVariable}:${family.name}:${typeof family.provider === 'string' ? family.provider : family.provider.name}`;
 		let resolvedFamily = resolvedFamiliesMap.get(key);
 		if (!resolvedFamily) {
 			if (
@@ -186,21 +185,18 @@ export async function orchestrate({
 		});
 
 		if (family.provider === LOCAL_PROVIDER_NAME) {
-			const result = resolveLocalFont({
+			const fonts = resolveLocalFont({
 				family,
 				urlProxy,
 				fontTypeExtractor,
 				fontFileReader,
 			});
 			// URLs are already proxied at this point so no further processing is required
-			resolvedFamily.fonts.push(...result.fonts);
+			resolvedFamily.fonts.push(...fonts);
 		} else {
 			const fonts = await fontResolver.resolveFont({
 				familyName: family.name,
-				// By default, unifont goes through all providers. We use a different approach where
-				// we specify a provider per font. Name has been set while extracting unifont providers
-				// from families (inside extractUnifontProviders).
-				provider: family.provider.name!,
+				provider: family.provider.name,
 				// We do not merge the defaults, we only provide defaults as a fallback
 				weights: family.weights ?? defaults.weights,
 				styles: family.styles ?? defaults.styles,
@@ -212,7 +208,7 @@ export async function orchestrate({
 					'assets',
 					`No data found for font family ${bold(family.name)}. Review your configuration`,
 				);
-				const availableFamilies = await fontResolver.listFonts({ provider: family.provider.name! });
+				const availableFamilies = await fontResolver.listFonts({ provider: family.provider.name });
 				if (
 					availableFamilies &&
 					availableFamilies.length > 0 &&
