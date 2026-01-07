@@ -2,7 +2,7 @@ import type { FontFaceData, Provider } from 'unifont';
 import { createUnifont, type Unifont } from 'unifont';
 import { LOCAL_PROVIDER_NAME } from '../constants.js';
 import type { FontResolver, Hasher, Storage } from '../definitions.js';
-import type { AstroFontProviderResolveFontOptions, ResolvedFontFamily } from '../types.js';
+import type { ResolvedFontFamily, ResolveFontOptions } from '../types.js';
 
 type NonEmptyProviders = [Provider, ...Array<Provider>];
 
@@ -76,7 +76,7 @@ export class UnifontFontResolver implements FontResolver {
 		familyName,
 		provider,
 		...rest
-	}: AstroFontProviderResolveFontOptions & { provider: string }): Promise<Array<FontFaceData>> {
+	}: ResolveFontOptions & { provider: string }): Promise<Array<FontFaceData>> {
 		const { fonts } = await this.#unifont.resolveFont(familyName, rest, [provider]);
 		return fonts;
 	}
