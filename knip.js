@@ -32,6 +32,8 @@ export default {
 				'test/types/**/*',
 				'e2e/**/*.test.js',
 				'test/units/teardown.js',
+				// TODO: temporary, remove once we start using it
+				'test/test-environment.js',
 				// Can't detect this file when using inside a vite plugin
 				'src/vite-plugin-app/createAstroServerApp.ts',
 			],

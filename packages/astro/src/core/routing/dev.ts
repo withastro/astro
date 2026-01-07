@@ -12,7 +12,7 @@ import { isAstroError } from '../errors/errors.js';
 import type { RouteData } from '../../types/public/index.js';
 import type { RunnablePipeline } from '../../vite-plugin-app/pipeline.js';
 
-export interface MatchedRoute {
+interface MatchedRoute {
 	route: RouteData;
 	filePath: URL;
 	resolvedPathname: string;
