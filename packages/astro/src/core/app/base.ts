@@ -237,9 +237,11 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	 * A matching route function to use in the development server.
 	 * Contrary to the `.match` function, this function resolves props and params, returning the correct
 	 * route based on the priority, segments. It also returns the correct, resolved pathname.
-	 * @param _pathname
+	 * @param pathname
 	 */
-	public devMatch(_pathname?: string): Promise<DevMatch | undefined> | undefined {
+
+	public devMatch(pathname?: string): Promise<DevMatch | undefined> | undefined {
+		pathname;
 		return undefined;
 	}
 
