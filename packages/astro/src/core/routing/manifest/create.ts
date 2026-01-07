@@ -119,6 +119,7 @@ function createFileBasedRoutes(
 		...SUPPORTED_MARKDOWN_FILE_EXTENSIONS,
 		...settings.pageExtensions,
 	]);
+	const invalidPotentialPages = new Set<string>(['.tsx', '.jsx', '.vue', '.svelte']);
 	const validEndpointExtensions = new Set<string>(['.js', '.ts']);
 	const localFs = fsMod ?? nodeFs;
 	const prerender = getPrerenderDefault(settings.config);
@@ -146,12 +147,17 @@ function createFileBasedRoutes(
 			}
 			// filter out "foo.astro_tmp" files, etc
 			if (!isDir && !validPageExtensions.has(ext) && !validEndpointExtensions.has(ext)) {
-				logger.warn(
-					null,
-					`Unsupported file type ${colors.bold(
-						resolved,
-					)} found. Prefix filename with an underscore (\`_\`) to ignore.`,
-				);
+				
+				// Only warn for files that could potentially be interpreted by users has being possible extensions for pages
+				// It's otherwise not a problem for users to have other files in their pages directory, for instance colocated images.
+				if (invalidPotentialPages.has(ext)) {
+					logger.warn(
+						null,
+						`Unsupported file type ${colors.bold(
+							resolved,
+						)} found in pages directory. Only Astro files can be used as pages. Prefix filename with an underscore (\`_\`) to ignore this warning, or move the file outside of the pages directory.`,
+					);
+				}
 
 				continue;
 			}

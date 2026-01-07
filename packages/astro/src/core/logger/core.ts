@@ -178,7 +178,7 @@ export class Logger {
 	error(label: LoggerLabel | null, message: string, newLine = true) {
 		error(this.options, label, message, newLine);
 	}
-	debug(label: LoggerLabel, ...messages: any[]) {
+	debug(label: LoggerLabel | null, ...messages: any[]) {
 		debug(label, ...messages);
 	}
 
