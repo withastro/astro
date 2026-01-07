@@ -13,10 +13,20 @@ export function baseMiddleware(
 	logger: Logger,
 ): vite.Connect.NextHandleFunction {
 	const { config } = settings;
-	const site = config.site ? new URL(config.base, config.site) : undefined;
-	const devRootURL = new URL(config.base, 'http://localhost');
-	const devRoot = site ? site.pathname : devRootURL.pathname;
-	const devRootReplacement = devRoot.endsWith('/') ? '/' : '';
+	let devRoot: string;
+	let devRootReplacement: string;
+	let devRootURL: URL;
+	try {
+		const site = config.site ? new URL(config.base, config.site) : undefined;
+		devRootURL = new URL(config.base, 'http://localhost');
+		devRoot = site ? site.pathname : devRootURL.pathname;
+		devRootReplacement = devRoot.endsWith('/') ? '/' : '';
+	} catch {
+		// If base is invalid, default to '/'
+		devRootURL = new URL('/', 'http://localhost');
+		devRoot = '/';
+		devRootReplacement = '/';
+	}
 
 	return function devBaseMiddleware(req, res, next) {
 		const url = req.url!;
@@ -31,7 +41,8 @@ export function baseMiddleware(
 		if (pathname.startsWith(devRoot)) {
 			let newUrl = url.replace(devRoot, devRootReplacement);
 			// Ensure the URL is a valid path (e.g., /base?foo=bar -> /?foo=bar, not ?foo=bar)
-			if (newUrl !== '' && !newUrl.startsWith('/')) {
+			// Only apply fix when we actually stripped something (devRoot !== '/')
+			if (devRoot !== '/' && newUrl !== '' && !newUrl.startsWith('/')) {
 				newUrl = '/' + newUrl;
 			}
 			req.url = newUrl;
