@@ -7,7 +7,7 @@ interface Options {
 }
 
 function getCondition(enabled: boolean) {
-	return enabled ? "'enabled'" : "'disabled'";
+	return enabled ? "'enabled'" : "'maybe'";
 }
 
 export function syncInternals({ settings, routes }: Options) {

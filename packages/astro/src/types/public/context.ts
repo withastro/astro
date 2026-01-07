@@ -11,9 +11,7 @@ import type { AstroInstance, MarkdownInstance, MDXInstance } from './content.js'
 
 type ConditionalType<TValue, TCondition> = TCondition extends 'enabled'
 	? TValue
-	: TCondition extends 'disabled'
-		? undefined
-		: TValue | undefined;
+	: TValue | undefined;
 
 /**
  * Astro global available in all contexts in .astro files
@@ -533,82 +531,85 @@ export interface AstroSharedContext<
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/)
 	 */
-	csp: ConditionalType<{
-		/**
-		 * It adds a specific CSP directive to the route being rendered.
-		 *
-		 * @param {CspDirective} directive - The directive to add to the current page.
-		 *
-		 * ## Example
-		 *
-		 * ```js
-		 * ctx.insertDirective("default-src 'self' 'unsafe-inline' https://example.com")
-		 * ```
-		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertdirective)
-		 */
-		insertDirective: (directive: CspDirective) => void;
+	csp: ConditionalType<
+		{
+			/**
+			 * It adds a specific CSP directive to the route being rendered.
+			 *
+			 * @param {CspDirective} directive - The directive to add to the current page.
+			 *
+			 * ## Example
+			 *
+			 * ```js
+			 * ctx.insertDirective("default-src 'self' 'unsafe-inline' https://example.com")
+			 * ```
+			 *
+			 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertdirective)
+			 */
+			insertDirective: (directive: CspDirective) => void;
 
-		/**
-		 * It set the resource for the directive `style-src` in the route being rendered. It overrides Astro's default.
-		 *
-		 * @param {string} payload - The source to insert in the `style-src` directive.
-		 *
-		 * ## Example
-		 *
-		 * ```js
-		 * ctx.insertStyleResource("https://styles.cdn.example.com/")
-		 * ```
-		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstyleresource)
-		 */
-		insertStyleResource: (payload: string) => void;
+			/**
+			 * It set the resource for the directive `style-src` in the route being rendered. It overrides Astro's default.
+			 *
+			 * @param {string} payload - The source to insert in the `style-src` directive.
+			 *
+			 * ## Example
+			 *
+			 * ```js
+			 * ctx.insertStyleResource("https://styles.cdn.example.com/")
+			 * ```
+			 *
+			 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstyleresource)
+			 */
+			insertStyleResource: (payload: string) => void;
 
-		/**
-		 * Insert a single style hash to the route being rendered.
-		 *
-		 * @param {CspHash} hash - The hash to insert in the `style-src` directive.
-		 *
-		 * ## Example
-		 *
-		 * ```js
-		 * ctx.insertStyleHash("sha256-1234567890abcdef1234567890")
-		 * ```
-		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstylehash)
-		 */
-		insertStyleHash: (hash: CspHash) => void;
+			/**
+			 * Insert a single style hash to the route being rendered.
+			 *
+			 * @param {CspHash} hash - The hash to insert in the `style-src` directive.
+			 *
+			 * ## Example
+			 *
+			 * ```js
+			 * ctx.insertStyleHash("sha256-1234567890abcdef1234567890")
+			 * ```
+			 *
+			 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstylehash)
+			 */
+			insertStyleHash: (hash: CspHash) => void;
 
-		/**
-		 * It set the resource for the directive `script-src` in the route being rendered.
-		 *
-		 * @param {string} resource - The source to insert in the `script-src` directive.
-		 *
-		 * ## Example
-		 *
-		 * ```js
-		 * ctx.insertScriptResource("https://scripts.cdn.example.com/")
-		 * ```
-		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscriptresource)
-		 */
-		insertScriptResource: (resource: string) => void;
+			/**
+			 * It set the resource for the directive `script-src` in the route being rendered.
+			 *
+			 * @param {string} resource - The source to insert in the `script-src` directive.
+			 *
+			 * ## Example
+			 *
+			 * ```js
+			 * ctx.insertScriptResource("https://scripts.cdn.example.com/")
+			 * ```
+			 *
+			 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscriptresource)
+			 */
+			insertScriptResource: (resource: string) => void;
 
-		/**
-		 * Insert a single script hash to the route being rendered.
-		 *
-		 * @param {CspHash} hash - The hash to insert in the `script-src` directive.
-		 *
-		 * ## Example
-		 *
-		 * ```js
-		 * ctx.insertScriptHash("sha256-1234567890abcdef1234567890")
-		 * ```
-		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscripthash)
-		 */
-		insertScriptHash: (hash: CspHash) => void;
-	}, AstroInternals.Csp>;
+			/**
+			 * Insert a single script hash to the route being rendered.
+			 *
+			 * @param {CspHash} hash - The hash to insert in the `script-src` directive.
+			 *
+			 * ## Example
+			 *
+			 * ```js
+			 * ctx.insertScriptHash("sha256-1234567890abcdef1234567890")
+			 * ```
+			 *
+			 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscripthash)
+			 */
+			insertScriptHash: (hash: CspHash) => void;
+		},
+		AstroInternals.Csp
+	>;
 
 	/**
 	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.
