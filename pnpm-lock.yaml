@@ -4977,6 +4977,19 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/cloudflare/test/fixtures/routing-priority:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+    devDependencies:
+      wrangler:
+        specifier: 4.54.0
+        version: 4.54.0(@cloudflare/workers-types@4.20260101.0)
+
   packages/integrations/cloudflare/test/fixtures/sessions:
     dependencies:
       '@astrojs/cloudflare':

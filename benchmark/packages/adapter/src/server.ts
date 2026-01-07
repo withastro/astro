@@ -9,6 +9,10 @@ class MyApp extends BaseApp {
 		this.#manifest = manifest;
 	}
 
+	isDev(): boolean {
+		return false;
+	}
+
 	async render(request: Request) {
 		const url = new URL(request.url);
 		if (this.#manifest?.assets.has(url.pathname)) {

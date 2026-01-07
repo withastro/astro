@@ -8,6 +8,7 @@ import type {
 import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from '../utils/env.js';
+import type { RouteData } from 'astro';
 
 export type Env = {
 	[key: string]: unknown;
@@ -45,7 +46,18 @@ export async function handle(
 		return env.ASSETS.fetch(request.url.replace(/\.html$/, ''));
 	}
 
-	const routeData = app.match(request as Request & Parameters<ExportedHandlerFetchHandler>[0]);
+	let routeData: RouteData | undefined = undefined;
+	if (app.isDev()) {
+		const result = await app.devMatch(
+			app.getPathnameFromRequest(request as Request & Parameters<ExportedHandlerFetchHandler>[0]),
+		);
+		if (result) {
+			routeData = result.routeData;
+		}
+	} else {
+		routeData = app.match(request as Request & Parameters<ExportedHandlerFetchHandler>[0]);
+	}
+
 	if (!routeData) {
 		// https://developers.cloudflare.com/pages/functions/api-reference/#envassetsfetch
 		const asset = await env.ASSETS.fetch(

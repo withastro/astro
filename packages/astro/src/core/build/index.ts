@@ -21,7 +21,7 @@ import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../encryption.j
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
-import { createRoutesList } from '../routing/index.js';
+import { createRoutesList } from '../routing/manifest/create.js';
 import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
