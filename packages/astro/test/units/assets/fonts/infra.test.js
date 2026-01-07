@@ -1,6 +1,7 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { defineFontProvider } from 'unifont';
 import { BuildUrlProxyHashResolver } from '../../../../dist/assets/fonts/infra/build-url-proxy-hash-resolver.js';
 import { BuildUrlResolver } from '../../../../dist/assets/fonts/infra/build-url-resolver.js';
 import { CachedFontFetcher } from '../../../../dist/assets/fonts/infra/cached-font-fetcher.js';
@@ -664,6 +665,133 @@ describe('fonts infra', () => {
 					'test-{"name":"test","x":"foo"}',
 					'test-{"name":"test","x":"bar"}',
 				]);
+			});
+		});
+
+		describe('static astroToUnifontProvider()', () => {
+			it('works with a minimal provider', async () => {
+				const providerFactory = UnifontFontResolver.astroToUnifontProvider({
+					name: 'test',
+					resolveFont: () => ({
+						fonts: [
+							{
+								src: [{ name: 'foo' }],
+							},
+						],
+					}),
+				});
+				assert.equal(providerFactory._name, 'test');
+				const provider = await providerFactory({ storage: new SpyStorage() });
+				assert.deepStrictEqual(
+					await provider?.resolveFont('', {
+						formats: [],
+						styles: [],
+						subsets: [],
+						weights: [],
+					}),
+					{
+						fonts: [
+							{
+								src: [{ name: 'foo' }],
+							},
+						],
+					},
+				);
+			});
+
+			it('forwards the config', () => {
+				const providerFactory = UnifontFontResolver.astroToUnifontProvider({
+					name: 'test',
+					config: {
+						foo: 'bar',
+					},
+					resolveFont: () => undefined,
+				});
+				assert.equal(providerFactory._name, 'test');
+				assert.deepStrictEqual(providerFactory._options, {
+					foo: 'bar',
+				});
+			});
+
+			it('handles init()', async () => {
+				let ran = false;
+
+				const providerFactory = UnifontFontResolver.astroToUnifontProvider({
+					name: 'test',
+					init: () => {
+						ran = true;
+					},
+					resolveFont: () => undefined,
+				});
+				await providerFactory({ storage: new SpyStorage() });
+				assert.equal(ran, true);
+			});
+
+			it('handles listFonts()', async () => {
+				const providerFactory = UnifontFontResolver.astroToUnifontProvider({
+					name: 'test',
+					resolveFont: () => undefined,
+					listFonts: () => ['a', 'b', 'c'],
+				});
+				assert.equal(providerFactory._name, 'test');
+				const provider = await providerFactory({ storage: new SpyStorage() });
+				assert.deepStrictEqual(await provider?.listFonts?.(), ['a', 'b', 'c']);
+			});
+
+			it('handles unifont > astro > unifont', async () => {
+				let ran = false;
+				const unifontProvider = defineFontProvider('test', async () => {
+					ran = true;
+					return {
+						resolveFont: () => ({
+							fonts: [
+								{
+									src: [{ name: 'foo' }],
+								},
+							],
+						}),
+						listFonts: () => ['a', 'b', 'c'],
+					};
+				});
+				/** @returns {import('../../../../dist/index.js').FontProvider} */
+				const astroProvider = () => {
+					const provider = unifontProvider();
+					/** @type {import('unifont').InitializedProvider | undefined} */
+					let initializedProvider;
+					return {
+						name: provider._name,
+						async init(context) {
+							initializedProvider = await provider(context);
+						},
+						async resolveFont({ familyName, ...rest }) {
+							return await initializedProvider?.resolveFont(familyName, rest);
+						},
+						async listFonts() {
+							return await initializedProvider?.listFonts?.();
+						},
+					};
+				};
+
+				const providerFactory = UnifontFontResolver.astroToUnifontProvider(astroProvider());
+				assert.equal(providerFactory._name, 'test');
+				const provider = await providerFactory({ storage: new SpyStorage() });
+				assert.equal(ran, true);
+				assert.deepStrictEqual(
+					await provider?.resolveFont('', {
+						formats: [],
+						styles: [],
+						subsets: [],
+						weights: [],
+					}),
+					{
+						fonts: [
+							{
+								src: [{ name: 'foo' }],
+							},
+						],
+					},
+				);
+				assert.deepStrictEqual(await provider?.listFonts?.(), ['a', 'b', 'c']);
 			});
 		});
 

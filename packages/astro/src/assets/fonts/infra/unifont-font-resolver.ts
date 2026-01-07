@@ -14,7 +14,7 @@ export class UnifontFontResolver implements FontResolver {
 	}
 
 	static astroToUnifontProvider(astroProvider: FontProvider): Provider {
-		return defineFontProvider(astroProvider.name, async (_options, ctx) => {
+		return defineFontProvider(astroProvider.name, async (_options: any, ctx) => {
 			await astroProvider?.init?.(ctx);
 			return {
 				async resolveFont(familyName, options) {
@@ -24,7 +24,7 @@ export class UnifontFontResolver implements FontResolver {
 					return astroProvider.listFonts?.();
 				},
 			};
-		})();
+		})(astroProvider.config);
 	}
 
 	static extractUnifontProviders({
