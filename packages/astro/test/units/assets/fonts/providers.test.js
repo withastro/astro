@@ -3,29 +3,18 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { RealFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
 import { FontaceFontFileReader } from '../../../../dist/assets/fonts/infra/fontace-font-file-reader.js';
-import * as adobeEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/adobe.js';
-import * as bunnyEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/bunny.js';
-import * as fontshareEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontshare.js';
-import * as fontsourceEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontsource.js';
-import * as googleEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/google.js';
 import { resolveLocalFont } from '../../../../dist/assets/fonts/providers/local.js';
 import { fontProviders } from '../../../../dist/config/entrypoint.js';
 import { SpyUrlProxy } from './utils.js';
 
 describe('fonts providers', () => {
 	describe('config objects', () => {
-		it('references the right entrypoints', () => {
-			assert.equal(
-				fontProviders.adobe({ id: '' }).entrypoint,
-				'astro/assets/fonts/providers/adobe',
-			);
-			assert.equal(fontProviders.bunny().entrypoint, 'astro/assets/fonts/providers/bunny');
-			assert.equal(fontProviders.fontshare().entrypoint, 'astro/assets/fonts/providers/fontshare');
-			assert.equal(
-				fontProviders.fontsource().entrypoint,
-				'astro/assets/fonts/providers/fontsource',
-			);
-			assert.equal(fontProviders.google().entrypoint, 'astro/assets/fonts/providers/google');
+		it('references the right names', () => {
+			assert.equal(fontProviders.adobe({ id: '' }).name, 'adobe');
+			assert.equal(fontProviders.bunny().name, 'bunny');
+			assert.equal(fontProviders.fontshare().name, 'fontshare');
+			assert.equal(fontProviders.fontsource().name, 'fontsource');
+			assert.equal(fontProviders.google().name, 'google');
 		});
 
 		it('forwards the config', () => {
@@ -33,29 +22,6 @@ describe('fonts providers', () => {
 				id: 'foo',
 			});
 		});
-	});
-
-	it('providers are correctly exported', () => {
-		assert.equal(
-			'provider' in adobeEntrypoint && typeof adobeEntrypoint.provider === 'function',
-			true,
-		);
-		assert.equal(
-			'provider' in bunnyEntrypoint && typeof bunnyEntrypoint.provider === 'function',
-			true,
-		);
-		assert.equal(
-			'provider' in fontshareEntrypoint && typeof fontshareEntrypoint.provider === 'function',
-			true,
-		);
-		assert.equal(
-			'provider' in fontsourceEntrypoint && typeof fontsourceEntrypoint.provider === 'function',
-			true,
-		);
-		assert.equal(
-			'provider' in googleEntrypoint && typeof googleEntrypoint.provider === 'function',
-			true,
-		);
 	});
 
 	describe('resolveLocalFont()', () => {

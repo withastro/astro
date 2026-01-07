@@ -533,8 +533,16 @@ describe('fonts infra', () => {
 	});
 
 	describe('UnifontFontResolver', () => {
-		const createProvider = (/** @type {string} */ name) => () =>
-			Object.assign(() => undefined, { _name: name, _options: undefined });
+		/**
+		 * @param {string} name
+		 * @param {any} [config]
+		 * @returns {import('../../../../dist/index.js').FontProvider}
+		 * */
+		const createProvider = (name, config) => ({
+			name,
+			config,
+			resolveFont: () => undefined,
+		});
 
 		describe('static extractUnifontProviders()', () => {
 			/** @param {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} families */
@@ -588,9 +596,7 @@ describe('fonts infra', () => {
 						name: 'Custom',
 						nameWithHash: 'Custom-xxx',
 						cssVariable: '--custom',
-						provider: {
-							provider: createProvider('test'),
-						},
+						provider: createProvider('test'),
 					},
 				]);
 				fixture.assertProvidersLength(1);
@@ -603,17 +609,13 @@ describe('fonts infra', () => {
 						name: 'Foo',
 						nameWithHash: 'Foo-xxx',
 						cssVariable: '--custom',
-						provider: {
-							provider: createProvider('test'),
-						},
+						provider: createProvider('test'),
 					},
 					{
 						name: 'Bar',
 						nameWithHash: 'Bar-xxx',
 						cssVariable: '--custom',
-						provider: {
-							provider: createProvider('test'),
-						},
+						provider: createProvider('test'),
 					},
 				]);
 				fixture.assertProvidersLength(1);
@@ -626,19 +628,13 @@ describe('fonts infra', () => {
 						name: 'Foo',
 						nameWithHash: 'Foo-xxx',
 						cssVariable: '--custom',
-						provider: {
-							provider: createProvider('test'),
-							config: { x: 'y' },
-						},
+						provider: createProvider('test', { x: 'y' }),
 					},
 					{
 						name: 'Bar',
 						nameWithHash: 'Bar-xxx',
 						cssVariable: '--custom',
-						provider: {
-							provider: createProvider('test'),
-							config: { x: 'y' },
-						},
+						provider: createProvider('test', { x: 'y' }),
 					},
 				]);
 				fixture.assertProvidersLength(1);
@@ -654,23 +650,13 @@ describe('fonts infra', () => {
 						name: 'Foo',
 						nameWithHash: 'Foo-xxx',
 						cssVariable: '--custom',
-						provider: {
-							provider: createProvider('test'),
-							config: {
-								x: 'foo',
-							},
-						},
+						provider: createProvider('test', { x: 'foo' }),
 					},
 					{
 						name: 'Bar',
 						nameWithHash: 'Bar-xxx',
 						cssVariable: '--custom',
-						provider: {
-							provider: createProvider('test'),
-							config: {
-								x: 'bar',
-							},
-						},
+						provider: createProvider('test', { x: 'bar' }),
 					},
 				]);
 				fixture.assertProvidersLength(2);
@@ -689,17 +675,8 @@ describe('fonts infra', () => {
 						nameWithHash: 'Foo-xxx',
 						cssVariable: '--foo',
 						provider: {
-							provider: () =>
-								Object.assign(
-									() => {
-										return {
-											resolveFont: async () => {
-												return undefined;
-											},
-										};
-									},
-									{ _name: 'foo', _options: undefined },
-								),
+							name: 'foo',
+							resolveFont: () => undefined,
 						},
 					},
 					{
@@ -707,23 +684,14 @@ describe('fonts infra', () => {
 						nameWithHash: 'Bar-xxx',
 						cssVariable: '--bar',
 						provider: {
-							provider: () =>
-								Object.assign(
-									() => {
-										return {
-											resolveFont: async () => {
-												return {
-													fonts: [
-														{
-															src: [{ name: 'Bar' }],
-														},
-													],
-												};
-											},
-										};
+							name: 'bar',
+							resolveFont: () => ({
+								fonts: [
+									{
+										src: [{ name: 'Bar' }],
 									},
-									{ _name: 'bar', _options: undefined },
-								),
+								],
+							}),
 						},
 					},
 				],
@@ -734,10 +702,10 @@ describe('fonts infra', () => {
 				await fontResolver.resolveFont({
 					familyName: 'Foo',
 					provider: 'foo-{"name":"foo"}',
-					weights: undefined,
-					styles: undefined,
-					subsets: undefined,
-					formats: undefined,
+					weights: [],
+					styles: [],
+					subsets: [],
+					formats: [],
 				}),
 				[],
 			);
@@ -745,10 +713,10 @@ describe('fonts infra', () => {
 				await fontResolver.resolveFont({
 					familyName: 'Bar',
 					provider: 'bar-{"name":"bar"}',
-					weights: undefined,
-					styles: undefined,
-					subsets: undefined,
-					formats: undefined,
+					weights: [],
+					styles: [],
+					subsets: [],
+					formats: [],
 				}),
 				[
 					{
@@ -766,17 +734,8 @@ describe('fonts infra', () => {
 						nameWithHash: 'Foo-xxx',
 						cssVariable: '--foo',
 						provider: {
-							provider: () =>
-								Object.assign(
-									() => {
-										return {
-											resolveFont: async () => {
-												return undefined;
-											},
-										};
-									},
-									{ _name: 'foo', _options: undefined },
-								),
+							name: 'foo',
+							resolveFont: () => undefined,
 						},
 					},
 					{
@@ -784,18 +743,9 @@ describe('fonts infra', () => {
 						nameWithHash: 'Bar-xxx',
 						cssVariable: '--bar',
 						provider: {
-							provider: () =>
-								Object.assign(
-									() => {
-										return {
-											resolveFont: async () => {
-												return undefined;
-											},
-											listFonts: async () => ['a', 'b', 'c'],
-										};
-									},
-									{ _name: 'bar', _options: undefined },
-								),
+							name: 'bar',
+							resolveFont: () => undefined,
+							listFonts: () => ['a', 'b', 'c'],
 						},
 					},
 				],

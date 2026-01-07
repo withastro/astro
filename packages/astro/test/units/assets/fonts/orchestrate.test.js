@@ -2,10 +2,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { defineFontProvider } from 'unifont';
 import { joinPaths } from '../../../../../internal-helpers/dist/path.js';
 import { DEFAULTS } from '../../../../dist/assets/fonts/constants.js';
-import { BuildRemoteFontProviderModResolver } from '../../../../dist/assets/fonts/infra/build-remote-font-provider-mod-resolver.js';
 import { BuildUrlProxyHashResolver } from '../../../../dist/assets/fonts/infra/build-url-proxy-hash-resolver.js';
 import { RealDataCollector } from '../../../../dist/assets/fonts/infra/data-collector.js';
 import { DevUrlResolver } from '../../../../dist/assets/fonts/infra/dev-url-resolver.js';
@@ -13,7 +11,6 @@ import { RealFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-
 import { FontaceFontFileReader } from '../../../../dist/assets/fonts/infra/fontace-font-file-reader.js';
 import { LevenshteinStringMatcher } from '../../../../dist/assets/fonts/infra/levenshtein-string-matcher.js';
 import { MinifiableCssRenderer } from '../../../../dist/assets/fonts/infra/minifiable-css-renderer.js';
-import { RealRemoteFontProviderResolver } from '../../../../dist/assets/fonts/infra/remote-font-provider-resolver.js';
 import { RemoteUrlProxyContentResolver } from '../../../../dist/assets/fonts/infra/remote-url-proxy-content-resolver.js';
 import { RequireLocalProviderUrlResolver } from '../../../../dist/assets/fonts/infra/require-local-provider-url-resolver.js';
 import { RealSystemFallbacksProvider } from '../../../../dist/assets/fonts/infra/system-fallbacks-provider.js';
@@ -48,10 +45,6 @@ describe('fonts orchestrate()', () => {
 				},
 			],
 			hasher,
-			remoteFontProviderResolver: new RealRemoteFontProviderResolver({
-				root,
-				modResolver: new BuildRemoteFontProviderModResolver(),
-			}),
 			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
 			createFontResolver: async ({ families }) => new PassthroughFontResolver({ families, hasher }),
 			cssRenderer: new MinifiableCssRenderer({ minify: true }),
@@ -134,33 +127,6 @@ describe('fonts orchestrate()', () => {
 	});
 
 	it('works with a remote provider', async () => {
-		const fakeUnifontProvider = defineFontProvider('test', () => {
-			return {
-				resolveFont: () => {
-					return {
-						fonts: [
-							{
-								src: [
-									{ url: 'https://example.com/foo.woff2' },
-									{ url: 'https://example.com/foo.woff' },
-								],
-								weight: '400',
-								style: 'normal',
-								meta: {
-									init: {
-										method: 'POST',
-									},
-								},
-							},
-						],
-					};
-				},
-			};
-		});
-		const fakeAstroProvider = {
-			entrypoint: 'test',
-		};
-
 		const root = new URL(import.meta.url);
 		const fontTypeExtractor = new RealFontTypeExtractor();
 		const hasher = new FakeHasher();
@@ -169,19 +135,30 @@ describe('fonts orchestrate()', () => {
 				{
 					name: 'Test',
 					cssVariable: '--test',
-					provider: fakeAstroProvider,
+					provider: {
+						name: 'test',
+						resolveFont: () => ({
+							fonts: [
+								{
+									src: [
+										{ url: 'https://example.com/foo.woff2' },
+										{ url: 'https://example.com/foo.woff' },
+									],
+									weight: '400',
+									style: 'normal',
+									meta: {
+										init: {
+											method: 'POST',
+										},
+									},
+								},
+							],
+						}),
+					},
 					fallbacks: ['serif'],
 				},
 			],
 			hasher,
-			remoteFontProviderResolver: new RealRemoteFontProviderResolver({
-				root,
-				modResolver: {
-					resolve: async () => ({
-						provider: fakeUnifontProvider,
-					}),
-				},
-			}),
 			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
 			createFontResolver: async ({ families }) => new PassthroughFontResolver({ families, hasher }),
 			cssRenderer: new MinifiableCssRenderer({ minify: true }),
@@ -268,17 +245,6 @@ describe('fonts orchestrate()', () => {
 	});
 
 	it('warns if remote provider does not return any font data', async () => {
-		const fakeUnifontProvider = defineFontProvider('test', () => {
-			return {
-				resolveFont: () => {
-					return undefined;
-				},
-			};
-		});
-		const fakeAstroProvider = {
-			entrypoint: 'test',
-		};
-
 		const root = new URL(import.meta.url);
 		const fontTypeExtractor = new RealFontTypeExtractor();
 		const hasher = new FakeHasher();
@@ -289,19 +255,14 @@ describe('fonts orchestrate()', () => {
 				{
 					name: 'Test',
 					cssVariable: '--test',
-					provider: fakeAstroProvider,
+					provider: {
+						name: 'test',
+						resolveFont: () => undefined,
+					},
 					fallbacks: ['serif'],
 				},
 			],
 			hasher,
-			remoteFontProviderResolver: new RealRemoteFontProviderResolver({
-				root,
-				modResolver: {
-					resolve: async () => ({
-						provider: fakeUnifontProvider,
-					}),
-				},
-			}),
 			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
 			createFontResolver: async ({ families }) => new PassthroughFontResolver({ families, hasher }),
 			cssRenderer: new MinifiableCssRenderer({ minify: true }),
@@ -338,18 +299,6 @@ describe('fonts orchestrate()', () => {
 	});
 
 	it('warns if remote provider does not support given font family name', async () => {
-		const fakeUnifontProvider = defineFontProvider('test', () => {
-			return {
-				resolveFont: () => {
-					return undefined;
-				},
-				listFonts: async () => ['Testi', 'XYZ'],
-			};
-		});
-		const fakeAstroProvider = {
-			entrypoint: 'test',
-		};
-
 		const root = new URL(import.meta.url);
 		const fontTypeExtractor = new RealFontTypeExtractor();
 		const hasher = new FakeHasher();
@@ -360,19 +309,15 @@ describe('fonts orchestrate()', () => {
 				{
 					name: 'Test',
 					cssVariable: '--test',
-					provider: fakeAstroProvider,
+					provider: {
+						name: 'test',
+						resolveFont: () => undefined,
+						listFonts: async () => ['Testi', 'XYZ'],
+					},
 					fallbacks: ['serif'],
 				},
 			],
 			hasher,
-			remoteFontProviderResolver: new RealRemoteFontProviderResolver({
-				root,
-				modResolver: {
-					resolve: async () => ({
-						provider: fakeUnifontProvider,
-					}),
-				},
-			}),
 			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
 			createFontResolver: async ({ families }) => new PassthroughFontResolver({ families, hasher }),
 			cssRenderer: new MinifiableCssRenderer({ minify: true }),
@@ -415,24 +360,18 @@ describe('fonts orchestrate()', () => {
 	});
 
 	it('warns if conflicting unmergeable families exist', async () => {
-		const fakeUnifontProvider = defineFontProvider('test', () => {
-			return {
-				resolveFont: () => {
-					return {
-						fonts: [
-							{
-								src: [
-									{ url: 'https://example.com/foo.woff2' },
-									{ url: 'https://example.com/foo.woff' },
-								],
-							},
+		const provider = {
+			name: 'test',
+			resolveFont: () => ({
+				fonts: [
+					{
+						src: [
+							{ url: 'https://example.com/foo.woff2' },
+							{ url: 'https://example.com/foo.woff' },
 						],
-					};
-				},
-			};
-		});
-		const fakeAstroProvider = {
-			entrypoint: 'test',
+					},
+				],
+			}),
 		};
 
 		const root = new URL(import.meta.url);
@@ -445,25 +384,17 @@ describe('fonts orchestrate()', () => {
 				{
 					name: 'Test',
 					cssVariable: '--test',
-					provider: fakeAstroProvider,
+					provider,
 					fallbacks: ['serif'],
 				},
 				{
 					name: 'Foo',
 					cssVariable: '--test',
-					provider: fakeAstroProvider,
+					provider,
 					fallbacks: ['serif'],
 				},
 			],
 			hasher,
-			remoteFontProviderResolver: new RealRemoteFontProviderResolver({
-				root,
-				modResolver: {
-					resolve: async () => ({
-						provider: fakeUnifontProvider,
-					}),
-				},
-			}),
 			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
 			createFontResolver: async ({ families }) => new PassthroughFontResolver({ families, hasher }),
 			cssRenderer: new MinifiableCssRenderer({ minify: true }),
@@ -507,24 +438,18 @@ describe('fonts orchestrate()', () => {
 	});
 
 	it('does not if mergeable families exist', async () => {
-		const fakeUnifontProvider = defineFontProvider('test', () => {
-			return {
-				resolveFont: () => {
-					return {
-						fonts: [
-							{
-								src: [
-									{ url: 'https://example.com/foo.woff2' },
-									{ url: 'https://example.com/foo.woff' },
-								],
-							},
+		const provider = {
+			name: 'test',
+			resolveFont: () => ({
+				fonts: [
+					{
+						src: [
+							{ url: 'https://example.com/foo.woff2' },
+							{ url: 'https://example.com/foo.woff' },
 						],
-					};
-				},
-			};
-		});
-		const fakeAstroProvider = {
-			entrypoint: 'test',
+					},
+				],
+			}),
 		};
 
 		const root = new URL(import.meta.url);
@@ -537,25 +462,17 @@ describe('fonts orchestrate()', () => {
 				{
 					name: 'Test',
 					cssVariable: '--test',
-					provider: fakeAstroProvider,
+					provider,
 					fallbacks: ['serif'],
 				},
 				{
 					name: 'Test',
 					cssVariable: '--test',
-					provider: fakeAstroProvider,
+					provider,
 					fallbacks: ['serif'],
 				},
 			],
 			hasher,
-			remoteFontProviderResolver: new RealRemoteFontProviderResolver({
-				root,
-				modResolver: {
-					resolve: async () => ({
-						provider: fakeUnifontProvider,
-					}),
-				},
-			}),
 			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
 			createFontResolver: async ({ families }) => new PassthroughFontResolver({ families, hasher }),
 			cssRenderer: new MinifiableCssRenderer({ minify: true }),
