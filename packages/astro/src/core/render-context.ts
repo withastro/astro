@@ -28,7 +28,7 @@ import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
 import { getCookiesFromResponse } from './cookies/response.js';
 import { pushDirective } from './csp/runtime.js';
 import { generateCspDigest } from './encryption.js';
-import { CspNotEnabled, ForbiddenRewrite } from './errors/errors-data.js';
+import { ForbiddenRewrite } from './errors/errors-data.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
@@ -458,11 +458,15 @@ export class RenderContext {
 				return renderContext.session;
 			},
 			get csp(): APIContext['csp'] {
+				if (!pipeline.manifest.csp) {
+					pipeline.logger.warn(
+						'csp',
+						`context.csp was used when rendering the route ${colors.green(this.routePattern)}, but CSP was not configured. For more information, see https://docs.astro.build/en/reference/experimental-flags/csp/`,
+					);
+					return undefined;
+				}
 				return {
 					insertDirective(payload) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
 						if (renderContext?.result?.directives) {
 							renderContext.result.directives = pushDirective(
 								renderContext.result.directives,
@@ -472,30 +476,16 @@ export class RenderContext {
 							renderContext?.result?.directives.push(payload);
 						}
 					},
-
 					insertScriptResource(resource) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
 						renderContext.result?.scriptResources.push(resource);
 					},
 					insertStyleResource(resource) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
-
 						renderContext.result?.styleResources.push(resource);
 					},
 					insertStyleHash(hash) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
 						renderContext.result?.styleHashes.push(hash);
 					},
 					insertScriptHash(hash) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
 						renderContext.result?.scriptHashes.push(hash);
 					},
 				};
@@ -735,12 +725,15 @@ export class RenderContext {
 				return getOriginPathname(renderContext.request);
 			},
 			get csp(): APIContext['csp'] {
+				if (!pipeline.manifest.csp) {
+					pipeline.logger.warn(
+						'csp',
+						`Astro.csp was used when rendering the route ${colors.green(this.routePattern)}, but CSP was not configured. For more information, see https://docs.astro.build/en/reference/experimental-flags/csp/`,
+					);
+					return undefined;
+				}
 				return {
 					insertDirective(payload) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
-
 						if (renderContext?.result?.directives) {
 							renderContext.result.directives = pushDirective(
 								renderContext.result.directives,
@@ -750,30 +743,16 @@ export class RenderContext {
 							renderContext?.result?.directives.push(payload);
 						}
 					},
-
 					insertScriptResource(resource) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
 						renderContext.result?.scriptResources.push(resource);
 					},
 					insertStyleResource(resource) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
-
 						renderContext.result?.styleResources.push(resource);
 					},
 					insertStyleHash(hash) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
 						renderContext.result?.styleHashes.push(hash);
 					},
 					insertScriptHash(hash) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
 						renderContext.result?.scriptHashes.push(hash);
 					},
 				};
