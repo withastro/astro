@@ -2,9 +2,13 @@
 '@astrojs/cloudflare': major
 ---
 
-Drops official support for [Cloudflare Pages](https://developers.cloudflare.com/pages/). You can still deploy your Astro project to Cloudflare Pages using a manual approach. To convert your current project use the following steps. Cloudflare Pages to Cloudflare WOrkers migration guide can be found on the [Cloudflare docs](https://developers.cloudflare.com/workers/static-assets/migration-guides/migrate-from-pages/)
+Drops official support for Cloudflare Pages in favor of Cloudflare Workers
 
-1. Update your Astro config to output to the correct directory structure:
+The Astro Cloudflare adapter now only supports deployment to Cloudflare Workers by default in order to comply with Cloudflare's recommendations for new projects. If you are currently deploying to Cloudflare Pages, consider [migrating to Workers by following the Cloudflare guide](https://developers.cloudflare.com/workers/static-assets/migration-guides/migrate-from-pages/) for an optimal experience and full feature support.
+
+You can still opt in to deploy to [Cloudflare Pages](https://developers.cloudflare.com/pages/) by manually updating your project:
+
+1. Configure your build output directories and image service in `astro.config.mjs`:
 
 ```diff
 export default defineConfig({
