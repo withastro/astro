@@ -4868,9 +4868,7 @@ importers:
       vite:
         specifier: ^7.1.12
         version: 7.3.1(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.1)(tsx@4.21.0)(yaml@2.8.2)
-      wrangler:
-        specifier: 4.53.0
-        version: 4.53.0(@cloudflare/workers-types@4.20260101.0)
+
     devDependencies:
       astro:
         specifier: workspace:*
