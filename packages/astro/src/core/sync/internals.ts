@@ -19,6 +19,7 @@ export function syncInternals({ settings, routes }: Options) {
 	export type Session = ${getCondition(!!settings.config.session?.driver)};
 	export type I18n = ${getCondition(!!settings.config.i18n)};
 	${settings.config.i18n ? `export type I18nLocale = (${JSON.stringify(settings.config.i18n.locales)})[number];` : ''}
+	export type Csp = ${getCondition(!!settings.config.experimental.csp)};
 }`,
 	});
 }

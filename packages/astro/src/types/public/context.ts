@@ -370,7 +370,7 @@ export interface AstroSharedContext<
 	/**
 	 * It exposes utilities to control CSP headers
 	 */
-	csp: AstroSharedContextCsp;
+	csp: ConditionalType<AstroSharedContextCsp, AstroInternals.Csp>;
 }
 
 export type AstroSharedContextCsp = {
