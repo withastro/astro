@@ -145,6 +145,17 @@ export function chunkToByteArray(
 	}
 }
 
+export function chunkToByteArrayOrString(
+	result: SSRResult,
+	chunk: Exclude<RenderDestinationChunk, Response>,
+): Uint8Array | string {
+	if (ArrayBuffer.isView(chunk)) {
+		return chunk as Uint8Array;
+	} else {
+		return stringifyChunk(result, chunk).toString();
+	}
+}
+
 export function isRenderInstance(obj: unknown): obj is RenderInstance {
 	return !!obj && typeof obj === 'object' && 'render' in obj && typeof obj.render === 'function';
 }

@@ -1,41 +1,41 @@
 import type { providers } from 'unifont';
-import type { AstroFontProvider } from '../types.js';
+import type { FontProvider } from '../types.js';
 
 /** [Adobe](https://fonts.adobe.com/) */
-function adobe(config: Parameters<typeof providers.adobe>[0]) {
-	return defineAstroFontProvider({
+function adobe(config: Parameters<typeof providers.adobe>[0]): FontProvider {
+	return {
 		entrypoint: 'astro/assets/fonts/providers/adobe',
 		config,
-	});
+	};
 }
 
 /** [Bunny](https://fonts.bunny.net/) */
-function bunny() {
-	return defineAstroFontProvider({
+function bunny(): FontProvider {
+	return {
 		entrypoint: 'astro/assets/fonts/providers/bunny',
-	});
+	};
 }
 
 /** [Fontshare](https://www.fontshare.com/) */
-function fontshare() {
-	return defineAstroFontProvider({
+function fontshare(): FontProvider {
+	return {
 		entrypoint: 'astro/assets/fonts/providers/fontshare',
-	});
+	};
 }
 
 /** [Fontsource](https://fontsource.org/) */
-function fontsource() {
-	return defineAstroFontProvider({
+function fontsource(): FontProvider {
+	return {
 		entrypoint: 'astro/assets/fonts/providers/fontsource',
-	});
+	};
 }
 
 /** [Google](https://fonts.google.com/) */
-function google(config?: Parameters<typeof providers.google>[0]) {
-	return defineAstroFontProvider({
+function google(config?: Parameters<typeof providers.google>[0]): FontProvider {
+	return {
 		entrypoint: 'astro/assets/fonts/providers/google',
 		config,
-	});
+	};
 }
 
 /**
@@ -53,8 +53,3 @@ export const fontProviders = {
 	fontsource,
 	google,
 };
-
-/** A type helper for defining Astro font providers config objects */
-export function defineAstroFontProvider(provider: AstroFontProvider) {
-	return provider;
-}
