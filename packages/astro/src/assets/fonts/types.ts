@@ -23,19 +23,19 @@ type Awaitable<T> = T | Promise<T>;
 
 export interface FontProvider {
 	/**
-	 * TODO:
+	 * The font provider name, used for display and deduplication.
 	 */
 	name: string;
 	/**
-	 * Optional serializable object used for deduplication.
+	 * Optional serializable object, used for deduplication.
 	 */
 	config?: Record<string, any> | undefined;
 	/**
-	 * TODO:
+	 * Optional callback, used to perform any initialization logic.
 	 */
 	init?: ((context: FontProviderInitContext) => Awaitable<void>) | undefined;
 	/**
-	 * TODO:
+	 * Required callback, used to retrieve and return font face data based on the given options.
 	 */
 	resolveFont: (options: ResolveFontOptions) => Awaitable<
 		| {
@@ -44,7 +44,7 @@ export interface FontProvider {
 		| undefined
 	>;
 	/**
-	 * TODO:
+	 * Optional callback, used to return the list of available font names.
 	 */
 	listFonts?: (() => Awaitable<Array<string> | undefined>) | undefined;
 }
