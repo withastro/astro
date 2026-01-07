@@ -252,7 +252,7 @@
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.9.0",
-    "@types/vscode": "^1.107.0",
+    "@types/vscode": "^1.90.0",
     "@volar/language-server": "~2.4.27",
     "@volar/vscode": "~2.4.27",
     "@vscode/test-electron": "^2.5.2",
