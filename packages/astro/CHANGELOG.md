@@ -1,5 +1,73 @@
 # astro
 
+## 5.16.6
+
+### Patch Changes
+
+- [#14982](https://github.com/withastro/astro/pull/14982) [`6849e38`](https://github.com/withastro/astro/commit/6849e3844d940f76b544822e7bd247641d61567d) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes images outside the project directory not working when using astro:assets in development mode
+
+- [#14987](https://github.com/withastro/astro/pull/14987) [`9dd9fca`](https://github.com/withastro/astro/commit/9dd9fca81e5ed3d0d55e0b1624c6515706963b1f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes SVGs not working in dev mode when using the passthrough image service
+
+- [#15014](https://github.com/withastro/astro/pull/15014) [`a178422`](https://github.com/withastro/astro/commit/a178422484ed62a76b227515a798e192fdcba3b9) Thanks [@delucis](https://github.com/delucis)! - Adds support for extending the type of the props accepted by Astro’s `<Image>` component, `<Picture>` component, and `getImage()` API.
+
+## 5.16.5
+
+### Patch Changes
+
+- [#14985](https://github.com/withastro/astro/pull/14985) [`c016f10`](https://github.com/withastro/astro/commit/c016f1063beddc995c4b7a60430ff8860c05b462) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where JSDoc annotations wouldn't show for fonts related APIs in the Astro config
+
+- [#14973](https://github.com/withastro/astro/pull/14973) [`ed7cc2f`](https://github.com/withastro/astro/commit/ed7cc2fd399084bdd8ba47094fe378fc8ce43048) Thanks [@amankumarpandeyin](https://github.com/amankumarpandeyin)! - Fixes performance regression and OOM errors when building medium-sized blogs with many content entries. Replaced O(n²) object spread pattern with direct mutation in `generateLookupMap`.
+
+- [#14958](https://github.com/withastro/astro/pull/14958) [`70eb542`](https://github.com/withastro/astro/commit/70eb542f3b509cd25461d19d275b8c050ace184f) Thanks [@ascorbic](https://github.com/ascorbic)! - Gives a helpful error message if a user sets `output: "hybrid"` in their Astro config.
+
+  The option was removed in Astro 5, but lots of content online still references it, and LLMs often suggest it. It's not always clear that the replacement is `output: "static"`, rather than `output: "server"`. This change adds a helpful error message to guide humans and robots.
+
+- [#14901](https://github.com/withastro/astro/pull/14901) [`ef53716`](https://github.com/withastro/astro/commit/ef53716f93237d29cf732baae2d90ecd2c9f3bbe) Thanks [@Darknab](https://github.com/Darknab)! - Updates the `glob()` loader to log a warning when duplicated IDs are detected
+
+- Updated dependencies [[`d8305f8`](https://github.com/withastro/astro/commit/d8305f8abdf92db6fa505ee9c1774553ba90b7bd)]:
+  - @astrojs/markdown-remark@6.3.10
+
+## 5.16.4
+
+### Patch Changes
+
+- [#14940](https://github.com/withastro/astro/pull/14940) [`2cf79c2`](https://github.com/withastro/astro/commit/2cf79c23c23e3364b0e6a86394b6584112786c5b) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where Astro didn't properly combine CSP resources from the `csp` configuration with those added using the runtime API (`Astro.csp.insertDirective()`) to form grammatically correct CSP headers
+
+  Now Astro correctly deduplicate CSP resources. For example, if you have a global resource in the configuration file, and then you add a
+  a new one using the runtime APIs.
+
+## 5.16.3
+
+### Patch Changes
+
+- [#14889](https://github.com/withastro/astro/pull/14889) [`4bceeb0`](https://github.com/withastro/astro/commit/4bceeb0c7183de4db0087316e2fc2d287f27ad01) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes actions types when using specific TypeScript configurations
+
+- [#14929](https://github.com/withastro/astro/pull/14929) [`e0f277d`](https://github.com/withastro/astro/commit/e0f277d9248d2fefbd0234b53f9dea8c9b750adb) Thanks [@matthewp](https://github.com/matthewp)! - Fixes authentication bypass via double URL encoding in middleware
+
+  Prevents attackers from bypassing path-based authentication checks using multi-level URL encoding (e.g., `/%2561dmin` instead of `/%61dmin`). Pathnames are now validated after decoding to ensure no additional encoding remains.
+
+## 5.16.2
+
+### Patch Changes
+
+- [#14876](https://github.com/withastro/astro/pull/14876) [`b43dc7f`](https://github.com/withastro/astro/commit/b43dc7f28d582f22a4b28aa3a712af247c908dc3) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a vite warning log during builds when using npm
+
+- [#14884](https://github.com/withastro/astro/pull/14884) [`10273e0`](https://github.com/withastro/astro/commit/10273e01357e515050f8233442a7252b51cad364) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where setting the status of a page to `404` in ssr would show an empty page (or `404.astro` page if provided) instead of using the current page
+
+## 5.16.1
+
+### Patch Changes
+
+- [#14769](https://github.com/withastro/astro/pull/14769) [`b43ee71`](https://github.com/withastro/astro/commit/b43ee71bd0c3740f41bb641abf01e9cd970d32ee) Thanks [@adriandlam](https://github.com/adriandlam)! - Fixes an unhandled rejection issue when using Astro with Vercel Workflow DevKit
+
+- [#14761](https://github.com/withastro/astro/pull/14761) [`345eb22`](https://github.com/withastro/astro/commit/345eb22bbe449bc8aea1ebd4205fef0fc554a10b) Thanks [@ooga](https://github.com/ooga)! - Updates `button` attributes types to allow `command` and `commandfor`
+
+- [#14866](https://github.com/withastro/astro/pull/14866) [`65e214b`](https://github.com/withastro/astro/commit/65e214b07b84b67c4f5fc13646a5d99944bb10c2) Thanks [@GameRoMan](https://github.com/GameRoMan)! - Fixes `Astro.glob` to be correctly marked as deprecated
+
+- [#14894](https://github.com/withastro/astro/pull/14894) [`1ad9a5b`](https://github.com/withastro/astro/commit/1ad9a5b3e7301a6c05787879e413b82ca0268003) Thanks [@delucis](https://github.com/delucis)! - Fixes support for Astro component rendering in Vitest test suites using a “client” environment such as `happy-dom` or `jsdom`
+
+- [#14782](https://github.com/withastro/astro/pull/14782) [`abed929`](https://github.com/withastro/astro/commit/abed9294ce698980f22f8a3f6695670151915d9b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves syncing
+
 ## 5.16.0
 
 ### Minor Changes

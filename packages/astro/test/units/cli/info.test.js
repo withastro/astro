@@ -3,32 +3,32 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { getPackageManager } from '../../../dist/cli/info/core/get-package-manager.js';
 import { infoCommand } from '../../../dist/cli/info/core/info.js';
-import { createCliClipboard } from '../../../dist/cli/info/infra/cli-clipboard.js';
-import { createCliDebugInfoProvider } from '../../../dist/cli/info/infra/cli-debug-info-provider.js';
-import { createDevDebugInfoProvider } from '../../../dist/cli/info/infra/dev-debug-info-provider.js';
-import { createProcessNodeVersionProvider } from '../../../dist/cli/info/infra/process-node-version-provider.js';
-import { createProcessPackageManagerUserAgentProvider } from '../../../dist/cli/info/infra/process-package-manager-user-agent-provider.js';
-import { createSpyLogger } from '../test-utils.js';
+import { CliClipboard } from '../../../dist/cli/info/infra/cli-clipboard.js';
+import { CliDebugInfoProvider } from '../../../dist/cli/info/infra/cli-debug-info-provider.js';
+import { DevDebugInfoProvider } from '../../../dist/cli/info/infra/dev-debug-info-provider.js';
+import { ProcessNodeVersionProvider } from '../../../dist/cli/info/infra/process-node-version-provider.js';
+import { ProcessPackageManagerUserAgentProvider } from '../../../dist/cli/info/infra/process-package-manager-user-agent-provider.js';
+import { SpyLogger } from '../test-utils.js';
 import {
-	createFakeAstroVersionProvider,
-	createFakeDebugInfoProvider,
-	createFakeNodeVersionProvider,
-	createFakeOperatingSystemProvider,
-	createFakePackageManagerUserAgentProvider,
-	createFakePrompt,
-	createPassthroughCommandRunner,
-	createSpyClipboard,
-	createSpyCommandExecutor,
+	FakeAstroVersionProvider,
+	FakeDebugInfoProvider,
+	FakeNodeVersionProvider,
+	FakeOperatingSystemProvider,
+	FakePackageManagerUserAgentProvider,
+	FakePrompt,
+	PassthroughCommandRunner,
+	SpyClipboard,
+	SpyCommandExecutor,
 } from './utils.js';
 
 describe('CLI info', () => {
 	describe('core', () => {
 		describe('infoCommand', () => {
 			it('logs pretty debug info', async () => {
-				const { logger, logs } = createSpyLogger();
-				const runner = createPassthroughCommandRunner();
-				const debugInfoProvider = createFakeDebugInfoProvider([['foo', 'bar']]);
-				const { clipboard } = createSpyClipboard();
+				const logger = new SpyLogger();
+				const runner = new PassthroughCommandRunner();
+				const debugInfoProvider = new FakeDebugInfoProvider([['foo', 'bar']]);
+				const clipboard = new SpyClipboard();
 
 				await runner.run(infoCommand, {
 					debugInfoProvider,
@@ -39,15 +39,15 @@ describe('CLI info', () => {
 					logger,
 				});
 
-				assert.equal(logs[0].type, 'info');
-				assert.equal(logs[0].message, 'true-[["foo","bar"]]');
+				assert.equal(logger.logs[0].type, 'info');
+				assert.equal(logger.logs[0].message, 'true-[["foo","bar"]]');
 			});
 
 			it('copies raw debug info', async () => {
-				const { logger } = createSpyLogger();
-				const runner = createPassthroughCommandRunner();
-				const debugInfoProvider = createFakeDebugInfoProvider([['foo', 'bar']]);
-				const { clipboard, texts } = createSpyClipboard();
+				const logger = new SpyLogger();
+				const runner = new PassthroughCommandRunner();
+				const debugInfoProvider = new FakeDebugInfoProvider([['foo', 'bar']]);
+				const clipboard = new SpyClipboard();
 
 				await runner.run(infoCommand, {
 					debugInfoProvider,
@@ -58,109 +58,110 @@ describe('CLI info', () => {
 					logger,
 				});
 
-				assert.deepStrictEqual(texts, ['false-[["foo","bar"]]']);
+				assert.deepStrictEqual(clipboard.texts, ['false-[["foo","bar"]]']);
 			});
 		});
 
 		describe('getPackageManager()', () => {
 			it('returns noop if there is no user agent', async () => {
-				const packageManagerUserAgentProvider = createFakePackageManagerUserAgentProvider(null);
-				const { commandExecutor, inputs } = createSpyCommandExecutor();
+				const packageManagerUserAgentProvider = new FakePackageManagerUserAgentProvider(null);
+				const commandExecutor = new SpyCommandExecutor();
 
 				const packageManager = await getPackageManager({
 					packageManagerUserAgentProvider,
 					commandExecutor,
 				});
 
-				assert.deepStrictEqual(inputs, []);
-				assert.equal(packageManager.getName(), 'unknown');
+				assert.deepStrictEqual(commandExecutor.inputs, []);
+				assert.equal(packageManager.name, 'unknown');
 			});
 
 			it('handles pnpm', async () => {
-				const packageManagerUserAgentProvider = createFakePackageManagerUserAgentProvider(
+				const packageManagerUserAgentProvider = new FakePackageManagerUserAgentProvider(
 					'pnpm/7.18.1 node/v16.17.0 linux x64',
 				);
-				const { commandExecutor, inputs } = createSpyCommandExecutor();
+				const commandExecutor = new SpyCommandExecutor();
 
 				const packageManager = await getPackageManager({
 					packageManagerUserAgentProvider,
 					commandExecutor,
 				});
 
-				assert.deepStrictEqual(inputs, []);
-				assert.equal(packageManager.getName(), 'pnpm');
+				assert.deepStrictEqual(commandExecutor.inputs, []);
+				assert.equal(packageManager.name, 'pnpm');
 			});
 
 			it('handles npm', async () => {
-				const packageManagerUserAgentProvider = createFakePackageManagerUserAgentProvider(
+				const packageManagerUserAgentProvider = new FakePackageManagerUserAgentProvider(
 					'npm/8.19.2 node/v16.17.0 linux x64',
 				);
-				const { commandExecutor, inputs } = createSpyCommandExecutor();
+				const commandExecutor = new SpyCommandExecutor();
 
 				const packageManager = await getPackageManager({
 					packageManagerUserAgentProvider,
 					commandExecutor,
 				});
 
-				assert.deepStrictEqual(inputs, []);
-				assert.equal(packageManager.getName(), 'npm');
+				assert.deepStrictEqual(commandExecutor.inputs, []);
+				assert.equal(packageManager.name, 'npm');
 			});
 
 			it('handles yarn', async () => {
-				const packageManagerUserAgentProvider = createFakePackageManagerUserAgentProvider(
+				const packageManagerUserAgentProvider = new FakePackageManagerUserAgentProvider(
 					'yarn/1.22.19 npm/? node/v16.17.0 linux x64',
 				);
-				const { commandExecutor, inputs } = createSpyCommandExecutor();
+				const commandExecutor = new SpyCommandExecutor();
 
 				const packageManager = await getPackageManager({
 					packageManagerUserAgentProvider,
 					commandExecutor,
 				});
 
-				assert.deepStrictEqual(inputs, []);
-				assert.equal(packageManager.getName(), 'yarn');
+				assert.deepStrictEqual(commandExecutor.inputs, []);
+				assert.equal(packageManager.name, 'yarn');
 			});
 
 			it('handles bun', async () => {
-				const packageManagerUserAgentProvider =
-					createFakePackageManagerUserAgentProvider('bun/0.5.9 linux x64');
-				const { commandExecutor, inputs } = createSpyCommandExecutor();
+				const packageManagerUserAgentProvider = new FakePackageManagerUserAgentProvider(
+					'bun/0.5.9 linux x64',
+				);
+				const commandExecutor = new SpyCommandExecutor();
 
 				const packageManager = await getPackageManager({
 					packageManagerUserAgentProvider,
 					commandExecutor,
 				});
 
-				assert.deepStrictEqual(inputs, []);
-				assert.equal(packageManager.getName(), 'bun');
+				assert.deepStrictEqual(commandExecutor.inputs, []);
+				assert.equal(packageManager.name, 'bun');
 			});
 
 			it('returns a noop for unknown user agents', async () => {
-				const packageManagerUserAgentProvider = createFakePackageManagerUserAgentProvider(
+				const packageManagerUserAgentProvider = new FakePackageManagerUserAgentProvider(
 					'npminstall/5.0.0 npm/8.19.2 node/v16.17.0 linux x64',
 				);
-				const { commandExecutor, inputs } = createSpyCommandExecutor();
+				const commandExecutor = new SpyCommandExecutor();
 
 				const packageManager = await getPackageManager({
 					packageManagerUserAgentProvider,
 					commandExecutor,
 				});
 
-				assert.deepStrictEqual(inputs, []);
-				assert.equal(packageManager.getName(), 'unknown');
+				assert.deepStrictEqual(commandExecutor.inputs, []);
+				assert.equal(packageManager.name, 'unknown');
 			});
 		});
 	});
 
 	describe('infra', () => {
-		describe('createCliClipboard()', () => {
+		describe('CliClipboard', () => {
 			it('aborts early if no copy command can be found', async () => {
-				const { commandExecutor, inputs } = createSpyCommandExecutor({ fail: true });
-				const { logger, logs } = createSpyLogger();
-				const operatingSystemProvider = createFakeOperatingSystemProvider('aix');
-				const prompt = createFakePrompt(true);
+				const commandExecutor = new SpyCommandExecutor({ fail: true });
+				const logger = new SpyLogger();
+				const operatingSystemProvider = new FakeOperatingSystemProvider('aix');
+				const prompt = new FakePrompt(true);
 
-				const clipboard = createCliClipboard({
+				const clipboard = new CliClipboard({
 					commandExecutor,
 					logger,
 					operatingSystemProvider,
@@ -168,20 +169,20 @@ describe('CLI info', () => {
 				});
 				await clipboard.copy('foo bar');
 
-				assert.equal(inputs.length, 2);
-				assert.equal(logs[0].type, 'warn');
-				assert.equal(logs[0].message, 'Clipboard command not found!');
-				assert.equal(logs[1].type, 'info');
-				assert.equal(logs[1].message, 'Please manually copy the text above.');
+				assert.equal(commandExecutor.inputs.length, 2);
+				assert.equal(logger.logs[0].type, 'warn');
+				assert.equal(logger.logs[0].message, 'Clipboard command not found!');
+				assert.equal(logger.logs[1].type, 'info');
+				assert.equal(logger.logs[1].message, 'Please manually copy the text above.');
 			});
 
 			it('aborts if user does not confirm', async () => {
-				const { commandExecutor, inputs } = createSpyCommandExecutor();
-				const { logger, logs } = createSpyLogger();
-				const operatingSystemProvider = createFakeOperatingSystemProvider('win32');
-				const prompt = createFakePrompt(false);
+				const commandExecutor = new SpyCommandExecutor();
+				const logger = new SpyLogger();
+				const operatingSystemProvider = new FakeOperatingSystemProvider('win32');
+				const prompt = new FakePrompt(false);
 
-				const clipboard = createCliClipboard({
+				const clipboard = new CliClipboard({
 					commandExecutor,
 					logger,
 					operatingSystemProvider,
@@ -190,17 +191,17 @@ describe('CLI info', () => {
 				const text = Date.now().toString();
 				await clipboard.copy(text);
 
-				assert.equal(logs.length, 0);
-				assert.equal(inputs.length, 0);
+				assert.equal(logger.logs.length, 0);
+				assert.equal(commandExecutor.inputs.length, 0);
 			});
 
 			it('copies correctly', async () => {
-				const { commandExecutor, inputs } = createSpyCommandExecutor();
-				const { logger, logs } = createSpyLogger();
-				const operatingSystemProvider = createFakeOperatingSystemProvider('win32');
-				const prompt = createFakePrompt(true);
+				const commandExecutor = new SpyCommandExecutor();
+				const logger = new SpyLogger();
+				const operatingSystemProvider = new FakeOperatingSystemProvider('win32');
+				const prompt = new FakePrompt(true);
 
-				const clipboard = createCliClipboard({
+				const clipboard = new CliClipboard({
 					commandExecutor,
 					logger,
 					operatingSystemProvider,
@@ -209,10 +210,10 @@ describe('CLI info', () => {
 				const text = Date.now().toString();
 				await clipboard.copy(text);
 
-				assert.equal(logs[0].type, 'info');
-				assert.equal(logs[0].message, 'Copied to clipboard!');
-				assert.equal(inputs.length, 1);
-				assert.deepStrictEqual(inputs[0], {
+				assert.equal(logger.logs[0].type, 'info');
+				assert.equal(logger.logs[0].message, 'Copied to clipboard!');
+				assert.equal(commandExecutor.inputs.length, 1);
+				assert.deepStrictEqual(commandExecutor.inputs[0], {
 					command: 'clip',
 					args: undefined,
 					input: text,
@@ -220,13 +221,13 @@ describe('CLI info', () => {
 			});
 		});
 
-		describe('createCliDebugInfoProvider()', () => {
+		describe('CliDebugInfoProvider', () => {
 			it('returns basic infos', async () => {
-				const astroVersionProvider = createFakeAstroVersionProvider('5.5.5');
-				const operatingSystemProvider = createFakeOperatingSystemProvider('win32');
-				const nodeVersionProvider = createFakeNodeVersionProvider('v10.1.7');
+				const astroVersionProvider = new FakeAstroVersionProvider('5.5.5');
+				const operatingSystemProvider = new FakeOperatingSystemProvider('win32');
+				const nodeVersionProvider = new FakeNodeVersionProvider('v10.1.7');
 
-				const debugInfoProvider = createCliDebugInfoProvider({
+				const debugInfoProvider = new CliDebugInfoProvider({
 					config: {
 						output: 'static',
 						adapter: undefined,
@@ -235,7 +236,7 @@ describe('CLI info', () => {
 					astroVersionProvider,
 					operatingSystemProvider,
 					packageManager: {
-						getName: () => 'pnpm',
+						name: 'pnpm',
 						getPackageVersion: async () => {
 							return undefined;
 						},
@@ -256,11 +257,11 @@ describe('CLI info', () => {
 			});
 
 			it('handles the vite version', async () => {
-				const astroVersionProvider = createFakeAstroVersionProvider('5.5.5');
-				const operatingSystemProvider = createFakeOperatingSystemProvider('win32');
-				const nodeVersionProvider = createFakeNodeVersionProvider('v10.1.7');
+				const astroVersionProvider = new FakeAstroVersionProvider('5.5.5');
+				const operatingSystemProvider = new FakeOperatingSystemProvider('win32');
+				const nodeVersionProvider = new FakeNodeVersionProvider('v10.1.7');
 
-				const debugInfoProvider = createCliDebugInfoProvider({
+				const debugInfoProvider = new CliDebugInfoProvider({
 					config: {
 						output: 'static',
 						adapter: undefined,
@@ -269,7 +270,7 @@ describe('CLI info', () => {
 					astroVersionProvider,
 					operatingSystemProvider,
 					packageManager: {
-						getName: () => 'pnpm',
+						name: 'pnpm',
 						getPackageVersion: async (name) => {
 							if (name === 'vite') {
 								return 'v1.2.3';
@@ -294,11 +295,11 @@ describe('CLI info', () => {
 			});
 
 			it('handles the adapter with no version', async () => {
-				const astroVersionProvider = createFakeAstroVersionProvider('5.5.5');
-				const operatingSystemProvider = createFakeOperatingSystemProvider('win32');
-				const nodeVersionProvider = createFakeNodeVersionProvider('v10.1.7');
+				const astroVersionProvider = new FakeAstroVersionProvider('5.5.5');
+				const operatingSystemProvider = new FakeOperatingSystemProvider('win32');
+				const nodeVersionProvider = new FakeNodeVersionProvider('v10.1.7');
 
-				const debugInfoProvider = createCliDebugInfoProvider({
+				const debugInfoProvider = new CliDebugInfoProvider({
 					config: {
 						output: 'static',
 						adapter: {
@@ -310,7 +311,7 @@ describe('CLI info', () => {
 					astroVersionProvider,
 					operatingSystemProvider,
 					packageManager: {
-						getName: () => 'pnpm',
+						name: 'pnpm',
 						getPackageVersion: async () => {
 							return undefined;
 						},
@@ -331,11 +332,11 @@ describe('CLI info', () => {
 			});
 
 			it('handles the adapter version', async () => {
-				const astroVersionProvider = createFakeAstroVersionProvider('5.5.5');
-				const operatingSystemProvider = createFakeOperatingSystemProvider('win32');
-				const nodeVersionProvider = createFakeNodeVersionProvider('v10.1.7');
+				const astroVersionProvider = new FakeAstroVersionProvider('5.5.5');
+				const operatingSystemProvider = new FakeOperatingSystemProvider('win32');
+				const nodeVersionProvider = new FakeNodeVersionProvider('v10.1.7');
 
-				const debugInfoProvider = createCliDebugInfoProvider({
+				const debugInfoProvider = new CliDebugInfoProvider({
 					config: {
 						output: 'static',
 						adapter: {
@@ -347,7 +348,7 @@ describe('CLI info', () => {
 					astroVersionProvider,
 					operatingSystemProvider,
 					packageManager: {
-						getName: () => 'pnpm',
+						name: 'pnpm',
 						getPackageVersion: async (name) => {
 							if (name === '@astrojs/node') {
 								return 'v6.5.4';
@@ -371,11 +372,11 @@ describe('CLI info', () => {
 			});
 
 			it('handles integrations', async () => {
-				const astroVersionProvider = createFakeAstroVersionProvider('5.5.5');
-				const operatingSystemProvider = createFakeOperatingSystemProvider('win32');
-				const nodeVersionProvider = createFakeNodeVersionProvider('v10.1.7');
+				const astroVersionProvider = new FakeAstroVersionProvider('5.5.5');
+				const operatingSystemProvider = new FakeOperatingSystemProvider('win32');
+				const nodeVersionProvider = new FakeNodeVersionProvider('v10.1.7');
 
-				const debugInfoProvider = createCliDebugInfoProvider({
+				const debugInfoProvider = new CliDebugInfoProvider({
 					config: {
 						output: 'static',
 						adapter: undefined,
@@ -393,7 +394,7 @@ describe('CLI info', () => {
 					astroVersionProvider,
 					operatingSystemProvider,
 					packageManager: {
-						getName: () => 'pnpm',
+						name: 'pnpm',
 						getPackageVersion: async (name) => {
 							if (name === 'bar') {
 								return 'v6.6.6';
@@ -417,13 +418,13 @@ describe('CLI info', () => {
 			});
 		});
 
-		describe('createDevDebugInfoProvider', () => {
+		describe('DevDebugInfoProvider', () => {
 			it('works', async () => {
-				const astroVersionProvider = createFakeAstroVersionProvider('5.5.5');
-				const operatingSystemProvider = createFakeOperatingSystemProvider('win32');
-				const nodeVersionProvider = createFakeNodeVersionProvider('v10.1.7');
+				const astroVersionProvider = new FakeAstroVersionProvider('5.5.5');
+				const operatingSystemProvider = new FakeOperatingSystemProvider('win32');
+				const nodeVersionProvider = new FakeNodeVersionProvider('v10.1.7');
 
-				const debugInfoProvider = createDevDebugInfoProvider({
+				const debugInfoProvider = new DevDebugInfoProvider({
 					config: {
 						output: 'static',
 						adapter: undefined,
@@ -432,7 +433,7 @@ describe('CLI info', () => {
 					astroVersionProvider,
 					operatingSystemProvider,
 					packageManager: {
-						getName: () => 'pnpm',
+						name: 'pnpm',
 						getPackageVersion: async () => {
 							return undefined;
 						},
@@ -453,11 +454,11 @@ describe('CLI info', () => {
 			});
 
 			it('handles the adapter', async () => {
-				const astroVersionProvider = createFakeAstroVersionProvider('5.5.5');
-				const operatingSystemProvider = createFakeOperatingSystemProvider('win32');
-				const nodeVersionProvider = createFakeNodeVersionProvider('v10.1.7');
+				const astroVersionProvider = new FakeAstroVersionProvider('5.5.5');
+				const operatingSystemProvider = new FakeOperatingSystemProvider('win32');
+				const nodeVersionProvider = new FakeNodeVersionProvider('v10.1.7');
 
-				const debugInfoProvider = createDevDebugInfoProvider({
+				const debugInfoProvider = new DevDebugInfoProvider({
 					config: {
 						output: 'static',
 						adapter: {
@@ -469,7 +470,7 @@ describe('CLI info', () => {
 					astroVersionProvider,
 					operatingSystemProvider,
 					packageManager: {
-						getName: () => 'pnpm',
+						name: 'pnpm',
 						getPackageVersion: async () => {
 							return undefined;
 						},
@@ -490,11 +491,11 @@ describe('CLI info', () => {
 			});
 
 			it('handles integrations', async () => {
-				const astroVersionProvider = createFakeAstroVersionProvider('5.5.5');
-				const operatingSystemProvider = createFakeOperatingSystemProvider('win32');
-				const nodeVersionProvider = createFakeNodeVersionProvider('v10.1.7');
+				const astroVersionProvider = new FakeAstroVersionProvider('5.5.5');
+				const operatingSystemProvider = new FakeOperatingSystemProvider('win32');
+				const nodeVersionProvider = new FakeNodeVersionProvider('v10.1.7');
 
-				const debugInfoProvider = createDevDebugInfoProvider({
+				const debugInfoProvider = new DevDebugInfoProvider({
 					config: {
 						output: 'static',
 						adapter: undefined,
@@ -512,7 +513,7 @@ describe('CLI info', () => {
 					astroVersionProvider,
 					operatingSystemProvider,
 					packageManager: {
-						getName: () => 'pnpm',
+						name: 'pnpm',
 						getPackageVersion: async () => {
 							return undefined;
 						},
@@ -533,13 +534,13 @@ describe('CLI info', () => {
 			});
 
 			it('never retrieves versions', async () => {
-				const astroVersionProvider = createFakeAstroVersionProvider('5.5.5');
-				const operatingSystemProvider = createFakeOperatingSystemProvider('win32');
-				const nodeVersionProvider = createFakeNodeVersionProvider('v10.1.7');
+				const astroVersionProvider = new FakeAstroVersionProvider('5.5.5');
+				const operatingSystemProvider = new FakeOperatingSystemProvider('win32');
+				const nodeVersionProvider = new FakeNodeVersionProvider('v10.1.7');
 
 				let called = false;
 
-				const debugInfoProvider = createDevDebugInfoProvider({
+				const debugInfoProvider = new DevDebugInfoProvider({
 					config: {
 						output: 'static',
 						adapter: {
@@ -560,7 +561,7 @@ describe('CLI info', () => {
 					astroVersionProvider,
 					operatingSystemProvider,
 					packageManager: {
-						getName: () => 'pnpm',
+						name: 'pnpm',
 						getPackageVersion: async () => {
 							called = true;
 							return undefined;
@@ -574,15 +575,15 @@ describe('CLI info', () => {
 			});
 		});
 
-		it('createProcessPackageManagerUserAgentProvider()', () => {
+		it('ProcessPackageManagerUserAgentProvider', () => {
 			assert.equal(
-				createProcessPackageManagerUserAgentProvider().getUserAgent(),
+				new ProcessPackageManagerUserAgentProvider().userAgent,
 				process.env.npm_config_user_agent ?? null,
 			);
 		});
 
-		it('createProcessNodeVersionProvider()', () => {
-			assert.equal(createProcessNodeVersionProvider().get(), process.version);
+		it('ProcessNodeVersionProvider', () => {
+			assert.equal(new ProcessNodeVersionProvider().version, process.version);
 		});
 	});
 });

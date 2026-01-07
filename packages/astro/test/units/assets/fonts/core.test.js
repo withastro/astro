@@ -1,24 +1,17 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { dedupeFontFaces } from '../../../../dist/assets/fonts/core/dedupe-font-faces.js';
-import { extractUnifontProviders } from '../../../../dist/assets/fonts/core/extract-unifont-providers.js';
 import { normalizeRemoteFontFaces } from '../../../../dist/assets/fonts/core/normalize-remote-font-faces.js';
 import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-fallbacks.js';
 import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-families.js';
-import { createFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
-import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/infra/system-fallbacks-provider.js';
-import {
-	createSpyUrlProxy,
-	fakeFontMetricsResolver,
-	fakeHasher,
-	simpleErrorHandler,
-} from './utils.js';
+import { RealFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
+import { RealSystemFallbacksProvider } from '../../../../dist/assets/fonts/infra/system-fallbacks-provider.js';
+import { FakeFontMetricsResolver, FakeHasher, SpyUrlProxy } from './utils.js';
 
 describe('fonts core', () => {
 	describe('resolveFamily()', () => {
 		it('removes quotes correctly', async () => {
-			const hasher = { ...fakeHasher, hashObject: () => 'xxx' };
+			const hasher = new FakeHasher('xxx');
 			let family = await resolveFamily({
 				family: {
 					provider: 'local',
@@ -84,7 +77,7 @@ describe('fonts core', () => {
 						},
 					],
 				},
-				hasher: fakeHasher,
+				hasher: new FakeHasher(),
 				localProviderUrlResolver: {
 					resolve: (url) => url + url,
 				},
@@ -113,7 +106,7 @@ describe('fonts core', () => {
 					name: 'Test',
 					cssVariable: '--test',
 				},
-				hasher: fakeHasher,
+				hasher: new FakeHasher(),
 				localProviderUrlResolver: {
 					resolve: (url) => url,
 				},
@@ -146,7 +139,7 @@ describe('fonts core', () => {
 					],
 					fallbacks: ['foo', 'bar', 'foo'],
 				},
-				hasher: fakeHasher,
+				hasher: new FakeHasher(),
 				localProviderUrlResolver: {
 					resolve: (url) => url,
 				},
@@ -168,7 +161,7 @@ describe('fonts core', () => {
 					fallbacks: ['foo', 'bar', 'foo'],
 					unicodeRange: ['abc', 'def', 'abc'],
 				},
-				hasher: fakeHasher,
+				hasher: new FakeHasher(),
 				localProviderUrlResolver: {
 					resolve: (url) => url,
 				},
@@ -190,164 +183,14 @@ describe('fonts core', () => {
 		});
 	});
 
-	describe('extractUnifontProviders()', () => {
-		const createProvider = (/** @type {string} */ name) => () =>
-			Object.assign(() => undefined, { _name: name });
-
-		/** @param {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} families */
-		function createFixture(families) {
-			const result = extractUnifontProviders({
-				families,
-				hasher: fakeHasher,
-			});
-			return {
-				/**
-				 * @param {number} length
-				 */
-				assertProvidersLength: (length) => {
-					assert.equal(result.providers.length, length);
-				},
-				/**
-				 * @param {Array<string>} names
-				 */
-				assertProvidersNames: (names) => {
-					assert.deepStrictEqual(
-						result.families.map((f) =>
-							typeof f.provider === 'string' ? f.provider : f.provider.name,
-						),
-						names,
-					);
-				},
-			};
-		}
-
-		it('skips local fonts', () => {
-			const fixture = createFixture([
-				{
-					name: 'Custom',
-					nameWithHash: 'Custom-xxx',
-					cssVariable: '--custom',
-					provider: 'local',
-					variants: [
-						{
-							src: [{ url: 'a' }],
-							weight: '400',
-							style: 'normal',
-						},
-					],
-				},
-			]);
-			fixture.assertProvidersLength(0);
-			fixture.assertProvidersNames(['local']);
-		});
-
-		it('appends a hash to the provider name', () => {
-			const fixture = createFixture([
-				{
-					name: 'Custom',
-					nameWithHash: 'Custom-xxx',
-					cssVariable: '--custom',
-					provider: {
-						provider: createProvider('test'),
-					},
-				},
-			]);
-			fixture.assertProvidersLength(1);
-			fixture.assertProvidersNames(['test-{"name":"test"}']);
-		});
-
-		it('deduplicates providers with no config', () => {
-			const fixture = createFixture([
-				{
-					name: 'Foo',
-					nameWithHash: 'Foo-xxx',
-					cssVariable: '--custom',
-					provider: {
-						provider: createProvider('test'),
-					},
-				},
-				{
-					name: 'Bar',
-					nameWithHash: 'Bar-xxx',
-					cssVariable: '--custom',
-					provider: {
-						provider: createProvider('test'),
-					},
-				},
-			]);
-			fixture.assertProvidersLength(1);
-			fixture.assertProvidersNames(['test-{"name":"test"}', 'test-{"name":"test"}']);
-		});
-
-		it('deduplicates providers with the same config', () => {
-			const fixture = createFixture([
-				{
-					name: 'Foo',
-					nameWithHash: 'Foo-xxx',
-					cssVariable: '--custom',
-					provider: {
-						provider: createProvider('test'),
-						config: { x: 'y' },
-					},
-				},
-				{
-					name: 'Bar',
-					nameWithHash: 'Bar-xxx',
-					cssVariable: '--custom',
-					provider: {
-						provider: createProvider('test'),
-						config: { x: 'y' },
-					},
-				},
-			]);
-			fixture.assertProvidersLength(1);
-			fixture.assertProvidersNames([
-				'test-{"name":"test","x":"y"}',
-				'test-{"name":"test","x":"y"}',
-			]);
-		});
-
-		it('does not deduplicate providers with different configs', () => {
-			const fixture = createFixture([
-				{
-					name: 'Foo',
-					nameWithHash: 'Foo-xxx',
-					cssVariable: '--custom',
-					provider: {
-						provider: createProvider('test'),
-						config: {
-							x: 'foo',
-						},
-					},
-				},
-				{
-					name: 'Bar',
-					nameWithHash: 'Bar-xxx',
-					cssVariable: '--custom',
-					provider: {
-						provider: createProvider('test'),
-						config: {
-							x: 'bar',
-						},
-					},
-				},
-			]);
-			fixture.assertProvidersLength(2);
-			fixture.assertProvidersNames([
-				'test-{"name":"test","x":"foo"}',
-				'test-{"name":"test","x":"bar"}',
-			]);
-		});
-	});
-
 	describe('normalizeRemoteFontFaces()', () => {
 		it('filters font data based on priority', () => {
-			const { urlProxy } = createSpyUrlProxy();
+			const urlProxy = new SpyUrlProxy();
 			assert.equal(
 				normalizeRemoteFontFaces({
 					fonts: [],
 					urlProxy,
-					fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+					fontTypeExtractor: new RealFontTypeExtractor(),
 				}).length,
 				0,
 			);
@@ -380,14 +223,14 @@ describe('fonts core', () => {
 						},
 					],
 					urlProxy,
-					fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+					fontTypeExtractor: new RealFontTypeExtractor(),
 				}).length,
 				5,
 			);
 		});
 
 		it('proxies URLs correctly', () => {
-			const { collected, urlProxy } = createSpyUrlProxy();
+			const urlProxy = new SpyUrlProxy();
 			normalizeRemoteFontFaces({
 				urlProxy,
 				fonts: [
@@ -405,9 +248,9 @@ describe('fonts core', () => {
 						src: [{ url: '/2', format: 'woff2' }],
 					},
 				],
-				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+				fontTypeExtractor: new RealFontTypeExtractor(),
 			});
-			assert.deepStrictEqual(collected, [
+			assert.deepStrictEqual(urlProxy.collected, [
 				{
 					url: '/',
 					type: 'woff2',
@@ -433,7 +276,7 @@ describe('fonts core', () => {
 		});
 
 		it('collects preloads correctly', () => {
-			const { collected, urlProxy } = createSpyUrlProxy();
+			const urlProxy = new SpyUrlProxy();
 			normalizeRemoteFontFaces({
 				urlProxy,
 				fonts: [
@@ -456,9 +299,9 @@ describe('fonts core', () => {
 						],
 					},
 				],
-				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+				fontTypeExtractor: new RealFontTypeExtractor(),
 			});
-			assert.deepStrictEqual(collected, [
+			assert.deepStrictEqual(urlProxy.collected, [
 				{
 					url: '/',
 					type: 'woff2',
@@ -491,7 +334,7 @@ describe('fonts core', () => {
 		});
 
 		it('computes type and format correctly', () => {
-			const { collected, urlProxy } = createSpyUrlProxy();
+			const urlProxy = new SpyUrlProxy();
 			const fonts = normalizeRemoteFontFaces({
 				urlProxy,
 				fonts: [
@@ -506,7 +349,7 @@ describe('fonts core', () => {
 						src: [{ url: '/2', format: 'woff2' }, { name: 'Foo' }, { url: '/also-ignored.ttf' }],
 					},
 				],
-				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+				fontTypeExtractor: new RealFontTypeExtractor(),
 			});
 			assert.deepStrictEqual(fonts, [
 				{
@@ -546,7 +389,7 @@ describe('fonts core', () => {
 					weight: '500',
 				},
 			]);
-			assert.deepStrictEqual(collected, [
+			assert.deepStrictEqual(urlProxy.collected, [
 				{
 					url: '/',
 					type: 'woff2',
@@ -579,7 +422,7 @@ describe('fonts core', () => {
 		});
 
 		it('turns relative protocols into https', () => {
-			const { collected, urlProxy } = createSpyUrlProxy();
+			const urlProxy = new SpyUrlProxy();
 			const fonts = normalizeRemoteFontFaces({
 				urlProxy,
 				fonts: [
@@ -589,7 +432,7 @@ describe('fonts core', () => {
 						src: [{ url: '//example.com/font.woff2' }, { url: 'http://example.com/font.woff' }],
 					},
 				],
-				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+				fontTypeExtractor: new RealFontTypeExtractor(),
 			});
 
 			assert.deepStrictEqual(fonts, [
@@ -608,7 +451,7 @@ describe('fonts core', () => {
 					weight: '400',
 				},
 			]);
-			assert.deepStrictEqual(collected, [
+			assert.deepStrictEqual(urlProxy.collected, [
 				{
 					url: 'https://example.com/font.woff2',
 					collectPreload: true,
@@ -632,8 +475,8 @@ describe('fonts core', () => {
 			name: 'Test',
 			nameWithHash: 'Test-xxx',
 		};
-		const systemFallbacksProvider = createSystemFallbacksProvider();
-		const fontMetricsResolver = fakeFontMetricsResolver;
+		const systemFallbacksProvider = new RealSystemFallbacksProvider();
+		const fontMetricsResolver = new FakeFontMetricsResolver();
 
 		it('skips if there are no fallbacks', async () => {
 			assert.equal(
@@ -793,219 +636,6 @@ describe('fonts core', () => {
 					},
 				},
 			]);
-		});
-	});
-
-	describe('dedupeFontFaces()', () => {
-		it('returns current if incoming is empty', () => {
-			assert.deepStrictEqual(
-				dedupeFontFaces(
-					[
-						{
-							src: [],
-							display: 'swap',
-						},
-					],
-					[],
-				),
-				[
-					{
-						src: [],
-						display: 'swap',
-					},
-				],
-			);
-		});
-
-		it('returns incoming if current is empty', () => {
-			assert.deepStrictEqual(
-				dedupeFontFaces(
-					[],
-					[
-						{
-							src: [],
-							display: 'swap',
-						},
-					],
-				),
-				[
-					{
-						src: [],
-						display: 'swap',
-					},
-				],
-			);
-		});
-
-		it('appends incoming if there is no match with current', () => {
-			assert.deepStrictEqual(
-				dedupeFontFaces(
-					[
-						{
-							src: [
-								{
-									name: 'Foo',
-								},
-							],
-							weight: 400,
-						},
-					],
-					[
-						{
-							src: [
-								{
-									name: 'Bar',
-								},
-							],
-							weight: 500,
-						},
-					],
-				),
-				[
-					{
-						src: [
-							{
-								name: 'Foo',
-							},
-						],
-						weight: 400,
-					},
-					{
-						src: [
-							{
-								name: 'Bar',
-							},
-						],
-						weight: 500,
-					},
-				],
-			);
-		});
-
-		it('merges incoming sources into current if there is a match', () => {
-			assert.deepStrictEqual(
-				dedupeFontFaces(
-					[
-						{
-							src: [
-								{
-									name: 'Foo',
-								},
-							],
-							weight: 300,
-						},
-					],
-					[
-						{
-							src: [
-								{
-									name: 'Bar',
-								},
-							],
-							weight: 300,
-						},
-					],
-				),
-				[
-					{
-						src: [
-							{
-								name: 'Foo',
-							},
-							{
-								name: 'Bar',
-							},
-						],
-						weight: 300,
-					},
-				],
-			);
-		});
-
-		it('dedupes local sources', () => {
-			assert.deepStrictEqual(
-				dedupeFontFaces(
-					[
-						{
-							src: [
-								{
-									name: 'Foo',
-								},
-							],
-							weight: 300,
-						},
-					],
-					[
-						{
-							src: [
-								{
-									name: 'Foo',
-								},
-								{
-									name: 'Bar',
-								},
-							],
-							weight: 300,
-						},
-					],
-				),
-				[
-					{
-						src: [
-							{
-								name: 'Foo',
-							},
-							{
-								name: 'Bar',
-							},
-						],
-						weight: 300,
-					},
-				],
-			);
-		});
-
-		it('dedupes remote sources', () => {
-			assert.deepStrictEqual(
-				dedupeFontFaces(
-					[
-						{
-							src: [
-								{
-									url: 'https://example.com/foo.woff2',
-								},
-							],
-							weight: 300,
-						},
-					],
-					[
-						{
-							src: [
-								{
-									url: 'https://example.com/foo.woff2',
-								},
-								{
-									url: 'https://example.com/bar.woff2',
-								},
-							],
-							weight: 300,
-						},
-					],
-				),
-				[
-					{
-						src: [
-							{
-								url: 'https://example.com/foo.woff2',
-							},
-							{
-								url: 'https://example.com/bar.woff2',
-							},
-						],
-						weight: 300,
-					},
-				],
-			);
 		});
 	});
 });

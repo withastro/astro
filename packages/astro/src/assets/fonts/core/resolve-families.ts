@@ -72,6 +72,7 @@ export async function resolveFamily({
 		weights: family.weights ? dedupe(family.weights.map((weight) => weight.toString())) : undefined,
 		styles: family.styles ? dedupe(family.styles) : undefined,
 		subsets: family.subsets ? dedupe(family.subsets) : undefined,
+		formats: family.formats ? dedupe(family.formats) : undefined,
 		fallbacks: family.fallbacks ? dedupe(family.fallbacks) : undefined,
 		unicodeRange: family.unicodeRange ? dedupe(family.unicodeRange) : undefined,
 		// This will be Astro specific eventually

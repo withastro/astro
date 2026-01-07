@@ -1,12 +1,9 @@
 import type { PackageManager } from '../definitions.js';
 
-export function createBunPackageManager(): PackageManager {
-	return {
-		getName() {
-			return 'bun';
-		},
-		async getPackageVersion() {
-			return undefined;
-		},
-	};
+export class BunPackageManager implements PackageManager {
+	readonly name: string = 'bun';
+
+	async getPackageVersion(): Promise<string | undefined> {
+		return undefined;
+	}
 }
