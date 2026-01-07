@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@astrojs/mdx": "^5.0.0-alpha.0",
-    "@tailwindcss/vite": "^4.1.17",
+    "@tailwindcss/vite": "^4.1.18",
     "@types/canvas-confetti": "^1.9.0",
     "astro": "^6.0.0-alpha.5",
     "canvas-confetti": "^1.9.4",

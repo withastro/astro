@@ -27,22 +27,22 @@
   "author": "withastro",
   "license": "MIT",
   "dependencies": {
-    "@astrojs/compiler": "^2.10.3",
+    "@astrojs/compiler": "^2.13.0",
     "@astrojs/yaml2ts": "^0.2.2",
-    "@jridgewell/sourcemap-codec": "^1.4.15",
-    "@volar/language-core": "~2.4.23",
-    "@volar/typescript": "~2.4.23",
-    "semver": "^7.3.8",
-    "vscode-languageserver-textdocument": "^1.0.11"
+    "@jridgewell/sourcemap-codec": "^1.5.5",
+    "@volar/language-core": "~2.4.27",
+    "@volar/typescript": "~2.4.27",
+    "semver": "^7.7.3",
+    "vscode-languageserver-textdocument": "^1.0.12"
   },
   "devDependencies": {
-    "@types/mocha": "^10.0.1",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^20.9.0",
-    "@types/semver": "^7.3.13",
+    "@types/semver": "^7.7.1",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/test-cli": "^0.0.12",
-    "mocha": "^10.2.0",
+    "mocha": "^10.8.2",
     "typescript": "^5.9.3",
-    "vscode-uri": "^3.0.8"
+    "vscode-uri": "^3.1.0"
   }
 }
