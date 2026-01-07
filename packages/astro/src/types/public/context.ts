@@ -90,7 +90,6 @@ export interface AstroGlobal<
 		 * ```
 		 *
 		 * [Astro reference](https://docs.astro.build/en/reference/astro-syntax/#astroslotshas)
-		 *
 		 */
 		has(slotName: string): boolean;
 
