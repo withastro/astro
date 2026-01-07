@@ -61,7 +61,7 @@ describe('defineConfig()', () => {
 
 	it('Validates CSP hashes', () => {
 		defineConfig({
-			experimental: {
+			security: {
 				csp: {
 					scriptDirective: {
 						hashes: ['sha256-xx', 'sha384-xx', 'sha512-xx'],

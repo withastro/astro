@@ -2,10 +2,11 @@ import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
+const astroEntryPrefix = '\0astro-entry:';
 // The id prefix for ES modules (e.g. `.js`, `.jsx`, `.mts`, etc.)
-const astroEntryEsmPrefix = '\0astro-entry-esm:';
+const astroEntryEsmPrefix = astroEntryPrefix + "esm:"
 // The id prefix for non-ES modules (e.g. `.vue`, `.svelte`, etc.)
-const astroEntryNonEsmPrefix = '\0astro-entry-non-esm:';
+const astroEntryNonEsmPrefix = astroEntryPrefix + "non-esm:"
 // The suffix to add to non-ES module entry ids
 const astroEntryNonEsmSuffix = '.js';
 // A regex to detect if the entry id is an ES module
@@ -64,13 +65,19 @@ export function pluginComponentEntry(internals: BuildInternals): VitePlugin {
 				});
 			}
 		},
-		async resolveId(id) {
-			if (isEntryId(id)) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${astroEntryPrefix}`),
+			},
+			handler(id) {
 				return id;
-			}
+			},
 		},
-		async load(id) {
-			if (isEntryId(id)) {
+		load: {
+			filter: {
+				id: new RegExp(`^${astroEntryPrefix}`),
+			},
+			async handler(id) {
 				const componentId = normalizeEntryId(id);
 				const exportNames = componentToExportNames.get(componentId);
 				if (exportNames) {
@@ -78,13 +85,9 @@ export function pluginComponentEntry(internals: BuildInternals): VitePlugin {
 						code: `export { ${exportNames.join(', ')} } from ${JSON.stringify(componentId)}`,
 					};
 				}
-			}
+			},
 		},
 	};
-}
-
-function isEntryId(id: string): boolean {
-	return id.startsWith(astroEntryEsmPrefix) || id.startsWith(astroEntryNonEsmPrefix);
 }
 
 function buildEntryId(id: string): string {

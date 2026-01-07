@@ -12,7 +12,7 @@ We welcome contributions of any size and skill level. As an open source project,
 
 ```shell
 node: "^>=22.12.0"
-pnpm: "^10.17.0"
+pnpm: "^10.21.0"
 # otherwise, your build will fail
 ```
 
@@ -202,6 +202,17 @@ When creating new tests, it's best to reference other existing test files and re
 
 - When re-using a fixture multiple times with different configurations, you should also configure unique `outDir`, `build.client`, and `build.server` values so the build output runtime isn't cached and shared by ESM between test runs.
 
+> [!IMPORTANT]
+> If tests start to fail for no apparent reason, the first thing to look at the `outDir` configuration. As build cache artifacts between runs, different tests might end up sharing some of the emitted modules.
+> To avoid this possible overlap, **make sure to add a custom `outDir` to your test case**
+>
+> ```js
+> await loadFixture({
+>   root: './fixtures/some-fixture',
+>   outDir: './dist/some-folder',
+> });
+> ```
+
 ### Other useful commands
 
 ```shell
@@ -332,6 +343,191 @@ There are 3 contexts in which code executes:
 - **In the browser**: this code lives in `src/runtime/client/`.
 
 Understanding in which environment code runs, and at which stage in the process, can help clarify thinking about what Astro is doing. It also helps with debugging, for instance, if you’re working within `src/core/`, you know that your code isn’t executing within Vite, so you don’t have to debug Vite’s setup. But you will have to debug vite inside `runtime/server/`.
+
+### Making code testable
+
+To make it easier to test code, try decoupling **business logic** from **infrastructure**:
+
+- **Infrastucture** is code that depends on external systems and/or requires aspecial environment to run. For example: DB calls, file system, randomness etc...
+- **Business logic** (or _core logic_ or _domain_) is the rest. It's pure logic that's easy to run from anywhere.
+
+That means avoiding side-effects by making external dependencies explicit. This often means passing more things as arguments.
+
+In practice, that can take several shapes. Let's have a look at an example:
+
+```ts
+// create-key.ts
+import { logger, generateKey } from '../utils.js';
+import { encodeBase64 } from '@oslojs/encoding';
+
+export async function createKey() {
+  const encoded = encodeBase64(
+    new Uint8Array(await crypto.subtle.exportKey('raw', await generateKey())),
+  );
+  logger.info(`Key created: ${key}`);
+}
+
+// main.ts
+import { createKey } from './create-key.js';
+
+async function main() {
+  await createKey();
+}
+```
+
+This function is very hard to test because it depends on:
+
+- A global logger
+- The `crypto` global
+- The `@oslojs/encoding` package
+- A `generateKey` utility function
+
+One way to refactor this function is to move many of these things to arguments:
+
+```ts
+// create-key.ts
+import type { Logger } from '../types.js';
+
+interface Options {
+  generateKey: () => Promise<void>;
+  logger: Logger;
+}
+
+export async function createKey({ generateKey, logger }: Options) {
+  const key = await generateKey();
+  logger.info(`Key created: ${key}`);
+}
+
+// main.ts
+import { createKey } from './create-key.js';
+import { logger, generateKey } from '../utils.js';
+import { encodeBase64 } from '@oslojs/encoding';
+
+async function main() {
+  await createKey({
+    logger,
+    async generateKey() {
+      return encodeBase64(
+        new Uint8Array(await crypto.subtle.exportKey('raw', await generateKey())),
+      );
+    },
+  });
+}
+```
+
+We could take this further by writing some custom abstractions, which can be useful when some of this logic needs to shared:
+
+```ts
+// types.ts
+export interface KeyGenerator {
+  generate: () => Promise<string>;
+}
+
+// create-key.ts
+import type { KeyGenerator, Logger } from './types.js';
+
+interface Options {
+  keyGenerator: KeyGenerator;
+  logger: Logger;
+}
+
+export async function createKey({ keyGenerator, logger }: Options) {
+  const key = await keyGenerator.generate();
+  logger.info(`Key created: ${key}`);
+}
+
+// crypto-key-generator.ts
+import type { KeyGenerator } from './types.js';
+import { encodeBase64 } from '@oslojs/encoding';
+
+export class CryptoKeyGenerator implements KeyGenerator {
+  readonly #algorithm = 'AES-GCM';
+
+  async generate(): Promise<string> {
+    const key = await crypto.subtle.generateKey(
+      {
+        name: this.#algorithm,
+        length: 256,
+      },
+      true,
+      ['encrypt', 'decrypt'],
+    );
+    const encoded = encodeBase64(new Uint8Array(await crypto.subtle.exportKey('raw', key)));
+    return encoded;
+  }
+}
+
+// main.ts
+import { logger } from './utils.js';
+import { createKey } from './create-key.js';
+import { CryptoKeyGenerator } from '../crypto-key-generator.js';
+
+const keyGenerator = new CryptoKeyGenerator();
+
+async function main() {
+  await createKey({ logger, keyGenerator });
+}
+```
+
+The power of this structure is that it makes it easy to unit test. Because abstractions hold very specific responsibilities, we can easily mock them:
+
+```js
+// @ts-check
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import { createKey } from '../../../dist/cli/create-key/core/create-key.js';
+import { SpyLogger } from '../test-utils.js';
+import { FakeKeyGenerator } from './utils.js';
+
+describe('CLI create-key', () => {
+  describe('core', () => {
+    describe('createKey()', () => {
+      it('logs the generated key', async () => {
+        const logger = new SpyLogger();
+        const keyGenerator = new FakeKeyGenerator('FOO');
+
+        await createKey({ logger, keyGenerator });
+
+        assert.equal(logger.logs[0].type, 'info');
+        assert.equal(logger.logs[0].label, 'crypto');
+        assert.match(logger.logs[0].message, /ASTRO_KEY=FOO/);
+      });
+    });
+  });
+});
+```
+
+It can be useful to create test specific abstractions:
+
+```js
+// @ts-check
+
+/**
+ * @import { KeyGenerator } from "../../../dist/cli/create-key/definitions.js"
+ */
+
+/** @implements {KeyGenerator} */
+export class FakeKeyGenerator {
+  /** @type {string} */
+  #key;
+
+  /**
+   * @param {string} key
+   */
+  constructor(key) {
+    this.#key = key;
+  }
+
+  async generate() {
+    return this.#key;
+  }
+}
+```
+
+Remember:
+
+- Try test all implementations. If an infrastructure implementation is just a wrapper around a NPM package, you may not need to test it and instead trust the package own tests
+- Always test business logic
 
 ## Branches
 

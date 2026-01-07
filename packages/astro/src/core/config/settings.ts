@@ -23,7 +23,11 @@ export function createBaseSettings(
 	config: AstroConfig,
 	logLevel: AstroInlineConfig['logLevel'],
 ): AstroSettings {
-	const { contentDir } = getContentPaths(config);
+	const { contentDir } = getContentPaths(
+		config,
+		undefined,
+		config.legacy?.collectionsBackwardsCompat,
+	);
 	const dotAstroDir = new URL('.astro/', config.root);
 	const preferences = createPreferences(config, dotAstroDir);
 	return {

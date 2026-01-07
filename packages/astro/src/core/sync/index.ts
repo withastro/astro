@@ -158,7 +158,11 @@ export async function syncInternal({
 		}
 		settings.timer.end('Sync content layer');
 	} else {
-		const paths = getContentPaths(settings.config, fs);
+		const paths = getContentPaths(
+			settings.config,
+			fs,
+			settings.config.legacy?.collectionsBackwardsCompat,
+		);
 		if (paths.config.exists || paths.liveConfig.exists) {
 			// We only create the reference, without a stub to avoid overriding the
 			// already generated types
@@ -239,7 +243,24 @@ async function syncContentCollections(
 				ssr: { external: [] },
 				logLevel: 'silent',
 			},
-			{ routesList, settings, logger, mode, command: 'build', fs, sync: true },
+			{
+				routesList,
+				settings: {
+					...settings,
+					// Prevent mutation by vite plugins during sync
+					buildOutput: undefined,
+					// Sync causes font resources and style hashes to be duplicated
+					injectedCsp: {
+						fontResources: new Set(),
+						styleHashes: [],
+					},
+				},
+				logger,
+				mode,
+				command: 'build',
+				fs,
+				sync: true,
+			},
 		),
 	);
 
@@ -274,7 +295,11 @@ async function syncContentCollections(
 		}
 		let configFile;
 		try {
-			const contentPaths = getContentPaths(settings.config, fs);
+			const contentPaths = getContentPaths(
+				settings.config,
+				fs,
+				settings.config.legacy?.collectionsBackwardsCompat,
+			);
 			if (contentPaths.config.exists) {
 				const matches = /\/(src\/.+)/.exec(contentPaths.config.url.href);
 				if (matches) {

@@ -5,7 +5,7 @@ import { createContainer } from '../../../dist/core/dev/container.js';
 import { createViteLoader } from '../../../dist/core/module-loader/vite.js';
 import { createRoutesList, matchAllRoutes } from '../../../dist/core/routing/index.js';
 import { getSortedPreloadedMatches } from '../../../dist/prerender/routing.js';
-import { AstroServerPipeline } from '../../../dist/vite-plugin-app/pipeline.js';
+import { RunnablePipeline } from '../../../dist/vite-plugin-app/pipeline.js';
 import { createDevelopmentManifest } from '../../../dist/vite-plugin-astro-server/plugin.js';
 import testAdapter from '../../test-adapter.js';
 import {
@@ -151,7 +151,7 @@ describe('Route matching', () => {
 			},
 			defaultLogger,
 		);
-		pipeline = AstroServerPipeline.create(manifestData, {
+		pipeline = RunnablePipeline.create(manifestData, {
 			loader,
 			logger: defaultLogger,
 			manifest,

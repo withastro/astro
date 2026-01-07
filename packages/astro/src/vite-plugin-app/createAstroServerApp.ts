@@ -2,14 +2,14 @@ import type http from 'node:http';
 import { manifest } from 'virtual:astro:manifest';
 import { routes } from 'virtual:astro:routes';
 import { getPackageManager } from '../cli/info/core/get-package-manager.js';
-import { createDevDebugInfoProvider } from '../cli/info/infra/dev-debug-info-provider.js';
-import { createProcessNodeVersionProvider } from '../cli/info/infra/process-node-version-provider.js';
-import { createProcessPackageManagerUserAgentProvider } from '../cli/info/infra/process-package-manager-user-agent-provider.js';
-import { createStyledDebugInfoFormatter } from '../cli/info/infra/styled-debug-info-formatter.js';
-import { createBuildTimeAstroVersionProvider } from '../cli/infra/build-time-astro-version-provider.js';
-import { createPassthroughTextStyler } from '../cli/infra/passthrough-text-styler.js';
-import { createProcessOperatingSystemProvider } from '../cli/infra/process-operating-system-provider.js';
-import { createTinyexecCommandExecutor } from '../cli/infra/tinyexec-command-executor.js';
+import { DevDebugInfoProvider } from '../cli/info/infra/dev-debug-info-provider.js';
+import { ProcessNodeVersionProvider } from '../cli/info/infra/process-node-version-provider.js';
+import { ProcessPackageManagerUserAgentProvider } from '../cli/info/infra/process-package-manager-user-agent-provider.js';
+import { StyledDebugInfoFormatter } from '../cli/info/infra/styled-debug-info-formatter.js';
+import { BuildTimeAstroVersionProvider } from '../cli/infra/build-time-astro-version-provider.js';
+import { PassthroughTextStyler } from '../cli/infra/passthrough-text-styler.js';
+import { ProcessOperatingSystemProvider } from '../cli/infra/process-operating-system-provider.js';
+import { TinyexecCommandExecutor } from '../cli/infra/tinyexec-command-executor.js';
 import type { RouteInfo } from '../core/app/types.js';
 import { Logger } from '../core/logger/core.js';
 import { nodeLogDestination } from '../core/logger/node.js';
@@ -32,18 +32,18 @@ export default async function createAstroServerApp(
 		});
 	const routesList: RoutesList = { routes: routes.map((r: RouteInfo) => r.routeData) };
 
-	const debugInfoProvider = createDevDebugInfoProvider({
+	const debugInfoProvider = new DevDebugInfoProvider({
 		config: settings.config,
-		astroVersionProvider: createBuildTimeAstroVersionProvider(),
-		operatingSystemProvider: createProcessOperatingSystemProvider(),
+		astroVersionProvider: new BuildTimeAstroVersionProvider(),
+		operatingSystemProvider: new ProcessOperatingSystemProvider(),
 		packageManager: await getPackageManager({
-			packageManagerUserAgentProvider: createProcessPackageManagerUserAgentProvider(),
-			commandExecutor: createTinyexecCommandExecutor(),
+			packageManagerUserAgentProvider: new ProcessPackageManagerUserAgentProvider(),
+			commandExecutor: new TinyexecCommandExecutor(),
 		}),
-		nodeVersionProvider: createProcessNodeVersionProvider(),
+		nodeVersionProvider: new ProcessNodeVersionProvider(),
 	});
-	const debugInfoFormatter = createStyledDebugInfoFormatter({
-		textStyler: createPassthroughTextStyler(),
+	const debugInfoFormatter = new StyledDebugInfoFormatter({
+		textStyler: new PassthroughTextStyler(),
 	});
 	const debugInfo = debugInfoFormatter.format(await debugInfoProvider.get());
 

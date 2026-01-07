@@ -1,4 +1,5 @@
-import type { ZodLiteral, ZodNumber, ZodObject, ZodString, ZodType, ZodUnion } from 'zod';
+import type * as zCore from 'zod/v4/core';
+import type * as z from 'zod/v4';
 import { AstroError, AstroErrorData, AstroUserError } from '../core/errors/index.js';
 import { CONTENT_LAYER_TYPE, LIVE_CONTENT_TYPE } from './consts.js';
 import type { LiveLoader, Loader } from './loaders/types.js';
@@ -24,20 +25,20 @@ function getImporterFilename() {
 }
 
 // This needs to be in sync with ImageMetadata
-export type ImageFunction = () => ZodObject<{
-	src: ZodString;
-	width: ZodNumber;
-	height: ZodNumber;
-	format: ZodUnion<
+type ImageFunction = () => z.ZodObject<{
+	src: zCore.$ZodString;
+	width: zCore.$ZodNumber;
+	height: zCore.$ZodNumber;
+	format: zCore.$ZodUnion<
 		[
-			ZodLiteral<'png'>,
-			ZodLiteral<'jpg'>,
-			ZodLiteral<'jpeg'>,
-			ZodLiteral<'tiff'>,
-			ZodLiteral<'webp'>,
-			ZodLiteral<'gif'>,
-			ZodLiteral<'svg'>,
-			ZodLiteral<'avif'>,
+			zCore.$ZodLiteral<'png'>,
+			zCore.$ZodLiteral<'jpg'>,
+			zCore.$ZodLiteral<'jpeg'>,
+			zCore.$ZodLiteral<'tiff'>,
+			zCore.$ZodLiteral<'webp'>,
+			zCore.$ZodLiteral<'gif'>,
+			zCore.$ZodLiteral<'svg'>,
+			zCore.$ZodLiteral<'avif'>,
 		]
 	>;
 }>;
@@ -67,9 +68,36 @@ export interface MetaStore {
 	has: (key: string) => boolean;
 }
 
-export type BaseSchema = ZodType;
+export type BaseSchema = zCore.$ZodType;
+
+export type { ImageFunction };
 
 export type SchemaContext = { image: ImageFunction };
+
+type LoaderConstraint<TData extends { id: string }> =
+	| Loader
+	| (() =>
+			| Array<TData>
+			| Promise<Array<TData>>
+			| Record<string, Omit<TData, 'id'> & { id?: string }>
+			| Promise<Record<string, Omit<TData, 'id'> & { id?: string }>>);
+
+type ContentLayerConfig<S extends BaseSchema, TLoader extends LoaderConstraint<{ id: string }>> = {
+	type?: 'content_layer';
+	schema?: S | ((context: SchemaContext) => S);
+	loader: TLoader;
+};
+
+type DataCollectionConfig<S extends BaseSchema> = {
+	type: 'data';
+	schema?: S | ((context: SchemaContext) => S);
+};
+
+type ContentCollectionConfig<S extends BaseSchema> = {
+	type?: 'content';
+	schema?: S | ((context: SchemaContext) => S);
+	loader?: never;
+};
 
 export type LiveCollectionConfig<
 	L extends LiveLoader,
@@ -80,22 +108,10 @@ export type LiveCollectionConfig<
 	loader: L;
 };
 
-type LoaderConstraint<TData extends { id: string }> =
-	| Loader
-	| (() =>
-			| Array<TData>
-			| Promise<Array<TData>>
-			| Record<string, Omit<TData, 'id'> & { id?: string }>
-			| Promise<Record<string, Omit<TData, 'id'> & { id?: string }>>);
-
 export type CollectionConfig<
-	TSchema extends BaseSchema,
-	TLoader extends LoaderConstraint<{ id: string }>,
-> = {
-	type?: 'content_layer';
-	schema?: TSchema | ((context: SchemaContext) => TSchema);
-	loader: TLoader;
-};
+	S extends BaseSchema,
+	TLoader extends LoaderConstraint<{ id: string }> = LoaderConstraint<{ id: string }>,
+> = ContentCollectionConfig<S> | DataCollectionConfig<S> | ContentLayerConfig<S, TLoader>;
 
 export function defineLiveCollection<
 	L extends LiveLoader,
@@ -153,13 +169,14 @@ export function defineLiveCollection<
 			),
 		});
 	}
+
 	return config;
 }
 
 export function defineCollection<
-	TSchema extends BaseSchema,
-	TLoader extends LoaderConstraint<{ id: string }>,
->(config: CollectionConfig<TSchema, TLoader>): CollectionConfig<TSchema, TLoader> {
+	S extends BaseSchema,
+	TLoader extends LoaderConstraint<{ id: string }> = LoaderConstraint<{ id: string }>,
+>(config: CollectionConfig<S, TLoader>): CollectionConfig<S, TLoader> {
 	const importerFilename = getImporterFilename();
 
 	if (importerFilename?.includes('live.config')) {
@@ -172,29 +189,23 @@ export function defineCollection<
 		});
 	}
 
-	if (!('loader' in config)) {
-		throw new AstroError({
-			...AstroErrorData.ContentCollectionMissingLoader,
-			message: AstroErrorData.ContentCollectionMissingLoader.message(importerFilename),
-		});
+	if ('loader' in config) {
+		if (config.type && config.type !== CONTENT_LAYER_TYPE) {
+			throw new AstroUserError(
+				`A content collection is defined with legacy features (e.g. missing a \`loader\` or has a \`type\`). Check your collection definitions in ${importerFilename ?? 'your content config file'} to ensure that all collections are defined using the current properties.`,
+			);
+		}
+		if (
+			typeof config.loader === 'object' &&
+			typeof config.loader.load !== 'function' &&
+			('loadEntry' in config.loader || 'loadCollection' in config.loader)
+		) {
+			throw new AstroUserError(
+				`Live content collections must be defined in "src/live.config.ts" file. Check the loaders used in "${importerFilename ?? 'your content config file'}" to ensure you are not using a live loader to define a build-time content collection.`,
+			);
+		}
+		config.type = CONTENT_LAYER_TYPE;
 	}
-
-	if (config.type && config.type !== CONTENT_LAYER_TYPE) {
-		throw new AstroError({
-			...AstroErrorData.ContentCollectionInvalidType,
-			message: AstroErrorData.ContentCollectionInvalidType.message(config.type, importerFilename),
-		});
-	}
-
-	if (
-		typeof config.loader === 'object' &&
-		typeof config.loader.load !== 'function' &&
-		('loadEntry' in config.loader || 'loadCollection' in config.loader)
-	) {
-		throw new AstroUserError(
-			`Live content collections must be defined in "src/live.config.ts" file. Check your collection definitions in "${importerFilename ?? 'your content config file'}" to ensure you are not using a live loader.`,
-		);
-	}
-	config.type = CONTENT_LAYER_TYPE;
+	if (!config.type) config.type = 'content';
 	return config;
 }

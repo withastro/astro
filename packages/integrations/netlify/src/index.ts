@@ -18,6 +18,7 @@ import { build } from 'esbuild';
 import { glob, globSync } from 'tinyglobby';
 import { copyDependenciesToFunction } from './lib/nft.js';
 import type { Args } from './ssr-function.js';
+import { sessionDrivers } from 'astro/config';
 
 const { version: packageVersion } = JSON.parse(
 	await readFile(new URL('../package.json', import.meta.url), 'utf8'),
@@ -142,7 +143,7 @@ async function writeNetlifyFrameworkConfig(
 
 	if (staticHeaders && staticHeaders.size > 0) {
 		for (const [pathname, { headers: routeHeaders }] of staticHeaders.entries()) {
-			if (config.experimental.csp) {
+			if (config.security.csp) {
 				const csp = routeHeaders.get('Content-Security-Policy');
 
 				if (csp) {
@@ -597,31 +598,37 @@ export default function netlifyIntegration(
 					logger.info('Enabling sessions with Netlify Blobs');
 
 					session = {
-						...session,
-						driver: 'netlify-blobs',
-						options: {
+						driver: sessionDrivers.netlifyBlobs({
 							name: 'astro-sessions',
 							consistency: 'strong',
-							...session?.options,
-						},
+						}),
+						cookie: session?.cookie,
+						ttl: session?.ttl,
 					};
 				}
 
-				const features = integrationConfig?.devFeatures;
+				const features =
+					typeof integrationConfig?.devFeatures === 'boolean'
+						? {
+								images: integrationConfig.devFeatures,
+								environmentVariables: integrationConfig.devFeatures,
+							}
+						: {
+								images: integrationConfig?.devFeatures?.images ?? true,
+								environmentVariables: integrationConfig?.devFeatures?.environmentVariables ?? false,
+							};
 
 				const vitePluginOptions: NetlifyPluginOptions = {
 					images: {
-						// We don't need to disable the feature, because if the user disables it
-						// we'll disable the whole image service.
+						// If features is an object, use the `images` property
+						// Otherwise, use the boolean value of `features`, defaulting to true
+						enabled: features.images,
 						remoteURLPatterns: remoteImagesFromAstroConfig(config, logger),
 					},
 					environmentVariables: {
 						// If features is an object, use the `environmentVariables` property
 						// Otherwise, use the boolean value of `features`, defaulting to false
-						enabled:
-							typeof features === 'object'
-								? (features.environmentVariables ?? false)
-								: features === true,
+						enabled: features.environmentVariables,
 					},
 				};
 

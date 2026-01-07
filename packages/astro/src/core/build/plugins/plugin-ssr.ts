@@ -20,20 +20,26 @@ function vitePluginAdapter(adapter: AstroAdapter): VitePlugin {
 		applyToEnvironment(environment) {
 			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},
-		resolveId(id) {
-			if (id === ADAPTER_VIRTUAL_MODULE_ID) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${ADAPTER_VIRTUAL_MODULE_ID}$`),
+			},
+			handler() {
 				return RESOLVED_ADAPTER_VIRTUAL_MODULE_ID;
-			}
+			},
 		},
-		async load(id) {
-			if (id === RESOLVED_ADAPTER_VIRTUAL_MODULE_ID) {
+		load: {
+			filter: {
+				id: new RegExp(`^${RESOLVED_ADAPTER_VIRTUAL_MODULE_ID}$`),
+			},
+			async handler() {
 				const adapterEntrypointStr = JSON.stringify(adapter.serverEntrypoint);
 				return {
 					code: `export * from ${adapterEntrypointStr};
 import * as _serverEntrypoint from ${adapterEntrypointStr};
 export default _serverEntrypoint.default;`,
 				};
-			}
+			},
 		},
 	};
 }
@@ -50,41 +56,50 @@ function vitePluginAdapterConfig(adapter: AstroAdapter): VitePlugin {
 		applyToEnvironment(environment) {
 			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},
-		resolveId(id) {
-			if (id === ADAPTER_CONFIG_VIRTUAL_MODULE_ID) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${ADAPTER_CONFIG_VIRTUAL_MODULE_ID}$`),
+			},
+			handler() {
 				return RESOLVED_ADAPTER_CONFIG_VIRTUAL_MODULE_ID;
-			}
+			},
 		},
-		load(id) {
-			if (id === RESOLVED_ADAPTER_CONFIG_VIRTUAL_MODULE_ID) {
+		load: {
+			filter: {
+				id: new RegExp(`^${RESOLVED_ADAPTER_CONFIG_VIRTUAL_MODULE_ID}$`),
+			},
+			handler() {
 				return {
 					code: `export const args = ${adapter.args ? JSON.stringify(adapter.args, null, 2) : 'undefined'};
 export const exports = ${adapter.exports ? JSON.stringify(adapter.exports) : 'undefined'};
 export const adapterFeatures = ${adapter.adapterFeatures ? JSON.stringify(adapter.adapterFeatures, null, 2) : 'undefined'};
 export const serverEntrypoint = ${JSON.stringify(adapter.serverEntrypoint)};`,
 				};
-			}
+			},
 		},
 	};
 }
 
-function vitePluginSSR(
-	internals: BuildInternals,
-	adapter: AstroAdapter,
-): VitePlugin {
+function vitePluginSSR(internals: BuildInternals, adapter: AstroAdapter): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr-server',
 		enforce: 'post',
 		applyToEnvironment(environment) {
 			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},
-		resolveId(id) {
-			if (id === SSR_VIRTUAL_MODULE_ID) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${SSR_VIRTUAL_MODULE_ID}$`),
+			},
+			handler() {
 				return RESOLVED_SSR_VIRTUAL_MODULE_ID;
-			}
+			},
 		},
-		load(id) {
-			if (id === RESOLVED_SSR_VIRTUAL_MODULE_ID) {
+		load: {
+			filter: {
+				id: new RegExp(`^${RESOLVED_SSR_VIRTUAL_MODULE_ID}$`),
+			},
+			handler() {
 				const exports: string[] = [];
 
 				if (adapter.exports) {
@@ -102,7 +117,7 @@ function vitePluginSSR(
 				return {
 					code: `import _exports from 'astro/entrypoints/legacy';\n${exports.join('\n')}`,
 				};
-			}
+			},
 		},
 		async generateBundle(_opts, bundle) {
 			// Add assets from this SSR chunk as well.
@@ -115,10 +130,7 @@ function vitePluginSSR(
 	};
 }
 
-export function pluginSSR(
-	options: StaticBuildOptions,
-	internals: BuildInternals,
-): VitePlugin[] {
+export function pluginSSR(options: StaticBuildOptions, internals: BuildInternals): VitePlugin[] {
 	// We check before this point if there's an adapter, so we can safely assume it exists here.
 	const adapter = options.settings.adapter!;
 	const ssr = options.settings.buildOutput === 'server';
@@ -131,4 +143,3 @@ export function pluginSSR(
 
 	return plugins;
 }
-

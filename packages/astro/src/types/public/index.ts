@@ -33,9 +33,10 @@ export type {
 	AstroCookies,
 } from '../../core/cookies/index.js';
 export type { AstroIntegrationLogger } from '../../core/logger/core.js';
-export { AstroSession } from '../../core/session.js';
+export type { AstroSession } from '../../core/session/runtime.js';
 export type { ToolbarServerHelpers } from '../../runtime/client/dev-toolbar/helpers.js';
 export type { AstroEnvironmentNames } from '../../core/constants.js';
+export type { SessionDriver, SessionDriverConfig } from '../../core/session/types.js';
 export type * from './common.js';
 export type * from './config.js';
 export type * from './content.js';

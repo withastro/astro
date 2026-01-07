@@ -24,10 +24,7 @@ import type { AstroSettings, RoutesList } from '../types/astro.js';
 import { vitePluginAdapterConfig } from '../vite-plugin-adapter-config/index.js';
 import { vitePluginApp } from '../vite-plugin-app/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
-import {
-	vitePluginAstroServer,
-	vitePluginAstroServerClient,
-} from '../vite-plugin-astro-server/index.js';
+import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import { astroDevCssPlugin } from '../vite-plugin-css/index.js';
 import vitePluginFileURL from '../vite-plugin-fileurl/index.js';
@@ -51,6 +48,8 @@ import { vitePluginSessionDriver } from './session/vite-plugin.js';
 import { isObject } from './util.js';
 import { vitePluginEnvironment } from '../vite-plugin-environment/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from './constants.js';
+import { vitePluginChromedevtools } from '../vite-plugin-chromedevtools/index.js';
+import { vitePluginAstroServerClient } from '../vite-plugin-overlay/index.js';
 
 type CreateViteOptions = {
 	settings: AstroSettings;
@@ -122,7 +121,7 @@ export async function createVite(
 		plugins: [
 			serializedManifestPlugin({ settings, command, sync }),
 			vitePluginRenderers({ settings }),
-			await astroPluginRoutes({ routesList, settings, logger, fsMod: fs }),
+			await astroPluginRoutes({ routesList, settings, logger, fsMod: fs, command }),
 			astroVirtualManifestPlugin(),
 			vitePluginEnvironment({ settings, astroPkgsConfig, command }),
 			pluginPage({ routesList }),
@@ -160,6 +159,7 @@ export async function createVite(
 			vitePluginSessionDriver({ settings }),
 			astroContainer(),
 			astroHmrReloadPlugin(),
+			vitePluginChromedevtools({ settings }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

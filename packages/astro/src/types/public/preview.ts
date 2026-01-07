@@ -11,14 +11,14 @@ export interface PreviewServer {
 export interface PreviewServerParams {
 	outDir: URL;
 	client: URL;
+	server: URL;
 	serverEntrypoint: URL;
 	host: string | undefined;
 	port: number;
 	base: string;
 	logger: AstroIntegrationLogger;
 	headers?: OutgoingHttpHeaders;
-	createCodegenDir: () => URL;
-	root: URL
+	root: URL;
 }
 
 export type CreatePreviewServer = (

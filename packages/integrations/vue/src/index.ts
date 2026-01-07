@@ -7,7 +7,7 @@ import type { AstroIntegration, AstroRenderer, HookParameters } from 'astro';
 import type { EnvironmentOptions, Plugin, UserConfig } from 'vite';
 import type { VitePluginVueDevToolsOptions } from 'vite-plugin-vue-devtools';
 
-const VIRTUAL_MODULE_ID = 'virtual:@astrojs/vue/app';
+const VIRTUAL_MODULE_ID = 'virtual:astro:vue-app';
 const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`;
 
 interface Options extends VueOptions {
@@ -40,7 +40,7 @@ function virtualAppEntrypoint(options?: Options): Plugin {
 	let appEntrypoint: string | undefined;
 
 	return {
-		name: '@astrojs/vue/virtual-app',
+		name: VIRTUAL_MODULE_ID,
 		config(_, { command }) {
 			isBuild = command === 'build';
 		},
@@ -52,13 +52,19 @@ function virtualAppEntrypoint(options?: Options): Plugin {
 					: options.appEntrypoint;
 			}
 		},
-		resolveId(id: string) {
-			if (id == VIRTUAL_MODULE_ID) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${VIRTUAL_MODULE_ID}$`),
+			},
+			handler() {
 				return RESOLVED_VIRTUAL_MODULE_ID;
-			}
+			},
 		},
-		load(id: string) {
-			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+		load: {
+			filter: {
+				id: new RegExp(`^${RESOLVED_VIRTUAL_MODULE_ID}$`),
+			},
+			handler() {
 				if (appEntrypoint) {
 					return `\
 export const setup = async (app) => {
@@ -78,21 +84,24 @@ export const setup = async (app) => {
 }`;
 				}
 				return `export const setup = () => {};`;
-			}
+			},
 		},
 		// Ensure that Vue components reference appEntrypoint directly
 		// This allows Astro to associate global styles imported in this file
 		// with the pages they should be injected to
-		transform(code, id) {
-			if (!appEntrypoint) return;
-			if (id.endsWith('.vue')) {
+		transform: {
+			filter: {
+				id: /\.vue$/,
+			},
+			handler(code) {
+				if (!appEntrypoint) return;
 				const s = new MagicString(code);
 				s.prepend(`import ${JSON.stringify(appEntrypoint)};\n`);
 				return {
 					code: s.toString(),
 					map: s.generateMap({ hires: 'boundary' }),
 				};
-			}
+			},
 		},
 	};
 }
@@ -150,6 +159,7 @@ function configEnvironmentPlugin(): Plugin {
 				((environmentName === 'ssr' || environmentName === 'prerender') &&
 					_options.optimizeDeps?.noDiscovery === false)
 			) {
+				environmentOptions.optimizeDeps!.include = ['vue'];
 				environmentOptions.optimizeDeps!.exclude = [
 					'@astrojs/vue/server.js',
 					'vue/server-renderer',

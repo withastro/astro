@@ -34,16 +34,22 @@ export default function ({
 					vite: {
 						plugins: [
 							{
-								resolveId(id) {
-									if (id === '@my-ssr') {
-										return id;
-									} else if (id === 'astro/app') {
-										const viteId = viteID(new URL('../dist/core/app/index.js', import.meta.url));
-										return viteId;
-									}
+								resolveId: {
+									filter: {
+										id: /^(astro\/app|@my-ssr)$/,
+									},
+									handler(id) {
+										if (id === '@my-ssr') {
+											return id;
+										}
+										return viteID(new URL('../dist/core/app/index.js', import.meta.url));
+									},
 								},
-								load(id) {
-									if (id === '@my-ssr') {
+								load: {
+									filter: {
+										id: /^@my-ssr$/,
+									},
+									handler() {
 										return {
 											code: `
 											import { App, AppPipeline } from 'astro/app';
@@ -79,7 +85,7 @@ export default function ({
 												async render(request, { routeData, clientAddress, locals, addCookieHeader, prerenderedErrorPageFetch } = {}) {
 													const url = new URL(request.url);
 													if(this.#manifest.assets.has(url.pathname)) {
-														const filePath = new URL('../../client/' + this.removeBase(url.pathname), import.meta.url);
+														const filePath = new URL(this.removeBase(url.pathname).replace(/^\\//, ''), this.#manifest.buildClientDir);
 														const data = await fs.promises.readFile(filePath);
 														return new Response(data);
 													}
@@ -102,7 +108,7 @@ export default function ({
 											}
 										`,
 										};
-									}
+									},
 								},
 							},
 						],

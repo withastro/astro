@@ -32,60 +32,69 @@ export function vitePluginMdx(opts: VitePluginMdxOptions): Plugin {
 				resolved.plugins.splice(jsxPluginIndex, 1);
 			}
 		},
-		async resolveId(source, importer, options) {
-			if (importer?.endsWith('.mdx') && source[0] !== '/') {
-				let resolved = await this.resolve(source, importer, options);
-				if (!resolved) resolved = await this.resolve('./' + source, importer, options);
-				return resolved;
-			}
+		resolveId: {
+			filter: {
+				// Do not match sources that start with /
+				id: /^[^/]/,
+			},
+			async handler(source, importer, options) {
+				if (importer?.endsWith('.mdx')) {
+					let resolved = await this.resolve(source, importer, options);
+					if (!resolved) resolved = await this.resolve('./' + source, importer, options);
+					return resolved;
+				}
+			},
 		},
 		// Override transform to alter code before MDX compilation
 		// ex. inject layouts
-		async transform(code, id) {
-			if (!id.endsWith('.mdx')) return;
+		transform: {
+			filter: {
+				id: /\.mdx$/,
+			},
+			async handler(code, id) {
+				const { frontmatter, content } = safeParseFrontmatter(code, id);
 
-			const { frontmatter, content } = safeParseFrontmatter(code, id);
-
-			const vfile = new VFile({
-				value: content,
-				path: id,
-				data: {
-					astro: {
-						frontmatter,
+				const vfile = new VFile({
+					value: content,
+					path: id,
+					data: {
+						astro: {
+							frontmatter,
+						},
+						applyFrontmatterExport: {
+							srcDir: opts.srcDir,
+						},
 					},
-					applyFrontmatterExport: {
-						srcDir: opts.srcDir,
-					},
-				},
-			});
-
-			// Lazily initialize the MDX processor
-			if (!processor) {
-				processor = createMdxProcessor(opts.mdxOptions, {
-					sourcemap: sourcemapEnabled,
 				});
-			}
 
-			try {
-				const compiled = await processor.process(vfile);
+				// Lazily initialize the MDX processor
+				if (!processor) {
+					processor = createMdxProcessor(opts.mdxOptions, {
+						sourcemap: sourcemapEnabled,
+					});
+				}
 
-				return {
-					code: String(compiled.value),
-					map: compiled.map,
-					meta: getMdxMeta(vfile),
-				};
-			} catch (e: any) {
-				const err: SSRError = e;
+				try {
+					const compiled = await processor.process(vfile);
 
-				// For some reason MDX puts the error location in the error's name, not very useful for us.
-				err.name = 'MDXError';
-				err.loc = { file: id, line: e.line, column: e.column };
+					return {
+						code: String(compiled.value),
+						map: compiled.map,
+						meta: getMdxMeta(vfile),
+					};
+				} catch (e: any) {
+					const err: SSRError = e;
 
-				// For another some reason, MDX doesn't include a stack trace. Weird
-				Error.captureStackTrace(err);
+					// For some reason MDX puts the error location in the error's name, not very useful for us.
+					err.name = 'MDXError';
+					err.loc = { file: id, line: e.line, column: e.column };
 
-				throw err;
-			}
+					// For another some reason, MDX doesn't include a stack trace. Weird
+					Error.captureStackTrace(err);
+
+					throw err;
+				}
+			},
 		},
 	};
 }

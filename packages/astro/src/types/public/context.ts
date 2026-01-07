@@ -1,8 +1,7 @@
-import type { z } from 'zod';
-import type { ActionAccept, ActionClient, ActionReturnType } from '../../actions/runtime/server.js';
+import type { ActionClient, ActionReturnType } from '../../actions/runtime/types.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
 import type { CspDirective, CspHash } from '../../core/csp/config.js';
-import type { AstroSession } from '../../core/session.js';
+import type { AstroSession } from '../../core/session/runtime.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { Params, RewritePayload } from './common.js';
 import type { ValidRedirectStatus } from './config.js';
@@ -252,23 +251,14 @@ interface AstroSharedContext<
 	/**
 	 * Get action result on the server when using a form POST.
 	 */
-	getActionResult: <
-		TAccept extends ActionAccept,
-		TInputSchema extends z.ZodType,
-		TAction extends ActionClient<unknown, TAccept, TInputSchema>,
-	>(
+	getActionResult: <TAction extends ActionClient<any, any, any>>(
 		action: TAction,
 	) => ActionReturnType<TAction> | undefined;
 	/**
 	 * Call action handler from the server.
 	 */
 	callAction: <
-		TAccept extends ActionAccept,
-		TInputSchema extends z.ZodType,
-		TOutput,
-		TAction extends
-			| ActionClient<TOutput, TAccept, TInputSchema>
-			| ActionClient<TOutput, TAccept, TInputSchema>['orThrow'],
+		TAction extends ActionClient<any, any, any> | ActionClient<any, any, any>['orThrow'],
 	>(
 		action: TAction,
 		input: Parameters<TAction>[0],

@@ -1,5 +1,4 @@
-import type { ZodType } from 'zod';
-import type { ActionAccept, ActionClient } from '../../actions/runtime/server.js';
+import type { ActionClient } from '../../actions/runtime/types.js';
 import type { ComponentInstance, SerializedRouteData } from '../../types/astro.js';
 import type { AstroMiddlewareInstance } from '../../types/public/common.js';
 import type {
@@ -7,7 +6,6 @@ import type {
 	CspAlgorithm,
 	Locales,
 	RemotePattern,
-	ResolvedSessionConfig,
 } from '../../types/public/config.js';
 import type {
 	RouteData,
@@ -18,8 +16,8 @@ import type {
 import type { SinglePageBuiltModule } from '../build/types.js';
 import type { CspDirective } from '../csp/config.js';
 import type { LoggerLevel } from '../logger/core.js';
-import type { SessionDriver } from '../session.js';
 import type { RoutingStrategies } from './common.js';
+import type { BaseSessionConfig, SessionDriverFactory } from '../session/types.js';
 
 type ComponentPath = string;
 
@@ -97,10 +95,10 @@ export type SSRManifest = {
 	i18n: SSRManifestI18n | undefined;
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
 	actions?: () => Promise<SSRActions> | SSRActions;
-	sessionDriver?: () => Promise<{ default: SessionDriver | null }>;
+	sessionDriver?: () => Promise<{ default: SessionDriverFactory | null }>;
 	checkOrigin: boolean;
 	allowedDomains?: Partial<RemotePattern>[];
-	sessionConfig?: ResolvedSessionConfig<any>;
+	sessionConfig?: SSRManifestSession;
 	cacheDir: URL;
 	srcDir: URL;
 	outDir: URL;
@@ -129,7 +127,7 @@ export type SSRManifest = {
 };
 
 export type SSRActions = {
-	server: Record<string, ActionClient<unknown, ActionAccept, ZodType>>;
+	server: Record<string, ActionClient<any, any, any>>;
 };
 
 export type SSRManifestI18n = {
@@ -152,6 +150,11 @@ export type SSRManifestCSP = {
 	styleResources: string[];
 	directives: CspDirective[];
 };
+
+export interface SSRManifestSession extends BaseSessionConfig {
+	driver: string;
+	options?: Record<string, any> | undefined;
+}
 
 /** Public type exposed through the `astro:build:ssr` integration hook */
 export type SerializedSSRManifest = Omit<

@@ -3,7 +3,7 @@ import { createMarkdownProcessor, type MarkdownProcessor } from '@astrojs/markdo
 import PQueue from 'p-queue';
 import type { FSWatcher } from 'vite';
 import xxhash from 'xxhash-wasm';
-import type { z } from 'zod';
+import type * as z from 'zod/v4';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { AstroSettings } from '../types/astro.js';
@@ -182,15 +182,27 @@ class ContentLayer {
 			]);
 		}
 
-		if (contentConfig?.status === 'error') {
-			logger.error(`Error loading content config. Skipping sync.\n${contentConfig.error.message}`);
-			return;
-		}
-
-		// It shows as loaded with no collections even if there's no config
-		if (contentConfig?.status !== 'loaded') {
-			logger.error(`Content config not loaded, skipping sync. Status was ${contentConfig?.status}`);
-			return;
+		switch (contentConfig?.status) {
+			case 'loaded':
+				// Proceed with sync
+				break;
+			case 'error':
+				// Log error and skip sync
+				logger.error(
+					`Error loading content config. Skipping sync.\n${contentConfig.error.message}`,
+				);
+				return;
+			case 'does-not-exist':
+				// No content config file exists, skip sync silently
+				return;
+			case 'init':
+			case 'loading':
+			case undefined:
+				// Should have loaded by now, but didn't
+				logger.error(
+					`Content config not loaded, skipping sync. Status was ${contentConfig?.status}`,
+				);
+				return;
 		}
 
 		logger.info('Syncing content');
@@ -243,15 +255,24 @@ class ContentLayer {
 			this.#watcher?.removeAllTrackedListeners();
 		}
 
+		const backwardsCompatEnabled =
+			this.#settings.config.legacy?.collectionsBackwardsCompat ?? false;
+
 		await Promise.all(
 			Object.entries(contentConfig.config.collections).map(async ([name, collection]) => {
-				if (collection.type !== CONTENT_LAYER_TYPE) {
+				// Skip non-content_layer collections unless backwards compat is enabled
+				if (collection.type !== CONTENT_LAYER_TYPE && !backwardsCompatEnabled) {
+					return;
+				}
+				// If backwards compat is disabled, skip old-style collections
+				if (collection.type !== CONTENT_LAYER_TYPE && !('loader' in collection)) {
 					return;
 				}
 
 				let { schema } = collection;
+				const loaderName = 'loader' in collection ? (collection as any).loader.name : 'content';
 
-				if (!schema && typeof collection.loader === 'object') {
+				if (!schema && 'loader' in collection && typeof collection.loader === 'object') {
 					schema = collection.loader.schema;
 					if (!schema && collection.loader.createSchema) {
 						({ schema } = await collection.loader.createSchema());
@@ -261,8 +282,9 @@ class ContentLayer {
 				// If loaders are specified, only sync the specified loaders
 				if (
 					options?.loaders &&
+					'loader' in collection &&
 					(typeof collection.loader !== 'object' ||
-						!options.loaders.includes(collection.loader.name))
+						!options.loaders.includes((collection as any).loader.name))
 				) {
 					return;
 				}
@@ -283,19 +305,21 @@ class ContentLayer {
 							{ ...collection, schema },
 							false,
 						),
-					loaderName: collection.loader.name,
+					loaderName,
 					refreshContextData: options?.context,
 				});
 
-				if (typeof collection.loader === 'function') {
-					return simpleLoader(collection.loader as CollectionLoader<{ id: string }>, context);
-				}
+				if ('loader' in collection) {
+					if (typeof collection.loader === 'function') {
+						return simpleLoader(collection.loader as CollectionLoader<{ id: string }>, context);
+					}
 
-				if (!collection.loader.load) {
-					throw new Error(`Collection loader for ${name} does not have a load method`);
-				}
+					if (!collection.loader?.load) {
+						throw new Error(`Collection loader for ${name} does not have a load method`);
+					}
 
-				return collection.loader.load(context);
+					return collection.loader.load(context);
+				}
 			}),
 		);
 		await fs.mkdir(this.#settings.config.cacheDir, { recursive: true });
@@ -353,13 +377,13 @@ async function simpleLoader<TData extends { id: string }>(
 	const parsedData = loaderReturnSchema.safeParse(unsafeData);
 
 	if (!parsedData.success) {
-		const issue = parsedData.error.issues[0] as z.ZodInvalidUnionIssue;
+		const issue = parsedData.error.issues[0] as z.core.$ZodIssueInvalidUnion;
 
 		// Due to this being a union, zod will always throw an "Expected array, received object" error along with the other errors.
 		// This error is in the second position if the data is an array, and in the first position if the data is an object.
-		const parseIssue = Array.isArray(unsafeData) ? issue.unionErrors[0] : issue.unionErrors[1];
+		const parseIssue = Array.isArray(unsafeData) ? issue.errors[0] : issue.errors[1];
 
-		const error = parseIssue.errors[0];
+		const error = parseIssue[0];
 		const firstPathItem = error.path[0];
 
 		const entry = Array.isArray(unsafeData)

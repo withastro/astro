@@ -27,7 +27,7 @@ import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../routing/match.js';
-import { type AstroSession, PERSIST_SYMBOL } from '../session.js';
+import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
 
@@ -431,6 +431,9 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 		if (
 			REROUTABLE_STATUS_CODES.includes(response.status) &&
+			// If the body isn't null, that means the user sets the 404 status
+			// but uses the current route to handle the 404
+			response.body === null &&
 			response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 		) {
 			return this.renderError(request, {

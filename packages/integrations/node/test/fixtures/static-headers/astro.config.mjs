@@ -6,7 +6,7 @@ export default {
 		mode: 'standalone',
 		experimentalStaticHeaders: true
 	}),
-	experimental: {
+	security: {
 		csp: true
 	}
 };

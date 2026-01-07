@@ -1,12 +1,13 @@
+import { prependForwardSlash } from '@astrojs/internal-helpers/path';
+import type * as vite from 'vite';
 import type { Plugin, RunnableDevEnvironment } from 'vite';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { wrapId } from '../core/util.js';
 import type { ImportedDevStyle, RoutesList } from '../types/astro.js';
-import type * as vite from 'vite';
-import { isBuildableCSSRequest } from '../vite-plugin-astro-server/util.js';
+import { inlineRE, isBuildableCSSRequest, rawRE } from '../vite-plugin-astro-server/util.js';
 import { getVirtualModulePageNameForComponent } from '../vite-plugin-pages/util.js';
 import { getDevCSSModuleName } from './util.js';
-import { prependForwardSlash } from '@astrojs/internal-helpers/path';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { CSS_LANGS_RE } from '../core/viteUtils.js';
 
 interface AstroVitePluginOptions {
 	routesList: RoutesList;
@@ -17,6 +18,7 @@ const MODULE_DEV_CSS = 'virtual:astro:dev-css';
 const RESOLVED_MODULE_DEV_CSS = '\0' + MODULE_DEV_CSS;
 const MODULE_DEV_CSS_PREFIX = 'virtual:astro:dev-css:';
 const RESOLVED_MODULE_DEV_CSS_PREFIX = '\0' + MODULE_DEV_CSS_PREFIX;
+// This is used by Cloudflare optimizeDeps config
 const MODULE_DEV_CSS_ALL = 'virtual:astro:dev-css-all';
 const RESOLVED_MODULE_DEV_CSS_ALL = '\0' + MODULE_DEV_CSS_ALL;
 const ASTRO_CSS_EXTENSION_POST_PATTERN = '@_@';
@@ -56,7 +58,7 @@ function* collectCSSWithOrder(
 		return;
 	}
 	// ?raw imports the underlying css but is handled as a string in the JS.
-	else if(id.endsWith('?raw')) {
+	else if (id.endsWith('?raw')) {
 		return;
 	}
 
@@ -83,110 +85,139 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 	// Cache CSS content by module ID to avoid re-reading
 	const cssContentCache = new Map<string, string>();
 
-	return [{
-		name: MODULE_DEV_CSS,
+	return [
+		{
+			name: MODULE_DEV_CSS,
 
-		async configureServer(server) {
-			environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as RunnableDevEnvironment;
-		},
+			async configureServer(server) {
+				environment = server.environments[
+					ASTRO_VITE_ENVIRONMENT_NAMES.ssr
+				] as RunnableDevEnvironment;
+			},
 
-		resolveId(id) {
-			if (id === MODULE_DEV_CSS) {
-				return RESOLVED_MODULE_DEV_CSS;
-			}
-			if (id.startsWith(MODULE_DEV_CSS_PREFIX)) {
-				return RESOLVED_MODULE_DEV_CSS_PREFIX + id.slice(MODULE_DEV_CSS_PREFIX.length);
-			}
-		},
-
-		async load(id) {
-			if (id === RESOLVED_MODULE_DEV_CSS) {
-				return {
-					code: `export const css = new Set()`,
-				};
-			}
-			if (id.startsWith(RESOLVED_MODULE_DEV_CSS_PREFIX)) {
-				const componentPath = getComponentFromVirtualModuleCssName(
-					RESOLVED_MODULE_DEV_CSS_PREFIX,
-					id,
-				);
-
-				// Collect CSS by walking the dependency tree from the component
-				const cssWithOrder = new Map<string, ImportedDevStyle>();
-
-				// The virtual module name for this page, like virtual:astro:dev-css:index@_@astro
-				const componentPageId = getVirtualModulePageNameForComponent(componentPath);
-
-				// Ensure the page module is loaded. This will populate the graph and allow us to walk through. 
-				await environment?.runner?.import(componentPageId);
-				const resolved = await environment?.pluginContainer.resolveId(componentPageId);
-
-				if(!resolved?.id) {
-					return {
-						code: 'export const css = new Set()'
-					};
-				}
-
-				// the vite.EnvironmentModuleNode has all of the info we need
-				const mod = environment?.moduleGraph.getModuleById(resolved.id);
-
-				if(!mod) {
-					return {
-						code: 'export const css = new Set()'
-					};
-				}
-
-				// Walk through the graph depth-first
-				for (const collected of collectCSSWithOrder(componentPageId, mod!)) {
-					// Use the CSS file ID as the key to deduplicate while keeping best ordering
-					if (!cssWithOrder.has(collected.idKey)) {
-						// Look up actual content from cache if available
-						const content = cssContentCache.get(collected.id) || collected.content;
-						cssWithOrder.set(collected.idKey, { ...collected, content });
+			resolveId: {
+				filter: {
+					id: new RegExp(`^(${MODULE_DEV_CSS}|${MODULE_DEV_CSS_PREFIX}.*)$`),
+				},
+				handler(id) {
+					if (id === MODULE_DEV_CSS) {
+						return RESOLVED_MODULE_DEV_CSS;
 					}
-				}
+					return RESOLVED_MODULE_DEV_CSS_PREFIX + id.slice(MODULE_DEV_CSS_PREFIX.length);
+				},
+			},
 
-				const cssArray = Array.from(cssWithOrder.values());
-				// Remove the temporary fields added during collection
-				const cleanedCss = cssArray.map(({ content, id: cssId, url }) => ({ content, id: cssId, url }));
-				return {
-					code: `export const css = new Set(${JSON.stringify(cleanedCss)})`,
-				};
-			}
-		},
+			load: {
+				filter: {
+					id: new RegExp(`^(${RESOLVED_MODULE_DEV_CSS}|${RESOLVED_MODULE_DEV_CSS_PREFIX}.*)$`),
+				},
+				async handler(id) {
+					if (id === RESOLVED_MODULE_DEV_CSS) {
+						return {
+							code: `export const css = new Set()`,
+						};
+					}
+					if (id.startsWith(RESOLVED_MODULE_DEV_CSS_PREFIX)) {
+						const componentPath = getComponentFromVirtualModuleCssName(
+							RESOLVED_MODULE_DEV_CSS_PREFIX,
+							id,
+						);
 
-		async transform(code, id) {
-			if (command === 'build') {
-				return;
-			}
+						// Collect CSS by walking the dependency tree from the component
+						const cssWithOrder = new Map<string, ImportedDevStyle>();
 
-			// Cache CSS content as we see it
-			if (isBuildableCSSRequest(id)) {
-				const mod = environment?.moduleGraph.getModuleById(id);
-				if (mod) {
-					cssContentCache.set(id, code);
-				}
-			}
+						// The virtual module name for this page, like virtual:astro:dev-css:index@_@astro
+						const componentPageId = getVirtualModulePageNameForComponent(componentPath);
+
+						// Ensure the page module is loaded. This will populate the graph and allow us to walk through.
+						await environment?.runner?.import(componentPageId);
+						const resolved = await environment?.pluginContainer.resolveId(componentPageId);
+
+						if (!resolved?.id) {
+							return {
+								code: 'export const css = new Set()',
+							};
+						}
+
+						// the vite.EnvironmentModuleNode has all of the info we need
+						const mod = environment?.moduleGraph.getModuleById(resolved.id);
+
+						if (!mod) {
+							return {
+								code: 'export const css = new Set()',
+							};
+						}
+
+						// Walk through the graph depth-first
+						for (const collected of collectCSSWithOrder(componentPageId, mod!)) {
+							// Use the CSS file ID as the key to deduplicate while keeping best ordering
+							if (!cssWithOrder.has(collected.idKey)) {
+								// Look up actual content from cache if available
+								const content = cssContentCache.get(collected.id) || collected.content;
+								cssWithOrder.set(collected.idKey, { ...collected, content });
+							}
+						}
+
+						const cssArray = Array.from(cssWithOrder.values());
+						// Remove the temporary fields added during collection
+						const cleanedCss = cssArray.map(({ content, id: cssId, url }) => ({
+							content,
+							id: cssId,
+							url,
+						}));
+						return {
+							code: `export const css = new Set(${JSON.stringify(cleanedCss)})`,
+						};
+					}
+				},
+			},
+
+			transform: {
+				filter: {
+					id: {
+						include: [CSS_LANGS_RE],
+						exclude: [rawRE, inlineRE],
+					},
+				},
+				handler(code, id) {
+					if (command === 'build') {
+						return;
+					}
+
+					// Cache CSS content as we see it
+					const mod = environment?.moduleGraph.getModuleById(id);
+					if (mod) {
+						cssContentCache.set(id, code);
+					}
+				},
+			},
 		},
-	}, {
-		name: MODULE_DEV_CSS_ALL,
-		resolveId(id) {
-			if(id === MODULE_DEV_CSS_ALL) {
-				return RESOLVED_MODULE_DEV_CSS_ALL
-			}
+		{
+			name: MODULE_DEV_CSS_ALL,
+			resolveId: {
+				filter: {
+					id: new RegExp(`^${MODULE_DEV_CSS_ALL}$`),
+				},
+				handler() {
+					return RESOLVED_MODULE_DEV_CSS_ALL;
+				},
+			},
+			load: {
+				filter: {
+					id: new RegExp(`^${RESOLVED_MODULE_DEV_CSS_ALL}$`),
+				},
+				handler() {
+					// Creates a map of the component name to a function to import it
+					let code = `export const devCSSMap = new Map([`;
+					for (const route of routesList.routes) {
+						code += `\n\t[${JSON.stringify(route.component)}, () => import(${JSON.stringify(getDevCSSModuleName(route.component))})],`;
+					}
+					code += ']);';
+					return {
+						code,
+					};
+				},
+			},
 		},
-		load(id) {
-			if(id === RESOLVED_MODULE_DEV_CSS_ALL) {
-				// Creates a map of the component name to a function to import it
-				let code = `export const devCSSMap = new Map([`;
-				for(const route of routesList.routes) {
-					code += `\n\t[${JSON.stringify(route.component)}, () => import(${JSON.stringify(getDevCSSModuleName(route.component))})],`
-				}
-				code += ']);'
-				return {
-					code
-				};
-			}
-		}
-	}];
+	];
 }

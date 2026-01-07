@@ -10,24 +10,30 @@ const RESOLVED_NOOP_MODULE_ID = '\0' + NOOP_MODULE_ID;
 export function pluginNoop(): vite.Plugin {
 	return {
 		name: 'plugin-noop',
-		resolveId(id) {
-			if(id === NOOP_MODULE_ID) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${NOOP_MODULE_ID}$`),
+			},
+			handler() {
 				return RESOLVED_NOOP_MODULE_ID;
-			}
+			},
 		},
-		load(id) {
-			if(id === RESOLVED_NOOP_MODULE_ID) {
-				return '';
-			}
+		load: {
+			filter: {
+				id: new RegExp(`^${RESOLVED_NOOP_MODULE_ID}$`),
+			},
+			handler() {
+				return 'export const noop = {};';
+			},
 		},
 		generateBundle(_options, bundle) {
 			// Delete this bundle so that its not written out to disk.
-			for(const [name, chunk] of Object.entries(bundle)) {
-				if(chunk.type === 'asset') continue;
-				if(chunk.facadeModuleId === RESOLVED_NOOP_MODULE_ID) {
+			for (const [name, chunk] of Object.entries(bundle)) {
+				if (chunk.type === 'asset') continue;
+				if (chunk.facadeModuleId === RESOLVED_NOOP_MODULE_ID) {
 					delete bundle[name];
 				}
 			}
-		}
-	}
+		},
+	};
 }

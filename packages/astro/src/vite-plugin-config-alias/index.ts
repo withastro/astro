@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { CompilerOptions } from 'typescript';
-import { normalizePath, type ResolvedConfig, type Plugin as VitePlugin } from 'vite';
+import { normalizePath, type Plugin as VitePlugin } from 'vite';
 
 import type { AstroSettings } from '../types/astro.js';
 
@@ -91,7 +91,7 @@ const getViteResolveAlias = (settings: AstroSettings) => {
 				for (const resolvedValue of resolvedValues) {
 					const resolved = resolvedValue.replace('*', id);
 					if (fs.existsSync(resolved)) {
-						return resolved;
+						return normalizePath(resolved);
 					}
 				}
 				return null;
@@ -133,82 +133,37 @@ export default function configAliasVitePlugin({
 				},
 			};
 		},
-		configResolved(config) {
-			patchCreateResolver(config, plugin);
-		},
-		async resolveId(id, importer, options) {
-			if (isVirtualId(id)) return;
+		resolveId: {
+			filter: {
+				id: {
+					include: configAlias.map((alias) => alias.find),
+					exclude: /(?:\0|^virtual:|^astro:)/,
+				},
+			},
+			async handler(id, importer, options) {
+				// Handle aliases found from `compilerOptions.paths`. Unlike Vite aliases, tsconfig aliases
+				// are best effort only, so we have to manually replace them here, instead of using `vite.resolve.alias`
+				for (const alias of configAlias) {
+					if (alias.find.test(id)) {
+						const updatedId = id.replace(alias.find, alias.replacement);
 
-			// Handle aliases found from `compilerOptions.paths`. Unlike Vite aliases, tsconfig aliases
-			// are best effort only, so we have to manually replace them here, instead of using `vite.resolve.alias`
-			for (const alias of configAlias) {
-				if (alias.find.test(id)) {
-					const updatedId = id.replace(alias.find, alias.replacement);
+						// Vite may pass an id with "*" when resolving glob import paths
+						// Returning early allows Vite to handle the final resolution
+						// See https://github.com/withastro/astro/issues/9258#issuecomment-1838806157
+						if (updatedId.includes('*')) {
+							return updatedId;
+						}
 
-					// Vite may pass an id with "*" when resolving glob import paths
-					// Returning early allows Vite to handle the final resolution
-					// See https://github.com/withastro/astro/issues/9258#issuecomment-1838806157
-					if (updatedId.includes('*')) {
-						return updatedId;
+						const resolved = await this.resolve(updatedId, importer, {
+							skipSelf: true,
+							...options,
+						});
+						if (resolved) return resolved;
 					}
-
-					const resolved = await this.resolve(updatedId, importer, { skipSelf: true, ...options });
-					if (resolved) return resolved;
 				}
-			}
+			},
 		},
 	};
 
 	return plugin;
-}
-
-/**
- * Vite's `createResolver` is used to resolve various things, including CSS `@import`.
- * We use vite.resolve.alias with custom resolvers to handle tsconfig paths in most cases,
- * but for CSS imports, we still need to patch createResolver as vite.resolve.alias
- * doesn't apply there. This function patches createResolver to inject our custom resolver.
- *
- * TODO: Remove this function once all tests pass with only the vite.resolve.alias approach,
- * which means CSS @import resolution will work without patching createResolver.
- */
-function patchCreateResolver(config: ResolvedConfig, postPlugin: VitePlugin) {
-	const _createResolver = config.createResolver;
-	// @ts-expect-error override readonly property intentionally
-	config.createResolver = function (...args1: any) {
-		const resolver = _createResolver.apply(config, args1);
-		return async function (...args2: any) {
-			const id: string = args2[0];
-			const importer: string | undefined = args2[1];
-			const ssr: boolean | undefined = args2[3];
-
-			// fast path so we don't run this extensive logic in prebundling
-			if (importer?.includes('node_modules')) {
-				return resolver.apply(_createResolver, args2);
-			}
-
-			const fakePluginContext = {
-				resolve: (_id: string, _importer?: string) => resolver(_id, _importer, false, ssr),
-			};
-			const fakeResolveIdOpts = {
-				assertions: {},
-				isEntry: false,
-				ssr,
-			};
-
-			const result = await resolver.apply(_createResolver, args2);
-			if (result) return result;
-
-			// @ts-expect-error resolveId exists
-			const resolved = await postPlugin.resolveId.apply(fakePluginContext, [
-				id,
-				importer,
-				fakeResolveIdOpts,
-			]);
-			if (resolved) return resolved;
-		};
-	};
-}
-
-function isVirtualId(id: string) {
-	return id.includes('\0') || id.startsWith('virtual:') || id.startsWith('astro:');
 }

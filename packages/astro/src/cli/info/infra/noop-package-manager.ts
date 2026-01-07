@@ -1,12 +1,9 @@
 import type { PackageManager } from '../definitions.js';
 
-export function createNoopPackageManager(): PackageManager {
-	return {
-		getName() {
-			return 'unknown';
-		},
-		async getPackageVersion() {
-			return undefined;
-		},
-	};
+export class NoopPackageManager implements PackageManager {
+	readonly name: string = 'unknown';
+
+	async getPackageVersion(): Promise<string | undefined> {
+		return undefined;
+	}
 }

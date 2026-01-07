@@ -1,13 +1,9 @@
-import { createReadStream, writeFileSync, copyFileSync, existsSync, readFileSync } from 'node:fs';
+import { createReadStream, existsSync, readFileSync } from 'node:fs';
 import { appendFile, stat } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline/promises';
-import { pathToFileURL, fileURLToPath } from 'node:url';
-import {
-	appendForwardSlash,
-	prependForwardSlash,
-	removeLeadingForwardSlash,
-} from '@astrojs/internal-helpers/path';
+import { pathToFileURL } from 'node:url';
+import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
 import type {
@@ -21,8 +17,13 @@ import { cloudflareModuleLoader } from './utils/cloudflare-module-loader.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { type ImageService, setImageConfig } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
-import { hasWranglerConfig, wranglerTemplate } from './wrangler.js';
+import {
+	cloudflareConfigCustomizer,
+	DEFAULT_SESSION_KV_BINDING_NAME,
+	DEFAULT_IMAGES_BINDING_NAME,
+} from './wrangler.js';
 import { parse } from 'dotenv';
+import { sessionDrivers } from 'astro/config';
 
 export type { Runtime } from './utils/handler.js';
 
@@ -64,46 +65,24 @@ export type Options = {
 	cloudflareModules?: boolean;
 
 	/**
-	 * By default, Astro will be configured to use Cloudflare KV to store session data. If you want to use sessions,
-	 * you must create a KV namespace and declare it in your wrangler config file. You can do this with the wrangler command:
+	 * By default, Astro will be configured to use Cloudflare KV to store session data. The KV namespace
+	 * will be automatically provisioned when you deploy.
 	 *
-	 * ```sh
-	 * npx wrangler kv namespace create SESSION
-	 * ```
+	 * By default, the binding is named `SESSION`, but you can override this by providing a different name here.
+	 * If you define the binding manually in your wrangler config, Astro will use your configuration instead.
 	 *
-	 * This will log the id of the created namespace. You can then add it to your `wrangler.json` file like this:
-	 *
-	 * ```json
-	 * {
-	 *   "kv_namespaces": [
-	 *     {
-	 *       "binding": "SESSION",
-	 *       "id": "<your kv namespace id here>"
-	 *     }
-	 *   ]
-	 * }
-	 * ```
-	 * By default, the driver looks for the binding named `SESSION`, but you can override this by providing a different name here.
-	 *
-	 * See https://developers.cloudflare.com/kv/concepts/kv-namespaces/ for more details on using KV namespaces.
-	 *
+	 * See https://developers.cloudflare.com/workers/wrangler/configuration/#automatic-provisioning for more details.
 	 */
 	sessionKVBindingName?: string;
 
 	/**
-	 * When configured as `cloudflare-binding`, the Cloudflare Images binding will be used to transform images:
-	 * - https://developers.cloudflare.com/images/transform-images/bindings/
+	 * When `imageService` is set to `cloudflare-binding`, the Cloudflare Images binding will be used
+	 * to transform images. The binding will be automatically configured for you.
 	 *
-	 * By default, this will use the "IMAGES" binding name, but this can be customised in your `wrangler.json`:
+	 * By default, the binding is named `IMAGES`, but you can override this by providing a different name here.
+	 * If you define the binding manually in your wrangler config, Astro will use your configuration instead.
 	 *
-	 * ```json
-	 * {
-	 *   "images": {
-	 *     "binding": "IMAGES" // <-- this should match `imagesBindingName`
-	 *   }
-	 * }
-	 * ```
-	 *
+	 * See https://developers.cloudflare.com/images/transform-images/bindings/ for more details.
 	 */
 	imagesBindingName?: string;
 
@@ -129,10 +108,6 @@ export type Options = {
 	};
 };
 
-function wrapWithSlashes(path: string): string {
-	return prependForwardSlash(appendForwardSlash(path));
-}
-
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let finalBuildOutput: HookParameters<'astro:config:done'>['buildOutput'];
@@ -143,67 +118,46 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 	let _routes: IntegrationResolvedRoute[];
 
-	const SESSION_KV_BINDING_NAME = args?.sessionKVBindingName ?? 'SESSION';
+	const sessionKVBindingName = args?.sessionKVBindingName ?? DEFAULT_SESSION_KV_BINDING_NAME;
+	const imagesBindingName = args?.imagesBindingName ?? DEFAULT_IMAGES_BINDING_NAME;
 
 	return {
 		name: '@astrojs/cloudflare',
 		hooks: {
-			'astro:config:setup': ({
-				command,
-				config,
-				updateConfig,
-				logger,
-				addWatchFile,
-				createCodegenDir,
-			}) => {
+			'astro:config:setup': ({ command, config, updateConfig, logger, addWatchFile }) => {
 				let session = config.session;
 
 				if (args?.imageService === 'cloudflare-binding') {
-					const bindingName = args?.imagesBindingName ?? 'IMAGES';
-
 					logger.info(
-						`Enabling image processing with Cloudflare Images for production with the "${bindingName}" Images binding.`,
-					);
-					logger.info(
-						`If you see the error "Invalid binding \`${bindingName}\`" in your build output, you need to add the binding to your wrangler config file.`,
+						`Enabling image processing with Cloudflare Images for production with the "${imagesBindingName}" Images binding.`,
 					);
 				}
 
 				if (!session?.driver) {
 					logger.info(
-						`Enabling sessions with Cloudflare KV with the "${SESSION_KV_BINDING_NAME}" KV binding.`,
-					);
-					logger.info(
-						`If you see the error "Invalid binding \`${SESSION_KV_BINDING_NAME}\`" in your build output, you need to add the binding to your wrangler config file.`,
+						`Enabling sessions with Cloudflare KV with the "${sessionKVBindingName}" KV binding.`,
 					);
 
 					session = {
-						...session,
-						driver: 'cloudflare-kv-binding',
-						options: {
-							binding: SESSION_KV_BINDING_NAME,
-							...session?.options,
-						},
+						driver: sessionDrivers.cloudflareKVBinding({
+							binding: sessionKVBindingName,
+						}),
+						cookie: session?.cookie,
+						ttl: session?.ttl,
 					};
 				}
-				const cfPluginConfig: PluginConfig = { viteEnvironment: { name: 'ssr' } };
-				if (!hasWranglerConfig(config.root)) {
-					const codegenDir = createCodegenDir();
-					const cachedFile = new URL('wrangler.json', codegenDir);
-					writeFileSync(cachedFile, wranglerTemplate(), 'utf-8');
-					cfPluginConfig.configPath = fileURLToPath(cachedFile);
-
-					// Copy .dev.vars to codegen dir if it exists
-					const devVarsPath = new URL('.dev.vars', config.root);
-					const devVarsCodegenPath = new URL('.dev.vars', codegenDir);
-					if (existsSync(devVarsPath)) {
-						copyFileSync(devVarsPath, devVarsCodegenPath);
-					}
-				}
+				const cfPluginConfig: PluginConfig = {
+					viteEnvironment: { name: 'ssr' },
+					config: cloudflareConfigCustomizer({
+						sessionKVBindingName: args?.sessionKVBindingName,
+						imagesBindingName:
+							args?.imageService === 'cloudflare-binding' ? args?.imagesBindingName : false,
+					}),
+				};
 
 				updateConfig({
 					build: {
-						client: new URL(`.${wrapWithSlashes(config.base)}`, config.outDir),
+						client: new URL(`./client/`, config.outDir),
 						server: new URL('./_worker.js/', config.outDir),
 						serverEntry: 'index.js',
 						redirects: false,
@@ -218,20 +172,53 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							{
 								name: '@astrojs/cloudflare:cf-imports',
 								enforce: 'pre',
-								resolveId(source) {
-									if (source.startsWith('cloudflare:')) {
-										return { id: source, external: true };
-									}
-									return null;
+								resolveId: {
+									filter: {
+										id: /^cloudflare:/,
+									},
+									handler(id) {
+										return { id, external: true };
+									},
 								},
 							},
 							{
 								name: '@astrojs/cloudflare:environment',
 								configEnvironment(environmentName, _options) {
-									if (environmentName === 'ssr' && _options.optimizeDeps?.noDiscovery === false) {
+									const isServerEnvironment = ['ssr', 'prerender'].includes(environmentName);
+									if (isServerEnvironment && _options.optimizeDeps?.noDiscovery === false) {
 										return {
 											optimizeDeps: {
-												exclude: ['unstorage/drivers/cloudflare-kv-binding'],
+												include: [
+													'astro',
+													'astro/runtime/**',
+													'astro > html-escaper',
+													'astro > mrmime',
+													'astro > zod/v4',
+													'astro > zod/v4/core',
+													'astro > clsx',
+													'astro > cssesc',
+													'astro > cookie',
+													'astro > devalue',
+													'astro > @oslojs/encoding',
+													'astro > es-module-lexer',
+													'astro > unstorage',
+													'astro > neotraverse/modern',
+													'astro > piccolore',
+													'astro/app',
+													'astro/compiler-runtime',
+												],
+												exclude: [
+													'unstorage/drivers/cloudflare-kv-binding',
+													'astro:*',
+													'virtual:astro:*',
+													'virtual:astro-cloudflare:*',
+												],
+											},
+										};
+									} else if (environmentName === 'client') {
+										return {
+											optimizeDeps: {
+												include: ['astro/runtime/client/dev-toolbar/entrypoint.js'],
 											},
 										};
 									}
@@ -250,7 +237,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 								},
 							},
 							createConfigPlugin({
-								sessionKVBindingName: SESSION_KV_BINDING_NAME,
+								sessionKVBindingName,
 							}),
 						],
 					},
@@ -353,7 +340,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			'astro:build:done': async ({ pages, dir, logger, assets }) => {
 				let redirectsExists = false;
 				try {
-					const redirectsStat = await stat(new URL('./_redirects', _config.outDir));
+					const redirectsStat = await stat(new URL('./_redirects', _config.build.client));
 					if (redirectsStat.isFile()) {
 						redirectsExists = true;
 					}
@@ -364,7 +351,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				const redirects: IntegrationResolvedRoute['segments'][] = [];
 				if (redirectsExists) {
 					const rl = createInterface({
-						input: createReadStream(new URL('./_redirects', _config.outDir)),
+						input: createReadStream(new URL('./_redirects', _config.build.client)),
 						crlfDelay: Number.POSITIVE_INFINITY,
 					});
 
@@ -388,7 +375,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				let routesExists = false;
 				try {
-					const routesStat = await stat(new URL('./_routes.json', _config.outDir));
+					const routesStat = await stat(new URL('./_routes.json', _config.build.client));
 					if (routesStat.isFile()) {
 						routesExists = true;
 					}
@@ -425,7 +412,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				if (!trueRedirects.empty()) {
 					try {
 						await appendFile(
-							new URL('./_redirects', _config.outDir),
+							new URL('./_redirects', _config.build.client),
 							printAsRedirects(trueRedirects),
 						);
 					} catch (_error) {

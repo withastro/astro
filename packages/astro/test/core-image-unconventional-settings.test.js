@@ -100,7 +100,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 		fixture = await loadFixture({
 			...defaultSettings,
 			build: {
-				assets: 'images'
+				assets: 'images',
 			},
 			vite: {
 				environments: {
@@ -133,7 +133,7 @@ describe('astro:assets - Support unconventional build settings properly', () => 
 		fixture = await loadFixture({
 			...defaultSettings,
 			build: {
-				assets: 'assets'
+				assets: 'assets',
 			},
 			vite: {
 				environments: {

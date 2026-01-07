@@ -9,8 +9,7 @@ import {
 	type RunnableDevEnvironment,
 	type ViteDevServer,
 } from 'vite';
-import { type ZodSchema, z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import * as z from 'zod/v4';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
@@ -85,7 +84,11 @@ export async function createContentTypesGenerator({
 	viteServer,
 }: CreateContentGeneratorParams) {
 	const collectionEntryMap: CollectionEntryMap = {};
-	const contentPaths = getContentPaths(settings.config, fs);
+	const contentPaths = getContentPaths(
+		settings.config,
+		fs,
+		settings.config.legacy?.collectionsBackwardsCompat,
+	);
 	const contentEntryConfigByExt = getEntryConfigByExtMap(settings.contentEntryTypes);
 	const contentEntryExts = [...contentEntryConfigByExt.keys()];
 	const dataEntryExts = getDataEntryExts(settings);
@@ -359,7 +362,7 @@ function normalizeConfigPath(from: string, to: string) {
 	return `"${isRelativePath(configPath) ? '' : './'}${normalizedPath}"` as const;
 }
 
-const createSchemaResultCache = new Map<string, { schema: ZodSchema; types: string }>();
+const createSchemaResultCache = new Map<string, { schema: z.ZodSchema; types: string }>();
 
 async function getCreateSchemaResult<T extends keyof ContentConfig['collections']>(
 	collection: ContentConfig['collections'][T],
@@ -385,7 +388,7 @@ async function getCreateSchemaResult<T extends keyof ContentConfig['collections'
 async function getContentLayerSchema<T extends keyof ContentConfig['collections']>(
 	collection: ContentConfig['collections'][T],
 	collectionKey: T,
-): Promise<ZodSchema | undefined> {
+): Promise<z.ZodSchema | undefined> {
 	if (collection?.type !== CONTENT_LAYER_TYPE || typeof collection.loader === 'function') {
 		return;
 	}
@@ -403,10 +406,10 @@ async function typeForCollection<T extends keyof ContentConfig['collections']>(
 	if (collection?.schema) {
 		return { type: `InferEntrySchema<${collectionKey}>` };
 	}
-	if (!collection?.type || typeof collection.loader === 'function') {
+	if (!collection?.type || typeof collection.loader === 'function' || !collection.loader) {
 		return { type: 'any' };
 	}
-	if (collection.loader.schema) {
+	if (typeof collection.loader === 'object' && collection.loader.schema) {
 		return { type: `InferLoaderSchema<${collectionKey}>` };
 	}
 	const result = await getCreateSchemaResult(collection, collectionKey);
@@ -451,7 +454,7 @@ async function writeContentFiles({
 
 	for (const [collection, config] of Object.entries(contentConfig?.collections ?? {})) {
 		collectionEntryMap[JSON.stringify(collection)] ??= {
-			type: config.type,
+			type: config.type ?? 'unknown',
 			entries: {},
 		};
 	}
@@ -532,9 +535,9 @@ async function writeContentFiles({
 					// Is there a user provided schema or
 					collectionConfig?.schema ||
 						// Is it a loader object and
-						(typeof collectionConfig?.loader !== 'function' &&
+						(typeof collectionConfig?.loader === 'object' &&
 							// Is it a loader static schema or
-							(collectionConfig?.loader.schema ||
+							(collectionConfig.loader.schema ||
 								// is it a loader dynamic schema
 								createSchemaResultCache.has(collectionKey))),
 				),
@@ -636,20 +639,22 @@ async function generateJSONSchema(
 	}
 
 	try {
-		await fsMod.promises.writeFile(
-			new URL(`./${collectionKey.replace(/"/g, '')}.schema.json`, collectionSchemasDir),
-			JSON.stringify(
-				zodToJsonSchema(zodSchemaForJson, {
-					name: collectionKey.replace(/"/g, ''),
-					markdownDescription: true,
-					errorMessages: true,
-					// Fix for https://github.com/StefanTerdell/zod-to-json-schema/issues/110
-					dateStrategy: ['format:date-time', 'format:date', 'integer'],
-				}),
-				null,
-				2,
-			),
+		const schema = z.toJSONSchema(zodSchemaForJson, {
+			unrepresentable: 'any',
+			override: (ctx) => {
+				const def = ctx.zodSchema._zod.def;
+				if (def.type === 'date') {
+					ctx.jsonSchema.type = 'string';
+					ctx.jsonSchema.format = 'date-time';
+				}
+			},
+		});
+		const schemaStr = JSON.stringify(schema, null, 2);
+		const schemaJsonPath = new URL(
+			`./${collectionKey.replace(/"/g, '')}.schema.json`,
+			collectionSchemasDir,
 		);
+		await fsMod.promises.writeFile(schemaJsonPath, schemaStr);
 	} catch (err) {
 		// This should error gracefully and not crash the dev server
 		logger.warn(

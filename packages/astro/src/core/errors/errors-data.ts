@@ -2,7 +2,7 @@
 // Additionally, this code, much like `types/public/config.ts`, is used to generate documentation, so make sure to pass
 // your changes by our wonderful docs team before merging!
 
-import type { ZodError } from 'zod';
+import type { $ZodError } from 'zod/v4/core';
 
 export interface ErrorData {
 	name: string;
@@ -950,8 +950,6 @@ export const LocalImageUsedWrongly = {
 
 /**
  * @docs
- * @see
- * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
  * @description
  * `Astro.glob()` can only be used in `.astro` files. You can use [`import.meta.glob()`](https://vite.dev/guide/features.html#glob-import) instead to achieve the same result.
  * @deprecated This error was removed in Astro v6.0.0 along with the removal of `Astro.glob()`.
@@ -966,8 +964,6 @@ export const AstroGlobUsedOutside = {
 
 /**
  * @docs
- * @see
- * - [Astro.glob](https://docs.astro.build/en/reference/api-reference/#astroglob)
  * @description
  * `Astro.glob()` did not return any matching files. There might be a typo in the glob pattern.
  * @deprecated This error was removed in Astro v6.0.0 along with the removal of `Astro.glob()`.
@@ -1422,12 +1418,12 @@ export const FontFamilyNotFound = {
  * @description
  * The CSP feature isn't enabled
  * @message
- * The `experimental.csp` configuration isn't enabled.
+ * The `security.csp` configuration isn't enabled.
  */
 export const CspNotEnabled = {
 	name: 'CspNotEnabled',
 	title: "CSP feature isn't enabled",
-	message: "The `experimental.csp` configuration isn't enabled.",
+	message: "The `security.csp` configuration isn't enabled.",
 } satisfies ErrorData;
 
 /**
@@ -1646,7 +1642,7 @@ export const GetEntryDeprecationError = {
 	title: 'Invalid use of `getDataEntryById` or `getEntryBySlug` function.',
 	message: (collection: string, method: string) =>
 		`The \`${method}\` function is deprecated and cannot be used to query the "${collection}" collection. Use \`getEntry\` instead.`,
-	hint: 'See https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information.',
+	hint: 'See https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information.',
 } satisfies ErrorData;
 
 /**
@@ -1666,12 +1662,12 @@ export const GetEntryDeprecationError = {
 export const InvalidContentEntryFrontmatterError = {
 	name: 'InvalidContentEntryFrontmatterError',
 	title: 'Content entry frontmatter does not match schema.',
-	message(collection: string, entryId: string, error: ZodError) {
+	message(collection: string, entryId: string, error: $ZodError) {
 		return [
 			`**${String(collection)} → ${String(
 				entryId,
 			)}** frontmatter does not match collection schema.`,
-			...error.errors.map((zodError) => zodError.message),
+			error.message,
 		].join('\n');
 	},
 	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content schemas.',
@@ -1693,10 +1689,10 @@ export const InvalidContentEntryFrontmatterError = {
 export const InvalidContentEntryDataError = {
 	name: 'InvalidContentEntryDataError',
 	title: 'Content entry data does not match schema.',
-	message(collection: string, entryId: string, error: ZodError) {
+	message(collection: string, entryId: string, error: $ZodError) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
-			...error.errors.map((zodError) => `  **${zodError.path.join('.')}**: ${zodError.message}`),
+			`  **: ${error.message}`,
 			'',
 		].join('\n');
 	},
@@ -1710,7 +1706,7 @@ export const InvalidContentEntryDataError = {
  * Found legacy content config file in "src/content/config.ts". Please move this file to "src/content.config.ts" and ensure each collection has a loader defined.<br/>
  * @description
  * A legacy content config file was found. Move the file to `src/content.config.ts` and update any collection definitions if needed.
- * See the [Astro 6 migration guide](https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections) for more information.
+ * See the [Astro 6 migration guide](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections) for more information.
  */
 
 export const LegacyContentConfigError = {
@@ -1718,7 +1714,7 @@ export const LegacyContentConfigError = {
 	title: 'Legacy content config file found.',
 	message: (filename: string) =>
 		`Found legacy content config file in "${filename}". Please move this file to "src/content.config.${filename.split('.').at(-1)}" and ensure each collection has a loader defined.`,
-	hint: 'See https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on updating collections.',
+	hint: 'See https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on updating collections.',
 } satisfies ErrorData;
 
 /**
@@ -1736,7 +1732,7 @@ export const ContentCollectionMissingLoader = {
 	title: 'Content collection is missing a `loader` definition.',
 	message: (file = 'your content config file') =>
 		`Collections must have a \`loader\` defined. Check your collection definitions in ${file}.`,
-	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content loaders and https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on migrating from legacy collections.',
+	hint: 'See https://docs.astro.build/en/guides/content-collections/ for more information on content loaders and https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on migrating from legacy collections.',
 } satisfies ErrorData;
 
 /**
@@ -1746,7 +1742,7 @@ export const ContentCollectionMissingLoader = {
  * Invalid collection type "data". Remove the type from your collection definition in your content config file.
  * @description
  * Content collections should no longer have a `type` field. Remove this field from your content config file.
- * See the [Astro 6 migration guide](https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections) for more information.
+ * See the [Astro 6 migration guide](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections) for more information.
  */
 
 export const ContentCollectionInvalidType = {
@@ -1754,7 +1750,7 @@ export const ContentCollectionInvalidType = {
 	title: 'Content collection has an invalid `type` field.',
 	message: (type: string, file = 'your content config file') =>
 		`Invalid collection type "${type}". Remove the type from your collection definition in ${file}.`,
-	hint: 'See https://docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on migrating from legacy collections.',
+	hint: 'See https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections for more information on migrating from legacy collections.',
 } satisfies ErrorData;
 
 /**
@@ -1799,10 +1795,10 @@ export const ContentLoaderReturnsInvalidId = {
 export const ContentEntryDataError = {
 	name: 'ContentEntryDataError',
 	title: 'Content entry data does not match schema.',
-	message(collection: string, entryId: string, error: ZodError) {
+	message(collection: string, entryId: string, error: $ZodError) {
 		return [
 			`**${String(collection)} → ${String(entryId)}** data does not match collection schema.\n`,
-			...error.errors.map((zodError) => `  **${zodError.path.join('.')}**: ${zodError.message}`),
+			`  **: ${error.message}`,
 			'',
 		].join('\n');
 	},
@@ -1817,7 +1813,7 @@ export const ContentEntryDataError = {
  * @description
  * Error in live content config.
  * @see
- * - [Experimental live content](https://docs.astro.build/en/reference/experimental-flags/live-content-collections/)
+ * - [Defining live content schemas](https://v6.docs.astro.build/en/reference/modules/astro-content/#schema-1)
  */
 
 export const LiveContentConfigError = {
@@ -1825,7 +1821,7 @@ export const LiveContentConfigError = {
 	title: 'Error in live content config.',
 	message: (error: string, filename?: string) =>
 		`${error} Check your collection definitions in ${filename ?? 'your live content config file'}.`,
-	hint: 'See https://docs.astro.build/en/reference/experimental-flags/live-content-collections/ for more information on live content collections.',
+	hint: 'See https://docs.astro.build/en/reference/modules/astro-content/#definelivecollection for more information on defining live content collections.',
 } satisfies ErrorData;
 
 /**
@@ -1959,7 +1955,7 @@ export const UnsupportedConfigTransformError = {
 /**
  * @docs
  * @see
- *  - [Passing a `parser` to the `file` loader](https://docs.astro.build/en/guides/content-collections/#parser-function)
+ *  - [Passing a `parser` to the `file` loader](https://v6.docs.astro.build/en/reference/content-loader-reference/#parser)
  * @description
  * The `file` loader can’t determine which parser to use. Please provide a custom parser (e.g. `csv-parse`) to create a collection from your file type.
  */
@@ -1973,7 +1969,7 @@ export const FileParserNotFound = {
 /**
  * @docs
  * @see
- *  - [Astro's built-in loaders](https://docs.astro.build/en/guides/content-collections/#built-in-loaders)
+ *  - [Astro's built-in `file()` loader](https://docs.astro.build/en/reference/content-loader-reference/#file-loader)
  * @description
  * The `file` loader must be passed a single local file. Glob patterns are not supported. Use the built-in `glob` loader to create entries from patterns of multiple local files.
  */
@@ -1981,7 +1977,7 @@ export const FileGlobNotSupported = {
 	name: 'FileGlobNotSupported',
 	title: 'Glob patterns are not supported in the file loader',
 	message: 'Glob patterns are not supported in the `file` loader. Use the `glob` loader instead.',
-	hint: `See Astro's built-in file and glob loaders https://docs.astro.build/en/guides/content-collections/#built-in-loaders for supported usage.`,
+	hint: `See Astro's file loader https://docs.astro.build/en/reference/content-loader-reference/#file-loader for supported usage.`,
 } satisfies ErrorData;
 
 /**

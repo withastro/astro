@@ -6,11 +6,14 @@ export function vitePluginApp(): vite.Plugin {
 	return {
 		name: 'astro:app',
 
-		async resolveId(id) {
-			if (id === ASTRO_DEV_APP_ID) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${ASTRO_DEV_APP_ID}$`),
+			},
+			handler() {
 				const url = new URL('./createAstroServerApp.js', import.meta.url);
-				return await this.resolve(url.toString());
-			}
+				return this.resolve(url.toString());
+			},
 		},
 	};
 }

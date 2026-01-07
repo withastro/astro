@@ -1,4 +1,4 @@
-import { matchPattern, type RemotePattern } from '../../assets/utils/remotePattern.js';
+import { matchPattern, type RemotePattern } from '@astrojs/internal-helpers/remote';
 
 /**
  * Validate a hostname by rejecting any with path separators.
@@ -27,9 +27,7 @@ export function validateForwardedHeaders(
 	// Validate protocol
 	if (forwardedProtocol) {
 		if (allowedDomains && allowedDomains.length > 0) {
-			const hasProtocolPatterns = allowedDomains.some(
-				(pattern) => pattern.protocol !== undefined,
-			);
+			const hasProtocolPatterns = allowedDomains.some((pattern) => pattern.protocol !== undefined);
 			if (hasProtocolPatterns) {
 				// Validate against allowedDomains patterns
 				try {

@@ -9,6 +9,8 @@ import { MissingMiddlewareForInternationalization } from '../errors/errors-data.
 import { AstroError } from '../errors/index.js';
 import { normalizePath } from '../viteUtils.js';
 
+// This module name is used in Cloudflare's optmizedDeps configuration,
+// if th name changes that needs to be updated as well.
 export const MIDDLEWARE_MODULE_ID = 'virtual:astro:middleware';
 const MIDDLEWARE_RESOLVED_MODULE_ID = '\0' + MIDDLEWARE_MODULE_ID;
 const NOOP_MIDDLEWARE = '\0noop-middleware';
@@ -28,8 +30,11 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
 		},
-		async resolveId(id) {
-			if (id === MIDDLEWARE_MODULE_ID) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${MIDDLEWARE_MODULE_ID}$`),
+			},
+			async handler() {
 				const middlewareId = await this.resolve(
 					`${decodeURI(settings.config.srcDir.pathname)}${MIDDLEWARE_PATH_SEGMENT_NAME}`,
 				);
@@ -42,26 +47,28 @@ export function vitePluginMiddleware({ settings }: { settings: AstroSettings }):
 				} else {
 					return NOOP_MIDDLEWARE;
 				}
-			}
-			if (id === NOOP_MIDDLEWARE) {
-				return NOOP_MIDDLEWARE;
-			}
+			},
 		},
-		async load(id) {
-			if (id === NOOP_MIDDLEWARE) {
-				if (!userMiddlewareIsPresent && settings.config.i18n?.routing === 'manual') {
-					throw new AstroError(MissingMiddlewareForInternationalization);
+		load: {
+			filter: {
+				id: new RegExp(`^(${NOOP_MIDDLEWARE}|${MIDDLEWARE_RESOLVED_MODULE_ID})$`),
+			},
+			async handler(id) {
+				if (id === NOOP_MIDDLEWARE) {
+					if (!userMiddlewareIsPresent && settings.config.i18n?.routing === 'manual') {
+						throw new AstroError(MissingMiddlewareForInternationalization);
+					}
+					return { code: 'export const onRequest = (_, next) => next()' };
 				}
-				return { code: 'export const onRequest = (_, next) => next()' };
-			} else if (id === MIDDLEWARE_RESOLVED_MODULE_ID) {
-				if (!userMiddlewareIsPresent && settings.config.i18n?.routing === 'manual') {
-					throw new AstroError(MissingMiddlewareForInternationalization);
-				}
+				if (id === MIDDLEWARE_RESOLVED_MODULE_ID) {
+					if (!userMiddlewareIsPresent && settings.config.i18n?.routing === 'manual') {
+						throw new AstroError(MissingMiddlewareForInternationalization);
+					}
 
-				const preMiddleware = createMiddlewareImports(settings.middlewares.pre, 'pre');
-				const postMiddleware = createMiddlewareImports(settings.middlewares.post, 'post');
+					const preMiddleware = createMiddlewareImports(settings.middlewares.pre, 'pre');
+					const postMiddleware = createMiddlewareImports(settings.middlewares.post, 'post');
 
-				const code = `
+					const code = `
 				${
 					userMiddlewareIsPresent
 						? `import { onRequest as userOnRequest } from '${resolvedMiddlewareId}';`
@@ -77,8 +84,9 @@ export const onRequest = sequence(
 );
 `.trim();
 
-				return { code };
-			}
+					return { code };
+				}
+			},
 		},
 	};
 }

@@ -19,7 +19,7 @@ export const getStaticPaths = (async () => {
 
 
 
-const { craft } = Astro.props as any
+const { craft } = Astro.props as any;
 
 let cat = craft.data.cat ? await getEntry(craft.data.cat) : undefined
 const { Content, headings } = await render(craft)

@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/node",
   "description": "Deploy your site to a Node.js server",
-  "version": "10.0.0-alpha.1",
+  "version": "10.0.0-alpha.3",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -47,7 +47,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "1.1.2",
-    "devalue": "^5.4.2",
+    "devalue": "^5.5.0",
     "express": "^4.21.2",
     "node-mocks-http": "^1.17.2"
   },

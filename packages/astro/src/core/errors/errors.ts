@@ -1,4 +1,4 @@
-import type { ZodError } from 'zod';
+import type { $ZodError } from 'zod/v4/core';
 import { codeFrame } from './printer.js';
 
 interface ErrorProperties {
@@ -74,7 +74,7 @@ export class AstroError extends Error {
 	}
 
 	static is(err: unknown): err is AstroError {
-		return (err as AstroError).type === 'AstroError';
+		return (err as AstroError)?.type === 'AstroError';
 	}
 }
 
@@ -86,7 +86,7 @@ export class CompilerError extends AstroError {
 	}
 
 	static is(err: unknown): err is CompilerError {
-		return (err as CompilerError).type === 'CompilerError';
+		return (err as CompilerError)?.type === 'CompilerError';
 	}
 }
 
@@ -94,7 +94,7 @@ export class CSSError extends AstroError {
 	type: ErrorTypes = 'CSSError';
 
 	static is(err: unknown): err is CSSError {
-		return (err as CSSError).type === 'CSSError';
+		return (err as CSSError)?.type === 'CSSError';
 	}
 }
 
@@ -102,7 +102,7 @@ export class MarkdownError extends AstroError {
 	type: ErrorTypes = 'MarkdownError';
 
 	static is(err: unknown): err is MarkdownError {
-		return (err as MarkdownError).type === 'MarkdownError';
+		return (err as MarkdownError)?.type === 'MarkdownError';
 	}
 }
 
@@ -110,7 +110,7 @@ export class InternalError extends AstroError {
 	type: ErrorTypes = 'InternalError';
 
 	static is(err: unknown): err is InternalError {
-		return (err as InternalError).type === 'InternalError';
+		return (err as InternalError)?.type === 'InternalError';
 	}
 }
 
@@ -127,24 +127,24 @@ export class AggregateError extends AstroError {
 	}
 
 	static is(err: unknown): err is AggregateError {
-		return (err as AggregateError).type === 'AggregateError';
+		return (err as AggregateError)?.type === 'AggregateError';
 	}
 }
 
-const astroConfigZodErrors = new WeakSet<ZodError>();
+const astroConfigZodErrors = new WeakSet<$ZodError>();
 
 /**
  * Check if an error is a ZodError from an AstroConfig validation.
  * Used to suppress formatting a ZodError if needed.
  */
-export function isAstroConfigZodError(error: unknown): error is ZodError {
-	return astroConfigZodErrors.has(error as ZodError);
+export function isAstroConfigZodError(error: unknown): error is $ZodError {
+	return astroConfigZodErrors.has(error as $ZodError);
 }
 
 /**
  * Track that a ZodError comes from an AstroConfig validation.
  */
-export function trackAstroConfigZodError(error: ZodError): void {
+export function trackAstroConfigZodError(error: $ZodError): void {
 	astroConfigZodErrors.add(error);
 }
 
@@ -191,6 +191,6 @@ export class AstroUserError extends Error {
 	}
 
 	static is(err: unknown): err is AstroUserError {
-		return (err as AstroUserError).type === 'AstroUserError';
+		return (err as AstroUserError)?.type === 'AstroUserError';
 	}
 }

@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { describe, it } from 'node:test';
 import { stringify as devalueStringify } from 'devalue';
-import driver from 'unstorage/drivers/memory';
-import { AstroSession, PERSIST_SYMBOL } from '../../../dist/core/session.js';
+import driverFactory from 'unstorage/drivers/memory';
+import { AstroSession, PERSIST_SYMBOL } from '../../../dist/core/session/runtime.js';
 
 // Mock dependencies
 const defaultMockCookies = {
@@ -26,16 +26,17 @@ function createSession(
 	mockStorage,
 	runtimeMode = 'production',
 ) {
-	if (mockStorage) {
-		config.driver = 'test';
-		config.options ??= {};
-		config.options.mockStorage = mockStorage;
-	}
-	return new AstroSession(cookies, config, runtimeMode, driver);
+	return new AstroSession({
+		cookies,
+		config,
+		runtimeMode,
+		driverFactory,
+		mockStorage,
+	});
 }
 
-test('AstroSession - Basic Operations', async (t) => {
-	await t.test('should set and get a value', async () => {
+describe('AstroSession - Basic Operations', () => {
+	it('should set and get a value', async () => {
 		const session = createSession();
 
 		session.set('user', { id: 1, name: 'Test User' });
@@ -44,7 +45,7 @@ test('AstroSession - Basic Operations', async (t) => {
 		assert.deepEqual(user, { id: 1, name: 'Test User' });
 	});
 
-	await t.test('should check if value exists', async () => {
+	it('should check if value exists', async () => {
 		const session = createSession();
 
 		session.set('key', 'value');
@@ -55,7 +56,7 @@ test('AstroSession - Basic Operations', async (t) => {
 		assert.equal(notExists, false);
 	});
 
-	await t.test('should delete a value', async () => {
+	it('should delete a value', async () => {
 		const session = createSession();
 
 		session.set('key', 'value');
@@ -65,7 +66,7 @@ test('AstroSession - Basic Operations', async (t) => {
 		assert.equal(value, undefined);
 	});
 
-	await t.test('should list all keys', async () => {
+	it('should list all keys', async () => {
 		const session = createSession();
 
 		session.set('key1', 'value1');
@@ -76,8 +77,8 @@ test('AstroSession - Basic Operations', async (t) => {
 	});
 });
 
-test('AstroSession - Cookie Management', async (t) => {
-	await t.test('should set cookie on first value set', async () => {
+describe('AstroSession - Cookie Management', () => {
+	it('should set cookie on first value set', async () => {
 		let cookieSet = false;
 		const mockCookies = {
 			...defaultMockCookies,
@@ -92,7 +93,7 @@ test('AstroSession - Cookie Management', async (t) => {
 		assert.equal(cookieSet, true);
 	});
 
-	await t.test('should delete cookie on destroy', async () => {
+	it('should delete cookie on destroy', async () => {
 		let cookieDeletedArgs;
 		let cookieDeletedName;
 		const mockCookies = {
@@ -110,8 +111,8 @@ test('AstroSession - Cookie Management', async (t) => {
 	});
 });
 
-test('AstroSession - Session Regeneration', async (t) => {
-	await t.test('should preserve data when regenerating session', async () => {
+describe('AstroSession - Session Regeneration', () => {
+	it('should preserve data when regenerating session', async () => {
 		const session = createSession();
 
 		session.set('key', 'value');
@@ -121,7 +122,7 @@ test('AstroSession - Session Regeneration', async (t) => {
 		assert.equal(value, 'value');
 	});
 
-	await t.test('should generate new session ID on regeneration', async () => {
+	it('should generate new session ID on regeneration', async () => {
 		const session = createSession();
 		const initialId = await session.sessionID;
 
@@ -132,8 +133,8 @@ test('AstroSession - Session Regeneration', async (t) => {
 	});
 });
 
-test('AstroSession - Data Persistence', async (t) => {
-	await t.test('should persist data to storage', async () => {
+describe('AstroSession - Data Persistence', () => {
+	it('should persist data to storage', async () => {
 		let storedData;
 		const mockStorage = {
 			get: async () => null,
@@ -150,7 +151,7 @@ test('AstroSession - Data Persistence', async (t) => {
 		assert.ok(storedData?.includes('value'));
 	});
 
-	await t.test('should load data from storage', async () => {
+	it('should load data from storage', async () => {
 		const mockStorage = {
 			get: async () => stringify(new Map([['key', { data: 'value' }]])),
 			setItem: async () => {},
@@ -162,7 +163,7 @@ test('AstroSession - Data Persistence', async (t) => {
 		assert.equal(value, 'value');
 	});
 
-	await t.test('should remove expired session data', async () => {
+	it('should remove expired session data', async () => {
 		const mockStorage = {
 			get: async () => stringify(new Map([['key', { data: 'value', expires: -1 }]])),
 			setItem: async () => {},
@@ -176,20 +177,20 @@ test('AstroSession - Data Persistence', async (t) => {
 	});
 });
 
-test('AstroSession - Error Handling', async (t) => {
-	await t.test('should throw error when setting invalid data', async () => {
+describe('AstroSession - Error Handling', () => {
+	it('should throw error when setting invalid data', async () => {
 		const session = createSession();
 
 		assert.throws(() => session.set('key', { fun: function () {} }), /could not be serialized/);
 	});
 
-	await t.test('should throw error when setting empty key', async () => {
+	it('should throw error when setting empty key', async () => {
 		const session = createSession();
 
 		assert.throws(() => session.set('', 'value'), /key was not provided/);
 	});
 
-	await t.test('should handle corrupted storage data', async () => {
+	it('should handle corrupted storage data', async () => {
 		const mockStorage = {
 			get: async () => 'invalid-json',
 			setItem: async () => {},
@@ -201,8 +202,8 @@ test('AstroSession - Error Handling', async (t) => {
 	});
 });
 
-test('AstroSession - Configuration', async (t) => {
-	await t.test('should use custom cookie name from config', async () => {
+describe('AstroSession - Configuration', () => {
+	it('should use custom cookie name from config', async () => {
 		let cookieName;
 		const mockCookies = {
 			...defaultMockCookies,
@@ -223,7 +224,7 @@ test('AstroSession - Configuration', async (t) => {
 		assert.equal(cookieName, 'custom-session');
 	});
 
-	await t.test('should use default cookie name if not specified', async () => {
+	it('should use default cookie name if not specified', async () => {
 		let cookieName;
 		const mockCookies = {
 			...defaultMockCookies,
@@ -246,8 +247,8 @@ test('AstroSession - Configuration', async (t) => {
 	});
 });
 
-test('AstroSession - Sparse Data Operations', async (t) => {
-	await t.test('should handle multiple operations in sparse mode', async () => {
+describe('AstroSession - Sparse Data Operations', () => {
+	it('should handle multiple operations in sparse mode', async () => {
 		const existingData = stringify(
 			new Map([
 				['keep', { data: 'original' }],
@@ -275,7 +276,7 @@ test('AstroSession - Sparse Data Operations', async (t) => {
 		assert.equal(await session.get('new'), 'value');
 	});
 
-	await t.test('should persist deleted state across multiple operations', async () => {
+	it('should persist deleted state across multiple operations', async () => {
 		const existingData = stringify(new Map([['key', 'value']]));
 		const mockStorage = {
 			get: async () => existingData,
@@ -295,7 +296,7 @@ test('AstroSession - Sparse Data Operations', async (t) => {
 		assert.equal(await session.get('key'), undefined);
 	});
 
-	await t.test('should maintain deletion after persistence', async () => {
+	it('should maintain deletion after persistence', async () => {
 		let storedData;
 		const mockStorage = {
 			get: async () => storedData || stringify(new Map([['key', 'value']])),
@@ -318,7 +319,7 @@ test('AstroSession - Sparse Data Operations', async (t) => {
 		assert.equal(await newSession.get('key'), undefined);
 	});
 
-	await t.test('should update existing values in sparse mode', async () => {
+	it('should update existing values in sparse mode', async () => {
 		const existingData = stringify(new Map([['key', 'old']]));
 		const mockStorage = {
 			get: async () => existingData,
@@ -336,8 +337,8 @@ test('AstroSession - Sparse Data Operations', async (t) => {
 	});
 });
 
-test('AstroSession - Cleanup Operations', async (t) => {
-	await t.test('should clean up destroyed sessions on persist', async () => {
+describe('AstroSession - Cleanup Operations', () => {
+	it('should clean up destroyed sessions on persist', async () => {
 		const removedKeys = new Set();
 		const mockStorage = {
 			get: async () => stringify(new Map([['key', 'value']])),
@@ -362,7 +363,7 @@ test('AstroSession - Cleanup Operations', async (t) => {
 		assert.ok(removedKeys.has(oldId), `Session ${oldId} should be removed`);
 	});
 
-	await t.test("should destroy sessions that haven't been loaded", async () => {
+	it("should destroy sessions that haven't been loaded", async () => {
 		const removedKeys = new Set();
 		const mockStorage = {
 			get: async () => stringify(new Map([['key', 'value']])),
@@ -381,8 +382,8 @@ test('AstroSession - Cleanup Operations', async (t) => {
 	});
 });
 
-test('AstroSession - Cookie Security', async (t) => {
-	await t.test('should enforce httpOnly cookie setting', async () => {
+describe('AstroSession - Cookie Security', () => {
+	it('should enforce httpOnly cookie setting', async () => {
 		let cookieOptions;
 		const mockCookies = {
 			...defaultMockCookies,
@@ -405,7 +406,7 @@ test('AstroSession - Cookie Security', async (t) => {
 		assert.equal(cookieOptions.httpOnly, true);
 	});
 
-	await t.test('should set secure and sameSite by default in production', async () => {
+	it('should set secure and sameSite by default in production', async () => {
 		let cookieOptions;
 		const mockCookies = {
 			...defaultMockCookies,
@@ -421,7 +422,7 @@ test('AstroSession - Cookie Security', async (t) => {
 		assert.equal(cookieOptions.sameSite, 'lax');
 	});
 
-	await t.test('should set secure to false in development', async () => {
+	it('should set secure to false in development', async () => {
 		let cookieOptions;
 		const mockCookies = {
 			...defaultMockCookies,
@@ -438,8 +439,8 @@ test('AstroSession - Cookie Security', async (t) => {
 	});
 });
 
-test('AstroSession - Storage Errors', async (t) => {
-	await t.test('should handle storage setItem failures', async () => {
+describe('AstroSession - Storage Errors', () => {
+	it('should handle storage setItem failures', async () => {
 		const mockStorage = {
 			get: async () => stringify(new Map()),
 			setItem: async () => {
@@ -453,7 +454,7 @@ test('AstroSession - Storage Errors', async (t) => {
 		await assert.rejects(async () => await session[PERSIST_SYMBOL](), /Storage full/);
 	});
 
-	await t.test('should handle invalid Map data', async () => {
+	it('should handle invalid Map data', async () => {
 		const mockStorage = {
 			get: async () => stringify({ notAMap: true }),
 			setItem: async () => {},

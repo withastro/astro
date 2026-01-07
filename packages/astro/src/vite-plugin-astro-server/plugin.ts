@@ -1,14 +1,11 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { randomUUID } from 'node:crypto';
-import { existsSync } from 'node:fs';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { IncomingMessage } from 'node:http';
-import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
 import { isRunnableDevEnvironment, type RunnableDevEnvironment } from 'vite';
 import { toFallbackType } from '../core/app/common.js';
 import { toRoutingStrategy } from '../core/app/index.js';
 import type { SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import {
 	getAlgorithm,
 	getDirectives,
@@ -22,7 +19,6 @@ import {
 import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
@@ -34,7 +30,7 @@ import { createController } from './controller.js';
 import { recordServerError } from './error.js';
 import { setRouteError } from './server-state.js';
 import { trailingSlashMiddleware } from './trailing-slash.js';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { sessionConfigToManifest } from '../core/session/utils.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -56,7 +52,9 @@ export default function createVitePluginAstroServer({
 			if (!isRunnableDevEnvironment(viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
 				return;
 			}
-			const environment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr] as RunnableDevEnvironment;
+			const environment = viteServer.environments[
+				ASTRO_VITE_ENVIRONMENT_NAMES.ssr
+			] as RunnableDevEnvironment;
 			const loader = createViteLoader(viteServer, environment);
 			const { default: createAstroServerApp } = await environment.runner.import(ASTRO_DEV_APP_ID);
 			const controller = createController({ loader });
@@ -101,49 +99,6 @@ export default function createVitePluginAstroServer({
 					handle: trailingSlashMiddleware(settings),
 				});
 
-				// Chrome DevTools workspace handler
-				// See https://chromium.googlesource.com/devtools/devtools-frontend/+/main/docs/ecosystem/automatic_workspace_folders.md
-				viteServer.middlewares.use(async function chromeDevToolsHandler(request, response, next) {
-					if (request.url !== '/.well-known/appspecific/com.chrome.devtools.json') {
-						return next();
-					}
-					if (!settings.config.experimental.chromeDevtoolsWorkspace) {
-						// Return early to stop console spam
-						response.writeHead(404);
-						response.end();
-						return;
-					}
-
-					const pluginVersion = '1.1';
-					const cacheDir = settings.config.cacheDir;
-					const configPath = new URL('./chrome-workspace.json', cacheDir);
-
-					if (!existsSync(cacheDir)) {
-						await mkdir(cacheDir, { recursive: true });
-					}
-
-					let config;
-					try {
-						config = JSON.parse(await readFile(configPath, 'utf-8'));
-						// If the cached workspace config was created with a previous version of this plugin,
-						// we throw an error so it gets recreated in the `catch` block below.
-						if (config.version !== pluginVersion) throw new Error('Cached config is outdated.');
-					} catch {
-						config = {
-							workspace: {
-								version: pluginVersion,
-								uuid: randomUUID(),
-								root: fileURLToPath(settings.config.root),
-							},
-						};
-						await writeFile(configPath, JSON.stringify(config));
-					}
-
-					response.setHeader('Content-Type', 'application/json');
-					response.end(JSON.stringify(config));
-					return;
-				});
-
 				// Note that this function has a name so other middleware can find it.
 				viteServer.middlewares.use(async function astroDevHandler(request, response) {
 					if (request.url === undefined || !request.method) {
@@ -157,29 +112,6 @@ export default function createVitePluginAstroServer({
 					});
 				});
 			};
-		},
-		transform(code, id, opts = {}) {
-			if (opts.ssr) return;
-			if (!id.includes('vite/dist/client/client.mjs')) return;
-
-			// Replace the Vite overlay with ours
-			return patchOverlay(code);
-		},
-	};
-}
-
-export function createVitePluginAstroServerClient(): vite.Plugin {
-	return {
-		name: 'astro:server-client',
-		applyToEnvironment(environment) {
-			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client;
-		},
-		transform(code, id, opts = {}) {
-			if (opts.ssr) return;
-			if (!id.includes('vite/dist/client/client.mjs')) return;
-
-			// Replace the Vite overlay with ours
-			return patchOverlay(code);
 		},
 	};
 }
@@ -205,9 +137,9 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		};
 	}
 
-	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
+	if (shouldTrackCspHashes(settings.config.security.csp)) {
 		const styleHashes = [
-			...getStyleHashes(settings.config.experimental.csp),
+			...getStyleHashes(settings.config.security.csp),
 			...settings.injectedCsp.styleHashes,
 		];
 
@@ -215,13 +147,13 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
 				? 'adapter'
 				: undefined,
-			scriptHashes: getScriptHashes(settings.config.experimental.csp),
-			scriptResources: getScriptResources(settings.config.experimental.csp),
+			scriptHashes: getScriptHashes(settings.config.security.csp),
+			scriptResources: getScriptResources(settings.config.security.csp),
 			styleHashes,
-			styleResources: getStyleResources(settings.config.experimental.csp),
-			algorithm: getAlgorithm(settings.config.experimental.csp),
+			styleResources: getStyleResources(settings.config.security.csp),
+			algorithm: getAlgorithm(settings.config.security.csp),
 			directives: getDirectives(settings),
-			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
+			isStrictDynamic: getStrictDynamic(settings.config.security.csp),
 		};
 	}
 
@@ -259,7 +191,7 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 				onRequest: NOOP_MIDDLEWARE_FN,
 			};
 		},
-		sessionConfig: settings.config.session,
+		sessionConfig: sessionConfigToManifest(settings.config.session),
 		csp,
 		devToolbar: {
 			enabled:
