@@ -187,7 +187,7 @@ test.describe('View Transitions', () => {
 		await page.goBack();
 			// Mainly for Firefox on Windows. Wait for navigation to complete.
 			// Other tests like wait for URL or networkidle did not work effectively.
-		await page.waitForTimeout(500); 
+		await page.waitForTimeout(1000); 
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 		expect(
