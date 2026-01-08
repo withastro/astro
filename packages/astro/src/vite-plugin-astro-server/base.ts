@@ -13,20 +13,11 @@ export function baseMiddleware(
 	logger: Logger,
 ): vite.Connect.NextHandleFunction {
 	const { config } = settings;
-	let devRoot: string;
-	let devRootReplacement: string;
-	let devRootURL: URL;
-	try {
-		const site = config.site ? new URL(config.base, config.site) : undefined;
-		devRootURL = new URL(config.base, 'http://localhost');
-		devRoot = site ? site.pathname : devRootURL.pathname;
-		devRootReplacement = devRoot.endsWith('/') ? '/' : '';
-	} catch {
-		// If base is invalid, default to '/'
-		devRootURL = new URL('/', 'http://localhost');
-		devRoot = '/';
-		devRootReplacement = '/';
-	}
+	const base = config.base || '/';
+	const site = config.site ? new URL(base, config.site) : undefined;
+	const devRootURL = new URL(base, 'http://localhost');
+	const devRoot = site ? site.pathname : devRootURL.pathname;
+	const devRootReplacement = devRoot.endsWith('/') ? '/' : '';
 
 	return function devBaseMiddleware(req, res, next) {
 		const url = req.url!;
