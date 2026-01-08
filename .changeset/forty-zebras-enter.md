@@ -17,12 +17,12 @@ If you were using a 3rd-party `unifont` font provider, you will now need to writ
 ```diff
 // astro.config.ts
 import { defineConfig } from "astro/config";
--import { providers } from "unifont";
+import { acmeProvider, type AcmeOptions } from '@acme/unifont-provider'
 +import type { FontProvider } from "astro";
-+import { type GoogleiconsOptions, type InitializedProvider, providers } from 'unifont';
++import type { InitializedProvider } from 'unifont';
 
-+function googleicons(config?: GoogleiconsOptions): FontProvider {
-+	const provider = providers.googleicons(config);
++function acme(config?: AcmeOptions): FontProvider {
++	const provider = acmeProvider(config);
 +	let initializedProvider: InitializedProvider | undefined;
 +	return {
 +		name: provider._name,
@@ -42,8 +42,8 @@ import { defineConfig } from "astro/config";
 export default defineConfig({
     experimental: {
         fonts: [{
--            provider: providers.googleicons({ /* ... */ }),
-+            provider: googleicons({ /* ... */ }),
+-            provider: acmeProvider({ /* ... */ }),
++            provider: acme({ /* ... */ }),
             name: "Material Symbols Outlined",
             cssVariable: "--font-material"
         }]
