@@ -147,7 +147,7 @@ export class PassthroughFontResolver {
 	}
 
 	/**
-	 * @param {import('../../../../dist/assets/fonts/types').AstroFontProviderResolveFontOptions & { provider: string; }} param0
+	 * @param {import('../../../../dist/assets/fonts/types').ResolveFontOptions & { provider: string; }} param0
 	 */
 	async resolveFont({ familyName, provider: providerName, ...options }) {
 		const provider = await this.#getProvider(providerName);
