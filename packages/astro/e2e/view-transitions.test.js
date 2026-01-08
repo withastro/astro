@@ -127,7 +127,9 @@ test.describe('View Transitions', () => {
 
 		// Go to page 3 which does *not* have ClientRouter enabled
 		await page.click('#click-three');
-		await page.waitForLoadState('networkidle'); // wait for navigation to complete
+		// Mainly for Firefox on Windows. Wait for navigation to complete. 
+		// Other tests like wait for URL or networkidle did not work effectively.
+		await page.waitForTimeout(500); 
 
 		p = page.locator('#three');
 		await expect(p, 'should have content').toHaveText('Page 3');
@@ -183,7 +185,9 @@ test.describe('View Transitions', () => {
 
 		// Back to page 1
 		await page.goBack();
-		await page.waitForLoadState('networkidle'); // wait for navigation to complete
+			// Mainly for Firefox on Windows. Wait for navigation to complete.
+			// Other tests like wait for URL or networkidle did not work effectively.
+		await page.waitForTimeout(500); 
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 		expect(
@@ -1236,6 +1240,8 @@ test.describe('View Transitions', () => {
 
 		// Submit the form
 		await page.click('#submit');
+		const span = page.locator('#contact-name');
+		await expect(span, 'should have content').toHaveText('Testing');
 
 		expect(
 			loads.length,
@@ -1271,8 +1277,8 @@ test.describe('View Transitions', () => {
 
 		// Submit the form
 		await page.click('#submit');
-
-		await page.waitForURL(/.*form-response.*/);
+		const span = page.locator('#contact-name');
+		await expect(span, 'should have content').toHaveText('Testing');
 
 		expect(
 			loads.length,
