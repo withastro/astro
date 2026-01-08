@@ -31,6 +31,7 @@ describe('Bad URLs', () => {
 			'%c',
 			'%c0%80',
 			'%20foobar%',
+			'/#', // Hash fragment URL - see issue #14625
 		];
 
 		const statusCodes = [400, 404, 500];
