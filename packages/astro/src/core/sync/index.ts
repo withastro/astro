@@ -183,7 +183,14 @@ export async function syncInternal({
 	}
 	syncAstroEnv(settings);
 	syncFonts(settings);
-	syncFeatures({ settings, routes: routesList.routes });
+	syncFeatures({
+		injectedTypes: settings.injectedTypes,
+		routePatterns: routesList.routes.map((r) => r.route),
+		site: !!settings.config.site,
+		session: !!settings.config.session?.driver,
+		i18n: settings.config.i18n,
+		csp: !!settings.config.security.csp,
+	});
 
 	writeInjectedTypes(settings, fs);
 	logger.info('types', `Generated ${colors.dim(getTimeStat(timerStart, performance.now()))}`);
