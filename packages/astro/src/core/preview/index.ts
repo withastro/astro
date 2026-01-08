@@ -10,7 +10,7 @@ import type { PreviewModule, PreviewServer } from '../../types/public/preview.js
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
-import { createRoutesList } from '../routing/index.js';
+import { createRoutesList } from '../routing/manifest/create.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import createStaticPreviewServer from './static-preview-server.js';
 import { getResolvedHostForHttpServer } from './util.js';

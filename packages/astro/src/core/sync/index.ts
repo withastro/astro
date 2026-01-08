@@ -30,7 +30,7 @@ import {
 	isAstroError,
 } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
-import { createRoutesList } from '../routing/index.js';
+import { createRoutesList } from '../routing/manifest/create.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { normalizePath } from '../viteUtils.js';
 
