@@ -10,16 +10,32 @@ function isAlreadyHydrated(element: HTMLElement) {
 	}
 }
 
-function createReactElementFromDOMElement(element: any): any {
+const reactPropsMap: Record<string, string> = {
+	class: 'className',
+	for: 'htmlFor',
+};
+
+let clientIds = 0;
+
+function createReactElementFromDOMElement(element: any, id?: number, key?: number): any {
+	if (id === undefined) {
+		id = clientIds++;
+		key = 0;
+	}
+
 	let attrs: Record<string, string> = {};
 	for (const attr of element.attributes) {
-		attrs[attr.name] = attr.value;
+		const propName = reactPropsMap[attr.name] || attr.name;
+		attrs[propName] = attr.value;
 	}
-	// If the element has no children, we can create a simple React element
+
+	attrs.key = `${id}-${key}`;
+
 	if (element.firstChild === null) {
 		return createElement(element.localName, attrs);
 	}
 
+	let childKey = 0;
 	return createElement(
 		element.localName,
 		attrs,
@@ -28,7 +44,7 @@ function createReactElementFromDOMElement(element: any): any {
 				if (c.nodeType === Node.TEXT_NODE) {
 					return c.data;
 				} else if (c.nodeType === Node.ELEMENT_NODE) {
-					return createReactElementFromDOMElement(c);
+					return createReactElementFromDOMElement(c, id, childKey++);
 				} else {
 					return undefined;
 				}

@@ -113,7 +113,16 @@ describe('React Components', () => {
 		it('Client children passes option to the client', async () => {
 			const html = await fixture.readFile('/children/index.html');
 			const $ = cheerioLoad(html);
-			assert.equal($('[data-react-children]').length, 1);
+			assert.equal($('[data-react-children]').length, 2);
+		});
+
+		it('Children with class attributes are properly rendered', async () => {
+			const html = await fixture.readFile('/children/index.html');
+			const $ = cheerioLoad(html);
+			assert.equal($('#three .title').length, 1);
+			assert.equal($('#three .subtitle').length, 1);
+			assert.equal($('#three .title').text(), 'Hello');
+			assert.equal($('#three .subtitle').text(), 'World');
 		});
 	});
 
