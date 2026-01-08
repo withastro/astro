@@ -13,6 +13,7 @@ export function baseMiddleware(
 	logger: Logger,
 ): vite.Connect.NextHandleFunction {
 	const { config } = settings;
+	// The base may be an empty string by now, causing the URL creation to fail. We provide a default instead
 	const base = config.base || '/';
 	const site = config.site ? new URL(base, config.site) : undefined;
 	const devRootURL = new URL(base, 'http://localhost');
