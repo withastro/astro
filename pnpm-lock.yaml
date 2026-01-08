@@ -146,6 +146,33 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
 
+  benchmark/static-projects/build-hybrid:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:^
+        version: link:../../../packages/integrations/node
+      astro:
+        specifier: workspace:^
+        version: link:../../../packages/astro
+
+  benchmark/static-projects/build-server:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:^
+        version: link:../../../packages/integrations/node
+      astro:
+        specifier: workspace:^
+        version: link:../../../packages/astro
+
+  benchmark/static-projects/build-static:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:^
+        version: link:../../../packages/integrations/node
+      astro:
+        specifier: workspace:^
+        version: link:../../../packages/astro
+
   examples/basics:
     dependencies:
       astro:
