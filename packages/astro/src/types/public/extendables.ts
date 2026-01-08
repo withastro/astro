@@ -29,6 +29,8 @@ declare global {
 		export type Session = 'maybe';
 		export type I18n = 'maybe';
 		export type I18nLocale = string;
+		export type I18nDefaultLocale = string;
+		export type I18nLocales = Array<string | { path: string; codes: [string, ...string[]] }>;
 		export type Csp = 'maybe';
 	}
 }
