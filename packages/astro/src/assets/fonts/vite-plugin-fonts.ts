@@ -226,12 +226,13 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 		},
 		async configureServer(server) {
-			// The map is always defined at this point. Its values contains urls from remote providers
-			// as well as local paths for the local provider. We filter them to only keep the filepaths
-			const localPaths = [...fontFileDataMap!.values()]
-				.filter(({ url }) => isAbsolute(url))
-				.map((v) => v.url);
 			server.watcher.on('change', (path) => {
+				if (!fontFileDataMap) {
+					return;
+				}
+				const localPaths = [...fontFileDataMap.values()]
+					.filter(({ url }) => isAbsolute(url))
+					.map((v) => v.url);
 				if (localPaths.includes(path)) {
 					logger.info('assets', 'Font file updated');
 					server.restart();
@@ -239,6 +240,12 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			});
 			// We do not purge the cache in case the user wants to re-use the file later on
 			server.watcher.on('unlink', (path) => {
+				if (!fontFileDataMap) {
+					return;
+				}
+				const localPaths = [...fontFileDataMap.values()]
+					.filter(({ url }) => isAbsolute(url))
+					.map((v) => v.url);
 				if (localPaths.includes(path)) {
 					logger.warn(
 						'assets',
