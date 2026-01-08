@@ -86,7 +86,7 @@ export async function orchestrate({
 	internalConsumableMap: InternalConsumableMap;
 	consumableMap: ConsumableMap;
 }> {
-	const resolvedFamilies = await resolveFamilies({
+	const resolvedFamilies = resolveFamilies({
 		families,
 		hasher,
 		localProviderUrlResolver,

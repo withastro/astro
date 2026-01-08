@@ -10,9 +10,9 @@ import { FakeFontMetricsResolver, FakeHasher, SpyUrlProxy } from './utils.js';
 
 describe('fonts core', () => {
 	describe('resolveFamily()', () => {
-		it('removes quotes correctly', async () => {
+		it('removes quotes correctly', () => {
 			const hasher = new FakeHasher('xxx');
-			let family = await resolveFamily({
+			let family = resolveFamily({
 				family: {
 					provider: 'local',
 					name: 'Test',
@@ -33,7 +33,7 @@ describe('fonts core', () => {
 			assert.equal(family.name, 'Test');
 			assert.equal(family.nameWithHash, 'Test-xxx');
 
-			family = await resolveFamily({
+			family = resolveFamily({
 				family: {
 					provider: 'local',
 					name: '"Foo bar"',
@@ -55,8 +55,8 @@ describe('fonts core', () => {
 			assert.equal(family.nameWithHash, 'Foo bar-xxx');
 		});
 
-		it('resolves local variant correctly', async () => {
-			const family = await resolveFamily({
+		it('resolves local variant correctly', () => {
+			const family = resolveFamily({
 				family: {
 					provider: 'local',
 					name: 'Test',
@@ -84,8 +84,8 @@ describe('fonts core', () => {
 			}
 		});
 
-		it('dedupes properly', async () => {
-			let family = await resolveFamily({
+		it('dedupes properly', () => {
+			let family = resolveFamily({
 				family: {
 					provider: 'local',
 					name: '"Foo bar"',
@@ -106,7 +106,7 @@ describe('fonts core', () => {
 			});
 			assert.deepStrictEqual(family.fallbacks, ['foo', 'bar']);
 
-			family = await resolveFamily({
+			family = resolveFamily({
 				family: {
 					provider: {
 						name: 'xxx',

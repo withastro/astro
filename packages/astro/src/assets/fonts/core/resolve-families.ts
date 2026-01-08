@@ -34,7 +34,7 @@ function resolveVariants({
 /**
  * Dedupes properties if applicable and resolves entrypoints.
  */
-export async function resolveFamily({
+export function resolveFamily({
 	family,
 	hasher,
 	localProviderUrlResolver,
@@ -42,7 +42,7 @@ export async function resolveFamily({
 	family: FontFamily;
 	hasher: Hasher;
 	localProviderUrlResolver: LocalProviderUrlResolver;
-}): Promise<ResolvedFontFamily> {
+}): ResolvedFontFamily {
 	// We remove quotes from the name so they can be properly resolved by providers.
 	const name = withoutQuotes(family.name);
 	// This will be used in CSS font faces. Quotes are added by the CSS renderer if
@@ -75,18 +75,17 @@ export async function resolveFamily({
 /**
  * A function for convenience. The actual logic lives in resolveFamily
  */
-export async function resolveFamilies({
+export function resolveFamilies({
 	families,
 	...dependencies
-}: { families: Array<FontFamily> } & Omit<Parameters<typeof resolveFamily>[0], 'family'>): Promise<
-	Array<ResolvedFontFamily>
-> {
-	return await Promise.all(
-		families.map((family) =>
-			resolveFamily({
-				family,
-				...dependencies,
-			}),
-		),
+}: { families: Array<FontFamily> } & Omit<
+	Parameters<typeof resolveFamily>[0],
+	'family'
+>): Array<ResolvedFontFamily> {
+	return families.map((family) =>
+		resolveFamily({
+			family,
+			...dependencies,
+		}),
 	);
 }
