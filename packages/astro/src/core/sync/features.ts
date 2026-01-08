@@ -18,9 +18,8 @@ export function syncFeatures({ settings, routes }: Options) {
 	export type Site = ${getCondition(!!settings.config.site)};
 	export type Session = ${getCondition(!!settings.config.session?.driver)};
 	export type I18n = ${getCondition(!!settings.config.i18n)};
-	${settings.config.i18n ? `export type I18nLocale = (${JSON.stringify(settings.config.i18n.locales.map((locale) => (typeof locale === 'string' ? locale : locale.codes[0])))})[number];` : ''}
+	${settings.config.i18n ? `export type I18nLocale = (${JSON.stringify(settings.config.i18n.locales.flatMap((locale) => (typeof locale === 'string' ? [locale] : locale.codes)))})[number];` : ''}
 	${settings.config.i18n ? `export type I18nDefaultLocale = ${JSON.stringify(settings.config.i18n.defaultLocale)};` : ''}
-	${settings.config.i18n ? `export type I18nLocales = typeof ${JSON.stringify(settings.config.i18n.locales)};` : ''}
 	export type Csp = ${getCondition(!!settings.config.security.csp)};
 }`,
 	});

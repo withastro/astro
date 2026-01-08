@@ -23,7 +23,6 @@ type ConditionalType<TValue, TCondition> = TCondition extends 'enabled'
 
 interface I18n extends NonNullable<AstroConfig['i18n']> {
 	defaultLocale: AstroFeatures.I18nDefaultLocale;
-	locales: AstroFeatures.I18nLocales;
 }
 
 // Export types after this comment
