@@ -22,6 +22,15 @@ declare global {
 		export interface ClientDirectives extends AstroClientDirectives {}
 		export interface CustomImageProps {}
 	}
+
+	namespace AstroFeatures {
+		export type RoutePattern = string;
+		export type Site = 'maybe';
+		export type Session = 'maybe';
+		export type I18n = 'maybe';
+		export type I18nLocale = string;
+		export type Csp = 'maybe';
+	}
 }
 
 export {};

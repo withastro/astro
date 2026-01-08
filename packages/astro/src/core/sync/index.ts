@@ -14,7 +14,7 @@ import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
-import type { AstroSettings } from '../../types/astro.js';
+import type { AstroSettings, RoutesList } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
@@ -33,6 +33,7 @@ import type { Logger } from '../logger/core.js';
 import { createRoutesList } from '../routing/manifest/create.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { normalizePath } from '../viteUtils.js';
+import { syncFeatures } from './features.js';
 
 type SyncOptions = {
 	mode: string;
@@ -126,8 +127,17 @@ export async function syncInternal({
 
 	const timerStart = performance.now();
 
+	const routesList = await createRoutesList(
+		{
+			settings,
+			fsMod: fs,
+		},
+		logger,
+		{ dev: true, skipBuildOutputAssignment: true },
+	);
+
 	if (!skip?.content) {
-		await syncContentCollections(settings, { mode, fs, logger });
+		await syncContentCollections({ mode, fs, logger, settings, routesList });
 		settings.timer.start('Sync content layer');
 
 		let store: MutableDataStore | undefined;
@@ -173,6 +183,7 @@ export async function syncInternal({
 	}
 	syncAstroEnv(settings);
 	syncFonts(settings);
+	syncFeatures({ settings, routes: routesList.routes });
 
 	writeInjectedTypes(settings, fs);
 	logger.info('types', `Generated ${colors.dim(getTimeStat(timerStart, performance.now()))}`);
@@ -221,19 +232,16 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
  * @param {LogOptions} options.logging Logging options
  * @return {Promise<ProcessExit>}
  */
-async function syncContentCollections(
-	settings: AstroSettings,
-	{ mode, logger, fs }: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs'>>,
-): Promise<void> {
-	const routesList = await createRoutesList(
-		{
-			settings,
-			fsMod: fs,
-		},
-		logger,
-		{ dev: true, skipBuildOutputAssignment: true },
-	);
-
+async function syncContentCollections({
+	mode,
+	logger,
+	fs,
+	settings,
+	routesList,
+}: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs'>> & {
+	settings: AstroSettings;
+	routesList: RoutesList;
+}): Promise<void> {
 	// Needed to load content config
 	const tempViteServer = await createServer(
 		await createVite(
