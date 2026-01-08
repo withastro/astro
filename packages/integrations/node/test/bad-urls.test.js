@@ -31,7 +31,6 @@ describe('Bad URLs', () => {
 			'%c',
 			'%c0%80',
 			'%20foobar%',
-			'/#', // Hash fragment URL - see issue #14625
 		];
 
 		const statusCodes = [400, 404, 500];
@@ -46,5 +45,19 @@ describe('Bad URLs', () => {
 		const stillWork = await fixture.fetch('/');
 		const text = await stillWork.text();
 		assert.equal(text, '<!DOCTYPE html>Hello!');
+	});
+
+	it('Does not crash on URLs with hash fragments', async () => {
+		// Hash fragments are client-side only and stripped before reaching the server
+		// so /#foo should resolve to / and return 200 - see issue #14625
+		const hashURLs = ['/#', '/#foo', '/#/path'];
+		for (const hashUrl of hashURLs) {
+			const fetchResult = await fixture.fetch(hashUrl);
+			assert.equal(
+				fetchResult.status,
+				200,
+				`${hashUrl} should return 200 as hash fragments are stripped`,
+			);
+		}
 	});
 });
