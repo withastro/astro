@@ -34,12 +34,12 @@ export interface ServerDeserializedManifest
 	i18n: ConditionalType<I18n, AstroFeatures.I18n>;
 	build: Pick<AstroConfig['build'], 'server' | 'client' | 'format'>;
 	root: URL;
-	site: ConditionalType<URL, AstroFeatures.Site>;
+	site: ConditionalType<string, AstroFeatures.Site>;
 }
 
 export interface ClientDeserializedManifest
 	extends Pick<SSRManifest, 'base' | 'trailingSlash' | 'compressHTML'> {
 	i18n: ConditionalType<I18n, AstroFeatures.I18n>;
 	build: Pick<AstroConfig['build'], 'format'>;
-	site: ConditionalType<URL, AstroFeatures.Site>;
+	site: ConditionalType<string, AstroFeatures.Site>;
 }
