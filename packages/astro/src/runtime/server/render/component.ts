@@ -24,9 +24,9 @@ import {
 } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { maybeRenderHead } from './head.js';
-import { createRenderInstruction } from './instruction.js';
+import { createRenderInstruction, isRenderInstruction, type RenderInstruction } from './instruction.js';
 import { containsServerDirective, ServerIslandComponent } from './server-islands.js';
-import { type ComponentSlots, renderSlots, renderSlotToString } from './slot.js';
+import { type ComponentSlots, mergeSlotInstructions, renderSlots, renderSlotToString, SlotString } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
@@ -524,6 +524,7 @@ export async function renderComponentToString(
 	route?: RouteData,
 ): Promise<string> {
 	let str = '';
+	let instructions: RenderInstruction[] | null = null;
 	let renderedFirstPageChunk = false;
 
 	// Handle head injection if required. Note that this needs to run early so
@@ -548,7 +549,21 @@ export async function renderComponentToString(
 				// `renderToString` doesn't work with emitting responses, so ignore here
 				if (chunk instanceof Response) return;
 
-				str += chunkToString(result, chunk);
+				// For pages, stringify immediately (final output)
+				// For non-pages (slots/components), collect instructions for deferred processing
+				if (isPage) {
+					str += chunkToString(result, chunk);
+				} else {
+					if (chunk instanceof SlotString) {
+						str += chunk;
+						instructions = mergeSlotInstructions(instructions, chunk);
+					} else if (isRenderInstruction(chunk)) {
+						instructions ??= [];
+						instructions.push(chunk);
+					} else {
+						str += chunkToString(result, chunk);
+					}
+				}
 			},
 		};
 
@@ -569,7 +584,11 @@ export async function renderComponentToString(
 		throw e;
 	}
 
-	return str;
+	// For pages, return plain string. For non-pages, return SlotString to preserve instructions.
+	if (isPage) {
+		return str;
+	}
+	return new SlotString(str, instructions) as unknown as string;
 }
 
 export type NonAstroPageComponent = {
