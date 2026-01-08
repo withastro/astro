@@ -157,6 +157,7 @@ class AstroBuilder {
 			logger,
 			fs,
 			command: 'build',
+			routesList: this.routesList,
 		});
 
 		return { viteConfig };

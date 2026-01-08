@@ -52,6 +52,7 @@ type SyncOptions = {
 	};
 	command: 'build' | 'dev' | 'sync';
 	watcher?: FSWatcher;
+	routesList: RoutesList;
 };
 
 export default async function sync(
@@ -70,6 +71,7 @@ export default async function sync(
 		settings,
 		logger,
 	});
+	const routesList = await createRoutesList({ settings, fsMod: fs }, logger);
 	await runHookConfigDone({ settings, logger });
 
 	return await syncInternal({
@@ -79,6 +81,7 @@ export default async function sync(
 		fs,
 		force: inlineConfig.force,
 		command: 'sync',
+		routesList,
 	});
 }
 
@@ -119,6 +122,7 @@ export async function syncInternal({
 	force,
 	command,
 	watcher,
+	routesList,
 }: SyncOptions): Promise<void> {
 	const isDev = command === 'dev';
 	if (force) {
@@ -127,17 +131,8 @@ export async function syncInternal({
 
 	const timerStart = performance.now();
 
-	const routesList = await createRoutesList(
-		{
-			settings,
-			fsMod: fs,
-		},
-		logger,
-		{ dev: true, skipBuildOutputAssignment: true },
-	);
-
 	if (!skip?.content) {
-		await syncContentCollections({ mode, fs, logger, settings, routesList });
+		await syncContentCollections(settings, { mode, fs, logger });
 		settings.timer.start('Sync content layer');
 
 		let store: MutableDataStore | undefined;
@@ -239,16 +234,18 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
  * @param {LogOptions} options.logging Logging options
  * @return {Promise<ProcessExit>}
  */
-async function syncContentCollections({
-	mode,
-	logger,
-	fs,
-	settings,
-	routesList,
-}: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs'>> & {
-	settings: AstroSettings;
-	routesList: RoutesList;
-}): Promise<void> {
+async function syncContentCollections(
+	settings: AstroSettings,
+	{ mode, logger, fs }: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs'>>,
+): Promise<void> {
+	const routesList = await createRoutesList(
+		{
+			settings,
+			fsMod: fs,
+		},
+		logger,
+		{ dev: true, skipBuildOutputAssignment: true },
+	);
 	// Needed to load content config
 	const tempViteServer = await createServer(
 		await createVite(
