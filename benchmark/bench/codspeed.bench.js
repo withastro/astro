@@ -60,19 +60,19 @@ describe('Bench build time', () => {
 			root: staticRoot,
 			logLevel: 'error',
 		});
-	}, { timeout: 300000 });
+	}, { timeout: 300000, iterations: 3 });
 
 	bench('Build: hybrid site (static + server)', async () => {
 		await build({
 			root: hybridRoot,
 			logLevel: 'error',
 		});
-	}, { timeout: 300000 });
+	}, { timeout: 300000, iterations: 3 });
 
 	bench('Build: full server site', async () => {
 		await build({
 			root: serverRoot,
 			logLevel: 'error',
 		});
-	}, { timeout: 300000 });
+	}, { timeout: 300000, iterations: 3 });
 });
