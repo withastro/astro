@@ -38,7 +38,10 @@ describe('sync', () => {
 			assert.equal(types.includes(`type I18n = 'enabled'`), true);
 			assert.equal(types.includes(`type Csp = 'enabled'`), true);
 			assert.equal(types.includes(`type RoutePattern = (["foo","bar"])[number]`), true);
-			assert.equal(types.includes(`type I18nLocale = (["es","en","fr","fr-BR","fr-CA"])[number]`), true);
+			assert.equal(
+				types.includes(`type I18nLocale = (["es","en","fr","fr-BR","fr-CA"])[number]`),
+				true,
+			);
 			assert.equal(types.includes(`type I18nDefaultLocale = "en"`), true);
 		});
 
@@ -54,6 +57,6 @@ describe('sync', () => {
 			assert.equal(types.includes(`type Session = 'maybe'`), true);
 			assert.equal(types.includes(`type I18n = 'maybe'`), true);
 			assert.equal(types.includes(`type Csp = 'maybe'`), true);
-        });
+		});
 	});
 });
