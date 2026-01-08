@@ -127,7 +127,8 @@ test.describe('View Transitions', () => {
 
 		// Go to page 3 which does *not* have ClientRouter enabled
 		await page.click('#click-three');
-		await page.waitForURL(/.*three.*/);
+		await page.waitForLoadState('networkidle'); // wait for navigation to complete
+
 		p = page.locator('#three');
 		await expect(p, 'should have content').toHaveText('Page 3');
 
@@ -182,7 +183,7 @@ test.describe('View Transitions', () => {
 
 		// Back to page 1
 		await page.goBack();
-		await page.waitForURL(/.*one.*/);
+		await page.waitForLoadState('networkidle'); // wait for navigation to complete
 		p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
 		expect(
