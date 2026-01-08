@@ -1,26 +1,22 @@
+import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { build } from 'astro';
-import { exec } from 'tinyexec';
 import { beforeAll, bench, describe } from 'vitest';
-import { astroBin, makeProject } from './_util.js';
-
 
 const staticRoot = fileURLToPath(new URL('../static-projects/build-static', import.meta.url));
 const hybridRoot = fileURLToPath(new URL('../static-projects/build-hybrid', import.meta.url));
 const serverRoot = fileURLToPath(new URL('../static-projects/build-server', import.meta.url));
-
+const renderRoot = new URL('../projects/render-bench/', import.meta.url);
+	
 let streamingApp;
 let nonStreamingApp;
 beforeAll(async () => {
-	const render = await makeProject('render-bench');
-	const root = fileURLToPath(render);
-	await exec(astroBin, ['build'], {
-		nodeOptions: {
-			cwd: root,
-			stdio: 'inherit',
-		},
-	});
-	const entry = new URL('./dist/server/entry.mjs', `file://${root}`);
+	const entry = new URL('./dist/server/entry.mjs', renderRoot);
+	
+	if (!existsSync(fileURLToPath(entry))) {
+		throw new Error('render-bench project not built. Please run `pnpm run build:bench` before running the benchmarks.');
+	}
+	
 	const { manifest, createApp } = await import(entry);
 	streamingApp = createApp(manifest, true);
 	nonStreamingApp = createApp(manifest, false);

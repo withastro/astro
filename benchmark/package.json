@@ -7,7 +7,8 @@
     "astro-benchmark": "./index.js"
   },
   "scripts": {
-    "bench": "pnpm vitest bench --run"
+    "bench": "pnpm vitest bench --run",
+    "build:bench": "node ./bench/codspeed-setup.js"
   },
   "dependencies": {
     "@astrojs/mdx": "workspace:*",
