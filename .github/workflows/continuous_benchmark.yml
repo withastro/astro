@@ -48,7 +48,7 @@ jobs:
         
       - name: Setup benchmark projects
         working-directory: ./benchmark
-        run: pnpm build:bench
+        run: pnpm run build:bench
         timeout-minutes: 15
         
       - name: Run the benchmarks
