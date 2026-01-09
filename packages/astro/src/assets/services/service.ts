@@ -112,7 +112,7 @@ export interface LocalImageService<T extends Record<string, any> = Record<string
 	/**
 	 * A list of properties that should be used to generate the hash for the image.
 	 *
-	 * Generally, this should be all the properties that can change the result of the image. By default, this is `src`, `width`, `height`, `quality`, `background`, and `format`.
+	 * Generally, this should be all the properties that can change the result of the image. By default, this is `src`, `width`, `height`, `format`, `quality`, `fit`, `position`, and `background`.
 	 */
 	propertiesToHash?: string[];
 }
