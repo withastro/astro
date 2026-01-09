@@ -4,6 +4,7 @@ import { isRemotePath, joinPaths } from '../../core/path.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import { DEFAULT_HASH_PROPS, DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
 import type {
+	ImageBackground,
 	ImageFit,
 	ImageOutputFormat,
 	ImageTransform,
@@ -111,7 +112,7 @@ export interface LocalImageService<T extends Record<string, any> = Record<string
 	/**
 	 * A list of properties that should be used to generate the hash for the image.
 	 *
-	 * Generally, this should be all the properties that can change the result of the image. By default, this is `src`, `width`, `height`, `quality`, and `format`.
+	 * Generally, this should be all the properties that can change the result of the image. By default, this is `src`, `width`, `height`, `quality`, `background`, and `format`.
 	 */
 	propertiesToHash?: string[];
 }
@@ -124,6 +125,7 @@ export type BaseServiceTransform = {
 	quality?: string | null;
 	fit?: ImageFit;
 	position?: string;
+	background?: ImageBackground;
 };
 
 const sortNumeric = (a: number, b: number) => a - b;

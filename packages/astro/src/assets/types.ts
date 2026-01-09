@@ -8,6 +8,12 @@ export type ImageInputFormat = (typeof VALID_INPUT_FORMATS)[number];
 export type ImageOutputFormat = (typeof VALID_OUTPUT_FORMATS)[number] | (string & {});
 export type ImageLayout = 'constrained' | 'fixed' | 'full-width' | 'none';
 export type ImageFit = 'fill' | 'contain' | 'cover' | 'none' | 'scale-down' | (string & {});
+export type ImageBackground = string | {
+	r: number;
+	g: number;
+	b: number;
+	alpha?: number | undefined;
+};
 
 export type AssetsGlobalStaticImagesList = Map<
 	string,
@@ -89,6 +95,7 @@ export type ImageTransform = {
 	format?: ImageOutputFormat | undefined;
 	fit?: ImageFit | undefined;
 	position?: string | undefined;
+	background?: ImageBackground | undefined;
 	[key: string]: any;
 } & Astro.CustomImageProps;
 
