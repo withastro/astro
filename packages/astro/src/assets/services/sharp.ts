@@ -71,11 +71,6 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		// always call rotate to adjust for EXIF data orientation
 		result.rotate();
 
-		// if background is set, flatten the image with the specified background
-		if (transform.background) {
-			result.flatten({ background: transform.background });
-		}
-
 		// If `fit` isn't set then use old behavior:
 		// - Do not use both width and height for resizing, and prioritize width over height
 		// - Allow enlarging images
@@ -100,6 +95,13 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 				width: Math.round(transform.width),
 				withoutEnlargement,
 			});
+		}
+
+		// If background is set, flatten the image with the specified background.
+		// We do this after resize to ensure the background covers the entire image
+		// even if its size has expanded.
+		if (transform.background) {
+			result.flatten({ background: transform.background });
 		}
 
 		if (transform.format) {
