@@ -100,6 +100,13 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 			});
 		}
 
+		// If background is set, flatten the image with the specified background.
+		// We do this after resize to ensure the background covers the entire image
+		// even if its size has expanded.
+		if (transform.background) {
+			result.flatten({ background: transform.background });
+		}
+
 		if (transform.format) {
 			let quality: number | string | undefined = undefined;
 			if (transform.quality) {
