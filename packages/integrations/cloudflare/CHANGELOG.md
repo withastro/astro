@@ -1,5 +1,14 @@
 # @astrojs/cloudflare
 
+## 13.0.0-alpha.5
+
+### Patch Changes
+
+- [#15121](https://github.com/withastro/astro/pull/15121) [`06261e0`](https://github.com/withastro/astro/commit/06261e03d55a571c6affbd7321f7e28c997d6d5d) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the Astro, with the Cloudlfare integration, couldn't correctly serve certain routes in the development server.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 13.0.0-alpha.4
 
 ### Patch Changes
