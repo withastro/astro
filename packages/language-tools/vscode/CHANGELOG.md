@@ -1,5 +1,17 @@
 # astro-vscode
 
+## 2.16.8
+
+### Patch Changes
+
+- [#15156](https://github.com/withastro/astro/pull/15156) [`9cc2c71`](https://github.com/withastro/astro/commit/9cc2c71a601c04415f13b3ac62c361ef2c40b63d) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes TypeScript plugin not working
+
+## 2.16.7
+
+### Patch Changes
+
+- [#15131](https://github.com/withastro/astro/pull/15131) [`d40ff7d`](https://github.com/withastro/astro/commit/d40ff7d8570f30c82402d8e2b01d4da890e3e771) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes extension asking for the wrong version of VS Code
+
 ## 2.16.6
 
 ### Patch Changes
