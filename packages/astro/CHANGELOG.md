@@ -1,5 +1,69 @@
 # astro
 
+## 6.0.0-alpha.6
+
+### Patch Changes
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves JSDoc annotations for `AstroGlobal`, `AstroSharedContext` and `APIContext` types
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes remote images `Etag` header handling by disabling internal cache
+
+- [#15121](https://github.com/withastro/astro/pull/15121) [`06261e0`](https://github.com/withastro/astro/commit/06261e03d55a571c6affbd7321f7e28c997d6d5d) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the Astro, with the Cloudlfare integration, couldn't correctly serve certain routes in the development server.
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes images not working in development when using setups with port forwarding
+
+- [#15137](https://github.com/withastro/astro/pull/15137) [`2f70bf1`](https://github.com/withastro/astro/commit/2f70bf14ec953cd6e813ed4e1aa0ef2245846dd0) Thanks [@matthewp](https://github.com/matthewp)! - Adds `legacy.collectionsBackwardsCompat` flag that restores v5 backwards compatibility behavior for legacy content collections - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#legacy-content-collections-backwards-compatibility))
+
+  When enabled, this flag allows:
+  - Collections defined without loaders (automatically get glob loader)
+  - Collections with `type: 'content'` or `type: 'data'`
+  - Config files located at `src/content/config.ts` (legacy location)
+  - Legacy entry API: `entry.slug` and `entry.render()` methods
+  - Path-based entry IDs instead of slug-based IDs
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    legacy: {
+      collectionsBackwardsCompat: true,
+    },
+  });
+  ```
+
+  This is a temporary migration helper for v6 upgrades. Migrate collections to the Content Layer API, then disable this flag.
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Reduces Astro’s install size by around 8 MB
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Enables the ClientRouter to preserve the original hash part of the target URL during server side redirects.
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental Fonts API only**
+
+  Changes the font format downloaded by default when using the experimental Fonts API. Additionally, adds a new `formats` configuration option to specify which font formats to download.
+
+  Previously, Astro was opinionated about which font sources would be kept for usage, mainly keeping `woff2` and `woff` files.
+
+  You can now specify what font formats should be downloaded (if available). Only `woff2` files are downloaded by default.
+
+  #### What should I do?
+
+  If you were previously relying on Astro downloading the `woff` format, you will now need to specify this explicitly with the new `formats` configuration option. Additionally, you may also specify any additional file formats to download if available:
+
+  ```diff
+  // astro.config.mjs
+  import { defineConfig, fontProviders } from 'astro/config'
+
+  export default defineConfig({
+      experimental: {
+          fonts: [{
+              name: 'Roboto',
+              cssVariable: '--font-roboto',
+              provider: fontProviders.google(),
+  +            formats: ['woff2', 'woff', 'otf']
+          }]
+      }
+  })
+  ```
+
 ## 6.0.0-alpha.5
 
 ### Patch Changes
