@@ -1416,19 +1416,6 @@ export const FontFamilyNotFound = {
 /**
  * @docs
  * @description
- * The CSP feature isn't enabled
- * @message
- * The `security.csp` configuration isn't enabled.
- */
-export const CspNotEnabled = {
-	name: 'CspNotEnabled',
-	title: "CSP feature isn't enabled",
-	message: "The `security.csp` configuration isn't enabled.",
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
  * Unavailable Astro global in getStaticPaths
  * @message
  * The Astro global is not available in getStaticPaths().

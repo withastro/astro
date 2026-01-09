@@ -1,0 +1,8 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["**/*.d.ts"]
+}
