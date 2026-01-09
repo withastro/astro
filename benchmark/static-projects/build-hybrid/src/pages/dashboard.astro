@@ -6,6 +6,7 @@ export const prerender = false;
 const timestamp = new Date().toISOString();
 const randomValue = Math.random();
 ---
+
 <BaseLayout title="Dashboard - Hybrid Site">
 	<h1>Dashboard (Server-Rendered)</h1>
 	<p>This page is rendered on-demand for each request.</p>
@@ -18,9 +19,13 @@ const randomValue = Math.random();
 	<section>
 		<h2>Stats</h2>
 		<ul>
-			{Array.from({ length: 20 }, (_, i) => (
-				<li>Stat {i + 1}: {Math.floor(Math.random() * 1000)}</li>
-			))}
+			{
+				Array.from({ length: 20 }, (_, i) => (
+					<li>
+						Stat {i + 1}: {Math.floor(Math.random() * 1000)}
+					</li>
+				))
+			}
 		</ul>
 	</section>
 </BaseLayout>

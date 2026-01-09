@@ -8,11 +8,14 @@ const posts = Array.from({ length: 100 }, (_, i) => ({
 	href: `/blog/${i + 1}`,
 }));
 ---
+
 <BaseLayout title="Blog - Static Site">
 	<h1>All Blog Posts</h1>
 	<div class="grid">
-		{posts.map((post) => (
-			<Card title={post.title} description={post.description} href={post.href} />
-		))}
+		{
+			posts.map((post) => (
+				<Card title={post.title} description={post.description} href={post.href} />
+			))
+		}
 	</div>
 </BaseLayout>

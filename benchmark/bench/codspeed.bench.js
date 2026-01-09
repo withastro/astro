@@ -7,16 +7,18 @@ const staticRoot = fileURLToPath(new URL('../static-projects/build-static', impo
 const hybridRoot = fileURLToPath(new URL('../static-projects/build-hybrid', import.meta.url));
 const serverRoot = fileURLToPath(new URL('../static-projects/build-server', import.meta.url));
 const renderRoot = new URL('../projects/render-bench/', import.meta.url);
-	
+
 let streamingApp;
 let nonStreamingApp;
 beforeAll(async () => {
 	const entry = new URL('./dist/server/entry.mjs', renderRoot);
-	
+
 	if (!existsSync(fileURLToPath(entry))) {
-		throw new Error('render-bench project not built. Please run `pnpm run build:bench` before running the benchmarks.');
+		throw new Error(
+			'render-bench project not built. Please run `pnpm run build:bench` before running the benchmarks.',
+		);
 	}
-	
+
 	const { manifest, createApp } = await import(entry);
 	streamingApp = createApp(manifest, true);
 	nonStreamingApp = createApp(manifest, false);
@@ -51,24 +53,36 @@ describe('Bench rendering', () => {
 });
 
 describe('Bench build time', () => {
-	bench('Build: full static site', async () => {
-		await build({
-			root: staticRoot,
-			logLevel: 'error',
-		});
-	}, { timeout: 300000, iterations: 3 });
+	bench(
+		'Build: full static site',
+		async () => {
+			await build({
+				root: staticRoot,
+				logLevel: 'error',
+			});
+		},
+		{ timeout: 300000, iterations: 3 },
+	);
 
-	bench('Build: hybrid site (static + server)', async () => {
-		await build({
-			root: hybridRoot,
-			logLevel: 'error',
-		});
-	}, { timeout: 300000, iterations: 3 });
+	bench(
+		'Build: hybrid site (static + server)',
+		async () => {
+			await build({
+				root: hybridRoot,
+				logLevel: 'error',
+			});
+		},
+		{ timeout: 300000, iterations: 3 },
+	);
 
-	bench('Build: full server site', async () => {
-		await build({
-			root: serverRoot,
-			logLevel: 'error',
-		});
-	}, { timeout: 300000, iterations: 3 });
+	bench(
+		'Build: full server site',
+		async () => {
+			await build({
+				root: serverRoot,
+				logLevel: 'error',
+			});
+		},
+		{ timeout: 300000, iterations: 3 },
+	);
 });

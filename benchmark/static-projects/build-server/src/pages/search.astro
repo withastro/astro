@@ -13,6 +13,7 @@ const results = Array.from({ length: Math.min(resultsCount, 20) }, (_, i) => ({
 	href: `/blog/${Math.floor(Math.random() * 100) + 1}`,
 }));
 ---
+
 <BaseLayout title={`Search: ${query} - Server Site`}>
 	<ServerInfo />
 	<h1>Search Results</h1>
@@ -20,17 +21,21 @@ const results = Array.from({ length: Math.min(resultsCount, 20) }, (_, i) => ({
 		<input type="text" name="q" value={query} placeholder="Search..." />
 		<button type="submit">Search</button>
 	</form>
-	{query && (
-		<p>Found {resultsCount} results for "{query}"</p>
-	)}
-	{results.length > 0 && (
-		<div class="grid">
-			{results.map((result) => (
-				<Card title={result.title} description={result.description} href={result.href} />
-			))}
-		</div>
-	)}
-	{query && results.length === 0 && (
-		<p>No results found.</p>
-	)}
+	{
+		query && (
+			<p>
+				Found {resultsCount} results for "{query}"
+			</p>
+		)
+	}
+	{
+		results.length > 0 && (
+			<div class="grid">
+				{results.map((result) => (
+					<Card title={result.title} description={result.description} href={result.href} />
+				))}
+			</div>
+		)
+	}
+	{query && results.length === 0 && <p>No results found.</p>}
 </BaseLayout>

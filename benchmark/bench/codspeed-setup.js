@@ -11,7 +11,7 @@ async function setup() {
 	console.log('Setting up render-bench project...');
 	const render = await makeProject('render-bench');
 	const root = fileURLToPath(render);
-	
+
 	console.log(`Building project at ${root}...`);
 	await exec(astroBin, ['build'], {
 		nodeOptions: {
