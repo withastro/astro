@@ -2,13 +2,6 @@ import type { Logger } from '../../../core/logger/core.js';
 import type { CommandExecutor, OperatingSystemProvider } from '../../definitions.js';
 import type { Clipboard, Prompt } from '../definitions.js';
 
-interface Options {
-	operatingSystemProvider: OperatingSystemProvider;
-	commandExecutor: CommandExecutor;
-	logger: Logger;
-	prompt: Prompt;
-}
-
 async function getExecInputForPlatform({
 	platform,
 	commandExecutor,
@@ -40,45 +33,63 @@ async function getExecInputForPlatform({
 	return null;
 }
 
-export function createCliClipboard({
-	operatingSystemProvider,
-	commandExecutor,
-	logger,
-	prompt,
-}: Options): Clipboard {
-	return {
-		async copy(text) {
-			text = text.trim();
-			const platform = operatingSystemProvider.name;
-			const input = await getExecInputForPlatform({ platform, commandExecutor });
-			if (!input) {
-				logger.warn('SKIP_FORMAT', 'Clipboard command not found!');
-				logger.info('SKIP_FORMAT', 'Please manually copy the text above.');
-				return;
-			}
+export class CliClipboard implements Clipboard {
+	readonly #operatingSystemProvider: OperatingSystemProvider;
+	readonly #commandExecutor: CommandExecutor;
+	readonly #logger: Logger;
+	readonly #prompt: Prompt;
 
-			if (
-				!(await prompt.confirm({
-					message: 'Copy to clipboard?',
-					defaultValue: true,
-				}))
-			) {
-				return;
-			}
+	constructor({
+		operatingSystemProvider,
+		commandExecutor,
+		logger,
+		prompt,
+	}: {
+		operatingSystemProvider: OperatingSystemProvider;
+		commandExecutor: CommandExecutor;
+		logger: Logger;
+		prompt: Prompt;
+	}) {
+		this.#operatingSystemProvider = operatingSystemProvider;
+		this.#commandExecutor = commandExecutor;
+		this.#logger = logger;
+		this.#prompt = prompt;
+	}
 
-			try {
-				const [command, args] = input;
-				await commandExecutor.execute(command, args, {
-					input: text,
-					stdio: ['pipe', 'ignore', 'ignore'],
-				});
-				logger.info('SKIP_FORMAT', 'Copied to clipboard!');
-			} catch {
-				logger.error(
-					'SKIP_FORMAT',
-					'Sorry, something went wrong! Please copy the text above manually.',
-				);
-			}
-		},
-	};
+	async copy(text: string): Promise<void> {
+		text = text.trim();
+		const platform = this.#operatingSystemProvider.name;
+		const input = await getExecInputForPlatform({
+			platform,
+			commandExecutor: this.#commandExecutor,
+		});
+		if (!input) {
+			this.#logger.warn('SKIP_FORMAT', 'Clipboard command not found!');
+			this.#logger.info('SKIP_FORMAT', 'Please manually copy the text above.');
+			return;
+		}
+
+		if (
+			!(await this.#prompt.confirm({
+				message: 'Copy to clipboard?',
+				defaultValue: true,
+			}))
+		) {
+			return;
+		}
+
+		try {
+			const [command, args] = input;
+			await this.#commandExecutor.execute(command, args, {
+				input: text,
+				stdio: ['pipe', 'ignore', 'ignore'],
+			});
+			this.#logger.info('SKIP_FORMAT', 'Copied to clipboard!');
+		} catch {
+			this.#logger.error(
+				'SKIP_FORMAT',
+				'Sorry, something went wrong! Please copy the text above manually.',
+			);
+		}
+	}
 }

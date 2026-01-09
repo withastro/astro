@@ -1,17 +1,25 @@
 import type { CommandRunner, HelpDisplay } from '../definitions.js';
+import type { AnyCommand } from '../domain/command.js';
 
-interface Options {
-	helpDisplay: HelpDisplay;
-}
+export class CliCommandRunner implements CommandRunner {
+	readonly #helpDisplay: HelpDisplay;
 
-export function createCliCommandRunner({ helpDisplay }: Options): CommandRunner {
-	return {
-		run(command, ...args) {
-			if (helpDisplay.shouldFire()) {
-				helpDisplay.show(command.help);
-				return;
-			}
-			return command.run(...args);
-		},
-	};
+	constructor({
+		helpDisplay,
+	}: {
+		helpDisplay: HelpDisplay;
+	}) {
+		this.#helpDisplay = helpDisplay;
+	}
+
+	run<T extends AnyCommand>(
+		command: T,
+		...args: Parameters<T['run']>
+	): ReturnType<T['run']> | undefined {
+		if (this.#helpDisplay.shouldFire()) {
+			this.#helpDisplay.show(command.help);
+			return;
+		}
+		return command.run(...args);
+	}
 }

@@ -17,6 +17,10 @@ export type ReactIntegrationOptions = Pick<
 	 * Disable streaming in React components
 	 */
 	experimentalDisableStreaming?: boolean;
+	/*
+	* Enables the [React Compiler](https://react.dev/learn/react-compiler).
+	* Requires installing `babel-plugin-react-compiler`.
+	*/
 	reactCompilerEnabled?: boolean;
 };
 

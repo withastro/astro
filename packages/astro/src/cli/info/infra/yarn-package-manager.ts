@@ -15,25 +15,24 @@ function getYarnOutputDepVersion(dependency: string, outputLine: string) {
 	}
 }
 
-interface Options {
-	commandExecutor: CommandExecutor;
-}
+export class YarnPackageManager implements PackageManager {
+	readonly name: string = 'yarn';
+	readonly #commandExecutor: CommandExecutor;
 
-export function createYarnPackageManager({ commandExecutor }: Options): PackageManager {
-	return {
-		getName() {
-			return 'yarn';
-		},
-		async getPackageVersion(name) {
-			try {
-				// https://yarnpkg.com/cli/why
-				const { stdout } = await commandExecutor.execute('yarn', ['why', name, '--json'], {
-					shell: true,
-				});
+	constructor({ commandExecutor }: { commandExecutor: CommandExecutor }) {
+		this.#commandExecutor = commandExecutor;
+	}
 
-				const hasUserDefinition = stdout.includes('workspace:.');
+	async getPackageVersion(name: string): Promise<string | undefined> {
+		try {
+			// https://yarnpkg.com/cli/why
+			const { stdout } = await this.#commandExecutor.execute('yarn', ['why', name, '--json'], {
+				shell: true,
+			});
 
-				/* output is NDJSON: one line contains a json object. For example:
+			const hasUserDefinition = stdout.includes('workspace:.');
+
+			/* output is NDJSON: one line contains a json object. For example:
 				
 				{"type":"step","data":{"message":"Why do we have the module \"hookable\"?","current":1,"total":4}}
 				{"type":"step","data":{"message":"Initialising dependency graph","current":2,"total":4}}
@@ -50,15 +49,14 @@ export function createYarnPackageManager({ commandExecutor }: Options): PackageM
 				{"type":"info","data":"Disk size with transitive dependencies: \"52KB\""}
 				{"type":"info","data":"Number of shared dependencies: 0"}
 				 */
-				for (const line of stdout.split('\n')) {
-					if (hasUserDefinition && line.includes('workspace:.'))
-						return getYarnOutputDepVersion(name, line);
-					if (!hasUserDefinition && line.includes('astro@'))
-						return getYarnOutputDepVersion(name, line);
-				}
-			} catch {
-				return undefined;
+			for (const line of stdout.split('\n')) {
+				if (hasUserDefinition && line.includes('workspace:.'))
+					return getYarnOutputDepVersion(name, line);
+				if (!hasUserDefinition && line.includes('astro@'))
+					return getYarnOutputDepVersion(name, line);
 			}
-		},
-	};
+		} catch {
+			return undefined;
+		}
+	}
 }

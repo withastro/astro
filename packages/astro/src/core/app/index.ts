@@ -3,7 +3,7 @@ import {
 	hasFileExtension,
 	isInternalPath,
 } from '@astrojs/internal-helpers/path';
-import { matchPattern, type RemotePattern } from '../../assets/utils/remotePattern.js';
+import { matchPattern, type RemotePattern } from '@astrojs/internal-helpers/remote';
 import { normalizeTheLocale } from '../../i18n/index.js';
 import type { RoutesList } from '../../types/astro.js';
 import type { RouteData, SSRManifest } from '../../types/public/internal.js';
@@ -32,6 +32,7 @@ import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { createDefaultRoutes } from '../routing/default.js';
 import { matchRoute } from '../routing/match.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session.js';
+import { validateAndDecodePathname } from '../util/pathname.js';
 import { AppPipeline } from './pipeline.js';
 
 export { deserializeManifest } from './common.js';
@@ -319,7 +320,7 @@ export class App {
 		const url = new URL(request.url);
 		const pathname = prependForwardSlash(this.removeBase(url.pathname));
 		try {
-			return decodeURI(pathname);
+			return validateAndDecodePathname(pathname);
 		} catch (e: any) {
 			this.getAdapterLogger().error(e.toString());
 			return pathname;
@@ -342,7 +343,13 @@ export class App {
 		if (!pathname) {
 			pathname = prependForwardSlash(this.removeBase(url.pathname));
 		}
-		let routeData = matchRoute(decodeURI(pathname), this.#manifestData);
+		try {
+			pathname = validateAndDecodePathname(pathname);
+		} catch {
+			// Invalid encoding detected - return no match
+			return undefined;
+		}
+		let routeData = matchRoute(pathname, this.#manifestData);
 
 		if (!routeData) return undefined;
 		if (allowPrerenderedRoutes) {
@@ -559,6 +566,9 @@ export class App {
 
 		if (
 			REROUTABLE_STATUS_CODES.includes(response.status) &&
+			// If the body isn't null, that means the user sets the 404 status
+			// but uses the current route to handle the 404
+			response.body === null &&
 			response.headers.get(REROUTE_DIRECTIVE_HEADER) !== 'no'
 		) {
 			return this.#renderError(request, {

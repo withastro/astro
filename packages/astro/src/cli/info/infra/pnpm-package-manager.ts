@@ -10,41 +10,39 @@ interface BareNpmLikeVersionOutput {
 	dependencies: Record<string, BareNpmLikeVersionOutput>;
 }
 
-interface Options {
-	commandExecutor: CommandExecutor;
-}
+export class PnpmPackageManager implements PackageManager {
+	readonly name: string = 'pnpm';
+	readonly #commandExecutor: CommandExecutor;
 
-export function createPnpmPackageManager({ commandExecutor }: Options): PackageManager {
-	return {
-		getName() {
-			return 'pnpm';
-		},
-		async getPackageVersion(name) {
-			try {
-				// https://pnpm.io/cli/why
-				const { stdout } = await commandExecutor.execute('pnpm', ['why', name, '--json'], {
-					shell: true,
-				});
+	constructor({ commandExecutor }: { commandExecutor: CommandExecutor }) {
+		this.#commandExecutor = commandExecutor;
+	}
 
-				const parsedOutput = JSON.parse(stdout) as Array<BareNpmLikeVersionOutput>;
+	async getPackageVersion(name: string): Promise<string | undefined> {
+		try {
+			// https://pnpm.io/cli/why
+			const { stdout } = await this.#commandExecutor.execute('pnpm', ['why', name, '--json'], {
+				shell: true,
+			});
 
-				const deps = parsedOutput[0].dependencies;
+			const parsedOutput = JSON.parse(stdout) as Array<BareNpmLikeVersionOutput>;
 
-				if (parsedOutput.length === 0 || !deps) {
-					return undefined;
-				}
+			const deps = parsedOutput[0].dependencies;
 
-				const userProvidedDependency = deps[name];
-
-				if (userProvidedDependency) {
-					return formatPnpmVersionOutput(userProvidedDependency.version);
-				}
-
-				const astroDependency = deps.astro?.dependencies[name];
-				return astroDependency ? formatPnpmVersionOutput(astroDependency.version) : undefined;
-			} catch {
+			if (parsedOutput.length === 0 || !deps) {
 				return undefined;
 			}
-		},
-	};
+
+			const userProvidedDependency = deps[name];
+
+			if (userProvidedDependency) {
+				return formatPnpmVersionOutput(userProvidedDependency.version);
+			}
+
+			const astroDependency = deps.astro?.dependencies[name];
+			return astroDependency ? formatPnpmVersionOutput(astroDependency.version) : undefined;
+		} catch {
+			return undefined;
+		}
+	}
 }

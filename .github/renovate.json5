@@ -64,6 +64,15 @@
         "packages/integrations/svelte/**",
         "packages/integrations/vue/**",
       ]
+    },
+    {
+      "groupName": "language tools",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "packages/language-tools/**"
+      ]
     }
   ],
   "ignoreDeps": [
