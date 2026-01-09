@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 2.16.7
+
+### Patch Changes
+
+- [#15131](https://github.com/withastro/astro/pull/15131) [`d40ff7d`](https://github.com/withastro/astro/commit/d40ff7d8570f30c82402d8e2b01d4da890e3e771) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes extension asking for the wrong version of VS Code
+
 ## 2.16.6
 
 ### Patch Changes
