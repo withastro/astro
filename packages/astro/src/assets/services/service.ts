@@ -185,10 +185,7 @@ export function verifyOptions(options: ImageTransform): void {
 			throw new AstroError(AstroErrorData.IncompatibleDescriptorOptions);
 		}
 
-		if (
-			(options.src.format === 'svg' && options.format !== 'svg') ||
-			(options.src.format !== 'svg' && options.format === 'svg')
-		) {
+		if (options.src.format !== 'svg' && options.format === 'svg') {
 			throw new AstroError(AstroErrorData.UnsupportedImageConversion);
 		}
 	}
