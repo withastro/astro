@@ -218,7 +218,11 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 
 		// Apply defaults and normalization separate from verification
 		if (!options.format) {
-			options.format = DEFAULT_OUTPUT_FORMAT;
+			if (isESMImportedImage(options.src) && options.src.format === 'svg') {
+				options.format = 'svg';
+			} else {
+				options.format = DEFAULT_OUTPUT_FORMAT;
+			}
 		}
 		if (options.width) options.width = Math.round(options.width);
 		if (options.height) options.height = Math.round(options.height);
