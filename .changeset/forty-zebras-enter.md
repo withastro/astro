@@ -10,7 +10,7 @@ This is an implementation detail that changes how font providers are created. Th
 
 Previously, an Astro `FontProvider` was made of a config and a runtime part. It relied directly on `unifont` types, which allowed a simple configuration for third-party unifont providers, but also coupled Astro's implementation to unifont, which was limiting.
 
-Astro's font provider implementation is now only made of a config part with dedicated hooks. This allows for the separation of config and runtime, but requires you to create a font provider object in order to use custom font provides (e.g. third-party unifont providers, or private font registeries).
+Astro's font provider implementation is now only made of a config part with dedicated hooks. This allows for the separation of config and runtime, but requires you to create a font provider object in order to use custom font providers (e.g. third-party unifont providers, or private font registeries).
 
 #### What should I do?
 
