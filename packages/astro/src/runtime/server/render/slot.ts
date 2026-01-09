@@ -35,7 +35,7 @@ export function mergeSlotInstructions(
 	target: RenderInstruction[] | null,
 	source: SlotString,
 ): RenderInstruction[] | null {
-	if (source.instructions) {
+	if (source.instructions?.length) {
 		target ??= [];
 		target.push(...source.instructions);
 	}
