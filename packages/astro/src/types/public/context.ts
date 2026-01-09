@@ -447,7 +447,7 @@ export interface APIContext<
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#preferredlocale)
 	 */
-	preferredLocale: ConditionalType<AstroFeatures.I18nLocale, AstroFeatures.I18n> | undefined;
+	preferredLocale: AstroFeatures.I18nLocale | undefined;
 
 	/**
 	 * Represents the list of all locales, sorted via [quality value](https://developer.mozilla.org/en-US/docs/Glossary/Quality_values), that are both
@@ -476,7 +476,7 @@ export interface APIContext<
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#currentlocale)
 	 */
-	currentLocale: string | undefined;
+	currentLocale: ConditionalType<AstroFeatures.I18nLocale, AstroFeatures.I18n>;
 
 	/**
 	 * Whether the current route is prerendered or not.
