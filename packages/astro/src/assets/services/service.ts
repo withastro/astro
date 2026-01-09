@@ -213,11 +213,6 @@ export function verifyOptions(options: ImageTransform): void {
 export const baseService: Omit<LocalImageService, 'transform'> = {
 	propertiesToHash: DEFAULT_HASH_PROPS,
 	validateOptions(options) {
-		// We currently do not support processing SVGs, so whenever the input format is a SVG, force the output to also be one
-		if (isESMImportedImage(options.src) && options.src.format === 'svg') {
-			options.format = 'svg';
-		}
-
 		// Run verification-only checks
 		verifyOptions(options);
 
