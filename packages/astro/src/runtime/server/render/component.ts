@@ -24,9 +24,19 @@ import {
 } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { maybeRenderHead } from './head.js';
-import { createRenderInstruction, isRenderInstruction, type RenderInstruction } from './instruction.js';
+import {
+	createRenderInstruction,
+	isRenderInstruction,
+	type RenderInstruction,
+} from './instruction.js';
 import { containsServerDirective, ServerIslandComponent } from './server-islands.js';
-import { type ComponentSlots, mergeSlotInstructions, renderSlots, renderSlotToString, SlotString } from './slot.js';
+import {
+	type ComponentSlots,
+	mergeSlotInstructions,
+	renderSlots,
+	renderSlotToString,
+	SlotString,
+} from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
