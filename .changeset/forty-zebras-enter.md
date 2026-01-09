@@ -4,7 +4,6 @@
 
 **BREAKING CHANGE to the experimental Fonts API only**
 
-
 Changes how font providers are implemented with updates to the `FontProvider` type
 
 This is an implementation detail that changes how font providers are created. This process allows Astro to take more control rather than relying directly on `unifont` types. All of Astro's built-in font providers have been updated to reflect this new type, and can be configured as before. However, using third-party unifont providers that rely on `unifont` types will require an update to your project code.
