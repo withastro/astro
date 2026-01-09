@@ -1,0 +1,20 @@
+---
+const runtime = Astro.locals.runtime;
+const bucket = runtime.env?.R2;
+await bucket.put("test", "true");
+const result = await (await bucket.get("test")).text()
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>R2</title>
+</head>
+<body>
+  <pre id="hasBUCKET">{!!runtime.env?.R2}</pre>
+  <pre id="hasPRODBUCKET">{!!runtime.env?.R2_PROD}</pre>
+  <pre id="hasACCESS">{!!result}</pre>
+</body>
+</html>

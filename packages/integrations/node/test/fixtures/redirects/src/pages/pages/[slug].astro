@@ -1,0 +1,9 @@
+---
+// Dynamic page for testing dynamic redirects
+
+export function getStaticPaths() {
+	return [
+		{ params: { slug: 'test-slug' } },
+	];
+}
+---

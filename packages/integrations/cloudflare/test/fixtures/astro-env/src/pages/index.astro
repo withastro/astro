@@ -1,0 +1,27 @@
+---
+import { API_URL } from "astro:env/client"
+import { PORT, API_SECRET } from "astro:env/server"
+
+const runtime = Astro.locals.runtime;
+---
+<html>
+	<head>
+		<title>Astro Env</title>
+	</head>
+	<body>
+		<h1>Astro Env</h1>
+		<pre id="runtime">{JSON.stringify(runtime.env, null, 2)}</pre>
+		<div>
+			<span>API_URL</span>
+			<span id="client">{API_URL}</span>
+		</div>
+		<div>
+			<span>PORT</span>
+			<span id="server">{PORT}</span>
+		</div>
+		<div>
+			<span>API_SECRET</span>
+			<span id="secret">{API_SECRET}</span>
+		</div>
+	</body>
+</html>
