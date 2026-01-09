@@ -4,7 +4,6 @@ import { isRemotePath, joinPaths } from '../../core/path.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import { DEFAULT_HASH_PROPS, DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
 import type {
-	ImageBackground,
 	ImageFit,
 	ImageOutputFormat,
 	ImageTransform,
@@ -125,7 +124,7 @@ export type BaseServiceTransform = {
 	quality?: string | null;
 	fit?: ImageFit;
 	position?: string;
-	background?: ImageBackground;
+	background?: string;
 };
 
 const sortNumeric = (a: number, b: number) => a - b;
@@ -256,6 +255,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			priority,
 			fit,
 			position,
+			background,
 			...attributes
 		} = options;
 		return {
@@ -365,6 +365,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			f: 'format',
 			fit: 'fit',
 			position: 'position',
+			background: 'background',
 		};
 
 		Object.entries(params).forEach(([param, key]) => {
@@ -399,6 +400,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			quality: params.get('q'),
 			fit: params.get('fit') as ImageFit,
 			position: params.get('position') ?? undefined,
+			background: params.get('background') ?? undefined,
 		};
 
 		return transform;
