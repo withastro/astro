@@ -22,6 +22,11 @@ type Transition = {
 
 const inBrowser = import.meta.env.SSR === false;
 
+// Browser detection for iOS browsers that need special history handling
+const isChromeIOS = inBrowser && /CriOS/i.test(navigator.userAgent);
+const isEdgeIOS = inBrowser && /EdgiOS/i.test(navigator.userAgent);
+const hasIOSBackGestureBug = isChromeIOS || isEdgeIOS;
+
 // only update history entries that are managed by us
 // leave other entries alone and do not accidentally add state.
 export const updateScrollPosition = (positions: { scrollX: number; scrollY: number }) => {
@@ -89,7 +94,16 @@ if (inBrowser) {
 	} else if (transitionEnabledOnThisPage()) {
 		// This page is loaded from the browser address bar or via a link from extern,
 		// it needs a state in the history
-		history.replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
+
+		// Chrome iOS and Edge iOS have issues with back gesture when replaceState
+		// is called on initial page load from direct URL entry.
+		// Leave history.state as null for these browsers and handle in onPopState.
+		const hasNoReferrer = !document.referrer;
+
+		if (!(hasIOSBackGestureBug && hasNoReferrer)) {
+			history.replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
+		}
+
 		history.scrollRestoration = 'manual';
 	}
 }
@@ -608,14 +622,32 @@ function onPopState(ev: PopStateEvent) {
 
 	// History entries without state are created by the browser (e.g. for hash links)
 	// Our view transition entries always have state.
-	// Just ignore stateless entries.
-	// The browser will handle navigation fine without our help
+	// EXCEPT: Chrome iOS / Edge iOS direct entry where we intentionally skip setting state
 	if (ev.state === null) {
+		// Chrome iOS / Edge iOS: If we had navigated (currentHistoryIndex > 0) and now state is null,
+		// the browser did a big jump back to the initial entry
+		if (hasIOSBackGestureBug && currentHistoryIndex > 0) {
+			// Navigate forward to go back just one page instead of exiting
+			const stepsForward = currentHistoryIndex - 1;
+			if (stepsForward > 0) {
+				currentHistoryIndex = 1; // We'll end up at index 1
+				history.go(stepsForward);
+				return;
+			}
+			// currentHistoryIndex was 1, we're now at home page (index 0)
+			// Render the home page content, then next back will exit
+			currentHistoryIndex = 0;
+			// Trigger transition to show home page content (URL is already correct)
+			transition('back', originalLocation, new URL(location.href), {});
+			return;
+		}
+		// currentHistoryIndex is 0, allow browser to handle (exit)
 		return;
 	}
 	const state: State = history.state;
 	const nextIndex = state.index;
 	const direction: Direction = nextIndex > currentHistoryIndex ? 'forward' : 'back';
+
 	currentHistoryIndex = nextIndex;
 	transition(direction, originalLocation, new URL(location.href), {}, state);
 }
