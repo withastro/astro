@@ -176,6 +176,8 @@ export async function handleRoute({
 		method: incomingRequest.method,
 		body,
 		logger,
+		useStaticContext:
+			route.prerender && !pipeline.settings.adapter?.adapterFeatures?.skipMiddlewareOnPrerender,
 		isPrerendered: route.prerender,
 		routePattern: route.component,
 	});

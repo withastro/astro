@@ -100,6 +100,12 @@ export interface AstroAdapterFeatures {
 	 * is out of experimental
 	 */
 	experimentalStaticHeaders?: boolean;
+	
+	/**
+	 * If enabled by the adapter, middleware will be skipped during the prerendering phase.
+	 * This is used by adapters that handle middleware at request time for static pages.
+	 */
+	skipMiddlewareOnPrerender?: boolean;
 }
 
 /**

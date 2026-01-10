@@ -13,12 +13,17 @@ interface CreateRequestOptions {
 	locals?: object | undefined;
 	/**
 	 * Whether the request is being created for a static build or for a prerendered page within a hybrid/SSR build, or for emulating one of those in dev mode.
-	 *
-	 * When `true`, the request will not include search parameters or body, and warn when headers are accessed.
-	 *
+	 *	 *
 	 * @default false
 	 */
 	isPrerendered?: boolean;
+	/**
+	 * When `true`, the request will not include search parameters or body, and warn when headers are accessed.
+	 * This is the default for prerendered pages unless `skipMiddlewareOnPrerender` is set to `true` in the adapter config.
+	 *
+	 * @default false
+	 */
+	useStaticContext?: boolean;
 
 	routePattern: string;
 
@@ -39,11 +44,12 @@ export function createRequest({
 	body = undefined,
 	logger,
 	isPrerendered = false,
+	useStaticContext = false,
 	routePattern,
 	init,
 }: CreateRequestOptions): Request {
 	// headers are made available on the created request only if the request is for a page that will be on-demand rendered
-	const headersObj = isPrerendered
+	const headersObj = useStaticContext
 		? undefined
 		: headers instanceof Headers
 			? headers
@@ -57,8 +63,8 @@ export function createRequest({
 
 	if (typeof url === 'string') url = new URL(url);
 
-	// Remove search parameters if the request is for a page that will be on-demand rendered
-	if (isPrerendered) {
+	// Remove search parameters
+	if (useStaticContext) {
 		url.search = '';
 	}
 
@@ -70,7 +76,7 @@ export function createRequest({
 		...init,
 	});
 
-	if (isPrerendered) {
+	if (useStaticContext) {
 		// Warn when accessing headers in SSG mode
 		let _headers = request.headers;
 

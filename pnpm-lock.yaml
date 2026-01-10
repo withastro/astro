@@ -414,6 +414,15 @@ importers:
         specifier: ^0.34.3
         version: 0.34.4
 
+  examples/static-with-middleware:
+    dependencies:
+      '@astrojs/node':
+        specifier: ^9.4.6
+        version: link:../../packages/integrations/node
+      astro:
+        specifier: ^5.14.4
+        version: link:../../packages/astro
+
   examples/toolbar-app:
     devDependencies:
       '@types/node':
@@ -5737,6 +5746,15 @@ importers:
         version: 0.34.4
 
   packages/integrations/node/test/fixtures/locals:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/node/test/fixtures/middleware-static:
     dependencies:
       '@astrojs/node':
         specifier: workspace:*
