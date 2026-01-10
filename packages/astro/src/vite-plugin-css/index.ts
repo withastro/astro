@@ -44,6 +44,11 @@ function* collectCSSWithOrder(
 ): Generator<ImportedDevStyle & { id: string; idKey: string }, void, unknown> {
 	seen.add(id);
 
+	// Stop traversing if we reach a propagation stopping point.
+	if (id.includes('?astroPropagatedAssets')) {
+		return;
+	}
+
 	// Keep all of the imported modules into an array so we can go through them one at a time
 	const imported = Array.from(mod.importedModules);
 
