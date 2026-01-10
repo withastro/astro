@@ -18,9 +18,11 @@ export const createExports = (
 	{
 		middlewareSecret,
 		skewProtection,
+		allowQuery,
 	}: {
 		middlewareSecret: string;
 		skewProtection: boolean;
+		allowQuery?: string[] | true;
 	},
 ) => {
 	const app = new NodeApp(manifest);
@@ -32,6 +34,21 @@ export const createExports = (
 		const realPath = req.headers[ASTRO_PATH_HEADER] ?? url.searchParams.get(ASTRO_PATH_PARAM);
 		if (typeof realPath === 'string') {
 			req.url = realPath;
+			// If we have overwritten the url we add back any query parameters we want to
+			// send on to the handler.
+			if (allowQuery) {
+				const passedParams = new URLSearchParams(allowQuery === true ? url.search : undefined);
+				if (Array.isArray(allowQuery)) {
+					for (const [paramKey, paramValue] of url.searchParams) {
+						if (allowQuery.includes(paramKey)) {
+							passedParams.append(paramKey, paramValue);
+						}
+					}
+				}
+				if (passedParams.size > 0) {
+					req.url += `${req.url.includes('?') ? '&' : '?'}${passedParams.toString()}`;
+				}
+			}
 		}
 
 		let locals = {};
