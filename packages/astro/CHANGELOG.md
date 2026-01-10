@@ -1,5 +1,15 @@
 # astro
 
+## 5.16.9
+
+### Patch Changes
+
+- [#15150](https://github.com/withastro/astro/pull/15150) [`a77c4f4`](https://github.com/withastro/astro/commit/a77c4f42b56b46b08064a99e9cb9a2b4bace4445) Thanks [@matthewp](https://github.com/matthewp)! - Fixes hydration for framework components inside MDX when using `Astro.slots.render()`
+
+  Previously, when multiple framework components with `client:*` directives were passed as named slots to an Astro component in MDX, only the first slot would hydrate correctly. Subsequent slots would render their HTML but fail to include the necessary hydration scripts.
+
+- [#15147](https://github.com/withastro/astro/pull/15147) [`9cd5b87`](https://github.com/withastro/astro/commit/9cd5b875f2d45a08bfa8312ed7282a6f0f070265) Thanks [@matthewp](https://github.com/matthewp)! - Fixes scripts in components not rendering when a sibling `<Fragment slot="...">` exists but is unused
+
 ## 5.16.8
 
 ### Patch Changes
