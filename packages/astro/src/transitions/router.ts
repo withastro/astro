@@ -242,6 +242,14 @@ const moveToLocation = (
 				scrollTo({ left: 0, top: 0, behavior: 'instant' });
 			}
 		}
+		if (intraPage && from.hash !== to.hash) {
+			window.dispatchEvent(
+				new HashChangeEvent('hashchange', {
+					oldURL: from.href,
+					newURL: to.href,
+				}),
+			);
+		}
 		history.scrollRestoration = 'manual';
 	}
 };
