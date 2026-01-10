@@ -8,15 +8,45 @@ import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 type Weight = z.infer<typeof weightSchema>;
 type Display = z.infer<typeof displaySchema>;
 
+/** @lintignore */
+export interface FontProviderInitContext {
+	storage: {
+		getItem: {
+			<T = unknown>(key: string): Promise<T | null>;
+			<T = unknown>(key: string, init: () => Awaitable<T>): Promise<T>;
+		};
+		setItem: (key: string, value: unknown) => Awaitable<void>;
+	};
+}
+
+type Awaitable<T> = T | Promise<T>;
+
 export interface FontProvider {
 	/**
-	 * URL, path relative to the root or package import.
+	 * The font provider name, used for display and deduplication.
 	 */
-	entrypoint: string | URL;
+	name: string;
 	/**
-	 * Optional serializable object passed to the unifont provider.
+	 * Optional serializable object, used for deduplication.
 	 */
 	config?: Record<string, any> | undefined;
+	/**
+	 * Optional callback, used to perform any initialization logic.
+	 */
+	init?: ((context: FontProviderInitContext) => Awaitable<void>) | undefined;
+	/**
+	 * Required callback, used to retrieve and return font face data based on the given options.
+	 */
+	resolveFont: (options: ResolveFontOptions) => Awaitable<
+		| {
+				fonts: Array<unifont.FontFaceData>;
+		  }
+		| undefined
+	>;
+	/**
+	 * Optional callback, used to return the list of available font names.
+	 */
+	listFonts?: (() => Awaitable<Array<string> | undefined>) | undefined;
 }
 
 interface RequiredFamilyAttributes {
@@ -93,12 +123,6 @@ interface FamilyProperties {
 	 * A [unicode range](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range).
 	 */
 	unicodeRange?: [string, ...Array<string>] | undefined;
-}
-
-export interface ResolvedFontProvider {
-	name?: string;
-	provider: (config?: Record<string, any>) => unifont.Provider;
-	config?: Record<string, any>;
 }
 
 type Src =
@@ -183,8 +207,7 @@ export interface RemoteFontFamily
 /** @lintignore somehow required by pickFontFaceProperty in utils */
 export interface ResolvedRemoteFontFamily
 	extends ResolvedFontFamilyAttributes,
-		Omit<RemoteFontFamily, 'provider' | 'weights'> {
-	provider: ResolvedFontProvider;
+		Omit<RemoteFontFamily, 'weights'> {
 	weights?: Array<string>;
 }
 
@@ -217,7 +240,7 @@ export type FontFaceMetrics = Pick<
 
 export type GenericFallbackName = (typeof GENERIC_FALLBACK_NAMES)[number];
 
-export type Defaults = Partial<
+export type Defaults = Required<
 	Pick<
 		ResolvedRemoteFontFamily,
 		'weights' | 'styles' | 'subsets' | 'fallbacks' | 'optimizedFallbacks' | 'formats'
@@ -269,8 +292,8 @@ export type PreloadFilter =
 
 export interface ResolveFontOptions {
 	familyName: string;
-	weights: string[] | undefined;
-	styles: Style[] | undefined;
-	subsets: string[] | undefined;
-	formats: FontType[] | undefined;
+	weights: string[];
+	styles: Style[];
+	subsets: string[];
+	formats: FontType[];
 }

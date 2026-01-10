@@ -1,6 +1,6 @@
-import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { LocalProviderUrlResolver } from '../definitions.js';
-import { resolveEntrypoint } from '../utils.js';
 
 export class RequireLocalProviderUrlResolver implements LocalProviderUrlResolver {
 	readonly #root: URL;
@@ -18,10 +18,20 @@ export class RequireLocalProviderUrlResolver implements LocalProviderUrlResolver
 		this.#intercept = intercept;
 	}
 
+	#resolveEntrypoint(root: URL, entrypoint: string): URL {
+		const require = createRequire(root);
+
+		try {
+			return pathToFileURL(require.resolve(entrypoint));
+		} catch {
+			return new URL(entrypoint, root);
+		}
+	}
+
 	resolve(input: string): string {
 		// fileURLToPath is important so that the file can be read
 		// by createLocalUrlProxyContentResolver
-		const path = fileURLToPath(resolveEntrypoint(this.#root, input));
+		const path = fileURLToPath(this.#resolveEntrypoint(this.#root, input));
 		this.#intercept?.(path);
 		return path;
 	}

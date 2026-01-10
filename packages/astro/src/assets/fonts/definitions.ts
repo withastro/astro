@@ -3,11 +3,9 @@ import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 import type {
 	FontFaceMetrics,
 	FontFileData,
-	FontProvider,
 	FontType,
 	GenericFallbackName,
 	PreloadData,
-	ResolvedFontProvider,
 	ResolveFontOptions,
 	Style,
 } from './types.js';
@@ -15,14 +13,6 @@ import type {
 export interface Hasher {
 	hashString: (input: string) => string;
 	hashObject: (input: Record<string, any>) => string;
-}
-
-export interface RemoteFontProviderModResolver {
-	resolve: (id: string) => Promise<any>;
-}
-
-export interface RemoteFontProviderResolver {
-	resolve: (provider: FontProvider) => Promise<ResolvedFontProvider>;
 }
 
 export interface LocalProviderUrlResolver {
