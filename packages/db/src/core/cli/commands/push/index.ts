@@ -5,7 +5,11 @@ import type { Arguments } from 'yargs-parser';
 import { MIGRATION_VERSION } from '../../../consts.js';
 import { createClient } from '../../../db-client/libsql-node.js';
 import type { DBConfig, DBSnapshot } from '../../../types.js';
-import { getRemoteDatabaseInfo, type RemoteDatabaseInfo } from '../../../utils.js';
+import {
+	getRemoteDatabaseInfo,
+	type RemoteDatabaseInfo,
+	resolveDbAppToken,
+} from '../../../utils.js';
 import {
 	createCurrentSnapshot,
 	createEmptySnapshot,
@@ -25,7 +29,8 @@ export async function cmd({
 	const isDryRun = flags.dryRun;
 	const isForceReset = flags.forceReset;
 	const dbInfo = getRemoteDatabaseInfo();
-	const productionSnapshot = await getProductionCurrentSnapshot(dbInfo);
+	const appToken = resolveDbAppToken(flags, dbInfo.token);
+	const productionSnapshot = await getProductionCurrentSnapshot({ ...dbInfo, token: appToken });
 	const currentSnapshot = createCurrentSnapshot(dbConfig);
 	const isFromScratch = !productionSnapshot;
 	const { queries: migrationQueries, confirmations } = await getMigrationQueries({
@@ -67,7 +72,7 @@ export async function cmd({
 		await pushSchema({
 			statements: migrationQueries,
 			dbInfo,
-			appToken: flags.token ?? dbInfo.token,
+			appToken,
 			isDryRun,
 			currentSnapshot: currentSnapshot,
 		});
