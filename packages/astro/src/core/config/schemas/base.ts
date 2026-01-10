@@ -100,6 +100,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	experimental: {
 		clientPrerender: false,
 		contentIntellisense: false,
+		contentCollectionsStrict: false,
 		headingIdCompat: false,
 		preserveScriptOrder: false,
 		liveContentCollections: false,
@@ -484,6 +485,10 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
+			contentCollectionsStrict: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentCollectionsStrict),
 			headingIdCompat: z
 				.boolean()
 				.optional()
