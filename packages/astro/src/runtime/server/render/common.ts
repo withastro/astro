@@ -103,6 +103,14 @@ function stringifyChunk(
 				result._metadata.hasRenderedServerIslandRuntime = true;
 				return renderServerIslandRuntime();
 			}
+			case 'script': {
+				const { id, content } = instruction;
+				if (result._metadata.renderedScripts.has(id)) {
+					return '';
+				}
+				result._metadata.renderedScripts.add(id);
+				return content;
+			}
 			default: {
 				throw new Error(`Unknown chunk type: ${(chunk as any).type}`);
 			}

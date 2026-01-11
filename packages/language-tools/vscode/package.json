@@ -24,7 +24,7 @@
     "color": "#17191E",
     "theme": "dark"
   },
-  "version": "2.16.7",
+  "version": "2.16.8",
   "author": "withastro",
   "license": "MIT",
   "publisher": "astro-build",
@@ -50,7 +50,6 @@
     "typescriptServerPlugins": [
       {
         "name": "astro-ts-plugin-bundle",
-        "path": "./dist/astro-ts-plugin-bundle",
         "enableForWorkspaceTypeScriptVersions": true
       }
     ],
