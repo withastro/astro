@@ -185,9 +185,9 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 										: settings.config.outDir,
 								),
 							)});
-							export const assetsDir = /* #__PURE__ */ new URL(${JSON.stringify(
-								settings.config.build.assets,
-							)}, outDir);
+              export const serverDir = /* #__PURE__ */ new URL(${JSON.stringify(
+								new URL(settings.config.build.server),
+							)});
 							export const getImage = async (options) => await getImageInternal(options, imageConfig);
 
 							export const getFontData = createGetFontData(fontsMod);
