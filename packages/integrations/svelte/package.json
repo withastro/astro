@@ -38,7 +38,7 @@
     "test": "astro-scripts test \"test/**/*.test.js\""
   },
   "dependencies": {
-    "@sveltejs/vite-plugin-svelte": "^5.1.1",
+    "@sveltejs/vite-plugin-svelte": "^6.2.4",
     "svelte2tsx": "^0.7.46",
     "vite": "^7.1.7"
   },
