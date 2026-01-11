@@ -50,7 +50,8 @@ export function createAppHandler(app: NodeApp, options: Options): RequestHandler
 		// Redirects are considered prerendered routes in static mode, but we want to
 		// handle them dynamically, so prerendered routes are included here.
 		const routeData = app.match(request, true);
-		if (routeData) {
+		// But we still want to skip prerendered pages.
+		if (routeData && !(routeData.type === 'page' && routeData.prerender)) {
 			const response = await als.run(request.url, () =>
 				app.render(request, {
 					addCookieHeader: true,
