@@ -1,8 +1,8 @@
 import type { FontFaceData, Provider } from 'unifont';
-import { createUnifont, type Unifont } from 'unifont';
+import { createUnifont, defineFontProvider, type Unifont } from 'unifont';
 import { LOCAL_PROVIDER_NAME } from '../constants.js';
 import type { FontResolver, Hasher, Storage } from '../definitions.js';
-import type { ResolvedFontFamily, ResolveFontOptions } from '../types.js';
+import type { FontProvider, ResolvedFontFamily, ResolveFontOptions } from '../types.js';
 
 type NonEmptyProviders = [Provider, ...Array<Provider>];
 
@@ -11,6 +11,20 @@ export class UnifontFontResolver implements FontResolver {
 
 	private constructor({ unifont }: { unifont: Unifont<NonEmptyProviders> }) {
 		this.#unifont = unifont;
+	}
+
+	static astroToUnifontProvider(astroProvider: FontProvider): Provider {
+		return defineFontProvider(astroProvider.name, async (_options: any, ctx) => {
+			await astroProvider?.init?.(ctx);
+			return {
+				async resolveFont(familyName, options) {
+					return await astroProvider.resolveFont({ familyName, ...options });
+				},
+				async listFonts() {
+					return astroProvider.listFonts?.();
+				},
+			};
+		})(astroProvider.config);
 	}
 
 	static extractUnifontProviders({
@@ -29,7 +43,7 @@ export class UnifontFontResolver implements FontResolver {
 				continue;
 			}
 
-			const unifontProvider = provider.provider(provider.config);
+			const unifontProvider = this.astroToUnifontProvider(provider);
 			const hash = hasher.hashObject({
 				name: unifontProvider._name,
 				...provider.config,
