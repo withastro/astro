@@ -1,6 +1,7 @@
 import {
 	type AdobeProviderOptions,
 	type GoogleFamilyOptions,
+	type GoogleiconsOptions,
 	type InitializedProvider,
 	providers,
 } from 'unifont';
@@ -97,6 +98,25 @@ function google(): FontProvider<GoogleFamilyOptions> {
 	};
 }
 
+/** [Google Icons](https://fonts.google.com/icons) */
+function googleicons(config?: GoogleiconsOptions): FontProvider {
+	const provider = providers.googleicons(config);
+	let initializedProvider: InitializedProvider | undefined;
+	return {
+		name: provider._name,
+		config,
+		async init(context) {
+			initializedProvider = await provider(context);
+		},
+		async resolveFont({ familyName, ...rest }) {
+			return await initializedProvider?.resolveFont(familyName, rest);
+		},
+		async listFonts() {
+			return await initializedProvider?.listFonts?.();
+		},
+	};
+}
+
 /**
  * Astro re-exports most [unifont](https://github.com/unjs/unifont/) providers:
  * - [Adobe](https://fonts.adobe.com/)
@@ -104,6 +124,7 @@ function google(): FontProvider<GoogleFamilyOptions> {
  * - [Fontshare](https://www.fontshare.com/)
  * - [Fontsource](https://fontsource.org/)
  * - [Google](https://fonts.google.com/)
+ * - [Google Icons](https://fonts.google.com/icons)
  */
 export const fontProviders = {
 	adobe,
@@ -111,4 +132,5 @@ export const fontProviders = {
 	fontshare,
 	fontsource,
 	google,
+	googleicons,
 };
