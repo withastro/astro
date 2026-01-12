@@ -1,40 +1,100 @@
-import type { providers } from 'unifont';
+import {
+	type AdobeProviderOptions,
+	type GoogleOptions,
+	type InitializedProvider,
+	providers,
+} from 'unifont';
 import type { FontProvider } from '../types.js';
 
 /** [Adobe](https://fonts.adobe.com/) */
-function adobe(config: Parameters<typeof providers.adobe>[0]): FontProvider {
+function adobe(config: AdobeProviderOptions): FontProvider {
+	const provider = providers.adobe(config);
+	let initializedProvider: InitializedProvider | undefined;
 	return {
-		entrypoint: 'astro/assets/fonts/providers/adobe',
+		name: provider._name,
 		config,
+		async init(context) {
+			initializedProvider = await provider(context);
+		},
+		async resolveFont({ familyName, ...rest }) {
+			return await initializedProvider?.resolveFont(familyName, rest);
+		},
+		async listFonts() {
+			return await initializedProvider?.listFonts?.();
+		},
 	};
 }
 
 /** [Bunny](https://fonts.bunny.net/) */
 function bunny(): FontProvider {
+	const provider = providers.bunny();
+	let initializedProvider: InitializedProvider | undefined;
 	return {
-		entrypoint: 'astro/assets/fonts/providers/bunny',
+		name: provider._name,
+		async init(context) {
+			initializedProvider = await provider(context);
+		},
+		async resolveFont({ familyName, ...rest }) {
+			return await initializedProvider?.resolveFont(familyName, rest);
+		},
+		async listFonts() {
+			return await initializedProvider?.listFonts?.();
+		},
 	};
 }
 
 /** [Fontshare](https://www.fontshare.com/) */
 function fontshare(): FontProvider {
+	const provider = providers.fontshare();
+	let initializedProvider: InitializedProvider | undefined;
 	return {
-		entrypoint: 'astro/assets/fonts/providers/fontshare',
+		name: provider._name,
+		async init(context) {
+			initializedProvider = await provider(context);
+		},
+		async resolveFont({ familyName, ...rest }) {
+			return await initializedProvider?.resolveFont(familyName, rest);
+		},
+		async listFonts() {
+			return await initializedProvider?.listFonts?.();
+		},
 	};
 }
 
 /** [Fontsource](https://fontsource.org/) */
 function fontsource(): FontProvider {
+	const provider = providers.fontsource();
+	let initializedProvider: InitializedProvider | undefined;
 	return {
-		entrypoint: 'astro/assets/fonts/providers/fontsource',
+		name: provider._name,
+		async init(context) {
+			initializedProvider = await provider(context);
+		},
+		async resolveFont({ familyName, ...rest }) {
+			return await initializedProvider?.resolveFont(familyName, rest);
+		},
+		async listFonts() {
+			return await initializedProvider?.listFonts?.();
+		},
 	};
 }
 
 /** [Google](https://fonts.google.com/) */
-function google(config?: Parameters<typeof providers.google>[0]): FontProvider {
+function google(config?: GoogleOptions): FontProvider {
+	const provider = providers.google(config);
+	let initializedProvider: InitializedProvider | undefined;
 	return {
-		entrypoint: 'astro/assets/fonts/providers/google',
+		name: provider._name,
 		config,
+		async init(context) {
+			initializedProvider = await provider(context);
+		},
+		async resolveFont({ familyName, ...rest }) {
+			return await initializedProvider?.resolveFont(familyName, rest);
+		},
+		async listFonts() {
+			return await initializedProvider?.listFonts?.();
+		},
 	};
 }
 
