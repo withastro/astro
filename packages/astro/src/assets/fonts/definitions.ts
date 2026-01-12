@@ -1,7 +1,6 @@
 import type * as unifont from 'unifont';
 import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 import type {
-	AstroFontProvider,
 	AstroFontProviderResolveFontOptions,
 	FontFaceMetrics,
 	FontFileData,
@@ -10,7 +9,6 @@ import type {
 	GenericFallbackName,
 	PreloadData,
 	ResolvedFontProvider,
-	ResolveFontOptions,
 	Style,
 } from './types.js';
 

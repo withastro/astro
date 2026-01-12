@@ -24,7 +24,7 @@ import type {
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
 
-export type { AstroFontProvider as FontProvider };
+export type { FontProvider };
 
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
 
