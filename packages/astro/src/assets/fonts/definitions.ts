@@ -5,10 +5,12 @@ import type {
 	AstroFontProviderResolveFontOptions,
 	FontFaceMetrics,
 	FontFileData,
+	FontProvider,
 	FontType,
 	GenericFallbackName,
 	PreloadData,
 	ResolvedFontProvider,
+	ResolveFontOptions,
 	Style,
 } from './types.js';
 
@@ -22,7 +24,7 @@ export interface RemoteFontProviderModResolver {
 }
 
 export interface RemoteFontProviderResolver {
-	resolve: (provider: AstroFontProvider) => Promise<ResolvedFontProvider>;
+	resolve: (provider: FontProvider) => Promise<ResolvedFontProvider>;
 }
 
 export interface LocalProviderUrlResolver {

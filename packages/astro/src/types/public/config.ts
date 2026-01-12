@@ -9,7 +9,7 @@ import type {
 } from '@astrojs/markdown-remark';
 import type { Config as SvgoConfig } from 'svgo';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
-import type { AstroFontProvider, FontFamily } from '../../assets/fonts/types.js';
+import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schemas/index.js';

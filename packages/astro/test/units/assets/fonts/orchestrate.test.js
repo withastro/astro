@@ -19,7 +19,6 @@ import { RequireLocalProviderUrlResolver } from '../../../../dist/assets/fonts/i
 import { RealSystemFallbacksProvider } from '../../../../dist/assets/fonts/infra/system-fallbacks-provider.js';
 import { RealUrlProxy } from '../../../../dist/assets/fonts/infra/url-proxy.js';
 import { orchestrate } from '../../../../dist/assets/fonts/orchestrate.js';
-import { defineAstroFontProvider } from '../../../../dist/assets/fonts/providers/index.js';
 import { defaultLogger, SpyLogger } from '../../test-utils.js';
 import {
 	FakeFontMetricsResolver,
@@ -158,9 +157,9 @@ describe('fonts orchestrate()', () => {
 				},
 			};
 		});
-		const fakeAstroProvider = defineAstroFontProvider({
+		const fakeAstroProvider = {
 			entrypoint: 'test',
-		});
+		};
 
 		const root = new URL(import.meta.url);
 		const fontTypeExtractor = new RealFontTypeExtractor();
@@ -276,9 +275,9 @@ describe('fonts orchestrate()', () => {
 				},
 			};
 		});
-		const fakeAstroProvider = defineAstroFontProvider({
+		const fakeAstroProvider = {
 			entrypoint: 'test',
-		});
+		};
 
 		const root = new URL(import.meta.url);
 		const fontTypeExtractor = new RealFontTypeExtractor();
@@ -347,9 +346,9 @@ describe('fonts orchestrate()', () => {
 				listFonts: async () => ['Testi', 'XYZ'],
 			};
 		});
-		const fakeAstroProvider = defineAstroFontProvider({
+		const fakeAstroProvider = {
 			entrypoint: 'test',
-		});
+		};
 
 		const root = new URL(import.meta.url);
 		const fontTypeExtractor = new RealFontTypeExtractor();
@@ -432,9 +431,9 @@ describe('fonts orchestrate()', () => {
 				},
 			};
 		});
-		const fakeAstroProvider = defineAstroFontProvider({
+		const fakeAstroProvider = {
 			entrypoint: 'test',
-		});
+		};
 
 		const root = new URL(import.meta.url);
 		const fontTypeExtractor = new RealFontTypeExtractor();
@@ -524,9 +523,9 @@ describe('fonts orchestrate()', () => {
 				},
 			};
 		});
-		const fakeAstroProvider = defineAstroFontProvider({
+		const fakeAstroProvider = {
 			entrypoint: 'test',
-		});
+		};
 
 		const root = new URL(import.meta.url);
 		const fontTypeExtractor = new RealFontTypeExtractor();
