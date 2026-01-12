@@ -218,11 +218,14 @@ describe('astro fonts', () => {
 				await fixture.fetch('/');
 			});
 
+
 			try {
 				await readdir(new URL('./dist/', fixture.config.root));
 				assert.fail('dist folder should not exist after dev server shutdown');
 			} catch (err) {
-				assert.equal(err.code, 'ENOENT');
+				if (typeof err === 'object' && err && 'code' in err && err.code !== 'ENOENT') {
+					throw err;
+				}
 			}
 		});
 	});

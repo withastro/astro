@@ -308,13 +308,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 		},
 		async buildEnd() {
-		if (sync || settings.config.experimental.fonts!.length === 0) {
-			cleanup();
-			return;
-		}
-
-		// Only copy fonts during build, not when dev server is shutting down
-		if (!isBuild) {
+		if (sync || settings.config.experimental.fonts!.length === 0 || !isBuild) {
 			cleanup();
 			return;
 		}
