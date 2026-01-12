@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
 	createMarkdownProcessor,
+	getStyleToCssTransformer,
 	isFrontmatterValid,
 	type MarkdownProcessor,
 } from '@astrojs/markdown-remark';
@@ -79,11 +80,19 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 
 				const fileURL = pathToFileURL(fileId);
 
+				const { shikiConfig, ...markdownConfig } = settings.config.markdown;
+				if (settings.config.security.csp) {
+					shikiConfig.transformers = [
+						...(shikiConfig.transformers ?? []),
+						getStyleToCssTransformer(),
+					];
+				}
 				// Lazily initialize the Markdown processor
 				if (!processor) {
 					processor = createMarkdownProcessor({
 						image: settings.config.image,
-						...settings.config.markdown,
+						...markdownConfig,
+						shikiConfig,
 					});
 				}
 

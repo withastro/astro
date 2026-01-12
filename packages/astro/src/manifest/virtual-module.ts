@@ -94,6 +94,7 @@ const root = new URL(manifest.rootDir);
 const trailingSlash = manifest.trailingSlash;
 const site = manifest.site;
 const compressHTML = manifest.compressHTML;
+const csp = manifest.csp;
 
 export {
  base,
@@ -107,6 +108,7 @@ export {
  site,
  compressHTML,
  i18n,
+ csp
 }; 
 
 				`;

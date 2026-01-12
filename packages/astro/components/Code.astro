@@ -1,8 +1,8 @@
 ---
-import type { ThemePresets } from '@astrojs/markdown-remark';
+import { csp } from "astro:config/server";
+import  { type ThemePresets, getStyleToCssTransformer, getCachedHighlighter } from '@astrojs/markdown-remark';
 import type { ShikiTransformer, ThemeRegistration, ThemeRegistrationRaw } from 'shiki';
 import { bundledLanguages } from 'shiki/langs';
-import { getCachedHighlighter } from '../dist/core/shiki.js';
 import type { CodeLanguage } from '../dist/types/public/common.js';
 import type { HTMLAttributes } from '../types.js';
 
@@ -107,6 +107,11 @@ const highlighter = await getCachedHighlighter({
 	themes,
 });
 
+const t = getStyleToCssTransformer();
+if (csp) {
+	transformers.push(t);
+}
+
 const html = await highlighter.codeToHtml(code, typeof lang === 'string' ? lang : lang.name, {
 	defaultColor,
 	wrap,
@@ -115,6 +120,8 @@ const html = await highlighter.codeToHtml(code, typeof lang === 'string' ? lang 
 	meta,
 	attributes: rest as any,
 });
+
+console.log(t.getCss())
 ---
 
-<Fragment set:html={html} />
+<Fragment set:html={html}  />

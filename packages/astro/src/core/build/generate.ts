@@ -217,6 +217,7 @@ async function generatePage(
 		logger.debug('build', `Generating: ${path}`);
 
 		const filePath = getOutputFilename(app.manifest.buildFormat, path, routeData);
+
 		const lineIcon =
 			(index === paths.length - 1 && !isConcurrent) || paths.length === 1 ? '└─' : '├─';
 

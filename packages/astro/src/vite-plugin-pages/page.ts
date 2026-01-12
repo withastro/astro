@@ -5,6 +5,7 @@ import { routeIsRedirect } from '../core/routing/index.js';
 import type { RoutesList } from '../types/astro.js';
 import { VIRTUAL_PAGE_MODULE_ID, VIRTUAL_PAGE_RESOLVED_MODULE_ID } from './const.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { getStyleToCssTransformer } from '@astrojs/markdown-remark';
 
 interface PagePluginOptions {
 	routesList: RoutesList;
@@ -60,6 +61,25 @@ export function pluginPage({ routesList }: PagePluginOptions): VitePlugin {
 					return { code: `${imports.join('\n')}\n${exports.join('\n')}` };
 				}
 			},
+		},
+
+		generateBundle(_, bundle) {
+			for (const [_, module] of Object.entries(bundle)) {
+				if (module.type !== 'chunk') continue;
+				if (module.facadeModuleId?.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)) {
+					const style = getStyleToCssTransformer();
+					const css = style.getCss();
+					if (css.length > 0) {
+						this.emitFile({
+							type: 'asset',
+							source: css,
+							name: `${module.name}_shiki_code.css`,
+						});
+
+						style.clearRegistry();
+					}
+				}
+			}
 		},
 	};
 }

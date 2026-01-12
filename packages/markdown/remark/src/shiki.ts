@@ -10,7 +10,7 @@ import {
 	type ThemeRegistration,
 	type ThemeRegistrationRaw,
 } from 'shiki';
-import type { ThemePresets } from './types.js';
+import type { ShikiConfig, ThemePresets } from './types.js';
 
 export interface ShikiHighlighter {
 	codeToHast(
@@ -69,6 +69,10 @@ const cssVariablesTheme = () =>
 		variablePrefix: '--astro-code-',
 	}));
 
+/**
+ *
+ * @deprecated Use `getCachedHighlighter` instead.
+ */
 export async function createShikiHighlighter({
 	langs = [],
 	theme = 'github-dark',
@@ -199,4 +203,113 @@ export async function createShikiHighlighter({
 
 function normalizePropAsString(value: Properties[string]): string | null {
 	return Array.isArray(value) ? value.join(' ') : (value as string | null);
+}
+
+// Caches Promise<ShikiHighlighter> for reuse when the same theme and langs are provided
+const cachedHighlighters = new Map();
+
+export function getCachedHighlighter(opts: ShikiConfig): Promise<ShikiHighlighter> {
+	// Always sort keys before stringifying to make sure objects match regardless of parameter ordering
+	const key = JSON.stringify(opts, Object.keys(opts).sort());
+
+	// Highlighter has already been requested, reuse the same instance
+	if (cachedHighlighters.has(key)) {
+		return cachedHighlighters.get(key);
+	}
+
+	const highlighter = createShikiHighlighter(opts);
+	cachedHighlighters.set(key, highlighter);
+
+	return highlighter;
+}
+
+// #region Shiki transformer code
+// Adapted from https://github.com/shikijs/shiki/blob/main/packages/transformers/src/transformers/style-to-class.ts
+export function getStyleToCssTransformer(): ShikiTransformer & {
+	getCss(): string;
+	clearRegistry(): void;
+} {
+	function registerStyle(style: Record<string, string> | string): string {
+		const str = typeof style === 'string' ? style : stringifyStyle(style);
+		let className = '__a_' + cyrb53(str);
+		if (!classToStyle.has(className)) {
+			classToStyle.set(className, typeof style === 'string' ? style : { ...style });
+		}
+		return className;
+	}
+
+	return {
+		pre(node) {
+			const className = registerStyle(node.properties.style as string);
+			this.addClassToHast(node, className);
+		},
+		tokens(lines) {
+			for (const line of lines) {
+				for (const token of line) {
+					if (token.color) {
+						const className = registerStyle({ color: token.color });
+						token.htmlStyle = {};
+						token.htmlAttrs ||= {};
+						if (!token.htmlAttrs.class) token.htmlAttrs.class = className;
+						else token.htmlAttrs.class += ` ${className}`;
+					}
+				}
+			}
+		},
+
+		/**
+		 * Returns the generated CSS.
+		 */
+		getCss(): string {
+			let css = '';
+			for (const [className, style] of classToStyle.entries()) {
+				css += `.${className}{${typeof style === 'string' ? style : stringifyStyle(style)}}`;
+			}
+			return css;
+		},
+
+		/**
+		 * Clears the registry.
+		 */
+		clearRegistry() {
+			classToStyle.clear();
+		},
+	};
+}
+
+const classToStyle = new Map<string, Record<string, string> | string>();
+
+function stringifyStyle(style: Record<string, string>): string {
+	return Object.entries(style)
+		.map(([key, value]) => `${key}:${value}`)
+		.join(';');
+}
+
+export function getTransformedCss() {
+	let css = '';
+	for (const [className, style] of classToStyle.entries()) {
+		css += `.${className}{${typeof style === 'string' ? style : stringifyStyle(style)}}`;
+	}
+	return css;
+}
+
+/**
+ * A simple hash function.
+ *
+ * @see https://stackoverflow.com/a/52171480
+ */
+function cyrb53(str: string, seed = 0): string {
+	let h1 = 0xdeadbeef ^ seed;
+	let h2 = 0x41c6ce57 ^ seed;
+	for (let i = 0, ch; i < str.length; i++) {
+		ch = str.charCodeAt(i);
+		h1 = Math.imul(h1 ^ ch, 2654435761);
+		h2 = Math.imul(h2 ^ ch, 1597334677);
+	}
+	h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+	h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+	h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+	h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+
+	return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36).slice(0, 6);
 }

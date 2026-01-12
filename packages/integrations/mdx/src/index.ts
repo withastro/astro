@@ -77,6 +77,12 @@ export default function mdx(partialMdxOptions: Partial<MdxOptions> = {}): AstroI
 					handlePropagation: true,
 				});
 
+				if (params.config.security.csp) {
+					// vitePluginMdxOptions.mdxOptions.shikiConfig.transformers = [
+					// 	...(vitePluginMdxOptions.mdxOptions.shikiConfig.transformers ?? []),
+					// ];
+				}
+
 				updateConfig({
 					vite: {
 						plugins: [vitePluginMdx(vitePluginMdxOptions), vitePluginMdxPostprocess(config)],

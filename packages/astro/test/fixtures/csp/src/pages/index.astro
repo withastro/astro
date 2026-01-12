@@ -1,5 +1,23 @@
 ---
 import "./index.css"
+import {Code} from "astro:components";
+let code = `
+
+import type { Environment } from 'vite';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from './core/constants.js';
+
+export function isAstroServerEnvironment(environment: Environment) {
+\treturn (
+\t\tenvironment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+\t\tenvironment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
+\t);
+}
+
+export function isAstroClientEnvironment(environment: Environment) {
+\treturn environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client;
+}
+
+`
 ---
 
 <html lang="en">
@@ -11,6 +29,7 @@ import "./index.css"
 <body>
 <main>
 	<h1>Index</h1>
+	<Code code={code} lang="js" theme="dark-plus" />
 </main>
 </body>
 </html>

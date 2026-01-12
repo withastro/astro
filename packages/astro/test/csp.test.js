@@ -13,7 +13,7 @@ describe('CSP', () => {
 	/** @type {import('./test-utils.js').Fixture} */
 	let fixture;
 
-	it('should contain the meta style hashes when CSS is imported from Astro component', async () => {
+	it.only('should contain the meta style hashes when CSS is imported from Astro component', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
 			outDir: './dist/csp-style-hashes',

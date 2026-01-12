@@ -34,6 +34,9 @@ export { remarkCollectImages } from './remark-collect-images.js';
 export {
 	type CreateShikiHighlighterOptions,
 	createShikiHighlighter,
+	getCachedHighlighter,
+	getStyleToCssTransformer,
+	getTransformedCss,
 	type ShikiHighlighter,
 	type ShikiHighlighterHighlightOptions,
 } from './shiki.js';
