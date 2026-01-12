@@ -1,10 +1,10 @@
 import type * as unifont from 'unifont';
 import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 import type {
-	AstroFontProvider,
 	AstroFontProviderResolveFontOptions,
 	FontFaceMetrics,
 	FontFileData,
+	FontProvider,
 	FontType,
 	GenericFallbackName,
 	PreloadData,
@@ -22,7 +22,7 @@ export interface RemoteFontProviderModResolver {
 }
 
 export interface RemoteFontProviderResolver {
-	resolve: (provider: AstroFontProvider) => Promise<ResolvedFontProvider>;
+	resolve: (provider: FontProvider) => Promise<ResolvedFontProvider>;
 }
 
 export interface LocalProviderUrlResolver {
