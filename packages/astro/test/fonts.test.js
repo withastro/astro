@@ -200,6 +200,31 @@ describe('astro fonts', () => {
 				assert.equal(parsed[0].src[0].url.startsWith('/_astro/fonts/'), true);
 			});
 		});
+
+		it('Does not create dist folder or copy fonts when dev server stops', async () => {
+			const { fixture, run } = await createDevFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Poppins',
+							cssVariable: '--font-test',
+							provider: fontProviders.fontsource(),
+							weights: [400, 500],
+						},
+					],
+				},
+			});
+			await run(async () => {
+				await fixture.fetch('/');
+			});
+
+			try {
+				await readdir(new URL('./dist/', fixture.config.root));
+				assert.fail('dist folder should not exist after dev server shutdown');
+			} catch (err) {
+				assert.equal(err.code, 'ENOENT');
+			}
+		});
 	});
 
 	describe('build', () => {
