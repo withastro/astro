@@ -6667,8 +6667,8 @@ importers:
         specifier: ^10.8.2
         version: 10.8.2
       ovsx:
-        specifier: ^0.10.7
-        version: 0.10.7
+        specifier: ^0.10.8
+        version: 0.10.8
       vscode-languageclient:
         specifier: ^9.0.1
         version: 9.0.1
@@ -13542,8 +13542,8 @@ packages:
   outdent@0.5.0:
     resolution: {integrity: sha512-/jHxFIzoMXdqPzTaCpFzAAWhpkSjZPF4Vsn6jAfNpmbH/ymsmd7Qc6VE9BGn0L6YMj6uwpQLxCECpus4ukKS9Q==}
 
-  ovsx@0.10.7:
-    resolution: {integrity: sha512-UjBQlB5xSDD+biAylCZ8Q/k3An9K3y9FYa+hT/HTbJkzOQP+gaNHX20CaOo4lrYT1iJXdiePH9zS2uvCXdDNDA==}
+  ovsx@0.10.8:
+    resolution: {integrity: sha512-Vf6ZQi2l4ENUUdO8eZhduQVcxYjhLt3LT2OL1ah+4XOZjJakanjhDr563wmcqZJZgbK/Tn09RAMkhblrp0lt/g==}
     engines: {node: '>= 20'}
     hasBin: true
 
@@ -23058,7 +23058,7 @@ snapshots:
 
   outdent@0.5.0: {}
 
-  ovsx@0.10.7:
+  ovsx@0.10.8:
     dependencies:
       '@vscode/vsce': 3.6.2
       commander: 6.2.1
