@@ -21,7 +21,7 @@ export interface FontProviderInitContext {
 
 type Awaitable<T> = T | Promise<T>;
 
-export interface FontProvider {
+export interface FontProvider<FamilyOptions extends Record<string, any> | never = never> {
 	/**
 	 * The font provider name, used for display and deduplication.
 	 */
@@ -37,7 +37,7 @@ export interface FontProvider {
 	/**
 	 * Required callback, used to retrieve and return font face data based on the given options.
 	 */
-	resolveFont: (options: ResolveFontOptions) => Awaitable<
+	resolveFont: (options: ResolveFontOptions<FamilyOptions>) => Awaitable<
 		| {
 				fonts: Array<unifont.FontFaceData>;
 		  }
@@ -166,14 +166,14 @@ export interface ResolvedLocalFontFamily
 	>;
 }
 
-export interface RemoteFontFamily
+export interface RemoteFontFamily<TFontProvider extends FontProvider = FontProvider>
 	extends RequiredFamilyAttributes,
 		Omit<FamilyProperties, 'weight' | 'style' | 'subsets' | 'formats'>,
 		Fallbacks {
 	/**
 	 * The source of your font files. You can use a built-in provider or write your own custom provider.
 	 */
-	provider: FontProvider;
+	provider: TFontProvider;
 	/**
 	 * @default `[400]`
 	 *
@@ -202,6 +202,14 @@ export interface RemoteFontFamily
 	 * An array of [font formats](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/src#font_formats).
 	 */
 	formats?: [FontType, ...Array<FontType>] | undefined;
+	/**
+	 * Options forwarded to the font provider while resolving this font family.
+	 */
+	options?: NoInfer<TFontProvider> extends FontProvider<infer TFamilyOptions>
+		? [TFamilyOptions] extends [never]
+			? undefined
+			: TFamilyOptions
+		: undefined;
 }
 
 /** @lintignore somehow required by pickFontFaceProperty in utils */
@@ -211,7 +219,9 @@ export interface ResolvedRemoteFontFamily
 	weights?: Array<string>;
 }
 
-export type FontFamily = LocalFontFamily | RemoteFontFamily;
+export type FontFamily<TFontProvider extends FontProvider = FontProvider> =
+	| LocalFontFamily
+	| RemoteFontFamily<TFontProvider>;
 export type ResolvedFontFamily = ResolvedLocalFontFamily | ResolvedRemoteFontFamily;
 
 export type FontType = (typeof FONT_TYPES)[number];
@@ -290,10 +300,11 @@ export type PreloadFilter =
 	| boolean
 	| Array<{ weight?: string | number; style?: string; subset?: string }>;
 
-export interface ResolveFontOptions {
+export interface ResolveFontOptions<FamilyOptions extends Record<string, any> | never = never> {
 	familyName: string;
 	weights: string[];
 	styles: Style[];
 	subsets: string[];
 	formats: FontType[];
+	options?: [FamilyOptions] extends [never] ? undefined : FamilyOptions;
 }

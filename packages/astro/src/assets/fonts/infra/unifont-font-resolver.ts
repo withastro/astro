@@ -90,7 +90,7 @@ export class UnifontFontResolver implements FontResolver {
 		familyName,
 		provider,
 		...rest
-	}: ResolveFontOptions & { provider: string }): Promise<Array<FontFaceData>> {
+	}: ResolveFontOptions<Record<string, any>> & { provider: string }): Promise<Array<FontFaceData>> {
 		const { fonts } = await this.#unifont.resolveFont(familyName, rest, [provider]);
 		return fonts;
 	}

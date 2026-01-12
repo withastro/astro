@@ -1,6 +1,6 @@
 import {
 	type AdobeProviderOptions,
-	type GoogleOptions,
+	type GoogleFamilyOptions,
 	type InitializedProvider,
 	providers,
 } from 'unifont';
@@ -80,12 +80,11 @@ function fontsource(): FontProvider {
 }
 
 /** [Google](https://fonts.google.com/) */
-function google(config?: GoogleOptions): FontProvider {
-	const provider = providers.google(config);
-	let initializedProvider: InitializedProvider | undefined;
+function google(): FontProvider<GoogleFamilyOptions> {
+	const provider = providers.google();
+	let initializedProvider: InitializedProvider<GoogleFamilyOptions> | undefined;
 	return {
 		name: provider._name,
-		config,
 		async init(context) {
 			initializedProvider = await provider(context);
 		},
