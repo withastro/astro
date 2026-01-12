@@ -1,0 +1,23 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Card from '../../components/Card.astro';
+
+export const prerender = true;
+
+const posts = Array.from({ length: 100 }, (_, i) => ({
+	title: `Blog Post ${i + 1}`,
+	description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+	href: `/blog/${i + 1}`,
+}));
+---
+
+<BaseLayout title="Blog - Hybrid Site">
+	<h1>All Blog Posts</h1>
+	<div class="grid">
+		{
+			posts.map((post) => (
+				<Card title={post.title} description={post.description} href={post.href} />
+			))
+		}
+	</div>
+</BaseLayout>
