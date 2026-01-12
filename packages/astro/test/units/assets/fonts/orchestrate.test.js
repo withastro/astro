@@ -46,7 +46,8 @@ describe('fonts orchestrate()', () => {
 			],
 			hasher,
 			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
-			createFontResolver: async ({ families }) => await PassthroughFontResolver.create({ families, hasher }),
+			createFontResolver: async ({ families }) =>
+				await PassthroughFontResolver.create({ families, hasher }),
 			cssRenderer: new MinifiableCssRenderer({ minify: true }),
 			systemFallbacksProvider: new RealSystemFallbacksProvider(),
 			fontMetricsResolver: new FakeFontMetricsResolver(),
@@ -160,7 +161,8 @@ describe('fonts orchestrate()', () => {
 			],
 			hasher,
 			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
-			createFontResolver: async ({ families }) => await PassthroughFontResolver.create({ families, hasher }),
+			createFontResolver: async ({ families }) =>
+				await PassthroughFontResolver.create({ families, hasher }),
 			cssRenderer: new MinifiableCssRenderer({ minify: true }),
 			systemFallbacksProvider: new RealSystemFallbacksProvider(),
 			fontMetricsResolver: new FakeFontMetricsResolver(),
@@ -264,7 +266,8 @@ describe('fonts orchestrate()', () => {
 			],
 			hasher,
 			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
-			createFontResolver: async ({ families }) => await PassthroughFontResolver.create({ families, hasher }),
+			createFontResolver: async ({ families }) =>
+				await PassthroughFontResolver.create({ families, hasher }),
 			cssRenderer: new MinifiableCssRenderer({ minify: true }),
 			systemFallbacksProvider: new RealSystemFallbacksProvider(),
 			fontMetricsResolver: new FakeFontMetricsResolver(),
@@ -319,7 +322,8 @@ describe('fonts orchestrate()', () => {
 			],
 			hasher,
 			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
-			createFontResolver: async ({ families }) => await PassthroughFontResolver.create({ families, hasher }),
+			createFontResolver: async ({ families }) =>
+				await PassthroughFontResolver.create({ families, hasher }),
 			cssRenderer: new MinifiableCssRenderer({ minify: true }),
 			systemFallbacksProvider: new RealSystemFallbacksProvider(),
 			fontMetricsResolver: new FakeFontMetricsResolver(),
@@ -396,7 +400,8 @@ describe('fonts orchestrate()', () => {
 			],
 			hasher,
 			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
-			createFontResolver: async ({ families }) => await PassthroughFontResolver.create({ families, hasher }),
+			createFontResolver: async ({ families }) =>
+				await PassthroughFontResolver.create({ families, hasher }),
 			cssRenderer: new MinifiableCssRenderer({ minify: true }),
 			systemFallbacksProvider: new RealSystemFallbacksProvider(),
 			fontMetricsResolver: new FakeFontMetricsResolver(),
@@ -474,7 +479,8 @@ describe('fonts orchestrate()', () => {
 			],
 			hasher,
 			localProviderUrlResolver: new RequireLocalProviderUrlResolver({ root }),
-			createFontResolver: async ({ families }) => await PassthroughFontResolver.create({ families, hasher }),
+			createFontResolver: async ({ families }) =>
+				await PassthroughFontResolver.create({ families, hasher }),
 			cssRenderer: new MinifiableCssRenderer({ minify: true }),
 			systemFallbacksProvider: new RealSystemFallbacksProvider(),
 			fontMetricsResolver: new FakeFontMetricsResolver(),
