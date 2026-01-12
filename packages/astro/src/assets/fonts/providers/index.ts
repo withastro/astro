@@ -124,6 +124,7 @@ function googleicons(config?: GoogleiconsOptions): FontProvider {
  * - [Bunny](https://fonts.bunny.net/)
  * - [Fontshare](https://www.fontshare.com/)
  * - [Fontsource](https://fontsource.org/)
+ * - [Google](https://fonts.google.com/)
  * - [Google Icons](https://fonts.google.com/icons)
  */
 export const fontProviders = {
