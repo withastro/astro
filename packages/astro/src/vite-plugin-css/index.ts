@@ -44,7 +44,12 @@ function* collectCSSWithOrder(
 ): Generator<ImportedDevStyle & { id: string; idKey: string }, void, unknown> {
 	seen.add(id);
 
-	// Stop traversing if we reach a propagation stopping point.
+	// Stop traversing if we reach an asset propagation stopping point to ensure we only collect CSS
+	// relevant to a content collection entry, if any. Not doing so could cause CSS from other
+	// entries to potentially be collected and bleed into the CSS included on the page, causing
+	// unexpected styles, for example when a module shared between 2 pages would import
+	// `astro:content` and thus potentially adding multiple content collection entry assets to the
+	// module graph.
 	if (id.includes('?astroPropagatedAssets')) {
 		return;
 	}
