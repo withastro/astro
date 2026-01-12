@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 10.0.0-beta.4
+
+### Patch Changes
+
+- [#15164](https://github.com/withastro/astro/pull/15164) [`54dc11d`](https://github.com/withastro/astro/commit/54dc11deb09ca2ad4683504011786008a8f3674a) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes an issue where the Node.js adapter could fail to serve a 404 page matching a pre-rendered dynamic route pattern.
+
 ## 10.0.0-alpha.3
 
 ### Minor Changes

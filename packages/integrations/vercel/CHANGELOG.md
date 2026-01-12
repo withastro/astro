@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 10.0.0-beta.2
+
+### Patch Changes
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates Node versions data to account for v24 as the default
+
 ## 10.0.0-alpha.1
 
 ### Minor Changes
