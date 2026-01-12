@@ -8,6 +8,7 @@ import { inlineRE, isBuildableCSSRequest, rawRE } from '../vite-plugin-astro-ser
 import { getVirtualModulePageNameForComponent } from '../vite-plugin-pages/util.js';
 import { getDevCSSModuleName } from './util.js';
 import { CSS_LANGS_RE } from '../core/viteUtils.js';
+import { PROPAGATED_ASSET_QUERY_PARAM } from '../content/consts.js';
 import {
 	ASTRO_CSS_EXTENSION_POST_PATTERN,
 	MODULE_DEV_CSS,
@@ -50,7 +51,7 @@ function* collectCSSWithOrder(
 	// unexpected styles, for example when a module shared between 2 pages would import
 	// `astro:content` and thus potentially adding multiple content collection entry assets to the
 	// module graph.
-	if (id.includes('?astroPropagatedAssets')) {
+	if (id.includes(PROPAGATED_ASSET_QUERY_PARAM)) {
 		return;
 	}
 
