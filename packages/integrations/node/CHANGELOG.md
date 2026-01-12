@@ -1,6 +1,6 @@
 # @astrojs/node
 
-## 10.0.0-beta.4
+## 10.0.0-beta.0
 
 ### Patch Changes
 

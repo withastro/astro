@@ -1,6 +1,6 @@
 # astro
 
-## 6.0.0-beta.6
+## 6.0.0-beta.0
 
 ### Patch Changes
 

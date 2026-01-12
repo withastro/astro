@@ -1,6 +1,6 @@
 # @astrojs/svelte
 
-## 8.0.0-beta.1
+## 8.0.0-beta.0
 
 ### Patch Changes
 

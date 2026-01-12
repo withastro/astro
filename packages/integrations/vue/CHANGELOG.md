@@ -1,6 +1,6 @@
 # @astrojs/vue
 
-## 6.0.0-beta.2
+## 6.0.0-beta.0
 
 ### Patch Changes
 

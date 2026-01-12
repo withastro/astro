@@ -1,6 +1,6 @@
 # @astrojs/cloudflare
 
-## 13.0.0-beta.5
+## 13.0.0-beta.0
 
 ### Patch Changes
 
