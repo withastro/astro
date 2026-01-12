@@ -306,5 +306,5 @@ export interface ResolveFontOptions<FamilyOptions extends Record<string, any> | 
 	styles: Style[];
 	subsets: string[];
 	formats: FontType[];
-	options?: [FamilyOptions] extends [never] ? undefined : FamilyOptions;
+	options: [FamilyOptions] extends [never] ? undefined : FamilyOptions | undefined;
 }

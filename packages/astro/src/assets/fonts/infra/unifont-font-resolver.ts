@@ -17,8 +17,8 @@ export class UnifontFontResolver implements FontResolver {
 		return defineFontProvider(astroProvider.name, async (_options: any, ctx) => {
 			await astroProvider?.init?.(ctx);
 			return {
-				async resolveFont(familyName, options) {
-					return await astroProvider.resolveFont({ familyName, ...options });
+				async resolveFont(familyName, { options, ...rest }) {
+					return await astroProvider.resolveFont({ familyName, options, ...rest });
 				},
 				async listFonts() {
 					return astroProvider.listFonts?.();
