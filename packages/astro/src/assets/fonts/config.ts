@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { LOCAL_PROVIDER_NAME } from './constants.js';
+import { FONT_TYPES, LOCAL_PROVIDER_NAME } from './constants.js';
+import type { FontProvider } from './types.js';
 
 export const weightSchema = z.union([z.string(), z.number()]);
 export const styleSchema = z.enum(['normal', 'italic', 'oblique']);
@@ -53,6 +54,16 @@ export const localFontFamilySchema = z
 	})
 	.strict();
 
+export const fontProviderSchema = z
+	.object({
+		name: z.string(),
+		config: z.record(z.string(), z.any()).optional(),
+		init: z.custom<FontProvider['init']>((v) => typeof v === 'function').optional(),
+		resolveFont: z.custom<FontProvider['resolveFont']>((v) => typeof v === 'function'),
+		listFonts: z.custom<FontProvider['listFonts']>((v) => typeof v === 'function').optional(),
+	})
+	.strict();
+
 export const remoteFontFamilySchema = z
 	.object({
 		...requiredFamilyAttributesSchema.shape,
@@ -61,14 +72,10 @@ export const remoteFontFamilySchema = z
 			weight: true,
 			style: true,
 		}).shape,
-		provider: z
-			.object({
-				entrypoint: entrypointSchema,
-				config: z.record(z.string(), z.any()).optional(),
-			})
-			.strict(),
+		provider: fontProviderSchema,
 		weights: z.array(weightSchema).nonempty().optional(),
 		styles: z.array(styleSchema).nonempty().optional(),
 		subsets: z.array(z.string()).nonempty().optional(),
+		formats: z.array(z.enum(FONT_TYPES)).nonempty().optional(),
 	})
 	.strict();

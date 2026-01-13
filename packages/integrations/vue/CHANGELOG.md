@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 5.1.4
+
+### Patch Changes
+
+- [#15016](https://github.com/withastro/astro/pull/15016) [`12eb4cd`](https://github.com/withastro/astro/commit/12eb4cd64691bf20f7c4028cd3c20d2cdaa760d4) Thanks [@rahuld109](https://github.com/rahuld109)! - Adds support for arbitrary HTML attributes on Vue components
+
 ## 5.1.3
 
 ### Patch Changes
