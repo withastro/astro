@@ -14,7 +14,7 @@ export interface Clipboard {
 }
 
 export interface PackageManager {
-	getName: () => string;
+	readonly name: string;
 	getPackageVersion: (name: string) => Promise<string | undefined>;
 }
 
@@ -27,9 +27,9 @@ export interface Prompt {
 }
 
 export interface PackageManagerUserAgentProvider {
-	getUserAgent: () => string | null;
+	readonly userAgent: string | null;
 }
 
 export interface NodeVersionProvider {
-	get: () => string;
+	readonly version: string;
 }

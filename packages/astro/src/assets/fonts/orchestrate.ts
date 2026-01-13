@@ -1,9 +1,6 @@
-import * as unifont from 'unifont';
-import type { Storage } from 'unstorage';
+import type * as unifont from 'unifont';
 import type { Logger } from '../../core/logger/core.js';
 import { LOCAL_PROVIDER_NAME } from './constants.js';
-import { dedupeFontFaces } from './core/dedupe-font-faces.js';
-import { extractUnifontProviders } from './core/extract-unifont-providers.js';
 import { normalizeRemoteFontFaces } from './core/normalize-remote-font-faces.js';
 import { type CollectedFontForMetrics, optimizeFallbacks } from './core/optimize-fallbacks.js';
 import { resolveFamilies } from './core/resolve-families.js';
@@ -11,10 +8,10 @@ import type {
 	CssRenderer,
 	FontFileReader,
 	FontMetricsResolver,
+	FontResolver,
 	FontTypeExtractor,
 	Hasher,
 	LocalProviderUrlResolver,
-	RemoteFontProviderResolver,
 	StringMatcher,
 	SystemFallbacksProvider,
 	UrlProxy,
@@ -41,8 +38,7 @@ import {
  * Manages how fonts are resolved:
  *
  * - families are resolved
- * - unifont providers are extracted from families
- * - unifont is initialized
+ * - font resolver is initialized
  *
  * For each family:
  * - We create a URL proxy
@@ -58,9 +54,7 @@ import {
 export async function orchestrate({
 	families,
 	hasher,
-	remoteFontProviderResolver,
 	localProviderUrlResolver,
-	storage,
 	cssRenderer,
 	systemFallbacksProvider,
 	fontMetricsResolver,
@@ -71,12 +65,11 @@ export async function orchestrate({
 	defaults,
 	bold,
 	stringMatcher,
+	createFontResolver,
 }: {
 	families: Array<FontFamily>;
 	hasher: Hasher;
-	remoteFontProviderResolver: RemoteFontProviderResolver;
 	localProviderUrlResolver: LocalProviderUrlResolver;
-	storage: Storage;
 	cssRenderer: CssRenderer;
 	systemFallbacksProvider: SystemFallbacksProvider;
 	fontMetricsResolver: FontMetricsResolver;
@@ -87,28 +80,19 @@ export async function orchestrate({
 	defaults: Defaults;
 	bold: (input: string) => string;
 	stringMatcher: StringMatcher;
+	createFontResolver: (params: { families: Array<ResolvedFontFamily> }) => Promise<FontResolver>;
 }): Promise<{
 	fontFileDataMap: FontFileDataMap;
 	internalConsumableMap: InternalConsumableMap;
 	consumableMap: ConsumableMap;
 }> {
-	let resolvedFamilies = await resolveFamilies({
+	const resolvedFamilies = resolveFamilies({
 		families,
 		hasher,
-		remoteFontProviderResolver,
 		localProviderUrlResolver,
 	});
 
-	const extractedUnifontProvidersResult = extractUnifontProviders({
-		families: resolvedFamilies,
-		hasher,
-	});
-	resolvedFamilies = extractedUnifontProvidersResult.families;
-	const unifontProviders = extractedUnifontProvidersResult.providers;
-
-	const { resolveFont, listFonts } = await unifont.createUnifont(unifontProviders, {
-		storage,
-	});
+	const fontResolver = await createFontResolver({ families: resolvedFamilies });
 
 	/**
 	 * Holds associations of hash and original font file URLs, so they can be
@@ -144,7 +128,7 @@ export async function orchestrate({
 	// First loop: we try to merge families. This is useful for advanced cases, where eg. you want
 	// 500, 600, 700 as normal but also 500 as italic. That requires 2 families
 	for (const family of resolvedFamilies) {
-		const key = `${family.cssVariable}:${family.name}:${typeof family.provider === 'string' ? family.provider : family.provider.name!}`;
+		const key = `${family.cssVariable}:${family.name}:${typeof family.provider === 'string' ? family.provider : family.provider.name}`;
 		let resolvedFamily = resolvedFamiliesMap.get(key);
 		if (!resolvedFamily) {
 			if (
@@ -201,35 +185,30 @@ export async function orchestrate({
 		});
 
 		if (family.provider === LOCAL_PROVIDER_NAME) {
-			const result = resolveLocalFont({
+			const fonts = resolveLocalFont({
 				family,
 				urlProxy,
 				fontTypeExtractor,
 				fontFileReader,
 			});
 			// URLs are already proxied at this point so no further processing is required
-			resolvedFamily.fonts.push(...result.fonts);
+			resolvedFamily.fonts.push(...fonts);
 		} else {
-			const result = await resolveFont(
-				family.name,
+			const fonts = await fontResolver.resolveFont({
+				familyName: family.name,
+				provider: family.provider.name,
 				// We do not merge the defaults, we only provide defaults as a fallback
-				{
-					weights: family.weights ?? defaults.weights,
-					styles: family.styles ?? defaults.styles,
-					subsets: family.subsets ?? defaults.subsets,
-					fallbacks: family.fallbacks ?? defaults.fallbacks,
-				},
-				// By default, unifont goes through all providers. We use a different approach where
-				// we specify a provider per font. Name has been set while extracting unifont providers
-				// from families (inside extractUnifontProviders).
-				[family.provider.name!],
-			);
-			if (result.fonts.length === 0) {
+				weights: family.weights ?? defaults.weights,
+				styles: family.styles ?? defaults.styles,
+				subsets: family.subsets ?? defaults.subsets,
+				formats: family.formats ?? defaults.formats,
+			});
+			if (fonts.length === 0) {
 				logger.warn(
 					'assets',
 					`No data found for font family ${bold(family.name)}. Review your configuration`,
 				);
-				const availableFamilies = await listFonts([family.provider.name!]);
+				const availableFamilies = await fontResolver.listFonts({ provider: family.provider.name });
 				if (
 					availableFamilies &&
 					availableFamilies.length > 0 &&
@@ -242,10 +221,7 @@ export async function orchestrate({
 				}
 			}
 			// The data returned by the remote provider contains original URLs. We proxy them.
-			resolvedFamily.fonts = dedupeFontFaces(
-				resolvedFamily.fonts,
-				normalizeRemoteFontFaces({ fonts: result.fonts, urlProxy, fontTypeExtractor }),
-			);
+			resolvedFamily.fonts = normalizeRemoteFontFaces({ fonts, urlProxy, fontTypeExtractor });
 		}
 	}
 

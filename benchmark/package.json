@@ -7,7 +7,8 @@
     "astro-benchmark": "./index.js"
   },
   "scripts": {
-    "bench": "pnpm vitest bench --run"
+    "bench": "pnpm vitest bench --run",
+    "build:bench": "node ./bench/codspeed-setup.js"
   },
   "dependencies": {
     "@astrojs/mdx": "workspace:*",
@@ -21,10 +22,10 @@
     "port-authority": "^2.0.1",
     "pretty-bytes": "^7.1.0",
     "sharp": "^0.34.3",
-    "tinyexec": "^1.0.1"
+    "tinyexec": "^1.0.2"
   },
   "devDependencies": {
-    "@codspeed/vitest-plugin": "4.0.1",
+    "@codspeed/vitest-plugin": "5.0.1",
     "vitest": "^3.2.4"
   }
 }

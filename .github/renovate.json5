@@ -64,6 +64,15 @@
         "packages/integrations/svelte/**",
         "packages/integrations/vue/**",
       ]
+    },
+    {
+      "groupName": "language tools",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "packages/language-tools/**"
+      ]
     }
   ],
   "ignoreDeps": [
@@ -84,6 +93,8 @@
     "node",
     "npm",
     "pnpm",
+    "vscode",
+    "@types/vscode",
     // follow vite deps version
     "postcss-load-config",
     "esbuild"

@@ -1,5 +1,14 @@
 # @astrojs/netlify
 
+## 6.6.3
+
+### Patch Changes
+
+- [#14807](https://github.com/withastro/astro/pull/14807) [`c17767a`](https://github.com/withastro/astro/commit/c17767a07c9f0d449db8e16d05309c2ee9c0fbdc) Thanks [@jmgala](https://github.com/jmgala)! - Fixes a case where disabling the local image CDN wasn't possible
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 6.6.2
 
 ### Patch Changes
