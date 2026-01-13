@@ -1,5 +1,12 @@
 # astro
 
+## 6.0.0-beta.1
+
+### Patch Changes
+
+- Updated dependencies [[`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795)]:
+  - @astrojs/markdown-remark@7.0.0-beta.1
+
 ## 6.0.0-beta.0
 
 ### Patch Changes
