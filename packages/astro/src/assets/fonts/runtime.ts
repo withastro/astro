@@ -18,7 +18,6 @@ export function createGetFontData({ consumableMap }: { consumableMap?: Consumabl
 	};
 }
 
-// TODO: astro errors
 export function createGetFontBuffer({ bufferImports }: { bufferImports?: BufferImports }) {
 	return async function getFontBuffer(url: string) {
 		// TODO: remove once fonts are stabilized
@@ -27,20 +26,32 @@ export function createGetFontBuffer({ bufferImports }: { bufferImports?: BufferI
 		}
 		const hash = url.split('/').pop();
 		if (!hash) {
-			throw new Error('no buffer found');
+			throw new AstroError({
+				...AstroErrorData.FontBufferNotFound,
+				message: AstroErrorData.FontBufferNotFound.message(url),
+			});
 		}
 		const fn = bufferImports[hash];
 		if (!fn) {
-			throw new Error('no buffer found');
+			throw new AstroError({
+				...AstroErrorData.FontBufferNotFound,
+				message: AstroErrorData.FontBufferNotFound.message(url),
+			});
 		}
 		let mod;
 		try {
 			mod = await fn();
 		} catch {
-			throw new Error('no buffer found');
+			throw new AstroError({
+				...AstroErrorData.FontBufferNotFound,
+				message: AstroErrorData.FontBufferNotFound.message(url),
+			});
 		}
 		if (!mod?.default) {
-			throw new Error('no buffer found');
+			throw new AstroError({
+				...AstroErrorData.FontBufferNotFound,
+				message: AstroErrorData.FontBufferNotFound.message(url),
+			});
 		}
 		return mod.default;
 	};
