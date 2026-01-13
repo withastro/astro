@@ -591,19 +591,6 @@ describe('fonts infra', () => {
 				fixture.assertProvidersNames(['local']);
 			});
 
-			it('appends a hash to the provider name', () => {
-				const fixture = createFixture([
-					{
-						name: 'Custom',
-						nameWithHash: 'Custom-xxx',
-						cssVariable: '--custom',
-						provider: createProvider('test'),
-					},
-				]);
-				fixture.assertProvidersLength(1);
-				fixture.assertProvidersNames(['test-{"name":"test"}']);
-			});
-
 			it('deduplicates providers with no config', () => {
 				const fixture = createFixture([
 					{
@@ -620,7 +607,7 @@ describe('fonts infra', () => {
 					},
 				]);
 				fixture.assertProvidersLength(1);
-				fixture.assertProvidersNames(['test-{"name":"test"}', 'test-{"name":"test"}']);
+				fixture.assertProvidersNames(['test', 'test']);
 			});
 
 			it('deduplicates providers with the same config', () => {
@@ -639,10 +626,7 @@ describe('fonts infra', () => {
 					},
 				]);
 				fixture.assertProvidersLength(1);
-				fixture.assertProvidersNames([
-					'test-{"name":"test","x":"y"}',
-					'test-{"name":"test","x":"y"}',
-				]);
+				fixture.assertProvidersNames(['test', 'test']);
 			});
 
 			it('does not deduplicate providers with different configs', () => {
@@ -661,10 +645,7 @@ describe('fonts infra', () => {
 					},
 				]);
 				fixture.assertProvidersLength(2);
-				fixture.assertProvidersNames([
-					'test-{"name":"test","x":"foo"}',
-					'test-{"name":"test","x":"bar"}',
-				]);
+				fixture.assertProvidersNames(['test', 'test']);
 			});
 		});
 
@@ -829,7 +810,10 @@ describe('fonts infra', () => {
 			assert.deepStrictEqual(
 				await fontResolver.resolveFont({
 					familyName: 'Foo',
-					provider: 'foo-{"name":"foo"}',
+					provider: {
+						name: 'foo',
+						resolveFont: () => undefined,
+					},
 					weights: [],
 					styles: [],
 					subsets: [],
@@ -840,7 +824,10 @@ describe('fonts infra', () => {
 			assert.deepStrictEqual(
 				await fontResolver.resolveFont({
 					familyName: 'Bar',
-					provider: 'bar-{"name":"bar"}',
+					provider: {
+						name: 'bar',
+						resolveFont: () => undefined,
+					},
 					weights: [],
 					styles: [],
 					subsets: [],
@@ -882,13 +869,19 @@ describe('fonts infra', () => {
 			});
 			assert.deepStrictEqual(
 				await fontResolver.listFonts({
-					provider: 'foo-{"name":"foo"}',
+					provider: {
+						name: 'foo',
+						resolveFont: () => undefined,
+					},
 				}),
 				undefined,
 			);
 			assert.deepStrictEqual(
 				await fontResolver.listFonts({
-					provider: 'bar-{"name":"bar"}',
+					provider: {
+						name: 'bar',
+						resolveFont: () => undefined,
+					},
 				}),
 				['a', 'b', 'c'],
 			);
