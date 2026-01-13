@@ -1,5 +1,13 @@
 # @astrojs/markdoc
 
+## 1.0.0-beta.4
+
+### Patch Changes
+
+- Updated dependencies [[`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795), [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795)]:
+  - @astrojs/markdown-remark@7.0.0-beta.1
+  - @astrojs/prism@4.0.0-beta.1
+
 ## 1.0.0-beta.3
 
 ### Patch Changes
