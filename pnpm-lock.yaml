@@ -567,8 +567,8 @@ importers:
         specifier: ^1.7.0
         version: 1.7.0
       esbuild:
-        specifier: ^0.25.0
-        version: 0.25.5
+        specifier: ^0.27.0
+        version: 0.27.2
       estree-walker:
         specifier: ^3.0.3
         version: 3.0.3
