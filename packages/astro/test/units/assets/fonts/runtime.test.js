@@ -1,7 +1,7 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { filterPreloads } from '../../../../dist/assets/fonts/runtime.js';
+import { createGetFontBuffer, filterPreloads } from '../../../../dist/assets/fonts/runtime.js';
 
 describe('fonts runtime', () => {
 	describe('filterPreloads()', () => {
@@ -156,6 +156,53 @@ describe('fonts runtime', () => {
 					},
 				],
 			);
+		});
+	});
+
+	describe('createGetFontBuffer()', () => {
+		it('throws if there is are no bufferImports', async () => {
+			assert.rejects(() => createGetFontBuffer({ bufferImports: undefined })('foo'));
+		});
+
+		it('throws if hash cannot be found in buffer imports', async () => {
+			assert.rejects(() =>
+				createGetFontBuffer({
+					bufferImports: {
+						bar: async () => ({ default: Buffer.alloc(4) }),
+					},
+				})('foo'),
+			);
+		});
+
+		it('throws if import fails', async () => {
+			assert.rejects(() =>
+				createGetFontBuffer({
+					bufferImports: {
+						foo: async () => {
+							throw new Error('unexpected');
+						},
+					},
+				})('foo'),
+			);
+		});
+
+		it('throws if import result is not a buffer', async () => {
+			assert.rejects(() =>
+				createGetFontBuffer({
+					bufferImports: {
+						foo: async () => ({ default: null }),
+					},
+				})('foo'),
+			);
+		});
+
+		it('works', async () => {
+			const result = await createGetFontBuffer({
+				bufferImports: {
+					foo: async () => ({ default: Buffer.alloc(4) }),
+				},
+			})('foo');
+			assert.equal(result instanceof Buffer, true);
 		});
 	});
 });

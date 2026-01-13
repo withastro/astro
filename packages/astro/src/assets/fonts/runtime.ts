@@ -24,13 +24,8 @@ export function createGetFontBuffer({ bufferImports }: { bufferImports?: BufferI
 		if (!bufferImports) {
 			throw new AstroError(AstroErrorData.ExperimentalFontsNotEnabled);
 		}
-		const hash = url.split('/').pop();
-		if (!hash) {
-			throw new AstroError({
-				...AstroErrorData.FontBufferNotFound,
-				message: AstroErrorData.FontBufferNotFound.message(url),
-			});
-		}
+		// Should always be able to split but we default to a hash that will always fail
+		const hash = url.split('/').pop() ?? '';
 		const fn = bufferImports[hash];
 		if (!fn) {
 			throw new AstroError({
