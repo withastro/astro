@@ -6,6 +6,7 @@ packages:
   - 'scripts'
   - 'benchmark'
   - 'benchmark/packages/*'
+  - 'benchmark/static-projects/*'
   # Below excludes are only for Turbo because it doesn't respect gitignore like pnpm does
   - '!packages/astro/test/units/_temp-fixtures/*'
   - '!**/.vercel/**'
@@ -19,8 +20,9 @@ overrides:
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@biomejs/*'
-  # Temporary, so we can install the fork
-  - 'piccolore'
+  # Temporary, so we can install new lightweight updates
+  - 'fontace'
+  - '@capsizecss/unpack'
 peerDependencyRules:
   allowAny:
     - 'astro'
