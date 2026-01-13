@@ -81,9 +81,7 @@ export async function generateEdgeMiddleware(
 		});
 	} catch (err) {
 		if ((err as Error).message.includes('Could not resolve "node:')) {
-			logger.error(`Vercel does not allow the use of Node.js built-ins in edge functions. Please ensure your middleware code and 3rd-party packages don’t use Node built-ins.
-
-${err}`)
+			logger.error(`Vercel does not allow the use of Node.js built-ins in edge functions. Please ensure your middleware code and 3rd-party packages don’t use Node built-ins.`)
 		}
 		
 		throw err
