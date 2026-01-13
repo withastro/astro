@@ -18,9 +18,9 @@ export type ReactIntegrationOptions = Pick<
 	 */
 	experimentalDisableStreaming?: boolean;
 	/*
-	* Enables the [React Compiler](https://react.dev/learn/react-compiler).
-	* Requires installing `babel-plugin-react-compiler`.
-	*/
+	 * Enables the [React Compiler](https://react.dev/learn/react-compiler).
+	 * Requires installing `babel-plugin-react-compiler`.
+	 */
 	reactCompilerEnabled?: boolean;
 };
 
@@ -64,7 +64,7 @@ function optionsPlugin({
 }
 
 type PluginItem = NonNullable<
-	Exclude<NonNullable<ReactIntegrationOptions['babel']>, Function>['plugins']
+	Exclude<NonNullable<ReactIntegrationOptions['babel']>, (...args: any[]) => any>['plugins']
 >[number];
 
 function isBabelPluginPresent(plugins: PluginItem[], pluginName: string): boolean {
