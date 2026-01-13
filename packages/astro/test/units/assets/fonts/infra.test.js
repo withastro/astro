@@ -546,106 +546,89 @@ describe('fonts infra', () => {
 		});
 
 		describe('static extractUnifontProviders()', () => {
-			/** @param {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} families */
-			function createFixture(families) {
-				const providers = UnifontFontResolver.extractUnifontProviders({
-					families,
-					hasher: new FakeHasher(),
-				});
-				return {
-					/**
-					 * @param {number} length
-					 */
-					assertProvidersLength: (length) => {
-						assert.equal(providers.length, length);
-					},
-					/**
-					 * @param {Array<string>} names
-					 */
-					assertProvidersNames: (names) => {
-						assert.deepStrictEqual(
-							families.map((f) => (typeof f.provider === 'string' ? f.provider : f.provider.name)),
-							names,
-						);
-					},
-				};
-			}
-
 			it('skips local fonts', () => {
-				const fixture = createFixture([
-					{
-						name: 'Custom',
-						nameWithHash: 'Custom-xxx',
-						cssVariable: '--custom',
-						provider: 'local',
-						variants: [
-							{
-								src: [{ url: 'a' }],
-								weight: '400',
-								style: 'normal',
-							},
-						],
-					},
-				]);
-				fixture.assertProvidersLength(0);
-				fixture.assertProvidersNames(['local']);
+				const providers = UnifontFontResolver.extractUnifontProviders({
+					hasher: new FakeHasher(),
+					families: [
+						{
+							name: 'Custom',
+							nameWithHash: 'Custom-xxx',
+							cssVariable: '--custom',
+							provider: 'local',
+							variants: [
+								{
+									src: [{ url: 'a' }],
+									weight: '400',
+									style: 'normal',
+								},
+							],
+						},
+					],
+				});
+				assert.equal(providers.length, 0);
 			});
 
 			it('deduplicates providers with no config', () => {
-				const fixture = createFixture([
-					{
-						name: 'Foo',
-						nameWithHash: 'Foo-xxx',
-						cssVariable: '--custom',
-						provider: createProvider('test'),
-					},
-					{
-						name: 'Bar',
-						nameWithHash: 'Bar-xxx',
-						cssVariable: '--custom',
-						provider: createProvider('test'),
-					},
-				]);
-				fixture.assertProvidersLength(1);
-				fixture.assertProvidersNames(['test', 'test']);
+				const providers = UnifontFontResolver.extractUnifontProviders({
+					hasher: new FakeHasher(),
+					families: [
+						{
+							name: 'Foo',
+							nameWithHash: 'Foo-xxx',
+							cssVariable: '--custom',
+							provider: createProvider('test'),
+						},
+						{
+							name: 'Bar',
+							nameWithHash: 'Bar-xxx',
+							cssVariable: '--custom',
+							provider: createProvider('test'),
+						},
+					],
+				});
+				assert.equal(providers.length, 1);
 			});
 
 			it('deduplicates providers with the same config', () => {
-				const fixture = createFixture([
-					{
-						name: 'Foo',
-						nameWithHash: 'Foo-xxx',
-						cssVariable: '--custom',
-						provider: createProvider('test', { x: 'y' }),
-					},
-					{
-						name: 'Bar',
-						nameWithHash: 'Bar-xxx',
-						cssVariable: '--custom',
-						provider: createProvider('test', { x: 'y' }),
-					},
-				]);
-				fixture.assertProvidersLength(1);
-				fixture.assertProvidersNames(['test', 'test']);
+				const providers = UnifontFontResolver.extractUnifontProviders({
+					hasher: new FakeHasher(),
+					families: [
+						{
+							name: 'Foo',
+							nameWithHash: 'Foo-xxx',
+							cssVariable: '--custom',
+							provider: createProvider('test', { x: 'y' }),
+						},
+						{
+							name: 'Bar',
+							nameWithHash: 'Bar-xxx',
+							cssVariable: '--custom',
+							provider: createProvider('test', { x: 'y' }),
+						},
+					],
+				});
+				assert.equal(providers.length, 1);
 			});
 
 			it('does not deduplicate providers with different configs', () => {
-				const fixture = createFixture([
-					{
-						name: 'Foo',
-						nameWithHash: 'Foo-xxx',
-						cssVariable: '--custom',
-						provider: createProvider('test', { x: 'foo' }),
-					},
-					{
-						name: 'Bar',
-						nameWithHash: 'Bar-xxx',
-						cssVariable: '--custom',
-						provider: createProvider('test', { x: 'bar' }),
-					},
-				]);
-				fixture.assertProvidersLength(2);
-				fixture.assertProvidersNames(['test', 'test']);
+				const providers = UnifontFontResolver.extractUnifontProviders({
+					hasher: new FakeHasher(),
+					families: [
+						{
+							name: 'Foo',
+							nameWithHash: 'Foo-xxx',
+							cssVariable: '--custom',
+							provider: createProvider('test', { x: 'foo' }),
+						},
+						{
+							name: 'Bar',
+							nameWithHash: 'Bar-xxx',
+							cssVariable: '--custom',
+							provider: createProvider('test', { x: 'bar' }),
+						},
+					],
+				});
+				assert.equal(providers.length, 2);
 			});
 		});
 
