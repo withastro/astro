@@ -1,13 +1,12 @@
 import type * as unifont from 'unifont';
 import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 import type {
-	AstroFontProvider,
 	FontFaceMetrics,
 	FontFileData,
 	FontType,
 	GenericFallbackName,
 	PreloadData,
-	ResolvedFontProvider,
+	ResolveFontOptions,
 	Style,
 } from './types.js';
 
@@ -16,19 +15,11 @@ export interface Hasher {
 	hashObject: (input: Record<string, any>) => string;
 }
 
-export interface RemoteFontProviderModResolver {
-	resolve: (id: string) => Promise<any>;
-}
-
-export interface RemoteFontProviderResolver {
-	resolve: (provider: AstroFontProvider) => Promise<ResolvedFontProvider>;
-}
-
 export interface LocalProviderUrlResolver {
 	resolve: (input: string) => string;
 }
 
-interface ProxyData {
+export interface ProxyData {
 	weight: unifont.FontFaceData['weight'];
 	style: unifont.FontFaceData['style'];
 	subset: NonNullable<unifont.FontFaceData['meta']>['subset'];
@@ -46,7 +37,7 @@ export interface UrlProxy {
 
 export interface UrlResolver {
 	resolve: (hash: string) => string;
-	getCspResources: () => Array<string>;
+	readonly cspResources: Array<string>;
 }
 
 export interface UrlProxyContentResolver {
@@ -111,4 +102,18 @@ export interface UrlProxyHashResolver {
 
 export interface StringMatcher {
 	getClosestMatch: (target: string, candidates: Array<string>) => string;
+}
+
+export interface Storage {
+	getItem: (key: string) => Promise<any | null>;
+	getItemRaw: (key: string) => Promise<Buffer | null>;
+	setItem: (key: string, value: any) => Promise<void>;
+	setItemRaw: (key: string, value: any) => Promise<void>;
+}
+
+export interface FontResolver {
+	resolveFont: (
+		options: ResolveFontOptions & { provider: string },
+	) => Promise<Array<unifont.FontFaceData>>;
+	listFonts: (options: { provider: string }) => Promise<string[] | undefined>;
 }

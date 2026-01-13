@@ -32,8 +32,15 @@ injections:
     patterns:
       [
         {
+          begin: '(?<=>)(?=[^\n]+</script[\s>])',
+          end: '(?=</script[\s>])',
+          name: meta.embedded.block.astro,
+          contentName: source.js,
+          patterns: [{ include: source.js }],
+        },
+        {
           begin: '(?<=>)(?!</)',
-          end: '(?=</)',
+          while: '^(?!\s*</script[\s>])',
           name: meta.embedded.block.astro,
           contentName: source.js,
           patterns: [{ include: source.js }],
@@ -45,8 +52,15 @@ injections:
     patterns:
       [
         {
+          begin: '(?<=>)(?=[^\n]+</script[\s>])',
+          end: '(?=</script[\s>])',
+          name: meta.embedded.block.astro,
+          contentName: source.ts,
+          patterns: [{ include: source.ts }],
+        },
+        {
           begin: '(?<=>)(?!</)',
-          end: '(?=</)',
+          while: '^(?!\s*</script[\s>])',
           name: meta.embedded.block.astro,
           contentName: source.ts,
           patterns: [{ include: source.ts }],
@@ -59,8 +73,15 @@ injections:
     patterns:
       [
         {
+          begin: '(?<=>)(?=[^\n]+</script[\s>])',
+          end: '(?=</script[\s>])',
+          name: meta.embedded.block.astro,
+          contentName: source.js,
+          patterns: [{ include: source.js }],
+        },
+        {
           begin: '(?<=>)(?!</)',
-          end: '(?=</)',
+          while: '^(?!\s*</script[\s>])',
           name: meta.embedded.block.astro,
           contentName: source.js,
           patterns: [{ include: source.js }],
@@ -180,9 +201,23 @@ repository:
       1: { name: comment }
     endCaptures:
       2: { name: comment }
-    contentName: source.ts
     patterns:
-      - include: source.ts
+      [
+        {
+          begin: '(?<=\n)(?=[^\n]+^-{3})',
+          end: '(?=^-{3})',
+          name: meta.embedded.block.astro,
+          contentName: source.ts,
+          patterns: [{ include: source.ts }],
+        },
+        {
+          begin: '(?<=\n)',
+          while: '^(?!\s*-{3})',
+          name: meta.embedded.block.astro,
+          contentName: source.ts,
+          patterns: [{ include: source.ts }],
+        },
+      ]
 
   # -------
   # SCOPE

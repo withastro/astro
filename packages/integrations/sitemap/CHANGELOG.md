@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 3.6.1
+
+### Patch Changes
+
+- [#15033](https://github.com/withastro/astro/pull/15033) [`dd06779`](https://github.com/withastro/astro/commit/dd067798c02bff4968b23ce92670685a4e99ccdc) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates how routes are retrieved to avoid relying on a deprecated API
+
 ## 3.6.0
 
 ### Minor Changes

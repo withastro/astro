@@ -1,9 +1,9 @@
 // @ts-expect-error
-import { root } from 'astro:config/server';
+import { safeModulePaths, viteFSConfig } from 'astro:assets';
 import { readFile } from 'node:fs/promises';
 import os from 'node:os';
-import { fileURLToPath } from 'node:url';
-import { isParentDirectory } from '@astrojs/internal-helpers/path';
+import picomatch from 'picomatch';
+import { type AnymatchFn, isFileLoadingAllowed, type ResolvedConfig } from 'vite';
 import type { APIRoute } from '../../types/public/common.js';
 import { handleImageRequest, loadRemoteImage } from './shared.js';
 
@@ -12,30 +12,68 @@ function replaceFileSystemReferences(src: string) {
 }
 
 async function loadLocalImage(src: string, url: URL) {
-	// Vite uses /@fs/ to denote filesystem access
+	let returnValue: Buffer | undefined;
+	let fsPath: string | undefined;
+
+	// Vite uses /@fs/ to denote filesystem access, but we need to convert that to a real path to load it
 	if (src.startsWith('/@fs/')) {
-		src = replaceFileSystemReferences(src);
-		if (!isParentDirectory(fileURLToPath(root), src)) {
-			return undefined;
-		}
+		fsPath = replaceFileSystemReferences(src);
 	}
-	// Vite allows loading files directly from the filesystem
-	// as long as they are inside the project root.
-	if (isParentDirectory(fileURLToPath(root), src)) {
+
+	// Vite only uses the fs config, but the types ask for the full config
+	// fsDenyGlob's implementation is internal from https://github.com/vitejs/vite/blob/e6156f71f0e21f4068941b63bcc17b0e9b0a7455/packages/vite/src/node/config.ts#L1931
+	if (
+		fsPath &&
+		isFileLoadingAllowed(
+			{
+				fsDenyGlob: picomatch(
+					// matchBase: true does not work as it's documented
+					// https://github.com/micromatch/picomatch/issues/89
+					// convert patterns without `/` on our side for now
+					viteFSConfig.deny.map((pattern: string) =>
+						pattern.includes('/') ? pattern : `**/${pattern}`,
+					),
+					{
+						matchBase: false,
+						nocase: true,
+						dot: true,
+					},
+				),
+				server: { fs: viteFSConfig },
+				safeModulePaths,
+			} as ResolvedConfig & { fsDenyGlob: AnymatchFn; safeModulePaths: Set<string> },
+			fsPath,
+		)
+	) {
 		try {
-			return await readFile(src);
+			returnValue = await readFile(fsPath);
 		} catch {
-			return undefined;
+			returnValue = undefined;
+		}
+
+		// If we couldn't load it directly, try loading it through Vite as a fallback, which will also respect Vite's fs rules
+		if (!returnValue) {
+			try {
+				const res = await fetch(new URL(src, url));
+
+				if (res.ok) {
+					returnValue = Buffer.from(await res.arrayBuffer());
+				}
+			} catch {
+				returnValue = undefined;
+			}
 		}
 	} else {
 		// Otherwise we'll assume it's a local URL and try to load it via fetch
 		const sourceUrl = new URL(src, url.origin);
 		// This is only allowed if this is the same origin
 		if (sourceUrl.origin !== url.origin) {
-			return undefined;
+			returnValue = undefined;
 		}
 		return loadRemoteImage(sourceUrl);
 	}
+
+	return returnValue;
 }
 
 /**
