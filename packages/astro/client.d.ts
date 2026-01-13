@@ -80,7 +80,7 @@ declare module 'astro:assets' {
 		Font,
 		inferRemoteSize,
 		getFontData,
-		getFontBuffer
+		getFontBuffer,
 	}: AstroAssets;
 }
 
