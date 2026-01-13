@@ -297,3 +297,5 @@ export interface ResolveFontOptions {
 	subsets: string[];
 	formats: FontType[];
 }
+
+export type BufferImports = Record<string, () => Promise<{ default: Buffer | null }>>;

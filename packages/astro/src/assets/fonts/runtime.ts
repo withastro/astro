@@ -1,5 +1,5 @@
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import type { ConsumableMap, PreloadData, PreloadFilter } from './types.js';
+import type { BufferImports, ConsumableMap, PreloadData, PreloadFilter } from './types.js';
 
 export function createGetFontData({ consumableMap }: { consumableMap?: ConsumableMap }) {
 	return function getFontData(cssVariable: string) {
@@ -15,6 +15,34 @@ export function createGetFontData({ consumableMap }: { consumableMap?: Consumabl
 			});
 		}
 		return data;
+	};
+}
+
+// TODO: astro errors
+export function createGetFontBuffer({ bufferImports }: { bufferImports?: BufferImports }) {
+	return async function getFontBuffer(url: string) {
+		// TODO: remove once fonts are stabilized
+		if (!bufferImports) {
+			throw new AstroError(AstroErrorData.ExperimentalFontsNotEnabled);
+		}
+		const hash = url.split('/').pop();
+		if (!hash) {
+			throw new Error('no buffer found');
+		}
+		const fn = bufferImports[hash];
+		if (!fn) {
+			throw new Error('no buffer found');
+		}
+		let mod;
+		try {
+			mod = await fn();
+		} catch {
+			throw new Error('no buffer found');
+		}
+		if (!mod?.default) {
+			throw new Error('no buffer found');
+		}
+		return mod.default;
 	};
 }
 

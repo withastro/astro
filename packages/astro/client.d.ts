@@ -57,6 +57,7 @@ declare module 'astro:assets' {
 		getFontData: (
 			cssVariable: import('astro:assets').CssVariable,
 		) => Array<import('astro:assets').FontData>;
+		getFontBuffer: (url: string) => Promise<Buffer>;
 	};
 
 	type ImgAttributes = import('./dist/type-utils.js').WithRequired<
@@ -79,6 +80,7 @@ declare module 'astro:assets' {
 		Font,
 		inferRemoteSize,
 		getFontData,
+		getFontBuffer
 	}: AstroAssets;
 }
 
