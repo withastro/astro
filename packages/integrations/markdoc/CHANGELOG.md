@@ -1,5 +1,11 @@
 # @astrojs/markdoc
 
+## 1.0.0-beta.3
+
+### Patch Changes
+
+- [#15184](https://github.com/withastro/astro/pull/15184) [`f47c071`](https://github.com/withastro/astro/commit/f47c0719b390918a7e4a18b8b91b682667426b6b) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the package wasn't correctly published
+
 ## 1.0.0-beta.0
 
 ### Minor Changes

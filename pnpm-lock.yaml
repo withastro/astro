@@ -395,7 +395,7 @@ importers:
   examples/with-markdoc:
     dependencies:
       '@astrojs/markdoc':
-        specifier: ^1.0.0-beta.0
+        specifier: ^1.0.0-beta.3
         version: link:../../packages/integrations/markdoc
       astro:
         specifier: ^6.0.0-beta.0
