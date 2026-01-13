@@ -89,7 +89,7 @@ describe('Image endpoint', () => {
 		before(async () => {
 			await devPreview.stop();
 			await cp(fixture.config.outDir, new URL('./dist', outputDir), { recursive: true });
-      await rm(fixture.config.outDir, { recursive: true });
+			await rm(fixture.config.outDir, { recursive: true });
 			devPreview = await fixture.preview({ outDir: './output/dist' });
 		});
 
