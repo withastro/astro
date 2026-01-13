@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 8.0.0-beta.0
+
+### Patch Changes
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improve Svelte `children` prop type checking
+
 ## 8.0.0-alpha.0
 
 ### Major Changes
