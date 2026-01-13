@@ -8,15 +8,45 @@ import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 type Weight = z.infer<typeof weightSchema>;
 type Display = z.infer<typeof displaySchema>;
 
-export interface AstroFontProvider {
+/** @lintignore */
+export interface FontProviderInitContext {
+	storage: {
+		getItem: {
+			<T = unknown>(key: string): Promise<T | null>;
+			<T = unknown>(key: string, init: () => Awaitable<T>): Promise<T>;
+		};
+		setItem: (key: string, value: unknown) => Awaitable<void>;
+	};
+}
+
+type Awaitable<T> = T | Promise<T>;
+
+export interface FontProvider {
 	/**
-	 * URL, path relative to the root or package import.
+	 * The font provider name, used for display and deduplication.
 	 */
-	entrypoint: string | URL;
+	name: string;
 	/**
-	 * Optional serializable object passed to the unifont provider.
+	 * Optional serializable object, used for deduplication.
 	 */
 	config?: Record<string, any> | undefined;
+	/**
+	 * Optional callback, used to perform any initialization logic.
+	 */
+	init?: ((context: FontProviderInitContext) => Awaitable<void>) | undefined;
+	/**
+	 * Required callback, used to retrieve and return font face data based on the given options.
+	 */
+	resolveFont: (options: ResolveFontOptions) => Awaitable<
+		| {
+				fonts: Array<unifont.FontFaceData>;
+		  }
+		| undefined
+	>;
+	/**
+	 * Optional callback, used to return the list of available font names.
+	 */
+	listFonts?: (() => Awaitable<Array<string> | undefined>) | undefined;
 }
 
 interface RequiredFamilyAttributes {
@@ -95,12 +125,6 @@ interface FamilyProperties {
 	unicodeRange?: [string, ...Array<string>] | undefined;
 }
 
-export interface ResolvedFontProvider {
-	name?: string;
-	provider: (config?: Record<string, any>) => unifont.Provider;
-	config?: Record<string, any>;
-}
-
 type Src =
 	| string
 	| URL
@@ -144,12 +168,12 @@ export interface ResolvedLocalFontFamily
 
 export interface RemoteFontFamily
 	extends RequiredFamilyAttributes,
-		Omit<FamilyProperties, 'weight' | 'style'>,
+		Omit<FamilyProperties, 'weight' | 'style' | 'subsets' | 'formats'>,
 		Fallbacks {
 	/**
 	 * The source of your font files. You can use a built-in provider or write your own custom provider.
 	 */
-	provider: AstroFontProvider;
+	provider: FontProvider;
 	/**
 	 * @default `[400]`
 	 *
@@ -172,13 +196,18 @@ export interface RemoteFontFamily
 	 * An array of [font subsets](https://knaap.dev/posts/font-subsetting/):
 	 */
 	subsets?: [string, ...Array<string>] | undefined;
+	/**
+	 * @default `["woff2"]`
+	 *
+	 * An array of [font formats](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/src#font_formats).
+	 */
+	formats?: [FontType, ...Array<FontType>] | undefined;
 }
 
 /** @lintignore somehow required by pickFontFaceProperty in utils */
 export interface ResolvedRemoteFontFamily
 	extends ResolvedFontFamilyAttributes,
-		Omit<RemoteFontFamily, 'provider' | 'weights'> {
-	provider: ResolvedFontProvider;
+		Omit<RemoteFontFamily, 'weights'> {
 	weights?: Array<string>;
 }
 
@@ -211,10 +240,10 @@ export type FontFaceMetrics = Pick<
 
 export type GenericFallbackName = (typeof GENERIC_FALLBACK_NAMES)[number];
 
-export type Defaults = Partial<
+export type Defaults = Required<
 	Pick<
 		ResolvedRemoteFontFamily,
-		'weights' | 'styles' | 'subsets' | 'fallbacks' | 'optimizedFallbacks'
+		'weights' | 'styles' | 'subsets' | 'fallbacks' | 'optimizedFallbacks' | 'formats'
 	>
 >;
 
@@ -260,3 +289,11 @@ export type Style = z.output<typeof styleSchema>;
 export type PreloadFilter =
 	| boolean
 	| Array<{ weight?: string | number; style?: string; subset?: string }>;
+
+export interface ResolveFontOptions {
+	familyName: string;
+	weights: string[];
+	styles: Style[];
+	subsets: string[];
+	formats: FontType[];
+}
