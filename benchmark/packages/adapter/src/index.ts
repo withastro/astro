@@ -1,10 +1,10 @@
-import type { AstroIntegration } from 'astro';
+import type { AstroIntegration, HookParameters } from 'astro';
 
 export default function createIntegration(): AstroIntegration {
 	return {
 		name: '@benchmark/timer',
 		hooks: {
-			'astro:config:setup': ({ updateConfig }) => {
+			'astro:config:setup': ({ updateConfig }: HookParameters<'astro:config:setup'>) => {
 				updateConfig({
 					vite: {
 						ssr: {
@@ -13,7 +13,7 @@ export default function createIntegration(): AstroIntegration {
 					},
 				});
 			},
-			'astro:config:done': ({ setAdapter }) => {
+			'astro:config:done': ({ setAdapter }: HookParameters<'astro:config:done'>) => {
 				setAdapter({
 					name: '@benchmark/adapter',
 					serverEntrypoint: '@benchmark/adapter/server.js',
