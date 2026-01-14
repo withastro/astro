@@ -8,8 +8,8 @@ You can now configure the default toolbar position (`'bottom-left'`, `'bottom-ce
 
 You can set a project default that is consistent across environments (e.g. dev machines, browser instances, team members):
 
-```
-//astro.config.mjs
+```js
+// astro.config.mjs
 export default defineConfig({
   devToolbar: {
     placement: 'bottom-left',
@@ -17,4 +17,4 @@ export default defineConfig({
 });
 ```
 
-User preferences from the toolbar UI (stored in `localStorage`) still take priority, so this setting can be overriden in individual situations as necessary.
+User preferences from the toolbar UI (stored in `localStorage`) still take priority, so this setting can be overridden in individual situations as necessary.
