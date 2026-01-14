@@ -552,6 +552,7 @@ export class App {
 			session = renderContext.session;
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
+			this.#logger.error('router', "Error while trying to render the route " + routeData.route)
 			this.#logger.error(null, err.stack || err.message || String(err));
 			return this.#renderError(request, {
 				locals,
