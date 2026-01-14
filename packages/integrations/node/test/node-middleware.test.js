@@ -1,13 +1,13 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import * as cheerio from 'cheerio';
-import express from 'express';
-import nodejs from '../dist/index.js';
-import { loadFixture, waitServerListen } from './test-utils.js';
-import Fastify from 'fastify';
+import { fileURLToPath } from 'node:url';
 import fastifyMiddie from '@fastify/middie';
 import fastifyStatic from '@fastify/static';
-import { fileURLToPath } from 'node:url';
+import * as cheerio from 'cheerio';
+import express from 'express';
+import Fastify from 'fastify';
+import nodejs from '../dist/index.js';
+import { loadFixture, waitServerListen } from './test-utils.js';
 
 /**
  * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
@@ -101,7 +101,7 @@ describe('behavior from middleware, middleware with express', () => {
 		const $ = cheerio.load(html);
 
 		const body = $('body');
-		assert.equal(body.text().includes("1"), true);
+		assert.equal(body.text().includes('1'), true);
 	});
 
 	it('should render the index.html page [static] when the URL has the hash', async () => {
@@ -113,7 +113,7 @@ describe('behavior from middleware, middleware with express', () => {
 		const $ = cheerio.load(html);
 
 		const body = $('body');
-		assert.equal(body.text().includes("1"), true);
+		assert.equal(body.text().includes('1'), true);
 	});
 
 	it('should render the dynamic pages', async () => {
@@ -125,7 +125,7 @@ describe('behavior from middleware, middleware with express', () => {
 		let $ = cheerio.load(html);
 
 		let body = $('body');
-		assert.equal(body.text().includes("foo"), true);
+		assert.equal(body.text().includes('foo'), true);
 
 		res = await fetch('http://localhost:8889/dyn/bar');
 
@@ -135,10 +135,9 @@ describe('behavior from middleware, middleware with express', () => {
 		$ = cheerio.load(html);
 
 		body = $('body');
-		assert.equal(body.text().includes("bar"), true);
+		assert.equal(body.text().includes('bar'), true);
 	});
 });
-
 
 describe('behavior from middleware, middleware with fastify', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -163,7 +162,7 @@ describe('behavior from middleware, middleware with fastify', () => {
 		app.use(handler);
 
 		await app.listen({ port: 8889 });
-		
+
 		server = app;
 	});
 
@@ -195,7 +194,7 @@ describe('behavior from middleware, middleware with fastify', () => {
 		const $ = cheerio.load(html);
 
 		const body = $('body');
-		assert.equal(body.text().includes("1"), true);
+		assert.equal(body.text().includes('1'), true);
 	});
 
 	it('should render the dynamic pages', async () => {
@@ -207,7 +206,7 @@ describe('behavior from middleware, middleware with fastify', () => {
 		let $ = cheerio.load(html);
 
 		let body = $('body');
-		assert.equal(body.text().includes("foo"), true);
+		assert.equal(body.text().includes('foo'), true);
 
 		res = await fetch('http://localhost:8889/dyn/bar');
 
@@ -217,6 +216,6 @@ describe('behavior from middleware, middleware with fastify', () => {
 		$ = cheerio.load(html);
 
 		body = $('body');
-		assert.equal(body.text().includes("bar"), true);
+		assert.equal(body.text().includes('bar'), true);
 	});
 });
