@@ -1,5 +1,86 @@
 # astro
 
+## 5.16.9
+
+### Patch Changes
+
+- [#15174](https://github.com/withastro/astro/pull/15174) [`37ab65a`](https://github.com/withastro/astro/commit/37ab65acb1af6e41d25ec29f3c04c690c7601c87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds Google Icons to built-in font providers
+
+  To start using it, access it on `fontProviders`:
+
+  ```ts
+  import { defineConfig, fontProviders } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      fonts: [
+        {
+          name: 'Material Symbols Outlined',
+          provider: fontProviders.googleicons(),
+          cssVariable: '--font-material',
+        },
+      ],
+    },
+  });
+  ```
+
+- [#15150](https://github.com/withastro/astro/pull/15150) [`a77c4f4`](https://github.com/withastro/astro/commit/a77c4f42b56b46b08064a99e9cb9a2b4bace4445) Thanks [@matthewp](https://github.com/matthewp)! - Fixes hydration for framework components inside MDX when using `Astro.slots.render()`
+
+  Previously, when multiple framework components with `client:*` directives were passed as named slots to an Astro component in MDX, only the first slot would hydrate correctly. Subsequent slots would render their HTML but fail to include the necessary hydration scripts.
+
+- [#15130](https://github.com/withastro/astro/pull/15130) [`9b726c4`](https://github.com/withastro/astro/commit/9b726c4e36bb1560badf5bf9b78783a240939124) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental Fonts API only**
+
+  Changes how font providers are implemented with updates to the `FontProvider` type
+
+  This is an implementation detail that changes how font providers are created. This process allows Astro to take more control rather than relying directly on `unifont` types. **All of Astro's built-in font providers have been updated to reflect this new type, and can be configured as before**. However, using third-party unifont providers that rely on `unifont` types will require an update to your project code.
+
+  Previously, an Astro `FontProvider` was made of a config and a runtime part. It relied directly on `unifont` types, which allowed a simple configuration for third-party unifont providers, but also coupled Astro's implementation to unifont, which was limiting.
+
+  Astro's font provider implementation is now only made of a config part with dedicated hooks. This allows for the separation of config and runtime, but requires you to create a font provider object in order to use custom font providers (e.g. third-party unifont providers, or private font registeries).
+
+  #### What should I do?
+
+  If you were using a 3rd-party `unifont` font provider, you will now need to write an Astro `FontProvider` using it under the hood. For example:
+
+  ```diff
+  // astro.config.ts
+  import { defineConfig } from "astro/config";
+  import { acmeProvider, type AcmeOptions } from '@acme/unifont-provider'
+  +import type { FontProvider } from "astro";
+  +import type { InitializedProvider } from 'unifont';
+
+  +function acme(config?: AcmeOptions): FontProvider {
+  +	const provider = acmeProvider(config);
+  +	let initializedProvider: InitializedProvider | undefined;
+  +	return {
+  +		name: provider._name,
+  +		config,
+  +		async init(context) {
+  +			initializedProvider = await provider(context);
+  +		},
+  +		async resolveFont({ familyName, ...rest }) {
+  +			return await initializedProvider?.resolveFont(familyName, rest);
+  +		},
+  +		async listFonts() {
+  +			return await initializedProvider?.listFonts?.();
+  +		},
+  +	};
+  +}
+
+  export default defineConfig({
+      experimental: {
+          fonts: [{
+  -            provider: acmeProvider({ /* ... */ }),
+  +            provider: acme({ /* ... */ }),
+              name: "Material Symbols Outlined",
+              cssVariable: "--font-material"
+          }]
+      }
+  });
+  ```
+
+- [#15147](https://github.com/withastro/astro/pull/15147) [`9cd5b87`](https://github.com/withastro/astro/commit/9cd5b875f2d45a08bfa8312ed7282a6f0f070265) Thanks [@matthewp](https://github.com/matthewp)! - Fixes scripts in components not rendering when a sibling `<Fragment slot="...">` exists but is unused
+
 ## 5.16.8
 
 ### Patch Changes
