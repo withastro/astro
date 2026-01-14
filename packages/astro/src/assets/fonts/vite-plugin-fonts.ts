@@ -49,7 +49,7 @@ import { UnstorageFsStorage } from './infra/unstorage-fs-storage.js';
 import { RealUrlProxy } from './infra/url-proxy.js';
 import { XxhashHasher } from './infra/xxhash-hasher.js';
 import { orchestrate } from './orchestrate.js';
-import type { ConsumableMap, FontFileDataMap, InternalConsumableMap } from './types.js';
+import type { FontDataRecord, FontFileDataMap, InternalConsumableMap } from './types.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -88,14 +88,14 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 
 	let fontFileDataMap: FontFileDataMap | null = null;
 	let internalConsumableMap: InternalConsumableMap | null = null;
-	let consumableMap: ConsumableMap | null = null;
+	let fontData: FontDataRecord | null = null;
 	let isBuild: boolean;
 	let fontFetcher: FontFetcher | null = null;
 	let fontTypeExtractor: FontTypeExtractor | null = null;
 
 	const cleanup = () => {
 		internalConsumableMap = null;
-		consumableMap = null;
+		fontData = null;
 		fontFileDataMap = null;
 		fontFetcher = null;
 	};
@@ -179,7 +179,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		// to avoid locking memory
 		fontFileDataMap = res.fontFileDataMap;
 		internalConsumableMap = res.internalConsumableMap;
-		consumableMap = res.consumableMap;
+		fontData = res.fontData;
 
 		// Handle CSP
 		if (shouldTrackCspHashes(settings.config.experimental.csp)) {
@@ -302,7 +302,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				return {
 					code: `
 						export const internalConsumableMap = new Map(${JSON.stringify(Array.from(internalConsumableMap?.entries() ?? []))});
-						export const consumableMap = new Map(${JSON.stringify(Array.from(consumableMap?.entries() ?? []))});
+						export const fontData = ${JSON.stringify(fontData ?? {})};
 					`,
 				};
 			}
