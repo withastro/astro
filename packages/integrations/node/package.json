@@ -49,6 +49,9 @@
     "cheerio": "1.1.2",
     "devalue": "^5.6.1",
     "express": "^4.22.1",
+    "fastify": "^5.6.2",
+    "@fastify/middie": "^9.1.0",
+    "@fastify/static": "^9.0.0",
     "node-mocks-http": "^1.17.2"
   },
   "publishConfig": {
