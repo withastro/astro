@@ -452,14 +452,14 @@ function getInvalidRouteSegmentError(
 	const invalidParam = /^Expected "([^"]+)"/.exec(e.message)?.[1];
 	const received = invalidParam ? staticPath.params[invalidParam] : undefined;
 	let hint =
-		'Learn about dynamic routes at https://docs.astro.build/en/core-concepts/routing/#dynamic-routes';
+		'Learn about dynamic routes at https://docs.astro.build/en/guides/routing/#dynamic-routes';
 	if (invalidParam && typeof received === 'string') {
 		const matchingSegment = route.segments.find(
 			(segment) => segment[0]?.content === invalidParam,
 		)?.[0];
 		const mightBeMissingSpread = matchingSegment?.dynamic && !matchingSegment?.spread;
 		if (mightBeMissingSpread) {
-			hint = `If the param contains slashes, try using a rest parameter: **[...${invalidParam}]**. Learn more at https://docs.astro.build/en/core-concepts/routing/#dynamic-routes`;
+			hint = `If the param contains slashes, try using a rest parameter: **[...${invalidParam}]**. Learn more at https://docs.astro.build/en/guides/routing/#dynamic-routes`;
 		}
 	}
 	return new AstroError({
