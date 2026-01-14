@@ -1,4 +1,4 @@
-import { updateScrollPosition } from './router.js';
+
 import { swap } from './swap-functions.js';
 import type { Direction, NavigationTypeString } from './types.js';
 
@@ -183,6 +183,15 @@ export async function doPreparation(
 	}
 	return event;
 }
+
+// only update history entries that are managed by us
+// leave other entries alone and do not accidentally add state.
+export const updateScrollPosition = (positions: { scrollX: number; scrollY: number }) => {
+	if (history.state) {
+		history.scrollRestoration = 'manual';
+		history.replaceState({ ...history.state, ...positions }, '');
+	}
+};
 
 export async function doSwap(
 	afterPreparation: BeforeEvent,

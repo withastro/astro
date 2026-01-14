@@ -6,6 +6,7 @@ import {
 	TRANSITION_AFTER_SWAP,
 	onPageLoad,
 	triggerEvent,
+	updateScrollPosition
 } from './events.js';
 import { detectScriptExecuted } from './swap-functions.js';
 import type { Direction, Fallback, Options } from './types.js';
@@ -27,14 +28,7 @@ type Transition = {
 
 const inBrowser = import.meta.env.SSR === false;
 
-// only update history entries that are managed by us
-// leave other entries alone and do not accidentally add state.
-export const updateScrollPosition = (positions: { scrollX: number; scrollY: number }) => {
-	if (history.state) {
-		history.scrollRestoration = 'manual';
-		history.replaceState({ ...history.state, ...positions }, '');
-	}
-};
+
 
 export const supportsViewTransitions = inBrowser && !!document.startViewTransition;
 
