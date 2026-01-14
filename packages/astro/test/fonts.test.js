@@ -174,7 +174,7 @@ describe('astro fonts', () => {
 			});
 		});
 
-		it('Exposes data in getFontData()', async () => {
+		it('Exposes fontData', async () => {
 			const { fixture, run } = await createDevFixture({
 				experimental: {
 					fonts: [
@@ -187,7 +187,7 @@ describe('astro fonts', () => {
 				},
 			});
 			await run(async () => {
-				const res = await fixture.fetch('/get-font-data');
+				const res = await fixture.fetch('/font-data');
 				const html = await res.text();
 				const $ = cheerio.load(html);
 				const content = $('#data').html();
@@ -195,9 +195,10 @@ describe('astro fonts', () => {
 					assert.fail();
 				}
 				const parsed = JSON.parse(content);
-				assert.equal(Array.isArray(parsed), true);
-				assert.equal(parsed.length > 0, true);
-				assert.equal(parsed[0].src[0].url.startsWith('/_astro/fonts/'), true);
+				assert.equal('--font-test' in parsed, true);
+				assert.equal(Array.isArray(parsed['--font-test']), true);
+				assert.equal(parsed['--font-test'].length > 0, true);
+				assert.equal(parsed['--font-test'][0].src[0].url.startsWith('/_astro/fonts/'), true);
 			});
 		});
 	});
@@ -292,7 +293,7 @@ describe('astro fonts', () => {
 			assert.equal(files.length > 0, true);
 		});
 
-		it('Exposes data in getFontData()', async () => {
+		it('Exposes fontData', async () => {
 			const { fixture } = await createBuildFixture({
 				experimental: {
 					fonts: [
@@ -305,16 +306,17 @@ describe('astro fonts', () => {
 				},
 			});
 
-			const html = await fixture.readFile('/get-font-data/index.html');
+			const html = await fixture.readFile('/font-data/index.html');
 			const $ = cheerio.load(html);
 			const content = $('#data').html();
 			if (!content) {
 				assert.fail();
 			}
 			const parsed = JSON.parse(content);
-			assert.equal(Array.isArray(parsed), true);
-			assert.equal(parsed.length > 0, true);
-			assert.equal(parsed[0].src[0].url.startsWith('/_astro/fonts/'), true);
+			assert.equal('--font-test' in parsed, true);
+			assert.equal(Array.isArray(parsed['--font-test']), true);
+			assert.equal(parsed['--font-test'].length > 0, true);
+			assert.equal(parsed['--font-test'][0].src[0].url.startsWith('/_astro/fonts/'), true);
 		});
 	});
 });
