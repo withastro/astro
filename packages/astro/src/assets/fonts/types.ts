@@ -21,7 +21,9 @@ export interface FontProviderInitContext {
 
 type Awaitable<T> = T | Promise<T>;
 
-export interface FontProvider<FamilyOptions extends Record<string, any> | never = never> {
+export interface FontProvider<
+	TFamilyOptions extends Record<string, any> | undefined | never = never,
+> {
 	/**
 	 * The font provider name, used for display and deduplication.
 	 */
@@ -37,7 +39,7 @@ export interface FontProvider<FamilyOptions extends Record<string, any> | never 
 	/**
 	 * Required callback, used to retrieve and return font face data based on the given options.
 	 */
-	resolveFont: (options: ResolveFontOptions<FamilyOptions>) => Awaitable<
+	resolveFont: (options: ResolveFontOptions<TFamilyOptions>) => Awaitable<
 		| {
 				fonts: Array<unifont.FontFaceData>;
 		  }
@@ -166,51 +168,74 @@ export interface ResolvedLocalFontFamily
 	>;
 }
 
-export interface RemoteFontFamily<TFontProvider extends FontProvider = FontProvider>
-	extends RequiredFamilyAttributes,
-		Omit<FamilyProperties, 'weight' | 'style' | 'subsets' | 'formats'>,
-		Fallbacks {
-	/**
-	 * The source of your font files. You can use a built-in provider or write your own custom provider.
-	 */
-	provider: TFontProvider;
-	/**
-	 * @default `[400]`
-	 *
-	 * An array of [font weights](https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight). If the associated font is a [variable font](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_fonts/Variable_fonts_guide), you can specify a range of weights:
-	 *
-	 * ```js
-	 * weight: "100 900"
-	 * ```
-	 */
-	weights?: [Weight, ...Array<Weight>] | undefined;
-	/**
-	 * @default `["normal", "italic"]`
-	 *
-	 * An array of [font styles](https://developer.mozilla.org/en-US/docs/Web/CSS/font-style).
-	 */
-	styles?: [Style, ...Array<Style>] | undefined;
-	/**
-	 * @default `["latin"]`
-	 *
-	 * An array of [font subsets](https://knaap.dev/posts/font-subsetting/):
-	 */
-	subsets?: [string, ...Array<string>] | undefined;
-	/**
-	 * @default `["woff2"]`
-	 *
-	 * An array of [font formats](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/src#font_formats).
-	 */
-	formats?: [FontType, ...Array<FontType>] | undefined;
-	/**
-	 * Options forwarded to the font provider while resolving this font family.
-	 */
-	options?: NoInfer<TFontProvider> extends FontProvider<infer TFamilyOptions>
-		? [TFamilyOptions] extends [never]
-			? undefined
-			: TFamilyOptions
-		: undefined;
-}
+type WithOptions<TFontProvider extends FontProvider> = TFontProvider extends FontProvider<
+	infer TFamilyOptions
+>
+	? [TFamilyOptions] extends [never]
+		? {
+				/**
+				 * Options forwarded to the font provider while resolving this font family.
+				 */
+				options?: undefined;
+			}
+		: undefined extends TFamilyOptions
+			? {
+					/**
+					 * Options forwarded to the font provider while resolving this font family.
+					 */
+					options?: TFamilyOptions;
+				}
+			: {
+					/**
+					 * Options forwarded to the font provider while resolving this font family.
+					 */
+					options: TFamilyOptions;
+				}
+	: {
+			/**
+			 * Options forwarded to the font provider while resolving this font family.
+			 */
+			options?: undefined;
+		};
+
+export type RemoteFontFamily<TFontProvider extends FontProvider = FontProvider> =
+	RequiredFamilyAttributes &
+		Omit<FamilyProperties, 'weight' | 'style' | 'subsets' | 'formats'> &
+		Fallbacks &
+		WithOptions<NoInfer<TFontProvider>> & {
+			/**
+			 * The source of your font files. You can use a built-in provider or write your own custom provider.
+			 */
+			provider: TFontProvider;
+			/**
+			 * @default `[400]`
+			 *
+			 * An array of [font weights](https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight). If the associated font is a [variable font](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_fonts/Variable_fonts_guide), you can specify a range of weights:
+			 *
+			 * ```js
+			 * weight: "100 900"
+			 * ```
+			 */
+			weights?: [Weight, ...Array<Weight>] | undefined;
+			/**
+			 * @default `["normal", "italic"]`
+			 *
+			 * An array of [font styles](https://developer.mozilla.org/en-US/docs/Web/CSS/font-style).
+			 */
+			styles?: [Style, ...Array<Style>] | undefined;
+			/**
+			 * @default `["latin"]`
+			 *
+			 * An array of [font subsets](https://knaap.dev/posts/font-subsetting/):
+			 */
+			subsets?: [string, ...Array<string>] | undefined;
+			/**
+			 * @default `["woff2"]`
+			 *
+			 * An array of [font formats](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/src#font_formats).
+			 */
+			formats?: [FontType, ...Array<FontType>] | undefined;
+		};
 
 /** @lintignore somehow required by pickFontFaceProperty in utils */
 export interface ResolvedRemoteFontFamily
@@ -300,7 +325,9 @@ export type PreloadFilter =
 	| boolean
 	| Array<{ weight?: string | number; style?: string; subset?: string }>;
 
-export interface ResolveFontOptions<FamilyOptions extends Record<string, any> | never = never> {
+export interface ResolveFontOptions<
+	FamilyOptions extends Record<string, any> | undefined | never = never,
+> {
 	familyName: string;
 	weights: string[];
 	styles: Style[];

@@ -67,7 +67,7 @@ export async function orchestrate({
 	stringMatcher,
 	createFontResolver,
 }: {
-	families: Array<FontFamily<any>>;
+	families: Array<FontFamily>;
 	hasher: Hasher;
 	localProviderUrlResolver: LocalProviderUrlResolver;
 	cssRenderer: CssRenderer;

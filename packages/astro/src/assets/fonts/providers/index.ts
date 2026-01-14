@@ -81,7 +81,7 @@ function fontsource(): FontProvider {
 }
 
 /** [Google](https://fonts.google.com/) */
-function google(): FontProvider<GoogleFamilyOptions> {
+function google(): FontProvider<GoogleFamilyOptions | undefined> {
 	const provider = providers.google();
 	let initializedProvider: InitializedProvider<GoogleFamilyOptions> | undefined;
 	return {
@@ -99,7 +99,7 @@ function google(): FontProvider<GoogleFamilyOptions> {
 }
 
 /** [Google Icons](https://fonts.google.com/icons) */
-function googleicons(): FontProvider<GoogleiconsFamilyOptions> {
+function googleicons(): FontProvider<GoogleiconsFamilyOptions | undefined> {
 	const provider = providers.googleicons();
 	let initializedProvider: InitializedProvider<GoogleiconsFamilyOptions> | undefined;
 	return {

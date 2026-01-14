@@ -130,12 +130,71 @@ describe('defineConfig()', () => {
 						[
 							'local',
 							FontProvider<never>,
-							FontProvider<GoogleFamilyOptions>,
-							FontProvider<GoogleiconsFamilyOptions>,
+							FontProvider<GoogleFamilyOptions | undefined>,
+							FontProvider<GoogleiconsFamilyOptions | undefined>,
 						]
 					>
 				>();
 			},
 		);
+	});
+
+	describe('it handles required/optional font provider options', () => {
+		defineConfig({
+			experimental: {
+				fonts: [
+					{
+						name: 'A',
+						cssVariable: '--font-a',
+						provider: 'local',
+						variants: [{ src: [''] }],
+					},
+					{
+						name: 'B',
+						cssVariable: '--font-b',
+						provider: {} as FontProvider<never>,
+					},
+					{
+						name: 'C',
+						cssVariable: '--font-c',
+						provider: {} as FontProvider<never>,
+						options: undefined,
+					},
+					{
+						name: 'D',
+						cssVariable: '--font-d',
+						provider: {} as FontProvider<{ foo?: string } | undefined>,
+					},
+					{
+						name: 'E',
+						cssVariable: '--font-e',
+						provider: {} as FontProvider<{ foo?: string } | undefined>,
+						options: undefined,
+					},
+					{
+						name: 'F',
+						cssVariable: '--font-f',
+						provider: {} as FontProvider<{ foo?: string } | undefined>,
+						options: {
+							foo: 'bar',
+						},
+					},
+					// @ts-expect-error options is required
+					{
+						name: 'G',
+						cssVariable: '--font-g',
+						provider: {} as FontProvider<{ foo?: string }>,
+					},
+					{
+						name: 'H',
+						cssVariable: '--font-h',
+						provider: {} as FontProvider<{ foo?: string }>,
+						options: {
+							foo: 'bar',
+						},
+					},
+				],
+			},
+		});
 	});
 });
