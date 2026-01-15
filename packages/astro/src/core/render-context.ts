@@ -12,12 +12,7 @@ import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, Props, RewritePayload } from '../types/public/common.js';
-import type {
-	APIContext,
-	AstroGlobal,
-	AstroGlobalPartial,
-	AstroSharedContextCsp,
-} from '../types/public/context.js';
+import type { APIContext, AstroGlobal, AstroGlobalPartial } from '../types/public/context.js';
 import type { RouteData, SSRResult } from '../types/public/internal.js';
 import type { SSRActions } from './app/types.js';
 import {
@@ -462,7 +457,7 @@ export class RenderContext {
 				}
 				return renderContext.session;
 			},
-			get csp(): AstroSharedContextCsp {
+			get csp(): APIContext['csp'] {
 				return {
 					insertDirective(payload) {
 						if (!pipeline.manifest.csp) {
@@ -739,7 +734,7 @@ export class RenderContext {
 			get originPathname() {
 				return getOriginPathname(renderContext.request);
 			},
-			get csp(): AstroSharedContextCsp {
+			get csp(): APIContext['csp'] {
 				return {
 					insertDirective(payload) {
 						if (!pipeline.manifest.csp) {

@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 9.0.3
+
+### Patch Changes
+
+- [#15116](https://github.com/withastro/astro/pull/15116) [`9fc4562`](https://github.com/withastro/astro/commit/9fc456273f3611007a5e7cebcc368700c2ac9893) Thanks [@Raanelom](https://github.com/Raanelom)! - Updates Node versions data to account for v24 as the default
+
 ## 9.0.2
 
 ### Patch Changes
