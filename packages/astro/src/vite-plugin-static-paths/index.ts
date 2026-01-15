@@ -1,8 +1,8 @@
 import type { Plugin } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
-export const ASTRO_STATIC_PATHS_MODULE_ID = 'astro:static-paths';
-export const ASTRO_STATIC_PATHS_RESOLVED_ID = '\0' + ASTRO_STATIC_PATHS_MODULE_ID;
+const ASTRO_STATIC_PATHS_MODULE_ID = 'astro:static-paths';
+const ASTRO_STATIC_PATHS_RESOLVED_ID = '\0' + ASTRO_STATIC_PATHS_MODULE_ID;
 
 /**
  * Virtual module that exposes getStaticPaths for prerendering.

@@ -2,7 +2,7 @@ import type { AstroPrerenderer, PathWithRoute } from '../../types/public/integra
 import type { RouteData } from '../../types/public/internal.js';
 import type { BuildInternals } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
-import { BuildApp } from './app.js';
+import type { BuildApp } from './app.js';
 import { StaticPaths } from '../../runtime/prerender/static-paths.js';
 
 interface DefaultPrerendererOptions {
