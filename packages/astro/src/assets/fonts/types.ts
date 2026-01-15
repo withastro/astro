@@ -76,10 +76,6 @@ export interface FamilyProperties {
 	unicodeRange?: [string, ...Array<string>] | undefined;
 }
 
-interface ResolvedFontFamilyAttributes {
-	nameWithHash: string;
-}
-
 type WithOptions<TFontProvider extends FontProvider> = TFontProvider extends FontProvider<
 	infer TFamilyOptions
 >
@@ -179,9 +175,8 @@ export type FontFamily<TFontProvider extends FontProvider = FontProvider> = Fami
 		optimizedFallbacks?: boolean | undefined;
 	};
 
-export interface ResolvedFontFamily
-	extends ResolvedFontFamilyAttributes,
-		Omit<FontFamily, 'weights'> {
+export interface ResolvedFontFamily extends Omit<FontFamily, 'weights'> {
+	uniqueName: string;
 	weights?: Array<string>;
 }
 
