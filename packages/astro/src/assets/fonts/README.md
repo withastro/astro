@@ -3,7 +3,7 @@
 Here is an overview of the architecture of the fonts in Astro:
 
 - [`orchestrate()`](./orchestrate.ts) combines sub steps and takes care of getting useful data from the config
-  - It resolves font families (eg. import remote font providers)
+  - It resolves font families (eg. deduplication)
   - It initializes the font resolver
   - For each family, it resolves fonts data and normalizes them
   - For each family, optimized fallbacks (and related CSS) are generated if applicable

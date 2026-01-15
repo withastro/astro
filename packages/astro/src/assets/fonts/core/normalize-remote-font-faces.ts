@@ -2,6 +2,7 @@ import type * as unifont from 'unifont';
 import { FONT_FORMATS } from '../constants.js';
 import type { FontTypeExtractor, UrlProxy } from '../definitions.js';
 
+// TODO: rename to normalizeFontFaces
 export function normalizeRemoteFontFaces({
 	fonts,
 	urlProxy,
