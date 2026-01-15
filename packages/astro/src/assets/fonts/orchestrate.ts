@@ -20,7 +20,6 @@ import type {
 	FontData,
 	FontFamily,
 	FontFileDataMap,
-	FontType,
 	InternalConsumableMap,
 	PreloadData,
 	ResolvedFontFamily,
@@ -35,7 +34,7 @@ type ResolvedFamiliesMap = Map<
 		/**
 		 * Holds a list of font files to be used for optimized fallbacks generation
 		 */
-		collectedFonts: Array<CollectedFontForMetrics>;
+		collectedFonts: Map<string, CollectedFontForMetrics>;
 		preloadData: Array<PreloadData>;
 	}
 >;
@@ -69,7 +68,7 @@ function getOrCreateResolvedFamilyData({
 		resolvedFamily = {
 			family,
 			fonts: [],
-			collectedFonts: [],
+			collectedFonts: new Map(),
 			preloadData: [],
 		};
 		resolvedFamiliesMap.set(key, resolvedFamily);
@@ -83,78 +82,132 @@ function filterAndTransformFonts({
 	fontFileIdGenerator,
 	urlResolver,
 	family,
-	storeData,
 }: {
 	fonts: Array<unifont.FontFaceData>;
 	fontTypeExtractor: FontTypeExtractor;
 	fontFileIdGenerator: FontFileIdGenerator;
 	urlResolver: UrlResolver;
-	family: Pick<ResolvedFontFamily, 'cssVariable' | 'fallbacks'>;
-	// TODO: better name
-	storeData: (data: {
-		id: string;
-		url: string;
-		init: RequestInit | undefined;
-		type: FontType;
-		weight: string | undefined;
-		style: string | undefined;
-		subset: string | undefined;
-		preload: boolean;
-	}) => void;
+	family: Pick<ResolvedFontFamily, 'cssVariable'>;
 }) {
 	return (
 		fonts
 			// Avoid getting too much font files
 			.filter((font) => (typeof font.meta?.priority === 'number' ? font.meta.priority <= 1 : true))
 			// Collect URLs
-			.map((font) => {
-				// The index keeps track of encountered URLs. We can't use the index on font.src.map
-				// below because it may contain sources without urls, which would prevent preloading completely
-				let index = 0;
-				return {
-					...font,
-					src: font.src.map((source) => {
-						if ('name' in source) {
-							return source;
-						}
-						// We handle protocol relative URLs here, otherwise they're considered absolute by the font
-						// fetcher which will try to read them from the file system
-						const originalUrl = source.url.startsWith('//') ? `https:${source.url}` : source.url;
-						const format = FONT_FORMATS.find((e) => e.format === source.format);
-						const type = format?.type ?? fontTypeExtractor.extract(source.url);
-						const id = fontFileIdGenerator.generate({
-							cssVariable: family.cssVariable,
-							font,
-							originalUrl,
-							type,
-						});
-						const url = urlResolver.resolve(id);
+			.map((font) => ({
+				...font,
+				src: font.src.map((source) => {
+					if ('name' in source) {
+						return source;
+					}
+					// We handle protocol relative URLs here, otherwise they're considered absolute by the font
+					// fetcher which will try to read them from the file system
+					const originalUrl = source.url.startsWith('//') ? `https:${source.url}` : source.url;
+					let format = FONT_FORMATS.find((e) => e.format === source.format);
+					if (!format) {
+						format = FONT_FORMATS.find((e) => e.type === fontTypeExtractor.extract(source.url))!;
+					}
+					const id = fontFileIdGenerator.generate({
+						cssVariable: family.cssVariable,
+						font,
+						originalUrl,
+						type: format.type,
+					});
+					const url = urlResolver.resolve(id);
 
-						storeData({
-							id,
-							url,
-							init: font.meta?.init,
-							type,
-							weight: renderFontWeight(font.weight),
-							style: font.style,
-							subset: font.meta?.subset,
-							// We only collect the first URL to avoid preloading fallback sources (eg. we only
-							// preload woff2 if woff is available)
-							preload: index === 0,
-						});
-
-						const proxied: unifont.RemoteFontSource = {
-							originalURL: originalUrl,
-							url,
-							format: format?.format,
-							tech: source.tech,
-						};
-						index++;
-						return proxied;
-					}),
-				};
-			})
+					return {
+						originalURL: originalUrl,
+						url,
+						format: format.format,
+						tech: source.tech,
+					} satisfies unifont.RemoteFontSource;
+				}),
+			}))
 	);
+}
+
+// TODO: find better name
+function collectData({
+	fonts,
+	fontFileIdGenerator,
+	family,
+	fontFilesIds,
+	collectedFontsIds,
+	hasher,
+}: {
+	fonts: Array<unifont.FontFaceData>;
+	fontFileIdGenerator: FontFileIdGenerator;
+	family: Pick<ResolvedFontFamily, 'cssVariable' | 'fallbacks'>;
+	fontFilesIds: Set<string>;
+	collectedFontsIds: Set<string>;
+	hasher: Hasher;
+}) {
+	const fontFiles: FontFileDataMap = new Map();
+	const collectedFonts = new Map<string, CollectedFontForMetrics>();
+	const preloadData: Array<PreloadData> = [];
+	// The index keeps track of encountered URLs. We can't use the index on font.src.map
+	// below because it may contain sources without urls, which would prevent preloading completely
+	let index = 0;
+
+	for (const font of fonts) {
+		for (const source of font.src) {
+			if ('name' in source) {
+				continue;
+			}
+			const format = FONT_FORMATS.find((e) => e.format === source.format)!;
+			const id = fontFileIdGenerator.generate({
+				cssVariable: family.cssVariable,
+				font,
+				originalUrl: source.originalURL!,
+				type: format.type,
+			});
+
+			if (!fontFilesIds.has(id) && !fontFiles.has(id)) {
+				fontFiles.set(id, { url: source.url, init: font.meta?.init });
+				// We only collect the first URL to avoid preloading fallback sources (eg. we only
+				// preload woff2 if woff is available)
+				if (index === 0) {
+					preloadData.push({
+						style: font.meta?.subset,
+						subset: font.meta?.subset,
+						type: format.type,
+						url: source.url,
+						weight: renderFontWeight(font.weight),
+					});
+				}
+			}
+
+			const collected: CollectedFontForMetrics = {
+				hash: id,
+				url: source.url,
+				init: font.meta?.init,
+				data: {
+					weight: font.weight,
+					style: font.style,
+					meta: {
+						subset: font.meta?.subset,
+					},
+				},
+			};
+			const collectedHash = hasher.hashObject(collected.data);
+			if (
+				family.fallbacks &&
+				family.fallbacks.length > 0 &&
+				// If the same data has already been sent for this family, we don't want to have
+				// duplicated fallbacks. Such scenario can occur with unicode ranges.
+				!collectedFontsIds.has(collectedHash) &&
+				!collectedFonts.has(collectedHash)
+			) {
+				// If a family has fallbacks, we store the first url we get that may
+				// be used for the fallback generation.
+				collectedFonts.set(collectedHash, collected);
+			}
+
+			index++;
+		}
+	}
+
+	return { fontFiles, preloadData, collectedFonts };
 }
 
 async function resolveFamilies({
@@ -167,6 +220,7 @@ async function resolveFamilies({
 	fontTypeExtractor,
 	fontFileIdGenerator,
 	urlResolver,
+	hasher,
 }: {
 	resolvedFamilies: Array<ResolvedFontFamily>;
 	fontResolver: FontResolver;
@@ -177,6 +231,7 @@ async function resolveFamilies({
 	fontTypeExtractor: FontTypeExtractor;
 	fontFileIdGenerator: FontFileIdGenerator;
 	urlResolver: UrlResolver;
+	hasher: Hasher;
 }) {
 	/**
 	 * Holds family data by a key, to allow merging families
@@ -233,46 +288,23 @@ async function resolveFamilies({
 			fontFileIdGenerator,
 			fontTypeExtractor,
 			urlResolver,
-			storeData: ({ id, init, preload, style, subset, type, url, weight }) => {
-				if (!fontFileDataMap.has(id)) {
-					fontFileDataMap.set(id, { url, init });
-					if (preload) {
-						resolvedFamily.preloadData.push({
-							style,
-							subset,
-							type,
-							url,
-							weight,
-						});
-					}
-				}
-				const collected: CollectedFontForMetrics = {
-					hash: id,
-					url,
-					init,
-					data: {
-						weight,
-						style,
-						meta: {
-							subset,
-						},
-					},
-				};
-				if (
-					family.fallbacks &&
-					family.fallbacks.length > 0 &&
-					// If the same data has already been sent for this family, we don't want to have
-					// duplicated fallbacks. Such scenario can occur with unicode ranges.
-					!resolvedFamily.collectedFonts.some(
-						(f) => JSON.stringify(f.data) === JSON.stringify(collected.data),
-					)
-				) {
-					// If a family has fallbacks, we store the first url we get that may
-					// be used for the fallback generation.
-					resolvedFamily.collectedFonts.push(collected);
-				}
-			},
 		});
+
+		const result = collectData({
+			fonts,
+			family,
+			fontFileIdGenerator,
+			fontFilesIds: new Set(fontFileDataMap.keys()),
+			collectedFontsIds: new Set(resolvedFamily.collectedFonts.keys()),
+			hasher,
+		});
+		for (const [key, value] of result.fontFiles.entries()) {
+			fontFileDataMap.set(key, value);
+		}
+		for (const [key, value] of result.collectedFonts.entries()) {
+			resolvedFamily.collectedFonts.set(key, value);
+		}
+		resolvedFamily.preloadData.push(...result.preloadData);
 	}
 
 	return { resolvedFamiliesMap, fontFileDataMap };
@@ -348,6 +380,7 @@ export async function orchestrate({
 		fontTypeExtractor,
 		stringMatcher,
 		urlResolver,
+		hasher,
 	});
 
 	// We know about all the families, let's generate css, fallbacks and more
@@ -389,7 +422,7 @@ export async function orchestrate({
 		const optimizeFallbacksResult = await optimizeFallbacks({
 			family,
 			fallbacks,
-			collectedFonts,
+			collectedFonts: Array.from(collectedFonts.values()),
 			enabled: family.optimizedFallbacks ?? defaults.optimizedFallbacks ?? false,
 			systemFallbacksProvider,
 			fontMetricsResolver,
