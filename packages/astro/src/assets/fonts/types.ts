@@ -216,7 +216,7 @@ export type Defaults = Required<
 export interface FontFileData {
 	hash: string;
 	url: string;
-	init: RequestInit | null;
+	init: RequestInit | undefined;
 }
 
 export interface CreateUrlProxyParams {
