@@ -1,13 +1,10 @@
-import type { Logger } from '../../core/logger/core.js';
 import type { computeFontFamiliesAssets as _computeFontFamiliesAssets } from './core/compute-font-families-assets.js';
 import { optimizeFallbacks } from './core/optimize-fallbacks.js';
 import { resolveFamily } from './core/resolve-family.js';
 import type {
 	CssRenderer,
 	FontMetricsResolver,
-	FontResolver,
 	Hasher,
-	StringMatcher,
 	SystemFallbacksProvider,
 } from './definitions.js';
 import type {
@@ -18,7 +15,6 @@ import type {
 	FontFamily,
 	FontFileById,
 	InternalConsumableMap,
-	ResolvedFontFamily,
 } from './types.js';
 import { renderFontWeight, unifontFontFaceDataToProperties } from './utils.js';
 
@@ -45,11 +41,7 @@ export async function orchestrate({
 	cssRenderer,
 	systemFallbacksProvider,
 	fontMetricsResolver,
-	logger,
 	defaults,
-	bold,
-	stringMatcher,
-	createFontResolver,
 	computeFontFamiliesAssets,
 }: {
 	families: Array<FontFamily>;
@@ -57,11 +49,7 @@ export async function orchestrate({
 	cssRenderer: CssRenderer;
 	systemFallbacksProvider: SystemFallbacksProvider;
 	fontMetricsResolver: FontMetricsResolver;
-	logger: Logger;
 	defaults: Defaults;
-	bold: (input: string) => string;
-	stringMatcher: StringMatcher;
-	createFontResolver: (params: { families: Array<ResolvedFontFamily> }) => Promise<FontResolver>;
 	computeFontFamiliesAssets: Collaborator<
 		typeof _computeFontFamiliesAssets,
 		'resolvedFamilies' | 'defaults'
@@ -74,14 +62,7 @@ export async function orchestrate({
 	const resolvedFamilies = families.map((family) => resolveFamily({ family, hasher }));
 	const { fontFamilyAssetsByUniqueKey, fontFileById } = await computeFontFamiliesAssets({
 		resolvedFamilies,
-		fontResolver: await createFontResolver({ families: resolvedFamilies }),
-		logger,
-		bold,
 		defaults,
-		stringMatcher,
-		collectFontAssetsFromFaces,
-		filterAndTransformFontFaces,
-		getOrCreateFontFamilyAssets,
 	});
 
 	/**

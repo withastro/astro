@@ -19,6 +19,10 @@ import {
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './constants.js';
+import { collectFontAssetsFromFaces } from './core/collect-font-assets-from-faces.js';
+import { computeFontFamiliesAssets } from './core/compute-font-families-assets.js';
+import { filterAndTransformFontFaces } from './core/filter-and-transform-font-faces.js';
+import { getOrCreateFontFamilyAssets } from './core/get-or-create-font-family-assets.js';
 import type { FontFetcher, FontTypeExtractor } from './definitions.js';
 import { BuildFontFileIdGenerator } from './infra/build-font-file-id-generator.js';
 import { BuildUrlResolver } from './infra/build-url-resolver.js';
@@ -127,27 +131,53 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 						hasher,
 						contentResolver,
 					});
+			const { bold } = colors;
 
 			const res = await orchestrate({
 				families: settings.config.experimental.fonts as Array<FontFamily>,
 				hasher,
-				createFontResolver: async ({ families }) =>
-					await UnifontFontResolver.create({
-						families,
-						hasher,
-						storage,
-						root,
+				computeFontFamiliesAssets: async ({ defaults, resolvedFamilies }) =>
+					await computeFontFamiliesAssets({
+						defaults,
+						resolvedFamilies,
+						bold,
+						logger,
+						stringMatcher,
+						fontResolver: await UnifontFontResolver.create({
+							families: resolvedFamilies,
+							hasher,
+							storage,
+							root,
+						}),
+						getOrCreateFontFamilyAssets: ({ family, fontFamilyAssetsByUniqueKey }) =>
+							getOrCreateFontFamilyAssets({
+								family,
+								fontFamilyAssetsByUniqueKey,
+								bold,
+								logger,
+							}),
+						filterAndTransformFontFaces: ({ family, fonts }) =>
+							filterAndTransformFontFaces({
+								family,
+								fonts,
+								fontFileIdGenerator,
+								fontTypeExtractor: fontTypeExtractor!,
+								urlResolver,
+							}),
+						collectFontAssetsFromFaces: ({ collectedFontsIds, family, fontFilesIds, fonts }) =>
+							collectFontAssetsFromFaces({
+								collectedFontsIds,
+								family,
+								fontFilesIds,
+								fonts,
+								fontFileIdGenerator,
+								hasher,
+							}),
 					}),
 				cssRenderer,
 				systemFallbacksProvider,
 				fontMetricsResolver,
-				fontTypeExtractor,
-				logger,
-				fontFileIdGenerator,
-				urlResolver,
 				defaults: DEFAULTS,
-				bold: colors.bold,
-				stringMatcher,
 			});
 			// We initialize shared variables here and reset them in buildEnd
 			// to avoid locking memory
