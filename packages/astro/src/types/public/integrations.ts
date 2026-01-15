@@ -146,6 +146,32 @@ export interface AstroAdapter {
 	client?: AstroAdapterClientConfig;
 }
 
+/**
+ * Custom prerenderer that adapters can provide to control how pages are prerendered.
+ * Allows non-Node runtimes (e.g., workerd) to handle prerendering.
+ */
+export interface AstroPrerenderer {
+	name: string;
+	/**
+	 * Called once before prerendering starts. Use for setup like starting a preview server.
+	 */
+	setup?: () => Promise<void>;
+	/**
+	 * Returns pathnames to prerender. The prerenderer calls into its runtime which has access
+	 * to the manifest and runs getStaticPaths internally.
+	 */
+	getStaticPaths: () => Promise<string[]>;
+	/**
+	 * Renders a single page. Called by Astro for each pathname returned by getStaticPaths.
+	 * @param request - The request to render
+	 */
+	render: (request: Request) => Promise<Response>;
+	/**
+	 * Called after all pages are prerendered. Use for cleanup like stopping a preview server.
+	 */
+	teardown?: () => Promise<void>;
+}
+
 export type AstroAdapterFeatureMap = {
 	/**
 	 * The adapter is able to serve static pages
@@ -246,7 +272,10 @@ export interface BaseIntegrationHooks {
 		middlewareEntryPoint: URL | undefined;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
-	'astro:build:start': (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
+	'astro:build:start': (options: {
+		logger: AstroIntegrationLogger;
+		setPrerenderer: (prerenderer: AstroPrerenderer | (() => AstroPrerenderer)) => void;
+	}) => void | Promise<void>;
 	'astro:build:setup': (options: {
 		vite: ViteInlineConfig;
 		pages: Map<string, PageBuildData>;
