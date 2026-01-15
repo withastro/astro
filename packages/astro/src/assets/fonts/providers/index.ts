@@ -5,7 +5,10 @@ import {
 	type InitializedProvider,
 	providers,
 } from 'unifont';
+import { RealFontTypeExtractor } from '../infra/font-type-extractor.js';
+import { FontaceFontFileReader } from '../infra/fontace-font-file-reader.js';
 import type { FontProvider } from '../types.js';
+import { LocalFontProvider } from './local.js';
 
 /** [Adobe](https://fonts.adobe.com/) */
 function adobe(config: AdobeProviderOptions): FontProvider {
@@ -116,14 +119,23 @@ function googleicons(): FontProvider<GoogleiconsFamilyOptions | undefined> {
 	};
 }
 
+/** TODO: */
+function local() {
+	return new LocalFontProvider({
+		fontFileReader: new FontaceFontFileReader(),
+		fontTypeExtractor: new RealFontTypeExtractor(),
+	});
+}
+
 /**
- * Astro re-exports most [unifont](https://github.com/unjs/unifont/) providers:
+ * Astro exports a few built-in providers:
  * - [Adobe](https://fonts.adobe.com/)
  * - [Bunny](https://fonts.bunny.net/)
  * - [Fontshare](https://www.fontshare.com/)
  * - [Fontsource](https://fontsource.org/)
  * - [Google](https://fonts.google.com/)
  * - [Google Icons](https://fonts.google.com/icons)
+ * - Local
  */
 export const fontProviders = {
 	adobe,
@@ -132,4 +144,5 @@ export const fontProviders = {
 	fontsource,
 	google,
 	googleicons,
+	local,
 };
