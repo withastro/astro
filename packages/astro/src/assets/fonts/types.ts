@@ -231,7 +231,7 @@ export interface CreateUrlProxyParams {
  * Holds associations of hash and original font file URLs, so they can be
  * downloaded whenever the hash is requested.
  */
-export type FontFileDataMap = Map<FontFileData['hash'], Pick<FontFileData, 'url' | 'init'>>;
+export type FontFileById = Map<FontFileData['hash'], Pick<FontFileData, 'url' | 'init'>>;
 
 /**
  * Holds associations of CSS variables and preloadData/css to be passed to the internal virtual module.
@@ -267,3 +267,16 @@ export interface ResolveFontOptions<
 }
 
 export type CssProperties = Record<string, string | undefined>;
+
+export type FontFamilyAssetsByUniqueKey = Map<
+	string,
+	{
+		family: ResolvedFontFamily;
+		fonts: Array<unifont.FontFaceData>;
+		/**
+		 * Holds a list of font files to be used for optimized fallbacks generation
+		 */
+		collectedFontsForMetricsByUniqueKey: Map<string, CollectedFontForMetrics>;
+		preloads: Array<PreloadData>;
+	}
+>;

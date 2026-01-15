@@ -1,0 +1,93 @@
+import type * as unifont from 'unifont';
+import { FONT_FORMATS } from '../constants.js';
+import type { FontFileIdGenerator, Hasher } from '../definitions.js';
+import type { FontFileById, PreloadData, ResolvedFontFamily } from '../types.js';
+import { renderFontWeight } from '../utils.js';
+import type { CollectedFontForMetrics } from './optimize-fallbacks.js';
+
+export function collectFontAssetsFromFaces({
+	fonts,
+	fontFileIdGenerator,
+	family,
+	fontFilesIds,
+	collectedFontsIds,
+	hasher,
+}: {
+	fonts: Array<unifont.FontFaceData>;
+	fontFileIdGenerator: FontFileIdGenerator;
+	family: Pick<ResolvedFontFamily, 'cssVariable' | 'fallbacks'>;
+	fontFilesIds: Set<string>;
+	collectedFontsIds: Set<string>;
+	hasher: Hasher;
+}) {
+	const fontFileById: FontFileById = new Map();
+	const collectedFontsForMetricsByUniqueKey = new Map<string, CollectedFontForMetrics>();
+	const preloads: Array<PreloadData> = [];
+	// The index keeps track of encountered URLs. We can't use the index on font.src.map
+	// below because it may contain sources without urls, which would prevent preloading completely
+	let index = 0;
+
+	for (const font of fonts) {
+		for (const source of font.src) {
+			if ('name' in source) {
+				continue;
+			}
+			const format = FONT_FORMATS.find((e) => e.format === source.format)!;
+			const id = fontFileIdGenerator.generate({
+				cssVariable: family.cssVariable,
+				font,
+				originalUrl: source.originalURL!,
+				type: format.type,
+			});
+
+			if (!fontFilesIds.has(id) && !fontFileById.has(id)) {
+				fontFileById.set(id, { url: source.url, init: font.meta?.init });
+				// We only collect the first URL to avoid preloading fallback sources (eg. we only
+				// preload woff2 if woff is available)
+				if (index === 0) {
+					preloads.push({
+						style: font.meta?.subset,
+						subset: font.meta?.subset,
+						type: format.type,
+						url: source.url,
+						weight: renderFontWeight(font.weight),
+					});
+				}
+			}
+
+			const collected: CollectedFontForMetrics = {
+				hash: id,
+				url: source.url,
+				init: font.meta?.init,
+				data: {
+					weight: font.weight,
+					style: font.style,
+					meta: {
+						subset: font.meta?.subset,
+					},
+				},
+			};
+			const collectedKey = hasher.hashObject(collected.data);
+			if (
+				family.fallbacks &&
+				family.fallbacks.length > 0 &&
+				// If the same data has already been sent for this family, we don't want to have
+				// duplicated fallbacks. Such scenario can occur with unicode ranges.
+				!collectedFontsIds.has(collectedKey) &&
+				!collectedFontsForMetricsByUniqueKey.has(collectedKey)
+			) {
+				// If a family has fallbacks, we store the first url we get that may
+				// be used for the fallback generation.
+				collectedFontsForMetricsByUniqueKey.set(collectedKey, collected);
+			}
+
+			index++;
+		}
+	}
+
+	return {
+		fontFileById,
+		preloads,
+		collectedFontsForMetricsByUniqueKey,
+	};
+}
