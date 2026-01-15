@@ -30,6 +30,8 @@ export default async function test() {
 			teardown: { type: 'string' },
 			// Use tsx to run the tests,
 			tsx: { type: 'boolean' },
+			// Configures the test runner to exit the process once all known tests have finished executing even if the event loop would otherwise remain active
+			'force-exit': { type: 'boolean' },
 			// Test teardown file to include in the test files list
 			'teardown-test': { type: 'string' },
 		},
@@ -96,6 +98,7 @@ export default async function test() {
 		setup: setupModule?.default,
 		watch: args.values.watch,
 		timeout: args.values.timeout ? Number(args.values.timeout) : defaultTimeout, // Node.js defaults to Infinity, so set better fallback
+		forceExit: args.values['force-exit'],
 	})
 		.on('test:fail', () => {
 			// For some reason, a test fail using the JS API does not set an exit code of 1,
