@@ -30,14 +30,13 @@ export function normalizeRemoteFontFaces({
 						// We handle protocol relative URLs here, otherwise they're considered absolute by the font
 						// fetcher which will try to read them from the file system
 						const url = source.url.startsWith('//') ? `https:${source.url}` : source.url;
-						const proxied = {
-							...source,
+						const format = FONT_FORMATS.find((e) => e.format === source.format);
+
+						const proxied: unifont.RemoteFontSource = {
 							originalURL: url,
 							url: urlProxy.proxy({
 								url,
-								type:
-									FONT_FORMATS.find((e) => e.format === source.format)?.type ??
-									fontTypeExtractor.extract(source.url),
+								type: format?.type ?? fontTypeExtractor.extract(source.url),
 								// We only collect the first URL to avoid preloading fallback sources (eg. we only
 								// preload woff2 if woff is available)
 								collectPreload: index === 0,
@@ -48,6 +47,8 @@ export function normalizeRemoteFontFaces({
 								},
 								init: font.meta?.init ?? null,
 							}),
+							format: format?.format,
+							tech: source.tech,
 						};
 						index++;
 						return proxied;

@@ -1,8 +1,7 @@
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type * as unifont from 'unifont';
-import { FONT_FORMATS } from '../constants.js';
-import type { FontFileReader, FontTypeExtractor } from '../definitions.js';
+import type { FontFileReader } from '../definitions.js';
 import type {
 	FamilyProperties,
 	FontProvider,
@@ -43,19 +42,15 @@ export class LocalFontProvider implements FontProvider<FamilyOptions> {
 	config?: Record<string, any> | undefined;
 
 	#fontFileReader: FontFileReader;
-	#fontTypeExtractor: FontTypeExtractor;
 	#root: URL | undefined;
 
 	constructor({
 		fontFileReader,
-		fontTypeExtractor,
 	}: {
 		fontFileReader: FontFileReader;
-		fontTypeExtractor: FontTypeExtractor;
 	}) {
 		this.config = undefined;
 		this.#fontFileReader = fontFileReader;
-		this.#fontTypeExtractor = fontTypeExtractor;
 		this.#root = undefined;
 	}
 
@@ -117,28 +112,7 @@ export class LocalFontProvider implements FontProvider<FamilyOptions> {
 						if (variant.style === undefined) data.style = result.style;
 					}
 
-					const type = this.#fontTypeExtractor.extract(source.url);
-
-					return {
-						originalURL: source.url,
-						// TODO: proxy will move somewhere else
-						// @ts-expect-error
-						url: urlProxy.proxy({
-							url: source.url,
-							type,
-							// We only use the first source for preloading. For example if woff2 and woff
-							// are available, we only keep woff2.
-							collectPreload: index === 0,
-							data: {
-								weight: data.weight,
-								style: data.style,
-								subset: undefined,
-							},
-							init: null,
-						}),
-						format: FONT_FORMATS.find((e) => e.type === type)?.format,
-						tech: source.tech,
-					};
+					return source;
 				});
 				return data;
 			}),

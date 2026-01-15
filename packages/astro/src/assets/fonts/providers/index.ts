@@ -5,7 +5,6 @@ import {
 	type InitializedProvider,
 	providers,
 } from 'unifont';
-import { RealFontTypeExtractor } from '../infra/font-type-extractor.js';
 import { FontaceFontFileReader } from '../infra/fontace-font-file-reader.js';
 import type { FontProvider } from '../types.js';
 import { LocalFontProvider } from './local.js';
@@ -123,7 +122,6 @@ function googleicons(): FontProvider<GoogleiconsFamilyOptions | undefined> {
 function local() {
 	return new LocalFontProvider({
 		fontFileReader: new FontaceFontFileReader(),
-		fontTypeExtractor: new RealFontTypeExtractor(),
 	});
 }
 
