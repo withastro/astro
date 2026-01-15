@@ -2,7 +2,7 @@ import type * as unifont from 'unifont';
 import type { Logger } from '../../core/logger/core.js';
 import { FONT_FORMATS } from './constants.js';
 import { type CollectedFontForMetrics, optimizeFallbacks } from './core/optimize-fallbacks.js';
-import { resolveFamilies } from './core/resolve-families.js';
+import { resolveFamily } from './core/resolve-family.js';
 import type {
 	CssRenderer,
 	FontFileIdGenerator,
@@ -78,10 +78,7 @@ export async function orchestrate({
 	internalConsumableMap: InternalConsumableMap;
 	consumableMap: ConsumableMap;
 }> {
-	const resolvedFamilies = resolveFamilies({
-		families,
-		hasher,
-	});
+	const resolvedFamilies = families.map((family) => resolveFamily({ family, hasher }));
 
 	const fontResolver = await createFontResolver({ families: resolvedFamilies });
 
@@ -265,7 +262,7 @@ export async function orchestrate({
 
 		for (const data of fonts) {
 			css += cssRenderer.generateFontFace(
-				family.nameWithHash,
+				family.uniqueName,
 				unifontFontFaceDataToProperties({
 					src: data.src,
 					weight: data.weight,
@@ -292,7 +289,7 @@ export async function orchestrate({
 			});
 		}
 
-		const cssVarValues = [family.nameWithHash];
+		const cssVarValues = [family.uniqueName];
 		const optimizeFallbacksResult = await optimizeFallbacks({
 			family,
 			fallbacks,
