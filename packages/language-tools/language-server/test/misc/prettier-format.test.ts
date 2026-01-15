@@ -55,4 +55,26 @@ describe('Formatting - Prettier', () => {
 			},
 		]);
 	});
+
+	it('Respects trailingComma=all for multiline function params', async () => {
+		const document = await languageServer.handle.openTextDocument(
+			path.join(fixtureDir, 'trailing-comma', 'trailing.astro'),
+			'astro',
+		);
+		const formatEdits = await languageServer.handle.sendDocumentFormattingRequest(document.uri, {
+			tabSize: 2,
+			insertSpaces: true,
+		});
+
+		assert.ok(formatEdits);
+		assert.strictEqual(formatEdits?.[0]?.newText, [
+			'{',
+			'  someReallyLongNameThatIsVeryLongAndShouldWrap(',
+			'    aVeryLongParameterNameToForceWrapOne,',
+			'    anotherVeryLongParameterNameToForceWrapTwo,',
+			'  )',
+			'}',
+			'',
+		].join('\n'));
+	});
 });
