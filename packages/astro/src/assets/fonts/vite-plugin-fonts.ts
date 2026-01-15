@@ -35,9 +35,9 @@ import { CapsizeFontMetricsResolver } from './infra/capsize-font-metrics-resolve
 import { DevUrlProxyHashResolver } from './infra/dev-url-proxy-hash-resolver.js';
 import { DevUrlResolver } from './infra/dev-url-resolver.js';
 import { RealFontTypeExtractor } from './infra/font-type-extractor.js';
+import { FsUrlProxyContentResolver } from './infra/fs-url-proxy-content-resolver.js';
 import { LevenshteinStringMatcher } from './infra/levenshtein-string-matcher.js';
 import { MinifiableCssRenderer } from './infra/minifiable-css-renderer.js';
-import { RemoteUrlProxyContentResolver } from './infra/remote-url-proxy-content-resolver.js';
 import { RealSystemFallbacksProvider } from './infra/system-fallbacks-provider.js';
 import { UnifontFontResolver } from './infra/unifont-font-resolver.js';
 import { UnstorageFsStorage } from './infra/unstorage-fs-storage.js';
@@ -136,7 +136,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			logger,
 			hashResolver: createHashResolver({
 				hasher,
-				contentResolver: new RemoteUrlProxyContentResolver(),
+				contentResolver: new FsUrlProxyContentResolver(),
 			}),
 			urlResolver,
 			defaults: DEFAULTS,
