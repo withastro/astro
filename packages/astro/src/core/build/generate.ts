@@ -19,11 +19,12 @@ import type { AstroConfig } from '../../types/public/config.js';
 import type { Logger } from '../logger/core.js';
 import type { AstroPrerenderer, RouteToHeaders } from '../../types/public/index.js';
 import type { RouteData, RouteType, SSRError } from '../../types/public/internal.js';
-import { AstroError } from '../errors/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getRedirectLocationOrThrow } from '../redirects/index.js';
 import { createRequest } from '../request.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { routeIsRedirect } from '../routing/helpers.js';
+import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
@@ -73,19 +74,64 @@ export async function generatePages(
 	const pathsWithRoutes = await prerenderer.getStaticPaths();
 	const routeToHeaders: RouteToHeaders = new Map();
 
-	// Generate each path
+	// Filter paths for conflicts (same path from multiple routes)
 	const { config } = options.settings;
+	const builtPaths = new Set<string>();
+	const filteredPaths = pathsWithRoutes.filter(({ pathname, route }) => {
+		const normalized = removeTrailingForwardSlash(pathname);
+
+		// Path hasn't been built yet, include it
+		if (!builtPaths.has(normalized)) {
+			builtPaths.add(normalized);
+			return true;
+		}
+
+		// Path was already built. Check if this route has higher priority.
+		const matchedRoute = matchRoute(decodeURI(pathname), options.routesList);
+		if (!matchedRoute) {
+			return false;
+		}
+
+		if (matchedRoute === route) {
+			// Current route is higher-priority. Include it for building.
+			return true;
+		}
+
+		// Current route is lower-priority. Warn or error based on config.
+		if (config.prerenderConflictBehavior === 'error') {
+			throw new AstroError({
+				...AstroErrorData.PrerenderRouteConflict,
+				message: AstroErrorData.PrerenderRouteConflict.message(
+					matchedRoute.route,
+					route.route,
+					normalized,
+				),
+				hint: AstroErrorData.PrerenderRouteConflict.hint(matchedRoute.route, route.route),
+			});
+		} else if (config.prerenderConflictBehavior === 'warn') {
+			const msg = AstroErrorData.PrerenderRouteConflict.message(
+				matchedRoute.route,
+				route.route,
+				normalized,
+			);
+			logger.warn('build', msg);
+		}
+
+		return false;
+	});
+
+	// Generate each path
 	if (config.build.concurrency > 1) {
 		const limit = PLimit(config.build.concurrency);
 		const promises: Promise<void>[] = [];
-		for (const { pathname, route } of pathsWithRoutes) {
+		for (const { pathname, route } of filteredPaths) {
 			promises.push(
 				limit(() => generatePathWithPrerenderer(prerenderer, pathname, route, options, routeToHeaders, logger)),
 			);
 		}
 		await Promise.all(promises);
 	} else {
-		for (const { pathname, route } of pathsWithRoutes) {
+		for (const { pathname, route } of filteredPaths) {
 			await generatePathWithPrerenderer(prerenderer, pathname, route, options, routeToHeaders, logger);
 		}
 	}

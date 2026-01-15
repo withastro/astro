@@ -27,7 +27,6 @@ export interface StaticPathsApp {
  */
 export class StaticPaths {
 	#app: StaticPathsApp;
-	#builtPaths = new Set<string>();
 
 	constructor(app: StaticPathsApp) {
 		this.#app = app;
@@ -77,6 +76,7 @@ export class StaticPaths {
 
 	/**
 	 * Get paths for a single route.
+	 * Note: Does not filter duplicates - that's handled by generate.ts with conflict detection.
 	 */
 	async #getPathsForRoute(route: RouteData): Promise<PathWithRoute[]> {
 		const paths: PathWithRoute[] = [];
@@ -86,7 +86,6 @@ export class StaticPaths {
 		// Static route - single pathname
 		if (route.pathname) {
 			paths.push({ pathname: route.pathname, route });
-			this.#builtPaths.add(removeTrailingForwardSlash(route.pathname));
 			return paths;
 		}
 
@@ -116,12 +115,6 @@ export class StaticPaths {
 		// Convert params to pathnames using stringifyParams
 		for (const staticPath of staticPaths) {
 			const pathname = stringifyParams(staticPath.params, route, manifest.trailingSlash);
-			const normalized = removeTrailingForwardSlash(pathname);
-			// Skip if already built
-			if (this.#builtPaths.has(normalized)) {
-				continue;
-			}
-			this.#builtPaths.add(normalized);
 			paths.push({ pathname, route });
 		}
 
@@ -137,8 +130,4 @@ function* eachRouteInRouteData(route: RouteData): Generator<RouteData> {
 	for (const fallbackRoute of route.fallbackRoutes) {
 		yield fallbackRoute;
 	}
-}
-
-function removeTrailingForwardSlash(path: string): string {
-	return path.endsWith('/') ? path.slice(0, -1) : path;
 }
