@@ -67,8 +67,8 @@ export interface FontFileReader {
 	};
 }
 
-export interface UrlProxyHashResolver {
-	resolve: (input: {
+export interface FontFileIdGenerator {
+	generate: (input: {
 		originalUrl: string;
 		type: FontType;
 		cssVariable: string;

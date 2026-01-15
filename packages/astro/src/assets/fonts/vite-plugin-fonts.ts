@@ -20,19 +20,14 @@ import {
 	VIRTUAL_MODULE_ID,
 } from './constants.js';
 import type {
-	CssRenderer,
 	FontFetcher,
-	FontTypeExtractor,
-	Hasher,
-	UrlProxyContentResolver,
-	UrlProxyHashResolver,
-	UrlResolver,
+	FontTypeExtractor
 } from './definitions.js';
-import { BuildUrlProxyHashResolver } from './infra/build-url-proxy-hash-resolver.js';
+import { BuildFontFileIdGenerator } from './infra/build-font-file-id-generator.js';
 import { BuildUrlResolver } from './infra/build-url-resolver.js';
 import { CachedFontFetcher } from './infra/cached-font-fetcher.js';
 import { CapsizeFontMetricsResolver } from './infra/capsize-font-metrics-resolver.js';
-import { DevUrlProxyHashResolver } from './infra/dev-url-proxy-hash-resolver.js';
+import { DevFontFileIdGenerator } from './infra/dev-font-file-id-generator.js';
 import { DevUrlResolver } from './infra/dev-url-resolver.js';
 import { RealFontTypeExtractor } from './infra/font-type-extractor.js';
 import { FsUrlProxyContentResolver } from './infra/fs-url-proxy-content-resolver.js';
@@ -94,103 +89,85 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		fontFetcher = null;
 	};
 
-	async function initialize({
-		cacheDir,
-		cssRenderer,
-		urlResolver,
-		createHashResolver,
-	}: {
-		cacheDir: URL;
-		cssRenderer: CssRenderer;
-		urlResolver: UrlResolver;
-		createHashResolver: (dependencies: {
-			hasher: Hasher;
-			contentResolver: UrlProxyContentResolver;
-		}) => UrlProxyHashResolver;
-	}) {
-		const { root } = settings.config;
-		// Dependencies. Once extracted to a dedicated vite plugin, those may be passed as
-		// a Vite plugin option.
-		const hasher = await XxhashHasher.create();
-		const storage = new UnstorageFsStorage({ base: cacheDir });
-		const systemFallbacksProvider = new RealSystemFallbacksProvider();
-		fontFetcher = new CachedFontFetcher({ storage, fetch, readFile });
-		const fontMetricsResolver = new CapsizeFontMetricsResolver({ fontFetcher, cssRenderer });
-		fontTypeExtractor = new RealFontTypeExtractor();
-		const stringMatcher = new LevenshteinStringMatcher();
-
-		const res = await orchestrate({
-			families: settings.config.experimental.fonts as Array<FontFamily>,
-			hasher,
-			createFontResolver: async ({ families }) =>
-				await UnifontFontResolver.create({
-					families,
-					hasher,
-					storage,
-					root,
-				}),
-			cssRenderer,
-			systemFallbacksProvider,
-			fontMetricsResolver,
-			fontTypeExtractor,
-			logger,
-			hashResolver: createHashResolver({
-				hasher,
-				contentResolver: new FsUrlProxyContentResolver(),
-			}),
-			urlResolver,
-			defaults: DEFAULTS,
-			bold: colors.bold,
-			stringMatcher,
-		});
-		// We initialize shared variables here and reset them in buildEnd
-		// to avoid locking memory
-		fontFileDataMap = res.fontFileDataMap;
-		internalConsumableMap = res.internalConsumableMap;
-		consumableMap = res.consumableMap;
-
-		// Handle CSP
-		if (shouldTrackCspHashes(settings.config.experimental.csp)) {
-			const algorithm = getAlgorithm(settings.config.experimental.csp);
-
-			// Generate a hash for each style we generate
-			for (const { css } of internalConsumableMap.values()) {
-				settings.injectedCsp.styleHashes.push(await generateCspDigest(css, algorithm));
-			}
-			for (const resource of urlResolver.cspResources) {
-				settings.injectedCsp.fontResources.add(resource);
-			}
-		}
-	}
-
 	return {
 		name: 'astro:fonts',
 		config(_, { command }) {
 			isBuild = command === 'build';
 		},
 		async buildStart() {
-			if (isBuild) {
-				await initialize({
-					cacheDir: new URL(CACHE_DIR, settings.config.cacheDir),
-					cssRenderer: new MinifiableCssRenderer({ minify: true }),
-					urlResolver: new BuildUrlResolver({
+			const { root } = settings.config;
+			// Dependencies. Once extracted to a dedicated vite plugin, those may be passed as
+			// a Vite plugin option.
+			const hasher = await XxhashHasher.create();
+			const storage = new UnstorageFsStorage({
+				// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
+				base: new URL(CACHE_DIR, isBuild ? settings.config.cacheDir : settings.dotAstroDir),
+			});
+			const systemFallbacksProvider = new RealSystemFallbacksProvider();
+			fontFetcher = new CachedFontFetcher({ storage, fetch, readFile });
+			const cssRenderer = new MinifiableCssRenderer({ minify: isBuild });
+			const fontMetricsResolver = new CapsizeFontMetricsResolver({ fontFetcher, cssRenderer });
+			fontTypeExtractor = new RealFontTypeExtractor();
+			const stringMatcher = new LevenshteinStringMatcher();
+			const urlResolver = isBuild
+				? new BuildUrlResolver({
 						base: baseUrl,
 						assetsPrefix: settings.config.build.assetsPrefix,
 						searchParams: settings.adapter?.client?.assetQueryParams ?? new URLSearchParams(),
-					}),
-					createHashResolver: (dependencies) => new BuildUrlProxyHashResolver(dependencies),
-				});
-			} else {
-				await initialize({
-					// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
-					cacheDir: new URL(CACHE_DIR, settings.dotAstroDir),
-					cssRenderer: new MinifiableCssRenderer({ minify: false }),
-					urlResolver: new DevUrlResolver({
+					})
+				: new DevUrlResolver({
 						base: baseUrl,
 						searchParams: settings.adapter?.client?.assetQueryParams ?? new URLSearchParams(),
+					});
+			const contentResolver = new FsUrlProxyContentResolver();
+			const fontFileIdGenerator = isBuild
+				? new BuildFontFileIdGenerator({
+						hasher,
+						contentResolver,
+					})
+				: new DevFontFileIdGenerator({
+						hasher,
+						contentResolver,
+					});
+
+			const res = await orchestrate({
+				families: settings.config.experimental.fonts as Array<FontFamily>,
+				hasher,
+				createFontResolver: async ({ families }) =>
+					await UnifontFontResolver.create({
+						families,
+						hasher,
+						storage,
+						root,
 					}),
-					createHashResolver: (dependencies) => new DevUrlProxyHashResolver(dependencies),
-				});
+				cssRenderer,
+				systemFallbacksProvider,
+				fontMetricsResolver,
+				fontTypeExtractor,
+				logger,
+				fontFileIdGenerator,
+				urlResolver,
+				defaults: DEFAULTS,
+				bold: colors.bold,
+				stringMatcher,
+			});
+			// We initialize shared variables here and reset them in buildEnd
+			// to avoid locking memory
+			fontFileDataMap = res.fontFileDataMap;
+			internalConsumableMap = res.internalConsumableMap;
+			consumableMap = res.consumableMap;
+
+			if (shouldTrackCspHashes(settings.config.experimental.csp)) {
+				// Handle CSP
+				const algorithm = getAlgorithm(settings.config.experimental.csp);
+
+				// Generate a hash for each style we generate
+				for (const { css } of internalConsumableMap.values()) {
+					settings.injectedCsp.styleHashes.push(await generateCspDigest(css, algorithm));
+				}
+				for (const resource of urlResolver.cspResources) {
+					settings.injectedCsp.fontResources.add(resource);
+				}
 			}
 		},
 		async configureServer(server) {
