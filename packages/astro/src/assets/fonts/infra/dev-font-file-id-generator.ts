@@ -1,12 +1,12 @@
 import type {
+	FontFileIdGenerator,
 	Hasher,
 	ProxyData,
 	UrlProxyContentResolver,
-	UrlProxyHashResolver,
 } from '../definitions.js';
 import type { FontType } from '../types.js';
 
-export class DevUrlProxyHashResolver implements UrlProxyHashResolver {
+export class DevFontFileIdGenerator implements FontFileIdGenerator {
 	readonly #hasher: Hasher;
 	readonly #contentResolver: UrlProxyContentResolver;
 
@@ -21,9 +21,7 @@ export class DevUrlProxyHashResolver implements UrlProxyHashResolver {
 		this.#contentResolver = contentResolver;
 	}
 
-	#formatWeight(
-		weight: Parameters<UrlProxyHashResolver['resolve']>[0]['data']['weight'],
-	): string | undefined {
+	#formatWeight(weight: ProxyData['weight']): string | undefined {
 		if (Array.isArray(weight)) {
 			return weight.join('-');
 		}
@@ -33,7 +31,7 @@ export class DevUrlProxyHashResolver implements UrlProxyHashResolver {
 		return weight?.replace(/\s+/g, '-');
 	}
 
-	resolve({
+	generate({
 		cssVariable,
 		data,
 		originalUrl,

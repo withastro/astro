@@ -1,12 +1,7 @@
-import type {
-	Hasher,
-	ProxyData,
-	UrlProxyContentResolver,
-	UrlProxyHashResolver,
-} from '../definitions.js';
+import type { FontFileIdGenerator, Hasher, UrlProxyContentResolver } from '../definitions.js';
 import type { FontType } from '../types.js';
 
-export class BuildUrlProxyHashResolver implements UrlProxyHashResolver {
+export class BuildFontFileIdGenerator implements FontFileIdGenerator {
 	readonly #hasher: Hasher;
 	readonly #contentResolver: UrlProxyContentResolver;
 
@@ -21,15 +16,7 @@ export class BuildUrlProxyHashResolver implements UrlProxyHashResolver {
 		this.#contentResolver = contentResolver;
 	}
 
-	resolve({
-		originalUrl,
-		type,
-	}: {
-		originalUrl: string;
-		type: FontType;
-		cssVariable: string;
-		data: ProxyData;
-	}): string {
+	generate({ originalUrl, type }: { originalUrl: string; type: FontType }): string {
 		return `${this.#hasher.hashString(this.#contentResolver.resolve(originalUrl))}.${type}`;
 	}
 }

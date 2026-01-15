@@ -5,13 +5,13 @@ import { type CollectedFontForMetrics, optimizeFallbacks } from './core/optimize
 import { resolveFamilies } from './core/resolve-families.js';
 import type {
 	CssRenderer,
+	FontFileIdGenerator,
 	FontMetricsResolver,
 	FontResolver,
 	FontTypeExtractor,
 	Hasher,
 	StringMatcher,
 	SystemFallbacksProvider,
-	UrlProxyHashResolver,
 	UrlResolver,
 } from './definitions.js';
 import type {
@@ -57,7 +57,7 @@ export async function orchestrate({
 	bold,
 	stringMatcher,
 	createFontResolver,
-	hashResolver,
+	fontFileIdGenerator,
 	urlResolver,
 }: {
 	families: Array<FontFamily>;
@@ -71,7 +71,7 @@ export async function orchestrate({
 	bold: (input: string) => string;
 	stringMatcher: StringMatcher;
 	createFontResolver: (params: { families: Array<ResolvedFontFamily> }) => Promise<FontResolver>;
-	hashResolver: UrlProxyHashResolver;
+	fontFileIdGenerator: FontFileIdGenerator;
 	urlResolver: UrlResolver;
 }): Promise<{
 	fontFileDataMap: FontFileDataMap;
@@ -198,16 +198,16 @@ export async function orchestrate({
 							subset: font.meta?.subset,
 						};
 						const init = font.meta?.init ?? null;
-						const hash = hashResolver.resolve({
+						const id = fontFileIdGenerator.generate({
 							cssVariable: family.cssVariable,
 							data,
 							originalUrl,
 							type,
 						});
-						const url = urlResolver.resolve(hash);
+						const url = urlResolver.resolve(id);
 
-						if (!fontFileDataMap.has(hash)) {
-							fontFileDataMap.set(hash, { url, init });
+						if (!fontFileDataMap.has(id)) {
+							fontFileDataMap.set(id, { url, init });
 							// We only collect the first URL to avoid preloading fallback sources (eg. we only
 							// preload woff2 if woff is available)
 							if (index === 0) {
@@ -220,7 +220,7 @@ export async function orchestrate({
 								});
 							}
 						}
-						const collected = { hash, url, data, init };
+						const collected = { hash: id, url, data, init };
 						if (
 							resolvedFamily.fallbacks &&
 							resolvedFamily.fallbacks.length > 0 &&
