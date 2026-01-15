@@ -8,7 +8,6 @@ import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 type Weight = z.infer<typeof weightSchema>;
 type Display = z.infer<typeof displaySchema>;
 
-/** @lintignore */
 export interface FontProviderInitContext {
 	storage: {
 		getItem: {

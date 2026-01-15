@@ -21,17 +21,6 @@ export interface ProxyData {
 	subset: NonNullable<unifont.FontFaceData['meta']>['subset'];
 }
 
-// TODO: remove url proxy
-export interface UrlProxy {
-	proxy: (
-		input: Pick<FontFileData, 'url' | 'init'> & {
-			type: FontType;
-			collectPreload: boolean;
-			data: ProxyData;
-		},
-	) => string;
-}
-
 export interface UrlResolver {
 	resolve: (hash: string) => string;
 	readonly cspResources: Array<string>;
