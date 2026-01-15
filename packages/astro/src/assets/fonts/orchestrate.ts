@@ -18,23 +18,7 @@ import type {
 } from './types.js';
 import { renderFontWeight, unifontFontFaceDataToProperties } from './utils.js';
 
-/**
- * Manages how fonts are resolved:
- *
- * - families are resolved
- * - font resolver is initialized
- *
- * For each family:
- * - We create a URL proxy
- * - We resolve the font and normalize the result
- *
- * For each resolved font:
- * - We generate the CSS font face
- * - We generate optimized fallbacks if applicable
- * - We generate CSS variables
- *
- * Once that's done, the collected data is returned
- */
+// TODO: rename and move to core
 export async function orchestrate({
 	families,
 	hasher,
