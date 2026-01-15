@@ -26,7 +26,7 @@ import type {
 } from './types.js';
 import { renderFontWeight, unifontFontFaceDataToProperties } from './utils.js';
 
-type ResolvedFamiliesMap = Map<
+type FontFamilyAssetsByUniqueKey = Map<
 	string,
 	{
 		family: ResolvedFontFamily;
@@ -39,22 +39,22 @@ type ResolvedFamiliesMap = Map<
 	}
 >;
 
-function getOrCreateResolvedFamilyData({
-	resolvedFamiliesMap,
+function getOrCreateFontFamilyAssets({
+	fontFamilyAssetsByUniqueKey,
 	logger,
 	bold,
 	family,
 }: {
-	resolvedFamiliesMap: ResolvedFamiliesMap;
+	fontFamilyAssetsByUniqueKey: FontFamilyAssetsByUniqueKey;
 	logger: Logger;
 	bold: (input: string) => string;
 	family: ResolvedFontFamily;
 }) {
 	const key = `${family.cssVariable}:${family.name}:${typeof family.provider === 'string' ? family.provider : family.provider.name}`;
-	let resolvedFamily = resolvedFamiliesMap.get(key);
-	if (!resolvedFamily) {
+	let fontAssets = fontFamilyAssetsByUniqueKey.get(key);
+	if (!fontAssets) {
 		if (
-			Array.from(resolvedFamiliesMap.keys()).find((k) => k.startsWith(`${family.cssVariable}:`))
+			Array.from(fontFamilyAssetsByUniqueKey.keys()).find((k) => k.startsWith(`${family.cssVariable}:`))
 		) {
 			logger.warn(
 				'assets',
@@ -65,18 +65,18 @@ function getOrCreateResolvedFamilyData({
 				'These families will not be merged together. The last occurrence will override previous families for this cssVariable. Review your Astro configuration.',
 			);
 		}
-		resolvedFamily = {
+		fontAssets = {
 			family,
 			fonts: [],
 			collectedFonts: new Map(),
 			preloadData: [],
 		};
-		resolvedFamiliesMap.set(key, resolvedFamily);
+		fontFamilyAssetsByUniqueKey.set(key, fontAssets);
 	}
-	return resolvedFamily;
+	return fontAssets;
 }
 
-function filterAndTransformFonts({
+function filterAndTransformFontFaces({
 	fonts,
 	fontTypeExtractor,
 	fontFileIdGenerator,
@@ -126,8 +126,7 @@ function filterAndTransformFonts({
 	);
 }
 
-// TODO: find better name
-function collectData({
+function collectFontAssetsFromFaces({
 	fonts,
 	fontFileIdGenerator,
 	family,
@@ -236,7 +235,7 @@ async function resolveFamilies({
 	/**
 	 * Holds family data by a key, to allow merging families
 	 */
-	const resolvedFamiliesMap: ResolvedFamiliesMap = new Map();
+	const fontFamilyAssetsByUniqueKey: FontFamilyAssetsByUniqueKey = new Map();
 
 	/**
 	 * Holds associations of hash and original font file URLs, so they can be
@@ -247,8 +246,8 @@ async function resolveFamilies({
 	// First loop: we try to merge families. This is useful for advanced cases, where eg. you want
 	// 500, 600, 700 as normal but also 500 as italic. That requires 2 families
 	for (const family of resolvedFamilies) {
-		const resolvedFamily = getOrCreateResolvedFamilyData({
-			resolvedFamiliesMap,
+		const fontAssets = getOrCreateFontFamilyAssets({
+			fontFamilyAssetsByUniqueKey,
 			bold,
 			family,
 			logger,
@@ -282,7 +281,7 @@ async function resolveFamilies({
 			}
 		}
 		// The data returned by the provider contains original URLs. We proxy them.
-		resolvedFamily.fonts = filterAndTransformFonts({
+		fontAssets.fonts = filterAndTransformFontFaces({
 			fonts,
 			family,
 			fontFileIdGenerator,
@@ -290,24 +289,24 @@ async function resolveFamilies({
 			urlResolver,
 		});
 
-		const result = collectData({
+		const result = collectFontAssetsFromFaces({
 			fonts,
 			family,
 			fontFileIdGenerator,
 			fontFilesIds: new Set(fontFileDataMap.keys()),
-			collectedFontsIds: new Set(resolvedFamily.collectedFonts.keys()),
+			collectedFontsIds: new Set(fontAssets.collectedFonts.keys()),
 			hasher,
 		});
 		for (const [key, value] of result.fontFiles.entries()) {
 			fontFileDataMap.set(key, value);
 		}
 		for (const [key, value] of result.collectedFonts.entries()) {
-			resolvedFamily.collectedFonts.set(key, value);
+			fontAssets.collectedFonts.set(key, value);
 		}
-		resolvedFamily.preloadData.push(...result.preloadData);
+		fontAssets.preloadData.push(...result.preloadData);
 	}
 
-	return { resolvedFamiliesMap, fontFileDataMap };
+	return { fontFamilyAssetsByUniqueKey, fontFileDataMap };
 }
 
 /**
@@ -361,7 +360,7 @@ export async function orchestrate({
 	consumableMap: ConsumableMap;
 }> {
 	const resolvedFamilies = families.map((family) => resolveFamily({ family, hasher }));
-	const { resolvedFamiliesMap, fontFileDataMap } = await resolveFamilies({
+	const { fontFamilyAssetsByUniqueKey, fontFileDataMap } = await resolveFamilies({
 		resolvedFamilies,
 		fontResolver: await createFontResolver({ families: resolvedFamilies }),
 		logger,
@@ -384,7 +383,7 @@ export async function orchestrate({
 	const consumableMap: ConsumableMap = new Map();
 
 	// We know about all the families, let's generate css, fallbacks and more
-	for (const { family, fonts, collectedFonts, preloadData } of resolvedFamiliesMap.values()) {
+	for (const { family, fonts, collectedFonts, preloadData } of fontFamilyAssetsByUniqueKey.values()) {
 		const consumableMapValue: Array<FontData> = [];
 		let css = '';
 
