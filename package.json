@@ -76,24 +76,6 @@
     "tinyglobby": "^0.2.15",
     "turbo": "^2.7.2",
     "typescript": "~5.9.3",
-<<<<<<< HEAD
-    "typescript-eslint": "^8.46.0"
-  },
-  "pnpm": {
-    "peerDependencyRules": {
-      "allowAny": [
-        "astro",
-        "vite"
-      ]
-    },
-    "onlyBuiltDependencies": [
-      "@biomejs/biome",
-      "esbuild",
-      "sharp",
-      "workerd"
-    ]
-=======
     "typescript-eslint": "^8.51.0"
->>>>>>> 24cff1af7b15034a4b6d89c75ae565986f1a0a71
   }
 }
