@@ -74,10 +74,10 @@ interface CustomConfig extends BaseSessionConfig {
 	options?: Record<string, unknown>;
 }
 
-export type SessionConfig<TDriver extends SessionDriverName | SessionDriverConfig> = [
+export type SessionConfig<TDriver extends SessionDriverName | SessionDriverConfig | undefined> = [
 	TDriver,
 ] extends [never]
-	? UnstorageConfig<keyof BuiltinDriverOptions>
+	? CustomConfig
 	: TDriver extends SessionDriverConfig
 		? DriverConfig<TDriver>
 		: TDriver extends keyof BuiltinDriverOptions
