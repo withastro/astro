@@ -17,10 +17,10 @@ describe('Sitemap with chunked files', () => {
 			integrations: [
 				sitemap({
 					serialize(item) {
-						return item
+						return item;
 					},
 					chunks: {
-						'blog': (item) => {
+						blog: (item) => {
 							if (item.url.includes('blog')) {
 								item.changefreq = 'weekly';
 								item.lastmod = new Date();
@@ -28,26 +28,26 @@ describe('Sitemap with chunked files', () => {
 								return item;
 							}
 						},
-						'glossary': (item) => {
+						glossary: (item) => {
 							if (item.url.includes('glossary')) {
 								item.changefreq = 'weekly';
 								item.lastmod = new Date();
 								item.priority = 0.9;
 								return item;
 							}
-						}
+						},
 					},
 				}),
 			],
 		});
 		await fixture.build();
 		const flatMapUrls = async (file) => {
-			const data = await readXML(fixture.readFile(file))
-			return data.urlset.url.map((url) => url.loc[0])
+			const data = await readXML(fixture.readFile(file));
+			return data.urlset.url.map((url) => url.loc[0]);
 		};
 		blogUrls = await flatMapUrls('sitemap-blog-0.xml');
-		glossaryUrls = await flatMapUrls('sitemap-glossary-0.xml')
-		pagesUrls = await flatMapUrls('sitemap-pages-0.xml')
+		glossaryUrls = await flatMapUrls('sitemap-glossary-0.xml');
+		pagesUrls = await flatMapUrls('sitemap-pages-0.xml');
 	});
 
 	it('includes defined custom pages', async () => {

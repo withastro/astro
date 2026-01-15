@@ -20,35 +20,38 @@ export type LinkItem = LinkItemBase;
 
 export type SitemapOptions =
 	| {
-		filenameBase?: string;
-		filter?(page: string): boolean;
-		customSitemaps?: string[];
-		customPages?: string[];
+			filenameBase?: string;
+			filter?(page: string): boolean;
+			customSitemaps?: string[];
+			customPages?: string[];
 
-		i18n?: {
-			defaultLocale: string;
-			locales: Record<string, string>;
-		};
-		// number of entries per sitemap file
-		entryLimit?: number;
-		// sitemap specific
-		changefreq?: ChangeFreq;
-		lastmod?: Date;
-		priority?: number;
+			i18n?: {
+				defaultLocale: string;
+				locales: Record<string, string>;
+			};
+			// number of entries per sitemap file
+			entryLimit?: number;
+			// sitemap specific
+			changefreq?: ChangeFreq;
+			lastmod?: Date;
+			priority?: number;
 
-		// called for each sitemap item just before to save them on disk, sync or async
-		serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem | undefined> | undefined;
+			// called for each sitemap item just before to save them on disk, sync or async
+			serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem | undefined> | undefined;
 
-		xslURL?: string;
-		chunks?: Record<string, (item: SitemapItem) => SitemapItem | Promise<SitemapItem | undefined> | undefined>
-		// namespace configuration
-		namespaces?: {
-			news?: boolean;
-			xhtml?: boolean;
-			image?: boolean;
-			video?: boolean;
-		};
-	}
+			xslURL?: string;
+			chunks?: Record<
+				string,
+				(item: SitemapItem) => SitemapItem | Promise<SitemapItem | undefined> | undefined
+			>;
+			// namespace configuration
+			namespaces?: {
+				news?: boolean;
+				xhtml?: boolean;
+				image?: boolean;
+				video?: boolean;
+			};
+	  }
 	| undefined;
 
 function formatConfigErrorMessage(err: ZodError) {
@@ -103,7 +106,15 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 					const opts = validateOptions(config.site, options);
 
-					const { filenameBase, filter, customPages, customSitemaps, serialize, entryLimit, chunks } = opts;
+					const {
+						filenameBase,
+						filter,
+						customPages,
+						customSitemaps,
+						serialize,
+						entryLimit,
+						chunks,
+					} = opts;
 					const outFile = `${filenameBase}-index.xml`;
 					const finalSiteUrl = new URL(config.base, config.site);
 					const shouldIgnoreStatus = isStatusCodePage(Object.keys(opts.i18n?.locales ?? {}));
@@ -186,7 +197,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 					if (chunks) {
 						try {
-							let groupedUrlCollection: SitemapItem['url'][] = []
+							let groupedUrlCollection: SitemapItem['url'][] = [];
 							const chunksItem: Record<string, SitemapItem[]> = {};
 							for (const [key, cb] of Object.entries(chunks)) {
 								// Create a new, separate collection for each key
@@ -202,11 +213,17 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 								// Assign the specific collection to its key
 								chunksItem[key] = collection;
-								groupedUrlCollection = [...groupedUrlCollection, ...collection.map((coll) => coll.url)]
+								groupedUrlCollection = [
+									...groupedUrlCollection,
+									...collection.map((coll) => coll.url),
+								];
 							}
-							chunksItem['pages'] = urlData.filter((urlDataItem) => !(groupedUrlCollection.includes(urlDataItem.url)))
-								// Process each chunk here
-								await writeSitemapChunk({
+							chunksItem['pages'] = urlData.filter(
+								(urlDataItem) => !groupedUrlCollection.includes(urlDataItem.url),
+							);
+							// Process each chunk here
+							await writeSitemapChunk(
+								{
 									filenameBase,
 									hostname: finalSiteUrl.href,
 									sitemapHostname: finalSiteUrl.href,
@@ -218,9 +235,11 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 									xslURL,
 									lastmod,
 									namespaces: opts.namespaces,
-								}, config);
-								logger.info(`\`${outFile}\` created at \`${path.relative(process.cwd(), destDir)}\``);
-								return
+								},
+								config,
+							);
+							logger.info(`\`${outFile}\` created at \`${path.relative(process.cwd(), destDir)}\``);
+							return;
 						} catch (err) {
 							logger.error(`Error chunking sitemaps\n${(err as any).toString()}`);
 							return;

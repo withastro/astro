@@ -8,7 +8,6 @@ import { SitemapAndIndexStream, SitemapIndexStream, SitemapStream } from 'sitema
 import replace from 'stream-replace-string';
 import type { SitemapItem } from './index.js';
 
-
 type WriteSitemapChunkConfig = {
 	filenameBase: string;
 	hostname: string;
@@ -46,7 +45,7 @@ export async function writeSitemapChunk(
 	astroConfig: AstroConfig,
 ) {
 	await mkdir(destinationDir, { recursive: true });
-	
+
 	// Normalize publicBasePath
 	let normalizedPublicBasePath = publicBasePath;
 	if (!normalizedPublicBasePath.endsWith('/')) {
@@ -73,7 +72,7 @@ export async function writeSitemapChunk(
 						video: namespaces?.video !== false,
 					},
 				});
-				
+
 				const path = `./${filenameBase}-${chunkName}-${i}.xml`;
 				const writePath = resolve(destinationDir, path);
 				const publicPath = normalize(normalizedPublicBasePath + path);
@@ -92,10 +91,10 @@ export async function writeSitemapChunk(
 				}
 
 				const url = new URL(publicPath, sitemapHostname).toString();
-				
+
 				// Collect this sitemap URL for the index
 				sitemapUrls.push({ url, lastmod });
-				
+
 				return [{ url, lastmod }, sitemapStream, stream];
 			},
 		});
