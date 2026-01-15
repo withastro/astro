@@ -360,15 +360,6 @@ export async function orchestrate({
 	internalConsumableMap: InternalConsumableMap;
 	consumableMap: ConsumableMap;
 }> {
-	/**
-	 * Holds associations of CSS variables and preloadData/css to be passed to the internal virtual module.
-	 */
-	const internalConsumableMap: InternalConsumableMap = new Map();
-	/**
-	 * Holds associations of CSS variables and font data to be exposed via virtual module.
-	 */
-	const consumableMap: ConsumableMap = new Map();
-
 	const resolvedFamilies = families.map((family) => resolveFamily({ family, hasher }));
 	const { resolvedFamiliesMap, fontFileDataMap } = await resolveFamilies({
 		resolvedFamilies,
@@ -382,6 +373,15 @@ export async function orchestrate({
 		urlResolver,
 		hasher,
 	});
+
+	/**
+	 * Holds associations of CSS variables and preloadData/css to be passed to the internal virtual module.
+	 */
+	const internalConsumableMap: InternalConsumableMap = new Map();
+	/**
+	 * Holds associations of CSS variables and font data to be exposed via virtual module.
+	 */
+	const consumableMap: ConsumableMap = new Map();
 
 	// We know about all the families, let's generate css, fallbacks and more
 	for (const { family, fonts, collectedFonts, preloadData } of resolvedFamiliesMap.values()) {
