@@ -1,6 +1,6 @@
 import type * as unifont from 'unifont';
 import type { Logger } from '../../core/logger/core.js';
-import { normalizeRemoteFontFaces } from './core/normalize-remote-font-faces.js';
+import { FONT_FORMATS } from './constants.js';
 import { type CollectedFontForMetrics, optimizeFallbacks } from './core/optimize-fallbacks.js';
 import { resolveFamilies } from './core/resolve-families.js';
 import type {
@@ -25,6 +25,8 @@ import type {
 	ResolvedFontFamily,
 } from './types.js';
 import { renderFontWeight, unifontFontFaceDataToProperties } from './utils.js';
+
+// TODO: split back stuff as needed
 
 /**
  * Manages how fonts are resolved:
@@ -196,9 +198,51 @@ export async function orchestrate({
 					`${bold(family.name)} font family cannot be retrieved by the provider. Did you mean ${bold(stringMatcher.getClosestMatch(family.name, availableFamilies))}?`,
 				);
 			}
+			continue;
 		}
-		// The data returned by the remote provider contains original URLs. We proxy them.
-		resolvedFamily.fonts = normalizeRemoteFontFaces({ fonts, urlProxy, fontTypeExtractor });
+		// The data returned by the provider contains original URLs. We proxy them.
+		resolvedFamily.fonts = fonts
+			// Avoid getting too much font files
+			.filter((font) => (typeof font.meta?.priority === 'number' ? font.meta.priority <= 1 : true))
+			// Collect URLs
+			.map((font) => {
+				// The index keeps track of encountered URLs. We can't use the index on font.src.map
+				// below because it may contain sources without urls, which would prevent preloading completely
+				let index = 0;
+				return {
+					...font,
+					src: font.src.map((source) => {
+						if ('name' in source) {
+							return source;
+						}
+						// We handle protocol relative URLs here, otherwise they're considered absolute by the font
+						// fetcher which will try to read them from the file system
+						const url = source.url.startsWith('//') ? `https:${source.url}` : source.url;
+						const format = FONT_FORMATS.find((e) => e.format === source.format);
+
+						const proxied: unifont.RemoteFontSource = {
+							originalURL: url,
+							url: urlProxy.proxy({
+								url,
+								type: format?.type ?? fontTypeExtractor.extract(source.url),
+								// We only collect the first URL to avoid preloading fallback sources (eg. we only
+								// preload woff2 if woff is available)
+								collectPreload: index === 0,
+								data: {
+									weight: font.weight,
+									style: font.style,
+									subset: font.meta?.subset,
+								},
+								init: font.meta?.init ?? null,
+							}),
+							format: format?.format,
+							tech: source.tech,
+						};
+						index++;
+						return proxied;
+					}),
+				};
+			});
 	}
 
 	// We know about all the families, let's generate css, fallbacks and more
