@@ -1,5 +1,11 @@
 # @astrojs/check
 
+## 0.9.7-beta.1
+
+### Patch Changes
+
+- [#15198](https://github.com/withastro/astro/pull/15198) [`55107a1`](https://github.com/withastro/astro/commit/55107a1bc6e578e036be45ade5e259e77f31105b) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Updates to Astro 6 beta
+
 ## 0.9.6-beta.1
 
 ### Patch Changes
