@@ -1,5 +1,5 @@
 ---
-'astro': minor
+'astro': patch
 ---
 
 Makes `session.driver` optional in config schema, allowing adapters to provide default drivers
