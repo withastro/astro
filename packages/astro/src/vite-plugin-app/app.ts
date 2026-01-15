@@ -1,21 +1,10 @@
-import type http from 'node:http';
-import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
-import { BaseApp, type RenderErrorOptions } from '../core/app/index.js';
-import { shouldAppendForwardSlash } from '../core/build/util.js';
-import { clientLocalsSymbol } from '../core/constants.js';
-import {
-	MiddlewareNoDataOrNextCalled,
-	MiddlewareNotAResponse,
-} from '../core/errors/errors-data.js';
-import { type AstroError, createSafeError, isAstroError } from '../core/errors/index.js';
+import { BaseApp } from '../core/app/index.js';
 import type { Logger } from '../core/logger/core.js';
 import type { ModuleLoader } from '../core/module-loader/index.js';
 import type { CreateRenderContext, RenderContext } from '../core/render-context.js';
-import { createRequest } from '../core/request.js';
 import type { AstroSettings, RoutesList } from '../types/astro.js';
 import type { RouteData, SSRManifest } from '../types/public/index.js';
 import { RunnablePipeline } from './pipeline.js';
-import { getCustom404Route, getCustom500Route } from '../core/routing/helpers.js';
 import { matchRoute } from '../core/routing/dev.js';
 import type { DevMatch } from '../core/app/base.js';
 

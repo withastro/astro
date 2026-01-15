@@ -1,10 +1,9 @@
 import type { RouteData } from '../../../types/public/index.js';
 import type { Logger } from '../../logger/core.js';
 import type { CreateRenderContext, RenderContext } from '../../render-context.js';
-import { BaseApp, type DevMatch, type RenderErrorOptions } from '../base.js';
+import { BaseApp, type DevMatch } from '../base.js';
 import type { SSRManifest } from '../types.js';
 import { NonRunnablePipeline } from './pipeline.js';
-import { getCustom404Route, getCustom500Route } from '../../routing/helpers.js';
 import { matchRoute } from '../../routing/dev.js';
 import type { RunnablePipeline } from '../../../vite-plugin-app/pipeline.js';
 
