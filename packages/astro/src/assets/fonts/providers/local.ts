@@ -43,7 +43,7 @@ interface Variant extends FamilyProperties {
 	style?: Style | undefined;
 }
 
-interface FamilyOptions {
+export interface LocalFamilyOptions {
 	/**
 	 * Each variant represents a [`@font-face` declaration](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/).
 	 */
@@ -51,7 +51,7 @@ interface FamilyOptions {
 }
 
 // TODO:
-export class LocalFontProvider implements FontProvider<FamilyOptions> {
+export class LocalFontProvider implements FontProvider<LocalFamilyOptions> {
 	name = 'local';
 	config?: Record<string, any> | undefined;
 
@@ -93,7 +93,7 @@ export class LocalFontProvider implements FontProvider<FamilyOptions> {
 	}
 
 	async resolveFont(
-		options: ResolveFontOptions<FamilyOptions>,
+		options: ResolveFontOptions<LocalFamilyOptions>,
 	): Promise<{ fonts: Array<unifont.FontFaceData> } | undefined> {
 		return {
 			// TODO: ! shouldn't be needed
