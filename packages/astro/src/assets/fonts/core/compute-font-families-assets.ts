@@ -1,21 +1,15 @@
 import type { Logger } from '../../../core/logger/core.js';
+import type { FontResolver, StringMatcher } from '../definitions.js';
 import type {
-	FontFileIdGenerator,
-	FontResolver,
-	FontTypeExtractor,
-	Hasher,
-	StringMatcher,
-	UrlResolver,
-} from '../definitions.js';
-import type {
+	Collaborator,
 	Defaults,
 	FontFamilyAssetsByUniqueKey,
 	FontFileById,
 	ResolvedFontFamily,
 } from '../types.js';
-import { collectFontAssetsFromFaces } from './collect-font-assets-from-faces.js';
-import { filterAndTransformFontFaces } from './filter-and-transform-font-faces.js';
-import { getOrCreateFontFamilyAssets } from './get-or-create-font-family-assets.js';
+import type { collectFontAssetsFromFaces as _collectFontAssetsFromFaces } from './collect-font-assets-from-faces.js';
+import type { filterAndTransformFontFaces as _filterAndTransformFontFaces } from './filter-and-transform-font-faces.js';
+import type { getOrCreateFontFamilyAssets as _getOrCreateFontFamilyAssets } from './get-or-create-font-family-assets.js';
 
 export async function computeFontFamiliesAssets({
 	resolvedFamilies,
@@ -24,10 +18,9 @@ export async function computeFontFamiliesAssets({
 	bold,
 	defaults,
 	stringMatcher,
-	fontTypeExtractor,
-	fontFileIdGenerator,
-	urlResolver,
-	hasher,
+	getOrCreateFontFamilyAssets,
+	collectFontAssetsFromFaces,
+	filterAndTransformFontFaces,
 }: {
 	resolvedFamilies: Array<ResolvedFontFamily>;
 	fontResolver: FontResolver;
@@ -35,10 +28,18 @@ export async function computeFontFamiliesAssets({
 	bold: (input: string) => string;
 	defaults: Defaults;
 	stringMatcher: StringMatcher;
-	fontTypeExtractor: FontTypeExtractor;
-	fontFileIdGenerator: FontFileIdGenerator;
-	urlResolver: UrlResolver;
-	hasher: Hasher;
+	getOrCreateFontFamilyAssets: Collaborator<
+		typeof _getOrCreateFontFamilyAssets,
+		'family' | 'fontFamilyAssetsByUniqueKey'
+	>;
+	filterAndTransformFontFaces: Collaborator<
+		typeof _filterAndTransformFontFaces,
+		'family' | 'fonts'
+	>;
+	collectFontAssetsFromFaces: Collaborator<
+		typeof _collectFontAssetsFromFaces,
+		'family' | 'fonts' | 'collectedFontsIds' | 'fontFilesIds'
+	>;
 }) {
 	/**
 	 * Holds family data by a key, to allow merging families
@@ -56,9 +57,7 @@ export async function computeFontFamiliesAssets({
 	for (const family of resolvedFamilies) {
 		const fontAssets = getOrCreateFontFamilyAssets({
 			fontFamilyAssetsByUniqueKey,
-			bold,
 			family,
-			logger,
 		});
 
 		const fonts = await fontResolver.resolveFont({
@@ -92,18 +91,13 @@ export async function computeFontFamiliesAssets({
 		fontAssets.fonts = filterAndTransformFontFaces({
 			fonts,
 			family,
-			fontFileIdGenerator,
-			fontTypeExtractor,
-			urlResolver,
 		});
 
 		const result = collectFontAssetsFromFaces({
 			fonts,
 			family,
-			fontFileIdGenerator,
 			fontFilesIds: new Set(fontFileById.keys()),
 			collectedFontsIds: new Set(fontAssets.collectedFontsForMetricsByUniqueKey.keys()),
-			hasher,
 		});
 		for (const [key, value] of result.fontFileById.entries()) {
 			fontFileById.set(key, value);
