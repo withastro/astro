@@ -5,8 +5,8 @@ import type { displaySchema, styleSchema, weightSchema } from './config.js';
 import type { FONT_TYPES, GENERIC_FALLBACK_NAMES } from './constants.js';
 import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 
-type Weight = z.infer<typeof weightSchema>;
-type Display = z.infer<typeof displaySchema>;
+export type Weight = z.infer<typeof weightSchema>;
+export type Display = z.infer<typeof displaySchema>;
 
 export interface FontProviderInitContext {
 	storage: {
@@ -51,58 +51,7 @@ export interface FontProvider<
 	listFonts?: (() => Awaitable<Array<string> | undefined>) | undefined;
 }
 
-interface RequiredFamilyAttributes {
-	/**
-	 * The font family name, as identified by your font provider.
-	 */
-	name: string;
-	/**
-	 * A valid [ident](https://developer.mozilla.org/en-US/docs/Web/CSS/ident) in the form of a CSS variable (i.e. starting with `--`).
-	 */
-	cssVariable: string;
-}
-
-interface Fallbacks {
-	/**
-	 * @default `["sans-serif"]`
-	 *
-	 * An array of fonts to use when your chosen font is unavailable, or loading. Fallback fonts will be chosen in the order listed. The first available font will be used:
-	 *
-	 * ```js
-	 * fallbacks: ["CustomFont", "serif"]
-	 * ```
-	 *
-	 * To disable fallback fonts completely, configure an empty array:
-	 *
-	 * ```js
-	 * fallbacks: []
-	 * ```
-	 *
-
-	 * If the last font in the `fallbacks` array is a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name), Astro will attempt to generate [optimized fallbacks](https://developer.chrome.com/blog/font-fallbacks) using font metrics will be generated. To disable this optimization, set `optimizedFallbacks` to false.
-	 */
-	fallbacks?: Array<string> | undefined;
-	/**
-	 * @default `true`
-	 *
-	 * Whether or not to enable optimized fallback generation. You may disable this default optimization to have full control over `fallbacks`.
-	 */
-	optimizedFallbacks?: boolean | undefined;
-}
-
 export interface FamilyProperties {
-	/**
-	 * A [font weight](https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight). If the associated font is a [variable font](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_fonts/Variable_fonts_guide), you can specify a range of weights:
-	 *
-	 * ```js
-	 * weight: "100 900"
-	 * ```
-	 */
-	weight?: Weight | undefined;
-	/**
-	 * A [font style](https://developer.mozilla.org/en-US/docs/Web/CSS/font-style).
-	 */
-	style?: Style | undefined;
 	/**
 	 * @default `"swap"`
 	 *
@@ -161,44 +110,74 @@ type WithOptions<TFontProvider extends FontProvider> = TFontProvider extends Fon
 			options?: undefined;
 		};
 
-export type FontFamily<TFontProvider extends FontProvider = FontProvider> =
-	RequiredFamilyAttributes &
-		Omit<FamilyProperties, 'weight' | 'style' | 'subsets' | 'formats'> &
-		Fallbacks &
-		WithOptions<NoInfer<TFontProvider>> & {
-			/**
-			 * The source of your font files. You can use a built-in provider or write your own custom provider.
-			 */
-			provider: TFontProvider;
-			/**
-			 * @default `[400]`
-			 *
-			 * An array of [font weights](https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight). If the associated font is a [variable font](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_fonts/Variable_fonts_guide), you can specify a range of weights:
-			 *
-			 * ```js
-			 * weight: "100 900"
-			 * ```
-			 */
-			weights?: [Weight, ...Array<Weight>] | undefined;
-			/**
-			 * @default `["normal", "italic"]`
-			 *
-			 * An array of [font styles](https://developer.mozilla.org/en-US/docs/Web/CSS/font-style).
-			 */
-			styles?: [Style, ...Array<Style>] | undefined;
-			/**
-			 * @default `["latin"]`
-			 *
-			 * An array of [font subsets](https://knaap.dev/posts/font-subsetting/):
-			 */
-			subsets?: [string, ...Array<string>] | undefined;
-			/**
-			 * @default `["woff2"]`
-			 *
-			 * An array of [font formats](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/src#font_formats).
-			 */
-			formats?: [FontType, ...Array<FontType>] | undefined;
-		};
+export type FontFamily<TFontProvider extends FontProvider = FontProvider> = FamilyProperties &
+	WithOptions<NoInfer<TFontProvider>> & {
+		/**
+		 * The font family name, as identified by your font provider.
+		 */
+		name: string;
+		/**
+		 * A valid [ident](https://developer.mozilla.org/en-US/docs/Web/CSS/ident) in the form of a CSS variable (i.e. starting with `--`).
+		 */
+		cssVariable: string;
+		/**
+		 * The source of your font files. You can use a built-in provider or write your own custom provider.
+		 */
+		provider: TFontProvider;
+		/**
+		 * @default `[400]`
+		 *
+		 * An array of [font weights](https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight). If the associated font is a [variable font](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_fonts/Variable_fonts_guide), you can specify a range of weights:
+		 *
+		 * ```js
+		 * weight: "100 900"
+		 * ```
+		 */
+		weights?: [Weight, ...Array<Weight>] | undefined;
+		/**
+		 * @default `["normal", "italic"]`
+		 *
+		 * An array of [font styles](https://developer.mozilla.org/en-US/docs/Web/CSS/font-style).
+		 */
+		styles?: [Style, ...Array<Style>] | undefined;
+		/**
+		 * @default `["latin"]`
+		 *
+		 * An array of [font subsets](https://knaap.dev/posts/font-subsetting/):
+		 */
+		subsets?: [string, ...Array<string>] | undefined;
+		/**
+		 * @default `["woff2"]`
+		 *
+		 * An array of [font formats](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/src#font_formats).
+		 */
+		formats?: [FontType, ...Array<FontType>] | undefined;
+		/**
+	 * @default `["sans-serif"]`
+	 *
+	 * An array of fonts to use when your chosen font is unavailable, or loading. Fallback fonts will be chosen in the order listed. The first available font will be used:
+	 *
+	 * ```js
+	 * fallbacks: ["CustomFont", "serif"]
+	 * ```
+	 *
+	 * To disable fallback fonts completely, configure an empty array:
+	 *
+	 * ```js
+	 * fallbacks: []
+	 * ```
+	 *
+
+	 * If the last font in the `fallbacks` array is a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name), Astro will attempt to generate [optimized fallbacks](https://developer.chrome.com/blog/font-fallbacks) using font metrics will be generated. To disable this optimization, set `optimizedFallbacks` to false.
+	 */
+		fallbacks?: Array<string> | undefined;
+		/**
+		 * @default `true`
+		 *
+		 * Whether or not to enable optimized fallback generation. You may disable this default optimization to have full control over `fallbacks`.
+		 */
+		optimizedFallbacks?: boolean | undefined;
+	};
 
 export interface ResolvedFontFamily
 	extends ResolvedFontFamilyAttributes,
