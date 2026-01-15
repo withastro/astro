@@ -77,8 +77,6 @@ function extractRelevantChunks(
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
 
-	settings.timer.start('SSR build');
-
 	// The pages to be built for rendering purposes.
 	// (comment above may be outdated ?)
 	const pageInput = new Set<string>();
