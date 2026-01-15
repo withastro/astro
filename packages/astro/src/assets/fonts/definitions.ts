@@ -5,7 +5,6 @@ import type {
 	FontFileData,
 	FontType,
 	GenericFallbackName,
-	PreloadData,
 	ResolveFontOptions,
 	Style,
 } from './types.js';
@@ -28,15 +27,6 @@ export interface UrlResolver {
 
 export interface UrlProxyContentResolver {
 	resolve: (url: string) => string;
-}
-
-export interface DataCollector {
-	collect: (
-		input: FontFileData & {
-			data: ProxyData;
-			preload: PreloadData | null;
-		},
-	) => void;
 }
 
 export type CssProperties = Record<string, string | undefined>;
