@@ -26,76 +26,27 @@ import type {
 } from './types.js';
 import { renderFontWeight, unifontFontFaceDataToProperties } from './utils.js';
 
-// TODO: split back stuff as needed
-
-/**
- * Manages how fonts are resolved:
- *
- * - families are resolved
- * - font resolver is initialized
- *
- * For each family:
- * - We create a URL proxy
- * - We resolve the font and normalize the result
- *
- * For each resolved font:
- * - We generate the CSS font face
- * - We generate optimized fallbacks if applicable
- * - We generate CSS variables
- *
- * Once that's done, the collected data is returned
- */
-export async function orchestrate({
-	families,
-	hasher,
-	cssRenderer,
-	systemFallbacksProvider,
-	fontMetricsResolver,
-	fontTypeExtractor,
+async function resolveFamilies({
+	resolvedFamilies,
+	fontResolver,
 	logger,
-	defaults,
 	bold,
+	defaults,
 	stringMatcher,
-	createFontResolver,
+	fontTypeExtractor,
 	fontFileIdGenerator,
 	urlResolver,
 }: {
-	families: Array<FontFamily>;
-	hasher: Hasher;
-	cssRenderer: CssRenderer;
-	systemFallbacksProvider: SystemFallbacksProvider;
-	fontMetricsResolver: FontMetricsResolver;
-	fontTypeExtractor: FontTypeExtractor;
+	resolvedFamilies: Array<ResolvedFontFamily>;
+	fontResolver: FontResolver;
 	logger: Logger;
-	defaults: Defaults;
 	bold: (input: string) => string;
+	defaults: Defaults;
 	stringMatcher: StringMatcher;
-	createFontResolver: (params: { families: Array<ResolvedFontFamily> }) => Promise<FontResolver>;
+	fontTypeExtractor: FontTypeExtractor;
 	fontFileIdGenerator: FontFileIdGenerator;
 	urlResolver: UrlResolver;
-}): Promise<{
-	fontFileDataMap: FontFileDataMap;
-	internalConsumableMap: InternalConsumableMap;
-	consumableMap: ConsumableMap;
-}> {
-	const resolvedFamilies = families.map((family) => resolveFamily({ family, hasher }));
-
-	const fontResolver = await createFontResolver({ families: resolvedFamilies });
-
-	/**
-	 * Holds associations of hash and original font file URLs, so they can be
-	 * downloaded whenever the hash is requested.
-	 */
-	const fontFileDataMap: FontFileDataMap = new Map();
-	/**
-	 * Holds associations of CSS variables and preloadData/css to be passed to the internal virtual module.
-	 */
-	const internalConsumableMap: InternalConsumableMap = new Map();
-	/**
-	 * Holds associations of CSS variables and font data to be exposed via virtual module.
-	 */
-	const consumableMap: ConsumableMap = new Map();
-
+}) {
 	/**
 	 * Holds family data by a key, to allow merging families
 	 */
@@ -112,6 +63,12 @@ export async function orchestrate({
 			preloadData: Array<PreloadData>;
 		}
 	>();
+
+	/**
+	 * Holds associations of hash and original font file URLs, so they can be
+	 * downloaded whenever the hash is requested.
+	 */
+	const fontFileDataMap: FontFileDataMap = new Map();
 
 	// First loop: we try to merge families. This is useful for advanced cases, where eg. you want
 	// 500, 600, 700 as normal but also 500 as italic. That requires 2 families
@@ -167,7 +124,6 @@ export async function orchestrate({
 					`${bold(family.name)} font family cannot be retrieved by the provider. Did you mean ${bold(stringMatcher.getClosestMatch(family.name, availableFamilies))}?`,
 				);
 			}
-			continue;
 		}
 		// The data returned by the provider contains original URLs. We proxy them.
 		resolvedFamily.fonts = fonts
@@ -248,6 +204,81 @@ export async function orchestrate({
 				};
 			});
 	}
+
+	return { resolvedFamiliesMap, fontFileDataMap };
+}
+
+/**
+ * Manages how fonts are resolved:
+ *
+ * - families are resolved
+ * - font resolver is initialized
+ *
+ * For each family:
+ * - We create a URL proxy
+ * - We resolve the font and normalize the result
+ *
+ * For each resolved font:
+ * - We generate the CSS font face
+ * - We generate optimized fallbacks if applicable
+ * - We generate CSS variables
+ *
+ * Once that's done, the collected data is returned
+ */
+export async function orchestrate({
+	families,
+	hasher,
+	cssRenderer,
+	systemFallbacksProvider,
+	fontMetricsResolver,
+	fontTypeExtractor,
+	logger,
+	defaults,
+	bold,
+	stringMatcher,
+	createFontResolver,
+	fontFileIdGenerator,
+	urlResolver,
+}: {
+	families: Array<FontFamily>;
+	hasher: Hasher;
+	cssRenderer: CssRenderer;
+	systemFallbacksProvider: SystemFallbacksProvider;
+	fontMetricsResolver: FontMetricsResolver;
+	fontTypeExtractor: FontTypeExtractor;
+	logger: Logger;
+	defaults: Defaults;
+	bold: (input: string) => string;
+	stringMatcher: StringMatcher;
+	createFontResolver: (params: { families: Array<ResolvedFontFamily> }) => Promise<FontResolver>;
+	fontFileIdGenerator: FontFileIdGenerator;
+	urlResolver: UrlResolver;
+}): Promise<{
+	fontFileDataMap: FontFileDataMap;
+	internalConsumableMap: InternalConsumableMap;
+	consumableMap: ConsumableMap;
+}> {
+	/**
+	 * Holds associations of CSS variables and preloadData/css to be passed to the internal virtual module.
+	 */
+	const internalConsumableMap: InternalConsumableMap = new Map();
+	/**
+	 * Holds associations of CSS variables and font data to be exposed via virtual module.
+	 */
+	const consumableMap: ConsumableMap = new Map();
+
+	const resolvedFamilies = families.map((family) => resolveFamily({ family, hasher }));
+	const { resolvedFamiliesMap, fontFileDataMap } = await resolveFamilies({
+		resolvedFamilies,
+		fontResolver: await createFontResolver({ families: resolvedFamilies }),
+		logger,
+		bold,
+		defaults,
+		fontFileIdGenerator,
+		fontTypeExtractor,
+		stringMatcher,
+		urlResolver,
+	});
 
 	// We know about all the families, let's generate css, fallbacks and more
 	for (const {
