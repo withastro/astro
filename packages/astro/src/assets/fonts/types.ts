@@ -2,7 +2,7 @@ import type { Font } from '@capsizecss/unpack';
 import type * as unifont from 'unifont';
 import type { z } from 'zod';
 import type { displaySchema, styleSchema, weightSchema } from './config.js';
-import type { FONT_TYPES, GENERIC_FALLBACK_NAMES, LOCAL_PROVIDER_NAME } from './constants.js';
+import type { FONT_TYPES, GENERIC_FALLBACK_NAMES } from './constants.js';
 import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 
 type Weight = z.infer<typeof weightSchema>;
@@ -128,45 +128,8 @@ export interface FamilyProperties {
 	unicodeRange?: [string, ...Array<string>] | undefined;
 }
 
-type Src =
-	| string
-	| URL
-	| {
-			url: string | URL;
-			tech?: string | undefined;
-	  };
-
-interface Variant extends FamilyProperties {
-	/**
-	 * Font [sources](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/src). It can be a path relative to the root, a package import or a URL. URLs are particularly useful if you inject local fonts through an integration.
-	 */
-	src: [Src, ...Array<Src>];
-}
-
-export interface LocalFontFamily extends RequiredFamilyAttributes, Fallbacks {
-	/**
-	 * The source of your font files. Set to `"local"` to use local font files.
-	 */
-	provider: typeof LOCAL_PROVIDER_NAME;
-	/**
-	 * Each variant represents a [`@font-face` declaration](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/).
-	 */
-	variants: [Variant, ...Array<Variant>];
-}
-
 interface ResolvedFontFamilyAttributes {
 	nameWithHash: string;
-}
-
-export interface ResolvedLocalFontFamily
-	extends ResolvedFontFamilyAttributes,
-		Omit<LocalFontFamily, 'variants'> {
-	variants: Array<
-		Omit<LocalFontFamily['variants'][number], 'weight' | 'src'> & {
-			weight?: string;
-			src: Array<{ url: string; tech?: string }>;
-		}
-	>;
 }
 
 type WithOptions<TFontProvider extends FontProvider> = TFontProvider extends FontProvider<
@@ -199,7 +162,7 @@ type WithOptions<TFontProvider extends FontProvider> = TFontProvider extends Fon
 			options?: undefined;
 		};
 
-export type RemoteFontFamily<TFontProvider extends FontProvider = FontProvider> =
+export type FontFamily<TFontProvider extends FontProvider = FontProvider> =
 	RequiredFamilyAttributes &
 		Omit<FamilyProperties, 'weight' | 'style' | 'subsets' | 'formats'> &
 		Fallbacks &
@@ -238,17 +201,11 @@ export type RemoteFontFamily<TFontProvider extends FontProvider = FontProvider> 
 			formats?: [FontType, ...Array<FontType>] | undefined;
 		};
 
-/** @lintignore somehow required by pickFontFaceProperty in utils */
-export interface ResolvedRemoteFontFamily
+export interface ResolvedFontFamily
 	extends ResolvedFontFamilyAttributes,
-		Omit<RemoteFontFamily, 'weights'> {
+		Omit<FontFamily, 'weights'> {
 	weights?: Array<string>;
 }
-
-export type FontFamily<TFontProvider extends FontProvider = FontProvider> =
-	| LocalFontFamily
-	| RemoteFontFamily<TFontProvider>;
-export type ResolvedFontFamily = ResolvedLocalFontFamily | ResolvedRemoteFontFamily;
 
 export type FontType = (typeof FONT_TYPES)[number];
 
@@ -278,7 +235,7 @@ export type GenericFallbackName = (typeof GENERIC_FALLBACK_NAMES)[number];
 
 export type Defaults = Required<
 	Pick<
-		ResolvedRemoteFontFamily,
+		ResolvedFontFamily,
 		'weights' | 'styles' | 'subsets' | 'fallbacks' | 'optimizedFallbacks' | 'formats'
 	>
 >;
@@ -290,7 +247,6 @@ export interface FontFileData {
 }
 
 export interface CreateUrlProxyParams {
-	local: boolean;
 	hasUrl: (hash: string) => boolean;
 	saveUrl: (input: FontFileData) => void;
 	savePreload: (preload: PreloadData) => void;

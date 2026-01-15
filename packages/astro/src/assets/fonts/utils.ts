@@ -1,7 +1,7 @@
 import type * as unifont from 'unifont';
-import { FONT_TYPES, GENERIC_FALLBACK_NAMES, LOCAL_PROVIDER_NAME } from './constants.js';
+import { FONT_TYPES, GENERIC_FALLBACK_NAMES } from './constants.js';
 import type { CssProperties, Storage } from './definitions.js';
-import type { FontType, GenericFallbackName, ResolvedFontFamily } from './types.js';
+import type { FontType, GenericFallbackName } from './types.js';
 
 /**
  * Turns unifont font face data into generic CSS properties, to be consumed by the CSS renderer.
@@ -98,13 +98,4 @@ export function sortObjectByKey<T extends Record<string, any>>(unordered: T): T 
 			return obj;
 		}, {} as T);
 	return ordered;
-}
-
-export function pickFontFaceProperty<
-	T extends keyof Pick<
-		unifont.FontFaceData,
-		'display' | 'unicodeRange' | 'stretch' | 'featureSettings' | 'variationSettings'
-	>,
->(property: T, { data, family }: { data: unifont.FontFaceData; family: ResolvedFontFamily }) {
-	return data[property] ?? (family.provider === LOCAL_PROVIDER_NAME ? undefined : family[property]);
 }

@@ -1,22 +1,18 @@
 import type * as unifont from 'unifont';
 import type { Logger } from '../../core/logger/core.js';
-import { LOCAL_PROVIDER_NAME } from './constants.js';
 import { normalizeRemoteFontFaces } from './core/normalize-remote-font-faces.js';
 import { type CollectedFontForMetrics, optimizeFallbacks } from './core/optimize-fallbacks.js';
 import { resolveFamilies } from './core/resolve-families.js';
 import type {
 	CssRenderer,
-	FontFileReader,
 	FontMetricsResolver,
 	FontResolver,
 	FontTypeExtractor,
 	Hasher,
-	LocalProviderUrlResolver,
 	StringMatcher,
 	SystemFallbacksProvider,
 	UrlProxy,
 } from './definitions.js';
-import { resolveLocalFont } from './providers/local.js';
 import type {
 	ConsumableMap,
 	CreateUrlProxyParams,
@@ -28,11 +24,7 @@ import type {
 	PreloadData,
 	ResolvedFontFamily,
 } from './types.js';
-import {
-	pickFontFaceProperty,
-	renderFontWeight,
-	unifontFontFaceDataToProperties,
-} from './utils.js';
+import { renderFontWeight, unifontFontFaceDataToProperties } from './utils.js';
 
 /**
  * Manages how fonts are resolved:
@@ -54,12 +46,10 @@ import {
 export async function orchestrate({
 	families,
 	hasher,
-	localProviderUrlResolver,
 	cssRenderer,
 	systemFallbacksProvider,
 	fontMetricsResolver,
 	fontTypeExtractor,
-	fontFileReader,
 	logger,
 	createUrlProxy,
 	defaults,
@@ -69,12 +59,10 @@ export async function orchestrate({
 }: {
 	families: Array<FontFamily>;
 	hasher: Hasher;
-	localProviderUrlResolver: LocalProviderUrlResolver;
 	cssRenderer: CssRenderer;
 	systemFallbacksProvider: SystemFallbacksProvider;
 	fontMetricsResolver: FontMetricsResolver;
 	fontTypeExtractor: FontTypeExtractor;
-	fontFileReader: FontFileReader;
 	logger: Logger;
 	createUrlProxy: (params: CreateUrlProxyParams) => UrlProxy;
 	defaults: Defaults;
@@ -89,7 +77,6 @@ export async function orchestrate({
 	const resolvedFamilies = resolveFamilies({
 		families,
 		hasher,
-		localProviderUrlResolver,
 	});
 
 	const fontResolver = await createFontResolver({ families: resolvedFamilies });
@@ -158,7 +145,6 @@ export async function orchestrate({
 		 * plugin has control over URLs.
 		 */
 		const urlProxy = createUrlProxy({
-			local: family.provider === LOCAL_PROVIDER_NAME,
 			hasUrl: (hash) => fontFileDataMap.has(hash),
 			saveUrl: ({ hash, url, init }) => {
 				fontFileDataMap.set(hash, { url, init });
@@ -184,46 +170,35 @@ export async function orchestrate({
 			cssVariable: family.cssVariable,
 		});
 
-		if (family.provider === LOCAL_PROVIDER_NAME) {
-			const fonts = resolveLocalFont({
-				family,
-				urlProxy,
-				fontTypeExtractor,
-				fontFileReader,
-			});
-			// URLs are already proxied at this point so no further processing is required
-			resolvedFamily.fonts.push(...fonts);
-		} else {
-			const fonts = await fontResolver.resolveFont({
-				familyName: family.name,
-				provider: family.provider.name,
-				// We do not merge the defaults, we only provide defaults as a fallback
-				weights: family.weights ?? defaults.weights,
-				styles: family.styles ?? defaults.styles,
-				subsets: family.subsets ?? defaults.subsets,
-				formats: family.formats ?? defaults.formats,
-				options: family.options,
-			});
-			if (fonts.length === 0) {
+		const fonts = await fontResolver.resolveFont({
+			familyName: family.name,
+			provider: family.provider.name,
+			// We do not merge the defaults, we only provide defaults as a fallback
+			weights: family.weights ?? defaults.weights,
+			styles: family.styles ?? defaults.styles,
+			subsets: family.subsets ?? defaults.subsets,
+			formats: family.formats ?? defaults.formats,
+			options: family.options,
+		});
+		if (fonts.length === 0) {
+			logger.warn(
+				'assets',
+				`No data found for font family ${bold(family.name)}. Review your configuration`,
+			);
+			const availableFamilies = await fontResolver.listFonts({ provider: family.provider.name });
+			if (
+				availableFamilies &&
+				availableFamilies.length > 0 &&
+				!availableFamilies.includes(family.name)
+			) {
 				logger.warn(
 					'assets',
-					`No data found for font family ${bold(family.name)}. Review your configuration`,
+					`${bold(family.name)} font family cannot be retrieved by the provider. Did you mean ${bold(stringMatcher.getClosestMatch(family.name, availableFamilies))}?`,
 				);
-				const availableFamilies = await fontResolver.listFonts({ provider: family.provider.name });
-				if (
-					availableFamilies &&
-					availableFamilies.length > 0 &&
-					!availableFamilies.includes(family.name)
-				) {
-					logger.warn(
-						'assets',
-						`${bold(family.name)} font family cannot be retrieved by the provider. Did you mean ${bold(stringMatcher.getClosestMatch(family.name, availableFamilies))}?`,
-					);
-				}
 			}
-			// The data returned by the remote provider contains original URLs. We proxy them.
-			resolvedFamily.fonts = normalizeRemoteFontFaces({ fonts, urlProxy, fontTypeExtractor });
 		}
+		// The data returned by the remote provider contains original URLs. We proxy them.
+		resolvedFamily.fonts = normalizeRemoteFontFaces({ fonts, urlProxy, fontTypeExtractor });
 	}
 
 	// We know about all the families, let's generate css, fallbacks and more
@@ -244,13 +219,12 @@ export async function orchestrate({
 					src: data.src,
 					weight: data.weight,
 					style: data.style,
-					// User settings override the generated font settings. We use a helper function
-					// because local and remote providers store this data in different places.
-					display: pickFontFaceProperty('display', { data, family }),
-					unicodeRange: pickFontFaceProperty('unicodeRange', { data, family }),
-					stretch: pickFontFaceProperty('stretch', { data, family }),
-					featureSettings: pickFontFaceProperty('featureSettings', { data, family }),
-					variationSettings: pickFontFaceProperty('variationSettings', { data, family }),
+					// User settings override the generated font settings
+					display: data.display ?? family.display,
+					unicodeRange: data.unicodeRange ?? family.unicodeRange,
+					stretch: data.stretch ?? family.stretch,
+					featureSettings: data.featureSettings ?? family.featureSettings,
+					variationSettings: data.variationSettings ?? family.variationSettings,
 				}),
 			);
 
