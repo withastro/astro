@@ -29,7 +29,7 @@ import type { StaticBuildOptions } from './types.js';
 import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
 import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
-import  type { RollupOutput, RollupWatcher } from 'rollup';
+import type { RollupOutput, RollupWatcher } from 'rollup';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -77,7 +77,7 @@ function extractRelevantChunks(
 
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
-	
+
 	// The pages to be built for rendering purposes.
 	// (comment above may be outdated ?)
 	const pageInput = new Set<string>();
@@ -324,7 +324,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	const builder = await vite.createBuilder(updatedViteBuildConfig);
 
 	let ssrOutput: RollupOutput | RollupOutput[] | RollupWatcher = [];
-	
+
 	// Build ssr environment for server output
 	if (settings.buildOutput !== 'static') {
 		settings.timer.start('SSR build');
