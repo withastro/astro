@@ -35,7 +35,7 @@ import { UnifontFontResolver } from './infra/unifont-font-resolver.js';
 import { UnstorageFsStorage } from './infra/unstorage-fs-storage.js';
 import { XxhashHasher } from './infra/xxhash-hasher.js';
 import { orchestrate } from './orchestrate.js';
-import type { ConsumableMap, FontFamily, FontFileDataMap, InternalConsumableMap } from './types.js';
+import type { ConsumableMap, FontFamily, FontFileById, InternalConsumableMap } from './types.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -72,7 +72,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	);
 	const baseUrl = joinPaths(settings.config.base, assetsDir);
 
-	let fontFileDataMap: FontFileDataMap | null = null;
+	let fontFileDataMap: FontFileById | null = null;
 	let internalConsumableMap: InternalConsumableMap | null = null;
 	let consumableMap: ConsumableMap | null = null;
 	let isBuild: boolean;
