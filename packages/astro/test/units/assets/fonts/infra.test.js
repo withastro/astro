@@ -16,6 +16,7 @@ import {
 	renderFontFace,
 	withFamily,
 } from '../../../../dist/assets/fonts/infra/minifiable-css-renderer.js';
+import { UnifontFontResolver } from '../../../../dist/assets/fonts/infra/unifont-font-resolver.js';
 import { FakeHasher, SpyStorage } from './utils.js';
 
 describe('fonts infra', () => {
@@ -529,5 +530,290 @@ describe('fonts infra', () => {
 			}),
 			'foo-200-700-italic-cyrillic-whatever.woff2',
 		);
+	});
+
+	describe('UnifontFontResolver', () => {
+		const createProvider = (/** @type {string} */ name) => () =>
+			Object.assign(() => undefined, { _name: name, _options: undefined });
+
+		describe('static extractUnifontProviders()', () => {
+			/** @param {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} families */
+			function createFixture(families) {
+				const providers = UnifontFontResolver.extractUnifontProviders({
+					families,
+					hasher: new FakeHasher(),
+				});
+				return {
+					/**
+					 * @param {number} length
+					 */
+					assertProvidersLength: (length) => {
+						assert.equal(providers.length, length);
+					},
+					/**
+					 * @param {Array<string>} names
+					 */
+					assertProvidersNames: (names) => {
+						assert.deepStrictEqual(
+							families.map((f) => (typeof f.provider === 'string' ? f.provider : f.provider.name)),
+							names,
+						);
+					},
+				};
+			}
+
+			it('skips local fonts', () => {
+				const fixture = createFixture([
+					{
+						name: 'Custom',
+						nameWithHash: 'Custom-xxx',
+						cssVariable: '--custom',
+						provider: 'local',
+						variants: [
+							{
+								src: [{ url: 'a' }],
+								weight: '400',
+								style: 'normal',
+							},
+						],
+					},
+				]);
+				fixture.assertProvidersLength(0);
+				fixture.assertProvidersNames(['local']);
+			});
+
+			it('appends a hash to the provider name', () => {
+				const fixture = createFixture([
+					{
+						name: 'Custom',
+						nameWithHash: 'Custom-xxx',
+						cssVariable: '--custom',
+						provider: {
+							provider: createProvider('test'),
+						},
+					},
+				]);
+				fixture.assertProvidersLength(1);
+				fixture.assertProvidersNames(['test-{"name":"test"}']);
+			});
+
+			it('deduplicates providers with no config', () => {
+				const fixture = createFixture([
+					{
+						name: 'Foo',
+						nameWithHash: 'Foo-xxx',
+						cssVariable: '--custom',
+						provider: {
+							provider: createProvider('test'),
+						},
+					},
+					{
+						name: 'Bar',
+						nameWithHash: 'Bar-xxx',
+						cssVariable: '--custom',
+						provider: {
+							provider: createProvider('test'),
+						},
+					},
+				]);
+				fixture.assertProvidersLength(1);
+				fixture.assertProvidersNames(['test-{"name":"test"}', 'test-{"name":"test"}']);
+			});
+
+			it('deduplicates providers with the same config', () => {
+				const fixture = createFixture([
+					{
+						name: 'Foo',
+						nameWithHash: 'Foo-xxx',
+						cssVariable: '--custom',
+						provider: {
+							provider: createProvider('test'),
+							config: { x: 'y' },
+						},
+					},
+					{
+						name: 'Bar',
+						nameWithHash: 'Bar-xxx',
+						cssVariable: '--custom',
+						provider: {
+							provider: createProvider('test'),
+							config: { x: 'y' },
+						},
+					},
+				]);
+				fixture.assertProvidersLength(1);
+				fixture.assertProvidersNames([
+					'test-{"name":"test","x":"y"}',
+					'test-{"name":"test","x":"y"}',
+				]);
+			});
+
+			it('does not deduplicate providers with different configs', () => {
+				const fixture = createFixture([
+					{
+						name: 'Foo',
+						nameWithHash: 'Foo-xxx',
+						cssVariable: '--custom',
+						provider: {
+							provider: createProvider('test'),
+							config: {
+								x: 'foo',
+							},
+						},
+					},
+					{
+						name: 'Bar',
+						nameWithHash: 'Bar-xxx',
+						cssVariable: '--custom',
+						provider: {
+							provider: createProvider('test'),
+							config: {
+								x: 'bar',
+							},
+						},
+					},
+				]);
+				fixture.assertProvidersLength(2);
+				fixture.assertProvidersNames([
+					'test-{"name":"test","x":"foo"}',
+					'test-{"name":"test","x":"bar"}',
+				]);
+			});
+		});
+
+		it('resolveFont() works', async () => {
+			const fontResolver = await UnifontFontResolver.create({
+				families: [
+					{
+						name: 'Foo',
+						nameWithHash: 'Foo-xxx',
+						cssVariable: '--foo',
+						provider: {
+							provider: () =>
+								Object.assign(
+									() => {
+										return {
+											resolveFont: async () => {
+												return undefined;
+											},
+										};
+									},
+									{ _name: 'foo', _options: undefined },
+								),
+						},
+					},
+					{
+						name: 'Bar',
+						nameWithHash: 'Bar-xxx',
+						cssVariable: '--bar',
+						provider: {
+							provider: () =>
+								Object.assign(
+									() => {
+										return {
+											resolveFont: async () => {
+												return {
+													fonts: [
+														{
+															src: [{ name: 'Bar' }],
+														},
+													],
+												};
+											},
+										};
+									},
+									{ _name: 'bar', _options: undefined },
+								),
+						},
+					},
+				],
+				hasher: new FakeHasher(),
+				storage: new SpyStorage(),
+			});
+			assert.deepStrictEqual(
+				await fontResolver.resolveFont({
+					familyName: 'Foo',
+					provider: 'foo-{"name":"foo"}',
+					weights: undefined,
+					styles: undefined,
+					subsets: undefined,
+					formats: undefined,
+				}),
+				[],
+			);
+			assert.deepStrictEqual(
+				await fontResolver.resolveFont({
+					familyName: 'Bar',
+					provider: 'bar-{"name":"bar"}',
+					weights: undefined,
+					styles: undefined,
+					subsets: undefined,
+					formats: undefined,
+				}),
+				[
+					{
+						src: [{ name: 'Bar' }],
+					},
+				],
+			);
+		});
+
+		it('listFonts() works', async () => {
+			const fontResolver = await UnifontFontResolver.create({
+				families: [
+					{
+						name: 'Foo',
+						nameWithHash: 'Foo-xxx',
+						cssVariable: '--foo',
+						provider: {
+							provider: () =>
+								Object.assign(
+									() => {
+										return {
+											resolveFont: async () => {
+												return undefined;
+											},
+										};
+									},
+									{ _name: 'foo', _options: undefined },
+								),
+						},
+					},
+					{
+						name: 'Bar',
+						nameWithHash: 'Bar-xxx',
+						cssVariable: '--bar',
+						provider: {
+							provider: () =>
+								Object.assign(
+									() => {
+										return {
+											resolveFont: async () => {
+												return undefined;
+											},
+											listFonts: async () => ['a', 'b', 'c'],
+										};
+									},
+									{ _name: 'bar', _options: undefined },
+								),
+						},
+					},
+				],
+				hasher: new FakeHasher(),
+				storage: new SpyStorage(),
+			});
+			assert.deepStrictEqual(
+				await fontResolver.listFonts({
+					provider: 'foo-{"name":"foo"}',
+				}),
+				undefined,
+			);
+			assert.deepStrictEqual(
+				await fontResolver.listFonts({
+					provider: 'bar-{"name":"bar"}',
+				}),
+				['a', 'b', 'c'],
+			);
+		});
 	});
 });

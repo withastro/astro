@@ -75,12 +75,14 @@ jobs:
         working-directory: ./packages/language-tools/vscode
         run: |
           npm run build:grammar
+          mv node_modules/astro-ts-plugin-bundle ./astro-ts-plugin-bundle # move the ts-plugin out of node_modules to avoid deletion
           rm -rf node_modules
           # Also delete root package.json and node_modules to avoid vsce picking up any monorepo info
           mv ../../../package.json ../../../package.temp.json
           rm -rf ../../../node_modules
           sleep 60s # wait for npm registry to update
           npm i --workspaces=false # vsce does not support pnpm, so we need to pretend this is not a monorepo and use npm
+          mv ./astro-ts-plugin-bundle ./node_modules/astro-ts-plugin-bundle
 
       - name: Publish to VSCode Marketplace
         if: steps.vscode-published.outputs.published == 'true'

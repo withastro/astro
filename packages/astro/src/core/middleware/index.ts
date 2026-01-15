@@ -5,7 +5,7 @@ import {
 	computePreferredLocaleList,
 } from '../../i18n/utils.js';
 import type { Params, RewritePayload } from '../../types/public/common.js';
-import type { APIContext, AstroSharedContextCsp } from '../../types/public/context.js';
+import type { APIContext } from '../../types/public/context.js';
 import { ASTRO_GENERATOR } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -114,7 +114,7 @@ function createContext({
 		set locals(_) {
 			throw new AstroError(AstroErrorData.LocalsReassigned);
 		},
-		get csp(): AstroSharedContextCsp {
+		get csp(): APIContext['csp'] {
 			return {
 				insertDirective() {},
 				insertScriptResource() {},

@@ -10,10 +10,10 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/preact": "^5.0.0-alpha.0",
+    "@astrojs/preact": "^5.0.0-beta.1",
     "@nanostores/preact": "^0.5.2",
-    "astro": "^6.0.0-alpha.5",
+    "astro": "^6.0.0-beta.1",
     "nanostores": "^0.11.4",
-    "preact": "^10.28.0"
+    "preact": "^10.28.1"
   }
 }

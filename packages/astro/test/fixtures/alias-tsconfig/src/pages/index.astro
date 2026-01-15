@@ -9,8 +9,12 @@ import Bar from "@short/Bar"
 import Baz from "@short/Baz"
 import StyleComp from 'src/components/Style.astro';
 import { foo, index } from 'src/utils/constants';
+import { doNothing } from '@pages';
 
 const globResult = Object.keys(import.meta.glob('@components/glob/*.js')).join(', ')
+
+// Call a function imported using an import alias from a file name matching a directory.
+doNothing()
 ---
 <html lang="en">
   <head>

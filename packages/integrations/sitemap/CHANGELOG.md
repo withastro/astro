@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 3.6.1-beta.2
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
 ## 3.6.1-alpha.1
 
 ### Patch Changes
@@ -11,6 +17,12 @@
 ### Patch Changes
 
 - [#14956](https://github.com/withastro/astro/pull/14956) [`0ff51df`](https://github.com/withastro/astro/commit/0ff51dfa3c6c615af54228e159f324034472b1a2) Thanks [@matthewp](https://github.com/matthewp)! - Updates usage of zod to own dependency rather than relying on `astro/zod`
+
+## 3.6.1
+
+### Patch Changes
+
+- [#15033](https://github.com/withastro/astro/pull/15033) [`dd06779`](https://github.com/withastro/astro/commit/dd067798c02bff4968b23ce92670685a4e99ccdc) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates how routes are retrieved to avoid relying on a deprecated API
 
 ## 3.6.0
 

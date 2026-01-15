@@ -446,7 +446,10 @@ async function transition(
 				preparationEvent.preventDefault();
 				return;
 			}
+			// preserve fragment
+			const fragment = preparationEvent.to.hash;
 			preparationEvent.to = redirectedTo;
+			preparationEvent.to.hash = fragment;
 		}
 
 		parser ??= new DOMParser();

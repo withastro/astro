@@ -1,6 +1,20 @@
 # @astrojs/markdoc
 
-## 1.0.0-alpha.1
+## 1.0.0-beta.4
+
+### Patch Changes
+
+- Updated dependencies [[`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795), [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795)]:
+  - @astrojs/markdown-remark@7.0.0-beta.1
+  - @astrojs/prism@4.0.0-beta.1
+
+## 1.0.0-beta.3
+
+### Patch Changes
+
+- [#15184](https://github.com/withastro/astro/pull/15184) [`f47c071`](https://github.com/withastro/astro/commit/f47c0719b390918a7e4a18b8b91b682667426b6b) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the package wasn't correctly published
+
+## 1.0.0-beta.0
 
 ### Minor Changes
 
@@ -366,7 +380,7 @@
 - Updated dependencies [[`5608338`](https://github.com/withastro/astro/commit/560833843c6d3ce2b6c6c473ec4ae70e744bf255)]:
   - @astrojs/markdown-remark@6.0.0-beta.1
 
-## 1.0.0-alpha.1
+## 1.0.0-beta.0
 
 ### Patch Changes
 
