@@ -20,6 +20,7 @@ import type {
 	FontData,
 	FontFamily,
 	FontFileDataMap,
+	FontType,
 	InternalConsumableMap,
 	PreloadData,
 	ResolvedFontFamily,
@@ -82,19 +83,24 @@ function filterAndTransformFonts({
 	fontFileIdGenerator,
 	urlResolver,
 	family,
-	storeFontFileData,
-	storePreloadData,
-	storeFallbackData,
+	storeData,
 }: {
 	fonts: Array<unifont.FontFaceData>;
 	fontTypeExtractor: FontTypeExtractor;
 	fontFileIdGenerator: FontFileIdGenerator;
 	urlResolver: UrlResolver;
 	family: Pick<ResolvedFontFamily, 'cssVariable' | 'fallbacks'>;
-	// TODO: consider having return things instead?
-	storeFontFileData: (...args: Parameters<FontFileDataMap['set']>) => void;
-	storePreloadData: (data: PreloadData) => void;
-	storeFallbackData: (data: CollectedFontForMetrics) => void;
+	// TODO: better name
+	storeData: (data: {
+		id: string;
+		url: string;
+		init: RequestInit | undefined;
+		type: FontType;
+		weight: string | undefined;
+		style: string | undefined;
+		subset: string | undefined;
+		preload: boolean;
+	}) => void;
 }) {
 	return (
 		fonts
@@ -116,7 +122,6 @@ function filterAndTransformFonts({
 						const originalUrl = source.url.startsWith('//') ? `https:${source.url}` : source.url;
 						const format = FONT_FORMATS.find((e) => e.format === source.format);
 						const type = format?.type ?? fontTypeExtractor.extract(source.url);
-						const init = font.meta?.init ?? null;
 						const id = fontFileIdGenerator.generate({
 							cssVariable: family.cssVariable,
 							font,
@@ -125,29 +130,17 @@ function filterAndTransformFonts({
 						});
 						const url = urlResolver.resolve(id);
 
-						storeFontFileData(id, { url, init });
-						// We only collect the first URL to avoid preloading fallback sources (eg. we only
-						// preload woff2 if woff is available)
-						if (index === 0) {
-							storePreloadData({
-								url,
-								type,
-								weight: renderFontWeight(font.weight),
-								style: font.style,
-								subset: font.meta?.subset,
-							});
-						}
-						storeFallbackData({
-							hash: id,
+						storeData({
+							id,
 							url,
-							data: {
-								weight: font.weight,
-								style: font.style,
-								meta: {
-									subset: font.meta?.subset,
-								},
-							},
-							init,
+							init: font.meta?.init,
+							type,
+							weight: renderFontWeight(font.weight),
+							style: font.style,
+							subset: font.meta?.subset,
+							// We only collect the first URL to avoid preloading fallback sources (eg. we only
+							// preload woff2 if woff is available)
+							preload: index === 0,
 						});
 
 						const proxied: unifont.RemoteFontSource = {
@@ -240,15 +233,31 @@ async function resolveFamilies({
 			fontFileIdGenerator,
 			fontTypeExtractor,
 			urlResolver,
-			storeFontFileData: (key, value) => {
-				if (!fontFileDataMap.has(key)) {
-					fontFileDataMap.set(key, value);
+			storeData: ({ id, init, preload, style, subset, type, url, weight }) => {
+				if (!fontFileDataMap.has(id)) {
+					fontFileDataMap.set(id, { url, init });
+					if (preload) {
+						resolvedFamily.preloadData.push({
+							style,
+							subset,
+							type,
+							url,
+							weight,
+						});
+					}
 				}
-			},
-			storePreloadData: (data) => {
-				resolvedFamily.preloadData.push(data);
-			},
-			storeFallbackData: (collected) => {
+				const collected: CollectedFontForMetrics = {
+					hash: id,
+					url,
+					init,
+					data: {
+						weight,
+						style,
+						meta: {
+							subset,
+						},
+					},
+				};
 				if (
 					family.fallbacks &&
 					family.fallbacks.length > 0 &&
