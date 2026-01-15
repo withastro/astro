@@ -1,4 +1,4 @@
-import type { AstroPrerenderer } from '../../types/public/integrations.js';
+import type { AstroPrerenderer, PathWithRoute } from '../../types/public/integrations.js';
 import type { RouteData } from '../../types/public/internal.js';
 import type { BuildInternals } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
@@ -28,9 +28,6 @@ export function createDefaultPrerenderer({
 	options,
 	prerenderOutputDir,
 }: DefaultPrerendererOptions): DefaultPrerenderer {
-	// Track pathname→route mapping to avoid route priority issues with app.match()
-	const pathnameToRoute = new Map<string, RouteData>();
-
 	const prerenderer: DefaultPrerenderer = {
 		name: 'astro:default',
 
@@ -52,27 +49,12 @@ export function createDefaultPrerenderer({
 			prerenderer.app = app;
 		},
 
-		async getStaticPaths() {
+		async getStaticPaths(): Promise<PathWithRoute[]> {
 			const staticPaths = new StaticPaths(prerenderer.app!);
-			const pathsWithRoutes = await staticPaths.getAll();
-			// Store pathname→route mapping for render()
-			for (const { pathname, route } of pathsWithRoutes) {
-				pathnameToRoute.set(pathname, route);
-			}
-			return pathsWithRoutes.map(p => p.pathname);
+			return staticPaths.getAll();
 		},
 
-		async render(request: Request) {
-			// Get the route from our mapping (avoids route priority issues with app.match())
-			// Fall back to app.match() for static routes that don't go through getStaticPaths
-			// Normalize pathname by removing trailing slash and .html (URL has endings, map doesn't)
-			let pathname = prerenderer.app!.getPathnameFromRequest(request);
-			if (pathname.endsWith('/') && pathname !== '/') {
-				pathname = pathname.slice(0, -1);
-			} else if (pathname.endsWith('.html')) {
-				pathname = pathname.slice(0, -5);
-			}
-			const routeData = pathnameToRoute.get(pathname) ?? prerenderer.app!.match(request, true);
+		async render(request: Request, routeData: RouteData): Promise<Response> {
 			return prerenderer.app!.render(request, { routeData });
 		},
 

@@ -1,5 +1,6 @@
 import type { SSRManifest } from '../../core/app/types.js';
 import type { Pipeline } from '../../core/base-pipeline.js';
+import type { PathWithRoute } from '../../types/public/integrations.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { stringifyParams } from '../../core/routing/params.js';
 import {
@@ -9,13 +10,7 @@ import {
 } from '../../core/routing/helpers.js';
 import { callGetStaticPaths } from '../../core/render/route-cache.js';
 
-/**
- * A pathname with its associated route, used for prerendering.
- */
-export interface PathWithRoute {
-	pathname: string;
-	route: RouteData;
-}
+export type { PathWithRoute } from '../../types/public/integrations.js';
 
 /**
  * Minimal interface for what StaticPaths needs from an App.

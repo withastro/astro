@@ -147,6 +147,14 @@ export interface AstroAdapter {
 }
 
 /**
+ * A pathname with its associated route, used for prerendering.
+ */
+export interface PathWithRoute {
+	pathname: string;
+	route: RouteData;
+}
+
+/**
  * Custom prerenderer that adapters can provide to control how pages are prerendered.
  * Allows non-Node runtimes (e.g., workerd) to handle prerendering.
  */
@@ -157,15 +165,16 @@ export interface AstroPrerenderer {
 	 */
 	setup?: () => Promise<void>;
 	/**
-	 * Returns pathnames to prerender. The prerenderer calls into its runtime which has access
-	 * to the manifest and runs getStaticPaths internally.
+	 * Returns pathnames with their routes to prerender. The route is included to avoid
+	 * needing to re-match routes later, which can be incorrect due to route priority.
 	 */
-	getStaticPaths: () => Promise<string[]>;
+	getStaticPaths: () => Promise<PathWithRoute[]>;
 	/**
-	 * Renders a single page. Called by Astro for each pathname returned by getStaticPaths.
+	 * Renders a single page. Called by Astro for each path returned by getStaticPaths.
 	 * @param request - The request to render
+	 * @param routeData - The route data for this request
 	 */
-	render: (request: Request) => Promise<Response>;
+	render: (request: Request, routeData: RouteData) => Promise<Response>;
 	/**
 	 * Called after all pages are prerendered. Use for cleanup like stopping a preview server.
 	 */

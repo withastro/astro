@@ -16,16 +16,14 @@ import {
 } from '../../core/path.js';
 import { runHookBuildGenerated, toIntegrationResolvedRoute } from '../../integrations/hooks.js';
 import type { AstroConfig } from '../../types/public/config.js';
-import type { RoutesList } from '../../types/astro.js';
 import type { Logger } from '../logger/core.js';
-import type { AstroPrerenderer, RouteToHeaders } from '../../types/public/index.js';
-import type { RouteType, SSRError } from '../../types/public/internal.js';
+import type { AstroPrerenderer, PathWithRoute, RouteToHeaders } from '../../types/public/index.js';
+import type { RouteData, RouteType, SSRError } from '../../types/public/internal.js';
 import { AstroError } from '../errors/index.js';
 import { getRedirectLocationOrThrow } from '../redirects/index.js';
 import { createRequest } from '../request.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { routeIsRedirect } from '../routing/helpers.js';
-import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
@@ -71,27 +69,24 @@ export async function generatePages(
 	const verb = ssr ? 'prerendering' : 'generating';
 	logger.info('SKIP_FORMAT', `\n${colors.bgGreen(colors.black(` ${verb} static routes `))}`);
 
-	// Get all static paths from the prerenderer
-	const pathnames = await prerenderer.getStaticPaths();
+	// Get all static paths with their routes from the prerenderer
+	const pathsWithRoutes = await prerenderer.getStaticPaths();
 	const routeToHeaders: RouteToHeaders = new Map();
-
-	// Build a RoutesList for matching
-	const routesList = { routes: options.routesList.routes };
 
 	// Generate each path
 	const { config } = options.settings;
 	if (config.build.concurrency > 1) {
 		const limit = PLimit(config.build.concurrency);
 		const promises: Promise<void>[] = [];
-		for (const pathname of pathnames) {
+		for (const { pathname, route } of pathsWithRoutes) {
 			promises.push(
-				limit(() => generatePathWithPrerenderer(prerenderer, pathname, routesList, options, routeToHeaders, logger)),
+				limit(() => generatePathWithPrerenderer(prerenderer, pathname, route, options, routeToHeaders, logger)),
 			);
 		}
 		await Promise.all(promises);
 	} else {
-		for (const pathname of pathnames) {
-			await generatePathWithPrerenderer(prerenderer, pathname, routesList, options, routeToHeaders, logger);
+		for (const { pathname, route } of pathsWithRoutes) {
+			await generatePathWithPrerenderer(prerenderer, pathname, route, options, routeToHeaders, logger);
 		}
 	}
 
@@ -208,20 +203,13 @@ const THRESHOLD_SLOW_RENDER_TIME_MS = 500;
 async function generatePathWithPrerenderer(
 	prerenderer: AstroPrerenderer,
 	pathname: string,
-	routesList: RoutesList,
+	route: RouteData,
 	options: StaticBuildOptions,
 	routeToHeaders: RouteToHeaders,
 	logger: Logger,
 ): Promise<void> {
 	const timeStart = performance.now();
 	const { config } = options.settings;
-
-	// Match pathname to route
-	const route = matchRoute(decodeURI(pathname), routesList);
-	if (!route) {
-		logger.warn('build', `No route found for pathname: ${pathname}`);
-		return;
-	}
 
 	const filePath = getOutputFilename(config.build.format, pathname, route);
 	logger.info(null, `  ${colors.blue('├─')} ${colors.dim(filePath)}`, false);
@@ -252,7 +240,7 @@ async function generatePathWithPrerenderer(
 	// Render using the prerenderer
 	let response: Response;
 	try {
-		response = await prerenderer.render(request);
+		response = await prerenderer.render(request, route);
 	} catch (err) {
 		logger.error('build', `Caught error rendering ${pathname}: ${err}`);
 		if (err && !AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
