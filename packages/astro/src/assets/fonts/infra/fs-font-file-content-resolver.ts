@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { isAbsolute } from 'node:path';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
-import type { UrlProxyContentResolver } from '../definitions.js';
+import type { FontFileContentResolver } from '../definitions.js';
 
-export class FsUrlProxyContentResolver implements UrlProxyContentResolver {
+export class FsFontFileContentResolver implements FontFileContentResolver {
 	resolve(url: string): string {
 		if (!isAbsolute(url)) {
 			// HTTP URLs are enough

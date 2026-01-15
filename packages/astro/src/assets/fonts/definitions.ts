@@ -25,7 +25,7 @@ export interface UrlResolver {
 	readonly cspResources: Array<string>;
 }
 
-export interface UrlProxyContentResolver {
+export interface FontFileContentResolver {
 	resolve: (url: string) => string;
 }
 
