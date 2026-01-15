@@ -26,6 +26,56 @@ import type {
 } from './types.js';
 import { renderFontWeight, unifontFontFaceDataToProperties } from './utils.js';
 
+type ResolvedFamiliesMap = Map<
+	string,
+	{
+		family: ResolvedFontFamily;
+		fonts: Array<unifont.FontFaceData>;
+		/**
+		 * Holds a list of font files to be used for optimized fallbacks generation
+		 */
+		collectedFonts: Array<CollectedFontForMetrics>;
+		preloadData: Array<PreloadData>;
+	}
+>;
+
+function getOrCreateResolvedFamilyData({
+	resolvedFamiliesMap,
+	logger,
+	bold,
+	family,
+}: {
+	resolvedFamiliesMap: ResolvedFamiliesMap;
+	logger: Logger;
+	bold: (input: string) => string;
+	family: ResolvedFontFamily;
+}) {
+	const key = `${family.cssVariable}:${family.name}:${typeof family.provider === 'string' ? family.provider : family.provider.name}`;
+	let resolvedFamily = resolvedFamiliesMap.get(key);
+	if (!resolvedFamily) {
+		if (
+			Array.from(resolvedFamiliesMap.keys()).find((k) => k.startsWith(`${family.cssVariable}:`))
+		) {
+			logger.warn(
+				'assets',
+				`Several font families have been registered for the ${bold(family.cssVariable)} cssVariable but they do not share the same name and provider.`,
+			);
+			logger.warn(
+				'assets',
+				'These families will not be merged together. The last occurrence will override previous families for this cssVariable. Review your Astro configuration.',
+			);
+		}
+		resolvedFamily = {
+			family,
+			fonts: [],
+			collectedFonts: [],
+			preloadData: [],
+		};
+		resolvedFamiliesMap.set(key, resolvedFamily);
+	}
+	return resolvedFamily;
+}
+
 async function resolveFamilies({
 	resolvedFamilies,
 	fontResolver,
@@ -50,19 +100,7 @@ async function resolveFamilies({
 	/**
 	 * Holds family data by a key, to allow merging families
 	 */
-	const resolvedFamiliesMap = new Map<
-		string,
-		{
-			family: ResolvedFontFamily;
-			fonts: Array<unifont.FontFaceData>;
-			fallbacks: Array<string>;
-			/**
-			 * Holds a list of font files to be used for optimized fallbacks generation
-			 */
-			collectedFonts: Array<CollectedFontForMetrics>;
-			preloadData: Array<PreloadData>;
-		}
-	>();
+	const resolvedFamiliesMap: ResolvedFamiliesMap = new Map();
 
 	/**
 	 * Holds associations of hash and original font file URLs, so they can be
@@ -73,30 +111,12 @@ async function resolveFamilies({
 	// First loop: we try to merge families. This is useful for advanced cases, where eg. you want
 	// 500, 600, 700 as normal but also 500 as italic. That requires 2 families
 	for (const family of resolvedFamilies) {
-		const key = `${family.cssVariable}:${family.name}:${typeof family.provider === 'string' ? family.provider : family.provider.name}`;
-		let resolvedFamily = resolvedFamiliesMap.get(key);
-		if (!resolvedFamily) {
-			if (
-				Array.from(resolvedFamiliesMap.keys()).find((k) => k.startsWith(`${family.cssVariable}:`))
-			) {
-				logger.warn(
-					'assets',
-					`Several font families have been registered for the ${bold(family.cssVariable)} cssVariable but they do not share the same name and provider.`,
-				);
-				logger.warn(
-					'assets',
-					'These families will not be merged together. The last occurrence will override previous families for this cssVariable. Review your Astro configuration.',
-				);
-			}
-			resolvedFamily = {
-				family,
-				fonts: [],
-				fallbacks: family.fallbacks ?? defaults.fallbacks ?? [],
-				collectedFonts: [],
-				preloadData: [],
-			};
-			resolvedFamiliesMap.set(key, resolvedFamily);
-		}
+		const resolvedFamily = getOrCreateResolvedFamilyData({
+			resolvedFamiliesMap,
+			bold,
+			family,
+			logger,
+		});
 
 		const fonts = await fontResolver.resolveFont({
 			familyName: family.name,
@@ -179,8 +199,8 @@ async function resolveFamilies({
 							init,
 						};
 						if (
-							resolvedFamily.fallbacks &&
-							resolvedFamily.fallbacks.length > 0 &&
+							family.fallbacks &&
+							family.fallbacks.length > 0 &&
 							// If the same data has already been sent for this family, we don't want to have
 							// duplicated fallbacks. Such scenario can occur with unicode ranges.
 							!resolvedFamily.collectedFonts.some(
@@ -281,13 +301,7 @@ export async function orchestrate({
 	});
 
 	// We know about all the families, let's generate css, fallbacks and more
-	for (const {
-		family,
-		fonts,
-		fallbacks,
-		collectedFonts,
-		preloadData,
-	} of resolvedFamiliesMap.values()) {
+	for (const { family, fonts, collectedFonts, preloadData } of resolvedFamiliesMap.values()) {
 		const consumableMapValue: Array<FontData> = [];
 		let css = '';
 
@@ -320,6 +334,7 @@ export async function orchestrate({
 			});
 		}
 
+		const fallbacks = family.fallbacks ?? defaults.fallbacks;
 		const cssVarValues = [family.uniqueName];
 		const optimizeFallbacksResult = await optimizeFallbacks({
 			family,
