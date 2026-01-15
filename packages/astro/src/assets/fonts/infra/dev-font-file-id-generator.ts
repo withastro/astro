@@ -1,21 +1,21 @@
 import type {
+	FontFileContentResolver,
 	FontFileIdGenerator,
 	Hasher,
 	ProxyData,
-	UrlProxyContentResolver,
 } from '../definitions.js';
 import type { FontType } from '../types.js';
 
 export class DevFontFileIdGenerator implements FontFileIdGenerator {
 	readonly #hasher: Hasher;
-	readonly #contentResolver: UrlProxyContentResolver;
+	readonly #contentResolver: FontFileContentResolver;
 
 	constructor({
 		hasher,
 		contentResolver,
 	}: {
 		hasher: Hasher;
-		contentResolver: UrlProxyContentResolver;
+		contentResolver: FontFileContentResolver;
 	}) {
 		this.#hasher = hasher;
 		this.#contentResolver = contentResolver;

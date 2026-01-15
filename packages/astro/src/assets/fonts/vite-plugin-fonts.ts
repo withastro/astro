@@ -19,20 +19,17 @@ import {
 	RESOLVED_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './constants.js';
-import type {
-	FontFetcher,
-	FontTypeExtractor
-} from './definitions.js';
+import type { FontFetcher, FontTypeExtractor } from './definitions.js';
 import { BuildFontFileIdGenerator } from './infra/build-font-file-id-generator.js';
 import { BuildUrlResolver } from './infra/build-url-resolver.js';
 import { CachedFontFetcher } from './infra/cached-font-fetcher.js';
 import { CapsizeFontMetricsResolver } from './infra/capsize-font-metrics-resolver.js';
 import { DevFontFileIdGenerator } from './infra/dev-font-file-id-generator.js';
 import { DevUrlResolver } from './infra/dev-url-resolver.js';
-import { RealFontTypeExtractor } from './infra/font-type-extractor.js';
-import { FsUrlProxyContentResolver } from './infra/fs-url-proxy-content-resolver.js';
+import { FsFontFileContentResolver } from './infra/fs-font-file-content-resolver.js';
 import { LevenshteinStringMatcher } from './infra/levenshtein-string-matcher.js';
 import { MinifiableCssRenderer } from './infra/minifiable-css-renderer.js';
+import { NodeFontTypeExtractor } from './infra/node-font-type-extractor.js';
 import { RealSystemFallbacksProvider } from './infra/system-fallbacks-provider.js';
 import { UnifontFontResolver } from './infra/unifont-font-resolver.js';
 import { UnstorageFsStorage } from './infra/unstorage-fs-storage.js';
@@ -107,7 +104,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			fontFetcher = new CachedFontFetcher({ storage, fetch, readFile });
 			const cssRenderer = new MinifiableCssRenderer({ minify: isBuild });
 			const fontMetricsResolver = new CapsizeFontMetricsResolver({ fontFetcher, cssRenderer });
-			fontTypeExtractor = new RealFontTypeExtractor();
+			fontTypeExtractor = new NodeFontTypeExtractor();
 			const stringMatcher = new LevenshteinStringMatcher();
 			const urlResolver = isBuild
 				? new BuildUrlResolver({
@@ -119,7 +116,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 						base: baseUrl,
 						searchParams: settings.adapter?.client?.assetQueryParams ?? new URLSearchParams(),
 					});
-			const contentResolver = new FsUrlProxyContentResolver();
+			const contentResolver = new FsFontFileContentResolver();
 			const fontFileIdGenerator = isBuild
 				? new BuildFontFileIdGenerator({
 						hasher,
