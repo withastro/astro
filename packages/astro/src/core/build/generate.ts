@@ -17,7 +17,7 @@ import {
 import { runHookBuildGenerated, toIntegrationResolvedRoute } from '../../integrations/hooks.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { Logger } from '../logger/core.js';
-import type { AstroPrerenderer, PathWithRoute, RouteToHeaders } from '../../types/public/index.js';
+import type { AstroPrerenderer, RouteToHeaders } from '../../types/public/index.js';
 import type { RouteData, RouteType, SSRError } from '../../types/public/internal.js';
 import { AstroError } from '../errors/index.js';
 import { getRedirectLocationOrThrow } from '../redirects/index.js';
