@@ -43,8 +43,8 @@ function rewriteCssUrls(css: string, base: string): string {
 	// Matches url(...) while handling quotes, unquoted URLs, and edge cases
 	// Excludes @import statements via negative lookbehind
 	// Matches Vite's cssUrlRE pattern exactly - capturing groups preserved for compatibility
-	// eslint-disable-next-line regexp/no-unused-capturing-group
 	const cssUrlRE =
+		// eslint-disable-next-line regexp/no-unused-capturing-group
 		/(?<!@import\s+)(?<=^|[^\w\-\u0080-\uffff])url\((\s*('[^']+'|"[^"]+")\s*|(?:\\.|[^'")\\])+)\)/g;
 
 	return css.replace(cssUrlRE, (match, rawUrl: string) => {
