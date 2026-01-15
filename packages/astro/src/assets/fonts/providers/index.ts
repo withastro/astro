@@ -7,7 +7,7 @@ import {
 } from 'unifont';
 import { FontaceFontFileReader } from '../infra/fontace-font-file-reader.js';
 import type { FontProvider } from '../types.js';
-import { LocalFontProvider } from './local.js';
+import { type LocalFamilyOptions, LocalFontProvider } from './local.js';
 
 /** [Adobe](https://fonts.adobe.com/) */
 function adobe(config: AdobeProviderOptions): FontProvider {
@@ -119,7 +119,7 @@ function googleicons(): FontProvider<GoogleiconsFamilyOptions | undefined> {
 }
 
 /** TODO: */
-function local() {
+function local(): FontProvider<LocalFamilyOptions> {
 	return new LocalFontProvider({
 		fontFileReader: new FontaceFontFileReader(),
 	});
