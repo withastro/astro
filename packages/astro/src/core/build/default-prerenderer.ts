@@ -54,7 +54,9 @@ export function createDefaultPrerenderer({
 
 		async render(request: Request) {
 			// Use the app to render the request
-			const response = await prerenderer.app!.render(request);
+			// Pass allowPrerenderedRoutes=true since we're prerendering
+			const routeData = prerenderer.app!.match(request, true);
+			const response = await prerenderer.app!.render(request, { routeData });
 			return response;
 		},
 
