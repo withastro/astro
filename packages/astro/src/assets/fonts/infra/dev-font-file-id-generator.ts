@@ -1,9 +1,5 @@
-import type {
-	FontFileContentResolver,
-	FontFileIdGenerator,
-	Hasher,
-	ProxyData,
-} from '../definitions.js';
+import type * as unifont from 'unifont';
+import type { FontFileContentResolver, FontFileIdGenerator, Hasher } from '../definitions.js';
 import type { FontType } from '../types.js';
 
 export class DevFontFileIdGenerator implements FontFileIdGenerator {
@@ -21,7 +17,7 @@ export class DevFontFileIdGenerator implements FontFileIdGenerator {
 		this.#contentResolver = contentResolver;
 	}
 
-	#formatWeight(weight: ProxyData['weight']): string | undefined {
+	#formatWeight(weight: unifont.FontFaceData['weight']): string | undefined {
 		if (Array.isArray(weight)) {
 			return weight.join('-');
 		}
@@ -33,20 +29,20 @@ export class DevFontFileIdGenerator implements FontFileIdGenerator {
 
 	generate({
 		cssVariable,
-		data,
 		originalUrl,
 		type,
+		font,
 	}: {
 		originalUrl: string;
 		type: FontType;
 		cssVariable: string;
-		data: ProxyData;
+		font: unifont.FontFaceData;
 	}): string {
 		return [
 			cssVariable.slice(2),
-			this.#formatWeight(data.weight),
-			data.style,
-			data.subset,
+			this.#formatWeight(font.weight),
+			font.style,
+			font.meta?.subset,
 			`${this.#hasher.hashString(this.#contentResolver.resolve(originalUrl))}.${type}`,
 		]
 			.filter(Boolean)

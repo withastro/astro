@@ -192,15 +192,10 @@ export async function orchestrate({
 						const originalUrl = source.url.startsWith('//') ? `https:${source.url}` : source.url;
 						const format = FONT_FORMATS.find((e) => e.format === source.format);
 						const type = format?.type ?? fontTypeExtractor.extract(source.url);
-						const data = {
-							weight: font.weight,
-							style: font.style,
-							subset: font.meta?.subset,
-						};
 						const init = font.meta?.init ?? null;
 						const id = fontFileIdGenerator.generate({
 							cssVariable: family.cssVariable,
-							data,
+							font,
 							originalUrl,
 							type,
 						});
@@ -214,13 +209,22 @@ export async function orchestrate({
 								resolvedFamily.preloadData.push({
 									url,
 									type,
-									weight: renderFontWeight(data.weight),
-									style: data.style,
-									subset: data.subset,
+									weight: renderFontWeight(font.weight),
+									style: font.style,
+									subset: font.meta?.subset,
 								});
 							}
 						}
-						const collected = { hash: id, url, data, init };
+						const collected = {
+							hash: id,
+							url,
+							data: {
+								weight: font.weight,
+								style: font.style,
+								subset: font.meta?.subset,
+							},
+							init,
+						};
 						if (
 							resolvedFamily.fallbacks &&
 							resolvedFamily.fallbacks.length > 0 &&
