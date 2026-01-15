@@ -23,7 +23,7 @@ export interface PathWithRoute {
  */
 export interface StaticPathsApp {
 	manifest: SSRManifest;
-	pipeline: Pick<Pipeline, 'routeCache'>;
+	pipeline: Pick<Pipeline, 'routeCache' | 'getComponentByRoute'>;
 }
 
 /**
@@ -96,22 +96,8 @@ export class StaticPaths {
 		}
 
 		// Dynamic route - need to call getStaticPaths
-		if (!manifest.pageMap) {
-			throw new Error(
-				`pageMap not found in manifest. This is unexpected and likely a bug in Astro.`,
-			);
-		}
-
-		const pageModuleLoader = manifest.pageMap.get(route.component);
-		if (!pageModuleLoader) {
-			throw new Error(
-				`Unable to find module for ${route.component}. This is unexpected and likely a bug in Astro.`,
-			);
-		}
-
-		// Load the module and get the component instance
-		const singlePageModule = await pageModuleLoader();
-		const componentInstance = await singlePageModule.page();
+		// Use pipeline.getComponentByRoute which handles redirects and fallbacks
+		const componentInstance = await this.#app.pipeline.getComponentByRoute(route);
 
 		// Determine which route to use for getStaticPaths
 		const routeToProcess = routeIsRedirect(route)
