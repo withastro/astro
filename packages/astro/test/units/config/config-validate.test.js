@@ -489,6 +489,20 @@ describe('Config Validation', () => {
 		});
 	});
 
+	describe('session', () => {
+		it('should allow session config without a driver', async () => {
+			// Adapters like cloudflare, netlify, and node provide default drivers
+			// so users should be able to configure session options without specifying a driver
+			const result = await validateConfig({
+				session: {
+					ttl: 60 * 60, // 1 hour
+				},
+			});
+			assert.equal(result.session.ttl, 60 * 60);
+			assert.equal(result.session.driver, undefined);
+		});
+	});
+
 	describe('csp', () => {
 		it('should throw an error if incorrect scriptHashes are passed', async () => {
 			let configError = await validateConfig({
