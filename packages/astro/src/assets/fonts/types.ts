@@ -291,3 +291,5 @@ export interface ResolveFontOptions<
 	formats: FontType[];
 	options: [FamilyOptions] extends [never] ? undefined : FamilyOptions | undefined;
 }
+
+export type CssProperties = Record<string, string | undefined>;

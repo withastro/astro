@@ -1,7 +1,7 @@
 import type * as unifont from 'unifont';
 import { FONT_TYPES, GENERIC_FALLBACK_NAMES } from './constants.js';
-import type { CssProperties, Storage } from './definitions.js';
-import type { FontType, GenericFallbackName } from './types.js';
+import type { Storage } from './definitions.js';
+import type { CssProperties, FontType, GenericFallbackName } from './types.js';
 
 /**
  * Turns unifont font face data into generic CSS properties, to be consumed by the CSS renderer.

@@ -1,6 +1,7 @@
 import type * as unifont from 'unifont';
 import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 import type {
+	CssProperties,
 	FontFaceMetrics,
 	FontFileData,
 	FontType,
@@ -14,12 +15,6 @@ export interface Hasher {
 	hashObject: (input: Record<string, any>) => string;
 }
 
-export interface ProxyData {
-	weight: unifont.FontFaceData['weight'];
-	style: unifont.FontFaceData['style'];
-	subset: NonNullable<unifont.FontFaceData['meta']>['subset'];
-}
-
 export interface UrlResolver {
 	resolve: (hash: string) => string;
 	readonly cspResources: Array<string>;
@@ -28,8 +23,6 @@ export interface UrlResolver {
 export interface FontFileContentResolver {
 	resolve: (url: string) => string;
 }
-
-export type CssProperties = Record<string, string | undefined>;
 
 export interface CssRenderer {
 	generateFontFace: (family: string, properties: CssProperties) => string;
@@ -72,7 +65,7 @@ export interface FontFileIdGenerator {
 		originalUrl: string;
 		type: FontType;
 		cssVariable: string;
-		data: ProxyData;
+		font: unifont.FontFaceData;
 	}) => string;
 }
 
