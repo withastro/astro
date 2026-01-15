@@ -32,7 +32,6 @@ import { BuildUrlProxyHashResolver } from './infra/build-url-proxy-hash-resolver
 import { BuildUrlResolver } from './infra/build-url-resolver.js';
 import { CachedFontFetcher } from './infra/cached-font-fetcher.js';
 import { CapsizeFontMetricsResolver } from './infra/capsize-font-metrics-resolver.js';
-import { RealDataCollector } from './infra/data-collector.js';
 import { DevUrlProxyHashResolver } from './infra/dev-url-proxy-hash-resolver.js';
 import { DevUrlResolver } from './infra/dev-url-resolver.js';
 import { RealFontTypeExtractor } from './infra/font-type-extractor.js';
@@ -42,7 +41,6 @@ import { RemoteUrlProxyContentResolver } from './infra/remote-url-proxy-content-
 import { RealSystemFallbacksProvider } from './infra/system-fallbacks-provider.js';
 import { UnifontFontResolver } from './infra/unifont-font-resolver.js';
 import { UnstorageFsStorage } from './infra/unstorage-fs-storage.js';
-import { RealUrlProxy } from './infra/url-proxy.js';
 import { XxhashHasher } from './infra/xxhash-hasher.js';
 import { orchestrate } from './orchestrate.js';
 import type { ConsumableMap, FontFamily, FontFileDataMap, InternalConsumableMap } from './types.js';
@@ -136,16 +134,11 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			fontMetricsResolver,
 			fontTypeExtractor,
 			logger,
-			createUrlProxy: ({ cssVariable, ...params }) => {
-				const dataCollector = new RealDataCollector(params);
-				const contentResolver = new RemoteUrlProxyContentResolver();
-				return new RealUrlProxy({
-					urlResolver,
-					hashResolver: createHashResolver({ hasher, contentResolver }),
-					dataCollector,
-					cssVariable,
-				});
-			},
+			hashResolver: createHashResolver({
+				hasher,
+				contentResolver: new RemoteUrlProxyContentResolver(),
+			}),
+			urlResolver,
 			defaults: DEFAULTS,
 			bold: colors.bold,
 			stringMatcher,

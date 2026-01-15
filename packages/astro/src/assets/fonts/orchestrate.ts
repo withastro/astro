@@ -11,18 +11,19 @@ import type {
 	Hasher,
 	StringMatcher,
 	SystemFallbacksProvider,
-	UrlProxy,
+	UrlProxyHashResolver,
+	UrlResolver
 } from './definitions.js';
+import { RealDataCollector } from './infra/data-collector.js';
 import type {
 	ConsumableMap,
-	CreateUrlProxyParams,
 	Defaults,
 	FontData,
 	FontFamily,
 	FontFileDataMap,
 	InternalConsumableMap,
 	PreloadData,
-	ResolvedFontFamily,
+	ResolvedFontFamily
 } from './types.js';
 import { renderFontWeight, unifontFontFaceDataToProperties } from './utils.js';
 
@@ -53,11 +54,12 @@ export async function orchestrate({
 	fontMetricsResolver,
 	fontTypeExtractor,
 	logger,
-	createUrlProxy,
 	defaults,
 	bold,
 	stringMatcher,
 	createFontResolver,
+	hashResolver,
+	urlResolver,
 }: {
 	families: Array<FontFamily>;
 	hasher: Hasher;
@@ -66,11 +68,12 @@ export async function orchestrate({
 	fontMetricsResolver: FontMetricsResolver;
 	fontTypeExtractor: FontTypeExtractor;
 	logger: Logger;
-	createUrlProxy: (params: CreateUrlProxyParams) => UrlProxy;
 	defaults: Defaults;
 	bold: (input: string) => string;
 	stringMatcher: StringMatcher;
 	createFontResolver: (params: { families: Array<ResolvedFontFamily> }) => Promise<FontResolver>;
+	hashResolver: UrlProxyHashResolver;
+	urlResolver: UrlResolver;
 }): Promise<{
 	fontFileDataMap: FontFileDataMap;
 	internalConsumableMap: InternalConsumableMap;
@@ -146,7 +149,8 @@ export async function orchestrate({
 		 * Allows collecting and transforming original URLs from providers, so the Vite
 		 * plugin has control over URLs.
 		 */
-		const urlProxy = createUrlProxy({
+
+		const dataCollector = new RealDataCollector({
 			hasUrl: (hash) => fontFileDataMap.has(hash),
 			saveUrl: ({ hash, url, init }) => {
 				fontFileDataMap.set(hash, { url, init });
@@ -169,7 +173,6 @@ export async function orchestrate({
 					resolvedFamily.collectedFonts.push(collected);
 				}
 			},
-			cssVariable: family.cssVariable,
 		});
 
 		const fonts = await fontResolver.resolveFont({
@@ -217,24 +220,43 @@ export async function orchestrate({
 						}
 						// We handle protocol relative URLs here, otherwise they're considered absolute by the font
 						// fetcher which will try to read them from the file system
-						const url = source.url.startsWith('//') ? `https:${source.url}` : source.url;
+						const originalUrl = source.url.startsWith('//') ? `https:${source.url}` : source.url;
 						const format = FONT_FORMATS.find((e) => e.format === source.format);
-
-						const proxied: unifont.RemoteFontSource = {
-							originalURL: url,
-							url: urlProxy.proxy({
-								url,
-								type: format?.type ?? fontTypeExtractor.extract(source.url),
+						const type = format?.type ?? fontTypeExtractor.extract(source.url);
+						const data = {
+							weight: font.weight,
+							style: font.style,
+							subset: font.meta?.subset,
+						};
+						const hash = hashResolver.resolve({
+							cssVariable: family.cssVariable,
+							data,
+							originalUrl,
+							type,
+						});
+						const url = urlResolver.resolve(hash);
+						dataCollector.collect({
+							url: originalUrl,
+							hash,
+							preload:
 								// We only collect the first URL to avoid preloading fallback sources (eg. we only
 								// preload woff2 if woff is available)
-								collectPreload: index === 0,
-								data: {
-									weight: font.weight,
-									style: font.style,
-									subset: font.meta?.subset,
-								},
-								init: font.meta?.init ?? null,
-							}),
+								index === 0
+									? {
+											url,
+											type,
+											weight: renderFontWeight(data.weight),
+											style: data.style,
+											subset: data.subset,
+										}
+									: null,
+							data,
+							init: font.meta?.init ?? null,
+						});
+
+						const proxied: unifont.RemoteFontSource = {
+							originalURL: originalUrl,
+							url,
 							format: format?.format,
 							tech: source.tech,
 						};
