@@ -17,6 +17,7 @@ export interface FontProviderInitContext {
 		};
 		setItem: (key: string, value: unknown) => Awaitable<void>;
 	};
+	root: URL;
 }
 
 type Awaitable<T> = T | Promise<T>;
@@ -90,7 +91,7 @@ interface Fallbacks {
 	optimizedFallbacks?: boolean | undefined;
 }
 
-interface FamilyProperties {
+export interface FamilyProperties {
 	/**
 	 * A [font weight](https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight). If the associated font is a [variable font](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_fonts/Variable_fonts_guide), you can specify a range of weights:
 	 *
