@@ -56,7 +56,7 @@ interface UnstorageConfig<
 	 * Entrypoint for an unstorage session driver
 	 * @deprecated Use `import { sessionDrivers } from 'astro/config'` instead. This will be removed in Astro 7
 	 */
-	driver: TDriver;
+	driver?: TDriver;
 	/**
 	 * Options for the unstorage driver
 	 * @deprecated Use `import { sessionDrivers } from 'astro/config'` instead. This will be removed in Astro 7
