@@ -124,7 +124,7 @@ async function resolveFamilies({
 		fontAssets.preloads.push(...result.preloads);
 	}
 
-	return { fontFamilyAssetsByUniqueKey, fontFileDataMap: fontFileById };
+	return { fontFamilyAssetsByUniqueKey, fontFileById };
 }
 
 /**
@@ -173,12 +173,12 @@ export async function orchestrate({
 	fontFileIdGenerator: FontFileIdGenerator;
 	urlResolver: UrlResolver;
 }): Promise<{
-	fontFileDataMap: FontFileById;
+	fontFileById: FontFileById;
 	internalConsumableMap: InternalConsumableMap;
 	consumableMap: ConsumableMap;
 }> {
 	const resolvedFamilies = families.map((family) => resolveFamily({ family, hasher }));
-	const { fontFamilyAssetsByUniqueKey, fontFileDataMap } = await resolveFamilies({
+	const { fontFamilyAssetsByUniqueKey, fontFileById } = await resolveFamilies({
 		resolvedFamilies,
 		fontResolver: await createFontResolver({ families: resolvedFamilies }),
 		logger,
@@ -264,5 +264,5 @@ export async function orchestrate({
 		consumableMap.set(family.cssVariable, consumableMapValue);
 	}
 
-	return { fontFileDataMap, internalConsumableMap, consumableMap };
+	return { fontFileById, internalConsumableMap, consumableMap };
 }
