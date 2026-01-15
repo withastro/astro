@@ -34,8 +34,8 @@ type FontFamilyAssetsByUniqueKey = Map<
 		/**
 		 * Holds a list of font files to be used for optimized fallbacks generation
 		 */
-		collectedFonts: Map<string, CollectedFontForMetrics>;
-		preloadData: Array<PreloadData>;
+		collectedFontsForMetricsByUniqueKey: Map<string, CollectedFontForMetrics>;
+		preloads: Array<PreloadData>;
 	}
 >;
 
@@ -54,7 +54,9 @@ function getOrCreateFontFamilyAssets({
 	let fontAssets = fontFamilyAssetsByUniqueKey.get(key);
 	if (!fontAssets) {
 		if (
-			Array.from(fontFamilyAssetsByUniqueKey.keys()).find((k) => k.startsWith(`${family.cssVariable}:`))
+			Array.from(fontFamilyAssetsByUniqueKey.keys()).find((k) =>
+				k.startsWith(`${family.cssVariable}:`),
+			)
 		) {
 			logger.warn(
 				'assets',
@@ -68,8 +70,8 @@ function getOrCreateFontFamilyAssets({
 		fontAssets = {
 			family,
 			fonts: [],
-			collectedFonts: new Map(),
-			preloadData: [],
+			collectedFontsForMetricsByUniqueKey: new Map(),
+			preloads: [],
 		};
 		fontFamilyAssetsByUniqueKey.set(key, fontAssets);
 	}
@@ -294,16 +296,16 @@ async function resolveFamilies({
 			family,
 			fontFileIdGenerator,
 			fontFilesIds: new Set(fontFileDataMap.keys()),
-			collectedFontsIds: new Set(fontAssets.collectedFonts.keys()),
+			collectedFontsIds: new Set(fontAssets.collectedFontsForMetricsByUniqueKey.keys()),
 			hasher,
 		});
 		for (const [key, value] of result.fontFiles.entries()) {
 			fontFileDataMap.set(key, value);
 		}
 		for (const [key, value] of result.collectedFonts.entries()) {
-			fontAssets.collectedFonts.set(key, value);
+			fontAssets.collectedFontsForMetricsByUniqueKey.set(key, value);
 		}
-		fontAssets.preloadData.push(...result.preloadData);
+		fontAssets.preloads.push(...result.preloadData);
 	}
 
 	return { fontFamilyAssetsByUniqueKey, fontFileDataMap };
@@ -383,7 +385,7 @@ export async function orchestrate({
 	const consumableMap: ConsumableMap = new Map();
 
 	// We know about all the families, let's generate css, fallbacks and more
-	for (const { family, fonts, collectedFonts, preloadData } of fontFamilyAssetsByUniqueKey.values()) {
+	for (const { family, fonts, collectedFontsForMetricsByUniqueKey: collectedFonts, preloads } of fontFamilyAssetsByUniqueKey.values()) {
 		const consumableMapValue: Array<FontData> = [];
 		let css = '';
 
@@ -437,7 +439,7 @@ export async function orchestrate({
 
 		css += cssRenderer.generateCssVariable(family.cssVariable, cssVarValues);
 
-		internalConsumableMap.set(family.cssVariable, { preloadData, css });
+		internalConsumableMap.set(family.cssVariable, { preloadData: preloads, css });
 		consumableMap.set(family.cssVariable, consumableMapValue);
 	}
 
