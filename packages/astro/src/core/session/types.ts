@@ -50,7 +50,9 @@ interface DriverConfig<TDriver extends SessionDriverConfig> extends BaseSessionC
 
 interface UnstorageConfig<
 	TDriver extends keyof BuiltinDriverOptions | undefined,
-	TOptions = TDriver extends keyof BuiltinDriverOptions ? NoInfer<BuiltinDriverOptions[TDriver]> : undefined
+	TOptions = TDriver extends keyof BuiltinDriverOptions
+		? NoInfer<BuiltinDriverOptions[TDriver]>
+		: undefined,
 > extends BaseSessionConfig {
 	/**
 	 * Entrypoint for an unstorage session driver
