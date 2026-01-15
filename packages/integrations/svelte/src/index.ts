@@ -1,7 +1,7 @@
 import type { Options } from '@sveltejs/vite-plugin-svelte';
 import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import type { AstroIntegration, AstroRenderer } from 'astro';
-import type { EnvironmentOptions, Plugin } from 'vite';
+import type { Plugin } from 'vite';
 
 function getRenderer(): AstroRenderer {
 	return {
@@ -33,35 +33,26 @@ function configEnvironmentPlugin(): Plugin {
 	return {
 		name: '@astrojs/svelte:config-environment',
 		configEnvironment(environmentName, options) {
-			const finalOptions: EnvironmentOptions = {
-				resolve: {
-					dedupe: ['svelte'],
-				},
-				optimizeDeps: {
-					include: [],
-				},
-			};
 			if (
 				environmentName === 'client' ||
 				((environmentName === 'ssr' || environmentName === 'prerender') &&
 					options.optimizeDeps?.noDiscovery === false)
 			) {
-				if (environmentName === 'client') {
-					finalOptions.optimizeDeps?.include?.push(
-						'@astrojs/svelte/client.js',
-					)
-				}
-				if (environmentName === 'ssr' || environmentName === 'prerender') {
-					finalOptions.optimizeDeps?.exclude?.push(
-						'@astrojs/svelte/server.js',
-					)
-					finalOptions.optimizeDeps?.include?.push(
-						"svelte/server"
-					)
-				}
+				return {
+					optimizeDeps: {
+						include:
+							environmentName === 'client'
+								? ['@astrojs/svelte/client.js']
+								: environmentName === 'ssr' || environmentName === 'prerender'
+									? ['svelte/server']
+									: [],
+						exclude:
+							environmentName === 'ssr' || environmentName === 'prerender'
+								? ['@astrojs/svelte/server.js']
+								: [],
+					},
+				};
 			}
-			
-			return finalOptions;
 		},
 	};
 }
