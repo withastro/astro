@@ -253,8 +253,8 @@ describe('CSS Base Path Rewriting', () => {
 			const css = result.css[0].code;
 
 			// Note: image-set() also contains url() which should be rewritten
-			assert.ok(css.includes('/base/img-1x.png') || (/\/base\/img-1x\.png/.exec(css)));
-			assert.ok(css.includes('/base/img-2x.png') || (/\/base\/img-2x\.png/.exec(css)));
+			assert.ok(css.includes('/base/img-1x.png') || /\/base\/img-1x\.png/.exec(css));
+			assert.ok(css.includes('/base/img-2x.png') || /\/base\/img-2x\.png/.exec(css));
 		});
 
 		it('should handle mask-image property', async () => {

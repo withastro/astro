@@ -44,7 +44,8 @@ function rewriteCssUrls(css: string, base: string): string {
 	// Excludes @import statements via negative lookbehind
 	// Matches Vite's cssUrlRE pattern exactly - capturing groups preserved for compatibility
 	// eslint-disable-next-line regexp/no-unused-capturing-group
-	const cssUrlRE = /(?<!@import\s+)(?<=^|[^\w\-\u0080-\uffff])url\((\s*('[^']+'|"[^"]+")\s*|(?:\\.|[^'")\\])+)\)/g;
+	const cssUrlRE =
+		/(?<!@import\s+)(?<=^|[^\w\-\u0080-\uffff])url\((\s*('[^']+'|"[^"]+")\s*|(?:\\.|[^'")\\])+)\)/g;
 
 	return css.replace(cssUrlRE, (match, rawUrl: string) => {
 		// Extract URL value, removing quotes if present
@@ -63,7 +64,8 @@ function rewriteCssUrls(css: string, base: string): string {
 		const isRootRelative = url.startsWith('/') && !url.startsWith('//');
 
 		// Skip external URLs and data URIs
-		const isExternal = url.startsWith('data:') || url.startsWith('http:') || url.startsWith('https:');
+		const isExternal =
+			url.startsWith('data:') || url.startsWith('http:') || url.startsWith('https:');
 
 		// Skip if already has base path (makes function idempotent)
 		const alreadyHasBase = url.startsWith(normalizedBase + '/');
