@@ -6,7 +6,7 @@ import {
 	TRANSITION_AFTER_SWAP,
 	onPageLoad,
 	triggerEvent,
-	updateScrollPosition
+	updateScrollPosition,
 } from './events.js';
 import { detectScriptExecuted } from './swap-functions.js';
 import type { Direction, Fallback, Options } from './types.js';
@@ -27,8 +27,6 @@ type Transition = {
 };
 
 const inBrowser = import.meta.env.SSR === false;
-
-
 
 export const supportsViewTransitions = inBrowser && !!document.startViewTransition;
 

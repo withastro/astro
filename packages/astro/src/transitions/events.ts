@@ -1,4 +1,3 @@
-
 import { swap } from './swap-functions.js';
 import type { Direction, NavigationTypeString } from './types.js';
 
