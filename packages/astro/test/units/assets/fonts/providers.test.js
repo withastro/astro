@@ -1,31 +1,21 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createFontaceFontFileReader } from '../../../../dist/assets/fonts/infra/font-file-reader.js';
-import { createFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
-import * as adobeEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/adobe.js';
-import * as bunnyEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/bunny.js';
-import * as fontshareEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontshare.js';
-import * as fontsourceEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontsource.js';
-import * as googleEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/google.js';
+import { RealFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
+import { FontaceFontFileReader } from '../../../../dist/assets/fonts/infra/fontace-font-file-reader.js';
 import { resolveLocalFont } from '../../../../dist/assets/fonts/providers/local.js';
 import { fontProviders } from '../../../../dist/config/entrypoint.js';
-import { createSpyUrlProxy, simpleErrorHandler } from './utils.js';
+import { SpyUrlProxy } from './utils.js';
 
 describe('fonts providers', () => {
 	describe('config objects', () => {
-		it('references the right entrypoints', () => {
-			assert.equal(
-				fontProviders.adobe({ id: '' }).entrypoint,
-				'astro/assets/fonts/providers/adobe',
-			);
-			assert.equal(fontProviders.bunny().entrypoint, 'astro/assets/fonts/providers/bunny');
-			assert.equal(fontProviders.fontshare().entrypoint, 'astro/assets/fonts/providers/fontshare');
-			assert.equal(
-				fontProviders.fontsource().entrypoint,
-				'astro/assets/fonts/providers/fontsource',
-			);
-			assert.equal(fontProviders.google().entrypoint, 'astro/assets/fonts/providers/google');
+		it('references the right names', () => {
+			assert.equal(fontProviders.adobe({ id: '' }).name, 'adobe');
+			assert.equal(fontProviders.bunny().name, 'bunny');
+			assert.equal(fontProviders.fontshare().name, 'fontshare');
+			assert.equal(fontProviders.fontsource().name, 'fontsource');
+			assert.equal(fontProviders.google().name, 'google');
+			assert.equal(fontProviders.googleicons().name, 'googleicons');
 		});
 
 		it('forwards the config', () => {
@@ -35,34 +25,11 @@ describe('fonts providers', () => {
 		});
 	});
 
-	it('providers are correctly exported', () => {
-		assert.equal(
-			'provider' in adobeEntrypoint && typeof adobeEntrypoint.provider === 'function',
-			true,
-		);
-		assert.equal(
-			'provider' in bunnyEntrypoint && typeof bunnyEntrypoint.provider === 'function',
-			true,
-		);
-		assert.equal(
-			'provider' in fontshareEntrypoint && typeof fontshareEntrypoint.provider === 'function',
-			true,
-		);
-		assert.equal(
-			'provider' in fontsourceEntrypoint && typeof fontsourceEntrypoint.provider === 'function',
-			true,
-		);
-		assert.equal(
-			'provider' in googleEntrypoint && typeof googleEntrypoint.provider === 'function',
-			true,
-		);
-	});
-
 	describe('resolveLocalFont()', () => {
-		const fontTypeExtractor = createFontTypeExtractor({ errorHandler: simpleErrorHandler });
+		const fontTypeExtractor = new RealFontTypeExtractor();
 
 		it('proxies URLs correctly', () => {
-			const { collected, urlProxy } = createSpyUrlProxy();
+			const urlProxy = new SpyUrlProxy();
 			resolveLocalFont({
 				urlProxy,
 				fontTypeExtractor,
@@ -84,9 +51,9 @@ describe('fonts providers', () => {
 						},
 					],
 				},
-				fontFileReader: createFontaceFontFileReader({ errorHandler: simpleErrorHandler }),
+				fontFileReader: new FontaceFontFileReader(),
 			});
-			assert.deepStrictEqual(collected, [
+			assert.deepStrictEqual(urlProxy.collected, [
 				{
 					url: '/test.woff2',
 					type: 'woff2',
@@ -112,7 +79,7 @@ describe('fonts providers', () => {
 		});
 
 		it('collect preloads correctly', () => {
-			const { collected, urlProxy } = createSpyUrlProxy();
+			const urlProxy = new SpyUrlProxy();
 			resolveLocalFont({
 				urlProxy,
 				fontTypeExtractor,
@@ -134,9 +101,9 @@ describe('fonts providers', () => {
 						},
 					],
 				},
-				fontFileReader: createFontaceFontFileReader({ errorHandler: simpleErrorHandler }),
+				fontFileReader: new FontaceFontFileReader(),
 			});
-			assert.deepStrictEqual(collected, [
+			assert.deepStrictEqual(urlProxy.collected, [
 				{
 					url: '/test.woff2',
 					type: 'woff2',
@@ -169,11 +136,11 @@ describe('fonts providers', () => {
 		});
 
 		it('computes the format correctly', () => {
-			const { urlProxy } = createSpyUrlProxy();
-			const { fonts } = resolveLocalFont({
+			const urlProxy = new SpyUrlProxy();
+			const fonts = resolveLocalFont({
 				urlProxy,
 				fontTypeExtractor,
-				fontFileReader: createFontaceFontFileReader({ errorHandler: simpleErrorHandler }),
+				fontFileReader: new FontaceFontFileReader(),
 				family: {
 					name: 'Test',
 					nameWithHash: 'Test-xxx',
@@ -217,8 +184,8 @@ describe('fonts providers', () => {
 
 		describe('properties inference', () => {
 			it('infers properties correctly', async () => {
-				const { collected, urlProxy } = createSpyUrlProxy();
-				const { fonts } = resolveLocalFont({
+				const urlProxy = new SpyUrlProxy();
+				const fonts = resolveLocalFont({
 					urlProxy,
 					fontTypeExtractor,
 					family: {
@@ -261,7 +228,7 @@ describe('fonts providers', () => {
 						weight: '300',
 					},
 				]);
-				assert.deepStrictEqual(collected, [
+				assert.deepStrictEqual(urlProxy.collected, [
 					{
 						url: '/test.woff2',
 						collectPreload: true,
@@ -273,8 +240,8 @@ describe('fonts providers', () => {
 			});
 
 			it('respects what property should be inferred', async () => {
-				const { collected, urlProxy } = createSpyUrlProxy();
-				const { fonts } = resolveLocalFont({
+				const urlProxy = new SpyUrlProxy();
+				const fonts = resolveLocalFont({
 					urlProxy,
 					fontTypeExtractor,
 					family: {
@@ -320,7 +287,7 @@ describe('fonts providers', () => {
 						weight: '300',
 					},
 				]);
-				assert.deepStrictEqual(collected, [
+				assert.deepStrictEqual(urlProxy.collected, [
 					{
 						url: '/test.woff2',
 						collectPreload: true,

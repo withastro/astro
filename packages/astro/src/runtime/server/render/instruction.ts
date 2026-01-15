@@ -29,12 +29,19 @@ export type ServerIslandRuntimeInstruction = {
 	type: 'server-island-runtime';
 };
 
+export type RenderScriptInstruction = {
+	type: 'script';
+	id: string;
+	content: string;
+};
+
 export type RenderInstruction =
 	| RenderDirectiveInstruction
 	| RenderHeadInstruction
 	| MaybeRenderHeadInstruction
 	| RendererHydrationScriptInstruction
-	| ServerIslandRuntimeInstruction;
+	| ServerIslandRuntimeInstruction
+	| RenderScriptInstruction;
 
 export function createRenderInstruction<T extends RenderInstruction>(instruction: T): T {
 	return Object.defineProperty(instruction as T, RenderInstructionSymbol, {

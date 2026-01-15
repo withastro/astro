@@ -1,0 +1,10 @@
+---
+---
+{
+  ["foo", "bar"].map(
+    (slug) =>
+      slug === Astro.params.slug && (
+        <Fragment set:html={Astro.slots.render(slug)} />
+      )
+  )
+}

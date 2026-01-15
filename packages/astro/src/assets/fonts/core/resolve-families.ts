@@ -1,9 +1,5 @@
 import { LOCAL_PROVIDER_NAME } from '../constants.js';
-import type {
-	Hasher,
-	LocalProviderUrlResolver,
-	RemoteFontProviderResolver,
-} from '../definitions.js';
+import type { Hasher, LocalProviderUrlResolver } from '../definitions.js';
 import type {
 	FontFamily,
 	LocalFontFamily,
@@ -38,17 +34,15 @@ function resolveVariants({
 /**
  * Dedupes properties if applicable and resolves entrypoints.
  */
-export async function resolveFamily({
+export function resolveFamily({
 	family,
 	hasher,
-	remoteFontProviderResolver,
 	localProviderUrlResolver,
 }: {
 	family: FontFamily;
 	hasher: Hasher;
-	remoteFontProviderResolver: RemoteFontProviderResolver;
 	localProviderUrlResolver: LocalProviderUrlResolver;
-}): Promise<ResolvedFontFamily> {
+}): ResolvedFontFamily {
 	// We remove quotes from the name so they can be properly resolved by providers.
 	const name = withoutQuotes(family.name);
 	// This will be used in CSS font faces. Quotes are added by the CSS renderer if
@@ -72,28 +66,26 @@ export async function resolveFamily({
 		weights: family.weights ? dedupe(family.weights.map((weight) => weight.toString())) : undefined,
 		styles: family.styles ? dedupe(family.styles) : undefined,
 		subsets: family.subsets ? dedupe(family.subsets) : undefined,
+		formats: family.formats ? dedupe(family.formats) : undefined,
 		fallbacks: family.fallbacks ? dedupe(family.fallbacks) : undefined,
 		unicodeRange: family.unicodeRange ? dedupe(family.unicodeRange) : undefined,
-		// This will be Astro specific eventually
-		provider: await remoteFontProviderResolver.resolve(family.provider),
 	};
 }
 
 /**
  * A function for convenience. The actual logic lives in resolveFamily
  */
-export async function resolveFamilies({
+export function resolveFamilies({
 	families,
 	...dependencies
-}: { families: Array<FontFamily> } & Omit<Parameters<typeof resolveFamily>[0], 'family'>): Promise<
-	Array<ResolvedFontFamily>
-> {
-	return await Promise.all(
-		families.map((family) =>
-			resolveFamily({
-				family,
-				...dependencies,
-			}),
-		),
+}: { families: Array<FontFamily> } & Omit<
+	Parameters<typeof resolveFamily>[0],
+	'family'
+>): Array<ResolvedFontFamily> {
+	return families.map((family) =>
+		resolveFamily({
+			family,
+			...dependencies,
+		}),
 	);
 }

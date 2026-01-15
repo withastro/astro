@@ -213,6 +213,29 @@ describe('trailingSlash', () => {
 		assert.equal(res.statusCode, 404);
 	});
 
+	// Test for issue #15095: Query params should not cause 404 when base is set and trailingSlash is never
+	it('should match root path with query params when base is set and trailingSlash is never', async () => {
+		const { req, res, text } = createRequestAndResponse({
+			method: 'GET',
+			url: '/base?foo=bar',
+		});
+		baseContainer.handle(req, res);
+		const json = await text();
+		assert.equal(json, '{"success":true}');
+		assert.equal(res.statusCode, 200);
+	});
+
+	it('should match sub path with query params when base is set and trailingSlash is never', async () => {
+		const { req, res, text } = createRequestAndResponse({
+			method: 'GET',
+			url: '/base/injected?foo=bar',
+		});
+		baseContainer.handle(req, res);
+		const json = await text();
+		assert.equal(json, '{"success":true}');
+		assert.equal(res.statusCode, 200);
+	});
+
 	// Test for issue #13736: Astro.url.pathname should respect trailingSlash config with base
 	it('Astro.url.pathname should not have trailing slash on root path when base is set and trailingSlash is never', async () => {
 		const { req, res, text } = createRequestAndResponse({

@@ -57,7 +57,7 @@ const SYSTEM_METRICS = {
 type FallbackName = keyof typeof SYSTEM_METRICS;
 
 // Source: https://github.com/nuxt/fonts/blob/3a3eb6dfecc472242b3011b25f3fcbae237d0acc/src/module.ts#L55-L75
-export const DEFAULT_FALLBACKS = {
+const DEFAULT_FALLBACKS = {
 	serif: ['Times New Roman'],
 	'sans-serif': ['Arial'],
 	monospace: ['Courier New'],
@@ -67,13 +67,13 @@ export const DEFAULT_FALLBACKS = {
 	'ui-monospace': ['Courier New'],
 } satisfies Partial<Record<GenericFallbackName, Array<FallbackName>>>;
 
-export function createSystemFallbacksProvider(): SystemFallbacksProvider {
-	return {
-		getLocalFonts(fallback) {
-			return DEFAULT_FALLBACKS[fallback as keyof typeof DEFAULT_FALLBACKS] ?? null;
-		},
-		getMetricsForLocalFont(family) {
-			return SYSTEM_METRICS[family as FallbackName];
-		},
-	};
+// TODO: find a better name
+export class RealSystemFallbacksProvider implements SystemFallbacksProvider {
+	getLocalFonts(fallback: GenericFallbackName): Array<string> | null {
+		return DEFAULT_FALLBACKS[fallback as keyof typeof DEFAULT_FALLBACKS] ?? null;
+	}
+
+	getMetricsForLocalFont(family: string): FontFaceMetrics {
+		return SYSTEM_METRICS[family as FallbackName];
+	}
 }

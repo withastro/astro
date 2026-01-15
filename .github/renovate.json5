@@ -93,6 +93,8 @@
     "node",
     "npm",
     "pnpm",
+    "vscode",
+    "@types/vscode",
     // follow vite deps version
     "postcss-load-config",
     "esbuild"
