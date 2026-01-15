@@ -12,9 +12,8 @@ import type {
 	StringMatcher,
 	SystemFallbacksProvider,
 	UrlProxyHashResolver,
-	UrlResolver
+	UrlResolver,
 } from './definitions.js';
-import { RealDataCollector } from './infra/data-collector.js';
 import type {
 	ConsumableMap,
 	Defaults,
@@ -23,7 +22,7 @@ import type {
 	FontFileDataMap,
 	InternalConsumableMap,
 	PreloadData,
-	ResolvedFontFamily
+	ResolvedFontFamily,
 } from './types.js';
 import { renderFontWeight, unifontFontFaceDataToProperties } from './utils.js';
 
@@ -145,36 +144,6 @@ export async function orchestrate({
 			resolvedFamiliesMap.set(key, resolvedFamily);
 		}
 
-		/**
-		 * Allows collecting and transforming original URLs from providers, so the Vite
-		 * plugin has control over URLs.
-		 */
-
-		const dataCollector = new RealDataCollector({
-			hasUrl: (hash) => fontFileDataMap.has(hash),
-			saveUrl: ({ hash, url, init }) => {
-				fontFileDataMap.set(hash, { url, init });
-			},
-			savePreload: (preload) => {
-				resolvedFamily.preloadData.push(preload);
-			},
-			saveFontData: (collected) => {
-				if (
-					resolvedFamily.fallbacks &&
-					resolvedFamily.fallbacks.length > 0 &&
-					// If the same data has already been sent for this family, we don't want to have
-					// duplicated fallbacks. Such scenario can occur with unicode ranges.
-					!resolvedFamily.collectedFonts.some(
-						(f) => JSON.stringify(f.data) === JSON.stringify(collected.data),
-					)
-				) {
-					// If a family has fallbacks, we store the first url we get that may
-					// be used for the fallback generation.
-					resolvedFamily.collectedFonts.push(collected);
-				}
-			},
-		});
-
 		const fonts = await fontResolver.resolveFont({
 			familyName: family.name,
 			provider: family.provider,
@@ -228,6 +197,7 @@ export async function orchestrate({
 							style: font.style,
 							subset: font.meta?.subset,
 						};
+						const init = font.meta?.init ?? null;
 						const hash = hashResolver.resolve({
 							cssVariable: family.cssVariable,
 							data,
@@ -235,24 +205,35 @@ export async function orchestrate({
 							type,
 						});
 						const url = urlResolver.resolve(hash);
-						dataCollector.collect({
-							url: originalUrl,
-							hash,
-							preload:
-								// We only collect the first URL to avoid preloading fallback sources (eg. we only
-								// preload woff2 if woff is available)
-								index === 0
-									? {
-											url,
-											type,
-											weight: renderFontWeight(data.weight),
-											style: data.style,
-											subset: data.subset,
-										}
-									: null,
-							data,
-							init: font.meta?.init ?? null,
-						});
+
+						if (!fontFileDataMap.has(hash)) {
+							fontFileDataMap.set(hash, { url, init });
+							// We only collect the first URL to avoid preloading fallback sources (eg. we only
+							// preload woff2 if woff is available)
+							if (index === 0) {
+								resolvedFamily.preloadData.push({
+									url,
+									type,
+									weight: renderFontWeight(data.weight),
+									style: data.style,
+									subset: data.subset,
+								});
+							}
+						}
+						const collected = { hash, url, data, init };
+						if (
+							resolvedFamily.fallbacks &&
+							resolvedFamily.fallbacks.length > 0 &&
+							// If the same data has already been sent for this family, we don't want to have
+							// duplicated fallbacks. Such scenario can occur with unicode ranges.
+							!resolvedFamily.collectedFonts.some(
+								(f) => JSON.stringify(f.data) === JSON.stringify(collected.data),
+							)
+						) {
+							// If a family has fallbacks, we store the first url we get that may
+							// be used for the fallback generation.
+							resolvedFamily.collectedFonts.push(collected);
+						}
 
 						const proxied: unifont.RemoteFontSource = {
 							originalURL: originalUrl,
