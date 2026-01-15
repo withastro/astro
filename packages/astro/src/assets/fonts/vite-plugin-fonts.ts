@@ -72,6 +72,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	);
 	const baseUrl = joinPaths(settings.config.base, assetsDir);
 
+	// TODO: rename?
 	let fontFileDataMap: FontFileById | null = null;
 	let internalConsumableMap: InternalConsumableMap | null = null;
 	let consumableMap: ConsumableMap | null = null;
@@ -150,7 +151,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			});
 			// We initialize shared variables here and reset them in buildEnd
 			// to avoid locking memory
-			fontFileDataMap = res.fontFileDataMap;
+			fontFileDataMap = res.fontFileById;
 			internalConsumableMap = res.internalConsumableMap;
 			consumableMap = res.consumableMap;
 

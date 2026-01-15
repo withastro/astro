@@ -1,19 +1,17 @@
 import type { Logger } from '../../core/logger/core.js';
-import { computeFontFamiliesAssets } from './core/compute-font-families-assets.js';
+import type { computeFontFamiliesAssets as _computeFontFamiliesAssets } from './core/compute-font-families-assets.js';
 import { optimizeFallbacks } from './core/optimize-fallbacks.js';
 import { resolveFamily } from './core/resolve-family.js';
 import type {
 	CssRenderer,
-	FontFileIdGenerator,
 	FontMetricsResolver,
 	FontResolver,
-	FontTypeExtractor,
 	Hasher,
 	StringMatcher,
 	SystemFallbacksProvider,
-	UrlResolver,
 } from './definitions.js';
 import type {
+	Collaborator,
 	ConsumableMap,
 	Defaults,
 	FontData,
@@ -47,28 +45,27 @@ export async function orchestrate({
 	cssRenderer,
 	systemFallbacksProvider,
 	fontMetricsResolver,
-	fontTypeExtractor,
 	logger,
 	defaults,
 	bold,
 	stringMatcher,
 	createFontResolver,
-	fontFileIdGenerator,
-	urlResolver,
+	computeFontFamiliesAssets,
 }: {
 	families: Array<FontFamily>;
 	hasher: Hasher;
 	cssRenderer: CssRenderer;
 	systemFallbacksProvider: SystemFallbacksProvider;
 	fontMetricsResolver: FontMetricsResolver;
-	fontTypeExtractor: FontTypeExtractor;
 	logger: Logger;
 	defaults: Defaults;
 	bold: (input: string) => string;
 	stringMatcher: StringMatcher;
 	createFontResolver: (params: { families: Array<ResolvedFontFamily> }) => Promise<FontResolver>;
-	fontFileIdGenerator: FontFileIdGenerator;
-	urlResolver: UrlResolver;
+	computeFontFamiliesAssets: Collaborator<
+		typeof _computeFontFamiliesAssets,
+		'resolvedFamilies' | 'defaults'
+	>;
 }): Promise<{
 	fontFileById: FontFileById;
 	internalConsumableMap: InternalConsumableMap;
@@ -81,11 +78,10 @@ export async function orchestrate({
 		logger,
 		bold,
 		defaults,
-		fontFileIdGenerator,
-		fontTypeExtractor,
 		stringMatcher,
-		urlResolver,
-		hasher,
+		collectFontAssetsFromFaces,
+		filterAndTransformFontFaces,
+		getOrCreateFontFamilyAssets,
 	});
 
 	/**
