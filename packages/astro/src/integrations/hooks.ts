@@ -495,18 +495,22 @@ export async function runHookServerDone({
 }
 
 export async function runHookBuildStart({
-	config,
+	settings,
 	logger,
 }: {
-	config: AstroConfig;
+	settings: AstroSettings;
 	logger: Logger;
 }) {
-	for (const integration of config.integrations) {
+	for (const integration of settings.config.integrations) {
 		await runHookInternal({
 			integration,
 			hookName: 'astro:build:start',
 			logger,
-			params: () => ({}),
+			params: () => ({
+				setPrerenderer(prerenderer) {
+					settings.prerenderer = prerenderer;
+				},
+			}),
 		});
 	}
 }

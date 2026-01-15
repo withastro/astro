@@ -8,6 +8,7 @@ import type { AstroConfig } from './public/config.js';
 import type { ContentEntryType, DataEntryType } from './public/content.js';
 import type {
 	AstroAdapter,
+	AstroPrerenderer,
 	AstroRenderer,
 	InjectedScriptStage,
 	InjectedType,
@@ -32,6 +33,7 @@ type CspObject = Required<Exclude<AstroConfig['security']['csp'], boolean>>;
 export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
+	prerenderer: AstroPrerenderer | (() => AstroPrerenderer) | undefined;
 	preferences: AstroPreferences;
 	injectedRoutes: InternalInjectedRoute[];
 	resolvedInjectedRoutes: ResolvedInjectedRoute[];
