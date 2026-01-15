@@ -1,7 +1,6 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { isAbsolute } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import colors from 'piccolore';
 import type { Plugin } from 'vite';
 import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
@@ -37,12 +36,9 @@ import { RealDataCollector } from './infra/data-collector.js';
 import { DevUrlProxyHashResolver } from './infra/dev-url-proxy-hash-resolver.js';
 import { DevUrlResolver } from './infra/dev-url-resolver.js';
 import { RealFontTypeExtractor } from './infra/font-type-extractor.js';
-import { FontaceFontFileReader } from './infra/fontace-font-file-reader.js';
 import { LevenshteinStringMatcher } from './infra/levenshtein-string-matcher.js';
-import { LocalUrlProxyContentResolver } from './infra/local-url-proxy-content-resolver.js';
 import { MinifiableCssRenderer } from './infra/minifiable-css-renderer.js';
 import { RemoteUrlProxyContentResolver } from './infra/remote-url-proxy-content-resolver.js';
-import { RequireLocalProviderUrlResolver } from './infra/require-local-provider-url-resolver.js';
 import { RealSystemFallbacksProvider } from './infra/system-fallbacks-provider.js';
 import { UnifontFontResolver } from './infra/unifont-font-resolver.js';
 import { UnstorageFsStorage } from './infra/unstorage-fs-storage.js';
@@ -118,52 +114,31 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		// Dependencies. Once extracted to a dedicated vite plugin, those may be passed as
 		// a Vite plugin option.
 		const hasher = await XxhashHasher.create();
-		// TODO: remove when stabilizing
-		const pathsToWarn = new Set<string>();
-		const localProviderUrlResolver = new RequireLocalProviderUrlResolver({
-			root,
-			intercept: (path) => {
-				if (path.startsWith(fileURLToPath(settings.config.publicDir))) {
-					if (pathsToWarn.has(path)) {
-						return;
-					}
-					pathsToWarn.add(path);
-					logger.warn(
-						'assets',
-						`Found a local font file ${JSON.stringify(path)} in the \`public/\` folder. To avoid duplicated files in the build output, move this file into \`src/\``,
-					);
-				}
-			},
-		});
 		const storage = new UnstorageFsStorage({ base: cacheDir });
 		const systemFallbacksProvider = new RealSystemFallbacksProvider();
 		fontFetcher = new CachedFontFetcher({ storage, fetch, readFile });
 		const fontMetricsResolver = new CapsizeFontMetricsResolver({ fontFetcher, cssRenderer });
 		fontTypeExtractor = new RealFontTypeExtractor();
-		const fontFileReader = new FontaceFontFileReader();
 		const stringMatcher = new LevenshteinStringMatcher();
 
 		const res = await orchestrate({
 			families: settings.config.experimental.fonts as Array<FontFamily>,
 			hasher,
-			localProviderUrlResolver,
 			createFontResolver: async ({ families }) =>
 				await UnifontFontResolver.create({
 					families,
 					hasher,
 					storage,
+					root,
 				}),
 			cssRenderer,
 			systemFallbacksProvider,
 			fontMetricsResolver,
 			fontTypeExtractor,
-			fontFileReader,
 			logger,
-			createUrlProxy: ({ local, cssVariable, ...params }) => {
+			createUrlProxy: ({ cssVariable, ...params }) => {
 				const dataCollector = new RealDataCollector(params);
-				const contentResolver = local
-					? new LocalUrlProxyContentResolver()
-					: new RemoteUrlProxyContentResolver();
+				const contentResolver = new RemoteUrlProxyContentResolver();
 				return new RealUrlProxy({
 					urlResolver,
 					hashResolver: createHashResolver({ hasher, contentResolver }),

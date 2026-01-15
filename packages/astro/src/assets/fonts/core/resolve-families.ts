@@ -1,35 +1,6 @@
-import { LOCAL_PROVIDER_NAME } from '../constants.js';
-import type { Hasher, LocalProviderUrlResolver } from '../definitions.js';
-import type {
-	FontFamily,
-	LocalFontFamily,
-	ResolvedFontFamily,
-	ResolvedLocalFontFamily,
-} from '../types.js';
+import type { Hasher } from '../definitions.js';
+import type { FontFamily, ResolvedFontFamily } from '../types.js';
 import { dedupe, withoutQuotes } from '../utils.js';
-
-function resolveVariants({
-	variants,
-	localProviderUrlResolver,
-}: {
-	variants: LocalFontFamily['variants'];
-	localProviderUrlResolver: LocalProviderUrlResolver;
-}): ResolvedLocalFontFamily['variants'] {
-	return variants.map((variant) => ({
-		...variant,
-		weight: variant.weight?.toString(),
-		src: variant.src.map((value) => {
-			// A src can be a string or an object, we extract the value accordingly.
-			const isValue = typeof value === 'string' || value instanceof URL;
-			const url = (isValue ? value : value.url).toString();
-			const tech = isValue ? undefined : value.tech;
-			return {
-				url: localProviderUrlResolver.resolve(url),
-				tech,
-			};
-		}),
-	}));
-}
 
 /**
  * Dedupes properties if applicable and resolves entrypoints.
@@ -37,27 +8,15 @@ function resolveVariants({
 export function resolveFamily({
 	family,
 	hasher,
-	localProviderUrlResolver,
 }: {
 	family: FontFamily;
 	hasher: Hasher;
-	localProviderUrlResolver: LocalProviderUrlResolver;
 }): ResolvedFontFamily {
 	// We remove quotes from the name so they can be properly resolved by providers.
 	const name = withoutQuotes(family.name);
 	// This will be used in CSS font faces. Quotes are added by the CSS renderer if
 	// this value contains a space.
 	const nameWithHash = `${name}-${hasher.hashObject(family)}`;
-
-	if (family.provider === LOCAL_PROVIDER_NAME) {
-		return {
-			...family,
-			name,
-			nameWithHash,
-			variants: resolveVariants({ variants: family.variants, localProviderUrlResolver }),
-			fallbacks: family.fallbacks ? dedupe(family.fallbacks) : undefined,
-		};
-	}
 
 	return {
 		...family,

@@ -16,16 +16,13 @@ export interface Hasher {
 	hashObject: (input: Record<string, any>) => string;
 }
 
-export interface LocalProviderUrlResolver {
-	resolve: (input: string) => string;
-}
-
 export interface ProxyData {
 	weight: unifont.FontFaceData['weight'];
 	style: unifont.FontFaceData['style'];
 	subset: NonNullable<unifont.FontFaceData['meta']>['subset'];
 }
 
+// TODO: remove url proxy
 export interface UrlProxy {
 	proxy: (
 		input: Pick<FontFileData, 'url' | 'init'> & {

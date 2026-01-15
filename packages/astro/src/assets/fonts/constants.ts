@@ -1,7 +1,5 @@
 import type { Defaults, FontType } from './types.js';
 
-export const LOCAL_PROVIDER_NAME = 'local';
-
 export const DEFAULTS: Defaults = {
 	weights: ['400'],
 	styles: ['normal', 'italic'],
