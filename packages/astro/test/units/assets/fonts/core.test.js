@@ -767,6 +767,9 @@ describe('fonts core', () => {
 							weight: '400',
 						},
 					],
+					defaults: {
+						fallbacks: [],
+					},
 				}),
 				{
 					collectedFontsForMetricsByUniqueKey: new Map(),
@@ -848,6 +851,9 @@ describe('fonts core', () => {
 							weight: '400',
 						},
 					],
+					defaults: {
+						fallbacks: [],
+					},
 				}),
 				{
 					collectedFontsForMetricsByUniqueKey: new Map(),
@@ -926,6 +932,9 @@ describe('fonts core', () => {
 							weight: '400',
 						},
 					],
+					defaults: {
+						fallbacks: [],
+					},
 				}).collectedFontsForMetricsByUniqueKey,
 				new Map(),
 			);
@@ -953,6 +962,9 @@ describe('fonts core', () => {
 							weight: '400',
 						},
 					],
+					defaults: {
+						fallbacks: [],
+					},
 				}).collectedFontsForMetricsByUniqueKey,
 				new Map(),
 			);
@@ -980,6 +992,9 @@ describe('fonts core', () => {
 							weight: '400',
 						},
 					],
+					defaults: {
+						fallbacks: [],
+					},
 				}).collectedFontsForMetricsByUniqueKey,
 				new Map(),
 			);
@@ -1007,6 +1022,55 @@ describe('fonts core', () => {
 							weight: '400',
 						},
 					],
+					defaults: {
+						fallbacks: [],
+					},
+				}).collectedFontsForMetricsByUniqueKey,
+				new Map([
+					[
+						'xxx',
+						{
+							data: {
+								meta: {
+									subset: undefined,
+								},
+								style: 'normal',
+								weight: '400',
+							},
+							hash: 'https://example.com/font.woff2',
+							init: undefined,
+							url: 'resolved:https://example.com/font.woff2',
+						},
+					],
+				]),
+			);
+
+			assert.deepStrictEqual(
+				collectFontAssetsFromFaces({
+					collectedFontsIds: new Set(),
+					hasher,
+					fontFileIdGenerator: {
+						generate: ({ originalUrl }) => originalUrl,
+					},
+					fontFilesIds: new Set(),
+					family: { cssVariable: '--foo', fallbacks: undefined },
+					fonts: [
+						{
+							src: [
+								{
+									format: 'woff2',
+									originalURL: 'https://example.com/font.woff2',
+									url: 'resolved:https://example.com/font.woff2',
+									tech: undefined,
+								},
+							],
+							style: 'normal',
+							weight: '400',
+						},
+					],
+					defaults: {
+						fallbacks: ['abc'],
+					},
 				}).collectedFontsForMetricsByUniqueKey,
 				new Map([
 					[

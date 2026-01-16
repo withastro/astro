@@ -1,7 +1,7 @@
 import type * as unifont from 'unifont';
 import { FONT_FORMATS } from '../constants.js';
 import type { FontFileIdGenerator, Hasher } from '../definitions.js';
-import type { FontFileById, PreloadData, ResolvedFontFamily } from '../types.js';
+import type { Defaults, FontFileById, PreloadData, ResolvedFontFamily } from '../types.js';
 import { renderFontWeight } from '../utils.js';
 import type { CollectedFontForMetrics } from './optimize-fallbacks.js';
 
@@ -12,6 +12,7 @@ export function collectFontAssetsFromFaces({
 	fontFilesIds,
 	collectedFontsIds,
 	hasher,
+	defaults,
 }: {
 	fonts: Array<unifont.FontFaceData>;
 	fontFileIdGenerator: FontFileIdGenerator;
@@ -19,6 +20,7 @@ export function collectFontAssetsFromFaces({
 	fontFilesIds: Set<string>;
 	collectedFontsIds: Set<string>;
 	hasher: Hasher;
+	defaults: Pick<Defaults, 'fallbacks'>;
 }) {
 	const fontFileById: FontFileById = new Map();
 	const collectedFontsForMetricsByUniqueKey = new Map<string, CollectedFontForMetrics>();
@@ -33,10 +35,11 @@ export function collectFontAssetsFromFaces({
 				continue;
 			}
 			const format = FONT_FORMATS.find((e) => e.format === source.format)!;
+			const originalUrl = source.originalURL!;
 			const id = fontFileIdGenerator.generate({
 				cssVariable: family.cssVariable,
 				font,
-				originalUrl: source.originalURL!,
+				originalUrl,
 				type: format.type,
 			});
 
@@ -46,7 +49,7 @@ export function collectFontAssetsFromFaces({
 				// preload woff2 if woff is available)
 				if (index === 0) {
 					preloads.push({
-						style: font.meta?.subset,
+						style: font.style,
 						subset: font.meta?.subset,
 						type: format.type,
 						url: source.url,
@@ -57,7 +60,7 @@ export function collectFontAssetsFromFaces({
 
 			const collected: CollectedFontForMetrics = {
 				hash: id,
-				url: source.url,
+				url: originalUrl,
 				init: font.meta?.init,
 				data: {
 					weight: font.weight,
@@ -68,9 +71,9 @@ export function collectFontAssetsFromFaces({
 				},
 			};
 			const collectedKey = hasher.hashObject(collected.data);
+			const fallbacks = family.fallbacks ?? defaults.fallbacks;
 			if (
-				family.fallbacks &&
-				family.fallbacks.length > 0 &&
+				fallbacks.length > 0 &&
 				// If the same data has already been sent for this family, we don't want to have
 				// duplicated fallbacks. Such scenario can occur with unicode ranges.
 				!collectedFontsIds.has(collectedKey) &&

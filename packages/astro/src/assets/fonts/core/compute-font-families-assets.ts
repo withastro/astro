@@ -60,7 +60,7 @@ export async function computeFontFamiliesAssets({
 			family,
 		});
 
-		fontAssets.fonts = await fontResolver.resolveFont({
+		const _fonts = await fontResolver.resolveFont({
 			familyName: family.name,
 			provider: family.provider.name,
 			// We do not merge the defaults, we only provide defaults as a fallback
@@ -70,7 +70,7 @@ export async function computeFontFamiliesAssets({
 			formats: family.formats ?? defaults.formats,
 			options: family.options,
 		});
-		if (fontAssets.fonts.length === 0) {
+		if (_fonts.length === 0) {
 			logger.warn(
 				'assets',
 				`No data found for font family ${bold(family.name)}. Review your configuration`,
@@ -89,10 +89,13 @@ export async function computeFontFamiliesAssets({
 			continue;
 		}
 		// The data returned by the provider contains original URLs. We proxy them.
-		fontAssets.fonts = filterAndTransformFontFaces({
-			fonts: fontAssets.fonts,
-			family,
-		});
+		// TODO: dedupe?
+		fontAssets.fonts.push(
+			...filterAndTransformFontFaces({
+				fonts: _fonts,
+				family,
+			}),
+		);
 
 		const result = collectFontAssetsFromFaces({
 			fonts: fontAssets.fonts,
