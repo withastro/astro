@@ -10,6 +10,7 @@ export async function check(flags: Flags) {
 		skipAsk: !!flags.yes || !!flags.y,
 		cwd: flags.root,
 	};
+	// @ts-ignore For some unknown reason, in CI TS isn't able to get the type here even though it works locally.
 	const checkPackage = await getPackage<typeof import('@astrojs/check')>(
 		'@astrojs/check',
 		logger,

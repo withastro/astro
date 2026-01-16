@@ -1,5 +1,5 @@
 import { detect, resolveCommand } from 'package-manager-detector';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import type { ResolvedServerUrls } from 'vite';
 import type { ZodError } from 'zod';
 import { getDocsForError, renderErrorMarkdown } from './errors/dev/utils.js';

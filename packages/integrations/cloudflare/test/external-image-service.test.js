@@ -9,7 +9,7 @@ const root = new URL('./fixtures/external-image-service/', import.meta.url);
 
 describe('ExternalImageService', () => {
 	it('has correct image service', async () => {
-		await astroCli(fileURLToPath(root), 'build');
+		await astroCli(fileURLToPath(root), 'build').getResult();
 		const files = await glob('**/image-service_*.mjs', {
 			cwd: fileURLToPath(new URL('dist/_worker.js', root)),
 			filesOnly: true,

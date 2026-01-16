@@ -25,6 +25,7 @@ export default [
 			'packages/**/_temp-fixtures/',
 			'packages/astro/vendor/vite/',
 			'benchmark/**/dist/',
+			'benchmark/static-projects/**',
 			'examples/',
 			'scripts/',
 			'.github/',
@@ -141,6 +142,19 @@ export default [
 					],
 				},
 			],
+		},
+	},
+
+	{
+		files: [
+			'packages/language-tools/ts-plugin/**/*',
+			'packages/language-tools/vscode/**/*',
+			// The language server is distributed as CJS in the VS Code extension, despite being written as ESM.
+			// As such, sometimes require are required.
+			'packages/language-tools/language-server/**/*',
+		],
+		rules: {
+			'@typescript-eslint/no-require-imports': 'off',
 		},
 	},
 ];

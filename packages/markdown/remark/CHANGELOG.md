@@ -1,5 +1,18 @@
 # @astrojs/markdown-remark
 
+## 6.3.10
+
+### Patch Changes
+
+- [#14902](https://github.com/withastro/astro/pull/14902) [`d8305f8`](https://github.com/withastro/astro/commit/d8305f8abdf92db6fa505ee9c1774553ba90b7bd) Thanks [@tuyuritio](https://github.com/tuyuritio)! - Prevents HAST-only props from being directly converted into HTML attributes
+
+## 6.3.9
+
+### Patch Changes
+
+- Updated dependencies [[`9e9c528`](https://github.com/withastro/astro/commit/9e9c528191b6f5e06db9daf6ad26b8f68016e533), [`0f75f6b`](https://github.com/withastro/astro/commit/0f75f6bc637d547e07324e956db21d9f245a3e8e)]:
+  - @astrojs/internal-helpers@0.7.5
+
 ## 6.3.8
 
 ### Patch Changes

@@ -1,6 +1,7 @@
 import type http from 'node:http';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
+import type * as vite from 'vite';
 import { preview, type PreviewServer as VitePreviewServer } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
 import type { Logger } from '../logger/core.js';
@@ -46,6 +47,20 @@ export default async function createStaticPreviewServer(
 		}
 		throw err;
 	}
+
+	// Set up shortcuts
+
+	const customShortcuts: Array<vite.CLIShortcut> = [
+		// Disable default Vite shortcuts that don't work well with Astro
+		{ key: 'r', description: '' },
+		{ key: 'u', description: '' },
+		{ key: 'c', description: '' },
+		{ key: 's', description: '' },
+	];
+
+	previewServer.bindCLIShortcuts({
+		customShortcuts,
+	});
 
 	// Log server start URLs
 	logger.info(

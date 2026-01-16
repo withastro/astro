@@ -1,4 +1,4 @@
-import colors from 'picocolors';
+import colors from 'piccolore';
 
 export interface LogWritable<T> {
 	write: (chunk: T) => boolean;

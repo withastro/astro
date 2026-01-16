@@ -13,7 +13,7 @@ describe('astro:env', () => {
 		before(async () => {
 			process.env.API_URL = 'https://google.de';
 			process.env.PORT = '4322';
-			await astroCli(fileURLToPath(root), 'build');
+			await astroCli(fileURLToPath(root), 'build').getResult();
 
 			wrangler = wranglerCli(fileURLToPath(root));
 			await new Promise((resolve) => {
@@ -75,7 +75,7 @@ describe('astro:env', () => {
 	describe('dev', () => {
 		let cli;
 		before(async () => {
-			cli = astroCli(fileURLToPath(root), 'dev', '--host', '127.0.0.1');
+			cli = astroCli(fileURLToPath(root), 'dev', '--host', '127.0.0.1').proc;
 			await new Promise((resolve) => {
 				cli.stdout.on('data', (data) => {
 					if (data.includes('http://127.0.0.1:4321/')) {

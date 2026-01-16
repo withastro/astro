@@ -2,88 +2,83 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { openDocsCommand } from '../../../dist/cli/docs/core/open-docs.js';
-import { createProcessPlatformProvider } from '../../../dist/cli/docs/infra/process-platform-provider.js';
-import { createSpyLogger } from '../test-utils.js';
+import { ProcessCloudIdeProvider } from '../../../dist/cli/docs/infra/process-cloud-ide-provider.js';
+import { SpyLogger } from '../test-utils.js';
 import {
-	createFakePlatformProvider,
-	createPassthroughCommandRunner,
-	createSpyCommandExecutor,
+	FakeCloudIdeProvider,
+	FakeOperatingSystemProvider,
+	PassthroughCommandRunner,
+	SpyCommandExecutor,
 } from './utils.js';
 
 describe('CLI docs', () => {
 	describe('core', () => {
 		describe('openDocsCommand', () => {
 			it('logs an error if the platform is unsupported', async () => {
-				const { logger, logs } = createSpyLogger();
-				const runner = createPassthroughCommandRunner();
-				const platformProvider = createFakePlatformProvider('aix');
-				const { commandExecutor, inputs } = createSpyCommandExecutor();
+				const logger = new SpyLogger();
+				const runner = new PassthroughCommandRunner();
+				const operatingSystemProvider = new FakeOperatingSystemProvider('aix');
+				const cloudIdeProvider = new FakeCloudIdeProvider(null);
+				const commandExecutor = new SpyCommandExecutor();
 
 				await runner.run(openDocsCommand, {
 					url: 'https://astro.build/',
 					logger,
-					platformProvider,
+					operatingSystemProvider,
 					commandExecutor,
+					cloudIdeProvider,
 				});
 
-				assert.equal(logs[0].type, 'error');
-				assert.match(logs[0].message, /It looks like your platform/);
-				assert.deepStrictEqual(inputs, []);
+				assert.equal(logger.logs[0].type, 'error');
+				assert.match(logger.logs[0].message, /It looks like your platform/);
+				assert.deepStrictEqual(commandExecutor.inputs, []);
 			});
 
 			it('executes the command correctly on supported platforms', async () => {
-				const { logger, logs } = createSpyLogger();
-				const runner = createPassthroughCommandRunner();
-				const platformProvider = createFakePlatformProvider('linux');
-				const { commandExecutor, inputs } = createSpyCommandExecutor();
+				const logger = new SpyLogger();
+				const runner = new PassthroughCommandRunner();
+				const operatingSystemProvider = new FakeOperatingSystemProvider('linux');
+				const cloudIdeProvider = new FakeCloudIdeProvider(null);
+				const commandExecutor = new SpyCommandExecutor();
 
 				await runner.run(openDocsCommand, {
 					url: 'https://astro.build/',
 					logger,
-					platformProvider,
+					operatingSystemProvider,
 					commandExecutor,
+					cloudIdeProvider,
 				});
 
-				assert.deepStrictEqual(logs, []);
-				assert.equal(inputs.length, 1);
-				assert.equal(inputs[0].args?.at(-1), 'https://astro.build/');
+				assert.deepStrictEqual(logger.logs, []);
+				assert.equal(commandExecutor.inputs.length, 1);
+				assert.equal(commandExecutor.inputs[0].args?.at(-1), 'https://astro.build/');
 			});
 		});
 	});
 
 	describe('infra', () => {
-		describe('createProcessPlatformProvider()', () => {
-			it('returns the value from process.platform', () => {
-				const platformProvider = createProcessPlatformProvider();
+		describe('ProcessCloudIdeProvider', () => {
+			/** @type {string | undefined} */
+			let prev;
 
-				const platform = platformProvider.get();
-
-				assert.equal(platform, process.platform);
+			before(() => {
+				prev = process.env.GITPOD_REPO_ROOT;
+				delete process.env.GITPOD_REPO_ROOT;
 			});
 
-			describe('handles gitpod', () => {
-				/** @type {string | undefined} */
-				let prev;
+			after(() => {
+				if (prev) {
+					process.env.GITPOD_REPO_ROOT = prev;
+				}
+			});
 
-				before(() => {
-					prev = process.env.GITPOD_REPO_ROOT;
-					delete process.env.GITPOD_REPO_ROOT;
-				});
+			it('handles gitpod', () => {
+				process.env.GITPOD_REPO_ROOT = '/foo/bar/';
+				const cloudIdeaProvider = new ProcessCloudIdeProvider();
 
-				after(() => {
-					if (prev) {
-						process.env.GITPOD_REPO_ROOT = prev;
-					}
-				});
+				const platform = cloudIdeaProvider.name;
 
-				it('works', () => {
-					process.env.GITPOD_REPO_ROOT = '/foo/bar/';
-					const platformProvider = createProcessPlatformProvider();
-
-					const platform = platformProvider.get();
-
-					assert.equal(platform, 'gitpod');
-				});
+				assert.equal(platform, 'gitpod');
 			});
 		});
 	});

@@ -1,6 +1,8 @@
 ---
+import { Image } from 'astro:assets';
 import p1Url from '../images/penguin1.jpg';
 import p2Url from '../images/penguin2.jpg?url';
+import twitter from '../images/twitter.png';
 ---
 <html lang="en">
 <head><title>This Site</title></head>
@@ -22,5 +24,7 @@ import p2Url from '../images/penguin2.jpg?url';
 
   <img src={p1Url.src} id="import-no-url" />
   <img src={p2Url} id="import-url" />
+
+  <Image src={twitter} alt="Test image using Image component" id="test-image" width={100} height={100} />
 </body>
 </html>

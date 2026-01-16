@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import esbuild from 'esbuild';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import { glob } from 'tinyglobby';
 import prebuild from './prebuild.js';
 

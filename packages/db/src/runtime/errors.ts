@@ -1,4 +1,4 @@
-import colors from 'picocolors';
+import colors from 'piccolore';
 
 export const FOREIGN_KEY_DNE_ERROR = (tableName: string) => {
 	return `Table ${colors.bold(

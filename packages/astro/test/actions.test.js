@@ -117,7 +117,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Handles special characters in action names', async () => {
-			for (const name of ['with%2Fslash', 'with%20space', 'with%2Edot']) {
+			for (const name of ['with%2Fslash', 'with%20space']) {
 				const res = await fixture.fetch(`/_actions/${name}`, {
 					method: 'POST',
 					body: JSON.stringify({ name: 'ben' }),
@@ -534,7 +534,7 @@ describe('Astro Actions', () => {
 		});
 
 		it('Handles special characters in action names', async () => {
-			for (const name of ['with%2Fslash', 'with%20space', 'with%2Edot']) {
+			for (const name of ['with%2Fslash', 'with%20space']) {
 				const req = new Request(`http://example.com/_actions/${name}`, {
 					method: 'POST',
 					body: JSON.stringify({ name: 'ben' }),

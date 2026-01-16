@@ -1,6 +1,5 @@
 import type { Arguments } from 'yargs-parser';
 import { resolveConfig } from '../../core/config/config.js';
-import { apply as applyPolyfill } from '../../core/polyfill.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import { createLoggerFromFlags, flagsToAstroInlineConfig } from '../flags.js';
 import { getPackage } from '../install-package.js';
@@ -10,7 +9,6 @@ type DBPackage = {
 };
 
 export async function db({ flags }: { flags: Arguments }) {
-	applyPolyfill();
 	const logger = createLoggerFromFlags(flags);
 	const getPackageOpts = {
 		skipAsk: !!flags.yes || !!flags.y,

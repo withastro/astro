@@ -8,7 +8,7 @@ const root = new URL('./fixtures/astro-dev-platform/', import.meta.url);
 describe('AstroDevPlatform', () => {
 	let cli;
 	before(async () => {
-		cli = astroCli(fileURLToPath(root), 'dev', '--host', '127.0.0.1');
+		cli = astroCli(fileURLToPath(root), 'dev', '--host', '127.0.0.1').proc;
 		await new Promise((resolve) => {
 			cli.stdout.on('data', (data) => {
 				if (data.includes('http://127.0.0.1:4321/')) {

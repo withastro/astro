@@ -23,7 +23,7 @@ type Transition = {
 const inBrowser = import.meta.env.SSR === false;
 
 // only update history entries that are managed by us
-// leave other entries alone and do not accidently add state.
+// leave other entries alone and do not accidentally add state.
 export const updateScrollPosition = (positions: { scrollX: number; scrollY: number }) => {
 	if (history.state) {
 		history.scrollRestoration = 'manual';
@@ -443,7 +443,10 @@ async function transition(
 				preparationEvent.preventDefault();
 				return;
 			}
+			// preserve fragment
+			const fragment = preparationEvent.to.hash;
 			preparationEvent.to = redirectedTo;
+			preparationEvent.to.hash = fragment;
 		}
 
 		parser ??= new DOMParser();

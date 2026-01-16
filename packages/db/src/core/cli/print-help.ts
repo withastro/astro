@@ -1,4 +1,4 @@
-import colors from 'picocolors';
+import colors from 'piccolore';
 
 /**
  * Uses implementation from Astro core

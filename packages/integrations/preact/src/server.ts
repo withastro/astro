@@ -34,7 +34,7 @@ async function check(
 
 		// There are edge cases (SolidJS) where Preact *might* render a string,
 		// but components would be <undefined></undefined>
-		// It also might render an empty sting.
+		// It also might render an empty string.
 		return html == '' ? false : !html.includes('<undefined>');
 	} catch {
 		return false;

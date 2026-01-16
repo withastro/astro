@@ -8,6 +8,6 @@ interface Options {
 
 export function formatVersion({ name, textStyler, astroVersionProvider }: Options) {
 	return `  ${textStyler.bgGreen(textStyler.black(` ${name} `))} ${textStyler.green(
-		`v${astroVersionProvider.getVersion()}`,
+		`v${astroVersionProvider.version}`,
 	)}`;
 }

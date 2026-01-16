@@ -5,10 +5,11 @@ export const LOCAL_PROVIDER_NAME = 'local';
 export const DEFAULTS: Defaults = {
 	weights: ['400'],
 	styles: ['normal', 'italic'],
-	subsets: ['cyrillic-ext', 'cyrillic', 'greek-ext', 'greek', 'vietnamese', 'latin-ext', 'latin'],
+	subsets: ['latin'],
 	// Technically serif is the browser default but most websites these days use sans-serif
 	fallbacks: ['sans-serif'],
 	optimizedFallbacks: true,
+	formats: ['woff2'],
 };
 
 /** Used to serialize data, to be used by public APIs */

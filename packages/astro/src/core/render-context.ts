@@ -1,4 +1,4 @@
-import colors from 'picocolors';
+import colors from 'piccolore';
 import { getActionContext } from '../actions/runtime/server.js';
 import { deserializeActionResult } from '../actions/runtime/shared.js';
 import type { ActionAPIContext } from '../actions/runtime/utils.js';
@@ -12,12 +12,7 @@ import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, Props, RewritePayload } from '../types/public/common.js';
-import type {
-	APIContext,
-	AstroGlobal,
-	AstroGlobalPartial,
-	AstroSharedContextCsp,
-} from '../types/public/context.js';
+import type { APIContext, AstroGlobal, AstroGlobalPartial } from '../types/public/context.js';
 import type { RouteData, SSRResult } from '../types/public/internal.js';
 import type { SSRActions } from './app/types.js';
 import {
@@ -31,6 +26,7 @@ import {
 } from './constants.js';
 import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
 import { getCookiesFromResponse } from './cookies/response.js';
+import { pushDirective } from './csp/runtime.js';
 import { generateCspDigest } from './encryption.js';
 import { CspNotEnabled, ForbiddenRewrite } from './errors/errors-data.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
@@ -41,6 +37,7 @@ import { getParams, getProps, type Pipeline, Slots } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session.js';
+import { validateAndDecodePathname } from './util/pathname.js';
 
 export const apiContextRoutesSymbol = Symbol.for('context.routes');
 /**
@@ -61,7 +58,7 @@ export class RenderContext {
 		public clientAddress: string | undefined,
 		protected cookies = new AstroCookies(request),
 		public params = getParams(routeData, pathname),
-		protected url = new URL(request.url),
+		protected url = RenderContext.#createNormalizedUrl(request.url),
 		public props: Props = {},
 		public partial: undefined | boolean = undefined,
 		public shouldInjectCspMetaTags = !!pipeline.manifest.csp,
@@ -69,6 +66,24 @@ export class RenderContext {
 			? new AstroSession(cookies, pipeline.manifest.sessionConfig, pipeline.runtimeMode)
 			: undefined,
 	) {}
+
+	static #createNormalizedUrl(requestUrl: string): URL {
+		const url = new URL(requestUrl);
+		try {
+			// Decode and validate pathname to prevent multi-level encoding bypass attacks
+			url.pathname = validateAndDecodePathname(url.pathname);
+		} catch {
+			// If validation fails, return URL with pathname as-is
+			// This will be caught elsewhere in the request handling pipeline
+			// For now, just decode without validation to maintain compatibility
+			try {
+				url.pathname = decodeURI(url.pathname);
+			} catch {
+				// If even basic decoding fails, return URL as-is
+			}
+		}
+		return url;
+	}
 
 	/**
 	 * A flag that tells the render content if the rewriting was triggered
@@ -217,7 +232,7 @@ export class RenderContext {
 					);
 				}
 				this.isRewriting = true;
-				this.url = new URL(this.request.url);
+				this.url = RenderContext.#createNormalizedUrl(this.request.url);
 				this.params = getParams(routeData, pathname);
 				this.pathname = pathname;
 				this.status = 200;
@@ -362,7 +377,7 @@ export class RenderContext {
 				this.routeData.route,
 			);
 		}
-		this.url = new URL(this.request.url);
+		this.url = RenderContext.#createNormalizedUrl(this.request.url);
 		const newCookies = new AstroCookies(this.request);
 		if (this.cookies) {
 			newCookies.merge(this.cookies);
@@ -442,13 +457,20 @@ export class RenderContext {
 				}
 				return renderContext.session;
 			},
-			get csp(): AstroSharedContextCsp {
+			get csp(): APIContext['csp'] {
 				return {
 					insertDirective(payload) {
 						if (!pipeline.manifest.csp) {
 							throw new AstroError(CspNotEnabled);
 						}
-						renderContext.result?.directives.push(payload);
+						if (renderContext?.result?.directives) {
+							renderContext.result.directives = pushDirective(
+								renderContext.result.directives,
+								payload,
+							);
+						} else {
+							renderContext?.result?.directives.push(payload);
+						}
 					},
 
 					insertScriptResource(resource) {
@@ -712,13 +734,21 @@ export class RenderContext {
 			get originPathname() {
 				return getOriginPathname(renderContext.request);
 			},
-			get csp(): AstroSharedContextCsp {
+			get csp(): APIContext['csp'] {
 				return {
 					insertDirective(payload) {
 						if (!pipeline.manifest.csp) {
 							throw new AstroError(CspNotEnabled);
 						}
-						renderContext.result?.directives.push(payload);
+
+						if (renderContext?.result?.directives) {
+							renderContext.result.directives = pushDirective(
+								renderContext.result.directives,
+								payload,
+							);
+						} else {
+							renderContext?.result?.directives.push(payload);
+						}
 					},
 
 					insertScriptResource(resource) {

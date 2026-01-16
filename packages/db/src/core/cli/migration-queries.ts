@@ -3,7 +3,7 @@ import deepDiff from 'deep-diff';
 import { sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { customAlphabet } from 'nanoid';
-import color from 'picocolors';
+import color from 'piccolore';
 import { isSerializedSQL } from '../../runtime/types.js';
 import { hasPrimaryKey, isDbError } from '../../runtime/utils.js';
 import { MIGRATION_VERSION } from '../consts.js';

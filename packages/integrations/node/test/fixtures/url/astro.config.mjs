@@ -7,7 +7,8 @@ export default defineConfig({
 	security: {
 		allowedDomains: [
 			{
-				hostname: 'abc.xyz'
+				hostname: 'abc.xyz',
+				port: '444'
 			}
 		]
 	}

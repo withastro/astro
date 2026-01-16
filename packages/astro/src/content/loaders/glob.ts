@@ -2,7 +2,7 @@ import { existsSync, promises as fs } from 'node:fs';
 import { relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import pLimit from 'p-limit';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import picomatch from 'picomatch';
 import { glob as tinyglobby } from 'tinyglobby';
 import type { ContentEntryRenderFunction, ContentEntryType } from '../../types/public/content.js';
@@ -172,6 +172,13 @@ export function glob(globOptions: GlobOptions): Loader {
 					}
 
 					let render = renderFunctionByContentType.get(entryType);
+
+					if (store.has(id)) {
+						logger.warn(
+							`Duplicate id "${id}" found in ${filePath}. Later items with the same id will overwrite earlier ones.`,
+						);
+					}
+
 					if (!render) {
 						render = await entryType.getRenderFunction(config);
 						// Cache the render function for this content type, so it can re-use parsers and other expensive setup

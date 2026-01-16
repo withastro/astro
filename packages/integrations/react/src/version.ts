@@ -1,6 +1,6 @@
 import { version as ReactVersion } from 'react-dom';
 
-export type SupportedReactVersion = keyof typeof versionsConfig;
+type SupportedReactVersion = keyof typeof versionsConfig;
 export type ReactVersionConfig = (typeof versionsConfig)[SupportedReactVersion];
 
 export function getReactMajorVersion(): number {
@@ -11,8 +11,10 @@ export function getReactMajorVersion(): number {
 	return Number(matches[0]);
 }
 
-export function isUnsupportedVersion(majorVersion: number) {
-	return majorVersion < 17 || majorVersion > 19 || Number.isNaN(majorVersion);
+export function isSupportedReactVersion(
+	majorVersion: number,
+): majorVersion is SupportedReactVersion {
+	return majorVersion in versionsConfig;
 }
 
 export const versionsConfig = {

@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import type { AstroConfig } from 'astro';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import type { Arguments } from 'yargs-parser';
 import { isDbError } from '../../../../runtime/utils.js';
 import {

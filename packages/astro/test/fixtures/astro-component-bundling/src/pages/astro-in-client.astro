@@ -1,0 +1,13 @@
+---
+import AstroComponent from '../components/AstroComponent.astro';
+---
+<html>
+<head><title>Component bundling</title></head>
+<body>
+	<AstroComponent />
+	<script>
+		import AstroComponent from '../components/AstroComponent.astro';
+		console.log(AstroComponent);
+	</script>
+</body>
+</html>

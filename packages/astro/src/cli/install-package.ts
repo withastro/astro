@@ -2,7 +2,7 @@ import { createRequire } from 'node:module';
 import boxen from 'boxen';
 import ci from 'ci-info';
 import { detect, resolveCommand } from 'package-manager-detector';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import prompts from 'prompts';
 import yoctoSpinner from 'yocto-spinner';
 import type { Logger } from '../core/logger/core.js';

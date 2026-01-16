@@ -14,4 +14,7 @@ test('ReactWrapper with react renderer', async () => {
 
 	expect(result).toContain('Counter');
 	expect(result).toContain('Count: <!-- -->5');
+	expect(result, 'Includes client hydration reference').toContain(
+		'renderer-url="@astrojs/react/client.js"',
+	);
 });

@@ -1,6 +1,6 @@
 import { extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import colors from 'picocolors';
+import colors from 'piccolore';
 import type { Plugin as VitePlugin } from 'vite';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
 import type { Logger } from '../core/logger/core.js';

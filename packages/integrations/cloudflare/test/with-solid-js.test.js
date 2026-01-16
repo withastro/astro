@@ -9,7 +9,7 @@ const root = new URL('./fixtures/with-solid-js/', import.meta.url);
 describe('SolidJS', () => {
 	let wrangler;
 	before(async () => {
-		await astroCli(fileURLToPath(root), 'build');
+		await astroCli(fileURLToPath(root), 'build').getResult();
 
 		wrangler = wranglerCli(fileURLToPath(root));
 		await new Promise((resolve) => {

@@ -4,7 +4,7 @@ import { markdownConfigDefaults } from '@astrojs/markdown-remark';
 import type {
 	AstroIntegration,
 	AstroIntegrationLogger,
-	ContainerRenderer,
+	AstroRenderer,
 	ContentEntryType,
 	HookParameters,
 } from 'astro';
@@ -33,7 +33,7 @@ type SetupHookParams = HookParameters<'astro:config:setup'> & {
 	addContentEntryType: (contentEntryType: ContentEntryType) => void;
 };
 
-export function getContainerRenderer(): ContainerRenderer {
+export function getContainerRenderer(): AstroRenderer {
 	return {
 		name: 'astro:jsx',
 		serverEntrypoint: '@astrojs/mdx/server.js',

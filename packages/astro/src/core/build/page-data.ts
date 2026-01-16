@@ -1,4 +1,4 @@
-import colors from 'picocolors';
+import colors from 'piccolore';
 import type { AstroSettings, RoutesList } from '../../types/astro.js';
 import type { Logger } from '../logger/core.js';
 import { debug } from '../logger/core.js';
