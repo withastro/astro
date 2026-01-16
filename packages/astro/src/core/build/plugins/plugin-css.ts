@@ -187,8 +187,8 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 								}
 
 								// If we couldn't find a page through normal traversal,
-								// use the componentToPages mapping to find which pages include
-								// the parent component (which imports this conditionally rendered one).
+								// check if any parent in the chain is a hydrated component and
+								// use the pagesByHydratedComponent mapping from the server build.
 								let addedToAnyPage = false;
 								for (const importedCssImport of meta.importedCss) {
 									for (const pageData of internals.pagesByKeys.values()) {
@@ -200,41 +200,15 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 									}
 								}
 								if (!addedToAnyPage) {
-									// Find pages that contain any component in the parent chain
-									const targetPages = new Set<string>();
+									// Walk up the parent chain and check if any parent is a hydrated component
 									for (const { info: parentInfo } of parentModuleInfos) {
-										const pages = componentToPages.get(parentInfo.id);
+										const normalizedParent = normalizeEntryId(parentInfo.id);
+										// Check if this parent is tracked as a hydrated component
+										const pages = internals.pagesByHydratedComponent.get(normalizedParent);
 										if (pages) {
-											for (const page of pages) {
-												targetPages.add(page);
+											for (const pageData of pages) {
+												appendCSSToPage(pageData, meta, pagesToCss, -1, -1);
 											}
-										}
-									}
-
-									// Add CSS to the pages that contain the parent components
-									for (const pageData of internals.pagesByKeys.values()) {
-										// Check if this page's component entry is in our target pages
-										// The facadeModuleId is like "astro-entry:/path/to/Parent.svelte"
-										// and we need to match it with discovered hydrated components
-										let shouldAdd = false;
-										for (const targetPage of targetPages) {
-											if (
-												targetPage.includes(pageData.component) ||
-												pageData.moduleSpecifier.includes(targetPage) ||
-												// Check if any hydrated component in this page matches
-												Array.from(internals.discoveredHydratedComponents.keys()).some(
-													(compId) =>
-														targetPage.includes(compId) ||
-														compId.includes(normalizeEntryId(targetPage)),
-												)
-											) {
-												shouldAdd = true;
-												break;
-											}
-										}
-
-										if (shouldAdd || targetPages.size === 0) {
-											appendCSSToPage(pageData, meta, pagesToCss, -1, -1);
 										}
 									}
 								}
