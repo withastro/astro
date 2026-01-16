@@ -1,6 +1,7 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { defineFontProvider } from 'unifont';
 import { BuildFontFileIdGenerator } from '../../../../dist/assets/fonts/infra/build-font-file-id-generator.js';
 import { BuildUrlResolver } from '../../../../dist/assets/fonts/infra/build-url-resolver.js';
@@ -8,6 +9,7 @@ import { CachedFontFetcher } from '../../../../dist/assets/fonts/infra/cached-fo
 import { CapsizeFontMetricsResolver } from '../../../../dist/assets/fonts/infra/capsize-font-metrics-resolver.js';
 import { DevFontFileIdGenerator } from '../../../../dist/assets/fonts/infra/dev-font-file-id-generator.js';
 import { DevUrlResolver } from '../../../../dist/assets/fonts/infra/dev-url-resolver.js';
+import { FsFontFileContentResolver } from '../../../../dist/assets/fonts/infra/fs-font-file-content-resolver.js';
 import {
 	handleValueWithSpaces,
 	MinifiableCssRenderer,
@@ -780,6 +782,24 @@ describe('fonts infra', () => {
 				}),
 				['a', 'b', 'c'],
 			);
+		});
+	});
+
+	describe('FsFontFileContentResolver', () => {
+		it('returns url as is when not absolute', () => {
+			const url = 'https://example.com/foo.woff2';
+			const fontFileIdContentResolver = new FsFontFileContentResolver({
+				readFileSync: () => 'content',
+			});
+			assert.equal(fontFileIdContentResolver.resolve(url), url);
+		});
+
+		it('returns url and content when absolute', () => {
+			const url = fileURLToPath(new URL(import.meta.url));
+			const fontFileIdContentResolver = new FsFontFileContentResolver({
+				readFileSync: () => 'content',
+			});
+			assert.equal(fontFileIdContentResolver.resolve(url), url + 'content');
 		});
 	});
 });
