@@ -236,7 +236,7 @@ export type FontFileById = Map<FontFileData['hash'], Pick<FontFileData, 'url' | 
 /**
  * Holds associations of CSS variables and preloadData/css to be passed to the internal virtual module.
  */
-export type InternalConsumableMap = Map<string, { preloadData: Array<PreloadData>; css: string }>;
+export type ComponentDataByCssVariable = Map<string, { preloadData: Array<PreloadData>; css: string }>;
 
 export interface FontData {
 	src: Array<{ url: string; format?: string; tech?: string }>;
