@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { isAbsolute } from 'node:path';
 import colors from 'piccolore';
@@ -131,7 +131,9 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 						base: baseUrl,
 						searchParams: settings.adapter?.client?.assetQueryParams ?? new URLSearchParams(),
 					});
-			const contentResolver = new FsFontFileContentResolver();
+			const contentResolver = new FsFontFileContentResolver({
+				readFileSync: (path) => readFileSync(path, 'utf-8'),
+			});
 			const fontFileIdGenerator = isBuild
 				? new BuildFontFileIdGenerator({
 						hasher,
