@@ -108,5 +108,5 @@ export async function computeFontFamiliesAssets({
 		fontAssets.preloads.push(...result.preloads);
 	}
 
-	return { fontFamilyAssetsByUniqueKey, fontFileById };
+	return { fontFamilyAssets: Array.from(fontFamilyAssetsByUniqueKey.values()), fontFileById };
 }
