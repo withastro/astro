@@ -12,7 +12,7 @@ export function getOrCreateFontFamilyAssets({
 	bold: (input: string) => string;
 	family: ResolvedFontFamily;
 }) {
-	const key = `${family.cssVariable}:${family.name}:${typeof family.provider === 'string' ? family.provider : family.provider.name}`;
+	const key = `${family.cssVariable}:${family.name}:${family.provider.name}`;
 	let fontAssets = fontFamilyAssetsByUniqueKey.get(key);
 	if (!fontAssets) {
 		if (
