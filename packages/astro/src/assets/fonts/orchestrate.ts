@@ -10,15 +10,15 @@ import type {
 } from './definitions.js';
 import type {
 	Collaborator,
+	ComponentDataByCssVariable,
 	Defaults,
 	FontDataByCssVariable,
 	FontFamily,
 	FontFileById,
-	InternalConsumableMap
 } from './types.js';
 import { unifontFontFaceDataToProperties } from './utils.js';
 
-// TODO: rename and move to core
+// TODO: inline in vite plugin
 export async function orchestrate({
 	families,
 	hasher,
@@ -40,7 +40,7 @@ export async function orchestrate({
 	>;
 }): Promise<{
 	fontFileById: FontFileById;
-	internalConsumableMap: InternalConsumableMap;
+	componentDataByCssVariable: ComponentDataByCssVariable;
 	fontDataByCssVariable: FontDataByCssVariable;
 }> {
 	const resolvedFamilies = families.map((family) => resolveFamily({ family, hasher }));
@@ -54,7 +54,7 @@ export async function orchestrate({
 	/**
 	 * Holds associations of CSS variables and preloadData/css to be passed to the internal virtual module.
 	 */
-	const internalConsumableMap: InternalConsumableMap = new Map();
+	const componentDataByCssVariable: ComponentDataByCssVariable = new Map();
 
 	// We know about all the families, let's generate css, fallbacks and more
 	for (const {
@@ -103,8 +103,8 @@ export async function orchestrate({
 
 		css += cssRenderer.generateCssVariable(family.cssVariable, cssVarValues);
 
-		internalConsumableMap.set(family.cssVariable, { preloadData: preloads, css });
+		componentDataByCssVariable.set(family.cssVariable, { preloadData: preloads, css });
 	}
 
-	return { fontFileById, internalConsumableMap, fontDataByCssVariable };
+	return { fontFileById, componentDataByCssVariable, fontDataByCssVariable };
 }
