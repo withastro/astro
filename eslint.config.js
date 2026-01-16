@@ -25,6 +25,7 @@ export default [
 			'packages/**/_temp-fixtures/',
 			'packages/astro/vendor/vite/',
 			'benchmark/**/dist/',
+			'benchmark/static-projects/**',
 			'examples/',
 			'scripts/',
 			'.github/',

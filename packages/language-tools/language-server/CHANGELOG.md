@@ -1,5 +1,17 @@
 # @astrojs/language-server
 
+## 2.16.3
+
+### Patch Changes
+
+- [#15199](https://github.com/withastro/astro/pull/15199) [`d8e64ef`](https://github.com/withastro/astro/commit/d8e64ef77ef364b1541a5d192bcff299135d3bc8) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes the links to Astro Docs so that they match the current docs structure.
+
+## 2.16.2
+
+### Patch Changes
+
+- [#14950](https://github.com/withastro/astro/pull/14950) [`385be1b`](https://github.com/withastro/astro/commit/385be1bc6e1ce3fd76b0c1076d489caeed5a35d3) Thanks [@dvelasquez](https://github.com/dvelasquez)! - Fixes an issue with the volar-service-emmet that was pointing to a github username/repository instead of a npm package. This type of dependencies are not supported for Deno installations and it can break in enterprise environments that use private registries or don't have access to public github.
+
 ## 2.16.1
 
 ### Patch Changes

@@ -90,6 +90,15 @@ describe('Config Validation', () => {
 		);
 	});
 
+	it('errors with helpful message when output is "hybrid"', async () => {
+		const configError = await validateConfig({ output: 'hybrid' }).catch((err) => err);
+		assert.equal(configError instanceof z.ZodError, true);
+		assert.ok(
+			configError.errors[0].message.includes('removed'),
+			'Error message should explain that "hybrid" has been removed',
+		);
+	});
+
 	describe('i18n', async () => {
 		it('defaultLocale is not in locales', async () => {
 			const configError = await validateConfig({
@@ -403,7 +412,13 @@ describe('Config Validation', () => {
 		it('Should error on invalid css variable', async () => {
 			let configError = await validateConfig({
 				experimental: {
-					fonts: [{ name: 'Roboto', cssVariable: 'test', provider: { entrypoint: '' } }],
+					fonts: [
+						{
+							name: 'Roboto',
+							cssVariable: 'test',
+							provider: { name: 'foo', resolveFont: () => undefined },
+						},
+					],
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
@@ -416,7 +431,13 @@ describe('Config Validation', () => {
 
 			configError = await validateConfig({
 				experimental: {
-					fonts: [{ name: 'Roboto', cssVariable: '-test', provider: { entrypoint: '' } }],
+					fonts: [
+						{
+							name: 'Roboto',
+							cssVariable: '-test',
+							provider: { name: 'foo', resolveFont: () => undefined },
+						},
+					],
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
@@ -429,7 +450,13 @@ describe('Config Validation', () => {
 
 			configError = await validateConfig({
 				experimental: {
-					fonts: [{ name: 'Roboto', cssVariable: '--test ', provider: { entrypoint: '' } }],
+					fonts: [
+						{
+							name: 'Roboto',
+							cssVariable: '--test ',
+							provider: { name: 'foo', resolveFont: () => undefined },
+						},
+					],
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
@@ -442,7 +469,13 @@ describe('Config Validation', () => {
 
 			configError = await validateConfig({
 				experimental: {
-					fonts: [{ name: 'Roboto', cssVariable: '--test:x', provider: { entrypoint: '' } }],
+					fonts: [
+						{
+							name: 'Roboto',
+							cssVariable: '--test:x',
+							provider: { name: 'foo', resolveFont: () => undefined },
+						},
+					],
 				},
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
@@ -456,7 +489,13 @@ describe('Config Validation', () => {
 			assert.doesNotThrow(() =>
 				validateConfig({
 					experimental: {
-						fonts: [{ name: 'Roboto', cssVariable: '--test', provider: { entrypoint: '' } }],
+						fonts: [
+							{
+								name: 'Roboto',
+								cssVariable: '--test',
+								provider: { name: 'foo', resolveFont: () => undefined },
+							},
+						],
 					},
 				}),
 			);
