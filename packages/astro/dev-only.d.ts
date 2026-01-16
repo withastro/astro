@@ -7,8 +7,8 @@ declare module 'virtual:astro:env/internal' {
 }
 
 declare module 'virtual:astro:assets/fonts/internal' {
-	export const internalConsumableMap: import('./src/assets/fonts/types.js').ComponentDataByCssVariable;
-	export const consumableMap: import('./src/assets/fonts/types.js').FontDataByCssVariable;
+	export const componentDataByCssVariable: import('./src/assets/fonts/types.js').ComponentDataByCssVariable;
+	export const fontDataByCssVariable: import('./src/assets/fonts/types.js').FontDataByCssVariable;
 }
 
 declare module 'virtual:astro:adapter-config/client' {

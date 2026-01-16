@@ -51,7 +51,6 @@ export async function collectComponentData({
 				? await optimizeFallbacks({
 						family,
 						fallbacks,
-						// TODO: consider directly an array where produced
 						collectedFonts: Array.from(collectedFontsForMetricsByUniqueKey.values()),
 					})
 				: null;
