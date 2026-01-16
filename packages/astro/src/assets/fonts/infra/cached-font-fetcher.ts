@@ -2,7 +2,6 @@ import { isAbsolute } from 'node:path';
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
 import type { FontFetcher, Storage } from '../definitions.js';
 import type { FontFileData } from '../types.js';
-import { cache } from '../utils.js';
 
 export class CachedFontFetcher implements FontFetcher {
 	readonly #storage: Storage;
@@ -23,8 +22,18 @@ export class CachedFontFetcher implements FontFetcher {
 		this.#readFile = readFile;
 	}
 
+	async #cache(storage: Storage, key: string, cb: () => Promise<Buffer>): Promise<Buffer> {
+		const existing = await storage.getItemRaw(key);
+		if (existing) {
+			return existing;
+		}
+		const data = await cb();
+		await storage.setItemRaw(key, data);
+		return data;
+	}
+
 	async fetch({ hash, url, init }: FontFileData): Promise<Buffer> {
-		return await cache(this.#storage, hash, async () => {
+		return await this.#cache(this.#storage, hash, async () => {
 			try {
 				if (isAbsolute(url)) {
 					return await this.#readFile(url);
