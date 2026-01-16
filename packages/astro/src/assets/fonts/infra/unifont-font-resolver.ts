@@ -1,6 +1,5 @@
 import type { FontFaceData, Provider } from 'unifont';
 import { createUnifont, defineFontProvider, type Unifont } from 'unifont';
-import { LOCAL_PROVIDER_NAME } from '../constants.js';
 import type { FontResolver, Hasher, Storage } from '../definitions.js';
 import type { FontProvider, ResolvedFontFamily, ResolveFontOptions } from '../types.js';
 
@@ -16,9 +15,9 @@ export class UnifontFontResolver implements FontResolver {
 		this.#unifont = unifont;
 	}
 
-	static astroToUnifontProvider(astroProvider: FontProvider): Provider {
+	static astroToUnifontProvider(astroProvider: FontProvider, root: URL): Provider {
 		return defineFontProvider(astroProvider.name, async (_options: any, ctx) => {
-			await astroProvider?.init?.(ctx);
+			await astroProvider?.init?.({ ...ctx, root });
 			return {
 				async resolveFont(familyName, { options, ...rest }) {
 					return await astroProvider.resolveFont({ familyName, options, ...rest });
@@ -33,20 +32,17 @@ export class UnifontFontResolver implements FontResolver {
 	static extractUnifontProviders({
 		families,
 		hasher,
+		root,
 	}: {
 		families: Array<ResolvedFontFamily>;
 		hasher: Hasher;
+		root: URL;
 	}) {
 		const hashes = new Set<string>();
 		const providers: Array<Provider> = [];
 
 		for (const { provider } of families) {
-			// The local provider logic happens outside of unifont
-			if (provider === LOCAL_PROVIDER_NAME) {
-				continue;
-			}
-
-			const unifontProvider = this.astroToUnifontProvider(provider);
+			const unifontProvider = this.astroToUnifontProvider(provider, root);
 			const hash = hasher.hashObject({
 				name: unifontProvider._name,
 				...provider.config,
@@ -75,13 +71,15 @@ export class UnifontFontResolver implements FontResolver {
 		families,
 		hasher,
 		storage,
+		root,
 	}: {
 		families: Array<ResolvedFontFamily>;
 		hasher: Hasher;
 		storage: Storage;
+		root: URL;
 	}) {
 		return new UnifontFontResolver({
-			unifont: await createUnifont(this.extractUnifontProviders({ families, hasher }), {
+			unifont: await createUnifont(this.extractUnifontProviders({ families, hasher, root }), {
 				storage,
 				// TODO: consider enabling, would require new astro errors
 				throwOnError: false,
