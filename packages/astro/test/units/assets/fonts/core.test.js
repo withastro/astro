@@ -1,6 +1,7 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { collectComponentData } from '../../../../dist/assets/fonts/core/collect-component-data.js';
 import { collectFontAssetsFromFaces } from '../../../../dist/assets/fonts/core/collect-font-assets-from-faces.js';
 import { collectFontData } from '../../../../dist/assets/fonts/core/collect-font-data.js';
 import { computeFontFamiliesAssets } from '../../../../dist/assets/fonts/core/compute-font-families-assets.js';
@@ -1106,11 +1107,219 @@ describe('fonts core', () => {
 	});
 
 	describe('collectComponentData()', () => {
-		// TODO:
-	});
+		it('generates css for each font face', async () => {
+			assert.deepStrictEqual(
+				await collectComponentData({
+					defaults: {
+						fallbacks: [],
+						optimizedFallbacks: false,
+					},
+					fontFamilyAssets: [
+						{
+							family: {
+								name: 'Test',
+								uniqueName: 'Test-xxx',
+								cssVariable: '--test',
+								provider: { name: 'test', resolveFont: () => undefined },
+							},
+							collectedFontsForMetricsByUniqueKey: new Map(),
+							fonts: [
+								{
+									weight: '400',
+									src: [{ name: 'Test' }],
+								},
+								{
+									weight: '500',
+									src: [{ name: 'Test' }],
+								},
+							],
+							preloads: [
+								{ style: undefined, subset: undefined, type: 'woff2', url: 'a', weight: undefined },
+							],
+						},
+					],
+					optimizeFallbacks: async () => null,
+					cssRenderer: {
+						generateFontFace: (family, properties) => JSON.stringify({ family, properties }),
+						generateCssVariable: (key, values) => `${key}:${values.join(',')}`,
+					},
+				}),
+				new Map([
+					[
+						'--test',
+						{
+							css: '{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"400"}}{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"500"}}--test:Test-xxx',
+							preloads: [
+								{ style: undefined, subset: undefined, type: 'woff2', url: 'a', weight: undefined },
+							],
+						},
+					],
+				]),
+			);
+		});
 
-	describe('optimizeFallbacks()', () => {
-		// TODO:
+		it('skips fallbacks if needed', async () => {
+			assert.deepStrictEqual(
+				await collectComponentData({
+					defaults: {
+						fallbacks: ['foo'],
+						optimizedFallbacks: false,
+					},
+					fontFamilyAssets: [
+						{
+							family: {
+								name: 'Test',
+								uniqueName: 'Test-xxx',
+								cssVariable: '--test',
+								provider: { name: 'test', resolveFont: () => undefined },
+							},
+							collectedFontsForMetricsByUniqueKey: new Map(),
+							fonts: [
+								{
+									weight: '400',
+									src: [{ name: 'Test' }],
+								},
+								{
+									weight: '500',
+									src: [{ name: 'Test' }],
+								},
+							],
+							preloads: [
+								{ style: undefined, subset: undefined, type: 'woff2', url: 'a', weight: undefined },
+							],
+						},
+					],
+					optimizeFallbacks: async () => null,
+					cssRenderer: {
+						generateFontFace: (family, properties) => JSON.stringify({ family, properties }),
+						generateCssVariable: (key, values) => `${key}:${values.join(',')}`,
+					},
+				}),
+				new Map([
+					[
+						'--test',
+						{
+							css: '{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"400"}}{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"500"}}--test:Test-xxx,foo',
+							preloads: [
+								{ style: undefined, subset: undefined, type: 'woff2', url: 'a', weight: undefined },
+							],
+						},
+					],
+				]),
+			);
+
+			assert.deepStrictEqual(
+				await collectComponentData({
+					defaults: {
+						fallbacks: ['foo'],
+						optimizedFallbacks: true,
+					},
+					fontFamilyAssets: [
+						{
+							family: {
+								name: 'Test',
+								uniqueName: 'Test-xxx',
+								cssVariable: '--test',
+								provider: { name: 'test', resolveFont: () => undefined },
+							},
+							collectedFontsForMetricsByUniqueKey: new Map(),
+							fonts: [
+								{
+									weight: '400',
+									src: [{ name: 'Test' }],
+								},
+								{
+									weight: '500',
+									src: [{ name: 'Test' }],
+								},
+							],
+							preloads: [
+								{ style: undefined, subset: undefined, type: 'woff2', url: 'a', weight: undefined },
+							],
+						},
+					],
+					optimizeFallbacks: async () => null,
+					cssRenderer: {
+						generateFontFace: (family, properties) => JSON.stringify({ family, properties }),
+						generateCssVariable: (key, values) => `${key}:${values.join(',')}`,
+					},
+				}),
+				new Map([
+					[
+						'--test',
+						{
+							css: '{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"400"}}{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"500"}}--test:Test-xxx,foo',
+							preloads: [
+								{ style: undefined, subset: undefined, type: 'woff2', url: 'a', weight: undefined },
+							],
+						},
+					],
+				]),
+			);
+		});
+
+		it('handles fallbacks', async () => {
+			assert.deepStrictEqual(
+				await collectComponentData({
+					defaults: {
+						fallbacks: ['foo'],
+						optimizedFallbacks: true,
+					},
+					fontFamilyAssets: [
+						{
+							family: {
+								name: 'Test',
+								uniqueName: 'Test-xxx',
+								cssVariable: '--test',
+								provider: { name: 'test', resolveFont: () => undefined },
+							},
+							collectedFontsForMetricsByUniqueKey: new Map(),
+							fonts: [
+								{
+									weight: '400',
+									src: [{ name: 'Test' }],
+								},
+								{
+									weight: '500',
+									src: [{ name: 'Test' }],
+								},
+							],
+							preloads: [
+								{
+									style: undefined,
+									subset: undefined,
+									type: 'woff2',
+									url: 'a',
+									weight: undefined,
+								},
+							],
+						},
+					],
+					optimizeFallbacks: async () => ({ css: 'FALLBACK', fallbacks: ['bar'] }),
+					cssRenderer: {
+						generateFontFace: (family, properties) => JSON.stringify({ family, properties }),
+						generateCssVariable: (key, values) => `${key}:${values.join(',')}`,
+					},
+				}),
+				new Map([
+					[
+						'--test',
+						{
+							css: '{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"400"}}{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"500"}}FALLBACK--test:Test-xxx,bar',
+							preloads: [
+								{
+									style: undefined,
+									subset: undefined,
+									type: 'woff2',
+									url: 'a',
+									weight: undefined,
+								},
+							],
+						},
+					],
+				]),
+			);
+		});
 	});
 
 	describe('optimizeFallbacks()', () => {
