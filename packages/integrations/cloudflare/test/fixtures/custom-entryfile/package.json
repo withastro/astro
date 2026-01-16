@@ -1,0 +1,9 @@
+{
+  "name": "@test/astro-cloudflare-custom-entryfile",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/cloudflare": "workspace:*",
+    "astro": "workspace:*"
+  }
+}
