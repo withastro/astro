@@ -552,8 +552,8 @@ importers:
         specifier: ^2.0.2
         version: 2.0.2
       devalue:
-        specifier: ^5.6.1
-        version: 5.6.1
+        specifier: ^5.6.2
+        version: 5.6.2
       diff:
         specifier: ^8.0.3
         version: 8.0.3
@@ -4888,8 +4888,8 @@ importers:
         specifier: 1.1.2
         version: 1.1.2
       devalue:
-        specifier: ^5.6.1
-        version: 5.6.1
+        specifier: ^5.6.2
+        version: 5.6.2
       rollup:
         specifier: ^4.55.1
         version: 4.55.1
@@ -5084,8 +5084,8 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       devalue:
-        specifier: ^5.6.1
-        version: 5.6.1
+        specifier: ^5.6.2
+        version: 5.6.2
       linkedom:
         specifier: ^0.18.12
         version: 0.18.12
@@ -5548,8 +5548,8 @@ importers:
         specifier: 1.1.2
         version: 1.1.2
       devalue:
-        specifier: ^5.6.1
-        version: 5.6.1
+        specifier: ^5.6.2
+        version: 5.6.2
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -5673,8 +5673,8 @@ importers:
         specifier: 1.1.2
         version: 1.1.2
       devalue:
-        specifier: ^5.6.1
-        version: 5.6.1
+        specifier: ^5.6.2
+        version: 5.6.2
       express:
         specifier: ^4.22.1
         version: 4.22.1
@@ -11440,6 +11440,9 @@ packages:
 
   devalue@5.6.1:
     resolution: {integrity: sha512-jDwizj+IlEZBunHcOuuFVBnIMPAEHvTsJj0BcIp94xYguLRVBcXO853px/MyIJvbVzWdsGvrRweIUWJw8hBP7A==}
+
+  devalue@5.6.2:
+    resolution: {integrity: sha512-nPRkjWzzDQlsejL1WVifk5rvcFi/y1onBRxjaFMjZeR9mFpqu2gmAZ9xUB9/IEanEP/vBtGeGganC/GO1fmufg==}
 
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
@@ -20613,6 +20616,8 @@ snapshots:
   dettle@1.0.5: {}
 
   devalue@5.6.1: {}
+
+  devalue@5.6.2: {}
 
   devlop@1.1.0:
     dependencies:
