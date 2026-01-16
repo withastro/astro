@@ -23,11 +23,11 @@ export function collectFontAssetsFromFaces({
 	const fontFileById: FontFileById = new Map();
 	const collectedFontsForMetricsByUniqueKey = new Map<string, CollectedFontForMetrics>();
 	const preloads: Array<PreloadData> = [];
-	// The index keeps track of encountered URLs. We can't use the index on font.src.map
-	// below because it may contain sources without urls, which would prevent preloading completely
-	let index = 0;
 
 	for (const font of fonts) {
+		// The index keeps track of encountered URLs. We can't use a regular for loop
+		// below because it may contain sources without urls, which would prevent preloading completely
+		let index = 0;
 		for (const source of font.src) {
 			if ('name' in source) {
 				continue;
