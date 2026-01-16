@@ -6,7 +6,7 @@ import type { FONT_TYPES, GENERIC_FALLBACK_NAMES } from './constants.js';
 import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 
 export type Weight = z.infer<typeof weightSchema>;
-export type Display = z.infer<typeof displaySchema>;
+type Display = z.infer<typeof displaySchema>;
 
 export interface FontProviderInitContext {
 	storage: {
@@ -219,14 +219,6 @@ export interface FontFileData {
 	init: RequestInit | undefined;
 }
 
-export interface CreateUrlProxyParams {
-	hasUrl: (hash: string) => boolean;
-	saveUrl: (input: FontFileData) => void;
-	savePreload: (preload: PreloadData) => void;
-	saveFontData: (collected: CollectedFontForMetrics) => void;
-	cssVariable: string;
-}
-
 /**
  * Holds associations of hash and original font file URLs, so they can be
  * downloaded whenever the hash is requested.
@@ -236,7 +228,10 @@ export type FontFileById = Map<FontFileData['hash'], Pick<FontFileData, 'url' | 
 /**
  * Holds associations of CSS variables and preloadData/css to be passed to the internal virtual module.
  */
-export type ComponentDataByCssVariable = Map<string, { preloadData: Array<PreloadData>; css: string }>;
+export type ComponentDataByCssVariable = Map<
+	string,
+	{ preloadData: Array<PreloadData>; css: string }
+>;
 
 export interface FontData {
 	src: Array<{ url: string; format?: string; tech?: string }>;
