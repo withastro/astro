@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { collectFontAssetsFromFaces } from '../../../../dist/assets/fonts/core/collect-font-assets-from-faces.js';
+import { collectFontData } from '../../../../dist/assets/fonts/core/collect-font-data.js';
 import { computeFontFamiliesAssets } from '../../../../dist/assets/fonts/core/compute-font-families-assets.js';
 import { filterAndTransformFontFaces } from '../../../../dist/assets/fonts/core/filter-and-transform-font-faces.js';
 import { getOrCreateFontFamilyAssets } from '../../../../dist/assets/fonts/core/get-or-create-font-family-assets.js';
@@ -1020,110 +1021,81 @@ describe('fonts core', () => {
 		});
 	});
 
-	describe('collectFontData()', () => {
-		// TODO:
-		// 	it('proxies URLs correctly', () => {
-		// 		const urlProxy = new SpyUrlProxy();
-		// 		normalizeRemoteFontFaces({
-		// 			urlProxy,
-		// 			fonts: [
-		// 				{
-		// 					weight: '400',
-		// 					style: 'normal',
-		// 					src: [
-		// 						{ url: '/', format: 'woff2' },
-		// 						{ url: '/ignored', format: 'woff2' },
-		// 					],
-		// 				},
-		// 				{
-		// 					weight: '500',
-		// 					style: 'normal',
-		// 					src: [{ url: '/2', format: 'woff2' }],
-		// 				},
-		// 			],
-		// 			fontTypeExtractor: new RealFontTypeExtractor(),
-		// 		});
-		// 		assert.deepStrictEqual(urlProxy.collected, [
-		// 			{
-		// 				url: '/',
-		// 				type: 'woff2',
-		// 				collectPreload: true,
-		// 				data: { weight: '400', style: 'normal', subset: undefined },
-		// 				init: null,
-		// 			},
-		// 			{
-		// 				url: '/ignored',
-		// 				type: 'woff2',
-		// 				collectPreload: false,
-		// 				data: { weight: '400', style: 'normal', subset: undefined },
-		// 				init: null,
-		// 			},
-		// 			{
-		// 				url: '/2',
-		// 				type: 'woff2',
-		// 				collectPreload: true,
-		// 				data: { weight: '500', style: 'normal', subset: undefined },
-		// 				init: null,
-		// 			},
-		// 		]);
-		// 	});
-		// 	it('collects preloads correctly', () => {
-		// 		const urlProxy = new SpyUrlProxy();
-		// 		normalizeRemoteFontFaces({
-		// 			urlProxy,
-		// 			fonts: [
-		// 				{
-		// 					weight: '400',
-		// 					style: 'normal',
-		// 					src: [
-		// 						{ name: 'Arial' },
-		// 						{ url: '/', format: 'woff2' },
-		// 						{ url: '/ignored', format: 'woff2' },
-		// 					],
-		// 				},
-		// 				{
-		// 					weight: '500',
-		// 					style: 'normal',
-		// 					src: [
-		// 						{ url: '/2', format: 'woff2' },
-		// 						{ name: 'Foo' },
-		// 						{ url: '/also-ignored', format: 'woff2' },
-		// 					],
-		// 				},
-		// 			],
-		// 			fontTypeExtractor: new RealFontTypeExtractor(),
-		// 		});
-		// 		assert.deepStrictEqual(urlProxy.collected, [
-		// 			{
-		// 				url: '/',
-		// 				type: 'woff2',
-		// 				collectPreload: true,
-		// 				data: { weight: '400', style: 'normal', subset: undefined },
-		// 				init: null,
-		// 			},
-		// 			{
-		// 				url: '/ignored',
-		// 				type: 'woff2',
-		// 				collectPreload: false,
-		// 				data: { weight: '400', style: 'normal', subset: undefined },
-		// 				init: null,
-		// 			},
-		// 			{
-		// 				url: '/2',
-		// 				type: 'woff2',
-		// 				collectPreload: true,
-		// 				data: { weight: '500', style: 'normal', subset: undefined },
-		// 				init: null,
-		// 			},
-		// 			{
-		// 				url: '/also-ignored',
-		// 				type: 'woff2',
-		// 				collectPreload: false,
-		// 				data: { weight: '500', style: 'normal', subset: undefined },
-		// 				init: null,
-		// 			},
-		// 		]);
-		// 	});
+	it('collectFontData()', () => {
+		assert.deepStrictEqual(
+			collectFontData([
+				{
+					family: { cssVariable: '--foo' },
+					fonts: [
+						{
+							weight: '400',
+							style: 'normal',
+							src: [{ url: 'a.woff2', format: 'woff2' }, { name: 'b' }],
+						},
+						{
+							weight: '500',
+							style: 'italic',
+							src: [{ url: 'c.woff2', format: 'woff2' }],
+						},
+					],
+				},
+				{
+					family: { cssVariable: '--bar' },
+					fonts: [
+						{
+							weight: '400',
+							style: 'normal',
+							src: [{ url: 'd.woff2', format: 'woff2' }],
+						},
+					],
+				},
+			]),
+			new Map([
+				[
+					'--foo',
+					[
+						{
+							src: [
+								{
+									format: 'woff2',
+									tech: undefined,
+									url: 'a.woff2',
+								},
+							],
+							style: 'normal',
+							weight: '400',
+						},
+						{
+							src: [
+								{
+									format: 'woff2',
+									tech: undefined,
+									url: 'c.woff2',
+								},
+							],
+							style: 'italic',
+							weight: '500',
+						},
+					],
+				],
+				[
+					'--bar',
+					[
+						{
+							src: [
+								{
+									format: 'woff2',
+									tech: undefined,
+									url: 'd.woff2',
+								},
+							],
+							style: 'normal',
+							weight: '400',
+						},
+					],
+				],
+			]),
+		);
 	});
 
 	describe('collectComponentData()', () => {

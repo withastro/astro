@@ -2,7 +2,9 @@ import type { FontData, FontDataByCssVariable, FontFamilyAssets } from '../types
 import { renderFontWeight } from '../utils.js';
 
 export function collectFontData(
-	fontFamilyAssets: Array<Pick<FontFamilyAssets, 'fonts' | 'family'>>,
+	fontFamilyAssets: Array<
+		Pick<FontFamilyAssets, 'fonts'> & { family: Pick<FontFamilyAssets['family'], 'cssVariable'> }
+	>,
 ) {
 	const fontDataByCssVariable: FontDataByCssVariable = new Map();
 
