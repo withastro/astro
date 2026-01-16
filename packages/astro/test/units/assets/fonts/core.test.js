@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { computeFontFamiliesAssets } from '../../../../dist/assets/fonts/core/compute-font-families-assets.js';
+import { getOrCreateFontFamilyAssets } from '../../../../dist/assets/fonts/core/get-or-create-font-family-assets.js';
 import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-family.js';
 import { SpyLogger } from '../../test-utils.js';
 import { FakeHasher, FakeStringMatcher, markdownBold, PassthroughFontResolver } from './utils.js';
@@ -446,6 +447,109 @@ describe('fonts core', () => {
 			assert.deepStrictEqual(fontFileById, new Map([['a', { url: 'a', init: undefined }]]));
 			assert.deepStrictEqual(logger.logs, []);
 		});
+	});
+
+	it('getOrCreateFontFamilyAssets()', () => {
+		/** @type {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} */
+		const families = [
+			{
+				name: 'Foo',
+				uniqueName: 'Foo-xxx',
+				cssVariable: '--foo',
+				provider: {
+					name: 'foo',
+					resolveFont: () => undefined,
+				},
+				weights: ['400'],
+			},
+			{
+				name: 'Foo',
+				uniqueName: 'Foo-yyy',
+				cssVariable: '--foo',
+				provider: {
+					name: 'foo',
+					resolveFont: () => undefined,
+				},
+				styles: ['italic'],
+			},
+			{
+				name: 'Bar',
+				uniqueName: 'Bar-xxx',
+				cssVariable: '--bar',
+				provider: {
+					name: 'bar',
+					resolveFont: () => undefined,
+				},
+			},
+		];
+
+		/** @type {import('../../../../dist/assets/fonts/types.js').FontFamilyAssetsByUniqueKey} */
+		const fontFamilyAssetsByUniqueKey = new Map();
+		const logger = new SpyLogger();
+
+		assert.deepStrictEqual(
+			getOrCreateFontFamilyAssets({
+				fontFamilyAssetsByUniqueKey,
+				family: families[0],
+				logger,
+				bold: markdownBold,
+			}),
+			{
+				collectedFontsForMetricsByUniqueKey: new Map(),
+				family: families[0],
+				fonts: [],
+				preloads: [],
+			},
+		);
+		assert.deepStrictEqual(
+			getOrCreateFontFamilyAssets({
+				fontFamilyAssetsByUniqueKey,
+				family: families[1],
+				logger,
+				bold: markdownBold,
+			}),
+			{
+				collectedFontsForMetricsByUniqueKey: new Map(),
+				family: families[0],
+				fonts: [],
+				preloads: [],
+			},
+		);
+		assert.deepStrictEqual(
+			getOrCreateFontFamilyAssets({
+				fontFamilyAssetsByUniqueKey,
+				family: families[2],
+				logger,
+				bold: markdownBold,
+			}),
+			{
+				collectedFontsForMetricsByUniqueKey: new Map(),
+				family: families[2],
+				fonts: [],
+				preloads: [],
+			},
+		);
+		assert.equal(fontFamilyAssetsByUniqueKey.size, 2);
+	});
+
+	describe('filterAndTransformFontFaces()', () => {
+		// TODO:
+	});
+
+	describe('collectFontAssetsFromFaces()', () => {
+		// TODO:
+	});
+
+	describe('collectFontData()', () => {
+		// TODO:
+	});
+
+	describe('collectComponentData()', () => {
+		// TODO:
+	});
+
+	describe('optimizeFallbacks()', () => {
+		// TODO:
 	});
 
 	// describe('normalizeRemoteFontFaces()', () => {
