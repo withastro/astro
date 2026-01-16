@@ -183,6 +183,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 						fonts,
 						fontFileIdGenerator,
 						hasher,
+						defaults,
 					}),
 			});
 			fontDataByCssVariable = collectFontData(fontFamilyAssets);
