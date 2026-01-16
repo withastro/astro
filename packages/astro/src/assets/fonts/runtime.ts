@@ -1,7 +1,7 @@
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import type { ConsumableMap, PreloadData, PreloadFilter } from './types.js';
+import type { FontDataByCssVariable, PreloadData, PreloadFilter } from './types.js';
 
-export function createGetFontData({ consumableMap }: { consumableMap?: ConsumableMap }) {
+export function createGetFontData({ consumableMap }: { consumableMap?: FontDataByCssVariable }) {
 	return function getFontData(cssVariable: string) {
 		// TODO: remove once fonts are stabilized
 		if (!consumableMap) {

@@ -247,7 +247,7 @@ export interface FontData {
 /**
  * Holds associations of CSS variables and font data to be exposed via virtual module.
  */
-export type ConsumableMap = Map<string, Array<FontData>>;
+export type FontDataByCssVariable = Map<string, Array<FontData>>;
 
 export type Style = z.output<typeof styleSchema>;
 
@@ -268,18 +268,17 @@ export interface ResolveFontOptions<
 
 export type CssProperties = Record<string, string | undefined>;
 
-export type FontFamilyAssetsByUniqueKey = Map<
-	string,
-	{
-		family: ResolvedFontFamily;
-		fonts: Array<unifont.FontFaceData>;
-		/**
-		 * Holds a list of font files to be used for optimized fallbacks generation
-		 */
-		collectedFontsForMetricsByUniqueKey: Map<string, CollectedFontForMetrics>;
-		preloads: Array<PreloadData>;
-	}
->;
+export interface FontFamilyAssets {
+	family: ResolvedFontFamily;
+	fonts: Array<unifont.FontFaceData>;
+	/**
+	 * Holds a list of font files to be used for optimized fallbacks generation
+	 */
+	collectedFontsForMetricsByUniqueKey: Map<string, CollectedFontForMetrics>;
+	preloads: Array<PreloadData>;
+}
+
+export type FontFamilyAssetsByUniqueKey = Map<string, FontFamilyAssets>;
 
 export type Collaborator<T extends (input: any) => any, U extends keyof Parameters<T>[0]> = (
 	params: Pick<Parameters<T>[0], U>,
