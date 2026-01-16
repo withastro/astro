@@ -1,5 +1,13 @@
 # astro
 
+## 5.16.11
+
+### Patch Changes
+
+- [#15017](https://github.com/withastro/astro/pull/15017) [`9e7a3c8`](https://github.com/withastro/astro/commit/9e7a3c86198956e558384235b71a6c12e87fc5fb) Thanks [@ixchio](https://github.com/ixchio)! - Fixes CSS double-bundling when the same CSS file is imported in both a page's frontmatter and a component's script tag
+
+- [#15225](https://github.com/withastro/astro/pull/15225) [`6fe62e1`](https://github.com/withastro/astro/commit/6fe62e169cf9e1054cba95ce4084d8a58bdd0a66) Thanks [@ematipico](https://github.com/ematipico)! - Updates to the latest version of `devalue`
+
 ## 5.16.10
 
 ### Patch Changes
