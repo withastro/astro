@@ -95,7 +95,7 @@ export async function computeFontFamiliesAssets({
 		});
 
 		const result = collectFontAssetsFromFaces({
-			fonts,
+			fonts: fontAssets.fonts,
 			family,
 			fontFilesIds: new Set(fontFileById.keys()),
 			collectedFontsIds: new Set(fontAssets.collectedFontsForMetricsByUniqueKey.keys()),
