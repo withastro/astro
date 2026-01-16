@@ -67,7 +67,7 @@ export class LocalFontProvider implements FontProvider<LocalFamilyOptions> {
 		this.#root = undefined;
 	}
 
-	init(context: FontProviderInitContext): void {
+	init(context: Pick<FontProviderInitContext, 'root'>): void {
 		this.#root = context.root;
 	}
 
@@ -91,9 +91,9 @@ export class LocalFontProvider implements FontProvider<LocalFamilyOptions> {
 		};
 	}
 
-	async resolveFont(
-		options: ResolveFontOptions<LocalFamilyOptions>,
-	): Promise<{ fonts: Array<unifont.FontFaceData> } | undefined> {
+	resolveFont(options: ResolveFontOptions<LocalFamilyOptions>): {
+		fonts: Array<unifont.FontFaceData>;
+	} {
 		return {
 			fonts:
 				options.options?.variants.map((variant) => {
