@@ -16,7 +16,7 @@ export async function collectComponentData({
 }: {
 	fontFamilyAssets: Array<FontFamilyAssets>;
 	cssRenderer: CssRenderer;
-	defaults: Defaults;
+	defaults: Pick<Defaults, 'fallbacks' | 'optimizedFallbacks'>;
 	optimizeFallbacks: Collaborator<
 		typeof _optimizeFallbacks,
 		'family' | 'fallbacks' | 'collectedFonts'
@@ -65,7 +65,7 @@ export async function collectComponentData({
 
 		css += cssRenderer.generateCssVariable(family.cssVariable, cssVarValues);
 
-		componentDataByCssVariable.set(family.cssVariable, { preloadData: preloads, css });
+		componentDataByCssVariable.set(family.cssVariable, { preloads, css });
 	}
 
 	return componentDataByCssVariable;
