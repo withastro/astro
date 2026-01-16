@@ -1,7 +1,11 @@
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { FontDataByCssVariable, PreloadData, PreloadFilter } from './types.js';
 
-export function createGetFontData({ fontDataByCssVariable }: { fontDataByCssVariable?: FontDataByCssVariable }) {
+export function createGetFontData({
+	fontDataByCssVariable,
+}: {
+	fontDataByCssVariable?: FontDataByCssVariable;
+}) {
 	return function getFontData(cssVariable: string) {
 		// TODO: remove once fonts are stabilized
 		if (!fontDataByCssVariable) {
