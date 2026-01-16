@@ -286,11 +286,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		},
 		load(id) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-				// TODO: rename as well
 				return {
 					code: `
-						export const internalConsumableMap = new Map(${JSON.stringify(Array.from(componentDataByCssVariable?.entries() ?? []))});
-						export const consumableMap = new Map(${JSON.stringify(Array.from(fontDataByCssVariable?.entries() ?? []))});
+						export const componentDataByCssVariable = new Map(${JSON.stringify(Array.from(componentDataByCssVariable?.entries() ?? []))});
+						export const fontDataByCssVariable = new Map(${JSON.stringify(Array.from(fontDataByCssVariable?.entries() ?? []))});
 					`,
 				};
 			}

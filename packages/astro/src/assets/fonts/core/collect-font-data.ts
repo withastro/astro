@@ -7,9 +7,9 @@ export function collectFontData(
 	const fontDataByCssVariable: FontDataByCssVariable = new Map();
 
 	for (const { family, fonts } of fontFamilyAssets) {
-		const consumableMapValue: Array<FontData> = [];
+		const fontData: Array<FontData> = [];
 		for (const data of fonts) {
-			consumableMapValue.push({
+			fontData.push({
 				weight: renderFontWeight(data.weight),
 				style: data.style,
 				src: data.src
@@ -22,7 +22,7 @@ export function collectFontData(
 			});
 		}
 
-		fontDataByCssVariable.set(family.cssVariable, consumableMapValue);
+		fontDataByCssVariable.set(family.cssVariable, fontData);
 	}
 
 	return fontDataByCssVariable;

@@ -4,8 +4,8 @@ import { filterPreloads } from '../dist/assets/fonts/core/filter-preloads.js';
 import { AstroError, AstroErrorData } from '../dist/core/errors/index.js';
 
 // TODO: remove check when fonts are stabilized
-const { internalConsumableMap } = mod;
-if (!internalConsumableMap) {
+const { componentDataByCssVariable } = mod;
+if (!componentDataByCssVariable) {
 	throw new AstroError(AstroErrorData.ExperimentalFontsNotEnabled);
 }
 
@@ -17,7 +17,7 @@ interface Props {
 }
 
 const { cssVariable, preload = false } = Astro.props as Props;
-const data = internalConsumableMap.get(cssVariable);
+const data = componentDataByCssVariable.get(cssVariable);
 if (!data) {
 	throw new AstroError({
 		...AstroErrorData.FontFamilyNotFound,
