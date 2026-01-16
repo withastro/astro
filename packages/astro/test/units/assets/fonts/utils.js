@@ -1,7 +1,7 @@
 // @ts-check
 
 /**
- * @import { Hasher, FontMetricsResolver, Storage, FontResolver } from '../../../../dist/assets/fonts/definitions'
+ * @import { Hasher, FontMetricsResolver, Storage, FontResolver, StringMatcher } from '../../../../dist/assets/fonts/definitions'
  */
 
 /** @implements {Storage} */
@@ -147,5 +147,20 @@ export class PassthroughFontResolver {
 	 */
 	async listFonts({ provider }) {
 		return await this.#providers.get(provider.name)?.listFonts?.();
+	}
+}
+
+/** @implements {StringMatcher} */
+export class FakeStringMatcher {
+	/** @type {string} */
+	#match;
+
+	/** @param {string} match */
+	constructor(match) {
+		this.#match = match;
+	}
+
+	getClosestMatch() {
+		return this.#match;
 	}
 }
