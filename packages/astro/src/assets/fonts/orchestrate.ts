@@ -62,7 +62,7 @@ export async function orchestrate({
 	for (const {
 		family,
 		fonts,
-		collectedFontsForMetricsByUniqueKey: collectedFonts,
+		collectedFontsForMetricsByUniqueKey,
 		preloads,
 	} of fontFamilyAssetsByUniqueKey.values()) {
 		const consumableMapValue: Array<FontData> = [];
@@ -102,7 +102,7 @@ export async function orchestrate({
 		const optimizeFallbacksResult = await optimizeFallbacks({
 			family,
 			fallbacks,
-			collectedFonts: Array.from(collectedFonts.values()),
+			collectedFonts: Array.from(collectedFontsForMetricsByUniqueKey.values()),
 			enabled: family.optimizedFallbacks ?? defaults.optimizedFallbacks ?? false,
 			systemFallbacksProvider,
 			fontMetricsResolver,
