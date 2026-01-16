@@ -1,3 +1,4 @@
+import { collectFontData } from './core/collect-font-data.js';
 import type { computeFontFamiliesAssets as _computeFontFamiliesAssets } from './core/compute-font-families-assets.js';
 import { optimizeFallbacks } from './core/optimize-fallbacks.js';
 import { resolveFamily } from './core/resolve-family.js';
@@ -10,40 +11,12 @@ import type {
 import type {
 	Collaborator,
 	Defaults,
-	FontData,
 	FontDataByCssVariable,
 	FontFamily,
-	FontFamilyAssets,
 	FontFileById,
-	InternalConsumableMap,
+	InternalConsumableMap
 } from './types.js';
-import { renderFontWeight, unifontFontFaceDataToProperties } from './utils.js';
-
-// TODO: move to core
-function collectFontData(fontFamilyAssets: Array<Pick<FontFamilyAssets, 'fonts' | 'family'>>) {
-	const fontDataByCssVariable: FontDataByCssVariable = new Map();
-
-	for (const { family, fonts } of fontFamilyAssets) {
-		const consumableMapValue: Array<FontData> = [];
-		for (const data of fonts) {
-			consumableMapValue.push({
-				weight: renderFontWeight(data.weight),
-				style: data.style,
-				src: data.src
-					.filter((src) => 'url' in src)
-					.map((src) => ({
-						url: src.url,
-						format: src.format,
-						tech: src.tech,
-					})),
-			});
-		}
-
-		fontDataByCssVariable.set(family.cssVariable, consumableMapValue);
-	}
-
-	return { fontDataByCssVariable };
-}
+import { unifontFontFaceDataToProperties } from './utils.js';
 
 // TODO: rename and move to core
 export async function orchestrate({
