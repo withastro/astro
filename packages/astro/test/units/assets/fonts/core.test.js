@@ -1,6 +1,7 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { collectFontAssetsFromFaces } from '../../../../dist/assets/fonts/core/collect-font-assets-from-faces.js';
 import { computeFontFamiliesAssets } from '../../../../dist/assets/fonts/core/compute-font-families-assets.js';
 import { filterAndTransformFontFaces } from '../../../../dist/assets/fonts/core/filter-and-transform-font-faces.js';
 import { getOrCreateFontFamilyAssets } from '../../../../dist/assets/fonts/core/get-or-create-font-family-assets.js';
@@ -717,7 +718,306 @@ describe('fonts core', () => {
 	});
 
 	describe('collectFontAssetsFromFaces()', () => {
-		// TODO:
+		it('saves font files ids', () => {
+			const hasher = new FakeHasher('xxx');
+			assert.deepStrictEqual(
+				collectFontAssetsFromFaces({
+					collectedFontsIds: new Set(),
+					hasher,
+					fontFileIdGenerator: {
+						generate: ({ originalUrl }) => originalUrl,
+					},
+					fontFilesIds: new Set(['skip']),
+					family: { cssVariable: '--foo', fallbacks: undefined },
+					fonts: [
+						{
+							src: [
+								{
+									format: 'woff2',
+									originalURL: 'https://example.com/font.woff2',
+									url: 'resolved:https://example.com/font.woff2',
+									tech: undefined,
+								},
+								{
+									format: 'woff2',
+									originalURL: 'skip',
+									url: 'resolved:https://example.com/font.woff2',
+									tech: undefined,
+								},
+								{
+									name: 'whatever',
+								},
+								{
+									format: 'woff',
+									originalURL: 'http://example.com/font.woff',
+									url: 'resolved:http://example.com/font.woff',
+									tech: undefined,
+								},
+							],
+							style: 'normal',
+							weight: '400',
+						},
+					],
+				}),
+				{
+					collectedFontsForMetricsByUniqueKey: new Map(),
+					fontFileById: new Map([
+						[
+							'http://example.com/font.woff',
+							{
+								init: undefined,
+								url: 'resolved:http://example.com/font.woff',
+							},
+						],
+						[
+							'https://example.com/font.woff2',
+							{
+								init: undefined,
+								url: 'resolved:https://example.com/font.woff2',
+							},
+						],
+					]),
+					preloads: [
+						{
+							style: undefined,
+							subset: undefined,
+							type: 'woff2',
+							url: 'resolved:https://example.com/font.woff2',
+							weight: '400',
+						},
+					],
+				},
+			);
+		});
+
+		it('preloads the first remote source of each font', () => {
+			const hasher = new FakeHasher('xxx');
+			assert.deepStrictEqual(
+				collectFontAssetsFromFaces({
+					collectedFontsIds: new Set(),
+					hasher,
+					fontFileIdGenerator: {
+						generate: ({ originalUrl }) => originalUrl,
+					},
+					fontFilesIds: new Set(['skip']),
+					family: { cssVariable: '--foo', fallbacks: undefined },
+					fonts: [
+						{
+							src: [
+								{
+									format: 'woff2',
+									originalURL: 'https://example.com/font.woff2',
+									url: 'resolved:https://example.com/font.woff2',
+									tech: undefined,
+								},
+								{
+									format: 'woff',
+									originalURL: 'http://example.com/font.woff',
+									url: 'resolved:http://example.com/font.woff',
+									tech: undefined,
+								},
+							],
+							style: 'normal',
+							weight: '400',
+						},
+						{
+							src: [
+								{
+									format: 'woff',
+									originalURL: 'https://example2.com/font.woff',
+									url: 'resolved:https://example2.com/font.woff',
+									tech: undefined,
+								},
+								{
+									format: 'woff2',
+									originalURL: 'https://example2.com/font.woff2',
+									url: 'resolved:https://example2.com/font.woff2',
+									tech: undefined,
+								},
+							],
+							style: 'normal',
+							weight: '400',
+						},
+					],
+				}),
+				{
+					collectedFontsForMetricsByUniqueKey: new Map(),
+					fontFileById: new Map([
+						[
+							'http://example.com/font.woff',
+							{
+								init: undefined,
+								url: 'resolved:http://example.com/font.woff',
+							},
+						],
+						[
+							'https://example.com/font.woff2',
+							{
+								init: undefined,
+								url: 'resolved:https://example.com/font.woff2',
+							},
+						],
+						[
+							'https://example2.com/font.woff',
+							{
+								init: undefined,
+								url: 'resolved:https://example2.com/font.woff',
+							},
+						],
+						[
+							'https://example2.com/font.woff2',
+							{
+								init: undefined,
+								url: 'resolved:https://example2.com/font.woff2',
+							},
+						],
+					]),
+					preloads: [
+						{
+							style: undefined,
+							subset: undefined,
+							type: 'woff2',
+							url: 'resolved:https://example.com/font.woff2',
+							weight: '400',
+						},
+						{
+							style: undefined,
+							subset: undefined,
+							type: 'woff',
+							url: 'resolved:https://example2.com/font.woff',
+							weight: '400',
+						},
+					],
+				},
+			);
+		});
+
+		it('saves fonts for fallbacks', () => {
+			const hasher = new FakeHasher('xxx');
+			assert.deepStrictEqual(
+				collectFontAssetsFromFaces({
+					collectedFontsIds: new Set(),
+					hasher,
+					fontFileIdGenerator: {
+						generate: ({ originalUrl }) => originalUrl,
+					},
+					fontFilesIds: new Set(),
+					family: { cssVariable: '--foo', fallbacks: undefined },
+					fonts: [
+						{
+							src: [
+								{
+									format: 'woff2',
+									originalURL: 'https://example.com/font.woff2',
+									url: 'resolved:https://example.com/font.woff2',
+									tech: undefined,
+								},
+							],
+							style: 'normal',
+							weight: '400',
+						},
+					],
+				}).collectedFontsForMetricsByUniqueKey,
+				new Map(),
+			);
+
+			assert.deepStrictEqual(
+				collectFontAssetsFromFaces({
+					collectedFontsIds: new Set(),
+					hasher,
+					fontFileIdGenerator: {
+						generate: ({ originalUrl }) => originalUrl,
+					},
+					fontFilesIds: new Set(),
+					family: { cssVariable: '--foo', fallbacks: [] },
+					fonts: [
+						{
+							src: [
+								{
+									format: 'woff2',
+									originalURL: 'https://example.com/font.woff2',
+									url: 'resolved:https://example.com/font.woff2',
+									tech: undefined,
+								},
+							],
+							style: 'normal',
+							weight: '400',
+						},
+					],
+				}).collectedFontsForMetricsByUniqueKey,
+				new Map(),
+			);
+
+			assert.deepStrictEqual(
+				collectFontAssetsFromFaces({
+					collectedFontsIds: new Set(['xxx']),
+					hasher,
+					fontFileIdGenerator: {
+						generate: ({ originalUrl }) => originalUrl,
+					},
+					fontFilesIds: new Set(),
+					family: { cssVariable: '--foo', fallbacks: ['abc'] },
+					fonts: [
+						{
+							src: [
+								{
+									format: 'woff2',
+									originalURL: 'https://example.com/font.woff2',
+									url: 'resolved:https://example.com/font.woff2',
+									tech: undefined,
+								},
+							],
+							style: 'normal',
+							weight: '400',
+						},
+					],
+				}).collectedFontsForMetricsByUniqueKey,
+				new Map(),
+			);
+
+			assert.deepStrictEqual(
+				collectFontAssetsFromFaces({
+					collectedFontsIds: new Set(),
+					hasher,
+					fontFileIdGenerator: {
+						generate: ({ originalUrl }) => originalUrl,
+					},
+					fontFilesIds: new Set(),
+					family: { cssVariable: '--foo', fallbacks: ['abc'] },
+					fonts: [
+						{
+							src: [
+								{
+									format: 'woff2',
+									originalURL: 'https://example.com/font.woff2',
+									url: 'resolved:https://example.com/font.woff2',
+									tech: undefined,
+								},
+							],
+							style: 'normal',
+							weight: '400',
+						},
+					],
+				}).collectedFontsForMetricsByUniqueKey,
+				new Map([
+					[
+						'xxx',
+						{
+							data: {
+								meta: {
+									subset: undefined,
+								},
+								style: 'normal',
+								weight: '400',
+							},
+							hash: 'https://example.com/font.woff2',
+							init: undefined,
+							url: 'resolved:https://example.com/font.woff2',
+						},
+					],
+				]),
+			);
+		});
 	});
 
 	describe('collectFontData()', () => {
