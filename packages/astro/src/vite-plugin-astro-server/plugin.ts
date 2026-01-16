@@ -1,7 +1,7 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { randomUUID } from 'node:crypto';
 import type fs from 'node:fs';
-import { existsSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
@@ -214,6 +214,33 @@ export default function createVitePluginAstroServer({
 					response.setHeader('Content-Type', 'application/json');
 					response.end(JSON.stringify(config));
 					return;
+				});
+
+				// Add route precedence middleware before Vite's static middleware
+				viteServer.middlewares.use(async function routePrecedenceMiddleware(request, response, next) {
+					if (!request.url) return next();
+					
+					const url = new URL(request.url, `http://${request.headers.host}`);
+					const pathname = url.pathname;
+					
+					// Check if this path conflicts with a public file and an API route
+					const publicFilePath = new URL(`.${pathname}`, settings.config.publicDir);
+					const hasPublicFile = fs.existsSync(publicFilePath) && fs.statSync(publicFilePath).isFile();
+					
+					if (hasPublicFile) {
+						// Check if there's a matching API route
+						const matchingRoute = routesList.routes.find(route => 
+							route.route === pathname || route.route === pathname.replace(/\.[^/.]+$/, '')
+						);
+						
+						// If there's an API route conflict, let the Astro handler take precedence
+						if (matchingRoute && matchingRoute.type === 'endpoint') {
+							// Skip Vite's static middleware and let Astro handle it
+							return next();
+						}
+					}
+					
+					return next();
 				});
 
 				// Note that this function has a name so other middleware can find it.
