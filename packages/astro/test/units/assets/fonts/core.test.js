@@ -6,9 +6,16 @@ import { collectFontData } from '../../../../dist/assets/fonts/core/collect-font
 import { computeFontFamiliesAssets } from '../../../../dist/assets/fonts/core/compute-font-families-assets.js';
 import { filterAndTransformFontFaces } from '../../../../dist/assets/fonts/core/filter-and-transform-font-faces.js';
 import { getOrCreateFontFamilyAssets } from '../../../../dist/assets/fonts/core/get-or-create-font-family-assets.js';
+import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-fallbacks.js';
 import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-family.js';
 import { SpyLogger } from '../../test-utils.js';
-import { FakeHasher, FakeStringMatcher, markdownBold, PassthroughFontResolver } from './utils.js';
+import {
+	FakeFontMetricsResolver,
+	FakeHasher,
+	FakeStringMatcher,
+	markdownBold,
+	PassthroughFontResolver,
+} from './utils.js';
 
 describe('fonts core', () => {
 	describe('resolveFamily()', () => {
@@ -1106,172 +1113,164 @@ describe('fonts core', () => {
 		// TODO:
 	});
 
-	// describe('optimizeFallbacks()', () => {
-	// 	const family = {
-	// 		name: 'Test',
-	// 		nameWithHash: 'Test-xxx',
-	// 	};
-	// 	const systemFallbacksProvider = new RealSystemFallbacksProvider();
-	// 	const fontMetricsResolver = new FakeFontMetricsResolver();
+	describe('optimizeFallbacks()', () => {
+		const family = {
+			name: 'Test',
+			uniqueName: 'Test-xxx',
+		};
+		/** @type {import('../../../../dist/assets/fonts/definitions.js').SystemFallbacksProvider} */
+		const systemFallbacksProvider = {
+			getLocalFonts: () => ['Arial'],
+			getMetricsForLocalFont: () => ({
+				ascent: 1854,
+				descent: -434,
+				lineGap: 67,
+				unitsPerEm: 2048,
+				xWidthAvg: 913,
+			}),
+		};
+		const fontMetricsResolver = new FakeFontMetricsResolver();
 
-	// 	it('skips if there are no fallbacks', async () => {
-	// 		assert.equal(
-	// 			await optimizeFallbacks({
-	// 				family,
-	// 				fallbacks: [],
-	// 				collectedFonts: [{ url: '', hash: '', data: {}, init: null }],
-	// 				enabled: true,
-	// 				systemFallbacksProvider,
-	// 				fontMetricsResolver,
-	// 			}),
-	// 			null,
-	// 		);
-	// 	});
+		it('skips if there are no fallbacks', async () => {
+			assert.equal(
+				await optimizeFallbacks({
+					family,
+					fallbacks: [],
+					collectedFonts: [{ url: '', hash: '', data: {}, init: undefined }],
+					systemFallbacksProvider,
+					fontMetricsResolver,
+				}),
+				null,
+			);
+		});
 
-	// 	it('skips if it is not enabled', async () => {
-	// 		assert.equal(
-	// 			await optimizeFallbacks({
-	// 				family,
-	// 				fallbacks: ['foo'],
-	// 				collectedFonts: [{ url: '', hash: '', data: {}, init: null }],
-	// 				enabled: false,
-	// 				systemFallbacksProvider,
-	// 				fontMetricsResolver,
-	// 			}),
-	// 			null,
-	// 		);
-	// 	});
+		it('skips if there are no collected fonts', async () => {
+			assert.equal(
+				await optimizeFallbacks({
+					family,
+					fallbacks: ['foo'],
+					collectedFonts: [],
+					systemFallbacksProvider,
+					fontMetricsResolver,
+				}),
+				null,
+			);
+		});
 
-	// 	it('skips if there are no collected fonts', async () => {
-	// 		assert.equal(
-	// 			await optimizeFallbacks({
-	// 				family,
-	// 				fallbacks: ['foo'],
-	// 				collectedFonts: [],
-	// 				enabled: true,
-	// 				systemFallbacksProvider,
-	// 				fontMetricsResolver,
-	// 			}),
-	// 			null,
-	// 		);
-	// 	});
+		it('skips if the last fallback is not a generic font family', async () => {
+			assert.equal(
+				await optimizeFallbacks({
+					family,
+					fallbacks: ['foo'],
+					collectedFonts: [{ url: '', hash: '', data: {}, init: undefined }],
+					systemFallbacksProvider,
+					fontMetricsResolver,
+				}),
+				null,
+			);
+		});
 
-	// 	it('skips if the last fallback is not a generic font family', async () => {
-	// 		assert.equal(
-	// 			await optimizeFallbacks({
-	// 				family,
-	// 				fallbacks: ['foo'],
-	// 				collectedFonts: [{ url: '', hash: '', data: {}, init: null }],
-	// 				enabled: true,
-	// 				systemFallbacksProvider,
-	// 				fontMetricsResolver,
-	// 			}),
-	// 			null,
-	// 		);
-	// 	});
+		it('skips if the last fallback does not have local fonts associated', async () => {
+			assert.equal(
+				await optimizeFallbacks({
+					family,
+					fallbacks: ['cursive'],
+					collectedFonts: [{ url: '', hash: '', data: {}, init: undefined }],
+					systemFallbacksProvider: {
+						getLocalFonts: () => [],
+						getMetricsForLocalFont: systemFallbacksProvider.getMetricsForLocalFont,
+					},
+					fontMetricsResolver,
+				}),
+				null,
+			);
+		});
 
-	// 	it('skips if the last fallback does not have local fonts associated', async () => {
-	// 		assert.equal(
-	// 			await optimizeFallbacks({
-	// 				family,
-	// 				fallbacks: ['cursive'],
-	// 				collectedFonts: [{ url: '', hash: '', data: {}, init: null }],
-	// 				enabled: true,
-	// 				systemFallbacksProvider,
-	// 				fontMetricsResolver,
-	// 			}),
-	// 			null,
-	// 		);
-	// 	});
+		it('skips if the last fallback does not have local fonts associated', async () => {
+			assert.equal(
+				await optimizeFallbacks({
+					family: {
+						name: 'Arial',
+						uniqueName: 'Arial-xxx',
+					},
+					fallbacks: ['sans-serif'],
+					collectedFonts: [{ url: '', hash: '', data: {}, init: undefined }],
+					systemFallbacksProvider,
+					fontMetricsResolver,
+				}),
+				null,
+			);
+		});
 
-	// 	it('skips if the last fallback does not have local fonts associated', async () => {
-	// 		assert.equal(
-	// 			await optimizeFallbacks({
-	// 				family: {
-	// 					name: 'Arial',
-	// 					nameWithHash: 'Arial-xxx',
-	// 				},
-	// 				fallbacks: ['sans-serif'],
-	// 				collectedFonts: [{ url: '', hash: '', data: {}, init: null }],
-	// 				enabled: true,
-	// 				systemFallbacksProvider,
-	// 				fontMetricsResolver,
-	// 			}),
-	// 			null,
-	// 		);
-	// 	});
+		it('places optimized fallbacks at the start', async () => {
+			const result = await optimizeFallbacks({
+				family,
+				fallbacks: ['foo', 'sans-serif'],
+				collectedFonts: [{ url: '', hash: '', data: {}, init: undefined }],
+				systemFallbacksProvider,
+				fontMetricsResolver,
+			});
+			assert.deepStrictEqual(result?.fallbacks, ['Test-xxx fallback: Arial', 'foo', 'sans-serif']);
+		});
 
-	// 	it('places optimized fallbacks at the start', async () => {
-	// 		const result = await optimizeFallbacks({
-	// 			family,
-	// 			fallbacks: ['foo', 'sans-serif'],
-	// 			collectedFonts: [{ url: '', hash: '', data: {}, init: null }],
-	// 			enabled: true,
-	// 			systemFallbacksProvider,
-	// 			fontMetricsResolver,
-	// 		});
-	// 		assert.deepStrictEqual(result?.fallbacks, ['Test-xxx fallback: Arial', 'foo', 'sans-serif']);
-	// 	});
-
-	// 	it('outputs correct css', async () => {
-	// 		const result = await optimizeFallbacks({
-	// 			family,
-	// 			fallbacks: ['foo', 'sans-serif'],
-	// 			collectedFonts: [
-	// 				{ url: '', hash: '', data: { weight: '400' }, init: null },
-	// 				{ url: '', hash: '', data: { weight: '500' }, init: null },
-	// 			],
-	// 			enabled: true,
-	// 			systemFallbacksProvider,
-	// 			fontMetricsResolver,
-	// 		});
-	// 		assert.notEqual(result, null);
-	// 		assert.deepStrictEqual(JSON.parse(`[${result?.css.slice(0, -1)}]`), [
-	// 			{
-	// 				fallbackMetrics: {
-	// 					ascent: 1854,
-	// 					descent: -434,
-	// 					lineGap: 67,
-	// 					unitsPerEm: 2048,
-	// 					xWidthAvg: 913,
-	// 				},
-	// 				font: 'Arial',
-	// 				metrics: {
-	// 					ascent: 0,
-	// 					descent: 0,
-	// 					lineGap: 0,
-	// 					unitsPerEm: 0,
-	// 					xWidthAvg: 0,
-	// 				},
-	// 				name: 'Test-xxx fallback: Arial',
-	// 				properties: {
-	// 					'font-display': 'swap',
-	// 					'font-weight': '400',
-	// 				},
-	// 			},
-	// 			{
-	// 				fallbackMetrics: {
-	// 					ascent: 1854,
-	// 					descent: -434,
-	// 					lineGap: 67,
-	// 					unitsPerEm: 2048,
-	// 					xWidthAvg: 913,
-	// 				},
-	// 				font: 'Arial',
-	// 				metrics: {
-	// 					ascent: 0,
-	// 					descent: 0,
-	// 					lineGap: 0,
-	// 					unitsPerEm: 0,
-	// 					xWidthAvg: 0,
-	// 				},
-	// 				name: 'Test-xxx fallback: Arial',
-	// 				properties: {
-	// 					'font-display': 'swap',
-	// 					'font-weight': '500',
-	// 				},
-	// 			},
-	// 		]);
-	// 	});
-	// });
+		it('outputs correct css', async () => {
+			const result = await optimizeFallbacks({
+				family,
+				fallbacks: ['foo', 'sans-serif'],
+				collectedFonts: [
+					{ url: '', hash: '', data: { weight: '400' }, init: undefined },
+					{ url: '', hash: '', data: { weight: '500' }, init: undefined },
+				],
+				systemFallbacksProvider,
+				fontMetricsResolver,
+			});
+			assert.notEqual(result, null);
+			assert.deepStrictEqual(JSON.parse(`[${result?.css.slice(0, -1)}]`), [
+				{
+					fallbackMetrics: {
+						ascent: 1854,
+						descent: -434,
+						lineGap: 67,
+						unitsPerEm: 2048,
+						xWidthAvg: 913,
+					},
+					font: 'Arial',
+					metrics: {
+						ascent: 0,
+						descent: 0,
+						lineGap: 0,
+						unitsPerEm: 0,
+						xWidthAvg: 0,
+					},
+					name: 'Test-xxx fallback: Arial',
+					properties: {
+						'font-display': 'swap',
+						'font-weight': '400',
+					},
+				},
+				{
+					fallbackMetrics: {
+						ascent: 1854,
+						descent: -434,
+						lineGap: 67,
+						unitsPerEm: 2048,
+						xWidthAvg: 913,
+					},
+					font: 'Arial',
+					metrics: {
+						ascent: 0,
+						descent: 0,
+						lineGap: 0,
+						unitsPerEm: 0,
+						xWidthAvg: 0,
+					},
+					name: 'Test-xxx fallback: Arial',
+					properties: {
+						'font-display': 'swap',
+						'font-weight': '500',
+					},
+				},
+			]);
+		});
+	});
 });
