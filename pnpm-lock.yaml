@@ -6078,6 +6078,18 @@ importers:
         specifier: 5.46.1
         version: 5.46.1
 
+  packages/integrations/svelte/test/fixtures/conditional-rendering:
+    dependencies:
+      '@astrojs/svelte':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      svelte:
+        specifier: 5.46.1
+        version: 5.46.1
+
   packages/integrations/svelte/test/fixtures/prop-types:
     dependencies:
       '@astrojs/svelte':
