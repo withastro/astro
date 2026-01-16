@@ -69,5 +69,5 @@ export async function collectComponentData({
 		componentDataByCssVariable.set(family.cssVariable, { preloadData: preloads, css });
 	}
 
-	return { componentDataByCssVariable };
+	return componentDataByCssVariable;
 }

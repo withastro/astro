@@ -25,5 +25,5 @@ export function collectFontData(
 		fontDataByCssVariable.set(family.cssVariable, consumableMapValue);
 	}
 
-	return { fontDataByCssVariable };
+	return fontDataByCssVariable;
 }
