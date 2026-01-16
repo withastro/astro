@@ -86,6 +86,7 @@ export async function computeFontFamiliesAssets({
 					`${bold(family.name)} font family cannot be retrieved by the provider. Did you mean ${bold(stringMatcher.getClosestMatch(family.name, availableFamilies))}?`,
 				);
 			}
+			continue;
 		}
 		// The data returned by the provider contains original URLs. We proxy them.
 		fontAssets.fonts = filterAndTransformFontFaces({

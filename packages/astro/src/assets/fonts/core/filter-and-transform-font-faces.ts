@@ -42,12 +42,13 @@ export function filterAndTransformFontFaces({
 					});
 					const url = urlResolver.resolve(id);
 
-					return {
+					const newSource: unifont.RemoteFontSource = {
 						originalURL: originalUrl,
 						url,
 						format: format.format,
 						tech: source.tech,
-					} satisfies unifont.RemoteFontSource;
+					};
+					return newSource;
 				}),
 			}))
 	);
