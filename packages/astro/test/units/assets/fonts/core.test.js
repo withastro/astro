@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { computeFontFamiliesAssets } from '../../../../dist/assets/fonts/core/compute-font-families-assets.js';
+import { filterAndTransformFontFaces } from '../../../../dist/assets/fonts/core/filter-and-transform-font-faces.js';
 import { getOrCreateFontFamilyAssets } from '../../../../dist/assets/fonts/core/get-or-create-font-family-assets.js';
 import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-family.js';
 import { SpyLogger } from '../../test-utils.js';
@@ -533,7 +534,186 @@ describe('fonts core', () => {
 	});
 
 	describe('filterAndTransformFontFaces()', () => {
-		// TODO:
+		it('filters font data based on priority', () => {
+			assert.equal(
+				filterAndTransformFontFaces({
+					family: { cssVariable: '--foo' },
+					fonts: [],
+					fontFileIdGenerator: {
+						generate: () => '',
+					},
+					fontTypeExtractor: {
+						extract: () => 'woff2',
+					},
+					urlResolver: {
+						resolve: () => '',
+						cspResources: [],
+					},
+				}).length,
+				0,
+			);
+			assert.equal(
+				filterAndTransformFontFaces({
+					family: { cssVariable: '--foo' },
+					fonts: [
+						{
+							src: [],
+						},
+						{
+							src: [],
+							meta: {},
+						},
+						{
+							src: [],
+							meta: { priority: undefined },
+						},
+						{
+							src: [],
+							meta: { priority: 0 },
+						},
+						{
+							src: [],
+							meta: { priority: 1 },
+						},
+						// Will be ignored
+						{
+							src: [],
+							meta: { priority: 2 },
+						},
+					],
+					fontFileIdGenerator: {
+						generate: () => '',
+					},
+					fontTypeExtractor: {
+						extract: () => 'woff2',
+					},
+					urlResolver: {
+						resolve: () => '',
+						cspResources: [],
+					},
+				}).length,
+				5,
+			);
+		});
+
+		it('computes type and format correctly', () => {
+			assert.deepStrictEqual(
+				filterAndTransformFontFaces({
+					family: { cssVariable: '--foo' },
+					fonts: [
+						{
+							weight: '400',
+							style: 'normal',
+							src: [{ name: 'Arial' }, { url: '/', format: 'woff2' }, { url: '/ignored.eot' }],
+						},
+						{
+							weight: '500',
+							style: 'normal',
+							src: [{ url: '/2', format: 'woff2' }, { name: 'Foo' }, { url: '/also-ignored.ttf' }],
+						},
+					],
+					fontFileIdGenerator: {
+						generate: ({ originalUrl }) => originalUrl,
+					},
+					fontTypeExtractor: {
+						extract: (url) => /** @type {any} */ (url.split('.').at(-1)) ?? 'woff',
+					},
+					urlResolver: {
+						resolve: (url) => 'resolved:' + url,
+						cspResources: [],
+					},
+				}),
+				[
+					{
+						src: [
+							{
+								name: 'Arial',
+							},
+							{
+								format: 'woff2',
+								originalURL: '/',
+								url: 'resolved:/',
+								tech: undefined,
+							},
+							{
+								format: 'embedded-opentype',
+								originalURL: '/ignored.eot',
+								url: 'resolved:/ignored.eot',
+								tech: undefined,
+							},
+						],
+						style: 'normal',
+						weight: '400',
+					},
+					{
+						src: [
+							{
+								format: 'woff2',
+								originalURL: '/2',
+								url: 'resolved:/2',
+								tech: undefined,
+							},
+							{
+								name: 'Foo',
+							},
+							{
+								format: 'truetype',
+								originalURL: '/also-ignored.ttf',
+								url: 'resolved:/also-ignored.ttf',
+								tech: undefined,
+							},
+						],
+						style: 'normal',
+						weight: '500',
+					},
+				],
+			);
+		});
+
+		it('turns relative protocols into https', () => {
+			assert.deepStrictEqual(
+				filterAndTransformFontFaces({
+					family: { cssVariable: '--foo' },
+					fonts: [
+						{
+							weight: '400',
+							style: 'normal',
+							src: [{ url: '//example.com/font.woff2' }, { url: 'http://example.com/font.woff' }],
+						},
+					],
+					fontFileIdGenerator: {
+						generate: ({ originalUrl }) => originalUrl,
+					},
+					fontTypeExtractor: {
+						extract: (url) => /** @type {any} */ (url.split('.').at(-1)) ?? 'woff',
+					},
+					urlResolver: {
+						resolve: (url) => 'resolved:' + url,
+						cspResources: [],
+					},
+				}),
+				[
+					{
+						src: [
+							{
+								format: 'woff2',
+								originalURL: 'https://example.com/font.woff2',
+								url: 'resolved:https://example.com/font.woff2',
+								tech: undefined,
+							},
+							{
+								format: 'woff',
+								originalURL: 'http://example.com/font.woff',
+								url: 'resolved:http://example.com/font.woff',
+								tech: undefined,
+							},
+						],
+						style: 'normal',
+						weight: '400',
+					},
+				],
+			);
+		});
 	});
 
 	describe('collectFontAssetsFromFaces()', () => {
@@ -542,6 +722,108 @@ describe('fonts core', () => {
 
 	describe('collectFontData()', () => {
 		// TODO:
+		// 	it('proxies URLs correctly', () => {
+		// 		const urlProxy = new SpyUrlProxy();
+		// 		normalizeRemoteFontFaces({
+		// 			urlProxy,
+		// 			fonts: [
+		// 				{
+		// 					weight: '400',
+		// 					style: 'normal',
+		// 					src: [
+		// 						{ url: '/', format: 'woff2' },
+		// 						{ url: '/ignored', format: 'woff2' },
+		// 					],
+		// 				},
+		// 				{
+		// 					weight: '500',
+		// 					style: 'normal',
+		// 					src: [{ url: '/2', format: 'woff2' }],
+		// 				},
+		// 			],
+		// 			fontTypeExtractor: new RealFontTypeExtractor(),
+		// 		});
+		// 		assert.deepStrictEqual(urlProxy.collected, [
+		// 			{
+		// 				url: '/',
+		// 				type: 'woff2',
+		// 				collectPreload: true,
+		// 				data: { weight: '400', style: 'normal', subset: undefined },
+		// 				init: null,
+		// 			},
+		// 			{
+		// 				url: '/ignored',
+		// 				type: 'woff2',
+		// 				collectPreload: false,
+		// 				data: { weight: '400', style: 'normal', subset: undefined },
+		// 				init: null,
+		// 			},
+		// 			{
+		// 				url: '/2',
+		// 				type: 'woff2',
+		// 				collectPreload: true,
+		// 				data: { weight: '500', style: 'normal', subset: undefined },
+		// 				init: null,
+		// 			},
+		// 		]);
+		// 	});
+		// 	it('collects preloads correctly', () => {
+		// 		const urlProxy = new SpyUrlProxy();
+		// 		normalizeRemoteFontFaces({
+		// 			urlProxy,
+		// 			fonts: [
+		// 				{
+		// 					weight: '400',
+		// 					style: 'normal',
+		// 					src: [
+		// 						{ name: 'Arial' },
+		// 						{ url: '/', format: 'woff2' },
+		// 						{ url: '/ignored', format: 'woff2' },
+		// 					],
+		// 				},
+		// 				{
+		// 					weight: '500',
+		// 					style: 'normal',
+		// 					src: [
+		// 						{ url: '/2', format: 'woff2' },
+		// 						{ name: 'Foo' },
+		// 						{ url: '/also-ignored', format: 'woff2' },
+		// 					],
+		// 				},
+		// 			],
+		// 			fontTypeExtractor: new RealFontTypeExtractor(),
+		// 		});
+		// 		assert.deepStrictEqual(urlProxy.collected, [
+		// 			{
+		// 				url: '/',
+		// 				type: 'woff2',
+		// 				collectPreload: true,
+		// 				data: { weight: '400', style: 'normal', subset: undefined },
+		// 				init: null,
+		// 			},
+		// 			{
+		// 				url: '/ignored',
+		// 				type: 'woff2',
+		// 				collectPreload: false,
+		// 				data: { weight: '400', style: 'normal', subset: undefined },
+		// 				init: null,
+		// 			},
+		// 			{
+		// 				url: '/2',
+		// 				type: 'woff2',
+		// 				collectPreload: true,
+		// 				data: { weight: '500', style: 'normal', subset: undefined },
+		// 				init: null,
+		// 			},
+		// 			{
+		// 				url: '/also-ignored',
+		// 				type: 'woff2',
+		// 				collectPreload: false,
+		// 				data: { weight: '500', style: 'normal', subset: undefined },
+		// 				init: null,
+		// 			},
+		// 		]);
+		// 	});
 	});
 
 	describe('collectComponentData()', () => {
@@ -551,293 +833,6 @@ describe('fonts core', () => {
 	describe('optimizeFallbacks()', () => {
 		// TODO:
 	});
-
-	// describe('normalizeRemoteFontFaces()', () => {
-	// 	it('filters font data based on priority', () => {
-	// 		const urlProxy = new SpyUrlProxy();
-	// 		assert.equal(
-	// 			normalizeRemoteFontFaces({
-	// 				fonts: [],
-	// 				urlProxy,
-	// 				fontTypeExtractor: new RealFontTypeExtractor(),
-	// 			}).length,
-	// 			0,
-	// 		);
-	// 		assert.equal(
-	// 			normalizeRemoteFontFaces({
-	// 				fonts: [
-	// 					{
-	// 						src: [],
-	// 					},
-	// 					{
-	// 						src: [],
-	// 						meta: {},
-	// 					},
-	// 					{
-	// 						src: [],
-	// 						meta: { priority: undefined },
-	// 					},
-	// 					{
-	// 						src: [],
-	// 						meta: { priority: 0 },
-	// 					},
-	// 					{
-	// 						src: [],
-	// 						meta: { priority: 1 },
-	// 					},
-	// 					// Will be ignored
-	// 					{
-	// 						src: [],
-	// 						meta: { priority: 2 },
-	// 					},
-	// 				],
-	// 				urlProxy,
-	// 				fontTypeExtractor: new RealFontTypeExtractor(),
-	// 			}).length,
-	// 			5,
-	// 		);
-	// 	});
-
-	// 	it('proxies URLs correctly', () => {
-	// 		const urlProxy = new SpyUrlProxy();
-	// 		normalizeRemoteFontFaces({
-	// 			urlProxy,
-	// 			fonts: [
-	// 				{
-	// 					weight: '400',
-	// 					style: 'normal',
-	// 					src: [
-	// 						{ url: '/', format: 'woff2' },
-	// 						{ url: '/ignored', format: 'woff2' },
-	// 					],
-	// 				},
-	// 				{
-	// 					weight: '500',
-	// 					style: 'normal',
-	// 					src: [{ url: '/2', format: 'woff2' }],
-	// 				},
-	// 			],
-	// 			fontTypeExtractor: new RealFontTypeExtractor(),
-	// 		});
-	// 		assert.deepStrictEqual(urlProxy.collected, [
-	// 			{
-	// 				url: '/',
-	// 				type: 'woff2',
-	// 				collectPreload: true,
-	// 				data: { weight: '400', style: 'normal', subset: undefined },
-	// 				init: null,
-	// 			},
-	// 			{
-	// 				url: '/ignored',
-	// 				type: 'woff2',
-	// 				collectPreload: false,
-	// 				data: { weight: '400', style: 'normal', subset: undefined },
-	// 				init: null,
-	// 			},
-	// 			{
-	// 				url: '/2',
-	// 				type: 'woff2',
-	// 				collectPreload: true,
-	// 				data: { weight: '500', style: 'normal', subset: undefined },
-	// 				init: null,
-	// 			},
-	// 		]);
-	// 	});
-
-	// 	it('collects preloads correctly', () => {
-	// 		const urlProxy = new SpyUrlProxy();
-	// 		normalizeRemoteFontFaces({
-	// 			urlProxy,
-	// 			fonts: [
-	// 				{
-	// 					weight: '400',
-	// 					style: 'normal',
-	// 					src: [
-	// 						{ name: 'Arial' },
-	// 						{ url: '/', format: 'woff2' },
-	// 						{ url: '/ignored', format: 'woff2' },
-	// 					],
-	// 				},
-	// 				{
-	// 					weight: '500',
-	// 					style: 'normal',
-	// 					src: [
-	// 						{ url: '/2', format: 'woff2' },
-	// 						{ name: 'Foo' },
-	// 						{ url: '/also-ignored', format: 'woff2' },
-	// 					],
-	// 				},
-	// 			],
-	// 			fontTypeExtractor: new RealFontTypeExtractor(),
-	// 		});
-	// 		assert.deepStrictEqual(urlProxy.collected, [
-	// 			{
-	// 				url: '/',
-	// 				type: 'woff2',
-	// 				collectPreload: true,
-	// 				data: { weight: '400', style: 'normal', subset: undefined },
-	// 				init: null,
-	// 			},
-	// 			{
-	// 				url: '/ignored',
-	// 				type: 'woff2',
-	// 				collectPreload: false,
-	// 				data: { weight: '400', style: 'normal', subset: undefined },
-	// 				init: null,
-	// 			},
-	// 			{
-	// 				url: '/2',
-	// 				type: 'woff2',
-	// 				collectPreload: true,
-	// 				data: { weight: '500', style: 'normal', subset: undefined },
-	// 				init: null,
-	// 			},
-	// 			{
-	// 				url: '/also-ignored',
-	// 				type: 'woff2',
-	// 				collectPreload: false,
-	// 				data: { weight: '500', style: 'normal', subset: undefined },
-	// 				init: null,
-	// 			},
-	// 		]);
-	// 	});
-
-	// 	it('computes type and format correctly', () => {
-	// 		const urlProxy = new SpyUrlProxy();
-	// 		const fonts = normalizeRemoteFontFaces({
-	// 			urlProxy,
-	// 			fonts: [
-	// 				{
-	// 					weight: '400',
-	// 					style: 'normal',
-	// 					src: [{ name: 'Arial' }, { url: '/', format: 'woff2' }, { url: '/ignored.ttf' }],
-	// 				},
-	// 				{
-	// 					weight: '500',
-	// 					style: 'normal',
-	// 					src: [{ url: '/2', format: 'woff2' }, { name: 'Foo' }, { url: '/also-ignored.ttf' }],
-	// 				},
-	// 			],
-	// 			fontTypeExtractor: new RealFontTypeExtractor(),
-	// 		});
-	// 		assert.deepStrictEqual(fonts, [
-	// 			{
-	// 				src: [
-	// 					{
-	// 						name: 'Arial',
-	// 					},
-	// 					{
-	// 						format: 'woff2',
-	// 						originalURL: '/',
-	// 						url: '/',
-	// 					},
-	// 					{
-	// 						originalURL: '/ignored.ttf',
-	// 						url: '/ignored.ttf',
-	// 					},
-	// 				],
-	// 				style: 'normal',
-	// 				weight: '400',
-	// 			},
-	// 			{
-	// 				src: [
-	// 					{
-	// 						format: 'woff2',
-	// 						originalURL: '/2',
-	// 						url: '/2',
-	// 					},
-	// 					{
-	// 						name: 'Foo',
-	// 					},
-	// 					{
-	// 						originalURL: '/also-ignored.ttf',
-	// 						url: '/also-ignored.ttf',
-	// 					},
-	// 				],
-	// 				style: 'normal',
-	// 				weight: '500',
-	// 			},
-	// 		]);
-	// 		assert.deepStrictEqual(urlProxy.collected, [
-	// 			{
-	// 				url: '/',
-	// 				type: 'woff2',
-	// 				collectPreload: true,
-	// 				data: { weight: '400', style: 'normal', subset: undefined },
-	// 				init: null,
-	// 			},
-	// 			{
-	// 				url: '/ignored.ttf',
-	// 				type: 'ttf',
-	// 				collectPreload: false,
-	// 				data: { weight: '400', style: 'normal', subset: undefined },
-	// 				init: null,
-	// 			},
-	// 			{
-	// 				url: '/2',
-	// 				type: 'woff2',
-	// 				collectPreload: true,
-	// 				data: { weight: '500', style: 'normal', subset: undefined },
-	// 				init: null,
-	// 			},
-	// 			{
-	// 				url: '/also-ignored.ttf',
-	// 				type: 'ttf',
-	// 				collectPreload: false,
-	// 				data: { weight: '500', style: 'normal', subset: undefined },
-	// 				init: null,
-	// 			},
-	// 		]);
-	// 	});
-
-	// 	it('turns relative protocols into https', () => {
-	// 		const urlProxy = new SpyUrlProxy();
-	// 		const fonts = normalizeRemoteFontFaces({
-	// 			urlProxy,
-	// 			fonts: [
-	// 				{
-	// 					weight: '400',
-	// 					style: 'normal',
-	// 					src: [{ url: '//example.com/font.woff2' }, { url: 'http://example.com/font.woff' }],
-	// 				},
-	// 			],
-	// 			fontTypeExtractor: new RealFontTypeExtractor(),
-	// 		});
-
-	// 		assert.deepStrictEqual(fonts, [
-	// 			{
-	// 				src: [
-	// 					{
-	// 						originalURL: 'https://example.com/font.woff2',
-	// 						url: 'https://example.com/font.woff2',
-	// 					},
-	// 					{
-	// 						originalURL: 'http://example.com/font.woff',
-	// 						url: 'http://example.com/font.woff',
-	// 					},
-	// 				],
-	// 				style: 'normal',
-	// 				weight: '400',
-	// 			},
-	// 		]);
-	// 		assert.deepStrictEqual(urlProxy.collected, [
-	// 			{
-	// 				url: 'https://example.com/font.woff2',
-	// 				collectPreload: true,
-	// 				type: 'woff2',
-	// 				data: { weight: '400', style: 'normal', subset: undefined },
-	// 				init: null,
-	// 			},
-	// 			{
-	// 				url: 'http://example.com/font.woff',
-	// 				collectPreload: false,
-	// 				type: 'woff',
-	// 				data: { weight: '400', style: 'normal', subset: undefined },
-	// 				init: null,
-	// 			},
-	// 		]);
-	// 	});
-	// });
 
 	// describe('optimizeFallbacks()', () => {
 	// 	const family = {
