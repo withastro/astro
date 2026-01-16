@@ -50,7 +50,6 @@ export interface LocalFamilyOptions {
 	variants: [Variant, ...Array<Variant>];
 }
 
-// TODO:
 export class LocalFontProvider implements FontProvider<LocalFamilyOptions> {
 	name = 'local';
 	config?: Record<string, any> | undefined;
