@@ -791,7 +791,7 @@ describe('fonts core', () => {
 					]),
 					preloads: [
 						{
-							style: undefined,
+							style: 'normal',
 							subset: undefined,
 							type: 'woff2',
 							url: 'resolved:https://example.com/font.woff2',
@@ -889,14 +889,14 @@ describe('fonts core', () => {
 					]),
 					preloads: [
 						{
-							style: undefined,
+							style: 'normal',
 							subset: undefined,
 							type: 'woff2',
 							url: 'resolved:https://example.com/font.woff2',
 							weight: '400',
 						},
 						{
-							style: undefined,
+							style: 'normal',
 							subset: undefined,
 							type: 'woff',
 							url: 'resolved:https://example2.com/font.woff',
@@ -1039,7 +1039,7 @@ describe('fonts core', () => {
 							},
 							hash: 'https://example.com/font.woff2',
 							init: undefined,
-							url: 'resolved:https://example.com/font.woff2',
+							url: 'https://example.com/font.woff2',
 						},
 					],
 				]),
@@ -1085,7 +1085,7 @@ describe('fonts core', () => {
 							},
 							hash: 'https://example.com/font.woff2',
 							init: undefined,
-							url: 'resolved:https://example.com/font.woff2',
+							url: 'https://example.com/font.woff2',
 						},
 					],
 				]),
@@ -1198,7 +1198,7 @@ describe('fonts core', () => {
 								},
 							],
 							preloads: [
-								{ style: undefined, subset: undefined, type: 'woff2', url: 'a', weight: undefined },
+								{ style: 'normal', subset: undefined, type: 'woff2', url: 'a', weight: undefined },
 							],
 						},
 					],
@@ -1214,7 +1214,7 @@ describe('fonts core', () => {
 						{
 							css: '{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"400"}}{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"500"}}--test:Test-xxx',
 							preloads: [
-								{ style: undefined, subset: undefined, type: 'woff2', url: 'a', weight: undefined },
+								{ style: 'normal', subset: undefined, type: 'woff2', url: 'a', weight: undefined },
 							],
 						},
 					],
@@ -1249,7 +1249,7 @@ describe('fonts core', () => {
 								},
 							],
 							preloads: [
-								{ style: undefined, subset: undefined, type: 'woff2', url: 'a', weight: undefined },
+								{ style: 'normal', subset: undefined, type: 'woff2', url: 'a', weight: undefined },
 							],
 						},
 					],
@@ -1265,7 +1265,7 @@ describe('fonts core', () => {
 						{
 							css: '{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"400"}}{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"500"}}--test:Test-xxx,foo',
 							preloads: [
-								{ style: undefined, subset: undefined, type: 'woff2', url: 'a', weight: undefined },
+								{ style: 'normal', subset: undefined, type: 'woff2', url: 'a', weight: undefined },
 							],
 						},
 					],
@@ -1298,7 +1298,7 @@ describe('fonts core', () => {
 								},
 							],
 							preloads: [
-								{ style: undefined, subset: undefined, type: 'woff2', url: 'a', weight: undefined },
+								{ style: 'normal', subset: undefined, type: 'woff2', url: 'a', weight: undefined },
 							],
 						},
 					],
@@ -1314,7 +1314,7 @@ describe('fonts core', () => {
 						{
 							css: '{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"400"}}{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"500"}}--test:Test-xxx,foo',
 							preloads: [
-								{ style: undefined, subset: undefined, type: 'woff2', url: 'a', weight: undefined },
+								{ style: 'normal', subset: undefined, type: 'woff2', url: 'a', weight: undefined },
 							],
 						},
 					],
@@ -1350,7 +1350,7 @@ describe('fonts core', () => {
 							],
 							preloads: [
 								{
-									style: undefined,
+									style: 'normal',
 									subset: undefined,
 									type: 'woff2',
 									url: 'a',
@@ -1372,7 +1372,7 @@ describe('fonts core', () => {
 							css: '{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"400"}}{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"500"}}FALLBACK--test:Test-xxx,bar',
 							preloads: [
 								{
-									style: undefined,
+									style: 'normal',
 									subset: undefined,
 									type: 'woff2',
 									url: 'a',
