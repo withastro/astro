@@ -22,6 +22,7 @@ import { RunnablePipeline } from './pipeline.js';
 import { getCustom404Route, getCustom500Route } from '../core/routing/helpers.js';
 import { matchRoute } from '../core/routing/dev.js';
 import type { DevMatch } from '../core/app/base.js';
+import { StaticHeaders } from '../core/static-headers.js';
 
 export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	settings: AstroSettings;
@@ -30,6 +31,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	manifestData: RoutesList;
 	currentRenderContext: RenderContext | undefined = undefined;
 	resolvedPathname: string | undefined = undefined;
+	currentStaticHeaders: StaticHeaders | undefined = undefined;
 	constructor(
 		manifest: SSRManifest,
 		streaming = true,
@@ -97,9 +99,16 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	}
 
 	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
+		if (this.manifest.canCollectStaticHeaders && payload.routeData.prerender) {
+			this.currentStaticHeaders = new StaticHeaders();
+		} else {
+			// cleanup
+			this.currentStaticHeaders = undefined;
+		}
 		this.currentRenderContext = await super.createRenderContext({
 			...payload,
 			pathname: this.resolvedPathname ?? payload.pathname,
+			staticHeaders: this.currentStaticHeaders,
 		});
 		return this.currentRenderContext;
 	}

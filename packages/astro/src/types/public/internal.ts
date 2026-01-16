@@ -8,6 +8,7 @@ import type { Params } from './common.js';
 import type { AstroConfig, RedirectConfig } from './config.js';
 import type { AstroGlobal } from './context.js';
 import type { AstroRenderer } from './integrations.js';
+import type { StaticHeaders } from '../../core/static-headers.js';
 
 export type { SSRActions, SSRManifest, SSRManifestCSP } from '../../core/app/types.js';
 
@@ -252,6 +253,7 @@ export interface SSRResult {
 	directives: SSRManifestCSP['directives'];
 	isStrictDynamic: SSRManifestCSP['isStrictDynamic'];
 	internalFetchHeaders?: Record<string, string>;
+	staticHeaders: StaticHeaders | undefined;
 }
 
 /**

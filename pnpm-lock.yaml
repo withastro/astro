@@ -4418,6 +4418,12 @@ importers:
 
   packages/astro/test/fixtures/static-build/pkg: {}
 
+  packages/astro/test/fixtures/static-headers:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/static-redirect:
     dependencies:
       astro:

@@ -173,6 +173,7 @@ function createManifest(
 			debugInfoOutput: '',
 		},
 		logLevel: 'silent',
+		canCollectStaticHeaders: false,
 	};
 }
 
