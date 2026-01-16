@@ -44,12 +44,10 @@ export async function orchestrate({
 	fontDataByCssVariable: FontDataByCssVariable;
 }> {
 	const resolvedFamilies = families.map((family) => resolveFamily({ family, hasher }));
-	// TODO: return array, keep map as internal detail if possible
-	const { fontFamilyAssetsByUniqueKey, fontFileById } = await computeFontFamiliesAssets({
+	const { fontFamilyAssets, fontFileById } = await computeFontFamiliesAssets({
 		resolvedFamilies,
 		defaults,
 	});
-	const fontFamilyAssets = Array.from(fontFamilyAssetsByUniqueKey.values());
 	const { fontDataByCssVariable } = collectFontData(fontFamilyAssets);
 	const { componentDataByCssVariable } = await collectComponentData({
 		cssRenderer,
