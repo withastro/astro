@@ -1,6 +1,5 @@
 import type * as unifont from 'unifont';
 import { FONT_TYPES, GENERIC_FALLBACK_NAMES } from './constants.js';
-import type { Storage } from './definitions.js';
 import type { CssProperties, FontType, GenericFallbackName } from './types.js';
 
 /**
@@ -60,20 +59,6 @@ export function withoutQuotes(str: string): string {
 
 export function isFontType(str: string): str is FontType {
 	return (FONT_TYPES as Readonly<Array<string>>).includes(str);
-}
-
-export async function cache(
-	storage: Storage,
-	key: string,
-	cb: () => Promise<Buffer>,
-): Promise<Buffer> {
-	const existing = await storage.getItemRaw(key);
-	if (existing) {
-		return existing;
-	}
-	const data = await cb();
-	await storage.setItemRaw(key, data);
-	return data;
 }
 
 export function isGenericFontFamily(str: string): str is GenericFallbackName {
