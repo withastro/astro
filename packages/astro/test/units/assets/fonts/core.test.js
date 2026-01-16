@@ -1,10 +1,9 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-fallbacks.js';
+import { computeFontFamiliesAssets } from '../../../../dist/assets/fonts/core/compute-font-families-assets.js';
 import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-family.js';
-import { RealSystemFallbacksProvider } from '../../../../dist/assets/fonts/infra/system-fallbacks-provider.js';
-import { FakeFontMetricsResolver, FakeHasher, SpyUrlProxy } from './utils.js';
+import { FakeHasher } from './utils.js';
 
 describe('fonts core', () => {
 	describe('resolveFamily()', () => {
@@ -56,6 +55,12 @@ describe('fonts core', () => {
 			assert.deepStrictEqual(family.subsets, ['latin']);
 			assert.deepStrictEqual(family.fallbacks, ['foo', 'bar']);
 			assert.deepStrictEqual(family.unicodeRange, ['abc', 'def']);
+		});
+	});
+
+	describe('computeFontFamiliesAssets()', () => {
+		it('', async () => {
+			const { fontFamilyAssets, fontFileById } = await computeFontFamiliesAssets({});
 		});
 	});
 
