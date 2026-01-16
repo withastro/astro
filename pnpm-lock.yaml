@@ -2988,12 +2988,6 @@ importers:
         specifier: ^5.46.1
         version: 5.46.1
 
-  packages/astro/test/fixtures/css-double-bundle:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/css-deduplication:
     dependencies:
       '@astrojs/react':
@@ -3001,10 +2995,10 @@ importers:
         version: link:../../../../integrations/react
       '@types/react':
         specifier: ^18.3.20
-        version: 18.3.26
+        version: 18.3.27
       '@types/react-dom':
         specifier: ^18.3.6
-        version: 18.3.7(@types/react@18.3.26)
+        version: 18.3.7(@types/react@18.3.27)
       astro:
         specifier: workspace:*
         version: link:../../..
@@ -3014,6 +3008,12 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+
+  packages/astro/test/fixtures/css-double-bundle:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
 
   packages/astro/test/fixtures/css-import-as-inline:
     dependencies:
