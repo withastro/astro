@@ -47,7 +47,7 @@ describe('fonts providers', () => {
 					extract: () => ({ weight: '400', style: 'normal' }),
 				},
 			});
-			const root = new URL('file:///foo/bar/');
+			const root = new URL('file:///foo/bar/index.js');
 			provider.init({ root });
 			const { fonts } = provider.resolveFont({
 				familyName: 'foo',
