@@ -11,14 +11,12 @@ export async function optimizeFallbacks({
 	family,
 	fallbacks: _fallbacks,
 	collectedFonts,
-	enabled,
 	systemFallbacksProvider,
 	fontMetricsResolver,
 }: {
 	family: Pick<ResolvedFontFamily, 'name' | 'uniqueName'>;
 	fallbacks: Array<string>;
 	collectedFonts: Array<CollectedFontForMetrics>;
-	enabled: boolean;
 	systemFallbacksProvider: SystemFallbacksProvider;
 	fontMetricsResolver: FontMetricsResolver;
 }): Promise<null | {
@@ -28,7 +26,7 @@ export async function optimizeFallbacks({
 	// We avoid mutating the original array
 	let fallbacks = [..._fallbacks];
 
-	if (fallbacks.length === 0 || !enabled || collectedFonts.length === 0) {
+	if (fallbacks.length === 0 || collectedFonts.length === 0) {
 		return null;
 	}
 
