@@ -2,7 +2,7 @@ import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import { isRemotePath, joinPaths } from '../../core/path.js';
 import type { AstroConfig } from '../../types/public/config.js';
-import { DEFAULT_HASH_PROPS, DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
+import { DEFAULT_HASH_PROPS, VALID_SUPPORTED_FORMATS } from '../consts.js';
 import type {
 	ImageFit,
 	ImageOutputFormat,
@@ -215,7 +215,7 @@ export function verifyOptions(options: ImageTransform): void {
  */
 export const baseService: Omit<LocalImageService, 'transform'> = {
 	propertiesToHash: DEFAULT_HASH_PROPS,
-	validateOptions(options) {
+	validateOptions(options, imageConfig) {
 		// We currently do not support processing SVGs, so whenever the input format is a SVG, force the output to also be one
 		if (isESMImportedImage(options.src) && options.src.format === 'svg') {
 			options.format = 'svg';
@@ -226,7 +226,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 
 		// Apply defaults and normalization separate from verification
 		if (!options.format) {
-			options.format = DEFAULT_OUTPUT_FORMAT;
+			options.format = imageConfig.outputFormat;
 		}
 		if (options.width) options.width = Math.round(options.width);
 		if (options.height) options.height = Math.round(options.height);
@@ -264,11 +264,11 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			decoding: attributes.decoding ?? 'async',
 		};
 	},
-	getSrcSet(options): Array<UnresolvedSrcSetValue> {
+	getSrcSet(options, imageConfig): Array<UnresolvedSrcSetValue> {
 		const { targetWidth, targetHeight } = getTargetDimensions(options);
 		const aspectRatio = targetWidth / targetHeight;
 		const { widths, densities } = options;
-		const targetFormat = options.format ?? DEFAULT_OUTPUT_FORMAT;
+		const targetFormat = options.format ?? imageConfig.outputFormat;
 
 		let transformedWidths = (widths ?? []).sort(sortNumeric);
 
