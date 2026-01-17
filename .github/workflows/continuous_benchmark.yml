@@ -5,12 +5,14 @@ on:
   pull_request: 
     branches:
       - main
+      - next
     paths:
       - 'packages/astro/src/**/*.ts'
       - 'benchmark/**'
   push:
     branches:
       - main
+      - next
     paths:
       - 'packages/astro/src/**/*.ts'
       - 'benchmark/**'

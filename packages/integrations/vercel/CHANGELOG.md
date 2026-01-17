@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 9.0.4
+
+### Patch Changes
+
+- [#14863](https://github.com/withastro/astro/pull/14863) [`29fd188`](https://github.com/withastro/astro/commit/29fd1882c32a6e30ea704ccb6a837ce1d8023a01) Thanks [@drwpow](https://github.com/drwpow)! - Improves error message when using Node builtins inside Edge middlewares
+
 ## 9.0.3
 
 ### Patch Changes

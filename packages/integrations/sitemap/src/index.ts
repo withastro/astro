@@ -7,8 +7,10 @@ import { ZodError } from 'zod';
 import { generateSitemap } from './generate-sitemap.js';
 import { validateOptions } from './validate-options.js';
 import { writeSitemap } from './write-sitemap.js';
+import { writeSitemapChunk } from './write-sitemap-chunk.js';
 
 export { EnumChangefreq as ChangeFreqEnum } from 'sitemap';
+
 export type ChangeFreq = `${EnumChangefreq}`;
 export type SitemapItem = Pick<
 	SitemapItemLoose,
@@ -29,7 +31,6 @@ export type SitemapOptions =
 			};
 			// number of entries per sitemap file
 			entryLimit?: number;
-
 			// sitemap specific
 			changefreq?: ChangeFreq;
 			lastmod?: Date;
@@ -39,7 +40,10 @@ export type SitemapOptions =
 			serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem | undefined> | undefined;
 
 			xslURL?: string;
-
+			chunks?: Record<
+				string,
+				(item: SitemapItem) => SitemapItem | Promise<SitemapItem | undefined> | undefined
+			>;
 			// namespace configuration
 			namespaces?: {
 				news?: boolean;
@@ -102,8 +106,15 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 					const opts = validateOptions(config.site, options);
 
-					const { filenameBase, filter, customPages, customSitemaps, serialize, entryLimit } = opts;
-
+					const {
+						filenameBase,
+						filter,
+						customPages,
+						customSitemaps,
+						serialize,
+						entryLimit,
+						chunks,
+					} = opts;
 					const outFile = `${filenameBase}-index.xml`;
 					const finalSiteUrl = new URL(config.base, config.site);
 					const shouldIgnoreStatus = isStatusCodePage(Object.keys(opts.i18n?.locales ?? {}));
@@ -179,9 +190,61 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							return;
 						}
 					}
+
 					const destDir = fileURLToPath(dir);
 					const lastmod = opts.lastmod?.toISOString();
 					const xslURL = opts.xslURL ? new URL(opts.xslURL, finalSiteUrl).href : undefined;
+
+					if (chunks) {
+						try {
+							let groupedUrlCollection: SitemapItem['url'][] = [];
+							const chunksItem: Record<string, SitemapItem[]> = {};
+							for (const [key, cb] of Object.entries(chunks)) {
+								// Create a new, separate collection for each key
+								const collection: SitemapItem[] = [];
+
+								for (const item of urlData) {
+									// Await the asynchronous operation
+									const collect = await Promise.resolve(cb(item));
+									if (collect) {
+										collection.push(collect);
+									}
+								}
+
+								// Assign the specific collection to its key
+								chunksItem[key] = collection;
+								groupedUrlCollection = [
+									...groupedUrlCollection,
+									...collection.map((coll) => coll.url),
+								];
+							}
+							chunksItem['pages'] = urlData.filter(
+								(urlDataItem) => !groupedUrlCollection.includes(urlDataItem.url),
+							);
+							// Process each chunk here
+							await writeSitemapChunk(
+								{
+									filenameBase,
+									hostname: finalSiteUrl.href,
+									sitemapHostname: finalSiteUrl.href,
+									sourceData: chunksItem,
+									destinationDir: destDir,
+									publicBasePath: config.base,
+									customSitemaps,
+									limit: entryLimit,
+									xslURL,
+									lastmod,
+									namespaces: opts.namespaces,
+								},
+								config,
+							);
+							logger.info(`\`${outFile}\` created at \`${path.relative(process.cwd(), destDir)}\``);
+							return;
+						} catch (err) {
+							logger.error(`Error chunking sitemaps\n${(err as any).toString()}`);
+							return;
+						}
+					}
 					await writeSitemap(
 						{
 							filenameBase: filenameBase,

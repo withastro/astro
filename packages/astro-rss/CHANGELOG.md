@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 4.0.15
+
+### Patch Changes
+
+- [#15199](https://github.com/withastro/astro/pull/15199) [`d8e64ef`](https://github.com/withastro/astro/commit/d8e64ef77ef364b1541a5d192bcff299135d3bc8) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes the links to Astro Docs so that they match the current docs structure.
+
 ## 4.0.14
 
 ### Patch Changes

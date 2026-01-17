@@ -343,7 +343,7 @@ export interface AstroSharedContext<
 	/**
 	 * An object containing the values of dynamic route segments matched for a request.
 	 *
-	 * In static builds, this will be the `params` returned by [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths). With on-demand rendering, `params` can be any value matching the path segments in the dynamic route pattern.
+	 * In static builds, this will be the `params` returned by [`getStaticPaths()`](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths). With on-demand rendering, `params` can be any value matching the path segments in the dynamic route pattern.
 	 *
 	 * ## Example
 	 *
@@ -368,7 +368,7 @@ export interface AstroSharedContext<
 	params: Params;
 
 	/**
-	 * An object containing any values that have been passed as component attributes. In static builds, this can also be the `props` returned by [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths).
+	 * An object containing any values that have been passed as component attributes. In static builds, this can also be the `props` returned by [`getStaticPaths()`](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths).
 	 *
 	 * ## Example
 	 *
@@ -613,7 +613,7 @@ export interface AstroSharedContext<
 	 * - The value when rendering `src/pages/blog/[slug].astro` will be `/blog/[slug]`.
 	 * - The value when rendering `src/pages/[...path].astro` will be `/[...path]`.
 	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#routepattern)
+	 * [Astro reference](https://docs.astro.build/en/reference/routing-reference/#routepattern)
 	 */
 	routePattern: string;
 }
