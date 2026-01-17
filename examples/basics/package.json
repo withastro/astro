@@ -10,6 +10,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.16.11"
+    "@astrojs/skills": "workspace:*",
+    "astro": "workspace:*"
   }
 }

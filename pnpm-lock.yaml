@@ -175,8 +175,11 @@ importers:
 
   examples/basics:
     dependencies:
+      '@astrojs/skills':
+        specifier: workspace:*
+        version: link:../../packages/integrations/skills
       astro:
-        specifier: ^5.16.11
+        specifier: workspace:*
         version: link:../../packages/astro
 
   examples/blog:
