@@ -5,11 +5,13 @@ import type { AstroConfig } from '../../types/public/config.js';
 import { DEFAULT_HASH_PROPS, DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
 import type {
 	ImageFit,
+	ImageMetadata,
 	ImageOutputFormat,
 	ImageTransform,
 	UnresolvedSrcSetValue,
 } from '../types.js';
 import { isESMImportedImage, isRemoteImage } from '../utils/imageKind.js';
+import { inferRemoteSize } from '../utils/remoteProbe.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
 
@@ -77,6 +79,13 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 		options: ImageTransform,
 		imageConfig: ImageConfig<T>,
 	) => ImageTransform | Promise<ImageTransform>;
+	/**
+	 * Infers the dimensions of a remote image by streaming its data and analyzing it progressively until sufficient metadata is available.
+	 */
+	getRemoteSize?: (
+		url: string,
+		imageConfig: ImageConfig<T>,
+	) => Omit<ImageMetadata, 'src' | 'fsPath'> | Promise<Omit<ImageMetadata, 'src' | 'fsPath'>>;
 }
 
 export type ExternalImageService<T extends Record<string, any> = Record<string, any>> =
@@ -400,6 +409,9 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		};
 
 		return transform;
+	},
+	getRemoteSize(url, _imageConfig) {
+		return inferRemoteSize(url);
 	},
 };
 
