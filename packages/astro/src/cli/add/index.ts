@@ -247,6 +247,34 @@ export async function add(names: string[], { flags }: AddOptions) {
 					logger.debug('add', `Using existing .assetsignore`);
 				}
 			}
+			if (integrations.find((integration) => integration.id === 'vercel')) {
+				const gitignoreURL = new URL('./.gitignore', root);
+				if (existsSync(gitignoreURL)) {
+					const gitignoreContent = await fs.readFile(fileURLToPath(gitignoreURL), 'utf-8');
+					if (!gitignoreContent.includes('.vercel')) {
+						logger.info(
+							'SKIP_FORMAT',
+							`\n  ${magenta(`Astro will add ${green('.vercel')} to ${green('.gitignore')}.`)}\n`,
+						);
+
+						if (await askToContinue({ flags, logger })) {
+							const newContent = gitignoreContent.trimEnd() + '\n\n# Vercel\n.vercel\n';
+							await fs.writeFile(gitignoreURL, newContent, 'utf-8');
+						}
+					} else {
+						logger.debug('add', '.vercel already in .gitignore');
+					}
+				} else {
+					logger.info(
+						'SKIP_FORMAT',
+						`\n  ${magenta(`Astro will create ${green('.gitignore')} with ${green('.vercel')}.`)}\n`,
+					);
+
+					if (await askToContinue({ flags, logger })) {
+						await fs.writeFile(gitignoreURL, '# Vercel\n.vercel\n', 'utf-8');
+					}
+				}
+			}
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
 				const dir = new URL('./styles/', new URL(userConfig.srcDir ?? './src/', root));
 				const styles = new URL('./global.css', dir);
