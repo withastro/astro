@@ -157,17 +157,17 @@ export class PassthroughFontResolver {
 	}
 
 	/**
-	 * @param {import('../../../../dist/assets/fonts/types').ResolveFontOptions & { provider: string; }} param0
+	 * @param {import('../../../../dist/assets/fonts/types').ResolveFontOptions & { provider: import('../../../../dist/index.js').FontProvider; }} param0
 	 */
 	async resolveFont({ provider, ...rest }) {
-		const res = await this.#providers.get(provider)?.resolveFont(rest);
+		const res = await this.#providers.get(provider.name)?.resolveFont(rest);
 		return res?.fonts ?? [];
 	}
 
 	/**
-	 * @param {{ provider: string }} param0
+	 * @param {{ provider: import('../../../../dist/index.js').FontProvider }} param0
 	 */
 	async listFonts({ provider }) {
-		return await this.#providers.get(provider)?.listFonts?.();
+		return await this.#providers.get(provider.name)?.listFonts?.();
 	}
 }
