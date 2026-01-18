@@ -1,5 +1,5 @@
 import { createReadStream } from 'node:fs';
-import { appendFile, stat } from 'node:fs/promises';
+import { appendFile, readFile, stat, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline/promises';
 import { pathToFileURL } from 'node:url';
@@ -7,6 +7,7 @@ import {
 	appendForwardSlash,
 	prependForwardSlash,
 	removeLeadingForwardSlash,
+	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import type {
@@ -405,6 +406,35 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						args?.routes?.extend?.include,
 						args?.routes?.extend?.exclude,
 					);
+				}
+
+				// Create .assetsignore to prevent _worker.js from being uploaded as static asset
+				// This is required when using a base path, as wrangler may interpret _worker.js as an asset
+				const hasBasePath =
+					removeLeadingForwardSlash(removeTrailingForwardSlash(_config.base)).length > 0;
+				if (hasBasePath) {
+					const assetsIgnorePath = new URL('./.assetsignore', _config.outDir);
+					const publicAssetsIgnorePath = new URL('./.assetsignore', _config.publicDir);
+					let assetsIgnoreContent = '_worker.js\n';
+
+					// Check if user has an existing .assetsignore in their public directory
+					try {
+						const existingContent = await readFile(publicAssetsIgnorePath, 'utf-8');
+						// Append _worker.js if it's not already present
+						if (!existingContent.includes('_worker.js')) {
+							assetsIgnoreContent = existingContent.trimEnd() + '\n_worker.js\n';
+						} else {
+							assetsIgnoreContent = existingContent;
+						}
+					} catch {
+						// No existing .assetsignore file, use the default content
+					}
+
+					try {
+						await writeFile(assetsIgnorePath, assetsIgnoreContent, 'utf-8');
+					} catch {
+						logger.error('Failed to write .assetsignore file');
+					}
 				}
 
 				const trueRedirects = createRedirectsFromAstroRoutes({
