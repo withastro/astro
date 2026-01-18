@@ -14,7 +14,7 @@ import {
 	Range,
 	TextEdit,
 } from '@volar/language-server';
-import fg from 'fast-glob';
+import { globSync } from 'tinyglobby';
 import type { Provide } from 'volar-service-typescript';
 import type { TextDocument } from 'vscode-html-languageservice';
 import { URI } from 'vscode-uri';
@@ -126,9 +126,10 @@ export const create = (ts: typeof import('typescript')): LanguageServicePlugin =
 };
 
 function getGlobResultAsCodeLens(globText: string, dir: string, position: Position) {
-	const globResult = fg.sync(globText, {
+	const globResult = globSync(globText, {
 		cwd: dir,
 		onlyFiles: true,
+		expandDirectories: false,
 	});
 
 	return {

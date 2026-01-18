@@ -82,7 +82,7 @@ function optionsPlugin({
 }
 
 type PluginItem = NonNullable<
-	Exclude<NonNullable<ReactIntegrationOptions['babel']>, Function>['plugins']
+	Exclude<NonNullable<ReactIntegrationOptions['babel']>, (...args: any[]) => any>['plugins']
 >[number];
 
 function isBabelPluginPresent(plugins: PluginItem[], pluginName: string): boolean {

@@ -46,6 +46,11 @@ jobs:
       - name: Build
         run: pnpm run build
         
+      - name: Setup benchmark projects
+        working-directory: ./benchmark
+        run: pnpm run build:bench
+        timeout-minutes: 15
+        
       - name: Run the benchmarks
         uses: CodSpeedHQ/action@76578c2a7ddd928664caa737f0e962e3085d4e7c # v3.8.1
         timeout-minutes: 30
@@ -53,4 +58,3 @@ jobs:
           working-directory: ./benchmark
           run: pnpm bench
           token: ${{ secrets.CODSPEED_TOKEN }}
-               
