@@ -150,7 +150,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 
 							export { default as Font } from "astro/components/Font.astro";
 							import * as fontsMod from 'virtual:astro:assets/fonts/internal';
-							import { createGetFontData } from "astro/assets/fonts/runtime";
+							import { createGetFontData, createGetFontBuffer } from "astro/assets/fonts/runtime";
 							
 							export const viteFSConfig = ${JSON.stringify(resolvedConfig.server.fs ?? {})};
 
@@ -191,6 +191,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							export const getImage = async (options) => await getImageInternal(options, imageConfig);
 
 							export const getFontData = createGetFontData(fontsMod);
+							export const getFontBuffer = createGetFontBuffer(fontsMod);
 						`,
 					};
 				}
