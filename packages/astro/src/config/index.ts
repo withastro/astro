@@ -1,4 +1,6 @@
 import type { UserConfig as ViteUserConfig, UserConfigFn as ViteUserConfigFn } from 'vite';
+import type { LOCAL_PROVIDER_NAME } from '../assets/fonts/constants.js';
+import type { FontProvider } from '../assets/fonts/types.js';
 import { createRoutesList } from '../core/routing/index.js';
 import type {
 	AstroInlineConfig,
@@ -15,7 +17,8 @@ import { createDevelopmentManifest } from '../vite-plugin-astro-server/plugin.js
 export function defineConfig<
 	const TLocales extends Locales = never,
 	const TDriver extends SessionDriverName = never,
->(config: AstroUserConfig<TLocales, TDriver>) {
+	const TFontProviders extends Array<FontProvider | typeof LOCAL_PROVIDER_NAME> = never,
+>(config: AstroUserConfig<TLocales, TDriver, TFontProviders>) {
 	return config;
 }
 

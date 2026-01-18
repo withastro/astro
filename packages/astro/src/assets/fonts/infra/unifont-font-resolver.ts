@@ -4,7 +4,10 @@ import { LOCAL_PROVIDER_NAME } from '../constants.js';
 import type { FontResolver, Hasher, Storage } from '../definitions.js';
 import type { FontProvider, ResolvedFontFamily, ResolveFontOptions } from '../types.js';
 
-type NonEmptyProviders = [Provider, ...Array<Provider>];
+type NonEmptyProviders = [
+	Provider<string, Record<string, any>>,
+	...Array<Provider<string, Record<string, any>>>,
+];
 
 export class UnifontFontResolver implements FontResolver {
 	readonly #unifont: Unifont<NonEmptyProviders>;
@@ -17,8 +20,8 @@ export class UnifontFontResolver implements FontResolver {
 		return defineFontProvider(astroProvider.name, async (_options: any, ctx) => {
 			await astroProvider?.init?.(ctx);
 			return {
-				async resolveFont(familyName, options) {
-					return await astroProvider.resolveFont({ familyName, ...options });
+				async resolveFont(familyName, { options, ...rest }) {
+					return await astroProvider.resolveFont({ familyName, options, ...rest });
 				},
 				async listFonts() {
 					return astroProvider.listFonts?.();
@@ -89,9 +92,21 @@ export class UnifontFontResolver implements FontResolver {
 	async resolveFont({
 		familyName,
 		provider,
+		options,
 		...rest
-	}: ResolveFontOptions & { provider: string }): Promise<Array<FontFaceData>> {
-		const { fonts } = await this.#unifont.resolveFont(familyName, rest, [provider]);
+	}: ResolveFontOptions<Record<string, any>> & { provider: string }): Promise<Array<FontFaceData>> {
+		const { fonts } = await this.#unifont.resolveFont(
+			familyName,
+			{
+				// Options are currently namespaced by provider name, it may change in
+				// https://github.com/unjs/unifont/pull/287
+				options: {
+					[provider]: options,
+				},
+				...rest,
+			},
+			[provider],
+		);
 		return fonts;
 	}
 
