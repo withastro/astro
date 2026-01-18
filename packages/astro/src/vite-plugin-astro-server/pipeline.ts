@@ -101,6 +101,7 @@ export class DevPipeline extends Pipeline {
 					// enabled, it would nice to request the debug info through import.meta.hot
 					// when the button is click to defer execution as much as possible
 					debugInfo: await this.getDebugInfo(),
+					placement: settings.config.devToolbar.placement,
 				};
 
 				// Additional data for the dev overlay
