@@ -8,6 +8,24 @@ import {
 	versionsConfig,
 } from './version.js';
 
+export type ReactCompilerLoggerEvent = {
+	[key: string]: unknown;
+};
+
+type ReactCompilerOptions = {
+	compilationMode?: 'infer' | 'annotation' | 'syntax' | 'all';
+	target?: '17' | '18' | '19';
+	panicThreshold?: 'none' | 'critical_errors' | 'all_errors';
+	logger?: {
+		logEvent: (filename: string | null, event: ReactCompilerLoggerEvent) => void;
+	} | null;
+	gating?: {
+		source: string;
+		importSpecifierName: string;
+	} | null;
+	[key: string]: unknown;
+};
+
 export type ReactIntegrationOptions = Pick<
 	ViteReactPluginOptions,
 	'include' | 'exclude' | 'babel'
@@ -18,10 +36,10 @@ export type ReactIntegrationOptions = Pick<
 	 */
 	experimentalDisableStreaming?: boolean;
 	/*
-	* Enables the [React Compiler](https://react.dev/learn/react-compiler).
-	* Requires installing `babel-plugin-react-compiler`.
-	*/
-	reactCompilerEnabled?: boolean;
+	 * Enables the [React Compiler](https://react.dev/learn/react-compiler).
+	 * Requires installing `babel-plugin-react-compiler`.
+	 */
+	reactCompilerEnabled?: boolean | ReactCompilerOptions;
 };
 
 const FAST_REFRESH_PREAMBLE = react.preambleCode;
@@ -88,6 +106,12 @@ function getViteConfiguration(
 ) {
 	if (reactCompilerEnabled) {
 		if (!babel) babel = {};
+
+		let reactCompilerDefinition;
+		if (typeof reactCompilerEnabled != 'boolean')
+			reactCompilerDefinition = ['babel-plugin-react-compiler', reactCompilerEnabled];
+		else reactCompilerDefinition = ['babel-plugin-react-compiler'];
+
 		if (typeof babel == 'object') {
 			let reactCompilerPluginExists = false;
 			if (!babel.plugins) babel.plugins = [];
@@ -97,7 +121,7 @@ function getViteConfiguration(
 					'babel-plugin-react-compiler',
 				);
 			}
-			if (!reactCompilerPluginExists) babel.plugins.push(['babel-plugin-react-compiler']);
+			if (!reactCompilerPluginExists) babel.plugins.push(reactCompilerDefinition);
 		} else if (typeof babel === 'function') {
 			let reactCompilerPluginExists = false;
 			const babelFn = babel;
@@ -110,7 +134,7 @@ function getViteConfiguration(
 						'babel-plugin-react-compiler',
 					);
 				}
-				if (!reactCompilerPluginExists) options.plugins.push(['babel-plugin-react-compiler']);
+				if (!reactCompilerPluginExists) options.plugins.push(reactCompilerDefinition);
 
 				return options;
 			};
