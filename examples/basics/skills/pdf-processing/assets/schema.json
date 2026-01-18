@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PDF Extraction Output",
+  "description": "Schema for the output of PDF text and table extraction",
+  "oneOf": [
+    {
+      "title": "Text Extraction Result",
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "text"
+        },
+        "content": {
+          "type": "string",
+          "description": "Extracted text content"
+        },
+        "pages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "page_number": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "text": {
+                "type": "string"
+              }
+            },
+            "required": ["page_number", "text"]
+          }
+        },
+        "metadata": {
+          "$ref": "#/definitions/metadata"
+        }
+      },
+      "required": ["type", "content"]
+    },
+    {
+      "title": "Table Extraction Result",
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "tables"
+        },
+        "tables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/table"
+          }
+        },
+        "metadata": {
+          "$ref": "#/definitions/metadata"
+        }
+      },
+      "required": ["type", "tables"]
+    }
+  ],
+  "definitions": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "filename": {
+          "type": "string"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "extracted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "table": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "table_index": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "headers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": ["string", "null"]
+            }
+          }
+        }
+      },
+      "required": ["page", "table_index", "rows"]
+    }
+  }
+}
