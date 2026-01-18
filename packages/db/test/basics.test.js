@@ -3,6 +3,7 @@ import { after, before, describe, it } from 'node:test';
 import { load as cheerioLoad } from 'cheerio';
 import testAdapter from '../../astro/test/test-adapter.js';
 import { loadFixture } from '../../astro/test/test-utils.js';
+import { resolveDbAppToken } from '../dist/core/utils.js';
 import { clearEnvironment, setupRemoteDb } from './test-utils.js';
 
 describe('astro:db', () => {
@@ -198,6 +199,33 @@ describe('astro:db', () => {
 
 			const ul = $('.authors-list');
 			assert.equal(ul.children().length, 5);
+		});
+	});
+
+	describe('cli --db-app-token', () => {
+		it('Seeds remote database with --db-app-token flag set and without ASTRO_DB_APP_TOKEN env being set', async () => {
+			clearEnvironment();
+			assert.equal(process.env.ASTRO_DB_APP_TOKEN, undefined);
+
+			const remoteDbServer = await setupRemoteDb(fixture.config, { useDbAppTokenFlag: true });
+			try {
+				assert.equal(process.env.ASTRO_DB_APP_TOKEN, undefined);
+			} finally {
+				await remoteDbServer.stop();
+			}
+			assert.equal(process.env.ASTRO_DB_APP_TOKEN, undefined);
+		});
+	});
+
+	describe('Precedence for --db-app-token and ASTRO_DB_APP_TOKEN handled correctly', () => {
+		it('prefers --db-app-token over `ASTRO_DB_APP_TOKEN`', () => {
+			const flags = /** @type {any} */ ({ _: [], dbAppToken: 'from-flag' });
+			assert.equal(resolveDbAppToken(flags, 'from-env'), 'from-flag');
+		});
+
+		it('falls back to ASTRO_DB_APP_TOKEN if no flags set', () => {
+			const flags = /** @type {any} */ ({ _: [] });
+			assert.equal(resolveDbAppToken(flags, 'from-env'), 'from-env');
 		});
 	});
 });
