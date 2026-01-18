@@ -1,5 +1,13 @@
 # astro
 
+## 5.16.12
+
+### Patch Changes
+
+- [#15227](https://github.com/withastro/astro/pull/15227) [`9a609f4`](https://github.com/withastro/astro/commit/9a609f4a6264fc2238e02cffb00a9285f4a10973) Thanks [@matthewp](https://github.com/matthewp)! - Fixes styles not being included for conditionally rendered Svelte 5 components in production builds
+
+- [#14607](https://github.com/withastro/astro/pull/14607) [`ee52160`](https://github.com/withastro/astro/commit/ee52160f3374f65d1a8cb460c1340172902313bc) Thanks [@simensfo](https://github.com/simensfo)! - Reintroduces css deduplication for hydrated client components. Ensures assets already added to a client chunk are not flagged as orphaned
+
 ## 5.16.11
 
 ### Patch Changes
