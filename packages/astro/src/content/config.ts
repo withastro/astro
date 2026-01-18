@@ -198,6 +198,18 @@ export function defineCollection<S extends BaseSchema>(
 			);
 		}
 		config.type = CONTENT_LAYER_TYPE;
+	} else {
+		// Collection without loader = using v4 backwards compat mode
+		if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
+			console.warn(
+				`⚠️  DEPRECATION: Content collection defined without a loader (${importerFilename ?? 'unknown'})
+
+The v4 content collections API is deprecated and will be removed in Astro 7.
+Please migrate to the Content Layer API with a loader.
+
+Migration guide: https://docs.astro.build/en/guides/migrate-to-astro/upgrade-to/v5/#content-collections`,
+			);
+		}
 	}
 	if (!config.type) config.type = 'content';
 	return config;

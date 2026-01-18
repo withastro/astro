@@ -426,4 +426,35 @@ describe('Content Collections', () => {
 			assert.equal(index, anotherPage);
 		});
 	});
+
+	describe('Strict mode', () => {
+		it('Throws error when contentCollectionsStrict=true and legacy collections exist', async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/content-collections/',
+				experimental: { contentCollectionsStrict: true },
+			});
+			let error;
+			try {
+				await fixture.build({ force: true });
+			} catch (e) {
+				error = e.message;
+			}
+			assert.match(error, /using the deprecated v4 API/);
+			assert.match(error, /Collections must use the Content Layer API with a loader/);
+		});
+
+		it('Allows legacy collections when strict mode is not enabled', async () => {
+			const fixture = await loadFixture({
+				root: './fixtures/content-collections/',
+				experimental: { contentCollectionsStrict: false },
+			});
+			let error;
+			try {
+				await fixture.build({ force: true });
+			} catch (e) {
+				error = e.message;
+			}
+			assert.equal(error, undefined);
+		});
+	});
 });
