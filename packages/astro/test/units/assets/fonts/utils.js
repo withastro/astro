@@ -164,18 +164,3 @@ export class FakeStringMatcher {
 		return this.#match;
 	}
 }
-
-/** @implements {StringMatcher} */
-export class FakeStringMatcher {
-	/** @type {string} */
-	#match;
-
-	/** @param {string} match */
-	constructor(match) {
-		this.#match = match;
-	}
-
-	getClosestMatch() {
-		return this.#match;
-	}
-}
