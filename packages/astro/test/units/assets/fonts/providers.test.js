@@ -1,6 +1,7 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { LocalFontProvider } from '../../../../dist/assets/fonts/providers/local.js';
 import { fontProviders } from '../../../../dist/config/entrypoint.js';
 
@@ -47,7 +48,7 @@ describe('fonts providers', () => {
 					extract: () => ({ weight: '400', style: 'normal' }),
 				},
 			});
-			const root = new URL('file:///foo/bar/index.js');
+			const root = new URL(import.meta.url);
 			provider.init({ root });
 			const { fonts } = provider.resolveFont({
 				familyName: 'foo',
@@ -82,19 +83,19 @@ describe('fonts providers', () => {
 					src: [
 						{
 							tech: undefined,
-							url: '/foo/bar/0.woff2',
+							url: fileURLToPath(new URL('./0.woff2', root)),
 						},
 						{
 							tech: undefined,
-							url: '/foo/bar/1.woff2',
+							url: fileURLToPath(new URL('./1.woff2', root)),
 						},
 						{
 							tech: 'xxx',
-							url: '/foo/bar/0.woff2',
+							url: fileURLToPath(new URL('./0.woff2', root)),
 						},
 						{
 							tech: undefined,
-							url: '/foo/bar/1.woff2',
+							url: fileURLToPath(new URL('./1.woff2', root)),
 						},
 					],
 					stretch: undefined,
@@ -112,7 +113,7 @@ describe('fonts providers', () => {
 					extract: () => ({ weight: '400', style: 'normal' }),
 				},
 			});
-			const root = new URL('file:///foo/bar/');
+			const root = new URL(import.meta.url);
 			provider.init({ root });
 			const { fonts } = provider.resolveFont({
 				familyName: 'foo',
@@ -135,7 +136,7 @@ describe('fonts providers', () => {
 					src: [
 						{
 							tech: undefined,
-							url: '/foo/bar/0.woff2',
+							url: fileURLToPath(new URL('./0.woff2', root)),
 						},
 					],
 					stretch: undefined,
@@ -153,7 +154,7 @@ describe('fonts providers', () => {
 					extract: () => ({ weight: '400', style: 'normal' }),
 				},
 			});
-			const root = new URL('file:///foo/bar/');
+			const root = new URL(import.meta.url);
 			provider.init({ root });
 			const { fonts } = provider.resolveFont({
 				familyName: 'foo',
@@ -177,7 +178,7 @@ describe('fonts providers', () => {
 					src: [
 						{
 							tech: undefined,
-							url: '/foo/bar/0.woff2',
+							url: fileURLToPath(new URL('./0.woff2', root)),
 						},
 					],
 					stretch: undefined,
