@@ -15,6 +15,9 @@
   "postUpdateOptions": [
     "pnpmDedupe"
   ],
+  "lockfileMaintenance": {
+    "enabled": true
+  },
   "ignorePaths": [
     "**/node_modules/**",
     // This fixture depends on the versions in its package.json not being modified by
