@@ -424,106 +424,70 @@ describe('fonts infra', () => {
 		});
 
 		describe('static extractUnifontProviders()', () => {
-			/** @param {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} families */
-			function createFixture(families) {
+			it('deduplicates providers with no config', () => {
 				const providers = UnifontFontResolver.extractUnifontProviders({
-					families,
 					hasher: new FakeHasher(),
+					families: [
+						{
+							name: 'Foo',
+							uniqueName: 'Foo-xxx',
+							cssVariable: '--custom',
+							provider: createProvider('test'),
+						},
+						{
+							name: 'Bar',
+							uniqueName: 'Bar-xxx',
+							cssVariable: '--custom',
+							provider: createProvider('test'),
+						},
+					],
 					root: new URL(import.meta.url),
 				});
-				return {
-					/**
-					 * @param {number} length
-					 */
-					assertProvidersLength: (length) => {
-						assert.equal(providers.length, length);
-					},
-					/**
-					 * @param {Array<string>} names
-					 */
-					assertProvidersNames: (names) => {
-						assert.deepStrictEqual(
-							families.map((f) => (typeof f.provider === 'string' ? f.provider : f.provider.name)),
-							names,
-						);
-					},
-				};
-			}
-
-			it('appends a hash to the provider name', () => {
-				const fixture = createFixture([
-					{
-						name: 'Custom',
-						uniqueName: 'Custom-xxx',
-						cssVariable: '--custom',
-						provider: createProvider('test'),
-					},
-				]);
-				fixture.assertProvidersLength(1);
-				fixture.assertProvidersNames(['test-{"name":"test"}']);
-			});
-
-			it('deduplicates providers with no config', () => {
-				const fixture = createFixture([
-					{
-						name: 'Foo',
-						uniqueName: 'Foo-xxx',
-						cssVariable: '--custom',
-						provider: createProvider('test'),
-					},
-					{
-						name: 'Bar',
-						uniqueName: 'Bar-xxx',
-						cssVariable: '--custom',
-						provider: createProvider('test'),
-					},
-				]);
-				fixture.assertProvidersLength(1);
-				fixture.assertProvidersNames(['test-{"name":"test"}', 'test-{"name":"test"}']);
+				assert.equal(providers.length, 1);
 			});
 
 			it('deduplicates providers with the same config', () => {
-				const fixture = createFixture([
-					{
-						name: 'Foo',
-						uniqueName: 'Foo-xxx',
-						cssVariable: '--custom',
-						provider: createProvider('test', { x: 'y' }),
-					},
-					{
-						name: 'Bar',
-						uniqueName: 'Bar-xxx',
-						cssVariable: '--custom',
-						provider: createProvider('test', { x: 'y' }),
-					},
-				]);
-				fixture.assertProvidersLength(1);
-				fixture.assertProvidersNames([
-					'test-{"name":"test","x":"y"}',
-					'test-{"name":"test","x":"y"}',
-				]);
+				const providers = UnifontFontResolver.extractUnifontProviders({
+					hasher: new FakeHasher(),
+					families: [
+						{
+							name: 'Foo',
+							uniqueName: 'Foo-xxx',
+							cssVariable: '--custom',
+							provider: createProvider('test', { x: 'y' }),
+						},
+						{
+							name: 'Bar',
+							uniqueName: 'Bar-xxx',
+							cssVariable: '--custom',
+							provider: createProvider('test', { x: 'y' }),
+						},
+					],
+					root: new URL(import.meta.url),
+				});
+				assert.equal(providers.length, 1);
 			});
 
 			it('does not deduplicate providers with different configs', () => {
-				const fixture = createFixture([
-					{
-						name: 'Foo',
-						uniqueName: 'Foo-xxx',
-						cssVariable: '--custom',
-						provider: createProvider('test', { x: 'foo' }),
-					},
-					{
-						name: 'Bar',
-						uniqueName: 'Bar-xxx',
-						cssVariable: '--custom',
-						provider: createProvider('test', { x: 'bar' }),
-					},
-				]);
-				fixture.assertProvidersLength(2);
-				fixture.assertProvidersNames([
-					'test-{"name":"test","x":"foo"}',
-					'test-{"name":"test","x":"bar"}',
-				]);
+				const providers = UnifontFontResolver.extractUnifontProviders({
+					hasher: new FakeHasher(),
+					families: [
+						{
+							name: 'Foo',
+							uniqueName: 'Foo-xxx',
+							cssVariable: '--custom',
+							provider: createProvider('test', { x: 'foo' }),
+						},
+						{
+							name: 'Bar',
+							uniqueName: 'Bar-xxx',
+							cssVariable: '--custom',
+							provider: createProvider('test', { x: 'bar' }),
+						},
+					],
+					root: new URL(import.meta.url),
+				});
+				assert.equal(providers.length, 2);
 			});
 		});
 

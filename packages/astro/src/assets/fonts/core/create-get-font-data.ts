@@ -1,13 +1,17 @@
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
-import type { ConsumableMap } from '../types.js';
+import type { FontDataByCssVariable } from '../types.js';
 
-export function createGetFontData({ consumableMap }: { consumableMap?: ConsumableMap }) {
+export function createGetFontData({
+	fontDataByCssVariable,
+}: {
+	fontDataByCssVariable?: FontDataByCssVariable;
+}) {
 	return function getFontData(cssVariable: string) {
 		// TODO: remove once fonts are stabilized
-		if (!consumableMap) {
+		if (!fontDataByCssVariable) {
 			throw new AstroError(AstroErrorData.ExperimentalFontsNotEnabled);
 		}
-		const data = consumableMap.get(cssVariable);
+		const data = fontDataByCssVariable.get(cssVariable);
 		if (!data) {
 			throw new AstroError({
 				...AstroErrorData.FontFamilyNotFound,
