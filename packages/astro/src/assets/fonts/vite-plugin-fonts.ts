@@ -245,6 +245,13 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			});
 
 			server.middlewares.use(assetsDir, async (req, res, next) => {
+				if (!fontFetcher || !fontTypeExtractor) {
+					logger.debug(
+						'assets',
+						'Fonts dependencies should be initialized by now, skipping dev middleware.',
+					);
+					return next();
+				}
 				if (!req.url) {
 					return next();
 				}
@@ -260,10 +267,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				res.setHeader('Expires', 0);
 
 				try {
-					const data = await fontFetcher!.fetch({ id, ...fontData });
+					const data = await fontFetcher.fetch({ id, ...fontData });
 
 					res.setHeader('Content-Length', data.length);
-					res.setHeader('Content-Type', `font/${fontTypeExtractor!.extract(id)}`);
+					res.setHeader('Content-Type', `font/${fontTypeExtractor.extract(id)}`);
 
 					res.end(data);
 				} catch (err) {
