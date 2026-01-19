@@ -157,7 +157,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
  */
 export interface AstroUserConfig<
 	TLocales extends Locales = never,
-	TDriver extends SessionDriverName | SessionDriverConfig = never,
+	TDriver extends SessionDriverName | SessionDriverConfig | undefined = never,
 > {
 	/**
 	 * @docs
