@@ -92,10 +92,33 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				}
 			}
 
+			// In the client build, collect which component modules have their exports rendered
+			// and which pages/entries contain them. This is used to handle CSS with cssScopeTo
+			// metadata for conditionally rendered components.
+			const renderedComponentExports = new Map<string, string[]>();
+			// Map from component module ID to the pages that include it (via facadeModuleId)
+			const componentToPages = new Map<string, Set<string>>();
+
 			// Remove CSS files from client bundle that were already bundled with pages during SSR
 			if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 				for (const [, item] of Object.entries(bundle)) {
 					if (item.type !== 'chunk') continue;
+
+					for (const [moduleId, moduleRenderedInfo] of Object.entries(item.modules)) {
+						if (moduleRenderedInfo.renderedExports.length > 0) {
+							renderedComponentExports.set(moduleId, moduleRenderedInfo.renderedExports);
+							// Track which entry/page this component belongs to
+							if (item.facadeModuleId) {
+								let pages = componentToPages.get(moduleId);
+								if (!pages) {
+									pages = new Set();
+									componentToPages.set(moduleId, pages);
+								}
+								pages.add(item.facadeModuleId);
+							}
+						}
+					}
+
 					if ('viteMetadata' in item === false) continue;
 					const meta = item.viteMetadata as ViteMetadata;
 

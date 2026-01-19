@@ -576,14 +576,3 @@ export interface APIContext<
 	 */
 	routePattern: string;
 }
-
-/**
- * The `APIContext` is the object made available to endpoints and middleware.
- * It is a subset of the `Astro` global object available in pages.
- *
- * [Astro reference](https://docs.astro.build/en/reference/api-reference/)
- */
-export type APIContext<
-	Props extends Record<string, any> = Record<string, any>,
-	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
-> = AstroSharedContext<Props, Params>;
