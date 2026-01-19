@@ -12,6 +12,7 @@ import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../internal.js';
 import type { AstroBuildPlugin, BuildTarget } from '../plugin.js';
 import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types.js';
+import { normalizeEntryId } from './plugin-component-entry.js';
 import { extendManualChunks, shouldInlineAsset } from './util.js';
 
 interface PluginOptions {
@@ -80,7 +81,10 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 						// and that's okay. We can use Rollup's default chunk strategy instead as these CSS
 						// are outside of the SSR build scope, which no dedupe is needed.
 						if (options.target === 'client') {
-							return internals.cssModuleToChunkIdMap.get(id)!;
+							// Find the chunkId for this CSS module in the server build.
+							// If it exists, we can use it to ensure the client build matches the server
+							// build and doesn't create a duplicate chunk.
+							return internals.cssModuleToChunkIdMap.get(id);
 						}
 
 						const ctx = { getModuleInfo: meta.getModuleInfo };
@@ -93,6 +97,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 								return chunkId;
 							}
 						}
+
 						const chunkId = createNameForParentPages(id, meta);
 						internals.cssModuleToChunkIdMap.set(id, chunkId);
 						return chunkId;
@@ -102,6 +107,33 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		},
 
 		async generateBundle(_outputOptions, bundle) {
+			// In the client build, collect which component modules have their exports rendered
+			// and which pages/entries contain them. This is used to handle CSS with cssScopeTo
+			// metadata for conditionally rendered components.
+			const renderedComponentExports = new Map<string, string[]>();
+			// Map from component module ID to the pages that include it (via facadeModuleId)
+			const componentToPages = new Map<string, Set<string>>();
+			if (options.target === 'client') {
+				for (const [, asset] of Object.entries(bundle)) {
+					if (asset.type === 'chunk') {
+						for (const [moduleId, moduleRenderedInfo] of Object.entries(asset.modules)) {
+							if (moduleRenderedInfo.renderedExports.length > 0) {
+								renderedComponentExports.set(moduleId, moduleRenderedInfo.renderedExports);
+								// Track which entry/page this component belongs to
+								if (asset.facadeModuleId) {
+									let pages = componentToPages.get(moduleId);
+									if (!pages) {
+										pages = new Set();
+										componentToPages.set(moduleId, pages);
+									}
+									pages.add(asset.facadeModuleId);
+								}
+							}
+						}
+					}
+				}
+			}
+
 			for (const [, chunk] of Object.entries(bundle)) {
 				if (chunk.type !== 'chunk') continue;
 				if ('viteMetadata' in chunk === false) continue;
@@ -119,6 +151,71 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							for (const importedCssImport of meta.importedCss) {
 								const cssToInfoRecord = (pagesToCss[pageData.moduleSpecifier] ??= {});
 								cssToInfoRecord[importedCssImport] = { depth: -1, order: -1 };
+							}
+						}
+					}
+
+					// Handle CSS with cssScopeTo metadata for conditionally rendered components.
+					// These components may not be in the server build (due to conditional rendering)
+					// but are in the client build. We need to ensure their CSS is included.
+					for (const id of Object.keys(chunk.modules)) {
+						const moduleInfo = this.getModuleInfo(id);
+						const cssScopeTo = moduleInfo?.meta?.vite?.cssScopeTo as [string, string] | undefined;
+						if (cssScopeTo) {
+							const [scopedToModule, scopedToExport] = cssScopeTo;
+							const renderedExports = renderedComponentExports.get(scopedToModule);
+							// If the component's export is rendered in the client build,
+							// ensure its CSS is associated with the pages that use it
+							if (renderedExports?.includes(scopedToExport)) {
+								// Walk up from the scoped-to module to find pages or scripts
+								const parentModuleInfos = getParentExtendedModuleInfos(
+									scopedToModule,
+									this,
+									hasAssetPropagationFlag,
+								);
+								for (const { info: pageInfo, depth, order } of parentModuleInfos) {
+									if (moduleIsTopLevelPage(pageInfo)) {
+										const pageData = getPageDataByViteID(internals, pageInfo.id);
+										if (pageData) {
+											appendCSSToPage(pageData, meta, pagesToCss, depth, order);
+										}
+									}
+									// For hydrated components, check if this parent is a script/component entry
+									// that's tracked in pagesByScriptId
+									const pageDatas = internals.pagesByScriptId.get(pageInfo.id);
+									if (pageDatas) {
+										for (const pageData of pageDatas) {
+											appendCSSToPage(pageData, meta, pagesToCss, -1, order);
+										}
+									}
+								}
+
+								// If we couldn't find a page through normal traversal,
+								// check if any parent in the chain is a hydrated component and
+								// use the pagesByHydratedComponent mapping from the server build.
+								let addedToAnyPage = false;
+								for (const importedCssImport of meta.importedCss) {
+									for (const pageData of internals.pagesByKeys.values()) {
+										const cssToInfoRecord = pagesToCss[pageData.moduleSpecifier];
+										if (cssToInfoRecord && importedCssImport in cssToInfoRecord) {
+											addedToAnyPage = true;
+											break;
+										}
+									}
+								}
+								if (!addedToAnyPage) {
+									// Walk up the parent chain and check if any parent is a hydrated component
+									for (const { info: parentInfo } of parentModuleInfos) {
+										const normalizedParent = normalizeEntryId(parentInfo.id);
+										// Check if this parent is tracked as a hydrated component
+										const pages = internals.pagesByHydratedComponent.get(normalizedParent);
+										if (pages) {
+											for (const pageData of pages) {
+												appendCSSToPage(pageData, meta, pagesToCss, -1, -1);
+											}
+										}
+									}
+								}
 							}
 						}
 					}
@@ -247,8 +344,18 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					sheetAddedToPage = true;
 				}
 
-				if (toBeInlined && sheetAddedToPage) {
-					// CSS is already added to all used pages, we can delete it from the bundle
+				const wasInlined = toBeInlined && sheetAddedToPage;
+				// stylesheets already referenced as an asset by a chunk will not be inlined by
+				// this plugin, but should not be considered orphaned
+				const wasAddedToChunk = Object.values(bundle).some(
+					(chunk) => chunk.type === 'chunk' && chunk.viteMetadata?.importedAssets?.has(id),
+				);
+				const isOrphaned = !sheetAddedToPage && !wasAddedToChunk;
+
+				if (wasInlined || isOrphaned) {
+					// wasInlined : CSS is already added to all used pages
+					// isOrphaned : CSS is already used in a merged chunk
+					// we can delete it from the bundle
 					// and make sure no chunks reference it via `importedCss` (for Vite preloading)
 					// to avoid duplicate CSS.
 					delete bundle[id];

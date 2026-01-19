@@ -268,7 +268,7 @@
   },
   "dependencies": {
     "@astrojs/compiler": "^2.13.0",
-    "prettier": "^3.7.4",
+    "prettier": "^3.8.0",
     "prettier-plugin-astro": "^0.14.1"
   }
 }
