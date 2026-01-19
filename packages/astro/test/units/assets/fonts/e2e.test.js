@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { readFile, rm } from 'node:fs/promises';
 import { describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import colors from 'piccolore';
 import { DEFAULTS } from '../../../../dist/assets/fonts/constants.js';
 import { collectComponentData } from '../../../../dist/assets/fonts/core/collect-component-data.js';
@@ -138,6 +139,7 @@ describe('Fonts E2E', () => {
 				},
 			],
 		});
+		const localOriginalUrl = fileURLToPath(new URL('./data/fonts/test.woff2', import.meta.url));
 		const localUrl =
 			Array.from(result.fontFileById.keys()).find((e) => e.startsWith('font-test-400-normal-')) ??
 			'';
@@ -147,21 +149,21 @@ describe('Fonts E2E', () => {
 					'font-roboto-400-italic-latin-e473890ddd4ee723.woff2',
 					{
 						init: undefined,
-						url: '/font-roboto-400-italic-latin-e473890ddd4ee723.woff2',
+						url: 'https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-400-italic.woff2',
 					},
 				],
 				[
 					'font-roboto-400-normal-latin-4be39bb0bc16cc61.woff2',
 					{
 						init: undefined,
-						url: '/font-roboto-400-normal-latin-4be39bb0bc16cc61.woff2',
+						url: 'https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-400-normal.woff2',
 					},
 				],
 				[
 					localUrl,
 					{
 						init: undefined,
-						url: `/${localUrl}`,
+						url: localOriginalUrl,
 					},
 				],
 			]),
@@ -281,6 +283,7 @@ describe('Fonts E2E', () => {
 				},
 			],
 		});
+		const localOriginalUrl = fileURLToPath(new URL('./data/fonts/test.woff2', import.meta.url));
 		const localUrl =
 			Array.from(result.fontFileById.keys()).find((e) => e.startsWith('font-test-400-normal-')) ??
 			'';
@@ -290,21 +293,21 @@ describe('Fonts E2E', () => {
 					'font-roboto-500-normal-latin-0f94d1c6c8982360.woff2',
 					{
 						init: undefined,
-						url: '/font-roboto-500-normal-latin-0f94d1c6c8982360.woff2',
+						url: 'https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-500-normal.woff2',
 					},
 				],
 				[
 					'font-roboto-700-italic-latin-f291476ed7fdb908.woff2',
 					{
 						init: undefined,
-						url: '/font-roboto-700-italic-latin-f291476ed7fdb908.woff2',
+						url: 'https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-700-italic.woff2',
 					},
 				],
 				[
 					localUrl,
 					{
 						init: undefined,
-						url: `/${localUrl}`,
+						url: localOriginalUrl,
 					},
 				],
 			]),
@@ -312,7 +315,6 @@ describe('Fonts E2E', () => {
 				[
 					'--font-roboto',
 					[
-						// TODO: should be included
 						{
 							src: [
 								{
