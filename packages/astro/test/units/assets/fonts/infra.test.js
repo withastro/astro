@@ -113,9 +113,9 @@ describe('fonts infra', () => {
 				fetch,
 			});
 
-			await fontFetcher.fetch({ hash: 'abc', url: 'def', init: undefined });
-			await fontFetcher.fetch({ hash: 'foo', url: 'bar', init: undefined });
-			await fontFetcher.fetch({ hash: 'abc', url: 'def', init: undefined });
+			await fontFetcher.fetch({ id: 'abc', url: 'def', init: undefined });
+			await fontFetcher.fetch({ id: 'foo', url: 'bar', init: undefined });
+			await fontFetcher.fetch({ id: 'abc', url: 'def', init: undefined });
 
 			assert.deepStrictEqual([...storage.store.keys()], ['abc', 'foo']);
 			assert.deepStrictEqual(filesUrls, []);
@@ -132,7 +132,7 @@ describe('fonts infra', () => {
 				fetch,
 			});
 
-			await fontFetcher.fetch({ hash: 'abc', url: '/foo/bar', init: undefined });
+			await fontFetcher.fetch({ id: 'abc', url: '/foo/bar', init: undefined });
 
 			assert.deepStrictEqual(filesUrls, ['/foo/bar']);
 			assert.deepStrictEqual(fetchUrls, []);
@@ -148,7 +148,7 @@ describe('fonts infra', () => {
 				fetch,
 			});
 
-			await fontFetcher.fetch({ hash: 'abc', url: 'https://example.com', init: undefined });
+			await fontFetcher.fetch({ id: 'abc', url: 'https://example.com', init: undefined });
 
 			assert.deepStrictEqual(filesUrls, []);
 			assert.deepStrictEqual(fetchUrls, ['https://example.com']);
@@ -165,13 +165,13 @@ describe('fonts infra', () => {
 			});
 
 			let error = await fontFetcher
-				.fetch({ hash: 'abc', url: '/foo/bar', init: undefined })
+				.fetch({ id: 'abc', url: '/foo/bar', init: undefined })
 				.catch((err) => err);
 			assert.equal(error instanceof Error, true);
 			assert.equal(error.cause, 'fs error');
 
 			error = await fontFetcher
-				.fetch({ hash: 'abc', url: 'https://example.com', init: undefined })
+				.fetch({ id: 'abc', url: 'https://example.com', init: undefined })
 				.catch((err) => err);
 			assert.equal(error instanceof Error, true);
 			assert.equal(error.cause instanceof Error, true);
