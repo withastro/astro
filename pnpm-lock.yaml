@@ -5921,7 +5921,7 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       preact:
-        specifier: ^10.28.1
+        specifier: ^10.28.2
         version: 10.28.2
 
   packages/integrations/react:
@@ -6096,10 +6096,10 @@ importers:
   packages/integrations/svelte/test/fixtures/async-rendering:
     dependencies:
       '@astrojs/svelte':
-        specifier: ^7.2.4
+        specifier: ^7.2.5
         version: link:../../..
       astro:
-        specifier: ^5.16.6
+        specifier: ^5.16.10
         version: link:../../../../../astro
       svelte:
         specifier: 5.46.1
@@ -6120,10 +6120,10 @@ importers:
   packages/integrations/svelte/test/fixtures/prop-types:
     dependencies:
       '@astrojs/svelte':
-        specifier: ^7.2.4
+        specifier: ^7.2.5
         version: link:../../..
       astro:
-        specifier: ^5.16.6
+        specifier: ^5.16.10
         version: link:../../../../../astro
       svelte:
         specifier: ^5.46.1
@@ -6470,7 +6470,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       vue:
-        specifier: ^3.5.13
+        specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
 
   packages/internal-helpers:
@@ -11483,9 +11483,6 @@ packages:
   dettle@1.0.5:
     resolution: {integrity: sha512-ZVyjhAJ7sCe1PNXEGveObOH9AC8QvMga3HJIghHawtG7mE4K5pW9nz/vDGAr/U7a3LWgdOzEE7ac9MURnyfaTA==}
 
-  devalue@5.6.1:
-    resolution: {integrity: sha512-jDwizj+IlEZBunHcOuuFVBnIMPAEHvTsJj0BcIp94xYguLRVBcXO853px/MyIJvbVzWdsGvrRweIUWJw8hBP7A==}
-
   devalue@5.6.2:
     resolution: {integrity: sha512-nPRkjWzzDQlsejL1WVifk5rvcFi/y1onBRxjaFMjZeR9mFpqu2gmAZ9xUB9/IEanEP/vBtGeGganC/GO1fmufg==}
 
@@ -15038,6 +15035,7 @@ packages:
   tar@7.5.1:
     resolution: {integrity: sha512-nlGpxf+hv0v7GkWBK2V9spgactGOp0qvfWRxUMjqHyzrt3SgwE48DIv/FhqPHJYLHpgW1opq3nERbz5Anq7n1g==}
     engines: {node: '>=18'}
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exhorbitant rates) by contacting i@izs.me
 
   term-size@2.2.1:
     resolution: {integrity: sha512-wK0Ri4fOGjv/XPy8SBHZChl8CM7uMc5VML7SqiQ0zG7+J5Vr+RMQDoHa2CNT6KHUnTGIXH34UDMkPzAUyapBZg==}
@@ -20660,8 +20658,6 @@ snapshots:
 
   dettle@1.0.5: {}
 
-  devalue@5.6.1: {}
-
   devalue@5.6.2: {}
 
   devlop@1.1.0:
@@ -25044,7 +25040,7 @@ snapshots:
       aria-query: 5.3.2
       axobject-query: 4.1.0
       clsx: 2.1.1
-      devalue: 5.6.1
+      devalue: 5.6.2
       esm-env: 1.2.2
       esrap: 2.2.1
       is-reference: 3.0.3
