@@ -254,7 +254,7 @@ describe('Fonts E2E', () => {
 		});
 	});
 
-	it.skip('merges families when possible', async () => {
+	it('merges families when possible', async () => {
 		const result = await run({
 			fonts: [
 				{
