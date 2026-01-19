@@ -8,22 +8,17 @@ import {
 	versionsConfig,
 } from './version.js';
 
-export type ReactCompilerLoggerEvent = {
-	[key: string]: unknown;
-};
-
 type ReactCompilerOptions = {
 	compilationMode?: 'infer' | 'annotation' | 'syntax' | 'all';
 	target?: '17' | '18' | '19';
 	panicThreshold?: 'none' | 'critical_errors' | 'all_errors';
 	logger?: {
-		logEvent: (filename: string | null, event: ReactCompilerLoggerEvent) => void;
+		logEvent: (filename: string | null, event: any) => void;
 	} | null;
 	gating?: {
 		source: string;
 		importSpecifierName: string;
 	} | null;
-	[key: string]: unknown;
 };
 
 export type ReactIntegrationOptions = Pick<
