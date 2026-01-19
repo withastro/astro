@@ -16,7 +16,7 @@ export interface Hasher {
 }
 
 export interface UrlResolver {
-	resolve: (hash: string) => string;
+	resolve: (id: string) => string;
 	readonly cspResources: Array<string>;
 }
 

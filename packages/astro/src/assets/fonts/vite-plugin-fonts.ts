@@ -248,9 +248,9 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				if (!req.url) {
 					return next();
 				}
-				const hash = req.url.slice(1);
-				const associatedData = fontFileById?.get(hash);
-				if (!associatedData) {
+				const id = req.url.slice(1);
+				const fontData = fontFileById?.get(id);
+				if (!fontData) {
 					return next();
 				}
 				// We don't want the request to be cached in dev because we cache it already internally,
@@ -260,13 +260,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				res.setHeader('Expires', 0);
 
 				try {
-					// Storage should be defined at this point since initialize it called before registering
-					// the middleware. hashToUrlMap is defined at the same time so if it's not set by now,
-					// no url will be matched and this line will not be reached.
-					const data = await fontFetcher!.fetch({ hash, ...associatedData });
+					const data = await fontFetcher!.fetch({ id, ...fontData });
 
 					res.setHeader('Content-Length', data.length);
-					res.setHeader('Content-Type', `font/${fontTypeExtractor!.extract(hash)}`);
+					res.setHeader('Content-Type', `font/${fontTypeExtractor!.extract(id)}`);
 
 					res.end(data);
 				} catch (err) {
@@ -317,10 +314,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 						`Copying fonts (${fontFileById.size} file${fontFileById.size === 1 ? '' : 's'})...`,
 					);
 					await Promise.all(
-						Array.from(fontFileById.entries()).map(async ([hash, associatedData]) => {
-							const data = await fontFetcher!.fetch({ hash, ...associatedData });
+						Array.from(fontFileById.entries()).map(async ([id, associatedData]) => {
+							const data = await fontFetcher!.fetch({ id, ...associatedData });
 							try {
-								writeFileSync(new URL(hash, fontsDir), data);
+								writeFileSync(new URL(id, fontsDir), data);
 							} catch (cause) {
 								throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
 							}

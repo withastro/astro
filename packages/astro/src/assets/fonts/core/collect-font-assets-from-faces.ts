@@ -59,7 +59,7 @@ export function collectFontAssetsFromFaces({
 			}
 
 			const collected: CollectedFontForMetrics = {
-				hash: id,
+				id,
 				url: originalUrl,
 				init: font.meta?.init,
 				data: {
