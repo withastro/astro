@@ -99,22 +99,21 @@ export class UnifontFontResolver implements FontResolver {
 	}: ResolveFontOptions<Record<string, any>> & { provider: FontProvider }): Promise<
 		Array<FontFaceData>
 	> {
+		const id = UnifontFontResolver.idFromProvider({
+			hasher: this.#hasher,
+			provider,
+		});
 		const { fonts } = await this.#unifont.resolveFont(
 			familyName,
 			{
 				// Options are currently namespaced by provider name, it may change in
 				// https://github.com/unjs/unifont/pull/287
 				options: {
-					[provider.name]: options,
+					[id]: options,
 				},
 				...rest,
 			},
-			[
-				UnifontFontResolver.idFromProvider({
-					hasher: this.#hasher,
-					provider,
-				}),
-			],
+			[id],
 		);
 		return fonts;
 	}
