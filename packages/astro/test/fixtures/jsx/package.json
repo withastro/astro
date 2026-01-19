@@ -12,7 +12,7 @@
     "astro": "workspace:*"
   },
   "dependencies": {
-    "preact": "^10.28.1",
+    "preact": "^10.28.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "solid-js": "^1.9.10",

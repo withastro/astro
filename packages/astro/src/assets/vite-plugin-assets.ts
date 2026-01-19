@@ -150,8 +150,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							import { inferRemoteSize as inferRemoteSizeInternal } from "astro/assets/utils/inferRemoteSize.js";
 
 							export { default as Font } from "astro/components/Font.astro";
-							import * as fontsMod from 'virtual:astro:assets/fonts/internal';
-							import { createGetFontData } from "astro/assets/fonts/runtime";
+							export * from "astro/assets/fonts/runtime";
 							
 							export const getConfiguredImageService = _getConfiguredImageService;
 
@@ -197,8 +196,6 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 								new URL(settings.config.build.server),
 							)});
 							export const getImage = async (options) => await getImageInternal(options, imageConfig);
-
-							export const getFontData = createGetFontData(fontsMod);
 						`,
 					};
 				}
