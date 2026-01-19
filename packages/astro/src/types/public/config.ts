@@ -24,9 +24,9 @@ import type {
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
 
-export type { FontProvider };
-
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
+
+export type { FontProvider };
 
 export type { CspAlgorithm, CspHash };
 

@@ -13,6 +13,7 @@ import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../type
 import { shouldInlineAsset } from './util.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 import { CSS_LANGS_RE } from '../../viteUtils.js';
+import { normalizeEntryId } from './plugin-component-entry.js';
 
 /***** ASTRO PLUGIN *****/
 
@@ -138,6 +139,71 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							}
 						}
 					}
+
+					// Handle CSS with cssScopeTo metadata for conditionally rendered components.
+					// These components may not be in the server build (due to conditional rendering)
+					// but are in the client build. We need to ensure their CSS is included.
+					for (const id of Object.keys(chunk.modules)) {
+						const moduleInfo = this.getModuleInfo(id);
+						const cssScopeTo = moduleInfo?.meta?.vite?.cssScopeTo as [string, string] | undefined;
+						if (cssScopeTo) {
+							const [scopedToModule, scopedToExport] = cssScopeTo;
+							const renderedExports = renderedComponentExports.get(scopedToModule);
+							// If the component's export is rendered in the client build,
+							// ensure its CSS is associated with the pages that use it
+							if (renderedExports?.includes(scopedToExport)) {
+								// Walk up from the scoped-to module to find pages or scripts
+								const parentModuleInfos = getParentExtendedModuleInfos(
+									scopedToModule,
+									this,
+									hasAssetPropagationFlag,
+								);
+								for (const { info: pageInfo, depth, order } of parentModuleInfos) {
+									if (moduleIsTopLevelPage(pageInfo)) {
+										const pageData = getPageDataByViteID(internals, pageInfo.id);
+										if (pageData) {
+											appendCSSToPage(pageData, meta, pagesToCss, depth, order);
+										}
+									}
+									// For hydrated components, check if this parent is a script/component entry
+									// that's tracked in pagesByScriptId
+									const pageDatas = internals.pagesByScriptId.get(pageInfo.id);
+									if (pageDatas) {
+										for (const pageData of pageDatas) {
+											appendCSSToPage(pageData, meta, pagesToCss, -1, order);
+										}
+									}
+								}
+
+								// If we couldn't find a page through normal traversal,
+								// check if any parent in the chain is a hydrated component and
+								// use the pagesByHydratedComponent mapping from the server build.
+								let addedToAnyPage = false;
+								for (const importedCssImport of meta.importedCss) {
+									for (const pageData of internals.pagesByKeys.values()) {
+										const cssToInfoRecord = pagesToCss[pageData.moduleSpecifier];
+										if (cssToInfoRecord && importedCssImport in cssToInfoRecord) {
+											addedToAnyPage = true;
+											break;
+										}
+									}
+								}
+								if (!addedToAnyPage) {
+									// Walk up the parent chain and check if any parent is a hydrated component
+									for (const { info: parentInfo } of parentModuleInfos) {
+										const normalizedParent = normalizeEntryId(parentInfo.id);
+										// Check if this parent is tracked as a hydrated component
+										const pages = internals.pagesByHydratedComponent.get(normalizedParent);
+										if (pages) {
+											for (const pageData of pages) {
+												appendCSSToPage(pageData, meta, pagesToCss, -1, -1);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 
 				// For this CSS chunk, walk parents until you find a page. Add the CSS to that page.
@@ -218,6 +284,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 		},
 		async generateBundle(_outputOptions, bundle) {
 			const inlineConfig = settings.config.build.inlineStylesheets;
+
 			Object.entries(bundle).forEach(([id, stylesheet]) => {
 				if (
 					stylesheet.type !== 'asset' ||
@@ -251,7 +318,23 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				internals.pagesByKeys.forEach((pageData) => {
 					const orderingInfo = pagesToCss[pageData.moduleSpecifier]?.[stylesheet.fileName];
 					if (orderingInfo !== undefined) {
-						pageData.styles.push({ ...orderingInfo, sheet });
+						// Check if this stylesheet was already added to this page.
+						// We check both inline (by content) and external (by src) styles to prevent
+						// duplicates that can occur when CSS is imported from both a page's frontmatter
+						// and a component's script tag, or when the same plugin runs in both SSR and client builds.
+						const alreadyAdded = pageData.styles.some((s) => {
+							if (s.sheet.type === 'external' && sheet.type === 'external') {
+								return s.sheet.src === sheet.src;
+							}
+							if (s.sheet.type === 'inline' && sheet.type === 'inline') {
+								return s.sheet.content === sheet.content;
+							}
+							return false;
+						});
+
+						if (!alreadyAdded) {
+							pageData.styles.push({ ...orderingInfo, sheet });
+						}
 						sheetAddedToPage = true;
 					}
 				});
@@ -270,8 +353,18 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 					sheetAddedToPage = true;
 				}
 
-				if (toBeInlined && sheetAddedToPage) {
-					// CSS is already added to all used pages, we can delete it from the bundle
+				const wasInlined = toBeInlined && sheetAddedToPage;
+				// stylesheets already referenced as an asset by a chunk will not be inlined by
+				// this plugin, but should not be considered orphaned
+				const wasAddedToChunk = Object.values(bundle).some(
+					(chunk) => chunk.type === 'chunk' && chunk.viteMetadata?.importedAssets?.has(id),
+				);
+				const isOrphaned = !sheetAddedToPage && !wasAddedToChunk;
+
+				if (wasInlined || isOrphaned) {
+					// wasInlined : CSS is already added to all used pages
+					// isOrphaned : CSS is already used in a merged chunk
+					// we can delete it from the bundle
 					// and make sure no chunks reference it via `importedCss` (for Vite preloading)
 					// to avoid duplicate CSS.
 					delete bundle[id];

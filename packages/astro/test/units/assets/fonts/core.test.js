@@ -10,9 +10,9 @@ import { FakeFontMetricsResolver, FakeHasher, SpyUrlProxy } from './utils.js';
 
 describe('fonts core', () => {
 	describe('resolveFamily()', () => {
-		it('removes quotes correctly', async () => {
+		it('removes quotes correctly', () => {
 			const hasher = new FakeHasher('xxx');
-			let family = await resolveFamily({
+			let family = resolveFamily({
 				family: {
 					provider: 'local',
 					name: 'Test',
@@ -29,15 +29,11 @@ describe('fonts core', () => {
 				localProviderUrlResolver: {
 					resolve: (url) => url,
 				},
-				remoteFontProviderResolver: {
-					// @ts-expect-error
-					resolve: async () => ({}),
-				},
 			});
 			assert.equal(family.name, 'Test');
 			assert.equal(family.nameWithHash, 'Test-xxx');
 
-			family = await resolveFamily({
+			family = resolveFamily({
 				family: {
 					provider: 'local',
 					name: '"Foo bar"',
@@ -54,17 +50,13 @@ describe('fonts core', () => {
 				localProviderUrlResolver: {
 					resolve: (url) => url,
 				},
-				remoteFontProviderResolver: {
-					// @ts-expect-error
-					resolve: async () => ({}),
-				},
 			});
 			assert.equal(family.name, 'Foo bar');
 			assert.equal(family.nameWithHash, 'Foo bar-xxx');
 		});
 
-		it('resolves local variant correctly', async () => {
-			const family = await resolveFamily({
+		it('resolves local variant correctly', () => {
+			const family = resolveFamily({
 				family: {
 					provider: 'local',
 					name: 'Test',
@@ -81,10 +73,6 @@ describe('fonts core', () => {
 				localProviderUrlResolver: {
 					resolve: (url) => url + url,
 				},
-				remoteFontProviderResolver: {
-					// @ts-expect-error
-					resolve: async () => ({}),
-				},
 			});
 			if (family.provider === 'local') {
 				assert.deepStrictEqual(
@@ -96,36 +84,8 @@ describe('fonts core', () => {
 			}
 		});
 
-		it('resolves remote providers', async () => {
-			const provider = () => {};
-			const family = await resolveFamily({
-				family: {
-					provider: {
-						entrypoint: '',
-					},
-					name: 'Test',
-					cssVariable: '--test',
-				},
-				hasher: new FakeHasher(),
-				localProviderUrlResolver: {
-					resolve: (url) => url,
-				},
-				remoteFontProviderResolver: {
-					// @ts-expect-error
-					resolve: async () => ({
-						provider,
-					}),
-				},
-			});
-			if (family.provider === 'local') {
-				assert.fail('Should be a remote provider');
-			} else {
-				assert.deepStrictEqual(family.provider, { provider });
-			}
-		});
-
-		it('dedupes properly', async () => {
-			let family = await resolveFamily({
+		it('dedupes properly', () => {
+			let family = resolveFamily({
 				family: {
 					provider: 'local',
 					name: '"Foo bar"',
@@ -143,16 +103,15 @@ describe('fonts core', () => {
 				localProviderUrlResolver: {
 					resolve: (url) => url,
 				},
-				remoteFontProviderResolver: {
-					// @ts-expect-error
-					resolve: async () => ({}),
-				},
 			});
 			assert.deepStrictEqual(family.fallbacks, ['foo', 'bar']);
 
-			family = await resolveFamily({
+			family = resolveFamily({
 				family: {
-					provider: { entrypoint: '' },
+					provider: {
+						name: 'xxx',
+						resolveFont: () => undefined,
+					},
 					name: '"Foo bar"',
 					cssVariable: '--test',
 					weights: [400, '400', '500', 'bold'],
@@ -164,10 +123,6 @@ describe('fonts core', () => {
 				hasher: new FakeHasher(),
 				localProviderUrlResolver: {
 					resolve: (url) => url,
-				},
-				remoteFontProviderResolver: {
-					// @ts-expect-error
-					resolve: async () => ({}),
 				},
 			});
 
