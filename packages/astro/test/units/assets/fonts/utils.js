@@ -1,7 +1,5 @@
 // @ts-check
 
-import { UnifontFontResolver } from '../../../../dist/assets/fonts/infra/unifont-font-resolver.js';
-
 /**
  * @import { Hasher, UrlProxy, FontMetricsResolver, Storage, FontResolver } from '../../../../dist/assets/fonts/definitions'
  */
