@@ -1037,7 +1037,7 @@ describe('fonts core', () => {
 								style: 'normal',
 								weight: '400',
 							},
-							hash: 'https://example.com/font.woff2',
+							id: 'https://example.com/font.woff2',
 							init: undefined,
 							url: 'https://example.com/font.woff2',
 						},
@@ -1083,7 +1083,7 @@ describe('fonts core', () => {
 								style: 'normal',
 								weight: '400',
 							},
-							hash: 'https://example.com/font.woff2',
+							id: 'https://example.com/font.woff2',
 							init: undefined,
 							url: 'https://example.com/font.woff2',
 						},
@@ -1409,7 +1409,7 @@ describe('fonts core', () => {
 				await optimizeFallbacks({
 					family,
 					fallbacks: [],
-					collectedFonts: [{ url: '', hash: '', data: {}, init: undefined }],
+					collectedFonts: [{ url: '', id: '', data: {}, init: undefined }],
 					systemFallbacksProvider,
 					fontMetricsResolver,
 				}),
@@ -1435,7 +1435,7 @@ describe('fonts core', () => {
 				await optimizeFallbacks({
 					family,
 					fallbacks: ['foo'],
-					collectedFonts: [{ url: '', hash: '', data: {}, init: undefined }],
+					collectedFonts: [{ url: '', id: '', data: {}, init: undefined }],
 					systemFallbacksProvider,
 					fontMetricsResolver,
 				}),
@@ -1448,7 +1448,7 @@ describe('fonts core', () => {
 				await optimizeFallbacks({
 					family,
 					fallbacks: ['cursive'],
-					collectedFonts: [{ url: '', hash: '', data: {}, init: undefined }],
+					collectedFonts: [{ url: '', id: '', data: {}, init: undefined }],
 					systemFallbacksProvider: {
 						getLocalFonts: () => [],
 						getMetricsForLocalFont: systemFallbacksProvider.getMetricsForLocalFont,
@@ -1467,7 +1467,7 @@ describe('fonts core', () => {
 						uniqueName: 'Arial-xxx',
 					},
 					fallbacks: ['sans-serif'],
-					collectedFonts: [{ url: '', hash: '', data: {}, init: undefined }],
+					collectedFonts: [{ url: '', id: '', data: {}, init: undefined }],
 					systemFallbacksProvider,
 					fontMetricsResolver,
 				}),
@@ -1479,7 +1479,7 @@ describe('fonts core', () => {
 			const result = await optimizeFallbacks({
 				family,
 				fallbacks: ['foo', 'sans-serif'],
-				collectedFonts: [{ url: '', hash: '', data: {}, init: undefined }],
+				collectedFonts: [{ url: '', id: '', data: {}, init: undefined }],
 				systemFallbacksProvider,
 				fontMetricsResolver,
 			});
@@ -1491,8 +1491,8 @@ describe('fonts core', () => {
 				family,
 				fallbacks: ['foo', 'sans-serif'],
 				collectedFonts: [
-					{ url: '', hash: '', data: { weight: '400' }, init: undefined },
-					{ url: '', hash: '', data: { weight: '500' }, init: undefined },
+					{ url: '', id: '', data: { weight: '400' }, init: undefined },
+					{ url: '', id: '', data: { weight: '500' }, init: undefined },
 				],
 				systemFallbacksProvider,
 				fontMetricsResolver,

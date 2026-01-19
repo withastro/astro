@@ -17,7 +17,7 @@ export class FsFontFileContentResolver implements FontFileContentResolver {
 			return url;
 		}
 		try {
-			// We use the url and the file content for the hash generation because:
+			// We use the url and the file content for the id generation because:
 			// - The URL is not hashed unlike remote providers
 			// - A font file can renamed and swapped so we would incorrectly cache it
 			return url + this.#readFileSync(url);

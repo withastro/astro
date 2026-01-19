@@ -32,8 +32,8 @@ export class CachedFontFetcher implements FontFetcher {
 		return data;
 	}
 
-	async fetch({ hash, url, init }: FontFileData): Promise<Buffer> {
-		return await this.#cache(this.#storage, hash, async () => {
+	async fetch({ id, url, init }: FontFileData): Promise<Buffer> {
+		return await this.#cache(this.#storage, id, async () => {
 			try {
 				if (isAbsolute(url)) {
 					return await this.#readFile(url);

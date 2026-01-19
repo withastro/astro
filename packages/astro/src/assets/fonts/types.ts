@@ -214,16 +214,16 @@ export type Defaults = Required<
 >;
 
 export interface FontFileData {
-	hash: string;
+	id: string;
 	url: string;
 	init: RequestInit | undefined;
 }
 
 /**
- * Holds associations of hash and original font file URLs, so they can be
- * downloaded whenever the hash is requested.
+ * Holds associations of id and original font file URLs, so they can be
+ * downloaded whenever the id is requested.
  */
-export type FontFileById = Map<FontFileData['hash'], Pick<FontFileData, 'url' | 'init'>>;
+export type FontFileById = Map<FontFileData['id'], Pick<FontFileData, 'url' | 'init'>>;
 
 export type ComponentDataByCssVariable = Map<string, { preloads: Array<PreloadData>; css: string }>;
 

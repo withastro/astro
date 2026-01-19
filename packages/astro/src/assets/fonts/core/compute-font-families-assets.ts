@@ -47,8 +47,8 @@ export async function computeFontFamiliesAssets({
 	const fontFamilyAssetsByUniqueKey: FontFamilyAssetsByUniqueKey = new Map();
 
 	/**
-	 * Holds associations of hash and original font file URLs, so they can be
-	 * downloaded whenever the hash is requested.
+	 * Holds associations of id and original font file URLs, so they can be
+	 * downloaded whenever the id is requested.
 	 */
 	const fontFileById: FontFileById = new Map();
 
