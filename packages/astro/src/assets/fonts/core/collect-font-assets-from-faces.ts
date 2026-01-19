@@ -44,7 +44,7 @@ export function collectFontAssetsFromFaces({
 			});
 
 			if (!fontFilesIds.has(id) && !fontFileById.has(id)) {
-				fontFileById.set(id, { url: source.url, init: font.meta?.init });
+				fontFileById.set(id, { url: originalUrl, init: font.meta?.init });
 				// We only collect the first URL to avoid preloading fallback sources (eg. we only
 				// preload woff2 if woff is available)
 				if (index === 0) {

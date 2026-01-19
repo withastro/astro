@@ -778,14 +778,14 @@ describe('fonts core', () => {
 							'http://example.com/font.woff',
 							{
 								init: undefined,
-								url: 'resolved:http://example.com/font.woff',
+								url: 'http://example.com/font.woff',
 							},
 						],
 						[
 							'https://example.com/font.woff2',
 							{
 								init: undefined,
-								url: 'resolved:https://example.com/font.woff2',
+								url: 'https://example.com/font.woff2',
 							},
 						],
 					]),
@@ -862,28 +862,28 @@ describe('fonts core', () => {
 							'http://example.com/font.woff',
 							{
 								init: undefined,
-								url: 'resolved:http://example.com/font.woff',
+								url: 'http://example.com/font.woff',
 							},
 						],
 						[
 							'https://example.com/font.woff2',
 							{
 								init: undefined,
-								url: 'resolved:https://example.com/font.woff2',
+								url: 'https://example.com/font.woff2',
 							},
 						],
 						[
 							'https://example2.com/font.woff',
 							{
 								init: undefined,
-								url: 'resolved:https://example2.com/font.woff',
+								url: 'https://example2.com/font.woff',
 							},
 						],
 						[
 							'https://example2.com/font.woff2',
 							{
 								init: undefined,
-								url: 'resolved:https://example2.com/font.woff2',
+								url: 'https://example2.com/font.woff2',
 							},
 						],
 					]),
