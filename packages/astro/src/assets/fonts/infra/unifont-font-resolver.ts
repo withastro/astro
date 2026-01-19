@@ -11,9 +11,22 @@ type NonEmptyProviders = [
 
 export class UnifontFontResolver implements FontResolver {
 	readonly #unifont: Unifont<NonEmptyProviders>;
+	readonly #hasher: Hasher;
 
-	private constructor({ unifont }: { unifont: Unifont<NonEmptyProviders> }) {
+	private constructor({
+		unifont,
+		hasher,
+	}: { unifont: Unifont<NonEmptyProviders>; hasher: Hasher }) {
 		this.#unifont = unifont;
+		this.#hasher = hasher;
+	}
+
+	static idFromProvider({ hasher, provider }: { hasher: Hasher; provider: FontProvider }): string {
+		const hash = hasher.hashObject({
+			name: provider.name,
+			...provider.config,
+		});
+		return `${provider.name}-${hash}`;
 	}
 
 	static astroToUnifontProvider(astroProvider: FontProvider): Provider {
@@ -37,8 +50,7 @@ export class UnifontFontResolver implements FontResolver {
 		families: Array<ResolvedFontFamily>;
 		hasher: Hasher;
 	}) {
-		const hashes = new Set<string>();
-		const providers: Array<Provider> = [];
+		const providers = new Map<string, Provider>();
 
 		for (const { provider } of families) {
 			// The local provider logic happens outside of unifont
@@ -46,29 +58,20 @@ export class UnifontFontResolver implements FontResolver {
 				continue;
 			}
 
-			const unifontProvider = this.astroToUnifontProvider(provider);
-			const hash = hasher.hashObject({
-				name: unifontProvider._name,
-				...provider.config,
-			});
-			// Makes sure every font uses the right instance of a given provider
-			// if this provider is provided several times with different options
-			// We have to mutate the unifont provider name because unifont deduplicates
-			// based on the name.
-			unifontProvider._name += `-${hash}`;
-			// We set the provider name so we can tell unifont what provider to use when
-			// resolving font faces
-			// TODO: mutating is confusing. Instead, keep an internal record of providers
-			// Also update PassthroughFontResolver to use the same kind of pattern
-			provider.name = unifontProvider._name;
+			const id = this.idFromProvider({ hasher, provider });
 
-			if (!hashes.has(hash)) {
-				hashes.add(hash);
-				providers.push(unifontProvider);
+			if (!providers.has(id)) {
+				const unifontProvider = this.astroToUnifontProvider(provider);
+				// Makes sure every font uses the right instance of a given provider
+				// if this provider is provided several times with different options
+				// We have to mutate the unifont provider name because unifont deduplicates
+				// based on the name.
+				unifontProvider._name = this.idFromProvider({ hasher, provider });
+				providers.set(id, unifontProvider);
 			}
 		}
 
-		return providers as NonEmptyProviders;
+		return Array.from(providers.values()) as NonEmptyProviders;
 	}
 
 	static async create({
@@ -86,6 +89,7 @@ export class UnifontFontResolver implements FontResolver {
 				// TODO: consider enabling, would require new astro errors
 				throwOnError: false,
 			}),
+			hasher,
 		});
 	}
 
@@ -94,23 +98,35 @@ export class UnifontFontResolver implements FontResolver {
 		provider,
 		options,
 		...rest
-	}: ResolveFontOptions<Record<string, any>> & { provider: string }): Promise<Array<FontFaceData>> {
+	}: ResolveFontOptions<Record<string, any>> & { provider: FontProvider }): Promise<
+		Array<FontFaceData>
+	> {
 		const { fonts } = await this.#unifont.resolveFont(
 			familyName,
 			{
 				// Options are currently namespaced by provider name, it may change in
 				// https://github.com/unjs/unifont/pull/287
 				options: {
-					[provider]: options,
+					[provider.name]: options,
 				},
 				...rest,
 			},
-			[provider],
+			[
+				UnifontFontResolver.idFromProvider({
+					hasher: this.#hasher,
+					provider,
+				}),
+			],
 		);
 		return fonts;
 	}
 
-	async listFonts({ provider }: { provider: string }): Promise<string[] | undefined> {
-		return await this.#unifont.listFonts([provider]);
+	async listFonts({ provider }: { provider: FontProvider }): Promise<string[] | undefined> {
+		return await this.#unifont.listFonts([
+			UnifontFontResolver.idFromProvider({
+				hasher: this.#hasher,
+				provider,
+			}),
+		]);
 	}
 }

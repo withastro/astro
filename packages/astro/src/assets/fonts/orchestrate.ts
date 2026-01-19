@@ -196,7 +196,7 @@ export async function orchestrate({
 		} else {
 			const fonts = await fontResolver.resolveFont({
 				familyName: family.name,
-				provider: family.provider.name,
+				provider: family.provider,
 				// We do not merge the defaults, we only provide defaults as a fallback
 				weights: family.weights ?? defaults.weights,
 				styles: family.styles ?? defaults.styles,
@@ -209,7 +209,7 @@ export async function orchestrate({
 					'assets',
 					`No data found for font family ${bold(family.name)}. Review your configuration`,
 				);
-				const availableFamilies = await fontResolver.listFonts({ provider: family.provider.name });
+				const availableFamilies = await fontResolver.listFonts({ provider: family.provider });
 				if (
 					availableFamilies &&
 					availableFamilies.length > 0 &&
