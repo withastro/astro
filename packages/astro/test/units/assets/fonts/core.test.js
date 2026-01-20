@@ -1,11 +1,14 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { createGetFontData } from '../../../../dist/assets/fonts/core/create-get-font-data.js';
+import { filterPreloads } from '../../../../dist/assets/fonts/core/filter-preloads.js';
 import { normalizeRemoteFontFaces } from '../../../../dist/assets/fonts/core/normalize-remote-font-faces.js';
 import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-fallbacks.js';
 import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-families.js';
 import { RealFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
 import { RealSystemFallbacksProvider } from '../../../../dist/assets/fonts/infra/system-fallbacks-provider.js';
+import { createGetFontBuffer } from '../../../../dist/assets/fonts/runtime.js';
 import { FakeFontMetricsResolver, FakeHasher, SpyUrlProxy } from './utils.js';
 
 describe('fonts core', () => {
@@ -591,6 +594,223 @@ describe('fonts core', () => {
 					},
 				},
 			]);
+		});
+	});
+
+	describe('filterPreloads()', () => {
+		it('returns null if it should not preload', () => {
+			assert.equal(filterPreloads([], false), null);
+		});
+
+		it('returns everything if it should preload all', () => {
+			assert.deepStrictEqual(
+				filterPreloads(
+					[
+						{
+							style: 'normal',
+							subset: undefined,
+							type: 'woff2',
+							url: 'foo',
+							weight: undefined,
+						},
+						{
+							style: 'italic',
+							subset: 'latin',
+							type: 'otf',
+							url: 'bar',
+							weight: undefined,
+						},
+					],
+					true,
+				),
+				[
+					{
+						style: 'normal',
+						subset: undefined,
+						type: 'woff2',
+						url: 'foo',
+						weight: undefined,
+					},
+					{
+						style: 'italic',
+						subset: 'latin',
+						type: 'otf',
+						url: 'bar',
+						weight: undefined,
+					},
+				],
+			);
+		});
+
+		it('returns filtered data', () => {
+			assert.deepStrictEqual(
+				filterPreloads(
+					[
+						{
+							style: 'normal',
+							subset: undefined,
+							type: 'woff2',
+							url: 'foo',
+							weight: undefined,
+						},
+						{
+							style: 'italic',
+							subset: 'latin',
+							type: 'otf',
+							url: 'bar',
+							weight: undefined,
+						},
+					],
+					[
+						{
+							style: 'normal',
+						},
+					],
+				),
+				[
+					{
+						style: 'normal',
+						subset: undefined,
+						type: 'woff2',
+						url: 'foo',
+						weight: undefined,
+					},
+				],
+			);
+		});
+
+		it('returns variable weight', () => {
+			assert.deepStrictEqual(
+				filterPreloads(
+					[
+						{
+							style: 'normal',
+							subset: undefined,
+							type: 'woff2',
+							url: 'foo',
+							weight: '500 900',
+						},
+						{
+							style: 'italic',
+							subset: 'latin',
+							type: 'otf',
+							url: 'bar',
+							weight: '100 900',
+						},
+					],
+					[
+						{
+							weight: '400',
+						},
+					],
+				),
+				[
+					{
+						style: 'italic',
+						subset: 'latin',
+						type: 'otf',
+						url: 'bar',
+						weight: '100 900',
+					},
+				],
+			);
+
+			assert.deepStrictEqual(
+				filterPreloads(
+					[
+						{
+							style: 'normal',
+							subset: undefined,
+							type: 'woff2',
+							url: 'foo',
+							weight: '500 900',
+						},
+						{
+							style: 'italic',
+							subset: 'latin',
+							type: 'otf',
+							url: 'bar',
+							weight: '100 900',
+						},
+					],
+					[
+						{
+							weight: ' 100 900',
+						},
+					],
+				),
+				[
+					{
+						style: 'italic',
+						subset: 'latin',
+						type: 'otf',
+						url: 'bar',
+						weight: '100 900',
+					},
+				],
+			);
+		});
+	});
+
+	describe('createGetFontData()', () => {
+		it('throws if there is no consumable map', () => {
+			assert.throws(() => createGetFontData({ consumableMap: undefined })('foo'));
+		});
+
+		it('throws if no data can be found', () => {
+			assert.throws(() => createGetFontData({ consumableMap: new Map([['bar', []]]) })('foo'));
+		});
+
+		it('works when there is data', () => {
+			const data = createGetFontData({ consumableMap: new Map([['bar', []]]) })('bar');
+			assert.deepStrictEqual(data, []);
+		});
+	});
+
+	describe('createGetFontBuffer()', () => {
+		it('throws if there is are no bufferImports', async () => {
+			assert.rejects(() => createGetFontBuffer({ bufferImports: undefined })('foo'));
+		});
+
+		it('throws if hash cannot be found in buffer imports', async () => {
+			assert.rejects(() =>
+				createGetFontBuffer({
+					bufferImports: {
+						bar: async () => ({ default: Buffer.alloc(4) }),
+					},
+				})('foo'),
+			);
+		});
+
+		it('throws if import fails', async () => {
+			assert.rejects(() =>
+				createGetFontBuffer({
+					bufferImports: {
+						foo: async () => {
+							throw new Error('unexpected');
+						},
+					},
+				})('foo'),
+			);
+		});
+
+		it('throws if import result is not a buffer', async () => {
+			assert.rejects(() =>
+				createGetFontBuffer({
+					bufferImports: {
+						foo: async () => ({ default: null }),
+					},
+				})('foo'),
+			);
+		});
+
+		it('works', async () => {
+			const result = await createGetFontBuffer({
+				bufferImports: {
+					foo: async () => ({ default: Buffer.alloc(4) }),
+				},
+			})('foo');
+			assert.equal(result instanceof Buffer, true);
 		});
 	});
 });
