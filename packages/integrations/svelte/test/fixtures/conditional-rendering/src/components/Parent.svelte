@@ -1,7 +1,9 @@
 <script lang="ts">
   import Child from './Child.svelte';
 
-  let showChild = $state(false);
+  // Use a dynamic condition that can't be statically analyzed
+  // The child may or may not render at runtime, so its CSS must be included
+  let showChild = $state(Math.random() > 0.5);
 </script>
 
 <div class="parent">
