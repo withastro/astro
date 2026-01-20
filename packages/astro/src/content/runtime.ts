@@ -6,7 +6,7 @@ import type * as zCore from 'zod/v4/core';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { prependForwardSlash } from '../core/path.js';
+import { isRemotePath, prependForwardSlash } from '../core/path.js';
 import {
 	type AstroComponentFactory,
 	createComponent,
@@ -606,7 +606,7 @@ async function render({
 						.map((link: any) => {
 							return renderUniqueStylesheet(result, {
 								type: 'external',
-								src: prependForwardSlash(link),
+								src: isRemotePath(link) ? link : prependForwardSlash(link),
 							});
 						})
 						.join('');
