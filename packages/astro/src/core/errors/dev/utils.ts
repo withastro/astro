@@ -241,7 +241,7 @@ export function getDocsForError(err: ErrorWithMetadata): string | undefined {
 	}
 }
 
-const linkRegex = /\[([^[]+)\]\((.*)\)/g;
+const linkRegex = /\[([^[]+)\]\(([^)]*)\)/g;
 const boldRegex = /\*\*(.+)\*\*/g;
 const urlRegex = / ((?:https?|ftp):\/\/[-\w+&@#\\/%?=~|!:,.;]*[-\w+&@#\\/%=~|])/gi;
 const codeRegex = /`([^`]+)`/g;
