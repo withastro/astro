@@ -308,38 +308,38 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 		},
 		async buildEnd() {
-		if (sync || settings.config.experimental.fonts!.length === 0 || !isBuild) {
-			cleanup();
-			return;
-		}
+			if (sync || settings.config.experimental.fonts!.length === 0 || !isBuild) {
+				cleanup();
+				return;
+			}
 
-		try {
-			const dir = getClientOutputDirectory(settings);
-			const fontsDir = new URL(`.${assetsDir}`, dir);
 			try {
-				mkdirSync(fontsDir, { recursive: true });
-			} catch (cause) {
-				throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
+				const dir = getClientOutputDirectory(settings);
+				const fontsDir = new URL(`.${assetsDir}`, dir);
+				try {
+					mkdirSync(fontsDir, { recursive: true });
+				} catch (cause) {
+					throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
+				}
+				if (fontFileDataMap) {
+					logger.info(
+						'assets',
+						`Copying fonts (${fontFileDataMap.size} file${fontFileDataMap.size === 1 ? '' : 's'})...`,
+					);
+					await Promise.all(
+						Array.from(fontFileDataMap.entries()).map(async ([hash, associatedData]) => {
+							const data = await fontFetcher!.fetch({ hash, ...associatedData });
+							try {
+								writeFileSync(new URL(hash, fontsDir), data);
+							} catch (cause) {
+								throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
+							}
+						}),
+					);
+				}
+			} finally {
+				cleanup();
 			}
-			if (fontFileDataMap) {
-				logger.info(
-					'assets',
-					`Copying fonts (${fontFileDataMap.size} file${fontFileDataMap.size === 1 ? '' : 's'})...`,
-				);
-				await Promise.all(
-					Array.from(fontFileDataMap.entries()).map(async ([hash, associatedData]) => {
-						const data = await fontFetcher!.fetch({ hash, ...associatedData });
-						try {
-							writeFileSync(new URL(hash, fontsDir), data);
-						} catch (cause) {
-							throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
-						}
-					}),
-				);
-			}
-		} finally {
-			cleanup();
-		}
-	},
+		},
 	};
 }

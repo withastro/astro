@@ -218,7 +218,6 @@ describe('astro fonts', () => {
 				await fixture.fetch('/');
 			});
 
-
 			try {
 				await readdir(new URL('./dist/', fixture.config.root));
 				assert.fail('dist folder should not exist after dev server shutdown');
