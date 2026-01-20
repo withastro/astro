@@ -1,7 +1,7 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createGetFontBuffer } from '../../../../dist/assets/fonts/core/core/create-get-font-buffer.js';
+import { createGetFontBuffer } from '../../../../dist/assets/fonts/core/create-get-font-buffer.js';
 import { createGetFontData } from '../../../../dist/assets/fonts/core/create-get-font-data.js';
 import { filterPreloads } from '../../../../dist/assets/fonts/core/filter-preloads.js';
 import { normalizeRemoteFontFaces } from '../../../../dist/assets/fonts/core/normalize-remote-font-faces.js';
