@@ -1,27 +1,19 @@
 import type * as unifont from 'unifont';
 import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 import type {
-	AstroFontProvider,
 	FontFaceMetrics,
 	FontFileData,
+	FontProvider,
 	FontType,
 	GenericFallbackName,
 	PreloadData,
-	ResolvedFontProvider,
+	ResolveFontOptions,
 	Style,
 } from './types.js';
 
 export interface Hasher {
 	hashString: (input: string) => string;
 	hashObject: (input: Record<string, any>) => string;
-}
-
-export interface RemoteFontProviderModResolver {
-	resolve: (id: string) => Promise<any>;
-}
-
-export interface RemoteFontProviderResolver {
-	resolve: (provider: AstroFontProvider) => Promise<ResolvedFontProvider>;
 }
 
 export interface LocalProviderUrlResolver {
@@ -118,4 +110,11 @@ export interface Storage {
 	getItemRaw: (key: string) => Promise<Buffer | null>;
 	setItem: (key: string, value: any) => Promise<void>;
 	setItemRaw: (key: string, value: any) => Promise<void>;
+}
+
+export interface FontResolver {
+	resolveFont: (
+		options: ResolveFontOptions & { provider: FontProvider },
+	) => Promise<Array<unifont.FontFaceData>>;
+	listFonts: (options: { provider: FontProvider }) => Promise<string[] | undefined>;
 }

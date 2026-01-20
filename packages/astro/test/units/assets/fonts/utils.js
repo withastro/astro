@@ -1,7 +1,7 @@
 // @ts-check
 
 /**
- * @import { Hasher, UrlProxy, FontMetricsResolver, Storage } from '../../../../dist/assets/fonts/definitions'
+ * @import { Hasher, UrlProxy, FontMetricsResolver, Storage, FontResolver } from '../../../../dist/assets/fonts/definitions'
  */
 
 /** @implements {Storage} */
@@ -119,4 +119,55 @@ export class FakeFontMetricsResolver {
  */
 export function markdownBold(input) {
 	return `**${input}**`;
+}
+
+/** @implements {FontResolver} */
+export class PassthroughFontResolver {
+	/** @type {Map<string, import('../../../../dist/index.js').FontProvider>} */
+	#providers;
+
+	/**
+	 * @private
+	 * @param {Map<string, import('../../../../dist/index.js').FontProvider>} providers
+	 */
+	constructor(providers) {
+		this.#providers = providers;
+	}
+
+	/**
+	 * @param {{ families: Array<import('../../../../dist/assets/fonts/types').ResolvedFontFamily>; hasher: Hasher }} param0
+	 */
+	static async create({ families, hasher }) {
+		/** @type {Map<string, import('../../../../dist/index.js').FontProvider>} */
+		const providers = new Map();
+		for (const { provider } of families) {
+			if (provider === 'local') {
+				continue;
+			}
+			provider.name = `${provider.name}-${hasher.hashObject(provider.config ?? {})}`;
+			providers.set(provider.name, provider);
+		}
+		const storage = new SpyStorage();
+		await Promise.all(
+			Array.from(providers.values()).map(async (provider) => {
+				await provider.init?.({ storage });
+			}),
+		);
+		return new PassthroughFontResolver(providers);
+	}
+
+	/**
+	 * @param {import('../../../../dist/assets/fonts/types').ResolveFontOptions & { provider: import('../../../../dist/index.js').FontProvider; }} param0
+	 */
+	async resolveFont({ provider, ...rest }) {
+		const res = await this.#providers.get(provider.name)?.resolveFont(rest);
+		return res?.fonts ?? [];
+	}
+
+	/**
+	 * @param {{ provider: import('../../../../dist/index.js').FontProvider }} param0
+	 */
+	async listFonts({ provider }) {
+		return await this.#providers.get(provider.name)?.listFonts?.();
+	}
 }
