@@ -37,6 +37,50 @@
   export default defineConfig({
     legacy: {
       collectionsBackwardsCompat: true,
+## 5.16.11
+
+### Patch Changes
+
+- [#15017](https://github.com/withastro/astro/pull/15017) [`9e7a3c8`](https://github.com/withastro/astro/commit/9e7a3c86198956e558384235b71a6c12e87fc5fb) Thanks [@ixchio](https://github.com/ixchio)! - Fixes CSS double-bundling when the same CSS file is imported in both a page's frontmatter and a component's script tag
+
+- [#15225](https://github.com/withastro/astro/pull/15225) [`6fe62e1`](https://github.com/withastro/astro/commit/6fe62e169cf9e1054cba95ce4084d8a58bdd0a66) Thanks [@ematipico](https://github.com/ematipico)! - Updates to the latest version of `devalue`
+
+## 5.16.10
+
+### Patch Changes
+
+- [`2fa19c4`](https://github.com/withastro/astro/commit/2fa19c41be895e5255a8b12a43f9f9691cb57e5d) - Improved error handling in the rendering phase
+
+  Added defensive validation in `App.render()` and `#renderError()` to provide a descriptive error message when a route module doesn't have a valid page function.
+
+- [#15199](https://github.com/withastro/astro/pull/15199) [`d8e64ef`](https://github.com/withastro/astro/commit/d8e64ef77ef364b1541a5d192bcff299135d3bc8) Thanks [@ArmandPhilippot](https://github.com/ArmandPhilippot)! - Fixes the links to Astro Docs so that they match the current docs structure.
+
+- [#15169](https://github.com/withastro/astro/pull/15169) [`b803d8b`](https://github.com/withastro/astro/commit/b803d8b4b4e5e71ef4b28b23186e2786dc80a308) Thanks [@rururux](https://github.com/rururux)! - fix: fix image 500 error when moving dist directory in standalone Node
+
+- [#14622](https://github.com/withastro/astro/pull/14622) [`9b35c62`](https://github.com/withastro/astro/commit/9b35c62cb38d3507f426b872d972b1b4d7b20bc8) Thanks [@aprici7y](https://github.com/aprici7y)! - Fixes CSS url() references to public assets returning 404 in dev mode when base path is configured
+
+- [#15219](https://github.com/withastro/astro/pull/15219) [`43df4ce`](https://github.com/withastro/astro/commit/43df4ce1c6c221a751b640c45687adfa83226e7c) Thanks [@matthewp](https://github.com/matthewp)! - Upgrades the `diff` package to v8
+
+## 5.16.9
+
+### Patch Changes
+
+- [#15174](https://github.com/withastro/astro/pull/15174) [`37ab65a`](https://github.com/withastro/astro/commit/37ab65acb1af6e41d25ec29f3c04c690c7601c87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds Google Icons to built-in font providers
+
+  To start using it, access it on `fontProviders`:
+
+  ```ts
+  import { defineConfig, fontProviders } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      fonts: [
+        {
+          name: 'Material Symbols Outlined',
+          provider: fontProviders.googleicons(),
+          cssVariable: '--font-material',
+        },
+      ],
     },
   });
   ```
@@ -62,6 +106,48 @@
   ```diff
   // astro.config.mjs
   import { defineConfig, fontProviders } from 'astro/config'
+- [#15150](https://github.com/withastro/astro/pull/15150) [`a77c4f4`](https://github.com/withastro/astro/commit/a77c4f42b56b46b08064a99e9cb9a2b4bace4445) Thanks [@matthewp](https://github.com/matthewp)! - Fixes hydration for framework components inside MDX when using `Astro.slots.render()`
+
+  Previously, when multiple framework components with `client:*` directives were passed as named slots to an Astro component in MDX, only the first slot would hydrate correctly. Subsequent slots would render their HTML but fail to include the necessary hydration scripts.
+
+- [#15130](https://github.com/withastro/astro/pull/15130) [`9b726c4`](https://github.com/withastro/astro/commit/9b726c4e36bb1560badf5bf9b78783a240939124) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental Fonts API only**
+
+  Changes how font providers are implemented with updates to the `FontProvider` type
+
+  This is an implementation detail that changes how font providers are created. This process allows Astro to take more control rather than relying directly on `unifont` types. **All of Astro's built-in font providers have been updated to reflect this new type, and can be configured as before**. However, using third-party unifont providers that rely on `unifont` types will require an update to your project code.
+
+  Previously, an Astro `FontProvider` was made of a config and a runtime part. It relied directly on `unifont` types, which allowed a simple configuration for third-party unifont providers, but also coupled Astro's implementation to unifont, which was limiting.
+
+  Astro's font provider implementation is now only made of a config part with dedicated hooks. This allows for the separation of config and runtime, but requires you to create a font provider object in order to use custom font providers (e.g. third-party unifont providers, or private font registeries).
+
+  #### What should I do?
+
+  If you were using a 3rd-party `unifont` font provider, you will now need to write an Astro `FontProvider` using it under the hood. For example:
+
+  ```diff
+  // astro.config.ts
+  import { defineConfig } from "astro/config";
+  import { acmeProvider, type AcmeOptions } from '@acme/unifont-provider'
+  +import type { FontProvider } from "astro";
+  +import type { InitializedProvider } from 'unifont';
+
+  +function acme(config?: AcmeOptions): FontProvider {
+  +	const provider = acmeProvider(config);
+  +	let initializedProvider: InitializedProvider | undefined;
+  +	return {
+  +		name: provider._name,
+  +		config,
+  +		async init(context) {
+  +			initializedProvider = await provider(context);
+  +		},
+  +		async resolveFont({ familyName, ...rest }) {
+  +			return await initializedProvider?.resolveFont(familyName, rest);
+  +		},
+  +		async listFonts() {
+  +			return await initializedProvider?.listFonts?.();
+  +		},
+  +	};
+  +}
 
   export default defineConfig({
       experimental: {
@@ -336,6 +422,16 @@
 
 - Updated dependencies [[`727b0a2`](https://github.com/withastro/astro/commit/727b0a205eb765f1c36f13a73dfc69e17e44df8f)]:
   - @astrojs/markdown-remark@7.0.0-alpha.0
+  -            provider: acmeProvider({ /* ... */ }),
+  +            provider: acme({ /* ... */ }),
+              name: "Material Symbols Outlined",
+              cssVariable: "--font-material"
+          }]
+      }
+  });
+  ```
+
+- [#15147](https://github.com/withastro/astro/pull/15147) [`9cd5b87`](https://github.com/withastro/astro/commit/9cd5b875f2d45a08bfa8312ed7282a6f0f070265) Thanks [@matthewp](https://github.com/matthewp)! - Fixes scripts in components not rendering when a sibling `<Fragment slot="...">` exists but is unused
 
 ## 5.16.8
 

@@ -45,6 +45,11 @@ export interface BuildInternals {
 	pagesByScriptId: Map<string, Set<PageBuildData>>;
 
 	/**
+	 * A map for page-specific information by a hydrated component
+	 */
+	pagesByHydratedComponent: Map<string, Set<PageBuildData>>;
+
+	/**
 	 * A map of hydrated components to export names that are discovered during the SSR build.
 	 * These will be used as the top-level entrypoints for the client build.
 	 *
@@ -117,6 +122,7 @@ export function createBuildInternals(): BuildInternals {
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
 		pagesByScriptId: new Map(),
+		pagesByHydratedComponent: new Map(),
 		propagatedStylesMap: new Map(),
 		discoveredHydratedComponents: new Map(),
 		discoveredClientOnlyComponents: new Map(),
@@ -177,6 +183,26 @@ export function trackScriptPageDatas(
 		} else {
 			pageDataSet = new Set<PageBuildData>();
 			internals.pagesByScriptId.set(scriptId, pageDataSet);
+		}
+		pageDataSet.add(pageData);
+	}
+}
+
+/**
+ * Tracks hydrated components to the pages they are associated with.
+ */
+export function trackHydratedComponentPageDatas(
+	internals: BuildInternals,
+	pageData: PageBuildData,
+	hydratedComponents: string[],
+) {
+	for (const hydratedComponent of hydratedComponents) {
+		let pageDataSet: Set<PageBuildData>;
+		if (internals.pagesByHydratedComponent.has(hydratedComponent)) {
+			pageDataSet = internals.pagesByHydratedComponent.get(hydratedComponent)!;
+		} else {
+			pageDataSet = new Set<PageBuildData>();
+			internals.pagesByHydratedComponent.set(hydratedComponent, pageDataSet);
 		}
 		pageDataSet.add(pageData);
 	}

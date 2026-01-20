@@ -1,7 +1,5 @@
 // @ts-check
 
-import { UnifontFontResolver } from '../../../../dist/assets/fonts/infra/unifont-font-resolver.js';
-
 /**
  * @import { Hasher, UrlProxy, FontMetricsResolver, Storage, FontResolver } from '../../../../dist/assets/fonts/definitions'
  */
@@ -125,52 +123,51 @@ export function markdownBold(input) {
 
 /** @implements {FontResolver} */
 export class PassthroughFontResolver {
-	/** @type {Array<import('unifont').Provider>} */
+	/** @type {Map<string, import('../../../../dist/index.js').FontProvider>} */
 	#providers;
+
+	/**
+	 * @private
+	 * @param {Map<string, import('../../../../dist/index.js').FontProvider>} providers
+	 */
+	constructor(providers) {
+		this.#providers = providers;
+	}
 
 	/**
 	 * @param {{ families: Array<import('../../../../dist/assets/fonts/types').ResolvedFontFamily>; hasher: Hasher }} param0
 	 */
-	constructor({ families, hasher }) {
-		this.#providers = UnifontFontResolver.extractUnifontProviders({ families, hasher });
+	static async create({ families, hasher }) {
+		/** @type {Map<string, import('../../../../dist/index.js').FontProvider>} */
+		const providers = new Map();
+		for (const { provider } of families) {
+			if (provider === 'local') {
+				continue;
+			}
+			provider.name = `${provider.name}-${hasher.hashObject(provider.config ?? {})}`;
+			providers.set(provider.name, provider);
+		}
+		const storage = new SpyStorage();
+		await Promise.all(
+			Array.from(providers.values()).map(async (provider) => {
+				await provider.init?.({ storage });
+			}),
+		);
+		return new PassthroughFontResolver(providers);
 	}
 
 	/**
-	 * @param {string} name
+	 * @param {import('../../../../dist/assets/fonts/types').ResolveFontOptions & { provider: import('../../../../dist/index.js').FontProvider; }} param0
 	 */
-	async #getProvider(name) {
-		const providerFactory = this.#providers.find((e) => e._name === name);
-		if (!providerFactory) {
-			return undefined;
-		}
-		return await providerFactory({ storage: new SpyStorage() });
-	}
-
-	/**
-	 * @param {import('../../../../dist/assets/fonts/types').AstroFontProviderResolveFontOptions & { provider: string; }} param0
-	 */
-	async resolveFont({ familyName, provider: providerName, ...options }) {
-		const provider = await this.#getProvider(providerName);
-		if (!provider) {
-			return [];
-		}
-		const res = await provider.resolveFont(familyName, {
-			weights: options.weights ?? [],
-			styles: options.styles ?? [],
-			subsets: options.subsets ?? [],
-			formats: options.formats ?? [],
-		});
+	async resolveFont({ provider, ...rest }) {
+		const res = await this.#providers.get(provider.name)?.resolveFont(rest);
 		return res?.fonts ?? [];
 	}
 
 	/**
-	 * @param {{ provider: string }} param0
+	 * @param {{ provider: import('../../../../dist/index.js').FontProvider }} param0
 	 */
-	async listFonts({ provider: providerName }) {
-		const provider = await this.#getProvider(providerName);
-		if (!provider) {
-			return [];
-		}
-		return await provider.listFonts?.();
+	async listFonts({ provider }) {
+		return await this.#providers.get(provider.name)?.listFonts?.();
 	}
 }

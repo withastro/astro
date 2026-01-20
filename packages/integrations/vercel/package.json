@@ -52,7 +52,7 @@
     "@vercel/analytics": "^1.6.1",
     "@vercel/functions": "^2.2.13",
     "@vercel/nft": "0.30.4",
-    "@vercel/routing-utils": "^5.3.1",
+    "@vercel/routing-utils": "^5.3.2",
     "esbuild": "^0.25.0",
     "tinyglobby": "^0.2.15"
   },

@@ -1,6 +1,8 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { createGetFontData } from '../../../../dist/assets/fonts/core/create-get-font-data.js';
+import { filterPreloads } from '../../../../dist/assets/fonts/core/filter-preloads.js';
 import { normalizeRemoteFontFaces } from '../../../../dist/assets/fonts/core/normalize-remote-font-faces.js';
 import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-fallbacks.js';
 import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-families.js';
@@ -10,9 +12,9 @@ import { FakeFontMetricsResolver, FakeHasher, SpyUrlProxy } from './utils.js';
 
 describe('fonts core', () => {
 	describe('resolveFamily()', () => {
-		it('removes quotes correctly', async () => {
+		it('removes quotes correctly', () => {
 			const hasher = new FakeHasher('xxx');
-			let family = await resolveFamily({
+			let family = resolveFamily({
 				family: {
 					provider: 'local',
 					name: 'Test',
@@ -29,15 +31,11 @@ describe('fonts core', () => {
 				localProviderUrlResolver: {
 					resolve: (url) => url,
 				},
-				remoteFontProviderResolver: {
-					// @ts-expect-error
-					resolve: async () => ({}),
-				},
 			});
 			assert.equal(family.name, 'Test');
 			assert.equal(family.nameWithHash, 'Test-xxx');
 
-			family = await resolveFamily({
+			family = resolveFamily({
 				family: {
 					provider: 'local',
 					name: '"Foo bar"',
@@ -54,17 +52,13 @@ describe('fonts core', () => {
 				localProviderUrlResolver: {
 					resolve: (url) => url,
 				},
-				remoteFontProviderResolver: {
-					// @ts-expect-error
-					resolve: async () => ({}),
-				},
 			});
 			assert.equal(family.name, 'Foo bar');
 			assert.equal(family.nameWithHash, 'Foo bar-xxx');
 		});
 
-		it('resolves local variant correctly', async () => {
-			const family = await resolveFamily({
+		it('resolves local variant correctly', () => {
+			const family = resolveFamily({
 				family: {
 					provider: 'local',
 					name: 'Test',
@@ -81,10 +75,6 @@ describe('fonts core', () => {
 				localProviderUrlResolver: {
 					resolve: (url) => url + url,
 				},
-				remoteFontProviderResolver: {
-					// @ts-expect-error
-					resolve: async () => ({}),
-				},
 			});
 			if (family.provider === 'local') {
 				assert.deepStrictEqual(
@@ -96,36 +86,8 @@ describe('fonts core', () => {
 			}
 		});
 
-		it('resolves remote providers', async () => {
-			const provider = () => {};
-			const family = await resolveFamily({
-				family: {
-					provider: {
-						entrypoint: '',
-					},
-					name: 'Test',
-					cssVariable: '--test',
-				},
-				hasher: new FakeHasher(),
-				localProviderUrlResolver: {
-					resolve: (url) => url,
-				},
-				remoteFontProviderResolver: {
-					// @ts-expect-error
-					resolve: async () => ({
-						provider,
-					}),
-				},
-			});
-			if (family.provider === 'local') {
-				assert.fail('Should be a remote provider');
-			} else {
-				assert.deepStrictEqual(family.provider, { provider });
-			}
-		});
-
-		it('dedupes properly', async () => {
-			let family = await resolveFamily({
+		it('dedupes properly', () => {
+			let family = resolveFamily({
 				family: {
 					provider: 'local',
 					name: '"Foo bar"',
@@ -143,16 +105,15 @@ describe('fonts core', () => {
 				localProviderUrlResolver: {
 					resolve: (url) => url,
 				},
-				remoteFontProviderResolver: {
-					// @ts-expect-error
-					resolve: async () => ({}),
-				},
 			});
 			assert.deepStrictEqual(family.fallbacks, ['foo', 'bar']);
 
-			family = await resolveFamily({
+			family = resolveFamily({
 				family: {
-					provider: { entrypoint: '' },
+					provider: {
+						name: 'xxx',
+						resolveFont: () => undefined,
+					},
 					name: '"Foo bar"',
 					cssVariable: '--test',
 					weights: [400, '400', '500', 'bold'],
@@ -164,10 +125,6 @@ describe('fonts core', () => {
 				hasher: new FakeHasher(),
 				localProviderUrlResolver: {
 					resolve: (url) => url,
-				},
-				remoteFontProviderResolver: {
-					// @ts-expect-error
-					resolve: async () => ({}),
 				},
 			});
 
@@ -636,6 +593,176 @@ describe('fonts core', () => {
 					},
 				},
 			]);
+		});
+	});
+
+	describe('filterPreloads()', () => {
+		it('returns null if it should not preload', () => {
+			assert.equal(filterPreloads([], false), null);
+		});
+
+		it('returns everything if it should preload all', () => {
+			assert.deepStrictEqual(
+				filterPreloads(
+					[
+						{
+							style: 'normal',
+							subset: undefined,
+							type: 'woff2',
+							url: 'foo',
+							weight: undefined,
+						},
+						{
+							style: 'italic',
+							subset: 'latin',
+							type: 'otf',
+							url: 'bar',
+							weight: undefined,
+						},
+					],
+					true,
+				),
+				[
+					{
+						style: 'normal',
+						subset: undefined,
+						type: 'woff2',
+						url: 'foo',
+						weight: undefined,
+					},
+					{
+						style: 'italic',
+						subset: 'latin',
+						type: 'otf',
+						url: 'bar',
+						weight: undefined,
+					},
+				],
+			);
+		});
+
+		it('returns filtered data', () => {
+			assert.deepStrictEqual(
+				filterPreloads(
+					[
+						{
+							style: 'normal',
+							subset: undefined,
+							type: 'woff2',
+							url: 'foo',
+							weight: undefined,
+						},
+						{
+							style: 'italic',
+							subset: 'latin',
+							type: 'otf',
+							url: 'bar',
+							weight: undefined,
+						},
+					],
+					[
+						{
+							style: 'normal',
+						},
+					],
+				),
+				[
+					{
+						style: 'normal',
+						subset: undefined,
+						type: 'woff2',
+						url: 'foo',
+						weight: undefined,
+					},
+				],
+			);
+		});
+
+		it('returns variable weight', () => {
+			assert.deepStrictEqual(
+				filterPreloads(
+					[
+						{
+							style: 'normal',
+							subset: undefined,
+							type: 'woff2',
+							url: 'foo',
+							weight: '500 900',
+						},
+						{
+							style: 'italic',
+							subset: 'latin',
+							type: 'otf',
+							url: 'bar',
+							weight: '100 900',
+						},
+					],
+					[
+						{
+							weight: '400',
+						},
+					],
+				),
+				[
+					{
+						style: 'italic',
+						subset: 'latin',
+						type: 'otf',
+						url: 'bar',
+						weight: '100 900',
+					},
+				],
+			);
+
+			assert.deepStrictEqual(
+				filterPreloads(
+					[
+						{
+							style: 'normal',
+							subset: undefined,
+							type: 'woff2',
+							url: 'foo',
+							weight: '500 900',
+						},
+						{
+							style: 'italic',
+							subset: 'latin',
+							type: 'otf',
+							url: 'bar',
+							weight: '100 900',
+						},
+					],
+					[
+						{
+							weight: ' 100 900',
+						},
+					],
+				),
+				[
+					{
+						style: 'italic',
+						subset: 'latin',
+						type: 'otf',
+						url: 'bar',
+						weight: '100 900',
+					},
+				],
+			);
+		});
+	});
+
+	describe('createGetFontData()', () => {
+		it('throws if there is no consumable map', () => {
+			assert.throws(() => createGetFontData({ consumableMap: undefined })('foo'));
+		});
+
+		it('throws if no data can be found', () => {
+			assert.throws(() => createGetFontData({ consumableMap: new Map([['bar', []]]) })('foo'));
+		});
+
+		it('works when there is data', () => {
+			const data = createGetFontData({ consumableMap: new Map([['bar', []]]) })('bar');
+			assert.deepStrictEqual(data, []);
 		});
 	});
 });

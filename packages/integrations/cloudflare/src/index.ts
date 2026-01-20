@@ -212,6 +212,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 													'astro:*',
 													'virtual:astro:*',
 													'virtual:astro-cloudflare:*',
+													'virtual:@astrojs/*',
 												],
 											},
 										};

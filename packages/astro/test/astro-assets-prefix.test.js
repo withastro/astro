@@ -69,6 +69,16 @@ describe('Assets Prefix - Static', () => {
 		const imgAsset = $('img');
 		assert.match(imgAsset.attr('src'), assetsPrefixRegex);
 	});
+
+	it('MDX content collection CSS imports should start with assetsPrefix', async () => {
+		const html = await fixture.readFile('/mdx-blog/index.html');
+		const $ = cheerio.load(html);
+		const stylesheets = $('link[rel="stylesheet"]');
+		assert.ok(stylesheets.length > 0, 'Expected at least one stylesheet');
+		stylesheets.each((_i, el) => {
+			assert.match(el.attribs.href, assetsPrefixRegex);
+		});
+	});
 });
 
 describe('Assets Prefix - with path prefix', () => {

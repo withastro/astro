@@ -435,7 +435,12 @@ async function runManifestInjection(
 	};
 
 	await manifestBuildPostHook(opts, internals, { chunks, mutate });
-	await contentAssetsBuildPostHook(opts.settings.config.base, internals, { chunks, mutate });
+	await contentAssetsBuildPostHook(
+		opts.settings.config.base,
+		opts.settings.config.build.assetsPrefix,
+		internals,
+		{ chunks, mutate },
+	);
 	await writeMutatedChunks(opts, mutations);
 }
 
