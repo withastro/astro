@@ -3,8 +3,6 @@
  * Extends the global Request object with Cloudflare-specific properties
  */
 
-import type { IncomingRequestCfProperties } from '@cloudflare/workers-types';
-
 declare global {
 	interface Request {
 		/**
@@ -15,6 +13,12 @@ declare global {
 		 * - Bot Management scores
 		 * - Client information (ASN, TCP metrics)
 		 */
-		readonly cf?: IncomingRequestCfProperties;
+		readonly cf?: import('@cloudflare/workers-types').IncomingRequestCfProperties;
 	}
+}
+
+type Runtime = import('./dist/index.d.ts').Runtime;
+
+declare namespace App {
+	interface Locals extends Runtime {}
 }
