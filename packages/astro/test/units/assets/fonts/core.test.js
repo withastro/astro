@@ -1,6 +1,7 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { createGetFontBuffer } from '../../../../dist/assets/fonts/core/core/create-get-font-buffer.js';
 import { createGetFontData } from '../../../../dist/assets/fonts/core/create-get-font-data.js';
 import { filterPreloads } from '../../../../dist/assets/fonts/core/filter-preloads.js';
 import { normalizeRemoteFontFaces } from '../../../../dist/assets/fonts/core/normalize-remote-font-faces.js';
@@ -8,7 +9,6 @@ import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-f
 import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-families.js';
 import { RealFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
 import { RealSystemFallbacksProvider } from '../../../../dist/assets/fonts/infra/system-fallbacks-provider.js';
-import { createGetFontBuffer } from '../../../../dist/assets/fonts/runtime.js';
 import { FakeFontMetricsResolver, FakeHasher, SpyUrlProxy } from './utils.js';
 
 describe('fonts core', () => {
