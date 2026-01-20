@@ -10,7 +10,11 @@ import type {
 	ReadableStream,
 } from '@cloudflare/workers-types';
 
-export async function transform(rawUrl: string, images: ImagesBinding, assets: Fetcher) {
+export async function transform(
+	rawUrl: string,
+	images: ImagesBinding,
+	assets: Fetcher,
+): Promise<Response> {
 	const url = new URL(rawUrl);
 
 	const href = url.searchParams.get('href');
@@ -32,6 +36,7 @@ export async function transform(rawUrl: string, images: ImagesBinding, assets: F
 		return new Response(`The "${format}" format is not supported`, { status: 400 });
 	}
 
+	// @ts-expect-error The Header types between libdom and @cloudflare/workers-types are causing issues
 	return (
 		await input
 			.transform({

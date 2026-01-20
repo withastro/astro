@@ -10,12 +10,7 @@ import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from '../utils/env.js';
 import type { RouteData } from 'astro';
 
-export type Env = {
-	[key: string]: unknown;
-	ASSETS: { fetch: (req: Request | string) => Promise<CfResponse> };
-};
-
-setGetEnv(createGetEnv(globalEnv as Env));
+setGetEnv(createGetEnv(globalEnv));
 
 export interface Runtime {
 	cfContext: ExecutionContext;
@@ -28,7 +23,7 @@ declare global {
 
 export async function handle(
 	request: Parameters<ExportedHandlerFetchHandler>[0],
-	env: Env,
+	env: Cloudflare.Env,
 	context: ExecutionContext,
 ): Promise<CfResponse> {
 	const app = createApp(import.meta.env.DEV);
