@@ -11,7 +11,7 @@
   "labels": ["dependencies"],
   "rangeStrategy": "bump",
   "postUpdateOptions": ["pnpmDedupe"],
-  "lockfileMaintenance": {
+  "lockFileMaintenance": {
     "enabled": true
   },
   "ignorePaths": [
