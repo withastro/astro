@@ -1917,6 +1917,9 @@ importers:
 
   packages/astro/test/fixtures/astro-assets-prefix:
     dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
