@@ -391,7 +391,7 @@ function getUrlForPath(
 	switch (format) {
 		case 'directory':
 		case 'preserve': {
-			ending = trailingSlash === 'always' ? '/' : '';
+			ending = trailingSlash === 'never' ? '' : '/';
 			break;
 		}
 		case 'file':

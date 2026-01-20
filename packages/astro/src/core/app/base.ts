@@ -4,6 +4,7 @@ import {
 	hasFileExtension,
 	isInternalPath,
 	joinPaths,
+	normalizePathname,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
@@ -241,7 +242,12 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 		// During build, use the prerendered paths map to find the route that generated this path
 		if (allowPrerenderedRoutes && this.#prerenderedPaths) {
-			const routeData = this.#prerenderedPaths.get(decodedPathname);
+			const normalizedPathname = normalizePathname(
+				decodedPathname,
+				this.manifest.buildFormat,
+				this.manifest.trailingSlash,
+			);
+			const routeData = this.#prerenderedPaths.get(normalizedPathname);
 			if (routeData) return routeData;
 		}
 
