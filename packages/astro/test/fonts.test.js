@@ -1,5 +1,6 @@
 // @ts-check
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
 import { describe, it } from 'node:test';
 import { fontProviders } from 'astro/config';
@@ -11,6 +12,7 @@ import { loadFixture } from './test-utils.js';
  */
 async function createDevFixture(inlineConfig) {
 	const fixture = await loadFixture({ root: './fixtures/fonts/', ...inlineConfig });
+	await fixture.clean();
 	const devServer = await fixture.startDevServer();
 
 	return {
@@ -217,15 +219,7 @@ describe('astro fonts', () => {
 			await run(async () => {
 				await fixture.fetch('/');
 			});
-
-			try {
-				await readdir(new URL('./dist/', fixture.config.root));
-				assert.fail('dist folder should not exist after dev server shutdown');
-			} catch (err) {
-				if (typeof err === 'object' && err && 'code' in err && err.code !== 'ENOENT') {
-					throw err;
-				}
-			}
+			assert.equal(existsSync(fixture.config.outDir), false);
 		});
 	});
 
