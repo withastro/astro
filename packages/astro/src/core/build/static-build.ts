@@ -325,7 +325,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					emitAssets: true,
 					outDir: fileURLToPath(new URL('./.prerender/', getServerOutputDirectory(settings))),
 					rollupOptions: {
-						input: 'astro/entrypoints/prerender',
+						// Only set default prerender entrypoint if no custom prerenderer is provided
+						// Adapters with custom prerenderers will set their own entrypoint
+						...(settings.prerenderer ? {} : { input: 'astro/entrypoints/prerender' }),
 						output: {
 							entryFileNames: `${PRERENDER_ENTRY_FILENAME_PREFIX}.[hash].mjs`,
 							format: 'esm',
