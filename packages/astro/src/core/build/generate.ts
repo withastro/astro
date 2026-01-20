@@ -92,7 +92,7 @@ export async function generatePages(
 			return false;
 		}
 
-		if (matchedRoute === route) {
+		if (matchedRoute.route === route.route) {
 			// Current route is higher-priority. Include it for building.
 			return true;
 		}
@@ -286,7 +286,7 @@ async function generatePathWithPrerenderer(
 	// Render using the prerenderer
 	let response: Response;
 	try {
-		response = await prerenderer.render(request, route);
+		response = await prerenderer.render(request);
 	} catch (err) {
 		logger.error('build', `Caught error rendering ${pathname}: ${err}`);
 		if (err && !AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {
@@ -391,7 +391,7 @@ function getUrlForPath(
 	switch (format) {
 		case 'directory':
 		case 'preserve': {
-			ending = trailingSlash === 'never' ? '' : '/';
+			ending = trailingSlash === 'always' ? '/' : '';
 			break;
 		}
 		case 'file':

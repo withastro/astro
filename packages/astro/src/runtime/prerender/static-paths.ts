@@ -9,6 +9,7 @@ import {
 	getFallbackRoute,
 } from '../../core/routing/helpers.js';
 import { callGetStaticPaths } from '../../core/render/route-cache.js';
+import { matchRoute } from '../../core/routing/match.js';
 
 export type { PathWithRoute } from '../../types/public/integrations.js';
 
@@ -19,6 +20,7 @@ export type { PathWithRoute } from '../../types/public/integrations.js';
 export interface StaticPathsApp {
 	manifest: SSRManifest;
 	pipeline: Pick<Pipeline, 'routeCache' | 'getComponentByRoute'>;
+	setPrerenderedPaths(paths: Map<string, RouteData>): void;
 }
 
 /**
@@ -35,10 +37,12 @@ export class StaticPaths {
 	/**
 	 * Get all static paths for prerendering with their associated routes.
 	 * This avoids needing to re-match routes later, which can be incorrect due to route priority.
+	 * Also builds and sets the prerenderedPaths map on the app for correct route lookup.
 	 */
 	async getAll(): Promise<PathWithRoute[]> {
 		const allPaths: PathWithRoute[] = [];
 		const manifest = this.#app.manifest;
+		const routesList = { routes: manifest.routes.map((r) => r.routeData) };
 
 		// Collect routes to generate (mirrors retrieveRoutesToGenerate)
 		const routesToGenerate: RouteData[] = [];
@@ -70,6 +74,22 @@ export class StaticPaths {
 				allPaths.push(...paths);
 			}
 		}
+
+		// Build map of pathname → highest-priority route that generated it
+		const prerenderedPaths = new Map<string, RouteData>();
+		for (const { pathname, route } of allPaths) {
+			const existing = prerenderedPaths.get(pathname);
+			if (!existing) {
+				prerenderedPaths.set(pathname, route);
+			} else {
+				// Keep the higher-priority route (the one matchRoute returns)
+				const highestPriority = matchRoute(pathname, routesList);
+				if (highestPriority?.route === route.route) {
+					prerenderedPaths.set(pathname, route);
+				}
+			}
+		}
+		this.#app.setPrerenderedPaths(prerenderedPaths);
 
 		return allPaths;
 	}
