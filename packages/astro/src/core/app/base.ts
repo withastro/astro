@@ -4,7 +4,6 @@ import {
 	hasFileExtension,
 	isInternalPath,
 	joinPaths,
-	normalizePathname,
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
@@ -115,11 +114,6 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	adapterLogger: AstroIntegrationLogger;
 	baseWithoutTrailingSlash: string;
 	logger: Logger;
-	/**
-	 * Map of pathname to RouteData for prerendered paths.
-	 * Used during build to match paths to the route that generated them.
-	 */
-	#prerenderedPaths?: Map<string, RouteData>;
 	constructor(manifest: SSRManifest, streaming = true, ...args: any[]) {
 		this.manifest = manifest;
 		this.manifestData = { routes: manifest.routes.map((route) => route.routeData) };
@@ -187,15 +181,6 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		this.manifestData = newManifestData;
 	}
 
-	/**
-	 * Sets the map of prerendered paths to their generating routes.
-	 * Used during build to ensure match() returns the route that generated a path,
-	 * not just the highest-priority pattern match.
-	 */
-	public setPrerenderedPaths(paths: Map<string, RouteData>): void {
-		this.#prerenderedPaths = paths;
-	}
-
 	public removeBase(pathname: string) {
 		if (pathname.startsWith(this.manifest.base)) {
 			return pathname.slice(this.baseWithoutTrailingSlash.length + 1);
@@ -225,8 +210,6 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	 * routes aren't returned, even if they are matched.
 	 *
 	 * When `allowPrerenderedRoutes` is `true`, the function returns matched prerendered routes too.
-	 * During build, if prerenderedPaths is set, it returns the route that generated the path
-	 * (not just the highest-priority pattern match).
 	 * @param request
 	 * @param allowPrerenderedRoutes
 	 */
@@ -238,20 +221,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		if (!pathname) {
 			pathname = prependForwardSlash(this.removeBase(url.pathname));
 		}
-		const decodedPathname = decodeURI(pathname);
-
-		// During build, use the prerendered paths map to find the route that generated this path
-		if (allowPrerenderedRoutes && this.#prerenderedPaths) {
-			const normalizedPathname = normalizePathname(
-				decodedPathname,
-				this.manifest.buildFormat,
-				this.manifest.trailingSlash,
-			);
-			const routeData = this.#prerenderedPaths.get(normalizedPathname);
-			if (routeData) return routeData;
-		}
-
-		let routeData = matchRoute(decodedPathname, this.manifestData);
+		let routeData = matchRoute(decodeURI(pathname), this.manifestData);
 		if (!routeData) return undefined;
 		if (allowPrerenderedRoutes) {
 			return routeData;

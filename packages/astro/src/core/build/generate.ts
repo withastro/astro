@@ -92,7 +92,7 @@ export async function generatePages(
 			return false;
 		}
 
-		if (matchedRoute.route === route.route) {
+		if (matchedRoute === route) {
 			// Current route is higher-priority. Include it for building.
 			return true;
 		}
@@ -286,7 +286,7 @@ async function generatePathWithPrerenderer(
 	// Render using the prerenderer
 	let response: Response;
 	try {
-		response = await prerenderer.render(request);
+		response = await prerenderer.render(request, route);
 	} catch (err) {
 		logger.error('build', `Caught error rendering ${pathname}: ${err}`);
 		if (err && !AstroError.is(err) && !(err as SSRError).id && typeof err === 'object') {

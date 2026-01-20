@@ -165,15 +165,16 @@ export interface AstroPrerenderer {
 	 */
 	setup?: () => Promise<void>;
 	/**
-	 * Returns pathnames with their routes to prerender. The route is included for
-	 * conflict detection (same pathname from multiple routes).
+	 * Returns pathnames with their routes to prerender. The route is included to avoid
+	 * needing to re-match routes later, which can be incorrect due to route priority.
 	 */
 	getStaticPaths: () => Promise<PathWithRoute[]>;
 	/**
 	 * Renders a single page. Called by Astro for each path returned by getStaticPaths.
 	 * @param request - The request to render
+	 * @param routeData - The route data for this request
 	 */
-	render: (request: Request) => Promise<Response>;
+	render: (request: Request, routeData: RouteData) => Promise<Response>;
 	/**
 	 * Called after all pages are prerendered. Use for cleanup like stopping a preview server.
 	 */

@@ -1,4 +1,5 @@
 import type { AstroPrerenderer, PathWithRoute } from '../../types/public/integrations.js';
+import type { RouteData } from '../../types/public/internal.js';
 import type { BuildInternals } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
 import type { BuildApp } from './app.js';
@@ -53,8 +54,7 @@ export function createDefaultPrerenderer({
 			return staticPaths.getAll();
 		},
 
-		async render(request: Request): Promise<Response> {
-			const routeData = prerenderer.app!.match(request, true);
+		async render(request: Request, routeData: RouteData): Promise<Response> {
 			return prerenderer.app!.render(request, { routeData });
 		},
 
