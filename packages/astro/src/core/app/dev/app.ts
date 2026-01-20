@@ -9,11 +9,9 @@ import { NonRunnablePipeline } from './pipeline.js';
 import { getCustom404Route, getCustom500Route } from '../../routing/helpers.js';
 import { matchRoute } from '../../routing/dev.js';
 import type { RunnablePipeline } from '../../../vite-plugin-app/pipeline.js';
-import { StaticHeaders } from '../../static-headers.js';
 
 export class DevApp extends BaseApp<NonRunnablePipeline> {
 	logger: Logger;
-	currentStaticHeaders: StaticHeaders | undefined = undefined;
 	resolvedPathname: string | undefined = undefined;
 	constructor(manifest: SSRManifest, streaming = true, logger: Logger) {
 		super(manifest, streaming, logger);
@@ -53,16 +51,13 @@ export class DevApp extends BaseApp<NonRunnablePipeline> {
 	}
 
 	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
-		if (this.manifest.canCollectStaticHeaders && payload.routeData.prerender) {
-			this.currentStaticHeaders = new StaticHeaders();
-		} else {
-			// cleanup
-			this.currentStaticHeaders = undefined;
+		if (this.pipeline.currentStaticHeaders) {
+			this.pipeline.currentStaticHeaders.setTracking(payload.routeData.prerender);
 		}
 		return super.createRenderContext({
 			...payload,
 			pathname: this.resolvedPathname ?? payload.pathname,
-			staticHeaders: this.currentStaticHeaders,
+			staticHeaders: this.pipeline.currentStaticHeaders,
 		});
 	}
 

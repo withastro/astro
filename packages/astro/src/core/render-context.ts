@@ -518,14 +518,14 @@ export class RenderContext {
 				};
 			},
 
-			get staticHeaders() {
-				return renderContext.staticHeaders;
+			setStaticHeader(key: string, value: string) {
+				renderContext.staticHeaders?.set(key, value);
 			},
 		};
 	}
 
 	async createResult(mod: ComponentInstance, ctx: ActionAPIContext): Promise<SSRResult> {
-		const { cookies, pathname, pipeline, routeData, status } = this;
+		const { cookies, pathname, pipeline, routeData, status, staticHeaders } = this;
 		const { clientDirectives, inlinedScripts, compressHTML, manifest, renderers, resolve } =
 			pipeline;
 		const { links, scripts, styles } = await pipeline.headElements(routeData);
@@ -615,7 +615,13 @@ export class RenderContext {
 			directives: manifest.csp?.directives ? [...manifest.csp.directives] : [],
 			isStrictDynamic: manifest.csp?.isStrictDynamic ?? false,
 			internalFetchHeaders: manifest.internalFetchHeaders,
-			staticHeaders: this.staticHeaders,
+			dumpStaticHeaders: () => {
+				if (staticHeaders) {
+					return staticHeaders.dump();
+				} else {
+					return [];
+				}
+			},
 		};
 
 		return result;
@@ -778,8 +784,8 @@ export class RenderContext {
 				};
 			},
 
-			get staticHeaders() {
-				return renderContext.staticHeaders;
+			setStaticHeader(key: string, value: string) {
+				renderContext.staticHeaders?.set(key, value);
 			},
 		};
 	}

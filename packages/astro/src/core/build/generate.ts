@@ -610,10 +610,7 @@ async function generatePath(
 		route.distURL = [outFile];
 	}
 
-	if (
-		settings.adapter?.adapterFeatures?.experimentalStaticHeaders &&
-		settings.config.security?.csp
-	) {
+	if (settings.adapter?.adapterFeatures?.experimentalStaticHeaders) {
 		routeToHeaders.set(pathname, { headers: responseHeaders, route: integrationRoute });
 	}
 

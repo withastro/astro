@@ -28,11 +28,14 @@ import type {
 import { getComponentMetadata } from '../vite-plugin-astro-server/metadata.js';
 import { createResolve } from '../vite-plugin-astro-server/resolve.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
+import type { StaticHeaders } from '../core/static-headers.js';
 
 /**
  * This Pipeline is used when the Vite SSR environment is runnable.
  */
 export class RunnablePipeline extends Pipeline {
+	currentStaticHeaders: StaticHeaders | undefined = undefined;
+
 	getName(): string {
 		return 'RunnablePipeline';
 	}

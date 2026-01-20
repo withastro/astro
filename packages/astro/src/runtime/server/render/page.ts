@@ -43,10 +43,8 @@ export async function renderPage(
 			headers.set('content-security-policy', renderCspContent(result));
 		}
 
-		if (result.staticHeaders) {
-			for (const [headerName, headerValue] of result.staticHeaders.dump()) {
-				headers.set(headerName, headerValue);
-			}
+		for (const [headerName, headerValue] of result.dumpStaticHeaders()) {
+			headers.set(headerName, headerValue);
 		}
 
 		return new Response(bytes, {
@@ -96,10 +94,8 @@ export async function renderPage(
 		headers.set('content-security-policy', renderCspContent(result));
 	}
 
-	if (result.staticHeaders) {
-		for (const [headerName, headerValue] of result.staticHeaders.dump()) {
-			headers.set(headerName, headerValue);
-		}
+	for (const [headerName, headerValue] of result.dumpStaticHeaders()) {
+		headers.set(headerName, headerValue);
 	}
 
 	// For non-streaming, convert string to byte array to calculate Content-Length

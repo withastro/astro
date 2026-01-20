@@ -31,7 +31,6 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	manifestData: RoutesList;
 	currentRenderContext: RenderContext | undefined = undefined;
 	resolvedPathname: string | undefined = undefined;
-	currentStaticHeaders: StaticHeaders | undefined = undefined;
 	constructor(
 		manifest: SSRManifest,
 		streaming = true,
@@ -89,26 +88,32 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		manifestData: RoutesList,
 		getDebugInfo: () => Promise<string>,
 	): RunnablePipeline {
-		return RunnablePipeline.create(manifestData, {
+		const pipeline = RunnablePipeline.create(manifestData, {
 			loader,
 			logger,
 			manifest,
 			settings,
 			getDebugInfo,
 		});
+
+		if (manifest.canCollectStaticHeaders) {
+			pipeline.currentStaticHeaders = new StaticHeaders(
+				manifest.canCollectStaticHeaders,
+				this.logger,
+			);
+		}
+
+		return pipeline;
 	}
 
 	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
-		if (this.manifest.canCollectStaticHeaders && payload.routeData.prerender) {
-			this.currentStaticHeaders = new StaticHeaders();
-		} else {
-			// cleanup
-			this.currentStaticHeaders = undefined;
+		if (this.pipeline.currentStaticHeaders) {
+			this.pipeline.currentStaticHeaders.setTracking(payload.routeData.prerender);
 		}
 		this.currentRenderContext = await super.createRenderContext({
 			...payload,
 			pathname: this.resolvedPathname ?? payload.pathname,
-			staticHeaders: this.currentStaticHeaders,
+			staticHeaders: this.pipeline.currentStaticHeaders,
 		});
 		return this.currentRenderContext;
 	}

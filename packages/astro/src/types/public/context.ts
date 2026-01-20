@@ -5,7 +5,6 @@ import type { AstroSession } from '../../core/session/runtime.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { RewritePayload } from './common.js';
 import type { ValidRedirectStatus } from './config.js';
-import type { StaticHeaders } from '../../core/static-headers.js';
 
 /**
  * Astro global available in all contexts in .astro files
@@ -579,5 +578,10 @@ export interface APIContext<
 	 */
 	routePattern: string;
 
-	staticHeaders: StaticHeaders | undefined;
+	/**
+	 *
+	 * @param key
+	 * @param value
+	 */
+	setStaticHeader: (key: string, value: string) => void;
 }

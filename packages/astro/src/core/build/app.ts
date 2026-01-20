@@ -3,11 +3,26 @@ import type { SSRManifest } from '../app/types.js';
 import type { BuildInternals } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
 import type { StaticBuildOptions } from './types.js';
+import type { CreateRenderContext, RenderContext } from '../render-context.js';
+import { StaticHeaders } from '../static-headers.js';
 
 export class BuildApp extends BaseApp<BuildPipeline> {
+	staticHeaders: StaticHeaders | undefined = undefined;
+
 	createPipeline(_streaming: boolean, manifest: SSRManifest, ..._args: any[]): BuildPipeline {
 		return BuildPipeline.create({
 			manifest,
+		});
+	}
+
+	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
+		this.staticHeaders = new StaticHeaders(
+			this.manifest.canCollectStaticHeaders && payload.routeData.prerender,
+			this.logger,
+		);
+		return await super.createRenderContext({
+			...payload,
+			staticHeaders: this.staticHeaders,
 		});
 	}
 
@@ -44,5 +59,13 @@ export class BuildApp extends BaseApp<BuildPipeline> {
 				prerenderedErrorPageFetch: undefined,
 			});
 		}
+	}
+
+	dumpStaticHeaders(): undefined | [string, string][] {
+		if (this.staticHeaders) {
+			this.staticHeaders.dump();
+		}
+
+		return undefined;
 	}
 }
