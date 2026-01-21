@@ -14,7 +14,6 @@ import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../manifest/serialized.js';
 import { getClientOutputDirectory, getServerOutputDirectory } from '../../prerender/utils.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/const.js';
-import { RESOLVED_ASTRO_RENDERERS_MODULE_ID } from '../../vite-plugin-renderers/index.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { routeIsRedirect } from '../routing/index.js';
 import { getOutDirWithinCwd } from './common.js';
@@ -272,12 +271,6 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 							isRollupInput(chunkInfo.facadeModuleId)
 						) {
 							return opts.settings.config.build.serverEntry;
-						} else if (chunkInfo.facadeModuleId === RESOLVED_ASTRO_RENDERERS_MODULE_ID) {
-							return 'renderers.mjs';
-						} else if (chunkInfo.facadeModuleId === SERIALIZED_MANIFEST_RESOLVED_ID) {
-							return 'manifest_[hash].mjs';
-						} else if (chunkInfo.facadeModuleId === settings.adapter?.serverEntrypoint) {
-							return 'adapter_[hash].mjs';
 						} else {
 							return '[name].mjs';
 						}

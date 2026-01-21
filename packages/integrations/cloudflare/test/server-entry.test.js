@@ -5,7 +5,6 @@ import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 describe('Server entry', () => {
-	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	it('should load the custom entry when using legacy entrypoint', async () => {
 		fixture = await loadFixture({
