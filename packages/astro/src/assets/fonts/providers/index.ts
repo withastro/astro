@@ -118,7 +118,7 @@ function googleicons(): FontProvider<GoogleiconsFamilyOptions | undefined> {
 	};
 }
 
-/** TODO: */
+/** A provider that handles local files. */
 function local(): FontProvider<LocalFamilyOptions> {
 	return new LocalFontProvider({
 		fontFileReader: new FontaceFontFileReader(),
