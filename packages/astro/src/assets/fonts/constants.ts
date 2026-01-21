@@ -16,7 +16,7 @@ export const VIRTUAL_MODULE_ID = 'virtual:astro:assets/fonts/internal';
 export const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
 
 export const RUNTIME_VIRTUAL_MODULE_ID = 'virtual:astro:assets/fonts/runtime';
-export const RESOLVED_RUNTIME_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID;
+export const RESOLVED_RUNTIME_VIRTUAL_MODULE_ID = '\0' + RUNTIME_VIRTUAL_MODULE_ID;
 
 export const BUFFER_VIRTUAL_MODULE_ID_PREFIX = 'virtual:astro:assets/fonts/file/';
 export const RESOLVED_BUFFER_VIRTUAL_MODULE_ID_PREFIX = '\0' + BUFFER_VIRTUAL_MODULE_ID_PREFIX;
