@@ -294,7 +294,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					// no url will be matched and this line will not be reached.
 					const buffer = await fontFetcher!.fetch({ hash, ...associatedData });
 
-					res.setHeader('Content-Length', buffer.length);
+					res.setHeader('Content-Length', buffer.byteLength);
 					res.setHeader('Content-Type', `font/${fontTypeExtractor!.extract(hash)}`);
 
 					res.end(buffer);
