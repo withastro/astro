@@ -291,7 +291,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						edgeMiddleware: false,
 						buildOutput: 'server',
 					},
-					entryType: 'self',
 					previewEntrypoint: '@astrojs/cloudflare/entrypoints/preview',
 					supportedAstroFeatures: {
 						serverOutput: 'stable',

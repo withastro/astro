@@ -21,7 +21,7 @@ export function pluginInternals(
 			);
 		},
 
-		configEnvironment(environmentName, env, extras): EnvironmentOptions | undefined {
+		configEnvironment(environmentName): EnvironmentOptions | undefined {
 			// Prender environment is only enabled during the build
 			if (environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) {
 				return {
