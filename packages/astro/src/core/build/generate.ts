@@ -37,6 +37,10 @@ export async function generatePages(
 	internals: BuildInternals,
 	prerenderOutputDir: URL,
 ) {
+	console.log('[generatePages] SKIPPING ENTIRELY FOR DEBUGGING');
+	return;
+
+	console.log('[generatePages] Starting...');
 	const generatePagesTimer = performance.now();
 	const ssr = options.settings.buildOutput === 'server';
 	const logger = options.logger;
@@ -44,6 +48,7 @@ export async function generatePages(
 	// Get or create the prerenderer
 	let prerenderer: AstroPrerenderer;
 	const settingsPrerenderer = options.settings.prerenderer;
+	console.log('[generatePages] settingsPrerenderer:', !!settingsPrerenderer);
 	if (settingsPrerenderer) {
 		// Resolve if it's a function
 		prerenderer = typeof settingsPrerenderer === 'function'
@@ -57,9 +62,12 @@ export async function generatePages(
 			prerenderOutputDir,
 		});
 	}
+	console.log('[generatePages] prerenderer name:', prerenderer.name);
 
 	// Setup the prerenderer
+	console.log('[generatePages] Calling prerenderer.setup()...');
 	await prerenderer.setup?.();
+	console.log('[generatePages] prerenderer.setup() done');
 
 	// HACK! `astro:assets` relies on a global to know if its running in dev, prod, ssr, ssg, full moon
 	// If we don't delete it here, it's technically not impossible (albeit improbable) for it to leak
@@ -71,7 +79,9 @@ export async function generatePages(
 	logger.info('SKIP_FORMAT', `\n${colors.bgGreen(colors.black(` ${verb} static routes `))}`);
 
 	// Get all static paths with their routes from the prerenderer
+	console.log('[generatePages] Calling prerenderer.getStaticPaths()...');
 	const pathsWithRoutes = await prerenderer.getStaticPaths();
+	console.log('[generatePages] Got', pathsWithRoutes.length, 'paths');
 	const routeToHeaders: RouteToHeaders = new Map();
 
 	// Filter paths for conflicts (same path from multiple routes)

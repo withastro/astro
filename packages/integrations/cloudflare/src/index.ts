@@ -24,6 +24,7 @@ import {
 } from './wrangler.js';
 import { parse } from 'dotenv';
 import { sessionDrivers } from 'astro/config';
+import { createCloudflarePrerenderer } from './prerenderer.js';
 
 export type { Runtime } from './utils/handler.js';
 
@@ -153,6 +154,17 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						imagesBindingName:
 							args?.imageService === 'cloudflare-binding' ? args?.imagesBindingName : false,
 					}),
+					/*experimental: {
+						prerenderWorker: {
+							config(_, { entryWorkerConfig }) {
+				        return {
+				          ...entryWorkerConfig,
+				          name: "prerender",
+				          //main: "./src/prerender.ts",
+				        };
+				      },
+						}
+					}*/
 				};
 
 				updateConfig({
@@ -274,6 +286,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				setAdapter({
 					name: '@astrojs/cloudflare',
 					serverEntrypoint: customWorkerEntryPoint ?? '@astrojs/cloudflare/entrypoints/server.js',
+					entryType: 'self',
 					exports: [...new Set(['default', ...(args?.workerEntryPoint?.namedExports ?? [])])],
 					adapterFeatures: {
 						edgeMiddleware: false,
@@ -310,6 +323,15 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						);
 					}
 				}
+			},
+			'astro:build:start': ({ setPrerenderer }) => {
+				setPrerenderer(() => createCloudflarePrerenderer({
+					root: _config.root,
+					serverDir: _config.build.server,
+					clientDir: _config.build.client,
+					base: _config.base,
+					trailingSlash: _config.trailingSlash,
+				}));
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {

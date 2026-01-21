@@ -22,9 +22,11 @@ describe('astro:env', () => {
 			await previewServer.stop();
 		});
 
-		it('runtime', async () => {
+		it.only('runtime', async () => {
 			const res = await fixture.fetch('/');
 			const html = await res.text();
+			console.log('Response status:', res.status);
+			console.log('Response body:', html);
 			const $ = cheerio.load(html);
 			assert.equal(
 				$('#runtime').text().includes('https://google.de') &&

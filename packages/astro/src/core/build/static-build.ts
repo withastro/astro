@@ -253,17 +253,21 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 							// Move prerender and SSR assets to client directory before cleaning up
 							await ssrMoveAssets(opts, prerenderOutputDir);
 							// Generate the pages
+							console.log('[post plugin] Calling generatePages (static)...');
 							await generatePages(opts, internals, prerenderOutputDir);
+							console.log('[post plugin] generatePages done');
 							// Clean up prerender directory after generation
-							await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
+							// await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
 							settings.timer.end('Static generate');
 						} else if (settings.buildOutput === 'server') {
 							settings.timer.start('Server generate');
+							console.log('[post plugin] Calling generatePages (server)...');
 							await generatePages(opts, internals, prerenderOutputDir);
+							console.log('[post plugin] generatePages done');
 							// Move prerender and SSR assets to client directory before cleaning up
 							await ssrMoveAssets(opts, prerenderOutputDir);
 							// Clean up prerender directory after generation
-							await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
+							// await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
 							settings.timer.end('Server generate');
 						}
 					},
@@ -274,11 +278,13 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		// This takes precedence over platform plugin fallbacks (e.g., Cloudflare)
 		builder: {
 			async buildApp(builder) {
+				console.log('[buildApp] Starting...');
 				// Build ssr environment for server output
 				let ssrOutput =
 					settings.buildOutput === 'static'
 						? []
 						: await builder.build(builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]);
+				console.log('[buildApp] SSR build done');
 
 				// Extract chunks needing injection, then release output for GC
 				const ssrOutputs = viteBuildReturnToRollupOutputs(ssrOutput);
@@ -286,7 +292,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				ssrOutput = undefined as any;
 
 				// Build prerender environment for static generation
+				console.log('[buildApp] Building prerender environment...');
 				let prerenderOutput = await builder.build(builder.environments.prerender);
+				console.log('[buildApp] Prerender build done');
 
 				// Extract prerender entry filename and store in internals
 				extractPrerenderEntryFileName(internals, prerenderOutput);
@@ -300,6 +308,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				// We must discover client inputs after SSR build because hydration/client-only directives
 				// are only detected during SSR. We mutate the config here since the builder was already created
 				// and this is the only way to update the input after instantiation.
+				console.log('[buildApp] Building client environment...');
 				internals.clientInput = getClientInput(internals, settings);
 				if (!internals.clientInput.size) {
 					// At least 1 input is required to do a build, otherwise Vite throws.
@@ -311,9 +320,11 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					internals.clientInput,
 				);
 				await builder.build(builder.environments.client);
+				console.log('[buildApp] Client build done');
 
 				// Store extracted chunks on internals for post plugin to consume
 				internals.extractedChunks = [...ssrChunks, ...prerenderChunks];
+				console.log('[buildApp] All done');
 			},
 		},
 		envPrefix: viteConfig.envPrefix ?? 'PUBLIC_',

@@ -30,9 +30,9 @@ export function pluginInternals(
 						noExternal: ['astro'],
 						// Except for these packages as they're not bundle-friendly. Users with strict package installations
 						// need to manually install these themselves if they use the related features.
-						external: [
-							'sharp', // For sharp image service
-						],
+						// external: [
+						// 	'sharp', // For sharp image service
+						// ],
 					},
 				};
 			}

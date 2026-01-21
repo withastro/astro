@@ -10,6 +10,8 @@ import type {
 	SerializedRouteInfo,
 } from './types.js';
 
+export type { SerializedRouteData } from '../../types/astro.js';
+
 export function deserializeManifest(
 	serializedManifest: SerializedSSRManifest,
 	routesList?: RoutesList,
