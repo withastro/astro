@@ -6,6 +6,10 @@ import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { RewritePayload } from './common.js';
 import type { ValidRedirectStatus } from './config.js';
 
+type ConditionalType<TValue, TCondition> = TCondition extends 'enabled'
+	? TValue
+	: TValue | undefined;
+
 /**
  * Astro global available in all contexts in .astro files
  *
@@ -155,7 +159,7 @@ export interface APIContext<
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#site)
 	 */
-	site: URL | undefined;
+	site: ConditionalType<URL, AstroFeatures.Site>;
 
 	/**
 	 * A human-readable string representing the Astro version used to create the project. It follows the format "Astro v5.x.x".
@@ -201,7 +205,7 @@ export interface APIContext<
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#session)
 	 */
-	session?: AstroSession;
+	session: ConditionalType<AstroSession, AstroFeatures.Session>;
 
 	/**
 	 * A standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object containing information about the current request.
@@ -443,7 +447,7 @@ export interface APIContext<
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#preferredlocale)
 	 */
-	preferredLocale: string | undefined;
+	preferredLocale: AstroFeatures.I18nLocale | undefined;
 
 	/**
 	 * Represents the list of all locales, sorted via [quality value](https://developer.mozilla.org/en-US/docs/Glossary/Quality_values), that are both
@@ -465,14 +469,14 @@ export interface APIContext<
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#preferredlocalelist)
 	 */
-	preferredLocaleList: string[] | undefined;
+	preferredLocaleList: ConditionalType<Array<AstroFeatures.I18nLocale>, AstroFeatures.I18n>;
 
 	/**
 	 * The current locale computed from the URL of the request. It matches the locales in `i18n.locales`, and returns `undefined` otherwise.
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#currentlocale)
 	 */
-	currentLocale: string | undefined;
+	currentLocale: ConditionalType<AstroFeatures.I18nLocale, AstroFeatures.I18n>;
 
 	/**
 	 * Whether the current route is prerendered or not.
@@ -486,82 +490,85 @@ export interface APIContext<
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/)
 	 */
-	csp: {
-		/**
-		 * It adds a specific CSP directive to the route being rendered.
-		 *
-		 * @param {CspDirective} directive - The directive to add to the current page.
-		 *
-		 * ## Example
-		 *
-		 * ```js
-		 * ctx.insertDirective("default-src 'self' 'unsafe-inline' https://example.com")
-		 * ```
-		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertdirective)
-		 */
-		insertDirective: (directive: CspDirective) => void;
+	csp: ConditionalType<
+		{
+			/**
+			 * It adds a specific CSP directive to the route being rendered.
+			 *
+			 * @param {CspDirective} directive - The directive to add to the current page.
+			 *
+			 * ## Example
+			 *
+			 * ```js
+			 * ctx.insertDirective("default-src 'self' 'unsafe-inline' https://example.com")
+			 * ```
+			 *
+			 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertdirective)
+			 */
+			insertDirective: (directive: CspDirective) => void;
 
-		/**
-		 * It set the resource for the directive `style-src` in the route being rendered. It overrides Astro's default.
-		 *
-		 * @param {string} payload - The source to insert in the `style-src` directive.
-		 *
-		 * ## Example
-		 *
-		 * ```js
-		 * ctx.insertStyleResource("https://styles.cdn.example.com/")
-		 * ```
-		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstyleresource)
-		 */
-		insertStyleResource: (payload: string) => void;
+			/**
+			 * It set the resource for the directive `style-src` in the route being rendered. It overrides Astro's default.
+			 *
+			 * @param {string} payload - The source to insert in the `style-src` directive.
+			 *
+			 * ## Example
+			 *
+			 * ```js
+			 * ctx.insertStyleResource("https://styles.cdn.example.com/")
+			 * ```
+			 *
+			 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstyleresource)
+			 */
+			insertStyleResource: (payload: string) => void;
 
-		/**
-		 * Insert a single style hash to the route being rendered.
-		 *
-		 * @param {CspHash} hash - The hash to insert in the `style-src` directive.
-		 *
-		 * ## Example
-		 *
-		 * ```js
-		 * ctx.insertStyleHash("sha256-1234567890abcdef1234567890")
-		 * ```
-		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstylehash)
-		 */
-		insertStyleHash: (hash: CspHash) => void;
+			/**
+			 * Insert a single style hash to the route being rendered.
+			 *
+			 * @param {CspHash} hash - The hash to insert in the `style-src` directive.
+			 *
+			 * ## Example
+			 *
+			 * ```js
+			 * ctx.insertStyleHash("sha256-1234567890abcdef1234567890")
+			 * ```
+			 *
+			 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstylehash)
+			 */
+			insertStyleHash: (hash: CspHash) => void;
 
-		/**
-		 * It set the resource for the directive `script-src` in the route being rendered.
-		 *
-		 * @param {string} resource - The source to insert in the `script-src` directive.
-		 *
-		 * ## Example
-		 *
-		 * ```js
-		 * ctx.insertScriptResource("https://scripts.cdn.example.com/")
-		 * ```
-		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscriptresource)
-		 */
-		insertScriptResource: (resource: string) => void;
+			/**
+			 * It set the resource for the directive `script-src` in the route being rendered.
+			 *
+			 * @param {string} resource - The source to insert in the `script-src` directive.
+			 *
+			 * ## Example
+			 *
+			 * ```js
+			 * ctx.insertScriptResource("https://scripts.cdn.example.com/")
+			 * ```
+			 *
+			 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscriptresource)
+			 */
+			insertScriptResource: (resource: string) => void;
 
-		/**
-		 * Insert a single script hash to the route being rendered.
-		 *
-		 * @param {CspHash} hash - The hash to insert in the `script-src` directive.
-		 *
-		 * ## Example
-		 *
-		 * ```js
-		 * ctx.insertScriptHash("sha256-1234567890abcdef1234567890")
-		 * ```
-		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscripthash)
-		 */
-		insertScriptHash: (hash: CspHash) => void;
-	};
+			/**
+			 * Insert a single script hash to the route being rendered.
+			 *
+			 * @param {CspHash} hash - The hash to insert in the `script-src` directive.
+			 *
+			 * ## Example
+			 *
+			 * ```js
+			 * ctx.insertScriptHash("sha256-1234567890abcdef1234567890")
+			 * ```
+			 *
+			 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscripthash)
+			 */
+			insertScriptHash: (hash: CspHash) => void;
+		},
+		AstroFeatures.Csp
+	>;
 
 	/**
 	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.
@@ -574,5 +581,5 @@ export interface APIContext<
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/routing-reference/#routepattern)
 	 */
-	routePattern: string;
+	routePattern: AstroFeatures.RoutePattern;
 }

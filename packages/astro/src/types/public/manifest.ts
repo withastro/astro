@@ -17,22 +17,28 @@ type Dirs = Pick<SSRManifest, 'cacheDir' | 'outDir' | 'publicDir' | 'srcDir'>;
 // do not export
 type DeserializedDirs = Extend<Dirs, URL>;
 
+type ConditionalType<TValue, TCondition> = TCondition extends 'enabled'
+	? TValue
+	: TValue | undefined;
+
+interface I18n extends NonNullable<AstroConfig['i18n']> {
+	defaultLocale: AstroFeatures.I18nDefaultLocale;
+}
+
 // Export types after this comment
 
-export type ServerDeserializedManifest = Pick<
-	SSRManifest,
-	'base' | 'trailingSlash' | 'compressHTML' | 'site'
-> &
-	DeserializedDirs & {
-		i18n: AstroConfig['i18n'];
-		build: Pick<AstroConfig['build'], 'server' | 'client' | 'format'>;
-		root: URL;
-	};
+export interface ServerDeserializedManifest
+	extends Pick<SSRManifest, 'base' | 'trailingSlash' | 'compressHTML'>,
+		DeserializedDirs {
+	i18n: ConditionalType<I18n, AstroFeatures.I18n>;
+	build: Pick<AstroConfig['build'], 'server' | 'client' | 'format'>;
+	root: URL;
+	site: ConditionalType<string, AstroFeatures.Site>;
+}
 
-export type ClientDeserializedManifest = Pick<
-	SSRManifest,
-	'base' | 'trailingSlash' | 'compressHTML' | 'site'
-> & {
-	i18n: AstroConfig['i18n'];
+export interface ClientDeserializedManifest
+	extends Pick<SSRManifest, 'base' | 'trailingSlash' | 'compressHTML'> {
+	i18n: ConditionalType<I18n, AstroFeatures.I18n>;
 	build: Pick<AstroConfig['build'], 'format'>;
-};
+	site: ConditionalType<string, AstroFeatures.Site>;
+}

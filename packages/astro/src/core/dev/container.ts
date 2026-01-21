@@ -125,6 +125,7 @@ export async function createContainer({
 		force: inlineConfig?.force,
 		command: 'dev',
 		watcher: viteServer.watcher,
+		routesList: initialRoutesList,
 	});
 
 	const container: Container = {

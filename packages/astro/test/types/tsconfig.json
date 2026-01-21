@@ -4,5 +4,7 @@
     "allowJs": true,
     "emitDeclarationOnly": false,
     "noEmit": true
-  }
+  },
+  "exclude": ["**/*.d.ts"],
+  "references": [{ "path": "./fixtures/a" }, { "path": "./fixtures/b" }]
 }

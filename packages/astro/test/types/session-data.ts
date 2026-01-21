@@ -1,4 +1,4 @@
-import './session-env';
+import './session-env.d.ts';
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
 import { AstroSession } from '../../dist/core/session/runtime.js';
