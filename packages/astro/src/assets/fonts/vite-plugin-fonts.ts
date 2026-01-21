@@ -49,7 +49,12 @@ import { UnstorageFsStorage } from './infra/unstorage-fs-storage.js';
 import { RealUrlProxy } from './infra/url-proxy.js';
 import { XxhashHasher } from './infra/xxhash-hasher.js';
 import { orchestrate } from './orchestrate.js';
-import type { FontDataRecord, FontFileDataMap, InternalConsumableMap } from './types.js';
+import type {
+	FontDataRecord,
+	FontFamily,
+	FontFileDataMap,
+	InternalConsumableMap,
+} from './types.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -144,7 +149,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		const stringMatcher = new LevenshteinStringMatcher();
 
 		const res = await orchestrate({
-			families: settings.config.experimental.fonts!,
+			families: settings.config.experimental.fonts as Array<FontFamily>,
 			hasher,
 			localProviderUrlResolver,
 			createFontResolver: async ({ families }) =>

@@ -202,6 +202,7 @@ export async function orchestrate({
 				styles: family.styles ?? defaults.styles,
 				subsets: family.subsets ?? defaults.subsets,
 				formats: family.formats ?? defaults.formats,
+				options: family.options,
 			});
 			if (fonts.length === 0) {
 				logger.warn(

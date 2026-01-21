@@ -801,6 +801,7 @@ describe('fonts infra', () => {
 					styles: [],
 					subsets: [],
 					formats: [],
+					options: undefined,
 				}),
 				[],
 			);
@@ -815,6 +816,7 @@ describe('fonts infra', () => {
 					styles: [],
 					subsets: [],
 					formats: [],
+					options: undefined,
 				}),
 				[
 					{

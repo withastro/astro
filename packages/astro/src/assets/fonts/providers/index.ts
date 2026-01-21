@@ -1,7 +1,7 @@
 import {
 	type AdobeProviderOptions,
-	type GoogleiconsOptions,
-	type GoogleOptions,
+	type GoogleFamilyOptions,
+	type GoogleiconsFamilyOptions,
 	type InitializedProvider,
 	providers,
 } from 'unifont';
@@ -81,12 +81,11 @@ function fontsource(): FontProvider {
 }
 
 /** [Google](https://fonts.google.com/) */
-function google(config?: GoogleOptions): FontProvider {
-	const provider = providers.google(config);
-	let initializedProvider: InitializedProvider | undefined;
+function google(): FontProvider<GoogleFamilyOptions | undefined> {
+	const provider = providers.google();
+	let initializedProvider: InitializedProvider<GoogleFamilyOptions> | undefined;
 	return {
 		name: provider._name,
-		config,
 		async init(context) {
 			initializedProvider = await provider(context);
 		},
@@ -100,12 +99,11 @@ function google(config?: GoogleOptions): FontProvider {
 }
 
 /** [Google Icons](https://fonts.google.com/icons) */
-function googleicons(config?: GoogleiconsOptions): FontProvider {
-	const provider = providers.googleicons(config);
-	let initializedProvider: InitializedProvider | undefined;
+function googleicons(): FontProvider<GoogleiconsFamilyOptions | undefined> {
+	const provider = providers.googleicons();
+	let initializedProvider: InitializedProvider<GoogleiconsFamilyOptions> | undefined;
 	return {
 		name: provider._name,
-		config,
 		async init(context) {
 			initializedProvider = await provider(context);
 		},
