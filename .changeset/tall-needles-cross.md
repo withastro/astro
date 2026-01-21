@@ -2,13 +2,15 @@
 'astro': major
 ---
 
-Makes `Astro.csp` and `context.csp` optional instead of throwing if CSP is not enabled
+Allows `Astro.csp` and `context.csp` to be undefined instead of throwing errors when `csp: true` is not configured
 
-Until now, `context.csp` was always defined but would throw if CSP was not enabled in the Astro config. `context.csp` can now be undefined if CSP is not enabled and its methods will never throw.
+When using the experimental Content Security Policy feature in Astro 5.x, `context.csp` was always defined but would throw if `experimental.csp` was not enabled in the Astro config. 
+
+For the stable version of this API in Astro 6, `context.csp` can now be undefined if CSP is not enabled and its methods will never throw.
 
 #### What should I do?
 
-If you are using CSP runtime utilities, access methods conditionally:
+If you were using experimental CSP runtime utilities, you must now access methods conditionally:
 
 ```diff
 -Astro.csp.insertDirective("default-src 'self'");
