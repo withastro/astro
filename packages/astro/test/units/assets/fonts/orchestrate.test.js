@@ -29,7 +29,7 @@ describe('fonts orchestrate()', () => {
 		const root = new URL(import.meta.url);
 		const fontTypeExtractor = new RealFontTypeExtractor();
 		const hasher = new FakeHasher();
-		const { fontFileDataMap, internalConsumableMap, consumableMap } = await orchestrate({
+		const { fontFileDataMap, internalConsumableMap, fontData } = await orchestrate({
 			families: [
 				{
 					name: 'Test',
@@ -99,39 +99,33 @@ describe('fonts orchestrate()', () => {
 		// Fallback
 		assert.equal(entry?.css.includes('fallback: Arial"'), true);
 
-		assert.deepStrictEqual(
-			[...consumableMap.entries()],
-			[
-				[
-					'--test',
-					[
+		assert.deepStrictEqual(fontData, {
+			'--test': [
+				{
+					weight: '400',
+					style: 'normal',
+					src: [
 						{
-							weight: '400',
-							style: 'normal',
-							src: [
-								{
-									url: joinPaths('/test', fileURLToPath(new URL('my-font.woff2.woff2', root))),
-									format: 'woff2',
-									tech: undefined,
-								},
-								{
-									url: joinPaths('/test', fileURLToPath(new URL('my-font.woff.woff', root))),
-									format: 'woff',
-									tech: undefined,
-								},
-							],
+							url: joinPaths('/test', fileURLToPath(new URL('my-font.woff2.woff2', root))),
+							format: 'woff2',
+							tech: undefined,
+						},
+						{
+							url: joinPaths('/test', fileURLToPath(new URL('my-font.woff.woff', root))),
+							format: 'woff',
+							tech: undefined,
 						},
 					],
-				],
+				},
 			],
-		);
+		});
 	});
 
 	it('works with a remote provider', async () => {
 		const root = new URL(import.meta.url);
 		const fontTypeExtractor = new RealFontTypeExtractor();
 		const hasher = new FakeHasher();
-		const { fontFileDataMap, internalConsumableMap, consumableMap } = await orchestrate({
+		const { fontFileDataMap, internalConsumableMap, fontData } = await orchestrate({
 			families: [
 				{
 					name: 'Test',
@@ -218,32 +212,26 @@ describe('fonts orchestrate()', () => {
 		// Fallback
 		assert.equal(entry?.css.includes('fallback: Times New Roman"'), true);
 
-		assert.deepStrictEqual(
-			[...consumableMap.entries()],
-			[
-				[
-					'--test',
-					[
+		assert.deepStrictEqual(fontData, {
+			'--test': [
+				{
+					weight: '400',
+					style: 'normal',
+					src: [
 						{
-							weight: '400',
-							style: 'normal',
-							src: [
-								{
-									url: 'https://example.com/foo.woff2.woff2',
-									format: undefined,
-									tech: undefined,
-								},
-								{
-									url: 'https://example.com/foo.woff.woff',
-									format: undefined,
-									tech: undefined,
-								},
-							],
+							url: 'https://example.com/foo.woff2.woff2',
+							format: undefined,
+							tech: undefined,
+						},
+						{
+							url: 'https://example.com/foo.woff.woff',
+							format: undefined,
+							tech: undefined,
 						},
 					],
-				],
+				},
 			],
-		);
+		});
 	});
 
 	it('warns if remote provider does not return any font data', async () => {
