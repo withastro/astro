@@ -1,5 +1,146 @@
 # astro
 
+## 5.16.12
+
+### Patch Changes
+
+- [#15175](https://github.com/withastro/astro/pull/15175) [`47ae148`](https://github.com/withastro/astro/commit/47ae1480eecd5da7080f1e659b6aef211aaf3300) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Allows experimental Font providers to specify family options
+
+  Previously, an Astro `FontProvider` could only accept options at the provider level when called. That could result in weird data structures for family-specific options.
+
+  Astro `FontProvider`s can now declare family-specific options, by specifying a generic:
+
+  ```diff
+  // font-provider.ts
+  import type { FontProvider } from "astro";
+  import { retrieveFonts, type Fonts } from "./utils.js",
+
+  interface Config {
+    token: string;
+  }
+
+  +interface FamilyOptions {
+  +    minimal?: boolean;
+  +}
+
+  -export function registryFontProvider(config: Config): FontProvider {
+  +export function registryFontProvider(config: Config): FontProvider<FamilyOptions> {
+    let data: Fonts = {}
+
+    return {
+      name: "registry",
+      config,
+      init: async () => {
+        data = await retrieveFonts(token);
+      },
+      listFonts: () => {
+        return Object.keys(data);
+      },
+  -    resolveFont: ({ familyName, ...rest }) => {
+  +    // options is typed as FamilyOptions
+  +    resolveFont: ({ familyName, options, ...rest }) => {
+        const fonts = data[familyName];
+        if (fonts) {
+          return { fonts };
+        }
+        return undefined;
+      },
+    };
+  }
+  ```
+
+  Once the font provider is registered in the Astro config, types are automatically inferred:
+
+  ```diff
+  // astro.config.ts
+  import { defineConfig } from "astro/config";
+  import { registryFontProvider } from "./font-provider";
+
+  export default defineConfig({
+      experimental: {
+          fonts: [{
+              provider: registryFontProvider({
+                token: "..."
+              }),
+              name: "Custom",
+              cssVariable: "--font-custom",
+  +            options: {
+  +                minimal: true
+  +            }
+          }]
+      }
+  });
+  ```
+
+- [#15175](https://github.com/withastro/astro/pull/15175) [`47ae148`](https://github.com/withastro/astro/commit/47ae1480eecd5da7080f1e659b6aef211aaf3300) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental Fonts API only**
+
+  Updates how options are passed to the Google and Google Icons font providers when using the experimental Fonts API
+
+  Previously, the Google and Google Icons font providers accepted options that were specific to given font families.
+
+  These options must now be set using the `options` property instead. For example using the Google provider:
+
+  ```diff
+  import { defineConfig, fontProviders } from "astro/config";
+
+  export default defineConfig({
+      experimental: {
+          fonts: [{
+              name: 'Inter',
+              cssVariable: '--astro-font-inter',
+              weights: ['300 900'],
+  -            provider: fontProviders.google({
+  -                experimental: {
+  -                    variableAxis: {
+  -                        Inter: { opsz: ['14..32'] }
+  -                    }
+  -                }
+  -            }),
+  +            provider: fontProviders.google(),
+  +            options: {
+  +                experimental: {
+  +                    variableAxis: { opsz: ['14..32'] }
+  +                }
+  +            }
+          }]
+      }
+  })
+  ```
+
+- [#15200](https://github.com/withastro/astro/pull/15200) [`c0595b3`](https://github.com/withastro/astro/commit/c0595b3e71a3811921ddc24e6ed7538c0df53a96) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental Fonts API only**
+
+  Removes `getFontData()` exported from `astro:assets` with `fontData` when using the experimental Fonts API
+
+  Accessing font data can be useful for advanced use cases, such as generating meta tags or Open Graph images. Before, we exposed a `getFontData()` helper function to retrieve the font data for a given `cssVariable`. That was however limiting for programmatic usages that need to access all font data.
+
+  The `getFontData()` helper function is removed and replaced by a new `fontData` object:
+
+  ```diff
+  -import { getFontData } from "astro:assets";
+  -const data = getFontData("--font-roboto")
+
+  +import { fontData } from "astro:assets";
+  +const data = fontData["--font-roboto"]
+  ```
+
+  We may reintroduce `getFontData()` later on for a more friendly DX, based on your feedback.
+
+- [#15254](https://github.com/withastro/astro/pull/15254) [`8d84b30`](https://github.com/withastro/astro/commit/8d84b3040181018f358b4e5684f9df55949aa4ca) Thanks [@lamalex](https://github.com/lamalex)! - Fixes CSS `assetsPrefix` with remote URLs incorrectly prepending a forward slash
+
+  When using `build.assetsPrefix` with a remote URL (e.g., `https://cdn.example.com`) for CSS assets, the generated `<link>` elements were incorrectly getting a `/` prepended to the full URL, resulting in invalid URLs like `/https://cdn.example.com/assets/style.css`.
+
+  This fix checks if the stylesheet link is a remote URL before prepending the forward slash.
+
+- [#15178](https://github.com/withastro/astro/pull/15178) [`731f52d`](https://github.com/withastro/astro/commit/731f52dd68c538a3372d4ac078e72d1090cc4cce) Thanks [@kedarvartak](https://github.com/kedarvartak)! - Fixes an issue where stopping the dev server with `q+enter` incorrectly created a `dist` folder and copied font files when using the experimental Fonts API
+
+- [#15230](https://github.com/withastro/astro/pull/15230) [`3da6272`](https://github.com/withastro/astro/commit/3da62721f02e7cbf1344ae9766ca73cae71b23c8) Thanks [@rahuld109](https://github.com/rahuld109)! - Fixes greedy regex in error message markdown rendering that caused link syntax examples to capture extra characters
+
+- [#15253](https://github.com/withastro/astro/pull/15253) [`2a6315a`](https://github.com/withastro/astro/commit/2a6315a3a38273ed47e4aa16a4dd9449fc7927c9) Thanks [@matthewp](https://github.com/matthewp)! - Fixes hydration for React components nested inside HTML elements in MDX files
+
+- [#15227](https://github.com/withastro/astro/pull/15227) [`9a609f4`](https://github.com/withastro/astro/commit/9a609f4a6264fc2238e02cffb00a9285f4a10973) Thanks [@matthewp](https://github.com/matthewp)! - Fixes styles not being included for conditionally rendered Svelte 5 components in production builds
+
+- [#14607](https://github.com/withastro/astro/pull/14607) [`ee52160`](https://github.com/withastro/astro/commit/ee52160f3374f65d1a8cb460c1340172902313bc) Thanks [@simensfo](https://github.com/simensfo)! - Reintroduces css deduplication for hydrated client components. Ensures assets already added to a client chunk are not flagged as orphaned
+
 ## 5.16.11
 
 ### Patch Changes
