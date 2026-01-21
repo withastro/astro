@@ -517,6 +517,23 @@ describe('Config Validation', () => {
 				}),
 			);
 		});
+
+		it('Should allow family options', () => {
+			assert.doesNotThrow(() =>
+				validateConfig({
+					experimental: {
+						fonts: [
+							{
+								provider: fontProviders.google(),
+								name: 'Roboto',
+								cssVariable: '--font-roboto',
+								options: {},
+							},
+						],
+					},
+				}),
+			);
+		});
 	});
 
 	describe('csp', () => {

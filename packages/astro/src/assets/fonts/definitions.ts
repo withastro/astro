@@ -3,6 +3,7 @@ import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 import type {
 	FontFaceMetrics,
 	FontFileData,
+	FontProvider,
 	FontType,
 	GenericFallbackName,
 	PreloadData,
@@ -113,7 +114,7 @@ export interface Storage {
 
 export interface FontResolver {
 	resolveFont: (
-		options: ResolveFontOptions & { provider: string },
+		options: ResolveFontOptions<Record<string, any>> & { provider: FontProvider },
 	) => Promise<Array<unifont.FontFaceData>>;
-	listFonts: (options: { provider: string }) => Promise<string[] | undefined>;
+	listFonts: (options: { provider: FontProvider }) => Promise<string[] | undefined>;
 }

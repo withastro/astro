@@ -4,8 +4,7 @@ import { loadFixture } from '../../astro/test/test-utils.js';
 import { cli } from '../dist/core/cli/index.js';
 import { setupRemoteDb } from './test-utils.js';
 
-const foreignKeyConstraintError =
-	'LibsqlError: SQLITE_CONSTRAINT_FOREIGNKEY: FOREIGN KEY constraint failed';
+const foreignKeyConstraintError = 'LibsqlError: SQLITE_CONSTRAINT: FOREIGN KEY constraint failed';
 
 describe('astro:db - error handling', () => {
 	let fixture;
@@ -63,7 +62,7 @@ describe('astro:db - error handling', () => {
 			const json = await fixture.fetch('/foreign-key-constraint.json').then((res) => res.json());
 			assert.deepEqual(json, {
 				message: foreignKeyConstraintError,
-				code: 'SQLITE_CONSTRAINT_FOREIGNKEY',
+				code: 'SQLITE_CONSTRAINT',
 			});
 		});
 	});
@@ -84,7 +83,7 @@ describe('astro:db - error handling', () => {
 			const json = await fixture.readFile('/foreign-key-constraint.json');
 			assert.deepEqual(JSON.parse(json), {
 				message: foreignKeyConstraintError,
-				code: 'SQLITE_CONSTRAINT_FOREIGNKEY',
+				code: 'SQLITE_CONSTRAINT',
 			});
 		});
 	});

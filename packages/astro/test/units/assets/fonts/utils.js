@@ -123,12 +123,12 @@ export function markdownBold(input) {
 
 /** @implements {FontResolver} */
 export class PassthroughFontResolver {
-	/** @type {Map<string, import('../../../../dist/index.js').FontProvider>} */
+	/** @type {Map<string, import('../../../../dist/index.js').FontProvider<Record<string, any>>>} */
 	#providers;
 
 	/**
 	 * @private
-	 * @param {Map<string, import('../../../../dist/index.js').FontProvider>} providers
+	 * @param {Map<string, import('../../../../dist/index.js').FontProvider<Record<string, any>>>} providers
 	 */
 	constructor(providers) {
 		this.#providers = providers;
@@ -138,14 +138,14 @@ export class PassthroughFontResolver {
 	 * @param {{ families: Array<import('../../../../dist/assets/fonts/types').ResolvedFontFamily>; hasher: Hasher }} param0
 	 */
 	static async create({ families, hasher }) {
-		/** @type {Map<string, import('../../../../dist/index.js').FontProvider>} */
+		/** @type {Map<string, import('../../../../dist/index.js').FontProvider<Record<string, any>>>} */
 		const providers = new Map();
 		for (const { provider } of families) {
 			if (provider === 'local') {
 				continue;
 			}
 			provider.name = `${provider.name}-${hasher.hashObject(provider.config ?? {})}`;
-			providers.set(provider.name, provider);
+			providers.set(provider.name, /** @type {any} */ (provider));
 		}
 		const storage = new SpyStorage();
 		await Promise.all(
@@ -157,17 +157,17 @@ export class PassthroughFontResolver {
 	}
 
 	/**
-	 * @param {import('../../../../dist/assets/fonts/types').ResolveFontOptions & { provider: string; }} param0
+	 * @param {import('../../../../dist/assets/fonts/types.js').ResolveFontOptions<Record<string, any>> & { provider: import('../../../../dist/index.js').FontProvider; }} param0
 	 */
 	async resolveFont({ provider, ...rest }) {
-		const res = await this.#providers.get(provider)?.resolveFont(rest);
+		const res = await this.#providers.get(provider.name)?.resolveFont(rest);
 		return res?.fonts ?? [];
 	}
 
 	/**
-	 * @param {{ provider: string }} param0
+	 * @param {{ provider: import('../../../../dist/index.js').FontProvider }} param0
 	 */
 	async listFonts({ provider }) {
-		return await this.#providers.get(provider)?.listFonts?.();
+		return await this.#providers.get(provider.name)?.listFonts?.();
 	}
 }
