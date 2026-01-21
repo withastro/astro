@@ -40,6 +40,19 @@ export async function generatePages(
 	const generatePagesTimer = performance.now();
 	const ssr = options.settings.buildOutput === 'server';
 	const logger = options.logger;
+	const hasPagesToGenerate = hasPrerenderedPages(internals);
+
+	// HACK! `astro:assets` relies on a global to know if its running in dev, prod, ssr, ssg, full moon
+	// If we don't delete it here, it's technically not impossible (albeit improbable) for it to leak
+	if (ssr && !hasPagesToGenerate) {
+		delete globalThis?.astroAsset?.addStaticImage;
+	}
+
+	// Exit early when no prerendered pages were discovered to avoid setting up
+	// and tearing down the prerenderer for an empty set of routes.
+	if (!hasPagesToGenerate) {
+		return;
+	}
 
 	// Get or create the prerenderer
 	let prerenderer: AstroPrerenderer;
@@ -60,12 +73,7 @@ export async function generatePages(
 
 	// Setup the prerenderer
 	await prerenderer.setup?.();
-
-	// HACK! `astro:assets` relies on a global to know if its running in dev, prod, ssr, ssg, full moon
-	// If we don't delete it here, it's technically not impossible (albeit improbable) for it to leak
-	if (ssr && !hasPrerenderedPages(internals)) {
-		delete globalThis?.astroAsset?.addStaticImage;
-	}
+	
 
 	const verb = ssr ? 'prerendering' : 'generating';
 	logger.info('SKIP_FORMAT', `\n${colors.bgGreen(colors.black(` ${verb} static routes `))}`);

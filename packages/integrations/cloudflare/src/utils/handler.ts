@@ -9,6 +9,9 @@ import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from '../utils/env.js';
 import type { RouteData } from 'astro';
+import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
+import type { StaticPathsResponse, PrerenderRequest } from '../prerender-types.js';
+import { StaticPaths } from 'astro/runtime/prerender/static-paths.js';
 
 export type Env = {
 	[key: string]: unknown;
@@ -33,6 +36,37 @@ export async function handle(
 ): Promise<CfResponse> {
 	const app = createApp(import.meta.env.DEV);
 	const { pathname } = new URL(request.url);
+
+	// Handle prerender endpoints (used during build)
+	if (pathname === '/__astro_static_paths' && request.method === 'POST') {
+		const staticPaths = new StaticPaths(app);
+		const paths = await staticPaths.getAll();
+		// Serialize routes for transport
+		const response: StaticPathsResponse = {
+			paths: paths.map(({ pathname, route }) => ({
+				pathname,
+				route: serializeRouteData(route, app.manifest.trailingSlash),
+			})),
+		};
+		return new Response(JSON.stringify(response), {
+			headers: { 'Content-Type': 'application/json' },
+		}) as unknown as CfResponse;
+	}
+
+	if (pathname === '/__astro_prerender' && request.method === 'POST') {
+		const headers = new Headers();
+		for(const [key, value] of request.headers.entries()) {
+			headers.append(key, value);
+		}
+		const body: PrerenderRequest = await request.json();
+		const routeData = deserializeRouteData(body.routeData);
+		const prerenderRequest = new Request(body.url, {
+			method: 'GET',
+			headers,
+		});
+		const response = await app.render(prerenderRequest, { routeData });
+		return response as unknown as CfResponse;
+	}
 
 	if (env[sessionKVBindingName]) {
 		const sessionConfigOptions = app.manifest.sessionConfig?.options ?? {};
