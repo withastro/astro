@@ -3,7 +3,7 @@ import type { SerializedRouteData } from 'astro/app/manifest';
 /**
  * A pathname with its serialized route data, used for prerendering over HTTP.
  */
-export interface SerializedPathWithRoute {
+interface SerializedPathWithRoute {
 	pathname: string;
 	route: SerializedRouteData;
 }

@@ -35,10 +35,10 @@ export async function handle(
 	context: ExecutionContext,
 ): Promise<CfResponse> {
 	const app = createApp(import.meta.env.DEV);
-	const { pathname } = new URL(request.url);
+	const { pathname: requestPathname } = new URL(request.url);
 
 	// Handle prerender endpoints (used during build)
-	if (pathname === '/__astro_static_paths' && request.method === 'POST') {
+	if (requestPathname === '/__astro_static_paths' && request.method === 'POST') {
 		const staticPaths = new StaticPaths(app);
 		const paths = await staticPaths.getAll();
 		// Serialize routes for transport
@@ -53,7 +53,7 @@ export async function handle(
 		}) as unknown as CfResponse;
 	}
 
-	if (pathname === '/__astro_prerender' && request.method === 'POST') {
+	if (requestPathname === '/__astro_prerender' && request.method === 'POST') {
 		const headers = new Headers();
 		for(const [key, value] of request.headers.entries()) {
 			headers.append(key, value);
@@ -76,7 +76,7 @@ export async function handle(
 	}
 
 	// static assets fallback, in case default _routes.json is not used
-	if (app.manifest.assets.has(pathname)) {
+	if (app.manifest.assets.has(requestPathname)) {
 		return env.ASSETS.fetch(request.url.replace(/\.html$/, ''));
 	}
 
