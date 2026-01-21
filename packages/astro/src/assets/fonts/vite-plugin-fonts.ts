@@ -346,7 +346,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 		},
 		async buildEnd() {
-			if (sync || settings.config.experimental.fonts!.length === 0) {
+			if (sync || settings.config.experimental.fonts!.length === 0 || !isBuild) {
 				cleanup();
 				return;
 			}

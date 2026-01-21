@@ -1,5 +1,6 @@
 // @ts-check
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
 import { describe, it } from 'node:test';
 import { fontProviders } from 'astro/config';
@@ -12,6 +13,7 @@ import { loadFixture } from './test-utils.js';
  */
 async function createDevFixture(inlineConfig) {
 	const fixture = await loadFixture({ root: './fixtures/fonts/', ...inlineConfig });
+	await fixture.clean();
 	const devServer = await fixture.startDevServer();
 
 	return {
@@ -254,6 +256,25 @@ describe('astro fonts', () => {
 				assert.equal(length === '0', false);
 			});
 		});
+
+		it('Does not create dist folder or copy fonts when dev server stops', async () => {
+			const { fixture, run } = await createDevFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Poppins',
+							cssVariable: '--font-test',
+							provider: fontProviders.fontsource(),
+							weights: [400, 500],
+						},
+					],
+				},
+			});
+			await run(async () => {
+				await fixture.fetch('/');
+			});
+			assert.equal(existsSync(fixture.config.outDir), false);
+		});
 	});
 
 	describe('build', () => {
@@ -481,7 +502,6 @@ describe('astro fonts', () => {
 			assert.equal(parsed.length > 0, true);
 			assert.equal(parsed[0].src[0].url.startsWith('/_astro/fonts/'), true);
 		});
-
 
 		it('Exposes buffer in getFontBuffer()', async () => {
 			const fixture = await createSsrFixture({
