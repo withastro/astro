@@ -296,13 +296,13 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				return {
 					code: `
 						export const componentDataByCssVariable = new Map(${JSON.stringify(Array.from(componentDataByCssVariable?.entries() ?? []))});
-						export const fontDataByCssVariable = new Map(${JSON.stringify(Array.from(fontDataByCssVariable?.entries() ?? []))});
+						export const fontDataByCssVariable = ${JSON.stringify(fontDataByCssVariable ?? {})}
 					`,
 				};
 			}
 		},
 		async buildEnd() {
-			if (sync || settings.config.experimental.fonts!.length === 0) {
+			if (sync || settings.config.experimental.fonts!.length === 0 || !isBuild) {
 				cleanup();
 				return;
 			}

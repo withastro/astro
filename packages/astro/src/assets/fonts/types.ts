@@ -236,7 +236,7 @@ export interface FontData {
 /**
  * Holds associations of CSS variables and font data to be exposed via virtual module.
  */
-export type FontDataByCssVariable = Map<string, Array<FontData>>;
+export type FontDataByCssVariable = Record<string, Array<FontData>>;
 
 export type Style = z.output<typeof styleSchema>;
 
