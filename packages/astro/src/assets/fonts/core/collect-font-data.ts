@@ -6,7 +6,7 @@ export function collectFontData(
 		Pick<FontFamilyAssets, 'fonts'> & { family: Pick<FontFamilyAssets['family'], 'cssVariable'> }
 	>,
 ) {
-	const fontDataByCssVariable: FontDataByCssVariable = new Map();
+	const fontDataByCssVariable: FontDataByCssVariable = {};
 
 	for (const { family, fonts } of fontFamilyAssets) {
 		const fontData: Array<FontData> = [];
@@ -24,7 +24,7 @@ export function collectFontData(
 			});
 		}
 
-		fontDataByCssVariable.set(family.cssVariable, fontData);
+		fontDataByCssVariable[family.cssVariable] = fontData;
 	}
 
 	return fontDataByCssVariable;

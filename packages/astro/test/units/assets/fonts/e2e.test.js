@@ -167,51 +167,45 @@ describe('Fonts E2E', () => {
 					},
 				],
 			]),
-			fontDataByCssVariable: new Map([
-				[
-					'--font-roboto',
-					[
-						{
-							src: [
-								{
-									format: 'woff2',
-									tech: undefined,
-									url: '/font-roboto-400-normal-latin-4be39bb0bc16cc61.woff2',
-								},
-							],
-							style: 'normal',
-							weight: '400',
-						},
-						{
-							src: [
-								{
-									format: 'woff2',
-									tech: undefined,
-									url: '/font-roboto-400-italic-latin-e473890ddd4ee723.woff2',
-								},
-							],
-							style: 'italic',
-							weight: '400',
-						},
-					],
+			fontDataByCssVariable: {
+				'--font-roboto': [
+					{
+						src: [
+							{
+								format: 'woff2',
+								tech: undefined,
+								url: '/font-roboto-400-normal-latin-4be39bb0bc16cc61.woff2',
+							},
+						],
+						style: 'normal',
+						weight: '400',
+					},
+					{
+						src: [
+							{
+								format: 'woff2',
+								tech: undefined,
+								url: '/font-roboto-400-italic-latin-e473890ddd4ee723.woff2',
+							},
+						],
+						style: 'italic',
+						weight: '400',
+					},
 				],
-				[
-					'--font-test',
-					[
-						{
-							src: [
-								{
-									format: 'woff2',
-									tech: undefined,
-									url: `/${localUrl}`,
-								},
-							],
-							style: 'normal',
-							weight: '400',
-						},
-					],
+				'--font-test': [
+					{
+						src: [
+							{
+								format: 'woff2',
+								tech: undefined,
+								url: `/${localUrl}`,
+							},
+						],
+						style: 'normal',
+						weight: '400',
+					},
 				],
-			]),
+			},
 			componentDataByCssVariable: new Map([
 				[
 					'--font-roboto',
@@ -311,51 +305,45 @@ describe('Fonts E2E', () => {
 					},
 				],
 			]),
-			fontDataByCssVariable: new Map([
-				[
-					'--font-roboto',
-					[
-						{
-							src: [
-								{
-									format: 'woff2',
-									tech: undefined,
-									url: '/font-roboto-500-normal-latin-0f94d1c6c8982360.woff2',
-								},
-							],
-							style: 'normal',
-							weight: '500',
-						},
-						{
-							src: [
-								{
-									format: 'woff2',
-									tech: undefined,
-									url: '/font-roboto-700-italic-latin-f291476ed7fdb908.woff2',
-								},
-							],
-							style: 'italic',
-							weight: '700',
-						},
-					],
+			fontDataByCssVariable: {
+				'--font-roboto': [
+					{
+						src: [
+							{
+								format: 'woff2',
+								tech: undefined,
+								url: '/font-roboto-500-normal-latin-0f94d1c6c8982360.woff2',
+							},
+						],
+						style: 'normal',
+						weight: '500',
+					},
+					{
+						src: [
+							{
+								format: 'woff2',
+								tech: undefined,
+								url: '/font-roboto-700-italic-latin-f291476ed7fdb908.woff2',
+							},
+						],
+						style: 'italic',
+						weight: '700',
+					},
 				],
-				[
-					'--font-test',
-					[
-						{
-							src: [
-								{
-									format: 'woff2',
-									tech: undefined,
-									url: `/${localUrl}`,
-								},
-							],
-							style: 'normal',
-							weight: '400',
-						},
-					],
+				'--font-test': [
+					{
+						src: [
+							{
+								format: 'woff2',
+								tech: undefined,
+								url: `/${localUrl}`,
+							},
+						],
+						style: 'normal',
+						weight: '400',
+					},
 				],
-			]),
+			},
 			componentDataByCssVariable: new Map([
 				[
 					'--font-roboto',

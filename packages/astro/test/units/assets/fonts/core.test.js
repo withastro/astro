@@ -1123,51 +1123,45 @@ describe('fonts core', () => {
 					],
 				},
 			]),
-			new Map([
-				[
-					'--foo',
-					[
-						{
-							src: [
-								{
-									format: 'woff2',
-									tech: undefined,
-									url: 'a.woff2',
-								},
-							],
-							style: 'normal',
-							weight: '400',
-						},
-						{
-							src: [
-								{
-									format: 'woff2',
-									tech: undefined,
-									url: 'c.woff2',
-								},
-							],
-							style: 'italic',
-							weight: '500',
-						},
-					],
+			{
+				'--foo': [
+					{
+						src: [
+							{
+								format: 'woff2',
+								tech: undefined,
+								url: 'a.woff2',
+							},
+						],
+						style: 'normal',
+						weight: '400',
+					},
+					{
+						src: [
+							{
+								format: 'woff2',
+								tech: undefined,
+								url: 'c.woff2',
+							},
+						],
+						style: 'italic',
+						weight: '500',
+					},
 				],
-				[
-					'--bar',
-					[
-						{
-							src: [
-								{
-									format: 'woff2',
-									tech: undefined,
-									url: 'd.woff2',
-								},
-							],
-							style: 'normal',
-							weight: '400',
-						},
-					],
+				'--bar': [
+					{
+						src: [
+							{
+								format: 'woff2',
+								tech: undefined,
+								url: 'd.woff2',
+							},
+						],
+						style: 'normal',
+						weight: '400',
+					},
 				],
-			]),
+			},
 		);
 	});
 
@@ -1548,8 +1542,7 @@ describe('fonts core', () => {
 		});
 	});
 
-	describe('filterPreloads()', () =>
-	{
+	describe('filterPreloads()', () => {
 		it('returns null if it should not preload', () => {
 			assert.equal(filterPreloads([], false), null);
 		});
@@ -1702,6 +1695,5 @@ describe('fonts core', () => {
 				],
 			);
 		});
-	}
-	)
+	});
 });
