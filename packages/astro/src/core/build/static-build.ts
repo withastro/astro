@@ -29,7 +29,7 @@ import type { StaticBuildOptions } from './types.js';
 import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
 import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
-import type { RollupOutput, RollupWatcher } from 'rollup';
+import type { RollupOutput, RollupWatcher, InputOption } from 'rollup';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -188,6 +188,30 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 
 	const buildPlugins = getAllBuildPlugins(internals, opts);
 	const flatPlugins = buildPlugins.flat().filter(Boolean);
+	const plugins = [...flatPlugins, ...(viteConfig.plugins || [])];
+	let currentRollupInput: InputOption | undefined = undefined;
+	plugins.push({
+		name: 'astro:resolve-input',
+		configResolved(config) {
+			currentRollupInput = config.build.rollupOptions.input;
+		},
+	});
+
+	function isRollupInput(moduleName: string | null): boolean {
+		if (!currentRollupInput) {
+			return false;
+		}
+		if (!moduleName) {
+			return false;
+		}
+		if (typeof currentRollupInput === 'string') {
+			return currentRollupInput === moduleName;
+		} else if (Array.isArray(currentRollupInput)) {
+			return currentRollupInput.includes(moduleName);
+		} else {
+			return Object.keys(currentRollupInput).includes(moduleName);
+		}
+	}
 
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
@@ -244,10 +268,8 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 							chunkInfo.facadeModuleId === RESOLVED_SSR_VIRTUAL_MODULE_ID ||
 							// This catches the case when the adapter uses `entryType: 'self'. When doing so,
 							// the adapter must set rollupOptions.input.
-							chunkInfo.facadeModuleId === settings?.config.vite.build?.rollupOptions?.input ||
-							// NOTE: I honestly don't like this check. It's brittle and it's code smell. If CF vite plugin
-							// decides to rename their virtual module, `build.serverEntry` will stop working.
-							chunkInfo.facadeModuleId === '\0' + 'virtual:cloudflare/worker-entry'
+							isRollupInput(chunkInfo.name) ||
+							isRollupInput(chunkInfo.facadeModuleId)
 						) {
 							return opts.settings.config.build.serverEntry;
 						} else if (chunkInfo.facadeModuleId === RESOLVED_ASTRO_RENDERERS_MODULE_ID) {
@@ -269,7 +291,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			modulePreload: { polyfill: false },
 			reportCompressedSize: false,
 		},
-		plugins: [...flatPlugins, ...(viteConfig.plugins || [])],
+		plugins,
 		envPrefix: viteConfig.envPrefix ?? 'PUBLIC_',
 		base: settings.config.base,
 		environments: {
