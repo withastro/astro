@@ -4,9 +4,9 @@
 
 Allows experimental Font providers to specify family options
 
-Previously, an Astro `FontProvider` could only accept options at the provider level when called. That could result in weird data structures for family specific options.
+Previously, an Astro `FontProvider` could only accept options at the provider level when called. That could result in weird data structures for family-specific options.
 
-Astro `FontProvider`s can now declare family specific options, by specifying a generic:
+Astro `FontProvider`s can now declare family-specific options, by specifying a generic:
 
 ```diff
 // font-provider.ts
