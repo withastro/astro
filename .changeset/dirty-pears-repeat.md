@@ -8,7 +8,7 @@ The `getFontData()` helper function from `astro:assets` was introduced in 5.14.0
 
 However, it turned out to be impactical and even impossible during prerendering.
 
-Astro now exports a new `getFontBuffer()` helper function from `astro:assets` to retrieve font file buffers from URL returned by `getFontData()`. For example, using [satori](https://github.com/vercel/satori) to generate OpenGraph images:
+Astro now exports a new `getFontBuffer()` helper function from `astro:assets` to retrieve font file buffers from URL returned by `getFontData()`. For example, when using [satori](https://github.com/vercel/satori) to generate OpenGraph images:
 
 ```diff
 // src/pages/og.png.ts
