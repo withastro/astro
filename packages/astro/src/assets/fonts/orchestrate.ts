@@ -18,10 +18,10 @@ import type {
 } from './definitions.js';
 import { resolveLocalFont } from './providers/local.js';
 import type {
-	ConsumableMap,
 	CreateUrlProxyParams,
 	Defaults,
 	FontData,
+	FontDataRecord,
 	FontFamily,
 	FontFileDataMap,
 	InternalConsumableMap,
@@ -84,7 +84,7 @@ export async function orchestrate({
 }): Promise<{
 	fontFileDataMap: FontFileDataMap;
 	internalConsumableMap: InternalConsumableMap;
-	consumableMap: ConsumableMap;
+	fontData: FontDataRecord;
 }> {
 	const resolvedFamilies = resolveFamilies({
 		families,
@@ -106,7 +106,7 @@ export async function orchestrate({
 	/**
 	 * Holds associations of CSS variables and font data to be exposed via virtual module.
 	 */
-	const consumableMap: ConsumableMap = new Map();
+	const fontData: FontDataRecord = {};
 
 	/**
 	 * Holds family data by a key, to allow merging families
@@ -234,7 +234,7 @@ export async function orchestrate({
 		collectedFonts,
 		preloadData,
 	} of resolvedFamiliesMap.values()) {
-		const consumableMapValue: Array<FontData> = [];
+		const fontDataValue: Array<FontData> = [];
 		let css = '';
 
 		for (const data of fonts) {
@@ -254,7 +254,7 @@ export async function orchestrate({
 				}),
 			);
 
-			consumableMapValue.push({
+			fontDataValue.push({
 				weight: renderFontWeight(data.weight),
 				style: data.style,
 				src: data.src
@@ -288,8 +288,8 @@ export async function orchestrate({
 		css += cssRenderer.generateCssVariable(family.cssVariable, cssVarValues);
 
 		internalConsumableMap.set(family.cssVariable, { preloadData, css });
-		consumableMap.set(family.cssVariable, consumableMapValue);
+		fontData[family.cssVariable] = fontDataValue;
 	}
 
-	return { fontFileDataMap, internalConsumableMap, consumableMap };
+	return { fontFileDataMap, internalConsumableMap, fontData };
 }
