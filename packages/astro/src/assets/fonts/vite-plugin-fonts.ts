@@ -308,7 +308,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					code: `
 						export const internalConsumableMap = new Map(${JSON.stringify(Array.from(internalConsumableMap?.entries() ?? []))});
 						export const consumableMap = new Map(${JSON.stringify(Array.from(consumableMap?.entries() ?? []))});
-						export const bufferImports = {${[...(fontFileDataMap?.keys() ?? [])].map((key) => `"${key}": () => import("virtual:astro:assets/fonts/file/${key}")`).join(',')}};
+						export const bufferImports = {${[...(fontFileDataMap?.keys() ?? [])].map((key) => `"${key}": () => import("${BUFFER_VIRTUAL_MODULE_ID_PREFIX}${key}")`).join(',')}};
 					`,
 				};
 			}
