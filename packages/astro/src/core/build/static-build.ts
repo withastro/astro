@@ -14,7 +14,6 @@ import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../manifest/serialized.js';
 import { getClientOutputDirectory, getServerOutputDirectory } from '../../prerender/utils.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/const.js';
-import { RESOLVED_ASTRO_RENDERERS_MODULE_ID } from '../../vite-plugin-renderers/index.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { routeIsRedirect } from '../routing/index.js';
 import { getOutDirWithinCwd } from './common.js';
@@ -29,6 +28,7 @@ import type { StaticBuildOptions } from './types.js';
 import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
 import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
+import type { InputOption } from 'rollup';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -157,6 +157,66 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 
 	const buildPlugins = getAllBuildPlugins(internals, opts);
 	const flatPlugins = buildPlugins.flat().filter(Boolean);
+	const plugins = [...flatPlugins, ...(viteConfig.plugins || [])];
+	let currentRollupInput: InputOption | undefined = undefined;
+	plugins.push({
+		name: 'astro:resolve-input',
+		configResolved(config) {
+			currentRollupInput = config.build.rollupOptions.input;
+		},
+	});
+	// Post plugin for manifest injection, page generation, and cleanup
+	// This runs after all other buildApp hooks (including platform plugins like Cloudflare)
+	plugins.push({
+		name: 'astro:build-generate',
+		enforce: 'post',
+		buildApp: {
+			order: 'post',
+			async handler() {
+				// Inject manifest and content placeholders into extracted chunks
+				await runManifestInjection(opts, internals, internals.extractedChunks ?? []);
+
+				// Generation and cleanup
+				const prerenderOutputDir = new URL('./.prerender/', getServerOutputDirectory(settings));
+
+				// TODO do we need the elif any more? Can this be streamlined to be the same?
+				if (settings.buildOutput === 'static') {
+					settings.timer.start('Static generate');
+					// Move prerender and SSR assets to client directory before cleaning up
+					await ssrMoveAssets(opts, prerenderOutputDir);
+					// Generate the pages
+					await generatePages(opts, internals, prerenderOutputDir);
+					// Clean up prerender directory after generation
+					await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
+					settings.timer.end('Static generate');
+				} else if (settings.buildOutput === 'server') {
+					settings.timer.start('Server generate');
+					await generatePages(opts, internals, prerenderOutputDir);
+					// Move prerender and SSR assets to client directory before cleaning up
+					await ssrMoveAssets(opts, prerenderOutputDir);
+					// Clean up prerender directory after generation
+					await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
+					settings.timer.end('Server generate');
+				}
+			},
+		},
+	});
+
+	function isRollupInput(moduleName: string | null): boolean {
+		if (!currentRollupInput) {
+			return false;
+		}
+		if (!moduleName) {
+			return false;
+		}
+		if (typeof currentRollupInput === 'string') {
+			return currentRollupInput === moduleName;
+		} else if (Array.isArray(currentRollupInput)) {
+			return currentRollupInput.includes(moduleName);
+		} else {
+			return Object.keys(currentRollupInput).includes(moduleName);
+		}
+	}
 
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
@@ -209,14 +269,14 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 								chunkInfo.facadeModuleId,
 								routes,
 							);
-						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_VIRTUAL_MODULE_ID) {
+						} else if (
+							chunkInfo.facadeModuleId === RESOLVED_SSR_VIRTUAL_MODULE_ID ||
+							// This catches the case when the adapter uses `entryType: 'self'. When doing so,
+							// the adapter must set rollupOptions.input.
+							isRollupInput(chunkInfo.name) ||
+							isRollupInput(chunkInfo.facadeModuleId)
+						) {
 							return opts.settings.config.build.serverEntry;
-						} else if (chunkInfo.facadeModuleId === RESOLVED_ASTRO_RENDERERS_MODULE_ID) {
-							return 'renderers.mjs';
-						} else if (chunkInfo.facadeModuleId === SERIALIZED_MANIFEST_RESOLVED_ID) {
-							return 'manifest_[hash].mjs';
-						} else if (chunkInfo.facadeModuleId === settings.adapter?.serverEntrypoint) {
-							return 'adapter_[hash].mjs';
 						} else {
 							return '[name].mjs';
 						}
@@ -230,46 +290,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			modulePreload: { polyfill: false },
 			reportCompressedSize: false,
 		},
-		plugins: [
-			...flatPlugins,
-			...(viteConfig.plugins || []),
-			// Post plugin for manifest injection, page generation, and cleanup
-			// This runs after all other buildApp hooks (including platform plugins like Cloudflare)
-			{
-				name: 'astro:build-generate',
-				enforce: 'post',
-				buildApp: {
-					order: 'post',
-					async handler() {
-						// Inject manifest and content placeholders into extracted chunks
-						await runManifestInjection(opts, internals, internals.extractedChunks ?? []);
-
-						// Generation and cleanup
-						const prerenderOutputDir = new URL('./.prerender/', getServerOutputDirectory(settings));
-
-						// TODO do we need the elif any more? Can this be streamlined to be the same?
-						if (settings.buildOutput === 'static') {
-							settings.timer.start('Static generate');
-							// Move prerender and SSR assets to client directory before cleaning up
-							await ssrMoveAssets(opts, prerenderOutputDir);
-							// Generate the pages
-							await generatePages(opts, internals, prerenderOutputDir);
-							// Clean up prerender directory after generation
-							await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
-							settings.timer.end('Static generate');
-						} else if (settings.buildOutput === 'server') {
-							settings.timer.start('Server generate');
-							await generatePages(opts, internals, prerenderOutputDir);
-							// Move prerender and SSR assets to client directory before cleaning up
-							await ssrMoveAssets(opts, prerenderOutputDir);
-							// Clean up prerender directory after generation
-							await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
-							settings.timer.end('Server generate');
-						}
-					},
-				},
-			},
-		],
+		plugins,
 		// Top-level buildApp for framework build orchestration
 		// This takes precedence over platform plugin fallbacks (e.g., Cloudflare)
 		builder: {
