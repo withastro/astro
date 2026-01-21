@@ -23,6 +23,7 @@ import { getProxyCode } from './utils/proxy.js';
 import { makeSvgComponent } from './utils/svg.js';
 import { hashTransform, propsToFilename } from './utils/transformToPath.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
+import { RUNTIME_VIRTUAL_MODULE_ID } from './fonts/constants.js';
 
 const resolvedVirtualModuleId = '\0' + VIRTUAL_MODULE_ID;
 
@@ -149,7 +150,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							export { inferRemoteSize } from "astro/assets/utils/inferRemoteSize.js";
 
 							export { default as Font } from "astro/components/Font.astro";
-							export * from "astro/assets/fonts/runtime";
+							export * from "${RUNTIME_VIRTUAL_MODULE_ID}";
 							
 							export const viteFSConfig = ${JSON.stringify(resolvedConfig.server.fs ?? {})};
 

@@ -19,7 +19,9 @@ import {
 	CACHE_DIR,
 	DEFAULTS,
 	RESOLVED_BUFFER_VIRTUAL_MODULE_ID_PREFIX,
+	RESOLVED_RUNTIME_VIRTUAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
+	RUNTIME_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './constants.js';
 import type {
@@ -298,6 +300,9 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			if (id === VIRTUAL_MODULE_ID) {
 				return RESOLVED_VIRTUAL_MODULE_ID;
 			}
+			if (id === RUNTIME_VIRTUAL_MODULE_ID) {
+				return RESOLVED_RUNTIME_VIRTUAL_MODULE_ID;
+			}
 			if (id.startsWith(BUFFER_VIRTUAL_MODULE_ID_PREFIX)) {
 				return `\0` + id;
 			}
@@ -312,6 +317,19 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					`,
 				};
 			}
+
+			if (id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID) {
+				// TODO: use ASTRO_VITE_ENVIRONMENT_NAMES.client
+				if (this.environment.name === 'client') {
+					return {
+						code: `export * from 'astro/assets/fonts/runtime/client.js';`,
+					};
+				}
+				return {
+					code: `export * from 'astro/assets/fonts/runtime/server.js';`,
+				};
+			}
+
 			if (id.startsWith(RESOLVED_BUFFER_VIRTUAL_MODULE_ID_PREFIX)) {
 				const hash = id.slice(RESOLVED_BUFFER_VIRTUAL_MODULE_ID_PREFIX.length);
 				const associatedData = fontFileDataMap?.get(hash);
