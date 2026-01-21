@@ -63,8 +63,8 @@ describe('astro:image', () => {
 
 						assert.deepEqual(generatedImages.length, 2);
 						assert.deepEqual(
-							generatedImages.toSorted(),
-							srcset.map(({ url }) => removeLeadingForwardSlash(url)).toSorted(),
+							new Set(generatedImages),
+							new Set(srcset.map(({ url }) => removeLeadingForwardSlash(url))),
 						);
 					});
 
@@ -76,8 +76,8 @@ describe('astro:image', () => {
 
 						assert.deepEqual(generatedFallbackImages.length, 3);
 						assert.deepEqual(
-							generatedFallbackImages.toSorted(),
-							[{ url: src }, ...srcset].map(({ url }) => removeLeadingForwardSlash(url)).toSorted(),
+							new Set(generatedFallbackImages),
+							new Set([{ url: src }, ...srcset].map(({ url }) => removeLeadingForwardSlash(url))),
 						);
 					});
 				});
@@ -90,8 +90,8 @@ describe('astro:image', () => {
 
 						assert.deepEqual(generatedImages.length, 3);
 						assert.deepEqual(
-							generatedImages.toSorted(),
-							srcset.map(({ url }) => removeLeadingForwardSlash(url)).toSorted(),
+							new Set(generatedImages),
+							new Set(srcset.map(({ url }) => removeLeadingForwardSlash(url))),
 						);
 					});
 
@@ -103,8 +103,8 @@ describe('astro:image', () => {
 
 						assert.deepEqual(generatedFallbackImages.length, 3);
 						assert.deepEqual(
-							generatedFallbackImages.toSorted(),
-							[{ url: src }, ...srcset].map(({ url }) => removeLeadingForwardSlash(url)).toSorted(),
+							new Set(generatedFallbackImages),
+							new Set([{ url: src }, ...srcset].map(({ url }) => removeLeadingForwardSlash(url))),
 						);
 					});
 				});
