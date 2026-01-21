@@ -246,7 +246,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 							// the adapter must set rollupOptions.input.
 							chunkInfo.facadeModuleId === settings?.config.vite.build?.rollupOptions?.input ||
 							// NOTE: I honestly don't like this check. It's brittle and it's code smell. If CF vite plugin
-							// decides to rename their virtual module, the feature stops working.
+							// decides to rename their virtual module, `build.serverEntry` will stop working.
 							chunkInfo.facadeModuleId === '\0' + 'virtual:cloudflare/worker-entry'
 						) {
 							return opts.settings.config.build.serverEntry;
