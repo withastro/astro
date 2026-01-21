@@ -72,9 +72,19 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				if (id === VIRTUAL_MODULE_ID) {
 					return RESOLVED_VIRTUAL_MODULE_ID;
 				}
+				if (id === RUNTIME_VIRTUAL_MODULE_ID) {
+					return RESOLVED_RUNTIME_VIRTUAL_MODULE_ID;
+				}
+				if (id.startsWith(BUFFER_VIRTUAL_MODULE_ID_PREFIX)) {
+					return `\0` + id;
+				}
 			},
 			load(id) {
-				if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+				if (
+					id === RESOLVED_VIRTUAL_MODULE_ID ||
+					id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID ||
+					id.startsWith(RESOLVED_BUFFER_VIRTUAL_MODULE_ID_PREFIX)
+				) {
 					return {
 						code: '',
 					};
