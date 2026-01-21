@@ -3975,6 +3975,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/server-entry:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/server-islands/hybrid:
     dependencies:
       '@astrojs/svelte':
@@ -4986,6 +4992,15 @@ importers:
       wrangler:
         specifier: 4.54.0
         version: 4.54.0(@cloudflare/workers-types@4.20251121.0)
+
+  packages/integrations/cloudflare/test/fixtures/server-entry:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
 
   packages/integrations/cloudflare/test/fixtures/sessions:
     dependencies:

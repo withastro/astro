@@ -240,7 +240,15 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 								chunkInfo.facadeModuleId,
 								routes,
 							);
-						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_VIRTUAL_MODULE_ID) {
+						} else if (
+							chunkInfo.facadeModuleId === RESOLVED_SSR_VIRTUAL_MODULE_ID ||
+							// This catches the case when the adapter uses `entryType: 'self'. When doing so,
+							// the adapter must set rollupOptions.input.
+							chunkInfo.facadeModuleId === settings?.config.vite.build?.rollupOptions?.input ||
+							// NOTE: I honestly don't like this check. It's brittle and it's code smell. If CF vite plugin
+							// decides to rename their virtual module, the feature stops working.
+							chunkInfo.facadeModuleId === '\0' + 'virtual:cloudflare/worker-entry'
+						) {
 							return opts.settings.config.build.serverEntry;
 						} else if (chunkInfo.facadeModuleId === RESOLVED_ASTRO_RENDERERS_MODULE_ID) {
 							return 'renderers.mjs';
