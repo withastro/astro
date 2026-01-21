@@ -11,7 +11,7 @@ import type { Config as SvgoConfig } from 'svgo';
 import type { BuiltinDriverName, BuiltinDriverOptions, Driver, Storage } from 'unstorage';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
 import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
-import type { ImageFit, ImageLayout } from '../../assets/types.js';
+import type { ImageFit, ImageLayout, ImageOutputFormat } from '../../assets/types.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schemas/index.js';
 import type { REDIRECT_STATUS_CODES } from '../../core/constants.js';
@@ -1270,6 +1270,25 @@ export interface AstroUserConfig<
 			route: '/_image' | (string & {});
 			entrypoint: undefined | string;
 		};
+
+		/**
+		 * @docs
+		 * @name image.outputFormat
+		 * @type {ImageOutputFormat}
+		 * @default `webp`
+		 * @description
+		 * The default output format for images.
+		 *
+		 * ```js
+		 * {
+		 *   image: {
+		 *     // Example: Output `avif` files by default
+		 *     outputFormat: 'avif',
+		 *   },
+		 * }
+		 * ```
+		 */
+		outputFormat?: ImageOutputFormat;
 
 		/**
 		 * @docs

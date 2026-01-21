@@ -9,6 +9,7 @@ import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdo
 import { type BuiltinTheme, bundledThemes } from 'shiki';
 import type { Config as SvgoConfig } from 'svgo';
 import { z } from 'zod';
+import { DEFAULT_OUTPUT_FORMAT, VALID_OUTPUT_FORMATS } from '../../../assets/consts.js';
 import { localFontFamilySchema, remoteFontFamilySchema } from '../../../assets/fonts/config.js';
 import { EnvSchema } from '../../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/config.js';
@@ -68,6 +69,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	},
 	image: {
 		endpoint: { entrypoint: undefined, route: '/_image' },
+		outputFormat: DEFAULT_OUTPUT_FORMAT,
 		service: { entrypoint: 'astro/assets/services/sharp', config: {} },
 		responsiveStyles: false,
 	},
@@ -264,6 +266,7 @@ export const AstroConfigSchema = z.object({
 					entrypoint: z.string().optional(),
 				})
 				.default(ASTRO_CONFIG_DEFAULTS.image.endpoint),
+			outputFormat: z.enum(VALID_OUTPUT_FORMATS).default(ASTRO_CONFIG_DEFAULTS.image.outputFormat),
 			service: z
 				.object({
 					entrypoint: z
