@@ -138,10 +138,15 @@ describe('Routing priority', () => {
 		let fixture;
 
 		before(async () => {
+			console.log('[cloudflare:test] Routing priority build before');
 			fixture = await loadFixture({
 				root: './fixtures/routing-priority/',
 			});
 			await fixture.build();
+		});
+
+		after(() => {
+			console.log('[cloudflare:test] Routing priority build finished');
 		});
 
 		routes.forEach(({ description, url, fourOhFour, h1, p, htmlMatch }) => {
@@ -178,6 +183,7 @@ describe('Routing priority', () => {
 		let devServer;
 
 		before(async () => {
+			console.log('[cloudflare:test] Routing priority dev before');
 			fixture = await loadFixture({
 				root: './fixtures/routing-priority/',
 			});
@@ -186,7 +192,9 @@ describe('Routing priority', () => {
 		});
 
 		after(async () => {
+			console.log('[cloudflare:test] Routing priority dev after');
 			await devServer.stop();
+			console.log('[cloudflare:test] Routing priority dev finished');
 		});
 
 		routes.forEach(({ description, url, fourOhFour, h1, p, htmlMatch }) => {

@@ -7,6 +7,7 @@ describe('CompileImageService', () => {
 	let previewServer;
 
 	before(async () => {
+		console.log('[cloudflare:test] CompileImageService before');
 		fixture = await loadFixture({
 			root: './fixtures/compile-image-service/',
 		});
@@ -15,7 +16,9 @@ describe('CompileImageService', () => {
 	});
 
 	after(async () => {
+		console.log('[cloudflare:test] CompileImageService after');
 		await previewServer.stop();
+		console.log('[cloudflare:test] CompileImageService finished');
 	});
 
 	it('forbids http://', async () => {

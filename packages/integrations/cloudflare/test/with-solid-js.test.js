@@ -8,6 +8,7 @@ describe('SolidJS', () => {
 	let previewServer;
 
 	before(async () => {
+		console.log('[cloudflare:test] SolidJS before');
 		fixture = await loadFixture({
 			root: './fixtures/with-solid-js/',
 		});
@@ -16,8 +17,10 @@ describe('SolidJS', () => {
 	});
 
 	after(async () => {
+		console.log('[cloudflare:test] SolidJS after');
 		await previewServer.stop();
 		await fixture.clean();
+		console.log('[cloudflare:test] SolidJS finished');
 	});
 
 	it('renders the solid component', async () => {

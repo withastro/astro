@@ -11,6 +11,7 @@ describe('ExternalImageService', () => {
 	let fixture;
 
 	before(async () => {
+		console.log('[cloudflare:test] ExternalImageService before');
 		fixture = await loadFixture({
 			root: './fixtures/external-image-service/',
 		});
@@ -18,7 +19,9 @@ describe('ExternalImageService', () => {
 	});
 
 	after(async () => {
+		console.log('[cloudflare:test] ExternalImageService after');
 		// await fixture.clean();
+		console.log('[cloudflare:test] ExternalImageService finished');
 	});
 
 	it('has correct image service', async () => {

@@ -62,7 +62,7 @@ describe('Netlify primitives', () => {
 			assert.equal($root('h1').text(), 'HELLO THERE, ASTRONAUT.');
 		});
 
-		it.skip('loads images in development', async () => {
+		it('loads images in development', async () => {
 			const imgResponse = await fixture.fetch('/astronaut');
 			const $img = cheerio.load(await imgResponse.text());
 			const images = $img('img').map((_i, el) => {

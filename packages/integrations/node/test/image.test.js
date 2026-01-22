@@ -46,7 +46,7 @@ describe('Image endpoint', () => {
 		assert.equal(size.height, 33);
 	});
 
-	it.skip('it returns remote images', async () => {
+	it('it returns remote images', async () => {
 		const res = await fixture.fetch('/');
 		assert.equal(res.status, 200);
 		const html = await res.text();

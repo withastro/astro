@@ -8,6 +8,7 @@ describe('Svelte', () => {
 	let previewServer;
 
 	before(async () => {
+		console.log('[cloudflare:test] Svelte before');
 		fixture = await loadFixture({
 			root: './fixtures/with-svelte/',
 		});
@@ -16,8 +17,10 @@ describe('Svelte', () => {
 	});
 
 	after(async () => {
+		console.log('[cloudflare:test] Svelte after');
 		await previewServer.stop();
 		await fixture.clean();
+		console.log('[cloudflare:test] Svelte finished');
 	});
 
 	it('renders the svelte component', async () => {

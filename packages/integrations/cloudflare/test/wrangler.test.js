@@ -1,5 +1,5 @@
 import * as assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { after, describe, it } from 'node:test';
 import {
 	cloudflareConfigCustomizer,
 	DEFAULT_ASSETS_BINDING_NAME,
@@ -129,5 +129,9 @@ describe('cloudflareConfigCustomizer', () => {
 		it('exports DEFAULT_ASSETS_BINDING_NAME as ASSETS', () => {
 			assert.equal(DEFAULT_ASSETS_BINDING_NAME, 'ASSETS');
 		});
+	});
+
+	after(() => {
+		console.log('[cloudflare:test] cloudflareConfigCustomizer finished');
 	});
 });

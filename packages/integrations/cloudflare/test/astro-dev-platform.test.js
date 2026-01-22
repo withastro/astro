@@ -7,6 +7,7 @@ describe('AstroDevPlatform', () => {
 	let fixture;
 	let devServer;
 	before(async () => {
+		console.log('[cloudflare:test] AstroDevPlatform before');
 		fixture = await loadFixture({
 			root: './fixtures/astro-dev-platform/',
 		});
@@ -16,7 +17,9 @@ describe('AstroDevPlatform', () => {
 	});
 
 	after(async () => {
+		console.log('[cloudflare:test] AstroDevPlatform after');
 		await devServer.stop();
+		console.log('[cloudflare:test] AstroDevPlatform finished');
 	});
 
 	it('adds cf object', async () => {

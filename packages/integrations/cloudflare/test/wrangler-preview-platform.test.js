@@ -7,6 +7,7 @@ describe('WranglerPreviewPlatform', () => {
 	let fixture;
 	let previewServer;
 	before(async () => {
+		console.log('[cloudflare:test] WranglerPreviewPlatform before');
 		fixture = await loadFixture({
 			root: './fixtures/wrangler-preview-platform/',
 		});
@@ -15,7 +16,9 @@ describe('WranglerPreviewPlatform', () => {
 	});
 
 	after(async () => {
+		console.log('[cloudflare:test] WranglerPreviewPlatform after');
 		previewServer.stop();
+		console.log('[cloudflare:test] WranglerPreviewPlatform finished');
 	});
 
 	it('exists', async () => {
