@@ -8,7 +8,7 @@ Updates how the local provider must be used when using the experimental Fonts AP
 
 Previously, there were 2 kinds of font providers: remote and local.
 
-Font providers are now unified. If you are using the local provider, here is how you can update:
+Font providers are now unified. If you are using the local provider, the process for configuring local fonts must be updated:
 
 ```diff
 -import { defineConfig } from "astro/config";
@@ -40,3 +40,7 @@ export default defineConfig({
     }
 });
 ```
+
+Once configured, there is no change to using local fonts in your project. However, you should inspect your deployed site to confirm that your new font configuration is being applied.
+
+See [the experimental Fonts API docs](https://docs.astro.build/en/reference/experimental-flags/fonts/) for more information.
