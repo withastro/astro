@@ -13,7 +13,7 @@ export default defineConfig({
 		sessionKVBindingName: "SESSION"
 	}),
 	build: {
-		inlineStylesheets: 'never',
+		inlineStylesheets: 'never'
 	},
 	vite: {
 		resolve: {
