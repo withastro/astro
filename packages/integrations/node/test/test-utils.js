@@ -4,6 +4,16 @@ import { loadFixture as baseLoadFixture } from '../../../astro/test/test-utils.j
 
 process.env.ASTRO_NODE_AUTOSTART = 'disabled';
 process.env.ASTRO_NODE_LOGGING = 'disabled';
+
+if (!globalThis.__ASTRO_NODE_TEST_UNHANDLED__) {
+	globalThis.__ASTRO_NODE_TEST_UNHANDLED__ = true;
+	process.on('unhandledRejection', (reason) => {
+		console.error('[node:test] unhandledRejection', reason);
+	});
+	process.on('uncaughtException', (error) => {
+		console.error('[node:test] uncaughtException', error);
+	});
+}
 /**
  * @typedef {import('../../../astro/test/test-utils').Fixture} Fixture
  */
