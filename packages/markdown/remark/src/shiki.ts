@@ -1,9 +1,11 @@
 import type { Properties, Root } from 'hast';
 import {
 	type BundledLanguage,
+	type BundledTheme,
 	createCssVariablesTheme,
 	createHighlighter,
 	type HighlighterCoreOptions,
+	type HighlighterGeneric,
 	isSpecialLang,
 	type LanguageRegistration,
 	type ShikiTransformer,
@@ -11,7 +13,6 @@ import {
 	type ThemeRegistrationRaw,
 } from 'shiki';
 import type { ThemePresets } from './types.js';
-import { deterministicString } from 'deterministic-object-hash';
 
 export interface ShikiHighlighter {
 	codeToHast(
@@ -87,15 +88,17 @@ export async function createShikiHighlighter({
 		themes: Object.values(themes).length ? Object.values(themes) : [theme],
 	};
 
-	const key = deterministicString(highlighterOptions);
+	const key = JSON.stringify(highlighterOptions, Object.keys(highlighterOptions).sort());
+
+	let highlighter: HighlighterGeneric<BundledLanguage, BundledTheme>;
 
 	// Highlighter has already been requested, reuse the same instance
 	if (cachedHighlighters.has(key)) {
-		return cachedHighlighters.get(key);
+		highlighter = cachedHighlighters.get(key);
+	} else {
+		highlighter = await createHighlighter(highlighterOptions);
+		cachedHighlighters.set(key, highlighter);
 	}
-
-	const highlighter = await createHighlighter(highlighterOptions);
-	cachedHighlighters.set(key, highlighter);
 
 	async function highlight(
 		code: string,
