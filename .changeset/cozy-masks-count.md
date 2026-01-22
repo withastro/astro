@@ -2,7 +2,9 @@
 'astro': minor
 ---
 
-Adds support for returning a Promise from the `parser()` option of the `file()` loader. This enables you to run asynchronous code such as fetching remote data or using async parsers, when loading files with the Content Layer API.
+Adds support for returning a Promise from the `parser()` option of the `file()` loader
+
+This enables you to run asynchronous code such as fetching remote data or using async parsers when loading files with the Content Layer API.
 
 For example:
 
@@ -28,3 +30,5 @@ const blog = defineCollection({
 
 export const collections = { blog };
 ```
+
+See [the `parser()` reference documentation](https://docs.astro.build/en/reference/content-loader-reference/#parser) for more information.
