@@ -1,5 +1,42 @@
 # astro
 
+## 6.0.0-beta.2
+
+### Major Changes
+
+- [#15192](https://github.com/withastro/astro/pull/15192) [`ada2808`](https://github.com/withastro/astro/commit/ada2808a23fc70ea1f1663f3e1b69c6b735251e5) Thanks [@gameroman](https://github.com/gameroman)! - Removes support for CommonJS config files - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-support-for-commonjs-config-files))
+
+- [#15266](https://github.com/withastro/astro/pull/15266) [`f7c9365`](https://github.com/withastro/astro/commit/f7c9365d92b2196d4ba6cffd01b01967ca73728c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Allows `Astro.csp` and `context.csp` to be undefined instead of throwing errors when `csp: true` is not configured
+
+  When using the experimental Content Security Policy feature in Astro 5.x, `context.csp` was always defined but would throw if `experimental.csp` was not enabled in the Astro config.
+
+  For the stable version of this API in Astro 6, `context.csp` can now be undefined if CSP is not enabled and its methods will never throw.
+
+  #### What should I do?
+
+  If you were using experimental CSP runtime utilities, you must now access methods conditionally:
+
+  ```diff
+  -Astro.csp.insertDirective("default-src 'self'");
+  +Astro.csp?.insertDirective("default-src 'self'");
+  ```
+
+### Patch Changes
+
+- [#15208](https://github.com/withastro/astro/pull/15208) [`8dbdd8e`](https://github.com/withastro/astro/commit/8dbdd8efc12926eddbe189cf67a161bebf9fb5dd) Thanks [@matthewp](https://github.com/matthewp)! - Makes `session.driver` optional in config schema, allowing adapters to provide default drivers
+
+  Adapters like Cloudflare, Netlify, and Node provide default session drivers, so users can now configure session options (like `ttl`) without explicitly specifying a driver.
+
+- [#15260](https://github.com/withastro/astro/pull/15260) [`abca1eb`](https://github.com/withastro/astro/commit/abca1ebc0ed4b89b1904c58b7969f8386250f8de) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where adding new pages weren't correctly shown when using the development server.
+
+- [#15214](https://github.com/withastro/astro/pull/15214) [`6bab8c9`](https://github.com/withastro/astro/commit/6bab8c992add3ecad7581b26f6bc28a74e5d3485) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the internal perfomance timers weren't correctly updated to reflect new build pipeline.
+
+- [#15259](https://github.com/withastro/astro/pull/15259) [`8670a69`](https://github.com/withastro/astro/commit/8670a699e96fcc972d441c75e503b20e8961a71f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where styles weren't correctly reloaded when using the `@astrojs/cloudflare` adapter.
+
+- [#15205](https://github.com/withastro/astro/pull/15205) [`12adc55`](https://github.com/withastro/astro/commit/12adc5507c99fa7f315d0c78e82005524e7bbb32) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an issue where the `astro:page-load` event did not fire on initial page loads.
+
+- [#15269](https://github.com/withastro/astro/pull/15269) [`6f82aae`](https://github.com/withastro/astro/commit/6f82aae24c64a059531f4b924c201fbd4c3e9180) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression where `build.serverEntry` stopped working as expected.
+
 ## 6.0.0-beta.1
 
 ### Patch Changes
@@ -37,8 +74,8 @@
   export default defineConfig({
     legacy: {
       collectionsBackwardsCompat: true,
-    }
-  })
+    },
+  });
   ```
 
 ## 6.0.0-alpha.5
@@ -557,6 +594,8 @@
   ```diff
   // astro.config.mjs
   import { defineConfig, fontProviders } from 'astro/config'
+  ```
+
 - [#15150](https://github.com/withastro/astro/pull/15150) [`a77c4f4`](https://github.com/withastro/astro/commit/a77c4f42b56b46b08064a99e9cb9a2b4bace4445) Thanks [@matthewp](https://github.com/matthewp)! - Fixes hydration for framework components inside MDX when using `Astro.slots.render()`
 
   Previously, when multiple framework components with `client:*` directives were passed as named slots to an Astro component in MDX, only the first slot would hydrate correctly. Subsequent slots would render their HTML but fail to include the necessary hydration scripts.
@@ -618,7 +657,6 @@
 - [#15179](https://github.com/withastro/astro/pull/15179) [`8c8aee6`](https://github.com/withastro/astro/commit/8c8aee6ddefb1918b1f00415e34d2531e287acf8) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes an issue when importing using an import alias a file with a name matching a directory name.
 
 - [#15176](https://github.com/withastro/astro/pull/15176) [`9265546`](https://github.com/withastro/astro/commit/92655460785e4b0a9eca9bac2e493a9c989dff47) Thanks [@matthewp](https://github.com/matthewp)! - Fixes scripts in components not rendering when a sibling `<Fragment slot="...">` exists but is unused
-
 
 ## 5.16.8
 
