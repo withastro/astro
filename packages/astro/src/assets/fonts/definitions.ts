@@ -114,7 +114,7 @@ export interface Storage {
 
 export interface FontResolver {
 	resolveFont: (
-		options: ResolveFontOptions & { provider: FontProvider },
+		options: ResolveFontOptions<Record<string, any>> & { provider: FontProvider },
 	) => Promise<Array<unifont.FontFaceData>>;
 	listFonts: (options: { provider: FontProvider }) => Promise<string[] | undefined>;
 }

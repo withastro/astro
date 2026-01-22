@@ -15,9 +15,13 @@ import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
 import {
 	ASSETS_DIR,
+	BUFFER_VIRTUAL_MODULE_ID_PREFIX,
 	CACHE_DIR,
 	DEFAULTS,
+	RESOLVED_BUFFER_VIRTUAL_MODULE_ID_PREFIX,
+	RESOLVED_RUNTIME_VIRTUAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
+	RUNTIME_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './constants.js';
 import type {
@@ -49,7 +53,12 @@ import { UnstorageFsStorage } from './infra/unstorage-fs-storage.js';
 import { RealUrlProxy } from './infra/url-proxy.js';
 import { XxhashHasher } from './infra/xxhash-hasher.js';
 import { orchestrate } from './orchestrate.js';
-import type { ConsumableMap, FontFileDataMap, InternalConsumableMap } from './types.js';
+import type {
+	FontDataRecord,
+	FontFamily,
+	FontFileDataMap,
+	InternalConsumableMap,
+} from './types.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -68,9 +77,19 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				if (id === VIRTUAL_MODULE_ID) {
 					return RESOLVED_VIRTUAL_MODULE_ID;
 				}
+				if (id === RUNTIME_VIRTUAL_MODULE_ID) {
+					return RESOLVED_RUNTIME_VIRTUAL_MODULE_ID;
+				}
+				if (id.startsWith(BUFFER_VIRTUAL_MODULE_ID_PREFIX)) {
+					return `\0` + id;
+				}
 			},
 			load(id) {
-				if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+				if (
+					id === RESOLVED_VIRTUAL_MODULE_ID ||
+					id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID ||
+					id.startsWith(RESOLVED_BUFFER_VIRTUAL_MODULE_ID_PREFIX)
+				) {
 					return {
 						code: '',
 					};
@@ -88,14 +107,14 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 
 	let fontFileDataMap: FontFileDataMap | null = null;
 	let internalConsumableMap: InternalConsumableMap | null = null;
-	let consumableMap: ConsumableMap | null = null;
+	let fontData: FontDataRecord | null = null;
 	let isBuild: boolean;
 	let fontFetcher: FontFetcher | null = null;
 	let fontTypeExtractor: FontTypeExtractor | null = null;
 
 	const cleanup = () => {
 		internalConsumableMap = null;
-		consumableMap = null;
+		fontData = null;
 		fontFileDataMap = null;
 		fontFetcher = null;
 	};
@@ -144,7 +163,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		const stringMatcher = new LevenshteinStringMatcher();
 
 		const res = await orchestrate({
-			families: settings.config.experimental.fonts!,
+			families: settings.config.experimental.fonts as Array<FontFamily>,
 			hasher,
 			localProviderUrlResolver,
 			createFontResolver: async ({ families }) =>
@@ -179,7 +198,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		// to avoid locking memory
 		fontFileDataMap = res.fontFileDataMap;
 		internalConsumableMap = res.internalConsumableMap;
-		consumableMap = res.consumableMap;
+		fontData = res.fontData;
 
 		// Handle CSP
 		if (shouldTrackCspHashes(settings.config.security.csp)) {
@@ -273,12 +292,12 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					// Storage should be defined at this point since initialize it called before registering
 					// the middleware. hashToUrlMap is defined at the same time so if it's not set by now,
 					// no url will be matched and this line will not be reached.
-					const data = await fontFetcher!.fetch({ hash, ...associatedData });
+					const buffer = await fontFetcher!.fetch({ hash, ...associatedData });
 
-					res.setHeader('Content-Length', data.length);
+					res.setHeader('Content-Length', buffer.byteLength);
 					res.setHeader('Content-Type', `font/${fontTypeExtractor!.extract(hash)}`);
 
-					res.end(data);
+					res.end(buffer);
 				} catch (err) {
 					logger.error('assets', 'Cannot download font file');
 					if (isAstroError(err)) {
@@ -294,23 +313,81 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		},
 		resolveId: {
 			filter: {
-				id: new RegExp(`^(${VIRTUAL_MODULE_ID})$`),
+				id: new RegExp(
+					`^(${VIRTUAL_MODULE_ID}|${RUNTIME_VIRTUAL_MODULE_ID}|${BUFFER_VIRTUAL_MODULE_ID_PREFIX}.*)$`,
+				),
 			},
-			handler() {
-				return RESOLVED_VIRTUAL_MODULE_ID;
+			handler(id) {
+				if (id === VIRTUAL_MODULE_ID) {
+					return RESOLVED_VIRTUAL_MODULE_ID;
+				}
+				if (id === RUNTIME_VIRTUAL_MODULE_ID) {
+					return RESOLVED_RUNTIME_VIRTUAL_MODULE_ID;
+				}
+				return `\0` + id;
 			},
 		},
 		load: {
 			filter: {
-				id: new RegExp(`^(${RESOLVED_VIRTUAL_MODULE_ID})$`),
+				id: new RegExp(
+					`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_RUNTIME_VIRTUAL_MODULE_ID}|${RESOLVED_BUFFER_VIRTUAL_MODULE_ID_PREFIX}.*)$`,
+				),
 			},
-			handler() {
-				return {
-					code: `
+			async handler(id) {
+				if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+					return {
+						code: `
 						export const internalConsumableMap = new Map(${JSON.stringify(Array.from(internalConsumableMap?.entries() ?? []))});
-						export const consumableMap = new Map(${JSON.stringify(Array.from(consumableMap?.entries() ?? []))});
+						export const fontData = ${JSON.stringify(fontData ?? {})};
+						export const bufferImports = {${[...(fontFileDataMap?.keys() ?? [])].map((key) => `"${key}": () => import("${BUFFER_VIRTUAL_MODULE_ID_PREFIX}${key}")`).join(',')}};
 					`,
-				};
+					};
+				}
+
+				if (id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID) {
+					// TODO: use ASTRO_VITE_ENVIRONMENT_NAMES.client
+					if (this.environment.name === 'client') {
+						return {
+							code: `export * from 'astro/assets/fonts/runtime/client.js';`,
+						};
+					}
+					return {
+						code: `export * from 'astro/assets/fonts/runtime/server.js';`,
+					};
+				}
+
+				if (id.startsWith(RESOLVED_BUFFER_VIRTUAL_MODULE_ID_PREFIX)) {
+					const hash = id.slice(RESOLVED_BUFFER_VIRTUAL_MODULE_ID_PREFIX.length);
+					const associatedData = fontFileDataMap?.get(hash);
+					if (!associatedData) {
+						return {
+							code: `export default null;`,
+						};
+					}
+
+					try {
+						// Storage should be defined at this point since initialize it called before registering
+						// the middleware. hashToUrlMap is defined at the same time so if it's not set by now,
+						// no url will be matched and this line will not be reached.
+						const buffer = await fontFetcher!.fetch({ hash, ...associatedData });
+
+						const bytes = Array.from(buffer);
+						return {
+							code: `export default Uint8Array.from(${JSON.stringify(bytes)});`,
+						};
+					} catch (err) {
+						logger.error('assets', 'Cannot download font file');
+						if (isAstroError(err)) {
+							logger.error(
+								'SKIP_FORMAT',
+								formatErrorMessage(collectErrorMetadata(err), logger.level() === 'debug'),
+							);
+						}
+						return {
+							code: `export default null;`,
+						};
+					}
+				}
 			},
 		},
 		async buildEnd() {
