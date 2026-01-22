@@ -95,7 +95,6 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 			applyToEnvironment(env) {
 				return (
 					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
-					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender ||
 					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client
 				);
 			},
