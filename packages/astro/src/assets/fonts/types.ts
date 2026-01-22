@@ -335,3 +335,5 @@ export interface ResolveFontOptions<
 	formats: FontType[];
 	options: [FamilyOptions] extends [never] ? undefined : FamilyOptions | undefined;
 }
+
+export type BufferImports = Record<string, () => Promise<{ default: Buffer | null }>>;
