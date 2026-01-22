@@ -317,9 +317,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					code: `
 						export const componentDataByCssVariable = new Map(${JSON.stringify(Array.from(componentDataByCssVariable?.entries() ?? []))});
 						export const fontDataByCssVariable = ${JSON.stringify(fontDataByCssVariable ?? {})}
-						export const bufferImports = {${Object.keys(fontDataByCssVariable ?? {})
-							.map((key) => `"${key}": () => import("${BUFFER_VIRTUAL_MODULE_ID_PREFIX}${key}")`)
-							.join(',')}};
+						export const bufferImports = {${[...(fontFileById?.keys() ?? [])].map((key) => `"${key}": () => import("${BUFFER_VIRTUAL_MODULE_ID_PREFIX}${key}")`).join(',')}};
 					`,
 				};
 			}
