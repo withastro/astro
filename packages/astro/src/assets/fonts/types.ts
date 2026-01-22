@@ -272,3 +272,5 @@ export type FontFamilyAssetsByUniqueKey = Map<string, FontFamilyAssets>;
 export type Collaborator<T extends (input: any) => any, U extends keyof Parameters<T>[0]> = (
 	params: Pick<Parameters<T>[0], U>,
 ) => ReturnType<T>;
+
+export type BufferImports = Record<string, () => Promise<{ default: Buffer | null }>>;
