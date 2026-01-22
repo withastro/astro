@@ -1391,7 +1391,7 @@ export const ExperimentalFontsNotEnabled = {
  * @description
  * Font family not found
  * @message
- * No data was found for the `cssVariable` passed to the `<Font />`.
+ * No data was found for the `cssVariable` passed to the `<Font />` component.
  */
 export const FontFamilyNotFound = {
 	name: 'FontFamilyNotFound',
