@@ -1,12 +1,7 @@
 import { type Font, fromBuffer } from '@capsizecss/unpack';
 import type { CollectedFontForMetrics } from '../core/optimize-fallbacks.js';
-import type {
-	CssProperties,
-	CssRenderer,
-	FontFetcher,
-	FontMetricsResolver,
-} from '../definitions.js';
-import type { FontFaceMetrics } from '../types.js';
+import type { CssRenderer, FontFetcher, FontMetricsResolver } from '../definitions.js';
+import type { CssProperties, FontFaceMetrics } from '../types.js';
 import { renderFontSrc } from '../utils.js';
 
 // Source: https://github.com/unjs/fontaine/blob/main/src/metrics.ts

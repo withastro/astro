@@ -1,7 +1,6 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { isAbsolute } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import colors from 'piccolore';
 import type { Plugin } from 'vite';
 import { getAlgorithm, shouldTrackCspHashes } from '../../core/csp/common.js';
@@ -24,40 +23,34 @@ import {
 	RUNTIME_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './constants.js';
-import type {
-	CssRenderer,
-	FontFetcher,
-	FontTypeExtractor,
-	Hasher,
-	UrlProxyContentResolver,
-	UrlProxyHashResolver,
-	UrlResolver,
-} from './definitions.js';
-import { BuildUrlProxyHashResolver } from './infra/build-url-proxy-hash-resolver.js';
+import { collectComponentData } from './core/collect-component-data.js';
+import { collectFontAssetsFromFaces } from './core/collect-font-assets-from-faces.js';
+import { collectFontData } from './core/collect-font-data.js';
+import { computeFontFamiliesAssets } from './core/compute-font-families-assets.js';
+import { filterAndTransformFontFaces } from './core/filter-and-transform-font-faces.js';
+import { getOrCreateFontFamilyAssets } from './core/get-or-create-font-family-assets.js';
+import { optimizeFallbacks } from './core/optimize-fallbacks.js';
+import { resolveFamily } from './core/resolve-family.js';
+import type { FontFetcher, FontTypeExtractor } from './definitions.js';
+import { BuildFontFileIdGenerator } from './infra/build-font-file-id-generator.js';
 import { BuildUrlResolver } from './infra/build-url-resolver.js';
 import { CachedFontFetcher } from './infra/cached-font-fetcher.js';
 import { CapsizeFontMetricsResolver } from './infra/capsize-font-metrics-resolver.js';
-import { RealDataCollector } from './infra/data-collector.js';
-import { DevUrlProxyHashResolver } from './infra/dev-url-proxy-hash-resolver.js';
+import { DevFontFileIdGenerator } from './infra/dev-font-file-id-generator.js';
 import { DevUrlResolver } from './infra/dev-url-resolver.js';
-import { RealFontTypeExtractor } from './infra/font-type-extractor.js';
-import { FontaceFontFileReader } from './infra/fontace-font-file-reader.js';
+import { FsFontFileContentResolver } from './infra/fs-font-file-content-resolver.js';
 import { LevenshteinStringMatcher } from './infra/levenshtein-string-matcher.js';
-import { LocalUrlProxyContentResolver } from './infra/local-url-proxy-content-resolver.js';
 import { MinifiableCssRenderer } from './infra/minifiable-css-renderer.js';
-import { RemoteUrlProxyContentResolver } from './infra/remote-url-proxy-content-resolver.js';
-import { RequireLocalProviderUrlResolver } from './infra/require-local-provider-url-resolver.js';
+import { NodeFontTypeExtractor } from './infra/node-font-type-extractor.js';
 import { RealSystemFallbacksProvider } from './infra/system-fallbacks-provider.js';
 import { UnifontFontResolver } from './infra/unifont-font-resolver.js';
 import { UnstorageFsStorage } from './infra/unstorage-fs-storage.js';
-import { RealUrlProxy } from './infra/url-proxy.js';
 import { XxhashHasher } from './infra/xxhash-hasher.js';
-import { orchestrate } from './orchestrate.js';
 import type {
-	FontDataRecord,
+	ComponentDataByCssVariable,
+	FontDataByCssVariable,
 	FontFamily,
-	FontFileDataMap,
-	InternalConsumableMap,
+	FontFileById,
 } from './types.js';
 
 interface Options {
@@ -105,114 +98,22 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	);
 	const baseUrl = joinPaths(settings.config.base, assetsDir);
 
-	let fontFileDataMap: FontFileDataMap | null = null;
-	let internalConsumableMap: InternalConsumableMap | null = null;
-	let fontData: FontDataRecord | null = null;
+	// We initialize shared variables here and reset them in buildEnd
+	// to avoid locking memory
+	let fontFileById: FontFileById | null = null;
+	let componentDataByCssVariable: ComponentDataByCssVariable | null = null;
+	let fontDataByCssVariable: FontDataByCssVariable | null = null;
+
 	let isBuild: boolean;
 	let fontFetcher: FontFetcher | null = null;
 	let fontTypeExtractor: FontTypeExtractor | null = null;
 
 	const cleanup = () => {
-		internalConsumableMap = null;
-		fontData = null;
-		fontFileDataMap = null;
+		componentDataByCssVariable = null;
+		fontDataByCssVariable = null;
+		fontFileById = null;
 		fontFetcher = null;
 	};
-
-	async function initialize({
-		cacheDir,
-		cssRenderer,
-		urlResolver,
-		createHashResolver,
-	}: {
-		cacheDir: URL;
-		cssRenderer: CssRenderer;
-		urlResolver: UrlResolver;
-		createHashResolver: (dependencies: {
-			hasher: Hasher;
-			contentResolver: UrlProxyContentResolver;
-		}) => UrlProxyHashResolver;
-	}) {
-		const { root } = settings.config;
-		// Dependencies. Once extracted to a dedicated vite plugin, those may be passed as
-		// a Vite plugin option.
-		const hasher = await XxhashHasher.create();
-		// TODO: remove when stabilizing
-		const pathsToWarn = new Set<string>();
-		const localProviderUrlResolver = new RequireLocalProviderUrlResolver({
-			root,
-			intercept: (path) => {
-				if (path.startsWith(fileURLToPath(settings.config.publicDir))) {
-					if (pathsToWarn.has(path)) {
-						return;
-					}
-					pathsToWarn.add(path);
-					logger.warn(
-						'assets',
-						`Found a local font file ${JSON.stringify(path)} in the \`public/\` folder. To avoid duplicated files in the build output, move this file into \`src/\``,
-					);
-				}
-			},
-		});
-		const storage = new UnstorageFsStorage({ base: cacheDir });
-		const systemFallbacksProvider = new RealSystemFallbacksProvider();
-		fontFetcher = new CachedFontFetcher({ storage, fetch, readFile });
-		const fontMetricsResolver = new CapsizeFontMetricsResolver({ fontFetcher, cssRenderer });
-		fontTypeExtractor = new RealFontTypeExtractor();
-		const fontFileReader = new FontaceFontFileReader();
-		const stringMatcher = new LevenshteinStringMatcher();
-
-		const res = await orchestrate({
-			families: settings.config.experimental.fonts as Array<FontFamily>,
-			hasher,
-			localProviderUrlResolver,
-			createFontResolver: async ({ families }) =>
-				await UnifontFontResolver.create({
-					families,
-					hasher,
-					storage,
-				}),
-			cssRenderer,
-			systemFallbacksProvider,
-			fontMetricsResolver,
-			fontTypeExtractor,
-			fontFileReader,
-			logger,
-			createUrlProxy: ({ local, cssVariable, ...params }) => {
-				const dataCollector = new RealDataCollector(params);
-				const contentResolver = local
-					? new LocalUrlProxyContentResolver()
-					: new RemoteUrlProxyContentResolver();
-				return new RealUrlProxy({
-					urlResolver,
-					hashResolver: createHashResolver({ hasher, contentResolver }),
-					dataCollector,
-					cssVariable,
-				});
-			},
-			defaults: DEFAULTS,
-			bold: colors.bold,
-			stringMatcher,
-		});
-		// We initialize shared variables here and reset them in buildEnd
-		// to avoid locking memory
-		fontFileDataMap = res.fontFileDataMap;
-		internalConsumableMap = res.internalConsumableMap;
-		fontData = res.fontData;
-
-		// Handle CSP
-		if (shouldTrackCspHashes(settings.config.experimental.csp)) {
-			const algorithm = getAlgorithm(settings.config.experimental.csp);
-
-			// Generate a hash for each style we generate
-			for (const { css } of internalConsumableMap.values()) {
-				settings.injectedCsp.styleHashes.push(await generateCspDigest(css, algorithm));
-			}
-			for (const resource of urlResolver.cspResources) {
-				settings.injectedCsp.fontResources.add(resource);
-			}
-		}
-	}
 
 	return {
 		name: 'astro:fonts',
@@ -220,36 +121,120 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			isBuild = command === 'build';
 		},
 		async buildStart() {
-			if (isBuild) {
-				await initialize({
-					cacheDir: new URL(CACHE_DIR, settings.config.cacheDir),
-					cssRenderer: new MinifiableCssRenderer({ minify: true }),
-					urlResolver: new BuildUrlResolver({
+			const { root } = settings.config;
+			// Dependencies. Once extracted to a dedicated vite plugin, those may be passed as
+			// a Vite plugin option.
+			const hasher = await XxhashHasher.create();
+			const storage = new UnstorageFsStorage({
+				// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
+				base: new URL(CACHE_DIR, isBuild ? settings.config.cacheDir : settings.dotAstroDir),
+			});
+			const systemFallbacksProvider = new RealSystemFallbacksProvider();
+			fontFetcher = new CachedFontFetcher({ storage, fetch, readFile });
+			const cssRenderer = new MinifiableCssRenderer({ minify: isBuild });
+			const fontMetricsResolver = new CapsizeFontMetricsResolver({ fontFetcher, cssRenderer });
+			fontTypeExtractor = new NodeFontTypeExtractor();
+			const stringMatcher = new LevenshteinStringMatcher();
+			const urlResolver = isBuild
+				? new BuildUrlResolver({
 						base: baseUrl,
 						assetsPrefix: settings.config.build.assetsPrefix,
 						searchParams: settings.adapter?.client?.assetQueryParams ?? new URLSearchParams(),
-					}),
-					createHashResolver: (dependencies) => new BuildUrlProxyHashResolver(dependencies),
-				});
-			} else {
-				await initialize({
-					// In dev, we cache fonts data in .astro so it can be easily inspected and cleared
-					cacheDir: new URL(CACHE_DIR, settings.dotAstroDir),
-					cssRenderer: new MinifiableCssRenderer({ minify: false }),
-					urlResolver: new DevUrlResolver({
+					})
+				: new DevUrlResolver({
 						base: baseUrl,
 						searchParams: settings.adapter?.client?.assetQueryParams ?? new URLSearchParams(),
+					});
+			const contentResolver = new FsFontFileContentResolver({
+				readFileSync: (path) => readFileSync(path, 'utf-8'),
+			});
+			const fontFileIdGenerator = isBuild
+				? new BuildFontFileIdGenerator({
+						hasher,
+						contentResolver,
+					})
+				: new DevFontFileIdGenerator({
+						hasher,
+						contentResolver,
+					});
+			const { bold } = colors;
+			const defaults = DEFAULTS;
+			const resolvedFamilies = settings.config.experimental.fonts!.map((family) =>
+				resolveFamily({ family: family as FontFamily, hasher }),
+			);
+			const { fontFamilyAssets, fontFileById: _fontFileById } = await computeFontFamiliesAssets({
+				resolvedFamilies,
+				defaults,
+				bold,
+				logger,
+				stringMatcher,
+				fontResolver: await UnifontFontResolver.create({
+					families: resolvedFamilies,
+					hasher,
+					storage,
+					root,
+				}),
+				getOrCreateFontFamilyAssets: ({ family, fontFamilyAssetsByUniqueKey }) =>
+					getOrCreateFontFamilyAssets({
+						family,
+						fontFamilyAssetsByUniqueKey,
+						bold,
+						logger,
 					}),
-					createHashResolver: (dependencies) => new DevUrlProxyHashResolver(dependencies),
-				});
+				filterAndTransformFontFaces: ({ family, fonts }) =>
+					filterAndTransformFontFaces({
+						family,
+						fonts,
+						fontFileIdGenerator,
+						fontTypeExtractor: fontTypeExtractor!,
+						urlResolver,
+					}),
+				collectFontAssetsFromFaces: ({ collectedFontsIds, family, fontFilesIds, fonts }) =>
+					collectFontAssetsFromFaces({
+						collectedFontsIds,
+						family,
+						fontFilesIds,
+						fonts,
+						fontFileIdGenerator,
+						hasher,
+						defaults,
+					}),
+			});
+			fontDataByCssVariable = collectFontData(fontFamilyAssets);
+			componentDataByCssVariable = await collectComponentData({
+				cssRenderer,
+				defaults,
+				fontFamilyAssets,
+				optimizeFallbacks: ({ collectedFonts, fallbacks, family }) =>
+					optimizeFallbacks({
+						collectedFonts,
+						fallbacks,
+						family,
+						fontMetricsResolver,
+						systemFallbacksProvider,
+					}),
+			});
+			fontFileById = _fontFileById;
+
+			if (shouldTrackCspHashes(settings.config.experimental.csp)) {
+				// Handle CSP
+				const algorithm = getAlgorithm(settings.config.experimental.csp);
+
+				// Generate a hash for each style we generate
+				for (const { css } of componentDataByCssVariable.values()) {
+					settings.injectedCsp.styleHashes.push(await generateCspDigest(css, algorithm));
+				}
+				for (const resource of urlResolver.cspResources) {
+					settings.injectedCsp.fontResources.add(resource);
+				}
 			}
 		},
 		async configureServer(server) {
 			server.watcher.on('change', (path) => {
-				if (!fontFileDataMap) {
+				if (!fontFileById) {
 					return;
 				}
-				const localPaths = [...fontFileDataMap.values()]
+				const localPaths = [...fontFileById.values()]
 					.filter(({ url }) => isAbsolute(url))
 					.map((v) => v.url);
 				if (localPaths.includes(path)) {
@@ -259,10 +244,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			});
 			// We do not purge the cache in case the user wants to re-use the file later on
 			server.watcher.on('unlink', (path) => {
-				if (!fontFileDataMap) {
+				if (!fontFileById) {
 					return;
 				}
-				const localPaths = [...fontFileDataMap.values()]
+				const localPaths = [...fontFileById.values()]
 					.filter(({ url }) => isAbsolute(url))
 					.map((v) => v.url);
 				if (localPaths.includes(path)) {
@@ -274,12 +259,19 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			});
 
 			server.middlewares.use(assetsDir, async (req, res, next) => {
+				if (!fontFetcher || !fontTypeExtractor) {
+					logger.debug(
+						'assets',
+						'Fonts dependencies should be initialized by now, skipping dev middleware.',
+					);
+					return next();
+				}
 				if (!req.url) {
 					return next();
 				}
-				const hash = req.url.slice(1);
-				const associatedData = fontFileDataMap?.get(hash);
-				if (!associatedData) {
+				const fontId = req.url.slice(1);
+				const fontData = fontFileById?.get(fontId);
+				if (!fontData) {
 					return next();
 				}
 				// We don't want the request to be cached in dev because we cache it already internally,
@@ -289,13 +281,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				res.setHeader('Expires', 0);
 
 				try {
-					// Storage should be defined at this point since initialize it called before registering
-					// the middleware. hashToUrlMap is defined at the same time so if it's not set by now,
-					// no url will be matched and this line will not be reached.
-					const buffer = await fontFetcher!.fetch({ hash, ...associatedData });
+					const buffer = await fontFetcher.fetch({ id: fontId, ...fontData });
 
-					res.setHeader('Content-Length', buffer.byteLength);
-					res.setHeader('Content-Type', `font/${fontTypeExtractor!.extract(hash)}`);
+					res.setHeader('Content-Length', buffer.length);
+					res.setHeader('Content-Type', `font/${fontTypeExtractor.extract(fontId)}`);
 
 					res.end(buffer);
 				} catch (err) {
@@ -326,9 +315,9 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
 				return {
 					code: `
-						export const internalConsumableMap = new Map(${JSON.stringify(Array.from(internalConsumableMap?.entries() ?? []))});
-						export const fontData = ${JSON.stringify(fontData ?? {})};
-						export const bufferImports = {${[...(fontFileDataMap?.keys() ?? [])].map((key) => `"${key}": () => import("${BUFFER_VIRTUAL_MODULE_ID_PREFIX}${key}")`).join(',')}};
+						export const componentDataByCssVariable = new Map(${JSON.stringify(Array.from(componentDataByCssVariable?.entries() ?? []))});
+						export const fontDataByCssVariable = ${JSON.stringify(fontDataByCssVariable ?? {})}
+						export const bufferImports = {${[...(fontFileById?.keys() ?? [])].map((key) => `"${key}": () => import("${BUFFER_VIRTUAL_MODULE_ID_PREFIX}${key}")`).join(',')}};
 					`,
 				};
 			}
@@ -346,19 +335,22 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 
 			if (id.startsWith(RESOLVED_BUFFER_VIRTUAL_MODULE_ID_PREFIX)) {
-				const hash = id.slice(RESOLVED_BUFFER_VIRTUAL_MODULE_ID_PREFIX.length);
-				const associatedData = fontFileDataMap?.get(hash);
-				if (!associatedData) {
-					return {
-						code: `export default null;`,
-					};
+				if (!fontFetcher) {
+					logger.debug(
+						'assets',
+						'Fonts dependencies should be initialized by now, skipping dev middleware.',
+					);
+					return { code: `export default null;` };
+				}
+
+				const fontId = id.slice(RESOLVED_BUFFER_VIRTUAL_MODULE_ID_PREFIX.length);
+				const fontData = fontFileById?.get(fontId);
+				if (!fontData) {
+					return { code: `export default null;` };
 				}
 
 				try {
-					// Storage should be defined at this point since initialize it called before registering
-					// the middleware. hashToUrlMap is defined at the same time so if it's not set by now,
-					// no url will be matched and this line will not be reached.
-					const buffer = await fontFetcher!.fetch({ hash, ...associatedData });
+					const buffer = await fontFetcher.fetch({ id: fontId, ...fontData });
 
 					const bytes = Array.from(buffer);
 					return {
@@ -372,9 +364,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 							formatErrorMessage(collectErrorMetadata(err), logger.level() === 'debug'),
 						);
 					}
-					return {
-						code: `export default null;`,
-					};
+					return { code: `export default null;` };
 				}
 			}
 		},
@@ -392,16 +382,16 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				} catch (cause) {
 					throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
 				}
-				if (fontFileDataMap) {
+				if (fontFileById) {
 					logger.info(
 						'assets',
-						`Copying fonts (${fontFileDataMap.size} file${fontFileDataMap.size === 1 ? '' : 's'})...`,
+						`Copying fonts (${fontFileById.size} file${fontFileById.size === 1 ? '' : 's'})...`,
 					);
 					await Promise.all(
-						Array.from(fontFileDataMap.entries()).map(async ([hash, associatedData]) => {
-							const data = await fontFetcher!.fetch({ hash, ...associatedData });
+						Array.from(fontFileById.entries()).map(async ([id, associatedData]) => {
+							const data = await fontFetcher!.fetch({ id, ...associatedData });
 							try {
-								writeFileSync(new URL(hash, fontsDir), data);
+								writeFileSync(new URL(id, fontsDir), data);
 							} catch (cause) {
 								throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause });
 							}
