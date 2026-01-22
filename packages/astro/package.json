@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "6.0.0-beta.1",
+  "version": "6.0.0-beta.2",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -68,7 +68,8 @@
     "./assets/endpoint/*": "./dist/assets/endpoint/*.js",
     "./assets/services/sharp": "./dist/assets/services/sharp.js",
     "./assets/services/noop": "./dist/assets/services/noop.js",
-    "./assets/fonts/runtime": "./dist/assets/fonts/runtime.js",
+    "./assets/fonts/runtime/server.js": "./dist/assets/fonts/runtime/server.js",
+    "./assets/fonts/runtime/client.js": "./dist/assets/fonts/runtime/client.js",
     "./loaders": "./dist/content/loaders/index.js",
     "./content/config": "./dist/content/config.js",
     "./content/runtime": "./dist/content/runtime.js",

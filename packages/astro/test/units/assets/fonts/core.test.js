@@ -1,7 +1,7 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createGetFontData } from '../../../../dist/assets/fonts/core/create-get-font-data.js';
+import { createGetFontBuffer } from '../../../../dist/assets/fonts/core/create-get-font-buffer.js';
 import { filterPreloads } from '../../../../dist/assets/fonts/core/filter-preloads.js';
 import { normalizeRemoteFontFaces } from '../../../../dist/assets/fonts/core/normalize-remote-font-faces.js';
 import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-fallbacks.js';
@@ -751,18 +751,50 @@ describe('fonts core', () => {
 		});
 	});
 
-	describe('createGetFontData()', () => {
-		it('throws if there is no consumable map', () => {
-			assert.throws(() => createGetFontData({ consumableMap: undefined })('foo'));
+	describe('createGetFontBuffer()', () => {
+		it('throws if there is are no bufferImports', async () => {
+			assert.rejects(() => createGetFontBuffer({ bufferImports: undefined })('foo'));
 		});
 
-		it('throws if no data can be found', () => {
-			assert.throws(() => createGetFontData({ consumableMap: new Map([['bar', []]]) })('foo'));
+		it('throws if hash cannot be found in buffer imports', async () => {
+			assert.rejects(() =>
+				createGetFontBuffer({
+					bufferImports: {
+						bar: async () => ({ default: Buffer.alloc(4) }),
+					},
+				})('foo'),
+			);
 		});
 
-		it('works when there is data', () => {
-			const data = createGetFontData({ consumableMap: new Map([['bar', []]]) })('bar');
-			assert.deepStrictEqual(data, []);
+		it('throws if import fails', async () => {
+			assert.rejects(() =>
+				createGetFontBuffer({
+					bufferImports: {
+						foo: async () => {
+							throw new Error('unexpected');
+						},
+					},
+				})('foo'),
+			);
+		});
+
+		it('throws if import result is not a buffer', async () => {
+			assert.rejects(() =>
+				createGetFontBuffer({
+					bufferImports: {
+						foo: async () => ({ default: null }),
+					},
+				})('foo'),
+			);
+		});
+
+		it('works', async () => {
+			const result = await createGetFontBuffer({
+				bufferImports: {
+					foo: async () => ({ default: Buffer.alloc(4) }),
+				},
+			})('foo');
+			assert.equal(result instanceof Buffer, true);
 		});
 	});
 });

@@ -55,7 +55,7 @@ importers:
         specifier: ^0.2.15
         version: 0.2.15
       turbo:
-        specifier: ^2.7.4
+        specifier: ^2.7.5
         version: 2.7.5
       typescript:
         specifier: ~5.9.3
@@ -172,7 +172,7 @@ importers:
   examples/basics:
     dependencies:
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
 
   examples/blog:
@@ -187,7 +187,7 @@ importers:
         specifier: ^3.6.1-beta.2
         version: link:../../packages/integrations/sitemap
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
       sharp:
         specifier: ^0.34.3
@@ -196,7 +196,7 @@ importers:
   examples/component:
     devDependencies:
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
 
   examples/container-with-vitest:
@@ -205,7 +205,7 @@ importers:
         specifier: ^5.0.0-beta.1
         version: link:../../packages/integrations/react
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -236,7 +236,7 @@ importers:
         specifier: ^3.15.4
         version: 3.15.4
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
 
   examples/framework-multiple:
@@ -263,7 +263,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.27)
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.2
@@ -293,7 +293,7 @@ importers:
         specifier: ^2.5.1
         version: 2.5.1(preact@10.28.2)
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.2
@@ -311,7 +311,7 @@ importers:
         specifier: ^18.3.7
         version: 18.3.7(@types/react@18.3.27)
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
       react:
         specifier: ^18.3.1
@@ -326,7 +326,7 @@ importers:
         specifier: ^6.0.0-beta.1
         version: link:../../packages/integrations/solid
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.10
@@ -338,7 +338,7 @@ importers:
         specifier: ^8.0.0-beta.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
       svelte:
         specifier: ^5.46.1
@@ -350,7 +350,7 @@ importers:
         specifier: ^6.0.0-beta.0
         version: link:../../packages/integrations/vue
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
       vue:
         specifier: ^3.5.26
@@ -362,25 +362,25 @@ importers:
         specifier: ^10.0.0-beta.0
         version: link:../../packages/integrations/node
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
 
   examples/integration:
     devDependencies:
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
 
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
 
   examples/portfolio:
     dependencies:
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
 
   examples/ssr:
@@ -392,7 +392,7 @@ importers:
         specifier: ^8.0.0-beta.0
         version: link:../../packages/integrations/svelte
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
       svelte:
         specifier: ^5.46.1
@@ -401,7 +401,7 @@ importers:
   examples/starlog:
     dependencies:
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
       sass:
         specifier: ^1.97.2
@@ -416,7 +416,7 @@ importers:
         specifier: ^18.17.8
         version: 18.19.130
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
 
   examples/with-markdoc:
@@ -425,7 +425,7 @@ importers:
         specifier: ^1.0.0-beta.4
         version: link:../../packages/integrations/markdoc
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
 
   examples/with-mdx:
@@ -437,7 +437,7 @@ importers:
         specifier: ^5.0.0-beta.1
         version: link:../../packages/integrations/preact
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
       preact:
         specifier: ^10.28.2
@@ -452,7 +452,7 @@ importers:
         specifier: ^0.5.2
         version: 0.5.2(nanostores@0.11.4)(preact@10.28.2)
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
       nanostores:
         specifier: ^0.11.4
@@ -473,7 +473,7 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
       canvas-confetti:
         specifier: ^1.9.4
@@ -485,7 +485,7 @@ importers:
   examples/with-vitest:
     dependencies:
       astro:
-        specifier: ^6.0.0-beta.1
+        specifier: ^6.0.0-beta.2
         version: link:../../packages/astro
       vitest:
         specifier: ^3.2.4
@@ -6184,8 +6184,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: 5.46.1
-        version: 5.46.1
+        specifier: 5.46.4
+        version: 5.46.4
 
   packages/integrations/svelte/test/fixtures/prop-types:
     dependencies:
@@ -6206,7 +6206,7 @@ importers:
         version: link:../../internal-helpers
       '@vercel/analytics':
         specifier: ^1.6.1
-        version: 1.6.1(react@19.2.3)(svelte@5.46.1)(vue@3.5.26(typescript@5.9.3))
+        version: 1.6.1(react@19.2.3)(svelte@5.46.4)(vue@3.5.26(typescript@5.9.3))
       '@vercel/functions':
         specifier: ^2.2.13
         version: 2.2.13
@@ -6674,8 +6674,8 @@ importers:
         specifier: workspace:*
         version: link:../../../astro
       svelte:
-        specifier: ^4.2.20
-        version: 4.2.20
+        specifier: ^5.0.0
+        version: 5.46.4
     devDependencies:
       tinyglobby:
         specifier: ^0.2.15
@@ -6797,7 +6797,7 @@ importers:
         specifier: ^10.8.2
         version: 10.8.2
       ovsx:
-        specifier: ^0.10.7
+        specifier: ^0.10.8
         version: 0.10.8
       vscode-languageclient:
         specifier: ^9.0.1
@@ -7003,10 +7003,6 @@ importers:
         version: 3.1.6(typescript@5.9.3)
 
 packages:
-
-  '@ampproject/remapping@2.3.0':
-    resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
-    engines: {node: '>=6.0.0'}
 
   '@antfu/utils@0.7.10':
     resolution: {integrity: sha512-+562v9k4aI80m1+VuMHehNJWLOFjBnXn3tdOitzD0il5b7smkSBal4+a3oKiQTbrwMmN/TBUMDvbdoWDehgOww==}
@@ -11255,9 +11251,6 @@ packages:
     resolution: {integrity: sha512-gfrHV6ZPkquExvMh9IOkKsBzNDk6sDuZ6DdBGUBkvFnTCqCxzpuq48RySgP0AnaqQkw2zynOFj9yly6T1Q2G5Q==}
     engines: {node: '>=16'}
 
-  code-red@1.0.4:
-    resolution: {integrity: sha512-7qJWqItLA8/VPVlKJlFXU+NBlo/qyfs39aJcuMT/2ere32ZqvF5OSxgdM5xOfJJ7O429gg2HM47y8v9P+9wrNw==}
-
   collapse-white-space@2.1.0:
     resolution: {integrity: sha512-loKTxY1zCOuG4j9f6EPnuyyYkf58RnhhWTvRoZEokgB+WbdXehfjFviyOVYkqzEWz1Q5kRiZdBYS5SwxbQYwzw==}
 
@@ -14101,9 +14094,6 @@ packages:
   perfect-debounce@1.0.0:
     resolution: {integrity: sha512-xCy9V055GLEqoFaHoC1SoLIaLmWctgCUaBaWxDZ7/Zx4CTyX7cJQLJOok/orfjZAh9kEYpjJa4d0KcJmCbctZA==}
 
-  periscopic@3.1.0:
-    resolution: {integrity: sha512-vKiQ8RRtkl9P+r/+oefh25C3fhybptkHKCZSPlcXiJux2tJF55GnEj3BVn4A5gKfq9NWWXXrxkHBwVPUfH0opw==}
-
   piccolore@0.1.3:
     resolution: {integrity: sha512-o8bTeDWjE086iwKrROaDf31K0qC/BENdm15/uH9usSC/uZjJOKb2YGiVHfLY4GhwsERiPI1jmwI2XrA7ACOxVw==}
 
@@ -15195,12 +15185,12 @@ packages:
       svelte: ^3.55 || ^4.0.0-next.0 || ^4.0 || ^5.0.0-next.0
       typescript: ^4.9.4 || ^5.0.0
 
-  svelte@4.2.20:
-    resolution: {integrity: sha512-eeEgGc2DtiUil5ANdtd8vPwt9AgaMdnuUFnPft9F5oMvU/FHu5IHFic+p1dR/UOB7XU2mX2yHW+NcTch4DCh5Q==}
-    engines: {node: '>=16'}
-
   svelte@5.46.1:
     resolution: {integrity: sha512-ynjfCHD3nP2el70kN5Pmg37sSi0EjOm9FgHYQdC4giWG/hzO3AatzXXJJgP305uIhGQxSufJLuYWtkY8uK/8RA==}
+    engines: {node: '>=18'}
+
+  svelte@5.46.4:
+    resolution: {integrity: sha512-VJwdXrmv9L8L7ZasJeWcCjoIuMRVbhuxbss0fpVnR8yorMmjNDwcjIH08vS6wmSzzzgAG5CADQ1JuXPS2nwt9w==}
     engines: {node: '>=18'}
 
   svgo@3.3.2:
@@ -16410,11 +16400,6 @@ packages:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
 snapshots:
-
-  '@ampproject/remapping@2.3.0':
-    dependencies:
-      '@jridgewell/gen-mapping': 0.3.13
-      '@jridgewell/trace-mapping': 0.3.31
 
   '@antfu/utils@0.7.10': {}
 
@@ -19919,10 +19904,10 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@vercel/analytics@1.6.1(react@19.2.3)(svelte@5.46.1)(vue@3.5.26(typescript@5.9.3))':
+  '@vercel/analytics@1.6.1(react@19.2.3)(svelte@5.46.4)(vue@3.5.26(typescript@5.9.3))':
     optionalDependencies:
       react: 19.2.3
-      svelte: 5.46.1
+      svelte: 5.46.4
       vue: 3.5.26(typescript@5.9.3)
 
   '@vercel/functions@2.2.13':
@@ -21000,14 +20985,6 @@ snapshots:
   clsx@2.1.1: {}
 
   cockatiel@3.2.1: {}
-
-  code-red@1.0.4:
-    dependencies:
-      '@jridgewell/sourcemap-codec': 1.5.5
-      '@types/estree': 1.0.8
-      acorn: 8.15.0
-      estree-walker: 3.0.3
-      periscopic: 3.1.0
 
   collapse-white-space@2.1.0: {}
 
@@ -24340,12 +24317,6 @@ snapshots:
 
   perfect-debounce@1.0.0: {}
 
-  periscopic@3.1.0:
-    dependencies:
-      '@types/estree': 1.0.8
-      estree-walker: 3.0.3
-      is-reference: 3.0.3
-
   piccolore@0.1.3: {}
 
   picocolors@1.1.1: {}
@@ -25746,24 +25717,25 @@ snapshots:
       svelte: 5.46.1
       typescript: 5.9.3
 
-  svelte@4.2.20:
+  svelte@5.46.1:
     dependencies:
-      '@ampproject/remapping': 2.3.0
+      '@jridgewell/remapping': 2.3.5
       '@jridgewell/sourcemap-codec': 1.5.5
-      '@jridgewell/trace-mapping': 0.3.31
+      '@sveltejs/acorn-typescript': 1.0.6(acorn@8.15.0)
       '@types/estree': 1.0.8
       acorn: 8.15.0
       aria-query: 5.3.2
       axobject-query: 4.1.0
-      code-red: 1.0.4
-      css-tree: 2.3.1
-      estree-walker: 3.0.3
+      clsx: 2.1.1
+      devalue: 5.6.2
+      esm-env: 1.2.2
+      esrap: 2.2.1
       is-reference: 3.0.3
       locate-character: 3.0.0
       magic-string: 0.30.21
-      periscopic: 3.1.0
+      zimmerframe: 1.1.4
 
-  svelte@5.46.1:
+  svelte@5.46.4:
     dependencies:
       '@jridgewell/remapping': 2.3.5
       '@jridgewell/sourcemap-codec': 1.5.5

@@ -70,6 +70,7 @@ export const remoteFontFamilySchema = z
 			style: true,
 		}).shape,
 		provider: fontProviderSchema,
+		options: z.record(z.string(), z.any()).optional(),
 		weights: z.tuple([weightSchema], weightSchema).optional(),
 		styles: z.tuple([styleSchema], styleSchema).optional(),
 		subsets: z.tuple([z.string()], z.string()).optional(),
