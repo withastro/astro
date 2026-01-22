@@ -69,6 +69,9 @@ const cssVariablesTheme = () =>
 		variablePrefix: '--astro-code-',
 	}));
 
+// Caches Promise<ShikiHighlighter> for reuse when the same theme and langs are provided
+const cachedHighlighters = new Map();
+
 export async function createShikiHighlighter({
 	langs = [],
 	theme = 'github-dark',
@@ -77,11 +80,21 @@ export async function createShikiHighlighter({
 }: CreateShikiHighlighterOptions = {}): Promise<ShikiHighlighter> {
 	theme = theme === 'css-variables' ? cssVariablesTheme() : theme;
 
-	const highlighter = await createHighlighter({
+	const highlighterOptions = {
 		langs: ['plaintext', ...langs],
 		langAlias,
 		themes: Object.values(themes).length ? Object.values(themes) : [theme],
-	});
+	};
+
+	const key = JSON.stringify(highlighterOptions, Object.keys(highlighterOptions).sort());
+
+	// Highlighter has already been requested, reuse the same instance
+	if (cachedHighlighters.has(key)) {
+		return cachedHighlighters.get(key);
+	}
+
+	const highlighter = await createHighlighter(highlighterOptions);
+	cachedHighlighters.set(key, highlighter);
 
 	async function highlight(
 		code: string,
