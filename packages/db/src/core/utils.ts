@@ -24,10 +24,7 @@ export function getRemoteDatabaseInfo(): RemoteDatabaseInfo {
 	};
 }
 
-export function resolveDbAppToken(
-	flags: Arguments,
-	envToken: string,
-): string;
+export function resolveDbAppToken(flags: Arguments, envToken: string): string;
 export function resolveDbAppToken(
 	flags: Arguments,
 	envToken: string | undefined,
