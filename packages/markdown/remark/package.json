@@ -51,7 +51,8 @@
     "unist-util-remove-position": "^5.0.0",
     "unist-util-visit": "^5.0.0",
     "unist-util-visit-parents": "^6.0.2",
-    "vfile": "^6.0.3"
+    "vfile": "^6.0.3",
+		"deterministic-object-hash": "^2.0.2"
   },
   "devDependencies": {
     "@types/estree": "^1.0.8",

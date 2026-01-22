@@ -11,6 +11,7 @@ import {
 	type ThemeRegistrationRaw,
 } from 'shiki';
 import type { ThemePresets } from './types.js';
+import { deterministicString } from 'deterministic-object-hash';
 
 export interface ShikiHighlighter {
 	codeToHast(
@@ -86,7 +87,7 @@ export async function createShikiHighlighter({
 		themes: Object.values(themes).length ? Object.values(themes) : [theme],
 	};
 
-	const key = JSON.stringify(highlighterOptions, Object.keys(highlighterOptions).sort());
+	const key = deterministicString(highlighterOptions);
 
 	// Highlighter has already been requested, reuse the same instance
 	if (cachedHighlighters.has(key)) {
