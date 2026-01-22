@@ -14,8 +14,6 @@ export default defineConfig({
 	}),
 	build: {
 		inlineStylesheets: 'never',
-		client: './',
-		server: './_worker.js',
 	},
 	vite: {
 		resolve: {
