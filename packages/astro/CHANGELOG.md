@@ -1,5 +1,72 @@
 # astro
 
+## 5.16.14
+
+### Patch Changes
+
+- [#15213](https://github.com/withastro/astro/pull/15213) [`c775fce`](https://github.com/withastro/astro/commit/c775fce98f50001bc59025dceaf8ea5287675f17) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental Fonts API only**
+
+  Updates how the local provider must be used when using the experimental Fonts API
+
+  Previously, there were 2 kinds of font providers: remote and local.
+
+  Font providers are now unified. If you are using the local provider, the process for configuring local fonts must be updated:
+
+  ```diff
+  -import { defineConfig } from "astro/config";
+  +import { defineConfig, fontProviders } from "astro/config";
+
+  export default defineConfig({
+      experimental: {
+          fonts: [{
+              name: "Custom",
+              cssVariable: "--font-custom",
+  -            provider: "local",
+  +            provider: fontProviders.local(),
+  +            options: {
+              variants: [
+                  {
+                      weight: 400,
+                      style: "normal",
+                      src: ["./src/assets/fonts/custom-400.woff2"]
+                  },
+                  {
+                      weight: 700,
+                      style: "normal",
+                      src: ["./src/assets/fonts/custom-700.woff2"]
+                  }
+                  // ...
+              ]
+  +            }
+          }]
+      }
+  });
+  ```
+
+  Once configured, there is no change to using local fonts in your project. However, you should inspect your deployed site to confirm that your new font configuration is being applied.
+
+  See [the experimental Fonts API docs](https://docs.astro.build/en/reference/experimental-flags/fonts/) for more information.
+
+- [#15213](https://github.com/withastro/astro/pull/15213) [`c775fce`](https://github.com/withastro/astro/commit/c775fce98f50001bc59025dceaf8ea5287675f17) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Exposes `root` on `FontProvider` `init()` context
+
+  When building a custom `FontProvider` for the experimental Fonts API, the `init()` method receives a `context`. This context now exposes a `root` URL, useful for resolving local files:
+
+  ```diff
+  import type { FontProvider } from "astro";
+
+  export function registryFontProvider(): FontProvider {
+    return {
+      // ...
+  -    init: async ({ storage }) => {
+  +    init: async ({ storage, root }) => {
+          // ...
+      },
+    };
+  }
+  ```
+
+- [#15185](https://github.com/withastro/astro/pull/15185) [`edabeaa`](https://github.com/withastro/astro/commit/edabeaa3cd3355fa33e4eb547656033fe7b66845) Thanks [@EricGrill](https://github.com/EricGrill)! - Add `.vercel` to `.gitignore` when adding the Vercel adapter via `astro add vercel`
+
 ## 5.16.13
 
 ### Patch Changes
