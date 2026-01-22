@@ -29,7 +29,6 @@ describe('fonts', () => {
 	});
 });
 
-
 describe('session', () => {
 	it('SessionDriverConfig type matches SessionDriverConfigSchema', () => {
 		expectTypeOf<z.input<typeof SessionDriverConfigSchema>>().toEqualTypeOf<SessionDriverConfig>();
