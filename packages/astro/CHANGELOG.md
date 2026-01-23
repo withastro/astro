@@ -1,5 +1,11 @@
 # astro
 
+## 5.16.15
+
+### Patch Changes
+
+- [#15286](https://github.com/withastro/astro/pull/15286) [`0aafc83`](https://github.com/withastro/astro/commit/0aafc8342a47f5c96cd13bfc02539d89c3c358a7) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where font providers provided as class instances may not work when using the experimental Fonts API. It affected the local provider
+
 ## 5.16.14
 
 ### Patch Changes
