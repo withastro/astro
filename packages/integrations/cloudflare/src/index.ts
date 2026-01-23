@@ -195,8 +195,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							{
 								name: '@astrojs/cloudflare:environment',
 								configEnvironment(environmentName, _options) {
-									const isServerEnvironment = ['ssr', 'prerender'].includes(environmentName);
-									if (isServerEnvironment && _options.optimizeDeps?.noDiscovery === false) {
+									const isServerEnvironment = ['astro', 'ssr', 'prerender'].includes(environmentName);
+									if (isServerEnvironment && !_options.optimizeDeps?.noDiscovery) {
 										return {
 											optimizeDeps: {
 												include: [
