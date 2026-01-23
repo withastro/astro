@@ -14,6 +14,7 @@ import {
 import { normalizePath } from '../core/viteUtils.js';
 import type { AstroSettings } from '../types/astro.js';
 import { VALID_INPUT_FORMATS, VIRTUAL_MODULE_ID, VIRTUAL_SERVICE_ID } from './consts.js';
+import { RUNTIME_VIRTUAL_MODULE_ID } from './fonts/constants.js';
 import { fontsPlugin } from './fonts/vite-plugin-fonts.js';
 import type { ImageTransform } from './types.js';
 import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
@@ -150,7 +151,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 							import { inferRemoteSize as inferRemoteSizeInternal } from "astro/assets/utils/inferRemoteSize.js";
 
 							export { default as Font } from "astro/components/Font.astro";
-							export * from "astro/assets/fonts/runtime";
+							export * from "${RUNTIME_VIRTUAL_MODULE_ID}";
 							
 							export const getConfiguredImageService = _getConfiguredImageService;
 

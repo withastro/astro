@@ -201,6 +201,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 export interface AstroUserConfig<
 	TLocales extends Locales = never,
 	TSession extends SessionDriverName = never,
+	TFontProviders extends Array<FontProvider> = never,
 > {
 	/**
 	 * @docs
@@ -2179,7 +2180,11 @@ export interface AstroUserConfig<
 		 * For a complete overview, and to give feedback on this experimental API,
 		 * see the [Fonts RFC](https://github.com/withastro/roadmap/pull/1039).
 		 */
-		fonts?: FontFamily[];
+		fonts?: [TFontProviders] extends [never]
+			? Array<FontFamily>
+			: {
+					[K in keyof TFontProviders]: FontFamily<TFontProviders[K]>;
+				};
 
 		/**
 		 * @name experimental.headingIdCompat

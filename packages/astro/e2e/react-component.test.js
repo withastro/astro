@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test';
 import { prepareTestFactory } from './shared-component-tests.js';
+import { waitForHydrate } from './test-utils.js';
 
 const { test, createTests } = prepareTestFactory(import.meta.url, {
 	root: './fixtures/react-component/',
@@ -34,6 +35,25 @@ test.describe('dev', () => {
 		expect(await suffix.textContent()).toBe('suffix toggle false');
 		await suffix.click();
 		expect(await suffix.textContent()).toBe('suffix toggle true');
+	});
+});
+
+test.describe('React components nested in HTML elements in MDX', () => {
+	test('client:load nested in div', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/nested-in-div/'));
+
+		const counter = page.locator('#nested-counter');
+		await expect(counter, 'component is visible').toBeVisible();
+
+		const count = counter.locator('pre');
+		await expect(count, 'initial count is 0').toHaveText('0');
+
+		await waitForHydrate(page, counter);
+
+		const inc = counter.locator('.increment');
+		await inc.click();
+
+		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
 });
 

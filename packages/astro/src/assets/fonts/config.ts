@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { FONT_TYPES, LOCAL_PROVIDER_NAME } from './constants.js';
+import { FONT_TYPES } from './constants.js';
 import type { FontProvider } from './types.js';
 
 export const weightSchema = z.union([z.string(), z.number()]);
@@ -26,35 +26,7 @@ const requiredFamilyAttributesSchema = z.object({
 	cssVariable: z.string(),
 });
 
-const entrypointSchema = z.union([z.string(), z.instanceof(URL)]);
-
-export const localFontFamilySchema = z
-	.object({
-		...requiredFamilyAttributesSchema.shape,
-		...fallbacksSchema.shape,
-		provider: z.literal(LOCAL_PROVIDER_NAME),
-		variants: z
-			.array(
-				z
-					.object({
-						...familyPropertiesSchema.shape,
-						src: z
-							.array(
-								z.union([
-									entrypointSchema,
-									z.object({ url: entrypointSchema, tech: z.string().optional() }).strict(),
-								]),
-							)
-							.nonempty(),
-						// TODO: find a way to support subsets (through fontkit?)
-					})
-					.strict(),
-			)
-			.nonempty(),
-	})
-	.strict();
-
-export const fontProviderSchema = z
+const _fontProviderSchema = z
 	.object({
 		name: z.string(),
 		config: z.record(z.string(), z.any()).optional(),
@@ -64,7 +36,14 @@ export const fontProviderSchema = z
 	})
 	.strict();
 
-export const remoteFontFamilySchema = z
+// Using z.object directly makes zod remap the input, preventing
+// the usage of class instances. Instead, we check if it matches
+// the right shape and pass the original
+export const fontProviderSchema = z.custom<FontProvider>((v) => {
+	return _fontProviderSchema.safeParse(v).success;
+}, 'Invalid FontProvider object');
+
+export const fontFamilySchema = z
 	.object({
 		...requiredFamilyAttributesSchema.shape,
 		...fallbacksSchema.shape,
@@ -73,6 +52,7 @@ export const remoteFontFamilySchema = z
 			style: true,
 		}).shape,
 		provider: fontProviderSchema,
+		options: z.record(z.string(), z.any()).optional(),
 		weights: z.array(weightSchema).nonempty().optional(),
 		styles: z.array(styleSchema).nonempty().optional(),
 		subsets: z.array(z.string()).nonempty().optional(),

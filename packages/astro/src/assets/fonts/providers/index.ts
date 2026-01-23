@@ -1,11 +1,13 @@
 import {
 	type AdobeProviderOptions,
-	type GoogleiconsOptions,
-	type GoogleOptions,
+	type GoogleFamilyOptions,
+	type GoogleiconsFamilyOptions,
 	type InitializedProvider,
 	providers,
 } from 'unifont';
+import { FontaceFontFileReader } from '../infra/fontace-font-file-reader.js';
 import type { FontProvider } from '../types.js';
+import { type LocalFamilyOptions, LocalFontProvider } from './local.js';
 
 /** [Adobe](https://fonts.adobe.com/) */
 function adobe(config: AdobeProviderOptions): FontProvider {
@@ -81,12 +83,11 @@ function fontsource(): FontProvider {
 }
 
 /** [Google](https://fonts.google.com/) */
-function google(config?: GoogleOptions): FontProvider {
-	const provider = providers.google(config);
-	let initializedProvider: InitializedProvider | undefined;
+function google(): FontProvider<GoogleFamilyOptions | undefined> {
+	const provider = providers.google();
+	let initializedProvider: InitializedProvider<GoogleFamilyOptions> | undefined;
 	return {
 		name: provider._name,
-		config,
 		async init(context) {
 			initializedProvider = await provider(context);
 		},
@@ -100,12 +101,11 @@ function google(config?: GoogleOptions): FontProvider {
 }
 
 /** [Google Icons](https://fonts.google.com/icons) */
-function googleicons(config?: GoogleiconsOptions): FontProvider {
-	const provider = providers.googleicons(config);
-	let initializedProvider: InitializedProvider | undefined;
+function googleicons(): FontProvider<GoogleiconsFamilyOptions | undefined> {
+	const provider = providers.googleicons();
+	let initializedProvider: InitializedProvider<GoogleiconsFamilyOptions> | undefined;
 	return {
 		name: provider._name,
-		config,
 		async init(context) {
 			initializedProvider = await provider(context);
 		},
@@ -118,14 +118,22 @@ function googleicons(config?: GoogleiconsOptions): FontProvider {
 	};
 }
 
+/** A provider that handles local files. */
+function local(): FontProvider<LocalFamilyOptions> {
+	return new LocalFontProvider({
+		fontFileReader: new FontaceFontFileReader(),
+	});
+}
+
 /**
- * Astro re-exports most [unifont](https://github.com/unjs/unifont/) providers:
+ * Astro exports a few built-in providers:
  * - [Adobe](https://fonts.adobe.com/)
  * - [Bunny](https://fonts.bunny.net/)
  * - [Fontshare](https://www.fontshare.com/)
  * - [Fontsource](https://fontsource.org/)
  * - [Google](https://fonts.google.com/)
  * - [Google Icons](https://fonts.google.com/icons)
+ * - Local
  */
 export const fontProviders = {
 	adobe,
@@ -134,4 +142,5 @@ export const fontProviders = {
 	fontsource,
 	google,
 	googleicons,
+	local,
 };

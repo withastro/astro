@@ -1,7 +1,6 @@
 import type { AstroSettings } from '../../types/astro.js';
 import { FONTS_TYPES_FILE } from './constants.js';
 
-// TODO: investigate moving to orchestrate
 export function syncFonts(settings: AstroSettings): void {
 	if (!settings.config.experimental.fonts) {
 		return;
