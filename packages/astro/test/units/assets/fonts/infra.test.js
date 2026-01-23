@@ -486,7 +486,10 @@ describe('fonts infra', () => {
 						},
 					],
 					root: new URL(import.meta.url),
+				});
+				assert.equal(providers.length, 2);
 			});
+		});
 
 		describe('static astroToUnifontProvider()', () => {
 			it('works with a minimal provider', async () => {
