@@ -11,7 +11,7 @@ import { createGetEnv } from '../utils/env.js';
 import type { RouteData } from 'astro';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import type { StaticPathsResponse, PrerenderRequest } from '../prerender-types.js';
-import { StaticPaths } from 'astro/runtime/prerender/static-paths';
+import { StaticPaths } from 'astro:static-paths';
 
 export type Env = {
 	[key: string]: unknown;

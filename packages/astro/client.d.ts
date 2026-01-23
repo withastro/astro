@@ -137,7 +137,6 @@ declare module 'astro:middleware' {
 	export * from 'astro/virtual-modules/middleware.js';
 }
 
-
 declare module 'astro:config/server' {
 	// biome-ignore format: bug
 	type ServerConfigSerialized = import('./dist/types/public/manifest.js').ServerDeserializedManifest;
@@ -287,6 +286,10 @@ declare module '*.mdx' {
 
 declare module 'astro:ssr-manifest' {
 	export const manifest: import('./dist/types/public/internal.js').SSRManifest;
+}
+
+declare module 'astro:static-paths' {
+	export const StaticPaths: import('./dist/runtime/prerender/static-paths.js').StaticPaths;
 }
 
 // Everything below are Vite's types (apart from image types, which are in `client.d.ts`)
