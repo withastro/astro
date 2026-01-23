@@ -57,23 +57,28 @@ export async function generatePages(
 	// Get or create the prerenderer
 	let prerenderer: AstroPrerenderer;
 	const settingsPrerenderer = options.settings.prerenderer;
-	if (settingsPrerenderer) {
-		// Resolve if it's a function
-		prerenderer = typeof settingsPrerenderer === 'function'
-			? settingsPrerenderer()
-			: settingsPrerenderer;
-	} else {
-		// Use default prerenderer
+	if (!settingsPrerenderer) {
+		// No custom prerenderer - create default
 		prerenderer = createDefaultPrerenderer({
 			internals,
 			options,
 			prerenderOutputDir,
 		});
+	} else if (typeof settingsPrerenderer === 'function') {
+		// Factory function - create default and pass it
+		const defaultPrerenderer = createDefaultPrerenderer({
+			internals,
+			options,
+			prerenderOutputDir,
+		});
+		prerenderer = settingsPrerenderer(defaultPrerenderer);
+	} else {
+		// Direct prerenderer object - use as-is
+		prerenderer = settingsPrerenderer;
 	}
 
 	// Setup the prerenderer
 	await prerenderer.setup?.();
-	
 
 	const verb = ssr ? 'prerendering' : 'generating';
 	logger.info('SKIP_FORMAT', `\n${colors.bgGreen(colors.black(` ${verb} static routes `))}`);
@@ -134,13 +139,29 @@ export async function generatePages(
 		const promises: Promise<void>[] = [];
 		for (const { pathname, route } of filteredPaths) {
 			promises.push(
-				limit(() => generatePathWithPrerenderer(prerenderer, pathname, route, options, routeToHeaders, logger)),
+				limit(() =>
+					generatePathWithPrerenderer(
+						prerenderer,
+						pathname,
+						route,
+						options,
+						routeToHeaders,
+						logger,
+					),
+				),
 			);
 		}
 		await Promise.all(promises);
 	} else {
 		for (const { pathname, route } of filteredPaths) {
-			await generatePathWithPrerenderer(prerenderer, pathname, route, options, routeToHeaders, logger);
+			await generatePathWithPrerenderer(
+				prerenderer,
+				pathname,
+				route,
+				options,
+				routeToHeaders,
+				logger,
+			);
 		}
 	}
 

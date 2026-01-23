@@ -234,7 +234,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				...viteConfig.build?.rollupOptions,
 				// Setting as `exports-only` allows us to safely delete inputs that are only used during prerendering
 				preserveEntrySignatures: 'exports-only',
-				...(useLegacyDynamic ? { input: 'virtual:astro:legacy-ssr-entry' } : {}),
+				...(useLegacyDynamic && settings.buildOutput === 'server'
+					? { input: 'virtual:astro:legacy-ssr-entry' }
+					: {}),
 				output: {
 					hoistTransitiveImports: false,
 					format: 'esm',
@@ -346,9 +348,11 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					emitAssets: true,
 					outDir: fileURLToPath(new URL('./.prerender/', getServerOutputDirectory(settings))),
 					rollupOptions: {
-						// Only set default prerender entrypoint if no custom prerenderer is provided
-						// Adapters with custom prerenderers will set their own entrypoint
-						...(settings.prerenderer ? {} : { input: 'astro/entrypoints/prerender' }),
+						// Only skip the default prerender entrypoint if an adapter with entryType: 'self' is used
+						// AND provides a custom prerenderer. Otherwise, use the default.
+						...(!useLegacyDynamic && settings.prerenderer
+							? {}
+							: { input: 'astro/entrypoints/prerender' }),
 						output: {
 							entryFileNames: `${PRERENDER_ENTRY_FILENAME_PREFIX}.[hash].mjs`,
 							format: 'esm',

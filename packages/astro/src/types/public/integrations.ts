@@ -283,7 +283,9 @@ export interface BaseIntegrationHooks {
 	}) => void | Promise<void>;
 	'astro:build:start': (options: {
 		logger: AstroIntegrationLogger;
-		setPrerenderer: (prerenderer: AstroPrerenderer | (() => AstroPrerenderer)) => void;
+		setPrerenderer: (
+			prerenderer: AstroPrerenderer | ((defaultPrerenderer: AstroPrerenderer) => AstroPrerenderer),
+		) => void;
 	}) => void | Promise<void>;
 	'astro:build:setup': (options: {
 		vite: ViteInlineConfig;

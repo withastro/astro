@@ -33,7 +33,10 @@ type CspObject = Required<Exclude<AstroConfig['security']['csp'], boolean>>;
 export interface AstroSettings {
 	config: AstroConfig;
 	adapter: AstroAdapter | undefined;
-	prerenderer: AstroPrerenderer | (() => AstroPrerenderer) | undefined;
+	prerenderer:
+		| AstroPrerenderer
+		| ((defaultPrerenderer: AstroPrerenderer) => AstroPrerenderer)
+		| undefined;
 	preferences: AstroPreferences;
 	injectedRoutes: InternalInjectedRoute[];
 	resolvedInjectedRoutes: ResolvedInjectedRoute[];
