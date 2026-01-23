@@ -29,6 +29,7 @@ import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
 import { recordServerError } from './error.js';
 import { setRouteError } from './server-state.js';
+import { routeGuardMiddleware } from './route-guard.js';
 import { trailingSlashMiddleware } from './trailing-slash.js';
 import { sessionConfigToManifest } from '../core/session/utils.js';
 
@@ -99,6 +100,11 @@ export default function createVitePluginAstroServer({
 				viteServer.middlewares.stack.unshift({
 					route: '',
 					handle: trailingSlashMiddleware(settings),
+				});
+				// Prevent serving files outside srcDir/publicDir (e.g., /README.md at project root)
+				viteServer.middlewares.stack.unshift({
+					route: '',
+					handle: routeGuardMiddleware(settings),
 				});
 
 				// Note that this function has a name so other middleware can find it.

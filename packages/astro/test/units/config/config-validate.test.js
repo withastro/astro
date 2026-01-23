@@ -4,6 +4,7 @@ import { describe, it } from 'node:test';
 import { stripVTControlCharacters } from 'node:util';
 import * as z from 'zod/v4';
 import { fontProviders } from '../../../dist/assets/fonts/providers/index.js';
+import { LocalFontProvider } from '../../../dist/assets/fonts/providers/local.js';
 import { validateConfig as _validateConfig } from '../../../dist/core/config/validate.js';
 import { formatConfigErrorMessage } from '../../../dist/core/messages.js';
 import { envField } from '../../../dist/env/config.js';
@@ -533,6 +534,22 @@ describe('Config Validation', () => {
 					},
 				}),
 			);
+		});
+
+		it('should preserve FontProvider as a class instance', async () => {
+			const config = await validateConfig({
+				experimental: {
+					fonts: [
+						{
+							provider: fontProviders.local(),
+							name: 'Roboto',
+							cssVariable: '--font-roboto',
+							options: {},
+						},
+					],
+				},
+			});
+			assert.equal(config.experimental.fonts?.[0].provider instanceof LocalFontProvider, true);
 		});
 	});
 
