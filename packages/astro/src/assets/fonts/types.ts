@@ -2,13 +2,12 @@ import type { Font } from '@capsizecss/unpack';
 import type * as unifont from 'unifont';
 import type * as z from 'zod/v4';
 import type { displaySchema, styleSchema, weightSchema } from './config.js';
-import type { FONT_TYPES, GENERIC_FALLBACK_NAMES, LOCAL_PROVIDER_NAME } from './constants.js';
+import type { FONT_TYPES, GENERIC_FALLBACK_NAMES } from './constants.js';
 import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 
-type Weight = z.infer<typeof weightSchema>;
+export type Weight = z.infer<typeof weightSchema>;
 type Display = z.infer<typeof displaySchema>;
 
-/** @lintignore */
 export interface FontProviderInitContext {
 	storage: {
 		getItem: {
@@ -17,6 +16,7 @@ export interface FontProviderInitContext {
 		};
 		setItem: (key: string, value: unknown) => Awaitable<void>;
 	};
+	root: URL;
 }
 
 type Awaitable<T> = T | Promise<T>;
@@ -51,58 +51,7 @@ export interface FontProvider<
 	listFonts?: (() => Awaitable<Array<string> | undefined>) | undefined;
 }
 
-interface RequiredFamilyAttributes {
-	/**
-	 * The font family name, as identified by your font provider.
-	 */
-	name: string;
-	/**
-	 * A valid [ident](https://developer.mozilla.org/en-US/docs/Web/CSS/ident) in the form of a CSS variable (i.e. starting with `--`).
-	 */
-	cssVariable: string;
-}
-
-interface Fallbacks {
-	/**
-	 * @default `["sans-serif"]`
-	 *
-	 * An array of fonts to use when your chosen font is unavailable, or loading. Fallback fonts will be chosen in the order listed. The first available font will be used:
-	 *
-	 * ```js
-	 * fallbacks: ["CustomFont", "serif"]
-	 * ```
-	 *
-	 * To disable fallback fonts completely, configure an empty array:
-	 *
-	 * ```js
-	 * fallbacks: []
-	 * ```
-	 *
-
-	 * If the last font in the `fallbacks` array is a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name), Astro will attempt to generate [optimized fallbacks](https://developer.chrome.com/blog/font-fallbacks) using font metrics will be generated. To disable this optimization, set `optimizedFallbacks` to false.
-	 */
-	fallbacks?: Array<string> | undefined;
-	/**
-	 * @default `true`
-	 *
-	 * Whether or not to enable optimized fallback generation. You may disable this default optimization to have full control over `fallbacks`.
-	 */
-	optimizedFallbacks?: boolean | undefined;
-}
-
-interface FamilyProperties {
-	/**
-	 * A [font weight](https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight). If the associated font is a [variable font](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_fonts/Variable_fonts_guide), you can specify a range of weights:
-	 *
-	 * ```js
-	 * weight: "100 900"
-	 * ```
-	 */
-	weight?: Weight | undefined;
-	/**
-	 * A [font style](https://developer.mozilla.org/en-US/docs/Web/CSS/font-style).
-	 */
-	style?: Style | undefined;
+export interface FamilyProperties {
 	/**
 	 * @default `"swap"`
 	 *
@@ -125,47 +74,6 @@ interface FamilyProperties {
 	 * A [unicode range](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range).
 	 */
 	unicodeRange?: [string, ...Array<string>] | undefined;
-}
-
-type Src =
-	| string
-	| URL
-	| {
-			url: string | URL;
-			tech?: string | undefined;
-	  };
-
-interface Variant extends FamilyProperties {
-	/**
-	 * Font [sources](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/src). It can be a path relative to the root, a package import or a URL. URLs are particularly useful if you inject local fonts through an integration.
-	 */
-	src: [Src, ...Array<Src>];
-}
-
-export interface LocalFontFamily extends RequiredFamilyAttributes, Fallbacks {
-	/**
-	 * The source of your font files. Set to `"local"` to use local font files.
-	 */
-	provider: typeof LOCAL_PROVIDER_NAME;
-	/**
-	 * Each variant represents a [`@font-face` declaration](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/).
-	 */
-	variants: [Variant, ...Array<Variant>];
-}
-
-interface ResolvedFontFamilyAttributes {
-	nameWithHash: string;
-}
-
-export interface ResolvedLocalFontFamily
-	extends ResolvedFontFamilyAttributes,
-		Omit<LocalFontFamily, 'variants'> {
-	variants: Array<
-		Omit<LocalFontFamily['variants'][number], 'weight' | 'src'> & {
-			weight?: string;
-			src: Array<{ url: string; tech?: string }>;
-		}
-	>;
 }
 
 type WithOptions<TFontProvider extends FontProvider> = TFontProvider extends FontProvider<
@@ -198,56 +106,79 @@ type WithOptions<TFontProvider extends FontProvider> = TFontProvider extends Fon
 			options?: undefined;
 		};
 
-export type RemoteFontFamily<TFontProvider extends FontProvider = FontProvider> =
-	RequiredFamilyAttributes &
-		Omit<FamilyProperties, 'weight' | 'style' | 'subsets' | 'formats'> &
-		Fallbacks &
-		WithOptions<NoInfer<TFontProvider>> & {
-			/**
-			 * The source of your font files. You can use a built-in provider or write your own custom provider.
-			 */
-			provider: TFontProvider;
-			/**
-			 * @default `[400]`
-			 *
-			 * An array of [font weights](https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight). If the associated font is a [variable font](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_fonts/Variable_fonts_guide), you can specify a range of weights:
-			 *
-			 * ```js
-			 * weight: "100 900"
-			 * ```
-			 */
-			weights?: [Weight, ...Array<Weight>] | undefined;
-			/**
-			 * @default `["normal", "italic"]`
-			 *
-			 * An array of [font styles](https://developer.mozilla.org/en-US/docs/Web/CSS/font-style).
-			 */
-			styles?: [Style, ...Array<Style>] | undefined;
-			/**
-			 * @default `["latin"]`
-			 *
-			 * An array of [font subsets](https://knaap.dev/posts/font-subsetting/):
-			 */
-			subsets?: [string, ...Array<string>] | undefined;
-			/**
-			 * @default `["woff2"]`
-			 *
-			 * An array of [font formats](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/src#font_formats).
-			 */
-			formats?: [FontType, ...Array<FontType>] | undefined;
-		};
+export type FontFamily<TFontProvider extends FontProvider = FontProvider> = FamilyProperties &
+	WithOptions<NoInfer<TFontProvider>> & {
+		/**
+		 * The font family name, as identified by your font provider.
+		 */
+		name: string;
+		/**
+		 * A valid [ident](https://developer.mozilla.org/en-US/docs/Web/CSS/ident) in the form of a CSS variable (i.e. starting with `--`).
+		 */
+		cssVariable: string;
+		/**
+		 * The source of your font files. You can use a built-in provider or write your own custom provider.
+		 */
+		provider: TFontProvider;
+		/**
+		 * @default `[400]`
+		 *
+		 * An array of [font weights](https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight). If the associated font is a [variable font](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_fonts/Variable_fonts_guide), you can specify a range of weights:
+		 *
+		 * ```js
+		 * weight: "100 900"
+		 * ```
+		 */
+		weights?: [Weight, ...Array<Weight>] | undefined;
+		/**
+		 * @default `["normal", "italic"]`
+		 *
+		 * An array of [font styles](https://developer.mozilla.org/en-US/docs/Web/CSS/font-style).
+		 */
+		styles?: [Style, ...Array<Style>] | undefined;
+		/**
+		 * @default `["latin"]`
+		 *
+		 * An array of [font subsets](https://knaap.dev/posts/font-subsetting/):
+		 */
+		subsets?: [string, ...Array<string>] | undefined;
+		/**
+		 * @default `["woff2"]`
+		 *
+		 * An array of [font formats](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/src#font_formats).
+		 */
+		formats?: [FontType, ...Array<FontType>] | undefined;
+		/**
+	 * @default `["sans-serif"]`
+	 *
+	 * An array of fonts to use when your chosen font is unavailable, or loading. Fallback fonts will be chosen in the order listed. The first available font will be used:
+	 *
+	 * ```js
+	 * fallbacks: ["CustomFont", "serif"]
+	 * ```
+	 *
+	 * To disable fallback fonts completely, configure an empty array:
+	 *
+	 * ```js
+	 * fallbacks: []
+	 * ```
+	 *
 
-/** @lintignore somehow required by pickFontFaceProperty in utils */
-export interface ResolvedRemoteFontFamily
-	extends ResolvedFontFamilyAttributes,
-		Omit<RemoteFontFamily, 'weights'> {
+	 * If the last font in the `fallbacks` array is a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name), Astro will attempt to generate [optimized fallbacks](https://developer.chrome.com/blog/font-fallbacks) using font metrics will be generated. To disable this optimization, set `optimizedFallbacks` to false.
+	 */
+		fallbacks?: Array<string> | undefined;
+		/**
+		 * @default `true`
+		 *
+		 * Whether or not to enable optimized fallback generation. You may disable this default optimization to have full control over `fallbacks`.
+		 */
+		optimizedFallbacks?: boolean | undefined;
+	};
+
+export interface ResolvedFontFamily extends Omit<FontFamily, 'weights'> {
+	uniqueName: string;
 	weights?: Array<string>;
 }
-
-export type FontFamily<TFontProvider extends FontProvider = FontProvider> =
-	| LocalFontFamily
-	| RemoteFontFamily<TFontProvider>;
-export type ResolvedFontFamily = ResolvedLocalFontFamily | ResolvedRemoteFontFamily;
 
 export type FontType = (typeof FONT_TYPES)[number];
 
@@ -277,36 +208,24 @@ export type GenericFallbackName = (typeof GENERIC_FALLBACK_NAMES)[number];
 
 export type Defaults = Required<
 	Pick<
-		ResolvedRemoteFontFamily,
+		ResolvedFontFamily,
 		'weights' | 'styles' | 'subsets' | 'fallbacks' | 'optimizedFallbacks' | 'formats'
 	>
 >;
 
 export interface FontFileData {
-	hash: string;
+	id: string;
 	url: string;
-	init: RequestInit | null;
-}
-
-export interface CreateUrlProxyParams {
-	local: boolean;
-	hasUrl: (hash: string) => boolean;
-	saveUrl: (input: FontFileData) => void;
-	savePreload: (preload: PreloadData) => void;
-	saveFontData: (collected: CollectedFontForMetrics) => void;
-	cssVariable: string;
+	init: RequestInit | undefined;
 }
 
 /**
- * Holds associations of hash and original font file URLs, so they can be
- * downloaded whenever the hash is requested.
+ * Holds associations of id and original font file URLs, so they can be
+ * downloaded whenever the id is requested.
  */
-export type FontFileDataMap = Map<FontFileData['hash'], Pick<FontFileData, 'url' | 'init'>>;
+export type FontFileById = Map<FontFileData['id'], Pick<FontFileData, 'url' | 'init'>>;
 
-/**
- * Holds associations of CSS variables and preloadData/css to be passed to the internal virtual module.
- */
-export type InternalConsumableMap = Map<string, { preloadData: Array<PreloadData>; css: string }>;
+export type ComponentDataByCssVariable = Map<string, { preloads: Array<PreloadData>; css: string }>;
 
 export interface FontData {
 	src: Array<{ url: string; format?: string; tech?: string }>;
@@ -317,7 +236,7 @@ export interface FontData {
 /**
  * Holds associations of CSS variables and font data to be exposed via virtual module.
  */
-export type FontDataRecord = Record<string, Array<FontData>>;
+export type FontDataByCssVariable = Record<string, Array<FontData>>;
 
 export type Style = z.output<typeof styleSchema>;
 
@@ -335,5 +254,23 @@ export interface ResolveFontOptions<
 	formats: FontType[];
 	options: [FamilyOptions] extends [never] ? undefined : FamilyOptions | undefined;
 }
+
+export type CssProperties = Record<string, string | undefined>;
+
+export interface FontFamilyAssets {
+	family: ResolvedFontFamily;
+	fonts: Array<unifont.FontFaceData>;
+	/**
+	 * Holds a list of font files to be used for optimized fallbacks generation
+	 */
+	collectedFontsForMetricsByUniqueKey: Map<string, CollectedFontForMetrics>;
+	preloads: Array<PreloadData>;
+}
+
+export type FontFamilyAssetsByUniqueKey = Map<string, FontFamilyAssets>;
+
+export type Collaborator<T extends (input: any) => any, U extends keyof Parameters<T>[0]> = (
+	params: Pick<Parameters<T>[0], U>,
+) => ReturnType<T>;
 
 export type BufferImports = Record<string, () => Promise<{ default: Buffer | null }>>;

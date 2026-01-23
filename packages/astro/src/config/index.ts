@@ -1,7 +1,6 @@
 import type { UserConfig as ViteUserConfig, UserConfigFn as ViteUserConfigFn } from 'vite';
 import { createRoutesList } from '../core/routing/manifest/create.js';
 import type { SessionDriverConfig, SessionDriverName } from '../core/session/types.js';
-import type { LOCAL_PROVIDER_NAME } from '../assets/fonts/constants.js';
 import type { FontProvider } from '../assets/fonts/types.js';
 import type { AstroInlineConfig, AstroUserConfig, Locales } from '../types/public/config.js';
 
@@ -12,7 +11,7 @@ import type { AstroInlineConfig, AstroUserConfig, Locales } from '../types/publi
 export function defineConfig<
 	const TLocales extends Locales = never,
 	const TDriver extends SessionDriverName | SessionDriverConfig = never,
-	const TFontProviders extends Array<FontProvider | typeof LOCAL_PROVIDER_NAME> = never,
+	const TFontProviders extends Array<FontProvider> = never,
 >(config: AstroUserConfig<TLocales, TDriver, TFontProviders>) {
 	return config;
 }

@@ -1,6 +1,5 @@
 import type { FontFaceData, Provider } from 'unifont';
 import { createUnifont, defineFontProvider, type Unifont } from 'unifont';
-import { LOCAL_PROVIDER_NAME } from '../constants.js';
 import type { FontResolver, Hasher, Storage } from '../definitions.js';
 import type { FontProvider, ResolvedFontFamily, ResolveFontOptions } from '../types.js';
 
@@ -29,9 +28,9 @@ export class UnifontFontResolver implements FontResolver {
 		return `${provider.name}-${hash}`;
 	}
 
-	static astroToUnifontProvider(astroProvider: FontProvider): Provider {
+	static astroToUnifontProvider(astroProvider: FontProvider, root: URL): Provider {
 		return defineFontProvider(astroProvider.name, async (_options: any, ctx) => {
-			await astroProvider?.init?.(ctx);
+			await astroProvider?.init?.({ ...ctx, root });
 			return {
 				async resolveFont(familyName, { options, ...rest }) {
 					return await astroProvider.resolveFont({ familyName, options, ...rest });
@@ -46,22 +45,19 @@ export class UnifontFontResolver implements FontResolver {
 	static extractUnifontProviders({
 		families,
 		hasher,
+		root,
 	}: {
 		families: Array<ResolvedFontFamily>;
 		hasher: Hasher;
+		root: URL;
 	}) {
 		const providers = new Map<string, Provider>();
 
 		for (const { provider } of families) {
-			// The local provider logic happens outside of unifont
-			if (provider === LOCAL_PROVIDER_NAME) {
-				continue;
-			}
-
 			const id = this.idFromProvider({ hasher, provider });
 
 			if (!providers.has(id)) {
-				const unifontProvider = this.astroToUnifontProvider(provider);
+				const unifontProvider = this.astroToUnifontProvider(provider, root);
 				// Makes sure every font uses the right instance of a given provider
 				// if this provider is provided several times with different options
 				// We have to mutate the unifont provider name because unifont deduplicates
@@ -78,13 +74,15 @@ export class UnifontFontResolver implements FontResolver {
 		families,
 		hasher,
 		storage,
+		root,
 	}: {
 		families: Array<ResolvedFontFamily>;
 		hasher: Hasher;
 		storage: Storage;
+		root: URL;
 	}) {
 		return new UnifontFontResolver({
-			unifont: await createUnifont(this.extractUnifontProviders({ families, hasher }), {
+			unifont: await createUnifont(this.extractUnifontProviders({ families, hasher, root }), {
 				storage,
 				// TODO: consider enabling, would require new astro errors
 				throwOnError: false,
@@ -101,22 +99,21 @@ export class UnifontFontResolver implements FontResolver {
 	}: ResolveFontOptions<Record<string, any>> & { provider: FontProvider }): Promise<
 		Array<FontFaceData>
 	> {
+		const id = UnifontFontResolver.idFromProvider({
+			hasher: this.#hasher,
+			provider,
+		});
 		const { fonts } = await this.#unifont.resolveFont(
 			familyName,
 			{
 				// Options are currently namespaced by provider name, it may change in
 				// https://github.com/unjs/unifont/pull/287
 				options: {
-					[provider.name]: options,
+					[id]: options,
 				},
 				...rest,
 			},
-			[
-				UnifontFontResolver.idFromProvider({
-					hasher: this.#hasher,
-					provider,
-				}),
-			],
+			[id],
 		);
 		return fonts;
 	}

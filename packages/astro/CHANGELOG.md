@@ -78,6 +78,12 @@
   });
   ```
 
+  This is a temporary migration helper for v6 upgrades. Migrate collections to the Content Layer API, then disable this flag.
+
+- [#15179](https://github.com/withastro/astro/pull/15179) [`8c8aee6`](https://github.com/withastro/astro/commit/8c8aee6ddefb1918b1f00415e34d2531e287acf8) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes an issue when importing using an import alias a file with a name matching a directory name.
+
+- [#15176](https://github.com/withastro/astro/pull/15176) [`9265546`](https://github.com/withastro/astro/commit/92655460785e4b0a9eca9bac2e493a9c989dff47) Thanks [@matthewp](https://github.com/matthewp)! - Fixes scripts in components not rendering when a sibling `<Fragment slot="...">` exists but is unused
+
 ## 6.0.0-alpha.5
 
 ### Patch Changes
@@ -338,6 +344,79 @@
 
 - [#15147](https://github.com/withastro/astro/pull/15147) [`9cd5b87`](https://github.com/withastro/astro/commit/9cd5b875f2d45a08bfa8312ed7282a6f0f070265) Thanks [@matthewp](https://github.com/matthewp)! - Fixes scripts in components not rendering when a sibling `<Fragment slot="...">` exists but is unused
 
+## 5.16.15
+
+### Patch Changes
+
+- [#15286](https://github.com/withastro/astro/pull/15286) [`0aafc83`](https://github.com/withastro/astro/commit/0aafc8342a47f5c96cd13bfc02539d89c3c358a7) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where font providers provided as class instances may not work when using the experimental Fonts API. It affected the local provider
+
+## 5.16.14
+
+### Patch Changes
+
+- [#15213](https://github.com/withastro/astro/pull/15213) [`c775fce`](https://github.com/withastro/astro/commit/c775fce98f50001bc59025dceaf8ea5287675f17) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental Fonts API only**
+
+  Updates how the local provider must be used when using the experimental Fonts API
+
+  Previously, there were 2 kinds of font providers: remote and local.
+
+  Font providers are now unified. If you are using the local provider, the process for configuring local fonts must be updated:
+
+  ```diff
+  -import { defineConfig } from "astro/config";
+  +import { defineConfig, fontProviders } from "astro/config";
+
+  export default defineConfig({
+      experimental: {
+          fonts: [{
+              name: "Custom",
+              cssVariable: "--font-custom",
+  -            provider: "local",
+  +            provider: fontProviders.local(),
+  +            options: {
+              variants: [
+                  {
+                      weight: 400,
+                      style: "normal",
+                      src: ["./src/assets/fonts/custom-400.woff2"]
+                  },
+                  {
+                      weight: 700,
+                      style: "normal",
+                      src: ["./src/assets/fonts/custom-700.woff2"]
+                  }
+                  // ...
+              ]
+  +            }
+          }]
+      }
+  });
+  ```
+
+  Once configured, there is no change to using local fonts in your project. However, you should inspect your deployed site to confirm that your new font configuration is being applied.
+
+  See [the experimental Fonts API docs](https://docs.astro.build/en/reference/experimental-flags/fonts/) for more information.
+
+- [#15213](https://github.com/withastro/astro/pull/15213) [`c775fce`](https://github.com/withastro/astro/commit/c775fce98f50001bc59025dceaf8ea5287675f17) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Exposes `root` on `FontProvider` `init()` context
+
+  When building a custom `FontProvider` for the experimental Fonts API, the `init()` method receives a `context`. This context now exposes a `root` URL, useful for resolving local files:
+
+  ```diff
+  import type { FontProvider } from "astro";
+
+  export function registryFontProvider(): FontProvider {
+    return {
+      // ...
+  -    init: async ({ storage }) => {
+  +    init: async ({ storage, root }) => {
+          // ...
+      },
+    };
+  }
+  ```
+
+- [#15185](https://github.com/withastro/astro/pull/15185) [`edabeaa`](https://github.com/withastro/astro/commit/edabeaa3cd3355fa33e4eb547656033fe7b66845) Thanks [@EricGrill](https://github.com/EricGrill)! - Add `.vercel` to `.gitignore` when adding the Vercel adapter via `astro add vercel`
+
 ## 5.16.13
 
 ### Patch Changes
@@ -573,29 +652,6 @@
   });
   ```
 
-  This is a temporary migration helper for v6 upgrades. Migrate collections to the Content Layer API, then disable this flag.
-
-- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Reduces Astro’s install size by around 8 MB
-
-- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Enables the ClientRouter to preserve the original hash part of the target URL during server side redirects.
-
-- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental Fonts API only**
-
-  Changes the font format downloaded by default when using the experimental Fonts API. Additionally, adds a new `formats` configuration option to specify which font formats to download.
-
-  Previously, Astro was opinionated about which font sources would be kept for usage, mainly keeping `woff2` and `woff` files.
-
-  You can now specify what font formats should be downloaded (if available). Only `woff2` files are downloaded by default.
-
-  #### What should I do?
-
-  If you were previously relying on Astro downloading the `woff` format, you will now need to specify this explicitly with the new `formats` configuration option. Additionally, you may also specify any additional file formats to download if available:
-
-  ```diff
-  // astro.config.mjs
-  import { defineConfig, fontProviders } from 'astro/config'
-  ```
-
 - [#15150](https://github.com/withastro/astro/pull/15150) [`a77c4f4`](https://github.com/withastro/astro/commit/a77c4f42b56b46b08064a99e9cb9a2b4bace4445) Thanks [@matthewp](https://github.com/matthewp)! - Fixes hydration for framework components inside MDX when using `Astro.slots.render()`
 
   Previously, when multiple framework components with `client:*` directives were passed as named slots to an Astro component in MDX, only the first slot would hydrate correctly. Subsequent slots would render their HTML but fail to include the necessary hydration scripts.
@@ -642,9 +698,6 @@
   export default defineConfig({
       experimental: {
           fonts: [{
-              name: 'Roboto',
-              cssVariable: '--font-roboto',
-              provider: fontProviders.google(),
   -            provider: acmeProvider({ /* ... */ }),
   +            provider: acme({ /* ... */ }),
               name: "Material Symbols Outlined",
@@ -654,9 +707,7 @@
   });
   ```
 
-- [#15179](https://github.com/withastro/astro/pull/15179) [`8c8aee6`](https://github.com/withastro/astro/commit/8c8aee6ddefb1918b1f00415e34d2531e287acf8) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes an issue when importing using an import alias a file with a name matching a directory name.
-
-- [#15176](https://github.com/withastro/astro/pull/15176) [`9265546`](https://github.com/withastro/astro/commit/92655460785e4b0a9eca9bac2e493a9c989dff47) Thanks [@matthewp](https://github.com/matthewp)! - Fixes scripts in components not rendering when a sibling `<Fragment slot="...">` exists but is unused
+- [#15147](https://github.com/withastro/astro/pull/15147) [`9cd5b87`](https://github.com/withastro/astro/commit/9cd5b875f2d45a08bfa8312ed7282a6f0f070265) Thanks [@matthewp](https://github.com/matthewp)! - Fixes scripts in components not rendering when a sibling `<Fragment slot="...">` exists but is unused
 
 ## 5.16.8
 

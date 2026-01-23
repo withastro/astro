@@ -9,7 +9,7 @@ import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdo
 import { type BuiltinTheme, bundledThemes } from 'shiki';
 import type { Config as SvgoConfig } from 'svgo';
 import * as z from 'zod/v4';
-import { localFontFamilySchema, remoteFontFamilySchema } from '../../../assets/fonts/config.js';
+import { fontFamilySchema } from '../../../assets/fonts/config.js';
 import { EnvSchema } from '../../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/config.js';
 import { allowedDirectivesSchema, cspAlgorithmSchema, cspHashSchema } from '../../csp/config.js';
@@ -483,7 +483,7 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
-			fonts: z.array(z.union([localFontFamilySchema, remoteFontFamilySchema])).optional(),
+			fonts: z.array(fontFamilySchema).optional(),
 			chromeDevtoolsWorkspace: z
 				.boolean()
 				.optional()

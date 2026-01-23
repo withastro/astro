@@ -1403,7 +1403,7 @@ export const ExperimentalFontsNotEnabled = {
  * @description
  * Font family not found
  * @message
- * No data was found for the `cssVariable` passed to the `<Font />`.
+ * No data was found for the `cssVariable` passed to the `<Font />` component.
  */
 export const FontFamilyNotFound = {
 	name: 'FontFamilyNotFound',
@@ -1411,6 +1411,21 @@ export const FontFamilyNotFound = {
 	message: (family: string) =>
 		`No data was found for the \`"${family}"\` family passed to the \`<Font>\` component.`,
 	hint: 'This is often caused by a typo. Check that the `<Font />` component is using a `cssVariable` specified in your config.',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @description
+ * Font buffer not found
+ * @message
+ * No buffer was found for the URL passed to the `getFontBuffer()` function.
+ */
+export const FontBufferNotFound = {
+	name: 'FontBufferNotFound',
+	title: 'Font buffer not found',
+	message: (url: string) =>
+		`No buffer was found for the \`"${url}"\` URL passed to the \`getFontBuffer()\` function.`,
+	hint: 'Make sure you pass a valid URL, obtained via the \`fontData\` object.',
 } satisfies ErrorData;
 
 /**
