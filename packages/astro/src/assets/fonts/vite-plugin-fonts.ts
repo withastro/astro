@@ -61,37 +61,6 @@ interface Options {
 }
 
 export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
-	if (!settings.config.experimental.fonts) {
-		// This is required because the virtual module may be imported as
-		// a side effect
-		// TODO: remove once fonts are stabilized
-		return {
-			name: 'astro:fonts:fallback',
-			resolveId(id) {
-				if (id === VIRTUAL_MODULE_ID) {
-					return RESOLVED_VIRTUAL_MODULE_ID;
-				}
-				if (id === RUNTIME_VIRTUAL_MODULE_ID) {
-					return RESOLVED_RUNTIME_VIRTUAL_MODULE_ID;
-				}
-				if (id.startsWith(BUFFER_VIRTUAL_MODULE_ID_PREFIX)) {
-					return `\0` + id;
-				}
-			},
-			load(id) {
-				if (
-					id === RESOLVED_VIRTUAL_MODULE_ID ||
-					id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID ||
-					id.startsWith(RESOLVED_BUFFER_VIRTUAL_MODULE_ID_PREFIX)
-				) {
-					return {
-						code: '',
-					};
-				}
-			},
-		};
-	}
-
 	// We don't need to worry about config.trailingSlash because we are dealing with
 	// static assets only, ie. trailingSlash: 'never'
 	const assetsDir = prependForwardSlash(
@@ -160,9 +129,9 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					});
 			const { bold } = colors;
 			const defaults = DEFAULTS;
-			const resolvedFamilies = settings.config.experimental.fonts!.map((family) =>
+			const resolvedFamilies = settings.config.experimental.fonts?.map((family) =>
 				resolveFamily({ family: family as FontFamily, hasher }),
-			);
+			) ?? [];
 			const { fontFamilyAssets, fontFileById: _fontFileById } = await computeFontFamiliesAssets({
 				resolvedFamilies,
 				defaults,
@@ -381,7 +350,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			},
 		},
 		async buildEnd() {
-			if (sync || settings.config.experimental.fonts!.length === 0 || !isBuild) {
+			if (sync || !settings.config.experimental.fonts?.length || !isBuild) {
 				cleanup();
 				return;
 			}
