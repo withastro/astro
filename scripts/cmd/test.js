@@ -5,11 +5,14 @@ import { spec } from 'node:test/reporters';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { glob } from 'tinyglobby';
+import whyIsNodeRunning from 'why-is-node-running';
 
 const isCI = !!process.env.CI;
 // 30 minutes in CI, 10 locally
 const defaultTimeout = isCI ? 1860000 : 600000;
 const maxListeners = 20;
+// Watchdog timeout - dump handles and exit if tests hang (20 minutes)
+const watchdogTimeout = 20 * 60 * 1000;
 
 export default async function test() {
 	process.setMaxListeners(maxListeners);
@@ -85,6 +88,21 @@ export default async function test() {
 		? await import(pathToFileURL(path.resolve(args.values.setup)).toString())
 		: undefined;
 
+	// Track in-progress tests to help debug hangs
+	const inProgress = new Map();
+	// Watchdog timer - if tests hang, dump open handles and force exit
+	const watchdog = setTimeout(() => {
+		console.log(`\n[test:watchdog] Tests timed out after ${watchdogTimeout / 1000}s`);
+		console.log(`\n[test:watchdog] Tests still in progress:`);
+		for (const [name, startTime] of inProgress) {
+			const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+			console.log(`  - ${name} (running for ${duration}s)`);
+		}
+		console.log(`\n[test:watchdog] Open handles:`);
+		whyIsNodeRunning();
+		process.exit(1);
+	}, watchdogTimeout);
+
 	// https://nodejs.org/api/test.html#runoptions
 	run({
 		files,
@@ -98,13 +116,33 @@ export default async function test() {
 		setup: setupModule?.default,
 		watch: args.values.watch,
 		timeout: args.values.timeout ? Number(args.values.timeout) : defaultTimeout, // Node.js defaults to Infinity, so set better fallback
+		forceExit: true, // Force exit even if there are open handles
 	})
-		.on('test:fail', () => {
+		.on('test:start', (event) => {
+			inProgress.set(event.name, Date.now());
+			if (isCI) {
+				console.log(`[test:start] ${event.name}`);
+			}
+		})
+		.on('test:pass', (event) => {
+			inProgress.delete(event.name);
+		})
+		.on('test:fail', (event) => {
+			inProgress.delete(event.name);
 			// For some reason, a test fail using the JS API does not set an exit code of 1,
 			// so we set it here manually
 			process.exitCode = 1;
 		})
 		.on('end', () => {
+			clearTimeout(watchdog);
+
+			if (inProgress.size > 0) {
+				console.log(`\n[test:warning] Tests that did not complete:`);
+				for (const [name, startTime] of inProgress) {
+					const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+					console.log(`  - ${name} (started ${duration}s ago)`);
+				}
+			}
 			const testPassed = process.exitCode === 0 || process.exitCode === undefined;
 			teardownModule?.default(testPassed);
 		})
