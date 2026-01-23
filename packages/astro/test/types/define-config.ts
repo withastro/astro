@@ -91,7 +91,7 @@ describe('defineConfig()', () => {
 	it('Infers font families correctly', () => {
 		assertType(defineConfig({}), (config) => {
 			expectTypeOf(config).toEqualTypeOf<AstroUserConfig<never, never, never>>();
-			expectTypeOf(config.experimental!.fonts!).toEqualTypeOf<Array<FontFamily>>();
+			expectTypeOf(config.fonts!).toEqualTypeOf<Array<FontFamily>>();
 		});
 
 		assertType(
