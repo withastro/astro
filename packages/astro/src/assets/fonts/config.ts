@@ -26,7 +26,7 @@ const requiredFamilyAttributesSchema = z.object({
 	cssVariable: z.string(),
 });
 
-export const fontProviderSchema = z
+const _fontProviderSchema = z
 	.object({
 		name: z.string(),
 		config: z.record(z.string(), z.any()).optional(),
@@ -35,6 +35,13 @@ export const fontProviderSchema = z
 		listFonts: z.custom<FontProvider['listFonts']>((v) => typeof v === 'function').optional(),
 	})
 	.strict();
+
+// Using z.object directly makes zod remap the input, preventing
+// the usage of class instances. Instead, we check if it matches
+// the right shape and pass the original
+export const fontProviderSchema = z.custom<FontProvider>((v) => {
+	return _fontProviderSchema.safeParse(v).success;
+}, 'Invalid FontProvider object');
 
 export const fontFamilySchema = z
 	.object({
