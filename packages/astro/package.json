@@ -52,6 +52,8 @@
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",
     "./app/entrypoint": "./dist/core/app/entrypoint.js",
+    "./app/entrypoint-dev": "./dist/core/app/entrypoint-dev.js",
+    "./app/entrypoint-prod": "./dist/core/app/entrypoint-prod.js",
     "./app/manifest": "./dist/core/app/manifest.js",
     "./entrypoints/prerender": "./dist/entrypoints/prerender.js",
     "./entrypoints/legacy": "./dist/entrypoints/legacy.js",
