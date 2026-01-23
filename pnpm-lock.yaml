@@ -809,9 +809,6 @@ importers:
       xml2js:
         specifier: 0.6.2
         version: 0.6.2
-      zod:
-        specifier: ^3.25.76
-        version: 3.25.76
 
   packages/astro/e2e/fixtures/_deps/astro-linked-lib:
     dependencies:
