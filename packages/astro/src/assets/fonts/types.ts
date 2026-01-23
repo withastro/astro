@@ -149,22 +149,22 @@ export type FontFamily<TFontProvider extends FontProvider = FontProvider> = Fami
 		 */
 		formats?: [FontType, ...Array<FontType>] | undefined;
 		/**
-	 	 * @default `["sans-serif"]`
-	 	 *
-	 	 * An array of fonts to use when your chosen font is unavailable, or loading. Fallback fonts will be chosen in the order listed. The first available font will be used:
-	 	 *
-	 	 * ```js
-	 	 * fallbacks: ["CustomFont", "serif"]
-	 	 * ```
-	 	 *
-	 	 * To disable fallback fonts completely, configure an empty array:
-	 	 *
-	 	 * ```js
-	 	 * fallbacks: []
-	 	 * ```
-	 	 *
-	 	 * If the last font in the `fallbacks` array is a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name), Astro will attempt to generate [optimized fallbacks](https://developer.chrome.com/blog/font-fallbacks) using font metrics will be generated. To disable this optimization, set `optimizedFallbacks` to false.
-	 	 */
+		 * @default `["sans-serif"]`
+		 *
+		 * An array of fonts to use when your chosen font is unavailable, or loading. Fallback fonts will be chosen in the order listed. The first available font will be used:
+		 *
+		 * ```js
+		 * fallbacks: ["CustomFont", "serif"]
+		 * ```
+		 *
+		 * To disable fallback fonts completely, configure an empty array:
+		 *
+		 * ```js
+		 * fallbacks: []
+		 * ```
+		 *
+		 * If the last font in the `fallbacks` array is a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name), Astro will attempt to generate [optimized fallbacks](https://developer.chrome.com/blog/font-fallbacks) using font metrics will be generated. To disable this optimization, set `optimizedFallbacks` to false.
+		 */
 		fallbacks?: Array<string> | undefined;
 		/**
 		 * @default `true`
