@@ -9,8 +9,10 @@ import { glob } from 'tinyglobby';
 const isCI = !!process.env.CI;
 // 30 minutes in CI, 10 locally
 const defaultTimeout = isCI ? 1860000 : 600000;
+const maxListeners = 20;
 
 export default async function test() {
+	process.setMaxListeners(maxListeners);
 	const args = parseArgs({
 		allowPositionals: true,
 		options: {
