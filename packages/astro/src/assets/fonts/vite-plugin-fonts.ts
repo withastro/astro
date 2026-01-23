@@ -129,9 +129,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					});
 			const { bold } = colors;
 			const defaults = DEFAULTS;
-			const resolvedFamilies = settings.config.fonts?.map((family) =>
-				resolveFamily({ family: family as FontFamily, hasher }),
-			) ?? [];
+			const resolvedFamilies =
+				settings.config.fonts?.map((family) =>
+					resolveFamily({ family: family as FontFamily, hasher }),
+				) ?? [];
 			const { fontFamilyAssets, fontFileById: _fontFileById } = await computeFontFamiliesAssets({
 				resolvedFamilies,
 				defaults,
