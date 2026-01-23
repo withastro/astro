@@ -202,7 +202,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 												include: [
 													'astro',
 													'astro/runtime/**',
-													'astro/runtime/prerender/*',
+													'astro/runtime/prerender/static-paths.js',
 													'astro > html-escaper',
 													'astro > mrmime',
 													'astro > zod/v4',
