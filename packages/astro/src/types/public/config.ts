@@ -2355,6 +2355,29 @@ export interface AstroUserConfig<
 
 	/**
 	 *
+	 * @name fonts
+	 * @type {FontFamily[]}
+	 * @version 6.0
+	 * @description
+	 *
+	 * This experimental feature allows you to use fonts from your filesystem and various providers
+	 * (eg. Google, Fontsource, Bunny...) through a unified, fully customizable and type-safe API.
+	 *
+	 * Web fonts can impact page performance at both load time and rendering time. This feature provides
+	 * automatic [optimization](https://web.dev/learn/performance/optimize-web-fonts) by creating
+	 * preload links and optimized fallbacks. This API includes opinionated defaults to keep your sites lightweight and performant (e.g. minimal font files downloaded) while allowing for extensive customization so you can opt in to greater control.
+	 *
+	 * For a complete overview, and to give feedback on this experimental API,
+	 * see the [Fonts RFC](https://github.com/withastro/roadmap/pull/1039).
+	 */
+	fonts?: [TFontProviders] extends [never]
+		? Array<FontFamily>
+		: {
+				[K in keyof TFontProviders]: FontFamily<TFontProviders[K]>;
+			};
+
+	/**
+	 *
 	 * @kind heading
 	 * @name Legacy Flags
 	 * @description
@@ -2450,29 +2473,6 @@ export interface AstroUserConfig<
 		 * To use this feature with the Astro VS Code extension, you must also enable the `astro.content-intellisense` option in your VS Code settings. For editors using the Astro language server directly, pass the `contentIntellisense: true` initialization parameter to enable this feature.
 		 */
 		contentIntellisense?: boolean;
-
-		/**
-		 *
-		 * @name experimental.fonts
-		 * @type {FontFamily[]}
-		 * @version 5.7
-		 * @description
-		 *
-		 * This experimental feature allows you to use fonts from your filesystem and various providers
-		 * (eg. Google, Fontsource, Bunny...) through a unified, fully customizable and type-safe API.
-		 *
-		 * Web fonts can impact page performance at both load time and rendering time. This feature provides
-		 * automatic [optimization](https://web.dev/learn/performance/optimize-web-fonts) by creating
-		 * preload links and optimized fallbacks. This API includes opinionated defaults to keep your sites lightweight and performant (e.g. minimal font files downloaded) while allowing for extensive customization so you can opt in to greater control.
-		 *
-		 * For a complete overview, and to give feedback on this experimental API,
-		 * see the [Fonts RFC](https://github.com/withastro/roadmap/pull/1039).
-		 */
-		fonts?: [TFontProviders] extends [never]
-			? Array<FontFamily>
-			: {
-					[K in keyof TFontProviders]: FontFamily<TFontProviders[K]>;
-				};
 
 		/**
 		 * @name experimental.chromeDevtoolsWorkspace

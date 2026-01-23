@@ -129,7 +129,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					});
 			const { bold } = colors;
 			const defaults = DEFAULTS;
-			const resolvedFamilies = settings.config.experimental.fonts?.map((family) =>
+			const resolvedFamilies = settings.config.fonts?.map((family) =>
 				resolveFamily({ family: family as FontFamily, hasher }),
 			) ?? [];
 			const { fontFamilyAssets, fontFileById: _fontFileById } = await computeFontFamiliesAssets({
@@ -350,7 +350,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			},
 		},
 		async buildEnd() {
-			if (sync || !settings.config.experimental.fonts?.length || !isBuild) {
+			if (sync || !settings.config.fonts?.length || !isBuild) {
 				cleanup();
 				return;
 			}

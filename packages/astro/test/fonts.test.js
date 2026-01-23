@@ -73,16 +73,14 @@ describe('astro fonts', () => {
 	describe('dev', () => {
 		it('Includes styles', async () => {
 			const { fixture, run } = await createDevFixture({
-				experimental: {
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-							weights: [400, 500],
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Poppins',
+						cssVariable: '--font-test',
+						provider: fontProviders.fontsource(),
+						weights: [400, 500],
+					},
+				],
 			});
 			await run(async () => {
 				const res = await fixture.fetch('/');
@@ -95,16 +93,14 @@ describe('astro fonts', () => {
 
 		it('Includes links when preloading', async () => {
 			const { fixture, run } = await createDevFixture({
-				experimental: {
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-							weights: [400, 500],
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Poppins',
+						cssVariable: '--font-test',
+						provider: fontProviders.fontsource(),
+						weights: [400, 500],
+					},
+				],
 			});
 			await run(async () => {
 				const res = await fixture.fetch('/preload');
@@ -117,16 +113,14 @@ describe('astro fonts', () => {
 
 		it('Can filter preloads', async () => {
 			const { fixture, run } = await createDevFixture({
-				experimental: {
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-							weights: [400, 500],
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Poppins',
+						cssVariable: '--font-test',
+						provider: fontProviders.fontsource(),
+						weights: [400, 500],
+					},
+				],
 			});
 			await run(async () => {
 				let res = await fixture.fetch('/preload');
@@ -145,16 +139,14 @@ describe('astro fonts', () => {
 
 		it('Has correct headers in dev', async () => {
 			const { fixture, run } = await createDevFixture({
-				experimental: {
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-							weights: [400, 500],
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Poppins',
+						cssVariable: '--font-test',
+						provider: fontProviders.fontsource(),
+						weights: [400, 500],
+					},
+				],
 			});
 
 			await run(async () => {
@@ -186,16 +178,14 @@ describe('astro fonts', () => {
 					assets: '_custom',
 					assetsPrefix: 'https://cdn.example.com',
 				},
-				experimental: {
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-							weights: [400, 500],
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Poppins',
+						cssVariable: '--font-test',
+						provider: fontProviders.fontsource(),
+						weights: [400, 500],
+					},
+				],
 			});
 			await run(async () => {
 				const res = await fixture.fetch('/my-base/preload');
@@ -208,15 +198,13 @@ describe('astro fonts', () => {
 
 		it('Exposes fontData', async () => {
 			const { fixture, run } = await createDevFixture({
-				experimental: {
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Poppins',
+						cssVariable: '--font-test',
+						provider: fontProviders.fontsource(),
+					},
+				],
 			});
 			await run(async () => {
 				const res = await fixture.fetch('/font-data');
@@ -236,15 +224,13 @@ describe('astro fonts', () => {
 
 		it('Exposes buffer in getFontBuffer()', async () => {
 			const { fixture, run } = await createDevFixture({
-				experimental: {
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Poppins',
+						cssVariable: '--font-test',
+						provider: fontProviders.fontsource(),
+					},
+				],
 			});
 			await run(async () => {
 				const res = await fixture.fetch('/get-font-buffer');
@@ -260,16 +246,14 @@ describe('astro fonts', () => {
 
 		it('Does not create dist folder or copy fonts when dev server stops', async () => {
 			const { fixture, run } = await createDevFixture({
-				experimental: {
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-							weights: [400, 500],
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Poppins',
+						cssVariable: '--font-test',
+						provider: fontProviders.fontsource(),
+						weights: [400, 500],
+					},
+				],
 			});
 			await run(async () => {
 				await fixture.fetch('/');
@@ -281,16 +265,14 @@ describe('astro fonts', () => {
 	describe('build', () => {
 		it('Includes styles', async () => {
 			const { fixture } = await createBuildFixture({
-				experimental: {
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-							weights: [400, 500],
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Poppins',
+						cssVariable: '--font-test',
+						provider: fontProviders.fontsource(),
+						weights: [400, 500],
+					},
+				],
 			});
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
@@ -300,16 +282,14 @@ describe('astro fonts', () => {
 
 		it('Includes links when preloading', async () => {
 			const { fixture } = await createBuildFixture({
-				experimental: {
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-							weights: [400, 500],
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Poppins',
+						cssVariable: '--font-test',
+						provider: fontProviders.fontsource(),
+						weights: [400, 500],
+					},
+				],
 			});
 			const html = await fixture.readFile('/preload/index.html');
 			const $ = cheerio.load(html);
@@ -319,16 +299,14 @@ describe('astro fonts', () => {
 
 		it('Can filter preloads', async () => {
 			const { fixture } = await createBuildFixture({
-				experimental: {
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-							weights: [400, 500],
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Poppins',
+						cssVariable: '--font-test',
+						provider: fontProviders.fontsource(),
+						weights: [400, 500],
+					},
+				],
 			});
 
 			let html = await fixture.readFile('/preload/index.html');
@@ -349,16 +327,14 @@ describe('astro fonts', () => {
 					assets: '_custom',
 					assetsPrefix: 'https://cdn.example.com',
 				},
-				experimental: {
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-							weights: [400, 500],
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Poppins',
+						cssVariable: '--font-test',
+						provider: fontProviders.fontsource(),
+						weights: [400, 500],
+					},
+				],
 			});
 			const html = await fixture.readFile('/preload/index.html');
 			const $ = cheerio.load(html);
@@ -370,15 +346,13 @@ describe('astro fonts', () => {
 
 		it('Exposes fontData', async () => {
 			const { fixture } = await createBuildFixture({
-				experimental: {
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Poppins',
+						cssVariable: '--font-test',
+						provider: fontProviders.fontsource(),
+					},
+				],
 			});
 
 			const html = await fixture.readFile('/font-data/index.html');
@@ -396,15 +370,13 @@ describe('astro fonts', () => {
 
 		it('Exposes buffer in getFontBuffer()', async () => {
 			const { fixture } = await createBuildFixture({
-				experimental: {
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Poppins',
+						cssVariable: '--font-test',
+						provider: fontProviders.fontsource(),
+					},
+				],
 			});
 			const html = await fixture.readFile('/get-font-buffer/index.html');
 			const $ = cheerio.load(html);
@@ -419,16 +391,14 @@ describe('astro fonts', () => {
 	describe('ssr', () => {
 		it('Includes styles', async () => {
 			const fixture = await createSsrFixture({
-				experimental: {
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-							weights: [400, 500],
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Poppins',
+						cssVariable: '--font-test',
+						provider: fontProviders.fontsource(),
+						weights: [400, 500],
+					},
+				],
 			});
 			const html = await fixture.fetch('/');
 			const $ = cheerio.load(html);
@@ -438,16 +408,14 @@ describe('astro fonts', () => {
 
 		it('Includes links when preloading', async () => {
 			const fixture = await createSsrFixture({
-				experimental: {
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-							weights: [400, 500],
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Poppins',
+						cssVariable: '--font-test',
+						provider: fontProviders.fontsource(),
+						weights: [400, 500],
+					},
+				],
 			});
 			const html = await fixture.fetch('/preload');
 			const $ = cheerio.load(html);
@@ -457,16 +425,14 @@ describe('astro fonts', () => {
 
 		it('Can filter preloads', async () => {
 			const fixture = await createSsrFixture({
-				experimental: {
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-							weights: [400, 500],
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Poppins',
+						cssVariable: '--font-test',
+						provider: fontProviders.fontsource(),
+						weights: [400, 500],
+					},
+				],
 			});
 
 			let html = await fixture.fetch('/preload');
@@ -482,15 +448,13 @@ describe('astro fonts', () => {
 
 		it('Exposes fontData', async () => {
 			const fixture = await createSsrFixture({
-				experimental: {
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Poppins',
+						cssVariable: '--font-test',
+						provider: fontProviders.fontsource(),
+					},
+				],
 			});
 
 			const html = await fixture.fetch('/font-data');
@@ -508,15 +472,13 @@ describe('astro fonts', () => {
 
 		it('Exposes buffer in getFontBuffer()', async () => {
 			const fixture = await createSsrFixture({
-				experimental: {
-					fonts: [
-						{
-							name: 'Poppins',
-							cssVariable: '--font-test',
-							provider: fontProviders.fontsource(),
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Poppins',
+						cssVariable: '--font-test',
+						provider: fontProviders.fontsource(),
+					},
+				],
 			});
 			const html = await fixture.fetch('/get-font-buffer');
 			const $ = cheerio.load(html);
