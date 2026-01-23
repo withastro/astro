@@ -9,8 +9,7 @@ import type {
 } from '@astrojs/markdown-remark';
 import type { Config as SvgoConfig } from 'svgo';
 import type { UserConfig as OriginalViteUserConfig, SSROptions as ViteSSROptions } from 'vite';
-import type { LOCAL_PROVIDER_NAME } from '../../assets/fonts/constants.js';
-import type { FontFamily, FontProvider, LocalFontFamily } from '../../assets/fonts/types.js';
+import type { FontFamily, FontProvider } from '../../assets/fonts/types.js';
 import type { ImageFit, ImageLayout } from '../../assets/types.js';
 import type { AssetsPrefix } from '../../core/app/types.js';
 import type { AstroConfigType } from '../../core/config/schemas/index.js';
@@ -159,7 +158,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 export interface AstroUserConfig<
 	TLocales extends Locales = never,
 	TDriver extends SessionDriverName | SessionDriverConfig | undefined = never,
-	TFontProviders extends Array<FontProvider | typeof LOCAL_PROVIDER_NAME> = never,
+	TFontProviders extends Array<FontProvider> = never,
 > {
 	/**
 	 * @docs
@@ -2472,9 +2471,7 @@ export interface AstroUserConfig<
 		fonts?: [TFontProviders] extends [never]
 			? Array<FontFamily>
 			: {
-					[K in keyof TFontProviders]: TFontProviders[K] extends FontProvider
-						? FontFamily<TFontProviders[K]>
-						: LocalFontFamily;
+					[K in keyof TFontProviders]: FontFamily<TFontProviders[K]>;
 				};
 
 		/**

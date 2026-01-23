@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
 import type { GoogleFamilyOptions, GoogleiconsFamilyOptions } from 'unifont';
+import type { LocalFamilyOptions } from '../../dist/assets/fonts/providers/local.js';
 import type { FontFamily, FontProvider } from '../../dist/assets/fonts/types.js';
 import { defineConfig, fontProviders } from '../../dist/config/entrypoint.js';
 import type { AstroUserConfig } from '../../dist/types/public/index.js';
@@ -100,8 +101,10 @@ describe('defineConfig()', () => {
 						{
 							name: 'A',
 							cssVariable: '--font-a',
-							provider: 'local',
-							variants: [{ src: [''] }],
+							provider: fontProviders.local(),
+							options: {
+								variants: [{ src: [''] }],
+							},
 						},
 						{
 							name: 'B',
@@ -138,7 +141,7 @@ describe('defineConfig()', () => {
 						never,
 						never,
 						[
-							'local',
+							FontProvider<LocalFamilyOptions>,
 							FontProvider<never>,
 							FontProvider<GoogleFamilyOptions | undefined>,
 							FontProvider<GoogleiconsFamilyOptions | undefined>,
@@ -156,8 +159,10 @@ describe('defineConfig()', () => {
 					{
 						name: 'A',
 						cssVariable: '--font-a',
-						provider: 'local',
-						variants: [{ src: [''] }],
+						provider: fontProviders.local(),
+						options: {
+							variants: [{ src: [''] }],
+						},
 					},
 					{
 						name: 'B',
