@@ -9,17 +9,12 @@ describe('_routes.json generation', () => {
 		let fixture;
 
 		before(async () => {
-			console.log('[cloudflare:test] routes-json mixed before');
 			fixture = await loadFixture({
 				root: new URL('./fixtures/routes-json/', import.meta.url).toString(),
 				srcDir: './src/mixed',
 				adapter: cloudflare({}),
 			});
 			await fixture.build();
-		});
-
-		after(() => {
-			console.log('[cloudflare:test] routes-json mixed finished');
 		});
 
 		it('creates `include` for on-demand and `exclude` for prerenderd', async () => {
@@ -38,7 +33,6 @@ describe('_routes.json generation', () => {
 		let fixture;
 
 		before(async () => {
-			console.log('[cloudflare:test] routes-json dynamic-only before');
 			fixture = await loadFixture({
 				root: new URL('./fixtures/routes-json/', import.meta.url).toString(),
 				srcDir: './src/dynamicOnly',
@@ -48,9 +42,7 @@ describe('_routes.json generation', () => {
 		});
 
 		after(async () => {
-			console.log('[cloudflare:test] routes-json dynamic-only after');
 			await fixture.clean();
-			console.log('[cloudflare:test] routes-json dynamic-only finished');
 		});
 
 		it('creates a wildcard `include` and `exclude` only for static assets and redirects', async () => {
@@ -69,17 +61,12 @@ describe('_routes.json generation', () => {
 		let fixture;
 
 		before(async () => {
-			console.log('[cloudflare:test] routes-json static-only before');
 			fixture = await loadFixture({
 				root: new URL('./fixtures/routes-json/', import.meta.url).toString(),
 				srcDir: './src/staticOnly',
 				adapter: cloudflare({}),
 			});
 			await fixture.build();
-		});
-
-		after(() => {
-			console.log('[cloudflare:test] routes-json static-only finished');
 		});
 
 		it(
@@ -102,7 +89,6 @@ describe('_routes.json generation', () => {
 		let fixture;
 
 		before(async () => {
-			console.log('[cloudflare:test] routes-json include before');
 			fixture = await loadFixture({
 				root: new URL('./fixtures/routes-json/', import.meta.url).toString(),
 				srcDir: './src/mixed',
@@ -115,10 +101,6 @@ describe('_routes.json generation', () => {
 				}),
 			});
 			await fixture.build();
-		});
-
-		after(() => {
-			console.log('[cloudflare:test] routes-json include finished');
 		});
 
 		it('creates `include` for functions and `exclude` for static files where needed', async () => {
@@ -137,7 +119,6 @@ describe('_routes.json generation', () => {
 		let fixture;
 
 		before(async () => {
-			console.log('[cloudflare:test] routes-json exclude before');
 			fixture = await loadFixture({
 				root: new URL('./fixtures/routes-json/', import.meta.url).toString(),
 				srcDir: './src/mixed',
@@ -150,10 +131,6 @@ describe('_routes.json generation', () => {
 				}),
 			});
 			await fixture.build();
-		});
-
-		after(() => {
-			console.log('[cloudflare:test] routes-json exclude finished');
 		});
 
 		it('creates `include` for functions and `exclude` for static files where needed', async () => {
@@ -182,17 +159,12 @@ describe('_routes.json generation', () => {
 		let fixture;
 
 		before(async () => {
-			console.log('[cloudflare:test] routes-json reduceComplexity before');
 			fixture = await loadFixture({
 				root: new URL('./fixtures/routes-json/', import.meta.url).toString(),
 				srcDir: './src/reduceComplexity',
 				adapter: cloudflare({}),
 			});
 			await fixture.build();
-		});
-
-		after(() => {
-			console.log('[cloudflare:test] routes-json reduceComplexity finished');
 		});
 
 		it('reduces the amount of include and exclude entries by applying wildcards wherever possible', async () => {
@@ -227,17 +199,12 @@ describe('_routes.json generation', () => {
 		let fixture;
 
 		before(async () => {
-			console.log('[cloudflare:test] routes-json manyStatic before');
 			fixture = await loadFixture({
 				root: new URL('./fixtures/routes-json/', import.meta.url).toString(),
 				srcDir: './src/manyStatic',
 				adapter: cloudflare({}),
 			});
 			await fixture.build();
-		});
-
-		after(() => {
-			console.log('[cloudflare:test] routes-json manyStatic finished');
 		});
 
 		it('creates a wildcard `include` and `exclude` for as many static assets and redirects as possible, truncating after 100 rules', async () => {
@@ -262,17 +229,12 @@ describe('_routes.json generation', () => {
 		let fixture;
 
 		before(async () => {
-			console.log('[cloudflare:test] routes-json manyStaticWith404 before');
 			fixture = await loadFixture({
 				root: new URL('./fixtures/routes-json/', import.meta.url).toString(),
 				srcDir: './src/manyStaticWith404',
 				adapter: cloudflare({}),
 			});
 			await fixture.build();
-		});
-
-		after(() => {
-			console.log('[cloudflare:test] routes-json manyStaticWith404 finished');
 		});
 
 		it('creates `include` for on-demand and `exclude` that are supposed to match nothing', async () => {

@@ -10,7 +10,6 @@ describe('Custom entry file', () => {
 	const root = new URL('./fixtures/custom-entryfile/', import.meta.url);
 
 	before(async () => {
-		console.log('[cloudflare:test] Custom entry file before');
 		fixture = await loadFixture({
 			root: './fixtures/custom-entryfile/',
 		});
@@ -19,9 +18,7 @@ describe('Custom entry file', () => {
 	});
 
 	after(async () => {
-		console.log('[cloudflare:test] Custom entry file after');
 		await previewServer.stop();
-		console.log('[cloudflare:test] Custom entry file finished');
 	});
 
 	it('filters out duplicate "default" export and builds', async () => {

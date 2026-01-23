@@ -9,7 +9,6 @@ describe('astro:env', () => {
 		let previewServer;
 
 		before(async () => {
-			console.log('[cloudflare:test] astro:env ssr before');
 			process.env.API_URL = 'https://google.de';
 			process.env.PORT = '4322';
 			fixture = await loadFixture({
@@ -20,9 +19,7 @@ describe('astro:env', () => {
 		});
 
 		after(async () => {
-			console.log('[cloudflare:test] astro:env ssr after');
 			await previewServer.stop();
-			console.log('[cloudflare:test] astro:env ssr finished');
 		});
 
 		it('runtime', async () => {
@@ -71,7 +68,6 @@ describe('astro:env', () => {
 		let fixture;
 
 		before(async () => {
-			console.log('[cloudflare:test] astro:env dev before');
 			fixture = await loadFixture({
 				root: './fixtures/astro-env/',
 			});
@@ -80,9 +76,7 @@ describe('astro:env', () => {
 		});
 
 		after(async () => {
-			console.log('[cloudflare:test] astro:env dev after');
 			await devServer.stop();
-			console.log('[cloudflare:test] astro:env dev finished');
 		});
 
 		it('runtime', async () => {

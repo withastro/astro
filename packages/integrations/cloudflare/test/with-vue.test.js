@@ -8,7 +8,6 @@ describe('Vue', () => {
 	let previewServer;
 
 	before(async () => {
-		console.log('[cloudflare:test] Vue before');
 		fixture = await loadFixture({
 			root: './fixtures/with-vue/',
 		});
@@ -17,9 +16,7 @@ describe('Vue', () => {
 	});
 
 	after(async () => {
-		console.log('[cloudflare:test] Vue after');
 		await previewServer.stop();
-		console.log('[cloudflare:test] Vue finished');
 	});
 
 	it('renders the vue component', async () => {

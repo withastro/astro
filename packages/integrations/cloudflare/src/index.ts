@@ -157,13 +157,13 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					experimental: {
 						prerenderWorker: {
 							config(_, { entryWorkerConfig }) {
-				        return {
-				          ...entryWorkerConfig,
-				          name: "prerender",
-				        };
-				      },
-						}
-					}
+								return {
+									...entryWorkerConfig,
+									name: 'prerender',
+								};
+							},
+						},
+					},
 				};
 
 				updateConfig({
@@ -324,13 +324,15 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 			},
 			'astro:build:start': ({ setPrerenderer }) => {
-				setPrerenderer(() => createCloudflarePrerenderer({
-					root: _config.root,
-					serverDir: _config.build.server,
-					clientDir: _config.build.client,
-					base: _config.base,
-					trailingSlash: _config.trailingSlash,
-				}));
+				setPrerenderer(() =>
+					createCloudflarePrerenderer({
+						root: _config.root,
+						serverDir: _config.build.server,
+						clientDir: _config.build.client,
+						base: _config.base,
+						trailingSlash: _config.trailingSlash,
+					}),
+				);
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {

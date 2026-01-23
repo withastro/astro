@@ -137,6 +137,7 @@ declare module 'astro:middleware' {
 	export * from 'astro/virtual-modules/middleware.js';
 }
 
+
 declare module 'astro:config/server' {
 	// biome-ignore format: bug
 	type ServerConfigSerialized = import('./dist/types/public/manifest.js').ServerDeserializedManifest;

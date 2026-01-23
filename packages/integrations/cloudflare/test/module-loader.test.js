@@ -10,7 +10,6 @@ describe(
 		let fixture;
 		let previewServer;
 		before(async () => {
-			console.log('[cloudflare:test] CloudflareModuleLoading before');
 			fixture = await loadFixture({
 				root: './fixtures/module-loader/',
 			});
@@ -19,10 +18,8 @@ describe(
 		});
 
 		after(async () => {
-			console.log('[cloudflare:test] CloudflareModuleLoading after');
 			await previewServer.stop();
 			await fixture.clean();
-			console.log('[cloudflare:test] CloudflareModuleLoading finished');
 		});
 
 		it('can render server side', async () => {

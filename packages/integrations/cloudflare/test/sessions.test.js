@@ -9,7 +9,6 @@ describe('sessions', () => {
 	let previewServer;
 
 	before(async () => {
-		console.log('[cloudflare:test] sessions before');
 		fixture = await loadFixture({
 			root: './fixtures/sessions/',
 		});
@@ -18,9 +17,7 @@ describe('sessions', () => {
 	});
 
 	after(async () => {
-		console.log('[cloudflare:test] sessions after');
 		await previewServer.stop();
-		console.log('[cloudflare:test] sessions finished');
 	});
 
 	it('can regenerate session cookies upon request', async () => {
@@ -91,7 +88,6 @@ describe('sessions with custom binding name', () => {
 	let fixture;
 
 	before(async () => {
-		console.log('[cloudflare:test] sessions custom binding before');
 		fixture = await loadFixture({
 			root: './fixtures/sessions/',
 			adapter: cloudflare({
@@ -108,9 +104,5 @@ describe('sessions with custom binding name', () => {
 			undefined,
 			'Building with custom session binding name should not throw an error',
 		);
-	});
-
-	after(() => {
-		console.log('[cloudflare:test] sessions custom binding finished');
 	});
 });

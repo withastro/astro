@@ -200,6 +200,12 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 		},
 		{
 			name: MODULE_DEV_CSS_ALL,
+			applyToEnvironment(env) {
+				return (
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client
+				);
+			},
 			resolveId: {
 				filter: {
 					id: new RegExp(`^${MODULE_DEV_CSS_ALL}$`),

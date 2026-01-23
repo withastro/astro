@@ -34,7 +34,7 @@ export async function handle(
 	env: Env,
 	context: ExecutionContext,
 ): Promise<CfResponse> {
-	const app = createApp(import.meta.env.DEV);
+	const app = createApp();
 	const { pathname: requestPathname } = new URL(request.url);
 
 	// Handle prerender endpoints (used during build)
@@ -136,7 +136,7 @@ export async function handle(
 		{
 			routeData,
 			locals,
-			prerenderedErrorPageFetch: async (url) => {
+			prerenderedErrorPageFetch: async (url: string) => {
 				return env.ASSETS.fetch(url.replace(/\.html$/, '')) as unknown as Response;
 			},
 			clientAddress: request.headers.get('cf-connecting-ip') ?? undefined,

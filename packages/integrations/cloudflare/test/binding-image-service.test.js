@@ -7,7 +7,6 @@ describe('BindingImageService', () => {
 	let previewServer;
 
 	before(async () => {
-		console.log('[cloudflare:test] BindingImageService before');
 		fixture = await loadFixture({
 			root: './fixtures/binding-image-service/',
 		});
@@ -16,9 +15,7 @@ describe('BindingImageService', () => {
 	});
 
 	after(async () => {
-		console.log('[cloudflare:test] BindingImageService after');
 		await previewServer.stop();
-		console.log('[cloudflare:test] BindingImageService finished');
 	});
 
 	it('returns 403 for missing href parameter', async () => {
