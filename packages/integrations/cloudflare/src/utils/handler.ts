@@ -11,7 +11,7 @@ import { createGetEnv } from '../utils/env.js';
 import type { RouteData } from 'astro';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import type { StaticPathsResponse, PrerenderRequest } from '../prerender-types.js';
-import { StaticPaths } from 'astro/runtime/prerender/static-paths.js';
+import { StaticPaths } from 'astro/runtime/prerender/static-paths';
 
 export type Env = {
 	[key: string]: unknown;
@@ -55,7 +55,7 @@ export async function handle(
 
 	if (requestPathname === '/__astro_prerender' && request.method === 'POST') {
 		const headers = new Headers();
-		for(const [key, value] of request.headers.entries()) {
+		for (const [key, value] of request.headers.entries()) {
 			headers.append(key, value);
 		}
 		const body: PrerenderRequest = await request.json();

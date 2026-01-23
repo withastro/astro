@@ -47,6 +47,7 @@
     },
     "./compiler-runtime": "./dist/runtime/compiler/index.js",
     "./runtime/*": "./dist/runtime/*",
+    "./runtime/prerender/static-paths": "./dist/runtime/prerender/static-paths.js",
     "./config": "./dist/config/entrypoint.js",
     "./container": "./dist/container/index.js",
     "./app": "./dist/core/app/index.js",

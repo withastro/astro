@@ -195,14 +195,16 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							{
 								name: '@astrojs/cloudflare:environment',
 								configEnvironment(environmentName, _options) {
-									const isServerEnvironment = ['astro', 'ssr', 'prerender'].includes(environmentName);
+									const isServerEnvironment = ['astro', 'ssr', 'prerender'].includes(
+										environmentName,
+									);
 									if (isServerEnvironment && !_options.optimizeDeps?.noDiscovery) {
 										return {
 											optimizeDeps: {
 												include: [
 													'astro',
 													'astro/runtime/**',
-													'astro/runtime/prerender/static-paths.js',
+													'astro/runtime/prerender/static-paths',
 													'astro > html-escaper',
 													'astro > mrmime',
 													'astro > zod/v4',
