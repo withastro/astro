@@ -76,7 +76,6 @@
     "tinyglobby": "^0.2.15",
     "turbo": "^2.7.5",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.53.0",
-    "why-is-node-running": "^3.2.2"
+    "typescript-eslint": "^8.53.0"
   }
 }
