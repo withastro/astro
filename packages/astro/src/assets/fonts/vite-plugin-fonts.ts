@@ -52,7 +52,7 @@ import type {
 	FontFamily,
 	FontFileById,
 } from './types.js';
-import constants = require('../../core/constants.js');
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../core/constants.js';
 
 interface Options {
 	settings: AstroSettings;
@@ -217,9 +217,9 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			});
 			fontFileById = _fontFileById;
 
-			if (shouldTrackCspHashes(settings.config.experimental.csp)) {
+			if (shouldTrackCspHashes(settings.config.security.csp)) {
 				// Handle CSP
-				const algorithm = getAlgorithm(settings.config.experimental.csp);
+				const algorithm = getAlgorithm(settings.config.security.csp);
 
 				// Generate a hash for each style we generate
 				for (const { css } of componentDataByCssVariable.values()) {
@@ -335,7 +335,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				}
 
 				if (id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID) {
-					if (this.environment.name === constants.ASTRO_VITE_ENVIRONMENT_NAMES.client) {
+					if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 						return {
 							code: `export * from 'astro/assets/fonts/runtime/client.js';`,
 						};
