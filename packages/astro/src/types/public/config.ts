@@ -1322,9 +1322,9 @@ export interface AstroUserConfig<
 		 * @version 5.17.0
 		 * @description
 		 *
-		 * The default kernel used for resizing images in the Sharp image service.
+		 * The default [kernel used for resizing images](https://sharp.pixelplumbing.com/api-resize/#resize) in the Sharp image service.
 		 *
-		 * By default this is `undefined`, which maps to Sharp's default kernel of lanczos3.
+		 * By default this is `undefined`, which maps to Sharp's default kernel of `lanczos3`.
 		 */
 
 		/**
