@@ -287,12 +287,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				setAdapter({
 					name: '@astrojs/cloudflare',
 					serverEntrypoint: customWorkerEntryPoint ?? '@astrojs/cloudflare/entrypoints/server.js',
-					entryType: 'self',
 					exports: [...new Set(['default', ...(args?.workerEntryPoint?.namedExports ?? [])])],
 					adapterFeatures: {
 						edgeMiddleware: false,
 						buildOutput: 'server',
 					},
+					entryType: 'self',
 					previewEntrypoint: '@astrojs/cloudflare/entrypoints/preview',
 					supportedAstroFeatures: {
 						serverOutput: 'stable',
