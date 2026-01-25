@@ -122,11 +122,9 @@ describe('<Code>', () => {
 		assert.equal($('pre').length, 0);
 	});
 
-	it('<Code embeddedLangs />', async () => {
+	it('<Code embeddedLangs /> tokenizes TSX', async () => {
 		const html = await fixture.readFile('/langs/index.html');
 		const $ = cheerio.load(html);
-		assert.ok(
-		[...$('.line > span')].some(el => $(el).text().trim() === "const")
-		);
-	})
+		assert.ok([...$('.line > span')].some((el) => $(el).text().trim() === 'const'));
+	});
 });
