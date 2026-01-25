@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-update <Code /> to allow langs beyond the primary lang
+add optional `embeddedLangs` prop to `<Code />` to allow languages beyond the primary `lang`
