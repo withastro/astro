@@ -123,7 +123,7 @@ describe('<Code>', () => {
 	});
 
 	it('<Code embeddedLangs />', async () => {
-		let html = await fixture.readFile('/langs/index.html');
+		const html = await fixture.readFile('/langs/index.html');
 		const $ = cheerio.load(html);
 		assert.ok(
 		[...$('.line > span')].some(el => $(el).text().trim() === "const")
