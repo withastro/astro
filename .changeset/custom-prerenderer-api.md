@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Adds `setPrerenderer()` to the `astro:build:start` hook, allowing adapters to provide custom prerendering logic for non-Node.js runtimes.
+Adds `setPrerenderer()` to the `astro:build:start` hook, allowing adapters to provide custom prerendering logic.
 
 The new API accepts either an `AstroPrerenderer` object directly, or a factory function that receives the default prerenderer:
 
@@ -29,4 +29,4 @@ The new API accepts either an `AstroPrerenderer` object directly, or a factory f
 }
 ```
 
-This enables adapters like Cloudflare to prerender pages using their native runtime (workerd) instead of Node.js.
+Also adds the `astro:static-paths` virtual module, which exports a `StaticPaths` class for adapters to collect all prerenderable paths from within their target runtime.
