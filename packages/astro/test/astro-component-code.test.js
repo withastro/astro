@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
-import prettier from "prettier"
 
 describe('<Code>', () => {
 	let fixture;
@@ -126,12 +125,8 @@ describe('<Code>', () => {
 	it('<Code embeddedLangs />', async () => {
 		let html = await fixture.readFile('/langs/index.html');
 		const $ = cheerio.load(html);
-		assert.equal(
-			$('pre > code span')
-				.map((_i, el) => $(el).text().trim())
-				.toArray()
-				.includes('const'),
-			true,
+		assert.ok(
+		[...$('.line > span')].some(el => $(el).text().trim() === "const")
 		);
 	})
 });
