@@ -80,8 +80,11 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 		imageConfig: ImageConfig<T>,
 	) => ImageTransform | Promise<ImageTransform>;
 	/**
-	 * Infers the dimensions of a remote image by streaming its data and analyzing it progressively until sufficient metadata is available.
-	 */
+   * Return the dimensions of a remote image.
+   *
+   * This is used to infer the width and height of an image from its URL,
+   * allowing the service to provide necessary metadata when it's not available locally.
+   */
 	getRemoteSize?: (
 		url: string,
 		imageConfig: ImageConfig<T>,
