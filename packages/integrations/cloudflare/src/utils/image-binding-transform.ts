@@ -1,4 +1,3 @@
-// @ts-expect-error Not sure how to make this typecheck properly
 import { imageConfig } from 'astro:assets';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
