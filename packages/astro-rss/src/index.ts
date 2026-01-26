@@ -59,7 +59,10 @@ type ValidatedRSSFeedItem = z.infer<typeof rssSchema>;
 type ValidatedRSSOptions = z.infer<typeof rssOptionsValidator>;
 type GlobResult = z.infer<typeof globResultValidator>;
 
-const globResultValidator = z.record(z.string(), z.function({ input: [], output: z.promise(z.any()) }));
+const globResultValidator = z.record(
+	z.string(),
+	z.function({ input: [], output: z.promise(z.any()) }),
+);
 
 const rssOptionsValidator = z.object({
 	title: z.string(),
