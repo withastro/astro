@@ -130,7 +130,7 @@ async function validateRssOptions(rssOptions: RSSOptions) {
 export function pagesGlobToRssItems(items: GlobResult): Promise<ValidatedRSSFeedItem[]> {
 	return Promise.all(
 		Object.entries(items).map(async ([filePath, getInfo]) => {
-			const { url, frontmatter } = await (getInfo)();
+			const { url, frontmatter } = await getInfo();
 			if (url === undefined || url === null) {
 				throw new Error(
 					`[RSS] You can only glob entries within 'src/pages/' when passing import.meta.glob() directly. Consider mapping the result to an array of RSSFeedItems. See the RSS docs for usage examples: https://docs.astro.build/en/guides/rss/#2-list-of-rss-feed-objects`,
