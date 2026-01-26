@@ -24,9 +24,9 @@ import type {
 import type { EnvSchema } from '../../env/schema.js';
 import type { AstroIntegration } from './integrations.js';
 
-export type { FontProvider };
-
 export type Locales = (string | { codes: [string, ...string[]]; path: string })[];
+
+export type { FontProvider };
 
 export type { CspAlgorithm, CspHash };
 
@@ -158,6 +158,7 @@ export interface ViteUserConfig extends OriginalViteUserConfig {
 export interface AstroUserConfig<
 	TLocales extends Locales = never,
 	TDriver extends SessionDriverName | SessionDriverConfig | undefined = never,
+	TFontProviders extends Array<FontProvider> = never,
 > {
 	/**
 	 * @docs
@@ -2467,7 +2468,11 @@ export interface AstroUserConfig<
 		 * For a complete overview, and to give feedback on this experimental API,
 		 * see the [Fonts RFC](https://github.com/withastro/roadmap/pull/1039).
 		 */
-		fonts?: FontFamily[];
+		fonts?: [TFontProviders] extends [never]
+			? Array<FontFamily>
+			: {
+					[K in keyof TFontProviders]: FontFamily<TFontProviders[K]>;
+				};
 
 		/**
 		 * @name experimental.chromeDevtoolsWorkspace

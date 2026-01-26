@@ -114,15 +114,8 @@ function createContext({
 		set locals(_) {
 			throw new AstroError(AstroErrorData.LocalsReassigned);
 		},
-		get csp(): APIContext['csp'] {
-			return {
-				insertDirective() {},
-				insertScriptResource() {},
-				insertStyleResource() {},
-				insertScriptHash() {},
-				insertStyleHash() {},
-			};
-		},
+		session: undefined,
+		csp: undefined,
 	};
 	return Object.assign(context, {
 		getActionResult: createGetActionResult(context.locals),

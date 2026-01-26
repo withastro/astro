@@ -1,9 +1,11 @@
 // @ts-check
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
 import { describe, it } from 'node:test';
 import { fontProviders } from 'astro/config';
 import * as cheerio from 'cheerio';
+import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
 /**
@@ -11,6 +13,7 @@ import { loadFixture } from './test-utils.js';
  */
 async function createDevFixture(inlineConfig) {
 	const fixture = await loadFixture({ root: './fixtures/fonts/', ...inlineConfig });
+	await fixture.clean();
 	const devServer = await fixture.startDevServer();
 
 	return {
@@ -25,6 +28,7 @@ async function createDevFixture(inlineConfig) {
 		},
 	};
 }
+
 /**
  * @param {Omit<import("./test-utils.js").AstroInlineConfig, 'root'>} inlineConfig
  */
@@ -34,6 +38,34 @@ async function createBuildFixture(inlineConfig) {
 
 	return {
 		fixture,
+	};
+}
+
+/**
+ * @param {Omit<import("./test-utils.js").AstroInlineConfig, 'root'>} inlineConfig
+ */
+async function createSsrFixture(inlineConfig) {
+	const fixture = await loadFixture({
+		root: './fixtures/fonts/',
+		output: 'server',
+		adapter: testAdapter(),
+		...inlineConfig,
+	});
+	await fixture.build({});
+	const app = await fixture.loadTestAdapterApp();
+
+	return {
+		fixture,
+		app,
+		/**
+		 * @param {string} url
+		 */
+		fetch: async (url) => {
+			const request = new Request(`http://example.com${url}`);
+			const response = await app.render(request);
+			const html = await response.text();
+			return html;
+		},
 	};
 }
 
@@ -174,7 +206,7 @@ describe('astro fonts', () => {
 			});
 		});
 
-		it('Exposes data in getFontData()', async () => {
+		it('Exposes fontData', async () => {
 			const { fixture, run } = await createDevFixture({
 				experimental: {
 					fonts: [
@@ -187,7 +219,7 @@ describe('astro fonts', () => {
 				},
 			});
 			await run(async () => {
-				const res = await fixture.fetch('/get-font-data');
+				const res = await fixture.fetch('/font-data');
 				const html = await res.text();
 				const $ = cheerio.load(html);
 				const content = $('#data').html();
@@ -195,10 +227,54 @@ describe('astro fonts', () => {
 					assert.fail();
 				}
 				const parsed = JSON.parse(content);
-				assert.equal(Array.isArray(parsed), true);
-				assert.equal(parsed.length > 0, true);
-				assert.equal(parsed[0].src[0].url.startsWith('/_astro/fonts/'), true);
+				assert.equal('--font-test' in parsed, true);
+				assert.equal(Array.isArray(parsed['--font-test']), true);
+				assert.equal(parsed['--font-test'].length > 0, true);
+				assert.equal(parsed['--font-test'][0].src[0].url.startsWith('/_astro/fonts/'), true);
 			});
+		});
+
+		it('Exposes buffer in getFontBuffer()', async () => {
+			const { fixture, run } = await createDevFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Poppins',
+							cssVariable: '--font-test',
+							provider: fontProviders.fontsource(),
+						},
+					],
+				},
+			});
+			await run(async () => {
+				const res = await fixture.fetch('/get-font-buffer');
+				const html = await res.text();
+				const $ = cheerio.load(html);
+				const length = $('#length').html();
+				if (!length) {
+					assert.fail();
+				}
+				assert.equal(length === '0', false);
+			});
+		});
+
+		it('Does not create dist folder or copy fonts when dev server stops', async () => {
+			const { fixture, run } = await createDevFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Poppins',
+							cssVariable: '--font-test',
+							provider: fontProviders.fontsource(),
+							weights: [400, 500],
+						},
+					],
+				},
+			});
+			await run(async () => {
+				await fixture.fetch('/');
+			});
+			assert.equal(existsSync(fixture.config.outDir), false);
 		});
 	});
 
@@ -292,7 +368,7 @@ describe('astro fonts', () => {
 			assert.equal(files.length > 0, true);
 		});
 
-		it('Exposes data in getFontData()', async () => {
+		it('Exposes fontData', async () => {
 			const { fixture } = await createBuildFixture({
 				experimental: {
 					fonts: [
@@ -305,16 +381,150 @@ describe('astro fonts', () => {
 				},
 			});
 
-			const html = await fixture.readFile('/get-font-data/index.html');
+			const html = await fixture.readFile('/font-data/index.html');
 			const $ = cheerio.load(html);
 			const content = $('#data').html();
 			if (!content) {
 				assert.fail();
 			}
 			const parsed = JSON.parse(content);
-			assert.equal(Array.isArray(parsed), true);
-			assert.equal(parsed.length > 0, true);
-			assert.equal(parsed[0].src[0].url.startsWith('/_astro/fonts/'), true);
+			assert.equal('--font-test' in parsed, true);
+			assert.equal(Array.isArray(parsed['--font-test']), true);
+			assert.equal(parsed['--font-test'].length > 0, true);
+			assert.equal(parsed['--font-test'][0].src[0].url.startsWith('/_astro/fonts/'), true);
+		});
+
+		it('Exposes buffer in getFontBuffer()', async () => {
+			const { fixture } = await createBuildFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Poppins',
+							cssVariable: '--font-test',
+							provider: fontProviders.fontsource(),
+						},
+					],
+				},
+			});
+			const html = await fixture.readFile('/get-font-buffer/index.html');
+			const $ = cheerio.load(html);
+			const length = $('#length').html();
+			if (!length) {
+				assert.fail();
+			}
+			assert.equal(length === '0', false);
+		});
+	});
+
+	describe('ssr', () => {
+		it('Includes styles', async () => {
+			const fixture = await createSsrFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Poppins',
+							cssVariable: '--font-test',
+							provider: fontProviders.fontsource(),
+							weights: [400, 500],
+						},
+					],
+				},
+			});
+			const html = await fixture.fetch('/');
+			const $ = cheerio.load(html);
+			assert.equal(html.includes('<style>'), true);
+			assert.equal($('link[rel=preload][type=font/woff2]').attr('href'), undefined);
+		});
+
+		it('Includes links when preloading', async () => {
+			const fixture = await createSsrFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Poppins',
+							cssVariable: '--font-test',
+							provider: fontProviders.fontsource(),
+							weights: [400, 500],
+						},
+					],
+				},
+			});
+			const html = await fixture.fetch('/preload');
+			const $ = cheerio.load(html);
+			const href = $('link[rel=preload][type=font/woff2]').attr('href');
+			assert.equal(href?.startsWith('/_astro/fonts/'), true);
+		});
+
+		it('Can filter preloads', async () => {
+			const fixture = await createSsrFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Poppins',
+							cssVariable: '--font-test',
+							provider: fontProviders.fontsource(),
+							weights: [400, 500],
+						},
+					],
+				},
+			});
+
+			let html = await fixture.fetch('/preload');
+			let $ = cheerio.load(html);
+			const allPreloads = $('link[rel=preload][type=font/woff2]');
+
+			html = await fixture.fetch('/granular-preload');
+			$ = cheerio.load(html);
+			const filteredPreloads = $('link[rel=preload][type=font/woff2]');
+
+			assert.equal(filteredPreloads.length < allPreloads.length, true);
+		});
+
+		it('Exposes fontData', async () => {
+			const fixture = await createSsrFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Poppins',
+							cssVariable: '--font-test',
+							provider: fontProviders.fontsource(),
+						},
+					],
+				},
+			});
+
+			const html = await fixture.fetch('/font-data');
+			const $ = cheerio.load(html);
+			const content = $('#data').html();
+			if (!content) {
+				assert.fail();
+			}
+			const parsed = JSON.parse(content);
+			assert.equal('--font-test' in parsed, true);
+			assert.equal(Array.isArray(parsed['--font-test']), true);
+			assert.equal(parsed['--font-test'].length > 0, true);
+			assert.equal(parsed['--font-test'][0].src[0].url.startsWith('/_astro/fonts/'), true);
+		});
+
+		it('Exposes buffer in getFontBuffer()', async () => {
+			const fixture = await createSsrFixture({
+				experimental: {
+					fonts: [
+						{
+							name: 'Poppins',
+							cssVariable: '--font-test',
+							provider: fontProviders.fontsource(),
+						},
+					],
+				},
+			});
+			const html = await fixture.fetch('/get-font-buffer');
+			const $ = cheerio.load(html);
+			const length = $('#length').html();
+			if (!length) {
+				assert.fail();
+			}
+			assert.equal(length === '0', false);
 		});
 	});
 });
