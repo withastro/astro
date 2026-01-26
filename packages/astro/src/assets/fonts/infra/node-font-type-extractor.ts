@@ -4,8 +4,7 @@ import type { FontTypeExtractor } from '../definitions.js';
 import type { FontType } from '../types.js';
 import { isFontType } from '../utils.js';
 
-// TODO: find better name
-export class RealFontTypeExtractor implements FontTypeExtractor {
+export class NodeFontTypeExtractor implements FontTypeExtractor {
 	extract(url: string): FontType {
 		const extension = extname(url).slice(1);
 		if (!isFontType(extension)) {

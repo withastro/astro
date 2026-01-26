@@ -1,5 +1,16 @@
 # @astrojs/markdown-remark
 
+## 7.0.0-beta.2
+
+### Minor Changes
+
+- [#15277](https://github.com/withastro/astro/pull/15277) [`cb99214`](https://github.com/withastro/astro/commit/cb99214ebb991d1b929978f46e1b3ae68b561366) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the function `createShikiHighlighter` would always create a new Shiki highlighter instance. Now the function returns a cached version of the highlighter based on the Shiki options. This should improve the performance for sites that heavily rely on Shiki and code in their pages.
+
+### Patch Changes
+
+- Updated dependencies [[`11efb05`](https://github.com/withastro/astro/commit/11efb058e85cda68f9a8e8f15a2c7edafe5a4789)]:
+  - @astrojs/prism@4.0.0-beta.2
+
 ## 7.0.0-beta.1
 
 ### Patch Changes
