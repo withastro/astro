@@ -70,7 +70,7 @@ describe('Directives', async () => {
 			$('#compound-style')
 				.attr('style')
 				.toString()
-				.includes('color:var(--fg);--fg: black;--bg: white;'),
+				.includes('color:var(--fg);--bg: white;--fg: black;'),
 			true,
 		);
 	});

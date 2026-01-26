@@ -1,7 +1,7 @@
 ---
-import { getEntryBySlug } from 'astro:content';
-const entry = await getEntryBySlug('docs', 'one');
-const { Content } = await entry.render();
+import { getEntry, render } from 'astro:content';
+const entry = await getEntry('docs', 'one');
+const { Content } = await render(entry);
 ---
 <html lang="en">
   <head>

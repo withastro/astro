@@ -1,165 +1,59 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { dedupeFontFaces } from '../../../../dist/assets/fonts/core/dedupe-font-faces.js';
-import { extractUnifontProviders } from '../../../../dist/assets/fonts/core/extract-unifont-providers.js';
-import { normalizeRemoteFontFaces } from '../../../../dist/assets/fonts/core/normalize-remote-font-faces.js';
+import { collectComponentData } from '../../../../dist/assets/fonts/core/collect-component-data.js';
+import { collectFontAssetsFromFaces } from '../../../../dist/assets/fonts/core/collect-font-assets-from-faces.js';
+import { collectFontData } from '../../../../dist/assets/fonts/core/collect-font-data.js';
+import { computeFontFamiliesAssets } from '../../../../dist/assets/fonts/core/compute-font-families-assets.js';
+import { createGetFontBuffer } from '../../../../dist/assets/fonts/core/create-get-font-buffer.js';
+import { filterAndTransformFontFaces } from '../../../../dist/assets/fonts/core/filter-and-transform-font-faces.js';
+import { filterPreloads } from '../../../../dist/assets/fonts/core/filter-preloads.js';
+import { getOrCreateFontFamilyAssets } from '../../../../dist/assets/fonts/core/get-or-create-font-family-assets.js';
 import { optimizeFallbacks } from '../../../../dist/assets/fonts/core/optimize-fallbacks.js';
-import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-families.js';
-import { createFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
-import { createSystemFallbacksProvider } from '../../../../dist/assets/fonts/infra/system-fallbacks-provider.js';
+import { resolveFamily } from '../../../../dist/assets/fonts/core/resolve-family.js';
+import { SpyLogger } from '../../test-utils.js';
 import {
-	createSpyUrlProxy,
-	fakeFontMetricsResolver,
-	fakeHasher,
-	simpleErrorHandler,
+	FakeFontMetricsResolver,
+	FakeHasher,
+	FakeStringMatcher,
+	markdownBold,
+	PassthroughFontResolver,
 } from './utils.js';
 
 describe('fonts core', () => {
 	describe('resolveFamily()', () => {
-		it('removes quotes correctly', async () => {
-			const hasher = { ...fakeHasher, hashObject: () => 'xxx' };
-			let family = await resolveFamily({
+		it('removes quotes correctly', () => {
+			const hasher = new FakeHasher('xxx');
+			let family = resolveFamily({
 				family: {
-					provider: 'local',
+					provider: { name: 'foo', resolveFont: () => undefined },
 					name: 'Test',
 					cssVariable: '--test',
-					variants: [
-						{
-							weight: '400',
-							style: 'normal',
-							src: ['/'],
-						},
-					],
 				},
 				hasher,
-				localProviderUrlResolver: {
-					resolve: (url) => url,
-				},
-				remoteFontProviderResolver: {
-					// @ts-expect-error
-					resolve: async () => ({}),
-				},
 			});
 			assert.equal(family.name, 'Test');
-			assert.equal(family.nameWithHash, 'Test-xxx');
+			assert.equal(family.uniqueName, 'Test-xxx');
 
-			family = await resolveFamily({
+			family = resolveFamily({
 				family: {
-					provider: 'local',
+					provider: { name: 'foo', resolveFont: () => undefined },
 					name: '"Foo bar"',
 					cssVariable: '--test',
-					variants: [
-						{
-							weight: '400',
-							style: 'normal',
-							src: ['/'],
-						},
-					],
 				},
 				hasher,
-				localProviderUrlResolver: {
-					resolve: (url) => url,
-				},
-				remoteFontProviderResolver: {
-					// @ts-expect-error
-					resolve: async () => ({}),
-				},
 			});
 			assert.equal(family.name, 'Foo bar');
-			assert.equal(family.nameWithHash, 'Foo bar-xxx');
+			assert.equal(family.uniqueName, 'Foo bar-xxx');
 		});
 
-		it('resolves local variant correctly', async () => {
-			const family = await resolveFamily({
-				family: {
-					provider: 'local',
-					name: 'Test',
-					cssVariable: '--test',
-					variants: [
-						{
-							weight: '400',
-							style: 'normal',
-							src: ['/'],
-						},
-					],
-				},
-				hasher: fakeHasher,
-				localProviderUrlResolver: {
-					resolve: (url) => url + url,
-				},
-				remoteFontProviderResolver: {
-					// @ts-expect-error
-					resolve: async () => ({}),
-				},
-			});
-			if (family.provider === 'local') {
-				assert.deepStrictEqual(
-					family.variants.map((variant) => variant.src),
-					[[{ url: '//', tech: undefined }]],
-				);
-			} else {
-				assert.fail('Should be a local provider');
-			}
-		});
-
-		it('resolves remote providers', async () => {
-			const provider = () => {};
-			const family = await resolveFamily({
+		it('dedupes properly', () => {
+			const family = resolveFamily({
 				family: {
 					provider: {
-						entrypoint: '',
+						name: 'xxx',
+						resolveFont: () => undefined,
 					},
-					name: 'Test',
-					cssVariable: '--test',
-				},
-				hasher: fakeHasher,
-				localProviderUrlResolver: {
-					resolve: (url) => url,
-				},
-				remoteFontProviderResolver: {
-					// @ts-expect-error
-					resolve: async () => ({
-						provider,
-					}),
-				},
-			});
-			if (family.provider === 'local') {
-				assert.fail('Should be a remote provider');
-			} else {
-				assert.deepStrictEqual(family.provider, { provider });
-			}
-		});
-
-		it('dedupes properly', async () => {
-			let family = await resolveFamily({
-				family: {
-					provider: 'local',
-					name: '"Foo bar"',
-					cssVariable: '--test',
-					variants: [
-						{
-							weight: '400',
-							style: 'normal',
-							src: ['/'],
-						},
-					],
-					fallbacks: ['foo', 'bar', 'foo'],
-				},
-				hasher: fakeHasher,
-				localProviderUrlResolver: {
-					resolve: (url) => url,
-				},
-				remoteFontProviderResolver: {
-					// @ts-expect-error
-					resolve: async () => ({}),
-				},
-			});
-			assert.deepStrictEqual(family.fallbacks, ['foo', 'bar']);
-
-			family = await resolveFamily({
-				family: {
-					provider: { entrypoint: '' },
 					name: '"Foo bar"',
 					cssVariable: '--test',
 					weights: [400, '400', '500', 'bold'],
@@ -168,191 +62,511 @@ describe('fonts core', () => {
 					fallbacks: ['foo', 'bar', 'foo'],
 					unicodeRange: ['abc', 'def', 'abc'],
 				},
-				hasher: fakeHasher,
-				localProviderUrlResolver: {
-					resolve: (url) => url,
-				},
-				remoteFontProviderResolver: {
-					// @ts-expect-error
-					resolve: async () => ({}),
-				},
+				hasher: new FakeHasher(),
 			});
 
-			if (family.provider === 'local') {
-				assert.fail('Should be a remote provider');
-			} else {
-				assert.deepStrictEqual(family.weights, ['400', '500', 'bold']);
-				assert.deepStrictEqual(family.styles, ['normal', 'italic']);
-				assert.deepStrictEqual(family.subsets, ['latin']);
-				assert.deepStrictEqual(family.fallbacks, ['foo', 'bar']);
-				assert.deepStrictEqual(family.unicodeRange, ['abc', 'def']);
-			}
+			assert.deepStrictEqual(family.weights, ['400', '500', 'bold']);
+			assert.deepStrictEqual(family.styles, ['normal', 'italic']);
+			assert.deepStrictEqual(family.subsets, ['latin']);
+			assert.deepStrictEqual(family.fallbacks, ['foo', 'bar']);
+			assert.deepStrictEqual(family.unicodeRange, ['abc', 'def']);
 		});
 	});
 
-	describe('extractUnifontProviders()', () => {
-		const createProvider = (/** @type {string} */ name) => () =>
-			Object.assign(() => undefined, { _name: name });
-
-		/** @param {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} families */
-		function createFixture(families) {
-			const result = extractUnifontProviders({
-				families,
-				hasher: fakeHasher,
-			});
-			return {
-				/**
-				 * @param {number} length
-				 */
-				assertProvidersLength: (length) => {
-					assert.equal(result.providers.length, length);
-				},
-				/**
-				 * @param {Array<string>} names
-				 */
-				assertProvidersNames: (names) => {
-					assert.deepStrictEqual(
-						result.families.map((f) =>
-							typeof f.provider === 'string' ? f.provider : f.provider.name,
-						),
-						names,
-					);
-				},
-			};
-		}
-
-		it('skips local fonts', () => {
-			const fixture = createFixture([
+	describe('computeFontFamiliesAssets()', () => {
+		it('returns input data', async () => {
+			const families = [
 				{
-					name: 'Custom',
-					nameWithHash: 'Custom-xxx',
-					cssVariable: '--custom',
-					provider: 'local',
-					variants: [
+					name: 'Test',
+					uniqueName: 'Test-xxx',
+					cssVariable: '--test',
+					provider: {
+						name: 'local',
+						resolveFont: () => ({
+							fonts: [
+								{
+									src: [{ url: 'https://example.com/foo.woff2' }],
+								},
+							],
+						}),
+					},
+				},
+			];
+			const hasher = new FakeHasher('xxx');
+			const logger = new SpyLogger();
+			const stringMatcher = new FakeStringMatcher('Match');
+			const { fontFamilyAssets, fontFileById } = await computeFontFamiliesAssets({
+				resolvedFamilies: families,
+				bold: markdownBold,
+				defaults: {
+					fallbacks: ['foo'],
+					formats: ['woff2'],
+					optimizedFallbacks: true,
+					styles: ['normal'],
+					subsets: ['latin'],
+					weights: ['400'],
+				},
+				fontResolver: await PassthroughFontResolver.create({ families, hasher }),
+				logger,
+				stringMatcher,
+				getOrCreateFontFamilyAssets: ({ family, fontFamilyAssetsByUniqueKey }) => {
+					const assets = {
+						family,
+						collectedFontsForMetricsByUniqueKey: new Map(),
+						fonts: [],
+						preloads: [],
+					};
+					fontFamilyAssetsByUniqueKey.set(family.uniqueName, assets);
+					return assets;
+				},
+				filterAndTransformFontFaces: ({ fonts }) => fonts,
+				collectFontAssetsFromFaces: () => {
+					return {
+						collectedFontsForMetricsByUniqueKey: new Map(),
+						fontFileById: new Map([['a', { url: 'a', init: undefined }]]),
+						preloads: [
+							{ style: 'normal', subset: undefined, type: 'woff2', url: 'a', weight: '400' },
+						],
+					};
+				},
+			});
+			assert.deepStrictEqual(fontFamilyAssets, [
+				{
+					collectedFontsForMetricsByUniqueKey: new Map(),
+					family: families[0],
+					fonts: [
 						{
-							src: [{ url: 'a' }],
-							weight: '400',
-							style: 'normal',
+							src: [{ url: 'https://example.com/foo.woff2' }],
 						},
+					],
+					preloads: [
+						{ style: 'normal', subset: undefined, type: 'woff2', url: 'a', weight: '400' },
 					],
 				},
 			]);
-			fixture.assertProvidersLength(0);
-			fixture.assertProvidersNames(['local']);
+			assert.deepStrictEqual(fontFileById, new Map([['a', { url: 'a', init: undefined }]]));
+			assert.deepStrictEqual(logger.logs, []);
 		});
 
-		it('appends a hash to the provider name', () => {
-			const fixture = createFixture([
+		it('transforms fonts', async () => {
+			const families = [
 				{
-					name: 'Custom',
-					nameWithHash: 'Custom-xxx',
-					cssVariable: '--custom',
+					name: 'Test',
+					uniqueName: 'Test-xxx',
+					cssVariable: '--test',
 					provider: {
-						provider: createProvider('test'),
+						name: 'local',
+						resolveFont: () => ({
+							fonts: [
+								{
+									src: [{ url: 'https://example.com/foo.woff2' }],
+								},
+							],
+						}),
 					},
 				},
-			]);
-			fixture.assertProvidersLength(1);
-			fixture.assertProvidersNames(['test-{"name":"test"}']);
-		});
-
-		it('deduplicates providers with no config', () => {
-			const fixture = createFixture([
-				{
-					name: 'Foo',
-					nameWithHash: 'Foo-xxx',
-					cssVariable: '--custom',
-					provider: {
-						provider: createProvider('test'),
-					},
+			];
+			const hasher = new FakeHasher('xxx');
+			const logger = new SpyLogger();
+			const stringMatcher = new FakeStringMatcher('Match');
+			const { fontFamilyAssets, fontFileById } = await computeFontFamiliesAssets({
+				resolvedFamilies: families,
+				bold: markdownBold,
+				defaults: {
+					fallbacks: ['foo'],
+					formats: ['woff2'],
+					optimizedFallbacks: true,
+					styles: ['normal'],
+					subsets: ['latin'],
+					weights: ['400'],
 				},
-				{
-					name: 'Bar',
-					nameWithHash: 'Bar-xxx',
-					cssVariable: '--custom',
-					provider: {
-						provider: createProvider('test'),
-					},
+				fontResolver: await PassthroughFontResolver.create({ families, hasher }),
+				logger,
+				stringMatcher,
+				getOrCreateFontFamilyAssets: ({ family, fontFamilyAssetsByUniqueKey }) => {
+					const assets = {
+						family,
+						collectedFontsForMetricsByUniqueKey: new Map(),
+						fonts: [],
+						preloads: [],
+					};
+					fontFamilyAssetsByUniqueKey.set(family.uniqueName, assets);
+					return assets;
 				},
-			]);
-			fixture.assertProvidersLength(1);
-			fixture.assertProvidersNames(['test-{"name":"test"}', 'test-{"name":"test"}']);
-		});
-
-		it('deduplicates providers with the same config', () => {
-			const fixture = createFixture([
-				{
-					name: 'Foo',
-					nameWithHash: 'Foo-xxx',
-					cssVariable: '--custom',
-					provider: {
-						provider: createProvider('test'),
-						config: { x: 'y' },
+				filterAndTransformFontFaces: () => [
+					{
+						src: [{ url: 'overriden' }],
 					},
+				],
+				collectFontAssetsFromFaces: () => {
+					return {
+						collectedFontsForMetricsByUniqueKey: new Map(),
+						fontFileById: new Map([['a', { url: 'a', init: undefined }]]),
+						preloads: [],
+					};
 				},
+			});
+			assert.deepStrictEqual(fontFamilyAssets, [
 				{
-					name: 'Bar',
-					nameWithHash: 'Bar-xxx',
-					cssVariable: '--custom',
-					provider: {
-						provider: createProvider('test'),
-						config: { x: 'y' },
-					},
-				},
-			]);
-			fixture.assertProvidersLength(1);
-			fixture.assertProvidersNames([
-				'test-{"name":"test","x":"y"}',
-				'test-{"name":"test","x":"y"}',
-			]);
-		});
-
-		it('does not deduplicate providers with different configs', () => {
-			const fixture = createFixture([
-				{
-					name: 'Foo',
-					nameWithHash: 'Foo-xxx',
-					cssVariable: '--custom',
-					provider: {
-						provider: createProvider('test'),
-						config: {
-							x: 'foo',
+					collectedFontsForMetricsByUniqueKey: new Map(),
+					family: families[0],
+					fonts: [
+						{
+							src: [{ url: 'overriden' }],
 						},
+					],
+					preloads: [],
+				},
+			]);
+			assert.deepStrictEqual(fontFileById, new Map([['a', { url: 'a', init: undefined }]]));
+			assert.deepStrictEqual(logger.logs, []);
+		});
+
+		it('warns if no fonts were found', async () => {
+			const families = [
+				{
+					name: 'Test',
+					uniqueName: 'Test-xxx',
+					cssVariable: '--test',
+					provider: {
+						name: 'local',
+						resolveFont: () => undefined,
+					},
+				},
+			];
+			const hasher = new FakeHasher('xxx');
+			const logger = new SpyLogger();
+			const stringMatcher = new FakeStringMatcher('Match');
+			const { fontFamilyAssets, fontFileById } = await computeFontFamiliesAssets({
+				resolvedFamilies: families,
+				bold: markdownBold,
+				defaults: {
+					fallbacks: ['foo'],
+					formats: ['woff2'],
+					optimizedFallbacks: true,
+					styles: ['normal'],
+					subsets: ['latin'],
+					weights: ['400'],
+				},
+				fontResolver: await PassthroughFontResolver.create({ families, hasher }),
+				logger,
+				stringMatcher,
+				getOrCreateFontFamilyAssets: ({ family, fontFamilyAssetsByUniqueKey }) => {
+					const assets = {
+						family,
+						collectedFontsForMetricsByUniqueKey: new Map(),
+						fonts: [],
+						preloads: [],
+					};
+					fontFamilyAssetsByUniqueKey.set(family.uniqueName, assets);
+					return assets;
+				},
+				filterAndTransformFontFaces: ({ fonts }) => fonts,
+				collectFontAssetsFromFaces: () => {
+					return {
+						collectedFontsForMetricsByUniqueKey: new Map(),
+						fontFileById: new Map(),
+						preloads: [],
+					};
+				},
+			});
+			assert.deepStrictEqual(fontFamilyAssets, [
+				{
+					collectedFontsForMetricsByUniqueKey: new Map(),
+					family: families[0],
+					fonts: [],
+					preloads: [],
+				},
+			]);
+			assert.deepStrictEqual(fontFileById, new Map());
+			assert.deepStrictEqual(logger.logs, [
+				{
+					label: 'assets',
+					message: 'No data found for font family **Test**. Review your configuration',
+					type: 'warn',
+				},
+			]);
+		});
+
+		it('warns if no fonts were found and there is a match', async () => {
+			const families = [
+				{
+					name: 'Test',
+					uniqueName: 'Test-xxx',
+					cssVariable: '--test',
+					provider: {
+						name: 'local',
+						resolveFont: () => undefined,
+						listFonts: () => ['a', 'b'],
+					},
+				},
+			];
+			const hasher = new FakeHasher('xxx');
+			const logger = new SpyLogger();
+			const stringMatcher = new FakeStringMatcher('a');
+			const { fontFamilyAssets, fontFileById } = await computeFontFamiliesAssets({
+				resolvedFamilies: families,
+				bold: markdownBold,
+				defaults: {
+					fallbacks: ['foo'],
+					formats: ['woff2'],
+					optimizedFallbacks: true,
+					styles: ['normal'],
+					subsets: ['latin'],
+					weights: ['400'],
+				},
+				fontResolver: await PassthroughFontResolver.create({ families, hasher }),
+				logger,
+				stringMatcher,
+				getOrCreateFontFamilyAssets: ({ family, fontFamilyAssetsByUniqueKey }) => {
+					const assets = {
+						family,
+						collectedFontsForMetricsByUniqueKey: new Map(),
+						fonts: [],
+						preloads: [],
+					};
+					fontFamilyAssetsByUniqueKey.set(family.uniqueName, assets);
+					return assets;
+				},
+				filterAndTransformFontFaces: ({ fonts }) => fonts,
+				collectFontAssetsFromFaces: () => {
+					return {
+						collectedFontsForMetricsByUniqueKey: new Map(),
+						fontFileById: new Map(),
+						preloads: [],
+					};
+				},
+			});
+			assert.deepStrictEqual(fontFamilyAssets, [
+				{
+					collectedFontsForMetricsByUniqueKey: new Map(),
+					family: families[0],
+					fonts: [],
+					preloads: [],
+				},
+			]);
+			assert.deepStrictEqual(fontFileById, new Map());
+			assert.deepStrictEqual(logger.logs, [
+				{
+					label: 'assets',
+					message: 'No data found for font family **Test**. Review your configuration',
+					type: 'warn',
+				},
+				{
+					label: 'assets',
+					message: '**Test** font family cannot be retrieved by the provider. Did you mean **a**?',
+					type: 'warn',
+				},
+			]);
+		});
+
+		it('works with several families', async () => {
+			const families = [
+				{
+					name: 'Test',
+					uniqueName: 'Test-xxx',
+					cssVariable: '--test',
+					provider: {
+						name: 'local',
+						resolveFont: () => ({
+							fonts: [
+								{
+									src: [{ url: 'https://example.com/foo.woff2' }],
+								},
+							],
+						}),
 					},
 				},
 				{
-					name: 'Bar',
-					nameWithHash: 'Bar-xxx',
-					cssVariable: '--custom',
+					name: 'Foo',
+					uniqueName: 'Foo-xxx',
+					cssVariable: '--foo',
 					provider: {
-						provider: createProvider('test'),
-						config: {
-							x: 'bar',
-						},
+						name: 'foo',
+						resolveFont: () => ({
+							fonts: [
+								{
+									src: [{ url: 'https://example.com/bar.woff2' }],
+								},
+							],
+						}),
 					},
 				},
+			];
+			const hasher = new FakeHasher('xxx');
+			const logger = new SpyLogger();
+			const stringMatcher = new FakeStringMatcher('Match');
+			const { fontFamilyAssets, fontFileById } = await computeFontFamiliesAssets({
+				resolvedFamilies: families,
+				bold: markdownBold,
+				defaults: {
+					fallbacks: ['foo'],
+					formats: ['woff2'],
+					optimizedFallbacks: true,
+					styles: ['normal'],
+					subsets: ['latin'],
+					weights: ['400'],
+				},
+				fontResolver: await PassthroughFontResolver.create({ families, hasher }),
+				logger,
+				stringMatcher,
+				getOrCreateFontFamilyAssets: ({ family, fontFamilyAssetsByUniqueKey }) => {
+					const assets = {
+						family,
+						collectedFontsForMetricsByUniqueKey: new Map(),
+						fonts: [],
+						preloads: [],
+					};
+					fontFamilyAssetsByUniqueKey.set(family.uniqueName, assets);
+					return assets;
+				},
+				filterAndTransformFontFaces: ({ fonts }) => fonts,
+				collectFontAssetsFromFaces: () => {
+					return {
+						collectedFontsForMetricsByUniqueKey: new Map(),
+						fontFileById: new Map([['a', { url: 'a', init: undefined }]]),
+						preloads: [
+							{ style: 'normal', subset: undefined, type: 'woff2', url: 'a', weight: '400' },
+						],
+					};
+				},
+			});
+			assert.deepStrictEqual(fontFamilyAssets, [
+				{
+					collectedFontsForMetricsByUniqueKey: new Map(),
+					family: families[0],
+					fonts: [
+						{
+							src: [{ url: 'https://example.com/foo.woff2' }],
+						},
+					],
+					preloads: [
+						{ style: 'normal', subset: undefined, type: 'woff2', url: 'a', weight: '400' },
+					],
+				},
+				{
+					collectedFontsForMetricsByUniqueKey: new Map(),
+					family: families[1],
+					fonts: [
+						{
+							src: [{ url: 'https://example.com/bar.woff2' }],
+						},
+					],
+					preloads: [
+						{ style: 'normal', subset: undefined, type: 'woff2', url: 'a', weight: '400' },
+					],
+				},
 			]);
-			fixture.assertProvidersLength(2);
-			fixture.assertProvidersNames([
-				'test-{"name":"test","x":"foo"}',
-				'test-{"name":"test","x":"bar"}',
-			]);
+			assert.deepStrictEqual(fontFileById, new Map([['a', { url: 'a', init: undefined }]]));
+			assert.deepStrictEqual(logger.logs, []);
 		});
 	});
 
-	describe('normalizeRemoteFontFaces()', () => {
+	it('getOrCreateFontFamilyAssets()', () => {
+		/** @type {Array<import('../../../../dist/assets/fonts/types.js').ResolvedFontFamily>} */
+		const families = [
+			{
+				name: 'Foo',
+				uniqueName: 'Foo-xxx',
+				cssVariable: '--foo',
+				provider: {
+					name: 'foo',
+					resolveFont: () => undefined,
+				},
+				weights: ['400'],
+			},
+			{
+				name: 'Foo',
+				uniqueName: 'Foo-yyy',
+				cssVariable: '--foo',
+				provider: {
+					name: 'foo',
+					resolveFont: () => undefined,
+				},
+				styles: ['italic'],
+			},
+			{
+				name: 'Bar',
+				uniqueName: 'Bar-xxx',
+				cssVariable: '--bar',
+				provider: {
+					name: 'bar',
+					resolveFont: () => undefined,
+				},
+			},
+		];
+
+		/** @type {import('../../../../dist/assets/fonts/types.js').FontFamilyAssetsByUniqueKey} */
+		const fontFamilyAssetsByUniqueKey = new Map();
+		const logger = new SpyLogger();
+
+		assert.deepStrictEqual(
+			getOrCreateFontFamilyAssets({
+				fontFamilyAssetsByUniqueKey,
+				family: families[0],
+				logger,
+				bold: markdownBold,
+			}),
+			{
+				collectedFontsForMetricsByUniqueKey: new Map(),
+				family: families[0],
+				fonts: [],
+				preloads: [],
+			},
+		);
+		assert.deepStrictEqual(
+			getOrCreateFontFamilyAssets({
+				fontFamilyAssetsByUniqueKey,
+				family: families[1],
+				logger,
+				bold: markdownBold,
+			}),
+			{
+				collectedFontsForMetricsByUniqueKey: new Map(),
+				family: families[0],
+				fonts: [],
+				preloads: [],
+			},
+		);
+		assert.deepStrictEqual(
+			getOrCreateFontFamilyAssets({
+				fontFamilyAssetsByUniqueKey,
+				family: families[2],
+				logger,
+				bold: markdownBold,
+			}),
+			{
+				collectedFontsForMetricsByUniqueKey: new Map(),
+				family: families[2],
+				fonts: [],
+				preloads: [],
+			},
+		);
+		assert.equal(fontFamilyAssetsByUniqueKey.size, 2);
+	});
+
+	describe('filterAndTransformFontFaces()', () => {
 		it('filters font data based on priority', () => {
-			const { urlProxy } = createSpyUrlProxy();
 			assert.equal(
-				normalizeRemoteFontFaces({
+				filterAndTransformFontFaces({
+					family: { cssVariable: '--foo' },
 					fonts: [],
-					urlProxy,
-					fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+					fontFileIdGenerator: {
+						generate: () => '',
+					},
+					fontTypeExtractor: {
+						extract: () => 'woff2',
+					},
+					urlResolver: {
+						resolve: () => '',
+						cspResources: [],
+					},
 				}).length,
 				0,
 			);
 			assert.equal(
-				normalizeRemoteFontFaces({
+				filterAndTransformFontFaces({
+					family: { cssVariable: '--foo' },
 					fonts: [
 						{
 							src: [],
@@ -379,283 +593,819 @@ describe('fonts core', () => {
 							meta: { priority: 2 },
 						},
 					],
-					urlProxy,
-					fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
+					fontFileIdGenerator: {
+						generate: () => '',
+					},
+					fontTypeExtractor: {
+						extract: () => 'woff2',
+					},
+					urlResolver: {
+						resolve: () => '',
+						cspResources: [],
+					},
 				}).length,
 				5,
 			);
 		});
 
-		it('proxies URLs correctly', () => {
-			const { collected, urlProxy } = createSpyUrlProxy();
-			normalizeRemoteFontFaces({
-				urlProxy,
-				fonts: [
-					{
-						weight: '400',
-						style: 'normal',
-						src: [
-							{ url: '/', format: 'woff2' },
-							{ url: '/ignored', format: 'woff2' },
-						],
-					},
-					{
-						weight: '500',
-						style: 'normal',
-						src: [{ url: '/2', format: 'woff2' }],
-					},
-				],
-				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
-			});
-			assert.deepStrictEqual(collected, [
-				{
-					url: '/',
-					type: 'woff2',
-					collectPreload: true,
-					data: { weight: '400', style: 'normal', subset: undefined },
-					init: null,
-				},
-				{
-					url: '/ignored',
-					type: 'woff2',
-					collectPreload: false,
-					data: { weight: '400', style: 'normal', subset: undefined },
-					init: null,
-				},
-				{
-					url: '/2',
-					type: 'woff2',
-					collectPreload: true,
-					data: { weight: '500', style: 'normal', subset: undefined },
-					init: null,
-				},
-			]);
-		});
-
-		it('collects preloads correctly', () => {
-			const { collected, urlProxy } = createSpyUrlProxy();
-			normalizeRemoteFontFaces({
-				urlProxy,
-				fonts: [
-					{
-						weight: '400',
-						style: 'normal',
-						src: [
-							{ name: 'Arial' },
-							{ url: '/', format: 'woff2' },
-							{ url: '/ignored', format: 'woff2' },
-						],
-					},
-					{
-						weight: '500',
-						style: 'normal',
-						src: [
-							{ url: '/2', format: 'woff2' },
-							{ name: 'Foo' },
-							{ url: '/also-ignored', format: 'woff2' },
-						],
-					},
-				],
-				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
-			});
-			assert.deepStrictEqual(collected, [
-				{
-					url: '/',
-					type: 'woff2',
-					collectPreload: true,
-					data: { weight: '400', style: 'normal', subset: undefined },
-					init: null,
-				},
-				{
-					url: '/ignored',
-					type: 'woff2',
-					collectPreload: false,
-					data: { weight: '400', style: 'normal', subset: undefined },
-					init: null,
-				},
-				{
-					url: '/2',
-					type: 'woff2',
-					collectPreload: true,
-					data: { weight: '500', style: 'normal', subset: undefined },
-					init: null,
-				},
-				{
-					url: '/also-ignored',
-					type: 'woff2',
-					collectPreload: false,
-					data: { weight: '500', style: 'normal', subset: undefined },
-					init: null,
-				},
-			]);
-		});
-
 		it('computes type and format correctly', () => {
-			const { collected, urlProxy } = createSpyUrlProxy();
-			const fonts = normalizeRemoteFontFaces({
-				urlProxy,
-				fonts: [
+			assert.deepStrictEqual(
+				filterAndTransformFontFaces({
+					family: { cssVariable: '--foo' },
+					fonts: [
+						{
+							weight: '400',
+							style: 'normal',
+							src: [{ name: 'Arial' }, { url: '/', format: 'woff2' }, { url: '/ignored.eot' }],
+						},
+						{
+							weight: '500',
+							style: 'normal',
+							src: [{ url: '/2', format: 'woff2' }, { name: 'Foo' }, { url: '/also-ignored.ttf' }],
+						},
+					],
+					fontFileIdGenerator: {
+						generate: ({ originalUrl }) => originalUrl,
+					},
+					fontTypeExtractor: {
+						extract: (url) => /** @type {any} */ (url.split('.').at(-1)) ?? 'woff',
+					},
+					urlResolver: {
+						resolve: (url) => 'resolved:' + url,
+						cspResources: [],
+					},
+				}),
+				[
 					{
-						weight: '400',
+						src: [
+							{
+								name: 'Arial',
+							},
+							{
+								format: 'woff2',
+								originalURL: '/',
+								url: 'resolved:/',
+								tech: undefined,
+							},
+							{
+								format: 'embedded-opentype',
+								originalURL: '/ignored.eot',
+								url: 'resolved:/ignored.eot',
+								tech: undefined,
+							},
+						],
 						style: 'normal',
-						src: [{ name: 'Arial' }, { url: '/', format: 'woff2' }, { url: '/ignored.ttf' }],
+						weight: '400',
 					},
 					{
-						weight: '500',
+						src: [
+							{
+								format: 'woff2',
+								originalURL: '/2',
+								url: 'resolved:/2',
+								tech: undefined,
+							},
+							{
+								name: 'Foo',
+							},
+							{
+								format: 'truetype',
+								originalURL: '/also-ignored.ttf',
+								url: 'resolved:/also-ignored.ttf',
+								tech: undefined,
+							},
+						],
 						style: 'normal',
-						src: [{ url: '/2', format: 'woff2' }, { name: 'Foo' }, { url: '/also-ignored.ttf' }],
+						weight: '500',
 					},
 				],
-				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
-			});
-			assert.deepStrictEqual(fonts, [
-				{
-					src: [
-						{
-							name: 'Arial',
-						},
-						{
-							format: 'woff2',
-							originalURL: '/',
-							url: '/',
-						},
-						{
-							originalURL: '/ignored.ttf',
-							url: '/ignored.ttf',
-						},
-					],
-					style: 'normal',
-					weight: '400',
-				},
-				{
-					src: [
-						{
-							format: 'woff2',
-							originalURL: '/2',
-							url: '/2',
-						},
-						{
-							name: 'Foo',
-						},
-						{
-							originalURL: '/also-ignored.ttf',
-							url: '/also-ignored.ttf',
-						},
-					],
-					style: 'normal',
-					weight: '500',
-				},
-			]);
-			assert.deepStrictEqual(collected, [
-				{
-					url: '/',
-					type: 'woff2',
-					collectPreload: true,
-					data: { weight: '400', style: 'normal', subset: undefined },
-					init: null,
-				},
-				{
-					url: '/ignored.ttf',
-					type: 'ttf',
-					collectPreload: false,
-					data: { weight: '400', style: 'normal', subset: undefined },
-					init: null,
-				},
-				{
-					url: '/2',
-					type: 'woff2',
-					collectPreload: true,
-					data: { weight: '500', style: 'normal', subset: undefined },
-					init: null,
-				},
-				{
-					url: '/also-ignored.ttf',
-					type: 'ttf',
-					collectPreload: false,
-					data: { weight: '500', style: 'normal', subset: undefined },
-					init: null,
-				},
-			]);
+			);
 		});
 
 		it('turns relative protocols into https', () => {
-			const { collected, urlProxy } = createSpyUrlProxy();
-			const fonts = normalizeRemoteFontFaces({
-				urlProxy,
-				fonts: [
-					{
-						weight: '400',
-						style: 'normal',
-						src: [{ url: '//example.com/font.woff2' }, { url: 'http://example.com/font.woff' }],
-					},
-				],
-				fontTypeExtractor: createFontTypeExtractor({ errorHandler: simpleErrorHandler }),
-			});
-
-			assert.deepStrictEqual(fonts, [
-				{
-					src: [
+			assert.deepStrictEqual(
+				filterAndTransformFontFaces({
+					family: { cssVariable: '--foo' },
+					fonts: [
 						{
-							originalURL: 'https://example.com/font.woff2',
-							url: 'https://example.com/font.woff2',
-						},
-						{
-							originalURL: 'http://example.com/font.woff',
-							url: 'http://example.com/font.woff',
+							weight: '400',
+							style: 'normal',
+							src: [{ url: '//example.com/font.woff2' }, { url: 'http://example.com/font.woff' }],
 						},
 					],
-					style: 'normal',
-					weight: '400',
-				},
-			]);
-			assert.deepStrictEqual(collected, [
+					fontFileIdGenerator: {
+						generate: ({ originalUrl }) => originalUrl,
+					},
+					fontTypeExtractor: {
+						extract: (url) => /** @type {any} */ (url.split('.').at(-1)) ?? 'woff',
+					},
+					urlResolver: {
+						resolve: (url) => 'resolved:' + url,
+						cspResources: [],
+					},
+				}),
+				[
+					{
+						src: [
+							{
+								format: 'woff2',
+								originalURL: 'https://example.com/font.woff2',
+								url: 'resolved:https://example.com/font.woff2',
+								tech: undefined,
+							},
+							{
+								format: 'woff',
+								originalURL: 'http://example.com/font.woff',
+								url: 'resolved:http://example.com/font.woff',
+								tech: undefined,
+							},
+						],
+						style: 'normal',
+						weight: '400',
+					},
+				],
+			);
+		});
+	});
+
+	describe('collectFontAssetsFromFaces()', () => {
+		it('saves font files ids', () => {
+			const hasher = new FakeHasher('xxx');
+			assert.deepStrictEqual(
+				collectFontAssetsFromFaces({
+					collectedFontsIds: new Set(),
+					hasher,
+					fontFileIdGenerator: {
+						generate: ({ originalUrl }) => originalUrl,
+					},
+					fontFilesIds: new Set(['skip']),
+					family: { cssVariable: '--foo', fallbacks: undefined },
+					fonts: [
+						{
+							src: [
+								{
+									format: 'woff2',
+									originalURL: 'https://example.com/font.woff2',
+									url: 'resolved:https://example.com/font.woff2',
+									tech: undefined,
+								},
+								{
+									format: 'woff2',
+									originalURL: 'skip',
+									url: 'resolved:https://example.com/font.woff2',
+									tech: undefined,
+								},
+								{
+									name: 'whatever',
+								},
+								{
+									format: 'woff',
+									originalURL: 'http://example.com/font.woff',
+									url: 'resolved:http://example.com/font.woff',
+									tech: undefined,
+								},
+							],
+							style: 'normal',
+							weight: '400',
+						},
+					],
+					defaults: {
+						fallbacks: [],
+					},
+				}),
 				{
-					url: 'https://example.com/font.woff2',
-					collectPreload: true,
-					type: 'woff2',
-					data: { weight: '400', style: 'normal', subset: undefined },
-					init: null,
+					collectedFontsForMetricsByUniqueKey: new Map(),
+					fontFileById: new Map([
+						[
+							'http://example.com/font.woff',
+							{
+								init: undefined,
+								url: 'http://example.com/font.woff',
+							},
+						],
+						[
+							'https://example.com/font.woff2',
+							{
+								init: undefined,
+								url: 'https://example.com/font.woff2',
+							},
+						],
+					]),
+					preloads: [
+						{
+							style: 'normal',
+							subset: undefined,
+							type: 'woff2',
+							url: 'resolved:https://example.com/font.woff2',
+							weight: '400',
+						},
+					],
+				},
+			);
+		});
+
+		it('preloads the first remote source of each font', () => {
+			const hasher = new FakeHasher('xxx');
+			assert.deepStrictEqual(
+				collectFontAssetsFromFaces({
+					collectedFontsIds: new Set(),
+					hasher,
+					fontFileIdGenerator: {
+						generate: ({ originalUrl }) => originalUrl,
+					},
+					fontFilesIds: new Set(['skip']),
+					family: { cssVariable: '--foo', fallbacks: undefined },
+					fonts: [
+						{
+							src: [
+								{
+									format: 'woff2',
+									originalURL: 'https://example.com/font.woff2',
+									url: 'resolved:https://example.com/font.woff2',
+									tech: undefined,
+								},
+								{
+									format: 'woff',
+									originalURL: 'http://example.com/font.woff',
+									url: 'resolved:http://example.com/font.woff',
+									tech: undefined,
+								},
+							],
+							style: 'normal',
+							weight: '400',
+						},
+						{
+							src: [
+								{
+									format: 'woff',
+									originalURL: 'https://example2.com/font.woff',
+									url: 'resolved:https://example2.com/font.woff',
+									tech: undefined,
+								},
+								{
+									format: 'woff2',
+									originalURL: 'https://example2.com/font.woff2',
+									url: 'resolved:https://example2.com/font.woff2',
+									tech: undefined,
+								},
+							],
+							style: 'normal',
+							weight: '400',
+						},
+					],
+					defaults: {
+						fallbacks: [],
+					},
+				}),
+				{
+					collectedFontsForMetricsByUniqueKey: new Map(),
+					fontFileById: new Map([
+						[
+							'http://example.com/font.woff',
+							{
+								init: undefined,
+								url: 'http://example.com/font.woff',
+							},
+						],
+						[
+							'https://example.com/font.woff2',
+							{
+								init: undefined,
+								url: 'https://example.com/font.woff2',
+							},
+						],
+						[
+							'https://example2.com/font.woff',
+							{
+								init: undefined,
+								url: 'https://example2.com/font.woff',
+							},
+						],
+						[
+							'https://example2.com/font.woff2',
+							{
+								init: undefined,
+								url: 'https://example2.com/font.woff2',
+							},
+						],
+					]),
+					preloads: [
+						{
+							style: 'normal',
+							subset: undefined,
+							type: 'woff2',
+							url: 'resolved:https://example.com/font.woff2',
+							weight: '400',
+						},
+						{
+							style: 'normal',
+							subset: undefined,
+							type: 'woff',
+							url: 'resolved:https://example2.com/font.woff',
+							weight: '400',
+						},
+					],
+				},
+			);
+		});
+
+		it('saves fonts for fallbacks', () => {
+			const hasher = new FakeHasher('xxx');
+			assert.deepStrictEqual(
+				collectFontAssetsFromFaces({
+					collectedFontsIds: new Set(),
+					hasher,
+					fontFileIdGenerator: {
+						generate: ({ originalUrl }) => originalUrl,
+					},
+					fontFilesIds: new Set(),
+					family: { cssVariable: '--foo', fallbacks: undefined },
+					fonts: [
+						{
+							src: [
+								{
+									format: 'woff2',
+									originalURL: 'https://example.com/font.woff2',
+									url: 'resolved:https://example.com/font.woff2',
+									tech: undefined,
+								},
+							],
+							style: 'normal',
+							weight: '400',
+						},
+					],
+					defaults: {
+						fallbacks: [],
+					},
+				}).collectedFontsForMetricsByUniqueKey,
+				new Map(),
+			);
+
+			assert.deepStrictEqual(
+				collectFontAssetsFromFaces({
+					collectedFontsIds: new Set(),
+					hasher,
+					fontFileIdGenerator: {
+						generate: ({ originalUrl }) => originalUrl,
+					},
+					fontFilesIds: new Set(),
+					family: { cssVariable: '--foo', fallbacks: [] },
+					fonts: [
+						{
+							src: [
+								{
+									format: 'woff2',
+									originalURL: 'https://example.com/font.woff2',
+									url: 'resolved:https://example.com/font.woff2',
+									tech: undefined,
+								},
+							],
+							style: 'normal',
+							weight: '400',
+						},
+					],
+					defaults: {
+						fallbacks: [],
+					},
+				}).collectedFontsForMetricsByUniqueKey,
+				new Map(),
+			);
+
+			assert.deepStrictEqual(
+				collectFontAssetsFromFaces({
+					collectedFontsIds: new Set(['xxx']),
+					hasher,
+					fontFileIdGenerator: {
+						generate: ({ originalUrl }) => originalUrl,
+					},
+					fontFilesIds: new Set(),
+					family: { cssVariable: '--foo', fallbacks: ['abc'] },
+					fonts: [
+						{
+							src: [
+								{
+									format: 'woff2',
+									originalURL: 'https://example.com/font.woff2',
+									url: 'resolved:https://example.com/font.woff2',
+									tech: undefined,
+								},
+							],
+							style: 'normal',
+							weight: '400',
+						},
+					],
+					defaults: {
+						fallbacks: [],
+					},
+				}).collectedFontsForMetricsByUniqueKey,
+				new Map(),
+			);
+
+			assert.deepStrictEqual(
+				collectFontAssetsFromFaces({
+					collectedFontsIds: new Set(),
+					hasher,
+					fontFileIdGenerator: {
+						generate: ({ originalUrl }) => originalUrl,
+					},
+					fontFilesIds: new Set(),
+					family: { cssVariable: '--foo', fallbacks: ['abc'] },
+					fonts: [
+						{
+							src: [
+								{
+									format: 'woff2',
+									originalURL: 'https://example.com/font.woff2',
+									url: 'resolved:https://example.com/font.woff2',
+									tech: undefined,
+								},
+							],
+							style: 'normal',
+							weight: '400',
+						},
+					],
+					defaults: {
+						fallbacks: [],
+					},
+				}).collectedFontsForMetricsByUniqueKey,
+				new Map([
+					[
+						'xxx',
+						{
+							data: {
+								meta: {
+									subset: undefined,
+								},
+								style: 'normal',
+								weight: '400',
+							},
+							id: 'https://example.com/font.woff2',
+							init: undefined,
+							url: 'https://example.com/font.woff2',
+						},
+					],
+				]),
+			);
+
+			assert.deepStrictEqual(
+				collectFontAssetsFromFaces({
+					collectedFontsIds: new Set(),
+					hasher,
+					fontFileIdGenerator: {
+						generate: ({ originalUrl }) => originalUrl,
+					},
+					fontFilesIds: new Set(),
+					family: { cssVariable: '--foo', fallbacks: undefined },
+					fonts: [
+						{
+							src: [
+								{
+									format: 'woff2',
+									originalURL: 'https://example.com/font.woff2',
+									url: 'resolved:https://example.com/font.woff2',
+									tech: undefined,
+								},
+							],
+							style: 'normal',
+							weight: '400',
+						},
+					],
+					defaults: {
+						fallbacks: ['abc'],
+					},
+				}).collectedFontsForMetricsByUniqueKey,
+				new Map([
+					[
+						'xxx',
+						{
+							data: {
+								meta: {
+									subset: undefined,
+								},
+								style: 'normal',
+								weight: '400',
+							},
+							id: 'https://example.com/font.woff2',
+							init: undefined,
+							url: 'https://example.com/font.woff2',
+						},
+					],
+				]),
+			);
+		});
+	});
+
+	it('collectFontData()', () => {
+		assert.deepStrictEqual(
+			collectFontData([
+				{
+					family: { cssVariable: '--foo' },
+					fonts: [
+						{
+							weight: '400',
+							style: 'normal',
+							src: [{ url: 'a.woff2', format: 'woff2' }, { name: 'b' }],
+						},
+						{
+							weight: '500',
+							style: 'italic',
+							src: [{ url: 'c.woff2', format: 'woff2' }],
+						},
+					],
 				},
 				{
-					url: 'http://example.com/font.woff',
-					collectPreload: false,
-					type: 'woff',
-					data: { weight: '400', style: 'normal', subset: undefined },
-					init: null,
+					family: { cssVariable: '--bar' },
+					fonts: [
+						{
+							weight: '400',
+							style: 'normal',
+							src: [{ url: 'd.woff2', format: 'woff2' }],
+						},
+					],
 				},
-			]);
+			]),
+			{
+				'--foo': [
+					{
+						src: [
+							{
+								format: 'woff2',
+								tech: undefined,
+								url: 'a.woff2',
+							},
+						],
+						style: 'normal',
+						weight: '400',
+					},
+					{
+						src: [
+							{
+								format: 'woff2',
+								tech: undefined,
+								url: 'c.woff2',
+							},
+						],
+						style: 'italic',
+						weight: '500',
+					},
+				],
+				'--bar': [
+					{
+						src: [
+							{
+								format: 'woff2',
+								tech: undefined,
+								url: 'd.woff2',
+							},
+						],
+						style: 'normal',
+						weight: '400',
+					},
+				],
+			},
+		);
+	});
+
+	describe('collectComponentData()', () => {
+		it('generates css for each font face', async () => {
+			assert.deepStrictEqual(
+				await collectComponentData({
+					defaults: {
+						fallbacks: [],
+						optimizedFallbacks: false,
+					},
+					fontFamilyAssets: [
+						{
+							family: {
+								name: 'Test',
+								uniqueName: 'Test-xxx',
+								cssVariable: '--test',
+								provider: { name: 'test', resolveFont: () => undefined },
+							},
+							collectedFontsForMetricsByUniqueKey: new Map(),
+							fonts: [
+								{
+									weight: '400',
+									src: [{ name: 'Test' }],
+								},
+								{
+									weight: '500',
+									src: [{ name: 'Test' }],
+								},
+							],
+							preloads: [
+								{ style: 'normal', subset: undefined, type: 'woff2', url: 'a', weight: undefined },
+							],
+						},
+					],
+					optimizeFallbacks: async () => null,
+					cssRenderer: {
+						generateFontFace: (family, properties) => JSON.stringify({ family, properties }),
+						generateCssVariable: (key, values) => `${key}:${values.join(',')}`,
+					},
+				}),
+				new Map([
+					[
+						'--test',
+						{
+							css: '{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"400"}}{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"500"}}--test:Test-xxx',
+							preloads: [
+								{ style: 'normal', subset: undefined, type: 'woff2', url: 'a', weight: undefined },
+							],
+						},
+					],
+				]),
+			);
+		});
+
+		it('skips fallbacks if needed', async () => {
+			assert.deepStrictEqual(
+				await collectComponentData({
+					defaults: {
+						fallbacks: ['foo'],
+						optimizedFallbacks: false,
+					},
+					fontFamilyAssets: [
+						{
+							family: {
+								name: 'Test',
+								uniqueName: 'Test-xxx',
+								cssVariable: '--test',
+								provider: { name: 'test', resolveFont: () => undefined },
+							},
+							collectedFontsForMetricsByUniqueKey: new Map(),
+							fonts: [
+								{
+									weight: '400',
+									src: [{ name: 'Test' }],
+								},
+								{
+									weight: '500',
+									src: [{ name: 'Test' }],
+								},
+							],
+							preloads: [
+								{ style: 'normal', subset: undefined, type: 'woff2', url: 'a', weight: undefined },
+							],
+						},
+					],
+					optimizeFallbacks: async () => null,
+					cssRenderer: {
+						generateFontFace: (family, properties) => JSON.stringify({ family, properties }),
+						generateCssVariable: (key, values) => `${key}:${values.join(',')}`,
+					},
+				}),
+				new Map([
+					[
+						'--test',
+						{
+							css: '{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"400"}}{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"500"}}--test:Test-xxx,foo',
+							preloads: [
+								{ style: 'normal', subset: undefined, type: 'woff2', url: 'a', weight: undefined },
+							],
+						},
+					],
+				]),
+			);
+
+			assert.deepStrictEqual(
+				await collectComponentData({
+					defaults: {
+						fallbacks: ['foo'],
+						optimizedFallbacks: true,
+					},
+					fontFamilyAssets: [
+						{
+							family: {
+								name: 'Test',
+								uniqueName: 'Test-xxx',
+								cssVariable: '--test',
+								provider: { name: 'test', resolveFont: () => undefined },
+							},
+							collectedFontsForMetricsByUniqueKey: new Map(),
+							fonts: [
+								{
+									weight: '400',
+									src: [{ name: 'Test' }],
+								},
+								{
+									weight: '500',
+									src: [{ name: 'Test' }],
+								},
+							],
+							preloads: [
+								{ style: 'normal', subset: undefined, type: 'woff2', url: 'a', weight: undefined },
+							],
+						},
+					],
+					optimizeFallbacks: async () => null,
+					cssRenderer: {
+						generateFontFace: (family, properties) => JSON.stringify({ family, properties }),
+						generateCssVariable: (key, values) => `${key}:${values.join(',')}`,
+					},
+				}),
+				new Map([
+					[
+						'--test',
+						{
+							css: '{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"400"}}{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"500"}}--test:Test-xxx,foo',
+							preloads: [
+								{ style: 'normal', subset: undefined, type: 'woff2', url: 'a', weight: undefined },
+							],
+						},
+					],
+				]),
+			);
+		});
+
+		it('handles fallbacks', async () => {
+			assert.deepStrictEqual(
+				await collectComponentData({
+					defaults: {
+						fallbacks: ['foo'],
+						optimizedFallbacks: true,
+					},
+					fontFamilyAssets: [
+						{
+							family: {
+								name: 'Test',
+								uniqueName: 'Test-xxx',
+								cssVariable: '--test',
+								provider: { name: 'test', resolveFont: () => undefined },
+							},
+							collectedFontsForMetricsByUniqueKey: new Map(),
+							fonts: [
+								{
+									weight: '400',
+									src: [{ name: 'Test' }],
+								},
+								{
+									weight: '500',
+									src: [{ name: 'Test' }],
+								},
+							],
+							preloads: [
+								{
+									style: 'normal',
+									subset: undefined,
+									type: 'woff2',
+									url: 'a',
+									weight: undefined,
+								},
+							],
+						},
+					],
+					optimizeFallbacks: async () => ({ css: 'FALLBACK', fallbacks: ['bar'] }),
+					cssRenderer: {
+						generateFontFace: (family, properties) => JSON.stringify({ family, properties }),
+						generateCssVariable: (key, values) => `${key}:${values.join(',')}`,
+					},
+				}),
+				new Map([
+					[
+						'--test',
+						{
+							css: '{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"400"}}{"family":"Test-xxx","properties":{"src":"local(\\"Test\\")","font-display":"swap","font-weight":"500"}}FALLBACK--test:Test-xxx,bar',
+							preloads: [
+								{
+									style: 'normal',
+									subset: undefined,
+									type: 'woff2',
+									url: 'a',
+									weight: undefined,
+								},
+							],
+						},
+					],
+				]),
+			);
 		});
 	});
 
 	describe('optimizeFallbacks()', () => {
 		const family = {
 			name: 'Test',
-			nameWithHash: 'Test-xxx',
+			uniqueName: 'Test-xxx',
 		};
-		const systemFallbacksProvider = createSystemFallbacksProvider();
-		const fontMetricsResolver = fakeFontMetricsResolver;
+		/** @type {import('../../../../dist/assets/fonts/definitions.js').SystemFallbacksProvider} */
+		const systemFallbacksProvider = {
+			getLocalFonts: () => ['Arial'],
+			getMetricsForLocalFont: () => ({
+				ascent: 1854,
+				descent: -434,
+				lineGap: 67,
+				unitsPerEm: 2048,
+				xWidthAvg: 913,
+			}),
+		};
+		const fontMetricsResolver = new FakeFontMetricsResolver();
 
 		it('skips if there are no fallbacks', async () => {
 			assert.equal(
 				await optimizeFallbacks({
 					family,
 					fallbacks: [],
-					collectedFonts: [{ url: '', hash: '', data: {}, init: null }],
-					enabled: true,
-					systemFallbacksProvider,
-					fontMetricsResolver,
-				}),
-				null,
-			);
-		});
-
-		it('skips if it is not enabled', async () => {
-			assert.equal(
-				await optimizeFallbacks({
-					family,
-					fallbacks: ['foo'],
-					collectedFonts: [{ url: '', hash: '', data: {}, init: null }],
-					enabled: false,
+					collectedFonts: [{ url: '', id: '', data: {}, init: undefined }],
 					systemFallbacksProvider,
 					fontMetricsResolver,
 				}),
@@ -669,7 +1419,6 @@ describe('fonts core', () => {
 					family,
 					fallbacks: ['foo'],
 					collectedFonts: [],
-					enabled: true,
 					systemFallbacksProvider,
 					fontMetricsResolver,
 				}),
@@ -682,8 +1431,7 @@ describe('fonts core', () => {
 				await optimizeFallbacks({
 					family,
 					fallbacks: ['foo'],
-					collectedFonts: [{ url: '', hash: '', data: {}, init: null }],
-					enabled: true,
+					collectedFonts: [{ url: '', id: '', data: {}, init: undefined }],
 					systemFallbacksProvider,
 					fontMetricsResolver,
 				}),
@@ -696,9 +1444,11 @@ describe('fonts core', () => {
 				await optimizeFallbacks({
 					family,
 					fallbacks: ['cursive'],
-					collectedFonts: [{ url: '', hash: '', data: {}, init: null }],
-					enabled: true,
-					systemFallbacksProvider,
+					collectedFonts: [{ url: '', id: '', data: {}, init: undefined }],
+					systemFallbacksProvider: {
+						getLocalFonts: () => [],
+						getMetricsForLocalFont: systemFallbacksProvider.getMetricsForLocalFont,
+					},
 					fontMetricsResolver,
 				}),
 				null,
@@ -710,11 +1460,10 @@ describe('fonts core', () => {
 				await optimizeFallbacks({
 					family: {
 						name: 'Arial',
-						nameWithHash: 'Arial-xxx',
+						uniqueName: 'Arial-xxx',
 					},
 					fallbacks: ['sans-serif'],
-					collectedFonts: [{ url: '', hash: '', data: {}, init: null }],
-					enabled: true,
+					collectedFonts: [{ url: '', id: '', data: {}, init: undefined }],
 					systemFallbacksProvider,
 					fontMetricsResolver,
 				}),
@@ -726,8 +1475,7 @@ describe('fonts core', () => {
 			const result = await optimizeFallbacks({
 				family,
 				fallbacks: ['foo', 'sans-serif'],
-				collectedFonts: [{ url: '', hash: '', data: {}, init: null }],
-				enabled: true,
+				collectedFonts: [{ url: '', id: '', data: {}, init: undefined }],
 				systemFallbacksProvider,
 				fontMetricsResolver,
 			});
@@ -739,10 +1487,9 @@ describe('fonts core', () => {
 				family,
 				fallbacks: ['foo', 'sans-serif'],
 				collectedFonts: [
-					{ url: '', hash: '', data: { weight: '400' }, init: null },
-					{ url: '', hash: '', data: { weight: '500' }, init: null },
+					{ url: '', id: '', data: { weight: '400' }, init: undefined },
+					{ url: '', id: '', data: { weight: '500' }, init: undefined },
 				],
-				enabled: true,
 				systemFallbacksProvider,
 				fontMetricsResolver,
 			});
@@ -796,216 +1543,205 @@ describe('fonts core', () => {
 		});
 	});
 
-	describe('dedupeFontFaces()', () => {
-		it('returns current if incoming is empty', () => {
+	describe('filterPreloads()', () => {
+		it('returns null if it should not preload', () => {
+			assert.equal(filterPreloads([], false), null);
+		});
+
+		it('returns everything if it should preload all', () => {
 			assert.deepStrictEqual(
-				dedupeFontFaces(
+				filterPreloads(
 					[
 						{
-							src: [],
-							display: 'swap',
+							style: 'normal',
+							subset: undefined,
+							type: 'woff2',
+							url: 'foo',
+							weight: undefined,
+						},
+						{
+							style: 'italic',
+							subset: 'latin',
+							type: 'otf',
+							url: 'bar',
+							weight: undefined,
 						},
 					],
-					[],
+					true,
 				),
 				[
 					{
-						src: [],
-						display: 'swap',
+						style: 'normal',
+						subset: undefined,
+						type: 'woff2',
+						url: 'foo',
+						weight: undefined,
+					},
+					{
+						style: 'italic',
+						subset: 'latin',
+						type: 'otf',
+						url: 'bar',
+						weight: undefined,
 					},
 				],
 			);
 		});
 
-		it('returns incoming if current is empty', () => {
+		it('returns filtered data', () => {
 			assert.deepStrictEqual(
-				dedupeFontFaces(
-					[],
+				filterPreloads(
 					[
 						{
-							src: [],
-							display: 'swap',
+							style: 'normal',
+							subset: undefined,
+							type: 'woff2',
+							url: 'foo',
+							weight: undefined,
+						},
+						{
+							style: 'italic',
+							subset: 'latin',
+							type: 'otf',
+							url: 'bar',
+							weight: undefined,
+						},
+					],
+					[
+						{
+							style: 'normal',
 						},
 					],
 				),
 				[
 					{
-						src: [],
-						display: 'swap',
+						style: 'normal',
+						subset: undefined,
+						type: 'woff2',
+						url: 'foo',
+						weight: undefined,
 					},
 				],
 			);
 		});
 
-		it('appends incoming if there is no match with current', () => {
+		it('returns variable weight', () => {
 			assert.deepStrictEqual(
-				dedupeFontFaces(
+				filterPreloads(
 					[
 						{
-							src: [
-								{
-									name: 'Foo',
-								},
-							],
-							weight: 400,
+							style: 'normal',
+							subset: undefined,
+							type: 'woff2',
+							url: 'foo',
+							weight: '500 900',
+						},
+						{
+							style: 'italic',
+							subset: 'latin',
+							type: 'otf',
+							url: 'bar',
+							weight: '100 900',
 						},
 					],
 					[
 						{
-							src: [
-								{
-									name: 'Bar',
-								},
-							],
-							weight: 500,
+							weight: '400',
 						},
 					],
 				),
 				[
 					{
-						src: [
-							{
-								name: 'Foo',
-							},
-						],
-						weight: 400,
+						style: 'italic',
+						subset: 'latin',
+						type: 'otf',
+						url: 'bar',
+						weight: '100 900',
 					},
+				],
+			);
+
+			assert.deepStrictEqual(
+				filterPreloads(
+					[
+						{
+							style: 'normal',
+							subset: undefined,
+							type: 'woff2',
+							url: 'foo',
+							weight: '500 900',
+						},
+						{
+							style: 'italic',
+							subset: 'latin',
+							type: 'otf',
+							url: 'bar',
+							weight: '100 900',
+						},
+					],
+					[
+						{
+							weight: ' 100 900',
+						},
+					],
+				),
+				[
 					{
-						src: [
-							{
-								name: 'Bar',
-							},
-						],
-						weight: 500,
+						style: 'italic',
+						subset: 'latin',
+						type: 'otf',
+						url: 'bar',
+						weight: '100 900',
 					},
 				],
 			);
 		});
+	});
 
-		it('merges incoming sources into current if there is a match', () => {
-			assert.deepStrictEqual(
-				dedupeFontFaces(
-					[
-						{
-							src: [
-								{
-									name: 'Foo',
-								},
-							],
-							weight: 300,
-						},
-					],
-					[
-						{
-							src: [
-								{
-									name: 'Bar',
-								},
-							],
-							weight: 300,
-						},
-					],
-				),
-				[
-					{
-						src: [
-							{
-								name: 'Foo',
-							},
-							{
-								name: 'Bar',
-							},
-						],
-						weight: 300,
+	describe('createGetFontBuffer()', () => {
+		it('throws if there is are no bufferImports', async () => {
+			assert.rejects(() => createGetFontBuffer({ bufferImports: undefined })('foo'));
+		});
+
+		it('throws if hash cannot be found in buffer imports', async () => {
+			assert.rejects(() =>
+				createGetFontBuffer({
+					bufferImports: {
+						bar: async () => ({ default: Buffer.alloc(4) }),
 					},
-				],
+				})('foo'),
 			);
 		});
 
-		it('dedupes local sources', () => {
-			assert.deepStrictEqual(
-				dedupeFontFaces(
-					[
-						{
-							src: [
-								{
-									name: 'Foo',
-								},
-							],
-							weight: 300,
+		it('throws if import fails', async () => {
+			assert.rejects(() =>
+				createGetFontBuffer({
+					bufferImports: {
+						foo: async () => {
+							throw new Error('unexpected');
 						},
-					],
-					[
-						{
-							src: [
-								{
-									name: 'Foo',
-								},
-								{
-									name: 'Bar',
-								},
-							],
-							weight: 300,
-						},
-					],
-				),
-				[
-					{
-						src: [
-							{
-								name: 'Foo',
-							},
-							{
-								name: 'Bar',
-							},
-						],
-						weight: 300,
 					},
-				],
+				})('foo'),
 			);
 		});
 
-		it('dedupes remote sources', () => {
-			assert.deepStrictEqual(
-				dedupeFontFaces(
-					[
-						{
-							src: [
-								{
-									url: 'https://example.com/foo.woff2',
-								},
-							],
-							weight: 300,
-						},
-					],
-					[
-						{
-							src: [
-								{
-									url: 'https://example.com/foo.woff2',
-								},
-								{
-									url: 'https://example.com/bar.woff2',
-								},
-							],
-							weight: 300,
-						},
-					],
-				),
-				[
-					{
-						src: [
-							{
-								url: 'https://example.com/foo.woff2',
-							},
-							{
-								url: 'https://example.com/bar.woff2',
-							},
-						],
-						weight: 300,
+		it('throws if import result is not a buffer', async () => {
+			assert.rejects(() =>
+				createGetFontBuffer({
+					bufferImports: {
+						foo: async () => ({ default: null }),
 					},
-				],
+				})('foo'),
 			);
+		});
+
+		it('works', async () => {
+			const result = await createGetFontBuffer({
+				bufferImports: {
+					foo: async () => ({ default: Buffer.alloc(4) }),
+				},
+			})('foo');
+			assert.equal(result instanceof Buffer, true);
 		});
 	});
 });

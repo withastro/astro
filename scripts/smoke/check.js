@@ -33,7 +33,7 @@ function checkExamples() {
 
 						const originalConfig = prepareExample(example.name);
 						let data = '';
-						const child = spawn('node', ['../../packages/astro/astro.js', 'check'], {
+						const child = spawn('node', ['../../packages/astro/bin/astro.mjs', 'check'], {
 							cwd: path.join('./examples', example.name),
 							env: { ...process.env, FORCE_COLOR: 'true' },
 						});

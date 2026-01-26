@@ -1,4 +1,5 @@
-import { defineLiveCollection, z } from 'astro:content';
+import { defineLiveCollection } from 'astro:content';
+import { z } from 'astro/zod';
 import type { LiveLoader } from 'astro/loaders';
 
 type Entry = {

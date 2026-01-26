@@ -1,22 +1,11 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { randomUUID } from 'node:crypto';
-import type fs from 'node:fs';
-import { existsSync } from 'node:fs';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { IncomingMessage } from 'node:http';
-import { fileURLToPath } from 'node:url';
 import type * as vite from 'vite';
-import { normalizePath } from 'vite';
-import { getPackageManager } from '../cli/info/core/get-package-manager.js';
-import { createDevDebugInfoProvider } from '../cli/info/infra/dev-debug-info-provider.js';
-import { createProcessNodeVersionProvider } from '../cli/info/infra/process-node-version-provider.js';
-import { createProcessPackageManagerUserAgentProvider } from '../cli/info/infra/process-package-manager-user-agent-provider.js';
-import { createStyledDebugInfoFormatter } from '../cli/info/infra/styled-debug-info-formatter.js';
-import { createBuildTimeAstroVersionProvider } from '../cli/infra/build-time-astro-version-provider.js';
-import { createPassthroughTextStyler } from '../cli/infra/passthrough-text-styler.js';
-import { createProcessOperatingSystemProvider } from '../cli/infra/process-operating-system-provider.js';
-import { createTinyexecCommandExecutor } from '../cli/infra/tinyexec-command-executor.js';
+import { isRunnableDevEnvironment, type RunnableDevEnvironment } from 'vite';
+import { toFallbackType } from '../core/app/common.js';
+import { toRoutingStrategy } from '../core/app/index.js';
 import type { SSRManifest, SSRManifestCSP, SSRManifestI18n } from '../core/app/types.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import {
 	getAlgorithm,
 	getDirectives,
@@ -27,116 +16,54 @@ import {
 	getStyleResources,
 	shouldTrackCspHashes,
 } from '../core/csp/common.js';
-import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
 import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
 import { getViteErrorPayload } from '../core/errors/dev/index.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { patchOverlay } from '../core/errors/overlay.js';
 import type { Logger } from '../core/logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
-import { createRoutesList } from '../core/routing/index.js';
-import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
-import { toFallbackType, toRoutingStrategy } from '../i18n/utils.js';
-import { runHookRoutesResolved } from '../integrations/hooks.js';
-import type { AstroSettings, RoutesList } from '../types/astro.js';
+import { SERIALIZED_MANIFEST_ID } from '../manifest/serialized.js';
+import type { AstroSettings } from '../types/astro.js';
+import { ASTRO_DEV_APP_ID } from '../vite-plugin-app/index.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
 import { recordServerError } from './error.js';
-import { DevPipeline } from './pipeline.js';
-import { handleRequest } from './request.js';
 import { setRouteError } from './server-state.js';
+import { routeGuardMiddleware } from './route-guard.js';
 import { trailingSlashMiddleware } from './trailing-slash.js';
+import { sessionConfigToManifest } from '../core/session/utils.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
 	logger: Logger;
-	fs: typeof fs;
-	routesList: RoutesList;
-	manifest: SSRManifest;
 }
 
 export default function createVitePluginAstroServer({
 	settings,
 	logger,
-	fs: fsMod,
-	routesList,
-	manifest,
 }: AstroPluginOptions): vite.Plugin {
-	let debugInfo: string | null = null;
 	return {
 		name: 'astro:server',
-		buildEnd() {
-			debugInfo = null;
+		applyToEnvironment(environment) {
+			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 		},
 		async configureServer(viteServer) {
-			const loader = createViteLoader(viteServer);
-			const pipeline = DevPipeline.create(routesList, {
-				loader,
-				logger,
-				manifest,
-				settings,
-				async getDebugInfo() {
-					if (!debugInfo) {
-						// TODO: do not import from CLI. Currently the code is located under src/cli/infra
-						// but some will have to be moved to src/infra
-						const debugInfoProvider = createDevDebugInfoProvider({
-							config: settings.config,
-							astroVersionProvider: createBuildTimeAstroVersionProvider(),
-							operatingSystemProvider: createProcessOperatingSystemProvider(),
-							packageManager: await getPackageManager({
-								packageManagerUserAgentProvider: createProcessPackageManagerUserAgentProvider(),
-								commandExecutor: createTinyexecCommandExecutor(),
-							}),
-							nodeVersionProvider: createProcessNodeVersionProvider(),
-						});
-						const debugInfoFormatter = createStyledDebugInfoFormatter({
-							textStyler: createPassthroughTextStyler(),
-						});
-						debugInfo = debugInfoFormatter.format(await debugInfoProvider.get());
-					}
-					return debugInfo;
-				},
-			});
-			const controller = createController({ loader });
-			const localStorage = new AsyncLocalStorage();
-
-			/** rebuild the route cache + manifest */
-			async function rebuildManifest(path: string | null = null) {
-				pipeline.clearRouteCache();
-
-				// If a route changes, we check if it's part of the manifest and check for its prerender value
-				if (path !== null) {
-					const route = routesList.routes.find(
-						(r) =>
-							normalizePath(path) ===
-							normalizePath(fileURLToPath(new URL(r.component, settings.config.root))),
-					);
-					if (!route) {
-						return;
-					}
-					if (route.type !== 'page' && route.type !== 'endpoint') return;
-
-					const routePath = fileURLToPath(new URL(route.component, settings.config.root));
-					try {
-						const content = await fsMod.promises.readFile(routePath, 'utf-8');
-						await getRoutePrerenderOption(content, route, settings, logger);
-						await runHookRoutesResolved({ routes: routesList.routes, settings, logger });
-					} catch (_) {}
-				} else {
-					routesList = await createRoutesList({ settings, fsMod }, logger, { dev: true });
-				}
-
-				warnMissingAdapter(logger, settings);
-				pipeline.manifest.checkOrigin =
-					settings.config.security.checkOrigin && settings.buildOutput === 'server';
-				pipeline.setManifestData(routesList);
+			// Cloudflare handles its own requests
+			// TODO: let this handle non-runnable environments that don't intercept requests
+			if (!isRunnableDevEnvironment(viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr])) {
+				return;
 			}
-
-			// Rebuild route manifest on file change
-			viteServer.watcher.on('add', rebuildManifest.bind(null, null));
-			viteServer.watcher.on('unlink', rebuildManifest.bind(null, null));
-			viteServer.watcher.on('change', rebuildManifest);
+			const environment = viteServer.environments[
+				ASTRO_VITE_ENVIRONMENT_NAMES.ssr
+			] as RunnableDevEnvironment;
+			const loader = createViteLoader(viteServer, environment);
+			const { default: createAstroServerApp } = await environment.runner.import(ASTRO_DEV_APP_ID);
+			const controller = createController({ loader });
+			const { handler } = await createAstroServerApp(controller, settings, loader, logger);
+			const { manifest } = await environment.runner.import<{
+				manifest: SSRManifest;
+			}>(SERIALIZED_MANIFEST_ID);
+			const localStorage = new AsyncLocalStorage();
 
 			function handleUnhandledRejection(rejection: any) {
 				const error = AstroError.is(rejection)
@@ -149,7 +76,7 @@ export default function createVitePluginAstroServer({
 				if (store instanceof IncomingMessage) {
 					setRouteError(controller.state, store.url!, error);
 				}
-				const { errorWithMetadata } = recordServerError(loader, settings.config, pipeline, error);
+				const { errorWithMetadata } = recordServerError(loader, manifest, logger, error);
 				setTimeout(
 					async () => loader.webSocketSend(await getViteErrorPayload(errorWithMetadata)),
 					200,
@@ -172,48 +99,10 @@ export default function createVitePluginAstroServer({
 					route: '',
 					handle: trailingSlashMiddleware(settings),
 				});
-
-				// Chrome DevTools workspace handler
-				// See https://chromium.googlesource.com/devtools/devtools-frontend/+/main/docs/ecosystem/automatic_workspace_folders.md
-				viteServer.middlewares.use(async function chromeDevToolsHandler(request, response, next) {
-					if (request.url !== '/.well-known/appspecific/com.chrome.devtools.json') {
-						return next();
-					}
-					if (!settings.config.experimental.chromeDevtoolsWorkspace) {
-						// Return early to stop console spam
-						response.writeHead(404);
-						response.end();
-						return;
-					}
-
-					const pluginVersion = '1.1';
-					const cacheDir = settings.config.cacheDir;
-					const configPath = new URL('./chrome-workspace.json', cacheDir);
-
-					if (!existsSync(cacheDir)) {
-						await mkdir(cacheDir, { recursive: true });
-					}
-
-					let config;
-					try {
-						config = JSON.parse(await readFile(configPath, 'utf-8'));
-						// If the cached workspace config was created with a previous version of this plugin,
-						// we throw an error so it gets recreated in the `catch` block below.
-						if (config.version !== pluginVersion) throw new Error('Cached config is outdated.');
-					} catch {
-						config = {
-							workspace: {
-								version: pluginVersion,
-								uuid: randomUUID(),
-								root: fileURLToPath(settings.config.root),
-							},
-						};
-						await writeFile(configPath, JSON.stringify(config));
-					}
-
-					response.setHeader('Content-Type', 'application/json');
-					response.end(JSON.stringify(config));
-					return;
+				// Prevent serving files outside srcDir/publicDir (e.g., /README.md at project root)
+				viteServer.middlewares.stack.unshift({
+					route: '',
+					handle: routeGuardMiddleware(settings),
 				});
 
 				// Note that this function has a name so other middleware can find it.
@@ -223,24 +112,12 @@ export default function createVitePluginAstroServer({
 						response.end();
 						return;
 					}
+
 					localStorage.run(request, () => {
-						handleRequest({
-							pipeline,
-							routesList,
-							controller,
-							incomingRequest: request,
-							incomingResponse: response,
-						});
+						handler(request, response);
 					});
 				});
 			};
-		},
-		transform(code, id, opts = {}) {
-			if (opts.ssr) return;
-			if (!id.includes('vite/dist/client/client.mjs')) return;
-
-			// Replace the Vite overlay with ours
-			return patchOverlay(code);
 		},
 	};
 }
@@ -251,7 +128,7 @@ export default function createVitePluginAstroServer({
  * Renderers needs to be pulled out from the page module emitted during the build.
  * @param settings
  */
-export function createDevelopmentManifest(settings: AstroSettings): SSRManifest {
+export async function createDevelopmentManifest(settings: AstroSettings): Promise<SSRManifest> {
 	let i18nManifest: SSRManifestI18n | undefined;
 	let csp: SSRManifestCSP | undefined;
 	if (settings.config.i18n) {
@@ -262,12 +139,13 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			locales: settings.config.i18n.locales,
 			domainLookupTable: {},
 			fallbackType: toFallbackType(settings.config.i18n.routing),
+			domains: settings.config.i18n.domains,
 		};
 	}
 
-	if (shouldTrackCspHashes(settings.config.experimental.csp)) {
+	if (shouldTrackCspHashes(settings.config.security.csp)) {
 		const styleHashes = [
-			...getStyleHashes(settings.config.experimental.csp),
+			...getStyleHashes(settings.config.security.csp),
 			...settings.injectedCsp.styleHashes,
 		];
 
@@ -275,18 +153,18 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
 				? 'adapter'
 				: undefined,
-			scriptHashes: getScriptHashes(settings.config.experimental.csp),
-			scriptResources: getScriptResources(settings.config.experimental.csp),
+			scriptHashes: getScriptHashes(settings.config.security.csp),
+			scriptResources: getScriptResources(settings.config.security.csp),
 			styleHashes,
-			styleResources: getStyleResources(settings.config.experimental.csp),
-			algorithm: getAlgorithm(settings.config.experimental.csp),
+			styleResources: getStyleResources(settings.config.security.csp),
+			algorithm: getAlgorithm(settings.config.security.csp),
 			directives: getDirectives(settings),
-			isStrictDynamic: getStrictDynamic(settings.config.experimental.csp),
+			isStrictDynamic: getStrictDynamic(settings.config.security.csp),
 		};
 	}
 
 	return {
-		hrefRoot: settings.config.root.toString(),
+		rootDir: settings.config.root,
 		srcDir: settings.config.srcDir,
 		cacheDir: settings.config.cacheDir,
 		outDir: settings.config.outDir,
@@ -296,6 +174,8 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		trailingSlash: settings.config.trailingSlash,
 		buildFormat: settings.config.build.format,
 		compressHTML: settings.config.compressHTML,
+		assetsDir: settings.config.build.assets,
+		serverLike: settings.buildOutput === 'server',
 		assets: new Set(),
 		entryModules: {},
 		routes: [],
@@ -317,7 +197,15 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 				onRequest: NOOP_MIDDLEWARE_FN,
 			};
 		},
-		sessionConfig: settings.config.session,
+		sessionConfig: sessionConfigToManifest(settings.config.session),
 		csp,
+		devToolbar: {
+			enabled:
+				settings.config.devToolbar.enabled &&
+				(await settings.preferences.get('devToolbar.enabled')),
+			latestAstroVersion: settings.latestAstroVersion,
+			debugInfoOutput: '',
+		},
+		logLevel: settings.logLevel,
 	};
 }

@@ -1,12 +1,8 @@
 import type { UserConfig as ViteUserConfig, UserConfigFn as ViteUserConfigFn } from 'vite';
-import { createRoutesList } from '../core/routing/index.js';
-import type {
-	AstroInlineConfig,
-	AstroUserConfig,
-	Locales,
-	SessionDriverName,
-} from '../types/public/config.js';
-import { createDevelopmentManifest } from '../vite-plugin-astro-server/plugin.js';
+import { createRoutesList } from '../core/routing/manifest/create.js';
+import type { SessionDriverConfig, SessionDriverName } from '../core/session/types.js';
+import type { FontProvider } from '../assets/fonts/types.js';
+import type { AstroInlineConfig, AstroUserConfig, Locales } from '../types/public/config.js';
 
 /**
  * See the full Astro Configuration API Documentation
@@ -14,8 +10,9 @@ import { createDevelopmentManifest } from '../vite-plugin-astro-server/plugin.js
  */
 export function defineConfig<
 	const TLocales extends Locales = never,
-	const TDriver extends SessionDriverName = never,
->(config: AstroUserConfig<TLocales, TDriver>) {
+	const TDriver extends SessionDriverName | SessionDriverConfig = never,
+	const TFontProviders extends Array<FontProvider> = never,
+>(config: AstroUserConfig<TLocales, TDriver, TFontProviders>) {
 	return config;
 }
 
@@ -33,38 +30,32 @@ export function getViteConfig(
 
 		// Use dynamic import to avoid pulling in deps unless used
 		const [
-			fs,
 			{ mergeConfig },
 			{ createNodeLogger },
 			{ resolveConfig, createSettings },
 			{ createVite },
 			{ runHookConfigSetup, runHookConfigDone },
-			{ astroContentListenPlugin },
 		] = await Promise.all([
-			import('node:fs'),
 			import('vite'),
 			import('../core/config/logging.js'),
 			import('../core/config/index.js'),
 			import('../core/create-vite.js'),
 			import('../integrations/hooks.js'),
-			import('./vite-plugin-content-listen.js'),
 		]);
 		const logger = createNodeLogger(inlineAstroConfig);
 		const { astroConfig: config } = await resolveConfig(inlineAstroConfig, cmd);
-		let settings = await createSettings(config, userViteConfig.root);
+		let settings = await createSettings(config, inlineAstroConfig.logLevel, userViteConfig.root);
 		settings = await runHookConfigSetup({ settings, command: cmd, logger });
-		const routesList = await createRoutesList({ settings }, logger);
-		const manifest = createDevelopmentManifest(settings);
-		const viteConfig = await createVite(
+		const routesList = await createRoutesList(
 			{
-				plugins: config.legacy.collections
-					? [
-							// Initialize the content listener
-							astroContentListenPlugin({ settings, logger, fs }),
-						]
-					: [],
+				settings,
 			},
-			{ settings, command: cmd, logger, mode, sync: false, manifest, routesList },
+			logger,
+			{ dev: true, skipBuildOutputAssignment: false },
+		);
+		const viteConfig = await createVite(
+			{},
+			{ routesList, settings, command: cmd, logger, mode, sync: false },
 		);
 		await runHookConfigDone({ settings, logger });
 		return mergeConfig(viteConfig, userViteConfig);

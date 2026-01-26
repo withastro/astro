@@ -164,6 +164,12 @@ describe('astro:image', () => {
 					}),
 					true,
 				);
+
+				// Verify that the images can be fetched successfully
+				for (const img of $img.toArray()) {
+					const imgRes = await fixture.fetch(img.attribs['src']);
+					assert.equal(imgRes.status, 200);
+				}
 			});
 
 			it('supports inlined imports', async () => {
@@ -602,23 +608,18 @@ describe('astro:image', () => {
 
 			it('Adds the <img> tags', () => {
 				let $img = $('img');
-				assert.equal($img.length, 8);
+				assert.equal($img.length, 7);
 			});
 
 			it('image in cc folder is processed', () => {
 				let $imgs = $('img');
-				let $blogfolderimg = $($imgs[7]);
+				let $blogfolderimg = $($imgs[6]);
 				assert.equal($blogfolderimg.attr('src').includes('blogfolder.jpg'), true);
 				assert.equal($blogfolderimg.attr('src').endsWith('f=webp'), true);
 			});
 
 			it('has proper source for directly used image', () => {
 				let $img = $('#direct-image img');
-				assert.equal($img.attr('src').startsWith('/'), true);
-			});
-
-			it('has proper source for refined image', () => {
-				let $img = $('#refined-image img');
 				assert.equal($img.attr('src').startsWith('/'), true);
 			});
 
@@ -808,7 +809,11 @@ describe('astro:image', () => {
 			await res.text();
 
 			assert.equal(logs.length, 1);
-			assert.equal(logs[0].message.includes('does not exist. Is the path correct?'), true);
+			assert.ok(
+				logs[0].message.includes(
+					'Could not find requested image `./does-not-exist.jpg`. Does it exist\?',
+				),
+			);
 		});
 
 		it('properly error image in Markdown content is not found', async () => {

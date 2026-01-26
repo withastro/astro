@@ -1,30 +1,28 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
+import { defineFontProvider } from 'unifont';
+import { BuildFontFileIdGenerator } from '../../../../dist/assets/fonts/infra/build-font-file-id-generator.js';
+import { BuildUrlResolver } from '../../../../dist/assets/fonts/infra/build-url-resolver.js';
+import { CachedFontFetcher } from '../../../../dist/assets/fonts/infra/cached-font-fetcher.js';
+import { CapsizeFontMetricsResolver } from '../../../../dist/assets/fonts/infra/capsize-font-metrics-resolver.js';
+import { DevFontFileIdGenerator } from '../../../../dist/assets/fonts/infra/dev-font-file-id-generator.js';
+import { DevUrlResolver } from '../../../../dist/assets/fonts/infra/dev-url-resolver.js';
+import { FsFontFileContentResolver } from '../../../../dist/assets/fonts/infra/fs-font-file-content-resolver.js';
 import {
-	createMinifiableCssRenderer,
 	handleValueWithSpaces,
+	MinifiableCssRenderer,
 	renderCssVariable,
 	renderFontFace,
 	withFamily,
-} from '../../../../dist/assets/fonts/infra/css-renderer.js';
-import { createDataCollector } from '../../../../dist/assets/fonts/infra/data-collector.js';
-import { createAstroErrorHandler } from '../../../../dist/assets/fonts/infra/error-handler.js';
-import { createCachedFontFetcher } from '../../../../dist/assets/fonts/infra/font-fetcher.js';
-import { createCapsizeFontMetricsResolver } from '../../../../dist/assets/fonts/infra/font-metrics-resolver.js';
-import { createFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
-import {
-	createBuildUrlProxyHashResolver,
-	createDevUrlProxyHashResolver,
-} from '../../../../dist/assets/fonts/infra/url-proxy-hash-resolver.js';
-import {
-	createBuildUrlResolver,
-	createDevUrlResolver,
-} from '../../../../dist/assets/fonts/infra/url-resolver.js';
-import { createSpyStorage, fakeHasher, simpleErrorHandler } from './utils.js';
+} from '../../../../dist/assets/fonts/infra/minifiable-css-renderer.js';
+import { NodeFontTypeExtractor } from '../../../../dist/assets/fonts/infra/node-font-type-extractor.js';
+import { UnifontFontResolver } from '../../../../dist/assets/fonts/infra/unifont-font-resolver.js';
+import { FakeHasher, SpyStorage } from './utils.js';
 
 describe('fonts infra', () => {
-	describe('createMinifiableCssRenderer()', () => {
+	describe('MinifiableCssRenderer', () => {
 		describe('renderFontFace()', () => {
 			it('filters undefined properties properly', () => {
 				assert.equal(renderFontFace({ foo: 'test' }, true).includes('foo:test'), true);
@@ -62,152 +60,7 @@ describe('fonts infra', () => {
 		});
 	});
 
-	it('createDataCollector()', () => {
-		/** @type {import('../../../../dist/assets/fonts/types.js').FontFileDataMap} */
-		const map = new Map();
-		/** @type {Array<import('../../../../dist/assets/fonts/types.js').PreloadData>} */
-		const preloadData = [];
-		/** @type {Array<import('../../../../dist/assets/fonts/core/optimize-fallbacks.js').CollectedFontForMetrics>} */
-		const collectedFonts = [];
-
-		const dataCollector = createDataCollector({
-			hasUrl: (hash) => map.has(hash),
-			saveUrl: ({ hash, url, init }) => {
-				map.set(hash, { url, init });
-			},
-			savePreload: (preload) => {
-				preloadData.push(preload);
-			},
-			saveFontData: (collected) => {
-				collectedFonts.push(collected);
-			},
-		});
-
-		dataCollector.collect({
-			hash: 'xxx',
-			url: 'abc',
-			preload: null,
-			data: {
-				weight: undefined,
-				style: undefined,
-				subset: undefined,
-			},
-			init: null,
-		});
-		dataCollector.collect({
-			hash: 'yyy',
-			url: 'def',
-			preload: {
-				type: 'woff2',
-				url: 'def',
-				weight: undefined,
-				style: 'normal',
-				subset: undefined,
-			},
-			data: {
-				weight: undefined,
-				style: undefined,
-				subset: undefined,
-			},
-			init: null,
-		});
-		dataCollector.collect({
-			hash: 'xxx',
-			url: 'abc',
-			preload: null,
-			data: {
-				weight: undefined,
-				style: undefined,
-				subset: undefined,
-			},
-			init: null,
-		});
-
-		assert.deepStrictEqual(
-			[...map.entries()],
-			[
-				['xxx', { url: 'abc', init: null }],
-				['yyy', { url: 'def', init: null }],
-			],
-		);
-		assert.deepStrictEqual(preloadData, [
-			{
-				type: 'woff2',
-				url: 'def',
-				weight: undefined,
-				style: 'normal',
-				subset: undefined,
-			},
-		]);
-		assert.deepStrictEqual(collectedFonts, [
-			{
-				hash: 'xxx',
-				url: 'abc',
-				data: {
-					weight: undefined,
-					style: undefined,
-					subset: undefined,
-				},
-				init: null,
-			},
-			{
-				hash: 'yyy',
-				url: 'def',
-				data: {
-					weight: undefined,
-					style: undefined,
-					subset: undefined,
-				},
-				init: null,
-			},
-			{
-				hash: 'xxx',
-				url: 'abc',
-				data: {
-					weight: undefined,
-					style: undefined,
-					subset: undefined,
-				},
-				init: null,
-			},
-		]);
-	});
-
-	it('createAstroErrorHandler()', () => {
-		const errorHandler = createAstroErrorHandler();
-		assert.equal(
-			errorHandler.handle({ type: 'cannot-extract-font-type', data: { url: '' }, cause: null })
-				.name,
-			'CannotExtractFontType',
-		);
-		assert.equal(
-			errorHandler.handle({ type: 'cannot-fetch-font-file', data: { url: '' }, cause: null }).name,
-			'CannotFetchFontFile',
-		);
-		assert.equal(
-			errorHandler.handle({
-				type: 'cannot-load-font-provider',
-				data: { entrypoint: '' },
-				cause: null,
-			}).name,
-			'CannotLoadFontProvider',
-		);
-		assert.equal(
-			errorHandler.handle({ type: 'unknown-fs-error', data: {}, cause: null }).name,
-			'UnknownFilesystemError',
-		);
-
-		assert.equal(
-			errorHandler.handle({
-				type: 'cannot-extract-font-type',
-				data: { url: '' },
-				cause: 'whatever',
-			}).cause,
-			'whatever',
-		);
-	});
-
-	describe('createCachedFontFetcher()', () => {
+	describe('CachedFontFetcher', () => {
 		/**
 		 *
 		 * @param {{ ok: boolean }} param0
@@ -253,19 +106,18 @@ describe('fonts infra', () => {
 		it('caches work', async () => {
 			const { filesUrls, readFile } = createReadFileMock({ ok: true });
 			const { fetchUrls, fetch } = createFetchMock({ ok: true });
-			const { storage, store } = createSpyStorage();
-			const fontFetcher = createCachedFontFetcher({
+			const storage = new SpyStorage();
+			const fontFetcher = new CachedFontFetcher({
 				storage,
-				errorHandler: simpleErrorHandler,
 				readFile,
 				fetch,
 			});
 
-			await fontFetcher.fetch({ hash: 'abc', url: 'def', init: null });
-			await fontFetcher.fetch({ hash: 'foo', url: 'bar', init: null });
-			await fontFetcher.fetch({ hash: 'abc', url: 'def', init: null });
+			await fontFetcher.fetch({ id: 'abc', url: 'def', init: undefined });
+			await fontFetcher.fetch({ id: 'foo', url: 'bar', init: undefined });
+			await fontFetcher.fetch({ id: 'abc', url: 'def', init: undefined });
 
-			assert.deepStrictEqual([...store.keys()], ['abc', 'foo']);
+			assert.deepStrictEqual([...storage.store.keys()], ['abc', 'foo']);
 			assert.deepStrictEqual(filesUrls, []);
 			assert.deepStrictEqual(fetchUrls, ['def', 'bar']);
 		});
@@ -273,15 +125,14 @@ describe('fonts infra', () => {
 		it('reads files if path is absolute', async () => {
 			const { filesUrls, readFile } = createReadFileMock({ ok: true });
 			const { fetchUrls, fetch } = createFetchMock({ ok: true });
-			const { storage } = createSpyStorage();
-			const fontFetcher = createCachedFontFetcher({
+			const storage = new SpyStorage();
+			const fontFetcher = new CachedFontFetcher({
 				storage,
-				errorHandler: simpleErrorHandler,
 				readFile,
 				fetch,
 			});
 
-			await fontFetcher.fetch({ hash: 'abc', url: '/foo/bar', init: null });
+			await fontFetcher.fetch({ id: 'abc', url: '/foo/bar', init: undefined });
 
 			assert.deepStrictEqual(filesUrls, ['/foo/bar']);
 			assert.deepStrictEqual(fetchUrls, []);
@@ -290,15 +141,14 @@ describe('fonts infra', () => {
 		it('fetches files if path is not absolute', async () => {
 			const { filesUrls, readFile } = createReadFileMock({ ok: true });
 			const { fetchUrls, fetch } = createFetchMock({ ok: true });
-			const { storage } = createSpyStorage();
-			const fontFetcher = createCachedFontFetcher({
+			const storage = new SpyStorage();
+			const fontFetcher = new CachedFontFetcher({
 				storage,
-				errorHandler: simpleErrorHandler,
 				readFile,
 				fetch,
 			});
 
-			await fontFetcher.fetch({ hash: 'abc', url: 'https://example.com', init: null });
+			await fontFetcher.fetch({ id: 'abc', url: 'https://example.com', init: undefined });
 
 			assert.deepStrictEqual(filesUrls, []);
 			assert.deepStrictEqual(fetchUrls, ['https://example.com']);
@@ -307,36 +157,33 @@ describe('fonts infra', () => {
 		it('throws the right error kind', async () => {
 			const { readFile } = createReadFileMock({ ok: false });
 			const { fetch } = createFetchMock({ ok: false });
-			const { storage } = createSpyStorage();
-			const fontFetcher = createCachedFontFetcher({
+			const storage = new SpyStorage();
+			const fontFetcher = new CachedFontFetcher({
 				storage,
-				errorHandler: simpleErrorHandler,
 				readFile,
 				fetch,
 			});
 
 			let error = await fontFetcher
-				.fetch({ hash: 'abc', url: '/foo/bar', init: null })
+				.fetch({ id: 'abc', url: '/foo/bar', init: undefined })
 				.catch((err) => err);
 			assert.equal(error instanceof Error, true);
-			assert.equal(error.message, 'cannot-fetch-font-file');
 			assert.equal(error.cause, 'fs error');
 
 			error = await fontFetcher
-				.fetch({ hash: 'abc', url: 'https://example.com', init: null })
+				.fetch({ id: 'abc', url: 'https://example.com', init: undefined })
 				.catch((err) => err);
 			assert.equal(error instanceof Error, true);
-			assert.equal(error.message, 'cannot-fetch-font-file');
 			assert.equal(error.cause instanceof Error, true);
 			assert.equal(error.cause.message.includes('Response was not successful'), true);
 		});
 	});
 
-	describe('createCapsizeFontMetricsResolver()', () => {
+	describe('CapsizeFontMetricsResolver', () => {
 		describe('generateFontFace()', () => {
 			it('returns a src', () => {
-				const fontMetricsResolver = createCapsizeFontMetricsResolver({
-					cssRenderer: createMinifiableCssRenderer({ minify: true }),
+				const fontMetricsResolver = new CapsizeFontMetricsResolver({
+					cssRenderer: new MinifiableCssRenderer({ minify: true }),
 					fontFetcher: {
 						async fetch() {
 							return Buffer.from('');
@@ -371,7 +218,7 @@ describe('fonts infra', () => {
 		});
 	});
 
-	it('createFontTypeExtractor()', () => {
+	it('NodeFontTypeExtractor', () => {
 		/** @type {Array<[string, false | string]>} */
 		const data = [
 			['', false],
@@ -385,7 +232,7 @@ describe('fonts infra', () => {
 			['/home/documents/project/font.ttf', 'ttf'],
 		];
 
-		const fontTypeExtractor = createFontTypeExtractor({ errorHandler: simpleErrorHandler });
+		const fontTypeExtractor = new NodeFontTypeExtractor();
 
 		for (const [input, check] of data) {
 			try {
@@ -405,19 +252,19 @@ describe('fonts infra', () => {
 		}
 	});
 
-	describe('createDevUrlResolver()', () => {
+	describe('DevUrlResolver', () => {
 		it('works', () => {
-			const resolver = createDevUrlResolver({
+			const resolver = new DevUrlResolver({
 				base: 'base/_astro/fonts',
 				searchParams: new URLSearchParams(),
 			});
-			assert.deepStrictEqual(resolver.getCspResources(), []);
+			assert.deepStrictEqual(resolver.cspResources, []);
 			assert.equal(resolver.resolve('xxx.woff2'), '/base/_astro/fonts/xxx.woff2');
-			assert.deepStrictEqual(resolver.getCspResources(), ["'self'"]);
+			assert.deepStrictEqual(resolver.cspResources, ["'self'"]);
 		});
 
 		it('works with searchParams', () => {
-			const resolver = createDevUrlResolver({
+			const resolver = new DevUrlResolver({
 				base: 'base/_astro/fonts',
 				searchParams: new URLSearchParams([['v', '1.0']]),
 			});
@@ -425,36 +272,36 @@ describe('fonts infra', () => {
 		});
 	});
 
-	describe('createBuildUrlResolver()', () => {
+	describe('BuildUrlResolver', () => {
 		const base = 'foo/_custom/fonts';
 
 		it('works with no assetsPrefix', () => {
-			const resolver = createBuildUrlResolver({
+			const resolver = new BuildUrlResolver({
 				base,
 				assetsPrefix: undefined,
 				searchParams: new URLSearchParams(),
 			});
-			assert.deepStrictEqual(resolver.getCspResources(), []);
+			assert.deepStrictEqual(resolver.cspResources, []);
 			assert.equal(resolver.resolve('abc.ttf'), '/foo/_custom/fonts/abc.ttf');
-			assert.deepStrictEqual(resolver.getCspResources(), ["'self'"]);
+			assert.deepStrictEqual(resolver.cspResources, ["'self'"]);
 		});
 
 		it('works with assetsPrefix as string', () => {
-			const resolver = createBuildUrlResolver({
+			const resolver = new BuildUrlResolver({
 				base,
 				assetsPrefix: 'https://cdn.example.com',
 				searchParams: new URLSearchParams(),
 			});
-			assert.deepStrictEqual(resolver.getCspResources(), []);
+			assert.deepStrictEqual(resolver.cspResources, []);
 			assert.equal(
 				resolver.resolve('foo.woff'),
 				'https://cdn.example.com/foo/_custom/fonts/foo.woff',
 			);
-			assert.deepStrictEqual(resolver.getCspResources(), ['https://cdn.example.com']);
+			assert.deepStrictEqual(resolver.cspResources, ['https://cdn.example.com']);
 		});
 
 		it('works with assetsPrefix object', () => {
-			const resolver = createBuildUrlResolver({
+			const resolver = new BuildUrlResolver({
 				base,
 				assetsPrefix: {
 					woff2: 'https://fonts.cdn.example.com',
@@ -462,7 +309,7 @@ describe('fonts infra', () => {
 				},
 				searchParams: new URLSearchParams(),
 			});
-			assert.deepStrictEqual(resolver.getCspResources(), []);
+			assert.deepStrictEqual(resolver.cspResources, []);
 			assert.equal(
 				resolver.resolve('bar.woff2'),
 				'https://fonts.cdn.example.com/foo/_custom/fonts/bar.woff2',
@@ -471,14 +318,14 @@ describe('fonts infra', () => {
 				resolver.resolve('xyz.ttf'),
 				'https://cdn.example.com/foo/_custom/fonts/xyz.ttf',
 			);
-			assert.deepStrictEqual(resolver.getCspResources(), [
+			assert.deepStrictEqual(resolver.cspResources, [
 				'https://fonts.cdn.example.com',
 				'https://cdn.example.com',
 			]);
 		});
 
 		it('works with searchParams', () => {
-			const resolver = createBuildUrlResolver({
+			const resolver = new BuildUrlResolver({
 				base,
 				assetsPrefix: undefined,
 				searchParams: new URLSearchParams([['v', '2.0']]),
@@ -487,30 +334,22 @@ describe('fonts infra', () => {
 		});
 	});
 
-	it('createBuildUrlProxyHashResolver()', () => {
-		const resolver = createBuildUrlProxyHashResolver({
-			hasher: fakeHasher,
+	it('BuildFontFileIdGenerator', () => {
+		const resolver = new BuildFontFileIdGenerator({
+			hasher: new FakeHasher(),
 			contentResolver: {
 				resolve: (url) => url,
 			},
 		});
 		assert.equal(
-			resolver.resolve({
-				cssVariable: '--foo',
-				data: {
-					weight: undefined,
-					style: undefined,
-					subset: undefined,
-				},
+			resolver.generate({
 				originalUrl: 'whatever',
 				type: 'woff2',
 			}),
 			'whatever.woff2',
 		);
 		assert.equal(
-			resolver.resolve({
-				cssVariable: '--foo',
-				data: { weight: 400, style: 'italic', subset: 'latin' },
+			resolver.generate({
 				originalUrl: 'whatever',
 				type: 'woff2',
 			}),
@@ -518,63 +357,413 @@ describe('fonts infra', () => {
 		);
 	});
 
-	it('createDevUrlProxyHashResolver()', () => {
-		const resolver = createDevUrlProxyHashResolver({
-			baseHashResolver: createBuildUrlProxyHashResolver({
-				hasher: fakeHasher,
-				contentResolver: {
-					resolve: (url) => url,
-				},
-			}),
+	it('DevFontFileIdGenerator', () => {
+		const resolver = new DevFontFileIdGenerator({
+			hasher: new FakeHasher(),
+			contentResolver: {
+				resolve: (url) => url,
+			},
 		});
 		assert.equal(
-			resolver.resolve({
+			resolver.generate({
 				cssVariable: '--foo',
-				data: {
-					weight: undefined,
-					style: undefined,
-					subset: undefined,
-				},
+				font: { src: [] },
 				originalUrl: 'whatever',
 				type: 'woff2',
 			}),
 			'foo-whatever.woff2',
 		);
 		assert.equal(
-			resolver.resolve({
+			resolver.generate({
 				cssVariable: '--foo',
-				data: { weight: 400, style: 'italic', subset: 'latin' },
+				font: { weight: 400, style: 'italic', meta: { subset: 'latin' }, src: [] },
 				originalUrl: 'whatever',
 				type: 'woff2',
 			}),
 			'foo-400-italic-latin-whatever.woff2',
 		);
 		assert.equal(
-			resolver.resolve({
+			resolver.generate({
 				cssVariable: '--foo',
-				data: { weight: '500', style: 'italic', subset: 'latin-ext' },
+				font: { weight: '500', style: 'italic', meta: { subset: 'latin-ext' }, src: [] },
 				originalUrl: 'whatever',
 				type: 'woff2',
 			}),
 			'foo-500-italic-latin-ext-whatever.woff2',
 		);
 		assert.equal(
-			resolver.resolve({
+			resolver.generate({
 				cssVariable: '--foo',
-				data: { weight: [100, 900], style: 'italic', subset: 'cyrillic' },
+				font: { weight: [100, 900], style: 'italic', meta: { subset: 'cyrillic' }, src: [] },
 				originalUrl: 'whatever',
 				type: 'woff2',
 			}),
 			'foo-100-900-italic-cyrillic-whatever.woff2',
 		);
 		assert.equal(
-			resolver.resolve({
+			resolver.generate({
 				cssVariable: '--foo',
-				data: { weight: '200 700', style: 'italic', subset: 'cyrillic' },
+				font: { weight: '200 700', style: 'italic', meta: { subset: 'cyrillic' }, src: [] },
 				originalUrl: 'whatever',
 				type: 'woff2',
 			}),
 			'foo-200-700-italic-cyrillic-whatever.woff2',
 		);
+	});
+
+	describe('UnifontFontResolver', () => {
+		/**
+		 * @param {string} name
+		 * @param {any} [config]
+		 * @returns {import('../../../../dist/index.js').FontProvider}
+		 * */
+		const createProvider = (name, config) => ({
+			name,
+			config,
+			resolveFont: () => undefined,
+		});
+
+		describe('static extractUnifontProviders()', () => {
+			it('deduplicates providers with no config', () => {
+				const providers = UnifontFontResolver.extractUnifontProviders({
+					hasher: new FakeHasher(),
+					families: [
+						{
+							name: 'Foo',
+							uniqueName: 'Foo-xxx',
+							cssVariable: '--custom',
+							provider: createProvider('test'),
+						},
+						{
+							name: 'Bar',
+							uniqueName: 'Bar-xxx',
+							cssVariable: '--custom',
+							provider: createProvider('test'),
+						},
+					],
+					root: new URL(import.meta.url),
+				});
+				assert.equal(providers.length, 1);
+			});
+
+			it('deduplicates providers with the same config', () => {
+				const providers = UnifontFontResolver.extractUnifontProviders({
+					hasher: new FakeHasher(),
+					families: [
+						{
+							name: 'Foo',
+							uniqueName: 'Foo-xxx',
+							cssVariable: '--custom',
+							provider: createProvider('test', { x: 'y' }),
+						},
+						{
+							name: 'Bar',
+							uniqueName: 'Bar-xxx',
+							cssVariable: '--custom',
+							provider: createProvider('test', { x: 'y' }),
+						},
+					],
+					root: new URL(import.meta.url),
+				});
+				assert.equal(providers.length, 1);
+			});
+
+			it('does not deduplicate providers with different configs', () => {
+				const providers = UnifontFontResolver.extractUnifontProviders({
+					hasher: new FakeHasher(),
+					families: [
+						{
+							name: 'Foo',
+							uniqueName: 'Foo-xxx',
+							cssVariable: '--custom',
+							provider: createProvider('test', { x: 'foo' }),
+						},
+						{
+							name: 'Bar',
+							uniqueName: 'Bar-xxx',
+							cssVariable: '--custom',
+							provider: createProvider('test', { x: 'bar' }),
+						},
+					],
+					root: new URL(import.meta.url),
+				});
+				assert.equal(providers.length, 2);
+			});
+		});
+
+		describe('static astroToUnifontProvider()', () => {
+			it('works with a minimal provider', async () => {
+				const providerFactory = UnifontFontResolver.astroToUnifontProvider(
+					{
+						name: 'test',
+						resolveFont: () => ({
+							fonts: [
+								{
+									src: [{ name: 'foo' }],
+								},
+							],
+						}),
+					},
+					new URL(import.meta.url),
+				);
+				assert.equal(providerFactory._name, 'test');
+				const provider = await providerFactory({ storage: new SpyStorage() });
+				assert.deepStrictEqual(
+					await provider?.resolveFont('', {
+						formats: [],
+						styles: [],
+						subsets: [],
+						weights: [],
+					}),
+					{
+						fonts: [
+							{
+								src: [{ name: 'foo' }],
+							},
+						],
+					},
+				);
+			});
+
+			it('forwards the config', () => {
+				const providerFactory = UnifontFontResolver.astroToUnifontProvider(
+					{
+						name: 'test',
+						config: {
+							foo: 'bar',
+						},
+						resolveFont: () => undefined,
+					},
+					new URL(import.meta.url),
+				);
+				assert.equal(providerFactory._name, 'test');
+				assert.deepStrictEqual(providerFactory._options, {
+					foo: 'bar',
+				});
+			});
+
+			it('handles init()', async () => {
+				let ran = false;
+
+				const providerFactory = UnifontFontResolver.astroToUnifontProvider(
+					{
+						name: 'test',
+						init: () => {
+							ran = true;
+						},
+						resolveFont: () => undefined,
+					},
+					new URL(import.meta.url),
+				);
+				await providerFactory({ storage: new SpyStorage() });
+				assert.equal(ran, true);
+			});
+
+			it('handles listFonts()', async () => {
+				const providerFactory = UnifontFontResolver.astroToUnifontProvider(
+					{
+						name: 'test',
+						resolveFont: () => undefined,
+						listFonts: () => ['a', 'b', 'c'],
+					},
+					new URL(import.meta.url),
+				);
+				assert.equal(providerFactory._name, 'test');
+				const provider = await providerFactory({ storage: new SpyStorage() });
+				assert.deepStrictEqual(await provider?.listFonts?.(), ['a', 'b', 'c']);
+			});
+
+			it('handles unifont > astro > unifont', async () => {
+				let ran = false;
+				const unifontProvider = defineFontProvider('test', async () => {
+					ran = true;
+					return {
+						resolveFont: () => ({
+							fonts: [
+								{
+									src: [{ name: 'foo' }],
+								},
+							],
+						}),
+						listFonts: () => ['a', 'b', 'c'],
+					};
+				});
+				/** @returns {import('../../../../dist/index.js').FontProvider} */
+				const astroProvider = () => {
+					const provider = unifontProvider();
+					/** @type {import('unifont').InitializedProvider | undefined} */
+					let initializedProvider;
+					return {
+						name: provider._name,
+						async init(context) {
+							initializedProvider = await provider(context);
+						},
+						async resolveFont({ familyName, ...rest }) {
+							return await initializedProvider?.resolveFont(familyName, rest);
+						},
+						async listFonts() {
+							return await initializedProvider?.listFonts?.();
+						},
+					};
+				};
+
+				const providerFactory = UnifontFontResolver.astroToUnifontProvider(
+					astroProvider(),
+					new URL(import.meta.url),
+				);
+				assert.equal(providerFactory._name, 'test');
+				const provider = await providerFactory({ storage: new SpyStorage() });
+				assert.equal(ran, true);
+				assert.deepStrictEqual(
+					await provider?.resolveFont('', {
+						formats: [],
+						styles: [],
+						subsets: [],
+						weights: [],
+					}),
+					{
+						fonts: [
+							{
+								src: [{ name: 'foo' }],
+							},
+						],
+					},
+				);
+				assert.deepStrictEqual(await provider?.listFonts?.(), ['a', 'b', 'c']);
+			});
+		});
+
+		it('resolveFont() works', async () => {
+			const fontResolver = await UnifontFontResolver.create({
+				families: [
+					{
+						name: 'Foo',
+						uniqueName: 'Foo-xxx',
+						cssVariable: '--foo',
+						provider: {
+							name: 'foo',
+							resolveFont: () => undefined,
+						},
+					},
+					{
+						name: 'Bar',
+						uniqueName: 'Bar-xxx',
+						cssVariable: '--bar',
+						provider: {
+							name: 'bar',
+							resolveFont: () => ({
+								fonts: [
+									{
+										src: [{ name: 'Bar' }],
+									},
+								],
+							}),
+						},
+					},
+				],
+				hasher: new FakeHasher(),
+				storage: new SpyStorage(),
+				root: new URL(import.meta.url),
+			});
+			assert.deepStrictEqual(
+				await fontResolver.resolveFont({
+					familyName: 'Foo',
+					provider: {
+						name: 'foo',
+						resolveFont: () => undefined,
+					},
+					weights: [],
+					styles: [],
+					subsets: [],
+					formats: [],
+					options: undefined,
+				}),
+				[],
+			);
+			assert.deepStrictEqual(
+				await fontResolver.resolveFont({
+					familyName: 'Bar',
+					provider: {
+						name: 'bar',
+						resolveFont: () => undefined,
+					},
+					weights: [],
+					styles: [],
+					subsets: [],
+					formats: [],
+					options: undefined,
+				}),
+				[
+					{
+						src: [{ name: 'Bar' }],
+					},
+				],
+			);
+		});
+
+		it('listFonts() works', async () => {
+			const fontResolver = await UnifontFontResolver.create({
+				families: [
+					{
+						name: 'Foo',
+						uniqueName: 'Foo-xxx',
+						cssVariable: '--foo',
+						provider: {
+							name: 'foo',
+							resolveFont: () => undefined,
+						},
+					},
+					{
+						name: 'Bar',
+						uniqueName: 'Bar-xxx',
+						cssVariable: '--bar',
+						provider: {
+							name: 'bar',
+							resolveFont: () => undefined,
+							listFonts: () => ['a', 'b', 'c'],
+						},
+					},
+				],
+				hasher: new FakeHasher(),
+				storage: new SpyStorage(),
+				root: new URL(import.meta.url),
+			});
+			assert.deepStrictEqual(
+				await fontResolver.listFonts({
+					provider: {
+						name: 'foo',
+						resolveFont: () => undefined,
+					},
+				}),
+				undefined,
+			);
+			assert.deepStrictEqual(
+				await fontResolver.listFonts({
+					provider: {
+						name: 'bar',
+						resolveFont: () => undefined,
+					},
+				}),
+				['a', 'b', 'c'],
+			);
+		});
+	});
+
+	describe('FsFontFileContentResolver', () => {
+		it('returns url as is when not absolute', () => {
+			const url = 'https://example.com/foo.woff2';
+			const fontFileIdContentResolver = new FsFontFileContentResolver({
+				readFileSync: () => 'content',
+			});
+			assert.equal(fontFileIdContentResolver.resolve(url), url);
+		});
+
+		it('returns url and content when absolute', () => {
+			const url = fileURLToPath(new URL(import.meta.url));
+			const fontFileIdContentResolver = new FsFontFileContentResolver({
+				readFileSync: () => 'content',
+			});
+			assert.equal(fontFileIdContentResolver.resolve(url), url + 'content');
+		});
 	});
 });

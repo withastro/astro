@@ -1,31 +1,20 @@
 // @ts-check
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createFontaceFontFileReader } from '../../../../dist/assets/fonts/infra/font-file-reader.js';
-import { createFontTypeExtractor } from '../../../../dist/assets/fonts/infra/font-type-extractor.js';
-import * as adobeEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/adobe.js';
-import * as bunnyEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/bunny.js';
-import * as fontshareEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontshare.js';
-import * as fontsourceEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/fontsource.js';
-import * as googleEntrypoint from '../../../../dist/assets/fonts/providers/entrypoints/google.js';
-import { resolveLocalFont } from '../../../../dist/assets/fonts/providers/local.js';
+import { fileURLToPath } from 'node:url';
+import { LocalFontProvider } from '../../../../dist/assets/fonts/providers/local.js';
 import { fontProviders } from '../../../../dist/config/entrypoint.js';
-import { createSpyUrlProxy, simpleErrorHandler } from './utils.js';
 
 describe('fonts providers', () => {
 	describe('config objects', () => {
-		it('references the right entrypoints', () => {
-			assert.equal(
-				fontProviders.adobe({ id: '' }).entrypoint,
-				'astro/assets/fonts/providers/adobe',
-			);
-			assert.equal(fontProviders.bunny().entrypoint, 'astro/assets/fonts/providers/bunny');
-			assert.equal(fontProviders.fontshare().entrypoint, 'astro/assets/fonts/providers/fontshare');
-			assert.equal(
-				fontProviders.fontsource().entrypoint,
-				'astro/assets/fonts/providers/fontsource',
-			);
-			assert.equal(fontProviders.google().entrypoint, 'astro/assets/fonts/providers/google');
+		it('references the right names', () => {
+			assert.equal(fontProviders.adobe({ id: '' }).name, 'adobe');
+			assert.equal(fontProviders.bunny().name, 'bunny');
+			assert.equal(fontProviders.fontshare().name, 'fontshare');
+			assert.equal(fontProviders.fontsource().name, 'fontsource');
+			assert.equal(fontProviders.google().name, 'google');
+			assert.equal(fontProviders.googleicons().name, 'googleicons');
+			assert.equal(fontProviders.local().name, 'local');
 		});
 
 		it('forwards the config', () => {
@@ -35,155 +24,54 @@ describe('fonts providers', () => {
 		});
 	});
 
-	it('providers are correctly exported', () => {
-		assert.equal(
-			'provider' in adobeEntrypoint && typeof adobeEntrypoint.provider === 'function',
-			true,
-		);
-		assert.equal(
-			'provider' in bunnyEntrypoint && typeof bunnyEntrypoint.provider === 'function',
-			true,
-		);
-		assert.equal(
-			'provider' in fontshareEntrypoint && typeof fontshareEntrypoint.provider === 'function',
-			true,
-		);
-		assert.equal(
-			'provider' in fontsourceEntrypoint && typeof fontsourceEntrypoint.provider === 'function',
-			true,
-		);
-		assert.equal(
-			'provider' in googleEntrypoint && typeof googleEntrypoint.provider === 'function',
-			true,
-		);
-	});
-
-	describe('resolveLocalFont()', () => {
-		const fontTypeExtractor = createFontTypeExtractor({ errorHandler: simpleErrorHandler });
-
-		it('proxies URLs correctly', () => {
-			const { collected, urlProxy } = createSpyUrlProxy();
-			resolveLocalFont({
-				urlProxy,
-				fontTypeExtractor,
-				family: {
-					name: 'Test',
-					nameWithHash: 'Test-xxx',
-					cssVariable: '--test',
-					provider: 'local',
-					variants: [
-						{
-							weight: '400',
-							style: 'normal',
-							src: [{ url: '/test.woff2' }, { url: '/ignored.woff' }],
-						},
-						{
-							weight: '500',
-							style: 'normal',
-							src: [{ url: '/2.woff2' }],
-						},
-					],
+	describe('LocalFontProvider', () => {
+		it('handles no options', () => {
+			const provider = new LocalFontProvider({
+				fontFileReader: {
+					extract: () => ({ weight: '400', style: 'normal' }),
 				},
-				fontFileReader: createFontaceFontFileReader({ errorHandler: simpleErrorHandler }),
 			});
-			assert.deepStrictEqual(collected, [
-				{
-					url: '/test.woff2',
-					type: 'woff2',
-					collectPreload: true,
-					data: { weight: '400', style: 'normal', subset: undefined },
-					init: null,
-				},
-				{
-					url: '/ignored.woff',
-					type: 'woff',
-					collectPreload: false,
-					data: { weight: '400', style: 'normal', subset: undefined },
-					init: null,
-				},
-				{
-					url: '/2.woff2',
-					type: 'woff2',
-					collectPreload: true,
-					data: { weight: '500', style: 'normal', subset: undefined },
-					init: null,
-				},
-			]);
+			const { fonts } = provider.resolveFont({
+				familyName: 'foo',
+				formats: [],
+				weights: [],
+				styles: [],
+				subsets: [],
+				options: undefined,
+			});
+			assert.deepStrictEqual(fonts, []);
 		});
 
-		it('collect preloads correctly', () => {
-			const { collected, urlProxy } = createSpyUrlProxy();
-			resolveLocalFont({
-				urlProxy,
-				fontTypeExtractor,
-				family: {
-					name: 'Test',
-					nameWithHash: 'Test-xxx',
-					cssVariable: '--test',
-					provider: 'local',
-					variants: [
-						{
-							weight: '400',
-							style: 'normal',
-							src: [{ url: '/test.woff2' }, { url: '/ignored.woff' }],
-						},
-						{
-							weight: '500',
-							style: 'normal',
-							src: [{ url: '/2.woff2' }, { url: '/also-ignored.woff' }],
-						},
-					],
+		it('resolves URLs', () => {
+			const provider = new LocalFontProvider({
+				fontFileReader: {
+					extract: () => ({ weight: '400', style: 'normal' }),
 				},
-				fontFileReader: createFontaceFontFileReader({ errorHandler: simpleErrorHandler }),
 			});
-			assert.deepStrictEqual(collected, [
-				{
-					url: '/test.woff2',
-					type: 'woff2',
-					collectPreload: true,
-					data: { weight: '400', style: 'normal', subset: undefined },
-					init: null,
-				},
-				{
-					url: '/ignored.woff',
-					type: 'woff',
-					collectPreload: false,
-					data: { weight: '400', style: 'normal', subset: undefined },
-					init: null,
-				},
-				{
-					url: '/2.woff2',
-					type: 'woff2',
-					collectPreload: true,
-					data: { weight: '500', style: 'normal', subset: undefined },
-					init: null,
-				},
-				{
-					url: '/also-ignored.woff',
-					type: 'woff',
-					collectPreload: false,
-					data: { weight: '500', style: 'normal', subset: undefined },
-					init: null,
-				},
-			]);
-		});
-
-		it('computes the format correctly', () => {
-			const { urlProxy } = createSpyUrlProxy();
-			const { fonts } = resolveLocalFont({
-				urlProxy,
-				fontTypeExtractor,
-				fontFileReader: createFontaceFontFileReader({ errorHandler: simpleErrorHandler }),
-				family: {
-					name: 'Test',
-					nameWithHash: 'Test-xxx',
-					cssVariable: '--test',
-					provider: 'local',
+			const root = new URL(import.meta.url);
+			provider.init({ root });
+			const { fonts } = provider.resolveFont({
+				familyName: 'foo',
+				formats: [],
+				weights: [],
+				styles: [],
+				subsets: [],
+				options: {
 					variants: [
 						{
-							weight: '400',
-							style: 'normal',
-							src: [{ url: '/test.woff2' }, { url: '/ignored.ttf' }],
+							src: [
+								'./0.woff2',
+								new URL('./1.woff2', root),
+								{
+									url: './0.woff2',
+									tech: 'xxx',
+								},
+								{
+									url: new URL('./1.woff2', root),
+								},
+							],
+							weight: '700',
+							style: 'italic',
 						},
 					],
 				},
@@ -194,16 +82,61 @@ describe('fonts providers', () => {
 					featureSettings: undefined,
 					src: [
 						{
-							format: 'woff2',
-							originalURL: '/test.woff2',
 							tech: undefined,
-							url: '/test.woff2',
+							url: fileURLToPath(new URL('./0.woff2', root)),
 						},
 						{
-							format: 'truetype',
-							originalURL: '/ignored.ttf',
 							tech: undefined,
-							url: '/ignored.ttf',
+							url: fileURLToPath(new URL('./1.woff2', root)),
+						},
+						{
+							tech: 'xxx',
+							url: fileURLToPath(new URL('./0.woff2', root)),
+						},
+						{
+							tech: undefined,
+							url: fileURLToPath(new URL('./1.woff2', root)),
+						},
+					],
+					stretch: undefined,
+					style: 'italic',
+					unicodeRange: undefined,
+					variationSettings: undefined,
+					weight: '700',
+				},
+			]);
+		});
+
+		it('properties inference', () => {
+			const provider = new LocalFontProvider({
+				fontFileReader: {
+					extract: () => ({ weight: '400', style: 'normal' }),
+				},
+			});
+			const root = new URL(import.meta.url);
+			provider.init({ root });
+			const { fonts } = provider.resolveFont({
+				familyName: 'foo',
+				formats: [],
+				weights: [],
+				styles: [],
+				subsets: [],
+				options: {
+					variants: [
+						{
+							src: ['./0.woff2'],
+						},
+					],
+				},
+			});
+			assert.deepStrictEqual(fonts, [
+				{
+					display: undefined,
+					featureSettings: undefined,
+					src: [
+						{
+							tech: undefined,
+							url: fileURLToPath(new URL('./0.woff2', root)),
 						},
 					],
 					stretch: undefined,
@@ -215,121 +148,46 @@ describe('fonts providers', () => {
 			]);
 		});
 
-		describe('properties inference', () => {
-			it('infers properties correctly', async () => {
-				const { collected, urlProxy } = createSpyUrlProxy();
-				const { fonts } = resolveLocalFont({
-					urlProxy,
-					fontTypeExtractor,
-					family: {
-						name: 'Test',
-						nameWithHash: 'Test-xxx',
-						cssVariable: '--test',
-						provider: 'local',
-						variants: [
-							{
-								src: [{ url: '/test.woff2' }],
-							},
-						],
-					},
-					fontFileReader: {
-						extract() {
-							return {
-								weight: '300',
-								style: 'italic',
-							};
-						},
-					},
-				});
-
-				assert.deepStrictEqual(fonts, [
-					{
-						display: undefined,
-						featureSettings: undefined,
-						src: [
-							{
-								format: 'woff2',
-								originalURL: '/test.woff2',
-								tech: undefined,
-								url: '/test.woff2',
-							},
-						],
-						stretch: undefined,
-						style: 'italic',
-						unicodeRange: undefined,
-						variationSettings: undefined,
-						weight: '300',
-					},
-				]);
-				assert.deepStrictEqual(collected, [
-					{
-						url: '/test.woff2',
-						collectPreload: true,
-						type: 'woff2',
-						data: { weight: '300', style: 'italic', subset: undefined },
-						init: null,
-					},
-				]);
+		it('respects what property should be inferred', () => {
+			const provider = new LocalFontProvider({
+				fontFileReader: {
+					extract: () => ({ weight: '400', style: 'normal' }),
+				},
 			});
-
-			it('respects what property should be inferred', async () => {
-				const { collected, urlProxy } = createSpyUrlProxy();
-				const { fonts } = resolveLocalFont({
-					urlProxy,
-					fontTypeExtractor,
-					family: {
-						name: 'Test',
-						nameWithHash: 'Test-xxx',
-						cssVariable: '--test',
-						provider: 'local',
-						variants: [
-							{
-								style: 'normal',
-								unicodeRange: ['bar'],
-								src: [{ url: '/test.woff2' }],
-							},
-						],
-					},
-					fontFileReader: {
-						extract() {
-							return {
-								weight: '300',
-								style: 'italic',
-								unicodeRange: ['foo'],
-							};
+			const root = new URL(import.meta.url);
+			provider.init({ root });
+			const { fonts } = provider.resolveFont({
+				familyName: 'foo',
+				formats: [],
+				weights: [],
+				styles: [],
+				subsets: [],
+				options: {
+					variants: [
+						{
+							src: ['./0.woff2'],
+							style: 'italic',
 						},
-					},
-				});
-
-				assert.deepStrictEqual(fonts, [
-					{
-						display: undefined,
-						featureSettings: undefined,
-						src: [
-							{
-								format: 'woff2',
-								originalURL: '/test.woff2',
-								tech: undefined,
-								url: '/test.woff2',
-							},
-						],
-						stretch: undefined,
-						style: 'normal',
-						unicodeRange: ['bar'],
-						variationSettings: undefined,
-						weight: '300',
-					},
-				]);
-				assert.deepStrictEqual(collected, [
-					{
-						url: '/test.woff2',
-						collectPreload: true,
-						type: 'woff2',
-						data: { weight: '300', style: 'normal', subset: undefined },
-						init: null,
-					},
-				]);
+					],
+				},
 			});
+			assert.deepStrictEqual(fonts, [
+				{
+					display: undefined,
+					featureSettings: undefined,
+					src: [
+						{
+							tech: undefined,
+							url: fileURLToPath(new URL('./0.woff2', root)),
+						},
+					],
+					stretch: undefined,
+					style: 'italic',
+					unicodeRange: undefined,
+					variationSettings: undefined,
+					weight: '400',
+				},
+			]);
 		});
 	});
 });

@@ -1,5 +1,39 @@
 # @astrojs/db
 
+## 0.19.0-beta.2
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+## 0.19.0-alpha.1
+
+### Patch Changes
+
+- [#14956](https://github.com/withastro/astro/pull/14956) [`0ff51df`](https://github.com/withastro/astro/commit/0ff51dfa3c6c615af54228e159f324034472b1a2) Thanks [@matthewp](https://github.com/matthewp)! - Updates usage of zod to own dependency rather than relying on `astro/zod`
+
+## 0.19.0-alpha.0
+
+### Minor Changes
+
+- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
+
+## 0.19.0
+
+### Minor Changes
+
+- [#15069](https://github.com/withastro/astro/pull/15069) [`d14dfc2`](https://github.com/withastro/astro/commit/d14dfc2d4da71ec6958dc4b34ab04666b367352e) Thanks [@webstackdev](https://github.com/webstackdev)! - Adds a `--db-app-token` CLI flag to `astro db` commands `execute`, `push`, `query`, and `verify`
+
+  The new Astro DB CLI flags allow you to provide a remote database app token directly instead of `ASTRO_DB_APP_TOKEN`. This ensures that no untrusted code (e.g. CI / CD workflows) has access to the secret that is only needed by the `astro db` commands.
+
+  The following command can be used to safely push database configuration changes to your project database:
+
+  ```
+  astro db push --db-app-token <token>
+  ```
+
+  See the [Astro DB integration documentation](https://docs.astro.build/en/guides/integrations-guide/db/#astro-db-cli-reference) for more information.
+
 ## 0.18.3
 
 ### Patch Changes

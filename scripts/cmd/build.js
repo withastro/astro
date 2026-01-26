@@ -9,7 +9,8 @@ const defaultConfig = {
 	minify: false,
 	format: 'esm',
 	platform: 'node',
-	target: 'node18',
+	// TODO: update once Stackblitz supports Node 22
+	target: 'node20',
 	sourcemap: false,
 	sourcesContent: false,
 };

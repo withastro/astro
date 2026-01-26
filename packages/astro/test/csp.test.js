@@ -16,6 +16,7 @@ describe('CSP', () => {
 	it('should contain the meta style hashes when CSS is imported from Astro component', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
+			outDir: './dist/csp-style-hashes',
 			adapter: testAdapter({
 				setManifest(_manifest) {
 					manifest = _manifest;
@@ -41,6 +42,7 @@ describe('CSP', () => {
 	it('should contain the meta script hashes when using client island', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
+			outDir: './dist/csp-script-hashes',
 			adapter: testAdapter({
 				setManifest(_manifest) {
 					manifest = _manifest;
@@ -67,7 +69,8 @@ describe('CSP', () => {
 	it('should generate the hash with the sha512 algorithm', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			experimental: {
+			outDir: './dist/sha512',
+			security: {
 				csp: {
 					algorithm: 'SHA-512',
 				},
@@ -84,7 +87,8 @@ describe('CSP', () => {
 	it('should generate the hash with the sha384 algorithm', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			experimental: {
+			outDir: './dist/sha384',
+			security: {
 				csp: {
 					algorithm: 'SHA-384',
 				},
@@ -102,7 +106,8 @@ describe('CSP', () => {
 	it('should render hashes provided by the user', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			experimental: {
+			outDir: './dist/custom-hashes',
+			security: {
 				csp: {
 					styleDirective: {
 						hashes: ['sha512-hash1', 'sha384-hash2'],
@@ -128,7 +133,8 @@ describe('CSP', () => {
 	it('should contain the additional directives', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			experimental: {
+			outDir: './dist/directives',
+			security: {
 				csp: {
 					directives: ["img-src 'self' 'https://example.com'"],
 				},
@@ -146,7 +152,8 @@ describe('CSP', () => {
 	it('should contain the custom resources for "script-src" and "style-src"', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			experimental: {
+			outDir: './dist/custom-resources',
+			security: {
 				csp: {
 					styleDirective: {
 						resources: ['https://cdn.example.com', 'https://styles.cdn.example.com'],
@@ -177,9 +184,18 @@ describe('CSP', () => {
 		);
 	});
 
-	it('allows injecting custom script resources and hashes based on pages', async () => {
+	it('allows injecting custom script resources and hashes based on pages, deduplicated', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
+			outDir: './dist/inject-scripts/',
+			security: {
+				csp: {
+					directives: ["img-src 'self'"],
+					scriptDirective: {
+						resources: ['https://global.cdn.example.com'],
+					},
+				},
+			},
 		});
 		await fixture.build();
 
@@ -189,16 +205,31 @@ describe('CSP', () => {
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
 		// correctness for resources
 		assert.ok(
-			meta.attr('content').toString().includes('script-src https://scripts.cdn.example.com'),
+			meta
+				.attr('content')
+				.toString()
+				.includes('script-src https://global.cdn.example.com https://scripts.cdn.example.com'),
 		);
 		assert.ok(meta.attr('content').toString().includes("style-src 'self'"));
 		// correctness for hashes
 		assert.ok(meta.attr('content').toString().includes("default-src 'self';"));
+		assert.ok(
+			meta.attr('content').toString().includes("img-src 'self' https://images.cdn.example.com;"),
+		);
 	});
 
 	it('allows injecting custom styles resources and hashes based on pages', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
+			outDir: './dist/inject-styles/',
+			security: {
+				csp: {
+					directives: ["img-src 'self'"],
+					styleDirective: {
+						resources: ['https://global.cdn.example.com'],
+					},
+				},
+			},
 		});
 		await fixture.build();
 		const html = await fixture.readFile('/styles/index.html');
@@ -206,16 +237,25 @@ describe('CSP', () => {
 
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
 		// correctness for resources
-		assert.ok(meta.attr('content').toString().includes('style-src https://styles.cdn.example.com'));
+		assert.ok(
+			meta
+				.attr('content')
+				.toString()
+				.includes('style-src https://global.cdn.example.com https://styles.cdn.example.com'),
+		);
 		assert.ok(meta.attr('content').toString().includes("script-src 'self'"));
 		// correctness for hashes
 		assert.ok(meta.attr('content').toString().includes("default-src 'self';"));
+		assert.ok(
+			meta.attr('content').toString().includes("img-src 'self' https://images.cdn.example.com;"),
+		);
 	});
 
 	it('allows add `strict-dynamic` when enabled', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			experimental: {
+			outDir: './dist/strict-dynamic',
+			security: {
 				csp: {
 					scriptDirective: {
 						strictDynamic: true,
@@ -234,7 +274,8 @@ describe('CSP', () => {
 	it("allows the use of directives that don't require values, and deprecated ones", async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp/',
-			experimental: {
+			outDir: './dist/no-value-directives',
+			security: {
 				csp: {
 					directives: [
 						'upgrade-insecure-requests',
@@ -259,8 +300,9 @@ describe('CSP', () => {
 	it('should serve hashes via headers for dynamic pages, when the strategy is "auto"', async () => {
 		fixture = await loadFixture({
 			root: './fixtures/csp-adapter/',
+			outDir: './dist/csp-headers',
 			adapter: testAdapter(),
-			experimental: {
+			security: {
 				csp: true,
 			},
 		});
@@ -358,13 +400,14 @@ describe('CSP', () => {
 		let routeToHeaders;
 		fixture = await loadFixture({
 			root: './fixtures/csp-adapter/',
+			outDir: './dist/csp-hook',
 			adapter: testAdapter({
 				staticHeaders: true,
 				setRouteToHeaders(payload) {
 					routeToHeaders = payload;
 				},
 			}),
-			experimental: {
+			security: {
 				csp: true,
 			},
 		});

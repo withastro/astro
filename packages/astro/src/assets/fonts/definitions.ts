@@ -1,14 +1,13 @@
 import type * as unifont from 'unifont';
 import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
-/* eslint-disable @typescript-eslint/no-empty-object-type */
 import type {
-	AstroFontProvider,
+	CssProperties,
 	FontFaceMetrics,
 	FontFileData,
+	FontProvider,
 	FontType,
 	GenericFallbackName,
-	PreloadData,
-	ResolvedFontProvider,
+	ResolveFontOptions,
 	Style,
 } from './types.js';
 
@@ -17,75 +16,14 @@ export interface Hasher {
 	hashObject: (input: Record<string, any>) => string;
 }
 
-export interface RemoteFontProviderModResolver {
-	resolve: (id: string) => Promise<any>;
-}
-
-export interface RemoteFontProviderResolver {
-	resolve: (provider: AstroFontProvider) => Promise<ResolvedFontProvider>;
-}
-
-export interface LocalProviderUrlResolver {
-	resolve: (input: string) => string;
-}
-
-type SingleErrorInput<TType extends string, TData extends Record<string, any>> = {
-	type: TType;
-	data: TData;
-	cause: unknown;
-};
-
-export type ErrorHandlerInput =
-	| SingleErrorInput<
-			'cannot-load-font-provider',
-			{
-				entrypoint: string;
-			}
-	  >
-	| SingleErrorInput<'unknown-fs-error', {}>
-	| SingleErrorInput<'cannot-fetch-font-file', { url: string }>
-	| SingleErrorInput<'cannot-extract-font-type', { url: string }>
-	| SingleErrorInput<'cannot-extract-data', { family: string; url: string }>;
-
-export interface ErrorHandler {
-	handle: (input: ErrorHandlerInput) => Error;
-}
-
-interface ProxyData {
-	weight: unifont.FontFaceData['weight'];
-	style: unifont.FontFaceData['style'];
-	subset: NonNullable<unifont.FontFaceData['meta']>['subset'];
-}
-
-export interface UrlProxy {
-	proxy: (
-		input: Pick<FontFileData, 'url' | 'init'> & {
-			type: FontType;
-			collectPreload: boolean;
-			data: ProxyData;
-		},
-	) => string;
-}
-
 export interface UrlResolver {
-	resolve: (hash: string) => string;
-	getCspResources: () => Array<string>;
+	resolve: (id: string) => string;
+	readonly cspResources: Array<string>;
 }
 
-export interface UrlProxyContentResolver {
+export interface FontFileContentResolver {
 	resolve: (url: string) => string;
 }
-
-export interface DataCollector {
-	collect: (
-		input: FontFileData & {
-			data: ProxyData;
-			preload: PreloadData | null;
-		},
-	) => void;
-}
-
-export type CssProperties = Record<string, string | undefined>;
 
 export interface CssRenderer {
 	generateFontFace: (family: string, properties: CssProperties) => string;
@@ -123,15 +61,29 @@ export interface FontFileReader {
 	};
 }
 
-export interface UrlProxyHashResolver {
-	resolve: (input: {
+export interface FontFileIdGenerator {
+	generate: (input: {
 		originalUrl: string;
 		type: FontType;
 		cssVariable: string;
-		data: ProxyData;
+		font: unifont.FontFaceData;
 	}) => string;
 }
 
 export interface StringMatcher {
 	getClosestMatch: (target: string, candidates: Array<string>) => string;
+}
+
+export interface Storage {
+	getItem: (key: string) => Promise<any | null>;
+	getItemRaw: (key: string) => Promise<Buffer | null>;
+	setItem: (key: string, value: any) => Promise<void>;
+	setItemRaw: (key: string, value: any) => Promise<void>;
+}
+
+export interface FontResolver {
+	resolveFont: (
+		options: ResolveFontOptions<Record<string, any>> & { provider: FontProvider },
+	) => Promise<Array<unifont.FontFaceData>>;
+	listFonts: (options: { provider: FontProvider }) => Promise<string[] | undefined>;
 }

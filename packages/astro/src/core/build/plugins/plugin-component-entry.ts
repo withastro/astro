@@ -1,6 +1,6 @@
 import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../internal.js';
-import type { AstroBuildPlugin } from '../plugin.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
 const astroEntryPrefix = '\0astro-entry:';
 
@@ -9,7 +9,7 @@ const astroEntryPrefix = '\0astro-entry:';
  * of the export names, e.g. `import { Counter } from './ManyComponents.jsx'`. This plugin proxies
  * entries to re-export only the names the user is using.
  */
-function vitePluginComponentEntry(internals: BuildInternals): VitePlugin {
+export function pluginComponentEntry(internals: BuildInternals): VitePlugin {
 	const componentToExportNames = new Map<string, string[]>();
 
 	mergeComponentExportNames(internals.discoveredHydratedComponents);
@@ -39,6 +39,9 @@ function vitePluginComponentEntry(internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/plugin-component-entry',
 		enforce: 'pre',
+		applyToEnvironment(environment) {
+			return environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client;
+		},
 		config(config) {
 			const rollupInput = config.build?.rollupOptions?.input;
 			// Astro passes an array of inputs by default. Even though other Vite plugins could
@@ -54,13 +57,19 @@ function vitePluginComponentEntry(internals: BuildInternals): VitePlugin {
 				});
 			}
 		},
-		async resolveId(id) {
-			if (id.startsWith(astroEntryPrefix)) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${astroEntryPrefix}`),
+			},
+			handler(id) {
 				return id;
-			}
+			},
 		},
-		async load(id) {
-			if (id.startsWith(astroEntryPrefix)) {
+		load: {
+			filter: {
+				id: new RegExp(`^${astroEntryPrefix}`),
+			},
+			async handler(id) {
 				const componentId = id.slice(astroEntryPrefix.length);
 				const exportNames = componentToExportNames.get(componentId);
 				if (exportNames) {
@@ -68,24 +77,11 @@ function vitePluginComponentEntry(internals: BuildInternals): VitePlugin {
 						code: `export { ${exportNames.join(', ')} } from ${JSON.stringify(componentId)}`,
 					};
 				}
-			}
+			},
 		},
 	};
 }
 
 export function normalizeEntryId(id: string): string {
 	return id.startsWith(astroEntryPrefix) ? id.slice(astroEntryPrefix.length) : id;
-}
-
-export function pluginComponentEntry(internals: BuildInternals): AstroBuildPlugin {
-	return {
-		targets: ['client'],
-		hooks: {
-			'build:before': () => {
-				return {
-					vitePlugin: vitePluginComponentEntry(internals),
-				};
-			},
-		},
-	};
 }

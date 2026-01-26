@@ -5,12 +5,12 @@ import { fileURLToPath } from 'node:url';
 import pLimit from 'p-limit';
 import colors from 'piccolore';
 import { injectImageEndpoint } from '../../../assets/endpoint/config.js';
-import { toRoutingStrategy } from '../../../i18n/utils.js';
 import { runHookRoutesResolved } from '../../../integrations/hooks.js';
 import { getPrerenderDefault } from '../../../prerender/utils.js';
 import type { AstroSettings, RoutesList } from '../../../types/astro.js';
 import type { AstroConfig } from '../../../types/public/config.js';
 import type { RouteData, RoutePart } from '../../../types/public/internal.js';
+import { toRoutingStrategy } from '../../app/index.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import {
 	MissingIndexForInternationalization,
@@ -23,7 +23,6 @@ import { injectServerIslandRoute } from '../../server-islands/endpoint.js';
 import { resolvePages } from '../../util.js';
 import { ensure404Route } from '../astro-designed-error-pages.js';
 import { routeComparator } from '../priority.js';
-import { getRouteGenerator } from './generator.js';
 import { getPattern } from './pattern.js';
 import { getRoutePrerenderOption } from './prerender.js';
 import { validateSegment } from './segment.js';
@@ -119,6 +118,7 @@ function createFileBasedRoutes(
 		...SUPPORTED_MARKDOWN_FILE_EXTENSIONS,
 		...settings.pageExtensions,
 	]);
+	const invalidPotentialPages = new Set<string>(['.tsx', '.jsx', '.vue', '.svelte']);
 	const validEndpointExtensions = new Set<string>(['.js', '.ts']);
 	const localFs = fsMod ?? nodeFs;
 	const prerender = getPrerenderDefault(settings.config);
@@ -146,12 +146,16 @@ function createFileBasedRoutes(
 			}
 			// filter out "foo.astro_tmp" files, etc
 			if (!isDir && !validPageExtensions.has(ext) && !validEndpointExtensions.has(ext)) {
-				logger.warn(
-					null,
-					`Unsupported file type ${colors.bold(
-						resolved,
-					)} found. Prefix filename with an underscore (\`_\`) to ignore.`,
-				);
+				// Only warn for files that could potentially be interpreted by users has being possible extensions for pages
+				// It's otherwise not a problem for users to have other files in their pages directory, for instance colocated images.
+				if (invalidPotentialPages.has(ext)) {
+					logger.warn(
+						null,
+						`Unsupported file type ${colors.bold(
+							resolved,
+						)} found in pages directory. Only Astro files can be used as pages. Prefix filename with an underscore (\`_\`) to ignore this warning, or move the file outside of the pages directory.`,
+					);
+				}
 
 				continue;
 			}
@@ -220,7 +224,6 @@ function createFileBasedRoutes(
 					: null;
 				const trailingSlash = trailingSlashForPath(pathname, settings.config);
 				const pattern = getPattern(segments, settings.config.base, trailingSlash);
-				const generate = getRouteGenerator(segments, trailingSlash);
 				const route = joinSegments(segments);
 				routes.push({
 					route,
@@ -230,7 +233,6 @@ function createFileBasedRoutes(
 					segments,
 					params,
 					component,
-					generate,
 					pathname: pathname || undefined,
 					prerender,
 					fallbackRoutes: [],
@@ -255,12 +257,11 @@ function createFileBasedRoutes(
 }
 
 // Get trailing slash rule for a path, based on the config and whether the path has an extension.
-// TODO: in Astro 6, change endpoints with extensions to use 'never'
 const trailingSlashForPath = (
 	pathname: string | null,
 	config: AstroConfig,
 ): AstroConfig['trailingSlash'] =>
-	pathname && hasFileExtension(pathname) ? 'ignore' : config.trailingSlash;
+	pathname && hasFileExtension(pathname) ? 'never' : config.trailingSlash;
 
 function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): RouteData[] {
 	const { config } = settings;
@@ -287,7 +288,6 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 
 		const trailingSlash = trailingSlashForPath(pathname, config);
 		const pattern = getPattern(segments, settings.config.base, trailingSlash);
-		const generate = getRouteGenerator(segments, trailingSlash);
 		const params = segments
 			.flat()
 			.filter((p) => p.dynamic)
@@ -303,7 +303,6 @@ function createInjectedRoutes({ settings, cwd }: CreateRouteManifestParams): Rou
 			segments,
 			params,
 			component,
-			generate,
 			pathname: pathname || void 0,
 			prerender: prerenderInjected ?? prerender,
 			fallbackRoutes: [],
@@ -337,7 +336,6 @@ function createRedirectRoutes(
 			});
 
 		const pattern = getPattern(segments, settings.config.base, trailingSlash);
-		const generate = getRouteGenerator(segments, trailingSlash);
 		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 			? `/${segments.map((segment) => segment[0].content).join('/')}`
 			: null;
@@ -371,7 +369,6 @@ function createRedirectRoutes(
 			segments,
 			params,
 			component: from,
-			generate,
 			pathname: pathname || void 0,
 			prerender: getPrerenderDefault(config),
 			redirect: to,
@@ -470,7 +467,17 @@ function detectRouteCollision(a: RouteData, b: RouteData, _config: AstroConfig, 
 export async function createRoutesList(
 	params: CreateRouteManifestParams,
 	logger: Logger,
-	{ dev = false }: { dev?: boolean } = {},
+	{
+		dev = false,
+		skipBuildOutputAssignment = false,
+	}: {
+		dev?: boolean;
+		/**
+		 * When `true`, the assignment of `settings.buildOutput` is skipped.
+		 * Usually, that's needed when this function has already been called.
+		 */
+		skipBuildOutputAssignment?: boolean;
+	} = {},
 ): Promise<RoutesList> {
 	const { settings } = params;
 	const { config } = settings;
@@ -499,7 +506,9 @@ export async function createRoutesList(
 		...[...filteredFiledBasedRoutes, ...injectedRoutes, ...redirectRoutes].sort(routeComparator),
 	];
 
-	settings.buildOutput = getPrerenderDefault(config) ? 'static' : 'server';
+	if (skipBuildOutputAssignment !== true) {
+		settings.buildOutput = getPrerenderDefault(config) ? 'static' : 'server';
+	}
 
 	// Check the prerender option for each route
 	const limit = pLimit(10);
@@ -710,7 +719,6 @@ export async function createRoutesList(
 									validateSegment(s);
 									return getParts(s, route);
 								});
-							const generate = getRouteGenerator(segments, config.trailingSlash);
 							const index = routes.findIndex((r) => r === fallbackToRoute);
 							if (index >= 0) {
 								const fallbackRoute: RouteData = {
@@ -718,7 +726,6 @@ export async function createRoutesList(
 									pathname,
 									route,
 									segments,
-									generate,
 									pattern: getPattern(segments, config.base, config.trailingSlash),
 									type: 'fallback',
 									fallbackRoutes: [],

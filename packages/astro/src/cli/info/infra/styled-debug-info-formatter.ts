@@ -1,29 +1,33 @@
 import type { TextStyler } from '../../definitions.js';
 import type { DebugInfoFormatter } from '../definitions.js';
+import type { DebugInfo } from '../domain/debug-info.js';
 
-const MAX_PADDING = 25;
+export class StyledDebugInfoFormatter implements DebugInfoFormatter {
+	readonly #textStyler: TextStyler;
+	readonly #maxPadding: number = 25;
 
-interface Options {
-	textStyler: TextStyler;
-}
+	constructor({
+		textStyler,
+	}: {
+		textStyler: TextStyler;
+	}) {
+		this.#textStyler = textStyler;
+	}
 
-export function createStyledDebugInfoFormatter({ textStyler }: Options): DebugInfoFormatter {
-	return {
-		format(info) {
-			let output = '';
-			for (const [label, value] of info) {
-				const padding = MAX_PADDING - label.length;
-				const [first, ...rest] = Array.isArray(value) ? value : [value];
-				let richtext = `\n${textStyler.bold(label)}${' '.repeat(padding)}${textStyler.green(first)}`;
-				if (rest.length > 0) {
-					for (const entry of rest) {
-						richtext += `\n${' '.repeat(MAX_PADDING)}${textStyler.green(entry)}`;
-					}
+	format(info: DebugInfo): string {
+		let output = '';
+		for (const [label, value] of info) {
+			const padding = this.#maxPadding - label.length;
+			const [first, ...rest] = Array.isArray(value) ? value : [value];
+			let richtext = `\n${this.#textStyler.bold(label)}${' '.repeat(padding)}${this.#textStyler.green(first)}`;
+			if (rest.length > 0) {
+				for (const entry of rest) {
+					richtext += `\n${' '.repeat(this.#maxPadding)}${this.#textStyler.green(entry)}`;
 				}
-				output += richtext;
 			}
+			output += richtext;
+		}
 
-			return output.trim();
-		},
-	};
+		return output.trim();
+	}
 }

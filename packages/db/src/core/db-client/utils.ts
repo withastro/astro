@@ -1,5 +1,5 @@
 import type { Config as LibSQLConfig } from '@libsql/client';
-import z from 'zod';
+import z from 'zod/v3';
 
 const rawLibSQLOptions = z.record(z.string());
 

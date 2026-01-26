@@ -128,6 +128,72 @@ export type BaseServiceTransform = {
 
 const sortNumeric = (a: number, b: number) => a - b;
 
+export function verifyOptions(options: ImageTransform): void {
+	// `src` is missing or is `undefined`.
+	if (!options.src || (!isRemoteImage(options.src) && !isESMImportedImage(options.src))) {
+		throw new AstroError({
+			...AstroErrorData.ExpectedImage,
+			message: AstroErrorData.ExpectedImage.message(
+				JSON.stringify(options.src),
+				typeof options.src,
+				JSON.stringify(options, (_, v) => (v === undefined ? null : v)),
+			),
+		});
+	}
+
+	if (!isESMImportedImage(options.src)) {
+		// User passed an `/@fs/` path or a filesystem path instead of the full image.
+		if (
+			options.src.startsWith('/@fs/') ||
+			(!isRemotePath(options.src) && !options.src.startsWith('/'))
+		) {
+			throw new AstroError({
+				...AstroErrorData.LocalImageUsedWrongly,
+				message: AstroErrorData.LocalImageUsedWrongly.message(options.src),
+			});
+		}
+
+		// For remote images, width and height are explicitly required as we can't infer them from the file
+		let missingDimension: 'width' | 'height' | 'both' | undefined;
+		if (!options.width && !options.height) {
+			missingDimension = 'both';
+		} else if (!options.width && options.height) {
+			missingDimension = 'width';
+		} else if (options.width && !options.height) {
+			missingDimension = 'height';
+		}
+
+		if (missingDimension) {
+			throw new AstroError({
+				...AstroErrorData.MissingImageDimension,
+				message: AstroErrorData.MissingImageDimension.message(missingDimension, options.src),
+			});
+		}
+	} else {
+		if (!VALID_SUPPORTED_FORMATS.includes(options.src.format as any)) {
+			throw new AstroError({
+				...AstroErrorData.UnsupportedImageFormat,
+				message: AstroErrorData.UnsupportedImageFormat.message(
+					options.src.format,
+					options.src.src,
+					VALID_SUPPORTED_FORMATS,
+				),
+			});
+		}
+
+		if (options.widths && options.densities) {
+			throw new AstroError(AstroErrorData.IncompatibleDescriptorOptions);
+		}
+
+		if (
+			(options.src.format === 'svg' && options.format !== 'svg') ||
+			(options.src.format !== 'svg' && options.format === 'svg')
+		) {
+			throw new AstroError(AstroErrorData.UnsupportedImageConversion);
+		}
+	}
+}
+
 /**
  * Basic local service using the included `_image` endpoint.
  * This service intentionally does not implement `transform`.
@@ -143,7 +209,6 @@ const sortNumeric = (a: number, b: number) => a - b;
  * ```
  *
  * This service adhere to the included services limitations:
- * - Remote images are passed as is.
  * - Only a limited amount of formats are supported.
  * - For remote images, `width` and `height` are always required.
  *
@@ -151,82 +216,18 @@ const sortNumeric = (a: number, b: number) => a - b;
 export const baseService: Omit<LocalImageService, 'transform'> = {
 	propertiesToHash: DEFAULT_HASH_PROPS,
 	validateOptions(options) {
-		// `src` is missing or is `undefined`.
-		if (!options.src || (!isRemoteImage(options.src) && !isESMImportedImage(options.src))) {
-			throw new AstroError({
-				...AstroErrorData.ExpectedImage,
-				message: AstroErrorData.ExpectedImage.message(
-					JSON.stringify(options.src),
-					typeof options.src,
-					JSON.stringify(options, (_, v) => (v === undefined ? null : v)),
-				),
-			});
+		// We currently do not support processing SVGs, so whenever the input format is a SVG, force the output to also be one
+		if (isESMImportedImage(options.src) && options.src.format === 'svg') {
+			options.format = 'svg';
 		}
 
-		if (!isESMImportedImage(options.src)) {
-			// User passed an `/@fs/` path or a filesystem path instead of the full image.
-			if (
-				options.src.startsWith('/@fs/') ||
-				(!isRemotePath(options.src) && !options.src.startsWith('/'))
-			) {
-				throw new AstroError({
-					...AstroErrorData.LocalImageUsedWrongly,
-					message: AstroErrorData.LocalImageUsedWrongly.message(options.src),
-				});
-			}
+		// Run verification-only checks
+		verifyOptions(options);
 
-			// For remote images, width and height are explicitly required as we can't infer them from the file
-			let missingDimension: 'width' | 'height' | 'both' | undefined;
-			if (!options.width && !options.height) {
-				missingDimension = 'both';
-			} else if (!options.width && options.height) {
-				missingDimension = 'width';
-			} else if (options.width && !options.height) {
-				missingDimension = 'height';
-			}
-
-			if (missingDimension) {
-				throw new AstroError({
-					...AstroErrorData.MissingImageDimension,
-					message: AstroErrorData.MissingImageDimension.message(missingDimension, options.src),
-				});
-			}
-		} else {
-			if (!VALID_SUPPORTED_FORMATS.includes(options.src.format as any)) {
-				throw new AstroError({
-					...AstroErrorData.UnsupportedImageFormat,
-					message: AstroErrorData.UnsupportedImageFormat.message(
-						options.src.format,
-						options.src.src,
-						VALID_SUPPORTED_FORMATS,
-					),
-				});
-			}
-
-			if (options.widths && options.densities) {
-				throw new AstroError(AstroErrorData.IncompatibleDescriptorOptions);
-			}
-
-			// We currently do not support processing SVGs, so whenever the input format is a SVG, force the output to also be one
-			if (options.src.format === 'svg') {
-				options.format = 'svg';
-			}
-
-			if (
-				(options.src.format === 'svg' && options.format !== 'svg') ||
-				(options.src.format !== 'svg' && options.format === 'svg')
-			) {
-				throw new AstroError(AstroErrorData.UnsupportedImageConversion);
-			}
-		}
-
-		// If the user didn't specify a format, we'll default to `webp`. It offers the best ratio of compatibility / quality
-		// In the future, hopefully we can replace this with `avif`, alas, Edge. See https://caniuse.com/avif
+		// Apply defaults and normalization separate from verification
 		if (!options.format) {
 			options.format = DEFAULT_OUTPUT_FORMAT;
 		}
-
-		// Sometimes users will pass number generated from division, which can result in floating point numbers
 		if (options.width) options.width = Math.round(options.width);
 		if (options.height) options.height = Math.round(options.height);
 		if (options.layout && options.width && options.height) {

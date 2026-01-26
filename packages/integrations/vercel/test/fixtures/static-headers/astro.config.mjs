@@ -6,7 +6,7 @@ export default defineConfig({
 	adapter: vercel({
 		experimentalStaticHeaders: true,
 	}),
-	experimental: {
+	security: {
 		csp: true
 	},
 });

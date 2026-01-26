@@ -1,7 +1,7 @@
 ---
 import Route from "../components/Route.astro";
 
-const markdownPosts = await Astro.glob('./post/**/*.{markdown,mdown,mkdn,mkd,mdwn,md}');
+const markdownPosts = Object.values(import.meta.glob('./post/**/*.{markdown,mdown,mkdn,mkd,mdwn,md}', { eager: true }));
 const markdownExtensions = /(\.(markdown|mdown|mkdn|mkd|mdwn|md))$/g
 const aUrlContainsExtension = markdownPosts.some((page:any)=> {
 	return markdownExtensions.test(page.url)

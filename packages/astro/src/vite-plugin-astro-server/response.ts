@@ -55,20 +55,17 @@ export function writeRedirectResponse(
 	res.end();
 }
 
-export async function writeWebResponse(res: http.ServerResponse, webResponse: Response) {
+async function writeWebResponse(res: http.ServerResponse, webResponse: Response) {
 	const { status, headers, body, statusText } = webResponse;
 
 	// Attach any set-cookie headers added via Astro.cookies.set()
-	const setCookieHeaders = Array.from(getSetCookiesFromResponse(webResponse));
-	if (setCookieHeaders.length) {
-		// Always use `res.setHeader` because headers.append causes them to be concatenated.
-		res.setHeader('set-cookie', setCookieHeaders);
-	}
+	const setCookiesFromResponse = Array.from(getSetCookiesFromResponse(webResponse));
+	const setCookieHeaders = [...setCookiesFromResponse, ...headers.getSetCookie()];
 
 	const _headers: http.OutgoingHttpHeaders = Object.fromEntries(headers.entries());
 
-	if (headers.has('set-cookie')) {
-		_headers['set-cookie'] = headers.getSetCookie();
+	if (setCookieHeaders.length) {
+		_headers['set-cookie'] = setCookieHeaders;
 	}
 	// HTTP/2 doesn't support statusMessage
 	if (!(res instanceof Http2ServerResponse)) {

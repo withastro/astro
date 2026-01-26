@@ -1,4 +1,5 @@
-import { defineCollection, z, reference } from 'astro:content';
+import { defineCollection, reference } from 'astro:content';
+import { z } from 'astro/zod';
 import { file, glob } from 'astro/loaders';
 import { loader } from './loaders/post-loader.js';
 import { readFile } from 'fs/promises';
@@ -83,7 +84,7 @@ const spacecraft = defineCollection({
 			publishedDate: z.coerce.date(),
 			tags: z.array(z.string()),
 			heroImage: image().optional(),
-			cat: reference('cats').default('siamese'),
+			cat: reference('cats').prefault('siamese'),
 			something: z
 				.string()
 				.optional()
@@ -226,14 +227,22 @@ const increment = defineCollection({
 				rendered: await renderMarkdown(markdownContent)
 			});
 		},
-		// Example of a loader that returns an async schema function
-		schema: async () =>
-			z.object({
+		createSchema: async () => {
+			return {
+				schema: z.object({
 				lastValue: z.number(),
 				lastUpdated: z.date(),
-				refreshContextData: z.record(z.unknown()).optional(),
+				refreshContextData: z.record(z.string(), z.unknown()).optional(),
 				slug: z.string().optional(),
 			}),
+			types: /* ts */`export interface Entry {
+	lastValue: number;
+	lastUpdated: Date;
+	refreshContextData?: Record<string, unknown> | undefined;
+	slug?: string | undefined;
+}`
+			}
+		}
 	},
 });
 
@@ -285,4 +294,3 @@ export const collections = {
 	notADirectory,
 	nothingMatches
 };
-

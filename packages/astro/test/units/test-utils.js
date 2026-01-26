@@ -93,9 +93,6 @@ function buffersToString(buffers) {
 	return str;
 }
 
-// A convenience method for creating an astro module from a component
-export const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
-
 /**
  * @param {Partial<Pipeline>} options
  * @returns {Pipeline}
@@ -105,12 +102,11 @@ export function createBasicPipeline(options = {}) {
 	const pipeline = new Pipeline(
 		options.logger ?? defaultLogger,
 		options.manifest ?? {
-			hrefRoot: import.meta.url,
+			rootDir: import.meta.url,
 		},
 		options.mode ?? 'development',
 		options.renderers ?? [],
 		options.resolve ?? ((s) => Promise.resolve(s)),
-		options.serverLike ?? true,
 		options.streaming ?? true,
 		options.adapterName,
 		options.clientDirectives ?? getDefaultClientDirectives(),
@@ -168,38 +164,40 @@ export async function runInContainer(options = {}, callback) {
 	}
 }
 
-export function createSpyLogger() {
+/**
+ * @import {Logger} from '../../dist/core/logger/core'
+ */
+
+/** @implements {Logger} */
+export class SpyLogger {
 	/** @type {Array<{ type: string; label: string | null; message: string }>} */
-	const logs = [];
+	#logs = [];
+	get logs() {
+		return this.#logs;
+	}
 
-	/** @type {import('../../dist/core/logger/core').Logger} */
-	const logger = {
-		debug: (label, ...messages) => {
-			logs.push(...messages.map((message) => ({ type: 'debug', label, message })));
+	debug(label, ...messages) {
+		this.#logs.push(...messages.map((message) => ({ type: 'debug', label, message })));
+	}
+	error(label, message) {
+		this.#logs.push({ type: 'error', label, message });
+	}
+	info(label, message) {
+		this.#logs.push({ type: 'info', label, message });
+	}
+	warn(label, message) {
+		this.#logs.push({ type: 'warn', label, message });
+	}
+	options = {
+		dest: {
+			write: () => true,
 		},
-		error: (label, message) => {
-			logs.push({ type: 'error', label, message });
-		},
-		info: (label, message) => {
-			logs.push({ type: 'info', label, message });
-		},
-		warn: (label, message) => {
-			logs.push({ type: 'warn', label, message });
-		},
-		options: {
-			dest: {
-				write: () => true,
-			},
-			level: 'silent',
-		},
-		level: () => 'silent',
-		forkIntegrationLogger(label) {
-			return new AstroIntegrationLogger(this.options, label);
-		},
+		level: /** @type {const} */ ('silent'),
 	};
-
-	return {
-		logs,
-		logger,
-	};
+	level() {
+		return this.options.level;
+	}
+	forkIntegrationLogger(label) {
+		return new AstroIntegrationLogger(this.options, label);
+	}
 }

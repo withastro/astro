@@ -1,5 +1,5 @@
 import type { FSWatcher } from 'vite';
-import type { ZodSchema } from 'zod';
+import type * as z from 'zod/v4/core';
 import type { AstroIntegrationLogger } from '../../core/logger/core.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type {
@@ -49,14 +49,24 @@ export interface LoaderContext {
 	entryTypes: Map<string, ContentEntryType>;
 }
 
-export interface Loader {
+export type Loader = {
 	/** Unique name of the loader, e.g. the npm package name */
 	name: string;
 	/** Do the actual loading of the data */
 	load: (context: LoaderContext) => Promise<void>;
-	/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
-	schema?: ZodSchema | Promise<ZodSchema> | (() => ZodSchema | Promise<ZodSchema>);
-}
+} & (
+	| {
+			/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
+			schema?: z.$ZodType;
+	  }
+	| {
+			/** Optionally, provide a function to dynamically provide a schema. Will be overridden by user-defined schema */
+			createSchema?: () => Promise<{
+				schema: z.$ZodType;
+				types: string;
+			}>;
+	  }
+);
 
 export interface LoadEntryContext<TEntryFilter = never> {
 	filter: TEntryFilter extends never ? { id: string } : TEntryFilter;
