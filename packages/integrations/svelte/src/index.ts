@@ -44,7 +44,7 @@ function configEnvironmentPlugin(): Plugin {
 							environmentName === 'client'
 								? ['@astrojs/svelte/client.js']
 								: environmentName === 'ssr' || environmentName === 'prerender'
-									? ['svelte/server']
+									? ['svelte/server', 'svelte/internal/server']
 									: [],
 						exclude:
 							environmentName === 'ssr' || environmentName === 'prerender'
