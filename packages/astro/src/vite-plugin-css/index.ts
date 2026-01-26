@@ -1,6 +1,6 @@
 import { prependForwardSlash } from '@astrojs/internal-helpers/path';
 import type * as vite from 'vite';
-import { type DevEnvironment, isRunnableDevEnvironment, type Plugin } from 'vite';
+import { type DevEnvironment, type Plugin } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { wrapId } from '../core/util.js';
 import type { ImportedDevStyle, RoutesList } from '../types/astro.js';
@@ -134,9 +134,7 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 						const componentPageId = getVirtualModulePageNameForComponent(componentPath);
 
 						// Ensure the page module is loaded. This will populate the graph and allow us to walk through.
-						if (ssrEnvironment && isRunnableDevEnvironment(ssrEnvironment)) {
-							await ssrEnvironment.runner?.import(componentPageId);
-						}
+						await ssrEnvironment?.fetchModule(componentPageId);
 						const resolved = await ssrEnvironment?.pluginContainer.resolveId(componentPageId);
 
 						if (!resolved?.id) {

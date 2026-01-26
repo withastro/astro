@@ -5013,6 +5013,21 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/cloudflare/test/fixtures/prerender-styles:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      '@tailwindcss/vite':
+        specifier: ^4.1.18
+        version: 4.1.18(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.2)(tsx@4.21.0)(yaml@2.8.2))
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      tailwindcss:
+        specifier: ^4.1.18
+        version: 4.1.18
+
   packages/integrations/cloudflare/test/fixtures/routes-json:
     dependencies:
       '@astrojs/cloudflare':
