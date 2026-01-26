@@ -2,4 +2,4 @@
 'astro': minor
 ---
 
-Scaffold src/env.d.ts and update tsconfig to include `.worker-configuration.d.ts` when adding the Cloudflare adapter.
+Adds `./worker-configuration.d.ts` to tsconfig includes when adding the Cloudflare adapter via `astro add cloudflare`.

@@ -21,7 +21,6 @@ import {
 	defaultTSConfig,
 	type frameworkWithTSSettings,
 	presets,
-	type TSConfig,
 	updateTSConfigForFramework,
 } from '../../core/config/tsconfig.js';
 import type { Logger } from '../../core/logger/core.js';
@@ -100,11 +99,6 @@ export default async function seed() {
   }
 }`,
 	CLOUDFLARE_ASSETSIGNORE: `_worker.js\n_routes.json`,
-	CLOUDFLARE_ENV_D_TS: `type Runtime = import('@astrojs/cloudflare').Runtime<Env>;
-
-declare namespace App {
-  interface Locals extends Runtime {}
-}`,
 };
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
@@ -252,68 +246,6 @@ export async function add(names: string[], { flags }: AddOptions) {
 					}
 				} else {
 					logger.debug('add', `Using existing .assetsignore`);
-				}
-
-				const srcDir = new URL(userConfig.srcDir ?? './src/', root);
-				const envDefinition = new URL('./env.d.ts', srcDir);
-
-				const envDisplayPath = './src/env.d.ts';
-
-				if (!existsSync(envDefinition)) {
-					logger.info(
-						'SKIP_FORMAT',
-						`\n  ${magenta(`Astro will scaffold ${green(envDisplayPath)}.`)}\n`,
-					);
-
-					const envMessage = `\n${boxen(STUBS.CLOUDFLARE_ENV_D_TS, {
-						margin: 0.5,
-						padding: 0.5,
-						borderStyle: 'round',
-						title: envDisplayPath,
-					})}\n`;
-
-					logger.info('SKIP_FORMAT', envMessage);
-
-					if (await askToContinue({ flags, logger })) {
-						if (!existsSync(srcDir)) {
-							await fs.mkdir(srcDir);
-						}
-						await fs.writeFile(envDefinition, STUBS.CLOUDFLARE_ENV_D_TS, 'utf-8');
-					}
-				} else {
-					const envFile = await fs.readFile(envDefinition, 'utf-8');
-
-					if (!envFile.includes(STUBS.CLOUDFLARE_ENV_D_TS)) {
-						logger.info(
-							'SKIP_FORMAT',
-							`\n  ${magenta(`Astro will update ${green(envDisplayPath)}.`)}\n`,
-						);
-
-						const updatedEnv = `${envFile}${envFile.endsWith('\n') ? '' : '\n'}${STUBS.CLOUDFLARE_ENV_D_TS}`;
-						const envDiff = getDiffContent(envFile, updatedEnv);
-
-						if (envDiff) {
-							const envMessage = `\n${boxen(envDiff, {
-								margin: 0.5,
-								padding: 0.5,
-								borderStyle: 'round',
-								title: envDisplayPath,
-							})}\n`;
-
-							logger.info('SKIP_FORMAT', envMessage);
-						}
-
-						if (await askToContinue({ flags, logger })) {
-							const separator = envFile.endsWith('\n') ? '' : '\n';
-							await fs.writeFile(
-								envDefinition,
-								`${envFile}${separator}${STUBS.CLOUDFLARE_ENV_D_TS}`,
-								'utf-8',
-							);
-						}
-					} else {
-						logger.debug('add', `Using existing env.d.ts`);
-					}
 				}
 			}
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
@@ -552,7 +484,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 			);
 		}
 		case UpdateResult.updated:
-			logger.info('SKIP_FORMAT', msg.success(`Successfully updated TypeScript settings`));
+			logger.info('SKIP_FORMAT', msg.success(`Successfully updated tsconfig`));
 	}
 }
 
@@ -1020,8 +952,11 @@ async function updateTSConfig(
 		? updateTSConfigForFramework(inputConfig.rawConfig, firstIntegrationWithTSSettings)
 		: { ...inputConfig.rawConfig };
 
-	if (includesToAppend.length > 0) {
-		outputConfig = addIncludesToTSConfig(outputConfig, includesToAppend);
+	for (const include of includesToAppend) {
+		const currentIncludes = Array.isArray(outputConfig.include) ? outputConfig.include : [];
+		if (!currentIncludes.includes(include)) {
+			outputConfig = { ...outputConfig, include: [...currentIncludes, include] };
+		}
 	}
 
 	const output = JSON.stringify(outputConfig, null, 2);
@@ -1075,36 +1010,6 @@ async function updateTSConfig(
 	} else {
 		return UpdateResult.cancelled;
 	}
-}
-
-function addIncludesToTSConfig(config: TSConfig, includesToAdd: string[]): TSConfig {
-	if (includesToAdd.length === 0) {
-		return config;
-	}
-
-	const currentIncludes = Array.isArray(config.include)
-		? [...config.include]
-		: typeof config.include === 'string'
-			? [config.include]
-			: [];
-
-	let hasChange = false;
-
-	for (const includeRef of includesToAdd) {
-		if (!currentIncludes.includes(includeRef)) {
-			currentIncludes.push(includeRef);
-			hasChange = true;
-		}
-	}
-
-	if (!hasChange) {
-		return config;
-	}
-
-	return {
-		...config,
-		include: currentIncludes,
-	};
 }
 
 function parseIntegrationName(spec: string) {
