@@ -18,9 +18,9 @@ export class DevUrlResolver implements UrlResolver {
 		this.#searchParams = searchParams;
 	}
 
-	resolve(hash: string): string {
+	resolve(id: string): string {
 		this.#resolved ||= true;
-		const urlPath = prependForwardSlash(joinPaths(this.#base, hash));
+		const urlPath = prependForwardSlash(joinPaths(this.#base, id));
 		const url = createPlaceholderURL(urlPath);
 
 		// Append searchParams if available (for adapter-level tracking like skew protection)

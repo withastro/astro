@@ -1,0 +1,15 @@
+---
+import { getCollection } from "astro:content";
+const posts = await getCollection("blog");
+const mdxPost = posts.find(p => p.id === 'mdx-with-css.mdx');
+const { Content } = await mdxPost.render();
+---
+
+<html>
+<head>
+	<title>MDX Blog</title>
+</head>
+<body>
+	<Content />
+</body>
+</html>

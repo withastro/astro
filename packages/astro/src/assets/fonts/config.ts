@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { LOCAL_PROVIDER_NAME } from './constants.js';
+import { FONT_TYPES } from './constants.js';
+import type { FontProvider } from './types.js';
 
 export const weightSchema = z.union([z.string(), z.number()]);
 export const styleSchema = z.enum(['normal', 'italic', 'oblique']);
@@ -25,35 +26,24 @@ const requiredFamilyAttributesSchema = z.object({
 	cssVariable: z.string(),
 });
 
-const entrypointSchema = z.union([z.string(), z.instanceof(URL)]);
-
-export const localFontFamilySchema = z
+const _fontProviderSchema = z
 	.object({
-		...requiredFamilyAttributesSchema.shape,
-		...fallbacksSchema.shape,
-		provider: z.literal(LOCAL_PROVIDER_NAME),
-		variants: z
-			.array(
-				z
-					.object({
-						...familyPropertiesSchema.shape,
-						src: z
-							.array(
-								z.union([
-									entrypointSchema,
-									z.object({ url: entrypointSchema, tech: z.string().optional() }).strict(),
-								]),
-							)
-							.nonempty(),
-						// TODO: find a way to support subsets (through fontkit?)
-					})
-					.strict(),
-			)
-			.nonempty(),
+		name: z.string(),
+		config: z.record(z.string(), z.any()).optional(),
+		init: z.custom<FontProvider['init']>((v) => typeof v === 'function').optional(),
+		resolveFont: z.custom<FontProvider['resolveFont']>((v) => typeof v === 'function'),
+		listFonts: z.custom<FontProvider['listFonts']>((v) => typeof v === 'function').optional(),
 	})
 	.strict();
 
-export const remoteFontFamilySchema = z
+// Using z.object directly makes zod remap the input, preventing
+// the usage of class instances. Instead, we check if it matches
+// the right shape and pass the original
+export const fontProviderSchema = z.custom<FontProvider>((v) => {
+	return _fontProviderSchema.safeParse(v).success;
+}, 'Invalid FontProvider object');
+
+export const fontFamilySchema = z
 	.object({
 		...requiredFamilyAttributesSchema.shape,
 		...fallbacksSchema.shape,
@@ -61,14 +51,11 @@ export const remoteFontFamilySchema = z
 			weight: true,
 			style: true,
 		}).shape,
-		provider: z
-			.object({
-				entrypoint: entrypointSchema,
-				config: z.record(z.string(), z.any()).optional(),
-			})
-			.strict(),
+		provider: fontProviderSchema,
+		options: z.record(z.string(), z.any()).optional(),
 		weights: z.array(weightSchema).nonempty().optional(),
 		styles: z.array(styleSchema).nonempty().optional(),
 		subsets: z.array(z.string()).nonempty().optional(),
+		formats: z.array(z.enum(FONT_TYPES)).nonempty().optional(),
 	})
 	.strict();
