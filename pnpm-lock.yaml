@@ -82,8 +82,8 @@ importers:
         specifier: workspace:*
         version: link:../packages/astro
       autocannon:
-        specifier: ^7.15.0
-        version: 7.15.0
+        specifier: ^8.0.0
+        version: 8.0.0
       markdown-table:
         specifier: ^3.0.4
         version: 3.0.4
@@ -450,13 +450,13 @@ importers:
         version: link:../../packages/integrations/preact
       '@nanostores/preact':
         specifier: ^1.0.0
-        version: 1.0.0(nanostores@0.11.4)(preact@10.28.2)
+        version: 1.0.0(nanostores@1.1.0)(preact@10.28.2)
       astro:
         specifier: ^6.0.0-beta.3
         version: link:../../packages/astro
       nanostores:
-        specifier: ^0.11.4
-        version: 0.11.4
+        specifier: ^1.1.0
+        version: 1.1.0
       preact:
         specifier: ^10.28.2
         version: 10.28.2
@@ -659,8 +659,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0
       yargs-parser:
-        specifier: ^21.1.1
-        version: 21.1.1
+        specifier: ^22.0.0
+        version: 22.0.0
       yocto-spinner:
         specifier: ^0.2.3
         version: 0.2.3
@@ -4655,8 +4655,8 @@ importers:
         specifier: ^2.4.2
         version: 2.4.2
       yargs-parser:
-        specifier: ^21.1.1
-        version: 21.1.1
+        specifier: ^22.0.0
+        version: 22.0.0
       zod:
         specifier: ^3.25.76
         version: 3.25.76
@@ -9219,6 +9219,9 @@ packages:
   '@mdx-js/mdx@3.1.1':
     resolution: {integrity: sha512-f6ZO2ifpwAQIpzGWaBQT2TXxPv6z3RBzQKpVftEWN78Vl/YweF1uwussDx8ECAXVtr3Rs89fKyG9YlzUs9DyGQ==}
 
+  '@minimistjs/subarg@1.0.0':
+    resolution: {integrity: sha512-Q/ONBiM2zNeYUy0mVSO44mWWKYM3UHuEK43PKIOzJCbvUnPoMH1K+gk3cf1kgnCVJFlWmddahQQCmrmBGlk9jQ==}
+
   '@nanostores/preact@1.0.0':
     resolution: {integrity: sha512-woHYvSwau1YtO9AEnGsh/jRPU2u5DTfNSrDHtKMZOeDUWV6EJfvyv7dJ7AaMps2I9uJcY6OlqXKkA9qTctEjyw==}
     engines: {node: ^20.0.0 || >=22.0.0}
@@ -10906,8 +10909,8 @@ packages:
     resolution: {integrity: sha512-kNOjDqAh7px0XWNI+4QbzoiR/nTkHAWNud2uvnJquD1/x5a7EQZMJT0AczqK0Qn67oY/TTQ1LbUKajZpp3I9tQ==}
     engines: {node: '>=8.0.0'}
 
-  autocannon@7.15.0:
-    resolution: {integrity: sha512-NaP2rQyA+tcubOJMFv2+oeW9jv2pq/t+LM6BL3cfJic0HEfscEcnWgAyU5YovE/oTHUzAgTliGdLPR+RQAWUbg==}
+  autocannon@8.0.0:
+    resolution: {integrity: sha512-fMMcWc2JPFcUaqHeR6+PbmEpTxCrPZyBUM95oG4w3ngJ8NfBNas/ZXA+pTHXLqJ0UlFVTcy05GC25WxKx/M20A==}
     hasBin: true
 
   autoprefixer@10.4.23:
@@ -13681,9 +13684,9 @@ packages:
     engines: {node: ^18 || >=20}
     hasBin: true
 
-  nanostores@0.11.4:
-    resolution: {integrity: sha512-k1oiVNN4hDK8NcNERSZLQiMfRzEGtfnvZvdBvey3SQbgn8Dcrk0h1I6vpxApjb10PFUflZrgJ2WEZyJQ+5v7YQ==}
-    engines: {node: ^18.0.0 || >=20.0.0}
+  nanostores@1.1.0:
+    resolution: {integrity: sha512-yJBmDJr18xy47dbNVlHcgdPrulSn1nhSE6Ns9vTG+Nx9VPT6iV1MD6aQFp/t52zpf82FhLLTXAXr30NuCnxvwA==}
+    engines: {node: ^20.0.0 || >=22.0.0}
 
   napi-build-utils@2.0.0:
     resolution: {integrity: sha512-GEbrYkbfF7MoNaoh2iGG84Mnf/WZfB0GdGEsM8wz7Expx/LlWf5U8t9nvJKXSp3qr5IsEbK04cBGhol/KwOsWA==}
@@ -15123,9 +15126,6 @@ packages:
   style-to-object@1.0.14:
     resolution: {integrity: sha512-LIN7rULI0jBscWQYaSswptyderlarFkjQ+t79nzty8tcIAceVomEVlLzH5VP4Cmsv6MtKhs7qaAiwlcp+Mgaxw==}
 
-  subarg@1.0.0:
-    resolution: {integrity: sha512-RIrIdRY0X1xojthNcVtgT9sjpOGagEUKpZdgBUi054OEPFo282yg+zE+t1Rj3+RqKq2xStL7uUHhY+AjbC4BXg==}
-
   suf-log@2.5.3:
     resolution: {integrity: sha512-KvC8OPjzdNOe+xQ4XWJV2whQA0aM1kGVczMQ8+dStAO6KfEB140JEVQ9dE76ONZ0/Ylf67ni4tILPJB41U0eow==}
 
@@ -16244,6 +16244,10 @@ packages:
   yargs-parser@21.1.1:
     resolution: {integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==}
     engines: {node: '>=12'}
+
+  yargs-parser@22.0.0:
+    resolution: {integrity: sha512-rwu/ClNdSMpkSrUb+d6BRsSkLUq1fmfsY6TOpYzTwvwkg1/NRG85KBy3kq++A8LKQwX6lsu+aWad+2khvuXrqw==}
+    engines: {node: ^20.19.0 || ^22.12.0 || >=23}
 
   yargs-unparser@2.0.0:
     resolution: {integrity: sha512-7pRTIA9Qc1caZ0bZ6RYRGbHJthJWuakf+WmHK0rVeLkNrrGhfoabBNdue6kdINI6r4if7ocq9aD/n7xwKOdzOA==}
@@ -18430,9 +18434,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@nanostores/preact@1.0.0(nanostores@0.11.4)(preact@10.28.2)':
+  '@minimistjs/subarg@1.0.0':
     dependencies:
-      nanostores: 0.11.4
+      minimist: 1.2.8
+
+  '@nanostores/preact@1.0.0(nanostores@1.1.0)(preact@10.28.2)':
+    dependencies:
+      nanostores: 1.1.0
       preact: 10.28.2
 
   '@napi-rs/wasm-runtime@0.2.12':
@@ -20509,8 +20517,9 @@ snapshots:
 
   atomic-sleep@1.0.0: {}
 
-  autocannon@7.15.0:
+  autocannon@8.0.0:
     dependencies:
+      '@minimistjs/subarg': 1.0.0
       chalk: 4.1.2
       char-spinner: 1.0.1
       cli-table3: 0.6.5
@@ -20532,7 +20541,6 @@ snapshots:
       reinterval: 1.1.0
       retimer: 3.0.0
       semver: 7.7.3
-      subarg: 1.0.0
       timestring: 6.0.0
 
   autoprefixer@10.4.23(postcss@8.5.6):
@@ -23814,7 +23822,7 @@ snapshots:
 
   nanoid@5.1.6: {}
 
-  nanostores@0.11.4: {}
+  nanostores@1.1.0: {}
 
   napi-build-utils@2.0.0:
     optional: true
@@ -25574,10 +25582,6 @@ snapshots:
     dependencies:
       inline-style-parser: 0.2.7
 
-  subarg@1.0.0:
-    dependencies:
-      minimist: 1.2.8
-
   suf-log@2.5.3:
     dependencies:
       s.color: 0.0.15
@@ -26746,6 +26750,8 @@ snapshots:
   yargs-parser@20.2.9: {}
 
   yargs-parser@21.1.1: {}
+
+  yargs-parser@22.0.0: {}
 
   yargs-unparser@2.0.0:
     dependencies:

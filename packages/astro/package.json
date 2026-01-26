@@ -169,7 +169,7 @@
     "vite": "^7.1.7",
     "vitefu": "^1.1.1",
     "xxhash-wasm": "^1.1.0",
-    "yargs-parser": "^21.1.1",
+    "yargs-parser": "^22.0.0",
     "yocto-spinner": "^0.2.3",
     "zod": "^4.0.0"
   },
