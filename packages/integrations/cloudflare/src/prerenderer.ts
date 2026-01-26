@@ -1,9 +1,5 @@
 import type { AstroPrerenderer, PathWithRoute } from 'astro';
-import type { RouteData } from 'astro';
-import {
-	preview,
-	type PreviewServer as VitePreviewServer,
-} from 'vite';
+import { preview, type PreviewServer as VitePreviewServer } from 'vite';
 import { fileURLToPath } from 'node:url';
 import { mkdir } from 'node:fs/promises';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
@@ -89,7 +85,7 @@ export function createCloudflarePrerenderer({
 			}));
 		},
 
-		async render(request: Request, routeData: RouteData): Promise<Response> {
+		async render(request, { routeData }) {
 			// Serialize routeData and send to workerd
 			const body: PrerenderRequest = {
 				url: request.url,

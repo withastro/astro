@@ -55,13 +55,13 @@ export default function createTestPrerenderer(callbacks = {}) {
 						return defaultPrerenderer.getStaticPaths();
 					},
 
-					async render(request, routeData) {
+					async render(request, { routeData }) {
 						calls.render++;
 						const url = new URL(request.url);
 						renderedPaths.push(url.pathname);
 						callbacks.onRender?.(request, routeData);
 						// Delegate to the default prerenderer
-						return defaultPrerenderer.render(request, routeData);
+						return defaultPrerenderer.render(request, { routeData });
 					},
 
 					async teardown() {

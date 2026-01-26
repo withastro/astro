@@ -172,9 +172,9 @@ export interface AstroPrerenderer {
 	/**
 	 * Renders a single page. Called by Astro for each path returned by getStaticPaths.
 	 * @param request - The request to render
-	 * @param routeData - The route data for this request
+	 * @param options - Render options including routeData
 	 */
-	render: (request: Request, routeData: RouteData) => Promise<Response>;
+	render: (request: Request, options: { routeData: RouteData }) => Promise<Response>;
 	/**
 	 * Called after all pages are prerendered. Use for cleanup like stopping a preview server.
 	 */

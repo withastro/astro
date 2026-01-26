@@ -17,9 +17,9 @@ The new API accepts either an `AstroPrerenderer` object directly, or a factory f
       // Returns array of { pathname: string, route: RouteData }
       return defaultPrerenderer.getStaticPaths();
     },
-    async render(request, routeData) {
-      // request: Request - the request to render
-      // routeData: RouteData - the route data for this request
+    async render(request, { routeData }) {
+      // request: Request
+      // routeData: RouteData
       // Returns: Response
     },
     async teardown() {
