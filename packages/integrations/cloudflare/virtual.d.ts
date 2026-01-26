@@ -1,8 +1,6 @@
+/// <reference types="astro/client" />
+
 declare module 'virtual:astro-cloudflare:config' {
 	export const sessionKVBindingName: string;
 	// Additional exports can be added here in the future
-}
-
-declare module 'astro:static-paths' {
-	export { StaticPaths } from 'astro/runtime/prerender/static-paths.js';
 }

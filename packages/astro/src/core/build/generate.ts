@@ -87,10 +87,24 @@ export async function generatePages(
 	const pathsWithRoutes = await prerenderer.getStaticPaths();
 	const routeToHeaders: RouteToHeaders = new Map();
 
+	// Check if i18n domains are configured (incompatible with prerendering)
+	const hasI18nDomains =
+		ssr &&
+		options.settings.config.i18n?.domains &&
+		Object.keys(options.settings.config.i18n.domains).length > 0;
+
 	// Filter paths for conflicts (same path from multiple routes)
 	const { config } = options.settings;
 	const builtPaths = new Set<string>();
 	const filteredPaths = pathsWithRoutes.filter(({ pathname, route }) => {
+		// i18n domains won't work with prerendered routes
+		if (hasI18nDomains && route.prerender) {
+			throw new AstroError({
+				...AstroErrorData.NoPrerenderedRoutesWithDomains,
+				message: AstroErrorData.NoPrerenderedRoutesWithDomains.message(route.component),
+			});
+		}
+
 		const normalized = removeTrailingForwardSlash(pathname);
 
 		// Path hasn't been built yet, include it
