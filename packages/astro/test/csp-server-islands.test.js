@@ -1,8 +1,30 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
+import { encryptString } from '../dist/core/encryption.js';
 import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
+
+// Helper to create encryption key from test key string
+async function createKeyFromString(keyString) {
+	const binaryString = atob(keyString);
+	const bytes = new Uint8Array(binaryString.length);
+	for (let i = 0; i < binaryString.length; i++) {
+		bytes[i] = binaryString.charCodeAt(i);
+	}
+	return await crypto.subtle.importKey('raw', bytes, { name: 'AES-GCM' }, false, [
+		'encrypt',
+		'decrypt',
+	]);
+}
+
+// Helper to get encrypted componentExport for 'default'
+async function getEncryptedComponentExport(
+	keyString = 'eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=',
+) {
+	const key = await createKeyFromString(keyString);
+	return encryptString(key, 'default');
+}
 
 describe('Server islands', () => {
 	describe('SSR', () => {
@@ -44,10 +66,11 @@ describe('Server islands', () => {
 
 			it('island is not indexed', async () => {
 				const app = await fixture.loadTestAdapterApp();
+				const encryptedComponentExport = await getEncryptedComponentExport();
 				const request = new Request('http://example.com/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
-						componentExport: 'default',
+						encryptedComponentExport,
 						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
 						encryptedSlots: '',
 					}),
