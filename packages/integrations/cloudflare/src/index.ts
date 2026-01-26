@@ -159,6 +159,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							config(_, { entryWorkerConfig }) {
 								return {
 									...entryWorkerConfig,
+									// This is the Vite environment name used for prerendering
 									name: 'prerender',
 								};
 							},
@@ -326,7 +327,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				}
 			},
 			'astro:build:start': ({ setPrerenderer }) => {
-				setPrerenderer(() =>
+				setPrerenderer(
 					createCloudflarePrerenderer({
 						root: _config.root,
 						serverDir: _config.build.server,
