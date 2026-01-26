@@ -796,6 +796,9 @@ importers:
       piccolore:
         specifier: ^0.1.3
         version: 0.1.3
+      zod:
+        specifier: ^4.0.0
+        version: 4.3.5
     devDependencies:
       '@types/xml2js':
         specifier: ^0.4.14
