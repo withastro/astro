@@ -1,6 +1,6 @@
 import { prependForwardSlash } from '@astrojs/internal-helpers/path';
 import type * as vite from 'vite';
-import { type DevEnvironment, type Plugin } from 'vite';
+import type { DevEnvironment, Plugin } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { wrapId } from '../core/util.js';
 import type { ImportedDevStyle, RoutesList } from '../types/astro.js';
