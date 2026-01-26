@@ -2,7 +2,7 @@
 'astro': minor
 ---
 
-Adds `setPrerenderer()` to the `astro:build:start` hook, allowing adapters to provide custom prerendering logic.
+Updates the Integration API to add `setPrerenderer()` to the `astro:build:start` hook, allowing adapters to provide custom prerendering logic.
 
 The new API accepts either an `AstroPrerenderer` object directly, or a factory function that receives the default prerenderer:
 
