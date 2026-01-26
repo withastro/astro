@@ -1,8 +1,8 @@
-import { z } from 'zod/v3';
+import { z } from 'zod';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 import colors from 'piccolore';
 import { rssSchema } from './schema.js';
-import { createCanonicalURL, errorMap, isValidURL } from './util.js';
+import { createCanonicalURL, isValidURL } from './util.js';
 
 export { rssSchema };
 
@@ -13,7 +13,7 @@ export type RSSOptions = {
 	description: z.infer<typeof rssOptionsValidator>['description'];
 	/**
 	 * Specify the base URL to use for RSS feed links.
-	 * We recommend using the [endpoint context object](https://docs.astro.build/en/reference/api-reference/#site),
+	 * We recommend using the [endpoint context object](https://docs.astro.build/en/reference/api-reference/#contextsite),
 	 * which includes the `site` configured in your project's `astro.config.*`
 	 */
 	site: z.infer<typeof rssOptionsValidator>['site'] | URL;
@@ -59,7 +59,7 @@ type ValidatedRSSFeedItem = z.infer<typeof rssSchema>;
 type ValidatedRSSOptions = z.infer<typeof rssOptionsValidator>;
 type GlobResult = z.infer<typeof globResultValidator>;
 
-const globResultValidator = z.record(z.function().returns(z.promise(z.any())));
+const globResultValidator = z.record(z.string(), z.function({ input: [], output: z.promise(z.any()) }));
 
 const rssOptionsValidator = z.object({
 	title: z.string(),
@@ -72,14 +72,14 @@ const rssOptionsValidator = z.object({
 			if (!Array.isArray(items)) {
 				console.warn(
 					colors.yellow(
-						'[RSS] Passing a glob result directly has been deprecated. Please migrate to the `pagesGlobToRssItems()` helper: https://docs.astro.build/en/recipes/rss/',
+						'[RSS] Passing a glob result directly has been deprecated. Please migrate to the `pagesGlobToRssItems()` helper: https://docs.astro.build/en/guides/rss/',
 					),
 				);
 				return pagesGlobToRssItems(items);
 			}
 			return items;
 		}),
-	xmlns: z.record(z.string()).optional(),
+	xmlns: z.record(z.string(), z.unknown()).optional(),
 	stylesheet: z.union([z.string(), z.boolean()]).optional(),
 	customData: z.string().optional(),
 	trailingSlash: z.boolean().default(true),
@@ -100,14 +100,14 @@ export async function getRssString(rssOptions: RSSOptions): Promise<string> {
 }
 
 async function validateRssOptions(rssOptions: RSSOptions) {
-	const parsedResult = await rssOptionsValidator.safeParseAsync(rssOptions, { errorMap });
+	const parsedResult = await rssOptionsValidator.safeParseAsync(rssOptions);
 	if (parsedResult.success) {
 		return parsedResult.data;
 	}
 	const formattedError = new Error(
 		[
 			`[RSS] Invalid or missing options:`,
-			...parsedResult.error.errors.map((zodError) => {
+			...parsedResult.error.issues.map((zodError) => {
 				const path = zodError.path.join('.');
 				const message = `${zodError.message} (${path})`;
 				const code = zodError.code;
@@ -116,7 +116,7 @@ async function validateRssOptions(rssOptions: RSSOptions) {
 					return [
 						message,
 						`The \`items\` property requires at least the \`title\` or \`description\` key. They must be properly typed, as well as \`pubDate\` and \`link\` keys if provided.`,
-						`Check your collection's schema, and visit https://docs.astro.build/en/recipes/rss/#generating-items for more info.`,
+						`Check your collection's schema, and visit https://docs.astro.build/en/guides/rss/#generating-items for more info.`,
 					].join('\n');
 				}
 
@@ -133,7 +133,7 @@ export function pagesGlobToRssItems(items: GlobResult): Promise<ValidatedRSSFeed
 			const { url, frontmatter } = await getInfo();
 			if (url === undefined || url === null) {
 				throw new Error(
-					`[RSS] You can only glob entries within 'src/pages/' when passing import.meta.glob() directly. Consider mapping the result to an array of RSSFeedItems. See the RSS docs for usage examples: https://docs.astro.build/en/recipes/rss/`,
+					`[RSS] You can only glob entries within 'src/pages/' when passing import.meta.glob() directly. Consider mapping the result to an array of RSSFeedItems. See the RSS docs for usage examples: https://docs.astro.build/en/guides/rss/#2-list-of-rss-feed-objects`,
 				);
 			}
 			const parsedResult = rssSchema
@@ -141,7 +141,7 @@ export function pagesGlobToRssItems(items: GlobResult): Promise<ValidatedRSSFeed
 					message: 'At least title or description must be provided.',
 					path: ['title', 'description'],
 				})
-				.safeParse({ ...frontmatter, link: url }, { errorMap });
+				.safeParse({ ...frontmatter, link: url });
 
 			if (parsedResult.success) {
 				return parsedResult.data;
@@ -149,7 +149,7 @@ export function pagesGlobToRssItems(items: GlobResult): Promise<ValidatedRSSFeed
 			const formattedError = new Error(
 				[
 					`[RSS] ${filePath} has invalid or missing frontmatter.\nFix the following properties:`,
-					...parsedResult.error.errors.map((zodError) => zodError.message),
+					...parsedResult.error.issues.map((zodError) => zodError.message),
 				].join('\n'),
 			);
 			(formattedError as any).file = filePath;
