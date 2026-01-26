@@ -2,4 +2,4 @@
 '@astrojs/rss': patch
 ---
 
-Fix for Zod v4
+Updates validation to use Zod v4
