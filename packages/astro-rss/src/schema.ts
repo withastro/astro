@@ -1,4 +1,4 @@
-import { z } from 'zod/v3';
+import { z } from 'zod';
 
 export const rssSchema = z.object({
 	title: z.string().optional(),
