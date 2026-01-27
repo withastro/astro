@@ -2,9 +2,9 @@
 'astro': minor
 ---
 
-Adds a new Fonts API to provide first-party support for fonts in Astro.
+Adds a new Fonts API to provide first-party support for adding custom fonts in Astro.
 
-This feature allows you to use fonts from both your file system and several built-in supported providers (e.g. Google, Fontsource, Bunny) through a unified API. Keep your site performant thanks to sensible defaults and automatic optimizations including fallback font generation.
+This feature allows you to use fonts from both your file system and several built-in supported providers (e.g. Google, Fontsource, Bunny) through a unified API. Keep your site performant thanks to sensible defaults and automatic optimizations including preloading and fallback font generation.
 
 To enable this feature, configure `fonts` with one or more fonts:
 
