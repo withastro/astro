@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 5.0.0-beta.3
+
+### Minor Changes
+
+- [#15312](https://github.com/withastro/astro/pull/15312) [`72f7960`](https://github.com/withastro/astro/commit/72f796078f3993cbb369d2ab85156cc2219e8dc8) Thanks [@ocavue](https://github.com/ocavue)! - Update `@vitejs/plugin-react` to v5.
+
 ## 5.0.0-beta.2
 
 ### Patch Changes
