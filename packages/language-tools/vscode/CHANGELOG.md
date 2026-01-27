@@ -1,5 +1,33 @@
 # astro-vscode
 
+## 2.16.9-beta.0
+
+### Patch Changes
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fix "Find All References" and other TypeScript features by ensuring the plugin bundle is correctly included
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes syntax highlighting sometimes not working when the frontmatter or script tags ended with certain TypeScript constructs
+
+## 2.16.8
+
+### Patch Changes
+
+- [#15156](https://github.com/withastro/astro/pull/15156) [`9cc2c71`](https://github.com/withastro/astro/commit/9cc2c71a601c04415f13b3ac62c361ef2c40b63d) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes TypeScript plugin not working
+
+## 2.16.7
+
+### Patch Changes
+
+- [#15131](https://github.com/withastro/astro/pull/15131) [`d40ff7d`](https://github.com/withastro/astro/commit/d40ff7d8570f30c82402d8e2b01d4da890e3e771) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes extension asking for the wrong version of VS Code
+
+## 2.16.6
+
+### Patch Changes
+
+- [#15083](https://github.com/withastro/astro/pull/15083) [`241bb31`](https://github.com/withastro/astro/commit/241bb31d4d91cb41f984b0e46cd43d13a622414a) Thanks [@fkatsuhiro](https://github.com/fkatsuhiro)! - Fix "Find All References" and other TypeScript features by ensuring the plugin bundle is correctly included
+
+- [#15109](https://github.com/withastro/astro/pull/15109) [`e062101`](https://github.com/withastro/astro/commit/e062101b3c7ca14502a53c65ee7a85070faa1e9f) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes syntax highlighting sometimes not working when the frontmatter or script tags ended with certain TypeScript constructs
+
 ## 2.16.5
 
 ### Patch Changes

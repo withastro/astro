@@ -8,4 +8,8 @@ export class App extends BaseApp {
 			streaming,
 		});
 	}
+
+	isDev(): boolean {
+		return false;
+	}
 }

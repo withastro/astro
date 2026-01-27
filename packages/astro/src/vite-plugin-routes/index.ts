@@ -7,7 +7,7 @@ import { serializeRouteData } from '../core/app/index.js';
 import type { SerializedRouteInfo } from '../core/app/types.js';
 import { warnMissingAdapter } from '../core/dev/adapter-validation.js';
 import type { Logger } from '../core/logger/core.js';
-import { createRoutesList } from '../core/routing/index.js';
+import { createRoutesList } from '../core/routing/manifest/create.js';
 import { getRoutePrerenderOption } from '../core/routing/manifest/prerender.js';
 import { isEndpoint, isPage } from '../core/util.js';
 import { rootRelativePath } from '../core/viteUtils.js';

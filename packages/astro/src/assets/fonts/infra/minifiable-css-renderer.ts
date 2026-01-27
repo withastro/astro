@@ -1,4 +1,5 @@
-import type { CssProperties, CssRenderer } from '../definitions.js';
+import type { CssRenderer } from '../definitions.js';
+import type { CssProperties } from '../types.js';
 
 // TODO: consider making these public methods
 

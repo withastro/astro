@@ -159,7 +159,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					build: {
 						client: new URL(`./client/`, config.outDir),
 						server: new URL('./_worker.js/', config.outDir),
-						serverEntry: 'index.js',
+						serverEntry: config.build.serverEntry ?? 'index.js',
 						redirects: false,
 					},
 					session,
@@ -212,6 +212,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 													'astro:*',
 													'virtual:astro:*',
 													'virtual:astro-cloudflare:*',
+													'virtual:@astrojs/*',
 												],
 											},
 										};
@@ -278,6 +279,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						edgeMiddleware: false,
 						buildOutput: 'server',
 					},
+					entryType: 'self',
 					previewEntrypoint: '@astrojs/cloudflare/entrypoints/preview',
 					supportedAstroFeatures: {
 						serverOutput: 'stable',

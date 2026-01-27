@@ -1,5 +1,17 @@
 # @astrojs/solid-js
 
+## 6.0.0-beta.2
+
+### Patch Changes
+
+- [#15264](https://github.com/withastro/astro/pull/15264) [`11efb05`](https://github.com/withastro/astro/commit/11efb058e85cda68f9a8e8f15a2c7edafe5a4789) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Lower the Node version requirement to allow running on Stackblitz until it supports v22
+
+## 6.0.0-beta.1
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
 ## 6.0.0-alpha.0
 
 ### Major Changes

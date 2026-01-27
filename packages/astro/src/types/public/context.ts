@@ -15,23 +15,7 @@ export interface AstroGlobal<
 	Props extends Record<string, any> = Record<string, any>,
 	Self = AstroComponentFactory,
 	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
-> extends AstroSharedContext<Props, Params> {
-	/**
-	 * Returns a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrosite)
-	 */
-	site: URL | undefined;
-	/**
-	 * Returns a string with the current version of Astro.
-	 *
-	 * Useful for using `<meta name="generator" content={Astro.generator} />` or crediting Astro in a site footer.
-	 *
-	 * [HTML Specification for `generator`](https://html.spec.whatwg.org/multipage/semantics.html#meta-generator)
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrogenerator)
-	 */
-	generator: string;
+> extends APIContext<Props, Params> {
 	/**
 	 * A standard [ResponseInit](https://developer.mozilla.org/en-US/docs/Web/API/Response/Response#init) object describing the outgoing response.
 	 *
@@ -144,8 +128,13 @@ export interface AstroGlobal<
 	};
 }
 
-// Shared types between `Astro` global and API context object
-interface AstroSharedContext<
+/**
+ * The `APIContext` is the object made available to endpoints and middleware.
+ * It is a subset of the `Astro` global object available in pages.
+ *
+ * [Astro reference](https://docs.astro.build/en/reference/api-reference/)
+ */
+export interface APIContext<
 	Props extends Record<string, any> = Record<string, any>,
 	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
 > {
@@ -212,7 +201,7 @@ interface AstroSharedContext<
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#session)
 	 */
-	session?: AstroSession;
+	session: AstroSession | undefined;
 
 	/**
 	 * A standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object containing information about the current request.
@@ -313,7 +302,7 @@ interface AstroSharedContext<
 	/**
 	 * An object containing the values of dynamic route segments matched for a request.
 	 *
-	 * In static builds, this will be the `params` returned by [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths). With on-demand rendering, `params` can be any value matching the path segments in the dynamic route pattern.
+	 * In static builds, this will be the `params` returned by [`getStaticPaths()`](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths). With on-demand rendering, `params` can be any value matching the path segments in the dynamic route pattern.
 	 *
 	 * ## Example
 	 *
@@ -338,7 +327,7 @@ interface AstroSharedContext<
 	params: Params;
 
 	/**
-	 * An object containing any values that have been passed as component attributes. In static builds, this can also be the `props` returned by [`getStaticPaths()`](https://docs.astro.build/en/reference/api-reference/#getstaticpaths).
+	 * An object containing any values that have been passed as component attributes. In static builds, this can also be the `props` returned by [`getStaticPaths()`](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths).
 	 *
 	 * ## Example
 	 *
@@ -497,82 +486,84 @@ interface AstroSharedContext<
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/)
 	 */
-	csp: {
-		/**
-		 * It adds a specific CSP directive to the route being rendered.
-		 *
-		 * @param {CspDirective} directive - The directive to add to the current page.
-		 *
-		 * ## Example
-		 *
-		 * ```js
-		 * ctx.insertDirective("default-src 'self' 'unsafe-inline' https://example.com")
-		 * ```
-		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertdirective)
-		 */
-		insertDirective: (directive: CspDirective) => void;
+	csp:
+		| {
+				/**
+				 * It adds a specific CSP directive to the route being rendered.
+				 *
+				 * @param {CspDirective} directive - The directive to add to the current page.
+				 *
+				 * ## Example
+				 *
+				 * ```js
+				 * ctx.insertDirective("default-src 'self' 'unsafe-inline' https://example.com")
+				 * ```
+				 *
+				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertdirective)
+				 */
+				insertDirective: (directive: CspDirective) => void;
 
-		/**
-		 * It set the resource for the directive `style-src` in the route being rendered. It overrides Astro's default.
-		 *
-		 * @param {string} payload - The source to insert in the `style-src` directive.
-		 *
-		 * ## Example
-		 *
-		 * ```js
-		 * ctx.insertStyleResource("https://styles.cdn.example.com/")
-		 * ```
-		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstyleresource)
-		 */
-		insertStyleResource: (payload: string) => void;
+				/**
+				 * It set the resource for the directive `style-src` in the route being rendered. It overrides Astro's default.
+				 *
+				 * @param {string} payload - The source to insert in the `style-src` directive.
+				 *
+				 * ## Example
+				 *
+				 * ```js
+				 * ctx.insertStyleResource("https://styles.cdn.example.com/")
+				 * ```
+				 *
+				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstyleresource)
+				 */
+				insertStyleResource: (payload: string) => void;
 
-		/**
-		 * Insert a single style hash to the route being rendered.
-		 *
-		 * @param {CspHash} hash - The hash to insert in the `style-src` directive.
-		 *
-		 * ## Example
-		 *
-		 * ```js
-		 * ctx.insertStyleHash("sha256-1234567890abcdef1234567890")
-		 * ```
-		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstylehash)
-		 */
-		insertStyleHash: (hash: CspHash) => void;
+				/**
+				 * Insert a single style hash to the route being rendered.
+				 *
+				 * @param {CspHash} hash - The hash to insert in the `style-src` directive.
+				 *
+				 * ## Example
+				 *
+				 * ```js
+				 * ctx.insertStyleHash("sha256-1234567890abcdef1234567890")
+				 * ```
+				 *
+				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertstylehash)
+				 */
+				insertStyleHash: (hash: CspHash) => void;
 
-		/**
-		 * It set the resource for the directive `script-src` in the route being rendered.
-		 *
-		 * @param {string} resource - The source to insert in the `script-src` directive.
-		 *
-		 * ## Example
-		 *
-		 * ```js
-		 * ctx.insertScriptResource("https://scripts.cdn.example.com/")
-		 * ```
-		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscriptresource)
-		 */
-		insertScriptResource: (resource: string) => void;
+				/**
+				 * It set the resource for the directive `script-src` in the route being rendered.
+				 *
+				 * @param {string} resource - The source to insert in the `script-src` directive.
+				 *
+				 * ## Example
+				 *
+				 * ```js
+				 * ctx.insertScriptResource("https://scripts.cdn.example.com/")
+				 * ```
+				 *
+				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscriptresource)
+				 */
+				insertScriptResource: (resource: string) => void;
 
-		/**
-		 * Insert a single script hash to the route being rendered.
-		 *
-		 * @param {CspHash} hash - The hash to insert in the `script-src` directive.
-		 *
-		 * ## Example
-		 *
-		 * ```js
-		 * ctx.insertScriptHash("sha256-1234567890abcdef1234567890")
-		 * ```
-		 *
-		 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscripthash)
-		 */
-		insertScriptHash: (hash: CspHash) => void;
-	};
+				/**
+				 * Insert a single script hash to the route being rendered.
+				 *
+				 * @param {CspHash} hash - The hash to insert in the `script-src` directive.
+				 *
+				 * ## Example
+				 *
+				 * ```js
+				 * ctx.insertScriptHash("sha256-1234567890abcdef1234567890")
+				 * ```
+				 *
+				 * [Astro reference](https://docs.astro.build/en/reference/experimental-flags/csp/#cspinsertscripthash)
+				 */
+				insertScriptHash: (hash: CspHash) => void;
+		  }
+		| undefined;
 
 	/**
 	 * The route currently rendered. It's stripped of the `srcDir` and the `pages` folder, and it doesn't contain the extension.
@@ -583,18 +574,7 @@ interface AstroSharedContext<
 	 * - The value when rendering `src/pages/blog/[slug].astro` will be `/blog/[slug]`.
 	 * - The value when rendering `src/pages/[...path].astro` will be `/[...path]`.
 	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#routepattern)
+	 * [Astro reference](https://docs.astro.build/en/reference/routing-reference/#routepattern)
 	 */
 	routePattern: string;
 }
-
-/**
- * The `APIContext` is the object made available to endpoints and middleware.
- * It is a subset of the `Astro` global object available in pages.
- *
- * [Astro reference](https://docs.astro.build/en/reference/api-reference/)
- */
-export type APIContext<
-	Props extends Record<string, any> = Record<string, any>,
-	Params extends Record<string, string | undefined> = Record<string, string | undefined>,
-> = AstroSharedContext<Props, Params>;

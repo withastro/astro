@@ -73,6 +73,13 @@ describe('Scripts', () => {
 			assert.equal($('link[rel=stylesheet]').length, 2);
 		});
 
+		it('Scripts in Fragment slots are processed when another slot is unused', async () => {
+			let html = await fixture.readFile('/fragment-slot-script/index.html');
+			let $ = cheerio.load(html);
+
+			assert.equal($('script').length, 1, 'script should be rendered');
+		});
+
 		describe('Inlining', () => {
 			/** @type {import('./test-utils').Fixture} */
 			// eslint-disable-next-line @typescript-eslint/no-shadow

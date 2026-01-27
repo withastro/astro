@@ -20,7 +20,13 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 	 */
 	return (req: IncomingMessage, res: ServerResponse, ssr: () => unknown) => {
 		if (req.url) {
-			const [urlPath, urlQuery] = req.url.split('?');
+			// There might be cases where the incoming URL has the #, which we want to remove.
+			let fullUrl = req.url;
+			if (req.url.includes('#')) {
+				fullUrl = fullUrl.slice(0, req.url.indexOf('#'));
+			}
+
+			const [urlPath, urlQuery] = fullUrl.split('?');
 			const filePath = path.join(client, app.removeBase(urlPath));
 
 			let isDirectory = false;
