@@ -10,7 +10,7 @@ type Display = z.infer<typeof DisplaySchema>;
 
 export interface FontProviderInitContext {
 	/**
-	 * Useful for caching
+	 * Useful for caching.
 	 */
 	storage: {
 		getItem: {
