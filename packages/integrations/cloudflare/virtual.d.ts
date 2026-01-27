@@ -14,11 +14,8 @@ declare namespace Cloudflare {
 	}
 }
 
-// biome-ignore lint/correctness/noUnusedVariables: this is a global type
+// These are globals
 interface Env extends Cloudflare.Env {}
-
 type ImagesBinding = import('@cloudflare/workers-types').ImagesBinding;
 type Fetcher = import('@cloudflare/workers-types').Fetcher;
-
-// biome-ignore lint/correctness/noUnusedVariables: this is a global type
 type IncomingRequestCfProperties = import('@cloudflare/workers-types').IncomingRequestCfProperties;

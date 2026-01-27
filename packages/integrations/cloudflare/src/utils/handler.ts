@@ -18,9 +18,9 @@ declare global {
 
 type CfResponse = Awaited<ReturnType<Required<ExportedHandler<Env>>['fetch']>>;
 
-export async function handle(...[request, env, context]: Parameters<
-	Required<ExportedHandler<Env>>['fetch']
->): Promise<CfResponse> {
+export async function handle(
+	...[request, env, context]: Parameters<Required<ExportedHandler<Env>>['fetch']>
+): Promise<CfResponse> {
 	const app = createApp(import.meta.env.DEV);
 	const { pathname } = new URL(request.url);
 
