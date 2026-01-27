@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 4.0.15-beta.2
+
+### Patch Changes
+
+- [#15283](https://github.com/withastro/astro/pull/15283) [`daf41c6`](https://github.com/withastro/astro/commit/daf41c6652e061fbc7550daf4f0a0ec2f74c4d0b) Thanks [@eldair](https://github.com/eldair)! - Updates validation to use Zod v4
+
 ## 4.0.15-beta.1
 
 ### Patch Changes
