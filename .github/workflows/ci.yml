@@ -5,8 +5,12 @@ on:
   push:
     branches:
       - main
-      - ocavue/vpr-5
   merge_group:
+  pull_request:
+    paths-ignore:
+      - ".vscode/**"
+      - "**/*.md"
+      - ".github/ISSUE_TEMPLATE/**"
 
 # Automatically cancel older in-progress jobs on the same branch
 concurrency:
