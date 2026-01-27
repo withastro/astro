@@ -1,5 +1,13 @@
 # astro
 
+## 6.0.0-beta.4
+
+### Patch Changes
+
+- [#15308](https://github.com/withastro/astro/pull/15308) [`89cbcfa`](https://github.com/withastro/astro/commit/89cbcfadcf2d777dc5dbd210f9f88117c0101931) Thanks [@matthewp](https://github.com/matthewp)! - Fixes styles missing in dev for prerendered pages when using Cloudflare adapter
+
+- [#15279](https://github.com/withastro/astro/pull/15279) [`8983f17`](https://github.com/withastro/astro/commit/8983f17d530b63d230ffb06f7ce65476f77c60b5) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the dev server would serve files like `/README.md` from the project root when they shouldn't be accessible. A new route guard middleware now blocks direct URL access to files that exist outside of `srcDir` and `publicDir`, returning a 404 instead.
+
 ## 6.0.0-beta.3
 
 ### Patch Changes

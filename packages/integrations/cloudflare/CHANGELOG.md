@@ -1,5 +1,16 @@
 # @astrojs/cloudflare
 
+## 13.0.0-beta.2
+
+### Patch Changes
+
+- [#15309](https://github.com/withastro/astro/pull/15309) [`4b9c8b8`](https://github.com/withastro/astro/commit/4b9c8b8622fdfc4a3edbb227b37dd3ddaa5720ca) Thanks [@ematipico](https://github.com/ematipico)! - Update the underneath `@cloudflare/workers-types` library to address a warning emitted by the package manager during the installation.
+
+- [#15255](https://github.com/withastro/astro/pull/15255) [`a66783a`](https://github.com/withastro/astro/commit/a66783a3a1a16f451b3da220a4be75be6c13ee95) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where the types of `handle()` could mismatch with the ones from the user's project. They now rely on globals, that can be obtained by running `wrangler types`
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 13.0.0-beta.1
 
 ### Patch Changes

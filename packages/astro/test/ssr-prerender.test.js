@@ -36,6 +36,24 @@ describe('SSR: prerender', () => {
 		});
 	});
 
+	describe('?raw imports work in both SSR and prerendered routes', () => {
+		it('raw import works in SSR route', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/not-prerendered');
+			const response = await app.render(request);
+			assert.equal(response.status, 200);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+			assert.equal($('#raw-styles').text().includes('background: blue'), true);
+		});
+
+		it('raw import works in prerendered route', async () => {
+			const html = await fixture.readFile('/client/static/index.html');
+			const $ = cheerio.load(html);
+			assert.equal($('#raw-styles').text().includes('background: blue'), true);
+		});
+	});
+
 	describe('Astro.params in SSR', () => {
 		it('Params are passed to component', async () => {
 			const app = await fixture.loadTestAdapterApp();
