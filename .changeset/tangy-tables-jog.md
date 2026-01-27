@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-add optional `embeddedLangs` prop to `<Code />` to allow languages beyond the primary `lang`
+Adds a new optional `embeddedLangs` prop to  the`<Code />` component to allow languages beyond the primary `lang`.
