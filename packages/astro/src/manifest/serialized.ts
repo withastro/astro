@@ -128,9 +128,7 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 
 	if (shouldTrackCspHashes(settings.config.security.csp)) {
 		csp = {
-			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
-				? 'adapter'
-				: undefined,
+			cspDestination: settings.adapter?.adapterFeatures?.staticHeaders ? 'adapter' : undefined,
 			scriptHashes: getScriptHashes(settings.config.security.csp),
 			scriptResources: getScriptResources(settings.config.security.csp),
 			styleHashes: getStyleHashes(settings.config.security.csp),
@@ -180,6 +178,6 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 			debugInfoOutput: '',
 		},
 		logLevel: settings.logLevel,
-		canCollectStaticHeaders: settings.adapter?.adapterFeatures?.experimentalStaticHeaders ?? false,
+		canCollectStaticHeaders: settings.adapter?.adapterFeatures?.staticHeaders ?? false,
 	};
 }

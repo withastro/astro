@@ -51,13 +51,9 @@ export class DevApp extends BaseApp<NonRunnablePipeline> {
 	}
 
 	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
-		if (this.pipeline.currentStaticHeaders) {
-			this.pipeline.currentStaticHeaders.setTracking(payload.routeData.prerender);
-		}
 		return super.createRenderContext({
 			...payload,
 			pathname: this.resolvedPathname ?? payload.pathname,
-			staticHeaders: this.pipeline.currentStaticHeaders,
 		});
 	}
 

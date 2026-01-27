@@ -280,9 +280,7 @@ async function buildManifest(
 		];
 
 		csp = {
-			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
-				? 'adapter'
-				: undefined,
+			cspDestination: settings.adapter?.adapterFeatures?.staticHeaders ? 'adapter' : undefined,
 			scriptHashes,
 			scriptResources: getScriptResources(settings.config.security.csp),
 			styleHashes,
@@ -344,7 +342,6 @@ async function buildManifest(
 		},
 		internalFetchHeaders,
 		logLevel: settings.logLevel,
-		canCollectStaticHeaders:
-			opts.settings.adapter?.adapterFeatures?.experimentalStaticHeaders ?? false,
+		canCollectStaticHeaders: opts.settings.adapter?.adapterFeatures?.staticHeaders ?? false,
 	};
 }

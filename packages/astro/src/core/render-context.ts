@@ -38,7 +38,6 @@ import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from '.
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
 import { AstroSession } from './session/runtime.js';
 import { validateAndDecodePathname } from './util/pathname.js';
-import type { StaticHeaders } from './static-headers.js';
 
 /**
  * Each request is rendered using a `RenderContext`.
@@ -59,7 +58,6 @@ export type CreateRenderContext = Pick<
 			| 'actions'
 			| 'shouldInjectCspMetaTags'
 			| 'skipMiddleware'
-			| 'staticHeaders'
 		>
 	>;
 
@@ -84,7 +82,6 @@ export class RenderContext {
 		public shouldInjectCspMetaTags = !!pipeline.manifest.csp,
 		public session: AstroSession | undefined = undefined,
 		public skipMiddleware = false,
-		public staticHeaders: StaticHeaders | undefined = undefined,
 	) {}
 
 	static #createNormalizedUrl(requestUrl: string): URL {
@@ -128,7 +125,6 @@ export class RenderContext {
 		partial = undefined,
 		shouldInjectCspMetaTags,
 		skipMiddleware = false,
-		staticHeaders = undefined,
 	}: CreateRenderContext): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
 		const pipelineActions = await pipeline.getActions();
@@ -171,7 +167,6 @@ export class RenderContext {
 			shouldInjectCspMetaTags ?? !!pipeline.manifest.csp,
 			session,
 			skipMiddleware,
-			staticHeaders,
 		);
 	}
 	/**
@@ -517,15 +512,11 @@ export class RenderContext {
 					},
 				};
 			},
-
-			setStaticHeader(key: string, value: string) {
-				renderContext.staticHeaders?.set(key, value);
-			},
 		};
 	}
 
 	async createResult(mod: ComponentInstance, ctx: ActionAPIContext): Promise<SSRResult> {
-		const { cookies, pathname, pipeline, routeData, status, staticHeaders } = this;
+		const { cookies, pathname, pipeline, routeData, status } = this;
 		const { clientDirectives, inlinedScripts, compressHTML, manifest, renderers, resolve } =
 			pipeline;
 		const { links, scripts, styles } = await pipeline.headElements(routeData);
@@ -615,13 +606,6 @@ export class RenderContext {
 			directives: manifest.csp?.directives ? [...manifest.csp.directives] : [],
 			isStrictDynamic: manifest.csp?.isStrictDynamic ?? false,
 			internalFetchHeaders: manifest.internalFetchHeaders,
-			dumpStaticHeaders: () => {
-				if (staticHeaders) {
-					return staticHeaders.dump();
-				} else {
-					return [];
-				}
-			},
 		};
 
 		return result;
@@ -782,10 +766,6 @@ export class RenderContext {
 						renderContext.result?.scriptHashes.push(hash);
 					},
 				};
-			},
-
-			setStaticHeader(key: string, value: string) {
-				renderContext.staticHeaders?.set(key, value);
 			},
 		};
 	}

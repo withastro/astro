@@ -107,13 +107,9 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	}
 
 	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
-		if (this.pipeline.currentStaticHeaders) {
-			this.pipeline.currentStaticHeaders.setTracking(payload.routeData.prerender);
-		}
 		this.currentRenderContext = await super.createRenderContext({
 			...payload,
 			pathname: this.resolvedPathname ?? payload.pathname,
-			staticHeaders: this.pipeline.currentStaticHeaders,
 		});
 		return this.currentRenderContext;
 	}

@@ -150,9 +150,7 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		];
 
 		csp = {
-			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
-				? 'adapter'
-				: undefined,
+			cspDestination: settings.adapter?.adapterFeatures?.staticHeaders ? 'adapter' : undefined,
 			scriptHashes: getScriptHashes(settings.config.security.csp),
 			scriptResources: getScriptResources(settings.config.security.csp),
 			styleHashes,
@@ -207,6 +205,6 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 			debugInfoOutput: '',
 		},
 		logLevel: settings.logLevel,
-		canCollectStaticHeaders: settings.adapter?.adapterFeatures?.experimentalStaticHeaders ?? false,
+		canCollectStaticHeaders: settings.adapter?.adapterFeatures?.staticHeaders ?? false,
 	};
 }

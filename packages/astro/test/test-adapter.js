@@ -130,7 +130,7 @@ export default function ({
 					},
 					adapterFeatures: {
 						buildOutput: 'server',
-						experimentalStaticHeaders: staticHeaders,
+						staticHeaders: staticHeaders,
 					},
 					...extendAdapter,
 				});
@@ -270,7 +270,7 @@ export function selfTestAdapter({
 					},
 					adapterFeatures: {
 						buildOutput: 'server',
-						experimentalStaticHeaders: staticHeaders,
+						staticHeaders: staticHeaders,
 					},
 					...extendAdapter,
 				});

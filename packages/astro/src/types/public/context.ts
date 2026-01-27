@@ -577,11 +577,4 @@ export interface APIContext<
 	 * [Astro reference](https://docs.astro.build/en/reference/routing-reference/#routepattern)
 	 */
 	routePattern: string;
-
-	/**
-	 *
-	 * @param key
-	 * @param value
-	 */
-	setStaticHeader: (key: string, value: string) => void;
 }

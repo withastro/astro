@@ -43,10 +43,6 @@ export async function renderPage(
 			headers.set('content-security-policy', renderCspContent(result));
 		}
 
-		for (const [headerName, headerValue] of result.dumpStaticHeaders()) {
-			headers.set(headerName, headerValue);
-		}
-
 		return new Response(bytes, {
 			headers,
 			status: result.response.status,
@@ -92,10 +88,6 @@ export async function renderPage(
 		result.cspDestination === 'adapter'
 	) {
 		headers.set('content-security-policy', renderCspContent(result));
-	}
-
-	for (const [headerName, headerValue] of result.dumpStaticHeaders()) {
-		headers.set(headerName, headerValue);
 	}
 
 	// For non-streaming, convert string to byte array to calculate Content-Length

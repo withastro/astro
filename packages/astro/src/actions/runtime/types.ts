@@ -104,7 +104,6 @@ export type ActionAPIContext = Pick<
 	| 'originPathname'
 	| 'session'
 	| 'csp'
-	| 'setStaticHeader'
 >;
 
 export type MaybePromise<T> = T | Promise<T>;

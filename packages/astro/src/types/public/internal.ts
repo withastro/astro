@@ -252,7 +252,6 @@ export interface SSRResult {
 	directives: SSRManifestCSP['directives'];
 	isStrictDynamic: SSRManifestCSP['isStrictDynamic'];
 	internalFetchHeaders?: Record<string, string>;
-	dumpStaticHeaders: () => [string, string][];
 }
 
 /**
