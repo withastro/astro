@@ -13,6 +13,7 @@ import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../type
 import { shouldInlineAsset } from './util.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 import { CSS_LANGS_RE } from '../../viteUtils.js';
+import { specialQueriesRE } from '../../../vite-plugin-utils/index.js';
 import { normalizeEntryId } from './plugin-component-entry.js';
 
 /***** ASTRO PLUGIN *****/
@@ -57,7 +58,12 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 
 		transform: {
 			filter: {
-				id: CSS_LANGS_RE,
+				id: {
+					include: CSS_LANGS_RE,
+					// Exclude ?raw, ?url, ?direct imports - these need their actual content
+					// and should be handled by Vite's native asset handling, not emptied out.
+					exclude: specialQueriesRE,
+				},
 			},
 			handler(_code, id) {
 				// In prerender, don't rebundle CSS that was already bundled in SSR.

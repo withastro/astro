@@ -1,5 +1,6 @@
 ---
 export const prerender = true;
+import styles from '../styles.css?raw';
 
 const { searchParams } = Astro.url;
 ---
@@ -14,5 +15,6 @@ const { searchParams } = Astro.url;
 	<body>
 		<h1 id="greeting">Hello world!</h1>
 		<div id="searchparams">{searchParams.get('q')}</div>
+		<div id="raw-styles">{styles}</div>
 	</body>
 </html>
