@@ -4979,6 +4979,9 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
+      wrangler:
+        specifier: ^4.60.0
+        version: 4.60.0(@cloudflare/workers-types@4.20260124.0)
 
   packages/integrations/cloudflare/test/fixtures/external-image-service:
     dependencies:
