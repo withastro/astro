@@ -15,7 +15,7 @@ describe('Server entry', () => {
 		await fixture.build();
 
 		const itExits = existsSync(
-			fileURLToPath(new URL('_worker.js/custom.mjs', fixture.config.outDir)),
+			fileURLToPath(new URL('_worker.js/entry.mjs', fixture.config.outDir)),
 		);
 
 		assert.ok(itExits);
