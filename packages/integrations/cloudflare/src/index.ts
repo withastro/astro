@@ -110,7 +110,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				updateConfig({
 					build: {
-						serverEntry: config.build.serverEntry,
 						redirects: false,
 					},
 					session,
