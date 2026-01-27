@@ -4911,6 +4911,9 @@ importers:
         specifier: ^7.3.1
         version: 7.3.1(@types/node@24.10.9)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.2)(tsx@4.21.0)(yaml@2.8.2)
     devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20260124.0
+        version: 4.20260124.0
       astro:
         specifier: workspace:*
         version: link:../../astro

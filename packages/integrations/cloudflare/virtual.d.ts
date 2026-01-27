@@ -8,7 +8,16 @@ declare module 'virtual:astro-cloudflare:config' {
 declare namespace Cloudflare {
 	interface Env {
 		[key: string]: unknown;
-		IMAGES: import('@cloudflare/workers-types').ImagesBinding;
-		ASSETS: import('@cloudflare/workers-types').Fetcher;
+		IMAGES: ImagesBinding;
+		ASSETS: Fetcher;
 	}
 }
+
+// biome-ignore lint/correctness/noUnusedVariables: this is a global type
+interface Env extends Cloudflare.Env {}
+
+type ImagesBinding = import('@cloudflare/workers-types').ImagesBinding;
+type Fetcher = import('@cloudflare/workers-types').Fetcher;
+
+// biome-ignore lint/correctness/noUnusedVariables: this is a global type
+type IncomingRequestCfProperties = import('@cloudflare/workers-types').IncomingRequestCfProperties;

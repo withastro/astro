@@ -13,7 +13,7 @@ declare global {
 		 * - Bot Management scores
 		 * - Client information (ASN, TCP metrics)
 		 */
-		readonly cf?: import('@cloudflare/workers-types').IncomingRequestCfProperties;
+		readonly cf?: IncomingRequestCfProperties;
 	}
 }
 
