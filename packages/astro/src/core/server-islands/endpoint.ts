@@ -43,7 +43,7 @@ export function injectServerIslandRoute(config: ConfigFields, routeManifest: Rou
 }
 
 type RenderOptions = {
-	componentExport: string;
+	encryptedComponentExport: string;
 	encryptedProps: string;
 	encryptedSlots: string;
 };
@@ -67,7 +67,7 @@ async function getRequestData(request: Request): Promise<Response | RenderOption
 
 			const encryptedSlots = params.get('s')!;
 			return {
-				componentExport: params.get('e')!,
+				encryptedComponentExport: params.get('e')!,
 				encryptedProps: params.get('p')!,
 				encryptedSlots,
 			};
@@ -75,14 +75,21 @@ async function getRequestData(request: Request): Promise<Response | RenderOption
 		case 'POST': {
 			try {
 				const raw = await request.text();
-				const data = JSON.parse(raw) as RenderOptions;
+				const data = JSON.parse(raw);
 
 				// Validate that slots is not plaintext
-				if ('slots' in data && typeof (data as any).slots === 'object') {
+				if ('slots' in data && typeof data.slots === 'object') {
 					return badRequest('Plaintext slots are not allowed. Slots must be encrypted.');
 				}
 
-				return data;
+				// Validate that componentExport is not plaintext
+				if ('componentExport' in data && typeof data.componentExport === 'string') {
+					return badRequest(
+						'Plaintext componentExport is not allowed. componentExport must be encrypted.',
+					);
+				}
+
+				return data as RenderOptions;
 			} catch (e) {
 				if (e instanceof SyntaxError) {
 					return badRequest('Request format is invalid.');
@@ -124,6 +131,15 @@ export function createEndpoint(manifest: SSRManifest) {
 		}
 
 		const key = await manifest.key;
+
+		// Decrypt componentExport
+		let componentExport: string;
+		try {
+			componentExport = await decryptString(key, data.encryptedComponentExport);
+		} catch (_e) {
+			return badRequest('Encrypted componentExport value is invalid.');
+		}
+
 		const encryptedProps = data.encryptedProps;
 
 		let props = {};
@@ -152,7 +168,7 @@ export function createEndpoint(manifest: SSRManifest) {
 		}
 
 		const componentModule = await imp();
-		let Component = (componentModule as any)[data.componentExport];
+		let Component = (componentModule as any)[componentExport];
 
 		const slots: ComponentSlots = {};
 		for (const prop in decryptedSlots) {
