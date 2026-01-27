@@ -1,14 +1,7 @@
-// @ts-expect-error Not sure how to make this typecheck properly
 import { imageConfig } from 'astro:assets';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
-
-import type {
-	Fetcher,
-	ImagesBinding,
-	ImageTransform,
-	ReadableStream,
-} from '@cloudflare/workers-types';
+import type { ImageTransform } from '@cloudflare/workers-types';
 
 export async function transform(
 	rawUrl: string,
@@ -28,7 +21,7 @@ export async function transform(
 	if (!content.body) {
 		return new Response(null, { status: 404 });
 	}
-	const input = images.input(content.body as ReadableStream);
+	const input = images.input(content.body);
 
 	const format = url.searchParams.get('f');
 
@@ -36,7 +29,6 @@ export async function transform(
 		return new Response(`The "${format}" format is not supported`, { status: 400 });
 	}
 
-	// @ts-expect-error The Header types between libdom and @cloudflare/workers-types are causing issues
 	return (
 		await input
 			.transform({
