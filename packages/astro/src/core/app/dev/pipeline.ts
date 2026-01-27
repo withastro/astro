@@ -9,7 +9,6 @@ import { type HeadElements, Pipeline, type TryRewriteResult } from '../../base-p
 import { ASTRO_VERSION } from '../../constants.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../../render/ssr-element.js';
 import { findRouteToRewrite } from '../../routing/rewrite.js';
-import { StaticHeaders } from '../../static-headers.js';
 
 type DevPipelineCreate = Pick<NonRunnablePipeline, 'logger' | 'manifest' | 'streaming'>;
 
@@ -17,8 +16,6 @@ type DevPipelineCreate = Pick<NonRunnablePipeline, 'logger' | 'manifest' | 'stre
  * A pipeline that can't load modules at runtime using the vite environment APIs
  */
 export class NonRunnablePipeline extends Pipeline {
-	currentStaticHeaders: StaticHeaders | undefined = undefined;
-
 	getName(): string {
 		return 'NonRunnablePipeline';
 	}
@@ -48,12 +45,6 @@ export class NonRunnablePipeline extends Pipeline {
 			undefined,
 			undefined,
 		);
-		if (manifest.canCollectStaticHeaders) {
-			pipeline.currentStaticHeaders = new StaticHeaders(
-				manifest.canCollectStaticHeaders,
-				pipeline.logger,
-			);
-		}
 		return pipeline;
 	}
 

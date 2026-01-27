@@ -22,7 +22,6 @@ import { RunnablePipeline } from './pipeline.js';
 import { getCustom404Route, getCustom500Route } from '../core/routing/helpers.js';
 import { matchRoute } from '../core/routing/dev.js';
 import type { DevMatch } from '../core/app/base.js';
-import { StaticHeaders } from '../core/static-headers.js';
 
 export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	settings: AstroSettings;
@@ -95,13 +94,6 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 			settings,
 			getDebugInfo,
 		});
-
-		if (manifest.canCollectStaticHeaders) {
-			pipeline.currentStaticHeaders = new StaticHeaders(
-				manifest.canCollectStaticHeaders,
-				this.logger,
-			);
-		}
 
 		return pipeline;
 	}
