@@ -5014,7 +5014,7 @@ importers:
         version: 18.3.7(@types/react@18.3.27)
       '@vitejs/plugin-vue':
         specifier: ^6.0.2
-        version: 6.0.2(vite@7.2.7(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.96.0)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.25(typescript@5.9.3))
+        version: 6.0.3(vite@7.3.1(@types/node@24.10.9)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.2)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.26(typescript@5.9.3))
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
@@ -5026,10 +5026,10 @@ importers:
         version: 18.3.1(react@18.3.1)
       sharp:
         specifier: ^0.34.3
-        version: 0.34.4
+        version: 0.34.5
       vue:
         specifier: ^3.5.25
-        version: 3.5.25(typescript@5.9.3)
+        version: 3.5.26(typescript@5.9.3)
 
   packages/integrations/cloudflare/test/fixtures/module-loader:
     dependencies:
