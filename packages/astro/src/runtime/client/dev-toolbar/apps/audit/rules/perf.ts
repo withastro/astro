@@ -10,6 +10,10 @@ export const perf: AuditRuleWithSelector[] = [
 		message: 'This image could be replaced with the Image component to improve performance.',
 		selector: 'img:not([data-image-component])',
 		async match(element) {
+			// Skip images inside framework components (React, Vue, Svelte, etc.)
+			// These are wrapped in astro-island and can't directly use Astro's Image component
+			if (element.closest('astro-island')) return false;
+
 			const src = element.getAttribute('src');
 			if (!src) return false;
 

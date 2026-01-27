@@ -1,4 +1,7 @@
 import { extname } from 'node:path';
+import { getAssetsPrefix } from '../assets/utils/getAssetsPrefix.js';
+import type { AssetsPrefix } from '../core/app/types.js';
+import { fileExtension } from '../core/path.js';
 import { fileURLToPath } from 'node:url';
 import { isRunnableDevEnvironment, type Plugin, type RunnableDevEnvironment } from 'vite';
 import type { BuildInternals } from '../core/build/internal.js';
@@ -206,6 +209,7 @@ async function getStylesForURL(
  */
 export async function contentAssetsBuildPostHook(
 	base: string,
+	assetsPrefix: AssetsPrefix | undefined,
 	internals: BuildInternals,
 	{
 		chunks,
@@ -233,8 +237,16 @@ export async function contentAssetsBuildPostHook(
 				// links. Refactor this away in the future.
 				for (const value of entryCss) {
 					if (value.type === 'inline') entryStyles.add(value.content);
-					if (value.type === 'external')
-						entryLinks.add(prependForwardSlash(joinPaths(base, slash(value.src))));
+					if (value.type === 'external') {
+						let href: string;
+						if (assetsPrefix) {
+							const pf = getAssetsPrefix(fileExtension(value.src), assetsPrefix);
+							href = joinPaths(pf, slash(value.src));
+						} else {
+							href = prependForwardSlash(joinPaths(base, slash(value.src)));
+						}
+						entryLinks.add(href);
+					}
 				}
 			}
 		}

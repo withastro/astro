@@ -41,7 +41,7 @@ async function loadLocalImage(src: string, url: URL) {
 				),
 				server: { fs: viteFSConfig },
 				safeModulePaths,
-			} as ResolvedConfig & { fsDenyGlob: AnymatchFn; safeModulePaths: Set<string> },
+			} as unknown as ResolvedConfig & { fsDenyGlob: AnymatchFn; safeModulePaths: Set<string> },
 			fsPath,
 		)
 	) {

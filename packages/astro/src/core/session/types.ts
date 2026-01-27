@@ -48,17 +48,22 @@ interface DriverConfig<TDriver extends SessionDriverConfig> extends BaseSessionC
 	options?: never;
 }
 
-interface UnstorageConfig<TDriver extends keyof BuiltinDriverOptions> extends BaseSessionConfig {
+interface UnstorageConfig<
+	TDriver extends keyof BuiltinDriverOptions | undefined,
+	TOptions = TDriver extends keyof BuiltinDriverOptions
+		? NoInfer<BuiltinDriverOptions[TDriver]>
+		: undefined,
+> extends BaseSessionConfig {
 	/**
 	 * Entrypoint for an unstorage session driver
 	 * @deprecated Use `import { sessionDrivers } from 'astro/config'` instead. This will be removed in Astro 7
 	 */
-	driver: TDriver;
+	driver?: TDriver;
 	/**
 	 * Options for the unstorage driver
 	 * @deprecated Use `import { sessionDrivers } from 'astro/config'` instead. This will be removed in Astro 7
 	 */
-	options?: NoInfer<BuiltinDriverOptions[TDriver]>;
+	options?: TOptions;
 }
 
 interface CustomConfig extends BaseSessionConfig {
@@ -74,10 +79,10 @@ interface CustomConfig extends BaseSessionConfig {
 	options?: Record<string, unknown>;
 }
 
-export type SessionConfig<TDriver extends SessionDriverName | SessionDriverConfig> = [
+export type SessionConfig<TDriver extends SessionDriverName | SessionDriverConfig | undefined> = [
 	TDriver,
 ] extends [never]
-	? UnstorageConfig<keyof BuiltinDriverOptions>
+	? UnstorageConfig<TDriver>
 	: TDriver extends SessionDriverConfig
 		? DriverConfig<TDriver>
 		: TDriver extends keyof BuiltinDriverOptions

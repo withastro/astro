@@ -71,6 +71,13 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		// always call rotate to adjust for EXIF data orientation
 		result.rotate();
 
+		// get some information about the input
+		const { format } = await result.metadata();
+
+		// If `fit` isn't set then use old behavior:
+		// - Do not use both width and height for resizing, and prioritize width over height
+		// - Allow enlarging images
+
 		if (transform.width && transform.height) {
 			const fit: keyof FitEnum | undefined = transform.fit
 				? (fitMap[transform.fit] ?? 'inside')
@@ -105,15 +112,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 				}
 			}
 
-			const isGifInput =
-				inputBuffer[0] === 0x47 && // 'G'
-				inputBuffer[1] === 0x49 && // 'I'
-				inputBuffer[2] === 0x46 && // 'F'
-				inputBuffer[3] === 0x38 && // '8'
-				(inputBuffer[4] === 0x39 || inputBuffer[4] === 0x37) && // '9' or '7'
-				inputBuffer[5] === 0x61; // 'a'
-
-			if (transform.format === 'webp' && isGifInput) {
+			if (transform.format === 'webp' && format === 'gif') {
 				// Convert animated GIF to animated WebP with loop=0 (infinite)
 				result.webp({ quality: typeof quality === 'number' ? quality : undefined, loop: 0 });
 			} else {

@@ -3,8 +3,6 @@
  * Extends the global Request object with Cloudflare-specific properties
  */
 
-import type { IncomingRequestCfProperties } from '@cloudflare/workers-types';
-
 declare global {
 	interface Request {
 		/**
@@ -17,4 +15,10 @@ declare global {
 		 */
 		readonly cf?: IncomingRequestCfProperties;
 	}
+}
+
+type Runtime = import('./dist/index.d.ts').Runtime;
+
+declare namespace App {
+	interface Locals extends Runtime {}
 }

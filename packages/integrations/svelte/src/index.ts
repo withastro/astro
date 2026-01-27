@@ -32,13 +32,27 @@ export default function svelteIntegration(options?: Options): AstroIntegration {
 function configEnvironmentPlugin(): Plugin {
 	return {
 		name: '@astrojs/svelte:config-environment',
-		configEnvironment(environmentName) {
-			return {
-				optimizeDeps: {
-					exclude: ['@astrojs/svelte/server.js'],
-					includes: environmentName === 'client' ? ['@astrojs/svelte/client.js'] : [],
-				},
-			};
+		configEnvironment(environmentName, options) {
+			if (
+				environmentName === 'client' ||
+				((environmentName === 'ssr' || environmentName === 'prerender') &&
+					options.optimizeDeps?.noDiscovery === false)
+			) {
+				return {
+					optimizeDeps: {
+						include:
+							environmentName === 'client'
+								? ['@astrojs/svelte/client.js']
+								: environmentName === 'ssr' || environmentName === 'prerender'
+									? ['svelte/server', 'svelte/internal/server']
+									: [],
+						exclude:
+							environmentName === 'ssr' || environmentName === 'prerender'
+								? ['@astrojs/svelte/server.js']
+								: [],
+					},
+				};
+			}
 		},
 	};
 }

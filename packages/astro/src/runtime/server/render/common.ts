@@ -103,6 +103,14 @@ function stringifyChunk(
 				result._metadata.hasRenderedServerIslandRuntime = true;
 				return renderServerIslandRuntime();
 			}
+			case 'script': {
+				const { id, content } = instruction;
+				if (result._metadata.renderedScripts.has(id)) {
+					return '';
+				}
+				result._metadata.renderedScripts.add(id);
+				return content;
+			}
 			default: {
 				throw new Error(`Unknown chunk type: ${(chunk as any).type}`);
 			}
@@ -142,6 +150,17 @@ export function chunkToByteArray(
 		// `stringifyChunk` might return a HTMLString, call `.toString()` to really ensure it's a string
 		const stringified = stringifyChunk(result, chunk);
 		return encoder.encode(stringified.toString());
+	}
+}
+
+export function chunkToByteArrayOrString(
+	result: SSRResult,
+	chunk: Exclude<RenderDestinationChunk, Response>,
+): Uint8Array | string {
+	if (ArrayBuffer.isView(chunk)) {
+		return chunk as Uint8Array;
+	} else {
+		return stringifyChunk(result, chunk).toString();
 	}
 }
 

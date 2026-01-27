@@ -14,7 +14,6 @@ import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../manifest/serialized.js';
 import { getClientOutputDirectory, getServerOutputDirectory } from '../../prerender/utils.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../../vite-plugin-pages/const.js';
-import { RESOLVED_ASTRO_RENDERERS_MODULE_ID } from '../../vite-plugin-renderers/index.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { routeIsRedirect } from '../routing/index.js';
 import { getOutDirWithinCwd } from './common.js';
@@ -29,6 +28,7 @@ import type { StaticBuildOptions } from './types.js';
 import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
 import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
+import type { RollupOutput, RollupWatcher, InputOption } from 'rollup';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -77,8 +77,6 @@ function extractRelevantChunks(
 export async function viteBuild(opts: StaticBuildOptions) {
 	const { allPages, settings } = opts;
 
-	settings.timer.start('SSR build');
-
 	// The pages to be built for rendering purposes.
 	// (comment above may be outdated ?)
 	const pageInput = new Set<string>();
@@ -113,8 +111,6 @@ export async function viteBuild(opts: StaticBuildOptions) {
 		'build',
 		colors.green(`✓ Completed in ${getTimeStat(ssrTime, performance.now())}.`),
 	);
-
-	settings.timer.end('SSR build');
 
 	// Inject manifest and content placeholders into extracted chunks
 	await runManifestInjection(opts, internals, extractedChunks);
@@ -191,6 +187,30 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 
 	const buildPlugins = getAllBuildPlugins(internals, opts);
 	const flatPlugins = buildPlugins.flat().filter(Boolean);
+	const plugins = [...flatPlugins, ...(viteConfig.plugins || [])];
+	let currentRollupInput: InputOption | undefined = undefined;
+	plugins.push({
+		name: 'astro:resolve-input',
+		configResolved(config) {
+			currentRollupInput = config.build.rollupOptions.input;
+		},
+	});
+
+	function isRollupInput(moduleName: string | null): boolean {
+		if (!currentRollupInput) {
+			return false;
+		}
+		if (!moduleName) {
+			return false;
+		}
+		if (typeof currentRollupInput === 'string') {
+			return currentRollupInput === moduleName;
+		} else if (Array.isArray(currentRollupInput)) {
+			return currentRollupInput.includes(moduleName);
+		} else {
+			return Object.keys(currentRollupInput).includes(moduleName);
+		}
+	}
 
 	const viteBuildConfig: vite.InlineConfig = {
 		...viteConfig,
@@ -243,14 +263,14 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 								chunkInfo.facadeModuleId,
 								routes,
 							);
-						} else if (chunkInfo.facadeModuleId === RESOLVED_SSR_VIRTUAL_MODULE_ID) {
+						} else if (
+							chunkInfo.facadeModuleId === RESOLVED_SSR_VIRTUAL_MODULE_ID ||
+							// This catches the case when the adapter uses `entryType: 'self'. When doing so,
+							// the adapter must set rollupOptions.input.
+							isRollupInput(chunkInfo.name) ||
+							isRollupInput(chunkInfo.facadeModuleId)
+						) {
 							return opts.settings.config.build.serverEntry;
-						} else if (chunkInfo.facadeModuleId === RESOLVED_ASTRO_RENDERERS_MODULE_ID) {
-							return 'renderers.mjs';
-						} else if (chunkInfo.facadeModuleId === SERIALIZED_MANIFEST_RESOLVED_ID) {
-							return 'manifest_[hash].mjs';
-						} else if (chunkInfo.facadeModuleId === settings.adapter?.serverEntrypoint) {
-							return 'adapter_[hash].mjs';
 						} else {
 							return '[name].mjs';
 						}
@@ -264,7 +284,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			modulePreload: { polyfill: false },
 			reportCompressedSize: false,
 		},
-		plugins: [...flatPlugins, ...(viteConfig.plugins || [])],
+		plugins,
 		envPrefix: viteConfig.envPrefix ?? 'PUBLIC_',
 		base: settings.config.base,
 		environments: {
@@ -326,17 +346,22 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 
 	const builder = await vite.createBuilder(updatedViteBuildConfig);
 
+	let ssrOutput: RollupOutput | RollupOutput[] | RollupWatcher = [];
+
 	// Build ssr environment for server output
-	let ssrOutput =
-		settings.buildOutput === 'static'
-			? []
-			: await builder.build(builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]);
+	if (settings.buildOutput !== 'static') {
+		settings.timer.start('SSR build');
+		ssrOutput = await builder.build(builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]);
+		settings.timer.end('SSR build');
+	}
 	// Extract chunks needing injection, then release output for GC
 	const ssrChunks = extractRelevantChunks(viteBuildReturnToRollupOutputs(ssrOutput), false);
 	ssrOutput = undefined as any;
 
 	// Build prerender environment for static generation
+	settings.timer.start('Prerender build');
 	let prerenderOutput = await builder.build(builder.environments.prerender);
+	settings.timer.end('Prerender build');
 	// Extract prerender entry filename before releasing (only needs fileName)
 	extractPrerenderEntryFileName(internals, prerenderOutput);
 	// Extract chunks needing injection, then release output for GC
@@ -359,7 +384,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	}
 	builder.environments.client.config.build.rollupOptions.input = Array.from(internals.clientInput);
 	// Build client but don't store - no injection needed, let GC reclaim immediately
+	settings.timer.start('Client build');
 	await builder.build(builder.environments.client);
+	settings.timer.end('Client build');
 
 	return { extractedChunks: [...ssrChunks, ...prerenderChunks] };
 }
@@ -418,7 +445,12 @@ async function runManifestInjection(
 	};
 
 	await manifestBuildPostHook(opts, internals, { chunks, mutate });
-	await contentAssetsBuildPostHook(opts.settings.config.base, internals, { chunks, mutate });
+	await contentAssetsBuildPostHook(
+		opts.settings.config.base,
+		opts.settings.config.build.assetsPrefix,
+		internals,
+		{ chunks, mutate },
+	);
 	await writeMutatedChunks(opts, mutations);
 }
 

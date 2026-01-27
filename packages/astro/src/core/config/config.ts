@@ -24,15 +24,13 @@ export function resolveRoot(cwd?: string | URL): string {
 	return cwd ? path.resolve(cwd) : process.cwd();
 }
 
-// Config paths to search for. In order of likely appearance
-// to speed up the check.
+// Config paths to search for.
+// In order of likely appearance to speed up the check.
 const configPaths = Object.freeze([
 	'astro.config.mjs',
 	'astro.config.js',
 	'astro.config.ts',
 	'astro.config.mts',
-	'astro.config.cjs',
-	'astro.config.cts',
 ]);
 
 async function search(fsMod: typeof fs, root: string) {
@@ -52,7 +50,7 @@ interface ResolveConfigPathOptions {
 }
 
 /**
- * Resolve the file URL of the user's `astro.config.js|cjs|mjs|ts` file
+ * Resolve the file URL of the user's `astro.config.js|mjs|ts` file
  */
 export async function resolveConfigPath(
 	options: ResolveConfigPathOptions,

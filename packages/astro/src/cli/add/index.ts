@@ -322,6 +322,43 @@ export async function add(names: string[], { flags }: AddOptions) {
 					defaultConfigContent: STUBS.LIT_NPMRC,
 				});
 			}
+			// The Vercel adapter outputs to .vercel/output which should be gitignored
+			if (integrations.find((integration) => integration.id === 'vercel')) {
+				const gitignorePath = new URL('./.gitignore', root);
+				const gitignoreEntry = '.vercel';
+
+				if (existsSync(gitignorePath)) {
+					const content = await fs.readFile(fileURLToPath(gitignorePath), { encoding: 'utf-8' });
+					if (!content.includes(gitignoreEntry)) {
+						logger.info(
+							'SKIP_FORMAT',
+							`\n  ${magenta(`Astro will add ${green('.vercel')} to ${green('.gitignore')}.`)}\n`,
+						);
+
+						if (await askToContinue({ flags, logger })) {
+							const newContent = content.endsWith('\n')
+								? `${content}${gitignoreEntry}\n`
+								: `${content}\n${gitignoreEntry}\n`;
+							await fs.writeFile(fileURLToPath(gitignorePath), newContent, { encoding: 'utf-8' });
+							logger.debug('add', 'Updated .gitignore with .vercel');
+						}
+					} else {
+						logger.debug('add', '.vercel already in .gitignore');
+					}
+				} else {
+					logger.info(
+						'SKIP_FORMAT',
+						`\n  ${magenta(`Astro will create ${green('.gitignore')} with ${green('.vercel')}.`)}\n`,
+					);
+
+					if (await askToContinue({ flags, logger })) {
+						await fs.writeFile(fileURLToPath(gitignorePath), `${gitignoreEntry}\n`, {
+							encoding: 'utf-8',
+						});
+						logger.debug('add', 'Created .gitignore with .vercel');
+					}
+				}
+			}
 			break;
 		}
 		case UpdateResult.cancelled: {

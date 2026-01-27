@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import ancestor from 'common-ancestor-path';
+import { commonAncestorPath } from 'common-ancestor-path';
 import {
 	appendExtension,
 	appendForwardSlash,
@@ -39,7 +39,7 @@ export function getFileInfo(id: string, config: AstroConfig) {
 export function normalizeFilename(filename: string, root: URL) {
 	if (filename.startsWith('/@fs')) {
 		filename = filename.slice('/@fs'.length);
-	} else if (filename.startsWith('/') && !ancestor(filename, fileURLToPath(root))) {
+	} else if (filename.startsWith('/') && !commonAncestorPath(filename, fileURLToPath(root))) {
 		const url = new URL('.' + filename, root);
 		filename = viteID(url);
 	}

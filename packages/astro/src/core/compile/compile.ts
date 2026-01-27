@@ -59,6 +59,7 @@ export async function compile({
 			preprocessStyle: createStylePreprocessor({
 				filename,
 				viteConfig,
+				astroConfig,
 				cssPartialCompileResults,
 				cssTransformErrors,
 			}),

@@ -11,6 +11,8 @@
 		"@astrojs/mdx": "^4.3.5",
 		"@astrojs/react": "workspace:*",
     "@astrojs/vue": "workspace:*",
+		"@astrojs/svelte": "workspace:*",
+		"svelte":"^5.46.3",
     "vue": "^3.5.25",
     "@vitejs/plugin-vue": "^6.0.2",
 		"@types/react": "^18.3.24",

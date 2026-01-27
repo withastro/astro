@@ -271,12 +271,17 @@ export async function loadFixture(inlineConfig) {
 			const { handler } = await import(url);
 			return handler;
 		},
-		loadTestAdapterApp: async (streaming) => {
-			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);
+		loadTestAdapterApp: async (streaming, entryName = 'entry.mjs') => {
+			const url = new URL(`./server/${entryName}?id=${fixtureId}`, config.outDir);
 			const { createApp, manifest } = await import(url);
 			const app = createApp(streaming);
 			app.manifest = manifest;
 			return app;
+		},
+		loadSelfAdapterApp: async (streaming, entryName = 'entry.mjs') => {
+			const url = new URL(`./server/${entryName}?id=${fixtureId}`, config.outDir);
+			const { createApp } = await import(url);
+			return createApp(streaming);
 		},
 		editFile: async (filePath, newContentsOrCallback, waitForNextWrite = true) => {
 			const fileUrl = new URL(filePath.replace(/^\//, ''), config.root);

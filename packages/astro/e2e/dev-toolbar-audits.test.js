@@ -102,6 +102,23 @@ test.describe('Dev Toolbar - Audits', () => {
 		expect(auditHighlights).toHaveCount(1);
 	});
 
+	test('does not warn about image inside framework component', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/audits-perf-framework'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="astro:audit"]');
+		await appButton.click();
+
+		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
+		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
+
+		// Should only warn about the raw <img>, not the one inside the Preact component
+		await expect(auditHighlights).toHaveCount(1);
+
+		const auditCode = await auditHighlights.first().getAttribute('data-audit-code');
+		expect(auditCode).toBe('perf-use-image-component');
+	});
+
 	test('can handle mutations', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/audits-mutations'));
 

@@ -48,11 +48,12 @@ export function normalizeSessionDriverConfig(
 export function sessionConfigToManifest(
 	config: AstroConfig['session'],
 ): SSRManifestSession | undefined {
-	if (!config) {
+	const sessionDriver = config?.driver;
+	if (!config || !sessionDriver) {
 		return undefined;
 	}
 
-	const driver = normalizeSessionDriverConfig(config.driver);
+	const driver = normalizeSessionDriverConfig(sessionDriver);
 
 	return {
 		driver: driver.entrypoint,

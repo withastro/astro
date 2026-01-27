@@ -90,7 +90,8 @@ const getViteResolveAlias = (settings: AstroSettings) => {
 				// resolvedValues still have the * in them, so replace * with id
 				for (const resolvedValue of resolvedValues) {
 					const resolved = resolvedValue.replace('*', id);
-					if (fs.existsSync(resolved)) {
+					const stats = fs.statSync(resolved, { throwIfNoEntry: false });
+					if (stats && stats.isFile()) {
 						return normalizePath(resolved);
 					}
 				}

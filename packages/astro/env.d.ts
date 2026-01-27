@@ -11,7 +11,7 @@ type Astro = import('./dist/types/public/context.js').AstroGlobal;
 /**
  * Astro global available in all contexts in .astro files
  *
- * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#astro-global)
+ * [Astro documentation](https://docs.astro.build/en/reference/api-reference/)
  */
 declare const Astro: Readonly<Astro>;
 

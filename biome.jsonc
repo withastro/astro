@@ -10,7 +10,8 @@
       "!!**/_temp-fixtures",
       "!!**/dist",
       "packages/language-tools/vscode/syntaxes/*.json",
-      "!!**/.vscode-test"
+      "!!**/.vscode-test",
+      "!!benchmark/static-projects"
     ]
   },
   "vcs": {

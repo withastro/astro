@@ -27,7 +27,7 @@ export function vitePluginSessionDriver({ settings }: { settings: AstroSettings 
 				id: new RegExp(`^${RESOLVED_VIRTUAL_SESSION_DRIVER_ID}$`),
 			},
 			async handler() {
-				if (!settings.config.session) {
+				if (!settings.config.session?.driver) {
 					return { code: 'export default null;' };
 				}
 

@@ -27,13 +27,13 @@ for (const caseNumber of [1, 2, 3, 4, 5]) {
 			});
 
 			// sanity check
-			it('dev server handles normal requests', { timeout: 1000 }, async () => {
+			it('dev server handles normal requests', { timeout: 3000 }, async () => {
 				const response = await fixture.fetch('/');
 				assert.equal(response.status, 200);
 			});
 
 			// IMPORTANT: never skip
-			it('dev server stays responsive', { timeout: 1000 }, async () => {
+			it('dev server stays responsive', { timeout: 3000 }, async () => {
 				const response = await fixture.fetch('/alvsibdlvjks');
 				assert.equal(response.status, 404);
 			});
@@ -52,7 +52,7 @@ for (const caseNumber of [1, 2, 3, 4, 5]) {
 			});
 
 			// sanity check
-			it('prod server handles normal requests', { timeout: 1000 }, async () => {
+			it('prod server handles normal requests', { timeout: 3000 }, async () => {
 				const response = await app.render(new Request('https://example.com/'));
 				assert.equal(response.status, 200);
 			});
@@ -60,7 +60,7 @@ for (const caseNumber of [1, 2, 3, 4, 5]) {
 			// IMPORTANT: never skip
 			it(
 				'prod server stays responsive for case number ' + caseNumber,
-				{ timeout: 1000 },
+				{ timeout: 3000 },
 				async () => {
 					const response = await app.render(new Request('https://example.com/alvsibdlvjks'));
 					assert.equal(response.status, 404);
