@@ -149,6 +149,18 @@ jobs:
 
       - name: Test ${{ matrix.TEST_SUITE.name }}
         run: ${{ matrix.TEST_SUITE.script }}
+        env:
+          # By default, Turborepo groups the logs in CI environments to prevent
+          # the logs from being interleaved. We don't have log interleaving
+          # issues here because we already passed the `--concurrency=auto` flag
+          # to `turbo`.
+          #
+          # We want to force Turborepo to print the logs ASAP since it will help us
+          # debug tests that time out, where we can know which step is stuck.
+          #
+          # https://github.com/vercel/turborepo/blob/v2.7.6/docs/site/content/docs/reference/run.mdx?plain=1#L361-L378
+          # https://github.com/vercel/turborepo/blob/v2.7.6/docs/site/content/docs/reference/options-overview.mdx?plain=1#L63
+          TURBO_LOG_ORDER: stream
 
   test-language-tools:
     runs-on: ${{ matrix.os }}
