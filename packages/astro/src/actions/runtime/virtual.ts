@@ -2,6 +2,7 @@ import { shouldAppendTrailingSlash } from 'virtual:astro:actions/options';
 import { internalFetchHeaders } from 'virtual:astro:adapter-config/client';
 import type { APIContext } from '../../types/public/context.js';
 import type { ActionClient, SafeResult } from './server.js';
+import { removeTrailingForwardSlash } from '../../core/path.js';
 import {
 	ACTION_QUERY_PARAMS,
 	ActionError,
@@ -65,7 +66,7 @@ function toActionProxy(actionCallback: Record<string | symbol, any> = {}, aggreg
 }
 
 function _getActionPath(toString: () => string) {
-	let path = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/_actions/${new URLSearchParams(toString()).get(ACTION_QUERY_PARAMS.actionName)}`;
+	let path = `${removeTrailingForwardSlash(import.meta.env.BASE_URL)}/_actions/${new URLSearchParams(toString()).get(ACTION_QUERY_PARAMS.actionName)}`;
 	if (shouldAppendTrailingSlash) {
 		path = appendForwardSlash(path);
 	}
