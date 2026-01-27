@@ -6006,8 +6006,8 @@ importers:
   packages/integrations/react:
     dependencies:
       '@vitejs/plugin-react':
-        specifier: ^4.7.0
-        version: 4.7.0(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.2)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: ^5.1.2
+        version: 5.1.2(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.2)(tsx@4.21.0)(yaml@2.8.2))
       ultrahtml:
         specifier: ^1.6.0
         version: 1.6.0
@@ -10473,6 +10473,12 @@ packages:
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
 
+  '@vitejs/plugin-react@5.1.2':
+    resolution: {integrity: sha512-EcA07pHJouywpzsoTUqNh5NwGayl2PPVEJKUSinGGSxFGYn+shYbqMGBg6FXDqgXum9Ou/ecb+411ssw8HImJQ==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    peerDependencies:
+      vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
+
   '@vitejs/plugin-vue-jsx@4.2.0':
     resolution: {integrity: sha512-DSTrmrdLp+0LDNF77fqrKfx7X0ErRbOcUAgJL/HbSesqQwoUvUQ4uYQqaex+rovqgGcoPqVk+AwUh3v9CuiYIw==}
     engines: {node: ^18.0.0 || >=20.0.0}
@@ -14460,6 +14466,10 @@ packages:
 
   react-refresh@0.17.0:
     resolution: {integrity: sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ==}
+    engines: {node: '>=0.10.0'}
+
+  react-refresh@0.18.0:
+    resolution: {integrity: sha512-QgT5//D3jfjJb6Gsjxv0Slpj23ip+HtOpnNgnb2S5zU3CB26G/IDPGoy4RJB42wzFE46DRsstbW6tKHoKbhAxw==}
     engines: {node: '>=0.10.0'}
 
   react@18.3.1:
@@ -19837,14 +19847,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-react@4.7.0(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.2)(tsx@4.21.0)(yaml@2.8.2))':
+  '@vitejs/plugin-react@5.1.2(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.2)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.28.6)
       '@babel/plugin-transform-react-jsx-source': 7.27.1(@babel/core@7.28.6)
-      '@rolldown/pluginutils': 1.0.0-beta.27
+      '@rolldown/pluginutils': 1.0.0-beta.53
       '@types/babel__core': 7.20.5
-      react-refresh: 0.17.0
+      react-refresh: 0.18.0
       vite: 7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.2)(tsx@4.21.0)(yaml@2.8.2)
     transitivePeerDependencies:
       - supports-color
@@ -24632,6 +24642,8 @@ snapshots:
       scheduler: 0.27.0
 
   react-refresh@0.17.0: {}
+
+  react-refresh@0.18.0: {}
 
   react@18.3.1:
     dependencies:
