@@ -31,3 +31,5 @@ export default defineConfig({
   "exclude": []
 }
 ```
+
+2. Manually remove `dist/_worker.js/wrangler.json` before running `wrangler pages deploy`
