@@ -4895,9 +4895,6 @@ importers:
       '@cloudflare/vite-plugin':
         specifier: ^1.21.2
         version: 1.21.2(@cloudflare/workers-types@4.20260127.0)(vite@7.3.1(@types/node@24.10.9)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.2)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260120.0)
-      '@cloudflare/workers-types':
-        specifier: ^4.20260124.0
-        version: 4.20260127.0
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
@@ -4913,7 +4910,7 @@ importers:
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^4.20260124.0
-        version: 4.20260124.0
+        version: 4.20260127.0
       astro:
         specifier: workspace:*
         version: link:../../astro
@@ -4984,7 +4981,7 @@ importers:
         version: link:../../../../../astro
       wrangler:
         specifier: ^4.60.0
-        version: 4.60.0(@cloudflare/workers-types@4.20260124.0)
+        version: 4.60.0(@cloudflare/workers-types@4.20260127.0)
 
   packages/integrations/cloudflare/test/fixtures/external-image-service:
     dependencies:
