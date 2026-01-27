@@ -2362,7 +2362,7 @@ export interface AstroUserConfig<
 	 * @description
 	 * Configures fonts and allows you to specify some customization options on a per-font basis.
 	 *
-	 * See our guide for more information on [using custom fonts in Astro](/en/guides/fonts/).
+	 * See our guide for more information on [using custom fonts in Astro](https://v6.docs.astro.build/en/guides/fonts/).
 	 */
 
 	/**
@@ -2371,7 +2371,7 @@ export interface AstroUserConfig<
 	 * @type {FontProvider}
 	 * @version 6.0.0
 	 * @description
-	 * The source of your font files. You can use a [built-in provider](/en/reference/font-provider-reference/#built-in-providers) or write your own [custom provider](/en/reference/font-provider-reference/#building-a-font-provider):
+	 * The source of your font files. You can use a [built-in provider](https://v6.docs.astro.build/en/reference/font-provider-reference/#built-in-providers) or write your own [custom provider](https://v6.docs.astro.build/en/reference/font-provider-reference/#building-a-font-provider):
 	 *
 	 * ```js
 	 * import { defineConfig, fontProviders } from "astro/config";
@@ -2441,7 +2441,7 @@ export interface AstroUserConfig<
 	 * @default `true`
 	 * @version 6.0.0
 	 * @description
-	 * Whether or not to enable Astro's default optimization when generating fallback fonts. You may disable this default optimization to have full control over how [`fallbacks`](#fontfallbacks) are generated:
+	 * Whether or not to enable Astro's default optimization when generating fallback fonts. You may disable this default optimization to have full control over how [`fallbacks`](https://v6.docs.astro.build/en/reference/configuration-reference/#fontfallbacks) are generated:
 	 *
 	 * ```js
 	 * optimizedFallbacks: false
@@ -2516,7 +2516,7 @@ export interface AstroUserConfig<
 	 * @type {Record<string, any>}
 	 * @version 6.0.0
 	 * @description
-	 * An object to pass provider specific options. It is typed automatically based on the font family [provider](#fontprovider):
+	 * An object to pass provider specific options. It is typed automatically based on the font family [provider](https://v6.docs.astro.build/en/reference/configuration-reference/#fontprovider):
 	 *
 	 * ```js
 	 * options: {
@@ -2548,7 +2548,7 @@ export interface AstroUserConfig<
 	 * @default `undefined`
 	 * @version 6.0.0
 	 * @description
-	 * Determines when a font must be downloaded and used based on a specific [range of unicode characters](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range). If a character on the page matches the configured range, the browser will download the font and all characters will be available for use on the page. To configure a subset of characters preloaded for a single font, see the [subsets](#fontsubsets) property instead.
+	 * Determines when a font must be downloaded and used based on a specific [range of unicode characters](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range). If a character on the page matches the configured range, the browser will download the font and all characters will be available for use on the page. To configure a subset of characters preloaded for a single font, see the [subsets](https://v6.docs.astro.build/en/reference/configuration-reference/#fontsubsets) property instead.
 	 *
 	 * This can be useful for localization to avoid unnecessary font downloads when a specific part of your website uses a different alphabet and will be displayed with a separate font. For example, a website that offers both English and Japanese versions can prevent the browser from downloading the Japanese font on English versions of the page that do not contain any of the Japanese characters provided in `unicodeRange`.
 	 *
