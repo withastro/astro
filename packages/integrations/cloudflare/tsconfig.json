@@ -1,7 +1,6 @@
 {
   "extends": "../../../tsconfig.base.json",
   "include": ["src", "virtual.d.ts", "types.d.ts"],
-  "exclude": ["dist"],
   "compilerOptions": {
     "outDir": "./dist"
   }
