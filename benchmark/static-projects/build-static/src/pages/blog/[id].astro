@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 export async function getStaticPaths() {
-	return Array.from({ length: 50 }, (_, i) => ({
+	return Array.from({ length: 100 }, (_, i) => ({
 		params: { id: String(i + 1) },
 		props: { postNumber: i + 1 },
 	}));
