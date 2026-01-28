@@ -59,20 +59,21 @@ interface Options {
 	logger: Logger;
 }
 
-function createFontFileMiddleware(
-	getDependencies: () => {
-		fontFetcher: FontFetcher | null;
-		fontTypeExtractor: FontTypeExtractor | null;
-		logger: Logger;
-		fontFileById: FontFileById | null;
-	},
-) {
+interface Dependencies {
+	fontFetcher: FontFetcher | null;
+	fontTypeExtractor: FontTypeExtractor | null;
+	logger: Logger;
+	fontFileById: FontFileById | null;
+}
+
+function createFontFileMiddleware(dependencies: Dependencies | (() => Dependencies)) {
 	return async function (
 		req: IncomingMessage,
 		res: ServerResponse<IncomingMessage>,
 		next: () => void,
 	): Promise<void> {
-		const { fontFetcher, fontTypeExtractor, logger, fontFileById } = getDependencies();
+		const { fontFetcher, fontTypeExtractor, logger, fontFileById } =
+			typeof dependencies === 'function' ? dependencies() : dependencies;
 		if (!fontFetcher || !fontTypeExtractor) {
 			logger.debug(
 				'assets',
@@ -97,7 +98,7 @@ function createFontFileMiddleware(
 		try {
 			const buffer = await fontFetcher.fetch({ id: fontId, ...fontData });
 
-			res.setHeader('Content-Length', buffer.length);
+			res.setHeader('Content-Length', buffer.byteLength);
 			res.setHeader('Content-Type', `font/${fontTypeExtractor.extract(fontId)}`);
 
 			res.end(buffer);
@@ -164,11 +165,6 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		fontDataByCssVariable = null;
 		fontFileById = null;
 		fontFetcher = null;
-		if (buildServer) {
-			await new Promise((r) => buildServer!.close(r));
-			buildServer = null;
-		}
-		serverAddress = null;
 	}
 
 	return {
@@ -285,17 +281,18 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				}
 			}
 			if (isBuild) {
+				const dependencies = {
+					fontFetcher,
+					fontFileById,
+					fontTypeExtractor,
+					logger,
+				};
 				buildServer = await new Promise<Server>((r) => {
 					const _server = createServer((req, res) => {
-						return createFontFileMiddleware(() => ({
-							fontFetcher,
-							fontFileById,
-							fontTypeExtractor,
-							logger,
-						}))(req, res, () => {
+						return createFontFileMiddleware(dependencies)(req, res, () => {
 							if (!res.writableEnded) {
-								res.writeHead(404, { 'Content-Type': 'text/plain' });
-								res.end('Not Found');
+								res.writeHead(404);
+								res.end();
 							}
 						});
 					}).listen(() => {

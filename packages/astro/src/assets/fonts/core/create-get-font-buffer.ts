@@ -19,11 +19,14 @@ export function createGetFontBuffer({ bufferImports }: { bufferImports?: BufferI
 		let mod;
 		try {
 			mod = await fn();
-		} catch {
-			throw new AstroError({
-				...AstroErrorData.FontBufferNotFound,
-				message: AstroErrorData.FontBufferNotFound.message(url),
-			});
+		} catch (cause) {
+			throw new AstroError(
+				{
+					...AstroErrorData.FontBufferNotFound,
+					message: AstroErrorData.FontBufferNotFound.message(url),
+				},
+				{ cause },
+			);
 		}
 		if (!mod?.default) {
 			throw new AstroError({

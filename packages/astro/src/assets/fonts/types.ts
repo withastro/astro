@@ -273,4 +273,4 @@ export type Collaborator<T extends (input: any) => any, U extends keyof Paramete
 	params: Pick<Parameters<T>[0], U>,
 ) => ReturnType<T>;
 
-export type BufferImports = Record<string, () => Promise<{ default: Buffer | null }>>;
+export type BufferImports = Record<string, () => Promise<{ default: ArrayBuffer | null }>>;
