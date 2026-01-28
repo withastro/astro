@@ -1,5 +1,15 @@
 # astro
 
+## 5.16.16
+
+### Patch Changes
+
+- [#15281](https://github.com/withastro/astro/pull/15281) [`a1b80c6`](https://github.com/withastro/astro/commit/a1b80c65e5dddefba7ada20c7ccfdab26fb4e16b) Thanks [@matthewp](https://github.com/matthewp)! - Ensures server island requests carry an encrypted component export identifier so they do not accidentally resolve to the wrong component.
+
+- [#15304](https://github.com/withastro/astro/pull/15304) [`02ee3c7`](https://github.com/withastro/astro/commit/02ee3c745297203c38ee013b500126b15f7e5fc9) Thanks [@cameronapak](https://github.com/cameronapak)! - Fix: Remove await from getActionResult example
+
+- [#15324](https://github.com/withastro/astro/pull/15324) [`ab41c3e`](https://github.com/withastro/astro/commit/ab41c3e789b821e9179d11d67f453ba955448be6) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixes an issue where certain unauthorized links could be rendered as clickable in the error overlay
+
 ## 5.16.15
 
 ### Patch Changes
