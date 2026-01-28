@@ -35,7 +35,7 @@ function getPrebuilds(isDev, args) {
 
 export default async function build(...args) {
 	const config = { ...defaultConfig };
-	const isDev = args.slice.at(-1) === 'IS_DEV';
+	const isDev = args.at(-1) === 'IS_DEV';
 	const prebuilds = getPrebuilds(isDev, args);
 	const patterns = args
 		.filter((f) => !!f) // remove empty args
