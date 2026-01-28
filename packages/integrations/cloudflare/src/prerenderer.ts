@@ -111,6 +111,7 @@ export function createCloudflarePrerenderer({
 		async teardown() {
 			if (previewServer) {
 				await previewServer.close();
+				// Release reference to allow garbage collection
 				previewServer = undefined;
 			}
 		},
