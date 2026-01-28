@@ -462,11 +462,11 @@ export function safeParseFrontmatter(source: string, id?: string) {
 		if (isYAMLException(err)) {
 			markdownError.setLocation({
 				file: id,
-				line: err.mark.line,
-				column: err.mark.column,
+				line: err.linePos?.at(0)?.line ?? 0,
+				column: err.linePos?.at(0)?.col ?? 0,
 			});
 
-			markdownError.setMessage(err.reason);
+			markdownError.setMessage(err.message);
 		}
 
 		throw markdownError;

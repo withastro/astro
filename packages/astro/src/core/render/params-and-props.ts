@@ -120,7 +120,7 @@ function validatePrerenderEndpointCollision(
 	params: Params,
 ) {
 	if (route.type === 'endpoint' && mod.getStaticPaths) {
-		const lastSegment = route.segments.at(-1);
+		const lastSegment = route.segments.at(-1)!;
 		const paramValues = Object.values(params);
 		const lastParam = paramValues.at(-1);
 		// Check last segment is solely `[slug]` or `[...slug]` case (dynamic). Make sure it's not

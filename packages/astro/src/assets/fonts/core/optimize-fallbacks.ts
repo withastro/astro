@@ -31,7 +31,7 @@ export async function optimizeFallbacks({
 	}
 
 	// The last element of the fallbacks is usually a generic family name (eg. serif)
-	const lastFallback = fallbacks.at(-1);
+	const lastFallback = fallbacks.at(-1)!;
 	// If it's not a generic family name, we can't infer local fonts to be used as fallbacks
 	if (!isGenericFontFamily(lastFallback)) {
 		return null;

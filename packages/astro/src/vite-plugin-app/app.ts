@@ -148,7 +148,8 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 				});
 				incomingRequest.on('end', resolve);
 			});
-			body = [...Buffer, ...bytes];
+			// eslint-disable-next-line e18e/prefer-spread-syntax
+			body = Buffer.concat(bytes);
 		}
 
 		const self = this;

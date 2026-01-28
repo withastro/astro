@@ -185,8 +185,8 @@ function createFileBasedRoutes(
 			if (item.isIndex) {
 				if (item.routeSuffix) {
 					if (segments.length > 0) {
-						const lastSegment = segments.at(-1).slice();
-						const lastPart = lastSegment.at(-1);
+						const lastSegment = segments.at(-1)!.slice();
+						const lastPart = lastSegment.at(-1)!;
 
 						if (lastPart.dynamic) {
 							lastSegment.push({
