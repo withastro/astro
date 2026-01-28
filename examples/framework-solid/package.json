@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@astrojs/solid-js": "^5.1.3",
-    "astro": "^5.16.16",
+    "astro": "^5.17.0",
     "solid-js": "^1.9.10"
   }
 }
