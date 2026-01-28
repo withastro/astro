@@ -342,6 +342,5 @@ async function buildManifest(
 		},
 		internalFetchHeaders,
 		logLevel: settings.logLevel,
-		canCollectStaticHeaders: opts.settings.adapter?.adapterFeatures?.staticHeaders ?? false,
 	};
 }

@@ -124,10 +124,6 @@ export type SSRManifest = {
 	};
 	internalFetchHeaders?: Record<string, string>;
 	logLevel: LoggerLevel;
-	/**
-	 * Whether the `staticHeaders` feature can be enabled
-	 */
-	canCollectStaticHeaders: boolean;
 };
 
 export type SSRActions = {
