@@ -304,12 +304,22 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		},
 		load(id) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-				return {
-					code: `
-						export const internalConsumableMap = new Map(${JSON.stringify(Array.from(internalConsumableMap?.entries() ?? []))});
-						export const consumableMap = new Map(${JSON.stringify(Array.from(consumableMap?.entries() ?? []))});
-					`,
-				};
+				let code = 'export const internalConsumableMap = new Map();\n';
+				
+				for (const [key, value] of internalConsumableMap?.entries() ?? []) {
+					const preloadDataJson = JSON.stringify(value.preloadData);
+					const cssJson = JSON.stringify(value.css);
+					code += `internalConsumableMap.set(${JSON.stringify(key)}, { preloadData: ${preloadDataJson}, css: ${cssJson} });\n`;
+				}
+				
+				code += '\nexport const consumableMap = new Map();\n';
+				
+				for (const [key, value] of consumableMap?.entries() ?? []) {
+					const valueJson = JSON.stringify(value);
+					code += `consumableMap.set(${JSON.stringify(key)}, ${valueJson});\n`;
+				}
+				
+				return { code };
 			}
 		},
 		async buildEnd() {
