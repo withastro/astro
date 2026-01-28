@@ -20,7 +20,7 @@ export interface UserOptions {
 	 * Here the list of the headers that are added:
 	 * - The CSP header of the static pages is added when CSP support is enabled.
 	 */
-	experimentalStaticHeaders?: boolean;
+	staticHeaders?: boolean;
 
 	/**
 	 * The host that should be used if the server needs to fetch the prerendered error page.
@@ -39,7 +39,7 @@ export interface Options extends UserOptions {
 	client: string;
 	assets: string;
 	trailingSlash?: SSRManifest['trailingSlash'];
-	experimentalStaticHeaders: boolean;
+	staticHeaders: boolean;
 }
 
 export type RequestHandler = (...args: RequestHandlerParams) => void | Promise<void>;

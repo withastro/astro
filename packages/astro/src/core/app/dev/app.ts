@@ -10,12 +10,8 @@ import { getCustom404Route, getCustom500Route } from '../../routing/helpers.js';
 import { matchRoute } from '../../routing/dev.js';
 import type { RunnablePipeline } from '../../../vite-plugin-app/pipeline.js';
 
-/**
- *
- */
 export class DevApp extends BaseApp<NonRunnablePipeline> {
 	logger: Logger;
-	currentRenderContext: RenderContext | undefined = undefined;
 	resolvedPathname: string | undefined = undefined;
 	constructor(manifest: SSRManifest, streaming = true, logger: Logger) {
 		super(manifest, streaming, logger);

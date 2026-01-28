@@ -189,7 +189,7 @@ export async function generatePages(
 	await runHookBuildGenerated({
 		settings: options.settings,
 		logger,
-		experimentalRouteToHeaders: routeToHeaders,
+		routeToHeaders,
 	});
 }
 
@@ -610,10 +610,7 @@ async function generatePath(
 		route.distURL = [outFile];
 	}
 
-	if (
-		settings.adapter?.adapterFeatures?.experimentalStaticHeaders &&
-		settings.config.security?.csp
-	) {
+	if (settings.adapter?.adapterFeatures?.staticHeaders) {
 		routeToHeaders.set(pathname, { headers: responseHeaders, route: integrationRoute });
 	}
 

@@ -3,11 +3,18 @@ import type { SSRManifest } from '../app/types.js';
 import type { BuildInternals } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
 import type { StaticBuildOptions } from './types.js';
+import type { CreateRenderContext, RenderContext } from '../render-context.js';
 
 export class BuildApp extends BaseApp<BuildPipeline> {
 	createPipeline(_streaming: boolean, manifest: SSRManifest, ..._args: any[]): BuildPipeline {
 		return BuildPipeline.create({
 			manifest,
+		});
+	}
+
+	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
+		return await super.createRenderContext({
+			...payload,
 		});
 	}
 

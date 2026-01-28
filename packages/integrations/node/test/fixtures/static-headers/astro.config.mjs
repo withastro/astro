@@ -4,7 +4,7 @@ export default {
 	output: 'server',
 	adapter: node({ 
 		mode: 'standalone',
-		experimentalStaticHeaders: true
+		staticHeaders: true
 	}),
 	security: {
 		csp: true
