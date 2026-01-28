@@ -403,24 +403,20 @@ describe('Config Validation', () => {
 		it('Should allow empty fonts', () => {
 			assert.doesNotThrow(() =>
 				validateConfig({
-					experimental: {
-						fonts: [],
-					},
+					fonts: [],
 				}),
 			);
 		});
 
 		it('Should error on invalid css variable', async () => {
 			let configError = await validateConfig({
-				experimental: {
-					fonts: [
-						{
-							name: 'Roboto',
-							cssVariable: 'test',
-							provider: { name: 'foo', resolveFont: () => undefined },
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Roboto',
+						cssVariable: 'test',
+						provider: { name: 'foo', resolveFont: () => undefined },
+					},
+				],
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
@@ -431,15 +427,13 @@ describe('Config Validation', () => {
 			);
 
 			configError = await validateConfig({
-				experimental: {
-					fonts: [
-						{
-							name: 'Roboto',
-							cssVariable: '-test',
-							provider: { name: 'foo', resolveFont: () => undefined },
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Roboto',
+						cssVariable: '-test',
+						provider: { name: 'foo', resolveFont: () => undefined },
+					},
+				],
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
@@ -450,15 +444,13 @@ describe('Config Validation', () => {
 			);
 
 			configError = await validateConfig({
-				experimental: {
-					fonts: [
-						{
-							name: 'Roboto',
-							cssVariable: '--test ',
-							provider: { name: 'foo', resolveFont: () => undefined },
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Roboto',
+						cssVariable: '--test ',
+						provider: { name: 'foo', resolveFont: () => undefined },
+					},
+				],
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
@@ -469,15 +461,13 @@ describe('Config Validation', () => {
 			);
 
 			configError = await validateConfig({
-				experimental: {
-					fonts: [
-						{
-							name: 'Roboto',
-							cssVariable: '--test:x',
-							provider: { name: 'foo', resolveFont: () => undefined },
-						},
-					],
-				},
+				fonts: [
+					{
+						name: 'Roboto',
+						cssVariable: '--test:x',
+						provider: { name: 'foo', resolveFont: () => undefined },
+					},
+				],
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
@@ -489,15 +479,13 @@ describe('Config Validation', () => {
 
 			assert.doesNotThrow(() =>
 				validateConfig({
-					experimental: {
-						fonts: [
-							{
-								name: 'Roboto',
-								cssVariable: '--test',
-								provider: { name: 'foo', resolveFont: () => undefined },
-							},
-						],
-					},
+					fonts: [
+						{
+							name: 'Roboto',
+							cssVariable: '--test',
+							provider: { name: 'foo', resolveFont: () => undefined },
+						},
+					],
 				}),
 			);
 		});
@@ -505,16 +493,14 @@ describe('Config Validation', () => {
 		it('Should allow empty font fallbacks', () => {
 			assert.doesNotThrow(() =>
 				validateConfig({
-					experimental: {
-						fonts: [
-							{
-								provider: fontProviders.google(),
-								name: 'Roboto',
-								fallbacks: [],
-								cssVariable: '--font-roboto',
-							},
-						],
-					},
+					fonts: [
+						{
+							provider: fontProviders.google(),
+							name: 'Roboto',
+							fallbacks: [],
+							cssVariable: '--font-roboto',
+						},
+					],
 				}),
 			);
 		});
@@ -522,34 +508,30 @@ describe('Config Validation', () => {
 		it('Should allow family options', () => {
 			assert.doesNotThrow(() =>
 				validateConfig({
-					experimental: {
-						fonts: [
-							{
-								provider: fontProviders.google(),
-								name: 'Roboto',
-								cssVariable: '--font-roboto',
-								options: {},
-							},
-						],
-					},
+					fonts: [
+						{
+							provider: fontProviders.google(),
+							name: 'Roboto',
+							cssVariable: '--font-roboto',
+							options: {},
+						},
+					],
 				}),
 			);
 		});
 
 		it('should preserve FontProvider as a class instance', async () => {
 			const config = await validateConfig({
-				experimental: {
-					fonts: [
-						{
-							provider: fontProviders.local(),
-							name: 'Roboto',
-							cssVariable: '--font-roboto',
-							options: {},
-						},
-					],
-				},
+				fonts: [
+					{
+						provider: fontProviders.local(),
+						name: 'Roboto',
+						cssVariable: '--font-roboto',
+						options: {},
+					},
+				],
 			});
-			assert.equal(config.experimental.fonts?.[0].provider instanceof LocalFontProvider, true);
+			assert.equal(config.fonts?.[0].provider instanceof LocalFontProvider, true);
 		});
 	});
 
