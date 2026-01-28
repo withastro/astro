@@ -60,21 +60,16 @@ export async function generateEdgeMiddleware(
 			format: 'esm',
 			bundle: true,
 			minify: false,
-			// ensure node built-in modules are namespaced with `node:`
 			plugins: [
+				// ensure node built-in modules are namespaced with `node:`
 				{
 					name: 'esbuild-namespace-node-built-in-modules',
 					setup(build) {
 						const filter = new RegExp(builtinModules.map((mod) => `(^${mod}$)`).join('|'));
-						build.onResolve(
-							{
-								filter,
-							},
-							(args) => ({
-								path: 'node:' + args.path,
-								external: true,
-							}),
-						);
+						build.onResolve({ filter }, (args) => ({
+							path: 'node:' + args.path,
+							external: true,
+						}));
 					},
 				},
 			],

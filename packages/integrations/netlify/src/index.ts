@@ -14,11 +14,12 @@ import type {
 	IntegrationResolvedRoute,
 	RouteToHeaders,
 } from 'astro';
-import { build } from 'esbuild';
+import * as esbuild from 'esbuild';
 import { glob, globSync } from 'tinyglobby';
 import { copyDependenciesToFunction } from './lib/nft.js';
 import type { Args } from './ssr-function.js';
 import { sessionDrivers } from 'astro/config';
+import { builtinModules } from 'node:module';
 
 const { version: packageVersion } = JSON.parse(
 	await readFile(new URL('../package.json', import.meta.url), 'utf8'),
@@ -482,14 +483,25 @@ export default function netlifyIntegration(
 		);
 
 		// taking over bundling, because Netlify bundling trips over NPM modules
-		await build({
+		await esbuild.build({
 			entryPoints: [fileURLToPath(new URL('./entry.mjs', middlewareOutputDir()))],
-			// allow `node:` prefixed imports, which are valid in netlify's deno edge runtime
 			plugins: [
+				// ensure node built-in modules are namespaced with `node:`
+				{
+					name: 'esbuild-namespace-node-built-in-modules',
+					setup(build) {
+						const filter = new RegExp(builtinModules.map((mod) => `(^${mod}$)`).join('|'));
+						build.onResolve({ filter }, (args) => ({
+							path: 'node:' + args.path,
+							external: true,
+						}));
+					},
+				},
+				// allow `node:` prefixed imports, which are valid in netlify's deno edge runtime
 				{
 					name: 'allowNodePrefixedImports',
-					setup(puglinBuild) {
-						puglinBuild.onResolve({ filter: /^node:.*$/ }, (args) => ({
+					setup(build) {
+						build.onResolve({ filter: /^node:.*$/ }, (args) => ({
 							path: args.path,
 							external: true,
 						}));
