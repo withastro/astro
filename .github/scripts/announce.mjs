@@ -98,7 +98,7 @@ async function generatePackageMap() {
 
 async function generateMessage() {
 	await generatePackageMap();
-	const releases = process.argv.slice(2)[0];
+	const releases = process.argv.at(2);
 	const data = JSON.parse(releases);
 	const packages = await Promise.all(
 		data.map(({ name, version }) => {

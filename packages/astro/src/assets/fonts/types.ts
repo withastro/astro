@@ -76,35 +76,34 @@ export interface FamilyProperties {
 	unicodeRange?: [string, ...Array<string>] | undefined;
 }
 
-type WithOptions<TFontProvider extends FontProvider> = TFontProvider extends FontProvider<
-	infer TFamilyOptions
->
-	? [TFamilyOptions] extends [never]
-		? {
-				/**
-				 * Options forwarded to the font provider while resolving this font family.
-				 */
-				options?: undefined;
-			}
-		: undefined extends TFamilyOptions
+type WithOptions<TFontProvider extends FontProvider> =
+	TFontProvider extends FontProvider<infer TFamilyOptions>
+		? [TFamilyOptions] extends [never]
 			? {
 					/**
 					 * Options forwarded to the font provider while resolving this font family.
 					 */
-					options?: TFamilyOptions;
+					options?: undefined;
 				}
-			: {
-					/**
-					 * Options forwarded to the font provider while resolving this font family.
-					 */
-					options: TFamilyOptions;
-				}
-	: {
-			/**
-			 * Options forwarded to the font provider while resolving this font family.
-			 */
-			options?: undefined;
-		};
+			: undefined extends TFamilyOptions
+				? {
+						/**
+						 * Options forwarded to the font provider while resolving this font family.
+						 */
+						options?: TFamilyOptions;
+					}
+				: {
+						/**
+						 * Options forwarded to the font provider while resolving this font family.
+						 */
+						options: TFamilyOptions;
+					}
+		: {
+				/**
+				 * Options forwarded to the font provider while resolving this font family.
+				 */
+				options?: undefined;
+			};
 
 export type FontFamily<TFontProvider extends FontProvider = FontProvider> = FamilyProperties &
 	WithOptions<NoInfer<TFontProvider>> & {

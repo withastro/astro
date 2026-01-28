@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.6/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.13/schema.json",
   "files": {
     "includes": [
       "**",
@@ -44,7 +44,10 @@
       "style": {
         "useNodejsImportProtocol": "error",
         // Enforce separate type imports for type-only imports to avoid bundling unneeded code
-        "useImportType": "error"
+        "useImportType": "error",
+        "useExponentiationOperator": "error",
+        "useAtIndex": "error",
+        "useObjectSpread": "error"
       },
       "suspicious": {
         // This one is specific to catch `console.log`. The rest of logs are permitted
@@ -64,6 +67,13 @@
         },
         "noUnusedFunctionParameters": "error",
         "noUnusedImports": "error"
+      },
+      "nursery": {
+        "useSpread": "error",
+        "useRegexpExec": "error"
+      },
+      "performance": {
+        "noAccumulatingSpread": "error"
       }
     }
   },

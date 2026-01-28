@@ -67,7 +67,7 @@ export function getSystemInfo(versions: { viteVersion: string; astroVersion: str
 		cpuCount: cpus.length,
 		cpuModel: cpus.length ? cpus[0].model : null,
 		cpuSpeed: cpus.length ? cpus[0].speed : null,
-		memoryInMb: Math.trunc(os.totalmem() / Math.pow(1024, 2)),
+		memoryInMb: Math.trunc(os.totalmem() / 1024 ** 2),
 		// Environment information
 		isDocker: isDocker(),
 		isTTY: process.stdout.isTTY,

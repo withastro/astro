@@ -110,6 +110,10 @@ export default [
 			'regexp/use-ignore-case': 'off',
 			'regexp/prefer-regexp-exec': 'warn',
 			'regexp/prefer-regexp-test': 'warn',
+
+			// ALready covered by Biome
+			'e18e/prefer-array-at': 'off',
+			'e18e/prefer-exponentiation-operator': 'off',
 		},
 	},
 	{

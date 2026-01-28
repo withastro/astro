@@ -56,10 +56,13 @@ export const codeToStatusMap = {
 	NETWORK_AUTHENTICATION_REQUIRED: 511,
 } satisfies Record<string, number>;
 
-const statusToCodeMap: Record<number, ActionErrorCode> = Object.entries(codeToStatusMap).reduce(
+const statusToCodeMap = Object.entries(codeToStatusMap).reduce(
 	// reverse the key-value pairs
-	(acc, [key, value]) => ({ ...acc, [value]: key }),
-	{},
+	(acc, [key, value]) => {
+		acc[value] = key as ActionErrorCode;
+		return acc;
+	},
+	{} as Record<number, ActionErrorCode>,
 );
 
 // T is used for error inference with SafeInput -> isInputError.
