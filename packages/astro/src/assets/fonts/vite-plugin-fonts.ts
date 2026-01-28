@@ -313,13 +313,22 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		},
 		async load(id) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-				return {
-					code: `
-						export const componentDataByCssVariable = new Map(${JSON.stringify(Array.from(componentDataByCssVariable?.entries() ?? []))});
-						export const fontDataByCssVariable = ${JSON.stringify(fontDataByCssVariable ?? {})}
-						export const bufferImports = {${[...(fontFileById?.keys() ?? [])].map((key) => `"${key}": () => import("${BUFFER_VIRTUAL_MODULE_ID_PREFIX}${key}")`).join(',')}};
-					`,
-				};
+				let code = 'export const internalConsumableMap = new Map();\n';
+				
+				for (const [key, value] of internalConsumableMap?.entries() ?? []) {
+					const preloadDataJson = JSON.stringify(value.preloadData);
+					const cssJson = JSON.stringify(value.css);
+					code += `internalConsumableMap.set(${JSON.stringify(key)}, { preloadData: ${preloadDataJson}, css: ${cssJson} });\n`;
+				}
+				
+				code += '\nexport const consumableMap = new Map();\n';
+				
+				for (const [key, value] of consumableMap?.entries() ?? []) {
+					const valueJson = JSON.stringify(value);
+					code += `consumableMap.set(${JSON.stringify(key)}, ${valueJson});\n`;
+				}
+				
+				return { code };
 			}
 
 			if (id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID) {
