@@ -2451,7 +2451,7 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @name font.weights
-	 * @type {(number | string)[]}
+	 * @type {Array<number | string>}
 	 * @default `[400]`
 	 * @version 6.0.0
 	 * @description
@@ -2471,7 +2471,7 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @name font.styles
-	 * @type {("normal" | "italic" | "oblique")[]}
+	 * @type {Array<"normal" | "italic" | "oblique">}
 	 * @default `["normal", "italic"]`
 	 * @version 6.0.0
 	 * @description
@@ -2499,7 +2499,7 @@ export interface AstroUserConfig<
 	/**
 	 * @docs
 	 * @name font.formats
-	 * @type {("woff2" | "woff" | "otf" | "ttf" | "eot")[]}
+	 * @type {Array<"woff2" | "woff" | "otf" | "ttf" | "eot">}
 	 * @default `["woff2"]`
 	 * @version 6.0.0
 	 * @description
