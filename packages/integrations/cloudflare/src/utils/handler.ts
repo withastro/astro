@@ -1,9 +1,15 @@
 import { env as globalEnv } from 'cloudflare:workers';
-import { sessionKVBindingName } from 'virtual:astro-cloudflare:config';
+import { sessionKVBindingName, isPrerender } from 'virtual:astro-cloudflare:config';
 import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from '../utils/env.js';
 import type { RouteData } from 'astro';
+import {
+	isStaticPathsRequest,
+	isPrerenderRequest,
+	handleStaticPathsRequest,
+	handlePrerenderRequest,
+} from './prerender.js';
 
 setGetEnv(createGetEnv(globalEnv));
 
@@ -21,8 +27,19 @@ type CfResponse = Awaited<ReturnType<Required<ExportedHandler<Env>>['fetch']>>;
 export async function handle(
 	...[request, env, context]: Parameters<Required<ExportedHandler<Env>>['fetch']>
 ): Promise<CfResponse> {
-	const app = createApp(import.meta.env.DEV);
-	const { pathname } = new URL(request.url);
+	const app = createApp();
+
+	// Handle prerender endpoints (only active during build prerender phase)
+	if (isPrerender) {
+		if (isStaticPathsRequest(request)) {
+			return handleStaticPathsRequest(app) as unknown as CfResponse;
+		}
+		if (isPrerenderRequest(request)) {
+			return handlePrerenderRequest(app, request) as unknown as CfResponse;
+		}
+	}
+
+	const { pathname: requestPathname } = new URL(request.url);
 
 	if (env[sessionKVBindingName]) {
 		const sessionConfigOptions = app.manifest.sessionConfig?.options ?? {};
@@ -32,7 +49,7 @@ export async function handle(
 	}
 
 	// static assets fallback, in case default _routes.json is not used
-	if (app.manifest.assets.has(pathname)) {
+	if (app.manifest.assets.has(requestPathname)) {
 		return env.ASSETS.fetch(request.url.replace(/\.html$/, ''));
 	}
 
@@ -92,7 +109,7 @@ export async function handle(
 		{
 			routeData,
 			locals,
-			prerenderedErrorPageFetch: async (url) => {
+			prerenderedErrorPageFetch: async (url: string) => {
 				return env.ASSETS.fetch(url.replace(/\.html$/, '')) as unknown as Response;
 			},
 			clientAddress: request.headers.get('cf-connecting-ip') ?? undefined,

@@ -28,7 +28,7 @@ import type { StaticBuildOptions } from './types.js';
 import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
 import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
-import type { RollupOutput, RollupWatcher, InputOption } from 'rollup';
+import type { InputOption } from 'rollup';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -106,45 +106,13 @@ export async function viteBuild(opts: StaticBuildOptions) {
 	// Build your project (SSR application code, assets, client JS, etc.)
 	const ssrTime = performance.now();
 	opts.logger.info('build', `Building ${settings.buildOutput} entrypoints...`);
-	const { extractedChunks } = await buildEnvironments(opts, internals);
+	await buildEnvironments(opts, internals);
 	opts.logger.info(
 		'build',
 		colors.green(`✓ Completed in ${getTimeStat(ssrTime, performance.now())}.`),
 	);
 
-	// Inject manifest and content placeholders into extracted chunks
-	await runManifestInjection(opts, internals, extractedChunks);
-
-	// Store prerender output directory for use in page generation
-	const prerenderOutputDir = new URL('./.prerender/', getServerOutputDirectory(settings));
-
-	return { internals, prerenderOutputDir };
-}
-
-export async function staticBuild(
-	opts: StaticBuildOptions,
-	internals: BuildInternals,
-	prerenderOutputDir: URL,
-) {
-	const { settings } = opts;
-	if (settings.buildOutput === 'static') {
-		settings.timer.start('Static generate');
-		// Move prerender and SSR assets to client directory before cleaning up
-		await ssrMoveAssets(opts, prerenderOutputDir);
-		// Generate the pages
-		await generatePages(opts, internals, prerenderOutputDir);
-		// Clean up prerender directory after generation
-		await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
-		settings.timer.end('Static generate');
-	} else if (settings.buildOutput === 'server') {
-		settings.timer.start('Server generate');
-		await generatePages(opts, internals, prerenderOutputDir);
-		// Move prerender and SSR assets to client directory before cleaning up
-		await ssrMoveAssets(opts, prerenderOutputDir);
-		// Clean up prerender directory after generation
-		await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
-		settings.timer.end('Server generate');
-	}
+	return { internals };
 }
 
 /**
@@ -195,6 +163,42 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			currentRollupInput = config.build.rollupOptions.input;
 		},
 	});
+	// Post plugin for manifest injection, page generation, and cleanup
+	// This runs after all other buildApp hooks (including platform plugins like Cloudflare)
+	plugins.push({
+		name: 'astro:build-generate',
+		enforce: 'post',
+		buildApp: {
+			order: 'post',
+			async handler() {
+				// Inject manifest and content placeholders into extracted chunks
+				await runManifestInjection(opts, internals, internals.extractedChunks ?? []);
+
+				// Generation and cleanup
+				const prerenderOutputDir = new URL('./.prerender/', getServerOutputDirectory(settings));
+
+				// TODO do we need the elif any more? Can this be streamlined to be the same?
+				if (settings.buildOutput === 'static') {
+					settings.timer.start('Static generate');
+					// Move prerender and SSR assets to client directory before cleaning up
+					await ssrMoveAssets(opts, prerenderOutputDir);
+					// Generate the pages
+					await generatePages(opts, internals, prerenderOutputDir);
+					// Clean up prerender directory after generation
+					await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
+					settings.timer.end('Static generate');
+				} else if (settings.buildOutput === 'server') {
+					settings.timer.start('Server generate');
+					await generatePages(opts, internals, prerenderOutputDir);
+					// Move prerender and SSR assets to client directory before cleaning up
+					await ssrMoveAssets(opts, prerenderOutputDir);
+					// Clean up prerender directory after generation
+					await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
+					settings.timer.end('Server generate');
+				}
+			},
+		},
+	});
 
 	function isRollupInput(moduleName: string | null): boolean {
 		if (!currentRollupInput) {
@@ -228,7 +232,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				...viteConfig.build?.rollupOptions,
 				// Setting as `exports-only` allows us to safely delete inputs that are only used during prerendering
 				preserveEntrySignatures: 'exports-only',
-				...(useLegacyDynamic ? { input: 'virtual:astro:legacy-ssr-entry' } : {}),
+				...(useLegacyDynamic && settings.buildOutput === 'server'
+					? { input: 'virtual:astro:legacy-ssr-entry' }
+					: {}),
 				output: {
 					hoistTransitiveImports: false,
 					format: 'esm',
@@ -285,6 +291,59 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			reportCompressedSize: false,
 		},
 		plugins,
+		// Top-level buildApp for framework build orchestration
+		// This takes precedence over platform plugin fallbacks (e.g., Cloudflare)
+		builder: {
+			async buildApp(builder) {
+				// Build ssr environment for server output (only for non-static builds)
+				let ssrChunks: BuildInternals['extractedChunks'] = [];
+				if (settings.buildOutput !== 'static') {
+					settings.timer.start('SSR build');
+					let ssrOutput = await builder.build(
+						builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr],
+					);
+					settings.timer.end('SSR build');
+					// Extract chunks needing injection, then release output for GC
+					const ssrOutputs = viteBuildReturnToRollupOutputs(ssrOutput);
+					ssrChunks = extractRelevantChunks(ssrOutputs, false);
+					ssrOutput = undefined as any;
+				}
+
+				// Build prerender environment for static generation
+				settings.timer.start('Prerender build');
+				let prerenderOutput = await builder.build(builder.environments.prerender);
+				settings.timer.end('Prerender build');
+
+				// Extract prerender entry filename and store in internals
+				extractPrerenderEntryFileName(internals, prerenderOutput);
+
+				// Extract chunks needing injection, then release output for GC
+				const prerenderOutputs = viteBuildReturnToRollupOutputs(prerenderOutput);
+				const prerenderChunks = extractRelevantChunks(prerenderOutputs, true);
+				prerenderOutput = undefined as any;
+
+				// Build client environment
+				// We must discover client inputs after SSR build because hydration/client-only directives
+				// are only detected during SSR. We mutate the config here since the builder was already created
+				// and this is the only way to update the input after instantiation.
+				internals.clientInput = getClientInput(internals, settings);
+				if (!internals.clientInput.size) {
+					// At least 1 input is required to do a build, otherwise Vite throws.
+					// We need the client build to happen in order to copy over the `public/` folder
+					// So using the noop plugin here which will give us an input that just gets thrown away.
+					internals.clientInput.add(NOOP_MODULE_ID);
+				}
+				builder.environments.client.config.build.rollupOptions.input = Array.from(
+					internals.clientInput,
+				);
+				settings.timer.start('Client build');
+				await builder.build(builder.environments.client);
+				settings.timer.end('Client build');
+
+				// Store extracted chunks on internals for post plugin to consume
+				internals.extractedChunks = [...ssrChunks, ...prerenderChunks];
+			},
+		},
 		envPrefix: viteConfig.envPrefix ?? 'PUBLIC_',
 		base: settings.config.base,
 		environments: {
@@ -294,7 +353,11 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					emitAssets: true,
 					outDir: fileURLToPath(new URL('./.prerender/', getServerOutputDirectory(settings))),
 					rollupOptions: {
-						input: 'astro/entrypoints/prerender',
+						// Only skip the default prerender entrypoint if an adapter with entryType: 'self' is used
+						// AND provides a custom prerenderer. Otherwise, use the default.
+						...(!useLegacyDynamic && settings.prerenderer
+							? {}
+							: { input: 'astro/entrypoints/prerender' }),
 						output: {
 							entryFileNames: `${PRERENDER_ENTRY_FILENAME_PREFIX}.[hash].mjs`,
 							format: 'esm',
@@ -345,50 +408,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	});
 
 	const builder = await vite.createBuilder(updatedViteBuildConfig);
-
-	let ssrOutput: RollupOutput | RollupOutput[] | RollupWatcher = [];
-
-	// Build ssr environment for server output
-	if (settings.buildOutput !== 'static') {
-		settings.timer.start('SSR build');
-		ssrOutput = await builder.build(builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]);
-		settings.timer.end('SSR build');
-	}
-	// Extract chunks needing injection, then release output for GC
-	const ssrChunks = extractRelevantChunks(viteBuildReturnToRollupOutputs(ssrOutput), false);
-	ssrOutput = undefined as any;
-
-	// Build prerender environment for static generation
-	settings.timer.start('Prerender build');
-	let prerenderOutput = await builder.build(builder.environments.prerender);
-	settings.timer.end('Prerender build');
-	// Extract prerender entry filename before releasing (only needs fileName)
-	extractPrerenderEntryFileName(internals, prerenderOutput);
-	// Extract chunks needing injection, then release output for GC
-	const prerenderChunks = extractRelevantChunks(
-		viteBuildReturnToRollupOutputs(prerenderOutput),
-		true,
-	);
-	prerenderOutput = undefined as any;
-
-	// Build client environment
-	// We must discover client inputs after SSR build because hydration/client-only directives
-	// are only detected during SSR. We mutate the config here since the builder was already created
-	// and this is the only way to update the input after instantiation.
-	internals.clientInput = getClientInput(internals, settings);
-	if (!internals.clientInput.size) {
-		// At least 1 input is required to do a build, otherwise Vite throws.
-		// We need the client build to happen in order to copy over the `public/` folder
-		// So using the noop plugin here which will give us an input that just gets thrown away.
-		internals.clientInput.add(NOOP_MODULE_ID);
-	}
-	builder.environments.client.config.build.rollupOptions.input = Array.from(internals.clientInput);
-	// Build client but don't store - no injection needed, let GC reclaim immediately
-	settings.timer.start('Client build');
-	await builder.build(builder.environments.client);
-	settings.timer.end('Client build');
-
-	return { extractedChunks: [...ssrChunks, ...prerenderChunks] };
+	await builder.buildApp();
 }
 
 /**
@@ -401,7 +421,7 @@ function getPrerenderEntryFileName(
 		| vite.Rollup.RollupOutput[]
 		| vite.Rollup.RollupWatcher,
 ): string {
-	const outputs = viteBuildReturnToRollupOutputs(prerenderOutput as any);
+	const outputs = viteBuildReturnToRollupOutputs(prerenderOutput);
 
 	for (const output of outputs) {
 		for (const chunk of output.output) {

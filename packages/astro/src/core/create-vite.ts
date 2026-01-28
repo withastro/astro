@@ -37,6 +37,7 @@ import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import { pluginPage, pluginPages } from '../vite-plugin-pages/index.js';
 import vitePluginRenderers from '../vite-plugin-renderers/index.js';
 import astroPluginRoutes from '../vite-plugin-routes/index.js';
+import vitePluginStaticPaths from '../vite-plugin-static-paths/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import type { Logger } from './logger/core.js';
@@ -121,6 +122,7 @@ export async function createVite(
 		plugins: [
 			serializedManifestPlugin({ settings, command, sync }),
 			vitePluginRenderers({ settings }),
+			vitePluginStaticPaths(),
 			await astroPluginRoutes({ routesList, settings, logger, fsMod: fs, command }),
 			astroVirtualManifestPlugin(),
 			vitePluginEnvironment({ settings, astroPkgsConfig, command }),
@@ -132,7 +134,7 @@ export async function createVite(
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
-			command === 'dev' && vitePluginApp(),
+			vitePluginApp(),
 			command === 'dev' && vitePluginAstroServer({ settings, logger }),
 			command === 'dev' && vitePluginAstroServerClient(),
 			astroDevCssPlugin({ routesList, command }),
