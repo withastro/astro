@@ -120,7 +120,7 @@ describe('API routes', () => {
 
 	it('Can respond with SSR redirect', async () => {
 		const controller = new AbortController();
-		setTimeout(controller.abort, 1000);
+		setTimeout(controller.abort.bind(controller), 1000);
 		const response = await fetch(new URL('/redirect', baseUri), {
 			redirect: 'manual',
 			signal: controller.signal,
@@ -131,7 +131,7 @@ describe('API routes', () => {
 
 	it('Can respond with Astro.redirect', async () => {
 		const controller = new AbortController();
-		setTimeout(controller.abort, 1000);
+		setTimeout(controller.abort.bind(controller), 1000);
 		const response = await fetch(new URL('/astro-redirect', baseUri), {
 			redirect: 'manual',
 			signal: controller.signal,
@@ -142,7 +142,7 @@ describe('API routes', () => {
 
 	it('Can respond with Response.redirect', async () => {
 		const controller = new AbortController();
-		setTimeout(controller.abort, 1000);
+		setTimeout(controller.abort.bind(controller), 1000);
 		const response = await fetch(new URL('/response-redirect', baseUri), {
 			redirect: 'manual',
 			signal: controller.signal,
