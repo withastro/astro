@@ -54,7 +54,7 @@ export function swapRootAttributes(newDoc: Document) {
  * make the old head look like the new one
  */
 export function swapHeadElements(doc: Document) {
-	for (const el of Array.from(document.head.children)) {
+	for (const el of [...document.head.children]) {
 		const newEl = persistedHeadElement(el as HTMLElement, doc);
 		// If the element exists in the document already, remove it
 		// from the new document and leave the current node alone

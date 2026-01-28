@@ -22,7 +22,7 @@ export function pluginComponentEntry(internals: BuildInternals): VitePlugin {
 		if (exportNames.some((name) => name.includes('.') || name === '*')) {
 			componentToExportNames.delete(componentId);
 		} else {
-			componentToExportNames.set(componentId, Array.from(new Set(exportNames)));
+			componentToExportNames.set(componentId, [...new Set(exportNames)]);
 		}
 	}
 

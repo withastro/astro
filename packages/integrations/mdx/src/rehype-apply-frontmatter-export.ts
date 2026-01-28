@@ -67,7 +67,7 @@ export default function ({ children }) {
 				children: [],
 			});
 		}
-		tree.children = extraChildren.concat(tree.children);
+		tree.children = [...extraChildren, ...tree.children];
 	};
 }
 

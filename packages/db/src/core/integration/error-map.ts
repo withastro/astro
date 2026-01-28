@@ -41,9 +41,7 @@ export const errorMap: z.ZodErrorMap = (baseError, ctx) => {
 			),
 		];
 		return {
-			message: messages
-				.concat(
-					[...typeOrLiteralErrByPath.entries()]
+			message: [...messages, ...[...typeOrLiteralErrByPath.entries()]
 						// If type or literal error isn't common to ALL union types,
 						// filter it out. Can lead to confusing noise.
 						.filter(([, error]) => error.expected.length === baseError.unionErrors.length)
@@ -52,8 +50,7 @@ export const errorMap: z.ZodErrorMap = (baseError, ctx) => {
 							key === baseErrorPath
 								? `> ${getTypeOrLiteralMsg(error)}`
 								: `> ${prefix(key, getTypeOrLiteralMsg(error))}`,
-						),
-				)
+						)]
 				.join('\n'),
 		};
 	}
@@ -93,8 +90,7 @@ const getTypeOrLiteralMsg = (error: TypeOrLiteralErrByPathEntry): string => {
 const prefix = (key: string, msg: string) => (key.length ? `**${key}**: ${msg}` : msg);
 
 const unionExpectedVals = (expectedVals: Set<unknown>) =>
-	[...expectedVals]
-		.map((expectedVal, idx) => {
+	Array.from(expectedVals, (expectedVal, idx) => {
 			if (idx === 0) return JSON.stringify(expectedVal);
 			const sep = ' | ';
 			return `${sep}${JSON.stringify(expectedVal)}`;

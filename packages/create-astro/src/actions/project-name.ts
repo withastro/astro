@@ -49,10 +49,10 @@ export async function projectName(
 		let name = ctx.cwd;
 		if (name === '.' || name === './') {
 			const parts = process.cwd().split(path.sep);
-			name = parts[parts.length - 1];
+			name = parts.at(-1);
 		} else if (name.startsWith('./') || name.startsWith('../')) {
 			const parts = name.split('/');
-			name = parts[parts.length - 1];
+			name = parts.at(-1);
 		}
 		ctx.projectName = toValidName(name);
 	}

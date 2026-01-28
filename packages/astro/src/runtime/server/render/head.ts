@@ -30,7 +30,7 @@ export function renderAllHeadContent(result: SSRResult) {
 			false,
 		);
 	}
-	const styles = Array.from(result.styles)
+	const styles = [...result.styles]
 		.filter(uniqueElements)
 		.map((style) =>
 			style.props.rel === 'stylesheet'
@@ -39,7 +39,7 @@ export function renderAllHeadContent(result: SSRResult) {
 		);
 	// Clear result.styles so that any new styles added will be inlined.
 	result.styles.clear();
-	const scripts = Array.from(result.scripts)
+	const scripts = [...result.scripts]
 		.filter(uniqueElements)
 		.map((script) => {
 			if (result.userAssetsBase) {
@@ -48,7 +48,7 @@ export function renderAllHeadContent(result: SSRResult) {
 			}
 			return renderElement('script', script, false);
 		});
-	const links = Array.from(result.links)
+	const links = [...result.links]
 		.filter(uniqueElements)
 		.map((link) => renderElement('link', link, false));
 

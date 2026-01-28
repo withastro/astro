@@ -43,15 +43,15 @@ describe('Content Collections - references', () => {
 				});
 
 				it('Returns expected keys', () => {
-					assert.ok(json.hasOwnProperty('welcomePost'));
-					assert.ok(json.hasOwnProperty('banner'));
-					assert.ok(json.hasOwnProperty('author'));
-					assert.ok(json.hasOwnProperty('relatedPosts'));
+					assert.ok(Object.hasOwn(json, 'welcomePost'));
+					assert.ok(Object.hasOwn(json, 'banner'));
+					assert.ok(Object.hasOwn(json, 'author'));
+					assert.ok(Object.hasOwn(json, 'relatedPosts'));
 				});
 
 				it('Returns `banner` data', () => {
 					const { banner } = json;
-					assert.ok(banner.hasOwnProperty('data'));
+					assert.ok(Object.hasOwn(banner, 'data'));
 					assert.equal(banner.id, 'welcome');
 					assert.equal(banner.collection, 'banners');
 					assert.equal(
@@ -67,7 +67,7 @@ describe('Content Collections - references', () => {
 
 				it('Returns `author` data', () => {
 					const { author } = json;
-					assert.ok(author.hasOwnProperty('data'));
+					assert.ok(Object.hasOwn(author, 'data'));
 					assert.deepEqual(author.data, {
 						name: 'Nate Something Moore',
 						twitter: 'https://twitter.com/n_moore',

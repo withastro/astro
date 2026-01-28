@@ -24,7 +24,7 @@ export async function dependencies(
 		ctx.install = deps;
 	}
 
-	ctx.add = ctx.add?.reduce<string[]>((acc, item) => acc.concat(item.split(',')), []);
+	ctx.add = ctx.add?.reduce<string[]>((acc, item) => [...acc, ...item.split(',')], []);
 
 	if (ctx.dryRun) {
 		await info(

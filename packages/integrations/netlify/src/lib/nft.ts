@@ -71,7 +71,7 @@ export async function copyDependenciesToFunction(
 	}
 
 	const commonAncestor = await copyFilesToFolder(
-		[...result.fileList].map((file) => new URL(file, base)).concat(includeFiles),
+		[...Array.from(result.fileList, (file) => new URL(file, base)), ...includeFiles],
 		outDir,
 		excludeFiles,
 	);

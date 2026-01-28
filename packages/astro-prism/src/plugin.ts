@@ -116,14 +116,14 @@ export function addAstro(Prism: typeof import('prismjs')) {
 						// Closing tag
 						if (
 							openedTags.length > 0 &&
-							openedTags[openedTags.length - 1].tagName ===
+							openedTags.at(-1).tagName ===
 								stringifyToken(token.content[0].content[1])
 						) {
 							// Pop matching opening tag
 							openedTags.pop();
 						}
 					} else {
-						if (token.content[token.content.length - 1].content === '/>') {
+						if (token.content.at(-1).content === '/>') {
 							// Autoclosed tag, ignore
 						} else {
 							// Opening tag
@@ -135,21 +135,21 @@ export function addAstro(Prism: typeof import('prismjs')) {
 					}
 				} else if (openedTags.length > 0 && token.type === 'punctuation' && token.content === '{') {
 					// Here we might have entered a Astro context inside a tag
-					openedTags[openedTags.length - 1].openedBraces++;
+					openedTags.at(-1).openedBraces++;
 				} else if (
 					openedTags.length > 0 &&
-					openedTags[openedTags.length - 1].openedBraces > 0 &&
+					openedTags.at(-1).openedBraces > 0 &&
 					token.type === 'punctuation' &&
 					token.content === '}'
 				) {
 					// Here we might have left a Astro context inside a tag
-					openedTags[openedTags.length - 1].openedBraces--;
+					openedTags.at(-1).openedBraces--;
 				} else {
 					notTagNorBrace = true;
 				}
 			}
 			if (notTagNorBrace || typeof token === 'string') {
-				if (openedTags.length > 0 && openedTags[openedTags.length - 1].openedBraces === 0) {
+				if (openedTags.length > 0 && openedTags.at(-1).openedBraces === 0) {
 					// Here we are inside a tag, and not inside a Astro context.
 					// That's plain text: drop any tokens matched.
 					let plainText = stringifyToken(token);

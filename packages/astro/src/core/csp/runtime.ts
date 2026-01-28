@@ -25,7 +25,7 @@ export function deduplicateDirectiveValues(
 	if (directiveName !== newDirectiveName) {
 		return undefined;
 	}
-	const finalDirectives = Array.from(new Set([...existingValues, ...newValues]));
+	const finalDirectives = [...new Set([...existingValues, ...newValues])];
 
 	return `${directiveName} ${finalDirectives.join(' ')}` as CspDirective;
 }

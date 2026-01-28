@@ -420,9 +420,8 @@ export default function vercelAdapter({
 						mergeGlobbedIncludes(_config.vite.assetsInclude);
 					}
 
-					const includeFiles = _includeFiles
-						.map((file) => new URL(file, _config.root))
-						.concat(extraFilesToInclude);
+					const includeFiles = [..._includeFiles
+						.map((file) => new URL(file, _config.root)), ...extraFilesToInclude];
 					const excludeFiles = _excludeFiles.map((file) => new URL(file, _config.root));
 
 					const builder = new VercelBuilder(

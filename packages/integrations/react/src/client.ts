@@ -23,8 +23,7 @@ function createReactElementFromDOMElement(element: any): any {
 	return createElement(
 		element.localName,
 		attrs,
-		Array.from(element.childNodes)
-			.map((c: any) => {
+		Array.from(element.childNodes, (c: any) => {
 				if (c.nodeType === Node.TEXT_NODE) {
 					return c.data;
 				} else if (c.nodeType === Node.ELEMENT_NODE) {

@@ -23,6 +23,6 @@ describe('SSR Assets', () => {
 		/** @type {Set<string>} */
 		const assets = app.manifest.assets;
 		assert.equal(assets.size, 1);
-		assert.equal(Array.from(assets)[0].endsWith('.css'), true);
+		assert.equal([...assets][0].endsWith('.css'), true);
 	});
 });

@@ -316,7 +316,7 @@ export const a11y: AuditRuleWithSelector[] = [
 			const tracks = element.querySelectorAll('track');
 			if (!tracks.length) return true;
 
-			const hasCaptionTrack = Array.from(tracks).some(
+			const hasCaptionTrack = [...tracks].some(
 				(track) => track.getAttribute('kind') === 'captions',
 			);
 

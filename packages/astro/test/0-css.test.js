@@ -353,7 +353,7 @@ describe('CSS', function () {
 			const bundledJS = await fixture.glob('**/*.?(m)js');
 			for (const filename of bundledJS) {
 				const content = await fixture.readFile(filename);
-				if (content.match(/ReactDynamic\..*\.css/)) {
+				if (/ReactDynamic\..*\.css/.test(content)) {
 					foundVitePreloadCSS = filename;
 				}
 			}

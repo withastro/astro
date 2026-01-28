@@ -24,7 +24,7 @@ function dedent(str) {
 	const lines = str.split('\n');
 	if (lines.length <= 1) return str;
 	// Get last line indent, and dedent this amount for the other lines
-	const lastLineIndent = lines[lines.length - 1].match(/^\s*/)[0].length;
+	const lastLineIndent = lines.at(-1).match(/^\s*/)[0].length;
 	return lines.map((line, i) => (i === 0 ? line : line.slice(lastLineIndent))).join('\n');
 }
 

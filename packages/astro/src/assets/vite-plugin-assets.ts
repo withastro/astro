@@ -167,13 +167,13 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 
 							export const safeModulePaths = new Set(${JSON.stringify(
 								// @ts-expect-error safeModulePaths is internal to Vite
-								Array.from(resolvedConfig.safeModulePaths ?? []),
+								[...resolvedConfig.safeModulePaths ?? []],
 							)});
 
 							const assetQueryParams = ${
 								settings.adapter?.client?.assetQueryParams
 									? `new URLSearchParams(${JSON.stringify(
-											Array.from(settings.adapter.client.assetQueryParams.entries()),
+											[...settings.adapter.client.assetQueryParams.entries()],
 										)})`
 									: 'undefined'
 							};

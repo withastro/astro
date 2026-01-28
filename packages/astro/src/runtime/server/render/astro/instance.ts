@@ -91,7 +91,7 @@ function validateComponentProps(
 	displayName: string,
 ) {
 	if (props != null) {
-		const directives = [...clientDirectives.keys()].map((directive) => `client:${directive}`);
+		const directives = Array.from(clientDirectives.keys(), (directive) => `client:${directive}`);
 		for (const prop of Object.keys(props)) {
 			if (directives.includes(prop)) {
 				console.warn(

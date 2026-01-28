@@ -107,6 +107,6 @@ function getSeason(): Season | undefined {
 function rarity(frequency: number, emoji: string[]) {
 	if (frequency === 1) return emoji;
 	if (frequency === 0) return [''];
-	const empty = Array.from({ length: Math.round(emoji.length * frequency) }, () => '');
+	const empty = Array.from({length: Math.round(emoji.length * frequency)}).fill('');
 	return [...emoji, ...empty];
 }

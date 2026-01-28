@@ -87,7 +87,7 @@ export async function initializeRemoteDb(astroConfig) {
  * Clears the environment variables related to Astro DB.
  */
 export function clearEnvironment() {
-	const keys = Array.from(Object.keys(process.env));
+	const keys = [...Object.keys(process.env)];
 	for (const key of keys) {
 		if (key.startsWith('ASTRO_DB_')) {
 			delete process.env[key];

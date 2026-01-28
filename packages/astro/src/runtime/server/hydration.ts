@@ -80,8 +80,7 @@ export function extractDirectives(
 
 					// throw an error if an invalid hydration directive was provided
 					if (!clientDirectives.has(extracted.hydration.directive)) {
-						const hydrationMethods = Array.from(clientDirectives.keys())
-							.map((d) => `client:${d}`)
+						const hydrationMethods = Array.from(clientDirectives.keys(), (d) => `client:${d}`)
 							.join(', ');
 						throw new Error(
 							`Error: invalid hydration directive "${key}". Supported hydration methods: ${hydrationMethods}`,

@@ -9,7 +9,7 @@ const _exports = serverEntrypointModule.createExports?.(manifest, args) || serve
 // They are NOT equivalent! Some bundlers will throw if `start` is not exported, but we
 // only want to silently ignore it... hence the dynamic, obfuscated weirdness.
 const _start = 'start';
-if (Object.prototype.hasOwnProperty.call(serverEntrypointModule, _start)) {
+if (Object.hasOwn(serverEntrypointModule, _start)) {
 	(serverEntrypointModule as any)[_start](manifest, args);
 }
 

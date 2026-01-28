@@ -48,7 +48,7 @@ describe('Integration API', () => {
 			pages: new Map(),
 			target: 'server',
 		});
-		assert.equal(updatedViteConfig.hasOwnProperty('define'), true);
+		assert.equal(Object.hasOwn(updatedViteConfig, 'define'), true);
 	});
 
 	it('runHookBuildSetup should return updated config', async () => {

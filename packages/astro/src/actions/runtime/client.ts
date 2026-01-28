@@ -254,7 +254,7 @@ export function createActionsProxy({
 }) {
 	return new Proxy(actionCallback, {
 		get(target, objKey) {
-			if (target.hasOwnProperty(objKey) || typeof objKey === 'symbol') {
+			if (Object.hasOwn(target, objKey) || typeof objKey === 'symbol') {
 				return target[objKey];
 			}
 			// Add the key, encoding dots so they're not interpreted as nested properties.

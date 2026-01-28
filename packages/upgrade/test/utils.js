@@ -6,12 +6,12 @@ export function setup() {
 	const ctx = { messages: [] };
 	before(() => {
 		setStdout(
-			Object.assign({}, process.stdout, {
+			{...process.stdout, ...{
 				write(buf) {
 					ctx.messages.push(stripVTControlCharacters(String(buf)).trim());
 					return true;
 				},
-			}),
+			}},
 		);
 	});
 	beforeEach(() => {

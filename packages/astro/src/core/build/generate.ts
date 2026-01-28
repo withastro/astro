@@ -101,8 +101,7 @@ export async function generatePages(
 	if (staticImageList.size) {
 		logger.info('SKIP_FORMAT', `${colors.bgGreen(colors.black(` generating optimized images `))}`);
 
-		const totalCount = Array.from(staticImageList.values())
-			.map((x) => x.transforms.size)
+		const totalCount = Array.from(staticImageList.values(), (x) => x.transforms.size)
 			.reduce((a, b) => a + b, 0);
 		const cpuCount = os.cpus().length;
 		const assetsCreationPipeline = await prepareAssetsGenerationEnv(app, totalCount);

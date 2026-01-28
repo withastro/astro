@@ -76,7 +76,7 @@ describe('Static build: vite plugins included when required', () => {
 	});
 	it('Vite Plugins are included/excluded properly', async () => {
 		assert.equal(pluginsCalled.size, expectedPluginResult.size, 'Not all plugins were initialized');
-		Array.from(expectedPluginResult.entries()).forEach(([plugin, called]) =>
+		[...expectedPluginResult.entries()].forEach(([plugin, called]) =>
 			assert.equal(
 				pluginsCalled.get(plugin),
 				called,

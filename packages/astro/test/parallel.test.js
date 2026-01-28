@@ -17,10 +17,9 @@ describe('Component parallelization', () => {
 		let html = await fixture.readFile('/index.html');
 		let $ = cheerio.load(html);
 
-		const startTimes = Array.from($('.start')).map((element) => Number(element.children[0].data));
-		const finishTimes = Array.from($('.finished')).map((element) =>
-			Number(element.children[0].data),
-		);
+		const startTimes = Array.from($('.start'), (element) => Number(element.children[0].data));
+		const finishTimes = Array.from($('.finished'), (element) =>
+			Number(element.children[0].data));
 
 		const renderStartWithin = Math.max(...startTimes) - Math.min(...startTimes);
 		assert.equal(

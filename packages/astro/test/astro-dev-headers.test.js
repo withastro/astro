@@ -35,7 +35,7 @@ describe('Astro dev headers', () => {
 		it('returns custom headers in the default 404 response', async () => {
 			const result = await fixture.fetch('/bad-url');
 			assert.equal(result.status, 404);
-			assert.equal(Object.fromEntries(result.headers).hasOwnProperty('x-astro'), true);
+			assert.equal(Object.hasOwn(Object.fromEntries(result.headers), 'x-astro'), true);
 		});
 	});
 });

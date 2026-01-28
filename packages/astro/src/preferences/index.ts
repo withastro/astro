@@ -101,12 +101,7 @@ export default function createPreferences(
 			}
 		},
 		async getAll() {
-			const allPrefs = Object.assign(
-				{},
-				DEFAULT_PREFERENCES,
-				stores['global'].getAll(),
-				stores['project'].getAll(),
-			);
+			const allPrefs = {...DEFAULT_PREFERENCES, ...stores['global'].getAll(), ...stores['project'].getAll()};
 
 			const { _variables, ...prefs } = allPrefs;
 

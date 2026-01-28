@@ -267,7 +267,7 @@ async function listPreferences(settings: AstroSettings, { location, json }: Subc
 		const message = dim('No preferences set');
 		console.log(['', badge, '', message].join('\n'));
 	}
-	const flatUnset = annotate(Object.assign({}, flatDefault), '');
+	const flatUnset = annotate({...flatDefault}, '');
 	for (const key of userKeys) {
 		delete flatUnset[key];
 	}

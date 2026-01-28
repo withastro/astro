@@ -38,7 +38,7 @@ export function getParentExtendedModuleInfos(
 	}
 
 	if (info && !until?.(id)) {
-		const importers = info.importers.concat(info.dynamicImporters);
+		const importers = [...info.importers, ...info.dynamicImporters];
 		for (const imp of importers) {
 			if (!seen.has(imp)) {
 				getParentExtendedModuleInfos(imp, ctx, until, depth + 1, order, id, seen, accumulated);
@@ -64,7 +64,7 @@ export function getParentModuleInfos(
 	}
 
 	if (info && !until?.(id)) {
-		const importers = info.importers.concat(info.dynamicImporters);
+		const importers = [...info.importers, ...info.dynamicImporters];
 		for (const imp of importers) {
 			if (!seen.has(imp)) {
 				getParentModuleInfos(imp, ctx, until, seen, accumulated);

@@ -1104,8 +1104,7 @@ describe('astro:image', () => {
 			const generatedImages = (await fixture.glob('_astro/**/*.webp'))
 				.map((path) => basename(path))
 				.sort();
-			const cachedImages = [...(await fixture.glob('../node_modules/.astro/assets/**/*.webp'))]
-				.map((path) => basename(path))
+			const cachedImages = Array.from(await fixture.glob('../node_modules/.astro/assets/**/*.webp'), (path) => basename(path))
 				.sort();
 
 			assert.deepEqual(generatedImages, cachedImages);

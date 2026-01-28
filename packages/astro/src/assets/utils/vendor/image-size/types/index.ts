@@ -43,5 +43,5 @@ export const typeHandlers = new Map([
   ['webp', WEBP],
 ] as const)
 
-export const types = Array.from(typeHandlers.keys())
+export const types = [...typeHandlers.keys()]
 export type imageType = (typeof types)[number]

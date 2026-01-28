@@ -20,7 +20,7 @@ export async function generatePosts({
 	}
 
 	await Promise.all(
-		Array.from(Array(numPosts).keys()).map((idx) => {
+		Array.from(Array(numPosts).keys(), (idx) => {
 			return fs.promises.writeFile(
 				`${postsDir}/post-${idx}${ext.startsWith('.') ? ext : `.${ext}`}`,
 				fs.readFileSync(new URL(`./templates/${template}`, import.meta.url), 'utf8'),

@@ -160,8 +160,8 @@ export default function (dir, opts = {}) {
 	let setHeaders = opts.setHeaders || noop;
 
 	let extensions = opts.extensions || ['html', 'htm'];
-	let gzips = opts.gzip && extensions.map((x) => `${x}.gz`).concat('gz');
-	let brots = opts.brotli && extensions.map((x) => `${x}.br`).concat('br');
+	let gzips = opts.gzip && [...extensions.map((x) => `${x}.gz`), ...'gz'];
+	let brots = opts.brotli && [...extensions.map((x) => `${x}.br`), ...'br'];
 
 	const FILES = {};
 
@@ -180,7 +180,7 @@ export default function (dir, opts = {}) {
 		ignores.push(/\/([\w\s~$.-]+\.\w+)+$/); // any extn
 		if (opts.dotfiles) ignores.push(/\/\.\w/);
 		else ignores.push(/\/\.well-known/);
-		[].concat(opts.ignores || []).forEach((x) => {
+		[...[], ...opts.ignores || []].forEach((x) => {
 			ignores.push(new RegExp(x, 'i'));
 		});
 	}

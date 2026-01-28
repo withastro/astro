@@ -48,9 +48,7 @@ describe('MDX frontmatter', () => {
 		const html = await fixture.readFile('/with-headings/index.html');
 		const { document } = parseHTML(html);
 
-		const headingSlugs = [...document.querySelectorAll('[data-headings] > li')].map(
-			(el) => el.textContent,
-		);
+		const headingSlugs = Array.from(document.querySelectorAll('[data-headings] > li'), (el) => el.textContent);
 
 		assert.equal(headingSlugs.length > 0, true);
 		assert.equal(headingSlugs.includes('section-1'), true);

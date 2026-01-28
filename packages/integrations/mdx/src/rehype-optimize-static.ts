@@ -102,7 +102,7 @@ export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) 
 
 					if (index != null && node.type === 'element') {
 						// Record metadata for element node to be used for grouping analysis later
-						elementMetadatas.set(node, { parent: parents[parents.length - 1], index });
+						elementMetadatas.set(node, { parent: parents.at(-1), index });
 					}
 				}
 			},
@@ -121,7 +121,7 @@ export const rehypeOptimizeStatic: RehypePlugin<[OptimizeOptions?]> = (options) 
 					// parent exists in `allPossibleElements`, then we're definitely not
 					// the root, so remove ourselves. This will work retroactively as we
 					// climb back up the tree.
-					const parent = parents[parents.length - 1];
+					const parent = parents.at(-1);
 					if (allPossibleElements.has(parent)) {
 						allPossibleElements.delete(node);
 					}

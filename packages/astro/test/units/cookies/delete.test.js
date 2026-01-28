@@ -14,7 +14,7 @@ describe('astro/src/core/cookies', () => {
 			assert.equal(cookies.get('foo').value, 'bar');
 
 			cookies.delete('foo');
-			let headers = Array.from(cookies.headers());
+			let headers = [...cookies.headers()];
 			assert.equal(headers.length, 1);
 		});
 
@@ -57,7 +57,7 @@ describe('astro/src/core/cookies', () => {
 				sameSite: 'strict',
 			});
 
-			let headers = Array.from(cookies.headers());
+			let headers = [...cookies.headers()];
 			assert.equal(headers.length, 1);
 			assert.equal(headers[0].includes('foo=deleted'), true);
 			assert.equal(headers[0].includes('Expires=Thu, 01 Jan 1970 00:00:00 GMT'), true);
@@ -77,7 +77,7 @@ describe('astro/src/core/cookies', () => {
 				expires: new Date(),
 			});
 
-			let headers = Array.from(cookies.headers());
+			let headers = [...cookies.headers()];
 			assert.equal(headers.length, 1);
 			assert.equal(headers[0].includes('foo=deleted'), true);
 			assert.equal(headers[0].includes('Expires=Thu, 01 Jan 1970 00:00:00 GMT'), true);
@@ -91,7 +91,7 @@ describe('astro/src/core/cookies', () => {
 				maxAge: 60,
 			});
 
-			let headers = Array.from(cookies.headers());
+			let headers = [...cookies.headers()];
 			assert.equal(headers.length, 1);
 			assert.equal(headers[0].includes('foo=deleted'), true);
 			assert.equal(headers[0].includes('Expires=Thu, 01 Jan 1970 00:00:00 GMT'), true);

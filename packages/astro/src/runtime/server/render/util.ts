@@ -56,7 +56,7 @@ export function formatList(values: string[]): string {
 	if (values.length === 1) {
 		return values[0];
 	}
-	return `${values.slice(0, -1).join(', ')} or ${values[values.length - 1]}`;
+	return `${values.slice(0, -1).join(', ')} or ${values.at(-1)}`;
 }
 
 function isCustomElement(tagName: string) {

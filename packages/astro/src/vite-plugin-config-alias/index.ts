@@ -31,10 +31,8 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 		for (const [alias, values] of Object.entries(paths)) {
 			/** Regular Expression used to match a given path. */
 			const find = new RegExp(
-				`^${[...alias]
-					.map((segment) =>
-						segment === '*' ? '(.+)' : segment.replace(/[\\^$*+?.()|[\]{}]/, '\\$&'),
-					)
+				`^${Array.from(alias, (segment) =>
+						segment === '*' ? '(.+)' : segment.replace(/[\\^$*+?.()|[\]{}]/, '\\$&'))
 					.join('')}$`,
 			);
 
@@ -42,8 +40,7 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 				/** Internal index used to calculate the matching id in a replacement. */
 				let matchId = 0;
 				/** String used to replace a matched path. */
-				const replacement = [...normalizePath(path.resolve(resolvedBaseUrl, value))]
-					.map((segment) => (segment === '*' ? `$${++matchId}` : segment === '$' ? '$$' : segment))
+				const replacement = Array.from(normalizePath(path.resolve(resolvedBaseUrl, value)), (segment) => (segment === '*' ? `$${++matchId}` : segment === '$' ? '$$' : segment))
 					.join('');
 
 				aliases.push({ find, replacement });
@@ -58,8 +55,7 @@ const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	if (baseUrl) {
 		aliases.push({
 			find: /^(?!\.*\/|\.*$|\w:)(.+)$/,
-			replacement: `${[...normalizePath(resolvedBaseUrl)]
-				.map((segment) => (segment === '$' ? '$$' : segment))
+			replacement: `${Array.from(normalizePath(resolvedBaseUrl), (segment) => (segment === '$' ? '$$' : segment))
 				.join('')}/$1`,
 		});
 	}

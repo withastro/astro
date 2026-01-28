@@ -45,7 +45,7 @@ function* collectCSSWithOrder(
 	seen.add(id);
 
 	// Keep all of the imported modules into an array so we can go through them one at a time
-	const imported = Array.from(mod.importedModules);
+	const imported = [...mod.importedModules];
 
 	// Check if this module is CSS and should be collected
 	if (isBuildableCSSRequest(id)) {
@@ -162,7 +162,7 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 							}
 						}
 
-						const cssArray = Array.from(cssWithOrder.values());
+						const cssArray = [...cssWithOrder.values()];
 						// Remove the temporary fields added during collection
 						const cleanedCss = cssArray.map(({ content, id: cssId, url }) => ({
 							content,

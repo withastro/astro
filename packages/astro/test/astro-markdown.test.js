@@ -81,7 +81,7 @@ describe('Astro Markdown', () => {
 		const html = await fixture.readFile('/with-layout/index.html');
 		const $ = cheerio.load(html);
 
-		const headingSlugs = [...$('body').find('[data-headings] > li')].map((el) => $(el).text());
+		const headingSlugs = Array.from($('body').find('[data-headings] > li'), (el) => $(el).text());
 
 		assert.ok(headingSlugs.length > 0);
 		assert.ok(headingSlugs.includes('section-1'));

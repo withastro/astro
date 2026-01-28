@@ -82,7 +82,7 @@ export const errorMap: $ZodErrorMap = (issue) => {
 		}
 
 		return {
-			message: messages.concat(details).join('\n'),
+			message: [...messages, ...details].join('\n'),
 		};
 	} else if (issue.code === 'invalid_type') {
 		return {
@@ -121,7 +121,7 @@ const getTypeOrLiteralMsg = (error: TypeOrLiteralErrByPathEntry): string => {
 const prefix = (key: string, msg: string) => (key.length ? `**${key}**: ${msg}` : msg);
 
 const unionExpectedVals = (expectedVals: Set<unknown>) =>
-	[...expectedVals].map((expectedVal) => stringify(expectedVal)).join(' | ');
+	Array.from(expectedVals, (expectedVal) => stringify(expectedVal)).join(' | ');
 
 const flattenErrorPath = (errorPath: (string | number | symbol)[]) => errorPath.join('.');
 

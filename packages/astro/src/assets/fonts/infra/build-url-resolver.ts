@@ -47,6 +47,6 @@ export class BuildUrlResolver implements UrlResolver {
 	}
 
 	get cspResources(): Array<string> {
-		return Array.from(this.#resources);
+		return [...this.#resources];
 	}
 }

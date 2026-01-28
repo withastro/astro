@@ -256,7 +256,7 @@ export async function contentAssetsBuildPostHook(
 		if (entryStyles.size) {
 			newCode = newCode.replace(
 				JSON.stringify(STYLES_PLACEHOLDER),
-				JSON.stringify(Array.from(entryStyles)),
+				JSON.stringify([...entryStyles]),
 			);
 		} else {
 			// Replace with empty array if no styles found
@@ -265,7 +265,7 @@ export async function contentAssetsBuildPostHook(
 		if (entryLinks.size) {
 			newCode = newCode.replace(
 				JSON.stringify(LINKS_PLACEHOLDER),
-				JSON.stringify(Array.from(entryLinks)),
+				JSON.stringify([...entryLinks]),
 			);
 		} else {
 			// Replace with empty array if no links found

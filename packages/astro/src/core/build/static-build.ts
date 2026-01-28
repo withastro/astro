@@ -382,7 +382,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		// So using the noop plugin here which will give us an input that just gets thrown away.
 		internals.clientInput.add(NOOP_MODULE_ID);
 	}
-	builder.environments.client.config.build.rollupOptions.input = Array.from(internals.clientInput);
+	builder.environments.client.config.build.rollupOptions.input = [...internals.clientInput];
 	// Build client but don't store - no injection needed, let GC reclaim immediately
 	settings.timer.start('Client build');
 	await builder.build(builder.environments.client);

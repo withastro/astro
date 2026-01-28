@@ -138,14 +138,14 @@ export class AstroSession {
 	 * Gets all session values.
 	 */
 	async values() {
-		return [...(await this.#ensureData()).values()].map((entry) => entry.data);
+		return Array.from((await this.#ensureData()).values(), (entry) => entry.data);
 	}
 
 	/**
 	 * Gets all session entries.
 	 */
 	async entries() {
-		return [...(await this.#ensureData()).entries()].map(([key, entry]) => [key, entry.data]);
+		return Array.from((await this.#ensureData()).entries(), ([key, entry]) => [key, entry.data]);
 	}
 
 	/**
@@ -290,11 +290,10 @@ export class AstroSession {
 
 		// Handle destroyed session cleanup
 		if (this.#toDestroy.size > 0) {
-			const cleanupPromises = [...this.#toDestroy].map((sessionId) =>
+			const cleanupPromises = Array.from(this.#toDestroy, (sessionId) =>
 				storage.removeItem(sessionId).catch((err) => {
 					console.error(`Failed to clean up session ${sessionId}:`, err);
-				}),
-			);
+				}));
 			await Promise.all(cleanupPromises);
 			this.#toDestroy.clear();
 		}
