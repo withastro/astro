@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 // plugins
 import regexpEslint from 'eslint-plugin-regexp';
 import tseslint from 'typescript-eslint';
+import e18e from '@e18e/eslint-plugin';
 
 const typescriptEslint = tseslint.plugin;
 
@@ -36,6 +37,7 @@ export default [
 	...tseslint.configs.recommendedTypeChecked,
 	...tseslint.configs.stylisticTypeChecked,
 	regexpEslint.configs['flat/recommended'],
+	e18e.configs.recommended,
 	{
 		languageOptions: {
 			parser: typescriptParser,
