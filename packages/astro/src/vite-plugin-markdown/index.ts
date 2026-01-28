@@ -88,7 +88,6 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				}
 
 				const renderResult = await (await processor).render(raw.content, {
-					// @ts-expect-error passing internal prop
 					fileURL,
 					frontmatter: raw.frontmatter,
 				});

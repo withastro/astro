@@ -35,7 +35,7 @@ export interface LoaderContext {
 	parseData<TData extends Record<string, unknown>>(props: ParseDataOptions<TData>): Promise<TData>;
 
 	/** Renders markdown content to HTML and metadata */
-	renderMarkdown(content: string): Promise<RenderedContent>;
+	renderMarkdown(content: string, options?: { fileURL?: URL }): Promise<RenderedContent>;
 
 	/** Generates a non-cryptographic content digest. This can be used to check if the data has changed */
 	generateDigest(data: Record<string, unknown> | string): string;

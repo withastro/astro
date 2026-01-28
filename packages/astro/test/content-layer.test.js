@@ -327,6 +327,76 @@ describe('Content Layer', () => {
 			assert.equal(json.increment.data.slug, 'slimy');
 		});
 
+		it('renderMarkdown parses frontmatter correctly', async () => {
+			const entry = json.renderMarkdownTest;
+			assert.ok(entry, 'renderMarkdownTest entry should exist');
+
+			// The frontmatter should be parsed and available in metadata
+			const metadata = entry.data.renderedMetadata;
+			assert.ok(metadata?.frontmatter, 'metadata.frontmatter should exist');
+			assert.equal(metadata.frontmatter.title, 'Test Post', 'frontmatter.title should be parsed');
+			assert.equal(
+				metadata.frontmatter.description,
+				'A test post for renderMarkdown',
+				'frontmatter.description should be parsed',
+			);
+			assert.deepEqual(
+				metadata.frontmatter.tags,
+				['test', 'markdown'],
+				'frontmatter.tags should be parsed',
+			);
+		});
+
+		it('renderMarkdown excludes frontmatter from HTML output', async () => {
+			const entry = json.renderMarkdownTest;
+			const html = entry.data.renderedHtml;
+
+			// The HTML should NOT contain the frontmatter
+			assert.ok(!html.includes('title: Test Post'), 'HTML should not contain frontmatter title');
+			assert.ok(!html.includes('description:'), 'HTML should not contain frontmatter description');
+
+			// The HTML should contain the actual content
+			assert.ok(html.includes('Hello World'), 'HTML should contain the body content');
+			assert.ok(html.includes('Subheading'), 'HTML should contain the subheading');
+		});
+
+		it('renderMarkdown extracts headings correctly', async () => {
+			const entry = json.renderMarkdownTest;
+			const metadata = entry.data.renderedMetadata;
+
+			// Headings should be from the content, not frontmatter
+			assert.ok(Array.isArray(metadata?.headings), 'metadata.headings should be an array');
+			const headingTexts = metadata.headings.map((h) => h.text);
+			assert.ok(headingTexts.includes('Hello World'), 'headings should include "Hello World"');
+			assert.ok(headingTexts.includes('Subheading'), 'headings should include "Subheading"');
+			// Frontmatter keys should NOT appear as headings
+			assert.ok(
+				!headingTexts.some((t) => t.includes('title:')),
+				'headings should not include frontmatter',
+			);
+		});
+
+		it('renderMarkdown resolves relative image paths when fileURL is provided', async () => {
+			const entry = json.renderMarkdownWithImage;
+			assert.ok(entry, 'renderMarkdownWithImage entry should exist');
+
+			const metadata = entry.data.renderedMetadata;
+			// When fileURL is provided, relative image paths should be resolved
+			assert.ok(
+				Array.isArray(metadata?.localImagePaths),
+				'metadata.localImagePaths should be an array',
+			);
+			assert.ok(
+				metadata.localImagePaths.length > 0,
+				'localImagePaths should contain the relative image',
+			);
+			// The path should be resolved relative to the fileURL
+			assert.ok(
+				metadata.localImagePaths[0].includes('image.png'),
+				'localImagePaths should include the image filename',
+			);
+		});
+
 		it('updates the store on new builds', async () => {
 			assert.equal(json.increment.data.lastValue, 1);
 			assert.equal(json.entryWithReference.data.something?.content, 'transform me');

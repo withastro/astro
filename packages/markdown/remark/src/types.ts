@@ -79,7 +79,7 @@ export interface MarkdownProcessor {
 }
 
 export interface MarkdownProcessorRenderOptions {
-	/** @internal */
+	/** The URL of the file being rendered, used for resolving relative image paths */
 	fileURL?: URL;
 	/** Used for frontmatter injection plugins */
 	frontmatter?: Record<string, any>;
