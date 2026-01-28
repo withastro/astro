@@ -61,7 +61,10 @@ export function createCloudflarePrerenderer({
 			if (address && typeof address === 'object') {
 				serverUrl = `http://localhost:${address.port}`;
 			} else {
-				throw new Error('Failed to get preview server address');
+				throw new Error(
+					'Failed to start the Cloudflare prerender server. The preview server did not return a valid address. ' +
+						'This is likely a bug in @astrojs/cloudflare. Please file an issue at https://github.com/withastro/astro/issues',
+				);
 			}
 		},
 
