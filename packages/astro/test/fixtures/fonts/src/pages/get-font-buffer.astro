@@ -1,0 +1,7 @@
+---
+import { getFontBuffer, fontData } from 'astro:assets'
+
+const buffer = await getFontBuffer(fontData['--font-test'][0].src[0].url)
+---
+
+<pre id="length">{buffer.length}</pre>

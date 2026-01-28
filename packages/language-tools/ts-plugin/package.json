@@ -1,0 +1,48 @@
+{
+  "name": "@astrojs/ts-plugin",
+  "version": "1.10.6",
+  "description": "A TypeScript Plugin providing Astro intellisense",
+  "main": "dist/index.js",
+  "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/language-tools/ts-plugin"
+  },
+  "keywords": [
+    "astro",
+    "typescript",
+    "javascript",
+    "plugin"
+  ],
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vscode-test"
+  },
+  "author": "withastro",
+  "license": "MIT",
+  "dependencies": {
+    "@astrojs/compiler": "^2.13.0",
+    "@astrojs/yaml2ts": "^0.2.2",
+    "@jridgewell/sourcemap-codec": "^1.5.5",
+    "@volar/language-core": "~2.4.27",
+    "@volar/typescript": "~2.4.27",
+    "semver": "^7.7.3",
+    "vscode-languageserver-textdocument": "^1.0.12"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^20.9.0",
+    "@types/semver": "^7.7.1",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/test-cli": "^0.0.12",
+    "mocha": "^10.8.2",
+    "typescript": "^5.9.3",
+    "vscode-uri": "^3.1.0"
+  }
+}

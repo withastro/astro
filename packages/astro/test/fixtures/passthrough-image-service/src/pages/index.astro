@@ -1,0 +1,19 @@
+---
+import { Image, Picture } from 'astro:assets';
+import myImage from '../assets/penguin1.jpg';
+import myLogo from '../assets/astro.svg';
+---
+<html>
+<head></head>
+<body>
+	<div id="image">
+		<Image src={myImage} alt="a penguin" />
+	</div>
+	<div id="picture">
+		<Picture src={myImage} alt="a penguin" />
+	</div>
+	<div id="logo">
+		<Image src={myLogo} alt="Astro logo" />
+	</div>
+</body>
+</html>

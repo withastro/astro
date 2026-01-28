@@ -1,0 +1,26 @@
+name: Diff Dependencies
+
+on:
+  pull_request_target:
+    paths-ignore:
+      - ".vscode/**"
+      - "**/*.md"
+      - ".github/ISSUE_TEMPLATE/**"
+
+jobs:
+  diff_dependencies:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0 # allows the diff action to access git history
+
+      - name: Create Diff
+        uses: e18e/action-dependency-diff@1d7c22bc4294a760e988dff8ea7857e9663cba14 # v1.4.3
+        with:
+          # We’re using this package primarily to track size changes, not as worried about duplicates
+          duplicate-threshold: 100

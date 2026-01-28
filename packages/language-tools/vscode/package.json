@@ -1,0 +1,274 @@
+{
+  "name": "astro-vscode",
+  "displayName": "Astro",
+  "description": "Language support for Astro",
+  "categories": [
+    "Programming Languages",
+    "Formatters",
+    "Linters"
+  ],
+  "qna": false,
+  "keywords": [
+    "astro",
+    "node",
+    "typescript",
+    "javascript",
+    "react",
+    "vue",
+    "svelte",
+    "Static site generator"
+  ],
+  "icon": "assets/icon.png",
+  "type": "commonjs",
+  "galleryBanner": {
+    "color": "#17191E",
+    "theme": "dark"
+  },
+  "version": "2.16.8",
+  "author": "withastro",
+  "license": "MIT",
+  "publisher": "astro-build",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "activationEvents": [
+    "workspaceContains:astro.config.*"
+  ],
+  "main": "./dist/node/client.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/language-tools/vscode"
+  },
+  "contributes": {
+    "snippets": [
+      {
+        "scope": "astro",
+        "path": "./languages/astro.code-snippets"
+      }
+    ],
+    "typescriptServerPlugins": [
+      {
+        "name": "astro-ts-plugin-bundle",
+        "enableForWorkspaceTypeScriptVersions": true
+      }
+    ],
+    "commands": [
+      {
+        "command": "astro.reloadProjects",
+        "title": "Astro: Reload Projects"
+      },
+      {
+        "command": "astro.findFileReferences",
+        "title": "Astro: Find File References"
+      },
+      {
+        "command": "astro.selectTypescriptVersion",
+        "title": "Astro: Select Typescript Version..."
+      },
+      {
+        "command": "astro.openTsConfig",
+        "title": "Astro: Open TypeScript config"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "astro.reloadProjects",
+          "when": "editorLangId == astro"
+        },
+        {
+          "command": "astro.findFileReferences",
+          "when": "editorLangId == astro"
+        },
+        {
+          "command": "astro.selectTypescriptVersion",
+          "when": "editorLangId == astro"
+        },
+        {
+          "command": "astro.openTsConfig",
+          "when": "editorLangId == astro"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "astro.findFileReferences",
+          "when": "editorLangId == astro",
+          "group": "4_search"
+        }
+      ],
+      "editor/title/context": [
+        {
+          "command": "astro.findFileReferences",
+          "when": "resourceLangId == astro && resourceScheme == file"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "astro.findFileReferences",
+          "when": "resourceLangId == astro",
+          "group": "4_search"
+        }
+      ]
+    },
+    "breakpoints": [
+      {
+        "language": "astro"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Astro configuration",
+      "properties": {
+        "astro.language-server.ls-path": {
+          "type": "string",
+          "title": "Language Server: Path",
+          "description": "Path to the language server executable. You won't need this in most cases, set this only when needing a specific version of the language server"
+        },
+        "astro.language-server.runtime": {
+          "scope": "application",
+          "type": "string",
+          "title": "Language Server: Runtime",
+          "description": "Path to the node executable used to execute the language server. You won't need this in most cases"
+        },
+        "astro.trace.server": {
+          "scope": "window",
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Traces the communication between VS Code and the language server."
+        },
+        "astro.content-intellisense": {
+          "scope": "resource",
+          "type": "boolean",
+          "default": false,
+          "description": "Enable experimental support for content collection intellisense inside Markdown, MDX and Markdoc. Note that this requires also enabling the feature in your Astro config (experimental.contentIntellisense) (Astro 4.14+)"
+        },
+        "astro.auto-import-cache.enabled": {
+          "scope": "resource",
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Enable the auto import cache. Yields a faster intellisense when automatically importing a file, but can cause issues with new files not being detected. Change is applied on restart. See [#14642](https://github.com/withastro/astro/issues/14642)."
+        },
+        "astro.updateImportsOnFileMove.enabled": {
+          "scope": "resource",
+          "type": "boolean",
+          "default": false,
+          "description": "Controls whether the extension updates imports when a file is moved to a new location. In most cases, you'll want to keep this disabled as TypeScript and the Astro TypeScript plugin already handles this for you. Having multiple tools updating imports at the same time can lead to corrupted files."
+        }
+      }
+    },
+    "languages": [
+      {
+        "id": "astro",
+        "extensions": [
+          ".astro"
+        ],
+        "aliases": [
+          "Astro"
+        ],
+        "configuration": "./languages/astro-language-configuration.json",
+        "icon": {
+          "light": "./assets/lang-icon-light.svg",
+          "dark": "./assets/lang-icon-dark.svg"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "astro",
+        "scopeName": "source.astro",
+        "path": "./syntaxes/astro.tmLanguage.json",
+        "embeddedLanguages": {
+          "text.html": "html",
+          "text.html.markdown": "markdown",
+          "source.css": "css",
+          "source.css.less": "less",
+          "source.css.scss": "scss",
+          "source.sass": "sass",
+          "source.stylus": "stylus",
+          "source.js": "javascript",
+          "source.ts": "typescript",
+          "source.json": "json",
+          "source.tsx": "typescriptreact",
+          "meta.tag.tsx": "jsx-tags",
+          "meta.tag.without-attributes.tsx": "jsx-tags",
+          "meta.tag.attributes.tsx": "typescriptreact",
+          "meta.embedded.expression.tsx": "typescriptreact"
+        },
+        "unbalancedBracketScopes": [
+          "keyword.operator.relational",
+          "storage.type.function.arrow",
+          "keyword.operator.bitwise.shift",
+          "meta.brace.angle",
+          "punctuation.definition.tag",
+          "keyword.operator.assignment.compound.bitwise.ts"
+        ]
+      },
+      {
+        "scopeName": "text.html.markdown.astro",
+        "path": "./syntaxes/markdown.astro.tmLanguage.json",
+        "injectTo": [
+          "text.html.markdown",
+          "source.astro"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.astro": "astro",
+          "meta.embedded.block.astro.frontmatter": "typescriptreact"
+        }
+      },
+      {
+        "scopeName": "source.mdx.astro",
+        "path": "./syntaxes/mdx.astro.tmLanguage.json",
+        "injectTo": [
+          "source.mdx"
+        ],
+        "embeddedLanguages": {
+          "mdx.embedded.astro": "astro",
+          "mdx.embedded.astro.frontmatter": "typescriptreact"
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "prebuild": "cd ../ts-plugin && pnpm build",
+    "build": "tsc && pnpm prebuild && node scripts/build.mjs -- --minify",
+    "dev": "node scripts/build.mjs -- --watch",
+    "build:grammar": "node scripts/build-grammar.mjs",
+    "dev:grammar": "node scripts/build-grammar.mjs -- --watch",
+    "test": "pnpm test:vscode && pnpm test:grammar",
+    "test:vscode": "vscode-test",
+    "test:grammar": "pnpm build:grammar && node ./test/grammar/test.mjs",
+    "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot"
+  },
+  "devDependencies": {
+    "@astrojs/language-server": "^2.16.1",
+    "@astrojs/ts-plugin": "^1.10.6",
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^20.9.0",
+    "@types/vscode": "^1.90.0",
+    "@volar/language-server": "~2.4.27",
+    "@volar/vscode": "~2.4.27",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/vsce": "2.32.0",
+    "esbuild": "^0.17.19",
+    "esbuild-plugin-copy": "^2.1.1",
+    "js-yaml": "^4.1.1",
+    "kleur": "^4.1.5",
+    "mocha": "^10.8.2",
+    "ovsx": "^0.10.8",
+    "vscode-languageclient": "^9.0.1",
+    "vscode-tmgrammar-test": "^0.1.3"
+  },
+  "dependencies": {
+    "@astrojs/compiler": "^2.13.0",
+    "prettier": "^3.8.0",
+    "prettier-plugin-astro": "^0.14.1"
+  }
+}

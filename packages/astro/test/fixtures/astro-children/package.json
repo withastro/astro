@@ -1,0 +1,14 @@
+{
+  "name": "@test/astro-children",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/preact": "workspace:*",
+    "@astrojs/svelte": "workspace:*",
+    "@astrojs/vue": "workspace:*",
+    "astro": "workspace:*",
+    "preact": "^10.28.2",
+    "svelte": "^5.46.1",
+    "vue": "^3.5.26"
+  }
+}
