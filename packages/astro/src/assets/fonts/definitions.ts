@@ -1,13 +1,12 @@
 import type * as unifont from 'unifont';
 import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 import type {
+	CssProperties,
 	FontFaceMetrics,
 	FontFileData,
 	FontProvider,
 	FontType,
 	GenericFallbackName,
-	PreloadData,
-	ResolvedFontProvider,
 	ResolveFontOptions,
 	Style,
 } from './types.js';
@@ -17,53 +16,14 @@ export interface Hasher {
 	hashObject: (input: Record<string, any>) => string;
 }
 
-export interface RemoteFontProviderModResolver {
-	resolve: (id: string) => Promise<any>;
-}
-
-export interface RemoteFontProviderResolver {
-	resolve: (provider: FontProvider) => Promise<ResolvedFontProvider>;
-}
-
-export interface LocalProviderUrlResolver {
-	resolve: (input: string) => string;
-}
-
-export interface ProxyData {
-	weight: unifont.FontFaceData['weight'];
-	style: unifont.FontFaceData['style'];
-	subset: NonNullable<unifont.FontFaceData['meta']>['subset'];
-}
-
-export interface UrlProxy {
-	proxy: (
-		input: Pick<FontFileData, 'url' | 'init'> & {
-			type: FontType;
-			collectPreload: boolean;
-			data: ProxyData;
-		},
-	) => string;
-}
-
 export interface UrlResolver {
-	resolve: (hash: string) => string;
+	resolve: (id: string) => string;
 	readonly cspResources: Array<string>;
 }
 
-export interface UrlProxyContentResolver {
+export interface FontFileContentResolver {
 	resolve: (url: string) => string;
 }
-
-export interface DataCollector {
-	collect: (
-		input: FontFileData & {
-			data: ProxyData;
-			preload: PreloadData | null;
-		},
-	) => void;
-}
-
-export type CssProperties = Record<string, string | undefined>;
 
 export interface CssRenderer {
 	generateFontFace: (family: string, properties: CssProperties) => string;
@@ -101,12 +61,12 @@ export interface FontFileReader {
 	};
 }
 
-export interface UrlProxyHashResolver {
-	resolve: (input: {
+export interface FontFileIdGenerator {
+	generate: (input: {
 		originalUrl: string;
 		type: FontType;
 		cssVariable: string;
-		data: ProxyData;
+		font: unifont.FontFaceData;
 	}) => string;
 }
 
@@ -123,7 +83,7 @@ export interface Storage {
 
 export interface FontResolver {
 	resolveFont: (
-		options: ResolveFontOptions & { provider: string },
+		options: ResolveFontOptions<Record<string, any>> & { provider: FontProvider },
 	) => Promise<Array<unifont.FontFaceData>>;
-	listFonts: (options: { provider: string }) => Promise<string[] | undefined>;
+	listFonts: (options: { provider: FontProvider }) => Promise<string[] | undefined>;
 }

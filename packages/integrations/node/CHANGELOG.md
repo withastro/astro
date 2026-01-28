@@ -1,5 +1,13 @@
 # @astrojs/node
 
+## 9.5.2
+
+### Patch Changes
+
+- [#15196](https://github.com/withastro/astro/pull/15196) [`a8317c1`](https://github.com/withastro/astro/commit/a8317c1e1fe72ff3b86890801f5e898a5244c1b0) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where some prendered pages weren't correctly rendered when using the Node.js adapter in middleware mode.
+
+- [#15169](https://github.com/withastro/astro/pull/15169) [`b803d8b`](https://github.com/withastro/astro/commit/b803d8b4b4e5e71ef4b28b23186e2786dc80a308) Thanks [@rururux](https://github.com/rururux)! - fix: fix image 500 error when moving dist directory in standalone Node
+
 ## 9.5.1
 
 ### Patch Changes

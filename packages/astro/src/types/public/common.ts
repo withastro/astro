@@ -5,7 +5,7 @@ import type { APIContext } from './context.js';
 /**
  * getStaticPaths() options
  *
- * [Astro Reference](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+ * [Astro Reference](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths)
  */
 export interface GetStaticPathsOptions {
 	paginate: PaginateFunction;
@@ -24,7 +24,7 @@ export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
 /**
  * Return an array of pages to generate for a [dynamic route](https://docs.astro.build/en/guides/routing/#dynamic-routes). (**SSG Only**)
  *
- * [Astro Reference](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+ * [Astro Reference](https://docs.astro.build/en/reference/routing-reference/#getstaticpaths)
  */
 export type GetStaticPaths = (
 	options: GetStaticPathsOptions,
@@ -33,7 +33,7 @@ export type GetStaticPaths = (
 /**
  * paginate() Options
  *
- * [Astro reference](https://docs.astro.build/en/reference/api-reference/#paginate)
+ * [Astro reference](https://docs.astro.build/en/reference/routing-reference/#paginate)
  */
 export interface PaginateOptions<PaginateProps extends Props, PaginateParams extends Params> {
 	/** the number of items per-page (default: `10`) */
@@ -47,7 +47,7 @@ export interface PaginateOptions<PaginateProps extends Props, PaginateParams ext
 /**
  * Represents a single page of data in a paginated collection
  *
- * [Astro reference](https://docs.astro.build/en/reference/api-reference/#the-pagination-page-prop)
+ * [Astro reference](https://docs.astro.build/en/reference/routing-reference/#the-pagination-page-prop)
  */
 export interface Page<T = any> {
 	/** result */

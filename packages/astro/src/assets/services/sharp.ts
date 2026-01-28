@@ -1,4 +1,4 @@
-import type { FitEnum, FormatEnum, SharpOptions } from 'sharp';
+import type { FitEnum, FormatEnum, ResizeOptions, SharpOptions } from 'sharp';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageFit, ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import {
@@ -13,6 +13,11 @@ export interface SharpImageServiceConfig {
 	 * The `limitInputPixels` option passed to Sharp. See https://sharp.pixelplumbing.com/api-constructor for more information
 	 */
 	limitInputPixels?: SharpOptions['limitInputPixels'];
+
+	/**
+	 * The `kernel` option is passed to resize calls. See https://sharp.pixelplumbing.com/api-resize/ for more information
+	 */
+	kernel?: ResizeOptions['kernel'];
 }
 
 let sharp: typeof import('sharp');
@@ -57,6 +62,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 	async transform(inputBuffer, transformOptions, config) {
 		if (!sharp) sharp = await loadSharp();
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
+		const kernel = config.service.config.kernel;
 
 		// Return SVGs as-is
 		// TODO: Sharp has some support for SVGs, we could probably support this once Sharp is the default and only service.
@@ -71,6 +77,9 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		// always call rotate to adjust for EXIF data orientation
 		result.rotate();
 
+		// get some information about the input
+		const { format } = await result.metadata();
+
 		// If `fit` isn't set then use old behavior:
 		// - Do not use both width and height for resizing, and prioritize width over height
 		// - Allow enlarging images
@@ -81,6 +90,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 			result.resize({
 				width: Math.round(transform.width),
 				height: Math.round(transform.height),
+				kernel: kernel,
 				fit,
 				position: transform.position,
 				withoutEnlargement,
@@ -88,13 +98,22 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		} else if (transform.height && !transform.width) {
 			result.resize({
 				height: Math.round(transform.height),
+				kernel: kernel,
 				withoutEnlargement,
 			});
 		} else if (transform.width) {
 			result.resize({
 				width: Math.round(transform.width),
+				kernel: kernel,
 				withoutEnlargement,
 			});
+		}
+
+		// If background is set, flatten the image with the specified background.
+		// We do this after resize to ensure the background covers the entire image
+		// even if its size has expanded.
+		if (transform.background) {
+			result.flatten({ background: transform.background });
 		}
 
 		if (transform.format) {
@@ -108,15 +127,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 				}
 			}
 
-			const isGifInput =
-				inputBuffer[0] === 0x47 && // 'G'
-				inputBuffer[1] === 0x49 && // 'I'
-				inputBuffer[2] === 0x46 && // 'F'
-				inputBuffer[3] === 0x38 && // '8'
-				(inputBuffer[4] === 0x39 || inputBuffer[4] === 0x37) && // '9' or '7'
-				inputBuffer[5] === 0x61; // 'a'
-
-			if (transform.format === 'webp' && isGifInput) {
+			if (transform.format === 'webp' && format === 'gif') {
 				// Convert animated GIF to animated WebP with loop=0 (infinite)
 				result.webp({ quality: typeof quality === 'number' ? quality : undefined, loop: 0 });
 			} else {

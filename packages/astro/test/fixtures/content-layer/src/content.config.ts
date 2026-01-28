@@ -91,6 +91,24 @@ const spacecraft = defineCollection({
 		}),
 });
 
+// Same as spacecraft, but with retainBody: false
+const spacecraftNoBody = defineCollection({
+	loader: glob({ pattern: '*.md', base: absoluteRoot, retainBody: false }),
+	schema: ({ image }) =>
+		z.object({
+			title: z.string(),
+			description: z.string(),
+			publishedDate: z.coerce.date(),
+			tags: z.array(z.string()),
+			heroImage: image().optional(),
+			cat: reference('cats').default('siamese'),
+			something: z
+				.string()
+				.optional()
+				.transform((str) => ({ type: 'test', content: str })),
+		}),
+});
+
 
 const cats = defineCollection({
 	loader: async function () {
@@ -120,6 +138,21 @@ const fish = defineCollection({
 const birds = defineCollection({
 	loader: file('src/data/birds.json', {
 		parser: (text) => JSON.parse(text).birds,
+	}),
+	schema: z.object({
+		id: z.string(),
+		name: z.string(),
+		breed: z.string(),
+		age: z.number(),
+	}),
+});
+
+const birdsWithAsyncParse = defineCollection({
+	loader: file('src/data/birds.json', {
+		parser: async (text) => {
+			await new Promise((resolve) => setTimeout(resolve, 10));
+			return JSON.parse(text).birds;
+		},
 	}),
 	schema: z.object({
 		id: z.string(),
@@ -270,11 +303,13 @@ export const collections = {
 	cats,
 	fish,
 	birds,
+	birdsWithAsyncParse,
 	plants,
 	numbers,
 	numbersToml,
 	numbersYaml,
 	spacecraft,
+	spacecraftNoBody,
 	increment,
 	images,
 	artists,
