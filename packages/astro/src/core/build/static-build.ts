@@ -112,8 +112,6 @@ export async function viteBuild(opts: StaticBuildOptions) {
 		colors.green(`✓ Completed in ${getTimeStat(ssrTime, performance.now())}.`),
 	);
 
-	settings.timer.end('SSR build');
-
 	return { internals };
 }
 
@@ -297,19 +295,24 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		// This takes precedence over platform plugin fallbacks (e.g., Cloudflare)
 		builder: {
 			async buildApp(builder) {
-				// Build ssr environment for server output
-				let ssrOutput =
-					settings.buildOutput === 'static'
-						? []
-						: await builder.build(builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]);
-
-				// Extract chunks needing injection, then release output for GC
-				const ssrOutputs = viteBuildReturnToRollupOutputs(ssrOutput);
-				const ssrChunks = extractRelevantChunks(ssrOutputs, false);
-				ssrOutput = undefined as any;
+				// Build ssr environment for server output (only for non-static builds)
+				let ssrChunks: BuildInternals['extractedChunks'] = [];
+				if (settings.buildOutput !== 'static') {
+					settings.timer.start('SSR build');
+					let ssrOutput = await builder.build(
+						builder.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr],
+					);
+					settings.timer.end('SSR build');
+					// Extract chunks needing injection, then release output for GC
+					const ssrOutputs = viteBuildReturnToRollupOutputs(ssrOutput);
+					ssrChunks = extractRelevantChunks(ssrOutputs, false);
+					ssrOutput = undefined as any;
+				}
 
 				// Build prerender environment for static generation
+				settings.timer.start('Prerender build');
 				let prerenderOutput = await builder.build(builder.environments.prerender);
+				settings.timer.end('Prerender build');
 
 				// Extract prerender entry filename and store in internals
 				extractPrerenderEntryFileName(internals, prerenderOutput);
@@ -333,7 +336,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				builder.environments.client.config.build.rollupOptions.input = Array.from(
 					internals.clientInput,
 				);
+				settings.timer.start('Client build');
 				await builder.build(builder.environments.client);
+				settings.timer.end('Client build');
 
 				// Store extracted chunks on internals for post plugin to consume
 				internals.extractedChunks = [...ssrChunks, ...prerenderChunks];
