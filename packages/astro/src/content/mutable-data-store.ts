@@ -328,7 +328,7 @@ export default new Map([\n${lines.join(',\n')}]);
 				}
 
 				if (foundAssets.size) {
-					entry.assetImports = Array.from(foundAssets);
+					entry.assetImports = [...foundAssets];
 					this.addAssetImports(entry.assetImports, filePath);
 				}
 

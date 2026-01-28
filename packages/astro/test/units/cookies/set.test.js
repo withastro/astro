@@ -8,7 +8,7 @@ describe('astro/src/core/cookies', () => {
 			let req = new Request('http://example.com/');
 			let cookies = new AstroCookies(req);
 			cookies.set('foo', 'bar');
-			let headers = Array.from(cookies.headers());
+			let headers = [...cookies.headers()];
 			assert.equal(headers.length, 1);
 			assert.equal(headers[0], 'foo=bar');
 		});
@@ -18,7 +18,7 @@ describe('astro/src/core/cookies', () => {
 			let cookies = new AstroCookies(req);
 			const url = 'http://localhost/path';
 			cookies.set('url', url);
-			let headers = Array.from(cookies.headers());
+			let headers = [...cookies.headers()];
 			assert.equal(headers.length, 1);
 			// by default cookie value is URI encoded
 			assert.equal(headers[0], `url=${encodeURIComponent(url)}`);
@@ -30,7 +30,7 @@ describe('astro/src/core/cookies', () => {
 			const url = 'http://localhost/path';
 			// set encode option to the identity function
 			cookies.set('url', url, { encode: (o) => o });
-			let headers = Array.from(cookies.headers());
+			let headers = [...cookies.headers()];
 			assert.equal(headers.length, 1);
 			// no longer URI encoded
 			assert.equal(headers[0], `url=${url}`);
@@ -43,7 +43,7 @@ describe('astro/src/core/cookies', () => {
 				httpOnly: true,
 				path: '/subpath/',
 			});
-			let headers = Array.from(cookies.headers());
+			let headers = [...cookies.headers()];
 			assert.equal(headers.length, 1);
 			assert.equal(headers[0], 'foo=bar; Path=/subpath/; HttpOnly');
 		});
@@ -52,7 +52,7 @@ describe('astro/src/core/cookies', () => {
 			let req = new Request('http://example.com/');
 			let cookies = new AstroCookies(req);
 			cookies.set('options', { one: 'two', three: 4 });
-			let headers = Array.from(cookies.headers());
+			let headers = [...cookies.headers()];
 			assert.equal(headers.length, 1);
 			assert.equal(JSON.parse(decodeURIComponent(headers[0].slice(8))).one, 'two');
 		});
@@ -61,7 +61,7 @@ describe('astro/src/core/cookies', () => {
 			let req = new Request('http://example.com/');
 			let cookies = new AstroCookies(req);
 			cookies.set('one', 2);
-			let headers = Array.from(cookies.headers());
+			let headers = [...cookies.headers()];
 			assert.equal(headers.length, 1);
 			assert.equal(headers[0], 'one=2');
 		});
@@ -71,7 +71,7 @@ describe('astro/src/core/cookies', () => {
 			let cookies = new AstroCookies(req);
 			cookies.set('admin', true);
 			assert.equal(cookies.get('admin').boolean(), true);
-			let headers = Array.from(cookies.headers());
+			let headers = [...cookies.headers()];
 			assert.equal(headers.length, 1);
 			assert.equal(headers[0], 'admin=true');
 		});

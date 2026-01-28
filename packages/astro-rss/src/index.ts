@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 import colors from 'piccolore';
 import { rssSchema } from './schema.js';
-import { createCanonicalURL, isValidURL } from './util.js';
+import { createCanonicalURL } from './util.js';
 
 export { rssSchema };
 
@@ -220,7 +220,7 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 		}
 		if (typeof result.link === 'string') {
 			// If the item's link is already a valid URL, don't mess with it.
-			const itemLink = isValidURL(result.link)
+			const itemLink = URL.canParse(result.link)
 				? result.link
 				: createCanonicalURL(result.link, rssOptions.trailingSlash, site);
 			item.link = itemLink;
@@ -246,7 +246,7 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 			item.author = result.author;
 		}
 		if (typeof result.commentsUrl === 'string') {
-			item.comments = isValidURL(result.commentsUrl)
+			item.comments = URL.canParse(result.commentsUrl)
 				? result.commentsUrl
 				: createCanonicalURL(result.commentsUrl, rssOptions.trailingSlash, site);
 		}
@@ -256,7 +256,7 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 			).source;
 		}
 		if (result.enclosure) {
-			const enclosureURL = isValidURL(result.enclosure.url)
+			const enclosureURL = URL.canParse(result.enclosure.url)
 				? result.enclosure.url
 				: createCanonicalURL(result.enclosure.url, rssOptions.trailingSlash, site);
 			item.enclosure = parser.parse(

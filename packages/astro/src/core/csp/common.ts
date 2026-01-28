@@ -60,7 +60,7 @@ export function getDirectives(settings: AstroSettings): CspDirective[] {
 		return [];
 	}
 	const userDirectives = csp === true ? [] : [...(csp.directives ?? [])];
-	const fontResources = Array.from(settings.injectedCsp.fontResources.values());
+	const fontResources = [...settings.injectedCsp.fontResources.values()];
 
 	if (fontResources.length === 0) {
 		// If no font resources, just return user directives
@@ -81,7 +81,7 @@ export function getDirectives(settings: AstroSettings): CspDirective[] {
 		.slice(1)
 		// Avoid duplicated spaces
 		.filter(Boolean);
-	const merged = Array.from(new Set([...existing, ...fontResources]));
+	const merged = [...new Set([...existing, ...fontResources])];
 	userDirectives[fontSrcIndex] = `font-src ${merged.join(' ')}`;
 	return userDirectives;
 }
@@ -135,7 +135,7 @@ export async function trackScriptHashes(
 		clientScriptHashes.push(await generateCspDigest(script, algorithm));
 	}
 
-	for (const directiveContent of Array.from(settings.clientDirectives.values())) {
+	for (const directiveContent of [...settings.clientDirectives.values()]) {
 		clientScriptHashes.push(await generateCspDigest(directiveContent, algorithm));
 	}
 

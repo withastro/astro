@@ -33,7 +33,6 @@ declare module 'astro:content' {
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */
 	export type CollectionKey = any;
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */
-	// biome-ignore lint/correctness/noUnusedVariables: stub generic type to match generated type
 	export type CollectionEntry<C> = any;
 	/** Run `astro dev` or `astro sync` to generate high fidelity types */
 	export type ContentCollectionKey = any;

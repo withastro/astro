@@ -59,7 +59,7 @@ async function writeWebResponse(res: http.ServerResponse, webResponse: Response)
 	const { status, headers, body, statusText } = webResponse;
 
 	// Attach any set-cookie headers added via Astro.cookies.set()
-	const setCookiesFromResponse = Array.from(getSetCookiesFromResponse(webResponse));
+	const setCookiesFromResponse = [...getSetCookiesFromResponse(webResponse)];
 	const setCookieHeaders = [...setCookiesFromResponse, ...headers.getSetCookie()];
 
 	const _headers: http.OutgoingHttpHeaders = Object.fromEntries(headers.entries());

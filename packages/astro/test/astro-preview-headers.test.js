@@ -36,7 +36,7 @@ describe('Astro preview headers', () => {
 		it('does not return custom headers for invalid URLs', async () => {
 			const result = await fixture.fetch('/bad-url');
 			assert.equal(result.status, 404);
-			assert.equal(Object.fromEntries(result.headers).hasOwnProperty('astro'), false);
+			assert.equal(Object.hasOwn(Object.fromEntries(result.headers), 'astro'), false);
 		});
 	});
 });

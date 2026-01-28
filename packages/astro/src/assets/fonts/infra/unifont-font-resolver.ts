@@ -67,7 +67,7 @@ export class UnifontFontResolver implements FontResolver {
 			}
 		}
 
-		return Array.from(providers.values()) as NonEmptyProviders;
+		return [...providers.values()] as NonEmptyProviders;
 	}
 
 	static async create({

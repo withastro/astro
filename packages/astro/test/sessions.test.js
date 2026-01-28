@@ -33,7 +33,7 @@ describe('Astro.session', () => {
 
 		it('can regenerate session cookies upon request', async () => {
 			const firstResponse = await fetchResponse('/regenerate');
-			const firstHeaders = Array.from(app.setCookieHeaders(firstResponse));
+			const firstHeaders = [...app.setCookieHeaders(firstResponse)];
 			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
 
 			const secondResponse = await fetchResponse('/regenerate', {
@@ -42,14 +42,14 @@ describe('Astro.session', () => {
 					cookie: `astro-session=${firstSessionId}`,
 				},
 			});
-			const secondHeaders = Array.from(app.setCookieHeaders(secondResponse));
+			const secondHeaders = [...app.setCookieHeaders(secondResponse)];
 			const secondSessionId = secondHeaders[0].split(';')[0].split('=')[1];
 			assert.notEqual(firstSessionId, secondSessionId);
 		});
 
 		it('defaults to secure cookies in production', async () => {
 			const firstResponse = await fetchResponse('/regenerate');
-			const firstHeaders = Array.from(app.setCookieHeaders(firstResponse));
+			const firstHeaders = [...app.setCookieHeaders(firstResponse)];
 			assert.ok(firstHeaders[0].includes('Secure'), 'Secure cookie not set in production');
 			assert.ok(firstHeaders[0].includes('HttpOnly'), 'HttpOnly cookie not set in production');
 		});
@@ -59,7 +59,7 @@ describe('Astro.session', () => {
 			const firstValue = await firstResponse.json();
 			assert.equal(firstValue.previousValue, 'none');
 
-			const firstHeaders = Array.from(app.setCookieHeaders(firstResponse));
+			const firstHeaders = [...app.setCookieHeaders(firstResponse)];
 			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
 			const secondResponse = await fetchResponse('/update', {
 				method: 'GET',
@@ -81,7 +81,7 @@ describe('Astro.session', () => {
 			});
 
 			assert.equal(firstResponse.ok, true);
-			const firstHeaders = Array.from(app.setCookieHeaders(firstResponse));
+			const firstHeaders = [...app.setCookieHeaders(firstResponse)];
 			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
 
 			const data = devalue.parse(await firstResponse.text());
@@ -113,7 +113,7 @@ describe('Astro.session', () => {
 			const firstResponseData = devalue.parse(await firstResponse.text());
 			assert.equal(firstResponseData.cart.includes('item1'), true);
 
-			const firstHeaders = Array.from(app.setCookieHeaders(firstResponse));
+			const firstHeaders = [...app.setCookieHeaders(firstResponse)];
 			const firstSessionId = firstHeaders[0].split(';')[0].split('=')[1];
 
 			//  Load without a cookie, but with the session ID for the action to load

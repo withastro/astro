@@ -420,9 +420,10 @@ export default function vercelAdapter({
 						mergeGlobbedIncludes(_config.vite.assetsInclude);
 					}
 
-					const includeFiles = _includeFiles
-						.map((file) => new URL(file, _config.root))
-						.concat(extraFilesToInclude);
+					const includeFiles = [
+						..._includeFiles.map((file) => new URL(file, _config.root)),
+						...extraFilesToInclude,
+					];
 					const excludeFiles = _excludeFiles.map((file) => new URL(file, _config.root));
 
 					const builder = new VercelBuilder(
@@ -441,15 +442,16 @@ export default function vercelAdapter({
 						if (isrConfig.exclude?.length) {
 							const expandedExclusions = isrConfig.exclude.reduce<string[]>((acc, exclusion) => {
 								if (exclusion instanceof RegExp) {
-									return [
-										...acc,
+									acc.push(
 										...routes
 											.filter((route) => exclusion.test(route.pattern))
 											.map((route) => route.pattern),
-									];
+									);
+								} else {
+									acc.push(exclusion);
 								}
 
-								return [...acc, exclusion];
+								return acc;
 							}, []);
 
 							const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;

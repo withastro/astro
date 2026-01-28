@@ -33,7 +33,7 @@ export const markdownContentEntryType: ContentEntryType = {
 				html: result.code,
 				metadata: {
 					...result.metadata,
-					imagePaths: result.metadata.localImagePaths.concat(result.metadata.remoteImagePaths),
+					imagePaths: [...result.metadata.localImagePaths, ...result.metadata.remoteImagePaths],
 				},
 			};
 		};

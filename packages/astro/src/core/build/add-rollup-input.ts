@@ -37,7 +37,7 @@ export function addRollupInput(
 			...inputOptions,
 			input: {
 				...inputOptions.input,
-				...fromEntries(newInputs.map((i) => [i.split('/').slice(-1)[0].split('.')[0], i])),
+				...fromEntries(newInputs.map((i) => [i.split('/').at(-1)!.split('.')[0], i])),
 			},
 		};
 	}

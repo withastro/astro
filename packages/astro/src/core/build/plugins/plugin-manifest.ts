@@ -124,7 +124,7 @@ async function createManifest(
 
 	const staticFiles = internals.staticFiles;
 	const encodedKey = await encodeKey(await buildOpts.key);
-	const manifest = await buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
+	const manifest = await buildManifest(buildOpts, internals, [...staticFiles], encodedKey);
 	return manifest;
 }
 
@@ -323,11 +323,11 @@ async function buildManifest(
 		trailingSlash: settings.config.trailingSlash,
 		compressHTML: settings.config.compressHTML,
 		assetsPrefix: settings.config.build.assetsPrefix,
-		componentMetadata: Array.from(internals.componentMetadata),
+		componentMetadata: [...internals.componentMetadata],
 		renderers: [],
-		clientDirectives: Array.from(settings.clientDirectives),
+		clientDirectives: [...settings.clientDirectives],
 		entryModules,
-		inlinedScripts: Array.from(internals.inlinedScripts),
+		inlinedScripts: [...internals.inlinedScripts],
 		assets: staticFiles.map(prefixAssetPath),
 		i18n: i18nManifest,
 		buildFormat: settings.config.build.format,

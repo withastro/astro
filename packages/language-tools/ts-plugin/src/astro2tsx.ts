@@ -88,7 +88,7 @@ function getVirtualFileTSX(input: string, tsx: TSXResult, fileName: string): Vir
 					}
 				}
 				if (length > 0) {
-					const lastMapping = mappings.length ? mappings[mappings.length - 1] : undefined;
+					const lastMapping = mappings.length ? mappings.at(-1) : undefined;
 					if (
 						lastMapping &&
 						lastMapping.generatedOffsets[0] + lastMapping.lengths[0] === current.genOffset &&

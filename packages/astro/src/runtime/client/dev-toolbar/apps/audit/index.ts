@@ -154,7 +154,7 @@ export default {
 						selectorCache.get(rule.selector) ?? document.querySelectorAll(rule.selector);
 					let matches: Element[] = [];
 					if (typeof rule.match === 'undefined') {
-						matches = Array.from(elements);
+						matches = [...elements];
 					} else {
 						for (const element of elements) {
 							try {

@@ -36,7 +36,7 @@ export function renderCspContent(result: SSRResult): string {
 	}
 
 	const strictDynamic = result.isStrictDynamic ? ` 'strict-dynamic'` : '';
-	const scriptSrc = `script-src ${scriptResources} ${Array.from(finalScriptHashes).join(' ')}${strictDynamic};`;
-	const styleSrc = `style-src ${styleResources} ${Array.from(finalStyleHashes).join(' ')};`;
+	const scriptSrc = `script-src ${scriptResources} ${[...finalScriptHashes].join(' ')}${strictDynamic};`;
+	const styleSrc = `style-src ${styleResources} ${[...finalStyleHashes].join(' ')};`;
 	return [directives, scriptSrc, styleSrc].filter(Boolean).join(' ');
 }

@@ -158,7 +158,7 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 		entryModules: {},
 		routes: [],
 		adapterName: settings?.adapter?.name ?? '',
-		clientDirectives: Array.from(settings.clientDirectives.entries()),
+		clientDirectives: [...settings.clientDirectives.entries()],
 		renderers: [],
 		base: settings.config.base,
 		userAssetsBase: settings.config?.vite?.base,

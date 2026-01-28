@@ -22,7 +22,7 @@ describe('Content Collections', () => {
 			});
 
 			it('Returns `with schema` collection', async () => {
-				assert.ok(json.hasOwnProperty('withSchemaConfig'));
+				assert.ok(Object.hasOwn(json, 'withSchemaConfig'));
 				assert.equal(Array.isArray(json.withSchemaConfig), true);
 
 				const ids = json.withSchemaConfig.map((item) => item.id);
@@ -45,7 +45,7 @@ describe('Content Collections', () => {
 			});
 
 			it('Returns `with custom slugs` collection', async () => {
-				assert.ok(json.hasOwnProperty('withCustomSlugs'));
+				assert.ok(Object.hasOwn(json, 'withCustomSlugs'));
 				assert.equal(Array.isArray(json.withCustomSlugs), true);
 
 				const slugs = json.withCustomSlugs.map((item) => item.id);
@@ -53,7 +53,7 @@ describe('Content Collections', () => {
 			});
 
 			it('Returns `with union schema` collection', async () => {
-				assert.ok(json.hasOwnProperty('withUnionSchema'));
+				assert.ok(Object.hasOwn(json, 'withUnionSchema'));
 				assert.equal(Array.isArray(json.withUnionSchema), true);
 
 				const post = json.withUnionSchema.find((item) => item.id === 'post');
@@ -72,7 +72,7 @@ describe('Content Collections', () => {
 			});
 
 			it('Handles symlinked content', async () => {
-				assert.ok(json.hasOwnProperty('withSymlinkedContent'));
+				assert.ok(Object.hasOwn(json, 'withSymlinkedContent'));
 				assert.equal(Array.isArray(json.withSymlinkedContent), true);
 				const ids = json.withSymlinkedContent.map((item) => item.id);
 				assert.deepEqual(ids.sort(), ['first', 'second', 'third'].sort());
@@ -83,7 +83,7 @@ describe('Content Collections', () => {
 			});
 
 			it('Handles symlinked data', async () => {
-				assert.ok(json.hasOwnProperty('withSymlinkedData'));
+				assert.ok(Object.hasOwn(json, 'withSymlinkedData'));
 				assert.equal(Array.isArray(json.withSymlinkedData), true);
 
 				const ids = json.withSymlinkedData.map((item) => item.id);
@@ -112,7 +112,7 @@ describe('Content Collections', () => {
 			});
 
 			it('Returns `with schema` collection entry', async () => {
-				assert.ok(json.hasOwnProperty('oneWithSchemaConfig'));
+				assert.ok(Object.hasOwn(json, 'oneWithSchemaConfig'));
 				assert.equal(json.oneWithSchemaConfig.id, 'one');
 				assert.equal(json.oneWithSchemaConfig.data.publishedAt instanceof Date, true);
 				assert.equal(
@@ -122,12 +122,12 @@ describe('Content Collections', () => {
 			});
 
 			it('Returns `with custom slugs` collection entry', async () => {
-				assert.ok(json.hasOwnProperty('twoWithCustomSlugs'));
+				assert.ok(Object.hasOwn(json, 'twoWithCustomSlugs'));
 				assert.equal(json.twoWithCustomSlugs.id, 'interesting-two');
 			});
 
 			it('Returns `with union schema` collection entry', async () => {
-				assert.ok(json.hasOwnProperty('postWithUnionSchema'));
+				assert.ok(Object.hasOwn(json, 'postWithUnionSchema'));
 				assert.equal(json.postWithUnionSchema.id, 'post');
 				assert.deepEqual(json.postWithUnionSchema.data, {
 					type: 'post',

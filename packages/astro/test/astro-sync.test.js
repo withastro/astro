@@ -74,7 +74,7 @@ const createFixture = () => {
 		/** @param {string} path */
 		thenFileShouldExist(path) {
 			assert.equal(
-				writtenFiles.hasOwnProperty(getExpectedPath(path)),
+				Object.hasOwn(writtenFiles, getExpectedPath(path)),
 				true,
 				`${path} does not exist`,
 			);

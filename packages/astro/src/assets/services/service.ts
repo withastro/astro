@@ -291,7 +291,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		}
 
 		// Dedupe the widths
-		transformedWidths = Array.from(new Set(transformedWidths));
+		transformedWidths = [...new Set(transformedWidths)];
 
 		// Since `widths` and `densities` ultimately control the width and height of the image,
 		// we don't want the dimensions the user specified, we'll create those ourselves.

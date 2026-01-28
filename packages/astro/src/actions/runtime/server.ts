@@ -323,7 +323,7 @@ export function formDataToObject<T extends z.$ZodObject>(
 }
 
 function handleFormDataGetAll(key: string, formData: FormData, validator: z.$ZodArray) {
-	const entries = Array.from(formData.getAll(key));
+	const entries = [...formData.getAll(key)];
 	const elementValidator = validator._zod.def.element;
 	if (elementValidator instanceof z.$ZodNumber) {
 		return entries.map(Number);

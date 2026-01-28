@@ -22,6 +22,7 @@ import {
 	DEFAULT_SESSION_KV_BINDING_NAME,
 	DEFAULT_IMAGES_BINDING_NAME,
 } from './wrangler.js';
+// eslint-disable-next-line e18e/ban-dependencies
 import { parse } from 'dotenv';
 import { sessionDrivers } from 'astro/config';
 
@@ -399,13 +400,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				const trueRedirects = createRedirectsFromAstroRoutes({
 					config: _config,
-					routeToDynamicTargetMap: new Map(
-						Array.from(
-							_routes
-								.filter((route) => route.type === 'redirect')
-								.map((route) => [route, ''] as const),
-						),
-					),
+					routeToDynamicTargetMap: new Map([
+						..._routes
+							.filter((route) => route.type === 'redirect')
+							.map((route) => [route, ''] as const),
+					]),
 					dir,
 					buildOutput: finalBuildOutput,
 					assets,

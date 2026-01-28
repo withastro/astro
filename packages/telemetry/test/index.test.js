@@ -35,7 +35,7 @@ describe('AstroTelemetry', () => {
 	it('does not record event if disabled', async () => {
 		const { telemetry, config, logs } = setup();
 		telemetry.setEnabled(false);
-		const [key] = Array.from(config.keys());
+		const [key] = [...config.keys()];
 		assert.notEqual(key, undefined);
 		assert.equal(config.get(key), false);
 		assert.equal(telemetry.enabled, false);
@@ -49,7 +49,7 @@ describe('AstroTelemetry', () => {
 	it('records event if enabled', async () => {
 		const { telemetry, config, logs } = setup();
 		telemetry.setEnabled(true);
-		const [key] = Array.from(config.keys());
+		const [key] = [...config.keys()];
 		assert.notEqual(key, undefined);
 		assert.equal(config.get(key), true);
 		assert.equal(telemetry.enabled, true);
@@ -60,7 +60,7 @@ describe('AstroTelemetry', () => {
 	it('respects disable from notify', async () => {
 		const { telemetry, config, logs } = setup();
 		await telemetry.notify(() => false);
-		const [key] = Array.from(config.keys());
+		const [key] = [...config.keys()];
 		assert.notEqual(key, undefined);
 		assert.equal(config.get(key), false);
 		assert.equal(telemetry.enabled, false);
@@ -72,7 +72,7 @@ describe('AstroTelemetry', () => {
 	it('respects enable from notify', async () => {
 		const { telemetry, config, logs } = setup();
 		await telemetry.notify(() => true);
-		const [key] = Array.from(config.keys());
+		const [key] = [...config.keys()];
 		assert.notEqual(key, undefined);
 		assert.equal(config.get(key), true);
 		assert.equal(telemetry.enabled, true);
