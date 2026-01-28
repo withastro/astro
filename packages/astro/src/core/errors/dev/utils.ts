@@ -246,19 +246,43 @@ const boldRegex = /\*\*(.+)\*\*/g;
 const urlRegex = / ((?:https?|ftp):\/\/[-\w+&@#\\/%?=~|!:,.;]*[-\w+&@#\\/%=~|])/gi;
 const codeRegex = /`([^`]+)`/g;
 
+function isAllowedUrl(url: string): boolean {
+	const trimmedUrl = url.trim();
+	if (!trimmedUrl) return false;
+
+	try {
+		const parsedUrl = new URL(trimmedUrl);
+		return ['http:', 'https:'].includes(parsedUrl.protocol);
+	} catch {
+		return false;
+	}
+}
+
 /**
  * Render a subset of Markdown to HTML or a CLI output
  */
 export function renderErrorMarkdown(markdown: string, target: 'html' | 'cli') {
 	if (target === 'html') {
 		return escape(markdown)
-			.replace(linkRegex, `<a href="$2" target="_blank">$1</a>`)
+			.replace(linkRegex, (_match, text, url) => {
+				if (!isAllowedUrl(url)) {
+					return text;
+				}
+
+				return `<a href="${url}" target="_blank">${text}</a>`;
+			})
 			.replace(boldRegex, '<b>$1</b>')
 			.replace(urlRegex, ' <a href="$1" target="_blank">$1</a>')
 			.replace(codeRegex, '<code>$1</code>');
 	} else {
 		return markdown
-			.replace(linkRegex, (_, m1, m2) => `${colors.bold(m1)} ${colors.underline(m2)}`)
+			.replace(linkRegex, (_, m1, m2) => {
+				if (!isAllowedUrl(m2)) {
+					return `${colors.bold(m1)} ${m2}`;
+				}
+				
+				return `${colors.bold(m1)} ${colors.underline(m2)}`;
+			})
 			.replace(urlRegex, (fullMatch) => ` ${colors.underline(fullMatch.trim())}`)
 			.replace(boldRegex, (_, m1) => `${colors.bold(m1)}`);
 	}
