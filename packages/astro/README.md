@@ -38,6 +38,6 @@ Join us on [Discord](https://astro.build/chat) to meet other contributors. We'll
 
 ## Sponsors
 
-Astro is generously supported by [Vercel](https://vercel.com/), [storyblok](https://storyblok.com/), and several other amazing organizations [listed here.](https://opencollective.com/astrodotbuild)
+Astro is generously supported by [Cloudflare](https://www.cloudflare.com/pt-br/?utm_source=astro&utm_medium=astro&utm_campaign=astro), [Mux](https://www.mux.com/?utm_campaign=21819274-Astro&utm_source=astro), [Netlify](https://www.netlify.com/?utm_campaign=Astro-2024&utm_source=astro-referral), [Webflow](https://webflow.com/feature/cloud?utm_source=Astro&utm_medium=tech-partner&utm_campaign=fy26-astro&utm_content=fy26-docs), and several [other amazing organizations](https://opencollective.com/astrodotbuild).
 
 [❤️ Sponsor Astro! ❤️](https://github.com/withastro/.github/blob/main/FUNDING.md)
