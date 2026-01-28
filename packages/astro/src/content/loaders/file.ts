@@ -1,6 +1,6 @@
 import { existsSync, promises as fs } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import yaml from 'js-yaml';
+import * as yaml from 'yaml';
 import toml from 'smol-toml';
 import { FileGlobNotSupported, FileParserNotFound } from '../../core/errors/errors-data.js';
 import { AstroError } from '../../core/errors/index.js';
@@ -10,7 +10,7 @@ import type { Loader, LoaderContext } from './types.js';
 interface FileOptions {
 	/**
 	 * the parsing function to use for this data
-	 * @default JSON.parse or yaml.load, depending on the extension of the file
+	 * @default JSON.parse or yaml.parse, depending on the extension of the file
 	 * */
 	parser?: (
 		text: string,
@@ -33,10 +33,7 @@ export function file(fileName: string, options?: FileOptions): Loader {
 	if (ext === 'json') {
 		parse = JSON.parse;
 	} else if (ext === 'yml' || ext === 'yaml') {
-		parse = (text) =>
-			yaml.load(text, {
-				filename: fileName,
-			});
+		parse = yaml.parse;
 	} else if (ext === 'toml') {
 		parse = toml.parse;
 	}

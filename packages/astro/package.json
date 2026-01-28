@@ -142,7 +142,6 @@
     "github-slugger": "^2.0.0",
     "html-escaper": "3.0.3",
     "http-cache-semantics": "^4.2.0",
-    "js-yaml": "^4.1.1",
     "magic-string": "^0.30.21",
     "magicast": "^0.5.1",
     "mrmime": "^2.0.1",
@@ -169,6 +168,7 @@
     "vite": "^7.1.7",
     "vitefu": "^1.1.1",
     "xxhash-wasm": "^1.1.0",
+    "yaml": "^2.8.2",
     "yargs-parser": "^22.0.0",
     "yocto-spinner": "^1.0.0",
     "zod": "^4.0.0"
@@ -186,7 +186,6 @@
     "@types/hast": "^3.0.4",
     "@types/html-escaper": "3.0.4",
     "@types/http-cache-semantics": "^4.0.4",
-    "@types/js-yaml": "^4.0.9",
     "@types/picomatch": "^4.0.2",
     "@types/prompts": "^2.4.9",
     "@types/semver": "^7.7.1",

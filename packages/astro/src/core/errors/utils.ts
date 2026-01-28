@@ -1,4 +1,4 @@
-import type { YAMLException } from 'js-yaml';
+import { YAMLError } from 'yaml';
 import type { TomlError } from 'smol-toml';
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
 import type { SSRError } from '../../types/public/internal.js';
@@ -72,17 +72,18 @@ function getLineOffsets(text: string) {
 	return lineOffsets;
 }
 
-export function isYAMLException(err: unknown): err is YAMLException {
-	return err instanceof Error && err.name === 'YAMLException';
+export function isYAMLException(err: unknown): err is YAMLError {
+	return err instanceof YAMLError;
 }
 
 /** Format YAML exceptions as Vite errors */
-export function formatYAMLException(e: YAMLException): ViteErrorPayload['err'] {
+export function formatYAMLException(e: YAMLError): ViteErrorPayload['err'] {
+	const loc = e.linePos?.at(0) ?? { line: 0, col: 0 };
 	return {
 		name: e.name,
-		id: e.mark.name,
-		loc: { file: e.mark.name, line: e.mark.line + 1, column: e.mark.column },
-		message: e.reason,
+		id: e.name,
+		loc: { line: loc.line + 1, column: loc.col },
+		message: e.message,
 		stack: e.stack ?? '',
 	};
 }

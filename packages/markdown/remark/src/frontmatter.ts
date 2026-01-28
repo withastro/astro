@@ -1,4 +1,4 @@
-import yaml from 'js-yaml';
+import * as yaml from 'yaml';
 import * as toml from 'smol-toml';
 
 export function isFrontmatterValid(frontmatter: Record<string, any>) {
@@ -22,7 +22,7 @@ export function extractFrontmatter(code: string): string | undefined {
 }
 
 function getFrontmatterParser(code: string): [string, (str: string) => unknown] {
-	return frontmatterTypeRE.exec(code)?.[1] === '+++' ? ['+++', toml.parse] : ['---', yaml.load];
+	return frontmatterTypeRE.exec(code)?.[1] === '+++' ? ['+++', toml.parse] : ['---', yaml.parse];
 }
 export interface ParseFrontmatterOptions {
 	/**

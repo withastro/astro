@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import yaml from 'js-yaml';
+import * as yaml from 'yaml';
 import toml from 'smol-toml';
 import { getContentPaths } from '../../content/index.js';
 import createPreferences from '../../preferences/index.js';
@@ -83,7 +83,7 @@ export function createBaseSettings(
 				extensions: ['.yaml', '.yml'],
 				getEntryInfo({ contents, fileUrl }) {
 					try {
-						const data = yaml.load(contents, { filename: fileURLToPath(fileUrl) });
+						const data = yaml.parse(contents);
 						const rawData = contents;
 
 						return { data, rawData };
