@@ -1329,6 +1329,20 @@ export interface AstroUserConfig<
 
 		/**
 		 * @docs
+		 * @name image.service.config.kernel
+		 * @kind h4
+		 * @type {string | undefined}
+		 * @default `undefined`
+		 * @version 5.17.0
+		 * @description
+		 *
+		 * The default [kernel used for resizing images](https://sharp.pixelplumbing.com/api-resize/#resize) in the Sharp image service.
+		 *
+		 * By default this is `undefined`, which maps to Sharp's default kernel of `lanczos3`.
+		 */
+
+		/**
+		 * @docs
 		 * @name image.domains
 		 * @type {string[]}
 		 * @default `[]`

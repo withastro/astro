@@ -1,4 +1,4 @@
-import type { FitEnum, FormatEnum, SharpOptions } from 'sharp';
+import type { FitEnum, FormatEnum, ResizeOptions, SharpOptions } from 'sharp';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageFit, ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import {
@@ -13,6 +13,11 @@ export interface SharpImageServiceConfig {
 	 * The `limitInputPixels` option passed to Sharp. See https://sharp.pixelplumbing.com/api-constructor for more information
 	 */
 	limitInputPixels?: SharpOptions['limitInputPixels'];
+
+	/**
+	 * The `kernel` option is passed to resize calls. See https://sharp.pixelplumbing.com/api-resize/ for more information
+	 */
+	kernel?: ResizeOptions['kernel'];
 }
 
 let sharp: typeof import('sharp');
@@ -57,6 +62,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 	async transform(inputBuffer, transformOptions, config) {
 		if (!sharp) sharp = await loadSharp();
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
+		const kernel = config.service.config.kernel;
 
 		// Return SVGs as-is
 		// TODO: Sharp has some support for SVGs, we could probably support this once Sharp is the default and only service.
@@ -84,6 +90,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 			result.resize({
 				width: Math.round(transform.width),
 				height: Math.round(transform.height),
+				kernel: kernel,
 				fit,
 				position: transform.position,
 				withoutEnlargement,
@@ -91,11 +98,13 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		} else if (transform.height && !transform.width) {
 			result.resize({
 				height: Math.round(transform.height),
+				kernel: kernel,
 				withoutEnlargement,
 			});
 		} else if (transform.width) {
 			result.resize({
 				width: Math.round(transform.width),
+				kernel: kernel,
 				withoutEnlargement,
 			});
 		}
