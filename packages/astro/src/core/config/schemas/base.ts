@@ -463,6 +463,7 @@ export const AstroConfigSchema = z.object({
 					maxAge: z.number().optional(),
 					sameSite: z.union([z.enum(['strict', 'lax', 'none']), z.boolean()]).optional(),
 					secure: z.boolean().optional(),
+					partitioned: z.boolean().optional(),
 				})
 				.or(z.string())
 				.transform((val) => {
