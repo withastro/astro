@@ -6,6 +6,7 @@ import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-
 import { cloudflareConfigCustomizer } from './wrangler.js';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import type { StaticPathsResponse, PrerenderRequest } from './prerender-types.js';
+import { STATIC_PATHS_ENDPOINT, PRERENDER_ENDPOINT } from './utils/prerender.js';
 
 interface CloudflarePrerendererOptions {
 	root: URL;
@@ -70,7 +71,7 @@ export function createCloudflarePrerenderer({
 
 		async getStaticPaths(): Promise<PathWithRoute[]> {
 			// Call the workerd endpoint to get static paths
-			const response = await fetch(`${serverUrl}/__astro_static_paths`, {
+			const response = await fetch(`${serverUrl}${STATIC_PATHS_ENDPOINT}`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 			});
@@ -95,7 +96,7 @@ export function createCloudflarePrerenderer({
 				routeData: serializeRouteData(routeData, trailingSlash),
 			};
 
-			const response = await fetch(`${serverUrl}/__astro_prerender`, {
+			const response = await fetch(`${serverUrl}${PRERENDER_ENDPOINT}`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(body),
