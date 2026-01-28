@@ -133,7 +133,7 @@
     "dlv": "^1.1.3",
     "dset": "^3.1.4",
     "es-module-lexer": "^1.7.0",
-    "esbuild": "^0.25.0",
+    "esbuild": "^0.27.0",
     "estree-walker": "^3.0.3",
     "flattie": "^1.1.1",
     "fontace": "~0.4.0",
