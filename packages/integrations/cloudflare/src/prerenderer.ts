@@ -77,7 +77,10 @@ export function createCloudflarePrerenderer({
 			});
 
 			if (!response.ok) {
-				throw new Error(`Failed to get static paths: ${response.statusText}`);
+				throw new Error(
+					`Failed to get static paths from the Cloudflare prerender server (${response.status}: ${response.statusText}). ` +
+						'This is likely a bug in @astrojs/cloudflare. Please file an issue at https://github.com/withastro/astro/issues',
+				);
 			}
 
 			const data: StaticPathsResponse = await response.json();
