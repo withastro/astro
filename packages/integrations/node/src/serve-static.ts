@@ -130,7 +130,18 @@ function resolveClientDir(options: Options) {
 	// walk up the parent folders until you find the one that is the root of the server entry folder. This is how we find the client folder relatively.
 	const serverFolder = path.basename(options.server);
 	let serverEntryFolderURL = path.dirname(import.meta.url);
+	let previousPath = '';
+
 	while (!serverEntryFolderURL.endsWith(serverFolder)) {
+		// Prevent infinite loop when reaching filesystem root
+		if (serverEntryFolderURL === previousPath) {
+			throw new Error(
+				`Could not find server folder "${serverFolder}" when resolving client directory. ` +
+					`The directory structure may not be as expected. ` +
+					`Expected to find a folder ending with "${serverFolder}" in the path from ${import.meta.url}`
+			);
+		}
+		previousPath = serverEntryFolderURL;
 		serverEntryFolderURL = path.dirname(serverEntryFolderURL);
 	}
 	const serverEntryURL = serverEntryFolderURL + '/entry.mjs';
