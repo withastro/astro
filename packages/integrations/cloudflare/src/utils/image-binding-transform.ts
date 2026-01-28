@@ -1,15 +1,13 @@
 import { imageConfig } from 'astro:assets';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
+import type { ImageTransform } from '@cloudflare/workers-types';
 
-import type {
-	Fetcher,
-	ImagesBinding,
-	ImageTransform,
-	ReadableStream,
-} from '@cloudflare/workers-types';
-
-export async function transform(rawUrl: string, images: ImagesBinding, assets: Fetcher) {
+export async function transform(
+	rawUrl: string,
+	images: ImagesBinding,
+	assets: Fetcher,
+): Promise<Response> {
 	const url = new URL(rawUrl);
 
 	const href = url.searchParams.get('href');
@@ -23,7 +21,7 @@ export async function transform(rawUrl: string, images: ImagesBinding, assets: F
 	if (!content.body) {
 		return new Response(null, { status: 404 });
 	}
-	const input = images.input(content.body as ReadableStream);
+	const input = images.input(content.body);
 
 	const format = url.searchParams.get('f');
 

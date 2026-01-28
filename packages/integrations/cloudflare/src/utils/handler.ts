@@ -1,10 +1,5 @@
 import { env as globalEnv } from 'cloudflare:workers';
 import { sessionKVBindingName } from 'virtual:astro-cloudflare:config';
-import type {
-	Response as CfResponse,
-	ExecutionContext,
-	ExportedHandlerFetchHandler,
-} from '@cloudflare/workers-types';
 import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from '../utils/env.js';
@@ -13,12 +8,7 @@ import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import type { StaticPathsResponse, PrerenderRequest } from '../prerender-types.js';
 import { StaticPaths } from 'astro:static-paths';
 
-export type Env = {
-	[key: string]: unknown;
-	ASSETS: { fetch: (req: Request | string) => Promise<CfResponse> };
-};
-
-setGetEnv(createGetEnv(globalEnv as Env));
+setGetEnv(createGetEnv(globalEnv));
 
 export interface Runtime {
 	cfContext: ExecutionContext;
@@ -29,10 +19,10 @@ declare global {
 	var __ASTRO_IMAGES_BINDING_NAME: string;
 }
 
+type CfResponse = Awaited<ReturnType<Required<ExportedHandler<Env>>['fetch']>>;
+
 export async function handle(
-	request: Parameters<ExportedHandlerFetchHandler>[0],
-	env: Env,
-	context: ExecutionContext,
+	...[request, env, context]: Parameters<Required<ExportedHandler<Env>>['fetch']>
 ): Promise<CfResponse> {
 	const app = createApp();
 	const { pathname: requestPathname } = new URL(request.url);
@@ -149,5 +139,5 @@ export async function handle(
 		}
 	}
 
-	return response as unknown as CfResponse;
+	return response;
 }

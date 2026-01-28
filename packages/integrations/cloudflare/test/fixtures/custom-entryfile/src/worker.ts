@@ -26,4 +26,4 @@ export default {
 		let messages = JSON.stringify(batch.messages);
 		console.log(`consumed from our queue: ${messages}`);
 	}
-}
+} satisfies ExportedHandler<Env>
