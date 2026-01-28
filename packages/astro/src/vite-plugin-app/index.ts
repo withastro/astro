@@ -17,7 +17,7 @@ export function vitePluginApp(): vite.Plugin[] {
 					id: new RegExp(`^${ASTRO_APP_ID}$`),
 				},
 				handler() {
-					return RESOLVED_ASTRO_APP_ID
+					return RESOLVED_ASTRO_APP_ID;
 				},
 			},
 			load: {
@@ -26,18 +26,15 @@ export function vitePluginApp(): vite.Plugin[] {
 				},
 				handler() {
 					const entrypoint =
-						command === 'serve'
-							? 'astro/app/entrypoint-dev'
-							: 'astro/app/entrypoint-prod';
-					
+						command === 'serve' ? 'astro/app/entrypoint/dev' : 'astro/app/entrypoint/prod';
+
 					const code = `export { createApp } from '${entrypoint}';`;
 
 					return {
-						code
+						code,
 					};
 				},
 			},
-
 		},
 		{
 			name: 'astro:server-app',
