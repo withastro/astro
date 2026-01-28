@@ -327,7 +327,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				if (id === RESOLVED_VIRTUAL_MODULE_ID) {
 					return {
 						code: `
-						export const componentDataByCssVariable = new Map(${JSON.stringify([...componentDataByCssVariable?.entries() ?? []])});
+						export const componentDataByCssVariable = new Map(${JSON.stringify([...(componentDataByCssVariable?.entries() ?? [])])});
 						export const fontDataByCssVariable = ${JSON.stringify(fontDataByCssVariable ?? {})}
 						export const bufferImports = {${Array.from(fontFileById?.keys() ?? [], (key) => `"${key}": () => import("${BUFFER_VIRTUAL_MODULE_ID_PREFIX}${key}")`).join(',')}};
 					`,

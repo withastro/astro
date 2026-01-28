@@ -180,7 +180,7 @@ export default function (dir, opts = {}) {
 		ignores.push(/\/([\w\s~$.-]+\.\w+)+$/); // any extn
 		if (opts.dotfiles) ignores.push(/\/\.\w/);
 		else ignores.push(/\/\.well-known/);
-		[...[], ...opts.ignores || []].forEach((x) => {
+		[...[], ...(opts.ignores || [])].forEach((x) => {
 			ignores.push(new RegExp(x, 'i'));
 		});
 	}

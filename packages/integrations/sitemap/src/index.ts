@@ -63,10 +63,10 @@ const PKG_NAME = '@astrojs/sitemap';
 const STATUS_CODE_PAGES = new Set(['404', '500']);
 
 const isStatusCodePage = (locales: string[]) => {
-	const statusPathNames = new Set(
-		[...locales
-			.flatMap((locale) => Array.from(STATUS_CODE_PAGES, (page) => `${locale}/${page}`)), ...[...STATUS_CODE_PAGES]],
-	);
+	const statusPathNames = new Set([
+		...locales.flatMap((locale) => Array.from(STATUS_CODE_PAGES, (page) => `${locale}/${page}`)),
+		...[...STATUS_CODE_PAGES],
+	]);
 
 	return (pathname: string): boolean => {
 		if (pathname.endsWith('/')) {

@@ -702,7 +702,8 @@ async function prepareForClientOnlyComponents(
 		if (nextHead) {
 			// Collect the vite ids of all styles present in the next head
 			const viteIds = Array.from(nextHead.querySelectorAll(`style[${VITE_ID}]`), (style) =>
-				style.getAttribute(VITE_ID));
+				style.getAttribute(VITE_ID),
+			);
 			// Copy required styles to the new document if they are from hydration.
 			viteIds.forEach((id) => {
 				const style = nextHead.querySelector(`style[${VITE_ID}="${id}"]`);

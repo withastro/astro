@@ -387,7 +387,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 			// ensure config is wrapped with `defineConfig`
 			mod.imports.$prepend({ imported: 'defineConfig', from: 'astro/config' });
 			mod.exports.default = builders.functionCall('defineConfig', mod.exports.default);
-		} else mod.exports.default.$args[0] ??= {}
+		} else mod.exports.default.$args[0] ??= {};
 		logger.debug('add', 'Astro config ensured `defineConfig`');
 
 		for (const integration of integrations) {

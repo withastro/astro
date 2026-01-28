@@ -141,8 +141,7 @@ describe('Fonts E2E', () => {
 		});
 		const localOriginalUrl = fileURLToPath(new URL('./data/fonts/test.woff2', import.meta.url));
 		const localUrl =
-			[...result.fontFileById.keys()].find((e) => e.startsWith('font-test-400-normal-')) ??
-			'';
+			[...result.fontFileById.keys()].find((e) => e.startsWith('font-test-400-normal-')) ?? '';
 		assert.deepStrictEqual(result, {
 			fontFileById: new Map([
 				[
@@ -279,8 +278,7 @@ describe('Fonts E2E', () => {
 		});
 		const localOriginalUrl = fileURLToPath(new URL('./data/fonts/test.woff2', import.meta.url));
 		const localUrl =
-			[...result.fontFileById.keys()].find((e) => e.startsWith('font-test-400-normal-')) ??
-			'';
+			[...result.fontFileById.keys()].find((e) => e.startsWith('font-test-400-normal-')) ?? '';
 		assert.deepStrictEqual(result, {
 			fontFileById: new Map([
 				[

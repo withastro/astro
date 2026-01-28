@@ -317,26 +317,35 @@ export async function createRoutesFile(
 		await writeRoutesFileToOutDir(
 			_config,
 			logger,
-			[...['/*'], ...includeExtends?.map((entry) => entry.pattern) ?? []],
-			[...deduplicatedExcludePaths
-				.map((thisPath) => `${prependForwardSlash(thisPath.join('/'))}`)
-				.slice(
-					0,
-					CLOUDFLARE_COMBINED_LIMIT -
-						EXTENDED_INCLUDE_RULES_COUNT -
-						EXTENDED_EXCLUDE_RULES_COUNT -
-						1,
-				), ...excludeExtends?.map((entry) => entry.pattern) ?? []],
+			[...['/*'], ...(includeExtends?.map((entry) => entry.pattern) ?? [])],
+			[
+				...deduplicatedExcludePaths
+					.map((thisPath) => `${prependForwardSlash(thisPath.join('/'))}`)
+					.slice(
+						0,
+						CLOUDFLARE_COMBINED_LIMIT -
+							EXTENDED_INCLUDE_RULES_COUNT -
+							EXTENDED_EXCLUDE_RULES_COUNT -
+							1,
+					),
+				...(excludeExtends?.map((entry) => entry.pattern) ?? []),
+			],
 		);
 	} else {
 		await writeRoutesFileToOutDir(
 			_config,
 			logger,
-			[...deduplicatedIncludePaths
-				.map((thisPath) => `${prependForwardSlash(thisPath.join('/'))}`), ...includeExtends?.map((entry) => entry.pattern) ?? []],
+			[
+				...deduplicatedIncludePaths.map((thisPath) => `${prependForwardSlash(thisPath.join('/'))}`),
+				...(includeExtends?.map((entry) => entry.pattern) ?? []),
+			],
 			includedPathsHaveWildcard
-				? [...deduplicatedExcludePaths
-						.map((thisPath) => `${prependForwardSlash(thisPath.join('/'))}`), ...excludeExtends?.map((entry) => entry.pattern) ?? []]
+				? [
+						...deduplicatedExcludePaths.map(
+							(thisPath) => `${prependForwardSlash(thisPath.join('/'))}`,
+						),
+						...(excludeExtends?.map((entry) => entry.pattern) ?? []),
+					]
 				: [],
 		);
 	}

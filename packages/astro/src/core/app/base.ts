@@ -635,10 +635,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			originalResponse.headers.delete('Content-type');
 		} catch {}
 		// we use a map to remove duplicates
-		const mergedHeaders = new Map([
-			...[...newResponseHeaders],
-			...[...originalResponse.headers],
-		]);
+		const mergedHeaders = new Map([...[...newResponseHeaders], ...[...originalResponse.headers]]);
 		const newHeaders = new Headers();
 		for (const [name, value] of mergedHeaders) {
 			newHeaders.set(name, value);

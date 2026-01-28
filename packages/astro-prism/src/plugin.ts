@@ -116,8 +116,7 @@ export function addAstro(Prism: typeof import('prismjs')) {
 						// Closing tag
 						if (
 							openedTags.length > 0 &&
-							openedTags.at(-1).tagName ===
-								stringifyToken(token.content[0].content[1])
+							openedTags.at(-1).tagName === stringifyToken(token.content[0].content[1])
 						) {
 							// Pop matching opening tag
 							openedTags.pop();

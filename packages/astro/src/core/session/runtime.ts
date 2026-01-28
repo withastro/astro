@@ -293,7 +293,8 @@ export class AstroSession {
 			const cleanupPromises = Array.from(this.#toDestroy, (sessionId) =>
 				storage.removeItem(sessionId).catch((err) => {
 					console.error(`Failed to clean up session ${sessionId}:`, err);
-				}));
+				}),
+			);
 			await Promise.all(cleanupPromises);
 			this.#toDestroy.clear();
 		}

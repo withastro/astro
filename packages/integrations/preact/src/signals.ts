@@ -50,7 +50,7 @@ export function serializeSignals(
 					const keyOrIndex = isPropObject ? valueKey.toString() : valueIndex;
 
 					props[key] = isPropObject
-						? {...props[key], ...{ [keyOrIndex]: signal.peek() }}
+						? { ...props[key], ...{ [keyOrIndex]: signal.peek() } }
 						: props[key].map((v: SignalLike, i: number) =>
 								i === valueIndex ? [signal.peek(), i] : v,
 							);

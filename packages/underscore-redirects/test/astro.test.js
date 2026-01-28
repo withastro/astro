@@ -4,12 +4,12 @@ import { createRedirectsFromAstroRoutes } from '../dist/index.js';
 
 describe('Astro', () => {
 	it('Creates a Redirects object from routes', () => {
-		const routeToDynamicTargetMap = new Map(
-			[...[
+		const routeToDynamicTargetMap = new Map([
+			...[
 				[{ pattern: '/', pathname: '/', segments: [] }, './.adapter/dist/entry.mjs'],
 				[{ pattern: '/one', pathname: '/one', segments: [] }, './.adapter/dist/entry.mjs'],
-			]],
-		);
+			],
+		]);
 		const _redirects = createRedirectsFromAstroRoutes({
 			config: {
 				build: { format: 'directory' },

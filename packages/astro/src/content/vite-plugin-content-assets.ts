@@ -263,10 +263,7 @@ export async function contentAssetsBuildPostHook(
 			newCode = newCode.replace(JSON.stringify(STYLES_PLACEHOLDER), '[]');
 		}
 		if (entryLinks.size) {
-			newCode = newCode.replace(
-				JSON.stringify(LINKS_PLACEHOLDER),
-				JSON.stringify([...entryLinks]),
-			);
+			newCode = newCode.replace(JSON.stringify(LINKS_PLACEHOLDER), JSON.stringify([...entryLinks]));
 		} else {
 			// Replace with empty array if no links found
 			newCode = newCode.replace(JSON.stringify(LINKS_PLACEHOLDER), '[]');

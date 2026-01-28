@@ -5,14 +5,15 @@ import { setStdout } from '../dist/index.js';
 export function setup() {
 	const ctx = { messages: [] };
 	before(() => {
-		setStdout(
-			{...process.stdout, ...{
+		setStdout({
+			...process.stdout,
+			...{
 				write(buf) {
 					ctx.messages.push(stripVTControlCharacters(String(buf)).trim());
 					return true;
 				},
-			}},
-		);
+			},
+		});
 	});
 	beforeEach(() => {
 		ctx.messages = [];

@@ -39,15 +39,13 @@ export function renderAllHeadContent(result: SSRResult) {
 		);
 	// Clear result.styles so that any new styles added will be inlined.
 	result.styles.clear();
-	const scripts = [...result.scripts]
-		.filter(uniqueElements)
-		.map((script) => {
-			if (result.userAssetsBase) {
-				script.props.src =
-					(result.base === '/' ? '' : result.base) + result.userAssetsBase + script.props.src;
-			}
-			return renderElement('script', script, false);
-		});
+	const scripts = [...result.scripts].filter(uniqueElements).map((script) => {
+		if (result.userAssetsBase) {
+			script.props.src =
+				(result.base === '/' ? '' : result.base) + result.userAssetsBase + script.props.src;
+		}
+		return renderElement('script', script, false);
+	});
 	const links = [...result.links]
 		.filter(uniqueElements)
 		.map((link) => renderElement('link', link, false));

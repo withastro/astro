@@ -68,10 +68,10 @@ function convertToSerializedForm(
 			return [PROP_TYPE.RegExp, (value as RegExp).source];
 		}
 		case '[object Map]': {
-			return [PROP_TYPE.Map, serializeArray([...value as Map<any, any>], metadata, parents)];
+			return [PROP_TYPE.Map, serializeArray([...(value as Map<any, any>)], metadata, parents)];
 		}
 		case '[object Set]': {
-			return [PROP_TYPE.Set, serializeArray([...value as Set<any>], metadata, parents)];
+			return [PROP_TYPE.Set, serializeArray([...(value as Set<any>)], metadata, parents)];
 		}
 		case '[object BigInt]': {
 			return [PROP_TYPE.BigInt, (value as bigint).toString()];
@@ -83,13 +83,13 @@ function convertToSerializedForm(
 			return [PROP_TYPE.JSON, serializeArray(value, metadata, parents)];
 		}
 		case '[object Uint8Array]': {
-			return [PROP_TYPE.Uint8Array, [...value as Uint8Array]];
+			return [PROP_TYPE.Uint8Array, [...(value as Uint8Array)]];
 		}
 		case '[object Uint16Array]': {
-			return [PROP_TYPE.Uint16Array, [...value as Uint16Array]];
+			return [PROP_TYPE.Uint16Array, [...(value as Uint16Array)]];
 		}
 		case '[object Uint32Array]': {
-			return [PROP_TYPE.Uint32Array, [...value as Uint32Array]];
+			return [PROP_TYPE.Uint32Array, [...(value as Uint32Array)]];
 		}
 		default: {
 			if (value !== null && typeof value === 'object') {

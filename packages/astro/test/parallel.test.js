@@ -18,8 +18,7 @@ describe('Component parallelization', () => {
 		let $ = cheerio.load(html);
 
 		const startTimes = Array.from($('.start'), (element) => Number(element.children[0].data));
-		const finishTimes = Array.from($('.finished'), (element) =>
-			Number(element.children[0].data));
+		const finishTimes = Array.from($('.finished'), (element) => Number(element.children[0].data));
 
 		const renderStartWithin = Math.max(...startTimes) - Math.min(...startTimes);
 		assert.equal(
