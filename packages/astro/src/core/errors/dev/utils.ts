@@ -280,7 +280,7 @@ export function renderErrorMarkdown(markdown: string, target: 'html' | 'cli') {
 				if (!isAllowedUrl(m2)) {
 					return `${colors.bold(m1)} ${m2}`;
 				}
-				
+
 				return `${colors.bold(m1)} ${colors.underline(m2)}`;
 			})
 			.replace(urlRegex, (fullMatch) => ` ${colors.underline(fullMatch.trim())}`)
