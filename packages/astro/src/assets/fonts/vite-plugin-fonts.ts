@@ -157,7 +157,6 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 	let isBuild: boolean;
 	let fontFetcher: FontFetcher | null = null;
 	let fontTypeExtractor: FontTypeExtractor | null = null;
-	let buildServer: Server | null;
 	let serverAddress: AddressInfo | null = null;
 
 	async function cleanup() {
@@ -280,14 +279,14 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					settings.injectedCsp.fontResources.add(resource);
 				}
 			}
-			if (isBuild) {
+			if (isBuild && !settings.fontsHttpServer) {
 				const dependencies = {
 					fontFetcher,
 					fontFileById,
 					fontTypeExtractor,
 					logger,
 				};
-				buildServer = await new Promise<Server>((r) => {
+				settings.fontsHttpServer = await new Promise<Server>((r) => {
 					const _server = createServer((req, res) => {
 						return createFontFileMiddleware(dependencies)(req, res, () => {
 							if (!res.writableEnded) {
@@ -299,7 +298,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 						r(_server);
 					});
 				});
-				serverAddress = buildServer.address() as AddressInfo;
+				serverAddress = settings.fontsHttpServer.address() as AddressInfo;
 			}
 		},
 		async configureServer(server) {
