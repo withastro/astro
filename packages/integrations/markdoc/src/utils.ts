@@ -51,15 +51,6 @@ export function prependForwardSlash(str: string) {
 	return str[0] === '/' ? str : '/' + str;
 }
 
-export function isValidUrl(str: string): boolean {
-	try {
-		new URL(str);
-		return true;
-	} catch {
-		return false;
-	}
-}
-
 /** Identifier for components imports passed as `tags` or `nodes` configuration. */
 export const componentConfigSymbol = Symbol.for('@astrojs/markdoc/component-config');
 

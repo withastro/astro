@@ -22,6 +22,7 @@ import {
 	DEFAULT_SESSION_KV_BINDING_NAME,
 	DEFAULT_IMAGES_BINDING_NAME,
 } from './wrangler.js';
+// eslint-disable-next-line e18e/ban-dependencies
 import { parse } from 'dotenv';
 import { sessionDrivers } from 'astro/config';
 
