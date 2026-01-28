@@ -114,7 +114,10 @@ describe('Content Layer', () => {
 			assert.ok(columbia, 'columbia entry should exist');
 			assert.ok(columbia.body, 'body should be present');
 			assert.ok(columbia.body.length > 0, 'body should not be empty');
-			assert.ok(columbia.body.includes('Space Shuttle Columbia'), 'body should contain markdown content');
+			assert.ok(
+				columbia.body.includes('Space Shuttle Columbia'),
+				'body should contain markdown content',
+			);
 		});
 
 		it('clears body when retainBody is false in glob() loader', async () => {
