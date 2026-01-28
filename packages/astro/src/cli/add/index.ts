@@ -155,6 +155,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 	const logger = createLoggerFromFlags(flags);
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
 	const integrations = await validateIntegrations(integrationNames, flags, logger);
+	const hasCloudflareIntegration = integrations.some((integration) => integration.id === 'cloudflare');
 	let installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logger });
 	const rootPath = resolveRoot(cwd);
 	const root = pathToFileURL(rootPath);
@@ -205,7 +206,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 	switch (installResult) {
 		case UpdateResult.updated: {
-			if (integrations.find((integration) => integration.id === 'cloudflare')) {
+			if (hasCloudflareIntegration) {
 				const wranglerConfigURL = new URL('./wrangler.jsonc', configURL);
 				if (!existsSync(wranglerConfigURL)) {
 					logger.info(
@@ -496,7 +497,9 @@ export async function add(names: string[], { flags }: AddOptions) {
 		}
 	}
 
-	const updateTSConfigResult = await updateTSConfig(cwd, logger, integrations, flags);
+	const updateTSConfigResult = await updateTSConfig(cwd, logger, integrations, flags, {
+		addIncludes: hasCloudflareIntegration ? ['./worker-configuration.d.ts'] : [],
+	});
 
 	switch (updateTSConfigResult) {
 		case UpdateResult.none: {
@@ -515,7 +518,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 			);
 		}
 		case UpdateResult.updated:
-			logger.info('SKIP_FORMAT', msg.success(`Successfully updated TypeScript settings`));
+			logger.info('SKIP_FORMAT', msg.success(`Successfully updated tsconfig`));
 	}
 }
 
@@ -947,15 +950,17 @@ async function updateTSConfig(
 	logger: Logger,
 	integrationsInfo: IntegrationInfo[],
 	flags: Flags,
+	options?: { addIncludes?: string[] },
 ): Promise<UpdateResult> {
 	const integrations = integrationsInfo.map(
 		(integration) => integration.id as frameworkWithTSSettings,
 	);
+	const includesToAppend = Array.from(new Set((options?.addIncludes ?? []).filter(Boolean)));
 	const firstIntegrationWithTSSettings = integrations.find((integration) =>
 		presets.has(integration),
 	);
 
-	if (!firstIntegrationWithTSSettings) {
+	if (!firstIntegrationWithTSSettings && includesToAppend.length === 0) {
 		return UpdateResult.none;
 	}
 
@@ -977,10 +982,16 @@ async function updateTSConfig(
 
 	const configFileName = path.basename(inputConfig.tsconfigFile);
 
-	const outputConfig = updateTSConfigForFramework(
-		inputConfig.rawConfig,
-		firstIntegrationWithTSSettings,
-	);
+	let outputConfig = firstIntegrationWithTSSettings
+		? updateTSConfigForFramework(inputConfig.rawConfig, firstIntegrationWithTSSettings)
+		: { ...inputConfig.rawConfig };
+
+	for (const include of includesToAppend) {
+		const currentIncludes = Array.isArray(outputConfig.include) ? outputConfig.include : [];
+		if (!currentIncludes.includes(include)) {
+			outputConfig = { ...outputConfig, include: [...currentIncludes, include] };
+		}
+	}
 
 	const output = JSON.stringify(outputConfig, null, 2);
 	const diff = getDiffContent(inputConfigText, output);
@@ -1001,25 +1012,27 @@ async function updateTSConfig(
 		`\n  ${magenta(`Astro will make the following changes to your ${configFileName}:`)}\n${message}`,
 	);
 
-	// Every major framework, apart from Vue and Svelte requires different `jsxImportSource`, as such it's impossible to config
-	// all of them in the same `tsconfig.json`. However, Vue only need `"jsx": "preserve"` for template intellisense which
-	// can be compatible with some frameworks (ex: Solid)
-	const conflictingIntegrations = [...Object.keys(presets).filter((config) => config !== 'vue')];
-	const hasConflictingIntegrations =
-		integrations.filter((integration) => presets.has(integration)).length > 1 &&
-		integrations.filter((integration) => conflictingIntegrations.includes(integration)).length > 0;
+	if (firstIntegrationWithTSSettings) {
+		// Every major framework, apart from Vue and Svelte requires different `jsxImportSource`, as such it's impossible to config
+		// all of them in the same `tsconfig.json`. However, Vue only need `"jsx": "preserve"` for template intellisense which
+		// can be compatible with some frameworks (ex: Solid)
+		const conflictingIntegrations: string[] = Array.from(presets.keys()).filter((config) => config !== 'vue');
+		const hasConflictingIntegrations =
+			integrations.filter((integration) => presets.has(integration)).length > 1 &&
+			integrations.filter((integration) => conflictingIntegrations.includes(integration)).length > 0;
 
-	if (hasConflictingIntegrations) {
-		logger.info(
-			'SKIP_FORMAT',
-			red(
-				`  ${bold(
-					'Caution:',
-				)} Selected UI frameworks require conflicting tsconfig.json settings, as such only settings for ${bold(
-					firstIntegrationWithTSSettings,
-				)} were used.\n  More information: https://docs.astro.build/en/guides/typescript/#errors-typing-multiple-jsx-frameworks-at-the-same-time\n`,
-			),
-		);
+		if (hasConflictingIntegrations) {
+			logger.info(
+				'SKIP_FORMAT',
+				red(
+					`  ${bold(
+						'Caution:',
+					)} Selected UI frameworks require conflicting tsconfig.json settings, as such only settings for ${bold(
+						firstIntegrationWithTSSettings,
+					)} were used.\n  More information: https://docs.astro.build/en/guides/typescript/#errors-typing-multiple-jsx-frameworks-at-the-same-time\n`,
+				),
+			);
+		}
 	}
 
 	if (await askToContinue({ flags, logger })) {
