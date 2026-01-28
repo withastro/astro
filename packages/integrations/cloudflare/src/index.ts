@@ -1,6 +1,6 @@
 import { createReadStream } from 'node:fs';
 import { appendFile, stat } from 'node:fs/promises';
-import { createRequire } from 'node:module';
+import { builtinModules, createRequire } from 'node:module';
 import { createInterface } from 'node:readline/promises';
 import { pathToFileURL } from 'node:url';
 import {
@@ -182,6 +182,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					};
 				}
 
+				const nodeBuiltins = builtinModules.flatMap((m) => [m, `node:${m}`]);
+
 				updateConfig({
 					build: {
 						client: new URL(`.${wrapWithSlashes(config.base)}`, config.outDir),
@@ -202,10 +204,24 @@ export default function createIntegration(args?: Options): AstroIntegration {
 									if (source.startsWith('cloudflare:')) {
 										return { id: source, external: true };
 									}
+									if (
+										command === 'dev' &&
+										(source.startsWith('node:') || builtinModules.includes(source))
+									) {
+										return { id: source, external: true };
+									}
 									return null;
 								},
 							},
 						],
+						...(command === 'dev' && {
+							optimizeDeps: {
+								exclude: nodeBuiltins,
+							},
+							ssr: {
+								external: nodeBuiltins,
+							},
+						}),
 					},
 					image: setImageConfig(args?.imageService ?? 'compile', config.image, command, logger),
 				});
