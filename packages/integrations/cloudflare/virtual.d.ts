@@ -3,7 +3,8 @@
 
 declare module 'virtual:astro-cloudflare:config' {
 	export const sessionKVBindingName: string;
-	// Additional exports can be added here in the future
+	/** True when running in the prerender environment during build */
+	export const isPrerender: boolean;
 }
 
 declare namespace Cloudflare {

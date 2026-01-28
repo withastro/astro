@@ -1,12 +1,15 @@
 import { env as globalEnv } from 'cloudflare:workers';
-import { sessionKVBindingName } from 'virtual:astro-cloudflare:config';
+import { sessionKVBindingName, isPrerender } from 'virtual:astro-cloudflare:config';
 import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from '../utils/env.js';
 import type { RouteData } from 'astro';
-import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
-import type { StaticPathsResponse, PrerenderRequest } from '../prerender-types.js';
-import { StaticPaths } from 'astro:static-paths';
+import {
+	isStaticPathsRequest,
+	isPrerenderRequest,
+	handleStaticPathsRequest,
+	handlePrerenderRequest,
+} from './prerender.js';
 
 setGetEnv(createGetEnv(globalEnv));
 
@@ -25,38 +28,18 @@ export async function handle(
 	...[request, env, context]: Parameters<Required<ExportedHandler<Env>>['fetch']>
 ): Promise<CfResponse> {
 	const app = createApp();
-	const { pathname: requestPathname } = new URL(request.url);
 
-	// Handle prerender endpoints (used during build)
-	if (requestPathname === '/__astro_static_paths' && request.method === 'POST') {
-		const staticPaths = new StaticPaths(app);
-		const paths = await staticPaths.getAll();
-		// Serialize routes for transport
-		const response: StaticPathsResponse = {
-			paths: paths.map(({ pathname, route }) => ({
-				pathname,
-				route: serializeRouteData(route, app.manifest.trailingSlash),
-			})),
-		};
-		return new Response(JSON.stringify(response), {
-			headers: { 'Content-Type': 'application/json' },
-		}) as unknown as CfResponse;
-	}
-
-	if (requestPathname === '/__astro_prerender' && request.method === 'POST') {
-		const headers = new Headers();
-		for (const [key, value] of request.headers.entries()) {
-			headers.append(key, value);
+	// Handle prerender endpoints (only active during build prerender phase)
+	if (isPrerender) {
+		if (isStaticPathsRequest(request)) {
+			return handleStaticPathsRequest(app) as unknown as CfResponse;
 		}
-		const body: PrerenderRequest = await request.json();
-		const routeData = deserializeRouteData(body.routeData);
-		const prerenderRequest = new Request(body.url, {
-			method: 'GET',
-			headers,
-		});
-		const response = await app.render(prerenderRequest, { routeData });
-		return response as unknown as CfResponse;
+		if (isPrerenderRequest(request)) {
+			return handlePrerenderRequest(app, request) as unknown as CfResponse;
+		}
 	}
+
+	const { pathname: requestPathname } = new URL(request.url);
 
 	if (env[sessionKVBindingName]) {
 		const sessionConfigOptions = app.manifest.sessionConfig?.options ?? {};
