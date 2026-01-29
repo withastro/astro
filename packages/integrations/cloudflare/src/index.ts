@@ -12,8 +12,7 @@ import type {
 	HookParameters,
 	IntegrationResolvedRoute,
 } from 'astro';
-import type { PluginOption } from 'vite';
-import { cloudflareModuleLoader } from './utils/cloudflare-module-loader.js';
+
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { type ImageService, setImageConfig } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
@@ -54,15 +53,6 @@ export type Options = {
 			}[];
 		};
 	};
-
-	/**
-	 * Allow bundling cloudflare worker specific file types as importable modules. Defaults to true.
-	 * When enabled, allows imports of '.wasm', '.bin', and '.txt' file types
-	 *
-	 * See https://developers.cloudflare.com/pages/functions/module-support/
-	 * for reference on how these file types are exported
-	 */
-	cloudflareModules?: boolean;
 
 	/**
 	 * By default, Astro will be configured to use Cloudflare KV to store session data. The KV namespace
@@ -111,10 +101,6 @@ export type Options = {
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let finalBuildOutput: HookParameters<'astro:config:done'>['buildOutput'];
-
-	const cloudflareModulePlugin: PluginOption = cloudflareModuleLoader(
-		args?.cloudflareModules ?? true,
-	);
 
 	let _routes: IntegrationResolvedRoute[];
 
@@ -166,9 +152,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite: {
 						plugins: [
 							cfVitePlugin(cfPluginConfig),
-							// https://developers.cloudflare.com/pages/functions/module-support/
-							// Allows imports of '.wasm', '.bin', and '.txt' file types
-							cloudflareModulePlugin,
 							{
 								name: '@astrojs/cloudflare:cf-imports',
 								enforce: 'pre',
