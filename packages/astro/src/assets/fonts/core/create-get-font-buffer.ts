@@ -1,24 +1,24 @@
 import { AstroError, AstroErrorData } from '../../../core/errors/index.js';
-import type { BufferImports } from './../types.js';
+import type { RuntimeFontFetcher } from './../definitions.js';
 
-export function createGetFontBuffer({ bufferImports }: { bufferImports?: BufferImports }) {
-	return async function getFontBuffer(url: string) {
+export function createGetFontBuffer({
+	runtimeFontFetcher,
+}: {
+	runtimeFontFetcher?: RuntimeFontFetcher;
+}) {
+	return async function getFontBuffer(url: string): Promise<ArrayBuffer> {
 		// TODO: remove once fonts are stabilized
-		if (!bufferImports) {
+		if (!runtimeFontFetcher) {
 			throw new AstroError(AstroErrorData.ExperimentalFontsNotEnabled);
 		}
 		// Should always be able to split but we default to a hash that will always fail
-		const hash = url.split('/').pop() ?? '';
-		const fn = bufferImports[hash];
-		if (!fn) {
-			throw new AstroError({
-				...AstroErrorData.FontBufferNotFound,
-				message: AstroErrorData.FontBufferNotFound.message(url),
-			});
-		}
-		let mod;
+		const id = url.split('/').pop() ?? '';
 		try {
-			mod = await fn();
+			const buffer = await runtimeFontFetcher.fetch(id);
+			if (buffer === null) {
+				throw new Error('not found');
+			}
+			return buffer;
 		} catch (cause) {
 			throw new AstroError(
 				{
@@ -28,12 +28,5 @@ export function createGetFontBuffer({ bufferImports }: { bufferImports?: BufferI
 				{ cause },
 			);
 		}
-		if (!mod?.default) {
-			throw new AstroError({
-				...AstroErrorData.FontBufferNotFound,
-				message: AstroErrorData.FontBufferNotFound.message(url),
-			});
-		}
-		return mod.default;
 	};
 }

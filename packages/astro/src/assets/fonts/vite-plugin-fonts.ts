@@ -18,8 +18,10 @@ import {
 	ASSETS_DIR,
 	CACHE_DIR,
 	DEFAULTS,
+	RESOLVED_RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID,
 	RESOLVED_RUNTIME_VIRTUAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
+	RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID,
 	RUNTIME_VIRTUAL_MODULE_ID,
 	VIRTUAL_MODULE_ID,
 } from './constants.js';
@@ -66,6 +68,7 @@ interface Dependencies {
 	fontFileById: FontFileById | null;
 }
 
+// TODO: extract
 function createFontFileMiddleware(dependencies: Dependencies | (() => Dependencies)) {
 	return async function (
 		req: IncomingMessage,
@@ -130,9 +133,16 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				if (id === RUNTIME_VIRTUAL_MODULE_ID) {
 					return RESOLVED_RUNTIME_VIRTUAL_MODULE_ID;
 				}
+				if (id === RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID) {
+					return RESOLVED_RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID;
+				}
 			},
 			load(id) {
-				if (id === RESOLVED_VIRTUAL_MODULE_ID || id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID) {
+				if (
+					id === RESOLVED_VIRTUAL_MODULE_ID ||
+					id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID ||
+					id === RESOLVED_RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID
+				) {
 					return {
 						code: '',
 					};
@@ -345,6 +355,9 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			if (id === RUNTIME_VIRTUAL_MODULE_ID) {
 				return RESOLVED_RUNTIME_VIRTUAL_MODULE_ID;
 			}
+			if (id === RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID) {
+				return RESOLVED_RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID;
+			}
 		},
 		async load(id) {
 			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
@@ -352,7 +365,6 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					code: `
 						export const componentDataByCssVariable = new Map(${JSON.stringify(Array.from(componentDataByCssVariable?.entries() ?? []))});
 						export const fontDataByCssVariable = ${JSON.stringify(fontDataByCssVariable ?? {})};
-						export const bufferImports = {${[...(fontFileById?.keys() ?? [])].map((key) => `"${key}": () => fetch("http://localhost:${serverAddress?.port}${isBuild ? '/' : assetsDir}${key}").then(async res => ({ default: await res.arrayBuffer() }))`).join(',')}};
 					`,
 				};
 			}
@@ -360,6 +372,34 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			if (id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID) {
 				return {
 					code: `export * from 'astro/assets/fonts/runtime.js';`,
+				};
+			}
+
+			if (id === RESOLVED_RUNTIME_FONT_FETCHER_VIRTUAL_MODULE_ID) {
+				const ids = [...(fontFileById?.keys() ?? [])];
+				if (isBuild) {
+					return {
+						code: `
+							import { BuildRuntimeFontFetcher } from ${JSON.stringify(new URL('./infra/build-runtime-font-fetcher.js', import.meta.url))};
+
+							export const runtimeFontFetcher = new BuildRuntimeFontFetcher({
+								ids: new Set(${JSON.stringify(ids)}),
+								port: ${serverAddress?.port},
+							});
+						`,
+					};
+				}
+
+				return {
+					code: `
+										import { DevRuntimeFontFetcher } from ${JSON.stringify(new URL('./infra/dev-runtime-font-fetcher.js', import.meta.url))};
+			
+										export const runtimeFontFetcher = new DevRuntimeFontFetcher({
+											ids: new Set(${JSON.stringify(ids)}),
+											port: ${serverAddress?.port},
+											base: ${JSON.stringify(assetsDir)}
+										});
+									`,
 				};
 			}
 		},

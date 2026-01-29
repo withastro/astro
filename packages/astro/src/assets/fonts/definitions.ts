@@ -87,3 +87,7 @@ export interface FontResolver {
 	) => Promise<Array<unifont.FontFaceData>>;
 	listFonts: (options: { provider: FontProvider }) => Promise<string[] | undefined>;
 }
+
+export interface RuntimeFontFetcher {
+	fetch: (id: string) => Promise<ArrayBuffer | null>;
+}
