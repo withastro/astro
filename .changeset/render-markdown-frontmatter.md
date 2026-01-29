@@ -1,5 +1,5 @@
 ---
-'astro': minor
+'astro': major
 ---
 
 Adds frontmatter parsing support to `renderMarkdown` in content loaders. When markdown content includes frontmatter, it is now extracted and available in `metadata.frontmatter`, and excluded from the HTML output. This makes `renderMarkdown` behave consistently with the `glob` loader.

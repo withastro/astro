@@ -20,7 +20,7 @@ import {
 	MODULES_IMPORTS_FILE,
 } from './consts.js';
 import type { RenderedContent } from './data-store.js';
-import type { LoaderContext } from './loaders/types.js';
+import type { LoaderContext, RenderMarkdownOptions } from './loaders/types.js';
 import type { MutableDataStore } from './mutable-data-store.js';
 import {
 	type ContentObservable,
@@ -144,7 +144,10 @@ class ContentLayer {
 		};
 	}
 
-	async #processMarkdown(content: string, options?: { fileURL?: URL }): Promise<RenderedContent> {
+	async #processMarkdown(
+		content: string,
+		options?: RenderMarkdownOptions,
+	): Promise<RenderedContent> {
 		this.#markdownProcessor ??= await createMarkdownProcessor(this.#settings.config.markdown);
 		const { frontmatter, content: body } = parseFrontmatter(content);
 		const { code, metadata } = await this.#markdownProcessor.render(body, {

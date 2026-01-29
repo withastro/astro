@@ -12,6 +12,11 @@ import type { DataStore, MetaStore } from '../mutable-data-store.js';
 
 export type { DataStore, MetaStore };
 
+export interface RenderMarkdownOptions {
+	/** The file URL of the markdown file being rendered */
+	fileURL?: URL;
+}
+
 export interface ParseDataOptions<TData extends Record<string, unknown>> {
 	/** The ID of the entry. Unique per collection */
 	id: string;
@@ -35,7 +40,7 @@ export interface LoaderContext {
 	parseData<TData extends Record<string, unknown>>(props: ParseDataOptions<TData>): Promise<TData>;
 
 	/** Renders markdown content to HTML and metadata */
-	renderMarkdown(content: string, options?: { fileURL?: URL }): Promise<RenderedContent>;
+	renderMarkdown(content: string, options?: RenderMarkdownOptions): Promise<RenderedContent>;
 
 	/** Generates a non-cryptographic content digest. This can be used to check if the data has changed */
 	generateDigest(data: Record<string, unknown> | string): string;
