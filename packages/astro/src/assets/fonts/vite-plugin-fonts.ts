@@ -358,14 +358,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			}
 
 			if (id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID) {
-				// TODO: use ASTRO_VITE_ENVIRONMENT_NAMES.client
-				if (this.environment.name === 'client') {
-					return {
-						code: `export * from 'astro/assets/fonts/runtime/client.js';`,
-					};
-				}
 				return {
-					code: `export * from 'astro/assets/fonts/runtime/server.js';`,
+					code: `export * from 'astro/assets/fonts/runtime.js';`,
 				};
 			}
 		},
