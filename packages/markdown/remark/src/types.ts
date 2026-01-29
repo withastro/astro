@@ -35,6 +35,20 @@ export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlug
 
 export type RemarkRehype = RemarkRehypeOptions;
 
+export interface QuoteCharacterMap {
+	double: string;
+	single: string;
+}
+
+export interface SmartypantsOptions {
+	backticks?: boolean | 'all';
+	closingQuotes?: QuoteCharacterMap;
+	dashes?: boolean | 'oldschool' | 'inverted';
+	ellipses?: boolean | 'spaced' | 'unspaced';
+	openingQuotes?: QuoteCharacterMap;
+	quotes?: boolean;
+}
+
 export type ThemePresets = BuiltinTheme | 'css-variables';
 
 export type SyntaxHighlightConfigType = 'shiki' | 'prism';
@@ -58,7 +72,7 @@ export interface AstroMarkdownOptions {
 	rehypePlugins?: RehypePlugins;
 	remarkRehype?: RemarkRehype;
 	gfm?: boolean;
-	smartypants?: boolean;
+	smartypants?: boolean | SmartypantsOptions;
 }
 
 /**
