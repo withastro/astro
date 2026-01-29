@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import colors from 'piccolore';
-import { glob } from 'tinyglobby';
 import * as vite from 'vite';
 import { LINKS_PLACEHOLDER } from '../../content/consts.js';
 import { contentAssetsBuildPostHook } from '../../content/vite-plugin-content-assets.js';
@@ -292,6 +291,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			[ASTRO_VITE_ENVIRONMENT_NAMES.prerender]: {
 				build: {
 					emitAssets: true,
+					manifest: true,
 					outDir: fileURLToPath(new URL('./.prerender/', getServerOutputDirectory(settings))),
 					rollupOptions: {
 						input: 'astro/entrypoints/prerender',
@@ -326,6 +326,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 			[ASTRO_VITE_ENVIRONMENT_NAMES.ssr]: {
 				build: {
 					outDir: fileURLToPath(getServerOutputDirectory(settings)),
+					manifest: true,
 					rollupOptions: {
 						output: {
 							...viteConfig.environments?.ssr?.build?.rollupOptions?.output,
@@ -487,9 +488,52 @@ async function writeMutatedChunks(
 }
 
 /**
+ * Collects asset paths (css and assets) from a Vite manifest.
+ */
+function collectAssetsFromManifest(manifest: vite.Manifest): Set<string> {
+	const assetPaths = new Set<string>();
+	for (const chunk of Object.values(manifest)) {
+		if (chunk.css) {
+			for (const css of chunk.css) {
+				assetPaths.add(css);
+			}
+		}
+		if (chunk.assets) {
+			for (const asset of chunk.assets) {
+				assetPaths.add(asset);
+			}
+		}
+	}
+	return assetPaths;
+}
+
+/**
+ * Loads a Vite manifest from a directory if it exists.
+ */
+function loadViteManifest(directory: URL): vite.Manifest | null {
+	const manifestPath = new URL('.vite/manifest.json', appendForwardSlash(directory.toString()));
+	if (!fs.existsSync(manifestPath)) {
+		return null;
+	}
+	const contents = fs.readFileSync(manifestPath, 'utf-8');
+	return JSON.parse(contents) as vite.Manifest;
+}
+
+/**
+ * Deletes the .vite folder from a directory if it exists.
+ */
+async function deleteViteFolder(directory: URL): Promise<void> {
+	const viteFolder = new URL('.vite/', appendForwardSlash(directory.toString()));
+	if (fs.existsSync(viteFolder)) {
+		await fs.promises.rm(viteFolder, { recursive: true, force: true });
+	}
+}
+
+/**
  * Moves prerender and SSR assets to the client directory.
  * In server mode, assets are initially scattered across server and prerender
  * directories but need to be consolidated in the client directory for serving.
+ * Only moves files that are listed as css or assets in the Vite manifest.
  */
 async function ssrMoveAssets(opts: StaticBuildOptions, prerenderOutputDir: URL) {
 	opts.logger.info('build', 'Rearranging server assets...');
@@ -498,29 +542,43 @@ async function ssrMoveAssets(opts: StaticBuildOptions, prerenderOutputDir: URL) 
 	const clientRoot = isFullyStaticSite
 		? opts.settings.config.outDir
 		: opts.settings.config.build.client;
-	const assets = opts.settings.config.build.assets;
-	const serverAssets = new URL(`./${assets}/`, appendForwardSlash(serverRoot.toString()));
-	const clientAssets = new URL(`./${assets}/`, appendForwardSlash(clientRoot.toString()));
-	const prerenderAssets = new URL(
-		`./${assets}/`,
-		appendForwardSlash(prerenderOutputDir.toString()),
-	);
 
-	// Move prerender assets first
-	const prerenderFiles = await glob(`**/*`, {
-		cwd: fileURLToPath(prerenderAssets),
-	});
+	// Collect assets from manifests
+	const assetsToMove = new Set<string>();
 
-	if (prerenderFiles.length > 0) {
-		await Promise.all(
-			prerenderFiles.map(async function moveAsset(filename) {
-				const currentUrl = new URL(filename, appendForwardSlash(prerenderAssets.toString()));
-				const clientUrl = new URL(filename, appendForwardSlash(clientAssets.toString()));
-				const dir = new URL(path.parse(clientUrl.href).dir);
-				if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
-				return fs.promises.rename(currentUrl, clientUrl);
-			}),
-		);
+	// Load prerender manifest and collect assets
+	const prerenderManifest = loadViteManifest(prerenderOutputDir);
+	if (prerenderManifest) {
+		for (const asset of collectAssetsFromManifest(prerenderManifest)) {
+			assetsToMove.add(asset);
+		}
+	}
+
+	// Load SSR manifest and collect assets
+	const ssrManifest = loadViteManifest(serverRoot);
+	if (ssrManifest) {
+		for (const asset of collectAssetsFromManifest(ssrManifest)) {
+			assetsToMove.add(asset);
+		}
+	}
+
+	// Move prerender assets
+	if (prerenderManifest) {
+		const prerenderAssetsToMove = collectAssetsFromManifest(prerenderManifest);
+		if (prerenderAssetsToMove.size > 0) {
+			await Promise.all(
+				Array.from(prerenderAssetsToMove).map(async function moveAsset(filename) {
+					const currentUrl = new URL(filename, appendForwardSlash(prerenderOutputDir.toString()));
+					const clientUrl = new URL(filename, appendForwardSlash(clientRoot.toString()));
+					if (!fs.existsSync(currentUrl)) return;
+					const dir = new URL(path.parse(clientUrl.href).dir);
+					if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
+					return fs.promises.rename(currentUrl, clientUrl);
+				}),
+			);
+		}
+		// Delete the .vite folder from prerender directory
+		await deleteViteFolder(prerenderOutputDir);
 	}
 
 	// If this is fully static site, we don't need to do the next parts at all.
@@ -529,23 +587,23 @@ async function ssrMoveAssets(opts: StaticBuildOptions, prerenderOutputDir: URL) 
 	}
 
 	// Move SSR assets
-	const files = await glob(`**/*`, {
-		cwd: fileURLToPath(serverAssets),
-	});
-
-	if (files.length > 0) {
-		await Promise.all(
-			files.map(async function moveAsset(filename) {
-				const currentUrl = new URL(filename, appendForwardSlash(serverAssets.toString()));
-				const clientUrl = new URL(filename, appendForwardSlash(clientAssets.toString()));
-				const dir = new URL(path.parse(clientUrl.href).dir);
-				// It can't find this file because the user defines a custom path
-				// that includes the folder paths in `assetFileNames
-				if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
-				return fs.promises.rename(currentUrl, clientUrl);
-			}),
-		);
-		removeEmptyDirs(fileURLToPath(serverRoot));
+	if (ssrManifest) {
+		const ssrAssetsToMove = collectAssetsFromManifest(ssrManifest);
+		if (ssrAssetsToMove.size > 0) {
+			await Promise.all(
+				Array.from(ssrAssetsToMove).map(async function moveAsset(filename) {
+					const currentUrl = new URL(filename, appendForwardSlash(serverRoot.toString()));
+					const clientUrl = new URL(filename, appendForwardSlash(clientRoot.toString()));
+					if (!fs.existsSync(currentUrl)) return;
+					const dir = new URL(path.parse(clientUrl.href).dir);
+					if (!fs.existsSync(dir)) await fs.promises.mkdir(dir, { recursive: true });
+					return fs.promises.rename(currentUrl, clientUrl);
+				}),
+			);
+			removeEmptyDirs(fileURLToPath(serverRoot));
+		}
+		// Delete the .vite folder from SSR directory
+		await deleteViteFolder(serverRoot);
 	}
 }
 
