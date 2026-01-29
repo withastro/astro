@@ -103,7 +103,7 @@ export function mergeConfig(
  * Astro's built-in transforms (like for headings) check `config.nodes?.X?.render`
  * to allow custom render components. Markdoc's built-in transforms do not.
  */
-function transformRespectsRender(transform: Function, configKey: string): boolean {
+function transformRespectsRender(transform: { toString(): string }, configKey: string): boolean {
 	const source = transform.toString();
 	// Astro's transforms check config.nodes?.X?.render or config.tags?.X?.render
 	return (
