@@ -6,7 +6,6 @@ import type {
 	RemarkPlugins,
 	RemarkRehype,
 	ShikiConfig,
-	SmartypantsOptions,
 	SyntaxHighlightConfigType,
 } from '@astrojs/markdown-remark';
 import type { Config as SvgoConfig } from 'svgo';
