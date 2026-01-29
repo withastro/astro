@@ -234,7 +234,7 @@ describe('astro fonts', () => {
 			});
 		});
 
-		it('Exposes buffer in getFontBuffer()', async () => {
+		it('Exposes buffer in experimental_getFontBuffer()', async () => {
 			const { fixture, run } = await createDevFixture({
 				experimental: {
 					fonts: [
@@ -394,7 +394,7 @@ describe('astro fonts', () => {
 			assert.equal(parsed['--font-test'][0].src[0].url.startsWith('/_astro/fonts/'), true);
 		});
 
-		it('Exposes buffer in getFontBuffer()', async () => {
+		it('Exposes buffer in experimental_getFontBuffer()', async () => {
 			const { fixture } = await createBuildFixture({
 				experimental: {
 					fonts: [
@@ -506,7 +506,7 @@ describe('astro fonts', () => {
 			assert.equal(parsed['--font-test'][0].src[0].url.startsWith('/_astro/fonts/'), true);
 		});
 
-		it('Exposes buffer in getFontBuffer()', async () => {
+		it('Exposes buffer in experimental_getFontBuffer()', async () => {
 			const fixture = await createSsrFixture({
 				experimental: {
 					fonts: [

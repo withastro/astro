@@ -5,4 +5,4 @@ import { createGetFontBuffer } from './core/create-get-font-buffer.js';
 // TODO: remove default when stabilizing
 export const fontData = fontsInternalMod.fontDataByCssVariable ?? {};
 
-export const getFontBuffer = createGetFontBuffer(fontsFetcherMod);
+export const experimental_getFontBuffer = createGetFontBuffer(fontsFetcherMod);

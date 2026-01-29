@@ -1406,13 +1406,13 @@ export const FontFamilyNotFound = {
  * @description
  * Font buffer not found
  * @message
- * No buffer was found for the URL passed to the `getFontBuffer()` function.
+ * No buffer was found for the URL passed to the `experimental_getFontBuffer()` function.
  */
 export const FontBufferNotFound = {
 	name: 'FontBufferNotFound',
 	title: 'Font buffer not found',
 	message: (url: string) =>
-		`No buffer was found for the \`"${url}"\` URL passed to the \`getFontBuffer()\` function.`,
+		`No buffer was found for the \`"${url}"\` URL passed to the \`experimental_getFontBuffer()\` function.`,
 	hint: 'Make sure you pass a valid URL, obtained via the \`fontData\` object.',
 } satisfies ErrorData;
 
