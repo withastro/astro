@@ -30,7 +30,7 @@ export function registerAllPlugins({ internals, options, register }: AstroBuildP
 	register(pluginPrerender(options, internals));
 	register(astroConfigBuildPlugin(options, internals));
 	register(pluginScripts(internals));
-	register(pluginFonts(options));
+	register(pluginFonts(options, internals));
 	register(pluginSSR(options, internals));
 	register(pluginChunks());
 }
