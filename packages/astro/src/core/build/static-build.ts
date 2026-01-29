@@ -388,6 +388,18 @@ async function cleanServerOutput(
 		);
 		// Copy assets before cleaning directory if outside root
 		await fs.promises.cp(out, opts.settings.config.outDir, { recursive: true, force: true });
+		
+		// Remove unwanted .astro content files that shouldn't exist in external outDir
+		// These files are generated but should be cleaned up for consistency
+		const dotAstroDir = new URL('.astro/', opts.settings.config.outDir);
+		if (fs.existsSync(dotAstroDir)) {
+			try {
+				await fs.promises.rm(dotAstroDir, { recursive: true, force: true });
+			} catch (error) {
+				// Ignore errors if directory doesn't exist or can't be removed
+			}
+		}
+		
 		await fs.promises.rm(out, { recursive: true });
 		return;
 	}
