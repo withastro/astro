@@ -1,3 +1,3 @@
 # Smartypants test
 
-"Smartypants" is -- awesome
+"Smartypants" is -- awesome ...
