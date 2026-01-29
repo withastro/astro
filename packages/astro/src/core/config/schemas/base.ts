@@ -111,6 +111,26 @@ const highlighterTypesSchema = z
 	.union([z.literal('shiki'), z.literal('prism')])
 	.default(syntaxHighlightDefaults.type);
 
+const quoteCharacterMapSchema = z.object({
+	double: z.string(),
+	single: z.string(),
+});
+
+const smartypantsOptionsSchema = z.object({
+	backticks: z.union([z.boolean(), z.literal('all')]).default(true),
+	closingQuotes: quoteCharacterMapSchema.default({
+		double: '”',
+		single: '’',
+	}),
+	dashes: z.union([z.boolean(), z.literal('inverted'), z.literal('oldschool')]).default(true),
+	ellipses: z.union([z.boolean(), z.literal('spaced'), z.literal('unspaced')]).default(true),
+	openingQuotes: quoteCharacterMapSchema.default({
+		double: '“',
+		single: '‘',
+	}),
+	quotes: z.boolean().default(true),
+});
+
 export const AstroConfigSchema = z.object({
 	root: z
 		.string()
@@ -377,7 +397,13 @@ export const AstroConfigSchema = z.object({
 				.custom<RemarkRehype>((data) => data instanceof Object && !Array.isArray(data))
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
 			gfm: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.gfm),
-			smartypants: z.boolean().default(ASTRO_CONFIG_DEFAULTS.markdown.smartypants),
+			smartypants: z
+				.union([z.boolean(), smartypantsOptionsSchema])
+				.default(ASTRO_CONFIG_DEFAULTS.markdown.smartypants)
+				.transform((val) => {
+					if (val === true) return smartypantsOptionsSchema.parse({});
+					return val;
+				}),
 		})
 		.prefault({}),
 	vite: z
