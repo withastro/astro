@@ -5000,15 +5000,6 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
-  packages/integrations/cloudflare/test/fixtures/module-loader:
-    dependencies:
-      '@astrojs/cloudflare':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
-
   packages/integrations/cloudflare/test/fixtures/no-output:
     dependencies:
       '@astrojs/cloudflare':
@@ -5082,15 +5073,9 @@ importers:
       '@astrojs/cloudflare':
         specifier: workspace:*
         version: link:../../..
-      '@astrojs/preact':
-        specifier: workspace:*
-        version: link:../../../../preact
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
-      preact:
-        specifier: ^10.19.0
-        version: 10.28.2
 
   packages/integrations/cloudflare/test/fixtures/vite-plugin:
     dependencies:
