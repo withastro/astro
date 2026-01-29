@@ -1,16 +1,27 @@
+import { removeTrailingForwardSlash } from '../../../core/path.js';
 import type { RuntimeFontFetcher } from '../definitions.js';
-
-// TODO: assets prefix
 
 export class SsrRuntimeFontFetcher implements RuntimeFontFetcher {
 	#ids: Set<string>;
 	#site: string | null;
 	#base: string;
+	#fetch: typeof globalThis.fetch;
 
-	constructor({ ids, site, base }: { ids: Set<string>; site: string | null; base: string }) {
+	constructor({
+		ids,
+		site,
+		base,
+		fetch,
+	}: {
+		ids: Set<string>;
+		site: string | null;
+		base: string;
+		fetch: typeof globalThis.fetch;
+	}) {
 		this.#ids = ids;
 		this.#site = site;
 		this.#base = base;
+		this.#fetch = fetch;
 	}
 
 	async fetch(url: string): Promise<ArrayBuffer | null> {
@@ -24,7 +35,8 @@ export class SsrRuntimeFontFetcher implements RuntimeFontFetcher {
 		if (!this.#site) {
 			throw new Error('no site!!');
 		}
-		// TODO: check site trailing slash
-		return fetch(`http://${this.#site}${this.#base}${id}`).then((res) => res.arrayBuffer());
+		return this.#fetch(`http://${removeTrailingForwardSlash(this.#site)}${this.#base}${id}`).then(
+			(res) => res.arrayBuffer(),
+		);
 	}
 }

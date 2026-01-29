@@ -387,6 +387,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 							export const runtimeFontFetcher = new BuildRuntimeFontFetcher({
 								ids: new Set(${JSON.stringify(ids)}),
 								port: ${serverAddress?.port},
+								fetch,
 							});
 						`,
 					};
@@ -399,7 +400,8 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 						export const runtimeFontFetcher = new DevRuntimeFontFetcher({
 							ids: new Set(${JSON.stringify(ids)}),
 							port: ${serverAddress?.port},
-							base: ${JSON.stringify(assetsDir)}
+							base: ${JSON.stringify(assetsDir)},
+							fetch,
 						});
 					`,
 				};

@@ -3,10 +3,20 @@ import type { RuntimeFontFetcher } from '../definitions.js';
 export class BuildRuntimeFontFetcher implements RuntimeFontFetcher {
 	#ids: Set<string>;
 	#port: number;
+	#fetch: typeof globalThis.fetch;
 
-	constructor({ ids, port }: { ids: Set<string>; port: number }) {
+	constructor({
+		ids,
+		port,
+		fetch,
+	}: {
+		ids: Set<string>;
+		port: number;
+		fetch: typeof globalThis.fetch;
+	}) {
 		this.#ids = ids;
 		this.#port = port;
+		this.#fetch = fetch;
 	}
 
 	async fetch(url: string): Promise<ArrayBuffer | null> {
@@ -14,6 +24,6 @@ export class BuildRuntimeFontFetcher implements RuntimeFontFetcher {
 		if (!this.#ids.has(id)) {
 			return null;
 		}
-		return fetch(`http://localhost:${this.#port}/${id}`).then((res) => res.arrayBuffer());
+		return this.#fetch(`http://localhost:${this.#port}/${id}`).then((res) => res.arrayBuffer());
 	}
 }

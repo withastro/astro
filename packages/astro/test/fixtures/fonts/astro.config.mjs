@@ -5,6 +5,7 @@ import testAdapter from '../../test-adapter.js';
 export default defineConfig({
 	output: 'server',
 	adapter: testAdapter(),
+	site: 'https://foo.bar/',
 	build: {
 		assetsPrefix: 'https://cdn.example.com/'
 	},
