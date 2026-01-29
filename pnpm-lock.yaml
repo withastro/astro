@@ -2881,6 +2881,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/core-image-picture-emit-file:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/core-image-remark-imgattr:
     dependencies:
       astro:
