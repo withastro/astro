@@ -290,7 +290,6 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				}
 			}
 			settings.fonts.fontFileById = fontFileById;
-			settings.fonts.assetsDir = assetsDir;
 			if (isBuild && !settings.fonts.httpServer) {
 				const dependencies = {
 					fontFetcher,

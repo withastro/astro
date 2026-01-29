@@ -246,7 +246,6 @@ class AstroBuilder {
 			this.settings.fonts.httpServer = null;
 		}
 		this.settings.fonts.fontFileById = null;
-		this.settings.fonts.assetsDir = null;
 
 		// You're done! Time to clean up.
 		await runHookBuildDone({

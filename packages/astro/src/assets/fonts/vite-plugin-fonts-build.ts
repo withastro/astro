@@ -23,8 +23,6 @@ export function vitePluginFontsBuild(options: StaticBuildOptions): Plugin {
 
 						export const runtimeFontFetcher = new SsrRuntimeFontFetcher({
 							ids: new Set(${JSON.stringify(ids)}),
-							site: ${JSON.stringify(options.settings.config.site ?? null)},
-							base: ${JSON.stringify(options.settings.fonts.assetsDir ?? '/')},
 							fetch,
 						});
 					`,

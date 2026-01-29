@@ -82,7 +82,6 @@ export interface AstroSettings {
 	fonts: {
 		httpServer: Server | null;
 		fontFileById: FontFileById | null;
-		assetsDir: string | null;
 	};
 }
 
