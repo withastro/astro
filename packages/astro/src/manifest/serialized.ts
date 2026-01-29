@@ -41,7 +41,7 @@ export function serializedManifestPlugin({
 	function reloadManifest(path: string | null, server: ViteDevServer) {
 		if (path != null && path.startsWith(settings.config.srcDir.pathname)) {
 			const environment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
-			const virtualMod = environment.moduleGraph.getModuleById(SERIALIZED_MANIFEST_ID);
+			const virtualMod = environment.moduleGraph.getModuleById(SERIALIZED_MANIFEST_RESOLVED_ID);
 			if (!virtualMod) return;
 
 			environment.moduleGraph.invalidateModule(virtualMod);
