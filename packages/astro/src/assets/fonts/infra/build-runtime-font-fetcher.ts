@@ -9,7 +9,8 @@ export class BuildRuntimeFontFetcher implements RuntimeFontFetcher {
 		this.#port = port;
 	}
 
-	async fetch(id: string): Promise<ArrayBuffer | null> {
+	async fetch(url: string): Promise<ArrayBuffer | null> {
+		const id = url.split('/').pop() ?? '';
 		if (!this.#ids.has(id)) {
 			return null;
 		}

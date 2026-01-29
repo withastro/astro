@@ -5,6 +5,9 @@ import testAdapter from '../../test-adapter.js';
 export default defineConfig({
 	output: 'server',
 	adapter: testAdapter(),
+	build: {
+		assetsPrefix: 'https://cdn.example.com/'
+	},
 	experimental: {
 		fonts: [
 			{

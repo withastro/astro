@@ -11,10 +11,8 @@ export function createGetFontBuffer({
 		if (!runtimeFontFetcher) {
 			throw new AstroError(AstroErrorData.ExperimentalFontsNotEnabled);
 		}
-		// Should always be able to split but we default to a hash that will always fail
-		const id = url.split('/').pop() ?? '';
 		try {
-			const buffer = await runtimeFontFetcher.fetch(id);
+			const buffer = await runtimeFontFetcher.fetch(url);
 			if (buffer === null) {
 				throw new Error('not found');
 			}

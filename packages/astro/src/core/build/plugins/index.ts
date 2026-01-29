@@ -6,6 +6,7 @@ import { pluginAnalyzer } from './plugin-analyzer.js';
 import { pluginChunks } from './plugin-chunks.js';
 import { pluginComponentEntry } from './plugin-component-entry.js';
 import { pluginCSS } from './plugin-css.js';
+import { pluginFonts } from './plugin-fonts.js';
 import { pluginInternals } from './plugin-internals.js';
 import { pluginManifest } from './plugin-manifest.js';
 import { pluginMiddleware } from './plugin-middleware.js';
@@ -29,6 +30,7 @@ export function registerAllPlugins({ internals, options, register }: AstroBuildP
 	register(pluginPrerender(options, internals));
 	register(astroConfigBuildPlugin(options, internals));
 	register(pluginScripts(internals));
+	register(pluginFonts(options));
 	register(pluginSSR(options, internals));
 	register(pluginChunks());
 }

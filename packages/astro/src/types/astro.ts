@@ -1,4 +1,5 @@
 import type { Server } from 'node:http';
+import type { FontFileById } from '../assets/fonts/types.js';
 import type { SSRManifest } from '../core/app/types.js';
 import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
@@ -78,7 +79,11 @@ export interface AstroSettings {
 		fontResources: Set<string>;
 		styleHashes: Required<CspObject['styleDirective']>['hashes'];
 	};
-	fontsHttpServer: Server | null
+	fonts: {
+		httpServer: Server | null;
+		fontFileById: FontFileById | null;
+		assetsDir: string | null;
+	};
 }
 
 /** Generic interface for a component (Astro, Svelte, React, etc.) */

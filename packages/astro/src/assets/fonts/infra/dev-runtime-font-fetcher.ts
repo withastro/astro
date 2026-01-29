@@ -11,7 +11,8 @@ export class DevRuntimeFontFetcher implements RuntimeFontFetcher {
 		this.#base = base;
 	}
 
-	async fetch(id: string): Promise<ArrayBuffer | null> {
+	async fetch(url: string): Promise<ArrayBuffer | null> {
+		const id = url.split('/').pop() ?? '';
 		if (!this.#ids.has(id)) {
 			return null;
 		}

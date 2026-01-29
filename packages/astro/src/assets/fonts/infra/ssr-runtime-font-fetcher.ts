@@ -1,5 +1,7 @@
 import type { RuntimeFontFetcher } from '../definitions.js';
 
+// TODO: assets prefix
+
 export class SsrRuntimeFontFetcher implements RuntimeFontFetcher {
 	#ids: Set<string>;
 	#site: string | null;
@@ -11,17 +13,18 @@ export class SsrRuntimeFontFetcher implements RuntimeFontFetcher {
 		this.#base = base;
 	}
 
-	async fetch(id: string): Promise<ArrayBuffer | null> {
+	async fetch(url: string): Promise<ArrayBuffer | null> {
+		const id = url.split('/').pop() ?? '';
 		if (!this.#ids.has(id)) {
 			return null;
 		}
 		if (id.startsWith('http')) {
-			return fetch(id).then((res) => res.arrayBuffer());
+			return fetch(url).then((res) => res.arrayBuffer());
 		}
 		if (!this.#site) {
 			throw new Error('no site!!');
 		}
-		// TODO: check trailing slash
+		// TODO: check site trailing slash
 		return fetch(`http://${this.#site}${this.#base}${id}`).then((res) => res.arrayBuffer());
 	}
 }

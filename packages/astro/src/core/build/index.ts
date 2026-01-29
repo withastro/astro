@@ -241,10 +241,12 @@ class AstroBuilder {
 		});
 		this.logger.debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
 
-		if (this.settings.fontsHttpServer) {
-			await new Promise((r) => this.settings.fontsHttpServer!.close(r));
-			this.settings.fontsHttpServer = null;
+		if (this.settings.fonts.httpServer) {
+			await new Promise((r) => this.settings.fonts.httpServer!.close(r));
+			this.settings.fonts.httpServer = null;
 		}
+		this.settings.fonts.fontFileById = null;
+		this.settings.fonts.assetsDir = null;
 
 		// You're done! Time to clean up.
 		await runHookBuildDone({

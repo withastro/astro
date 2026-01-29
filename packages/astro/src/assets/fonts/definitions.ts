@@ -89,5 +89,5 @@ export interface FontResolver {
 }
 
 export interface RuntimeFontFetcher {
-	fetch: (id: string) => Promise<ArrayBuffer | null>;
+	fetch: (url: string) => Promise<ArrayBuffer | null>;
 }

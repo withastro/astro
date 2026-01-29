@@ -289,14 +289,16 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					settings.injectedCsp.fontResources.add(resource);
 				}
 			}
-			if (isBuild && !settings.fontsHttpServer) {
+			settings.fonts.fontFileById = fontFileById;
+			settings.fonts.assetsDir = assetsDir;
+			if (isBuild && !settings.fonts.httpServer) {
 				const dependencies = {
 					fontFetcher,
 					fontFileById,
 					fontTypeExtractor,
 					logger,
 				};
-				settings.fontsHttpServer = await new Promise<Server>((r) => {
+				settings.fonts.httpServer = await new Promise<Server>((r) => {
 					const _server = createServer((req, res) => {
 						return createFontFileMiddleware(dependencies)(req, res, () => {
 							if (!res.writableEnded) {
@@ -308,7 +310,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 						r(_server);
 					});
 				});
-				serverAddress = settings.fontsHttpServer.address() as AddressInfo;
+				serverAddress = settings.fonts.httpServer.address() as AddressInfo;
 			}
 		},
 		async configureServer(server) {
@@ -392,14 +394,14 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 
 				return {
 					code: `
-										import { DevRuntimeFontFetcher } from ${JSON.stringify(new URL('./infra/dev-runtime-font-fetcher.js', import.meta.url))};
-			
-										export const runtimeFontFetcher = new DevRuntimeFontFetcher({
-											ids: new Set(${JSON.stringify(ids)}),
-											port: ${serverAddress?.port},
-											base: ${JSON.stringify(assetsDir)}
-										});
-									`,
+						import { DevRuntimeFontFetcher } from ${JSON.stringify(new URL('./infra/dev-runtime-font-fetcher.js', import.meta.url))};
+
+						export const runtimeFontFetcher = new DevRuntimeFontFetcher({
+							ids: new Set(${JSON.stringify(ids)}),
+							port: ${serverAddress?.port},
+							base: ${JSON.stringify(assetsDir)}
+						});
+					`,
 				};
 			}
 		},
