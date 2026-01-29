@@ -154,6 +154,10 @@ export function createBaseSettings(config: AstroConfig): AstroSettings {
 			fontResources: new Set(),
 			styleHashes: [],
 		},
+		fonts: {
+			httpServer: null,
+			fontFileById: null,
+		},
 	};
 }
 

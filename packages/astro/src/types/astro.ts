@@ -1,3 +1,5 @@
+import type { Server } from 'node:http';
+import type { FontFileById } from '../assets/fonts/types.js';
 import type { SSRManifest } from '../core/app/types.js';
 import type { AstroTimer } from '../core/config/timer.js';
 import type { TSConfig } from '../core/config/tsconfig.js';
@@ -76,6 +78,10 @@ export interface AstroSettings {
 	injectedCsp: {
 		fontResources: Set<string>;
 		styleHashes: Required<CspObject['styleDirective']>['hashes'];
+	};
+	fonts: {
+		httpServer: Server | null;
+		fontFileById: FontFileById | null;
 	};
 }
 

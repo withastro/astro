@@ -9,7 +9,10 @@ declare module 'virtual:astro:env/internal' {
 declare module 'virtual:astro:assets/fonts/internal' {
 	export const componentDataByCssVariable: import('./src/assets/fonts/types.js').ComponentDataByCssVariable;
 	export const fontDataByCssVariable: import('./src/assets/fonts/types.js').FontDataByCssVariable;
-	export const bufferImports: import('./src/assets/fonts/types.js').BufferImports;
+}
+
+declare module 'virtual:astro:assets/fonts/runtime/font-fetcher' {
+	export const runtimeFontFetcher: import('./src/assets/fonts/definitions.js').RuntimeFontFetcher;
 }
 
 declare module 'virtual:astro:adapter-config/client' {
