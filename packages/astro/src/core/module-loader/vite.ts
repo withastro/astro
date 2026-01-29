@@ -6,6 +6,8 @@ import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { getViteErrorPayload } from '../errors/dev/vite.js';
 import type { ModuleLoader, ModuleLoaderEventEmitter } from './loader.js';
 
+const isWindows = typeof process !== 'undefined' && process.platform === 'win32';
+
 export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
 	const events = new EventEmitter() as ModuleLoaderEventEmitter;
 
@@ -81,7 +83,27 @@ export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
 			return viteServer.moduleGraph.getModuleById(id);
 		},
 		getModulesByFile(file) {
-			return viteServer.moduleGraph.getModulesByFile(file);
+			// First try exact match
+			const exactMatch = viteServer.moduleGraph.getModulesByFile(file);
+			if (exactMatch) {
+				return exactMatch;
+			}
+
+			// On Windows, file paths are case-insensitive but Vite's module graph
+			// uses case-sensitive lookups. If the exact match fails, we need to
+			// search case-insensitively. This handles scenarios where CWD has
+			// different case than the actual filesystem path (e.g., d:\dev vs D:\dev).
+			// See: https://github.com/withastro/astro/issues/14013
+			if (isWindows) {
+				const lowerFile = file.toLowerCase();
+				for (const [key, modules] of viteServer.moduleGraph.fileToModulesMap) {
+					if (key.toLowerCase() === lowerFile) {
+						return modules;
+					}
+				}
+			}
+
+			return undefined;
 		},
 		getModuleInfo(id) {
 			return viteServer.pluginContainer.getModuleInfo(id);
