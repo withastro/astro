@@ -61,9 +61,16 @@ export const getVersion = (
 		let registry = await getRegistry(packageManager);
 		const { version } = await fetch(`${registry}/${packageName}/${packageTag}`, {
 			redirect: 'follow',
+			signal: AbortSignal.timeout(10000),
 		})
 			.then((res) => res.json())
-			.catch(() => ({ version: fallback }));
+			.catch(() => {
+				// biome-ignore lint/suspicious/noConsole: logging a warning
+				console.warn(
+					`Unable to fetch latest ${packageName} version from the npm registry. Using fallback version.`,
+				);
+				return { version: fallback };
+			});
 		return resolve(version);
 	});
 
