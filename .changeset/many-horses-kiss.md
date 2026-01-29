@@ -1,5 +1,5 @@
 ---
-'astro': minor
+'astro': patch
 ---
 
 **BREAKING CHANGE to the experimental Fonts API only**
