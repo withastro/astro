@@ -4,7 +4,7 @@ import type { RenderTemplateResult } from './render-template.js';
 
 export type AstroFactoryReturnValue = RenderTemplateResult | Response | HeadAndContent | ThinHead;
 
-// The callback passed to to $$createComponent
+// The callback passed to $$createComponent
 export interface AstroComponentFactory {
 	(result: any, props: any, slots: any): AstroFactoryReturnValue | Promise<AstroFactoryReturnValue>;
 	isAstroComponentFactory?: boolean;

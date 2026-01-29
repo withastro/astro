@@ -540,6 +540,14 @@ export class App {
 			// Load route module. We also catch its error here if it fails on initialization
 			const mod = await this.#pipeline.getModuleForRoute(routeData);
 
+			// Validate that the module has the expected structure
+			if (!mod || typeof mod.page !== 'function') {
+				throw new AstroError({
+					...AstroErrorData.FailedToFindPageMapSSR,
+					message: `The module for route "${routeData.route}" does not have a valid page function. This may occur when using static output mode with an SSR adapter.`,
+				});
+			}
+
 			const renderContext = await RenderContext.create({
 				pipeline: this.#pipeline,
 				locals,
@@ -552,6 +560,7 @@ export class App {
 			session = renderContext.session;
 			response = await renderContext.render(await mod.page());
 		} catch (err: any) {
+			this.#logger.error('router', 'Error while trying to render the route ' + routeData.route);
 			this.#logger.error(null, err.stack || err.message || String(err));
 			return this.#renderError(request, {
 				locals,
@@ -660,6 +669,15 @@ export class App {
 				}
 			}
 			const mod = await this.#pipeline.getModuleForRoute(errorRouteData);
+
+			// Validate that the module has the expected structure
+			if (!mod || typeof mod.page !== 'function') {
+				// If error page module is invalid, return a basic error response
+				const response = this.#mergeResponses(new Response(null, { status }), originalResponse);
+				Reflect.set(response, responseSentSymbol, true);
+				return response;
+			}
+
 			let session: AstroSession | undefined;
 			try {
 				const renderContext = await RenderContext.create({

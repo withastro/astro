@@ -9,7 +9,7 @@ import { markdownConfigDefaults, syntaxHighlightDefaults } from '@astrojs/markdo
 import { type BuiltinTheme, bundledThemes } from 'shiki';
 import type { Config as SvgoConfig } from 'svgo';
 import { z } from 'zod';
-import { localFontFamilySchema, remoteFontFamilySchema } from '../../../assets/fonts/config.js';
+import { fontFamilySchema } from '../../../assets/fonts/config.js';
 import { EnvSchema } from '../../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/config.js';
 import { allowedDirectivesSchema, cspAlgorithmSchema, cspHashSchema } from '../../csp/config.js';
@@ -293,6 +293,7 @@ export const AstroConfigSchema = z.object({
 	devToolbar: z
 		.object({
 			enabled: z.boolean().default(ASTRO_CONFIG_DEFAULTS.devToolbar.enabled),
+			placement: z.enum(['bottom-left', 'bottom-center', 'bottom-right']).optional(),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.devToolbar),
 	markdown: z
@@ -462,6 +463,7 @@ export const AstroConfigSchema = z.object({
 					maxAge: z.number().optional(),
 					sameSite: z.union([z.enum(['strict', 'lax', 'none']), z.boolean()]).optional(),
 					secure: z.boolean().optional(),
+					partitioned: z.boolean().optional(),
 				})
 				.or(z.string())
 				.transform((val) => {
@@ -492,7 +494,7 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.preserveScriptOrder),
-			fonts: z.array(z.union([localFontFamilySchema, remoteFontFamilySchema])).optional(),
+			fonts: z.array(fontFamilySchema).optional(),
 			liveContentCollections: z
 				.boolean()
 				.optional()
