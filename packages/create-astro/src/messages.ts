@@ -61,7 +61,7 @@ export const getVersion = (
 		let registry = await getRegistry(packageManager);
 		const { version } = await fetch(`${registry}/${packageName}/${packageTag}`, {
 			redirect: 'follow',
-			signal: AbortSignal.timeout(10000),
+			signal: AbortSignal.timeout(10_000),
 		})
 			.then((res) => res.json())
 			.catch(() => {
