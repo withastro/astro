@@ -1,0 +1,19 @@
+{
+  "name": "@example/ssr",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "server": "node dist/server/entry.mjs"
+  },
+  "dependencies": {
+    "@astrojs/node": "^9.5.2",
+    "@astrojs/svelte": "^7.2.5",
+    "astro": "^5.17.1",
+    "svelte": "^5.46.1"
+  }
+}
