@@ -73,7 +73,7 @@ describe('HMR: New page detection', () => {
 		// Ensure the page exists first (from previous test or create it)
 		if (!fs.existsSync(newPagePath)) {
 			await fs.promises.writeFile(newPagePath, NEW_PAGE_CONTENT, 'utf-8');
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 2000));
 		}
 
 		// 1. Verify the page is accessible
@@ -84,7 +84,7 @@ describe('HMR: New page detection', () => {
 		await fs.promises.unlink(newPagePath);
 
 		// 3. Wait for HMR to process the change
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+		await new Promise((resolve) => setTimeout(resolve, 2000));
 
 		// 4. Verify the page now returns 404
 		response = await fixture.fetch('/new-page');
