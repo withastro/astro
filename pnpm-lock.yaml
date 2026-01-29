@@ -976,6 +976,9 @@ importers:
       '@astrojs/vue':
         specifier: workspace:*
         version: link:../../../../integrations/vue
+      '@test/e2e-my-lib':
+        specifier: workspace:*
+        version: link:packages/my-lib
       '@types/react':
         specifier: ^18.3.24
         version: 18.3.27
@@ -988,6 +991,9 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../..
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1000,6 +1006,8 @@ importers:
       vue:
         specifier: ^3.5.25
         version: 3.5.26(typescript@5.9.3)
+
+  packages/astro/e2e/fixtures/cloudflare/packages/my-lib: {}
 
   packages/astro/e2e/fixtures/content-collections:
     dependencies:
@@ -4991,6 +4999,32 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../../../../astro
+
+  packages/integrations/cloudflare/test/fixtures/linked-package-client:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../react
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      my-lib:
+        specifier: file:packages/my-lib
+        version: link:packages/my-lib
+      react:
+        specifier: ^19.0.0
+        version: 19.2.3
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.3(react@19.2.3)
+
+  packages/integrations/cloudflare/test/fixtures/linked-package-client/packages/my-lib: {}
 
   packages/integrations/cloudflare/test/fixtures/module-loader:
     dependencies:
