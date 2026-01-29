@@ -1,10 +1,12 @@
 import type { OutgoingHttpHeaders } from 'node:http';
 import type { RemotePattern } from '@astrojs/internal-helpers/remote';
 import type {
+	QuoteCharacterMap,
 	RehypePlugins,
 	RemarkPlugins,
 	RemarkRehype,
 	ShikiConfig,
+	SmartypantsOptions,
 	SyntaxHighlightConfigType,
 } from '@astrojs/markdown-remark';
 import type { Config as SvgoConfig } from 'svgo';
@@ -1947,24 +1949,103 @@ export interface AstroUserConfig<
 		 * ```
 		 */
 		gfm?: boolean;
+
 		/**
 		 * @docs
 		 * @name markdown.smartypants
-		 * @type {boolean}
+		 * @type {boolean | SmartypantsOptions}
 		 * @default `true`
 		 * @version 2.0.0
 		 * @description
-		 * Astro uses the [SmartyPants formatter](https://daringfireball.net/projects/smartypants/) by default. To disable this, set the `smartypants` flag to `false`:
+		 * Whether to use the [SmartyPants formatter](https://daringfireball.net/projects/smartypants/) to transform straight quotes into smart quotes, dashes into en/em dashes, and triple dots into ellipses.
 		 *
-		 * ```js
-		 * {
-		 *   markdown: {
-		 *     smartypants: false,
-		 *   }
-		 * }
-		 * ```
+		 * To disable this, set the `smartypants` flag to `false`.
+		 *
+		 * For more control over typography, you can instead specify a configuration object with the properties listed below.
 		 */
-		smartypants?: boolean;
+		smartypants?:
+			| boolean
+			| {
+					/**
+					 * @docs
+					 * @name markdown.smartypants.backticks
+					 * @kind h4
+					 * @type {boolean | 'all'}
+					 * @default `true`
+					 * @version 5.18.0
+					 * @description
+					 * Whether to transform backticks into smart quotes.
+					 * When set to `'all'`, double backticks are converted to double quotes and single backticks are converted to single quotes.
+					 */
+					backticks?: boolean | 'all';
+
+					/**
+					 * @docs
+					 * @name markdown.smartypants.quotes
+					 * @kind h4
+					 * @type {boolean}
+					 * @default `true`
+					 * @version 5.18.0
+					 * @description
+					 * Whether to transform straight quotes into curly "smart" quotes.
+					 * * Note: If `backticks` is set to `'all'`, this should typically be set to `false`.
+					 */
+					quotes?: boolean;
+
+					/**
+					 * @docs
+					 * @name markdown.smartypants.dashes
+					 * @kind h4
+					 * @type {boolean | 'oldschool' | 'inverted'}
+					 * @default `true`
+					 * @version 5.18.0
+					 * @description
+					 * How to transform dashes.
+					 * - `true`: turns two dashes into an em dash.
+					 * - `'oldschool'`: turns three dashes into an em dash and two into an en dash.
+					 * - `'inverted'`: turns three dashes into an en dash and two into an em dash.
+					 */
+					dashes?: boolean | 'oldschool' | 'inverted';
+
+					/**
+					 * @docs
+					 * @name markdown.smartypants.ellipses
+					 * @kind h4
+					 * @type {boolean | 'spaced' | 'unspaced'}
+					 * @default `true`
+					 * @version 5.18.0
+					 * @description
+					 * Whether to transform triple dots into ellipses.
+					 * - `'spaced'`: only transforms triple dots with spaces (e.g. `. . .`).
+					 * - `'unspaced'`: only transforms triple dots without spaces (e.g. `...`).
+					 */
+					ellipses?: boolean | 'spaced' | 'unspaced';
+
+					/**
+					 * @docs
+					 * @name markdown.smartypants.openingQuotes
+					 * @kind h4
+					 * @type {QuoteCharacterMap}
+					 * @default `{ double: '“', single: '‘' }`
+					 * @version 5.18.0
+					 * @description
+					 * The specific characters to use for opening double and single quotes.
+					 */
+					openingQuotes?: QuoteCharacterMap;
+
+					/**
+					 * @docs
+					 * @name markdown.smartypants.closingQuotes
+					 * @kind h4
+					 * @type {QuoteCharacterMap}
+					 * @default `{ double: '”', single: '’' }`
+					 * @version 5.18.0
+					 * @description
+					 * The specific characters to use for closing double and single quotes.
+					 */
+					closingQuotes?: QuoteCharacterMap;
+			  };
+
 		/**
 		 * @docs
 		 * @name markdown.remarkRehype
