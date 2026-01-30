@@ -123,7 +123,7 @@ export interface LocalImageService<T extends Record<string, any> = Record<string
 	/**
 	 * A list of properties that should be used to generate the hash for the image.
 	 *
-	 * Generally, this should be all the properties that can change the result of the image. By default, this is `src`, `width`, `height`, `quality`, and `format`.
+	 * Generally, this should be all the properties that can change the result of the image. By default, this is `src`, `width`, `height`, `format`, `quality`, `fit`, `position`, and `background`.
 	 */
 	propertiesToHash?: string[];
 }
@@ -136,6 +136,7 @@ export type BaseServiceTransform = {
 	quality?: string | null;
 	fit?: ImageFit;
 	position?: string;
+	background?: string;
 };
 
 const sortNumeric = (a: number, b: number) => a - b;
@@ -266,6 +267,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			priority,
 			fit,
 			position,
+			background,
 			...attributes
 		} = options;
 		return {
@@ -375,6 +377,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			f: 'format',
 			fit: 'fit',
 			position: 'position',
+			background: 'background',
 		};
 
 		Object.entries(params).forEach(([param, key]) => {
@@ -409,6 +412,7 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 			quality: params.get('q'),
 			fit: params.get('fit') as ImageFit,
 			position: params.get('position') ?? undefined,
+			background: params.get('background') ?? undefined,
 		};
 
 		return transform;

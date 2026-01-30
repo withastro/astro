@@ -75,10 +75,12 @@ export type Loader = {
 
 export interface LoadEntryContext<TEntryFilter = never> {
 	filter: TEntryFilter extends never ? { id: string } : TEntryFilter;
+	collection: string;
 }
 
 export interface LoadCollectionContext<TCollectionFilter = unknown> {
 	filter?: TCollectionFilter;
+	collection: string;
 }
 
 export interface LiveLoader<
