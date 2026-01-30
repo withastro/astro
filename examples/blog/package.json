@@ -3,6 +3,9 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -13,7 +16,7 @@
     "@astrojs/mdx": "^5.0.0-beta.2",
     "@astrojs/rss": "^4.0.15-beta.2",
     "@astrojs/sitemap": "^3.6.1-beta.2",
-    "astro": "^6.0.0-beta.4",
+    "astro": "^6.0.0-beta.5",
     "sharp": "^0.34.3"
   }
 }

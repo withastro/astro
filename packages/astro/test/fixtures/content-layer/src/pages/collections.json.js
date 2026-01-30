@@ -42,6 +42,9 @@ export async function GET() {
 	const numbersYaml = await getCollection('numbersYaml');
 
 	const numbersToml = await getCollection('numbersToml');
+
+	const renderMarkdownTest = await getEntry('renderMarkdownTest', 'with-frontmatter');
+	const renderMarkdownWithImage = await getEntry('renderMarkdownTest', 'with-image');
 	
 	return new Response(
 		devalue.stringify({
@@ -66,6 +69,8 @@ export async function GET() {
 			csvLoader,
 			atlantis,
 			spacecraft: spacecraft.map(({id}) => id).sort((a, b) => a.localeCompare(b)),
+			renderMarkdownTest,
+			renderMarkdownWithImage,
 		})
 	);
 }

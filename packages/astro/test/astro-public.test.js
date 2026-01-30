@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { Writable } from 'node:stream';
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { Logger } from '../dist/core/logger/core.js';
 import { loadFixture } from './test-utils.js';
 
@@ -46,5 +46,37 @@ describe('Public', () => {
 		if (emptyChunkWarning) {
 			assert.fail(`Should not have empty chunk warning, but got: ${emptyChunkWarning.message}`);
 		}
+	});
+
+	it('public file takes priority over API route in build', async () => {
+		// When both public/robots.txt and src/pages/robots.txt.ts exist,
+		// the public file should take priority
+		const robotsTxt = await fixture.readFile('/robots.txt');
+		assert.match(robotsTxt, /Disallow: \/admin\//, 'Should contain public file content');
+		assert.doesNotMatch(robotsTxt, /Disallow: \/\n/, 'Should not contain API route content');
+	});
+});
+
+describe('Public (dev)', () => {
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({ root: './fixtures/astro-public/' });
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	it('public file takes priority over API route in dev', async () => {
+		// When both public/robots.txt and src/pages/robots.txt.ts exist,
+		// the public file should take priority
+		const response = await fixture.fetch('/robots.txt');
+		assert.equal(response.status, 200);
+		const text = await response.text();
+		assert.match(text, /Disallow: \/admin\//, 'Should contain public file content');
+		assert.doesNotMatch(text, /Disallow: \/\n/, 'Should not contain API route content');
 	});
 });

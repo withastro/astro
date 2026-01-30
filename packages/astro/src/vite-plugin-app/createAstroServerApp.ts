@@ -55,6 +55,24 @@ export default async function createAstroServerApp(
 		settings,
 		async () => debugInfo,
 	);
+
+	// Listen for route updates via HMR
+	if (import.meta.hot) {
+		import.meta.hot.on('astro:routes-updated', async () => {
+			try {
+				// Re-import the routes module to get fresh routes
+				const { routes: newRoutes } = await import('virtual:astro:routes');
+				const newRoutesList: RoutesList = {
+					routes: newRoutes.map((r: RouteInfo) => r.routeData),
+				};
+				app.updateRoutes(newRoutesList);
+				actualLogger.debug('router', 'Routes updated via HMR');
+			} catch (e: any) {
+				actualLogger.error('router', `Failed to update routes via HMR:\n ${e}`);
+			}
+		});
+	}
+
 	return {
 		handler(incomingRequest: http.IncomingMessage, incomingResponse: http.ServerResponse) {
 			app.handleRequest({
