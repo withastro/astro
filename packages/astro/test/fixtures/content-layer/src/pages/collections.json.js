@@ -75,6 +75,8 @@ export async function GET() {
 			spacecraft: spacecraft.map(({id}) => id).sort((a, b) => a.localeCompare(b)),
 			spacecraftWithBody: spacecraft.map(({id, body}) => ({id, body})),
 			spacecraftNoBody: spacecraftNoBody.map(({id, body}) => ({id, body})),
+			renderMarkdownTest,
+			renderMarkdownWithImage,
 		})
 	);
 }
