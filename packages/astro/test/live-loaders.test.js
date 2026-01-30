@@ -76,7 +76,6 @@ describe('Live content collections', () => {
 						id: '123',
 						data: { title: 'Page 123', age: 10 },
 						rendered: { html: '<h1>Page 123</h1><p>This is rendered content.</p>' },
-						
 					},
 					{
 						id: '456',
