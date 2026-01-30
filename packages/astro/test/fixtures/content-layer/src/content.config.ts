@@ -110,7 +110,6 @@ const spacecraftNoBody = defineCollection({
 		}),
 });
 
-
 const cats = defineCollection({
 	loader: async function () {
 		const file = new URL('data/cats.json', import.meta.url);
