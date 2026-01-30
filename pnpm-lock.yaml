@@ -4937,9 +4937,6 @@ importers:
       devalue:
         specifier: ^5.6.2
         version: 5.6.2
-      rollup:
-        specifier: ^4.55.1
-        version: 4.55.1
 
   packages/integrations/cloudflare/test/fixtures/astro-dev-platform:
     dependencies:
