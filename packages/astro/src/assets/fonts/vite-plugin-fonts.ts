@@ -51,7 +51,6 @@ import type {
 	FontFileById,
 } from './types.js';
 
-
 interface Options {
 	settings: AstroSettings;
 	sync: boolean;
@@ -294,9 +293,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		},
 		resolveId: {
 			filter: {
-				id: new RegExp(
-					`^(${VIRTUAL_MODULE_ID}|${RUNTIME_VIRTUAL_MODULE_ID})$`,
-				),
+				id: new RegExp(`^(${VIRTUAL_MODULE_ID}|${RUNTIME_VIRTUAL_MODULE_ID})$`),
 			},
 			handler(id) {
 				if (id === VIRTUAL_MODULE_ID) {
@@ -309,9 +306,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 		},
 		load: {
 			filter: {
-				id: new RegExp(
-					`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_RUNTIME_VIRTUAL_MODULE_ID})$`,
-				),
+				id: new RegExp(`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_RUNTIME_VIRTUAL_MODULE_ID})$`),
 			},
 			async handler(id) {
 				if (id === RESOLVED_VIRTUAL_MODULE_ID) {
