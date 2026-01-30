@@ -26,7 +26,6 @@ export const markdownContentEntryType: ContentEntryType = {
 			// Process markdown even if it's empty as remark/rehype plugins may add content or frontmatter dynamically
 			const result = await processor.render(entry.body ?? '', {
 				frontmatter: entry.data,
-				// @ts-expect-error Internal API
 				fileURL: entry.filePath ? pathToFileURL(entry.filePath) : undefined,
 			});
 			return {

@@ -38,9 +38,8 @@ export default async function astroPluginRoutes({
 	command,
 }: Payload): Promise<Plugin> {
 	logger.debug('update', 'Re-calculate routes');
-	let routeList = initialRoutesList;
 
-	let serializedRouteInfo: SerializedRouteInfo[] = routeList.routes.map(
+	let serializedRouteInfo: SerializedRouteInfo[] = initialRoutesList.routes.map(
 		(r): SerializedRouteInfo => {
 			return {
 				file: '',
@@ -59,7 +58,7 @@ export default async function astroPluginRoutes({
 				`Re-calculating routes for ${path.slice(settings.config.srcDir.pathname.length)}`,
 			);
 			const file = pathToFileURL(normalizePath(path));
-			routeList = await createRoutesList(
+			const newRoutesList = await createRoutesList(
 				{
 					settings,
 					fsMod,
@@ -68,7 +67,13 @@ export default async function astroPluginRoutes({
 				{ dev: command === 'dev' },
 			);
 
-			serializedRouteInfo = routeList.routes.map((r): SerializedRouteInfo => {
+			// IMPORTANT: Mutate the shared routesList object so all plugins see the update.
+			// Other plugins (pluginPage, pluginPages, astroDevCssPlugin) capture routesList
+			// at creation time, so we must mutate the array in place rather than replacing it.
+			initialRoutesList.routes.length = 0;
+			initialRoutesList.routes.push(...newRoutesList.routes);
+
+			serializedRouteInfo = initialRoutesList.routes.map((r): SerializedRouteInfo => {
 				return {
 					file: fileURLToPath(file),
 					links: [],
@@ -82,6 +87,10 @@ export default async function astroPluginRoutes({
 			if (!virtualMod) return;
 
 			environment.moduleGraph.invalidateModule(virtualMod);
+
+			// Signal that routes have changed so running apps can update
+			// NOTE: Consider adding debouncing here if rapid file changes cause performance issues
+			environment.hot.send('astro:routes-updated', {});
 		}
 	}
 	return {
@@ -155,7 +164,7 @@ export default async function astroPluginRoutes({
 			const fileIsPage = isPage(fileURL, settings);
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
-			const route = routeList.routes.find((r) => {
+			const route = initialRoutesList.routes.find((r) => {
 				const filePath = new URL(`./${r.component}`, settings.config.root);
 				return normalizePath(fileURLToPath(filePath)) === filename;
 			});
@@ -210,7 +219,7 @@ export default async function astroPluginRoutes({
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
 
-			const route = routeList.routes.find((r) => {
+			const route = initialRoutesList.routes.find((r) => {
 				const filePath = new URL(`./${r.component}`, settings.config.root);
 				return normalizePath(fileURLToPath(filePath)) === filename;
 			});
