@@ -209,3 +209,6 @@ export function hashTransform(
 	);
 	return shorthash(deterministicString(hashFields));
 }
+
+// Re-export emitClientAsset for use by integrations (e.g., markdoc)
+export { emitClientAsset } from '../../core/build/vite-plugin-ssr-assets.js';

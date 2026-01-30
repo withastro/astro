@@ -16,7 +16,7 @@ export function createImage(
 				resolvedFilePath,
 				shouldEmitFile
 					? (opts: Parameters<typeof pluginContext.emitFile>[0]) =>
-							emitClientAsset(pluginContext as any, opts)
+							emitClientAsset(pluginContext, opts)
 					: undefined,
 			)) as OmitBrand<ImageMetadata>;
 

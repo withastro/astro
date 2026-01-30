@@ -133,12 +133,13 @@ export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
  * Emit a client asset and track it for later movement to the client directory.
  * Use this instead of pluginContext.emitFile for assets that should
  * be moved from the server/prerender directory to the client directory.
+ *
+ * Note: The pluginContext is typed as Rollup.PluginContext for compatibility
+ * with content entry types, but in practice it will always have the `environment`
+ * property when running in Vite.
  */
-export function emitClientAsset(
-	pluginContext: PluginContext & { environment: Environment },
-	options: EmitFileOptions,
-): string {
-	const env = pluginContext.environment;
+export function emitClientAsset(pluginContext: PluginContext, options: EmitFileOptions): string {
+	const env = (pluginContext as PluginContext & { environment: Environment }).environment;
 	const handle = pluginContext.emitFile(options);
 
 	const handles = getHandles(env);
