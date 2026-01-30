@@ -99,10 +99,8 @@ function getAdapter({
 	edgeMiddleware,
 	middlewareSecret,
 	skewProtection,
-	buildOutput,
 	experimentalStaticHeaders,
 }: {
-	buildOutput: 'server' | 'static';
 	edgeMiddleware: NonNullable<VercelServerlessConfig['edgeMiddleware']>;
 	middlewareSecret: string;
 	skewProtection: boolean;
@@ -118,7 +116,6 @@ function getAdapter({
 		},
 		adapterFeatures: {
 			edgeMiddleware,
-			buildOutput,
 			experimentalStaticHeaders,
 		},
 		supportedAstroFeatures: {
@@ -251,8 +248,6 @@ export default function vercelAdapter({
 	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
 	const middlewareSecret = crypto.randomUUID();
 
-	let _buildOutput: 'server' | 'static';
-
 	let staticDir: URL | undefined;
 	let routes: IntegrationResolvedRoute[];
 
@@ -279,10 +274,10 @@ export default function vercelAdapter({
 						{
 							name: 'astro:copy-vercel-output',
 							hooks: {
-								'astro:build:done': async () => {
+								'astro:build:done': async ({ buildOutput }: HookParameters<'astro:build:done'>) => {
 									logger.info('Copying static files to .vercel/output/static');
 									const _staticDir =
-										_buildOutput === 'static' ? _config.outDir : _config.build.client;
+										buildOutput === 'static' ? _config.outDir : _config.build.client;
 									cpSync(_staticDir, new URL('./.vercel/output/static/', _config.root), {
 										recursive: true,
 									});
@@ -310,7 +305,6 @@ export default function vercelAdapter({
 			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(
 					getAdapter({
-						buildOutput: 'server',
 						edgeMiddleware,
 						middlewareSecret,
 						skewProtection,
@@ -333,10 +327,8 @@ export default function vercelAdapter({
 				_routeToHeaders = experimentalRouteToHeaders;
 			},
 			'astro:build:done': async ({ logger, buildOutput }: HookParameters<'astro:build:done'>) => {
-				_buildOutput = buildOutput;
-
 				// Validation warnings that depend on knowing the final buildOutput
-				if (_buildOutput === 'server') {
+				if (buildOutput === 'server') {
 					if (maxDuration && maxDuration > 900) {
 						logger.warn(
 							`maxDuration is set to ${maxDuration} seconds, which is longer than the maximum allowed duration of 900 seconds.`,
@@ -382,7 +374,7 @@ export default function vercelAdapter({
 
 					mkdirSync(new URL('./.vercel/output/server/', _config.root));
 
-					if (_buildOutput !== 'static') {
+					if (buildOutput !== 'static') {
 						cpSync(_config.build.server, new URL('./.vercel/output/_functions/', _config.root), {
 							recursive: true,
 						});
@@ -395,7 +387,7 @@ export default function vercelAdapter({
 					middlewarePath?: string;
 				}> = [];
 
-				if (_buildOutput === 'server') {
+				if (buildOutput === 'server') {
 					// Merge any includes from `vite.assetsInclude
 					if (_config.vite.assetsInclude) {
 						const mergeGlobbedIncludes = (globPattern: unknown) => {
@@ -508,12 +500,12 @@ export default function vercelAdapter({
 						continue: true,
 					},
 				];
-				if (_buildOutput === 'server') {
+				if (buildOutput === 'server') {
 					finalRoutes.push(...routeDefinitions);
 				}
 
 				if (fourOhFourRoute) {
-					if (_buildOutput === 'server') {
+					if (buildOutput === 'server') {
 						finalRoutes.push({
 							src: '/.*',
 							dest: fourOhFourRoute.isPrerendered
@@ -608,7 +600,7 @@ export default function vercelAdapter({
 				});
 
 				// Remove temporary folder
-				if (_buildOutput === 'server') {
+				if (buildOutput === 'server') {
 					await removeDir(_buildTempFolder);
 				}
 			},

@@ -378,7 +378,7 @@ export async function runHookConfigDone({
 				setAdapter(adapter) {
 					validateSetAdapter(logger, settings, adapter, integration.name, command);
 
-					if (adapter.adapterFeatures?.buildOutput !== 'static') {
+					if (adapter.adapterFeatures?.buildOutput === 'server') {
 						settings.buildOutput = 'server';
 					}
 
