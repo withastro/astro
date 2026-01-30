@@ -91,49 +91,47 @@ describe('defineConfig()', () => {
 	it('Infers font families correctly', () => {
 		assertType(defineConfig({}), (config) => {
 			expectTypeOf(config).toEqualTypeOf<AstroUserConfig<never, never, never>>();
-			expectTypeOf(config.experimental!.fonts!).toEqualTypeOf<Array<FontFamily>>();
+			expectTypeOf(config.fonts!).toEqualTypeOf<Array<FontFamily>>();
 		});
 
 		assertType(
 			defineConfig({
-				experimental: {
-					fonts: [
-						{
-							name: 'A',
-							cssVariable: '--font-a',
-							provider: fontProviders.local(),
-							options: {
-								variants: [{ src: [''] }],
+				fonts: [
+					{
+						name: 'A',
+						cssVariable: '--font-a',
+						provider: fontProviders.local(),
+						options: {
+							variants: [{ src: [''] }],
+						},
+					},
+					{
+						name: 'B',
+						cssVariable: '--font-b',
+						provider: fontProviders.bunny(),
+						options: undefined,
+					},
+					{
+						name: 'C',
+						cssVariable: '--font-c',
+						provider: fontProviders.google(),
+						options: {
+							experimental: {
+								glyphs: ['a'],
 							},
 						},
-						{
-							name: 'B',
-							cssVariable: '--font-b',
-							provider: fontProviders.bunny(),
-							options: undefined,
-						},
-						{
-							name: 'C',
-							cssVariable: '--font-c',
-							provider: fontProviders.google(),
-							options: {
-								experimental: {
-									glyphs: ['a'],
-								},
+					},
+					{
+						name: 'D',
+						cssVariable: '--font-d',
+						provider: fontProviders.googleicons(),
+						options: {
+							experimental: {
+								glyphs: ['a'],
 							},
 						},
-						{
-							name: 'D',
-							cssVariable: '--font-d',
-							provider: fontProviders.googleicons(),
-							options: {
-								experimental: {
-									glyphs: ['a'],
-								},
-							},
-						},
-					],
-				},
+					},
+				],
 			}),
 			(config) => {
 				expectTypeOf(config).toEqualTypeOf<
@@ -154,62 +152,60 @@ describe('defineConfig()', () => {
 
 	describe('it handles required/optional font provider options', () => {
 		defineConfig({
-			experimental: {
-				fonts: [
-					{
-						name: 'A',
-						cssVariable: '--font-a',
-						provider: fontProviders.local(),
-						options: {
-							variants: [{ src: [''] }],
-						},
+			fonts: [
+				{
+					name: 'A',
+					cssVariable: '--font-a',
+					provider: fontProviders.local(),
+					options: {
+						variants: [{ src: [''] }],
 					},
-					{
-						name: 'B',
-						cssVariable: '--font-b',
-						provider: {} as FontProvider<never>,
+				},
+				{
+					name: 'B',
+					cssVariable: '--font-b',
+					provider: {} as FontProvider<never>,
+				},
+				{
+					name: 'C',
+					cssVariable: '--font-c',
+					provider: {} as FontProvider<never>,
+					options: undefined,
+				},
+				{
+					name: 'D',
+					cssVariable: '--font-d',
+					provider: {} as FontProvider<{ foo?: string } | undefined>,
+				},
+				{
+					name: 'E',
+					cssVariable: '--font-e',
+					provider: {} as FontProvider<{ foo?: string } | undefined>,
+					options: undefined,
+				},
+				{
+					name: 'F',
+					cssVariable: '--font-f',
+					provider: {} as FontProvider<{ foo?: string } | undefined>,
+					options: {
+						foo: 'bar',
 					},
-					{
-						name: 'C',
-						cssVariable: '--font-c',
-						provider: {} as FontProvider<never>,
-						options: undefined,
+				},
+				// @ts-expect-error options is required
+				{
+					name: 'G',
+					cssVariable: '--font-g',
+					provider: {} as FontProvider<{ foo?: string }>,
+				},
+				{
+					name: 'H',
+					cssVariable: '--font-h',
+					provider: {} as FontProvider<{ foo?: string }>,
+					options: {
+						foo: 'bar',
 					},
-					{
-						name: 'D',
-						cssVariable: '--font-d',
-						provider: {} as FontProvider<{ foo?: string } | undefined>,
-					},
-					{
-						name: 'E',
-						cssVariable: '--font-e',
-						provider: {} as FontProvider<{ foo?: string } | undefined>,
-						options: undefined,
-					},
-					{
-						name: 'F',
-						cssVariable: '--font-f',
-						provider: {} as FontProvider<{ foo?: string } | undefined>,
-						options: {
-							foo: 'bar',
-						},
-					},
-					// @ts-expect-error options is required
-					{
-						name: 'G',
-						cssVariable: '--font-g',
-						provider: {} as FontProvider<{ foo?: string }>,
-					},
-					{
-						name: 'H',
-						cssVariable: '--font-h',
-						provider: {} as FontProvider<{ foo?: string }>,
-						options: {
-							foo: 'bar',
-						},
-					},
-				],
-			},
+				},
+			],
 		});
 	});
 });

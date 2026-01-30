@@ -2381,6 +2381,258 @@ export interface AstroUserConfig<
 	};
 
 	/**
+	 * @docs
+	 * @name fonts
+	 * @type {Array<FontFamily>}
+	 * @default `[]`
+	 * @version 6.0.0
+	 * @description
+	 * Configures fonts and allows you to specify some customization options on a per-font basis.
+	 *
+	 * See our guide for more information on [using custom fonts in Astro](https://v6.docs.astro.build/en/guides/fonts/).
+	 */
+
+	/**
+	 * @docs
+	 * @name font.provider
+	 * @type {FontProvider}
+	 * @version 6.0.0
+	 * @description
+	 * The source of your font files. You can use a [built-in provider](https://v6.docs.astro.build/en/reference/font-provider-reference/#built-in-providers) or write your own [custom provider](https://v6.docs.astro.build/en/reference/font-provider-reference/#building-a-font-provider):
+	 *
+	 * ```js
+	 * import { defineConfig, fontProviders } from "astro/config";
+	 *
+	 * export default defineConfig({
+	 *   fonts: [{
+	 *     provider: fontProviders.google(),
+	 *     name: "Roboto",
+	 *     cssVariable: "--font-roboto"
+	 *   }]
+	 * });
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name font.name
+	 * @type {string}
+	 * @version 6.0.0
+	 * @description
+	 * The font family name, as identified by your font provider:
+	 *
+	 * ```js
+	 * name: "Roboto"
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name font.cssVariable
+	 * @type {string}
+	 * @version 6.0.0
+	 * @description
+	 * A valid [ident](https://developer.mozilla.org/en-US/docs/Web/CSS/ident) of your choosing in the form of a CSS variable (i.e. starting with `--`):
+	 *
+	 * ```js
+	 * cssVariable: "--font-roboto"
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name font.fallbacks
+	 * @type {string[]}
+	 * @default `["sans-serif"]`
+	 * @version 6.0.0
+	 * @description
+	 * An array of fonts to use when your chosen font is unavailable, or loading. Fallback fonts will be chosen in the order listed. The first available font will be used:
+	 *
+	 * ```js
+	 * fallbacks: ["CustomFont", "serif"]
+	 * ```
+	 *
+	 * To disable fallback fonts completely, configure an empty array:
+	 *
+	 * ```js
+	 * fallbacks: []
+	 * ```
+	 *
+	 * Specify at least a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name) matching the intended appearance of your font. Astro will then attempt to generate [optimized fallbacks](https://developer.chrome.com/blog/font-fallbacks) using font metrics. To disable this optimization, set `optimizedFallbacks` to false.
+	 */
+
+	/**
+	 * @docs
+	 * @name font.optimizedFallbacks
+	 * @type {boolean}
+	 * @default `true`
+	 * @version 6.0.0
+	 * @description
+	 * Whether or not to enable Astro's default optimization when generating fallback fonts. You may disable this default optimization to have full control over how [`fallbacks`](https://v6.docs.astro.build/en/reference/configuration-reference/#fontfallbacks) are generated:
+	 *
+	 * ```js
+	 * optimizedFallbacks: false
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name font.weights
+	 * @type {Array<number | string>}
+	 * @default `[400]`
+	 * @version 6.0.0
+	 * @description
+	 * An array of [font weights](https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight). If no value is specified in your configuration, only weight `400` is included by default to prevent unnecessary downloads. You will need to include this property to access any other font weights:
+	 *
+	 * ```js
+	 * weights: [200, "400", "bold"]
+	 * ```
+	 *
+	 * If the associated font is a [variable font](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_fonts/Variable_fonts_guide), you can specify a range of weights:
+	 *
+	 * ```js
+	 * weights: ["100 900"]
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name font.styles
+	 * @type {Array<"normal" | "italic" | "oblique">}
+	 * @default `["normal", "italic"]`
+	 * @version 6.0.0
+	 * @description
+	 * An array of [font styles](https://developer.mozilla.org/en-US/docs/Web/CSS/font-style):
+	 *
+	 * ```js
+	 * styles: ["normal", "oblique"]
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name font.subsets
+	 * @type {string[]}
+	 * @default `["latin"]`
+	 * @version 6.0.0
+	 * @description
+	 * Defines a list of [font subsets](https://knaap.dev/posts/font-subsetting/) to preload.
+	 *
+	 * ```js
+	 * subsets: ["latin"]
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name font.formats
+	 * @type {Array<"woff2" | "woff" | "otf" | "ttf" | "eot">}
+	 * @default `["woff2"]`
+	 * @version 6.0.0
+	 * @description
+	 * An array of [font formats](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@font-face/src#font_formats):
+	 *
+	 * ```js
+	 * formats: ["woff2", "woff"]
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name font.options
+	 * @type {Record<string, any>}
+	 * @version 6.0.0
+	 * @description
+	 * An object to pass provider specific options. It is typed automatically based on the font family [provider](https://v6.docs.astro.build/en/reference/configuration-reference/#fontprovider):
+	 *
+	 * ```js
+	 * options: {
+	 *   experimental: {
+	 *     glyphs: ["a"]
+	 *   }
+	 * }
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name font.display
+	 * @type {"auto" | "block" | "swap" | "fallback" | "optional"}
+	 * @default `"swap"`
+	 * @version 6.0.0
+	 * @description
+	 * Defines [how a font displays](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display) based on when it is downloaded and ready for use:
+	 *
+	 * ```js
+	 * display: "block"
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name font.unicodeRange
+	 * @type {string[]}
+	 * @default `undefined`
+	 * @version 6.0.0
+	 * @description
+	 * Determines when a font must be downloaded and used based on a specific [range of unicode characters](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range). If a character on the page matches the configured range, the browser will download the font and all characters will be available for use on the page. To configure a subset of characters preloaded for a single font, see the [subsets](https://v6.docs.astro.build/en/reference/configuration-reference/#fontsubsets) property instead.
+	 *
+	 * This can be useful for localization to avoid unnecessary font downloads when a specific part of your website uses a different alphabet and will be displayed with a separate font. For example, a website that offers both English and Japanese versions can prevent the browser from downloading the Japanese font on English versions of the page that do not contain any of the Japanese characters provided in `unicodeRange`.
+	 *
+	 * ```js
+	 * unicodeRange: ["U+26"]
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name font.stretch
+	 * @type {string}
+	 * @default `undefined`
+	 * @version 6.0.0
+	 * @description
+	 * A [font stretch](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-stretch):
+	 *
+	 * ```js
+	 * stretch: "condensed"
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name font.featureSettings
+	 * @type {string}
+	 * @default `undefined`
+	 * @version 6.0.0
+	 * @description
+	 * Controls the [typographic font features](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-feature-settings) (e.g. ligatures, small caps, or swashes):
+	 *
+	 * ```js
+	 * featureSettings: "'smcp' 2"
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name font.variationSettings
+	 * @type {string}
+	 * @default `undefined`
+	 * @version 6.0.0
+	 * @description
+	 * Font [variation settings](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-variation-settings):
+	 *
+	 * ```js
+	 * variationSettings: "'xhgt' 0.7"
+	 * ```
+	 */
+
+	fonts?: [TFontProviders] extends [never]
+		? Array<FontFamily>
+		: {
+				[K in keyof TFontProviders]: FontFamily<TFontProviders[K]>;
+			};
+
+	/**
 	 *
 	 * @kind heading
 	 * @name Legacy Flags
@@ -2477,29 +2729,6 @@ export interface AstroUserConfig<
 		 * To use this feature with the Astro VS Code extension, you must also enable the `astro.content-intellisense` option in your VS Code settings. For editors using the Astro language server directly, pass the `contentIntellisense: true` initialization parameter to enable this feature.
 		 */
 		contentIntellisense?: boolean;
-
-		/**
-		 *
-		 * @name experimental.fonts
-		 * @type {FontFamily[]}
-		 * @version 5.7
-		 * @description
-		 *
-		 * This experimental feature allows you to use fonts from your filesystem and various providers
-		 * (eg. Google, Fontsource, Bunny...) through a unified, fully customizable and type-safe API.
-		 *
-		 * Web fonts can impact page performance at both load time and rendering time. This feature provides
-		 * automatic [optimization](https://web.dev/learn/performance/optimize-web-fonts) by creating
-		 * preload links and optimized fallbacks. This API includes opinionated defaults to keep your sites lightweight and performant (e.g. minimal font files downloaded) while allowing for extensive customization so you can opt in to greater control.
-		 *
-		 * For a complete overview, and to give feedback on this experimental API,
-		 * see the [Fonts RFC](https://github.com/withastro/roadmap/pull/1039).
-		 */
-		fonts?: [TFontProviders] extends [never]
-			? Array<FontFamily>
-			: {
-					[K in keyof TFontProviders]: FontFamily<TFontProviders[K]>;
-				};
 
 		/**
 		 * @name experimental.chromeDevtoolsWorkspace
