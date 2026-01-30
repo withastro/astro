@@ -5,7 +5,6 @@ import { collectComponentData } from '../../../../dist/assets/fonts/core/collect
 import { collectFontAssetsFromFaces } from '../../../../dist/assets/fonts/core/collect-font-assets-from-faces.js';
 import { collectFontData } from '../../../../dist/assets/fonts/core/collect-font-data.js';
 import { computeFontFamiliesAssets } from '../../../../dist/assets/fonts/core/compute-font-families-assets.js';
-import { createGetFontBuffer } from '../../../../dist/assets/fonts/core/create-get-font-buffer.js';
 import { filterAndTransformFontFaces } from '../../../../dist/assets/fonts/core/filter-and-transform-font-faces.js';
 import { filterPreloads } from '../../../../dist/assets/fonts/core/filter-preloads.js';
 import { getOrCreateFontFamilyAssets } from '../../../../dist/assets/fonts/core/get-or-create-font-family-assets.js';
