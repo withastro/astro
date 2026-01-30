@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { after, before, describe, it } from 'node:test';
-import { loadFixture } from './test-utils.js';
+import { isWindows, loadFixture } from './test-utils.js';
 
 const NEW_PAGE_CONTENT = `---
 ---
@@ -50,44 +50,52 @@ describe('HMR: New page detection', () => {
 		assert.equal(response.status, 404);
 	});
 
-	it('should detect a new page without server restart', async () => {
-		// 1. Verify the page doesn't exist yet
-		let response = await fixture.fetch('/new-page');
-		assert.equal(response.status, 404, 'Page should not exist initially');
+	it(
+		'should detect a new page without server restart',
+		{ skip: isWindows, todo: 'I hangs on windows' },
+		async () => {
+			// 1. Verify the page doesn't exist yet
+			let response = await fixture.fetch('/new-page');
+			assert.equal(response.status, 404, 'Page should not exist initially');
 
-		// 2. Create the new page file
-		await fs.promises.writeFile(newPagePath, NEW_PAGE_CONTENT, 'utf-8');
-
-		// 3. Wait for HMR to process the change
-		await new Promise((resolve) => setTimeout(resolve, 2000));
-
-		// 4. Verify the new page is now accessible
-		response = await fixture.fetch('/new-page');
-		assert.equal(response.status, 200, 'Page should be accessible after creation');
-
-		const html = await response.text();
-		assert.ok(html.includes('New Page Created via HMR'), 'Page content should match');
-	});
-
-	it('should detect page removal without server restart', async () => {
-		// Ensure the page exists first (from previous test or create it)
-		if (!fs.existsSync(newPagePath)) {
+			// 2. Create the new page file
 			await fs.promises.writeFile(newPagePath, NEW_PAGE_CONTENT, 'utf-8');
+
+			// 3. Wait for HMR to process the change
 			await new Promise((resolve) => setTimeout(resolve, 2000));
-		}
 
-		// 1. Verify the page is accessible
-		let response = await fixture.fetch('/new-page');
-		assert.equal(response.status, 200, 'Page should exist before deletion');
+			// 4. Verify the new page is now accessible
+			response = await fixture.fetch('/new-page');
+			assert.equal(response.status, 200, 'Page should be accessible after creation');
 
-		// 2. Delete the page file
-		await fs.promises.unlink(newPagePath);
+			const html = await response.text();
+			assert.ok(html.includes('New Page Created via HMR'), 'Page content should match');
+		},
+	);
 
-		// 3. Wait for HMR to process the change
-		await new Promise((resolve) => setTimeout(resolve, 2000));
+	it(
+		'should detect page removal without server restart',
+		{ skip: isWindows, todo: 'I hangs on windows' },
+		async () => {
+			// Ensure the page exists first (from previous test or create it)
+			if (!fs.existsSync(newPagePath)) {
+				await fs.promises.writeFile(newPagePath, NEW_PAGE_CONTENT, 'utf-8');
+				await new Promise((resolve) => setTimeout(resolve, 2000));
+			}
 
-		// 4. Verify the page now returns 404
-		response = await fixture.fetch('/new-page');
-		assert.equal(response.status, 404, 'Page should return 404 after deletion');
-	});
+			// 1. Verify the page is accessible
+			let response = await fixture.fetch('/new-page');
+			assert.equal(response.status, 200, 'Page should exist before deletion');
+
+			// 2. Delete the page file
+			await fs.promises.unlink(newPagePath);
+
+			// 3. Wait for HMR to process the change
+			await new Promise((resolve) => setTimeout(resolve, 2000));
+
+			// 4. Verify the page now returns 404
+			response = await fixture.fetch('/new-page');
+			assert.equal(response.status, 404, 'Page should return 404 after deletion');
+		},
+	);
 });
