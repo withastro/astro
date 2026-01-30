@@ -65,7 +65,6 @@ export const getVersion = (
 		})
 			.then((res) => res.json())
 			.catch(() => {
-				// biome-ignore lint/suspicious/noConsole: logging a warning
 				console.warn(
 					`Unable to fetch latest ${packageName} version from the npm registry. Using fallback version.`,
 				);
