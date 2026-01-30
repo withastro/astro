@@ -370,6 +370,74 @@
   - @astrojs/markdown-remark@7.0.0-alpha.0
 
 - [#15147](https://github.com/withastro/astro/pull/15147) [`9cd5b87`](https://github.com/withastro/astro/commit/9cd5b875f2d45a08bfa8312ed7282a6f0f070265) Thanks [@matthewp](https://github.com/matthewp)! - Fixes scripts in components not rendering when a sibling `<Fragment slot="...">` exists but is unused
+
+## 5.17.1
+
+### Patch Changes
+
+- [#15334](https://github.com/withastro/astro/pull/15334) [`d715f1f`](https://github.com/withastro/astro/commit/d715f1f88777a4ce0fb61c8043cccfbac2486ab4) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental Fonts API only**
+
+  Removes the `getFontBuffer()` helper function exported from `astro:assets` when using the experimental Fonts API
+
+  This experimental feature introduced in v15.6.13 ended up causing significant memory usage during build. This feature has been removed and will be reintroduced after further exploration and testing.
+
+  If you were relying on this function, you can replicate the previous behavior manually:
+  - On prerendered routes, read the file using `node:fs`
+  - On server rendered routes, fetch files using URLs from `fontData` and `context.url`
+
+## 5.17.0
+
+### Minor Changes
+
+- [#14932](https://github.com/withastro/astro/pull/14932) [`b19d816`](https://github.com/withastro/astro/commit/b19d816c914022c4e618d6012e09aed82be34213) Thanks [@patrickarlt](https://github.com/patrickarlt)! - Adds support for returning a Promise from the `parser()` option of the `file()` loader
+
+  This enables you to run asynchronous code such as fetching remote data or using async parsers when loading files with the Content Layer API.
+
+  For example:
+
+  ```js
+  import { defineCollection } from 'astro:content';
+  import { file } from 'astro/loaders';
+
+  const blog = defineCollection({
+    loader: file('src/data/blog.json', {
+      parser: async (text) => {
+        const data = JSON.parse(text);
+
+        // Perform async operations like fetching additional data
+        const enrichedData = await fetch(`https://api.example.com/enrich`, {
+          method: 'POST',
+          body: JSON.stringify(data),
+        }).then((res) => res.json());
+
+        return enrichedData;
+      },
+    }),
+  });
+
+  export const collections = { blog };
+  ```
+
+  See [the `parser()` reference documentation](https://docs.astro.build/en/reference/content-loader-reference/#parser) for more information.
+
+- [#15171](https://github.com/withastro/astro/pull/15171) [`f220726`](https://github.com/withastro/astro/commit/f22072607c79f5ba3459ba7522cfdf2581f1869b) Thanks [@mark-ignacio](https://github.com/mark-ignacio)! - Adds a new, optional `kernel` configuration option to select a resize algorithm in the Sharp image service
+
+  By default, Sharp resizes images with the `lanczos3` kernel. This new config option allows you to set the default resizing algorithm to any resizing option supported by [Sharp](https://sharp.pixelplumbing.com/api-resize/#resize) (e.g. `linear`, `mks2021`).
+
+  Kernel selection can produce quite noticeable differences depending on various characteristics of the source image - especially drawn art - so changing the kernel gives you more control over the appearance of images on your site:
+
+  ```js
+  export default defineConfig({
+    image: {
+      service: {
+        entrypoint: 'astro/assets/services/sharp',
+        config: {
+          kernel: "mks2021"
+        }
+    }
+  })
+  ```
+
   This selection will apply to all images on your site, and is not yet configurable on a per-image basis. For more information, see [Sharps documentation on resizing images](https://sharp.pixelplumbing.com/api-resize/#resize).
 
 - [#15063](https://github.com/withastro/astro/pull/15063) [`08e0fd7`](https://github.com/withastro/astro/commit/08e0fd723742dda4126665f5e32f4065899af83e) Thanks [@jmortlock](https://github.com/jmortlock)! - Adds a new `partitioned` option when setting a cookie to allow creating partitioned cookies.
@@ -447,73 +515,6 @@
   ```
 
   User preferences from the toolbar UI (stored in `localStorage`) still take priority, so this setting can be overridden in individual situations as necessary.
-
-## 5.17.1
-
-### Patch Changes
-
-- [#15334](https://github.com/withastro/astro/pull/15334) [`d715f1f`](https://github.com/withastro/astro/commit/d715f1f88777a4ce0fb61c8043cccfbac2486ab4) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the experimental Fonts API only**
-
-  Removes the `getFontBuffer()` helper function exported from `astro:assets` when using the experimental Fonts API
-
-  This experimental feature introduced in v15.6.13 ended up causing significant memory usage during build. This feature has been removed and will be reintroduced after further exploration and testing.
-
-  If you were relying on this function, you can replicate the previous behavior manually:
-  - On prerendered routes, read the file using `node:fs`
-  - On server rendered routes, fetch files using URLs from `fontData` and `context.url`
-
-## 5.17.0
-
-### Minor Changes
-
-- [#14932](https://github.com/withastro/astro/pull/14932) [`b19d816`](https://github.com/withastro/astro/commit/b19d816c914022c4e618d6012e09aed82be34213) Thanks [@patrickarlt](https://github.com/patrickarlt)! - Adds support for returning a Promise from the `parser()` option of the `file()` loader
-
-  This enables you to run asynchronous code such as fetching remote data or using async parsers when loading files with the Content Layer API.
-
-  For example:
-
-  ```js
-  import { defineCollection } from 'astro:content';
-  import { file } from 'astro/loaders';
-
-  const blog = defineCollection({
-    loader: file('src/data/blog.json', {
-      parser: async (text) => {
-        const data = JSON.parse(text);
-
-        // Perform async operations like fetching additional data
-        const enrichedData = await fetch(`https://api.example.com/enrich`, {
-          method: 'POST',
-          body: JSON.stringify(data),
-        }).then((res) => res.json());
-
-        return enrichedData;
-      },
-    }),
-  });
-
-  export const collections = { blog };
-  ```
-
-  See [the `parser()` reference documentation](https://docs.astro.build/en/reference/content-loader-reference/#parser) for more information.
-
-- [#15171](https://github.com/withastro/astro/pull/15171) [`f220726`](https://github.com/withastro/astro/commit/f22072607c79f5ba3459ba7522cfdf2581f1869b) Thanks [@mark-ignacio](https://github.com/mark-ignacio)! - Adds a new, optional `kernel` configuration option to select a resize algorithm in the Sharp image service
-
-  By default, Sharp resizes images with the `lanczos3` kernel. This new config option allows you to set the default resizing algorithm to any resizing option supported by [Sharp](https://sharp.pixelplumbing.com/api-resize/#resize) (e.g. `linear`, `mks2021`).
-
-  Kernel selection can produce quite noticeable differences depending on various characteristics of the source image - especially drawn art - so changing the kernel gives you more control over the appearance of images on your site:
-
-  ```js
-  export default defineConfig({
-    image: {
-      service: {
-        entrypoint: 'astro/assets/services/sharp',
-        config: {
-          kernel: "mks2021"
-        }
-    }
-  })
-  ```
 
 ## 5.16.16
 
