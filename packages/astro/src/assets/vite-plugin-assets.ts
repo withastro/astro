@@ -26,6 +26,7 @@ import type { ImageTransform } from './types.js';
 import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
 import { isESMImportedImage } from './utils/index.js';
 import { emitImageMetadata, hashTransform, propsToFilename } from './utils/node.js';
+import { emitClientAsset } from '../core/build/vite-plugin-ssr-assets.js';
 import { getProxyCode } from './utils/proxy.js';
 import { makeSvgComponent } from './utils/svg.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
@@ -267,7 +268,9 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 						return;
 					}
 
-					const fileEmitter = shouldEmitFile ? this.emitFile.bind(this) : undefined;
+					const fileEmitter = shouldEmitFile
+						? (opts: Parameters<typeof this.emitFile>[0]) => emitClientAsset(this as any, opts)
+						: undefined;
 					const imageMetadata = await emitImageMetadata(id, fileEmitter);
 
 					if (!imageMetadata) {

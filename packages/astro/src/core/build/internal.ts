@@ -95,6 +95,13 @@ export interface BuildInternals {
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint: URL | undefined;
 	astroActionsEntryPoint: URL | undefined;
+
+	/**
+	 * Assets that need to be moved from SSR/prerender directories to the client directory.
+	 * Populated during generateBundle by vitePluginSSRAssets.
+	 * Map of environment name -> Set of asset filenames.
+	 */
+	ssrAssetsPerEnvironment: Map<string, Set<string>>;
 }
 
 /**
@@ -121,6 +128,7 @@ export function createBuildInternals(): BuildInternals {
 		astroActionsEntryPoint: undefined,
 		middlewareEntryPoint: undefined,
 		clientChunksAndAssets: new Set(),
+		ssrAssetsPerEnvironment: new Map(),
 	};
 }
 
