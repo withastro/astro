@@ -13,7 +13,7 @@ export type RSSOptions = {
 	description: z.infer<typeof rssOptionsValidator>['description'];
 	/**
 	 * Specify the base URL to use for RSS feed links.
-	 * We recommend using the [endpoint context object](https://docs.astro.build/en/reference/api-reference/#contextsite),
+	 * We recommend using the [endpoint context object](https://docs.astro.build/en/reference/api-reference/#site),
 	 * which includes the `site` configured in your project's `astro.config.*`
 	 */
 	site: z.infer<typeof rssOptionsValidator>['site'] | URL;
@@ -75,7 +75,7 @@ const rssOptionsValidator = z.object({
 			if (!Array.isArray(items)) {
 				console.warn(
 					colors.yellow(
-						'[RSS] Passing a glob result directly has been deprecated. Please migrate to the `pagesGlobToRssItems()` helper: https://docs.astro.build/en/guides/rss/',
+						'[RSS] Passing a glob result directly has been deprecated. Please migrate to the `pagesGlobToRssItems()` helper: https://docs.astro.build/en/recipes/rss/',
 					),
 				);
 				return pagesGlobToRssItems(items);
@@ -119,7 +119,7 @@ async function validateRssOptions(rssOptions: RSSOptions) {
 					return [
 						message,
 						`The \`items\` property requires at least the \`title\` or \`description\` key. They must be properly typed, as well as \`pubDate\` and \`link\` keys if provided.`,
-						`Check your collection's schema, and visit https://docs.astro.build/en/guides/rss/#generating-items for more info.`,
+						`Check your collection's schema, and visit https://docs.astro.build/en/recipes/rss/#generating-items for more info.`,
 					].join('\n');
 				}
 
@@ -136,7 +136,7 @@ export function pagesGlobToRssItems(items: GlobResult): Promise<ValidatedRSSFeed
 			const { url, frontmatter } = await getInfo();
 			if (url === undefined || url === null) {
 				throw new Error(
-					`[RSS] You can only glob entries within 'src/pages/' when passing import.meta.glob() directly. Consider mapping the result to an array of RSSFeedItems. See the RSS docs for usage examples: https://docs.astro.build/en/guides/rss/#2-list-of-rss-feed-objects`,
+					`[RSS] You can only glob entries within 'src/pages/' when passing import.meta.glob() directly. Consider mapping the result to an array of RSSFeedItems. See the RSS docs for usage examples: https://docs.astro.build/en/recipes/rss/`,
 				);
 			}
 			const parsedResult = rssSchema

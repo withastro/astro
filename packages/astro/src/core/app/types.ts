@@ -18,6 +18,7 @@ import type { CspDirective } from '../csp/config.js';
 import type { LoggerLevel } from '../logger/core.js';
 import type { RoutingStrategies } from './common.js';
 import type { BaseSessionConfig, SessionDriverFactory } from '../session/types.js';
+import type { DevToolbarPlacement } from '../../types/public/toolbar.js';
 
 type ComponentPath = string;
 
@@ -119,8 +120,8 @@ export type SSRManifest = {
 		 * - the user is on the latest version already
 		 */
 		latestAstroVersion: string | undefined;
-
 		debugInfoOutput: string | undefined;
+		placement: DevToolbarPlacement | undefined;
 	};
 	internalFetchHeaders?: Record<string, string>;
 	logLevel: LoggerLevel;

@@ -40,11 +40,9 @@ export default defineConfig({
 			SECRET: envField.string({ context: 'server', access: 'secret' }),
 		}
 	},
-	experimental: {
-		fonts: [{
-			provider: fontProviders.google(),
-			name: "Roboto",
-			cssVariable: "--font-roboto"
-		}]
-	}
+	fonts: [{
+		provider: fontProviders.google(),
+		name: "Roboto",
+		cssVariable: "--font-roboto"
+	}]
 });
