@@ -278,6 +278,7 @@ export function createGetLiveCollection({
 		try {
 			const context = {
 				filter,
+				collection,
 			};
 
 			const response = await (
@@ -392,6 +393,7 @@ export function createGetLiveEntry({
 		try {
 			const lookupObject = {
 				filter: typeof lookup === 'string' ? { id: lookup } : lookup,
+				collection,
 			};
 
 			let entry = await (

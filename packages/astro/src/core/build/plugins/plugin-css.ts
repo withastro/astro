@@ -2,6 +2,7 @@ import type { GetModuleInfo } from 'rollup';
 import type { BuildOptions, ResolvedConfig, Plugin as VitePlugin } from 'vite';
 import { isCSSRequest } from 'vite';
 import { hasAssetPropagationFlag } from '../../../content/index.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 import {
 	getParentExtendedModuleInfos,
 	getParentModuleInfos,
@@ -10,9 +11,8 @@ import {
 import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../internal.js';
 import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types.js';
-import { shouldInlineAsset } from './util.js';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 import { normalizeEntryId } from './plugin-component-entry.js';
+import { shouldInlineAsset } from './util.js';
 
 /***** ASTRO PLUGIN *****/
 
