@@ -91,6 +91,14 @@ export async function getContext(argv: string[]): Promise<Context> {
 		'--ref': ref,
 		'--add': add,
 	} = flags;
+
+	if (add?.length && noInstall) {
+		console.error(
+			'The --add flag requires dependencies to be installed. Remove --no-install or run `astro add` manually after installation.',
+		);
+		process.exit(1);
+	}
+
 	let projectName = cwd;
 
 	if (no) {
