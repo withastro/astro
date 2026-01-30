@@ -1,5 +1,16 @@
 # @astrojs/cloudflare
 
+## 13.0.0-beta.3
+
+### Patch Changes
+
+- [#15336](https://github.com/withastro/astro/pull/15336) [`9cce92e`](https://github.com/withastro/astro/commit/9cce92e9c561793a6aecb890798fc8a144d9c7e7) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a dev server issue where framework components from linked packages would fail to load with a 504 error.
+
+  This could occur when using `client:only` or other client directives with components from monorepo packages (linked via `file:` or workspace protocol). The first request would trigger Vite's dependency optimizer mid-request, causing concurrent client module requests to fail.
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 13.0.0-beta.2
 
 ### Patch Changes

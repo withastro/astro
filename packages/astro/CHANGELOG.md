@@ -1,5 +1,123 @@
 # astro
 
+## 6.0.0-beta.6
+
+### Major Changes
+
+- [#15332](https://github.com/withastro/astro/pull/15332) [`7c55f80`](https://github.com/withastro/astro/commit/7c55f80fa1fd91f8f71ad60437f81e6c7f98f69d) Thanks [@matthewp](https://github.com/matthewp)! - Adds frontmatter parsing support to `renderMarkdown` in content loaders. When markdown content includes frontmatter, it is now extracted and available in `metadata.frontmatter`, and excluded from the HTML output. This makes `renderMarkdown` behave consistently with the `glob` loader.
+
+  ```js
+  const loader = {
+    name: 'my-loader',
+    load: async ({ store, renderMarkdown }) => {
+      const content = `---
+  title: My Post
+  ---
+  
+  # Hello World
+  `;
+      const rendered = await renderMarkdown(content);
+      // rendered.metadata.frontmatter is now { title: 'My Post' }
+      // rendered.html contains only the content, not the frontmatter
+    },
+  };
+  ```
+
+### Minor Changes
+
+- [#15291](https://github.com/withastro/astro/pull/15291) [`89b6cdd`](https://github.com/withastro/astro/commit/89b6cdd4075f5c9362291c386bb1e7c100b467a5) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `experimental.fonts` flag and replaces it with a new configuration option `fonts` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
+
+- [#15332](https://github.com/withastro/astro/pull/15332) [`7c55f80`](https://github.com/withastro/astro/commit/7c55f80fa1fd91f8f71ad60437f81e6c7f98f69d) Thanks [@matthewp](https://github.com/matthewp)! - Adds a `fileURL` option to `renderMarkdown` in content loaders, enabling resolution of relative image paths. When provided, relative image paths in markdown will be resolved relative to the specified file URL and included in `metadata.localImagePaths`.
+
+  ```js
+  const loader = {
+    name: 'my-loader',
+    load: async ({ store, renderMarkdown }) => {
+      const content = `
+  # My Post
+  
+  ![Local image](./image.png)
+  `;
+      // Provide a fileURL to resolve relative image paths
+      const fileURL = new URL('./posts/my-post.md', import.meta.url);
+      const rendered = await renderMarkdown(content, { fileURL });
+      // rendered.metadata.localImagePaths now contains the resolved image path
+    },
+  };
+  ```
+
+- [#15291](https://github.com/withastro/astro/pull/15291) [`89b6cdd`](https://github.com/withastro/astro/commit/89b6cdd4075f5c9362291c386bb1e7c100b467a5) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new Fonts API to provide first-party support for adding custom fonts in Astro.
+
+  This feature allows you to use fonts from both your file system and several built-in supported providers (e.g. Google, Fontsource, Bunny) through a unified API. Keep your site performant thanks to sensible defaults and automatic optimizations including preloading and fallback font generation.
+
+  To enable this feature, configure `fonts` with one or more fonts:
+
+  ```js title="astro.config.mjs"
+  import { defineConfig, fontProviders } from 'astro/config';
+
+  export default defineConfig({
+    fonts: [
+      {
+        provider: fontProviders.fontsource(),
+        name: 'Roboto',
+        cssVariable: '--font-roboto',
+      },
+    ],
+  });
+  ```
+
+  Import and include the `<Font />` component with the required `cssVariable` property in the head of your page, usually in a dedicated `Head.astro` component or in a layout component directly:
+
+  ```astro
+  ---
+  // src/layouts/Layout.astro
+  import { Font } from 'astro:assets';
+  ---
+
+  <html>
+    <head>
+      <Font cssVariable="--font-roboto" preload />
+    </head>
+    <body>
+      <slot />
+    </body>
+  </html>
+  ```
+
+  In any page rendered with that layout, including the layout component itself, you can now define styles with your font's `cssVariable` to apply your custom font.
+
+  In the following example, the `<h1>` heading will have the custom font applied, while the paragraph `<p>` will not.
+
+  ```astro
+  ---
+  // src/pages/example.astro
+  import Layout from '../layouts/Layout.astro';
+  ---
+
+  <Layout>
+    <h1>In a galaxy far, far away...</h1>
+
+    <p>Custom fonts make my headings much cooler!</p>
+
+    <style>
+      h1 {
+        font-family: var('--font-roboto');
+      }
+    </style>
+  </Layout>
+  ```
+
+  Visit the updated [fonts guide](https://v6.docs.astro.build/en/guides/fonts/) to learn more about adding custom fonts to your project.
+
+### Patch Changes
+
+- [#15337](https://github.com/withastro/astro/pull/15337) [`7ff7b11`](https://github.com/withastro/astro/commit/7ff7b1160d2d60e40073ddc422fc7a00c59696aa) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the development server couldn't serve newly created new pages while the development server is running.
+
+- [#15331](https://github.com/withastro/astro/pull/15331) [`4592be5`](https://github.com/withastro/astro/commit/4592be5bb7490474fe5e204f60b7131d9a79dae5) Thanks [@matthewp](https://github.com/matthewp)! - Fixes an issue where API routes would overwrite public files during build. Public files now correctly take priority over generated routes in both dev and build modes.
+
+- Updated dependencies [[`7c55f80`](https://github.com/withastro/astro/commit/7c55f80fa1fd91f8f71ad60437f81e6c7f98f69d)]:
+  - @astrojs/markdown-remark@7.0.0-beta.3
+
 ## 6.0.0-beta.5
 
 ### Patch Changes
