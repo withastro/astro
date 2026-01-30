@@ -19,5 +19,3 @@ const Text = ({ text }: { text: string }) => <div>{text}</div>;
 ---
 <Code {code} lang="vue" embeddedLangs={["tsx"]} />
 ```
-
-Without `embeddedLangs` informing shiki's `langs` option, the contents of a `<script setup lang="tsx">` section would fail to get highlighted.  See the min repro [on stackblitz](https://stackblitz.com/github/jfrancos/shiki-astro-min-repro) or [on github](https://github.com/jfrancos/shiki-astro-min-repro).
