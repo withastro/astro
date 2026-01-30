@@ -290,6 +290,7 @@ export const AstroConfigSchema = z.object({
 	devToolbar: z
 		.object({
 			enabled: z.boolean().default(ASTRO_CONFIG_DEFAULTS.devToolbar.enabled),
+			placement: z.enum(['bottom-left', 'bottom-center', 'bottom-right']).optional(),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.devToolbar),
 	markdown: z
