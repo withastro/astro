@@ -1,0 +1,19 @@
+---
+export const getStaticPaths = async () => {
+  return ['fr-fr'].map((locale) => ({
+    params: {
+      locale,
+    },
+  }))
+}
+
+const currentLocale = Astro.currentLocale;
+---
+<html>
+<head>
+  <title>Astro</title>
+</head>
+<body>
+currentLocale: {currentLocale}
+</body>
+</html>

@@ -1,0 +1,5 @@
+name = "astro-env"
+
+[vars]
+API_URL = "https://google.de"
+PORT = 4322

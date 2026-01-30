@@ -1,0 +1,8 @@
+{
+  "extends": "../../../../tsconfig.base.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "emitDeclarationOnly": false,
+    "noEmit": true
+  }
+}

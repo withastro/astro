@@ -1,0 +1,10 @@
+---
+export const prerender = true;
+
+export function getStaticPaths() {
+  return [{ params: { dynamic:'hello', prerender:'world' } }]
+}
+---
+{JSON.stringify(Astro.params)}
+
+<a href="/">home</a>

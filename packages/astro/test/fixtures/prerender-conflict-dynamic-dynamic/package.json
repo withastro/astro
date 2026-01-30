@@ -1,0 +1,7 @@
+{
+  "name": "@test/prerender-conflict-dynamic-dynamic",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*"
+  }
+}

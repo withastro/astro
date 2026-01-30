@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["src", "dev-only.d.ts"],
+  "compilerOptions": {
+    "allowJs": true,
+    "declarationDir": "./dist",
+    "outDir": "./dist",
+    "jsx": "preserve"
+  }
+}

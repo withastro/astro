@@ -1,0 +1,16 @@
+name: Format
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - next
+
+jobs:
+  prettier:
+    if: github.repository_owner == 'withastro'
+    uses: withastro/automation/.github/workflows/format.yml@main
+    with:
+      command: "format"
+    secrets: inherit

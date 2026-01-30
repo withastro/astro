@@ -1,0 +1,23 @@
+name: Label issues
+on:
+  issues:
+    types:
+      - reopened
+      - opened
+
+jobs:
+  label_issues:
+    runs-on: ubuntu-latest
+    if: github.repository == 'withastro/astro'
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ["needs triage"]
+            })
