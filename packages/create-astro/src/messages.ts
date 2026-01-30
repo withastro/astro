@@ -65,8 +65,9 @@ export const getVersion = (
 		})
 			.then((res) => res.json())
 			.catch(() => {
+				const fallbackName = fallback || `'latest'`;
 				console.warn(
-					`Unable to fetch latest ${packageName} version from the npm registry. Using fallback version.`,
+					`Unable to fetch latest ${packageName} version from the npm registry. Using ${fallbackName} instead.`,
 				);
 				return { version: fallback };
 			});
