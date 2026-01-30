@@ -1,4 +1,3 @@
-<<<<<<<< HEAD:packages/astro/src/assets/fonts/core/filter-preloads.ts
 import type { PreloadData, PreloadFilter } from '../types.js';
 
 export function filterPreloads(
@@ -50,9 +49,3 @@ function checkWeight(input: string, target: string): boolean {
 	}
 	return input === target;
 }
-========
-import * as fontsMod from 'virtual:astro:assets/fonts/internal';
-
-// TODO: remove default when stabilizing
-export const fontData = fontsMod.fontDataByCssVariable ?? {};
->>>>>>>> main:packages/astro/src/assets/fonts/runtime.ts
