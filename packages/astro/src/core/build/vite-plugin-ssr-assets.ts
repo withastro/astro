@@ -86,27 +86,44 @@ export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
 					}
 				}
 			}
-
-			// Also add CSS from manifest (these are always client assets)
-			const manifestDir = new URL(appendForwardSlash(`file://${env.config.build.outDir}`));
-			const manifest = loadViteManifest(manifestDir);
-			if (manifest) {
-				for (const chunk of Object.values(manifest)) {
-					if (chunk.css) {
-						for (const css of chunk.css) {
-							filenames.add(css);
-						}
-					}
-				}
-			}
 		},
 
 		writeBundle: {
 			sequential: true,
 			order: 'post',
 			async handler() {
+				const env = this.environment;
+				const envName = env.name;
+
+				// Get or create the filenames set in internals for this environment
+				let filenames = internals.ssrAssetsPerEnvironment.get(envName);
+				if (!filenames) {
+					filenames = new Set();
+					internals.ssrAssetsPerEnvironment.set(envName, filenames);
+				}
+
+				// Add CSS and assets from manifest (these are always client assets)
+				// Must be done in writeBundle because the manifest is written during the bundle write phase
+				const manifestDir = new URL(appendForwardSlash(`file://${env.config.build.outDir}`));
+				const manifest = loadViteManifest(manifestDir);
+				if (manifest) {
+					for (const chunk of Object.values(manifest)) {
+						if (chunk.css) {
+							for (const css of chunk.css) {
+								filenames.add(css);
+							}
+						}
+						// Also add assets (fonts, images referenced from CSS, etc.)
+						if (chunk.assets) {
+							for (const asset of chunk.assets) {
+								filenames.add(asset);
+							}
+						}
+					}
+				}
+
 				// Clean up the .vite folder after the bundle is written
-				await deleteViteFolder(this.environment.config.build.outDir);
+				await deleteViteFolder(env.config.build.outDir);
 			},
 		},
 	};
