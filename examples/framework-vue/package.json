@@ -3,6 +3,9 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -10,8 +13,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/vue": "^5.1.4",
-    "astro": "^5.17.1",
+    "@astrojs/vue": "^6.0.0-beta.0",
+    "astro": "^6.0.0-beta.6",
     "vue": "^3.5.26"
   }
 }

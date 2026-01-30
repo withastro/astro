@@ -128,6 +128,13 @@ export interface AstroAdapter {
 	args?: any;
 	adapterFeatures?: AstroAdapterFeatures;
 	/**
+	 * Determines how the adapter's entrypoint is handled during the build.
+	 * - `'self'`: The adapter defines its own entrypoint and sets rollupOptions.input
+	 * - `'legacy-dynamic'`: Uses the virtual module entrypoint with dynamic exports
+	 * @default 'legacy-dynamic'
+	 */
+	entryType?: 'self' | 'legacy-dynamic';
+	/**
 	 * List of features supported by an adapter.
 	 *
 	 * If the adapter is not able to handle certain configurations, Astro will throw an error.
@@ -234,12 +241,6 @@ export interface BaseIntegrationHooks {
 	'astro:build:ssr': (options: {
 		manifest: SerializedSSRManifest;
 		/**
-		 * This maps a {@link RouteData} to an {@link URL}, this URL represents
-		 * the physical file you should import.
-		 */
-		// TODO: Change in Astro 6.0
-		entryPoints: Map<IntegrationRouteData, URL>;
-		/**
 		 * File path of the emitted middleware
 		 */
 		middlewareEntryPoint: URL | undefined;
@@ -261,8 +262,6 @@ export interface BaseIntegrationHooks {
 	'astro:build:done': (options: {
 		pages: { pathname: string }[];
 		dir: URL;
-		/** @deprecated Use the `assets` map and the new `astro:routes:resolved` hook */
-		routes: IntegrationRouteData[];
 		assets: Map<string, URL[]>;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
@@ -285,20 +284,6 @@ export interface AstroIntegration {
 	} & Partial<Record<string, unknown>>;
 }
 
-/**
- * A smaller version of the {@link RouteData} that is used in the integrations.
- * @deprecated Use {@link IntegrationResolvedRoute}
- */
-export type IntegrationRouteData = Omit<
-	RouteData,
-	'isIndex' | 'fallbackRoutes' | 'redirectRoute' | 'origin'
-> & {
-	/**
-	 * {@link RouteData.redirectRoute}
-	 */
-	redirectRoute?: IntegrationRouteData;
-};
-
 export type RouteToHeaders = Map<string, HeaderPayload>;
 
 export type HeaderPayload = {
@@ -307,10 +292,7 @@ export type HeaderPayload = {
 };
 
 export interface IntegrationResolvedRoute
-	extends Pick<
-		RouteData,
-		'generate' | 'params' | 'pathname' | 'segments' | 'type' | 'redirect' | 'origin'
-	> {
+	extends Pick<RouteData, 'params' | 'pathname' | 'segments' | 'type' | 'redirect' | 'origin'> {
 	/**
 	 * {@link RouteData.route}
 	 */
@@ -335,4 +317,20 @@ export interface IntegrationResolvedRoute
 	 * {@link RouteData.redirectRoute}
 	 */
 	redirectRoute?: IntegrationResolvedRoute;
+
+	/**
+	 * @param {any} data The optional parameters of the route
+	 *
+	 * @description
+	 * A function that accepts a list of params, interpolates them with the route pattern, and returns the path name of the route.
+	 *
+	 * ## Example
+	 *
+	 * For a route such as `/blog/[...id].astro`, the `generate` function would return something like this:
+	 *
+	 * ```js
+	 * console.log(generate({ id: 'presentation' })) // will log `/blog/presentation`
+	 * ```
+	 */
+	generate: (data?: any) => string;
 }

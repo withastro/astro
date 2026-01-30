@@ -9,7 +9,8 @@ const defaultConfig = {
 	minify: false,
 	format: 'esm',
 	platform: 'node',
-	target: 'node18',
+	// TODO: update once Stackblitz supports Node 22
+	target: 'node20',
 	sourcemap: false,
 	sourcesContent: false,
 };
@@ -49,6 +50,7 @@ export default async function build(...args) {
 	);
 
 	const noClean = args.includes('--no-clean-dist');
+	const cleanDts = args.includes('--clean-dts');
 	const bundle = args.includes('--bundle');
 	const forceCJS = args.includes('--force-cjs');
 
@@ -63,7 +65,7 @@ export default async function build(...args) {
 	const outdir = 'dist';
 
 	if (!noClean) {
-		await clean(outdir);
+		await clean(outdir, cleanDts);
 	}
 
 	if (!isDev) {
@@ -118,11 +120,11 @@ export default async function build(...args) {
 	});
 }
 
-async function clean(outdir) {
+async function clean(outdir, cleanDts) {
 	const files = await glob('**', {
 		cwd: outdir,
 		filesOnly: true,
-		ignore: ['**/*.d.ts'],
+		ignore: cleanDts ? undefined : ['**/*.d.ts'],
 		absolute: true,
 	});
 	await Promise.all(files.map((file) => fs.rm(file, { force: true })));

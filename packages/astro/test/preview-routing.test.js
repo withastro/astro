@@ -282,69 +282,6 @@ describe('Preview Routing', () => {
 			});
 		});
 
-		describe('Subpath without trailing slash and trailingSlash: always', () => {
-			/** @type {import('./test-utils').Fixture} */
-			let fixture;
-			/** @type {import('./test-utils').PreviewServer} */
-			let previewServer;
-
-			before(async () => {
-				fixture = await loadFixture({
-					root: './fixtures/with-subpath-no-trailing-slash/',
-					base: '/blog',
-					outDir: './dist-4004',
-					build: {
-						format: 'file',
-					},
-					trailingSlash: 'always',
-					server: {
-						port: 4005,
-					},
-				});
-				await fixture.build();
-				previewServer = await fixture.preview();
-			});
-
-			after(async () => {
-				await previewServer.stop();
-			});
-
-			it('404 when loading /', async () => {
-				const response = await fixture.fetch('/');
-				assert.equal(response.status, 404);
-			});
-
-			it('200 when loading subpath root with trailing slash', async () => {
-				const response = await fixture.fetch('/blog/');
-				assert.equal(response.status, 200);
-			});
-
-			it('404 when loading subpath root without trailing slash', async () => {
-				const response = await fixture.fetch('/blog');
-				assert.equal(response.status, 404);
-			});
-
-			it('200 when loading another page with subpath used', async () => {
-				const response = await fixture.fetch('/blog/another/');
-				assert.equal(response.status, 200);
-			});
-
-			it('404 when loading another page with subpath not used', async () => {
-				const response = await fixture.fetch('/blog/another');
-				assert.equal(response.status, 404);
-			});
-
-			it('200 when loading dynamic route', async () => {
-				const response = await fixture.fetch('/blog/1/');
-				assert.equal(response.status, 200);
-			});
-
-			it('404 when loading invalid dynamic route', async () => {
-				const response = await fixture.fetch('/blog/2/');
-				assert.equal(response.status, 404);
-			});
-		});
-
 		describe('Subpath without trailing slash and trailingSlash: ignore', () => {
 			/** @type {import('./test-utils').Fixture} */
 			let fixture;

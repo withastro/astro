@@ -16,13 +16,5 @@ export {
 } from '@astrojs/internal-helpers/remote';
 export { isESMImportedImage, isRemoteImage, resolveSrc } from './imageKind.js';
 export { imageMetadata } from './metadata.js';
-export {
-	/**
-	 * @deprecated
-	 */
-	emitESMImage,
-	emitImageMetadata,
-} from './node/emitAsset.js';
 export { getOrigQueryParams } from './queryParams.js';
 export { inferRemoteSize } from './remoteProbe.js';
-export { hashTransform, propsToFilename } from './transformToPath.js';

@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
-import { defineAction, isInputError } from '../../dist/actions/runtime/server.js';
+import { isInputError } from '../../dist/actions/runtime/client.js';
+import { defineAction } from '../../dist/actions/runtime/server.js';
 import { z } from '../../dist/zod.js';
 
 const exampleAction = defineAction({

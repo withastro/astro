@@ -1,5 +1,494 @@
 # astro
 
+## 6.0.0-beta.6
+
+### Major Changes
+
+- [#15332](https://github.com/withastro/astro/pull/15332) [`7c55f80`](https://github.com/withastro/astro/commit/7c55f80fa1fd91f8f71ad60437f81e6c7f98f69d) Thanks [@matthewp](https://github.com/matthewp)! - Adds frontmatter parsing support to `renderMarkdown` in content loaders. When markdown content includes frontmatter, it is now extracted and available in `metadata.frontmatter`, and excluded from the HTML output. This makes `renderMarkdown` behave consistently with the `glob` loader.
+
+  ```js
+  const loader = {
+    name: 'my-loader',
+    load: async ({ store, renderMarkdown }) => {
+      const content = `---
+  title: My Post
+  ---
+  
+  # Hello World
+  `;
+      const rendered = await renderMarkdown(content);
+      // rendered.metadata.frontmatter is now { title: 'My Post' }
+      // rendered.html contains only the content, not the frontmatter
+    },
+  };
+  ```
+
+### Minor Changes
+
+- [#15291](https://github.com/withastro/astro/pull/15291) [`89b6cdd`](https://github.com/withastro/astro/commit/89b6cdd4075f5c9362291c386bb1e7c100b467a5) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `experimental.fonts` flag and replaces it with a new configuration option `fonts` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
+
+- [#15332](https://github.com/withastro/astro/pull/15332) [`7c55f80`](https://github.com/withastro/astro/commit/7c55f80fa1fd91f8f71ad60437f81e6c7f98f69d) Thanks [@matthewp](https://github.com/matthewp)! - Adds a `fileURL` option to `renderMarkdown` in content loaders, enabling resolution of relative image paths. When provided, relative image paths in markdown will be resolved relative to the specified file URL and included in `metadata.localImagePaths`.
+
+  ```js
+  const loader = {
+    name: 'my-loader',
+    load: async ({ store, renderMarkdown }) => {
+      const content = `
+  # My Post
+  
+  ![Local image](./image.png)
+  `;
+      // Provide a fileURL to resolve relative image paths
+      const fileURL = new URL('./posts/my-post.md', import.meta.url);
+      const rendered = await renderMarkdown(content, { fileURL });
+      // rendered.metadata.localImagePaths now contains the resolved image path
+    },
+  };
+  ```
+
+- [#15291](https://github.com/withastro/astro/pull/15291) [`89b6cdd`](https://github.com/withastro/astro/commit/89b6cdd4075f5c9362291c386bb1e7c100b467a5) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new Fonts API to provide first-party support for adding custom fonts in Astro.
+
+  This feature allows you to use fonts from both your file system and several built-in supported providers (e.g. Google, Fontsource, Bunny) through a unified API. Keep your site performant thanks to sensible defaults and automatic optimizations including preloading and fallback font generation.
+
+  To enable this feature, configure `fonts` with one or more fonts:
+
+  ```js title="astro.config.mjs"
+  import { defineConfig, fontProviders } from 'astro/config';
+
+  export default defineConfig({
+    fonts: [
+      {
+        provider: fontProviders.fontsource(),
+        name: 'Roboto',
+        cssVariable: '--font-roboto',
+      },
+    ],
+  });
+  ```
+
+  Import and include the `<Font />` component with the required `cssVariable` property in the head of your page, usually in a dedicated `Head.astro` component or in a layout component directly:
+
+  ```astro
+  ---
+  // src/layouts/Layout.astro
+  import { Font } from 'astro:assets';
+  ---
+
+  <html>
+    <head>
+      <Font cssVariable="--font-roboto" preload />
+    </head>
+    <body>
+      <slot />
+    </body>
+  </html>
+  ```
+
+  In any page rendered with that layout, including the layout component itself, you can now define styles with your font's `cssVariable` to apply your custom font.
+
+  In the following example, the `<h1>` heading will have the custom font applied, while the paragraph `<p>` will not.
+
+  ```astro
+  ---
+  // src/pages/example.astro
+  import Layout from '../layouts/Layout.astro';
+  ---
+
+  <Layout>
+    <h1>In a galaxy far, far away...</h1>
+
+    <p>Custom fonts make my headings much cooler!</p>
+
+    <style>
+      h1 {
+        font-family: var('--font-roboto');
+      }
+    </style>
+  </Layout>
+  ```
+
+  Visit the updated [fonts guide](https://v6.docs.astro.build/en/guides/fonts/) to learn more about adding custom fonts to your project.
+
+### Patch Changes
+
+- [#15337](https://github.com/withastro/astro/pull/15337) [`7ff7b11`](https://github.com/withastro/astro/commit/7ff7b1160d2d60e40073ddc422fc7a00c59696aa) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the development server couldn't serve newly created new pages while the development server is running.
+
+- [#15331](https://github.com/withastro/astro/pull/15331) [`4592be5`](https://github.com/withastro/astro/commit/4592be5bb7490474fe5e204f60b7131d9a79dae5) Thanks [@matthewp](https://github.com/matthewp)! - Fixes an issue where API routes would overwrite public files during build. Public files now correctly take priority over generated routes in both dev and build modes.
+
+- Updated dependencies [[`7c55f80`](https://github.com/withastro/astro/commit/7c55f80fa1fd91f8f71ad60437f81e6c7f98f69d)]:
+  - @astrojs/markdown-remark@7.0.0-beta.3
+
+## 6.0.0-beta.5
+
+### Patch Changes
+
+- [#15322](https://github.com/withastro/astro/pull/15322) [`18e0980`](https://github.com/withastro/astro/commit/18e09800e459ff292f33370d4cf5f70d97bdbdb4) Thanks [@matthewp](https://github.com/matthewp)! - Prevents missing CSS when using both SSR and prerendered routes
+
+- [#15317](https://github.com/withastro/astro/pull/15317) [`7e1e35a`](https://github.com/withastro/astro/commit/7e1e35a8c28dba6495f9068c35faeb01abc08a1c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `?raw` imports failing when used in both SSR and prerendered routes
+
+## 6.0.0-beta.4
+
+### Patch Changes
+
+- [#15308](https://github.com/withastro/astro/pull/15308) [`89cbcfa`](https://github.com/withastro/astro/commit/89cbcfadcf2d777dc5dbd210f9f88117c0101931) Thanks [@matthewp](https://github.com/matthewp)! - Fixes styles missing in dev for prerendered pages when using Cloudflare adapter
+
+- [#15279](https://github.com/withastro/astro/pull/15279) [`8983f17`](https://github.com/withastro/astro/commit/8983f17d530b63d230ffb06f7ce65476f77c60b5) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the dev server would serve files like `/README.md` from the project root when they shouldn't be accessible. A new route guard middleware now blocks direct URL access to files that exist outside of `srcDir` and `publicDir`, returning a 404 instead.
+
+## 6.0.0-beta.3
+
+### Patch Changes
+
+- [#15277](https://github.com/withastro/astro/pull/15277) [`cb99214`](https://github.com/withastro/astro/commit/cb99214ebb991d1b929978f46e1b3ae68b561366) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the function `createShikiHighlighter` would always create a new Shiki highlighter instance. Now the function returns a cached version of the highlighter based on the Shiki options. This should improve the performance for sites that heavily rely on Shiki and code in their pages.
+
+- [#15264](https://github.com/withastro/astro/pull/15264) [`11efb05`](https://github.com/withastro/astro/commit/11efb058e85cda68f9a8e8f15a2c7edafe5a4789) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Lower the Node version requirement to allow running on Stackblitz until it supports v22
+
+- Updated dependencies [[`cb99214`](https://github.com/withastro/astro/commit/cb99214ebb991d1b929978f46e1b3ae68b561366)]:
+  - @astrojs/markdown-remark@7.0.0-beta.2
+
+## 6.0.0-beta.2
+
+### Major Changes
+
+- [#15192](https://github.com/withastro/astro/pull/15192) [`ada2808`](https://github.com/withastro/astro/commit/ada2808a23fc70ea1f1663f3e1b69c6b735251e5) Thanks [@gameroman](https://github.com/gameroman)! - Removes support for CommonJS config files - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-support-for-commonjs-config-files))
+
+- [#15266](https://github.com/withastro/astro/pull/15266) [`f7c9365`](https://github.com/withastro/astro/commit/f7c9365d92b2196d4ba6cffd01b01967ca73728c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Allows `Astro.csp` and `context.csp` to be undefined instead of throwing errors when `csp: true` is not configured
+
+  When using the experimental Content Security Policy feature in Astro 5.x, `context.csp` was always defined but would throw if `experimental.csp` was not enabled in the Astro config.
+
+  For the stable version of this API in Astro 6, `context.csp` can now be undefined if CSP is not enabled and its methods will never throw.
+
+  #### What should I do?
+
+  If you were using experimental CSP runtime utilities, you must now access methods conditionally:
+
+  ```diff
+  -Astro.csp.insertDirective("default-src 'self'");
+  +Astro.csp?.insertDirective("default-src 'self'");
+  ```
+
+### Patch Changes
+
+- [#15208](https://github.com/withastro/astro/pull/15208) [`8dbdd8e`](https://github.com/withastro/astro/commit/8dbdd8efc12926eddbe189cf67a161bebf9fb5dd) Thanks [@matthewp](https://github.com/matthewp)! - Makes `session.driver` optional in config schema, allowing adapters to provide default drivers
+
+  Adapters like Cloudflare, Netlify, and Node provide default session drivers, so users can now configure session options (like `ttl`) without explicitly specifying a driver.
+
+- [#15260](https://github.com/withastro/astro/pull/15260) [`abca1eb`](https://github.com/withastro/astro/commit/abca1ebc0ed4b89b1904c58b7969f8386250f8de) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where adding new pages weren't correctly shown when using the development server.
+
+- [#15214](https://github.com/withastro/astro/pull/15214) [`6bab8c9`](https://github.com/withastro/astro/commit/6bab8c992add3ecad7581b26f6bc28a74e5d3485) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the internal perfomance timers weren't correctly updated to reflect new build pipeline.
+
+- [#15259](https://github.com/withastro/astro/pull/15259) [`8670a69`](https://github.com/withastro/astro/commit/8670a699e96fcc972d441c75e503b20e8961a71f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where styles weren't correctly reloaded when using the `@astrojs/cloudflare` adapter.
+
+- [#15205](https://github.com/withastro/astro/pull/15205) [`12adc55`](https://github.com/withastro/astro/commit/12adc5507c99fa7f315d0c78e82005524e7bbb32) Thanks [@martrapp](https://github.com/martrapp)! - Fixes an issue where the `astro:page-load` event did not fire on initial page loads.
+
+- [#15269](https://github.com/withastro/astro/pull/15269) [`6f82aae`](https://github.com/withastro/astro/commit/6f82aae24c64a059531f4b924c201fbd4c3e9180) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a regression where `build.serverEntry` stopped working as expected.
+
+## 6.0.0-beta.1
+
+### Patch Changes
+
+- Updated dependencies [[`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795)]:
+  - @astrojs/markdown-remark@7.0.0-beta.1
+
+## 6.0.0-beta.0
+
+### Patch Changes
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves JSDoc annotations for `AstroGlobal`, `AstroSharedContext` and `APIContext` types
+
+- [#15176](https://github.com/withastro/astro/pull/15176) [`9265546`](https://github.com/withastro/astro/commit/92655460785e4b0a9eca9bac2e493a9c989dff47) Thanks [@matthewp](https://github.com/matthewp)! - Fixes hydration for framework components inside MDX when using `Astro.slots.render()`
+
+  Previously, when multiple framework components with `client:*` directives were passed as named slots to an Astro component in MDX, only the first slot would hydrate correctly. Subsequent slots would render their HTML but fail to include the necessary hydration scripts.
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes remote images `Etag` header handling by disabling internal cache
+
+- [#15121](https://github.com/withastro/astro/pull/15121) [`06261e0`](https://github.com/withastro/astro/commit/06261e03d55a571c6affbd7321f7e28c997d6d5d) Thanks [@ematipico](https://github.com/ematipico)! - Fixes a bug where the Astro, with the Cloudlfare integration, couldn't correctly serve certain routes in the development server.
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes images not working in development when using setups with port forwarding
+
+- [#15137](https://github.com/withastro/astro/pull/15137) [`2f70bf1`](https://github.com/withastro/astro/commit/2f70bf14ec953cd6e813ed4e1aa0ef2245846dd0) Thanks [@matthewp](https://github.com/matthewp)! - Adds `legacy.collectionsBackwardsCompat` flag that restores v5 backwards compatibility behavior for legacy content collections - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#legacy-content-collections-backwards-compatibility))
+
+  When enabled, this flag allows:
+  - Collections defined without loaders (automatically get glob loader)
+  - Collections with `type: 'content'` or `type: 'data'`
+  - Config files located at `src/content/config.ts` (legacy location)
+  - Legacy entry API: `entry.slug` and `entry.render()` methods
+  - Path-based entry IDs instead of slug-based IDs
+
+  ```js
+  // astro.config.mjs
+  export default defineConfig({
+    legacy: {
+      collectionsBackwardsCompat: true,
+    },
+  });
+  ```
+
+  This is a temporary migration helper for v6 upgrades. Migrate collections to the Content Layer API, then disable this flag.
+
+- [#15179](https://github.com/withastro/astro/pull/15179) [`8c8aee6`](https://github.com/withastro/astro/commit/8c8aee6ddefb1918b1f00415e34d2531e287acf8) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes an issue when importing using an import alias a file with a name matching a directory name.
+
+- [#15176](https://github.com/withastro/astro/pull/15176) [`9265546`](https://github.com/withastro/astro/commit/92655460785e4b0a9eca9bac2e493a9c989dff47) Thanks [@matthewp](https://github.com/matthewp)! - Fixes scripts in components not rendering when a sibling `<Fragment slot="...">` exists but is unused
+
+## 6.0.0-alpha.5
+
+### Patch Changes
+
+- [#15064](https://github.com/withastro/astro/pull/15064) [`caf5621`](https://github.com/withastro/astro/commit/caf5621b324344fc0d46fb462c88c0d79fccca6b) Thanks [@ascorbic](https://github.com/ascorbic)! - Fixes a bug that caused incorrect warnings of duplicate entries to be logged by the glob loader when editing a file
+
+- [#15093](https://github.com/withastro/astro/pull/15093) [`8d5f783`](https://github.com/withastro/astro/commit/8d5f783ad8d236c9d768a629d3b929a074276ac2) Thanks [@matthewp](https://github.com/matthewp)! - Reduces build memory by filtering routes per environment so each only builds the pages it needs
+
+- [#15073](https://github.com/withastro/astro/pull/15073) [`2a39c32`](https://github.com/withastro/astro/commit/2a39c32857ad090efcfd77fb781e420f43800bc9) Thanks [@ascorbic](https://github.com/ascorbic)! - Don't log an error when there is no content config
+
+- [#15112](https://github.com/withastro/astro/pull/15112) [`5751d2b`](https://github.com/withastro/astro/commit/5751d2be14ccdcb752e11b6abdb5cdd3268a5b87) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes a Windows-specific build issue when importing an Astro component with a `<script>` tag using an import alias.
+
+## 6.0.0-alpha.4
+
+### Major Changes
+
+- [#15049](https://github.com/withastro/astro/pull/15049) [`beddfeb`](https://github.com/withastro/astro/commit/beddfeb31e807cb472a43fa56c69f85dbadc9604) Thanks [@Ntale3](https://github.com/Ntale3)! - Removes the ability to render Astro components in Vitest client environments - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-astro-components-cannot-be-rendered-in-vitest-client-environments-container-api))
+
+### Patch Changes
+
+- [#15054](https://github.com/withastro/astro/pull/15054) [`22db567`](https://github.com/withastro/astro/commit/22db567d4cea7a4476271c101c452a2624b7d996) Thanks [@matthewp](https://github.com/matthewp)! - Improves zod union type error messages to show expected vs received types instead of generic "Invalid input"
+
+## 6.0.0-alpha.3
+
+### Major Changes
+
+- [#15006](https://github.com/withastro/astro/pull/15006) [`f361730`](https://github.com/withastro/astro/commit/f361730bc820c01a2ec3e508ac940be8077d8c04) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes session `test` driver - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-session-test-driver))
+
+- [#15006](https://github.com/withastro/astro/pull/15006) [`f361730`](https://github.com/withastro/astro/commit/f361730bc820c01a2ec3e508ac940be8077d8c04) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates session driver string signature - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-session-driver-string-signature))
+
+### Minor Changes
+
+- [#15006](https://github.com/withastro/astro/pull/15006) [`f361730`](https://github.com/withastro/astro/commit/f361730bc820c01a2ec3e508ac940be8077d8c04) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds new session driver object shape
+
+  For greater flexibility and improved consistency with other Astro code, session drivers are now specified as an object:
+
+  ```diff
+  -import { defineConfig } from 'astro/config'
+  +import { defineConfig, sessionDrivers } from 'astro/config'
+
+  export default defineConfig({
+    session: {
+  -    driver: 'redis',
+  -    options: {
+  -      url: process.env.REDIS_URL
+  -    },
+  +    driver: sessionDrivers.redis({
+  +      url: process.env.REDIS_URL
+  +    }),
+    }
+  })
+  ```
+
+  Specifying the session driver as a string has been deprecated, but will continue to work until this feature is removed completely in a future major version. The object shape is the current recommended and documented way to configure a session driver.
+
+### Patch Changes
+
+- [#15044](https://github.com/withastro/astro/pull/15044) [`7cac71b`](https://github.com/withastro/astro/commit/7cac71b89f7462e197a69d797bdfefe6c7d15689) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes an exposed internal API of the preview server
+
+- [#15047](https://github.com/withastro/astro/pull/15047) [`5580372`](https://github.com/withastro/astro/commit/55803724bb50c0fe4303c26f0df8f254e42b4d61) Thanks [@matthewp](https://github.com/matthewp)! - Fixes wrangler config template in `astro add cloudflare` to use correct entrypoint and compatibility date
+
+- [#15053](https://github.com/withastro/astro/pull/15053) [`674b63f`](https://github.com/withastro/astro/commit/674b63f26d2e3b1878bcc8d770b9895357752ae9) Thanks [@matthewp](https://github.com/matthewp)! - Excludes `astro:*` and `virtual:astro:*` from client optimizeDeps in core. Needed for prefetch users since virtual modules are now in the dependency graph.
+
+## 6.0.0-alpha.2
+
+### Patch Changes
+
+- [#15024](https://github.com/withastro/astro/pull/15024) [`22c48ba`](https://github.com/withastro/astro/commit/22c48ba6643ed7153400781ca1affb3e8dc1351a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where JSON schema generation would fail for unrepresentable types
+
+- [#15036](https://github.com/withastro/astro/pull/15036) [`f125a73`](https://github.com/withastro/astro/commit/f125a73ebf395d81bf44ccfce4af63a518f6f724) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes certain aliases not working when using images in JSON files with the content layer
+
+- [#15036](https://github.com/withastro/astro/pull/15036) [`f125a73`](https://github.com/withastro/astro/commit/f125a73ebf395d81bf44ccfce4af63a518f6f724) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a vite warning log during builds when using npm
+
+## 6.0.0-alpha.1
+
+### Major Changes
+
+- [#14956](https://github.com/withastro/astro/pull/14956) [`0ff51df`](https://github.com/withastro/astro/commit/0ff51dfa3c6c615af54228e159f324034472b1a2) Thanks [@matthewp](https://github.com/matthewp)! - Astro v6.0 upgrades to Zod v4 for schema validation - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#zod-4))
+
+- [#14759](https://github.com/withastro/astro/pull/14759) [`d7889f7`](https://github.com/withastro/astro/commit/d7889f768a4d27e8c4ad3a0022099d19145a7d58) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates how schema types are inferred for content loaders with schemas (Loader API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/TODO:))
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Removes support for routes with percent-encoded percent signs (e.g. `%25`) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-percent-encoding-in-routes))
+
+- [#14759](https://github.com/withastro/astro/pull/14759) [`d7889f7`](https://github.com/withastro/astro/commit/d7889f768a4d27e8c4ad3a0022099d19145a7d58) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the option to define dynamic schemas in content loaders as functions and adds a new equivalent `createSchema()` property (Loader API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/TODO:))
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Removes `RouteData.generate` from the Integration API - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-routedatagenerate-adapter-api))
+
+- [#14989](https://github.com/withastro/astro/pull/14989) [`73e8232`](https://github.com/withastro/astro/commit/73e823201cc5bdd6ccab14c07ff0dca5117436ad) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates exposed `astro:transitions` internals - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-exposed-astrotransitions-internals))
+
+- [#14758](https://github.com/withastro/astro/pull/14758) [`010f773`](https://github.com/withastro/astro/commit/010f7731becbaaba347da21ef07b8a410e31442a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `setManifestData` method from `App` and `NodeApp` (Adapter API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-appsetmanifestdata-adapter-api))
+
+- [#14826](https://github.com/withastro/astro/pull/14826) [`170f64e`](https://github.com/withastro/astro/commit/170f64e977290b8f9d316b5f283bd03bae33ddde) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `experimental.failOnPrerenderConflict` flag and replaces it with a new configuration option `prerenderConflictBehavior` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
+
+- [#14923](https://github.com/withastro/astro/pull/14923) [`95a1969`](https://github.com/withastro/astro/commit/95a1969a05cc9c15f16dcf2177532882bb392581) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates `astro:schema` and `z` from `astro:content` in favor of `astro/zod` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-astroschema-and-z-from-astrocontent))
+
+- [#14844](https://github.com/withastro/astro/pull/14844) [`8d43b1d`](https://github.com/withastro/astro/commit/8d43b1d678eed5be85f99b939d55346824c03cb5) Thanks [@trueberryless](https://github.com/trueberryless)! - Removes exposed `astro:actions` internals - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-exposed-astroactions-internals))
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Changes the shape of `SSRManifest` properties and adds several new required properties in the Adapter API - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-ssrmanifest-interface-structure-adapter-api))
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Changes integration hooks and HMR access patterns in the Integration API - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-integration-hooks-and-hmr-access-patterns-integration-api))
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Removes the unused `astro:ssr-manifest` virtual module - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-astrossr-manifest-virtual-module-integration-api))
+
+### Minor Changes
+
+- [#14306](https://github.com/withastro/astro/pull/14306) [`141c4a2`](https://github.com/withastro/astro/commit/141c4a26419fe5bb4341953ea5a0a861d9b398c0) Thanks [@ematipico](https://github.com/ematipico)! - Adds new optional properties to `setAdapter()` for adapter entrypoint handling in the Adapter API
+
+  **Changes:**
+  - New optional properties:
+    - `entryType?: 'self' | 'legacy-dynamic'` - determines if the adapter provides its own entrypoint (`'self'`) or if Astro constructs one (`'legacy-dynamic'`, default)
+
+  **Migration:** Adapter authors can optionally add these properties to support custom dev entrypoints. If not specified, adapters will use the legacy behavior.
+
+- [#14826](https://github.com/withastro/astro/pull/14826) [`170f64e`](https://github.com/withastro/astro/commit/170f64e977290b8f9d316b5f283bd03bae33ddde) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds an option `prerenderConflictBehavior` to configure the behavior of conflicting prerendered routes
+
+  By default, Astro warns you during the build about any conflicts between multiple dynamic routes that can result in the same output path. For example `/blog/[slug]` and `/blog/[...all]` both could try to prerender the `/blog/post-1` path. In such cases, Astro renders only the [highest priority route](https://docs.astro.build/en/guides/routing/#route-priority-order) for the conflicting path. This allows your site to build successfully, although you may discover that some pages are rendered by unexpected routes.
+
+  With the new `prerenderConflictBehavior` configuration option, you can now configure this further:
+  - `prerenderConflictBehavior: 'error'` fails the build
+  - `prerenderConflictBehavior: 'warn'` (default) logs a warning and the highest-priority route wins
+  - `prerenderConflictBehavior: 'ignore'` silently picks the highest-priority route when conflicts occur
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+  +    prerenderConflictBehavior: 'error',
+  });
+  ```
+
+- [#14946](https://github.com/withastro/astro/pull/14946) [`95c40f7`](https://github.com/withastro/astro/commit/95c40f7109ce240206c3951761a7bb439dd809cb) Thanks [@ematipico](https://github.com/ematipico)! - Removes the `experimental.csp` flag and replaces it with a new configuration option `security.csp` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#experimental-flags))
+
+## 6.0.0-alpha.0
+
+### Major Changes
+
+- [#14446](https://github.com/withastro/astro/pull/14446) [`ece667a`](https://github.com/withastro/astro/commit/ece667a737a96c8bfea2702de7207bed0842b37c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes `entryPoints` on `astro:build:ssr` hook (Integration API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-entrypoints-on-astrobuildssr-hook-integration-api))
+
+- [#14426](https://github.com/withastro/astro/pull/14426) [`861b9cc`](https://github.com/withastro/astro/commit/861b9cc770a05d9fcfcb2f1f442a3ba41e94b510) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the deprecated `emitESMImage()` function - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-emitesmimage))
+
+- [#14446](https://github.com/withastro/astro/pull/14446) [`ece667a`](https://github.com/withastro/astro/commit/ece667a737a96c8bfea2702de7207bed0842b37c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes `routes` on `astro:build:done` hook (Integration API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-routes-on-astrobuilddone-hook-integration-api))
+
+- [#14462](https://github.com/withastro/astro/pull/14462) [`9fdfd4c`](https://github.com/withastro/astro/commit/9fdfd4c620313827e65664632a9c9cb435ad07ca) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the old `app.render()` signature (Adapter API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-old-apprender-signature-adapter-api))
+
+- [#14462](https://github.com/withastro/astro/pull/14462) [`9fdfd4c`](https://github.com/withastro/astro/commit/9fdfd4c620313827e65664632a9c9cb435ad07ca) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes `prefetch()` `with` option - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-prefetch-with-option))
+
+- [#14432](https://github.com/withastro/astro/pull/14432) [`b1d87ec`](https://github.com/withastro/astro/commit/b1d87ec3bc2fbe214437990e871df93909d18f62) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates `Astro` in `getStaticPaths()` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-astro-in-getstaticpaths))
+
+- [#14457](https://github.com/withastro/astro/pull/14457) [`049da87`](https://github.com/withastro/astro/commit/049da87cb7ce1828f3025062ce079dbf132f5b86) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates trailing slash behavior of endpoint URLs - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-endpoints-with-a-file-extension-cannot-be-accessed-with-a-trailing-slash))
+
+- [#14494](https://github.com/withastro/astro/pull/14494) [`727b0a2`](https://github.com/withastro/astro/commit/727b0a205eb765f1c36f13a73dfc69e17e44df8f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates Markdown heading ID generation - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-markdown-heading-id-generation))
+
+- [#14461](https://github.com/withastro/astro/pull/14461) [`55a1a91`](https://github.com/withastro/astro/commit/55a1a911aa4e0d38191f8cb9464ffd58f3eb7608) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates `import.meta.env.ASSETS_PREFIX` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-importmetaenvassets_prefix))
+
+- [#14586](https://github.com/withastro/astro/pull/14586) [`669ca5b`](https://github.com/withastro/astro/commit/669ca5b0199d9933f54c76448de9ec5a9f13c430) Thanks [@ocavue](https://github.com/ocavue)! - Changes the values allowed in `params` returned by `getStaticPaths()` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-getstaticpaths-cannot-return-params-of-type-number))
+
+- [#14421](https://github.com/withastro/astro/pull/14421) [`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the previously deprecated `Astro.glob()` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-astroglob))
+
+- [#14462](https://github.com/withastro/astro/pull/14462) [`9fdfd4c`](https://github.com/withastro/astro/commit/9fdfd4c620313827e65664632a9c9cb435ad07ca) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `handleForms` prop for the `<ClientRouter />` component - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-handleforms-prop-for-the-clientrouter--component))
+
+- [#14427](https://github.com/withastro/astro/pull/14427) [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#node-22))
+
+- [#14400](https://github.com/withastro/astro/pull/14400) [`c69c7de`](https://github.com/withastro/astro/commit/c69c7de1ffeff29f919d97c262f245927556f875) Thanks [@ellielok](https://github.com/ellielok)! - Removes the deprecated `<ViewTransitions />` component - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-viewtransitions--component))
+
+- [#14406](https://github.com/withastro/astro/pull/14406) [`4f11510`](https://github.com/withastro/astro/commit/4f11510c9ed932f5cb6d1075b1172909dd5db23e) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Changes the default routing configuration value of `i18n.routing.redirectToDefaultLocale` from `true` to `false` - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-i18nroutingredirecttodefaultlocale-default-value))
+
+- [#14477](https://github.com/withastro/astro/pull/14477) [`25fe093`](https://github.com/withastro/astro/commit/25fe09396dbcda2e1008c01a982f4eb2d1f33ae6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes `rewrite()` from Actions context - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-rewrite-from-actions-context))
+
+- [#14445](https://github.com/withastro/astro/pull/14445) [`ecb0b98`](https://github.com/withastro/astro/commit/ecb0b98396f639d830a99ddb5895ab9223e4dc87) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Astro v6.0 upgrades to Vite v7.0 as the development server and production bundler - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#vite-70))
+
+- [#14485](https://github.com/withastro/astro/pull/14485) [`6f67c6e`](https://github.com/withastro/astro/commit/6f67c6eef2647ef1a1eab78a65a906ab633974bb) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates `import.meta.env` values to always be inlined - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-importmetaenv-values-are-always-inlined))
+
+- [#14480](https://github.com/withastro/astro/pull/14480) [`36a461b`](https://github.com/withastro/astro/commit/36a461bf3f64c467bc52aecf511cd831d238e18b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates `<script>` and `<style>` tags to render in the order they are defined - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-script-and-style-tags-are-rendered-in-the-order-they-are-defined))
+
+- [#14407](https://github.com/withastro/astro/pull/14407) [`3bda3ce`](https://github.com/withastro/astro/commit/3bda3ce4edcb1bd1349890c6ed8110f05954c791) Thanks [@ascorbic](https://github.com/ascorbic)! - Removes legacy content collection support - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#removed-legacy-content-collections))
+
+### Minor Changes
+
+- [#14550](https://github.com/withastro/astro/pull/14550) [`9c282b5`](https://github.com/withastro/astro/commit/9c282b5e6d3f0d678bc478a863e883fa4765dd17) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds support for live content collections
+
+  Live content collections are a new type of [content collection](https://docs.astro.build/en/guides/content-collections/) that fetch their data at runtime rather than build time. This allows you to access frequently updated data from CMSs, APIs, databases, or other sources using a unified API, without needing to rebuild your site when the data changes.
+
+  #### Live collections vs build-time collections
+
+  In Astro 5.0, the content layer API added support for adding diverse content sources to content collections. You can create loaders that fetch data from any source at build time, and then access it inside a page via `getEntry()` and `getCollection()`. The data is cached between builds, giving fast access and updates.
+
+  However, there was no method for updating the data store between builds, meaning any updates to the data needed a full site deploy, even if the pages are rendered on demand. This meant that content collections were not suitable for pages that update frequently. Instead, these pages tended to access the APIs directly in the frontmatter. This worked, but it led to a lot of boilerplate, and meant users didn't benefit from the simple, unified API that content loaders offer. In most cases, users tended to individually create loader libraries shared between pages.
+
+  Live content collections ([introduced experimentally in Astro 5.10](https://astro.build/blog/live-content-collections-deep-dive/)) solve this problem by allowing you to create loaders that fetch data at runtime, rather than build time. This means that the data is always up-to-date, without needing to rebuild the site.
+
+  #### How to use
+
+  To use live collections, create a new `src/live.config.ts` file (alongside your `src/content.config.ts` if you have one) to define your live collections with a live content loader using the new `defineLiveCollection()` function from the `astro:content` module:
+
+  ```ts title="src/live.config.ts"
+  import { defineLiveCollection } from 'astro:content';
+  import { storeLoader } from '@mystore/astro-loader';
+
+  const products = defineLiveCollection({
+    loader: storeLoader({
+      apiKey: process.env.STORE_API_KEY,
+      endpoint: 'https://api.mystore.com/v1',
+    }),
+  });
+
+  export const collections = { products };
+  ```
+
+  You can then use the `getLiveCollection()` and `getLiveEntry()` functions to access your live data, along with error handling (since anything can happen when requesting live data!):
+
+  ```astro
+  ---
+  import { getLiveCollection, getLiveEntry, render } from 'astro:content';
+  // Get all products
+  const { entries: allProducts, error } = await getLiveCollection('products');
+  if (error) {
+    // Handle error appropriately
+    console.error(error.message);
+  }
+
+  // Get products with a filter (if supported by your loader)
+  const { entries: electronics } = await getLiveCollection('products', { category: 'electronics' });
+
+  // Get a single product by ID (string syntax)
+  const { entry: product, error: productError } = await getLiveEntry('products', Astro.params.id);
+  if (productError) {
+    return Astro.redirect('/404');
+  }
+
+  // Get a single product with a custom query (if supported by your loader) using a filter object
+  const { entry: productBySlug } = await getLiveEntry('products', { slug: Astro.params.slug });
+  const { Content } = await render(product);
+  ---
+
+  <h1>{product.data.title}</h1>
+  <Content />
+  ```
+
+  #### Upgrading from experimental live collections
+
+  If you were using the experimental feature, you must remove the `experimental.liveContentCollections` flag from your `astro.config.*` file:
+
+  ```diff
+   export default defineConfig({
+     // ...
+  -  experimental: {
+  -    liveContentCollections: true,
+  -  },
+   });
+  ```
+
+  No other changes to your project code are required as long as you have been keeping up with Astro 5.x patch releases, which contained breaking changes to this experimental feature. If you experience problems with your live collections after upgrading to Astro v6 and removing this flag, please review the [Astro CHANGELOG from 5.10.2](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md#5102) onwards for any potential updates you might have missed, or follow the [current v6 documentation for live collections](https://docs.astro.build/en/guides/content-collections/).
+
+### Patch Changes
+
+- Updated dependencies [[`727b0a2`](https://github.com/withastro/astro/commit/727b0a205eb765f1c36f13a73dfc69e17e44df8f)]:
+  - @astrojs/markdown-remark@7.0.0-alpha.0
+
+- [#15147](https://github.com/withastro/astro/pull/15147) [`9cd5b87`](https://github.com/withastro/astro/commit/9cd5b875f2d45a08bfa8312ed7282a6f0f070265) Thanks [@matthewp](https://github.com/matthewp)! - Fixes scripts in components not rendering when a sibling `<Fragment slot="...">` exists but is unused
+
 ## 5.17.1
 
 ### Patch Changes

@@ -34,8 +34,6 @@ export interface DataEntry<TData extends Record<string, unknown> = Record<string
 	 */
 	deferredRender?: boolean;
 	assetImports?: Array<string>;
-	/** @deprecated */
-	legacyId?: string;
 }
 
 /**

@@ -84,28 +84,30 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		// - Do not use both width and height for resizing, and prioritize width over height
 		// - Allow enlarging images
 
-		const withoutEnlargement = Boolean(transform.fit);
-		if (transform.width && transform.height && transform.fit) {
-			const fit: keyof FitEnum = fitMap[transform.fit] ?? 'inside';
+		if (transform.width && transform.height) {
+			const fit: keyof FitEnum | undefined = transform.fit
+				? (fitMap[transform.fit] ?? 'inside')
+				: undefined;
+
 			result.resize({
 				width: Math.round(transform.width),
 				height: Math.round(transform.height),
-				kernel: kernel,
+				kernel,
 				fit,
 				position: transform.position,
-				withoutEnlargement,
+				withoutEnlargement: true,
 			});
 		} else if (transform.height && !transform.width) {
 			result.resize({
 				height: Math.round(transform.height),
-				kernel: kernel,
-				withoutEnlargement,
+				withoutEnlargement: true,
+				kernel,
 			});
 		} else if (transform.width) {
 			result.resize({
 				width: Math.round(transform.width),
-				kernel: kernel,
-				withoutEnlargement,
+				withoutEnlargement: true,
+				kernel,
 			});
 		}
 

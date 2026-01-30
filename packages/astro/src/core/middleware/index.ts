@@ -4,18 +4,14 @@ import {
 	computePreferredLocale,
 	computePreferredLocaleList,
 } from '../../i18n/utils.js';
-import type { MiddlewareHandler, Params, RewritePayload } from '../../types/public/common.js';
+import type { Params, RewritePayload } from '../../types/public/common.js';
 import type { APIContext } from '../../types/public/context.js';
-import { ASTRO_VERSION, clientLocalsSymbol } from '../constants.js';
+import { ASTRO_GENERATOR } from '../constants.js';
 import { AstroCookies } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { getClientIpAddress } from '../routing/request.js';
 import { getOriginPathname } from '../routing/rewrite.js';
 import { sequence } from './sequence.js';
-
-function defineMiddleware(fn: MiddlewareHandler) {
-	return fn;
-}
 
 /**
  * Payload for creating a context to be passed to Astro middleware
@@ -43,7 +39,7 @@ export type CreateContext = {
 	/**
 	 * Initial value of the locals
 	 */
-	locals: App.Locals;
+	locals?: App.Locals;
 };
 
 /**
@@ -54,7 +50,7 @@ function createContext({
 	params = {},
 	userDefinedLocales = [],
 	defaultLocale = '',
-	locals,
+	locals = {},
 }: CreateContext): APIContext {
 	let preferredLocale: string | undefined = undefined;
 	let preferredLocaleList: string[] | undefined = undefined;
@@ -73,7 +69,7 @@ function createContext({
 		request,
 		params,
 		site: undefined,
-		generator: `Astro v${ASTRO_VERSION}`,
+		generator: ASTRO_GENERATOR,
 		props: {},
 		rewrite,
 		routePattern: '',
@@ -110,28 +106,16 @@ function createContext({
 			return clientIpAddress;
 		},
 		get locals() {
-			// TODO: deprecate this usage. This is used only by the edge middleware for now, so its usage should be basically none.
-			let _locals = locals ?? Reflect.get(request, clientLocalsSymbol);
-			if (locals === undefined) {
-				_locals = {};
-			}
-			if (typeof _locals !== 'object') {
+			if (typeof locals !== 'object') {
 				throw new AstroError(AstroErrorData.LocalsNotAnObject);
 			}
-			return _locals;
+			return locals;
 		},
 		set locals(_) {
 			throw new AstroError(AstroErrorData.LocalsReassigned);
 		},
-		get csp(): APIContext['csp'] {
-			return {
-				insertDirective() {},
-				insertScriptResource() {},
-				insertStyleResource() {},
-				insertScriptHash() {},
-				insertStyleHash() {},
-			};
-		},
+		session: undefined,
+		csp: undefined,
 	};
 	return Object.assign(context, {
 		getActionResult: createGetActionResult(context.locals),
@@ -211,4 +195,5 @@ function trySerializeLocals(value: unknown) {
 }
 
 // NOTE: this export must export only the functions that will be exposed to user-land as officials APIs
-export { createContext, defineMiddleware, sequence, trySerializeLocals };
+export { createContext, sequence, trySerializeLocals };
+export { defineMiddleware } from './defineMiddleware.js';

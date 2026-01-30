@@ -31,15 +31,6 @@ export function shouldAppendForwardSlash(
 	}
 }
 
-export function i18nHasFallback(config: AstroConfig): boolean {
-	if (config.i18n && config.i18n.fallback) {
-		// we have some fallback and the control is not none
-		return Object.keys(config.i18n.fallback).length > 0;
-	}
-
-	return false;
-}
-
 export function encodeName(name: string): string {
 	// Detect if the chunk name has as % sign that is not encoded.
 	// This is borrowed from Node core: https://github.com/nodejs/node/blob/3838b579e44bf0c2db43171c3ce0da51eb6b05d5/lib/internal/url.js#L1382-L1391

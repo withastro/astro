@@ -1,6 +1,7 @@
 // IMPORTANT: this file is the entrypoint for "astro/config". Keep it as light as possible!
 
 import type { SharpImageServiceConfig } from '../assets/services/sharp.js';
+
 import type { ImageServiceConfig } from '../types/public/index.js';
 
 export { fontProviders } from '../assets/fonts/providers/index.js';
@@ -8,6 +9,7 @@ export { mergeConfig } from '../core/config/merge.js';
 export { validateConfig } from '../core/config/validate.js';
 export { envField } from '../env/config.js';
 export { defineConfig, getViteConfig } from './index.js';
+export { sessionDrivers } from '../core/session/drivers.js';
 
 /**
  * Return the configuration needed to use the Sharp-based image service

@@ -115,6 +115,7 @@ export function renderTransition(
 	return scope;
 }
 
+/** @deprecated This will be removed in Astro 7 */
 export function createAnimationScope(
 	transitionName: string,
 	animations: Record<string, TransitionAnimationPair>,

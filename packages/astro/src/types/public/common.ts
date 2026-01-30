@@ -13,7 +13,7 @@ export interface GetStaticPathsOptions {
 }
 
 export type GetStaticPathsItem = {
-	params: { [K in keyof Params]: Params[K] | number };
+	params: Params;
 	props?: Props;
 };
 export type GetStaticPathsResult = GetStaticPathsItem[];

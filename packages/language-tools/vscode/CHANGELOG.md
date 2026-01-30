@@ -1,5 +1,13 @@
 # astro-vscode
 
+## 2.16.9-beta.0
+
+### Patch Changes
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fix "Find All References" and other TypeScript features by ensuring the plugin bundle is correctly included
+
+- [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes syntax highlighting sometimes not working when the frontmatter or script tags ended with certain TypeScript constructs
+
 ## 2.16.8
 
 ### Patch Changes

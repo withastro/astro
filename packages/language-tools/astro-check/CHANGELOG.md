@@ -1,5 +1,27 @@
 # @astrojs/check
 
+## 0.9.7-beta.1
+
+### Patch Changes
+
+- [#15198](https://github.com/withastro/astro/pull/15198) [`55107a1`](https://github.com/withastro/astro/commit/55107a1bc6e578e036be45ade5e259e77f31105b) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Updates to Astro 6 beta
+
+## 0.9.6-beta.1
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+- Updated dependencies [[`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795)]:
+  - @astrojs/language-server@2.16.1-beta.1
+
+## 0.9.6-alpha.0
+
+### Patch Changes
+
+- Updated dependencies [[`df6d2d7`](https://github.com/withastro/astro/commit/df6d2d7bbcaf6b6a327a37a6437d4adade6e2485)]:
+  - @astrojs/language-server@2.16.1-alpha.0
+
 ## 0.9.6
 
 ### Patch Changes

@@ -1,8 +1,8 @@
 import fs, { readFileSync } from 'node:fs';
 import { basename } from 'node:path/posix';
 import colors from 'piccolore';
+import type { BuildApp } from '../../core/build/app.js';
 import { getOutDirWithinCwd } from '../../core/build/common.js';
-import type { BuildPipeline } from '../../core/build/pipeline.js';
 import { getTimeStat } from '../../core/build/util.js';
 import { AstroError } from '../../core/errors/errors.js';
 import { AstroErrorData } from '../../core/errors/index.js';
@@ -50,12 +50,14 @@ type ImageData = {
 };
 
 export async function prepareAssetsGenerationEnv(
-	pipeline: BuildPipeline,
+	app: BuildApp,
 	totalCount: number,
 ): Promise<AssetEnv> {
-	const { config, logger, settings } = pipeline;
+	const settings = app.getSettings();
+	const logger = app.logger;
+	const manifest = app.getManifest();
 	let useCache = true;
-	const assetsCacheDir = new URL('assets/', config.cacheDir);
+	const assetsCacheDir = new URL('assets/', app.manifest.cacheDir);
 	const count = { total: totalCount, current: 1 };
 
 	// Ensure that the cache directory exists
@@ -72,11 +74,12 @@ export async function prepareAssetsGenerationEnv(
 	const isServerOutput = settings.buildOutput === 'server';
 	let serverRoot: URL, clientRoot: URL;
 	if (isServerOutput) {
-		serverRoot = config.build.server;
-		clientRoot = config.build.client;
+		// Images are collected during prerender, which outputs to .prerender/ subdirectory
+		serverRoot = new URL('.prerender/', manifest.buildServerDir);
+		clientRoot = manifest.buildClientDir;
 	} else {
-		serverRoot = getOutDirWithinCwd(config.outDir);
-		clientRoot = config.outDir;
+		serverRoot = getOutDirWithinCwd(manifest.outDir);
+		clientRoot = manifest.outDir;
 	}
 
 	return {
@@ -87,8 +90,8 @@ export async function prepareAssetsGenerationEnv(
 		assetsCacheDir,
 		serverRoot,
 		clientRoot,
-		imageConfig: config.image,
-		assetsFolder: config.build.assets,
+		imageConfig: settings.config.image,
+		assetsFolder: manifest.assetsDir,
 	};
 }
 

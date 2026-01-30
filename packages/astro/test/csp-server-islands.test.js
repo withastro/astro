@@ -34,98 +34,129 @@ describe('Server islands', () => {
 			fixture = await loadFixture({
 				root: './fixtures/server-islands/ssr',
 				adapter: testAdapter(),
-				experimental: {
+				security: {
 					csp: true,
 				},
 			});
+			process.env.ASTRO_KEY = 'eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=';
+			await fixture.build();
 		});
 
-		describe('prod', () => {
-			before(async () => {
-				process.env.ASTRO_KEY = 'eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=';
-				await fixture.build();
-			});
+		after(async () => {
+			delete process.env.ASTRO_KEY;
+		});
 
-			after(async () => {
-				delete process.env.ASTRO_KEY;
-			});
+		it('omits the islands HTML', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			const html = await response.text();
 
-			it('omits the islands HTML', async () => {
-				const app = await fixture.loadTestAdapterApp();
-				const request = new Request('http://example.com/');
-				const response = await app.render(request);
-				const html = await response.text();
+			const $ = cheerio.load(html);
+			const serverIslandEl = $('h2#island');
+			assert.equal(serverIslandEl.length, 0);
 
-				const $ = cheerio.load(html);
-				const serverIslandEl = $('h2#island');
-				assert.equal(serverIslandEl.length, 0);
+			const serverIslandScript = $('script[data-island-id]');
+			assert.equal(serverIslandScript.length, 1, 'has the island script');
+		});
 
-				const serverIslandScript = $('script[data-island-id]');
-				assert.equal(serverIslandScript.length, 1, 'has the island script');
+		it('island is not indexed', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const encryptedComponentExport = await getEncryptedComponentExport();
+			const request = new Request('http://example.com/_server-islands/Island', {
+				method: 'POST',
+				body: JSON.stringify({
+					encryptedComponentExport,
+					encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+					encryptedSlots: '',
+				}),
+				headers: {
+					origin: 'http://example.com',
+				},
 			});
+			const response = await app.render(request);
+			assert.equal(response.headers.get('x-robots-tag'), 'noindex');
+		});
+		it('omits empty props from the query string', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/empty-props');
+			const response = await app.render(request);
+			assert.equal(response.status, 200);
+			const html = await response.text();
+			const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
+			assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+			assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
+		});
+		it('re-encrypts props on each request', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/includeComponentWithProps/');
+			const response = await app.render(request);
+			assert.equal(response.status, 200);
+			const html = await response.text();
+			const fetchMatch = html.match(
+				/fetch\('\/_server-islands\/ComponentWithProps\?[^']*p=([^&']*)/,
+			);
+			assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+			const firstProps = fetchMatch[1];
+			const secondRequest = new Request('http://example.com/includeComponentWithProps/');
+			const secondResponse = await app.render(secondRequest);
+			assert.equal(secondResponse.status, 200);
+			const secondHtml = await secondResponse.text();
+			const secondFetchMatch = secondHtml.match(
+				/fetch\('\/_server-islands\/ComponentWithProps\?[^']*p=([^&']*)/,
+			);
+			assert.equal(secondFetchMatch.length, 2, 'should include props in the query	string');
+			assert.notEqual(
+				secondFetchMatch[1],
+				firstProps,
+				'should re-encrypt props on each request with a different IV',
+			);
+		});
 
-			it('island is not indexed', async () => {
-				const app = await fixture.loadTestAdapterApp();
-				const encryptedComponentExport = await getEncryptedComponentExport();
-				const request = new Request('http://example.com/_server-islands/Island', {
-					method: 'POST',
-					body: JSON.stringify({
-						encryptedComponentExport,
-						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
-						encryptedSlots: '',
-					}),
-					headers: {
-						origin: 'http://example.com',
-					},
-				});
-				const response = await app.render(request);
-				assert.equal(response.headers.get('x-robots-tag'), 'noindex');
-			});
-			it('omits empty props from the query string', async () => {
-				const app = await fixture.loadTestAdapterApp();
-				const request = new Request('http://example.com/empty-props');
-				const response = await app.render(request);
-				assert.equal(response.status, 200);
-				const html = await response.text();
-				const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
-				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
-				assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
-			});
-			it('re-encrypts props on each request', async () => {
-				const app = await fixture.loadTestAdapterApp();
-				const request = new Request('http://example.com/includeComponentWithProps/');
-				const response = await app.render(request);
-				assert.equal(response.status, 200);
-				const html = await response.text();
-				const fetchMatch = html.match(
-					/fetch\('\/_server-islands\/ComponentWithProps\?[^']*p=([^&']*)/,
-				);
-				assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
-				const firstProps = fetchMatch[1];
-				const secondRequest = new Request('http://example.com/includeComponentWithProps/');
-				const secondResponse = await app.render(secondRequest);
-				assert.equal(secondResponse.status, 200);
-				const secondHtml = await secondResponse.text();
-				const secondFetchMatch = secondHtml.match(
-					/fetch\('\/_server-islands\/ComponentWithProps\?[^']*p=([^&']*)/,
-				);
-				assert.equal(secondFetchMatch.length, 2, 'should include props in the query	string');
-				assert.notEqual(
-					secondFetchMatch[1],
-					firstProps,
-					'should re-encrypt props on each request with a different IV',
-				);
-			});
+		it('omits empty props from the query string', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/empty-props');
+			const response = await app.render(request);
+			assert.equal(response.status, 200);
+			const html = await response.text();
+			const fetchMatch = html.match(/fetch\('\/_server-islands\/Island\?[^']*p=([^&']*)/);
+			assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+			assert.equal(fetchMatch[1], '', 'should not include encrypted empty props');
+		});
+		it('re-encrypts props on each request', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/includeComponentWithProps/');
+			const response = await app.render(request);
+			assert.equal(response.status, 200);
+			const html = await response.text();
+			const fetchMatch = html.match(
+				/fetch\('\/_server-islands\/ComponentWithProps\?[^']*p=([^&']*)/,
+			);
+			assert.equal(fetchMatch.length, 2, 'should include props in the query	string');
+			const firstProps = fetchMatch[1];
+			const secondRequest = new Request('http://example.com/includeComponentWithProps/');
+			const secondResponse = await app.render(secondRequest);
+			assert.equal(secondResponse.status, 200);
+			const secondHtml = await secondResponse.text();
+			const secondFetchMatch = secondHtml.match(
+				/fetch\('\/_server-islands\/ComponentWithProps\?[^']*p=([^&']*)/,
+			);
+			assert.equal(secondFetchMatch.length, 2, 'should include props in the query	string');
+			assert.notEqual(
+				secondFetchMatch[1],
+				firstProps,
+				'should re-encrypt props on each request with a different IV',
+			);
 		});
 	});
 
-	describe('Hybrid mode', () => {
+	describe('Hybrid', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/server-islands/hybrid',
-				experimental: {
+				security: {
 					csp: true,
 				},
 			});

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { z } from 'astro/zod';
+import { z } from 'zod';
 import rss, { getRssString } from '../dist/index.js';
 import { rssSchema } from '../dist/schema.js';
 import {
