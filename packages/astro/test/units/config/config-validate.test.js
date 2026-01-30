@@ -602,4 +602,29 @@ describe('Config Validation', () => {
 			);
 		});
 	});
+
+	describe('devToolbar', () => {
+		it('should allow valid placement values', async () => {
+			for (const placement of ['bottom-left', 'bottom-center', 'bottom-right']) {
+				const result = await validateConfig({
+					devToolbar: { placement },
+				});
+				assert.equal(result.devToolbar.placement, placement);
+			}
+		});
+
+		it('should allow omitting placement (optional)', async () => {
+			const result = await validateConfig({
+				devToolbar: { enabled: true },
+			});
+			assert.equal(result.devToolbar.placement, undefined);
+		});
+
+		it('should reject invalid placement values', async () => {
+			const configError = await validateConfig({
+				devToolbar: { placement: 'top-left' },
+			}).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
+		});
+	});
 });

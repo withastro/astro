@@ -35,4 +35,5 @@ export const DEFAULT_HASH_PROPS = [
 	'quality',
 	'fit',
 	'position',
+	'background',
 ];

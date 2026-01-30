@@ -1494,6 +1494,19 @@ export interface AstroUserConfig<
 		 * This option is scoped to the entire project, to only disable the toolbar for yourself, run `npm run astro preferences disable devToolbar`. To disable the toolbar for all your Astro projects, run `npm run astro preferences disable devToolbar --global`.
 		 */
 		enabled: boolean;
+
+		/**
+		 * @docs
+		 * @name devToolbar.placement
+		 * @version 5.17.0
+		 * @type {'bottom-left' | 'bottom-center' | 'bottom-right'}
+		 * @default `'bottom-center'`
+		 * @description
+		 * The default placement of the Astro Dev Toolbar on the screen.
+		 *
+		 * The placement of the toolbar can still be changed via the toolbar settings UI. Once changed, the user's preference is saved in `localStorage` and overrides this configuration value.
+		 */
+		placement?: 'bottom-left' | 'bottom-center' | 'bottom-right';
 	};
 
 	/**
@@ -1635,6 +1648,20 @@ export interface AstroUserConfig<
 		 * Whether or not to limit the size of images that the Sharp image service will process.
 		 *
 		 * Set `false` to bypass the default image size limit for the Sharp image service and process large images.
+		 */
+
+		/**
+		 * @docs
+		 * @name image.service.config.kernel
+		 * @kind h4
+		 * @type {string | undefined}
+		 * @default `undefined`
+		 * @version 5.17.0
+		 * @description
+		 *
+		 * The default [kernel used for resizing images](https://sharp.pixelplumbing.com/api-resize/#resize) in the Sharp image service.
+		 *
+		 * By default this is `undefined`, which maps to Sharp's default kernel of `lanczos3`.
 		 */
 
 		/**

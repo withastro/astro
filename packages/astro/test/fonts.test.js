@@ -222,28 +222,6 @@ describe('astro fonts', () => {
 			});
 		});
 
-		it('Exposes buffer in getFontBuffer()', async () => {
-			const { fixture, run } = await createDevFixture({
-				fonts: [
-					{
-						name: 'Poppins',
-						cssVariable: '--font-test',
-						provider: fontProviders.fontsource(),
-					},
-				],
-			});
-			await run(async () => {
-				const res = await fixture.fetch('/get-font-buffer');
-				const html = await res.text();
-				const $ = cheerio.load(html);
-				const length = $('#length').html();
-				if (!length) {
-					assert.fail();
-				}
-				assert.equal(length === '0', false);
-			});
-		});
-
 		it('Does not create dist folder or copy fonts when dev server stops', async () => {
 			const { fixture, run } = await createDevFixture({
 				fonts: [
@@ -367,25 +345,6 @@ describe('astro fonts', () => {
 			assert.equal(parsed['--font-test'].length > 0, true);
 			assert.equal(parsed['--font-test'][0].src[0].url.startsWith('/_astro/fonts/'), true);
 		});
-
-		it('Exposes buffer in getFontBuffer()', async () => {
-			const { fixture } = await createBuildFixture({
-				fonts: [
-					{
-						name: 'Poppins',
-						cssVariable: '--font-test',
-						provider: fontProviders.fontsource(),
-					},
-				],
-			});
-			const html = await fixture.readFile('/get-font-buffer/index.html');
-			const $ = cheerio.load(html);
-			const length = $('#length').html();
-			if (!length) {
-				assert.fail();
-			}
-			assert.equal(length === '0', false);
-		});
 	});
 
 	describe('ssr', () => {
@@ -468,25 +427,6 @@ describe('astro fonts', () => {
 			assert.equal(Array.isArray(parsed['--font-test']), true);
 			assert.equal(parsed['--font-test'].length > 0, true);
 			assert.equal(parsed['--font-test'][0].src[0].url.startsWith('/_astro/fonts/'), true);
-		});
-
-		it('Exposes buffer in getFontBuffer()', async () => {
-			const fixture = await createSsrFixture({
-				fonts: [
-					{
-						name: 'Poppins',
-						cssVariable: '--font-test',
-						provider: fontProviders.fontsource(),
-					},
-				],
-			});
-			const html = await fixture.fetch('/get-font-buffer');
-			const $ = cheerio.load(html);
-			const length = $('#length').html();
-			if (!length) {
-				assert.fail();
-			}
-			assert.equal(length === '0', false);
 		});
 	});
 });
