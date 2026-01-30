@@ -88,6 +88,7 @@ export class NonRunnablePipeline extends Pipeline {
 				version: ASTRO_VERSION,
 				latestAstroVersion: this.manifest.devToolbar.latestAstroVersion,
 				debugInfo: this.manifest.devToolbar.debugInfoOutput ?? '',
+				placement: this.manifest.devToolbar.placement,
 			};
 
 			// Additional data for the dev overlay

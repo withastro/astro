@@ -178,6 +178,7 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 				(await settings.preferences.get('devToolbar.enabled')),
 			latestAstroVersion: settings.latestAstroVersion,
 			debugInfoOutput: '',
+			placement: settings.config.devToolbar.placement,
 		},
 		logLevel: settings.logLevel,
 	};
