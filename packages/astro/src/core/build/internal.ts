@@ -95,6 +95,12 @@ export interface BuildInternals {
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint: URL | undefined;
 	astroActionsEntryPoint: URL | undefined;
+
+	/**
+	 * Whether the build discovered any server islands (components with server:defer).
+	 * This is set during the vite build phase when server islands are detected.
+	 */
+	hasServerIslands: boolean;
 }
 
 /**
@@ -121,6 +127,7 @@ export function createBuildInternals(): BuildInternals {
 		astroActionsEntryPoint: undefined,
 		middlewareEntryPoint: undefined,
 		clientChunksAndAssets: new Set(),
+		hasServerIslands: false,
 	};
 }
 

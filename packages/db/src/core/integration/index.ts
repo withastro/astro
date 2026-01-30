@@ -78,7 +78,6 @@ function astroDBIntegration(options?: AstroDBConfig): AstroIntegration {
 	};
 
 	let command: HookParameters<'astro:config:setup'>['command'];
-	let finalBuildOutput: string;
 	return {
 		name: 'astro:db',
 		hooks: {
@@ -127,10 +126,8 @@ function astroDBIntegration(options?: AstroDBConfig): AstroIntegration {
 					},
 				});
 			},
-			'astro:config:done': async ({ config, injectTypes, buildOutput }) => {
+			'astro:config:done': async ({ config, injectTypes }) => {
 				if (command === 'preview') return;
-
-				finalBuildOutput = buildOutput;
 
 				// TODO: refine where we load tables
 				// @matthewp: may want to load tables by path at runtime
@@ -182,13 +179,6 @@ function astroDBIntegration(options?: AstroDBConfig): AstroIntegration {
 				}
 			},
 			'astro:build:start': async ({ logger }) => {
-				if (!connectToRemote && !databaseFileEnvDefined() && finalBuildOutput === 'server') {
-					const message = `Attempting to build without the --remote flag or the ASTRO_DATABASE_FILE environment variable defined. You probably want to pass --remote to astro build.`;
-					const hint =
-						'Learn more connecting to libSQL: https://docs.astro.build/en/guides/astro-db/#connect-a-libsql-database-for-production';
-					throw new AstroDbError(message, hint);
-				}
-
 				logger.info(
 					'database: ' +
 						(connectToRemote ? colors.yellow('remote') : colors.blue('local database.')),
@@ -201,7 +191,13 @@ function astroDBIntegration(options?: AstroDBConfig): AstroIntegration {
 					await executeSeedFile({ fileUrl, environment });
 				};
 			},
-			'astro:build:done': async ({}) => {
+			'astro:build:done': async ({ buildOutput }) => {
+				if (!connectToRemote && !databaseFileEnvDefined() && buildOutput === 'server') {
+					const message = `Attempting to build without the --remote flag or the ASTRO_DATABASE_FILE environment variable defined. You probably want to pass --remote to astro build.`;
+					const hint =
+						'Learn more connecting to libSQL: https://docs.astro.build/en/guides/astro-db/#connect-a-libsql-database-for-production';
+					throw new AstroDbError(message, hint);
+				}
 				await tempViteServer?.close();
 			},
 		},

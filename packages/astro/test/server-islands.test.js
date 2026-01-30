@@ -541,5 +541,25 @@ describe('Server islands', () => {
 				return devServer?.stop();
 			});
 		});
+
+		describe('buildOutput in astro:build:done', () => {
+			it('should report buildOutput as server when server islands are present', async () => {
+				let buildDoneOutput;
+
+				await fixture.build({
+					adapter: testAdapter({
+						setBuildOutput: (buildOutput) => {
+							buildDoneOutput = buildOutput;
+						},
+					}),
+				});
+
+				assert.equal(
+					buildDoneOutput,
+					'server',
+					'buildOutput should be "server" when server islands are present, even with all static pages',
+				);
+			});
+		});
 	});
 });

@@ -411,9 +411,6 @@ export async function runHookConfigDone({
 					// because injectedTypes are handled relatively to the dotAstroDir already
 					return new URL(normalizedFilename, settings.dotAstroDir);
 				},
-				get buildOutput() {
-					return settings.buildOutput!; // settings.buildOutput is always set at this point
-				},
 			}),
 		});
 	}
@@ -596,12 +593,19 @@ export async function runHookBuildGenerated({
 
 type RunHookBuildDone = {
 	settings: AstroSettings;
+	buildOutput: 'static' | 'server';
 	pages: string[];
 	routes: RouteData[];
 	logger: Logger;
 };
 
-export async function runHookBuildDone({ settings, pages, routes, logger }: RunHookBuildDone) {
+export async function runHookBuildDone({
+	settings,
+	buildOutput,
+	pages,
+	routes,
+	logger,
+}: RunHookBuildDone) {
 	const dir = getClientOutputDirectory(settings);
 	await fsMod.promises.mkdir(dir, { recursive: true });
 
@@ -611,6 +615,7 @@ export async function runHookBuildDone({ settings, pages, routes, logger }: RunH
 			hookName: 'astro:build:done',
 			logger,
 			params: () => ({
+				buildOutput,
 				pages: pages.map((p) => ({ pathname: p })),
 				dir,
 				assets: new Map(

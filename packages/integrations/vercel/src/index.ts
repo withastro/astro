@@ -307,62 +307,16 @@ export default function vercelAdapter({
 			'astro:routes:resolved': (params) => {
 				routes = params.routes;
 			},
-			'astro:config:done': ({ setAdapter, config, logger, buildOutput }) => {
-				_buildOutput = buildOutput;
-
-				if (_buildOutput === 'server') {
-					if (maxDuration && maxDuration > 900) {
-						logger.warn(
-							`maxDuration is set to ${maxDuration} seconds, which is longer than the maximum allowed duration of 900 seconds.`,
-						);
-						logger.warn(
-							`Please make sure that your plan allows for this duration. See https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration for more information.`,
-						);
-					}
-					const vercelConfigPath = new URL('vercel.json', config.root);
-					if (
-						config.trailingSlash &&
-						config.trailingSlash !== 'ignore' &&
-						existsSync(vercelConfigPath)
-					) {
-						try {
-							const vercelConfig = JSON.parse(readFileSync(vercelConfigPath, 'utf-8'));
-							if (
-								(vercelConfig.trailingSlash === true && config.trailingSlash === 'never') ||
-								(vercelConfig.trailingSlash === false && config.trailingSlash === 'always')
-							) {
-								logger.error(
-									`
-	Your "vercel.json" \`trailingSlash\` configuration (set to \`${vercelConfig.trailingSlash}\`) will conflict with your Astro \`trailingSlash\` configuration (set to \`${JSON.stringify(config.trailingSlash)}\`).
-	This would cause infinite redirects or duplicate content issues. 
-	Please remove the \`trailingSlash\` configuration from your \`vercel.json\` file or Astro config.
-`,
-								);
-							}
-						} catch (_err) {
-							logger.warn(`Your "vercel.json" config is not a valid json file.`);
-						}
-					}
-					setAdapter(
-						getAdapter({
-							buildOutput: _buildOutput,
-							edgeMiddleware,
-							middlewareSecret,
-							skewProtection,
-							experimentalStaticHeaders,
-						}),
-					);
-				} else {
-					setAdapter(
-						getAdapter({
-							edgeMiddleware: false,
-							middlewareSecret: '',
-							skewProtection,
-							buildOutput: _buildOutput,
-							experimentalStaticHeaders,
-						}),
-					);
-				}
+			'astro:config:done': ({ setAdapter, config }) => {
+				setAdapter(
+					getAdapter({
+						buildOutput: 'server',
+						edgeMiddleware,
+						middlewareSecret,
+						skewProtection,
+						experimentalStaticHeaders,
+					}),
+				);
 				_config = config;
 				_buildTempFolder = config.build.server;
 				_serverEntry = config.build.serverEntry;
@@ -378,7 +332,45 @@ export default function vercelAdapter({
 			'astro:build:generated': ({ experimentalRouteToHeaders }) => {
 				_routeToHeaders = experimentalRouteToHeaders;
 			},
-			'astro:build:done': async ({ logger }: HookParameters<'astro:build:done'>) => {
+			'astro:build:done': async ({ logger, buildOutput }: HookParameters<'astro:build:done'>) => {
+				_buildOutput = buildOutput;
+
+				// Validation warnings that depend on knowing the final buildOutput
+				if (_buildOutput === 'server') {
+					if (maxDuration && maxDuration > 900) {
+						logger.warn(
+							`maxDuration is set to ${maxDuration} seconds, which is longer than the maximum allowed duration of 900 seconds.`,
+						);
+						logger.warn(
+							`Please make sure that your plan allows for this duration. See https://vercel.com/docs/functions/serverless-functions/runtimes#maxduration for more information.`,
+						);
+					}
+					const vercelConfigPath = new URL('vercel.json', _config.root);
+					if (
+						_config.trailingSlash &&
+						_config.trailingSlash !== 'ignore' &&
+						existsSync(vercelConfigPath)
+					) {
+						try {
+							const vercelConfig = JSON.parse(readFileSync(vercelConfigPath, 'utf-8'));
+							if (
+								(vercelConfig.trailingSlash === true && _config.trailingSlash === 'never') ||
+								(vercelConfig.trailingSlash === false && _config.trailingSlash === 'always')
+							) {
+								logger.error(
+									`
+	Your "vercel.json" \`trailingSlash\` configuration (set to \`${vercelConfig.trailingSlash}\`) will conflict with your Astro \`trailingSlash\` configuration (set to \`${JSON.stringify(_config.trailingSlash)}\`).
+	This would cause infinite redirects or duplicate content issues. 
+	Please remove the \`trailingSlash\` configuration from your \`vercel.json\` file or Astro config.
+`,
+								);
+							}
+						} catch (_err) {
+							logger.warn(`Your "vercel.json" config is not a valid json file.`);
+						}
+					}
+				}
+
 				const outDir = new URL('./.vercel/output/', _config.root);
 				if (staticDir) {
 					if (existsSync(staticDir)) {

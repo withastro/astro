@@ -225,7 +225,6 @@ export interface BaseIntegrationHooks {
 		setAdapter: (adapter: AstroAdapter) => void;
 		injectTypes: (injectedType: InjectedType) => URL;
 		logger: AstroIntegrationLogger;
-		buildOutput: 'static' | 'server';
 	}) => void | Promise<void>;
 	'astro:server:setup': (options: {
 		server: ViteDevServer;
@@ -260,6 +259,7 @@ export interface BaseIntegrationHooks {
 		experimentalRouteToHeaders: RouteToHeaders;
 	}) => void | Promise<void>;
 	'astro:build:done': (options: {
+		buildOutput: 'static' | 'server';
 		pages: { pathname: string }[];
 		dir: URL;
 		assets: Map<string, URL[]>;

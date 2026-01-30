@@ -110,7 +110,6 @@ export type Options = {
 
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
-	let finalBuildOutput: HookParameters<'astro:config:done'>['buildOutput'];
 
 	const cloudflareModulePlugin: PluginOption = cloudflareModuleLoader(
 		args?.cloudflareModules ?? true,
@@ -257,9 +256,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			'astro:routes:resolved': ({ routes }) => {
 				_routes = routes;
 			},
-			'astro:config:done': ({ setAdapter, config, buildOutput, injectTypes, logger }) => {
+			'astro:config:done': ({ setAdapter, config, injectTypes, logger }) => {
 				_config = config;
-				finalBuildOutput = buildOutput;
 
 				injectTypes({
 					filename: 'cloudflare.d.ts',
@@ -344,7 +342,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					};
 				}
 			},
-			'astro:build:done': async ({ pages, dir, logger, assets }) => {
+			'astro:build:done': async ({ pages, dir, logger, assets, buildOutput }) => {
 				let redirectsExists = false;
 				try {
 					const redirectsStat = await stat(new URL('./_redirects', _config.build.client));
@@ -412,7 +410,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						),
 					),
 					dir,
-					buildOutput: finalBuildOutput,
+					buildOutput,
 					assets,
 				});
 

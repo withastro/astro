@@ -295,8 +295,6 @@ export default function netlifyIntegration(
 	// Secret used to verify that the caller is the astro-generated edge middleware and not a third-party
 	const middlewareSecret = randomUUID();
 
-	let finalBuildOutput: HookParameters<'astro:config:done'>['buildOutput'];
-
 	const TRACE_CACHE = {};
 
 	const ssrBuildDir = () => new URL('./.netlify/build/', rootDir);
@@ -313,7 +311,7 @@ export default function netlifyIntegration(
 	async function writeRedirects(
 		routes: IntegrationResolvedRoute[],
 		dir: URL,
-		buildOutput: HookParameters<'astro:config:done'>['buildOutput'],
+		buildOutput: HookParameters<'astro:build:done'>['buildOutput'],
 		assets: HookParameters<'astro:build:done'>['assets'],
 	) {
 		// all other routes are handled by SSR
@@ -333,7 +331,7 @@ export default function netlifyIntegration(
 			}
 		}
 
-		const fallback = finalBuildOutput === 'static' ? '/.netlify/static' : '/.netlify/functions/ssr';
+		const fallback = buildOutput === 'static' ? '/.netlify/static' : '/.netlify/functions/ssr';
 		const redirects = createRedirectsFromAstroRoutes({
 			config: _config,
 			dir,
@@ -364,17 +362,19 @@ export default function netlifyIntegration(
 		notFoundContent,
 		logger,
 		root,
+		buildOutput,
 	}: {
 		notFoundContent?: string;
 		logger: AstroIntegrationLogger;
 		root: URL;
+		buildOutput: HookParameters<'astro:build:done'>['buildOutput'];
 	}) {
 		const entry = new URL('./entry.mjs', ssrBuildDir());
 
 		const _includeFiles = integrationConfig?.includeFiles || [];
 		const _excludeFiles = integrationConfig?.excludeFiles || [];
 
-		if (finalBuildOutput === 'server') {
+		if (buildOutput === 'server') {
 			// Merge any includes from `vite.assetsInclude
 			if (_config.vite.assetsInclude) {
 				const mergeGlobbedIncludes = (globPattern: unknown) => {
@@ -664,11 +664,9 @@ export default function netlifyIntegration(
 			'astro:routes:resolved': (params) => {
 				routes = params.routes;
 			},
-			'astro:config:done': async ({ config, setAdapter, buildOutput }) => {
+			'astro:config:done': async ({ config, setAdapter }) => {
 				rootDir = config.root;
 				_config = config;
-
-				finalBuildOutput = buildOutput;
 
 				const useEdgeMiddleware = integrationConfig?.edgeMiddleware ?? false;
 				const useStaticHeaders = integrationConfig?.experimentalStaticHeaders ?? false;
@@ -680,6 +678,7 @@ export default function netlifyIntegration(
 					adapterFeatures: {
 						edgeMiddleware: useEdgeMiddleware,
 						experimentalStaticHeaders: useStaticHeaders,
+						buildOutput: 'server',
 					},
 					args: { middlewareSecret } satisfies Args,
 					supportedAstroFeatures: {
@@ -709,16 +708,16 @@ export default function netlifyIntegration(
 			'astro:build:ssr': async ({ middlewareEntryPoint }) => {
 				astroMiddlewareEntryPoint = middlewareEntryPoint;
 			},
-			'astro:build:done': async ({ assets, dir, logger }) => {
-				await writeRedirects(routes, dir, finalBuildOutput, assets);
+			'astro:build:done': async ({ assets, dir, logger, buildOutput }) => {
+				await writeRedirects(routes, dir, buildOutput, assets);
 				logger.info('Emitted _redirects');
 
-				if (finalBuildOutput !== 'static') {
+				if (buildOutput !== 'static') {
 					let notFoundContent = undefined;
 					try {
 						notFoundContent = await readFile(new URL('./404.html', dir), 'utf8');
 					} catch {}
-					await writeSSRFunction({ notFoundContent, logger, root: _config.root });
+					await writeSSRFunction({ notFoundContent, logger, root: _config.root, buildOutput });
 					logger.info('Generated SSR Function');
 				}
 				if (astroMiddlewareEntryPoint) {

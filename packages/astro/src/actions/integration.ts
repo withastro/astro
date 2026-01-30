@@ -29,12 +29,6 @@ export default function astroIntegrationActionsRouteHandler({
 				});
 			},
 			'astro:config:done': async (params) => {
-				if (params.buildOutput === 'static') {
-					const error = new AstroError(ActionsWithoutServerOutputError);
-					error.stack = undefined;
-					throw error;
-				}
-
 				const stringifiedActionsImport = JSON.stringify(
 					viteID(new URL(`./${filename}`, params.config.srcDir)),
 				);
@@ -44,6 +38,13 @@ export default function astroIntegrationActionsRouteHandler({
 	export const actions: typeof import(${stringifiedActionsImport})["server"];
 }`,
 				});
+			},
+			'astro:build:done': async (params) => {
+				if (params.buildOutput === 'static') {
+					const error = new AstroError(ActionsWithoutServerOutputError);
+					error.stack = undefined;
+					throw error;
+				}
 			},
 		},
 	};

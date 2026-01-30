@@ -28,6 +28,11 @@ export function pluginAnalyzer(internals: BuildInternals): VitePlugin {
 
 				const astro = info.meta.astro as AstroPluginMetadata['astro'];
 
+				// Track if any server islands are discovered
+				if (astro.serverComponents.length > 0) {
+					internals.hasServerIslands = true;
+				}
+
 				if (astro.hydratedComponents.length) {
 					const hydratedComponents: string[] = [];
 

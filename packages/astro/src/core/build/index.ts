@@ -229,8 +229,15 @@ class AstroBuilder {
 		this.logger.debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
 
 		// You're done! Time to clean up.
+		// Compute final buildOutput: if server islands were discovered, it's 'server' even if
+		// settings.buildOutput was 'static' (all pages prerendered but server islands need SSR)
+		const buildOutput: 'static' | 'server' = internals.hasServerIslands
+			? 'server'
+			: this.settings.buildOutput!;
+
 		await runHookBuildDone({
 			settings: this.settings,
+			buildOutput,
 			pages: pageNames,
 			routes: Object.values(allPages)
 				.flat()
