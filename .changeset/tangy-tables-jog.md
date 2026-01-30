@@ -1,5 +1,5 @@
 ---
-'astro': patch
+'astro': minor
 ---
 
 Adds a new optional `embeddedLangs` prop to the `<Code />` component to support languages beyond the primary `lang`. This allows, for example, to highlight `.vue` files with a `<script setup lang="tsx">` block correctly:
