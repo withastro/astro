@@ -1,4 +1,4 @@
-import { YAMLError } from 'yaml';
+import type { YAMLError } from 'yaml';
 import type { TomlError } from 'smol-toml';
 import type { ErrorPayload as ViteErrorPayload } from 'vite';
 import type { SSRError } from '../../types/public/internal.js';
@@ -73,7 +73,7 @@ function getLineOffsets(text: string) {
 }
 
 export function isYAMLException(err: unknown): err is YAMLError {
-	return err instanceof YAMLError;
+	return err instanceof Error && (err.name === 'YAMLParseError' || err.name === 'YAMLWarning');
 }
 
 /** Format YAML exceptions as Vite errors */
