@@ -1,5 +1,27 @@
 # astro
 
+## 6.0.0-beta.7
+
+### Minor Changes
+
+- [#15349](https://github.com/withastro/astro/pull/15349) [`a257c4c`](https://github.com/withastro/astro/commit/a257c4c3c7f0cdc5089b522ed216401d46d214c9) Thanks [@ascorbic](https://github.com/ascorbic)! - Passes collection name to live content loaders
+
+  Live content collection loaders now receive the collection name as part of their parameters. This is helpful for loaders that manage multiple collections or need to differentiate behavior based on the collection being accessed.
+
+  ```ts
+  export function storeLoader({ field, key }) {
+    return {
+      name: 'store-loader',
+      loadCollection: async ({ filter, collection }) => {
+        // ...
+      },
+      loadEntry: async ({ filter, collection }) => {
+        // ...
+      },
+    };
+  }
+  ```
+
 ## 6.0.0-beta.6
 
 ### Major Changes
