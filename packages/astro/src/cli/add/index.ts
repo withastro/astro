@@ -95,7 +95,6 @@ export default async function seed() {
 		"enabled": true
 	}
 }`,
-	CLOUDFLARE_ASSETSIGNORE: `_worker.js\n_routes.json`,
 };
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
@@ -227,23 +226,12 @@ export async function add(names: string[], { flags }: AddOptions) {
 					logger.debug('add', 'Using existing wrangler configuration');
 				}
 
-				const dir = new URL(userConfig.publicDir ?? './public/', root);
-				const assetsignore = new URL('./.assetsignore', dir);
-				if (!existsSync(assetsignore)) {
-					logger.info(
-						'SKIP_FORMAT',
-						`\n  ${magenta(`Astro will scaffold ${green('./public/.assetsignore')}.`)}\n`,
-					);
-
-					if (await askToContinue({ flags, logger })) {
-						if (!existsSync(dir)) {
-							await fs.mkdir(dir);
-						}
-						await fs.writeFile(assetsignore, STUBS.CLOUDFLARE_ASSETSIGNORE, 'utf-8');
-					}
-				} else {
-					logger.debug('add', `Using existing .assetsignore`);
-				}
+				await updatePackageJsonScripts({
+					configURL,
+					flags,
+					logger,
+					scripts: { 'generate-types': 'wrangler types' },
+				});
 			}
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
 				const dir = new URL('./styles/', new URL(userConfig.srcDir ?? './src/', root));
@@ -706,6 +694,68 @@ async function updateAstroConfig({
 	if (await askToContinue({ flags, logger })) {
 		await fs.writeFile(fileURLToPath(configURL), output, { encoding: 'utf-8' });
 		logger.debug('add', `Updated astro config`);
+		return UpdateResult.updated;
+	} else {
+		return UpdateResult.cancelled;
+	}
+}
+
+async function updatePackageJsonScripts({
+	configURL,
+	flags,
+	logger,
+	scripts,
+}: {
+	configURL: URL;
+	flags: Flags;
+	logger: Logger;
+	scripts: Record<string, string>;
+}): Promise<UpdateResult> {
+	const pkgURL = new URL('./package.json', configURL);
+	if (!existsSync(pkgURL)) {
+		logger.debug('add', 'No package.json found, skipping scripts update');
+		return UpdateResult.none;
+	}
+
+	const pkgPath = fileURLToPath(pkgURL);
+	const input = await fs.readFile(pkgPath, { encoding: 'utf-8' });
+	const pkgJson = JSON.parse(input);
+
+	pkgJson.scripts ??= {};
+	let hasChanges = false;
+	for (const [name, command] of Object.entries(scripts)) {
+		if (!(name in pkgJson.scripts)) {
+			pkgJson.scripts[name] = command;
+			hasChanges = true;
+		}
+	}
+
+	if (!hasChanges) {
+		return UpdateResult.none;
+	}
+
+	const output = JSON.stringify(pkgJson, null, 2);
+	const diff = getDiffContent(input, output);
+
+	if (!diff) {
+		return UpdateResult.none;
+	}
+
+	const message = `\n${boxen(diff, {
+		margin: 0.5,
+		padding: 0.5,
+		borderStyle: 'round',
+		title: 'package.json',
+	})}\n`;
+
+	logger.info(
+		'SKIP_FORMAT',
+		`\n  ${magenta('Astro will add the following scripts to your package.json:')}\n${message}`,
+	);
+
+	if (await askToContinue({ flags, logger })) {
+		await fs.writeFile(pkgPath, output, { encoding: 'utf-8' });
+		logger.debug('add', 'Updated package.json scripts');
 		return UpdateResult.updated;
 	} else {
 		return UpdateResult.cancelled;
