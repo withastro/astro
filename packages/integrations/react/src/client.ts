@@ -1,5 +1,6 @@
 import { createElement, startTransition } from 'react';
 import { createRoot, hydrateRoot, type Root } from 'react-dom/client';
+import { AppEntrypoint } from 'virtual:astro:react-app';
 import StaticHtml from './static-html.js';
 
 function isAlreadyHydrated(element: HTMLElement) {
@@ -90,11 +91,14 @@ export default (element: HTMLElement) =>
 			props[key] = createElement(StaticHtml, { value, name: key });
 		}
 
-		const componentEl = createElement(
+		const baseComponentEl = createElement(
 			Component,
 			props,
 			getChildren(children, element.hasAttribute('data-react-children')),
 		);
+		const componentEl = AppEntrypoint
+			? createElement(AppEntrypoint, null, baseComponentEl)
+			: baseComponentEl;
 		const rootKey = isAlreadyHydrated(element);
 		// HACK: delete internal react marker for nested components to suppress aggressive warnings
 		if (rootKey) {

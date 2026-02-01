@@ -1,4 +1,5 @@
 import opts from 'astro:react:opts';
+import { AppEntrypoint } from 'virtual:astro:react-app';
 import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
@@ -108,7 +109,10 @@ async function renderToStaticMarkup(
 		attrs['data-action-key'] = formState[1];
 		attrs['data-action-name'] = formState[2];
 	}
-	const vnode = React.createElement(Component, newProps);
+	const componentElement = React.createElement(Component, newProps);
+	const vnode = AppEntrypoint
+		? React.createElement(AppEntrypoint, null, componentElement)
+		: componentElement;
 	const renderOptions = {
 		identifierPrefix: prefix,
 		formState,
