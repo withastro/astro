@@ -7,10 +7,10 @@ export function useTheme() {
 	return useContext(ThemeContext);
 }
 
-export default function Wrapper({ children }: AppEntrypointProps) {
+export default function Wrapper({ children, locals }: AppEntrypointProps) {
 	return (
 		<ThemeContext.Provider value="dark">
-			<div data-testid="wrapper">
+			<div data-testid="wrapper" data-server={locals?.serverData}>
 				{children}
 			</div>
 		</ThemeContext.Provider>

@@ -573,6 +573,7 @@ export class RenderContext {
 			componentMetadata,
 			compressHTML,
 			cookies,
+			locals: this.locals,
 			/** This function returns the `Astro` faux-global */
 			createAstro: (props, slots) => this.createAstro(result, props, slots, ctx),
 			links,

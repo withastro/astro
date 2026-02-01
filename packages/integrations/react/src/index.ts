@@ -38,6 +38,10 @@ export interface AppEntrypointProps {
 	 * The React island being wrapped.
 	 */
 	children?: ReactNode;
+	/**
+	 * `Astro.locals`, available only in a server environment.
+	 */
+	locals?: App.Locals;
 }
 
 /**

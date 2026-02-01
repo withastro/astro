@@ -111,7 +111,7 @@ async function renderToStaticMarkup(
 	}
 	const componentElement = React.createElement(Component, newProps);
 	const vnode = AppEntrypoint
-		? React.createElement(AppEntrypoint, null, componentElement)
+		? React.createElement(AppEntrypoint, { locals: this?.result?.locals }, componentElement)
 		: componentElement;
 	const renderOptions = {
 		identifierPrefix: prefix,

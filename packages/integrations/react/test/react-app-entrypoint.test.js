@@ -32,6 +32,15 @@ describe('React App Entrypoint', () => {
 			// The counter should have access to the theme from context
 			assert.equal(counter.attr('data-theme'), 'dark');
 		});
+
+		it('Passes Astro.locals props to the wrapper', async () => {
+			const html = await fixture.readFile('/with-locals/index.html');
+			const $ = cheerioLoad(html);
+
+			// The wrapper should receive serverData from Astro.locals
+			const wrapper = $('[data-testid="wrapper"]');
+			assert.equal(wrapper.attr('data-server'), 'from-locals');
+		});
 	});
 
 	if (isWindows) return;
@@ -61,6 +70,15 @@ describe('React App Entrypoint', () => {
 
 			// The counter should have access to the theme from context
 			assert.equal(counter.attr('data-theme'), 'dark');
+		});
+
+		it('Passes Astro.locals props to the wrapper in dev mode', async () => {
+			const html = await fixture.fetch('/with-locals').then((res) => res.text());
+			const $ = cheerioLoad(html);
+
+			// The wrapper should receive serverData from Astro.locals
+			const wrapper = $('[data-testid="wrapper"]');
+			assert.equal(wrapper.attr('data-server'), 'from-locals');
 		});
 	});
 });
