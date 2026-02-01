@@ -82,6 +82,7 @@ export function patchTSX(code: string, filePath: string) {
 			if (basename === '404') return 'FourOhFour';
 			return fullMatch;
 		}
-		return isDynamic ? `_${m1}_` : m1[0].toUpperCase() + m1.slice(1);
+		const name = isDynamic ? `_${m1}_` : m1[0].toUpperCase() + m1.slice(1);
+		return `_${name}`;
 	});
 }
