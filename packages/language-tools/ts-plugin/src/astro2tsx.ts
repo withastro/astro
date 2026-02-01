@@ -147,6 +147,6 @@ function patchTSX(code: string, fileName: string) {
 			return fullMatch;
 		}
 		const name = isDynamic ? `_${m1}_` : m1[0].toUpperCase() + m1.slice(1);
-		return `_${name}`;
+		return `_AstroComponent_${name}`;
 	});
 }
