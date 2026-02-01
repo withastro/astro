@@ -1,5 +1,7 @@
+import path from 'node:path';
 import react, { type Options as ViteReactPluginOptions } from '@vitejs/plugin-react';
 import type { AstroIntegration, AstroRenderer } from 'astro';
+import type { FC, ReactNode } from 'react';
 import type * as vite from 'vite';
 import {
 	getReactMajorVersion,
@@ -8,6 +10,9 @@ import {
 	versionsConfig,
 } from './version.js';
 import type { EnvironmentOptions } from 'vite';
+
+const VIRTUAL_MODULE_ID = 'virtual:astro:react-app';
+const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`;
 
 export type ReactIntegrationOptions = Pick<
 	ViteReactPluginOptions,
@@ -18,7 +23,27 @@ export type ReactIntegrationOptions = Pick<
 	 * Disable streaming in React components
 	 */
 	experimentalDisableStreaming?: boolean;
+	/**
+	 * Path to a React component that wraps all React islands.
+	 * The component receives the island as `children`.
+	 */
+	appEntrypoint?: string;
 };
+
+/**
+ * Props for the `appEntrypoint` wrapper component.
+ */
+export interface AppEntrypointProps {
+	/**
+	 * The React island being wrapped.
+	 */
+	children?: ReactNode;
+}
+
+/**
+ * Component type for the `appEntrypoint` wrapper.
+ */
+export type AppEntrypoint = FC<AppEntrypointProps>;
 
 const FAST_REFRESH_PREAMBLE = react.preambleCode;
 
@@ -65,6 +90,60 @@ function optionsPlugin({
 	};
 }
 
+// A slightly modified version of `virtualAppEntrypoint` from packages/integrations/vue/src/index.ts
+function virtualAppEntrypoint(appEntrypoint?: string): vite.Plugin {
+	let isBuild: boolean;
+	let root: string;
+	let resolvedAppEntrypoint: string | undefined;
+
+	return {
+		name: '@astrojs/react:app',
+		config(_, { command }) {
+			isBuild = command === 'build';
+		},
+		configResolved(config) {
+			root = config.root;
+			if (appEntrypoint) {
+				resolvedAppEntrypoint = appEntrypoint.startsWith('.')
+					? path.resolve(root, appEntrypoint)
+					: appEntrypoint;
+			}
+		},
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${VIRTUAL_MODULE_ID}$`),
+			},
+			handler() {
+				return RESOLVED_VIRTUAL_MODULE_ID;
+			},
+		},
+		load: {
+			filter: {
+				id: new RegExp(`^${RESOLVED_VIRTUAL_MODULE_ID.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`),
+			},
+			handler() {
+				if (resolvedAppEntrypoint) {
+					return {
+						code: `\
+import _AppEntrypoint from ${JSON.stringify(resolvedAppEntrypoint)};
+${
+	!isBuild
+		? `if (typeof _AppEntrypoint !== 'function') {
+	console.warn("[@astrojs/react] appEntrypoint \`" + ${JSON.stringify(resolvedAppEntrypoint)} + "\` does not export a default React component.");
+}`
+		: ''
+}
+export const AppEntrypoint = _AppEntrypoint;`,
+					};
+				}
+				return {
+					code: `export const AppEntrypoint = undefined;`,
+				};
+			},
+		},
+	};
+}
+
 function getViteConfiguration(
 	{
 		include,
@@ -72,6 +151,7 @@ function getViteConfiguration(
 		babel,
 		experimentalReactChildren,
 		experimentalDisableStreaming,
+		appEntrypoint,
 	}: ReactIntegrationOptions = {},
 	reactConfig: ReactVersionConfig,
 ) {
@@ -82,6 +162,7 @@ function getViteConfiguration(
 				experimentalReactChildren: !!experimentalReactChildren,
 				experimentalDisableStreaming: !!experimentalDisableStreaming,
 			}),
+			virtualAppEntrypoint(appEntrypoint),
 			configEnvironmentPlugin(reactConfig),
 		],
 		ssr: {
@@ -151,6 +232,7 @@ export default function ({
 	babel,
 	experimentalReactChildren,
 	experimentalDisableStreaming,
+	appEntrypoint,
 }: ReactIntegrationOptions = {}): AstroIntegration {
 	const majorVersion = getReactMajorVersion();
 	if (!isSupportedReactVersion(majorVersion)) {
@@ -165,7 +247,14 @@ export default function ({
 				addRenderer(getRenderer(versionConfig));
 				updateConfig({
 					vite: getViteConfiguration(
-						{ include, exclude, babel, experimentalReactChildren, experimentalDisableStreaming },
+						{
+							include,
+							exclude,
+							babel,
+							experimentalReactChildren,
+							experimentalDisableStreaming,
+							appEntrypoint,
+						},
 						versionConfig,
 					),
 				});
