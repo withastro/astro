@@ -1,5 +1,5 @@
 ---
-const data = await Astro.glob('./post/**/*');
+const data = Object.values(import.meta.glob('./post/**/*', { eager: true }));
 ---
 
 <html>

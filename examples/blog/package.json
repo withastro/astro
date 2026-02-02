@@ -3,6 +3,9 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -10,10 +13,10 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^4.3.13",
-    "@astrojs/rss": "^4.0.14",
-    "@astrojs/sitemap": "^3.6.0",
-    "astro": "^5.16.6",
+    "@astrojs/mdx": "^5.0.0-beta.3",
+    "@astrojs/rss": "^4.0.15-beta.2",
+    "@astrojs/sitemap": "^3.6.1-beta.2",
+    "astro": "^6.0.0-beta.6",
     "sharp": "^0.34.3"
   }
 }

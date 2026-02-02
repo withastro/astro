@@ -22,7 +22,7 @@ describe('toTSX function', () => {
 		// Replace the expectations below with the expected result based on your logic
 		assert.strictEqual(
 			result,
-			`export default function ${className}__AstroComponent_(_props: Record<string, any>): any {}`,
+			`export default function ${className}__AstroComponent_(_props: import('@astrojs/vue/vue-shims.d.ts').PropsWithHTMLAttributes<Record<string, any>>): any {}`,
 		);
 	});
 	it('should correctly transform Vue code to TSX', () => {
@@ -45,7 +45,7 @@ describe('toTSX function', () => {
 		const result = toTSX(vueCode, className);
 		assert.strictEqual(
 			result.replace(/\s/g, ''),
-			`import{defineProps}from'vue';constProps=defineProps({msg:String})exportdefaultfunction${className}__AstroComponent_(_props:typeofProps):any{<div></div>}`,
+			`import{defineProps}from'vue';constProps=defineProps({msg:String})exportdefaultfunction${className}__AstroComponent_(_props:import('@astrojs/vue/vue-shims.d.ts').PropsWithHTMLAttributes<typeofProps>):any{<div></div>}`,
 		);
 	});
 });

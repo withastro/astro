@@ -31,7 +31,6 @@ describe('Initialize', async () => {
 				],
 				resolveProvider: true,
 			},
-			codeLensProvider: {},
 			colorProvider: true,
 			completionProvider: {
 				resolveProvider: true,

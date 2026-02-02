@@ -1,4 +1,5 @@
-import { defineCollection, z, reference } from 'astro:content';
+import { defineCollection, reference } from 'astro:content';
+import { z } from 'astro/zod';
 import { file, glob } from 'astro/loaders';
 import { loader } from './loaders/post-loader.js';
 import { readFile } from 'fs/promises';
@@ -83,7 +84,7 @@ const spacecraft = defineCollection({
 			publishedDate: z.coerce.date(),
 			tags: z.array(z.string()),
 			heroImage: image().optional(),
-			cat: reference('cats').default('siamese'),
+			cat: reference('cats').prefault('siamese'),
 			something: z
 				.string()
 				.optional()
@@ -91,6 +92,23 @@ const spacecraft = defineCollection({
 		}),
 });
 
+// Same as spacecraft, but with retainBody: false
+const spacecraftNoBody = defineCollection({
+	loader: glob({ pattern: '*.md', base: absoluteRoot, retainBody: false }),
+	schema: ({ image }) =>
+		z.object({
+			title: z.string(),
+			description: z.string(),
+			publishedDate: z.coerce.date(),
+			tags: z.array(z.string()),
+			heroImage: image().optional(),
+			cat: reference('cats').default('siamese'),
+			something: z
+				.string()
+				.optional()
+				.transform((str) => ({ type: 'test', content: str })),
+		}),
+});
 
 const cats = defineCollection({
 	loader: async function () {
@@ -120,6 +138,21 @@ const fish = defineCollection({
 const birds = defineCollection({
 	loader: file('src/data/birds.json', {
 		parser: (text) => JSON.parse(text).birds,
+	}),
+	schema: z.object({
+		id: z.string(),
+		name: z.string(),
+		breed: z.string(),
+		age: z.number(),
+	}),
+});
+
+const birdsWithAsyncParse = defineCollection({
+	loader: file('src/data/birds.json', {
+		parser: async (text) => {
+			await new Promise((resolve) => setTimeout(resolve, 10));
+			return JSON.parse(text).birds;
+		},
 	}),
 	schema: z.object({
 		id: z.string(),
@@ -204,6 +237,31 @@ hello
 ![image 2](https://example.com/image.png)
 `
 
+// Markdown content WITH frontmatter - for testing renderMarkdown frontmatter parsing
+const markdownWithFrontmatter = `---
+title: Test Post
+description: A test post for renderMarkdown
+tags:
+  - test
+  - markdown
+---
+
+# Hello World
+
+This is the body content.
+
+## Subheading
+
+More content here.
+`
+
+// Markdown content with a relative image path - for testing fileURL option
+const markdownWithImage = `
+# Post with Image
+
+![Local image](./image.png)
+`
+
 const increment = defineCollection({
 	loader: {
 		name: 'increment-loader',
@@ -226,14 +284,22 @@ const increment = defineCollection({
 				rendered: await renderMarkdown(markdownContent)
 			});
 		},
-		// Example of a loader that returns an async schema function
-		schema: async () =>
-			z.object({
+		createSchema: async () => {
+			return {
+				schema: z.object({
 				lastValue: z.number(),
 				lastUpdated: z.date(),
-				refreshContextData: z.record(z.unknown()).optional(),
+				refreshContextData: z.record(z.string(), z.unknown()).optional(),
 				slug: z.string().optional(),
 			}),
+			types: /* ts */`export interface Entry {
+	lastValue: number;
+	lastUpdated: Date;
+	refreshContextData?: Record<string, unknown> | undefined;
+	slug?: string | undefined;
+}`
+			}
+		}
 	},
 });
 
@@ -264,17 +330,54 @@ const rockets = defineCollection({
 		}),
 });
 
+// Collection to test renderMarkdown with frontmatter
+const renderMarkdownTest = defineCollection({
+	loader: {
+		name: 'render-markdown-test-loader',
+		load: async ({ store, renderMarkdown }) => {
+			const rendered = await renderMarkdown(markdownWithFrontmatter);
+			store.set({
+				id: 'with-frontmatter',
+				data: {
+					// Store the rendered result for inspection
+					renderedHtml: rendered.html,
+					renderedMetadata: rendered.metadata,
+				},
+				rendered,
+			});
+
+			// Test with fileURL option for relative image resolution
+			const fileURL = new URL('./virtual-post.md', import.meta.url);
+			const renderedWithFileURL = await renderMarkdown(markdownWithImage, { fileURL });
+			store.set({
+				id: 'with-image',
+				data: {
+					renderedHtml: renderedWithFileURL.html,
+					renderedMetadata: renderedWithFileURL.metadata,
+				},
+				rendered: renderedWithFileURL,
+			});
+		},
+	},
+	schema: z.object({
+		renderedHtml: z.string(),
+		renderedMetadata: z.any(),
+	}),
+});
+
 export const collections = {
 	blog,
 	dogs,
 	cats,
 	fish,
 	birds,
+	birdsWithAsyncParse,
 	plants,
 	numbers,
 	numbersToml,
 	numbersYaml,
 	spacecraft,
+	spacecraftNoBody,
 	increment,
 	images,
 	artists,
@@ -282,7 +385,7 @@ export const collections = {
 	probes,
 	rodents,
 	rockets,
+	renderMarkdownTest,
 	notADirectory,
 	nothingMatches
 };
-

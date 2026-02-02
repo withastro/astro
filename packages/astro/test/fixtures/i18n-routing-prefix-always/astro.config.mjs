@@ -11,6 +11,7 @@ export default defineConfig({
 			], 
 			routing: {
 				prefixDefaultLocale: true,
+				redirectToDefaultLocale: true
 			}
 		},
 		base: "/new-site"

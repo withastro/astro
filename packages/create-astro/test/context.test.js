@@ -71,4 +71,16 @@ describe('context', () => {
 		const ctx = await getContext(['--no-git']);
 		assert.deepEqual(ctx.git, false);
 	});
+
+	it('--add with --no-install conflicts', async () => {
+		const exitCode = await new Promise((resolve) => {
+			const originalExit = process.exit;
+			process.exit = (code) => {
+				process.exit = originalExit;
+				resolve(code);
+			};
+			getContext(['--add', 'cloudflare', '--no-install']);
+		});
+		assert.equal(exitCode, 1);
+	});
 });

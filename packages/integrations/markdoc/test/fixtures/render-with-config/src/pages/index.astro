@@ -1,8 +1,8 @@
 ---
-import { getEntryBySlug } from "astro:content";
+import { getEntry, render } from "astro:content";
 
-const post = await getEntryBySlug('blog', 'with-config');
-const { Content } = await post.render();
+const post = await getEntry('blog', 'with-config');
+const { Content } = await render(post);
 ---
 
 <!DOCTYPE html>

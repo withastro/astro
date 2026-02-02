@@ -13,7 +13,6 @@ import {
 } from '../../integrations/hooks.js';
 import type { AstroSettings, RoutesList } from '../../types/astro.js';
 import type { AstroInlineConfig, RuntimeMode } from '../../types/public/config.js';
-import { createDevelopmentManifest } from '../../vite-plugin-astro-server/plugin.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
@@ -22,9 +21,7 @@ import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../encryption.j
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
-import { apply as applyPolyfill } from '../polyfill.js';
-import { createRoutesList } from '../routing/index.js';
-import { getServerIslandRouteData } from '../server-islands/endpoint.js';
+import { createRoutesList } from '../routing/manifest/create.js';
 import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
@@ -63,12 +60,15 @@ export default async function build(
 	options: BuildOptions = {},
 ): Promise<void> {
 	ensureProcessNodeEnv(options.devOutput ? 'development' : 'production');
-	applyPolyfill();
 	const logger = createNodeLogger(inlineConfig);
 	const { userConfig, astroConfig } = await resolveConfig(inlineConfig, 'build');
 	telemetry.record(eventCliSession('build', userConfig));
 
-	const settings = await createSettings(astroConfig, fileURLToPath(astroConfig.root));
+	const settings = await createSettings(
+		astroConfig,
+		inlineConfig.logLevel,
+		fileURLToPath(astroConfig.root),
+	);
 
 	if (inlineConfig.force) {
 		// isDev is always false, because it's interested in the build command, not the output type
@@ -123,10 +123,6 @@ class AstroBuilder {
 			command: 'build',
 			logger: logger,
 		});
-		// NOTE: this manifest is only used by the first build pass to make the `astro:manifest` function.
-		// After the first build, the BuildPipeline comes into play, and it creates the proper manifest for generating the pages.
-		const manifest = createDevelopmentManifest(this.settings);
-
 		this.routesList = await createRoutesList({ settings: this.settings }, this.logger);
 
 		await runHookConfigDone({ settings: this.settings, logger: logger, command: 'build' });
@@ -145,13 +141,12 @@ class AstroBuilder {
 				},
 			},
 			{
+				routesList: this.routesList,
 				settings: this.settings,
 				logger: this.logger,
 				mode: this.mode,
 				command: 'build',
 				sync: false,
-				routesList: this.routesList,
-				manifest,
 			},
 		);
 
@@ -161,9 +156,7 @@ class AstroBuilder {
 			settings: this.settings,
 			logger,
 			fs,
-			routesList: this.routesList,
 			command: 'build',
-			manifest,
 		});
 
 		return { viteConfig };
@@ -220,15 +213,9 @@ class AstroBuilder {
 			key: keyPromise,
 		};
 
-		const { internals, ssrOutputChunkNames } = await viteBuild(opts);
+		const { internals, prerenderOutputDir } = await viteBuild(opts);
 
-		const hasServerIslands = this.settings.serverIslandNameMap.size > 0;
-		// Error if there are server islands but no adapter provided.
-		if (hasServerIslands && this.settings.buildOutput !== 'server') {
-			throw new AstroError(AstroErrorData.NoAdapterInstalledServerIslands);
-		}
-
-		await staticBuild(opts, internals, ssrOutputChunkNames);
+		await staticBuild(opts, internals, prerenderOutputDir);
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();
@@ -247,8 +234,7 @@ class AstroBuilder {
 			pages: pageNames,
 			routes: Object.values(allPages)
 				.flat()
-				.map((pageData) => pageData.route)
-				.concat(hasServerIslands ? getServerIslandRouteData(this.settings.config) : []),
+				.map((pageData) => pageData.route),
 			logger: this.logger,
 		});
 

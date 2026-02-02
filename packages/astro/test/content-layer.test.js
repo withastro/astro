@@ -99,11 +99,34 @@ describe('Content Layer', () => {
 		it('handles negative matches in glob() loader', async () => {
 			assert.ok(json.hasOwnProperty('probes'));
 			assert.ok(Array.isArray(json.probes));
-			assert.equal(json.probes.length, 5);
+			assert.equal(json.probes.length, 6);
 			assert.ok(
 				json.probes.every(({ id }) => !id.startsWith('voyager')),
 				'Voyager probes should not be included',
 			);
+		});
+
+		it('retains body by default in glob() loader', async () => {
+			assert.ok(json.hasOwnProperty('spacecraftWithBody'));
+			assert.ok(Array.isArray(json.spacecraftWithBody));
+			// All entries should have non-empty body
+			const columbia = json.spacecraftWithBody.find((s) => s.id === 'columbia');
+			assert.ok(columbia, 'columbia entry should exist');
+			assert.ok(columbia.body, 'body should be present');
+			assert.ok(columbia.body.length > 0, 'body should not be empty');
+			assert.ok(
+				columbia.body.includes('Space Shuttle Columbia'),
+				'body should contain markdown content',
+			);
+		});
+
+		it('clears body when retainBody is false in glob() loader', async () => {
+			assert.ok(json.hasOwnProperty('spacecraftNoBody'));
+			assert.ok(Array.isArray(json.spacecraftNoBody));
+			// All entries should have undefined body
+			const columbia = json.spacecraftNoBody.find((s) => s.id === 'columbia');
+			assert.ok(columbia, 'columbia entry should exist');
+			assert.equal(columbia.body, undefined, 'body should be undefined when retainBody is false');
 		});
 
 		it('Returns nested json `file()` loader collection', async () => {
@@ -111,6 +134,14 @@ describe('Content Layer', () => {
 			assert.ok(Array.isArray(json.nestedJsonLoader));
 
 			const ids = json.nestedJsonLoader.map((item) => item.data.id);
+			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch']);
+		});
+
+		it('can use an async parser in `file()` loader', async () => {
+			assert.ok(json.hasOwnProperty('loaderWithAsyncParse'));
+			assert.ok(Array.isArray(json.loaderWithAsyncParse));
+
+			const ids = json.loaderWithAsyncParse.map((item) => item.data.id);
 			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch']);
 		});
 
@@ -327,6 +358,76 @@ describe('Content Layer', () => {
 			assert.equal(json.increment.data.slug, 'slimy');
 		});
 
+		it('renderMarkdown parses frontmatter correctly', async () => {
+			const entry = json.renderMarkdownTest;
+			assert.ok(entry, 'renderMarkdownTest entry should exist');
+
+			// The frontmatter should be parsed and available in metadata
+			const metadata = entry.data.renderedMetadata;
+			assert.ok(metadata?.frontmatter, 'metadata.frontmatter should exist');
+			assert.equal(metadata.frontmatter.title, 'Test Post', 'frontmatter.title should be parsed');
+			assert.equal(
+				metadata.frontmatter.description,
+				'A test post for renderMarkdown',
+				'frontmatter.description should be parsed',
+			);
+			assert.deepEqual(
+				metadata.frontmatter.tags,
+				['test', 'markdown'],
+				'frontmatter.tags should be parsed',
+			);
+		});
+
+		it('renderMarkdown excludes frontmatter from HTML output', async () => {
+			const entry = json.renderMarkdownTest;
+			const html = entry.data.renderedHtml;
+
+			// The HTML should NOT contain the frontmatter
+			assert.ok(!html.includes('title: Test Post'), 'HTML should not contain frontmatter title');
+			assert.ok(!html.includes('description:'), 'HTML should not contain frontmatter description');
+
+			// The HTML should contain the actual content
+			assert.ok(html.includes('Hello World'), 'HTML should contain the body content');
+			assert.ok(html.includes('Subheading'), 'HTML should contain the subheading');
+		});
+
+		it('renderMarkdown extracts headings correctly', async () => {
+			const entry = json.renderMarkdownTest;
+			const metadata = entry.data.renderedMetadata;
+
+			// Headings should be from the content, not frontmatter
+			assert.ok(Array.isArray(metadata?.headings), 'metadata.headings should be an array');
+			const headingTexts = metadata.headings.map((h) => h.text);
+			assert.ok(headingTexts.includes('Hello World'), 'headings should include "Hello World"');
+			assert.ok(headingTexts.includes('Subheading'), 'headings should include "Subheading"');
+			// Frontmatter keys should NOT appear as headings
+			assert.ok(
+				!headingTexts.some((t) => t.includes('title:')),
+				'headings should not include frontmatter',
+			);
+		});
+
+		it('renderMarkdown resolves relative image paths when fileURL is provided', async () => {
+			const entry = json.renderMarkdownWithImage;
+			assert.ok(entry, 'renderMarkdownWithImage entry should exist');
+
+			const metadata = entry.data.renderedMetadata;
+			// When fileURL is provided, relative image paths should be resolved
+			assert.ok(
+				Array.isArray(metadata?.localImagePaths),
+				'metadata.localImagePaths should be an array',
+			);
+			assert.ok(
+				metadata.localImagePaths.length > 0,
+				'localImagePaths should contain the relative image',
+			);
+			// The path should be resolved relative to the fileURL
+			assert.ok(
+				metadata.localImagePaths[0].includes('image.png'),
+				'localImagePaths should include the image filename',
+			);
+		});
+
 		it('updates the store on new builds', async () => {
 			assert.equal(json.increment.data.lastValue, 1);
 			assert.equal(json.entryWithReference.data.something?.content, 'transform me');
@@ -431,6 +532,12 @@ describe('Content Layer', () => {
 						log.level === 'warn' &&
 						log.message.includes('Duplicate id "german-shepherd" found in src/data/dogs.json'),
 				),
+			);
+		});
+
+		it('warns about duplicate IDs in glob() loader', () => {
+			assert.ok(
+				logs.find((log) => log.level === 'warn' && log.message.includes('Duplicate id "cassini"')),
 			);
 		});
 
@@ -579,6 +686,41 @@ describe('Content Layer', () => {
 			assert.ok(updated2.spacecraft.includes('rosalind-franklin'));
 
 			await fixture.resetAllFiles();
+		});
+
+		it('does not warn about duplicate IDs when a file is edited', async () => {
+			logs.length = 0;
+
+			await fixture.editFile('/src/content/space/endeavour.md', (prev) => {
+				return prev.replace('learn about the', 'Learn about the');
+			});
+
+			await fixture.onNextDataStoreChange();
+
+			const duplicateWarning = logs.find((log) => log.message.includes('Duplicate id "endeavour"'));
+			assert.ok(!duplicateWarning, 'Should not warn about duplicate ID when editing same file');
+
+			await fixture.resetAllFiles();
+		});
+
+		it('does not warn about duplicate IDs when a file with a slug is renamed', async () => {
+			logs.length = 0;
+
+			// dawn.md has slug: dawn-mission - renaming should not cause duplicate warning
+			const oldPath = new URL('./data/space-probes/dawn.md', fixture.config.srcDir);
+			const newPath = new URL('./data/space-probes/dawn-renamed.md', fixture.config.srcDir);
+
+			await fs.rename(oldPath, newPath);
+			await fixture.onNextDataStoreChange();
+
+			try {
+				const duplicateWarning = logs.find((log) =>
+					log.message.includes('Duplicate id "dawn-mission"'),
+				);
+				assert.ok(!duplicateWarning, 'Should not warn about duplicate ID when renaming file');
+			} finally {
+				await fs.rename(newPath, oldPath);
+			}
 		});
 
 		it('returns an error if we render an undefined entry', async () => {

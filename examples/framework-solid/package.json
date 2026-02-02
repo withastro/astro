@@ -3,6 +3,9 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -10,8 +13,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/solid-js": "^5.1.3",
-    "astro": "^5.16.6",
-    "solid-js": "^1.9.10"
+    "@astrojs/solid-js": "^6.0.0-beta.2",
+    "astro": "^6.0.0-beta.6",
+    "solid-js": "^1.9.11"
   }
 }
