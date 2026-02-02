@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import { expectTypeOf } from 'expect-type';
-import type z from 'zod';
+import type * as z from 'zod/v4';
 import { type FontProviderSchema, FontFamilySchema } from '../../src/assets/fonts/config.js';
 import type { FontProvider, FontFamily } from '../../src/assets/fonts/types.js';
 import type { SessionDriverConfigSchema } from '../../dist/core/session/config.js';
