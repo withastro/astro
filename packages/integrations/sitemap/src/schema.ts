@@ -1,5 +1,5 @@
 import { EnumChangefreq as ChangeFreq } from 'sitemap';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { SITEMAP_CONFIG_DEFAULTS } from './config-defaults.js';
 
 const localeKeySchema = z.string().min(1);
