@@ -20,6 +20,7 @@ import { runWithErrorHandling } from '../vite-plugin-astro-server/index.js';
 import { handle500Response, writeSSRResult } from '../vite-plugin-astro-server/response.js';
 import { RunnablePipeline } from './pipeline.js';
 import { getCustom404Route, getCustom500Route } from '../core/routing/helpers.js';
+import { ensure404Route } from '../core/routing/astro-designed-error-pages.js';
 import { matchRoute } from '../core/routing/dev.js';
 import type { DevMatch } from '../core/app/base.js';
 
@@ -48,6 +49,16 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 
 	isDev(): boolean {
 		return true;
+	}
+
+	/**
+	 * Updates the routes list when files change during development.
+	 * Called via HMR when new pages are added/removed.
+	 */
+	updateRoutes(newRoutesList: RoutesList): void {
+		this.manifestData = newRoutesList;
+		this.pipeline.setManifestData(newRoutesList);
+		ensure404Route(this.manifestData);
 	}
 
 	async devMatch(pathname: string): Promise<DevMatch | undefined> {

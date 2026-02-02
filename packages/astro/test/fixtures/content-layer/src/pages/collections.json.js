@@ -16,6 +16,7 @@ export async function GET() {
 	const referencedEntry = await getEntry(entryWithReference.data.cat);
 
 	const spacecraft = await getCollection('spacecraft');
+	const spacecraftNoBody = await getCollection('spacecraftNoBody');
 
 	const entryWithImagePath = await getEntry('spacecraft', 'lunar-module');
 
@@ -32,7 +33,9 @@ export async function GET() {
 	const tomlLoader = await getCollection('songs');
 
 	const nestedJsonLoader = await getCollection('birds');
-	
+
+	const loaderWithAsyncParse = await getCollection('birdsWithAsyncParse');
+
 	const csvLoader = await getCollection('plants');
 
 	const rockets = await getCollection('rockets');
@@ -42,6 +45,9 @@ export async function GET() {
 	const numbersYaml = await getCollection('numbersYaml');
 
 	const numbersToml = await getCollection('numbersToml');
+
+	const renderMarkdownTest = await getEntry('renderMarkdownTest', 'with-frontmatter');
+	const renderMarkdownWithImage = await getEntry('renderMarkdownTest', 'with-image');
 	
 	return new Response(
 		devalue.stringify({
@@ -63,9 +69,14 @@ export async function GET() {
 			yamlLoader,
 			tomlLoader,
 			nestedJsonLoader,
+			loaderWithAsyncParse,
 			csvLoader,
 			atlantis,
 			spacecraft: spacecraft.map(({id}) => id).sort((a, b) => a.localeCompare(b)),
+			spacecraftWithBody: spacecraft.map(({id, body}) => ({id, body})),
+			spacecraftNoBody: spacecraftNoBody.map(({id, body}) => ({id, body})),
+			renderMarkdownTest,
+			renderMarkdownWithImage,
 		})
 	);
 }

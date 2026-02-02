@@ -339,8 +339,9 @@ async function buildManifest(
 		csp,
 		devToolbar: {
 			enabled: false,
-			latestAstroVersion: settings.latestAstroVersion,
+			latestAstroVersion: undefined,
 			debugInfoOutput: '',
+			placement: undefined,
 		},
 		internalFetchHeaders,
 		logLevel: settings.logLevel,

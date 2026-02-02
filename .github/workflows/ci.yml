@@ -48,13 +48,13 @@ jobs:
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup PNPM
         uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
@@ -78,13 +78,13 @@ jobs:
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup PNPM
         uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
 
       - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: 22
           cache: "pnpm"
@@ -130,13 +130,13 @@ jobs:
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup PNPM
         uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
@@ -149,6 +149,18 @@ jobs:
 
       - name: Test ${{ matrix.TEST_SUITE.name }}
         run: ${{ matrix.TEST_SUITE.script }}
+        env:
+          # By default, Turborepo groups the logs in CI environments to prevent
+          # the logs from being interleaved. We don't have log interleaving
+          # issues here because we already passed the `--concurrency=auto` flag
+          # to `turbo`.
+          #
+          # We want to force Turborepo to print the logs ASAP since it will help us
+          # debug tests that time out, where we can know which step is stuck.
+          #
+          # https://github.com/vercel/turborepo/blob/v2.7.6/docs/site/content/docs/reference/run.mdx?plain=1#L361-L378
+          # https://github.com/vercel/turborepo/blob/v2.7.6/docs/site/content/docs/reference/options-overview.mdx?plain=1#L63
+          TURBO_LOG_ORDER: stream
 
   test-language-tools:
     runs-on: ${{ matrix.os }}
@@ -169,13 +181,13 @@ jobs:
     name: 'Test (language-tools): node-${{ matrix.node_version }}, ${{ matrix.os }}'
     steps:
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup PNPM
         uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
 
       - name: Setup node@${{ matrix.node_version }}
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: ${{ matrix.node_version }}
           cache: "pnpm"
@@ -218,13 +230,13 @@ jobs:
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup PNPM
         uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
@@ -254,19 +266,19 @@ jobs:
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup PNPM
         uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
 
       - name: Checkout docs
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: withastro/docs
           path: smoke/docs

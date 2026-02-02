@@ -159,7 +159,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					build: {
 						client: new URL(`./client/`, config.outDir),
 						server: new URL('./_worker.js/', config.outDir),
-						serverEntry: 'index.js',
+						serverEntry: config.build.serverEntry ?? 'index.js',
 						redirects: false,
 					},
 					session,
@@ -212,6 +212,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 													'astro:*',
 													'virtual:astro:*',
 													'virtual:astro-cloudflare:*',
+													'virtual:@astrojs/*',
 												],
 											},
 										};
@@ -219,6 +220,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 										return {
 											optimizeDeps: {
 												include: ['astro/runtime/client/dev-toolbar/entrypoint.js'],
+												// Workaround for https://github.com/vitejs/vite/issues/20867
+												// When dependencies are discovered mid-request (e.g. a linked package
+												// used with client:only), concurrent requests can fail with 504 because
+												// the dep optimizer's metadata object gets replaced during `await info.processing`.
+												ignoreOutdatedRequests: true,
 											},
 										};
 									}
@@ -278,6 +284,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						edgeMiddleware: false,
 						buildOutput: 'server',
 					},
+					entryType: 'self',
 					previewEntrypoint: '@astrojs/cloudflare/entrypoints/preview',
 					supportedAstroFeatures: {
 						serverOutput: 'stable',

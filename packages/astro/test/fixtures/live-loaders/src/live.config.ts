@@ -36,7 +36,7 @@ class CustomError extends Error {
 
 const loader: LiveLoader<Entry, EntryFilter, CollectionFilter, CustomError> = {
 	name: 'test-loader',
-	loadEntry: async ({ filter }) => {
+	loadEntry: async ({ filter, collection }) => {
 		const entry = entries[filter.id];
 		if (!entry) {
 			return {
@@ -47,6 +47,7 @@ const loader: LiveLoader<Entry, EntryFilter, CollectionFilter, CustomError> = {
 			...entry,
 			data: {
 				title: entry.data.title,
+				collection,
 				age: filter?.addToAge
 					? entry.data.age
 						? entry.data.age + filter.addToAge
@@ -59,7 +60,7 @@ const loader: LiveLoader<Entry, EntryFilter, CollectionFilter, CustomError> = {
 			},
 		};
 	},
-	loadCollection: async ({filter}) => {
+	loadCollection: async ({ filter, collection }) => {
 		return {
 			entries: filter?.addToAge
 				? Object.values(entries).map((entry) => ({
@@ -67,6 +68,7 @@ const loader: LiveLoader<Entry, EntryFilter, CollectionFilter, CustomError> = {
 						data: {
 							title: filter.returnInvalid ? 99 as any : entry.data.title,
 							age: entry.data.age ? entry.data.age + filter!.addToAge! : undefined,
+							collection
 						},
 					}))
 				: Object.values(entries),
@@ -83,6 +85,7 @@ const liveStuff = defineLiveCollection({
 	schema: z.object({
 		title: z.string(),
 		age: z.number().optional(),
+		collection: z.string().optional(),
 	}),
 });
 

@@ -6,7 +6,7 @@ import type * as zCore from 'zod/v4/core';
 import type { GetImageResult, ImageMetadata } from '../assets/types.js';
 import { imageSrcToImportId } from '../assets/utils/resolveImports.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
-import { prependForwardSlash } from '../core/path.js';
+import { isRemotePath, prependForwardSlash } from '../core/path.js';
 import {
 	type AstroComponentFactory,
 	createComponent,
@@ -278,6 +278,7 @@ export function createGetLiveCollection({
 		try {
 			const context = {
 				filter,
+				collection,
 			};
 
 			const response = await (
@@ -392,6 +393,7 @@ export function createGetLiveEntry({
 		try {
 			const lookupObject = {
 				filter: typeof lookup === 'string' ? { id: lookup } : lookup,
+				collection,
 			};
 
 			let entry = await (
@@ -606,7 +608,7 @@ async function render({
 						.map((link: any) => {
 							return renderUniqueStylesheet(result, {
 								type: 'external',
-								src: prependForwardSlash(link),
+								src: isRemotePath(link) ? link : prependForwardSlash(link),
 							});
 						})
 						.join('');

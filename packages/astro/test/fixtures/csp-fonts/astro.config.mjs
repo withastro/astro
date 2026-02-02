@@ -1,18 +1,18 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 
 export default defineConfig({
 	security: {
 		csp: {
-			directives: ["font-src 'self' https://fonts.cdn.test.com"]
+			directives: ["font-src 'self' https://fonts.cdn.test.com"],
 		},
 	},
-	experimental: {
-		fonts: [
-			{
-				name: 'Roboto',
-				cssVariable: '--font-roboto',
-				provider: 'local',
+	fonts: [
+		{
+			name: 'Roboto',
+			cssVariable: '--font-roboto',
+			provider: fontProviders.local(),
+			options: {
 				variants: [
 					{
 						weight: 400,
@@ -20,8 +20,8 @@ export default defineConfig({
 						src: ['./src/fonts/roboto-normal-400.woff2'],
 					},
 				],
-				optimizedFallbacks: false,
 			},
-		],
-	},
+			optimizedFallbacks: false,
+		},
+	],
 });

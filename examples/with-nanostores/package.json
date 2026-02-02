@@ -3,6 +3,9 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -10,10 +13,10 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/preact": "^5.0.0-alpha.0",
-    "@nanostores/preact": "^0.5.2",
-    "astro": "^6.0.0-alpha.5",
-    "nanostores": "^0.11.4",
-    "preact": "^10.28.1"
+    "@astrojs/preact": "^5.0.0-beta.2",
+    "@nanostores/preact": "^1.0.0",
+    "astro": "^6.0.0-beta.6",
+    "nanostores": "^1.1.0",
+    "preact": "^10.28.2"
   }
 }

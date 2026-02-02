@@ -4,6 +4,7 @@ import { describe, it } from 'node:test';
 import { stripVTControlCharacters } from 'node:util';
 import * as z from 'zod/v4';
 import { fontProviders } from '../../../dist/assets/fonts/providers/index.js';
+import { LocalFontProvider } from '../../../dist/assets/fonts/providers/local.js';
 import { validateConfig as _validateConfig } from '../../../dist/core/config/validate.js';
 import { formatConfigErrorMessage } from '../../../dist/core/messages.js';
 import { envField } from '../../../dist/env/config.js';
@@ -402,18 +403,20 @@ describe('Config Validation', () => {
 		it('Should allow empty fonts', () => {
 			assert.doesNotThrow(() =>
 				validateConfig({
-					experimental: {
-						fonts: [],
-					},
+					fonts: [],
 				}),
 			);
 		});
 
 		it('Should error on invalid css variable', async () => {
 			let configError = await validateConfig({
-				experimental: {
-					fonts: [{ name: 'Roboto', cssVariable: 'test', provider: { entrypoint: '' } }],
-				},
+				fonts: [
+					{
+						name: 'Roboto',
+						cssVariable: 'test',
+						provider: { name: 'foo', resolveFont: () => undefined },
+					},
+				],
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
@@ -424,9 +427,13 @@ describe('Config Validation', () => {
 			);
 
 			configError = await validateConfig({
-				experimental: {
-					fonts: [{ name: 'Roboto', cssVariable: '-test', provider: { entrypoint: '' } }],
-				},
+				fonts: [
+					{
+						name: 'Roboto',
+						cssVariable: '-test',
+						provider: { name: 'foo', resolveFont: () => undefined },
+					},
+				],
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
@@ -437,9 +444,13 @@ describe('Config Validation', () => {
 			);
 
 			configError = await validateConfig({
-				experimental: {
-					fonts: [{ name: 'Roboto', cssVariable: '--test ', provider: { entrypoint: '' } }],
-				},
+				fonts: [
+					{
+						name: 'Roboto',
+						cssVariable: '--test ',
+						provider: { name: 'foo', resolveFont: () => undefined },
+					},
+				],
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
@@ -450,9 +461,13 @@ describe('Config Validation', () => {
 			);
 
 			configError = await validateConfig({
-				experimental: {
-					fonts: [{ name: 'Roboto', cssVariable: '--test:x', provider: { entrypoint: '' } }],
-				},
+				fonts: [
+					{
+						name: 'Roboto',
+						cssVariable: '--test:x',
+						provider: { name: 'foo', resolveFont: () => undefined },
+					},
+				],
 			}).catch((err) => err);
 			assert.equal(configError instanceof z.ZodError, true);
 			assert.equal(
@@ -464,9 +479,13 @@ describe('Config Validation', () => {
 
 			assert.doesNotThrow(() =>
 				validateConfig({
-					experimental: {
-						fonts: [{ name: 'Roboto', cssVariable: '--test', provider: { entrypoint: '' } }],
-					},
+					fonts: [
+						{
+							name: 'Roboto',
+							cssVariable: '--test',
+							provider: { name: 'foo', resolveFont: () => undefined },
+						},
+					],
 				}),
 			);
 		});
@@ -474,18 +493,59 @@ describe('Config Validation', () => {
 		it('Should allow empty font fallbacks', () => {
 			assert.doesNotThrow(() =>
 				validateConfig({
-					experimental: {
-						fonts: [
-							{
-								provider: fontProviders.google(),
-								name: 'Roboto',
-								fallbacks: [],
-								cssVariable: '--font-roboto',
-							},
-						],
-					},
+					fonts: [
+						{
+							provider: fontProviders.google(),
+							name: 'Roboto',
+							fallbacks: [],
+							cssVariable: '--font-roboto',
+						},
+					],
 				}),
 			);
+		});
+
+		it('Should allow family options', () => {
+			assert.doesNotThrow(() =>
+				validateConfig({
+					fonts: [
+						{
+							provider: fontProviders.google(),
+							name: 'Roboto',
+							cssVariable: '--font-roboto',
+							options: {},
+						},
+					],
+				}),
+			);
+		});
+
+		it('should preserve FontProvider as a class instance', async () => {
+			const config = await validateConfig({
+				fonts: [
+					{
+						provider: fontProviders.local(),
+						name: 'Roboto',
+						cssVariable: '--font-roboto',
+						options: {},
+					},
+				],
+			});
+			assert.equal(config.fonts?.[0].provider instanceof LocalFontProvider, true);
+		});
+	});
+
+	describe('session', () => {
+		it('should allow session config without a driver', async () => {
+			// Adapters like cloudflare, netlify, and node provide default drivers
+			// so users should be able to configure session options without specifying a driver
+			const result = await validateConfig({
+				session: {
+					ttl: 60 * 60, // 1 hour
+				},
+			});
+			assert.equal(result.session.ttl, 60 * 60);
+			assert.equal(result.session.driver, undefined);
 		});
 	});
 
@@ -540,6 +600,31 @@ describe('Config Validation', () => {
 					},
 				}).catch((err) => err),
 			);
+		});
+	});
+
+	describe('devToolbar', () => {
+		it('should allow valid placement values', async () => {
+			for (const placement of ['bottom-left', 'bottom-center', 'bottom-right']) {
+				const result = await validateConfig({
+					devToolbar: { placement },
+				});
+				assert.equal(result.devToolbar.placement, placement);
+			}
+		});
+
+		it('should allow omitting placement (optional)', async () => {
+			const result = await validateConfig({
+				devToolbar: { enabled: true },
+			});
+			assert.equal(result.devToolbar.placement, undefined);
+		});
+
+		it('should reject invalid placement values', async () => {
+			const configError = await validateConfig({
+				devToolbar: { placement: 'top-left' },
+			}).catch((err) => err);
+			assert.equal(configError instanceof z.ZodError, true);
 		});
 	});
 });

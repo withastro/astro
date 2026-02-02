@@ -1,6 +1,6 @@
 import { prependForwardSlash } from '@astrojs/internal-helpers/path';
 import type * as vite from 'vite';
-import type { Plugin, RunnableDevEnvironment } from 'vite';
+import type { DevEnvironment, Plugin } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { wrapId } from '../core/util.js';
 import type { ImportedDevStyle, RoutesList } from '../types/astro.js';
@@ -81,7 +81,7 @@ function* collectCSSWithOrder(
  * @param routesList
  */
 export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOptions): Plugin[] {
-	let environment: undefined | RunnableDevEnvironment = undefined;
+	let ssrEnvironment: undefined | DevEnvironment = undefined;
 	// Cache CSS content by module ID to avoid re-reading
 	const cssContentCache = new Map<string, string>();
 
@@ -90,9 +90,13 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 			name: MODULE_DEV_CSS,
 
 			async configureServer(server) {
-				environment = server.environments[
-					ASTRO_VITE_ENVIRONMENT_NAMES.ssr
-				] as RunnableDevEnvironment;
+				ssrEnvironment = server.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
+			},
+			applyToEnvironment(env) {
+				return (
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client
+				);
 			},
 
 			resolveId: {
@@ -130,8 +134,8 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 						const componentPageId = getVirtualModulePageNameForComponent(componentPath);
 
 						// Ensure the page module is loaded. This will populate the graph and allow us to walk through.
-						await environment?.runner?.import(componentPageId);
-						const resolved = await environment?.pluginContainer.resolveId(componentPageId);
+						await ssrEnvironment?.fetchModule(componentPageId);
+						const resolved = await ssrEnvironment?.pluginContainer.resolveId(componentPageId);
 
 						if (!resolved?.id) {
 							return {
@@ -140,7 +144,7 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 						}
 
 						// the vite.EnvironmentModuleNode has all of the info we need
-						const mod = environment?.moduleGraph.getModuleById(resolved.id);
+						const mod = ssrEnvironment?.moduleGraph.getModuleById(resolved.id);
 
 						if (!mod) {
 							return {
@@ -185,7 +189,7 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 					}
 
 					// Cache CSS content as we see it
-					const mod = environment?.moduleGraph.getModuleById(id);
+					const mod = ssrEnvironment?.moduleGraph.getModuleById(id);
 					if (mod) {
 						cssContentCache.set(id, code);
 					}

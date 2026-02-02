@@ -1,6 +1,37 @@
 # @astrojs/markdoc
 
-## 1.0.0-alpha.1
+## 1.0.0-beta.6
+
+### Patch Changes
+
+- Updated dependencies [[`7c55f80`](https://github.com/withastro/astro/commit/7c55f80fa1fd91f8f71ad60437f81e6c7f98f69d)]:
+  - @astrojs/markdown-remark@7.0.0-beta.3
+
+## 1.0.0-beta.5
+
+### Patch Changes
+
+- [#15264](https://github.com/withastro/astro/pull/15264) [`11efb05`](https://github.com/withastro/astro/commit/11efb058e85cda68f9a8e8f15a2c7edafe5a4789) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Lower the Node version requirement to allow running on Stackblitz until it supports v22
+
+- Updated dependencies [[`cb99214`](https://github.com/withastro/astro/commit/cb99214ebb991d1b929978f46e1b3ae68b561366), [`11efb05`](https://github.com/withastro/astro/commit/11efb058e85cda68f9a8e8f15a2c7edafe5a4789)]:
+  - @astrojs/markdown-remark@7.0.0-beta.2
+  - @astrojs/prism@4.0.0-beta.2
+
+## 1.0.0-beta.4
+
+### Patch Changes
+
+- Updated dependencies [[`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795), [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795)]:
+  - @astrojs/markdown-remark@7.0.0-beta.1
+  - @astrojs/prism@4.0.0-beta.1
+
+## 1.0.0-beta.3
+
+### Patch Changes
+
+- [#15184](https://github.com/withastro/astro/pull/15184) [`f47c071`](https://github.com/withastro/astro/commit/f47c0719b390918a7e4a18b8b91b682667426b6b) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the package wasn't correctly published
+
+## 1.0.0-beta.0
 
 ### Minor Changes
 
@@ -366,7 +397,7 @@
 - Updated dependencies [[`5608338`](https://github.com/withastro/astro/commit/560833843c6d3ce2b6c6c473ec4ae70e744bf255)]:
   - @astrojs/markdown-remark@6.0.0-beta.1
 
-## 1.0.0-alpha.1
+## 1.0.0-beta.0
 
 ### Patch Changes
 

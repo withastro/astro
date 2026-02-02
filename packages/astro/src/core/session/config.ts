@@ -1,4 +1,4 @@
-import z from 'zod/v4';
+import * as z from 'zod/v4';
 
 export const SessionDriverConfigSchema = z.object({
 	config: z.record(z.string(), z.any()).optional(),
@@ -6,15 +6,17 @@ export const SessionDriverConfigSchema = z.object({
 });
 
 export const SessionSchema = z.object({
-	driver: z.union([
-		z.string().superRefine(() => {
-			console.warn(
-				// TODO: update link to stable docs
-				`Using deprecated \`session.driver\` string signature. Learn how to migrate: https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-session-driver-string-signature`,
-			);
-		}),
-		SessionDriverConfigSchema,
-	]),
+	driver: z
+		.union([
+			z.string().superRefine(() => {
+				console.warn(
+					// TODO: update link to stable docs
+					`Using deprecated \`session.driver\` string signature. Learn how to migrate: https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-session-driver-string-signature`,
+				);
+			}),
+			SessionDriverConfigSchema,
+		])
+		.optional(),
 	options: z.record(z.string(), z.any()).optional(),
 	cookie: z
 		.union([

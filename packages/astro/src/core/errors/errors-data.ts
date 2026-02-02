@@ -1374,56 +1374,16 @@ export const CannotFetchFontFile = {
 /**
  * @docs
  * @description
- * Cannot load font provider
- * @message
- * Astro is unable to load the given font provider. Open an issue on the corresponding provider's repository.
- */
-export const CannotLoadFontProvider = {
-	name: 'CannotLoadFontProvider',
-	title: 'Cannot load font provider',
-	message: (entrypoint: string) => `An error occurred while loading the "${entrypoint}" provider.`,
-	hint: 'This is an issue with the font provider. Please open an issue on their repository.',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
- * Font component is used but experimental fonts have not been registered in the config.
- */
-export const ExperimentalFontsNotEnabled = {
-	name: 'ExperimentalFontsNotEnabled',
-	title: 'Experimental fonts are not enabled',
-	message:
-		'The Font component is used but experimental fonts have not been registered in the config.',
-	hint: 'Check that you have enabled experimental fonts and also configured your preferred fonts.',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
  * Font family not found
  * @message
- * No data was found for the `cssVariable` passed to the `<Font />` component or to the `getFontData()` function.
+ * No data was found for the `cssVariable` passed to the `<Font />` component.
  */
 export const FontFamilyNotFound = {
 	name: 'FontFamilyNotFound',
 	title: 'Font family not found',
 	message: (family: string) =>
 		`No data was found for the \`"${family}"\` family passed to the \`<Font>\` component.`,
-	hint: 'This is often caused by a typo. Check that the `<Font />` component or `getFontData()` function are using a `cssVariable` specified in your config.',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
- * The CSP feature isn't enabled
- * @message
- * The `security.csp` configuration isn't enabled.
- */
-export const CspNotEnabled = {
-	name: 'CspNotEnabled',
-	title: "CSP feature isn't enabled",
-	message: "The `security.csp` configuration isn't enabled.",
+	hint: 'This is often caused by a typo. Check that the `<Font />` component is using a `cssVariable` specified in your config.',
 } satisfies ErrorData;
 
 /**

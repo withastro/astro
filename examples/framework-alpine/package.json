@@ -3,6 +3,9 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -10,9 +13,9 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/alpinejs": "^0.5.0-alpha.0",
+    "@astrojs/alpinejs": "^0.5.0-beta.1",
     "@types/alpinejs": "^3.13.11",
-    "alpinejs": "^3.15.3",
-    "astro": "^6.0.0-alpha.5"
+    "alpinejs": "^3.15.5",
+    "astro": "^6.0.0-beta.6"
   }
 }

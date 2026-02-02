@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import os from 'node:os';
+import { fileURLToPath } from 'node:url';
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
 import colors from 'piccolore';
@@ -35,6 +36,8 @@ import type { BuildApp } from './app.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
+import type { AstroSettings } from '../../types/astro.js';
+import type { Logger } from '../logger/core.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 
 export async function generatePages(
@@ -410,14 +413,14 @@ function getInvalidRouteSegmentError(
 	const invalidParam = /^Expected "([^"]+)"/.exec(e.message)?.[1];
 	const received = invalidParam ? staticPath.params[invalidParam] : undefined;
 	let hint =
-		'Learn about dynamic routes at https://docs.astro.build/en/core-concepts/routing/#dynamic-routes';
+		'Learn about dynamic routes at https://docs.astro.build/en/guides/routing/#dynamic-routes';
 	if (invalidParam && typeof received === 'string') {
 		const matchingSegment = route.segments.find(
 			(segment) => segment[0]?.content === invalidParam,
 		)?.[0];
 		const mightBeMissingSpread = matchingSegment?.dynamic && !matchingSegment?.spread;
 		if (mightBeMissingSpread) {
-			hint = `If the param contains slashes, try using a rest parameter: **[...${invalidParam}]**. Learn more at https://docs.astro.build/en/core-concepts/routing/#dynamic-routes`;
+			hint = `If the param contains slashes, try using a rest parameter: **[...${invalidParam}]**. Learn more at https://docs.astro.build/en/guides/routing/#dynamic-routes`;
 		}
 	}
 	return new AstroError({
@@ -617,6 +620,9 @@ async function generatePath(
 		routeToHeaders.set(pathname, { headers: responseHeaders, route: integrationRoute });
 	}
 
+	// Public files take priority over generated routes
+	if (checkPublicConflict(outFile, route, settings, logger)) return false;
+
 	await fs.promises.mkdir(outFolder, { recursive: true });
 	await fs.promises.writeFile(outFile, body);
 
@@ -633,4 +639,30 @@ function getPrettyRouteName(route: RouteData): string {
 		return /.*node_modules\/(.+)/.exec(route.component)?.[1] ?? route.component;
 	}
 	return route.component;
+}
+
+/**
+ * Check if a file exists in the public directory that would conflict with the output file.
+ * Public files take priority over generated routes. Returns true if there's a conflict.
+ */
+function checkPublicConflict(
+	outFile: URL,
+	route: RouteData,
+	settings: AstroSettings,
+	logger: Logger,
+): boolean {
+	const outFilePath = fileURLToPath(outFile);
+	const outRoot = fileURLToPath(
+		settings.buildOutput === 'static' ? settings.config.outDir : settings.config.build.client,
+	);
+	const relativePath = outFilePath.slice(outRoot.length);
+	const publicFilePath = new URL(relativePath, settings.config.publicDir);
+	if (fs.existsSync(publicFilePath)) {
+		logger.warn(
+			'build',
+			`Skipping ${route.component} because a file with the same name exists in the public folder: ${relativePath}`,
+		);
+		return true;
+	}
+	return false;
 }

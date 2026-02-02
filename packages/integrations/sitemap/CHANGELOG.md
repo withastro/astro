@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 3.6.1-beta.2
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
 ## 3.6.1-alpha.1
 
 ### Patch Changes
@@ -11,6 +17,43 @@
 ### Patch Changes
 
 - [#14956](https://github.com/withastro/astro/pull/14956) [`0ff51df`](https://github.com/withastro/astro/commit/0ff51dfa3c6c615af54228e159f324034472b1a2) Thanks [@matthewp](https://github.com/matthewp)! - Updates usage of zod to own dependency rather than relying on `astro/zod`
+
+## 3.7.0
+
+### Minor Changes
+
+- [#14471](https://github.com/withastro/astro/pull/14471) [`4296373`](https://github.com/withastro/astro/commit/42963732165959795067e11486f10fa2ac5a48cd) Thanks [@Slackluky](https://github.com/Slackluky)! - Adds the ability to split sitemap generation into chunks based on customizable logic. This allows for better management of large sitemaps and improved performance. The new `chunks` option in the sitemap configuration allows users to define functions that categorize sitemap items into different chunks. Each chunk is then written to a separate sitemap file.
+
+  ```
+  integrations: [
+    sitemap({
+      serialize(item) { th
+        return item
+      },
+      chunks: { // this property will be treated last on the configuration
+        'blog': (item) => {  // will produce a sitemap file with `blog` name (sitemap-blog-0.xml)
+          if (/blog/.test(item.url)) { // filter path that will be included in this specific sitemap file
+            item.changefreq = 'weekly';
+            item.lastmod = new Date();
+            item.priority = 0.9; // define specific properties for this filtered path
+            return item;
+          }
+        },
+        'glossary': (item) => {
+          if (/glossary/.test(item.url)) {
+            item.changefreq = 'weekly';
+            item.lastmod = new Date();
+            item.priority = 0.7;
+            return item;
+          }
+        }
+
+        // the rest of the path will be stored in `sitemap-pages.0.xml`
+      },
+    }),
+  ],
+
+  ```
 
 ## 3.6.1
 
