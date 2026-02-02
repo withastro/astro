@@ -27,6 +27,11 @@
       "matchManagers": ["github-actions"]
     },
     {
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["engines"],
+      "enabled": false
+    },
+    {
       "groupName": "astro dependencies",
       "matchManagers": ["npm"],
       "matchFileNames": [
@@ -67,6 +72,7 @@
     "@biomejs/biome",
     "knip",
     "@types/node",
+    "@types/vscode",
 
     // TODO: investigate upgrade (zod import issues with atproto)
     "astro-embed",
@@ -74,14 +80,10 @@
     // TODO: investigate upgrade (has type issues)
     "drizzle-orm",
     "sharp",
+
     // manually bumping workflow actions
     "actions/labeler",
-    // ignore "engines" update
-    "node",
-    "npm",
-    "pnpm",
-    "vscode",
-    "@types/vscode",
+
     // follow vite deps version
     "postcss-load-config",
     "esbuild"

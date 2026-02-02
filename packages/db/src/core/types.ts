@@ -1,4 +1,4 @@
-import type { z } from 'zod/v3';
+import type * as z from 'zod/v4';
 import type {
 	booleanColumnSchema,
 	columnSchema,
