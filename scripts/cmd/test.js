@@ -1,8 +1,9 @@
 import fs from 'node:fs/promises';
+import { createWriteStream } from 'node:fs';
 import path from 'node:path';
 import { run } from 'node:test';
 import { spec } from 'node:test/reporters';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { glob } from 'tinyglobby';
 
@@ -93,7 +94,10 @@ export default async function test() {
 			: undefined,
 		concurrency: args.values.parallel,
 		only: args.values.only,
-		setup: setupModule?.default,
+		setup: async reporter => {
+			await timeReport(reporter);
+			return setupModule?.default(reporter);
+		},
 		watch: args.values.watch,
 		timeout: args.values.timeout ? Number(args.values.timeout) : defaultTimeout, // Node.js defaults to Infinity, so set better fallback
 	})
@@ -108,4 +112,62 @@ export default async function test() {
 		})
 		.pipe(new spec())
 		.pipe(process.stdout);
+}
+
+/**
+ * @param {import('node:test').TestsStream} stream
+ */
+async function timeReport(stream) {
+	const cwd = process.cwd();
+	const name = `${process.env.npm_package_name || path.basename(cwd)}-${process.env.npm_lifecycle_event || 'test'}`.replace(/[^\w@_-]+/g, '-');
+
+	await fs.mkdir(path.resolve('test-results'), { recursive: true });
+	const reportPath = path.resolve(
+		fileURLToPath(import.meta.url),
+		`../../test-report/src/reports/${name}.json`,
+	);
+
+	const entries = [];
+
+	const writeReport = entry => {
+		entries.push({ ...entry, file: path.relative(cwd, entry.file) });
+	}
+
+	const makeKey = event => {
+		const file = path.relative(cwd, event.file);
+		return `${file}:${event.line}:${event.column}:${event.nesting}:${event.name}`;
+	}
+
+	const stack = [];
+
+	stream.on('test:start', (event) => {
+		const key = makeKey(event);
+		console.profile(key)
+
+		const parent = stack.findLast((e) => e.file === event.file && e.line <= event.line && e.nesting === event.nesting - 1);
+		stack.push({
+			...event,
+			path: !!parent ? [...parent.path, parent.key] : [],
+			key: key,
+		});
+	});
+	stream.on('test:pass', (event) => {
+		const key = makeKey(event);
+		console.profileEnd(key)
+		const index = stack.findLastIndex(e => e.key === key);
+		const entry = stack.splice(index, 1)[0];
+		writeReport({ ...event, path: entry.path });
+	});
+	stream.on('test:fail', (event) => {
+		const key = makeKey(event);
+		console.profileEnd(key)
+		const index = stack.findLastIndex(e => e.key === key);
+		const entry = stack.splice(index, 1)[0];
+		writeReport({ ...event, path: entry.path });
+		event.details
+	});
+	stream.on('end', async () => {
+		await fs.mkdir(path.dirname(reportPath), { recursive: true });
+		await fs.writeFile(reportPath, JSON.stringify(entries, null, 2));
+	});
 }

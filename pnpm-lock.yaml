@@ -7002,6 +7002,18 @@ importers:
         specifier: ^3.1.6
         version: 3.1.6(typescript@5.9.3)
 
+  scripts/test-report:
+    dependencies:
+      '@astrojs/solid-js':
+        specifier: 'workspace:'
+        version: link:../../packages/integrations/solid
+      astro:
+        specifier: 'workspace:'
+        version: link:../../packages/astro
+      solid-js:
+        specifier: ^1.9.10
+        version: 1.9.10
+
 packages:
 
   '@antfu/utils@0.7.10':

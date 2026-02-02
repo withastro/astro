@@ -4,6 +4,7 @@ packages:
   - 'examples/**/*'
   - 'smoke/**/*'
   - 'scripts'
+  - 'scripts/test-report'
   - 'benchmark'
   - 'benchmark/packages/*'
   - 'benchmark/static-projects/*'
