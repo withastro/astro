@@ -34,7 +34,11 @@ export default function ({ include, exclude, compat, devtools }: Options = {}): 
 					},
 				});
 
-				const viteConfig: ViteUserConfig = {};
+				const viteConfig: ViteUserConfig = {
+					optimizeDeps: {
+						include: ['@astrojs/preact/server.js'],
+					},
+				};
 
 				viteConfig.plugins = [preactPlugin, configEnvironmentPlugin(compat)];
 
@@ -78,10 +82,6 @@ function configEnvironmentPlugin(compat: boolean | undefined): Plugin {
 					'preact',
 					'preact/jsx-runtime',
 				];
-			}
-
-			if (environmentName === 'ssr' || environmentName === 'prerender') {
-				environmentOptions.optimizeDeps!.include = ['@astrojs/preact/server.js'];
 			}
 
 			if (compat) {
