@@ -154,7 +154,9 @@ export async function add(names: string[], { flags }: AddOptions) {
 	const logger = createLoggerFromFlags(flags);
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
 	const integrations = await validateIntegrations(integrationNames, flags, logger);
-	const hasCloudflareIntegration = integrations.some((integration) => integration.id === 'cloudflare');
+	const hasCloudflareIntegration = integrations.some(
+		(integration) => integration.id === 'cloudflare',
+	);
 	let installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logger });
 	const rootPath = resolveRoot(cwd);
 	const root = pathToFileURL(rootPath);
@@ -1066,10 +1068,13 @@ async function updateTSConfig(
 		// Every major framework, apart from Vue and Svelte requires different `jsxImportSource`, as such it's impossible to config
 		// all of them in the same `tsconfig.json`. However, Vue only need `"jsx": "preserve"` for template intellisense which
 		// can be compatible with some frameworks (ex: Solid)
-		const conflictingIntegrations: string[] = Array.from(presets.keys()).filter((config) => config !== 'vue');
+		const conflictingIntegrations: string[] = Array.from(presets.keys()).filter(
+			(config) => config !== 'vue',
+		);
 		const hasConflictingIntegrations =
 			integrations.filter((integration) => presets.has(integration)).length > 1 &&
-			integrations.filter((integration) => conflictingIntegrations.includes(integration)).length > 0;
+			integrations.filter((integration) => conflictingIntegrations.includes(integration)).length >
+				0;
 
 		if (hasConflictingIntegrations) {
 			logger.info(
