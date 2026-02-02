@@ -21,15 +21,22 @@ export type {
 	UnresolvedImageTransform,
 } from '../../assets/types.js';
 export type { ContainerRenderer } from '../../container/index.js';
-export type { AssetsPrefix, NodeAppHeadersJson, SSRManifest } from '../../core/app/types.js';
+export type {
+	AssetsPrefix,
+	NodeAppHeadersJson,
+	RouteInfo,
+	SSRManifest,
+} from '../../core/app/types.js';
 export type {
 	AstroCookieGetOptions,
 	AstroCookieSetOptions,
 	AstroCookies,
 } from '../../core/cookies/index.js';
 export type { AstroIntegrationLogger } from '../../core/logger/core.js';
-export { AstroSession } from '../../core/session.js';
+export type { AstroSession } from '../../core/session/runtime.js';
 export type { ToolbarServerHelpers } from '../../runtime/client/dev-toolbar/helpers.js';
+export type { AstroEnvironmentNames } from '../../core/constants.js';
+export type { SessionDriver, SessionDriverConfig } from '../../core/session/types.js';
 export type * from './common.js';
 export type * from './config.js';
 export type * from './content.js';

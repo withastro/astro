@@ -3,7 +3,7 @@ import { extname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as devalue from 'devalue';
 import type { PluginContext } from 'rollup';
-import type { Plugin } from 'vite';
+import type { Plugin, RunnableDevEnvironment } from 'vite';
 import { getProxyCode } from '../assets/utils/proxy.js';
 import { AstroError } from '../core/errors/errors.js';
 import { AstroErrorData } from '../core/errors/index.js';
@@ -35,6 +35,7 @@ import {
 	reloadContentConfigObserver,
 	reverseSymlink,
 } from './utils.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
 function getContentRendererByViteId(
 	viteId: string,
@@ -71,7 +72,11 @@ export function astroContentImportPlugin({
 	settings: AstroSettings;
 	logger: Logger;
 }): Plugin[] {
-	const contentPaths = getContentPaths(settings.config, fs);
+	const contentPaths = getContentPaths(
+		settings.config,
+		fs,
+		settings.config.legacy?.collectionsBackwardsCompat,
+	);
 	const contentEntryExts = getContentEntryExts(settings);
 	const dataEntryExts = getDataEntryExts(settings);
 
@@ -90,28 +95,32 @@ export function astroContentImportPlugin({
 				// Get symlinks once at build start
 				symlinks = await getSymlinkedContentCollections({ contentDir, logger, fs });
 			},
-			async transform(_, viteId) {
-				if (hasContentFlag(viteId, DATA_FLAG)) {
-					// By default, Vite will resolve symlinks to their targets. We need to reverse this for
-					// content entries, so we can get the path relative to the content directory.
-					const fileId = reverseSymlink({
-						entry: viteId.split('?')[0] ?? viteId,
-						contentDir,
-						symlinks,
-					});
-					// Data collections don't need to rely on the module cache.
-					// This cache only exists for the `render()` function specific to content.
-					const { id, data, collection, _internal } = await getDataEntryModule({
-						fileId,
-						entryConfigByExt: dataEntryConfigByExt,
-						contentDir,
-						config: settings.config,
-						fs,
-						pluginContext: this,
-						shouldEmitFile,
-					});
+			transform: {
+				filter: {
+					id: new RegExp(`(?:\\?|&)(?:${DATA_FLAG}|${CONTENT_FLAG})(?:&|=|$)`),
+				},
+				async handler(_, viteId) {
+					if (hasContentFlag(viteId, DATA_FLAG)) {
+						// By default, Vite will resolve symlinks to their targets. We need to reverse this for
+						// content entries, so we can get the path relative to the content directory.
+						const fileId = reverseSymlink({
+							entry: viteId.split('?')[0] ?? viteId,
+							contentDir,
+							symlinks,
+						});
+						// Data collections don't need to rely on the module cache.
+						// This cache only exists for the `render()` function specific to content.
+						const { id, data, collection, _internal } = await getDataEntryModule({
+							fileId,
+							entryConfigByExt: dataEntryConfigByExt,
+							contentDir,
+							config: settings.config,
+							fs,
+							pluginContext: this,
+							shouldEmitFile,
+						});
 
-					const code = `
+						const code = `
 export const id = ${JSON.stringify(id)};
 export const collection = ${JSON.stringify(collection)};
 export const data = ${stringifyEntryData(data, settings.buildOutput === 'server')};
@@ -121,20 +130,20 @@ export const _internal = {
 	rawData: ${JSON.stringify(_internal.rawData)},
 };
 `;
-					return code;
-				} else if (hasContentFlag(viteId, CONTENT_FLAG)) {
-					const fileId = reverseSymlink({ entry: viteId.split('?')[0], contentDir, symlinks });
-					const { id, slug, collection, body, data, _internal } = await getContentEntryModule({
-						fileId,
-						entryConfigByExt: contentEntryConfigByExt,
-						contentDir,
-						config: settings.config,
-						fs,
-						pluginContext: this,
-						shouldEmitFile,
-					});
+						return code;
+					} else if (hasContentFlag(viteId, CONTENT_FLAG)) {
+						const fileId = reverseSymlink({ entry: viteId.split('?')[0], contentDir, symlinks });
+						const { id, slug, collection, body, data, _internal } = await getContentEntryModule({
+							fileId,
+							entryConfigByExt: contentEntryConfigByExt,
+							contentDir,
+							config: settings.config,
+							fs,
+							pluginContext: this,
+							shouldEmitFile,
+						});
 
-					const code = `
+						const code = `
 						export const id = ${JSON.stringify(id)};
 						export const collection = ${JSON.stringify(collection)};
 						export const slug = ${JSON.stringify(slug)};
@@ -146,12 +155,15 @@ export const _internal = {
 							rawData: ${JSON.stringify(_internal.rawData)},
 						};`;
 
-					return { code, map: { mappings: '' } };
-				}
+						return { code, map: { mappings: '' } };
+					}
+				},
 			},
 			configureServer(viteServer) {
 				viteServer.watcher.on('all', async (event, entry) => {
 					if (CHOKIDAR_MODIFIED_EVENTS.includes(event)) {
+						const environment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
+
 						const entryType = getEntryType(entry, contentPaths, contentEntryExts, dataEntryExts);
 						if (!COLLECTION_TYPES_TO_INVALIDATE_ON.includes(entryType)) return;
 
@@ -159,21 +171,27 @@ export const _internal = {
 						// Reload the config in case of changes.
 						// Changes to the config file itself are handled in types-generator.ts, so we skip them here
 						if (entryType === 'content' || entryType === 'data') {
-							await reloadContentConfigObserver({ fs, settings, viteServer });
+							await reloadContentConfigObserver({
+								fs,
+								settings,
+								environment: viteServer.environments[
+									ASTRO_VITE_ENVIRONMENT_NAMES.astro
+								] as RunnableDevEnvironment,
+							});
 						}
 
 						// Invalidate all content imports and `render()` modules.
 						// TODO: trace `reference()` calls for fine-grained invalidation.
-						for (const modUrl of viteServer.moduleGraph.urlToModuleMap.keys()) {
+						for (const modUrl of environment.moduleGraph.urlToModuleMap.keys()) {
 							if (
 								hasContentFlag(modUrl, CONTENT_FLAG) ||
 								hasContentFlag(modUrl, DATA_FLAG) ||
 								Boolean(getContentRendererByViteId(modUrl, settings))
 							) {
 								try {
-									const mod = await viteServer.moduleGraph.getModuleByUrl(modUrl);
+									const mod = await environment.moduleGraph.getModuleByUrl(modUrl);
 									if (mod) {
-										viteServer.moduleGraph.invalidateModule(mod);
+										environment.moduleGraph.invalidateModule(mod);
 									}
 								} catch (e: any) {
 									// The server may be closed due to a restart caused by this file change
@@ -191,12 +209,21 @@ export const _internal = {
 	if (settings.contentEntryTypes.some((t) => t.getRenderModule)) {
 		plugins.push({
 			name: 'astro:content-render-imports',
-			async transform(contents, viteId) {
-				const contentRenderer = getContentRendererByViteId(viteId, settings);
-				if (!contentRenderer) return;
+			transform: {
+				filter: {
+					id: {
+						include: settings.contentEntryTypes
+							.filter((t) => t.getRenderModule)
+							.map((t) => new RegExp(`\\.(${t.extensions.map((e) => e.slice(1)).join('|')})$`)),
+					},
+				},
+				async handler(contents, viteId) {
+					const contentRenderer = getContentRendererByViteId(viteId, settings);
+					if (!contentRenderer) return;
 
-				const fileId = viteId.split('?')[0];
-				return contentRenderer.bind(this)({ viteId, contents, fileUrl: pathToFileURL(fileId) });
+					const fileId = viteId.split('?')[0];
+					return contentRenderer.bind(this)({ viteId, contents, fileUrl: pathToFileURL(fileId) });
+				},
 			},
 		});
 	}
@@ -245,8 +272,6 @@ async function getContentEntryModule(
 				{ id, collection, _internal, unvalidatedData },
 				collectionConfig,
 				params.shouldEmitFile,
-				// FUTURE: Remove in this in v6
-				id.endsWith('.svg'),
 				pluginContext,
 			)
 		: unvalidatedData;
@@ -282,8 +307,6 @@ async function getDataEntryModule(
 				{ id, collection, _internal, unvalidatedData },
 				collectionConfig,
 				params.shouldEmitFile,
-				// FUTURE: Remove in this in v6
-				id.endsWith('.svg'),
 				pluginContext,
 			)
 		: unvalidatedData;

@@ -17,7 +17,7 @@ export const SERVER_ISLAND_BASE_PREFIX = '_server-islands';
 
 type ConfigFields = Pick<SSRManifest, 'base' | 'trailingSlash'>;
 
-export function getServerIslandRouteData(config: ConfigFields) {
+function getServerIslandRouteData(config: ConfigFields) {
 	const segments = [
 		[{ content: '_server-islands', dynamic: false, spread: false }],
 		[{ content: 'name', dynamic: true, spread: false }],
@@ -25,7 +25,6 @@ export function getServerIslandRouteData(config: ConfigFields) {
 	const route: RouteData = {
 		type: 'page',
 		component: SERVER_ISLAND_COMPONENT,
-		generate: () => '',
 		params: ['name'],
 		segments,
 		pattern: getPattern(segments, config.base, config.trailingSlash),
@@ -34,6 +33,7 @@ export function getServerIslandRouteData(config: ConfigFields) {
 		fallbackRoutes: [],
 		route: SERVER_ISLAND_ROUTE,
 		origin: 'internal',
+		distURL: [],
 	};
 	return route;
 }
@@ -122,7 +122,9 @@ export function createEndpoint(manifest: SSRManifest) {
 			return data;
 		}
 
-		const imp = manifest.serverIslandMap?.get(componentId);
+		const serverIslandMappings = await manifest.serverIslandMappings?.();
+		const serverIslandMap = await serverIslandMappings?.serverIslandMap;
+		let imp = serverIslandMap?.get(componentId);
 		if (!imp) {
 			return new Response(null, {
 				status: 404,
@@ -141,7 +143,6 @@ export function createEndpoint(manifest: SSRManifest) {
 		}
 
 		const encryptedProps = data.encryptedProps;
-
 		let props = {};
 
 		if (encryptedProps !== '') {

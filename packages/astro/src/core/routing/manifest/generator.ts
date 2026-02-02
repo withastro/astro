@@ -44,11 +44,13 @@ function getSegment(segment: RoutePart[], params: Record<string, string | number
 	return segmentPath ? '/' + segmentPath : '';
 }
 
+type RouteGenerator = (data?: any) => string;
+
 export function getRouteGenerator(
 	segments: RoutePart[][],
 	addTrailingSlash: AstroConfig['trailingSlash'],
-) {
-	return (params: Record<string, string | number>): string => {
+): RouteGenerator {
+	return (params?: any): string => {
 		const sanitizedParams = sanitizeParams(params);
 
 		// Unless trailingSlash config is set to 'always', don't automatically append it.

@@ -1,9 +1,11 @@
 import type { Properties, Root } from 'hast';
 import {
 	type BundledLanguage,
+	type BundledTheme,
 	createCssVariablesTheme,
 	createHighlighter,
 	type HighlighterCoreOptions,
+	type HighlighterGeneric,
 	isSpecialLang,
 	type LanguageRegistration,
 	type ShikiTransformer,
@@ -69,6 +71,9 @@ const cssVariablesTheme = () =>
 		variablePrefix: '--astro-code-',
 	}));
 
+// Caches Promise<ShikiHighlighter> for reuse when the same theme and langs are provided
+const cachedHighlighters = new Map();
+
 export async function createShikiHighlighter({
 	langs = [],
 	theme = 'github-dark',
@@ -77,11 +82,23 @@ export async function createShikiHighlighter({
 }: CreateShikiHighlighterOptions = {}): Promise<ShikiHighlighter> {
 	theme = theme === 'css-variables' ? cssVariablesTheme() : theme;
 
-	const highlighter = await createHighlighter({
+	const highlighterOptions = {
 		langs: ['plaintext', ...langs],
 		langAlias,
 		themes: Object.values(themes).length ? Object.values(themes) : [theme],
-	});
+	};
+
+	const key = JSON.stringify(highlighterOptions, Object.keys(highlighterOptions).sort());
+
+	let highlighter: HighlighterGeneric<BundledLanguage, BundledTheme>;
+
+	// Highlighter has already been requested, reuse the same instance
+	if (cachedHighlighters.has(key)) {
+		highlighter = cachedHighlighters.get(key);
+	} else {
+		highlighter = await createHighlighter(highlighterOptions);
+		cachedHighlighters.set(key, highlighter);
+	}
 
 	async function highlight(
 		code: string,

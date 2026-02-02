@@ -4,6 +4,7 @@ import * as fs from 'node:fs';
 import { beforeEach, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
+import { Logger } from '../dist/core/logger/core.js';
 import { loadFixture } from './test-utils.js';
 
 const createFixture = () => {
@@ -11,6 +12,8 @@ const createFixture = () => {
 	let astroFixture;
 	/** @type {Record<string, string>} */
 	const writtenFiles = {};
+	/** @type {Array<string>} */
+	const warnLogs = [];
 
 	/**
 	 * @param {string} path
@@ -50,13 +53,23 @@ const createFixture = () => {
 				},
 			};
 
-			await astroFixture.sync(
-				{ root: fileURLToPath(astroFixture.config.root) },
-				{
-					// @ts-ignore
-					fs: fsMock,
-				},
-			);
+			const originalWarn = console.warn;
+			console.warn = (message) => {
+				originalWarn(message);
+				warnLogs.push(message);
+			};
+
+			try {
+				await astroFixture.sync(
+					{ root: fileURLToPath(astroFixture.config.root) },
+					{
+						// @ts-ignore
+						fs: fsMock,
+					},
+				);
+			} finally {
+				console.error = originalWarn;
+			}
 		},
 		/** @param {string} path */
 		thenFileShouldExist(path) {
@@ -101,6 +114,16 @@ const createFixture = () => {
 			} catch (error) {
 				assert.fail(`${path} is not valid TypeScript. Error: ${error.message}`);
 			}
+		},
+		/**
+		 * @param {string} message
+		 */
+		thenWarnLogsInclude(message) {
+			if (warnLogs.length === 0) {
+				assert.fail('No error log');
+			}
+			const index = warnLogs.findIndex((log) => log.includes(message));
+			assert.equal(index !== -1, true, 'No error log found');
 		},
 	};
 };
@@ -150,9 +173,7 @@ describe('astro sync', () => {
 				'.astro/content.d.ts',
 				`"blog": Record<string, {
   id: string;
-  render(): Render[".md"];
-  slug: string;
-  body: string;
+  body?: string;
   collection: "blog";
   data: InferEntrySchema<"blog">;
   rendered?: RenderedContent;
@@ -173,11 +194,11 @@ describe('astro sync', () => {
 			);
 		});
 
-		it('does not write individual types for entries when emulating legacy collections', async () => {
-			await fixture.load('./fixtures/content-collections/');
+		it('fails when using a loader schema function', async () => {
+			await fixture.load('./fixtures/content-layer-loader-schema-function/');
 			fixture.clean();
 			await fixture.whenSyncing();
-			fixture.thenFileContentShouldNotInclude('.astro/content.d.ts', 'id: "one.md"');
+			fixture.thenWarnLogsInclude("Your loader's schema is defined using a function.");
 		});
 	});
 
@@ -243,6 +264,37 @@ describe('astro sync', () => {
 				'Types file does not include `astro:actions` module declaration',
 			);
 			fixture.thenFileShouldBeValidTypescript('.astro/actions.d.ts');
+		});
+	});
+
+	describe('No content config', () => {
+		it('Syncs silently without error when content config does not exist', async () => {
+			/**
+			 * @type {import("../dist/core/logger/core.js").LogMessage[]}
+			 */
+			const logs = [];
+			const logger = new Logger({
+				level: 'debug',
+				dest: {
+					write(chunk) {
+						logs.push(chunk);
+						return true;
+					},
+				},
+			});
+
+			const astroFixture = await loadFixture({ root: './fixtures/astro-basic/' });
+			fs.rmSync(new URL('./.astro/', astroFixture.config.root), { force: true, recursive: true });
+
+			// @ts-ignore
+			await astroFixture.sync({ root: fileURLToPath(astroFixture.config.root), logger });
+
+			const errorLogs = logs.filter((log) => log.level === 'error');
+			assert.equal(
+				errorLogs.length,
+				0,
+				`Expected no error logs, but got: ${JSON.stringify(errorLogs)}`,
+			);
 		});
 	});
 });

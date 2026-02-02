@@ -18,6 +18,7 @@ import { build } from 'esbuild';
 import { glob, globSync } from 'tinyglobby';
 import { copyDependenciesToFunction } from './lib/nft.js';
 import type { Args } from './ssr-function.js';
+import { sessionDrivers } from 'astro/config';
 
 const { version: packageVersion } = JSON.parse(
 	await readFile(new URL('../package.json', import.meta.url), 'utf8'),
@@ -142,7 +143,7 @@ async function writeNetlifyFrameworkConfig(
 
 	if (staticHeaders && staticHeaders.size > 0) {
 		for (const [pathname, { headers: routeHeaders }] of staticHeaders.entries()) {
-			if (config.experimental.csp) {
+			if (config.security.csp) {
 				const csp = routeHeaders.get('Content-Security-Policy');
 
 				if (csp) {
@@ -597,13 +598,12 @@ export default function netlifyIntegration(
 					logger.info('Enabling sessions with Netlify Blobs');
 
 					session = {
-						...session,
-						driver: 'netlify-blobs',
-						options: {
+						driver: sessionDrivers.netlifyBlobs({
 							name: 'astro-sessions',
 							consistency: 'strong',
-							...session?.options,
-						},
+						}),
+						cookie: session?.cookie,
+						ttl: session?.ttl,
 					};
 				}
 
@@ -738,10 +738,11 @@ export default function netlifyIntegration(
 				if (existingSessionModule) {
 					server.moduleGraph.invalidateModule(existingSessionModule);
 				}
+
+				const clientLocalsSymbol = Symbol.for('astro.locals');
+
 				server.middlewares.use((req, _res, next) => {
-					const locals = Symbol.for('astro.locals');
-					Reflect.set(req, locals, {
-						...Reflect.get(req, locals),
+					Reflect.set(req, clientLocalsSymbol, {
 						netlify: { context: getLocalDevNetlifyContext(req) },
 					});
 					next();

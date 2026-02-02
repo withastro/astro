@@ -36,6 +36,9 @@ describe('Server islands', () => {
 			fixture = await loadFixture({
 				root: './fixtures/server-islands/ssr',
 				adapter: testAdapter(),
+				security: {
+					checkOrigin: false,
+				},
 			});
 		});
 

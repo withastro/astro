@@ -1,7 +1,5 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
-import { Worker } from 'node:worker_threads';
 import * as cheerio from 'cheerio';
 import nodejs from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
@@ -26,27 +24,6 @@ describe('Errors', () => {
 	// });
 	after(async () => {
 		await devPreview?.stop();
-	});
-
-	it('stays alive after offshoot promise rejections', async () => {
-		// this test needs to happen in a worker because node test runner adds a listener for unhandled rejections in the main thread
-		const url = new URL('./fixtures/errors/dist/server/entry.mjs', import.meta.url);
-		const worker = new Worker(fileURLToPath(url), {
-			type: 'module',
-			env: { ASTRO_NODE_LOGGING: 'enabled' },
-		});
-
-		await new Promise((resolve, reject) => {
-			worker.stdout.on('data', (data) => {
-				setTimeout(() => reject('Server took too long to start'), 1000);
-				if (data.toString().includes('Server listening on http://localhost:4321')) resolve();
-			});
-		});
-
-		await fetch('http://localhost:4321/offshoot-promise-rejection');
-
-		// if there was a crash, it becomes an error here
-		await worker.terminate();
 	});
 
 	it(

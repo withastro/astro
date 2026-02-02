@@ -3,7 +3,7 @@ import { dirname, relative } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import colors from 'piccolore';
-import { createServer, type FSWatcher, type HMRPayload } from 'vite';
+import { createServer, type FSWatcher, type HotPayload } from 'vite';
 import { syncFonts } from '../../assets/fonts/sync.js';
 import { CONTENT_TYPES_FILE } from '../../content/consts.js';
 import { getDataStoreFile, globalContentLayer } from '../../content/content-layer.js';
@@ -14,10 +14,8 @@ import { syncAstroEnv } from '../../env/sync.js';
 import { telemetry } from '../../events/index.js';
 import { eventCliSession } from '../../events/session.js';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/hooks.js';
-import type { AstroSettings, RoutesList } from '../../types/astro.js';
+import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
-import { createDevelopmentManifest } from '../../vite-plugin-astro-server/plugin.js';
-import type { SSRManifest } from '../app/types.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
 import { createNodeLogger } from '../config/logging.js';
@@ -32,7 +30,7 @@ import {
 	isAstroError,
 } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
-import { createRoutesList } from '../routing/index.js';
+import { createRoutesList } from '../routing/manifest/create.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { normalizePath } from '../viteUtils.js';
 
@@ -51,8 +49,6 @@ type SyncOptions = {
 		// Cleanup can be skipped in dev as some state can be reused on updates
 		cleanup?: boolean;
 	};
-	routesList: RoutesList;
-	manifest: SSRManifest;
 	command: 'build' | 'dev' | 'sync';
 	watcher?: FSWatcher;
 };
@@ -67,14 +63,12 @@ export default async function sync(
 	if (_telemetry) {
 		telemetry.record(eventCliSession('sync', userConfig));
 	}
-	let settings = await createSettings(astroConfig, inlineConfig.root);
+	let settings = await createSettings(astroConfig, inlineConfig.logLevel, inlineConfig.root);
 	settings = await runHookConfigSetup({
 		command: 'sync',
 		settings,
 		logger,
 	});
-	const routesList = await createRoutesList({ settings, fsMod: fs }, logger);
-	const manifest = createDevelopmentManifest(settings);
 	await runHookConfigDone({ settings, logger });
 
 	return await syncInternal({
@@ -83,9 +77,7 @@ export default async function sync(
 		mode: 'production',
 		fs,
 		force: inlineConfig.force,
-		routesList,
 		command: 'sync',
-		manifest,
 	});
 }
 
@@ -124,10 +116,8 @@ export async function syncInternal({
 	settings,
 	skip,
 	force,
-	routesList,
 	command,
 	watcher,
-	manifest,
 }: SyncOptions): Promise<void> {
 	const isDev = command === 'dev';
 	if (force) {
@@ -137,7 +127,7 @@ export async function syncInternal({
 	const timerStart = performance.now();
 
 	if (!skip?.content) {
-		await syncContentCollections(settings, { mode, fs, logger, routesList, manifest });
+		await syncContentCollections(settings, { mode, fs, logger });
 		settings.timer.start('Sync content layer');
 
 		let store: MutableDataStore | undefined;
@@ -168,13 +158,12 @@ export async function syncInternal({
 		}
 		settings.timer.end('Sync content layer');
 	} else {
-		const paths = getContentPaths(settings.config, fs);
-		if (
-			paths.config.exists ||
-			paths.liveConfig.exists ||
-			// Legacy collections don't require a config file
-			(settings.config.legacy?.collections && fs.existsSync(paths.contentDir))
-		) {
+		const paths = getContentPaths(
+			settings.config,
+			fs,
+			settings.config.legacy?.collectionsBackwardsCompat,
+		);
+		if (paths.config.exists || paths.liveConfig.exists) {
 			// We only create the reference, without a stub to avoid overriding the
 			// already generated types
 			settings.injectedTypes.push({
@@ -234,14 +223,17 @@ function writeInjectedTypes(settings: AstroSettings, fs: typeof fsMod) {
  */
 async function syncContentCollections(
 	settings: AstroSettings,
-	{
-		mode,
-		logger,
-		fs,
-		routesList,
-		manifest,
-	}: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs' | 'routesList' | 'manifest'>>,
+	{ mode, logger, fs }: Required<Pick<SyncOptions, 'mode' | 'logger' | 'fs'>>,
 ): Promise<void> {
+	const routesList = await createRoutesList(
+		{
+			settings,
+			fsMod: fs,
+		},
+		logger,
+		{ dev: true, skipBuildOutputAssignment: true },
+	);
+
 	// Needed to load content config
 	const tempViteServer = await createServer(
 		await createVite(
@@ -252,7 +244,7 @@ async function syncContentCollections(
 				logLevel: 'silent',
 			},
 			{
-				// Prevent mutation of specific properties by vite plugins during sync
+				routesList,
 				settings: {
 					...settings,
 					// Prevent mutation by vite plugins during sync
@@ -268,16 +260,14 @@ async function syncContentCollections(
 				command: 'build',
 				fs,
 				sync: true,
-				routesList,
-				manifest,
 			},
 		),
 	);
 
 	// Patch `hot.send` to bubble up error events
 	// `hot.on('error')` does not fire for some reason
-	const hotSend = tempViteServer.hot.send;
-	tempViteServer.hot.send = (payload: HMRPayload) => {
+	const hotSend = tempViteServer.environments.client.hot.send;
+	tempViteServer.environments.client.hot.send = (payload: HotPayload) => {
 		if (payload.type === 'error') {
 			throw payload.err;
 		}
@@ -292,19 +282,11 @@ async function syncContentCollections(
 			settings,
 			viteServer: tempViteServer,
 		});
-		const typesResult = await contentTypesGenerator.init();
+		await contentTypesGenerator.init();
 
 		const contentConfig = globalContentConfigObserver.get();
 		if (contentConfig.status === 'error') {
 			throw contentConfig.error;
-		}
-
-		if (typesResult.typesGenerated === false) {
-			switch (typesResult.reason) {
-				case 'no-content-dir':
-				default:
-					logger.debug('types', 'No content directory found. Skipping type generation.');
-			}
 		}
 	} catch (e) {
 		const safeError = createSafeError(e) as ErrorWithMetadata;
@@ -313,7 +295,11 @@ async function syncContentCollections(
 		}
 		let configFile;
 		try {
-			const contentPaths = getContentPaths(settings.config, fs);
+			const contentPaths = getContentPaths(
+				settings.config,
+				fs,
+				settings.config.legacy?.collectionsBackwardsCompat,
+			);
 			if (contentPaths.config.exists) {
 				const matches = /\/(src\/.+)/.exec(contentPaths.config.url.href);
 				if (matches) {

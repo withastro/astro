@@ -1,14 +1,17 @@
 import type { Font } from '@capsizecss/unpack';
 import type * as unifont from 'unifont';
-import type { z } from 'zod';
-import type { displaySchema, styleSchema, weightSchema } from './config.js';
+import type * as z from 'zod/v4';
+import type { DisplaySchema, StyleSchema, WeightSchema } from './config.js';
 import type { FONT_TYPES, GENERIC_FALLBACK_NAMES } from './constants.js';
 import type { CollectedFontForMetrics } from './core/optimize-fallbacks.js';
 
-export type Weight = z.infer<typeof weightSchema>;
-type Display = z.infer<typeof displaySchema>;
+export type Weight = z.infer<typeof WeightSchema>;
+type Display = z.infer<typeof DisplaySchema>;
 
 export interface FontProviderInitContext {
+	/**
+	 * Useful for caching.
+	 */
 	storage: {
 		getItem: {
 			<T = unknown>(key: string): Promise<T | null>;
@@ -16,6 +19,9 @@ export interface FontProviderInitContext {
 		};
 		setItem: (key: string, value: unknown) => Awaitable<void>;
 	};
+	/**
+	 * The project root, useful for resolving local files paths.
+	 */
 	root: URL;
 }
 
@@ -25,11 +31,11 @@ export interface FontProvider<
 	TFamilyOptions extends Record<string, any> | undefined | never = never,
 > {
 	/**
-	 * The font provider name, used for display and deduplication.
+	 * A unique name for the provider, used in logs and for identification.
 	 */
 	name: string;
 	/**
-	 * Optional serializable object, used for deduplication.
+	 * A serializable object, used for identification.
 	 */
 	config?: Record<string, any> | undefined;
 	/**
@@ -37,7 +43,7 @@ export interface FontProvider<
 	 */
 	init?: ((context: FontProviderInitContext) => Awaitable<void>) | undefined;
 	/**
-	 * Required callback, used to retrieve and return font face data based on the given options.
+	 * Used to retrieve and return font face data based on the given options.
 	 */
 	resolveFont: (options: ResolveFontOptions<TFamilyOptions>) => Awaitable<
 		| {
@@ -55,7 +61,7 @@ export interface FamilyProperties {
 	/**
 	 * @default `"swap"`
 	 *
-	 * A [font display](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display).
+	 * Defines [how a font displays](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display) based on when it is downloaded and ready for use.
 	 */
 	display?: Display | undefined;
 	/**
@@ -63,7 +69,7 @@ export interface FamilyProperties {
 	 */
 	stretch?: string | undefined;
 	/**
-	 * Font [feature settings](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-feature-settings).
+	 * Controls the [typographic font features](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-feature-settings) (e.g. ligatures, small caps, or swashes).
 	 */
 	featureSettings?: string | undefined;
 	/**
@@ -71,7 +77,13 @@ export interface FamilyProperties {
 	 */
 	variationSettings?: string | undefined;
 	/**
-	 * A [unicode range](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range).
+	 * Determines when a font must be downloaded and used based on a specific [range of unicode characters](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/unicode-range).
+	 * If a character on the page matches the configured range, the browser will download the font and all characters will be available for use on the page. To configure a subset of
+	 * characters preloaded for a single font, see the [subsets](#fontsubsets) property instead.
+	 *
+	 * This can be useful for localization to avoid unnecessary font downloads when a specific part of your website uses a different alphabet and will be displayed with a separate
+	 * font. For example, a website that offers both English and Japanese versions can prevent the browser from downloading the Japanese font on English versions of the page that do
+	 * not contain any of the Japanese characters provided in `unicodeRange`.
 	 */
 	unicodeRange?: [string, ...Array<string>] | undefined;
 }
@@ -82,26 +94,26 @@ type WithOptions<TFontProvider extends FontProvider> = TFontProvider extends Fon
 	? [TFamilyOptions] extends [never]
 		? {
 				/**
-				 * Options forwarded to the font provider while resolving this font family.
+				 * An object to pass provider specific options. It is typed automatically based on the font family provider.
 				 */
 				options?: undefined;
 			}
 		: undefined extends TFamilyOptions
 			? {
 					/**
-					 * Options forwarded to the font provider while resolving this font family.
+					 * An object to pass provider specific options. It is typed automatically based on the font family provider.
 					 */
 					options?: TFamilyOptions;
 				}
 			: {
 					/**
-					 * Options forwarded to the font provider while resolving this font family.
+					 * An object to pass provider specific options. It is typed automatically based on the font family provider.
 					 */
 					options: TFamilyOptions;
 				}
 	: {
 			/**
-			 * Options forwarded to the font provider while resolving this font family.
+			 * An object to pass provider specific options. It is typed automatically based on the font family provider.
 			 */
 			options?: undefined;
 		};
@@ -123,7 +135,10 @@ export type FontFamily<TFontProvider extends FontProvider = FontProvider> = Fami
 		/**
 		 * @default `[400]`
 		 *
-		 * An array of [font weights](https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight). If the associated font is a [variable font](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_fonts/Variable_fonts_guide), you can specify a range of weights:
+		 * An array of [font weights](https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight). If no value is specified in your configuration, only weight `400` is
+		 * included by default to prevent unnecessary downloads. You will need to include this property to access any other font weights.
+		 *
+		 * If the associated font is a [variable font](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_fonts/Variable_fonts_guide), you can specify a range of weights:
 		 *
 		 * ```js
 		 * weight: "100 900"
@@ -139,7 +154,7 @@ export type FontFamily<TFontProvider extends FontProvider = FontProvider> = Fami
 		/**
 		 * @default `["latin"]`
 		 *
-		 * An array of [font subsets](https://knaap.dev/posts/font-subsetting/):
+		 * Defines a list of [font subsets](https://knaap.dev/posts/font-subsetting/).
 		 */
 		subsets?: [string, ...Array<string>] | undefined;
 		/**
@@ -149,28 +164,28 @@ export type FontFamily<TFontProvider extends FontProvider = FontProvider> = Fami
 		 */
 		formats?: [FontType, ...Array<FontType>] | undefined;
 		/**
-	 * @default `["sans-serif"]`
-	 *
-	 * An array of fonts to use when your chosen font is unavailable, or loading. Fallback fonts will be chosen in the order listed. The first available font will be used:
-	 *
-	 * ```js
-	 * fallbacks: ["CustomFont", "serif"]
-	 * ```
-	 *
-	 * To disable fallback fonts completely, configure an empty array:
-	 *
-	 * ```js
-	 * fallbacks: []
-	 * ```
-	 *
-
-	 * If the last font in the `fallbacks` array is a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name), Astro will attempt to generate [optimized fallbacks](https://developer.chrome.com/blog/font-fallbacks) using font metrics will be generated. To disable this optimization, set `optimizedFallbacks` to false.
-	 */
+		 * @default `["sans-serif"]`
+		 *
+		 * An array of fonts to use when your chosen font is unavailable, or loading. Fallback fonts will be chosen in the order listed. The first available font will be used:
+		 *
+		 * ```js
+		 * fallbacks: ["CustomFont", "serif"]
+		 * ```
+		 *
+		 * To disable fallback fonts completely, configure an empty array:
+		 *
+		 * ```js
+		 * fallbacks: []
+		 * ```
+		 *
+		 * If the last font in the `fallbacks` array is a [generic family name](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family#generic-name), Astro will attempt to
+		 * generate [optimized fallbacks](https://developer.chrome.com/blog/font-fallbacks) using font metrics will be generated. To disable this optimization, set `optimizedFallbacks` to false.
+		 */
 		fallbacks?: Array<string> | undefined;
 		/**
 		 * @default `true`
 		 *
-		 * Whether or not to enable optimized fallback generation. You may disable this default optimization to have full control over `fallbacks`.
+		 * Whether or not to enable Astro's default optimization when generating fallback fonts. You may disable this default optimization to have full control over how `fallbacks` are generated.
 		 */
 		optimizedFallbacks?: boolean | undefined;
 	};
@@ -238,7 +253,7 @@ export interface FontData {
  */
 export type FontDataByCssVariable = Record<string, Array<FontData>>;
 
-export type Style = z.output<typeof styleSchema>;
+export type Style = z.output<typeof StyleSchema>;
 
 export type PreloadFilter =
 	| boolean
@@ -272,5 +287,3 @@ export type FontFamilyAssetsByUniqueKey = Map<string, FontFamilyAssets>;
 export type Collaborator<T extends (input: any) => any, U extends keyof Parameters<T>[0]> = (
 	params: Pick<Parameters<T>[0], U>,
 ) => ReturnType<T>;
-
-export type BufferImports = Record<string, () => Promise<{ default: Buffer | null }>>;

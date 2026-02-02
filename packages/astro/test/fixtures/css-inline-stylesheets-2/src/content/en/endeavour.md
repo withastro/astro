@@ -2,7 +2,6 @@
 title: Endeavour
 description: 'Learn about the Endeavour NASA space shuttle.'
 publishedDate: 'Sun Jul 11 2021 00:00:00 GMT-0400 (Eastern Daylight Time)'
-layout: '../../layouts/Layout.astro'
 tags: [space, 90s]
 ---
 

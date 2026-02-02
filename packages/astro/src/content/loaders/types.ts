@@ -1,5 +1,5 @@
 import type { FSWatcher } from 'vite';
-import type { ZodSchema } from 'zod';
+import type * as z from 'zod/v4/core';
 import type { AstroIntegrationLogger } from '../../core/logger/core.js';
 import type { AstroConfig } from '../../types/public/config.js';
 import type {
@@ -11,6 +11,11 @@ import type { RenderedContent } from '../data-store.js';
 import type { DataStore, MetaStore } from '../mutable-data-store.js';
 
 export type { DataStore, MetaStore };
+
+export interface RenderMarkdownOptions {
+	/** The file URL of the markdown file being rendered */
+	fileURL?: URL;
+}
 
 export interface ParseDataOptions<TData extends Record<string, unknown>> {
 	/** The ID of the entry. Unique per collection */
@@ -35,7 +40,7 @@ export interface LoaderContext {
 	parseData<TData extends Record<string, unknown>>(props: ParseDataOptions<TData>): Promise<TData>;
 
 	/** Renders markdown content to HTML and metadata */
-	renderMarkdown(content: string): Promise<RenderedContent>;
+	renderMarkdown(content: string, options?: RenderMarkdownOptions): Promise<RenderedContent>;
 
 	/** Generates a non-cryptographic content digest. This can be used to check if the data has changed */
 	generateDigest(data: Record<string, unknown> | string): string;
@@ -49,21 +54,33 @@ export interface LoaderContext {
 	entryTypes: Map<string, ContentEntryType>;
 }
 
-export interface Loader {
+export type Loader = {
 	/** Unique name of the loader, e.g. the npm package name */
 	name: string;
 	/** Do the actual loading of the data */
 	load: (context: LoaderContext) => Promise<void>;
-	/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
-	schema?: ZodSchema | Promise<ZodSchema> | (() => ZodSchema | Promise<ZodSchema>);
-}
+} & (
+	| {
+			/** Optionally, define the schema of the data. Will be overridden by user-defined schema */
+			schema?: z.$ZodType;
+	  }
+	| {
+			/** Optionally, provide a function to dynamically provide a schema. Will be overridden by user-defined schema */
+			createSchema?: () => Promise<{
+				schema: z.$ZodType;
+				types: string;
+			}>;
+	  }
+);
 
 export interface LoadEntryContext<TEntryFilter = never> {
 	filter: TEntryFilter extends never ? { id: string } : TEntryFilter;
+	collection: string;
 }
 
 export interface LoadCollectionContext<TCollectionFilter = unknown> {
 	filter?: TCollectionFilter;
+	collection: string;
 }
 
 export interface LiveLoader<

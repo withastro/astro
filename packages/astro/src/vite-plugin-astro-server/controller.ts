@@ -88,7 +88,7 @@ interface RunWithErrorHandlingParams {
 	controller: DevServerController;
 	pathname: string;
 	run: () => Promise<any>;
-	onError: (error: unknown) => Error;
+	onError: (error: unknown) => Error | undefined;
 }
 
 export async function runWithErrorHandling({

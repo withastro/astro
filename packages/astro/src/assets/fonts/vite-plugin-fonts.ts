@@ -14,10 +14,8 @@ import { getClientOutputDirectory } from '../../prerender/utils.js';
 import type { AstroSettings } from '../../types/astro.js';
 import {
 	ASSETS_DIR,
-	BUFFER_VIRTUAL_MODULE_ID_PREFIX,
 	CACHE_DIR,
 	DEFAULTS,
-	RESOLVED_BUFFER_VIRTUAL_MODULE_ID_PREFIX,
 	RESOLVED_RUNTIME_VIRTUAL_MODULE_ID,
 	RESOLVED_VIRTUAL_MODULE_ID,
 	RUNTIME_VIRTUAL_MODULE_ID,
@@ -60,37 +58,6 @@ interface Options {
 }
 
 export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
-	if (!settings.config.experimental.fonts) {
-		// This is required because the virtual module may be imported as
-		// a side effect
-		// TODO: remove once fonts are stabilized
-		return {
-			name: 'astro:fonts:fallback',
-			resolveId(id) {
-				if (id === VIRTUAL_MODULE_ID) {
-					return RESOLVED_VIRTUAL_MODULE_ID;
-				}
-				if (id === RUNTIME_VIRTUAL_MODULE_ID) {
-					return RESOLVED_RUNTIME_VIRTUAL_MODULE_ID;
-				}
-				if (id.startsWith(BUFFER_VIRTUAL_MODULE_ID_PREFIX)) {
-					return `\0` + id;
-				}
-			},
-			load(id) {
-				if (
-					id === RESOLVED_VIRTUAL_MODULE_ID ||
-					id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID ||
-					id.startsWith(RESOLVED_BUFFER_VIRTUAL_MODULE_ID_PREFIX)
-				) {
-					return {
-						code: '',
-					};
-				}
-			},
-		};
-	}
-
 	// We don't need to worry about config.trailingSlash because we are dealing with
 	// static assets only, ie. trailingSlash: 'never'
 	const assetsDir = prependForwardSlash(
@@ -159,9 +126,10 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 					});
 			const { bold } = colors;
 			const defaults = DEFAULTS;
-			const resolvedFamilies = settings.config.experimental.fonts!.map((family) =>
-				resolveFamily({ family: family as FontFamily, hasher }),
-			);
+			const resolvedFamilies =
+				settings.config.fonts?.map((family) =>
+					resolveFamily({ family: family as FontFamily, hasher }),
+				) ?? [];
 			const { fontFamilyAssets, fontFileById: _fontFileById } = await computeFontFamiliesAssets({
 				resolvedFamilies,
 				defaults,
@@ -216,9 +184,9 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 			});
 			fontFileById = _fontFileById;
 
-			if (shouldTrackCspHashes(settings.config.experimental.csp)) {
+			if (shouldTrackCspHashes(settings.config.security.csp)) {
 				// Handle CSP
-				const algorithm = getAlgorithm(settings.config.experimental.csp);
+				const algorithm = getAlgorithm(settings.config.security.csp);
 
 				// Generate a hash for each style we generate
 				for (const { css } of componentDataByCssVariable.values()) {
@@ -300,76 +268,42 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				}
 			});
 		},
-		resolveId(id) {
-			if (id === VIRTUAL_MODULE_ID) {
-				return RESOLVED_VIRTUAL_MODULE_ID;
-			}
-			if (id === RUNTIME_VIRTUAL_MODULE_ID) {
-				return RESOLVED_RUNTIME_VIRTUAL_MODULE_ID;
-			}
-			if (id.startsWith(BUFFER_VIRTUAL_MODULE_ID_PREFIX)) {
-				return `\0` + id;
-			}
+		resolveId: {
+			filter: {
+				id: new RegExp(`^(${VIRTUAL_MODULE_ID}|${RUNTIME_VIRTUAL_MODULE_ID})$`),
+			},
+			handler(id) {
+				if (id === VIRTUAL_MODULE_ID) {
+					return RESOLVED_VIRTUAL_MODULE_ID;
+				}
+				if (id === RUNTIME_VIRTUAL_MODULE_ID) {
+					return RESOLVED_RUNTIME_VIRTUAL_MODULE_ID;
+				}
+			},
 		},
-		async load(id) {
-			if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-				return {
-					code: `
+		load: {
+			filter: {
+				id: new RegExp(`^(${RESOLVED_VIRTUAL_MODULE_ID}|${RESOLVED_RUNTIME_VIRTUAL_MODULE_ID})$`),
+			},
+			async handler(id) {
+				if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+					return {
+						code: `
 						export const componentDataByCssVariable = new Map(${JSON.stringify(Array.from(componentDataByCssVariable?.entries() ?? []))});
 						export const fontDataByCssVariable = ${JSON.stringify(fontDataByCssVariable ?? {})}
-						export const bufferImports = {${[...(fontFileById?.keys() ?? [])].map((key) => `"${key}": () => import("${BUFFER_VIRTUAL_MODULE_ID_PREFIX}${key}")`).join(',')}};
 					`,
-				};
-			}
-
-			if (id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID) {
-				// TODO: use ASTRO_VITE_ENVIRONMENT_NAMES.client
-				if (this.environment.name === 'client') {
-					return {
-						code: `export * from 'astro/assets/fonts/runtime/client.js';`,
 					};
 				}
-				return {
-					code: `export * from 'astro/assets/fonts/runtime/server.js';`,
-				};
-			}
 
-			if (id.startsWith(RESOLVED_BUFFER_VIRTUAL_MODULE_ID_PREFIX)) {
-				if (!fontFetcher) {
-					logger.debug(
-						'assets',
-						'Fonts dependencies should be initialized by now, skipping dev middleware.',
-					);
-					return { code: `export default null;` };
-				}
-
-				const fontId = id.slice(RESOLVED_BUFFER_VIRTUAL_MODULE_ID_PREFIX.length);
-				const fontData = fontFileById?.get(fontId);
-				if (!fontData) {
-					return { code: `export default null;` };
-				}
-
-				try {
-					const buffer = await fontFetcher.fetch({ id: fontId, ...fontData });
-
-					const bytes = Array.from(buffer);
+				if (id === RESOLVED_RUNTIME_VIRTUAL_MODULE_ID) {
 					return {
-						code: `export default Uint8Array.from(${JSON.stringify(bytes)});`,
+						code: `export * from 'astro/assets/fonts/runtime.js';`,
 					};
-				} catch (err) {
-					logger.error('assets', 'Cannot download font file');
-					if (isAstroError(err)) {
-						logger.error(
-							'SKIP_FORMAT',
-							formatErrorMessage(collectErrorMetadata(err), logger.level() === 'debug'),
-						);
-					}
-					return { code: `export default null;` };
 				}
-			}
+			},
 		},
 		async buildEnd() {
-			if (sync || settings.config.experimental.fonts!.length === 0 || !isBuild) {
+			if (sync || !settings.config.fonts?.length || !isBuild) {
 				cleanup();
 				return;
 			}

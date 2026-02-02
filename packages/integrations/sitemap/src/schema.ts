@@ -1,16 +1,16 @@
 import { EnumChangefreq as ChangeFreq } from 'sitemap';
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import { SITEMAP_CONFIG_DEFAULTS } from './config-defaults.js';
 
 const localeKeySchema = z.string().min(1);
 
 export const SitemapOptionsSchema = z
 	.object({
-		filenameBase: z.string().optional().default(SITEMAP_CONFIG_DEFAULTS.filenameBase),
-		filter: z.function().args(z.string()).returns(z.boolean()).optional(),
-		customSitemaps: z.string().url().array().optional(),
-		customPages: z.string().url().array().optional(),
-		canonicalURL: z.string().url().optional(),
+		filenameBase: z.string().optional().prefault(SITEMAP_CONFIG_DEFAULTS.filenameBase),
+		filter: z.function({ input: [z.string()], output: z.boolean() }).optional(),
+		customSitemaps: z.array(z.url()).optional(),
+		customPages: z.array(z.url()).optional(),
+		canonicalURL: z.url().optional(),
 		xslURL: z.string().optional(),
 
 		i18n: z
@@ -32,9 +32,9 @@ export const SitemapOptionsSchema = z
 			.optional(),
 
 		entryLimit: z.number().nonnegative().optional().default(SITEMAP_CONFIG_DEFAULTS.entryLimit),
-		serialize: z.function().args(z.any()).returns(z.any()).optional(),
+		serialize: z.function({ input: [z.any()], output: z.any() }).optional(),
 
-		changefreq: z.nativeEnum(ChangeFreq).optional(),
+		changefreq: z.enum(ChangeFreq).optional(),
 		lastmod: z.date().optional(),
 		priority: z.number().min(0).max(1).optional(),
 
@@ -47,7 +47,7 @@ export const SitemapOptionsSchema = z
 			})
 			.optional()
 			.default(SITEMAP_CONFIG_DEFAULTS.namespaces),
-		chunks: z.record(z.function().args(z.any()).returns(z.any())).optional(),
+		chunks: z.record(z.string(), z.function({ input: [z.any()], output: z.any() })).optional(),
 	})
 	.strict()
 	.default(SITEMAP_CONFIG_DEFAULTS);
