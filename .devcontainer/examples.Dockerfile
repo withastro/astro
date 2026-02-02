@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/javascript-node:1-22
+FROM mcr.microsoft.com/devcontainers/javascript-node:4-22
 
 # Install latest pnpm
 RUN npm install -g pnpm
