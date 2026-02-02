@@ -1,6 +1,6 @@
 import { SQL } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
-import { z } from 'zod/v4';
+import * as z from 'zod/v4';
 import { SERIALIZED_SQL_KEY, type SerializedSQL } from '../runtime/types.js';
 import { errorMap } from './integration/error-map.js';
 import type { NumberColumn, TextColumn } from './types.js';
