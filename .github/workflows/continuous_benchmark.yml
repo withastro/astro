@@ -55,9 +55,10 @@ jobs:
         timeout-minutes: 15
         
       - name: Run the benchmarks
-        uses: CodSpeedHQ/action@76578c2a7ddd928664caa737f0e962e3085d4e7c # v3.8.1
+        uses: CodSpeedHQ/action@208425962c215de49ed713e18c4b9bde9bda5c52 # v4
         timeout-minutes: 30
         with:
           working-directory: ./benchmark
           run: pnpm bench --shard=${{ matrix.shard }}
           token: ${{ secrets.CODSPEED_TOKEN }}
+          mode: walltime
