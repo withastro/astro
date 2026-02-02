@@ -33,9 +33,13 @@ function safeJsonStringify(obj: any) {
 		.replace(COMMENT_RE, COMMENT_REPLACER);
 }
 
-function createSearchParams(componentExport: string, encryptedProps: string, slots: string) {
+function createSearchParams(
+	encryptedComponentExport: string,
+	encryptedProps: string,
+	slots: string,
+) {
 	const params = new URLSearchParams();
-	params.set('e', componentExport);
+	params.set('e', encryptedComponentExport);
 	params.set('p', encryptedProps);
 	params.set('s', slots);
 	return params;
@@ -159,6 +163,10 @@ export class ServerIslandComponent {
 		}
 
 		const key = await this.result.key;
+
+		// Encrypt componentExport
+		const componentExportEncrypted = await encryptString(key, componentExport);
+
 		const propsEncrypted =
 			Object.keys(this.props).length === 0
 				? ''
@@ -176,7 +184,7 @@ export class ServerIslandComponent {
 
 		// Determine if its safe to use a GET request
 		const potentialSearchParams = createSearchParams(
-			componentExport,
+			componentExportEncrypted,
 			propsEncrypted,
 			slotsEncrypted,
 		);
@@ -201,7 +209,7 @@ export class ServerIslandComponent {
 let response = await fetch('${serverIslandUrl}', { headers });`
 			: // POST request
 				`let data = {
-	componentExport: ${safeJsonStringify(componentExport)},
+	encryptedComponentExport: ${safeJsonStringify(componentExportEncrypted)},
 	encryptedProps: ${safeJsonStringify(propsEncrypted)},
 	encryptedSlots: ${safeJsonStringify(slotsEncrypted)},
 };

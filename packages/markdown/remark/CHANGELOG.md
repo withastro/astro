@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 7.0.0-beta.3
+
+### Minor Changes
+
+- [#15332](https://github.com/withastro/astro/pull/15332) [`7c55f80`](https://github.com/withastro/astro/commit/7c55f80fa1fd91f8f71ad60437f81e6c7f98f69d) Thanks [@matthewp](https://github.com/matthewp)! - Exposes the `fileURL` option in `MarkdownProcessorRenderOptions`, allowing callers to specify the file URL for resolving relative image paths.
+
 ## 7.0.0-beta.2
 
 ### Minor Changes

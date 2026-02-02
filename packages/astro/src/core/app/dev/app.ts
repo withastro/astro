@@ -7,15 +7,16 @@ import { BaseApp, type DevMatch, type RenderErrorOptions } from '../base.js';
 import type { SSRManifest } from '../types.js';
 import { NonRunnablePipeline } from './pipeline.js';
 import { getCustom404Route, getCustom500Route } from '../../routing/helpers.js';
+import { ensure404Route } from '../../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../../routing/dev.js';
 import type { RunnablePipeline } from '../../../vite-plugin-app/pipeline.js';
+import type { RoutesList } from '../../../types/astro.js';
 
 /**
  *
  */
 export class DevApp extends BaseApp<NonRunnablePipeline> {
 	logger: Logger;
-	currentRenderContext: RenderContext | undefined = undefined;
 	resolvedPathname: string | undefined = undefined;
 	constructor(manifest: SSRManifest, streaming = true, logger: Logger) {
 		super(manifest, streaming, logger);
@@ -32,6 +33,15 @@ export class DevApp extends BaseApp<NonRunnablePipeline> {
 
 	isDev(): boolean {
 		return true;
+	}
+
+	/**
+	 * Updates the routes list when files change during development.
+	 * Called via HMR when new pages are added/removed.
+	 */
+	updateRoutes(newRoutesList: RoutesList): void {
+		this.manifestData = newRoutesList;
+		ensure404Route(this.manifestData);
 	}
 
 	match(request: Request): RouteData | undefined {

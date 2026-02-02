@@ -3,6 +3,9 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -11,8 +14,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@astrojs/react": "^5.0.0-beta.2",
-    "astro": "^6.0.0-beta.3",
+    "@astrojs/react": "^5.0.0-beta.3",
+    "astro": "^6.0.0-beta.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "vitest": "^3.2.4"

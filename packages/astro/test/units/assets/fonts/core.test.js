@@ -5,7 +5,6 @@ import { collectComponentData } from '../../../../dist/assets/fonts/core/collect
 import { collectFontAssetsFromFaces } from '../../../../dist/assets/fonts/core/collect-font-assets-from-faces.js';
 import { collectFontData } from '../../../../dist/assets/fonts/core/collect-font-data.js';
 import { computeFontFamiliesAssets } from '../../../../dist/assets/fonts/core/compute-font-families-assets.js';
-import { createGetFontBuffer } from '../../../../dist/assets/fonts/core/create-get-font-buffer.js';
 import { filterAndTransformFontFaces } from '../../../../dist/assets/fonts/core/filter-and-transform-font-faces.js';
 import { filterPreloads } from '../../../../dist/assets/fonts/core/filter-preloads.js';
 import { getOrCreateFontFamilyAssets } from '../../../../dist/assets/fonts/core/get-or-create-font-family-assets.js';
@@ -1695,53 +1694,6 @@ describe('fonts core', () => {
 					},
 				],
 			);
-		});
-	});
-
-	describe('createGetFontBuffer()', () => {
-		it('throws if there is are no bufferImports', async () => {
-			assert.rejects(() => createGetFontBuffer({ bufferImports: undefined })('foo'));
-		});
-
-		it('throws if hash cannot be found in buffer imports', async () => {
-			assert.rejects(() =>
-				createGetFontBuffer({
-					bufferImports: {
-						bar: async () => ({ default: Buffer.alloc(4) }),
-					},
-				})('foo'),
-			);
-		});
-
-		it('throws if import fails', async () => {
-			assert.rejects(() =>
-				createGetFontBuffer({
-					bufferImports: {
-						foo: async () => {
-							throw new Error('unexpected');
-						},
-					},
-				})('foo'),
-			);
-		});
-
-		it('throws if import result is not a buffer', async () => {
-			assert.rejects(() =>
-				createGetFontBuffer({
-					bufferImports: {
-						foo: async () => ({ default: null }),
-					},
-				})('foo'),
-			);
-		});
-
-		it('works', async () => {
-			const result = await createGetFontBuffer({
-				bufferImports: {
-					foo: async () => ({ default: Buffer.alloc(4) }),
-				},
-			})('foo');
-			assert.equal(result instanceof Buffer, true);
 		});
 	});
 });
