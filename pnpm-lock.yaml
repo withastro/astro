@@ -4666,8 +4666,8 @@ importers:
         specifier: ^22.0.0
         version: 22.0.0
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       '@types/deep-diff':
         specifier: ^1.0.5
@@ -4830,13 +4830,13 @@ importers:
         version: 18.3.1(react@18.3.1)
       simple-stack-form:
         specifier: ^0.1.12
-        version: 0.1.12(astro@packages+astro)(zod@3.25.76)
+        version: 0.1.12(astro@packages+astro)(zod@4.3.6)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: ^4.3.6
+        version: 4.3.6
 
   packages/integrations/alpinejs:
     devDependencies:
@@ -6096,8 +6096,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       astro:
         specifier: workspace:*
@@ -25207,14 +25207,14 @@ snapshots:
 
   simple-invariant@2.0.1: {}
 
-  simple-stack-form@0.1.12(astro@packages+astro)(zod@3.25.76):
+  simple-stack-form@0.1.12(astro@packages+astro)(zod@4.3.6):
     dependencies:
       '@clack/prompts': 0.7.0
       astro: link:packages/astro
       fs-extra: 11.3.3
       just-map-values: 3.2.0
       kleur: 4.1.5
-      zod: 3.25.76
+      zod: 4.3.6
 
   sirv@3.0.2:
     dependencies:
