@@ -41,7 +41,7 @@
     "@types/semver": "^7.7.1",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/test-cli": "^0.0.12",
-    "mocha": "^10.8.2",
+    "mocha": "^11.7.5",
     "typescript": "^5.9.3",
     "vscode-uri": "^3.1.0"
   }

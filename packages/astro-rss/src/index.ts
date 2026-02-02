@@ -1,8 +1,8 @@
-import { z } from 'zod/v3';
+import * as z from 'zod/v4';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 import colors from 'piccolore';
 import { rssSchema } from './schema.js';
-import { createCanonicalURL, errorMap, isValidURL } from './util.js';
+import { createCanonicalURL, isValidURL } from './util.js';
 
 export { rssSchema };
 
@@ -59,7 +59,10 @@ type ValidatedRSSFeedItem = z.infer<typeof rssSchema>;
 type ValidatedRSSOptions = z.infer<typeof rssOptionsValidator>;
 type GlobResult = z.infer<typeof globResultValidator>;
 
-const globResultValidator = z.record(z.function().returns(z.promise(z.any())));
+const globResultValidator = z.record(
+	z.string(),
+	z.function({ input: [], output: z.promise(z.any()) }),
+);
 
 const rssOptionsValidator = z.object({
 	title: z.string(),
@@ -79,7 +82,7 @@ const rssOptionsValidator = z.object({
 			}
 			return items;
 		}),
-	xmlns: z.record(z.string()).optional(),
+	xmlns: z.record(z.string(), z.unknown()).optional(),
 	stylesheet: z.union([z.string(), z.boolean()]).optional(),
 	customData: z.string().optional(),
 	trailingSlash: z.boolean().default(true),
@@ -100,14 +103,14 @@ export async function getRssString(rssOptions: RSSOptions): Promise<string> {
 }
 
 async function validateRssOptions(rssOptions: RSSOptions) {
-	const parsedResult = await rssOptionsValidator.safeParseAsync(rssOptions, { errorMap });
+	const parsedResult = await rssOptionsValidator.safeParseAsync(rssOptions);
 	if (parsedResult.success) {
 		return parsedResult.data;
 	}
 	const formattedError = new Error(
 		[
 			`[RSS] Invalid or missing options:`,
-			...parsedResult.error.errors.map((zodError) => {
+			...parsedResult.error.issues.map((zodError) => {
 				const path = zodError.path.join('.');
 				const message = `${zodError.message} (${path})`;
 				const code = zodError.code;
@@ -141,7 +144,7 @@ export function pagesGlobToRssItems(items: GlobResult): Promise<ValidatedRSSFeed
 					message: 'At least title or description must be provided.',
 					path: ['title', 'description'],
 				})
-				.safeParse({ ...frontmatter, link: url }, { errorMap });
+				.safeParse({ ...frontmatter, link: url });
 
 			if (parsedResult.success) {
 				return parsedResult.data;
@@ -149,7 +152,7 @@ export function pagesGlobToRssItems(items: GlobResult): Promise<ValidatedRSSFeed
 			const formattedError = new Error(
 				[
 					`[RSS] ${filePath} has invalid or missing frontmatter.\nFix the following properties:`,
-					...parsedResult.error.errors.map((zodError) => zodError.message),
+					...parsedResult.error.issues.map((zodError) => zodError.message),
 				].join('\n'),
 			);
 			(formattedError as any).file = filePath;

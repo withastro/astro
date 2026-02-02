@@ -2,6 +2,7 @@ import type { GetModuleInfo } from 'rollup';
 import type { BuildOptions, ResolvedConfig, Plugin as VitePlugin } from 'vite';
 import { isCSSRequest } from 'vite';
 import { hasAssetPropagationFlag } from '../../../content/index.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 import {
 	getParentExtendedModuleInfos,
 	getParentModuleInfos,
@@ -10,10 +11,8 @@ import {
 import type { BuildInternals } from '../internal.js';
 import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../internal.js';
 import type { PageBuildData, StaticBuildOptions, StylesheetAsset } from '../types.js';
-import { shouldInlineAsset } from './util.js';
-import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
-import { CSS_LANGS_RE } from '../../viteUtils.js';
 import { normalizeEntryId } from './plugin-component-entry.js';
+import { shouldInlineAsset } from './util.js';
 
 /***** ASTRO PLUGIN *****/
 
@@ -41,8 +40,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const pagesToCss: Record<string, Record<string, { order: number; depth: number }>> = {};
 	// Map of module Ids (usually something like `/Users/...blog.mdx?astroPropagatedAssets`) to its imported CSS
 	const moduleIdToPropagatedCss: Record<string, Set<string>> = {};
-	// Keep track of CSS that has been bundled to avoid duplication between ssr and prerender.
-	const cssModulesInBundles = new Set();
 
 	const cssBuildPlugin: VitePlugin = {
 		name: 'astro:rollup-plugin-build-css',
@@ -53,24 +50,6 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
 				environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender
 			);
-		},
-
-		transform: {
-			filter: {
-				id: CSS_LANGS_RE,
-			},
-			handler(_code, id) {
-				// In prerender, don't rebundle CSS that was already bundled in SSR.
-				// Return an empty string here to prevent it.
-				if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.prerender) {
-					if (cssModulesInBundles.has(id)) {
-						return {
-							code: '',
-						};
-					}
-				}
-				cssModulesInBundles.add(id);
-			},
 		},
 
 		async generateBundle(_outputOptions, bundle) {
@@ -185,7 +164,14 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 									if (moduleIsTopLevelPage(pageInfo)) {
 										const pageData = getPageDataByViteID(internals, pageInfo.id);
 										if (pageData) {
-											appendCSSToPage(pageData, meta, pagesToCss, depth, order);
+											appendCSSToPage(
+												pageData,
+												meta,
+												pagesToCss,
+												depth,
+												order,
+												this.environment?.name,
+											);
 										}
 									}
 									// For hydrated components, check if this parent is a script/component entry
@@ -193,7 +179,14 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 									const pageDatas = internals.pagesByScriptId.get(pageInfo.id);
 									if (pageDatas) {
 										for (const pageData of pageDatas) {
-											appendCSSToPage(pageData, meta, pagesToCss, -1, order);
+											appendCSSToPage(
+												pageData,
+												meta,
+												pagesToCss,
+												-1,
+												order,
+												this.environment?.name,
+											);
 										}
 									}
 								}
@@ -219,7 +212,7 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 										const pages = internals.pagesByHydratedComponent.get(normalizedParent);
 										if (pages) {
 											for (const pageData of pages) {
-												appendCSSToPage(pageData, meta, pagesToCss, -1, -1);
+												appendCSSToPage(pageData, meta, pagesToCss, -1, -1, this.environment?.name);
 											}
 										}
 									}
@@ -245,14 +238,14 @@ function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 							const pageViteID = pageInfo.id;
 							const pageData = getPageDataByViteID(internals, pageViteID);
 							if (pageData) {
-								appendCSSToPage(pageData, meta, pagesToCss, depth, order);
+								appendCSSToPage(pageData, meta, pagesToCss, depth, order, this.environment?.name);
 							}
 						} else if (this.environment?.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 							// For scripts, walk parents until you find a page, and add the CSS to that page.
 							const pageDatas = internals.pagesByScriptId.get(pageInfo.id)!;
 							if (pageDatas) {
 								for (const pageData of pageDatas) {
-									appendCSSToPage(pageData, meta, pagesToCss, -1, order);
+									appendCSSToPage(pageData, meta, pagesToCss, -1, order, this.environment?.name);
 								}
 							}
 						}
@@ -467,7 +460,18 @@ function appendCSSToPage(
 	pagesToCss: Record<string, Record<string, { order: number; depth: number }>>,
 	depth: number,
 	order: number,
+	environmentName: string | undefined,
 ) {
+	// In SSR/prerender builds, only add CSS to pages that match the current environment.
+	// SSR build handles non-prerendered pages, prerender build handles prerendered pages.
+	// Client build adds CSS to all pages.
+	if (environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.ssr && pageData.route.prerender) {
+		return;
+	}
+	if (environmentName === ASTRO_VITE_ENVIRONMENT_NAMES.prerender && !pageData.route.prerender) {
+		return;
+	}
+
 	for (const importedCssImport of meta.importedCss) {
 		// CSS is prioritized based on depth. Shared CSS has a higher depth due to being imported by multiple pages.
 		// Depth info is used when sorting the links on the page.

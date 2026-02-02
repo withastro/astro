@@ -31,15 +31,9 @@ publicHoistPattern:
 # TODO: uncomment before merging into main
 # minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
-  - '@biomejs/*'
   # Temporary, so we can install new updates
   - '@cloudflare/*'
   - 'wrangler'
-  # TODO: remove in a few days
-  - 'devalue'
-  # Temporary, so we can install new lightweight updates
-  - 'fontace'
-  - '@capsizecss/unpack'
 peerDependencyRules:
   allowAny:
     - 'astro'
