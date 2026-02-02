@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
+overrides:
+  unstorage: 2.0.0-alpha.5
+
 importers:
 
   .:
@@ -645,7 +648,7 @@ importers:
         version: 5.1.0
       unstorage:
         specifier: 2.0.0-alpha.5
-        version: 2.0.0-alpha.5(@azure/identity@4.13.0)(@netlify/blobs@10.5.0)(@vercel/functions@3.4.0)(chokidar@5.0.0)(lru-cache@11.2.4)(ofetch@1.5.1)
+        version: 2.0.0-alpha.5(@azure/identity@4.13.0)(@netlify/blobs@10.5.0)(@vercel/functions@3.4.0)(chokidar@4.0.3)(lru-cache@11.2.4)(ofetch@1.5.1)
       vfile:
         specifier: ^6.0.3
         version: 6.0.3
@@ -5662,7 +5665,7 @@ importers:
         version: 5.1.2
       '@netlify/vite-plugin':
         specifier: ^2.7.19
-        version: 2.7.19(@azure/identity@4.13.0)(@vercel/functions@3.4.0)(rollup@4.55.1)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
+        version: 2.7.19(@azure/identity@4.13.0)(@vercel/functions@3.4.0)(chokidar@4.0.3)(lru-cache@11.2.4)(rollup@4.55.1)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       '@vercel/nft':
         specifier: ^1.3.0
         version: 1.3.0(rollup@4.55.1)
@@ -11144,10 +11147,6 @@ packages:
     resolution: {integrity: sha512-Qgzu8kfBvo+cA4962jnP1KkS6Dop5NS6g7R5LFYJr4b8Ub94PPQXUksCw9PvXoeXPRRddRNC5C1JQUR2SMGtnA==}
     engines: {node: '>= 14.16.0'}
 
-  chokidar@5.0.0:
-    resolution: {integrity: sha512-TQMmc3w+5AxjpL8iIiwebF73dRDF4fBIieAqGn9RGCWaEVwQ6Fb2cGe31Yns0RRIzii5goJ1Y7xbMwo1TxMplw==}
-    engines: {node: '>= 20.19.0'}
-
   chownr@1.1.4:
     resolution: {integrity: sha512-jJ0bqzaylmJtVnNgzTeSOs8DPavpbYgEr/b0YL8/2GO3xJEhInFmhKMUnEJQjZumK7KXGFhUy89PrsJWlakBVg==}
 
@@ -14478,10 +14477,6 @@ packages:
     resolution: {integrity: sha512-GDhwkLfywWL2s6vEjyhri+eXmfH6j1L7JE27WhqLeYzoh/A3DBaYGEj2H/HFZCn/kMfim73FXxEJTw06WtxQwg==}
     engines: {node: '>= 14.18.0'}
 
-  readdirp@5.0.0:
-    resolution: {integrity: sha512-9u/XQ1pvrQtYyMpZe7DXKv2p5CNvyVwzUB6uhLAnQwHMSgKMBR62lc7AHljaeteeHXn11XTAaLLUVZYVZyuRBQ==}
-    engines: {node: '>= 20.19.0'}
-
   reading-time@1.5.0:
     resolution: {integrity: sha512-onYyVhBNr4CmAxFsKS7bz+uTLRakypIe4R+5A824vBSkQy/hB3fZepoVEf8OVAxzLvK+H/jm9TzpI3ETSm64Kg==}
 
@@ -15525,68 +15520,6 @@ packages:
   unplugin-utils@0.3.1:
     resolution: {integrity: sha512-5lWVjgi6vuHhJ526bI4nlCOmkCIF3nnfXkCMDeMJrtdvxTs6ZFCM8oNufGTsDbKv/tJ/xj8RpvXjRuPBZJuJog==}
     engines: {node: '>=20.19.0'}
-
-  unstorage@1.17.4:
-    resolution: {integrity: sha512-fHK0yNg38tBiJKp/Vgsq4j0JEsCmgqH58HAn707S7zGkArbZsVr/CwINoi+nh3h98BRCwKvx1K3Xg9u3VV83sw==}
-    peerDependencies:
-      '@azure/app-configuration': ^1.8.0
-      '@azure/cosmos': ^4.2.0
-      '@azure/data-tables': ^13.3.0
-      '@azure/identity': ^4.6.0
-      '@azure/keyvault-secrets': ^4.9.0
-      '@azure/storage-blob': ^12.26.0
-      '@capacitor/preferences': ^6 || ^7 || ^8
-      '@deno/kv': '>=0.9.0'
-      '@netlify/blobs': ^6.5.0 || ^7.0.0 || ^8.1.0 || ^9.0.0 || ^10.0.0
-      '@planetscale/database': ^1.19.0
-      '@upstash/redis': ^1.34.3
-      '@vercel/blob': '>=0.27.1'
-      '@vercel/functions': ^2.2.12 || ^3.0.0
-      '@vercel/kv': ^1 || ^2 || ^3
-      aws4fetch: ^1.0.20
-      db0: '>=0.2.1'
-      idb-keyval: ^6.2.1
-      ioredis: ^5.4.2
-      uploadthing: ^7.4.4
-    peerDependenciesMeta:
-      '@azure/app-configuration':
-        optional: true
-      '@azure/cosmos':
-        optional: true
-      '@azure/data-tables':
-        optional: true
-      '@azure/identity':
-        optional: true
-      '@azure/keyvault-secrets':
-        optional: true
-      '@azure/storage-blob':
-        optional: true
-      '@capacitor/preferences':
-        optional: true
-      '@deno/kv':
-        optional: true
-      '@netlify/blobs':
-        optional: true
-      '@planetscale/database':
-        optional: true
-      '@upstash/redis':
-        optional: true
-      '@vercel/blob':
-        optional: true
-      '@vercel/functions':
-        optional: true
-      '@vercel/kv':
-        optional: true
-      aws4fetch:
-        optional: true
-      db0:
-        optional: true
-      idb-keyval:
-        optional: true
-      ioredis:
-        optional: true
-      uploadthing:
-        optional: true
 
   unstorage@2.0.0-alpha.5:
     resolution: {integrity: sha512-Sj8btci21Twnd6M+N+MHhjg3fVn6lAPElPmvFTe0Y/wR0WImErUdA1PzlAaUavHylJ7uDiFwlZDQKm0elG4b7g==}
@@ -18485,7 +18418,7 @@ snapshots:
       uuid: 13.0.0
       write-file-atomic: 5.0.1
 
-  '@netlify/dev@4.8.7(@azure/identity@4.13.0)(@vercel/functions@3.4.0)(rollup@4.55.1)':
+  '@netlify/dev@4.8.7(@azure/identity@4.13.0)(@vercel/functions@3.4.0)(chokidar@4.0.3)(lru-cache@11.2.4)(rollup@4.55.1)':
     dependencies:
       '@netlify/ai': 0.3.5
       '@netlify/blobs': 10.5.0
@@ -18494,7 +18427,7 @@ snapshots:
       '@netlify/edge-functions-dev': 1.0.7
       '@netlify/functions-dev': 1.1.7(rollup@4.55.1)
       '@netlify/headers': 2.1.3
-      '@netlify/images': 1.3.3(@azure/identity@4.13.0)(@netlify/blobs@10.5.0)(@vercel/functions@3.4.0)
+      '@netlify/images': 1.3.3(@azure/identity@4.13.0)(@netlify/blobs@10.5.0)(@vercel/functions@3.4.0)(chokidar@4.0.3)(lru-cache@11.2.4)
       '@netlify/redirects': 3.1.4
       '@netlify/runtime': 4.1.13
       '@netlify/static': 3.1.3
@@ -18515,10 +18448,13 @@ snapshots:
       - '@vercel/kv'
       - aws4fetch
       - bare-abort-controller
+      - chokidar
       - db0
       - encoding
       - idb-keyval
       - ioredis
+      - lru-cache
+      - mongodb
       - react-native-b4a
       - rollup
       - supports-color
@@ -18601,9 +18537,9 @@ snapshots:
     dependencies:
       '@netlify/headers-parser': 9.0.2
 
-  '@netlify/images@1.3.3(@azure/identity@4.13.0)(@netlify/blobs@10.5.0)(@vercel/functions@3.4.0)':
+  '@netlify/images@1.3.3(@azure/identity@4.13.0)(@netlify/blobs@10.5.0)(@vercel/functions@3.4.0)(chokidar@4.0.3)(lru-cache@11.2.4)':
     dependencies:
-      ipx: 3.1.1(@azure/identity@4.13.0)(@netlify/blobs@10.5.0)(@vercel/functions@3.4.0)
+      ipx: 3.1.1(@azure/identity@4.13.0)(@netlify/blobs@10.5.0)(@vercel/functions@3.4.0)(chokidar@4.0.3)(lru-cache@11.2.4)
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -18620,9 +18556,12 @@ snapshots:
       - '@vercel/functions'
       - '@vercel/kv'
       - aws4fetch
+      - chokidar
       - db0
       - idb-keyval
       - ioredis
+      - lru-cache
+      - mongodb
       - uploadthing
 
   '@netlify/open-api@2.46.0': {}
@@ -18671,9 +18610,9 @@ snapshots:
 
   '@netlify/types@2.3.0': {}
 
-  '@netlify/vite-plugin@2.7.19(@azure/identity@4.13.0)(@vercel/functions@3.4.0)(rollup@4.55.1)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))':
+  '@netlify/vite-plugin@2.7.19(@azure/identity@4.13.0)(@vercel/functions@3.4.0)(chokidar@4.0.3)(lru-cache@11.2.4)(rollup@4.55.1)(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
-      '@netlify/dev': 4.8.7(@azure/identity@4.13.0)(@vercel/functions@3.4.0)(rollup@4.55.1)
+      '@netlify/dev': 4.8.7(@azure/identity@4.13.0)(@vercel/functions@3.4.0)(chokidar@4.0.3)(lru-cache@11.2.4)(rollup@4.55.1)
       '@netlify/dev-utils': 4.3.3
       dedent: 1.7.1
       vite: 7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
@@ -18694,10 +18633,13 @@ snapshots:
       - aws4fetch
       - babel-plugin-macros
       - bare-abort-controller
+      - chokidar
       - db0
       - encoding
       - idb-keyval
       - ioredis
+      - lru-cache
+      - mongodb
       - react-native-b4a
       - rollup
       - supports-color
@@ -20816,10 +20758,6 @@ snapshots:
     dependencies:
       readdirp: 4.1.2
 
-  chokidar@5.0.0:
-    dependencies:
-      readdirp: 5.0.0
-
   chownr@1.1.4:
     optional: true
 
@@ -22453,7 +22391,7 @@ snapshots:
 
   ipaddr.js@2.3.0: {}
 
-  ipx@3.1.1(@azure/identity@4.13.0)(@netlify/blobs@10.5.0)(@vercel/functions@3.4.0):
+  ipx@3.1.1(@azure/identity@4.13.0)(@netlify/blobs@10.5.0)(@vercel/functions@3.4.0)(chokidar@4.0.3)(lru-cache@11.2.4):
     dependencies:
       '@fastify/accept-negotiator': 2.0.1
       citty: 0.1.6
@@ -22469,7 +22407,7 @@ snapshots:
       sharp: 0.34.5
       svgo: 4.0.0
       ufo: 1.6.3
-      unstorage: 1.17.4(@azure/identity@4.13.0)(@netlify/blobs@10.5.0)(@vercel/functions@3.4.0)
+      unstorage: 2.0.0-alpha.5(@azure/identity@4.13.0)(@netlify/blobs@10.5.0)(@vercel/functions@3.4.0)(chokidar@4.0.3)(lru-cache@11.2.4)(ofetch@1.5.1)
       xss: 1.0.15
     transitivePeerDependencies:
       - '@azure/app-configuration'
@@ -22487,9 +22425,12 @@ snapshots:
       - '@vercel/functions'
       - '@vercel/kv'
       - aws4fetch
+      - chokidar
       - db0
       - idb-keyval
       - ioredis
+      - lru-cache
+      - mongodb
       - uploadthing
 
   iron-webcrypto@1.2.1: {}
@@ -24708,8 +24649,6 @@ snapshots:
 
   readdirp@4.1.2: {}
 
-  readdirp@5.0.0: {}
-
   reading-time@1.5.0: {}
 
   real-require@0.2.0: {}
@@ -25973,27 +25912,12 @@ snapshots:
       pathe: 2.0.3
       picomatch: 4.0.3
 
-  unstorage@1.17.4(@azure/identity@4.13.0)(@netlify/blobs@10.5.0)(@vercel/functions@3.4.0):
-    dependencies:
-      anymatch: 3.1.3
-      chokidar: 5.0.0
-      destr: 2.0.5
-      h3: 1.15.5
-      lru-cache: 11.2.4
-      node-fetch-native: 1.6.7
-      ofetch: 1.5.1
-      ufo: 1.6.3
+  unstorage@2.0.0-alpha.5(@azure/identity@4.13.0)(@netlify/blobs@10.5.0)(@vercel/functions@3.4.0)(chokidar@4.0.3)(lru-cache@11.2.4)(ofetch@1.5.1):
     optionalDependencies:
       '@azure/identity': 4.13.0
       '@netlify/blobs': 10.5.0
       '@vercel/functions': 3.4.0
-
-  unstorage@2.0.0-alpha.5(@azure/identity@4.13.0)(@netlify/blobs@10.5.0)(@vercel/functions@3.4.0)(chokidar@5.0.0)(lru-cache@11.2.4)(ofetch@1.5.1):
-    optionalDependencies:
-      '@azure/identity': 4.13.0
-      '@netlify/blobs': 10.5.0
-      '@vercel/functions': 3.4.0
-      chokidar: 5.0.0
+      chokidar: 4.0.3
       lru-cache: 11.2.4
       ofetch: 1.5.1
 
