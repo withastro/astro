@@ -107,19 +107,7 @@ export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
 				const manifestDir = new URL(appendForwardSlash(`file://${env.config.build.outDir}`));
 				const manifest = loadViteManifest(manifestDir);
 				if (manifest) {
-					for (const chunk of Object.values(manifest)) {
-						if (chunk.css) {
-							for (const css of chunk.css) {
-								filenames.add(css);
-							}
-						}
-						// Also add assets (fonts, images referenced from CSS, etc.)
-						if (chunk.assets) {
-							for (const asset of chunk.assets) {
-								filenames.add(asset);
-							}
-						}
-					}
+					collectAssetsFromManifest(manifest, filenames);
 				}
 
 				// Clean up the .vite folder after the bundle is written
@@ -166,6 +154,33 @@ function loadViteManifest(directory: URL): vite.Manifest | null {
 	}
 	const contents = fs.readFileSync(manifestPath, 'utf-8');
 	return JSON.parse(contents) as vite.Manifest;
+}
+
+/**
+ * Collects client asset filenames from a Vite manifest.
+ * This includes CSS files and other assets (fonts, images) that need to be
+ * moved to the client directory.
+ */
+function collectAssetsFromManifest(manifest: vite.Manifest, filenames: Set<string>): void {
+	for (const chunk of Object.values(manifest)) {
+		// Add CSS files listed in the css array
+		if (chunk.css) {
+			for (const css of chunk.css) {
+				filenames.add(css);
+			}
+		}
+		// Add assets (fonts, images referenced from CSS, etc.)
+		if (chunk.assets) {
+			for (const asset of chunk.assets) {
+				filenames.add(asset);
+			}
+		}
+		// Add CSS files that are the primary output of a chunk
+		// This happens when a JS module only imports CSS and has no JS output
+		if (chunk.file.endsWith('.css')) {
+			filenames.add(chunk.file);
+		}
+	}
 }
 
 /**

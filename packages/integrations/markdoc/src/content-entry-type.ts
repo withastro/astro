@@ -313,9 +313,12 @@ async function emitOptimizedImages(
 				const resolved = await ctx.pluginContext.resolve(node.attributes.src, ctx.filePath);
 
 				if (resolved?.id && fs.existsSync(new URL(prependForwardSlash(resolved.id), 'file://'))) {
-					const src = await emitImageMetadata(resolved.id, (opts) =>
-						emitClientAsset(ctx.pluginContext, opts),
-					);
+					// Only emit files during build, not in dev mode
+					const fileEmitter = ctx.pluginContext.meta.watchMode
+						? undefined
+						: (opts: Parameters<typeof ctx.pluginContext.emitFile>[0]) =>
+								emitClientAsset(ctx.pluginContext, opts);
+					const src = await emitImageMetadata(resolved.id, fileEmitter);
 
 					const fsPath = resolved.id;
 
