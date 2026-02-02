@@ -196,21 +196,26 @@ export const tableSchema = z.object({
 	deprecated: z.boolean().optional().default(false),
 });
 
-export const tablesSchema = z.preprocess((rawTables) => {
-	// Use `z.any()` to avoid breaking object references
-	const tables = z.record(z.string(), z.any()).parse(rawTables, { error: errorMap });
-	for (const [tableName, table] of Object.entries(tables)) {
-		// Append table and column names to columns.
-		// Used to track table info for references.
-		table.getName = () => tableName;
-		const { columns } = z.object({ columns: z.record(z.string(), z.any()) }).parse(table, { error: errorMap });
-		for (const [columnName, column] of Object.entries(columns)) {
-			column.schema.name = columnName;
-			column.schema.collection = tableName;
+export const tablesSchema = z.preprocess(
+	(rawTables) => {
+		// Use `z.any()` to avoid breaking object references
+		const tables = z.record(z.string(), z.any()).parse(rawTables, { error: errorMap });
+		for (const [tableName, table] of Object.entries(tables)) {
+			// Append table and column names to columns.
+			// Used to track table info for references.
+			table.getName = () => tableName;
+			const { columns } = z
+				.object({ columns: z.record(z.string(), z.any()) })
+				.parse(table, { error: errorMap });
+			for (const [columnName, column] of Object.entries(columns)) {
+				column.schema.name = columnName;
+				column.schema.collection = tableName;
+			}
 		}
-	}
-	return rawTables;
-}, z.record(z.string(), tableSchema));
+		return rawTables;
+	},
+	z.record(z.string(), tableSchema),
+);
 
 export const dbConfigSchema = z
 	.object({
