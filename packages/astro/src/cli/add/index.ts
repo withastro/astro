@@ -1,4 +1,5 @@
 import fsMod, { existsSync, promises as fs } from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import boxen from 'boxen';
@@ -81,9 +82,9 @@ export default async function seed() {
 	// TODO
 }
 `,
-	CLOUDFLARE_WRANGLER_CONFIG: (name: string) => `\
+	CLOUDFLARE_WRANGLER_CONFIG: (name: string, compatibilityDate: string) => `\
 {
-	"compatibility_date": ${JSON.stringify(new Date().toISOString().slice(0, 10))},
+	"compatibility_date": ${JSON.stringify(compatibilityDate)},
 	"compatibility_flags": ["global_fetch_strictly_public"],
 	"name": ${JSON.stringify(name)},
 	"main": "@astrojs/cloudflare/entrypoints/server",
@@ -217,10 +218,15 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 					if (await askToContinue({ flags, logger })) {
 						const data = await getPackageJson();
+						const require = createRequire(root);
+						const { getLocalWorkerdCompatibilityDate } = await import(require.resolve('@astrojs/cloudflare/info'));
+						const { date: compatibilityDate } = getLocalWorkerdCompatibilityDate({
+							projectPath: rootPath,
+						});
 
 						await fs.writeFile(
 							wranglerConfigURL,
-							STUBS.CLOUDFLARE_WRANGLER_CONFIG(data?.name ?? 'example'),
+							STUBS.CLOUDFLARE_WRANGLER_CONFIG(data?.name ?? 'example', compatibilityDate),
 							'utf-8',
 						);
 					}
