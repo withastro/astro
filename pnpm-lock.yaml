@@ -970,6 +970,9 @@ importers:
       '@astrojs/mdx':
         specifier: ^4.3.5
         version: 4.3.13(astro@packages+astro)
+      '@astrojs/preact':
+        specifier: workspace:*
+        version: link:../../../../integrations/preact
       '@astrojs/react':
         specifier: workspace:*
         version: link:../../../../integrations/react
@@ -994,6 +997,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      preact:
+        specifier: ^10.25.4
+        version: 10.28.2
       react:
         specifier: ^18.3.1
         version: 18.3.1

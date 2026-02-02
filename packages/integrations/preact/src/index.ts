@@ -68,9 +68,7 @@ function configEnvironmentPlugin(compat: boolean | undefined): Plugin {
 		name: '@astrojs/preact:environment',
 		configEnvironment(environmentName, options) {
 			const environmentOptions: EnvironmentOptions = {
-				optimizeDeps: {
-					exclude: ['@astrojs/preact/server.js'],
-				},
+				optimizeDeps: {},
 				resolve: {},
 			};
 
@@ -80,6 +78,10 @@ function configEnvironmentPlugin(compat: boolean | undefined): Plugin {
 					'preact',
 					'preact/jsx-runtime',
 				];
+			}
+
+			if (environmentName === 'ssr' || environmentName === 'prerender') {
+				environmentOptions.optimizeDeps!.include = ['@astrojs/preact/server.js'];
 			}
 
 			if (compat) {
