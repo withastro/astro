@@ -61,3 +61,5 @@ jobs:
           working-directory: ./benchmark
           run: pnpm bench --shard=${{ matrix.shard }}
           token: ${{ secrets.CODSPEED_TOKEN }}
+          mode: simulation
+
