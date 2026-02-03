@@ -36,6 +36,8 @@ export default function ({ include, exclude, compat, devtools }: Options = {}): 
 
 				const viteConfig: ViteUserConfig = {
 					optimizeDeps: {
+						// Ideally would be environment config, but
+						// putting it there does not result in it being optimized
 						include: ['@astrojs/preact/server.js'],
 					},
 				};
