@@ -19,7 +19,9 @@ declare global {
 type CfResponse = Awaited<ReturnType<Required<ExportedHandler<Env>>['fetch']>>;
 
 export async function handle(
-	...[request, env, context]: Parameters<Required<ExportedHandler<Env>>['fetch']>
+	request: Request,
+	env: Env,
+	context: ExecutionContext,
 ): Promise<CfResponse> {
 	const app = createApp(import.meta.env.DEV);
 	const { pathname } = new URL(request.url);
@@ -38,14 +40,12 @@ export async function handle(
 
 	let routeData: RouteData | undefined = undefined;
 	if (app.isDev()) {
-		const result = await app.devMatch(
-			app.getPathnameFromRequest(request as Request & Parameters<ExportedHandlerFetchHandler>[0]),
-		);
+		const result = await app.devMatch(app.getPathnameFromRequest(request));
 		if (result) {
 			routeData = result.routeData;
 		}
 	} else {
-		routeData = app.match(request as Request & Parameters<ExportedHandlerFetchHandler>[0]);
+		routeData = app.match(request);
 	}
 
 	if (!routeData) {
@@ -87,17 +87,14 @@ export async function handle(
 		},
 	});
 
-	const response = await app.render(
-		request as Request & Parameters<ExportedHandlerFetchHandler>[0],
-		{
-			routeData,
-			locals,
-			prerenderedErrorPageFetch: async (url) => {
-				return env.ASSETS.fetch(url.replace(/\.html$/, '')) as unknown as Response;
-			},
-			clientAddress: request.headers.get('cf-connecting-ip') ?? undefined,
+	const response = await app.render(request, {
+		routeData,
+		locals,
+		prerenderedErrorPageFetch: async (url) => {
+			return env.ASSETS.fetch(url.replace(/\.html$/, ''));
 		},
-	);
+		clientAddress: request.headers.get('cf-connecting-ip') ?? undefined,
+	});
 
 	if (app.setCookieHeaders) {
 		for (const setCookieHeader of app.setCookieHeaders(response)) {
