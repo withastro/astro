@@ -43,6 +43,15 @@ function sharedTests(testRunner, infoLogs = null) {
 		await expect(page.locator('#framework')).toContainText('Hello from vue component');
 	});
 
+	testRunner('preact component with client:load and useEffect', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+		const counter = page.locator('#preact-counter');
+		await expect(counter).toBeVisible();
+		await expect(counter).toContainText('Preact count: 0');
+		await counter.locator('button').click();
+		await expect(counter).toContainText('Preact count: 1');
+	});
+
 	testRunner('server island with server:defer', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 		const island = page.locator('#island');
@@ -94,6 +103,19 @@ function sharedTests(testRunner, infoLogs = null) {
 				(log) => log.message && log.message.includes('new dependencies optimized'),
 			);
 			expect(optimizedLog).toBeUndefined();
+		});
+
+		// Test for https://github.com/vitejs/vite/issues/20867
+		// When using a linked package with client:only, the first page load can trigger
+		// Vite's dep optimizer mid-request, causing client scripts to fail with 504.
+		// The fix sets `ignoreOutdatedRequests: true` on the client environment.
+		testRunner('linked package with client:only hydrates', async ({ page, astro }) => {
+			await page.goto(astro.resolveUrl('/linked-package'));
+			const button = page.locator('#counter');
+			await expect(button).toBeVisible();
+			await expect(button).toContainText('Count: 0');
+			await button.click();
+			await expect(button).toContainText('Count: 1');
 		});
 	}
 }

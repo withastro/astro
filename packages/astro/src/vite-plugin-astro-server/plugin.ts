@@ -207,6 +207,7 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 				(await settings.preferences.get('devToolbar.enabled')),
 			latestAstroVersion: settings.latestAstroVersion,
 			debugInfoOutput: '',
+			placement: settings.config.devToolbar.placement,
 		},
 		logLevel: settings.logLevel,
 	};

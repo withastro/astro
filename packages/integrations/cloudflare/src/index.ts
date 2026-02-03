@@ -234,6 +234,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 										return {
 											optimizeDeps: {
 												include: ['astro/runtime/client/dev-toolbar/entrypoint.js'],
+												// Workaround for https://github.com/vitejs/vite/issues/20867
+												// When dependencies are discovered mid-request (e.g. a linked package
+												// used with client:only), concurrent requests can fail with 504 because
+												// the dep optimizer's metadata object gets replaced during `await info.processing`.
+												ignoreOutdatedRequests: true,
 											},
 										};
 									}

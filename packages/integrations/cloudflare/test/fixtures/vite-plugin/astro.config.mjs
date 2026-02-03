@@ -42,12 +42,12 @@ export default defineConfig({
 		}
 	},
 	prefetch: true,
+	fonts: [{
+		provider: fontProviders.google(),
+		name: "Roboto",
+		cssVariable: "--font-roboto"
+	}],
 	experimental: {
-		fonts: [{
-			provider: fontProviders.google(),
-			name: "Roboto",
-			cssVariable: "--font-roboto"
-		}],
 		chromeDevtoolsWorkspace: true
 	},
 });

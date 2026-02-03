@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import os from 'node:os';
+import { fileURLToPath } from 'node:url';
 import PLimit from 'p-limit';
 import PQueue from 'p-queue';
 import colors from 'piccolore';
@@ -30,6 +31,7 @@ import { getOutFile, getOutFolder } from './common.js';
 import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-prerenderer.js';
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
+import type { AstroSettings } from '../../types/astro.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 
 export async function generatePages(
@@ -391,6 +393,9 @@ async function generatePathWithPrerenderer(
 		routeToHeaders.set(pathname, { headers: responseHeaders, route: integrationRoute });
 	}
 
+	// Public files take priority over generated routes
+	if (checkPublicConflict(outFile, route, options.settings, logger)) return;
+
 	await fs.promises.mkdir(outFolder, { recursive: true });
 	await fs.promises.writeFile(outFile, body);
 
@@ -455,4 +460,30 @@ function getUrlForPath(
 		buildPathname = joinPaths(base, buildPathRelative);
 	}
 	return new URL(buildPathname, origin);
+}
+
+/**
+ * Check if a file exists in the public directory that would conflict with the output file.
+ * Public files take priority over generated routes. Returns true if there's a conflict.
+ */
+function checkPublicConflict(
+	outFile: URL,
+	route: RouteData,
+	settings: AstroSettings,
+	logger: Logger,
+): boolean {
+	const outFilePath = fileURLToPath(outFile);
+	const outRoot = fileURLToPath(
+		settings.buildOutput === 'static' ? settings.config.outDir : settings.config.build.client,
+	);
+	const relativePath = outFilePath.slice(outRoot.length);
+	const publicFilePath = new URL(relativePath, settings.config.publicDir);
+	if (fs.existsSync(publicFilePath)) {
+		logger.warn(
+			'build',
+			`Skipping ${route.component} because a file with the same name exists in the public folder: ${relativePath}`,
+		);
+		return true;
+	}
+	return false;
 }

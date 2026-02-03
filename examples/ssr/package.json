@@ -3,6 +3,9 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -13,7 +16,7 @@
   "dependencies": {
     "@astrojs/node": "^10.0.0-beta.0",
     "@astrojs/svelte": "^8.0.0-beta.2",
-    "astro": "^6.0.0-beta.4",
-    "svelte": "^5.46.1"
+    "astro": "^6.0.0-beta.6",
+    "svelte": "^5.49.1"
   }
 }

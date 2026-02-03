@@ -3,6 +3,9 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -11,8 +14,8 @@
   },
   "dependencies": {
     "@astrojs/preact": "^5.0.0-beta.2",
-    "@preact/signals": "^2.5.1",
-    "astro": "^6.0.0-beta.4",
+    "@preact/signals": "^2.6.1",
+    "astro": "^6.0.0-beta.6",
     "preact": "^10.28.2"
   }
 }

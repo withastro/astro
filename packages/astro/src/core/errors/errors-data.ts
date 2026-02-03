@@ -1374,33 +1374,6 @@ export const CannotFetchFontFile = {
 /**
  * @docs
  * @description
- * Cannot load font provider
- * @message
- * Astro is unable to load the given font provider. Open an issue on the corresponding provider's repository.
- */
-export const CannotLoadFontProvider = {
-	name: 'CannotLoadFontProvider',
-	title: 'Cannot load font provider',
-	message: (entrypoint: string) => `An error occurred while loading the "${entrypoint}" provider.`,
-	hint: 'This is an issue with the font provider. Please open an issue on their repository.',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
- * Font component is used but experimental fonts have not been registered in the config.
- */
-export const ExperimentalFontsNotEnabled = {
-	name: 'ExperimentalFontsNotEnabled',
-	title: 'Experimental fonts are not enabled',
-	message:
-		'The Font component is used but experimental fonts have not been registered in the config.',
-	hint: 'Check that you have enabled experimental fonts and also configured your preferred fonts.',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
  * Font family not found
  * @message
  * No data was found for the `cssVariable` passed to the `<Font />` component.
@@ -1411,21 +1384,6 @@ export const FontFamilyNotFound = {
 	message: (family: string) =>
 		`No data was found for the \`"${family}"\` family passed to the \`<Font>\` component.`,
 	hint: 'This is often caused by a typo. Check that the `<Font />` component is using a `cssVariable` specified in your config.',
-} satisfies ErrorData;
-
-/**
- * @docs
- * @description
- * Font buffer not found
- * @message
- * No buffer was found for the URL passed to the `getFontBuffer()` function.
- */
-export const FontBufferNotFound = {
-	name: 'FontBufferNotFound',
-	title: 'Font buffer not found',
-	message: (url: string) =>
-		`No buffer was found for the \`"${url}"\` URL passed to the \`getFontBuffer()\` function.`,
-	hint: 'Make sure you pass a valid URL, obtained via the \`fontData\` object.',
 } satisfies ErrorData;
 
 /**

@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "7.0.0-beta.2",
+  "version": "7.0.0-beta.3",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -49,7 +49,7 @@
     "smol-toml": "^1.6.0",
     "unified": "^11.0.5",
     "unist-util-remove-position": "^5.0.0",
-    "unist-util-visit": "^5.0.0",
+    "unist-util-visit": "^5.1.0",
     "unist-util-visit-parents": "^6.0.2",
     "vfile": "^6.0.3"
   },
