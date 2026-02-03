@@ -4951,7 +4951,7 @@ importers:
         version: link:../../../../../astro
     devDependencies:
       wrangler:
-        specifier: 4.61.1
+        specifier: ^4.61.1
         version: 4.61.1(@cloudflare/workers-types@4.20260130.0)
 
   packages/integrations/cloudflare/test/fixtures/astro-env:
@@ -5058,7 +5058,7 @@ importers:
         version: link:../../../../../astro
     devDependencies:
       wrangler:
-        specifier: 4.61.1
+        specifier: ^4.61.1
         version: 4.61.1(@cloudflare/workers-types@4.20260130.0)
 
   packages/integrations/cloudflare/test/fixtures/server-entry:
