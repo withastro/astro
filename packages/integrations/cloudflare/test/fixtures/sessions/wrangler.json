@@ -1,6 +1,6 @@
 {
   "name": "astro-cf-session",
-  "compatibility_date": "2025-12-22",
+  "compatibility_date": "2026-01-31",
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS"

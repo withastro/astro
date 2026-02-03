@@ -11,7 +11,7 @@ If your `wrangler.jsonc` only contains basic configuration like this:
 ```jsonc
 {
   "main": "@astrojs/cloudflare/entrypoints/server",
-  "compatibility_date": "2025-05-21",
+  "compatibility_date": "2026-01-31",
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS"
@@ -22,6 +22,7 @@ If your `wrangler.jsonc` only contains basic configuration like this:
 You can safely delete the file. Astro will handle this configuration automatically.
 
 You only need a wrangler config file if you're using:
+
 - KV namespaces
 - D1 databases
 - Durable Objects
