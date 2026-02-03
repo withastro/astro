@@ -4,7 +4,7 @@ import type * as vite from 'vite';
 import { appendForwardSlash } from '../path.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import { getHandles, resetHandles } from '../../assets/utils/assets.js';
-import { getOrCreateSSRAssets, getSSRAssets, type BuildInternals } from './internal.js';
+import { getOrCreateSSRAssets, type BuildInternals } from './internal.js';
 
 /**
  * Vite plugin that tracks emitted assets and handles cleanup of manifest files.
@@ -82,14 +82,6 @@ export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
 			},
 		},
 	};
-}
-
-/**
- * Get the set of asset filenames that should be moved to the client directory
- * for a given environment.
- */
-export function getClientAssets(internals: BuildInternals, envName: string): Set<string> {
-	return getSSRAssets(internals, envName);
 }
 
 /**

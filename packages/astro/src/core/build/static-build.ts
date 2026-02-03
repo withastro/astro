@@ -28,7 +28,7 @@ import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.
 import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import type { RollupOutput, RollupWatcher, InputOption } from 'rollup';
-import { getClientAssets } from './vite-plugin-ssr-assets.js';
+import { getSSRAssets } from './internal.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -506,7 +506,7 @@ async function ssrMoveAssets(
 		: opts.settings.config.build.client;
 
 	// Move prerender assets
-	const prerenderAssetsToMove = getClientAssets(internals, ASTRO_VITE_ENVIRONMENT_NAMES.prerender);
+	const prerenderAssetsToMove = getSSRAssets(internals, ASTRO_VITE_ENVIRONMENT_NAMES.prerender);
 	if (prerenderAssetsToMove.size > 0) {
 		await Promise.all(
 			Array.from(prerenderAssetsToMove).map(async function moveAsset(filename) {
@@ -526,7 +526,7 @@ async function ssrMoveAssets(
 	}
 
 	// Move SSR assets
-	const ssrAssetsToMove = getClientAssets(internals, ASTRO_VITE_ENVIRONMENT_NAMES.ssr);
+	const ssrAssetsToMove = getSSRAssets(internals, ASTRO_VITE_ENVIRONMENT_NAMES.ssr);
 	if (ssrAssetsToMove.size > 0) {
 		await Promise.all(
 			Array.from(ssrAssetsToMove).map(async function moveAsset(filename) {
