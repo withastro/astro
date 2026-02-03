@@ -67,14 +67,20 @@ export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
 			order: 'post',
 			async handler() {
 				const env = this.environment;
-				const filenames = getOrCreateSSRAssets(internals, env.name);
 
 				// Add CSS and assets from manifest (these are always client assets)
 				// Must be done in writeBundle because the manifest is written during the bundle write phase
 				const manifestDir = new URL(appendForwardSlash(`file://${env.config.build.outDir}`));
 				const manifest = loadViteManifest(manifestDir);
 				if (manifest) {
-					collectAssetsFromManifest(manifest, filenames);
+					const manifestAssets = collectAssetsFromManifest(manifest);
+					if (manifestAssets.size > 0) {
+						// Append manifest assets to internals.ssrAssetsPerEnvironment for this environment
+						const filenames = getOrCreateSSRAssets(internals, env.name);
+						for (const asset of manifestAssets) {
+							filenames.add(asset);
+						}
+					}
 				}
 
 				// Clean up the .vite folder after the bundle is written
@@ -101,26 +107,28 @@ function loadViteManifest(directory: URL): vite.Manifest | null {
  * This includes CSS files and other assets (fonts, images) that need to be
  * moved to the client directory.
  */
-function collectAssetsFromManifest(manifest: vite.Manifest, filenames: Set<string>): void {
+function collectAssetsFromManifest(manifest: vite.Manifest): Set<string> {
+	const assets = new Set<string>();
 	for (const chunk of Object.values(manifest)) {
 		// Add CSS files listed in the css array
 		if (chunk.css) {
 			for (const css of chunk.css) {
-				filenames.add(css);
+				assets.add(css);
 			}
 		}
 		// Add assets (fonts, images referenced from CSS, etc.)
 		if (chunk.assets) {
 			for (const asset of chunk.assets) {
-				filenames.add(asset);
+				assets.add(asset);
 			}
 		}
 		// Add CSS files that are the primary output of a chunk
 		// This happens when a JS module only imports CSS and has no JS output
 		if (chunk.file.endsWith('.css')) {
-			filenames.add(chunk.file);
+			assets.add(chunk.file);
 		}
 	}
+	return assets;
 }
 
 /**
