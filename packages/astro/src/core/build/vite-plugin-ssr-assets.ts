@@ -1,28 +1,10 @@
 import fs from 'node:fs';
-import type { Environment, EnvironmentOptions, Plugin, Rollup } from 'vite';
+import type { EnvironmentOptions, Plugin } from 'vite';
 import type * as vite from 'vite';
 import { appendForwardSlash } from '../path.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
+import { getHandles, resetHandles } from '../../assets/utils/assets.js';
 import type { BuildInternals } from './internal.js';
-
-type PluginContext = Rollup.PluginContext;
-type EmitFileOptions = Parameters<Rollup.PluginContext['emitFile']>[0];
-
-// WeakMap keyed by Environment objects to track emitted asset handles
-// Using WeakMap ensures automatic cleanup when environments are garbage collected
-const assetHandlesByEnvironment = new WeakMap<Environment, Set<string>>();
-
-/**
- * Gets or creates the handle set for an environment
- */
-function getHandles(env: Environment): Set<string> {
-	let handles = assetHandlesByEnvironment.get(env);
-	if (!handles) {
-		handles = new Set();
-		assetHandlesByEnvironment.set(env, handles);
-	}
-	return handles;
-}
 
 /**
  * Vite plugin that tracks emitted assets and handles cleanup of manifest files.
@@ -59,14 +41,13 @@ export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
 
 		buildStart() {
 			// Reset tracking for this environment at the start of each build
-			const env = this.environment;
-			assetHandlesByEnvironment.set(env, new Set());
+			resetHandles(this.environment);
 		},
 
 		generateBundle() {
 			const env = this.environment;
 			const envName = env.name;
-			const handles = assetHandlesByEnvironment.get(env);
+			const handles = getHandles(env);
 
 			// Get or create the filenames set in internals for this environment
 			let filenames = internals.ssrAssetsPerEnvironment.get(envName);
@@ -115,25 +96,6 @@ export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
 			},
 		},
 	};
-}
-
-/**
- * Emit a client asset and track it for later movement to the client directory.
- * Use this instead of pluginContext.emitFile for assets that should
- * be moved from the server/prerender directory to the client directory.
- *
- * Note: The pluginContext is typed as Rollup.PluginContext for compatibility
- * with content entry types, but in practice it will always have the `environment`
- * property when running in Vite.
- */
-export function emitClientAsset(pluginContext: PluginContext, options: EmitFileOptions): string {
-	const env = (pluginContext as PluginContext & { environment: Environment }).environment;
-	const handle = pluginContext.emitFile(options);
-
-	const handles = getHandles(env);
-	handles.add(handle);
-
-	return handle;
 }
 
 /**
