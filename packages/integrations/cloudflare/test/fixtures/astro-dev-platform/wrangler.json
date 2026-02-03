@@ -1,6 +1,6 @@
 {
   "name": "test",
-  "compatibility_date": "2026-01-31",
+  "compatibility_date": "2026-01-28",
   "main": "@astrojs/cloudflare/entrypoints/server",
   "kv_namespaces": [
     { "binding": "KV", "id": "<YOUR_ID>", "preview_id": "<YOUR_ID>" },

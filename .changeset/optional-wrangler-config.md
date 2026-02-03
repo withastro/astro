@@ -11,7 +11,7 @@ If your `wrangler.jsonc` only contains basic configuration like this:
 ```jsonc
 {
   "main": "@astrojs/cloudflare/entrypoints/server",
-  "compatibility_date": "2026-01-31",
+  "compatibility_date": "2026-01-28",
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS"
