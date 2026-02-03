@@ -25,8 +25,12 @@ import { fontsPlugin } from './fonts/vite-plugin-fonts.js';
 import type { ImageTransform } from './types.js';
 import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
 import { isESMImportedImage } from './utils/index.js';
-import { emitImageMetadata, hashTransform, propsToFilename } from './utils/node.js';
-import { emitClientAsset } from '../core/build/vite-plugin-ssr-assets.js';
+import {
+	emitClientAsset,
+	emitImageMetadata,
+	hashTransform,
+	propsToFilename,
+} from './utils/node.js';
 import { getProxyCode } from './utils/proxy.js';
 import { makeSvgComponent } from './utils/svg.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';

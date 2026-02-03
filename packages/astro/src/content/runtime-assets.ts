@@ -1,8 +1,7 @@
 import type { PluginContext } from 'rollup';
 import * as z from 'zod/v4';
 import type { ImageMetadata, OmitBrand } from '../assets/types.js';
-import { emitImageMetadata } from '../assets/utils/node.js';
-import { emitClientAsset } from '../core/build/vite-plugin-ssr-assets.js';
+import { emitClientAsset, emitImageMetadata } from '../assets/utils/node.js';
 
 export function createImage(
 	pluginContext: PluginContext,
