@@ -87,9 +87,5 @@ export default {
 		'packages/upgrade': {
 			entry: ['src/index.ts', testEntry],
 		},
-		scripts: {
-			// Used in shell script
-			ignoreDependencies: ['marked'],
-		},
 	},
 };
