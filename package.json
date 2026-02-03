@@ -68,7 +68,7 @@
     "esbuild": "0.25.5",
     "eslint": "^9.39.2",
     "eslint-plugin-regexp": "^3.0.0",
-    "knip": "5.61.3",
+    "knip": "5.82.1",
     "only-allow": "^1.2.2",
     "prettier": "^3.8.1",
     "prettier-plugin-astro": "^0.14.1",
