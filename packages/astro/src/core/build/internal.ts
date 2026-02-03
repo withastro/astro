@@ -1,4 +1,5 @@
 import type { SSRResult } from '../../types/public/internal.js';
+import type { AstroEnvironmentNames } from '../constants.js';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
 import type { PageBuildData, StylesheetAsset, ViteID } from './types.js';
@@ -101,7 +102,7 @@ export interface BuildInternals {
 	 * Populated during generateBundle by vitePluginSSRAssets.
 	 * Map of environment name -> Set of asset filenames.
 	 */
-	ssrAssetsPerEnvironment: Map<string, Set<string>>;
+	ssrAssetsPerEnvironment: Map<AstroEnvironmentNames, Set<string>>;
 }
 
 /**
@@ -130,6 +131,27 @@ export function createBuildInternals(): BuildInternals {
 		clientChunksAndAssets: new Set(),
 		ssrAssetsPerEnvironment: new Map(),
 	};
+}
+
+/**
+ * Gets or creates the set of SSR assets for a given environment.
+ * Handles type casting from Vite's string environment name to AstroEnvironmentNames.
+ */
+export function getOrCreateSSRAssets(internals: BuildInternals, envName: string): Set<string> {
+	const key = envName as AstroEnvironmentNames;
+	let assets = internals.ssrAssetsPerEnvironment.get(key);
+	if (!assets) {
+		assets = new Set();
+		internals.ssrAssetsPerEnvironment.set(key, assets);
+	}
+	return assets;
+}
+
+/**
+ * Gets the set of SSR assets for a given environment, or an empty set if none exist.
+ */
+export function getSSRAssets(internals: BuildInternals, envName: string): Set<string> {
+	return internals.ssrAssetsPerEnvironment.get(envName as AstroEnvironmentNames) ?? new Set();
 }
 
 export function trackPageData(

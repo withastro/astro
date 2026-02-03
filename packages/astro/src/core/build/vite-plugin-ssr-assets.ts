@@ -4,7 +4,7 @@ import type * as vite from 'vite';
 import { appendForwardSlash } from '../path.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import { getHandles, resetHandles } from '../../assets/utils/assets.js';
-import type { BuildInternals } from './internal.js';
+import { getOrCreateSSRAssets, getSSRAssets, type BuildInternals } from './internal.js';
 
 /**
  * Vite plugin that tracks emitted assets and handles cleanup of manifest files.
@@ -46,15 +46,8 @@ export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
 
 		generateBundle() {
 			const env = this.environment;
-			const envName = env.name;
 			const handles = getHandles(env);
-
-			// Get or create the filenames set in internals for this environment
-			let filenames = internals.ssrAssetsPerEnvironment.get(envName);
-			if (!filenames) {
-				filenames = new Set();
-				internals.ssrAssetsPerEnvironment.set(envName, filenames);
-			}
+			const filenames = getOrCreateSSRAssets(internals, env.name);
 
 			// Resolve handles to filenames and store in internals
 			if (handles) {
@@ -74,14 +67,7 @@ export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
 			order: 'post',
 			async handler() {
 				const env = this.environment;
-				const envName = env.name;
-
-				// Get or create the filenames set in internals for this environment
-				let filenames = internals.ssrAssetsPerEnvironment.get(envName);
-				if (!filenames) {
-					filenames = new Set();
-					internals.ssrAssetsPerEnvironment.set(envName, filenames);
-				}
+				const filenames = getOrCreateSSRAssets(internals, env.name);
 
 				// Add CSS and assets from manifest (these are always client assets)
 				// Must be done in writeBundle because the manifest is written during the bundle write phase
@@ -103,7 +89,7 @@ export function vitePluginSSRAssets(internals: BuildInternals): Plugin {
  * for a given environment.
  */
 export function getClientAssets(internals: BuildInternals, envName: string): Set<string> {
-	return internals.ssrAssetsPerEnvironment.get(envName) ?? new Set();
+	return getSSRAssets(internals, envName);
 }
 
 /**
