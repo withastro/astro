@@ -35,7 +35,8 @@ Any static assets, like images, can be placed in the `public/` directory.
 
 ## 🧞 Commands
 
-All commands are run from the root of the project, from a terminal:
+When using this example inside the Astro repository, commands are run from the example directory.  
+In a standalone Astro project, commands are run from the project root.
 
 | Command                   | Action                                           |
 | :------------------------ | :----------------------------------------------- |
