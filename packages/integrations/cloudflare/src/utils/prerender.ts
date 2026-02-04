@@ -19,7 +19,6 @@ import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import { StaticPaths } from 'astro:static-paths';
 import type { StaticPathsResponse, PrerenderRequest } from '../prerender-types.js';
 import { STATIC_PATHS_ENDPOINT, PRERENDER_ENDPOINT } from './prerender-constants.js';
-export { STATIC_PATHS_ENDPOINT, PRERENDER_ENDPOINT };
 
 /**
  * Checks if the request is for the static paths prerender endpoint.
