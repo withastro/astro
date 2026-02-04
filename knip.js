@@ -48,6 +48,8 @@ export default {
 				'rehype-toc',
 				'remark-code-titles',
 				'@types/http-cache-semantics',
+				// Dynamically imported by astro add cloudflare
+				'@astrojs/cloudflare',
 			],
 		},
 		'packages/db': {

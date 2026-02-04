@@ -19,6 +19,7 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/cloudflare/",
   "exports": {
     ".": "./dist/index.js",
+    "./info": "./dist/info.js",
     "./entrypoints/server": "./dist/entrypoints/server.js",
     "./entrypoints/preview": "./dist/entrypoints/preview.js",
     "./entrypoints/server.js": "./dist/entrypoints/server.js",
@@ -50,7 +51,7 @@
   },
   "peerDependencies": {
     "astro": "^6.0.0-alpha.0",
-    "wrangler": "^4.53.0"
+    "wrangler": "^4.61.1"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260124.0",
