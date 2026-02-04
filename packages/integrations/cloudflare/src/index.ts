@@ -1,8 +1,6 @@
 import { createReadStream, existsSync, readFileSync } from 'node:fs';
 import { appendFile, stat } from 'node:fs/promises';
-import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline/promises';
-import { pathToFileURL } from 'node:url';
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
@@ -85,27 +83,6 @@ export type Options = {
 	 * See https://developers.cloudflare.com/images/transform-images/bindings/ for more details.
 	 */
 	imagesBindingName?: string;
-
-	/**
-	 * This configuration option allows you to specify a custom entryPoint for your Cloudflare Worker.
-	 * The entry point is the file that will be executed when your Worker is invoked.
-	 * By default, this is set to `@astrojs/cloudflare/entrypoints/server.js` and `['default']`.
-	 * @docs https://docs.astro.build/en/guides/integrations-guide/cloudflare/#workerEntryPoint
-	 */
-	workerEntryPoint?: {
-		/**
-		 * The path to the entry file. This should be a relative path from the root of your Astro project.
-		 * @example`'src/worker.ts'`
-		 * @docs https://docs.astro.build/en/guides/integrations-guide/cloudflare/#workerentrypointpath
-		 */
-		path: string | URL;
-		/**
-		 * Additional named exports to use for the entry file. Astro always includes the default export (`['default']`). If you need to have other top level named exports use this option.
-		 * @example ['MyDurableObject', 'namedExport']
-		 * @docs https://docs.astro.build/en/guides/integrations-guide/cloudflare/#workerentrypointnamedexports
-		 */
-		namedExports?: string[];
-	};
 };
 
 export default function createIntegration(args?: Options): AstroIntegration {
@@ -266,20 +243,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					content: '/// <reference types="@astrojs/cloudflare/types.d.ts" />',
 				});
 
-				let customWorkerEntryPoint: URL | undefined;
-				if (args?.workerEntryPoint && typeof args.workerEntryPoint.path === 'string') {
-					const require = createRequire(config.root);
-					try {
-						customWorkerEntryPoint = pathToFileURL(require.resolve(args.workerEntryPoint.path));
-					} catch {
-						customWorkerEntryPoint = new URL(args.workerEntryPoint.path, config.root);
-					}
-				}
-
 				setAdapter({
 					name: '@astrojs/cloudflare',
-					serverEntrypoint: customWorkerEntryPoint ?? '@astrojs/cloudflare/entrypoints/server.js',
-					exports: [...new Set(['default', ...(args?.workerEntryPoint?.namedExports ?? [])])],
 					adapterFeatures: {
 						edgeMiddleware: false,
 						buildOutput: 'server',
