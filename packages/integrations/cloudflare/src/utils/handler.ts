@@ -107,7 +107,7 @@ export async function handle(
 	const response = await app.render(request, {
 		routeData,
 		locals,
-		prerenderedErrorPageFetch: async (url) => {
+		prerenderedErrorPageFetch: async (url: string) => {
 			return env.ASSETS.fetch(url.replace(/\.html$/, ''));
 		},
 		clientAddress: request.headers.get('cf-connecting-ip') ?? undefined,
