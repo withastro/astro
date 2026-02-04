@@ -1,5 +1,5 @@
 import { stripVTControlCharacters } from 'node:util';
-import deepDiff from 'deep-diff';
+import diff from 'microdiff';
 import { sql } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
 import { customAlphabet } from 'nanoid';
@@ -122,7 +122,8 @@ export async function getTableChangeQueries({
 	const added = getAdded(oldTable.columns, newTable.columns);
 	const dropped = getDropped(oldTable.columns, newTable.columns);
 	/** Any foreign key changes require a full table recreate */
-	const hasForeignKeyChanges = Boolean(deepDiff(oldTable.foreignKeys, newTable.foreignKeys));
+	const hasForeignKeyChanges =
+		diff(oldTable.foreignKeys ?? [], newTable.foreignKeys ?? []).length > 0;
 
 	if (!hasForeignKeyChanges && isEmpty(updated) && isEmpty(added) && isEmpty(dropped)) {
 		return {
@@ -362,7 +363,7 @@ function getUpdated<T>(oldObj: Record<string, T>, newObj: Record<string, T>) {
 	for (const [key, value] of Object.entries(newObj)) {
 		const oldValue = oldObj[key];
 		if (!oldValue) continue;
-		if (deepDiff(oldValue, value)) updated[key] = value;
+		if (diff(oldValue as any, value as any).length > 0) updated[key] = value;
 	}
 	return updated;
 }
@@ -389,9 +390,9 @@ function getUpdatedColumns(oldColumns: DBColumns, newColumns: DBColumns): Update
 			// If parsing fails, move on to the standard diff.
 		}
 
-		const diff = deepDiff(oldColumn, newColumn);
+		const diffResult = diff(oldColumn, newColumn);
 
-		if (diff) {
+		if (diffResult.length > 0) {
 			updated[key] = { old: oldColumn, new: newColumn };
 		}
 	}
