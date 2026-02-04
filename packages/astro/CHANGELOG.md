@@ -1,5 +1,45 @@
 # astro
 
+## 6.0.0-beta.7
+
+### Minor Changes
+
+- [#14888](https://github.com/withastro/astro/pull/14888) [`4cd3fe4`](https://github.com/withastro/astro/commit/4cd3fe412bddbb0deb1383e83f3f8ae6e72596af) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Updates `astro add cloudflare` to better setup types, by adding `./worker-configuration.d.ts` to tsconfig includes and a `generate-types` script to package.json
+
+- [#15349](https://github.com/withastro/astro/pull/15349) [`a257c4c`](https://github.com/withastro/astro/commit/a257c4c3c7f0cdc5089b522ed216401d46d214c9) Thanks [@ascorbic](https://github.com/ascorbic)! - Passes collection name to live content loaders
+
+  Live content collection loaders now receive the collection name as part of their parameters. This is helpful for loaders that manage multiple collections or need to differentiate behavior based on the collection being accessed.
+
+  ```ts
+  export function storeLoader({ field, key }) {
+    return {
+      name: 'store-loader',
+      loadCollection: async ({ filter, collection }) => {
+        // ...
+      },
+      loadEntry: async ({ filter, collection }) => {
+        // ...
+      },
+    };
+  }
+  ```
+
+### Patch Changes
+
+- [#15394](https://github.com/withastro/astro/pull/15394) [`5520f89`](https://github.com/withastro/astro/commit/5520f89d5df125e0c2d7fcdb3f9f0c81ff754e86) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where using the Fonts API with `netlify dev` wouldn't work because of query parameters
+
+- [#15385](https://github.com/withastro/astro/pull/15385) [`9e16d63`](https://github.com/withastro/astro/commit/9e16d63cdd2537c406e50d005b389ac115755e8e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes content layer loaders that use dynamic imports
+
+  Content collection loaders can now use `await import()` and `import.meta.glob()` to dynamically import modules during build. Previously, these would fail with "Vite module runner has been closed."
+
+- [#15386](https://github.com/withastro/astro/pull/15386) [`a0234a3`](https://github.com/withastro/astro/commit/a0234a36d8407d24270e187cd6133171b938583e) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Updates `astro add cloudflare` to use the latest valid `compatibility_date` in the wrangler config, if available
+
+- [#15362](https://github.com/withastro/astro/pull/15362) [`dbf71c0`](https://github.com/withastro/astro/commit/dbf71c021e3adf060c34e6f268cf1b5cd480233d) Thanks [@jcayzac](https://github.com/jcayzac)! - Fixes `inferSize` being kept in the HTML attributes of the emitted `<img>` when that option is used with an image that is not remote.
+
+- Updated dependencies [[`240c317`](https://github.com/withastro/astro/commit/240c317faab52d7f22494e9181f5d2c2c404b0bd)]:
+  - @astrojs/internal-helpers@0.8.0-beta.0
+  - @astrojs/markdown-remark@7.0.0-beta.4
+
 ## 6.0.0-beta.6
 
 ### Major Changes
