@@ -1,6 +1,8 @@
 import type { EnvironmentModuleNode, Plugin } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 
+const STYLE_EXT_REGEX = /\.(?:css|scss|sass|less|styl|pcss)$/i;
+
 /**
  * The very last Vite plugin to reload the browser if any SSR-only module are updated
  * which will require a full page reload. This mimics the behaviour of Vite 5 where
@@ -20,6 +22,8 @@ export default function hmrReload(): Plugin {
 				const invalidatedModules = new Set<EnvironmentModuleNode>();
 				for (const mod of modules) {
 					if (mod.id == null) continue;
+					if (mod.file && STYLE_EXT_REGEX.test(mod.file)) continue;
+	
 					const clientModule = server.environments.client.moduleGraph.getModuleById(mod.id);
 					if (clientModule != null) continue;
 
