@@ -124,7 +124,7 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 						return {
 							code: `
 					export const serverIslandMap = ${mapSource};
-					\n\nexport const serverIslandNameMap = new Map(${JSON.stringify(Array.from(serverIslandNameMap.entries()), null, 2)});
+					\n\nexport const serverIslandNameMap = new Map(${JSON.stringify([...serverIslandNameMap.entries()], null, 2)});
 					`,
 						};
 					}
@@ -157,7 +157,7 @@ export function vitePluginServerIslands({ settings }: AstroPluginOptions): ViteP
 					const islandName = serverIslandNameMap.get(resolvedPath)!;
 					mapSource += `\n\t['${islandName}', () => import('${dots}/${fileName}')],`;
 				}
-				nameMapSource += `${JSON.stringify(Array.from(serverIslandNameMap.entries()), null, 2)}`;
+				nameMapSource += `${JSON.stringify([...serverIslandNameMap.entries()], null, 2)}`;
 				mapSource += '\n])';
 				nameMapSource += '\n)';
 				referenceIdMap.clear();

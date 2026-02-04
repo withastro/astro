@@ -22,15 +22,6 @@ export function createCanonicalURL(
 	return canonicalUrl;
 }
 
-/** Check if a URL is already valid */
-export function isValidURL(url: string): boolean {
-	try {
-		new URL(url);
-		return true;
-	} catch {}
-	return false;
-}
-
 function getUrlExtension(url: string) {
 	const lastDot = url.lastIndexOf('.');
 	const lastSlash = url.lastIndexOf('/');

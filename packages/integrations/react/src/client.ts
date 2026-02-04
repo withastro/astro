@@ -23,17 +23,15 @@ function createReactElementFromDOMElement(element: any): any {
 	return createElement(
 		element.localName,
 		attrs,
-		Array.from(element.childNodes)
-			.map((c: any) => {
-				if (c.nodeType === Node.TEXT_NODE) {
-					return c.data;
-				} else if (c.nodeType === Node.ELEMENT_NODE) {
-					return createReactElementFromDOMElement(c);
-				} else {
-					return undefined;
-				}
-			})
-			.filter((a) => !!a),
+		Array.from(element.childNodes, (c: any) => {
+			if (c.nodeType === Node.TEXT_NODE) {
+				return c.data;
+			} else if (c.nodeType === Node.ELEMENT_NODE) {
+				return createReactElementFromDOMElement(c);
+			} else {
+				return undefined;
+			}
+		}).filter((a) => !!a),
 	);
 }
 

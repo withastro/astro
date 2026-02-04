@@ -68,14 +68,14 @@ describe('Content Collections - data collections', () => {
 			});
 
 			it(`Returns ${authorId}`, async () => {
-				assert.equal(json.hasOwnProperty('id'), true);
+				assert.equal(Object.hasOwn(json, 'id'), true);
 				assert.equal(json.id, authorId);
 			});
 
 			it(`Generates correct data for ${authorId}`, async () => {
-				assert.equal(json.hasOwnProperty('data'), true);
-				assert.equal(json.data.hasOwnProperty('name'), true);
-				assert.equal(json.data.hasOwnProperty('twitter'), true);
+				assert.equal(Object.hasOwn(json, 'data'), true);
+				assert.equal(Object.hasOwn(json.data, 'name'), true);
+				assert.equal(Object.hasOwn(json.data, 'twitter'), true);
 
 				switch (authorId) {
 					case 'Ben Holmes':
@@ -135,15 +135,15 @@ describe('Content Collections - data collections', () => {
 			});
 
 			it(`Returns ${translationId}`, async () => {
-				assert.equal(json.hasOwnProperty('id'), true);
+				assert.equal(Object.hasOwn(json, 'id'), true);
 				assert.equal(json.id, translationId);
 			});
 
 			it(`Generates correct data for ${translationId}`, async () => {
-				assert.equal(json.hasOwnProperty('data'), true);
-				assert.equal(json.data.hasOwnProperty('homepage'), true);
-				assert.equal(json.data.homepage.hasOwnProperty('greeting'), true);
-				assert.equal(json.data.homepage.hasOwnProperty('preamble'), true);
+				assert.equal(Object.hasOwn(json, 'data'), true);
+				assert.equal(Object.hasOwn(json.data, 'homepage'), true);
+				assert.equal(Object.hasOwn(json.data.homepage, 'greeting'), true);
+				assert.equal(Object.hasOwn(json.data.homepage, 'preamble'), true);
 
 				switch (translationId) {
 					case 'en':

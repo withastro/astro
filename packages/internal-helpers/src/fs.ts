@@ -23,7 +23,7 @@ export async function getFilesFromFolder(dir: URL) {
 	for (const item of data) {
 		if (item.isDirectory()) {
 			const moreFiles = await getFilesFromFolder(new URL(`./${item.name}/`, dir));
-			files = files.concat(moreFiles);
+			files = [...files, ...moreFiles];
 		} else {
 			files.push(new URL(`./${item.name}`, dir));
 		}

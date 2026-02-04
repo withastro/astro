@@ -63,11 +63,10 @@ const PKG_NAME = '@astrojs/sitemap';
 const STATUS_CODE_PAGES = new Set(['404', '500']);
 
 const isStatusCodePage = (locales: string[]) => {
-	const statusPathNames = new Set(
-		locales
-			.flatMap((locale) => [...STATUS_CODE_PAGES].map((page) => `${locale}/${page}`))
-			.concat([...STATUS_CODE_PAGES]),
-	);
+	const statusPathNames = new Set([
+		...locales.flatMap((locale) => Array.from(STATUS_CODE_PAGES, (page) => `${locale}/${page}`)),
+		...[...STATUS_CODE_PAGES],
+	]);
 
 	return (pathname: string): boolean => {
 		if (pathname.endsWith('/')) {
@@ -158,7 +157,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						return urls;
 					}, []);
 
-					pageUrls = Array.from(new Set([...pageUrls, ...routeUrls, ...(customPages ?? [])]));
+					pageUrls = [...new Set([...pageUrls, ...routeUrls, ...(customPages ?? [])])];
 
 					if (filter) {
 						pageUrls = pageUrls.filter((value) => filter(value));

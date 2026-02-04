@@ -106,7 +106,7 @@ export function createStylePreprocessor({
 
 			cssPartialCompileResults[index] = {
 				isGlobal: !!attrs['is:global'],
-				dependencies: result.deps ? [...result.deps].map((dep) => normalizePath(dep)) : [],
+				dependencies: result.deps ? Array.from(result.deps, (dep) => normalizePath(dep)) : [],
 			};
 
 			let map: string | undefined;

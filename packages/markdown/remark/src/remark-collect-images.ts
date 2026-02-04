@@ -42,7 +42,7 @@ export function remarkCollectImages(opts: AstroMarkdownProcessorOptions['image']
 		});
 
 		vfile.data.astro ??= {};
-		vfile.data.astro.localImagePaths = Array.from(localImagePaths);
-		vfile.data.astro.remoteImagePaths = Array.from(remoteImagePaths);
+		vfile.data.astro.localImagePaths = [...localImagePaths];
+		vfile.data.astro.remoteImagePaths = [...remoteImagePaths];
 	};
 }

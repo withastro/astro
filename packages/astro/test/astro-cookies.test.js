@@ -110,7 +110,7 @@ describe('Astro.cookies', () => {
 				method: 'POST',
 			});
 			assert.equal(response.status, 200);
-			let headers = Array.from(app.setCookieHeaders(response));
+			let headers = [...app.setCookieHeaders(response)];
 			assert.equal(headers.length, 1);
 			assert.match(headers[0], /Expires/);
 		});
@@ -142,7 +142,7 @@ describe('Astro.cookies', () => {
 				},
 			});
 			assert.equal(response.status, 302);
-			let headers = Array.from(app.setCookieHeaders(response));
+			let headers = [...app.setCookieHeaders(response)];
 			assert.equal(headers.length, 1);
 			let raw = headers[0].slice(6);
 			let data = JSON.parse(decodeURIComponent(raw));
@@ -158,7 +158,7 @@ describe('Astro.cookies', () => {
 				},
 			});
 			assert.equal(response.status, 302);
-			let headers = Array.from(app.setCookieHeaders(response));
+			let headers = [...app.setCookieHeaders(response)];
 			assert.equal(headers.length, 1);
 			let raw = headers[0].slice(6);
 			let data = JSON.parse(decodeURIComponent(raw));

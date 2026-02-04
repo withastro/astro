@@ -127,7 +127,7 @@ export class PassthroughFontResolver {
 		}
 		const storage = new SpyStorage();
 		await Promise.all(
-			Array.from(providers.values()).map(async (provider) => {
+			Array.from(providers.values(), async (provider) => {
 				await provider.init?.({ storage, root: new URL(import.meta.url) });
 			}),
 		);

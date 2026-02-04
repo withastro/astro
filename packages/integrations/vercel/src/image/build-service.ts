@@ -152,7 +152,7 @@ const service: ExternalImageService = {
 			}
 
 			// Convert back to allWidths, keeping only unique widths
-			allWidths = Array.from(widthToDescriptors.entries()).map(([width, descriptors]) => ({
+			allWidths = Array.from(widthToDescriptors.entries(), ([width, descriptors]) => ({
 				width,
 				descriptor: descriptors[0] as `${number}x` | `${number}w`,
 			}));

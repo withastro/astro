@@ -16,9 +16,7 @@ export function getOrCreateFontFamilyAssets({
 	let fontAssets = fontFamilyAssetsByUniqueKey.get(key);
 	if (!fontAssets) {
 		if (
-			Array.from(fontFamilyAssetsByUniqueKey.keys()).find((k) =>
-				k.startsWith(`${family.cssVariable}:`),
-			)
+			[...fontFamilyAssetsByUniqueKey.keys()].some((k) => k.startsWith(`${family.cssVariable}:`))
 		) {
 			logger.warn(
 				'assets',

@@ -290,7 +290,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 				if (id === RESOLVED_VIRTUAL_MODULE_ID) {
 					return {
 						code: `
-						export const componentDataByCssVariable = new Map(${JSON.stringify(Array.from(componentDataByCssVariable?.entries() ?? []))});
+						export const componentDataByCssVariable = new Map(${JSON.stringify([...(componentDataByCssVariable?.entries() ?? [])])});
 						export const fontDataByCssVariable = ${JSON.stringify(fontDataByCssVariable ?? {})}
 					`,
 					};
@@ -323,7 +323,7 @@ export function fontsPlugin({ settings, sync, logger }: Options): Plugin {
 						`Copying fonts (${fontFileById.size} file${fontFileById.size === 1 ? '' : 's'})...`,
 					);
 					await Promise.all(
-						Array.from(fontFileById.entries()).map(async ([id, associatedData]) => {
+						Array.from(fontFileById.entries(), async ([id, associatedData]) => {
 							const data = await fontFetcher!.fetch({ id, ...associatedData });
 							try {
 								writeFileSync(new URL(id, fontsDir), data);

@@ -13,7 +13,7 @@ import type { MarkdocConfigResult } from './load-config.js';
 import type { MarkdocIntegrationOptions } from './options.js';
 import { setupConfig } from './runtime.js';
 import { getMarkdocTokenizer } from './tokenizer.js';
-import { isComponentConfig, isValidUrl, MarkdocError, prependForwardSlash } from './utils.js';
+import { isComponentConfig, MarkdocError, prependForwardSlash } from './utils.js';
 
 export async function getContentEntryType({
 	markdocConfigResult,
@@ -346,7 +346,7 @@ async function emitOptimizedImages(
 
 function shouldOptimizeImage(src: string) {
 	// Optimize anything that is NOT external or an absolute path to `public/`
-	return !isValidUrl(src) && !src.startsWith('/');
+	return !URL.canParse(src) && !src.startsWith('/');
 }
 
 /**

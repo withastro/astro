@@ -132,7 +132,7 @@ export async function renderToReadableStream(
 					}
 
 					// Queue error on next microtask to flush the remaining chunks written synchronously
-					setTimeout(() => controller.error(e), 0);
+					setTimeout(controller.error, 0, e);
 				}
 			})();
 		},

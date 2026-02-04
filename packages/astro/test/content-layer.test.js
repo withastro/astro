@@ -35,7 +35,7 @@ describe('Content Layer', () => {
 		});
 
 		it('Returns custom loader collection', async () => {
-			assert.ok(json.hasOwnProperty('customLoader'));
+			assert.ok(Object.hasOwn(json, 'customLoader'));
 			assert.ok(Array.isArray(json.customLoader));
 
 			const item = json.customLoader[0];
@@ -52,13 +52,13 @@ describe('Content Layer', () => {
 		});
 
 		it('filters collection items', async () => {
-			assert.ok(json.hasOwnProperty('customLoader'));
+			assert.ok(Object.hasOwn(json, 'customLoader'));
 			assert.ok(Array.isArray(json.customLoader));
 			assert.equal(json.customLoader.length, 5);
 		});
 
 		it('Returns json `file()` loader collection', async () => {
-			assert.ok(json.hasOwnProperty('jsonLoader'));
+			assert.ok(Object.hasOwn(json, 'jsonLoader'));
 			assert.ok(Array.isArray(json.jsonLoader));
 
 			const ids = json.jsonLoader.map((item) => item.data.id);
@@ -97,7 +97,7 @@ describe('Content Layer', () => {
 		});
 
 		it('handles negative matches in glob() loader', async () => {
-			assert.ok(json.hasOwnProperty('probes'));
+			assert.ok(Object.hasOwn(json, 'probes'));
 			assert.ok(Array.isArray(json.probes));
 			assert.equal(json.probes.length, 6);
 			assert.ok(
@@ -107,7 +107,7 @@ describe('Content Layer', () => {
 		});
 
 		it('retains body by default in glob() loader', async () => {
-			assert.ok(json.hasOwnProperty('spacecraftWithBody'));
+			assert.ok(Object.hasOwn(json, 'spacecraftWithBody'));
 			assert.ok(Array.isArray(json.spacecraftWithBody));
 			// All entries should have non-empty body
 			const columbia = json.spacecraftWithBody.find((s) => s.id === 'columbia');
@@ -121,7 +121,7 @@ describe('Content Layer', () => {
 		});
 
 		it('clears body when retainBody is false in glob() loader', async () => {
-			assert.ok(json.hasOwnProperty('spacecraftNoBody'));
+			assert.ok(Object.hasOwn(json, 'spacecraftNoBody'));
 			assert.ok(Array.isArray(json.spacecraftNoBody));
 			// All entries should have undefined body
 			const columbia = json.spacecraftNoBody.find((s) => s.id === 'columbia');
@@ -130,7 +130,7 @@ describe('Content Layer', () => {
 		});
 
 		it('Returns nested json `file()` loader collection', async () => {
-			assert.ok(json.hasOwnProperty('nestedJsonLoader'));
+			assert.ok(Object.hasOwn(json, 'nestedJsonLoader'));
 			assert.ok(Array.isArray(json.nestedJsonLoader));
 
 			const ids = json.nestedJsonLoader.map((item) => item.data.id);
@@ -138,7 +138,7 @@ describe('Content Layer', () => {
 		});
 
 		it('can use an async parser in `file()` loader', async () => {
-			assert.ok(json.hasOwnProperty('loaderWithAsyncParse'));
+			assert.ok(Object.hasOwn(json, 'loaderWithAsyncParse'));
 			assert.ok(Array.isArray(json.loaderWithAsyncParse));
 
 			const ids = json.loaderWithAsyncParse.map((item) => item.data.id);
@@ -146,7 +146,7 @@ describe('Content Layer', () => {
 		});
 
 		it('Returns yaml `file()` loader collection', async () => {
-			assert.ok(json.hasOwnProperty('yamlLoader'));
+			assert.ok(Object.hasOwn(json, 'yamlLoader'));
 			assert.ok(Array.isArray(json.yamlLoader));
 
 			const ids = json.yamlLoader.map((item) => item.id);
@@ -165,7 +165,7 @@ describe('Content Layer', () => {
 		});
 
 		it('Returns toml `file()` loader collection', async () => {
-			assert.ok(json.hasOwnProperty('tomlLoader'));
+			assert.ok(Object.hasOwn(json, 'tomlLoader'));
 			assert.ok(Array.isArray(json.tomlLoader));
 
 			const ids = json.tomlLoader.map((item) => item.id);
@@ -182,7 +182,7 @@ describe('Content Layer', () => {
 		});
 
 		it('Returns csv `file()` loader collection', async () => {
-			assert.ok(json.hasOwnProperty('csvLoader'));
+			assert.ok(Object.hasOwn(json, 'csvLoader'));
 			assert.ok(Array.isArray(json.csvLoader));
 
 			const ids = json.csvLoader.map((item) => item.data.id);
@@ -201,7 +201,7 @@ describe('Content Layer', () => {
 		});
 
 		it('Returns yaml `glob()` loader collection', async () => {
-			assert.ok(json.hasOwnProperty('numbersYaml'));
+			assert.ok(Object.hasOwn(json, 'numbersYaml'));
 			assert.ok(Array.isArray(json.numbersYaml));
 
 			const titles = json.numbersYaml.map((item) => item.data.title).sort();
@@ -209,7 +209,7 @@ describe('Content Layer', () => {
 		});
 
 		it('Returns toml `glob()` loader collection', async () => {
-			assert.ok(json.hasOwnProperty('numbersToml'));
+			assert.ok(Object.hasOwn(json, 'numbersToml'));
 			assert.ok(Array.isArray(json.numbersToml));
 
 			const titles = json.numbersToml.map((item) => item.data.title).sort();
@@ -217,7 +217,7 @@ describe('Content Layer', () => {
 		});
 
 		it('Returns nested json `file()` loader collection', async () => {
-			assert.ok(json.hasOwnProperty('nestedJsonLoader'));
+			assert.ok(Object.hasOwn(json, 'nestedJsonLoader'));
 			assert.ok(Array.isArray(json.nestedJsonLoader));
 
 			const ids = json.nestedJsonLoader.map((item) => item.data.id);
@@ -225,7 +225,7 @@ describe('Content Layer', () => {
 		});
 
 		it('Returns data entry by id', async () => {
-			assert.ok(json.hasOwnProperty('dataEntry'));
+			assert.ok(Object.hasOwn(json, 'dataEntry'));
 			assert.equal(json.dataEntry.filePath?.split(sep).join(posixSep), 'src/data/dogs.json');
 			delete json.dataEntry.filePath;
 			assert.deepEqual(json.dataEntry, {
@@ -243,7 +243,7 @@ describe('Content Layer', () => {
 		});
 
 		it('returns collection from a simple loader', async () => {
-			assert.ok(json.hasOwnProperty('simpleLoader'));
+			assert.ok(Object.hasOwn(json, 'simpleLoader'));
 			assert.ok(Array.isArray(json.simpleLoader));
 
 			const item = json.simpleLoader[0];
@@ -262,7 +262,7 @@ describe('Content Layer', () => {
 		});
 
 		it('returns a collection from a simple loader that uses an object', async () => {
-			assert.ok(json.hasOwnProperty('simpleLoaderObject'));
+			assert.ok(Object.hasOwn(json, 'simpleLoaderObject'));
 			assert.ok(Array.isArray(json.simpleLoaderObject));
 			assert.deepEqual(json.simpleLoaderObject[0], {
 				id: 'capybara',
@@ -280,7 +280,7 @@ describe('Content Layer', () => {
 
 		// Regression test for https://github.com/withastro/astro/issues/12689
 		it('returns a collection from a loader that uses dynamic import', async () => {
-			assert.ok(json.hasOwnProperty('dynamicImportLoader'));
+			assert.ok(Object.hasOwn(json, 'dynamicImportLoader'));
 			assert.ok(Array.isArray(json.dynamicImportLoader));
 			// Should have loaded cats.json via dynamic import
 			const ids = json.dynamicImportLoader.map((item) => item.data.id);
@@ -289,7 +289,7 @@ describe('Content Layer', () => {
 		});
 
 		it('transforms a reference id to a reference object', async () => {
-			assert.ok(json.hasOwnProperty('entryWithReference'));
+			assert.ok(Object.hasOwn(json, 'entryWithReference'));
 			assert.deepEqual(json.entryWithReference.data.cat, { collection: 'cats', id: 'tabby' });
 		});
 
@@ -349,7 +349,7 @@ describe('Content Layer', () => {
 		});
 
 		it('returns a referenced entry', async () => {
-			assert.ok(json.hasOwnProperty('referencedEntry'));
+			assert.ok(Object.hasOwn(json, 'referencedEntry'));
 			assert.deepEqual(json.referencedEntry, {
 				collection: 'cats',
 				data: {
@@ -564,7 +564,7 @@ describe('Content Layer', () => {
 		});
 
 		it('Returns custom loader collection', async () => {
-			assert.ok(json.hasOwnProperty('customLoader'));
+			assert.ok(Object.hasOwn(json, 'customLoader'));
 			assert.ok(Array.isArray(json.customLoader));
 
 			const item = json.customLoader[0];
@@ -581,7 +581,7 @@ describe('Content Layer', () => {
 		});
 
 		it('Returns `file()` loader collection', async () => {
-			assert.ok(json.hasOwnProperty('jsonLoader'));
+			assert.ok(Object.hasOwn(json, 'jsonLoader'));
 			assert.ok(Array.isArray(json.jsonLoader));
 
 			const ids = json.jsonLoader.map((item) => item.data.id);
@@ -615,7 +615,7 @@ describe('Content Layer', () => {
 		});
 
 		it('Returns data entry by id', async () => {
-			assert.ok(json.hasOwnProperty('dataEntry'));
+			assert.ok(Object.hasOwn(json, 'dataEntry'));
 			assert.equal(json.dataEntry.filePath?.split(sep).join(posixSep), 'src/data/dogs.json');
 			delete json.dataEntry.filePath;
 			assert.deepEqual(json.dataEntry, {

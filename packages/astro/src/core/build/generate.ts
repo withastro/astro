@@ -104,9 +104,10 @@ export async function generatePages(
 	if (staticImageList.size) {
 		logger.info('SKIP_FORMAT', `${colors.bgGreen(colors.black(` generating optimized images `))}`);
 
-		const totalCount = Array.from(staticImageList.values())
-			.map((x) => x.transforms.size)
-			.reduce((a, b) => a + b, 0);
+		const totalCount = Array.from(staticImageList.values(), (x) => x.transforms.size).reduce(
+			(a, b) => a + b,
+			0,
+		);
 		const cpuCount = os.cpus().length;
 		const assetsCreationPipeline = await prepareAssetsGenerationEnv(app, totalCount);
 		const queue = new PQueue({ concurrency: Math.max(cpuCount, 1) });
@@ -522,7 +523,7 @@ async function generatePath(
 						// Make sure the pathname matches an entry in distURL
 						if (
 							routeData.distURL &&
-							!routeData.distURL.find(
+							!routeData.distURL.some(
 								(url) =>
 									url.href
 										.replace(app.manifest.outDir.toString(), '')

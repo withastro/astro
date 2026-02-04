@@ -48,7 +48,8 @@ describe('MDX frontmatter', () => {
 		const html = await fixture.readFile('/with-headings/index.html');
 		const { document } = parseHTML(html);
 
-		const headingSlugs = [...document.querySelectorAll('[data-headings] > li')].map(
+		const headingSlugs = Array.from(
+			document.querySelectorAll('[data-headings] > li'),
 			(el) => el.textContent,
 		);
 
