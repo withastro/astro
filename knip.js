@@ -40,8 +40,6 @@ export default {
 				'performance/**/*',
 				// This export is resolved dynamically in packages/astro/src/vite-plugin-app/index.ts
 				'src/vite-plugin-app/createExports.ts',
-				// This file resolves @astrojs/cloudflare/info from the user's project at runtime
-				'src/cli/add/index.ts',
 			],
 			// Those deps are used in tests but only referenced as strings
 			ignoreDependencies: [
@@ -50,6 +48,8 @@ export default {
 				'rehype-toc',
 				'remark-code-titles',
 				'@types/http-cache-semantics',
+				// Dynamically imported by astro add cloudflare
+				'@astrojs/cloudflare',
 			],
 		},
 		'packages/db': {
