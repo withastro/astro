@@ -291,7 +291,7 @@ importers:
         version: link:../../packages/integrations/preact
       '@preact/signals':
         specifier: ^2.6.2
-        version: 2.7.0(preact@10.28.3)
+        version: 2.6.2(preact@10.28.3)
       astro:
         specifier: ^6.0.0-beta.7
         version: link:../../packages/astro
@@ -6029,7 +6029,7 @@ importers:
         version: 2.10.3(@babel/core@7.29.0)(preact@10.28.3)(rollup@4.57.1)(vite@7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       '@preact/signals':
         specifier: ^2.6.2
-        version: 2.7.0(preact@10.28.3)
+        version: 2.6.2(preact@10.28.3)
       preact-render-to-string:
         specifier: ^6.6.5
         version: 6.6.5(preact@10.28.3)
@@ -6645,16 +6645,16 @@ importers:
         specifier: ^1.5.5
         version: 1.5.5
       '@volar/kit':
-        specifier: ~2.4.27
+        specifier: ~2.4.28
         version: 2.4.28(typescript@5.9.3)
       '@volar/language-core':
-        specifier: ~2.4.27
+        specifier: ~2.4.28
         version: 2.4.28
       '@volar/language-server':
-        specifier: ~2.4.27
+        specifier: ~2.4.28
         version: 2.4.28
       '@volar/language-service':
-        specifier: ~2.4.27
+        specifier: ~2.4.28
         version: 2.4.28
       muggle-string:
         specifier: ^0.4.1
@@ -6694,10 +6694,10 @@ importers:
         specifier: ^20.9.0
         version: 20.19.31
       '@volar/test-utils':
-        specifier: ~2.4.27
+        specifier: ~2.4.28
         version: 2.4.28
       '@volar/typescript':
-        specifier: ~2.4.27
+        specifier: ~2.4.28
         version: 2.4.28
       astro-scripts:
         specifier: workspace:*
@@ -6727,7 +6727,7 @@ importers:
         specifier: workspace:*
         version: link:../../../astro
       svelte:
-        specifier: ^5.0.0
+        specifier: ^5.49.1
         version: 5.49.1
     devDependencies:
       tinyglobby:
@@ -6752,10 +6752,10 @@ importers:
         specifier: ^1.5.5
         version: 1.5.5
       '@volar/language-core':
-        specifier: ~2.4.27
+        specifier: ~2.4.28
         version: 2.4.28
       '@volar/typescript':
-        specifier: ~2.4.27
+        specifier: ~2.4.28
         version: 2.4.28
       semver:
         specifier: ^7.7.3
@@ -6795,7 +6795,7 @@ importers:
         specifier: ^2.13.0
         version: 2.13.0
       prettier:
-        specifier: ^3.8.0
+        specifier: ^3.8.1
         version: 3.8.1
       prettier-plugin-astro:
         specifier: ^0.14.1
@@ -6817,10 +6817,10 @@ importers:
         specifier: ^1.90.0
         version: 1.108.1
       '@volar/language-server':
-        specifier: ~2.4.27
+        specifier: ~2.4.28
         version: 2.4.28
       '@volar/vscode':
-        specifier: ~2.4.27
+        specifier: ~2.4.28
         version: 2.4.28
       '@vscode/test-cli':
         specifier: ^0.0.12
@@ -6863,7 +6863,7 @@ importers:
         version: 2.8.2
     devDependencies:
       '@volar/language-core':
-        specifier: ~2.4.27
+        specifier: ~2.4.28
         version: 2.4.28
       typescript:
         specifier: ^5.9.3
@@ -9635,8 +9635,8 @@ packages:
     peerDependencies:
       preact: '>= 10.25.0 || >=11.0.0-0'
 
-  '@preact/signals@2.7.0':
-    resolution: {integrity: sha512-9rQ030JhUfdBO4xlFB6Iwc/rOBi9IFXaCgu8VrFMSjAJfubGRTTxBPsgSlAF5qmWdY3C91b9kBK09mpUOMh1Rw==}
+  '@preact/signals@2.6.2':
+    resolution: {integrity: sha512-80PMfNS3d8t/J3cRNEJP14zRioWnavgqzX/+tsNGiCX6rpD26+eLkUQpa1sIeOERZMink+dAi34y0MJhg11LKQ==}
     peerDependencies:
       preact: '>= 10.25.0 || >=11.0.0-0'
 
@@ -18858,7 +18858,7 @@ snapshots:
       '@preact/signals-core': 1.13.0
       preact: 10.28.3
 
-  '@preact/signals@2.7.0(preact@10.28.3)':
+  '@preact/signals@2.6.2(preact@10.28.3)':
     dependencies:
       '@preact/signals-core': 1.13.0
       preact: 10.28.3
