@@ -335,6 +335,11 @@ async function buildManifest(
 		key: encodedKey,
 		sessionConfig: sessionConfigToManifest(settings.config.session),
 		csp,
+		image: {
+			objectFit: settings.config.image.objectFit,
+			objectPosition: settings.config.image.objectPosition,
+			layout: settings.config.image.layout,
+		},
 		devToolbar: {
 			enabled: false,
 			latestAstroVersion: undefined,

@@ -84,6 +84,11 @@ declare module 'astro:assets' {
 	}: AstroAssets;
 }
 
+declare module 'virtual:astro:image-styles.css' {
+	const styles: string;
+	export default styles;
+}
+
 type ImageMetadata = import('./dist/assets/types.js').ImageMetadata;
 
 declare module '*.gif' {

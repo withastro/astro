@@ -17,7 +17,7 @@ import {
 	type SrcSetValue,
 	type UnresolvedImageTransform,
 } from './types.js';
-import { addCSSVarsToStyle, cssFitValues } from './utils/imageAttributes.js';
+import { cssFitValues } from './utils/imageAttributes.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { inferRemoteSize } from './utils/remoteProbe.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
@@ -149,14 +149,19 @@ export async function getImage(
 		resolvedOptions.sizes ||= getSizesAttribute({ width: resolvedOptions.width, layout });
 		// The densities option is incompatible with the `layout` option
 		delete resolvedOptions.densities;
-		resolvedOptions.style = addCSSVarsToStyle(
-			{
-				fit: cssFitValues.includes(resolvedOptions.fit ?? '') && resolvedOptions.fit,
-				pos: resolvedOptions.position,
-			},
-			resolvedOptions.style,
-		);
+
+		// Set data attribute for layout
 		resolvedOptions['data-astro-image'] = layout;
+
+		// Set data attributes for fit and position for CSP-compliant styling
+		if (resolvedOptions.fit && cssFitValues.includes(resolvedOptions.fit)) {
+			resolvedOptions['data-astro-image-fit'] = resolvedOptions.fit;
+		}
+
+		if (resolvedOptions.position) {
+			// Normalize position value for data attribute (spaces to dashes)
+			resolvedOptions['data-astro-image-pos'] = resolvedOptions.position.replace(/\s+/g, '-');
+		}
 	}
 
 	const validatedOptions = service.validateOptions
