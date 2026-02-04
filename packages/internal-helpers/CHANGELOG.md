@@ -1,5 +1,13 @@
 # @astrojs/internal-helpers
 
+## 0.8.0-beta.0
+
+### Minor Changes
+
+- [#15369](https://github.com/withastro/astro/pull/15369) [`240c317`](https://github.com/withastro/astro/commit/240c317faab52d7f22494e9181f5d2c2c404b0bd) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE**
+
+  Removes `collapseDuplicateSlashes()`, `startsWithForwardSlash()`, `startsWithDotDotSlash()`, `startsWithDotSlash()` and `isAbsolutePath()` from the `/path` export
+
 ## 0.7.5
 
 ### Patch Changes
