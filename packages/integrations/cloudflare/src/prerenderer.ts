@@ -6,7 +6,7 @@ import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-
 import { cloudflareConfigCustomizer } from './wrangler.js';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import type { StaticPathsResponse, PrerenderRequest } from './prerender-types.js';
-import { STATIC_PATHS_ENDPOINT, PRERENDER_ENDPOINT } from './utils/prerender.js';
+import { STATIC_PATHS_ENDPOINT, PRERENDER_ENDPOINT } from './utils/prerender-constants.js';
 
 interface CloudflarePrerendererOptions {
 	root: URL;

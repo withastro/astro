@@ -18,12 +18,8 @@ import type { BaseApp } from 'astro/app';
 import { serializeRouteData, deserializeRouteData } from 'astro/app/manifest';
 import { StaticPaths } from 'astro:static-paths';
 import type { StaticPathsResponse, PrerenderRequest } from '../prerender-types.js';
-
-/** Internal endpoint for fetching all static paths during prerendering */
-export const STATIC_PATHS_ENDPOINT = '/__astro_static_paths';
-
-/** Internal endpoint for rendering a specific page during prerendering */
-export const PRERENDER_ENDPOINT = '/__astro_prerender';
+import { STATIC_PATHS_ENDPOINT, PRERENDER_ENDPOINT } from './prerender-constants.js';
+export { STATIC_PATHS_ENDPOINT, PRERENDER_ENDPOINT };
 
 /**
  * Checks if the request is for the static paths prerender endpoint.
