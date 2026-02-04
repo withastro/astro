@@ -98,6 +98,20 @@ export function mergeConfig(
 	};
 }
 
+/**
+ * Check if a transform function respects the `render` property.
+ * Astro's built-in transforms (like for headings) check `config.nodes?.X?.render`
+ * to allow custom render components. Markdoc's built-in transforms do not.
+ */
+function transformRespectsRender(transform: { toString(): string }, configKey: string): boolean {
+	const source = transform.toString();
+	// Astro's transforms check config.nodes?.X?.render or config.tags?.X?.render
+	return (
+		source.includes(`config.nodes?.${configKey}?.render`) ||
+		source.includes(`config.tags?.${configKey}?.render`)
+	);
+}
+
 export function resolveComponentImports(
 	markdocConfig: Required<Pick<AstroMarkdocConfig, 'tags' | 'nodes'>>,
 	tagComponentMap: Record<string, AstroInstance['default']>,
@@ -105,11 +119,31 @@ export function resolveComponentImports(
 ) {
 	for (const [tag, render] of Object.entries(tagComponentMap)) {
 		const config = markdocConfig.tags[tag];
-		if (config) config.render = render;
+		if (config) {
+			config.render = render;
+			// When a custom `render` component is specified and the transform doesn't
+			// respect the render property, remove the transform so `render` wins.
+			// This allows users to spread built-in Markdoc node/tag configs
+			// (e.g., `...Markdoc.nodes.fence`) and override rendering with a custom component.
+			// See https://github.com/withastro/astro/issues/9708
+			if (config.transform && !transformRespectsRender(config.transform, tag)) {
+				delete config.transform;
+			}
+		}
 	}
 	for (const [node, render] of Object.entries(nodeComponentMap)) {
 		const config = markdocConfig.nodes[node as NodeType];
-		if (config) config.render = render;
+		if (config) {
+			config.render = render;
+			// When a custom `render` component is specified and the transform doesn't
+			// respect the render property, remove the transform so `render` wins.
+			// This allows users to spread built-in Markdoc node/tag configs
+			// (e.g., `...Markdoc.nodes.fence`) and override rendering with a custom component.
+			// See https://github.com/withastro/astro/issues/9708
+			if (config.transform && !transformRespectsRender(config.transform, node)) {
+				delete config.transform;
+			}
+		}
 	}
 	return markdocConfig;
 }
