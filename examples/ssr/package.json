@@ -14,9 +14,9 @@
     "server": "node dist/server/entry.mjs"
   },
   "dependencies": {
-    "@astrojs/node": "^10.0.0-beta.0",
+    "@astrojs/node": "^10.0.0-beta.1",
     "@astrojs/svelte": "^8.0.0-beta.2",
-    "astro": "^6.0.0-beta.6",
+    "astro": "^6.0.0-beta.7",
     "svelte": "^5.49.1"
   }
 }

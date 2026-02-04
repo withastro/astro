@@ -8,20 +8,20 @@ import { inlineRE, isBuildableCSSRequest, rawRE } from '../vite-plugin-astro-ser
 import { getVirtualModulePageNameForComponent } from '../vite-plugin-pages/util.js';
 import { getDevCSSModuleName } from './util.js';
 import { CSS_LANGS_RE } from '../core/viteUtils.js';
+import {
+	ASTRO_CSS_EXTENSION_POST_PATTERN,
+	MODULE_DEV_CSS,
+	MODULE_DEV_CSS_ALL,
+	MODULE_DEV_CSS_PREFIX,
+	RESOLVED_MODULE_DEV_CSS,
+	RESOLVED_MODULE_DEV_CSS_ALL,
+	RESOLVED_MODULE_DEV_CSS_PREFIX,
+} from './const.js';
 
 interface AstroVitePluginOptions {
 	routesList: RoutesList;
 	command: 'dev' | 'build';
 }
-
-const MODULE_DEV_CSS = 'virtual:astro:dev-css';
-const RESOLVED_MODULE_DEV_CSS = '\0' + MODULE_DEV_CSS;
-const MODULE_DEV_CSS_PREFIX = 'virtual:astro:dev-css:';
-const RESOLVED_MODULE_DEV_CSS_PREFIX = '\0' + MODULE_DEV_CSS_PREFIX;
-// This is used by Cloudflare optimizeDeps config
-const MODULE_DEV_CSS_ALL = 'virtual:astro:dev-css-all';
-const RESOLVED_MODULE_DEV_CSS_ALL = '\0' + MODULE_DEV_CSS_ALL;
-const ASTRO_CSS_EXTENSION_POST_PATTERN = '@_@';
 
 /**
  * Extract the original component path from a masked virtual module name.

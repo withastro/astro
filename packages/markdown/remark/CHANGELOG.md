@@ -1,5 +1,12 @@
 # @astrojs/markdown-remark
 
+## 7.0.0-beta.4
+
+### Patch Changes
+
+- Updated dependencies [[`240c317`](https://github.com/withastro/astro/commit/240c317faab52d7f22494e9181f5d2c2c404b0bd)]:
+  - @astrojs/internal-helpers@0.8.0-beta.0
+
 ## 7.0.0-beta.3
 
 ### Minor Changes
