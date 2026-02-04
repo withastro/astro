@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AstroConfig, AstroIntegration, IntegrationResolvedRoute } from 'astro';
 import type { EnumChangefreq, LinkItem as LinkItemBase, SitemapItemLoose } from 'sitemap';
-import { ZodError } from 'zod/v3';
+import { ZodError } from 'zod/v4';
 
 import { generateSitemap } from './generate-sitemap.js';
 import { validateOptions } from './validate-options.js';
@@ -160,7 +160,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 					pageUrls = [...new Set([...pageUrls, ...routeUrls, ...(customPages ?? [])])];
 
 					if (filter) {
-						pageUrls = pageUrls.filter(filter);
+						pageUrls = pageUrls.filter((value) => filter(value));
 					}
 
 					if (pageUrls.length === 0) {

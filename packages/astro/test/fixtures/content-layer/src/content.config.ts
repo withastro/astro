@@ -110,7 +110,6 @@ const spacecraftNoBody = defineCollection({
 		}),
 });
 
-
 const cats = defineCollection({
 	loader: async function () {
 		const file = new URL('data/cats.json', import.meta.url);
@@ -366,6 +365,23 @@ const renderMarkdownTest = defineCollection({
 	}),
 });
 
+// Collection that uses dynamic import in loader - tests fix for #12689
+const dynamicImport = defineCollection({
+	loader: async () => {
+		// This dynamic import would fail with "Vite module runner has been closed" before the fix
+		const data = await import('./data/cats.json');
+		return data.default;
+	},
+	schema: z.object({
+		breed: z.string(),
+		id: z.string(),
+		size: z.string(),
+		origin: z.string(),
+		lifespan: z.string(),
+		temperament: z.array(z.string()),
+	}),
+});
+
 export const collections = {
 	blog,
 	dogs,
@@ -387,6 +403,7 @@ export const collections = {
 	rodents,
 	rockets,
 	renderMarkdownTest,
+	dynamicImport,
 	notADirectory,
 	nothingMatches
 };

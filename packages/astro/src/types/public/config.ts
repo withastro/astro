@@ -2382,6 +2382,7 @@ export interface AstroUserConfig<
 
 	/**
 	 * @docs
+	 * @kind heading
 	 * @name fonts
 	 * @type {Array<FontFamily>}
 	 * @default `[]`

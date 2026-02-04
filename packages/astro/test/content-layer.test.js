@@ -278,6 +278,16 @@ describe('Content Layer', () => {
 			});
 		});
 
+		// Regression test for https://github.com/withastro/astro/issues/12689
+		it('returns a collection from a loader that uses dynamic import', async () => {
+			assert.ok(json.hasOwnProperty('dynamicImportLoader'));
+			assert.ok(Array.isArray(json.dynamicImportLoader));
+			// Should have loaded cats.json via dynamic import
+			const ids = json.dynamicImportLoader.map((item) => item.data.id);
+			assert.ok(ids.includes('siamese'), 'Should include siamese cat');
+			assert.ok(ids.includes('tabby'), 'Should include tabby cat');
+		});
+
 		it('transforms a reference id to a reference object', async () => {
 			assert.ok(Object.hasOwn(json, 'entryWithReference'));
 			assert.deepEqual(json.entryWithReference.data.cat, { collection: 'cats', id: 'tabby' });
