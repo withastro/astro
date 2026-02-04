@@ -101,12 +101,14 @@ function getAdapter({
 	skewProtection,
 	buildOutput,
 	experimentalStaticHeaders,
+	allowQuery,
 }: {
 	buildOutput: 'server' | 'static';
 	edgeMiddleware: NonNullable<VercelServerlessConfig['edgeMiddleware']>;
 	middlewareSecret: string;
 	skewProtection: boolean;
 	experimentalStaticHeaders: NonNullable<VercelServerlessConfig['experimentalStaticHeaders']>;
+	allowQuery?: VercelISRConfig['allowQuery'];
 }): AstroAdapter {
 	return {
 		name: PACKAGE_NAME,
@@ -115,6 +117,7 @@ function getAdapter({
 		args: {
 			middlewareSecret,
 			skewProtection,
+			allowQuery,
 		},
 		adapterFeatures: {
 			edgeMiddleware,
@@ -213,6 +216,16 @@ interface VercelISRConfig {
 	 * @default `[]`
 	 */
 	exclude?: (string | RegExp)[];
+
+	/**
+	 * List of query string parameter names that will be cached independently, or true to cache each unique query value independently.
+	 * If undefined, query values are not considered for caching.
+	 *
+	 * https://vercel.com/docs/build-output-api/primitives#prerender-configuration-file
+	 *
+	 * @default `undefined`
+	 */
+	allowQuery?: string[] | true;
 }
 
 export default function vercelAdapter({
@@ -350,6 +363,7 @@ export default function vercelAdapter({
 							middlewareSecret,
 							skewProtection,
 							experimentalStaticHeaders,
+							allowQuery: isr && typeof isr === 'object' ? isr.allowQuery : undefined,
 						}),
 					);
 				} else {
@@ -699,7 +713,8 @@ class VercelBuilder {
 		await writeJson(prerenderConfig, {
 			expiration: isr.expiration ?? false,
 			bypassToken: isr.bypassToken,
-			allowQuery: [ASTRO_PATH_PARAM],
+			allowQuery:
+				isr.allowQuery === true ? undefined : [ASTRO_PATH_PARAM, ...(isr.allowQuery || [])],
 			passQuery: true,
 		});
 	}
