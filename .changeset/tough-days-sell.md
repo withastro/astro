@@ -1,5 +1,5 @@
 ---
-'@astrojs/react': major
+'@astrojs/react': patch
 ---
 
-Fix StaticHtml performance by implementing `React.memo` for proper re-render prevention.
+Improves rendering of static HTML
