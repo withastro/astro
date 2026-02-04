@@ -1,4 +1,4 @@
-import { cssFitValues } from './imageAttributes.js';
+import { cssFitValues } from '../internal.js';
 
 export function generateImageStylesCSS(
 	defaultObjectFit?: string,

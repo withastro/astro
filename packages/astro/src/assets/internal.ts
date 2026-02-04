@@ -17,10 +17,11 @@ import {
 	type SrcSetValue,
 	type UnresolvedImageTransform,
 } from './types.js';
-import { cssFitValues } from './utils/imageAttributes.js';
 import { isESMImportedImage, isRemoteImage, resolveSrc } from './utils/imageKind.js';
 import { inferRemoteSize } from './utils/remoteProbe.js';
 import { createPlaceholderURL, stringifyPlaceholderURL } from './utils/url.js';
+
+export const cssFitValues = ['fill', 'contain', 'cover', 'scale-down'];
 
 export async function getConfiguredImageService(): Promise<ImageService> {
 	if (!globalThis?.astroAsset?.imageService) {
