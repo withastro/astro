@@ -6025,16 +6025,16 @@ importers:
   packages/integrations/preact:
     dependencies:
       '@preact/preset-vite':
-        specifier: ^2.10.2
+        specifier: ^2.10.3
         version: 2.10.3(@babel/core@7.29.0)(preact@10.28.3)(rollup@4.57.1)(vite@7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       '@preact/signals':
-        specifier: ^2.5.1
+        specifier: ^2.6.2
         version: 2.7.0(preact@10.28.3)
       preact-render-to-string:
         specifier: ^6.6.5
         version: 6.6.5(preact@10.28.3)
       vite:
-        specifier: ^7.1.7
+        specifier: ^7.3.1
         version: 7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
     devDependencies:
       astro:
@@ -6044,7 +6044,7 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       preact:
-        specifier: ^10.28.2
+        specifier: ^10.28.3
         version: 10.28.3
 
   packages/integrations/react:
@@ -6056,7 +6056,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0
       vite:
-        specifier: ^7.1.7
+        specifier: ^7.3.1
         version: 7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
     devDependencies:
       '@types/react':
@@ -6072,8 +6072,8 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       cheerio:
-        specifier: 1.1.2
-        version: 1.1.2
+        specifier: 1.2.0
+        version: 1.2.0
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -6099,7 +6099,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       vue:
-        specifier: ^3.5.26
+        specifier: ^3.5.27
         version: 3.5.27(typescript@5.9.3)
 
   packages/integrations/sitemap:
@@ -6175,7 +6175,7 @@ importers:
   packages/integrations/solid:
     dependencies:
       vite:
-        specifier: ^7.1.7
+        specifier: ^7.3.1
         version: 7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
       vite-plugin-solid:
         specifier: ^2.11.10
@@ -6188,7 +6188,7 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       solid-js:
-        specifier: ^1.9.10
+        specifier: ^1.9.11
         version: 1.9.11
 
   packages/integrations/svelte:
@@ -6197,10 +6197,10 @@ importers:
         specifier: ^6.2.4
         version: 6.2.4(svelte@5.49.1)(vite@7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))
       svelte2tsx:
-        specifier: ^0.7.46
+        specifier: ^0.7.47
         version: 0.7.47(svelte@5.49.1)(typescript@5.9.3)
       vite:
-        specifier: ^7.1.7
+        specifier: ^7.3.1
         version: 7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
     devDependencies:
       astro:
@@ -6210,10 +6210,10 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       cheerio:
-        specifier: 1.1.2
-        version: 1.1.2
+        specifier: 1.2.0
+        version: 1.2.0
       svelte:
-        specifier: ^5.46.1
+        specifier: ^5.49.1
         version: 5.49.1
 
   packages/integrations/svelte/test/fixtures/async-rendering:
@@ -6225,8 +6225,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: 5.46.4
-        version: 5.46.4
+        specifier: 5.49.1
+        version: 5.49.1
 
   packages/integrations/svelte/test/fixtures/conditional-rendering:
     dependencies:
@@ -6237,8 +6237,8 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: 5.46.4
-        version: 5.46.4
+        specifier: 5.49.1
+        version: 5.49.1
 
   packages/integrations/svelte/test/fixtures/prop-types:
     dependencies:
@@ -6249,7 +6249,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       svelte:
-        specifier: ^5.46.1
+        specifier: ^5.49.1
         version: 5.49.1
 
   packages/integrations/vercel:
@@ -6472,16 +6472,16 @@ importers:
   packages/integrations/vue:
     dependencies:
       '@vitejs/plugin-vue':
-        specifier: ^6.0.2
+        specifier: ^6.0.3
         version: 6.0.4(vite@7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.27(typescript@5.9.3))
       '@vitejs/plugin-vue-jsx':
         specifier: ^5.1.3
         version: 5.1.4(vite@7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.27(typescript@5.9.3))
       '@vue/compiler-sfc':
-        specifier: ^3.5.26
+        specifier: ^3.5.27
         version: 3.5.27
       vite:
-        specifier: ^7.1.7
+        specifier: ^7.3.1
         version: 7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
       vite-plugin-vue-devtools:
         specifier: ^8.0.5
@@ -6494,13 +6494,13 @@ importers:
         specifier: workspace:*
         version: link:../../../scripts
       cheerio:
-        specifier: 1.1.2
-        version: 1.1.2
+        specifier: 1.2.0
+        version: 1.2.0
       linkedom:
         specifier: ^0.18.12
         version: 0.18.12
       vue:
-        specifier: ^3.5.26
+        specifier: ^3.5.27
         version: 3.5.27(typescript@5.9.3)
 
   packages/integrations/vue/test/fixtures/app-entrypoint:
@@ -6515,7 +6515,7 @@ importers:
         specifier: 5.1.0
         version: 5.1.0(vue@3.5.27(typescript@5.9.3))
       vue:
-        specifier: ^3.5.26
+        specifier: ^3.5.27
         version: 3.5.27(typescript@5.9.3)
 
   packages/integrations/vue/test/fixtures/app-entrypoint-async:
@@ -6530,7 +6530,7 @@ importers:
         specifier: 5.1.0
         version: 5.1.0(vue@3.5.27(typescript@5.9.3))
       vue:
-        specifier: ^3.5.26
+        specifier: ^3.5.27
         version: 3.5.27(typescript@5.9.3)
 
   packages/integrations/vue/test/fixtures/app-entrypoint-css:
@@ -6554,7 +6554,7 @@ importers:
         specifier: 5.1.0
         version: 5.1.0(vue@3.5.27(typescript@5.9.3))
       vue:
-        specifier: ^3.5.26
+        specifier: ^3.5.27
         version: 3.5.27(typescript@5.9.3)
 
   packages/integrations/vue/test/fixtures/app-entrypoint-relative:
@@ -6593,7 +6593,7 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
       vue:
-        specifier: ^3.5.26
+        specifier: ^3.5.27
         version: 3.5.27(typescript@5.9.3)
 
   packages/internal-helpers:
@@ -15087,10 +15087,6 @@ packages:
     peerDependencies:
       svelte: ^3.55 || ^4.0.0-next.0 || ^4.0 || ^5.0.0-next.0
       typescript: ^4.9.4 || ^5.0.0
-
-  svelte@5.46.4:
-    resolution: {integrity: sha512-VJwdXrmv9L8L7ZasJeWcCjoIuMRVbhuxbss0fpVnR8yorMmjNDwcjIH08vS6wmSzzzgAG5CADQ1JuXPS2nwt9w==}
-    engines: {node: '>=18'}
 
   svelte@5.49.1:
     resolution: {integrity: sha512-jj95WnbKbXsXXngYj28a4zx8jeZx50CN/J4r0CEeax2pbfdsETv/J1K8V9Hbu3DCXnpHz5qAikICuxEooi7eNQ==}
@@ -25302,24 +25298,6 @@ snapshots:
       scule: 1.3.0
       svelte: 5.49.1
       typescript: 5.9.3
-
-  svelte@5.46.4:
-    dependencies:
-      '@jridgewell/remapping': 2.3.5
-      '@jridgewell/sourcemap-codec': 1.5.5
-      '@sveltejs/acorn-typescript': 1.0.8(acorn@8.15.0)
-      '@types/estree': 1.0.8
-      acorn: 8.15.0
-      aria-query: 5.3.2
-      axobject-query: 4.1.0
-      clsx: 2.1.1
-      devalue: 5.6.2
-      esm-env: 1.2.2
-      esrap: 2.2.2
-      is-reference: 3.0.3
-      locate-character: 3.0.0
-      magic-string: 0.30.21
-      zimmerframe: 1.1.4
 
   svelte@5.49.1:
     dependencies:
