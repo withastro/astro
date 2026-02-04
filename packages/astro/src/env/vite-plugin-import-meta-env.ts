@@ -1,8 +1,9 @@
 import { transform } from 'esbuild';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
-import { createFilter, isCSSRequest } from 'vite';
 import type { EnvLoader } from './env-loader.js';
+import { CSS_LANGS_RE } from '../core/viteUtils.js';
+import { isAstroClientEnvironment } from '../environments.js';
 
 interface EnvPluginOptions {
 	envLoader: EnvLoader;
@@ -72,7 +73,6 @@ export function importMetaEnv({ envLoader }: EnvPluginOptions): vite.Plugin {
 	let isDev: boolean;
 	let devImportMetaEnvPrepend: string;
 	let viteConfig: vite.ResolvedConfig;
-	const filter = createFilter(null, ['**/*.html', '**/*.htm', '**/*.json']);
 	return {
 		name: 'astro:vite-plugin-env',
 		config(_, { command }) {
@@ -99,68 +99,70 @@ export function importMetaEnv({ envLoader }: EnvPluginOptions): vite.Plugin {
 			}
 		},
 
-		transform(source, id, options) {
-			if (
-				!options?.ssr ||
-				!source.includes('import.meta.env') ||
-				!filter(id) ||
-				isCSSRequest(id) ||
-				viteConfig.assetsInclude(id)
-			) {
-				return;
-			}
-			// Find matches for *private* env and do our own replacement.
-			// Env is retrieved before process.env is populated by astro:env
-			// so that import.meta.env is first replaced by values, not process.env
-			privateEnv ??= envLoader.getPrivateEnv();
+		transform: {
+			filter: {
+				id: {
+					exclude: [/.*\.(html|htm|json)$/, CSS_LANGS_RE],
+				},
+				code: /import\.meta\.env/,
+			},
+			handler(source, id) {
+				if (isAstroClientEnvironment(this.environment) || viteConfig.assetsInclude(id)) {
+					return;
+				}
+				// Find matches for *private* env and do our own replacement.
+				// Env is retrieved before process.env is populated by astro:env
+				// so that import.meta.env is first replaced by values, not process.env
+				privateEnv ??= envLoader.getPrivateEnv();
 
-			// In dev, we can assign the private env vars to `import.meta.env` directly for performance
-			if (isDev) {
-				const s = new MagicString(source);
+				// In dev, we can assign the private env vars to `import.meta.env` directly for performance
+				if (isDev) {
+					const s = new MagicString(source);
 
-				if (!devImportMetaEnvPrepend) {
-					devImportMetaEnvPrepend = `Object.assign(import.meta.env,{`;
-					for (const key in privateEnv) {
-						devImportMetaEnvPrepend += `${key}:${privateEnv[key]},`;
+					if (!devImportMetaEnvPrepend) {
+						devImportMetaEnvPrepend = `Object.assign(import.meta.env,{`;
+						for (const key in privateEnv) {
+							devImportMetaEnvPrepend += `${key}:${privateEnv[key]},`;
+						}
+						devImportMetaEnvPrepend += '});';
 					}
-					devImportMetaEnvPrepend += '});';
+					s.prepend(devImportMetaEnvPrepend);
+
+					return {
+						code: s.toString(),
+						map: s.generateMap({ hires: 'boundary' }),
+					};
 				}
-				s.prepend(devImportMetaEnvPrepend);
 
-				return {
-					code: s.toString(),
-					map: s.generateMap({ hires: 'boundary' }),
-				};
-			}
-
-			// In build, use esbuild to perform replacements. Compute the default defines for esbuild here as a
-			// separate object as it could be extended by `import.meta.env` later.
-			if (!defaultDefines) {
-				defaultDefines = {};
-				for (const key in privateEnv) {
-					defaultDefines[`import.meta.env.${key}`] = privateEnv[key];
+				// In build, use esbuild to perform replacements. Compute the default defines for esbuild here as a
+				// separate object as it could be extended by `import.meta.env` later.
+				if (!defaultDefines) {
+					defaultDefines = {};
+					for (const key in privateEnv) {
+						defaultDefines[`import.meta.env.${key}`] = privateEnv[key];
+					}
 				}
-			}
 
-			let defines = defaultDefines;
+				let defines = defaultDefines;
 
-			// If reference the `import.meta.env` object directly, we want to inject private env vars
-			// into Vite's injected `import.meta.env` object. To do this, we use `Object.assign` and keeping
-			// the `import.meta.env` identifier so Vite sees it.
-			if (importMetaEnvOnlyRe.test(source)) {
-				const references = getReferencedPrivateKeys(source, privateEnv);
-				let replacement = `(Object.assign(import.meta.env,{`;
-				for (const key of references.values()) {
-					replacement += `${key}:${privateEnv[key]},`;
+				// If reference the `import.meta.env` object directly, we want to inject private env vars
+				// into Vite's injected `import.meta.env` object. To do this, we use `Object.assign` and keeping
+				// the `import.meta.env` identifier so Vite sees it.
+				if (importMetaEnvOnlyRe.test(source)) {
+					const references = getReferencedPrivateKeys(source, privateEnv);
+					let replacement = `(Object.assign(import.meta.env,{`;
+					for (const key of references.values()) {
+						replacement += `${key}:${privateEnv[key]},`;
+					}
+					replacement += '}))';
+					defines = {
+						...defaultDefines,
+						'import.meta.env': replacement,
+					};
 				}
-				replacement += '}))';
-				defines = {
-					...defaultDefines,
-					'import.meta.env': replacement,
-				};
-			}
 
-			return replaceDefine(source, id, defines, viteConfig);
+				return replaceDefine(source, id, defines, viteConfig);
+			},
 		},
 	};
 }

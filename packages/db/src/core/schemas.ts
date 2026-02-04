@@ -1,6 +1,6 @@
 import { SQL } from 'drizzle-orm';
 import { SQLiteAsyncDialect } from 'drizzle-orm/sqlite-core';
-import { type ZodTypeDef, z } from 'zod';
+import * as z from 'zod/v4';
 import { SERIALIZED_SQL_KEY, type SerializedSQL } from '../runtime/types.js';
 import { errorMap } from './integration/error-map.js';
 import type { NumberColumn, TextColumn } from './types.js';
@@ -60,15 +60,13 @@ export const numberColumnOptsSchema: z.ZodType<
 		// ReferenceableColumn creates a circular type. Define ZodType to resolve.
 		references?: NumberColumn;
 	},
-	ZodTypeDef,
 	z.input<typeof numberColumnBaseSchema> & {
 		references?: () => z.input<typeof numberColumnSchema>;
 	}
 > = numberColumnBaseSchema.and(
 	z.object({
 		references: z
-			.function()
-			.returns(z.lazy(() => numberColumnSchema))
+			.function({ output: z.lazy(() => numberColumnSchema) })
 			.optional()
 			.transform((fn) => fn?.()),
 	}),
@@ -108,15 +106,13 @@ export const textColumnOptsSchema: z.ZodType<
 		// ReferenceableColumn creates a circular type. Define ZodType to resolve.
 		references?: TextColumn;
 	},
-	ZodTypeDef,
 	z.input<typeof textColumnBaseSchema> & {
 		references?: () => z.input<typeof textColumnSchema>;
 	}
 > = textColumnBaseSchema.and(
 	z.object({
 		references: z
-			.function()
-			.returns(z.lazy(() => textColumnSchema))
+			.function({ output: z.lazy(() => textColumnSchema) })
 			.optional()
 			.transform((fn) => fn?.()),
 	}),
@@ -158,7 +154,7 @@ export const columnSchema = z.discriminatedUnion('type', [
 ]);
 export const referenceableColumnSchema = z.union([textColumnSchema, numberColumnSchema]);
 
-export const columnsSchema = z.record(columnSchema);
+export const columnsSchema = z.record(z.string(), columnSchema);
 
 type ForeignKeysInput = {
 	columns: MaybeArray<string>;
@@ -170,11 +166,12 @@ type ForeignKeysOutput = Omit<ForeignKeysInput, 'references'> & {
 	references: MaybeArray<Omit<z.output<typeof referenceableColumnSchema>, 'references'>>;
 };
 
-const foreignKeysSchema: z.ZodType<ForeignKeysOutput, ZodTypeDef, ForeignKeysInput> = z.object({
+const foreignKeysSchema: z.ZodType<ForeignKeysOutput, ForeignKeysInput> = z.object({
 	columns: z.string().or(z.array(z.string())),
 	references: z
-		.function()
-		.returns(z.lazy(() => referenceableColumnSchema.or(z.array(referenceableColumnSchema))))
+		.function({
+			output: z.lazy(() => referenceableColumnSchema.or(z.array(referenceableColumnSchema))),
+		})
 		.transform((fn) => fn()),
 });
 
@@ -183,7 +180,7 @@ export const resolvedIndexSchema = z.object({
 	unique: z.boolean().optional(),
 });
 /** @deprecated */
-const legacyIndexesSchema = z.record(resolvedIndexSchema);
+const legacyIndexesSchema = z.record(z.string(), resolvedIndexSchema);
 
 export const indexSchema = z.object({
 	on: z.string().or(z.array(z.string())),
@@ -199,21 +196,26 @@ export const tableSchema = z.object({
 	deprecated: z.boolean().optional().default(false),
 });
 
-export const tablesSchema = z.preprocess((rawTables) => {
-	// Use `z.any()` to avoid breaking object references
-	const tables = z.record(z.any()).parse(rawTables, { errorMap });
-	for (const [tableName, table] of Object.entries(tables)) {
-		// Append table and column names to columns.
-		// Used to track table info for references.
-		table.getName = () => tableName;
-		const { columns } = z.object({ columns: z.record(z.any()) }).parse(table, { errorMap });
-		for (const [columnName, column] of Object.entries(columns)) {
-			column.schema.name = columnName;
-			column.schema.collection = tableName;
+export const tablesSchema = z.preprocess(
+	(rawTables) => {
+		// Use `z.any()` to avoid breaking object references
+		const tables = z.record(z.string(), z.any()).parse(rawTables, { error: errorMap });
+		for (const [tableName, table] of Object.entries(tables)) {
+			// Append table and column names to columns.
+			// Used to track table info for references.
+			table.getName = () => tableName;
+			const { columns } = z
+				.object({ columns: z.record(z.string(), z.any()) })
+				.parse(table, { error: errorMap });
+			for (const [columnName, column] of Object.entries(columns)) {
+				column.schema.name = columnName;
+				column.schema.collection = tableName;
+			}
 		}
-	}
-	return rawTables;
-}, z.record(tableSchema));
+		return rawTables;
+	},
+	z.record(z.string(), tableSchema),
+);
 
 export const dbConfigSchema = z
 	.object({

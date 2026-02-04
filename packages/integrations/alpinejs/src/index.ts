@@ -54,13 +54,19 @@ function virtualEntrypoint(options?: Options): Plugin {
 					: options.entrypoint;
 			}
 		},
-		resolveId(id) {
-			if (id === virtualModuleId) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^${virtualModuleId}$`),
+			},
+			handler() {
 				return resolvedVirtualModuleId;
-			}
+			},
 		},
-		load(id) {
-			if (id === resolvedVirtualModuleId) {
+		load: {
+			filter: {
+				id: new RegExp(`^${resolvedVirtualModuleId}$`),
+			},
+			handler() {
 				if (entrypoint) {
 					return `\
 import * as mod from ${JSON.stringify(entrypoint)};
@@ -80,7 +86,7 @@ export const setup = (Alpine) => {
 }`;
 				}
 				return `export const setup = () => {};`;
-			}
+			},
 		},
 	};
 }

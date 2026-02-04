@@ -42,8 +42,10 @@ export async function renderPage(
 		) {
 			headers.set('content-security-policy', renderCspContent(result));
 		}
+
 		return new Response(bytes, {
 			headers,
+			status: result.response.status,
 		});
 	}
 
@@ -87,6 +89,7 @@ export async function renderPage(
 	) {
 		headers.set('content-security-policy', renderCspContent(result));
 	}
+
 	// For non-streaming, convert string to byte array to calculate Content-Length
 	if (!streaming && typeof body === 'string') {
 		body = encoder.encode(body);

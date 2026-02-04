@@ -1,38 +1,29 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
-import { astroCli, wranglerCli } from './_test-utils.js';
-
-const root = new URL('./fixtures/astro-env/', import.meta.url);
+import { loadFixture } from './_test-utils.js';
 
 describe('astro:env', () => {
 	describe('ssr', () => {
-		let wrangler;
+		let fixture;
+		let previewServer;
 
 		before(async () => {
 			process.env.API_URL = 'https://google.de';
 			process.env.PORT = '4322';
-			await astroCli(fileURLToPath(root), 'build').getResult();
-
-			wrangler = wranglerCli(fileURLToPath(root));
-			await new Promise((resolve) => {
-				wrangler.stdout.on('data', (data) => {
-					// console.log('[stdout]', data.toString());
-					if (data.toString().includes('http://127.0.0.1:8788')) resolve();
-				});
-				wrangler.stderr.on('data', (_data) => {
-					// console.log('[stderr]', data.toString());
-				});
+			fixture = await loadFixture({
+				root: './fixtures/astro-env/',
 			});
+			await fixture.build();
+			previewServer = await fixture.preview();
 		});
 
-		after(() => {
-			wrangler.kill();
+		after(async () => {
+			await previewServer.stop();
 		});
 
 		it('runtime', async () => {
-			const res = await fetch('http://127.0.0.1:8788/');
+			const res = await fixture.fetch('/');
 			const html = await res.text();
 			const $ = cheerio.load(html);
 			assert.equal(
@@ -44,28 +35,28 @@ describe('astro:env', () => {
 		});
 
 		it('client', async () => {
-			const res = await fetch('http://127.0.0.1:8788/');
+			const res = await fixture.fetch('/');
 			const html = await res.text();
 			const $ = cheerio.load(html);
 			assert.equal($('#client').text().includes('https://google.de'), true);
 		});
 
 		it('server', async () => {
-			const res = await fetch('http://127.0.0.1:8788/');
+			const res = await fixture.fetch('/');
 			const html = await res.text();
 			const $ = cheerio.load(html);
 			assert.equal($('#server').text().includes('4322'), true);
 		});
 
 		it('secret', async () => {
-			const res = await fetch('http://127.0.0.1:8788/');
+			const res = await fixture.fetch('/');
 			const html = await res.text();
 			const $ = cheerio.load(html);
 			assert.equal($('#secret').text().includes('123456789'), true);
 		});
 
 		it('action secret', async () => {
-			const res = await fetch('http://127.0.0.1:8788/test');
+			const res = await fixture.fetch('/test');
 			const html = await res.text();
 			const $ = cheerio.load(html);
 			assert.equal($('#secret').text().includes('123456789'), true);
@@ -73,24 +64,23 @@ describe('astro:env', () => {
 	});
 
 	describe('dev', () => {
-		let cli;
+		let devServer;
+		let fixture;
+
 		before(async () => {
-			cli = astroCli(fileURLToPath(root), 'dev', '--host', '127.0.0.1').proc;
-			await new Promise((resolve) => {
-				cli.stdout.on('data', (data) => {
-					if (data.includes('http://127.0.0.1:4321/')) {
-						resolve();
-					}
-				});
+			fixture = await loadFixture({
+				root: './fixtures/astro-env/',
 			});
+			devServer = await fixture.startDevServer();
+			await fixture.fetch('/');
 		});
 
-		after((_done) => {
-			cli.kill();
+		after(async () => {
+			await devServer.stop();
 		});
 
 		it('runtime', async () => {
-			const res = await fetch('http://127.0.0.1:4321/');
+			const res = await fixture.fetch('/');
 			const html = await res.text();
 			const $ = cheerio.load(html);
 			assert.equal(
@@ -102,28 +92,28 @@ describe('astro:env', () => {
 		});
 
 		it('client', async () => {
-			const res = await fetch('http://127.0.0.1:4321/');
+			const res = await fixture.fetch('/');
 			const html = await res.text();
 			const $ = cheerio.load(html);
 			assert.equal($('#client').text().includes('https://google.de'), true);
 		});
 
 		it('server', async () => {
-			const res = await fetch('http://127.0.0.1:4321/');
+			const res = await fixture.fetch('/');
 			const html = await res.text();
 			const $ = cheerio.load(html);
 			assert.equal($('#server').text().includes('4322'), true);
 		});
 
 		it('secret', async () => {
-			const res = await fetch('http://127.0.0.1:4321/');
+			const res = await fixture.fetch('/');
 			const html = await res.text();
 			const $ = cheerio.load(html);
 			assert.equal($('#secret').text().includes('123456789'), true);
 		});
 
 		it('action secret', async () => {
-			const res = await fetch('http://127.0.0.1:4321/test');
+			const res = await fixture.fetch('/');
 			const html = await res.text();
 			const $ = cheerio.load(html);
 			assert.equal($('#secret').text().includes('123456789'), true);

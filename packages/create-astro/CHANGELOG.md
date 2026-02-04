@@ -1,5 +1,31 @@
 # create-astro
 
+## 5.0.0-beta.3
+
+### Patch Changes
+
+- [#15344](https://github.com/withastro/astro/pull/15344) [`9d87f77`](https://github.com/withastro/astro/commit/9d87f77e57f5486802ef9e1c11ccece5914c7006) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a hang that could occur when the npm registry is slow or unresponsive by adding a 10 second timeout to the version check
+
+- [#15350](https://github.com/withastro/astro/pull/15350) [`d758b68`](https://github.com/withastro/astro/commit/d758b68ff776c3bef04553dde3996da8e58ffaee) Thanks [@matthewp](https://github.com/matthewp)! - Errors when `--add` and `--no-install` flags are used together, as `--add` requires dependencies to be installed
+
+## 5.0.0-beta.2
+
+### Patch Changes
+
+- [#15264](https://github.com/withastro/astro/pull/15264) [`11efb05`](https://github.com/withastro/astro/commit/11efb058e85cda68f9a8e8f15a2c7edafe5a4789) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Lower the Node version requirement to allow running on Stackblitz until it supports v22
+
+## 5.0.0-beta.1
+
+### Patch Changes
+
+- [#15187](https://github.com/withastro/astro/pull/15187) [`bbb5811`](https://github.com/withastro/astro/commit/bbb5811eb801a42dc091bb09ea19d6cde3033795) Thanks [@matthewp](https://github.com/matthewp)! - Update to Astro 6 beta
+
+## 5.0.0-alpha.0
+
+### Major Changes
+
+- [#14427](https://github.com/withastro/astro/pull/14427) [`e131261`](https://github.com/withastro/astro/commit/e1312615b39c59ebc05d5bb905ee0960b50ad3cf) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Increases minimum Node.js version to 22.12.0 - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#node-22))
+
 ## 4.13.2
 
 ### Patch Changes

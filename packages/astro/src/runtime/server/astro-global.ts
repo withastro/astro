@@ -1,41 +1,99 @@
-import { ASTRO_VERSION } from '../../core/constants.js';
+import { ASTRO_GENERATOR } from '../../core/constants.js';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
-import type { AstroGlobalPartial } from '../../types/public/context.js';
+import type { AstroGlobal } from '../../types/public/context.js';
 
-/** Create the Astro.glob() runtime function. */
-function createAstroGlobFn() {
-	const globHandler = (importMetaGlobResult: Record<string, any>) => {
-		// This is created inside of the runtime so we don't have access to the Astro logger.
-		console.warn(`Astro.glob is deprecated and will be removed in a future major version of Astro.
-Use import.meta.glob instead: https://vitejs.dev/guide/features.html#glob-import`);
-
-		if (typeof importMetaGlobResult === 'string') {
-			throw new AstroError({
-				...AstroErrorData.AstroGlobUsedOutside,
-				message: AstroErrorData.AstroGlobUsedOutside.message(JSON.stringify(importMetaGlobResult)),
-			});
-		}
-		let allEntries = [...Object.values(importMetaGlobResult)];
-		if (allEntries.length === 0) {
-			throw new AstroError({
-				...AstroErrorData.AstroGlobNoMatch,
-				message: AstroErrorData.AstroGlobNoMatch.message(JSON.stringify(importMetaGlobResult)),
-			});
-		}
-		// Map over the `import()` promises, calling to load them.
-		return Promise.all(allEntries.map((fn) => fn()));
-	};
-	// Cast the return type because the argument that the user sees (string) is different from the argument
-	// that the runtime sees post-compiler (Record<string, Module>).
-	return globHandler as unknown as AstroGlobalPartial['glob'];
+function createError(name: string) {
+	return new AstroError({
+		...AstroErrorData.UnavailableAstroGlobal,
+		message: AstroErrorData.UnavailableAstroGlobal.message(name),
+	});
 }
 
 // This is used to create the top-level Astro global; the one that you can use
 // inside of getStaticPaths. See the `astroGlobalArgs` option for parameter type.
-export function createAstro(site: string | undefined): AstroGlobalPartial {
+export function createAstro(site: string | undefined): AstroGlobal {
 	return {
-		site: site ? new URL(site) : undefined,
-		generator: `Astro v${ASTRO_VERSION}`,
-		glob: createAstroGlobFn(),
+		// TODO: throw in Astro 7
+		get site() {
+			// This is created inside of the runtime so we don't have access to the Astro logger.
+			console.warn(
+				`Astro.site inside getStaticPaths is deprecated and will be removed in a future major version of Astro. Use import.meta.env.SITE instead`,
+			);
+			return site ? new URL(site) : undefined;
+		},
+		// TODO: throw in Astro 7
+		get generator() {
+			// This is created inside of the runtime so we don't have access to the Astro logger.
+			console.warn(
+				`Astro.generator inside getStaticPaths is deprecated and will be removed in a future major version of Astro.`,
+			);
+			return ASTRO_GENERATOR;
+		},
+		get callAction(): any {
+			throw createError('callAction');
+		},
+		get clientAddress(): any {
+			throw createError('clientAddress');
+		},
+		get cookies(): any {
+			throw createError('cookies');
+		},
+		get csp(): any {
+			throw createError('csp');
+		},
+		get currentLocale(): any {
+			throw createError('currentLocale');
+		},
+		get getActionResult(): any {
+			throw createError('getActionResult');
+		},
+		get isPrerendered(): any {
+			throw createError('isPrerendered');
+		},
+		get locals(): any {
+			throw createError('locals');
+		},
+		get originPathname(): any {
+			throw createError('originPathname');
+		},
+		get params(): any {
+			throw createError('params');
+		},
+		get preferredLocale(): any {
+			throw createError('preferredLocale');
+		},
+		get preferredLocaleList(): any {
+			throw createError('preferredLocaleList');
+		},
+		get props(): any {
+			throw createError('props');
+		},
+		get redirect(): any {
+			throw createError('redirect');
+		},
+		get request(): any {
+			throw createError('request');
+		},
+		get response(): any {
+			throw createError('response');
+		},
+		get rewrite(): any {
+			throw createError('rewrite');
+		},
+		get routePattern(): any {
+			throw createError('routePattern');
+		},
+		get self(): any {
+			throw createError('self');
+		},
+		get slots(): any {
+			throw createError('slots');
+		},
+		get url(): any {
+			throw createError('url');
+		},
+		get session(): any {
+			throw createError('session');
+		},
 	};
 }

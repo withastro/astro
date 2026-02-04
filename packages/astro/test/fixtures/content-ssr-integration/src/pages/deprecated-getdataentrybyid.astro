@@ -1,0 +1,18 @@
+---
+import { getDataEntryById } from 'astro:content';
+const post = await getDataEntryById('blog', 'first-post');
+if (!post) {
+	return new Response('404', { status: 404 });
+}
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+<body>
+    <h1>{post.data.title}</h1>
+</body>
+</html>

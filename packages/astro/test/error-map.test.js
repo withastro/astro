@@ -5,24 +5,6 @@ import { z } from '../dist/zod.js';
 import { fixLineEndings } from './test-utils.js';
 
 describe('Content Collections - error map', () => {
-	it('Prefixes messages with object key', () => {
-		const error = getParseError(
-			z.object({
-				base: z.string(),
-				nested: z.object({
-					key: z.string(),
-				}),
-				union: z.union([z.string(), z.number()]),
-			}),
-			{ base: 1, nested: { key: 2 }, union: true },
-		);
-		const msgs = messages(error).sort();
-		assert.equal(msgs.length, 3);
-		// expect "**" for bolding
-		assert.equal(msgs[0].startsWith('**base**'), true);
-		assert.equal(msgs[1].startsWith('**nested.key**'), true);
-		assert.equal(msgs[2].startsWith('**union**'), true);
-	});
 	it('Returns formatted error for type mismatch', () => {
 		const error = getParseError(
 			z.object({
@@ -39,7 +21,7 @@ describe('Content Collections - error map', () => {
 			}),
 			{ lang: 'es' },
 		);
-		assert.deepEqual(messages(error), ['**lang**: Expected `"en"`, received `"es"`']);
+		assert.deepEqual(messages(error), ['Invalid input: expected "en"']);
 	});
 	it('Replaces undefined errors with "Required"', () => {
 		const error = getParseError(
@@ -57,9 +39,7 @@ describe('Content Collections - error map', () => {
 			'not a boolean or a number, oops!',
 		);
 		assert.deepEqual(messages(error), [
-			fixLineEndings(
-				'Did not match union.\n> Expected type `"boolean" | "number"`, received `"string"`',
-			),
+			fixLineEndings('Did not match union.\n> Expected type `"boolean"`, received `"string"`'),
 		]);
 	});
 	it('Returns formatted error for union mismatch on nested object properties', () => {
@@ -76,7 +56,9 @@ describe('Content Collections - error map', () => {
 		);
 		assert.deepEqual(messages(error), [
 			fixLineEndings(
-				'Did not match union.\n> **type**: Expected `"tutorial" | "article"`, received `"integration-guide"`',
+				'Did not match union.\n' +
+					'> Expected type `"tutorial" | "article"`\n' +
+					'> Received `{ "type": "integration-guide" }`',
 			),
 		]);
 	});
@@ -87,9 +69,7 @@ describe('Content Collections - error map', () => {
 			}),
 			{ lang: 'jp' },
 		);
-		assert.deepEqual(messages(error), [
-			"**lang**: Invalid enum value. Expected 'en' | 'fr', received 'jp'",
-		]);
+		assert.deepEqual(messages(error), [`Invalid option: expected one of "en"|"fr"`]);
 	});
 });
 
@@ -98,10 +78,10 @@ describe('Content Collections - error map', () => {
  * @returns string[]
  */
 function messages(error) {
-	return error.errors.map((e) => e.message);
+	return error.issues.map((e) => e.message);
 }
 
-function getParseError(schema, entry, parseOpts = { errorMap }) {
+function getParseError(schema, entry, parseOpts = { error: errorMap }) {
 	const res = schema.safeParse(entry, parseOpts);
 	assert.equal(res.success, false, 'Schema should raise error');
 	return res.error;

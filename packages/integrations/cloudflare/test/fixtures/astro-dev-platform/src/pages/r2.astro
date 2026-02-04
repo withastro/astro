@@ -1,6 +1,6 @@
 ---
-const runtime = Astro.locals.runtime;
-const bucket = runtime.env?.R2;
+import { env } from "cloudflare:workers";
+const bucket = env.R2;
 await bucket.put("test", "true");
 const result = await (await bucket.get("test")).text()
 ---
@@ -13,8 +13,8 @@ const result = await (await bucket.get("test")).text()
   <title>R2</title>
 </head>
 <body>
-  <pre id="hasBUCKET">{!!runtime.env?.R2}</pre>
-  <pre id="hasPRODBUCKET">{!!runtime.env?.R2_PROD}</pre>
+  <pre id="hasBUCKET">{!!env.R2}</pre>
+  <pre id="hasPRODBUCKET">{!!env.R2_PROD}</pre>
   <pre id="hasACCESS">{!!result}</pre>
 </body>
 </html>

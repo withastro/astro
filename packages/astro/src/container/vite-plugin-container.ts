@@ -1,15 +1,18 @@
 import type * as vite from 'vite';
 
-const virtualModuleId = 'astro:container';
+const VIRTUAL_MODULE_ID = 'astro:container';
 
 export default function astroContainer(): vite.Plugin {
 	return {
-		name: 'astro:container',
+		name: VIRTUAL_MODULE_ID,
 		enforce: 'pre',
-		resolveId(id) {
-			if (id === virtualModuleId) {
+		resolveId: {
+			filter: {
+				id: new RegExp(`^(${VIRTUAL_MODULE_ID})$`),
+			},
+			handler() {
 				return this.resolve('astro/virtual-modules/container.js');
-			}
+			},
 		},
 	};
 }

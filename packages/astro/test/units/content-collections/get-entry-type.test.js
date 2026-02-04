@@ -19,7 +19,7 @@ const fixtures = [
 		title: 'With underscore levels above the content directory tree',
 		contentPaths: {
 			config: {
-				url: new URL('_src/content/config.ts', import.meta.url),
+				url: new URL('_src/content.config.ts', import.meta.url),
 				exists: true,
 			},
 			contentDir: new URL('_src/content/', import.meta.url),

@@ -11,14 +11,12 @@ export async function optimizeFallbacks({
 	family,
 	fallbacks: _fallbacks,
 	collectedFonts,
-	enabled,
 	systemFallbacksProvider,
 	fontMetricsResolver,
 }: {
-	family: Pick<ResolvedFontFamily, 'name' | 'nameWithHash'>;
+	family: Pick<ResolvedFontFamily, 'name' | 'uniqueName'>;
 	fallbacks: Array<string>;
 	collectedFonts: Array<CollectedFontForMetrics>;
-	enabled: boolean;
 	systemFallbacksProvider: SystemFallbacksProvider;
 	fontMetricsResolver: FontMetricsResolver;
 }): Promise<null | {
@@ -28,7 +26,7 @@ export async function optimizeFallbacks({
 	// We avoid mutating the original array
 	let fallbacks = [..._fallbacks];
 
-	if (fallbacks.length === 0 || !enabled || collectedFonts.length === 0) {
+	if (fallbacks.length === 0 || collectedFonts.length === 0) {
 		return null;
 	}
 
@@ -54,7 +52,7 @@ export async function optimizeFallbacks({
 	const localFontsMappings = localFonts.map((font) => ({
 		font,
 		// We mustn't wrap in quote because that's handled by the CSS renderer
-		name: `${family.nameWithHash} fallback: ${font}`,
+		name: `${family.uniqueName} fallback: ${font}`,
 	}));
 
 	// We prepend the fallbacks with the local fonts and we dedupe in case a local font is already provided

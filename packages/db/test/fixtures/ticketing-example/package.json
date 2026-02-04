@@ -16,11 +16,11 @@
     "@types/react": "^18.3.27",
     "@types/react-dom": "^18.3.7",
     "astro": "workspace:*",
-    "open-props": "^1.7.17",
+    "open-props": "^1.7.23",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "simple-stack-form": "^0.1.12",
     "typescript": "^5.9.3",
-    "zod": "^3.25.76"
+    "zod": "^4.3.6"
   }
 }

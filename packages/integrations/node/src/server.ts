@@ -1,6 +1,3 @@
-// Keep at the top
-import './polyfill.js';
-
 import { existsSync, readFileSync } from 'node:fs';
 import type { NodeAppHeadersJson, SSRManifest } from 'astro';
 import { NodeApp } from 'astro/app/node';
@@ -15,7 +12,7 @@ setGetEnv((key) => process.env[key]);
 export function createExports(manifest: SSRManifest, options: Options) {
 	const app = new NodeApp(manifest, !options.experimentalDisableStreaming);
 	let headersMap: NodeAppHeadersJson | undefined = undefined;
-	if (options.experimentalStaticHeaders) {
+	if (options.staticHeaders) {
 		headersMap = readHeadersJson(manifest.outDir);
 	}
 
@@ -39,7 +36,7 @@ export function start(manifest: SSRManifest, options: Options) {
 	}
 
 	let headersMap: NodeAppHeadersJson | undefined = undefined;
-	if (options.experimentalStaticHeaders) {
+	if (options.staticHeaders) {
 		headersMap = readHeadersJson(manifest.outDir);
 	}
 

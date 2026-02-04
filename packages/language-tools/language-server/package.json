@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/language-server",
-  "version": "2.16.3",
+  "version": "2.16.1-beta.1",
   "author": "withastro",
   "license": "MIT",
   "repository": {
@@ -22,18 +22,17 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "sync-fixture": "pnpm --dir ./test/fixture sync",
-    "test": "pnpm sync-fixture && astro-scripts test \"**/*.test.ts\" --teardown-test ./test/misc/teardown.ts --tsx true",
+    "test": "astro-scripts test \"**/*.test.ts\" --teardown-test ./test/misc/teardown.ts --tsx true --setup ./test/setup.js",
     "test:match": "pnpm run test --match"
   },
   "dependencies": {
     "@astrojs/compiler": "^2.13.0",
     "@astrojs/yaml2ts": "^0.2.2",
     "@jridgewell/sourcemap-codec": "^1.5.5",
-    "@volar/kit": "~2.4.27",
-    "@volar/language-core": "~2.4.27",
-    "@volar/language-server": "~2.4.27",
-    "@volar/language-service": "~2.4.27",
+    "@volar/kit": "~2.4.28",
+    "@volar/language-core": "~2.4.28",
+    "@volar/language-server": "~2.4.28",
+    "@volar/language-service": "~2.4.28",
     "muggle-string": "^0.4.1",
     "tinyglobby": "^0.2.15",
     "volar-service-css": "0.0.68",
@@ -48,8 +47,8 @@
   },
   "devDependencies": {
     "@types/node": "^20.9.0",
-    "@volar/test-utils": "~2.4.27",
-    "@volar/typescript": "~2.4.27",
+    "@volar/test-utils": "~2.4.28",
+    "@volar/typescript": "~2.4.28",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vscode-languageserver-protocol": "^3.17.5",

@@ -1,15 +1,16 @@
 import * as fs from 'node:fs';
 import type { SSRManifest } from 'astro';
-import { App } from 'astro/app';
-import { applyPolyfills } from 'astro/app/node';
+import { AppPipeline, BaseApp } from 'astro/app';
 
-applyPolyfills();
-
-class MyApp extends App {
+class MyApp extends BaseApp {
 	#manifest: SSRManifest | undefined;
 	constructor(manifest: SSRManifest, streaming = false) {
 		super(manifest, streaming);
 		this.#manifest = manifest;
+	}
+
+	isDev(): boolean {
+		return false;
 	}
 
 	async render(request: Request) {
@@ -21,6 +22,13 @@ class MyApp extends App {
 		}
 
 		return super.render(request);
+	}
+
+	createPipeline(streaming: boolean) {
+		return AppPipeline.create({
+			manifest: this.manifest,
+			streaming,
+		});
 	}
 }
 

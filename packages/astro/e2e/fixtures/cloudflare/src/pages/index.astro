@@ -1,0 +1,85 @@
+---
+export const prerender = false;
+
+import { getCollection, getEntry, render } from 'astro:content';
+import Hello from '../components/react/Hello.tsx';
+import HelloVue from '../components/Hello.vue';
+import PreactCounter from '../components/preact/Counter.tsx';
+import Island from '../components/Island.astro';
+import IslandProps from '../components/IslandProps.astro';
+import { Font } from 'astro:assets';
+
+
+const workerRuntime = globalThis.navigator?.userAgent
+const blog = await getCollection('blog');
+const first = await getEntry('blog', 1);
+const dogs = await getCollection('dogs');
+const increment = await getEntry('increment', 'value');
+const { Content } = await render(increment);
+
+const surnamne = Astro.url.searchParams.get('surname');
+---
+
+<html>
+<head>
+	<meta charset="utf-8" />
+	<Font cssVariable='--font-roboto' preload />
+	<title>Index</title>
+</head>
+<body>
+	<p id="last-updated">Last updated: {increment.data.lastUpdated.toLocaleTimeString()}</p>
+
+	<h2>Translations</h2>
+	<ul>
+		<li><a href="/fr">French index</a></li>
+	</ul>
+	<h2><code>astro:env</code></h2>
+	<a href="/env">Environment variables</a>
+	<h2>Client router</h2>
+	<a href="/client-router">Client router</a>
+	<h2>Middleware</h2>
+	<a href="/mid/to-redirect">Redirect</a>
+	<a href="/mid/to-rewrite">Rewrite</a>
+	<a href="/mid/locals">Locals</a>
+	<h2>Sessions</h2>
+	<a href="/sessions">Sessions</a>
+	<h2>Dogs</h2>
+	<p id="runtime">Running on: {workerRuntime ?? 'unknown runtime'}</p>
+	<div id="framework">
+		<Hello client:load />
+		<HelloVue client:load />
+		<PreactCounter client:load />
+	</div>
+	<div id="island">
+		<Island server:defer/>
+	</div>
+	<div id="island-props">
+		<IslandProps server:defer name="Aria" surname={surnamne}/>
+	</div>
+	<ul id="dogs-list">
+		{dogs.map(dog => (
+			<li><a href={`/dogs/${dog.id}`}>{ dog.data?.breed }</a></li>
+		))}
+	</ul>
+	<section id="content">
+		<Content />
+	</section>
+	<h1 id="blog-posts">Blog Posts</h1>
+
+	<h2 id="first-blog-title">{first?.data?.title ?? 'No first blog post'}</h2>
+	<ul id="blog-list">
+		{blog.map(post => (
+			<li><a href={`/blog/${post.id}`}>{ post.data?.title }</a></li>
+		))}
+	</ul>
+</body>
+</html>
+
+
+<style>
+	body {
+		background: antiquewhite;
+		font-family: var(--font-roboto);
+	}
+</style>
+

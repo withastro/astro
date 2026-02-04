@@ -1,5 +1,4 @@
 import { cpSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
-import { basename } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { emptyDir, removeDir, writeJson } from '@astrojs/internal-helpers/fs';
 import {
@@ -101,13 +100,13 @@ function getAdapter({
 	middlewareSecret,
 	skewProtection,
 	buildOutput,
-	experimentalStaticHeaders,
+	staticHeaders,
 }: {
 	buildOutput: 'server' | 'static';
 	edgeMiddleware: NonNullable<VercelServerlessConfig['edgeMiddleware']>;
 	middlewareSecret: string;
 	skewProtection: boolean;
-	experimentalStaticHeaders: NonNullable<VercelServerlessConfig['experimentalStaticHeaders']>;
+	staticHeaders: NonNullable<VercelServerlessConfig['staticHeaders']>;
 }): AstroAdapter {
 	return {
 		name: PACKAGE_NAME,
@@ -120,7 +119,7 @@ function getAdapter({
 		adapterFeatures: {
 			edgeMiddleware,
 			buildOutput,
-			experimentalStaticHeaders,
+			staticHeaders,
 		},
 		supportedAstroFeatures: {
 			hybridOutput: 'stable',
@@ -186,7 +185,7 @@ export interface VercelServerlessConfig {
 	 * Here the list of the headers that are added:
 	 * - The CSP header of the static pages is added when CSP support is enabled.
 	 */
-	experimentalStaticHeaders?: boolean;
+	staticHeaders?: boolean;
 }
 
 interface VercelISRConfig {
@@ -227,7 +226,7 @@ export default function vercelAdapter({
 	maxDuration,
 	isr = false,
 	skewProtection = process.env.VERCEL_SKEW_PROTECTION_ENABLED === '1',
-	experimentalStaticHeaders = false,
+	staticHeaders = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	if (maxDuration) {
 		if (typeof maxDuration !== 'number') {
@@ -245,7 +244,6 @@ export default function vercelAdapter({
 	let _config: AstroConfig;
 	let _buildTempFolder: URL;
 	let _serverEntry: string;
-	let _entryPoints: Map<Pick<IntegrationResolvedRoute, 'entrypoint' | 'patternRegex'>, URL>;
 	let _middlewareEntryPoint: URL | undefined;
 	let _routeToHeaders: RouteToHeaders | undefined = undefined;
 	// Extra files to be merged with `includeFiles` during build
@@ -351,7 +349,7 @@ export default function vercelAdapter({
 							edgeMiddleware,
 							middlewareSecret,
 							skewProtection,
-							experimentalStaticHeaders,
+							staticHeaders: staticHeaders,
 						}),
 					);
 				} else {
@@ -361,7 +359,7 @@ export default function vercelAdapter({
 							middlewareSecret: '',
 							skewProtection,
 							buildOutput: _buildOutput,
-							experimentalStaticHeaders,
+							staticHeaders: staticHeaders,
 						}),
 					);
 				}
@@ -373,23 +371,12 @@ export default function vercelAdapter({
 				// Ensure to have `.vercel/output` empty.
 				await emptyDir(new URL('./.vercel/output/', _config.root));
 			},
-			'astro:build:ssr': async ({ entryPoints, middlewareEntryPoint }) => {
-				_entryPoints = new Map(
-					Array.from(entryPoints)
-						.filter(([routeData]) => !routeData.prerender)
-						.map(([routeData, url]) => [
-							{
-								entrypoint: routeData.component,
-								patternRegex: routeData.pattern,
-							},
-							url,
-						]),
-				);
+			'astro:build:ssr': async ({ middlewareEntryPoint }) => {
 				_middlewareEntryPoint = middlewareEntryPoint;
 			},
 
-			'astro:build:generated': ({ experimentalRouteToHeaders }) => {
-				_routeToHeaders = experimentalRouteToHeaders;
+			'astro:build:generated': ({ routeToHeaders }) => {
+				_routeToHeaders = routeToHeaders;
 			},
 			'astro:build:done': async ({ logger }: HookParameters<'astro:build:done'>) => {
 				const outDir = new URL('./.vercel/output/', _config.root);
@@ -447,92 +434,69 @@ export default function vercelAdapter({
 						maxDuration,
 					);
 
-					// Multiple entrypoint support
-					if (_entryPoints.size) {
-						const getRouteFuncName = (route: Pick<IntegrationResolvedRoute, 'entrypoint'>) =>
-							route.entrypoint.replace('src/pages/', '');
-
-						const getFallbackFuncName = (entryFile: URL) =>
-							basename(entryFile.toString())
-								.replace('entry.', '')
-								.replace(/\.mjs$/, '');
-
-						for (const [route, entryFile] of _entryPoints) {
-							const func = route.entrypoint.startsWith('src/pages/')
-								? getRouteFuncName(route)
-								: getFallbackFuncName(entryFile);
-
-							await builder.buildServerlessFolder(entryFile, func, _config.root);
-
-							routeDefinitions.push({
-								src: route.patternRegex.source,
-								dest: func,
-							});
-						}
-					} else {
-						const entryFile = new URL(_serverEntry, _buildTempFolder);
-						if (isr) {
-							const isrConfig = typeof isr === 'object' ? isr : {};
-							await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
-							if (isrConfig.exclude?.length) {
-								const expandedExclusions = isrConfig.exclude.reduce<string[]>((acc, exclusion) => {
-									if (exclusion instanceof RegExp) {
-										return [
-											...acc,
-											...routes
-												.filter((route) => exclusion.test(route.pattern))
-												.map((route) => route.pattern),
-										];
-									}
-
-									return [...acc, exclusion];
-								}, []);
-
-								const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
-								for (const route of expandedExclusions) {
-									// vercel interprets src as a regex pattern, so we need to escape it
-									routeDefinitions.push({
-										src: escapeRegex(route),
-										dest,
-									});
+					const entryFile = new URL(_serverEntry, _buildTempFolder);
+					if (isr) {
+						const isrConfig = typeof isr === 'object' ? isr : {};
+						await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
+						if (isrConfig.exclude?.length) {
+							const expandedExclusions = isrConfig.exclude.reduce<string[]>((acc, exclusion) => {
+								if (exclusion instanceof RegExp) {
+									return [
+										...acc,
+										...routes
+											.filter((route) => exclusion.test(route.pattern))
+											.map((route) => route.pattern),
+									];
 								}
-							}
-							await builder.buildISRFolder(entryFile, '_isr', isrConfig, _config.root);
-							for (const route of routes) {
-								// Do not create _isr route entries for excluded routes
-								const excludeRouteFromIsr = isrConfig.exclude?.some((exclusion) => {
-									if (exclusion instanceof RegExp) {
-										return exclusion.test(route.pattern);
-									}
 
-									return exclusion === route.pattern;
-								});
+								return [...acc, exclusion];
+							}, []);
 
-								if (!excludeRouteFromIsr) {
-									const src = route.patternRegex.source;
-									const dest =
-										src.startsWith('^\\/_image') || src.startsWith('^\\/_server-islands')
-											? NODE_PATH
-											: ISR_PATH;
-									if (!route.isPrerendered)
-										routeDefinitions.push({
-											src,
-											dest,
-										});
-								}
-							}
-						} else {
-							await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
 							const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
-							for (const route of routes) {
+							for (const route of expandedExclusions) {
+								// vercel interprets src as a regex pattern, so we need to escape it
+								routeDefinitions.push({
+									src: escapeRegex(route),
+									dest,
+								});
+							}
+						}
+						await builder.buildISRFolder(entryFile, '_isr', isrConfig, _config.root);
+						for (const route of routes) {
+							// Do not create _isr route entries for excluded routes
+							const excludeRouteFromIsr = isrConfig.exclude?.some((exclusion) => {
+								if (exclusion instanceof RegExp) {
+									return exclusion.test(route.pattern);
+								}
+
+								return exclusion === route.pattern;
+							});
+
+							if (!excludeRouteFromIsr) {
+								const src = route.patternRegex.source;
+								const dest =
+									src.startsWith('^\\/_image') || src.startsWith('^\\/_server-islands')
+										? NODE_PATH
+										: ISR_PATH;
 								if (!route.isPrerendered)
 									routeDefinitions.push({
-										src: route.patternRegex.source,
+										src,
 										dest,
 									});
 							}
 						}
+					} else {
+						await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
+						const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
+						for (const route of routes) {
+							if (!route.isPrerendered)
+								routeDefinitions.push({
+									src: route.patternRegex.source,
+									dest,
+								});
+						}
 					}
+
 					if (_middlewareEntryPoint) {
 						await builder.buildMiddlewareFolder(
 							_middlewareEntryPoint,
@@ -634,7 +598,7 @@ export default function vercelAdapter({
 					if (!normalized.routes) {
 						normalized.routes = [];
 					}
-					if (experimentalStaticHeaders) {
+					if (staticHeaders) {
 						const routesWithConfigHeaders = createRoutesWithStaticHeaders(_routeToHeaders, _config);
 						const fileSystemRouteIndex = normalized.routes.findIndex(
 							(r) => 'handle' in r && r.handle === 'filesystem',
@@ -807,7 +771,7 @@ function createRoutesWithStaticHeaders(
 ): RouteWithSrc[] {
 	const vercelHeaders: RouteWithSrc[] = [];
 	for (const [pathname, { headers }] of staticHeaders.entries()) {
-		if (config.experimental.csp) {
+		if (config.security.csp) {
 			const csp = headers.get('Content-Security-Policy');
 
 			if (csp) {

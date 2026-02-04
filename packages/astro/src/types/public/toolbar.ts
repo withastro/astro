@@ -61,6 +61,8 @@ export type DevToolbarApp = {
 // An app that has been loaded and as such contain all of its properties
 export type ResolvedDevToolbarApp = DevToolbarAppMeta & DevToolbarApp;
 
+export type DevToolbarPlacement = 'bottom-left' | 'bottom-center' | 'bottom-right';
+
 export type DevToolbarMetadata = Window &
 	typeof globalThis & {
 		__astro_dev_toolbar__: {
@@ -68,5 +70,6 @@ export type DevToolbarMetadata = Window &
 			version: string;
 			latestAstroVersion: string | undefined;
 			debugInfo: string;
+			placement: DevToolbarPlacement | undefined;
 		};
 	};

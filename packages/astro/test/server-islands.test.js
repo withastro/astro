@@ -20,6 +20,14 @@ async function createKeyFromString(keyString) {
 	]);
 }
 
+// Helper to get encrypted componentExport for 'default'
+async function getEncryptedComponentExport(
+	keyString = 'eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=',
+) {
+	const key = await createKeyFromString(keyString);
+	return encryptString(key, 'default');
+}
+
 describe('Server islands', () => {
 	describe('SSR', () => {
 		/** @type {import('./test-utils').Fixture} */
@@ -28,6 +36,9 @@ describe('Server islands', () => {
 			fixture = await loadFixture({
 				root: './fixtures/server-islands/ssr',
 				adapter: testAdapter(),
+				security: {
+					checkOrigin: false,
+				},
 			});
 		});
 
@@ -61,10 +72,11 @@ describe('Server islands', () => {
 			});
 
 			it('island is not indexed', async () => {
+				const encryptedComponentExport = await getEncryptedComponentExport();
 				const res = await fixture.fetch('/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
-						componentExport: 'default',
+						encryptedComponentExport,
 						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
 						encryptedSlots: '',
 					}),
@@ -73,10 +85,11 @@ describe('Server islands', () => {
 			});
 
 			it('island can set headers', async () => {
+				const encryptedComponentExport = await getEncryptedComponentExport();
 				const res = await fixture.fetch('/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
-						componentExport: 'default',
+						encryptedComponentExport,
 						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
 						encryptedSlots: '',
 					}),
@@ -116,10 +129,11 @@ describe('Server islands', () => {
 			});
 
 			it('rejects invalid props', async () => {
+				const encryptedComponentExport = await getEncryptedComponentExport();
 				const res = await fixture.fetch('/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
-						componentExport: 'default',
+						encryptedComponentExport,
 						// not the expected value:
 						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLE',
 						encryptedSlots: '',
@@ -128,11 +142,24 @@ describe('Server islands', () => {
 				assert.equal(res.status, 400);
 			});
 
-			it('rejects plaintext slots', async () => {
+			it('rejects plaintext componentExport', async () => {
 				const res = await fixture.fetch('/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
 						componentExport: 'default',
+						encryptedProps: '',
+						encryptedSlots: '',
+					}),
+				});
+				assert.equal(res.status, 400, 'should reject plaintext componentExport');
+			});
+
+			it('rejects plaintext slots', async () => {
+				const encryptedComponentExport = await getEncryptedComponentExport();
+				const res = await fixture.fetch('/_server-islands/Island', {
+					method: 'POST',
+					body: JSON.stringify({
+						encryptedComponentExport,
 						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
 						slots: { xss: '<img src=x onerror=alert(0)>' },
 					}),
@@ -140,22 +167,16 @@ describe('Server islands', () => {
 				assert.equal(res.status, 400, 'should reject unencrypted slots');
 			});
 
-			it('rejects plaintext slots with XSS payload via GET', async () => {
-				const res = await fixture.fetch(
-					'/_server-islands/Island?e=file&s=%7B%22xss%22%3A%22%3Cimg%20src%3Dx%20onerror%3Dalert(0)%3E%22%7D',
-				);
-				assert.equal(res.status, 400, 'should reject plaintext slots with XSS');
-			});
-
 			it('accepts encrypted slots via POST', async () => {
 				const key = await createKeyFromString('eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=');
+				const encryptedComponentExport = await encryptString(key, 'default');
 				const slotsToEncrypt = { content: '<p>Safe slot content</p>' };
 				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt));
 
 				const res = await fixture.fetch('/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
-						componentExport: 'default',
+						encryptedComponentExport,
 						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
 						encryptedSlots: encryptedSlots,
 					}),
@@ -164,10 +185,11 @@ describe('Server islands', () => {
 			});
 
 			it('rejects invalid encrypted slots via POST', async () => {
+				const encryptedComponentExport = await getEncryptedComponentExport();
 				const res = await fixture.fetch('/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
-						componentExport: 'default',
+						encryptedComponentExport,
 						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
 						// hard-coded invalid encrypted slot value:
 						encryptedSlots: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLE',
@@ -178,13 +200,14 @@ describe('Server islands', () => {
 
 			it('accepts encrypted slots with XSS payload via POST', async () => {
 				const key = await createKeyFromString('eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=');
+				const encryptedComponentExport = await encryptString(key, 'default');
 				const slotsToEncrypt = { xss: '<img src=x onerror=alert(0)>' };
 				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt));
 
 				const res = await fixture.fetch('/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
-						componentExport: 'default',
+						encryptedComponentExport,
 						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
 						encryptedSlots: encryptedSlots,
 					}),
@@ -250,10 +273,11 @@ describe('Server islands', () => {
 
 			it('island is not indexed', async () => {
 				const app = await fixture.loadTestAdapterApp();
+				const encryptedComponentExport = await getEncryptedComponentExport();
 				const request = new Request('http://example.com/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
-						componentExport: 'default',
+						encryptedComponentExport,
 						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
 						encryptedSlots: '',
 					}),
@@ -302,10 +326,11 @@ describe('Server islands', () => {
 
 			it('rejects invalid props', async () => {
 				const app = await fixture.loadTestAdapterApp();
+				const encryptedComponentExport = await getEncryptedComponentExport();
 				const request = new Request('http://example.com/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
-						componentExport: 'default',
+						encryptedComponentExport,
 						// not the expected value:
 						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLE',
 						encryptedSlots: '',
@@ -318,12 +343,30 @@ describe('Server islands', () => {
 				assert.equal(response.status, 400);
 			});
 
-			it('rejects plaintext slots', async () => {
+			it('rejects plaintext componentExport', async () => {
 				const app = await fixture.loadTestAdapterApp();
 				const request = new Request('http://example.com/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
 						componentExport: 'default',
+						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
+						encryptedSlots: '',
+					}),
+					headers: {
+						origin: 'http://example.com',
+					},
+				});
+				const response = await app.render(request);
+				assert.equal(response.status, 400, 'should reject plaintext componentExport');
+			});
+
+			it('rejects plaintext slots', async () => {
+				const app = await fixture.loadTestAdapterApp();
+				const encryptedComponentExport = await getEncryptedComponentExport();
+				const request = new Request('http://example.com/_server-islands/Island', {
+					method: 'POST',
+					body: JSON.stringify({
+						encryptedComponentExport,
 						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
 						slots: { xss: '<img src=x onerror=alert(0)>' },
 					}),
@@ -352,13 +395,14 @@ describe('Server islands', () => {
 			it('accepts encrypted slots via POST', async () => {
 				const app = await fixture.loadTestAdapterApp();
 				const key = await createKeyFromString('eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=');
+				const encryptedComponentExport = await encryptString(key, 'default');
 				const slotsToEncrypt = { content: '<p>Safe slot content</p>' };
 				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt));
 
 				const request = new Request('http://example.com/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
-						componentExport: 'default',
+						encryptedComponentExport,
 						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
 						encryptedSlots: encryptedSlots,
 					}),
@@ -372,11 +416,12 @@ describe('Server islands', () => {
 
 			it('rejects invalid encrypted slots via POST', async () => {
 				const app = await fixture.loadTestAdapterApp();
+				const encryptedComponentExport = await getEncryptedComponentExport();
 
 				const request = new Request('http://example.com/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
-						componentExport: 'default',
+						encryptedComponentExport,
 						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
 						// hard-coded invalid encrypted slot value:
 						encryptedSlots: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLE',
@@ -392,13 +437,14 @@ describe('Server islands', () => {
 			it('accepts encrypted slots with XSS payload via POST', async () => {
 				const app = await fixture.loadTestAdapterApp();
 				const key = await createKeyFromString('eKBaVEuI7YjfanEXHuJe/pwZKKt3LkAHeMxvTU7aR0M=');
+				const encryptedComponentExport = await encryptString(key, 'default');
 				const slotsToEncrypt = { xss: '<img src=x onerror=alert(0)>' };
 				const encryptedSlots = await encryptString(key, JSON.stringify(slotsToEncrypt));
 
 				const request = new Request('http://example.com/_server-islands/Island', {
 					method: 'POST',
 					body: JSON.stringify({
-						componentExport: 'default',
+						encryptedComponentExport,
 						encryptedProps: 'FC8337AF072BE5B1641501E1r8mLIhmIME1AV7UO9XmW9OLD',
 						encryptedSlots: encryptedSlots,
 					}),

@@ -9,8 +9,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/svelte": "^7.2.5",
-    "astro": "^5.16.10",
-    "svelte": "^5.46.1"
+    "@astrojs/svelte": "workspace:*",
+    "astro": "workspace:*",
+    "svelte": "^5.49.1"
   }
 }

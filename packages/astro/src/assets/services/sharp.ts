@@ -1,4 +1,4 @@
-import type { FitEnum, FormatEnum, SharpOptions } from 'sharp';
+import type { FitEnum, FormatEnum, ResizeOptions, SharpOptions } from 'sharp';
 import { AstroError, AstroErrorData } from '../../core/errors/index.js';
 import type { ImageFit, ImageOutputFormat, ImageQualityPreset } from '../types.js';
 import {
@@ -13,6 +13,11 @@ export interface SharpImageServiceConfig {
 	 * The `limitInputPixels` option passed to Sharp. See https://sharp.pixelplumbing.com/api-constructor for more information
 	 */
 	limitInputPixels?: SharpOptions['limitInputPixels'];
+
+	/**
+	 * The `kernel` option is passed to resize calls. See https://sharp.pixelplumbing.com/api-resize/ for more information
+	 */
+	kernel?: ResizeOptions['kernel'];
 }
 
 let sharp: typeof import('sharp');
@@ -57,6 +62,7 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 	async transform(inputBuffer, transformOptions, config) {
 		if (!sharp) sharp = await loadSharp();
 		const transform: BaseServiceTransform = transformOptions as BaseServiceTransform;
+		const kernel = config.service.config.kernel;
 
 		// Return SVGs as-is
 		// TODO: Sharp has some support for SVGs, we could probably support this once Sharp is the default and only service.
@@ -78,26 +84,38 @@ const sharpService: LocalImageService<SharpImageServiceConfig> = {
 		// - Do not use both width and height for resizing, and prioritize width over height
 		// - Allow enlarging images
 
-		const withoutEnlargement = Boolean(transform.fit);
-		if (transform.width && transform.height && transform.fit) {
-			const fit: keyof FitEnum = fitMap[transform.fit] ?? 'inside';
+		if (transform.width && transform.height) {
+			const fit: keyof FitEnum | undefined = transform.fit
+				? (fitMap[transform.fit] ?? 'inside')
+				: undefined;
+
 			result.resize({
 				width: Math.round(transform.width),
 				height: Math.round(transform.height),
+				kernel,
 				fit,
 				position: transform.position,
-				withoutEnlargement,
+				withoutEnlargement: true,
 			});
 		} else if (transform.height && !transform.width) {
 			result.resize({
 				height: Math.round(transform.height),
-				withoutEnlargement,
+				withoutEnlargement: true,
+				kernel,
 			});
 		} else if (transform.width) {
 			result.resize({
 				width: Math.round(transform.width),
-				withoutEnlargement,
+				withoutEnlargement: true,
+				kernel,
 			});
+		}
+
+		// If background is set, flatten the image with the specified background.
+		// We do this after resize to ensure the background covers the entire image
+		// even if its size has expanded.
+		if (transform.background) {
+			result.flatten({ background: transform.background });
 		}
 
 		if (transform.format) {

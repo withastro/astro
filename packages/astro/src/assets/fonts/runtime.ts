@@ -1,4 +1,3 @@
-import * as fontsMod from 'virtual:astro:assets/fonts/internal';
-import { createGetFontData } from './core/create-get-font-data.js';
+import { fontDataByCssVariable } from 'virtual:astro:assets/fonts/internal';
 
-export const getFontData = createGetFontData(fontsMod);
+export const fontData = fontDataByCssVariable;
