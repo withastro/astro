@@ -579,11 +579,11 @@ export async function runHookBuildSsr({
 export async function runHookBuildGenerated({
 	settings,
 	logger,
-	experimentalRouteToHeaders,
+	routeToHeaders,
 }: {
 	settings: AstroSettings;
 	logger: Logger;
-	experimentalRouteToHeaders: RouteToHeaders;
+	routeToHeaders: RouteToHeaders;
 }) {
 	const dir =
 		settings.buildOutput === 'server' ? settings.config.build.client : settings.config.outDir;
@@ -593,7 +593,7 @@ export async function runHookBuildGenerated({
 			integration,
 			hookName: 'astro:build:generated',
 			logger,
-			params: () => ({ dir, experimentalRouteToHeaders }),
+			params: () => ({ dir, routeToHeaders }),
 		});
 	}
 }

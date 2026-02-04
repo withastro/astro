@@ -12,9 +12,6 @@ import { matchRoute } from '../../routing/dev.js';
 import type { RunnablePipeline } from '../../../vite-plugin-app/pipeline.js';
 import type { RoutesList } from '../../../types/astro.js';
 
-/**
- *
- */
 export class DevApp extends BaseApp<NonRunnablePipeline> {
 	logger: Logger;
 	resolvedPathname: string | undefined = undefined;

@@ -96,10 +96,9 @@ export interface AstroAdapterFeatures {
 	 * `astro:build:generated` hook, so adapters can consume them and add them inside
 	 * their hosting headers configuration file.
 	 *
-	 * NOTE: the semantics and list of headers might change until the feature
-	 * is out of experimental
+	 * Future features may decide to use this feature to create/add headers for static pages.
 	 */
-	experimentalStaticHeaders?: boolean;
+	staticHeaders?: boolean;
 }
 
 /**
@@ -297,7 +296,7 @@ export interface BaseIntegrationHooks {
 	'astro:build:generated': (options: {
 		dir: URL;
 		logger: AstroIntegrationLogger;
-		experimentalRouteToHeaders: RouteToHeaders;
+		routeToHeaders: RouteToHeaders;
 	}) => void | Promise<void>;
 	'astro:build:done': (options: {
 		pages: { pathname: string }[];

@@ -282,7 +282,7 @@ export async function generatePages(
 	await runHookBuildGenerated({
 		settings: options.settings,
 		logger,
-		experimentalRouteToHeaders: routeToHeaders,
+		routeToHeaders,
 	});
 }
 
@@ -384,12 +384,9 @@ async function generatePathWithPrerenderer(
 		route.distURL = [outFile];
 	}
 
-	// Track headers for CSP
+	// Track headers for static headers feature
 	const integrationRoute = toIntegrationResolvedRoute(route, config.trailingSlash);
-	if (
-		options.settings.adapter?.adapterFeatures?.experimentalStaticHeaders &&
-		config.security?.csp
-	) {
+	if (options.settings.adapter?.adapterFeatures?.staticHeaders) {
 		routeToHeaders.set(pathname, { headers: responseHeaders, route: integrationRoute });
 	}
 
