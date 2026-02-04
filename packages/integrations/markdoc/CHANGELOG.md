@@ -1,5 +1,22 @@
 # @astrojs/markdoc
 
+## 1.0.0-beta.7
+
+### Patch Changes
+
+- [#15335](https://github.com/withastro/astro/pull/15335) [`75931c2`](https://github.com/withastro/astro/commit/75931c2f52542dd430ed2ebd51ed8cdfb338337c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes an issue where spreading a built-in Markdoc node config (e.g., `...Markdoc.nodes.fence`) and specifying a custom `render` component would not work because the built-in `transform()` function was overriding the custom component. Now, `render` wins over `transform` when both are specified.
+
+- Updated dependencies [[`240c317`](https://github.com/withastro/astro/commit/240c317faab52d7f22494e9181f5d2c2c404b0bd)]:
+  - @astrojs/internal-helpers@0.8.0-beta.0
+  - @astrojs/markdown-remark@7.0.0-beta.4
+
+## 1.0.0-beta.6
+
+### Patch Changes
+
+- Updated dependencies [[`7c55f80`](https://github.com/withastro/astro/commit/7c55f80fa1fd91f8f71ad60437f81e6c7f98f69d)]:
+  - @astrojs/markdown-remark@7.0.0-beta.3
+
 ## 1.0.0-beta.5
 
 ### Patch Changes

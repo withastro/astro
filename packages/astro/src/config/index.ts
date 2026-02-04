@@ -1,7 +1,7 @@
 import type { UserConfig as ViteUserConfig, UserConfigFn as ViteUserConfigFn } from 'vite';
+import type { FontProvider } from '../assets/fonts/types.js';
 import { createRoutesList } from '../core/routing/manifest/create.js';
 import type { SessionDriverConfig, SessionDriverName } from '../core/session/types.js';
-import type { FontProvider } from '../assets/fonts/types.js';
 import type { AstroInlineConfig, AstroUserConfig, Locales } from '../types/public/config.js';
 
 /**

@@ -290,6 +290,7 @@ export const AstroConfigSchema = z.object({
 	devToolbar: z
 		.object({
 			enabled: z.boolean().default(ASTRO_CONFIG_DEFAULTS.devToolbar.enabled),
+			placement: z.enum(['bottom-left', 'bottom-center', 'bottom-right']).optional(),
 		})
 		.default(ASTRO_CONFIG_DEFAULTS.devToolbar),
 	markdown: z
@@ -473,6 +474,7 @@ export const AstroConfigSchema = z.object({
 		.enum(['error', 'warn', 'ignore'])
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.prerenderConflictBehavior),
+	fonts: z.array(FontFamilySchema).optional(),
 	experimental: z
 		.strictObject({
 			clientPrerender: z
@@ -483,7 +485,6 @@ export const AstroConfigSchema = z.object({
 				.boolean()
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.contentIntellisense),
-			fonts: z.array(FontFamilySchema).optional(),
 			chromeDevtoolsWorkspace: z
 				.boolean()
 				.optional()

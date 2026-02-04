@@ -263,7 +263,7 @@ export interface APIContext<
 	 * ```astro
 	 * import { actions } from 'astro:actions';
 	 *
-	 * const result = await Astro.getActionResult(actions.myAction);
+	 * const result = Astro.getActionResult(actions.myAction);
 	 * ```
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#getactionresult)

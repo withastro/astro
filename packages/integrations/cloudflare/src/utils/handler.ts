@@ -1,21 +1,11 @@
 import { env as globalEnv } from 'cloudflare:workers';
 import { sessionKVBindingName } from 'virtual:astro-cloudflare:config';
-import type {
-	Response as CfResponse,
-	ExecutionContext,
-	ExportedHandlerFetchHandler,
-} from '@cloudflare/workers-types';
 import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from '../utils/env.js';
 import type { RouteData } from 'astro';
 
-export type Env = {
-	[key: string]: unknown;
-	ASSETS: { fetch: (req: Request | string) => Promise<CfResponse> };
-};
-
-setGetEnv(createGetEnv(globalEnv as Env));
+setGetEnv(createGetEnv(globalEnv));
 
 export interface Runtime {
 	cfContext: ExecutionContext;
@@ -26,8 +16,10 @@ declare global {
 	var __ASTRO_IMAGES_BINDING_NAME: string;
 }
 
+type CfResponse = Awaited<ReturnType<Required<ExportedHandler<Env>>['fetch']>>;
+
 export async function handle(
-	request: Parameters<ExportedHandlerFetchHandler>[0],
+	request: Request,
 	env: Env,
 	context: ExecutionContext,
 ): Promise<CfResponse> {
@@ -48,14 +40,12 @@ export async function handle(
 
 	let routeData: RouteData | undefined = undefined;
 	if (app.isDev()) {
-		const result = await app.devMatch(
-			app.getPathnameFromRequest(request as Request & Parameters<ExportedHandlerFetchHandler>[0]),
-		);
+		const result = await app.devMatch(app.getPathnameFromRequest(request));
 		if (result) {
 			routeData = result.routeData;
 		}
 	} else {
-		routeData = app.match(request as Request & Parameters<ExportedHandlerFetchHandler>[0]);
+		routeData = app.match(request);
 	}
 
 	if (!routeData) {
@@ -97,17 +87,14 @@ export async function handle(
 		},
 	});
 
-	const response = await app.render(
-		request as Request & Parameters<ExportedHandlerFetchHandler>[0],
-		{
-			routeData,
-			locals,
-			prerenderedErrorPageFetch: async (url) => {
-				return env.ASSETS.fetch(url.replace(/\.html$/, '')) as unknown as Response;
-			},
-			clientAddress: request.headers.get('cf-connecting-ip') ?? undefined,
+	const response = await app.render(request, {
+		routeData,
+		locals,
+		prerenderedErrorPageFetch: async (url) => {
+			return env.ASSETS.fetch(url.replace(/\.html$/, ''));
 		},
-	);
+		clientAddress: request.headers.get('cf-connecting-ip') ?? undefined,
+	});
 
 	if (app.setCookieHeaders) {
 		for (const setCookieHeader of app.setCookieHeaders(response)) {
@@ -115,5 +102,5 @@ export async function handle(
 		}
 	}
 
-	return response as unknown as CfResponse;
+	return response;
 }

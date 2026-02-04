@@ -3,6 +3,9 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -10,7 +13,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/node": "^10.0.0-beta.0",
-    "astro": "^6.0.0-beta.3"
+    "@astrojs/node": "^10.0.0-beta.1",
+    "astro": "^6.0.0-beta.7"
   }
 }
