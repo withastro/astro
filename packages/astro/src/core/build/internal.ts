@@ -1,8 +1,6 @@
-import type { Rollup } from 'vite';
-import type { RouteData, SSRResult } from '../../types/public/internal.js';
+import type { SSRResult } from '../../types/public/internal.js';
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
-import { makePageDataKey } from './plugins/util.js';
 import type { PageBuildData, StylesheetAsset, ViteID } from './types.js';
 
 export interface BuildInternals {
@@ -47,6 +45,11 @@ export interface BuildInternals {
 	pagesByScriptId: Map<string, Set<PageBuildData>>;
 
 	/**
+	 * A map for page-specific information by a hydrated component
+	 */
+	pagesByHydratedComponent: Map<string, Set<PageBuildData>>;
+
+	/**
 	 * A map of hydrated components to export names that are discovered during the SSR build.
 	 * These will be used as the top-level entrypoints for the client build.
 	 *
@@ -84,20 +87,14 @@ export interface BuildInternals {
 	// A list of all static chunks and assets that are built in the client
 	clientChunksAndAssets: Set<string>;
 
-	// The SSR entry chunk. Kept in internals to share between ssr/client build steps
-	ssrEntryChunk?: Rollup.OutputChunk;
-	// The SSR manifest entry chunk.
-	manifestEntryChunk?: Rollup.OutputChunk;
+	// All of the input modules for the client.
+	clientInput: Set<string>;
+
 	manifestFileName?: string;
-	entryPoints: Map<RouteData, URL>;
+	prerenderEntryFileName?: string;
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint: URL | undefined;
 	astroActionsEntryPoint: URL | undefined;
-
-	/**
-	 * Chunks in the bundle that are only used in prerendering that we can delete later
-	 */
-	prerenderOnlyChunks: Rollup.OutputChunk[];
 }
 
 /**
@@ -106,6 +103,7 @@ export interface BuildInternals {
  */
 export function createBuildInternals(): BuildInternals {
 	return {
+		clientInput: new Set(),
 		cssModuleToChunkIdMap: new Map(),
 		inlinedScripts: new Map(),
 		entrySpecifierToBundleMap: new Map<string, string>(),
@@ -113,16 +111,13 @@ export function createBuildInternals(): BuildInternals {
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
 		pagesByScriptId: new Map(),
-
+		pagesByHydratedComponent: new Map(),
 		propagatedStylesMap: new Map(),
-
 		discoveredHydratedComponents: new Map(),
 		discoveredClientOnlyComponents: new Map(),
 		discoveredScripts: new Set(),
 		staticFiles: new Set(),
 		componentMetadata: new Map(),
-		entryPoints: new Map(),
-		prerenderOnlyChunks: [],
 		astroActionsEntryPoint: undefined,
 		middlewareEntryPoint: undefined,
 		clientChunksAndAssets: new Set(),
@@ -182,6 +177,26 @@ export function trackScriptPageDatas(
 	}
 }
 
+/**
+ * Tracks hydrated components to the pages they are associated with.
+ */
+export function trackHydratedComponentPageDatas(
+	internals: BuildInternals,
+	pageData: PageBuildData,
+	hydratedComponents: string[],
+) {
+	for (const hydratedComponent of hydratedComponents) {
+		let pageDataSet: Set<PageBuildData>;
+		if (internals.pagesByHydratedComponent.has(hydratedComponent)) {
+			pageDataSet = internals.pagesByHydratedComponent.get(hydratedComponent)!;
+		} else {
+			pageDataSet = new Set<PageBuildData>();
+			internals.pagesByHydratedComponent.set(hydratedComponent, pageDataSet);
+		}
+		pageDataSet.add(pageData);
+	}
+}
+
 export function* getPageDatasByClientOnlyID(
 	internals: BuildInternals,
 	viteid: ViteID,
@@ -213,24 +228,6 @@ export function* getPageDatasByClientOnlyID(
 	}
 }
 
-/**
- * From its route and component, get the page data from the build internals.
- * @param internals Build Internals with all the pages
- * @param route The route of the page, used to identify the page
- * @param component The component of the page, used to identify the page
- */
-export function getPageData(
-	internals: BuildInternals,
-	route: string,
-	component: string,
-): PageBuildData | undefined {
-	let pageData = internals.pagesByKeys.get(makePageDataKey(route, component));
-	if (pageData) {
-		return pageData;
-	}
-	return undefined;
-}
-
 export function getPageDataByViteID(
 	internals: BuildInternals,
 	viteid: ViteID,
@@ -248,56 +245,4 @@ export function hasPrerenderedPages(internals: BuildInternals) {
 		}
 	}
 	return false;
-}
-
-interface OrderInfo {
-	depth: number;
-	order: number;
-}
-
-/**
- * Sort a page's CSS by depth. A higher depth means that the CSS comes from shared subcomponents.
- * A lower depth means it comes directly from the top-level page.
- * Can be used to sort stylesheets so that shared rules come first
- * and page-specific rules come after.
- */
-export function cssOrder(a: OrderInfo, b: OrderInfo) {
-	let depthA = a.depth,
-		depthB = b.depth,
-		orderA = a.order,
-		orderB = b.order;
-
-	if (orderA === -1 && orderB >= 0) {
-		return 1;
-	} else if (orderB === -1 && orderA >= 0) {
-		return -1;
-	} else if (orderA > orderB) {
-		return 1;
-	} else if (orderA < orderB) {
-		return -1;
-	} else {
-		if (depthA === -1) {
-			return -1;
-		} else if (depthB === -1) {
-			return 1;
-		} else {
-			return depthA > depthB ? -1 : 1;
-		}
-	}
-}
-
-export function mergeInlineCss(
-	acc: Array<StylesheetAsset>,
-	current: StylesheetAsset,
-): Array<StylesheetAsset> {
-	const lastAdded = acc.at(acc.length - 1);
-	const lastWasInline = lastAdded?.type === 'inline';
-	const currentIsInline = current?.type === 'inline';
-	if (lastWasInline && currentIsInline) {
-		const merged = { type: 'inline' as const, content: lastAdded.content + current.content };
-		acc[acc.length - 1] = merged;
-		return acc;
-	}
-	acc.push(current);
-	return acc;
 }

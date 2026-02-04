@@ -3,8 +3,8 @@ import { before, describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Static build: pages routes have distURL', () => {
-	/** @type {RouteData[]} */
-	let checkRoutes;
+	/** @type {Map<string, URL[]>} */
+	let assets;
 	before(async () => {
 		/** @type {import('./test-utils').Fixture} */
 		const fixture = await loadFixture({
@@ -13,8 +13,8 @@ describe('Static build: pages routes have distURL', () => {
 				{
 					name: '@astrojs/distURL',
 					hooks: {
-						'astro:build:done': ({ routes }) => {
-							checkRoutes = routes.filter((p) => p.type === 'page');
+						'astro:build:done': (params) => {
+							assets = params.assets;
 						},
 					},
 				},
@@ -23,11 +23,11 @@ describe('Static build: pages routes have distURL', () => {
 		await fixture.build();
 	});
 	it('Pages routes have distURL', async () => {
-		assert.equal(checkRoutes.length > 0, true, 'Pages not found: build end hook not being called');
-		checkRoutes.forEach((p) => {
-			p.distURL.forEach((distURL) => {
-				assert.equal(distURL instanceof URL, true, `${p.pathname} doesn't include distURL`);
-			});
-		});
+		assert.equal(assets.size > 0, true, 'Pages not found: build end hook not being called');
+		for (const [p, distURL] of assets.entries()) {
+			for (const url of distURL) {
+				assert.equal(url instanceof URL, true, `${p.pathname} doesn't include distURL`);
+			}
+		}
 	});
 });

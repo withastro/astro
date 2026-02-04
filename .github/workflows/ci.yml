@@ -48,13 +48,13 @@ jobs:
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup PNPM
         uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
@@ -78,15 +78,15 @@ jobs:
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup PNPM
         uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
 
       - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
-          node-version: 22
+          node-version: 22.22.0
           cache: "pnpm"
 
       - name: Install dependencies
@@ -110,7 +110,7 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest, macos-14, windows-2025]
-        NODE_VERSION: [18, 20, 22]
+        NODE_VERSION: [22, 24]
         TEST_SUITE:
           - { name: astro, script: 'pnpm run test:astro' }
           - { name: integrations, script: 'pnpm run test:integrations' }
@@ -119,13 +119,9 @@ jobs:
         # Windows and use one of the older Node versions.
         exclude:
           - os: macos-14
-            NODE_VERSION: 18
-          - os: macos-14
-            NODE_VERSION: 20
+            NODE_VERSION: 22
           - os: windows-2025
-            NODE_VERSION: 18
-          - os: windows-2025
-            NODE_VERSION: 20
+            NODE_VERSION: 22
       fail-fast: false
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
@@ -134,13 +130,13 @@ jobs:
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup PNPM
         uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
@@ -153,6 +149,18 @@ jobs:
 
       - name: Test ${{ matrix.TEST_SUITE.name }}
         run: ${{ matrix.TEST_SUITE.script }}
+        env:
+          # By default, Turborepo groups the logs in CI environments to prevent
+          # the logs from being interleaved. We don't have log interleaving
+          # issues here because we already passed the `--concurrency=auto` flag
+          # to `turbo`.
+          #
+          # We want to force Turborepo to print the logs ASAP since it will help us
+          # debug tests that time out, where we can know which step is stuck.
+          #
+          # https://github.com/vercel/turborepo/blob/v2.7.6/docs/site/content/docs/reference/run.mdx?plain=1#L361-L378
+          # https://github.com/vercel/turborepo/blob/v2.7.6/docs/site/content/docs/reference/options-overview.mdx?plain=1#L63
+          TURBO_LOG_ORDER: stream
 
   test-language-tools:
     runs-on: ${{ matrix.os }}
@@ -173,13 +181,13 @@ jobs:
     name: 'Test (language-tools): node-${{ matrix.node_version }}, ${{ matrix.os }}'
     steps:
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup PNPM
         uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
 
       - name: Setup node@${{ matrix.node_version }}
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: ${{ matrix.node_version }}
           cache: "pnpm"
@@ -222,13 +230,13 @@ jobs:
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup PNPM
         uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
@@ -258,27 +266,27 @@ jobs:
         run: git config --global core.autocrlf false
 
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup PNPM
         uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
 
       - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: ${{ matrix.NODE_VERSION }}
           cache: "pnpm"
 
       - name: Checkout docs
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: withastro/docs
           path: smoke/docs
-          # For a commit event on the `next` branch (`ref_name`), use the `5.0.0-beta` branch.
-          # For a pull_request event merging into the `next` branch (`base_ref`), use the `5.0.0-beta` branch.
+          # For a commit event on the `next` branch (`ref_name`), use the `v6` branch.
+          # For a pull_request event merging into the `next` branch (`base_ref`), use the `v6` branch.
           # NOTE: For a pull_request event, the `ref_name` is something like `<pr-number>/merge` than the branch name.
           # NOTE: Perhaps docs repo should use a consistent `next` branch in the future.
-          ref: ${{ (github.ref_name == 'next' || github.base_ref == 'next') && '5.0.0-beta' || 'main' }}
+          ref: ${{ (github.ref_name == 'next' || github.base_ref == 'next') && 'v6' || 'main' }}
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile

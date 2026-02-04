@@ -58,7 +58,7 @@ describe('Scripts', () => {
 			assert.equal(entryURL.includes('_astro/'), true);
 		});
 
-		it('Scripts added via Astro.glob are hoisted', async () => {
+		it('Scripts added via import.meta.glob are hoisted', async () => {
 			let glob = await fixture.readFile('/glob/index.html');
 			let $ = cheerio.load(glob);
 
@@ -71,6 +71,13 @@ describe('Scripts', () => {
 
 			// Imported styles + tailwind
 			assert.equal($('link[rel=stylesheet]').length, 2);
+		});
+
+		it('Scripts in Fragment slots are processed when another slot is unused', async () => {
+			let html = await fixture.readFile('/fragment-slot-script/index.html');
+			let $ = cheerio.load(html);
+
+			assert.equal($('script').length, 1, 'script should be rendered');
 		});
 
 		describe('Inlining', () => {
@@ -131,7 +138,7 @@ describe('Scripts', () => {
 			await devServer.stop();
 		});
 
-		it('Scripts added via Astro.glob are hoisted', async () => {
+		it('Scripts added via import.meta.glob are hoisted', async () => {
 			let res = await fixture.fetch('/glob');
 			let html = await res.text();
 			let $ = cheerio.load(html);

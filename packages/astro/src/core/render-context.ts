@@ -1,7 +1,7 @@
 import colors from 'piccolore';
+import { deserializeActionResult } from '../actions/runtime/client.js';
 import { getActionContext } from '../actions/runtime/server.js';
-import { deserializeActionResult } from '../actions/runtime/shared.js';
-import type { ActionAPIContext } from '../actions/runtime/utils.js';
+import type { ActionAPIContext } from '../actions/runtime/types.js';
 import { createCallAction, createGetActionResult, hasActionPayload } from '../actions/utils.js';
 import {
 	computeCurrentLocale,
@@ -12,17 +12,12 @@ import { renderEndpoint } from '../runtime/server/endpoint.js';
 import { renderPage } from '../runtime/server/index.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, Props, RewritePayload } from '../types/public/common.js';
-import type {
-	APIContext,
-	AstroGlobal,
-	AstroGlobalPartial,
-	AstroSharedContextCsp,
-} from '../types/public/context.js';
+import type { APIContext, AstroGlobal } from '../types/public/context.js';
 import type { RouteData, SSRResult } from '../types/public/internal.js';
-import type { SSRActions } from './app/types.js';
+import type { ServerIslandMappings, SSRActions } from './app/types.js';
 import {
-	ASTRO_VERSION,
-	clientAddressSymbol,
+	ASTRO_GENERATOR,
+	pipelineSymbol,
 	REROUTE_DIRECTIVE_HEADER,
 	REWRITE_DIRECTIVE_HEADER_KEY,
 	REWRITE_DIRECTIVE_HEADER_VALUE,
@@ -33,7 +28,7 @@ import { AstroCookies, attachCookiesToResponse } from './cookies/index.js';
 import { getCookiesFromResponse } from './cookies/response.js';
 import { pushDirective } from './csp/runtime.js';
 import { generateCspDigest } from './encryption.js';
-import { CspNotEnabled, ForbiddenRewrite } from './errors/errors-data.js';
+import { ForbiddenRewrite } from './errors/errors-data.js';
 import { AstroError, AstroErrorData } from './errors/index.js';
 import { callMiddleware } from './middleware/callMiddleware.js';
 import { sequence } from './middleware/index.js';
@@ -41,20 +36,38 @@ import { renderRedirect } from './redirects/render.js';
 import { getParams, getProps, type Pipeline, Slots } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
-import { AstroSession } from './session.js';
+import { AstroSession } from './session/runtime.js';
 import { validateAndDecodePathname } from './util/pathname.js';
 
-export const apiContextRoutesSymbol = Symbol.for('context.routes');
 /**
  * Each request is rendered using a `RenderContext`.
  * It contains data unique to each request. It is responsible for executing middleware, calling endpoints, and rendering the page by gathering necessary data from a `Pipeline`.
  */
+
+export type CreateRenderContext = Pick<
+	RenderContext,
+	'pathname' | 'pipeline' | 'request' | 'routeData' | 'clientAddress'
+> &
+	Partial<
+		Pick<
+			RenderContext,
+			| 'locals'
+			| 'status'
+			| 'props'
+			| 'partial'
+			| 'actions'
+			| 'shouldInjectCspMetaTags'
+			| 'skipMiddleware'
+		>
+	>;
+
 export class RenderContext {
 	private constructor(
 		readonly pipeline: Pipeline,
 		public locals: App.Locals,
 		readonly middleware: MiddlewareHandler,
 		readonly actions: SSRActions,
+		readonly serverIslands: ServerIslandMappings,
 		// It must be a DECODED pathname
 		public pathname: string,
 		public request: Request,
@@ -67,9 +80,8 @@ export class RenderContext {
 		public props: Props = {},
 		public partial: undefined | boolean = undefined,
 		public shouldInjectCspMetaTags = !!pipeline.manifest.csp,
-		public session: AstroSession | undefined = pipeline.manifest.sessionConfig
-			? new AstroSession(cookies, pipeline.manifest.sessionConfig, pipeline.runtimeMode)
-			: undefined,
+		public session: AstroSession | undefined = undefined,
+		public skipMiddleware = false,
 	) {}
 
 	static #createNormalizedUrl(requestUrl: string): URL {
@@ -103,7 +115,6 @@ export class RenderContext {
 
 	static async create({
 		locals = {},
-		middleware,
 		pathname,
 		pipeline,
 		request,
@@ -112,45 +123,50 @@ export class RenderContext {
 		status = 200,
 		props,
 		partial = undefined,
-		actions,
 		shouldInjectCspMetaTags,
-	}: Pick<RenderContext, 'pathname' | 'pipeline' | 'request' | 'routeData' | 'clientAddress'> &
-		Partial<
-			Pick<
-				RenderContext,
-				| 'locals'
-				| 'middleware'
-				| 'status'
-				| 'props'
-				| 'partial'
-				| 'actions'
-				| 'shouldInjectCspMetaTags'
-			>
-		>): Promise<RenderContext> {
+		skipMiddleware = false,
+	}: CreateRenderContext): Promise<RenderContext> {
 		const pipelineMiddleware = await pipeline.getMiddleware();
-		const pipelineActions = actions ?? (await pipeline.getActions());
+		const pipelineActions = await pipeline.getActions();
+		const pipelineSessionDriver = await pipeline.getSessionDriver();
+		const serverIslands = await pipeline.getServerIslands();
 		setOriginPathname(
 			request,
 			pathname,
 			pipeline.manifest.trailingSlash,
 			pipeline.manifest.buildFormat,
 		);
+		const cookies = new AstroCookies(request);
+		const session =
+			pipeline.manifest.sessionConfig && pipelineSessionDriver
+				? new AstroSession({
+						cookies,
+						config: pipeline.manifest.sessionConfig,
+						runtimeMode: pipeline.runtimeMode,
+						driverFactory: pipelineSessionDriver,
+						mockStorage: null,
+					})
+				: undefined;
+
 		return new RenderContext(
 			pipeline,
 			locals,
-			sequence(...pipeline.internalMiddleware, middleware ?? pipelineMiddleware),
+			sequence(...pipeline.internalMiddleware, pipelineMiddleware),
 			pipelineActions,
+			serverIslands,
 			pathname,
 			request,
 			routeData,
 			status,
 			clientAddress,
-			undefined,
+			cookies,
 			undefined,
 			undefined,
 			props,
 			partial,
 			shouldInjectCspMetaTags ?? !!pipeline.manifest.csp,
+			session,
+			skipMiddleware,
 		);
 	}
 	/**
@@ -169,8 +185,7 @@ export class RenderContext {
 		slots: Record<string, any> = {},
 	): Promise<Response> {
 		const { middleware, pipeline } = this;
-		const { logger, serverLike, streaming, manifest } = pipeline;
-
+		const { logger, streaming, manifest } = pipeline;
 		const props =
 			Object.keys(this.props).length > 0
 				? this.props
@@ -180,8 +195,9 @@ export class RenderContext {
 						routeCache: this.pipeline.routeCache,
 						pathname: this.pathname,
 						logger,
-						serverLike,
+						serverLike: manifest.serverLike,
 						base: manifest.base,
+						trailingSlash: manifest.trailingSlash,
 					});
 		const actionApiContext = this.createActionAPIContext();
 		const apiContext = this.createAPIContext(props, actionApiContext);
@@ -211,7 +227,7 @@ export class RenderContext {
 				// This case isn't valid because when building for SSR, the prerendered route disappears from the server output because it becomes an HTML file,
 				// so Astro can't retrieve it from the emitted manifest.
 				if (
-					this.pipeline.serverLike === true &&
+					this.pipeline.manifest.serverLike === true &&
 					this.routeData.prerender === false &&
 					routeData.prerender === true
 				) {
@@ -319,7 +335,9 @@ export class RenderContext {
 			return renderRedirect(this);
 		}
 
-		const response = await callMiddleware(middleware, apiContext, lastNext);
+		const response = this.skipMiddleware
+			? await lastNext(apiContext)
+			: await callMiddleware(middleware, apiContext, lastNext);
 		if (response.headers.get(ROUTE_TYPE_HEADER)) {
 			response.headers.delete(ROUTE_TYPE_HEADER);
 		}
@@ -334,11 +352,16 @@ export class RenderContext {
 		const redirect = (path: string, status = 302) =>
 			new Response(null, { status, headers: { Location: path } });
 
-		Reflect.set(context, apiContextRoutesSymbol, this.pipeline);
+		const rewrite = async (reroutePayload: RewritePayload) => {
+			return await this.#executeRewrite(reroutePayload);
+		};
+
+		Reflect.set(context, pipelineSymbol, this.pipeline);
 
 		return Object.assign(context, {
 			props,
 			redirect,
+			rewrite,
 			getActionResult: createGetActionResult(context.locals),
 			callAction: createCallAction(context),
 		});
@@ -357,7 +380,7 @@ export class RenderContext {
 		// Allow i18n fallback rewrites - if the target route has fallback routes, this is likely an i18n scenario
 		const isI18nFallback = routeData.fallbackRoutes && routeData.fallbackRoutes.length > 0;
 		if (
-			this.pipeline.serverLike &&
+			this.pipeline.manifest.serverLike &&
 			!this.routeData.prerender &&
 			routeData.prerender &&
 			!isI18nFallback
@@ -405,11 +428,6 @@ export class RenderContext {
 	createActionAPIContext(): ActionAPIContext {
 		const renderContext = this;
 		const { params, pipeline, url } = this;
-		const generator = `Astro v${ASTRO_VERSION}`;
-
-		const rewrite = async (reroutePayload: RewritePayload) => {
-			return await this.#executeRewrite(reroutePayload);
-		};
 
 		return {
 			// Don't allow reassignment of cookies because it doesn't work
@@ -424,7 +442,7 @@ export class RenderContext {
 			get currentLocale() {
 				return renderContext.computeCurrentLocale();
 			},
-			generator,
+			generator: ASTRO_GENERATOR,
 			get locals() {
 				return renderContext.locals;
 			},
@@ -438,7 +456,6 @@ export class RenderContext {
 			get preferredLocaleList() {
 				return renderContext.computePreferredLocaleList();
 			},
-			rewrite,
 			request: this.request,
 			site: pipeline.site,
 			url,
@@ -462,12 +479,16 @@ export class RenderContext {
 				}
 				return renderContext.session;
 			},
-			get csp(): AstroSharedContextCsp {
+			get csp(): APIContext['csp'] {
+				if (!pipeline.manifest.csp) {
+					pipeline.logger.warn(
+						'csp',
+						`context.csp was used when rendering the route ${colors.green(this.routePattern)}, but CSP was not configured. For more information, see https://docs.astro.build/en/reference/experimental-flags/csp/`,
+					);
+					return undefined;
+				}
 				return {
 					insertDirective(payload) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
 						if (renderContext?.result?.directives) {
 							renderContext.result.directives = pushDirective(
 								renderContext.result.directives,
@@ -477,30 +498,16 @@ export class RenderContext {
 							renderContext?.result?.directives.push(payload);
 						}
 					},
-
 					insertScriptResource(resource) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
 						renderContext.result?.scriptResources.push(resource);
 					},
 					insertStyleResource(resource) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
-
 						renderContext.result?.styleResources.push(resource);
 					},
 					insertStyleHash(hash) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
 						renderContext.result?.styleHashes.push(hash);
 					},
 					insertScriptHash(hash) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
 						renderContext.result?.scriptHashes.push(hash);
 					},
 				};
@@ -560,8 +567,7 @@ export class RenderContext {
 			compressHTML,
 			cookies,
 			/** This function returns the `Astro` faux-global */
-			createAstro: (astroGlobal, props, slots) =>
-				this.createAstro(result, astroGlobal, props, slots, ctx),
+			createAstro: (props, slots) => this.createAstro(result, props, slots, ctx),
 			links,
 			params: this.params,
 			partial,
@@ -573,7 +579,7 @@ export class RenderContext {
 			scripts,
 			styles,
 			actionResult,
-			serverIslandNameMap: manifest.serverIslandNameMap ?? new Map(),
+			serverIslandNameMap: this.serverIslands.serverIslandNameMap ?? new Map(),
 			key: manifest.key,
 			trailingSlash: manifest.trailingSlash,
 			_metadata: {
@@ -617,7 +623,6 @@ export class RenderContext {
 	 */
 	createAstro(
 		result: SSRResult,
-		astroStaticPartial: AstroGlobalPartial,
 		props: Record<string, any>,
 		slotValues: Record<string, any> | null,
 		apiContext: ActionAPIContext,
@@ -625,18 +630,10 @@ export class RenderContext {
 		let astroPagePartial;
 		// During rewriting, we must recompute the Astro global, because we need to purge the previous params/props/etc.
 		if (this.isRewriting) {
-			astroPagePartial = this.#astroPagePartial = this.createAstroPagePartial(
-				result,
-				astroStaticPartial,
-				apiContext,
-			);
+			astroPagePartial = this.#astroPagePartial = this.createAstroPagePartial(result, apiContext);
 		} else {
 			// Create page partial with static partial so they can be cached together.
-			astroPagePartial = this.#astroPagePartial ??= this.createAstroPagePartial(
-				result,
-				astroStaticPartial,
-				apiContext,
-			);
+			astroPagePartial = this.#astroPagePartial ??= this.createAstroPagePartial(result, apiContext);
 		}
 		// Create component-level partials. `Astro.self` is added by the compiler.
 		const astroComponentPartial = { props, self: null };
@@ -667,7 +664,6 @@ export class RenderContext {
 
 	createAstroPagePartial(
 		result: SSRResult,
-		astroStaticPartial: AstroGlobalPartial,
 		apiContext: ActionAPIContext,
 	): Omit<AstroGlobal, 'props' | 'self' | 'slots'> {
 		const renderContext = this;
@@ -690,8 +686,7 @@ export class RenderContext {
 		const callAction = createCallAction(apiContext);
 
 		return {
-			generator: astroStaticPartial.generator,
-			glob: astroStaticPartial.glob,
+			generator: ASTRO_GENERATOR,
 			routePattern: this.routeData.route,
 			isPrerendered: this.routeData.prerender,
 			cookies,
@@ -739,13 +734,16 @@ export class RenderContext {
 			get originPathname() {
 				return getOriginPathname(renderContext.request);
 			},
-			get csp(): AstroSharedContextCsp {
+			get csp(): APIContext['csp'] {
+				if (!pipeline.manifest.csp) {
+					pipeline.logger.warn(
+						'csp',
+						`Astro.csp was used when rendering the route ${colors.green(this.routePattern)}, but CSP was not configured. For more information, see https://docs.astro.build/en/reference/experimental-flags/csp/`,
+					);
+					return undefined;
+				}
 				return {
 					insertDirective(payload) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
-
 						if (renderContext?.result?.directives) {
 							renderContext.result.directives = pushDirective(
 								renderContext.result.directives,
@@ -755,30 +753,16 @@ export class RenderContext {
 							renderContext?.result?.directives.push(payload);
 						}
 					},
-
 					insertScriptResource(resource) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
 						renderContext.result?.scriptResources.push(resource);
 					},
 					insertStyleResource(resource) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
-
 						renderContext.result?.styleResources.push(resource);
 					},
 					insertStyleHash(hash) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
 						renderContext.result?.styleHashes.push(hash);
 					},
 					insertScriptHash(hash) {
-						if (!pipeline.manifest.csp) {
-							throw new AstroError(CspNotEnabled);
-						}
 						renderContext.result?.scriptHashes.push(hash);
 					},
 				};
@@ -787,7 +771,7 @@ export class RenderContext {
 	}
 
 	getClientAddress() {
-		const { pipeline, request, routeData, clientAddress } = this;
+		const { pipeline, routeData, clientAddress } = this;
 
 		if (routeData.prerender) {
 			throw new AstroError({
@@ -798,13 +782,6 @@ export class RenderContext {
 
 		if (clientAddress) {
 			return clientAddress;
-		}
-
-		// TODO: Legacy, should not need to get here.
-		// Some adapters set this symbol so we can't remove support yet.
-		// Adapters should be updated to provide it via RenderOptions instead.
-		if (clientAddressSymbol in request) {
-			return Reflect.get(request, clientAddressSymbol) as string;
 		}
 
 		if (pipeline.adapterName) {

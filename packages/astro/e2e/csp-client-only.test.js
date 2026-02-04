@@ -3,7 +3,7 @@ import { testFactory } from './test-utils.js';
 
 const test = testFactory(import.meta.url, {
 	root: './fixtures/client-only/',
-	experimental: {
+	security: {
 		csp: true,
 	},
 });

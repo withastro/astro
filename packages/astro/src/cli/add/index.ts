@@ -1,4 +1,5 @@
 import fsMod, { existsSync, promises as fs } from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import boxen from 'boxen';
@@ -81,24 +82,20 @@ export default async function seed() {
 	// TODO
 }
 `,
-	CLOUDFLARE_WRANGLER_CONFIG: (name: string) => `\
+	CLOUDFLARE_WRANGLER_CONFIG: (name: string, compatibilityDate: string) => `\
 {
-	"main": "dist/_worker.js/index.js",
+	"compatibility_date": ${JSON.stringify(compatibilityDate)},
+	"compatibility_flags": ["global_fetch_strictly_public"],
 	"name": ${JSON.stringify(name)},
-  "compatibility_date": ${JSON.stringify(new Date().toISOString().slice(0, 10))},
-  "compatibility_flags": [
-    "nodejs_compat",
-    "global_fetch_strictly_public"
-  ],
+	"main": "@astrojs/cloudflare/entrypoints/server",
 	"assets": {
-		"binding": "ASSETS",
-		"directory": "./dist"
+		"directory": "./dist",
+		"binding": "ASSETS"
 	},
 	"observability": {
-    "enabled": true
-  }
+		"enabled": true
+	}
 }`,
-	CLOUDFLARE_ASSETSIGNORE: `_worker.js\n_routes.json`,
 };
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
@@ -158,6 +155,9 @@ export async function add(names: string[], { flags }: AddOptions) {
 	const logger = createLoggerFromFlags(flags);
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
 	const integrations = await validateIntegrations(integrationNames, flags, logger);
+	const hasCloudflareIntegration = integrations.some(
+		(integration) => integration.id === 'cloudflare',
+	);
 	let installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logger });
 	const rootPath = resolveRoot(cwd);
 	const root = pathToFileURL(rootPath);
@@ -208,7 +208,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 	switch (installResult) {
 		case UpdateResult.updated: {
-			if (integrations.find((integration) => integration.id === 'cloudflare')) {
+			if (hasCloudflareIntegration) {
 				const wranglerConfigURL = new URL('./wrangler.jsonc', configURL);
 				if (!existsSync(wranglerConfigURL)) {
 					logger.info(
@@ -218,10 +218,22 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 					if (await askToContinue({ flags, logger })) {
 						const data = await getPackageJson();
+						let compatibilityDate: string;
+						try {
+							const require = createRequire(root);
+							const { getLocalWorkerdCompatibilityDate } = await import(
+								require.resolve('@astrojs/cloudflare/info')
+							);
+							({ date: compatibilityDate } = getLocalWorkerdCompatibilityDate({
+								projectPath: rootPath,
+							}));
+						} catch {
+							compatibilityDate = new Date().toISOString().slice(0, 10);
+						}
 
 						await fs.writeFile(
 							wranglerConfigURL,
-							STUBS.CLOUDFLARE_WRANGLER_CONFIG(data?.name ?? 'example'),
+							STUBS.CLOUDFLARE_WRANGLER_CONFIG(data?.name ?? 'example', compatibilityDate),
 							'utf-8',
 						);
 					}
@@ -229,23 +241,12 @@ export async function add(names: string[], { flags }: AddOptions) {
 					logger.debug('add', 'Using existing wrangler configuration');
 				}
 
-				const dir = new URL(userConfig.publicDir ?? './public/', root);
-				const assetsignore = new URL('./.assetsignore', dir);
-				if (!existsSync(assetsignore)) {
-					logger.info(
-						'SKIP_FORMAT',
-						`\n  ${magenta(`Astro will scaffold ${green('./public/.assetsignore')}.`)}\n`,
-					);
-
-					if (await askToContinue({ flags, logger })) {
-						if (!existsSync(dir)) {
-							await fs.mkdir(dir);
-						}
-						await fs.writeFile(assetsignore, STUBS.CLOUDFLARE_ASSETSIGNORE, 'utf-8');
-					}
-				} else {
-					logger.debug('add', `Using existing .assetsignore`);
-				}
+				await updatePackageJsonScripts({
+					configURL,
+					flags,
+					logger,
+					scripts: { 'generate-types': 'wrangler types' },
+				});
 			}
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
 				const dir = new URL('./styles/', new URL(userConfig.srcDir ?? './src/', root));
@@ -324,6 +325,43 @@ export async function add(names: string[], { flags }: AddOptions) {
 					defaultConfigFile: './.npmrc',
 					defaultConfigContent: STUBS.LIT_NPMRC,
 				});
+			}
+			// The Vercel adapter outputs to .vercel/output which should be gitignored
+			if (integrations.find((integration) => integration.id === 'vercel')) {
+				const gitignorePath = new URL('./.gitignore', root);
+				const gitignoreEntry = '.vercel';
+
+				if (existsSync(gitignorePath)) {
+					const content = await fs.readFile(fileURLToPath(gitignorePath), { encoding: 'utf-8' });
+					if (!content.includes(gitignoreEntry)) {
+						logger.info(
+							'SKIP_FORMAT',
+							`\n  ${magenta(`Astro will add ${green('.vercel')} to ${green('.gitignore')}.`)}\n`,
+						);
+
+						if (await askToContinue({ flags, logger })) {
+							const newContent = content.endsWith('\n')
+								? `${content}${gitignoreEntry}\n`
+								: `${content}\n${gitignoreEntry}\n`;
+							await fs.writeFile(fileURLToPath(gitignorePath), newContent, { encoding: 'utf-8' });
+							logger.debug('add', 'Updated .gitignore with .vercel');
+						}
+					} else {
+						logger.debug('add', '.vercel already in .gitignore');
+					}
+				} else {
+					logger.info(
+						'SKIP_FORMAT',
+						`\n  ${magenta(`Astro will create ${green('.gitignore')} with ${green('.vercel')}.`)}\n`,
+					);
+
+					if (await askToContinue({ flags, logger })) {
+						await fs.writeFile(fileURLToPath(gitignorePath), `${gitignoreEntry}\n`, {
+							encoding: 'utf-8',
+						});
+						logger.debug('add', 'Created .gitignore with .vercel');
+					}
+				}
 			}
 			break;
 		}
@@ -462,7 +500,9 @@ export async function add(names: string[], { flags }: AddOptions) {
 		}
 	}
 
-	const updateTSConfigResult = await updateTSConfig(cwd, logger, integrations, flags);
+	const updateTSConfigResult = await updateTSConfig(cwd, logger, integrations, flags, {
+		addIncludes: hasCloudflareIntegration ? ['./worker-configuration.d.ts'] : [],
+	});
 
 	switch (updateTSConfigResult) {
 		case UpdateResult.none: {
@@ -481,7 +521,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 			);
 		}
 		case UpdateResult.updated:
-			logger.info('SKIP_FORMAT', msg.success(`Successfully updated TypeScript settings`));
+			logger.info('SKIP_FORMAT', msg.success(`Successfully updated tsconfig`));
 	}
 }
 
@@ -669,6 +709,68 @@ async function updateAstroConfig({
 	if (await askToContinue({ flags, logger })) {
 		await fs.writeFile(fileURLToPath(configURL), output, { encoding: 'utf-8' });
 		logger.debug('add', `Updated astro config`);
+		return UpdateResult.updated;
+	} else {
+		return UpdateResult.cancelled;
+	}
+}
+
+async function updatePackageJsonScripts({
+	configURL,
+	flags,
+	logger,
+	scripts,
+}: {
+	configURL: URL;
+	flags: Flags;
+	logger: Logger;
+	scripts: Record<string, string>;
+}): Promise<UpdateResult> {
+	const pkgURL = new URL('./package.json', configURL);
+	if (!existsSync(pkgURL)) {
+		logger.debug('add', 'No package.json found, skipping scripts update');
+		return UpdateResult.none;
+	}
+
+	const pkgPath = fileURLToPath(pkgURL);
+	const input = await fs.readFile(pkgPath, { encoding: 'utf-8' });
+	const pkgJson = JSON.parse(input);
+
+	pkgJson.scripts ??= {};
+	let hasChanges = false;
+	for (const [name, command] of Object.entries(scripts)) {
+		if (!(name in pkgJson.scripts)) {
+			pkgJson.scripts[name] = command;
+			hasChanges = true;
+		}
+	}
+
+	if (!hasChanges) {
+		return UpdateResult.none;
+	}
+
+	const output = JSON.stringify(pkgJson, null, 2);
+	const diff = getDiffContent(input, output);
+
+	if (!diff) {
+		return UpdateResult.none;
+	}
+
+	const message = `\n${boxen(diff, {
+		margin: 0.5,
+		padding: 0.5,
+		borderStyle: 'round',
+		title: 'package.json',
+	})}\n`;
+
+	logger.info(
+		'SKIP_FORMAT',
+		`\n  ${magenta('Astro will add the following scripts to your package.json:')}\n${message}`,
+	);
+
+	if (await askToContinue({ flags, logger })) {
+		await fs.writeFile(pkgPath, output, { encoding: 'utf-8' });
+		logger.debug('add', 'Updated package.json scripts');
 		return UpdateResult.updated;
 	} else {
 		return UpdateResult.cancelled;
@@ -913,15 +1015,17 @@ async function updateTSConfig(
 	logger: Logger,
 	integrationsInfo: IntegrationInfo[],
 	flags: Flags,
+	options?: { addIncludes?: string[] },
 ): Promise<UpdateResult> {
 	const integrations = integrationsInfo.map(
 		(integration) => integration.id as frameworkWithTSSettings,
 	);
+	const includesToAppend = Array.from(new Set((options?.addIncludes ?? []).filter(Boolean)));
 	const firstIntegrationWithTSSettings = integrations.find((integration) =>
 		presets.has(integration),
 	);
 
-	if (!firstIntegrationWithTSSettings) {
+	if (!firstIntegrationWithTSSettings && includesToAppend.length === 0) {
 		return UpdateResult.none;
 	}
 
@@ -943,10 +1047,16 @@ async function updateTSConfig(
 
 	const configFileName = path.basename(inputConfig.tsconfigFile);
 
-	const outputConfig = updateTSConfigForFramework(
-		inputConfig.rawConfig,
-		firstIntegrationWithTSSettings,
-	);
+	let outputConfig = firstIntegrationWithTSSettings
+		? updateTSConfigForFramework(inputConfig.rawConfig, firstIntegrationWithTSSettings)
+		: { ...inputConfig.rawConfig };
+
+	for (const include of includesToAppend) {
+		const currentIncludes = Array.isArray(outputConfig.include) ? outputConfig.include : [];
+		if (!currentIncludes.includes(include)) {
+			outputConfig = { ...outputConfig, include: [...currentIncludes, include] };
+		}
+	}
 
 	const output = JSON.stringify(outputConfig, null, 2);
 	const diff = getDiffContent(inputConfigText, output);
@@ -967,25 +1077,30 @@ async function updateTSConfig(
 		`\n  ${magenta(`Astro will make the following changes to your ${configFileName}:`)}\n${message}`,
 	);
 
-	// Every major framework, apart from Vue and Svelte requires different `jsxImportSource`, as such it's impossible to config
-	// all of them in the same `tsconfig.json`. However, Vue only need `"jsx": "preserve"` for template intellisense which
-	// can be compatible with some frameworks (ex: Solid)
-	const conflictingIntegrations = [...Object.keys(presets).filter((config) => config !== 'vue')];
-	const hasConflictingIntegrations =
-		integrations.filter((integration) => presets.has(integration)).length > 1 &&
-		integrations.filter((integration) => conflictingIntegrations.includes(integration)).length > 0;
-
-	if (hasConflictingIntegrations) {
-		logger.info(
-			'SKIP_FORMAT',
-			red(
-				`  ${bold(
-					'Caution:',
-				)} Selected UI frameworks require conflicting tsconfig.json settings, as such only settings for ${bold(
-					firstIntegrationWithTSSettings,
-				)} were used.\n  More information: https://docs.astro.build/en/guides/typescript/#errors-typing-multiple-jsx-frameworks-at-the-same-time\n`,
-			),
+	if (firstIntegrationWithTSSettings) {
+		// Every major framework, apart from Vue and Svelte requires different `jsxImportSource`, as such it's impossible to config
+		// all of them in the same `tsconfig.json`. However, Vue only need `"jsx": "preserve"` for template intellisense which
+		// can be compatible with some frameworks (ex: Solid)
+		const conflictingIntegrations: string[] = Array.from(presets.keys()).filter(
+			(config) => config !== 'vue',
 		);
+		const hasConflictingIntegrations =
+			integrations.filter((integration) => presets.has(integration)).length > 1 &&
+			integrations.filter((integration) => conflictingIntegrations.includes(integration)).length >
+				0;
+
+		if (hasConflictingIntegrations) {
+			logger.info(
+				'SKIP_FORMAT',
+				red(
+					`  ${bold(
+						'Caution:',
+					)} Selected UI frameworks require conflicting tsconfig.json settings, as such only settings for ${bold(
+						firstIntegrationWithTSSettings,
+					)} were used.\n  More information: https://docs.astro.build/en/guides/typescript/#errors-typing-multiple-jsx-frameworks-at-the-same-time\n`,
+				),
+			);
+		}
 	}
 
 	if (await askToContinue({ flags, logger })) {

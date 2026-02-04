@@ -44,7 +44,7 @@ describe('Live content collections', () => {
 			assert.deepEqual(data.entryByString, {
 				entry: {
 					id: '123',
-					data: { title: 'Page 123', age: 10 },
+					data: { title: 'Page 123', age: 10, collection: 'liveStuff' },
 					rendered: { html: '<h1>Page 123</h1><p>This is rendered content.</p>' },
 					cacheHint: {
 						tags: [`page:123`],
@@ -59,7 +59,7 @@ describe('Live content collections', () => {
 			assert.deepEqual(data.entryByObject, {
 				entry: {
 					id: '456',
-					data: { title: 'Page 456', age: 20 },
+					data: { title: 'Page 456', age: 20, collection: 'liveStuff' },
 					cacheHint: {
 						tags: [`page:456`],
 						lastModified: '2025-01-01T00:00:00.000Z',
@@ -102,7 +102,7 @@ describe('Live content collections', () => {
 				{
 					entry: {
 						id: '456',
-						data: { title: 'Page 456', age: 25 },
+						data: { title: 'Page 456', age: 25, collection: 'liveStuff' },
 						cacheHint: {
 							lastModified: '2025-01-01T00:00:00.000Z',
 							tags: [`page:456`],
@@ -120,16 +120,16 @@ describe('Live content collections', () => {
 				[
 					{
 						id: '123',
-						data: { title: 'Page 123', age: 15 },
+						data: { title: 'Page 123', age: 15, collection: 'liveStuff' },
 						rendered: { html: '<h1>Page 123</h1><p>This is rendered content.</p>' },
 					},
 					{
 						id: '456',
-						data: { title: 'Page 456', age: 25 },
+						data: { title: 'Page 456', age: 25, collection: 'liveStuff' },
 					},
 					{
 						id: '789',
-						data: { title: 'Page 789', age: 35 },
+						data: { title: 'Page 789', age: 35, collection: 'liveStuff' },
 					},
 				],
 				'passes dynamic filter to getCollection',
@@ -177,7 +177,7 @@ describe('Live content collections', () => {
 			assert.deepEqual(data.entryByString, {
 				entry: {
 					id: '123',
-					data: { title: 'Page 123', age: 10 },
+					data: { title: 'Page 123', age: 10, collection: 'liveStuff' },
 					rendered: { html: '<h1>Page 123</h1><p>This is rendered content.</p>' },
 					cacheHint: {
 						lastModified: '2025-01-01T00:00:00.000Z',
@@ -201,7 +201,7 @@ describe('Live content collections', () => {
 				{
 					entry: {
 						id: '456',
-						data: { title: 'Page 456', age: 25 },
+						data: { title: 'Page 456', age: 25, collection: 'liveStuff' },
 						cacheHint: {
 							lastModified: '2025-01-01T00:00:00.000Z',
 							tags: [`page:456`],

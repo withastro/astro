@@ -55,7 +55,7 @@ describe('Static build', () => {
 		assert.equal(typeof html, 'string');
 	});
 
-	it('can build pages using Astro.glob()', async () => {
+	it('can build pages using import.meta.glob()', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerioLoad(html);
 		const link = $('.posts a');

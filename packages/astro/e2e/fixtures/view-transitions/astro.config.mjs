@@ -16,7 +16,7 @@ export default defineConfig({
 	})],
 	redirects: {
 		'/redirect-two': '/two',
-		'/redirect-external': 'http://example.com/',
+		'/redirect-external': 'https://example.com/',
 	},
 	devToolbar: {
 		enabled: false,

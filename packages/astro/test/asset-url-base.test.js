@@ -23,6 +23,7 @@ describe('Asset URL resolution in build', () => {
 				const html = await fixture.readFile('/index.html');
 				const $ = cheerio.load(html);
 				const href = $('link[rel=stylesheet]').attr('href');
+				assert.ok(href);
 				assert.equal(href.startsWith('/sub/path/'), false);
 			});
 		});

@@ -32,8 +32,15 @@ export default {
 				'test/types/**/*',
 				'e2e/**/*.test.js',
 				'test/units/teardown.js',
+				// Can't detect this file when using inside a vite plugin
+				'src/vite-plugin-app/createAstroServerApp.ts',
 			],
-			ignore: ['**/e2e/**/{fixtures,_temp-fixtures}/**', 'performance/**/*'],
+			ignore: [
+				'**/e2e/**/{fixtures,_temp-fixtures}/**',
+				'performance/**/*',
+				// This export is resolved dynamically in packages/astro/src/vite-plugin-app/index.ts
+				'src/vite-plugin-app/createExports.ts',
+			],
 			// Those deps are used in tests but only referenced as strings
 			ignoreDependencies: [
 				'rehype-autolink-headings',
@@ -41,6 +48,8 @@ export default {
 				'rehype-toc',
 				'remark-code-titles',
 				'@types/http-cache-semantics',
+				// Dynamically imported by astro add cloudflare
+				'@astrojs/cloudflare',
 			],
 		},
 		'packages/db': {
@@ -79,10 +88,6 @@ export default {
 		},
 		'packages/upgrade': {
 			entry: ['src/index.ts', testEntry],
-		},
-		scripts: {
-			// Used in shell script
-			ignoreDependencies: ['marked'],
 		},
 	},
 };

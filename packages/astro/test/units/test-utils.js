@@ -93,9 +93,6 @@ function buffersToString(buffers) {
 	return str;
 }
 
-// A convenience method for creating an astro module from a component
-export const createAstroModule = (AstroComponent) => ({ default: AstroComponent });
-
 /**
  * @param {Partial<Pipeline>} options
  * @returns {Pipeline}
@@ -105,12 +102,11 @@ export function createBasicPipeline(options = {}) {
 	const pipeline = new Pipeline(
 		options.logger ?? defaultLogger,
 		options.manifest ?? {
-			hrefRoot: import.meta.url,
+			rootDir: import.meta.url,
 		},
 		options.mode ?? 'development',
 		options.renderers ?? [],
 		options.resolve ?? ((s) => Promise.resolve(s)),
-		options.serverLike ?? true,
 		options.streaming ?? true,
 		options.adapterName,
 		options.clientDirectives ?? getDefaultClientDirectives(),

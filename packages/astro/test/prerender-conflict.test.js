@@ -5,7 +5,7 @@ import { loadFixture } from './test-utils.js';
 
 /**
  * Dynamic vs dynamic duplication should warn by default and succeed.
- * When experimental.failOnPrerenderConflict is true, it should fail.
+ * When prerenderConflictBehavior is set to 'error', it should fail.
  * Static vs dynamic should also warn/fail similarly.
  */
 
@@ -43,14 +43,14 @@ describe('Prerender conflicts', () => {
 			);
 		});
 
-		it('fails when experimental.failOnPrerenderConflict = true', async () => {
+		it('fails when prerenderConflictBehavior is set to error', async () => {
 			let err;
 			try {
-				await fixture.build({ experimental: { failOnPrerenderConflict: true } });
+				await fixture.build({ prerenderConflictBehavior: 'error' });
 			} catch (e) {
 				err = e;
 			}
-			assert.ok(err, 'Build should fail when failOnPrerenderConflict is true');
+			assert.ok(err, 'Build should fail when prerenderConflictBehavior is set to error');
 			assert.equal(
 				String(err),
 				'PrerenderRouteConflict: Could not render `/c` from route `/[foo]` as it conflicts with higher priority route `/[bar]`.',
@@ -91,14 +91,14 @@ describe('Prerender conflicts', () => {
 			);
 		});
 
-		it('fails when experimental.failOnPrerenderConflict = true', async () => {
+		it('fails when prerenderConflictBehavior is set to error', async () => {
 			let err;
 			try {
-				await fixture.build({ experimental: { failOnPrerenderConflict: true } });
+				await fixture.build({ prerenderConflictBehavior: 'error' });
 			} catch (e) {
 				err = e;
 			}
-			assert.ok(err, 'Build should fail when failOnPrerenderConflict is true');
+			assert.ok(err, 'Build should fail when prerenderConflictBehavior is set to error');
 			assert.equal(
 				String(err),
 				'PrerenderRouteConflict: Could not render `/c` from route `/[foo]` as it conflicts with higher priority route `/c`.',
