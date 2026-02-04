@@ -153,9 +153,7 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		];
 
 		csp = {
-			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
-				? 'adapter'
-				: undefined,
+			cspDestination: settings.adapter?.adapterFeatures?.staticHeaders ? 'adapter' : undefined,
 			scriptHashes: getScriptHashes(settings.config.security.csp),
 			scriptResources: getScriptResources(settings.config.security.csp),
 			styleHashes,
