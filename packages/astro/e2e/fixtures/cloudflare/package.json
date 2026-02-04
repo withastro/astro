@@ -9,8 +9,10 @@
 	"dependencies": {
 		"@astrojs/cloudflare": "workspace:*",
 		"@astrojs/mdx": "^4.3.5",
+		"@astrojs/preact": "workspace:*",
 		"@astrojs/react": "workspace:*",
 		"@astrojs/vue": "workspace:*",
+		"preact": "^10.25.4",
 		"@test/e2e-my-lib": "workspace:*",
 		"vue": "^3.5.25",
 		"@vitejs/plugin-vue": "^6.0.2",
