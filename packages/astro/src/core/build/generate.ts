@@ -523,7 +523,7 @@ async function generatePath(
 						// Make sure the pathname matches an entry in distURL
 						if (
 							routeData.distURL &&
-							!routeData.distURL.find(
+							!routeData.distURL.some(
 								(url) =>
 									url.href
 										.replace(app.manifest.outDir.toString(), '')

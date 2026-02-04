@@ -183,7 +183,7 @@ async function generateRSS(rssOptions: ValidatedRSSOptions): Promise<string> {
 		};
 	}
 	root.rss = { '@_version': '2.0' };
-	if (items.find((result) => result.content)) {
+	if (items.some((result) => result.content)) {
 		// the namespace to be added to the xmlns:content attribute to enable the <content> RSS feature
 		const XMLContentNamespace = 'http://purl.org/rss/1.0/modules/content/';
 		root.rss['@_xmlns:content'] = XMLContentNamespace;

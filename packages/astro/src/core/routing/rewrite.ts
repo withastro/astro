@@ -113,7 +113,7 @@ export function findRouteToRewrite({
 				// Remove outDir from beginning of distURL
 				// Remove /index.html or .html from end of distURL and compare with decodedPathname
 				if (
-					!route.distURL.find(
+					!route.distURL.some(
 						(url) =>
 							url.href.replace(outDir.toString(), '').replace(/(?:\/index\.html|\.html)$/, '') ==
 							trimSlashes(decodedPathname),

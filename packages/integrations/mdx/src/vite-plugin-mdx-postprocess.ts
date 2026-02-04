@@ -74,7 +74,7 @@ function injectMetadataExports(
  * passes additional `components` props.
  */
 function transformContentExport(code: string, exports: readonly ExportSpecifier[]) {
-	if (exports.find(({ n }) => n === 'Content')) return code;
+	if (exports.some(({ n }) => n === 'Content')) return code;
 
 	// If have `export const components`, pass that as props to `Content` as fallback
 	const hasComponents = exports.find(({ n }) => n === 'components');

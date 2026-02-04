@@ -248,7 +248,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					scripts: { 'generate-types': 'wrangler types' },
 				});
 			}
-			if (integrations.find((integration) => integration.id === 'tailwind')) {
+			if (integrations.some((integration) => integration.id === 'tailwind')) {
 				const dir = new URL('./styles/', new URL(userConfig.srcDir ?? './src/', root));
 				const styles = new URL('./global.css', dir);
 				if (!existsSync(styles)) {
@@ -272,7 +272,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					logger.debug('add', `Using existing tailwind configuration`);
 				}
 			}
-			if (integrations.find((integration) => integration.id === 'svelte')) {
+			if (integrations.some((integration) => integration.id === 'svelte')) {
 				await setupIntegrationConfig({
 					root,
 					logger,
@@ -283,7 +283,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					defaultConfigContent: STUBS.SVELTE_CONFIG,
 				});
 			}
-			if (integrations.find((integration) => integration.id === 'db')) {
+			if (integrations.some((integration) => integration.id === 'db')) {
 				if (!existsSync(new URL('./db/', root))) {
 					logger.info(
 						'SKIP_FORMAT',
@@ -313,7 +313,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 			// Some lit dependencies needs to be hoisted, so for strict package managers like pnpm,
 			// we add an .npmrc to hoist them
 			if (
-				integrations.find((integration) => integration.id === 'lit') &&
+				integrations.some((integration) => integration.id === 'lit') &&
 				(await detect({ cwd: fileURLToPath(root) }))?.name === 'pnpm'
 			) {
 				await setupIntegrationConfig({
@@ -327,7 +327,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 				});
 			}
 			// The Vercel adapter outputs to .vercel/output which should be gitignored
-			if (integrations.find((integration) => integration.id === 'vercel')) {
+			if (integrations.some((integration) => integration.id === 'vercel')) {
 				const gitignorePath = new URL('./.gitignore', root);
 				const gitignoreEntry = '.vercel';
 
@@ -479,7 +479,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					} to your project:\n${list}`,
 				),
 			);
-			if (integrations.find((integration) => integration.integrationName === 'tailwind')) {
+			if (integrations.some((integration) => integration.integrationName === 'tailwind')) {
 				const code = boxen(getDiffContent('---\n---', "---\nimport '../styles/global.css'\n---")!, {
 					margin: 0.5,
 					padding: 0.5,
@@ -1017,7 +1017,7 @@ async function updateTSConfig(
 	const integrations = integrationsInfo.map(
 		(integration) => integration.id as frameworkWithTSSettings,
 	);
-	const includesToAppend = Array.from(new Set((options?.addIncludes ?? []).filter(Boolean)));
+	const includesToAppend = [...new Set((options?.addIncludes ?? []).filter(Boolean))];
 	const firstIntegrationWithTSSettings = integrations.find((integration) =>
 		presets.has(integration),
 	);
@@ -1078,7 +1078,7 @@ async function updateTSConfig(
 		// Every major framework, apart from Vue and Svelte requires different `jsxImportSource`, as such it's impossible to config
 		// all of them in the same `tsconfig.json`. However, Vue only need `"jsx": "preserve"` for template intellisense which
 		// can be compatible with some frameworks (ex: Solid)
-		const conflictingIntegrations: string[] = Array.from(presets.keys()).filter(
+		const conflictingIntegrations: string[] = [...presets.keys()].filter(
 			(config) => config !== 'vue',
 		);
 		const hasConflictingIntegrations =

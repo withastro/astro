@@ -175,7 +175,7 @@ async function buildManifest(
 	// in the build. As a result, they are not present on `internals.pagesByKeys` and not serialized
 	// in the manifest file. But we need them in the manifest, so we handle them here
 	for (const route of opts.routesList.routes) {
-		if (!DEFAULT_COMPONENTS.find((component) => route.component === component)) {
+		if (!DEFAULT_COMPONENTS.some((component) => route.component === component)) {
 			continue;
 		}
 		routes.push({

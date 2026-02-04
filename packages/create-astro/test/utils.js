@@ -27,7 +27,7 @@ export function setup() {
 			return ctx.messages.length;
 		},
 		hasMessage(content) {
-			return !!ctx.messages.find((msg) => msg.includes(content));
+			return ctx.messages.some((msg) => msg.includes(content));
 		},
 	};
 }

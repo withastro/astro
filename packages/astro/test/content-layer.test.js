@@ -107,7 +107,7 @@ describe('Content Layer', () => {
 		});
 
 		it('retains body by default in glob() loader', async () => {
-			assert.ok(json.hasOwnProperty('spacecraftWithBody'));
+			assert.ok(Object.hasOwn(json, 'spacecraftWithBody'));
 			assert.ok(Array.isArray(json.spacecraftWithBody));
 			// All entries should have non-empty body
 			const columbia = json.spacecraftWithBody.find((s) => s.id === 'columbia');
@@ -121,7 +121,7 @@ describe('Content Layer', () => {
 		});
 
 		it('clears body when retainBody is false in glob() loader', async () => {
-			assert.ok(json.hasOwnProperty('spacecraftNoBody'));
+			assert.ok(Object.hasOwn(json, 'spacecraftNoBody'));
 			assert.ok(Array.isArray(json.spacecraftNoBody));
 			// All entries should have undefined body
 			const columbia = json.spacecraftNoBody.find((s) => s.id === 'columbia');
@@ -138,7 +138,7 @@ describe('Content Layer', () => {
 		});
 
 		it('can use an async parser in `file()` loader', async () => {
-			assert.ok(json.hasOwnProperty('loaderWithAsyncParse'));
+			assert.ok(Object.hasOwn(json, 'loaderWithAsyncParse'));
 			assert.ok(Array.isArray(json.loaderWithAsyncParse));
 
 			const ids = json.loaderWithAsyncParse.map((item) => item.data.id);
@@ -280,7 +280,7 @@ describe('Content Layer', () => {
 
 		// Regression test for https://github.com/withastro/astro/issues/12689
 		it('returns a collection from a loader that uses dynamic import', async () => {
-			assert.ok(json.hasOwnProperty('dynamicImportLoader'));
+			assert.ok(Object.hasOwn(json, 'dynamicImportLoader'));
 			assert.ok(Array.isArray(json.dynamicImportLoader));
 			// Should have loaded cats.json via dynamic import
 			const ids = json.dynamicImportLoader.map((item) => item.data.id);

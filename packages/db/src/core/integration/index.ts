@@ -175,7 +175,7 @@ function astroDBIntegration(options?: AstroDBConfig): AstroIntegration {
 					(name) => new URL(name, getDbDirectoryUrl(root)),
 				);
 				// Eager load astro:db module on startup
-				if (seedFiles.get().length || localSeedPaths.find((path) => existsSync(path))) {
+				if (seedFiles.get().length || localSeedPaths.some((path) => existsSync(path))) {
 					await environment.runner.import(VIRTUAL_MODULE_ID).catch((e) => {
 						logger.error(e instanceof Error ? e.message : String(e));
 					});
