@@ -3,7 +3,7 @@ import type { SessionDriverConfig } from './types.js';
 
 type WithoutDash<T> = T extends `${string}-${string}` ? never : T;
 
-const unstorageDrivers = Object.fromEntries(
+export const sessionDrivers = Object.fromEntries(
 	Object.entries(builtinDrivers)
 		.filter(([name]) => !name.includes('-'))
 		.map(([name, entrypoint]) => [
@@ -26,5 +26,3 @@ const unstorageDrivers = Object.fromEntries(
 		config?: BuiltinDriverOptions[K],
 	) => SessionDriverConfig;
 };
-
-export const sessionDrivers = unstorageDrivers;
