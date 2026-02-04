@@ -8,6 +8,7 @@ import { inlineRE, isBuildableCSSRequest, rawRE } from '../vite-plugin-astro-ser
 import { getVirtualModulePageNameForComponent } from '../vite-plugin-pages/util.js';
 import { getDevCSSModuleName } from './util.js';
 import { CSS_LANGS_RE } from '../core/viteUtils.js';
+import { PROPAGATED_ASSET_QUERY_PARAM } from '../content/consts.js';
 import {
 	ASTRO_CSS_EXTENSION_POST_PATTERN,
 	MODULE_DEV_CSS,
@@ -43,6 +44,16 @@ function* collectCSSWithOrder(
 	seen = new Set<string>(),
 ): Generator<ImportedDevStyle & { id: string; idKey: string }, void, unknown> {
 	seen.add(id);
+
+	// Stop traversing if we reach an asset propagation stopping point to ensure we only collect CSS
+	// relevant to a content collection entry, if any. Not doing so could cause CSS from other
+	// entries to potentially be collected and bleed into the CSS included on the page, causing
+	// unexpected styles, for example when a module shared between 2 pages would import
+	// `astro:content` and thus potentially adding multiple content collection entry assets to the
+	// module graph.
+	if (id.includes(PROPAGATED_ASSET_QUERY_PARAM)) {
+		return;
+	}
 
 	// Keep all of the imported modules into an array so we can go through them one at a time
 	const imported = Array.from(mod.importedModules);
