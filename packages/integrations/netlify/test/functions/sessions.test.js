@@ -46,7 +46,7 @@ describe('Astro.session', () => {
 			});
 			await fixture.build({});
 			const entryURL = new URL(
-				'./fixtures/sessions/.netlify/v1/functions/ssr/ssr.mjs',
+				'./fixtures/sessions/.netlify/v1/functions/ssr/packages/integrations/netlify/test/functions/fixtures/sessions/.netlify/build/ssr-function.mjs',
 				import.meta.url,
 			);
 			const mod = await import(entryURL.href);

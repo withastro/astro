@@ -14,7 +14,7 @@ describe(
 
 		it('Can set multiple', async () => {
 			const entryURL = new URL(
-				'./fixtures/cookies/.netlify/v1/functions/ssr/ssr.mjs',
+				'./fixtures/cookies/.netlify/v1/functions/ssr/packages/integrations/netlify/test/functions/fixtures/cookies/.netlify/build/ssr-function.mjs',
 				import.meta.url,
 			);
 			const { default: handler } = await import(entryURL);
@@ -29,7 +29,7 @@ describe(
 
 		it('Can set partitioned cookie', async () => {
 			const entryURL = new URL(
-				'./fixtures/cookies/.netlify/v1/functions/ssr/ssr.mjs',
+				'./fixtures/cookies/.netlify/v1/functions/ssr/packages/integrations/netlify/test/functions/fixtures/cookies/.netlify/build/ssr-function.mjs',
 				import.meta.url,
 			);
 			const { default: handler } = await import(entryURL);
@@ -41,7 +41,7 @@ describe(
 
 		it('renders dynamic 404 page', async () => {
 			const entryURL = new URL(
-				'./fixtures/cookies/.netlify/v1/functions/ssr/ssr.mjs',
+				'./fixtures/cookies/.netlify/v1/functions/ssr/packages/integrations/netlify/test/functions/fixtures/cookies/.netlify/build/ssr-function.mjs',
 				import.meta.url,
 			);
 			const { default: handler } = await import(entryURL);

@@ -24,7 +24,7 @@ describe(
 		it('Server islands inline adapter headers', async () => {
 			// Render a page with server islands and check the HTML contains inline headers
 			const entryURL = new URL(
-				'./fixtures/skew-protection/.netlify/v1/functions/ssr/ssr.mjs',
+				'./fixtures/skew-protection/.netlify/v1/functions/ssr/packages/integrations/netlify/test/functions/fixtures/skew-protection/.netlify/build/ssr-function.mjs',
 				import.meta.url,
 			);
 			const { default: handler } = await import(entryURL);

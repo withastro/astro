@@ -360,8 +360,16 @@ export default function netlifyIntegration(
 		return files.map((file) => pathToFileURL(file));
 	}
 
-	async function writeSSRFunction({ logger, root }: { logger: AstroIntegrationLogger; root: URL }) {
-		const entry = new URL('./entry.mjs', ssrBuildDir());
+	async function writeSSRFunction({
+		logger,
+		root,
+		serverEntry,
+	}: {
+		logger: AstroIntegrationLogger;
+		root: URL;
+		serverEntry: string;
+	}) {
+		const entry = new URL(`./${serverEntry}`, ssrBuildDir());
 
 		const _includeFiles = integrationConfig?.includeFiles || [];
 		const _excludeFiles = integrationConfig?.excludeFiles || [];
@@ -404,10 +412,16 @@ export default function netlifyIntegration(
 		await writeFile(new URL('./ssr.mjs', ssrOutputDir()), `export * from './${handler}';`);
 	}
 
-	async function writeMiddleware(entrypoint: URL) {
+	async function writeMiddleware({
+		entrypoint,
+		serverEntry,
+	}: {
+		entrypoint: URL;
+		serverEntry: string;
+	}) {
 		await mkdir(middlewareOutputDir(), { recursive: true });
 		await writeFile(
-			new URL('./entry.mjs', middlewareOutputDir()),
+			new URL(`./${serverEntry}`, middlewareOutputDir()),
 			/* ts */ `
 			import { onRequest } from "${fileURLToPath(entrypoint).replaceAll('\\', '/')}";
 			import { createContext, trySerializeLocals } from 'astro/middleware';
@@ -457,7 +471,7 @@ export default function netlifyIntegration(
 
 		// taking over bundling, because Netlify bundling trips over NPM modules
 		await build({
-			entryPoints: [fileURLToPath(new URL('./entry.mjs', middlewareOutputDir()))],
+			entryPoints: [fileURLToPath(new URL(`./${serverEntry}`, middlewareOutputDir()))],
 			// allow `node:` prefixed imports, which are valid in netlify's deno edge runtime
 			plugins: [
 				{
@@ -613,6 +627,7 @@ export default function netlifyIntegration(
 						redirects: false,
 						client: outDir,
 						server: ssrBuildDir(),
+						serverEntry: 'ssr-function.mjs',
 					},
 					session,
 					vite: {
@@ -699,11 +714,14 @@ export default function netlifyIntegration(
 				logger.info('Emitted _redirects');
 
 				if (finalBuildOutput !== 'static') {
-					await writeSSRFunction({ logger, root: _config.root });
+					await writeSSRFunction({ logger, root: _config.root, serverEntry: _config.build.serverEntry });
 					logger.info('Generated SSR Function');
 				}
 				if (astroMiddlewareEntryPoint) {
-					await writeMiddleware(astroMiddlewareEntryPoint);
+					await writeMiddleware({
+						entrypoint: astroMiddlewareEntryPoint,
+						serverEntry: _config.build.serverEntry,
+					});
 					logger.info('Generated Middleware Edge Function');
 				}
 
