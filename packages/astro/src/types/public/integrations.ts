@@ -119,6 +119,29 @@ export interface AstroAdapterClientConfig {
 	assetQueryParams?: URLSearchParams;
 }
 
+interface AdapterLegacyDynamicProperties {
+	/**
+	 * Determines how the adapter's entrypoint is handled during the build.
+	 * - `'self'`: The adapter defines its own entrypoint and sets rollupOptions.input
+	 * - `'legacy-dynamic'`: Uses the virtual module entrypoint with dynamic exports
+	 * @default 'legacy-dynamic'
+	 */
+	entryType?: 'legacy-dynamic';
+	serverEntrypoint?: string | URL;
+	exports?: string[];
+	args?: any;
+}
+
+interface AdapterSelfProperties {
+	/**
+	 * Determines how the adapter's entrypoint is handled during the build.
+	 * - `'self'`: The adapter defines its own entrypoint and sets rollupOptions.input
+	 * - `'legacy-dynamic'`: Uses the virtual module entrypoint with dynamic exports
+	 * @default 'legacy-dynamic'
+	 */
+	entryType: 'self';
+}
+
 export type AstroAdapter = {
 	name: string;
 	previewEntrypoint?: string | URL;
@@ -133,29 +156,7 @@ export type AstroAdapter = {
 	 * Configuration for Astro's client-side code.
 	 */
 	client?: AstroAdapterClientConfig;
-} & (
-	| {
-			/**
-			 * Determines how the adapter's entrypoint is handled during the build.
-			 * - `'self'`: The adapter defines its own entrypoint and sets rollupOptions.input
-			 * - `'legacy-dynamic'`: Uses the virtual module entrypoint with dynamic exports
-			 * @default 'legacy-dynamic'
-			 */
-			entryType?: 'legacy-dynamic';
-			serverEntrypoint?: string | URL;
-			exports?: string[];
-			args?: any;
-	  }
-	| {
-			/**
-			 * Determines how the adapter's entrypoint is handled during the build.
-			 * - `'self'`: The adapter defines its own entrypoint and sets rollupOptions.input
-			 * - `'legacy-dynamic'`: Uses the virtual module entrypoint with dynamic exports
-			 * @default 'legacy-dynamic'
-			 */
-			entryType: 'self';
-	  }
-);
+} & (AdapterLegacyDynamicProperties | AdapterSelfProperties);
 
 export type AstroAdapterFeatureMap = {
 	/**
