@@ -24,7 +24,7 @@
     "yaml": "^2.8.2"
   },
   "devDependencies": {
-    "@volar/language-core": "~2.4.27",
+    "@volar/language-core": "~2.4.28",
     "typescript": "^5.9.3"
   }
 }
