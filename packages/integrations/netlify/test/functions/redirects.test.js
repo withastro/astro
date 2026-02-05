@@ -1,7 +1,8 @@
 import * as assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { loadFixture } from '../../../../astro/test/test-utils.js';
+import { readFile } from 'node:fs/promises';
 
 describe(
 	'SSR - Redirects',
@@ -31,36 +32,41 @@ describe(
 			assert.equal(hasErrored, true, 'this file should not exist');
 		});
 
-		it('renders static 404 page', async () => {
-			const entryURL = new URL(
-				'./fixtures/redirects/.netlify/v1/functions/ssr/packages/integrations/netlify/test/functions/fixtures/redirects/.netlify/build/ssr-function.mjs',
-				import.meta.url,
-			);
-			const { default: handler } = await import(entryURL);
-			const resp = await handler(new Request('http://example.com/nonexistant-page'), {});
-			assert.equal(resp.status, 404);
-			assert.equal(resp.headers.get('content-type'), 'text/html; charset=utf-8');
-			const text = await resp.text();
-			assert.equal(text.includes('This is my static 404 page'), true);
-		});
+		describe('renders static 404 page', () => {
+			let testServer;
 
-		it('does not pass through 404 request', async () => {
-			let testServerCalls = 0;
-			const testServer = createServer((_req, res) => {
-				testServerCalls++;
-				res.writeHead(200);
-				res.end();
+			before(() => {
+				testServer = createServer(async (req, res) => {
+					if (req.url === '/404.html') {
+						res.writeHead(200);
+						const content = await readFile(
+							new URL('./fixtures/redirects/dist/404.html', import.meta.url),
+						);
+						res.write(content);
+					} else {
+						res.writeHead(404);
+					}
+					res.end();
+				});
+				testServer.listen(5678);
 			});
-			testServer.listen(5678);
-			const entryURL = new URL(
-				'./fixtures/redirects/.netlify/v1/functions/ssr/packages/integrations/netlify/test/functions/fixtures/redirects/.netlify/build/ssr-function.mjs',
-				import.meta.url,
-			);
-			const { default: handler } = await import(entryURL);
-			const resp = await handler(new Request('http://localhost:5678/nonexistant-page'), {});
-			assert.equal(resp.status, 404);
-			assert.equal(testServerCalls, 0);
-			testServer.close();
+
+			after(() => {
+				testServer.close();
+			});
+
+			it('works', async () => {
+				const entryURL = new URL(
+					'./fixtures/redirects/.netlify/v1/functions/ssr/packages/integrations/netlify/test/functions/fixtures/redirects/.netlify/build/ssr-function.mjs',
+					import.meta.url,
+				);
+				const { default: handler } = await import(entryURL);
+				const resp = await handler(new Request('http://localhost:5678/nonexistant-page'), {});
+				assert.equal(resp.status, 404);
+				assert.equal(resp.headers.get('content-type'), 'text/html; charset=utf-8');
+				const text = await resp.text();
+				assert.equal(text.includes('This is my static 404 page'), true);
+			});
 		});
 	},
 	{

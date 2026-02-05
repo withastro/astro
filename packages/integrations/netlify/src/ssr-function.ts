@@ -10,6 +10,16 @@ const app = createApp(import.meta.env.DEV);
 export default async function handler(request: Request, context: Context): Promise<Response> {
 	const routeData = app.match(request);
 
+	if (!routeData && app.manifest.assets.has('/404.html')) {
+		try {
+			const body = await fetch(new URL('/404.html', request.url)).then((res) => res.arrayBuffer());
+			return new Response(body, {
+				status: 404,
+				headers: { 'Content-Type': 'text/html; charset=utf-8' },
+			});
+		} catch {}
+	}
+
 	let locals: Record<string, unknown> = {};
 
 	const astroLocalsHeader = request.headers.get('x-astro-locals');
