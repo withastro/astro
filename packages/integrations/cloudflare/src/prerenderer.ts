@@ -1,4 +1,4 @@
-import type { AstroPrerenderer, PathWithRoute } from 'astro';
+import type { AstroConfig, AstroPrerenderer, PathWithRoute } from 'astro';
 import { preview, type PreviewServer as VitePreviewServer } from 'vite';
 import { fileURLToPath } from 'node:url';
 import { mkdir } from 'node:fs/promises';
@@ -9,11 +9,11 @@ import type { StaticPathsResponse, PrerenderRequest } from './prerender-types.js
 import { STATIC_PATHS_ENDPOINT, PRERENDER_ENDPOINT } from './utils/prerender-constants.js';
 
 interface CloudflarePrerendererOptions {
-	root: URL;
-	serverDir: URL;
-	clientDir: URL;
-	base: string;
-	trailingSlash: 'always' | 'never' | 'ignore';
+	root: AstroConfig['root'];
+	serverDir: AstroConfig['build']['server'];
+	clientDir: AstroConfig['build']['client'];
+	base: AstroConfig['base'];
+	trailingSlash: AstroConfig['trailingSlash'];
 }
 
 /**
