@@ -17,8 +17,8 @@ import type {
 import { build } from 'esbuild';
 import { glob, globSync } from 'tinyglobby';
 import { copyDependenciesToFunction } from './lib/nft.js';
-import type { Args } from './ssr-function.js';
 import { sessionDrivers } from 'astro/config';
+import { createConfigPlugin } from './vite-plugin-config.js';
 
 const { version: packageVersion } = JSON.parse(
 	await readFile(new URL('../package.json', import.meta.url), 'utf8'),
@@ -360,15 +360,7 @@ export default function netlifyIntegration(
 		return files.map((file) => pathToFileURL(file));
 	}
 
-	async function writeSSRFunction({
-		notFoundContent,
-		logger,
-		root,
-	}: {
-		notFoundContent?: string;
-		logger: AstroIntegrationLogger;
-		root: URL;
-	}) {
+	async function writeSSRFunction({ logger, root }: { logger: AstroIntegrationLogger; root: URL }) {
 		const entry = new URL('./entry.mjs', ssrBuildDir());
 
 		const _includeFiles = integrationConfig?.includeFiles || [];
@@ -409,24 +401,7 @@ export default function netlifyIntegration(
 			TRACE_CACHE,
 		);
 
-		await writeFile(
-			new URL('./ssr.mjs', ssrOutputDir()),
-			`
-				import createSSRHandler from './${handler}';
-				export default createSSRHandler(${JSON.stringify({
-					cacheOnDemandPages: Boolean(integrationConfig?.cacheOnDemandPages),
-					notFoundContent,
-				})});
-				export const config = {
-					includedFiles: ['**/*'],
-					name: 'Astro SSR',
-					nodeBundler: 'none',
-					generator: '@astrojs/netlify@${packageVersion}',
-					path: '/*',
-					preferStatic: true,
-				};
-			`,
-		);
+		await writeFile(new URL('./ssr.mjs', ssrOutputDir()), `export * from './${handler}';`);
 	}
 
 	async function writeMiddleware(entrypoint: URL) {
@@ -641,10 +616,22 @@ export default function netlifyIntegration(
 					},
 					session,
 					vite: {
-						plugins: [netlifyVitePlugin(vitePluginOptions)],
+						plugins: [
+							netlifyVitePlugin(vitePluginOptions),
+							createConfigPlugin({
+								middlewareSecret,
+								cacheOnDemandPages: !!integrationConfig?.cacheOnDemandPages,
+								packageVersion,
+							}),
+						],
 						server: {
 							watch: {
 								ignored: [fileURLToPath(new URL('./.netlify/**', rootDir))],
+							},
+						},
+						build: {
+							rollupOptions: {
+								input: '@astrojs/netlify/ssr-function.js',
 							},
 						},
 					},
@@ -675,13 +662,11 @@ export default function netlifyIntegration(
 
 				setAdapter({
 					name: '@astrojs/netlify',
-					serverEntrypoint: '@astrojs/netlify/ssr-function.js',
-					exports: ['default'],
+					entryType: 'self',
 					adapterFeatures: {
 						edgeMiddleware: useEdgeMiddleware,
 						staticHeaders: useStaticHeaders,
 					},
-					args: { middlewareSecret } satisfies Args,
 					supportedAstroFeatures: {
 						hybridOutput: 'stable',
 						staticOutput: 'stable',
@@ -714,11 +699,7 @@ export default function netlifyIntegration(
 				logger.info('Emitted _redirects');
 
 				if (finalBuildOutput !== 'static') {
-					let notFoundContent = undefined;
-					try {
-						notFoundContent = await readFile(new URL('./404.html', dir), 'utf8');
-					} catch {}
-					await writeSSRFunction({ notFoundContent, logger, root: _config.root });
+					await writeSSRFunction({ logger, root: _config.root });
 					logger.info('Generated SSR Function');
 				}
 				if (astroMiddlewareEntryPoint) {

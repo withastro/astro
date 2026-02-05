@@ -1,10 +1,12 @@
 import type { PluginOption } from 'vite';
 
-const VIRTUAL_CONFIG_ID = 'virtual:astro-cloudflare:config';
+const VIRTUAL_CONFIG_ID = 'virtual:astro-netlify:config';
 const RESOLVED_VIRTUAL_CONFIG_ID = '\0' + VIRTUAL_CONFIG_ID;
 
 export interface Config {
-	sessionKVBindingName: string;
+	middlewareSecret: string;
+	cacheOnDemandPages: boolean;
+	packageVersion: string;
 }
 
 export function createConfigPlugin(config: Config): PluginOption {
