@@ -14,6 +14,7 @@ import {
 	joinPaths,
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
+	trimSlashes,
 } from '../../core/path.js';
 import { runHookBuildGenerated, toIntegrationResolvedRoute } from '../../integrations/hooks.js';
 import type { AstroConfig } from '../../types/public/config.js';
@@ -308,6 +309,38 @@ async function generatePathWithPrerenderer(
 	// Track page name for stats
 	if (route.type === 'page') {
 		addPageName(pathname, options);
+	}
+
+	// Do not render the fallback route if there is already a translated page
+	// with the same path
+	if (route.type === 'fallback' && route.pathname !== '/') {
+		if (
+			options.routesList.routes.some((routeData) => {
+				if (routeData.pattern.test(pathname)) {
+					// Check if we've matched a dynamic route
+					if (routeData.params && routeData.params.length !== 0) {
+						// Make sure the pathname matches an entry in distURL
+						if (
+							routeData.distURL &&
+							!routeData.distURL.find(
+								(url) =>
+									url.href
+										.replace(config.outDir.toString(), '')
+										.replace(/(?:\/index\.html|\.html)$/, '') == trimSlashes(pathname),
+							)
+						) {
+							return false;
+						}
+					}
+					// Route matches
+					return true;
+				} else {
+					return false;
+				}
+			})
+		) {
+			return;
+		}
 	}
 
 	// Build the request URL
