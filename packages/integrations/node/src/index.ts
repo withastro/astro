@@ -1,39 +1,10 @@
 import { fileURLToPath } from 'node:url';
 import { writeJson } from '@astrojs/internal-helpers/fs';
-import type {
-	AstroAdapter,
-	AstroConfig,
-	AstroIntegration,
-	NodeAppHeadersJson,
-	RouteToHeaders,
-} from 'astro';
+import type { AstroConfig, AstroIntegration, NodeAppHeadersJson, RouteToHeaders } from 'astro';
 import { AstroError } from 'astro/errors';
 import { STATIC_HEADERS_FILE } from './shared.js';
-import type { Options, UserOptions } from './types.js';
+import type { UserOptions } from './types.js';
 import { sessionDrivers } from 'astro/config';
-
-export function getAdapter(options: Options): AstroAdapter {
-	return {
-		name: '@astrojs/node',
-		serverEntrypoint: '@astrojs/node/server.js',
-		previewEntrypoint: '@astrojs/node/preview.js',
-		exports: ['handler', 'startServer', 'options'],
-		args: options,
-		adapterFeatures: {
-			buildOutput: 'server',
-			edgeMiddleware: false,
-			staticHeaders: options.staticHeaders,
-		},
-		supportedAstroFeatures: {
-			hybridOutput: 'stable',
-			staticOutput: 'stable',
-			serverOutput: 'stable',
-			sharpImageService: 'stable',
-			i18nDomains: 'experimental',
-			envGetSecret: 'stable',
-		},
-	};
-}
 
 const protocols = ['http:', 'https:'];
 
@@ -52,7 +23,6 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 		);
 	}
 
-	let _options: Options;
 	let _config: AstroConfig | undefined = undefined;
 	let _routeToHeaders: RouteToHeaders | undefined = undefined;
 	return {
@@ -60,7 +30,6 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, logger, command }) => {
 				let session = config.session;
-				_config = config;
 				if (!session?.driver) {
 					logger.info('Enabling sessions with filesystem storage');
 					session = {
@@ -89,6 +58,22 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 						ssr: {
 							noExternal: ['@astrojs/node'],
 						},
+						plugins: [
+							// Done in a plugin so it can get the value of _config.root from a later hook
+							{
+								name: '@astrojs/node:rollup-input',
+								config: () => {
+									return {
+										build: {
+											rollupOptions: {
+												// TODO: support custom entrypoint
+												input: '@astrojs/node/server.js',
+											},
+										},
+									};
+								},
+							},
+						],
 					},
 				});
 			},
@@ -96,17 +81,25 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 				_routeToHeaders = routeToHeaders;
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
-				_options = {
-					...userOptions,
-					client: config.build.client?.toString(),
-					server: config.build.server?.toString(),
-					host: config.server.host,
-					port: config.server.port,
-					assets: config.build.assets,
-					staticHeaders: userOptions.staticHeaders ?? false,
-					experimentalErrorPageHost,
-				};
-				setAdapter(getAdapter(_options));
+				_config = config;
+				setAdapter({
+					name: '@astrojs/node',
+					entryType: 'self',
+					previewEntrypoint: '@astrojs/node/preview.js',
+					adapterFeatures: {
+						buildOutput: 'server',
+						edgeMiddleware: false,
+						staticHeaders: userOptions.staticHeaders ?? false,
+					},
+					supportedAstroFeatures: {
+						hybridOutput: 'stable',
+						staticOutput: 'stable',
+						serverOutput: 'stable',
+						sharpImageService: 'stable',
+						i18nDomains: 'experimental',
+						envGetSecret: 'stable',
+					},
+				});
 			},
 			'astro:build:done': async () => {
 				if (!_config) {
