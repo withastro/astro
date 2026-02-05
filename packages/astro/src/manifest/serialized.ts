@@ -179,5 +179,6 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 			placement: settings.config.devToolbar.placement,
 		},
 		logLevel: settings.logLevel,
+		shouldInjectCspMetaTags: false,
 	};
 }

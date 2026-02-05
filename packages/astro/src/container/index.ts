@@ -167,6 +167,7 @@ function createManifest(
 		middleware: manifest?.middleware ?? middlewareInstance,
 		key: createKey(),
 		csp: manifest?.csp,
+		shouldInjectCspMetaTags: false,
 		devToolbar: {
 			enabled: false,
 			latestAstroVersion: undefined,
