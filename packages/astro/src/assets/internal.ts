@@ -167,8 +167,8 @@ export async function getImage(
 		: [];
 
 	// In the Picture component, the optimized original-sized image is typically not used when `widths` is set.
-  // Since `globalThis.astroAsset.addStaticImage()` triggers image generation immediately,
-  // we fetch it lazily to avoid creating unnecessary assets.
+	// Since `globalThis.astroAsset.addStaticImage()` triggers image generation immediately,
+	// we fetch it lazily to avoid creating unnecessary assets.
 	const lazyImageURLFactory = (getValue: () => string) => {
 		let cached: string | null = null;
 		return () => (cached ??= getValue());

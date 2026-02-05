@@ -29,8 +29,8 @@ describe('astro:image', () => {
 			});
 
 			describe('Picture component', () => {
-        describe('normal', () => {
-          it('default format', async () => {
+				describe('normal', () => {
+					it('default format', async () => {
 						const $source = $('#picture source');
 						const srcset = parseSrcset($source.attr('srcset'));
 						const generatedImages = await fixture.glob('_astro/**/penguin.*.webp');
@@ -44,16 +44,13 @@ describe('astro:image', () => {
 
 					it('fallback format', async () => {
 						const $img = $('#picture img');
-            const src = $img.attr('src');
+						const src = $img.attr('src');
 						const generatedFallbackImages = await fixture.glob('_astro/**/penguin.*.jpg');
 
 						assert.deepEqual(generatedFallbackImages.length, 1);
-						assert.deepEqual(
-							generatedFallbackImages,
-							[removeLeadingForwardSlash(src)],
-						);
+						assert.deepEqual(generatedFallbackImages, [removeLeadingForwardSlash(src)]);
 					});
-        });
+				});
 
 				describe('with widths', () => {
 					it('default format', async () => {
@@ -70,7 +67,7 @@ describe('astro:image', () => {
 
 					it('fallback format', async () => {
 						const $img = $('#picture-widths img');
-            const src = $img.attr('src');
+						const src = $img.attr('src');
 						const srcset = parseSrcset($img.attr('srcset'));
 						const generatedFallbackImages = await fixture.glob('_astro/**/walrus.*.jpg');
 
