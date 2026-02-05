@@ -7,13 +7,16 @@ import { createAppHandler } from '../serve-app.js';
 
 setGetEnv((key) => process.env[key]);
 
-// using spread args because express trips up if the function's
-// stringified body includes req, res, next, locals directly
 export function astroMiddleware(): RequestHandler {
 	const app = new NodeApp(manifest, !options.experimentalDisableStreaming);
-	const handler = createAppHandler(app, options);
+	const handler = createAppHandler({
+		app,
+		experimentalErrorPageHost: options.experimentalErrorPageHost,
+	});
 	const logger = app.getAdapterLogger();
 
+	// using spread args because express trips up if the function's
+	// stringified body includes req, res, next, locals directly
 	return async function (...args) {
 		// assume normal invocation at first
 		const [req, res, next, locals] = args;

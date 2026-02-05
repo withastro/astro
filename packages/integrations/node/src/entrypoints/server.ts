@@ -13,8 +13,11 @@ const app = new NodeApp(manifest, !options.experimentalDisableStreaming);
 
 const port = process.env.PORT ? Number(process.env.PORT) : options.port;
 const host = process.env.HOST ?? hostOptions(options.host);
-const appHandler = createAppHandler(app, options);
-const staticHandler = createStaticHandler(app, options);
+const appHandler = createAppHandler({
+	app,
+	experimentalErrorPageHost: options.experimentalErrorPageHost,
+});
+const staticHandler = createStaticHandler({ app, ...options });
 const server = createServer(
 	(req, res) => {
 		try {

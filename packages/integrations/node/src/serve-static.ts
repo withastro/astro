@@ -5,7 +5,7 @@ import url from 'node:url';
 import { hasFileExtension, isInternalPath } from '@astrojs/internal-helpers/path';
 import type { NodeApp } from 'astro/app/node';
 import send from 'send';
-import type { Options } from './types.js';
+import type { Config } from './vite-plugin-config.js';
 
 /**
  * Creates a Node.js http listener for static files and prerendered pages.
@@ -13,8 +13,13 @@ import type { Options } from './types.js';
  * If one matching the request path is not found, it relegates to the SSR handler.
  * Intended to be used only in the standalone mode.
  */
-export function createStaticHandler(app: NodeApp, options: Options) {
-	const client = resolveClientDir(options);
+export function createStaticHandler({
+	app,
+	trailingSlash,
+	assets,
+	...rest
+}: Pick<Config, 'trailingSlash' | 'assets' | 'server' | 'client'> & { app: NodeApp }) {
+	const client = resolveClientDir(rest);
 	/**
 	 * @param ssr The SSR handler to be called if the static handler does not find a matching file.
 	 */
@@ -33,8 +38,6 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 			try {
 				isDirectory = fs.lstatSync(filePath).isDirectory();
 			} catch {}
-
-			const { trailingSlash = 'ignore' } = options;
 
 			const hasSlash = urlPath.endsWith('/');
 			let pathname = urlPath;
@@ -105,7 +108,7 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 			});
 			stream.on('headers', (_res: ServerResponse) => {
 				// assets in dist/_astro are hashed and should get the immutable header
-				if (pathname.startsWith(`/${options.assets}/`)) {
+				if (pathname.startsWith(`/${assets}/`)) {
 					// This is the "far future" cache header, used for static files whose name includes their digest hash.
 					// 1 year (31,536,000 seconds) is convention.
 					// Taken from https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#immutable
@@ -122,7 +125,7 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 	};
 }
 
-function resolveClientDir(options: Options) {
+function resolveClientDir(options: Pick<Config, 'server' | 'client'>) {
 	const clientURLRaw = new URL(options.client);
 	const serverURLRaw = new URL(options.server);
 	const rel = path.relative(url.fileURLToPath(serverURLRaw), url.fileURLToPath(clientURLRaw));

@@ -1,13 +1,17 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { NodeApp } from 'astro/app/node';
-import type { Options, RequestHandler } from './types.js';
+import type { RequestHandler } from './types.js';
+import type { Config } from './vite-plugin-config.js';
 
 /**
  * Creates a Node.js http listener for on-demand rendered pages, compatible with http.createServer and Connect middleware.
  * If the next callback is provided, it will be called if the request does not have a matching route.
  * Intended to be used in both standalone and middleware mode.
  */
-export function createAppHandler(app: NodeApp, options: Options): RequestHandler {
+export function createAppHandler({
+	app,
+	experimentalErrorPageHost,
+}: Pick<Config, 'experimentalErrorPageHost'> & { app: NodeApp }): RequestHandler {
 	/**
 	 * Keep track of the current request path using AsyncLocalStorage.
 	 * Used to log unhandled rejections with a helpful message.
@@ -20,9 +24,7 @@ export function createAppHandler(app: NodeApp, options: Options): RequestHandler
 		console.error(reason);
 	});
 
-	const originUrl = options.experimentalErrorPageHost
-		? new URL(options.experimentalErrorPageHost)
-		: undefined;
+	const originUrl = experimentalErrorPageHost ? new URL(experimentalErrorPageHost) : undefined;
 
 	const prerenderedErrorPageFetch = originUrl
 		? (url: string) => {

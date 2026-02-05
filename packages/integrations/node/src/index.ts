@@ -64,6 +64,11 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 								experimentalDisableStreaming: userOptions.experimentalDisableStreaming ?? false,
 								port: _config!.server.port,
 								host: _config!.server.host,
+								experimentalErrorPageHost: userOptions.experimentalErrorPageHost?.toString(),
+								trailingSlash: _config!.trailingSlash,
+								assets: _config!.build.assets,
+								server: _config!.build.server.toString(),
+								client: _config!.build.client.toString(),
 							}),
 							// Done in a plugin so it can get the value of _config.root from a later hook
 							{

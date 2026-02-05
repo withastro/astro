@@ -1,3 +1,4 @@
+import type { AstroConfig } from 'astro';
 import type { PluginOption } from 'vite';
 
 const VIRTUAL_CONFIG_ID = 'virtual:astro-node:config';
@@ -7,6 +8,11 @@ export interface Config {
 	experimentalDisableStreaming: boolean;
 	port: number;
 	host: string | boolean;
+	experimentalErrorPageHost: string | undefined;
+	trailingSlash: AstroConfig['trailingSlash'];
+	assets: string;
+	server: string;
+	client: string;
 }
 
 export function createConfigPlugin(config: Config): PluginOption {

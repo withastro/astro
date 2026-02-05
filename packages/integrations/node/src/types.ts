@@ -1,5 +1,4 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { SSRManifest } from 'astro';
 
 export interface UserOptions {
 	/**
@@ -30,16 +29,6 @@ export interface UserOptions {
 	 * static files are hosted on a different domain. Do not include a path in the URL: it will be ignored.
 	 */
 	experimentalErrorPageHost?: string | URL;
-}
-
-export interface Options extends UserOptions {
-	host: string | boolean;
-	port: number;
-	server: string;
-	client: string;
-	assets: string;
-	trailingSlash?: SSRManifest['trailingSlash'];
-	staticHeaders: boolean;
 }
 
 export type RequestHandler = (...args: RequestHandlerParams) => void | Promise<void>;
