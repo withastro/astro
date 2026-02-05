@@ -134,7 +134,6 @@ function vitePluginSSR(internals: BuildInternals, adapter: LegacyAdapter): ViteP
 }
 
 export function pluginSSR(options: StaticBuildOptions, internals: BuildInternals): VitePlugin[] {
-	// We check before this point if there's an adapter, so we can safely assume it exists here.
 	const adapter = options.settings.adapter;
 	const ssr = options.settings.buildOutput === 'server';
 
