@@ -28,6 +28,7 @@ export type { Runtime } from './utils/handler.js';
 export type Options = {
 	/** Options for handling images. */
 	imageService?: ImageService;
+
 	/** Configuration for `_routes.json` generation. A _routes.json file controls when your Function is invoked. This file will include three different properties:
 	 *
 	 * - version: Defines the version of the schema. Currently there is only one version of the schema (version 1), however, we may add more in the future and aim to be backwards compatible.
