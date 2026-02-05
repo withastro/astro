@@ -1,8 +1,3 @@
-import { createReadStream, existsSync, readFileSync } from 'node:fs';
-import { appendFile, stat } from 'node:fs/promises';
-import { createRequire } from 'node:module';
-import { createInterface } from 'node:readline/promises';
-import { pathToFileURL } from 'node:url';
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
@@ -12,6 +7,11 @@ import type {
 	HookParameters,
 	IntegrationResolvedRoute,
 } from 'astro';
+import { sessionDrivers } from 'astro/config';
+import { parse } from 'dotenv';
+import { createReadStream, existsSync, readFileSync } from 'node:fs';
+import { appendFile, stat } from 'node:fs/promises';
+import { createInterface } from 'node:readline/promises';
 import type { PluginOption } from 'vite';
 import { cloudflareModuleLoader } from './utils/cloudflare-module-loader.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
@@ -19,11 +19,9 @@ import { type ImageService, setImageConfig } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
 import {
 	cloudflareConfigCustomizer,
-	DEFAULT_SESSION_KV_BINDING_NAME,
 	DEFAULT_IMAGES_BINDING_NAME,
+	DEFAULT_SESSION_KV_BINDING_NAME,
 } from './wrangler.js';
-import { parse } from 'dotenv';
-import { sessionDrivers } from 'astro/config';
 
 export type { Runtime } from './utils/handler.js';
 
@@ -266,20 +264,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					content: '/// <reference types="@astrojs/cloudflare/types.d.ts" />',
 				});
 
-				let customWorkerEntryPoint: URL | undefined;
-				if (args?.workerEntryPoint && typeof args.workerEntryPoint.path === 'string') {
-					const require = createRequire(config.root);
-					try {
-						customWorkerEntryPoint = pathToFileURL(require.resolve(args.workerEntryPoint.path));
-					} catch {
-						customWorkerEntryPoint = new URL(args.workerEntryPoint.path, config.root);
-					}
-				}
-
 				setAdapter({
 					name: '@astrojs/cloudflare',
-					serverEntrypoint: customWorkerEntryPoint ?? '@astrojs/cloudflare/entrypoints/server.js',
-					exports: [...new Set(['default', ...(args?.workerEntryPoint?.namedExports ?? [])])],
 					adapterFeatures: {
 						edgeMiddleware: false,
 						buildOutput: 'server',
