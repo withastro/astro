@@ -10,11 +10,6 @@ import type {
 	HookParameters,
 	IntegrationResolvedRoute,
 } from 'astro';
-import { sessionDrivers } from 'astro/config';
-import { parse } from 'dotenv';
-import { createReadStream, existsSync, readFileSync } from 'node:fs';
-import { appendFile, stat } from 'node:fs/promises';
-import { createInterface } from 'node:readline/promises';
 import type { PluginOption } from 'vite';
 import { cloudflareModuleLoader } from './utils/cloudflare-module-loader.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
@@ -22,9 +17,11 @@ import { type ImageService, setImageConfig } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
 import {
 	cloudflareConfigCustomizer,
-	DEFAULT_IMAGES_BINDING_NAME,
 	DEFAULT_SESSION_KV_BINDING_NAME,
+	DEFAULT_IMAGES_BINDING_NAME,
 } from './wrangler.js';
+import { parse } from 'dotenv';
+import { sessionDrivers } from 'astro/config';
 
 export type { Runtime } from './utils/handler.js';
 
