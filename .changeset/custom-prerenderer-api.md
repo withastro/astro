@@ -56,3 +56,6 @@ export function createApp(manifest) {
   };
 }
 ```
+
+See the [adapter reference](https://v6.docs.astro.build/en/reference/adapter-reference/#custom-prerenderer) for more details on implementing a custom prerenderer.
+
