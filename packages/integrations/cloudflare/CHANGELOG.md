@@ -1,5 +1,18 @@
 # @astrojs/cloudflare
 
+## 13.0.0-beta.5
+
+### Major Changes
+
+- [#15400](https://github.com/withastro/astro/pull/15400) [`41eb284`](https://github.com/withastro/astro/commit/41eb284ecf11a359254888cb41a97ca021ac0996) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Removes the `workerEntryPoint` option, which wasn't used anymore. Set the `main` field of your wrangler config instead
+
+  See [how to migrate](https://v6.docs.astro.build/en/guides/integrations-guide/cloudflare/#changed-custom-entrypoint-api)
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 13.0.0-beta.4
 
 ### Patch Changes
