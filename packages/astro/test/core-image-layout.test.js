@@ -43,7 +43,6 @@ describe('astro:image:layout', () => {
 			before(async () => {
 				let res = await fixture.fetch('/');
 				let html = await res.text();
-				console.log(html);
 				$ = cheerio.load(html);
 			});
 

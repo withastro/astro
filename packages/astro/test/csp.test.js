@@ -405,16 +405,16 @@ describe('CSP', () => {
 		const html = await fixture.readFile('/image/index.html');
 		const $ = cheerio.load(html);
 
-		// Check that the image has the style attribute with CSS variables
+		// Check that the image has data attributes instead of inline styles (CSP-compliant)
 		const img = $('img');
-		assert.ok(img.attr('style'), 'Image should have a style attribute');
+		assert.ok(img.attr('data-astro-image'), 'Image should have data-astro-image attribute');
 		assert.ok(
-			img.attr('style').includes('--fit:'),
-			'Image style should contain --fit CSS variable',
+			img.attr('data-astro-image-fit'),
+			'Image should have data-astro-image-fit attribute',
 		);
 		assert.ok(
-			img.attr('style').includes('--pos:'),
-			'Image style should contain --pos CSS variable',
+			img.attr('data-astro-image-pos'),
+			'Image should have data-astro-image-pos attribute',
 		);
 
 		// Check that the CSP meta tag contains a hash for the style
@@ -422,7 +422,7 @@ describe('CSP', () => {
 		const cspContent = meta.attr('content').toString();
 		// The style-src directive should contain hashes (sha256- prefixed values)
 		assert.ok(cspContent.includes('style-src'), 'CSP should have style-src directive');
-		// There should be at least one sha256 hash for the inline style
+		// There should be at least one sha256 hash for the static CSS
 		const styleMatches = cspContent.match(/sha256-[A-Za-z0-9+/=]+/g);
 		assert.ok(styleMatches && styleMatches.length > 0, 'CSP should contain style hashes');
 	});
@@ -436,16 +436,16 @@ describe('CSP', () => {
 		const html = await fixture.readFile('/picture/index.html');
 		const $ = cheerio.load(html);
 
-		// Check that the img inside picture has the style attribute with CSS variables
+		// Check that the img inside picture has data attributes instead of inline styles (CSP-compliant)
 		const img = $('picture img');
-		assert.ok(img.attr('style'), 'Picture img should have a style attribute');
+		assert.ok(img.attr('data-astro-image'), 'Picture img should have data-astro-image attribute');
 		assert.ok(
-			img.attr('style').includes('--fit:'),
-			'Picture img style should contain --fit CSS variable',
+			img.attr('data-astro-image-fit'),
+			'Picture img should have data-astro-image-fit attribute',
 		);
 		assert.ok(
-			img.attr('style').includes('--pos:'),
-			'Picture img style should contain --pos CSS variable',
+			img.attr('data-astro-image-pos'),
+			'Picture img should have data-astro-image-pos attribute',
 		);
 
 		// Check that the CSP meta tag contains a hash for the style
@@ -453,7 +453,7 @@ describe('CSP', () => {
 		const cspContent = meta.attr('content').toString();
 		// The style-src directive should contain hashes (sha256- prefixed values)
 		assert.ok(cspContent.includes('style-src'), 'CSP should have style-src directive');
-		// There should be at least one sha256 hash for the inline style
+		// There should be at least one sha256 hash for the static CSS
 		const styleMatches = cspContent.match(/sha256-[A-Za-z0-9+/=]+/g);
 		assert.ok(styleMatches && styleMatches.length > 0, 'CSP should contain style hashes');
 	});
@@ -476,6 +476,7 @@ describe('CSP', () => {
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
 
+		console.log(routeToHeaders);
 		assert.equal(routeToHeaders.size, 4, 'expected four routes: /, /scripts, /foo, /bar');
 
 		assert.ok(routeToHeaders.has('/'), 'should have a CSP header for /');
