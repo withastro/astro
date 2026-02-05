@@ -1,5 +1,31 @@
 # astro
 
+## 6.0.0-beta.8
+
+### Minor Changes
+
+- [#15258](https://github.com/withastro/astro/pull/15258) [`d339a18`](https://github.com/withastro/astro/commit/d339a182b387a7a1b0d5dd0d67a0638aaa2b4262) Thanks [@ematipico](https://github.com/ematipico)! - Stabilizes the adapter feature `experimentalStatiHeaders`. If you were using this feature in any of the supported adapters, you'll need to change the name of the flag:
+
+  ```diff
+  export default defineConfig({
+    adapter: netlify({
+  -    experimentalStaticHeaders: true
+  +    staticHeaders: true
+    })
+  })
+  ```
+
+### Patch Changes
+
+- [#15167](https://github.com/withastro/astro/pull/15167) [`4fca170`](https://github.com/withastro/astro/commit/4fca1701eca1d107df43ef280cab342dfdacbb44) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes an issue where CSS from unused components, when using content collections, could be incorrectly included between page navigations in development mode.
+
+- [#15268](https://github.com/withastro/astro/pull/15268) [`54e5cc4`](https://github.com/withastro/astro/commit/54e5cc476b7d8ea8da0ddaba97ced0b789a2550a) Thanks [@rururux](https://github.com/rururux)! - fix: avoid creating unused images during build in Picture component
+
+- [#15133](https://github.com/withastro/astro/pull/15133) [`53b125b`](https://github.com/withastro/astro/commit/53b125b7f0886f9ca75c4b2b80e3557645fb71df) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes an issue where adding or removing `<style>` tags in Astro components would not visually update styles during development without restarting the development server.
+
+- Updated dependencies [[`80f0225`](https://github.com/withastro/astro/commit/80f022559e81b5609a69ba31c7f0d93dcb0bf74d)]:
+  - @astrojs/markdown-remark@7.0.0-beta.5
+
 ## 6.0.0-beta.7
 
 ### Minor Changes
