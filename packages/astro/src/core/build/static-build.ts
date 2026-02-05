@@ -177,7 +177,8 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				// Generation and cleanup
 				const prerenderOutputDir = new URL('./.prerender/', getServerOutputDirectory(settings));
 
-				// TODO do we need the elif any more? Can this be streamlined to be the same?
+				// TODO: The `static` and `server` branches below are nearly identical now.
+				// Consider refactoring to remove the else-if and unify the logic.
 				if (settings.buildOutput === 'static') {
 					settings.timer.start('Static generate');
 					// Move prerender and SSR assets to client directory before cleaning up
