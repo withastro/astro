@@ -22,7 +22,10 @@ import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { getAllBuildPlugins } from './plugins/index.js';
 import { manifestBuildPostHook } from './plugins/plugin-manifest.js';
-import { LEGACY_SSR_ENTRY_VIRTUAL_MODULE, RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE } from './plugins/plugin-ssr.js';
+import {
+	LEGACY_SSR_ENTRY_VIRTUAL_MODULE,
+	RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE,
+} from './plugins/plugin-ssr.js';
 import { ASTRO_PAGE_EXTENSION_POST_PATTERN } from './plugins/util.js';
 import type { StaticBuildOptions } from './types.js';
 import { encodeName, getTimeStat, viteBuildReturnToRollupOutputs } from './util.js';
