@@ -41,6 +41,8 @@
     "astro": "^6.0.0-alpha.0"
   },
   "devDependencies": {
+    "@fastify/middie": "^9.1.0",
+    "@fastify/static": "^9.0.0",
     "@types/node": "^22.10.6",
     "@types/send": "^1.2.1",
     "@types/server-destroy": "^1.0.4",
@@ -50,9 +52,8 @@
     "devalue": "^5.6.2",
     "express": "^5.2.1",
     "fastify": "^5.7.2",
-    "@fastify/middie": "^9.1.0",
-    "@fastify/static": "^9.0.0",
-    "node-mocks-http": "^1.17.2"
+    "node-mocks-http": "^1.17.2",
+    "vite": "^7.3.1"
   },
   "publishConfig": {
     "provenance": true

@@ -5,6 +5,7 @@ import { AstroError } from 'astro/errors';
 import { STATIC_HEADERS_FILE } from './shared.js';
 import type { UserOptions } from './types.js';
 import { sessionDrivers } from 'astro/config';
+import { createConfigPlugin } from './vite-plugin-config.js';
 
 const protocols = ['http:', 'https:'];
 
@@ -59,6 +60,11 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 							noExternal: ['@astrojs/node'],
 						},
 						plugins: [
+							createConfigPlugin({
+								experimentalDisableStreaming: userOptions.experimentalDisableStreaming ?? false,
+								port: _config!.server.port,
+								host: _config!.server.host,
+							}),
 							// Done in a plugin so it can get the value of _config.root from a later hook
 							{
 								name: '@astrojs/node:rollup-input',

@@ -5846,6 +5846,9 @@ importers:
       node-mocks-http:
         specifier: ^1.17.2
         version: 1.17.2(@types/node@22.19.8)
+      vite:
+        specifier: ^7.3.1
+        version: 7.3.1(@types/node@22.19.8)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/integrations/node/test/fixtures/api-route:
     dependencies:
