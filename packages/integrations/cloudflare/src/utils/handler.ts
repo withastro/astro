@@ -18,12 +18,13 @@ declare global {
 
 type CfResponse = Awaited<ReturnType<Required<ExportedHandler<Env>>['fetch']>>;
 
+const app = createApp(import.meta.env.DEV);
+
 export async function handle(
 	request: Request,
 	env: Env,
 	context: ExecutionContext,
 ): Promise<CfResponse> {
-	const app = createApp(import.meta.env.DEV);
 	const { pathname } = new URL(request.url);
 
 	if (env[sessionKVBindingName]) {

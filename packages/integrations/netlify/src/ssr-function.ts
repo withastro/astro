@@ -5,8 +5,9 @@ import { createApp } from 'astro/app/entrypoint';
 
 setGetEnv((key) => process.env[key]);
 
+const app = createApp(import.meta.env.DEV);
+
 export default async function handler(request: Request, context: Context): Promise<Response> {
-	const app = createApp(import.meta.env.DEV);
 	const routeData = app.match(request);
 
 	let locals: Record<string, unknown> = {};
