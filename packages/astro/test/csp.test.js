@@ -408,14 +408,8 @@ describe('CSP', () => {
 		// Check that the image has data attributes instead of inline styles (CSP-compliant)
 		const img = $('img');
 		assert.ok(img.attr('data-astro-image'), 'Image should have data-astro-image attribute');
-		assert.ok(
-			img.attr('data-astro-image-fit'),
-			'Image should have data-astro-image-fit attribute',
-		);
-		assert.ok(
-			img.attr('data-astro-image-pos'),
-			'Image should have data-astro-image-pos attribute',
-		);
+		assert.ok(img.attr('data-astro-image-fit'), 'Image should have data-astro-image-fit attribute');
+		assert.ok(img.attr('data-astro-image-pos'), 'Image should have data-astro-image-pos attribute');
 
 		// Check that the CSP meta tag contains a hash for the style
 		const meta = $('meta[http-equiv="Content-Security-Policy"]');
@@ -476,7 +470,6 @@ describe('CSP', () => {
 		await fixture.build();
 		app = await fixture.loadTestAdapterApp();
 
-		console.log(routeToHeaders);
 		assert.equal(routeToHeaders.size, 4, 'expected four routes: /, /scripts, /foo, /bar');
 
 		assert.ok(routeToHeaders.has('/'), 'should have a CSP header for /');
