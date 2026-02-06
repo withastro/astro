@@ -11,8 +11,6 @@ This enables use cases such as:
 - Caching: Storing image dimensions in a database or local cache to avoid redundant network requests.
 - Provider APIs: Using a specific image provider's API (like Cloudinary or Vercel) to get dimensions without downloading the file.
 
-When a custom service implements `getRemoteSize`, it will be automatically used by Astro's `inferRemoteSize()` utility.
-
 For example, you can add a simple cache layer to your existing image service:
 
 ```js
