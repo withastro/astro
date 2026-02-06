@@ -4,8 +4,14 @@ import type { BuildInternals } from '../internal.js';
 import type { StaticBuildOptions } from '../types.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../../constants.js';
 
-const SSR_VIRTUAL_MODULE_ID = 'virtual:astro:legacy-ssr-entry';
-export const RESOLVED_SSR_VIRTUAL_MODULE_ID = '\0' + SSR_VIRTUAL_MODULE_ID;
+type LegacyAdapter = Extract<AstroAdapter, { entryType?: 'legacy-dynamic' }>;
+
+function isLegacyAdapter(adapter: AstroAdapter): adapter is LegacyAdapter {
+	return adapter.entryType === undefined || adapter.entryType === 'legacy-dynamic';
+}
+
+export const LEGACY_SSR_ENTRY_VIRTUAL_MODULE = 'virtual:astro:legacy-ssr-entry';
+export const RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE = '\0' + LEGACY_SSR_ENTRY_VIRTUAL_MODULE;
 
 const ADAPTER_VIRTUAL_MODULE_ID = 'virtual:astro:adapter-entrypoint';
 const RESOLVED_ADAPTER_VIRTUAL_MODULE_ID = '\0' + ADAPTER_VIRTUAL_MODULE_ID;
@@ -13,7 +19,7 @@ const RESOLVED_ADAPTER_VIRTUAL_MODULE_ID = '\0' + ADAPTER_VIRTUAL_MODULE_ID;
 const ADAPTER_CONFIG_VIRTUAL_MODULE_ID = 'virtual:astro:adapter-config';
 const RESOLVED_ADAPTER_CONFIG_VIRTUAL_MODULE_ID = '\0' + ADAPTER_CONFIG_VIRTUAL_MODULE_ID;
 
-function vitePluginAdapter(adapter: AstroAdapter): VitePlugin {
+function vitePluginAdapter(adapter: LegacyAdapter): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-adapter',
 		enforce: 'post',
@@ -49,7 +55,7 @@ export default _serverEntrypoint.default;`,
  * Makes adapter config (args, exports, features, entrypoint) available at runtime
  * so the adapter can access its own configuration during SSR.
  */
-function vitePluginAdapterConfig(adapter: AstroAdapter): VitePlugin {
+function vitePluginAdapterConfig(adapter: LegacyAdapter): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-adapter-config',
 		enforce: 'post',
@@ -70,17 +76,14 @@ function vitePluginAdapterConfig(adapter: AstroAdapter): VitePlugin {
 			},
 			handler() {
 				return {
-					code: `export const args = ${adapter.args ? JSON.stringify(adapter.args, null, 2) : 'undefined'};
-export const exports = ${adapter.exports ? JSON.stringify(adapter.exports) : 'undefined'};
-export const adapterFeatures = ${adapter.adapterFeatures ? JSON.stringify(adapter.adapterFeatures, null, 2) : 'undefined'};
-export const serverEntrypoint = ${JSON.stringify(adapter.serverEntrypoint)};`,
+					code: `export const args = ${adapter.args ? JSON.stringify(adapter.args, null, 2) : 'undefined'};`,
 				};
 			},
 		},
 	};
 }
 
-function vitePluginSSR(internals: BuildInternals, adapter: AstroAdapter): VitePlugin {
+function vitePluginSSR(internals: BuildInternals, adapter: LegacyAdapter): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr-server',
 		enforce: 'post',
@@ -89,15 +92,15 @@ function vitePluginSSR(internals: BuildInternals, adapter: AstroAdapter): VitePl
 		},
 		resolveId: {
 			filter: {
-				id: new RegExp(`^${SSR_VIRTUAL_MODULE_ID}$`),
+				id: new RegExp(`^${LEGACY_SSR_ENTRY_VIRTUAL_MODULE}$`),
 			},
 			handler() {
-				return RESOLVED_SSR_VIRTUAL_MODULE_ID;
+				return RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE;
 			},
 		},
 		load: {
 			filter: {
-				id: new RegExp(`^${RESOLVED_SSR_VIRTUAL_MODULE_ID}$`),
+				id: new RegExp(`^${RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE}$`),
 			},
 			handler() {
 				const exports: string[] = [];
@@ -131,14 +134,17 @@ function vitePluginSSR(internals: BuildInternals, adapter: AstroAdapter): VitePl
 }
 
 export function pluginSSR(options: StaticBuildOptions, internals: BuildInternals): VitePlugin[] {
-	// We check before this point if there's an adapter, so we can safely assume it exists here.
-	const adapter = options.settings.adapter!;
+	const adapter = options.settings.adapter;
 	const ssr = options.settings.buildOutput === 'server';
 
-	const plugins: VitePlugin[] = [vitePluginAdapter(adapter), vitePluginAdapterConfig(adapter)];
+	const plugins: VitePlugin[] = [];
 
-	if (ssr) {
-		plugins.unshift(vitePluginSSR(internals, adapter));
+	if (adapter && isLegacyAdapter(adapter)) {
+		plugins.push(vitePluginAdapter(adapter), vitePluginAdapterConfig(adapter));
+
+		if (ssr) {
+			plugins.unshift(vitePluginSSR(internals, adapter));
+		}
 	}
 
 	return plugins;
