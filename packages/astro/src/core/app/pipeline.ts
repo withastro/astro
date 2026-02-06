@@ -52,7 +52,9 @@ export class AppPipeline extends Pipeline {
 
 	async headElements(routeData: RouteData): Promise<HeadElements> {
 		const { assetsPrefix, base } = this.manifest;
-		const routeInfo = this.manifest.routes.find((route) => route.routeData.route === routeData.route);
+		const routeInfo = this.manifest.routes.find(
+			(route) => route.routeData.route === routeData.route,
+		);
 		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
 		const links = new Set<never>();
 		const scripts = new Set<SSRElement>();

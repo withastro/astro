@@ -32,7 +32,7 @@ export function pluginInternals(
 							external: [
 								'sharp', // For sharp image service
 							],
-						}
+						},
 					},
 					resolve: {
 						// Always bundle Astro runtime when building for SSR
