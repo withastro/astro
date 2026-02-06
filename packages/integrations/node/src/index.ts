@@ -30,6 +30,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 		name: '@astrojs/node',
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, logger, command }) => {
+				_config = config
 				let session = config.session;
 				if (!session?.driver) {
 					logger.info('Enabling sessions with filesystem storage');
@@ -45,6 +46,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 				updateConfig({
 					build: {
 						redirects: false,
+						serverEntry: 'entry.mjs',
 					},
 					image: {
 						endpoint: {
@@ -62,13 +64,13 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 						plugins: [
 							createConfigPlugin({
 								experimentalDisableStreaming: userOptions.experimentalDisableStreaming ?? false,
-								port: _config!.server.port,
-								host: _config!.server.host,
+								port: _config.server.port,
+								host: _config.server.host,
 								experimentalErrorPageHost: userOptions.experimentalErrorPageHost?.toString(),
-								trailingSlash: _config!.trailingSlash,
-								assets: _config!.build.assets,
-								server: _config!.build.server.toString(),
-								client: _config!.build.client.toString(),
+								trailingSlash: _config.trailingSlash,
+								assets: _config.build.assets,
+								server: _config.build.server.toString(),
+								client: _config.build.client.toString(),
 								staticHeaders: userOptions.staticHeaders ?? false,
 							}),
 							// Done in a plugin so it can get the value of _config.root from a later hook
@@ -79,6 +81,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 										build: {
 											rollupOptions: {
 												// TODO: support custom entrypoint
+												// TODO: bug with serverEntry
 												input: '@astrojs/node/server.js',
 											},
 										},

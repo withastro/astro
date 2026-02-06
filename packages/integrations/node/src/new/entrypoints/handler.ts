@@ -1,5 +1,5 @@
 import { NodeApp } from 'astro/app/node';
-import { manifest } from 'astro:ssr-manifest';
+import { manifest } from 'virtual:astro:manifest';
 import { setGetEnv } from 'astro/env/setup';
 import * as options from 'virtual:astro-node:config';
 import { AsyncLocalStorage } from 'node:async_hooks';

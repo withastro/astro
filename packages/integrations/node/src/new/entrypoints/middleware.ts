@@ -1,13 +1,13 @@
 import type { RequestHandler } from '../../types.js';
 import { NodeApp } from 'astro/app/node';
-import { manifest } from 'astro:ssr-manifest';
+import { manifest } from 'virtual:astro:manifest';
 import { setGetEnv } from 'astro/env/setup';
 import * as options from 'virtual:astro-node:config';
 import { createAppHandler } from '../handlers.js';
 
 setGetEnv((key) => process.env[key]);
 
-export function astroMiddleware(): RequestHandler {
+export function createMiddleware(): RequestHandler {
 	const app = new NodeApp(manifest, !options.experimentalDisableStreaming);
 	const handler = createAppHandler({
 		app,

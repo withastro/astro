@@ -1,8 +1,10 @@
 import { NodeApp } from 'astro/app/node';
 import * as options from 'virtual:astro-node:config';
-import { manifest } from 'astro:ssr-manifest';
+import { manifest } from 'virtual:astro:manifest';
 import { createStandaloneHandler } from '../handlers.js';
 import type { NodeAppHeadersJson } from 'astro';
+
+const app = new NodeApp(manifest, !options.experimentalDisableStreaming);
 
 async function start() {
 	const { logListeningOn } = await import('../../log-listening-on.js');
@@ -11,6 +13,7 @@ async function start() {
 	const { STATIC_HEADERS_FILE } = await import('../../shared.js');
 	const { existsSync, readFileSync } = await import('node:fs');
 
+	// TODO: extract
 	function readHeadersJson(outDir: string | URL): NodeAppHeadersJson | undefined {
 		let headersMap: NodeAppHeadersJson | undefined = undefined;
 
@@ -34,7 +37,6 @@ async function start() {
 		headersMap = readHeadersJson(manifest.outDir);
 	}
 
-	const app = new NodeApp(manifest, !options.experimentalDisableStreaming);
 	if (headersMap) {
 		app.setHeadersMap(headersMap);
 	}
@@ -53,9 +55,4 @@ if (process.env.ASTRO_NODE_AUTOSTART !== 'disabled') {
 	await start();
 }
 
-export let previewHandler!: ReturnType<typeof createStandaloneHandler>;
-
-if (process.env.ASTRO_NODE_PREVIEW === 'true') {
-	const app = new NodeApp(manifest, !options.experimentalDisableStreaming);
-	previewHandler = createStandaloneHandler({ app, ...options });
-}
+export const handler = createStandaloneHandler({ app, ...options });
