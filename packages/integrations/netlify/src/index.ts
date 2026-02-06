@@ -364,10 +364,12 @@ export default function netlifyIntegration(
 		logger,
 		root,
 		serverEntry,
+		notFoundContent,
 	}: {
 		logger: AstroIntegrationLogger;
 		root: URL;
 		serverEntry: string;
+		notFoundContent: string | undefined;
 	}) {
 		const entry = new URL(`./${serverEntry}`, ssrBuildDir());
 
@@ -409,7 +411,16 @@ export default function netlifyIntegration(
 			TRACE_CACHE,
 		);
 
-		await writeFile(new URL('./ssr.mjs', ssrOutputDir()), `export * from './${handler}';`);
+		await writeFile(
+			new URL('./ssr.mjs', ssrOutputDir()),
+			`
+			import { config, createHandler } from './${handler}';
+
+			export default createHandler(${JSON.stringify({ notFoundContent })});
+
+			export { config };
+		`,
+		);
 	}
 
 	async function writeMiddleware({
@@ -714,7 +725,16 @@ export default function netlifyIntegration(
 				logger.info('Emitted _redirects');
 
 				if (finalBuildOutput !== 'static') {
-					await writeSSRFunction({ logger, root: _config.root, serverEntry: _config.build.serverEntry });
+					let notFoundContent = undefined;
+					try {
+						notFoundContent = await readFile(new URL('./404.html', dir), 'utf8');
+					} catch {}
+					await writeSSRFunction({
+						logger,
+						root: _config.root,
+						serverEntry: _config.build.serverEntry,
+						notFoundContent,
+					});
 					logger.info('Generated SSR Function');
 				}
 				if (astroMiddlewareEntryPoint) {
