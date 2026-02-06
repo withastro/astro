@@ -1,5 +1,25 @@
 # @astrojs/netlify
 
+## 7.0.0-beta.7
+
+### Minor Changes
+
+- [#15258](https://github.com/withastro/astro/pull/15258) [`d339a18`](https://github.com/withastro/astro/commit/d339a182b387a7a1b0d5dd0d67a0638aaa2b4262) Thanks [@ematipico](https://github.com/ematipico)! - Stabilizes the adapter feature `experimentalStatiHeaders`. If you were using this feature in any of the supported adapters, you'll need to change the name of the flag:
+
+  ```diff
+  export default defineConfig({
+    adapter: netlify({
+  -    experimentalStaticHeaders: true
+  +    staticHeaders: true
+    })
+  })
+  ```
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/underscore-redirects@1.0.0
+
 ## 7.0.0-beta.6
 
 ### Patch Changes

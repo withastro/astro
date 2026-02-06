@@ -209,5 +209,6 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 			placement: settings.config.devToolbar.placement,
 		},
 		logLevel: settings.logLevel,
+		shouldInjectCspMetaTags: false,
 	};
 }
