@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 4.1.0-beta.0
+
+### Minor Changes
+
+- Align beta version numbers to be ahead of stable releases
+
 ## 4.0.15-beta.3
 
 ### Patch Changes

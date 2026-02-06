@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.20.0-beta.0
+
+### Minor Changes
+
+- Align beta version numbers to be ahead of stable releases
+
 ## 0.19.0-beta.3
 
 ### Patch Changes

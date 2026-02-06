@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 3.8.0-beta.0
+
+### Minor Changes
+
+- Align beta version numbers to be ahead of stable releases
+
 ## 3.6.1-beta.3
 
 ### Patch Changes
