@@ -5,7 +5,8 @@ import { setGetEnv } from 'astro/env/setup';
 import createMiddleware from './middleware.js';
 import { STATIC_HEADERS_FILE } from './shared.js';
 import startServer, { createStandaloneHandler } from './standalone.js';
-import type { Options } from './types.js';
+
+type Options = any
 
 setGetEnv((key) => process.env[key]);
 

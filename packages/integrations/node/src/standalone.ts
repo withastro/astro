@@ -7,17 +7,17 @@ import enableDestroy from 'server-destroy';
 import { logListeningOn } from './log-listening-on.js';
 import { createAppHandler } from './serve-app.js';
 import { createStaticHandler } from './serve-static.js';
-import type { Options } from './types.js';
+import type { Config } from './vite-plugin-config.js';
 
 // Used to get Host Value at Runtime
-export const hostOptions = (host: Options['host']): string => {
+export const hostOptions = (host: Config['host']): string => {
 	if (typeof host === 'boolean') {
 		return host ? '0.0.0.0' : 'localhost';
 	}
 	return host;
 };
 
-export default function standalone(app: NodeApp, options: Options) {
+export default function standalone(app: NodeApp, options: Config) {
 	const port = process.env.PORT ? Number(process.env.PORT) : (options.port ?? 8080);
 	const host = process.env.HOST ?? hostOptions(options.host);
 	const handler = createStandaloneHandler(app, options);
@@ -33,9 +33,9 @@ export default function standalone(app: NodeApp, options: Options) {
 }
 
 // also used by server entrypoint
-export function createStandaloneHandler(app: NodeApp, options: Options) {
-	const appHandler = createAppHandler(app, options);
-	const staticHandler = createStaticHandler(app, options);
+export function createStandaloneHandler(app: NodeApp, options: Config) {
+	const appHandler = createAppHandler({ app, ...options });
+	const staticHandler = createStaticHandler({ app, ...options });
 	return (req: http.IncomingMessage, res: http.ServerResponse) => {
 		try {
 			// validate request path

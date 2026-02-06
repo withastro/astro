@@ -1,5 +1,4 @@
 import type { AstroConfig } from 'astro';
-import type { PluginOption } from 'vite';
 
 const VIRTUAL_CONFIG_ID = 'virtual:astro-node:config';
 const RESOLVED_VIRTUAL_CONFIG_ID = '\0' + VIRTUAL_CONFIG_ID;
@@ -16,7 +15,7 @@ export interface Config {
 	staticHeaders: boolean;
 }
 
-export function createConfigPlugin(config: Config): PluginOption {
+export function createConfigPlugin(config: Config): NonNullable<AstroConfig['vite']['plugins']>[number] {
 	return {
 		name: VIRTUAL_CONFIG_ID,
 		resolveId: {
