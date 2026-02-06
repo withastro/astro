@@ -209,6 +209,14 @@ export function astroDevCssPlugin({ routesList, command }: AstroVitePluginOption
 		},
 		{
 			name: MODULE_DEV_CSS_ALL,
+			applyToEnvironment(env) {
+				// This should only run in dev mode so `prerender` is excluded. 
+				return (
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr ||
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.client ||
+					env.name === ASTRO_VITE_ENVIRONMENT_NAMES.astro
+				);
+			},
 			resolveId: {
 				filter: {
 					id: new RegExp(`^${MODULE_DEV_CSS_ALL}$`),
