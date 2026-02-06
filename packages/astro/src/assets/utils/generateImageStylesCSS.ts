@@ -31,26 +31,18 @@ export function generateImageStylesCSS(
   object-position: ${defaultObjectPosition};
 }`
 		: '';
-
 	return `
-/* Auto-generated image styles for CSP compliance */
-
 :where([data-astro-image]) {
   height: auto;
 }
-
 :where([data-astro-image="full-width"]) {
   width: 100%;
 }
-
 :where([data-astro-image="constrained"]) {
   max-width: 100%;
 }
-
 ${fitStyles}
-
 ${defaultFitStyle}
-
 ${positionStyle}
 `.trim();
 }
