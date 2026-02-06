@@ -82,7 +82,9 @@ export async function getImage(
 		delete resolvedOptions.inferSize; // Delete so it doesn't end up in the attributes
 
 		if (isRemoteImage(resolvedOptions.src) && isRemotePath(resolvedOptions.src)) {
-			const result = await inferRemoteSize(resolvedOptions.src); // Directly probe the image URL
+			const getRemoteSize = (url: string) =>
+				service.getRemoteSize?.(url, imageConfig) ?? inferRemoteSize(url);
+			const result = await getRemoteSize(resolvedOptions.src); // Directly probe the image URL
 			resolvedOptions.width ??= result.width;
 			resolvedOptions.height ??= result.height;
 			originalWidth = result.width;
