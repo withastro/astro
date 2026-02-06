@@ -2,10 +2,10 @@
 'astro': minor
 ---
 
-Adds a new optional `getRemoteSize` method to the Image Service interface.
+Adds a new optional `getRemoteSize()` method to the Image Service API.
 
 Previously, `inferRemoteSize()` had a fixed implementation that fetched the entire image to determine its dimensions.
-By adding this method to the Image Service, developers can now override or extend how remote image metadata is retrieved.
+With this new helper function that extends `inferRemoteSize()`, you can now override or extend how remote image metadata is retrieved.
 
 This enables use cases such as:
 - Caching: Storing image dimensions in a database or local cache to avoid redundant network requests.
@@ -13,8 +13,9 @@ This enables use cases such as:
 
 When a custom service implements `getRemoteSize`, it will be automatically used by Astro's `inferRemoteSize()` utility.
 
+For example, you can add a simple cache layer to your existing image service:
+
 ```js
-// Example: Adding a simple cache layer to an existing service
 const cache = new Map();
 
 const myService = {
@@ -28,3 +29,5 @@ const myService = {
   }
 };
 ```
+
+See the [Image Services API reference documentation](https://v6.docs.astro.build/en/reference/image-service-reference/#getremotesize) for more information.
