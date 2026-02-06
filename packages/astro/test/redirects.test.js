@@ -349,4 +349,43 @@ describe('Astro.redirect output: "static"', () => {
 			assert.equal(html.includes('url=https://example.com/about'), true);
 		});
 	});
+
+	describe('Invalid redirect configurations', () => {
+		it('throws an error when dynamic redirect destination does not match any route', async () => {
+			// This tests the issue from https://github.com/withastro/astro/issues/12036
+			// where a redirect like /categories/[category] -> /categories/[category]/1
+			// produces a misleading "getStaticPaths required" error instead of
+			// a clear error about the invalid redirect destination.
+			fixture = await loadFixture({
+				root: './fixtures/redirects/',
+				output: 'static',
+				redirects: {
+					// The destination mixes a dynamic param [category] with a static segment "1"
+					// but the actual route is /categories/[category]/[page].astro
+					// The routeMap won't find "/categories/[category]/1" as a key
+					'/categories/[category]': '/categories/[category]/1',
+				},
+			});
+
+			try {
+				await fixture.build();
+				assert.fail('Expected build to fail');
+			} catch (e) {
+				// Should NOT be the misleading getStaticPaths error
+				assert.ok(
+					!e.message.includes('getStaticPaths()'),
+					`Expected error to not mention getStaticPaths, got: ${e.message}`,
+				);
+				// Should be our new clear error message
+				assert.ok(
+					e.message.includes('does not match any existing route'),
+					`Expected error to mention route matching issue, got: ${e.message}`,
+				);
+				assert.ok(
+					e.name === 'InvalidRedirectDestination',
+					`Expected error name to be InvalidRedirectDestination, got: ${e.name}`,
+				);
+			}
+		});
+	});
 });

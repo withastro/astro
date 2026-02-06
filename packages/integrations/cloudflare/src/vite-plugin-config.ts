@@ -23,7 +23,9 @@ export function createConfigPlugin(config: CloudflareConfig): PluginOption {
 				id: new RegExp(`^${RESOLVED_VIRTUAL_CONFIG_ID}$`),
 			},
 			handler() {
-				return `export const sessionKVBindingName = ${JSON.stringify(config.sessionKVBindingName)};`;
+				const isPrerender = this.environment?.name === 'prerender';
+				return `export const sessionKVBindingName = ${JSON.stringify(config.sessionKVBindingName)};
+export const isPrerender = ${isPrerender};`;
 			},
 		},
 	};

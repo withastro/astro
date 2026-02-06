@@ -1,8 +1,6 @@
 import { createReadStream, existsSync, readFileSync } from 'node:fs';
 import { appendFile, stat } from 'node:fs/promises';
-import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline/promises';
-import { pathToFileURL } from 'node:url';
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
@@ -23,12 +21,14 @@ import {
 } from './wrangler.js';
 import { parse } from 'dotenv';
 import { sessionDrivers } from 'astro/config';
+import { createCloudflarePrerenderer } from './prerenderer.js';
 
 export type { Runtime } from './utils/handler.js';
 
 export type Options = {
 	/** Options for handling images. */
 	imageService?: ImageService;
+
 	/** Configuration for `_routes.json` generation. A _routes.json file controls when your Function is invoked. This file will include three different properties:
 	 *
 	 * - version: Defines the version of the schema. Currently there is only one version of the schema (version 1), however, we may add more in the future and aim to be backwards compatible.
@@ -75,27 +75,6 @@ export type Options = {
 	 * See https://developers.cloudflare.com/images/transform-images/bindings/ for more details.
 	 */
 	imagesBindingName?: string;
-
-	/**
-	 * This configuration option allows you to specify a custom entryPoint for your Cloudflare Worker.
-	 * The entry point is the file that will be executed when your Worker is invoked.
-	 * By default, this is set to `@astrojs/cloudflare/entrypoints/server.js` and `['default']`.
-	 * @docs https://docs.astro.build/en/guides/integrations-guide/cloudflare/#workerEntryPoint
-	 */
-	workerEntryPoint?: {
-		/**
-		 * The path to the entry file. This should be a relative path from the root of your Astro project.
-		 * @example`'src/worker.ts'`
-		 * @docs https://docs.astro.build/en/guides/integrations-guide/cloudflare/#workerentrypointpath
-		 */
-		path: string | URL;
-		/**
-		 * Additional named exports to use for the entry file. Astro always includes the default export (`['default']`). If you need to have other top level named exports use this option.
-		 * @example ['MyDurableObject', 'namedExport']
-		 * @docs https://docs.astro.build/en/guides/integrations-guide/cloudflare/#workerentrypointnamedexports
-		 */
-		namedExports?: string[];
-	};
 };
 
 export default function createIntegration(args?: Options): AstroIntegration {
@@ -139,6 +118,17 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						imagesBindingName:
 							args?.imageService === 'cloudflare-binding' ? args?.imagesBindingName : false,
 					}),
+					experimental: {
+						prerenderWorker: {
+							config(_, { entryWorkerConfig }) {
+								return {
+									...entryWorkerConfig,
+									// This is the Vite environment name used for prerendering
+									name: 'prerender',
+								};
+							},
+						},
+					},
 				};
 
 				updateConfig({
@@ -167,8 +157,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							{
 								name: '@astrojs/cloudflare:environment',
 								configEnvironment(environmentName, _options) {
-									const isServerEnvironment = ['ssr', 'prerender'].includes(environmentName);
-									if (isServerEnvironment && _options.optimizeDeps?.noDiscovery === false) {
+									const isServerEnvironment = ['astro', 'ssr', 'prerender'].includes(
+										environmentName,
+									);
+									if (isServerEnvironment && !_options.optimizeDeps?.noDiscovery) {
 										return {
 											optimizeDeps: {
 												include: [
@@ -249,20 +241,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					content: '/// <reference types="@astrojs/cloudflare/types.d.ts" />',
 				});
 
-				let customWorkerEntryPoint: URL | undefined;
-				if (args?.workerEntryPoint && typeof args.workerEntryPoint.path === 'string') {
-					const require = createRequire(config.root);
-					try {
-						customWorkerEntryPoint = pathToFileURL(require.resolve(args.workerEntryPoint.path));
-					} catch {
-						customWorkerEntryPoint = new URL(args.workerEntryPoint.path, config.root);
-					}
-				}
-
 				setAdapter({
 					name: '@astrojs/cloudflare',
-					serverEntrypoint: customWorkerEntryPoint ?? '@astrojs/cloudflare/entrypoints/server.js',
-					exports: [...new Set(['default', ...(args?.workerEntryPoint?.namedExports ?? [])])],
 					adapterFeatures: {
 						edgeMiddleware: false,
 						buildOutput: 'server',
@@ -299,6 +279,17 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						);
 					}
 				}
+			},
+			'astro:build:start': ({ setPrerenderer }) => {
+				setPrerenderer(
+					createCloudflarePrerenderer({
+						root: _config.root,
+						serverDir: _config.build.server,
+						clientDir: _config.build.client,
+						base: _config.base,
+						trailingSlash: _config.trailingSlash,
+					}),
+				);
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
@@ -409,6 +400,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						logger.error('Failed to write _redirects file');
 					}
 				}
+
+				// Delete this variable so the preview server opens the server build.
+				delete process.env.CLOUDFLARE_VITE_BUILD;
 			},
 		},
 	};

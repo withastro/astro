@@ -103,6 +103,17 @@ export interface BuildInternals {
 	 * Map of environment name -> Set of asset filenames.
 	 */
 	ssrAssetsPerEnvironment: Map<AstroEnvironmentNames, Set<string>>;
+
+	/**
+	 * Chunks extracted during build that need post-build injection (manifest, content).
+	 * Populated by top-level buildApp, consumed by post plugin.
+	 */
+	extractedChunks?: Array<{
+		fileName: string;
+		code: string;
+		moduleIds: string[];
+		prerender: boolean;
+	}>;
 }
 
 /**

@@ -1,5 +1,11 @@
 # @astrojs/db
 
+## 0.19.0-beta.3
+
+### Patch Changes
+
+- [#15373](https://github.com/withastro/astro/pull/15373) [`14252b2`](https://github.com/withastro/astro/commit/14252b22f9129f51fae9b224386ab6c4ea1b76c5) Thanks [@renovate](https://github.com/apps/renovate)! - Updates zod to v4
+
 ## 0.19.0-beta.2
 
 ### Patch Changes

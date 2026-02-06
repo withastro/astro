@@ -3,7 +3,8 @@
 
 declare module 'virtual:astro-cloudflare:config' {
 	export const sessionKVBindingName: string;
-	// Additional exports can be added here in the future
+	/** True when running in the prerender environment during build */
+	export const isPrerender: boolean;
 }
 
 declare namespace Cloudflare {
@@ -18,4 +19,3 @@ declare namespace Cloudflare {
 interface Env extends Cloudflare.Env {}
 type ImagesBinding = import('@cloudflare/workers-types').ImagesBinding;
 type Fetcher = import('@cloudflare/workers-types').Fetcher;
-type IncomingRequestCfProperties = import('@cloudflare/workers-types').IncomingRequestCfProperties;
