@@ -95,7 +95,7 @@ describe(
 
 		it('Can load included files correctly', async () => {
 			const entryURL = new URL(
-				'./fixtures/includes/.netlify/v1/functions/ssr/packages/integrations/netlify/test/functions/fixtures/includes/.netlify/build/ssr-function.mjs',
+				'./fixtures/includes/.netlify/v1/functions/ssr/ssr.mjs',
 				import.meta.url,
 			);
 			const { default: handler } = await import(entryURL);
