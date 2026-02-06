@@ -91,9 +91,9 @@ describe('dependencies', () => {
 				await dependencies(context);
 				assert.fail('The function should throw an error');
 			} catch (error) {
-				assert.equal(
-					error.message,
-					`The integration "foo " isn't supported. Check if there is typo.`,
+				assert.ok(
+					error.message.includes('Invalid package name "foo "'),
+					`Expected error about invalid package name, got: ${error.message}`,
 				);
 			}
 			context = {
@@ -107,9 +107,9 @@ describe('dependencies', () => {
 				await dependencies(context);
 				assert.fail('The function should throw an error');
 			} catch (error) {
-				assert.equal(
-					error.message,
-					`The integration "bar lorem" isn't supported. Check if there is typo.`,
+				assert.ok(
+					error.message.includes('Invalid package name "bar lorem"'),
+					`Expected error about invalid package name, got: ${error.message}`,
 				);
 			}
 		});

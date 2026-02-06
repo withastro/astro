@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { assertValidPackageName } from '@astrojs/internal-helpers/cli';
 import { color } from '@astrojs/cli-kit';
 import { error, info, title } from '../messages.js';
 import { shell } from '../shell.js';
@@ -27,12 +28,8 @@ export async function dependencies(
 
 	if (ctx.add) {
 		for (const addValue of ctx.add) {
-			// This is a very KISS heuristics. Generally users provide packages, which don't have spaces.
-			// If something has a space, it's possibly a typo or something more (e.g. a shell command).
-			// In this case, we bail
-			if (addValue.includes(' ')) {
-				throw new Error(`The integration "${addValue}" isn't supported. Check if there is typo.`);
-			}
+			// Validate package name to prevent command injection attacks
+			assertValidPackageName(addValue);
 		}
 	}
 
@@ -96,11 +93,15 @@ async function astroAdd({
 	cwd: string;
 }) {
 	if (packageManager === 'yarn') await ensureYarnLock({ cwd });
-	return shell(
-		packageManager === 'npm' ? 'npx' : `${packageManager} dlx`,
-		['astro add', integrations.join(' '), '-y'],
-		{ cwd, timeout: 90_000, stdio: 'ignore' },
-	);
+
+	// Build command and args properly for spawn without shell interpretation
+	const command = packageManager === 'npm' ? 'npx' : packageManager;
+	const args =
+		packageManager === 'npm'
+			? ['astro', 'add', ...integrations, '-y']
+			: ['dlx', 'astro', 'add', ...integrations, '-y'];
+
+	return shell(command, args, { cwd, timeout: 90_000, stdio: 'ignore' });
 }
 
 async function install({ packageManager, cwd }: { packageManager: string; cwd: string }) {
