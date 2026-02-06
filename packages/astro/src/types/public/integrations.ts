@@ -96,10 +96,9 @@ export interface AstroAdapterFeatures {
 	 * `astro:build:generated` hook, so adapters can consume them and add them inside
 	 * their hosting headers configuration file.
 	 *
-	 * NOTE: the semantics and list of headers might change until the feature
-	 * is out of experimental
+	 * Future features may decide to use this feature to create/add headers for static pages.
 	 */
-	experimentalStaticHeaders?: boolean;
+	staticHeaders?: boolean;
 }
 
 /**
@@ -120,20 +119,33 @@ export interface AstroAdapterClientConfig {
 	assetQueryParams?: URLSearchParams;
 }
 
-export interface AstroAdapter {
-	name: string;
-	serverEntrypoint?: string | URL;
-	previewEntrypoint?: string | URL;
-	exports?: string[];
-	args?: any;
-	adapterFeatures?: AstroAdapterFeatures;
+interface AdapterLegacyDynamicProperties {
 	/**
 	 * Determines how the adapter's entrypoint is handled during the build.
 	 * - `'self'`: The adapter defines its own entrypoint and sets rollupOptions.input
 	 * - `'legacy-dynamic'`: Uses the virtual module entrypoint with dynamic exports
 	 * @default 'legacy-dynamic'
 	 */
-	entryType?: 'self' | 'legacy-dynamic';
+	entryType?: 'legacy-dynamic';
+	serverEntrypoint?: string | URL;
+	exports?: string[];
+	args?: any;
+}
+
+interface AdapterSelfProperties {
+	/**
+	 * Determines how the adapter's entrypoint is handled during the build.
+	 * - `'self'`: The adapter defines its own entrypoint and sets rollupOptions.input
+	 * - `'legacy-dynamic'`: Uses the virtual module entrypoint with dynamic exports
+	 * @default 'legacy-dynamic'
+	 */
+	entryType: 'self';
+}
+
+export type AstroAdapter = {
+	name: string;
+	previewEntrypoint?: string | URL;
+	adapterFeatures?: AstroAdapterFeatures;
 	/**
 	 * List of features supported by an adapter.
 	 *
@@ -144,7 +156,7 @@ export interface AstroAdapter {
 	 * Configuration for Astro's client-side code.
 	 */
 	client?: AstroAdapterClientConfig;
-}
+} & (AdapterLegacyDynamicProperties | AdapterSelfProperties);
 
 export type AstroAdapterFeatureMap = {
 	/**
@@ -257,7 +269,7 @@ export interface BaseIntegrationHooks {
 	'astro:build:generated': (options: {
 		dir: URL;
 		logger: AstroIntegrationLogger;
-		experimentalRouteToHeaders: RouteToHeaders;
+		routeToHeaders: RouteToHeaders;
 	}) => void | Promise<void>;
 	'astro:build:done': (options: {
 		pages: { pathname: string }[];

@@ -263,7 +263,7 @@ export interface NetlifyIntegrationConfig {
 	 * Here the list of the headers that are added:
 	 * - The CSP header of the static pages is added when CSP support is enabled.
 	 */
-	experimentalStaticHeaders?: boolean;
+	staticHeaders?: boolean;
 
 	/**
 	 * Netlify features to enable when running `astro dev`. These work best when your site is linked to a Netlify site using `netlify link`.
@@ -671,7 +671,7 @@ export default function netlifyIntegration(
 				finalBuildOutput = buildOutput;
 
 				const useEdgeMiddleware = integrationConfig?.edgeMiddleware ?? false;
-				const useStaticHeaders = integrationConfig?.experimentalStaticHeaders ?? false;
+				const useStaticHeaders = integrationConfig?.staticHeaders ?? false;
 
 				setAdapter({
 					name: '@astrojs/netlify',
@@ -679,7 +679,7 @@ export default function netlifyIntegration(
 					exports: ['default'],
 					adapterFeatures: {
 						edgeMiddleware: useEdgeMiddleware,
-						experimentalStaticHeaders: useStaticHeaders,
+						staticHeaders: useStaticHeaders,
 					},
 					args: { middlewareSecret } satisfies Args,
 					supportedAstroFeatures: {
@@ -703,8 +703,8 @@ export default function netlifyIntegration(
 					},
 				});
 			},
-			'astro:build:generated': ({ experimentalRouteToHeaders }) => {
-				staticHeadersMap = experimentalRouteToHeaders;
+			'astro:build:generated': ({ routeToHeaders }) => {
+				staticHeadersMap = routeToHeaders;
 			},
 			'astro:build:ssr': async ({ middlewareEntryPoint }) => {
 				astroMiddlewareEntryPoint = middlewareEntryPoint;
