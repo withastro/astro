@@ -3,7 +3,7 @@ import path from 'node:path';
 import { color } from '@astrojs/cli-kit';
 import { error, info, title } from '../messages.js';
 import { shell } from '../shell.js';
-import { type Context, KNOWN_LIBS, type KnownLibs } from './context.js';
+import type { Context } from './context.js';
 
 export async function dependencies(
 	ctx: Pick<
@@ -23,15 +23,15 @@ export async function dependencies(
 		}));
 		ctx.install = deps;
 	}
-	ctx.add = ctx.add?.reduce<KnownLibs[]>(
-		(acc, item) => acc.concat(item.split(',') as KnownLibs[]),
-		[],
-	);
+	ctx.add = ctx.add?.reduce<string[]>((acc, item) => acc.concat(item.split(',')), []);
 
 	if (ctx.add) {
 		for (const addValue of ctx.add) {
-			if (!KNOWN_LIBS.includes(addValue)) {
-				throw new Error(`The integration ${addValue} isn't supported.`);
+			// This is a very KISS heuristics. Generally users provide packages, which don't have spaces.
+			// If something has a space, it's possibly a typo or something more (e.g. a shell command).
+			// In this case, we bail
+			if (addValue.includes(' ')) {
+				throw new Error(`The integration "${addValue}" isn't supported. Check if there is typo.`);
 			}
 		}
 	}

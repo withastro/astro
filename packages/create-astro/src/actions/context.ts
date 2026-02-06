@@ -6,34 +6,6 @@ import arg from 'arg';
 import getSeasonalData from '../data/seasonal.js';
 import { getName, getVersion } from '../messages.js';
 
-export const KNOWN_LIBS = [
-	// UI Framework Integrations
-	'react',
-	'preact',
-	'solid',
-	'svelte',
-	'vue',
-	'alpinejs',
-
-	// Adapter Integrations
-	'cloudflare',
-	'deno',
-	'netlify',
-	'node',
-	'vercel',
-
-	// Other Official Integrations
-	'db',
-	'markdoc',
-	'mdx',
-	'partytown',
-	'sitemap',
-	'tailwind',
-	'lit',
-] as const;
-
-export type KnownLibs = (typeof KNOWN_LIBS)[number];
-
 export interface Context {
 	help: boolean;
 	prompt: typeof prompt;
@@ -43,7 +15,7 @@ export interface Context {
 	version: Promise<string>;
 	skipHouston: boolean;
 	fancy?: boolean;
-	add?: KnownLibs[];
+	add?: string[];
 	dryRun?: boolean;
 	yes?: boolean;
 	projectName?: string;
@@ -154,7 +126,7 @@ export async function getContext(argv: string[]): Promise<Context> {
 		),
 		skipHouston,
 		fancy,
-		add: add as unknown as KnownLibs[],
+		add,
 		dryRun,
 		projectName,
 		template,

@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { dependencies } from '../dist/index.js';
-import { KNOWN_LIBS } from '../dist/actions/context.js';
 import { setup } from './utils.js';
 
 describe('dependencies', () => {
@@ -83,7 +82,7 @@ describe('dependencies', () => {
 		it('fails for non-supported integration', async () => {
 			let context = {
 				cwd: '',
-				add: ['foo'],
+				add: ['foo '],
 				dryRun: true,
 				prompt: () => ({ deps: false }),
 			};
@@ -92,11 +91,14 @@ describe('dependencies', () => {
 				await dependencies(context);
 				assert.fail('The function should throw an error');
 			} catch (error) {
-				assert.equal(error.message, "The integration foo isn't supported.");
+				assert.equal(
+					error.message,
+					`The integration "foo " isn't supported. Check if there is typo.`,
+				);
 			}
 			context = {
 				cwd: '',
-				add: ['react', 'bar'],
+				add: ['react', 'bar lorem'],
 				dryRun: true,
 				prompt: () => ({ deps: false }),
 			};
@@ -105,20 +107,11 @@ describe('dependencies', () => {
 				await dependencies(context);
 				assert.fail('The function should throw an error');
 			} catch (error) {
-				assert.equal(error.message, "The integration bar isn't supported.");
+				assert.equal(
+					error.message,
+					`The integration "bar lorem" isn't supported. Check if there is typo.`,
+				);
 			}
-		});
-
-		it(`supports all known integrations`, async () => {
-			const context = {
-				cwd: '',
-				add: KNOWN_LIBS,
-				dryRun: true,
-				prompt: () => ({ deps: false }),
-			};
-
-			await dependencies(context);
-			assert.ok('It should not fail');
 		});
 	});
 });
