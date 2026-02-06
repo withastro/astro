@@ -5,6 +5,15 @@ import { error, info, title } from '../messages.js';
 import { shell } from '../shell.js';
 import type { Context } from './context.js';
 
+// Valid npm package name pattern: lowercase letters, numbers, hyphens, underscores, dots
+// Scoped packages start with @scope/
+// This prevents shell metacharacters from being passed to the shell
+const VALID_INTEGRATION_NAME = /^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/;
+
+function isValidIntegrationName(name: string): boolean {
+	return VALID_INTEGRATION_NAME.test(name);
+}
+
 export async function dependencies(
 	ctx: Pick<
 		Context,
@@ -25,6 +34,18 @@ export async function dependencies(
 	}
 
 	ctx.add = ctx.add?.reduce<string[]>((acc, item) => acc.concat(item.split(',')), []);
+
+	// Validate integration names to prevent shell injection
+	if (ctx.add) {
+		const invalidNames = ctx.add.filter((name) => !isValidIntegrationName(name));
+		if (invalidNames.length > 0) {
+			await error(
+				'error',
+				`Invalid integration name(s): ${invalidNames.join(', ')}. Integration names must be valid npm package names.`,
+			);
+			ctx.add = ctx.add.filter((name) => isValidIntegrationName(name));
+		}
+	}
 
 	if (ctx.dryRun) {
 		await info(

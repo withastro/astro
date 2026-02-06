@@ -6,6 +6,54 @@ import { setup } from './utils.js';
 describe('dependencies', () => {
 	const fixture = setup();
 
+	it('rejects integration names with shell metacharacters', async () => {
+		const context = {
+			cwd: '',
+			yes: true,
+			packageManager: 'npm',
+			dryRun: true,
+			prompt: () => ({ deps: true }),
+			add: ['react; open -a Calculator.app;'],
+		};
+
+		await dependencies(context);
+
+		assert.ok(fixture.hasMessage('Invalid integration name(s)'));
+		assert.deepEqual(context.add, []);
+	});
+
+	it('accepts valid integration names', async () => {
+		const context = {
+			cwd: '',
+			yes: true,
+			packageManager: 'npm',
+			dryRun: true,
+			prompt: () => ({ deps: true }),
+			add: ['react', '@astrojs/tailwind', 'vue'],
+		};
+
+		await dependencies(context);
+
+		assert.ok(!fixture.hasMessage('Invalid integration name(s)'));
+		assert.deepEqual(context.add, ['react', '@astrojs/tailwind', 'vue']);
+	});
+
+	it('filters out only invalid integration names', async () => {
+		const context = {
+			cwd: '',
+			yes: true,
+			packageManager: 'npm',
+			dryRun: true,
+			prompt: () => ({ deps: true }),
+			add: ['react', 'vue; rm -rf /', 'svelte'],
+		};
+
+		await dependencies(context);
+
+		assert.ok(fixture.hasMessage('Invalid integration name(s)'));
+		assert.deepEqual(context.add, ['react', 'svelte']);
+	});
+
 	it('--yes', async () => {
 		const context = {
 			cwd: '',
