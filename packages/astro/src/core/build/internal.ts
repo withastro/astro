@@ -95,6 +95,17 @@ export interface BuildInternals {
 	componentMetadata: SSRResult['componentMetadata'];
 	middlewareEntryPoint: URL | undefined;
 	astroActionsEntryPoint: URL | undefined;
+
+	/**
+	 * Chunks extracted during build that need post-build injection (manifest, content).
+	 * Populated by top-level buildApp, consumed by post plugin.
+	 */
+	extractedChunks?: Array<{
+		fileName: string;
+		code: string;
+		moduleIds: string[];
+		prerender: boolean;
+	}>;
 }
 
 /**

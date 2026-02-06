@@ -286,6 +286,10 @@ declare module 'astro:ssr-manifest' {
 	export const manifest: import('./dist/types/public/internal.js').SSRManifest;
 }
 
+declare module 'astro:static-paths' {
+	export const StaticPaths: typeof import('./dist/runtime/prerender/static-paths.js').StaticPaths;
+}
+
 // Everything below are Vite's types (apart from image types, which are in `client.d.ts`)
 
 // CSS modules

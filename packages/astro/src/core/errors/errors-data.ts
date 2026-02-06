@@ -1034,6 +1034,23 @@ export const UnsupportedExternalRedirect = {
 /**
  * @docs
  * @see
+ * - [Configured redirects](https://docs.astro.build/en/guides/routing/#configured-redirects)
+ * @description
+ * A dynamic redirect destination must match an existing route pattern.
+ * This error occurs when a redirect with dynamic parameters points to a destination
+ * that doesn't correspond to any page in your project.
+ */
+export const InvalidRedirectDestination = {
+	name: 'InvalidRedirectDestination',
+	title: 'Invalid redirect destination.',
+	message: (from: string, to: string) =>
+		`The redirect from "${from}" to "${to}" is invalid. The destination "${to}" does not match any existing route in your project.`,
+	hint: 'If you are redirecting to a specific page of a dynamic route (e.g., "/posts/[slug]/1"), this is not supported. The destination must be either a static path or a route pattern that matches an existing page (e.g., "/posts/[slug]/[page]").',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
  * - [Dynamic routes](https://docs.astro.build/en/guides/routing/#dynamic-routes)
  * @description
  * A dynamic route param is invalid. This is often caused by an `undefined` parameter or a missing [rest parameter](https://docs.astro.build/en/guides/routing/#rest-parameters).

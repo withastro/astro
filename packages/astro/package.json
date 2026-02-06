@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "6.0.0-beta.7",
+  "version": "6.0.0-beta.9",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -52,6 +52,9 @@
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",
     "./app/entrypoint": "./dist/core/app/entrypoint.js",
+    "./app/entrypoint/dev": "./dist/core/app/entrypoint/dev.js",
+    "./app/entrypoint/prod": "./dist/core/app/entrypoint/prod.js",
+    "./app/manifest": "./dist/core/app/manifest.js",
     "./entrypoints/prerender": "./dist/entrypoints/prerender.js",
     "./entrypoints/legacy": "./dist/entrypoints/legacy.js",
     "./client/*": "./dist/runtime/client/*",

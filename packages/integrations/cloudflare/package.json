@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to Cloudflare Workers/Pages",
-  "version": "13.0.0-beta.4",
+  "version": "13.0.0-beta.5",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -43,7 +43,7 @@
   "dependencies": {
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
-    "@cloudflare/vite-plugin": "^1.22.1",
+    "@cloudflare/vite-plugin": "^1.23.0",
     "dotenv": "^17.2.3",
     "piccolore": "^0.1.3",
     "tinyglobby": "^0.2.15",

@@ -25,7 +25,7 @@ import { createRoutesList } from '../routing/manifest/create.js';
 import { clearContentLayerCache } from '../sync/index.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { collectPagesData } from './page-data.js';
-import { staticBuild, viteBuild } from './static-build.js';
+import { viteBuild } from './static-build.js';
 import type { StaticBuildOptions } from './types.js';
 import { getTimeStat } from './util.js';
 
@@ -164,7 +164,7 @@ class AstroBuilder {
 
 	/** Run the build logic. build() is marked private because usage should go through ".run()" */
 	private async build({ viteConfig }: { viteConfig: vite.InlineConfig }) {
-		await runHookBuildStart({ config: this.settings.config, logger: this.logger });
+		await runHookBuildStart({ settings: this.settings, logger: this.logger });
 		this.validateConfig();
 
 		this.logger.info('build', `output: ${colors.blue('"' + this.settings.config.output + '"')}`);
@@ -213,9 +213,7 @@ class AstroBuilder {
 			key: keyPromise,
 		};
 
-		const { internals, prerenderOutputDir } = await viteBuild(opts);
-
-		await staticBuild(opts, internals, prerenderOutputDir);
+		await viteBuild(opts);
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();
