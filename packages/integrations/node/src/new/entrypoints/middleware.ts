@@ -1,9 +1,9 @@
-import type { RequestHandler } from '../types.js';
+import type { RequestHandler } from '../../types.js';
 import { NodeApp } from 'astro/app/node';
 import { manifest } from 'astro:ssr-manifest';
 import { setGetEnv } from 'astro/env/setup';
 import * as options from 'virtual:astro-node:config';
-import { createAppHandler } from '../serve-app.js';
+import { createAppHandler } from '../handlers.js';
 
 setGetEnv((key) => process.env[key]);
 

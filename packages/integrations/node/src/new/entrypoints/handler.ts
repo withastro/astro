@@ -6,6 +6,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 
 setGetEnv((key) => process.env[key]);
 
+// TODO: find a way to unify with createAppHandler
 export async function handle(request: Request, locals?: object): Promise<Response> {
 	const app = new NodeApp(manifest, !options.experimentalDisableStreaming);
 	/**
