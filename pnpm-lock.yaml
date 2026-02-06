@@ -4949,9 +4949,6 @@ importers:
       devalue:
         specifier: ^5.6.2
         version: 5.6.2
-      rollup:
-        specifier: ^4.57.1
-        version: 4.57.1
 
   packages/integrations/cloudflare/test/fixtures/astro-dev-platform:
     dependencies:
@@ -5010,15 +5007,6 @@ importers:
         version: 4.62.0(@cloudflare/workers-types@4.20260203.0)
 
   packages/integrations/cloudflare/test/fixtures/external-image-service:
-    dependencies:
-      '@astrojs/cloudflare':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
-
-  packages/integrations/cloudflare/test/fixtures/module-loader:
     dependencies:
       '@astrojs/cloudflare':
         specifier: workspace:*
@@ -5094,6 +5082,15 @@ importers:
       wrangler:
         specifier: ^4.61.1
         version: 4.62.0(@cloudflare/workers-types@4.20260203.0)
+
+  packages/integrations/cloudflare/test/fixtures/sql-import:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
 
   packages/integrations/cloudflare/test/fixtures/vite-plugin:
     dependencies:
