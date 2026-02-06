@@ -33,4 +33,4 @@ export default defineConfig({
 }
 ```
 
-2. Manually remove `dist/_worker.js/wrangler.json` before running `wrangler pages deploy`
+2. Manually remove `dist/_worker.js/wrangler.json` and `.wrangler/deploy/config.json` before running `wrangler pages deploy`
