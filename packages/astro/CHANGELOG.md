@@ -1,5 +1,15 @@
 # astro
 
+## 6.0.0-beta.9
+
+### Patch Changes
+
+- [#15415](https://github.com/withastro/astro/pull/15415) [`cc3c46c`](https://github.com/withastro/astro/commit/cc3c46c73774d5c4b67c3b7a68f7da5de5544ba8) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where CSP headers were incorrectly injected in the development server.
+
+- [#15412](https://github.com/withastro/astro/pull/15412) [`c546563`](https://github.com/withastro/astro/commit/c546563f361343b2494ebfb1c06ef3101a4d083c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves the `AstroAdapter` type and how legacy adapters are handled
+
+- [#15421](https://github.com/withastro/astro/pull/15421) [`bf62b6f`](https://github.com/withastro/astro/commit/bf62b6fa3eb7b0562cb9390a5362b23381f07276) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Removes unintended logging
+
 ## 6.0.0-beta.8
 
 ### Minor Changes
