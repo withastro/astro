@@ -69,6 +69,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 								assets: _config!.build.assets,
 								server: _config!.build.server.toString(),
 								client: _config!.build.client.toString(),
+								staticHeaders: userOptions.staticHeaders ?? false,
 							}),
 							// Done in a plugin so it can get the value of _config.root from a later hook
 							{

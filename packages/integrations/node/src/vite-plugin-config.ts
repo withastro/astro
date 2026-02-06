@@ -13,6 +13,7 @@ export interface Config {
 	assets: string;
 	server: string;
 	client: string;
+	staticHeaders: boolean;
 }
 
 export function createConfigPlugin(config: Config): PluginOption {
