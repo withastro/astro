@@ -79,7 +79,7 @@ export class RenderContext {
 		protected url = RenderContext.#createNormalizedUrl(request.url),
 		public props: Props = {},
 		public partial: undefined | boolean = undefined,
-		public shouldInjectCspMetaTags = !!pipeline.manifest.csp,
+		public shouldInjectCspMetaTags = pipeline.manifest.shouldInjectCspMetaTags,
 		public session: AstroSession | undefined = undefined,
 		public skipMiddleware = false,
 	) {}
@@ -164,7 +164,7 @@ export class RenderContext {
 			undefined,
 			props,
 			partial,
-			shouldInjectCspMetaTags ?? !!pipeline.manifest.csp,
+			shouldInjectCspMetaTags ?? pipeline.manifest.shouldInjectCspMetaTags,
 			session,
 			skipMiddleware,
 		);

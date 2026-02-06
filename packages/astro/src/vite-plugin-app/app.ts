@@ -98,13 +98,15 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		manifestData: RoutesList,
 		getDebugInfo: () => Promise<string>,
 	): RunnablePipeline {
-		return RunnablePipeline.create(manifestData, {
+		const pipeline = RunnablePipeline.create(manifestData, {
 			loader,
 			logger,
 			manifest,
 			settings,
 			getDebugInfo,
 		});
+
+		return pipeline;
 	}
 
 	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
@@ -245,7 +247,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 					routeData,
 					clientAddress,
 					status,
-					shouldInjectCspMetaTags: false,
+					shouldInjectCspMetaTags: !!this.manifest.csp,
 				});
 				renderContext.props.error = error;
 				const response = await renderContext.render(preloadedComponent);

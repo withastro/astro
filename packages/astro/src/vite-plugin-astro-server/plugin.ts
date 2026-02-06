@@ -57,7 +57,10 @@ export default function createVitePluginAstroServer({
 				ASTRO_VITE_ENVIRONMENT_NAMES.ssr
 			] as RunnableDevEnvironment;
 			const loader = createViteLoader(viteServer, environment);
-			const { default: createAstroServerApp } = await environment.runner.import(ASTRO_DEV_APP_ID);
+			const { default: createAstroServerApp } =
+				await environment.runner.import<
+					typeof import('../vite-plugin-app/createAstroServerApp.js')
+				>(ASTRO_DEV_APP_ID);
 			const controller = createController({ loader });
 			const { handler } = await createAstroServerApp(controller, settings, loader, logger);
 			const { manifest } = await environment.runner.import<{
@@ -150,9 +153,7 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		];
 
 		csp = {
-			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
-				? 'adapter'
-				: undefined,
+			cspDestination: settings.adapter?.adapterFeatures?.staticHeaders ? 'adapter' : undefined,
 			scriptHashes: getScriptHashes(settings.config.security.csp),
 			scriptResources: getScriptResources(settings.config.security.csp),
 			styleHashes,
@@ -208,5 +209,6 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 			placement: settings.config.devToolbar.placement,
 		},
 		logLevel: settings.logLevel,
+		shouldInjectCspMetaTags: false,
 	};
 }

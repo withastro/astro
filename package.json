@@ -55,7 +55,7 @@
   "engines": {
     "node": ">=22.12.0"
   },
-  "packageManager": "pnpm@10.28.0",
+  "packageManager": "pnpm@10.28.2",
   "dependencies": {
     "astro-benchmark": "workspace:*"
   },
@@ -68,13 +68,13 @@
     "esbuild": "0.25.5",
     "eslint": "^9.39.2",
     "eslint-plugin-regexp": "^3.0.0",
-    "knip": "5.61.3",
+    "knip": "5.82.1",
     "only-allow": "^1.2.2",
     "prettier": "^3.8.1",
     "prettier-plugin-astro": "^0.14.1",
     "publint": "^0.3.17",
     "tinyglobby": "^0.2.15",
-    "turbo": "^2.8.0",
+    "turbo": "^2.8.1",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.54.0"
   }
