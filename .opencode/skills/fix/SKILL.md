@@ -1,0 +1,152 @@
+---
+name: fix
+description: Fix a diagnosed Astro bug. Use after the diagnose skill has identified the root cause. Develops a minimal fix in the monorepo source, rebuilds, and verifies the fix resolves the reproduction.
+---
+
+# Fix Skill
+
+Develop and verify a fix for a diagnosed Astro bug.
+
+## Prerequisites
+
+- A diagnosed bug exists in a triage directory
+- `diagnosis.json` shows the root cause and affected files
+- Confidence is `medium` or `high`
+
+## Overview
+
+1. Review the diagnosis
+2. Implement a minimal fix in `packages/`
+3. Rebuild the affected package(s)
+4. Verify the fix resolves the reproduction
+5. Ensure no regressions
+6. Write structured output to `fix.json`
+
+## Step 1: Review the Diagnosis
+
+Read `triage/<dir>/diagnosis.json` to understand:
+- The root cause and affected files
+- The suggested approach
+- Any edge cases to consider
+
+## Step 2: Implement the Fix
+
+Make changes in `packages/` source files. Follow these principles:
+
+**Keep it minimal:**
+- Only change what's necessary to fix the bug
+- Don't refactor unrelated code
+- Don't add new features
+
+**Match existing style:**
+- Use the same patterns as surrounding code
+- Follow the project's TypeScript conventions
+- Keep consistent formatting
+
+**Consider edge cases:**
+- Will this break other use cases?
+- What happens with unusual input?
+- Are there null/undefined checks needed?
+
+Example fix:
+
+```typescript
+// Before (in packages/astro/src/core/render/component.ts)
+export function renderComponent(component: AstroComponent, props: Props) {
+  const html = renderToString(component, props);
+  return html;
+}
+
+// After
+export function renderComponent(component: AstroComponent, props: Props) {
+  // Skip SSR for client:only components
+  if (props['client:only']) {
+    return `<astro-island client="only" component-url="${component.url}"></astro-island>`;
+  }
+  const html = renderToString(component, props);
+  return html;
+}
+```
+
+## Step 3: Rebuild the Package
+
+After making changes, rebuild the affected package:
+
+```bash
+cd packages/astro  # or packages/integrations/<name>
+pnpm build
+```
+
+Watch for build errors — fix any TypeScript issues before proceeding.
+
+## Step 4: Verify the Fix
+
+Re-run the reproduction:
+
+```bash
+cd triage/<dir>
+pnpm run build  # or dev/preview, whichever triggers the bug
+```
+
+The original error should be gone. If using dev server, test with `agent-browser`:
+
+```bash
+npx agent-browser http://localhost:4321/affected-page
+```
+
+## Step 5: Check for Regressions
+
+Test that normal cases still work:
+
+1. **Basic functionality** — does a simple page still build/serve?
+2. **Related features** — do similar but non-buggy use cases work?
+3. **Edge cases** — what about empty values, special characters, etc.?
+
+If you find regressions, refine the fix to handle all cases.
+
+## Step 6: Generate Git Diff
+
+From the repository root, generate the diff:
+
+```bash
+git diff packages/
+```
+
+This captures all your changes for the report.
+
+## Step 7: Write Output
+
+Write your findings to `fix.json` in the triage directory:
+
+```json
+{
+  "fixed": true,
+  "files": [
+    "packages/astro/src/core/render/component.ts"
+  ],
+  "description": "Added guard to skip SSR rendering for client:only components. When a component has the client:only directive, we now return a placeholder astro-island element instead of attempting to render server-side.",
+  "gitDiff": "diff --git a/packages/astro/src/core/render/component.ts...",
+  "verificationSteps": [
+    "Run pnpm run build in the triage project",
+    "Build should complete without errors",
+    "The page with client:only component should render correctly"
+  ],
+  "notes": "Minimal change that only affects client:only components. No impact on normal SSR."
+}
+```
+
+**Field definitions:**
+- `fixed`: `true` if the bug is resolved, `false` if fix attempt failed
+- `files`: Array of files modified in `packages/`
+- `description`: What the fix does and why
+- `gitDiff`: Full output of `git diff packages/`
+- `verificationSteps`: How to verify the fix works
+- `notes`: Additional context (tradeoffs, alternatives considered, etc.)
+
+## If the Fix Doesn't Work
+
+If you can't fix the bug:
+- Set `fixed: false`
+- Explain what you tried in `notes`
+- Include any partial progress in `description`
+- The report skill will generate an appropriate report
