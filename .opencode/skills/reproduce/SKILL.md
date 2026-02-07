@@ -57,6 +57,8 @@ The triage workspace has already been downloaded. Inspect what's there and proce
 **If no StackBlitz URL (fallback to example template):**
 The workspace has been set up from `examples/minimal`. You may need to add dependencies.
 
+Sometimes, a user will provide a Gist URL instead of a StackBlitz URL to help show how to reproduce the issue. Use `gh gist view <gist-id>` to fetch any included gists, to help get a better understanding of what the problem is. 
+
 Check the issue to determine what's needed:
 - React components → `pnpm astro add react` (in the triage dir)
 - MDX content → `pnpm astro add mdx`
