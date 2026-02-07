@@ -22,18 +22,22 @@ export function pathHasLocale(path: string, locales: Locales): boolean {
 	// which will not match a configured locale without removing .html
 	// as we do in normalizeThePath
 	const segments = path.split('/').map(normalizeThePath);
+	console.log('[DEBUG pathHasLocale]', { path, segments, locales });
 	for (const segment of segments) {
 		for (const locale of locales) {
 			if (typeof locale === 'string') {
 				if (normalizeTheLocale(segment) === normalizeTheLocale(locale)) {
+					console.log('[DEBUG pathHasLocale] Found matching locale:', locale);
 					return true;
 				}
 			} else if (segment === locale.path) {
+				console.log('[DEBUG pathHasLocale] Found matching locale path:', locale.path);
 				return true;
 			}
 		}
 	}
 
+	console.log('[DEBUG pathHasLocale] No matching locale found');
 	return false;
 }
 
@@ -339,21 +343,17 @@ export function notFound({ base, locales, fallback }: MiddlewarePayload) {
 		// - the current path isn't a root. e.g. / or /<base>
 		// - the URL doesn't contain a locale
 		const isRoot = url.pathname === base + '/' || url.pathname === base;
-		if (!(isRoot || pathHasLocale(url.pathname, locales))) {
-			if (response) {
-				response.headers.set(REROUTE_DIRECTIVE_HEADER, 'no');
-				return new Response(response.body, {
-					status: 404,
-					headers: response.headers,
-				});
-			} else {
-				return new Response(null, {
-					status: 404,
-					headers: {
-						[REROUTE_DIRECTIVE_HEADER]: 'no',
-					},
-				});
-			}
+		const hasLocale = pathHasLocale(url.pathname, locales);
+		console.log('[DEBUG notFound]', { pathname: url.pathname, isRoot, hasLocale, locales });
+		if (!(isRoot || hasLocale)) {
+			console.log(
+				'[DEBUG notFound] Returning 404 response with null body to trigger reroute to 404 page',
+			);
+			// FIX: Return null body instead of response.body so Astro will reroute to 404.astro
+			// DO NOT set REROUTE_DIRECTIVE_HEADER to 'no' because we WANT the reroute to happen
+			return new Response(null, {
+				status: 404,
+			});
 		}
 
 		return undefined;

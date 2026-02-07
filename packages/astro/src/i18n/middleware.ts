@@ -33,12 +33,17 @@ export function createI18nMiddleware(
 
 	const prefixAlways = (context: APIContext, response: Response): Response | undefined => {
 		const url = context.url;
+		console.log('[DEBUG prefixAlways]', {
+			pathname: url.pathname,
+			currentLocale: context.currentLocale,
+		});
 		if (url.pathname === base + '/' || url.pathname === base) {
 			return _redirectToDefaultLocale(context);
 		}
 
 		// Astro can't know where the default locale is supposed to be, so it returns a 404.
 		else if (!_requestHasLocale(context)) {
+			console.log('[DEBUG prefixAlways] No locale in request, calling _noFoundForNonLocaleRoute');
 			return _noFoundForNonLocaleRoute(context, response);
 		}
 
