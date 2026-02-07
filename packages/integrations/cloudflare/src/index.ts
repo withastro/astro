@@ -257,7 +257,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						sharpImageService: {
 							support: 'limited',
 							message:
-								'Cloudflare does not support sharp at runtime. However, you can configure `imageService: "compile"` to optimize images with sharp on prerendered pages during build time.',
+								'When using a custom image service, ensure it is compatible with the Cloudflare Workers runtime.',
 							// Only 'custom' could potentially use sharp at runtime.
 							suppress: args?.imageService === 'custom' ? 'default' : 'all',
 						},
