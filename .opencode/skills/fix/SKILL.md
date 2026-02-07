@@ -22,7 +22,9 @@ Develop and verify a fix for a diagnosed Astro bug.
 3. Rebuild the affected package(s)
 4. Verify the fix resolves the reproduction
 5. Ensure no regressions
-6. Write structured output to `fix.json`
+6. Generate git diff
+7. Write structured output to `fix.json` and `report.md`
+8. If confident, push fix to a branch
 
 ## Step 1: Review the Diagnosis
 
@@ -135,7 +137,8 @@ Write three output files to the triage directory:
     "Build should complete without errors",
     "The page with client:only component should render correctly"
   ],
-  "notes": "Minimal change that only affects client:only components. No impact on normal SSR."
+  "notes": "Minimal change that only affects client:only components. No impact on normal SSR.",
+  "branchPushed": "triage/12345"
 }
 ```
 
@@ -146,6 +149,7 @@ Write three output files to the triage directory:
 - `gitDiff`: Full output of `git diff packages/`
 - `verificationSteps`: How to verify the fix works
 - `notes`: Additional context (tradeoffs, alternatives considered, etc.)
+- `branchPushed`: Name of the branch pushed to origin (e.g. `triage/12345`), or `null` if not pushed
 
 If you can't fix the bug, set `fixed: false` and explain what you tried in `notes`.
 
@@ -159,3 +163,21 @@ The report must include all information needed for a final GitHub comment to be 
 - Verification results (did the fix resolve the original error?)
 - Any alternative approaches considered and their tradeoffs
 - If the fix failed: what was tried and why it didn't work
+
+## Step 8: Push Fix Branch
+
+**Only do this if `fixed: true` and you are confident in the fix.** Skip this step entirely if the fix didn't work or you have doubts.
+
+From the repository root:
+
+```bash
+git checkout -b triage/<issue_number>
+git add packages/
+git commit -m "fix: <brief description> (#<issue_number>)"
+git push origin triage/<issue_number>
+```
+
+**Important rules:**
+- Only commit changes in `packages/` — do NOT commit triage directory files, report.md, or JSON output files
+- Try once. If any step fails (auth error, branch already exists, push rejected, etc.), give up and move on. Do NOT retry, do NOT attempt to debug or fix the failure, and do NOT do anything outside this scope to resolve it.
+- Update the `branchPushed` field in `fix.json` with the branch name if successful, or `null` if it failed or was skipped

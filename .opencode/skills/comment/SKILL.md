@@ -58,13 +58,13 @@ Format requirements:
 ```markdown
 ## Summary
 
-**[I was able to reproduce this issue. / I was unable to reproduce this issue. / This issue was not triaged automatically.]** [1-2 sentences describing the result and key observations.]
+**[I was able to reproduce this issue. / I was unable to reproduce this issue.]** [1-2 sentences describing the result and key observations.]
 
 **Cause:** [Single sentence explaining the root cause - or just the word "Unknown" if not determined.]
 
 **Impact:** [Single sentence describing who is affected and how - or just the word "Unknown" if not determined.]
 
-**Fix:** [Single sentence summarizing the solution - or just the word "Unknown" if no fix determined.]
+**Fix:** [Single sentence summarizing the solution - or just the word "Unknown" if no fix determined.] [If fix branch was pushed successfully, link to it here with URL https://github.com/withastro/astro/compare/$BRANCH_NAME?expand=1]
 
 ---
 
