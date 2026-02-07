@@ -7,13 +7,15 @@ description: Reproduce a GitHub issue for the Astro framework. Use when asked to
 
 Reproduce a GitHub issue to determine if a bug is valid and reproducible.
 
+**CRITICAL: You MUST always write `reproduction.json` and `report.md` to the triage directory before finishing, regardless of outcome. Even if you encounter errors, cannot reproduce the bug, hit unexpected problems, or need to skip — always write the output files. The orchestrator depends on these files to determine what happened. If you finish without writing these files, the entire pipeline fails silently.**
+
 ## Overview
 
 1. Fetch the issue details using `gh` CLI
 2. Analyze the issue for early exit conditions (host-specific, unsupported version, etc.)
 3. Set up a reproduction project in the `triage/` directory
 4. Attempt to reproduce the bug
-5. Write structured output to `reproduction.json`
+5. Write structured output to `reproduction.json` and `report.md`
 
 ## Step 1: Fetch the Issue
 

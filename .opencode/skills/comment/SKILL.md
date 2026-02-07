@@ -7,10 +7,16 @@ description: Generate a GitHub issue comment summarizing triage findings. Use af
 
 Generate a GitHub issue comment from triage findings.
 
+**CRITICAL: You MUST always write `comment.md` to the triage directory before finishing, regardless of what input files are available. Even if `report.md` and the JSON files are missing or empty, you must still produce a `comment.md`. In that case, write a minimal comment stating that automated triage could not be completed. The orchestrator depends on this file to post a GitHub comment.**
+
 ## Prerequisites
 
-- `report.md` exists in the triage directory (written by reproduce, diagnose, and/or fix skills)
-- One or more JSON output files exist: `reproduction.json`, `diagnosis.json`, `fix.json`
+- The triage directory exists
+- One or more of these files MAY exist (check for each, but don't fail if missing):
+  - `report.md` — detailed internal report with full context
+  - `reproduction.json` — structured reproduction data
+  - `diagnosis.json` — structured diagnosis data
+  - `fix.json` — structured fix data
 
 ## Overview
 
@@ -20,12 +26,14 @@ Generate a GitHub issue comment from triage findings.
 
 ## Step 1: Read Triage Output
 
-Read all available files from the triage directory:
+Read all available files from the triage directory. Some or all of these may not exist — that's OK, work with whatever is available:
 
 - `report.md` — detailed internal report with full context
 - `reproduction.json` — structured reproduction data
 - `diagnosis.json` — structured diagnosis data (may not exist)
 - `fix.json` — structured fix data (may not exist)
+
+If none of these files exist, generate a minimal comment (see "Fallback" section below).
 
 ## Step 2: Generate Comment
 
@@ -119,3 +127,21 @@ The comment should be:
 - **Actionable** — clear next steps for maintainers
 - **Friendly** — remember the issue author is trying to help
 - **Accurate** — only state what was actually observed
+
+### Fallback
+
+If no triage output files exist at all (no `report.md`, no JSON files), write this minimal `comment.md`:
+
+```markdown
+## Summary
+
+**This issue was not triaged automatically.** The automated triage pipeline was unable to complete analysis for this issue.
+
+**Cause:** Unknown
+
+**Impact:** Unknown
+
+**Fix:** Unknown
+
+*This report was made by an LLM. Mistakes happen, check important info.*
+```

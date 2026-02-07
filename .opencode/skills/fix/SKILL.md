@@ -7,6 +7,8 @@ description: Fix a diagnosed Astro bug. Use after the diagnose skill has identif
 
 Develop and verify a fix for a diagnosed Astro bug.
 
+**CRITICAL: You MUST always write `fix.json` and append to `report.md` before finishing, regardless of outcome. Even if the fix attempt fails, you encounter errors, or you cannot resolve the bug — always write the output files (use `fixed: false` if the fix didn't work). The orchestrator depends on these files to determine what happened.**
+
 ## Prerequisites
 
 - A diagnosed bug exists in a triage directory

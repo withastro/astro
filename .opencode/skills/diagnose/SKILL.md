@@ -7,6 +7,8 @@ description: Diagnose the root cause of a reproduced Astro bug. Use after the re
 
 Find the root cause of a reproduced bug in the Astro source code.
 
+**CRITICAL: You MUST always write `diagnosis.json` and append to `report.md` before finishing, regardless of outcome. Even if you cannot identify the root cause, hit errors, or the investigation is inconclusive — always write the output files (use `confidence: "low"` if uncertain). The orchestrator depends on these files to determine what happened.**
+
 ## Prerequisites
 
 - A reproducible bug exists in a triage directory
