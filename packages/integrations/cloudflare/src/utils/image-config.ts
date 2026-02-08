@@ -14,6 +14,10 @@ export function setImageConfig(
 	command: HookParameters<'astro:config:setup'>['command'],
 	logger: AstroIntegrationLogger,
 ) {
+	if (command === 'dev' && config.endpoint.entrypoint === undefined) {
+		config.endpoint.entrypoint = '@astrojs/cloudflare/image-endpoint';
+	}
+
 	switch (service) {
 		case 'passthrough':
 			return { ...config, service: passthroughImageService() };
@@ -39,7 +43,7 @@ export function setImageConfig(
 				...config,
 				service: sharpImageService(),
 				endpoint: {
-					entrypoint: command === 'dev' ? undefined : '@astrojs/cloudflare/image-endpoint',
+					entrypoint: '@astrojs/cloudflare/image-endpoint',
 				},
 			};
 
