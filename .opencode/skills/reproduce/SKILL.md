@@ -1,27 +1,32 @@
 ---
 name: reproduce
-description: Reproduce a GitHub issue for the Astro framework. Use when asked to "reproduce this issue", "reproduce this bug", or given a GitHub issue number/URL to investigate. Fetches the issue, creates a minimal reproduction in the monorepo triage/ directory, and determines whether the bug is reproducible.
+description: Reproduce a GitHub issue for the Astro framework. Use when asked to "reproduce this issue", "reproduce this bug", or given a GitHub issue number/URL to investigate. Creates a minimal reproduction in the monorepo triage/ directory and determines whether the bug is reproducible.
 ---
 
 # Reproduce Skill
 
 Reproduce a GitHub issue to determine if a bug is valid and reproducible.
 
-**CRITICAL: You MUST always write `reproduction.json` and `report.md` to the triage directory before finishing, regardless of outcome. Even if you encounter errors, cannot reproduce the bug, hit unexpected problems, or need to skip — always write the output files. The orchestrator depends on these files to determine what happened. If you finish without writing these files, the entire pipeline fails silently.**
+**CRITICAL: You MUST always write `report.md` to the triage directory before finishing, regardless of outcome. Even if you encounter errors, cannot reproduce the bug, hit unexpected problems, or need to skip — always write `report.md`. The orchestrator and downstream skills depend on this file to determine what happened. If you finish without writing it, the entire pipeline fails silently.**
 
 ## Overview
 
-1. Fetch the issue details using `gh` CLI
+1. Get the issue details
 2. Analyze the issue for early exit conditions (host-specific, unsupported version, etc.)
-3. Set up a reproduction project in the `triage/` directory
+3. Set up a reproduction project in the triage directory
 4. Attempt to reproduce the bug
-5. Write structured output to `reproduction.json` and `report.md`
+5. Write `report.md` with detailed findings
 
-## Step 1: Fetch the Issue
+## Step 1: Get the Issue Details
 
+**If `issueTitle` and `issueBody` are provided in args**, use those as the issue context directly.
+
+**If a GitHub issue number or URL is mentioned** (but no `issueTitle`/`issueBody`), fetch it with the `gh` CLI:
 ```bash
 gh issue view <issue_number> --repo withastro/astro --comments
 ```
+
+**Otherwise**, fail — there is not enough information to reproduce a bug.
 
 Read carefully:
 - The bug description and expected vs actual behavior
@@ -34,24 +39,24 @@ Read carefully:
 Before attempting reproduction, check if this issue should be skipped:
 
 **Unsupported Astro Version:**
-- Astro 4.x or earlier → Write skip result and exit
+- Astro 4.x or earlier → Write `report.md` noting the skip and exit
 - Look for version in `astro info` output or package.json mentions
 
 **Host-Specific Issues:**
 - Mentions Vercel, Netlify, Cloudflare, Deno Deploy deployment issues
 - Uses `@astrojs/vercel`, `@astrojs/netlify`, `@astrojs/cloudflare` adapters
 - Bug only occurs "in production" or "after deployment"
-- → Write skip result with `skipReason: "host-specific"` and exit
+- → Write `report.md` noting the skip reason ("host-specific") and exit
 
 **Runtime-Specific Issues:**
 - Bug is specific to Bun or Deno (not Node.js)
-- → Write skip result with `skipReason: "unsupported-runtime"` and exit
+- → Write `report.md` noting the skip reason ("unsupported-runtime") and exit
 
-If any early exit condition is met, skip to Step 6 and write the appropriate skip result.
+If any early exit condition is met, skip to Step 6 and write `report.md` with the skip details.
 
 ## Step 3: Set Up Reproduction Project
 
-The reproduction project goes in `triage/<dir-name>/` where `<dir-name>` is provided or defaults to `gh-<issue_number>`.
+The reproduction project goes in the `triageDir` directory provided in args (e.g. `triage/gh-123`). If no `triageDir` is provided, default to `triage/gh-<issue_number>`.
 
 **If a StackBlitz URL is provided in the issue:**
 The triage workspace has already been downloaded. Inspect what's there and proceed to configuration.
@@ -105,42 +110,12 @@ Document what you observe:
 
 ## Step 6: Write Output
 
-Write three output files to the triage directory:
+Write `report.md` to the triage directory:
 
-### 6a: `reproduction.json` — Structured data for the orchestrator
+### `report.md` — Detailed internal report for the next LLM stage
 
-```json
-{
-  "issueNumber": 12345,
-  "reproducible": true,
-  "skipped": false,
-  "skipReason": null,
-  "triageDir": "gh-12345-a1b2c3d4",
-  "reproductionSource": "stackblitz",
-  "astroVersion": "5.16.11",
-  "errorMessage": "Cannot read properties of undefined (reading 'foo')",
-  "stepsToReproduce": [
-    "Create a page with a React component using client:only",
-    "Run pnpm run build",
-    "Build fails with the error above"
-  ],
-  "notes": "Reproduced on first attempt. The error occurs during SSR."
-}
-```
-
-**Field definitions:**
-- `reproducible`: `true`, `false`, or `"partial"` (sometimes reproduces)
-- `skipped`: `true` if an early exit condition was met
-- `skipReason`: `"host-specific"`, `"unsupported-version"`, `"unsupported-runtime"`, or `"no-repro-provided"`
-- `reproductionSource`: `"stackblitz"`, `"example-template"`, `"gist"`, or `"manual"`
-- `astroVersion`: The version used for reproduction
-- `errorMessage`: The main error message if any
-- `stepsToReproduce`: Array of steps taken to reproduce
-- `notes`: Any additional observations
-
-### 6b: `report.md` — Detailed internal report for the next LLM stage
-
-Write a verbose report with everything you learned. This is NOT for humans — it's context for the next stage of the pipeline (diagnose/fix). Include:
+Write a verbose report with everything you learned. This is NOT for humans — it's context for the next stage of the pipeline (diagnose/fix). **Downstream skills will NOT have access to the original issue — `report.md` is their only source of context.** Include:
+- The original issue title, description, and any relevant details from the issue body. It's better to include too much context from the original issue vs. too little. You never know what information will be useful to future steps in the workflow, like while trying to find the fix in the codebase.
 - Full environment details
 - All steps attempted and their results
 - Complete error messages and stack traces

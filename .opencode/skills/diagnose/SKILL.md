@@ -7,31 +7,31 @@ description: Diagnose the root cause of a reproduced Astro bug. Use after the re
 
 Find the root cause of a reproduced bug in the Astro source code.
 
-**CRITICAL: You MUST always write `diagnosis.json` and append to `report.md` before finishing, regardless of outcome. Even if you cannot identify the root cause, hit errors, or the investigation is inconclusive — always write the output files (use `confidence: "low"` if uncertain). The orchestrator depends on these files to determine what happened.**
+**CRITICAL: You MUST always append to `report.md` before finishing, regardless of outcome. Even if you cannot identify the root cause, hit errors, or the investigation is inconclusive — always update `report.md` with your findings. The orchestrator and downstream skills depend on this file to determine what happened.**
 
 ## Prerequisites
 
 - A reproducible bug exists in a triage directory
-- `reproduction.json` shows `reproducible: true`
+- `report.md` documents the reproduction results
 
 ## Overview
 
-1. Review the reproduction and error details
+1. Review the reproduction and error details from `report.md`
 2. Locate relevant source files in `packages/`
 3. Add instrumentation to understand the code path
 4. Identify the root cause
-5. Write structured output to `diagnosis.json`
+5. Append diagnosis findings to `report.md`
 
 ## Step 1: Review the Reproduction
 
-Read `triage/<dir>/reproduction.json` to understand:
+Read `report.md` from the `triageDir` directory (provided in args) to understand:
 - The exact error message and stack trace
 - Which command triggers the issue (build/dev/preview)
 - What user code is involved
 
 Re-run the reproduction if needed to see the error firsthand:
 ```bash
-cd triage/<dir>
+cd <triageDir>
 pnpm run build  # or dev/preview
 ```
 
@@ -78,7 +78,7 @@ After adding logs:
    ```
 2. Re-run the reproduction:
    ```bash
-   cd triage/<dir>
+   cd <triageDir>
    pnpm run build
    ```
 3. Observe the debug output
@@ -104,41 +104,12 @@ Consider:
 
 ## Step 5: Write Output
 
-Write three output files to the triage directory:
+Append your diagnosis findings to the existing `report.md` (written by the reproduce skill).
 
-### 5a: `diagnosis.json` — Structured data for the orchestrator
-
-```json
-{
-  "rootCause": "The renderToString function doesn't handle client:only components correctly",
-  "files": [
-    "packages/astro/src/core/render/ssr.ts:142",
-    "packages/astro/src/core/render/component.ts:89"
-  ],
-  "explanation": "When a component has client:only directive, the SSR pipeline still attempts to render it server-side. This fails because client:only components are not designed to run in Node.js. The check at line 142 should skip rendering for client:only components and return a placeholder instead.",
-  "confidence": "high",
-  "suggestedApproach": "Add a guard in renderComponent() to check for client:only directive before attempting SSR. Return a placeholder div with the component's client script instead."
-}
-```
-
-**Confidence levels:**
-- `high`: Root cause is clearly identified, fix path is obvious
-- `medium`: Likely root cause identified, but some uncertainty remains
-- `low`: Symptoms identified but root cause unclear, more investigation needed
-
-**Field definitions:**
-- `rootCause`: One-sentence summary of the bug
-- `files`: Array of `file:line` locations involved (most relevant first)
-- `explanation`: Detailed explanation of what's wrong and why
-- `confidence`: How certain you are about the diagnosis
-- `suggestedApproach`: How to fix it (high-level)
-
-### 5b: Update `report.md` — Append diagnosis context for the next LLM stage
-
-Read the existing `report.md` (written by the reproduce skill). Append a new section with your full diagnosis findings. Include everything: the root cause, affected files with line numbers, detailed explanation of the code path, instrumentation results, and your suggested fix approach. This helps the fix skill work faster.
+Include a new section with everything you learned: the root cause, affected files with line numbers, detailed explanation of the code path, instrumentation results, and your suggested fix approach. This helps the fix skill work faster.
 
 The report must include all information needed for a final GitHub comment to be generated later by the comment skill. Make sure to include:
 - Root cause explanation (which files, what logic is wrong, why)
 - Affected file paths with line numbers
 - Suggested fix approach
-- Confidence level and any caveats
+- Confidence level (`high`, `medium`, or `low`) and any caveats

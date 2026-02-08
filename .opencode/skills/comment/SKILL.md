@@ -1,43 +1,34 @@
 ---
 name: comment
-description: Generate a GitHub issue comment summarizing triage findings. Use after the triage pipeline completes (at any stage). Reads report.md and any JSON output files to produce a comment.md ready to post.
+description: Generate a GitHub issue comment summarizing triage findings. Use after the triage pipeline completes (at any stage). Reads report.md and produces a comment ready to post.
 ---
 
 # Comment Skill
 
 Generate a GitHub issue comment from triage findings.
 
-**CRITICAL: You MUST always write `comment.md` to the triage directory before finishing, regardless of what input files are available. Even if `report.md` and the JSON files are missing or empty, you must still produce a `comment.md`. In that case, write a minimal comment stating that automated triage could not be completed. The orchestrator depends on this file to post a GitHub comment.**
+**CRITICAL: You MUST always produce a GitHub comment as your final output, regardless of what input files are available. Even if `report.md` is missing or empty, you must still produce a comment. In that case, produce a minimal comment stating that automated triage could not be completed.**
 
 ## Prerequisites
 
-- The triage directory exists
-- One or more of these files MAY exist (check for each, but don't fail if missing):
-  - `report.md` — detailed internal report with full context
-  - `reproduction.json` — structured reproduction data
-  - `diagnosis.json` — structured diagnosis data
-  - `fix.json` — structured fix data
+- The `triageDir` directory (provided in args) exists
+- `report.md` in that directory MAY exist — this contains the full context from all previous skills (reproduction, diagnosis, fix)
 
 ## Overview
 
-1. Read all available triage output files
-2. Generate `comment.md` following the template below
-3. Write to the triage directory
+1. Read `report.md` from the triage directory
+2. Generate a GitHub comment following the template below
+3. Optionally post the comment if the user wants
 
 ## Step 1: Read Triage Output
 
-Read all available files from the triage directory. Some or all of these may not exist — that's OK, work with whatever is available:
+Read `report.md` from the `triageDir` directory (provided in args). This file is the shared context log — each previous skill (reproduce, diagnose, fix) appends its findings to it.
 
-- `report.md` — detailed internal report with full context
-- `reproduction.json` — structured reproduction data
-- `diagnosis.json` — structured diagnosis data (may not exist)
-- `fix.json` — structured fix data (may not exist)
-
-If none of these files exist, generate a minimal comment (see "Fallback" section below).
+If `report.md` is missing or empty, generate a minimal comment (see "Fallback" section below).
 
 ## Step 2: Generate Comment
 
-Write `comment.md` following this template. Adapt it to fit the findings:
+Generate a comment following this template. Adapt it to fit the findings:
 
 - Include only the sections that are relevant to what was discovered
 - If the issue could NOT be reproduced, omit the fix-related sections
@@ -56,92 +47,30 @@ Format requirements:
 ### Template
 
 ```markdown
-## Summary
-
 **[I was able to reproduce this issue. / I was unable to reproduce this issue.]** [1-2 sentences describing the result and key observations.]
+
+**Fix:** [If fix was successfully pushed up to a branch, include this link: [Create PR](https://github.com/withastro/astro/compare/$BRANCH_NAME?expand=1)] **[I was able to fix this issue. / I was unable to fix this issue.]** [1-2 sentences describing the solution and key observations. Even if no fix was created, you can still use this space to give guidance or "a best guess" at where the fix might be.] 
 
 **Cause:** [Single sentence explaining the root cause - or just the word "Unknown" if not determined.]
 
 **Impact:** [Single sentence describing who is affected and how - or just the word "Unknown" if not determined.]
 
-**Fix:** [Single sentence summarizing the solution - or just the word "Unknown" if no fix determined.] [If fix branch was pushed successfully, link to it here with URL https://github.com/withastro/astro/compare/$BRANCH_NAME?expand=1]
-
----
-
 <details>
-<summary><strong>Reproduction Details</strong></summary>
+<summary><em>Full Triage Report</em></summary>
 
-### Environment
-- **[Package Name]:** [version]
-- **Node.js:** [version]
-- **Package Manager:** [npm/pnpm/yarn]
-
-### Steps to Reproduce
-1. [First step]
-2. [Next step]
-
-### Expected Result
-[What should happen]
-
-### Actual Result
-[What actually happens, including error messages if applicable]
-
-</details>
-
-<details>
-<summary><strong>How to Fix (Maintainers)</strong></summary>
-
-### Root Cause Analysis
-
-[Explanation of the root cause, which files are involved, and why the current behavior is incorrect.]
-
-### Solution
-
-[Description of the fix and why it works.]
-
-### Git Patch
-
-Apply this patch to the `[org/repo]` repository:
-
-```diff
-[INSERT GIT DIFF]
-```
-
-### Alternative Approaches
-[Other approaches considered and their tradeoffs]
-
-### Testing
-[How to test that the fix is working correctly]
+[Include the full contents of report.md here, formatted for readability]
 
 </details>
 
 *This report was made by an LLM. Mistakes happen, check important info.*
 ```
 
-## Step 3: Write Output
+## Step 3: Post the Comment (Optional)
 
-Write the comment to `triage/<dir>/comment.md`.
+If the user wants to post the comment to GitHub, you can do so with the `gh` CLI:
 
-The comment should be:
-- **Concise** — respect the reader's time
-- **Actionable** — clear next steps for maintainers
-- **Friendly** — remember the issue author is trying to help
-- **Accurate** — only state what was actually observed
-
-### Fallback
-
-If no triage output files exist at all (no `report.md`, no JSON files), write this minimal `comment.md`:
-
-```markdown
-## Summary
-
-**This issue was not triaged automatically.** The automated triage pipeline was unable to complete analysis for this issue.
-
-**Cause:** Unknown
-
-**Impact:** Unknown
-
-**Fix:** Unknown
-
-*This report was made by an LLM. Mistakes happen, check important info.*
+```bash
+gh issue comment <issue_number> --repo <owner/repo> --body-file <path-to-comment-file>
 ```
+
+You can suggest posting it if you think it would be helpful.
