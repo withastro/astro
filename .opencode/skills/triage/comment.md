@@ -1,9 +1,4 @@
----
-name: comment
-description: Generate a GitHub issue comment summarizing triage findings. Use after the triage pipeline completes (at any stage). Reads report.md and produces a comment ready to post.
----
-
-# Comment Skill
+# Comment
 
 Generate a GitHub issue comment from triage findings.
 
@@ -12,7 +7,7 @@ Generate a GitHub issue comment from triage findings.
 ## Prerequisites
 
 - The `triageDir` directory (provided in args) exists
-- `report.md` in that directory MAY exist — this contains the full context from all previous skills (reproduction, diagnosis, fix)
+- `report.md` in that directory MAY exist — this contains the full context from all previous steps (reproduction, diagnosis, fix)
 
 ## Overview
 
@@ -22,7 +17,7 @@ Generate a GitHub issue comment from triage findings.
 
 ## Step 1: Read Triage Output
 
-Read `report.md` from the `triageDir` directory (provided in args). This file is the shared context log — each previous skill (reproduce, diagnose, fix) appends its findings to it.
+Read `report.md` from the `triageDir` directory (provided in args). This file is the shared context log — each previous step (reproduce, diagnose, fix) appends its findings to it.
 
 If `report.md` is missing or empty, generate a minimal comment (see "Fallback" section below).
 
@@ -49,7 +44,7 @@ Format requirements:
 ```markdown
 **[I was able to reproduce this issue. / I was unable to reproduce this issue.]** [1-2 sentences describing the result and key observations.]
 
-**Fix:** [If fix was successfully pushed up to a branch, include this link: [Create PR](https://github.com/withastro/astro/compare/$BRANCH_NAME?expand=1)] **[I was able to fix this issue. / I was unable to fix this issue.]** [1-2 sentences describing the solution and key observations. Even if no fix was created, you can still use this space to give guidance or "a best guess" at where the fix might be.] 
+**Fix:** [If fix was successfully pushed up to a branch, include this link: [Create PR](https://github.com/withastro/astro/compare/$BRANCH_NAME?expand=1)] **[I was able to fix this issue. / I was unable to fix this issue.]** [1-2 sentences describing the solution and key observations. Even if no fix was created, you can still use this space to give guidance or "a best guess" at where the fix might be.]
 
 **Cause:** [Single sentence explaining the root cause - or just the word "Unknown" if not determined.]
 
