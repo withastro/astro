@@ -2,7 +2,7 @@
 
 Develop and verify a fix for a diagnosed Astro bug.
 
-**CRITICAL: You MUST always append to `report.md` before finishing, regardless of outcome. Even if the fix attempt fails, you encounter errors, or you cannot resolve the bug — always update `report.md` with your findings. The orchestrator and downstream steps depend on this file to determine what happened.**
+**CRITICAL: You MUST always append to `report.md` before finishing, regardless of outcome. Even if the fix attempt fails, you encounter errors, or you cannot resolve the bug — always update `report.md` with your findings. The orchestrator and downstream skills depend on this file to determine what happened.**
 
 ## Prerequisites
 
@@ -114,11 +114,11 @@ This captures all your changes for the report.
 
 ## Step 7: Write Output
 
-Append your fix details to the existing `report.md` (written by reproduce and diagnose steps).
+Append your fix details to the existing `report.md` (written by reproduce and diagnose skills).
 
 Include a new section with: what you changed, why, the full git diff, verification results, and any tradeoffs or alternative approaches considered.
 
-The report must include all information needed for a final GitHub comment to be generated later by the comment step. Make sure to include:
+The report must include all information needed for a final GitHub comment to be generated later by the comment skill. Make sure to include:
 - What was changed and why
 - The full git diff
 - Whether the fix was successful or not

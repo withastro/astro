@@ -7,7 +7,7 @@ Generate a GitHub issue comment from triage findings.
 ## Prerequisites
 
 - The `triageDir` directory (provided in args) exists
-- `report.md` in that directory MAY exist — this contains the full context from all previous steps (reproduction, diagnosis, fix)
+- `report.md` in that directory MAY exist — this contains the full context from all previous skills (reproduction, diagnosis, fix)
 
 ## Overview
 
@@ -17,7 +17,7 @@ Generate a GitHub issue comment from triage findings.
 
 ## Step 1: Read Triage Output
 
-Read `report.md` from the `triageDir` directory (provided in args). This file is the shared context log — each previous step (reproduce, diagnose, fix) appends its findings to it.
+Read `report.md` from the `triageDir` directory (provided in args). This file is the shared context log — each previous skill (reproduce, diagnose, fix) appends its findings to it.
 
 If `report.md` is missing or empty, generate a minimal comment (see "Fallback" section below).
 

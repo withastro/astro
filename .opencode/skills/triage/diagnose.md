@@ -2,7 +2,7 @@
 
 Find the root cause of a reproduced bug in the Astro source code.
 
-**CRITICAL: You MUST always append to `report.md` before finishing, regardless of outcome. Even if you cannot identify the root cause, hit errors, or the investigation is inconclusive — always update `report.md` with your findings. The orchestrator and downstream steps depend on this file to determine what happened.**
+**CRITICAL: You MUST always append to `report.md` before finishing, regardless of outcome. Even if you cannot identify the root cause, hit errors, or the investigation is inconclusive — always update `report.md` with your findings. The orchestrator and downstream skills depend on this file to determine what happened.**
 
 ## Prerequisites
 
@@ -52,8 +52,8 @@ packages/
 ```
 
 Use the stack trace to find relevant files. The error locations in `node_modules/` map to source files in `packages/`:
-- `node_modules/astro/dist/...` -> `packages/astro/src/...`
-- `node_modules/@astrojs/react/...` -> `packages/integrations/react/src/...`
+- `node_modules/astro/dist/...` → `packages/astro/src/...`
+- `node_modules/@astrojs/react/...` → `packages/integrations/react/src/...`
 
 ## Step 3: Investigate with Instrumentation
 
@@ -99,11 +99,11 @@ Consider:
 
 ## Step 5: Write Output
 
-Append your diagnosis findings to the existing `report.md` (written by the reproduce step).
+Append your diagnosis findings to the existing `report.md` (written by the reproduce skill).
 
-Include a new section with everything you learned: the root cause, affected files with line numbers, detailed explanation of the code path, instrumentation results, and your suggested fix approach. This helps the fix step work faster.
+Include a new section with everything you learned: the root cause, affected files with line numbers, detailed explanation of the code path, instrumentation results, and your suggested fix approach. This helps the fix skill work faster.
 
-The report must include all information needed for a final GitHub comment to be generated later by the comment step. Make sure to include:
+The report must include all information needed for a final GitHub comment to be generated later by the comment skill. Make sure to include:
 - Root cause explanation (which files, what logic is wrong, why)
 - Affected file paths with line numbers
 - Suggested fix approach
