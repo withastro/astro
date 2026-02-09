@@ -29,7 +29,7 @@ export async function shell(
 	try {
 		child = spawn(command, flags, {
 			cwd: opts.cwd,
-			shell: false,
+			shell: true,
 			stdio: opts.stdio,
 			timeout: opts.timeout,
 		});
