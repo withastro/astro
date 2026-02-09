@@ -14,7 +14,8 @@
   "exports": {
     "./path": "./dist/path.js",
     "./remote": "./dist/remote.js",
-    "./fs": "./dist/fs.js"
+    "./fs": "./dist/fs.js",
+    "./cli": "./dist/cli.js"
   },
   "typesVersions": {
     "*": {
@@ -26,6 +27,9 @@
       ],
       "fs": [
         "./dist/fs.d.ts"
+      ],
+      "cli": [
+        "./dist/cli.d.ts"
       ]
     }
   },

@@ -4645,6 +4645,9 @@ importers:
         specifier: ^0.1.6
         version: 0.1.6
     devDependencies:
+      '@astrojs/internal-helpers':
+        specifier: workspace:*
+        version: link:../internal-helpers
       arg:
         specifier: ^5.0.2
         version: 5.0.2
