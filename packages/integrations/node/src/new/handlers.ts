@@ -225,10 +225,11 @@ export function createStandaloneHandler({
 	client,
 	server,
 	trailingSlash,
-}: Parameters<typeof createAppHandler>[0] & Parameters<typeof createStaticHandler>[0]) {
+}: Parameters<typeof createAppHandler>[0] &
+	Parameters<typeof createStaticHandler>[0]): RequestHandler {
 	const appHandler = createAppHandler({ app, experimentalErrorPageHost });
 	const staticHandler = createStaticHandler({ app, assets, client, server, trailingSlash });
-	return (req: http.IncomingMessage, res: http.ServerResponse) => {
+	return (req, res, next, locals) => {
 		try {
 			// validate request path
 			decodeURI(req.url!);
@@ -237,6 +238,6 @@ export function createStandaloneHandler({
 			res.end('Bad request.');
 			return;
 		}
-		staticHandler(req, res, () => appHandler(req, res));
+		staticHandler(req, res, () => appHandler(req, res, next, locals));
 	};
 }
