@@ -69,9 +69,9 @@ describe('behavior from middleware, middleware with express', () => {
 			}),
 		});
 		await fixture.build();
-		const { handler } = await fixture.loadAdapterEntryModule();
+		const { ssrHandler } = await fixture.loadAdapterEntryModule();
 		const app = express();
-		app.use(handler);
+		app.use(ssrHandler);
 		server = app.listen(8889);
 	});
 
@@ -156,14 +156,14 @@ describe('behavior from middleware, middleware with fastify', () => {
 			}),
 		});
 		await fixture.build();
-		const { handler } = await fixture.loadAdapterEntryModule();
+		const { ssrHandler } = await fixture.loadAdapterEntryModule();
 		const app = Fastify({ logger: false });
 		await app
 			.register(fastifyStatic, {
 				root: fileURLToPath(new URL('./dist/client', import.meta.url)),
 			})
 			.register(fastifyMiddie);
-		app.use(handler);
+		app.use(ssrHandler);
 
 		await app.listen({ port: 8889 });
 
