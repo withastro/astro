@@ -1,14 +1,15 @@
 import type { PluginOption } from 'vite';
 
-const VIRTUAL_CONFIG_ID = 'virtual:astro-cloudflare:config';
+const VIRTUAL_CONFIG_ID = 'virtual:astro-netlify:config';
 const RESOLVED_VIRTUAL_CONFIG_ID = '\0' + VIRTUAL_CONFIG_ID;
 
 export interface Config {
-	sessionKVBindingName: string;
-	isPrerender: boolean;
+	middlewareSecret: string;
+	cacheOnDemandPages: boolean;
+	packageVersion: string;
 }
 
-export function createConfigPlugin(config: Omit<Config, 'isPrerender'>): PluginOption {
+export function createConfigPlugin(config: Config): PluginOption {
 	return {
 		name: VIRTUAL_CONFIG_ID,
 		resolveId: {
@@ -24,10 +25,9 @@ export function createConfigPlugin(config: Omit<Config, 'isPrerender'>): PluginO
 				id: new RegExp(`^${RESOLVED_VIRTUAL_CONFIG_ID}$`),
 			},
 			handler() {
-				return [
-					...Object.entries(config).map(([k, v]) => `export const ${k} = ${JSON.stringify(v)};`),
-					`export const isPrerender = ${this.environment?.name === 'prerender'};`,
-				].join('\n');
+				return Object.entries(config)
+					.map(([k, v]) => `export const ${k} = ${JSON.stringify(v)};`)
+					.join('\n');
 			},
 		},
 	};
