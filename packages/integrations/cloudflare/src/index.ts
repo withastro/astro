@@ -10,8 +10,7 @@ import type {
 	HookParameters,
 	IntegrationResolvedRoute,
 } from 'astro';
-import type { PluginOption } from 'vite';
-import { cloudflareModuleLoader } from './utils/cloudflare-module-loader.js';
+
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { type ImageService, setImageConfig } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
@@ -20,8 +19,9 @@ import {
 	DEFAULT_SESSION_KV_BINDING_NAME,
 	DEFAULT_IMAGES_BINDING_NAME,
 } from './wrangler.js';
-import { parse } from 'dotenv';
+import { parseEnv } from 'node:util';
 import { sessionDrivers } from 'astro/config';
+import { createCloudflarePrerenderer } from './prerenderer.js';
 
 export type { Runtime } from './utils/handler.js';
 
@@ -55,15 +55,6 @@ export type Options = {
 	};
 
 	/**
-	 * Allow bundling cloudflare worker specific file types as importable modules. Defaults to true.
-	 * When enabled, allows imports of '.wasm', '.bin', and '.txt' file types
-	 *
-	 * See https://developers.cloudflare.com/pages/functions/module-support/
-	 * for reference on how these file types are exported
-	 */
-	cloudflareModules?: boolean;
-
-	/**
 	 * By default, Astro will be configured to use Cloudflare KV to store session data. The KV namespace
 	 * will be automatically provisioned when you deploy.
 	 *
@@ -89,10 +80,6 @@ export type Options = {
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let finalBuildOutput: HookParameters<'astro:config:done'>['buildOutput'];
-
-	const cloudflareModulePlugin: PluginOption = cloudflareModuleLoader(
-		args?.cloudflareModules ?? true,
-	);
 
 	let _routes: IntegrationResolvedRoute[];
 
@@ -131,6 +118,17 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						imagesBindingName:
 							args?.imageService === 'cloudflare-binding' ? args?.imagesBindingName : false,
 					}),
+					experimental: {
+						prerenderWorker: {
+							config(_, { entryWorkerConfig }) {
+								return {
+									...entryWorkerConfig,
+									// This is the Vite environment name used for prerendering
+									name: 'prerender',
+								};
+							},
+						},
+					},
 				};
 
 				updateConfig({
@@ -144,9 +142,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite: {
 						plugins: [
 							cfVitePlugin(cfPluginConfig),
-							// https://developers.cloudflare.com/pages/functions/module-support/
-							// Allows imports of '.wasm', '.bin', and '.txt' file types
-							cloudflareModulePlugin,
 							{
 								name: '@astrojs/cloudflare:cf-imports',
 								enforce: 'pre',
@@ -162,8 +157,10 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							{
 								name: '@astrojs/cloudflare:environment',
 								configEnvironment(environmentName, _options) {
-									const isServerEnvironment = ['ssr', 'prerender'].includes(environmentName);
-									if (isServerEnvironment && _options.optimizeDeps?.noDiscovery === false) {
+									const isServerEnvironment = ['astro', 'ssr', 'prerender'].includes(
+										environmentName,
+									);
+									if (isServerEnvironment && !_options.optimizeDeps?.noDiscovery) {
 										return {
 											optimizeDeps: {
 												include: [
@@ -260,10 +257,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						sharpImageService: {
 							support: 'limited',
 							message:
-								'Cloudflare does not support sharp at runtime. However, you can configure `imageService: "compile"` to optimize images with sharp on prerendered pages during build time.',
-							// For explicitly set image services, we suppress the warning about sharp not being supported at runtime,
-							// inferring the user is aware of the limitations.
-							suppress: args?.imageService ? 'all' : 'default',
+								'When using a custom image service, ensure it is compatible with the Cloudflare Workers runtime.',
+							// Only 'custom' could potentially use sharp at runtime.
+							suppress: args?.imageService === 'custom' ? 'default' : 'all',
 						},
 						envGetSecret: 'stable',
 					},
@@ -274,7 +270,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				if (existsSync(devVarsPath)) {
 					try {
 						const data = readFileSync(devVarsPath, 'utf-8');
-						const parsed = parse(data);
+						const parsed = parseEnv(data);
 						Object.assign(process.env, parsed);
 					} catch {
 						logger.error(
@@ -282,6 +278,17 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						);
 					}
 				}
+			},
+			'astro:build:start': ({ setPrerenderer }) => {
+				setPrerenderer(
+					createCloudflarePrerenderer({
+						root: _config.root,
+						serverDir: _config.build.server,
+						clientDir: _config.build.client,
+						base: _config.base,
+						trailingSlash: _config.trailingSlash,
+					}),
+				);
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
@@ -392,6 +399,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						logger.error('Failed to write _redirects file');
 					}
 				}
+
+				// Delete this variable so the preview server opens the server build.
+				delete process.env.CLOUDFLARE_VITE_BUILD;
 			},
 		},
 	};

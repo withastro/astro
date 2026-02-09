@@ -12,7 +12,10 @@
   "rangeStrategy": "bump",
   "postUpdateOptions": ["pnpmDedupe"],
   "lockFileMaintenance": {
-    "enabled": true
+    "enabled": true,
+    "packageRules": [{
+      "groupName": null
+    }]
   },
   "ignorePaths": [
     "**/node_modules/**",

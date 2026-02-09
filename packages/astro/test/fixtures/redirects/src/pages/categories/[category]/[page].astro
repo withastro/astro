@@ -1,0 +1,20 @@
+---
+export function getStaticPaths() {
+	return [
+		{ params: { category: 'food', page: '1' } },
+		{ params: { category: 'food', page: '2' } },
+		{ params: { category: 'technology', page: '1' } },
+	];
+}
+
+const { category, page } = Astro.params;
+---
+<html>
+	<head>
+		<title>{category} - Page {page}</title>
+	</head>
+	<body>
+		<h1>{category}</h1>
+		<p>Page {page}</p>
+	</body>
+</html>
