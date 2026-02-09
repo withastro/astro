@@ -115,7 +115,11 @@ export function createI18nMiddleware(
 				if (localeHasntDomain(i18n, currentLocale)) {
 					const result = _noFoundForNonLocaleRoute(context, response);
 					if (result) {
-						return result;
+						// Return a null-body 404 without the reroute directive header so
+						// the rerouting infrastructure in BaseApp.render() can serve 404.astro
+						return new Response(null, {
+							status: 404,
+						});
 					}
 				}
 				break;
@@ -124,7 +128,11 @@ export function createI18nMiddleware(
 			case 'pathname-prefix-always-no-redirect': {
 				const result = _noFoundForNonLocaleRoute(context, response);
 				if (result) {
-					return result;
+					// Return a null-body 404 without the reroute directive header so
+					// the rerouting infrastructure in BaseApp.render() can serve 404.astro
+					return new Response(null, {
+						status: 404,
+					});
 				}
 				break;
 			}
