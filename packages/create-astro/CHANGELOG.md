@@ -1,5 +1,14 @@
 # create-astro
 
+## 5.0.0-beta.4
+
+### Patch Changes
+
+- [#15419](https://github.com/withastro/astro/pull/15419) [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where `--add` could accept any kind of string, leading to different errors. Now `--add` accepts only values of valid integrations and adapters.
+
+- [#15419](https://github.com/withastro/astro/pull/15419) [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `add` command could accept any arbitrary value, leading the possible command injections. Now `add` and `--add` accepts
+  values that are only acceptable npmjs.org names.
+
 ## 5.0.0-beta.3
 
 ### Patch Changes
