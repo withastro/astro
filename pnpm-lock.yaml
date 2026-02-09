@@ -5095,6 +5095,18 @@ importers:
         specifier: ^4.61.1
         version: 4.62.0(@cloudflare/workers-types@4.20260203.0)
 
+  packages/integrations/cloudflare/test/fixtures/ssr-deps:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      ms:
+        specifier: ^2.1.3
+        version: 2.1.3
+
   packages/integrations/cloudflare/test/fixtures/vite-plugin:
     dependencies:
       '@astrojs/cloudflare':
