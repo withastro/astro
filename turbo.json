@@ -4,11 +4,10 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": [
-        "**/*",
+        "$TURBO_DEFAULT$",
         "!test/**/*",
         "!e2e/**/*",
         "!performance/**/*",
-        "!.astro/**/*",
         "!.cache/**/*",
         "!mod.js",
         "!mod.js.map"
