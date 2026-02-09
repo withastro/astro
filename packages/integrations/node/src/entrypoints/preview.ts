@@ -1,8 +1,8 @@
 import { fileURLToPath } from 'node:url';
 import type { CreatePreviewServer } from 'astro';
 import { AstroError } from 'astro/errors';
-import { logListeningOn } from '../../log-listening-on.js';
-import { createServer } from '../server.js';
+import { logListeningOn } from '../log-listening-on.js';
+import { createServer } from '../create-server.js';
 
 type ServerModule = typeof import('./entry.js');
 type MaybeServerModule = Partial<ServerModule>;

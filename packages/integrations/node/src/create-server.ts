@@ -1,4 +1,4 @@
-import type { Config } from '../vite-plugin-config.js';
+import type { Config } from './vite-plugin-config.js';
 import * as http from 'node:http';
 import * as https from 'node:https';
 import enableDestroy from 'server-destroy';

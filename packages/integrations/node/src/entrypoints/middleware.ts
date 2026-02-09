@@ -1,4 +1,4 @@
-import type { RequestHandler } from '../../types.js';
+import type { RequestHandler } from '../types.js';
 import { NodeApp } from 'astro/app/node';
 import { manifest } from 'virtual:astro:manifest';
 import { setGetEnv } from 'astro/env/setup';

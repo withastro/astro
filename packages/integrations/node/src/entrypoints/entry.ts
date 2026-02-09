@@ -3,10 +3,10 @@ import * as options from 'virtual:astro-node:config';
 import { manifest } from 'virtual:astro:manifest';
 import { createStandaloneHandler } from '../handlers.js';
 import type { NodeAppHeadersJson } from 'astro';
-import { logListeningOn } from '../../log-listening-on.js';
-import { createServer, hostOptions } from '../server.js';
+import { logListeningOn } from '../log-listening-on.js';
+import { createServer, hostOptions } from '../create-server.js';
 import { setGetEnv } from 'astro/env/setup';
-import { STATIC_HEADERS_FILE } from '../../shared.js';
+import { STATIC_HEADERS_FILE } from '../shared.js';
 import { existsSync, readFileSync } from 'node:fs';
 
 const app = new NodeApp(manifest, !options.experimentalDisableStreaming);

@@ -1,7 +1,7 @@
 import { NodeApp } from 'astro/app/node';
 import type * as http from 'node:http';
-import type { Config } from '../vite-plugin-config.js';
-import type { RequestHandler } from '../types.js';
+import type { Config } from './vite-plugin-config.js';
+import type { RequestHandler } from './types.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
