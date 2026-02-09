@@ -115,3 +115,13 @@ The report must include all information needed for a final GitHub comment to be 
 - Verification results (did the fix resolve the original error?)
 - Any alternative approaches considered and their tradeoffs
 - If the fix failed: what was tried and why it didn't work
+
+## Step 8: Commit Your Fix
+
+Clean up and commit your changes:
+
+1. Review `git status` — revert any debug code, console.logs, or temp files that shouldn't ship
+2. Stage your changes: `git add -A` (the `triage/` directory is already gitignored)
+3. Commit with a conventional commit message, e.g.: `fix(astro): prevent crash when rendering client:only components`
+
+Do NOT push — the orchestrator handles pushing.

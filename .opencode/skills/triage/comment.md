@@ -8,6 +8,7 @@ Generate a GitHub issue comment from triage findings.
 
 - The `triageDir` directory (provided in args) exists
 - `report.md` in that directory MAY exist — this contains the full context from all previous skills (reproduction, diagnosis, fix)
+- `branchName` (from args) — if non-null, the fix was pushed to this branch. Include a "Create PR" link. If null, no branch was pushed — omit the link.
 
 ## Overview
 
@@ -44,7 +45,7 @@ Format requirements:
 ```markdown
 **[I was able to reproduce this issue. / I was unable to reproduce this issue.]** [1-2 sentences describing the result and key observations.]
 
-**Fix:** [If fix was successfully pushed up to a branch, include this link: [Create PR](https://github.com/withastro/astro/compare/$BRANCH_NAME?expand=1)] **[I was able to fix this issue. / I was unable to fix this issue.]** [1-2 sentences describing the solution and key observations. Even if no fix was created, you can still use this space to give guidance or "a best guess" at where the fix might be.]
+**Fix:** [If `branchName` arg is non-null, include: [Create PR](https://github.com/withastro/astro/compare/{branchName}?expand=1)] **[I was able to fix this issue. / I was unable to fix this issue.]** [1-2 sentences describing the solution and key observations. Even if no fix was created, you can still use this space to give guidance or "a best guess" at where the fix might be.]
 
 **Cause:** [Single sentence explaining the root cause - or just the word "Unknown" if not determined.]
 
