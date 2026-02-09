@@ -12,10 +12,7 @@
   "rangeStrategy": "bump",
   "postUpdateOptions": ["pnpmDedupe"],
   "lockFileMaintenance": {
-    "enabled": true,
-    "packageRules": [{
-      "groupName": null
-    }]
+    "enabled": true
   },
   "ignorePaths": [
     "**/node_modules/**",
@@ -25,6 +22,10 @@
     "**/astro-info-versions/**"
   ],
   "packageRules": [
+    {
+      "groupName": "lockfile maintenance",
+      "matchUpdateTypes": ["lockFileMaintenance"]
+    },
     {
       "groupName": "github-actions",
       "matchManagers": ["github-actions"]
