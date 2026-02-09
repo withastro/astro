@@ -268,7 +268,7 @@ export default function vercelAdapter({
 					build: {
 						format: 'directory',
 						redirects: false,
-						serverEntry: 'entrypoint.mjs'
+						serverEntry: 'entrypoint.mjs',
 					},
 					integrations: [
 						{

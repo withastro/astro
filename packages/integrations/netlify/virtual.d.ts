@@ -2,5 +2,5 @@
 
 declare module 'virtual:astro-netlify:config' {
 	const config: import('./src/vite-plugin-config.js').Config;
-	export = config
+	export = config;
 }
