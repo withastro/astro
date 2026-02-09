@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import nodejs from '../dist/index.js';
+import node from '../dist/index.js';
 import { loadFixture, waitServerListen } from './test-utils.js';
 
 describe('Static headers', () => {
@@ -37,7 +37,7 @@ describe('Static headers', () => {
 		fixture = await loadFixture({
 			root: './fixtures/static-headers/',
 			output: 'server',
-			adapter: nodejs({ mode: 'standalone', staticHeaders: true }),
+			adapter: node({ staticHeaders: true }),
 		});
 		await fixture.build();
 		const { startServer } = await fixture.loadAdapterEntryModule();

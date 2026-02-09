@@ -6,7 +6,7 @@ import fastifyStatic from '@fastify/static';
 import * as cheerio from 'cheerio';
 import express from 'express';
 import Fastify from 'fastify';
-import nodejs from '../dist/index.js';
+import node from '../dist/index.js';
 import { loadFixture, waitServerListen } from './test-utils.js';
 
 /**
@@ -23,7 +23,7 @@ describe('behavior from middleware, standalone', () => {
 		fixture = await loadFixture({
 			root: './fixtures/node-middleware/',
 			output: 'server',
-			adapter: nodejs(),
+			adapter: node(),
 		});
 		await fixture.build();
 		const { startServer } = await fixture.loadAdapterEntryModule();
@@ -64,7 +64,7 @@ describe('behavior from middleware, middleware with express', () => {
 		fixture = await loadFixture({
 			root: './fixtures/node-middleware/',
 			output: 'server',
-			adapter: nodejs({
+			adapter: node({
 				serverEntrypoint: new URL('./fixtures/node-middleware/src/server.js', import.meta.url),
 			}),
 		});
@@ -151,7 +151,7 @@ describe('behavior from middleware, middleware with fastify', () => {
 		fixture = await loadFixture({
 			root: './fixtures/node-middleware/',
 			output: 'server',
-			adapter: nodejs({
+			adapter: node({
 				serverEntrypoint: new URL('./fixtures/node-middleware/src/server.js', import.meta.url),
 			}),
 		});

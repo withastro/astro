@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
-import nodejs from '../dist/index.js';
+import node from '../dist/index.js';
 import { loadFixture, waitServerListen } from './test-utils.js';
 
 /**
@@ -26,7 +26,7 @@ describe('Prerender 404', () => {
 				root: './fixtures/prerender-404-500/',
 				output: 'server',
 				outDir: './dist/server-with-base',
-				adapter: nodejs({ mode: 'standalone' }),
+				adapter: node(),
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
@@ -112,7 +112,7 @@ describe('Prerender 404', () => {
 				root: './fixtures/prerender-404-500/',
 				output: 'server',
 				outDir: './dist/server-without-base',
-				adapter: nodejs({ mode: 'standalone' }),
+				adapter: node(),
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
@@ -177,7 +177,7 @@ describe('Hybrid 404', () => {
 				root: './fixtures/prerender-404-500/',
 				output: 'static',
 				outDir: './dist/hybrid-with-base',
-				adapter: nodejs({ mode: 'standalone' }),
+				adapter: node(),
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
@@ -235,7 +235,7 @@ describe('Hybrid 404', () => {
 				root: './fixtures/prerender-404-500/',
 				output: 'static',
 				outDir: './dist/hybrid-without-base',
-				adapter: nodejs({ mode: 'standalone' }),
+				adapter: node(),
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();

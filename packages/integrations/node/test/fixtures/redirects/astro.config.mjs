@@ -1,8 +1,8 @@
 import { defineConfig } from 'astro/config';
-import nodejs from '@astrojs/node';
+import node from '@astrojs/node';
 
 export default defineConfig({
-	adapter: nodejs({ mode: 'standalone' }),
+  adapter: node(),
   redirects: {
     '/old-page': '/new-page',
     '/old-page-301': {

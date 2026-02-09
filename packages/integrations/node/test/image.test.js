@@ -3,7 +3,7 @@ import { cp, rm } from 'node:fs/promises';
 import { after, before, describe, it } from 'node:test';
 import { inferRemoteSize } from 'astro/assets/utils/inferRemoteSize.js';
 import * as cheerio from 'cheerio';
-import nodejs from '../dist/index.js';
+import node from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
 import { fileURLToPath } from 'node:url';
 
@@ -18,7 +18,7 @@ describe('Image endpoint', () => {
 			root,
 			outDir: fileURLToPath(new URL('./dist/image/', root)),
 			output: 'server',
-			adapter: nodejs({ mode: 'standalone' }),
+			adapter: node(),
 			image: {
 				domains: ['images.unsplash.com'],
 			},

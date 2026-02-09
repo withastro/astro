@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { after, before, describe, it } from 'node:test';
-import nodejs from '../dist/index.js';
+import node from '../dist/index.js';
 import { createRequestAndResponse, loadFixture } from './test-utils.js';
 
 describe('API routes', () => {
@@ -16,7 +16,9 @@ describe('API routes', () => {
 		fixture = await loadFixture({
 			root: './fixtures/api-route/',
 			output: 'server',
-			adapter: nodejs({ mode: 'middleware' }),
+			adapter: node({
+				serverEntrypoint: new URL('./fixtures/api-route/src/server.js', import.meta.url)
+			}),
 		});
 		await fixture.build();
 		previewServer = await fixture.preview();

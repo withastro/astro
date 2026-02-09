@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
 import { TLSSocket } from 'node:tls';
 import * as cheerio from 'cheerio';
-import nodejs from '../dist/index.js';
+import node from '../dist/index.js';
 import { createRequestAndResponse, loadFixture } from './test-utils.js';
 
 describe('URL', () => {
@@ -13,7 +13,7 @@ describe('URL', () => {
 		fixture = await loadFixture({
 			root: './fixtures/url/',
 			output: 'server',
-			adapter: nodejs({ mode: 'standalone' }),
+			adapter: node(),
 		});
 		await fixture.build();
 	});

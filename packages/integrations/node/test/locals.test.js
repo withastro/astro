@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, it } from 'node:test';
-import nodejs from '../dist/index.js';
+import node from '../dist/index.js';
 import { createRequestAndResponse, loadFixture } from './test-utils.js';
 
 describe('API routes', () => {
@@ -11,7 +11,9 @@ describe('API routes', () => {
 		fixture = await loadFixture({
 			root: './fixtures/locals/',
 			output: 'server',
-			adapter: nodejs({ mode: 'middleware' }),
+			adapter: node({
+				serverEntrypoint: new URL('./fixtures/locals/src/server.js', import.meta.url),
+			}),
 		});
 		await fixture.build();
 	});
