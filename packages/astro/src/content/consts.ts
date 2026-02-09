@@ -1,4 +1,5 @@
 export const PROPAGATED_ASSET_FLAG = 'astroPropagatedAssets';
+export const PROPAGATED_ASSET_QUERY_PARAM = `?${PROPAGATED_ASSET_FLAG}`;
 export const CONTENT_RENDER_FLAG = 'astroRenderContent';
 export const CONTENT_FLAG = 'astroContentCollectionEntry';
 export const DATA_FLAG = 'astroDataCollectionEntry';

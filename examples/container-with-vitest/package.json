@@ -15,13 +15,13 @@
   },
   "dependencies": {
     "@astrojs/react": "^5.0.0-beta.3",
-    "astro": "^6.0.0-beta.6",
+    "astro": "^6.0.0-beta.10",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "vitest": "^3.2.4"
   },
   "devDependencies": {
-    "@types/react": "^18.3.27",
+    "@types/react": "^18.3.28",
     "@types/react-dom": "^18.3.7"
   }
 }
