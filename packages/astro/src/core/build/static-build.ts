@@ -162,6 +162,19 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	let currentRollupInput: InputOption | undefined = undefined;
 	plugins.push({
 		name: 'astro:resolve-input',
+		// When the rollup input is safe to update, we normalize it to always be an object
+		// so we can reliably identify which entrypoint corresponds to the adapter
+		enforce: 'post',
+		config(config) {
+			if (typeof config.build?.rollupOptions?.input === 'string') {
+				config.build.rollupOptions.input = { index: config.build.rollupOptions.input };
+			} else if (Array.isArray(config.build?.rollupOptions?.input)) {
+				config.build.rollupOptions.input = Object.fromEntries(
+					config.build.rollupOptions.input.map((v, i) => [`index_${i}`, v]),
+				);
+			}
+		},
+		// We save the rollup input to be able to check later on
 		configResolved(config) {
 			currentRollupInput = config.build.rollupOptions.input;
 		},
@@ -205,19 +218,16 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	});
 
 	function isRollupInput(moduleName: string | null): boolean {
-		if (!currentRollupInput) {
+		if (!currentRollupInput || !moduleName) {
 			return false;
 		}
-		if (!moduleName) {
-			return false;
+		if (typeof currentRollupInput === 'string') {
+			return currentRollupInput === moduleName;
+		} else if (Array.isArray(currentRollupInput)) {
+			return currentRollupInput.includes(moduleName);
+		} else {
+			return Object.keys(currentRollupInput).includes(moduleName);
 		}
-		const candidates: Array<string> =
-			typeof currentRollupInput === 'string'
-				? [currentRollupInput]
-				: Array.isArray(currentRollupInput)
-					? currentRollupInput
-					: Object.keys(currentRollupInput);
-		return candidates.some((e) => e === moduleName || path.basename(e, path.extname(e)) === moduleName);
 	}
 
 	const viteBuildConfig: vite.InlineConfig = {
