@@ -1,5 +1,12 @@
 # @astrojs/node
 
+## 10.0.0-beta.3
+
+### Patch Changes
+
+- Updated dependencies [[`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3), [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da)]:
+  - @astrojs/internal-helpers@0.8.0-beta.1
+
 ## 10.0.0-beta.2
 
 ### Minor Changes

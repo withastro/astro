@@ -24,13 +24,13 @@ declare global {
 
 type CfResponse = Awaited<ReturnType<Required<ExportedHandler<Env>>['fetch']>>;
 
+const app = createApp();
+
 export async function handle(
 	request: Request,
 	env: Env,
 	context: ExecutionContext,
 ): Promise<CfResponse> {
-	const app = createApp();
-
 	// Handle prerender endpoints (only active during build prerender phase)
 	if (isPrerender) {
 		if (isStaticPathsRequest(request)) {

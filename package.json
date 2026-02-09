@@ -74,7 +74,7 @@
     "prettier-plugin-astro": "^0.14.1",
     "publint": "^0.3.17",
     "tinyglobby": "^0.2.15",
-    "turbo": "^2.8.1",
+    "turbo": "^2.8.3",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.54.0"
   }

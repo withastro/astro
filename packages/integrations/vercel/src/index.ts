@@ -32,6 +32,7 @@ import {
 	type VercelWebAnalyticsConfig,
 } from './lib/web-analytics.js';
 import { generateEdgeMiddleware } from './serverless/middleware.js';
+import { createConfigPlugin } from './vite-plugin-config.js';
 
 const PACKAGE_NAME = '@astrojs/vercel';
 
@@ -97,25 +98,18 @@ const SUPPORTED_NODE_VERSIONS: Record<
 
 function getAdapter({
 	edgeMiddleware,
-	middlewareSecret,
 	skewProtection,
 	buildOutput,
 	staticHeaders,
 }: {
 	buildOutput: 'server' | 'static';
 	edgeMiddleware: NonNullable<VercelServerlessConfig['edgeMiddleware']>;
-	middlewareSecret: string;
 	skewProtection: boolean;
 	staticHeaders: NonNullable<VercelServerlessConfig['staticHeaders']>;
 }): AstroAdapter {
 	return {
 		name: PACKAGE_NAME,
-		serverEntrypoint: `${PACKAGE_NAME}/entrypoint`,
-		exports: ['default'],
-		args: {
-			middlewareSecret,
-			skewProtection,
-		},
+		entryType: 'self',
 		adapterFeatures: {
 			edgeMiddleware,
 			buildOutput,
@@ -274,6 +268,7 @@ export default function vercelAdapter({
 					build: {
 						format: 'directory',
 						redirects: false,
+						serverEntry: 'entrypoint.mjs',
 					},
 					integrations: [
 						{
@@ -294,6 +289,17 @@ export default function vercelAdapter({
 						ssr: {
 							external: ['@vercel/nft'],
 						},
+						build: {
+							rollupOptions: {
+								input: `${PACKAGE_NAME}/entrypoint`,
+							},
+						},
+						plugins: [
+							createConfigPlugin({
+								middlewareSecret,
+								skewProtection,
+							}),
+						],
 					},
 					...getAstroImageConfig(
 						imageService,
@@ -347,7 +353,6 @@ export default function vercelAdapter({
 						getAdapter({
 							buildOutput: _buildOutput,
 							edgeMiddleware,
-							middlewareSecret,
 							skewProtection,
 							staticHeaders: staticHeaders,
 						}),
@@ -356,7 +361,6 @@ export default function vercelAdapter({
 					setAdapter(
 						getAdapter({
 							edgeMiddleware: false,
-							middlewareSecret: '',
 							skewProtection,
 							buildOutput: _buildOutput,
 							staticHeaders: staticHeaders,

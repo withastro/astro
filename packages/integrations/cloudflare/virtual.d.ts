@@ -2,9 +2,8 @@
 /// <reference types="@cloudflare/workers-types" />
 
 declare module 'virtual:astro-cloudflare:config' {
-	export const sessionKVBindingName: string;
-	/** True when running in the prerender environment during build */
-	export const isPrerender: boolean;
+	const config: import('./src/vite-plugin-config.js').Config;
+	export = config;
 }
 
 declare namespace Cloudflare {
