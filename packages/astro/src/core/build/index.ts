@@ -18,6 +18,7 @@ import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../encryption.js';
+import { compileTimeStats } from '../compile/compile.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
@@ -296,5 +297,18 @@ class AstroBuilder {
 
 		logger.info('build', messages.join(' '));
 		logger.info('build', `${colors.bold('Complete!')}`);
+
+		// Log compile time stats table
+		if (compileTimeStats.files.size > 0) {
+			logger.info('build', '');
+			logger.info('build', colors.bold('Compile times:'));
+			const sortedFiles = [...compileTimeStats.files.entries()].sort((a, b) => b[1] - a[1]);
+			for (const [file, time] of sortedFiles) {
+				const basename = file.split('/').pop() ?? file;
+				logger.info('build', `  ${basename} ${colors.dim(`${time.toFixed(2)}ms`)}`);
+			}
+			const compileTotal = sortedFiles.reduce((sum, [, time]) => sum + time, 0);
+			logger.info('build', colors.bold(`  Total: ${compileTotal.toFixed(2)}ms`));
+		}
 	}
 }

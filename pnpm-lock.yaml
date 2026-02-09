@@ -494,8 +494,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^3.0.0-beta.0
-        version: 3.0.0-beta.0
+        specifier: link:../../../compiler-rust/packages/compiler
+        version: link:../../../compiler-rust/packages/compiler
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers
@@ -7103,9 +7103,6 @@ packages:
 
   '@astrojs/compiler@2.13.0':
     resolution: {integrity: sha512-mqVORhUJViA28fwHYaWmsXSzLO9osbdZ5ImUfxBarqsYdMlPbqAqGJCxsNzvppp1BEzc1mJNjOVvQqeDN8Vspw==}
-
-  '@astrojs/compiler@3.0.0-beta.0':
-    resolution: {integrity: sha512-wrWArjuyeEhoUZUr+o3Ts3CFbxB+QFYvzsnnR0wr3L0b84JDxq107mZOfmNZ/XPE4VjFzjjApvHKCVGQjNJm8Q==}
 
   '@astrojs/internal-helpers@0.7.1':
     resolution: {integrity: sha512-7dwEVigz9vUWDw3nRwLQ/yH/xYovlUA0ZD86xoeKEBmkz9O6iELG1yri67PgAPW6VLL/xInA4t7H0CK6VmtkKQ==}
@@ -16408,8 +16405,6 @@ snapshots:
       sisteransi: 1.0.5
 
   '@astrojs/compiler@2.13.0': {}
-
-  '@astrojs/compiler@3.0.0-beta.0': {}
 
   '@astrojs/internal-helpers@0.7.1': {}
 

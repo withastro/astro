@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import type { TransformResult } from '@astrojs/compiler';
-import { transform } from '@astrojs/compiler';
+import { transform } from '@astrojs/compiler/sync';
 import type { ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { AstroError } from '../errors/errors.js';
@@ -9,6 +9,10 @@ import { AstroErrorData } from '../errors/index.js';
 import { normalizePath, resolvePath } from '../viteUtils.js';
 import { createStylePreprocessor, type PartialCompileCssResult } from './style.js';
 import type { CompileCssResult } from './types.js';
+
+export const compileTimeStats = {
+	files: new Map<string, number>(),
+};
 
 export interface CompileProps {
 	astroConfig: AstroConfig;
@@ -40,7 +44,8 @@ export async function compile({
 		// Transform from `.astro` to valid `.ts`
 		// use `sourcemap: "both"` so that sourcemap is included in the code
 		// result passed to esbuild, but also available in the catch handler.
-		transformResult = await transform(source, {
+		const t0 = performance.now();
+		transformResult = transform(source, {
 			compact: astroConfig.compressHTML,
 			filename,
 			normalizedFilename: normalizeFilename(filename, astroConfig.root),
@@ -67,6 +72,9 @@ export async function compile({
 				return resolvePath(specifier, filename);
 			},
 		});
+		const t1 = performance.now();
+		const elapsed = t1 - t0;
+		compileTimeStats.files.set(filename, elapsed);
 	} catch (err: any) {
 		// The compiler should be able to handle errors by itself, however
 		// for the rare cases where it can't let's directly throw here with as much info as possible
