@@ -10,7 +10,7 @@ import { createApp } from 'astro/app/entrypoint';
 
 setGetEnv((key) => process.env[key]);
 
-const app = createApp(import.meta.env.DEV);
+const app = createApp();
 
 export default {
 	async fetch(request: Request): Promise<Response> {

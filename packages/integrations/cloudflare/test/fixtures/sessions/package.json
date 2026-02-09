@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build": "astro build",
-    "preview": "astro build && wrangler dev",
+    "preview": "astro preview",
     "start": "astro dev"
   }
 }

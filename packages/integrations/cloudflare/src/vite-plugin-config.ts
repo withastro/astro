@@ -5,9 +5,10 @@ const RESOLVED_VIRTUAL_CONFIG_ID = '\0' + VIRTUAL_CONFIG_ID;
 
 export interface Config {
 	sessionKVBindingName: string;
+	isPrerender: boolean;
 }
 
-export function createConfigPlugin(config: Config): PluginOption {
+export function createConfigPlugin(config: Omit<Config, 'isPrerender'>): PluginOption {
 	return {
 		name: VIRTUAL_CONFIG_ID,
 		resolveId: {
@@ -23,9 +24,10 @@ export function createConfigPlugin(config: Config): PluginOption {
 				id: new RegExp(`^${RESOLVED_VIRTUAL_CONFIG_ID}$`),
 			},
 			handler() {
-				return Object.entries(config)
-					.map(([k, v]) => `export const ${k} = ${JSON.stringify(v)};`)
-					.join('\n');
+				return [
+					...Object.entries(config).map(([k, v]) => `export const ${k} = ${JSON.stringify(v)};`),
+					`export const isPrerender = ${this.environment?.name === 'prerender'};`,
+				].join('\n');
 			},
 		},
 	};

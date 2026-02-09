@@ -5,7 +5,7 @@ import { createApp } from 'astro/app/entrypoint';
 
 setGetEnv((key) => process.env[key]);
 
-const app = createApp(import.meta.env.DEV);
+const app = createApp();
 
 export function createHandler({ notFoundContent }: { notFoundContent: string | undefined }) {
 	return async function handler(request: Request, context: Context): Promise<Response> {
