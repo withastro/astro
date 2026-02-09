@@ -1,8 +1,8 @@
 import type { Plugin } from 'vite';
 import { globalShikiStyleCollector } from '@astrojs/markdown-remark';
 
-export const VIRTUAL_SHIKI_STYLES_ID = 'virtual:astro:shiki-styles.css';
-export const RESOLVED_VIRTUAL_SHIKI_STYLES_ID = '\0virtual:astro:shiki-styles.css';
+const VIRTUAL_SHIKI_STYLES_ID = 'virtual:astro:shiki-styles.css';
+const RESOLVED_VIRTUAL_SHIKI_STYLES_ID = '\0virtual:astro:shiki-styles.css';
 
 /**
  * Vite plugin that provides a virtual CSS module containing all Shiki syntax highlighting styles.
