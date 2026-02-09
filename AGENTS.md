@@ -12,47 +12,20 @@
 
 ## Astro Documentation
 
-- **LLM-optimized docs**: https://docs.astro.build/llms.txt (use this for quick reference and context-efficient lookups)
-- **Human-readable docs**: https://docs.astro.build/ (more complete, use when llms.txt doesn't have the needed information)
+- **LLM-optimized**: https://docs.astro.build/llms.txt (llm-optimized)
+- **Full docs**: https://docs.astro.build/ (human-optimized, primary source, use when llms.txt lacks info)
 
 ## Running Tests
 
-The Astro monorepo uses `astro-scripts test`, a wrapper around Node.js's built-in test runner.
-
-**Run a single test file:**
-
-```bash
-cd packages/astro
-pnpm astro-scripts test "test/actions.test.js"
-```
-
-**Run a specific test by name (within any test file):**
-
-```bash
-cd packages/astro
-pnpm astro-scripts test "test/**/*.test.js" --match "CSS"
-```
-
-This will run only tests whose names match "CSS" (you can use regex patterns).
-
-**Run multiple specific test files:**
-
-```bash
-cd packages/astro
-pnpm astro-scripts test "test/{actions,css,middleware}.test.js"
-```
-
-**For integration packages:**
-
-```bash
-cd packages/integrations/mdx
-pnpm astro-scripts test "test/mdx-assets.test.js"
-```
-
-**Key flags:**
-
-- `--match` / `-m`: Filter tests by name pattern (regex)
-- `--only` / `-o`: Run only tests marked with `.only`
-- `--parallel` / `-p`: Run tests in parallel (default is sequential)
-- `--timeout` / `-t`: Set timeout in milliseconds
-- `--watch` / `-w`: Watch mode
+- Run `pnpm test` in workspace root or package directory to run full test suite (can be slow!)
+- Integration tests live in special `packages/integrations` folders.
+- `cd` into the desired package directory, then use `pnpm astro-scripts` test runner
+- Run a single test file: ` pnpm astro-scripts test "test/actions.test.js"`
+- Run specific tests matching a string or regex patterns: `pnpm astro-scripts test "test/**/*.test.js" --match "CSS"`
+- Run multiple test files: `pnpm astro-scripts test "test/{actions,css,middleware}.test.js"`
+- Key flags:
+  - `--match` / `-m`: Filter tests by name pattern (regex)
+  - `--only` / `-o`: Run only tests marked with `.only`
+  - `--parallel` / `-p`: Run tests in parallel (default is sequential)
+  - `--timeout` / `-t`: Set timeout in milliseconds
+  - `--watch` / `-w`: Watch mode
