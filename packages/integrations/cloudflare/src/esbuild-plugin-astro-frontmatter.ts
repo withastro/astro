@@ -1,6 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import type { DepOptimizationConfig } from 'vite';
 
+const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---/;
+
 // Not exposed as a type from Vite, so need to grab this way.
 type ESBuildPlugin = NonNullable<
 	NonNullable<DepOptimizationConfig['esbuildOptions']>['plugins']
@@ -20,7 +22,7 @@ export function astroFrontmatterScanPlugin(): ESBuildPlugin {
 					const code = await readFile(args.path, 'utf-8');
 
 					// Extract frontmatter content between --- markers
-					const frontmatterMatch = code.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+					const frontmatterMatch = FRONTMATTER_RE.exec(code);
 					if (frontmatterMatch) {
 						// Return the frontmatter as TypeScript for import scanning
 						return {
