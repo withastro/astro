@@ -19,7 +19,7 @@ import {
 	DEFAULT_SESSION_KV_BINDING_NAME,
 	DEFAULT_IMAGES_BINDING_NAME,
 } from './wrangler.js';
-import { parse } from 'dotenv';
+import { parseEnv } from 'node:util';
 import { sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
 
@@ -270,7 +270,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				if (existsSync(devVarsPath)) {
 					try {
 						const data = readFileSync(devVarsPath, 'utf-8');
-						const parsed = parse(data);
+						const parsed = parseEnv(data);
 						Object.assign(process.env, parsed);
 					} catch {
 						logger.error(
