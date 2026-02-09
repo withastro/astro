@@ -11,7 +11,6 @@ const createPreviewServer: CreatePreviewServer = async (preview) => {
 	let ssrHandler: ServerModule['handler'];
 	try {
 		process.env.ASTRO_NODE_AUTOSTART = 'disabled';
-		process.env.ASTRO_NODE_PREVIEW = 'true';
 		const ssrModule: MaybeServerModule = await import(preview.serverEntrypoint.toString());
 		if (typeof ssrModule.handler === 'function') {
 			ssrHandler = ssrModule.handler;
