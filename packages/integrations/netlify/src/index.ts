@@ -638,7 +638,6 @@ export default function netlifyIntegration(
 						redirects: false,
 						client: outDir,
 						server: ssrBuildDir(),
-						serverEntry: 'ssr-function.mjs',
 					},
 					session,
 					vite: {

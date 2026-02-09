@@ -211,13 +211,13 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 		if (!moduleName) {
 			return false;
 		}
-		if (typeof currentRollupInput === 'string') {
-			return currentRollupInput === moduleName;
-		} else if (Array.isArray(currentRollupInput)) {
-			return currentRollupInput.includes(moduleName);
-		} else {
-			return Object.keys(currentRollupInput).includes(moduleName);
-		}
+		const candidates: Array<string> =
+			typeof currentRollupInput === 'string'
+				? [currentRollupInput]
+				: Array.isArray(currentRollupInput)
+					? currentRollupInput
+					: Object.keys(Array.isArray(currentRollupInput));
+		return candidates.some((e) => e === moduleName || path.basename(e, path.extname(e)) === moduleName);
 	}
 
 	const viteBuildConfig: vite.InlineConfig = {
