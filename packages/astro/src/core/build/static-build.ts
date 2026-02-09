@@ -216,7 +216,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				? [currentRollupInput]
 				: Array.isArray(currentRollupInput)
 					? currentRollupInput
-					: Object.keys(Array.isArray(currentRollupInput));
+					: Object.keys(currentRollupInput);
 		return candidates.some((e) => e === moduleName || path.basename(e, path.extname(e)) === moduleName);
 	}
 
