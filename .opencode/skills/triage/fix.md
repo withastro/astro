@@ -23,25 +23,31 @@ Develop and verify a fix for a diagnosed Astro bug.
 ## Step 1: Review the Diagnosis
 
 Read `report.md` from the `triageDir` directory (provided in args) to understand:
+
 - The root cause and affected files
 - The suggested approach
 - Any edge cases to consider
+
+**Note:** The repo may be messy from previous steps. Check `git status` and either work from the current state or `git reset --hard` to start clean.
 
 ## Step 2: Implement the Fix
 
 Make changes in `packages/` source files. Follow these principles:
 
 **Keep it minimal:**
+
 - Only change what's necessary to fix the bug
 - Don't refactor unrelated code
 - Don't add new features
 
 **Match existing style:**
+
 - Use the same patterns as surrounding code
 - Follow the project's TypeScript conventions
 - Keep consistent formatting
 
 **Consider edge cases:**
+
 - Will this break other use cases?
 - What happens with unusual input?
 - Are there null/undefined checks needed?
@@ -79,28 +85,11 @@ Watch for build errors — fix any TypeScript issues before proceeding.
 
 ## Step 4: Verify the Fix
 
-Re-run the reproduction:
-
-```bash
-cd <triageDir>
-pnpm run build  # or dev/preview, whichever triggers the bug
-```
-
-The original error should be gone. If using dev server, test with `agent-browser`:
-
-```bash
-npx agent-browser http://localhost:4321/affected-page
-```
+Re-run the reproduction, often using `pnpm run build`/`astro build` or `pnpm run dev`/`astro dev`.
 
 ## Step 5: Check for Regressions
 
-Test that normal cases still work:
-
-1. **Basic functionality** — does a simple page still build/serve?
-2. **Related features** — do similar but non-buggy use cases work?
-3. **Edge cases** — what about empty values, special characters, etc.?
-
-If you find regressions, refine the fix to handle all cases.
+Test that you didn't break anything new, and that normal cases still work. If you find regressions, refine the fix to handle all cases.
 
 ## Step 6: Generate Git Diff
 
@@ -119,6 +108,7 @@ Append your fix details to the existing `report.md` (written by reproduce and di
 Include a new section with: what you changed, why, the full git diff, verification results, and any tradeoffs or alternative approaches considered.
 
 The report must include all information needed for a final GitHub comment to be generated later by the comment skill. Make sure to include:
+
 - What was changed and why
 - The full git diff
 - Whether the fix was successful or not
