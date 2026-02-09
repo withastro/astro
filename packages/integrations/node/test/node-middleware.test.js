@@ -23,7 +23,7 @@ describe('behavior from middleware, standalone', () => {
 		fixture = await loadFixture({
 			root: './fixtures/node-middleware/',
 			output: 'server',
-			adapter: nodejs({ mode: 'standalone' }),
+			adapter: nodejs(),
 		});
 		await fixture.build();
 		const { startServer } = await fixture.loadAdapterEntryModule();
@@ -64,7 +64,9 @@ describe('behavior from middleware, middleware with express', () => {
 		fixture = await loadFixture({
 			root: './fixtures/node-middleware/',
 			output: 'server',
-			adapter: nodejs({ mode: 'middleware' }),
+			adapter: nodejs({
+				serverEntrypoint: new URL('./fixtures/node-middleware/src/server.js', import.meta.url),
+			}),
 		});
 		await fixture.build();
 		const { handler } = await fixture.loadAdapterEntryModule();
@@ -149,7 +151,9 @@ describe('behavior from middleware, middleware with fastify', () => {
 		fixture = await loadFixture({
 			root: './fixtures/node-middleware/',
 			output: 'server',
-			adapter: nodejs({ mode: 'middleware' }),
+			adapter: nodejs({
+				serverEntrypoint: new URL('./fixtures/node-middleware/src/server.js', import.meta.url),
+			}),
 		});
 		await fixture.build();
 		const { handler } = await fixture.loadAdapterEntryModule();

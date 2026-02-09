@@ -1,13 +1,9 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
 export interface UserOptions {
-	/**
-	 * Specifies the mode that the adapter builds to.
-	 *
-	 * - 'middleware' - Build to middleware, to be used within another Node.js server, such as Express.
-	 * - 'standalone' - Build to a standalone server. The server starts up just by running the built script.
-	 */
-	mode: 'middleware' | 'standalone';
+	/** TODO: */
+	serverEntrypoint?: string | URL;
+
 	/**
 	 * Disables HTML streaming. This is useful for example if there are constraints from your host.
 	 */
@@ -31,10 +27,9 @@ export interface UserOptions {
 	experimentalErrorPageHost?: string | URL;
 }
 
-export type RequestHandler = (...args: RequestHandlerParams) => void | Promise<void>;
-type RequestHandlerParams = [
+export type RequestHandler = (
 	req: IncomingMessage,
 	res: ServerResponse,
 	next?: (err?: unknown) => void,
 	locals?: object,
-];
+) => void | Promise<void>;

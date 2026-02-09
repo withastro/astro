@@ -3,16 +3,15 @@ import * as options from 'virtual:astro-node:config';
 import { manifest } from 'virtual:astro:manifest';
 import { createStandaloneHandler } from '../handlers.js';
 import type { NodeAppHeadersJson } from 'astro';
+import { logListeningOn } from '../../log-listening-on.js';
+import { createServer, hostOptions } from '../server.js';
+import { setGetEnv } from 'astro/env/setup';
+import { STATIC_HEADERS_FILE } from '../../shared.js';
+import { existsSync, readFileSync } from 'node:fs';
 
 const app = new NodeApp(manifest, !options.experimentalDisableStreaming);
 
-async function start() {
-	const { logListeningOn } = await import('../../log-listening-on.js');
-	const { createServer, hostOptions } = await import('../server.js');
-	const { setGetEnv } = await import('astro/env/setup');
-	const { STATIC_HEADERS_FILE } = await import('../../shared.js');
-	const { existsSync, readFileSync } = await import('node:fs');
-
+export function startServer() {
 	// TODO: extract
 	function readHeadersJson(outDir: string | URL): NodeAppHeadersJson | undefined {
 		let headersMap: NodeAppHeadersJson | undefined = undefined;
@@ -44,15 +43,19 @@ async function start() {
 	const port = process.env.PORT ? Number(process.env.PORT) : options.port;
 	const host = process.env.HOST ?? hostOptions(options.host);
 
-	const server = createServer(createStandaloneHandler({ app, ...options }));
-	server.listen(port, host);
+	const server = createServer(createStandaloneHandler({ app, ...options }), host, port);
+	server.server.listen(port, host);
 	if (process.env.ASTRO_NODE_LOGGING !== 'disabled') {
-		logListeningOn(app.getAdapterLogger(), server, host);
+		logListeningOn(app.getAdapterLogger(), server.server, host);
 	}
+	return {
+		server,
+		done: server.closed(),
+	};
 }
 
 if (process.env.ASTRO_NODE_AUTOSTART !== 'disabled') {
-	await start();
+	startServer();
 }
 
 export const handler = createStandaloneHandler({ app, ...options });

@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import type { CreatePreviewServer } from 'astro';
 import { AstroError } from 'astro/errors';
 import { logListeningOn } from '../../log-listening-on.js';
-import { createPreviewServer as _createPreviewServer, createServer } from '../server.js';
+import { createServer } from '../server.js';
 
 type ServerModule = typeof import('./entry.js');
 type MaybeServerModule = Partial<ServerModule>;
@@ -42,7 +42,7 @@ const createPreviewServer: CreatePreviewServer = async (preview) => {
 	const host = process.env.HOST ?? preview.host ?? '0.0.0.0';
 
 	const port = preview.port ?? 4321;
-	const server = _createPreviewServer(createServer(ssrHandler), host, port);
+	const server = createServer(ssrHandler, host, port);
 
 	// If user specified custom headers append a listener
 	// to the server to add those headers to response

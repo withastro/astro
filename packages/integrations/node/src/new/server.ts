@@ -14,7 +14,7 @@ export function hostOptions(host: Config['host']): string {
 }
 
 // also used by preview entrypoint
-export function createServer(listener: http.RequestListener) {
+export function createServer(listener: http.RequestListener, host: string, port: number) {
 	let httpServer: http.Server | https.Server;
 
 	if (process.env.SERVER_CERT_PATH && process.env.SERVER_KEY_PATH) {
@@ -30,11 +30,6 @@ export function createServer(listener: http.RequestListener) {
 	}
 	enableDestroy(httpServer);
 
-	return httpServer;
-}
-
-// also used by preview entrypoint
-export function createPreviewServer(httpServer: http.Server, host: string, port: number) {
 	// Resolves once the server is closed
 	const closed = new Promise<void>((resolve, reject) => {
 		httpServer.addListener('close', resolve);

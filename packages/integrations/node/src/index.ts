@@ -9,10 +9,7 @@ import { createConfigPlugin } from './vite-plugin-config.js';
 
 const protocols = ['http:', 'https:'];
 
-export default function createIntegration(userOptions: UserOptions): AstroIntegration {
-	if (!userOptions?.mode) {
-		throw new AstroError(`Setting the 'mode' option is required.`);
-	}
+export default function createIntegration(userOptions: UserOptions = {}): AstroIntegration {
 	const { experimentalErrorPageHost } = userOptions;
 	if (
 		experimentalErrorPageHost &&
@@ -30,7 +27,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 		name: '@astrojs/node',
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, logger, command }) => {
-				_config = config
+				_config = config;
 				let session = config.session;
 				if (!session?.driver) {
 					logger.info('Enabling sessions with filesystem storage');
@@ -80,9 +77,17 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 									return {
 										build: {
 											rollupOptions: {
-												// TODO: support custom entrypoint
 												// TODO: bug with serverEntry
-												input: '@astrojs/node/server.js',
+												input: userOptions.serverEntrypoint
+													? fileURLToPath(
+															typeof userOptions.serverEntrypoint === 'string'
+																? new URL(
+																		userOptions.serverEntrypoint,
+																		_config?.root ?? import.meta.url,
+																	)
+																: userOptions.serverEntrypoint,
+														)
+													: '@astrojs/node/server.js',
 											},
 										},
 									};

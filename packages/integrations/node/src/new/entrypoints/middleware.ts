@@ -7,7 +7,7 @@ import { createAppHandler } from '../handlers.js';
 
 setGetEnv((key) => process.env[key]);
 
-export function createMiddleware(): RequestHandler {
+function createMiddleware(): RequestHandler {
 	const app = new NodeApp(manifest, !options.experimentalDisableStreaming);
 	const handler = createAppHandler({
 		app,
@@ -41,3 +41,5 @@ export function createMiddleware(): RequestHandler {
 		}
 	};
 }
+
+export const handler = createMiddleware();
