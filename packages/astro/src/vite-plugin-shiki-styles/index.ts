@@ -15,6 +15,11 @@ export function vitePluginShikiStyles(): Plugin {
 	return {
 		name: 'astro:shiki-styles',
 
+		buildStart() {
+			// Clear styles at the start of each build to prevent stale data
+			globalShikiStyleCollector.clear();
+		},
+
 		resolveId: {
 			filter: {
 				id: new RegExp(`^${VIRTUAL_SHIKI_STYLES_ID}$`),
