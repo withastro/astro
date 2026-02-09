@@ -1,9 +1,17 @@
 ---
-import { type ThemePresets, createShikiHighlighter } from '@astrojs/markdown-remark';
+import {
+	type ThemePresets,
+	createShikiHighlighter,
+	globalShikiStyleCollector,
+	transformerStyleToClass,
+} from '@astrojs/markdown-remark';
 import type { ShikiTransformer, ThemeRegistration, ThemeRegistrationRaw } from 'shiki';
 import { bundledLanguages } from 'shiki/langs';
 import type { CodeLanguage } from '../dist/types/public/common.js';
 import type { HTMLAttributes } from '../types.js';
+
+// Import virtual CSS module - triggers Vite CSS pipeline to bundle Shiki styles
+import 'virtual:astro:shiki-styles.css';
 
 interface Props extends Omit<HTMLAttributes<'pre'>, 'lang'> {
 	/** The code to highlight. Required. */
@@ -106,11 +114,17 @@ const highlighter = await createShikiHighlighter({
 	themes,
 });
 
+// Combine style-to-class transformer with user-provided transformers
+const allTransformers = [
+	globalShikiStyleCollector.register(transformerStyleToClass()),
+	...transformers,
+];
+
 const html = await highlighter.codeToHtml(code, typeof lang === 'string' ? lang : lang.name, {
 	defaultColor,
 	wrap,
 	inline,
-	transformers,
+	transformers: allTransformers,
 	meta,
 	attributes: rest as any,
 });

@@ -37,6 +37,11 @@ export {
 	type ShikiHighlighter,
 	type ShikiHighlighterHighlightOptions,
 } from './shiki.js';
+export { globalShikiStyleCollector } from './shiki-style-collector.js';
+export {
+	transformerStyleToClass,
+	type ShikiTransformerStyleToClass,
+} from './transformers/style-to-class.js';
 export * from './types.js';
 
 export const syntaxHighlightDefaults: Required<SyntaxHighlightConfig> = {

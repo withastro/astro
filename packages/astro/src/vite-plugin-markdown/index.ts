@@ -133,6 +133,9 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				)};
 				import { AstroError, AstroErrorData } from ${JSON.stringify(astroErrorModulePath)};
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
+				
+				// Auto-inject Shiki styles for code blocks in markdown
+				import 'virtual:astro:shiki-styles.css';
 
 				${
 					// Only include the code relevant to `astro:assets` if there's images in the file
