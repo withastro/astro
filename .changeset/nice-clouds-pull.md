@@ -3,4 +3,4 @@
 '@astrojs/vercel': patch
 ---
 
-Updates to new Adapter API
+Updates to use the new Adapter API
