@@ -162,6 +162,19 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	let currentRollupInput: InputOption | undefined = undefined;
 	plugins.push({
 		name: 'astro:resolve-input',
+		// When the rollup input is safe to update, we normalize it to always be an object
+		// so we can reliably identify which entrypoint corresponds to the adapter
+		enforce: 'post',
+		config(config) {
+			if (typeof config.build?.rollupOptions?.input === 'string') {
+				config.build.rollupOptions.input = { index: config.build.rollupOptions.input };
+			} else if (Array.isArray(config.build?.rollupOptions?.input)) {
+				config.build.rollupOptions.input = Object.fromEntries(
+					config.build.rollupOptions.input.map((v, i) => [`index_${i}`, v]),
+				);
+			}
+		},
+		// We save the rollup input to be able to check later on
 		configResolved(config) {
 			currentRollupInput = config.build.rollupOptions.input;
 		},
@@ -205,10 +218,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	});
 
 	function isRollupInput(moduleName: string | null): boolean {
-		if (!currentRollupInput) {
-			return false;
-		}
-		if (!moduleName) {
+		if (!currentRollupInput || !moduleName) {
 			return false;
 		}
 		if (typeof currentRollupInput === 'string') {
