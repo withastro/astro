@@ -1,6 +1,6 @@
 {
   "name": "create-astro",
-  "version": "5.0.0-beta.2",
+  "version": "5.0.0-beta.4",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -35,6 +35,7 @@
     "@bluwy/giget-core": "^0.1.6"
   },
   "devDependencies": {
+    "@astrojs/internal-helpers": "workspace:*",
     "arg": "^5.0.2",
     "astro-scripts": "workspace:*"
   },

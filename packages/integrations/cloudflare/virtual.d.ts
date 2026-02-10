@@ -2,8 +2,8 @@
 /// <reference types="@cloudflare/workers-types" />
 
 declare module 'virtual:astro-cloudflare:config' {
-	export const sessionKVBindingName: string;
-	// Additional exports can be added here in the future
+	const config: import('./src/vite-plugin-config.js').Config;
+	export = config;
 }
 
 declare namespace Cloudflare {
@@ -18,4 +18,3 @@ declare namespace Cloudflare {
 interface Env extends Cloudflare.Env {}
 type ImagesBinding = import('@cloudflare/workers-types').ImagesBinding;
 type Fetcher = import('@cloudflare/workers-types').Fetcher;
-type IncomingRequestCfProperties = import('@cloudflare/workers-types').IncomingRequestCfProperties;

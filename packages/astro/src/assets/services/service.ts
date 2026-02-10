@@ -5,11 +5,13 @@ import type { AstroConfig } from '../../types/public/config.js';
 import { DEFAULT_HASH_PROPS, DEFAULT_OUTPUT_FORMAT, VALID_SUPPORTED_FORMATS } from '../consts.js';
 import type {
 	ImageFit,
+	ImageMetadata,
 	ImageOutputFormat,
 	ImageTransform,
 	UnresolvedSrcSetValue,
 } from '../types.js';
 import { isESMImportedImage, isRemoteImage } from '../utils/imageKind.js';
+import { inferRemoteSize } from '../utils/remoteProbe.js';
 
 export type ImageService = LocalImageService | ExternalImageService;
 
@@ -77,6 +79,16 @@ interface SharedServiceProps<T extends Record<string, any> = Record<string, any>
 		options: ImageTransform,
 		imageConfig: ImageConfig<T>,
 	) => ImageTransform | Promise<ImageTransform>;
+	/**
+	 * Return the dimensions of a remote image.
+	 *
+	 * This is used to infer the width and height of an image from its URL,
+	 * allowing the service to provide necessary metadata when it's not available locally.
+	 */
+	getRemoteSize?: (
+		url: string,
+		imageConfig: ImageConfig<T>,
+	) => Omit<ImageMetadata, 'src' | 'fsPath'> | Promise<Omit<ImageMetadata, 'src' | 'fsPath'>>;
 }
 
 export type ExternalImageService<T extends Record<string, any> = Record<string, any>> =
@@ -186,10 +198,7 @@ export function verifyOptions(options: ImageTransform): void {
 			throw new AstroError(AstroErrorData.IncompatibleDescriptorOptions);
 		}
 
-		if (
-			(options.src.format === 'svg' && options.format !== 'svg') ||
-			(options.src.format !== 'svg' && options.format === 'svg')
-		) {
+		if (options.src.format !== 'svg' && options.format === 'svg') {
 			throw new AstroError(AstroErrorData.UnsupportedImageConversion);
 		}
 	}
@@ -217,17 +226,16 @@ export function verifyOptions(options: ImageTransform): void {
 export const baseService: Omit<LocalImageService, 'transform'> = {
 	propertiesToHash: DEFAULT_HASH_PROPS,
 	validateOptions(options) {
-		// We currently do not support processing SVGs, so whenever the input format is a SVG, force the output to also be one
-		if (isESMImportedImage(options.src) && options.src.format === 'svg') {
-			options.format = 'svg';
-		}
-
 		// Run verification-only checks
 		verifyOptions(options);
 
 		// Apply defaults and normalization separate from verification
 		if (!options.format) {
-			options.format = DEFAULT_OUTPUT_FORMAT;
+			if (isESMImportedImage(options.src) && options.src.format === 'svg') {
+				options.format = 'svg';
+			} else {
+				options.format = DEFAULT_OUTPUT_FORMAT;
+			}
 		}
 		if (options.width) options.width = Math.round(options.width);
 		if (options.height) options.height = Math.round(options.height);
@@ -404,6 +412,9 @@ export const baseService: Omit<LocalImageService, 'transform'> = {
 		};
 
 		return transform;
+	},
+	getRemoteSize(url, _imageConfig) {
+		return inferRemoteSize(url);
 	},
 };
 

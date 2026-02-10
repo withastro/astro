@@ -109,6 +109,7 @@ export type SSRManifest = {
 	buildClientDir: URL;
 	buildServerDir: URL;
 	csp: SSRManifestCSP | undefined;
+	shouldInjectCspMetaTags: boolean;
 	devToolbar: {
 		// This should always be false in prod/SSR
 		enabled: boolean;

@@ -2,8 +2,9 @@
 export const prerender = false;
 
 import { getCollection, getEntry, render } from 'astro:content';
-import Hello from '../components/Hello.tsx';
+import Hello from '../components/react/Hello.tsx';
 import HelloVue from '../components/Hello.vue';
+import PreactCounter from '../components/preact/Counter.tsx';
 import Island from '../components/Island.astro';
 import IslandProps from '../components/IslandProps.astro';
 import { Font } from 'astro:assets';
@@ -47,6 +48,7 @@ const surnamne = Astro.url.searchParams.get('surname');
 	<div id="framework">
 		<Hello client:load />
 		<HelloVue client:load />
+		<PreactCounter client:load />
 	</div>
 	<div id="island">
 		<Island server:defer/>

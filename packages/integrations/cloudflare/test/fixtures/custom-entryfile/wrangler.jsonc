@@ -1,5 +1,5 @@
 {
-  "compatibility_date": "2025-05-21",
+  "compatibility_date": "2026-01-28",
   "main": "./src/worker.ts",
   "name": "astro-cloudflare-custom-entryfile",
   "assets": {

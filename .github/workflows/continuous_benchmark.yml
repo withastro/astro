@@ -40,7 +40,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
-          node-version: 22
+          node-version: 24.13.0
           cache: "pnpm"
 
       - name: Install dependencies
@@ -55,9 +55,10 @@ jobs:
         timeout-minutes: 15
         
       - name: Run the benchmarks
-        uses: CodSpeedHQ/action@208425962c215de49ed713e18c4b9bde9bda5c52 # v4.10.2
+        uses: CodSpeedHQ/action@fa0c9b1770f933c1bc025c83a9b42946b102f4e6 # v4.10.4
         timeout-minutes: 30
         with:
           working-directory: ./benchmark
           run: pnpm bench --shard=${{ matrix.shard }}
           token: ${{ secrets.CODSPEED_TOKEN }}
+          mode: simulation

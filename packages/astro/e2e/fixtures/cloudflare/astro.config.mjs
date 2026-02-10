@@ -4,6 +4,7 @@ import { defineConfig, envField, fontProviders } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import { fileURLToPath } from 'node:url';
 import react from '@astrojs/react';
+import preact from '@astrojs/preact';
 import vue from "@astrojs/vue"
 
 export default defineConfig({
@@ -32,7 +33,12 @@ export default defineConfig({
 			"fr": "en"
 		}
 	},
-	integrations: [mdx(), react(), vue()],
+	integrations: [
+		mdx(),
+		react({ include: ['**/react/*'] }),
+		preact({ include: ['**/preact/*'] }),
+		vue(),
+	],
 	env: {
 		schema: {
 			FOO: envField.string({ context: 'server', access: 'public' }),
