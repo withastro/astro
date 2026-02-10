@@ -122,7 +122,7 @@ export interface AstroAdapterClientConfig {
 interface AdapterLegacyDynamicProperties {
 	/**
 	 * Determines how the adapter's entrypoint is handled during the build.
-	 * - `'self'`: The adapter defines its own entrypoint and provides either serverEntrypoint or rollupOptions.input
+	 * - `'auto'`: The adapter defines its own entrypoint and provides either serverEntrypoint or rollupOptions.input
 	 * - `'explicit'`: Uses the virtual module entrypoint with dynamic exports
 	 * @default 'explicit'
 	 * @deprecated This will be removed in Astro 7 and `'auto'` will become the default
@@ -136,7 +136,7 @@ interface AdapterLegacyDynamicProperties {
 interface AdapterSelfProperties {
 	/**
 	 * Determines how the adapter's entrypoint is handled during the build.
-	 * - `'self'`: The adapter defines its own entrypoint and provides either serverEntrypoint or rollupOptions.input
+	 * - `'auto'`: The adapter defines its own entrypoint and provides either serverEntrypoint or rollupOptions.input
 	 * - `'explicit'`: Uses the virtual module entrypoint with dynamic exports
 	 * @default 'explicit'
 	 */
