@@ -4,7 +4,7 @@
 
 Updates the Adapter API to allow providing a `serverEntrypoint` when using `entryType: 'self'`
 
-Astro 6 introduced a new powerful yet simple Adapter API for defining custom server entrypoints. You can now call `setAdapter()` with the new `entryType: 'self'` option and specify your custom `serverEntrypoint`:
+Astro 6 introduced a new powerful yet simple Adapter API for defining custom server entrypoints. You can now call `setAdapter()` with the `entryType: 'self'` option and specify your custom `serverEntrypoint`:
 
 The server entrypoint can now be provided as `serverEntrypoint` when calling `setAdapter()`:
 
