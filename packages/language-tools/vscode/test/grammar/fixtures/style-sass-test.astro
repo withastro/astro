@@ -1,0 +1,60 @@
+---
+// フロントエンドスクリプト
+const foo = "#fff";
+---
+
+<style lang="scss">
+  $primary: red;
+  .bar {
+    &-inner { color: $primary; }
+  }
+</style>
+
+<style
+  lang="scss"
+>
+  $primary: red;
+  .bar {
+    &-inner { color: $primary; }
+  }
+</style>
+
+
+<style lang="less">
+  @base: #f938ab;
+  .bar { color: @base; }
+</style>
+
+<style
+  lang="less"
+>
+  @base: #f938ab;
+  .bar { color: @base; }
+</style>
+
+
+<style lang="sass" define:vars={{ foo }}>
+  .bar
+    color: var(--foo)
+</style>
+
+<style
+  lang="sass" 
+  define:vars={{
+    foo,
+  }}
+>
+  .bar
+    color: var(--foo)
+</style>
+
+
+<style lang="css">
+  .bar { color: green; }
+</style>
+
+<style
+  lang="css"
+>
+  .bar { color: green; }
+</style>
