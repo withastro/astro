@@ -173,6 +173,7 @@ export async function createMarkdownProcessor(
 					localImagePaths: result.data.astro?.localImagePaths ?? [],
 					remoteImagePaths: result.data.astro?.remoteImagePaths ?? [],
 					frontmatter: result.data.astro?.frontmatter ?? {},
+					hasCodeBlocks: result.data.astro?.hasCodeBlocks ?? false,
 				},
 			};
 		},
