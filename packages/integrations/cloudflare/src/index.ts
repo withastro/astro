@@ -135,7 +135,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					build: {
 						client: new URL(`./client/`, config.outDir),
 						server: new URL('./_worker.js/', config.outDir),
-						serverEntry: config.build.serverEntry ?? 'index.js',
 						redirects: false,
 					},
 					session,
