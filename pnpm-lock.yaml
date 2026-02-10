@@ -4057,9 +4057,18 @@ importers:
 
   packages/astro/test/fixtures/server-entry:
     dependencies:
+      '@test/server-entry-fake-adapter':
+        specifier: file:./fake-adapter
+        version: file:packages/astro/test/fixtures/server-entry/fake-adapter
       astro:
         specifier: workspace:*
         version: link:../../..
+
+  packages/astro/test/fixtures/server-entry/fake-adapter:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../../..
 
   packages/astro/test/fixtures/server-islands/hybrid:
     dependencies:
@@ -10041,6 +10050,9 @@ packages:
     resolution: {integrity: sha512-jVA+/UpKL1vRLg6Hkao5jldawNmRo7mQYrZtNHMIVpLfLhDml5nMRUo/8MwoX2vNXvnaXNNMedrMfMugAVX1nA==}
     peerDependencies:
       vite: ^5.2.0 || ^6 || ^7
+
+  '@test/server-entry-fake-adapter@file:packages/astro/test/fixtures/server-entry/fake-adapter':
+    resolution: {directory: packages/astro/test/fixtures/server-entry/fake-adapter, type: directory}
 
   '@textlint/ast-node-types@15.5.1':
     resolution: {integrity: sha512-2ABQSaQoM9u9fycXLJKcCv4XQulJWTUSwjo6F0i/ujjqOH8/AZ2A0RDKKbAddqxDhuabVB20lYoEsZZgzehccg==}
@@ -19315,6 +19327,10 @@ snapshots:
       '@tailwindcss/oxide': 4.1.18
       tailwindcss: 4.1.18
       vite: 7.3.1(@types/node@25.2.2)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2)
+
+  '@test/server-entry-fake-adapter@file:packages/astro/test/fixtures/server-entry/fake-adapter':
+    dependencies:
+      astro: link:packages/astro
 
   '@textlint/ast-node-types@15.5.1': {}
 
