@@ -1,0 +1,44 @@
+name: Flue Triage
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install pnpm
+        run: corepack enable
+
+      - name: Install OpenCode
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+          echo "/home/runner/.opencode/bin" >> $GITHUB_PATH
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Run workflow
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          pnpm dlx @flue/cli run .flue/workflows/triage.ts \
+            --args "{\"issueNumber\": $ISSUE_NUMBER}" \
+            --branch "flue/fix-$ISSUE_NUMBER"
