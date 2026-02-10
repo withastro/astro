@@ -1,0 +1,119 @@
+---
+import Layout from '../layouts/BlogPost.astro';
+---
+
+<!--
+  ---------------------------------------------------------------------------
+  CONTACT PAGE — INTERNAL DEVELOPER DOCUMENTATION (HIDDEN FROM USERS)
+  ---------------------------------------------------------------------------
+
+  This page integrates with Fabform.io, a backend‑free form processor for
+  static sites and Astro projects. The form below posts directly to a Fabform
+  endpoint and requires no backend code, no API routes, and no JavaScript.
+
+  IMPORTANT — CHANGE THE ENDPOINT:
+  - Update the <form> action URL to use your actual Fabform form ID.
+  - Example:
+        https://fabform.io/f/your-form-id
+  - Replace "your-form-id" with the ID shown in your Fabform dashboard.
+  - If you duplicate this project or move it to another environment,
+    remember to update the endpoint again.
+
+  HOW FABFORM WORKS:
+  - Any <input>, <textarea>, or <select> field will be captured automatically.
+  - Hidden fields are supported and stored.
+  - Fabform handles spam filtering, notifications, and dashboard logging.
+  - Redirects can be configured in the Fabform dashboard.
+
+  DESIGN NOTES:
+  - This page intentionally has no hero image.
+  - The Layout component wraps the page for consistent styling.
+  - The form uses simple class names that match the AstroBuilder template.
+
+  OPTIONAL:
+  - You may remove these comments entirely if you prefer a cleaner file.
+
+  These comments are HTML comments and will NOT appear in the rendered page.
+  ---------------------------------------------------------------------------
+-->
+
+<Layout
+  title="Contact"
+  description="A simple, elegant contact form powered by Fabform — no backend required."
+  pubDate={new Date('January 01 2026')}
+>
+
+  <div class="contact-container">
+<!--
+
+Please remember to your-form-id id to a real one you created on fabform.io 
+
+--> 
+    <form
+      action="https://fabform.io/f/your-form-id" 
+      method="POST"
+      class="contact-form"
+    >
+
+      <!--
+        NAME FIELD
+        This field is required. Fabform will store it automatically.
+      -->
+      <div class="form-group">
+        <label for="name">Your Name</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          placeholder="Please enter your name"
+          class="form-input"
+        />
+      </div>
+
+      <!--
+        EMAIL FIELD
+        Fabform validates email format server-side.
+      -->
+      <div class="form-group">
+        <label for="email">Your Email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="Please enter your email"
+          class="form-input"
+        />
+      </div>
+
+      <!--
+        MESSAGE FIELD
+        Long-form text is stored cleanly in the Fabform dashboard.
+      -->
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea
+          id="message"
+          name="message"
+          rows="6"
+          placeholder="What is your message?"
+          class="form-textarea"
+        ></textarea>
+      </div>
+
+      <!--
+        INTERNAL METADATA
+        This hidden field is optional and can be removed or renamed.
+        Fabform stores hidden fields just like visible ones.
+      -->
+      <input type="hidden" name="source" value="astro-contact-page" />
+
+      <!-- SUBMIT BUTTON -->
+      <button type="submit" class="button button-primary">
+        Send Message
+      </button>
+
+    </form>
+  </div>
+
+</Layout>
+
