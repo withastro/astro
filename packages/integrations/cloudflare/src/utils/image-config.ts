@@ -14,17 +14,19 @@ export function setImageConfig(
 	command: HookParameters<'astro:config:setup'>['command'],
 	logger: AstroIntegrationLogger,
 ) {
-	if (command === 'dev' && config.endpoint.entrypoint === undefined) {
-		config.endpoint.entrypoint = '@astrojs/cloudflare/image-endpoint';
+	const clonedConfig = structuredClone(config);
+
+	if (command === 'dev' && clonedConfig.endpoint.entrypoint === undefined) {
+		clonedConfig.endpoint.entrypoint = '@astrojs/cloudflare/image-endpoint';
 	}
 
 	switch (service) {
 		case 'passthrough':
-			return { ...config, service: passthroughImageService() };
+			return { ...clonedConfig, service: passthroughImageService() };
 
 		case 'cloudflare':
 			return {
-				...config,
+				...clonedConfig,
 				service:
 					command === 'dev'
 						? sharpImageService()
@@ -32,7 +34,7 @@ export function setImageConfig(
 			};
 		case 'cloudflare-binding':
 			return {
-				...config,
+				...clonedConfig,
 				endpoint: {
 					entrypoint: '@astrojs/cloudflare/image-transform-endpoint',
 				},
@@ -40,7 +42,7 @@ export function setImageConfig(
 
 		case 'compile':
 			return {
-				...config,
+				...clonedConfig,
 				service: sharpImageService(),
 				endpoint: {
 					entrypoint: '@astrojs/cloudflare/image-endpoint',
@@ -48,15 +50,15 @@ export function setImageConfig(
 			};
 
 		case 'custom':
-			return { ...config };
+			return { ...clonedConfig };
 
 		default:
-			if (config.service.entrypoint === 'astro/assets/services/sharp') {
+			if (clonedConfig.service.entrypoint === 'astro/assets/services/sharp') {
 				logger.warn(
 					`The current configuration does not support image optimization. To allow your project to build with the original, unoptimized images, the image service has been automatically switched to the 'passthrough' option. See https://docs.astro.build/en/reference/configuration-reference/#imageservice`,
 				);
-				return { ...config, service: passthroughImageService() };
+				return { ...clonedConfig, service: passthroughImageService() };
 			}
-			return { ...config };
+			return { ...clonedConfig };
 	}
 }
