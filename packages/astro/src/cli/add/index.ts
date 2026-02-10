@@ -2,6 +2,7 @@ import fsMod, { existsSync, promises as fs } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { assertValidPackageName } from '@astrojs/internal-helpers/cli';
 import boxen from 'boxen';
 import { diffWords } from 'diff';
 import { type ASTNode, builders, generateCode, loadFile, type ProxifiedModule } from 'magicast';
@@ -901,6 +902,11 @@ async function validateIntegrations(
 	flags: yargsParser.Arguments,
 	logger: Logger,
 ): Promise<IntegrationInfo[]> {
+	// First, validate all package names to prevent command injection
+	for (const integration of integrations) {
+		assertValidPackageName(integration);
+	}
+
 	const spinner = yoctoSpinner({ text: 'Resolving packages...' }).start();
 	try {
 		const integrationEntries = await Promise.all(

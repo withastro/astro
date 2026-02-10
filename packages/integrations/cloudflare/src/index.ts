@@ -19,7 +19,7 @@ import {
 	DEFAULT_SESSION_KV_BINDING_NAME,
 	DEFAULT_IMAGES_BINDING_NAME,
 } from './wrangler.js';
-import { parse } from 'dotenv';
+import { parseEnv } from 'node:util';
 import { sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
 
@@ -135,7 +135,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					build: {
 						client: new URL(`./client/`, config.outDir),
 						server: new URL('./_worker.js/', config.outDir),
-						serverEntry: config.build.serverEntry ?? 'index.js',
 						redirects: false,
 					},
 					session,
@@ -257,10 +256,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						sharpImageService: {
 							support: 'limited',
 							message:
-								'Cloudflare does not support sharp at runtime. However, you can configure `imageService: "compile"` to optimize images with sharp on prerendered pages during build time.',
-							// For explicitly set image services, we suppress the warning about sharp not being supported at runtime,
-							// inferring the user is aware of the limitations.
-							suppress: args?.imageService ? 'all' : 'default',
+								'When using a custom image service, ensure it is compatible with the Cloudflare Workers runtime.',
+							// Only 'custom' could potentially use sharp at runtime.
+							suppress: args?.imageService === 'custom' ? 'default' : 'all',
 						},
 						envGetSecret: 'stable',
 					},
@@ -271,7 +269,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				if (existsSync(devVarsPath)) {
 					try {
 						const data = readFileSync(devVarsPath, 'utf-8');
-						const parsed = parse(data);
+						const parsed = parseEnv(data);
 						Object.assign(process.env, parsed);
 					} catch {
 						logger.error(

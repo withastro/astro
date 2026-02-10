@@ -2,6 +2,9 @@ import { describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 import testAdapter, { selfTestAdapter } from './test-adapter.js';
 import assert from 'node:assert/strict';
+import fakeAdapter from './fixtures/server-entry/fake-adapter/index.js';
+import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 describe('Server entry', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -42,5 +45,50 @@ describe('Server entry', () => {
 		const request = new Request('http://example.com/');
 		const response = await app.render(request);
 		assert.equal(response.status, 200);
+	});
+
+	it('should load the custom entry when using package export (string) as self entrypoint', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/server-entry',
+			output: 'server',
+			adapter: fakeAdapter({ shape: 'string' }),
+			build: {
+				serverEntry: 'custom.mjs',
+			},
+		});
+
+		await fixture.build();
+
+		assert.ok(existsSync(fileURLToPath(new URL('server/custom.mjs', fixture.config.outDir))));
+	});
+
+	it('should load the custom entry when using package export (object) as self entrypoint', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/server-entry',
+			output: 'server',
+			adapter: fakeAdapter({ shape: 'object' }),
+			build: {
+				serverEntry: 'custom.mjs',
+			},
+		});
+
+		await fixture.build();
+
+		assert.ok(existsSync(fileURLToPath(new URL('server/custom.mjs', fixture.config.outDir))));
+	});
+
+	it('should load the custom entry when using package export (array) as self entrypoint', async () => {
+		fixture = await loadFixture({
+			root: './fixtures/server-entry',
+			output: 'server',
+			adapter: fakeAdapter({ shape: 'array' }),
+			build: {
+				serverEntry: 'custom.mjs',
+			},
+		});
+
+		await fixture.build();
+
+		assert.ok(existsSync(fileURLToPath(new URL('server/custom.mjs', fixture.config.outDir))));
 	});
 });
