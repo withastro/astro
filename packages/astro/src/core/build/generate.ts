@@ -306,8 +306,8 @@ async function generatePathWithPrerenderer(
 	const filePath = getOutputFilename(config.build.format, pathname, route);
 	logger.info(null, `  ${colors.blue('├─')} ${colors.dim(filePath)}`, false);
 
-	// Track page name for stats
-	if (route.type === 'page') {
+	// Track page name for stats and integration hooks (e.g. sitemap)
+	if (route.type === 'page' || route.type === 'fallback') {
 		addPageName(pathname, options);
 	}
 
