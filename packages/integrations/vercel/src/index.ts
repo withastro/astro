@@ -109,7 +109,7 @@ function getAdapter({
 }): AstroAdapter {
 	return {
 		name: PACKAGE_NAME,
-		entryType: 'self',
+		entrypointResolution: 'auto',
 		adapterFeatures: {
 			edgeMiddleware,
 			buildOutput,

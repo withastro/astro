@@ -687,7 +687,7 @@ export default function netlifyIntegration(
 
 				setAdapter({
 					name: '@astrojs/netlify',
-					entryType: 'self',
+					entrypointResolution: 'auto',
 					adapterFeatures: {
 						edgeMiddleware: useEdgeMiddleware,
 						staticHeaders: useStaticHeaders,
