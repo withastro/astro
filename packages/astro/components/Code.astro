@@ -10,7 +10,7 @@ import { bundledLanguages } from 'shiki/langs';
 import type { CodeLanguage } from '../dist/types/public/common.js';
 import type { HTMLAttributes } from '../types.js';
 
-// Import virtual CSS module - triggers Vite CSS pipeline to bundle Shiki styles
+// Code.astro always uses Shiki, so import the virtual CSS module
 import 'virtual:astro:shiki-styles.css';
 
 interface Props extends Omit<HTMLAttributes<'pre'>, 'lang'> {
