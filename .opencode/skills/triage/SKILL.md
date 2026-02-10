@@ -1,43 +1,43 @@
 ---
 name: triage
-description: Triage a GitHub issue for the Astro framework. Reproduces the bug, diagnoses the root cause, attempts a fix, and generates a summary comment. Use when asked to "triage issue #1234", "triage this bug", or similar.
+description: Triage a bug report. Reproduces the bug, diagnoses the root cause, and attempts a fix. Use when asked to "triage issue #1234", "triage this bug", or similar.
 ---
 
 # Triage
 
-Triage a GitHub issue end-to-end: reproduce the bug, diagnose the root cause, attempt a fix, and generate a summary comment.
+Triage a bug report end-to-end: reproduce the bug, diagnose the root cause, and attempt a fix.
 
 ## Input
 
 You need either:
-- `issueTitle` and `issueBody` provided in args, OR
-- A GitHub issue number or URL mentioned in the conversation
+- `issueTitle` and `issueBody` provided in args (preferred — use these directly as the bug report), OR
+- A GitHub issue number or URL mentioned in the conversation (use `gh issue view` to fetch details)
 
-If a `triageDir` is provided in args, use that as the working directory for the triage. Otherwise, default to `triage/gh-<issue_number>`.
+If a `triageDir` is provided in args, use that as the working directory for the triage. Otherwise, default to `triage/gh-<issue_number>` (if you have an issue number) or `triage/current`.
 
 ## Step 1: Reproduce
 
-Read and follow [reproduce.md](reproduce.md).
+Read and follow [reproduce.md](reproduce.md). Use a subagent for this step to isolate context.
 
 After completing reproduction, check the result:
-- If the issue was **skipped** (host-specific, unsupported version, etc.) — skip to Step 4 to generate a comment explaining why.
-- If the issue was **not reproducible** — skip to Step 4 to generate a comment with your findings.
+- If the issue was **skipped** (host-specific, unsupported version, etc.) — skip to Output.
+- If the issue was **not reproducible** — skip to Output.
 - If the issue was **reproduced** — continue to Step 2.
 
 ## Step 2: Diagnose
 
-Read and follow [diagnose.md](diagnose.md).
+Read and follow [diagnose.md](diagnose.md). Use a subagent for this step to isolate context.
 
 After completing diagnosis, check your confidence:
-- If confidence is **low** — skip to Step 4 to generate a comment with what you found so far.
+- If confidence is **low** — skip to Output.
 - If confidence is **medium** or **high** — continue to Step 3.
 
 ## Step 3: Fix
 
-Read and follow [fix.md](fix.md).
+Read and follow [fix.md](fix.md). Use a subagent for this step to isolate context.
 
-Whether the fix succeeds or fails, continue to Step 4.
+Whether the fix succeeds or fails, continue to Output.
 
-## Step 4: Generate Comment
+## Output
 
-Read and follow [comment.md](comment.md).
+After completing the triage (or exiting early), you may suggest generating a GitHub comment using [comment.md](comment.md) if the user would find it useful.

@@ -57,6 +57,8 @@
   },
   "packageManager": "pnpm@10.28.2",
   "dependencies": {
+    "@astrojs/node": "link:packages/integrations/node",
+    "astro": "link:packages/astro",
     "astro-benchmark": "workspace:*"
   },
   "devDependencies": {

@@ -12,9 +12,9 @@ Reproduce a GitHub issue to determine if a bug is valid and reproducible.
 4. Attempt to reproduce the bug
 5. Write `report.md` with detailed findings
 
-## Step 1: Get the Issue Details
+## Step 1: Get the Bug Report
 
-**If `issueTitle` and `issueBody` are provided in args**, use those as the issue context directly.
+**If `issueTitle` and `issueBody` are provided in args**, use those as the bug report directly.
 
 **If a GitHub issue number or URL is mentioned** (but no `issueTitle`/`issueBody`), fetch it with the `gh` CLI:
 ```bash
