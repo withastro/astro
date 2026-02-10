@@ -35,10 +35,16 @@ export function getPrescripts(result: SSRResult, type: PrescriptType, directive:
 	// an astro-island element, the callbacks will fire immediately, causing the JS
 	// deps to be loaded immediately.
 	switch (type) {
-		case 'both':
-			return `<style>${ISLAND_STYLES}</style><script>${getDirectiveScriptText(result, directive)}</script><script>${
+		case 'both': {
+			// If the pipeline already placed island styles in <head>, skip inlining them
+			// in <body>. Otherwise fall back to the inline <style> (e.g. dev / SSR).
+			const styles = result._metadata.islandStylesInHead
+				? ''
+				: `<style>${ISLAND_STYLES}</style>`;
+			return `${styles}<script>${getDirectiveScriptText(result, directive)}</script><script>${
 				process.env.NODE_ENV === 'development' ? islandScriptDev : islandScript
 			}</script>`;
+		}
 		case 'directive':
 			return `<script>${getDirectiveScriptText(result, directive)}</script>`;
 	}

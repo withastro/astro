@@ -13,9 +13,10 @@ import { createAssetLink, createStylesheetElementSet } from '../render/ssr-eleme
 import { createDefaultRoutes } from '../routing/default.js';
 import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
+import { ISLAND_STYLES } from '../../runtime/server/astro-island-styles.js';
 import type { BuildInternals } from './internal.js';
 import { cssOrder, mergeInlineCss, getPageData } from './runtime.js';
-import type { SinglePageBuiltModule, StaticBuildOptions } from './types.js';
+import type { PageBuildData, SinglePageBuiltModule, StaticBuildOptions } from './types.js';
 
 /**
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
@@ -116,6 +117,12 @@ export class BuildPipeline extends Pipeline {
 			.reduce(mergeInlineCss, []);
 		const styles = createStylesheetElementSet(sortedCssAssets ?? [], base, assetsPrefix);
 
+		// Add island styles to <head> for pages that use hydrated components (fixes #13832).
+		// This avoids placing <style> in <body> which violates HTML validation.
+		if (pageBuildData && this.pageHasHydratedComponents(internals, pageBuildData)) {
+			styles.add({ props: {}, children: ISLAND_STYLES });
+		}
+
 		if (settings.scripts.some((script) => script.stage === 'page')) {
 			const hashedFilePath = internals.entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
 			if (typeof hashedFilePath !== 'string') {
@@ -139,6 +146,13 @@ export class BuildPipeline extends Pipeline {
 		}
 
 		return { scripts, styles, links };
+	}
+
+	private pageHasHydratedComponents(internals: BuildInternals, pageBuildData: PageBuildData): boolean {
+		for (const pageDataSet of internals.pagesByHydratedComponent.values()) {
+			if (pageDataSet.has(pageBuildData)) return true;
+		}
+		return false;
 	}
 
 	componentMetadata() {}
