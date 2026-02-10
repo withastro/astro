@@ -18,7 +18,7 @@ Reproduce a GitHub issue to determine if a bug is valid and reproducible.
 
 **If a GitHub issue number or URL is mentioned** (but no `issueTitle`/`issueBody`), fetch it with the `gh` CLI:
 ```bash
-gh issue view <issue_number> --repo withastro/astro --comments
+gh issue view <issue_number> --comments
 ```
 
 **Otherwise**, fail — there is not enough information to reproduce a bug.

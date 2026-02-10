@@ -66,7 +66,7 @@ Format requirements:
 If the user wants to post the comment to GitHub, you can do so with the `gh` CLI:
 
 ```bash
-gh issue comment <issue_number> --repo <owner/repo> --body-file <path-to-comment-file>
+gh issue comment <issue_number> --body-file <path-to-comment-file>
 ```
 
 You can suggest posting it if you think it would be helpful.
