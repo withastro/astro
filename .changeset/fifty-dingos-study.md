@@ -8,27 +8,16 @@ Astro 6 introduced a new powerful yet simple Adapter API for defining custom ser
 
 The server entrypoint can now be provided as `serverEntrypoint` when calling `setAdapter()`:
 
-```diff
+```js
 export function myAdapter() {
     return {
         name: 'my-adapter',
         hooks: {
--            'astro:config:setup': ({ updateConfig }) => {
--                updateConfig({
--                    vite: {
--                        build: {
--                            rollupOptions: {
--                                input: 'my-adapter/server.js'
--                            }
--                        }
--                    }
--                })
--            },
             'astro:config:done': ({ setAdapter }) => {
                 setAdapter({
                     name:'my-adapter',
                     entryType: 'self',
-+                    serverEntrypoint: 'my-adapter/server.js',
+                    serverEntrypoint: 'my-adapter/server.js',
                     supportedAstroFeatures: {
                         // ...
                     }
