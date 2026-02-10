@@ -70,29 +70,6 @@ export default function createIntegration(userOptions: UserOptions = {}): AstroI
 								client: _config.build.client.toString(),
 								staticHeaders: userOptions.staticHeaders ?? false,
 							}),
-							// Done in a plugin so it can get the value of _config.root from a later hook
-							{
-								name: '@astrojs/node:rollup-input',
-								config: () => {
-									return {
-										build: {
-											rollupOptions: {
-												// TODO: bug with serverEntry
-												input: userOptions.serverEntrypoint
-													? fileURLToPath(
-															typeof userOptions.serverEntrypoint === 'string'
-																? new URL(
-																		userOptions.serverEntrypoint,
-																		_config?.root ?? import.meta.url,
-																	)
-																: userOptions.serverEntrypoint,
-														)
-													: '@astrojs/node/server.js',
-											},
-										},
-									};
-								},
-							},
 						],
 					},
 				});
@@ -105,6 +82,11 @@ export default function createIntegration(userOptions: UserOptions = {}): AstroI
 				setAdapter({
 					name: '@astrojs/node',
 					entryType: 'self',
+					serverEntrypoint: userOptions.serverEntrypoint
+						? typeof userOptions.serverEntrypoint === 'string'
+							? new URL(userOptions.serverEntrypoint, _config.root)
+							: userOptions.serverEntrypoint
+						: '@astrojs/node/server.js',
 					previewEntrypoint: '@astrojs/node/preview.js',
 					adapterFeatures: {
 						buildOutput: 'server',

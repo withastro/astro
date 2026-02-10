@@ -4,7 +4,7 @@ import { AstroError } from 'astro/errors';
 import { logListeningOn } from '../log-listening-on.js';
 import { createServer } from '../create-server.js';
 
-type ServerModule = typeof import('./entry.js');
+type ServerModule = typeof import('./server.js');
 type MaybeServerModule = Partial<ServerModule>;
 
 const createPreviewServer: CreatePreviewServer = async (preview) => {
