@@ -26,4 +26,4 @@ export function myAdapter() {
 }
 ```
 
-If `serverEntrypoint` not set, Astro still expects a Rollup input.
+If you need further customization at the Vite level, you can omit `serverEntrypoint` and instead specify your custom server entrypoint with [`vite.build.rollupOptions.input`](https://rollupjs.org/configuration-options/#input).
