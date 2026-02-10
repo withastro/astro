@@ -51,6 +51,7 @@ import { vitePluginEnvironment } from '../vite-plugin-environment/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from './constants.js';
 import { vitePluginChromedevtools } from '../vite-plugin-chromedevtools/index.js';
 import { vitePluginAstroServerClient } from '../vite-plugin-overlay/index.js';
+import { astroComponentsVitePlugin } from '../vite-plugin-components/index.js';
 
 type CreateViteOptions = {
 	settings: AstroSettings;
@@ -132,6 +133,7 @@ export async function createVite(
 			astroLoadFallbackPlugin({ fs, root: settings.config.root }),
 			astroVitePlugin({ settings, logger }),
 			astroScriptsPlugin({ settings }),
+			astroComponentsVitePlugin({ logger }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
 			vitePluginApp(),
@@ -202,10 +204,6 @@ export async function createVite(
 				{
 					find: 'astro:schema',
 					replacement: 'astro/zod',
-				},
-				{
-					find: 'astro:components',
-					replacement: 'astro/components',
 				},
 			],
 		},
