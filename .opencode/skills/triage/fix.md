@@ -28,6 +28,8 @@ Read `report.md` from the `triageDir` directory (provided in args) to understand
 - The suggested approach
 - Any edge cases to consider
 
+**Skip if prerequisites unmet:** Check `report.md`: If bug not reproduced/skipped OR diagnosis confidence is `low`/`null` OR no root cause found → append "FIX SKIPPED: [reason]" to `report.md` and return `fixed: false`.
+
 **Note:** The repo may be messy from previous steps. Check `git status` and either work from the current state or `git reset --hard` to start clean.
 
 ## Step 2: Implement the Fix

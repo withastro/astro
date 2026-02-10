@@ -24,6 +24,8 @@ Read `report.md` from the `triageDir` directory (provided in args) to understand
 - Which command triggers the issue (build/dev/preview)
 - What user code is involved
 
+**Skip if not reproduced:** If `report.md` shows the bug was NOT reproduced or was skipped (look for "could not reproduce", "SKIP REASON", "skipped: true"), append "DIAGNOSIS SKIPPED: No reproduction" to `report.md` and return `confidence: null`.
+
 Re-run the reproduction if needed to see the error firsthand:
 ```bash
 cd <triageDir>
