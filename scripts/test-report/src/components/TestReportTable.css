@@ -1,0 +1,285 @@
+.report-table {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+/* Filters */
+.filters {
+	background: var(--bg-surface);
+	border: 1px solid var(--border);
+	border-radius: 10px;
+	padding: 1.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.875rem;
+}
+
+.filter-row {
+	display: flex;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+	align-items: end;
+}
+
+.filter-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.375rem;
+}
+
+.filter-file {
+	width: 100%;
+}
+
+.filter-duration {
+	width: 120px;
+}
+
+.filter-group label {
+	font-size: 0.75rem;
+	font-weight: 500;
+	color: var(--text-secondary);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.filter-group input[type='text'],
+.filter-group input[type='number'],
+.filter-group select {
+	background: var(--bg-primary);
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	padding: 0.5rem 0.75rem;
+	color: var(--text-primary);
+	font-size: 0.875rem;
+	font-family: var(--font-sans);
+	outline: none;
+	transition: border-color 0.15s;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+	border-color: var(--accent);
+	box-shadow: 0 0 0 2px var(--accent-dim);
+}
+
+.filter-group input::placeholder {
+	color: var(--text-muted);
+}
+
+.toggle-label {
+	display: flex !important;
+	flex-direction: row !important;
+	align-items: center;
+	gap: 0.5rem;
+	cursor: pointer;
+	font-size: 0.8125rem !important;
+	text-transform: none !important;
+	letter-spacing: normal !important;
+	color: var(--text-secondary) !important;
+	padding: 0.5rem 0;
+	user-select: none;
+}
+
+.toggle-label input[type='checkbox'] {
+	accent-color: var(--accent);
+	width: 14px;
+	height: 14px;
+}
+
+/* Stats bar */
+.stats-bar {
+	display: flex;
+	gap: 1.25rem;
+	align-items: center;
+	padding: 0.75rem 1rem;
+	background: var(--bg-surface);
+	border: 1px solid var(--border);
+	border-radius: 10px;
+	font-size: 0.8125rem;
+	font-weight: 500;
+	flex-wrap: wrap;
+}
+
+.stat-total {
+	color: var(--text-primary);
+	font-weight: 600;
+}
+
+.stat-pass {
+	color: var(--success);
+}
+
+.stat-fail {
+	color: var(--error);
+}
+
+.stat-skip {
+	color: var(--warning);
+}
+
+.stat-todo {
+	color: var(--info);
+}
+
+.stat-duration {
+	margin-left: auto;
+	color: var(--text-secondary);
+	font-family: var(--font-mono);
+	font-size: 0.8125rem;
+}
+
+/* Table */
+.table-wrap {
+	background: var(--bg-surface);
+	border: 1px solid var(--border);
+	border-radius: 10px;
+	overflow: hidden;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	table-layout: fixed;
+}
+
+thead {
+	background: var(--bg-secondary);
+	position: sticky;
+	top: 0;
+	z-index: 10;
+}
+
+th {
+	text-align: left;
+	padding: 0.75rem 1rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: var(--text-secondary);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	border-bottom: 1px solid var(--border);
+	white-space: nowrap;
+}
+
+.th-status {
+	width: 48px;
+	text-align: center;
+}
+
+.th-name {
+	width: 40%;
+}
+
+.th-file {
+	width: auto;
+}
+
+.th-duration {
+	width: 120px;
+	text-align: right;
+}
+
+.sortable {
+	cursor: pointer;
+	user-select: none;
+	transition: color 0.15s;
+}
+
+.sortable:hover {
+	color: var(--accent);
+}
+
+td {
+	padding: 0.5rem 1rem;
+	font-size: 0.8125rem;
+	border-bottom: 1px solid var(--border);
+	vertical-align: middle;
+}
+
+tbody tr {
+	transition: background 0.1s;
+}
+
+tbody tr:hover {
+	background: var(--bg-hover);
+}
+
+tbody tr:last-child td {
+	border-bottom: none;
+}
+
+.cell-status {
+	text-align: center;
+	font-weight: 700;
+	font-size: 0.875rem;
+	width: 48px;
+}
+
+.status-pass {
+	color: var(--success);
+}
+
+.status-fail {
+	color: var(--error);
+}
+
+.status-skip {
+	color: var(--warning);
+}
+
+.status-todo {
+	color: var(--info);
+}
+
+.cell-name {
+	font-weight: 500;
+	color: var(--text-primary);
+}
+
+.test-name {
+	display: inline-block;
+}
+
+.cell-file {
+	font-family: var(--font-mono);
+	font-size: 0.75rem;
+	color: var(--text-secondary);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.cell-duration {
+	font-family: var(--font-mono);
+	font-size: 0.8125rem;
+	color: var(--text-secondary);
+	text-align: right;
+	white-space: nowrap;
+}
+
+/* Row status highlights */
+.row-fail {
+	background: var(--error-dim);
+}
+
+.row-fail:hover {
+	background: rgba(239, 68, 68, 0.18);
+}
+
+.row-skip {
+	opacity: 0.65;
+}
+
+.row-todo {
+	opacity: 0.65;
+}
+
+/* Empty state */
+.empty-state {
+	text-align: center;
+	padding: 3rem 2rem;
+	color: var(--text-muted);
+	font-size: 0.875rem;
+}

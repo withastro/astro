@@ -7077,7 +7077,7 @@ importers:
         version: link:../../packages/astro
       solid-js:
         specifier: ^1.9.10
-        version: 1.9.10
+        version: 1.9.11
 
 packages:
 

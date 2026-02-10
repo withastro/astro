@@ -1,34 +1,246 @@
 ---
-// Component Imports
-import Counter from '../components/Counter';
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
 
-// Full Astro Component Syntax:
-// https://docs.astro.build/basics/astro-components/
+const allReports = await getCollection('reports');
+
+interface ReportStats {
+	id: string;
+	total: number;
+	pass: number;
+	fail: number;
+	skip: number;
+	todo: number;
+	totalDuration: number;
+}
+
+function computeStats(id: string, entries: any[]): ReportStats {
+	let pass = 0, fail = 0, skip = 0, todo = 0, totalDuration = 0;
+	for (const e of entries) {
+		if (e.details?.type === 'suite') continue;
+		if (e.skip) skip++;
+		else if (e.todo) todo++;
+		else if (e.details?.error !== undefined) fail++;
+		else pass++;
+		totalDuration += e.details?.duration_ms ?? 0;
+	}
+	return { id, total: pass + fail + skip + todo, pass, fail, skip, todo, totalDuration };
+}
+
+function formatDuration(ms: number): string {
+	if (ms < 1) return '< 1ms';
+	if (ms < 1000) return `${Math.round(ms)}ms`;
+	if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
+	const minutes = Math.floor(ms / 60000);
+	const seconds = Math.round((ms % 60000) / 1000);
+	return `${minutes}m ${seconds}s`;
+}
+
+const reportStats = allReports.map((r) => computeStats(r.id, r.data));
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<style>
-			html,
-			body {
-				font-family: system-ui;
-				margin: 0;
-			}
-			body {
-				padding: 2rem;
-			}
-		</style>
-	</head>
-	<body>
-		<main>
-			<Counter client:visible>
-				<h1>Hello, Solid!</h1>
-			</Counter>
-		</main>
-	</body>
-</html>
+<Layout title="Test Reports">
+	<div class="page-header">
+		<h1>Test Reports</h1>
+		<p class="subtitle">{allReports.length} report{allReports.length !== 1 ? 's' : ''} available</p>
+	</div>
+
+	{allReports.length === 0 ? (
+		<div class="empty">
+			<div class="empty-icon">
+				<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+					<polyline points="14 2 14 8 20 8" />
+					<line x1="16" y1="13" x2="8" y2="13" />
+					<line x1="16" y1="17" x2="8" y2="17" />
+					<polyline points="10 9 9 9 8 9" />
+				</svg>
+			</div>
+			<h2>No reports found</h2>
+			<p>Run your test suite to generate report data.<br />Reports will appear in <code>src/reports/</code>.</p>
+		</div>
+	) : (
+		<div class="grid">
+			{reportStats.map((report) => (
+				<a href={`/reports/${report.id}`} class="card">
+					<div class="card-header">
+						<span class="card-name">{report.id}</span>
+						{report.fail > 0 ? (
+							<span class="badge badge-fail">FAIL</span>
+						) : (
+							<span class="badge badge-pass">PASS</span>
+						)}
+					</div>
+					<div class="card-stats">
+						<span class="card-total">{report.total} tests</span>
+						<span class="card-sep">&middot;</span>
+						<span class="card-duration">{formatDuration(report.totalDuration)}</span>
+					</div>
+					<div class="card-breakdown">
+						<span class="cb-pass">{'\u2713'} {report.pass}</span>
+						<span class="cb-fail">{'\u2717'} {report.fail}</span>
+						{report.skip > 0 && <span class="cb-skip">{'\u2298'} {report.skip}</span>}
+						{report.todo > 0 && <span class="cb-todo">{'\u25CE'} {report.todo}</span>}
+					</div>
+					{report.total > 0 && (
+						<div class="card-bar">
+							<div class="bar-pass" style={`width: ${(report.pass / report.total) * 100}%`} />
+							<div class="bar-fail" style={`width: ${(report.fail / report.total) * 100}%`} />
+							<div class="bar-skip" style={`width: ${(report.skip / report.total) * 100}%`} />
+							<div class="bar-todo" style={`width: ${(report.todo / report.total) * 100}%`} />
+						</div>
+					)}
+				</a>
+			))}
+		</div>
+	)}
+</Layout>
+
+<style>
+	.page-header {
+		margin-bottom: 2rem;
+	}
+
+	h1 {
+		font-size: 1.75rem;
+		font-weight: 700;
+		margin: 0 0 0.25rem;
+		letter-spacing: -0.02em;
+	}
+
+	.subtitle {
+		color: var(--text-secondary);
+		font-size: 0.875rem;
+		margin: 0;
+	}
+
+	.empty {
+		text-align: center;
+		padding: 4rem 2rem;
+		color: var(--text-muted);
+	}
+
+	.empty-icon {
+		margin-bottom: 1rem;
+		opacity: 0.4;
+	}
+
+	.empty h2 {
+		color: var(--text-secondary);
+		font-size: 1.25rem;
+		margin: 0 0 0.5rem;
+	}
+
+	.empty p {
+		font-size: 0.875rem;
+		line-height: 1.6;
+	}
+
+	.empty code {
+		background: var(--bg-surface);
+		padding: 0.15em 0.4em;
+		border-radius: 4px;
+		font-size: 0.8125rem;
+		font-family: var(--font-mono);
+	}
+
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+		gap: 1rem;
+	}
+
+	.card {
+		background: var(--bg-surface);
+		border: 1px solid var(--border);
+		border-radius: 12px;
+		padding: 1.25rem;
+		text-decoration: none !important;
+		color: inherit;
+		transition: border-color 0.15s, box-shadow 0.15s;
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.card:hover {
+		border-color: var(--accent);
+		box-shadow: 0 0 0 1px var(--accent-dim), 0 4px 24px rgba(0, 0, 0, 0.3);
+	}
+
+	.card-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+	}
+
+	.card-name {
+		font-weight: 600;
+		font-size: 1rem;
+		color: var(--text-primary);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.badge {
+		font-size: 0.625rem;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		padding: 0.2em 0.6em;
+		border-radius: 4px;
+		flex-shrink: 0;
+	}
+
+	.badge-pass {
+		background: var(--success-dim);
+		color: var(--success);
+	}
+
+	.badge-fail {
+		background: var(--error-dim);
+		color: var(--error);
+	}
+
+	.card-stats {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.8125rem;
+		color: var(--text-secondary);
+	}
+
+	.card-sep {
+		color: var(--text-muted);
+	}
+
+	.card-duration {
+		font-family: var(--font-mono);
+	}
+
+	.card-breakdown {
+		display: flex;
+		gap: 1rem;
+		font-size: 0.8125rem;
+		font-weight: 500;
+	}
+
+	.cb-pass { color: var(--success); }
+	.cb-fail { color: var(--error); }
+	.cb-skip { color: var(--warning); }
+	.cb-todo { color: var(--info); }
+
+	.card-bar {
+		display: flex;
+		height: 4px;
+		border-radius: 2px;
+		overflow: hidden;
+		background: var(--bg-primary);
+	}
+
+	.bar-pass { background: var(--success); }
+	.bar-fail { background: var(--error); }
+	.bar-skip { background: var(--warning); }
+	.bar-todo { background: var(--info); }
+</style>

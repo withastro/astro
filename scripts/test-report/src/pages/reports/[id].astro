@@ -1,0 +1,163 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import TestReportTable from '../../components/TestReportTable';
+
+export async function getStaticPaths() {
+	const reports = await getCollection('reports');
+	return reports.map((report) => ({
+		params: { id: report.id },
+		props: { report },
+	}));
+}
+
+const { report } = Astro.props;
+
+// Compute summary stats server-side for the header
+let pass = 0, fail = 0, skip = 0, todo = 0, totalDuration = 0;
+for (const e of report.data) {
+	if ((e as any).details?.type === 'suite') continue;
+	if ((e as any).skip) skip++;
+	else if ((e as any).todo) todo++;
+	else if ((e as any).details?.error !== undefined) fail++;
+	else pass++;
+	totalDuration += (e as any).details?.duration_ms ?? 0;
+}
+const total = pass + fail + skip + todo;
+
+function formatDuration(ms: number): string {
+	if (ms < 1) return '< 1ms';
+	if (ms < 1000) return `${Math.round(ms)}ms`;
+	if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
+	const minutes = Math.floor(ms / 60000);
+	const seconds = Math.round((ms % 60000) / 1000);
+	return `${minutes}m ${seconds}s`;
+}
+---
+
+<Layout title={`${report.id} - Test Report`}>
+	<div class="report-header">
+		<a href="/" class="back-link">&larr; All Reports</a>
+		<div class="report-title-row">
+			<h1>{report.id}</h1>
+			{fail > 0 ? (
+				<span class="badge badge-fail">FAIL</span>
+			) : (
+				<span class="badge badge-pass">PASS</span>
+			)}
+		</div>
+		<div class="report-summary">
+			<div class="summary-cards">
+				<div class="summary-card">
+					<span class="sc-value">{total}</span>
+					<span class="sc-label">Total</span>
+				</div>
+				<div class="summary-card sc-pass">
+					<span class="sc-value">{pass}</span>
+					<span class="sc-label">Passed</span>
+				</div>
+				<div class="summary-card sc-fail">
+					<span class="sc-value">{fail}</span>
+					<span class="sc-label">Failed</span>
+				</div>
+				<div class="summary-card sc-skip">
+					<span class="sc-value">{skip}</span>
+					<span class="sc-label">Skipped</span>
+				</div>
+				<div class="summary-card sc-duration">
+					<span class="sc-value">{formatDuration(totalDuration)}</span>
+					<span class="sc-label">Duration</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<TestReportTable client:load entries={report.data as any} />
+</Layout>
+
+<style>
+	.report-header {
+		margin-bottom: 1.5rem;
+	}
+
+	.back-link {
+		display: inline-block;
+		color: var(--text-secondary);
+		font-size: 0.8125rem;
+		margin-bottom: 0.75rem;
+		text-decoration: none;
+	}
+
+	.back-link:hover {
+		color: var(--accent);
+	}
+
+	.report-title-row {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 1rem;
+	}
+
+	h1 {
+		font-size: 1.75rem;
+		font-weight: 700;
+		margin: 0;
+		letter-spacing: -0.02em;
+	}
+
+	.badge {
+		font-size: 0.6875rem;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		padding: 0.25em 0.75em;
+		border-radius: 4px;
+	}
+
+	.badge-pass {
+		background: var(--success-dim);
+		color: var(--success);
+	}
+
+	.badge-fail {
+		background: var(--error-dim);
+		color: var(--error);
+	}
+
+	.summary-cards {
+		display: flex;
+		gap: 0.75rem;
+		flex-wrap: wrap;
+	}
+
+	.summary-card {
+		background: var(--bg-surface);
+		border: 1px solid var(--border);
+		border-radius: 10px;
+		padding: 0.875rem 1.25rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+		min-width: 100px;
+	}
+
+	.sc-value {
+		font-size: 1.375rem;
+		font-weight: 700;
+		font-family: var(--font-mono);
+		line-height: 1.2;
+	}
+
+	.sc-label {
+		font-size: 0.6875rem;
+		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: var(--text-muted);
+	}
+
+	.sc-pass .sc-value { color: var(--success); }
+	.sc-fail .sc-value { color: var(--error); }
+	.sc-skip .sc-value { color: var(--warning); }
+	.sc-duration .sc-value { color: var(--text-secondary); font-size: 1.125rem; }
+</style>

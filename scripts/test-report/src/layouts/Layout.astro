@@ -1,0 +1,106 @@
+---
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="generator" content={Astro.generator} />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<title>{title}</title>
+	</head>
+	<body>
+		<nav>
+			<a href="/" class="nav-brand">Astro Test Reports</a>
+		</nav>
+		<main>
+			<slot />
+		</main>
+	</body>
+</html>
+
+<style is:global>
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
+
+	:root {
+		--bg-primary: #0a0d14;
+		--bg-secondary: #111520;
+		--bg-surface: #171c2a;
+		--bg-hover: #1e2436;
+		--border: #242a3b;
+		--border-light: #2e3650;
+		--text-primary: #e1e7ef;
+		--text-secondary: #8892a6;
+		--text-muted: #5a6478;
+		--accent: #8b5cf6;
+		--accent-dim: rgba(139, 92, 246, 0.15);
+		--success: #22c55e;
+		--success-dim: rgba(34, 197, 94, 0.12);
+		--error: #ef4444;
+		--error-dim: rgba(239, 68, 68, 0.12);
+		--warning: #eab308;
+		--warning-dim: rgba(234, 179, 8, 0.12);
+		--info: #3b82f6;
+		--info-dim: rgba(59, 130, 246, 0.12);
+		--font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+		--font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+	}
+
+	html,
+	body {
+		margin: 0;
+		padding: 0;
+		font-family: var(--font-sans);
+		background: var(--bg-primary);
+		color: var(--text-primary);
+		line-height: 1.6;
+		-webkit-font-smoothing: antialiased;
+	}
+
+	nav {
+		background: var(--bg-secondary);
+		border-bottom: 1px solid var(--border);
+		padding: 0.875rem 2rem;
+		position: sticky;
+		top: 0;
+		z-index: 100;
+		backdrop-filter: blur(12px);
+	}
+
+	.nav-brand {
+		color: var(--text-primary);
+		text-decoration: none;
+		font-weight: 600;
+		font-size: 1rem;
+		letter-spacing: -0.01em;
+	}
+
+	.nav-brand:hover {
+		color: var(--accent);
+	}
+
+	main {
+		max-width: 1400px;
+		margin: 0 auto;
+		padding: 2rem;
+	}
+
+	a {
+		color: var(--accent);
+		text-decoration: none;
+	}
+
+	a:hover {
+		text-decoration: underline;
+	}
+</style>
