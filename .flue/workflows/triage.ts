@@ -68,10 +68,14 @@ Consider comments from the original poster, maintainers, or other users who may 
 - Additional context about when/how the bug occurs
 - Different configurations or versions to try
 
-If there is new, actionable information that could lead to a different reproduction result
-than what was already attempted, respond with exactly "yes".
-If the new comments are just acknowledgments, thanks, unrelated discussion, or do not add
-meaningful reproduction information, respond with exactly "no".`,
+Then decide how to respond:
+1. If there is new, actionable information that could lead to a different reproduction result
+than what was already attempted, respond with "yes".
+2. If someone is intentionally asking you to retry triage, respond with "yes".
+3. If the new comments are just acknowledgments, thanks, unrelated discussion, or do not add
+meaningful reproduction information, respond with "no".
+
+Return only "yes" or "no" inside the ---RESULT_START--- / ---RESULT_END--- block.`,
 			{ result: v.picklist(['yes', 'no']) },
 		);
 
