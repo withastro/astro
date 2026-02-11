@@ -2763,6 +2763,35 @@ export interface AstroUserConfig<
 		 * See the [experimental SVGO optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
 		 */
 		svgo?: boolean | SvgoConfig;
+
+		/**
+		 * @name experimental.queuedRendering
+		 * @type {boolean}
+		 * @default `false`
+		 * @description
+		 * Enable queue-based rendering engine instead of the default recursive rendering.
+		 *
+		 * This experimental feature uses a queue-based approach to traverse and render the component tree,
+		 * which significantly reduces memory pressure for deeply nested components by avoiding deep recursion.
+		 *
+		 * When enabled, the rendering engine will:
+		 * - Build a flat queue of all nodes to render
+		 * - Process components sequentially with reduced stack depth
+		 * - Maintain the same output and streaming behavior as the default renderer
+		 *
+		 * This is particularly beneficial for pages with very deep component nesting (50+ levels).
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     queuedRendering: true
+		 *   }
+		 * }
+		 * ```
+		 *
+		 * Note: This is an experimental feature and may have edge cases. Please report any issues you encounter.
+		 */
+		queuedRendering?: boolean;
 	};
 }
 

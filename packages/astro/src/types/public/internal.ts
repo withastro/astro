@@ -252,6 +252,11 @@ export interface SSRResult {
 	directives: SSRManifestCSP['directives'];
 	isStrictDynamic: SSRManifestCSP['isStrictDynamic'];
 	internalFetchHeaders?: Record<string, string>;
+	/**
+	 * Experimental: Use queue-based rendering engine instead of recursive rendering.
+	 * Reduces memory pressure for deeply nested components.
+	 */
+	_experimentalQueuedRendering: boolean | undefined;
 }
 
 /**

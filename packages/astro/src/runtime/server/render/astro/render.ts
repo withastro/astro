@@ -9,11 +9,238 @@ import {
 	type RenderDestination,
 } from '../common.js';
 import { promiseWithResolvers } from '../util.js';
+import { buildRenderQueue, renderQueue } from '../queue/index.js';
 import type { AstroComponentFactory } from './factory.js';
 import { isHeadAndContent } from './head-and-content.js';
 import { isRenderTemplateResult } from './render-template.js';
 
 const DOCTYPE_EXP = /<!doctype html/i;
+
+/**
+ * Queue-based rendering implementation
+ */
+async function renderWithQueue(
+	result: SSRResult,
+	templateResult: any,
+	isPage: boolean,
+): Promise<string> {
+	// Build the render queue
+	const queue = await buildRenderQueue(templateResult, result);
+
+	let str = '';
+	let renderedFirstPageChunk = false;
+
+	const destination: RenderDestination = {
+		write(chunk) {
+			// Automatic doctype insertion for pages
+			if (isPage && !renderedFirstPageChunk) {
+				renderedFirstPageChunk = true;
+				if (!result.partial && !DOCTYPE_EXP.test(String(chunk))) {
+					const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
+					str += doctype;
+				}
+			}
+
+			// `renderToString` doesn't work with emitting responses, so ignore here
+			if (chunk instanceof Response) return;
+
+			str += chunkToString(result, chunk);
+		},
+	};
+
+	// Render the queue
+	await renderQueue(queue, destination);
+
+	return str;
+}
+
+/**
+ * Queue-based rendering to ReadableStream
+ */
+async function renderWithQueueToStream(
+	result: SSRResult,
+	templateResult: any,
+	isPage: boolean,
+	route?: RouteData,
+): Promise<ReadableStream> {
+	// Build the render queue
+	const queue = await buildRenderQueue(templateResult, result);
+
+	let renderedFirstPageChunk = false;
+
+	return new ReadableStream({
+		start(controller) {
+			const destination: RenderDestination = {
+				write(chunk) {
+					// Automatic doctype insertion for pages
+					if (isPage && !renderedFirstPageChunk) {
+						renderedFirstPageChunk = true;
+						if (!result.partial && !DOCTYPE_EXP.test(String(chunk))) {
+							const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
+							controller.enqueue(encoder.encode(doctype));
+						}
+					}
+
+					// `chunk` might be a Response that contains a redirect
+					if (chunk instanceof Response) {
+						throw new AstroError({
+							...AstroErrorData.ResponseSentError,
+						});
+					}
+
+					const bytes = chunkToByteArray(result, chunk);
+					controller.enqueue(bytes);
+				},
+			};
+
+			(async () => {
+				try {
+					await renderQueue(queue, destination);
+					controller.close();
+				} catch (e) {
+					// Add location info to error
+					if (AstroError.is(e) && !e.loc) {
+						e.setLocation({
+							file: route?.component,
+						});
+					}
+
+					// Queue error on next microtask to flush remaining chunks
+					setTimeout(() => controller.error(e), 0);
+				}
+			})();
+		},
+		cancel() {
+			// If the client disconnects, signal to ignore renders
+			result.cancelled = true;
+		},
+	});
+}
+
+/**
+ * Queue-based rendering to AsyncIterable
+ */
+async function renderWithQueueToAsyncIterable(
+	result: SSRResult,
+	templateResult: any,
+	isPage: boolean,
+	_route?: RouteData,
+): Promise<AsyncIterable<Uint8Array>> {
+	// Build the render queue
+	const queue = await buildRenderQueue(templateResult, result);
+
+	let renderedFirstPageChunk = false;
+	let error: Error | null = null;
+	let next: ReturnType<typeof promiseWithResolvers<void>> | null = null;
+	const buffer: Array<Uint8Array | string> = [];
+	let renderingComplete = false;
+
+	const iterator: AsyncIterator<Uint8Array> = {
+		async next() {
+			if (result.cancelled) return { done: true, value: undefined };
+
+			if (next !== null) {
+				await next.promise;
+			} else if (!renderingComplete && !buffer.length) {
+				next = promiseWithResolvers();
+				await next.promise;
+			}
+
+			if (!renderingComplete) {
+				next = promiseWithResolvers();
+			}
+
+			if (error) {
+				throw error;
+			}
+
+			// Merge buffer into single Uint8Array
+			let length = 0;
+			let stringToEncode = '';
+			for (let i = 0, len = buffer.length; i < len; i++) {
+				const bufferEntry = buffer[i];
+
+				if (typeof bufferEntry === 'string') {
+					const nextIsString = i + 1 < len && typeof buffer[i + 1] === 'string';
+					stringToEncode += bufferEntry;
+					if (!nextIsString) {
+						const encoded = encoder.encode(stringToEncode);
+						length += encoded.length;
+						stringToEncode = '';
+						buffer[i] = encoded;
+					} else {
+						buffer[i] = '';
+					}
+				} else {
+					length += bufferEntry.length;
+				}
+			}
+
+			let mergedArray = new Uint8Array(length);
+			let offset = 0;
+			for (let i = 0, len = buffer.length; i < len; i++) {
+				const item = buffer[i];
+				if (item === '') {
+					continue;
+				}
+				mergedArray.set(item as Uint8Array, offset);
+				offset += item.length;
+			}
+
+			buffer.length = 0;
+
+			const returnValue = {
+				done: length === 0 && renderingComplete,
+				value: mergedArray,
+			};
+
+			return returnValue;
+		},
+		async return() {
+			result.cancelled = true;
+			return { done: true, value: undefined };
+		},
+	};
+
+	const destination: RenderDestination = {
+		write(chunk) {
+			if (isPage && !renderedFirstPageChunk) {
+				renderedFirstPageChunk = true;
+				if (!result.partial && !DOCTYPE_EXP.test(String(chunk))) {
+					const doctype = result.compressHTML ? '<!DOCTYPE html>' : '<!DOCTYPE html>\n';
+					buffer.push(encoder.encode(doctype));
+				}
+			}
+			if (chunk instanceof Response) {
+				throw new AstroError(AstroErrorData.ResponseSentError);
+			}
+			const bytes = chunkToByteArrayOrString(result, chunk);
+			if (bytes.length > 0) {
+				buffer.push(bytes);
+				next?.resolve();
+			} else if (buffer.length > 0) {
+				next?.resolve();
+			}
+		},
+	};
+
+	const renderResult = toPromise(() => renderQueue(queue, destination));
+
+	renderResult
+		.catch((err) => {
+			error = err;
+		})
+		.finally(() => {
+			renderingComplete = true;
+			next?.resolve();
+		});
+
+	return {
+		[Symbol.asyncIterator]() {
+			return iterator;
+		},
+	};
+}
 
 // Calls a component and renders it into a string of HTML
 export async function renderToString(
@@ -35,6 +262,12 @@ export async function renderToString(
 	// If the Astro component returns a Response on init, return that response
 	if (templateResult instanceof Response) return templateResult;
 
+	// EXPERIMENTAL: Queue-based rendering
+	if (result._experimentalQueuedRendering) {
+		return await renderWithQueue(result, templateResult, isPage);
+	}
+
+	// EXISTING: Recursive rendering
 	let str = '';
 	let renderedFirstPageChunk = false;
 
@@ -85,6 +318,12 @@ export async function renderToReadableStream(
 	// If the Astro component returns a Response on init, return that response
 	if (templateResult instanceof Response) return templateResult;
 
+	// EXPERIMENTAL: Queue-based rendering
+	if (result._experimentalQueuedRendering) {
+		return await renderWithQueueToStream(result, templateResult, isPage, route);
+	}
+
+	// EXISTING: Recursive rendering
 	let renderedFirstPageChunk = false;
 
 	if (isPage) {
@@ -220,6 +459,13 @@ export async function renderToAsyncIterable(
 		route,
 	);
 	if (templateResult instanceof Response) return templateResult;
+
+	// EXPERIMENTAL: Queue-based rendering
+	if (result._experimentalQueuedRendering) {
+		return await renderWithQueueToAsyncIterable(result, templateResult, isPage, route);
+	}
+
+	// EXISTING: Recursive rendering
 	let renderedFirstPageChunk = false;
 	if (isPage) {
 		await bufferHeadContent(result);

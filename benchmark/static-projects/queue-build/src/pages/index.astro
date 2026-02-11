@@ -1,0 +1,25 @@
+---
+const items = Array.from({ length: 10000 }, (_, i) => ({
+	title: `Item ${i + 1}`,
+	description: 'Queue rendering benchmark item',
+	value: i,
+}));
+---
+
+<html>
+	<head>
+		<title>Queue Build Benchmark</title>
+	</head>
+	<body>
+		<h1>Queue Build Benchmark</h1>
+		<section>
+			{items.map((item) => (
+				<div class="item">
+					<h3>{item.title}</h3>
+					<p>{item.description}</p>
+					<span>Value: {item.value}</span>
+				</div>
+			))}
+		</section>
+	</body>
+</html>

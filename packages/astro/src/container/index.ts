@@ -176,6 +176,7 @@ function createManifest(
 			placement: undefined,
 		},
 		logLevel: 'silent',
+		experimentalQueuedRendering: manifest?.experimentalQueuedRendering ?? undefined,
 	};
 }
 
@@ -266,6 +267,7 @@ type AstroContainerManifest = Pick<
 	| 'serverLike'
 	| 'assetsDir'
 	| 'image'
+	| 'experimentalQueuedRendering'
 >;
 
 type AstroContainerConstructor = {
