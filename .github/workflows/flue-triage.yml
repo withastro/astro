@@ -9,10 +9,11 @@ on:
 jobs:
   triage:
     if: >-
-      (github.event.action == 'opened') ||
-      (github.event.action == 'created' &&
-       !github.event.issue.pull_request &&
-       contains(github.event.issue.labels.*.name, 'needs triage'))
+      github.event.issue.created_at >= '2026-02-11' &&
+      ((github.event.action == 'opened') ||
+       (github.event.action == 'created' &&
+        !github.event.issue.pull_request &&
+        contains(github.event.issue.labels.*.name, 'needs triage')))
     runs-on: ubuntu-latest
     timeout-minutes: 120
     permissions:
