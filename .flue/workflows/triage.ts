@@ -123,13 +123,12 @@ meaningful reproduction information, respond with exactly "no".`,
 	});
 
 	if (reproduceResult.reproducible || reproduceResult.skipped) {
-		await flue.shell(
-			`gh issue edit ${issueNumber} --remove-label "needs triage" --remove-assignee "astrobot-houston"`,
-			{ env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN } },
-		);
+		await flue.shell(`gh issue edit ${issueNumber} --remove-label "needs triage"`, {
+			env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN },
+		});
 	}
 
-	// If not reproducible: "needs triage" label stays, Houston stays assigned.
+	// If not reproducible: "needs triage" label stays.
 	// The loop continues when the author (or another user) replies.
 	return { reproduceResult, diagnoseResult, fixResult, isPushed };
 }

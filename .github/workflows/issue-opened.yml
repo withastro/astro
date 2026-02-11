@@ -20,9 +20,3 @@ jobs:
               repo: context.repo.repo,
               labels: ["needs triage"]
             })
-            github.rest.issues.addAssignees({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              assignees: ["astrobot-houston"]
-            })

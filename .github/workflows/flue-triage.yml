@@ -12,8 +12,7 @@ jobs:
       (github.event.action == 'opened') ||
       (github.event.action == 'created' &&
        !github.event.issue.pull_request &&
-       contains(github.event.issue.labels.*.name, 'needs triage') &&
-       contains(github.event.issue.assignees.*.login, 'astrobot-houston'))
+       contains(github.event.issue.labels.*.name, 'needs triage'))
     runs-on: ubuntu-latest
     timeout-minutes: 120
     permissions:
