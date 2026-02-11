@@ -8,6 +8,7 @@ on:
       - "2-legacy"
       - "3-legacy"
       - "4-legacy"
+      - "5-legacy"
 
 defaults:
   run:
