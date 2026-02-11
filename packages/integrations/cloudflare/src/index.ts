@@ -7,7 +7,6 @@ import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-
 import type {
 	AstroConfig,
 	AstroIntegration,
-	HookParameters,
 	IntegrationResolvedRoute,
 } from 'astro';
 import { astroFrontmatterScanPlugin } from './esbuild-plugin-astro-frontmatter.js';
