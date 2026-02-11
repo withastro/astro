@@ -374,7 +374,7 @@ importers:
   examples/minimal:
     dependencies:
       astro:
-        specifier: ^6.0.0-beta.10
+        specifier: workspace:*
         version: link:../../packages/astro
 
   examples/portfolio:

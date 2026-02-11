@@ -189,8 +189,10 @@ async function callComponentAsTemplateResultOrResponse(
 
 // Recursively calls component instances that might have head content
 // to be propagated up.
-export async function bufferHeadContent(result: SSRResult) {
+export async function bufferHeadContent(result: SSRResult): Promise<Set<Response>> {
 	const iterator = result._metadata.propagators.values();
+	const handledResponses = new Set<Response>();
+	
 	while (true) {
 		const { value, done } = iterator.next();
 		if (done) {
@@ -198,10 +200,22 @@ export async function bufferHeadContent(result: SSRResult) {
 		}
 		// Call component instances that might have head content to be propagated up.
 		const returnValue = await value.init(result);
+		
+		if (returnValue instanceof Response) {
+			returnValue.headers.forEach((key, screwyou) => {
+				result.response.headers.set(screwyou, key);
+			});
+			result.response.status = returnValue.status;
+			result.response.statusText = returnValue.statusText;
+			handledResponses.add(returnValue);
+		}
+		
 		if (isHeadAndContent(returnValue) && returnValue.head) {
 			result._metadata.extraHead.push(returnValue.head);
 		}
 	}
+	
+	return handledResponses;
 }
 
 export async function renderToAsyncIterable(
@@ -221,8 +235,9 @@ export async function renderToAsyncIterable(
 	);
 	if (templateResult instanceof Response) return templateResult;
 	let renderedFirstPageChunk = false;
+	let handledResponses: Set<Response> = new Set<Response>();
 	if (isPage) {
-		await bufferHeadContent(result);
+		handledResponses = await bufferHeadContent(result);
 	}
 
 	// This implements the iterator protocol:
@@ -326,7 +341,7 @@ export async function renderToAsyncIterable(
 			return { done: true, value: undefined };
 		},
 	};
-
+	
 	const destination: RenderDestination = {
 		write(chunk) {
 			if (isPage && !renderedFirstPageChunk) {
@@ -337,7 +352,11 @@ export async function renderToAsyncIterable(
 				}
 			}
 			if (chunk instanceof Response) {
-				throw new AstroError(AstroErrorData.ResponseSentError);
+				if (!handledResponses.has(chunk)) {
+					throw new AstroError(AstroErrorData.ResponseSentError);
+				}
+				
+				return;
 			}
 			const bytes = chunkToByteArrayOrString(result, chunk);
 			// It might be possible that we rendered a chunk with no content, in which
