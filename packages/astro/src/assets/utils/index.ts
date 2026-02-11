@@ -14,6 +14,7 @@ export {
 	matchProtocol,
 	type RemotePattern,
 } from '@astrojs/internal-helpers/remote';
+export { emitClientAsset } from './assets.js';
 export { isESMImportedImage, isRemoteImage, resolveSrc } from './imageKind.js';
 export { imageMetadata } from './metadata.js';
 export { getOrigQueryParams } from './queryParams.js';

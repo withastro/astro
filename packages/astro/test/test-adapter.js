@@ -130,7 +130,7 @@ export default function ({
 					},
 					adapterFeatures: {
 						buildOutput: 'server',
-						experimentalStaticHeaders: staticHeaders,
+						staticHeaders: staticHeaders,
 					},
 					...extendAdapter,
 				});
@@ -143,15 +143,16 @@ export default function ({
 					setManifest(manifest);
 				}
 			},
-			'astro:build:generated': ({ experimentalRouteToHeaders }) => {
+			'astro:build:generated': ({ routeToHeaders }) => {
 				if (setRouteToHeaders) {
-					setRouteToHeaders(experimentalRouteToHeaders);
+					setRouteToHeaders(routeToHeaders);
 				}
 			},
 		},
 	};
 }
 
+/** @returns {import('astro').AstroIntegration} */
 export function selfTestAdapter({
 	provideAddress = true,
 	staticHeaders = false,
@@ -167,11 +168,6 @@ export function selfTestAdapter({
 			'astro:config:setup': ({ updateConfig }) => {
 				updateConfig({
 					vite: {
-						build: {
-							rollupOptions: {
-								input: '@my-ssr',
-							},
-						},
 						plugins: [
 							{
 								resolveId: {
@@ -270,7 +266,7 @@ export function selfTestAdapter({
 					},
 					adapterFeatures: {
 						buildOutput: 'server',
-						experimentalStaticHeaders: staticHeaders,
+						staticHeaders: staticHeaders,
 					},
 					...extendAdapter,
 				});

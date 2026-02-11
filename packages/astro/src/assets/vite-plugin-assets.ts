@@ -25,6 +25,7 @@ import { fontsPlugin } from './fonts/vite-plugin-fonts.js';
 import type { ImageTransform } from './types.js';
 import { getAssetsPrefix } from './utils/getAssetsPrefix.js';
 import { isESMImportedImage } from './utils/index.js';
+import { emitClientAsset } from './utils/assets.js';
 import { emitImageMetadata, hashTransform, propsToFilename } from './utils/node.js';
 import { getProxyCode } from './utils/proxy.js';
 import { makeSvgComponent } from './utils/svg.js';
@@ -154,15 +155,18 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 				handler() {
 					return {
 						code: `
-							export { getConfiguredImageService, isLocalService } from "astro/assets";
+							import { getConfiguredImageService as _getConfiguredImageService } from "astro/assets";
+							export { isLocalService } from "astro/assets";
 							import { getImage as getImageInternal } from "astro/assets";
 							export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
 							export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
-							export { inferRemoteSize } from "astro/assets/utils/inferRemoteSize.js";
+							import { inferRemoteSize as inferRemoteSizeInternal } from "astro/assets/utils/inferRemoteSize.js";
 
 							export { default as Font } from "astro/components/Font.astro";
 							export * from "${RUNTIME_VIRTUAL_MODULE_ID}";
 							
+							export const getConfiguredImageService = _getConfiguredImageService;
+
 							export const viteFSConfig = ${JSON.stringify(resolvedConfig.server.fs ?? {})};
 
 							export const safeModulePaths = new Set(${JSON.stringify(
@@ -183,6 +187,11 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 								enumerable: false,
 								configurable: true,
 							});
+              export const inferRemoteSize = async (url) => {
+                const service = await _getConfiguredImageService()
+
+                return service.getRemoteSize?.(url, imageConfig) ?? inferRemoteSizeInternal(url)
+              }
 							// This is used by the @astrojs/node integration to locate images.
 							// It's unused on other platforms, but on some platforms like Netlify (and presumably also Vercel)
 							// new URL("dist/...") is interpreted by the bundler as a signal to include that directory
@@ -267,7 +276,9 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 						return;
 					}
 
-					const fileEmitter = shouldEmitFile ? this.emitFile.bind(this) : undefined;
+					const fileEmitter = shouldEmitFile
+						? (opts: Parameters<typeof this.emitFile>[0]) => emitClientAsset(this as any, opts)
+						: undefined;
 					const imageMetadata = await emitImageMetadata(id, fileEmitter);
 
 					if (!imageMetadata) {

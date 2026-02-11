@@ -1,5 +1,11 @@
 # @astrojs/preact
 
+## 5.0.0-beta.3
+
+### Patch Changes
+
+- [#15383](https://github.com/withastro/astro/pull/15383) [`876b664`](https://github.com/withastro/astro/commit/876b664d6984f97b995fd95400b41c2220528d4a) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Preact components failing to render when using the Cloudflare adapter in dev mode.
+
 ## 5.0.0-beta.2
 
 ### Patch Changes

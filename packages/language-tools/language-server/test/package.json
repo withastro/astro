@@ -6,7 +6,7 @@
     "@astrojs/svelte": "workspace:*",
     "@astrojs/vue": "workspace:*",
     "astro": "workspace:*",
-    "svelte": "^5.0.0"
+    "svelte": "^5.49.1"
   },
   "devDependencies": {
     "tinyglobby": "^0.2.15"

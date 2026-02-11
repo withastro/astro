@@ -66,9 +66,6 @@ declare module 'virtual:astro:adapter-entrypoint' {
 
 declare module 'virtual:astro:adapter-config' {
 	export const args: any;
-	export const exports: string[] | undefined;
-	export const adapterFeatures: any;
-	export const serverEntrypoint: string;
 }
 
 declare module 'virtual:astro:dev-css' {
@@ -79,4 +76,8 @@ declare module 'virtual:astro:dev-css' {
 declare module 'virtual:astro:dev-css-all' {
 	import type { ImportedDevStyles } from './src/types/astro.js';
 	export const devCSSMap: Map<string, () => Promise<{ css: Set<ImportedDevStyles> }>>;
+}
+
+declare module 'virtual:astro:app' {
+	export function createApp(): import('./src/core/app/base.js').BaseApp;
 }
