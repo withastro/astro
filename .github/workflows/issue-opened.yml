@@ -8,7 +8,6 @@ on:
 jobs:
   label_issues:
     runs-on: ubuntu-latest
-    if: github.repository == 'withastro/astro'
     permissions:
       issues: write
     steps:
@@ -20,4 +19,10 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               labels: ["needs triage"]
+            })
+            github.rest.issues.addAssignees({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              assignees: ["astrobot-houston"]
             })
