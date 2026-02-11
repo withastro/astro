@@ -8,6 +8,7 @@ on:
 jobs:
   label_issues:
     runs-on: ubuntu-latest
+    if: github.repository == 'withastro/astro'
     permissions:
       issues: write
     steps:
