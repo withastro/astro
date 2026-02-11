@@ -111,15 +111,13 @@ Include a new section with: what you changed, why, the full git diff, verificati
 The report must include all information needed for a final GitHub comment to be generated later by the comment skill. Make sure to include:
 
 - What was changed and why
-- The full git diff
+- The full git diff (unless it is massive, if it is)
 - Whether the fix was successful or not
 - Verification results (did the fix resolve the original error?)
 - Any alternative approaches considered and their tradeoffs
 - If the fix failed: what was tried and why it didn't work
 
 ## Step 8: Clean Up the Working Directory
-
-The orchestrator will commit and push whatever is in the working tree, so make sure it's clean.
 
 1. Run `git status` and review all changed files
 2. Revert any changes that are NOT part of the fix:
@@ -128,5 +126,6 @@ The orchestrator will commit and push whatever is in the working tree, so make s
    - Build artifacts that shouldn't be committed
 3. Use `git checkout -- <file>` to discard unwanted changes
 4. Confirm with a final `git status` that only the intended fix files remain
+5. DO NOT commit or push anything yet! The user will handle that at a later step.
 
 The `triage/` directory is already gitignored, so it won't appear in `git status`.

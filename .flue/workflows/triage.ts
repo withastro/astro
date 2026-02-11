@@ -105,9 +105,10 @@ Return only "yes" or "no" inside the ---RESULT_START--- / ---RESULT_END--- block
 			await flue.shell(
 				`git commit -m ${JSON.stringify(fixResult.commitMessage ?? 'fix(auto-triage): automated fix')}`,
 			);
+			const pushResult = await flue.shell(`git push origin HEAD:refs/heads/${flue.branch}`);
+			console.log('push result:', pushResult);
+			isPushed = pushResult.exitCode === 0;
 		}
-		const pushResult = await flue.shell(`git push origin HEAD:refs/heads/${flue.branch}`);
-		isPushed = pushResult.exitCode === 0;
 	}
 
 	const branchName = isPushed ? flue.branch : null;
