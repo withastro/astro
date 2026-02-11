@@ -9,7 +9,7 @@
 - Fetch **LLM-optimized** docs at https://docs.astro.build/llms.txt.
 - Fetch **Full docs** at https://docs.astro.build/ (primary source, use when llms.txt lacks info).
 
-## Working with Astro
+# Working with Astro
 
 - Use `astro dev` and `astro preview` in the background to prevent hanging your entire session, and use `&` to run them in the background. Use `--port RANDOM_NUMBER --strictPort` to avoid port conflicts. Cleanup old servers when you're done.
 - Use `astro dev` and `astro preview` as web servers for Astro project. They are reliable. Don't use other web servers for testing.
