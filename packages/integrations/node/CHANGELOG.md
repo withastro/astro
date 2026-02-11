@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 9.5.3
+
+### Patch Changes
+
+- [`c13b536`](https://github.com/withastro/astro/commit/c13b536197a70d8d4fd0037c5bd3aaa2be0598b9) Thanks [@matthewp](https://github.com/matthewp)! - Improves error page loading to read from disk first before falling back to configured host
+
 ## 9.5.2
 
 ### Patch Changes
