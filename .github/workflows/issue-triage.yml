@@ -7,8 +7,10 @@ on:
     types: [created]
 
 concurrency:
+  # Only one triage run per issue at a time. New runs queue (not cancel)
+  # to avoid killing in-flight runs when the bot posts its own comment.
   group: issue-triage-${{ github.event.issue.number }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   triage:
@@ -48,7 +50,7 @@ jobs:
           echo "/home/runner/.opencode/bin" >> $GITHUB_PATH
 
       - name: Install agent-browser
-        run: pnpm install -g agent-browser --config.onlyBuiltDependencies='*' && agent-browser install
+        run: npm install -g agent-browser && agent-browser install
 
       - name: Install deps
         run: pnpm install --frozen-lockfile
