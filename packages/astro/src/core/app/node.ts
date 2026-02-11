@@ -9,7 +9,7 @@ import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import type { RenderOptions } from './index.js';
 import { App } from './index.js';
 import type { NodeAppHeadersJson, SerializedSSRManifest, SSRManifest } from './types.js';
-import { sanitizeHost, validateForwardedHeaders } from './validate-forwarded-headers.js';
+import { validateForwardedHeaders, validateHost } from './validate-headers.js';
 
 /**
  * Allow the request body to be explicitly overridden. For example, this
@@ -78,7 +78,7 @@ export class NodeApp extends App {
 		};
 
 		const providedProtocol = isEncrypted ? 'https' : 'http';
-		const providedHostname = req.headers.host ?? req.headers[':authority'];
+		const untrustedHostname = req.headers.host ?? req.headers[':authority'];
 
 		// Validate forwarded headers
 		// NOTE: Header values may have commas/spaces from proxy chains, extract first value
@@ -90,11 +90,16 @@ export class NodeApp extends App {
 		);
 
 		const protocol = validated.protocol ?? providedProtocol;
-		// validated.host is already sanitized, only sanitize providedHostname
-		const sanitizedProvidedHostname = sanitizeHost(
-			typeof providedHostname === 'string' ? providedHostname : undefined,
+		// validated.host is already validated against allowedDomains
+		// For the Host header, we also need to validate against allowedDomains to prevent SSRF
+		// The Host header is only trusted if allowedDomains is configured AND the host matches
+		// Otherwise, fall back to 'localhost' to prevent SSRF attacks
+		const validatedHostname = validateHost(
+			typeof untrustedHostname === 'string' ? untrustedHostname : undefined,
+			protocol,
+			allowedDomains,
 		);
-		const hostname = validated.host ?? sanitizedProvidedHostname;
+		const hostname = validated.host ?? validatedHostname ?? 'localhost';
 		const port = validated.port;
 
 		let url: URL;
@@ -102,9 +107,9 @@ export class NodeApp extends App {
 			const hostnamePort = getHostnamePort(hostname, port);
 			url = new URL(`${protocol}://${hostnamePort}${req.url}`);
 		} catch {
-			// Fallback to the provided hostname and port
-			const hostnamePort = getHostnamePort(providedHostname, port);
-			url = new URL(`${providedProtocol}://${hostnamePort}`);
+			// Fallback using validated hostname to prevent SSRF
+			const hostnamePort = getHostnamePort(hostname, port);
+			url = new URL(`${protocol}://${hostnamePort}`);
 		}
 
 		const options: RequestInit = {
