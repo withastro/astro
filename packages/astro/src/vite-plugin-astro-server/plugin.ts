@@ -215,5 +215,6 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		},
 		logLevel: settings.logLevel,
 		shouldInjectCspMetaTags: false,
+		experimentalQueuedRendering: settings.config.experimental?.queuedRendering ?? undefined,
 	};
 }
