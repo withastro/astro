@@ -10,7 +10,10 @@ import type { Options, RequestHandler } from './types.js';
  * Read a prerendered error page from disk and return it as a Response.
  * Returns undefined if the file doesn't exist or can't be read.
  */
-async function readErrorPageFromDisk(client: string, status: number): Promise<Response | undefined> {
+async function readErrorPageFromDisk(
+	client: string,
+	status: number,
+): Promise<Response | undefined> {
 	// Try both /404.html and /404/index.html patterns
 	const filePaths = [`${status}.html`, `${status}/index.html`];
 
