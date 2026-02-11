@@ -1,5 +1,5 @@
 import { createReadStream, existsSync, readFileSync } from 'node:fs';
-import { appendFile, stat } from 'node:fs/promises';
+import { appendFile, rm, stat } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
@@ -79,9 +79,9 @@ export type Options = {
 
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
-	let finalBuildOutput: HookParameters<'astro:config:done'>['buildOutput'];
 
 	let _routes: IntegrationResolvedRoute[];
+	let _isFullyStatic = false;
 
 	const sessionKVBindingName = args?.sessionKVBindingName ?? DEFAULT_SESSION_KV_BINDING_NAME;
 	const imagesBindingName = args?.imagesBindingName ?? DEFAULT_IMAGES_BINDING_NAME;
@@ -233,10 +233,13 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			},
 			'astro:routes:resolved': ({ routes }) => {
 				_routes = routes;
+				// Check if all non-internal routes are prerendered (fully static site)
+				_isFullyStatic = routes
+					.filter((route) => route.origin !== 'internal')
+					.every((route) => route.isPrerendered);
 			},
-			'astro:config:done': ({ setAdapter, config, buildOutput, injectTypes, logger }) => {
+			'astro:config:done': ({ setAdapter, config, injectTypes, logger }) => {
 				_config = config;
-				finalBuildOutput = buildOutput;
 
 				injectTypes({
 					filename: 'cloudflare.d.ts',
@@ -254,7 +257,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					supportedAstroFeatures: {
 						serverOutput: 'stable',
 						hybridOutput: 'stable',
-						staticOutput: 'unsupported',
+						staticOutput: 'stable',
 						i18nDomains: 'experimental',
 						sharpImageService: {
 							support: 'limited',
@@ -387,7 +390,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						),
 					),
 					dir,
-					buildOutput: finalBuildOutput,
+					buildOutput: _isFullyStatic ? 'static' : 'server',
 					assets,
 				});
 
@@ -400,6 +403,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					} catch (_error) {
 						logger.error('Failed to write _redirects file');
 					}
+				}
+
+				// For fully static sites, remove the worker directory as it's not needed
+				if (_isFullyStatic) {
+					await rm(_config.build.server, { recursive: true, force: true });
 				}
 
 				// Delete this variable so the preview server opens the server build.
