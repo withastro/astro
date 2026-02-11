@@ -110,6 +110,7 @@ function getAdapter({
 	return {
 		name: PACKAGE_NAME,
 		entrypointResolution: 'auto',
+		serverEntrypoint: `${PACKAGE_NAME}/entrypoint`,
 		adapterFeatures: {
 			edgeMiddleware,
 			buildOutput,
@@ -287,11 +288,6 @@ export default function vercelAdapter({
 					vite: {
 						ssr: {
 							external: ['@vercel/nft'],
-						},
-						build: {
-							rollupOptions: {
-								input: `${PACKAGE_NAME}/entrypoint`,
-							},
 						},
 						plugins: [
 							createConfigPlugin({

@@ -119,7 +119,7 @@ export interface AstroAdapterClientConfig {
 	assetQueryParams?: URLSearchParams;
 }
 
-interface AdapterLegacyDynamicProperties {
+interface AdapterExplicitProperties {
 	/**
 	 * Determines how the adapter's entrypoint is handled during the build.
 	 * - `'auto'`: The adapter defines its own entrypoint and provides either serverEntrypoint or rollupOptions.input
@@ -133,7 +133,7 @@ interface AdapterLegacyDynamicProperties {
 	args?: any;
 }
 
-interface AdapterSelfProperties {
+interface AdapterAutoProperties {
 	/**
 	 * Determines how the adapter's entrypoint is handled during the build.
 	 * - `'auto'`: The adapter defines its own entrypoint and provides either serverEntrypoint or rollupOptions.input
@@ -141,6 +141,7 @@ interface AdapterSelfProperties {
 	 * @default 'explicit'
 	 */
 	entrypointResolution: 'auto';
+	serverEntrypoint?: string | URL;
 }
 
 export type AstroAdapter = {
@@ -157,7 +158,7 @@ export type AstroAdapter = {
 	 * Configuration for Astro's client-side code.
 	 */
 	client?: AstroAdapterClientConfig;
-} & (AdapterLegacyDynamicProperties | AdapterSelfProperties);
+} & (AdapterExplicitProperties | AdapterAutoProperties);
 
 /**
  * A pathname with its associated route, used for prerendering.
