@@ -25,7 +25,6 @@ jobs:
     permissions:
       contents: write
       issues: write
-      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,7 +44,7 @@ jobs:
           echo "/home/runner/.opencode/bin" >> $GITHUB_PATH
 
       - name: Install agent-browser
-        run: npm install -g agent-browser && agent-browser install
+        run: pnpm install -g agent-browser && agent-browser install
 
       - name: Install deps
         run: pnpm install --frozen-lockfile

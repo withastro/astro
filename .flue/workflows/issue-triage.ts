@@ -1,4 +1,3 @@
-// biome-ignore-all lint/suspicious/noConsole: workflow runs in CI, console output is expected
 import type { Flue } from '@flue/client';
 import * as v from 'valibot';
 
@@ -92,10 +91,14 @@ Return only "yes" or "no" inside the ---RESULT_START--- / ---RESULT_END--- block
 	});
 	const diagnoseResult = await flue.skill('triage/diagnose.md', { result: diagnoseResultSchema });
 	const fixResult = await flue.skill('triage/fix.md', { result: fixResultSchema });
-
 	let isPushed = false;
+
+	// If a successful fix was created, push the fix up to a new branch on GitHub.
+	// The comment we post below will reference that branch, then a maintainer can choose to:
+	// - checkout that branch locally, using the fix as a starting point
+    // - create a PR from that branch entirely in the GH UI
+    // - ignore it completely
 	if (fixResult.fixed) {
-		// Check for uncommitted canges and commit them
 		const status = await flue.shell('git status --porcelain');
 		if (status.stdout.trim()) {
 			await flue.shell('git add -A');
@@ -103,7 +106,7 @@ Return only "yes" or "no" inside the ---RESULT_START--- / ---RESULT_END--- block
 				`git commit -m ${JSON.stringify(fixResult.commitMessage ?? 'fix(auto-triage): automated fix')}`,
 			);
 			const pushResult = await flue.shell(`git push origin HEAD:refs/heads/${flue.branch}`);
-			console.log('push result:', pushResult);
+			console.info('push result:', pushResult);
 			isPushed = pushResult.exitCode === 0;
 		}
 	}

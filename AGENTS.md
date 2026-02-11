@@ -2,6 +2,8 @@
 
 - Not defined here. For now, follow the same conventions and patterns that you detect in the surrounding code. Keep
 - Keep formatting consistent. Our rules are defined in our [biome.jsonc](./biome.jsonc) file, enforced by Biome.
+- Run `pnpm format` to auto-format the entire repo.
+- Run `pnpm lint` to lint the entire repo.
 
 # Source Structure
 
@@ -63,7 +65,7 @@ Note: Edits to source files take effect after rebuilding the package via `pnpm b
 
 - Use `astro dev` and `astro preview` in the background to prevent hanging your entire session, and use `&` to run them in the background. Use `--port RANDOM_NUMBER --strictPort` to avoid port conflicts. Cleanup old servers when you're done.
 - Use `astro dev` and `astro preview` as web servers for Astro project. They are reliable. Don't use other web servers for testing.
-- Use `pnpm -C <dir> <command>` for project-local commands when working in packages/examples/workflows. Only omit `-C` flag when intentionally working in the monorepo root. (Example: `pnpm -C packages/astro build`, `pnpm -C examples/blog dev`)
+- Use `pnpm -C <dir> <command>` for project-local commands when working in packages/examples/triage directories. Only omit `-C` flag when intentionally working in the monorepo root. (Example: `pnpm -C packages/astro build`, `pnpm -C examples/blog dev`)
 - Use `agent-browser` for web automation or when UI interaction, long-running browsers, or HMR testing is required. Use `agent-browser --help` for all commands. Use this core workflow:
   - Example: `agent-browser open <url>` - Navigate to page
   - Example: `agent-browser snapshot -i` - Get interactive elements with refs (@e1, @e2)
