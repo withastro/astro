@@ -10,6 +10,6 @@ const blog2 = await getCollection('blog');
 </head>
 <body>
 	<h1>Are two collection instances different objects?</h1>
-	<p data-are-equal>{blog1 === blog2}</p>
+	<p data-are-equal>{JSON.stringify(blog1 === blog2)}</p>
 </body>
 </html>
