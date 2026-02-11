@@ -4,23 +4,24 @@ Reproduce a GitHub issue to determine if a bug is valid and reproducible.
 
 **CRITICAL: You MUST always write `report.md` to the triage directory before finishing, regardless of outcome. Even if you encounter errors, cannot reproduce the bug, hit unexpected problems, or need to skip — always write `report.md`. The orchestrator and downstream skills depend on this file to determine what happened. If you finish without writing it, the entire pipeline fails silently.**
 
+## Prerequisites
+
+These variables are referenced throughout this skill. They may be passed as args by an orchestrator, or inferred from the conversation when run standalone.
+
+- **`triageDir`** — Directory containing the reproduction project (e.g. `triage/issue-123`). If not passed as an arg, infer from previous conversation.
+- **`issueDetails`** - The issue details, often a string of JSON containing the GitHub issue title, body, and comments. If not passed as an arg, infer the issue from previous conversation and run `gh issue view ${issue_number} --json title,body,comments` to load the issue details directly from GitHub.
+
 ## Overview
 
-1. Get the issue details
+1. Confirm the issue details
 2. Analyze the issue for early exit conditions (host-specific, unsupported version, etc.)
 3. Set up a reproduction project in the triage directory
 4. Attempt to reproduce the bug
 5. Write `report.md` with detailed findings
 
-## Step 1: Get the Bug Report
+## Step 1: Confirm Bug Details
 
-**If `issueTitle` and `issueBody` are provided in args**, use those as the bug report directly.
-
-**If a GitHub issue number or URL is mentioned** (but no `issueTitle`/`issueBody`), fetch it with the `gh` CLI:
-
-```bash
-gh issue view <issue_number> --comments
-```
+Confirm that you have access to `bugDetails` (load directly from GitHub if you do not, following the instructions above).
 
 **Otherwise**, fail — there is not enough information to reproduce a bug.
 
@@ -33,36 +34,19 @@ Read carefully:
 
 ## Step 2: Check for Early Exit Conditions
 
-Before attempting reproduction, check if this issue should be skipped due to a limitation of our sandbox reproduction environment. These reasons include:
+Before attempting reproduction, check if this issue should be skipped due to a limitation of our sandbox reproduction environment. 
 
-**Unsupported Astro Version:**
+If any condition below is met, skip to Step 6 and write `report.md` with the skip details.
 
-- Astro 4.x or earlier → Write `report.md` noting the skip and exit
-- Look for version in `astro info` output or package.json mentions
-
-**Host-Specific Issues:**
-
-- Mentions Vercel, Netlify, Cloudflare, Deno Deploy deployment issues
-- Uses `@astrojs/vercel`, `@astrojs/netlify`, `@astrojs/cloudflare` adapters
-- Bug only occurs "in production" or "after deployment"
-- → Write `report.md` noting the skip reason ("host-specific") and exit
-
-**Runtime-Specific Issues:**
-
-- Bug is specific to Bun or Deno (not Node.js)
-- → Write `report.md` noting the skip reason ("unsupported-runtime") and exit
-
-**A maintainer override:**
-
-- A maintainer may comment in the issue, stating that the issue cannot be successfully reproduced here, with or without a reason.
-- You can check a user's maintainer status: `gh api "repos/<owner>/<repo>/collaborators/<user>" --silent && echo "user is collaborator"`
-- → Write `report.md` noting the skip reason ("maintainer-override") and exit
-
-If any early exit condition is met, skip to Step 6 and write `report.md` with the skip details.
+- **Not actionable** — Issue is not a bug report (this workflow can only act to triage bugs, cannot handle feature requests, suggestions, etc.). → skip reason: `not-actionable`
+- **Unsupported version** — Astro 4.x or earlier (check `astro info` output or package.json). → skip reason: `unsupported-version`
+- **Unsupported runtime** — Bug is specific to Bun or Deno. → skip reason: `unsupported-runtime`
+- **Host-specific** — Bug is specific to Vercel, Netlify, Cloudflare, etc. (check for runtime adapter usage). → skip reason: `host-specific`
+- **Maintainer override** — A maintainer commented that this issue cannot be reproduced here. Check status: `gh api "repos/<owner>/<repo>/collaborators/<user>" --silent && echo "user is collaborator"`. → skip reason: `maintainer-override`
 
 ## Step 3: Set Up Reproduction Project
 
-The reproduction project goes in the `triageDir` directory provided in args (e.g. `triage/gh-123`). If no `triageDir` is provided, default to `triage/gh-<issue_number>`.
+The reproduction project goes in the `triageDir` directory (e.g. `triage/gh-123`). If no `triageDir` is provided, default to `triage/gh-<issue_number>`.
 
 **If a StackBlitz URL is provided in the issue:**
 The triage workspace has already been downloaded. Inspect what's there and proceed to configuration.

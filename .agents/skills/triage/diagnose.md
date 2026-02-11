@@ -6,8 +6,10 @@ Find the root cause of a reproduced bug in the Astro source code.
 
 ## Prerequisites
 
-- A reproducible bug exists in the `triageDir` directory (provided in args)
-- `report.md` in that directory documents the reproduction results
+These variables are referenced throughout this skill. They may be passed as args by an orchestrator, or inferred from the conversation when run standalone.
+
+- **`triageDir`** — Directory containing the reproduction project (e.g. `triage/issue-123`). If not passed as an arg, infer from previous conversation.
+- **`report.md`** — File in `triageDir` that MAY exist. Contains the full context from all previous skills.
 
 ## Overview
 
@@ -19,7 +21,7 @@ Find the root cause of a reproduced bug in the Astro source code.
 
 ## Step 1: Review the Reproduction
 
-Read `report.md` from the `triageDir` directory (provided in args) to understand:
+Read `report.md` from the `triageDir` directory to understand:
 
 - The exact error message and stack trace
 - Which command triggers the issue (build/dev/preview)

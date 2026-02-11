@@ -6,9 +6,11 @@ Generate a GitHub issue comment from triage findings.
 
 ## Prerequisites
 
-- The `triageDir` directory (provided in args) exists
-- `report.md` in that directory MAY exist — this contains the full context from all previous skills (reproduction, diagnosis, fix)
-- `branchName` (from args) — if non-null, the fix was pushed to this branch. Include a "Create PR" link. If null, no branch was pushed — omit the link.
+These variables are referenced throughout this skill. They may be passed as args by an orchestrator, or inferred from the conversation when run standalone. 
+
+- **`triageDir`** — Directory containing the reproduction project (e.g. `triage/issue-123`). If not passed as an arg, infer from previous conversation.
+- **`report.md`** — File in `triageDir` that MAY exist. Contains the full context from all previous skills (reproduction, diagnosis, fix).
+- **`branchName`** — The branch name where a fix was pushed. If not passed as an arg, infer from previous conversation.
 
 ## Overview
 
@@ -17,7 +19,7 @@ Generate a GitHub issue comment from triage findings.
 
 ## Step 1: Read Triage Output
 
-Read `report.md` from the `triageDir` directory (provided in args). This file is the shared context log — each previous skill (reproduce, diagnose, fix) appends its findings to it.
+Read `report.md` from the `triageDir` directory. This file is the shared context log — each previous skill (reproduce, diagnose, fix) appends its findings to it.
 
 If `report.md` is missing or empty, generate a minimal comment (see "Fallback" section below).
 
