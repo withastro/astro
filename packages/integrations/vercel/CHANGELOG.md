@@ -1,5 +1,13 @@
 # @astrojs/vercel
 
+## 10.0.0-beta.4
+
+### Patch Changes
+
+- [#15460](https://github.com/withastro/astro/pull/15460) [`ee7e53f`](https://github.com/withastro/astro/commit/ee7e53f9de2338517e149895efd26fca44ad80b6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates to use the new Adapter API
+
+- [#15450](https://github.com/withastro/astro/pull/15450) [`50c9129`](https://github.com/withastro/astro/commit/50c912978cca4afbe4b3ebd11c30305d5e9c8315) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `build.serverEntry` would not be respected when using the new Adapter API
+
 ## 10.0.0-beta.3
 
 ### Major Changes
