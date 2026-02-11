@@ -78,8 +78,6 @@ Check the issue to determine what's needed:
 - MDX content → `pnpm astro add mdx`
 - Specific adapter → `pnpm astro add node` (or vercel, netlify, etc.)
 
-See [references/monorepo-setup.md](references/monorepo-setup.md) for details on working with the triage workspace.
-
 ## Step 4: Configure the Project
 
 Based on the issue, modify the triage project:
