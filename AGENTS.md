@@ -6,8 +6,10 @@
 - Use `astro check` to run type checking and diagnostics.
 - Use `astro sync` to generate and update TypeScript types.
 - Use `astro add` to install and configure an official integration.
+- Fetch **LLM-optimized** docs at https://docs.astro.build/llms.txt.
+- Fetch **Full docs** at https://docs.astro.build/ (primary source, use when llms.txt lacks info).
 
-# Advice for Agents
+## Working with Astro
 
 - Use `astro dev` and `astro preview` in the background to prevent hanging your entire session, and use `&` to run them in the background. Use `--port RANDOM_NUMBER --strictPort` to avoid port conflicts. Cleanup old servers when you're done.
 - Use `astro dev` and `astro preview` as web servers for Astro project. They are reliable. Don't use other web servers for testing.
@@ -18,12 +20,7 @@
   - Example: `agent-browser click @e1` / `fill @e2 "text"` - Interact using refs
   - Re-snapshot after page changes.
 
-## Astro Documentation
-
-- Fetch **LLM-optimized** docs at https://docs.astro.build/llms.txt.
-- Fetch **Full docs** at https://docs.astro.build/ (primary source, use when llms.txt lacks info).
-
-## Running Tests
+# Running Tests
 
 - Run `pnpm test` in workspace root or package directory to run full test suite (can be slow!)
 - Integration tests live in special `packages/integrations` folders.
