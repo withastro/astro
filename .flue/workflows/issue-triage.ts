@@ -96,8 +96,8 @@ Return only "yes" or "no" inside the ---RESULT_START--- / ---RESULT_END--- block
 	// If a successful fix was created, push the fix up to a new branch on GitHub.
 	// The comment we post below will reference that branch, then a maintainer can choose to:
 	// - checkout that branch locally, using the fix as a starting point
-    // - create a PR from that branch entirely in the GH UI
-    // - ignore it completely
+	// - create a PR from that branch entirely in the GH UI
+	// - ignore it completely
 	if (fixResult.fixed) {
 		const status = await flue.shell('git status --porcelain');
 		if (status.stdout.trim()) {
