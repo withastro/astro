@@ -71,3 +71,4 @@ Note: Edits to source files take effect after rebuilding the package via `pnpm b
   - Example: `agent-browser snapshot -i` - Get interactive elements with refs (@e1, @e2)
   - Example: `agent-browser click @e1` / `fill @e2 "text"` - Interact using refs
   - Re-snapshot after page changes.
+  - Note: If you can't find `agent-browser`, your machine may not have it installed. If this happens, ask the user to run `npm install -g agent-browser && agent-browser install`. If you are running in headless mode with no human operator and need this tool to complete your job, it is best to fail the job vs. trying to work around not having the tool.
