@@ -1,5 +1,11 @@
 # astro
 
+## 5.17.2
+
+### Patch Changes
+
+- [`c13b536`](https://github.com/withastro/astro/commit/c13b536197a70d8d4fd0037c5bd3aaa2be0598b9) Thanks [@matthewp](https://github.com/matthewp)! - Improves Host header handling for SSR deployments behind proxies
+
 ## 5.17.1
 
 ### Patch Changes
