@@ -147,6 +147,7 @@ describe('Content Collections - render()', () => {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 			assert.equal($('[data-are-equal]').first().text(), 'false');
+		});
 	});
 
 	describe('Dev - SSG', () => {
