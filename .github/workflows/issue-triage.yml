@@ -6,6 +6,10 @@ on:
   issue_comment:
     types: [created]
 
+concurrency:
+  group: issue-triage-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
 jobs:
   triage:
     # 1. Skip old issues (only run on issues created after this workflow was created)
