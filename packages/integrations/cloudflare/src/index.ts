@@ -233,9 +233,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			'astro:routes:resolved': ({ routes }) => {
 				_routes = routes;
 				// Check if all non-internal routes are prerendered (fully static site)
-				_isFullyStatic = routes
-					.filter((route) => route.origin !== 'internal')
-					.every((route) => route.isPrerendered);
+				const nonInternalRoutes = routes.filter((route) => route.origin !== 'internal');
+				_isFullyStatic =
+					nonInternalRoutes.length > 0 && nonInternalRoutes.every((route) => route.isPrerendered);
 			},
 			'astro:config:done': ({ setAdapter, config, injectTypes, logger }) => {
 				_config = config;
