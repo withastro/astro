@@ -14,7 +14,7 @@ These variables are referenced throughout this skill. They may be passed as args
 ## Overview
 
 1. Review the reproduction and error details from `report.md`
-2. Locate relevant source files in `packages/`
+2. Locate the relevant source files in `packages/`
 3. Add instrumentation to understand the code path
 4. Identify the root cause
 5. Append diagnosis findings to `report.md`
@@ -35,31 +35,9 @@ Re-run the reproduction if needed to see the error firsthand:
 pnpm -C <triageDir> run build  # or dev/preview
 ```
 
-## Step 2: Locate Source Files
+## Step 2: Locate Relevant Source Files
 
-The Astro source is organized as:
-
-```
-packages/
-├── astro/                    # Core framework
-│   └── src/
-│       ├── core/             # Build pipeline, rendering, routing
-│       ├── vite-plugin-astro/ # Vite integration
-│       ├── content/          # Content collections
-│       └── ...
-├── integrations/
-│   ├── react/               # @astrojs/react
-│   ├── node/                # @astrojs/node
-│   ├── cloudflare/          # @astrojs/cloudflare
-│   └── ...
-└── markdown/
-    └── remark/              # Markdown processing
-```
-
-Use the stack trace to find relevant files. The error locations in `node_modules/` map to source files in `packages/`:
-
-- `node_modules/astro/dist/...` → `packages/astro/src/...`
-- `node_modules/@astrojs/react/...` → `packages/integrations/react/src/...`
+Using the error messages, stack traces, and any other reproduction details from Step 1, identify the source files in `packages/` that are likely involved.
 
 ## Step 3: Investigate with Instrumentation
 

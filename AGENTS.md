@@ -20,6 +20,36 @@
   - Example: `agent-browser click @e1` / `fill @e2 "text"` - Interact using refs
   - Re-snapshot after page changes.
 
+# Source Structure
+
+This is a pnpm workspace monorepo with the following directory structure:
+
+```
+packages/
+├── astro/                    # astro -- The core framework package
+│   └── src/
+│       ├── core/             # Build pipeline, rendering, routing
+│       ├── vite-plugin-astro/ # Vite integration
+│       ├── content/          # Content collections
+│       └── ...
+├── integrations/
+│   ├── react/               # @astrojs/react
+│   ├── node/                # @astrojs/node
+│   ├── cloudflare/          # @astrojs/cloudflare
+│   └── ...
+└── markdown/
+    └── remark/              # @astrojs/markdown-remark
+```
+
+When you run `pnpm install`, source packages in `packages/` are symlinked into `node_modules/` of their dependants via `workspace:*` dependencies.
+
+In error stack traces, built files in `node_modules/` will often map to TypeScript source files in the `packages/` directory. 
+
+- `node_modules/astro/dist/...` → `packages/astro/src/...`
+- `node_modules/@astrojs/react/...` → `packages/integrations/react/src/...`
+
+Note: Edits to source files take effect after rebuilding the package via `pnpm build`. 
+
 # Running Tests
 
 - Run `pnpm test` in workspace root or package directory to run full test suite (can be slow!)
