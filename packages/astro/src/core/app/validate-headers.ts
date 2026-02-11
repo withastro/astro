@@ -1,14 +1,75 @@
 import { matchPattern, type RemotePattern } from '@astrojs/internal-helpers/remote';
 
 /**
- * Validate a hostname by rejecting any with path separators.
+ * Sanitize a hostname by rejecting any with path separators.
  * Prevents path injection attacks. Invalid hostnames return undefined.
  */
-export function sanitizeHost(hostname: string | undefined): string | undefined {
+function sanitizeHost(hostname: string | undefined): string | undefined {
 	if (!hostname) return undefined;
 	// Reject any hostname containing path separators - they're invalid
 	if (/[/\\]/.test(hostname)) return undefined;
 	return hostname;
+}
+
+interface ParsedHost {
+	hostname: string;
+	port: string | undefined;
+}
+
+/**
+ * Parse a host string into hostname and port components.
+ */
+function parseHost(host: string): ParsedHost {
+	const parts = host.split(':');
+	return {
+		hostname: parts[0],
+		port: parts[1],
+	};
+}
+
+/**
+ * Check if a host matches any of the allowed domain patterns.
+ * Assumes hostname and port are already sanitized/parsed.
+ */
+function matchesAllowedDomains(
+	hostname: string,
+	protocol: string,
+	port: string | undefined,
+	allowedDomains: Partial<RemotePattern>[],
+): boolean {
+	const hostWithPort = port ? `${hostname}:${port}` : hostname;
+	const urlString = `${protocol}://${hostWithPort}`;
+
+	if (!URL.canParse(urlString)) {
+		return false;
+	}
+
+	const testUrl = new URL(urlString);
+	return allowedDomains.some((pattern) => matchPattern(testUrl, pattern));
+}
+
+/**
+ * Validate a host against allowedDomains.
+ * Returns the host only if it matches an allowed pattern, otherwise undefined.
+ * This prevents SSRF attacks by ensuring the Host header is trusted.
+ */
+export function validateHost(
+	host: string | undefined,
+	protocol: string,
+	allowedDomains?: Partial<RemotePattern>[],
+): string | undefined {
+	if (!host || host.length === 0) return undefined;
+	if (!allowedDomains || allowedDomains.length === 0) return undefined;
+
+	const sanitized = sanitizeHost(host);
+	if (!sanitized) return undefined;
+
+	const { hostname, port } = parseHost(sanitized);
+	if (matchesAllowedDomains(hostname, protocol, port, allowedDomains)) {
+		return sanitized;
+	}
+
+	return undefined;
 }
 
 /**
@@ -68,23 +129,10 @@ export function validateForwardedHeaders(
 		const protoForValidation = result.protocol || 'https';
 		const sanitized = sanitizeHost(forwardedHost);
 		if (sanitized) {
-			try {
-				// Extract hostname without port for validation
-				const hostnameOnly = sanitized.split(':')[0];
-				// Use full hostname:port for validation so patterns with ports match correctly
-				// Include validated port if available, otherwise use port from forwardedHost if present
-				const portFromHost = sanitized.includes(':') ? sanitized.split(':')[1] : undefined;
-				const portForValidation = result.port || portFromHost;
-				const hostWithPort = portForValidation
-					? `${hostnameOnly}:${portForValidation}`
-					: hostnameOnly;
-				const testUrl = new URL(`${protoForValidation}://${hostWithPort}`);
-				const isAllowed = allowedDomains.some((pattern) => matchPattern(testUrl, pattern));
-				if (isAllowed) {
-					result.host = sanitized;
-				}
-			} catch {
-				// Invalid host, omit from result
+			const { hostname, port: portFromHost } = parseHost(sanitized);
+			const portForValidation = result.port || portFromHost;
+			if (matchesAllowedDomains(hostname, protoForValidation, portForValidation, allowedDomains)) {
+				result.host = sanitized;
 			}
 		}
 	}
