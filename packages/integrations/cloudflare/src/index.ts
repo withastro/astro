@@ -10,7 +10,7 @@ import type {
 	HookParameters,
 	IntegrationResolvedRoute,
 } from 'astro';
-
+import { astroFrontmatterScanPlugin } from './esbuild-plugin-astro-frontmatter.js';
 import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
 import { type ImageService, setImageConfig } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
@@ -188,6 +188,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 													'virtual:astro-cloudflare:*',
 													'virtual:@astrojs/*',
 												],
+												esbuildOptions: {
+													plugins: [astroFrontmatterScanPlugin()],
+												},
 											},
 										};
 									} else if (environmentName === 'client') {
