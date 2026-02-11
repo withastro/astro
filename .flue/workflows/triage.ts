@@ -127,8 +127,15 @@ Return only "yes" or "no" inside the ---RESULT_START--- / ---RESULT_END--- block
 		env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN },
 	});
 
-	if (reproduceResult.reproducible || reproduceResult.skipped) {
+	if (reproduceResult.reproducible) {
 		await flue.shell(`gh issue edit ${issueNumber} --remove-label "needs triage"`, {
+			env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN },
+		});
+	} else if (reproduceResult.skipped) {
+		// Triage was skipped due to a runner limitation. Keep "needs triage" so a
+		// maintainer can still pick it up, and add "auto triage skipped" to prevent
+		// the workflow from re-running on every new comment.
+		await flue.shell(`gh issue edit ${issueNumber} --add-label "auto triage skipped"`, {
 			env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN },
 		});
 	}
