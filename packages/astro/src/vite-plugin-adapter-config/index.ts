@@ -12,7 +12,7 @@ export function vitePluginAdapterConfig(settings: AstroSettings): VitePlugin {
 		name: 'astro:adapter-config',
 		config() {
 			const { adapter } = settings;
-			if (adapter && adapter.entryType === 'self' && adapter.serverEntrypoint) {
+			if (adapter && adapter.entrypointResolution === 'auto' && adapter.serverEntrypoint) {
 				return {
 					build: {
 						rollupOptions: {
