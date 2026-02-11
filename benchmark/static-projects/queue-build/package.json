@@ -1,0 +1,12 @@
+{
+  "name": "benchmark-queue-build",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Queue rendering build benchmark",
+  "scripts": {
+    "build": "astro build"
+  },
+  "dependencies": {
+    "astro": "workspace:^"
+  }
+}

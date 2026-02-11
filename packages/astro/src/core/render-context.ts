@@ -582,6 +582,7 @@ export class RenderContext {
 			serverIslandNameMap: this.serverIslands.serverIslandNameMap ?? new Map(),
 			key: manifest.key,
 			trailingSlash: manifest.trailingSlash,
+			_experimentalQueuedRendering: manifest.experimentalQueuedRendering,
 			_metadata: {
 				hasHydrationScript: false,
 				rendererSpecificHydrationScripts: new Set(),

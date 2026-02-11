@@ -72,6 +72,7 @@ export type SSRManifest = {
 	trailingSlash: AstroConfig['trailingSlash'];
 	buildFormat: NonNullable<AstroConfig['build']>['format'];
 	compressHTML: boolean;
+	experimentalQueuedRendering: boolean | undefined;
 	assetsPrefix?: AssetsPrefix;
 	renderers: SSRLoadedRenderer[];
 	/**
