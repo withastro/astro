@@ -8,13 +8,18 @@ on:
 
 jobs:
   triage:
+    # 1. Skip old issues (only run on issues created after this workflow was created)
+    # 2. Skip issues with "auto triage skipped" label
+    # 3. Skip pull requests (issues only)
+    # 4. One of these conditions must be met:
+    #   4a. Issue was just created
+    #   4b. Issue comment was just created, and "needs triage" label exists
     if: >-
       github.event.issue.created_at >= '2026-02-11' &&
       !contains(github.event.issue.labels.*.name, 'auto triage skipped') &&
+      !github.event.issue.pull_request &&
       ((github.event.action == 'opened') ||
-       (github.event.action == 'created' &&
-        !github.event.issue.pull_request &&
-        contains(github.event.issue.labels.*.name, 'needs triage')))
+       (github.event.action == 'created' && contains(github.event.issue.labels.*.name, 'needs triage')))
     runs-on: ubuntu-latest
     timeout-minutes: 120
     permissions:

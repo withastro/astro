@@ -1,24 +1,7 @@
-# Astro Quick Reference
+## Style Guide
 
-- Use `astro dev` to start the local dev server with HMR.
-- Use `astro build` to create a production build in `dist/` (static or Node server).
-- Use `astro preview` to serve the production build locally (static or Node server).
-- Use `astro check` to run type checking and diagnostics.
-- Use `astro sync` to generate and update TypeScript types.
-- Use `astro add` to install and configure an official integration.
-- Fetch **LLM-optimized** docs at https://docs.astro.build/llms.txt.
-- Fetch **Full docs** at https://docs.astro.build/ (primary source, use when llms.txt lacks info).
-
-# Working with Astro
-
-- Use `astro dev` and `astro preview` in the background to prevent hanging your entire session, and use `&` to run them in the background. Use `--port RANDOM_NUMBER --strictPort` to avoid port conflicts. Cleanup old servers when you're done.
-- Use `astro dev` and `astro preview` as web servers for Astro project. They are reliable. Don't use other web servers for testing.
-- Use `pnpm -C <dir> <command>` for project-local commands when working in packages/examples/workflows. Only omit `-C` flag when intentionally working in the monorepo root. (Example: `pnpm -C packages/astro build`, `pnpm -C examples/blog dev`)
-- Use `agent-browser` for web automation or when UI interaction, long-running browsers, or HMR testing is required. Use `agent-browser --help` for all commands. Use this core workflow:
-  - Example: `agent-browser open <url>` - Navigate to page
-  - Example: `agent-browser snapshot -i` - Get interactive elements with refs (@e1, @e2)
-  - Example: `agent-browser click @e1` / `fill @e2 "text"` - Interact using refs
-  - Re-snapshot after page changes.
+- Not defined here. For now, follow the same conventions and patterns that you detect in the surrounding code. Keep
+- Keep formatting consistent. Our rules are defined in our [biome.jsonc](./biome.jsonc) file, enforced by Biome.
 
 # Source Structure
 
@@ -43,12 +26,12 @@ packages/
 
 When you run `pnpm install`, source packages in `packages/` are symlinked into `node_modules/` of their dependants via `workspace:*` dependencies.
 
-In error stack traces, built files in `node_modules/` will often map to TypeScript source files in the `packages/` directory. 
+In error stack traces, built files in `node_modules/` will often map to TypeScript source files in the `packages/` directory.
 
 - `node_modules/astro/dist/...` → `packages/astro/src/...`
 - `node_modules/@astrojs/react/...` → `packages/integrations/react/src/...`
 
-Note: Edits to source files take effect after rebuilding the package via `pnpm build`. 
+Note: Edits to source files take effect after rebuilding the package via `pnpm build`.
 
 # Running Tests
 
@@ -64,3 +47,25 @@ Note: Edits to source files take effect after rebuilding the package via `pnpm b
   - `--parallel` / `-p`: Run tests in parallel (default is sequential)
   - `--timeout` / `-t`: Set timeout in milliseconds
   - `--watch` / `-w`: Watch mode
+
+# Astro Quick Reference
+
+- Use `astro dev` to start the local dev server with HMR.
+- Use `astro build` to create a production build in `dist/` (static or Node server).
+- Use `astro preview` to serve the production build locally (static or Node server).
+- Use `astro check` to run type checking and diagnostics.
+- Use `astro sync` to generate and update TypeScript types.
+- Use `astro add` to install and configure an official integration.
+- Fetch **LLM-optimized** docs at https://docs.astro.build/llms.txt.
+- Fetch **Full docs** at https://docs.astro.build/ (primary source, use when llms.txt lacks info).
+
+# Working with Astro
+
+- Use `astro dev` and `astro preview` in the background to prevent hanging your entire session, and use `&` to run them in the background. Use `--port RANDOM_NUMBER --strictPort` to avoid port conflicts. Cleanup old servers when you're done.
+- Use `astro dev` and `astro preview` as web servers for Astro project. They are reliable. Don't use other web servers for testing.
+- Use `pnpm -C <dir> <command>` for project-local commands when working in packages/examples/workflows. Only omit `-C` flag when intentionally working in the monorepo root. (Example: `pnpm -C packages/astro build`, `pnpm -C examples/blog dev`)
+- Use `agent-browser` for web automation or when UI interaction, long-running browsers, or HMR testing is required. Use `agent-browser --help` for all commands. Use this core workflow:
+  - Example: `agent-browser open <url>` - Navigate to page
+  - Example: `agent-browser snapshot -i` - Get interactive elements with refs (@e1, @e2)
+  - Example: `agent-browser click @e1` / `fill @e2 "text"` - Interact using refs
+  - Re-snapshot after page changes.

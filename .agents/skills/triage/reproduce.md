@@ -34,7 +34,7 @@ Once you have `bugDetails`, read carefully:
 
 ## Step 2: Check for Early Exit Conditions
 
-Before attempting reproduction, check if this issue should be skipped due to a limitation of our sandbox reproduction environment. 
+Before attempting reproduction, check if this issue should be skipped due to a limitation of our sandbox reproduction environment.
 
 If any condition below is met, skip to Step 6 and write `report.md` with the skip details.
 

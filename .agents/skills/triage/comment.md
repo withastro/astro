@@ -6,7 +6,7 @@ Generate a GitHub issue comment from triage findings.
 
 ## Prerequisites
 
-These variables are referenced throughout this skill. They may be passed as args by an orchestrator, or inferred from the conversation when run standalone. 
+These variables are referenced throughout this skill. They may be passed as args by an orchestrator, or inferred from the conversation when run standalone.
 
 - **`triageDir`** — Directory containing the reproduction project (e.g. `triage/issue-123`). If not passed as an arg, infer from previous conversation.
 - **`report.md`** — File in `triageDir` that MAY exist. Contains the full context from all previous skills (reproduction, diagnosis, fix).

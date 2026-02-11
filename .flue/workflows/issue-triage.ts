@@ -86,7 +86,10 @@ Return only "yes" or "no" inside the ---RESULT_START--- / ---RESULT_END--- block
 	}
 
 	// Run the triage pipeline: reproduce → diagnose → fix
-	const reproduceResult = await flue.skill('triage/reproduce.md', { args: { issueNumber }, result: reproductionResultSchema });
+	const reproduceResult = await flue.skill('triage/reproduce.md', {
+		args: { issueNumber },
+		result: reproductionResultSchema,
+	});
 	const diagnoseResult = await flue.skill('triage/diagnose.md', { result: diagnoseResultSchema });
 	const fixResult = await flue.skill('triage/fix.md', { result: fixResultSchema });
 

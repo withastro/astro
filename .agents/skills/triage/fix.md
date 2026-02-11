@@ -43,12 +43,6 @@ Make changes in `packages/` source files. Follow these principles:
 - Don't refactor unrelated code
 - Don't add new features
 
-**Match existing style:**
-
-- Use the same patterns as surrounding code
-- Follow the project's TypeScript conventions
-- Keep consistent formatting
-
 **Consider edge cases:**
 
 - Will this break other use cases?
