@@ -23,9 +23,9 @@ These variables are referenced throughout this skill. They may be passed as args
 
 Confirm that you have access to `bugDetails` (load directly from GitHub if you do not, following the instructions above).
 
-**Otherwise**, fail — there is not enough information to reproduce a bug.
+**Otherwise**, fail — we cannot triage a bug that we have no details on.
 
-Read carefully:
+Once you have `bugDetails`, read carefully:
 
 - The bug description and expected vs actual behavior
 - Any reproduction steps provided
