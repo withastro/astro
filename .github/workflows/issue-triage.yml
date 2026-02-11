@@ -1,4 +1,4 @@
-name: Flue Triage
+name: Issue Triage
 
 on:
   issues:
@@ -74,7 +74,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.CI_ANTHROPIC_API_KEY }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
-          pnpm flue run .flue/workflows/triage.ts \
+          pnpm flue run .flue/workflows/issue-triage.ts \
             --args "{\"issueNumber\": $ISSUE_NUMBER, \"triageDir\": \"triage/issue-$ISSUE_NUMBER\"}" \
             --branch "flue/fix-$ISSUE_NUMBER" \
             --model anthropic/claude-sonnet-4-5

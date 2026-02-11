@@ -1,3 +1,4 @@
+// biome-ignore-all lint/suspicious/noConsole: workflow runs in CI, console output is expected
 import type { Flue } from '@flue/client';
 import * as v from 'valibot';
 
