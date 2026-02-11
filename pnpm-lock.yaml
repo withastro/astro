@@ -5116,6 +5116,15 @@ importers:
         specifier: ^2.1.3
         version: 2.1.3
 
+  packages/integrations/cloudflare/test/fixtures/static:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/cloudflare/test/fixtures/vite-plugin:
     dependencies:
       '@astrojs/cloudflare':
