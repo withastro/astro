@@ -13,6 +13,7 @@ import { FontFamilySchema } from '../../../assets/fonts/config.js';
 import { EnvSchema } from '../../../env/schema.js';
 import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/config.js';
 import { allowedDirectivesSchema, cspAlgorithmSchema, cspHashSchema } from '../../csp/config.js';
+import { CacheSchema } from '../../cache/config.js';
 import { SessionSchema } from '../../session/config.js';
 
 // The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
@@ -493,6 +494,7 @@ export const AstroConfigSchema = z.object({
 				.union([z.boolean(), z.custom<SvgoConfig>((value) => value && typeof value === 'object')])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.svgo),
+			cache: CacheSchema.optional(),
 		})
 		.prefault({}),
 	legacy: z

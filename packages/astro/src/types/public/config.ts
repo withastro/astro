@@ -2763,6 +2763,55 @@ export interface AstroUserConfig<
 		 * See the [experimental SVGO optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
 		 */
 		svgo?: boolean | SvgoConfig;
+
+		/**
+		 * @name experimental.cache
+		 * @type {object}
+		 * @default `undefined`
+		 * @description
+		 *
+		 * Enables route caching for SSR responses. Provides a platform-agnostic API
+		 * for caching rendered pages and API responses, with pluggable providers
+		 * that adapters can configure automatically.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * {
+		 *   experimental: {
+		 *     cache: {
+		 *       routes: {
+		 *         '/blog/[...path]': { maxAge: 300, swr: 60 },
+		 *       },
+		 *     },
+		 *   },
+		 * }
+		 * ```
+		 *
+		 * Use `Astro.cache.set()` in routes and `context.cache.set()` in middleware
+		 * or API routes to control caching per-request.
+		 */
+		cache?: {
+			/**
+			 * @name experimental.cache.driver
+			 * @type {import('../../core/cache/types.js').CacheDriverConfig}
+			 * @description
+			 *
+			 * The cache provider driver. Adapters typically set a default, but you can
+			 * override it with your own. Can be a string (package name or path) or an
+			 * object with `entrypoint` and optional `config`.
+			 */
+			driver?: string | import('../../core/cache/types.js').CacheDriverConfig;
+
+			/**
+			 * @name experimental.cache.routes
+			 * @type {Record<string, { maxAge?: number; swr?: number; tags?: string[] }>}
+			 * @description
+			 *
+			 * Route patterns mapped to default cache options. Uses the same `[param]`
+			 * and `[...rest]` syntax as file-based routing.
+			 */
+			routes?: Record<string, { maxAge?: number; swr?: number; tags?: string[] }>;
+		};
 	};
 }
 
