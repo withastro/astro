@@ -582,7 +582,17 @@ export class RenderContext {
 			serverIslandNameMap: this.serverIslands.serverIslandNameMap ?? new Map(),
 			key: manifest.key,
 			trailingSlash: manifest.trailingSlash,
-			_experimentalQueuedRendering: manifest.experimentalQueuedRendering,
+			_experimentalQueuedRendering: manifest.experimentalQueuedRendering ? true : undefined,
+			_experimentalQueuedRenderingConfig: manifest.experimentalQueuedRendering
+				? typeof manifest.experimentalQueuedRendering === 'object'
+					? {
+						poolSize: manifest.experimentalQueuedRendering.poolSize,
+						disablePooling: pipeline.getName() === 'AppPipeline', // Disable pooling in SSR
+					}
+					: {
+						disablePooling: pipeline.getName() === 'AppPipeline', // Disable pooling in SSR
+					}
+				: undefined,
 			_metadata: {
 				hasHydrationScript: false,
 				rendererSpecificHydrationScripts: new Set(),
