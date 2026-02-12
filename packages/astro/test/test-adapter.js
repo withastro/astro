@@ -152,6 +152,7 @@ export default function ({
 	};
 }
 
+/** @returns {import('astro').AstroIntegration} */
 export function selfTestAdapter({
 	provideAddress = true,
 	staticHeaders = false,
@@ -167,11 +168,6 @@ export function selfTestAdapter({
 			'astro:config:setup': ({ updateConfig }) => {
 				updateConfig({
 					vite: {
-						build: {
-							rollupOptions: {
-								input: '@my-ssr',
-							},
-						},
 						plugins: [
 							{
 								resolveId: {

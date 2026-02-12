@@ -1,5 +1,24 @@
 # @astrojs/markdoc
 
+## 1.0.0-beta.9
+
+### Minor Changes
+
+- [#15345](https://github.com/withastro/astro/pull/15345) [`840fbf9`](https://github.com/withastro/astro/commit/840fbf9e4abc7f847e23da8d67904ffde4d95fff) Thanks [@matthewp](https://github.com/matthewp)! - Uses Astro's new `emitClientAsset` API for image emission in content collections
+
+### Patch Changes
+
+- Updated dependencies [[`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3), [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da)]:
+  - @astrojs/internal-helpers@0.8.0-beta.1
+  - @astrojs/markdown-remark@7.0.0-beta.6
+
+## 1.0.0-beta.8
+
+### Patch Changes
+
+- Updated dependencies [[`80f0225`](https://github.com/withastro/astro/commit/80f022559e81b5609a69ba31c7f0d93dcb0bf74d)]:
+  - @astrojs/markdown-remark@7.0.0-beta.5
+
 ## 1.0.0-beta.7
 
 ### Patch Changes

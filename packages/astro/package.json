@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "6.0.0-beta.7",
+  "version": "6.0.0-beta.11",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -52,6 +52,9 @@
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",
     "./app/entrypoint": "./dist/core/app/entrypoint.js",
+    "./app/entrypoint/dev": "./dist/core/app/entrypoint/dev.js",
+    "./app/entrypoint/prod": "./dist/core/app/entrypoint/prod.js",
+    "./app/manifest": "./dist/core/app/manifest.js",
     "./entrypoints/prerender": "./dist/entrypoints/prerender.js",
     "./entrypoints/legacy": "./dist/entrypoints/legacy.js",
     "./client/*": "./dist/runtime/client/*",
@@ -113,7 +116,7 @@
     "test:integration": "astro-scripts test \"test/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/compiler": "0.0.0-render-script-20251003120459",
+    "@astrojs/compiler": "^3.0.0-beta.0",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",

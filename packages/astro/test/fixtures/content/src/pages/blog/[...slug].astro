@@ -1,0 +1,23 @@
+---
+import { getEntry, render } from "astro:content";
+import BlogLayout from "../../components/BlogLayout.astro";
+import { routes } from "../../libs/routes";
+
+export function getStaticPaths() {
+	return [routes.map((route) => ({ params: { slug: route.id } }))].flat();
+}
+
+const { slug } = Astro.params;
+
+const entry = await getEntry("blog", slug);
+
+if (!entry) {
+	throw new Error(`Entry not found for slug: ${slug}`);
+}
+
+const { Content } = await render(entry)
+---
+
+<BlogLayout title="Article Page">
+	<Content />
+</BlogLayout>

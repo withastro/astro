@@ -110,7 +110,6 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	}
 
 	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
-		console.log(this.manifest.csp);
 		this.currentRenderContext = await super.createRenderContext({
 			...payload,
 			pathname: this.resolvedPathname ?? payload.pathname,

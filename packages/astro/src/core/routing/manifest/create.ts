@@ -13,6 +13,7 @@ import type { RouteData, RoutePart } from '../../../types/public/internal.js';
 import { toRoutingStrategy } from '../../app/index.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import {
+	InvalidRedirectDestination,
 	MissingIndexForInternationalization,
 	UnsupportedExternalRedirect,
 } from '../../errors/errors-data.js';
@@ -360,6 +361,23 @@ function createRedirectRoutes(
 			});
 		}
 
+		const redirectRoute = routeMap.get(destination);
+
+		// If the source has dynamic params and the redirect will be prerendered,
+		// we need a valid redirectRoute to map them. Without it, the build will fail
+		// later with a misleading error. Catch this early and provide a clear error message.
+		if (
+			params.length > 0 &&
+			!redirectRoute &&
+			!URL.canParse(destination) &&
+			getPrerenderDefault(config)
+		) {
+			throw new AstroError({
+				...InvalidRedirectDestination,
+				message: InvalidRedirectDestination.message(from, destination),
+			});
+		}
+
 		routes.push({
 			type: 'redirect',
 			// For backwards compatibility, a redirect is never considered an index route.
@@ -372,7 +390,7 @@ function createRedirectRoutes(
 			pathname: pathname || void 0,
 			prerender: getPrerenderDefault(config),
 			redirect: to,
-			redirectRoute: routeMap.get(destination),
+			redirectRoute,
 			fallbackRoutes: [],
 			distURL: [],
 			origin: 'project',

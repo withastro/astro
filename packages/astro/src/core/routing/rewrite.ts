@@ -111,12 +111,13 @@ export function findRouteToRewrite({
 				route.distURL.length !== 0
 			) {
 				// Remove outDir from beginning of distURL
-				// Remove /index.html or .html from end of distURL and compare with decodedPathname
+				// Remove /index.html or .html from end of distURL and compare with pathname
+				// Use pathname (encoded) instead of decodedPathname because url.href is encoded
 				if (
 					!route.distURL.find(
 						(url) =>
 							url.href.replace(outDir.toString(), '').replace(/(?:\/index\.html|\.html)$/, '') ==
-							trimSlashes(decodedPathname),
+							trimSlashes(pathname),
 					)
 				) {
 					continue;
