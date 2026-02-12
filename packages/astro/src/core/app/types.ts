@@ -109,6 +109,11 @@ export type SSRManifest = {
 	buildClientDir: URL;
 	buildServerDir: URL;
 	csp: SSRManifestCSP | undefined;
+	image: {
+		objectFit?: string;
+		objectPosition?: string;
+		layout?: string;
+	};
 	shouldInjectCspMetaTags: boolean;
 	devToolbar: {
 		// This should always be false in prod/SSR
