@@ -1,7 +1,7 @@
 import path from 'node:path';
 import url from 'node:url';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
-import type { Config } from './vite-plugin-config.js';
+import type { Options } from './types.js';
 
 export const STATIC_HEADERS_FILE = '_headers.json';
 
@@ -11,7 +11,7 @@ export const STATIC_HEADERS_FILE = '_headers.json';
  * At build time, we know the relative path between server and client directories.
  * At runtime, we need to find the actual location based on where the server entry is running.
  */
-export function resolveClientDir(options: Pick<Config, 'client' | 'server'>) {
+export function resolveClientDir(options: Pick<Options, 'client' | 'server'>) {
 	// options.client and options.server are file:// URLs set at build time
 	// e.g., "file:///project/dist/client/" and "file:///project/dist/server/"
 	const clientURLRaw = new URL(options.client);

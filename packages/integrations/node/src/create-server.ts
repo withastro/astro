@@ -1,4 +1,4 @@
-import type { Config } from './vite-plugin-config.js';
+import type { Options } from './types.js';
 import * as http from 'node:http';
 import * as https from 'node:https';
 import enableDestroy from 'server-destroy';
@@ -6,7 +6,7 @@ import * as fs from 'node:fs';
 import type { PreviewServer } from 'astro';
 
 // Used to get Host Value at Runtime
-export function hostOptions(host: Config['host']): string {
+export function hostOptions(host: Options['host']): string {
 	if (typeof host === 'boolean') {
 		return host ? '0.0.0.0' : 'localhost';
 	}

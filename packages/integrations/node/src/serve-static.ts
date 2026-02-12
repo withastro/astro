@@ -9,7 +9,7 @@ import type * as http from 'node:http';
 import * as path from 'node:path';
 import send from 'send';
 import { resolveClientDir } from './shared.js';
-import type { Config } from './vite-plugin-config.js';
+import type { Options } from './types.js';
 
 /**
  * Creates a Node.js http listener for static files and prerendered pages.
@@ -22,7 +22,7 @@ export function createStaticHandler({
 	trailingSlash,
 	assets,
 	...rest
-}: Pick<Config, 'trailingSlash' | 'assets' | 'server' | 'client'> & { app: NodeApp }) {
+}: Pick<Options, 'trailingSlash' | 'assets' | 'server' | 'client'> & { app: NodeApp }) {
 	const client = resolveClientDir(rest);
 	/**
 	 * @param ssr The SSR handler to be called if the static handler does not find a matching file.

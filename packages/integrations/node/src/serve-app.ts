@@ -1,6 +1,5 @@
 import { NodeApp } from 'astro/app/node';
-import type { Config } from './vite-plugin-config.js';
-import type { RequestHandler } from './types.js';
+import type { RequestHandler, Options } from './types.js';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { resolveClientDir } from './shared.js';
 import * as path from 'node:path';
@@ -48,7 +47,7 @@ export function createAppHandler({
 	app,
 	experimentalErrorPageHost,
 	...options
-}: Pick<Config, 'experimentalErrorPageHost' | 'server' | 'client'> & {
+}: Pick<Options, 'experimentalErrorPageHost' | 'server' | 'client'> & {
 	app: NodeApp;
 }): RequestHandler {
 	/**

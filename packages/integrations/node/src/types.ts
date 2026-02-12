@@ -1,3 +1,4 @@
+import type { AstroConfig } from 'astro';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
 export interface UserOptions {
@@ -25,6 +26,18 @@ export interface UserOptions {
 	 * static files are hosted on a different domain. Do not include a path in the URL: it will be ignored.
 	 */
 	experimentalErrorPageHost?: string | URL;
+}
+
+export interface Options {
+	experimentalDisableStreaming: boolean;
+	port: number;
+	host: string | boolean;
+	experimentalErrorPageHost: string | undefined;
+	trailingSlash: AstroConfig['trailingSlash'];
+	assets: string;
+	server: string;
+	client: string;
+	staticHeaders: boolean;
 }
 
 export type RequestHandler = (
