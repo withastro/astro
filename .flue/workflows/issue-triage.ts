@@ -99,13 +99,17 @@ Return only "yes" or "no" inside the ---RESULT_START--- / ---RESULT_END--- block
 	// - create a PR from that branch entirely in the GH UI
 	// - ignore it completely
 	if (fixResult.fixed) {
+		// Check if the fix skill left uncommitted changes in packages/
 		const status = await flue.shell('git status --porcelain');
+		// TODO: Assert flue.branch
 		if (status.stdout.trim()) {
+			await flue.shell(`git checkout -B ${flue.branch}`);
 			await flue.shell('git add -A');
+			// TODO: we should add comments to flue.shell internally, to find out why nothing happened.
 			await flue.shell(
 				`git commit -m ${JSON.stringify(fixResult.commitMessage ?? 'fix(auto-triage): automated fix')}`,
 			);
-			const pushResult = await flue.shell(`git push origin HEAD:refs/heads/${flue.branch}`);
+			const pushResult = await flue.shell(`git push -f origin ${flue.branch}`);
 			console.info('push result:', pushResult);
 			isPushed = pushResult.exitCode === 0;
 		}

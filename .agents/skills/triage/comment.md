@@ -25,30 +25,20 @@ If `report.md` is missing or empty, generate a minimal comment (see "Fallback" s
 
 ## Step 2: Generate Comment
 
-Generate and return a GitHub comment following this template. Adapt it to fit the findings:
+Generate and return a GitHub comment following the template below.
 
-- Include only the sections that are relevant to what was discovered
-- If the issue could NOT be reproduced, omit the fix-related sections
-- If no fix was developed, omit the "How to Fix" section or replace its content with a brief note explaining why
-- Add or remove subsections as needed to clearly communicate findings
+### Special Cases
 
-Keep it concise:
-
-- Summary section: One sentence per bold field
-- Use collapsible `<details>` sections for longer content
-- Include exact versions, commands, and file paths where relevant
-
-Format requirements:
-
-- Code blocks: Use appropriate language hints (bash, typescript, diff, patch, etc.)
-- Patches: Use ```diff for maintainer patches
+- **If the user is on a different major version than the current monorepo, and the issue could not be reproduced in the current monorepo:** In the "Fix" section of your comment, the best guidance you can provide is to suggest that the user upgrade to that newer major version to fix their issue, even if that newer major version is a beta release. Link to the relevant upgrade guide:
+  - v6: https://v6.docs.astro.build/en/guides/upgrade-to/v6/
+  - v5: https://docs.astro.build/en/guides/upgrade-to/v5/
 
 ### Template
 
 ```markdown
 **[I was able to reproduce this issue. / I was unable to reproduce this issue.]** [1-2 sentences describing the result and key observations.]
 
-**Fix:** [If `branchName` arg is non-null, include: [Create PR](https://github.com/withastro/astro/compare/{branchName}?expand=1)] **[I was able to fix this issue. / I was unable to fix this issue.]** [1-2 sentences describing the solution and key observations. Even if no fix was created, you can still use this space to give guidance or "a best guess" at where the fix might be.]
+**Fix:** [If `branchName` arg is non-null, include: [Create PR](https://github.com/withastro/astro/compare/{branchName}?expand=1)] **[I was able to fix this issue. / I was unable to fix this issue]** [1-2 sentences describing the solution and key observations. Even if no fix was created, you can still use this space to give guidance or "a best guess" at where the fix might be.]
 
 **Cause:** [Single sentence explaining the root cause - or just the word "Unknown" if not determined.]
 
