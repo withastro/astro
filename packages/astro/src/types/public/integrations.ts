@@ -132,7 +132,10 @@ interface AdapterExplicitProperties {
 /** @deprecated This will be removed in a future major version, alongside `entrypointResolution: 'explicit'` */
 exports?: string[];
 /** @deprecated This will be removed in a future major version, alongside `entrypointResolution: 'explicit'` */
-args?: any;
+	/** @deprecated This will be removed in a future major version, alongside `entrypointResolution: 'explicit'` */
+	exports?: string[];
+	/** @deprecated This will be removed in a future major version, alongside `entrypointResolution: 'explicit'` */
+	args?: any;
 }
 
 interface AdapterAutoProperties {
