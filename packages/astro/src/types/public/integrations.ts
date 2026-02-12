@@ -125,7 +125,7 @@ interface AdapterExplicitProperties {
 	 * - `'auto'`: The adapter defines its own entrypoint and provides either serverEntrypoint or rollupOptions.input
 	 * - `'explicit'`: Uses the virtual module entrypoint with dynamic exports
 	 * @default 'explicit'
-	 * @deprecated This will be removed in Astro 7 and `'auto'` will become the default
+	 * @deprecated This will be removed in a future major version and `'auto'` will become the default
 	 */
 	entrypointResolution?: 'explicit';
 	serverEntrypoint?: string | URL;
