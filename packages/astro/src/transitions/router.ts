@@ -83,9 +83,23 @@ if (inBrowser) {
 		scrollTo({ left: history.state.scrollX, top: history.state.scrollY });
 	} else if (transitionEnabledOnThisPage()) {
 		// This page is loaded from the browser address bar or via a link from extern,
-		// it needs a state in the history
-		history.replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
+		// it needs a state in the history.
+		// We defer the replaceState call to the first user interaction to ensure
+		// user activation is present. Without user activation, some browsers (e.g.
+		// iOS Chrome/Edge using WKWebView) mark the history entry as "skippable"
+		// and the native back button may skip it or fail to fire popstate events.
 		history.scrollRestoration = 'manual';
+		const setInitialState = () => {
+			if (!history.state) {
+				history.replaceState({ index: currentHistoryIndex, scrollX, scrollY }, '');
+			}
+			removeEventListener('click', setInitialState, true);
+			removeEventListener('keydown', setInitialState, true);
+			removeEventListener('pointerdown', setInitialState, true);
+		};
+		addEventListener('click', setInitialState, { capture: true });
+		addEventListener('keydown', setInitialState, { capture: true });
+		addEventListener('pointerdown', setInitialState, { capture: true });
 	}
 }
 
@@ -603,9 +617,14 @@ function onPopState(ev: PopStateEvent) {
 
 	// History entries without state are created by the browser (e.g. for hash links)
 	// Our view transition entries always have state.
-	// Just ignore stateless entries.
-	// The browser will handle navigation fine without our help
+	// However, if we deferred the initial replaceState and the user navigates back
+	// to the initial entry, ev.state will be null. In that case we should handle
+	// the transition ourselves, as the browser won't update the page content.
 	if (ev.state === null) {
+		if (currentHistoryIndex > 0) {
+			currentHistoryIndex = 0;
+			transition('back', originalLocation, new URL(location.href), {});
+		}
 		return;
 	}
 	const state: State = history.state;
