@@ -1,5 +1,5 @@
 {
-  "name": "benchmark-queue-build",
+  "name": "benchmark-queue-build-static",
   "version": "1.0.0",
   "type": "module",
   "description": "Queue rendering build benchmark",

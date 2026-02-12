@@ -2766,7 +2766,7 @@ export interface AstroUserConfig<
 
 		/**
 		 * @name experimental.queuedRendering
-		 * @type {boolean}
+		 * @type {boolean | { poolSize?: number }}
 		 * @default `false`
 		 * @description
 		 * Enable queue-based rendering engine instead of the default recursive rendering.
@@ -2778,6 +2778,7 @@ export interface AstroUserConfig<
 		 * - Build a flat queue of all nodes to render
 		 * - Process components sequentially with reduced stack depth
 		 * - Maintain the same output and streaming behavior as the default renderer
+		 * - Use object pooling to reduce memory allocations
 		 *
 		 * This is particularly beneficial for pages with very deep component nesting (50+ levels).
 		 *
@@ -2789,9 +2790,21 @@ export interface AstroUserConfig<
 		 * }
 		 * ```
 		 *
+		 * You can optionally configure the object pool size (default: 1000):
+		 *
+		 * ```js
+		 * {
+		 *   experimental: {
+		 *     queuedRendering: {
+		 *       poolSize: 500
+		 *     }
+		 *   }
+		 * }
+		 * ```
+		 *
 		 * Note: This is an experimental feature and may have edge cases. Please report any issues you encounter.
 		 */
-		queuedRendering?: boolean;
+		queuedRendering?: boolean | { poolSize?: number };
 	};
 }
 

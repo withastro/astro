@@ -5,8 +5,9 @@ import type { QueueNode, RenderQueue } from './types.js';
 
 /**
  * Renders a queue of nodes to a destination.
- * This function processes nodes sequentially and writes output immediately
- * to maintain streaming behavior.
+ * This function processes nodes sequentially with batching optimization.
+ * Consecutive batchable nodes (text, html-string, simple elements) are
+ * combined into a single write to reduce overhead.
  *
  * @param queue - The render queue to process
  * @param destination - Where to write the output
@@ -16,14 +17,84 @@ export async function renderQueue(
 	destination: RenderDestination,
 ): Promise<void> {
 	const result = queue.result;
+	let batchBuffer = '';
+	let i = 0;
 
-	for (const node of queue.nodes) {
+	while (i < queue.nodes.length) {
+		const node = queue.nodes[i];
+
 		try {
-			await renderNode(node, destination, result);
+			// Check if this node can be batched
+			if (canBatch(node)) {
+				// Accumulate consecutive batchable content
+				while (i < queue.nodes.length && canBatch(queue.nodes[i])) {
+					batchBuffer += renderNodeToString(queue.nodes[i], result);
+					i++;
+				}
+
+				// Flush accumulated batch
+				if (batchBuffer) {
+					destination.write(markHTMLString(batchBuffer));
+					batchBuffer = '';
+				}
+			} else {
+				// Non-batchable node (component, instruction, etc.)
+				// Render it individually to maintain correct streaming behavior
+				await renderNode(node, destination, result);
+				i++;
+			}
 		} catch (error) {
 			// Stop on first error as requested
 			throw error;
 		}
+	}
+
+	// Flush any remaining batched content (shouldn't happen but safety check)
+	if (batchBuffer) {
+		destination.write(markHTMLString(batchBuffer));
+	}
+
+	// Release all nodes back to the pool for reuse (if pooling is enabled)
+	if (queue.pool) {
+		queue.pool.releaseAll(queue.nodes);
+	}
+}
+
+/**
+ * Determines if a node can be batched with adjacent nodes.
+ * Batchable nodes are those that can be rendered synchronously to a string
+ * without requiring async operations or special handling.
+ */
+function canBatch(node: QueueNode): boolean {
+	return (
+		node.type === 'text' ||
+		node.type === 'html-string' ||
+		(node.type === 'element' && !node.hasChildren)
+	);
+}
+
+/**
+ * Renders a batchable node to a string (synchronous).
+ * Only call this for nodes where canBatch() returns true.
+ */
+function renderNodeToString(node: QueueNode, _result: SSRResult): string {
+	switch (node.type) {
+		case 'text':
+			return node.content ? escapeHTML(node.content) : '';
+
+		case 'html-string':
+			return node.html || '';
+
+		case 'element':
+			if (node.tagName && !node.hasChildren) {
+				const attrs = renderAttributes(node.props || {});
+				const content = node.content || '';
+				return `<${node.tagName}${attrs}>${content}</${node.tagName}>`;
+			}
+			return '';
+
+		default:
+			return '';
 	}
 }
 
