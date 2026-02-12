@@ -19,6 +19,8 @@ import type { LoggerLevel } from '../logger/core.js';
 import type { RoutingStrategies } from './common.js';
 import type { BaseSessionConfig, SessionDriverFactory } from '../session/types.js';
 import type { DevToolbarPlacement } from '../../types/public/toolbar.js';
+import type { BaseApp, RenderOptions } from './index.js';
+import type { IncomingMessage } from 'node:http';
 
 type ComponentPath = string;
 
@@ -204,3 +206,26 @@ export type NodeAppHeadersJson = {
 		value: string;
 	}[];
 }[];
+
+/**
+ * Allow the request body to be explicitly overridden. For example, this
+ * is used by the Express JSON middleware.
+ */
+export interface NodeRequest extends IncomingMessage {
+	body?: unknown;
+}
+
+export interface NodeAppDef extends BaseApp {
+	headersMap: NodeAppHeadersJson | undefined;
+	setHeadersMap: (headers: NodeAppHeadersJson) => void;
+	match: (
+		req: NodeRequest | Request,
+		allowPrerenderedRoutes?: boolean,
+	) => ReturnType<BaseApp['match']>;
+	render: (
+		request: NodeRequest | Request,
+		options?: RenderOptions,
+	) => ReturnType<BaseApp['render']>;
+}
+
+export type CreateNodeApp = (streaming?: boolean) => NodeAppDef;
