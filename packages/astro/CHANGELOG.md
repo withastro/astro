@@ -1,5 +1,47 @@
 # astro
 
+## 6.0.0-beta.11
+
+### Major Changes
+
+- [#15180](https://github.com/withastro/astro/pull/15180) [`8780ff2`](https://github.com/withastro/astro/commit/8780ff2926d59ed196c70032d2ae274b8415655c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds support for converting SVGs to raster images (PNGs, WebP, etc) to the default Sharp image service - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-svg-rasterization))
+
+### Minor Changes
+
+- [#15460](https://github.com/withastro/astro/pull/15460) [`ee7e53f`](https://github.com/withastro/astro/commit/ee7e53f9de2338517e149895efd26fca44ad80b6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the Adapter API to allow providing a `serverEntrypoint` when using `entryType: 'self'`
+
+  Astro 6 introduced a new powerful yet simple Adapter API for defining custom server entrypoints. You can now call `setAdapter()` with the `entryType: 'self'` option and specify your custom `serverEntrypoint`:
+
+  ```js
+  export function myAdapter() {
+    return {
+      name: 'my-adapter',
+      hooks: {
+        'astro:config:done': ({ setAdapter }) => {
+          setAdapter({
+            name: 'my-adapter',
+            entryType: 'self',
+            serverEntrypoint: 'my-adapter/server.js',
+            supportedAstroFeatures: {
+              // ...
+            },
+          });
+        },
+      },
+    };
+  }
+  ```
+
+  If you need further customization at the Vite level, you can omit `serverEntrypoint` and instead specify your custom server entrypoint with [`vite.build.rollupOptions.input`](https://rollupjs.org/configuration-options/#input).
+
+### Patch Changes
+
+- [#15454](https://github.com/withastro/astro/pull/15454) [`b47a4e1`](https://github.com/withastro/astro/commit/b47a4e19a0b0b7e57068add94adc01c88d380fa8) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes a race condition in the content layer which could result in dropped content collection entries.
+
+- [#15450](https://github.com/withastro/astro/pull/15450) [`50c9129`](https://github.com/withastro/astro/commit/50c912978cca4afbe4b3ebd11c30305d5e9c8315) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `build.serverEntry` would not be respected when using the new Adapter API
+
+- [#15473](https://github.com/withastro/astro/pull/15473) [`d653b86`](https://github.com/withastro/astro/commit/d653b864252e0b39a3774f0e1ecf4b7b69851288) Thanks [@matthewp](https://github.com/matthewp)! - Improves Host header handling for SSR deployments behind proxies
+
 ## 6.0.0-beta.10
 
 ### Minor Changes

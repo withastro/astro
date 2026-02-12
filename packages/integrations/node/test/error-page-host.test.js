@@ -1,8 +1,26 @@
 import * as assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { after, before, describe, it } from 'node:test';
 import node from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
+
+/**
+ * Integration that removes prerendered error pages after build.
+ * This forces the fallback to experimentalErrorPageHost.
+ */
+function removeErrorPages() {
+	return {
+		name: 'remove-error-pages',
+		hooks: {
+			'astro:build:done': async ({ dir }) => {
+				// dir already points to the client output directory
+				await fs.unlink(new URL('404.html', dir));
+				await fs.unlink(new URL('500.html', dir));
+			},
+		},
+	};
+}
 
 describe('Prerendered error page host', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -38,6 +56,7 @@ describe('Prerendered error page host', () => {
 		fixture = await loadFixture({
 			root: './fixtures/prerender-error-page/',
 			adapter: node({ experimentalErrorPageHost: 'http://localhost:3030' }),
+			integrations: [removeErrorPages()],
 		});
 		await fixture.build();
 		devPreview = await fixture.preview();

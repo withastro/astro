@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 10.0.0-beta.4
+
+### Patch Changes
+
+- [#15473](https://github.com/withastro/astro/pull/15473) [`d653b86`](https://github.com/withastro/astro/commit/d653b864252e0b39a3774f0e1ecf4b7b69851288) Thanks [@matthewp](https://github.com/matthewp)! - Improves error page loading to read from disk first before falling back to configured host
+
 ## 10.0.0-beta.3
 
 ### Patch Changes

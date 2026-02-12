@@ -654,11 +654,6 @@ export default function netlifyIntegration(
 								ignored: [fileURLToPath(new URL('./.netlify/**', rootDir))],
 							},
 						},
-						build: {
-							rollupOptions: {
-								input: '@astrojs/netlify/ssr-function.js',
-							},
-						},
 					},
 					image: {
 						service: {
@@ -688,6 +683,7 @@ export default function netlifyIntegration(
 				setAdapter({
 					name: '@astrojs/netlify',
 					entryType: 'self',
+					serverEntrypoint: '@astrojs/netlify/ssr-function.js',
 					adapterFeatures: {
 						edgeMiddleware: useEdgeMiddleware,
 						staticHeaders: useStaticHeaders,
