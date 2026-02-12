@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { Worker, type WorkerOptions } from 'node:worker_threads';
+import { Worker } from 'node:worker_threads';
 import type {
 	PrerenderWorkerInitMessage,
 	PrerenderWorkerGetStaticPathsMessage,
@@ -42,9 +42,7 @@ export class PrerenderWorkerPool {
 
 	constructor(size: number) {
 		for (let i = 0; i < size; i++) {
-			const worker = new Worker(new URL('./prerender-worker.js', import.meta.url), {
-				type: 'module',
-			} as WorkerOptions);
+			const worker = new Worker(new URL('./prerender-worker.js', import.meta.url));
 			const slot: WorkerSlot = { worker, busy: false };
 			worker.on('message', (message: PrerenderWorkerOutgoingMessage) => {
 				this.handleWorkerMessage(slot, message);

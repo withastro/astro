@@ -1,6 +1,6 @@
 import type { ImageTransform } from '../../assets/types.js';
 
-export interface SerializedAssetTransform {
+interface SerializedAssetTransform {
 	hash: string;
 	finalPath: string;
 	transform: ImageTransform;

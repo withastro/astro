@@ -2,7 +2,7 @@ import os from 'node:os';
 
 export type BuildConcurrency = number | 'auto' | undefined;
 
-export function getAutoConcurrency(): number {
+function getAutoConcurrency(): number {
 	// Use available CPU count for default parallelism.
 	return Math.max(1, os.cpus().length || 1);
 }

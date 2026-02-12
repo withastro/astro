@@ -5,7 +5,7 @@ import type { SerializedAssetsPayload } from './prerender-assets.js';
 import type { AstroSettings, RoutesList } from '../../types/astro.js';
 import type { RuntimeMode } from '../../types/public/config.js';
 
-export interface WorkerSettings extends Pick<AstroSettings, 'scripts'> {}
+export type WorkerSettings = Pick<AstroSettings, 'scripts'>;
 
 export interface WorkerBuildOptions {
 	settings: WorkerSettings;
