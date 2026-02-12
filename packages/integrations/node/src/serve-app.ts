@@ -43,13 +43,10 @@ async function readErrorPageFromDisk(
  * If the next callback is provided, it will be called if the request does not have a matching route.
  * Intended to be used in both standalone and middleware mode.
  */
-export function createAppHandler({
-	app,
-	experimentalErrorPageHost,
-	...options
-}: Pick<Options, 'experimentalErrorPageHost' | 'server' | 'client'> & {
-	app: NodeApp;
-}): RequestHandler {
+export function createAppHandler(
+	app: NodeApp,
+	options: Pick<Options, 'experimentalErrorPageHost' | 'server' | 'client'>,
+): RequestHandler {
 	/**
 	 * Keep track of the current request path using AsyncLocalStorage.
 	 * Used to log unhandled rejections with a helpful message.
@@ -76,8 +73,8 @@ export function createAppHandler({
 			if (response) return response;
 		}
 		// Fallback: if experimentalErrorPageHost is configured, fetch from there
-		if (experimentalErrorPageHost) {
-			const originUrl = new URL(experimentalErrorPageHost);
+		if (options.experimentalErrorPageHost) {
+			const originUrl = new URL(options.experimentalErrorPageHost);
 			const errorPageUrl = new URL(url);
 			errorPageUrl.protocol = originUrl.protocol;
 			errorPageUrl.host = originUrl.host;
@@ -118,7 +115,10 @@ export function createAppHandler({
 		} else if (next) {
 			return next();
 		} else {
-			const response = await app.render(req, { addCookieHeader: true, prerenderedErrorPageFetch });
+			const response = await app.render(req, {
+				addCookieHeader: true,
+				prerenderedErrorPageFetch,
+			});
 			await NodeApp.writeResponse(response, res);
 		}
 	};

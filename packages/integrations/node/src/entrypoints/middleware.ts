@@ -8,12 +8,7 @@ import { createAppHandler } from '../serve-app.js';
 setGetEnv((key) => process.env[key]);
 
 const app = new NodeApp(manifest, !options.experimentalDisableStreaming);
-const appHandler = createAppHandler({
-	app,
-	experimentalErrorPageHost: options.experimentalErrorPageHost,
-	client: options.client,
-	server: options.server,
-});
+const appHandler = createAppHandler(app, options);
 const logger = app.getAdapterLogger();
 
 export const ssrHandler: RequestHandler = async (...args) => {

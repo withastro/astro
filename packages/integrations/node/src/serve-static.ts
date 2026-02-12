@@ -5,7 +5,7 @@ import {
 } from '@astrojs/internal-helpers/path';
 import type { NodeApp } from 'astro/app/node';
 import * as fs from 'node:fs';
-import type * as http from 'node:http';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import * as path from 'node:path';
 import send from 'send';
 import { resolveClientDir } from './shared.js';
@@ -17,17 +17,15 @@ import type { Options } from './types.js';
  * If one matching the request path is not found, it relegates to the SSR handler.
  * Intended to be used only in the standalone mode.
  */
-export function createStaticHandler({
-	app,
-	trailingSlash,
-	assets,
-	...rest
-}: Pick<Options, 'trailingSlash' | 'assets' | 'server' | 'client'> & { app: NodeApp }) {
-	const client = resolveClientDir(rest);
+export function createStaticHandler(
+	app: NodeApp,
+	options: Pick<Options, 'trailingSlash' | 'assets' | 'server' | 'client'>,
+) {
+	const client = resolveClientDir(options);
 	/**
 	 * @param ssr The SSR handler to be called if the static handler does not find a matching file.
 	 */
-	return (req: http.IncomingMessage, res: http.ServerResponse, ssr: () => unknown) => {
+	return (req: IncomingMessage, res: ServerResponse, ssr: () => unknown) => {
 		if (req.url) {
 			// There might be cases where the incoming URL has the #, which we want to remove.
 			let fullUrl = req.url;
@@ -58,7 +56,7 @@ export function createStaticHandler({
 				}
 			}
 
-			switch (trailingSlash) {
+			switch (options.trailingSlash) {
 				case 'never': {
 					if (isDirectory && urlPath !== '/' && hasSlash) {
 						pathname = urlPath.slice(0, -1) + (urlQuery ? '?' + urlQuery : '');
@@ -110,9 +108,9 @@ export function createStaticHandler({
 				// File not found, forward to the SSR handler
 				ssr();
 			});
-			stream.on('headers', (_res: http.ServerResponse) => {
+			stream.on('headers', (_res: ServerResponse) => {
 				// assets in dist/_astro are hashed and should get the immutable header
-				if (pathname.startsWith(`/${assets}/`)) {
+				if (pathname.startsWith(`/${options.assets}/`)) {
 					// This is the "far future" cache header, used for static files whose name includes their digest hash.
 					// 1 year (31,536,000 seconds) is convention.
 					// Taken from https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#immutable

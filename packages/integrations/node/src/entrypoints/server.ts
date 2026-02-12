@@ -43,7 +43,7 @@ export function startServer() {
 	const port = process.env.PORT ? Number(process.env.PORT) : options.port;
 	const host = process.env.HOST ?? hostOptions(options.host);
 
-	const server = createServer(createStandaloneHandler({ app, ...options }), host, port);
+	const server = createServer(createStandaloneHandler(app, options), host, port);
 	server.server.listen(port, host);
 	if (process.env.ASTRO_NODE_LOGGING !== 'disabled') {
 		logListeningOn(app.getAdapterLogger(), server.server, host);
@@ -58,4 +58,4 @@ if (process.env.ASTRO_NODE_AUTOSTART !== 'disabled') {
 	startServer();
 }
 
-export const handler = createStandaloneHandler({ app, ...options });
+export const handler = createStandaloneHandler(app, options);
