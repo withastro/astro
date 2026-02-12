@@ -30,15 +30,6 @@ export type Options = {
 	imageService?: ImageService;
 
 	/**
-	 * Allow bundling cloudflare worker specific file types as importable modules. Defaults to true.
-	 * When enabled, allows imports of '.wasm', '.bin', and '.txt' file types
-	 *
-	 * See https://developers.cloudflare.com/pages/functions/module-support/
-	 * for reference on how these file types are exported
-	 */
-	cloudflareModules?: boolean;
-
-	/**
 	 * By default, Astro will be configured to use Cloudflare KV to store session data. The KV namespace
 	 * will be automatically provisioned when you deploy.
 	 *
