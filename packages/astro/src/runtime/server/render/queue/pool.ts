@@ -9,7 +9,7 @@ import type { QueueNode } from './types.js';
  */
 export class QueueNodePool {
 	private pool: QueueNode[] = [];
-	private contentCache: Map<string, QueueNode> = new Map();
+	private contentCache = new Map<string, QueueNode>();
 	public readonly maxSize: number;
 	private readonly enableStats: boolean;
 	private readonly enableContentCache: boolean;
@@ -58,16 +58,15 @@ export class QueueNodePool {
 					this.stats.contentCacheHit = this.stats.contentCacheHit + 1;
 				}
 				// Clone the cached node to avoid shared state
-				// This allows the builder to modify parent/originalValue without affecting the cache
-				const clone: QueueNode = {
-					type: cached.type,
-					content: cached.content,
-					html: cached.html,
-					parent: undefined,
-					originalValue: undefined,
-					position: undefined,
-				};
-				return clone;
+				// TypeScript knows cached is either TextNode or HtmlStringNode
+				if (cached.type === 'text') {
+					return { type: 'text', content: cached.content };
+				} else if (cached.type === 'html-string') {
+					return { type: 'html-string', html: cached.html };
+				} else {
+					// Should never happen - content cache only stores text/html-string
+					throw new Error(`Unexpected cached node type: ${cached.type}`);
+				}
 			}
 
 			// Cache miss - create template node and cache it
@@ -76,62 +75,58 @@ export class QueueNodePool {
 			}
 
 			// Create immutable template node for caching
-			const template: QueueNode = {
-				type,
-				content: type === 'text' ? content : undefined,
-				html: type === 'html-string' ? content : undefined,
-			};
+			const template: QueueNode =
+				type === 'text'
+					? { type: 'text', content: content }
+					: { type: 'html-string', html: content };
 
 			// Cache the template for future reuse
 			this.contentCache.set(cacheKey, template);
 
 			// Return a clone for use
-			return {
-				type: template.type,
-				content: template.content,
-				html: template.html,
-				parent: undefined,
-				originalValue: undefined,
-				position: undefined,
-			};
+			if (type === 'text') {
+				return { type: 'text', content: content };
+			} else {
+				return { type: 'html-string', html: content };
+			}
 		}
 
 		// Standard pooling (no content caching)
-		const node = this.pool.pop();
+		const pooledNode = this.pool.pop();
 
-		if (node) {
+		if (pooledNode) {
 			if (this.enableStats) {
 				this.stats.acquireFromPool = this.stats.acquireFromPool + 1;
 			}
 
-			// Reset all fields to ensure clean state
-			// This prevents stale field values from interfering with V8's memory management
-			node.type = type;
-			node.parent = undefined;
-			node.children = undefined;
-			node.factory = undefined;
-			node.instance = undefined;
-			node.isPropagator = undefined;
-			node.displayName = undefined;
-			node.promise = undefined;
-			node.resolved = undefined;
-			node.resolvedValue = undefined;
-			node.content = undefined;
-			node.html = undefined;
-			node.instruction = undefined;
-			node.slotName = undefined;
-			node.slotFn = undefined;
-			node.originalValue = undefined;
-			node.position = undefined;
-
-			return node;
+			// Recreate node with correct type to match discriminated union
+			// We can't just mutate fields since each node type has different shape
+			if (type === 'text') {
+				return { type: 'text', content: '' };
+			} else if (type === 'html-string') {
+				return { type: 'html-string', html: '' };
+			} else if (type === 'component') {
+				return { type: 'component', instance: undefined as any };
+			} else {
+				return { type: 'instruction', instruction: undefined as any };
+			}
 		}
 
 		// Pool is empty, create new node
 		if (this.enableStats) {
 			this.stats.acquireNew = this.stats.acquireNew + 1;
 		}
-		return { type } as QueueNode;
+
+		// Create node with correct shape for discriminated union
+		if (type === 'text') {
+			return { type: 'text', content: '' };
+		} else if (type === 'html-string') {
+			return { type: 'html-string', html: '' };
+		} else if (type === 'component') {
+			return { type: 'component', instance: undefined as any };
+		} else {
+			return { type: 'instruction', instruction: undefined as any };
+		}
 	}
 
 	/**
@@ -187,11 +182,10 @@ export class QueueNodePool {
 			// Only warm cache if not already present
 			const cacheKey = `${type}:${content}`;
 			if (!this.contentCache.has(cacheKey)) {
-				const template: QueueNode = {
-					type,
-					content: type === 'text' ? content : undefined,
-					html: type === 'html-string' ? content : undefined,
-				};
+				const template: QueueNode =
+					type === 'text'
+						? { type: 'text', content: content }
+						: { type: 'html-string', html: content };
 				this.contentCache.set(cacheKey, template);
 			}
 		}
