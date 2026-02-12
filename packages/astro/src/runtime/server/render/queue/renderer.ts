@@ -152,44 +152,5 @@ async function renderNode(
 			}
 			break;
 		}
-
-		case 'fragment': {
-			// Fragments don't render anything themselves
-			// Their children are rendered separately
-			break;
-		}
-
-		case 'slot': {
-			// Render slot content
-			if (node.slotFn) {
-				const slotContent = await node.slotFn(result);
-				// Process the slot content
-				if (slotContent) {
-					destination.write(markHTMLString(String(slotContent)));
-				}
-			}
-			break;
-		}
-
-		case 'async-boundary': {
-			// This should have been resolved during queue building
-			if (!node.resolved && node.promise) {
-				// Fallback: resolve now if somehow not resolved
-				const resolved = await node.promise;
-				destination.write(markHTMLString(String(resolved)));
-			} else if (node.resolvedValue) {
-				destination.write(markHTMLString(String(node.resolvedValue)));
-			}
-			break;
-		}
-
-		default: {
-			// Unknown node type - try to convert to string
-			console.warn(`[queue-renderer] Unknown node type: ${node.type}`);
-			if (node.originalValue != null) {
-				destination.write(markHTMLString(String(node.originalValue)));
-			}
-			break;
-		}
 	}
 }

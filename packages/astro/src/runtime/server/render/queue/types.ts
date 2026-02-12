@@ -1,111 +1,45 @@
 import type { SSRResult } from '../../../../types/public/internal.js';
 import type { AstroComponentInstance } from '../astro/instance.js';
-import type { AstroComponentFactory } from '../astro/factory.js';
 import type { RenderInstruction } from '../instruction.js';
 import type { ServerIslandComponent } from '../server-islands.js';
 
 /**
- * Represents a node in the render queue.
- * Each node knows its type, parent, and relevant data for rendering.
+ * Text node containing plain text content that will be HTML-escaped during rendering
  */
-export interface QueueNode {
-	/**
-	 * The type of node determines how it will be rendered
-	 */
-	type:
-		| 'text' // Plain text content
-		| 'component' // Astro component
-		| 'fragment' // Fragment (no wrapper)
-		| 'instruction' // Render instruction (head, hydration, etc)
-		| 'slot' // Slot content
-		| 'html-string' // Pre-rendered HTML string
-		| 'async-boundary'; // Async component boundary
-
-	/**
-	 * Parent node for tracking nesting relationships.
-	 * Used to properly close tags and maintain structure.
-	 */
-	parent?: QueueNode;
-
-	/**
-	 * Children nodes (for container types)
-	 */
-	children?: QueueNode[];
-
-	// ============ Component-specific fields ============
-	/**
-	 * Component factory (for type: 'component')
-	 */
-	factory?: AstroComponentFactory;
-
-	/**
-	 * Component instance (for type: 'component')
-	 */
-	instance?: AstroComponentInstance | ServerIslandComponent;
-
-	/**
-	 * Whether this component is a propagator (needs head content)
-	 */
-	isPropagator?: boolean;
-
-	/**
-	 * Display name for debugging
-	 */
-	displayName?: string;
-
-	// ============ Async-specific fields ============
-	/**
-	 * Promise to resolve (for type: 'async-boundary')
-	 */
-	promise?: Promise<any>;
-
-	/**
-	 * Whether the async node has been resolved
-	 */
-	resolved?: boolean;
-
-	/**
-	 * Resolved value from the promise
-	 */
-	resolvedValue?: any;
-
-	// ============ Content fields ============
-	/**
-	 * Text content (for type: 'text')
-	 */
-	content?: string;
-
-	/**
-	 * Pre-rendered HTML (for type: 'html-string')
-	 */
-	html?: string;
-
-	/**
-	 * Render instruction (for type: 'instruction')
-	 */
-	instruction?: RenderInstruction;
-
-	/**
-	 * Slot name (for type: 'slot')
-	 */
-	slotName?: string;
-
-	/**
-	 * Slot function (for type: 'slot')
-	 */
-	slotFn?: (result: SSRResult) => any;
-
-	// ============ Metadata ============
-	/**
-	 * Original value that created this node (for debugging)
-	 */
-	originalValue?: any;
-
-	/**
-	 * Position in the queue (for debugging and error reporting)
-	 */
-	position?: number;
+export interface TextNode {
+	type: 'text';
+	content: string;
 }
+
+/**
+ * HTML string node containing pre-rendered HTML markup that is already safe
+ */
+export interface HtmlStringNode {
+	type: 'html-string';
+	html: string;
+}
+
+/**
+ * Component node containing an Astro component instance to be rendered
+ */
+export interface ComponentNode {
+	type: 'component';
+	instance: AstroComponentInstance | ServerIslandComponent;
+}
+
+/**
+ * Instruction node containing rendering instructions (head content, hydration scripts, etc.)
+ */
+export interface InstructionNode {
+	type: 'instruction';
+	instruction: RenderInstruction;
+}
+
+/**
+ * Discriminated union of all queue node types.
+ * TypeScript will narrow the type based on the 'type' field.
+ */
+export type QueueNode = TextNode | HtmlStringNode | ComponentNode | InstructionNode;
 
 /**
  * The render queue containing all nodes to be rendered
@@ -115,21 +49,6 @@ export interface RenderQueue {
 	 * All nodes in rendering order (after reversing the built queue)
 	 */
 	nodes: QueueNode[];
-
-	/**
-	 * Async boundaries that need to be resolved before rendering
-	 */
-	asyncBoundaries: QueueNode[];
-
-	/**
-	 * Propagator components that provide head content
-	 */
-	propagators: QueueNode[];
-
-	/**
-	 * Whether the queue contains any async operations
-	 */
-	hasAsync: boolean;
 
 	/**
 	 * SSRResult context
@@ -143,7 +62,7 @@ export interface RenderQueue {
 }
 
 /**
- * Stack item used during queue building
+ * Stack item used during queue building (internal use only)
  */
 export interface StackItem {
 	/**
@@ -152,12 +71,12 @@ export interface StackItem {
 	node: any;
 
 	/**
-	 * Parent queue node
+	 * Parent queue node (tracked but not used during rendering)
 	 */
 	parent: QueueNode | null;
 
 	/**
-	 * Additional metadata for processing
+	 * Additional metadata passed through the stack (component props, slots, displayName)
 	 */
 	metadata?: {
 		displayName?: string;

@@ -8,8 +8,7 @@ describe('QueueNodePool', () => {
 		const node = pool.acquire('text');
 
 		strictEqual(node.type, 'text');
-		strictEqual(node.parent, undefined);
-		strictEqual(node.content, undefined);
+		strictEqual(node.content, ''); // Default value for new TextNode
 	});
 
 	it('should reuse released nodes', () => {
@@ -18,23 +17,18 @@ describe('QueueNodePool', () => {
 		// Acquire and set up a node
 		const node1 = pool.acquire('text');
 		node1.content = 'Hello';
-		node1.parent = { type: 'element' };
-		node1.position = 5;
 
 		// Release it back to the pool
 		pool.release(node1);
 		strictEqual(pool.size(), 1);
 
-		// Acquire another node - should get the same instance but reset
+		// Acquire another node - with discriminated union, we create a fresh node
 		const node2 = pool.acquire('html-string');
-		strictEqual(node2.type, 'html-string'); // Type updated
-		strictEqual(node2.content, undefined); // Content field cleared
-		strictEqual(node2.html, undefined); // HTML field cleared
-		strictEqual(node2.parent, undefined); // Parent cleared
-		strictEqual(node2.position, undefined); // Position cleared
+		strictEqual(node2.type, 'html-string'); // Type is html-string
+		strictEqual(node2.html, ''); // Default value for new HtmlStringNode
 
-		// Should be the same object reference (pool reuse)
-		strictEqual(node1, node2);
+		// Pool size should decrease (node was consumed from pool)
+		strictEqual(pool.size(), 0);
 	});
 
 	it('should respect maxSize limit', () => {
@@ -78,53 +72,27 @@ describe('QueueNodePool', () => {
 		strictEqual(pool.size(), 3);
 	});
 
-	it('should properly reset all node fields', () => {
+	it('should properly create nodes with correct discriminated union types', () => {
 		const pool = new QueueNodePool();
 
-		// Create a fully populated node
-		const node = pool.acquire('component');
-		node.parent = { type: 'fragment' };
-		node.children = [];
-		node.factory = () => {};
-		node.instance = {};
-		node.isPropagator = true;
-		node.displayName = 'TestComponent';
-		node.promise = Promise.resolve();
-		node.resolved = true;
-		node.resolvedValue = 'value';
-		node.content = 'content';
-		node.html = '<div></div>';
-		node.instruction = { type: 'head' };
-		node.slotName = 'default';
-		node.slotFn = () => {};
-		node.originalValue = 'original';
-		node.position = 10;
+		// Acquire different node types
+		const textNode = pool.acquire('text');
+		const htmlNode = pool.acquire('html-string');
+		const componentNode = pool.acquire('component');
+		const instructionNode = pool.acquire('instruction');
 
-		// Release and re-acquire as text (different type)
-		pool.release(node);
-		const reused = pool.acquire('text');
+		// Each node should have only its relevant fields (discriminated union)
+		strictEqual(textNode.type, 'text');
+		strictEqual(textNode.content, '');
 
-		// Should be the same instance
-		strictEqual(node, reused);
+		strictEqual(htmlNode.type, 'html-string');
+		strictEqual(htmlNode.html, '');
 
-		// All fields should be cleared (conservative approach)
-		strictEqual(reused.type, 'text');
-		strictEqual(reused.content, undefined);
-		strictEqual(reused.parent, undefined);
-		strictEqual(reused.children, undefined);
-		strictEqual(reused.factory, undefined);
-		strictEqual(reused.instance, undefined);
-		strictEqual(reused.isPropagator, undefined);
-		strictEqual(reused.displayName, undefined);
-		strictEqual(reused.promise, undefined);
-		strictEqual(reused.resolved, undefined);
-		strictEqual(reused.resolvedValue, undefined);
-		strictEqual(reused.html, undefined);
-		strictEqual(reused.instruction, undefined);
-		strictEqual(reused.slotName, undefined);
-		strictEqual(reused.slotFn, undefined);
-		strictEqual(reused.originalValue, undefined);
-		strictEqual(reused.position, undefined);
+		strictEqual(componentNode.type, 'component');
+		strictEqual(componentNode.instance, undefined);
+
+		strictEqual(instructionNode.type, 'instruction');
+		strictEqual(instructionNode.instruction, undefined);
 	});
 
 	it('should handle multiple acquire/release cycles', () => {
