@@ -6,6 +6,10 @@ import httpMocks from 'node-mocks-http';
 import { getDefaultClientDirectives } from '../../dist/core/client-directive/index.js';
 import { resolveConfig } from '../../dist/core/config/index.js';
 import { createBaseSettings } from '../../dist/core/config/settings.js';
+import { globalContentLayer, getDataStoreFile } from '../../dist/content/content-layer.js';
+import { attachContentServerListeners } from '../../dist/content/index.js';
+import { MutableDataStore } from '../../dist/content/mutable-data-store.js';
+import { globalContentConfigObserver } from '../../dist/content/utils.js';
 import { createContainer } from '../../dist/core/dev/container.js';
 import { AstroIntegrationLogger, Logger } from '../../dist/core/logger/core.js';
 import { nodeLogDestination } from '../../dist/core/logger/node.js';
@@ -200,4 +204,87 @@ export class SpyLogger {
 	forkIntegrationLogger(label) {
 		return new AstroIntegrationLogger(this.options, label);
 	}
+}
+
+/**
+ * Creates and starts a dev container that can be reused across multiple tests.
+ * Use in `before()` / `after()` blocks to avoid the cost of starting a new
+ * container for every `it()`. Call `container.close()` in `after()`.
+ *
+ * @param {RunInContainerOptions} options
+ * @returns {Promise<import('../../src/core/dev/container.js').Container>}
+ */
+export async function startContainerFromFixture(options = {}) {
+	const settings = await createBasicSettings(options.inlineConfig ?? {});
+	return await createContainer({
+		fs: options?.fs ?? realFS,
+		settings,
+		inlineConfig: options.inlineConfig ?? {},
+		logger: defaultLogger,
+	});
+}
+
+/**
+ * Like `runInContainer`, but also boots the content layer so that
+ * `getEntry()`, `getEntries()`, `getCollection()`, etc. work in pages.
+ * Replicates the boot sequence from `src/core/dev/dev.ts`.
+ *
+ * @param {RunInContainerOptions} options
+ * @param {(container: import('../../src/core/dev/container.js').Container) => Promise<void> | void} callback
+ */
+export async function runInContainerWithContent(options = {}, callback) {
+	await runInContainer(options, async (container) => {
+		await attachContentServerListeners(container);
+
+		let store;
+		try {
+			const dataStoreFile = getDataStoreFile(container.settings, true);
+			store = await MutableDataStore.fromFile(dataStoreFile);
+		} catch {
+			store = new MutableDataStore();
+		}
+
+		const config = globalContentConfigObserver.get();
+		if (config.status === 'loaded' && store) {
+			const contentLayer = globalContentLayer.init({
+				settings: container.settings,
+				logger: container.logger,
+				watcher: container.viteServer.watcher,
+				store,
+			});
+			await contentLayer.sync();
+		}
+
+		try {
+			await callback(container);
+		} finally {
+			globalContentLayer.dispose();
+		}
+	});
+}
+
+/**
+ * Convenience wrapper: sends a GET request through the container and returns
+ * the status code, response text, and a cheerio instance for HTML assertions.
+ *
+ * @param {import('../../src/core/dev/container.js').Container} container
+ * @param {string} url
+ * @param {Record<string, any>} [reqOptions]
+ * @returns {Promise<{ status: number; html: string; $: import('cheerio').CheerioAPI; text: string }>}
+ */
+export async function fetchFromContainer(container, url, reqOptions = {}) {
+	const { req, res, text } = createRequestAndResponse({
+		method: 'GET',
+		url,
+		...reqOptions,
+	});
+	container.handle(req, res);
+	const body = await text();
+	const cheerio = await import('cheerio');
+	return {
+		status: res.statusCode,
+		text: body,
+		html: body,
+		$: cheerio.load(body),
+	};
 }
