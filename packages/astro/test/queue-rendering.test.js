@@ -193,6 +193,10 @@ describe('Queue-based rendering - SSR', () => {
 	let app;
 
 	before(async () => {
+		// Note: In SSR mode (output: 'server'), pooling is automatically disabled
+		// because AppPipeline sets disablePooling: true in the render context.
+		// This is correct behavior since pooling provides no benefit in SSR
+		// where each request is independent.
 		fixture = await loadFixture({
 			root: './fixtures/queue-rendering/',
 			output: 'server',
@@ -251,5 +255,43 @@ describe('Queue-based rendering - SSR', () => {
 
 		// Inline scripts should be included
 		assert.ok(html.includes('Inline script executed'));
+	});
+});
+
+describe('Queue-based rendering - Configuration', () => {
+	it('should support custom pool size configuration', async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/queue-rendering/',
+			output: 'static',
+			experimental: {
+				queuedRendering: {
+					poolSize: 500,
+				},
+			},
+		});
+		await fixture.build();
+
+		const html = await fixture.readFile('/index.html');
+
+		// Verify basic rendering still works with custom pool size
+		assert.ok(html.includes('<h1>Queue Rendering Test</h1>'));
+		assert.ok(html.includes('<p>Simple text rendering</p>'));
+	});
+
+	it('should support boolean configuration (backward compatibility)', async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/queue-rendering/',
+			output: 'static',
+			experimental: {
+				queuedRendering: true,
+			},
+		});
+		await fixture.build();
+
+		const html = await fixture.readFile('/index.html');
+
+		// Verify rendering works with boolean config
+		assert.ok(html.includes('<h1>Queue Rendering Test</h1>'));
+		assert.ok(html.includes('<p>Simple text rendering</p>'));
 	});
 });

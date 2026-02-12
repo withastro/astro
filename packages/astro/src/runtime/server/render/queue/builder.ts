@@ -8,7 +8,8 @@ import { isHeadAndContent } from '../astro/head-and-content.js';
 import { isRenderInstance } from '../common.js';
 import { isRenderInstruction } from '../instruction.js';
 import { SlotString } from '../slot.js';
-import type { QueueNode, RenderQueue, StackItem } from './types.js';
+import { getPoolForConfig } from './pool.js';
+import type { RenderQueue, StackItem } from './types.js';
 
 /**
  * Builds a render queue from a component tree.
@@ -20,12 +21,16 @@ import type { QueueNode, RenderQueue, StackItem } from './types.js';
  * @returns A render queue ready for rendering
  */
 export async function buildRenderQueue(root: any, result: SSRResult): Promise<RenderQueue> {
+	// Get pool based on config (e.g., disable pooling in SSR)
+	const pool = getPoolForConfig(result._experimentalQueuedRenderingConfig);
+	
 	const queue: RenderQueue = {
 		nodes: [],
 		asyncBoundaries: [],
 		propagators: [],
 		hasAsync: false,
 		result,
+		pool, // Store pool in queue for renderer to release nodes
 	};
 
 	// Stack for depth-first traversal (LIFO - Last In, First Out)
@@ -58,48 +63,40 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 		// Handle different node types
 		if (typeof node === 'string') {
 			// Plain text content
-			const queueNode: QueueNode = {
-				type: 'text',
-				content: node,
-				parent: parent || undefined,
-				originalValue: node,
-			};
+			const queueNode = pool.acquire('text');
+			queueNode.content = node;
+			queueNode.parent = parent || undefined;
+			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 			continue;
 		}
 
 		if (typeof node === 'number' || typeof node === 'boolean') {
 			// Convert to string
-			const queueNode: QueueNode = {
-				type: 'text',
-				content: String(node),
-				parent: parent || undefined,
-				originalValue: node,
-			};
+			const queueNode = pool.acquire('text');
+			queueNode.content = String(node);
+			queueNode.parent = parent || undefined;
+			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 			continue;
 		}
 
 		// Handle HTML strings (marked as safe)
 		if (isHTMLString(node)) {
-			const queueNode: QueueNode = {
-				type: 'html-string',
-				html: node.toString(),
-				parent: parent || undefined,
-				originalValue: node,
-			};
+			const queueNode = pool.acquire('html-string');
+			queueNode.html = node.toString();
+			queueNode.parent = parent || undefined;
+			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 			continue;
 		}
 
 		// Handle SlotString
 		if (node instanceof SlotString) {
-			const queueNode: QueueNode = {
-				type: 'html-string',
-				html: node.toString(),
-				parent: parent || undefined,
-				originalValue: node,
-			};
+			const queueNode = pool.acquire('html-string');
+			queueNode.html = node.toString();
+			queueNode.parent = parent || undefined;
+			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 			continue;
 		}
@@ -115,12 +112,10 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 
 		// Handle render instructions (head, hydration scripts, etc.)
 		if (isRenderInstruction(node)) {
-			const queueNode: QueueNode = {
-				type: 'instruction',
-				instruction: node,
-				parent: parent || undefined,
-				originalValue: node,
-			};
+			const queueNode = pool.acquire('instruction');
+			queueNode.instruction = node;
+			queueNode.parent = parent || undefined;
+			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 			continue;
 		}
@@ -161,13 +156,11 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 		// Handle Astro component instances
 		if (isAstroComponentInstance(node)) {
 			// This is already an instance, create queue node
-			const queueNode: QueueNode = {
-				type: 'component',
-				instance: node,
-				parent: parent || undefined,
-				displayName: item.metadata?.displayName,
-				originalValue: node,
-			};
+			const queueNode = pool.acquire('component');
+			queueNode.instance = node;
+			queueNode.parent = parent || undefined;
+			queueNode.displayName = item.metadata?.displayName;
+			queueNode.originalValue = node;
 
 			// Check if this is a propagator
 			// Note: We can't easily check isAPropagatingComponent here because we need the factory
@@ -190,14 +183,12 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 			// Create component instance
 			const instance = createAstroComponentInstance(result, displayName, factory, props, slots);
 
-			const queueNode: QueueNode = {
-				type: 'component',
-				factory,
-				instance,
-				displayName,
-				parent: parent || undefined,
-				originalValue: node,
-			};
+			const queueNode = pool.acquire('component');
+			queueNode.factory = factory;
+			queueNode.instance = instance;
+			queueNode.displayName = displayName;
+			queueNode.parent = parent || undefined;
+			queueNode.originalValue = node;
 
 			// Check if this component is a propagator (provides head content)
 			if (isAPropagatingComponent(result, factory)) {
@@ -224,12 +215,10 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 		if (isRenderInstance(node)) {
 			// We'll need to render this to get its output
 			// For now, treat it as a component-like node
-			const queueNode: QueueNode = {
-				type: 'component',
-				instance: node as any,
-				parent: parent || undefined,
-				originalValue: node,
-			};
+			const queueNode = pool.acquire('component');
+			queueNode.instance = node as any;
+			queueNode.parent = parent || undefined;
+			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 			continue;
 		}
@@ -267,12 +256,10 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 		if (node instanceof Response) {
 			// Responses can't be rendered in the queue, they need to bubble up
 			// We'll create a special node for this
-			const queueNode: QueueNode = {
-				type: 'html-string',
-				html: '',
-				parent: parent || undefined,
-				originalValue: node,
-			};
+			const queueNode = pool.acquire('html-string');
+			queueNode.html = '';
+			queueNode.parent = parent || undefined;
+			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 			continue;
 		}
@@ -280,20 +267,16 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 		// Fallback: convert to string
 		// Check if it's already marked as safe HTML (HTMLString)
 		if (isHTMLString(node)) {
-			const queueNode: QueueNode = {
-				type: 'html-string',
-				html: String(node),
-				parent: parent || undefined,
-				originalValue: node,
-			};
+			const queueNode = pool.acquire('html-string');
+			queueNode.html = String(node);
+			queueNode.parent = parent || undefined;
+			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 		} else {
-			const queueNode: QueueNode = {
-				type: 'text',
-				content: String(node),
-				parent: parent || undefined,
-				originalValue: node,
-			};
+			const queueNode = pool.acquire('text');
+			queueNode.content = String(node);
+			queueNode.parent = parent || undefined;
+			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 		}
 	}

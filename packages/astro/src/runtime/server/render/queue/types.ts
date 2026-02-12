@@ -152,6 +152,11 @@ export interface RenderQueue {
 	 * SSRResult context
 	 */
 	result: SSRResult;
+	
+	/**
+	 * Object pool instance used for node acquisition
+	 */
+	pool?: import('./pool.js').QueueNodePool;
 }
 
 /**

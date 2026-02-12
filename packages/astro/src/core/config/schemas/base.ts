@@ -495,9 +495,14 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.experimental.svgo),
 			queuedRendering: z
-				.boolean()
+				.union([
+					z.boolean(),
+					z.object({
+						poolSize: z.number().int().positive().optional(),
+					}),
+				])
 				.optional()
-				.default(ASTRO_CONFIG_DEFAULTS.experimental.queuedRendering),
+				.prefault(ASTRO_CONFIG_DEFAULTS.experimental.queuedRendering),
 		})
 		.prefault({}),
 	legacy: z

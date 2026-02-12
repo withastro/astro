@@ -24,9 +24,6 @@ async function renderWithQueue(
 	templateResult: any,
 	isPage: boolean,
 ): Promise<string> {
-	// Build the render queue
-	const queue = await buildRenderQueue(templateResult, result);
-
 	let str = '';
 	let renderedFirstPageChunk = false;
 
@@ -48,7 +45,8 @@ async function renderWithQueue(
 		},
 	};
 
-	// Render the queue
+	// Build the queue and render it
+	const queue = await buildRenderQueue(templateResult, result);
 	await renderQueue(queue, destination);
 
 	return str;
@@ -63,9 +61,6 @@ async function renderWithQueueToStream(
 	isPage: boolean,
 	route?: RouteData,
 ): Promise<ReadableStream> {
-	// Build the render queue
-	const queue = await buildRenderQueue(templateResult, result);
-
 	let renderedFirstPageChunk = false;
 
 	return new ReadableStream({
@@ -95,6 +90,8 @@ async function renderWithQueueToStream(
 
 			(async () => {
 				try {
+					// Build the queue and render it
+					const queue = await buildRenderQueue(templateResult, result);
 					await renderQueue(queue, destination);
 					controller.close();
 				} catch (e) {
@@ -126,9 +123,6 @@ async function renderWithQueueToAsyncIterable(
 	isPage: boolean,
 	_route?: RouteData,
 ): Promise<AsyncIterable<Uint8Array>> {
-	// Build the render queue
-	const queue = await buildRenderQueue(templateResult, result);
-
 	let renderedFirstPageChunk = false;
 	let error: Error | null = null;
 	let next: ReturnType<typeof promiseWithResolvers<void>> | null = null;
@@ -224,7 +218,11 @@ async function renderWithQueueToAsyncIterable(
 		},
 	};
 
-	const renderResult = toPromise(() => renderQueue(queue, destination));
+	const renderResult = toPromise(async () => {
+		// Build the queue and render it
+		const queue = await buildRenderQueue(templateResult, result);
+		await renderQueue(queue, destination);
+	});
 
 	renderResult
 		.catch((err) => {
