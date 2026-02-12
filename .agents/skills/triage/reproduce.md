@@ -38,7 +38,7 @@ Before attempting reproduction, check if this issue should be skipped due to a l
 
 If any early exit condition is met, skip to Step 6 and write `report.md` with the skip details.
 
-Sometimes future comments will provide additional reproductions. An early exit is only valid if not future comments in that issue "invalidate" it. For example, if the original poster of a bug was on Astro 3.0, we would exit initially (`unsupported-version`). However, on a future run, if a commenter had later posted a similar reproduction but on the latest version of Astro, we would no longer consider that a valid early exit, and would instead continue on with the workflow. 
+**Comment Handling for Early Exits:** Sometimes future comments will provide additional reproductions. An early exit is only valid if not future comments in that issue "invalidate" it. For example, if the original poster of a bug was on Astro 3.0, we would exit initially (`unsupported-version`). However, on a future run, if a commenter had later posted a similar reproduction but on the latest version of Astro, we would no longer consider that a valid early exit, and would instead continue on with the workflow.
 
 The following are the documented early exit conditions that we support:
 
