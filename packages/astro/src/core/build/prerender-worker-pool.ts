@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { Worker } from 'node:worker_threads';
+import { Worker, type WorkerOptions } from 'node:worker_threads';
 import type {
 	PrerenderWorkerInitMessage,
 	PrerenderWorkerGetStaticPathsMessage,
@@ -44,7 +44,7 @@ export class PrerenderWorkerPool {
 		for (let i = 0; i < size; i++) {
 			const worker = new Worker(new URL('./prerender-worker.js', import.meta.url), {
 				type: 'module',
-			});
+			} as WorkerOptions);
 			const slot: WorkerSlot = { worker, busy: false };
 			worker.on('message', (message: PrerenderWorkerOutgoingMessage) => {
 				this.handleWorkerMessage(slot, message);
@@ -104,7 +104,9 @@ export class PrerenderWorkerPool {
 			const workerSlot = this.workers.find((slot) => !slot.busy);
 			if (workerSlot) {
 				workerSlot.busy = true;
-				this.runMessage(workerSlot, workerMessage).then(resolve).catch(reject);
+				this.runMessage<PrerenderWorkerRenderResult>(workerSlot, workerMessage)
+					.then(resolve)
+					.catch(reject);
 				return;
 			}
 			this.queue.push({ message: workerMessage, resolve, reject });
@@ -166,7 +168,9 @@ export class PrerenderWorkerPool {
 		const next = this.queue.shift();
 		if (!next) return;
 		slot.busy = true;
-		this.runMessage(slot, next.message).then(next.resolve).catch(next.reject);
+		this.runMessage<PrerenderWorkerRenderResult>(slot, next.message)
+			.then(next.resolve)
+			.catch(next.reject);
 	}
 
 	private rejectAll(error: Error) {

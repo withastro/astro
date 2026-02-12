@@ -112,7 +112,8 @@ export function createDefaultPrerenderer({
 				routeKey,
 			});
 			mergeSerializedAssets(result.assets);
-			return new Response(result.body, {
+			const responseBody = result.body ? Buffer.from(result.body) : null;
+			return new Response(responseBody, {
 				status: result.status,
 				headers: result.headers,
 			});
