@@ -213,20 +213,44 @@ export async function createContainerWithAutomaticRestart({
 
 		// Set up shortcuts
 
-		const customShortcuts: Array<vite.CLIShortcut> = [
+		const customShortcuts: Array<vite.CLIShortcut<vite.ViteDevServer>> = [
 			// Disable default Vite shortcuts that don't work well with Astro
 			{ key: 'r', description: '' },
 			{ key: 'u', description: '' },
 			{ key: 'c', description: '' },
 		];
 
-		customShortcuts.push({
-			key: 's',
-			description: 'sync content layer',
-			action: () => {
-				globalContentLayer.get()?.sync();
+		customShortcuts.push(
+			{
+				key: 'o',
+				description: 'open in browser',
+				async action(server) {
+					if (server.resolvedUrls) {
+						server.openBrowser();
+					} else {
+						// Server not ready yet — wait for URLs to resolve, then open
+						await new Promise<void>((resolve) => {
+							const check = () => {
+								if (server.resolvedUrls) {
+									server.openBrowser();
+									resolve();
+								} else {
+									setTimeout(check, 100);
+								}
+							};
+							check();
+						});
+					}
+				},
 			},
-		});
+			{
+				key: 's',
+				description: 'sync content layer',
+				action: () => {
+					globalContentLayer.get()?.sync();
+				},
+			},
+		);
 		restart.container.viteServer.bindCLIShortcuts({
 			customShortcuts,
 		});
