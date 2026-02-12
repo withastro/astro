@@ -1,5 +1,6 @@
 ---
 '@astrojs/markdown-remark': major
+'@astrojs/mdx': major
 'astro': major
 ---
 
