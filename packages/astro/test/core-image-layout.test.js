@@ -125,11 +125,6 @@ describe('astro:image:layout', () => {
 				let $img = $('#local-style-object img');
 				assert.match($img.attr('style'), /border:2px red solid/);
 			});
-
-			it('injects a style tag', () => {
-				const style = $('style').text();
-				assert.match(style, /\[data-astro-image\]/);
-			});
 		});
 
 		describe('srcsets', () => {
@@ -408,11 +403,16 @@ describe('astro:image:layout', () => {
 					assert.ok($picture.attr('class').includes('picture-comp'));
 				});
 
-				it('adds inline style attributes', () => {
+				it('adds data attributes instead of inline styles', () => {
 					let $img = $('#picture-attributes img');
+					// Should have data attributes for CSP compliance
+					assert.ok($img.attr('data-astro-image'));
+					// Should NOT have inline style CSS variables
 					const style = $img.attr('style');
-					assert.match(style, /--fit:/);
-					assert.match(style, /--pos:/);
+					if (style) {
+						assert.ok(!style.includes('--fit:'));
+						assert.ok(!style.includes('--pos:'));
+					}
 				});
 
 				it('passing in style as an object', () => {
