@@ -137,7 +137,7 @@ Return only "yes" or "no" inside the ---RESULT_START--- / ---RESULT_END--- block
 
 	await flue.shell(`gh issue comment ${issueNumber} --body-file -`, {
 		stdin: comment,
-		env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN },
+		env: { GH_TOKEN: flue.secrets.FREDKBOT_GITHUB_TOKEN },
 	});
 
 	if (reproduceResult.reproducible) {

@@ -84,6 +84,7 @@ jobs:
       - name: Run workflow
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FREDKBOT_GITHUB_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.CI_ANTHROPIC_API_KEY }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
