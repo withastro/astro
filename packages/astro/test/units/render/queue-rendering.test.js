@@ -96,7 +96,6 @@ describe('Queue-based rendering engine', () => {
 
 			assert.equal(queue.nodes.length, 1);
 			assert.equal(queue.nodes[0].content, 'Resolved value');
-			assert.equal(queue.hasAsync, true);
 		});
 
 		it('should handle nested arrays', async () => {
@@ -120,7 +119,6 @@ describe('Queue-based rendering engine', () => {
 
 			const queue = await buildRenderQueue(asyncGen(), result);
 
-			assert.equal(queue.hasAsync, true);
 			assert.equal(queue.nodes.length, 3);
 			assert.equal(queue.nodes[0].content, 'First');
 			assert.equal(queue.nodes[1].content, 'Second');
@@ -132,10 +130,11 @@ describe('Queue-based rendering engine', () => {
 			const nestedArray = [['child1', 'child2'], 'sibling'];
 			const queue = await buildRenderQueue(nestedArray, result);
 
-			// All nodes should have position metadata
-			queue.nodes.forEach((node, index) => {
-				assert.equal(node.position, index);
-			});
+			// Verify correct node structure
+			assert.equal(queue.nodes.length, 3);
+			assert.equal(queue.nodes[0].content, 'child1');
+			assert.equal(queue.nodes[1].content, 'child2');
+			assert.equal(queue.nodes[2].content, 'sibling');
 		});
 
 		it('should maintain correct rendering order', async () => {

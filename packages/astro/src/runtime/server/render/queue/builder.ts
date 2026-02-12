@@ -1,15 +1,22 @@
 import type { SSRResult } from '../../../../types/public/internal.js';
 import { isPromise } from '../../util.js';
 import { isHTMLString, markHTMLString } from '../../escape.js';
-import { isAstroComponentInstance, isRenderTemplateResult } from '../astro/index.js';
 import { isAstroComponentFactory, isAPropagatingComponent } from '../astro/factory.js';
-import { createAstroComponentInstance } from '../astro/instance.js';
-import { isHeadAndContent } from '../astro/head-and-content.js';
+import { createAstroComponentInstance, isAstroComponentInstance } from '../astro/instance.js';
 import { isRenderInstance } from '../common.js';
 import { isRenderInstruction } from '../instruction.js';
 import { SlotString } from '../slot.js';
 import { getPoolForConfig } from './pool.js';
-import type { RenderQueue, StackItem } from './types.js';
+import type {
+	RenderQueue,
+	StackItem,
+	TextNode,
+	HtmlStringNode,
+	ComponentNode,
+	InstructionNode,
+} from './types.js';
+import { isRenderTemplateResult } from '../astro/render-template.js';
+import { isHeadAndContent } from '../astro/head-and-content.js';
 
 /**
  * Builds a render queue from a component tree.
@@ -26,9 +33,6 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 
 	const queue: RenderQueue = {
 		nodes: [],
-		asyncBoundaries: [],
-		propagators: [],
-		hasAsync: false,
 		result,
 		pool, // Store pool in queue for renderer to release nodes
 	};
@@ -43,7 +47,6 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 
 		// Handle promises immediately (wait for resolution)
 		if (isPromise(node)) {
-			queue.hasAsync = true;
 			try {
 				const resolved = await node;
 				// Push resolved value back onto stack
@@ -63,10 +66,9 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 		// Handle different node types
 		if (typeof node === 'string') {
 			// Plain text content - use content-aware caching
-			const queueNode = pool.acquire('text', node);
+			// acquire('text', ...) returns TextNode, so we can safely assert
+			const queueNode = pool.acquire('text', node) as TextNode;
 			queueNode.content = node;
-			queueNode.parent = parent || undefined;
-			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 			continue;
 		}
@@ -74,10 +76,8 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 		if (typeof node === 'number' || typeof node === 'boolean') {
 			// Convert to string - use content-aware caching
 			const str = String(node);
-			const queueNode = pool.acquire('text', str);
+			const queueNode = pool.acquire('text', str) as TextNode;
 			queueNode.content = str;
-			queueNode.parent = parent || undefined;
-			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 			continue;
 		}
@@ -85,10 +85,8 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 		// Handle HTML strings (marked as safe) - use content-aware caching
 		if (isHTMLString(node)) {
 			const html = node.toString();
-			const queueNode = pool.acquire('html-string', html);
+			const queueNode = pool.acquire('html-string', html) as HtmlStringNode;
 			queueNode.html = html;
-			queueNode.parent = parent || undefined;
-			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 			continue;
 		}
@@ -96,10 +94,8 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 		// Handle SlotString - use content-aware caching
 		if (node instanceof SlotString) {
 			const html = node.toString();
-			const queueNode = pool.acquire('html-string', html);
+			const queueNode = pool.acquire('html-string', html) as HtmlStringNode;
 			queueNode.html = html;
-			queueNode.parent = parent || undefined;
-			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 			continue;
 		}
@@ -107,18 +103,16 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 		// Handle arrays
 		if (Array.isArray(node)) {
 			// Push children onto stack (they'll be popped in reverse, then final queue is reversed)
-			for (let i = 0; i < node.length; i++) {
-				stack.push({ node: node[i], parent, metadata: item.metadata });
+			for (const n of node) {
+				stack.push({ node: n, parent, metadata: item.metadata });
 			}
 			continue;
 		}
 
 		// Handle render instructions (head, hydration scripts, etc.)
 		if (isRenderInstruction(node)) {
-			const queueNode = pool.acquire('instruction');
+			const queueNode = pool.acquire('instruction') as InstructionNode;
 			queueNode.instruction = node;
-			queueNode.parent = parent || undefined;
-			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 			continue;
 		}
@@ -159,11 +153,8 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 		// Handle Astro component instances
 		if (isAstroComponentInstance(node)) {
 			// This is already an instance, create queue node
-			const queueNode = pool.acquire('component');
+			const queueNode = pool.acquire('component') as ComponentNode;
 			queueNode.instance = node;
-			queueNode.parent = parent || undefined;
-			queueNode.displayName = item.metadata?.displayName;
-			queueNode.originalValue = node;
 
 			// Check if this is a propagator
 			// Note: We can't easily check isAPropagatingComponent here because we need the factory
@@ -186,18 +177,11 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 			// Create component instance
 			const instance = createAstroComponentInstance(result, displayName, factory, props, slots);
 
-			const queueNode = pool.acquire('component');
-			queueNode.factory = factory;
+			const queueNode = pool.acquire('component') as ComponentNode;
 			queueNode.instance = instance;
-			queueNode.displayName = displayName;
-			queueNode.parent = parent || undefined;
-			queueNode.originalValue = node;
 
 			// Check if this component is a propagator (provides head content)
 			if (isAPropagatingComponent(result, factory)) {
-				queueNode.isPropagator = true;
-				queue.propagators.push(queueNode);
-
 				// Initialize propagator to collect head content
 				try {
 					const returnValue = await instance.init(result);
@@ -218,10 +202,8 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 		if (isRenderInstance(node)) {
 			// We'll need to render this to get its output
 			// For now, treat it as a component-like node
-			const queueNode = pool.acquire('component');
+			const queueNode = pool.acquire('component') as ComponentNode;
 			queueNode.instance = node as any;
-			queueNode.parent = parent || undefined;
-			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 			continue;
 		}
@@ -230,23 +212,22 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 		if (typeof node === 'object' && Symbol.iterator in node) {
 			const items = Array.from(node);
 			// Push items onto stack in forward order - stack pop() will reverse, then final reverse() corrects it
-			for (let i = 0; i < items.length; i++) {
-				stack.push({ node: items[i], parent, metadata: item.metadata });
+			for (const iterItem of items) {
+				stack.push({ node: iterItem, parent, metadata: item.metadata });
 			}
 			continue;
 		}
 
 		// Handle async iterables
 		if (typeof node === 'object' && Symbol.asyncIterator in node) {
-			queue.hasAsync = true;
 			try {
 				const items = [];
-				for await (const item of node) {
-					items.push(item);
+				for await (const asyncItem of node) {
+					items.push(asyncItem);
 				}
 				// Push items onto stack in forward order - stack pop() will reverse, then final reverse() corrects it
-				for (let i = 0; i < items.length; i++) {
-					stack.push({ node: items[i], parent, metadata: item.metadata });
+				for (const iterItem of items) {
+					stack.push({ node: iterItem, parent, metadata: item.metadata });
 				}
 			} catch (error) {
 				// Stop on first error
@@ -259,10 +240,8 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 		if (node instanceof Response) {
 			// Responses can't be rendered in the queue, they need to bubble up
 			// We'll create a special node for this
-			const queueNode = pool.acquire('html-string', '');
+			const queueNode = pool.acquire('html-string', '') as HtmlStringNode;
 			queueNode.html = '';
-			queueNode.parent = parent || undefined;
-			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 			continue;
 		}
@@ -271,28 +250,19 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 		// Check if it's already marked as safe HTML (HTMLString)
 		if (isHTMLString(node)) {
 			const html = String(node);
-			const queueNode = pool.acquire('html-string', html);
+			const queueNode = pool.acquire('html-string', html) as HtmlStringNode;
 			queueNode.html = html;
-			queueNode.parent = parent || undefined;
-			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 		} else {
 			const str = String(node);
-			const queueNode = pool.acquire('text', str);
+			const queueNode = pool.acquire('text', str) as TextNode;
 			queueNode.content = str;
-			queueNode.parent = parent || undefined;
-			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 		}
 	}
 
 	// Reverse the queue to get correct rendering order
 	queue.nodes.reverse();
-
-	// Add position metadata for debugging
-	queue.nodes.forEach((node, index) => {
-		node.position = index;
-	});
 
 	return queue;
 }
