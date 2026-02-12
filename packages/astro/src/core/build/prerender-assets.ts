@@ -1,4 +1,4 @@
-import type { ImageTransform } from '../../assets/types.js';
+import type { ImageMetadata, ImageTransform } from '../../assets/types.js';
 
 interface SerializedAssetTransform {
 	hash: string;
@@ -15,6 +15,33 @@ export interface SerializedAssetEntry {
 export interface SerializedAssetsPayload {
 	staticImages: SerializedAssetEntry[];
 	referencedImages: string[];
+}
+
+function serializeImageTransform(transform: ImageTransform): ImageTransform {
+	const src = transform.src;
+	if (src && typeof src === 'object') {
+		const metadata = src as ImageMetadata;
+		if (
+			typeof metadata.src === 'string' &&
+			typeof metadata.width === 'number' &&
+			typeof metadata.height === 'number' &&
+			typeof metadata.format === 'string'
+		) {
+			return {
+				...transform,
+				src: {
+					src: metadata.src,
+					width: metadata.width,
+					height: metadata.height,
+					format: metadata.format,
+					orientation: metadata.orientation,
+					fsPath: metadata.fsPath,
+				},
+			};
+		}
+	}
+
+	return transform;
 }
 
 function ensureAstroAssetStore() {
@@ -42,7 +69,7 @@ export function collectSerializedAssets(): SerializedAssetsPayload {
 			transforms: Array.from(entry.transforms.entries()).map(([hash, transformEntry]) => ({
 				hash,
 				finalPath: transformEntry.finalPath,
-				transform: transformEntry.transform,
+				transform: serializeImageTransform(transformEntry.transform),
 			})),
 		});
 	}

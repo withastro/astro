@@ -154,6 +154,60 @@ export interface SerializedRouteCache {
 	entries: SerializedRouteCacheEntry[];
 }
 
+function cloneWithoutSymbols<T>(value: T, seen = new Map<any, any>()): T {
+	if (value === null || typeof value !== 'object') {
+		return value;
+	}
+
+	if (seen.has(value)) {
+		return seen.get(value);
+	}
+
+	if (value instanceof Date) {
+		return new Date(value) as T;
+	}
+
+	if (value instanceof Map) {
+		const clonedMap = new Map();
+		seen.set(value, clonedMap);
+		for (const [key, mapValue] of value.entries()) {
+			clonedMap.set(cloneWithoutSymbols(key, seen), cloneWithoutSymbols(mapValue, seen));
+		}
+		return clonedMap as T;
+	}
+
+	if (value instanceof Set) {
+		const clonedSet = new Set();
+		seen.set(value, clonedSet);
+		for (const setValue of value.values()) {
+			clonedSet.add(cloneWithoutSymbols(setValue, seen));
+		}
+		return clonedSet as T;
+	}
+
+	if (Array.isArray(value)) {
+		const clonedArray: unknown[] = [];
+		seen.set(value, clonedArray);
+		for (const item of value) {
+			clonedArray.push(cloneWithoutSymbols(item, seen));
+		}
+		return clonedArray as T;
+	}
+
+	const prototype = Object.getPrototypeOf(value);
+	const clone = Object.create(prototype);
+	seen.set(value, clone);
+	for (const key of Object.getOwnPropertyNames(value)) {
+		const descriptor = Object.getOwnPropertyDescriptor(value, key);
+		if (!descriptor) continue;
+		if ('value' in descriptor) {
+			descriptor.value = cloneWithoutSymbols(descriptor.value, seen);
+		}
+		Object.defineProperty(clone, key, descriptor);
+	}
+	return clone;
+}
+
 export function getRouteCacheKey(route: Pick<RouteData, 'route' | 'component'>): string {
 	return `${route.route}_${route.component}`;
 }
@@ -161,11 +215,15 @@ export function getRouteCacheKey(route: Pick<RouteData, 'route' | 'component'>):
 export function serializeRouteCache(routeCache: RouteCache): SerializedRouteCache {
 	const entries = routeCache.getEntries().map(({ key, entry }) => {
 		invariant(entry.route, `Route cache entry missing route data for ${key}`);
+		const staticPaths = entry.staticPaths.map((item) => cloneWithoutSymbols(item));
+		const keyed = Array.from(entry.staticPaths.keyed.entries()).map(
+			([keyedKey, item]) => [keyedKey, cloneWithoutSymbols(item)] as [string, GetStaticPathsItem],
+		);
 		return {
 			key,
 			route: entry.route,
-			staticPaths: Array.from(entry.staticPaths),
-			keyed: Array.from(entry.staticPaths.keyed.entries()),
+			staticPaths,
+			keyed,
 		};
 	});
 	return { entries };
