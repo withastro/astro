@@ -19,6 +19,7 @@ import type { LoggerLevel } from '../logger/core.js';
 import type { RoutingStrategies } from './common.js';
 import type { BaseSessionConfig, SessionDriverFactory } from '../session/types.js';
 import type { DevToolbarPlacement } from '../../types/public/toolbar.js';
+import type { BaseApp } from './base.js';
 
 type ComponentPath = string;
 
@@ -199,3 +200,5 @@ export type NodeAppHeadersJson = {
 		value: string;
 	}[];
 }[];
+
+export type CreateApp = (streaming?: boolean) => BaseApp;
