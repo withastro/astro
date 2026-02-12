@@ -28,15 +28,19 @@ export interface UserOptions {
 	experimentalErrorPageHost?: string | URL;
 }
 
-export interface Options {
-	experimentalDisableStreaming: boolean;
-	port: number;
+export interface Options
+	extends Required<
+		Pick<
+			UserOptions,
+			'experimentalDisableStreaming' | 'experimentalErrorPageHost' | 'staticHeaders'
+		>
+	> {
 	host: string | boolean;
-	experimentalErrorPageHost: string | undefined;
-	trailingSlash: AstroConfig['trailingSlash'];
-	assets: string;
+	port: number;
 	server: string;
 	client: string;
+	assets: string;
+	trailingSlash: AstroConfig['trailingSlash'];
 	staticHeaders: boolean;
 }
 
