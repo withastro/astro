@@ -9,10 +9,42 @@ import {
 	hasFileExtension,
 	isInternalPath,
 	prependForwardSlash,
-	appendForwardSlash,
 } from '@astrojs/internal-helpers/path';
-import * as url from 'node:url';
 import send from 'send';
+import { Readable } from 'node:stream';
+import { resolveClientDir } from './shared.js';
+
+/**
+ * Read a prerendered error page from disk and return it as a Response.
+ * Returns undefined if the file doesn't exist or can't be read.
+ */
+async function readErrorPageFromDisk(
+	client: string,
+	status: number,
+): Promise<Response | undefined> {
+	// Try both /404.html and /404/index.html patterns
+	const filePaths = [`${status}.html`, `${status}/index.html`];
+
+	for (const filePath of filePaths) {
+		const fullPath = path.join(client, filePath);
+		try {
+			const stream = fs.createReadStream(fullPath);
+			// Wait for the stream to open successfully or error
+			await new Promise<void>((resolve, reject) => {
+				stream.once('open', () => resolve());
+				stream.once('error', reject);
+			});
+			const webStream = Readable.toWeb(stream) as ReadableStream;
+			return new Response(webStream, {
+				headers: { 'Content-Type': 'text/html; charset=utf-8' },
+			});
+		} catch {
+			// File doesn't exist or can't be read, try next pattern
+		}
+	}
+
+	return undefined;
+}
 
 /**
  * Creates a Node.js http listener for on-demand rendered pages, compatible with http.createServer and Connect middleware.
@@ -22,7 +54,10 @@ import send from 'send';
 export function createAppHandler({
 	app,
 	experimentalErrorPageHost,
-}: Pick<Config, 'experimentalErrorPageHost'> & { app: NodeApp }): RequestHandler {
+	...options
+}: Pick<Config, 'experimentalErrorPageHost' | 'server' | 'client'> & {
+	app: NodeApp;
+}): RequestHandler {
 	/**
 	 * Keep track of the current request path using AsyncLocalStorage.
 	 * Used to log unhandled rejections with a helpful message.
@@ -35,16 +70,30 @@ export function createAppHandler({
 		console.error(reason);
 	});
 
-	const originUrl = experimentalErrorPageHost ? new URL(experimentalErrorPageHost) : undefined;
+	const client = resolveClientDir(options);
 
-	const prerenderedErrorPageFetch = originUrl
-		? (_url: string) => {
-				const errorPageUrl = new URL(_url);
-				errorPageUrl.protocol = originUrl.protocol;
-				errorPageUrl.host = originUrl.host;
-				return fetch(errorPageUrl);
-			}
-		: undefined;
+	// Read prerendered error pages directly from disk instead of fetching over HTTP.
+	// This avoids SSRF risks and is more efficient.
+	const prerenderedErrorPageFetch = async (url: string): Promise<Response> => {
+		if (url.includes('/404')) {
+			const response = await readErrorPageFromDisk(client, 404);
+			if (response) return response;
+		}
+		if (url.includes('/500')) {
+			const response = await readErrorPageFromDisk(client, 500);
+			if (response) return response;
+		}
+		// Fallback: if experimentalErrorPageHost is configured, fetch from there
+		if (experimentalErrorPageHost) {
+			const originUrl = new URL(experimentalErrorPageHost);
+			const errorPageUrl = new URL(url);
+			errorPageUrl.protocol = originUrl.protocol;
+			errorPageUrl.host = originUrl.host;
+			return fetch(errorPageUrl);
+		}
+		// No file found and no fallback configured - return empty response
+		return new Response(null, { status: 404 });
+	};
 
 	return async (req, res, next, locals) => {
 		let request: Request;
@@ -201,23 +250,6 @@ export function createStaticHandler({
 	};
 }
 
-function resolveClientDir(options: Pick<Config, 'server' | 'client'>) {
-	const clientURLRaw = new URL(options.client);
-	const serverURLRaw = new URL(options.server);
-	const rel = path.relative(url.fileURLToPath(serverURLRaw), url.fileURLToPath(clientURLRaw));
-
-	// walk up the parent folders until you find the one that is the root of the server entry folder. This is how we find the client folder relatively.
-	const serverFolder = path.basename(options.server);
-	let serverEntryFolderURL = path.dirname(import.meta.url);
-	while (!serverEntryFolderURL.endsWith(serverFolder)) {
-		serverEntryFolderURL = path.dirname(serverEntryFolderURL);
-	}
-	const serverEntryURL = serverEntryFolderURL + '/entry.mjs';
-	const clientURL = new URL(appendForwardSlash(rel), serverEntryURL);
-	const client = url.fileURLToPath(clientURL);
-	return client;
-}
-
 export function createStandaloneHandler({
 	app,
 	experimentalErrorPageHost,
@@ -227,7 +259,7 @@ export function createStandaloneHandler({
 	trailingSlash,
 }: Parameters<typeof createAppHandler>[0] &
 	Parameters<typeof createStaticHandler>[0]): RequestHandler {
-	const appHandler = createAppHandler({ app, experimentalErrorPageHost });
+	const appHandler = createAppHandler({ app, experimentalErrorPageHost, client, server });
 	const staticHandler = createStaticHandler({ app, assets, client, server, trailingSlash });
 	return (req, res, next, locals) => {
 		try {

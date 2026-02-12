@@ -11,6 +11,8 @@ const app = new NodeApp(manifest, !options.experimentalDisableStreaming);
 const appHandler = createAppHandler({
 	app,
 	experimentalErrorPageHost: options.experimentalErrorPageHost,
+	client: options.client,
+	server: options.server,
 });
 const logger = app.getAdapterLogger();
 
