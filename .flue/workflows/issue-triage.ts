@@ -172,10 +172,10 @@ Select the most appropriate labels from the list below. Use the label descriptio
 - Return the exact label names as they appear above — do not modify them.
 
 ### Priority Labels (select exactly one)
-${priorityLabels.map((l) => `- **${l.name}**: ${l.description || '(no description)'}`).join('\n')}
+${priorityLabels.map((l) => `- "${l.name}": ${l.description || '(no description)'}`).join('\n')}
 
 ### Package Labels (select zero or more)
-${packageLabels.map((l) => `- **${l.name}**: ${l.description || '(no description)'}`).join('\n')}
+${packageLabels.map((l) => `- "${l.name}": ${l.description || '(no description)'}`).join('\n')}
 
 --- 
 
