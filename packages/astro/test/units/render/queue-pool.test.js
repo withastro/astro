@@ -1,5 +1,5 @@
 import { describe, it } from 'node:test';
-import { strictEqual, ok } from 'node:assert';
+import { strictEqual } from 'node:assert';
 import { QueueNodePool } from '../../../dist/runtime/server/render/queue/pool.js';
 
 describe('QueueNodePool', () => {
@@ -28,7 +28,8 @@ describe('QueueNodePool', () => {
 		// Acquire another node - should get the same instance but reset
 		const node2 = pool.acquire('html-string');
 		strictEqual(node2.type, 'html-string'); // Type updated
-		strictEqual(node2.content, undefined); // Content cleared
+		strictEqual(node2.content, undefined); // Content field cleared
+		strictEqual(node2.html, undefined); // HTML field cleared
 		strictEqual(node2.parent, undefined); // Parent cleared
 		strictEqual(node2.position, undefined); // Position cleared
 
@@ -82,11 +83,8 @@ describe('QueueNodePool', () => {
 
 		// Create a fully populated node
 		const node = pool.acquire('component');
-		node.parent = { type: 'element' };
+		node.parent = { type: 'fragment' };
 		node.children = [];
-		node.tagName = 'div';
-		node.props = { id: 'test' };
-		node.hasChildren = true;
 		node.factory = () => {};
 		node.instance = {};
 		node.isPropagator = true;
@@ -102,20 +100,18 @@ describe('QueueNodePool', () => {
 		node.originalValue = 'original';
 		node.position = 10;
 
-		// Release and re-acquire
+		// Release and re-acquire as text (different type)
 		pool.release(node);
 		const reused = pool.acquire('text');
 
 		// Should be the same instance
 		strictEqual(node, reused);
 
-		// All fields should be reset except type
+		// All fields should be cleared (conservative approach)
 		strictEqual(reused.type, 'text');
+		strictEqual(reused.content, undefined);
 		strictEqual(reused.parent, undefined);
 		strictEqual(reused.children, undefined);
-		strictEqual(reused.tagName, undefined);
-		strictEqual(reused.props, undefined);
-		strictEqual(reused.hasChildren, undefined);
 		strictEqual(reused.factory, undefined);
 		strictEqual(reused.instance, undefined);
 		strictEqual(reused.isPropagator, undefined);
@@ -123,7 +119,6 @@ describe('QueueNodePool', () => {
 		strictEqual(reused.promise, undefined);
 		strictEqual(reused.resolved, undefined);
 		strictEqual(reused.resolvedValue, undefined);
-		strictEqual(reused.content, undefined);
 		strictEqual(reused.html, undefined);
 		strictEqual(reused.instruction, undefined);
 		strictEqual(reused.slotName, undefined);

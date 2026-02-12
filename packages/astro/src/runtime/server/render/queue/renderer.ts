@@ -17,6 +17,7 @@ export async function renderQueue(
 	destination: RenderDestination,
 ): Promise<void> {
 	const result = queue.result;
+	const pool = queue.pool;
 	let batchBuffer = '';
 	let i = 0;
 
@@ -27,6 +28,7 @@ export async function renderQueue(
 			// Check if this node can be batched
 			if (canBatch(node)) {
 				// Accumulate consecutive batchable content
+				const batchStart = i;
 				while (i < queue.nodes.length && canBatch(queue.nodes[i])) {
 					batchBuffer += renderNodeToString(queue.nodes[i], result);
 					i++;
@@ -37,10 +39,23 @@ export async function renderQueue(
 					destination.write(markHTMLString(batchBuffer));
 					batchBuffer = '';
 				}
+
+				// Release batched nodes immediately (enables intra-page pooling)
+				if (pool) {
+					for (let j = batchStart; j < i; j++) {
+						pool.release(queue.nodes[j]);
+					}
+				}
 			} else {
 				// Non-batchable node (component, instruction, etc.)
 				// Render it individually to maintain correct streaming behavior
 				await renderNode(node, destination, result);
+
+				// Release node immediately after rendering (enables intra-page pooling)
+				if (pool) {
+					pool.release(node);
+				}
+
 				i++;
 			}
 		} catch (error) {
@@ -53,11 +68,6 @@ export async function renderQueue(
 	if (batchBuffer) {
 		destination.write(markHTMLString(batchBuffer));
 	}
-
-	// Release all nodes back to the pool for reuse (if pooling is enabled)
-	if (queue.pool) {
-		queue.pool.releaseAll(queue.nodes);
-	}
 }
 
 /**
@@ -66,11 +76,7 @@ export async function renderQueue(
  * without requiring async operations or special handling.
  */
 function canBatch(node: QueueNode): boolean {
-	return (
-		node.type === 'text' ||
-		node.type === 'html-string' ||
-		(node.type === 'element' && !node.hasChildren)
-	);
+	return node.type === 'text' || node.type === 'html-string';
 }
 
 /**
@@ -84,14 +90,6 @@ function renderNodeToString(node: QueueNode, _result: SSRResult): string {
 
 		case 'html-string':
 			return node.html || '';
-
-		case 'element':
-			if (node.tagName && !node.hasChildren) {
-				const attrs = renderAttributes(node.props || {});
-				const content = node.content || '';
-				return `<${node.tagName}${attrs}>${content}</${node.tagName}>`;
-			}
-			return '';
 
 		default:
 			return '';
@@ -127,25 +125,6 @@ async function renderNode(
 			// Render instructions (head content, hydration scripts, etc.)
 			if (node.instruction) {
 				destination.write(node.instruction);
-			}
-			break;
-		}
-
-		case 'element': {
-			// Render HTML element
-			if (node.tagName) {
-				if (node.hasChildren) {
-					// Opening tag for element with children
-					const attrs = renderAttributes(node.props || {});
-					destination.write(markHTMLString(`<${node.tagName}${attrs}>`));
-				} else {
-					// Self-closing or element with text content
-					const attrs = renderAttributes(node.props || {});
-					const content = node.content || '';
-					destination.write(
-						markHTMLString(`<${node.tagName}${attrs}>${content}</${node.tagName}>`),
-					);
-				}
 			}
 			break;
 		}
@@ -213,35 +192,4 @@ async function renderNode(
 			break;
 		}
 	}
-}
-
-/**
- * Renders HTML attributes from a props object
- */
-function renderAttributes(props: Record<string, any>): string {
-	const attrs: string[] = [];
-
-	for (const [key, value] of Object.entries(props)) {
-		if (value == null || value === false) {
-			continue;
-		}
-
-		// Boolean attributes
-		if (value === true) {
-			attrs.push(key);
-			continue;
-		}
-
-		// Regular attributes
-		const escapedValue = String(value)
-			.replace(/&/g, '&amp;')
-			.replace(/"/g, '&quot;')
-			.replace(/'/g, '&#39;')
-			.replace(/</g, '&lt;')
-			.replace(/>/g, '&gt;');
-
-		attrs.push(`${key}="${escapedValue}"`);
-	}
-
-	return attrs.length > 0 ? ' ' + attrs.join(' ') : '';
 }
