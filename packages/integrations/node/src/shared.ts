@@ -4,6 +4,7 @@ import * as url from 'node:url';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
 import type { Options } from './types.js';
 import type { NodeAppHeadersJson } from 'astro';
+import { Readable } from 'node:stream';
 
 export const STATIC_HEADERS_FILE = '_headers.json';
 export const PREVIEW_KEY = 'ASTRO_NODE_PREVIEW'
@@ -52,4 +53,36 @@ export function readHeadersJson(outDir: string | URL): NodeAppHeadersJson | unde
 		}
 	}
 	return headersMap;
+}
+
+/**
+ * Read a prerendered error page from disk and return it as a Response.
+ * Returns undefined if the file doesn't exist or can't be read.
+ */
+export async function readErrorPageFromDisk(
+	client: string,
+	status: number,
+): Promise<Response | undefined> {
+	// Try both /404.html and /404/index.html patterns
+	const filePaths = [`${status}.html`, `${status}/index.html`];
+
+	for (const filePath of filePaths) {
+		const fullPath = path.join(client, filePath);
+		try {
+			const stream = fs.createReadStream(fullPath);
+			// Wait for the stream to open successfully or error
+			await new Promise<void>((resolve, reject) => {
+				stream.once('open', () => resolve());
+				stream.once('error', reject);
+			});
+			const webStream = Readable.toWeb(stream) as ReadableStream;
+			return new Response(webStream, {
+				headers: { 'Content-Type': 'text/html; charset=utf-8' },
+			});
+		} catch {
+			// File doesn't exist or can't be read, try next pattern
+		}
+	}
+
+	return undefined;
 }
