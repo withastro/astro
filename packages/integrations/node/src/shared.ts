@@ -7,7 +7,8 @@ import type { NodeAppHeadersJson } from 'astro';
 import { Readable } from 'node:stream';
 
 export const STATIC_HEADERS_FILE = '_headers.json';
-export const PREVIEW_KEY = 'ASTRO_NODE_PREVIEW'
+export const PREVIEW_KEY = 'ASTRO_NODE_PREVIEW';
+export const LOGGING_KEY = 'ASTRO_NODE_LOGGING';
 
 /**
  * Resolves the client directory path at runtime.

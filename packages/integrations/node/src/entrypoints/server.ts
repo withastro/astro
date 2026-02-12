@@ -5,7 +5,7 @@ import type { NodeAppHeadersJson } from 'astro';
 import { logListeningOn } from '../log-listening-on.js';
 import { createServer, createStandaloneHandler, hostOptions } from '../create-server.js';
 import { setGetEnv } from 'astro/env/setup';
-import { readHeadersJson } from '../shared.js';
+import { LOGGING_KEY, readHeadersJson } from '../shared.js';
 import { isPreview } from './utils.js';
 import type { CreateNodePreviewServer } from '../types.js';
 
@@ -28,7 +28,7 @@ function startServer() {
 
 	const server = createServer(createStandaloneHandler(app, options));
 	server.listen(port, host);
-	if (process.env.ASTRO_NODE_LOGGING !== 'disabled') {
+	if (process.env[LOGGING_KEY] !== 'disabled') {
 		logListeningOn(app.getAdapterLogger(), server, host);
 	}
 	return server;
@@ -58,7 +58,10 @@ export const createNodePreviewServer: CreateNodePreviewServer = async ({
 		});
 	}
 
-	logListeningOn(logger, server, host);
+	if (process.env[LOGGING_KEY] !== 'disabled') {
+		logListeningOn(logger, server, host);
+	}
+
 	await new Promise<void>((resolve, reject) => {
 		server.once('listening', resolve);
 		server.once('error', reject);
