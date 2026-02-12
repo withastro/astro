@@ -95,16 +95,11 @@ Keep the reproduction as minimal as possible — only add what's needed to trigg
 
 ## Step 5: Attempt Reproduction in the Triage Project
 
-Test both:
+Use all of the tools at your disposal — `pnpm run dev|build|preview|test`, `curl`, `agent-browser`, etc.
 
-1. **The broken case** — follow the steps to trigger the bug
-2. **The working case** — verify the project works normally before the breaking change
-
-Document what you observe:
-
-- Exact error messages and stack traces
-- Which command triggers the issue
-- Whether the issue is consistent or intermittent
+1. **Trigger the bug.** Follow the reproduction steps from the issue and confirm that the bug appears.
+2. **Verify the baseline.** Remove or reverse the triggering code and confirm the project works without the bug. This guards against false positives — if the project is still broken without the triggering code, the issue may be in your setup, not the reported bug.
+3. **Document what you observe.** Record exact error messages and stack traces, which command triggers the issue, and whether it's consistent or intermittent.
 
 ## Step 6: Write Output
 
