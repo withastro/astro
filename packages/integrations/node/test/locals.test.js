@@ -19,7 +19,7 @@ describe('API routes', () => {
 	});
 
 	it('Can use locals added by node middleware', async () => {
-		const { nodeHandler } = await import('./fixtures/locals/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 		const { req, res, text } = createRequestAndResponse({
 			url: '/from-node-middleware',
 		});
@@ -35,7 +35,7 @@ describe('API routes', () => {
 	});
 
 	it('Throws an error when provided non-objects as locals', async () => {
-		const { nodeHandler } = await import('./fixtures/locals/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 		const { req, res, done } = createRequestAndResponse({
 			url: '/from-node-middleware',
 		});
@@ -48,7 +48,7 @@ describe('API routes', () => {
 	});
 
 	it('Can use locals added by astro middleware', async () => {
-		const { nodeHandler } = await import('./fixtures/locals/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 
 		const { req, res, text } = createRequestAndResponse({
 			url: '/from-astro-middleware',
@@ -63,7 +63,7 @@ describe('API routes', () => {
 	});
 
 	it('Can access locals in API', async () => {
-		const { nodeHandler } = await import('./fixtures/locals/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 		const { req, res, done } = createRequestAndResponse({
 			method: 'POST',
 			url: '/api',

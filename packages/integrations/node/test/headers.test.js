@@ -133,7 +133,7 @@ describe('Node Adapter Headers', () => {
 
 		// TODO: needs e2e tests to check real headers
 		it('sends several chunks', async () => {
-			const { nodeHandler } = await import('./fixtures/headers/dist/server/entry.mjs');
+			const { nodeHandler } = await fixture.loadAdapterEntryModule();
 
 			const { req, res, done } = createRequestAndResponse({
 				method: 'GET',
@@ -164,7 +164,7 @@ describe('Node Adapter Headers', () => {
 
 		// TODO: needs e2e tests to check real headers
 		it('sends a single chunk', async () => {
-			const { nodeHandler } = await import('./fixtures/headers/dist/server/entry.mjs?cachebust=0');
+			const { nodeHandler } = await fixture.loadAdapterEntryModule();
 
 			const { req, res, done } = createRequestAndResponse({
 				method: 'GET',
@@ -182,7 +182,7 @@ describe('Node Adapter Headers', () => {
 });
 
 async function runTest(url, expectedHeaders) {
-	const { nodeHandler } = await import('./fixtures/headers/dist/server/entry.mjs');
+	const { nodeHandler } = await fixture.loadAdapterEntryModule();
 
 	const { req, res, done } = createRequestAndResponse({
 		method: 'GET',

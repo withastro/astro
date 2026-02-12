@@ -19,7 +19,7 @@ describe('URL', () => {
 	});
 
 	it('return http when non-secure', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const { handler } = await fixture.loadAdapterEntryModule();
 		const { req, res, text } = createRequestAndResponse({
 			url: '/',
 		});
@@ -32,7 +32,7 @@ describe('URL', () => {
 	});
 
 	it('return https when secure', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const { handler } = await fixture.loadAdapterEntryModule();
 		const { req, res, text } = createRequestAndResponse({
 			socket: new TLSSocket(),
 			url: '/',
@@ -46,7 +46,7 @@ describe('URL', () => {
 	});
 
 	it('return http when the X-Forwarded-Proto header is set to http', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const { handler } = await fixture.loadAdapterEntryModule();
 		const { req, res, text } = createRequestAndResponse({
 			headers: { 'X-Forwarded-Proto': 'http' },
 			url: '/',
@@ -60,7 +60,7 @@ describe('URL', () => {
 	});
 
 	it('return https when the X-Forwarded-Proto header is set to https', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const { handler } = await fixture.loadAdapterEntryModule();
 		const { req, res, text } = createRequestAndResponse({
 			headers: { 'X-Forwarded-Proto': 'https' },
 			url: '/',
@@ -74,7 +74,7 @@ describe('URL', () => {
 	});
 
 	it('includes forwarded host and port in the url', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const { handler } = await fixture.loadAdapterEntryModule();
 		const { req, res, text } = createRequestAndResponse({
 			headers: {
 				'X-Forwarded-Proto': 'https',
@@ -95,7 +95,7 @@ describe('URL', () => {
 	});
 
 	it('accepts port in forwarded host and forwarded port', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const { handler } = await fixture.loadAdapterEntryModule();
 		const { req, res, text } = createRequestAndResponse({
 			headers: {
 				'X-Forwarded-Proto': 'https',
@@ -115,7 +115,7 @@ describe('URL', () => {
 	});
 
 	it('ignores X-Forwarded-Host when no allowedDomains configured', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const { handler } = await fixture.loadAdapterEntryModule();
 		const { req, res, text } = createRequestAndResponse({
 			headers: {
 				'X-Forwarded-Proto': 'https',
@@ -136,7 +136,7 @@ describe('URL', () => {
 	});
 
 	it('rejects port in forwarded host when port not in allowedDomains', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const { handler } = await fixture.loadAdapterEntryModule();
 		const { req, res, text } = createRequestAndResponse({
 			headers: {
 				'X-Forwarded-Proto': 'https',
@@ -157,7 +157,7 @@ describe('URL', () => {
 	});
 
 	it('rejects empty X-Forwarded-Host with allowedDomains configured', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const { handler } = await fixture.loadAdapterEntryModule();
 		const { req, res, text } = createRequestAndResponse({
 			headers: {
 				'X-Forwarded-Proto': 'https',
@@ -178,7 +178,7 @@ describe('URL', () => {
 	});
 
 	it('rejects X-Forwarded-Host with path injection attempt', async () => {
-		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
+		const { handler } = await fixture.loadAdapterEntryModule();
 		const { req, res, text } = createRequestAndResponse({
 			headers: {
 				'X-Forwarded-Proto': 'https',

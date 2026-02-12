@@ -20,7 +20,7 @@ describe('API routes', () => {
 	});
 
 	it('Can get the request body', async () => {
-		const { nodeHandler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 		const { req, res, done } = createRequestAndResponse({
 			method: 'POST',
 			url: '/recipes',
@@ -42,7 +42,7 @@ describe('API routes', () => {
 	});
 
 	it('Can get binary data', async () => {
-		const { nodeHandler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 
 		const { req, res, done } = createRequestAndResponse({
 			method: 'POST',
@@ -61,7 +61,7 @@ describe('API routes', () => {
 	});
 
 	it('Can post large binary data', async () => {
-		const { nodeHandler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 
 		const { req, res, done } = createRequestAndResponse({
 			method: 'POST',
@@ -94,7 +94,7 @@ describe('API routes', () => {
 	});
 
 	it('Can bail on streaming', async () => {
-		const { nodeHandler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 		const { req, res, done } = createRequestAndResponse({
 			url: '/streaming',
 		});
@@ -113,7 +113,7 @@ describe('API routes', () => {
 	});
 
 	it('Can respond with SSR redirect', async () => {
-		const { nodeHandler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 		const { req, res, done } = createRequestAndResponse({
 			url: '/redirect',
 		});
@@ -128,7 +128,7 @@ describe('API routes', () => {
 	});
 
 	it('Can respond with Astro.redirect', async () => {
-		const { nodeHandler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 		const { req, res, done } = createRequestAndResponse({
 			url: '/astro-redirect',
 		});
@@ -143,7 +143,7 @@ describe('API routes', () => {
 	});
 
 	it('Can respond with Response.redirect', async () => {
-		const { nodeHandler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 		const { req, res, done } = createRequestAndResponse({
 			url: '/response-redirect',
 		});

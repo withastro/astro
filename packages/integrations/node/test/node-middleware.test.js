@@ -23,9 +23,7 @@ describe('behavior from middleware, standalone', () => {
 			}),
 		});
 		await fixture.build();
-		const { startServer } = await import(
-			`./fixtures/node-middleware/dist/server/entry.mjs?id=${Date.now()}`
-		);
+		const { startServer } = await fixture.loadAdapterEntryModule();
 		server = startServer();
 		await waitServerListen(server.server);
 	});
@@ -67,9 +65,7 @@ describe('behavior from middleware, middleware with express', () => {
 			}),
 		});
 		await fixture.build();
-		const { startServer } = await import(
-			`./fixtures/node-middleware/dist/server/entry.mjs?id=${Date.now()}`
-		);
+		const { startServer } = await fixture.loadAdapterEntryModule();
 		server = await startServer();
 	});
 
@@ -154,9 +150,7 @@ describe('behavior from middleware, middleware with fastify', () => {
 			}),
 		});
 		await fixture.build();
-		const { startServer } = await import(
-			`./fixtures/node-middleware/dist/server/entry.mjs?id=${Date.now()}`
-		);
+		const { startServer } = await fixture.loadAdapterEntryModule();
 		server = await startServer();
 	});
 

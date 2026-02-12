@@ -19,7 +19,7 @@ describe('Encoded Pathname', () => {
 	});
 
 	it('Can get an Astro file', async () => {
-		const { nodeHandler } = await import('./fixtures/encoded/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 		const { req, res, text } = createRequestAndResponse({
 			url: '/什么',
 		});
@@ -32,7 +32,7 @@ describe('Encoded Pathname', () => {
 	});
 
 	it('Can get a Markdown file', async () => {
-		const { nodeHandler } = await import('./fixtures/encoded/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule()
 
 		const { req, res, text } = createRequestAndResponse({
 			url: '/blog/什么',

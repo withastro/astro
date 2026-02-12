@@ -65,7 +65,7 @@ describe('Node request abort integration', () => {
 			root: './fixtures/request-signal/',
 		});
 		await fixture.build();
-		const { nodeHandler } = await import('./fixtures/request-signal/dist/server/entry.mjs');
+		const { nodeHandler } = await fixture.loadAdapterEntryModule();
 		handle = nodeHandler;
 	});
 

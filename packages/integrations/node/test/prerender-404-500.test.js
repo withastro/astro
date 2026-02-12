@@ -31,9 +31,7 @@ describe('Prerender 404', () => {
 				}),
 			});
 			await fixture.build();
-			const { startServer } = await import(
-				'./fixtures/prerender-404-500/dist/server-with-base/server/entry.mjs'
-			);
+			const { startServer } = await fixture.loadAdapterEntryModule();
 			server = startServer();
 			await waitServerListen(server.server);
 		});
@@ -120,9 +118,7 @@ describe('Prerender 404', () => {
 				}),
 			});
 			await fixture.build();
-			const { startServer } = await import(
-				'./fixtures/prerender-404-500/dist/server-without-base/server/entry.mjs'
-			);
+			const { startServer } = await fixture.loadAdapterEntryModule();
 			server = startServer();
 			await waitServerListen(server.server);
 		});
@@ -188,9 +184,7 @@ describe('Hybrid 404', () => {
 				}),
 			});
 			await fixture.build();
-			const { startServer } = await import(
-				'./fixtures/prerender-404-500/dist/hybrid-with-base/server/entry.mjs'
-			);
+			const { startServer } = await fixture.loadAdapterEntryModule();
 			server = startServer();
 			await waitServerListen(server.server);
 		});
@@ -249,9 +243,7 @@ describe('Hybrid 404', () => {
 				}),
 			});
 			await fixture.build();
-			const { startServer } = await import(
-				'./fixtures/prerender-404-500/dist/hybrid-without-base/server/entry.mjs'
-			);
+			const { startServer } = await fixture.loadAdapterEntryModule();
 			server = startServer();
 			await waitServerListen(server.server);
 		});

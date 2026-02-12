@@ -11,7 +11,7 @@ describe('NodeClientAddress', () => {
 				root: './fixtures/client-address-node/',
 			});
 			await fixture.build();
-			const { nodeHandler } = await import('./fixtures/client-address-node/dist/server/entry.mjs');
+			const { nodeHandler } = await fixture.loadAdapterEntryModule()
 			const { req, res, text } = createRequestAndResponse({
 				method: 'GET',
 				url: '/',
@@ -33,7 +33,7 @@ describe('NodeClientAddress', () => {
 				root: './fixtures/client-address-node/',
 			});
 			await fixture.build();
-			const { nodeHandler } = await import('./fixtures/client-address-node/dist/server/entry.mjs');
+			const { nodeHandler } = await fixture.loadAdapterEntryModule();
 			const { req, res, text } = createRequestAndResponse({
 				method: 'GET',
 				url: '/',
