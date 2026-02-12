@@ -27,6 +27,8 @@ import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../routing/match.js';
+import type { AstroCache } from '../cache/runtime.js';
+import type { NoopAstroCache } from '../cache/noop.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
@@ -429,6 +431,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 		let response;
 		let session: AstroSession | undefined;
+		let cache: AstroCache | NoopAstroCache | undefined;
 		try {
 			// Load route module. We also catch its error here if it fails on initialization
 			const componentInstance = await this.pipeline.getComponentByRoute(routeData);
@@ -442,7 +445,29 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				clientAddress,
 			});
 			session = renderContext.session;
-			response = await renderContext.render(componentInstance);
+			cache = renderContext.cache;
+
+			// If the cache provider has an onRequest handler (runtime caching),
+			// wrap the render call so the provider can serve from cache
+			const cacheProvider = await this.pipeline.getCacheProvider();
+			if (cacheProvider?.onRequest) {
+				response = await cacheProvider.onRequest(
+					{ request, url: new URL(request.url) },
+					async () => {
+						const res = await renderContext.render(componentInstance);
+						// Apply cache headers before the provider reads them
+						cache!._applyHeaders(res);
+						return res;
+					},
+				);
+				// Strip CDN headers after the runtime provider has read them
+				response.headers.delete('CDN-Cache-Control');
+				response.headers.delete('Cache-Tag');
+			} else {
+				response = await renderContext.render(componentInstance);
+				// Apply cache headers for CDN-based providers (no onRequest)
+				cache._applyHeaders(response);
+			}
 		} catch (err: any) {
 			this.logger.error(null, err.stack || err.message || String(err));
 			return this.renderError(request, {

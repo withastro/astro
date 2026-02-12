@@ -23,6 +23,8 @@ import { sequence } from './middleware/sequence.js';
 import { RedirectSinglePageBuiltModule } from './redirects/index.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
+import type { CacheProvider, CacheProviderFactory } from './cache/types.js';
+import type { CompiledCacheRoute } from './cache/route-matching.js';
 import type { SessionDriverFactory } from './session/types.js';
 
 /**
@@ -36,6 +38,8 @@ export abstract class Pipeline {
 	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
 	resolvedActions: SSRActions | undefined = undefined;
 	resolvedSessionDriver: SessionDriverFactory | null | undefined = undefined;
+	resolvedCacheProvider: CacheProvider | null | undefined = undefined;
+	compiledCacheRoutes: CompiledCacheRoute[] | undefined = undefined;
 
 	constructor(
 		readonly logger: Logger,
@@ -70,6 +74,8 @@ export abstract class Pipeline {
 
 		readonly actions = manifest.actions,
 		readonly sessionDriver = manifest.sessionDriver,
+		readonly cacheDriver = manifest.cacheDriver,
+		readonly cacheConfig = manifest.cacheConfig,
 		readonly serverIslands = manifest.serverIslandMappings,
 	) {
 		this.internalMiddleware = [];
@@ -158,6 +164,25 @@ export abstract class Pipeline {
 
 		// No driver configured
 		this.resolvedSessionDriver = null;
+		return null;
+	}
+
+	async getCacheProvider(): Promise<CacheProvider | null> {
+		// Return cached value if already resolved (including null)
+		if (this.resolvedCacheProvider !== undefined) {
+			return this.resolvedCacheProvider;
+		}
+
+		// Try to load the driver from the manifest
+		if (this.cacheDriver) {
+			const mod = await this.cacheDriver();
+			const factory: CacheProviderFactory | null = mod?.default || null;
+			this.resolvedCacheProvider = factory ? factory(this.cacheConfig?.options) : null;
+			return this.resolvedCacheProvider;
+		}
+
+		// No driver configured
+		this.resolvedCacheProvider = null;
 		return null;
 	}
 

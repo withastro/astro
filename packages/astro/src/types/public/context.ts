@@ -1,6 +1,8 @@
 import type { ActionClient, ActionReturnType } from '../../actions/runtime/types.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
 import type { CspDirective, CspHash } from '../../core/csp/config.js';
+import type { AstroCache } from '../../core/cache/runtime.js';
+import type { NoopAstroCache } from '../../core/cache/noop.js';
 import type { AstroSession } from '../../core/session/runtime.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { RewritePayload } from './common.js';
@@ -202,6 +204,16 @@ export interface APIContext<
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#session)
 	 */
 	session: AstroSession | undefined;
+
+	/**
+	 * An object for controlling route-level caching of SSR responses.
+	 *
+	 * Use `cache.set()` to configure caching options, `cache.tags` to read accumulated tags,
+	 * and `cache.invalidate()` to purge cached entries.
+	 *
+	 * In dev mode, the cache object is available but performs no caching.
+	 */
+	cache: AstroCache | NoopAstroCache;
 
 	/**
 	 * A standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object containing information about the current request.
