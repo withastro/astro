@@ -1,5 +1,5 @@
 import type { AstroPrerenderer, PathWithRoute } from '../../types/public/integrations.js';
-import assert from 'node:assert/strict';
+import { invariant } from '../util/invariant.js';
 import type { BuildInternals } from './internal.js';
 import type { BuildApp } from './app.js';
 import type { StaticBuildOptions } from './types.js';
@@ -45,7 +45,7 @@ export function createDefaultPrerenderer({
 		async setup() {
 			// Import the prerender entry bundle
 			const prerenderEntryFileName = internals.prerenderEntryFileName;
-			assert.ok(
+			invariant(
 				prerenderEntryFileName,
 				'Prerender entry filename not found in build internals. This is likely a bug in Astro.',
 			);
@@ -82,7 +82,7 @@ export function createDefaultPrerenderer({
 		},
 
 		async getStaticPaths(): Promise<PathWithRoute[]> {
-			assert.ok(
+			invariant(
 				workerPool && workerOptions && prerenderEntryUrl,
 				'Prerender worker pool not initialized.',
 			);
@@ -96,16 +96,16 @@ export function createDefaultPrerenderer({
 				});
 				workersInitialized = true;
 			}
-			assert.ok(routeKeyMap, 'Route key map not initialized.');
+			invariant(routeKeyMap, 'Route key map not initialized.');
 			return result.paths.map(({ pathname, routeKey }) => {
 				const route = routeKeyMap!.get(routeKey);
-				assert.ok(route, `Unknown route key: ${routeKey}`);
+				invariant(route, `Unknown route key: ${routeKey}`);
 				return { pathname, route };
 			});
 		},
 
 		async render(request, { routeData }) {
-			assert.ok(workerPool, 'Prerender worker pool not initialized.');
+			invariant(workerPool, 'Prerender worker pool not initialized.');
 			const routeKey = getRouteCacheKey(routeData);
 			const result = await workerPool.render({
 				url: request.url,

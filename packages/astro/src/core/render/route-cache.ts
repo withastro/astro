@@ -1,4 +1,4 @@
-import assert from 'node:assert/strict';
+import { invariant } from '../util/invariant.js';
 import type { ComponentInstance } from '../../types/astro.js';
 import type {
 	GetStaticPathsItem,
@@ -160,7 +160,7 @@ export function getRouteCacheKey(route: Pick<RouteData, 'route' | 'component'>):
 
 export function serializeRouteCache(routeCache: RouteCache): SerializedRouteCache {
 	const entries = routeCache.getEntries().map(({ key, entry }) => {
-		assert.ok(entry.route, `Route cache entry missing route data for ${key}`);
+		invariant(entry.route, `Route cache entry missing route data for ${key}`);
 		return {
 			key,
 			route: entry.route,

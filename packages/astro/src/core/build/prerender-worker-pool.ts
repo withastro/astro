@@ -1,4 +1,4 @@
-import assert from 'node:assert/strict';
+import { invariant } from '../util/invariant.js';
 import { Worker } from 'node:worker_threads';
 import type {
 	PrerenderWorkerInitMessage,
@@ -61,7 +61,7 @@ export class PrerenderWorkerPool {
 
 	async initWorker(index: number, payload: WorkerInitPayload) {
 		const worker = this.workers[index];
-		assert.ok(worker, `Invalid worker index ${index}`);
+		invariant(worker, `Invalid worker index ${index}`);
 		const message: PrerenderWorkerInitMessage = {
 			type: 'init',
 			id: this.nextId++,
@@ -83,7 +83,7 @@ export class PrerenderWorkerPool {
 
 	async getStaticPaths(): Promise<PrerenderWorkerStaticPathsResult> {
 		const worker = this.workers[0];
-		assert.ok(worker, 'No worker available for getStaticPaths.');
+		invariant(worker, 'No worker available for getStaticPaths.');
 		const message: PrerenderWorkerGetStaticPathsMessage = {
 			type: 'getStaticPaths',
 			id: this.nextId++,

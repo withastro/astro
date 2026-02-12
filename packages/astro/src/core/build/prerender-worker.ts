@@ -16,9 +16,9 @@ import type {
 	PrerenderWorkerGetStaticPathsMessage,
 	PrerenderWorkerRenderMessage,
 } from './prerender-worker-messages.js';
-import assert from 'node:assert/strict';
+import { invariant } from '../util/invariant.js';
 
-assert.ok(parentPort, 'Prerender worker must be started with a parent port.');
+invariant(parentPort, 'Prerender worker must be started with a parent port.');
 
 let app: BuildApp | undefined;
 let options: BuildRenderOptions | undefined;
@@ -64,7 +64,7 @@ function serializeError(error: unknown) {
 }
 
 async function handleGetStaticPaths(_message: PrerenderWorkerGetStaticPathsMessage) {
-	assert.ok(app, 'Prerender worker not initialized.');
+	invariant(app, 'Prerender worker not initialized.');
 	const staticPaths = new StaticPaths(app);
 	const paths = await staticPaths.getAll();
 	const routeCache = serializeRouteCache(app.pipeline.routeCache);
@@ -80,9 +80,9 @@ async function handleGetStaticPaths(_message: PrerenderWorkerGetStaticPathsMessa
 }
 
 async function handleRender(message: PrerenderWorkerRenderMessage) {
-	assert.ok(app && options && routeMap, 'Prerender worker not initialized.');
+	invariant(app && options && routeMap, 'Prerender worker not initialized.');
 	const route = routeMap.get(message.routeKey);
-	assert.ok(route, `Unknown route key: ${message.routeKey}`);
+	invariant(route, `Unknown route key: ${message.routeKey}`);
 
 	const request = createRequest({
 		url: message.url,
@@ -109,7 +109,7 @@ async function handleRender(message: PrerenderWorkerRenderMessage) {
 
 parentPort.on('message', async (rawMessage: PrerenderWorkerIncomingMessage) => {
 	try {
-		assert.ok(parentPort);
+		invariant(parentPort, 'Prerender worker parent port missing.');
 		switch (rawMessage.type) {
 			case 'init': {
 				await initialize(rawMessage);
@@ -159,7 +159,7 @@ parentPort.on('message', async (rawMessage: PrerenderWorkerIncomingMessage) => {
 			id: rawMessage.id,
 			error: serializeError(error),
 		};
-		assert.ok(parentPort);
+		invariant(parentPort, 'Prerender worker parent port missing.');
 		parentPort.postMessage(response);
 	}
 });
