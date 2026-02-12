@@ -13,7 +13,6 @@ export interface QueueNode {
 	 * The type of node determines how it will be rendered
 	 */
 	type:
-		| 'element' // HTML element like <div>, <span>
 		| 'text' // Plain text content
 		| 'component' // Astro component
 		| 'fragment' // Fragment (no wrapper)
@@ -29,25 +28,9 @@ export interface QueueNode {
 	parent?: QueueNode;
 
 	/**
-	 * Children nodes (for elements that have children)
+	 * Children nodes (for container types)
 	 */
 	children?: QueueNode[];
-
-	// ============ Element-specific fields ============
-	/**
-	 * HTML tag name (for type: 'element')
-	 */
-	tagName?: string;
-
-	/**
-	 * Element attributes/props (for type: 'element')
-	 */
-	props?: Record<string, any>;
-
-	/**
-	 * Whether this element has children that need to be rendered
-	 */
-	hasChildren?: boolean;
 
 	// ============ Component-specific fields ============
 	/**
@@ -152,7 +135,7 @@ export interface RenderQueue {
 	 * SSRResult context
 	 */
 	result: SSRResult;
-	
+
 	/**
 	 * Object pool instance used for node acquisition
 	 */

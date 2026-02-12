@@ -23,7 +23,7 @@ import type { RenderQueue, StackItem } from './types.js';
 export async function buildRenderQueue(root: any, result: SSRResult): Promise<RenderQueue> {
 	// Get pool based on config (e.g., disable pooling in SSR)
 	const pool = getPoolForConfig(result._experimentalQueuedRenderingConfig);
-	
+
 	const queue: RenderQueue = {
 		nodes: [],
 		asyncBoundaries: [],
@@ -62,8 +62,8 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 
 		// Handle different node types
 		if (typeof node === 'string') {
-			// Plain text content
-			const queueNode = pool.acquire('text');
+			// Plain text content - use content-aware caching
+			const queueNode = pool.acquire('text', node);
 			queueNode.content = node;
 			queueNode.parent = parent || undefined;
 			queueNode.originalValue = node;
@@ -72,29 +72,32 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 		}
 
 		if (typeof node === 'number' || typeof node === 'boolean') {
-			// Convert to string
-			const queueNode = pool.acquire('text');
-			queueNode.content = String(node);
+			// Convert to string - use content-aware caching
+			const str = String(node);
+			const queueNode = pool.acquire('text', str);
+			queueNode.content = str;
 			queueNode.parent = parent || undefined;
 			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 			continue;
 		}
 
-		// Handle HTML strings (marked as safe)
+		// Handle HTML strings (marked as safe) - use content-aware caching
 		if (isHTMLString(node)) {
-			const queueNode = pool.acquire('html-string');
-			queueNode.html = node.toString();
+			const html = node.toString();
+			const queueNode = pool.acquire('html-string', html);
+			queueNode.html = html;
 			queueNode.parent = parent || undefined;
 			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 			continue;
 		}
 
-		// Handle SlotString
+		// Handle SlotString - use content-aware caching
 		if (node instanceof SlotString) {
-			const queueNode = pool.acquire('html-string');
-			queueNode.html = node.toString();
+			const html = node.toString();
+			const queueNode = pool.acquire('html-string', html);
+			queueNode.html = html;
 			queueNode.parent = parent || undefined;
 			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
@@ -256,7 +259,7 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 		if (node instanceof Response) {
 			// Responses can't be rendered in the queue, they need to bubble up
 			// We'll create a special node for this
-			const queueNode = pool.acquire('html-string');
+			const queueNode = pool.acquire('html-string', '');
 			queueNode.html = '';
 			queueNode.parent = parent || undefined;
 			queueNode.originalValue = node;
@@ -264,17 +267,19 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 			continue;
 		}
 
-		// Fallback: convert to string
+		// Fallback: convert to string - use content-aware caching
 		// Check if it's already marked as safe HTML (HTMLString)
 		if (isHTMLString(node)) {
-			const queueNode = pool.acquire('html-string');
-			queueNode.html = String(node);
+			const html = String(node);
+			const queueNode = pool.acquire('html-string', html);
+			queueNode.html = html;
 			queueNode.parent = parent || undefined;
 			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
 		} else {
-			const queueNode = pool.acquire('text');
-			queueNode.content = String(node);
+			const str = String(node);
+			const queueNode = pool.acquire('text', str);
+			queueNode.content = str;
 			queueNode.parent = parent || undefined;
 			queueNode.originalValue = node;
 			queue.nodes.push(queueNode);
