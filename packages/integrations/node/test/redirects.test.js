@@ -11,12 +11,13 @@ describe('Redirects', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/redirects/',
-			adapter: node(),
+			adapter: node({
+				serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+			}),
 		});
 		await fixture.build();
 		const { startServer } = await fixture.loadAdapterEntryModule();
-		const res = startServer();
-		server = res.server;
+		server = startServer();
 		await waitServerListen(server.server);
 	});
 

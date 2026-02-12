@@ -37,18 +37,20 @@ describe('Static headers', () => {
 		fixture = await loadFixture({
 			root: './fixtures/static-headers/',
 			output: 'server',
-			adapter: node({ staticHeaders: true }),
+			adapter: node({
+				serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+				staticHeaders: true,
+			}),
 		});
 		await fixture.build();
 		const { startServer } = await fixture.loadAdapterEntryModule();
-		const res = startServer();
-		server = res.server;
+		server = startServer();
 		await waitServerListen(server.server);
 	});
 
 	after(async () => {
 		await server.stop();
-		// await fixture.clean();
+		await fixture.clean();
 	});
 
 	it('CSP headers are added to the request', async () => {

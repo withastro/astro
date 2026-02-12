@@ -12,7 +12,7 @@ describe('API routes', () => {
 			root: './fixtures/locals/',
 			output: 'server',
 			adapter: node({
-				serverEntrypoint: new URL('./fixtures/locals/src/server.js', import.meta.url),
+				serverEntrypoint: '@astrojs/node/node-handler',
 			}),
 		});
 		await fixture.build();

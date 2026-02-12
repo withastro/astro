@@ -12,7 +12,7 @@ describe('Encoded Pathname', () => {
 			root: './fixtures/encoded/',
 			output: 'server',
 			adapter: node({
-				serverEntrypoint: new URL('./fixtures/encoded/src/server.js', import.meta.url),
+				serverEntrypoint: '@astrojs/node/node-handler',
 			}),
 		});
 		await fixture.build();

@@ -5,6 +5,6 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	output: 'server',
 	adapter: node({
-		serverEntrypoint: './src/server.js'
+		serverEntrypoint: '@astrojs/node/node-handler'
 	}),
 });

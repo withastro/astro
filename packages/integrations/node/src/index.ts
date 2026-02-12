@@ -6,6 +6,7 @@ import { STATIC_HEADERS_FILE } from './shared.js';
 import type { UserOptions } from './types.js';
 import { sessionDrivers } from 'astro/config';
 import { createConfigPlugin } from './vite-plugin-config.js';
+import { createRequire } from 'node:module';
 
 const protocols = ['http:', 'https:'];
 
@@ -84,7 +85,7 @@ export default function createIntegration(userOptions: UserOptions = {}): AstroI
 					entryType: 'self',
 					serverEntrypoint: userOptions.serverEntrypoint
 						? typeof userOptions.serverEntrypoint === 'string'
-							? new URL(userOptions.serverEntrypoint, _config.root)
+							? createRequire(_config.root).resolve(userOptions.serverEntrypoint)
 							: userOptions.serverEntrypoint
 						: '@astrojs/node/server.js',
 					previewEntrypoint: '@astrojs/node/preview.js',

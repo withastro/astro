@@ -24,12 +24,13 @@ describe('Trailing slash', () => {
 					output: 'static',
 					trailingSlash: 'always',
 					outDir: './dist/always-with-base',
-					adapter: node(),
+					adapter: node({
+						serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+					}),
 				});
 				await fixture.build();
 				const { startServer } = await fixture.loadAdapterEntryModule();
-				const res = startServer();
-				server = res.server;
+				server = startServer();
 				await waitServerListen(server.server);
 			});
 
@@ -103,12 +104,13 @@ describe('Trailing slash', () => {
 					output: 'static',
 					trailingSlash: 'always',
 					outDir: './dist/always-without-base',
-					adapter: node(),
+					adapter: node({
+						serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+					}),
 				});
 				await fixture.build();
 				const { startServer } = await fixture.loadAdapterEntryModule();
-				const res = startServer();
-				server = res.server;
+				server = startServer();
 				await waitServerListen(server.server);
 			});
 
@@ -182,12 +184,13 @@ describe('Trailing slash', () => {
 				fixture = await loadFixture({
 					root: './fixtures/trailing-slash/',
 					trailingSlash: 'always',
-					adapter: node(),
+					adapter: node({
+						serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+					}),
 				});
 				await fixture.build();
 				const { startServer } = await fixture.loadAdapterEntryModule();
-				const res = startServer();
-				server = res.server;
+				server = startServer();
 				await waitServerListen(server.server);
 			});
 
@@ -222,12 +225,13 @@ describe('Trailing slash', () => {
 					output: 'static',
 					trailingSlash: 'never',
 					outDir: './dist/never-with-base',
-					adapter: node(),
+					adapter: node({
+						serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+					}),
 				});
 				await fixture.build();
 				const { startServer } = await fixture.loadAdapterEntryModule();
-				const res = startServer();
-				server = res.server;
+				server = startServer();
 				await waitServerListen(server.server);
 			});
 
@@ -283,12 +287,13 @@ describe('Trailing slash', () => {
 					output: 'static',
 					trailingSlash: 'never',
 					outDir: './dist/never-without-base',
-					adapter: node(),
+					adapter: node({
+						serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+					}),
 				});
 				await fixture.build();
 				const { startServer } = await fixture.loadAdapterEntryModule();
-				const res = startServer();
-				server = res.server;
+				server = startServer();
 				await waitServerListen(server.server);
 			});
 
@@ -347,12 +352,13 @@ describe('Trailing slash', () => {
 					output: 'static',
 					trailingSlash: 'ignore',
 					outDir: './dist/ignore-with-base',
-					adapter: node(),
+					adapter: node({
+						serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+					}),
 				});
 				await fixture.build();
 				const { startServer } = await fixture.loadAdapterEntryModule();
-				const res = startServer();
-				server = res.server;
+				server = startServer();
 				await waitServerListen(server.server);
 			});
 
@@ -426,12 +432,13 @@ describe('Trailing slash', () => {
 					output: 'static',
 					trailingSlash: 'ignore',
 					outDir: './dist/ignore-without-base',
-					adapter: node(),
+					adapter: node({
+						serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+					}),
 				});
 				await fixture.build();
 				const { startServer } = await fixture.loadAdapterEntryModule();
-				const res = startServer();
-				server = res.server;
+				server = startServer();
 				await waitServerListen(server.server);
 			});
 

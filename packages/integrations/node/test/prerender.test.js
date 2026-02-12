@@ -22,12 +22,13 @@ describe('Prerendering', () => {
 				root: './fixtures/prerender/',
 				output: 'server',
 				outDir: './dist/with-base',
-				adapter: node(),
+				adapter: node({
+					serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+				}),
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
-			const res = startServer();
-			server = res.server;
+			server = startServer();
 			await waitServerListen(server.server);
 		});
 
@@ -109,12 +110,13 @@ describe('Prerendering', () => {
 				root: './fixtures/prerender/',
 				output: 'server',
 				outDir: './dist/without-base',
-				adapter: node(),
+				adapter: node({
+					serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+				}),
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
-			const res = startServer();
-			server = res.server;
+			server = startServer();
 			await waitServerListen(server.server);
 		});
 
@@ -185,7 +187,9 @@ describe('Prerendering', () => {
 				root: './fixtures/prerender/',
 				output: 'server',
 				outDir: './dist/via-integration',
-				adapter: node(),
+				adapter: node({
+					serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+				}),
 				integrations: [
 					{
 						name: 'test',
@@ -201,8 +205,7 @@ describe('Prerendering', () => {
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
-			const res = startServer();
-			server = res.server;
+			server = startServer();
 			await waitServerListen(server.server);
 		});
 
@@ -243,7 +246,9 @@ describe('Prerendering', () => {
 				root: './fixtures/prerender/',
 				output: 'server',
 				outDir: './dist/dev',
-				adapter: node(),
+				adapter: node({
+					serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+				}),
 			});
 			devServer = await fixture.startDevServer();
 		});
@@ -287,12 +292,13 @@ describe('Hybrid rendering', () => {
 				root: './fixtures/prerender/',
 				output: 'static',
 				outDir: './dist/hybrid-with-base',
-				adapter: node(),
+				adapter: node({
+					serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+				}),
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
-			const res = startServer();
-			server = res.server;
+			server = startServer();
 			await waitServerListen(server.server);
 		});
 
@@ -372,12 +378,13 @@ describe('Hybrid rendering', () => {
 				root: './fixtures/prerender/',
 				output: 'static',
 				outDir: './dist/hybrid-without-base',
-				adapter: node(),
+				adapter: node({
+					serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+				}),
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
-			const res = startServer();
-			server = res.server;
+			server = startServer();
 			await waitServerListen(server.server);
 		});
 
@@ -449,12 +456,13 @@ describe('Hybrid rendering', () => {
 				root: './fixtures/prerender/',
 				output: 'static',
 				outDir: './dist/hybrid-shared-modules',
-				adapter: node(),
+				adapter: node({
+					serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+				}),
 			});
 			await fixture.build();
 			const { startServer } = await fixture.loadAdapterEntryModule();
-			const res = startServer();
-			server = res.server;
+			server = startServer();
 			await waitServerListen(server.server);
 		});
 
