@@ -1,0 +1,34 @@
+---
+// @ts-expect-error virtual mod
+import { paramType } from 'virtual:my:param:type';
+
+export function getStaticPaths ()  {
+	const map = {
+		// Valid types
+		string: "foo",
+		undefined: undefined,
+		
+		// Invalid types
+		number: 123,
+		boolean: false,
+		array: [1, 2, 3],
+		null: null,
+		object: {a: 1},
+		bigint: BigInt(123),
+		function: setTimeout
+	}
+	if (!map.hasOwnProperty(paramType)) {
+		throw new Error(`Invalid type: ${paramType}`);
+	}
+
+	return [{
+		params: {
+			invalidParamsTypeTest: map[paramType] 
+		}
+	}];
+};
+---
+
+<div>
+    <h1>Invalid Params Type Test</h1>
+</div>

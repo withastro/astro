@@ -1,0 +1,90 @@
+name: Issue Triage
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+concurrency:
+  # Only one triage run per issue at a time. New runs queue (not cancel)
+  # to avoid killing in-flight runs when the bot posts its own comment.
+  group: issue-triage-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  triage:
+    # 1. Skip old issues (only run on issues created after this workflow was created)
+    # 2. Skip issues with "auto triage skipped" label
+    # 3. Skip pull requests (issues only)
+    # 4. One of these conditions must be met:
+    #   4a. Issue was just created
+    #   4b. Issue comment was just created, and "needs triage" label exists
+    if: >-
+      github.event.issue.created_at >= '2026-02-11' &&
+      !contains(github.event.issue.labels.*.name, 'auto triage skipped') &&
+      !github.event.issue.pull_request &&
+      ((github.event.action == 'opened') ||
+       (github.event.action == 'created' && contains(github.event.issue.labels.*.name, 'needs triage')))
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install OpenCode
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+          echo "/home/runner/.opencode/bin" >> $GITHUB_PATH
+
+      - name: Install agent-browser
+        run: npm install -g agent-browser && agent-browser install
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Start Cloudflare Tunnel
+        run: |
+          curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /usr/local/bin/cloudflared
+          chmod +x /usr/local/bin/cloudflared
+          cloudflared tunnel --url http://localhost:48765 --no-autoupdate 2>&1 | tee /tmp/cloudflared.log &
+          # Wait for tunnel URL to appear
+          for i in $(seq 1 30); do
+            if grep -qo 'https://[^ ]*\.trycloudflare\.com' /tmp/cloudflared.log; then
+              break
+            fi
+            sleep 1
+          done
+          echo "=========================================="
+          echo "TUNNEL URL:"
+          grep -o 'https://[^ ]*\.trycloudflare\.com' /tmp/cloudflared.log || echo "WARNING: tunnel URL not found"
+          echo "=========================================="
+          echo ""
+          echo "To attach from your machine:"
+          echo "  OPENCODE_API_URL=\$(grep -o 'https://[^ ]*\\.trycloudflare\\.com' /tmp/cloudflared.log) opencode attach"
+
+      - name: Run workflow
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.CI_ANTHROPIC_API_KEY }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          pnpm flue run .flue/workflows/issue-triage.ts \
+            --args "{\"issueNumber\": $ISSUE_NUMBER, \"triageDir\": \"triage/issue-$ISSUE_NUMBER\"}" \
+            --branch "flue/fix-$ISSUE_NUMBER" \
+            --model anthropic/claude-opus-4-6

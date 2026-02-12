@@ -1,0 +1,10 @@
+{
+  "name": "@test/astro-check-no-errors",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/check": "^0.9.6",
+    "typescript": "^5.9.3"
+  }
+}

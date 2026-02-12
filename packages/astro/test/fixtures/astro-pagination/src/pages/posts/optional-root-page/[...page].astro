@@ -1,0 +1,15 @@
+---
+export async function getStaticPaths({paginate}) {
+  const data = Object.values(import.meta.glob('../../post/*.md', { eager: true }));
+  return paginate(data, {pageSize: 1});
+}
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<html>
+  <head>
+    <title>Page</title>
+    <link rel="canonical" href={canonicalURL.href} />
+  </head>
+  <body></body>
+</html>

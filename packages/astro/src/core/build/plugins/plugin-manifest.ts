@@ -1,0 +1,348 @@
+import { fileURLToPath } from 'node:url';
+import { glob } from 'tinyglobby';
+import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
+import { normalizeTheLocale } from '../../../i18n/index.js';
+import { runHookBuildSsr } from '../../../integrations/hooks.js';
+import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../../manifest/serialized.js';
+import type { ExtractedChunk } from '../static-build.js';
+import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
+import { toFallbackType } from '../../app/common.js';
+import { serializeRouteData, toRoutingStrategy } from '../../app/index.js';
+import type {
+	SerializedRouteInfo,
+	SerializedSSRManifest,
+	SSRManifestCSP,
+	SSRManifestI18n,
+} from '../../app/types.js';
+import {
+	getAlgorithm,
+	getDirectives,
+	getScriptHashes,
+	getScriptResources,
+	getStrictDynamic,
+	getStyleHashes,
+	getStyleResources,
+	shouldTrackCspHashes,
+	trackScriptHashes,
+	trackStyleHashes,
+} from '../../csp/common.js';
+import { encodeKey } from '../../encryption.js';
+import { fileExtension, joinPaths, prependForwardSlash } from '../../path.js';
+import { DEFAULT_COMPONENTS } from '../../routing/default.js';
+import { getOutFile, getOutFolder } from '../common.js';
+import type { BuildInternals } from '../internal.js';
+import { cssOrder, mergeInlineCss } from '../runtime.js';
+import type { StaticBuildOptions } from '../types.js';
+import { makePageDataKey } from './util.js';
+import { sessionConfigToManifest } from '../../session/utils.js';
+
+/**
+ * Unified manifest system architecture:
+ *
+ * The serialized manifest (virtual:astro:manifest) is now the single source of truth
+ * for both dev and production builds:
+ *
+ * - In dev: The serialized manifest is used directly (pre-computed manifest data)
+ * - In prod: Two-stage process:
+ *   1. serialized.ts emits a placeholder (MANIFEST_REPLACE token) during bundling
+ *   2. plugin-manifest injects the real build-specific data at the end
+ *
+ * This flow eliminates dual virtual modules and simplifies the architecture:
+ * - pluginManifestBuild: Registers SERIALIZED_MANIFEST_ID as Vite input
+ * - pluginManifestBuild.generateBundle: Tracks the serialized manifest chunk filename
+ * - manifestBuildPostHook: Finds the chunk, computes final manifest data, and replaces the token
+ *
+ * The placeholder mechanism allows serialized.ts to emit during vite build without knowing
+ * the final build-specific data (routes, assets, CSP hashes, etc) that's only available
+ * after bundling completes.
+ */
+
+export const MANIFEST_REPLACE = '@@ASTRO_MANIFEST_REPLACE@@';
+const replaceExp = new RegExp(`['"]${MANIFEST_REPLACE}['"]`, 'g');
+
+/**
+ * Post-build hook that injects the computed manifest into bundled chunks.
+ * Finds the serialized manifest chunk and replaces the placeholder token with real data.
+ */
+export async function manifestBuildPostHook(
+	options: StaticBuildOptions,
+	internals: BuildInternals,
+	{
+		chunks,
+		mutate,
+	}: {
+		chunks: ExtractedChunk[];
+		mutate: (fileName: string, code: string, prerender: boolean) => void;
+	},
+) {
+	const manifest = await createManifest(options, internals);
+
+	// Find SSR manifest chunk (prerender: false)
+	const ssrManifestChunk = chunks.find(
+		(c) => !c.prerender && c.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID),
+	);
+
+	if (ssrManifestChunk) {
+		const shouldPassMiddlewareEntryPoint =
+			options.settings.adapter?.adapterFeatures?.edgeMiddleware;
+		await runHookBuildSsr({
+			config: options.settings.config,
+			manifest,
+			logger: options.logger,
+			middlewareEntryPoint: shouldPassMiddlewareEntryPoint
+				? internals.middlewareEntryPoint
+				: undefined,
+		});
+		const code = injectManifest(manifest, ssrManifestChunk.code);
+		mutate(ssrManifestChunk.fileName, code, false);
+	}
+
+	// Find prerender manifest chunk
+	const prerenderManifestChunk = chunks.find(
+		(c) => c.prerender && c.moduleIds.includes(SERIALIZED_MANIFEST_RESOLVED_ID),
+	);
+
+	if (prerenderManifestChunk) {
+		const code = injectManifest(manifest, prerenderManifestChunk.code);
+		mutate(prerenderManifestChunk.fileName, code, true);
+	}
+}
+
+async function createManifest(
+	buildOpts: StaticBuildOptions,
+	internals: BuildInternals,
+): Promise<SerializedSSRManifest> {
+	// Add assets from the client build.
+	const clientStatics = new Set(
+		await glob('**/*', {
+			cwd: fileURLToPath(buildOpts.settings.config.build.client),
+		}),
+	);
+	for (const file of clientStatics) {
+		internals.staticFiles.add(file);
+	}
+
+	const staticFiles = internals.staticFiles;
+	const encodedKey = await encodeKey(await buildOpts.key);
+	const manifest = await buildManifest(buildOpts, internals, Array.from(staticFiles), encodedKey);
+	return manifest;
+}
+
+/**
+ * Injects the manifest into the given code string. Returns the new code.
+ */
+function injectManifest(manifest: SerializedSSRManifest, code: string) {
+	return code.replace(replaceExp, () => {
+		return JSON.stringify(manifest);
+	});
+}
+
+async function buildManifest(
+	opts: StaticBuildOptions,
+	internals: BuildInternals,
+	staticFiles: string[],
+	encodedKey: string,
+): Promise<SerializedSSRManifest> {
+	const { settings } = opts;
+
+	const routes: SerializedRouteInfo[] = [];
+	const domainLookupTable: Record<string, string> = {};
+	const entryModules = Object.fromEntries(internals.entrySpecifierToBundleMap.entries());
+	if (settings.scripts.some((script) => script.stage === 'page')) {
+		staticFiles.push(entryModules[PAGE_SCRIPT_ID]);
+	}
+
+	const assetQueryParams = settings.adapter?.client?.assetQueryParams;
+	const assetQueryString = assetQueryParams ? assetQueryParams.toString() : undefined;
+
+	const appendAssetQuery = (pth: string) => (assetQueryString ? `${pth}?${assetQueryString}` : pth);
+
+	const prefixAssetPath = (pth: string) => {
+		let result = '';
+		if (settings.config.build.assetsPrefix) {
+			const pf = getAssetsPrefix(fileExtension(pth), settings.config.build.assetsPrefix);
+			result = joinPaths(pf, pth);
+		} else {
+			result = prependForwardSlash(joinPaths(settings.config.base, pth));
+		}
+		if (assetQueryString) {
+			result += '?' + assetQueryString;
+		}
+		return result;
+	};
+
+	// Default components follow a special flow during build. We prevent their processing earlier
+	// in the build. As a result, they are not present on `internals.pagesByKeys` and not serialized
+	// in the manifest file. But we need them in the manifest, so we handle them here
+	for (const route of opts.routesList.routes) {
+		if (!DEFAULT_COMPONENTS.find((component) => route.component === component)) {
+			continue;
+		}
+		routes.push({
+			file: '',
+			links: [],
+			scripts: [],
+			styles: [],
+			routeData: serializeRouteData(route, settings.config.trailingSlash),
+		});
+	}
+
+	for (const route of opts.routesList.routes) {
+		const pageData = internals.pagesByKeys.get(makePageDataKey(route.route, route.component));
+		if (!pageData) continue;
+
+		const scripts: SerializedRouteInfo['scripts'] = [];
+		if (settings.scripts.some((script) => script.stage === 'page')) {
+			const src = entryModules[PAGE_SCRIPT_ID];
+
+			scripts.push({
+				type: 'external',
+				value: appendAssetQuery(src),
+			});
+		}
+
+		// may be used in the future for handling rel=modulepreload, rel=icon, rel=manifest etc.
+		const links: [] = [];
+
+		const styles = pageData.styles
+			.sort(cssOrder)
+			.map(({ sheet }) => sheet)
+			.map((s) => (s.type === 'external' ? { ...s, src: appendAssetQuery(s.src) } : s))
+			.reduce(mergeInlineCss, []);
+
+		routes.push({
+			file: '',
+			links,
+			scripts: [
+				...scripts,
+				...settings.scripts
+					.filter((script) => script.stage === 'head-inline')
+					.map(({ stage, content }) => ({ stage, children: content })),
+			],
+			styles,
+			routeData: serializeRouteData(route, settings.config.trailingSlash),
+		});
+
+		// Add the built .html file as a staticFile
+		if (route.prerender && route.pathname) {
+			const outFolder = getOutFolder(opts.settings, route.pathname, route);
+			const outFile = getOutFile(
+				opts.settings.config.build.format,
+				outFolder,
+				route.pathname,
+				route,
+			);
+			const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
+			staticFiles.push(file);
+		}
+	}
+
+	/**
+	 * logic meant for i18n domain support, where we fill the lookup table
+	 */
+	const i18n = settings.config.i18n;
+	if (i18n && i18n.domains) {
+		for (const [locale, domainValue] of Object.entries(i18n.domains)) {
+			domainLookupTable[domainValue] = normalizeTheLocale(locale);
+		}
+	}
+
+	// HACK! Patch this special one.
+	if (!(BEFORE_HYDRATION_SCRIPT_ID in entryModules)) {
+		// Set this to an empty string so that the runtime knows not to try and load this.
+		entryModules[BEFORE_HYDRATION_SCRIPT_ID] = '';
+	}
+	let i18nManifest: SSRManifestI18n | undefined = undefined;
+	if (settings.config.i18n) {
+		i18nManifest = {
+			fallback: settings.config.i18n.fallback,
+			fallbackType: toFallbackType(settings.config.i18n.routing),
+			strategy: toRoutingStrategy(settings.config.i18n.routing, settings.config.i18n.domains),
+			locales: settings.config.i18n.locales,
+			defaultLocale: settings.config.i18n.defaultLocale,
+			domainLookupTable,
+			domains: settings.config.i18n.domains,
+		};
+	}
+
+	let csp: SSRManifestCSP | undefined = undefined;
+
+	if (shouldTrackCspHashes(settings.config.security.csp)) {
+		const algorithm = getAlgorithm(settings.config.security.csp);
+		const scriptHashes = [
+			...getScriptHashes(settings.config.security.csp),
+			...(await trackScriptHashes(internals, settings, algorithm)),
+		];
+		const styleHashes = [
+			...getStyleHashes(settings.config.security.csp),
+			...settings.injectedCsp.styleHashes,
+			...(await trackStyleHashes(internals, settings, algorithm)),
+		];
+
+		csp = {
+			cspDestination: settings.adapter?.adapterFeatures?.staticHeaders ? 'adapter' : undefined,
+			scriptHashes,
+			scriptResources: getScriptResources(settings.config.security.csp),
+			styleHashes,
+			styleResources: getStyleResources(settings.config.security.csp),
+			algorithm,
+			directives: getDirectives(settings),
+			isStrictDynamic: getStrictDynamic(settings.config.security.csp),
+		};
+	}
+
+	// Get internal fetch headers from adapter config
+	let internalFetchHeaders: Record<string, string> | undefined = undefined;
+	if (settings.adapter?.client?.internalFetchHeaders) {
+		const headers =
+			typeof settings.adapter.client.internalFetchHeaders === 'function'
+				? settings.adapter.client.internalFetchHeaders()
+				: settings.adapter.client.internalFetchHeaders;
+		if (Object.keys(headers).length > 0) {
+			internalFetchHeaders = headers;
+		}
+	}
+
+	return {
+		rootDir: opts.settings.config.root.toString(),
+		cacheDir: opts.settings.config.cacheDir.toString(),
+		outDir: opts.settings.config.outDir.toString(),
+		srcDir: opts.settings.config.srcDir.toString(),
+		publicDir: opts.settings.config.publicDir.toString(),
+		buildClientDir: opts.settings.config.build.client.toString(),
+		buildServerDir: opts.settings.config.build.server.toString(),
+		adapterName: opts.settings.adapter?.name ?? '',
+		assetsDir: opts.settings.config.build.assets,
+		routes,
+		serverLike: opts.settings.buildOutput === 'server',
+		site: settings.config.site,
+		base: settings.config.base,
+		userAssetsBase: settings.config?.vite?.base,
+		trailingSlash: settings.config.trailingSlash,
+		compressHTML: settings.config.compressHTML,
+		assetsPrefix: settings.config.build.assetsPrefix,
+		componentMetadata: Array.from(internals.componentMetadata),
+		renderers: [],
+		clientDirectives: Array.from(settings.clientDirectives),
+		entryModules,
+		inlinedScripts: Array.from(internals.inlinedScripts),
+		assets: staticFiles.map(prefixAssetPath),
+		i18n: i18nManifest,
+		buildFormat: settings.config.build.format,
+		checkOrigin:
+			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
+		allowedDomains: settings.config.security?.allowedDomains,
+		key: encodedKey,
+		sessionConfig: sessionConfigToManifest(settings.config.session),
+		csp,
+		devToolbar: {
+			enabled: false,
+			latestAstroVersion: undefined,
+			debugInfoOutput: '',
+			placement: undefined,
+		},
+		internalFetchHeaders,
+		logLevel: settings.logLevel,
+		shouldInjectCspMetaTags: shouldTrackCspHashes(settings.config.security.csp),
+	};
+}

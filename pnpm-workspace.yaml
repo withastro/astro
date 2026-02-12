@@ -1,0 +1,50 @@
+packages:
+  - 'packages/**/*'
+  - 'packages/astro/test/units/_temp-fixtures'
+  - 'examples/**/*'
+  - 'triage/*'
+  - 'smoke/**/*'
+  - 'scripts'
+  - 'benchmark'
+  - 'benchmark/packages/*'
+  - 'benchmark/static-projects/*'
+  # Below excludes are only for Turbo because it doesn't respect gitignore like pnpm does
+  - '!packages/astro/test/units/_temp-fixtures/*'
+  - '!**/.vercel/**'
+
+# Important! Never install `astro` even when new version is in registry
+preferWorkspacePackages: true
+linkWorkspacePackages: true
+saveWorkspaceProtocol: false # This prevents the examples to have the `workspace:` prefix
+autoInstallPeers: false
+
+# Vite's esbuild optimizer has trouble optimizing `@astrojs/lit/client-shim.js`
+# which imports this dependency.
+publicHoistPattern:
+  - '@webcomponents/template-shadowroot'
+  # There's a lit dependency duplication somewhere causing multiple Lit versions error.
+  - '*lit*'
+  # `astro sync` could try to import `@astrojs/db` but could fail due to linked dependencies in the monorepo.
+  # We hoist it here so that it can easily resolve `@astrojs/db` without hardcoded handling.
+  - '@astrojs/db'
+# Wait until three days after release to install new versions of packages
+# TODO: uncomment before merging into main
+# minimumReleaseAge: 4320
+minimumReleaseAgeExclude:
+  # Temporary, so we can install new updates
+  - '@cloudflare/*'
+  - 'wrangler'
+peerDependencyRules:
+  allowAny:
+    - 'astro'
+    - 'vite'
+onlyBuiltDependencies:
+  - 'esbuild'
+  - 'workerd'
+  - '@biomejs/biome'
+  - 'sharp'
+  - '@parcel/watcher'
+  - 'keytar'
+  - '@vscode/vsce-sign'
+# TODO: enable when viable
+# trustPolicy: 'no-downgrade'
