@@ -21,8 +21,8 @@
     ".": "./dist/index.js",
     "./server.js": "./dist/entrypoints/server.js",
     "./preview.js": "./dist/entrypoints/preview.js",
-    "./middleware.js": "./dist/entrypoints/middleware.js",
-    "./handler.js": "./dist/entrypoints/handler.js",
+    "./node-handler.js": "./dist/entrypoints/node-handler.js",
+    "./web-handler.js": "./dist/entrypoints/web-handler.js",
     "./utils.js": "./dist/entrypoints/utils.js",
     "./package.json": "./package.json"
   },

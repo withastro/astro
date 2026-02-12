@@ -11,7 +11,7 @@ const app = new NodeApp(manifest, !options.experimentalDisableStreaming);
 const appHandler = createAppHandler(app, options);
 const logger = app.getAdapterLogger();
 
-export const ssrHandler: RequestHandler = async (...args) => {
+export const nodeHandler: RequestHandler = async (...args) => {
 	// assume normal invocation at first
 	const [req, res, next, locals] = args;
 	// short circuit if it is an error invocation
