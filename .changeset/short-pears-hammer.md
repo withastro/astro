@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fix config merging so `server.allowedHosts: true` stays a boolean instead of becoming `[true]`.
+Fixes a case where setting `vite.server.allowedHosts: true` was turned into an invalid array
