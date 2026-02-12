@@ -16,10 +16,6 @@ export function setImageConfig(
 ) {
 	const clonedConfig = structuredClone(config);
 
-	if (command === 'dev' && clonedConfig.endpoint.entrypoint === undefined) {
-		clonedConfig.endpoint.entrypoint = '@astrojs/cloudflare/image-endpoint';
-	}
-
 	switch (service) {
 		case 'passthrough':
 			return { ...clonedConfig, service: passthroughImageService() };
@@ -45,7 +41,7 @@ export function setImageConfig(
 				...clonedConfig,
 				service: sharpImageService(),
 				endpoint: {
-					entrypoint: '@astrojs/cloudflare/image-endpoint',
+					entrypoint: command === 'dev' ? undefined : '@astrojs/cloudflare/image-endpoint',
 				},
 			};
 

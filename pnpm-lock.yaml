@@ -5018,6 +5018,15 @@ importers:
         specifier: ^4.61.1
         version: 4.62.0(@cloudflare/workers-types@4.20260203.0)
 
+  packages/integrations/cloudflare/test/fixtures/dev-image-endpoint:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/cloudflare/test/fixtures/external-image-service:
     dependencies:
       '@astrojs/cloudflare':

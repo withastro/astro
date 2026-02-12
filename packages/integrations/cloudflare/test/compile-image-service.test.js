@@ -47,17 +47,6 @@ describe('CompileImageService', () => {
 			assert.equal(status, 403);
 		});
 
-		it('allows trusted with redirect', async () => {
-			const res = await fixture.fetch(
-				'/_image?href=https://astro.build/_astro/HeroBackground.B0iWl89K_2hpsgp.webp',
-				{ redirect: 'manual' },
-			);
-			const header = res.headers.get('location');
-			const status = res.status;
-			assert.equal(header, 'https://astro.build/_astro/HeroBackground.B0iWl89K_2hpsgp.webp');
-			assert.equal(status, 302);
-		});
-
 		// On the dev server, the URL for local images includes an absolute path,
 		// making it difficult to specify statically. Thus, we retrieve it dynamically from the HTML.
 		it('allows local', async () => {
@@ -66,7 +55,7 @@ describe('CompileImageService', () => {
 			const res = await fixture.fetch($('img').attr('src'));
 			const blob = await res.blob();
 			const status = res.status;
-			assert.equal(blob.type, 'image/jpeg');
+			assert.ok(blob.type.startsWith('image/'), `Expected image content type, got: ${blob.type}`);
 			assert.equal(status, 200);
 		});
 	});
