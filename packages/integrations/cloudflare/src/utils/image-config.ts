@@ -8,53 +8,63 @@ export type ImageService =
 	| 'compile'
 	| 'custom';
 
+// The default Astro dev image endpoint uses node:fs which is unavailable in workerd.
+// Use the generic endpoint instead, which loads images via fetch through the dev server.
+const GENERIC_ENDPOINT = { entrypoint: 'astro/assets/endpoint/generic' };
+
 export function setImageConfig(
 	service: ImageService,
 	config: AstroConfig['image'],
 	command: HookParameters<'astro:config:setup'>['command'],
 	logger: AstroIntegrationLogger,
 ) {
-	const clonedConfig = structuredClone(config);
-
 	switch (service) {
 		case 'passthrough':
-			return { ...clonedConfig, service: passthroughImageService() };
+			return {
+				...config,
+				service: passthroughImageService(),
+				endpoint: command === 'dev' ? GENERIC_ENDPOINT : config.endpoint,
+			};
 
 		case 'cloudflare':
+			if (command === 'dev') {
+				return { ...config, service: passthroughImageService(), endpoint: GENERIC_ENDPOINT };
+			}
 			return {
-				...clonedConfig,
-				service:
-					command === 'dev'
-						? sharpImageService()
-						: { entrypoint: '@astrojs/cloudflare/image-service' },
+				...config,
+				service: { entrypoint: '@astrojs/cloudflare/image-service' },
 			};
+
 		case 'cloudflare-binding':
 			return {
-				...clonedConfig,
+				...config,
 				endpoint: {
 					entrypoint: '@astrojs/cloudflare/image-transform-endpoint',
 				},
 			};
 
 		case 'compile':
+			if (command === 'dev') {
+				return { ...config, service: passthroughImageService(), endpoint: GENERIC_ENDPOINT };
+			}
 			return {
-				...clonedConfig,
+				...config,
 				service: sharpImageService(),
 				endpoint: {
-					entrypoint: command === 'dev' ? undefined : '@astrojs/cloudflare/image-endpoint',
+					entrypoint: '@astrojs/cloudflare/image-endpoint',
 				},
 			};
 
 		case 'custom':
-			return { ...clonedConfig };
+			return { ...config };
 
 		default:
-			if (clonedConfig.service.entrypoint === 'astro/assets/services/sharp') {
+			if (config.service.entrypoint === 'astro/assets/services/sharp') {
 				logger.warn(
 					`The current configuration does not support image optimization. To allow your project to build with the original, unoptimized images, the image service has been automatically switched to the 'passthrough' option. See https://docs.astro.build/en/reference/configuration-reference/#imageservice`,
 				);
-				return { ...clonedConfig, service: passthroughImageService() };
+				return { ...config, service: passthroughImageService() };
 			}
-			return { ...clonedConfig };
+			return { ...config };
 	}
 }

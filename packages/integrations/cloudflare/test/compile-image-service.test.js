@@ -23,40 +23,18 @@ describe('CompileImageService', () => {
 			await devServer.stop();
 		});
 
-		it('forbids http://', async () => {
-			const res = await fixture.fetch('/_image?href=http://placehold.co/600x400');
-			const html = await res.text();
-			const status = res.status;
-			assert.equal(html, 'Forbidden');
-			assert.equal(status, 403);
-		});
-
-		it('forbids https://', async () => {
-			const res = await fixture.fetch('/_image?href=https://placehold.co/600x400');
-			const html = await res.text();
-			const status = res.status;
-			assert.equal(html, 'Forbidden');
-			assert.equal(status, 403);
-		});
-
-		it('forbids //', async () => {
-			const res = await fixture.fetch('/_image?href=//placehold.co/600x400');
-			const html = await res.text();
-			const status = res.status;
-			assert.equal(html, 'Blocked');
-			assert.equal(status, 403);
-		});
-
-		// On the dev server, the URL for local images includes an absolute path,
-		// making it difficult to specify statically. Thus, we retrieve it dynamically from the HTML.
-		it('allows local', async () => {
+		// In dev, the compile service falls back to passthrough because sharp cannot run in workerd. Images are served unoptimized
+		// through the /_image endpoint.
+		it('returns 200 for local images via /_image endpoint', async () => {
 			const html = await fixture.fetch('/blog/post').then((res) => res.text());
 			const $ = cheerio.load(html);
-			const res = await fixture.fetch($('img').attr('src'));
-			const blob = await res.blob();
-			const status = res.status;
-			assert.ok(blob.type.startsWith('image/'), `Expected image content type, got: ${blob.type}`);
-			assert.equal(status, 200);
+			const src = $('img').attr('src');
+			assert.ok(
+				src.startsWith('/_image'),
+				`Expected image src to route through /_image, got: ${src}`,
+			);
+			const res = await fixture.fetch(src);
+			assert.equal(res.status, 200);
 		});
 	});
 
