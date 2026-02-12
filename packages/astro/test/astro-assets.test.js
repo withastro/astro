@@ -10,13 +10,13 @@ describe('Assets', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-assets/',
+			root: './fixtures/mega-static/',
 		});
 		await fixture.build();
 	});
 
 	it('built the base image', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/astro-assets/index.html');
 		const $ = cheerio.load(html);
 		const imgPath = $('img').attr('src');
 		const data = await fixture.readFile(imgPath);
@@ -24,7 +24,7 @@ describe('Assets', () => {
 	});
 
 	it('built the 2x image', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/astro-assets/index.html');
 		const $ = cheerio.load(html);
 		const srcset = $('img').attr('srcset');
 		const candidates = parseSrcset(srcset);
@@ -34,7 +34,7 @@ describe('Assets', () => {
 	});
 
 	it('built the 3x image', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/astro-assets/index.html');
 		const $ = cheerio.load(html);
 		const srcset = $('img').attr('srcset');
 		const candidates = parseSrcset(srcset);
@@ -44,7 +44,7 @@ describe('Assets', () => {
 	});
 
 	it('built image from an import specifier', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/astro-assets/index.html');
 		const $ = cheerio.load(html);
 		const src = $('#import-no-url').attr('src');
 		const data = await fixture.readFile(src);
@@ -52,7 +52,7 @@ describe('Assets', () => {
 	});
 
 	it('built image from an import specifier using ?url', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/astro-assets/index.html');
 		const $ = cheerio.load(html);
 		const src = $('#import-url').attr('src');
 		const data = await fixture.readFile(src);

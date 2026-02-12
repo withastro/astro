@@ -14,7 +14,7 @@ let fixture;
 
 describe('CSS', function () {
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/0-css/' });
+		fixture = await loadFixture({ root: './fixtures/mega-frameworks/' });
 	});
 
 	// test HTML and CSS contents for accuracy

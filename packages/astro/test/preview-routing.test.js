@@ -13,7 +13,9 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/with-subpath-no-trailing-slash/',
+					root: './fixtures/mega-routing/',
+					srcDir: './apps/with-subpath-no-trailing-slash/src',
+					publicDir: './apps/with-subpath-no-trailing-slash/public',
 					base: '/blog',
 					outDir: './dist-4000',
 					build: {
@@ -73,7 +75,9 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/with-subpath-no-trailing-slash/',
+					root: './fixtures/mega-routing/',
+					srcDir: './apps/with-subpath-no-trailing-slash/src',
+					publicDir: './apps/with-subpath-no-trailing-slash/public',
 					base: '/blog',
 					outDir: './dist-4001',
 					trailingSlash: 'always',
@@ -133,7 +137,9 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/with-subpath-no-trailing-slash/',
+					root: './fixtures/mega-routing/',
+					srcDir: './apps/with-subpath-no-trailing-slash/src',
+					publicDir: './apps/with-subpath-no-trailing-slash/public',
 					base: '/blog',
 					outDir: './dist-4002',
 					trailingSlash: 'ignore',
@@ -195,7 +201,9 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/custom-404-html/',
+					root: './fixtures/mega-routing/',
+					srcDir: './apps/custom-404-html/src',
+					publicDir: './apps/custom-404-html/public',
 					server: {
 						port: 4003,
 					},
@@ -230,7 +238,9 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/with-subpath-no-trailing-slash/',
+					root: './fixtures/mega-routing/',
+					srcDir: './apps/with-subpath-no-trailing-slash/src',
+					publicDir: './apps/with-subpath-no-trailing-slash/public',
 					base: '/blog',
 					outDir: './dist-4003',
 					build: {
@@ -290,7 +300,9 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/with-subpath-no-trailing-slash/',
+					root: './fixtures/mega-routing/',
+					srcDir: './apps/with-subpath-no-trailing-slash/src',
+					publicDir: './apps/with-subpath-no-trailing-slash/public',
 					base: '/blog',
 					outDir: './dist-4005',
 					build: {
@@ -353,7 +365,9 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/with-subpath-no-trailing-slash/',
+					root: './fixtures/mega-routing/',
+					srcDir: './apps/with-subpath-no-trailing-slash/src',
+					publicDir: './apps/with-subpath-no-trailing-slash/public',
 					base: '/blog',
 					outDir: './dist-4006',
 					build: {
@@ -408,7 +422,9 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/custom-404-html/',
+					root: './fixtures/mega-routing/',
+					srcDir: './apps/custom-404-html/src',
+					publicDir: './apps/custom-404-html/public',
 					build: {
 						format: 'file',
 					},

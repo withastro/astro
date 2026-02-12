@@ -8,7 +8,7 @@ describe('Aliases with tsconfig.json without baseUrl', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/alias-tsconfig-no-baseurl/',
+			root: './fixtures/mega-frameworks/',
 		});
 	});
 
@@ -24,7 +24,7 @@ describe('Aliases with tsconfig.json without baseUrl', () => {
 		});
 
 		it('can resolve paths without baseUrl', async () => {
-			const html = await fixture.fetch('/').then((res) => res.text());
+			const html = await fixture.fetch('/alias-tsconfig-no-baseurl').then((res) => res.text());
 			const $ = cheerio.load(html);
 
 			// Should render the content from @hello/world
@@ -38,7 +38,7 @@ describe('Aliases with tsconfig.json without baseUrl', () => {
 		});
 
 		it('can resolve paths without baseUrl', async () => {
-			const html = await fixture.readFile('/index.html');
+			const html = await fixture.readFile('/alias-tsconfig-no-baseurl/index.html');
 			const $ = cheerio.load(html);
 
 			// Should render the content from @hello/world

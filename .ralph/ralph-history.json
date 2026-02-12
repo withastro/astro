@@ -1,0 +1,29 @@
+{
+  "iterations": [
+    {
+      "iteration": 1,
+      "startedAt": "2026-02-12T20:08:06.476Z",
+      "endedAt": "2026-02-12T20:09:54.549Z",
+      "durationMs": 53344,
+      "toolsUsed": {},
+      "filesModified": [
+        "packages/astro/test/cli.test.js",
+        "packages/astro/test/fixtures/astro-check-errors/astro.config.mjs",
+        "packages/astro/test/fixtures/astro-check-errors/package.json",
+        "packages/astro/test/fixtures/astro-check-errors/src/pages/index.astro",
+        "packages/astro/test/fixtures/astro-check-errors/tsconfig.json",
+        ".ralph/",
+        "packages/astro/test/fixtures/mega-static/"
+      ],
+      "exitCode": 0,
+      "completionDetected": false,
+      "errors": []
+    }
+  ],
+  "totalDurationMs": 53344,
+  "struggleIndicators": {
+    "repeatedErrors": {},
+    "noProgressIterations": 0,
+    "shortIterations": 0
+  }
+}

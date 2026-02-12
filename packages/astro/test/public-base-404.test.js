@@ -11,7 +11,9 @@ describe('Public dev with base', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/public-base-404/',
+			root: './fixtures/mega-routing/',
+			srcDir: './apps/public-base-404/src',
+			publicDir: './apps/public-base-404/public',
 			site: 'http://example.com/',
 			base: '/blog',
 		});

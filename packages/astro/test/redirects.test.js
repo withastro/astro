@@ -10,7 +10,9 @@ describe('Astro.redirect', () => {
 	describe('output: "server"', () => {
 		before(async () => {
 			fixture = await loadFixture({
-				root: './fixtures/redirects/',
+				root: './fixtures/mega-routing/',
+				srcDir: './apps/redirects/src',
+				publicDir: './apps/redirects/public',
 				output: 'server',
 				adapter: testAdapter(),
 				redirects: {
@@ -116,7 +118,9 @@ describe('Astro.redirect', () => {
 		before(async () => {
 			process.env.STATIC_MODE = true;
 			fixture = await loadFixture({
-				root: './fixtures/redirects/',
+				root: './fixtures/mega-routing/',
+				srcDir: './apps/redirects/src',
+				publicDir: './apps/redirects/public',
 				output: 'static',
 				redirects: {
 					'/one': '/',
@@ -147,7 +151,9 @@ describe('Astro.redirect', () => {
 		before(async () => {
 			process.env.STATIC_MODE = true;
 			fixture = await loadFixture({
-				root: './fixtures/redirects/',
+				root: './fixtures/mega-routing/',
+				srcDir: './apps/redirects/src',
+				publicDir: './apps/redirects/public',
 				output: 'static',
 				redirects: {
 					'/one': '/',
@@ -172,7 +178,9 @@ describe('Astro.redirect output: "static"', () => {
 		before(async () => {
 			process.env.STATIC_MODE = true;
 			fixture = await loadFixture({
-				root: './fixtures/redirects/',
+				root: './fixtures/mega-routing/',
+				srcDir: './apps/redirects/src',
+				publicDir: './apps/redirects/public',
 				output: 'static',
 				redirects: {
 					'/old': '/test',
@@ -286,7 +294,9 @@ describe('Astro.redirect output: "static"', () => {
 		before(async () => {
 			process.env.STATIC_MODE = true;
 			fixture = await loadFixture({
-				root: './fixtures/redirects/',
+				root: './fixtures/mega-routing/',
+				srcDir: './apps/redirects/src',
+				publicDir: './apps/redirects/public',
 				output: 'static',
 				redirects: {
 					'/one': '/',
@@ -338,7 +348,9 @@ describe('Astro.redirect output: "static"', () => {
 		before(async () => {
 			process.env.STATIC_MODE = true;
 			fixture = await loadFixture({
-				root: './fixtures/redirects-i18n/',
+				root: './fixtures/mega-routing/',
+				srcDir: './apps/redirects-i18n/src',
+				publicDir: './apps/redirects-i18n/public',
 			});
 			await fixture.build();
 		});
@@ -357,7 +369,9 @@ describe('Astro.redirect output: "static"', () => {
 			// produces a misleading "getStaticPaths required" error instead of
 			// a clear error about the invalid redirect destination.
 			fixture = await loadFixture({
-				root: './fixtures/redirects/',
+				root: './fixtures/mega-routing/',
+				srcDir: './apps/redirects/src',
+				publicDir: './apps/redirects/public',
 				output: 'static',
 				redirects: {
 					// The destination mixes a dynamic param [category] with a static segment "1"

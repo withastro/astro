@@ -11,7 +11,7 @@ describe('Asset URL resolution in build', () => {
 		describe('with site', () => {
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/asset-url-base/',
+					root: './fixtures/mega-static/',
 					site: 'http://example.com/sub/path/',
 					// test suite was authored when inlineStylesheets defaulted to never
 					build: { inlineStylesheets: 'never' },
@@ -20,7 +20,7 @@ describe('Asset URL resolution in build', () => {
 			});
 
 			it("does not include the site's subpath", async () => {
-				const html = await fixture.readFile('/index.html');
+				const html = await fixture.readFile('/asset-url-base/index.html');
 				const $ = cheerio.load(html);
 				const href = $('link[rel=stylesheet]').attr('href');
 				assert.ok(href);
@@ -31,7 +31,7 @@ describe('Asset URL resolution in build', () => {
 		describe('with site and base', () => {
 			before(async () => {
 				fixture = await loadFixture({
-					root: './fixtures/asset-url-base/',
+					root: './fixtures/mega-static/',
 					site: 'http://example.com/sub/path/',
 					base: '/another/base/',
 					// test suite was authored when inlineStylesheets defaulted to never
@@ -41,14 +41,14 @@ describe('Asset URL resolution in build', () => {
 			});
 
 			it("does not include the site's subpath", async () => {
-				const html = await fixture.readFile('/index.html');
+				const html = await fixture.readFile('/asset-url-base/index.html');
 				const $ = cheerio.load(html);
 				const href = $('link[rel=stylesheet]').attr('href');
 				assert.equal(href.startsWith('/sub/path/'), false);
 			});
 
 			it('does include the base subpath', async () => {
-				const html = await fixture.readFile('/index.html');
+				const html = await fixture.readFile('/asset-url-base/index.html');
 				const $ = cheerio.load(html);
 				const href = $('link[rel=stylesheet]').attr('href');
 				assert.equal(href.startsWith('/another/base/'), true);

@@ -10,7 +10,7 @@ describe('Asset Query Parameters (Adapter Client Config)', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-assets/',
+			root: './fixtures/mega-static/',
 			output: 'server',
 			adapter: testAdapter({
 				extendAdapter: {
@@ -25,7 +25,7 @@ describe('Asset Query Parameters (Adapter Client Config)', () => {
 
 	it('appends assetQueryParams to stylesheet URLs in SSR', async () => {
 		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/');
+		const request = new Request('http://example.com/astro-assets');
 		const response = await app.render(request);
 		assert.equal(response.status, 200);
 		const html = await response.text();
@@ -44,7 +44,7 @@ describe('Asset Query Parameters (Adapter Client Config)', () => {
 
 	it('appends assetQueryParams to Image component src', async () => {
 		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/');
+		const request = new Request('http://example.com/astro-assets');
 		const response = await app.render(request);
 		assert.equal(response.status, 200);
 		const html = await response.text();

@@ -19,7 +19,7 @@ describe('config.server', () => {
 
 	describe('host', () => {
 		it('can be specified via --host flag', async () => {
-			const projectRootURL = new URL('../../fixtures/astro-basic/', import.meta.url);
+			const projectRootURL = new URL('../../fixtures/mega-static/astro-basic/', import.meta.url);
 			const { astroConfig } = await resolveConfigWithFlags({
 				root: fileURLToPath(projectRootURL),
 				host: true,
@@ -32,7 +32,7 @@ describe('config.server', () => {
 	describe('config', () => {
 		describe('relative path', () => {
 			it('can be passed via relative --config', async () => {
-				const projectRootURL = new URL('../../fixtures/astro-basic/', import.meta.url);
+				const projectRootURL = new URL('../../fixtures/mega-static/astro-basic/', import.meta.url);
 				const configFileURL = 'my-config.mjs';
 				const { astroConfig } = await resolveConfigWithFlags({
 					root: fileURLToPath(projectRootURL),
@@ -44,7 +44,7 @@ describe('config.server', () => {
 
 		describe('relative path with leading ./', () => {
 			it('can be passed via relative --config', async () => {
-				const projectRootURL = new URL('../../fixtures/astro-basic/', import.meta.url);
+				const projectRootURL = new URL('../../fixtures/mega-static/astro-basic/', import.meta.url);
 				const configFileURL = './my-config.mjs';
 				const { astroConfig } = await resolveConfigWithFlags({
 					root: fileURLToPath(projectRootURL),
@@ -56,7 +56,7 @@ describe('config.server', () => {
 
 		describe('incorrect path', () => {
 			it('fails and exits when config does not exist', async () => {
-				const projectRootURL = new URL('../../fixtures/astro-basic/', import.meta.url);
+				const projectRootURL = new URL('../../fixtures/mega-static/astro-basic/', import.meta.url);
 				const configFileURL = './does-not-exist.mjs';
 				try {
 					await resolveConfigWithFlags({

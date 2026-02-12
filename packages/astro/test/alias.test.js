@@ -8,7 +8,7 @@ describe('Aliases', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/alias/',
+			root: './fixtures/mega-frameworks/',
 		});
 	});
 
@@ -26,7 +26,7 @@ describe('Aliases', () => {
 		});
 
 		it('can load client components', async () => {
-			const html = await fixture.fetch('/').then((res) => res.text());
+			const html = await fixture.fetch('/alias').then((res) => res.text());
 			const $ = cheerio.load(html);
 
 			// Should render aliased element
@@ -43,7 +43,7 @@ describe('Aliases', () => {
 		});
 
 		it('can load client components', async () => {
-			const html = await fixture.readFile('/index.html');
+			const html = await fixture.readFile('/alias/index.html');
 			const $ = cheerio.load(html);
 
 			// Should render aliased element
@@ -54,7 +54,7 @@ describe('Aliases', () => {
 		});
 
 		it('can use aliases and relative in same project', async () => {
-			const html = await fixture.readFile('/two/index.html');
+			const html = await fixture.readFile('/alias/two/index.html');
 			const $ = cheerio.load(html);
 
 			// Should render aliased element

@@ -11,7 +11,10 @@ describe('Dev reroute', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/reroute/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/reroute',
+			site: 'https://example.com',
+			security: { checkOrigin: false },
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -77,7 +80,11 @@ describe('Dev rewrite, trailing slash -> never', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/rewrite-trailing-slash-never/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/rewrite-trailing-slash-never',
+			trailingSlash: 'never',
+			base: 'base',
+			site: 'https://example.com',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -101,8 +108,11 @@ describe('Dev rewrite, trailing slash -> never, with base', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/rewrite-trailing-slash-never/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/rewrite-trailing-slash-never',
+			trailingSlash: 'never',
 			base: 'base',
+			site: 'https://example.com',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -136,7 +146,9 @@ describe('Dev rewrite, dynamic routing', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/rewrite-dynamic-routing/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/rewrite-dynamic-routing',
+			site: 'https://example.com',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -167,7 +179,11 @@ describe('Dev rewrite, hybrid/server', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/rewrite-server/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/rewrite-server',
+			output: 'server',
+			site: 'https://example.com',
+			security: { checkOrigin: false },
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -214,8 +230,11 @@ describe('Dev rewrite URL contains base and has no trailing slash', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/rewrite-with-base/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/rewrite-with-base',
 			trailingSlash: 'never',
+			base: 'base',
+			site: 'https://example.com',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -265,8 +284,11 @@ describe('Dev rewrite URL contains base and has trailing slash', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/rewrite-with-base/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/rewrite-with-base',
 			trailingSlash: 'always',
+			base: 'base',
+			site: 'https://example.com',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -312,7 +334,10 @@ describe('Build reroute', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/reroute/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/reroute',
+			site: 'https://example.com',
+			security: { checkOrigin: false },
 		});
 		await fixture.build();
 	});
@@ -374,7 +399,8 @@ describe('SSR route', () => {
 	it("should not build if a user tries to use rewrite('/404') in static pages", async () => {
 		try {
 			const fixture = await loadFixture({
-				root: './fixtures/rewrite-404-invalid/',
+				root: './fixtures/mega-routing/',
+				srcDir: './src/rewrite-404-invalid',
 			});
 			await fixture.build();
 			assert.fail('It should fail.');
@@ -392,7 +418,10 @@ describe('SSR reroute', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/reroute/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/reroute',
+			site: 'https://example.com',
+			security: { checkOrigin: false },
 			output: 'server',
 			adapter: testAdapter(),
 		});
@@ -487,7 +516,10 @@ describe('SSR rewrite, hybrid/server', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/rewrite-server/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/rewrite-server',
+			site: 'https://example.com',
+			security: { checkOrigin: false },
 			output: 'server',
 			adapter: testAdapter(),
 		});
@@ -526,7 +558,10 @@ describe('Middleware', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/reroute/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/reroute',
+			site: 'https://example.com',
+			security: { checkOrigin: false },
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -575,7 +610,9 @@ describe('Middleware with custom 404.astro and 500.astro', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/rewrite-custom-404/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/rewrite-custom-404',
+			site: 'https://example.com',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -608,7 +645,9 @@ describe('Runtime error, default 500', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/rewrite-runtime-error/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/rewrite-runtime-error',
+			site: 'https://example.com',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -632,7 +671,9 @@ describe('Runtime error in SSR, default 500', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/rewrite-runtime-error/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/rewrite-runtime-error',
+			site: 'https://example.com',
 			output: 'server',
 			adapter: testAdapter(),
 		});
@@ -655,7 +696,9 @@ describe('Runtime error in dev, custom 500', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/rewrite-runtime-error-custom500/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/rewrite-runtime-error-custom500',
+			site: 'https://example.com',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -679,7 +722,9 @@ describe('Runtime error in SSR, custom 500', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/rewrite-runtime-error-custom500/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/rewrite-runtime-error-custom500',
+			site: 'https://example.com',
 			output: 'server',
 			adapter: testAdapter(),
 		});
@@ -705,7 +750,13 @@ describe('Runtime error in dev, custom 500', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/rewrite-i18n-manual-routing/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/rewrite-i18n-manual-routing',
+			i18n: {
+				routing: 'manual',
+				locales: ['en', 'es'],
+				defaultLocale: 'en',
+			},
 		});
 
 		devServer = await fixture.startDevServer();
@@ -733,7 +784,13 @@ describe('Runtime error in SSR, custom 500', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/rewrite-i18n-manual-routing/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/rewrite-i18n-manual-routing',
+			i18n: {
+				routing: 'manual',
+				locales: ['en', 'es'],
+				defaultLocale: 'en',
+			},
 			output: 'server',
 			adapter: testAdapter(),
 		});
@@ -759,9 +816,12 @@ describe('Rewrite issue 13633', async () => {
 	let devServer;
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/rewrite-issue-13633/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/rewrite-issue-13633',
 			output: 'server',
 			adapter: testAdapter(),
+			base: '',
+			trailingSlash: 'never',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -784,7 +844,8 @@ describe('Rewrite', async () => {
 	let devServer;
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/rewrite-route-pattern/',
+			root: './fixtures/mega-routing/',
+			srcDir: './src/rewrite-route-pattern',
 			output: 'server',
 			adapter: testAdapter(),
 		});

@@ -7,12 +7,12 @@ describe('Attributes', async () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/astro-attrs/' });
+		fixture = await loadFixture({ root: './fixtures/mega-static/' });
 		await fixture.build();
 	});
 
 	it('Passes attributes to elements as expected', async () => {
-		const html = await fixture.readFile('/index.html');
+		const html = await fixture.readFile('/astro-attrs/index.html');
 		const $ = cheerio.load(html);
 
 		const attrs = {
@@ -80,7 +80,7 @@ describe('Attributes', async () => {
 	});
 
 	it('Passes boolean attributes to components as expected', async () => {
-		const html = await fixture.readFile('/component/index.html');
+		const html = await fixture.readFile('/astro-attrs/component/index.html');
 		const $ = cheerio.load(html);
 
 		assert.equal($('#true').attr('attr'), 'attr-true');
@@ -90,7 +90,7 @@ describe('Attributes', async () => {
 	});
 
 	it('Passes namespaced attributes as expected', async () => {
-		const html = await fixture.readFile('/namespaced/index.html');
+		const html = await fixture.readFile('/astro-attrs/namespaced/index.html');
 		const $ = cheerio.load(html);
 
 		assert.equal($('div').attr('xmlns:happy'), 'https://example.com/schemas/happy');
@@ -98,7 +98,7 @@ describe('Attributes', async () => {
 	});
 
 	it('Passes namespaced attributes to components as expected', async () => {
-		const html = await fixture.readFile('/namespaced-component/index.html');
+		const html = await fixture.readFile('/astro-attrs/namespaced-component/index.html');
 		const $ = cheerio.load(html);
 
 		assert.deepEqual($('span').attr('on:click'), '(event) => console.log(event)');

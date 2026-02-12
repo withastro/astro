@@ -11,7 +11,9 @@ describe('Astro Actions', () => {
 	let fixture;
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/actions/',
+			root: './fixtures/mega-ssr/',
+			output: 'server',
+			security: { checkOrigin: false },
 			adapter: testAdapter(),
 		});
 	});
@@ -570,7 +572,9 @@ describe('Astro Actions', () => {
 
 it('Base path should be used', async () => {
 	const fixture = await loadFixture({
-		root: './fixtures/actions/',
+		root: './fixtures/mega-ssr/',
+		output: 'server',
+		security: { checkOrigin: false },
 		adapter: testAdapter(),
 		base: '/base',
 	});
@@ -594,7 +598,9 @@ it('Base path should be used', async () => {
 
 it('Should support trailing slash', async () => {
 	const fixture = await loadFixture({
-		root: './fixtures/actions/',
+		root: './fixtures/mega-ssr/',
+		output: 'server',
+		security: { checkOrigin: false },
 		adapter: testAdapter(),
 		trailingSlash: 'always',
 	});
@@ -617,7 +623,9 @@ it('Should support trailing slash', async () => {
 
 it('getActionPath() should return the right path', async () => {
 	const fixture = await loadFixture({
-		root: './fixtures/actions/',
+		root: './fixtures/mega-ssr/',
+		output: 'server',
+		security: { checkOrigin: false },
 		adapter: testAdapter(),
 		base: '/base',
 		trailingSlash: 'always',

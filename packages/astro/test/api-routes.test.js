@@ -7,7 +7,7 @@ describe('API routes', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/api-routes/' });
+		fixture = await loadFixture({ root: './fixtures/mega-static/' });
 		await fixture.build();
 	});
 

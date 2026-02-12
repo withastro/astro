@@ -32,7 +32,7 @@ describe('Aliases with tsconfig.json', () => {
 		fixture = await loadFixture({
 			// test suite was authored when inlineStylesheets defaulted to never
 			build: { inlineStylesheets: 'never' },
-			root: './fixtures/alias-tsconfig/',
+			root: './fixtures/mega-frameworks/',
 		});
 	});
 
@@ -48,7 +48,7 @@ describe('Aliases with tsconfig.json', () => {
 		});
 
 		it('can load client components', async () => {
-			const html = await fixture.fetch('/').then((res) => res.text());
+			const html = await fixture.fetch('/alias-tsconfig').then((res) => res.text());
 			const $ = cheerio.load(html);
 
 			// Should render aliased element
@@ -59,7 +59,7 @@ describe('Aliases with tsconfig.json', () => {
 		});
 
 		it('can load via baseUrl', async () => {
-			const html = await fixture.fetch('/').then((res) => res.text());
+			const html = await fixture.fetch('/alias-tsconfig').then((res) => res.text());
 			const $ = cheerio.load(html);
 
 			assert.equal($('#foo').text(), 'foo');
@@ -68,28 +68,28 @@ describe('Aliases with tsconfig.json', () => {
 		});
 
 		it('can load namespace packages with @* paths', async () => {
-			const html = await fixture.fetch('/').then((res) => res.text());
+			const html = await fixture.fetch('/alias-tsconfig').then((res) => res.text());
 			const $ = cheerio.load(html);
 
 			assert.equal($('#namespace').text(), 'namespace');
 		});
 
 		it('works in css @import', async () => {
-			const html = await fixture.fetch('/').then((res) => res.text());
+			const html = await fixture.fetch('/alias-tsconfig').then((res) => res.text());
 			// imported css should be bundled
 			assert.ok(html.includes('#style-red'));
 			assert.ok(html.includes('#style-blue'));
 		});
 
 		it('works in components', async () => {
-			const html = await fixture.fetch('/').then((res) => res.text());
+			const html = await fixture.fetch('/alias-tsconfig').then((res) => res.text());
 			const $ = cheerio.load(html);
 
 			assert.equal($('#alias').text(), 'foo');
 		});
 
 		it('works for import.meta.glob', async () => {
-			const html = await fixture.fetch('/').then((res) => res.text());
+			const html = await fixture.fetch('/alias-tsconfig').then((res) => res.text());
 			const $ = cheerio.load(html);
 
 			assert.equal($('#glob').text(), '/src/components/glob/a.js');
@@ -102,7 +102,7 @@ describe('Aliases with tsconfig.json', () => {
 		});
 
 		it('can load client components', async () => {
-			const html = await fixture.readFile('/index.html');
+			const html = await fixture.readFile('/alias-tsconfig/index.html');
 			const $ = cheerio.load(html);
 
 			// Should render aliased element
@@ -113,7 +113,7 @@ describe('Aliases with tsconfig.json', () => {
 		});
 
 		it('can load via baseUrl', async () => {
-			const html = await fixture.readFile('/index.html');
+			const html = await fixture.readFile('/alias-tsconfig/index.html');
 			const $ = cheerio.load(html);
 
 			assert.equal($('#foo').text(), 'foo');
@@ -122,14 +122,14 @@ describe('Aliases with tsconfig.json', () => {
 		});
 
 		it('can load namespace packages with @* paths', async () => {
-			const html = await fixture.readFile('/index.html');
+			const html = await fixture.readFile('/alias-tsconfig/index.html');
 			const $ = cheerio.load(html);
 
 			assert.equal($('#namespace').text(), 'namespace');
 		});
 
 		it('works in css @import', async () => {
-			const html = await fixture.readFile('/index.html');
+			const html = await fixture.readFile('/alias-tsconfig/index.html');
 			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href)));
 			const [{ css }] = content;
 			// imported css should be bundled
@@ -138,14 +138,14 @@ describe('Aliases with tsconfig.json', () => {
 		});
 
 		it('works in components', async () => {
-			const html = await fixture.readFile('/index.html');
+			const html = await fixture.readFile('/alias-tsconfig/index.html');
 			const $ = cheerio.load(html);
 
 			assert.equal($('#alias').text(), 'foo');
 		});
 
 		it('handles multiple replacements in one alias', async () => {
-			const html = await fixture.readFile('/index.html');
+			const html = await fixture.readFile('/alias-tsconfig/index.html');
 			const $ = cheerio.load(html);
 
 			assert.equal($('#bar').text(), 'bar');
@@ -153,7 +153,7 @@ describe('Aliases with tsconfig.json', () => {
 		});
 
 		it('works for import.meta.glob', async () => {
-			const html = await fixture.readFile('/index.html');
+			const html = await fixture.readFile('/alias-tsconfig/index.html');
 			const $ = cheerio.load(html);
 
 			assert.equal($('#glob').text(), '/src/components/glob/a.js');

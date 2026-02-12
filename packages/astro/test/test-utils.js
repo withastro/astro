@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
 import { glob } from 'tinyglobby';
 import { Agent } from 'undici';
@@ -89,6 +89,170 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  */
 export async function loadFixture(inlineConfig) {
 	if (!inlineConfig?.root) throw new Error("Must provide { root: './fixtures/...' }");
+
+	const legacyFixtureMap = new Map([
+		['reroute', { srcDir: './src/reroute' }],
+		['rewrite-trailing-slash-never', { srcDir: './src/rewrite-trailing-slash-never' }],
+		['rewrite-with-base', { srcDir: './src/rewrite-with-base' }],
+		['rewrite-server', { srcDir: './src/rewrite-server' }],
+		['rewrite-dynamic-routing', { srcDir: './src/rewrite-dynamic-routing' }],
+		['rewrite-custom-404', { srcDir: './src/rewrite-custom-404' }],
+		['rewrite-runtime-error', { srcDir: './src/rewrite-runtime-error' }],
+		['rewrite-runtime-error-custom500', { srcDir: './src/rewrite-runtime-error-custom500' }],
+		['rewrite-i18n-manual-routing', { srcDir: './src/rewrite-i18n-manual-routing' }],
+		['rewrite-issue-13633', { srcDir: './src/rewrite-issue-13633' }],
+		['rewrite-route-pattern', { srcDir: './src/rewrite-route-pattern' }],
+		['rewrite-404-invalid', { srcDir: './src/rewrite-404-invalid' }],
+		['redirects', { srcDir: './apps/redirects/src', publicDir: './apps/redirects/public' }],
+		[
+			'redirects-i18n',
+			{ srcDir: './apps/redirects-i18n/src', publicDir: './apps/redirects-i18n/public' },
+		],
+		[
+			'routing-priority',
+			{ srcDir: './apps/routing-priority/src', publicDir: './apps/routing-priority/public' },
+		],
+		['route-guard', { srcDir: './apps/route-guard/src', publicDir: './apps/route-guard/public' }],
+		[
+			'public-base-404',
+			{ srcDir: './apps/public-base-404/src', publicDir: './apps/public-base-404/public' },
+		],
+		[
+			'with-subpath-no-trailing-slash',
+			{
+				srcDir: './apps/with-subpath-no-trailing-slash/src',
+				publicDir: './apps/with-subpath-no-trailing-slash/public',
+			},
+		],
+		[
+			'custom-404-html',
+			{ srcDir: './apps/custom-404-html/src', publicDir: './apps/custom-404-html/public' },
+		],
+		[
+			'i18n-routing',
+			{ srcDir: './apps/i18n-routing/src', publicDir: './apps/i18n-routing/public' },
+		],
+		[
+			'i18n-routing-base',
+			{ srcDir: './apps/i18n-routing-base/src', publicDir: './apps/i18n-routing-base/public' },
+		],
+		[
+			'i18n-routing-subdomain',
+			{
+				srcDir: './apps/i18n-routing-subdomain/src',
+				publicDir: './apps/i18n-routing-subdomain/public',
+			},
+		],
+		[
+			'i18n-routing-prefix-always',
+			{
+				srcDir: './apps/i18n-routing-prefix-always/src',
+				publicDir: './apps/i18n-routing-prefix-always/public',
+			},
+		],
+		[
+			'i18n-routing-prefix-other-locales',
+			{
+				srcDir: './apps/i18n-routing-prefix-other-locales/src',
+				publicDir: './apps/i18n-routing-prefix-other-locales/public',
+			},
+		],
+		[
+			'i18n-routing-fallback',
+			{
+				srcDir: './apps/i18n-routing-fallback/src',
+				publicDir: './apps/i18n-routing-fallback/public',
+			},
+		],
+		[
+			'i18n-routing-fallback-index',
+			{
+				srcDir: './apps/i18n-routing-fallback-index/src',
+				publicDir: './apps/i18n-routing-fallback-index/public',
+			},
+		],
+		[
+			'i18n-routing-fallback-rewrite',
+			{
+				srcDir: './apps/i18n-routing-fallback-rewrite/src',
+				publicDir: './apps/i18n-routing-fallback-rewrite/public',
+			},
+		],
+		[
+			'i18n-routing-fallback-rewrite-filename',
+			{
+				srcDir: './apps/i18n-routing-fallback-rewrite-filename/src',
+				publicDir: './apps/i18n-routing-fallback-rewrite-filename/public',
+			},
+		],
+		[
+			'i18n-routing-fallback-rewrite-hybrid',
+			{
+				srcDir: './apps/i18n-routing-fallback-rewrite-hybrid/src',
+				publicDir: './apps/i18n-routing-fallback-rewrite-hybrid/public',
+			},
+		],
+		[
+			'i18n-routing-dynamic',
+			{
+				srcDir: './apps/i18n-routing-dynamic/src',
+				publicDir: './apps/i18n-routing-dynamic/public',
+			},
+		],
+		[
+			'i18n-routing-manual',
+			{ srcDir: './apps/i18n-routing-manual/src', publicDir: './apps/i18n-routing-manual/public' },
+		],
+		[
+			'i18n-routing-manual-with-default-middleware',
+			{
+				srcDir: './apps/i18n-routing-manual-with-default-middleware/src',
+				publicDir: './apps/i18n-routing-manual-with-default-middleware/public',
+			},
+		],
+		[
+			'i18n-locale-index-format-file',
+			{
+				srcDir: './apps/i18n-locale-index-format-file/src',
+				publicDir: './apps/i18n-locale-index-format-file/public',
+			},
+		],
+		[
+			'i18n-server-island',
+			{ srcDir: './apps/i18n-server-island/src', publicDir: './apps/i18n-server-island/public' },
+		],
+	]);
+
+	if (typeof inlineConfig.root === 'string') {
+		const match = inlineConfig.root.match(/\.\/fixtures\/(.+)/);
+		if (match) {
+			const fixturePath = match[1].replace(/\/$/, '');
+			const fixtureName = fixturePath.split('/')[0];
+			const remap = legacyFixtureMap.get(fixtureName);
+			if (remap) {
+				inlineConfig = {
+					...inlineConfig,
+					root: './fixtures/mega-routing/',
+					srcDir: inlineConfig.srcDir ?? remap.srcDir,
+					publicDir: inlineConfig.publicDir ?? remap.publicDir,
+				};
+
+				const fixtureRoot = fileURLToPath(new URL('./fixtures/mega-routing/', import.meta.url));
+				const configCandidates = [
+					path.join(fixtureRoot, 'apps', fixtureName, 'astro.config.mjs'),
+					path.join(fixtureRoot, 'apps', fixtureName, 'astro.config.js'),
+					path.join(fixtureRoot, 'apps', fixturePath, 'astro.config.mjs'),
+					path.join(fixtureRoot, 'apps', fixturePath, 'astro.config.js'),
+				];
+				const configPath = configCandidates.find((candidate) => fs.existsSync(candidate));
+				if (configPath) {
+					const configModule = await import(pathToFileURL(configPath).href);
+					const configExport = configModule.default ?? configModule;
+					inlineConfig = mergeConfig(configExport, inlineConfig);
+				}
+			}
+		}
+	}
 
 	// Silent by default during tests to not pollute the console output
 	inlineConfig.logLevel ??= 'silent';
