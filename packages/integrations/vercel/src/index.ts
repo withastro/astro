@@ -32,6 +32,7 @@ import {
 	type VercelWebAnalyticsConfig,
 } from './lib/web-analytics.js';
 import { generateEdgeMiddleware } from './serverless/middleware.js';
+import { createConfigPlugin } from './vite-plugin-config.js';
 
 const PACKAGE_NAME = '@astrojs/vercel';
 
@@ -97,29 +98,23 @@ const SUPPORTED_NODE_VERSIONS: Record<
 
 function getAdapter({
 	edgeMiddleware,
-	middlewareSecret,
 	skewProtection,
 	buildOutput,
-	experimentalStaticHeaders,
+	staticHeaders,
 }: {
 	buildOutput: 'server' | 'static';
 	edgeMiddleware: NonNullable<VercelServerlessConfig['edgeMiddleware']>;
-	middlewareSecret: string;
 	skewProtection: boolean;
-	experimentalStaticHeaders: NonNullable<VercelServerlessConfig['experimentalStaticHeaders']>;
+	staticHeaders: NonNullable<VercelServerlessConfig['staticHeaders']>;
 }): AstroAdapter {
 	return {
 		name: PACKAGE_NAME,
+		entryType: 'self',
 		serverEntrypoint: `${PACKAGE_NAME}/entrypoint`,
-		exports: ['default'],
-		args: {
-			middlewareSecret,
-			skewProtection,
-		},
 		adapterFeatures: {
 			edgeMiddleware,
 			buildOutput,
-			experimentalStaticHeaders,
+			staticHeaders,
 		},
 		supportedAstroFeatures: {
 			hybridOutput: 'stable',
@@ -185,7 +180,7 @@ export interface VercelServerlessConfig {
 	 * Here the list of the headers that are added:
 	 * - The CSP header of the static pages is added when CSP support is enabled.
 	 */
-	experimentalStaticHeaders?: boolean;
+	staticHeaders?: boolean;
 }
 
 interface VercelISRConfig {
@@ -226,7 +221,7 @@ export default function vercelAdapter({
 	maxDuration,
 	isr = false,
 	skewProtection = process.env.VERCEL_SKEW_PROTECTION_ENABLED === '1',
-	experimentalStaticHeaders = false,
+	staticHeaders = false,
 }: VercelServerlessConfig = {}): AstroIntegration {
 	if (maxDuration) {
 		if (typeof maxDuration !== 'number') {
@@ -294,6 +289,12 @@ export default function vercelAdapter({
 						ssr: {
 							external: ['@vercel/nft'],
 						},
+						plugins: [
+							createConfigPlugin({
+								middlewareSecret,
+								skewProtection,
+							}),
+						],
 					},
 					...getAstroImageConfig(
 						imageService,
@@ -347,19 +348,17 @@ export default function vercelAdapter({
 						getAdapter({
 							buildOutput: _buildOutput,
 							edgeMiddleware,
-							middlewareSecret,
 							skewProtection,
-							experimentalStaticHeaders,
+							staticHeaders: staticHeaders,
 						}),
 					);
 				} else {
 					setAdapter(
 						getAdapter({
 							edgeMiddleware: false,
-							middlewareSecret: '',
 							skewProtection,
 							buildOutput: _buildOutput,
-							experimentalStaticHeaders,
+							staticHeaders: staticHeaders,
 						}),
 					);
 				}
@@ -375,8 +374,8 @@ export default function vercelAdapter({
 				_middlewareEntryPoint = middlewareEntryPoint;
 			},
 
-			'astro:build:generated': ({ experimentalRouteToHeaders }) => {
-				_routeToHeaders = experimentalRouteToHeaders;
+			'astro:build:generated': ({ routeToHeaders }) => {
+				_routeToHeaders = routeToHeaders;
 			},
 			'astro:build:done': async ({ logger }: HookParameters<'astro:build:done'>) => {
 				const outDir = new URL('./.vercel/output/', _config.root);
@@ -598,7 +597,7 @@ export default function vercelAdapter({
 					if (!normalized.routes) {
 						normalized.routes = [];
 					}
-					if (experimentalStaticHeaders) {
+					if (staticHeaders) {
 						const routesWithConfigHeaders = createRoutesWithStaticHeaders(_routeToHeaders, _config);
 						const fileSystemRouteIndex = normalized.routes.findIndex(
 							(r) => 'handle' in r && r.handle === 'filesystem',

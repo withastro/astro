@@ -1,7 +1,9 @@
 import fsMod, { existsSync, promises as fs } from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as clack from '@clack/prompts';
+import { assertValidPackageName } from '@astrojs/internal-helpers/cli';
 import { diffWords } from 'diff';
 import { type ASTNode, builders, generateCode, loadFile, type ProxifiedModule } from 'magicast';
 import { getDefaultExportOptions } from 'magicast/helpers';
@@ -79,9 +81,9 @@ export default async function seed() {
 	// TODO
 }
 `,
-	CLOUDFLARE_WRANGLER_CONFIG: (name: string) => `\
+	CLOUDFLARE_WRANGLER_CONFIG: (name: string, compatibilityDate: string) => `\
 {
-	"compatibility_date": ${JSON.stringify(new Date().toISOString().slice(0, 10))},
+	"compatibility_date": ${JSON.stringify(compatibilityDate)},
 	"compatibility_flags": ["global_fetch_strictly_public"],
 	"name": ${JSON.stringify(name)},
 	"main": "@astrojs/cloudflare/entrypoints/server",
@@ -215,10 +217,22 @@ export async function add(names: string[], { flags }: AddOptions) {
 
 					if (await askToContinue({ flags, logger })) {
 						const data = await getPackageJson();
+						let compatibilityDate: string;
+						try {
+							const require = createRequire(root);
+							const { getLocalWorkerdCompatibilityDate } = await import(
+								require.resolve('@astrojs/cloudflare/info')
+							);
+							({ date: compatibilityDate } = getLocalWorkerdCompatibilityDate({
+								projectPath: rootPath,
+							}));
+						} catch {
+							compatibilityDate = new Date().toISOString().slice(0, 10);
+						}
 
 						await fs.writeFile(
 							wranglerConfigURL,
-							STUBS.CLOUDFLARE_WRANGLER_CONFIG(data?.name ?? 'example'),
+							STUBS.CLOUDFLARE_WRANGLER_CONFIG(data?.name ?? 'example', compatibilityDate),
 							'utf-8',
 						);
 					}
@@ -879,6 +893,11 @@ async function validateIntegrations(
 	flags: yargsParser.Arguments,
 	logger: Logger,
 ): Promise<IntegrationInfo[]> {
+	// First, validate all package names to prevent command injection
+	for (const integration of integrations) {
+		assertValidPackageName(integration);
+	}
+
 	const spinner = clack.spinner();
 	spinner.start('Resolving packages...');
 	try {

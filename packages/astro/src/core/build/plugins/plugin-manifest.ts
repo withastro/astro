@@ -280,9 +280,7 @@ async function buildManifest(
 		];
 
 		csp = {
-			cspDestination: settings.adapter?.adapterFeatures?.experimentalStaticHeaders
-				? 'adapter'
-				: undefined,
+			cspDestination: settings.adapter?.adapterFeatures?.staticHeaders ? 'adapter' : undefined,
 			scriptHashes,
 			scriptResources: getScriptResources(settings.config.security.csp),
 			styleHashes,
@@ -337,6 +335,11 @@ async function buildManifest(
 		key: encodedKey,
 		sessionConfig: sessionConfigToManifest(settings.config.session),
 		csp,
+		image: {
+			objectFit: settings.config.image.objectFit,
+			objectPosition: settings.config.image.objectPosition,
+			layout: settings.config.image.layout,
+		},
 		devToolbar: {
 			enabled: false,
 			latestAstroVersion: undefined,
@@ -345,5 +348,6 @@ async function buildManifest(
 		},
 		internalFetchHeaders,
 		logLevel: settings.logLevel,
+		shouldInjectCspMetaTags: shouldTrackCspHashes(settings.config.security.csp),
 	};
 }

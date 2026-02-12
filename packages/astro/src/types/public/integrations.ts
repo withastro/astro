@@ -96,10 +96,9 @@ export interface AstroAdapterFeatures {
 	 * `astro:build:generated` hook, so adapters can consume them and add them inside
 	 * their hosting headers configuration file.
 	 *
-	 * NOTE: the semantics and list of headers might change until the feature
-	 * is out of experimental
+	 * Future features may decide to use this feature to create/add headers for static pages.
 	 */
-	experimentalStaticHeaders?: boolean;
+	staticHeaders?: boolean;
 }
 
 /**
@@ -120,20 +119,34 @@ export interface AstroAdapterClientConfig {
 	assetQueryParams?: URLSearchParams;
 }
 
-export interface AstroAdapter {
-	name: string;
-	serverEntrypoint?: string | URL;
-	previewEntrypoint?: string | URL;
-	exports?: string[];
-	args?: any;
-	adapterFeatures?: AstroAdapterFeatures;
+interface AdapterLegacyDynamicProperties {
 	/**
 	 * Determines how the adapter's entrypoint is handled during the build.
 	 * - `'self'`: The adapter defines its own entrypoint and sets rollupOptions.input
 	 * - `'legacy-dynamic'`: Uses the virtual module entrypoint with dynamic exports
 	 * @default 'legacy-dynamic'
 	 */
-	entryType?: 'self' | 'legacy-dynamic';
+	entryType?: 'legacy-dynamic';
+	serverEntrypoint?: string | URL;
+	exports?: string[];
+	args?: any;
+}
+
+interface AdapterSelfProperties {
+	/**
+	 * Determines how the adapter's entrypoint is handled during the build.
+	 * - `'self'`: The adapter defines its own entrypoint and sets rollupOptions.input
+	 * - `'legacy-dynamic'`: Uses the virtual module entrypoint with dynamic exports
+	 * @default 'legacy-dynamic'
+	 */
+	entryType: 'self';
+	serverEntrypoint?: string | URL;
+}
+
+export type AstroAdapter = {
+	name: string;
+	previewEntrypoint?: string | URL;
+	adapterFeatures?: AstroAdapterFeatures;
 	/**
 	 * List of features supported by an adapter.
 	 *
@@ -144,6 +157,41 @@ export interface AstroAdapter {
 	 * Configuration for Astro's client-side code.
 	 */
 	client?: AstroAdapterClientConfig;
+} & (AdapterLegacyDynamicProperties | AdapterSelfProperties);
+
+/**
+ * A pathname with its associated route, used for prerendering.
+ */
+export interface PathWithRoute {
+	pathname: string;
+	route: RouteData;
+}
+
+/**
+ * Custom prerenderer that adapters can provide to control how pages are prerendered.
+ * Allows non-Node runtimes (e.g., workerd) to handle prerendering.
+ */
+export interface AstroPrerenderer {
+	name: string;
+	/**
+	 * Called once before prerendering starts. Use for setup like starting a preview server.
+	 */
+	setup?: () => Promise<void>;
+	/**
+	 * Returns pathnames with their routes to prerender. The route is included to avoid
+	 * needing to re-match routes later, which can be incorrect due to route priority.
+	 */
+	getStaticPaths: () => Promise<PathWithRoute[]>;
+	/**
+	 * Renders a single page. Called by Astro for each path returned by getStaticPaths.
+	 * @param request - The request to render
+	 * @param options - Render options including routeData
+	 */
+	render: (request: Request, options: { routeData: RouteData }) => Promise<Response>;
+	/**
+	 * Called after all pages are prerendered. Use for cleanup like stopping a preview server.
+	 */
+	teardown?: () => Promise<void>;
 }
 
 export type AstroAdapterFeatureMap = {
@@ -246,7 +294,12 @@ export interface BaseIntegrationHooks {
 		middlewareEntryPoint: URL | undefined;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
-	'astro:build:start': (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
+	'astro:build:start': (options: {
+		logger: AstroIntegrationLogger;
+		setPrerenderer: (
+			prerenderer: AstroPrerenderer | ((defaultPrerenderer: AstroPrerenderer) => AstroPrerenderer),
+		) => void;
+	}) => void | Promise<void>;
 	'astro:build:setup': (options: {
 		vite: ViteInlineConfig;
 		pages: Map<string, PageBuildData>;
@@ -257,7 +310,7 @@ export interface BaseIntegrationHooks {
 	'astro:build:generated': (options: {
 		dir: URL;
 		logger: AstroIntegrationLogger;
-		experimentalRouteToHeaders: RouteToHeaders;
+		routeToHeaders: RouteToHeaders;
 	}) => void | Promise<void>;
 	'astro:build:done': (options: {
 		pages: { pathname: string }[];

@@ -15,12 +15,18 @@ describe('astro:image:layout', () => {
 	describe('local image service', () => {
 		/** @type {import('./test-utils').DevServer} */
 		let devServer;
+		const walrusImagePath =
+			'https://images.unsplash.com/photo-1690941380217-24dfa9a1d21f?q=80&w=1476&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+		const imageScale = 2;
 
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/core-image-layout/',
 				image: {
-					service: testImageService({ foo: 'bar' }),
+					service: testImageService({
+						foo: 'bar',
+						transform: { path: walrusImagePath, scale: imageScale },
+					}),
 					domains: ['avatars.githubusercontent.com'],
 				},
 			});
@@ -118,11 +124,6 @@ describe('astro:image:layout', () => {
 			it('passes in a parent style as an object', () => {
 				let $img = $('#local-style-object img');
 				assert.match($img.attr('style'), /border:2px red solid/);
-			});
-
-			it('injects a style tag', () => {
-				const style = $('style').text();
-				assert.match(style, /\[data-astro-image\]/);
 			});
 		});
 
@@ -224,13 +225,14 @@ describe('astro:image:layout', () => {
 		});
 
 		describe('remote images', () => {
+			let $;
+			before(async () => {
+				let res = await fixture.fetch('/remote');
+				let html = await res.text();
+				$ = cheerio.load(html);
+			});
+
 			describe('srcset', () => {
-				let $;
-				before(async () => {
-					let res = await fixture.fetch('/remote');
-					let html = await res.text();
-					$ = cheerio.load(html);
-				});
 				it('has srcset', () => {
 					let $img = $('#constrained img');
 					assert.ok($img.attr('srcset'));
@@ -261,6 +263,20 @@ describe('astro:image:layout', () => {
 					let $img = $('#full-width img');
 					const widths = parseSrcset($img.attr('srcset')).map((x) => x.w);
 					assert.deepEqual(widths, [640, 750, 828, 1080, 1280, 1668, 2048, 2560]);
+				});
+			});
+
+			describe('inferSize', () => {
+				it('default inferSize works', () => {
+					let $img = $('#infer-size img');
+					assert.equal($img.attr('width'), '2670');
+					assert.equal($img.attr('height'), '1780');
+				});
+
+				it('custom inferSize works', () => {
+					let $img = $('#infer-size-custom img');
+					assert.equal($img.attr('width'), (1476 * imageScale).toString());
+					assert.equal($img.attr('height'), (978 * imageScale).toString());
 				});
 			});
 		});
@@ -387,11 +403,16 @@ describe('astro:image:layout', () => {
 					assert.ok($picture.attr('class').includes('picture-comp'));
 				});
 
-				it('adds inline style attributes', () => {
+				it('adds data attributes instead of inline styles', () => {
 					let $img = $('#picture-attributes img');
+					// Should have data attributes for CSP compliance
+					assert.ok($img.attr('data-astro-image'));
+					// Should NOT have inline style CSS variables
 					const style = $img.attr('style');
-					assert.match(style, /--fit:/);
-					assert.match(style, /--pos:/);
+					if (style) {
+						assert.ok(!style.includes('--fit:'));
+						assert.ok(!style.includes('--pos:'));
+					}
 				});
 
 				it('passing in style as an object', () => {

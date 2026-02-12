@@ -3,7 +3,7 @@ const testEntry = 'test/**/*.test.js';
 
 /** @type {import('knip').KnipConfig} */
 export default {
-	ignore: ['**/test/**/{fixtures,_temp-fixtures}/**', '.github/scripts/**'],
+	ignore: ['**/test/**/{fixtures,_temp-fixtures}/**', 'triage/**', '.github/scripts/**'],
 	tags: ['-lintignore'],
 	ignoreWorkspaces: [
 		'examples/**',
@@ -20,6 +20,7 @@ export default {
 			// vsce and ovsx are only used in CI for publishing, and due to how we have to publish the VS Code extension have
 			// to be installed in the vscode package, but knip is expecting them to be in the root node_modules
 			ignoreBinaries: ['docgen', 'docgen:errors', 'playwright', 'vsce', 'ovsx'],
+			entry: ['.flue/workflows/*'],
 		},
 		'packages/*': {
 			entry: [testEntry],
@@ -48,6 +49,8 @@ export default {
 				'rehype-toc',
 				'remark-code-titles',
 				'@types/http-cache-semantics',
+				// Dynamically imported by astro add cloudflare
+				'@astrojs/cloudflare',
 			],
 		},
 		'packages/db': {
@@ -86,10 +89,6 @@ export default {
 		},
 		'packages/upgrade': {
 			entry: ['src/index.ts', testEntry],
-		},
-		scripts: {
-			// Used in shell script
-			ignoreDependencies: ['marked'],
 		},
 	},
 };

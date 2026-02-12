@@ -1,5 +1,248 @@
 # astro
 
+## 6.0.0-beta.11
+
+### Major Changes
+
+- [#15180](https://github.com/withastro/astro/pull/15180) [`8780ff2`](https://github.com/withastro/astro/commit/8780ff2926d59ed196c70032d2ae274b8415655c) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Adds support for converting SVGs to raster images (PNGs, WebP, etc) to the default Sharp image service - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-svg-rasterization))
+
+### Minor Changes
+
+- [#15460](https://github.com/withastro/astro/pull/15460) [`ee7e53f`](https://github.com/withastro/astro/commit/ee7e53f9de2338517e149895efd26fca44ad80b6) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Updates the Adapter API to allow providing a `serverEntrypoint` when using `entryType: 'self'`
+
+  Astro 6 introduced a new powerful yet simple Adapter API for defining custom server entrypoints. You can now call `setAdapter()` with the `entryType: 'self'` option and specify your custom `serverEntrypoint`:
+
+  ```js
+  export function myAdapter() {
+    return {
+      name: 'my-adapter',
+      hooks: {
+        'astro:config:done': ({ setAdapter }) => {
+          setAdapter({
+            name: 'my-adapter',
+            entryType: 'self',
+            serverEntrypoint: 'my-adapter/server.js',
+            supportedAstroFeatures: {
+              // ...
+            },
+          });
+        },
+      },
+    };
+  }
+  ```
+
+  If you need further customization at the Vite level, you can omit `serverEntrypoint` and instead specify your custom server entrypoint with [`vite.build.rollupOptions.input`](https://rollupjs.org/configuration-options/#input).
+
+### Patch Changes
+
+- [#15454](https://github.com/withastro/astro/pull/15454) [`b47a4e1`](https://github.com/withastro/astro/commit/b47a4e19a0b0b7e57068add94adc01c88d380fa8) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes a race condition in the content layer which could result in dropped content collection entries.
+
+- [#15450](https://github.com/withastro/astro/pull/15450) [`50c9129`](https://github.com/withastro/astro/commit/50c912978cca4afbe4b3ebd11c30305d5e9c8315) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `build.serverEntry` would not be respected when using the new Adapter API
+
+- [#15473](https://github.com/withastro/astro/pull/15473) [`d653b86`](https://github.com/withastro/astro/commit/d653b864252e0b39a3774f0e1ecf4b7b69851288) Thanks [@matthewp](https://github.com/matthewp)! - Improves Host header handling for SSR deployments behind proxies
+
+## 6.0.0-beta.10
+
+### Minor Changes
+
+- [#15231](https://github.com/withastro/astro/pull/15231) [`3928b87`](https://github.com/withastro/astro/commit/3928b879dd35fa4ec4dcf545f1610a0f0a55fdae) Thanks [@rururux](https://github.com/rururux)! - Adds a new optional `getRemoteSize()` method to the Image Service API.
+
+  Previously, `inferRemoteSize()` had a fixed implementation that fetched the entire image to determine its dimensions.
+  With this new helper function that extends `inferRemoteSize()`, you can now override or extend how remote image metadata is retrieved.
+
+  This enables use cases such as:
+  - Caching: Storing image dimensions in a database or local cache to avoid redundant network requests.
+  - Provider APIs: Using a specific image provider's API (like Cloudinary or Vercel) to get dimensions without downloading the file.
+
+  For example, you can add a simple cache layer to your existing image service:
+
+  ```js
+  const cache = new Map();
+
+  const myService = {
+    ...baseService,
+    async getRemoteSize(url, imageConfig) {
+      if (cache.has(url)) return cache.get(url);
+
+      const result = await baseService.getRemoteSize(url, imageConfig);
+      cache.set(url, result);
+      return result;
+    },
+  };
+  ```
+
+  See the [Image Services API reference documentation](https://v6.docs.astro.build/en/reference/image-service-reference/#getremotesize) for more information.
+
+- [#15077](https://github.com/withastro/astro/pull/15077) [`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3) Thanks [@matthewp](https://github.com/matthewp)! - Updates the Integration API to add `setPrerenderer()` to the `astro:build:start` hook, allowing adapters to provide custom prerendering logic.
+
+  The new API accepts either an `AstroPrerenderer` object directly, or a factory function that receives the default prerenderer:
+
+  ```js
+  'astro:build:start': ({ setPrerenderer }) => {
+    setPrerenderer((defaultPrerenderer) => ({
+      name: 'my-prerenderer',
+      async setup() {
+        // Optional: called once before prerendering starts
+      },
+      async getStaticPaths() {
+        // Returns array of { pathname: string, route: RouteData }
+        return defaultPrerenderer.getStaticPaths();
+      },
+      async render(request, { routeData }) {
+        // request: Request
+        // routeData: RouteData
+        // Returns: Response
+      },
+      async teardown() {
+        // Optional: called after all pages are prerendered
+      }
+    }));
+  }
+  ```
+
+  Also adds the `astro:static-paths` virtual module, which exports a `StaticPaths` class for adapters to collect all prerenderable paths from within their target runtime. This is useful when implementing a custom prerenderer that runs in a non-Node environment:
+
+  ```js
+  // In your adapter's request handler (running in target runtime)
+  import { App } from 'astro/app';
+  import { StaticPaths } from 'astro:static-paths';
+
+  export function createApp(manifest) {
+    const app = new App(manifest);
+
+    return {
+      async fetch(request) {
+        const { pathname } = new URL(request.url);
+
+        // Expose endpoint for prerenderer to get static paths
+        if (pathname === '/__astro_static_paths') {
+          const staticPaths = new StaticPaths(app);
+          const paths = await staticPaths.getAll();
+          return new Response(JSON.stringify({ paths }));
+        }
+
+        // Normal request handling
+        return app.render(request);
+      },
+    };
+  }
+  ```
+
+  See the [adapter reference](https://v6.docs.astro.build/en/reference/adapter-reference/#custom-prerenderer) for more details on implementing a custom prerenderer.
+
+- [#15345](https://github.com/withastro/astro/pull/15345) [`840fbf9`](https://github.com/withastro/astro/commit/840fbf9e4abc7f847e23da8d67904ffde4d95fff) Thanks [@matthewp](https://github.com/matthewp)! - Adds a new `emitClientAsset` function to `astro/assets/utils` for integration authors. This function allows emitting assets that will be moved to the client directory during SSR builds, useful for assets referenced in server-rendered content that need to be available on the client.
+
+  ```ts
+  import { emitClientAsset } from 'astro/assets/utils';
+
+  // Inside a Vite plugin's transform or load hook
+  const handle = emitClientAsset(this, {
+    type: 'asset',
+    name: 'my-image.png',
+    source: imageBuffer,
+  });
+  ```
+
+### Patch Changes
+
+- [#15423](https://github.com/withastro/astro/pull/15423) [`c5ea720`](https://github.com/withastro/astro/commit/c5ea720261a35324988147fbf69d8200e496e1d0) Thanks [@matthewp](https://github.com/matthewp)! - Improves error message when a dynamic redirect destination does not match any existing route.
+
+  Previously, configuring a redirect like `/categories/[category]` → `/categories/[category]/1` in static output mode would fail with a misleading "getStaticPaths required" error. Now, Astro detects this early and provides a clear error explaining that the destination does not match any existing route.
+
+- [#15444](https://github.com/withastro/astro/pull/15444) [`10b0422`](https://github.com/withastro/astro/commit/10b0422b89d12320da3c026e8a4728ae7265cfb8) Thanks [@AhmadYasser1](https://github.com/AhmadYasser1)! - Fixes `Astro.rewrite` returning 404 when rewriting to a URL with non-ASCII characters
+
+  When rewriting to a path containing non-ASCII characters (e.g., `/redirected/héllo`), the route lookup compared encoded `distURL` hrefs against decoded pathnames, causing the comparison to always fail and resulting in a 404. This fix compares against the encoded pathname instead.
+
+- [#15419](https://github.com/withastro/astro/pull/15419) [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the `add` command could accept any arbitrary value, leading the possible command injections. Now `add` and `--add` accepts
+  values that are only acceptable npmjs.org names.
+
+- [#15345](https://github.com/withastro/astro/pull/15345) [`840fbf9`](https://github.com/withastro/astro/commit/840fbf9e4abc7f847e23da8d67904ffde4d95fff) Thanks [@matthewp](https://github.com/matthewp)! - Fixes an issue where `.sql` files (and other non-asset module types) were incorrectly moved to the client assets folder during SSR builds, causing "no such module" errors at runtime.
+
+  The `ssrMoveAssets` function now reads the Vite manifest to determine which files are actual client assets (CSS and static assets like images) and only moves those, leaving server-side module files in place.
+
+- [#15422](https://github.com/withastro/astro/pull/15422) [`68770ef`](https://github.com/withastro/astro/commit/68770ef9e981f37a0b1b8febf76958010975add9) Thanks [@matthewp](https://github.com/matthewp)! - Upgrade to @astrojs/compiler@3.0.0-beta
+
+- Updated dependencies [[`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3), [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da)]:
+  - @astrojs/internal-helpers@0.8.0-beta.1
+  - @astrojs/markdown-remark@7.0.0-beta.6
+
+## 6.0.0-beta.9
+
+### Patch Changes
+
+- [#15415](https://github.com/withastro/astro/pull/15415) [`cc3c46c`](https://github.com/withastro/astro/commit/cc3c46c73774d5c4b67c3b7a68f7da5de5544ba8) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where CSP headers were incorrectly injected in the development server.
+
+- [#15412](https://github.com/withastro/astro/pull/15412) [`c546563`](https://github.com/withastro/astro/commit/c546563f361343b2494ebfb1c06ef3101a4d083c) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves the `AstroAdapter` type and how legacy adapters are handled
+
+- [#15421](https://github.com/withastro/astro/pull/15421) [`bf62b6f`](https://github.com/withastro/astro/commit/bf62b6fa3eb7b0562cb9390a5362b23381f07276) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Removes unintended logging
+
+## 6.0.0-beta.8
+
+### Minor Changes
+
+- [#15258](https://github.com/withastro/astro/pull/15258) [`d339a18`](https://github.com/withastro/astro/commit/d339a182b387a7a1b0d5dd0d67a0638aaa2b4262) Thanks [@ematipico](https://github.com/ematipico)! - Stabilizes the adapter feature `experimentalStatiHeaders`. If you were using this feature in any of the supported adapters, you'll need to change the name of the flag:
+
+  ```diff
+  export default defineConfig({
+    adapter: netlify({
+  -    experimentalStaticHeaders: true
+  +    staticHeaders: true
+    })
+  })
+  ```
+
+### Patch Changes
+
+- [#15167](https://github.com/withastro/astro/pull/15167) [`4fca170`](https://github.com/withastro/astro/commit/4fca1701eca1d107df43ef280cab342dfdacbb44) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes an issue where CSS from unused components, when using content collections, could be incorrectly included between page navigations in development mode.
+
+- [#15268](https://github.com/withastro/astro/pull/15268) [`54e5cc4`](https://github.com/withastro/astro/commit/54e5cc476b7d8ea8da0ddaba97ced0b789a2550a) Thanks [@rururux](https://github.com/rururux)! - fix: avoid creating unused images during build in Picture component
+
+- [#15133](https://github.com/withastro/astro/pull/15133) [`53b125b`](https://github.com/withastro/astro/commit/53b125b7f0886f9ca75c4b2b80e3557645fb71df) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Fixes an issue where adding or removing `<style>` tags in Astro components would not visually update styles during development without restarting the development server.
+
+- Updated dependencies [[`80f0225`](https://github.com/withastro/astro/commit/80f022559e81b5609a69ba31c7f0d93dcb0bf74d)]:
+  - @astrojs/markdown-remark@7.0.0-beta.5
+
+## 6.0.0-beta.7
+
+### Minor Changes
+
+- [#14888](https://github.com/withastro/astro/pull/14888) [`4cd3fe4`](https://github.com/withastro/astro/commit/4cd3fe412bddbb0deb1383e83f3f8ae6e72596af) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Updates `astro add cloudflare` to better setup types, by adding `./worker-configuration.d.ts` to tsconfig includes and a `generate-types` script to package.json
+
+- [#15349](https://github.com/withastro/astro/pull/15349) [`a257c4c`](https://github.com/withastro/astro/commit/a257c4c3c7f0cdc5089b522ed216401d46d214c9) Thanks [@ascorbic](https://github.com/ascorbic)! - Passes collection name to live content loaders
+
+  Live content collection loaders now receive the collection name as part of their parameters. This is helpful for loaders that manage multiple collections or need to differentiate behavior based on the collection being accessed.
+
+  ```ts
+  export function storeLoader({ field, key }) {
+    return {
+      name: 'store-loader',
+      loadCollection: async ({ filter, collection }) => {
+        // ...
+      },
+      loadEntry: async ({ filter, collection }) => {
+        // ...
+      },
+    };
+  }
+  ```
+
+### Patch Changes
+
+- [#15394](https://github.com/withastro/astro/pull/15394) [`5520f89`](https://github.com/withastro/astro/commit/5520f89d5df125e0c2d7fcdb3f9f0c81ff754e86) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where using the Fonts API with `netlify dev` wouldn't work because of query parameters
+
+- [#15385](https://github.com/withastro/astro/pull/15385) [`9e16d63`](https://github.com/withastro/astro/commit/9e16d63cdd2537c406e50d005b389ac115755e8e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes content layer loaders that use dynamic imports
+
+  Content collection loaders can now use `await import()` and `import.meta.glob()` to dynamically import modules during build. Previously, these would fail with "Vite module runner has been closed."
+
+- [#15386](https://github.com/withastro/astro/pull/15386) [`a0234a3`](https://github.com/withastro/astro/commit/a0234a36d8407d24270e187cd6133171b938583e) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Updates `astro add cloudflare` to use the latest valid `compatibility_date` in the wrangler config, if available
+
+- [#15362](https://github.com/withastro/astro/pull/15362) [`dbf71c0`](https://github.com/withastro/astro/commit/dbf71c021e3adf060c34e6f268cf1b5cd480233d) Thanks [@jcayzac](https://github.com/jcayzac)! - Fixes `inferSize` being kept in the HTML attributes of the emitted `<img>` when that option is used with an image that is not remote.
+
+- Updated dependencies [[`240c317`](https://github.com/withastro/astro/commit/240c317faab52d7f22494e9181f5d2c2c404b0bd)]:
+  - @astrojs/internal-helpers@0.8.0-beta.0
+  - @astrojs/markdown-remark@7.0.0-beta.4
+
 ## 6.0.0-beta.6
 
 ### Major Changes

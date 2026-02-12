@@ -1,5 +1,32 @@
 # @astrojs/mdx
 
+## 5.0.0-beta.7
+
+### Patch Changes
+
+- [#15475](https://github.com/withastro/astro/pull/15475) [`36fc0e0`](https://github.com/withastro/astro/commit/36fc0e0c9e75b4cf830b15afd1a6a1f769095e6f) Thanks [@delucis](https://github.com/delucis)! - Fixes edge cases where an `export const components = {...}` declaration would fail to be detected with the `optimize` option enabled
+
+## 5.0.0-beta.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/markdown-remark@7.0.0-beta.6
+
+## 5.0.0-beta.5
+
+### Patch Changes
+
+- Updated dependencies [[`80f0225`](https://github.com/withastro/astro/commit/80f022559e81b5609a69ba31c7f0d93dcb0bf74d)]:
+  - @astrojs/markdown-remark@7.0.0-beta.5
+
+## 5.0.0-beta.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @astrojs/markdown-remark@7.0.0-beta.4
+
 ## 5.0.0-beta.3
 
 ### Patch Changes

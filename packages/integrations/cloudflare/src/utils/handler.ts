@@ -1,9 +1,15 @@
 import { env as globalEnv } from 'cloudflare:workers';
-import { sessionKVBindingName } from 'virtual:astro-cloudflare:config';
+import { sessionKVBindingName, isPrerender } from 'virtual:astro-cloudflare:config';
 import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
 import { createGetEnv } from '../utils/env.js';
 import type { RouteData } from 'astro';
+import {
+	isStaticPathsRequest,
+	isPrerenderRequest,
+	handleStaticPathsRequest,
+	handlePrerenderRequest,
+} from './prerender.js';
 
 setGetEnv(createGetEnv(globalEnv));
 
@@ -18,11 +24,24 @@ declare global {
 
 type CfResponse = Awaited<ReturnType<Required<ExportedHandler<Env>>['fetch']>>;
 
+const app = createApp();
+
 export async function handle(
-	...[request, env, context]: Parameters<Required<ExportedHandler<Env>>['fetch']>
+	request: Request,
+	env: Env,
+	context: ExecutionContext,
 ): Promise<CfResponse> {
-	const app = createApp(import.meta.env.DEV);
-	const { pathname } = new URL(request.url);
+	// Handle prerender endpoints (only active during build prerender phase)
+	if (isPrerender) {
+		if (isStaticPathsRequest(request)) {
+			return handleStaticPathsRequest(app) as unknown as CfResponse;
+		}
+		if (isPrerenderRequest(request)) {
+			return handlePrerenderRequest(app, request) as unknown as CfResponse;
+		}
+	}
+
+	const { pathname: requestPathname } = new URL(request.url);
 
 	if (env[sessionKVBindingName]) {
 		const sessionConfigOptions = app.manifest.sessionConfig?.options ?? {};
@@ -32,20 +51,18 @@ export async function handle(
 	}
 
 	// static assets fallback, in case default _routes.json is not used
-	if (app.manifest.assets.has(pathname)) {
+	if (app.manifest.assets.has(requestPathname)) {
 		return env.ASSETS.fetch(request.url.replace(/\.html$/, ''));
 	}
 
 	let routeData: RouteData | undefined = undefined;
 	if (app.isDev()) {
-		const result = await app.devMatch(
-			app.getPathnameFromRequest(request as Request & Parameters<ExportedHandlerFetchHandler>[0]),
-		);
+		const result = await app.devMatch(app.getPathnameFromRequest(request));
 		if (result) {
 			routeData = result.routeData;
 		}
 	} else {
-		routeData = app.match(request as Request & Parameters<ExportedHandlerFetchHandler>[0]);
+		routeData = app.match(request);
 	}
 
 	if (!routeData) {
@@ -87,17 +104,14 @@ export async function handle(
 		},
 	});
 
-	const response = await app.render(
-		request as Request & Parameters<ExportedHandlerFetchHandler>[0],
-		{
-			routeData,
-			locals,
-			prerenderedErrorPageFetch: async (url) => {
-				return env.ASSETS.fetch(url.replace(/\.html$/, '')) as unknown as Response;
-			},
-			clientAddress: request.headers.get('cf-connecting-ip') ?? undefined,
+	const response = await app.render(request, {
+		routeData,
+		locals,
+		prerenderedErrorPageFetch: async (url: string) => {
+			return env.ASSETS.fetch(url.replace(/\.html$/, ''));
 		},
-	);
+		clientAddress: request.headers.get('cf-connecting-ip') ?? undefined,
+	});
 
 	if (app.setCookieHeaders) {
 		for (const setCookieHeader of app.setCookieHeaders(response)) {

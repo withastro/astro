@@ -1,5 +1,7 @@
 import type { EnvironmentModuleNode, Plugin } from 'vite';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
+import { VIRTUAL_PAGE_RESOLVED_MODULE_ID } from '../vite-plugin-pages/const.js';
+import { getDevCssModuleNameFromPageVirtualModuleName } from '../vite-plugin-css/util.js';
 
 /**
  * The very last Vite plugin to reload the browser if any SSR-only module are updated
@@ -25,6 +27,18 @@ export default function hmrReload(): Plugin {
 
 					this.environment.moduleGraph.invalidateModule(mod, invalidatedModules, timestamp, true);
 					hasSsrOnlyModules = true;
+				}
+
+				// If any invalidated modules are virtual modules for pages, also invalidate their
+				// associated dev CSS modules, if any.
+				for (const invalidatedModule of invalidatedModules) {
+					if (invalidatedModule.id?.startsWith(VIRTUAL_PAGE_RESOLVED_MODULE_ID)) {
+						const cssMod = this.environment.moduleGraph.getModuleById(
+							getDevCssModuleNameFromPageVirtualModuleName(invalidatedModule.id),
+						);
+						if (!cssMod || cssMod.id == null) continue;
+						this.environment.moduleGraph.invalidateModule(cssMod, undefined, timestamp, true);
+					}
 				}
 
 				if (hasSsrOnlyModules) {
