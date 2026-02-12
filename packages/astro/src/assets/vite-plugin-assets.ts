@@ -153,10 +153,18 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 					id: new RegExp(`^(${RESOLVED_VIRTUAL_MODULE_ID})$`),
 				},
 				handler() {
+					const isServerEnvironment = isAstroServerEnvironment(this.environment);
+					const getImageExport = isServerEnvironment
+						? `import { getImage as getImageInternal } from "astro/assets";
+							export const getImage = async (options) => await getImageInternal(options, imageConfig);`
+						: `import { AstroError, AstroErrorData } from "astro/errors";
+							export const getImage = async () => {
+								throw new AstroError(AstroErrorData.GetImageNotUsedOnServer);
+							};`;
+
 					return {
 						code: `
-							import { getConfiguredImageService as _getConfiguredImageService } from "astro/assets";
-							export { isLocalService } from "astro/assets";
+							export { getConfiguredImageService, isLocalService } from "astro/assets";
 							import { getImage as getImageInternal } from "astro/assets";
 							export { default as Image } from "astro/components/${imageComponentPrefix}Image.astro";
 							export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
@@ -208,7 +216,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
               export const serverDir = /* #__PURE__ */ new URL(${JSON.stringify(
 								new URL(settings.config.build.server),
 							)});
-							export const getImage = async (options) => await getImageInternal(options, imageConfig);
+							${getImageExport}
 						`,
 					};
 				},

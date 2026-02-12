@@ -707,6 +707,36 @@ export const ExpectedNotESMImage = {
  * @docs
  * @see
  * - [Images](https://docs.astro.build/en/guides/images/)
+ * - [getImage()](https://docs.astro.build/en/reference/modules/astro-assets/#getimage)
+ * @description
+ * The `getImage()` function is only available on the server. To use images on the client, either render the `src` from `getImage()` during the server render so it can be used in client-side scripts, or use a standard `<img>` tag.
+ *
+ * ```astro
+ * ---
+ * import { getImage } from "astro:assets";
+ * import myImage from "../assets/my_image.png";
+ *
+ * const optimizedImage = await getImage({ src: myImage, width: 300 });
+ * ---
+ *
+ * <script define:vars={{ imageSrc: optimizedImage.src }}>
+ *   // Use imageSrc in client-side code
+ *   document.getElementById('myImage').src = imageSrc;
+ * </script>
+ * ```
+ */
+export const GetImageNotUsedOnServer = {
+	name: 'GetImageNotUsedOnServer',
+	title: '`getImage()` must be used on the server.',
+	message:
+		'`getImage()` should only be used on the server. To use images on the client, render the `src` from `getImage()` during the server render, then pass it to the client for usage.',
+	hint: 'See https://docs.astro.build/en/reference/modules/astro-assets/#getimage for more information on getImage().',
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @see
+ * - [Images](https://docs.astro.build/en/guides/images/)
  * @description
  * Only one of `densities` or `widths` can be specified. Those attributes are used to construct a `srcset` attribute, which cannot have both `x` and `w` descriptors.
  */
