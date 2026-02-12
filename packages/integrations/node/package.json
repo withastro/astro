@@ -55,6 +55,7 @@
     "devalue": "^5.6.2",
     "express": "^5.2.1",
     "fastify": "^5.7.2",
+    "h3": "2.0.1-rc.14",
     "node-mocks-http": "^1.17.2"
   },
   "publishConfig": {
