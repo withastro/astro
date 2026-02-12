@@ -35,7 +35,7 @@ const labelResultSchema = v.object({
 	labels: v.pipe(
 		v.array(v.string()),
 		v.description(
-			'The labels to apply to the issue (e.g. ["P1: chore", "pkg: react"]). Array must contain one "priority" label.',
+			'The labels to apply to the issue (e.g. ["- P1: chore", "pkg: react"]). Array must contain one "priority" label.',
 		),
 	),
 });
@@ -166,8 +166,8 @@ Return only "yes" or "no" inside the ---RESULT_START--- / ---RESULT_END--- block
 Select the most appropriate labels from the list below. Use the label descriptions to guide your decision, combined with the triage report's cause and impact analysis.
 
 ### Rules
-- Select exactly ONE priority label based on the severity and impact of the bug. Pay close attention to the "Cause" and "Impact" sections of the triage report.
-- You must select ONE priorty label! If you are not sure, just use your best judgement based on the label descriptions and the findings of the triage report.
+- Select exactly ONE priority label based on the label description and the severity and impact of the bug. Pay close attention to the "Cause" and "Impact" sections of the triage report.
+- You must select ONE priority label! If you are not sure, just use your best judgement based on the label descriptions and the findings of the triage report.
 - Select 0-3 package labels based on where where the issue lives (or most likely lives) in the monorepo. The triage report's diagnosis should make it clear. If you cannot confidently determine the affected package(s), return an empty array for packages.
 - Return the exact label names as they appear above — do not modify them.
 
@@ -179,11 +179,9 @@ ${packageLabels.map((l) => `- **${l.name}**: ${l.description || '(no description
 
 --- 
 
-<issue format="md">
-# ${issue.title}
-
-${issue.body}
-</issue>
+<github-issue format="json">
+${issueJson}
+</github-issue>
 
 <triage-report format="md">
 ${comment}
