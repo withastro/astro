@@ -72,6 +72,17 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 					};
 				}
 
+				// Set default cache driver if the user enabled experimental cache but
+				// didn't configure a driver
+				let cache = config.experimental?.cache;
+				if (cache && !cache.driver) {
+					logger.info('Enabling route caching with in-memory storage');
+					cache = {
+						...cache,
+						driver: '@astrojs/node/cache',
+					};
+				}
+
 				updateConfig({
 					build: {
 						redirects: false,
@@ -85,6 +96,9 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 						},
 					},
 					session,
+					experimental: {
+						cache,
+					},
 					vite: {
 						ssr: {
 							noExternal: ['@astrojs/node'],

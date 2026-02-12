@@ -2578,6 +2578,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/cache-route:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/client-address:
     dependencies:
       astro:
@@ -5872,6 +5878,15 @@ importers:
         version: link:../../../../../astro
 
   packages/integrations/node/test/fixtures/bad-urls:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
+  packages/integrations/node/test/fixtures/cache:
     dependencies:
       '@astrojs/node':
         specifier: workspace:*
