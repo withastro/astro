@@ -38,9 +38,7 @@ export function createAppHandler(
 		});
 		if (response instanceof Response) {
 			await NodeApp.writeResponse(response, res);
-			return;
 		}
-		// Result of next()
-		return response as void;
+		// If not a response, it means next() has been called
 	};
 }
