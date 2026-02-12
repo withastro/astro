@@ -21,9 +21,9 @@
     ".": "./dist/index.js",
     "./server.js": "./dist/entrypoints/server.js",
     "./preview.js": "./dist/entrypoints/preview.js",
-    "./node-handler.js": "./dist/entrypoints/node-handler.js",
-    "./web-handler.js": "./dist/entrypoints/web-handler.js",
-    "./utils.js": "./dist/entrypoints/utils.js",
+    "./node-handler": "./dist/entrypoints/node-handler.js",
+    "./web-handler": "./dist/entrypoints/web-handler.js",
+    "./utils": "./dist/entrypoints/utils.js",
     "./package.json": "./package.json"
   },
   "files": [

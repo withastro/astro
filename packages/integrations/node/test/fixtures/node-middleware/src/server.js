@@ -1,1 +1,1 @@
-export { ssrHandler } from '@astrojs/node/middleware.js';
+export { nodeHandler } from '@astrojs/node/node-handler';
