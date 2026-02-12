@@ -3,7 +3,7 @@ import { NodeApp } from 'astro/app/node';
 import { manifest } from 'virtual:astro:manifest';
 import { setGetEnv } from 'astro/env/setup';
 import * as options from 'virtual:astro-node:config';
-import { createAppHandler } from '../handlers.js';
+import { createAppHandler } from '../serve-app.js';
 
 setGetEnv((key) => process.env[key]);
 
