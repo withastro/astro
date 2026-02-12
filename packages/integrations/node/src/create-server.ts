@@ -1,9 +1,12 @@
-import type { Options } from './types.js';
+import type { Options, RequestHandler } from './types.js';
 import * as http from 'node:http';
 import * as https from 'node:https';
 import enableDestroy from 'server-destroy';
 import * as fs from 'node:fs';
 import type { PreviewServer } from 'astro';
+import type { NodeApp } from 'astro/app/node';
+import { createAppHandler } from './serve-app.js';
+import { createStaticHandler } from './serve-static.js';
 
 // Used to get Host Value at Runtime
 export function hostOptions(host: Options['host']): string {
@@ -11,6 +14,25 @@ export function hostOptions(host: Options['host']): string {
 		return host ? '0.0.0.0' : 'localhost';
 	}
 	return host;
+}
+
+export function createStandaloneHandler(
+	app: NodeApp,
+	options: Parameters<typeof createAppHandler>[1] & Parameters<typeof createStaticHandler>[1],
+): RequestHandler {
+	const appHandler = createAppHandler(app, options);
+	const staticHandler = createStaticHandler(app, options);
+	return (req, res, next, locals) => {
+		try {
+			// validate request path
+			decodeURI(req.url!);
+		} catch {
+			res.writeHead(400);
+			res.end('Bad request.');
+			return;
+		}
+		staticHandler(req, res, () => appHandler(req, res, next, locals));
+	};
 }
 
 // also used by preview entrypoint
