@@ -129,9 +129,6 @@ interface AdapterExplicitProperties {
 	 */
 	entrypointResolution?: 'explicit';
 	serverEntrypoint?: string | URL;
-/** @deprecated This will be removed in a future major version, alongside `entrypointResolution: 'explicit'` */
-exports?: string[];
-/** @deprecated This will be removed in a future major version, alongside `entrypointResolution: 'explicit'` */
 	/** @deprecated This will be removed in a future major version, alongside `entrypointResolution: 'explicit'` */
 	exports?: string[];
 	/** @deprecated This will be removed in a future major version, alongside `entrypointResolution: 'explicit'` */
