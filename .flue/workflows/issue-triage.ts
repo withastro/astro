@@ -142,9 +142,14 @@ Return only "yes" or "no" inside the ---RESULT_START--- / ---RESULT_END--- block
 		await flue.shell(`gh issue edit ${issueNumber} --add-label "auto triage skipped"`, {
 			env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN },
 		});
+	} else {
+		// Not reproducible: add "needs repro" and remove "needs triage".
+		// We handle both labels here (instead of just adding "needs repro") to avoid
+		// the issue-labeled.yml workflow posting a duplicate auto-comment.
+		await flue.shell(
+			`gh issue edit ${issueNumber} --add-label "needs repro" --remove-label "needs triage"`,
+			{ env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN } },
+		);
 	}
-
-	// If not reproducible: "needs triage" label stays.
-	// The loop continues when the author (or another user) replies.
 	return { reproduceResult, diagnoseResult, fixResult, isPushed };
 }
