@@ -1,11 +1,11 @@
 import type { RouteData, SSRResult } from '../../../types/public/internal.js';
-import { isAstroComponentFactory } from './astro/index.js';
 import { renderToAsyncIterable, renderToReadableStream, renderToString } from './astro/render.js';
 import { encoder } from './common.js';
 import { type NonAstroPageComponent, renderComponentToString } from './component.js';
 import { renderCspContent } from './csp.js';
 import type { AstroComponentFactory } from './index.js';
 import { isDeno, isNode } from './util.js';
+import { isAstroComponentFactory } from './astro/factory.js';
 
 export async function renderPage(
 	result: SSRResult,

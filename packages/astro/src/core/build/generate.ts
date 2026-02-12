@@ -189,6 +189,29 @@ export async function generatePages(
 		colors.green(`✓ Completed in ${getTimeStat(generatePagesTimer, performance.now())}.\n`),
 	);
 
+	// Log pool statistics if queue rendering is enabled
+	if (options.settings.config.experimental?.queuedRendering) {
+		try {
+			// Dynamic import to avoid loading pool module when not using queue rendering
+			const { globalNodePool } = await import('../../runtime/server/render/queue/pool.js');
+			const stats = globalNodePool.getStats();
+			
+			// Only log if there was actual pool activity
+			if (stats.acquireFromPool > 0 || stats.acquireNew > 0) {
+				logger.info(
+					null,
+					colors.dim(
+						`[Queue Pool] ${stats.acquireFromPool.toLocaleString()} reused / ${stats.acquireNew.toLocaleString()} new nodes | ` +
+						`Hit rate: ${stats.hitRate.toFixed(1)}% | ` +
+						`Pool: ${stats.poolSize}/${stats.maxSize}`
+					),
+				);
+			}
+		} catch {
+			// Silently ignore if pool module is not available
+		}
+	}
+
 	const staticImageList = getStaticImageList();
 	// Get app from default prerenderer for assets generation (custom prerenderers handle assets differently)
 	const app = (prerenderer as DefaultPrerenderer).app;
