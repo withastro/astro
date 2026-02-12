@@ -20,19 +20,19 @@ The key optimization: **share one container across all tests in a `describe` blo
 
 ## Results
 
-37 tests across 6 converted files, all passing:
+37 tests across 6 converted files, all passing. Same test coverage, ~4x faster:
 
-| Test Suite            | Tests  | Time     |
-| --------------------- | ------ | -------- |
-| `astro-slots`         | 15     | 0.7s     |
-| `middleware` (DEV)    | 12     | 0.4s     |
-| `redirects` (DEV)     | 6      | 1.0s     |
-| `custom-404-locals`   | 2      | 0.3s     |
-| `content-collections` | 1      | 0.7s     |
-| `import-ts-with-js`   | 1      | 0.3s     |
-| **Total**             | **37** | **4.2s** |
+| Test Suite            | Tests  | Before (integration) | After (unit) | Speedup |
+| --------------------- | ------ | -------------------- | ------------ | ------- |
+| `astro-slots`         | 15     | 6.3s                 | 0.7s         | 9x      |
+| `middleware` (DEV)    | 12     | 5.3s                 | 0.4s         | 13x     |
+| `redirects` (DEV)     | 6      | 2.6s                 | 1.0s         | 3x      |
+| `custom-404-locals`   | 2      | 1.0s                 | 0.3s         | 3x      |
+| `content-collections` | 1      | 0.6s                 | 0.7s         | --      |
+| `import-ts-with-js`   | 1      | 0.4s                 | 0.3s         | --      |
+| **Total**             | **37** | **16.2s**            | **4.2s**     | **~4x** |
 
-For context, the `astro-slots` integration test with 15 tests takes ~1.1s (one build, then file reads). The naive unit test approach (one container per `it()`) took 6.3s — _worse_. With shared containers, it's 0.7s — faster and with no fixture directory on disk.
+Single-test files show no meaningful difference — the wins come from test suites with many tests that previously each paid the full container startup cost. With shared containers, individual `it()` blocks run in 5-15ms.
 
 ## What the Dev Container Supports
 
