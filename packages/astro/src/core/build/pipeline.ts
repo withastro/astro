@@ -15,14 +15,14 @@ import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/h
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import type { BuildInternals } from './internal.js';
 import { cssOrder, mergeInlineCss, getPageData } from './runtime.js';
-import type { SinglePageBuiltModule, StaticBuildOptions } from './types.js';
+import type { BuildRenderOptions, SinglePageBuiltModule } from './types.js';
 
 /**
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
  */
 export class BuildPipeline extends Pipeline {
 	internals: BuildInternals | undefined;
-	options: StaticBuildOptions | undefined;
+	options: BuildRenderOptions | undefined;
 
 	getName(): string {
 		return 'BuildPipeline';
@@ -96,7 +96,7 @@ export class BuildPipeline extends Pipeline {
 		this.internals = internals;
 	}
 
-	public setOptions(options: StaticBuildOptions) {
+	public setOptions(options: BuildRenderOptions) {
 		this.options = options;
 	}
 

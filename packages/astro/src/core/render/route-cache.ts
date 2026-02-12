@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict';
 import type { ComponentInstance } from '../../types/astro.js';
 import type {
 	GetStaticPathsItem,
@@ -79,6 +80,7 @@ export async function callGetStaticPaths({
 
 interface RouteCacheEntry {
 	staticPaths: GetStaticPathsResultKeyed;
+	route?: Pick<RouteData, 'route' | 'component'>;
 }
 
 /**
@@ -90,6 +92,7 @@ export class RouteCache {
 	private logger: Logger;
 	private cache: Record<string, RouteCacheEntry> = {};
 	private runtimeMode: RuntimeMode;
+	private sealed = false;
 
 	constructor(logger: Logger, runtimeMode: RuntimeMode = 'production') {
 		this.logger = logger;
@@ -101,7 +104,16 @@ export class RouteCache {
 		this.cache = {};
 	}
 
+	seal() {
+		this.sealed = true;
+	}
+
 	set(route: RouteData, entry: RouteCacheEntry): void {
+		if (this.sealed) {
+			throw new Error(
+				`Route cache is sealed and cannot be updated. This indicates that getStaticPaths() was called during rendering for ${route.component}.`,
+			);
+		}
 		const key = this.key(route);
 		// NOTE: This shouldn't be called on an already-cached component.
 		// Warn here so that an unexpected double-call of getStaticPaths()
@@ -109,15 +121,66 @@ export class RouteCache {
 		if (this.runtimeMode === 'production' && this.cache[key]?.staticPaths) {
 			this.logger.warn(null, `Internal Warning: route cache overwritten. (${key})`);
 		}
-		this.cache[key] = entry;
+		this.cache[key] = {
+			...entry,
+			route: {
+				route: route.route,
+				component: route.component,
+			},
+		};
 	}
 
 	get(route: RouteData): RouteCacheEntry | undefined {
 		return this.cache[this.key(route)];
 	}
 
-	key(route: RouteData) {
-		return `${route.route}_${route.component}`;
+	key(route: Pick<RouteData, 'route' | 'component'>) {
+		return getRouteCacheKey(route);
+	}
+
+	getEntries() {
+		return Object.entries(this.cache).map(([key, entry]) => ({ key, entry }));
+	}
+}
+
+export interface SerializedRouteCacheEntry {
+	key: string;
+	route: Pick<RouteData, 'route' | 'component'>;
+	staticPaths: GetStaticPathsResult;
+	keyed: Array<[string, GetStaticPathsItem]>;
+}
+
+export interface SerializedRouteCache {
+	entries: SerializedRouteCacheEntry[];
+}
+
+export function getRouteCacheKey(route: Pick<RouteData, 'route' | 'component'>): string {
+	return `${route.route}_${route.component}`;
+}
+
+export function serializeRouteCache(routeCache: RouteCache): SerializedRouteCache {
+	const entries = routeCache.getEntries().map(({ key, entry }) => {
+		assert.ok(entry.route, `Route cache entry missing route data for ${key}`);
+		return {
+			key,
+			route: entry.route,
+			staticPaths: Array.from(entry.staticPaths),
+			keyed: Array.from(entry.staticPaths.keyed.entries()),
+		};
+	});
+	return { entries };
+}
+
+export function hydrateRouteCache(routeCache: RouteCache, serialized: SerializedRouteCache) {
+	routeCache.clearAll();
+	for (const entry of serialized.entries) {
+		const keyed = new Map(entry.keyed);
+		const staticPaths = entry.staticPaths as GetStaticPathsResultKeyed;
+		staticPaths.keyed = keyed;
+		routeCache.set(entry.route as RouteData, {
+			staticPaths,
+			route: entry.route,
+		});
 	}
 }
 

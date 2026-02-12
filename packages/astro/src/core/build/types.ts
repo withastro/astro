@@ -24,15 +24,19 @@ export interface PageBuildData {
 
 export type AllPagesData = Record<ComponentPath, PageBuildData>;
 
-/** Options for the static build */
-export interface StaticBuildOptions {
-	allPages: AllPagesData;
+/** Options required to render during static build */
+export interface BuildRenderOptions {
 	settings: AstroSettings;
 	logger: Logger;
 	routesList: RoutesList;
 	runtimeMode: RuntimeMode;
 	origin: string;
 	pageNames: string[];
+}
+
+/** Options for the static build */
+export interface StaticBuildOptions extends BuildRenderOptions {
+	allPages: AllPagesData;
 	viteConfig: InlineConfig;
 	teardownCompiler: boolean;
 	key: Promise<CryptoKey>;
