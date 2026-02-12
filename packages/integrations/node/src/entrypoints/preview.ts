@@ -1,22 +1,23 @@
 import { fileURLToPath } from 'node:url';
 import type { CreatePreviewServer } from 'astro';
 import { AstroError } from 'astro/errors';
-import { logListeningOn } from '../log-listening-on.js';
-import { createServer } from '../create-server.js';
+import { PREVIEW_KEY } from '../shared.js';
+import type { CreateNodePreviewServer } from '../types.js';
 
-type ServerModule = typeof import('./server.js');
-type MaybeServerModule = Partial<ServerModule>;
+interface MaybeServerModule {
+	createNodePreviewServer?: CreateNodePreviewServer;
+}
 
 const createPreviewServer: CreatePreviewServer = async (preview) => {
-	let ssrHandler: ServerModule['handler'];
+	let createNodePreviewServer: CreateNodePreviewServer;
 	try {
-		process.env.ASTRO_NODE_AUTOSTART = 'disabled';
-		const ssrModule: MaybeServerModule = await import(preview.serverEntrypoint.toString());
-		if (typeof ssrModule.handler === 'function') {
-			ssrHandler = ssrModule.handler;
+		process.env[PREVIEW_KEY] = 'true';
+		const mod: MaybeServerModule = await import(preview.serverEntrypoint.toString());
+		if (typeof mod.createNodePreviewServer === 'function') {
+			createNodePreviewServer = mod.createNodePreviewServer;
 		} else {
 			throw new AstroError(
-				`The server entrypoint doesn't have a handler. Are you sure this is the right file?`,
+				`The server entrypoint doesn't export a createNodePreviewServer() function. Are you sure this is the right file?`,
 			);
 		}
 	} catch (err) {
@@ -41,27 +42,18 @@ const createPreviewServer: CreatePreviewServer = async (preview) => {
 	const host = process.env.HOST ?? preview.host ?? '0.0.0.0';
 
 	const port = preview.port ?? 4321;
-	const server = createServer(ssrHandler, host, port);
-
-	// If user specified custom headers append a listener
-	// to the server to add those headers to response
-	if (preview.headers) {
-		server.server.addListener('request', (_, res) => {
-			if (res.statusCode === 200) {
-				for (const [name, value] of Object.entries(preview.headers ?? {})) {
-					if (value) res.setHeader(name, value);
-				}
-			}
-		});
-	}
-
-	logListeningOn(preview.logger, server.server, host);
-	await new Promise<void>((resolve, reject) => {
-		server.server.once('listening', resolve);
-		server.server.once('error', reject);
-		server.server.listen(port, host);
+	const nodePreviewServer = await createNodePreviewServer({
+		host,
+		port,
+		headers: preview.headers,
+		logger: preview.logger,
 	});
-	return server;
+
+	return {
+		...nodePreviewServer,
+		host,
+		port,
+	};
 };
 
 export default createPreviewServer;

@@ -1,5 +1,5 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { SSRManifest } from 'astro';
+import type { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'node:http';
+import type { AstroIntegrationLogger, PreviewServer, SSRManifest } from 'astro';
 
 export interface UserOptions {
 	/** TODO: */
@@ -46,3 +46,12 @@ export type RequestHandler = (
 	next?: (err?: unknown) => void,
 	locals?: Partial<App.Locals>,
 ) => void | Promise<void>;
+
+export type NodePreviewServer = Pick<PreviewServer, 'closed' | 'stop'>;
+
+export type CreateNodePreviewServer = (options: {
+	host: string;
+	port: number;
+	logger: AstroIntegrationLogger;
+	headers: OutgoingHttpHeaders | undefined;
+}) => NodePreviewServer | Promise<NodePreviewServer>;

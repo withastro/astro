@@ -6,10 +6,12 @@ import { logListeningOn } from '../log-listening-on.js';
 import { createServer, createStandaloneHandler, hostOptions } from '../create-server.js';
 import { setGetEnv } from 'astro/env/setup';
 import { readHeadersJson } from '../shared.js';
+import { isPreview } from './utils.js';
+import type { CreateNodePreviewServer } from '../types.js';
 
 const app = new NodeApp(manifest, !options.experimentalDisableStreaming);
 
-export function startServer() {
+function startServer() {
 	setGetEnv((key) => process.env[key]);
 
 	let headersMap: NodeAppHeadersJson | undefined = undefined;
@@ -24,19 +26,56 @@ export function startServer() {
 	const port = process.env.PORT ? Number(process.env.PORT) : options.port;
 	const host = process.env.HOST ?? hostOptions(options.host);
 
-	const server = createServer(createStandaloneHandler(app, options), host, port);
-	server.server.listen(port, host);
+	const server = createServer(createStandaloneHandler(app, options));
+	server.listen(port, host);
 	if (process.env.ASTRO_NODE_LOGGING !== 'disabled') {
-		logListeningOn(app.getAdapterLogger(), server.server, host);
+		logListeningOn(app.getAdapterLogger(), server, host);
 	}
-	return {
-		server,
-		done: server.closed(),
-	};
+	return server;
 }
 
-if (process.env.ASTRO_NODE_AUTOSTART !== 'disabled') {
+if (!isPreview()) {
 	startServer();
 }
 
-export const handler = createStandaloneHandler(app, options);
+export const createNodePreviewServer: CreateNodePreviewServer = async ({
+	host,
+	port,
+	logger,
+	headers,
+}) => {
+	const server = createServer(createStandaloneHandler(app, options));
+
+	// If user specified custom headers append a listener
+	// to the server to add those headers to response
+	if (headers) {
+		server.addListener('request', (_, res) => {
+			if (res.statusCode === 200) {
+				for (const [name, value] of Object.entries(headers)) {
+					if (value) res.setHeader(name, value);
+				}
+			}
+		});
+	}
+
+	logListeningOn(logger, server, host);
+	await new Promise<void>((resolve, reject) => {
+		server.once('listening', resolve);
+		server.once('error', reject);
+		server.listen(port, host);
+	});
+
+	return {
+		closed() {
+			return new Promise<void>((resolve, reject) => {
+				server.addListener('close', resolve);
+				server.addListener('error', reject);
+			});
+		},
+		stop() {
+			return new Promise<void>((resolve, reject) => {
+				server.destroy((err) => (err ? reject(err) : resolve()));
+			});
+		},
+	};
+};

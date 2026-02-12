@@ -23,6 +23,7 @@
     "./preview.js": "./dist/entrypoints/preview.js",
     "./middleware.js": "./dist/entrypoints/middleware.js",
     "./handler.js": "./dist/entrypoints/handler.js",
+    "./utils.js": "./dist/entrypoints/utils.js",
     "./package.json": "./package.json"
   },
   "files": [

@@ -6,6 +6,7 @@ import type { Options } from './types.js';
 import type { NodeAppHeadersJson } from 'astro';
 
 export const STATIC_HEADERS_FILE = '_headers.json';
+export const PREVIEW_KEY = 'ASTRO_NODE_PREVIEW'
 
 /**
  * Resolves the client directory path at runtime.
