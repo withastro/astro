@@ -79,7 +79,7 @@ describe('astro cli', () => {
 
 			/** @type {import('./test-utils').Fixture} */
 			const fixture = await loadFixture({
-				root: './fixtures/astro-check-watch/',
+				root: './fixtures/mega-static/astro-check-watch/',
 			});
 			const logs = [];
 
@@ -282,7 +282,10 @@ describe('astro cli', () => {
 			timeout: 35000,
 		},
 		async () => {
-			const projectRootURL = new URL('./fixtures/astro-check-no-errors/', import.meta.url);
+			const projectRootURL = new URL(
+				'./fixtures/mega-static/astro-check-no-errors/',
+				import.meta.url,
+			);
 			const result = await cli('check', '--root', fileURLToPath(projectRootURL)).getResult();
 
 			assert.equal(result.stdout.includes('0 errors'), true);

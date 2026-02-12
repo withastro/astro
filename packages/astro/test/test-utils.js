@@ -55,7 +55,7 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * When used in a test suite:
  * ```js
  * let fixture = await loadFixture({
- *   root: './fixtures/astro-check-watch/',
+ *   root: './fixtures/mega-static/astro-check-watch/',
  * });
  * ```
  * `opts` will override the options passed to the `AstroChecker`
