@@ -2,16 +2,10 @@
 'astro': minor
 ---
 
-Responsive images are now supported when `security.csp` is enabled, out of the box. 
+Adds support for responsive images when `security.csp` is enabled, out of the box. 
 
-Before, the styles for responsive images were injected using the `style="""` attribute, and the image would look like this:
+Astro's implementation of responsive image styles has been updated to be compatible with a configured Content Security Policy.
 
-```html
-<img style="--fit: <value>; --pos: <value>" >
-```
+Instead of, injecting style elements at runtime, Astro will now generate your styles at build time using a combination of `class=""` and `data-*` attributes. This means that your processed styles are loaded and hashed out of the box by Astro.
 
-After this change, styles now use a combination of `class=""` and data attributes. The image would look like this:
-
-```html
-<img class="__a_HaSh350" data-atro-fit="value" data-astro-pos="value" >
-```
+If you were previously choosing between Astro's CSP feature and including responsive images on your site, you may now use them together.
