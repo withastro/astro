@@ -32,16 +32,10 @@ const fixResultSchema = v.object({
 });
 
 const labelResultSchema = v.object({
-	priority: v.pipe(
-		v.nullable(v.string()),
-		v.description(
-			'Exactly one priority label name (e.g. "P4: important"), or null if unable to determine priority',
-		),
-	),
-	packages: v.pipe(
+	labels: v.pipe(
 		v.array(v.string()),
 		v.description(
-			'One or more package label names (e.g. ["pkg: astro", "pkg: react"]). Empty array if unable to determine package.',
+			'The labels to apply to the issue (e.g. ["P1: chore", "pkg: react"]). Array must contain one "priority" label.',
 		),
 	),
 });
@@ -163,9 +157,8 @@ Return only "yes" or "no" inside the ---RESULT_START--- / ---RESULT_END--- block
 			.map((line) => JSON.parse(line) as { name: string; description: string });
 
 		// Filter to priority labels (P followed by a digit) and package labels (pkg: prefix)
-		const priorityLabels = allLabels.filter((l) => /^P\d/.test(l.name));
+		const priorityLabels = allLabels.filter((l) => /^- P\d/.test(l.name));
 		const packageLabels = allLabels.filter((l) => l.name.startsWith('pkg:'));
-		const candidateLabels = [...priorityLabels, ...packageLabels];
 
 		const labelResult = await flue.prompt(
 			`Label the following GitHub issue based on our Triage Report which summarizes what we learned in our attempt to reproduce, diagnose, and fix the issue.
@@ -199,13 +192,10 @@ ${comment}
 			{ result: labelResultSchema },
 		);
 
-		const labelsToAdd = [
-			...(labelResult.priority ? [labelResult.priority] : []),
-			...labelResult.packages,
-		].filter((name) => candidateLabels.some((l) => l.name === name));
-
-		if (labelsToAdd.length > 0) {
-			const labelFlags = labelsToAdd.map((l) => `--add-label ${JSON.stringify(l)}`).join(' ');
+		if (labelResult.labels.length > 0) {
+			const labelFlags = labelResult.labels
+				.map((l) => `--add-label ${JSON.stringify(l)}`)
+				.join(' ');
 			await flue.shell(`gh issue edit ${issueNumber} ${labelFlags}`, {
 				env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN },
 			});
