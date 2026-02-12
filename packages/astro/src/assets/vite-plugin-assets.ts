@@ -323,6 +323,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 	];
 }
 
+// Precompile the denies patterns to avoid using a CJS package in the runtime
 function serializeFsDenyGlob(denyPatterns: string[]): string {
 	// Replicate the same pattern transformation that Vite does internally:
 	// https://github.com/vitejs/vite/blob/e6156f71f0e21f4068941b63bcc17b0e9b0a7455/packages/vite/src/node/config.ts#L1931
