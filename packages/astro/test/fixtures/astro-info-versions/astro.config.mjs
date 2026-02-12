@@ -8,7 +8,5 @@ export default defineConfig({
 		name: "manual-integration",
 		hooks: {}
 	}],
-	adapter: node({
-		mode: "standalone"
-	})
+	adapter: node()
 });
