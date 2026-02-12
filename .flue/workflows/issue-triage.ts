@@ -208,13 +208,8 @@ ${comment}
 			env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN },
 		});
 	} else {
-		// Not reproducible: add "needs repro" and remove "needs triage".
-		// We handle both labels here (instead of just adding "needs repro") to avoid
-		// the issue-labeled.yml workflow posting a duplicate auto-comment.
-		await flue.shell(
-			`gh issue edit ${issueNumber} --add-label "needs repro" --remove-label "needs triage"`,
-			{ env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN } },
-		);
+		// Not reproducible: do nothing. The "needs triage" label stays on the issue
+		// so that it can continue to be worked on and triaged by the humans.
 	}
 	return { reproduceResult, diagnoseResult, fixResult, isPushed };
 }
