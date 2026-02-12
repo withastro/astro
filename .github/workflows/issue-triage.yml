@@ -35,6 +35,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Configure Git identity
+        run: |
+          git config user.name "astrobot-houston"
+          git config user.email "fred+astrobot@astro.build"
+
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
 

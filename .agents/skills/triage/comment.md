@@ -38,7 +38,7 @@ Generate and return a GitHub comment following the template below.
 ```markdown
 **[I was able to reproduce this issue. / I was unable to reproduce this issue.]** [1-2 sentences describing the result and key observations.]
 
-**Fix:** [If `branchName` arg is non-null, include: [Create PR](https://github.com/withastro/astro/compare/{branchName}?expand=1)] **[I was able to fix this issue. / I was unable to fix this issue]** [1-2 sentences describing the solution and key observations. Even if no fix was created, you can still use this space to give guidance or "a best guess" at where the fix might be.]
+**Fix:** **[I was able to fix this issue. / I was unable to fix this issue]** [1-2 sentences describing the solution and key observations. Even if no fix was created, you can still use this space to give guidance or "a best guess" at where the fix might be.] [If `branchName` arg is non-null, include this link: [View Fix](https://github.com/withastro/astro/compare/{branchName}?expand=1)]
 
 **Cause:** [Single sentence explaining the root cause - or just the word "Unknown" if not determined.]
 
