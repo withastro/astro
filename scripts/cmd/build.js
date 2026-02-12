@@ -135,14 +135,13 @@ async function clean(outdir, cleanDts) {
  * Available to all packages, but mostly useful for CLIs like `create-astro`.
  */
 async function getDefinedEntries() {
-	const [PACKAGE_VERSION, ASTRO_VERSION, ASTRO_CHECK_VERSION, TYPESCRIPT_VERSION] = await Promise.all([
-		getInternalPackageVersion('./package.json'),
-		getInternalPackageVersion(
-			new URL('../../packages/astro/package.json', import.meta.url),
-		),
-		getWorkspacePackageVersion('@astrojs/check'),
-		getWorkspacePackageVersion('typescript'),
-	]);
+	const [PACKAGE_VERSION, ASTRO_VERSION, ASTRO_CHECK_VERSION, TYPESCRIPT_VERSION] =
+		await Promise.all([
+			getInternalPackageVersion('./package.json'),
+			getInternalPackageVersion(new URL('../../packages/astro/package.json', import.meta.url)),
+			getWorkspacePackageVersion('@astrojs/check'),
+			getWorkspacePackageVersion('typescript'),
+		]);
 	const define = {
 		/** The current version (at the time of building) for the current package, such as `astro` or `@astrojs/sitemap` */
 		PACKAGE_VERSION,
@@ -151,7 +150,7 @@ async function getDefinedEntries() {
 		/** The current version (at the time of building) for `@astrojs/check` */
 		ASTRO_CHECK_VERSION,
 		/** The current version (at the time of building) for `typescript` */
-		TYPESCRIPT_VERSION ,
+		TYPESCRIPT_VERSION,
 	};
 	for (const [key, value] of Object.entries(define)) {
 		if (value === undefined) {
