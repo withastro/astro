@@ -3,4 +3,4 @@
 'astro': major
 ---
 
-The styles that belong to code blocks, emitted via markdown code block or `Code.astro` component, are now hoisted to the head of the file in a `style` tag, instead of using inline styles. This refactor allows to support CSP out of the box when `security.csp` is enabled.
+Changes how styles applied to code blocks are emitted to support CSP - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-how-shiki-code-block-styles-are-emitted)
