@@ -6,6 +6,9 @@ import * as fs from 'node:fs';
 import type { NodeApp } from 'astro/app/node';
 import { createAppHandler } from './serve-app.js';
 import { createStaticHandler } from './serve-static.js';
+import type { NodeAppHeadersJson } from 'astro';
+import { LOGGING_KEY, readHeadersJson } from './shared.js';
+import { logListeningOn } from './log-listening-on.js';
 
 // Used to get Host Value at Runtime
 export function hostOptions(host: Options['host']): string {
@@ -34,7 +37,6 @@ export function createStandaloneHandler(
 	};
 }
 
-// also used by preview entrypoint
 export function createServer(listener: http.RequestListener) {
 	let httpServer: http.Server | https.Server;
 
@@ -52,4 +54,25 @@ export function createServer(listener: http.RequestListener) {
 	enableDestroy(httpServer);
 
 	return httpServer;
+}
+
+export function startServer(app: NodeApp, options: Options) {
+	let headersMap: NodeAppHeadersJson | undefined = undefined;
+	if (options.staticHeaders) {
+		headersMap = readHeadersJson(app.manifest.outDir);
+	}
+
+	if (headersMap) {
+		app.setHeadersMap(headersMap);
+	}
+
+	const port = process.env.PORT ? Number(process.env.PORT) : options.port;
+	const host = process.env.HOST ?? hostOptions(options.host);
+
+	const server = createServer(createStandaloneHandler(app, options));
+	server.listen(port, host);
+	if (process.env[LOGGING_KEY] !== 'disabled') {
+		logListeningOn(app.getAdapterLogger(), server, host);
+	}
+	return { host, port, server };
 }

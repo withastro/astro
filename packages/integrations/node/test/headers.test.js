@@ -133,14 +133,14 @@ describe('Node Adapter Headers', () => {
 
 		// TODO: needs e2e tests to check real headers
 		it('sends several chunks', async () => {
-			const { handler } = await import('./fixtures/headers/dist/server/entry.mjs');
+			const { nodeHandler } = await import('./fixtures/headers/dist/server/entry.mjs');
 
 			const { req, res, done } = createRequestAndResponse({
 				method: 'GET',
 				url: '/astro/component-simple',
 			});
 
-			handler(req, res);
+			nodeHandler(req, res);
 
 			req.send();
 
@@ -164,14 +164,14 @@ describe('Node Adapter Headers', () => {
 
 		// TODO: needs e2e tests to check real headers
 		it('sends a single chunk', async () => {
-			const { handler } = await import('./fixtures/headers/dist/server/entry.mjs?cachebust=0');
+			const { nodeHandler } = await import('./fixtures/headers/dist/server/entry.mjs?cachebust=0');
 
 			const { req, res, done } = createRequestAndResponse({
 				method: 'GET',
 				url: '/astro/component-simple',
 			});
 
-			handler(req, res);
+			nodeHandler(req, res);
 
 			req.send();
 
@@ -182,14 +182,14 @@ describe('Node Adapter Headers', () => {
 });
 
 async function runTest(url, expectedHeaders) {
-	const { handler } = await import('./fixtures/headers/dist/server/entry.mjs');
+	const { nodeHandler } = await import('./fixtures/headers/dist/server/entry.mjs');
 
 	const { req, res, done } = createRequestAndResponse({
 		method: 'GET',
 		url,
 	});
 
-	handler(req, res);
+	nodeHandler(req, res);
 
 	req.send();
 

@@ -1,41 +1,19 @@
 import { NodeApp } from 'astro/app/node';
+import { setGetEnv } from 'astro/env/setup';
 import * as options from 'virtual:astro-node:config';
 import { manifest } from 'virtual:astro:manifest';
-import type { NodeAppHeadersJson } from 'astro';
+import { createServer, createStandaloneHandler, startServer } from '../create-server.js';
 import { logListeningOn } from '../log-listening-on.js';
-import { createServer, createStandaloneHandler, hostOptions } from '../create-server.js';
-import { setGetEnv } from 'astro/env/setup';
-import { LOGGING_KEY, readHeadersJson } from '../shared.js';
-import { isPreview } from './utils.js';
+import { LOGGING_KEY } from '../shared.js';
 import type { CreateNodePreviewServer } from '../types.js';
+import { isPreview } from './utils.js';
+
+setGetEnv((key) => process.env[key]);
 
 const app = new NodeApp(manifest, !options.experimentalDisableStreaming);
 
-function startServer() {
-	setGetEnv((key) => process.env[key]);
-
-	let headersMap: NodeAppHeadersJson | undefined = undefined;
-	if (options.staticHeaders) {
-		headersMap = readHeadersJson(manifest.outDir);
-	}
-
-	if (headersMap) {
-		app.setHeadersMap(headersMap);
-	}
-
-	const port = process.env.PORT ? Number(process.env.PORT) : options.port;
-	const host = process.env.HOST ?? hostOptions(options.host);
-
-	const server = createServer(createStandaloneHandler(app, options));
-	server.listen(port, host);
-	if (process.env[LOGGING_KEY] !== 'disabled') {
-		logListeningOn(app.getAdapterLogger(), server, host);
-	}
-	return server;
-}
-
 if (!isPreview()) {
-	startServer();
+	startServer(app, options);
 }
 
 export const createNodePreviewServer: CreateNodePreviewServer = async ({

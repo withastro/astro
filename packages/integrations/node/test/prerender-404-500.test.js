@@ -26,12 +26,15 @@ describe('Prerender 404', () => {
 				root: './fixtures/prerender-404-500/',
 				output: 'server',
 				outDir: './dist/server-with-base',
-				adapter: node(),
+				adapter: node({
+					serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+				}),
 			});
 			await fixture.build();
-			const { startServer } = await fixture.loadAdapterEntryModule();
-			const res = startServer();
-			server = res.server;
+			const { startServer } = await import(
+				'./fixtures/prerender-404-500/dist/server-with-base/server/entry.mjs'
+			);
+			server = startServer();
 			await waitServerListen(server.server);
 		});
 
@@ -112,12 +115,15 @@ describe('Prerender 404', () => {
 				root: './fixtures/prerender-404-500/',
 				output: 'server',
 				outDir: './dist/server-without-base',
-				adapter: node(),
+				adapter: node({
+					serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+				}),
 			});
 			await fixture.build();
-			const { startServer } = await fixture.loadAdapterEntryModule();
-			const res = startServer();
-			server = res.server;
+			const { startServer } = await import(
+				'./fixtures/prerender-404-500/dist/server-without-base/server/entry.mjs'
+			);
+			server = startServer();
 			await waitServerListen(server.server);
 		});
 
@@ -177,12 +183,15 @@ describe('Hybrid 404', () => {
 				root: './fixtures/prerender-404-500/',
 				output: 'static',
 				outDir: './dist/hybrid-with-base',
-				adapter: node(),
+				adapter: node({
+					serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+				}),
 			});
 			await fixture.build();
-			const { startServer } = await fixture.loadAdapterEntryModule();
-			const res = startServer();
-			server = res.server;
+			const { startServer } = await import(
+				'./fixtures/prerender-404-500/dist/hybrid-with-base/server/entry.mjs'
+			);
+			server = startServer();
 			await waitServerListen(server.server);
 		});
 
@@ -235,12 +244,15 @@ describe('Hybrid 404', () => {
 				root: './fixtures/prerender-404-500/',
 				output: 'static',
 				outDir: './dist/hybrid-without-base',
-				adapter: node(),
+				adapter: node({
+					serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+				}),
 			});
 			await fixture.build();
-			const { startServer } = await fixture.loadAdapterEntryModule();
-			const res = startServer();
-			server = res.server;
+			const { startServer } = await import(
+				'./fixtures/prerender-404-500/dist/hybrid-without-base/server/entry.mjs'
+			);
+			server = startServer();
 			await waitServerListen(server.server);
 		});
 

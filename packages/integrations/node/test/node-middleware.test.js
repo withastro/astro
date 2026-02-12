@@ -1,11 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
-import fastifyMiddie from '@fastify/middie';
-import fastifyStatic from '@fastify/static';
 import * as cheerio from 'cheerio';
-import express from 'express';
-import Fastify from 'fastify';
 import node from '../dist/index.js';
 import { loadFixture, waitServerListen } from './test-utils.js';
 
@@ -23,12 +18,15 @@ describe('behavior from middleware, standalone', () => {
 		fixture = await loadFixture({
 			root: './fixtures/node-middleware/',
 			output: 'server',
-			adapter: node(),
+			adapter: node({
+				serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+			}),
 		});
 		await fixture.build();
-		const { startServer } = await fixture.loadAdapterEntryModule();
-		const res = startServer();
-		server = res.server;
+		const { startServer } = await import(
+			`./fixtures/node-middleware/dist/server/entry.mjs?id=${Date.now()}`
+		);
+		server = startServer();
 		await waitServerListen(server.server);
 	});
 
@@ -65,14 +63,14 @@ describe('behavior from middleware, middleware with express', () => {
 			root: './fixtures/node-middleware/',
 			output: 'server',
 			adapter: node({
-				serverEntrypoint: new URL('./fixtures/node-middleware/src/server.js', import.meta.url),
+				serverEntrypoint: new URL('./entrypoints/express.js', import.meta.url),
 			}),
 		});
 		await fixture.build();
-		const { ssrHandler } = await fixture.loadAdapterEntryModule();
-		const app = express();
-		app.use(ssrHandler);
-		server = app.listen(8889);
+		const { startServer } = await import(
+			`./fixtures/node-middleware/dist/server/entry.mjs?id=${Date.now()}`
+		);
+		server = await startServer();
 	});
 
 	after(async () => {
@@ -152,22 +150,14 @@ describe('behavior from middleware, middleware with fastify', () => {
 			root: './fixtures/node-middleware/',
 			output: 'server',
 			adapter: node({
-				serverEntrypoint: new URL('./fixtures/node-middleware/src/server.js', import.meta.url),
+				serverEntrypoint: new URL('./entrypoints/fastify.js', import.meta.url),
 			}),
 		});
 		await fixture.build();
-		const { ssrHandler } = await fixture.loadAdapterEntryModule();
-		const app = Fastify({ logger: false });
-		await app
-			.register(fastifyStatic, {
-				root: fileURLToPath(new URL('./dist/client', import.meta.url)),
-			})
-			.register(fastifyMiddie);
-		app.use(ssrHandler);
-
-		await app.listen({ port: 8889 });
-
-		server = app;
+		const { startServer } = await import(
+			`./fixtures/node-middleware/dist/server/entry.mjs?id=${Date.now()}`
+		);
+		server = await startServer();
 	});
 
 	after(async () => {

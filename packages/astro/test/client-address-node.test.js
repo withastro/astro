@@ -11,7 +11,7 @@ describe('NodeClientAddress', () => {
 				root: './fixtures/client-address-node/',
 			});
 			await fixture.build();
-			const handle = await fixture.loadNodeAdapterHandler();
+			const { nodeHandler } = await import('./fixtures/client-address-node/dist/server/entry.mjs');
 			const { req, res, text } = createRequestAndResponse({
 				method: 'GET',
 				url: '/',
@@ -19,7 +19,7 @@ describe('NodeClientAddress', () => {
 					'x-forwarded-for': '1.1.1.1',
 				},
 			});
-			handle(req, res);
+			nodeHandler(req, res);
 			const html = await text();
 			const $ = cheerio.load(html);
 			assert.equal(res.statusCode, 200);
@@ -33,7 +33,7 @@ describe('NodeClientAddress', () => {
 				root: './fixtures/client-address-node/',
 			});
 			await fixture.build();
-			const handle = await fixture.loadNodeAdapterHandler();
+			const { nodeHandler } = await import('./fixtures/client-address-node/dist/server/entry.mjs');
 			const { req, res, text } = createRequestAndResponse({
 				method: 'GET',
 				url: '/',
@@ -41,7 +41,7 @@ describe('NodeClientAddress', () => {
 					'x-forwarded-for': '1.1.1.1,8.8.8.8, 8.8.8.2',
 				},
 			});
-			handle(req, res);
+			nodeHandler(req, res);
 			const html = await text();
 			const $ = cheerio.load(html);
 			assert.equal(res.statusCode, 200);
