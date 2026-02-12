@@ -1,5 +1,5 @@
-import type { AstroConfig } from 'astro';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { SSRManifest } from 'astro';
 
 export interface UserOptions {
 	/** TODO: */
@@ -28,19 +28,15 @@ export interface UserOptions {
 	experimentalErrorPageHost?: string | URL;
 }
 
-export interface Options
-	extends Required<
-		Pick<
-			UserOptions,
-			'experimentalDisableStreaming' | 'experimentalErrorPageHost' | 'staticHeaders'
-		>
-	> {
+export interface Options {
 	host: string | boolean;
 	port: number;
 	server: string;
 	client: string;
 	assets: string;
-	trailingSlash: AstroConfig['trailingSlash'];
+	trailingSlash: SSRManifest['trailingSlash'];
+	experimentalDisableStreaming: boolean;
+	experimentalErrorPageHost: string | undefined;
 	staticHeaders: boolean;
 }
 
@@ -48,5 +44,5 @@ export type RequestHandler = (
 	req: IncomingMessage,
 	res: ServerResponse,
 	next?: (err?: unknown) => void,
-	locals?: object,
+	locals?: Partial<App.Locals>,
 ) => void | Promise<void>;
