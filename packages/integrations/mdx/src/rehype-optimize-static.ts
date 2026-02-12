@@ -1,8 +1,8 @@
 import type { RehypePlugin } from '@astrojs/markdown-remark';
+import type { Expression } from 'estree';
 import { SKIP, visit } from 'estree-util-visit';
 import type { Element, RootContent, RootContentMap } from 'hast';
 import { toHtml } from 'hast-util-to-html';
-import type {} from 'mdast-util-mdx';
 import type { MdxJsxFlowElementHast, MdxJsxTextElementHast } from 'mdast-util-mdx-jsx';
 
 // Alias as the main hast node
@@ -251,15 +251,32 @@ function isMdxComponentNode(node: Node): node is MdxJsxFlowElementHast | MdxJsxT
  * `export const components = { foo, bar: Baz }`, returns `['foo', 'bar']`
  */
 function getExportConstComponentObjectKeys(node: RootContentMap['mdxjsEsm']) {
-	const exportNamedDeclaration = node.data?.estree?.body[0];
-	if (exportNamedDeclaration?.type !== 'ExportNamedDeclaration') return;
+	/** AST for the initial value of the exported  `components` variable in the MDX document. */
+	let variableInit: Expression | undefined | null;
 
-	const variableDeclaration = exportNamedDeclaration.declaration;
-	if (variableDeclaration?.type !== 'VariableDeclaration') return;
+	// Find the initial value of `components` in the AST.
+	for (const part of node.data?.estree?.body || []) {
+		if (
+			part.type !== 'ExportNamedDeclaration' ||
+			part.declaration?.type !== 'VariableDeclaration'
+		) {
+			continue;
+		}
+		// Find the variable named `components`. There may be multiple exported variables per node, so
+		// we need to be explicit.
+		// @ts-expect-error — Perf: access `id.name` without checking `id.type` is `"Identifier"` first.
+		const declarator = part.declaration.declarations.find(({ id }) => id.name === 'components');
+		if (declarator) {
+			variableInit = declarator.init;
+			break;
+		}
+	}
 
-	const variableInit = variableDeclaration.declarations[0]?.init;
+	// If no `components` export was found, or it isn’t an object, return.
 	if (variableInit?.type !== 'ObjectExpression') return;
 
+	// Otherwise, we can return all the known keys in `components`. N.B. This does not support spread
+	// values like `export const components = { ...someObject };`
 	const keys: string[] = [];
 	for (const propertyNode of variableInit.properties) {
 		if (propertyNode.type === 'Property' && propertyNode.key.type === 'Identifier') {

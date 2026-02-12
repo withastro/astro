@@ -140,6 +140,7 @@ interface AdapterSelfProperties {
 	 * @default 'legacy-dynamic'
 	 */
 	entryType: 'self';
+	serverEntrypoint?: string | URL;
 }
 
 export type AstroAdapter = {
