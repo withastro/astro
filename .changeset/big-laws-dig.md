@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-wait to bind shortcuts
+Fixes behavior when shortcuts are used before server is ready
