@@ -1,0 +1,16 @@
+---
+import { getCollection } from 'astro:content';
+
+const [post] = await getCollection('blog');
+const { Content } = await post.render();
+---
+<html>
+	<head>
+		<title>HMR Markdown</title>
+	</head>
+	<body>
+		<h1>Blog Posts</h1>
+		<h2>{post.data.title}</h2>
+		<Content />
+	</body>
+</html>
