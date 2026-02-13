@@ -2,7 +2,6 @@
 import { getCollection } from 'astro:content';
 
 const [post] = await getCollection('blog');
-const { Content } = await post.render();
 ---
 <html>
 	<head>
@@ -10,7 +9,13 @@ const { Content } = await post.render();
 	</head>
 	<body>
 		<h1>Blog Posts</h1>
-		<h2>{post.data.title}</h2>
-		<Content />
+		{post ? (
+			<>
+				<h2>{post.data.title}</h2>
+				<div id="post-body">{post.body}</div>
+			</>
+		) : (
+			<p data-empty>Empty</p>
+		)}
 	</body>
 </html>

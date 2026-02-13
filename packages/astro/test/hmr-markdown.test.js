@@ -1,6 +1,4 @@
 import assert from 'node:assert/strict';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { after, before, describe, it } from 'node:test';
 import { isWindows, loadFixture } from './test-utils.js';
 
@@ -18,8 +16,7 @@ describe('HMR: Markdown updates', () => {
 		fixture = await loadFixture({ root: './fixtures/hmr-markdown/' });
 		devServer = await fixture.startDevServer();
 
-		const fixtureRoot = fileURLToPath(new URL('./fixtures/hmr-markdown/', import.meta.url));
-		markdownPath = path.join(fixtureRoot, 'src/content/blog/post.md');
+		markdownPath = '/src/content/blog/post.md';
 	});
 
 	after(async () => {
