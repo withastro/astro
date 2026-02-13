@@ -32,6 +32,8 @@ import { NOOP_MODULE_ID } from './plugins/plugin-noop.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../constants.js';
 import type { InputOption } from 'rollup';
 import { getSSRAssets } from './internal.js';
+import { getStaticImageList } from '../../assets/build/generate.js';
+import { removeLeadingForwardSlash } from '../path.js';
 
 const PRERENDER_ENTRY_FILENAME_PREFIX = 'prerender-entry';
 
@@ -539,11 +541,32 @@ async function ssrMoveAssets(
 		? opts.settings.config.outDir
 		: opts.settings.config.build.client;
 
+	// Build a set of original image paths that have been optimized and don't need to be
+	// moved to the client directory. In SSR builds, original source images survive because
+	// the deletion logic in generateImagesForPath is skipped (env.isSSR is true).
+	// We filter them out here to prevent exposing original unoptimized images publicly.
+	const optimizedOriginals = new Set<string>();
+	if (!isFullyStaticSite) {
+		const staticImages = getStaticImageList();
+		for (const [originalPath, data] of staticImages) {
+			if (
+				data.originalSrcPath &&
+				!globalThis.astroAsset?.referencedImages?.has(data.originalSrcPath)
+			) {
+				// staticImages keys have a leading slash (e.g. "/_astro/test-image.DkdWcrCY.png")
+				// but prerenderAssetsToMove entries don't (e.g. "_astro/test-image.DkdWcrCY.png")
+				optimizedOriginals.add(removeLeadingForwardSlash(originalPath));
+			}
+		}
+	}
+
 	// Move prerender assets
 	const prerenderAssetsToMove = getSSRAssets(internals, ASTRO_VITE_ENVIRONMENT_NAMES.prerender);
 	if (prerenderAssetsToMove.size > 0) {
 		await Promise.all(
 			Array.from(prerenderAssetsToMove).map(async function moveAsset(filename) {
+				// Skip original images that have been optimized - they should not be served publicly
+				if (optimizedOriginals.has(filename)) return;
 				const currentUrl = new URL(filename, appendForwardSlash(prerenderOutputDir.toString()));
 				const clientUrl = new URL(filename, appendForwardSlash(clientRoot.toString()));
 				if (!fs.existsSync(currentUrl)) return;
