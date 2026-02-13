@@ -36,13 +36,34 @@ Once you have `bugDetails`, read carefully:
 
 Before attempting reproduction, check if this issue should be skipped due to a limitation of our sandbox reproduction environment.
 
-If any condition below is met, skip to Step 6 and write `report.md` with the skip details.
+If any early exit condition is met, skip to Step 6 and write `report.md` with the skip details.
 
-- **Not actionable** — Issue is not a bug report (this workflow can only act to triage bugs, cannot handle feature requests, suggestions, etc.). → skip reason: `not-actionable`
-- **Unsupported version** — Astro 4.x or earlier (check `astro info` output or package.json). → skip reason: `unsupported-version`
-- **Unsupported runtime** — Bug is specific to Bun or Deno. → skip reason: `unsupported-runtime`
-- **Host-specific** — Bug is specific to Vercel, Netlify, Cloudflare, etc. (check for runtime adapter usage). → skip reason: `host-specific`
-- **Maintainer override** — A maintainer commented that this issue cannot be reproduced here. Check status: `gh api "repos/<owner>/<repo>/collaborators/<user>" --silent && echo "user is collaborator"`. → skip reason: `maintainer-override`
+**Comment Handling for Early Exits:** Sometimes future comments will provide additional reproductions. An early exit is only valid if not future comments in that issue "invalidate" it. For example, if the original poster of a bug was on Astro 3.0, we would exit initially (`unsupported-version`). However, on a future run, if a commenter had later posted a similar reproduction but on the latest version of Astro, we would no longer consider that a valid early exit, and would instead continue on with the workflow.
+
+The following are the documented early exit conditions that we support:
+
+### Not Actionable (`not-actionable`)
+
+Skip if the issue is not a bug report. This workflow can only triage bugs — feature requests, suggestions, and discussions are not actionable here.
+
+### Unsupported Astro Version (`unsupported-version`)
+
+Skip if the bug targets Astro 4.x or earlier. Look for version in `astro info` output or package.json mentions.
+
+### Host-Specific Issues (`host-specific`)
+
+Skip if the bug can only be reproduced on a specific hosting platform (Vercel, Netlify, Cloudflare, Deno Deploy, etc.). Signs to look for:
+
+- Issue references a host-specific adapter (`@astrojs/vercel`, `@astrojs/netlify`, `@astrojs/cloudflare`)
+- Bug only occurs "in production" or "after deployment" but specifically not reproducible in dev and local preview builds
+
+### Runtime-Specific Issues (`unsupported-runtime`)
+
+Skip if the bug is specific to Bun or Deno. Our sandbox only supports Node.js.
+
+### Maintainer Override (`maintainer-override`)
+
+Skip if a repository maintainer has commented that this issue should not be reproduced here. Check collaborator status with: `gh api "repos/<owner>/<repo>/collaborators/<user>" --silent && echo "user is collaborator"`
 
 ## Step 3: Set Up Reproduction Project
 
@@ -62,7 +83,7 @@ Check the issue to determine what's needed:
 - MDX content → `pnpm astro add mdx`
 - Specific adapter → `pnpm astro add node` (or vercel, netlify, etc.)
 
-## Step 4: Configure the Project
+## Step 4: Configure the Triage Project
 
 Based on the issue, modify the triage project:
 
@@ -72,32 +93,13 @@ Based on the issue, modify the triage project:
 
 Keep the reproduction as minimal as possible — only add what's needed to trigger the bug.
 
-## Step 5: Attempt Reproduction
+## Step 5: Attempt Reproduction in the Triage Project
 
-Run commands to reproduce the issue:
+Use all of the tools at your disposal — `pnpm run dev|build|preview|test`, `curl`, `agent-browser`, etc.
 
-```bash
-# For build-time issues
-pnpm run build
-
-# For dev server issues
-pnpm run dev
-# Then use agent-browser to test: npx agent-browser http://localhost:4321/path
-
-# For preview issues
-pnpm run build && pnpm run preview
-```
-
-Test both:
-
-1. **The broken case** — follow the steps to trigger the bug
-2. **The working case** — verify the project works normally before the breaking change
-
-Document what you observe:
-
-- Exact error messages and stack traces
-- Which command triggers the issue
-- Whether the issue is consistent or intermittent
+1. **Trigger the bug.** Follow the reproduction steps from the issue and confirm that the bug appears.
+2. **Verify the baseline.** Remove or reverse the triggering code and confirm the project works without the bug. This guards against false positives — if the project is still broken without the triggering code, the issue may be in your setup, not the reported bug.
+3. **Document what you observe.** Record exact error messages and stack traces, which command triggers the issue, and whether it's consistent or intermittent.
 
 ## Step 6: Write Output
 

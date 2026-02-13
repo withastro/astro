@@ -31,6 +31,15 @@ const fixResultSchema = v.object({
 	),
 });
 
+const labelResultSchema = v.object({
+	labels: v.pipe(
+		v.array(v.string()),
+		v.description(
+			'The labels to apply to the issue (e.g. ["- P1: chore", "pkg: react"]). Array must contain one "priority" label.',
+		),
+	),
+});
+
 export default async function triage(flue: Flue) {
 	const { issueNumber } = flue.args as {
 		issueNumber: number;
@@ -99,13 +108,17 @@ Return only "yes" or "no" inside the ---RESULT_START--- / ---RESULT_END--- block
 	// - create a PR from that branch entirely in the GH UI
 	// - ignore it completely
 	if (fixResult.fixed) {
+		// Check if the fix skill left uncommitted changes in packages/
 		const status = await flue.shell('git status --porcelain');
+		// TODO: Assert flue.branch
 		if (status.stdout.trim()) {
+			await flue.shell(`git checkout -B ${flue.branch}`);
 			await flue.shell('git add -A');
+			// TODO: we should add comments to flue.shell internally, to find out why nothing happened.
 			await flue.shell(
 				`git commit -m ${JSON.stringify(fixResult.commitMessage ?? 'fix(auto-triage): automated fix')}`,
 			);
-			const pushResult = await flue.shell(`git push origin HEAD:refs/heads/${flue.branch}`);
+			const pushResult = await flue.shell(`git push -f origin ${flue.branch}`);
 			console.info('push result:', pushResult);
 			isPushed = pushResult.exitCode === 0;
 		}
@@ -124,13 +137,67 @@ Return only "yes" or "no" inside the ---RESULT_START--- / ---RESULT_END--- block
 
 	await flue.shell(`gh issue comment ${issueNumber} --body-file -`, {
 		stdin: comment,
-		env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN },
+		env: { GH_TOKEN: flue.secrets.FREDKBOT_GITHUB_TOKEN },
 	});
 
 	if (reproduceResult.reproducible) {
 		await flue.shell(`gh issue edit ${issueNumber} --remove-label "needs triage"`, {
 			env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN },
 		});
+
+		// Fetch all repo labels and select appropriate priority + package labels.
+		const labelsJson = await flue.shell(
+			"gh api repos/withastro/astro/labels --paginate --jq '.[] | {name, description}'",
+			{ env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN } },
+		);
+		const allLabels = labelsJson.stdout
+			.trim()
+			.split('\n')
+			.filter(Boolean)
+			.map((line) => JSON.parse(line) as { name: string; description: string });
+
+		// Filter to priority labels (P followed by a digit) and package labels (pkg: prefix)
+		const priorityLabels = allLabels.filter((l) => /^- P\d/.test(l.name));
+		const packageLabels = allLabels.filter((l) => l.name.startsWith('pkg:'));
+
+		const labelResult = await flue.prompt(
+			`Label the following GitHub issue based on our Triage Report which summarizes what we learned in our attempt to reproduce, diagnose, and fix the issue.
+
+Select the most appropriate labels from the list below. Use the label descriptions to guide your decision, combined with the triage report's cause and impact analysis.
+
+### Rules
+- Select exactly ONE priority label based on the label description and the severity and impact of the bug. Pay close attention to the "Cause" and "Impact" sections of the triage report.
+- You must select ONE priority label! If you are not sure, just use your best judgement based on the label descriptions and the findings of the triage report.
+- Select 0-3 package labels based on where where the issue lives (or most likely lives) in the monorepo. The triage report's diagnosis should make it clear. If you cannot confidently determine the affected package(s), return an empty array for packages.
+- Return the exact label names as they appear above — do not modify them.
+
+### Priority Labels (select exactly one)
+${priorityLabels.map((l) => `- "${l.name}": ${l.description || '(no description)'}`).join('\n')}
+
+### Package Labels (select zero or more)
+${packageLabels.map((l) => `- "${l.name}": ${l.description || '(no description)'}`).join('\n')}
+
+--- 
+
+<github-issue format="json">
+${issueJson}
+</github-issue>
+
+<triage-report format="md">
+${comment}
+</triage-report>
+`,
+			{ result: labelResultSchema },
+		);
+
+		if (labelResult.labels.length > 0) {
+			const labelFlags = labelResult.labels
+				.map((l) => `--add-label ${JSON.stringify(l)}`)
+				.join(' ');
+			await flue.shell(`gh issue edit ${issueNumber} ${labelFlags}`, {
+				env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN },
+			});
+		}
 	} else if (reproduceResult.skipped) {
 		// Triage was skipped due to a runner limitation. Keep "needs triage" so a
 		// maintainer can still pick it up, and add "auto triage skipped" to prevent
@@ -138,9 +205,9 @@ Return only "yes" or "no" inside the ---RESULT_START--- / ---RESULT_END--- block
 		await flue.shell(`gh issue edit ${issueNumber} --add-label "auto triage skipped"`, {
 			env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN },
 		});
+	} else {
+		// Not reproducible: do nothing. The "needs triage" label stays on the issue
+		// so that it can continue to be worked on and triaged by the humans.
 	}
-
-	// If not reproducible: "needs triage" label stays.
-	// The loop continues when the author (or another user) replies.
 	return { reproduceResult, diagnoseResult, fixResult, isPushed };
 }
