@@ -163,7 +163,6 @@ export const _internal = {
 				viteServer.watcher.on('all', async (event, entry) => {
 					if (CHOKIDAR_MODIFIED_EVENTS.includes(event)) {
 						const environment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
-						const timestamp = Date.now();
 
 						const entryType = getEntryType(entry, contentPaths, contentEntryExts, dataEntryExts);
 						if (!COLLECTION_TYPES_TO_INVALIDATE_ON.includes(entryType)) return;
@@ -192,7 +191,7 @@ export const _internal = {
 								try {
 									const mod = await environment.moduleGraph.getModuleByUrl(modUrl);
 									if (mod) {
-										environment.moduleGraph.invalidateModule(mod, undefined, timestamp, true);
+										environment.moduleGraph.invalidateModule(mod);
 									}
 								} catch (e: any) {
 									// The server may be closed due to a restart caused by this file change

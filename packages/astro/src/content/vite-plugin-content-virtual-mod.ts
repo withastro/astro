@@ -35,8 +35,7 @@ function invalidateDataStore(viteServer: ViteDevServer) {
 	const environment = viteServer.environments[ASTRO_VITE_ENVIRONMENT_NAMES.ssr];
 	const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
 	if (module) {
-		const timestamp = Date.now();
-		environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
+		environment.moduleGraph.invalidateModule(module);
 	}
 	viteServer.environments.client.hot.send({
 		type: 'full-reload',
