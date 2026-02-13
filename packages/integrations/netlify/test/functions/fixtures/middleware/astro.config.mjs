@@ -4,7 +4,7 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
   output: 'server',
   adapter: netlify({
-    edgeMiddleware: process.env.EDGE_MIDDLEWARE === 'true',
+    middlewareMode:  process.env.EDGE_MIDDLEWARE === 'true' ? 'edge' : 'classic',
     imageCDN: process.env.DISABLE_IMAGE_CDN ? false : undefined,
   }),
   image: {

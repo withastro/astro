@@ -423,7 +423,7 @@ describe('Middleware API in PROD mode, SSR', () => {
 			adapter: testAdapter({
 				extendAdapter: {
 					adapterFeatures: {
-						edgeMiddleware: true,
+						middlewareMode: 'edge'
 					},
 				},
 				setMiddlewareEntryPoint(middlewareEntryPoint) {
