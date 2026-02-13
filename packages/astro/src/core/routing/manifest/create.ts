@@ -44,6 +44,11 @@ interface Item {
 const ROUTE_DYNAMIC_SPLIT = /\[([^[\]()]+(?:\([^)]+\))?)\]/;
 const ROUTE_SPREAD = /^\.{3}.+$/;
 
+export interface RouteEntry {
+	path: string;
+	isDir: boolean;
+}
+
 function getParts(part: string, file: string) {
 	const result: RoutePart[] = [];
 	part.split(ROUTE_DYNAMIC_SPLIT).map((str, i) => {
@@ -112,7 +117,32 @@ function createFileBasedRoutes(
 	{ settings, cwd, fsMod }: CreateRouteManifestParams,
 	logger: Logger,
 ): RouteData[] {
-	const components: string[] = [];
+	const { config } = settings;
+	const pages = resolvePages(config);
+	const localFs = fsMod ?? nodeFs;
+	const pagesRoot = fileURLToPath(pages);
+	const rootPath = fileURLToPath(config.root);
+	const basePath = cwd ?? rootPath;
+	const pagesDirRelative = slash(path.relative(basePath, pagesRoot));
+
+	if (!localFs.existsSync(pages)) {
+		if (settings.injectedRoutes.length === 0) {
+			const pagesDirRootRelative = pages.href.slice(settings.config.root.href.length);
+			logger.warn(null, `Missing pages directory: ${pagesDirRootRelative}`);
+		}
+		return [];
+	}
+
+	const entries = collectRouteEntries(localFs, pagesRoot);
+	return createRoutesFromEntries(entries, settings, logger, pagesDirRelative);
+}
+
+export function createRoutesFromEntries(
+	entries: RouteEntry[],
+	settings: AstroSettings,
+	logger: Logger,
+	pagesDirRelative = 'src/pages',
+): RouteData[] {
 	const routes: RouteData[] = [];
 	const validPageExtensions = new Set<string>([
 		'.astro',
@@ -121,45 +151,49 @@ function createFileBasedRoutes(
 	]);
 	const invalidPotentialPages = new Set<string>(['.tsx', '.jsx', '.vue', '.svelte']);
 	const validEndpointExtensions = new Set<string>(['.js', '.ts']);
-	const localFs = fsMod ?? nodeFs;
 	const prerender = getPrerenderDefault(settings.config);
 
-	function walk(
-		fs: typeof nodeFs,
-		dir: string,
-		parentSegments: RoutePart[][],
-		parentParams: string[],
-	) {
-		let items: Item[] = [];
-		const files = fs.readdirSync(dir);
-		for (const basename of files) {
-			const resolved = path.join(dir, basename);
-			const file = slash(path.relative(cwd || fileURLToPath(settings.config.root), resolved));
-			const isDir = fs.statSync(resolved).isDirectory();
+	const normalizedEntries = entries.map((entry) => ({
+		...entry,
+		path: slash(entry.path),
+	}));
 
+	const entriesByDir = new Map<string, RouteEntry[]>();
+	for (const entry of normalizedEntries) {
+		const dir = path.posix.dirname(entry.path) === '.' ? '' : path.posix.dirname(entry.path);
+		const list = entriesByDir.get(dir) ?? [];
+		list.push(entry);
+		entriesByDir.set(dir, list);
+	}
+
+	function walk(dir: string, parentSegments: RoutePart[][], parentParams: string[]) {
+		const items: Item[] = [];
+		const dirEntries = entriesByDir.get(dir) ?? [];
+		for (const entry of dirEntries) {
+			const basename = path.posix.basename(entry.path);
 			const ext = path.extname(basename);
 			const name = ext ? basename.slice(0, -ext.length) : basename;
+			const isDir = entry.isDir;
+			const file = slash(path.posix.join(pagesDirRelative, entry.path));
+
 			if (name[0] === '_') {
 				continue;
 			}
 			if (basename[0] === '.' && basename !== '.well-known') {
 				continue;
 			}
-			// filter out "foo.astro_tmp" files, etc
 			if (!isDir && !validPageExtensions.has(ext) && !validEndpointExtensions.has(ext)) {
-				// Only warn for files that could potentially be interpreted by users has being possible extensions for pages
-				// It's otherwise not a problem for users to have other files in their pages directory, for instance colocated images.
 				if (invalidPotentialPages.has(ext)) {
 					logger.warn(
 						null,
 						`Unsupported file type ${colors.bold(
-							resolved,
+							file,
 						)} found in pages directory. Only Astro files can be used as pages. Prefix filename with an underscore (\`_\`) to ignore this warning, or move the file outside of the pages directory.`,
 					);
 				}
-
 				continue;
 			}
+
 			const segment = isDir ? basename : name;
 			validateSegment(segment, file);
 
@@ -172,7 +206,7 @@ function createFileBasedRoutes(
 				basename,
 				ext,
 				parts,
-				file: file.replace(/\\/g, '/'),
+				file,
 				isDir,
 				isIndex,
 				isPage,
@@ -216,9 +250,8 @@ function createFileBasedRoutes(
 			params.push(...item.parts.filter((p) => p.dynamic).map((p) => p.content));
 
 			if (item.isDir) {
-				walk(fsMod ?? fs, path.join(dir, item.basename), segments, params);
+				walk(path.posix.join(dir, item.basename), segments, params);
 			} else {
-				components.push(item.file);
 				const component = item.file;
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
@@ -244,17 +277,28 @@ function createFileBasedRoutes(
 		}
 	}
 
-	const { config } = settings;
-	const pages = resolvePages(config);
+	walk('', [], []);
+	return routes;
+}
 
-	if (localFs.existsSync(pages)) {
-		walk(localFs, fileURLToPath(pages), [], []);
-	} else if (settings.injectedRoutes.length === 0) {
-		const pagesDirRootRelative = pages.href.slice(settings.config.root.href.length);
-		logger.warn(null, `Missing pages directory: ${pagesDirRootRelative}`);
+function collectRouteEntries(fs: typeof nodeFs, rootDir: string): RouteEntry[] {
+	const entries: RouteEntry[] = [];
+
+	function walk(dir: string) {
+		const files = fs.readdirSync(dir);
+		for (const basename of files) {
+			const resolved = path.join(dir, basename);
+			const isDir = fs.statSync(resolved).isDirectory();
+			const relative = slash(path.relative(rootDir, resolved));
+			entries.push({ path: relative, isDir });
+			if (isDir) {
+				walk(resolved);
+			}
+		}
 	}
 
-	return routes;
+	walk(rootDir);
+	return entries;
 }
 
 // Get trailing slash rule for a path, based on the config and whether the path has an extension.
