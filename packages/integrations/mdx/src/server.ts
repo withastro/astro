@@ -41,6 +41,10 @@ export async function renderToStaticMarkup(
 
 	const { result } = this;
 	try {
+		// NOTE: Always use standard renderJSX for MDX, even when queue rendering is enabled.
+		// This is because MDX components are rendered during queue rendering (not queue building),
+		// so it's too late to add JSX vnodes to the queue at this point.
+		// TODO: Optimize this in the future by detecting MDX pages earlier in the pipeline.
 		const html = await renderJSX(result, jsx(Component, { ...props, ...slots, children }));
 		return { html };
 	} catch (e) {

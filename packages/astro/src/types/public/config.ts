@@ -2779,6 +2779,7 @@ export interface AstroUserConfig<
 		 * - Process components sequentially with reduced stack depth
 		 * - Maintain the same output and streaming behavior as the default renderer
 		 * - Use object pooling to reduce memory allocations
+		 * - Use queue-based rendering for JSX elements
 		 *
 		 * This is particularly beneficial for pages with very deep component nesting (50+ levels).
 		 *

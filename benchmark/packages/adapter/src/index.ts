@@ -17,7 +17,7 @@ export default function createIntegration(): AstroIntegration {
 				setAdapter({
 					name: '@benchmark/adapter',
 					serverEntrypoint: '@benchmark/adapter/server.js',
-					exports: ['manifest', 'createApp'],
+					exports: ['manifest', 'createApp', 'App'],
 					supportedAstroFeatures: {
 						serverOutput: 'stable',
 						envGetSecret: 'experimental',

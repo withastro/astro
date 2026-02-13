@@ -257,15 +257,17 @@ export interface SSRResult {
 	 * Reduces memory pressure for deeply nested components.
 	 */
 	_experimentalQueuedRendering: boolean | undefined;
-	
+
 	/**
 	 * Experimental: Configuration for queue-based rendering.
-	 * - poolSize: Maximum number of nodes to keep in the object pool (default: 1000)
-	 * - disablePooling: Disable object pooling (useful for SSR where pooling provides no benefit)
+	 * - enabled: Whether to use queue-based rendering (default: true if config is object)
+	 * - poolSize: Maximum number of nodes to keep in the object pool (default: 1000, 0 to disable)
+	 * - cache: Whether to enable HTMLString caching (default: true)
 	 */
 	_experimentalQueuedRenderingConfig?: {
+		enabled?: boolean;
 		poolSize?: number;
-		disablePooling?: boolean;
+		cache?: boolean;
 	};
 }
 
