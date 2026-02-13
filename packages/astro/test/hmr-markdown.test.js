@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url';
 import { after, before, describe, it } from 'node:test';
 import { isWindows, loadFixture } from './test-utils.js';
 
-const ORIGINAL_CONTENT = '---\ntitle: HMR Markdown\n---\n\nOriginal content\n';
 const UPDATED_CONTENT = '---\ntitle: HMR Markdown\n---\n\nUpdated content\n';
 
 describe('HMR: Markdown updates', () => {

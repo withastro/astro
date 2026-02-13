@@ -36,6 +36,7 @@ function invalidateDataStore(viteServer: ViteDevServer) {
 	const module = environment.moduleGraph.getModuleById(RESOLVED_DATA_STORE_VIRTUAL_ID);
 	if (module) {
 		const timestamp = Date.now();
+		// Pass `true` to mark this as HMR invalidation so Vite drops cached SSR results.
 		environment.moduleGraph.invalidateModule(module, undefined, timestamp, true);
 	}
 	viteServer.environments.client.hot.send({

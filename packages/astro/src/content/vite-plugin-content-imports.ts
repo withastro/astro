@@ -192,6 +192,7 @@ export const _internal = {
 								try {
 									const mod = await environment.moduleGraph.getModuleByUrl(modUrl);
 									if (mod) {
+										// Pass `true` to mark this as HMR invalidation so Vite drops cached SSR results.
 										environment.moduleGraph.invalidateModule(mod, undefined, timestamp, true);
 									}
 								} catch (e: any) {
