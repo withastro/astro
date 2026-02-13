@@ -88,7 +88,7 @@ export interface AstroAdapterFeatures {
 	 * 
 	 * @deprecated Use `middlewareMode: 'edge'` instead
 	 */
-	edgeMiddleware: boolean;
+	edgeMiddleware?: boolean;
 
 	/**
 	 * Determines when and how middleware executes:
