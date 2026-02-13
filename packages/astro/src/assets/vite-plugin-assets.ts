@@ -124,6 +124,7 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 
 	globalThis.astroAsset = {
 		referencedImages: new Set(),
+		emittedImageHandles: new Map(),
 	};
 
 	const imageComponentPrefix = settings.config.image.responsiveStyles ? 'Responsive' : '';
@@ -236,6 +237,18 @@ export const inferRemoteSize = async (url) => {
 					const outputFilepath = prefix + normalizePath(file + postfix);
 
 					s.overwrite(match.index, match.index + full.length, outputFilepath);
+
+					// Track the resolved output filename → fsPath mapping for post-build cleanup
+					const emittedHandles = globalThis.astroAsset.emittedImageHandles;
+					if (emittedHandles?.has(hash)) {
+						if (!globalThis.astroAsset.emittedImageFiles) {
+							globalThis.astroAsset.emittedImageFiles = new Map();
+						}
+						globalThis.astroAsset.emittedImageFiles.set(
+							normalizePath(file),
+							emittedHandles.get(hash)!,
+						);
+					}
 				}
 
 				if (s) {

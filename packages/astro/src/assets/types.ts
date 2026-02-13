@@ -25,6 +25,18 @@ declare global {
 			| undefined;
 		staticImages?: AssetsGlobalStaticImagesList;
 		referencedImages?: Set<string>;
+		/**
+		 * Maps emitted image asset Rollup handles to their original source file paths.
+		 * Used to track which images were emitted during the build so unreferenced
+		 * ones can be cleaned up after page generation.
+		 */
+		emittedImageHandles?: Map<string, string>;
+		/**
+		 * Maps emitted image output file paths (e.g., `_astro/example.CxqzCtN0.png`)
+		 * to their original source file paths. Populated during renderChunk when handles
+		 * are resolved to final filenames. Used for post-build cleanup of unreferenced images.
+		 */
+		emittedImageFiles?: Map<string, string>;
 	};
 }
 

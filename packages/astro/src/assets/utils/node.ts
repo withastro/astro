@@ -121,6 +121,12 @@ export async function emitImageMetadata(
 			}
 
 			emittedImage.src = `__ASTRO_ASSET_IMAGE__${handle}__`;
+
+			// Track the handle → fsPath mapping so we can clean up unreferenced images after build
+			if (!globalThis.astroAsset.emittedImageHandles) {
+				globalThis.astroAsset.emittedImageHandles = new Map();
+			}
+			globalThis.astroAsset.emittedImageHandles.set(handle, fileURLToNormalizedPath(url));
 		} catch {
 			isBuild = false;
 		}

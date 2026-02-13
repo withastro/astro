@@ -7097,6 +7097,15 @@ importers:
         specifier: ^3.1.6
         version: 3.1.6(typescript@5.9.3)
 
+  triage/issue-15505:
+    dependencies:
+      astro:
+        specifier: workspace:*
+        version: link:../../packages/astro
+      sharp:
+        specifier: ^0.34.5
+        version: 0.34.5
+
 packages:
 
   '@antfu/utils@0.7.10':

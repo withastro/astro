@@ -359,6 +359,103 @@ export function getStaticImageList(): AssetsGlobalStaticImagesList {
 	return globalThis.astroAsset.staticImages;
 }
 
+/**
+ * Cleans up emitted image files that are not referenced in any build output.
+ *
+ * When an image is imported (e.g., `import img from './photo.png'`), Astro always emits
+ * the image file via Rollup's `emitFile()` during the build. However, the image may not
+ * actually be used in the rendered output (e.g., if only metadata like `width`/`height`
+ * is used, or if the image is manually processed into a data URI).
+ *
+ * This function scans the output directory for references to emitted images and deletes
+ * any that are not found in the generated HTML, JS, or CSS files.
+ */
+export async function cleanUnusedEmittedImages(clientRoot: URL, logger: Logger): Promise<void> {
+	const emittedImageFiles = globalThis.astroAsset.emittedImageFiles;
+	if (!emittedImageFiles || emittedImageFiles.size === 0) {
+		return;
+	}
+
+	// Collect the set of original source paths that are in staticImageList (handled by optimization pipeline)
+	const staticImageList = getStaticImageList();
+	const staticImageSourcePaths = new Set<string>();
+	for (const [_, data] of staticImageList) {
+		if (data.originalSrcPath) {
+			staticImageSourcePaths.add(data.originalSrcPath);
+		}
+	}
+
+	// Find emitted images that are NOT in the optimization pipeline
+	const candidatesForDeletion = new Map<string, string>();
+	for (const [outputFile, fsPath] of emittedImageFiles) {
+		if (!staticImageSourcePaths.has(fsPath)) {
+			candidatesForDeletion.set(outputFile, fsPath);
+		}
+	}
+
+	if (candidatesForDeletion.size === 0) {
+		return;
+	}
+
+	// Scan output files for references to candidate images.
+	// If an emitted image URL appears in any rendered output file (HTML, CSS, JS, etc.),
+	// it's considered referenced and should be kept.
+	const referencedOutputFiles = new Set<string>();
+
+	// Directories that contain server/build-time code, not user-facing output.
+	// These may reference image URLs in their code without the images actually being used in rendered output.
+	const excludedDirs = new Set(['.prerender']);
+
+	async function scanDirectory(dir: URL): Promise<void> {
+		let entries: fs.Dirent[];
+		try {
+			entries = await fs.promises.readdir(dir, { withFileTypes: true });
+		} catch {
+			return;
+		}
+		for (const entry of entries) {
+			const entryURL = new URL(entry.name + (entry.isDirectory() ? '/' : ''), dir);
+			if (entry.isDirectory()) {
+				// Skip server-side / build-time directories
+				if (excludedDirs.has(entry.name)) {
+					continue;
+				}
+				await scanDirectory(entryURL);
+			} else if (entry.isFile()) {
+				const ext = entry.name.split('.').pop()?.toLowerCase();
+				// Only scan text-based output files
+				if (ext && ['html', 'js', 'mjs', 'css', 'json', 'xml', 'txt'].includes(ext)) {
+					try {
+						const content = await fs.promises.readFile(entryURL, 'utf-8');
+						for (const [outputFile] of candidatesForDeletion) {
+							if (content.includes(outputFile)) {
+								referencedOutputFiles.add(outputFile);
+							}
+						}
+					} catch {
+						/* skip files we can't read */
+					}
+				}
+			}
+		}
+	}
+
+	await scanDirectory(clientRoot);
+
+	// Delete unreferenced images
+	for (const [outputFile] of candidatesForDeletion) {
+		if (!referencedOutputFiles.has(outputFile)) {
+			try {
+				const fileURL = new URL(outputFile, clientRoot);
+				logger.debug('assets', `Deleting unreferenced emitted image: ${outputFile}`);
+				await fs.promises.unlink(fileURL);
+			} catch {
+				/* No-op if deletion fails */
+			}
+		}
+	}
+}
+
 async function loadImage(path: string, env: AssetEnv): Promise<ImageData> {
 	if (isRemotePath(path)) {
 		return await loadRemoteImage(path);

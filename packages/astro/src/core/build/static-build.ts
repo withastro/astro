@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import colors from 'piccolore';
 import * as vite from 'vite';
+import { cleanUnusedEmittedImages } from '../../assets/build/generate.js';
 import { LINKS_PLACEHOLDER } from '../../content/consts.js';
 import { contentAssetsBuildPostHook } from '../../content/vite-plugin-content-assets.js';
 import { type BuildInternals, createBuildInternals } from '../../core/build/internal.js';
@@ -201,6 +202,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					await ssrMoveAssets(opts, internals, prerenderOutputDir);
 					// Generate the pages
 					await generatePages(opts, internals, prerenderOutputDir);
+					// Clean up emitted images not referenced in any output
+					const clientRoot = settings.config.outDir;
+					await cleanUnusedEmittedImages(clientRoot, opts.logger);
 					// Clean up prerender directory after generation
 					await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
 					settings.timer.end('Static generate');
@@ -209,6 +213,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					await generatePages(opts, internals, prerenderOutputDir);
 					// Move prerender and SSR assets to client directory before cleaning up
 					await ssrMoveAssets(opts, internals, prerenderOutputDir);
+					// Clean up emitted images not referenced in any output
+					const clientRoot = settings.config.build.client;
+					await cleanUnusedEmittedImages(clientRoot, opts.logger);
 					// Clean up prerender directory after generation
 					await fs.promises.rm(prerenderOutputDir, { recursive: true, force: true });
 					settings.timer.end('Server generate');
