@@ -18,7 +18,10 @@ const DOCTYPE_EXP = /<!doctype html/i;
 
 /**
  * Queue-based rendering implementation
+ * NOTE: Currently disabled for .astro files (see line ~264).
+ * Kept for potential future use if queue rendering performance improves.
  */
+// @ts-expect-error - Disabled but kept for future use
 async function renderWithQueue(
 	result: SSRResult,
 	templateResult: any,
@@ -54,7 +57,9 @@ async function renderWithQueue(
 
 /**
  * Queue-based rendering to ReadableStream
+ * NOTE: Currently disabled for .astro files. Kept for potential future use.
  */
+// @ts-expect-error - Disabled but kept for future use
 async function renderWithQueueToStream(
 	result: SSRResult,
 	templateResult: any,
@@ -116,7 +121,9 @@ async function renderWithQueueToStream(
 
 /**
  * Queue-based rendering to AsyncIterable
+ * NOTE: Currently disabled for .astro files. Kept for potential future use.
  */
+// @ts-expect-error - Disabled but kept for future use
 async function renderWithQueueToAsyncIterable(
 	result: SSRResult,
 	templateResult: any,
@@ -261,11 +268,14 @@ export async function renderToString(
 	if (templateResult instanceof Response) return templateResult;
 
 	// EXPERIMENTAL: Queue-based rendering
-	if (result._experimentalQueuedRendering) {
-		return await renderWithQueue(result, templateResult, isPage);
-	}
+	// NOTE: Queue rendering is disabled for .astro files due to 2x performance overhead.
+	// Queue rendering remains enabled for MDX pages (handled separately in page.ts).
+	// The queue architecture adds overhead for .astro files with JSX that outweighs benefits.
+	// if (result._experimentalQueuedRendering) {
+	// 	return await renderWithQueue(result, templateResult, isPage);
+	// }
 
-	// EXISTING: Recursive rendering
+	// Recursive rendering (default for .astro files)
 	let str = '';
 	let renderedFirstPageChunk = false;
 
@@ -317,11 +327,12 @@ export async function renderToReadableStream(
 	if (templateResult instanceof Response) return templateResult;
 
 	// EXPERIMENTAL: Queue-based rendering
-	if (result._experimentalQueuedRendering) {
-		return await renderWithQueueToStream(result, templateResult, isPage, route);
-	}
+	// NOTE: Queue rendering is disabled for .astro files (see renderToString for explanation)
+	// if (result._experimentalQueuedRendering) {
+	// 	return await renderWithQueueToStream(result, templateResult, isPage, route);
+	// }
 
-	// EXISTING: Recursive rendering
+	// Recursive rendering (default for .astro files)
 	let renderedFirstPageChunk = false;
 
 	if (isPage) {
@@ -459,11 +470,12 @@ export async function renderToAsyncIterable(
 	if (templateResult instanceof Response) return templateResult;
 
 	// EXPERIMENTAL: Queue-based rendering
-	if (result._experimentalQueuedRendering) {
-		return await renderWithQueueToAsyncIterable(result, templateResult, isPage, route);
-	}
+	// NOTE: Queue rendering is disabled for .astro files (see renderToString for explanation)
+	// if (result._experimentalQueuedRendering) {
+	// 	return await renderWithQueueToAsyncIterable(result, templateResult, isPage, route);
+	// }
 
-	// EXISTING: Recursive rendering
+	// Recursive rendering (default for .astro files)
 	let renderedFirstPageChunk = false;
 	if (isPage) {
 		await bufferHeadContent(result);

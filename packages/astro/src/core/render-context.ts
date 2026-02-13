@@ -9,7 +9,7 @@ import {
 	computePreferredLocaleList,
 } from '../i18n/utils.js';
 import { renderEndpoint } from '../runtime/server/endpoint.js';
-import { renderPage } from '../runtime/server/index.js';
+import { renderPage, setHTMLStringCacheEnabled } from '../runtime/server/index.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, Props, RewritePayload } from '../types/public/common.js';
 import type { APIContext, AstroGlobal } from '../types/public/context.js';
@@ -586,12 +586,17 @@ export class RenderContext {
 			_experimentalQueuedRenderingConfig: manifest.experimentalQueuedRendering
 				? typeof manifest.experimentalQueuedRendering === 'object'
 					? {
-						poolSize: manifest.experimentalQueuedRendering.poolSize,
-						disablePooling: pipeline.getName() === 'AppPipeline', // Disable pooling in SSR
-					}
+							enabled: manifest.experimentalQueuedRendering.enabled ?? true,
+							poolSize:
+								manifest.experimentalQueuedRendering.poolSize ??
+								(pipeline.getName() === 'AppPipeline' ? 0 : 1000), // Disable pooling in SSR by default
+							cache: manifest.experimentalQueuedRendering.cache ?? false, // Cache disabled by default (hurts performance)
+						}
 					: {
-						disablePooling: pipeline.getName() === 'AppPipeline', // Disable pooling in SSR
-					}
+							enabled: true,
+							poolSize: pipeline.getName() === 'AppPipeline' ? 0 : 1000, // Disable pooling in SSR by default
+							cache: false, // Cache disabled by default (hurts performance)
+						}
 				: undefined,
 			_metadata: {
 				hasHydrationScript: false,
@@ -618,6 +623,11 @@ export class RenderContext {
 			isStrictDynamic: manifest.csp?.isStrictDynamic ?? false,
 			internalFetchHeaders: manifest.internalFetchHeaders,
 		};
+
+		// Set HTMLString caching based on config
+		if (result._experimentalQueuedRenderingConfig) {
+			setHTMLStringCacheEnabled(result._experimentalQueuedRenderingConfig.cache ?? true);
+		}
 
 		return result;
 	}
