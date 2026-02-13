@@ -6,7 +6,7 @@ import type { RoutesList } from '../../../types/astro.js';
 
 let currentDevApp: DevApp | null = null;
 
-export const createApp: CreateApp = (streaming) => {
+export const createApp: CreateApp = ({ streaming } = {}) => {
 	const logger = createConsoleLogger(manifest.logLevel);
 	currentDevApp = new DevApp(manifest, streaming, logger);
 

@@ -201,4 +201,4 @@ export type NodeAppHeadersJson = {
 	}[];
 }[];
 
-export type CreateApp = (streaming?: boolean) => BaseApp;
+export type CreateApp = (options?: { streaming?: boolean }) => BaseApp;
