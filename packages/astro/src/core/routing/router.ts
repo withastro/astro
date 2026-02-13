@@ -7,7 +7,7 @@ import { routeComparator } from './priority.js';
 export interface RouterOptions {
 	base: AstroConfig['base'];
 	trailingSlash: AstroConfig['trailingSlash'];
-	buildFormat: 'directory' | 'file';
+	buildFormat: 'directory' | 'file' | 'preserve';
 }
 
 export interface RouterMatchRoute {
