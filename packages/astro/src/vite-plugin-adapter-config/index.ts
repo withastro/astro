@@ -14,13 +14,17 @@ export function vitePluginAdapterConfig(settings: AstroSettings): VitePlugin {
 			const { adapter } = settings;
 			if (adapter && adapter.entryType === 'self' && adapter.serverEntrypoint) {
 				return {
-					build: {
-						rollupOptions: {
-							input: {
-								index:
-									typeof adapter.serverEntrypoint === 'string'
-										? adapter.serverEntrypoint
-										: fileURLToPath(adapter.serverEntrypoint),
+					environments: {
+						ssr: {
+							build: {
+								rollupOptions: {
+									input: {
+										index:
+											typeof adapter.serverEntrypoint === 'string'
+												? adapter.serverEntrypoint
+												: fileURLToPath(adapter.serverEntrypoint),
+									},
+								},
 							},
 						},
 					},
