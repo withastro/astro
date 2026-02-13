@@ -41,6 +41,30 @@ test.describe('Scripts with dependencies', () => {
 	});
 });
 
+test.describe('SSR dependency invalidation', () => {
+	test('SSR modules reload when dependency changes', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/ssr-dep'));
+
+		const h = page.locator('#ssr-output');
+		await expect(h, 'initial SSR value').toHaveText('initial value');
+
+		await astro.editFile('./src/store/teststore.ts', (original) =>
+			original.replace('initial value', 'updated value'),
+		);
+
+		try {
+			await page.reload({ waitUntil: 'load' });
+		} catch (error) {
+			const message = String(error);
+			if (!message.includes('ERR_ABORTED') && !message.includes('NS_BINDING_ABORTED')) {
+				throw error;
+			}
+			await page.waitForLoadState('load');
+		}
+		await expect(h, 'SSR value updated after dependency change').toHaveText('updated value');
+	});
+});
+
 test.describe('Styles', () => {
 	test('dependencies cause refresh with HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/css-dep'));
