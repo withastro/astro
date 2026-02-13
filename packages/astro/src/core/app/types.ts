@@ -19,6 +19,7 @@ import type { LoggerLevel } from '../logger/core.js';
 import type { RoutingStrategies } from './common.js';
 import type { BaseSessionConfig, SessionDriverFactory } from '../session/types.js';
 import type { DevToolbarPlacement } from '../../types/public/toolbar.js';
+import type { MiddlewareMode } from '../../types/public/integrations.js';
 
 type ComponentPath = string;
 
@@ -84,11 +85,9 @@ export type SSRManifest = {
 	/**
 	 * The middleware mode determines when and how middleware executes.
 	 * - 'classic' (default): Build-time for prerendered pages, request-time for SSR pages
-	 * - 'always': Both build-time and request-time for all pages
-	 * - 'on-request': Request-time only for all pages
 	 * - 'edge': Middleware deployed as separate edge function
 	 */
-	middlewareMode: 'classic' | 'always' | 'on-request' | 'edge';
+	middlewareMode: MiddlewareMode;
 	/**
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
