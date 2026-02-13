@@ -3286,12 +3286,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/dynamic-route-collision:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/entry-file-names:
     dependencies:
       '@astrojs/preact':
@@ -4046,18 +4040,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/route-manifest:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/routing-priority:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/scoped-style-strategy:
     dependencies:
       astro:
@@ -4559,12 +4541,6 @@ importers:
         version: 18.3.1(react@18.3.1)
 
   packages/astro/test/fixtures/virtual-astro-file:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/virtual-routes:
     dependencies:
       astro:
         specifier: workspace:*
