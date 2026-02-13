@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import type { TransformResult } from '@astrojs/compiler';
-import { transform } from '@astrojs/compiler/sync';
+import { preprocessStyles, transform } from '@astrojs/compiler';
 import type { ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { AstroError } from '../errors/errors.js';
@@ -45,6 +45,20 @@ export async function compile({
 		// use `sourcemap: "both"` so that sourcemap is included in the code
 		// result passed to esbuild, but also available in the catch handler.
 		const t0 = performance.now();
+
+		// Step 1: Preprocess styles (async — calls Vite's preprocessCSS)
+		const preprocessedStyles = await preprocessStyles(
+			source,
+			createStylePreprocessor({
+				filename,
+				viteConfig,
+				astroConfig,
+				cssPartialCompileResults,
+				cssTransformErrors,
+			}),
+		);
+
+		// Step 2: Transform (always sync)
 		transformResult = transform(source, {
 			compact: astroConfig.compressHTML,
 			filename,
@@ -61,14 +75,8 @@ export async function compile({
 				astroConfig.devToolbar &&
 				astroConfig.devToolbar.enabled &&
 				toolbarEnabled,
-			preprocessStyle: createStylePreprocessor({
-				filename,
-				viteConfig,
-				astroConfig,
-				cssPartialCompileResults,
-				cssTransformErrors,
-			}),
-			async resolvePath(specifier) {
+			preprocessedStyles,
+			resolvePath(specifier) {
 				return resolvePath(specifier, filename);
 			},
 		});

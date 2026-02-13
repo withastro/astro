@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import type { TransformOptions } from '@astrojs/compiler';
+import type { PreprocessorError, PreprocessorResult } from '@astrojs/compiler';
 import { preprocessCSS, type ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../types/public/config.js';
 import { AstroErrorData, CSSError, positionAt } from '../errors/index.js';
@@ -78,6 +78,11 @@ function rewriteCssUrls(css: string, base: string): string {
 	});
 }
 
+type PreprocessStyleFn = (
+	content: string,
+	attrs: Record<string, string>,
+) => Promise<PreprocessorResult | PreprocessorError | null>;
+
 export function createStylePreprocessor({
 	filename,
 	viteConfig,
@@ -90,7 +95,7 @@ export function createStylePreprocessor({
 	astroConfig: AstroConfig;
 	cssPartialCompileResults: Partial<CompileCssResult>[];
 	cssTransformErrors: Error[];
-}): TransformOptions['preprocessStyle'] {
+}): PreprocessStyleFn {
 	let processedStylesCount = 0;
 
 	return async (content, attrs) => {

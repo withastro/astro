@@ -1,4 +1,4 @@
-import type { HydratedComponent } from '@astrojs/compiler/types';
+import type { Component } from '@astrojs/compiler/types';
 import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
@@ -38,8 +38,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 	// Variables for determining if an id starts with /src...
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
 	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb) && srcRootWeb !== '/';
-	const notAstroComponent = (component: HydratedComponent) =>
-		!component.resolvedPath.endsWith('.astro');
+	const notAstroComponent = (component: Component) => !component.resolvedPath.endsWith('.astro');
 
 	return [
 		{

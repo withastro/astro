@@ -494,8 +494,8 @@ importers:
   packages/astro:
     dependencies:
       '@astrojs/compiler':
-        specifier: link:../../../compiler-rust/packages/compiler
-        version: link:../../../compiler-rust/packages/compiler
+        specifier: link:../../../compiler-rs/packages/compiler
+        version: link:../../../compiler-rs/packages/compiler
       '@astrojs/internal-helpers':
         specifier: workspace:*
         version: link:../internal-helpers

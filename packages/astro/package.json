@@ -116,7 +116,7 @@
     "test:integration": "astro-scripts test \"test/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/compiler": "link:../../../compiler-rust/packages/compiler",
+    "@astrojs/compiler": "link:../../../compiler-rs/packages/compiler",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
