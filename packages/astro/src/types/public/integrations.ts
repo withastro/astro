@@ -80,11 +80,27 @@ export type AdapterSupportWithMessage = {
 
 export type AdapterSupport = AdapterSupportsKind | AdapterSupportWithMessage;
 
+export type MiddlewareMode = 'classic' | 'always' | 'on-request' | 'edge';
+
 export interface AstroAdapterFeatures {
 	/**
 	 * Creates an edge function that will communicate with the Astro middleware
+	 * 
+	 * @deprecated Use `middlewareMode: 'edge'` instead
 	 */
 	edgeMiddleware: boolean;
+
+	/**
+	 * Determines when and how middleware executes:
+	 * - `'classic'` (default): Middleware runs for prerendered pages at build time, and for SSR pages at request time. Does not run for prerendered pages at request time.
+	 * - `'always'`: Middleware runs at both build time and request time for all pages.
+	 * - `'on-request'`: Middleware runs only at request time for all pages.
+	 * - `'edge'`: Middleware is deployed as a separate edge function.
+	 * 
+	 * @default 'classic'
+	 */
+	middlewareMode?: MiddlewareMode;
+
 	/**
 	 * Determine the type of build output the adapter is intended for. Defaults to `server`;
 	 */
@@ -224,6 +240,26 @@ export type AstroAdapterFeatureMap = {
 	 * The adapter supports image transformation using the built-in Sharp image service
 	 */
 	sharpImageService?: AdapterSupport;
+
+	/**
+	 * The adapter supports 'classic' middleware mode (build-time for prerendered pages, request-time for SSR pages)
+	 */
+	middlewareModeClassic?: AdapterSupport;
+
+	/**
+	 * The adapter supports 'always' middleware mode (runs at build-time and request-time for all pages)
+	 */
+	middlewareModeAlways?: AdapterSupport;
+
+	/**
+	 * The adapter supports 'on-request' middleware mode (request-time only for all pages)
+	 */
+	middlewareModeOnRequest?: AdapterSupport;
+
+	/**
+	 * The adapter supports 'edge' middleware mode (middleware deployed as a separate edge function)
+	 */
+	middlewareModeEdge?: AdapterSupport;
 };
 
 /**
