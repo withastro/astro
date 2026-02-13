@@ -4,8 +4,45 @@ import { beforeAll, bench, describe } from 'vitest';
 
 const renderRoot = new URL('../projects/render-bench/', import.meta.url);
 
-let streamingApp;
-let nonStreamingApp;
+/**
+ * Configuration matrix for queue rendering features.
+ * We test combinations of: enabled × poolSize × cache
+ *
+ * - enabled: Use queue-based rendering (vs classic recursive)
+ * - poolSize: Node pool size (1000 for enabled, 0 for disabled)
+ * - cache: Enable HTMLString caching
+ */
+const CONFIGS = [
+	// Classic rendering (no queue)
+	{ enabled: false, poolSize: 0, cache: false, label: 'Classic' },
+
+	// Queue rendering with various optimization combinations
+	{ enabled: true, poolSize: 0, cache: false, label: 'Queue' },
+	{ enabled: true, poolSize: 1000, cache: false, label: 'Queue+Pool' },
+	{ enabled: true, poolSize: 0, cache: true, label: 'Queue+Cache' },
+	{ enabled: true, poolSize: 1000, cache: true, label: 'Queue+Pool+Cache' },
+];
+
+/**
+ * Test matrix dimensions
+ */
+const FILE_TYPES = [
+	{ route: '/astro', label: '.astro' },
+	{ route: '/md', label: '.md' },
+	{ route: '/mdx', label: '.mdx' },
+];
+
+const STREAMING_MODES = [
+	{ streaming: true, label: 'streaming' },
+	{ streaming: false, label: 'buffered' },
+];
+
+/**
+ * Apps organized by: [streamingMode][configLabel]
+ * We create one app per config+streaming combination and reuse it for all file types.
+ */
+const apps = {};
+
 beforeAll(async () => {
 	const entry = new URL('./dist/server/entry.mjs', renderRoot);
 
@@ -15,94 +52,49 @@ beforeAll(async () => {
 		);
 	}
 
-	const { manifest, createApp } = await import(entry);
-	streamingApp = createApp(manifest, true);
-	nonStreamingApp = createApp(manifest, false);
-}, 900000);
+	// Import App class and manifest
+	const { App, manifest } = await import(entry);
 
-const queueRenderRoot = new URL('../projects/queue-render-bench/', import.meta.url);
-
-let qStreamingApp;
-let qNonStreamingApp;
-beforeAll(async () => {
-	const entry = new URL('./dist/server/entry.mjs', queueRenderRoot);
-
-	if (!existsSync(fileURLToPath(entry))) {
+	if (!App) {
 		throw new Error(
-			'queue-render-bench project not built. Please run `pnpm run build:bench` before running the benchmarks.',
+			'App class not exported from adapter. Please rebuild the adapter and bench project.',
 		);
 	}
 
-	const { manifest, createApp } = await import(entry);
-	qStreamingApp = createApp(manifest, true);
-	qNonStreamingApp = createApp(manifest, false);
+	// Create app instances for all config × streaming combinations
+	for (const { streaming } of STREAMING_MODES) {
+		apps[streaming] = {};
+
+		for (const config of CONFIGS) {
+			// Clone and modify manifest with queue rendering config
+			const modifiedManifest = {
+				...manifest,
+				experimentalQueuedRendering: config.enabled
+					? {
+							enabled: config.enabled,
+							poolSize: config.poolSize,
+							cache: config.cache,
+						}
+					: undefined,
+			};
+
+			// Directly instantiate App with the modified manifest
+			apps[streaming][config.label] = new App(modifiedManifest, streaming);
+		}
+	}
 }, 900000);
 
-// Benchmark each combination: streaming [true/false] × file type [.astro/.md/.mdx]
-// Each combination compares Classic rendering vs Queue rendering
-
-describe('Rendering: streaming [true], .astro file', () => {
-	bench('Classic', async () => {
-		const request = new Request(new URL('http://example.com/astro'));
-		await streamingApp.render(request);
-	});
-	bench('Queue', async () => {
-		const request = new Request(new URL('http://example.com/astro'));
-		await qStreamingApp.render(request);
-	});
-});
-
-describe('Rendering: streaming [true], .md file', () => {
-	bench('Classic', async () => {
-		const request = new Request(new URL('http://example.com/md'));
-		await streamingApp.render(request);
-	});
-	bench('Queue', async () => {
-		const request = new Request(new URL('http://example.com/md'));
-		await qStreamingApp.render(request);
-	});
-});
-
-describe('Rendering: streaming [true], .mdx file', () => {
-	bench('Classic', async () => {
-		const request = new Request(new URL('http://example.com/mdx'));
-		await streamingApp.render(request);
-	});
-	bench('Queue', async () => {
-		const request = new Request(new URL('http://example.com/mdx'));
-		await qStreamingApp.render(request);
-	});
-});
-
-describe('Rendering: streaming [false], .astro file', () => {
-	bench('Classic', async () => {
-		const request = new Request(new URL('http://example.com/astro'));
-		await nonStreamingApp.render(request);
-	});
-	bench('Queue', async () => {
-		const request = new Request(new URL('http://example.com/astro'));
-		await qNonStreamingApp.render(request);
-	});
-});
-
-describe('Rendering: streaming [false], .md file', () => {
-	bench('Classic', async () => {
-		const request = new Request(new URL('http://example.com/md'));
-		await nonStreamingApp.render(request);
-	});
-	bench('Queue', async () => {
-		const request = new Request(new URL('http://example.com/md'));
-		await qNonStreamingApp.render(request);
-	});
-});
-
-describe('Rendering: streaming [false], .mdx file', () => {
-	bench('Classic', async () => {
-		const request = new Request(new URL('http://example.com/mdx'));
-		await nonStreamingApp.render(request);
-	});
-	bench('Queue', async () => {
-		const request = new Request(new URL('http://example.com/mdx'));
-		await qNonStreamingApp.render(request);
-	});
-});
+// Generate benchmarks: fileType × streaming × config
+for (const { route, label: fileLabel } of FILE_TYPES) {
+	for (const { streaming, label: streamLabel } of STREAMING_MODES) {
+		describe(`${fileLabel} [${streamLabel}]`, () => {
+			for (const config of CONFIGS) {
+				bench(config.label, async () => {
+					const app = apps[streaming][config.label];
+					const request = new Request(new URL(`http://example.com${route}`));
+					await app.render(request);
+				});
+			}
+		});
+	}
+}

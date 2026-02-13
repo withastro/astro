@@ -316,24 +316,28 @@ globalNodePool.warmCache([...COMMON_HTML_PATTERNS]);
 
 /**
  * Gets the appropriate pool for the given configuration.
- * If pooling is disabled, returns a no-op pool that creates nodes on demand.
+ * If pooling is disabled (poolSize = 0), returns a no-op pool that creates nodes on demand.
  * Otherwise returns the global pool (optionally resized based on config).
  *
  * @param config - Queue rendering configuration from SSRResult
  * @returns Pool instance to use for node acquisition
  */
 export function getPoolForConfig(config?: {
+	enabled?: boolean;
 	poolSize?: number;
-	disablePooling?: boolean;
+	cache?: boolean;
 }): QueueNodePool {
-	// If pooling is disabled (e.g., in SSR), return a no-op pool
-	if (config?.disablePooling) {
-		return new QueueNodePool(0, false); // Pool size 0 = always create new nodes
+	// If pooling is disabled (poolSize = 0), return a no-op pool
+	if (config?.poolSize === 0) {
+		return new QueueNodePool(0, false, false); // No pooling, no content cache
 	}
 
-	// If custom pool size specified, update global pool
-	if (config?.poolSize !== undefined && config.poolSize !== globalNodePool.maxSize) {
-		return new QueueNodePool(config.poolSize, true);
+	// If custom pool size specified, create a new pool with that size
+	const poolSize = config?.poolSize ?? 1000;
+	const enableContentCache = config?.cache ?? true;
+
+	if (poolSize !== globalNodePool.maxSize) {
+		return new QueueNodePool(poolSize, true, enableContentCache);
 	}
 
 	// Use global pool

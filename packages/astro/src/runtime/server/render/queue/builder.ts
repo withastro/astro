@@ -17,6 +17,8 @@ import type {
 } from './types.js';
 import { isRenderTemplateResult } from '../astro/render-template.js';
 import { isHeadAndContent } from '../astro/head-and-content.js';
+import { isVNode } from '../../../../jsx-runtime/index.js';
+import { renderJSXToQueue } from './jsx-builder.js';
 
 /**
  * Builds a render queue from a component tree.
@@ -97,6 +99,14 @@ export async function buildRenderQueue(root: any, result: SSRResult): Promise<Re
 			const queueNode = pool.acquire('html-string', html) as HtmlStringNode;
 			queueNode.html = html;
 			queue.nodes.push(queueNode);
+			continue;
+		}
+
+		// Handle JSX vnodes (from MDX or JSX expressions)
+		if (isVNode(node)) {
+			// Process JSX vnode through the JSX builder
+			// This will recursively handle the vnode and its children
+			renderJSXToQueue(node, result, queue, pool, stack, parent, item.metadata);
 			continue;
 		}
 
