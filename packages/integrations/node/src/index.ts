@@ -21,7 +21,7 @@ export function getAdapter(options: Options): AstroAdapter {
 		args: options,
 		adapterFeatures: {
 			buildOutput: 'server',
-			edgeMiddleware: false,
+			middlewareMode: 'classic',
 			staticHeaders: options.staticHeaders,
 		},
 		supportedAstroFeatures: {

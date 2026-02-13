@@ -112,8 +112,8 @@ function getAdapter({
 		entryType: 'self',
 		serverEntrypoint: `${PACKAGE_NAME}/entrypoint`,
 		adapterFeatures: {
-			edgeMiddleware,
 			buildOutput,
+			middlewareMode: edgeMiddleware ? 'edge' : 'classic',
 			staticHeaders,
 		},
 		supportedAstroFeatures: {

@@ -240,26 +240,6 @@ export type AstroAdapterFeatureMap = {
 	 * The adapter supports image transformation using the built-in Sharp image service
 	 */
 	sharpImageService?: AdapterSupport;
-
-	/**
-	 * The adapter supports 'classic' middleware mode (build-time for prerendered pages, request-time for SSR pages)
-	 */
-	middlewareModeClassic?: AdapterSupport;
-
-	/**
-	 * The adapter supports 'always' middleware mode (runs at build-time and request-time for all pages)
-	 */
-	middlewareModeAlways?: AdapterSupport;
-
-	/**
-	 * The adapter supports 'on-request' middleware mode (request-time only for all pages)
-	 */
-	middlewareModeOnRequest?: AdapterSupport;
-
-	/**
-	 * The adapter supports 'edge' middleware mode (middleware deployed as a separate edge function)
-	 */
-	middlewareModeEdge?: AdapterSupport;
 };
 
 /**

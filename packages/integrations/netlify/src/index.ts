@@ -685,7 +685,7 @@ export default function netlifyIntegration(
 					entryType: 'self',
 					serverEntrypoint: '@astrojs/netlify/ssr-function.js',
 					adapterFeatures: {
-						edgeMiddleware: useEdgeMiddleware,
+						middlewareMode: useEdgeMiddleware ? 'edge' : 'classic',
 						staticHeaders: useStaticHeaders,
 					},
 					supportedAstroFeatures: {
