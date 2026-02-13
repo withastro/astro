@@ -668,7 +668,7 @@
       ]
     },
     "tags-lang-start-attributes": {
-      "begin": "\\G",
+      "begin": "\\G|\\s+",
       "end": "(?=/>)|>",
       "endCaptures": {
         "0": {
@@ -750,7 +750,7 @@
       ]
     },
     "tags-lang": {
-      "begin": "<(script|style)",
+      "begin": "<(script|style)(?=[\\s\\S]*?>)",
       "end": "</\\1\\s*>|/>",
       "beginCaptures": {
         "0": {
@@ -793,7 +793,7 @@
           ]
         },
         {
-          "begin": "\\G(?=\\s*[^>]*?(type|lang)\\s*=\\s*(['\"]|)(?:text/|application/)?([\\w\\/+]+)\\2)",
+          "begin": "\\G(?=\\s*[\\s\\S]*?(type|lang)\\s*=\\s*(['\"]|)(?:text/|application/)?([\\w\\/+]+)\\2)",
           "end": "(?=</|/>)",
           "name": "meta.lang.$3.astro",
           "patterns": [

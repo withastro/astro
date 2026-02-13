@@ -1,0 +1,196 @@
+>---
+#^^^ source.astro comment
+>// フロントエンドスクリプト
+#^^^^^^^^^^^^^^^^ source.astro meta.embedded.block.astro source.ts
+>const foo = "#fff";
+#^^^^^^^^^^^^^^^^^^^^ source.astro meta.embedded.block.astro source.ts
+>---
+#^^^ source.astro comment
+>
+><style lang="scss">
+#^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro entity.name.tag.astro
+#      ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.scss.astro meta.tag.start.astro
+#       ^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.scss.astro meta.tag.start.astro meta.attribute.lang.astro entity.other.attribute-name.astro
+#           ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.scss.astro meta.tag.start.astro meta.attribute.lang.astro punctuation.separator.key-value.astro
+#            ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.scss.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.begin.astro
+#             ^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.scss.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro
+#                 ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.scss.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.end.astro
+#                  ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.scss.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+>  $primary: red;
+#^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.scss.astro meta.embedded.block.astro source.css.scss
+>  .bar {
+#^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.scss.astro meta.embedded.block.astro source.css.scss
+>    &-inner { color: $primary; }
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.scss.astro meta.embedded.block.astro source.css.scss
+>  }
+#^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.scss.astro meta.embedded.block.astro source.css.scss
+></style>
+#^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro entity.name.tag.astro
+#       ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
+><style
+#^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro entity.name.tag.astro
+>  lang="scss"
+#^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro
+#  ^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro entity.other.attribute-name.astro
+#      ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro punctuation.separator.key-value.astro
+#       ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.begin.astro
+#        ^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro
+#            ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.end.astro
+>>
+#^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+>  $primary: red;
+#^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css
+>  .bar {
+#^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css
+>    &-inner { color: $primary; }
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css
+>  }
+#^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css
+></style>
+#^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro entity.name.tag.astro
+#       ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
+>
+><style lang="less">
+#^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro entity.name.tag.astro
+#      ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.less.astro meta.tag.start.astro
+#       ^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.less.astro meta.tag.start.astro meta.attribute.lang.astro entity.other.attribute-name.astro
+#           ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.less.astro meta.tag.start.astro meta.attribute.lang.astro punctuation.separator.key-value.astro
+#            ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.less.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.begin.astro
+#             ^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.less.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro
+#                 ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.less.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.end.astro
+#                  ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.less.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+>  @base: #f938ab;
+#^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.less.astro meta.embedded.block.astro source.css.less
+>  .bar { color: @base; }
+#^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.less.astro meta.embedded.block.astro source.css.less
+></style>
+#^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro entity.name.tag.astro
+#       ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
+><style
+#^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro entity.name.tag.astro
+>  lang="less"
+#^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro
+#  ^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro entity.other.attribute-name.astro
+#      ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro punctuation.separator.key-value.astro
+#       ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.begin.astro
+#        ^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro
+#            ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.end.astro
+>>
+#^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+>  @base: #f938ab;
+#^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css
+>  .bar { color: @base; }
+#^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css
+></style>
+#^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro entity.name.tag.astro
+#       ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
+>
+><style lang="sass" define:vars={{ foo }}>
+#^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro entity.name.tag.astro
+#      ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.sass.astro meta.tag.start.astro
+#       ^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.sass.astro meta.tag.start.astro meta.attribute.lang.astro entity.other.attribute-name.astro
+#           ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.sass.astro meta.tag.start.astro meta.attribute.lang.astro punctuation.separator.key-value.astro
+#            ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.sass.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.begin.astro
+#             ^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.sass.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro
+#                 ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.sass.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.end.astro
+#                  ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.sass.astro meta.tag.start.astro
+#                   ^^^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.sass.astro meta.tag.start.astro meta.attribute.define:vars.astro entity.other.attribute-name.astro
+#                              ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.sass.astro meta.tag.start.astro meta.attribute.define:vars.astro punctuation.separator.key-value.astro
+#                               ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.sass.astro meta.tag.start.astro meta.attribute.define:vars.astro punctuation.section.embedded.begin.astro
+#                                ^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.sass.astro meta.tag.start.astro meta.attribute.define:vars.astro meta.embedded.expression.astro source.tsx
+#                                      ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.sass.astro meta.tag.start.astro meta.attribute.define:vars.astro punctuation.section.embedded.end.astro
+#                                       ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.sass.astro meta.tag.start.astro
+#                                        ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.sass.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+>  .bar
+#^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.sass.astro meta.embedded.block.astro source.sass
+>    color: var(--foo)
+#^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.sass.astro meta.embedded.block.astro source.sass
+></style>
+#^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro entity.name.tag.astro
+#       ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
+><style
+#^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro entity.name.tag.astro
+>  lang="sass" 
+#^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro
+#  ^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro entity.other.attribute-name.astro
+#      ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro punctuation.separator.key-value.astro
+#       ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.begin.astro
+#        ^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro
+#            ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.end.astro
+#             ^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro
+>  define:vars={{
+#^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro
+#  ^^^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.define:vars.astro entity.other.attribute-name.astro
+#             ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.define:vars.astro punctuation.separator.key-value.astro
+#              ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.define:vars.astro punctuation.section.embedded.begin.astro
+#               ^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.define:vars.astro meta.embedded.expression.astro source.tsx
+>    foo,
+#^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.define:vars.astro meta.embedded.expression.astro source.tsx
+>  }}
+#^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.define:vars.astro meta.embedded.expression.astro source.tsx
+#  ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.define:vars.astro punctuation.section.embedded.end.astro
+#   ^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro
+>>
+#^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+>  .bar
+#^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css
+>    color: var(--foo)
+#^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css
+></style>
+#^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro entity.name.tag.astro
+#       ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
+>
+><style lang="css">
+#^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro entity.name.tag.astro
+#      ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.css.astro meta.tag.start.astro
+#       ^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.css.astro meta.tag.start.astro meta.attribute.lang.astro entity.other.attribute-name.astro
+#           ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.css.astro meta.tag.start.astro meta.attribute.lang.astro punctuation.separator.key-value.astro
+#            ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.css.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.begin.astro
+#             ^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.css.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro
+#                ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.css.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.end.astro
+#                 ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.css.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+>  .bar { color: green; }
+#^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.lang.css.astro meta.embedded.block.astro source.css
+></style>
+#^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro entity.name.tag.astro
+#       ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
+><style
+#^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro punctuation.definition.tag.begin.astro
+# ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro entity.name.tag.astro
+>  lang="css"
+#^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro
+#  ^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro entity.other.attribute-name.astro
+#      ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro punctuation.separator.key-value.astro
+#       ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.begin.astro
+#        ^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro
+#           ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro meta.attribute.lang.astro string.quoted.astro punctuation.definition.string.end.astro
+>>
+#^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.start.astro punctuation.definition.tag.end.astro
+>  .bar { color: green; }
+#^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.embedded.block.astro source.css
+></style>
+#^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.begin.astro
+#  ^^^^^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro entity.name.tag.astro
+#       ^ source.astro meta.scope.tag.style.astro meta.style.astro meta.tag.end.astro punctuation.definition.tag.end.astro
+>
