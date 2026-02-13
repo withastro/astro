@@ -22,6 +22,7 @@ import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
+import { resolveMiddlewareMode } from '../integrations/adapter-utils.js';
 import { SERIALIZED_MANIFEST_ID } from '../manifest/serialized.js';
 import type { AstroSettings } from '../types/astro.js';
 import { ASTRO_DEV_SERVER_APP_ID } from '../vite-plugin-app/index.js';
@@ -177,6 +178,7 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		compressHTML: settings.config.compressHTML,
 		assetsDir: settings.config.build.assets,
 		serverLike: settings.buildOutput === 'server',
+		middlewareMode: resolveMiddlewareMode(settings.adapter?.adapterFeatures),
 		assets: new Set(),
 		entryModules: {},
 		routes: [],

@@ -82,6 +82,14 @@ export type SSRManifest = {
 	 */
 	serverLike: boolean;
 	/**
+	 * The middleware mode determines when and how middleware executes.
+	 * - 'classic' (default): Build-time for prerendered pages, request-time for SSR pages
+	 * - 'always': Both build-time and request-time for all pages
+	 * - 'on-request': Request-time only for all pages
+	 * - 'edge': Middleware deployed as separate edge function
+	 */
+	middlewareMode: 'classic' | 'always' | 'on-request' | 'edge';
+	/**
 	 * Map of directive name (e.g. `load`) to the directive script code
 	 */
 	clientDirectives: Map<string, string>;
