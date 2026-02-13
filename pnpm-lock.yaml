@@ -671,15 +671,6 @@ importers:
       '@astrojs/check':
         specifier: workspace:*
         version: link:../language-tools/astro-check
-      '@astrojs/mdx':
-        specifier: workspace:*
-        version: link:../integrations/mdx
-      '@astrojs/preact':
-        specifier: workspace:*
-        version: link:../integrations/preact
-      '@astrojs/react':
-        specifier: workspace:*
-        version: link:../integrations/react
       '@playwright/test':
         specifier: 1.58.1
         version: 1.58.1
@@ -746,15 +737,6 @@ importers:
       parse-srcset:
         specifier: ^1.0.2
         version: 1.0.2
-      preact:
-        specifier: ^10.28.3
-        version: 10.28.3
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
       rehype-autolink-headings:
         specifier: ^7.1.0
         version: 7.1.0
