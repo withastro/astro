@@ -19,7 +19,7 @@ describe('Assets Prefix Multiple CDN - Static', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-assets-prefix',
+			root: './fixtures/mega-content/astro-assets-prefix',
 			build: {
 				assetsPrefix,
 			},
@@ -84,7 +84,7 @@ describe('Assets Prefix Multiple CDN, server', () => {
 	let fixture;
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-assets-prefix',
+			root: './fixtures/mega-content/astro-assets-prefix',
 			output: 'server',
 			adapter: testAdapter(),
 			build: {

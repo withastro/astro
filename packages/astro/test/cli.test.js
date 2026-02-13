@@ -55,7 +55,7 @@ function readFromClipboard() {
 
 describe('astro cli', () => {
 	const cliServerLogSetupWithFixture = (flags, cmd) => {
-		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
+		const projectRootURL = new URL('./fixtures/mega-static/astro-basic/', import.meta.url);
 		return cliServerLogSetup(['--root', fileURLToPath(projectRootURL), ...flags], cmd);
 	};
 
@@ -306,7 +306,7 @@ describe('astro cli', () => {
 		const pkgURL = new URL('../package.json', import.meta.url);
 		const pkgVersion = await fs.readFile(pkgURL, 'utf8').then((data) => JSON.parse(data).version);
 
-		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
+		const projectRootURL = new URL('./fixtures/mega-static/astro-basic/', import.meta.url);
 		const { proc } = cli('dev', '--root', fileURLToPath(projectRootURL));
 		const { messages } = await parseCliDevStart(proc);
 

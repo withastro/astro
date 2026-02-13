@@ -13,7 +13,7 @@ describe('Assets Prefix - Static', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-assets-prefix/',
+			root: './fixtures/mega-content/astro-assets-prefix/',
 			outDir: './dist/static',
 		});
 		await fixture.build();
@@ -86,7 +86,7 @@ describe('Assets Prefix - with path prefix', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-assets-prefix/',
+			root: './fixtures/mega-content/astro-assets-prefix/',
 			outDir: './dist/server',
 			build: {
 				assetsPrefix: '/starting-slash',
@@ -110,7 +110,7 @@ describe('Assets Prefix, server', () => {
 
 	before(async () => {
 		const fixture = await loadFixture({
-			root: './fixtures/astro-assets-prefix/',
+			root: './fixtures/mega-content/astro-assets-prefix/',
 			output: 'server',
 			adapter: testAdapter(),
 			outDir: './dist/server',
@@ -168,7 +168,7 @@ describe('Assets Prefix, with path prefix', () => {
 
 	before(async () => {
 		const fixture = await loadFixture({
-			root: './fixtures/astro-assets-prefix/',
+			root: './fixtures/mega-content/astro-assets-prefix/',
 			output: 'server',
 			adapter: testAdapter(),
 			outDir: './dist/server-path-prefix',

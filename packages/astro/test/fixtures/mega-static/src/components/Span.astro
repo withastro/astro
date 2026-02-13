@@ -1,0 +1,4 @@
+---
+const { id, attr } = Astro.props;
+---
+<span id={id} attr={`attr-${attr}`} type={typeof attr}></span>

@@ -12,7 +12,7 @@ describe('Astro basic build', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-basic/',
+			root: './fixtures/mega-static/astro-basic/',
 		});
 		await fixture.build();
 		previewServer = await fixture.preview();
@@ -197,7 +197,7 @@ describe('Astro basic development', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-basic/',
+			root: './fixtures/mega-static/astro-basic/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -239,7 +239,7 @@ describe('Astro custom prerenderer', () => {
 	before(async () => {
 		testPrerenderer = createTestPrerenderer();
 		fixture = await loadFixture({
-			root: './fixtures/astro-basic/',
+			root: './fixtures/mega-static/astro-basic/',
 			integrations: [testPrerenderer.integration],
 		});
 		await fixture.build();

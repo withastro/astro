@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import * as cheerio from 'cheerio';
 import { createFixture, createRequestAndResponse, runInContainer } from '../test-utils.js';
 
-const root = new URL('../../fixtures/alias/', import.meta.url);
+const root = new URL('../../fixtures/mega-frameworks/', import.meta.url);
 
 describe('head injection', () => {
 	it('Dynamic injection from component created in the page frontmatter', async () => {

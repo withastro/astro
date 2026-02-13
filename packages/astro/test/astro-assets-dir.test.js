@@ -7,7 +7,8 @@ describe('assets dir takes the URL path inside the output directory', () => {
 	let checkDir;
 	before(async () => {
 		const fixture = await loadFixture({
-			root: './fixtures/astro-assets-dir/',
+			root: './fixtures/mega-content/',
+			srcDir: './astro-assets-dir/src',
 			build: {
 				assets: 'custom_dir_1',
 			},
@@ -29,7 +30,7 @@ describe('assets dir takes the URL path inside the output directory', () => {
 		assert.equal(
 			removeTrailingSlash(new URL('./custom_dir_1', checkDir).toString()),
 			removeTrailingSlash(
-				new URL('./fixtures/astro-assets-dir/dist/custom_dir_1', import.meta.url).toString(),
+				new URL('./fixtures/mega-content/dist/custom_dir_1', import.meta.url).toString(),
 			),
 		);
 	});
