@@ -38,6 +38,7 @@ export async function setupConfig(
 		merged = mergeConfig(merged, HTML_CONFIG);
 	}
 
+	syncTagNodeAttributes(merged);
 	return merged;
 }
 
@@ -54,6 +55,7 @@ export function setupConfigSync(
 		merged = mergeConfig(merged, HTML_CONFIG);
 	}
 
+	syncTagNodeAttributes(merged);
 	return merged;
 }
 
@@ -96,6 +98,46 @@ export function mergeConfig(
 			...configB.validation,
 		},
 	};
+}
+
+/**
+ * Sync custom attributes between tags and nodes that share the same name.
+ * In Markdoc, `table` exists as both a tag (`{% table %}`) and a node (the inner
+ * table structure). Attributes on the tag propagate to the child node in the AST,
+ * so both schemas must declare the same attributes for validation to pass.
+ * When users configure attributes on only one side, this copies them to the other.
+ */
+function syncTagNodeAttributes(config: MergedConfig): void {
+	// Markdoc's types don't have a string index signature, so we need the explicit
+	// type to index with a dynamic key in the loop below
+	const builtinTags: Record<string, any> = Markdoc.tags;
+	const builtinNodes: Record<string, any> = Markdoc.nodes;
+
+	for (const name of Object.keys(builtinTags)) {
+		if (!(name in builtinNodes)) continue;
+
+		const tagSchema = config.tags[name];
+		const nodeSchema = config.nodes[name as NodeType];
+		const tagAttrs = tagSchema?.attributes;
+		const nodeAttrs = nodeSchema?.attributes;
+
+		// Nothing to sync if neither side has custom attributes
+		if (!tagAttrs && !nodeAttrs) continue;
+
+		const mergedAttrs = { ...tagAttrs, ...nodeAttrs };
+
+		if (tagSchema) {
+			config.tags[name] = { ...tagSchema, attributes: mergedAttrs };
+		} else {
+			config.tags[name] = { ...builtinTags[name], attributes: mergedAttrs };
+		}
+
+		if (nodeSchema) {
+			config.nodes[name as NodeType] = { ...nodeSchema, attributes: mergedAttrs };
+		} else {
+			config.nodes[name as NodeType] = { ...builtinNodes[name], attributes: mergedAttrs };
+		}
+	}
 }
 
 /**
