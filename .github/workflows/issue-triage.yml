@@ -7,7 +7,7 @@ on:
     types: [created]
 
 env:
-  IMAGE: ghcr.io/${{ github.repository }}/flue-astro-sandbox
+  IMAGE: ghcr.io/${{ github.repository }}/flue-sandbox
 
 concurrency:
   # Only one triage run per issue at a time. New runs queue (not cancel)
