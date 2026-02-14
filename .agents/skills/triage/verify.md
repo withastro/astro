@@ -2,7 +2,7 @@
 
 Verify whether a GitHub issue describes an actual bug or a misunderstanding of intended behavior.
 
-**CRITICAL: You MUST always append to `report.md` before finishing, regardless of outcome. Even if you cannot reach a conclusion — always update `report.md` with your findings. The orchestrator and downstream skills depend on this file to determine what happened.**
+**CRITICAL: You MUST always read `report.md` and append to `report.md` before finishing, regardless of outcome. Even if you cannot reach a conclusion — always update `report.md` with your findings. The orchestrator and downstream skills depend on this file to determine what happened.**
 
 ## Prerequisites
 
