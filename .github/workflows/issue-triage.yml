@@ -6,6 +6,9 @@ on:
   issue_comment:
     types: [created]
 
+env:
+  IMAGE: ghcr.io/${{ github.repository }}/flue-sandbox
+
 concurrency:
   # Only one triage run per issue at a time. New runs queue (not cancel)
   # to avoid killing in-flight runs when the bot posts its own comment.
@@ -31,6 +34,9 @@ jobs:
       issues: write
       packages: read
     steps:
+      - name: Lowercase image name
+        run: echo "IMAGE=${IMAGE,,}" >> "$GITHUB_ENV"
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -60,7 +66,7 @@ jobs:
       - name: Pull sandbox image
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker pull ghcr.io/${{ github.repository }}/flue-sandbox:latest
+          docker pull ${{ env.IMAGE }}:latest
 
       - name: Start Cloudflare Tunnel
         run: |
@@ -90,7 +96,7 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           pnpm flue run .flue/workflows/issue-triage.ts \
-            --sandbox ghcr.io/${{ github.repository }}/flue-sandbox:latest \
+            --sandbox ${{ env.IMAGE }}:latest \
             --args "{\"issueNumber\": $ISSUE_NUMBER, \"triageDir\": \"triage/issue-$ISSUE_NUMBER\"}" \
             --branch "flue/fix-$ISSUE_NUMBER" \
             --model anthropic/claude-opus-4-6
