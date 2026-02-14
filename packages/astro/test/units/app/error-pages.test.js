@@ -65,7 +65,7 @@ describe('App render error pages', () => {
 			params: ['...slug'],
 			pathname: undefined,
 			distURL: [],
-			pattern: /^\/(.*?)(?:\/)?$/,
+			pattern: /^\/(.*?)\/?$/,
 			segments: [[{ content: '...slug', dynamic: true, spread: true }]],
 			type: 'endpoint',
 			prerender: false,
@@ -186,7 +186,7 @@ describe('App render error pages', () => {
 			origin: 'project',
 		};
 
-		const notFoundPage = createComponent((result) => {
+		const notFoundPage = createComponent(() => {
 			return render`<h1>Something went horribly wrong!</h1>`;
 		});
 
@@ -225,7 +225,7 @@ describe('App render error pages', () => {
 			origin: 'project',
 		};
 
-		const notFoundPage = createComponent((result) => {
+		const notFoundPage = createComponent(() => {
 			return render`<h1>Something went horribly wrong!</h1>`;
 		});
 
@@ -256,7 +256,7 @@ describe('App render error pages', () => {
 			params: ['...ssrPath'],
 			pathname: undefined,
 			distURL: [],
-			pattern: /^\/blog(?:\/(.*?))?\/?$/,
+			pattern: /^\/blog(?:\/(.*))?$/,
 			segments: [
 				[{ content: 'blog', dynamic: false, spread: false }],
 				[{ content: '...ssrPath', dynamic: true, spread: true }],
@@ -360,7 +360,7 @@ describe('App render error pages', () => {
 			origin: 'project',
 		};
 
-		const internalErrorPage = createComponent((result) => {
+		const internalErrorPage = createComponent(() => {
 			return render`<h1>This is an error page</h1>`;
 		});
 
@@ -484,7 +484,7 @@ describe('App render error pages', () => {
 			origin: 'project',
 		};
 
-		const notFoundPage = createComponent((result) => {
+		const notFoundPage = createComponent(() => {
 			return render`<h1>Something went horribly wrong!</h1>`;
 		});
 
@@ -529,7 +529,7 @@ describe('App render error pages', () => {
 			origin: 'project',
 		};
 
-		const notFoundPage = createComponent((result) => {
+		const notFoundPage = createComponent(() => {
 			return render`<h1>Something went horribly wrong!</h1>`;
 		});
 
