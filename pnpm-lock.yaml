@@ -25,8 +25,8 @@ importers:
         specifier: ^2.29.8
         version: 2.29.8(@types/node@18.19.130)
       '@flue/cli':
-        specifier: ^0.0.20
-        version: 0.0.20(typescript@5.9.3)
+        specifier: ^0.0.21
+        version: 0.0.21(typescript@5.9.3)
       '@flue/client':
         specifier: ^0.0.12
         version: 0.0.12(typescript@5.9.3)
@@ -8821,8 +8821,8 @@ packages:
   '@fastify/static@9.0.0':
     resolution: {integrity: sha512-r64H8Woe/vfilg5RTy7lwWlE8ZZcTrc3kebYFMEUBrMqlydhQyoiExQXdYAy2REVpST/G35+stAM8WYp1WGmMA==}
 
-  '@flue/cli@0.0.20':
-    resolution: {integrity: sha512-kchJ6Cy1F3KH8HdsaOjya0ykkTRxOuYAxX829H6r4QJgSSy+PT06rK+LIpIZqKgJnxlyWmejuotc71I55srZFw==}
+  '@flue/cli@0.0.21':
+    resolution: {integrity: sha512-K32jg2sXXUSk/4yAktuhWyjGDTd+glZoTvZfP+8nvvKhFvO3UFhOk6x3JpyzbZidIjxC4fv+QLzeQNkkuuQ45w==}
     hasBin: true
 
   '@flue/client@0.0.12':
@@ -9394,8 +9394,8 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@opencode-ai/sdk@1.1.56':
-    resolution: {integrity: sha512-VFIk4wS7chc1fbodMXstBHV6uj9z25g3c72SlwBYjzPZZLgtr9IUK+FyGMUYefXYeeXJ/l91CdmfjCjDZTmD1g==}
+  '@opencode-ai/sdk@1.2.2':
+    resolution: {integrity: sha512-vdCSRoqZdh2ruof8w5nIRuCXeVdNP0ffOHm9p74cAAKkupptQ5khRwBB9U0mcWEL7ey7cZ4gttvGnHMRGn+TPg==}
 
   '@opentelemetry/api-logs@0.203.0':
     resolution: {integrity: sha512-9B9RU0H7Ya1Dx/Rkyc4stuBZSGVQF27WigitInx2QQoj6KUpEFYPKoWjdFTunJYxmXmh17HeBvbMa1EhGyPmqQ==}
@@ -18078,7 +18078,7 @@ snapshots:
       fastq: 1.19.1
       glob: 13.0.1
 
-  '@flue/cli@0.0.20(typescript@5.9.3)':
+  '@flue/cli@0.0.21(typescript@5.9.3)':
     dependencies:
       '@flue/client': 0.0.12(typescript@5.9.3)
     transitivePeerDependencies:
@@ -18086,7 +18086,7 @@ snapshots:
 
   '@flue/client@0.0.12(typescript@5.9.3)':
     dependencies:
-      '@opencode-ai/sdk': 1.1.56
+      '@opencode-ai/sdk': 1.2.2
       '@valibot/to-json-schema': 1.5.0(valibot@1.2.0(typescript@5.9.3))
       valibot: 1.2.0(typescript@5.9.3)
     transitivePeerDependencies:
@@ -18827,7 +18827,7 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
-  '@opencode-ai/sdk@1.1.56': {}
+  '@opencode-ai/sdk@1.2.2': {}
 
   '@opentelemetry/api-logs@0.203.0':
     dependencies:
