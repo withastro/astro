@@ -48,8 +48,8 @@ Skip if the issue is not a bug report. This workflow can only triage bugs — fe
 
 ### Missing Details (`missing-details`)
 
-Skip if the issue is missing a reproduction (see below, we need clear steps to follow, a Stackblitz URL, or a GitHub URL).
-Skip if the issue is missing a description of expected result (ex: "What's the expected result?" section is filled out).
+Skip if the issue is missing a valid reproduction (see below for list of supported valid reproductions).
+Skip if the issue is missing a description of the user's expected result (ex: "What's the expected result?" section of our issue template is filled out).
 We need both of these to successfully reproduce, and later to verify the expected results.
 
 ### Unsupported Astro Version (`unsupported-version`)
@@ -87,7 +87,7 @@ npx stackblitz-clone@latest <stackblitz-url> <triageDir>
 
 ### StackBlitz GitHub URL (`https://stackblitz.com/github/...`)
 
-StackBlitz has a special, commonly-used URL to open a GitHub repo in StackBlitz. If we have received one of these as reproduction, parse out the GitHub org & repo names and then treat it as a GitHub URL, following the GitHub URL steps below.
+StackBlitz has a special, commonly-used URL to open a GitHub repo in StackBlitz. If we have received one of these as reproduction, parse out the GitHub org & repo names and then treat it as a GitHub URL, following the "GitHub URL" step below.
 
 ### GitHub URL (`https://github.com/...`)
 
