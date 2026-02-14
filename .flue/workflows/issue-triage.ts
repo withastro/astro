@@ -21,6 +21,17 @@ const diagnoseResultSchema = v.object({
 	),
 });
 
+const verifyResultSchema = v.object({
+	verdict: v.pipe(
+		v.picklist(['bug', 'intended-behavior', 'unclear']),
+		v.description('Whether the reported behavior is a bug, intended behavior, or unclear'),
+	),
+	confidence: v.pipe(
+		v.picklist(['high', 'medium', 'low']),
+		v.description('Confidence level in the verdict'),
+	),
+});
+
 const fixResultSchema = v.object({
 	fixed: v.pipe(v.boolean(), v.description('true if the bug was successfully fixed and verified')),
 	commitMessage: v.pipe(
@@ -93,13 +104,20 @@ Return only "yes" or "no" inside the ---RESULT_START--- / ---RESULT_END--- block
 		}
 	}
 
-	// Run the triage pipeline: reproduce → diagnose → fix
+	// Run the triage pipeline: reproduce → diagnose → verify → fix
 	const reproduceResult = await flue.skill('triage/reproduce.md', {
 		args: { issueNumber },
 		result: reproductionResultSchema,
 	});
 	const diagnoseResult = await flue.skill('triage/diagnose.md', { result: diagnoseResultSchema });
-	const fixResult = await flue.skill('triage/fix.md', { result: fixResultSchema });
+	const verifyResult = await flue.skill('triage/verify.md', { result: verifyResultSchema });
+
+	// Only attempt a fix if verification confirms this is a bug or is unclear.
+	// Skip the fix if verification determines the behavior is intended.
+	const fixResult =
+		verifyResult.verdict !== 'intended-behavior'
+			? await flue.skill('triage/fix.md', { result: fixResultSchema })
+			: { fixed: false, commitMessage: null };
 	let isPushed = false;
 
 	// If a successful fix was created, push the fix up to a new branch on GitHub.
@@ -209,5 +227,5 @@ ${comment}
 		// Not reproducible: do nothing. The "needs triage" label stays on the issue
 		// so that it can continue to be worked on and triaged by the humans.
 	}
-	return { reproduceResult, diagnoseResult, fixResult, isPushed };
+	return { reproduceResult, diagnoseResult, verifyResult, fixResult, isPushed };
 }

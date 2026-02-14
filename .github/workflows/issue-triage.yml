@@ -55,6 +55,9 @@ jobs:
       - name: Install agent-browser
         run: npm install -g agent-browser && agent-browser install
 
+      - name: Clone Astro Compiler (sibling directory for debugging)
+        run: git clone --depth 1 https://github.com/withastro/compiler.git ../compiler
+
       - name: Install deps
         run: pnpm install --frozen-lockfile
 
