@@ -66,7 +66,7 @@ jobs:
       - name: Pull sandbox image
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker pull ${{ env.IMAGE }}:latest
+          docker pull $IMAGE:latest
 
       - name: Start Cloudflare Tunnel
         run: |
@@ -96,7 +96,7 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           pnpm flue run .flue/workflows/issue-triage.ts \
-            --sandbox ${{ env.IMAGE }}:latest \
+            --sandbox $IMAGE:latest \
             --args "{\"issueNumber\": $ISSUE_NUMBER, \"triageDir\": \"triage/issue-$ISSUE_NUMBER\"}" \
             --branch "flue/fix-$ISSUE_NUMBER" \
             --model anthropic/claude-opus-4-6
