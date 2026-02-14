@@ -2,7 +2,7 @@ name: Build Sandbox Image
 
 on:
   push:
-    paths: ['.flue/Dockerfile.sandbox']
+    paths: ['.flue/Dockerfile.sandbox', '.github/workflows/build-sandbox-image.yml']
   workflow_dispatch:
 
 env:
