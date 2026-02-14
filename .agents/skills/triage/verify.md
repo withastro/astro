@@ -10,7 +10,7 @@ These variables are referenced throughout this skill. They may be passed as args
 
 - **`triageDir`** — Directory containing the reproduction project (e.g. `triage/issue-123`). If not passed as an arg, infer from previous conversation.
 - **`report.md`** — File in `triageDir` that MAY exist. Contains the full context from all previous skills.
-- **Astro Compiler source** — The `withastro/compiler` repo MAY be cloned at `../compiler` (a sibling of the Astro repo root). If it exists, treat it as in-scope when researching intent. Some behaviors originate in the compiler — check `../compiler` for comments, explicit handling, and git blame when the issue involves HTML parsing, `.astro` file transformation, or compiler output.
+- **Astro Compiler source** — The `withastro/compiler` repo MAY be cloned at `.compiler/` (inside the repo root, gitignored). If it exists, treat it as in-scope when researching intent. Some behaviors originate in the compiler — check `.compiler/` for comments, explicit handling, and git blame when the issue involves HTML parsing, `.astro` file transformation, or compiler output.
 
 ## Overview
 

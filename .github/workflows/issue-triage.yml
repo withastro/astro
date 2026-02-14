@@ -29,6 +29,7 @@ jobs:
     permissions:
       contents: write
       issues: write
+      packages: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -47,22 +48,19 @@ jobs:
           node-version: 24
           cache: pnpm
 
-      - name: Install OpenCode
-        run: |
-          curl -fsSL https://opencode.ai/install | bash
-          echo "/home/runner/.opencode/bin" >> $GITHUB_PATH
-
-      - name: Install agent-browser
-        run: npm install -g agent-browser && agent-browser install
-
-      - name: Clone Astro Compiler (sibling directory for debugging)
-        run: git clone --depth 1 https://github.com/withastro/compiler.git ../compiler
+      - name: Clone Astro Compiler (for debugging)
+        run: git clone --depth 1 https://github.com/withastro/compiler.git .compiler
 
       - name: Install deps
         run: pnpm install --frozen-lockfile
 
       - name: Build
         run: pnpm build
+
+      - name: Pull sandbox image
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker pull ghcr.io/${{ github.repository }}/flue-sandbox:latest
 
       - name: Start Cloudflare Tunnel
         run: |
@@ -92,6 +90,7 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           pnpm flue run .flue/workflows/issue-triage.ts \
+            --sandbox ghcr.io/${{ github.repository }}/flue-sandbox:latest \
             --args "{\"issueNumber\": $ISSUE_NUMBER, \"triageDir\": \"triage/issue-$ISSUE_NUMBER\"}" \
             --branch "flue/fix-$ISSUE_NUMBER" \
             --model anthropic/claude-opus-4-6

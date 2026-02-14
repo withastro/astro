@@ -1,0 +1,64 @@
+FROM ubuntu:24.04
+
+# Avoid interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# --- System packages ---
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       ca-certificates curl wget git \
+    && rm -rf /var/lib/apt/lists/*
+
+# --- Node.js 24 ---
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# --- pnpm ---
+RUN npm install -g pnpm
+
+# --- OpenCode CLI ---
+ENV PATH="/root/.opencode/bin:${PATH}"
+RUN curl -fsSL https://opencode.ai/install -o /tmp/install-opencode.sh \
+    && bash /tmp/install-opencode.sh \
+    && rm /tmp/install-opencode.sh \
+    && opencode --version
+
+# --- agent-browser + Chromium for headless browser testing ---
+# 1. Install system deps required by Chromium
+# 2. Install agent-browser + playwright (for the `playwright install` CLI)
+# 3. Download Chromium via playwright, then remove the playwright package
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       libxcb-shm0 libx11-xcb1 libx11-6 libxcb1 libxext6 libxrandr2 \
+       libxcomposite1 libxcursor1 libxdamage1 libxfixes3 libxi6 libgtk-3-0 \
+       libpangocairo-1.0-0 libpango-1.0-0 libatk1.0-0 libcairo-gobject2 \
+       libcairo2 libgdk-pixbuf-2.0-0 libxrender1 libasound2t64 libfreetype6 \
+       libfontconfig1 libdbus-1-3 libnss3 libnspr4 libatk-bridge2.0-0 \
+       libdrm2 libxkbcommon0 libatspi2.0-0 libcups2t64 libxshmfence1 libgbm1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && npm install -g agent-browser playwright \
+    && playwright install chromium \
+    && npm uninstall -g playwright
+
+# --- GitHub CLI (for read-only public repo operations without auth) ---
+RUN (type -p wget >/dev/null || (apt-get update && apt-get install wget -y)) \
+    && mkdir -p -m 755 /etc/apt/keyrings \
+    && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+    && cat $out | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+    && chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+       | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+    && apt-get update \
+    && apt-get install gh -y \
+    && rm -rf /var/lib/apt/lists/*
+
+# --- Workspace ---
+# The host workspace is bind-mounted at /workspace at runtime.
+# No pre-baked repo clone — node_modules and dist come from the host via bind mount.
+WORKDIR /workspace
+
+EXPOSE 48765
+
+# Default: start OpenCode server listening on all interfaces
+CMD ["opencode", "serve", "--port", "48765", "--hostname", "0.0.0.0"]
