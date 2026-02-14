@@ -30,6 +30,7 @@ jobs:
 
       - uses: docker/build-push-action@v6
         with:
+          context: .
           file: .flue/Dockerfile.sandbox
           push: true
           tags: |
