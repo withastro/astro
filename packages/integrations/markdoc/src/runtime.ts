@@ -108,7 +108,8 @@ export function mergeConfig(
  * When users configure attributes on only one side, this copies them to the other.
  */
 function syncTagNodeAttributes(config: MergedConfig): void {
-	// Use `as any` for built-in schema access since Markdoc's types don't have string index signatures
+	// Markdoc's types don't have a string index signature, so we need the explicit
+	// type to index with a dynamic key in the loop below
 	const builtinTags: Record<string, any> = Markdoc.tags;
 	const builtinNodes: Record<string, any> = Markdoc.nodes;
 
