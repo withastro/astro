@@ -21,11 +21,11 @@ These variables are referenced throughout this skill. They may be passed as args
 
 ## Step 1: Confirm Bug Details
 
-Confirm that you have access to `bugDetails` (load directly from GitHub if you do not, following the instructions above).
+Confirm that you have access to `issueDetails` (load directly from GitHub if you do not, following the instructions above).
 
 **Otherwise**, fail — we cannot triage a bug that we have no details on.
 
-Once you have `bugDetails`, read carefully:
+Once you have `issueDetails`, read carefully:
 
 - The bug description and expected vs actual behavior
 - Any reproduction steps provided
@@ -36,7 +36,7 @@ Once you have `bugDetails`, read carefully:
 
 Before attempting reproduction, check if this issue should be skipped due to a limitation of our sandbox reproduction environment.
 
-If any early exit condition is met, skip to Step 6 and write `report.md` with the skip details.
+If any early exit condition is met, skip to Step 5 and write `report.md` with the skip details.
 
 **Comment Handling for Early Exits:** Sometimes future comments will provide additional reproductions. An early exit is only valid if not future comments in that issue "invalidate" it. For example, if the original poster of a bug was on Astro 3.0, we would exit initially (`unsupported-version`). However, on a future run, if a commenter had later posted a similar reproduction but on the latest version of Astro, we would no longer consider that a valid early exit, and would instead continue on with the workflow.
 
@@ -45,6 +45,12 @@ The following are the documented early exit conditions that we support:
 ### Not Actionable (`not-actionable`)
 
 Skip if the issue is not a bug report. This workflow can only triage bugs — feature requests, suggestions, and discussions are not actionable here.
+
+### Missing Details (`missing-details`)
+
+Skip if the issue is missing a reproduction (see below, we need clear steps to follow, a Stackblitz URL, or a GitHub URL).
+Skip if the issue is missing a description of expected result (ex: "What's the expected result?" section is filled out).
+We need both of these to successfully reproduce, and later to verify the expected results.
 
 ### Unsupported Astro Version (`unsupported-version`)
 
@@ -67,33 +73,57 @@ Skip if a repository maintainer has commented that this issue should not be repr
 
 ## Step 3: Set Up Reproduction Project
 
-The reproduction project goes in the `triageDir` directory (e.g. `triage/gh-123`). If no `triageDir` is provided, default to `triage/gh-<issue_number>`.
+Every bug report should include some sort of reproduction. The reproduction project goes in the `triageDir` directory (e.g. `triage/gh-123`). If no `triageDir` is provided, default to `triage/gh-<issue_number>`.
 
-**If a StackBlitz URL is provided in the issue:**
-The triage workspace has already been downloaded. Inspect what's there and proceed to configuration.
+Set up the reproduction project based on what the issue provides you. Once the reproduction project directory has been completed, run `pnpm install` in the workspace to connect it to the rest of the monorepo.
 
-**If no StackBlitz URL (fallback to example template):**
-The workspace has been set up from `examples/minimal`. You may need to add dependencies.
+### StackBlitz Project URL (`https://stackblitz.com/edit/...`)
 
-Sometimes, a user will provide a Gist URL instead of a StackBlitz URL to help show how to reproduce the issue. Use `gh gist view <gist-id>` to fetch any included gists, to help get a better understanding of what the problem is.
+If reproduction was provided as a Stackblitz project URL, download it into the `triageDir` directory using `stackblitz-clone`:
 
-Check the issue to determine what's needed:
+```bash
+npx stackblitz-clone@latest <stackblitz-url> <triageDir>
+```
 
-- React components → `pnpm astro add react` (in the triage dir)
-- MDX content → `pnpm astro add mdx`
-- Specific adapter → `pnpm astro add node` (or vercel, netlify, etc.)
+### StackBlitz GitHub URL (`https://stackblitz.com/github/...`)
 
-## Step 4: Configure the Triage Project
+StackBlitz has a special, commonly-used URL to open a GitHub repo in StackBlitz. If we have received one of these as reproduction, parse out the GitHub org & repo names and then treat it as a GitHub URL, following the GitHub URL steps below.
 
-Based on the issue, modify the triage project:
+### GitHub URL (`https://github.com/...`)
+
+If reproduction was provided as a GitHub repo URL, clone the repo into the triage directory and remove the `.git` directory to avoid conflicts with the host repo:
+
+```bash
+gh repo clone <owner>/<repo> <triageDir>
+rm -rf <triageDir>/.git
+```
+
+If a specific branch or subdirectory is referenced, check out that branch before removing `.git`, or copy only the relevant subdirectory.
+
+### Gist URL (`https://gist.github.com/`)
+
+Use `gh gist view <gist-id>` to fetch the gist contents, to help understand the reproduction. You may still need to set up a project from scratch (see fallback below) and apply the gist files into it.
+
+### Manual Steps Reproduction
+
+If no reproduction URL is provided, you will need to follow the manual steps that the user provided instead.
+
+Scaffold a fresh Astro project into the triage directory using `create-astro`. Use `--no-install` to skip dependency installation (we will run `pnpm install` later) and `--no-git` to avoid creating a nested git repo. Use `--template` to pick a starting template — if the user didn't mention a specific one, use `minimal` as the default.
+
+```bash
+npx create-astro@latest <triageDir> --template minimal --no-install --no-git -y
+```
+
+Then, modify the triage project as needed:
 
 1. Update `astro.config.mjs` with required configuration
-2. Create pages, components, or middleware that trigger the bug
-3. Add any additional files mentioned in the issue
+2. Add any required dependencies or Astro integrations (`@astrojs/react`, etc.)
+3. Create pages, components, or middleware that trigger the bug
+4. Add/modify any additional files mentioned in the issue
 
 Keep the reproduction as minimal as possible — only add what's needed to trigger the bug.
 
-## Step 5: Attempt Reproduction in the Triage Project
+## Step 4: Attempt Reproduction in the Triage Project
 
 Use all of the tools at your disposal — `pnpm run dev|build|preview|test`, `curl`, `agent-browser`, etc.
 
@@ -101,7 +131,7 @@ Use all of the tools at your disposal — `pnpm run dev|build|preview|test`, `cu
 2. **Verify the baseline.** Remove or reverse the triggering code and confirm the project works without the bug. This guards against false positives — if the project is still broken without the triggering code, the issue may be in your setup, not the reported bug.
 3. **Document what you observe.** Record exact error messages and stack traces, which command triggers the issue, and whether it's consistent or intermittent.
 
-## Step 6: Write Output
+## Step 5: Write Output
 
 Write `report.md` to the triage directory:
 
