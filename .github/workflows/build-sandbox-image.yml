@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE: ghcr.io/${{ github.repository }}/flue-sandbox
+  IMAGE: ghcr.io/${{ github.repository }}/flue-astro-sandbox
 
 jobs:
   build:
