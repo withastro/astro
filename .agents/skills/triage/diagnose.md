@@ -22,11 +22,7 @@ These variables are referenced throughout this skill. They may be passed as args
 
 ## Step 1: Review the Reproduction
 
-Read `report.md` from the `triageDir` directory to understand:
-
-- The exact error message and stack trace
-- Which command triggers the issue (build/dev/preview)
-- What user code is involved
+Start by reading `report.md` from the `triageDir` directory.
 
 **Skip if not reproduced:** If `report.md` shows the bug was NOT reproduced or was skipped (look for "could not reproduce", "SKIP REASON", "skipped: true"), append "DIAGNOSIS SKIPPED: No reproduction" to `report.md` and return `confidence: null`.
 
