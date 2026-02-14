@@ -44,7 +44,6 @@ export async function compile({
 		// Transform from `.astro` to valid `.ts`
 		// use `sourcemap: "both"` so that sourcemap is included in the code
 		// result passed to esbuild, but also available in the catch handler.
-		const t0 = performance.now();
 
 		// Step 1: Preprocess styles (async — calls Vite's preprocessCSS)
 		const preprocessedStyles = await preprocessStyles(
@@ -58,6 +57,7 @@ export async function compile({
 			}),
 		);
 
+		const t0 = performance.now();
 		// Step 2: Transform (always sync)
 		transformResult = transform(source, {
 			compact: astroConfig.compressHTML,
@@ -96,7 +96,7 @@ export async function compile({
 		});
 	}
 
-	handleCompileResultErrors(transformResult, cssTransformErrors);
+	handleCompileResultErrors(filename, transformResult, cssTransformErrors);
 
 	return {
 		...transformResult,
@@ -107,19 +107,17 @@ export async function compile({
 	};
 }
 
-function handleCompileResultErrors(result: TransformResult, cssTransformErrors: AstroError[]) {
-	// TODO: Export the DiagnosticSeverity enum from @astrojs/compiler?
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
-	const compilerError = result.diagnostics.find((diag) => diag.severity === 1);
+function handleCompileResultErrors(filename:string, result: TransformResult, cssTransformErrors: AstroError[]) {
+	const compilerError = result.diagnostics.find((diag) => diag.severity === 'error');
 
 	if (compilerError) {
 		throw new CompilerError({
 			name: 'CompilerError',
 			message: compilerError.text,
 			location: {
-				line: compilerError.location.line,
-				column: compilerError.location.column,
-				file: compilerError.location.file,
+				line: compilerError.labels[0].line,
+				column: compilerError.labels[0].column,
+				file: filename
 			},
 			hint: compilerError.hint,
 		});
