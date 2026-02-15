@@ -34,6 +34,7 @@ import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
 import type { AstroSettings } from '../../types/astro.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
+import { resolveBuildConcurrency } from './concurrency.js';
 
 export async function generatePages(
 	options: StaticBuildOptions,
@@ -151,8 +152,9 @@ export async function generatePages(
 	});
 
 	// Generate each path
-	if (config.build.concurrency > 1) {
-		const limit = PLimit(config.build.concurrency);
+	const concurrency = resolveBuildConcurrency(config.build.concurrency);
+	if (concurrency > 1) {
+		const limit = PLimit(concurrency);
 		const promises: Promise<void>[] = [];
 		for (const { pathname, route } of filteredPaths) {
 			promises.push(

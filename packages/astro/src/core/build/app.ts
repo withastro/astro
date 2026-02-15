@@ -2,7 +2,7 @@ import { BaseApp, type RenderErrorOptions } from '../app/index.js';
 import type { SSRManifest } from '../app/types.js';
 import type { BuildInternals } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
-import type { StaticBuildOptions } from './types.js';
+import type { BuildRenderOptions } from './types.js';
 import type { CreateRenderContext, RenderContext } from '../render-context.js';
 
 export class BuildApp extends BaseApp<BuildPipeline> {
@@ -26,7 +26,7 @@ export class BuildApp extends BaseApp<BuildPipeline> {
 		this.pipeline.setInternals(internals);
 	}
 
-	public setOptions(options: StaticBuildOptions) {
+	public setOptions(options: BuildRenderOptions) {
 		this.pipeline.setOptions(options);
 		this.logger = options.logger;
 	}

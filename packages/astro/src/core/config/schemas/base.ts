@@ -65,7 +65,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 		serverEntry: 'entry.mjs',
 		redirects: true,
 		inlineStylesheets: 'auto',
-		concurrency: 1,
+		concurrency: 'auto',
 	},
 	image: {
 		endpoint: { entrypoint: undefined, route: '/_image' },
@@ -193,7 +193,10 @@ export const AstroConfigSchema = z.object({
 				.enum(['always', 'auto', 'never'])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.build.inlineStylesheets),
-			concurrency: z.number().min(1).optional().default(ASTRO_CONFIG_DEFAULTS.build.concurrency),
+			concurrency: z
+				.union([z.number().min(1), z.literal('auto')])
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.build.concurrency),
 		})
 		.prefault({}),
 	server: z.preprocess(
