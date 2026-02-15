@@ -127,20 +127,10 @@ ${comment}
 	return labelResult.labels.map((l) => `--add-label ${JSON.stringify(l)}`).join(' ');
 }
 
-async function fetchIssue(flue: Flue, issueNumber: number) {
-	const result = await flue.shell(
-		`gh issue view ${issueNumber} --json title,body,author,labels,createdAt,state,number,url,comments`,
-		{
-			env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN },
-		},
-	);
-	return v.parse(issueDetailsSchema, JSON.parse(result.stdout));
-}
-
 async function runTriagePipeline(
 	flue: Flue,
 	issueNumber: number,
-	issueData: IssueDetails,
+	issueDetails: IssueDetails,
 ): Promise<{
 	/** The last pipeline stage that completed successfully. */
 	completedStage: 'reproduce' | 'verify' | 'fix';
@@ -151,7 +141,6 @@ async function runTriagePipeline(
 	fixed: boolean;
 	commitMessage: string | null;
 }> {
-	const issueDetails = JSON.stringify(issueData);
 	const reproduceResult = await flue.skill('triage/reproduce.md', {
 		args: { issueNumber, issueDetails },
 		result: v.object({
@@ -243,7 +232,11 @@ async function runTriagePipeline(
 
 export default async function triage(flue: Flue) {
 	const { issueNumber } = v.parse(v.object({ issueNumber: v.number() }), flue.args);
-	const issueDetails = await fetchIssue(flue, issueNumber);
+	const issueResult = await flue.shell(
+		`gh issue view ${issueNumber} --json title,body,author,labels,createdAt,state,number,url,comments`,
+		{ env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN } },
+	);
+	const issueDetails = v.parse(issueDetailsSchema, JSON.parse(issueResult.stdout));
 
 	// If there are prior comments, this is a re-triage. Check whether new
 	// actionable information has been provided before running the full pipeline.
