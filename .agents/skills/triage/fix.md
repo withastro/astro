@@ -9,6 +9,7 @@ Develop and verify a fix for a diagnosed Astro bug.
 These variables are referenced throughout this skill. They may be passed as args by an orchestrator, or inferred from the conversation when run standalone.
 
 - **`triageDir`** — Directory containing the reproduction project (e.g. `triage/issue-123`). If not passed as an arg, infer from previous conversation.
+- **`issueDetails`** - The GitHub API issue details payload. This must be provided explicitly by the user or available from prior conversation context / tool calls. If this data isn't available, you may run `gh issue view ${issue_number}` to load the missing issue details directly from GitHub.
 - **`report.md`** — File in `triageDir` that MAY exist. Contains the full context from all previous skills.
 - **Astro Compiler source** — The `withastro/compiler` repo MAY be cloned at `.compiler/` (inside the repo root, gitignored). If it exists and the root cause is in the compiler, investigate and propose fixes there. This clone is **reference only** — it is not wired into the monorepo's dependencies, so compiler changes cannot be tested end-to-end here. Document proposed compiler changes and diff in `report.md` instead.
 

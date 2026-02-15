@@ -1,14 +1,27 @@
 import type { Flue } from '@flue/client';
 import * as v from 'valibot';
 
-async function shouldRetriage(
-	flue: Flue,
-	issue: {
-		title: string;
-		body: string;
-		comments: Array<{ author: { login: string }; body: string }>;
-	},
-): Promise<'yes' | 'no'> {
+const issueDetailsSchema = v.object({
+	title: v.string(),
+	body: v.string(),
+	author: v.object({ login: v.string() }),
+	labels: v.array(v.looseObject({ name: v.string() })),
+	createdAt: v.string(),
+	state: v.string(),
+	number: v.number(),
+	url: v.string(),
+	comments: v.array(
+		v.looseObject({
+			author: v.object({ login: v.string() }),
+			authorAssociation: v.string(),
+			body: v.string(),
+			createdAt: v.string(),
+		}),
+	),
+});
+type IssueDetails = v.InferOutput<typeof issueDetailsSchema>;
+
+async function shouldRetriage(flue: Flue, issue: IssueDetails): Promise<'yes' | 'no'> {
 	return flue.prompt(
 		`You are reviewing a GitHub issue conversation to decide whether a triage re-run is warranted.
 
@@ -102,27 +115,19 @@ ${comment}
 }
 
 async function fetchIssue(flue: Flue, issueNumber: number) {
-	const result = await flue.shell(`gh issue view ${issueNumber} --json title,body,comments`, {
-		env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN },
-	});
-	return v.parse(
-		v.object({
-			title: v.string(),
-			body: v.string(),
-			comments: v.array(
-				v.looseObject({
-					author: v.object({ login: v.string() }),
-					body: v.string(),
-				}),
-			),
-		}),
-		JSON.parse(result.stdout),
+	const result = await flue.shell(
+		`gh issue view ${issueNumber} --json title,body,author,labels,createdAt,state,number,url,comments`,
+		{
+			env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN },
+		},
 	);
+	return v.parse(issueDetailsSchema, JSON.parse(result.stdout));
 }
 
 async function runTriagePipeline(
 	flue: Flue,
 	issueNumber: number,
+	issueData: IssueDetails,
 ): Promise<{
 	/** The last pipeline stage that completed successfully. */
 	completedStage: 'reproduce' | 'verify' | 'fix';
@@ -133,8 +138,9 @@ async function runTriagePipeline(
 	fixed: boolean;
 	commitMessage: string | null;
 }> {
+	const issueDetails = JSON.stringify(issueData);
 	const reproduceResult = await flue.skill('triage/reproduce.md', {
-		args: { issueNumber },
+		args: { issueNumber, issueDetails },
 		result: v.object({
 			reproducible: v.pipe(
 				v.boolean(),
@@ -162,6 +168,7 @@ async function runTriagePipeline(
 	}
 
 	const diagnoseResult = await flue.skill('triage/diagnose.md', {
+		args: { issueDetails },
 		result: v.object({
 			confidence: v.pipe(
 				v.nullable(v.picklist(['high', 'medium', 'low'])),
@@ -170,6 +177,7 @@ async function runTriagePipeline(
 		}),
 	});
 	const verifyResult = await flue.skill('triage/verify.md', {
+		args: { issueDetails },
 		result: v.object({
 			verdict: v.pipe(
 				v.picklist(['bug', 'intended-behavior', 'unclear']),
@@ -195,6 +203,7 @@ async function runTriagePipeline(
 	}
 
 	const fixResult = await flue.skill('triage/fix.md', {
+		args: { issueDetails },
 		result: v.object({
 			fixed: v.pipe(
 				v.boolean(),
@@ -221,13 +230,13 @@ async function runTriagePipeline(
 
 export default async function triage(flue: Flue) {
 	const { issueNumber } = flue.args as { issueNumber: number };
-	const issueData = await fetchIssue(flue, issueNumber);
+	const issueDetails = await fetchIssue(flue, issueNumber);
 
 	// If there are prior comments, this is a re-triage. Check whether new
 	// actionable information has been provided before running the full pipeline.
-	const hasExistingConversation = issueData.comments.length > 0;
+	const hasExistingConversation = issueDetails.comments.length > 0;
 	if (hasExistingConversation) {
-		const shouldRetriageResult = await shouldRetriage(flue, issueData);
+		const shouldRetriageResult = await shouldRetriage(flue, issueDetails);
 
 		if (shouldRetriageResult === 'no') {
 			return { skipped: true, reason: 'No new actionable information' };
@@ -235,7 +244,7 @@ export default async function triage(flue: Flue) {
 	}
 
 	// Run the triage pipeline: reproduce → diagnose → verify → fix
-	const triageResult = await runTriagePipeline(flue, issueNumber);
+	const triageResult = await runTriagePipeline(flue, issueNumber, issueDetails);
 	let isPushed = false;
 
 	// If a successful fix was created, push the fix up to a new branch on GitHub.
@@ -280,7 +289,7 @@ export default async function triage(flue: Flue) {
 		});
 
 		const labelFlags = await selectTriageLabels(flue, {
-			issueJson: JSON.stringify(issueData),
+			issueJson: JSON.stringify(issueDetails),
 			comment,
 		});
 		if (labelFlags) {

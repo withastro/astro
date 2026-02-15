@@ -54,11 +54,14 @@ The **Fix** line in the template has three possible forms. Choose the one that m
 _This report was made by an LLM. Mistakes happen, check important info._
 ```
 
-## Optional Follow-up Task
+## Result
 
-You MAY SUGGEST to the user, as a potential follow-up step, to post the issue to GitHub directly. However you CANNOT DO THIS STEP unless the user explicitly asks.
+You MUST RETURN the generated comment text so that the user can review and post it themselves.
+
+You MAY SUGGEST to the user that you (or they) could post the comment to the GitHub issue. **Do not post the comment yourself** — this should only be a suggestion. It would be a horrifying abuse of trust to the user if you posted to GitHub on their behalf without their explicit permission.
 
 ```bash
+# Example Only:
 gh issue comment <issue_number> --body <comment>
 gh issue comment <issue_number> --body-file <path-to-file>
 ```

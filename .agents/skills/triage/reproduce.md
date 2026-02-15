@@ -9,7 +9,7 @@ Reproduce a GitHub issue to determine if a bug is valid and reproducible.
 These variables are referenced throughout this skill. They may be passed as args by an orchestrator, or inferred from the conversation when run standalone.
 
 - **`triageDir`** — Directory containing the reproduction project (e.g. `triage/issue-123`). If not passed as an arg, infer from previous conversation.
-- **`issueDetails`** - The issue details, often a string of JSON containing the GitHub issue title, body, and comments. If not passed as an arg, infer the issue from previous conversation and run `gh issue view ${issue_number} --json title,body,comments` to load the issue details directly from GitHub.
+- **`issueDetails`** - The GitHub API issue details payload. This must be provided explicitly by the user or available from prior conversation context / tool calls. If this data isn't available, you may run `gh issue view ${issue_number}` to load the missing issue details directly from GitHub.
 
 ## Overview
 
@@ -21,9 +21,7 @@ These variables are referenced throughout this skill. They may be passed as args
 
 ## Step 1: Confirm Bug Details
 
-Confirm that you have access to `issueDetails` (load directly from GitHub if you do not, following the instructions above).
-
-**Otherwise**, fail — we cannot triage a bug that we have no details on.
+Confirm that you have `issueDetails` as defined/instructed above. **Otherwise**, fail — we cannot triage a bug that we have no details on.
 
 Once you have `issueDetails`, read carefully:
 
@@ -69,7 +67,7 @@ Skip if the bug is specific to Bun or Deno. Our sandbox only supports Node.js.
 
 ### Maintainer Override (`maintainer-override`)
 
-Skip if a repository maintainer has commented that this issue should not be reproduced here. Check collaborator status with: `gh api "repos/<owner>/<repo>/collaborators/<user>" --silent && echo "user is collaborator"`
+Skip if a repository maintainer has commented that this issue should not be reproduced here. To determine if a commenter is a maintainer, check the `author_association` field on their comment in `issueDetails` — values of `MEMBER`, `COLLABORATOR`, or `OWNER` indicate a maintainer.
 
 ## Step 3: Set Up Reproduction Project
 
@@ -94,7 +92,7 @@ StackBlitz has a special, commonly-used URL to open a GitHub repo in StackBlitz.
 If reproduction was provided as a GitHub repo URL, clone the repo into the triage directory and remove the `.git` directory to avoid conflicts with the host repo:
 
 ```bash
-gh repo clone <owner>/<repo> <triageDir>
+git clone https://github.com/<owner>/<repo>.git <triageDir>
 rm -rf <triageDir>/.git
 ```
 
@@ -102,7 +100,13 @@ If a specific branch or subdirectory is referenced, check out that branch before
 
 ### Gist URL (`https://gist.github.com/`)
 
-Use `gh gist view <gist-id>` to fetch the gist contents, to help understand the reproduction. You may still need to set up a project from scratch (see fallback below) and apply the gist files into it.
+Fetch the gist contents using the GitHub API to help understand the reproduction:
+
+```bash
+curl -s "https://api.github.com/gists/<gist-id>"
+```
+
+You may still need to set up a project from scratch (see fallback below) and apply the gist files into it.
 
 ### Manual Steps Reproduction
 

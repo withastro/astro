@@ -9,6 +9,7 @@ Verify whether a GitHub issue describes an actual bug or a misunderstanding of i
 These variables are referenced throughout this skill. They may be passed as args by an orchestrator, or inferred from the conversation when run standalone.
 
 - **`triageDir`** — Directory containing the reproduction project (e.g. `triage/issue-123`). If not passed as an arg, infer from previous conversation.
+- **`issueDetails`** - The GitHub API issue details payload. This must be provided explicitly by the user or available from prior conversation context / tool calls. If this data isn't available, you may run `gh issue view ${issue_number}` to load the missing issue details directly from GitHub.
 - **`report.md`** — File in `triageDir` that MAY exist. Contains the full context from all previous skills.
 - **Astro Compiler source** — The `withastro/compiler` repo MAY be cloned at `.compiler/` (inside the repo root, gitignored). If it exists, treat it as in-scope when researching intent. Some behaviors originate in the compiler — check `.compiler/` for comments, explicit handling, and git blame when the issue involves HTML parsing, `.astro` file transformation, or compiler output.
 
@@ -45,20 +46,23 @@ Look at the relevant source code in `packages/`. Pay close attention to:
 - **Comments explaining "why"** — If a developer left a comment explaining why the code works a certain way, that is strong evidence of intentional design. Treat these comments as authoritative unless they are clearly outdated.
 - **Explicit conditionals and early returns** — Code that explicitly checks for the reported scenario and handles it differently than the reporter expects is likely intentional.
 - **Named constants and configuration** — Behavior controlled by a named config option or constant was probably a deliberate choice.
-- **Git blame on key lines** — If `report.md` identifies specific files and line numbers, run `git blame` on the relevant lines to find the commit that introduced the behavior. Then read the full commit message with `git show --no-patch <commit>` and review the associated PR using the `gh` CLI, if referenced. A commit message or PR description that explains the rationale is strong evidence of intentional design.
+- **Git blame on key lines** — If `report.md` identifies specific files and line numbers, run `git blame` on the relevant lines to find the commit that introduced the behavior. Then read the full commit message with `git show --no-patch <commit>` and review the associated PR if referenced. You can fetch PR details with `curl -s "https://api.github.com/repos/withastro/astro/pulls/<number>"`. A commit message or PR description that explains the rationale is strong evidence of intentional design.
 
 ### 2c: Search prior GitHub issues and PRs
 
-Search for prior issues and PRs that discuss the same behavior using the `gh` CLI. This can reveal whether the behavior was previously discussed, intentionally introduced, or already reported and closed as "not a bug."
+Search for prior issues and PRs that discuss the same behavior using the GitHub API. This can reveal whether the behavior was previously discussed, intentionally introduced, or already reported and closed as "not a bug."
 
 ```bash
 # Search issues for keywords related to the reported behavior
-gh search issues --repo withastro/astro "<relevant keywords>" --limit 10
+curl -s "https://api.github.com/search/issues?q=<url-encoded-keywords>+repo:withastro/astro+is:issue&per_page=10"
 # Search PRs that may have introduced or discussed the behavior
-gh search prs --repo withastro/astro "<relevant keywords>" --limit 10
-# Read a specific issue or PR for context
-gh issue view <number> --repo withastro/astro --json title,body,comments
-gh pr view <number> --repo withastro/astro --json title,body,comments
+curl -s "https://api.github.com/search/issues?q=<url-encoded-keywords>+repo:withastro/astro+is:pr&per_page=10"
+# Read a specific issue for context
+curl -s "https://api.github.com/repos/withastro/astro/issues/<number>"
+# Read issue comments
+curl -s "https://api.github.com/repos/withastro/astro/issues/<number>/comments"
+# Read a specific PR for context
+curl -s "https://api.github.com/repos/withastro/astro/pulls/<number>"
 ```
 
 If you find a closed issue where a maintainer explained why the behavior is intentional, or a PR that deliberately introduced it, that is strong evidence of intended behavior.

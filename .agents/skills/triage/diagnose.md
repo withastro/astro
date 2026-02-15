@@ -9,6 +9,7 @@ Find the root cause of a reproduced bug in the Astro source code.
 These variables are referenced throughout this skill. They may be passed as args by an orchestrator, or inferred from the conversation when run standalone.
 
 - **`triageDir`** — Directory containing the reproduction project (e.g. `triage/issue-123`). If not passed as an arg, infer from previous conversation.
+- **`issueDetails`** - The GitHub API issue details payload. This must be provided explicitly by the user or available from prior conversation context / tool calls. If this data isn't available, you may run `gh issue view ${issue_number}` to load the missing issue details directly from GitHub.
 - **`report.md`** — File in `triageDir` that MAY exist. Contains the full context from all previous skills.
 - **Astro Compiler source** — The `withastro/compiler` repo MAY be cloned at `.compiler/` (inside the repo root, gitignored). If it exists, treat it as in-scope for diagnosis. Some bugs originate in the compiler rather than in `packages/` — if stack traces or investigation point to compiler behavior (e.g. HTML parsing, `.astro` file transformation), check `.compiler/` for relevant source code.
 
