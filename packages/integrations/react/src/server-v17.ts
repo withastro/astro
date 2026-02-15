@@ -1,3 +1,4 @@
+import { AppEntrypoint } from 'virtual:astro:react-app';
 import type { AstroComponentMetadata, NamedSSRLoadedRendererValue } from 'astro';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
@@ -61,7 +62,10 @@ async function renderToStaticMarkup(
 			value: newChildren,
 		});
 	}
-	const vnode = React.createElement(Component, newProps);
+	const componentElement = React.createElement(Component, newProps);
+	const vnode = AppEntrypoint
+		? React.createElement(AppEntrypoint, null, componentElement)
+		: componentElement;
 	let html: string;
 	if (metadata?.hydrate) {
 		html = ReactDOM.renderToString(vnode);
