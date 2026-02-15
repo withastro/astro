@@ -112,13 +112,15 @@ You may still need to set up a project from scratch (see fallback below) and app
 
 If no reproduction URL is provided, you will need to follow the manual steps that the user provided instead.
 
-Scaffold a fresh Astro project into the triage directory using `create-astro`. Use `--no-install` to skip dependency installation (we will run `pnpm install` later) and `--no-git` to avoid creating a nested git repo. Use `--template` to pick a starting template — if the user didn't mention a specific one, use `minimal` as the default.
+Scaffold a fresh Astro project into the triage directory using `create-astro`. You MUST include `<triageDir>` as the first positional argument to `create-astro` — always pass the explicit path - otherwise your triage project will be crated in the wrong file location.  Use `--no-install` to skip dependency installation (we will run `pnpm install` later) and `--no-git` to avoid creating a nested git repo. Use `--template` to pick a starting template — if the user didn't mention a specific one, use `minimal` as the default.
 
 ```bash
 npx create-astro@latest <triageDir> --template minimal --no-install --no-git -y
 ```
 
-Then, modify the triage project as needed:
+After running the command, verify that the project was created at the expected `triageDir` path (e.g. confirm `<triageDir>/package.json` exists). Delete it and try again if something went wrong.
+
+Then, modify the triage project as needed to attempt your reproduction:
 
 1. Update `astro.config.mjs` with required configuration
 2. Add any required dependencies or Astro integrations (`@astrojs/react`, etc.)
