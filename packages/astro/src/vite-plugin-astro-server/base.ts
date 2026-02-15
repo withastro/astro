@@ -32,6 +32,7 @@ export function baseMiddleware(
 
 		if (pathname.startsWith(devRoot)) {
 			req.url = url.replace(devRoot, devRootReplacement);
+			if (!req.url.startsWith('/')) req.url = '/' + req.url;
 			return next();
 		}
 
