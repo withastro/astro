@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { ServerResponse } from 'node:http';
 import { Http2ServerResponse } from 'node:http2';
 import type { Socket } from 'node:net';
 import type { RemotePattern } from '../../types/public/config.js';
@@ -8,18 +8,16 @@ import { deserializeManifest } from './manifest.js';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
 import type { RenderOptions } from './index.js';
 import { App } from './index.js';
-import type { NodeAppHeadersJson, SerializedSSRManifest, SSRManifest } from './types.js';
+import type {
+	NodeAppDef,
+	NodeAppHeadersJson,
+	NodeRequest,
+	SerializedSSRManifest,
+	SSRManifest,
+} from './types.js';
 import { validateForwardedHeaders, validateHost } from './validate-headers.js';
 
-/**
- * Allow the request body to be explicitly overridden. For example, this
- * is used by the Express JSON middleware.
- */
-interface NodeRequest extends IncomingMessage {
-	body?: unknown;
-}
-
-export class NodeApp extends App {
+export class NodeApp extends App implements NodeAppDef {
 	headersMap: NodeAppHeadersJson | undefined = undefined;
 
 	public setHeadersMap(headers: NodeAppHeadersJson) {
