@@ -44,11 +44,7 @@ RUN apt-get update \
     && chmod -R o+rx /opt/pw-browsers \
     && npm uninstall -g playwright
 
-# NOTE: gh CLI is intentionally NOT installed in the sandbox.
-# All gh commands run on the host via flue.shell() which has access to GH_TOKEN.
-# The gh CLI requires authentication even for public repos, so installing it
-# here just wastes LLM steps as it tries and fails before falling back to
-# curl/webfetch.
+# NOTE: gh CLI is intentionally NOT installed in the sandbox due to lack of tokens.
 
 # --- Compatibility fixes ---
 # Allow any directory as a git safe.directory. The host workspace is bind-mounted
