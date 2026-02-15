@@ -15,11 +15,11 @@
 		"svelte":"^5.49.1",
     "vue": "^3.5.27",
     "@vitejs/plugin-vue": "^6.0.3",
-		"@types/react": "^18.3.27",
-		"@types/react-dom": "^18.3.7",
+		"@types/react": "^19.2.14",
+		"@types/react-dom": "^19.2.3",
 		"astro": "workspace:*",
-		"react": "^18.3.1",
-		"react-dom": "^18.3.1",
+		"react": "^19.2.4",
+		"react-dom": "^19.2.4",
 		"sharp": "^0.34.3"
 	}
 }
