@@ -25,11 +25,11 @@ importers:
         specifier: ^2.29.8
         version: 2.29.8(@types/node@18.19.130)
       '@flue/cli':
+        specifier: ^0.0.32
+        version: 0.0.32(typescript@5.9.3)
+      '@flue/client':
         specifier: ^0.0.18
         version: 0.0.18(typescript@5.9.3)
-      '@flue/client':
-        specifier: ^0.0.10
-        version: 0.0.10(typescript@5.9.3)
       '@types/node':
         specifier: ^18.19.115
         version: 18.19.130
@@ -5384,6 +5384,15 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/markdoc/test/fixtures/render-table-attrs:
+    dependencies:
+      '@astrojs/markdoc':
+        specifier: workspace:*
+        version: link:../../..
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+
   packages/integrations/markdoc/test/fixtures/render-typographer:
     dependencies:
       '@astrojs/markdoc':
@@ -8812,12 +8821,12 @@ packages:
   '@fastify/static@9.0.0':
     resolution: {integrity: sha512-r64H8Woe/vfilg5RTy7lwWlE8ZZcTrc3kebYFMEUBrMqlydhQyoiExQXdYAy2REVpST/G35+stAM8WYp1WGmMA==}
 
-  '@flue/cli@0.0.18':
-    resolution: {integrity: sha512-qulyJWYQ/idUs6bDSGZxP4jnQ9zrNwD/kKK0z2sElEUVx5OcwWmnlPJS7DbbQSBt25WelWu4rPZ11Ad4CXVuhQ==}
+  '@flue/cli@0.0.32':
+    resolution: {integrity: sha512-o7c+ziPIdAxrUYA/71RqEGssMdNva7ZcIve48kelJ3yughYMB659djOL70GpWvOkBDXhLZjFEdaZgihi4UTmhQ==}
     hasBin: true
 
-  '@flue/client@0.0.10':
-    resolution: {integrity: sha512-wtSd0h9SZyw3xkcyxrfp3wVeXMjmm/vD2oDQkT0SSYEunnSaq9G5zBTOzJWtTPgqpoKQumuF3Qc+C+rRZqb5vA==}
+  '@flue/client@0.0.18':
+    resolution: {integrity: sha512-DA0ctHnYj57qDGc1H5DvwPlsjlTncxCXX9mXtwfSN80Wa2mp1THYcgZZU+7VrlL0IjoPHNcqSwNF2w3keI9Bdw==}
 
   '@fontsource/monofett@5.2.8':
     resolution: {integrity: sha512-cUtT8ScH3HHsMBkRrXFCrhGpKqRrKVNOhnYVSusECfB7g13YZjOrrLlhlc3o+R2IYpRrQQg/T/febSVD6k2Dhw==}
@@ -9385,8 +9394,8 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@opencode-ai/sdk@1.1.56':
-    resolution: {integrity: sha512-VFIk4wS7chc1fbodMXstBHV6uj9z25g3c72SlwBYjzPZZLgtr9IUK+FyGMUYefXYeeXJ/l91CdmfjCjDZTmD1g==}
+  '@opencode-ai/sdk@1.2.2':
+    resolution: {integrity: sha512-vdCSRoqZdh2ruof8w5nIRuCXeVdNP0ffOHm9p74cAAKkupptQ5khRwBB9U0mcWEL7ey7cZ4gttvGnHMRGn+TPg==}
 
   '@opentelemetry/api-logs@0.203.0':
     resolution: {integrity: sha512-9B9RU0H7Ya1Dx/Rkyc4stuBZSGVQF27WigitInx2QQoj6KUpEFYPKoWjdFTunJYxmXmh17HeBvbMa1EhGyPmqQ==}
@@ -18069,15 +18078,15 @@ snapshots:
       fastq: 1.19.1
       glob: 13.0.1
 
-  '@flue/cli@0.0.18(typescript@5.9.3)':
+  '@flue/cli@0.0.32(typescript@5.9.3)':
     dependencies:
-      '@flue/client': 0.0.10(typescript@5.9.3)
+      '@flue/client': 0.0.18(typescript@5.9.3)
     transitivePeerDependencies:
       - typescript
 
-  '@flue/client@0.0.10(typescript@5.9.3)':
+  '@flue/client@0.0.18(typescript@5.9.3)':
     dependencies:
-      '@opencode-ai/sdk': 1.1.56
+      '@opencode-ai/sdk': 1.2.2
       '@valibot/to-json-schema': 1.5.0(valibot@1.2.0(typescript@5.9.3))
       valibot: 1.2.0(typescript@5.9.3)
     transitivePeerDependencies:
@@ -18818,7 +18827,7 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
-  '@opencode-ai/sdk@1.1.56': {}
+  '@opencode-ai/sdk@1.2.2': {}
 
   '@opentelemetry/api-logs@0.203.0':
     dependencies:

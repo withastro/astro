@@ -1,5 +1,6 @@
 node_modules/
 /triage/
+/.compiler/
 dist/
 *.tsbuildinfo
 .DS_Store
