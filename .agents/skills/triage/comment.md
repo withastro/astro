@@ -27,18 +27,20 @@ If `report.md` is missing or empty, generate a minimal comment (see "Fallback" s
 
 Generate and return a GitHub comment following the template below.
 
-### Special Cases
+### Fix Line Instructions
 
-- **If the user is on a different major version than the current monorepo, and the issue could not be reproduced in the current monorepo:** In the "Fix" section of your comment, the best guidance you can provide is to suggest that the user upgrade to that newer major version to fix their issue, even if that newer major version is a beta release. Link to the relevant upgrade guide:
-  - v6: https://v6.docs.astro.build/en/guides/upgrade-to/v6/
-  - v5: https://docs.astro.build/en/guides/upgrade-to/v5/
+The **Fix** line in the template has three possible forms. Choose the one that matches the triage outcome:
+
+1. **You created a fix:** Use `I was able to fix this issue.` and include the suggested fix link.
+2. **The issue is already fixed on main** (e.g. the user is on an older major version and the bug doesn't reproduce on current main): Use `This issue has already been fixed.` and tell the user how to get the fix (e.g. upgrade). Link the relevant upgrade guide if applicable: [v6](https://v6.docs.astro.build/en/guides/upgrade-to/v6/), [v5](https://docs.astro.build/en/guides/upgrade-to/v5/).
+3. **You could not find or create a fix:** Use `I was unable to find a fix for this issue.` and give guidance or a best guess at where the fix might be.
 
 ### Template
 
 ```markdown
 **[I was able to reproduce this issue. / I was unable to reproduce this issue.]** [2-3 sentences describing the root cause, result, and key observations.]
 
-**Fix:** **[I was able to fix this issue. / I was unable to fix this issue]** [1-2 sentences describing the solution and key observations. Even if no fix was created, you can still use this space to give guidance or "a best guess" at where the fix might be.] [If `branchName` arg is non-null, include this link: [View Suggested Fix](https://github.com/withastro/astro/compare/{branchName}?expand=1)]
+**Fix:** **[See Fix Line Instructions above.]** [1-2 sentences describing the solution, where/when it was already fixed, or guidance on where a fix might be.] [If `branchName` is non-null: [View Suggested Fix](https://github.com/withastro/astro/compare/{branchName}?expand=1)]
 
 **Impact:** [Single sentence describing how you would have triggered the bug - or just the word "Unknown" if not determined.]
 
