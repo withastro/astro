@@ -24,7 +24,7 @@
     "color": "#17191E",
     "theme": "dark"
   },
-  "version": "2.16.8",
+  "version": "2.16.9-beta.0",
   "author": "withastro",
   "license": "MIT",
   "publisher": "astro-build",

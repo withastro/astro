@@ -1,5 +1,27 @@
 # astro
 
+## 6.0.0-beta.12
+
+### Major Changes
+
+- [#15407](https://github.com/withastro/astro/pull/15407) [`aedbbd8`](https://github.com/withastro/astro/commit/aedbbd818628bed0533cdd627b73e2c5365aa17e) Thanks [@ematipico](https://github.com/ematipico)! - Changes how styles of responsive images are emitted - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-how-responsive-image-styles-are-emitted))
+
+### Minor Changes
+
+- [#15407](https://github.com/withastro/astro/pull/15407) [`aedbbd8`](https://github.com/withastro/astro/commit/aedbbd818628bed0533cdd627b73e2c5365aa17e) Thanks [@ematipico](https://github.com/ematipico)! - Adds support for responsive images when `security.csp` is enabled, out of the box.
+
+  Astro's implementation of responsive image styles has been updated to be compatible with a configured Content Security Policy.
+
+  Instead of, injecting style elements at runtime, Astro will now generate your styles at build time using a combination of `class=""` and `data-*` attributes. This means that your processed styles are loaded and hashed out of the box by Astro.
+
+  If you were previously choosing between Astro's CSP feature and including responsive images on your site, you may now use them together.
+
+### Patch Changes
+
+- [#15508](https://github.com/withastro/astro/pull/15508) [`2c6484a`](https://github.com/withastro/astro/commit/2c6484a4c34e86b8a26342a48986da26768de27b) Thanks [@KTibow](https://github.com/KTibow)! - Fixes behavior when shortcuts are used before server is ready
+
+- [#15491](https://github.com/withastro/astro/pull/15491) [`6c60b05`](https://github.com/withastro/astro/commit/6c60b05b8d6774da04567dc8b85b5f2956e9da0c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a case where setting `vite.server.allowedHosts: true` was turned into an invalid array
+
 ## 6.0.0-beta.11
 
 ### Major Changes
