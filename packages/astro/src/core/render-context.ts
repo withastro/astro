@@ -481,10 +481,12 @@ export class RenderContext {
 			},
 			get csp(): APIContext['csp'] {
 				if (!pipeline.manifest.csp) {
-					pipeline.logger.warn(
-						'csp',
-						`context.csp was used when rendering the route ${colors.green(this.routePattern)}, but CSP was not configured. For more information, see https://docs.astro.build/en/reference/experimental-flags/csp/`,
-					);
+					if (pipeline.runtimeMode === 'production') {
+						pipeline.logger.warn(
+							'csp',
+							`context.csp was used when rendering the route ${colors.green(this.routePattern)}, but CSP was not configured. For more information, see https://docs.astro.build/en/reference/experimental-flags/csp/`,
+						);
+					}
 					return undefined;
 				}
 				return {
@@ -736,10 +738,12 @@ export class RenderContext {
 			},
 			get csp(): APIContext['csp'] {
 				if (!pipeline.manifest.csp) {
-					pipeline.logger.warn(
-						'csp',
-						`Astro.csp was used when rendering the route ${colors.green(this.routePattern)}, but CSP was not configured. For more information, see https://docs.astro.build/en/reference/experimental-flags/csp/`,
-					);
+					if (pipeline.runtimeMode === 'production') {
+						pipeline.logger.warn(
+							'csp',
+							`Astro.csp was used when rendering the route ${colors.green(this.routePattern)}, but CSP was not configured. For more information, see https://docs.astro.build/en/reference/experimental-flags/csp/`,
+						);
+					}
 					return undefined;
 				}
 				return {
