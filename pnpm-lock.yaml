@@ -5036,6 +5036,45 @@ importers:
         specifier: workspace:*
         version: link:../../../../../astro
 
+  packages/integrations/cloudflare/test/fixtures/manual-pages-support:
+    dependencies:
+      '@astrojs/cloudflare':
+        specifier: workspace:*
+        version: link:../../..
+      '@astrojs/mdx':
+        specifier: ^4.3.5
+        version: 4.3.13(astro@packages+astro)
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../react
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../../../vue
+      '@types/react':
+        specifier: ^18.3.24
+        version: 18.3.28
+      '@types/react-dom':
+        specifier: ^18.3.7
+        version: 18.3.7(@types/react@18.3.28)
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.2
+        version: 6.0.4(vite@7.3.1(@types/node@25.2.2)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.27(typescript@5.9.3))
+      astro:
+        specifier: workspace:*
+        version: link:../../../../../astro
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+      sharp:
+        specifier: ^0.34.3
+        version: 0.34.5
+      vue:
+        specifier: ^3.5.25
+        version: 3.5.27(typescript@5.9.3)
+
   packages/integrations/cloudflare/test/fixtures/no-output:
     dependencies:
       '@astrojs/cloudflare':
@@ -5059,15 +5098,6 @@ importers:
       tailwindcss:
         specifier: ^4.1.18
         version: 4.1.18
-
-  packages/integrations/cloudflare/test/fixtures/routes-json:
-    dependencies:
-      '@astrojs/cloudflare':
-        specifier: workspace:*
-        version: link:../../..
-      astro:
-        specifier: workspace:*
-        version: link:../../../../../astro
 
   packages/integrations/cloudflare/test/fixtures/routing-priority:
     dependencies:

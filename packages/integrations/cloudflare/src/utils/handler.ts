@@ -50,7 +50,7 @@ export async function handle(
 		});
 	}
 
-	// static assets fallback, in case default _routes.json is not used
+	// NOTE this ASSETS binding path is needed for users who are using `run_worker_first` routing
 	if (app.manifest.assets.has(requestPathname)) {
 		return env.ASSETS.fetch(request.url.replace(/\.html$/, ''));
 	}
@@ -66,7 +66,7 @@ export async function handle(
 	}
 
 	if (!routeData) {
-		// https://developers.cloudflare.com/pages/functions/api-reference/#envassetsfetch
+		// NOTE this ASSETS binding path is needed for users who are using `run_worker_first` routing
 		const asset = await env.ASSETS.fetch(
 			request.url.replace(/index.html$/, '').replace(/\.html$/, ''),
 		);
@@ -108,6 +108,7 @@ export async function handle(
 		routeData,
 		locals,
 		prerenderedErrorPageFetch: async (url: string) => {
+			// NOTE this ASSETS binding path is needed for users who are using `run_worker_first` routing
 			return env.ASSETS.fetch(url.replace(/\.html$/, ''));
 		},
 		clientAddress: request.headers.get('cf-connecting-ip') ?? undefined,
