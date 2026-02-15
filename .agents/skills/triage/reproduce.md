@@ -73,7 +73,7 @@ Skip if a repository maintainer has commented that this issue should not be repr
 
 Every bug report should include some sort of reproduction. The reproduction project goes in the `triageDir` directory (e.g. `triage/gh-123`). If no `triageDir` is provided, default to `triage/gh-<issue_number>`.
 
-Set up the reproduction project based on what the issue provides you. Once the reproduction project directory has been completed, run `pnpm install` in the workspace top-level root to connect it to the rest of the monorepo.
+Set up the reproduction project based on what the issue provides you. Once the reproduction project directory has been completed, run `pnpm install --no-frozen-lockfile` in the workspace top-level root to connect it to the rest of the monorepo.
 
 ### StackBlitz Project URL (`https://stackblitz.com/edit/...`)
 
@@ -120,7 +120,7 @@ rm -rf examples/<template>/node_modules
 # 3. Copy over the selected template into the triage directory
 cp -r examples/<template> <triageDir>
 # 4. Re-run install (at the workspace root) to add back missing node_modules dependencies
-pnpm install
+pnpm install --no-frozen-lockfile
 ```
 
 Verify that the project was created in the correct place (`cat <triageDir>/package.json`).
