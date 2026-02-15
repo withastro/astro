@@ -5,7 +5,7 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	output: 'server',
 	adapter: netlify({
-		edgeMiddleware: true,
+		middlewareMode: 'classic'
 	}),
 	image: {
 		remotePatterns: [

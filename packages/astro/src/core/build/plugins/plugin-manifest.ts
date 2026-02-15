@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { glob } from 'tinyglobby';
 import { getAssetsPrefix } from '../../../assets/utils/getAssetsPrefix.js';
 import { normalizeTheLocale } from '../../../i18n/index.js';
+import { resolveMiddlewareMode } from '../../../integrations/adapter-utils.js';
 import { runHookBuildSsr } from '../../../integrations/hooks.js';
 import { SERIALIZED_MANIFEST_RESOLVED_ID } from '../../../manifest/serialized.js';
 import type { ExtractedChunk } from '../static-build.js';
@@ -83,8 +84,8 @@ export async function manifestBuildPostHook(
 	);
 
 	if (ssrManifestChunk) {
-		const shouldPassMiddlewareEntryPoint =
-			options.settings.adapter?.adapterFeatures?.edgeMiddleware;
+		const middlewareMode = resolveMiddlewareMode(options.settings.adapter?.adapterFeatures);
+		const shouldPassMiddlewareEntryPoint = middlewareMode === 'edge';
 		await runHookBuildSsr({
 			config: options.settings.config,
 			manifest,
@@ -303,6 +304,8 @@ async function buildManifest(
 		}
 	}
 
+	const middlewareMode = resolveMiddlewareMode(opts.settings.adapter?.adapterFeatures);
+
 	return {
 		rootDir: opts.settings.config.root.toString(),
 		cacheDir: opts.settings.config.cacheDir.toString(),
@@ -315,6 +318,7 @@ async function buildManifest(
 		assetsDir: opts.settings.config.build.assets,
 		routes,
 		serverLike: opts.settings.buildOutput === 'server',
+		middlewareMode,
 		site: settings.config.site,
 		base: settings.config.base,
 		userAssetsBase: settings.config?.vite?.base,
