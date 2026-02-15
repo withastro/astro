@@ -40,7 +40,7 @@ The **Fix** line in the template has three possible forms. Choose the one that m
 
 The **Priority** line communicates the severity of this issue to maintainers. Its goal is to answer the question: **"How bad is it?"**
 
-Select exactly ONE priority label from the `priorityLabels` arg. Use the label descriptions to guide your decision, combined with the triage report's root cause and impact analysis. Render the chosen label name in bold (without the `- ` prefix), then follow it with 1-2 sentences explaining **why** you chose that priority. Answer: "who is likely to be affected and under what conditions?". If you are unsure, use your best judgment based on the label descriptions and the triage findings.
+Select exactly ONE priority label from the `priorityLabels` arg. Use the label descriptions to guide your decision, combined with the triage report's root cause and impact analysis. Render the chosen label name in square brackets, in bold, formatted with the `- ` prefix removed (Example: `**[P2: Has Workaround].**). Then, follow it with 1-2 sentences explaining **why** you chose that priority. Answer: "who is likely to be affected and under what conditions?". If you are unsure, use your best judgment based on the label descriptions and the triage findings.
 
 ### Template
 
