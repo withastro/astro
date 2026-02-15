@@ -5,15 +5,14 @@
 - Run `pnpm format` to auto-format the entire repo.
 - Run `pnpm lint` to lint the entire repo.
 
-# Repository Structure
+# Monorepo Structure
 
-This is a pnpm workspace monorepo:
-
+- This directory is a Git monorepo containing a `pnpm` workspace. The codebase is primarily TypeScript.
 - All packages live in `packages/`.
 - Integration packages live in `packages/integrations/`.
 - The core Astro package is `packages/astro`.
 
-In error stack traces, built files in `node_modules/` map to TypeScript source in `packages/`:
+In error stack traces, built files from workspace packages in `node_modules/` map to TypeScript source in `packages/`:
 
 - `node_modules/astro/dist/...` → `packages/astro/src/...`
 - `node_modules/@astrojs/react/...` → `packages/integrations/react/src/...`
