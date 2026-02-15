@@ -1,6 +1,10 @@
 import type { Flue } from '@flue/client';
 import * as v from 'valibot';
 
+function assert(condition: unknown, message: string): asserts condition {
+	if (!condition) throw new Error(message);
+}
+
 const issueDetailsSchema = v.object({
 	title: v.string(),
 	body: v.string(),
@@ -84,11 +88,8 @@ async function fetchRepoLabels(flue: Flue): Promise<{
 
 async function selectTriageLabels(
 	flue: Flue,
-	{
-		comment,
-		packageLabels,
-	}: { comment: string; packageLabels: RepoLabel[] },
-): Promise<string | null> {
+	{ comment, packageLabels }: { comment: string; packageLabels: RepoLabel[] },
+): Promise<string> {
 	const labelResult = await flue.prompt(
 		`Label the following GitHub issue based on the triage report that was already posted.
 
@@ -114,6 +115,7 @@ ${comment}
 			result: v.object({
 				labels: v.pipe(
 					v.array(v.string()),
+					v.nonEmpty('Labels array must contain at least the priority label.'),
 					v.description(
 						'The labels to apply to the issue. Must include the priority label from the comment\'s Priority section, plus any selected package labels (e.g. ["- P2: important", "pkg: react"]).',
 					),
@@ -122,7 +124,6 @@ ${comment}
 		},
 	);
 
-	if (labelResult.labels.length === 0) return null;
 	return labelResult.labels.map((l) => `--add-label ${JSON.stringify(l)}`).join(' ');
 }
 
@@ -241,7 +242,7 @@ async function runTriagePipeline(
 }
 
 export default async function triage(flue: Flue) {
-	const { issueNumber } = flue.args as { issueNumber: number };
+	const { issueNumber } = v.parse(v.object({ issueNumber: v.number() }), flue.args);
 	const issueDetails = await fetchIssue(flue, issueNumber);
 
 	// If there are prior comments, this is a re-triage. Check whether new
@@ -282,6 +283,8 @@ export default async function triage(flue: Flue) {
 	// Fetch repo labels upfront so we can pass priority labels to the comment
 	// skill (which selects the priority) and package labels to the label selector.
 	const { priorityLabels, packageLabels } = await fetchRepoLabels(flue);
+	assert(priorityLabels.length > 0, 'no priority labels found');
+	assert(packageLabels.length > 0, 'no package labels found');
 
 	const branchName = isPushed ? flue.branch : null;
 	const comment = await flue.skill('triage/comment.md', {
