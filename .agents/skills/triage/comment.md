@@ -11,6 +11,7 @@ These variables are referenced throughout this skill. They may be passed as args
 - **`triageDir`** — Directory containing the reproduction project (e.g. `triage/issue-123`). If not passed as an arg, infer from previous conversation.
 - **`report.md`** — File in `triageDir` that MAY exist. Contains the full context from all previous skills (reproduction, diagnosis, fix).
 - **`branchName`** — The branch name where a fix was pushed. If not passed as an arg, infer from previous conversation.
+- **`priorityLabels`** — An array of `{ name, description }` objects representing the available priority labels for the repository. Used to select a priority in the comment.
 
 ## Overview
 
@@ -27,7 +28,7 @@ If `report.md` is missing or empty, generate a minimal comment (see "Fallback" s
 
 Generate and return a GitHub comment following the template below.
 
-### Fix Line Instructions
+### "Fix" Instructions
 
 The **Fix** line in the template has three possible forms. Choose the one that matches the triage outcome:
 
@@ -35,14 +36,20 @@ The **Fix** line in the template has three possible forms. Choose the one that m
 2. **The issue is already fixed on main** (e.g. the user is on an older major version and the bug doesn't reproduce on current main): Use `This issue has already been fixed.` and tell the user how to get the fix (e.g. upgrade). Link the relevant upgrade guide if applicable: [v6](https://v6.docs.astro.build/en/guides/upgrade-to/v6/), [v5](https://docs.astro.build/en/guides/upgrade-to/v5/).
 3. **You could not find or create a fix:** Use `I was unable to find a fix for this issue.` and give guidance or a best guess at where the fix might be.
 
+### "Priority" Instructions
+
+The **Priority** line communicates the severity of this issue to maintainers. Its goal is to answer the question: **"How bad is it?"**
+
+Select exactly ONE priority label from the `priorityLabels` arg. Use the label descriptions to guide your decision, combined with the triage report's root cause and impact analysis. Render the chosen label name in bold (without the `- ` prefix), then follow it with 1-2 sentences explaining **why** you chose that priority. Answer: "who is likely to be affected and under what conditions?". If you are unsure, use your best judgment based on the label descriptions and the triage findings.
+
 ### Template
 
 ```markdown
 **[I was able to reproduce this issue. / I was unable to reproduce this issue.]** [2-3 sentences describing the root cause, result, and key observations.]
 
-**Fix:** **[See Fix Line Instructions above.]** [1-2 sentences describing the solution, where/when it was already fixed, or guidance on where a fix might be.] [If `branchName` is non-null: [View Suggested Fix](https://github.com/withastro/astro/compare/{branchName}?expand=1)]
+**Fix:** **[See "Fix" Instructions above.]** [1-2 sentences describing the solution, where/when it was already fixed, or guidance on where a fix might be.] [If `branchName` is non-null: [View Suggested Fix](https://github.com/withastro/astro/compare/{branchName}?expand=1)]
 
-**Impact:** [Single sentence describing how you would have triggered the bug - or just the word "Unknown" if not determined.]
+**Priority:** **[See "Priority" Instructions above.]** [1-2 sentences explaining why this priority was chosen, who is likely to be affected, and under what conditions (this section should answer the question: "how bad is it?")]
 
 <details>
 <summary><em>Full Triage Report</em></summary>

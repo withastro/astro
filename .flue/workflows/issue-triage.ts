@@ -53,46 +53,58 @@ Return only "yes" or "no" inside the ---RESULT_START--- / ---RESULT_END--- block
 	);
 }
 
-async function selectTriageLabels(
-	flue: Flue,
-	{ issueJson, comment }: { issueJson: string; comment: string },
-): Promise<string | null> {
-	// Fetch all repo labels and filter to priority + package labels.
+const repoLabelSchema = v.object({
+	name: v.string(),
+	description: v.nullable(v.string()),
+});
+type RepoLabel = v.InferOutput<typeof repoLabelSchema>;
+
+async function fetchRepoLabels(flue: Flue): Promise<{
+	priorityLabels: RepoLabel[];
+	packageLabels: RepoLabel[];
+}> {
 	const labelsJson = await flue.shell(
 		"gh api repos/withastro/astro/labels --paginate --jq '.[] | {name, description}'",
 		{ env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN } },
 	);
-	const allLabels = labelsJson.stdout
-		.trim()
-		.split('\n')
-		.filter(Boolean)
-		.map((line) => JSON.parse(line) as { name: string; description: string });
+	const allLabels = v.parse(
+		v.array(repoLabelSchema),
+		labelsJson.stdout
+			.trim()
+			.split('\n')
+			.filter(Boolean)
+			.map((line) => JSON.parse(line)),
+	);
 
-	const priorityLabels = allLabels.filter((l) => /^- P\d/.test(l.name));
-	const packageLabels = allLabels.filter((l) => l.name.startsWith('pkg:'));
+	return {
+		priorityLabels: allLabels.filter((l) => /^- P\d/.test(l.name)),
+		packageLabels: allLabels.filter((l) => l.name.startsWith('pkg:')),
+	};
+}
 
+async function selectTriageLabels(
+	flue: Flue,
+	{
+		comment,
+		packageLabels,
+	}: { comment: string; packageLabels: RepoLabel[] },
+): Promise<string | null> {
 	const labelResult = await flue.prompt(
-		`Label the following GitHub issue based on our Triage Report which summarizes what we learned in our attempt to reproduce, diagnose, and fix the issue.
+		`Label the following GitHub issue based on the triage report that was already posted.
 
-Select the most appropriate labels from the list below. Use the label descriptions to guide your decision, combined with the triage report's cause and impact analysis.
+The report already contains a **Priority** judgment with a specific priority label. Your job is to:
+1. Extract the priority label that was already chosen in the report's Priority section.
+2. Select 0-3 package labels based on where the issue lives (or most likely lives) in the monorepo.
 
 ### Rules
-- Select exactly ONE priority label based on the label description and the severity and impact of the bug. Pay close attention to the "Cause" and "Impact" sections of the triage report.
-- You must select ONE priority label! If you are not sure, just use your best judgement based on the label descriptions and the findings of the triage report.
-- Select 0-3 package labels based on where where the issue lives (or most likely lives) in the monorepo. The triage report's diagnosis should make it clear. If you cannot confidently determine the affected package(s), return an empty array for packages.
-- Return the exact label names as they appear above — do not modify them.
-
-### Priority Labels (select exactly one)
-${priorityLabels.map((l) => `- "${l.name}": ${l.description || '(no description)'}`).join('\n')}
+- The priority label has already been decided in the report. Extract it exactly as written.
+- Select 0-3 package labels based on the triage report's findings. If you cannot confidently determine the affected package(s), return an empty array for packages.
+- Return the exact label names as they appear in the lists below — do not modify them.
 
 ### Package Labels (select zero or more)
 ${packageLabels.map((l) => `- "${l.name}": ${l.description || '(no description)'}`).join('\n')}
 
 --- 
-
-<github-issue format="json">
-${issueJson}
-</github-issue>
 
 <triage-report format="md">
 ${comment}
@@ -103,7 +115,7 @@ ${comment}
 				labels: v.pipe(
 					v.array(v.string()),
 					v.description(
-						'The labels to apply to the issue (e.g. ["- P1: chore", "pkg: react"]). Array must contain one "priority" label.',
+						'The labels to apply to the issue. Must include the priority label from the comment\'s Priority section, plus any selected package labels (e.g. ["- P2: important", "pkg: react"]).',
 					),
 				),
 			}),
@@ -267,9 +279,13 @@ export default async function triage(flue: Flue) {
 		}
 	}
 
+	// Fetch repo labels upfront so we can pass priority labels to the comment
+	// skill (which selects the priority) and package labels to the label selector.
+	const { priorityLabels, packageLabels } = await fetchRepoLabels(flue);
+
 	const branchName = isPushed ? flue.branch : null;
 	const comment = await flue.skill('triage/comment.md', {
-		args: { branchName },
+		args: { branchName, priorityLabels },
 		result: v.pipe(
 			v.string(),
 			v.description(
@@ -289,8 +305,8 @@ export default async function triage(flue: Flue) {
 		});
 
 		const labelFlags = await selectTriageLabels(flue, {
-			issueJson: JSON.stringify(issueDetails),
 			comment,
+			packageLabels,
 		});
 		if (labelFlags) {
 			await flue.shell(`gh issue edit ${issueNumber} ${labelFlags}`, {
