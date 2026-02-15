@@ -37,6 +37,11 @@ export {
 	type ShikiHighlighter,
 	type ShikiHighlighterHighlightOptions,
 } from './shiki.js';
+export { globalShikiStyleCollector } from './shiki-style-collector.js';
+export {
+	transformerStyleToClass,
+	type ShikiTransformerStyleToClass,
+} from './transformers/style-to-class.js';
 export * from './types.js';
 
 export const syntaxHighlightDefaults: Required<SyntaxHighlightConfig> = {
@@ -168,6 +173,7 @@ export async function createMarkdownProcessor(
 					localImagePaths: result.data.astro?.localImagePaths ?? [],
 					remoteImagePaths: result.data.astro?.remoteImagePaths ?? [],
 					frontmatter: result.data.astro?.frontmatter ?? {},
+					hasCodeBlocks: result.data.astro?.hasCodeBlocks ?? false,
 				},
 			};
 		},

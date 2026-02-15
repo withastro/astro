@@ -64,8 +64,9 @@ describe('Markdoc - syntax highlighting', () => {
 				assert.equal(isHTMLString(codeBlock), true);
 
 				const pre = parsePreTag(codeBlock);
-				assert.equal(pre.getAttribute('style').includes('white-space: pre-wrap'), true);
-				assert.equal(pre.getAttribute('style').includes('word-wrap: break-word'), true);
+				// With class-based styles, wrap behavior is in CSS classes, not inline styles
+				assert.equal(pre.classList.contains('astro-code-wrap'), true);
+				assert.equal(pre.classList.contains('astro-code-overflow'), true);
 			}
 		});
 		it('transform within if tags', async () => {
