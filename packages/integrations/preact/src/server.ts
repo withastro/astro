@@ -19,6 +19,8 @@ async function check(
 ) {
 	if (typeof Component !== 'function') return false;
 	if (Component.name === 'QwikComponent') return false;
+	// prevent render react components
+	if (!Component.toString().includes('fileName: _jsxFileName')) return false;
 
 	if (Component.prototype != null && typeof Component.prototype.render === 'function') {
 		return BaseComponent.isPrototypeOf(Component);
