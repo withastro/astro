@@ -25,11 +25,11 @@ importers:
         specifier: ^2.29.8
         version: 2.29.8(@types/node@18.19.130)
       '@flue/cli':
-        specifier: ^0.0.26
-        version: 0.0.26(typescript@5.9.3)
+        specifier: ^0.0.27
+        version: 0.0.27(typescript@5.9.3)
       '@flue/client':
-        specifier: ^0.0.12
-        version: 0.0.12(typescript@5.9.3)
+        specifier: ^0.0.14
+        version: 0.0.14(typescript@5.9.3)
       '@types/node':
         specifier: ^18.19.115
         version: 18.19.130
@@ -7106,15 +7106,6 @@ importers:
         specifier: ^3.1.6
         version: 3.1.6(typescript@5.9.3)
 
-  triage/gh-15512:
-    dependencies:
-      '@astrojs/node':
-        specifier: 10.0.0-beta.4
-        version: link:../../packages/integrations/node
-      astro:
-        specifier: workspace:*
-        version: link:../../packages/astro
-
 packages:
 
   '@antfu/utils@0.7.10':
@@ -8830,12 +8821,9 @@ packages:
   '@fastify/static@9.0.0':
     resolution: {integrity: sha512-r64H8Woe/vfilg5RTy7lwWlE8ZZcTrc3kebYFMEUBrMqlydhQyoiExQXdYAy2REVpST/G35+stAM8WYp1WGmMA==}
 
-  '@flue/cli@0.0.26':
-    resolution: {integrity: sha512-v5ocH2StxtSL0UE1L2FtTROjnFmHSIqT/Ci3llNJGPFG1HZtHNRHkcrf44oumEZN3u3BomfNbodDq9HIJ7mw4g==}
+  '@flue/cli@0.0.27':
+    resolution: {integrity: sha512-XdxS301ji3AdVdVt9fOXz68T4kJCQ2OMdYSM4+TbTNkZGq9wzEWYtSzKkdd9O9ZUao0ClKcMBa+g9FHBMA7ziw==}
     hasBin: true
-
-  '@flue/client@0.0.12':
-    resolution: {integrity: sha512-xQLvJ+0es5S+RKwu9qBFj+rv9R5ygOFIsBH0DvL+H6Ibn6VnDAuzKPMkX9q7GIVqvzEs1ffNLaJz8Wl0SevwXA==}
 
   '@flue/client@0.0.14':
     resolution: {integrity: sha512-Emp11h/H888FJzb1Egho4bD432BujlNpJK5vjTYZtXx5ixAhUrRAii5/z3ZNJixn14A4a8UHAG3mHE079KQqvw==}
@@ -18090,17 +18078,9 @@ snapshots:
       fastq: 1.19.1
       glob: 13.0.1
 
-  '@flue/cli@0.0.26(typescript@5.9.3)':
+  '@flue/cli@0.0.27(typescript@5.9.3)':
     dependencies:
       '@flue/client': 0.0.14(typescript@5.9.3)
-    transitivePeerDependencies:
-      - typescript
-
-  '@flue/client@0.0.12(typescript@5.9.3)':
-    dependencies:
-      '@opencode-ai/sdk': 1.2.2
-      '@valibot/to-json-schema': 1.5.0(valibot@1.2.0(typescript@5.9.3))
-      valibot: 1.2.0(typescript@5.9.3)
     transitivePeerDependencies:
       - typescript
 
