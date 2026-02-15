@@ -1,5 +1,15 @@
 import type http from 'node:http';
+
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
+
+import type { DevMatch } from '../core/app/base.js';
+import type { Logger } from '../core/logger/core.js';
+import type { ModuleLoader } from '../core/module-loader/index.js';
+import type { CreateRenderContext, RenderContext } from '../core/render-context.js';
+import type { AstroSettings, RoutesList } from '../types/astro.js';
+import type { RouteData, SSRManifest } from '../types/public/index.js';
+import type { DevServerController } from '../vite-plugin-astro-server/controller.js';
+
 import { BaseApp, type RenderErrorOptions } from '../core/app/index.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { clientLocalsSymbol } from '../core/constants.js';
@@ -8,21 +18,14 @@ import {
 	MiddlewareNotAResponse,
 } from '../core/errors/errors-data.js';
 import { type AstroError, createSafeError, isAstroError } from '../core/errors/index.js';
-import type { Logger } from '../core/logger/core.js';
-import type { ModuleLoader } from '../core/module-loader/index.js';
-import type { CreateRenderContext, RenderContext } from '../core/render-context.js';
 import { createRequest } from '../core/request.js';
-import type { AstroSettings, RoutesList } from '../types/astro.js';
-import type { RouteData, SSRManifest } from '../types/public/index.js';
-import type { DevServerController } from '../vite-plugin-astro-server/controller.js';
+import { ensure404Route } from '../core/routing/astro-designed-error-pages.js';
+import { matchRoute } from '../core/routing/dev.js';
+import { getCustom404Route, getCustom500Route } from '../core/routing/helpers.js';
 import { recordServerError } from '../vite-plugin-astro-server/error.js';
 import { runWithErrorHandling } from '../vite-plugin-astro-server/index.js';
 import { handle500Response, writeSSRResult } from '../vite-plugin-astro-server/response.js';
 import { RunnablePipeline } from './pipeline.js';
-import { getCustom404Route, getCustom500Route } from '../core/routing/helpers.js';
-import { ensure404Route } from '../core/routing/astro-designed-error-pages.js';
-import { matchRoute } from '../core/routing/dev.js';
-import type { DevMatch } from '../core/app/base.js';
 
 export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	settings: AstroSettings;
@@ -30,7 +33,6 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	loader: ModuleLoader;
 	manifestData: RoutesList;
 	currentRenderContext: RenderContext | undefined = undefined;
-	resolvedPathname: string | undefined = undefined;
 	constructor(
 		manifest: SSRManifest,
 		streaming = true,
@@ -110,10 +112,7 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	}
 
 	async createRenderContext(payload: CreateRenderContext): Promise<RenderContext> {
-		this.currentRenderContext = await super.createRenderContext({
-			...payload,
-			pathname: this.resolvedPathname ?? payload.pathname,
-		});
+		this.currentRenderContext = await super.createRenderContext(payload);
 		return this.currentRenderContext;
 	}
 
@@ -175,7 +174,6 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 					throw new Error('No route matched, and default 404 route was not found.');
 				}
 
-				self.resolvedPathname = matchedRoute.resolvedPathname;
 				const request = createRequest({
 					url,
 					headers: incomingRequest.headers,

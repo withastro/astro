@@ -7,11 +7,15 @@ import {
 	prependForwardSlash,
 	removeTrailingForwardSlash,
 } from '@astrojs/internal-helpers/path';
-import { matchPattern } from '../../assets/utils/index.js';
-import { normalizeTheLocale } from '../../i18n/index.js';
+
 import type { RoutesList } from '../../types/astro.js';
 import type { RemotePattern, RouteData } from '../../types/public/index.js';
 import type { Pipeline } from '../base-pipeline.js';
+import type { AppPipeline } from './pipeline.js';
+import type { SSRManifest } from './types.js';
+
+import { matchPattern } from '../../assets/utils/index.js';
+import { normalizeTheLocale } from '../../i18n/index.js';
 import {
 	clientAddressSymbol,
 	DEFAULT_404_COMPONENT,
@@ -28,8 +32,6 @@ import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../routing/match.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
-import type { AppPipeline } from './pipeline.js';
-import type { SSRManifest } from './types.js';
 
 export interface DevMatch {
 	routeData: RouteData;
@@ -346,6 +348,10 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		let locals: object | undefined;
 		let clientAddress: string | undefined;
 		let addCookieHeader: boolean | undefined;
+		// Track the resolved pathname from devMatch (may differ from request pathname,
+		// e.g. when .html is stripped). This is kept as a local variable rather than
+		// instance state to avoid races between concurrent requests.
+		let resolvedPathname: string | undefined;
 		const url = new URL(request.url);
 		const redirect = this.redirectTrailingSlash(url.pathname);
 		const prerenderedErrorPageFetch = renderOptions?.prerenderedErrorPageFetch ?? fetch;
@@ -393,16 +399,21 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				});
 			}
 		}
-		if (!routeData) {
-			if (this.isDev()) {
-				const result = await this.devMatch(this.getPathnameFromRequest(request));
-				if (result) {
+		// In dev mode, always call devMatch to get resolvedPathname (which may differ
+		// from the request pathname, e.g. after .html stripping). This is needed even
+		// when routeData was provided by an external caller (e.g. adapter handler).
+		if (this.isDev()) {
+			const result = await this.devMatch(this.getPathnameFromRequest(request));
+			if (result) {
+				resolvedPathname = result.resolvedPathname;
+				if (!routeData) {
 					routeData = result.routeData;
+					this.logger.debug('router', 'Astro matched the following route for ' + request.url);
+					this.logger.debug('router', 'RouteData:\n' + routeData);
 				}
-			} else {
-				routeData = this.match(request);
 			}
-
+		} else if (!routeData) {
+			routeData = this.match(request);
 			this.logger.debug('router', 'Astro matched the following route for ' + request.url);
 			this.logger.debug('router', 'RouteData:\n' + routeData);
 		}
@@ -424,7 +435,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				prerenderedErrorPageFetch: prerenderedErrorPageFetch,
 			});
 		}
-		const pathname = this.getPathnameFromRequest(request);
+		const pathname = resolvedPathname ?? this.getPathnameFromRequest(request);
 		const defaultStatus = this.getDefaultStatusCode(routeData, pathname);
 
 		let response;
