@@ -111,7 +111,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					config: cloudflareConfigCustomizer({
 						sessionKVBindingName: args?.sessionKVBindingName,
 						imagesBindingName:
-							args?.imageService === 'cloudflare-binding' ? args?.imagesBindingName : false,
+							args?.imageService === 'cloudflare-binding' || !args?.imageService
+								? args?.imagesBindingName
+								: false,
 					}),
 					experimental: {
 						prerenderWorker: {
@@ -219,7 +221,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							}),
 						],
 					},
-					image: setImageConfig(args?.imageService ?? 'compile', config.image, command, logger),
+					image: setImageConfig(
+						args?.imageService ?? 'cloudflare-binding',
+						config.image,
+						command,
+						logger,
+					),
 				});
 
 				addWatchFile(new URL('./wrangler.toml', config.root));

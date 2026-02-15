@@ -8,6 +8,10 @@ export type ImageService =
 	| 'compile'
 	| 'custom';
 
+// The default Astro dev image endpoint uses node:fs which is unavailable in workerd.
+// Use the generic endpoint instead, which loads images via fetch through the dev server.
+const GENERIC_ENDPOINT = { entrypoint: 'astro/assets/endpoint/generic' };
+
 export function setImageConfig(
 	service: ImageService,
 	config: AstroConfig['image'],
@@ -16,16 +20,21 @@ export function setImageConfig(
 ) {
 	switch (service) {
 		case 'passthrough':
-			return { ...config, service: passthroughImageService() };
-
-		case 'cloudflare':
 			return {
 				...config,
-				service:
-					command === 'dev'
-						? sharpImageService()
-						: { entrypoint: '@astrojs/cloudflare/image-service' },
+				service: passthroughImageService(),
+				endpoint: command === 'dev' ? GENERIC_ENDPOINT : config.endpoint,
 			};
+
+		case 'cloudflare':
+			if (command === 'dev') {
+				return { ...config, service: passthroughImageService(), endpoint: GENERIC_ENDPOINT };
+			}
+			return {
+				...config,
+				service: { entrypoint: '@astrojs/cloudflare/image-service' },
+			};
+
 		case 'cloudflare-binding':
 			return {
 				...config,
@@ -35,11 +44,14 @@ export function setImageConfig(
 			};
 
 		case 'compile':
+			if (command === 'dev') {
+				return { ...config, service: passthroughImageService(), endpoint: GENERIC_ENDPOINT };
+			}
 			return {
 				...config,
 				service: sharpImageService(),
 				endpoint: {
-					entrypoint: command === 'dev' ? undefined : '@astrojs/cloudflare/image-endpoint',
+					entrypoint: '@astrojs/cloudflare/image-endpoint',
 				},
 			};
 
