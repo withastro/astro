@@ -290,7 +290,7 @@ export default async function triage(flue: Flue) {
 
 	const branchName = isPushed ? flue.branch : null;
 	const comment = await flue.skill('triage/comment.md', {
-		args: { branchName, priorityLabels },
+		args: { branchName, priorityLabels, issueDetails },
 		result: v.pipe(
 			v.string(),
 			v.description(

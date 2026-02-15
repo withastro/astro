@@ -9,7 +9,8 @@ Generate a GitHub issue comment from triage findings.
 These variables are referenced throughout this skill. They may be passed as args by an orchestrator, or inferred from the conversation when run standalone.
 
 - **`triageDir`** — Directory containing the reproduction project (e.g. `triage/issue-123`). If not passed as an arg, infer from previous conversation.
-- **`report.md`** — File in `triageDir` that MAY exist. Contains the full context from all previous skills (reproduction, diagnosis, fix).
+- **`issueDetails`** - The GitHub API issue details payload. This must be provided explicitly by the user or available from prior conversation context / tool calls. If this data isn't available, you may run `gh issue view ${issue_number}` to load the missing issue details directly from GitHub.
+- **`report.md`** — File in `triageDir` that MAY exist. Contains the full context from all previous skills (reproduction, diagnosis, fix). Contains everything that you need to know to generate your comment successfully.
 - **`branchName`** — The branch name where a fix was pushed. If not passed as an arg, infer from previous conversation.
 - **`priorityLabels`** — An array of `{ name, description }` objects representing the available priority labels for the repository. Used to select a priority in the comment.
 
