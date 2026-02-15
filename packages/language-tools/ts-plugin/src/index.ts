@@ -5,10 +5,27 @@ import { getFrontmatterLanguagePlugin } from './frontmatter.js';
 import { getLanguagePlugin } from './language.js';
 
 export = createLanguageServicePlugin((ts, info) => {
+	const currentDir = info.project.getCurrentDirectory();
+
+	// Check if this is an Astro project by looking for astro.config.* file
+	if (ts.sys.readDirectory) {
+		const hasAstroConfig =
+			ts.sys.readDirectory(
+				currentDir,
+				['js', 'mjs', 'cjs', 'ts', 'mts', 'cts'],
+				undefined,
+				['astro.config.*'],
+				1,
+			).length > 0;
+
+		if (!hasAstroConfig) {
+			return { languagePlugins: [] };
+		}
+	}
+
 	let collectionConfig = undefined;
 
 	try {
-		const currentDir = info.project.getCurrentDirectory();
 		const fileContent = ts.sys.readFile(currentDir + '/.astro/collections/collections.json');
 		if (fileContent) {
 			collectionConfig = {
