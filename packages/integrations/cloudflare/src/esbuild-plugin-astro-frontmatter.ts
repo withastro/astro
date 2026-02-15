@@ -24,9 +24,15 @@ export function astroFrontmatterScanPlugin(): ESBuildPlugin {
 					// Extract frontmatter content between --- markers
 					const frontmatterMatch = FRONTMATTER_RE.exec(code);
 					if (frontmatterMatch) {
-						// Return the frontmatter as TypeScript for import scanning
+						// Strip `return` statements from the frontmatter. In Astro, frontmatter
+						// runs inside a function scope where `return` is valid (e.g. for
+						// `return Astro.redirect(...)`), but esbuild treats files with imports
+						// as ESM where top-level `return` is a syntax error. Since this plugin
+						// only needs the code for import scanning, removing `return` is safe.
+						// We replace with spaces to preserve source positions.
+						const contents = frontmatterMatch[1].replace(/\breturn\b/g, '      ');
 						return {
-							contents: frontmatterMatch[1],
+							contents,
 							loader: 'ts',
 						};
 					}
