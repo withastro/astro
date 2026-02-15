@@ -1,34 +1,18 @@
-## Style Guide
+# Style Guide
 
-- Not defined here. For now, follow the same conventions and patterns that you detect in the surrounding code. Keep
+- Not defined here. For now, follow the same conventions and patterns that you detect in the surrounding code.
 - Keep formatting consistent. Our rules are defined in our [biome.jsonc](./biome.jsonc) file, enforced by Biome.
 - Run `pnpm format` to auto-format the entire repo.
 - Run `pnpm lint` to lint the entire repo.
 
-# Source Structure
+# Monorepo Structure
 
-This is a pnpm workspace monorepo with the following directory structure:
+- This directory is a Git monorepo containing a `pnpm` workspace. The codebase is primarily TypeScript.
+- All packages live in `packages/`.
+- Integration packages live in `packages/integrations/`.
+- The core Astro package is `packages/astro`.
 
-```
-packages/
-├── astro/                    # astro -- The core framework package
-│   └── src/
-│       ├── core/             # Build pipeline, rendering, routing
-│       ├── vite-plugin-astro/ # Vite integration
-│       ├── content/          # Content collections
-│       └── ...
-├── integrations/
-│   ├── react/               # @astrojs/react
-│   ├── node/                # @astrojs/node
-│   ├── cloudflare/          # @astrojs/cloudflare
-│   └── ...
-└── markdown/
-    └── remark/              # @astrojs/markdown-remark
-```
-
-When you run `pnpm install`, source packages in `packages/` are symlinked into `node_modules/` of their dependants via `workspace:*` dependencies.
-
-In error stack traces, built files in `node_modules/` will often map to TypeScript source files in the `packages/` directory.
+In error stack traces, built files from workspace packages in `node_modules/` map to TypeScript source in `packages/`:
 
 - `node_modules/astro/dist/...` → `packages/astro/src/...`
 - `node_modules/@astrojs/react/...` → `packages/integrations/react/src/...`

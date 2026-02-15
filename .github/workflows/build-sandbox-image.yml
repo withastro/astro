@@ -1,0 +1,40 @@
+name: Build Sandbox Image
+
+on:
+  push:
+    paths: ['.flue/Dockerfile.sandbox', '.github/workflows/build-sandbox-image.yml']
+  workflow_dispatch:
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}/flue-sandbox
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Lowercase image name
+        run: echo "IMAGE=${IMAGE,,}" >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .flue/Dockerfile.sandbox
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ hashFiles('.flue/Dockerfile.sandbox') }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
