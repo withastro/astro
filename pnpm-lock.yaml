@@ -25,8 +25,8 @@ importers:
         specifier: ^2.29.8
         version: 2.29.8(@types/node@18.19.130)
       '@flue/cli':
-        specifier: ^0.0.23
-        version: 0.0.23(typescript@5.9.3)
+        specifier: ^0.0.24
+        version: 0.0.24(typescript@5.9.3)
       '@flue/client':
         specifier: ^0.0.12
         version: 0.0.12(typescript@5.9.3)
@@ -8821,8 +8821,8 @@ packages:
   '@fastify/static@9.0.0':
     resolution: {integrity: sha512-r64H8Woe/vfilg5RTy7lwWlE8ZZcTrc3kebYFMEUBrMqlydhQyoiExQXdYAy2REVpST/G35+stAM8WYp1WGmMA==}
 
-  '@flue/cli@0.0.23':
-    resolution: {integrity: sha512-WTac28WJ2zQb38m24kLFr7tVAw2C9jLmA3wWJUo9WzWq70LOfilLALRBhJrAi6P8jyUNND7DT1zNgSFkKcNx/g==}
+  '@flue/cli@0.0.24':
+    resolution: {integrity: sha512-y+25hkgT6deZxEYBR9nAcSFFCTETdBV4voWqv1CeqvpuveOcOGY7X8W9cSQEsXKnWvPIb3GlZveg2FL6o3gEUg==}
     hasBin: true
 
   '@flue/client@0.0.12':
@@ -18078,7 +18078,7 @@ snapshots:
       fastq: 1.19.1
       glob: 13.0.1
 
-  '@flue/cli@0.0.23(typescript@5.9.3)':
+  '@flue/cli@0.0.24(typescript@5.9.3)':
     dependencies:
       '@flue/client': 0.0.12(typescript@5.9.3)
     transitivePeerDependencies:
