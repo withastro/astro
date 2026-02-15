@@ -37,6 +37,12 @@
 <span id="url" attr={"https://example.com/api/og?title=hello&description=somedescription"}/>
 <span id="code" attr={"cmd: echo \"foo\" && echo \"bar\" > /tmp/hello.txt"} />
 
+<div id="hidden-true" hidden={true} />
+<div id="hidden-false" hidden={false} />
+<div id="hidden-undefined" hidden={undefined} />
+<div id="hidden-string-empty" hidden={''} />
+<div id="hidden-until-found" hidden={"until-found"} />
+
 <!--
     Other attributes should be treated as string enums
     These should always render <span draggable="true" /> or <span draggable="false" />
