@@ -68,6 +68,15 @@ jobs:
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker pull $IMAGE:latest
 
+      - name: Verify sandbox image
+        run: |
+          docker run --rm $IMAGE:latest sh -c '
+            echo "node=$(node -v) pnpm=$(pnpm -v) gh=$(gh --version | head -1)"
+            echo "opencode=$(which opencode) version=$(opencode --version 2>/dev/null || echo missing)"
+            echo "chromium=$(ls /opt/pw-browsers 2>/dev/null && echo found || echo MISSING)"
+            echo "git-safe-dir=$(git config --system --get-all safe.directory 2>/dev/null || echo MISSING)"
+          '
+
       - name: Start Cloudflare Tunnel
         run: |
           curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /usr/local/bin/cloudflared
