@@ -73,7 +73,7 @@ Skip if a repository maintainer has commented that this issue should not be repr
 
 Every bug report should include some sort of reproduction. The reproduction project goes in the `triageDir` directory (e.g. `triage/gh-123`). If no `triageDir` is provided, default to `triage/gh-<issue_number>`.
 
-Set up the reproduction project based on what the issue provides you. Once the reproduction project directory has been completed, run `pnpm install` in the workspace to connect it to the rest of the monorepo.
+Set up the reproduction project based on what the issue provides you. Once the reproduction project directory has been completed, run `pnpm install` in the workspace top-level root to connect it to the rest of the monorepo.
 
 ### StackBlitz Project URL (`https://stackblitz.com/edit/...`)
 
@@ -110,24 +110,29 @@ You may still need to set up a project from scratch (see fallback below) and app
 
 ### Manual Steps Reproduction
 
-If no reproduction URL is provided, you will need to follow the manual steps that the user provided instead.
-
-Scaffold a fresh Astro project into the triage directory using `create-astro`. You MUST include `<triageDir>` as the first positional argument to `create-astro` — always pass the explicit path - otherwise your triage project will be crated in the wrong file location.  Use `--no-install` to skip dependency installation (we will run `pnpm install` later) and `--no-git` to avoid creating a nested git repo. Use `--template` to pick a starting template — if the user didn't mention a specific one, use `minimal` as the default.
+If no reproduction URL is provided, you will need to follow the manual steps that the user provided instead. If the user didn't mention a specific template, use `minimal` as the default.
 
 ```bash
-npx create-astro@latest <triageDir> --template minimal --no-install --no-git -y
+# 1. List available example templates
+ls examples/
+# 2. Remove the selected template's node_modules directory to avoid problems with `cp -r`
+rm -rf examples/<template>/node_modules
+# 3. Copy over the selected template into the triage directory
+cp -r examples/<template> <triageDir>
+# 4. Re-run install (at the workspace root) to add back missing node_modules dependencies
+pnpm install
 ```
 
-After running the command, verify that the project was created at the expected `triageDir` path (e.g. confirm `<triageDir>/package.json` exists). Delete it and try again if something went wrong.
+Verify that the project was created in the correct place (`cat <triageDir>/package.json`).
 
 Then, modify the triage project as needed to attempt your reproduction:
 
-1. Update `astro.config.mjs` with required configuration
-2. Add any required dependencies or Astro integrations (`@astrojs/react`, etc.)
-3. Create pages, components, or middleware that trigger the bug
+1. Update `astro.config.mjs` with required configuration changes
+2. Add/modify any dependencies or Astro integrations (`@astrojs/react`, etc.)
+3. Add/modify any pages, components, middleware, etc. that trigger the bug
 4. Add/modify any additional files mentioned in the issue
 
-Keep the reproduction as minimal as possible — only add what's needed to trigger the bug.
+Keep the reproduction as minimal as possible — only add what the issue reporter has documented as needed to trigger the bug.
 
 ## Step 4: Attempt Reproduction in the Triage Project
 
