@@ -158,6 +158,16 @@ declare module 'astro:components' {
 	export * from 'astro/components';
 }
 
+declare module 'astro:components/Code' {
+	type Component = typeof import('./components/Code.astro').default;
+	export default Component;
+}
+
+declare module 'astro:components/Debug' {
+	type Component = typeof import('./components/Debug.astro').default;
+	export default Component;
+}
+
 // TODO: remove in Astro 7
 /**
  * @deprecated
