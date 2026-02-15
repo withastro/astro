@@ -9,6 +9,19 @@ import {
 } from './version.js';
 import type { EnvironmentOptions } from 'vite';
 
+type ReactCompilerOptions = {
+	compilationMode?: 'infer' | 'annotation' | 'syntax' | 'all';
+	target?: '17' | '18' | '19';
+	panicThreshold?: 'none' | 'critical_errors' | 'all_errors';
+	logger?: {
+		logEvent: (filename: string | null, event: any) => void;
+	} | null;
+	gating?: {
+		source: string;
+		importSpecifierName: string;
+	} | null;
+};
+
 export type ReactIntegrationOptions = Pick<
 	ViteReactPluginOptions,
 	'include' | 'exclude' | 'babel'
@@ -18,6 +31,11 @@ export type ReactIntegrationOptions = Pick<
 	 * Disable streaming in React components
 	 */
 	experimentalDisableStreaming?: boolean;
+	/*
+	 * Enables the [React Compiler](https://react.dev/learn/react-compiler).
+	 * Requires installing `babel-plugin-react-compiler`.
+	 */
+	reactCompilerEnabled?: boolean | ReactCompilerOptions;
 };
 
 const FAST_REFRESH_PREAMBLE = react.preambleCode;
@@ -65,6 +83,18 @@ function optionsPlugin({
 	};
 }
 
+type PluginItem = NonNullable<
+	Exclude<NonNullable<ReactIntegrationOptions['babel']>, (...args: any[]) => any>['plugins']
+>[number];
+
+function isBabelPluginPresent(plugins: PluginItem[], pluginName: string): boolean {
+	for (const plugin of plugins) {
+		if (typeof plugin == 'string' && plugin == pluginName) return true;
+		else if (Array.isArray(plugin) && plugin[0] == pluginName) return true;
+	}
+	return false;
+}
+
 function getViteConfiguration(
 	{
 		include,
@@ -72,9 +102,54 @@ function getViteConfiguration(
 		babel,
 		experimentalReactChildren,
 		experimentalDisableStreaming,
+		reactCompilerEnabled,
 	}: ReactIntegrationOptions = {},
 	reactConfig: ReactVersionConfig,
 ) {
+	if (reactCompilerEnabled) {
+		if (!babel) babel = {};
+
+		let reactCompilerDefinition;
+		if (typeof reactCompilerEnabled != 'boolean')
+			reactCompilerDefinition = ['babel-plugin-react-compiler', reactCompilerEnabled];
+		else reactCompilerDefinition = ['babel-plugin-react-compiler'];
+
+		if (typeof babel == 'object') {
+			let reactCompilerPluginExists = false;
+			if (!babel.plugins) babel.plugins = [];
+			else {
+				reactCompilerPluginExists = isBabelPluginPresent(
+					babel.plugins,
+					'babel-plugin-react-compiler',
+				);
+			}
+			if (!reactCompilerPluginExists) babel.plugins.push(reactCompilerDefinition);
+		} else if (typeof babel === 'function') {
+			let reactCompilerPluginExists = false;
+			const babelFn = babel;
+			babel = (...args) => {
+				const options = babelFn(...args);
+				if (!options.plugins) options.plugins = [];
+				else {
+					reactCompilerPluginExists = isBabelPluginPresent(
+						options.plugins,
+						'babel-plugin-react-compiler',
+					);
+				}
+				if (!reactCompilerPluginExists) options.plugins.push(reactCompilerDefinition);
+
+				return options;
+			};
+		}
+
+		// @ts-ignore
+		import('babel-plugin-react-compiler').catch(() => {
+			console.warn(
+				"You need to install 'babel-plugin-react-compiler' as a dev dependency to use React Compiler in your Astro project.",
+			);
+		});
+	}
+
 	return {
 		plugins: [
 			react({ include, exclude, babel }),
@@ -151,6 +226,7 @@ export default function ({
 	babel,
 	experimentalReactChildren,
 	experimentalDisableStreaming,
+	reactCompilerEnabled,
 }: ReactIntegrationOptions = {}): AstroIntegration {
 	const majorVersion = getReactMajorVersion();
 	if (!isSupportedReactVersion(majorVersion)) {
@@ -165,7 +241,14 @@ export default function ({
 				addRenderer(getRenderer(versionConfig));
 				updateConfig({
 					vite: getViteConfiguration(
-						{ include, exclude, babel, experimentalReactChildren, experimentalDisableStreaming },
+						{
+							include,
+							exclude,
+							babel,
+							experimentalReactChildren,
+							experimentalDisableStreaming,
+							reactCompilerEnabled,
+						},
 						versionConfig,
 					),
 				});
