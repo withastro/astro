@@ -2247,9 +2247,7 @@ export interface AstroUserConfig<
 		 * export default defineConfig({
 		 * 	 site: "https://example.com",
 		 * 	 output: "server", // required, with no prerendered pages
-		 * 	 adapter: node({
-		 * 	   mode: 'standalone',
-		 * 	 }),
+		 * 	 adapter: node(),
 		 * 	 i18n: {
 		 *     defaultLocale: "en",
 		 *     locales: ["en", "fr", "pt-br", "es"],

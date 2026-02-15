@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import nodejs from '../dist/index.js';
+import node from '../dist/index.js';
 import { loadFixture, waitServerListen } from './test-utils.js';
 
 describe('Static headers', () => {
@@ -37,18 +37,20 @@ describe('Static headers', () => {
 		fixture = await loadFixture({
 			root: './fixtures/static-headers/',
 			output: 'server',
-			adapter: nodejs({ mode: 'standalone', staticHeaders: true }),
+			adapter: node({
+				serverEntrypoint: new URL('./entrypoints/create-server.js', import.meta.url),
+				staticHeaders: true,
+			}),
 		});
 		await fixture.build();
 		const { startServer } = await fixture.loadAdapterEntryModule();
-		const res = startServer();
-		server = res.server;
+		server = startServer();
 		await waitServerListen(server.server);
 	});
 
 	after(async () => {
 		await server.stop();
-		// await fixture.clean();
+		await fixture.clean();
 	});
 
 	it('CSP headers are added to the request', async () => {

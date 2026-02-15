@@ -1,7 +1,7 @@
-import nodejs from '@astrojs/node';
+import node from '@astrojs/node';
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-	adapter: nodejs({ mode: 'middleware' }),
+	adapter: node(),
 	output: 'server',
 });

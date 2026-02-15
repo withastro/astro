@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import nodejs from '../dist/index.js';
+import node from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
 
 describe('Astro preview host', () => {
@@ -8,7 +8,7 @@ describe('Astro preview host', () => {
 		const fixture = await loadFixture({
 			root: './fixtures/preview-headers/',
 			output: 'server',
-			adapter: nodejs({ mode: 'standalone' }),
+			adapter: node(),
 		});
 		await fixture.build();
 		const devPreview = await fixture.preview();
@@ -20,7 +20,7 @@ describe('Astro preview host', () => {
 		const fixture = await loadFixture({
 			root: './fixtures/preview-headers/',
 			output: 'server',
-			adapter: nodejs({ mode: 'standalone' }),
+			adapter: node(),
 			server: {
 				host: false,
 			},
@@ -35,7 +35,7 @@ describe('Astro preview host', () => {
 		const fixture = await loadFixture({
 			root: './fixtures/preview-headers/',
 			output: 'server',
-			adapter: nodejs({ mode: 'standalone' }),
+			adapter: node(),
 			server: {
 				host: true,
 			},
@@ -50,7 +50,7 @@ describe('Astro preview host', () => {
 		const fixture = await loadFixture({
 			root: './fixtures/preview-headers/',
 			output: 'server',
-			adapter: nodejs({ mode: 'standalone' }),
+			adapter: node(),
 			server: {
 				host: '127.0.0.1',
 			},

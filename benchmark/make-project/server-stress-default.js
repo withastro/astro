@@ -51,11 +51,11 @@ const content = "${loremIpsum}"
 		new URL('./astro.config.js', projectDir),
 		`\
 import { defineConfig } from 'astro/config';
-import nodejs from '@astrojs/node';
+import node from '@astrojs/node';
 
 export default defineConfig({
 	output: 'server',
-	adapter: nodejs({ mode: 'standalone' }),
+	adapter: node(),
 });`,
 		'utf-8',
 	);

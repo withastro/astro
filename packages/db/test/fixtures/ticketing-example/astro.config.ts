@@ -8,7 +8,5 @@ import simpleStackForm from 'simple-stack-form';
 export default defineConfig({
 	integrations: [simpleStackForm(), db(), react()],
 	output: 'server',
-	adapter: node({
-		mode: 'standalone',
-	}),
+	adapter: node(),
 });

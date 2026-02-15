@@ -42,8 +42,8 @@ process.env.ASTRO_TELEMETRY_DISABLED = true;
  * @property {typeof preview} preview
  * @property {() => Promise<void>} clean
  * @property {(streaming: boolean) => Promise<App>} loadTestAdapterApp
- * @property {(streaming: boolean) => Promise<App>} loadSelfAdapterApp
- * @property {() => Promise<(req: NodeRequest, res: NodeResponse) => void>} loadNodeAdapterHandler
+ * @property {(streaming: boolean) => Promise<App>}
+ * @property {() => Promise<any>} loadAdapterEntryModule
  * @property {(timeout?: number) => Promise<void>} onNextDataStoreChange
  * @property {typeof check} check
  * @property {typeof sync} sync
@@ -264,23 +264,18 @@ export async function loadFixture(inlineConfig) {
 			}
 		},
 		loadAdapterEntryModule: async () => {
-			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);
+			const url = new URL(`./${config.build.serverEntry}?id=${fixtureId}`, config.build.server);
 			return await import(url);
 		},
-		loadNodeAdapterHandler: async () => {
-			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);
-			const { handler } = await import(url);
-			return handler;
-		},
 		loadTestAdapterApp: async (streaming) => {
-			const url = new URL(`./server/${config.build.serverEntry}?id=${fixtureId}`, config.outDir);
+			const url = new URL(`./${config.build.serverEntry}?id=${fixtureId}`, config.build.server);
 			const { createApp, manifest } = await import(url);
 			const app = createApp(streaming);
 			app.manifest = manifest;
 			return app;
 		},
 		loadSelfAdapterApp: async (streaming) => {
-			const url = new URL(`./server/${config.build.serverEntry}?id=${fixtureId}`, config.outDir);
+			const url = new URL(`./${config.build.serverEntry}?id=${fixtureId}`, config.build.server);
 			const { createApp } = await import(url);
 			return createApp(streaming);
 		},

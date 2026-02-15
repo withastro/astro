@@ -28,7 +28,5 @@ export default defineConfig({
     assets: 'assets'
   },
   output: "server",
-  adapter: node({
-    mode: "standalone"
-  })
+  adapter: node()
 });

@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import nodejs from '../dist/index.js';
+import node from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
 
 describe('Bad URLs', () => {
@@ -12,7 +12,7 @@ describe('Bad URLs', () => {
 		fixture = await loadFixture({
 			root: './fixtures/bad-urls/',
 			output: 'server',
-			adapter: nodejs({ mode: 'standalone' }),
+			adapter: node(),
 		});
 		await fixture.build();
 		devPreview = await fixture.preview();

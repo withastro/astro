@@ -5,5 +5,5 @@ export default defineConfig({
   base: '/mybase',
   trailingSlash: 'never',
   output: 'server',
-  adapter: node({ mode: 'standalone' })
+  adapter: node()
 });

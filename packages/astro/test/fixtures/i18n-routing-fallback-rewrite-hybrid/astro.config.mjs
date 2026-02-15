@@ -16,5 +16,5 @@ export default defineConfig({
       prefixDefaultLocale: false,
     },
   },
-  adapter: node({mode: 'standalone'})
+  adapter: node()
 });

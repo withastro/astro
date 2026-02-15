@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import nodejs from '../dist/index.js';
+import node from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
 
 describe('Astro preview headers', () => {
@@ -15,7 +15,7 @@ describe('Astro preview headers', () => {
 		fixture = await loadFixture({
 			root: './fixtures/preview-headers/',
 			output: 'server',
-			adapter: nodejs({ mode: 'standalone' }),
+			adapter: node(),
 			server: {
 				headers,
 			},

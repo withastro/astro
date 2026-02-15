@@ -8,7 +8,5 @@ export default defineConfig({
 	site: 'https://example.com',
 	integrations: [db(), react()],
 	output: 'server',
-	adapter: node({
-		mode: 'standalone',
-	}),
+	adapter: node(),
 });

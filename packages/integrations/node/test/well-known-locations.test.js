@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import nodejs from '../dist/index.js';
+import node from '../dist/index.js';
 import { loadFixture } from './test-utils.js';
 
 describe('test URIs beginning with a dot', () => {
@@ -11,7 +11,7 @@ describe('test URIs beginning with a dot', () => {
 		fixture = await loadFixture({
 			root: './fixtures/well-known-locations/',
 			output: 'server',
-			adapter: nodejs({ mode: 'standalone' }),
+			adapter: node(),
 		});
 		await fixture.build();
 	});
