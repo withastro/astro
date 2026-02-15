@@ -21,12 +21,18 @@ Note: Edits to source files take effect after rebuilding the package via `pnpm b
 
 # Running Tests
 
-- Run `pnpm test` in the workspace root to run the full suite (slow).
-- Run `pnpm -C <package-directory> test` to run a package’s tests (example: `pnpm -C packages/astro test`, `pnpm -C packages/integrations/react test`).
-- Run an individual test file with `node path/to/test.js` (non-E2E).
-- For focused Astro package runs: `pnpm -C packages/astro test:unit`, `pnpm -C packages/astro test:integration`, `pnpm -C packages/astro test:cli`, `pnpm -C packages/astro test:types`.
-- For matching a subset by test name in Astro: `pnpm -C packages/astro test:match -- "<pattern>"`.
-- For E2E: `pnpm test:e2e` or `pnpm test:e2e:match -- "<pattern>"`.
+- Run `pnpm test` in workspace root or package directory to run full test suite (can be slow!)
+- Integration tests live in special `packages/integrations` folders.
+- Example: `pnpm -C <package-directory> exec astro-scripts test` - Run a single package test suite
+- Example: `pnpm -C <package-directory> exec astro-scripts test "test/actions.test.js"` - Run a single test file
+- Example: `pnpm -C <package-directory> exec astro-scripts test "test/**/*.test.js" --match "CSS"` - Run specific tests matching a string or regex patterns
+- Example: `pnpm -C <package-directory> exec astro-scripts test "test/{actions,css,middleware}.test.js"` - Run multiple test files
+- Key flags:
+  - `--match` / `-m`: Filter tests by name pattern (regex)
+  - `--only` / `-o`: Run only tests marked with `.only`
+  - `--parallel` / `-p`: Run tests in parallel (default is sequential)
+  - `--timeout` / `-t`: Set timeout in milliseconds
+  - `--watch` / `-w`: Watch mode
 
 # Astro Quick Reference
 
@@ -43,7 +49,7 @@ Note: Edits to source files take effect after rebuilding the package via `pnpm b
 
 - Use `astro dev` and `astro preview` in the background to prevent hanging your entire session, and use `&` to run them in the background. Use `--port RANDOM_NUMBER --strictPort` to avoid port conflicts. Cleanup old servers when you're done.
 - Use `astro dev` and `astro preview` as web servers for Astro project. They are reliable. Don't use other web servers for testing.
-- Use `pnpm -C <dir> <command>` for project-local commands when working in packages/examples/triage directories. Only omit `-C` flag when intentionally working in the monorepo root. (Example: `pnpm -C packages/astro build`, `pnpm -C examples/blog dev`)
+- Use `pnpm -C <dir> <command>` for project-local script commands when working in packages/examples/triage directories. Only omit `-C` flag when intentionally working in the monorepo root. (Example: `pnpm -C packages/astro build`, `pnpm -C examples/blog dev`)
 - Use `agent-browser` for web automation or when UI interaction, long-running browsers, or HMR testing is required. Use `agent-browser --help` for all commands. Use this core workflow:
   - Example: `agent-browser open <url>` - Navigate to page
   - Example: `agent-browser snapshot -i` - Get interactive elements with refs (@e1, @e2)
