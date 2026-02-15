@@ -18,16 +18,22 @@ RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
 RUN npm install -g pnpm
 
 # --- OpenCode CLI ---
-ENV PATH="/root/.opencode/bin:${PATH}"
+# The installer puts the binary in $HOME/.opencode/bin (not configurable).
+# Copy it to /usr/local/bin so it's accessible when running as a non-root
+# user (the container uses --user to match the host workspace owner).
 RUN curl -fsSL https://opencode.ai/install -o /tmp/install-opencode.sh \
     && bash /tmp/install-opencode.sh \
     && rm /tmp/install-opencode.sh \
+    && cp /root/.opencode/bin/opencode /usr/local/bin/opencode \
     && opencode --version
 
 # --- agent-browser + Chromium for headless browser testing ---
 # 1. Install system deps required by Chromium
 # 2. Install agent-browser + playwright (for the `playwright install` CLI)
-# 3. Download Chromium via playwright, then remove the playwright package
+# 3. Download Chromium to a shared location accessible to any UID
+#    (the container runs as a non-root user via --user)
+# 4. Remove the playwright package (agent-browser bundles its own)
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        libxcb-shm0 libx11-xcb1 libx11-6 libxcb1 libxext6 libxrandr2 \
@@ -39,6 +45,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && npm install -g agent-browser playwright \
     && playwright install chromium \
+    && chmod -R o+rx /opt/pw-browsers \
     && npm uninstall -g playwright
 
 # --- GitHub CLI (for read-only public repo operations without auth) ---
@@ -52,6 +59,11 @@ RUN (type -p wget >/dev/null || (apt-get update && apt-get install wget -y)) \
     && apt-get update \
     && apt-get install gh -y \
     && rm -rf /var/lib/apt/lists/*
+
+# --- Compatibility fixes ---
+# Mark /workspace as a git safe.directory in system-level config so it works
+# regardless of which UID the container runs as (--user flag).
+RUN git config --system --add safe.directory /workspace
 
 # --- Workspace ---
 # The host workspace is bind-mounted at /workspace at runtime.
