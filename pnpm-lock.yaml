@@ -25,11 +25,11 @@ importers:
         specifier: ^2.29.8
         version: 2.29.8(@types/node@18.19.130)
       '@flue/cli':
-        specifier: ^0.0.27
-        version: 0.0.27(typescript@5.9.3)
+        specifier: ^0.0.28
+        version: 0.0.28(typescript@5.9.3)
       '@flue/client':
-        specifier: ^0.0.14
-        version: 0.0.14(typescript@5.9.3)
+        specifier: ^0.0.15
+        version: 0.0.15(typescript@5.9.3)
       '@types/node':
         specifier: ^18.19.115
         version: 18.19.130
@@ -8821,12 +8821,12 @@ packages:
   '@fastify/static@9.0.0':
     resolution: {integrity: sha512-r64H8Woe/vfilg5RTy7lwWlE8ZZcTrc3kebYFMEUBrMqlydhQyoiExQXdYAy2REVpST/G35+stAM8WYp1WGmMA==}
 
-  '@flue/cli@0.0.27':
-    resolution: {integrity: sha512-XdxS301ji3AdVdVt9fOXz68T4kJCQ2OMdYSM4+TbTNkZGq9wzEWYtSzKkdd9O9ZUao0ClKcMBa+g9FHBMA7ziw==}
+  '@flue/cli@0.0.28':
+    resolution: {integrity: sha512-ZzUftNTJj7UBI76+NvY0/Bixs3aS41Ej71XXm7iWmP0nM0RnWzhZj8K++WrOhjuuHcahVgKetDdHWWGN/xswug==}
     hasBin: true
 
-  '@flue/client@0.0.14':
-    resolution: {integrity: sha512-Emp11h/H888FJzb1Egho4bD432BujlNpJK5vjTYZtXx5ixAhUrRAii5/z3ZNJixn14A4a8UHAG3mHE079KQqvw==}
+  '@flue/client@0.0.15':
+    resolution: {integrity: sha512-QRq3iRjnuyMseEAg6yn5+Bl5PNVG09YIg3cC1Z629XKxACC3jZtYD3xy7VqdUHxLETfPkQIGM+VROt0saE1sNw==}
 
   '@fontsource/monofett@5.2.8':
     resolution: {integrity: sha512-cUtT8ScH3HHsMBkRrXFCrhGpKqRrKVNOhnYVSusECfB7g13YZjOrrLlhlc3o+R2IYpRrQQg/T/febSVD6k2Dhw==}
@@ -18078,13 +18078,13 @@ snapshots:
       fastq: 1.19.1
       glob: 13.0.1
 
-  '@flue/cli@0.0.27(typescript@5.9.3)':
+  '@flue/cli@0.0.28(typescript@5.9.3)':
     dependencies:
-      '@flue/client': 0.0.14(typescript@5.9.3)
+      '@flue/client': 0.0.15(typescript@5.9.3)
     transitivePeerDependencies:
       - typescript
 
-  '@flue/client@0.0.14(typescript@5.9.3)':
+  '@flue/client@0.0.15(typescript@5.9.3)':
     dependencies:
       '@opencode-ai/sdk': 1.2.2
       '@valibot/to-json-schema': 1.5.0(valibot@1.2.0(typescript@5.9.3))
