@@ -51,7 +51,7 @@ export function createCloudflarePrerenderer({
 				},
 				root: fileURLToPath(root),
 				preview: {
-					host: 'localhost',
+					host: '127.0.0.1',
 					port: 0, // Let the OS pick a free port
 					open: false,
 				},
@@ -60,7 +60,7 @@ export function createCloudflarePrerenderer({
 
 			const address = previewServer.httpServer.address();
 			if (address && typeof address === 'object') {
-				serverUrl = `http://localhost:${address.port}`;
+				serverUrl = `http://127.0.0.1:${address.port}`;
 			} else {
 				throw new Error(
 					'Failed to start the Cloudflare prerender server. The preview server did not return a valid address. ' +
