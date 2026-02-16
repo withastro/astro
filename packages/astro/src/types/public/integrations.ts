@@ -119,27 +119,30 @@ export interface AstroAdapterClientConfig {
 	assetQueryParams?: URLSearchParams;
 }
 
-interface AdapterLegacyDynamicProperties {
+interface AdapterExplicitProperties {
 	/**
 	 * Determines how the adapter's entrypoint is handled during the build.
-	 * - `'self'`: The adapter defines its own entrypoint and sets rollupOptions.input
-	 * - `'legacy-dynamic'`: Uses the virtual module entrypoint with dynamic exports
-	 * @default 'legacy-dynamic'
+	 * - `'auto'`: The adapter defines its own entrypoint and provides either serverEntrypoint or rollupOptions.input
+	 * - `'explicit'`: Uses the virtual module entrypoint with dynamic exports
+	 * @default 'explicit'
+	 * @deprecated This will be removed in a future major version and `'auto'` will become the default
 	 */
-	entryType?: 'legacy-dynamic';
+	entrypointResolution?: 'explicit';
 	serverEntrypoint?: string | URL;
+	/** @deprecated This will be removed in a future major version, alongside `entrypointResolution: 'explicit'` */
 	exports?: string[];
+	/** @deprecated This will be removed in a future major version, alongside `entrypointResolution: 'explicit'` */
 	args?: any;
 }
 
-interface AdapterSelfProperties {
+interface AdapterAutoProperties {
 	/**
 	 * Determines how the adapter's entrypoint is handled during the build.
-	 * - `'self'`: The adapter defines its own entrypoint and sets rollupOptions.input
-	 * - `'legacy-dynamic'`: Uses the virtual module entrypoint with dynamic exports
-	 * @default 'legacy-dynamic'
+	 * - `'auto'`: The adapter defines its own entrypoint and provides either serverEntrypoint or rollupOptions.input
+	 * - `'explicit'`: Uses the virtual module entrypoint with dynamic exports
+	 * @default 'explicit'
 	 */
-	entryType: 'self';
+	entrypointResolution: 'auto';
 	serverEntrypoint?: string | URL;
 }
 
@@ -157,7 +160,7 @@ export type AstroAdapter = {
 	 * Configuration for Astro's client-side code.
 	 */
 	client?: AstroAdapterClientConfig;
-} & (AdapterLegacyDynamicProperties | AdapterSelfProperties);
+} & (AdapterExplicitProperties | AdapterAutoProperties);
 
 /**
  * A pathname with its associated route, used for prerendering.
