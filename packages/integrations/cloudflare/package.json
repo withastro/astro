@@ -23,9 +23,9 @@
     "./entrypoints/server": "./dist/entrypoints/server.js",
     "./entrypoints/preview": "./dist/entrypoints/preview.js",
     "./entrypoints/server.js": "./dist/entrypoints/server.js",
-    "./image-service": "./dist/entrypoints/image-service.js",
-    "./image-endpoint": "./dist/entrypoints/image-endpoint.js",
+    "./image-service": "./dist/entrypoints/image-service-external.js",
     "./image-transform-endpoint": "./dist/entrypoints/image-transform-endpoint.js",
+    "./image-service-workerd": "./dist/entrypoints/image-service-workerd.js",
     "./handler": "./dist/utils/handler.js",
     "./types.d.ts": "./types.d.ts",
     "./package.json": "./package.json"

@@ -74,23 +74,11 @@ describe('CompileImageService', () => {
 			assert.equal(status, 403);
 		});
 
-		it('allows trusted with redirect', async () => {
-			const res = await fixture.fetch(
-				'/_image?href=https://astro.build/_astro/HeroBackground.B0iWl89K_2hpsgp.webp',
-				{ redirect: 'manual' },
-			);
-			const header = res.headers.get('location');
-			const status = res.status;
-			assert.equal(header, 'https://astro.build/_astro/HeroBackground.B0iWl89K_2hpsgp.webp');
-			assert.equal(status, 302);
-		});
-
 		it('allows local', async () => {
-			const res = await fixture.fetch('/_image?href=/_astro/placeholder.gLBdjEDe.jpg');
+			const res = await fixture.fetch('/_image?href=/_astro/placeholder.gLBdjEDe.jpg&f=jpg');
+			assert.equal(res.status, 200);
 			const blob = await res.blob();
-			const status = res.status;
 			assert.equal(blob.type, 'image/jpeg');
-			assert.equal(status, 200);
 		});
 	});
 });
