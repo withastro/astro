@@ -4295,12 +4295,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/ssr-locals:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/ssr-markdown:
     dependencies:
       astro:
@@ -4341,12 +4335,6 @@ importers:
         version: link:../../..
 
   packages/astro/test/fixtures/ssr-request:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/ssr-response:
     dependencies:
       astro:
         specifier: workspace:*
@@ -6672,8 +6660,8 @@ importers:
   packages/language-tools/language-server:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^2.13.0
-        version: 2.13.0
+        specifier: ^2.13.1
+        version: 2.13.1
       '@astrojs/yaml2ts':
         specifier: ^0.2.2
         version: link:../yaml2ts
@@ -6763,7 +6751,7 @@ importers:
         specifier: workspace:*
         version: link:../../../astro
       svelte:
-        specifier: ^5.49.1
+        specifier: ^5.50.3
         version: 5.50.3
     devDependencies:
       tinyglobby:
@@ -6779,8 +6767,8 @@ importers:
   packages/language-tools/ts-plugin:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^2.13.0
-        version: 2.13.0
+        specifier: ^2.13.1
+        version: 2.13.1
       '@astrojs/yaml2ts':
         specifier: ^0.2.2
         version: link:../yaml2ts
@@ -6794,7 +6782,7 @@ importers:
         specifier: ~2.4.28
         version: 2.4.28
       semver:
-        specifier: ^7.7.3
+        specifier: ^7.7.4
         version: 7.7.4
       vscode-languageserver-textdocument:
         specifier: ^1.0.12
@@ -6828,8 +6816,8 @@ importers:
   packages/language-tools/vscode:
     dependencies:
       '@astrojs/compiler':
-        specifier: ^2.13.0
-        version: 2.13.0
+        specifier: ^2.13.1
+        version: 2.13.1
       prettier:
         specifier: ^3.8.1
         version: 3.8.1
@@ -6883,8 +6871,8 @@ importers:
         specifier: ^11.7.5
         version: 11.7.5
       ovsx:
-        specifier: ^0.10.8
-        version: 0.10.8
+        specifier: ^0.10.9
+        version: 0.10.9
       vscode-languageclient:
         specifier: ^9.0.1
         version: 9.0.1
@@ -7134,8 +7122,8 @@ packages:
     resolution: {integrity: sha512-bVzyKzEpIwqjihBU/aUzt1LQckJuHK0agd3/ITdXhPUYculrc6K1/K7H+XG4rwjXtg+ikT3PM05V1MVYWiIvQw==}
     engines: {node: '>=18.14.1'}
 
-  '@astrojs/compiler@2.13.0':
-    resolution: {integrity: sha512-mqVORhUJViA28fwHYaWmsXSzLO9osbdZ5ImUfxBarqsYdMlPbqAqGJCxsNzvppp1BEzc1mJNjOVvQqeDN8Vspw==}
+  '@astrojs/compiler@2.13.1':
+    resolution: {integrity: sha512-f3FN83d2G/v32ipNClRKgYv30onQlMZX1vCeZMjPsMMPl1mDpmbl0+N5BYo4S/ofzqJyS5hvwacEo0CCVDn/Qg==}
 
   '@astrojs/compiler@3.0.0-beta.0':
     resolution: {integrity: sha512-wrWArjuyeEhoUZUr+o3Ts3CFbxB+QFYvzsnnR0wr3L0b84JDxq107mZOfmNZ/XPE4VjFzjjApvHKCVGQjNJm8Q==}
@@ -10628,8 +10616,8 @@ packages:
     engines: {node: '>= 16'}
     hasBin: true
 
-  '@vscode/vsce@3.6.2':
-    resolution: {integrity: sha512-gvBfarWF+Ii20ESqjA3dpnPJpQJ8fFJYtcWtjwbRADommCzGg1emtmb34E+DKKhECYvaVyAl+TF9lWS/3GSPvg==}
+  '@vscode/vsce@3.7.1':
+    resolution: {integrity: sha512-OTm2XdMt2YkpSn2Nx7z2EJtSuhRHsTPYsSK59hr3v8jRArK+2UEoju4Jumn1CmpgoBLGI6ReHLJ/czYltNUW3g==}
     engines: {node: '>= 20'}
     hasBin: true
 
@@ -13855,8 +13843,8 @@ packages:
   outdent@0.5.0:
     resolution: {integrity: sha512-/jHxFIzoMXdqPzTaCpFzAAWhpkSjZPF4Vsn6jAfNpmbH/ymsmd7Qc6VE9BGn0L6YMj6uwpQLxCECpus4ukKS9Q==}
 
-  ovsx@0.10.8:
-    resolution: {integrity: sha512-Vf6ZQi2l4ENUUdO8eZhduQVcxYjhLt3LT2OL1ah+4XOZjJakanjhDr563wmcqZJZgbK/Tn09RAMkhblrp0lt/g==}
+  ovsx@0.10.9:
+    resolution: {integrity: sha512-gY6912U50YzzNdAEFr9IxAqu59pKySXZzJUxzHRzi3/h/fWFdDDFCCXyjik6VL4TmiVKeor1Yv/cg7I3KfOUuQ==}
     engines: {node: '>= 20'}
     hasBin: true
 
@@ -16418,7 +16406,7 @@ snapshots:
       log-update: 5.0.1
       sisteransi: 1.0.5
 
-  '@astrojs/compiler@2.13.0': {}
+  '@astrojs/compiler@2.13.1': {}
 
   '@astrojs/compiler@3.0.0-beta.0': {}
 
@@ -16428,7 +16416,7 @@ snapshots:
 
   '@astrojs/language-server@2.16.2(prettier-plugin-astro@0.14.1)(prettier@3.8.1)(typescript@5.9.3)':
     dependencies:
-      '@astrojs/compiler': 2.13.0
+      '@astrojs/compiler': 2.13.1
       '@astrojs/yaml2ts': 0.2.2
       '@jridgewell/sourcemap-codec': 1.5.5
       '@volar/kit': 2.4.28(typescript@5.9.3)
@@ -20067,7 +20055,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vscode/vsce@3.6.2':
+  '@vscode/vsce@3.7.1':
     dependencies:
       '@azure/identity': 4.13.0
       '@secretlint/node': 10.2.2
@@ -23874,9 +23862,9 @@ snapshots:
 
   outdent@0.5.0: {}
 
-  ovsx@0.10.8:
+  ovsx@0.10.9:
     dependencies:
-      '@vscode/vsce': 3.6.2
+      '@vscode/vsce': 3.7.1
       commander: 6.2.1
       follow-redirects: 1.15.11
       is-ci: 2.0.0
@@ -24428,7 +24416,7 @@ snapshots:
 
   prettier-plugin-astro@0.14.1:
     dependencies:
-      '@astrojs/compiler': 2.13.0
+      '@astrojs/compiler': 2.13.1
       prettier: 3.8.1
       sass-formatter: 0.7.9
 
