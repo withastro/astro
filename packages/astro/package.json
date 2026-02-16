@@ -116,7 +116,7 @@
     "test:integration": "astro-scripts test \"test/*.test.js\""
   },
   "dependencies": {
-    "@astrojs/compiler": "link:../../../compiler-rs/packages/compiler",
+    "@astrojs/compiler": "^3.0.0-beta.0",
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/markdown-remark": "workspace:*",
     "@astrojs/telemetry": "workspace:*",
@@ -180,6 +180,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "workspace:*",
+    "@astrojs/compiler-rs": "link:../../../compiler-rs/packages/compiler",
     "@playwright/test": "1.58.1",
     "@types/aria-query": "^5.0.4",
     "@types/cssesc": "^3.0.2",

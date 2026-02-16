@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import type { PreprocessorError, PreprocessorResult } from '@astrojs/compiler';
 import { preprocessCSS, type ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../types/public/config.js';
 import { AstroErrorData, CSSError, positionAt } from '../errors/index.js';
@@ -7,6 +6,20 @@ import { normalizePath } from '../viteUtils.js';
 import type { CompileCssResult } from './types.js';
 
 export type PartialCompileCssResult = Pick<CompileCssResult, 'isGlobal' | 'dependencies'>;
+
+interface PreprocessorResult {
+	code: string;
+	map?: string;
+}
+
+interface PreprocessorError {
+	error: string;
+}
+
+export type PreprocessStyleFn = (
+	content: string,
+	attrs: Record<string, string>,
+) => Promise<PreprocessorResult | PreprocessorError>;
 
 /**
  * Rewrites absolute URLs in CSS to include the base path.
@@ -77,11 +90,6 @@ function rewriteCssUrls(css: string, base: string): string {
 		return match;
 	});
 }
-
-type PreprocessStyleFn = (
-	content: string,
-	attrs: Record<string, string>,
-) => Promise<PreprocessorResult | PreprocessorError | null>;
 
 export function createStylePreprocessor({
 	filename,

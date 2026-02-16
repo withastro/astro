@@ -2800,6 +2800,33 @@ export interface AstroUserConfig<
 		 * See the [experimental SVGO optimization docs](https://docs.astro.build/en/reference/experimental-flags/svg-optimization/) for more information.
 		 */
 		svgo?: boolean | SvgoConfig;
+
+		/**
+		 * @name experimental.rustCompiler
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 5.x
+		 * @description
+		 *
+		 * Enables the experimental Rust-based Astro compiler (`@astrojs/compiler-rs`) as a replacement
+		 * for the default Go-based compiler.
+		 *
+		 * The Rust compiler is faster and produces JavaScript output directly, removing the need for
+		 * an additional esbuild TypeScript transform step. It requires installing `@astrojs/compiler-rs`
+		 * as a dev dependency.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * import { defineConfig } from 'astro/config';
+		 *
+		 * export default defineConfig({
+		 *   experimental: {
+		 *     rustCompiler: true,
+		 *   },
+		 * });
+		 * ```
+		 */
+		rustCompiler?: boolean;
 	};
 }
 

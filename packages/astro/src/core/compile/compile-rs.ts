@@ -1,6 +1,4 @@
 import { fileURLToPath } from 'node:url';
-import type { TransformResult } from '@astrojs/compiler';
-import { transform } from '@astrojs/compiler';
 import type { ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../types/public/config.js';
 import type { AstroError } from '../errors/errors.js';
@@ -18,8 +16,19 @@ export interface CompileProps {
 	source: string;
 }
 
-export interface CompileResult extends Omit<TransformResult, 'css'> {
+export interface CompileResult {
+	code: string;
+	map: string;
+	scope: string;
 	css: CompileCssResult[];
+	scripts: any[];
+	hydratedComponents: any[];
+	clientOnlyComponents: any[];
+	serverComponents: any[];
+	containsHead: boolean;
+	propagation: boolean;
+	styleError: string[];
+	diagnostics: any[];
 }
 
 export async function compile({
@@ -29,18 +38,34 @@ export async function compile({
 	filename,
 	source,
 }: CompileProps): Promise<CompileResult> {
-	// Because `@astrojs/compiler` can't return the dependencies for each style transformed,
+	const { preprocessStyles, transform } = await import('@astrojs/compiler-rs');
+
+	// Because `@astrojs/compiler-rs` can't return the dependencies for each style transformed,
 	// we need to use an external array to track the dependencies whenever preprocessing is called,
 	// and we'll rebuild the final `css` result after transformation.
 	const cssPartialCompileResults: PartialCompileCssResult[] = [];
 	const cssTransformErrors: AstroError[] = [];
-	let transformResult: TransformResult;
+	let transformResult: any;
 
 	try {
-		// Transform from `.astro` to valid `.ts`
+		// Transform from `.astro` to valid `.js`
 		// use `sourcemap: "both"` so that sourcemap is included in the code
 		// result passed to esbuild, but also available in the catch handler.
-		transformResult = await transform(source, {
+
+		// Step 1: Preprocess styles (async — calls Vite's preprocessCSS)
+		const preprocessedStyles = await preprocessStyles(
+			source,
+			createStylePreprocessor({
+				filename,
+				viteConfig,
+				astroConfig,
+				cssPartialCompileResults,
+				cssTransformErrors,
+			}),
+		);
+
+		// Step 2: Transform (always sync)
+		transformResult = transform(source, {
 			compact: astroConfig.compressHTML,
 			filename,
 			normalizedFilename: normalizeFilename(filename, astroConfig.root),
@@ -56,14 +81,8 @@ export async function compile({
 				astroConfig.devToolbar &&
 				astroConfig.devToolbar.enabled &&
 				toolbarEnabled,
-			preprocessStyle: createStylePreprocessor({
-				filename,
-				viteConfig,
-				astroConfig,
-				cssPartialCompileResults,
-				cssTransformErrors,
-			}),
-			async resolvePath(specifier) {
+			preprocessedStyles,
+			resolvePath(specifier) {
 				return resolvePath(specifier, filename);
 			},
 		});
@@ -80,30 +99,32 @@ export async function compile({
 		});
 	}
 
-	handleCompileResultErrors(transformResult, cssTransformErrors);
+	handleCompileResultErrors(filename, transformResult, cssTransformErrors);
 
 	return {
 		...transformResult,
-		css: transformResult.css.map((code, i) => ({
+		css: transformResult.css.map((code: string, i: number) => ({
 			...cssPartialCompileResults[i],
 			code,
 		})),
 	};
 }
 
-function handleCompileResultErrors(result: TransformResult, cssTransformErrors: AstroError[]) {
-	// TODO: Export the DiagnosticSeverity enum from @astrojs/compiler?
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
-	const compilerError = result.diagnostics.find((diag) => diag.severity === 1);
+function handleCompileResultErrors(
+	filename: string,
+	result: any,
+	cssTransformErrors: AstroError[],
+) {
+	const compilerError = result.diagnostics.find((diag: any) => diag.severity === 'error');
 
 	if (compilerError) {
 		throw new CompilerError({
 			name: 'CompilerError',
 			message: compilerError.text,
 			location: {
-				line: compilerError.location.line,
-				column: compilerError.location.column,
-				file: compilerError.location.file,
+				line: compilerError.labels[0].line,
+				column: compilerError.labels[0].column,
+				file: filename,
 			},
 			hint: compilerError.hint,
 		});

@@ -1,4 +1,4 @@
-import type { Component } from '@astrojs/compiler/types';
+import type { HydratedComponent } from '@astrojs/compiler/types';
 import type { SourceDescription } from 'rollup';
 import type * as vite from 'vite';
 import { defaultClientConditions, defaultServerConditions, normalizePath } from 'vite';
@@ -9,6 +9,7 @@ import type { AstroSettings } from '../types/astro.js';
 import type { AstroConfig } from '../types/public/config.js';
 import { normalizeFilename, specialQueriesRE } from '../vite-plugin-utils/index.js';
 import { type CompileAstroResult, compileAstro } from './compile.js';
+import { compileAstro as compileAstroRs } from './compile-rs.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
 import type { PluginMetadata as AstroPluginMetadata, CompileMetadata } from './types.js';
@@ -38,7 +39,8 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 	// Variables for determining if an id starts with /src...
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
 	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb) && srcRootWeb !== '/';
-	const notAstroComponent = (component: Component) => !component.resolvedPath.endsWith('.astro');
+	const notAstroComponent = (component: HydratedComponent) =>
+		!component.resolvedPath.endsWith('.astro');
 
 	return [
 		{
@@ -87,17 +89,26 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 			},
 			async configResolved(viteConfig) {
 				const toolbarEnabled = await settings.preferences.get('devToolbar.enabled');
+				const useRustCompiler = config.experimental.rustCompiler;
 				// Initialize `compile` function to simplify usage later
 				compile = (code, filename) => {
+					const compileProps = {
+						astroConfig: config,
+						viteConfig,
+						toolbarEnabled,
+						filename,
+						source: code,
+					};
+					if (useRustCompiler) {
+						return compileAstroRs({
+							compileProps,
+							astroFileToCompileMetadata,
+						});
+					}
 					return compileAstro({
-						compileProps: {
-							astroConfig: config,
-							viteConfig,
-							toolbarEnabled,
-							filename,
-							source: code,
-						},
+						compileProps,
 						astroFileToCompileMetadata,
+						logger,
 					});
 				};
 			},
