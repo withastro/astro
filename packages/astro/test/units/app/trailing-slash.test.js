@@ -1,24 +1,155 @@
 import assert from 'node:assert/strict';
-import { before, describe, it } from 'node:test';
-import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
+import { describe, it } from 'node:test';
+import { App } from '../../../dist/core/app/app.js';
+import { createComponent, render } from '../../../dist/runtime/server/index.js';
+
+function createManifest({ routes, pageMap, base = '/', trailingSlash = 'ignore' }) {
+	const rootDir = new URL('file:///astro-test/');
+	const buildDir = new URL('file:///astro-test/dist/');
+
+	return {
+		adapterName: 'test-adapter',
+		routes,
+		site: undefined,
+		base,
+		userAssetsBase: undefined,
+		trailingSlash,
+		buildFormat: 'directory',
+		compressHTML: false,
+		assetsPrefix: undefined,
+		renderers: [],
+		serverLike: true,
+		clientDirectives: new Map(),
+		entryModules: {},
+		inlinedScripts: new Map(),
+		assets: new Set(),
+		componentMetadata: new Map(),
+		pageModule: undefined,
+		pageMap,
+		serverIslandMappings: undefined,
+		key: Promise.resolve(/** @type {CryptoKey} */ ({})),
+		i18n: undefined,
+		middleware: undefined,
+		actions: undefined,
+		sessionDriver: undefined,
+		checkOrigin: false,
+		allowedDomains: undefined,
+		sessionConfig: undefined,
+		cacheDir: rootDir,
+		srcDir: rootDir,
+		outDir: buildDir,
+		rootDir,
+		publicDir: rootDir,
+		assetsDir: 'assets',
+		buildClientDir: buildDir,
+		buildServerDir: buildDir,
+		csp: undefined,
+		image: {},
+		shouldInjectCspMetaTags: false,
+		devToolbar: {
+			enabled: false,
+			latestAstroVersion: undefined,
+			debugInfoOutput: undefined,
+			placement: undefined,
+		},
+		internalFetchHeaders: undefined,
+		logLevel: 'silent',
+	};
+}
+
+function escapeRoute(route) {
+	return route.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function createRouteData(route) {
+	const segments = route
+		.split('/')
+		.filter(Boolean)
+		.map((segment) => [{ content: segment, dynamic: false, spread: false }]);
+
+	return {
+		route,
+		component: `src/pages${route}.astro`,
+		params: [],
+		pathname: route,
+		distURL: [],
+		pattern: new RegExp(`^${escapeRoute(route)}\\/?$`),
+		segments,
+		type: 'page',
+		prerender: false,
+		fallbackRoutes: [],
+		isIndex: false,
+		origin: 'project',
+	};
+}
+
+const okPage = createComponent(() => {
+	return render`<h1>Ok</h1>`;
+});
+
+const notFoundPage = createComponent(() => {
+	return render`<h1>Not Found</h1>`;
+});
+
+const anotherRouteData = createRouteData('/another');
+const subPathRouteData = createRouteData('/sub/path');
+const dotPathRouteData = createRouteData('/dot.in.directory/path');
+const notFoundRouteData = {
+	...createRouteData('/404'),
+	component: 'src/pages/404.astro',
+};
+
+const pageMap = new Map([
+	[
+		anotherRouteData.component,
+		async () => ({
+			page: async () => ({
+				default: okPage,
+			}),
+		}),
+	],
+	[
+		subPathRouteData.component,
+		async () => ({
+			page: async () => ({
+				default: okPage,
+			}),
+		}),
+	],
+	[
+		dotPathRouteData.component,
+		async () => ({
+			page: async () => ({
+				default: okPage,
+			}),
+		}),
+	],
+	[
+		notFoundRouteData.component,
+		async () => ({
+			page: async () => ({
+				default: notFoundPage,
+			}),
+		}),
+	],
+]);
 
 describe('Redirecting trailing slashes in SSR', () => {
-	/** @type {import('./test-utils.js').Fixture} */
-	let fixture;
-
 	describe('trailingSlash: always', () => {
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/ssr-response/',
-				adapter: testAdapter(),
-				output: 'server',
+		const app = new App(
+			createManifest({
 				trailingSlash: 'always',
-			});
-			await fixture.build();
-		});
+				routes: [
+					{ routeData: anotherRouteData },
+					{ routeData: subPathRouteData },
+					{ routeData: dotPathRouteData },
+					{ routeData: notFoundRouteData },
+				],
+				pageMap,
+			}),
+		);
+
 		it('Redirects to add a trailing slash', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another');
 			const response = await app.render(request);
 			assert.equal(response.status, 301);
@@ -26,7 +157,6 @@ describe('Redirecting trailing slashes in SSR', () => {
 		});
 
 		it('Redirects to collapse multiple trailing slashes', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another///');
 			const response = await app.render(request);
 			assert.equal(response.status, 301);
@@ -34,7 +164,6 @@ describe('Redirecting trailing slashes in SSR', () => {
 		});
 
 		it('Redirects to collapse multiple trailing slashes with query param', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another///?hello=world');
 			const response = await app.render(request);
 			assert.equal(response.status, 301);
@@ -42,28 +171,24 @@ describe('Redirecting trailing slashes in SSR', () => {
 		});
 
 		it('Does not redirect to collapse multiple internal slashes', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another///path/');
 			const response = await app.render(request);
 			assert.equal(response.status, 404);
 		});
 
 		it('Does not redirect trailing slashes on query params', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another/?hello=world///');
 			const response = await app.render(request);
 			assert.equal(response.status, 200);
 		});
 
 		it('Does not redirect when trailing slash is present', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another/');
 			const response = await app.render(request);
 			assert.equal(response.status, 200);
 		});
 
 		it('Redirects with query params', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another?foo=bar');
 			const response = await app.render(request);
 			assert.equal(response.status, 301);
@@ -71,14 +196,12 @@ describe('Redirecting trailing slashes in SSR', () => {
 		});
 
 		it('Does not redirect with query params when trailing slash is present', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another/?foo=bar');
 			const response = await app.render(request);
 			assert.equal(response.status, 200);
 		});
 
 		it('Redirects subdirectories to add a trailing slash', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/sub/path');
 			const response = await app.render(request);
 			assert.equal(response.status, 301);
@@ -86,21 +209,18 @@ describe('Redirecting trailing slashes in SSR', () => {
 		});
 
 		it('Does not redirect requests for files', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/favicon.ico');
 			const response = await app.render(request);
 			assert.equal(response.status, 404);
 		});
 
 		it('Does not redirect requests for files in subdirectories', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/sub/favicon.ico');
 			const response = await app.render(request);
 			assert.equal(response.status, 404);
 		});
 
 		it('Does redirect if the dot is in a directory name', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/dot.in.directory/path');
 			const response = await app.render(request);
 			assert.equal(response.status, 301);
@@ -108,8 +228,6 @@ describe('Redirecting trailing slashes in SSR', () => {
 		});
 
 		it('Does not redirect internal paths', async () => {
-			const app = await fixture.loadTestAdapterApp();
-
 			for (const path of [
 				'/_astro/something',
 				'/_image?url=http://example.com/foo.jpg',
@@ -125,7 +243,6 @@ describe('Redirecting trailing slashes in SSR', () => {
 		});
 
 		it('Redirects POST requests', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another', { method: 'POST' });
 			const response = await app.render(request);
 			assert.equal(response.status, 308);
@@ -134,18 +251,19 @@ describe('Redirecting trailing slashes in SSR', () => {
 	});
 
 	describe('trailingSlash: never', () => {
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/ssr-response/',
-				adapter: testAdapter(),
-				output: 'server',
+		const app = new App(
+			createManifest({
 				trailingSlash: 'never',
-			});
-			await fixture.build();
-		});
+				routes: [
+					{ routeData: anotherRouteData },
+					{ routeData: subPathRouteData },
+					{ routeData: notFoundRouteData },
+				],
+				pageMap,
+			}),
+		);
 
 		it('Redirects to remove a trailing slash', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another/');
 			const response = await app.render(request);
 			assert.equal(response.status, 301);
@@ -153,7 +271,6 @@ describe('Redirecting trailing slashes in SSR', () => {
 		});
 
 		it('Redirects to collapse multiple trailing slashes', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another///');
 			const response = await app.render(request);
 			assert.equal(response.status, 301);
@@ -161,14 +278,12 @@ describe('Redirecting trailing slashes in SSR', () => {
 		});
 
 		it('Does not redirect when trailing slash is absent', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another');
 			const response = await app.render(request);
 			assert.equal(response.status, 200);
 		});
 
 		it('Redirects with query params', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another/?foo=bar');
 			const response = await app.render(request);
 			assert.equal(response.status, 301);
@@ -176,21 +291,18 @@ describe('Redirecting trailing slashes in SSR', () => {
 		});
 
 		it('Does not redirect with query params when trailing slash is absent', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another?foo=bar');
 			const response = await app.render(request);
 			assert.equal(response.status, 200);
 		});
 
 		it("Does not redirect when there's a slash at the end of query params", async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another?foo=bar/');
 			const response = await app.render(request);
 			assert.equal(response.status, 200);
 		});
 
 		it('Redirects subdirectories to remove a trailing slash', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/sub/path/');
 			const response = await app.render(request);
 			assert.equal(response.status, 301);
@@ -198,7 +310,6 @@ describe('Redirecting trailing slashes in SSR', () => {
 		});
 
 		it("Redirects even if there's a dot in the directory name", async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/favicon.ico/');
 			const response = await app.render(request);
 			assert.equal(response.status, 301);
@@ -206,8 +317,6 @@ describe('Redirecting trailing slashes in SSR', () => {
 		});
 
 		it('Does not redirect internal paths', async () => {
-			const app = await fixture.loadTestAdapterApp();
-
 			for (const path of [
 				'/_astro/something/',
 				'/_image/?url=http://example.com/foo.jpg',
@@ -216,14 +325,13 @@ describe('Redirecting trailing slashes in SSR', () => {
 				'/.netlify/image/?url=http://example.com/foo.jpg',
 				'//target.example/path/',
 			]) {
-				const request = new Request(`http://example.com${path}/`);
+				const request = new Request(`http://example.com${path}`);
 				const response = await app.render(request);
 				assert.notEqual(response.status, 301);
 			}
 		});
 
 		it('Redirects POST requests', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another/', { method: 'POST' });
 			const response = await app.render(request);
 			assert.equal(response.status, 308);
@@ -232,19 +340,16 @@ describe('Redirecting trailing slashes in SSR', () => {
 	});
 
 	describe('trailingSlash: never with base path', () => {
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/ssr-response/',
-				adapter: testAdapter(),
-				output: 'server',
-				trailingSlash: 'never',
+		const app = new App(
+			createManifest({
 				base: '/mybase',
-			});
-			await fixture.build();
-		});
+				trailingSlash: 'never',
+				routes: [{ routeData: anotherRouteData }, { routeData: notFoundRouteData }],
+				pageMap,
+			}),
+		);
 
 		it('Redirects to remove a trailing slash on base path', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/mybase/');
 			const response = await app.render(request);
 			assert.equal(response.status, 301);
@@ -252,16 +357,13 @@ describe('Redirecting trailing slashes in SSR', () => {
 		});
 
 		it('Does not redirect when base path has no trailing slash', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/mybase');
 			const response = await app.render(request);
-			// Should not redirect, but will 404 since we don't have an index page
 			assert.notEqual(response.status, 301);
 			assert.notEqual(response.status, 308);
 		});
 
 		it('Redirects to remove trailing slash on sub-paths with base', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/mybase/another/');
 			const response = await app.render(request);
 			assert.equal(response.status, 301);
@@ -269,7 +371,6 @@ describe('Redirecting trailing slashes in SSR', () => {
 		});
 
 		it('Does not redirect sub-paths without trailing slash with base', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/mybase/another');
 			const response = await app.render(request);
 			assert.equal(response.status, 200);
@@ -277,18 +378,15 @@ describe('Redirecting trailing slashes in SSR', () => {
 	});
 
 	describe('trailingSlash: ignore', () => {
-		before(async () => {
-			fixture = await loadFixture({
-				root: './fixtures/ssr-response/',
-				adapter: testAdapter(),
-				output: 'server',
+		const app = new App(
+			createManifest({
 				trailingSlash: 'ignore',
-			});
-			await fixture.build();
-		});
+				routes: [{ routeData: anotherRouteData }, { routeData: notFoundRouteData }],
+				pageMap,
+			}),
+		);
 
 		it('Redirects to collapse multiple trailing slashes', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another///');
 			const response = await app.render(request);
 			assert.equal(response.status, 301);
@@ -296,22 +394,18 @@ describe('Redirecting trailing slashes in SSR', () => {
 		});
 
 		it('Does not redirect when trailing slash is absent', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another');
 			const response = await app.render(request);
 			assert.equal(response.status, 200);
 		});
 
 		it('Does not redirect when trailing slash is present', async () => {
-			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/another/');
 			const response = await app.render(request);
 			assert.equal(response.status, 200);
 		});
 
 		it('Does not redirect internal paths', async () => {
-			const app = await fixture.loadTestAdapterApp();
-
 			for (const path of [
 				'/_astro/something//',
 				'/_image//?url=http://example.com/foo.jpg',
