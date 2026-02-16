@@ -25,11 +25,11 @@ importers:
         specifier: ^2.29.8
         version: 2.29.8(@types/node@18.19.130)
       '@flue/cli':
-        specifier: ^0.0.35
-        version: 0.0.35(typescript@5.9.3)
+        specifier: ^0.0.36
+        version: 0.0.36(typescript@5.9.3)
       '@flue/client':
-        specifier: ^0.0.21
-        version: 0.0.21(typescript@5.9.3)
+        specifier: ^0.0.22
+        version: 0.0.22(typescript@5.9.3)
       '@types/node':
         specifier: ^18.19.115
         version: 18.19.130
@@ -8791,15 +8791,15 @@ packages:
   '@fastify/static@9.0.0':
     resolution: {integrity: sha512-r64H8Woe/vfilg5RTy7lwWlE8ZZcTrc3kebYFMEUBrMqlydhQyoiExQXdYAy2REVpST/G35+stAM8WYp1WGmMA==}
 
-  '@flue/cli@0.0.35':
-    resolution: {integrity: sha512-f//UO3fdVe4OM5Q150199H4TrZN4vxBhdq5PrnAS6IF5SwTbukNI4G/kNU9PethkOWGYPmd1GbvCg0T5yoFs7w==}
+  '@flue/cli@0.0.36':
+    resolution: {integrity: sha512-boE+9+sdSciqq3ofjkno018HOhCVEncHvIL44mXUAlnjcsTTa8KYlWBM0/KAxdj4eYbnb0tQPrHCLGsMbXPlnQ==}
     hasBin: true
 
   '@flue/client@0.0.18':
     resolution: {integrity: sha512-DA0ctHnYj57qDGc1H5DvwPlsjlTncxCXX9mXtwfSN80Wa2mp1THYcgZZU+7VrlL0IjoPHNcqSwNF2w3keI9Bdw==}
 
-  '@flue/client@0.0.21':
-    resolution: {integrity: sha512-uuFQC98/VXPFk3LtibNI3akQTkqlvCZp13qqpsBujKNebuyF0srl5qr24PHCP6E6khnH7kUglbklGdfKTmbQTw==}
+  '@flue/client@0.0.22':
+    resolution: {integrity: sha512-luLK54HfMiKLeRNeUuCLWtP4RZS6QX/JXEs+LgZNC0nYSv2RbuqeIgQN76mLFYSHHvl2k9RtLhiPRd2yY6Ae9w==}
 
   '@fontsource/monofett@5.2.8':
     resolution: {integrity: sha512-cUtT8ScH3HHsMBkRrXFCrhGpKqRrKVNOhnYVSusECfB7g13YZjOrrLlhlc3o+R2IYpRrQQg/T/febSVD6k2Dhw==}
@@ -17973,7 +17973,7 @@ snapshots:
       fastq: 1.20.1
       glob: 13.0.3
 
-  '@flue/cli@0.0.35(typescript@5.9.3)':
+  '@flue/cli@0.0.36(typescript@5.9.3)':
     dependencies:
       '@flue/client': 0.0.18(typescript@5.9.3)
     transitivePeerDependencies:
@@ -17987,7 +17987,7 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@flue/client@0.0.21(typescript@5.9.3)':
+  '@flue/client@0.0.22(typescript@5.9.3)':
     dependencies:
       '@opencode-ai/sdk': 1.2.2
       '@valibot/to-json-schema': 1.5.0(valibot@1.2.0(typescript@5.9.3))
