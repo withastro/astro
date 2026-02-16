@@ -11,6 +11,8 @@ import { createApp } from 'astro/app/entrypoint';
 import { createRequest, writeResponse } from 'astro/app/node';
 import { createServer } from 'node:http';
 
+const app = createApp();
+
 const server = createServer(async (req, res) => {
     const request = createRequest(req);
     const response = await app.render(request);
