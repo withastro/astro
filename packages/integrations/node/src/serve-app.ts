@@ -1,6 +1,42 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { createReadStream } from 'node:fs';
+import path from 'node:path';
+import { Readable } from 'node:stream';
 import { NodeApp } from 'astro/app/node';
+import { resolveClientDir } from './shared.js';
 import type { Options, RequestHandler } from './types.js';
+
+/**
+ * Read a prerendered error page from disk and return it as a Response.
+ * Returns undefined if the file doesn't exist or can't be read.
+ */
+async function readErrorPageFromDisk(
+	client: string,
+	status: number,
+): Promise<Response | undefined> {
+	// Try both /404.html and /404/index.html patterns
+	const filePaths = [`${status}.html`, `${status}/index.html`];
+
+	for (const filePath of filePaths) {
+		const fullPath = path.join(client, filePath);
+		try {
+			const stream = createReadStream(fullPath);
+			// Wait for the stream to open successfully or error
+			await new Promise<void>((resolve, reject) => {
+				stream.once('open', () => resolve());
+				stream.once('error', reject);
+			});
+			const webStream = Readable.toWeb(stream) as ReadableStream;
+			return new Response(webStream, {
+				headers: { 'Content-Type': 'text/html; charset=utf-8' },
+			});
+		} catch {
+			// File doesn't exist or can't be read, try next pattern
+		}
+	}
+
+	return undefined;
+}
 
 /**
  * Creates a Node.js http listener for on-demand rendered pages, compatible with http.createServer and Connect middleware.
@@ -20,18 +56,30 @@ export function createAppHandler(app: NodeApp, options: Options): RequestHandler
 		console.error(reason);
 	});
 
-	const originUrl = options.experimentalErrorPageHost
-		? new URL(options.experimentalErrorPageHost)
-		: undefined;
+	const client = resolveClientDir(options);
 
-	const prerenderedErrorPageFetch = originUrl
-		? (url: string) => {
-				const errorPageUrl = new URL(url);
-				errorPageUrl.protocol = originUrl.protocol;
-				errorPageUrl.host = originUrl.host;
-				return fetch(errorPageUrl);
-			}
-		: undefined;
+	// Read prerendered error pages directly from disk instead of fetching over HTTP.
+	// This avoids SSRF risks and is more efficient.
+	const prerenderedErrorPageFetch = async (url: string): Promise<Response> => {
+		if (url.includes('/404')) {
+			const response = await readErrorPageFromDisk(client, 404);
+			if (response) return response;
+		}
+		if (url.includes('/500')) {
+			const response = await readErrorPageFromDisk(client, 500);
+			if (response) return response;
+		}
+		// Fallback: if experimentalErrorPageHost is configured, fetch from there
+		if (options.experimentalErrorPageHost) {
+			const originUrl = new URL(options.experimentalErrorPageHost);
+			const errorPageUrl = new URL(url);
+			errorPageUrl.protocol = originUrl.protocol;
+			errorPageUrl.host = originUrl.host;
+			return fetch(errorPageUrl);
+		}
+		// No file found and no fallback configured - return empty response
+		return new Response(null, { status: 404 });
+	};
 
 	return async (req, res, next, locals) => {
 		let request: Request;

@@ -40,8 +40,13 @@ function mergeConfigRecursively(
 			}
 		}
 
-		// for server.allowedHosts, if the value is a boolean
-		if (key === 'allowedHosts' && rootPath === 'server' && typeof existing === 'boolean') {
+		// for server.allowedHosts, if either value is a boolean, don't merge as arrays
+		if (
+			key === 'allowedHosts' &&
+			rootPath === 'server' &&
+			(typeof existing === 'boolean' || typeof value === 'boolean')
+		) {
+			merged[key] = typeof value === 'boolean' ? value : existing;
 			continue;
 		}
 

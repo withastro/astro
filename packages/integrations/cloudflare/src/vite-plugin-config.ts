@@ -3,13 +3,14 @@ import type { PluginOption } from 'vite';
 const VIRTUAL_CONFIG_ID = 'virtual:astro-cloudflare:config';
 const RESOLVED_VIRTUAL_CONFIG_ID = '\0' + VIRTUAL_CONFIG_ID;
 
-interface CloudflareConfig {
+export interface Config {
 	sessionKVBindingName: string;
+	isPrerender: boolean;
 }
 
-export function createConfigPlugin(config: CloudflareConfig): PluginOption {
+export function createConfigPlugin(config: Omit<Config, 'isPrerender'>): PluginOption {
 	return {
-		name: 'vite:astro-cloudflare-config',
+		name: VIRTUAL_CONFIG_ID,
 		resolveId: {
 			filter: {
 				id: new RegExp(`^${VIRTUAL_CONFIG_ID}$`),
@@ -23,9 +24,10 @@ export function createConfigPlugin(config: CloudflareConfig): PluginOption {
 				id: new RegExp(`^${RESOLVED_VIRTUAL_CONFIG_ID}$`),
 			},
 			handler() {
-				const isPrerender = this.environment?.name === 'prerender';
-				return `export const sessionKVBindingName = ${JSON.stringify(config.sessionKVBindingName)};
-export const isPrerender = ${isPrerender};`;
+				return [
+					...Object.entries(config).map(([k, v]) => `export const ${k} = ${JSON.stringify(v)};`),
+					`export const isPrerender = ${this.environment?.name === 'prerender'};`,
+				].join('\n');
 			},
 		},
 	};

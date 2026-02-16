@@ -45,6 +45,15 @@ i18n = {
   };
 }
 
+let image = undefined;
+if (manifest.image) {
+  image = {
+    objectFit: manifest.image.objectFit,
+    objectPosition: manifest.image.objectPosition,
+    layout: manifest.image.layout,
+  };
+}
+
 const base = manifest.base;
 const trailingSlash = manifest.trailingSlash;
 const site = manifest.site;
@@ -53,7 +62,7 @@ const build = {
   format: manifest.buildFormat,
 };
 
-export { base, i18n, trailingSlash, site, compressHTML, build };
+export { base, i18n, trailingSlash, site, compressHTML, build, image };
 				`;
 					return { code };
 				}
@@ -77,6 +86,15 @@ if (manifest.i18n) {
    fallback: manifest.i18n.fallback,
    domains: manifest.i18n.domains,
  };
+}
+
+let image = undefined;
+if (manifest.image) {
+  image = {
+    objectFit: manifest.image.objectFit,
+    objectPosition: manifest.image.objectPosition,
+    layout: manifest.image.layout,
+  };
 }
 
 const base = manifest.base;
@@ -107,6 +125,7 @@ export {
  site,
  compressHTML,
  i18n,
+ image,
 }; 
 
 				`;
