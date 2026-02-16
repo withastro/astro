@@ -30,7 +30,7 @@ export async function renderQueue(
 				// Accumulate consecutive batchable content
 				const batchStart = i;
 				while (i < queue.nodes.length && canBatch(queue.nodes[i])) {
-					batchBuffer += renderNodeToString(queue.nodes[i], result);
+					batchBuffer += renderNodeToString(queue.nodes[i]);
 					i++;
 				}
 
@@ -83,7 +83,7 @@ function canBatch(node: QueueNode): boolean {
  * Renders a batchable node to a string (synchronous).
  * Only call this for nodes where canBatch() returns true.
  */
-function renderNodeToString(node: QueueNode, _result: SSRResult): string {
+function renderNodeToString(node: QueueNode): string {
 	switch (node.type) {
 		case 'text':
 			return node.content ? escapeHTML(node.content) : '';
@@ -91,8 +91,10 @@ function renderNodeToString(node: QueueNode, _result: SSRResult): string {
 		case 'html-string':
 			return node.html || '';
 
-		default:
+		case 'component':
+		case 'instruction': {
 			return '';
+		}
 	}
 }
 

@@ -28,11 +28,18 @@ import type {
 import { getComponentMetadata } from '../vite-plugin-astro-server/metadata.js';
 import { createResolve } from '../vite-plugin-astro-server/resolve.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
+import { newNodePool, type NodePool } from '../runtime/server/render/queue/pool.js';
+import { queueRenderingEnabled } from '../core/app/manifest.js';
 
 /**
  * This Pipeline is used when the Vite SSR environment is runnable.
  */
 export class RunnablePipeline extends Pipeline {
+	createNodePool(): NodePool | undefined {
+		if (queueRenderingEnabled(this.manifest.experimentalQueuedRendering)) {
+			return newNodePool(this.manifest.experimentalQueuedRendering!);
+		}
+	}
 	getName(): string {
 		return 'RunnablePipeline';
 	}

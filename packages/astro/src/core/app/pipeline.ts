@@ -12,10 +12,19 @@ import {
 import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import { createConsoleLogger } from './logging.js';
+import { NodePool } from '../../runtime/server/render/queue/pool.js';
+import { queueRenderingEnabled } from './manifest.js';
 
 export class AppPipeline extends Pipeline {
 	getName(): string {
 		return 'AppPipeline';
+	}
+
+	createNodePool(): NodePool | undefined {
+		if (queueRenderingEnabled(this.manifest.experimentalQueuedRendering)) {
+			// The pool in SSR is useless because we don't get to re-use anything
+			return new NodePool(0, false);
+		}
 	}
 
 	static create({ manifest, streaming }: Pick<AppPipeline, 'manifest' | 'streaming'>) {

@@ -24,6 +24,7 @@ import { RedirectSinglePageBuiltModule } from './redirects/index.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
 import type { SessionDriverFactory } from './session/types.js';
+import type { NodePool } from '../runtime/server/render/queue/pool.js';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
@@ -36,6 +37,7 @@ export abstract class Pipeline {
 	resolvedMiddleware: MiddlewareHandler | undefined = undefined;
 	resolvedActions: SSRActions | undefined = undefined;
 	resolvedSessionDriver: SessionDriverFactory | null | undefined = undefined;
+	nodePool: NodePool | undefined;
 
 	constructor(
 		readonly logger: Logger,
@@ -228,6 +230,8 @@ export abstract class Pipeline {
 			);
 		}
 	}
+	
+	abstract createNodePool(): NodePool | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type

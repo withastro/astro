@@ -1,19 +1,52 @@
 import type { QueueNode } from './types.js';
+import type { SSRManifest } from '../../../../core/app/types.js';
+import { queueContentCache, queuePoolSize } from '../../../../core/app/manifest.js';
 
 /**
- * Object pool for QueueNode instances to reduce allocations and GC pressure.
+ * Raw statistics tracked by the node pool.
+ */
+export interface PoolStats {
+	/** Number of times a node was successfully acquired from the pool */
+	acquireFromPool: number;
+	/** Number of times a new node had to be created (pool was empty) */
+	acquireNew: number;
+	/** Number of nodes successfully returned to the pool */
+	released: number;
+	/** Number of nodes that couldn't be returned (pool was full) */
+	releasedDropped: number;
+	/** Number of times content cache returned a cached node */
+	contentCacheHit: number;
+	/** Number of times content cache had to create and cache a new node */
+	contentCacheMiss: number;
+}
+
+/**
+ * Extended statistics report with computed metrics.
+ * Returned by NodePool.getStats() for debugging and monitoring.
+ */
+export interface PoolStatsReport extends PoolStats {
+	/** Current number of nodes available in the pool */
+	poolSize: number;
+	/** Maximum pool capacity */
+	maxSize: number;
+	/** Pool hit rate as a percentage (0-100) - higher is better */
+	hitRate: number;
+}
+
+/**
+ * Object pool for `QueueNode` instances to reduce allocations and GC pressure.
  * Nodes are acquired from the pool, used during queue building, and can be
  * released back to the pool for reuse across renders.
  *
  * This significantly reduces memory allocation overhead when building large queues.
  */
-export class QueueNodePool {
+export class NodePool {
 	private pool: QueueNode[] = [];
 	private contentCache = new Map<string, QueueNode>();
 	public readonly maxSize: number;
 	private readonly enableStats: boolean;
 	private readonly enableContentCache: boolean;
-	private stats = {
+	private stats: PoolStats = {
 		acquireFromPool: 0,
 		acquireNew: 0,
 		released: 0,
@@ -29,10 +62,11 @@ export class QueueNodePool {
 	 * @param enableStats - Enable statistics tracking (default: false for performance)
 	 * @param enableContentCache - Enable content-aware caching for text/html nodes (default: true)
 	 */
-	constructor(maxSize = 1000, enableStats = false, enableContentCache = true) {
+	constructor(maxSize = 1000, enableContentCache = false, enableStats = false) {
 		this.maxSize = maxSize;
 		this.enableStats = enableStats;
 		this.enableContentCache = enableContentCache;
+		this.warmCache([...COMMON_HTML_PATTERNS]);
 	}
 
 	/**
@@ -44,7 +78,6 @@ export class QueueNodePool {
 	 * @returns A queue node ready to be populated with data
 	 */
 	acquire(type: QueueNode['type'], content?: string): QueueNode {
-		// Content-aware caching for text and html-string nodes
 		if (
 			this.enableContentCache &&
 			content !== undefined &&
@@ -58,15 +91,7 @@ export class QueueNodePool {
 					this.stats.contentCacheHit = this.stats.contentCacheHit + 1;
 				}
 				// Clone the cached node to avoid shared state
-				// TypeScript knows cached is either TextNode or HtmlStringNode
-				if (cached.type === 'text') {
-					return { type: 'text', content: cached.content };
-				} else if (cached.type === 'html-string') {
-					return { type: 'html-string', html: cached.html };
-				} else {
-					// Should never happen - content cache only stores text/html-string
-					throw new Error(`Unexpected cached node type: ${cached.type}`);
-				}
+				return this.cloneNode(cached);
 			}
 
 			// Cache miss - create template node and cache it
@@ -75,20 +100,11 @@ export class QueueNodePool {
 			}
 
 			// Create immutable template node for caching
-			const template: QueueNode =
-				type === 'text'
-					? { type: 'text', content: content }
-					: { type: 'html-string', html: content };
-
-			// Cache the template for future reuse
+			const template = this.createNode(type, content);
 			this.contentCache.set(cacheKey, template);
 
 			// Return a clone for use
-			if (type === 'text') {
-				return { type: 'text', content: content };
-			} else {
-				return { type: 'html-string', html: content };
-			}
+			return this.cloneNode(template);
 		}
 
 		// Standard pooling (no content caching)
@@ -98,18 +114,7 @@ export class QueueNodePool {
 			if (this.enableStats) {
 				this.stats.acquireFromPool = this.stats.acquireFromPool + 1;
 			}
-
-			// Recreate node with correct type to match discriminated union
-			// We can't just mutate fields since each node type has different shape
-			if (type === 'text') {
-				return { type: 'text', content: '' };
-			} else if (type === 'html-string') {
-				return { type: 'html-string', html: '' };
-			} else if (type === 'component') {
-				return { type: 'component', instance: undefined as any };
-			} else {
-				return { type: 'instruction', instruction: undefined as any };
-			}
+			return this.createNode(type, '');
 		}
 
 		// Pool is empty, create new node
@@ -117,15 +122,40 @@ export class QueueNodePool {
 			this.stats.acquireNew = this.stats.acquireNew + 1;
 		}
 
-		// Create node with correct shape for discriminated union
-		if (type === 'text') {
-			return { type: 'text', content: '' };
-		} else if (type === 'html-string') {
-			return { type: 'html-string', html: '' };
-		} else if (type === 'component') {
-			return { type: 'component', instance: undefined as any };
-		} else {
-			return { type: 'instruction', instruction: undefined as any };
+		return this.createNode(type, '');
+	}
+
+	/**
+	 * Creates a new node of the specified type with the given content.
+	 * Helper method to reduce branching in acquire().
+	 */
+	private createNode(type: QueueNode['type'], content = ''): QueueNode {
+		switch (type) {
+			case 'text':
+				return { type: 'text', content };
+			case 'html-string':
+				return { type: 'html-string', html: content };
+			case 'component':
+				return { type: 'component', instance: undefined as any };
+			case 'instruction':
+				return { type: 'instruction', instruction: undefined as any };
+		}
+	}
+
+	/**
+	 * Clones a cached node to avoid shared state.
+	 * Helper method to reduce branching in acquire().
+	 */
+	private cloneNode(node: QueueNode): QueueNode {
+		switch (node.type) {
+			case 'text':
+				return { type: 'text', content: node.content };
+			case 'html-string':
+				return { type: 'html-string', html: node.html };
+			case 'component':
+				return { type: 'component', instance: node.instance };
+			case 'instruction':
+				return { type: 'instruction', instruction: node.instruction };
 		}
 	}
 
@@ -204,9 +234,9 @@ export class QueueNodePool {
 	/**
 	 * Gets pool statistics for debugging.
 	 *
-	 * @returns Pool usage statistics
+	 * @returns Pool usage statistics including computed metrics
 	 */
-	getStats() {
+	getStats(): PoolStatsReport {
 		return {
 			...this.stats,
 			poolSize: this.pool.length,
@@ -303,43 +333,14 @@ export const COMMON_HTML_PATTERNS = [
 ] as const;
 
 /**
- * Global pool instance that can be reused across renders.
- * This is more efficient than creating a new pool for each render.
- *
- * Stats are always tracked (minimal overhead) for monitoring pool performance.
- * Cache is pre-warmed with common HTML patterns for better hit rates.
+ * Returns an instance of the `NodePool` based on its configuration
+ * @param config
  */
-export const globalNodePool = new QueueNodePool(1000, true);
+export function newNodePool(
+	config: NonNullable<SSRManifest['experimentalQueuedRendering']>,
+): NodePool {
+	const poolSize = queuePoolSize(config);
+	const cache = queueContentCache(config);
 
-// Pre-warm the global pool cache with common patterns
-globalNodePool.warmCache([...COMMON_HTML_PATTERNS]);
-
-/**
- * Gets the appropriate pool for the given configuration.
- * If pooling is disabled (poolSize = 0), returns a no-op pool that creates nodes on demand.
- * Otherwise returns the global pool (optionally resized based on config).
- *
- * @param config - Queue rendering configuration from SSRResult
- * @returns Pool instance to use for node acquisition
- */
-export function getPoolForConfig(config?: {
-	enabled?: boolean;
-	poolSize?: number;
-	cache?: boolean;
-}): QueueNodePool {
-	// If pooling is disabled (poolSize = 0), return a no-op pool
-	if (config?.poolSize === 0) {
-		return new QueueNodePool(0, false, false); // No pooling, no content cache
-	}
-
-	// If custom pool size specified, create a new pool with that size
-	const poolSize = config?.poolSize ?? 1000;
-	const enableContentCache = config?.cache ?? true;
-
-	if (poolSize !== globalNodePool.maxSize) {
-		return new QueueNodePool(poolSize, true, enableContentCache);
-	}
-
-	// Use global pool
-	return globalNodePool;
+	return new NodePool(poolSize, cache);
 }

@@ -6,4 +6,10 @@ export default defineConfig({
 	adapter: node({
     mode: 'standalone',
   }),
+	experimental: {
+		queuedRendering: {
+			poolSize: 1000,
+			cache: false
+		}
+	}
 });

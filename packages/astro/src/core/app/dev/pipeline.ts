@@ -9,6 +9,8 @@ import { type HeadElements, Pipeline, type TryRewriteResult } from '../../base-p
 import { ASTRO_VERSION } from '../../constants.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../../render/ssr-element.js';
 import { findRouteToRewrite } from '../../routing/rewrite.js';
+import { newNodePool, type NodePool } from '../../../runtime/server/render/queue/pool.js';
+import { queueRenderingEnabled } from '../manifest.js';
 
 type DevPipelineCreate = Pick<NonRunnablePipeline, 'logger' | 'manifest' | 'streaming'>;
 
@@ -18,6 +20,12 @@ type DevPipelineCreate = Pick<NonRunnablePipeline, 'logger' | 'manifest' | 'stre
 export class NonRunnablePipeline extends Pipeline {
 	getName(): string {
 		return 'NonRunnablePipeline';
+	}
+
+	createNodePool(): NodePool | undefined {
+		if (queueRenderingEnabled(this.manifest.experimentalQueuedRendering)) {
+			return newNodePool(this.manifest.experimentalQueuedRendering!);
+		}
 	}
 
 	static create({ logger, manifest, streaming }: DevPipelineCreate) {

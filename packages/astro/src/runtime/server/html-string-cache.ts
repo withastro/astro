@@ -72,36 +72,3 @@ export class HTMLStringCache {
 		this.cache.clear();
 	}
 }
-
-/**
- * Global HTMLString cache shared across all renders.
- *
- * Using a global cache (rather than per-request) provides:
- * - Better cache hit rates across multiple page renders
- * - Memory savings accumulate over the lifetime of the process
- * - Particularly beneficial during build (thousands of pages)
- *
- * The LRU eviction (maxSize: 1000) keeps memory bounded even for large sites.
- */
-export const globalHTMLStringCache = new HTMLStringCache(1000);
-
-/**
- * Flag to enable/disable HTMLString caching globally.
- * Can be controlled via SSRResult config.
- */
-let htmlStringCacheEnabled = true;
-
-/**
- * Enable or disable HTMLString caching globally.
- * This is controlled by the experimentalQueuedRendering.cache option.
- */
-export function setHTMLStringCacheEnabled(enabled: boolean): void {
-	htmlStringCacheEnabled = enabled;
-}
-
-/**
- * Check if HTMLString caching is enabled.
- */
-export function isHTMLStringCacheEnabled(): boolean {
-	return htmlStringCacheEnabled;
-}

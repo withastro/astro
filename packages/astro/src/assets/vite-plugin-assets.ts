@@ -165,10 +165,10 @@ export default function assets({ fs, settings, sync, logger }: Options): vite.Pl
 						export { default as Picture } from "astro/components/${imageComponentPrefix}Picture.astro";
 						import { inferRemoteSize as inferRemoteSizeInternal } from "astro/assets/utils/inferRemoteSize.js";
 
-						export { default as Font } from "astro/components/Font.astro";
-						export * from "${RUNTIME_VIRTUAL_MODULE_ID}";
-						
-						export const getConfiguredImageService = _getConfiguredImageService;
+							export { default as Font } from "astro/components/Font.astro";
+							export * from "${RUNTIME_VIRTUAL_MODULE_ID}";
+														
+							export const getConfiguredImageService = _getConfiguredImageService;
 
 							export const viteFSConfig = ${JSON.stringify(resolvedConfig.server.fs ?? {})};
 
