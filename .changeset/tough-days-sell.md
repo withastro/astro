@@ -2,4 +2,4 @@
 '@astrojs/react': patch
 ---
 
-Improves rendering of static HTML
+Refactors to improve the performance of rendering static HTML content in React
