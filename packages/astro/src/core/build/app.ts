@@ -1,4 +1,4 @@
-import { BaseApp, type RenderErrorOptions } from '../app/index.js';
+import { BaseApp, type RenderErrorOptions } from '../app/entrypoints/index.js';
 import type { SSRManifest } from '../app/types.js';
 import type { BuildInternals } from './internal.js';
 import { BuildPipeline } from './pipeline.js';
