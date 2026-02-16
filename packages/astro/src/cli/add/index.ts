@@ -493,6 +493,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					'src/layouts/Layout.astro',
 					{
 						rounded: true,
+						withGuide: false,
 					},
 				);
 			}
@@ -689,6 +690,7 @@ async function updateAstroConfig({
 
 	clack.box(diff, configURL.pathname.split('/').pop(), {
 		rounded: true,
+		withGuide: false,
 	});
 
 	if (logAdapterInstructions) {
@@ -754,6 +756,7 @@ async function updatePackageJsonScripts({
 
 	const message = `\n${clack.box(diff, 'package.json', {
 		rounded: true,
+		withGuide: false,
 	})}\n`;
 
 	logger.info(
@@ -861,6 +864,7 @@ async function tryToInstallIntegrations({
 	);
 	clack.box(coloredOutput, undefined, {
 		rounded: true,
+		withGuide: false,
 	});
 
 	if (await askToContinue({ flags, logger })) {
