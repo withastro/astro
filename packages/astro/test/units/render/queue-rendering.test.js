@@ -1,6 +1,8 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { buildRenderQueue, renderQueue } from '../../../dist/runtime/server/render/queue/index.js';
+import { buildRenderQueue } from '../../../dist/runtime/server/render/queue/builder.js';
+import { renderQueue } from '../../../dist/runtime/server/render/queue/renderer.js';
+import { NodePool } from '../../../dist/runtime/server/render/queue/pool.js';
 
 /**
  * Tests for the queue-based rendering engine
@@ -32,10 +34,16 @@ describe('Queue-based rendering engine', () => {
 		};
 	}
 
+	// Create a NodePool for testing
+	function createMockPool() {
+		return new NodePool(1000);
+	}
+
 	describe('buildRenderQueue()', () => {
 		it('should handle simple text nodes', async () => {
 			const result = createMockResult();
-			const queue = await buildRenderQueue('Hello, World!', result);
+			const pool = createMockPool();
+			const queue = await buildRenderQueue('Hello, World!', result, pool);
 
 			assert.ok(queue.nodes.length > 0);
 			assert.equal(queue.nodes[0].type, 'text');
@@ -44,7 +52,8 @@ describe('Queue-based rendering engine', () => {
 
 		it('should handle numbers', async () => {
 			const result = createMockResult();
-			const queue = await buildRenderQueue(42, result);
+			const pool = createMockPool();
+			const queue = await buildRenderQueue(42, result, pool);
 
 			assert.ok(queue.nodes.length > 0);
 			assert.equal(queue.nodes[0].type, 'text');
@@ -53,7 +62,8 @@ describe('Queue-based rendering engine', () => {
 
 		it('should handle booleans', async () => {
 			const result = createMockResult();
-			const queue = await buildRenderQueue(true, result);
+			const pool = createMockPool();
+			const queue = await buildRenderQueue(true, result, pool);
 
 			assert.ok(queue.nodes.length > 0);
 			assert.equal(queue.nodes[0].type, 'text');
@@ -62,7 +72,8 @@ describe('Queue-based rendering engine', () => {
 
 		it('should handle arrays', async () => {
 			const result = createMockResult();
-			const queue = await buildRenderQueue(['Hello', ' ', 'World'], result);
+			const pool = createMockPool();
+			const queue = await buildRenderQueue(['Hello', ' ', 'World'], result, pool);
 
 			assert.equal(queue.nodes.length, 3);
 			assert.equal(queue.nodes[0].content, 'Hello');
@@ -81,8 +92,9 @@ describe('Queue-based rendering engine', () => {
 
 		it('should skip false but render 0', async () => {
 			const result = createMockResult();
-			const falseQueue = await buildRenderQueue(false, result);
-			const zeroQueue = await buildRenderQueue(0, result);
+			const pool = createMockPool();
+			const falseQueue = await buildRenderQueue(false, result, pool);
+			const zeroQueue = await buildRenderQueue(0, result, pool);
 
 			assert.equal(falseQueue.nodes.length, 0);
 			assert.equal(zeroQueue.nodes.length, 1);
@@ -92,7 +104,8 @@ describe('Queue-based rendering engine', () => {
 		it('should handle promises', async () => {
 			const result = createMockResult();
 			const promise = Promise.resolve('Resolved value');
-			const queue = await buildRenderQueue(promise, result);
+			const pool = createMockPool();
+			const queue = await buildRenderQueue(promise, result, pool);
 
 			assert.equal(queue.nodes.length, 1);
 			assert.equal(queue.nodes[0].content, 'Resolved value');
@@ -100,7 +113,8 @@ describe('Queue-based rendering engine', () => {
 
 		it('should handle nested arrays', async () => {
 			const result = createMockResult();
-			const queue = await buildRenderQueue([['Nested', ' '], 'Array'], result);
+			const pool = createMockPool();
+			const queue = await buildRenderQueue([['Nested', ' '], 'Array'], result, pool);
 
 			assert.equal(queue.nodes.length, 3);
 			assert.equal(queue.nodes[0].content, 'Nested');
@@ -117,7 +131,8 @@ describe('Queue-based rendering engine', () => {
 				yield 'Third';
 			}
 
-			const queue = await buildRenderQueue(asyncGen(), result);
+			const pool = createMockPool();
+			const queue = await buildRenderQueue(asyncGen(), result, pool);
 
 			assert.equal(queue.nodes.length, 3);
 			assert.equal(queue.nodes[0].content, 'First');
@@ -128,7 +143,8 @@ describe('Queue-based rendering engine', () => {
 		it('should track parent relationships', async () => {
 			const result = createMockResult();
 			const nestedArray = [['child1', 'child2'], 'sibling'];
-			const queue = await buildRenderQueue(nestedArray, result);
+			const pool = createMockPool();
+			const queue = await buildRenderQueue(nestedArray, result, pool);
 
 			// Verify correct node structure
 			assert.equal(queue.nodes.length, 3);
@@ -139,7 +155,8 @@ describe('Queue-based rendering engine', () => {
 
 		it('should maintain correct rendering order', async () => {
 			const result = createMockResult();
-			const queue = await buildRenderQueue(['A', 'B', 'C'], result);
+			const pool = createMockPool();
+			const queue = await buildRenderQueue(['A', 'B', 'C'], result, pool);
 
 			assert.equal(queue.nodes[0].content, 'A');
 			assert.equal(queue.nodes[1].content, 'B');
@@ -149,7 +166,8 @@ describe('Queue-based rendering engine', () => {
 		it('should handle sync iterables (Set)', async () => {
 			const result = createMockResult();
 			const set = new Set(['One', 'Two', 'Three']);
-			const queue = await buildRenderQueue(set, result);
+			const pool = createMockPool();
+			const queue = await buildRenderQueue(set, result, pool);
 
 			assert.equal(queue.nodes.length, 3);
 			// Set iteration order is insertion order
@@ -163,7 +181,8 @@ describe('Queue-based rendering engine', () => {
 	describe('renderQueue()', () => {
 		it('should render simple text to string', async () => {
 			const result = createMockResult();
-			const queue = await buildRenderQueue('Test content', result);
+			const pool = createMockPool();
+			const queue = await buildRenderQueue('Test content', result, pool);
 
 			let output = '';
 			const destination = {
@@ -178,7 +197,8 @@ describe('Queue-based rendering engine', () => {
 
 		it('should render array to concatenated string', async () => {
 			const result = createMockResult();
-			const queue = await buildRenderQueue(['Hello', ' ', 'World'], result);
+			const pool = createMockPool();
+			const queue = await buildRenderQueue(['Hello', ' ', 'World'], result, pool);
 
 			let output = '';
 			const destination = {
@@ -193,7 +213,8 @@ describe('Queue-based rendering engine', () => {
 
 		it('should escape HTML in text nodes', async () => {
 			const result = createMockResult();
-			const queue = await buildRenderQueue('<script>alert("XSS")</script>', result);
+			const pool = createMockPool();
+			const queue = await buildRenderQueue('<script>alert("XSS")</script>', result, pool);
 
 			let output = '';
 			const destination = {
@@ -209,7 +230,8 @@ describe('Queue-based rendering engine', () => {
 
 		it('should handle empty queue', async () => {
 			const result = createMockResult();
-			const queue = await buildRenderQueue(null, result);
+			const pool = createMockPool();
+			const queue = await buildRenderQueue(null, result, pool);
 
 			let output = '';
 			const destination = {
@@ -224,7 +246,8 @@ describe('Queue-based rendering engine', () => {
 
 		it('should render numbers correctly', async () => {
 			const result = createMockResult();
-			const queue = await buildRenderQueue([1, 2, 3], result);
+			const pool = createMockPool();
+			const queue = await buildRenderQueue([1, 2, 3], result, pool);
 
 			let output = '';
 			const destination = {

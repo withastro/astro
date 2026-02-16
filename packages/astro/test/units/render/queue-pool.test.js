@@ -1,10 +1,10 @@
 import { describe, it } from 'node:test';
 import { strictEqual } from 'node:assert';
-import { QueueNodePool } from '../../../dist/runtime/server/render/queue/pool.js';
+import { NodePool } from '../../../dist/runtime/server/render/queue/pool.js';
 
-describe('QueueNodePool', () => {
+describe('NodePool', () => {
 	it('should acquire a new node when pool is empty', () => {
-		const pool = new QueueNodePool();
+		const pool = new NodePool();
 		const node = pool.acquire('text');
 
 		strictEqual(node.type, 'text');
@@ -12,7 +12,7 @@ describe('QueueNodePool', () => {
 	});
 
 	it('should reuse released nodes', () => {
-		const pool = new QueueNodePool();
+		const pool = new NodePool();
 
 		// Acquire and set up a node
 		const node1 = pool.acquire('text');
@@ -32,7 +32,7 @@ describe('QueueNodePool', () => {
 	});
 
 	it('should respect maxSize limit', () => {
-		const pool = new QueueNodePool(2); // Max size of 2
+		const pool = new NodePool(2); // Max size of 2
 
 		const node1 = pool.acquire('text');
 		const node2 = pool.acquire('text');
@@ -46,7 +46,7 @@ describe('QueueNodePool', () => {
 	});
 
 	it('should clear the pool', () => {
-		const pool = new QueueNodePool();
+		const pool = new NodePool();
 
 		// Acquire nodes first, then release them all at once
 		const node1 = pool.acquire('text');
@@ -64,7 +64,7 @@ describe('QueueNodePool', () => {
 	});
 
 	it('should release all nodes in an array', () => {
-		const pool = new QueueNodePool();
+		const pool = new NodePool();
 
 		const nodes = [pool.acquire('text'), pool.acquire('html-string'), pool.acquire('component')];
 
@@ -73,7 +73,7 @@ describe('QueueNodePool', () => {
 	});
 
 	it('should properly create nodes with correct discriminated union types', () => {
-		const pool = new QueueNodePool();
+		const pool = new NodePool();
 
 		// Acquire different node types
 		const textNode = pool.acquire('text');
@@ -96,7 +96,7 @@ describe('QueueNodePool', () => {
 	});
 
 	it('should handle multiple acquire/release cycles', () => {
-		const pool = new QueueNodePool(10);
+		const pool = new NodePool(10);
 
 		// First cycle
 		const batch1 = [];
@@ -118,7 +118,7 @@ describe('QueueNodePool', () => {
 	});
 
 	it('should work correctly with default maxSize', () => {
-		const pool = new QueueNodePool(); // Default maxSize = 1000
+		const pool = new NodePool(); // Default maxSize = 1000
 
 		// Create and release many nodes
 		const nodes = [];

@@ -1,10 +1,10 @@
 import { describe, it } from 'node:test';
 import { strictEqual, notStrictEqual } from 'node:assert';
-import { QueueNodePool } from '../../../dist/runtime/server/render/queue/pool.js';
+import { NodePool } from '../../../dist/runtime/server/render/queue/pool.js';
 
-describe('QueueNodePool - Content-Aware Caching', () => {
+describe('NodePool - Content-Aware Caching', () => {
 	it('should cache text nodes by content', () => {
-		const pool = new QueueNodePool(1000, true, true); // Enable content cache
+		const pool = new NodePool(1000, true, true); // Enable content cache
 
 		// First acquisition - cache miss
 		const node1 = pool.acquire('text', 'Hello');
@@ -26,7 +26,7 @@ describe('QueueNodePool - Content-Aware Caching', () => {
 	});
 
 	it('should cache html-string nodes by content', () => {
-		const pool = new QueueNodePool(1000, true, true);
+		const pool = new NodePool(1000, true, true);
 
 		// First acquisition
 		const node1 = pool.acquire('html-string', '<div>Test</div>');
@@ -47,15 +47,16 @@ describe('QueueNodePool - Content-Aware Caching', () => {
 	});
 
 	it('should differentiate between text and html-string with same content', () => {
-		const pool = new QueueNodePool(1000, true, true);
+		const pool = new NodePool(1000, true, true);
 
-		const textNode = pool.acquire('text', '<div>');
-		const htmlNode = pool.acquire('html-string', '<div>');
+		// Use custom content not in COMMON_HTML_PATTERNS
+		const textNode = pool.acquire('text', '<custom>');
+		const htmlNode = pool.acquire('html-string', '<custom>');
 
 		strictEqual(textNode.type, 'text');
-		strictEqual(textNode.content, '<div>');
+		strictEqual(textNode.content, '<custom>');
 		strictEqual(htmlNode.type, 'html-string');
-		strictEqual(htmlNode.html, '<div>');
+		strictEqual(htmlNode.html, '<custom>');
 
 		// Both should be cache misses (different types)
 		const stats = pool.getStats();
@@ -64,7 +65,7 @@ describe('QueueNodePool - Content-Aware Caching', () => {
 	});
 
 	it('should allow modification of cloned nodes without affecting cache', () => {
-		const pool = new QueueNodePool(1000, true, true);
+		const pool = new NodePool(1000, true, true);
 
 		// Get first node
 		const node1 = pool.acquire('text', 'Shared');
@@ -91,7 +92,7 @@ describe('QueueNodePool - Content-Aware Caching', () => {
 	});
 
 	it('should handle empty string content', () => {
-		const pool = new QueueNodePool(1000, true, true);
+		const pool = new NodePool(1000, true, true);
 
 		const node1 = pool.acquire('text', '');
 		const node2 = pool.acquire('text', '');
@@ -105,7 +106,7 @@ describe('QueueNodePool - Content-Aware Caching', () => {
 	});
 
 	it('should work when content caching is disabled', () => {
-		const pool = new QueueNodePool(1000, true, false); // Disable content cache
+		const pool = new NodePool(1000, true, false); // Disable content cache
 
 		pool.acquire('text', 'Hello');
 		pool.acquire('text', 'Hello');
@@ -117,7 +118,7 @@ describe('QueueNodePool - Content-Aware Caching', () => {
 	});
 
 	it('should not cache component or instruction nodes', () => {
-		const pool = new QueueNodePool(1000, true, true);
+		const pool = new NodePool(1000, true, true);
 
 		// These types don't support content caching
 		pool.acquire('component');
@@ -134,7 +135,7 @@ describe('QueueNodePool - Content-Aware Caching', () => {
 	});
 
 	it('should handle large content strings', () => {
-		const pool = new QueueNodePool(1000, true, true);
+		const pool = new NodePool(1000, true, true);
 
 		const largeContent = 'x'.repeat(10000);
 		const node1 = pool.acquire('text', largeContent);
@@ -149,10 +150,10 @@ describe('QueueNodePool - Content-Aware Caching', () => {
 	});
 
 	it('should cache common HTML patterns', () => {
-		const pool = new QueueNodePool(1000, true, true);
+		const pool = new NodePool(1000, true, true);
 
-		// Simulate common HTML patterns
-		const patterns = ['<br>', '<hr>', '<div class="container">', '</div>', '\n'];
+		// Use custom patterns not in COMMON_HTML_PATTERNS
+		const patterns = ['<details>', '<summary>', '<dialog>', '</details>', '<mark>'];
 
 		// First pass - all cache misses
 		for (const pattern of patterns) {

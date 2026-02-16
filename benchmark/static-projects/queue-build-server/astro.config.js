@@ -7,6 +7,6 @@ export default defineConfig({
     mode: 'standalone',
   }),
 	experimental: {
-		queuedRendering: true,
+		queuedRendering: { enabled: true },
 	}
 });

@@ -14,13 +14,13 @@ const renderRoot = new URL('../projects/render-bench/', import.meta.url);
  */
 const CONFIGS = [
 	// Classic rendering (no queue)
-	{ enabled: false, poolSize: 0, cache: false, label: 'Classic' },
+	{ enabled: false, poolSize: 0, contentCache: false, label: 'Classic' },
 
 	// Queue rendering with various optimization combinations
-	{ enabled: true, poolSize: 0, cache: false, label: 'Queue' },
-	{ enabled: true, poolSize: 1000, cache: false, label: 'Queue+Pool' },
-	{ enabled: true, poolSize: 0, cache: true, label: 'Queue+Cache' },
-	{ enabled: true, poolSize: 1000, cache: true, label: 'Queue+Pool+Cache' },
+	{ enabled: true, poolSize: 0, contentCache: false, label: 'Queue' },
+	{ enabled: true, poolSize: 1000, contentCache: false, label: 'Queue+Pool' },
+	{ enabled: true, poolSize: 0, contentCache: true, label: 'Queue+ContentCache' },
+	{ enabled: true, poolSize: 1000, contentCache: true, label: 'Queue+Pool+ContentCache' },
 ];
 
 /**
@@ -69,13 +69,11 @@ beforeAll(async () => {
 			// Clone and modify manifest with queue rendering config
 			const modifiedManifest = {
 				...manifest,
-				experimentalQueuedRendering: config.enabled
-					? {
-							enabled: config.enabled,
-							poolSize: config.poolSize,
-							cache: config.cache,
-						}
-					: undefined,
+				experimentalQueuedRendering: {
+					enabled: config.enabled,
+					poolSize: config.poolSize,
+					contentCache: config.contentCache,
+				},
 			};
 
 			// Directly instantiate App with the modified manifest

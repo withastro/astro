@@ -18,6 +18,7 @@ export async function renderQueue(
 ): Promise<void> {
 	const result = queue.result;
 	const pool = queue.pool;
+	const cache = queue.htmlStringCache;
 	let batchBuffer = '';
 	let i = 0;
 
@@ -36,7 +37,8 @@ export async function renderQueue(
 
 				// Flush accumulated batch
 				if (batchBuffer) {
-					destination.write(markHTMLString(batchBuffer));
+					const htmlString = cache ? cache.getOrCreate(batchBuffer) : markHTMLString(batchBuffer);
+					destination.write(htmlString);
 					batchBuffer = '';
 				}
 
@@ -66,7 +68,8 @@ export async function renderQueue(
 
 	// Flush any remaining batched content (shouldn't happen but safety check)
 	if (batchBuffer) {
-		destination.write(markHTMLString(batchBuffer));
+		const htmlString = cache ? cache.getOrCreate(batchBuffer) : markHTMLString(batchBuffer);
+		destination.write(htmlString);
 	}
 }
 
@@ -106,11 +109,15 @@ async function renderNode(
 	destination: RenderDestination,
 	result: SSRResult,
 ): Promise<void> {
+	const cache = result._experimentalQueuedRendering?.htmlStringCache;
+
 	switch (node.type) {
 		case 'text': {
 			// Escape HTML in plain text
 			if (node.content) {
-				destination.write(markHTMLString(escapeHTML(node.content)));
+				const escaped = escapeHTML(node.content);
+				const htmlString = cache ? cache.getOrCreate(escaped) : markHTMLString(escaped);
+				destination.write(htmlString);
 			}
 			break;
 		}
@@ -118,7 +125,8 @@ async function renderNode(
 		case 'html-string': {
 			// Already safe HTML, write directly
 			if (node.html) {
-				destination.write(markHTMLString(node.html));
+				const htmlString = cache ? cache.getOrCreate(node.html) : markHTMLString(node.html);
+				destination.write(htmlString);
 			}
 			break;
 		}

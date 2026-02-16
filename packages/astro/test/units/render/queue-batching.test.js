@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { buildRenderQueue, renderQueue } from '../../../dist/runtime/server/render/queue/index.js';
+import { buildRenderQueue } from '../../../dist/runtime/server/render/queue/builder.js';
+import { renderQueue } from '../../../dist/runtime/server/render/queue/renderer.js';
+import { NodePool } from '../../../dist/runtime/server/render/queue/pool.js';
 
 // Mock SSRResult for testing
 function createMockResult() {
@@ -19,12 +21,18 @@ function createMockResult() {
 	};
 }
 
+// Create a NodePool for testing
+function createMockPool() {
+	return new NodePool(1000);
+}
+
 describe('Queue batching optimization', () => {
 	it('should batch consecutive text nodes', async () => {
 		const result = createMockResult();
+		const pool = createMockPool();
 		const items = ['Hello', ' ', 'world', '!'];
 
-		const queue = await buildRenderQueue(items, result);
+		const queue = await buildRenderQueue(items, result, pool);
 
 		// All text nodes should be in the queue
 		assert.equal(queue.nodes.length, 4);
@@ -51,11 +59,12 @@ describe('Queue batching optimization', () => {
 
 	it('should batch consecutive html-string nodes', async () => {
 		const result = createMockResult();
+		const pool = createMockPool();
 		const { markHTMLString } = await import('../../../dist/runtime/server/escape.js');
 
 		const items = [markHTMLString('<div>'), markHTMLString('content'), markHTMLString('</div>')];
 
-		const queue = await buildRenderQueue(items, result);
+		const queue = await buildRenderQueue(items, result, pool);
 
 		let writeCount = 0;
 		let output = '';
@@ -66,7 +75,7 @@ describe('Queue batching optimization', () => {
 			},
 		};
 
-		const { renderQueue } = await import('../../../dist/runtime/server/render/queue/index.js');
+		const { renderQueue } = await import('../../../dist/runtime/server/render/queue/renderer.js');
 		await renderQueue(queue, destination);
 
 		// Should batch into single write
@@ -76,6 +85,7 @@ describe('Queue batching optimization', () => {
 
 	it('should NOT batch across component boundaries', async () => {
 		const result = createMockResult();
+		const pool = createMockPool();
 
 		// Create a simple component
 		const componentInstance = {
@@ -86,7 +96,7 @@ describe('Queue batching optimization', () => {
 
 		const items = ['before', componentInstance, 'after'];
 
-		const queue = await buildRenderQueue(items, result);
+		const queue = await buildRenderQueue(items, result, pool);
 
 		let writeCount = 0;
 		let output = '';
@@ -97,7 +107,7 @@ describe('Queue batching optimization', () => {
 			},
 		};
 
-		const { renderQueue } = await import('../../../dist/runtime/server/render/queue/index.js');
+		const { renderQueue } = await import('../../../dist/runtime/server/render/queue/renderer.js');
 		await renderQueue(queue, destination);
 
 		// Should have 3 writes: batched 'before', component output, batched 'after'
@@ -107,11 +117,12 @@ describe('Queue batching optimization', () => {
 
 	it('should demonstrate performance improvement with large arrays', async () => {
 		const result = createMockResult();
+		const pool = createMockPool();
 
 		// Create a large array of text items (simulating a list)
 		const items = Array.from({ length: 1000 }, (_, i) => `Item ${i + 1}`);
 
-		const queue = await buildRenderQueue(items, result);
+		const queue = await buildRenderQueue(items, result, pool);
 
 		assert.equal(queue.nodes.length, 1000);
 
@@ -122,7 +133,7 @@ describe('Queue batching optimization', () => {
 			},
 		};
 
-		const { renderQueue } = await import('../../../dist/runtime/server/render/queue/index.js');
+		const { renderQueue } = await import('../../../dist/runtime/server/render/queue/renderer.js');
 		await renderQueue(queue, destination);
 
 		// With batching: 1 write (all text nodes batched together)
@@ -132,6 +143,7 @@ describe('Queue batching optimization', () => {
 
 	it('should batch mixed text and html-string nodes', async () => {
 		const result = createMockResult();
+		const pool = createMockPool();
 		const { markHTMLString } = await import('../../../dist/runtime/server/escape.js');
 
 		const items = [
@@ -141,7 +153,7 @@ describe('Queue batching optimization', () => {
 			markHTMLString('<i>Italic</i>'),
 		];
 
-		const queue = await buildRenderQueue(items, result);
+		const queue = await buildRenderQueue(items, result, pool);
 
 		let writeCount = 0;
 		let output = '';
@@ -152,7 +164,7 @@ describe('Queue batching optimization', () => {
 			},
 		};
 
-		const { renderQueue } = await import('../../../dist/runtime/server/render/queue/index.js');
+		const { renderQueue } = await import('../../../dist/runtime/server/render/queue/renderer.js');
 		await renderQueue(queue, destination);
 
 		// All should be batched since they're all batchable types

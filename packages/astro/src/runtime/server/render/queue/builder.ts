@@ -39,6 +39,7 @@ export async function buildRenderQueue(
 		nodes: [],
 		result,
 		pool,
+		htmlStringCache: result._experimentalQueuedRendering?.htmlStringCache,
 	};
 
 	// Stack for depth-first traversal (LIFO - Last In, First Out)
@@ -139,8 +140,11 @@ export async function buildRenderQueue(
 			// Push in forward order - stack pop() will reverse, then final reverse() corrects it
 			// Push first html part - mark as HTMLString so it won't be escaped
 			if (htmlParts[0]) {
+				const htmlString = queue.htmlStringCache
+					? queue.htmlStringCache.getOrCreate(htmlParts[0])
+					: markHTMLString(htmlParts[0]);
 				stack.push({
-					node: markHTMLString(htmlParts[0]),
+					node: htmlString,
 					parent,
 					metadata: item.metadata,
 				});
@@ -152,8 +156,11 @@ export async function buildRenderQueue(
 				stack.push({ node: expressions[i], parent, metadata: item.metadata });
 				// Push html part after expression - mark as HTMLString
 				if (htmlParts[i + 1]) {
+					const htmlString = queue.htmlStringCache
+						? queue.htmlStringCache.getOrCreate(htmlParts[i + 1])
+						: markHTMLString(htmlParts[i + 1]);
 					stack.push({
-						node: markHTMLString(htmlParts[i + 1]),
+						node: htmlString,
 						parent,
 						metadata: item.metadata,
 					});

@@ -3,6 +3,7 @@ import type { AstroComponentInstance } from '../astro/instance.js';
 import type { RenderInstruction } from '../instruction.js';
 import type { ServerIslandComponent } from '../server-islands.js';
 import type { NodePool } from './pool.js';
+import type { HTMLStringCache } from '../../html-string-cache.js';
 
 /**
  * Text node containing plain text content that will be HTML-escaped during rendering
@@ -60,6 +61,11 @@ export interface RenderQueue {
 	 * Object pool instance used for node acquisition
 	 */
 	pool?: NodePool;
+
+	/**
+	 * HTMLString cache instance for reducing memory allocations
+	 */
+	htmlStringCache?: HTMLStringCache;
 }
 
 /**
