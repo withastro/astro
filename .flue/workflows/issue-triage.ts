@@ -156,7 +156,7 @@ async function runTriagePipeline(
 	commitMessage: string | null;
 }> {
 	const reproduceResult = await flue.skill('triage/reproduce.md', {
-		args: { issueNumber },
+		args: { issueNumber, issueDetails},
 		result: v.object({
 			reproducible: v.pipe(
 				v.boolean(),
