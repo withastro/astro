@@ -1,4 +1,4 @@
 import { createApp as _createApp } from 'virtual:astro:app';
-import type { BaseApp } from '../../base.js';
+import type { CreateApp } from '../../types.js';
 
-export const createApp: () => BaseApp = _createApp;
+export const createApp: CreateApp = _createApp;
