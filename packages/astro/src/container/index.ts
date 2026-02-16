@@ -176,7 +176,9 @@ function createManifest(
 			placement: undefined,
 		},
 		logLevel: 'silent',
-		experimentalQueuedRendering: manifest?.experimentalQueuedRendering ?? undefined,
+		experimentalQueuedRendering: manifest?.experimentalQueuedRendering ?? {
+			enabled: false,
+		},
 	};
 }
 

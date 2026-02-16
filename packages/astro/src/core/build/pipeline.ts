@@ -16,11 +16,18 @@ import { findRouteToRewrite } from '../routing/rewrite.js';
 import type { BuildInternals } from './internal.js';
 import { cssOrder, mergeInlineCss, getPageData } from './runtime.js';
 import type { SinglePageBuiltModule, StaticBuildOptions } from './types.js';
+import { newNodePool, type NodePool } from '../../runtime/server/render/queue/pool.js';
+import { queueRenderingEnabled } from '../app/manifest.js';
 
 /**
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
  */
 export class BuildPipeline extends Pipeline {
+	createNodePool(): NodePool | undefined {
+		if (queueRenderingEnabled(this.manifest.experimentalQueuedRendering)) {
+			return newNodePool(this.manifest.experimentalQueuedRendering!);
+		}
+	}
 	internals: BuildInternals | undefined;
 	options: StaticBuildOptions | undefined;
 

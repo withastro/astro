@@ -27,9 +27,7 @@ export async function renderPage(
 		let str: string;
 
 		// Check if queue rendering is enabled
-		const useQueueRendering = result._experimentalQueuedRenderingConfig?.enabled ?? false;
-
-		if (useQueueRendering) {
+		if (result._experimentalQueuedRendering && result._experimentalQueuedRendering.enabled) {
 			// Queue rendering: Call the component to get the render result,
 			// then process it through the queue system
 
@@ -37,7 +35,11 @@ export async function renderPage(
 			const vnode = await (componentFactory as any)(pageProps);
 
 			// Build a render queue from the vnode tree
-			const queue = await buildRenderQueue(vnode, result);
+			const queue = await buildRenderQueue(
+				vnode,
+				result,
+				result._experimentalQueuedRendering.pool!,
+			);
 
 			// Render the queue to a string
 			let html = '';

@@ -6,7 +6,6 @@ import { createAstroComponentInstance, isAstroComponentInstance } from '../astro
 import { isRenderInstance } from '../common.js';
 import { isRenderInstruction } from '../instruction.js';
 import { SlotString } from '../slot.js';
-import { getPoolForConfig } from './pool.js';
 import type {
 	RenderQueue,
 	StackItem,
@@ -19,6 +18,7 @@ import { isRenderTemplateResult } from '../astro/render-template.js';
 import { isHeadAndContent } from '../astro/head-and-content.js';
 import { isVNode } from '../../../../jsx-runtime/index.js';
 import { renderJSXToQueue } from './jsx-builder.js';
+import type { NodePool } from './pool.js';
 
 /**
  * Builds a render queue from a component tree.
@@ -27,16 +27,18 @@ import { renderJSXToQueue } from './jsx-builder.js';
  *
  * @param root - The root component/value to render
  * @param result - SSR result context
+ * @param pool
  * @returns A render queue ready for rendering
  */
-export async function buildRenderQueue(root: any, result: SSRResult): Promise<RenderQueue> {
-	// Get pool based on config (e.g., disable pooling in SSR)
-	const pool = getPoolForConfig(result._experimentalQueuedRenderingConfig);
-
+export async function buildRenderQueue(
+	root: any,
+	result: SSRResult,
+	pool: NodePool,
+): Promise<RenderQueue> {
 	const queue: RenderQueue = {
 		nodes: [],
 		result,
-		pool, // Store pool in queue for renderer to release nodes
+		pool,
 	};
 
 	// Stack for depth-first traversal (LIFO - Last In, First Out)

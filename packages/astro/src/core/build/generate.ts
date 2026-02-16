@@ -58,7 +58,7 @@ export async function generatePages(
 	}
 
 	// Get or create the prerenderer
-	let prerenderer: AstroPrerenderer;
+	let prerenderer: DefaultPrerenderer;
 	const settingsPrerenderer = options.settings.prerenderer;
 	if (!settingsPrerenderer) {
 		// No custom prerenderer - create default
@@ -190,20 +190,22 @@ export async function generatePages(
 	);
 
 	// Log pool statistics if queue rendering is enabled
-	if (options.settings.config.experimental?.queuedRendering) {
+	if (
+		options.settings.logLevel === 'debug' &&
+		options.settings.config.experimental?.queuedRendering &&
+		prerenderer.app
+	) {
 		try {
+			const stats = prerenderer.app.getQueueStats();
 			// Dynamic import to avoid loading pool module when not using queue rendering
-			const { globalNodePool } = await import('../../runtime/server/render/queue/pool.js');
-			const stats = globalNodePool.getStats();
-			
 			// Only log if there was actual pool activity
-			if (stats.acquireFromPool > 0 || stats.acquireNew > 0) {
+			if (stats && (stats.acquireFromPool > 0 || stats.acquireNew > 0)) {
 				logger.info(
 					null,
 					colors.dim(
 						`[Queue Pool] ${stats.acquireFromPool.toLocaleString()} reused / ${stats.acquireNew.toLocaleString()} new nodes | ` +
-						`Hit rate: ${stats.hitRate.toFixed(1)}% | ` +
-						`Pool: ${stats.poolSize}/${stats.maxSize}`
+							`Hit rate: ${stats.hitRate.toFixed(1)}% | ` +
+							`Pool: ${stats.poolSize}/${stats.maxSize}`,
 					),
 				);
 			}

@@ -584,22 +584,12 @@ export class RenderContext {
 			serverIslandNameMap: this.serverIslands.serverIslandNameMap ?? new Map(),
 			key: manifest.key,
 			trailingSlash: manifest.trailingSlash,
-			_experimentalQueuedRendering: manifest.experimentalQueuedRendering ? true : undefined,
-			_experimentalQueuedRenderingConfig: manifest.experimentalQueuedRendering
-				? typeof manifest.experimentalQueuedRendering === 'object'
-					? {
-							enabled: manifest.experimentalQueuedRendering.enabled ?? true,
-							poolSize:
-								manifest.experimentalQueuedRendering.poolSize ??
-								(pipeline.getName() === 'AppPipeline' ? 0 : 1000), // Disable pooling in SSR by default
-							cache: manifest.experimentalQueuedRendering.cache ?? false, // Cache disabled by default (hurts performance)
-						}
-					: {
-							enabled: true,
-							poolSize: pipeline.getName() === 'AppPipeline' ? 0 : 1000, // Disable pooling in SSR by default
-							cache: false, // Cache disabled by default (hurts performance)
-						}
-				: undefined,
+			_experimentalQueuedRendering: {
+				pool: pipeline.nodePool,
+				enabled: manifest.experimentalQueuedRendering?.enabled,
+				poolSize: manifest.experimentalQueuedRendering?.poolSize,
+				contentCache: manifest.experimentalQueuedRendering?.contentCache,
+			},
 			_metadata: {
 				hasHydrationScript: false,
 				rendererSpecificHydrationScripts: new Set(),
@@ -627,8 +617,8 @@ export class RenderContext {
 		};
 
 		// Set HTMLString caching based on config
-		if (result._experimentalQueuedRenderingConfig) {
-			setHTMLStringCacheEnabled(result._experimentalQueuedRenderingConfig.cache ?? true);
+		if (result._experimentalQueuedRendering) {
+			setHTMLStringCacheEnabled(result._experimentalQueuedRendering.contentCache ?? true);
 		}
 
 		return result;

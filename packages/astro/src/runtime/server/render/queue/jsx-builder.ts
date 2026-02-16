@@ -9,7 +9,7 @@ import type {
 	QueueNode,
 	ComponentNode,
 } from './types.js';
-import type { QueueNodePool } from './pool.js';
+import type { NodePool } from './pool.js';
 import { HTMLString, markHTMLString, spreadAttributes, voidElementNames } from '../../index.js';
 import { isAstroComponentFactory } from '../astro/factory.js';
 import { createAstroComponentInstance } from '../astro/instance.js';
@@ -64,7 +64,7 @@ export function renderJSXToQueue(
 	vnode: any,
 	result: SSRResult,
 	queue: RenderQueue,
-	pool: QueueNodePool,
+	pool: NodePool,
 	stack: StackItem[],
 	parent: QueueNode | null,
 	metadata?: StackItem['metadata'],
@@ -129,7 +129,7 @@ function handleVNode(
 	vnode: AstroVNode,
 	result: SSRResult,
 	queue: RenderQueue,
-	pool: QueueNodePool,
+	pool: NodePool,
 	stack: StackItem[],
 	parent: QueueNode | null,
 	metadata?: StackItem['metadata'],
@@ -207,7 +207,7 @@ function renderHTMLElement(
 	vnode: AstroVNode,
 	_result: SSRResult,
 	queue: RenderQueue,
-	pool: QueueNodePool,
+	pool: NodePool,
 	stack: StackItem[],
 	parent: QueueNode | null,
 	metadata?: StackItem['metadata'],

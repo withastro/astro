@@ -2766,7 +2766,7 @@ export interface AstroUserConfig<
 
 		/**
 		 * @name experimental.queuedRendering
-		 * @type {boolean | { poolSize?: number }}
+		 * @type {boolean | { poolSize?: number; cache?: boolean }}
 		 * @default `false`
 		 * @description
 		 * Enable queue-based rendering engine instead of the default recursive rendering.
@@ -2791,13 +2791,15 @@ export interface AstroUserConfig<
 		 * }
 		 * ```
 		 *
-		 * You can optionally configure the object pool size (default: 1000):
+		 * You can optionally configure the object pool size and HTMLString caching:
 		 *
 		 * ```js
 		 * {
 		 *   experimental: {
 		 *     queuedRendering: {
-		 *       poolSize: 500
+		 *       enabled: true,
+		 *       poolSize: 1000,  // default: 1000 for static builds, 0 for SSR
+		 *       cache: false     // default: false (caching can hurt performance)
 		 *     }
 		 *   }
 		 * }
@@ -2805,7 +2807,7 @@ export interface AstroUserConfig<
 		 *
 		 * Note: This is an experimental feature and may have edge cases. Please report any issues you encounter.
 		 */
-		queuedRendering?: boolean | { poolSize?: number };
+		queuedRendering?: { enabled: boolean; poolSize?: number; cache?: boolean };
 	};
 }
 
