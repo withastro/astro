@@ -3,11 +3,14 @@ import {
 	type GoogleFamilyOptions,
 	type GoogleiconsFamilyOptions,
 	type InitializedProvider,
+	type NpmProviderOptions,
+	type NpmFamilyOptions,
 	providers,
 } from 'unifont';
 import { FontaceFontFileReader } from '../infra/fontace-font-file-reader.js';
 import type { FontProvider } from '../types.js';
 import { type LocalFamilyOptions, LocalFontProvider } from './local.js';
+import { fileURLToPath } from 'node:url';
 
 /** [Adobe](https://fonts.adobe.com/) */
 function adobe(config: AdobeProviderOptions): FontProvider {
@@ -118,6 +121,27 @@ function googleicons(): FontProvider<GoogleiconsFamilyOptions | undefined> {
 	};
 }
 
+/** [NPM](TODO:) */
+function npm(
+	options?: Omit<NpmProviderOptions, 'root'>,
+): FontProvider<NpmFamilyOptions | undefined> {
+	let initializedProvider: InitializedProvider<NpmFamilyOptions> | undefined;
+	return {
+		name: providers.npm()._name,
+		async init(context) {
+			initializedProvider = await providers.npm({ ...options, root: fileURLToPath(context.root) })(
+				context,
+			);
+		},
+		async resolveFont({ familyName, ...rest }) {
+			return await initializedProvider?.resolveFont(familyName, rest);
+		},
+		async listFonts() {
+			return await initializedProvider?.listFonts?.();
+		},
+	};
+}
+
 /** A provider that handles local files. */
 function local(): FontProvider<LocalFamilyOptions> {
 	return new LocalFontProvider({
@@ -133,6 +157,7 @@ function local(): FontProvider<LocalFamilyOptions> {
  * - [Fontsource](https://fontsource.org/)
  * - [Google](https://fonts.google.com/)
  * - [Google Icons](https://fonts.google.com/icons)
+ * - [NPM](TODO:)
  * - Local
  */
 export const fontProviders = {
@@ -142,5 +167,6 @@ export const fontProviders = {
 	fontsource,
 	google,
 	googleicons,
+	npm,
 	local,
 };
