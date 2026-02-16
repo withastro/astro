@@ -19,6 +19,17 @@ interface NodeRequest extends IncomingMessage {
 	body?: unknown;
 }
 
+function findRequestPort(req: NodeRequest, proto: string): string | undefined {
+		const hostheader = req.headers['host'];
+		if (hostheader) {
+			const hosturl = new URL(`${proto}://${hostheader}`)
+			if (hosturl.port) {
+				return hosturl.port
+			}
+		}
+		return undefined
+}
+
 /**
  * Converts a NodeJS IncomingMessage into a web standard Request.
  * ```js
@@ -76,7 +87,7 @@ export function createRequest(
 		allowedDomains,
 	);
 	const hostname = validated.host ?? validatedHostname ?? 'localhost';
-	const port = validated.port;
+	const port = validated.port ?? req.socket?.localPort?.toString() ?? findRequestPort(req, protocol);
 
 	let url: URL;
 	try {

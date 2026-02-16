@@ -48,7 +48,7 @@ describe('URL', () => {
 	it('return http when the X-Forwarded-Proto header is set to http', async () => {
 		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
 		const { req, res, text } = createRequestAndResponse({
-			headers: { 'X-Forwarded-Proto': 'http' },
+			headers: { 'X-Forwarded-Proto': 'http', 'X-Forwarded-Host': 'legitimate.example.com'  },
 			url: '/',
 		});
 
@@ -62,7 +62,7 @@ describe('URL', () => {
 	it('return https when the X-Forwarded-Proto header is set to https', async () => {
 		const { handler } = await import('./fixtures/url/dist/server/entry.mjs');
 		const { req, res, text } = createRequestAndResponse({
-			headers: { 'X-Forwarded-Proto': 'https' },
+			headers: { 'X-Forwarded-Proto': 'https', 'X-Forwarded-Host': 'legitimate.example.com' },
 			url: '/',
 		});
 
@@ -71,6 +71,7 @@ describe('URL', () => {
 
 		const html = await text();
 		assert.equal(html.includes('https:'), true);
+
 	});
 
 	it('includes forwarded host and port in the url', async () => {
@@ -132,7 +133,7 @@ describe('URL', () => {
 		const $ = cheerio.load(html);
 
 		// Should use the Host header, not X-Forwarded-Host when allowedDomains is not configured
-		assert.equal($('body').text(), 'https://legitimate.example.com/');
+		assert.equal($('body').text(), 'http://legitimate.example.com/');
 	});
 
 	it('rejects port in forwarded host when port not in allowedDomains', async () => {
@@ -153,7 +154,7 @@ describe('URL', () => {
 		const $ = cheerio.load(html);
 
 		// Port 8080 not in allowedDomains (only 444), so should fall back to Host header
-		assert.equal($('body').text(), 'https://localhost:3000/');
+		assert.equal($('body').text(), 'http://localhost:3000/');
 	});
 
 	it('rejects empty X-Forwarded-Host with allowedDomains configured', async () => {
@@ -174,7 +175,7 @@ describe('URL', () => {
 		const $ = cheerio.load(html);
 
 		// Empty X-Forwarded-Host should be rejected and fall back to Host header
-		assert.equal($('body').text(), 'https://legitimate.example.com/');
+		assert.equal($('body').text(), 'http://legitimate.example.com/');
 	});
 
 	it('rejects X-Forwarded-Host with path injection attempt', async () => {
@@ -195,6 +196,6 @@ describe('URL', () => {
 		const $ = cheerio.load(html);
 
 		// Path injection attempt should be rejected and fall back to Host header
-		assert.equal($('body').text(), 'https://localhost:3000/');
+		assert.equal($('body').text(), 'http://localhost:3000/');
 	});
 });

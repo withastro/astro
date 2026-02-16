@@ -1,4 +1,4 @@
-import { matchPattern, type RemotePattern } from '@astrojs/internal-helpers/remote';
+import { matchPattern, matchHostname, type RemotePattern } from '@astrojs/internal-helpers/remote';
 
 /**
  * Sanitize a hostname by rejecting any with path separators.
@@ -85,55 +85,56 @@ export function validateForwardedHeaders(
 ): { protocol?: string; host?: string; port?: string } {
 	const result: { protocol?: string; host?: string; port?: string } = {};
 
-	// Validate protocol
-	if (forwardedProtocol) {
-		if (allowedDomains && allowedDomains.length > 0) {
-			const hasProtocolPatterns = allowedDomains.some((pattern) => pattern.protocol !== undefined);
-			if (hasProtocolPatterns) {
-				// Validate against allowedDomains patterns
-				try {
-					const testUrl = new URL(`${forwardedProtocol}://example.com`);
-					const isAllowed = allowedDomains.some((pattern) => matchPattern(testUrl, pattern));
-					if (isAllowed) {
-						result.protocol = forwardedProtocol;
-					}
-				} catch {
-					// Invalid protocol, omit from result
-				}
-			} else if (/^https?$/.test(forwardedProtocol)) {
-				// allowedDomains exist but no protocol patterns, allow http/https
-				result.protocol = forwardedProtocol;
-			}
-		} else if (/^https?$/.test(forwardedProtocol)) {
-			// No allowedDomains, only allow http/https
-			result.protocol = forwardedProtocol;
-		}
+	// Require allowed domains to validate any forwarded headers - prevents trusting unvalidated headers
+	if (!allowedDomains || allowedDomains.length === 0) {
+		return result
 	}
 
-	// Validate port first
-	if (forwardedPort && allowedDomains && allowedDomains.length > 0) {
-		const hasPortPatterns = allowedDomains.some((pattern) => pattern.port !== undefined);
-		if (hasPortPatterns) {
-			// Validate against allowedDomains patterns
-			const isAllowed = allowedDomains.some((pattern) => pattern.port === forwardedPort);
-			if (isAllowed) {
-				result.port = forwardedPort;
-			}
-		}
-		// If no port patterns, reject the header (strict security default)
-	}
+	let allowedDomain: RemotePattern = {}
 
 	// Validate host (extract port from hostname for validation)
 	// Reject empty strings and sanitize to prevent path injection
-	if (forwardedHost && forwardedHost.length > 0 && allowedDomains && allowedDomains.length > 0) {
-		const protoForValidation = result.protocol || 'https';
+	if (forwardedHost && forwardedHost.length > 0) {
 		const sanitized = sanitizeHost(forwardedHost);
 		if (sanitized) {
-			const { hostname, port: portFromHost } = parseHost(sanitized);
-			const portForValidation = result.port || portFromHost;
-			if (matchesAllowedDomains(hostname, protoForValidation, portForValidation, allowedDomains)) {
-				result.host = sanitized;
+			const { hostname, port } = parseHost(sanitized);
+			if (hostname) {
+				const testUrl = new URL(`https://${hostname}/`);
+				// do not match anything other than hostname here.
+				const found = allowedDomains.find((pattern) => matchHostname(testUrl, pattern.hostname, true));
+				if (found) {
+					// also check for ports in the forwarded header, if there is a mismatch, return
+					if (port) {
+						if (found.port && found.port !== port) {
+							return result;
+						}
+					}
+					result.host = sanitized;
+					allowedDomain = found
+				}
 			}
+		}
+	}
+
+	// If host is not valid, we cannot trust protocol or port from forwarded headers
+	if (!result.host || !allowedDomain.hostname) {
+		return result;
+	}
+
+	// Validate port
+	if (forwardedPort && allowedDomain.port && allowedDomain.port === forwardedPort) {
+		result.port = forwardedPort;
+	}
+
+	// Validate protocol
+	if (forwardedProtocol) {
+		if (allowedDomain.protocol) {
+			if (allowedDomain.protocol === forwardedProtocol) {
+				result.protocol = forwardedProtocol;
+			}
+		} else if (/^https?$/.test(forwardedProtocol)) {
+			// allowdDomains does not contain protocol, allow protocol
+			result.protocol = forwardedProtocol;
 		}
 	}
 

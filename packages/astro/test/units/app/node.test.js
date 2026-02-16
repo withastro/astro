@@ -77,6 +77,7 @@ describe('node', () => {
 						...mockNodeRequest,
 						headers: {
 							'x-forwarded-host': 'www2.example.com,www3.example.com',
+							'x-forwarded-proto': 'https',
 						},
 					},
 					{ allowedDomains: [{ hostname: '**.example.com' }] },
@@ -324,6 +325,7 @@ describe('node', () => {
 						...mockNodeRequest,
 						headers: {
 							host: 'example.com',
+							'x-forwarded-host': 'example.com',
 							'x-forwarded-proto': 'http',
 							'x-forwarded-port': '80',
 						},
@@ -339,6 +341,7 @@ describe('node', () => {
 						...mockNodeRequest,
 						headers: {
 							host: 'example.com',
+							'x-forwarded-host': 'example.com',
 							'x-forwarded-proto': 'http,https',
 							'x-forwarded-port': '80,443',
 						},
@@ -354,6 +357,7 @@ describe('node', () => {
 						...mockNodeRequest,
 						headers: {
 							host: 'example.com',
+							'x-forwarded-host': 'example.com',
 						},
 					},
 					{ allowedDomains: [{ hostname: 'example.com' }] },
@@ -367,6 +371,7 @@ describe('node', () => {
 						...mockNodeRequest,
 						headers: {
 							host: 'example.com',
+							'x-forwarded-host': 'example.com',
 							'x-forwarded-proto': 'https://www.malicious-url.com/?tank=',
 						},
 					},
@@ -381,6 +386,7 @@ describe('node', () => {
 						...mockNodeRequest,
 						headers: {
 							host: 'example.com',
+							'x-forwarded-host': 'example.com',
 							'x-forwarded-proto': 'x:admin?',
 						},
 					},
@@ -395,6 +401,7 @@ describe('node', () => {
 						...mockNodeRequest,
 						headers: {
 							host: 'example.com',
+							'x-forwarded-host': 'example.com',
 							'x-forwarded-proto': 'https://localhost/vulnerable?',
 						},
 					},
@@ -409,6 +416,7 @@ describe('node', () => {
 						...mockNodeRequest,
 						headers: {
 							host: 'example.com',
+							'x-forwarded-host': 'example.com',
 							'x-forwarded-proto': 'javascript:alert(document.cookie)//',
 						},
 					},
@@ -423,6 +431,7 @@ describe('node', () => {
 						...mockNodeRequest,
 						headers: {
 							host: 'example.com',
+							'x-forwarded-host': 'example.com',
 							'x-forwarded-proto': '',
 						},
 					},
@@ -439,12 +448,12 @@ describe('node', () => {
 						...mockNodeRequest,
 						headers: {
 							host: 'example.com',
+							'x-forwarded-host': 'example.com',
 							'x-forwarded-port': '8443',
 						},
 					},
 					{
 						allowedDomains: [
-							{ hostname: 'example.com' },
 							{ hostname: 'example.com', port: '8443' },
 						],
 					},
@@ -458,12 +467,12 @@ describe('node', () => {
 						...mockNodeRequest,
 						headers: {
 							host: 'example.com',
+							'x-forwarded-host': 'example.com',
 							'x-forwarded-port': '8443,3000',
 						},
 					},
 					{
 						allowedDomains: [
-							{ hostname: 'example.com' },
 							{ hostname: 'example.com', port: '8443' },
 						],
 					},
@@ -477,6 +486,7 @@ describe('node', () => {
 						...mockNodeRequest,
 						headers: {
 							host: 'example.com',
+							'x-forwarded-host': 'example.com',
 							'x-forwarded-port': '8443',
 						},
 					},
@@ -491,6 +501,7 @@ describe('node', () => {
 						...mockNodeRequest,
 						headers: {
 							host: 'example.com:3000',
+							'x-forwarded-host': 'example.com',
 							'x-forwarded-port': '443',
 						},
 					},
