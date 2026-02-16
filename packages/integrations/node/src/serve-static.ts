@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import path from 'node:path';
-import url from 'node:url';
 import { hasFileExtension, isInternalPath } from '@astrojs/internal-helpers/path';
 import type { NodeApp } from 'astro/app/node';
 import send from 'send';
+import { resolveClientDir } from './shared.js';
 import type { Options } from './types.js';
 
 /**
@@ -122,27 +122,6 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 	};
 }
 
-function resolveClientDir(options: Options) {
-	const clientURLRaw = new URL(options.client);
-	const serverURLRaw = new URL(options.server);
-	const rel = path.relative(url.fileURLToPath(serverURLRaw), url.fileURLToPath(clientURLRaw));
-
-	// walk up the parent folders until you find the one that is the root of the server entry folder. This is how we find the client folder relatively.
-	const serverFolder = path.basename(options.server);
-	let serverEntryFolderURL = path.dirname(import.meta.url);
-	while (!serverEntryFolderURL.endsWith(serverFolder)) {
-		serverEntryFolderURL = path.dirname(serverEntryFolderURL);
-	}
-	const serverEntryURL = serverEntryFolderURL + '/entry.mjs';
-	const clientURL = new URL(appendForwardSlash(rel), serverEntryURL);
-	const client = url.fileURLToPath(clientURL);
-	return client;
-}
-
 function prependForwardSlash(pth: string) {
 	return pth.startsWith('/') ? pth : '/' + pth;
-}
-
-function appendForwardSlash(pth: string) {
-	return pth.endsWith('/') ? pth : pth + '/';
 }

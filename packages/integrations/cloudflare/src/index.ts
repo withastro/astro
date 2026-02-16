@@ -1,17 +1,12 @@
 import { createReadStream, existsSync, readFileSync } from 'node:fs';
-import { appendFile, stat } from 'node:fs/promises';
+import { appendFile, rm, stat } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
 import { createRedirectsFromAstroRoutes, printAsRedirects } from '@astrojs/underscore-redirects';
 import { cloudflare as cfVitePlugin, type PluginConfig } from '@cloudflare/vite-plugin';
-import type {
-	AstroConfig,
-	AstroIntegration,
-	HookParameters,
-	IntegrationResolvedRoute,
-} from 'astro';
-
-import { createRoutesFile, getParts } from './utils/generate-routes-json.js';
+import type { AstroConfig, AstroIntegration, IntegrationResolvedRoute } from 'astro';
+import { astroFrontmatterScanPlugin } from './esbuild-plugin-astro-frontmatter.js';
+import { getParts } from './utils/generate-routes-json.js';
 import { type ImageService, setImageConfig } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
 import {
@@ -28,31 +23,6 @@ export type { Runtime } from './utils/handler.js';
 export type Options = {
 	/** Options for handling images. */
 	imageService?: ImageService;
-
-	/** Configuration for `_routes.json` generation. A _routes.json file controls when your Function is invoked. This file will include three different properties:
-	 *
-	 * - version: Defines the version of the schema. Currently there is only one version of the schema (version 1), however, we may add more in the future and aim to be backwards compatible.
-	 * - include: Defines routes that will be invoked by Functions. Accepts wildcard behavior.
-	 * - exclude: Defines routes that will not be invoked by Functions. Accepts wildcard behavior. `exclude` always take priority over `include`.
-	 *
-	 * Wildcards match any number of path segments (slashes). For example, `/users/*` will match everything after the `/users/` path.
-	 *
-	 */
-	routes?: {
-		/** Extend `_routes.json` */
-		extend: {
-			/** Paths which should be routed to the SSR function */
-			include?: {
-				/** Generally this is in pathname format, but does support wildcards, e.g. `/users`, `/products/*` */
-				pattern: string;
-			}[];
-			/** Paths which should be routed as static assets */
-			exclude?: {
-				/** Generally this is in pathname format, but does support wildcards, e.g. `/static`, `/assets/*`, `/images/avatar.jpg` */
-				pattern: string;
-			}[];
-		};
-	};
 
 	/**
 	 * By default, Astro will be configured to use Cloudflare KV to store session data. The KV namespace
@@ -79,9 +49,9 @@ export type Options = {
 
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
-	let finalBuildOutput: HookParameters<'astro:config:done'>['buildOutput'];
 
 	let _routes: IntegrationResolvedRoute[];
+	let _isFullyStatic = false;
 
 	const sessionKVBindingName = args?.sessionKVBindingName ?? DEFAULT_SESSION_KV_BINDING_NAME;
 	const imagesBindingName = args?.imagesBindingName ?? DEFAULT_IMAGES_BINDING_NAME;
@@ -133,8 +103,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 				updateConfig({
 					build: {
-						client: new URL(`./client/`, config.outDir),
-						server: new URL('./_worker.js/', config.outDir),
 						redirects: false,
 					},
 					session,
@@ -188,6 +156,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 													'virtual:astro-cloudflare:*',
 													'virtual:@astrojs/*',
 												],
+												esbuildOptions: {
+													plugins: [astroFrontmatterScanPlugin()],
+												},
 											},
 										};
 									} else if (environmentName === 'client') {
@@ -230,10 +201,13 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			},
 			'astro:routes:resolved': ({ routes }) => {
 				_routes = routes;
+				// Check if all non-internal routes are prerendered (fully static site)
+				const nonInternalRoutes = routes.filter((route) => route.origin !== 'internal');
+				_isFullyStatic =
+					nonInternalRoutes.length > 0 && nonInternalRoutes.every((route) => route.isPrerendered);
 			},
-			'astro:config:done': ({ setAdapter, config, buildOutput, injectTypes, logger }) => {
+			'astro:config:done': ({ setAdapter, config, injectTypes, logger }) => {
 				_config = config;
-				finalBuildOutput = buildOutput;
 
 				injectTypes({
 					filename: 'cloudflare.d.ts',
@@ -251,7 +225,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					supportedAstroFeatures: {
 						serverOutput: 'stable',
 						hybridOutput: 'stable',
-						staticOutput: 'unsupported',
+						staticOutput: 'stable',
 						i18nDomains: 'experimental',
 						sharpImageService: {
 							support: 'limited',
@@ -264,6 +238,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					},
 				});
 
+				// QUESTION could be removed based on https://developers.cloudflare.com/workers/configuration/compatibility-flags/#enable-auto-populating-processenv
 				// Assign .dev.vars to process.env so astro:env can find these vars
 				const devVarsPath = new URL('.dev.vars', config.root);
 				if (existsSync(devVarsPath)) {
@@ -316,7 +291,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					};
 				}
 			},
-			'astro:build:done': async ({ pages, dir, logger, assets }) => {
+			'astro:build:done': async ({ dir, logger, assets }) => {
 				let redirectsExists = false;
 				try {
 					const redirectsStat = await stat(new URL('./_redirects', _config.build.client));
@@ -352,28 +327,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					}
 				}
 
-				let routesExists = false;
-				try {
-					const routesStat = await stat(new URL('./_routes.json', _config.build.client));
-					if (routesStat.isFile()) {
-						routesExists = true;
-					}
-				} catch (_error) {
-					routesExists = false;
-				}
-
-				if (!routesExists) {
-					await createRoutesFile(
-						_config,
-						logger,
-						_routes,
-						pages,
-						redirects,
-						args?.routes?.extend?.include,
-						args?.routes?.extend?.exclude,
-					);
-				}
-
 				const trueRedirects = createRedirectsFromAstroRoutes({
 					config: _config,
 					routeToDynamicTargetMap: new Map(
@@ -384,7 +337,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						),
 					),
 					dir,
-					buildOutput: finalBuildOutput,
+					buildOutput: _isFullyStatic ? 'static' : 'server',
 					assets,
 				});
 
@@ -397,6 +350,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					} catch (_error) {
 						logger.error('Failed to write _redirects file');
 					}
+				}
+
+				// For fully static sites, remove the worker directory as it's not needed
+				if (_isFullyStatic) {
+					await rm(_config.build.server, { recursive: true, force: true });
 				}
 
 				// Delete this variable so the preview server opens the server build.
