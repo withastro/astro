@@ -10,20 +10,20 @@ export interface RouterOptions {
 	buildFormat: 'directory' | 'file' | 'preserve';
 }
 
-export interface RouterMatchRoute {
+interface RouterMatchRoute {
 	type: 'match';
 	route: RouteData;
 	params: Params;
 	pathname: string;
 }
 
-export interface RouterMatchRedirect {
+interface RouterMatchRedirect {
 	type: 'redirect';
 	location: string;
 	status: 301 | 308;
 }
 
-export interface RouterMatchNone {
+interface RouterMatchNone {
 	type: 'none';
 	reason: 'no-match' | 'outside-base';
 }

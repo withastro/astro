@@ -133,8 +133,8 @@ function createFileBasedRoutes(
 		return [];
 	}
 
-	const entries = collectRouteEntries(localFs, pagesRoot);
-	return createRoutesFromEntries(entries, settings, logger, pagesDirRelative);
+	const entriesByDir = collectRouteEntriesByDir(localFs, pagesRoot);
+	return createRoutesFromEntriesByDir(entriesByDir, settings, logger, pagesDirRelative);
 }
 
 export function createRoutesFromEntries(
@@ -142,6 +142,16 @@ export function createRoutesFromEntries(
 	settings: AstroSettings,
 	logger: Logger,
 	pagesDirRelative = 'src/pages',
+): RouteData[] {
+	const entriesByDir = groupEntriesByDir(entries);
+	return createRoutesFromEntriesByDir(entriesByDir, settings, logger, pagesDirRelative);
+}
+
+function createRoutesFromEntriesByDir(
+	entriesByDir: Map<string, RouteEntry[]>,
+	settings: AstroSettings,
+	logger: Logger,
+	pagesDirRelative: string,
 ): RouteData[] {
 	const routes: RouteData[] = [];
 	const validPageExtensions = new Set<string>([
@@ -152,19 +162,6 @@ export function createRoutesFromEntries(
 	const invalidPotentialPages = new Set<string>(['.tsx', '.jsx', '.vue', '.svelte']);
 	const validEndpointExtensions = new Set<string>(['.js', '.ts']);
 	const prerender = getPrerenderDefault(settings.config);
-
-	const normalizedEntries = entries.map((entry) => ({
-		...entry,
-		path: slash(entry.path),
-	}));
-
-	const entriesByDir = new Map<string, RouteEntry[]>();
-	for (const entry of normalizedEntries) {
-		const dir = path.posix.dirname(entry.path) === '.' ? '' : path.posix.dirname(entry.path);
-		const list = entriesByDir.get(dir) ?? [];
-		list.push(entry);
-		entriesByDir.set(dir, list);
-	}
 
 	function walk(dir: string, parentSegments: RoutePart[][], parentParams: string[]) {
 		const items: Item[] = [];
@@ -281,8 +278,39 @@ export function createRoutesFromEntries(
 	return routes;
 }
 
-function collectRouteEntries(fs: typeof nodeFs, rootDir: string): RouteEntry[] {
-	const entries: RouteEntry[] = [];
+function groupEntriesByDir(entries: RouteEntry[]): Map<string, RouteEntry[]> {
+	const entriesByDir = new Map<string, RouteEntry[]>();
+
+	for (const entry of entries) {
+		const normalizedPath = slash(entry.path);
+		const dir = path.posix.dirname(normalizedPath);
+		const key = dir === '.' ? '' : dir;
+		const list = entriesByDir.get(key);
+		const normalizedEntry =
+			normalizedPath === entry.path ? entry : { ...entry, path: normalizedPath };
+		if (list) {
+			list.push(normalizedEntry);
+		} else {
+			entriesByDir.set(key, [normalizedEntry]);
+		}
+	}
+
+	return entriesByDir;
+}
+
+function collectRouteEntriesByDir(fs: typeof nodeFs, rootDir: string): Map<string, RouteEntry[]> {
+	const entriesByDir = new Map<string, RouteEntry[]>();
+
+	function addEntry(entry: RouteEntry) {
+		const dir = path.posix.dirname(entry.path);
+		const key = dir === '.' ? '' : dir;
+		const list = entriesByDir.get(key);
+		if (list) {
+			list.push(entry);
+		} else {
+			entriesByDir.set(key, [entry]);
+		}
+	}
 
 	function walk(dir: string) {
 		const files = fs.readdirSync(dir);
@@ -290,7 +318,7 @@ function collectRouteEntries(fs: typeof nodeFs, rootDir: string): RouteEntry[] {
 			const resolved = path.join(dir, basename);
 			const isDir = fs.statSync(resolved).isDirectory();
 			const relative = slash(path.relative(rootDir, resolved));
-			entries.push({ path: relative, isDir });
+			addEntry({ path: relative, isDir });
 			if (isDir) {
 				walk(resolved);
 			}
@@ -298,7 +326,7 @@ function collectRouteEntries(fs: typeof nodeFs, rootDir: string): RouteEntry[] {
 	}
 
 	walk(rootDir);
-	return entries;
+	return entriesByDir;
 }
 
 // Get trailing slash rule for a path, based on the config and whether the path has an extension.
