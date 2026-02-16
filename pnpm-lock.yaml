@@ -2467,12 +2467,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/astro-response:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/astro-scripts:
     dependencies:
       '@tailwindcss/vite':
@@ -4288,18 +4282,6 @@ importers:
       preact:
         specifier: ^10.28.3
         version: 10.28.3
-
-  packages/astro/test/fixtures/ssr-error:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
-  packages/astro/test/fixtures/ssr-error-pages:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
 
   packages/astro/test/fixtures/ssr-markdown:
     dependencies:
