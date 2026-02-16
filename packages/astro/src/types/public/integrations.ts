@@ -140,6 +140,7 @@ interface AdapterSelfProperties {
 	 * @default 'legacy-dynamic'
 	 */
 	entryType: 'self';
+	serverEntrypoint?: string | URL;
 }
 
 export type AstroAdapter = {
@@ -157,6 +158,41 @@ export type AstroAdapter = {
 	 */
 	client?: AstroAdapterClientConfig;
 } & (AdapterLegacyDynamicProperties | AdapterSelfProperties);
+
+/**
+ * A pathname with its associated route, used for prerendering.
+ */
+export interface PathWithRoute {
+	pathname: string;
+	route: RouteData;
+}
+
+/**
+ * Custom prerenderer that adapters can provide to control how pages are prerendered.
+ * Allows non-Node runtimes (e.g., workerd) to handle prerendering.
+ */
+export interface AstroPrerenderer {
+	name: string;
+	/**
+	 * Called once before prerendering starts. Use for setup like starting a preview server.
+	 */
+	setup?: () => Promise<void>;
+	/**
+	 * Returns pathnames with their routes to prerender. The route is included to avoid
+	 * needing to re-match routes later, which can be incorrect due to route priority.
+	 */
+	getStaticPaths: () => Promise<PathWithRoute[]>;
+	/**
+	 * Renders a single page. Called by Astro for each path returned by getStaticPaths.
+	 * @param request - The request to render
+	 * @param options - Render options including routeData
+	 */
+	render: (request: Request, options: { routeData: RouteData }) => Promise<Response>;
+	/**
+	 * Called after all pages are prerendered. Use for cleanup like stopping a preview server.
+	 */
+	teardown?: () => Promise<void>;
+}
 
 export type AstroAdapterFeatureMap = {
 	/**
@@ -258,7 +294,12 @@ export interface BaseIntegrationHooks {
 		middlewareEntryPoint: URL | undefined;
 		logger: AstroIntegrationLogger;
 	}) => void | Promise<void>;
-	'astro:build:start': (options: { logger: AstroIntegrationLogger }) => void | Promise<void>;
+	'astro:build:start': (options: {
+		logger: AstroIntegrationLogger;
+		setPrerenderer: (
+			prerenderer: AstroPrerenderer | ((defaultPrerenderer: AstroPrerenderer) => AstroPrerenderer),
+		) => void;
+	}) => void | Promise<void>;
 	'astro:build:setup': (options: {
 		vite: ViteInlineConfig;
 		pages: Map<string, PageBuildData>;

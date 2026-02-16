@@ -35,6 +35,9 @@ export class MutableDataStore extends ImmutableDataStore {
 	#assetImports = new Set<string>();
 	#moduleImports = new Map<string, string>();
 
+	#writeInProgress = false;
+	#writeQueued = false;
+
 	set(collectionName: string, key: string, value: unknown) {
 		const collection = this._collections.get(collectionName) ?? new Map();
 		collection.set(String(key), value);
@@ -160,6 +163,8 @@ export default new Map([\n${lines.join(',\n')}]);
 			!this.#saveTimeout &&
 			!this.#assetsSaveTimeout &&
 			!this.#modulesSaveTimeout &&
+			!this.#writeQueued &&
+			!this.#writeInProgress &&
 			this.#savePromiseResolve
 		) {
 			this.#savePromiseResolve();
@@ -394,12 +399,28 @@ export default new Map([\n${lines.join(',\n')}]);
 		if (!this.#file) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError);
 		}
+		// If a write is already in progress, queue this write and return.
+		// This ensures we don't pass stale data to #writeFileAtomic nor race
+		// with the ongoing execution.
+		if (this.#writeInProgress) {
+			this.#writeQueued = true;
+			return;
+		}
 		try {
 			// Mark as clean before writing to disk so that it catches any changes that happen during the write
 			this.#dirty = false;
+			this.#writeInProgress = true;
 			await this.#writeFileAtomic(this.#file, this.toString());
 		} catch (err) {
 			throw new AstroError(AstroErrorData.UnknownFilesystemError, { cause: err });
+		} finally {
+			this.#writeInProgress = false;
+			if (this.#writeQueued) {
+				// Another request to write came in while th current write was happening.
+				// Write again to ensure we have the latest data.
+				this.#writeQueued = false;
+				await this.writeToDisk();
+			}
 		}
 	}
 

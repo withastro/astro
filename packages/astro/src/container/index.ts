@@ -167,6 +167,7 @@ function createManifest(
 		middleware: manifest?.middleware ?? middlewareInstance,
 		key: createKey(),
 		csp: manifest?.csp,
+		image: manifest?.image ?? {},
 		shouldInjectCspMetaTags: false,
 		devToolbar: {
 			enabled: false,
@@ -264,6 +265,7 @@ type AstroContainerManifest = Pick<
 	| 'allowedDomains'
 	| 'serverLike'
 	| 'assetsDir'
+	| 'image'
 >;
 
 type AstroContainerConstructor = {

@@ -750,7 +750,7 @@
       ]
     },
     "tags-lang": {
-      "begin": "<(script|style)",
+      "begin": "<(script|style)(?=\\s|/?>)",
       "end": "</\\1\\s*>|/>",
       "beginCaptures": {
         "0": {

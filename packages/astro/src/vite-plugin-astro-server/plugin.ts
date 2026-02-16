@@ -24,7 +24,7 @@ import { NOOP_MIDDLEWARE_FN } from '../core/middleware/noop-middleware.js';
 import { createViteLoader } from '../core/module-loader/index.js';
 import { SERIALIZED_MANIFEST_ID } from '../manifest/serialized.js';
 import type { AstroSettings } from '../types/astro.js';
-import { ASTRO_DEV_APP_ID } from '../vite-plugin-app/index.js';
+import { ASTRO_DEV_SERVER_APP_ID } from '../vite-plugin-app/index.js';
 import { baseMiddleware } from './base.js';
 import { createController } from './controller.js';
 import { recordServerError } from './error.js';
@@ -60,7 +60,7 @@ export default function createVitePluginAstroServer({
 			const { default: createAstroServerApp } =
 				await environment.runner.import<
 					typeof import('../vite-plugin-app/createAstroServerApp.js')
-				>(ASTRO_DEV_APP_ID);
+				>(ASTRO_DEV_SERVER_APP_ID);
 			const controller = createController({ loader });
 			const { handler } = await createAstroServerApp(controller, settings, loader, logger);
 			const { manifest } = await environment.runner.import<{
@@ -200,6 +200,11 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		},
 		sessionConfig: sessionConfigToManifest(settings.config.session),
 		csp,
+		image: {
+			objectFit: settings.config.image.objectFit,
+			objectPosition: settings.config.image.objectPosition,
+			layout: settings.config.image.layout,
+		},
 		devToolbar: {
 			enabled:
 				settings.config.devToolbar.enabled &&

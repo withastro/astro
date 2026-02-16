@@ -38,7 +38,9 @@ describe('Image endpoint', () => {
 		const $ = cheerio.load(html);
 
 		const img = $('img[alt=Penguins]').attr('src');
-		const size = await inferRemoteSize(`http://localhost:4321${img}`);
+		const host = fixture.config.server.host || 'localhost';
+		const port = fixture.config.server.port;
+		const size = await inferRemoteSize(`http://${host}:${port}${img}`);
 		assert.equal(size.format, 'webp');
 		assert.equal(size.width, 50);
 		assert.equal(size.height, 33);
@@ -50,7 +52,9 @@ describe('Image endpoint', () => {
 		const html = await res.text();
 		const $ = cheerio.load(html);
 		const img = $('img[alt=Cornwall]').attr('src');
-		const size = await inferRemoteSize(`http://localhost:4321${img}`);
+		const host = fixture.config.server.host || 'localhost';
+		const port = fixture.config.server.port;
+		const size = await inferRemoteSize(`http://${host}:${port}${img}`);
 		assert.equal(size.format, 'webp');
 		assert.equal(size.width, 400);
 		assert.equal(size.height, 300);
@@ -107,7 +111,9 @@ describe('Image endpoint', () => {
 			const $ = cheerio.load(html);
 
 			const img = $('img[alt=Penguins]').attr('src');
-			const size = await inferRemoteSize(`http://localhost:4321${img}`);
+			const host = fixture.config.server.host || 'localhost';
+			const port = fixture.config.server.port;
+			const size = await inferRemoteSize(`http://${host}:${port}${img}`);
 			assert.equal(size.format, 'webp');
 			assert.equal(size.width, 50);
 			assert.equal(size.height, 33);

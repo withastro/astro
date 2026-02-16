@@ -84,6 +84,11 @@ declare module 'astro:assets' {
 	}: AstroAssets;
 }
 
+declare module 'virtual:astro:image-styles.css' {
+	const styles: string;
+	export default styles;
+}
+
 type ImageMetadata = import('./dist/assets/types.js').ImageMetadata;
 
 declare module '*.gif' {
@@ -284,6 +289,10 @@ declare module '*.mdx' {
 
 declare module 'astro:ssr-manifest' {
 	export const manifest: import('./dist/types/public/internal.js').SSRManifest;
+}
+
+declare module 'astro:static-paths' {
+	export const StaticPaths: typeof import('./dist/runtime/prerender/static-paths.js').StaticPaths;
 }
 
 // Everything below are Vite's types (apart from image types, which are in `client.d.ts`)
