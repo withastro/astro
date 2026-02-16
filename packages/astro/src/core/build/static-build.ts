@@ -22,6 +22,7 @@ import { trackPageData } from './internal.js';
 import { getAllBuildPlugins } from './plugins/index.js';
 import { manifestBuildPostHook } from './plugins/plugin-manifest.js';
 import {
+	isLegacyAdapter,
 	LEGACY_SSR_ENTRY_VIRTUAL_MODULE,
 	RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE,
 } from './plugins/plugin-ssr.js';
@@ -152,9 +153,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 	const { allPages, settings, viteConfig } = opts;
 	const routes = Object.values(allPages).flatMap((pageData) => pageData.route);
 
-	// Determine if we should use the legacy-dynamic entrypoint
-	const entryType = settings.adapter?.entryType ?? 'legacy-dynamic';
-	const useLegacyDynamic = entryType === 'legacy-dynamic';
+	const legacyAdapter = !settings.adapter || isLegacyAdapter(settings.adapter);
 
 	const buildPlugins = getAllBuildPlugins(internals, opts);
 	const flatPlugins = buildPlugins.flat().filter(Boolean);
@@ -246,7 +245,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				...viteConfig.build?.rollupOptions,
 				// Setting as `exports-only` allows us to safely delete inputs that are only used during prerendering
 				preserveEntrySignatures: 'exports-only',
-				...(useLegacyDynamic && settings.buildOutput === 'server'
+				...(legacyAdapter && settings.buildOutput === 'server'
 					? { input: LEGACY_SSR_ENTRY_VIRTUAL_MODULE }
 					: {}),
 				output: {
@@ -285,8 +284,8 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 							);
 						} else if (
 							chunkInfo.facadeModuleId === RESOLVED_LEGACY_SSR_ENTRY_VIRTUAL_MODULE ||
-							// This catches the case when the adapter uses `entryType: 'self'. When doing so,
-							// the adapter must set rollupOptions.input.
+							// This catches the case when the adapter uses `entrypointResolution: 'auto'`. When doing so,
+							// the adapter must set rollupOptions.input or Astro sets it from `serverEntrypoint`.
 							isRollupInput(chunkInfo.name) ||
 							isRollupInput(chunkInfo.facadeModuleId)
 						) {
@@ -367,9 +366,9 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 					emitAssets: true,
 					outDir: fileURLToPath(new URL('./.prerender/', getServerOutputDirectory(settings))),
 					rollupOptions: {
-						// Only skip the default prerender entrypoint if an adapter with entryType: 'self' is used
+						// Only skip the default prerender entrypoint if an adapter with `entrypointResolution: 'self'` is used
 						// AND provides a custom prerenderer. Otherwise, use the default.
-						...(!useLegacyDynamic && settings.prerenderer
+						...(!legacyAdapter && settings.prerenderer
 							? {}
 							: { input: 'astro/entrypoints/prerender' }),
 						output: {
