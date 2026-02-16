@@ -21,6 +21,7 @@ export class ClackPrompt implements Prompt {
 		const response = await confirm({
 			message,
 			initialValue: defaultValue,
+			withGuide: false,
 		});
 		// Response is a symbol when cancelled
 		return response === true;

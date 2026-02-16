@@ -50,6 +50,7 @@ export async function cmd({
 		const begin = await clack.confirm({
 			message: `Reset your database? All of your data will be erased and your schema created from scratch.`,
 			initialValue: false,
+			withGuide: false,
 		});
 
 		if (begin !== true) {

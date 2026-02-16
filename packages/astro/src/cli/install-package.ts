@@ -94,11 +94,12 @@ async function installPackage(
 			(await clack.confirm({
 				message: colors.bold('Continue?'),
 				initialValue: true,
+				withGuide: false,
 			})) === true;
 	}
 
 	if (Boolean(response)) {
-		const spinner = clack.spinner();
+		const spinner = clack.spinner({ withGuide: false });
 		spinner.start('Installing dependencies...');
 		try {
 			await exec(installCommand.command, [...installCommand.args, ...packageNames], {

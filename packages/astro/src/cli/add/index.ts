@@ -872,7 +872,7 @@ async function tryToInstallIntegrations({
 	});
 
 	if (await askToContinue({ flags, logger })) {
-		const spinner = clack.spinner();
+		const spinner = clack.spinner({ withGuide: false });
 		spinner.start('Installing dependencies...');
 		try {
 			await exec(installCommand.command, [...installCommand.args, ...installSpecifiers], {
@@ -906,7 +906,7 @@ async function validateIntegrations(
 		assertValidPackageName(integration);
 	}
 
-	const spinner = clack.spinner();
+	const spinner = clack.spinner({ withGuide: false });
 	spinner.start('Resolving packages...');
 	try {
 		const integrationEntries = await Promise.all(
@@ -1146,6 +1146,7 @@ async function askToContinue({
 	const response = await clack.confirm({
 		message: colors.bold('Continue?'),
 		initialValue: true,
+		withGuide: false,
 	});
 
 	return response === true;
