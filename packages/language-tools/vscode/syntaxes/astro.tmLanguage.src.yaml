@@ -490,7 +490,7 @@ repository:
 
   # Language tags - they are handled differently for the purposes of language injection.
   tags-lang:
-    begin: <(script|style)
+    begin: <(script|style)(?=\s|/?>)
     end: </\1\s*>|/>
     beginCaptures: { 0: { patterns: [include: '#tags-start-node'] } }
     endCaptures: { 0: { patterns: [include: '#tags-end-node'] } }
