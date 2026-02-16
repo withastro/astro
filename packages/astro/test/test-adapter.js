@@ -255,7 +255,7 @@ export function selfTestAdapter({
 				setAdapter({
 					name: 'my-ssr-adapter',
 					serverEntrypoint: '@my-ssr',
-					entryType: 'self',
+					entrypointResolution: 'auto',
 					supportedAstroFeatures: {
 						serverOutput: 'stable',
 						envGetSecret: 'stable',

@@ -198,6 +198,7 @@ export type SerializedSSRManifest = Omit<
 	key: string;
 };
 
+/** @deprecated This will be removed in a future major version. */
 export type NodeAppHeadersJson = {
 	pathname: string;
 	headers: {

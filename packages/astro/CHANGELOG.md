@@ -1,5 +1,81 @@
 # astro
 
+## 6.0.0-beta.12
+
+### Major Changes
+
+- [#15535](https://github.com/withastro/astro/pull/15535) [`dfe2e22`](https://github.com/withastro/astro/commit/dfe2e22042f92172442ab32777b3cce90685b76a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates `loadManifest()` and `loadApp()` from `astro/app/node` (Adapter API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-loadmanifest-and-loadapp-from-astroappnode-adapter-api))
+
+- [#15461](https://github.com/withastro/astro/pull/15461) [`9f21b24`](https://github.com/withastro/astro/commit/9f21b243d21478cdc5fb0193e05adad8e753839f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the v6 beta Adapter API only**: renames `entryType` to `entrypointResolution` and updates possible values
+
+  Astro 6 introduced a way to let adapters have more control over the entrypoint by passing `entryType: 'self'` to `setAdapter()`. However during beta development, the name was unclear and confusing.
+
+  `entryType` is now renamed to `entrypointResolution` and its possible values are updated:
+  - `legacy-dynamic` becomes `explicit`.
+  - `self` becomes `auto`.
+
+  If you are building an adapter with v6 beta and specifying `entryType`, update it:
+
+  ```diff
+  setAdapter({
+      // ...
+  -    entryType: 'legacy-dynamic'
+  +    entrypointResolution: 'explicit'
+  })
+
+  setAdapter({
+      // ...
+  -    entryType: 'self'
+  +    entrypointResolution: 'auto'
+  })
+  ```
+
+- [#15461](https://github.com/withastro/astro/pull/15461) [`9f21b24`](https://github.com/withastro/astro/commit/9f21b243d21478cdc5fb0193e05adad8e753839f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates `createExports()` and `start()` (Adapter API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-createexports-and-start-adapter-api))
+
+- [#15535](https://github.com/withastro/astro/pull/15535) [`dfe2e22`](https://github.com/withastro/astro/commit/dfe2e22042f92172442ab32777b3cce90685b76a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates `NodeApp` from `astro/app/node` (Adapter API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-nodeapp-from-astroappnode-adapter-api))
+
+- [#15407](https://github.com/withastro/astro/pull/15407) [`aedbbd8`](https://github.com/withastro/astro/commit/aedbbd818628bed0533cdd627b73e2c5365aa17e) Thanks [@ematipico](https://github.com/ematipico)! - Changes how styles of responsive images are emitted - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-how-responsive-image-styles-are-emitted))
+
+### Minor Changes
+
+- [#15535](https://github.com/withastro/astro/pull/15535) [`dfe2e22`](https://github.com/withastro/astro/commit/dfe2e22042f92172442ab32777b3cce90685b76a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Exports new `createRequest()` and `writeResponse()` utilities from `astro/app/node`
+
+  To replace the deprecated `NodeApp.createRequest()` and `NodeApp.writeResponse()` methods, the `astro/app/node` module now exposes new `createRequest()` and `writeResponse()` utilities. These can be used to convert a NodeJS `IncomingMessage` into a web-standard `Request` and stream a web-standard `Response` into a NodeJS `ServerResponse`:
+
+  ```js
+  import { createApp } from 'astro/app/entrypoint';
+  import { createRequest, writeResponse } from 'astro/app/node';
+  import { createServer } from 'node:http';
+
+  const app = createApp();
+
+  const server = createServer(async (req, res) => {
+    const request = createRequest(req);
+    const response = await app.render(request);
+    await writeResponse(response, res);
+  });
+  ```
+
+- [#15407](https://github.com/withastro/astro/pull/15407) [`aedbbd8`](https://github.com/withastro/astro/commit/aedbbd818628bed0533cdd627b73e2c5365aa17e) Thanks [@ematipico](https://github.com/ematipico)! - Adds support for responsive images when `security.csp` is enabled, out of the box.
+
+  Astro's implementation of responsive image styles has been updated to be compatible with a configured Content Security Policy.
+
+  Instead of, injecting style elements at runtime, Astro will now generate your styles at build time using a combination of `class=""` and `data-*` attributes. This means that your processed styles are loaded and hashed out of the box by Astro.
+
+  If you were previously choosing between Astro's CSP feature and including responsive images on your site, you may now use them together.
+
+### Patch Changes
+
+- [#15508](https://github.com/withastro/astro/pull/15508) [`2c6484a`](https://github.com/withastro/astro/commit/2c6484a4c34e86b8a26342a48986da26768de27b) Thanks [@KTibow](https://github.com/KTibow)! - Fixes behavior when shortcuts are used before server is ready
+
+- [#15497](https://github.com/withastro/astro/pull/15497) [`a93c81d`](https://github.com/withastro/astro/commit/a93c81de493e912aeba1d829d9ccf6997b2eb806) Thanks [@matthewp](https://github.com/matthewp)! - Fix dev reloads for content collection Markdown updates under Vite 7.
+
+- [#15535](https://github.com/withastro/astro/pull/15535) [`dfe2e22`](https://github.com/withastro/astro/commit/dfe2e22042f92172442ab32777b3cce90685b76a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes the types of `createApp()` exported from `astro/app/entrypoint`
+
+- [#15491](https://github.com/withastro/astro/pull/15491) [`6c60b05`](https://github.com/withastro/astro/commit/6c60b05b8d6774da04567dc8b85b5f2956e9da0c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a case where setting `vite.server.allowedHosts: true` was turned into an invalid array
+
+- [#14589](https://github.com/withastro/astro/pull/14589) [`7038f07`](https://github.com/withastro/astro/commit/7038f0700898a17cb87b5a2e408480c1226a47f4) Thanks [@43081j](https://github.com/43081j)! - Improves CLI styling
+
 ## 6.0.0-beta.11
 
 ### Major Changes

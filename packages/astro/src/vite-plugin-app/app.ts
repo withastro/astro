@@ -1,6 +1,6 @@
 import type http from 'node:http';
 import { removeTrailingForwardSlash } from '@astrojs/internal-helpers/path';
-import { BaseApp, type RenderErrorOptions } from '../core/app/index.js';
+import { BaseApp, type RenderErrorOptions } from '../core/app/entrypoints/index.js';
 import { shouldAppendForwardSlash } from '../core/build/util.js';
 import { clientLocalsSymbol } from '../core/constants.js';
 import {
