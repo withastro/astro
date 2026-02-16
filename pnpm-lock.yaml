@@ -25,11 +25,11 @@ importers:
         specifier: ^2.29.8
         version: 2.29.8(@types/node@18.19.130)
       '@flue/cli':
-        specifier: ^0.0.32
-        version: 0.0.32(typescript@5.9.3)
+        specifier: ^0.0.34
+        version: 0.0.34(typescript@5.9.3)
       '@flue/client':
-        specifier: ^0.0.18
-        version: 0.0.18(typescript@5.9.3)
+        specifier: ^0.0.20
+        version: 0.0.20(typescript@5.9.3)
       '@types/node':
         specifier: ^18.19.115
         version: 18.19.130
@@ -8791,12 +8791,15 @@ packages:
   '@fastify/static@9.0.0':
     resolution: {integrity: sha512-r64H8Woe/vfilg5RTy7lwWlE8ZZcTrc3kebYFMEUBrMqlydhQyoiExQXdYAy2REVpST/G35+stAM8WYp1WGmMA==}
 
-  '@flue/cli@0.0.32':
-    resolution: {integrity: sha512-o7c+ziPIdAxrUYA/71RqEGssMdNva7ZcIve48kelJ3yughYMB659djOL70GpWvOkBDXhLZjFEdaZgihi4UTmhQ==}
+  '@flue/cli@0.0.34':
+    resolution: {integrity: sha512-JBs54HJzNOP0RpCpRLlifDMhrt8NZM5nmaaLgFpT3QGVoXjlqOHJEnDQwCG8+3cz+v7AVXodoiz2XTd25sasWQ==}
     hasBin: true
 
   '@flue/client@0.0.18':
     resolution: {integrity: sha512-DA0ctHnYj57qDGc1H5DvwPlsjlTncxCXX9mXtwfSN80Wa2mp1THYcgZZU+7VrlL0IjoPHNcqSwNF2w3keI9Bdw==}
+
+  '@flue/client@0.0.20':
+    resolution: {integrity: sha512-oVuU8SPMNh+dQf2w+K/n5s0qKXf7yWR+406D1KtpfFvp6oAIZXK3g2kAvbAc28BzSfzOSfvN6b6MfhFK6H/JXA==}
 
   '@fontsource/monofett@5.2.8':
     resolution: {integrity: sha512-cUtT8ScH3HHsMBkRrXFCrhGpKqRrKVNOhnYVSusECfB7g13YZjOrrLlhlc3o+R2IYpRrQQg/T/febSVD6k2Dhw==}
@@ -17970,7 +17973,7 @@ snapshots:
       fastq: 1.20.1
       glob: 13.0.3
 
-  '@flue/cli@0.0.32(typescript@5.9.3)':
+  '@flue/cli@0.0.34(typescript@5.9.3)':
     dependencies:
       '@flue/client': 0.0.18(typescript@5.9.3)
     transitivePeerDependencies:
@@ -17979,6 +17982,14 @@ snapshots:
   '@flue/client@0.0.18(typescript@5.9.3)':
     dependencies:
       '@opencode-ai/sdk': 1.1.65
+      '@valibot/to-json-schema': 1.5.0(valibot@1.2.0(typescript@5.9.3))
+      valibot: 1.2.0(typescript@5.9.3)
+    transitivePeerDependencies:
+      - typescript
+
+  '@flue/client@0.0.20(typescript@5.9.3)':
+    dependencies:
+      '@opencode-ai/sdk': 1.2.2
       '@valibot/to-json-schema': 1.5.0(valibot@1.2.0(typescript@5.9.3))
       valibot: 1.2.0(typescript@5.9.3)
     transitivePeerDependencies:

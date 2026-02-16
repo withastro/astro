@@ -1,5 +1,11 @@
 import type { Flue } from '@flue/client';
+import { anthropic, github } from '@flue/client/proxies';
 import * as v from 'valibot';
+
+export const proxies = [
+	anthropic(),
+	github({ token: process.env.GITHUB_TOKEN!, policy: 'read-only' }),
+];
 
 function assert(condition: unknown, message: string): asserts condition {
 	if (!condition) throw new Error(message);
@@ -69,7 +75,6 @@ async function fetchRepoLabels(flue: Flue): Promise<{
 }> {
 	const labelsJson = await flue.shell(
 		"gh api repos/withastro/astro/labels --paginate --jq '.[] | {name, description}'",
-		{ env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN } },
 	);
 	const allLabels = v.parse(
 		v.array(repoLabelSchema),
@@ -243,7 +248,6 @@ export default async function triage(flue: Flue) {
 	const { issueNumber } = v.parse(v.object({ issueNumber: v.number() }), flue.args);
 	const issueResult = await flue.shell(
 		`gh issue view ${issueNumber} --json title,body,author,labels,createdAt,state,number,url,comments`,
-		{ env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN } },
 	);
 	const issueDetails = v.parse(issueDetailsSchema, JSON.parse(issueResult.stdout));
 
@@ -303,13 +307,10 @@ export default async function triage(flue: Flue) {
 
 	await flue.shell(`gh issue comment ${issueNumber} --body-file -`, {
 		stdin: comment,
-		env: { GH_TOKEN: flue.secrets.FREDKBOT_GITHUB_TOKEN },
 	});
 
 	if (triageResult.reproducible) {
-		await flue.shell(`gh issue edit ${issueNumber} --remove-label "needs triage"`, {
-			env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN },
-		});
+		await flue.shell(`gh issue edit ${issueNumber} --remove-label "needs triage"`);
 
 		const labelFlags = await selectTriageLabels(flue, {
 			comment,
@@ -317,17 +318,13 @@ export default async function triage(flue: Flue) {
 			packageLabels,
 		});
 		if (labelFlags) {
-			await flue.shell(`gh issue edit ${issueNumber} ${labelFlags}`, {
-				env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN },
-			});
+			await flue.shell(`gh issue edit ${issueNumber} ${labelFlags}`);
 		}
 	} else if (triageResult.skipped) {
 		// Triage was skipped due to a runner limitation. Keep "needs triage" so a
 		// maintainer can still pick it up, and add "auto triage skipped" to prevent
 		// the workflow from re-running on every new comment.
-		await flue.shell(`gh issue edit ${issueNumber} --add-label "auto triage skipped"`, {
-			env: { GH_TOKEN: flue.secrets.GITHUB_TOKEN },
-		});
+		await flue.shell(`gh issue edit ${issueNumber} --add-label "auto triage skipped"`);
 	} else {
 		// Not reproducible: do nothing. The "needs triage" label stays on the issue
 		// so that it can continue to be worked on and triaged by the humans.
