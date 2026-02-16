@@ -5,6 +5,8 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	integrations: [mdx()],
 	experimental: {
-		queuedRendering: true,
+		queuedRendering: {
+			enabled: true,
+		},
 	},
 });

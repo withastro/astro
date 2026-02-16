@@ -278,12 +278,14 @@ describe('Queue-based rendering - Configuration', () => {
 		assert.ok(html.includes('<p>Simple text rendering</p>'));
 	});
 
-	it('should support boolean configuration (backward compatibility)', async () => {
+	it('should support object configuration', async () => {
 		const fixture = await loadFixture({
 			root: './fixtures/queue-rendering/',
 			output: 'static',
 			experimental: {
-				queuedRendering: true,
+				queuedRendering: {
+					enabled: true,
+				},
 			},
 		});
 		await fixture.build();

@@ -13,6 +13,7 @@ import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/h
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import { createConsoleLogger } from './logging.js';
 import { NodePool } from '../../runtime/server/render/queue/pool.js';
+import type { HTMLStringCache } from '../../runtime/server/html-string-cache.js';
 import { queueRenderingEnabled } from './manifest.js';
 
 export class AppPipeline extends Pipeline {
@@ -25,6 +26,11 @@ export class AppPipeline extends Pipeline {
 			// The pool in SSR is useless because we don't get to re-use anything
 			return new NodePool(0, false);
 		}
+	}
+
+	createHTMLStringCache(): HTMLStringCache | undefined {
+		// Disable caching in SSR runtime (not beneficial for one-off renders)
+		return undefined;
 	}
 
 	static create({ manifest, streaming }: Pick<AppPipeline, 'manifest' | 'streaming'>) {

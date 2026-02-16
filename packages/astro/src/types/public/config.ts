@@ -2771,22 +2771,14 @@ export interface AstroUserConfig<
 		 * @description
 		 * Enable queue-based rendering engine instead of the default recursive rendering.
 		 *
-		 * This experimental feature uses a queue-based approach to traverse and render the component tree,
-		 * which significantly reduces memory pressure for deeply nested components by avoiding deep recursion.
-		 *
-		 * When enabled, the rendering engine will:
-		 * - Build a flat queue of all nodes to render
-		 * - Process components sequentially with reduced stack depth
-		 * - Maintain the same output and streaming behavior as the default renderer
-		 * - Use object pooling to reduce memory allocations
-		 * - Use queue-based rendering for JSX elements
-		 *
-		 * This is particularly beneficial for pages with very deep component nesting (50+ levels).
+		 * This new rendering engine comes with a different set of features that you can tweak based on your needs.
 		 *
 		 * ```js
 		 * {
 		 *   experimental: {
-		 *     queuedRendering: true
+		 *     queuedRendering: {
+		 *       enabled: true
+		 *     }
 		 *   }
 		 * }
 		 * ```
@@ -2804,10 +2796,27 @@ export interface AstroUserConfig<
 		 *   }
 		 * }
 		 * ```
-		 *
-		 * Note: This is an experimental feature and may have edge cases. Please report any issues you encounter.
 		 */
-		queuedRendering?: { enabled: boolean; poolSize?: number; cache?: boolean };
+		queuedRendering?: {
+			/**
+			 * Enables the queue-based rendering.
+			 */
+			enabled: boolean;
+			/**
+			 * @default 1000
+			 * @description
+			 * Allows to change how many nodes should be saved in the pool. If 0 is provided, the pool is disabled.
+			 * The pool is disabled for dynamic pages, because server requests don't share the same memory.
+			 */
+			poolSize?: number;
+			/**
+			 * @default `false`
+			 * @description
+			 * Allows to enable the caching of node contents when rendering the same page.
+			 * This caching is disabled for dynamic pages.
+			 */
+			cache?: boolean;
+		};
 	};
 }
 
