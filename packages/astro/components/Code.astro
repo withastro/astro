@@ -17,6 +17,14 @@ interface Props extends Omit<HTMLAttributes<'pre'>, 'lang'> {
 	 */
 	lang?: CodeLanguage;
 	/**
+	 * Additional languages to load.
+	 * Useful if `code` embeds languages not included by the given `lang`
+	 * For example, TSX in Vue
+	 *
+	 * @default []
+	 */
+	embeddedLangs?: CodeLanguage[];
+	/**
 	 * A metastring to pass to the highlighter.
 	 * Allows passing information to transformers: https://shiki.style/guide/transformers#meta
 	 *
@@ -72,6 +80,7 @@ interface Props extends Omit<HTMLAttributes<'pre'>, 'lang'> {
 const {
 	code,
 	lang = 'plaintext',
+	embeddedLangs = [],
 	meta,
 	theme = 'github-dark',
 	themes = {},
@@ -101,6 +110,7 @@ const highlighter = await createShikiHighlighter({
 				? lang
 				: 'plaintext'
 			: (lang as any),
+		...embeddedLangs,
 	],
 	theme,
 	themes,
