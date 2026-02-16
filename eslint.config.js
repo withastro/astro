@@ -28,6 +28,7 @@ export default [
 			'benchmark/static-projects/**',
 			'examples/',
 			'scripts/',
+			'triage/',
 			'.github/',
 			'.changeset/',
 		],
