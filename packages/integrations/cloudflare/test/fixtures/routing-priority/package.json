@@ -7,6 +7,6 @@
     "@astrojs/cloudflare": "workspace:*"
   },
   "devDependencies": {
-    "wrangler": "^4.61.1"
+    "wrangler": "^4.65.0"
   }
 }
