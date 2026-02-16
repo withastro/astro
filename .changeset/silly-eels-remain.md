@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fixes a case where accessing `context.csp` in development would always log a warning, although CSP is not available in development
+Fixes a case where `context.csp` was logging warnings in development that should be logged in production only
