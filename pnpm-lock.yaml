@@ -190,11 +190,11 @@ importers:
         specifier: ^5.0.0-beta.7
         version: link:../../packages/integrations/mdx
       '@astrojs/rss':
-        specifier: ^4.0.15
-        version: 4.0.15
+        specifier: ^4.0.15-beta.3
+        version: link:../../packages/astro-rss
       '@astrojs/sitemap':
-        specifier: ^3.7.0
-        version: 3.7.0
+        specifier: ^3.6.1-beta.3
+        version: link:../../packages/integrations/sitemap
       astro:
         specifier: ^6.0.0-beta.11
         version: link:../../packages/astro
@@ -7206,12 +7206,6 @@ packages:
       react: ^17.0.2 || ^18.0.0 || ^19.0.0
       react-dom: ^17.0.2 || ^18.0.0 || ^19.0.0
 
-  '@astrojs/rss@4.0.15':
-    resolution: {integrity: sha512-uXO/k6AhRkIDXmRoc6xQpoPZrimQNUmS43X4+60yunfuMNHtSRN5e/FiSi7NApcZqmugSMc5+cJi8ovqgO+qIg==}
-
-  '@astrojs/sitemap@3.7.0':
-    resolution: {integrity: sha512-+qxjUrz6Jcgh+D5VE1gKUJTA3pSthuPHe6Ao5JCxok794Lewx8hBFaWHtOnN0ntb2lfOf7gvOi9TefUswQ/ZVA==}
-
   '@astrojs/solid-js@5.1.3':
     resolution: {integrity: sha512-KxfYt4y1d7BuSw6EsN1EaPoGYsIES7bEI6AtTbncuabRUUMZs+mOWOeOdmgnwVLj+jbNbhBjUZsqr77eUviZdw==}
     engines: {node: 18.20.8 || ^20.3.0 || >=22.0.0}
@@ -10237,9 +10231,6 @@ packages:
 
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
-
-  '@types/node@17.0.45':
-    resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
 
   '@types/node@18.19.130':
     resolution: {integrity: sha512-GRaXQx6jGfL8sKfaIDD6OupbIHBr9jv7Jnaml9tB7l4v068PAOXqfcujMMo5PhbIs6ggR1XODELqahT2R8v0fg==}
@@ -14965,11 +14956,6 @@ packages:
   sisteransi@1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
 
-  sitemap@8.0.2:
-    resolution: {integrity: sha512-LwktpJcyZDoa0IL6KT++lQ53pbSrx2c9ge41/SeLTyqy2XUNA6uR4+P9u5IVo5lPeL2arAcOKn1aZAxoYbCKlQ==}
-    engines: {node: '>=14.0.0', npm: '>=6.0.0'}
-    hasBin: true
-
   sitemap@9.0.0:
     resolution: {integrity: sha512-J/SU27FJ+I52TcDLKZzPRRVQUMj0Pp1i/HLb2lrkU+hrMLM+qdeRjdacrNxnSW48Waa3UcEOGOdX1+0Lob7TgA==}
     engines: {node: '>=20.19.5', npm: '>=10.8.2'}
@@ -16623,17 +16609,6 @@ snapshots:
       - terser
       - tsx
       - yaml
-
-  '@astrojs/rss@4.0.15':
-    dependencies:
-      fast-xml-parser: 5.3.6
-      piccolore: 0.1.3
-
-  '@astrojs/sitemap@3.7.0':
-    dependencies:
-      sitemap: 8.0.2
-      stream-replace-string: 2.0.0
-      zod: 3.25.76
 
   '@astrojs/solid-js@5.1.3(@types/node@25.2.2)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.3)(solid-js@1.9.11)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
@@ -19592,8 +19567,6 @@ snapshots:
       '@types/unist': 3.0.3
 
   '@types/node@12.20.55': {}
-
-  '@types/node@17.0.45': {}
 
   '@types/node@18.19.130':
     dependencies:
@@ -25346,13 +25319,6 @@ snapshots:
       totalist: 3.0.1
 
   sisteransi@1.0.5: {}
-
-  sitemap@8.0.2:
-    dependencies:
-      '@types/node': 17.0.45
-      '@types/sax': 1.2.7
-      arg: 5.0.2
-      sax: 1.4.1
 
   sitemap@9.0.0:
     dependencies:
