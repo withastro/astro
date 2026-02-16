@@ -4,6 +4,8 @@ Generate a GitHub issue comment from triage findings.
 
 **CRITICAL: You MUST always read `report.md` and produce a GitHub comment as your final output, regardless of what input files are available. Even if `report.md` is missing or empty, you must still produce a comment. In that case, produce a minimal comment stating that automated triage could not be completed.**
 
+**SCOPE: Your job is comment generation only. Finish your work once you've completed this workflow. Do NOT go further than this. It is no longer time to attempt reproduction, diagnosis, or fixing of the issue.**
+
 ## Prerequisites
 
 These variables are referenced throughout this skill. They may be passed as args by an orchestrator, or inferred from the conversation when run standalone.
