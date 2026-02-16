@@ -165,7 +165,7 @@
     "ultrahtml": "^1.6.0",
     "unifont": "~0.7.3",
     "unist-util-visit": "^5.1.0",
-    "unstorage": "^1.17.4",
+    "unstorage": "2.0.0-alpha.5",
     "vfile": "^6.0.3",
     "vite": "^7.3.1",
     "vitefu": "^1.1.1",
