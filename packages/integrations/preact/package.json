@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@preact/preset-vite": "^2.10.3",
-    "@preact/signals": "^2.6.2",
+    "@preact/signals": "^2.7.1",
     "preact-render-to-string": "^6.6.5",
     "vite": "^7.3.1"
   },
