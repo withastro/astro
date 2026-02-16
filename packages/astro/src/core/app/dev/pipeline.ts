@@ -9,7 +9,7 @@ import { type HeadElements, Pipeline, type TryRewriteResult } from '../../base-p
 import { ASTRO_VERSION } from '../../constants.js';
 import { createModuleScriptElement, createStylesheetElementSet } from '../../render/ssr-element.js';
 import { findRouteToRewrite } from '../../routing/rewrite.js';
-import { newNodePool, type NodePool } from '../../../runtime/server/render/queue/pool.js';
+import { newNodePool } from '../../../runtime/server/render/queue/pool.js';
 import { HTMLStringCache } from '../../../runtime/server/html-string-cache.js';
 import { queueRenderingEnabled } from '../manifest.js';
 
@@ -21,20 +21,6 @@ type DevPipelineCreate = Pick<NonRunnablePipeline, 'logger' | 'manifest' | 'stre
 export class NonRunnablePipeline extends Pipeline {
 	getName(): string {
 		return 'NonRunnablePipeline';
-	}
-
-	createNodePool(): NodePool | undefined {
-		if (queueRenderingEnabled(this.manifest.experimentalQueuedRendering)) {
-			return newNodePool(this.manifest.experimentalQueuedRendering!);
-		}
-	}
-
-	createHTMLStringCache(): HTMLStringCache | undefined {
-		const config = this.manifest.experimentalQueuedRendering;
-		if (queueRenderingEnabled(config) && config!.contentCache !== false) {
-			return new HTMLStringCache(1000); // Use default size
-		}
-		return undefined;
 	}
 
 	static create({ logger, manifest, streaming }: DevPipelineCreate) {
@@ -62,6 +48,10 @@ export class NonRunnablePipeline extends Pipeline {
 			undefined,
 			undefined,
 		);
+		if (queueRenderingEnabled(manifest.experimentalQueuedRendering)) {
+			pipeline.nodePool = newNodePool(manifest.experimentalQueuedRendering!);
+			pipeline.htmlStringCache = new HTMLStringCache(1000); // Use default size
+		}
 		return pipeline;
 	}
 

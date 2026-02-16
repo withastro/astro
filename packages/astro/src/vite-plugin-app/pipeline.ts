@@ -28,7 +28,7 @@ import type {
 import { getComponentMetadata } from '../vite-plugin-astro-server/metadata.js';
 import { createResolve } from '../vite-plugin-astro-server/resolve.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
-import { newNodePool, type NodePool } from '../runtime/server/render/queue/pool.js';
+import { newNodePool } from '../runtime/server/render/queue/pool.js';
 import { HTMLStringCache } from '../runtime/server/html-string-cache.js';
 import { queueRenderingEnabled } from '../core/app/manifest.js';
 
@@ -36,19 +36,6 @@ import { queueRenderingEnabled } from '../core/app/manifest.js';
  * This Pipeline is used when the Vite SSR environment is runnable.
  */
 export class RunnablePipeline extends Pipeline {
-	createNodePool(): NodePool | undefined {
-		if (queueRenderingEnabled(this.manifest.experimentalQueuedRendering)) {
-			return newNodePool(this.manifest.experimentalQueuedRendering!);
-		}
-	}
-
-	createHTMLStringCache(): HTMLStringCache | undefined {
-		const config = this.manifest.experimentalQueuedRendering;
-		if (queueRenderingEnabled(config) && config!.contentCache !== false) {
-			return new HTMLStringCache(1000); // Use default size
-		}
-		return undefined;
-	}
 	getName(): string {
 		return 'RunnablePipeline';
 	}
@@ -84,6 +71,10 @@ export class RunnablePipeline extends Pipeline {
 	) {
 		const pipeline = new RunnablePipeline(loader, logger, manifest, settings, getDebugInfo);
 		pipeline.routesList = manifestData;
+		if (queueRenderingEnabled(manifest.experimentalQueuedRendering)) {
+			pipeline.nodePool = newNodePool(manifest.experimentalQueuedRendering!);
+			pipeline.htmlStringCache = new HTMLStringCache(1000); // Use default size
+		}
 		return pipeline;
 	}
 

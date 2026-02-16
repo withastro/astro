@@ -16,7 +16,7 @@ import { findRouteToRewrite } from '../routing/rewrite.js';
 import type { BuildInternals } from './internal.js';
 import { cssOrder, mergeInlineCss, getPageData } from './runtime.js';
 import type { SinglePageBuiltModule, StaticBuildOptions } from './types.js';
-import { newNodePool, type NodePool } from '../../runtime/server/render/queue/pool.js';
+import { newNodePool } from '../../runtime/server/render/queue/pool.js';
 import { HTMLStringCache } from '../../runtime/server/html-string-cache.js';
 import { queueRenderingEnabled } from '../app/manifest.js';
 
@@ -24,19 +24,6 @@ import { queueRenderingEnabled } from '../app/manifest.js';
  * The build pipeline is responsible to gather the files emitted by the SSR build and generate the pages by executing these files.
  */
 export class BuildPipeline extends Pipeline {
-	createNodePool(): NodePool | undefined {
-		if (queueRenderingEnabled(this.manifest.experimentalQueuedRendering)) {
-			return newNodePool(this.manifest.experimentalQueuedRendering!);
-		}
-	}
-
-	createHTMLStringCache(): HTMLStringCache | undefined {
-		const config = this.manifest.experimentalQueuedRendering;
-		if (queueRenderingEnabled(config) && config!.contentCache !== false) {
-			return new HTMLStringCache(1000); // Use default size
-		}
-		return undefined;
-	}
 	internals: BuildInternals | undefined;
 	options: StaticBuildOptions | undefined;
 
@@ -98,6 +85,10 @@ export class BuildPipeline extends Pipeline {
 		const logger = createConsoleLogger(manifest.logLevel);
 		// We can skip streaming in SSG for performance as writing as strings are faster
 		super(logger, manifest, 'production', manifest.renderers, resolve, manifest.serverLike);
+		if (queueRenderingEnabled(this.manifest.experimentalQueuedRendering)) {
+			this.nodePool = newNodePool(this.manifest.experimentalQueuedRendering!);
+			this.htmlStringCache = new HTMLStringCache(1000); // Use default size
+		}
 	}
 
 	getRoutes(): RouteData[] {

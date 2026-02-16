@@ -321,7 +321,11 @@ async function buildManifest(
 		trailingSlash: settings.config.trailingSlash,
 		compressHTML: settings.config.compressHTML,
 		assetsPrefix: settings.config.build.assetsPrefix,
-		experimentalQueuedRendering: settings.config.experimental?.queuedRendering,
+		experimentalQueuedRendering: {
+			enabled: settings.config.experimental.queuedRendering?.enabled ?? false,
+			poolSize: 0,
+			contentCache: false,
+		},
 		componentMetadata: Array.from(internals.componentMetadata),
 		renderers: [],
 		clientDirectives: Array.from(settings.clientDirectives),

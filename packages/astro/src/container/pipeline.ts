@@ -8,9 +8,6 @@ import { findRouteToRewrite } from '../core/routing/rewrite.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { RewritePayload } from '../types/public/common.js';
 import type { RouteData, SSRElement, SSRResult } from '../types/public/internal.js';
-import { NodePool } from '../runtime/server/render/queue/pool.js';
-import type { HTMLStringCache } from '../runtime/server/html-string-cache.js';
-import { queueRenderingEnabled } from '../core/app/manifest.js';
 
 export class ContainerPipeline extends Pipeline {
 	/**
@@ -24,18 +21,6 @@ export class ContainerPipeline extends Pipeline {
 
 	getName(): string {
 		return 'ContainerPipeline';
-	}
-
-	createNodePool(): NodePool | undefined {
-		if (queueRenderingEnabled(this.manifest.experimentalQueuedRendering)) {
-			// The container API must always use fresh data
-			return new NodePool(0, false);
-		}
-	}
-
-	createHTMLStringCache(): HTMLStringCache | undefined {
-		// Disable caching in Container API (not beneficial for isolated renders)
-		return undefined;
 	}
 
 	static create({

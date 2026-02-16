@@ -14,6 +14,7 @@ import { HTMLString, markHTMLString, spreadAttributes, voidElementNames } from '
 import { isAstroComponentFactory } from '../astro/factory.js';
 import { createAstroComponentInstance } from '../astro/instance.js';
 import { renderJSX } from '../../jsx.js';
+import type { HTMLStringCache } from '../../html-string-cache.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
@@ -233,28 +234,38 @@ function renderHTMLElement(
 	// Non-void element: open tag + children + close tag
 	// Build opening tag as html-string (cached by content)
 	const openTag = `<${tag}${attrs}>`;
-	stack.push({ node: markHTMLString(openTag), parent, metadata });
+	const openTagHtml = queue.htmlStringCache
+		? queue.htmlStringCache.getOrCreate(openTag)
+		: markHTMLString(openTag);
+	stack.push({ node: openTagHtml, parent, metadata });
 
 	// Push children to stack if present
 	if (children != null && children !== '') {
 		// Prerender element children (handles <script>/<style> special cases)
-		const processedChildren = prerenderElementChildren(tag, children);
+		const processedChildren = prerenderElementChildren(tag, children, queue.htmlStringCache);
 		stack.push({ node: processedChildren, parent, metadata });
 	}
 
 	// Create closing tag as html-string (cached by content)
 	const closeTag = `</${tag}>`;
-	stack.push({ node: markHTMLString(closeTag), parent, metadata });
+	const closeTagHtml = queue.htmlStringCache
+		? queue.htmlStringCache.getOrCreate(closeTag)
+		: markHTMLString(closeTag);
+	stack.push({ node: closeTagHtml, parent, metadata });
 }
 
 /**
  * Pre-render the children with the given `tag` information
  */
-function prerenderElementChildren(tag: string, children: any): any {
+function prerenderElementChildren(
+	tag: string,
+	children: any,
+	htmlStringCache?: HTMLStringCache,
+): any {
 	// For content within <style> and <script> tags that are plain strings,
 	// mark as HTML string to prevent escaping
 	if (typeof children === 'string' && (tag === 'style' || tag === 'script')) {
-		return markHTMLString(children);
+		return htmlStringCache ? htmlStringCache.getOrCreate(children) : markHTMLString(children);
 	}
 	return children;
 }

@@ -19,17 +19,6 @@ async function setup() {
 			stdio: 'inherit',
 		},
 	});
-
-	render = await makeProject('queue-render-bench');
-	root = fileURLToPath(render);
-
-	console.log(`Building project at ${root}...`);
-	await exec(astroBin, ['build'], {
-		nodeOptions: {
-			cwd: root,
-			stdio: 'inherit',
-		},
-	});
 }
 
 setup().catch((error) => {

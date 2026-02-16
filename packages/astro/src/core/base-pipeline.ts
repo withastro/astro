@@ -24,8 +24,8 @@ import { RedirectSinglePageBuiltModule } from './redirects/index.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
 import type { SessionDriverFactory } from './session/types.js';
-import type { NodePool } from '../runtime/server/render/queue/pool.js';
-import type { HTMLStringCache } from '../runtime/server/html-string-cache.js';
+import { NodePool } from '../runtime/server/render/queue/pool.js';
+import { HTMLStringCache } from '../runtime/server/html-string-cache.js';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
@@ -84,9 +84,16 @@ export abstract class Pipeline {
 			);
 		}
 
-		// Initialize pools
-		this.nodePool = this.createNodePool();
-		this.htmlStringCache = this.createHTMLStringCache();
+		if (manifest.experimentalQueuedRendering.enabled) {
+			this.nodePool = this.createNodePool(
+				manifest.experimentalQueuedRendering.poolSize ?? 1000,
+				manifest.experimentalQueuedRendering.contentCache ?? false,
+				false,
+			);
+			if (manifest.experimentalQueuedRendering.contentCache) {
+				this.htmlStringCache = this.createStringCache();
+			}
+		}
 	}
 
 	abstract headElements(routeData: RouteData): Promise<HeadElements> | HeadElements;
@@ -237,8 +244,13 @@ export abstract class Pipeline {
 		}
 	}
 
-	abstract createNodePool(): NodePool | undefined;
-	abstract createHTMLStringCache(): HTMLStringCache | undefined;
+	public createNodePool(poolSize: number, contentCache: boolean, stats: boolean): NodePool {
+		return new NodePool(poolSize, contentCache, stats);
+	}
+
+	public createStringCache(): HTMLStringCache {
+		return new HTMLStringCache(1000);
+	}
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
