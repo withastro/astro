@@ -1,1 +1,1 @@
-export { NodeApp, loadApp, loadManifest } from '../node.js';
+export { NodeApp, loadApp, loadManifest, createRequest, writeResponse } from '../node.js';
