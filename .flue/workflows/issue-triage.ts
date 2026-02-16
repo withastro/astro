@@ -3,7 +3,7 @@ import { anthropic, github } from '@flue/client/proxies';
 import * as v from 'valibot';
 
 export const proxies = [
-	anthropic(),
+	anthropic({/*policy: 'allow-all'*/}),
 	github({ token: process.env.GITHUB_TOKEN!, policy: 'read-only' }),
 ];
 

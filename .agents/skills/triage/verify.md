@@ -46,7 +46,7 @@ Look at the relevant source code in `packages/`. Pay close attention to:
 - **Comments explaining "why"** — If a developer left a comment explaining why the code works a certain way, that is strong evidence of intentional design. Treat these comments as authoritative unless they are clearly outdated.
 - **Explicit conditionals and early returns** — Code that explicitly checks for the reported scenario and handles it differently than the reporter expects is likely intentional.
 - **Named constants and configuration** — Behavior controlled by a named config option or constant was probably a deliberate choice.
-- **Git blame on key lines** — If `report.md` identifies specific files and line numbers, run `git blame` on the relevant lines to find the commit that introduced the behavior. Then read the full commit message with `git show --no-patch <commit>` and review the associated PR if referenced. You can fetch PR details with `curl -s "https://api.github.com/repos/withastro/astro/pulls/<number>"`. A commit message or PR description that explains the rationale is strong evidence of intentional design.
+- **Git blame on key lines** — If `report.md` identifies specific files and line numbers, run `git blame` on the relevant lines to find the commit that introduced the behavior. Then read the full commit message with `git show --no-patch <commit>` and review the associated PR if referenced. You can fetch PR details with `gh pr view <number> -R withastro/astro`. A commit message or PR description that explains the rationale is strong evidence of intentional design.
 
 ### 2c: Search prior GitHub issues and PRs
 
@@ -54,15 +54,13 @@ Search for prior issues and PRs that discuss the same behavior using the GitHub 
 
 ```bash
 # Search issues for keywords related to the reported behavior
-curl -s "https://api.github.com/search/issues?q=<url-encoded-keywords>+repo:withastro/astro+is:issue&per_page=10"
+gh search issues "<keywords>" -R withastro/astro
 # Search PRs that may have introduced or discussed the behavior
-curl -s "https://api.github.com/search/issues?q=<url-encoded-keywords>+repo:withastro/astro+is:pr&per_page=10"
+gh search prs "<keywords>" -R withastro/astro
 # Read a specific issue for context
-curl -s "https://api.github.com/repos/withastro/astro/issues/<number>"
-# Read issue comments
-curl -s "https://api.github.com/repos/withastro/astro/issues/<number>/comments"
+gh issue view <number> -R withastro/astro --comments
 # Read a specific PR for context
-curl -s "https://api.github.com/repos/withastro/astro/pulls/<number>"
+gh pr view <number> -R withastro/astro --comments
 ```
 
 If you find a closed issue where a maintainer explained why the behavior is intentional, or a PR that deliberately introduced it, that is strong evidence of intended behavior.
