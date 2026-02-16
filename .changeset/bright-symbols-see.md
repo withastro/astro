@@ -11,7 +11,7 @@ Astro 6 introduced a way to let adapters have more control over the entrypoint b
 - `legacy-dynamic` becomes `explicit`.
 - `self` becomes `auto`.
 
-If you are building an adapter and specifying `entryType`, update it:
+If you are building an adapter with v6 beta and specifying `entryType`, update it:
 
 ```diff
 setAdapter({
