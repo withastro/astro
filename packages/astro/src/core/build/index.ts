@@ -18,7 +18,6 @@ import { createNodeLogger } from '../config/logging.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import { createKey, getEnvironmentKey, hasEnvironmentKey } from '../encryption.js';
-
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { Logger } from '../logger/core.js';
 import { levels, timerMessage } from '../logger/core.js';
