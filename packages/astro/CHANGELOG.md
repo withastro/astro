@@ -1,5 +1,50 @@
 # astro
 
+## 6.0.0-beta.7
+
+### Minor Changes
+
+- [#15349](https://github.com/withastro/astro/pull/15349) [`a257c4c`](https://github.com/withastro/astro/commit/a257c4c3c7f0cdc5089b522ed216401d46d214c9) Thanks [@ascorbic](https://github.com/ascorbic)! - Passes collection name to live content loaders
+
+  Live content collection loaders now receive the collection name as part of their parameters. This is helpful for loaders that manage multiple collections or need to differentiate behavior based on the collection being accessed.
+
+  ```ts
+  export function storeLoader({ field, key }) {
+    return {
+      name: 'store-loader',
+      loadCollection: async ({ filter, collection }) => {
+        // ...
+      },
+      loadEntry: async ({ filter, collection }) => {
+        // ...
+      },
+    };
+  }
+  ```
+
+- [#15298](https://github.com/withastro/astro/pull/15298) [`def2fbe`](https://github.com/withastro/astro/commit/def2fbea84ced82d9b58213b43a6852ac73a95ec) Thanks [@jfrancos](https://github.com/jfrancos)! - Adds a new optional `embeddedLangs` prop to the `<Code />` component to support languages beyond the primary `lang`
+
+  This allows, for example, highlighting `.vue` files with a `<script setup lang="tsx">` block correctly:
+
+  ```astro
+  ---
+  import { Code } from 'astro:components';
+
+  const code = `
+  <script setup lang="tsx">
+  const Text = ({ text }: { text: string }) => <div>{text}</div>;
+  </script>
+  
+  <template>
+    <Text text="hello world" />
+  </template>`;
+  ---
+
+  <Code {code} lang="vue" embeddedLangs={['tsx']} />
+  ```
+
+  See the [`<Code />` component documentation](https://v6.docs.astro.build/en/guides/syntax-highlighting/#code-) for more details.
+
 ## 6.0.0-beta.6
 
 ### Major Changes
