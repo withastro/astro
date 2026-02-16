@@ -22,8 +22,11 @@ interface NodeRequest extends IncomingMessage {
 /**
  * Converts a NodeJS IncomingMessage into a web standard Request.
  * ```js
+ * import { createApp } from 'astro/app/entrypoint';
  * import { createRequest } from 'astro/app/node';
  * import { createServer } from 'node:http';
+ *
+ * const app = createApp();
  *
  * const server = createServer(async (req, res) => {
  *     const request = createRequest(req);
@@ -151,9 +154,12 @@ export function createRequest(
 /**
  * Streams a web-standard Response into a NodeJS Server Response.
  * ```js
+ * import { createApp } from 'astro/app/entrypoint';
  * import { createRequest, writeResponse } from 'astro/app/node';
  * import { createServer } from 'node:http';
  *
+ * const app = createApp();
+ * 
  * const server = createServer(async (req, res) => {
  *     const request = createRequest(req);
  *     const response = await app.render(request);
