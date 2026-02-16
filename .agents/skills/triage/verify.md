@@ -48,7 +48,7 @@ Look at the relevant source code in `packages/`. Pay close attention to:
 - **Comments explaining "why"** — If a developer left a comment explaining why the code works a certain way, that is strong evidence of intentional design. Treat these comments as authoritative unless they are clearly outdated.
 - **Explicit conditionals and early returns** — Code that explicitly checks for the reported scenario and handles it differently than the reporter expects is likely intentional.
 - **Named constants and configuration** — Behavior controlled by a named config option or constant was probably a deliberate choice.
-- **Git blame on key lines** — If `report.md` identifies specific files and line numbers, run `git blame` on the relevant lines to find the commit that introduced the behavior. Then read the full commit message with `git show --no-patch <commit>` and review the associated PR if referenced. You can fetch PR details with `gh pr view <number> -R withastro/astro`. A commit message or PR description that explains the rationale is strong evidence of intentional design.
+- **Git blame on key lines** — If `report.md` identifies specific files and line numbers, run `git blame` on the relevant lines to find the commit that introduced the behavior. Then read the full commit message with `git show --no-patch <commit>` and review the associated PR if referenced. You can fetch PR details with `gh pr view <number>`. A commit message or PR description that explains the rationale is strong evidence of intentional design.
 
 ### 2c: Search prior GitHub issues and PRs
 
@@ -56,13 +56,13 @@ Search for prior issues and PRs that discuss the same behavior using the GitHub 
 
 ```bash
 # Search issues for keywords related to the reported behavior
-gh search issues "<keywords>" -R withastro/astro
+gh search issues "<keywords>"
 # Search PRs that may have introduced or discussed the behavior
-gh search prs "<keywords>" -R withastro/astro
+gh search prs "<keywords>"
 # Read a specific issue for context
-gh issue view <number> -R withastro/astro --comments
+gh issue view <number> --comments
 # Read a specific PR for context
-gh pr view <number> -R withastro/astro --comments
+gh pr view <number> --comments
 ```
 
 If you find a closed issue where a maintainer explained why the behavior is intentional, or a PR that deliberately introduced it, that is strong evidence of intended behavior.
