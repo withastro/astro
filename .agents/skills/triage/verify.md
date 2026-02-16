@@ -4,6 +4,8 @@ Verify whether a GitHub issue describes an actual bug or a misunderstanding of i
 
 **CRITICAL: You MUST always read `report.md` and append to `report.md` before finishing, regardless of outcome. Even if you cannot reach a conclusion — always update `report.md` with your findings. The orchestrator and downstream skills depend on this file to determine what happened.**
 
+**SCOPE: Your job is verification only. Finish your work once you've completed this workflow. Do NOT go further than this (no fixing of the issue, etc.).**
+
 ## Prerequisites
 
 These variables are referenced throughout this skill. They may be passed as args by an orchestrator, or inferred from the conversation when run standalone.
