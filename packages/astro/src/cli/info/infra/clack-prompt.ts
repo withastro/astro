@@ -1,7 +1,7 @@
-import prompts from 'prompts';
+import { confirm } from '@clack/prompts';
 import type { Prompt } from '../definitions.js';
 
-export class PromptsPrompt implements Prompt {
+export class ClackPrompt implements Prompt {
 	readonly #force: boolean;
 
 	constructor({ force }: { force: boolean }) {
@@ -18,12 +18,12 @@ export class PromptsPrompt implements Prompt {
 		if (this.#force) {
 			return true;
 		}
-		const { value } = await prompts({
-			type: 'confirm',
-			name: 'value',
+		const response = await confirm({
 			message,
-			initial: defaultValue,
+			initialValue: defaultValue,
+			withGuide: false,
 		});
-		return value;
+		// Response is a symbol when cancelled
+		return response === true;
 	}
 }
