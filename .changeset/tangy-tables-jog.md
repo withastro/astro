@@ -2,7 +2,9 @@
 'astro': minor
 ---
 
-Adds a new optional `embeddedLangs` prop to the `<Code />` component to support languages beyond the primary `lang`. This allows, for example, to highlight `.vue` files with a `<script setup lang="tsx">` block correctly:
+Adds a new optional `embeddedLangs` prop to the `<Code />` component to support languages beyond the primary `lang`
+
+This allows, for example, highlighting `.vue` files with a `<script setup lang="tsx">` block correctly:
 
 ```astro
 ---
@@ -19,3 +21,5 @@ const Text = ({ text }: { text: string }) => <div>{text}</div>;
 ---
 <Code {code} lang="vue" embeddedLangs={["tsx"]} />
 ```
+
+See the [`<Code />` component documentation](https://v6.docs.astro.build/en/guides/syntax-highlighting/#code-) for more details.
