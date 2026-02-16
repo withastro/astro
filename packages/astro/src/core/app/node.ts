@@ -19,6 +19,10 @@ interface NodeRequest extends IncomingMessage {
 	body?: unknown;
 }
 
+/**
+ * @deprecated Use `App` or `createApp()` instead, and use in conjunction with `convertRequest()`
+ * and `writeResponse()` helpers. This will be removed in a future major version.
+ */
 export class NodeApp extends App {
 	headersMap: NodeAppHeadersJson | undefined = undefined;
 
@@ -322,6 +326,7 @@ function getRequestSocket(req: NodeRequest): Socket | undefined {
 	return undefined;
 }
 
+/** @deprecated This will be removed in a future major version. */
 export async function loadManifest(rootFolder: URL): Promise<SSRManifest> {
 	const manifestFile = new URL('./manifest.json', rootFolder);
 	const rawManifest = await fs.promises.readFile(manifestFile, 'utf-8');
@@ -329,6 +334,7 @@ export async function loadManifest(rootFolder: URL): Promise<SSRManifest> {
 	return deserializeManifest(serializedManifest);
 }
 
+/** @deprecated This will be removed in a future major version. */
 export async function loadApp(rootFolder: URL): Promise<NodeApp> {
 	const manifest = await loadManifest(rootFolder);
 	return new NodeApp(manifest);
