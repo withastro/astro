@@ -170,6 +170,11 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 		key: await encodeKey(hasEnvironmentKey() ? await getEnvironmentKey() : await createKey()),
 		sessionConfig: sessionConfigToManifest(settings.config.session),
 		csp,
+		image: {
+			objectFit: settings.config.image.objectFit,
+			objectPosition: settings.config.image.objectPosition,
+			layout: settings.config.image.layout,
+		},
 		devToolbar: {
 			enabled:
 				settings.config.devToolbar.enabled &&

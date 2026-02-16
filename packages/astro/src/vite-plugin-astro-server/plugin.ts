@@ -200,6 +200,11 @@ export async function createDevelopmentManifest(settings: AstroSettings): Promis
 		},
 		sessionConfig: sessionConfigToManifest(settings.config.session),
 		csp,
+		image: {
+			objectFit: settings.config.image.objectFit,
+			objectPosition: settings.config.image.objectPosition,
+			layout: settings.config.image.layout,
+		},
 		devToolbar: {
 			enabled:
 				settings.config.devToolbar.enabled &&

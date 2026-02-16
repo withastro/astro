@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0 # allows the diff action to access git history
 
       - name: Create Diff
-        uses: e18e/action-dependency-diff@1d7c22bc4294a760e988dff8ea7857e9663cba14 # v1.4.3
+        uses: e18e/action-dependency-diff@d995338f3b229fe7b2cd82048df5da930f70c7c3 # v1.4.4
         with:
           # We’re using this package primarily to track size changes, not as worried about duplicates
           duplicate-threshold: 100
