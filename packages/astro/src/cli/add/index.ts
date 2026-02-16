@@ -494,6 +494,7 @@ export async function add(names: string[], { flags }: AddOptions) {
 					{
 						rounded: true,
 						withGuide: false,
+						width: 'auto',
 					},
 				);
 			}
@@ -691,6 +692,7 @@ async function updateAstroConfig({
 	clack.box(diff, configURL.pathname.split('/').pop(), {
 		rounded: true,
 		withGuide: false,
+		width: 'auto',
 	});
 
 	if (logAdapterInstructions) {
@@ -754,15 +756,16 @@ async function updatePackageJsonScripts({
 		return UpdateResult.none;
 	}
 
-	const message = `\n${clack.box(diff, 'package.json', {
-		rounded: true,
-		withGuide: false,
-	})}\n`;
-
 	logger.info(
 		'SKIP_FORMAT',
-		`\n  ${magenta('Astro will add the following scripts to your package.json:')}\n${message}`,
+		`\n  ${magenta('Astro will add the following scripts to your package.json:')}`,
 	);
+
+	clack.box(diff, 'package.json', {
+		rounded: true,
+		withGuide: false,
+		width: 'auto',
+	});
 
 	if (await askToContinue({ flags, logger })) {
 		await fs.writeFile(pkgPath, output, { encoding: 'utf-8' });
@@ -865,6 +868,7 @@ async function tryToInstallIntegrations({
 	clack.box(coloredOutput, undefined, {
 		rounded: true,
 		withGuide: false,
+		width: 'auto',
 	});
 
 	if (await askToContinue({ flags, logger })) {

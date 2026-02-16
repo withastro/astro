@@ -83,6 +83,7 @@ async function installPackage(
 	clack.box(coloredOutput, undefined, {
 		rounded: true,
 		withGuide: false,
+		width: 'auto',
 	});
 
 	let response;
