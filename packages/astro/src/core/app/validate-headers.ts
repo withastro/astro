@@ -1,4 +1,4 @@
-import { matchPattern, type RemotePattern } from '@astrojs/internal-helpers/remote';
+import { matchPattern, matchProtocol, type RemotePattern } from '@astrojs/internal-helpers/remote';
 
 /**
  * Sanitize a hostname by rejecting any with path separators.
@@ -93,7 +93,7 @@ export function validateForwardedHeaders(
 				// Validate against allowedDomains patterns
 				try {
 					const testUrl = new URL(`${forwardedProtocol}://example.com`);
-					const isAllowed = allowedDomains.some((pattern) => matchPattern(testUrl, pattern));
+					const isAllowed = allowedDomains.some((pattern) => matchProtocol(testUrl, pattern.protocol));
 					if (isAllowed) {
 						result.protocol = forwardedProtocol;
 					}
