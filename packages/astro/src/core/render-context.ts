@@ -9,7 +9,7 @@ import {
 	computePreferredLocaleList,
 } from '../i18n/utils.js';
 import { renderEndpoint } from '../runtime/server/endpoint.js';
-import { renderPage, setHTMLStringCacheEnabled } from '../runtime/server/index.js';
+import { renderPage } from '../runtime/server/index.js';
 import type { ComponentInstance } from '../types/astro.js';
 import type { MiddlewareHandler, Props, RewritePayload } from '../types/public/common.js';
 import type { APIContext, AstroGlobal } from '../types/public/context.js';
@@ -586,6 +586,7 @@ export class RenderContext {
 			trailingSlash: manifest.trailingSlash,
 			_experimentalQueuedRendering: {
 				pool: pipeline.nodePool,
+				htmlStringCache: pipeline.htmlStringCache,
 				enabled: manifest.experimentalQueuedRendering?.enabled,
 				poolSize: manifest.experimentalQueuedRendering?.poolSize,
 				contentCache: manifest.experimentalQueuedRendering?.contentCache,
@@ -615,11 +616,6 @@ export class RenderContext {
 			isStrictDynamic: manifest.csp?.isStrictDynamic ?? false,
 			internalFetchHeaders: manifest.internalFetchHeaders,
 		};
-
-		// Set HTMLString caching based on config
-		if (result._experimentalQueuedRendering) {
-			setHTMLStringCacheEnabled(result._experimentalQueuedRendering.contentCache ?? true);
-		}
 
 		return result;
 	}

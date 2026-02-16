@@ -29,6 +29,7 @@ import { getComponentMetadata } from '../vite-plugin-astro-server/metadata.js';
 import { createResolve } from '../vite-plugin-astro-server/resolve.js';
 import { PAGE_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { newNodePool, type NodePool } from '../runtime/server/render/queue/pool.js';
+import { HTMLStringCache } from '../runtime/server/html-string-cache.js';
 import { queueRenderingEnabled } from '../core/app/manifest.js';
 
 /**
@@ -39,6 +40,14 @@ export class RunnablePipeline extends Pipeline {
 		if (queueRenderingEnabled(this.manifest.experimentalQueuedRendering)) {
 			return newNodePool(this.manifest.experimentalQueuedRendering!);
 		}
+	}
+
+	createHTMLStringCache(): HTMLStringCache | undefined {
+		const config = this.manifest.experimentalQueuedRendering;
+		if (queueRenderingEnabled(config) && config!.contentCache !== false) {
+			return new HTMLStringCache(1000); // Use default size
+		}
+		return undefined;
 	}
 	getName(): string {
 		return 'RunnablePipeline';

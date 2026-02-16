@@ -25,6 +25,7 @@ import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
 import type { SessionDriverFactory } from './session/types.js';
 import type { NodePool } from '../runtime/server/render/queue/pool.js';
+import type { HTMLStringCache } from '../runtime/server/html-string-cache.js';
 
 /**
  * The `Pipeline` represents the static parts of rendering that do not change between requests.
@@ -38,6 +39,7 @@ export abstract class Pipeline {
 	resolvedActions: SSRActions | undefined = undefined;
 	resolvedSessionDriver: SessionDriverFactory | null | undefined = undefined;
 	nodePool: NodePool | undefined;
+	htmlStringCache: HTMLStringCache | undefined;
 
 	constructor(
 		readonly logger: Logger,
@@ -81,6 +83,10 @@ export abstract class Pipeline {
 				createI18nMiddleware(i18n, manifest.base, manifest.trailingSlash, manifest.buildFormat),
 			);
 		}
+
+		// Initialize pools
+		this.nodePool = this.createNodePool();
+		this.htmlStringCache = this.createHTMLStringCache();
 	}
 
 	abstract headElements(routeData: RouteData): Promise<HeadElements> | HeadElements;
@@ -230,8 +236,9 @@ export abstract class Pipeline {
 			);
 		}
 	}
-	
+
 	abstract createNodePool(): NodePool | undefined;
+	abstract createHTMLStringCache(): HTMLStringCache | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type

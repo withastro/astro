@@ -66,7 +66,10 @@ export class NodePool {
 		this.maxSize = maxSize;
 		this.enableStats = enableStats;
 		this.enableContentCache = enableContentCache;
-		this.warmCache([...COMMON_HTML_PATTERNS]);
+		if (maxSize > 0) {
+			// Warm up cache only if the pool size is bigger than 0. We treat zero as if there's no pool.
+			this.warmCache([...COMMON_HTML_PATTERNS]);
+		}
 	}
 
 	/**

@@ -1,6 +1,5 @@
 import { escape } from 'html-escaper';
 import { streamAsyncIterator } from './util.js';
-import { globalHTMLStringCache, isHTMLStringCacheEnabled } from './html-string-cache.js';
 
 // Leverage the battle-tested `html-escaper` npm package.
 export const escapeHTML = escape;
@@ -31,10 +30,6 @@ type BlessedType = string | HTMLBytes;
  * markHTMLString marks a string as raw or "already escaped" by returning
  * a `HTMLString` instance. This is meant for internal use, and should not
  * be returned through any public JS API.
- *
- * Uses a global LRU cache to reuse identical HTMLString objects, reducing
- * memory allocations. For example, 10,000 identical `<li>` tags will share
- * a single HTMLString object.
  */
 export const markHTMLString = (value: any) => {
 	// If value is already marked as an HTML string, there is nothing to do.
@@ -45,13 +40,7 @@ export const markHTMLString = (value: any) => {
 	// and sanitization should have already happened to the `value` argument.
 	// NOTE: `unknown as string` is necessary for TypeScript to treat this as `string`
 	if (typeof value === 'string') {
-		// Use cache to get or create HTMLString if caching is enabled
-		// Otherwise create a new HTMLString directly
-		if (isHTMLStringCacheEnabled()) {
-			return globalHTMLStringCache.getOrCreate(value) as unknown as string;
-		} else {
-			return new HTMLString(value) as unknown as string;
-		}
+		return new HTMLString(value) as unknown as string;
 	}
 	// Return all other values (`number`, `null`, `undefined`) as-is.
 	// The compiler will recursively stringify these correctly at a later stage.

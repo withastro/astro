@@ -4,6 +4,8 @@ import react from '@astrojs/react';
 export default defineConfig({
 	integrations: [react()],
 	experimental: {
-		queuedRendering: true,
+		queuedRendering: {
+			enabled: true,
+		},
 	},
 });
