@@ -6,8 +6,8 @@ import type { RemotePattern } from '../../types/public/config.js';
 import { clientAddressSymbol, nodeRequestAbortControllerCleanupSymbol } from '../constants.js';
 import { deserializeManifest } from './manifest.js';
 import { createOutgoingHttpHeaders } from './createOutgoingHttpHeaders.js';
-import type { RenderOptions } from './index.js';
-import { App } from './index.js';
+import type { RenderOptions } from './base.js';
+import { App } from './app.js';
 import type { NodeAppHeadersJson, SerializedSSRManifest, SSRManifest } from './types.js';
 import { validateForwardedHeaders, validateHost } from './validate-headers.js';
 
