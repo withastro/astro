@@ -11,6 +11,7 @@ import { FontaceFontFileReader } from '../infra/fontace-font-file-reader.js';
 import type { FontProvider } from '../types.js';
 import { type LocalFamilyOptions, LocalFontProvider } from './local.js';
 import { fileURLToPath } from 'node:url';
+import { readFile } from 'node:fs/promises';
 
 /** [Adobe](https://v6.docs.astro.build/en/reference/font-provider-reference/#adobe) */
 function adobe(config: AdobeProviderOptions): FontProvider {
@@ -130,15 +131,17 @@ function local(): FontProvider<LocalFamilyOptions> {
 
 /** [NPM](https://v6.docs.astro.build/en/reference/font-provider-reference/#npm) */
 function npm(
-	options?: Omit<NpmProviderOptions, 'root'>,
+	options?: Omit<NpmProviderOptions, 'root' | 'readFile'>,
 ): FontProvider<NpmFamilyOptions | undefined> {
 	let initializedProvider: InitializedProvider<NpmFamilyOptions> | undefined;
 	return {
 		name: providers.npm()._name,
 		async init(context) {
-			initializedProvider = await providers.npm({ ...options, root: fileURLToPath(context.root) })(
-				context,
-			);
+			initializedProvider = await providers.npm({
+				...options,
+				root: fileURLToPath(context.root),
+				readFile: (path) => readFile(path, 'utf-8').catch(() => null),
+			})(context);
 		},
 		async resolveFont({ familyName, ...rest }) {
 			return await initializedProvider?.resolveFont(familyName, rest);
