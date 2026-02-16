@@ -2,60 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { App } from '../../../dist/core/app/app.js';
 import { createComponent, render } from '../../../dist/runtime/server/index.js';
-
-function createManifest({ routes, pageMap, base = '/', trailingSlash = 'ignore' }) {
-	const rootDir = new URL('file:///astro-test/');
-	const buildDir = new URL('file:///astro-test/dist/');
-
-	return {
-		adapterName: 'test-adapter',
-		routes,
-		site: undefined,
-		base,
-		userAssetsBase: undefined,
-		trailingSlash,
-		buildFormat: 'directory',
-		compressHTML: false,
-		assetsPrefix: undefined,
-		renderers: [],
-		serverLike: true,
-		clientDirectives: new Map(),
-		entryModules: {},
-		inlinedScripts: new Map(),
-		assets: new Set(),
-		componentMetadata: new Map(),
-		pageModule: undefined,
-		pageMap,
-		serverIslandMappings: undefined,
-		key: Promise.resolve(/** @type {CryptoKey} */ ({})),
-		i18n: undefined,
-		middleware: undefined,
-		actions: undefined,
-		sessionDriver: undefined,
-		checkOrigin: false,
-		allowedDomains: undefined,
-		sessionConfig: undefined,
-		cacheDir: rootDir,
-		srcDir: rootDir,
-		outDir: buildDir,
-		rootDir,
-		publicDir: rootDir,
-		assetsDir: 'assets',
-		buildClientDir: buildDir,
-		buildServerDir: buildDir,
-		csp: undefined,
-		image: {},
-		shouldInjectCspMetaTags: false,
-		devToolbar: {
-			enabled: false,
-			latestAstroVersion: undefined,
-			debugInfoOutput: undefined,
-			placement: undefined,
-		},
-		internalFetchHeaders: undefined,
-		logLevel: 'silent',
-	};
-}
+import { createManifest } from './test-helpers.js';
 
 function escapeRoute(route) {
 	return route.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
