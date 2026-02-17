@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 import { buildRenderQueue } from '../../../dist/runtime/server/render/queue/builder.js';
 import { renderQueue } from '../../../dist/runtime/server/render/queue/renderer.js';
 import { NodePool } from '../../../dist/runtime/server/render/queue/pool.js';
+import { markHTMLString } from '../../../dist/runtime/server/index.js';
 
 // Mock SSRResult for testing
 function createMockResult() {
@@ -60,7 +61,6 @@ describe('Queue batching optimization', () => {
 	it('should batch consecutive html-string nodes', async () => {
 		const result = createMockResult();
 		const pool = createMockPool();
-		const { markHTMLString } = await import('../../../dist/runtime/server/escape.js');
 
 		const items = [markHTMLString('<div>'), markHTMLString('content'), markHTMLString('</div>')];
 
@@ -141,7 +141,6 @@ describe('Queue batching optimization', () => {
 	it('should batch mixed text and html-string nodes', async () => {
 		const result = createMockResult();
 		const pool = createMockPool();
-		const { markHTMLString } = await import('../../../dist/runtime/server/escape.js');
 
 		const items = [
 			'Text 1',
