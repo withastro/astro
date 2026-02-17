@@ -12,6 +12,7 @@ import {
 	removeQueryString,
 } from '../core/path.js';
 import { normalizePath } from '../core/viteUtils.js';
+import { ASTRO_VITE_ENVIRONMENT_NAMES } from '../core/constants.js';
 import { isAstroServerEnvironment } from '../environments.js';
 import type { AstroSettings } from '../types/astro.js';
 import {
@@ -303,10 +304,16 @@ export const inferRemoteSize = async (url) => {
 								code: makeSvgComponent(imageMetadata, contents, settings.config.experimental.svgo),
 							};
 						}
+						// Only skip referencedImages tracking for the SSR environment in server builds.
+						// The prerender environment should still track references so we can safely
+						// delete unreferenced original images after optimization.
+						const isSSROnlyEnvironment =
+							settings.buildOutput === 'server' &&
+							this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
 						return {
 							code: `export default ${getProxyCode(
 								imageMetadata,
-								settings.buildOutput === 'server',
+								isSSROnlyEnvironment,
 							)}`,
 						};
 					} else {
