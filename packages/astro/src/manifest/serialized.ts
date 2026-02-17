@@ -17,7 +17,7 @@ import {
 import { createKey, encodeKey, getEnvironmentKey, hasEnvironmentKey } from '../core/encryption.js';
 import { MIDDLEWARE_MODULE_ID } from '../core/middleware/vite-plugin.js';
 import { SERVER_ISLAND_MANIFEST } from '../core/server-islands/vite-plugin-server-islands.js';
-import { VIRTUAL_CACHE_DRIVER_ID } from '../core/cache/vite-plugin.js';
+import { VIRTUAL_CACHE_PROVIDER_ID } from '../core/cache/vite-plugin.js';
 import { VIRTUAL_SESSION_DRIVER_ID } from '../core/session/vite-plugin.js';
 import type { AstroSettings } from '../types/astro.js';
 import { VIRTUAL_PAGES_MODULE_ID } from '../vite-plugin-pages/index.js';
@@ -83,8 +83,8 @@ export function serializedManifestPlugin({
 					manifestData = JSON.stringify(serialized);
 				}
 				const hasCacheConfig = !!settings.config.experimental?.cache;
-				const cacheDriverLine = hasCacheConfig
-					? `cacheDriver: () => import('${VIRTUAL_CACHE_DRIVER_ID}'),`
+				const cacheProviderLine = hasCacheConfig
+					? `cacheProvider: () => import('${VIRTUAL_CACHE_PROVIDER_ID}'),`
 					: '';
 				const code = `
 					import { deserializeManifest as _deserializeManifest } from 'astro/app';
@@ -105,7 +105,7 @@ export function serializedManifestPlugin({
 					  actions: () => import('${ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID}'),
 					  middleware: () => import('${MIDDLEWARE_MODULE_ID}'),
 					  sessionDriver: () => import('${VIRTUAL_SESSION_DRIVER_ID}'),
-					  ${cacheDriverLine}
+					  ${cacheProviderLine}
 					  serverIslandMappings: () => import('${SERVER_ISLAND_MANIFEST}'),
 					  routes: manifestRoutes,
 					  pageMap,
@@ -176,7 +176,10 @@ async function createSerializedManifest(settings: AstroSettings): Promise<Serial
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
 		key: await encodeKey(hasEnvironmentKey() ? await getEnvironmentKey() : await createKey()),
 		sessionConfig: sessionConfigToManifest(settings.config.session),
-		cacheConfig: cacheConfigToManifest(settings.config.experimental?.cache),
+		cacheConfig: cacheConfigToManifest(
+			settings.config.experimental?.cache,
+			settings.config.experimental?.routeRules,
+		),
 		csp,
 		image: {
 			objectFit: settings.config.image.objectFit,

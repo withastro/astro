@@ -36,20 +36,20 @@ export interface CacheProvider {
 
 export type CacheProviderFactory = (config: Record<string, any> | undefined) => CacheProvider;
 
-export interface CacheDriverConfig {
+export interface CacheProviderConfig {
 	/** URL or package import */
 	entrypoint: string | URL;
-	/** Serializable options used by the driver implementation */
+	/** Serializable options used by the provider implementation */
 	config?: Record<string, any>;
 }
 
-export interface NormalizedCacheDriverConfig {
+export interface NormalizedCacheProviderConfig {
 	entrypoint: string;
 	config: Record<string, any> | undefined;
 }
 
 export interface SSRManifestCache {
-	driver: string;
+	provider: string;
 	options?: Record<string, any>;
 	routes?: Record<string, CacheOptions>;
 }

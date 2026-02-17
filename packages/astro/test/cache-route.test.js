@@ -5,14 +5,14 @@ import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
 describe('context.cache', () => {
-	it('build fails with a clear error for an invalid cache driver', async () => {
+	it('build fails with a clear error for an invalid cache provider', async () => {
 		const fixture = await loadFixture({
 			root: './fixtures/cache-route/',
 			output: 'server',
 			adapter: testAdapter(),
 			experimental: {
 				cache: {
-					driver: 'nonexistent-cache-driver-package',
+					provider: 'nonexistent-cache-provider-package',
 				},
 			},
 		});
@@ -20,8 +20,8 @@ describe('context.cache', () => {
 			() => fixture.build({}),
 			(err) => {
 				assert.ok(
-					err.message.includes('nonexistent-cache-driver-package'),
-					`Expected driver name in error, got: ${err.message}`,
+					err.message.includes('nonexistent-cache-provider-package'),
+					`Expected provider name in error, got: ${err.message}`,
 				);
 				return true;
 			},
@@ -41,12 +41,12 @@ describe('context.cache', () => {
 				adapter: testAdapter(),
 				experimental: {
 					cache: {
-						driver: fileURLToPath(
-							new URL('./fixtures/cache-route/mock-cache-driver.mjs', import.meta.url),
+						provider: fileURLToPath(
+							new URL('./fixtures/cache-route/mock-cache-provider.mjs', import.meta.url),
 						),
-						routes: {
-							'/config-route': { maxAge: 600, tags: ['config'] },
-						},
+					},
+					routeRules: {
+						'/config-route': { maxAge: 600, tags: ['config'] },
 					},
 				},
 			});

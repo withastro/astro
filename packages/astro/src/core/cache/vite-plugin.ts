@@ -2,50 +2,50 @@ import { fileURLToPath } from 'node:url';
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
 import { AstroError } from '../errors/errors.js';
-import { CacheDriverNotFound } from '../errors/errors-data.js';
-import { normalizeCacheDriverConfig } from './utils.js';
+import { CacheProviderNotFound } from '../errors/errors-data.js';
+import { normalizeCacheProviderConfig } from './utils.js';
 
-export const VIRTUAL_CACHE_DRIVER_ID = 'virtual:astro:cache-driver';
-const RESOLVED_VIRTUAL_CACHE_DRIVER_ID = '\0' + VIRTUAL_CACHE_DRIVER_ID;
+export const VIRTUAL_CACHE_PROVIDER_ID = 'virtual:astro:cache-provider';
+const RESOLVED_VIRTUAL_CACHE_PROVIDER_ID = '\0' + VIRTUAL_CACHE_PROVIDER_ID;
 
-export function vitePluginCacheDriver({ settings }: { settings: AstroSettings }): VitePlugin {
+export function vitePluginCacheProvider({ settings }: { settings: AstroSettings }): VitePlugin {
 	return {
-		name: VIRTUAL_CACHE_DRIVER_ID,
+		name: VIRTUAL_CACHE_PROVIDER_ID,
 		enforce: 'pre',
 
 		resolveId: {
 			filter: {
-				id: new RegExp(`^${VIRTUAL_CACHE_DRIVER_ID}$`),
+				id: new RegExp(`^${VIRTUAL_CACHE_PROVIDER_ID}$`),
 			},
 			handler() {
-				return RESOLVED_VIRTUAL_CACHE_DRIVER_ID;
+				return RESOLVED_VIRTUAL_CACHE_PROVIDER_ID;
 			},
 		},
 
 		load: {
 			filter: {
-				id: new RegExp(`^${RESOLVED_VIRTUAL_CACHE_DRIVER_ID}$`),
+				id: new RegExp(`^${RESOLVED_VIRTUAL_CACHE_PROVIDER_ID}$`),
 			},
 			async handler() {
-				if (!settings.config.experimental?.cache?.driver) {
+				if (!settings.config.experimental?.cache?.provider) {
 					return { code: 'export default null;' };
 				}
 
-				const driver = normalizeCacheDriverConfig(settings.config.experimental.cache.driver);
+				const provider = normalizeCacheProviderConfig(settings.config.experimental.cache.provider);
 				// Use the project root as the importer so that adapter-provided
-				// drivers (e.g. @astrojs/node/cache) resolve from the project's
+				// providers (e.g. @astrojs/node/cache) resolve from the project's
 				// node_modules, not from astro core's location.
 				const importerPath = fileURLToPath(new URL('package.json', settings.config.root));
 				let resolved;
 				try {
-					resolved = await this.resolve(driver.entrypoint, importerPath);
+					resolved = await this.resolve(provider.entrypoint, importerPath);
 				} catch {
 					// Resolution can throw for invalid package specifiers
 				}
 				if (!resolved) {
 					throw new AstroError({
-						...CacheDriverNotFound,
-						message: CacheDriverNotFound.message(driver.entrypoint),
+						...CacheProviderNotFound,
+						message: CacheProviderNotFound.message(provider.entrypoint),
 					});
 				}
 

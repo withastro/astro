@@ -6,7 +6,7 @@ import node from '@astrojs/node';
 export default defineConfig({
 	experimental: {
 		cache: {
-			driver: '@astrojs/node/cache'
+			provider: '@astrojs/node/cache'
 		},
 	},
 	adapter: node({

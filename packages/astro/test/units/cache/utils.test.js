@@ -3,9 +3,11 @@ import { describe, it } from 'node:test';
 import {
 	cacheConfigToManifest,
 	defaultSetHeaders,
+	extractCacheRoutesFromRouteRules,
 	isCacheHint,
 	isLiveDataEntry,
-	normalizeCacheDriverConfig,
+	normalizeCacheProviderConfig,
+	normalizeRouteRuleCacheOptions,
 } from '../../../dist/core/cache/utils.js';
 
 describe('defaultSetHeaders()', () => {
@@ -99,9 +101,9 @@ describe('isLiveDataEntry()', () => {
 	});
 });
 
-describe('normalizeCacheDriverConfig()', () => {
+describe('normalizeCacheProviderConfig()', () => {
 	it('handles string entrypoint', () => {
-		const result = normalizeCacheDriverConfig({
+		const result = normalizeCacheProviderConfig({
 			entrypoint: '@astrojs/node/cache',
 			config: { max: 1000 },
 		});
@@ -110,31 +112,128 @@ describe('normalizeCacheDriverConfig()', () => {
 	});
 
 	it('handles URL entrypoint', () => {
-		const url = new URL('file:///tmp/cache-driver.js');
-		const result = normalizeCacheDriverConfig({ entrypoint: url });
-		assert.equal(result.entrypoint, '/tmp/cache-driver.js');
+		const url = new URL('file:///tmp/cache-provider.js');
+		const result = normalizeCacheProviderConfig({ entrypoint: url });
+		assert.equal(result.entrypoint, '/tmp/cache-provider.js');
 		assert.equal(result.config, undefined);
 	});
 });
 
-describe('cacheConfigToManifest()', () => {
-	it('serializes correctly', () => {
-		const result = cacheConfigToManifest({
-			driver: { entrypoint: '@astrojs/node/cache', config: { max: 500 } },
-			routes: { '/blog/[...path]': { maxAge: 300 } },
+describe('normalizeRouteRuleCacheOptions()', () => {
+	it('extracts flat shortcuts', () => {
+		const result = normalizeRouteRuleCacheOptions({ maxAge: 300, swr: 60 });
+		assert.deepEqual(result, { maxAge: 300, swr: 60, tags: undefined });
+	});
+
+	it('extracts nested cache options', () => {
+		const result = normalizeRouteRuleCacheOptions({ cache: { maxAge: 3600, tags: ['products'] } });
+		assert.deepEqual(result, { maxAge: 3600, swr: undefined, tags: ['products'] });
+	});
+
+	it('nested cache takes precedence over shortcuts', () => {
+		const result = normalizeRouteRuleCacheOptions({
+			maxAge: 100,
+			swr: 10,
+			cache: { maxAge: 3600 },
+		});
+		assert.deepEqual(result, { maxAge: 3600, swr: 10, tags: undefined });
+	});
+
+	it('returns undefined for rule with no cache options', () => {
+		const result = normalizeRouteRuleCacheOptions({ prerender: true });
+		assert.equal(result, undefined);
+	});
+
+	it('returns undefined for undefined rule', () => {
+		const result = normalizeRouteRuleCacheOptions(undefined);
+		assert.equal(result, undefined);
+	});
+});
+
+describe('extractCacheRoutesFromRouteRules()', () => {
+	it('extracts cache routes from flat shortcuts', () => {
+		const result = extractCacheRoutesFromRouteRules({
+			'/api/*': { swr: 600 },
+			'/blog/*': { maxAge: 300 },
 		});
 		assert.deepEqual(result, {
-			driver: '@astrojs/node/cache',
-			options: { max: 500 },
-			routes: { '/blog/[...path]': { maxAge: 300 } },
+			'/api/*': { maxAge: undefined, swr: 600, tags: undefined },
+			'/blog/*': { maxAge: 300, swr: undefined, tags: undefined },
 		});
 	});
 
-	it('returns undefined when no config', () => {
-		assert.equal(cacheConfigToManifest(undefined), undefined);
+	it('extracts cache routes from nested form', () => {
+		const result = extractCacheRoutesFromRouteRules({
+			'/products/*': { cache: { maxAge: 3600, tags: ['products'] } },
+		});
+		assert.deepEqual(result, {
+			'/products/*': { maxAge: 3600, swr: undefined, tags: ['products'] },
+		});
 	});
 
-	it('returns undefined when no driver', () => {
-		assert.equal(cacheConfigToManifest({ routes: { '/blog': { maxAge: 60 } } }), undefined);
+	it('filters out rules with no cache options', () => {
+		const result = extractCacheRoutesFromRouteRules({
+			'/about': { prerender: true },
+			'/api/*': { swr: 600 },
+		});
+		assert.deepEqual(result, {
+			'/api/*': { maxAge: undefined, swr: 600, tags: undefined },
+		});
+	});
+
+	it('returns undefined for empty routeRules', () => {
+		const result = extractCacheRoutesFromRouteRules({});
+		assert.equal(result, undefined);
+	});
+
+	it('returns undefined for undefined routeRules', () => {
+		const result = extractCacheRoutesFromRouteRules(undefined);
+		assert.equal(result, undefined);
+	});
+});
+
+describe('cacheConfigToManifest()', () => {
+	it('serializes correctly with routeRules', () => {
+		const result = cacheConfigToManifest(
+			{ provider: { entrypoint: '@astrojs/node/cache', config: { max: 500 } } },
+			{ '/blog/[...path]': { maxAge: 300 } },
+		);
+		assert.deepEqual(result, {
+			provider: '@astrojs/node/cache',
+			options: { max: 500 },
+			routes: { '/blog/[...path]': { maxAge: 300, swr: undefined, tags: undefined } },
+		});
+	});
+
+	it('serializes with nested cache form in routeRules', () => {
+		const result = cacheConfigToManifest(
+			{ provider: '@astrojs/node/cache' },
+			{ '/products/*': { cache: { maxAge: 3600, tags: ['products'] } } },
+		);
+		assert.deepEqual(result, {
+			provider: '@astrojs/node/cache',
+			options: undefined,
+			routes: { '/products/*': { maxAge: 3600, swr: undefined, tags: ['products'] } },
+		});
+	});
+
+	it('returns undefined when no cache config', () => {
+		assert.equal(cacheConfigToManifest(undefined, { '/api/*': { swr: 600 } }), undefined);
+	});
+
+	it('returns undefined when no provider', () => {
+		assert.equal(cacheConfigToManifest({}, { '/blog': { maxAge: 60 } }), undefined);
+	});
+
+	it('handles routeRules with no cache options', () => {
+		const result = cacheConfigToManifest(
+			{ provider: '@astrojs/node/cache' },
+			{ '/about': { prerender: true } },
+		);
+		assert.deepEqual(result, {
+			provider: '@astrojs/node/cache',
+			options: undefined,
+			routes: undefined,
+		});
 	});
 });

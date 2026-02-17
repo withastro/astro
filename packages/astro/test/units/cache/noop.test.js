@@ -22,6 +22,13 @@ describe('NoopAstroCache', () => {
 		// No error thrown
 	});
 
+	it('options returns frozen empty object', () => {
+		const cache = new NoopAstroCache();
+		const options = cache.options;
+		assert.deepEqual(options.tags, []);
+		assert.equal(Object.isFrozen(options), true);
+	});
+
 	it('applyCacheHeaders() no-ops for noop cache', () => {
 		const cache = new NoopAstroCache();
 		const response = new Response('test');
@@ -54,6 +61,13 @@ describe('disabledAstroCache (singleton)', () => {
 	it('tags getter throws AstroError with CacheNotEnabled', () => {
 		assert.throws(
 			() => disabledAstroCache.tags,
+			(err) => err.name === 'CacheNotEnabled',
+		);
+	});
+
+	it('options getter throws AstroError with CacheNotEnabled', () => {
+		assert.throws(
+			() => disabledAstroCache.options,
 			(err) => err.name === 'CacheNotEnabled',
 		);
 	});

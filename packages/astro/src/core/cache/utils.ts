@@ -1,40 +1,98 @@
 import { fileURLToPath } from 'node:url';
 import type { AstroConfig } from '../../types/public/index.js';
 import type {
-	CacheDriverConfig,
 	CacheHint,
 	CacheOptions,
+	CacheProviderConfig,
 	LiveDataEntry,
-	NormalizedCacheDriverConfig,
+	NormalizedCacheProviderConfig,
 	SSRManifestCache,
 } from './types.js';
 
-export function normalizeCacheDriverConfig(
-	driver: string | CacheDriverConfig,
-): NormalizedCacheDriverConfig {
-	if (typeof driver === 'string') {
-		return { entrypoint: driver, config: undefined };
+export function normalizeCacheProviderConfig(
+	provider: string | CacheProviderConfig,
+): NormalizedCacheProviderConfig {
+	if (typeof provider === 'string') {
+		return { entrypoint: provider, config: undefined };
 	}
 	return {
 		entrypoint:
-			driver.entrypoint instanceof URL ? fileURLToPath(driver.entrypoint) : driver.entrypoint,
-		config: driver.config,
+			provider.entrypoint instanceof URL ? fileURLToPath(provider.entrypoint) : provider.entrypoint,
+		config: provider.config,
 	};
 }
 
-export function cacheConfigToManifest(
-	config: AstroConfig['experimental']['cache'],
-): SSRManifestCache | undefined {
-	if (!config?.driver) {
+/**
+ * Normalize a route rule to extract cache options.
+ * Handles both Nitro-style shortcuts (flat) and nested `cache:` form.
+ */
+export function normalizeRouteRuleCacheOptions(
+	rule:
+		| {
+				cache?: CacheOptions;
+				maxAge?: number;
+				swr?: number;
+				tags?: string[];
+				prerender?: boolean;
+		  }
+		| undefined,
+): CacheOptions | undefined {
+	if (!rule) return undefined;
+
+	// Check for flat shortcuts
+	const hasShortcuts =
+		rule.maxAge !== undefined || rule.swr !== undefined || rule.tags !== undefined;
+	// Check for nested cache
+	const hasNested = rule.cache !== undefined;
+
+	if (!hasShortcuts && !hasNested) {
 		return undefined;
 	}
 
-	const driver = normalizeCacheDriverConfig(config.driver);
+	// Merge: nested cache takes precedence, then shortcuts
+	return {
+		maxAge: rule.cache?.maxAge ?? rule.maxAge,
+		swr: rule.cache?.swr ?? rule.swr,
+		tags: rule.cache?.tags ?? rule.tags,
+	};
+}
+
+/**
+ * Extract cache routes from experimental.routeRules config.
+ * Normalizes both flat shortcuts and nested `cache:` form.
+ */
+export function extractCacheRoutesFromRouteRules(
+	routeRules: AstroConfig['experimental']['routeRules'],
+): Record<string, CacheOptions> | undefined {
+	if (!routeRules) return undefined;
+
+	const cacheRoutes: Record<string, CacheOptions> = {};
+
+	for (const [pattern, rule] of Object.entries(routeRules)) {
+		const cacheOptions = normalizeRouteRuleCacheOptions(rule);
+		if (cacheOptions) {
+			cacheRoutes[pattern] = cacheOptions;
+		}
+	}
+
+	return Object.keys(cacheRoutes).length > 0 ? cacheRoutes : undefined;
+}
+
+export function cacheConfigToManifest(
+	cacheConfig: AstroConfig['experimental']['cache'],
+	routeRulesConfig: AstroConfig['experimental']['routeRules'],
+): SSRManifestCache | undefined {
+	if (!cacheConfig?.provider) {
+		return undefined;
+	}
+
+	const provider = normalizeCacheProviderConfig(cacheConfig.provider);
+	const routes = extractCacheRoutesFromRouteRules(routeRulesConfig);
 
 	return {
-		driver: driver.entrypoint,
-		options: driver.config,
-		routes: config.routes,
+		provider: provider.entrypoint,
+		options: provider.config,
+		routes,
 	};
 }
 

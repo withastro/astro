@@ -63,6 +63,17 @@ export class AstroCache {
 		return [...this.#tags];
 	}
 
+	/**
+	 * Get the current cache options (read-only snapshot).
+	 * Includes all accumulated options: maxAge, swr, tags, etag, lastModified.
+	 */
+	get options(): Readonly<CacheOptions> {
+		return Object.freeze({
+			...this.#options,
+			tags: this.tags,
+		});
+	}
+
 	async invalidate(input: InvalidateOptions | LiveDataEntry): Promise<void> {
 		if (!this.#provider) {
 			throw new Error('Cache invalidation requires a cache provider');

@@ -7,11 +7,17 @@ import type { CacheHint, CacheOptions, InvalidateOptions, LiveDataEntry } from '
  * The API is available so user code doesn't need conditional checks,
  * but nothing is actually cached.
  */
+const EMPTY_OPTIONS = Object.freeze({ tags: [] }) as Readonly<CacheOptions>;
+
 export class NoopAstroCache {
 	set(_input: CacheOptions | CacheHint | LiveDataEntry | false): void {}
 
 	get tags(): string[] {
 		return [];
+	}
+
+	get options(): Readonly<CacheOptions> {
+		return EMPTY_OPTIONS;
 	}
 
 	async invalidate(_input: InvalidateOptions | LiveDataEntry): Promise<void> {}
@@ -28,6 +34,10 @@ class DisabledAstroCacheImpl {
 	}
 
 	get tags(): string[] {
+		throw new AstroError(CacheNotEnabled);
+	}
+
+	get options(): Readonly<CacheOptions> {
 		throw new AstroError(CacheNotEnabled);
 	}
 

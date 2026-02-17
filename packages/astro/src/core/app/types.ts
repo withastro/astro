@@ -99,7 +99,7 @@ export type SSRManifest = {
 	middleware?: () => Promise<AstroMiddlewareInstance> | AstroMiddlewareInstance;
 	actions?: () => Promise<SSRActions> | SSRActions;
 	sessionDriver?: () => Promise<{ default: SessionDriverFactory | null }>;
-	cacheDriver?: () => Promise<{ default: CacheProviderFactory | null }>;
+	cacheProvider?: () => Promise<{ default: CacheProviderFactory | null }>;
 	checkOrigin: boolean;
 	allowedDomains?: Partial<RemotePattern>[];
 	sessionConfig?: SSRManifestSession;

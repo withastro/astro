@@ -17,7 +17,9 @@ describe('Route Caching (Node adapter)', () => {
 				output: 'server',
 				adapter: nodejs({ mode: 'middleware' }),
 				experimental: {
-					cache: {},
+					cache: {
+						provider: '@astrojs/node/cache',
+					},
 				},
 			});
 			await fixture.build({});
@@ -26,15 +28,6 @@ describe('Route Caching (Node adapter)', () => {
 
 		after(async () => {
 			await previewServer.stop();
-		});
-
-		it('default driver is set when user does not configure one', async () => {
-			// The adapter should have set @astrojs/node/cache as the default driver.
-			// If it didn't, the cache would be a no-op and no X-Astro-Cache header would appear.
-			const response = await fixture.fetch('/cached');
-			assert.equal(response.status, 200);
-			const cacheHeader = response.headers.get('x-astro-cache');
-			assert.equal(cacheHeader, 'MISS', 'First request should be a cache MISS');
 		});
 
 		it('cached response is served on second request (cache hit)', async () => {

@@ -2779,9 +2779,10 @@ export interface AstroUserConfig<
 		 * {
 		 *   experimental: {
 		 *     cache: {
-		 *       routes: {
-		 *         '/blog/[...path]': { maxAge: 300, swr: 60 },
-		 *       },
+		 *       provider: 'astro/cache/noop', // or adapter provides default
+		 *     },
+		 *     routeRules: {
+		 *       '/blog/[...path]': { maxAge: 300, swr: 60 },
 		 *     },
 		 *   },
 		 * }
@@ -2792,26 +2793,76 @@ export interface AstroUserConfig<
 		 */
 		cache?: {
 			/**
-			 * @name experimental.cache.driver
-			 * @type {import('../../core/cache/types.js').CacheDriverConfig}
+			 * @name experimental.cache.provider
+			 * @type {import('../../core/cache/types.js').CacheProviderConfig}
 			 * @description
 			 *
-			 * The cache provider driver. Adapters typically set a default, but you can
+			 * The cache provider. Adapters typically set a default, but you can
 			 * override it with your own. Can be a string (package name or path) or an
 			 * object with `entrypoint` and optional `config`.
 			 */
-			driver?: string | import('../../core/cache/types.js').CacheDriverConfig;
-
-			/**
-			 * @name experimental.cache.routes
-			 * @type {Record<string, { maxAge?: number; swr?: number; tags?: string[] }>}
-			 * @description
-			 *
-			 * Route patterns mapped to default cache options. Uses the same `[param]`
-			 * and `[...rest]` syntax as file-based routing.
-			 */
-			routes?: Record<string, { maxAge?: number; swr?: number; tags?: string[] }>;
+			provider?: string | import('../../core/cache/types.js').CacheProviderConfig;
 		};
+
+		/**
+		 * @name experimental.routeRules
+		 * @type {Record<string, RouteRule>}
+		 * @default `undefined`
+		 * @description
+		 *
+		 * Route patterns mapped to rules that control caching and prerendering.
+		 * Uses the same `[param]` and `[...rest]` syntax as file-based routing.
+		 *
+		 * Supports Nitro-style cache shortcuts where cache options can be specified
+		 * directly at the rule level, or nested under a `cache` key for the full form.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * {
+		 *   experimental: {
+		 *     cache: { provider: '@astrojs/node/cache' },
+		 *     routeRules: {
+		 *       // Shortcut form (Nitro-style)
+		 *       '/api/*': { swr: 600 },
+		 *
+		 *       // Full form with nested cache
+		 *       '/products/*': { cache: { maxAge: 3600, tags: ['products'] } },
+		 *
+		 *       // Prerender control
+		 *       '/about': { prerender: true },
+		 *
+		 *       // Combined: cached and explicitly dynamic
+		 *       '/dashboard/*': { maxAge: 60, prerender: false },
+		 *     },
+		 *   },
+		 * }
+		 * ```
+		 */
+		routeRules?: Record<
+			string,
+			{
+				/**
+				 * Nested cache options (full form).
+				 */
+				cache?: { maxAge?: number; swr?: number; tags?: string[] };
+				/**
+				 * Cache max-age in seconds (shortcut).
+				 */
+				maxAge?: number;
+				/**
+				 * Stale-while-revalidate window in seconds (shortcut).
+				 */
+				swr?: number;
+				/**
+				 * Cache tags for invalidation (shortcut).
+				 */
+				tags?: string[];
+				/**
+				 * Whether to prerender this route at build time.
+				 */
+				prerender?: boolean;
+			}
+		>;
 	};
 }
 

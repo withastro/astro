@@ -2082,16 +2082,16 @@ export const SessionStorageSaveError = {
 // Cache Errors
 /**
  * @docs
- * @message Could not resolve the cache driver `DRIVER`. Make sure the package is installed.
+ * @message Could not resolve the cache provider `PROVIDER`. Make sure the package is installed.
  * @description
- * Thrown when the configured cache driver cannot be resolved. This usually means the package is not installed or the import path is wrong.
+ * Thrown when the configured cache provider cannot be resolved. This usually means the package is not installed or the import path is wrong.
  */
-export const CacheDriverNotFound = {
-	name: 'CacheDriverNotFound',
-	title: 'Cache driver not found.',
-	message: (driver: string) =>
-		`Could not resolve the cache driver \`${driver}\`. Make sure the package is installed.`,
-	hint: "If your adapter provides a default cache driver, you may not need to set one explicitly. Check your adapter's documentation.",
+export const CacheProviderNotFound = {
+	name: 'CacheProviderNotFound',
+	title: 'Cache provider not found.',
+	message: (provider: string) =>
+		`Could not resolve the cache provider \`${provider}\`. Make sure the package is installed.`,
+	hint: "If your adapter provides a default cache provider, you may not need to set one explicitly. Check your adapter's documentation.",
 } satisfies ErrorData;
 
 /**
@@ -2104,8 +2104,8 @@ export const CacheNotEnabled = {
 	name: 'CacheNotEnabled',
 	title: 'Cache is not enabled.',
 	message:
-		'`Astro.cache` is not available because the cache feature is not enabled. To use caching, configure a cache driver in your Astro config under `experimental.cache`.',
-	hint: 'Use an adapter that provides a default cache driver, or set one explicitly: `experimental: { cache: { driver: "..." } }`.',
+		'`Astro.cache` is not available because the cache feature is not enabled. To use caching, configure a cache provider in your Astro config under `experimental.cache`.',
+	hint: 'Use an adapter that provides a default cache provider, or set one explicitly: `experimental: { cache: { provider: "..." } }`.',
 } satisfies ErrorData;
 
 /**

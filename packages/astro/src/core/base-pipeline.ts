@@ -74,7 +74,7 @@ export abstract class Pipeline {
 
 		readonly actions = manifest.actions,
 		readonly sessionDriver = manifest.sessionDriver,
-		readonly cacheDriver = manifest.cacheDriver,
+		readonly cacheProvider = manifest.cacheProvider,
 		readonly cacheConfig = manifest.cacheConfig,
 		readonly serverIslands = manifest.serverIslandMappings,
 	) {
@@ -173,15 +173,15 @@ export abstract class Pipeline {
 			return this.resolvedCacheProvider;
 		}
 
-		// Try to load the driver from the manifest
-		if (this.cacheDriver) {
-			const mod = await this.cacheDriver();
+		// Try to load the provider from the manifest
+		if (this.cacheProvider) {
+			const mod = await this.cacheProvider();
 			const factory: CacheProviderFactory | null = mod?.default || null;
 			this.resolvedCacheProvider = factory ? factory(this.cacheConfig?.options) : null;
 			return this.resolvedCacheProvider;
 		}
 
-		// No driver configured
+		// No provider configured
 		this.resolvedCacheProvider = null;
 		return null;
 	}

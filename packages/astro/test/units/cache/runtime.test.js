@@ -145,6 +145,38 @@ describe('AstroCache - tags getter', () => {
 	});
 });
 
+describe('AstroCache - options getter', () => {
+	it('returns all cache options including accumulated tags', () => {
+		const cache = new AstroCache(null);
+		const lastModified = new Date('2025-01-01');
+		cache.set({ maxAge: 300, swr: 60, tags: ['a'], lastModified, etag: '"abc"' });
+		cache.set({ tags: ['b'] }); // accumulate another tag
+
+		const options = cache.options;
+		assert.equal(options.maxAge, 300);
+		assert.equal(options.swr, 60);
+		assert.deepEqual(options.tags, ['a', 'b']);
+		assert.equal(options.lastModified, lastModified);
+		assert.equal(options.etag, '"abc"');
+	});
+
+	it('returns frozen object (immutable)', () => {
+		const cache = new AstroCache(null);
+		cache.set({ maxAge: 300 });
+
+		const options = cache.options;
+		assert.equal(Object.isFrozen(options), true);
+	});
+
+	it('returns empty tags array when no tags set', () => {
+		const cache = new AstroCache(null);
+		cache.set({ maxAge: 300 });
+
+		const options = cache.options;
+		assert.deepEqual(options.tags, []);
+	});
+});
+
 describe('AstroCache - invalidate()', () => {
 	it('calls provider.invalidate() with correct options', async () => {
 		let captured;
