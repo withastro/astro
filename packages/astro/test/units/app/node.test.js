@@ -430,6 +430,37 @@ describe('node', () => {
 				);
 				assert.equal(result.url, 'https://example.com/');
 			});
+
+			it('accepts x-forwarded-proto when allowedDomains has protocol and non-example.com hostname (#15559)', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'myapp.example.com',
+							'x-forwarded-host': 'myapp.example.com',
+							'x-forwarded-proto': 'https',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'myapp.example.com', protocol: 'https' }] },
+				);
+				assert.equal(result.url, 'https://myapp.example.com/');
+			});
+
+			it('rejects x-forwarded-proto when it does not match any protocol pattern', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'myapp.example.com',
+							'x-forwarded-host': 'myapp.example.com',
+							'x-forwarded-proto': 'http',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'myapp.example.com', protocol: 'https' }] },
+				);
+				// http doesn't match the https-only pattern, falls back to socket encrypted (https)
+				assert.equal(result.url, 'https://myapp.example.com/');
+			});
 		});
 
 		describe('x-forwarded-port', () => {
