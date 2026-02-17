@@ -223,7 +223,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		if (this.manifest.assets.has(url.pathname)) return undefined;
 		let pathname = this.computePathnameFromDomain(request);
 		if (!pathname) {
-			pathname = prependForwardSlash(this.removeBase(url.pathname));
+			pathname = url.pathname;
 		}
 		const match = this.#router.match(decodeURI(pathname));
 		if (match.type !== 'match') return undefined;
@@ -307,9 +307,11 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 					}
 
 					if (locale) {
-						pathname = prependForwardSlash(
-							joinPaths(normalizeTheLocale(locale), this.removeBase(url.pathname)),
-						);
+						const withoutBase = this.removeBase(url.pathname);
+						pathname = prependForwardSlash(joinPaths(normalizeTheLocale(locale), withoutBase));
+						if (this.manifest.base !== '/') {
+							pathname = joinPaths(this.manifest.base, pathname);
+						}
 						if (url.pathname.endsWith('/')) {
 							pathname = appendForwardSlash(pathname);
 						}
