@@ -95,10 +95,10 @@ export interface AstroAdapterFeatures {
 	buildOutput?: 'static' | 'server';
 
 	/**
-	 * Whether or not the adapter provides experimental support for setting response headers for static pages. When this
-	 * feature is enabled, Astro will return a map of the `Headers` emitted by the static pages. This map is available
-	 * as `routeToHeaders` in the `astro:build:generated` hook and can be used to generate platform-specific output that
-	 * controls HTTP headers, for example, to create a `_headers` file for platforms that support it.
+	 * Whether or not the adapter provides support for setting response headers for static pages. When this feature is
+	 * enabled, Astro will return a map of the `Headers` emitted by the static pages. This map is available as `routeToHeaders`
+	 * in the `astro:build:generated` hook and can be used to generate platform-specific output that controls HTTP headers,
+	 * for example, to create a `_headers` file for platforms that support it.
 	 */
 	staticHeaders?: boolean;
 }
