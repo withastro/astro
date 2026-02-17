@@ -2,20 +2,19 @@ import * as assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { loadFixture } from './_test-utils.js';
 
-describe('BindingImageService', () => {
+describe('Dev image endpoint', () => {
 	let fixture;
-	let previewServer;
+	let devServer;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/binding-image-service/',
+			root: './fixtures/dev-image-endpoint/',
 		});
-		await fixture.build();
-		previewServer = await fixture.preview();
+		devServer = await fixture.startDevServer();
 	});
 
 	after(async () => {
-		await previewServer.stop();
+		await devServer.stop();
 	});
 
 	it('returns 403 for missing href parameter', async () => {
@@ -23,7 +22,7 @@ describe('BindingImageService', () => {
 		assert.equal(res.status, 403);
 	});
 
-	it('returns 403 for remote images not in allowed domains', async () => {
+	it('returns 403 for disallowed remote images', async () => {
 		const res = await fixture.fetch('/_image?href=https://example.com/image.jpg&f=webp');
 		assert.equal(res.status, 403);
 	});

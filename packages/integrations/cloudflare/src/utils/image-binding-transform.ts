@@ -1,7 +1,7 @@
 import { imageConfig } from 'astro:assets';
 import { isRemotePath } from '@astrojs/internal-helpers/path';
 import { isRemoteAllowed } from '@astrojs/internal-helpers/remote';
-import type { ImageTransform } from '@cloudflare/workers-types';
+import type { ImageOutputOptions, ImageTransform } from '@cloudflare/workers-types';
 
 export async function transform(
 	rawUrl: string,
@@ -23,10 +23,19 @@ export async function transform(
 	}
 	const input = images.input(content.body);
 
-	const format = url.searchParams.get('f');
+	const supportedFormats: Record<string, ImageOutputOptions['format']> = {
+		jpeg: 'image/jpeg',
+		jpg: 'image/jpeg',
+		png: 'image/png',
+		gif: 'image/gif',
+		webp: 'image/webp',
+		avif: 'image/avif',
+	};
 
-	if (!format || !['avif', 'webp', 'jpeg'].includes(format)) {
-		return new Response(`The "${format}" format is not supported`, { status: 400 });
+	const outputFormat = supportedFormats[url.searchParams.get('f') ?? ''];
+
+	if (!outputFormat) {
+		return new Response(`Unsupported format: ${url.searchParams.get('f')}`, { status: 400 });
 	}
 
 	return (
@@ -38,6 +47,6 @@ export async function transform(
 				// quality: url.searchParams.get('q'),
 				fit: url.searchParams.get('fit') as ImageTransform['fit'],
 			})
-			.output({ format: `image/${format as 'webp' | 'avif' | 'jpeg'}` })
+			.output({ format: outputFormat })
 	).response();
 }

@@ -3,8 +3,16 @@ import type { PluginOption } from 'vite';
 const VIRTUAL_CONFIG_ID = 'virtual:astro-cloudflare:config';
 const RESOLVED_VIRTUAL_CONFIG_ID = '\0' + VIRTUAL_CONFIG_ID;
 
+export interface CompileImageConfig {
+	base: string;
+	assetsPrefix: string | undefined;
+	imageServiceEntrypoint: string;
+	buildAssets: string;
+}
+
 export interface Config {
 	sessionKVBindingName: string;
+	compileImageConfig: CompileImageConfig | null;
 	isPrerender: boolean;
 }
 

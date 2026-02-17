@@ -11,6 +11,7 @@ export type {
 	LocalImageService,
 } from '../../assets/services/service.js';
 export type {
+	AssetsGlobalStaticImagesList,
 	GetImageResult,
 	ImageInputFormat,
 	ImageMetadata,

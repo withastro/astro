@@ -1,6 +1,7 @@
 import type { AddressInfo } from 'node:net';
 import type { ViteDevServer, InlineConfig as ViteInlineConfig } from 'vite';
 import type { SerializedSSRManifest } from '../../core/app/types.js';
+import type { AssetsGlobalStaticImagesList } from '../../assets/types.js';
 import type { PageBuildData } from '../../core/build/types.js';
 import type { AstroIntegrationLogger } from '../../core/logger/core.js';
 import type { AdapterFeatureStability } from '../../integrations/features-validation.js';
@@ -239,6 +240,11 @@ export interface AstroPrerenderer {
 	 * @param options - Render options including routeData
 	 */
 	render: (request: Request, options: { routeData: RouteData }) => Promise<Response>;
+	/**
+	 * Returns images collected in the adapter's runtime (e.g. workerd) to be merged
+	 * into the Node-side static image list. The default Sharp pipeline runs after.
+	 */
+	collectStaticImages?: () => Promise<AssetsGlobalStaticImagesList>;
 	/**
 	 * Called after all pages are prerendered. Use for cleanup like stopping a preview server.
 	 */

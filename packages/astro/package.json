@@ -132,7 +132,6 @@
     "cookie": "^1.1.1",
     "cssesc": "^3.0.0",
     "debug": "^4.4.3",
-    "deterministic-object-hash": "^2.0.2",
     "devalue": "^5.6.2",
     "diff": "^8.0.3",
     "dlv": "^1.1.3",
