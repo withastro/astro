@@ -1,15 +1,14 @@
 import { manifest } from 'virtual:astro:manifest';
-import type { BaseApp } from '../../base.js';
 import { DevApp } from '../../dev/app.js';
 import { createConsoleLogger } from '../../logging.js';
-import type { RouteInfo } from '../../types.js';
+import type { CreateApp, RouteInfo } from '../../types.js';
 import type { RoutesList } from '../../../../types/astro.js';
 
 let currentDevApp: DevApp | null = null;
 
-export function createApp(): BaseApp {
+export const createApp: CreateApp = ({ streaming } = {}) => {
 	const logger = createConsoleLogger(manifest.logLevel);
-	currentDevApp = new DevApp(manifest, true, logger);
+	currentDevApp = new DevApp(manifest, streaming, logger);
 
 	// Listen for route updates via HMR
 	if (import.meta.hot) {
@@ -30,4 +29,4 @@ export function createApp(): BaseApp {
 	}
 
 	return currentDevApp;
-}
+};
