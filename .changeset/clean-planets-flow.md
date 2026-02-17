@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-fix(runtime): preserve `hidden="until-found"` value in attribues
+Improves rendering by preserving `hidden="until-found"` value in attribues
