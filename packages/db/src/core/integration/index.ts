@@ -201,7 +201,7 @@ function astroDBIntegration(options?: AstroDBConfig): AstroIntegration {
 					await executeSeedFile({ fileUrl, environment });
 				};
 			},
-			'astro:build:done': async ({}) => {
+			'astro:build:done': async () => {
 				await tempViteServer?.close();
 			},
 		},

@@ -326,7 +326,7 @@ async function generatePathWithPrerenderer(
 								(url) =>
 									url.href
 										.replace(config.outDir.toString(), '')
-										.replace(/(?:\/index\.html|\.html)$/, '') == trimSlashes(pathname),
+										.replace(/(?:\/index\.html|\.html)$/, '') === trimSlashes(pathname),
 							)
 						) {
 							return false;

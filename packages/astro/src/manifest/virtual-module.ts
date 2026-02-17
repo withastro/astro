@@ -66,7 +66,7 @@ export { base, i18n, trailingSlash, site, compressHTML, build, image };
 				`;
 					return { code };
 				}
-				if (id == RESOLVED_VIRTUAL_SERVER_ID) {
+				if (id === RESOLVED_VIRTUAL_SERVER_ID) {
 					if (this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.client) {
 						throw new AstroError({
 							...AstroErrorData.ServerOnlyModule,

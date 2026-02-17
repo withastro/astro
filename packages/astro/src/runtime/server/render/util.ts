@@ -176,7 +176,7 @@ export function renderElement(
 			children = defineScriptVars(defineVars) + '\n' + children;
 		}
 	}
-	if ((children == null || children == '') && voidElementNames.test(name)) {
+	if ((children == null || children === '') && voidElementNames.test(name)) {
 		return `<${name}${internalSpreadAttributes(props, shouldEscape, name)}>`;
 	}
 	return `<${name}${internalSpreadAttributes(props, shouldEscape, name)}>${children}</${name}>`;

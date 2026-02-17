@@ -32,7 +32,7 @@ function testFactory(inlineConfig) {
 	let fixture;
 
 	const test = testBase.extend({
-		astro: async ({}, use) => {
+		astro: async (_, use) => {
 			fixture = fixture || (await loadFixture(inlineConfig));
 			await use(fixture);
 		},
