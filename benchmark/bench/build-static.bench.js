@@ -3,7 +3,6 @@ import { build } from 'astro';
 import { bench, describe } from 'vitest';
 
 const staticRoot = fileURLToPath(new URL('../static-projects/build-static', import.meta.url));
-const queueBuildRoot = fileURLToPath(new URL('../static-projects/queue-build', import.meta.url));
 
 describe('Bench build time', () => {
 	bench(
@@ -11,17 +10,6 @@ describe('Bench build time', () => {
 		async () => {
 			await build({
 				root: staticRoot,
-				logLevel: 'error',
-			});
-		},
-		{ timeout: 300000, iterations: 3 },
-	);
-
-	bench(
-		'Queue Build: rendering static site',
-		async () => {
-			await build({
-				root: queueBuildRoot,
 				logLevel: 'error',
 			});
 		},

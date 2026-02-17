@@ -4,45 +4,8 @@ import { beforeAll, bench, describe } from 'vitest';
 
 const renderRoot = new URL('../projects/render-bench/', import.meta.url);
 
-/**
- * Configuration matrix for queue rendering features.
- * We test combinations of: enabled × poolSize × cache
- *
- * - enabled: Use queue-based rendering (vs classic recursive)
- * - poolSize: Node pool size (1000 for enabled, 0 for disabled)
- * - cache: Enable HTMLString caching
- */
-const CONFIGS = [
-	// Classic rendering (no queue)
-	{ enabled: false, poolSize: 0, contentCache: false, label: 'Classic' },
-
-	// Queue rendering with various optimization combinations
-	{ enabled: true, poolSize: 0, contentCache: false, label: 'Queue' },
-	{ enabled: true, poolSize: 1000, contentCache: false, label: 'Queue+Pool' },
-	{ enabled: true, poolSize: 0, contentCache: true, label: 'Queue+ContentCache' },
-	{ enabled: true, poolSize: 1000, contentCache: true, label: 'Queue+Pool+ContentCache' },
-];
-
-/**
- * Test matrix dimensions
- */
-const FILE_TYPES = [
-	{ route: '/astro', label: '.astro' },
-	{ route: '/md', label: '.md' },
-	{ route: '/mdx', label: '.mdx' },
-];
-
-const STREAMING_MODES = [
-	{ streaming: true, label: 'streaming' },
-	{ streaming: false, label: 'buffered' },
-];
-
-/**
- * Apps organized by: [streamingMode][configLabel]
- * We create one app per config+streaming combination and reuse it for all file types.
- */
-const apps = {};
-
+let streamingApp;
+let nonStreamingApp;
 beforeAll(async () => {
 	const entry = new URL('./dist/server/entry.mjs', renderRoot);
 
@@ -52,47 +15,35 @@ beforeAll(async () => {
 		);
 	}
 
-	// Import App class and manifest
-	const { App, manifest } = await import(entry);
-
-	if (!App) {
-		throw new Error(
-			'App class not exported from adapter. Please rebuild the adapter and bench project.',
-		);
-	}
-
-	// Create app instances for all config × streaming combinations
-	for (const { streaming } of STREAMING_MODES) {
-		apps[streaming] = {};
-
-		for (const config of CONFIGS) {
-			// Clone and modify manifest with queue rendering config
-			const modifiedManifest = {
-				...manifest,
-				experimentalQueuedRendering: {
-					enabled: config.enabled,
-					poolSize: config.poolSize,
-					contentCache: config.contentCache,
-				},
-			};
-
-			// Directly instantiate App with the modified manifest
-			apps[streaming][config.label] = new App(modifiedManifest, streaming);
-		}
-	}
+	const { manifest, createApp } = await import(entry);
+	streamingApp = createApp(manifest, true);
+	nonStreamingApp = createApp(manifest, false);
 }, 900000);
 
-// Generate benchmarks: fileType × streaming × config
-for (const { route, label: fileLabel } of FILE_TYPES) {
-	for (const { streaming, label: streamLabel } of STREAMING_MODES) {
-		describe(`${fileLabel} [${streamLabel}]`, () => {
-			for (const config of CONFIGS) {
-				bench(config.label, async () => {
-					const app = apps[streaming][config.label];
-					const request = new Request(new URL(`http://example.com${route}`));
-					await app.render(request);
-				});
-			}
-		});
-	}
-}
+describe('Bench rendering', () => {
+	bench('Rendering: streaming [true], .astro file', async () => {
+		const request = new Request(new URL('http://exmpale.com/astro'));
+		await streamingApp.render(request);
+	});
+	bench('Rendering: streaming [true], .md file', async () => {
+		const request = new Request(new URL('http://exmpale.com/md'));
+		await streamingApp.render(request);
+	});
+	bench('Rendering: streaming [true], .mdx file', async () => {
+		const request = new Request(new URL('http://exmpale.com/mdx'));
+		await streamingApp.render(request);
+	});
+
+	bench('Rendering: streaming [false], .astro file', async () => {
+		const request = new Request(new URL('http://exmpale.com/astro'));
+		await nonStreamingApp.render(request);
+	});
+	bench('Rendering: streaming [false], .md file', async () => {
+		const request = new Request(new URL('http://exmpale.com/md'));
+		await nonStreamingApp.render(request);
+	});
+	bench('Rendering: streaming [false], .mdx file', async () => {
+		const request = new Request(new URL('http://exmpale.com/mdx'));
+		await nonStreamingApp.render(request);
+	});
+});
