@@ -15,7 +15,7 @@
 npm create astro@latest
 
 # Manual:
-npm install --save-dev astro
+npm install astro
 ```
 
 Looking for help? Start with our [Getting Started](https://docs.astro.build/en/getting-started/) guide.

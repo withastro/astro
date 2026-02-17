@@ -2467,12 +2467,6 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
-  packages/astro/test/fixtures/astro-response:
-    dependencies:
-      astro:
-        specifier: workspace:*
-        version: link:../../..
-
   packages/astro/test/fixtures/astro-scripts:
     dependencies:
       '@tailwindcss/vite':
@@ -4327,6 +4321,18 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../..
+
+  packages/astro/test/fixtures/ssr-renderers-static-vue:
+    dependencies:
+      '@astrojs/vue':
+        specifier: workspace:*
+        version: link:../../../../integrations/vue
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      vue:
+        specifier: ^3.5.27
+        version: 3.5.28(typescript@5.9.3)
 
   packages/astro/test/fixtures/ssr-request:
     dependencies:
