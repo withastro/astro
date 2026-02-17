@@ -691,7 +691,7 @@ export default function netlifyIntegration(
 
 				setAdapter({
 					name: '@astrojs/netlify',
-					entryType: 'self',
+					entrypointResolution: 'auto',
 					serverEntrypoint: '@astrojs/netlify/ssr-function.js',
 					adapterFeatures: {
 						middlewareMode,

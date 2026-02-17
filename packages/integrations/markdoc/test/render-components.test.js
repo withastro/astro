@@ -73,12 +73,15 @@ function renderComponentsChecks(html) {
 	// Renders Astro Code component
 	const pre = document.querySelector('pre');
 	assert.notEqual(pre, null);
-	assert.equal(pre.className, 'astro-code github-dark');
+	// With class-based styles, className includes additional classes
+	assert.ok(pre.classList.contains('astro-code'), 'Should have astro-code class');
+	assert.ok(pre.classList.contains('github-dark'), 'Should have github-dark theme class');
 
 	// Renders 2nd Astro Code component inside if tag
 	const pre2 = document.querySelectorAll('pre')[1];
 	assert.notEqual(pre2, null);
-	assert.equal(pre2.className, 'astro-code github-dark');
+	assert.ok(pre2.classList.contains('astro-code'), 'Should have astro-code class');
+	assert.ok(pre2.classList.contains('github-dark'), 'Should have github-dark theme class');
 }
 
 /** @param {string} html */
