@@ -165,7 +165,7 @@ export async function createVite(
 			vitePluginActions({ fs, settings }),
 			vitePluginServerIslands({ settings, logger }),
 			vitePluginSessionDriver({ settings }),
-			vitePluginCacheDriver({ settings }),
+			...(settings.config.experimental?.cache ? [vitePluginCacheDriver({ settings })] : []),
 			astroContainer(),
 			astroHmrReloadPlugin(),
 			vitePluginChromedevtools({ settings }),

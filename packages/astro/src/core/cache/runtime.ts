@@ -6,7 +6,7 @@ import type {
 	LiveDataEntry,
 } from './types.js';
 import { defaultSetHeaders, isLiveDataEntry } from './utils.js';
-import type { NoopAstroCache } from './noop.js';
+import type { DisabledAstroCache, NoopAstroCache } from './noop.js';
 
 const APPLY_HEADERS = Symbol.for('astro:cache:apply');
 const IS_ACTIVE = Symbol.for('astro:cache:active');
@@ -99,7 +99,10 @@ export class AstroCache {
 /**
  * Apply cache headers to a response. No-ops for NoopAstroCache.
  */
-export function applyCacheHeaders(cache: AstroCache | NoopAstroCache, response: Response): void {
+export function applyCacheHeaders(
+	cache: AstroCache | NoopAstroCache | DisabledAstroCache,
+	response: Response,
+): void {
 	if (APPLY_HEADERS in cache) {
 		(cache as AstroCache)[APPLY_HEADERS](response);
 	}
@@ -108,7 +111,7 @@ export function applyCacheHeaders(cache: AstroCache | NoopAstroCache, response: 
 /**
  * Check whether the cache has any active state worth acting on.
  */
-export function isCacheActive(cache: AstroCache | NoopAstroCache): boolean {
+export function isCacheActive(cache: AstroCache | NoopAstroCache | DisabledAstroCache): boolean {
 	if (IS_ACTIVE in cache) {
 		return (cache as AstroCache)[IS_ACTIVE];
 	}

@@ -2580,6 +2580,9 @@ importers:
 
   packages/astro/test/fixtures/cache-route:
     dependencies:
+      '@astrojs/node':
+        specifier: workspace:*
+        version: link:../../../../integrations/node
       astro:
         specifier: workspace:*
         version: link:../../..

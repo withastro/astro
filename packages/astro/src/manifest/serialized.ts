@@ -82,6 +82,10 @@ export function serializedManifestPlugin({
 					const serialized = await createSerializedManifest(settings);
 					manifestData = JSON.stringify(serialized);
 				}
+				const hasCacheConfig = !!settings.config.experimental?.cache;
+				const cacheDriverLine = hasCacheConfig
+					? `cacheDriver: () => import('${VIRTUAL_CACHE_DRIVER_ID}'),`
+					: '';
 				const code = `
 					import { deserializeManifest as _deserializeManifest } from 'astro/app';
 					import { renderers } from '${ASTRO_RENDERERS_MODULE_ID}';
@@ -101,7 +105,7 @@ export function serializedManifestPlugin({
 					  actions: () => import('${ACTIONS_ENTRYPOINT_VIRTUAL_MODULE_ID}'),
 					  middleware: () => import('${MIDDLEWARE_MODULE_ID}'),
 					  sessionDriver: () => import('${VIRTUAL_SESSION_DRIVER_ID}'),
-					  cacheDriver: () => import('${VIRTUAL_CACHE_DRIVER_ID}'),
+					  ${cacheDriverLine}
 					  serverIslandMappings: () => import('${SERVER_ISLAND_MANIFEST}'),
 					  routes: manifestRoutes,
 					  pageMap,

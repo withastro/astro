@@ -1,7 +1,8 @@
 import { fileURLToPath } from 'node:url';
 import type { Plugin as VitePlugin } from 'vite';
 import type { AstroSettings } from '../../types/astro.js';
-import { AstroError } from '../errors/index.js';
+import { AstroError } from '../errors/errors.js';
+import { CacheDriverNotFound } from '../errors/errors-data.js';
 import { normalizeCacheDriverConfig } from './utils.js';
 
 export const VIRTUAL_CACHE_DRIVER_ID = 'virtual:astro:cache-driver';
@@ -35,12 +36,16 @@ export function vitePluginCacheDriver({ settings }: { settings: AstroSettings })
 				// drivers (e.g. @astrojs/node/cache) resolve from the project's
 				// node_modules, not from astro core's location.
 				const importerPath = fileURLToPath(new URL('package.json', settings.config.root));
-				const resolved = await this.resolve(driver.entrypoint, importerPath);
+				let resolved;
+				try {
+					resolved = await this.resolve(driver.entrypoint, importerPath);
+				} catch {
+					// Resolution can throw for invalid package specifiers
+				}
 				if (!resolved) {
 					throw new AstroError({
-						name: 'CacheDriverInitError',
-						title: 'Failed to initialize cache driver',
-						message: `Failed to resolve cache driver: ${driver.entrypoint}`,
+						...CacheDriverNotFound,
+						message: CacheDriverNotFound.message(driver.entrypoint),
 					});
 				}
 

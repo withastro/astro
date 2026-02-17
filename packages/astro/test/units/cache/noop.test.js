@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { NoopAstroCache } from '../../../dist/core/cache/noop.js';
+import { NoopAstroCache, disabledAstroCache } from '../../../dist/core/cache/noop.js';
 import { applyCacheHeaders, isCacheActive } from '../../../dist/core/cache/runtime.js';
 
 describe('NoopAstroCache', () => {
@@ -33,5 +33,45 @@ describe('NoopAstroCache', () => {
 	it('isCacheActive() returns false for noop cache', () => {
 		const cache = new NoopAstroCache();
 		assert.equal(isCacheActive(cache), false);
+	});
+});
+
+describe('disabledAstroCache (singleton)', () => {
+	it('set() throws AstroError with CacheNotEnabled', () => {
+		assert.throws(
+			() => disabledAstroCache.set({ maxAge: 300 }),
+			(err) => err.name === 'CacheNotEnabled',
+		);
+	});
+
+	it('set(false) throws AstroError with CacheNotEnabled', () => {
+		assert.throws(
+			() => disabledAstroCache.set(false),
+			(err) => err.name === 'CacheNotEnabled',
+		);
+	});
+
+	it('tags getter throws AstroError with CacheNotEnabled', () => {
+		assert.throws(
+			() => disabledAstroCache.tags,
+			(err) => err.name === 'CacheNotEnabled',
+		);
+	});
+
+	it('invalidate() throws AstroError with CacheNotEnabled', async () => {
+		await assert.rejects(
+			() => disabledAstroCache.invalidate({ tags: 'x' }),
+			(err) => err.name === 'CacheNotEnabled',
+		);
+	});
+
+	it('applyCacheHeaders() no-ops for disabled cache', () => {
+		const response = new Response('test');
+		applyCacheHeaders(disabledAstroCache, response);
+		assert.equal(response.headers.get('CDN-Cache-Control'), null);
+	});
+
+	it('isCacheActive() returns false for disabled cache', () => {
+		assert.equal(isCacheActive(disabledAstroCache), false);
 	});
 });

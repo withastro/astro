@@ -2076,6 +2076,40 @@ export const SessionStorageSaveError = {
 
 /**
  * @docs
+ * @kind heading
+ * @name Cache Errors
+ */
+// Cache Errors
+/**
+ * @docs
+ * @message Could not resolve the cache driver `DRIVER`. Make sure the package is installed.
+ * @description
+ * Thrown when the configured cache driver cannot be resolved. This usually means the package is not installed or the import path is wrong.
+ */
+export const CacheDriverNotFound = {
+	name: 'CacheDriverNotFound',
+	title: 'Cache driver not found.',
+	message: (driver: string) =>
+		`Could not resolve the cache driver \`${driver}\`. Make sure the package is installed.`,
+	hint: "If your adapter provides a default cache driver, you may not need to set one explicitly. Check your adapter's documentation.",
+} satisfies ErrorData;
+
+/**
+ * @docs
+ * @message `Astro.cache` is not available because the cache feature is not enabled.
+ * @description
+ * Thrown when `Astro.cache` or `context.cache` is used but the cache feature has not been enabled in the Astro config.
+ */
+export const CacheNotEnabled = {
+	name: 'CacheNotEnabled',
+	title: 'Cache is not enabled.',
+	message:
+		'`Astro.cache` is not available because the cache feature is not enabled. To use caching, configure a cache driver in your Astro config under `experimental.cache`.',
+	hint: 'Use an adapter that provides a default cache driver, or set one explicitly: `experimental: { cache: { driver: "..." } }`.',
+} satisfies ErrorData;
+
+/**
+ * @docs
  * @message An error occurred while optimizing the SVG file with SVGO.
  */
 export const CannotOptimizeSvg = {

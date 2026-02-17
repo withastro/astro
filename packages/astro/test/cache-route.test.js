@@ -5,6 +5,29 @@ import testAdapter from './test-adapter.js';
 import { loadFixture } from './test-utils.js';
 
 describe('context.cache', () => {
+	it('build fails with a clear error for an invalid cache driver', async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/cache-route/',
+			output: 'server',
+			adapter: testAdapter(),
+			experimental: {
+				cache: {
+					driver: 'nonexistent-cache-driver-package',
+				},
+			},
+		});
+		await assert.rejects(
+			() => fixture.build({}),
+			(err) => {
+				assert.ok(
+					err.message.includes('nonexistent-cache-driver-package'),
+					`Expected driver name in error, got: ${err.message}`,
+				);
+				return true;
+			},
+		);
+	});
+
 	describe('Production (CDN-style provider)', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
