@@ -28,12 +28,10 @@ publicHoistPattern:
   # We hoist it here so that it can easily resolve `@astrojs/db` without hardcoded handling.
   - '@astrojs/db'
 # Wait until three days after release to install new versions of packages
-# TODO: uncomment before merging into main
-# minimumReleaseAge: 4320
+minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
-  # Temporary, so we can install new updates
-  - '@cloudflare/*'
-  - 'wrangler'
+  # TODO: remove once more stable
+  - '@flue/*'
 peerDependencyRules:
   allowAny:
     - 'astro'

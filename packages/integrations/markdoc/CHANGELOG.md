@@ -1,5 +1,22 @@
 # @astrojs/markdoc
 
+## 1.0.0-beta.11
+
+### Patch Changes
+
+- Updated dependencies [[`84d6efd`](https://github.com/withastro/astro/commit/84d6efd9f1036fdf3c29e9b786b4a96453a607ed)]:
+  - @astrojs/markdown-remark@7.0.0-beta.7
+
+## 1.0.0-beta.10
+
+### Patch Changes
+
+- [#15457](https://github.com/withastro/astro/pull/15457) [`6e8da44`](https://github.com/withastro/astro/commit/6e8da44efbbe5094f540c6e70a20908d65492b09) Thanks [@AhmadYasser1](https://github.com/AhmadYasser1)! - Fixes custom attributes on Markdoc's built-in `{% table %}` tag causing "Invalid attribute" validation errors.
+
+  In Markdoc, `table` exists as both a tag (`{% table %}`) and a node (the inner table structure). When users defined custom attributes on either `nodes.table` or `tags.table`, the attributes weren't synced to the counterpart, causing validation to fail on whichever side was missing the declaration.
+
+  The fix automatically syncs custom attribute declarations between tags and nodes that share the same name, so users can define attributes on either side and have them work correctly.
+
 ## 1.0.0-beta.9
 
 ### Minor Changes

@@ -2,14 +2,16 @@
 
 Find the root cause of a reproduced bug in the Astro source code.
 
-**CRITICAL: You MUST always append to `report.md` before finishing, regardless of outcome. Even if you cannot identify the root cause, hit errors, or the investigation is inconclusive — always update `report.md` with your findings. The orchestrator and downstream skills depend on this file to determine what happened.**
+**CRITICAL: You MUST always read `report.md` and append to `report.md` before finishing, regardless of outcome. Even if you cannot identify the root cause, hit errors, or the investigation is inconclusive — always update `report.md` with your findings. The orchestrator and downstream skills depend on this file to determine what happened.**
 
 ## Prerequisites
 
 These variables are referenced throughout this skill. They may be passed as args by an orchestrator, or inferred from the conversation when run standalone.
 
 - **`triageDir`** — Directory containing the reproduction project (e.g. `triage/issue-123`). If not passed as an arg, infer from previous conversation.
+- **`issueDetails`** - The GitHub API issue details payload. This must be provided explicitly by the user or available from prior conversation context / tool calls. If this data isn't available, you may run `gh issue view ${issue_number}` to load the missing issue details directly from GitHub.
 - **`report.md`** — File in `triageDir` that MAY exist. Contains the full context from all previous skills.
+- **Astro Compiler source** — The `withastro/compiler` repo MAY be cloned at `.compiler/` (inside the repo root, gitignored). If it exists, treat it as in-scope for diagnosis. Some bugs originate in the compiler rather than in `packages/` — if stack traces or investigation point to compiler behavior (e.g. HTML parsing, `.astro` file transformation), check `.compiler/` for relevant source code.
 
 ## Overview
 
@@ -21,11 +23,7 @@ These variables are referenced throughout this skill. They may be passed as args
 
 ## Step 1: Review the Reproduction
 
-Read `report.md` from the `triageDir` directory to understand:
-
-- The exact error message and stack trace
-- Which command triggers the issue (build/dev/preview)
-- What user code is involved
+Start by reading `report.md` from the `triageDir` directory.
 
 **Skip if not reproduced:** If `report.md` shows the bug was NOT reproduced or was skipped (look for "could not reproduce", "SKIP REASON", "skipped: true"), append "DIAGNOSIS SKIPPED: No reproduction" to `report.md` and return `confidence: null`.
 
