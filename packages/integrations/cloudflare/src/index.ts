@@ -17,10 +17,15 @@ import {
 import { parseEnv } from 'node:util';
 import { sessionDrivers } from 'astro/config';
 import { createCloudflarePrerenderer } from './prerenderer.js';
+import { createRequire } from 'node:module';
 
 export type { Runtime } from './utils/handler.js';
 
-export type Options = {
+export interface Options
+	extends Pick<
+		PluginConfig,
+		'auxiliaryWorkers' | 'configPath' | 'inspectorPort' | 'persistState' | 'remoteBindings'
+	> {
 	/** Options for handling images. */
 	imageService?: ImageService;
 
@@ -45,16 +50,43 @@ export type Options = {
 	 * See https://developers.cloudflare.com/images/transform-images/bindings/ for more details.
 	 */
 	imagesBindingName?: string;
-};
 
-export default function createIntegration(args?: Options): AstroIntegration {
+	experimental?: Pick<
+		NonNullable<PluginConfig['experimental']>,
+		'headersAndRedirectsDevModeSupport'
+	>;
+}
+
+export default function createIntegration({
+	imageService,
+	sessionKVBindingName = DEFAULT_SESSION_KV_BINDING_NAME,
+	imagesBindingName = DEFAULT_IMAGES_BINDING_NAME,
+	...cloudflareOptions
+}: Options = {}): AstroIntegration {
 	let _config: AstroConfig;
 
 	let _routes: IntegrationResolvedRoute[];
 	let _isFullyStatic = false;
 
-	const sessionKVBindingName = args?.sessionKVBindingName ?? DEFAULT_SESSION_KV_BINDING_NAME;
-	const imagesBindingName = args?.imagesBindingName ?? DEFAULT_IMAGES_BINDING_NAME;
+	const cfPluginConfig: PluginConfig = {
+		...cloudflareOptions,
+		config: cloudflareConfigCustomizer({
+			sessionKVBindingName,
+			imagesBindingName: imageService === 'cloudflare-binding' ? imagesBindingName : false,
+		}),
+		experimental: {
+			...cloudflareOptions.experimental,
+			prerenderWorker: {
+				config(_, { entryWorkerConfig }) {
+					return {
+						...entryWorkerConfig,
+						// This is the Vite environment name used for prerendering
+						name: 'prerender',
+					};
+				},
+			},
+		},
+	};
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -62,7 +94,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			'astro:config:setup': ({ command, config, updateConfig, logger, addWatchFile }) => {
 				let session = config.session;
 
-				if (args?.imageService === 'cloudflare-binding') {
+				if (imageService === 'cloudflare-binding') {
 					logger.info(
 						`Enabling image processing with Cloudflare Images for production with the "${imagesBindingName}" Images binding.`,
 					);
@@ -81,25 +113,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						ttl: session?.ttl,
 					};
 				}
-				const cfPluginConfig: PluginConfig = {
-					viteEnvironment: { name: 'ssr' },
-					config: cloudflareConfigCustomizer({
-						sessionKVBindingName: args?.sessionKVBindingName,
-						imagesBindingName:
-							args?.imageService === 'cloudflare-binding' ? args?.imagesBindingName : false,
-					}),
-					experimental: {
-						prerenderWorker: {
-							config(_, { entryWorkerConfig }) {
-								return {
-									...entryWorkerConfig,
-									// This is the Vite environment name used for prerendering
-									name: 'prerender',
-								};
-							},
-						},
-					},
-				};
+
+				// The preview entrypoint uses Cloudflare's vite plugin and so it needs access
+				// to the config. But there's no proper API for this so we use globalThis.
+				if (command === 'preview') {
+					globalThis.astroCloudflareOptions = cfPluginConfig;
+				}
 
 				updateConfig({
 					build: {
@@ -108,7 +127,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					session,
 					vite: {
 						plugins: [
-							cfVitePlugin(cfPluginConfig),
+							cfVitePlugin({ ...cfPluginConfig, viteEnvironment: { name: 'ssr' } }),
 							{
 								name: '@astrojs/cloudflare:cf-imports',
 								enforce: 'pre',
@@ -192,8 +211,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							}),
 						],
 					},
-					image: setImageConfig(args?.imageService ?? 'compile', config.image, command, logger),
+					image: setImageConfig(imageService ?? 'compile', config.image, command, logger),
 				});
+
+				if (cloudflareOptions.configPath) {
+					addWatchFile(createRequire(import.meta.url).resolve(cloudflareOptions.configPath));
+				}
 
 				addWatchFile(new URL('./wrangler.toml', config.root));
 				addWatchFile(new URL('./wrangler.json', config.root));
@@ -232,7 +255,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							message:
 								'When using a custom image service, ensure it is compatible with the Cloudflare Workers runtime.',
 							// Only 'custom' could potentially use sharp at runtime.
-							suppress: args?.imageService === 'custom' ? 'default' : 'all',
+							suppress: imageService === 'custom' ? 'default' : 'all',
 						},
 						envGetSecret: 'stable',
 					},
@@ -261,6 +284,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						clientDir: _config.build.client,
 						base: _config.base,
 						trailingSlash: _config.trailingSlash,
+						cloudflareOptions: cfPluginConfig,
 					}),
 				);
 			},
@@ -284,9 +308,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					// in a global way, so we shim their access as `process.env.*`. This is not the recommended way for users to access environment variables. But we'll add this for compatibility for chosen variables. Mainly to support `@astrojs/db`
 					vite.define = {
 						'process.env': 'process.env',
-						'globalThis.__ASTRO_IMAGES_BINDING_NAME': JSON.stringify(
-							args?.imagesBindingName ?? 'IMAGES',
-						),
+						'globalThis.__ASTRO_IMAGES_BINDING_NAME': JSON.stringify(imagesBindingName),
 						...vite.define,
 					};
 				}
