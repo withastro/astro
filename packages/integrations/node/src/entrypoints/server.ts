@@ -21,7 +21,7 @@ export const createNodePreviewServer: CreateNodePreviewServer = async ({
 	logger,
 	headers,
 }) => {
-	const server = createServer(createStandaloneHandler(app, options, undefined));
+	const server = createServer(createStandaloneHandler({ app, options, headers: undefined }));
 
 	// If user specified custom headers append a listener
 	// to the server to add those headers to response

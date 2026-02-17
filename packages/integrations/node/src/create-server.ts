@@ -18,11 +18,11 @@ export function hostOptions(host: Options['host']): string {
 	return host;
 }
 
-export function createStandaloneHandler(
-	app: BaseApp,
-	options: Parameters<typeof createAppHandler>[1] & Parameters<typeof createStaticHandler>[1],
-	headers: HeadersJson | undefined,
-): RequestHandler {
+export function createStandaloneHandler({ app, options, headers }: {
+	app: BaseApp;
+	options: Parameters<typeof createAppHandler>[1] & Parameters<typeof createStaticHandler>[1];
+	headers: HeadersJson | undefined;
+}): RequestHandler {
 	const appHandler = createAppHandler(app, options);
 	const staticHandler = createStaticHandler(app, options, headers);
 	return (req, res, next, locals) => {
@@ -63,7 +63,7 @@ export function startServer(app: BaseApp, options: Options) {
 	const port = process.env.PORT ? Number(process.env.PORT) : options.port;
 	const host = process.env.HOST ?? hostOptions(options.host);
 
-	const server = createServer(createStandaloneHandler(app, options, headers));
+	const server = createServer(createStandaloneHandler({ app, options, headers }));
 	server.listen(port, host);
 	if (process.env[LOGGING_KEY] !== 'disabled') {
 		logListeningOn(app.getAdapterLogger(), server, host);
