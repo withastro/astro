@@ -27,7 +27,7 @@ import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../routing/match.js';
-import type { AstroCache } from '../cache/runtime.js';
+import { type AstroCache, applyCacheHeaders } from '../cache/runtime.js';
 import type { NoopAstroCache } from '../cache/noop.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import type { AppPipeline } from './pipeline.js';
@@ -456,7 +456,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 					async () => {
 						const res = await renderContext.render(componentInstance);
 						// Apply cache headers before the provider reads them
-						cache!._applyHeaders(res);
+						applyCacheHeaders(cache!, res);
 						return res;
 					},
 				);
@@ -466,7 +466,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			} else {
 				response = await renderContext.render(componentInstance);
 				// Apply cache headers for CDN-based providers (no onRequest)
-				cache._applyHeaders(response);
+				applyCacheHeaders(cache!, response);
 			}
 		} catch (err: any) {
 			this.logger.error(null, err.stack || err.message || String(err));

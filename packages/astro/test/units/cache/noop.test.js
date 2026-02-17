@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { NoopAstroCache } from '../../../dist/core/cache/noop.js';
+import { applyCacheHeaders, isCacheActive } from '../../../dist/core/cache/runtime.js';
 
 describe('NoopAstroCache', () => {
 	it('set() is callable and does nothing', () => {
@@ -21,16 +22,16 @@ describe('NoopAstroCache', () => {
 		// No error thrown
 	});
 
-	it('_applyHeaders() is callable and does nothing', () => {
+	it('applyCacheHeaders() no-ops for noop cache', () => {
 		const cache = new NoopAstroCache();
 		const response = new Response('test');
-		cache._applyHeaders(response);
+		applyCacheHeaders(cache, response);
 		assert.equal(response.headers.get('CDN-Cache-Control'), null);
 		assert.equal(response.headers.get('Cache-Tag'), null);
 	});
 
-	it('_isActive returns false', () => {
+	it('isCacheActive() returns false for noop cache', () => {
 		const cache = new NoopAstroCache();
-		assert.equal(cache._isActive, false);
+		assert.equal(isCacheActive(cache), false);
 	});
 });

@@ -6,6 +6,10 @@ import type {
 	LiveDataEntry,
 } from './types.js';
 import { defaultSetHeaders, isLiveDataEntry } from './utils.js';
+import type { NoopAstroCache } from './noop.js';
+
+const APPLY_HEADERS = Symbol.for('astro:cache:apply');
+const IS_ACTIVE = Symbol.for('astro:cache:active');
 
 export class AstroCache {
 	#options: CacheOptions = {};
@@ -72,8 +76,8 @@ export class AstroCache {
 		return this.#provider.invalidate(options);
 	}
 
-	/** Called by the framework after rendering to apply headers */
-	_applyHeaders(response: Response): void {
+	/** @internal */
+	[APPLY_HEADERS](response: Response): void {
 		if (this.#disabled) return;
 		const finalOptions: CacheOptions = { ...this.#options, tags: this.tags };
 		if (finalOptions.maxAge === undefined && !finalOptions.tags?.length) return;
@@ -84,7 +88,29 @@ export class AstroCache {
 		}
 	}
 
-	get _isActive(): boolean {
+	/** @internal */
+	get [IS_ACTIVE](): boolean {
 		return !this.#disabled && (this.#options.maxAge !== undefined || this.#tags.size > 0);
 	}
+}
+
+// --- Framework-internal helpers (not exported from the `astro` package) ---
+
+/**
+ * Apply cache headers to a response. No-ops for NoopAstroCache.
+ */
+export function applyCacheHeaders(cache: AstroCache | NoopAstroCache, response: Response): void {
+	if (APPLY_HEADERS in cache) {
+		(cache as AstroCache)[APPLY_HEADERS](response);
+	}
+}
+
+/**
+ * Check whether the cache has any active state worth acting on.
+ */
+export function isCacheActive(cache: AstroCache | NoopAstroCache): boolean {
+	if (IS_ACTIVE in cache) {
+		return (cache as AstroCache)[IS_ACTIVE];
+	}
+	return false;
 }

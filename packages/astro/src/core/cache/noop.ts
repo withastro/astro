@@ -13,10 +13,4 @@ export class NoopAstroCache {
 	}
 
 	async invalidate(_input: InvalidateOptions | LiveDataEntry): Promise<void> {}
-
-	_applyHeaders(_response: Response): void {}
-
-	get _isActive(): boolean {
-		return false;
-	}
 }
