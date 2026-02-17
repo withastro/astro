@@ -301,9 +301,9 @@ export const a11y: AuditRuleWithSelector[] = [
 			const nestedLabellableElement = element.querySelector(`${labellableElements.join(', ')}`);
 			if (!hasFor && !nestedLabellableElement) return true;
 
-			// Label must have text content, using innerText to ignore hidden text
-			const innerText = element.innerText.trim();
-			if (innerText === '') return true;
+			// Label must have text content
+			const textContent = element.textContent?.trim() ?? '';
+			if (textContent === '') return true;
 		},
 	},
 	{
@@ -367,9 +367,10 @@ export const a11y: AuditRuleWithSelector[] = [
 			'Headings and anchors must have an accessible name, which can come from: inner text, aria-label, aria-labelledby, an img with alt property, or an svg with a tag <title></title>.',
 		selector: a11y_required_content.join(','),
 		match(element: HTMLElement) {
-			// innerText is used to ignore hidden text
-			const innerText = element.innerText?.trim();
-			if (innerText && innerText !== '') return false;
+			// textContent is used instead of innerText so that content inside
+			// closed <details> elements is not falsely reported as missing
+			const textContent = element.textContent?.trim();
+			if (textContent && textContent !== '') return false;
 
 			// Check for aria-label
 			const ariaLabel = element.getAttribute('aria-label')?.trim();
@@ -381,7 +382,8 @@ export const a11y: AuditRuleWithSelector[] = [
 				const ids = ariaLabelledby.split(' ');
 				for (const id of ids) {
 					const referencedElement = document.getElementById(id);
-					if (referencedElement && referencedElement.innerText.trim() !== '') return false;
+					if (referencedElement && (referencedElement.textContent?.trim() ?? '') !== '')
+						return false;
 				}
 			}
 
@@ -417,7 +419,8 @@ export const a11y: AuditRuleWithSelector[] = [
 					const ids = inputAriaLabelledby.split(' ');
 					for (const id of ids) {
 						const referencedElement = document.getElementById(id);
-						if (referencedElement && referencedElement.innerText.trim() !== '') return false;
+						if (referencedElement && (referencedElement.textContent?.trim() ?? '') !== '')
+							return false;
 					}
 				}
 
