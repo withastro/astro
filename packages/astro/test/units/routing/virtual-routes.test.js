@@ -1,26 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { getPattern } from '../../../dist/core/routing/manifest/pattern.js';
 import { Router } from '../../../dist/core/routing/router.js';
-
-const staticPart = (content) => ({ content, dynamic: false, spread: false });
-
-const makeRoute = ({ segments, trailingSlash, route, pathname, origin = 'project' }) => {
-	return {
-		route,
-		component: route,
-		params: [],
-		pathname,
-		pattern: getPattern(segments, '/', trailingSlash),
-		segments,
-		type: 'page',
-		prerender: false,
-		fallbackRoutes: [],
-		distURL: [],
-		isIndex: false,
-		origin,
-	};
-};
+import { makeRoute, staticPart } from './test-helpers.js';
 
 describe('virtual routes (unit)', () => {
 	const trailingSlash = 'ignore';

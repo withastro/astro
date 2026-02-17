@@ -1,32 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { getPattern } from '../../../dist/core/routing/manifest/pattern.js';
 import { Router } from '../../../dist/core/routing/router.js';
-
-const staticPart = (content) => ({ content, dynamic: false, spread: false });
-const dynamicPart = (content) => ({ content, dynamic: true, spread: false });
-const spreadPart = (content) => ({ content, dynamic: true, spread: true });
-
-const makeRoute = ({ segments, trailingSlash, route, pathname, isIndex = false }) => {
-	const params = segments
-		.flat()
-		.filter((part) => part.dynamic)
-		.map((part) => part.content);
-	return {
-		route,
-		component: route,
-		params,
-		pathname,
-		pattern: getPattern(segments, '/', trailingSlash),
-		segments,
-		type: 'page',
-		prerender: false,
-		fallbackRoutes: [],
-		distURL: [],
-		isIndex,
-		origin: 'project',
-	};
-};
+import { dynamicPart, makeRoute, spreadPart, staticPart } from './test-helpers.js';
 
 describe('dynamic route collision (unit)', () => {
 	const trailingSlash = 'ignore';

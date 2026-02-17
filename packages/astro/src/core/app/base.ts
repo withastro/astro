@@ -240,7 +240,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 	private createRouter(manifestData: RoutesList): Router {
 		return new Router(manifestData.routes, {
-			base: '/',
+			base: this.manifest.base,
 			trailingSlash: this.manifest.trailingSlash,
 			buildFormat: this.manifest.buildFormat,
 		});

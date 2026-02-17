@@ -104,9 +104,11 @@ function isSemanticallyEqualSegment(segmentA: RoutePart[], segmentB: RoutePart[]
 	return true;
 }
 
+type RoutingSettings = Pick<AstroSettings, 'config' | 'injectedRoutes' | 'pageExtensions'>;
+
 interface CreateRouteManifestParams {
 	/** Astro Settings object */
-	settings: AstroSettings;
+	settings: RoutingSettings;
 	/** Current working directory */
 	cwd?: string;
 	/** fs module, for testing */
@@ -120,10 +122,7 @@ function createFileBasedRoutes(
 	const { config } = settings;
 	const pages = resolvePages(config);
 	const localFs = fsMod ?? nodeFs;
-	const pagesRoot = fileURLToPath(pages);
 	const rootPath = fileURLToPath(config.root);
-	const basePath = cwd ?? rootPath;
-	const pagesDirRelative = slash(path.relative(basePath, pagesRoot));
 
 	if (!localFs.existsSync(pages)) {
 		if (settings.injectedRoutes.length === 0) {
@@ -133,13 +132,139 @@ function createFileBasedRoutes(
 		return [];
 	}
 
-	const entriesByDir = collectRouteEntriesByDir(localFs, pagesRoot);
-	return createRoutesFromEntriesByDir(entriesByDir, settings, logger, pagesDirRelative);
+	const routes: RouteData[] = [];
+	const validPageExtensions = new Set<string>([
+		'.astro',
+		...SUPPORTED_MARKDOWN_FILE_EXTENSIONS,
+		...settings.pageExtensions,
+	]);
+	const invalidPotentialPages = new Set<string>(['.tsx', '.jsx', '.vue', '.svelte']);
+	const validEndpointExtensions = new Set<string>(['.js', '.ts']);
+	const prerender = getPrerenderDefault(settings.config);
+
+	function walk(
+		fs: typeof nodeFs,
+		dir: string,
+		parentSegments: RoutePart[][],
+		parentParams: string[],
+	) {
+		const items: Item[] = [];
+		const files = fs.readdirSync(dir);
+		for (const basename of files) {
+			const resolved = path.join(dir, basename);
+			const file = slash(path.relative(cwd || rootPath, resolved));
+			const isDir = fs.statSync(resolved).isDirectory();
+
+			const ext = path.extname(basename);
+			const name = ext ? basename.slice(0, -ext.length) : basename;
+			if (name[0] === '_') {
+				continue;
+			}
+			if (basename[0] === '.' && basename !== '.well-known') {
+				continue;
+			}
+			if (!isDir && !validPageExtensions.has(ext) && !validEndpointExtensions.has(ext)) {
+				if (invalidPotentialPages.has(ext)) {
+					logger.warn(
+						null,
+						`Unsupported file type ${colors.bold(
+							resolved,
+						)} found in pages directory. Only Astro files can be used as pages. Prefix filename with an underscore (\`_\`) to ignore this warning, or move the file outside of the pages directory.`,
+					);
+				}
+
+				continue;
+			}
+			const segment = isDir ? basename : name;
+			validateSegment(segment, file);
+
+			const parts = getParts(segment, file);
+			const isIndex = isDir ? false : basename.substring(0, basename.lastIndexOf('.')) === 'index';
+			const routeSuffix = basename.slice(basename.indexOf('.'), -ext.length);
+			const isPage = validPageExtensions.has(ext);
+
+			items.push({
+				basename,
+				ext,
+				parts,
+				file: file.replace(/\\/g, '/'),
+				isDir,
+				isIndex,
+				isPage,
+				routeSuffix,
+			});
+		}
+
+		for (const item of items) {
+			const segments = parentSegments.slice();
+
+			if (item.isIndex) {
+				if (item.routeSuffix) {
+					if (segments.length > 0) {
+						const lastSegment = segments[segments.length - 1].slice();
+						const lastPart = lastSegment[lastSegment.length - 1];
+
+						if (lastPart.dynamic) {
+							lastSegment.push({
+								dynamic: false,
+								spread: false,
+								content: item.routeSuffix,
+							});
+						} else {
+							lastSegment[lastSegment.length - 1] = {
+								dynamic: false,
+								spread: false,
+								content: `${lastPart.content}${item.routeSuffix}`,
+							};
+						}
+
+						segments[segments.length - 1] = lastSegment;
+					} else {
+						segments.push(item.parts);
+					}
+				}
+			} else {
+				segments.push(item.parts);
+			}
+
+			const params = parentParams.slice();
+			params.push(...item.parts.filter((p) => p.dynamic).map((p) => p.content));
+
+			if (item.isDir) {
+				walk(fsMod ?? fs, path.join(dir, item.basename), segments, params);
+			} else {
+				const component = item.file;
+				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
+					? `/${segments.map((segment) => segment[0].content).join('/')}`
+					: null;
+				const trailingSlash = trailingSlashForPath(pathname, settings.config);
+				const pattern = getPattern(segments, settings.config.base, trailingSlash);
+				const route = joinSegments(segments);
+				routes.push({
+					route,
+					isIndex: item.isIndex,
+					type: item.isPage ? 'page' : 'endpoint',
+					pattern,
+					segments,
+					params,
+					component,
+					pathname: pathname || undefined,
+					prerender,
+					fallbackRoutes: [],
+					distURL: [],
+					origin: 'project',
+				});
+			}
+		}
+	}
+
+	walk(localFs, fileURLToPath(pages), [], []);
+	return routes;
 }
 
 export function createRoutesFromEntries(
 	entries: RouteEntry[],
-	settings: AstroSettings,
+	settings: RoutingSettings,
 	logger: Logger,
 	pagesDirRelative = 'src/pages',
 ): RouteData[] {
@@ -149,7 +274,7 @@ export function createRoutesFromEntries(
 
 function createRoutesFromEntriesByDir(
 	entriesByDir: Map<string, RouteEntry[]>,
-	settings: AstroSettings,
+	settings: RoutingSettings,
 	logger: Logger,
 	pagesDirRelative: string,
 ): RouteData[] {
@@ -295,37 +420,6 @@ function groupEntriesByDir(entries: RouteEntry[]): Map<string, RouteEntry[]> {
 		}
 	}
 
-	return entriesByDir;
-}
-
-function collectRouteEntriesByDir(fs: typeof nodeFs, rootDir: string): Map<string, RouteEntry[]> {
-	const entriesByDir = new Map<string, RouteEntry[]>();
-
-	function addEntry(entry: RouteEntry) {
-		const dir = path.posix.dirname(entry.path);
-		const key = dir === '.' ? '' : dir;
-		const list = entriesByDir.get(key);
-		if (list) {
-			list.push(entry);
-		} else {
-			entriesByDir.set(key, [entry]);
-		}
-	}
-
-	function walk(dir: string) {
-		const files = fs.readdirSync(dir);
-		for (const basename of files) {
-			const resolved = path.join(dir, basename);
-			const isDir = fs.statSync(resolved).isDirectory();
-			const relative = slash(path.relative(rootDir, resolved));
-			addEntry({ path: relative, isDir });
-			if (isDir) {
-				walk(resolved);
-			}
-		}
-	}
-
-	walk(rootDir);
 	return entriesByDir;
 }
 
