@@ -1,5 +1,5 @@
 ---
-'astro': patch
+'@astrojs/vercel': patch
 ---
 
 Create new `middlewareMode` adapter feature and deprecate `edgeMiddleware` option
@@ -8,7 +8,7 @@ The `edgeMiddleware` option is now deprecated and will be removed in a future re
 
 ```diff
 export default defineConfig({
-  adapter: myAdapter({
+  adapter: vercel({
 -    edgeMiddleware: true
 +    middlewareMode: 'edge'
   })
