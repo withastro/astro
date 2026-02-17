@@ -2,7 +2,8 @@ import { test as base, expect } from '@playwright/test';
 import { loadFixture, waitForHydrate } from './test-utils.js';
 
 const test = base.extend({
-	astro: async (_, use) => {
+	// biome-ignore lint/correctness/noEmptyPattern: playwright needs this
+	astro: async ({}, use) => {
 		const fixture = await loadFixture(import.meta.url, { root: './fixtures/nested-recursive/' });
 		await use(fixture);
 	},
