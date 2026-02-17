@@ -46,14 +46,14 @@ export function resetJSXQueueStats() {
 }
 
 /**
- * Processes JSX vnodes and adds them to the render queue.
+ * Processes JSX VNodes and adds them to the render queue.
  * Unlike renderJSX(), this doesn't build strings recursively -
  * it pushes nodes directly to the queue for batching and memory efficiency.
  *
  * This function handles JSX created by astro:jsx (JSX in .astro files).
- * It converts vnodes to queue nodes, enabling content-aware pooling and batching.
+ * It converts VNodes to queue nodes, enabling content-aware pooling and batching.
  *
- * @param vnode - JSX vnode to process
+ * @param vnode - JSX VNode to process
  * @param result - SSR result context
  * @param queue - Queue to append nodes to
  * @param pool - Node pool for memory efficiency
@@ -71,7 +71,7 @@ export function renderJSXToQueue(
 	metadata?: StackItem['metadata'],
 ): void {
 	// Track that JSX queue rendering is being used
-	jsxQueueStats.vnodeCount++;
+	jsxQueueStats.vnodeCount = jsxQueueStats.vnodeCount + 1;
 
 	// Handle primitive types
 	if (vnode instanceof HTMLString) {
@@ -106,13 +106,13 @@ export function renderJSXToQueue(
 	// Handle arrays - push each item to stack
 	if (Array.isArray(vnode)) {
 		// Push in reverse order so they're popped in correct order
-		for (let i = vnode.length - 1; i >= 0; i--) {
+		for (let i = vnode.length - 1; i >= 0; i = i - 1) {
 			stack.push({ node: vnode[i], parent, metadata });
 		}
 		return;
 	}
 
-	// Handle vnodes
+	// Handle VNodes
 	if (!isVNode(vnode)) {
 		// Fallback: convert to string
 		const str = String(vnode);
@@ -150,7 +150,7 @@ function handleVNode(
 
 	// Astro component factory
 	if (isAstroComponentFactory(vnode.type)) {
-		jsxQueueStats.componentCount++;
+		jsxQueueStats.componentCount = jsxQueueStats.componentCount + 1;
 		const factory = vnode.type;
 		let props: Record<string, any> = {};
 		let slots: Record<string, any> = {};
@@ -158,7 +158,7 @@ function handleVNode(
 		for (const [key, value] of Object.entries(vnode.props ?? {})) {
 			if (key === 'children' || (value && typeof value === 'object' && value['$$slot'])) {
 				// Slots need to return rendered content
-				// We create a function that renders the JSX vnode to string
+				// We create a function that renders the JSX VNode to string
 				slots[key === 'children' ? 'default' : key] = () => renderJSX(result, value);
 			} else {
 				props[key] = value;
@@ -177,7 +177,7 @@ function handleVNode(
 
 	// HTML element (string type like 'div', 'span')
 	if (typeof vnode.type === 'string' && vnode.type !== ClientOnlyPlaceholder) {
-		jsxQueueStats.elementCount++;
+		jsxQueueStats.elementCount = jsxQueueStats.elementCount + 1;
 		renderHTMLElement(vnode, result, queue, pool, stack, parent, metadata);
 		return;
 	}
@@ -223,7 +223,7 @@ function renderHTMLElement(
 	const isVoidElement = (children == null || children === '') && voidElementNames.test(tag);
 
 	if (isVoidElement) {
-		// Self-closing element as html-string (cached by content)
+		// Self-closing element as HTML-string (cached by content)
 		const html = `<${tag}${attrs}/>`;
 		const node = pool.acquire('html-string', html) as HtmlStringNode;
 		node.html = html;
@@ -232,7 +232,7 @@ function renderHTMLElement(
 	}
 
 	// Non-void element: open tag + children + close tag
-	// Build opening tag as html-string (cached by content)
+	// Build opening tag as HTML-string (cached by content)
 	const openTag = `<${tag}${attrs}>`;
 	const openTagHtml = queue.htmlStringCache
 		? queue.htmlStringCache.getOrCreate(openTag)
@@ -246,7 +246,7 @@ function renderHTMLElement(
 		stack.push({ node: processedChildren, parent, metadata });
 	}
 
-	// Create closing tag as html-string (cached by content)
+	// Create closing tag as HTML-string (cached by content)
 	const closeTag = `</${tag}>`;
 	const closeTagHtml = queue.htmlStringCache
 		? queue.htmlStringCache.getOrCreate(closeTag)

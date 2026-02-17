@@ -42,6 +42,8 @@ export default defineConfig({
 
 The third sub-feature is content caching. It allows to cache **values** of nodes during the rendering phase. Among the new tools, this seemed to be the least useful, so for now it's not possible to control its size:
 
+When disabled, the pool engine won't cache strings, but only types.
+
 ```js
 // astro.config.mjs
 export default defineConfig({
