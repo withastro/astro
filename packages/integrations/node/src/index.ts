@@ -21,7 +21,7 @@ export function getAdapter(options: Options): AstroAdapter {
 		args: options,
 		adapterFeatures: {
 			buildOutput: 'server',
-			middlewareMode: options.middlewareMode ?? 'classic',
+			middlewareMode: 'classic',
 			staticHeaders: options.staticHeaders,
 		},
 		supportedAstroFeatures: {
@@ -41,7 +41,7 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 	if (!userOptions?.mode) {
 		throw new AstroError(`Setting the 'mode' option is required.`);
 	}
-	const { experimentalErrorPageHost, middlewareMode } = userOptions;
+	const { experimentalErrorPageHost } = userOptions;
 	if (
 		experimentalErrorPageHost &&
 		(!URL.canParse(experimentalErrorPageHost) ||
@@ -104,7 +104,6 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 					port: config.server.port,
 					assets: config.build.assets,
 					staticHeaders: userOptions.staticHeaders ?? false,
-					middlewareMode,
 					experimentalErrorPageHost,
 				};
 				setAdapter(getAdapter(_options));

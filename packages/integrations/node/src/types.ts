@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { MiddlewareMode, SSRManifest } from 'astro';
+import type { SSRManifest } from 'astro';
 
 export interface UserOptions {
 	/**
@@ -9,10 +9,6 @@ export interface UserOptions {
 	 * - 'standalone' - Build to a standalone server. The server starts up just by running the built script.
 	 */
 	mode: 'middleware' | 'standalone';
-	/**
-	 * Controls when and how middleware executes.
-	 */
-	middlewareMode?: Exclude<MiddlewareMode, 'edge'>;
 	/**
 	 * Disables HTML streaming. This is useful for example if there are constraints from your host.
 	 */
