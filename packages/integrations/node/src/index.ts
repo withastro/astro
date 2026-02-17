@@ -7,6 +7,7 @@ import type { HeadersJson, UserOptions } from './types.js';
 import { sessionDrivers } from 'astro/config';
 import { createConfigPlugin } from './vite-plugin-config.js';
 import { createRequire } from 'node:module';
+export type { CreateNodePreviewServer } from './types.js';
 
 const protocols = ['http:', 'https:'];
 

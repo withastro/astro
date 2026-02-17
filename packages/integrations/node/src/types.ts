@@ -2,7 +2,11 @@ import type { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'node:
 import type { AstroIntegrationLogger, PreviewServer, SSRManifest } from 'astro';
 
 export interface UserOptions {
-	/** TODO: */
+	/**
+	 * The path to a custom server entry point. It can be a URL, a relative path from the project root or a package import.
+	 * 
+	 * By default, the adapter provides a standalone HTTP server.
+	 */
 	serverEntrypoint?: string | URL;
 
 	/**
@@ -49,7 +53,6 @@ export type RequestHandler = (
 
 export type NodePreviewServer = Pick<PreviewServer, 'closed' | 'stop'>;
 
-// TODO: export from index
 export type CreateNodePreviewServer = (options: {
 	host: string;
 	port: number;
