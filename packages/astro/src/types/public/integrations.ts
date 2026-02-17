@@ -89,8 +89,8 @@ export interface AstroAdapterFeatures {
 
 	/**
 	 * Allows you to force a specific output shape for the build. This can be useful for adapters that only work with
-	 * a specific output type. For example, your adapter might expect a static website, but uses an adapter to create
-	 * host-specific files. Defaults to `server` if not specified.
+	 * a specific output type. For example, your adapter might expect a static website so it can create host-specific
+	 * files. Defaults to `server` if not specified.
 	 */
 	buildOutput?: 'static' | 'server';
 
