@@ -1,9 +1,9 @@
 import { fileURLToPath } from 'node:url';
 import { writeJson } from '@astrojs/internal-helpers/fs';
-import type { AstroConfig, AstroIntegration, NodeAppHeadersJson, RouteToHeaders } from 'astro';
+import type { AstroConfig, AstroIntegration, RouteToHeaders } from 'astro';
 import { AstroError } from 'astro/errors';
 import { STATIC_HEADERS_FILE } from './shared.js';
-import type { UserOptions } from './types.js';
+import type { HeadersJson, UserOptions } from './types.js';
 import { sessionDrivers } from 'astro/config';
 import { createConfigPlugin } from './vite-plugin-config.js';
 import { createRequire } from 'node:module';
@@ -82,7 +82,7 @@ export default function createIntegration(userOptions: UserOptions = {}): AstroI
 				_config = config;
 				setAdapter({
 					name: '@astrojs/node',
-					entryType: 'self',
+					entrypointResolution: 'auto',
 					serverEntrypoint: userOptions.serverEntrypoint
 						? typeof userOptions.serverEntrypoint === 'string'
 							? createRequire(_config.root).resolve(userOptions.serverEntrypoint)
@@ -111,7 +111,7 @@ export default function createIntegration(userOptions: UserOptions = {}): AstroI
 
 				if (_routeToHeaders && _routeToHeaders.size > 0) {
 					const headersFileUrl = new URL(STATIC_HEADERS_FILE, _config.outDir);
-					const headersValue: NodeAppHeadersJson = [];
+					const headersValue: HeadersJson = [];
 
 					for (const [pathname, { headers }] of _routeToHeaders.entries()) {
 						if (_config.security.csp) {

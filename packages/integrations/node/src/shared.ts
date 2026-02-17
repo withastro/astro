@@ -2,8 +2,7 @@ import * as path from 'node:path';
 import * as fs from 'node:fs';
 import * as url from 'node:url';
 import { appendForwardSlash } from '@astrojs/internal-helpers/path';
-import type { Options } from './types.js';
-import type { NodeAppHeadersJson } from 'astro';
+import type { HeadersJson, Options } from './types.js';
 import { Readable } from 'node:stream';
 
 export const STATIC_HEADERS_FILE = '_headers.json';
@@ -40,14 +39,14 @@ export function resolveClientDir(options: Pick<Options, 'client' | 'server'>) {
 	return url.fileURLToPath(clientURL);
 }
 
-export function readHeadersJson(outDir: string | URL): NodeAppHeadersJson | undefined {
-	let headersMap: NodeAppHeadersJson | undefined = undefined;
+export function readHeadersJson(outDir: string | URL): HeadersJson | undefined {
+	let headersMap: HeadersJson | undefined = undefined;
 
 	const headersUrl = new URL(STATIC_HEADERS_FILE, outDir);
 	if (fs.existsSync(headersUrl)) {
 		const content = fs.readFileSync(headersUrl, 'utf-8');
 		try {
-			headersMap = JSON.parse(content) as NodeAppHeadersJson;
+			headersMap = JSON.parse(content) as HeadersJson;
 		} catch (e: any) {
 			console.error('[@astrojs/node] Error parsing _headers.json: ' + e.message);
 			console.error('[@astrojs/node] Please make sure your _headers.json is valid JSON.');

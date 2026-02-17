@@ -1,4 +1,4 @@
-import { NodeApp } from 'astro/app/node';
+import { createRequest, writeResponse } from 'astro/app/node';
 import type { RequestHandler, Options } from './types.js';
 import { createHandleRequestDeps, handleRequest } from './handler.js';
 import type { BaseApp } from 'astro/app';
@@ -17,8 +17,8 @@ export function createAppHandler(
 	return async (req, res, next, locals) => {
 		let request: Request;
 		try {
-			request = NodeApp.createRequest(req, {
-				allowedDomains: app.getAllowedDomains?.() ?? [],
+			request = createRequest(req, {
+				allowedDomains: app.manifest.allowedDomains,
 			});
 		} catch (err) {
 			app.getAdapterLogger().error(`Could not render ${req.url}`);
@@ -37,7 +37,7 @@ export function createAppHandler(
 			prerenderedErrorPageFetch,
 		});
 		if (response instanceof Response) {
-			await NodeApp.writeResponse(response, res);
+			await writeResponse(response, res);
 		}
 		// If not a response, it means next() has been called
 	};

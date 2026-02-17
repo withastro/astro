@@ -3,10 +3,10 @@ import * as http from 'node:http';
 import * as https from 'node:https';
 import enableDestroy from 'server-destroy';
 import * as fs from 'node:fs';
-import type { NodeApp } from 'astro/app/node';
+import type { BaseApp } from 'astro/app';
 import { createAppHandler } from './serve-app.js';
 import { createStaticHandler } from './serve-static.js';
-import type { NodeAppHeadersJson } from 'astro';
+import type { HeadersJson } from './types.js';
 import { LOGGING_KEY, readHeadersJson } from './shared.js';
 import { logListeningOn } from './log-listening-on.js';
 
@@ -19,11 +19,12 @@ export function hostOptions(host: Options['host']): string {
 }
 
 export function createStandaloneHandler(
-	app: NodeApp,
+	app: BaseApp,
 	options: Parameters<typeof createAppHandler>[1] & Parameters<typeof createStaticHandler>[1],
+	headers: HeadersJson | undefined,
 ): RequestHandler {
 	const appHandler = createAppHandler(app, options);
-	const staticHandler = createStaticHandler(app, options);
+	const staticHandler = createStaticHandler(app, options, headers);
 	return (req, res, next, locals) => {
 		try {
 			// validate request path
@@ -56,20 +57,13 @@ export function createServer(listener: http.RequestListener) {
 	return httpServer;
 }
 
-export function startServer(app: NodeApp, options: Options) {
-	let headersMap: NodeAppHeadersJson | undefined = undefined;
-	if (options.staticHeaders) {
-		headersMap = readHeadersJson(app.manifest.outDir);
-	}
-
-	if (headersMap) {
-		app.setHeadersMap(headersMap);
-	}
+export function startServer(app: BaseApp, options: Options) {
+	const headers = options.staticHeaders ? readHeadersJson(app.manifest.outDir) : undefined;
 
 	const port = process.env.PORT ? Number(process.env.PORT) : options.port;
 	const host = process.env.HOST ?? hostOptions(options.host);
 
-	const server = createServer(createStandaloneHandler(app, options));
+	const server = createServer(createStandaloneHandler(app, options, headers));
 	server.listen(port, host);
 	if (process.env[LOGGING_KEY] !== 'disabled') {
 		logListeningOn(app.getAdapterLogger(), server, host);

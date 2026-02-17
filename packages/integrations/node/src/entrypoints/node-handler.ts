@@ -1,13 +1,12 @@
 import type { RequestHandler } from '../types.js';
-import { NodeApp } from 'astro/app/node';
-import { manifest } from 'virtual:astro:manifest';
+import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
 import * as options from 'virtual:astro-node:config';
 import { createAppHandler } from '../serve-app.js';
 
 setGetEnv((key) => process.env[key]);
 
-const app = new NodeApp(manifest, !options.experimentalDisableStreaming);
+const app = createApp({ streaming: !options.experimentalDisableStreaming });
 const appHandler = createAppHandler(app, options);
 const logger = app.getAdapterLogger();
 

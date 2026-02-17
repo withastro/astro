@@ -3,13 +3,14 @@ import {
 	isInternalPath,
 	prependForwardSlash,
 } from '@astrojs/internal-helpers/path';
-import type { NodeApp } from 'astro/app/node';
+import type { BaseApp } from 'astro/app';
 import * as fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import * as path from 'node:path';
 import send from 'send';
 import { resolveClientDir } from './shared.js';
-import type { Options } from './types.js';
+import type { HeadersJson, Options } from './types.js';
+import { createRequest } from 'astro/app/node';
 
 /**
  * Creates a Node.js http listener for static files and prerendered pages.
@@ -18,8 +19,9 @@ import type { Options } from './types.js';
  * Intended to be used only in the standalone mode.
  */
 export function createStaticHandler(
-	app: NodeApp,
+	app: BaseApp,
 	options: Pick<Options, 'trailingSlash' | 'assets' | 'server' | 'client'>,
+	headers: HeadersJson | undefined,
 ) {
 	const client = resolveClientDir(options);
 	/**
@@ -44,10 +46,13 @@ export function createStaticHandler(
 			const hasSlash = urlPath.endsWith('/');
 			let pathname = urlPath;
 
-			if (app.headersMap && app.headersMap.length > 0) {
-				const routeData = app.match(req, true);
+			if (headers && headers.length > 0) {
+				const request = createRequest(req, {
+					allowedDomains: app.manifest.allowedDomains,
+				});
+				const routeData = app.match(request, true);
 				if (routeData && routeData.prerender) {
-					const matchedRoute = app.headersMap.find((header) => header.pathname.includes(pathname));
+					const matchedRoute = headers.find((header) => header.pathname.includes(pathname));
 					if (matchedRoute) {
 						for (const header of matchedRoute.headers) {
 							res.setHeader(header.key, header.value);

@@ -49,9 +49,18 @@ export type RequestHandler = (
 
 export type NodePreviewServer = Pick<PreviewServer, 'closed' | 'stop'>;
 
+// TODO: export from index
 export type CreateNodePreviewServer = (options: {
 	host: string;
 	port: number;
 	logger: AstroIntegrationLogger;
 	headers: OutgoingHttpHeaders | undefined;
 }) => NodePreviewServer | Promise<NodePreviewServer>;
+
+export type HeadersJson = {
+	pathname: string;
+	headers: {
+		key: string;
+		value: string;
+	}[];
+}[];

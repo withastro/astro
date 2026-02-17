@@ -1,7 +1,6 @@
-import { NodeApp } from 'astro/app/node';
+import { createApp } from 'astro/app/entrypoint';
 import { setGetEnv } from 'astro/env/setup';
 import * as options from 'virtual:astro-node:config';
-import { manifest } from 'virtual:astro:manifest';
 import { createServer, createStandaloneHandler, startServer } from '../create-server.js';
 import { logListeningOn } from '../log-listening-on.js';
 import { LOGGING_KEY } from '../shared.js';
@@ -10,7 +9,7 @@ import { isPreview } from './utils.js';
 
 setGetEnv((key) => process.env[key]);
 
-const app = new NodeApp(manifest, !options.experimentalDisableStreaming);
+const app = createApp({ streaming: !options.experimentalDisableStreaming });
 
 if (!isPreview()) {
 	startServer(app, options);
@@ -22,7 +21,7 @@ export const createNodePreviewServer: CreateNodePreviewServer = async ({
 	logger,
 	headers,
 }) => {
-	const server = createServer(createStandaloneHandler(app, options));
+	const server = createServer(createStandaloneHandler(app, options, undefined));
 
 	// If user specified custom headers append a listener
 	// to the server to add those headers to response
