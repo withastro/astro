@@ -1,4 +1,4 @@
-import type { RoutePart } from '../../../types/public/index.js';
+import type { RoutePart } from '../../types/public/index.js';
 
 // Disable eslint as we're not sure how to improve this regex yet
 // eslint-disable-next-line regexp/no-super-linear-backtracking

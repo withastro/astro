@@ -6,7 +6,7 @@ import {
 	SERVER_ISLAND_COMPONENT,
 	SERVER_ISLAND_ROUTE,
 } from '../server-islands/endpoint.js';
-import { DEFAULT_404_ROUTE, default404Instance } from './astro-designed-error-pages.js';
+import { DEFAULT_404_ROUTE, default404Instance } from './internal/astro-designed-error-pages.js';
 
 type DefaultRouteParams = {
 	instance: ComponentInstance;

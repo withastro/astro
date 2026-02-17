@@ -4,26 +4,26 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pLimit from 'p-limit';
 import colors from 'piccolore';
-import { injectImageEndpoint } from '../../../assets/endpoint/config.js';
-import { runHookRoutesResolved } from '../../../integrations/hooks.js';
-import { getPrerenderDefault } from '../../../prerender/utils.js';
-import type { AstroSettings, RoutesList } from '../../../types/astro.js';
-import type { AstroConfig } from '../../../types/public/config.js';
-import type { RouteData, RoutePart } from '../../../types/public/internal.js';
-import { toRoutingStrategy } from '../../app/index.js';
-import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
+import { injectImageEndpoint } from '../../assets/endpoint/config.js';
+import { runHookRoutesResolved } from '../../integrations/hooks.js';
+import { getPrerenderDefault } from '../../prerender/utils.js';
+import type { AstroSettings, RoutesList } from '../../types/astro.js';
+import type { AstroConfig } from '../../types/public/config.js';
+import type { RouteData, RoutePart } from '../../types/public/internal.js';
+import { toRoutingStrategy } from '../app/index.js';
+import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../constants.js';
 import {
 	InvalidRedirectDestination,
 	MissingIndexForInternationalization,
 	UnsupportedExternalRedirect,
-} from '../../errors/errors-data.js';
-import { AstroError } from '../../errors/index.js';
-import type { Logger } from '../../logger/core.js';
-import { hasFileExtension, removeLeadingForwardSlash, slash } from '../../path.js';
-import { injectServerIslandRoute } from '../../server-islands/endpoint.js';
-import { resolvePages } from '../../util.js';
-import { ensure404Route } from '../astro-designed-error-pages.js';
-import { routeComparator } from '../priority.js';
+} from '../errors/errors-data.js';
+import { AstroError } from '../errors/index.js';
+import type { Logger } from '../logger/core.js';
+import { hasFileExtension, removeLeadingForwardSlash, slash } from '../path.js';
+import { injectServerIslandRoute } from '../server-islands/endpoint.js';
+import { resolvePages } from '../util.js';
+import { ensure404Route } from './astro-designed-error-pages.js';
+import { routeComparator } from './priority.js';
 import { getPattern } from './pattern.js';
 import { getRoutePrerenderOption } from './prerender.js';
 import { validateSegment } from './segment.js';
@@ -104,11 +104,14 @@ function isSemanticallyEqualSegment(segmentA: RoutePart[], segmentB: RoutePart[]
 	return true;
 }
 
-type RoutingSettings = Pick<AstroSettings, 'config' | 'injectedRoutes' | 'pageExtensions'>;
+type RoutingSettings = Pick<
+	AstroSettings,
+	'config' | 'injectedRoutes' | 'pageExtensions' | 'buildOutput'
+>;
 
 interface CreateRouteManifestParams {
 	/** Astro Settings object */
-	settings: RoutingSettings;
+	settings: AstroSettings;
 	/** Current working directory */
 	cwd?: string;
 	/** fs module, for testing */

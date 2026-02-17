@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createRoutesFromEntries } from '../../../dist/core/routing/manifest/create.js';
+import { createRoutesFromEntries } from '../../../dist/core/routing/create-manifest.js';
 
 const baseSettings = {
 	config: {

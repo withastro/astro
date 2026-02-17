@@ -8,7 +8,7 @@ import type { ModuleLoader } from '../core/module-loader/index.js';
 import { RedirectComponentInstance } from '../core/redirects/index.js';
 import { loadRenderer } from '../core/render/index.js';
 import { createDefaultRoutes } from '../core/routing/default.js';
-import { routeIsRedirect } from '../core/routing/index.js';
+import { routeIsRedirect } from '../core/routing/helpers.js';
 import { findRouteToRewrite } from '../core/routing/rewrite.js';
 import { isPage } from '../core/util.js';
 import type {

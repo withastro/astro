@@ -1,4 +1,4 @@
-import { getPattern } from '../../../dist/core/routing/manifest/pattern.js';
+import { getPattern } from '../../../dist/core/routing/pattern.js';
 
 const staticPart = (content) => ({ content, dynamic: false, spread: false });
 const dynamicPart = (content) => ({ content, dynamic: true, spread: false });

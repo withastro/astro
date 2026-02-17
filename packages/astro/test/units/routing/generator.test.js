@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { getRouteGenerator } from '../../../dist/core/routing/manifest/generator.js';
+import { getRouteGenerator } from '../../../dist/core/routing/generator.js';
 
 describe('routing - generator', () => {
 	[

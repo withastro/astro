@@ -1,8 +1,8 @@
-import { runHookRouteSetup } from '../../../integrations/hooks.js';
-import { getPrerenderDefault } from '../../../prerender/utils.js';
-import type { AstroSettings } from '../../../types/astro.js';
-import type { RouteData } from '../../../types/public/internal.js';
-import type { Logger } from '../../logger/core.js';
+import { runHookRouteSetup } from '../../integrations/hooks.js';
+import { getPrerenderDefault } from '../../prerender/utils.js';
+import type { AstroSettings } from '../../types/astro.js';
+import type { RouteData } from '../../types/public/internal.js';
+import type { Logger } from '../logger/core.js';
 
 const PRERENDER_REGEX = /^\s*export\s+const\s+prerender\s*=\s*(true|false);?/m;
 

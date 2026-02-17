@@ -9,7 +9,7 @@ import type { AstroConfig } from '../../types/public/index.js';
 import type { RouteData } from '../../types/public/internal.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { joinPaths } from '../path.js';
-import { getRouteGenerator } from '../routing/manifest/generator.js';
+import { getRouteGenerator } from '../routing/generator.js';
 
 export function generatePaginateFunction(
 	routeMatch: RouteData,

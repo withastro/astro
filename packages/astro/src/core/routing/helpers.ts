@@ -1,7 +1,7 @@
 import type { RouteData } from '../../types/public/internal.js';
 import type { RouteInfo } from '../app/types.js';
 import type { RoutesList } from '../../types/astro.js';
-import { isRoute404, isRoute500 } from './match.js';
+import { isRoute404, isRoute500 } from './internal/route-errors.js';
 
 type RedirectRouteData = RouteData & {
 	redirect: string;
