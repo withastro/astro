@@ -6,7 +6,7 @@ import type { QueueNode, RenderQueue } from './types.js';
 /**
  * Renders a queue of nodes to a destination.
  * This function processes nodes sequentially with batching optimization.
- * Consecutive batchable nodes (text, html-string, simple elements) are
+ * Consecutive batchable nodes (text, HTML-string, simple elements) are
  * combined into a single write to reduce overhead.
  *
  * @param queue - The render queue to process
@@ -32,7 +32,7 @@ export async function renderQueue(
 				const batchStart = i;
 				while (i < queue.nodes.length && canBatch(queue.nodes[i])) {
 					batchBuffer += renderNodeToString(queue.nodes[i]);
-					i++;
+					i = i + 1;
 				}
 
 				// Flush accumulated batch
@@ -58,7 +58,7 @@ export async function renderQueue(
 					pool.release(node);
 				}
 
-				i++;
+				i = i + 1;
 			}
 		} catch (error) {
 			// Stop on first error as requested

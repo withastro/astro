@@ -60,24 +60,24 @@ export class NodePool {
 	 *
 	 * @param maxSize - Maximum number of nodes to keep in the pool (default: 1000)
 	 * @param enableStats - Enable statistics tracking (default: false for performance)
-	 * @param enableContentCache - Enable content-aware caching for text/html nodes (default: true)
+	 * @param enableContentCache - Enable content-aware caching for text/HTML nodes (default: true)
 	 */
 	constructor(maxSize = 1000, enableContentCache = false, enableStats = false) {
 		this.maxSize = maxSize;
 		this.enableStats = enableStats;
 		this.enableContentCache = enableContentCache;
 		if (maxSize > 0) {
-			// Warm up cache only if the pool size is bigger than 0. We treat zero as if there's no pool.
+			// Warm up cache only if the pool size is greater than 0. We treat zero as if there's no pool.
 			this.warmCache([...COMMON_HTML_PATTERNS]);
 		}
 	}
 
 	/**
-	 * Acquires a queue node from the pool or creates a new one if pool is empty.
-	 * Supports content-aware caching for text and html-string nodes.
+	 * Acquires a queue node from the pool or creates a new one if the pool is empty.
+	 * Supports content-aware caching for text and HTML-string nodes.
 	 *
 	 * @param type - The type of queue node to create
-	 * @param content - Optional content for content-aware caching (text or html)
+	 * @param content - Optional content for content-aware caching (text or HTML)
 	 * @returns A queue node ready to be populated with data
 	 */
 	acquire(type: QueueNode['type'], content?: string): QueueNode {
@@ -179,7 +179,7 @@ export class NodePool {
 				this.stats.releasedDropped = this.stats.releasedDropped + 1;
 			}
 		}
-		// If pool is full, let the node be garbage collected
+		// If the pool is full, let the node be garbage collected
 	}
 
 	/**
@@ -336,8 +336,8 @@ export const COMMON_HTML_PATTERNS = [
 ] as const;
 
 /**
- * Returns an instance of the `NodePool` based on its configuration
- * @param config
+ * Returns an instance of the `NodePool` based on its configuration.
+ * @param config - The queued rendering configuration from the SSR manifest
  */
 export function newNodePool(
 	config: NonNullable<SSRManifest['experimentalQueuedRendering']>,

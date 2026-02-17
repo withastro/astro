@@ -47,7 +47,10 @@ export async function buildRenderQueue(
 
 	// Process nodes depth-first
 	while (stack.length > 0) {
-		const item = stack.pop()!;
+		const item = stack.pop();
+		if (!item) {
+			continue;
+		}
 		let { node, parent } = item;
 
 		// Handle promises immediately (wait for resolution)
@@ -71,7 +74,7 @@ export async function buildRenderQueue(
 		// Handle different node types
 		if (typeof node === 'string') {
 			// Plain text content - use content-aware caching
-			// acquire('text', ...) returns TextNode, so we can safely assert
+			// Acquire('text', ...) returns TextNode, so we can safely assert
 			const queueNode = pool.acquire('text', node) as TextNode;
 			queueNode.content = node;
 			queue.nodes.push(queueNode);
@@ -105,10 +108,10 @@ export async function buildRenderQueue(
 			continue;
 		}
 
-		// Handle JSX vnodes (from MDX or JSX expressions)
+		// Handle JSX VNodes (from MDX or JSX expressions)
 		if (isVNode(node)) {
-			// Process JSX vnode through the JSX builder
-			// This will recursively handle the vnode and its children
+			// Process JSX VNode through the JSX builder
+			// This will push the VNode and its children onto the stack for processing
 			renderJSXToQueue(node, result, queue, pool, stack, parent, item.metadata);
 			continue;
 		}
@@ -138,7 +141,7 @@ export async function buildRenderQueue(
 			const expressions = node['expressions'];
 
 			// Push in forward order - stack pop() will reverse, then final reverse() corrects it
-			// Push first html part - mark as HTMLString so it won't be escaped
+			// Push first HTML part - mark as HTMLString so it won't be escaped
 			if (htmlParts[0]) {
 				const htmlString = queue.htmlStringCache
 					? queue.htmlStringCache.getOrCreate(htmlParts[0])
@@ -150,11 +153,11 @@ export async function buildRenderQueue(
 				});
 			}
 
-			// Interleave expressions and html parts
-			for (let i = 0; i < expressions.length; i++) {
+			// Interleave expressions and HTML parts
+			for (let i = 0; i < expressions.length; i = i + 1) {
 				// Push expression
 				stack.push({ node: expressions[i], parent, metadata: item.metadata });
-				// Push html part after expression - mark as HTMLString
+				// Push HTML part after expression - mark as HTMLString
 				if (htmlParts[i + 1]) {
 					const htmlString = queue.htmlStringCache
 						? queue.htmlStringCache.getOrCreate(htmlParts[i + 1])
