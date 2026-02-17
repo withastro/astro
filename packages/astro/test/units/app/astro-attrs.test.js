@@ -59,48 +59,48 @@ const attributesNamespacedComponentRouteData = {
 
 const attributesPage = createComponent(() => {
 	return render`
-    <a id="download-true" href="file.pdf" ${addAttribute(true, 'download')} />
-    <a id="download-false" href="file.pdf" ${addAttribute(false, 'download')} />
-    <a id="download-undefined" href="file.pdf" ${addAttribute(undefined, 'download')} />
-    <a id="download-string-empty" href="file.pdf" ${addAttribute('', 'download')}  />
-    <a id="download-string" href="file.pdf" ${addAttribute('my-document.pdf', 'download')} />
+    <a id="download-true" href="file.pdf"${addAttribute(true, 'download')} />
+    <a id="download-false" href="file.pdf"${addAttribute(false, 'download')} />
+    <a id="download-undefined" href="file.pdf"${addAttribute(undefined, 'download')} />
+    <a id="download-string-empty" href="file.pdf"${addAttribute('', 'download')}  />
+    <a id="download-string" href="file.pdf"${addAttribute('my-document.pdf', 'download')} />
 
-    <dialog id="popover-auto" ${addAttribute('auto', 'popover')} />
-    <dialog id="popover-true" ${addAttribute(true, 'popover')} />
-    <dialog id="popover-false" ${addAttribute(false, 'popover')} />
-    <dialog id="popover-string-empty" ${addAttribute('', 'popover')} />
+    <dialog id="popover-auto"${addAttribute('auto', 'popover')} />
+    <dialog id="popover-true"${addAttribute(true, 'popover')} />
+    <dialog id="popover-false"${addAttribute(false, 'popover')} />
+    <dialog id="popover-string-empty"${addAttribute('', 'popover')} />
 
-    <div id="hidden-until-found" ${addAttribute('until-found', 'hidden')} />
-    <div id="hidden-true" ${addAttribute(true, 'hidden')} />
-    <div id="hidden-false" ${addAttribute(false, 'hidden')} />
-    <div id="hidden-string-empty" ${addAttribute('', 'hidden')} />
+    <div id="hidden-until-found"${addAttribute('until-found', 'hidden')} />
+    <div id="hidden-true"${addAttribute(true, 'hidden')} />
+    <div id="hidden-false"${addAttribute(false, 'hidden')} />
+    <div id="hidden-string-empty"${addAttribute('', 'hidden')} />
 
-    <span id="boolean-attr-true" ${addAttribute(true, 'allowfullscreen')} />
-    <span id="boolean-attr-false" ${addAttribute(false, 'allowfullscreen')} />
-    <span id="boolean-attr-string-truthy" ${addAttribute('foo', 'allowfullscreen')} />
-    <span id="boolean-attr-string-falsy" ${addAttribute('', 'allowfullscreen')} />
-    <span id="boolean-attr-number-truthy" ${addAttribute(1, 'allowfullscreen')} />
-    <span id="boolean-attr-number-falsy" ${addAttribute(0, 'allowfullscreen')} />
+    <span id="boolean-attr-true"${addAttribute(true, 'allowfullscreen')} />
+    <span id="boolean-attr-false"${addAttribute(false, 'allowfullscreen')} />
+    <span id="boolean-attr-string-truthy"${addAttribute('foo', 'allowfullscreen')} />
+    <span id="boolean-attr-string-falsy"${addAttribute('', 'allowfullscreen')} />
+    <span id="boolean-attr-number-truthy"${addAttribute(1, 'allowfullscreen')} />
+    <span id="boolean-attr-number-falsy"${addAttribute(0, 'allowfullscreen')} />
 
-    <span id="data-attr-true" ${addAttribute(true, 'data-foobar')} />
-    <span id="data-attr-false" ${addAttribute(false, 'data-foobar')} />
-    <span id="data-attr-string-truthy" ${addAttribute('foo', 'data-foobar')} />
-    <span id="data-attr-string-falsy" ${addAttribute('', 'data-foobar')} />
-    <span id="data-attr-number-truthy" ${addAttribute(1, 'data-foobar')} />
-    <span id="data-attr-number-falsy" ${addAttribute(0, 'data-foobar')} />
+    <span id="data-attr-true"${addAttribute(true, 'data-foobar')} />
+    <span id="data-attr-false"${addAttribute(false, 'data-foobar')} />
+    <span id="data-attr-string-truthy"${addAttribute('foo', 'data-foobar')} />
+    <span id="data-attr-string-falsy"${addAttribute('', 'data-foobar')} />
+    <span id="data-attr-number-truthy"${addAttribute(1, 'data-foobar')} />
+    <span id="data-attr-number-falsy"${addAttribute(0, 'data-foobar')} />
 
-    <span id="normal-attr-true" ${addAttribute(true, 'foobar')} />
-    <span id="normal-attr-false" ${addAttribute(false, 'foobar')} />
-    <span id="normal-attr-string-truthy" ${addAttribute('foo', 'foobar')} />
-    <span id="normal-attr-string-falsy" ${addAttribute('', 'foobar')} />
-    <span id="normal-attr-number-truthy" ${addAttribute(1, 'foobar')} />
-    <span id="normal-attr-number-falsy" ${addAttribute(0, 'foobar')} />
+    <span id="normal-attr-true"${addAttribute(true, 'foobar')} />
+    <span id="normal-attr-false"${addAttribute(false, 'foobar')} />
+    <span id="normal-attr-string-truthy"${addAttribute('foo', 'foobar')} />
+    <span id="normal-attr-string-falsy"${addAttribute('', 'foobar')} />
+    <span id="normal-attr-number-truthy"${addAttribute(1, 'foobar')} />
+    <span id="normal-attr-number-falsy"${addAttribute(0, 'foobar')} />
 
-    <span id="null" ${addAttribute(null, 'attr')} />
-    <span id="undefined" ${addAttribute(undefined, 'attr')} />
+    <span id="null"${addAttribute(null, 'attr')} />
+    <span id="undefined"${addAttribute(undefined, 'attr')} />
 
-    <span id="url" ${addAttribute('https://example.com/api/og?title=hello&description=somedescription', 'attr')}/>
-    <span id="code" ${addAttribute('cmd: echo "foo" && echo "bar" > /tmp/hello.txt', 'attr')} />
+    <span id="url"${addAttribute('https://example.com/api/og?title=hello&description=somedescription', 'attr')}/>
+    <span id="code"${addAttribute('cmd: echo "foo" && echo "bar" > /tmp/hello.txt', 'attr')} />
 
     <!--
         Other attributes should be treated as string enums
