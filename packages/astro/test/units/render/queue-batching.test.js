@@ -75,7 +75,6 @@ describe('Queue batching optimization', () => {
 			},
 		};
 
-		const { renderQueue } = await import('../../../dist/runtime/server/render/queue/renderer.js');
 		await renderQueue(queue, destination);
 
 		// Should batch into single write
@@ -107,7 +106,6 @@ describe('Queue batching optimization', () => {
 			},
 		};
 
-		const { renderQueue } = await import('../../../dist/runtime/server/render/queue/renderer.js');
 		await renderQueue(queue, destination);
 
 		// Should have 3 writes: batched 'before', component output, batched 'after'
@@ -133,7 +131,6 @@ describe('Queue batching optimization', () => {
 			},
 		};
 
-		const { renderQueue } = await import('../../../dist/runtime/server/render/queue/renderer.js');
 		await renderQueue(queue, destination);
 
 		// With batching: 1 write (all text nodes batched together)
@@ -164,7 +161,6 @@ describe('Queue batching optimization', () => {
 			},
 		};
 
-		const { renderQueue } = await import('../../../dist/runtime/server/render/queue/renderer.js');
 		await renderQueue(queue, destination);
 
 		// All should be batched since they're all batchable types
