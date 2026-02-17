@@ -327,6 +327,9 @@ export function getActionContext(context: APIContext): AstroActionContext {
 				try {
 					input = await parseRequestBody(context.request);
 				} catch (e) {
+					if (e instanceof ActionError) {
+						return { data: undefined, error: e };
+					}
 					if (e instanceof TypeError) {
 						return { data: undefined, error: new ActionError({ code: 'UNSUPPORTED_MEDIA_TYPE' }) };
 					}
@@ -378,16 +381,256 @@ function getCallerInfo(ctx: APIContext) {
 	return undefined;
 }
 
+const DEFAULT_ACTION_BODY_SIZE_LIMIT = 1024 * 1024;
+
 async function parseRequestBody(request: Request) {
 	const contentType = request.headers.get('content-type');
-	const contentLength = request.headers.get('Content-Length');
+	const contentLengthHeader = request.headers.get('content-length');
+	const contentLength = contentLengthHeader ? Number.parseInt(contentLengthHeader, 10) : undefined;
+	const hasContentLength = typeof contentLength === 'number' && Number.isFinite(contentLength);
 
 	if (!contentType) return undefined;
+	if (hasContentLength && contentLength > DEFAULT_ACTION_BODY_SIZE_LIMIT) {
+		throw new ActionError({
+			code: 'CONTENT_TOO_LARGE',
+			message: `Request body exceeds ${DEFAULT_ACTION_BODY_SIZE_LIMIT} bytes`,
+		});
+	}
 	if (hasContentType(contentType, formContentTypes)) {
+		if (!hasContentLength) {
+			const body = await readRequestBodyWithLimit(request.clone(), DEFAULT_ACTION_BODY_SIZE_LIMIT);
+			const formRequest = new Request(request.url, {
+				method: request.method,
+				headers: request.headers,
+				body: toArrayBuffer(body),
+			});
+			return await formRequest.formData();
+		}
 		return await request.clone().formData();
 	}
 	if (hasContentType(contentType, ['application/json'])) {
-		return contentLength === '0' ? undefined : await request.clone().json();
+		if (contentLength === 0) return undefined;
+		if (!hasContentLength) {
+			const body = await readRequestBodyWithLimit(request.clone(), DEFAULT_ACTION_BODY_SIZE_LIMIT);
+			if (body.byteLength === 0) return undefined;
+			return JSON.parse(new TextDecoder().decode(body));
+		}
+		return await request.clone().json();
 	}
 	throw new TypeError('Unsupported content type');
+}
+
+async function readRequestBodyWithLimit(request: Request, limit: number): Promise<Uint8Array> {
+	if (!request.body) return new Uint8Array();
+	const reader = request.body.getReader();
+	const chunks: Uint8Array[] = [];
+	let received = 0;
+	while (true) {
+		const { done, value } = await reader.read();
+		if (done) break;
+		if (value) {
+			received += value.byteLength;
+			if (received > limit) {
+				throw new ActionError({
+					code: 'CONTENT_TOO_LARGE',
+					message: `Request body exceeds ${limit} bytes`,
+				});
+			}
+			chunks.push(value);
+		}
+	}
+	const buffer = new Uint8Array(received);
+	let offset = 0;
+	for (const chunk of chunks) {
+		buffer.set(chunk, offset);
+		offset += chunk.byteLength;
+	}
+	return buffer;
+}
+
+function toArrayBuffer(buffer: Uint8Array): ArrayBuffer {
+	const copy = new Uint8Array(buffer.byteLength);
+	copy.set(buffer);
+	return copy.buffer;
+}
+
+export const ACTION_API_CONTEXT_SYMBOL = Symbol.for('astro.actionAPIContext');
+
+const formContentTypes = ['application/x-www-form-urlencoded', 'multipart/form-data'];
+
+function hasContentType(contentType: string, expected: string[]) {
+	// Split off parameters like charset or boundary
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type#content-type_in_html_forms
+	const type = contentType.split(';')[0].toLowerCase();
+
+	return expected.some((t) => type === t);
+}
+
+function isActionAPIContext(ctx: ActionAPIContext): boolean {
+	const symbol = Reflect.get(ctx, ACTION_API_CONTEXT_SYMBOL);
+	return symbol === true;
+}
+
+/** Transform form data to an object based on a Zod schema. */
+export function formDataToObject<T extends z.$ZodObject>(
+	formData: FormData,
+	schema: T,
+): Record<string, unknown> {
+	const obj: Record<string, unknown> = schema._zod.def.catchall
+		? Object.fromEntries(formData.entries())
+		: {};
+	for (const [key, baseValidator] of Object.entries(schema._zod.def.shape)) {
+		let validator = baseValidator;
+
+		while (
+			validator instanceof z.$ZodOptional ||
+			validator instanceof z.$ZodNullable ||
+			validator instanceof z.$ZodDefault
+		) {
+			// use default value when key is undefined
+			if (validator instanceof z.$ZodDefault && !formData.has(key)) {
+				obj[key] =
+					validator._zod.def.defaultValue instanceof Function
+						? validator._zod.def.defaultValue()
+						: validator._zod.def.defaultValue;
+			}
+			validator = validator._zod.def.innerType;
+		}
+
+		if (!formData.has(key) && key in obj) {
+			// continue loop if form input is not found and default value is set
+			continue;
+		} else if (validator instanceof z.$ZodBoolean) {
+			const val = formData.get(key);
+			obj[key] = val === 'true' ? true : val === 'false' ? false : formData.has(key);
+		} else if (validator instanceof z.$ZodArray) {
+			obj[key] = handleFormDataGetAll(key, formData, validator);
+		} else {
+			obj[key] = handleFormDataGet(key, formData, validator, baseValidator);
+		}
+	}
+	return obj;
+}
+
+function handleFormDataGetAll(key: string, formData: FormData, validator: z.$ZodArray) {
+	const entries = Array.from(formData.getAll(key));
+	const elementValidator = validator._zod.def.element;
+	if (elementValidator instanceof z.$ZodNumber) {
+		return entries.map(Number);
+	} else if (elementValidator instanceof z.$ZodBoolean) {
+		return entries.map(Boolean);
+	}
+	return entries;
+}
+
+function handleFormDataGet(
+	key: string,
+	formData: FormData,
+	validator: unknown,
+	baseValidator: unknown,
+) {
+	const value = formData.get(key);
+	if (!value) {
+		return baseValidator instanceof z.$ZodOptional ? undefined : null;
+	}
+	return validator instanceof z.$ZodNumber ? Number(value) : value;
+}
+
+function unwrapBaseZ4ObjectSchema(schema: z.$ZodType, unparsedInput: FormData) {
+	if (schema instanceof z.$ZodPipe) {
+		return unwrapBaseZ4ObjectSchema(schema._zod.def.in, unparsedInput);
+	}
+	if (schema instanceof z.$ZodDiscriminatedUnion) {
+		const typeKey = schema._zod.def.discriminator;
+		const typeValue = unparsedInput.get(typeKey);
+		if (typeof typeValue !== 'string') return schema;
+
+		const objSchema = schema._zod.def.options.find((option) =>
+			(option as any).def.shape[typeKey].values.has(typeValue),
+		);
+		if (!objSchema) return schema;
+
+		return objSchema;
+	}
+	return schema;
+}
+
+async function callSafely<TOutput>(
+	handler: () => MaybePromise<TOutput>,
+): Promise<SafeResult<z.$ZodType, TOutput>> {
+	try {
+		const data = await handler();
+		return { data, error: undefined };
+	} catch (e) {
+		if (e instanceof ActionError) {
+			return { data: undefined, error: e };
+		}
+		return {
+			data: undefined,
+			error: new ActionError({
+				message: e instanceof Error ? e.message : 'Unknown error',
+				code: 'INTERNAL_SERVER_ERROR',
+			}),
+		};
+	}
+}
+
+export function serializeActionResult(res: SafeResult<any, any>): SerializedActionResult {
+	if (res.error) {
+		if (import.meta.env?.DEV) {
+			actionResultErrorStack.set(res.error.stack);
+		}
+
+		let body: Record<string, any>;
+		if (res.error instanceof ActionInputError) {
+			body = {
+				type: res.error.type,
+				issues: res.error.issues,
+				fields: res.error.fields,
+			};
+		} else {
+			body = {
+				...res.error,
+				message: res.error.message,
+			};
+		}
+
+		return {
+			type: 'error',
+			status: res.error.status,
+			contentType: 'application/json',
+			body: JSON.stringify(body),
+		};
+	}
+	if (res.data === undefined) {
+		return {
+			type: 'empty',
+			status: 204,
+		};
+	}
+	let body;
+	try {
+		body = devalueStringify(res.data, {
+			// Add support for URL objects
+			URL: (value) => value instanceof URL && value.href,
+		});
+	} catch (e) {
+		let hint = ActionsReturnedInvalidDataError.hint;
+		if (res.data instanceof Response) {
+			hint = REDIRECT_STATUS_CODES.includes(res.data.status as any)
+				? 'If you need to redirect when the action succeeds, trigger a redirect where the action is called. See the Actions guide for server and client redirect examples: https://docs.astro.build/en/guides/actions.'
+				: 'If you need to return a Response object, try using a server endpoint instead. See https://docs.astro.build/en/guides/endpoints/#server-endpoints-api-routes';
+		}
+		throw new AstroError({
+			...ActionsReturnedInvalidDataError,
+			message: ActionsReturnedInvalidDataError.message(String(e)),
+			hint,
+		});
+	}
+	return {
+		type: 'data',
+		status: 200,
+		contentType: 'application/json+devalue',
+		body,
+	};
 }
