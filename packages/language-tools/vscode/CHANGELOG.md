@@ -4,6 +4,12 @@
 
 ### Patch Changes
 
+- [#15496](https://github.com/withastro/astro/pull/15496) [`eb7cdda`](https://github.com/withastro/astro/commit/eb7cdda6837a8b28e279f668d0fe2a06f02f6990) Thanks [@matthewp](https://github.com/matthewp)! - Fix syntax highlighting for lowercase component tags that start with "style" or "script".
+
+## 2.16.9-beta.0
+
+### Patch Changes
+
 - [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fix "Find All References" and other TypeScript features by ensuring the plugin bundle is correctly included
 
 - [#15125](https://github.com/withastro/astro/pull/15125) [`6feb0d7`](https://github.com/withastro/astro/commit/6feb0d7bec1e333eb795ae0fc51516182a73eb2b) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes syntax highlighting sometimes not working when the frontmatter or script tags ended with certain TypeScript constructs

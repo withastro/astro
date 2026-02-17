@@ -6,6 +6,9 @@ on:
   issue_comment:
     types: [created]
 
+env:
+  IMAGE: ghcr.io/${{ github.repository }}/flue-sandbox
+
 concurrency:
   # Only one triage run per issue at a time. New runs queue (not cancel)
   # to avoid killing in-flight runs when the bot posts its own comment.
@@ -14,14 +17,12 @@ concurrency:
 
 jobs:
   triage:
-    # 1. Skip old issues (only run on issues created after this workflow was created)
-    # 2. Skip issues with "auto triage skipped" label
-    # 3. Skip pull requests (issues only)
-    # 4. One of these conditions must be met:
-    #   4a. Issue was just created
-    #   4b. Issue comment was just created, and "needs triage" label exists
+    # 1. Skip issues with "auto triage skipped" label
+    # 2. Skip pull requests (issues only)
+    # 3. One of these conditions must be met:
+    #   3a. Issue was just created
+    #   3b. Issue comment was just created, and "needs triage" label exists
     if: >-
-      github.event.issue.created_at >= '2026-02-11' &&
       !contains(github.event.issue.labels.*.name, 'auto triage skipped') &&
       !github.event.issue.pull_request &&
       ((github.event.action == 'opened') ||
@@ -31,32 +32,50 @@ jobs:
     permissions:
       contents: write
       issues: write
+      packages: read
     steps:
+      - name: Lowercase image name
+        run: echo "IMAGE=${IMAGE,,}" >> "$GITHUB_ENV"
+
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Configure Git identity
+        run: |
+          git config user.name "astrobot-houston"
+          git config user.email "fred+astrobot@astro.build"
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
-          node-version: 24
+          node-version: 24.13.1
           cache: pnpm
 
-      - name: Install OpenCode
-        run: |
-          curl -fsSL https://opencode.ai/install | bash
-          echo "/home/runner/.opencode/bin" >> $GITHUB_PATH
-
-      - name: Install agent-browser
-        run: npm install -g agent-browser && agent-browser install
+      - name: Clone Astro Compiler (for debugging)
+        run: git clone --depth 1 https://github.com/withastro/compiler.git .compiler
 
       - name: Install deps
         run: pnpm install --frozen-lockfile
 
       - name: Build
         run: pnpm build
+
+      - name: Pull sandbox image
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker pull $IMAGE:latest
+
+      - name: Verify sandbox image
+        run: |
+          docker run --rm $IMAGE:latest sh -c '
+            echo "node=$(node -v) pnpm=$(pnpm -v) gh=$(gh --version | head -1)"
+            echo "opencode=$(which opencode) version=$(opencode --version 2>/dev/null || echo missing)"
+            echo "chromium=$(ls /opt/pw-browsers 2>/dev/null && echo found || echo MISSING)"
+            echo "git-safe-dir=$(git config --system --get-all safe.directory 2>/dev/null || echo MISSING)"
+          '
 
       - name: Start Cloudflare Tunnel
         run: |
@@ -81,10 +100,12 @@ jobs:
       - name: Run workflow
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FREDKBOT_GITHUB_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.CI_ANTHROPIC_API_KEY }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           pnpm flue run .flue/workflows/issue-triage.ts \
+            --sandbox $IMAGE:latest \
             --args "{\"issueNumber\": $ISSUE_NUMBER, \"triageDir\": \"triage/issue-$ISSUE_NUMBER\"}" \
             --branch "flue/fix-$ISSUE_NUMBER" \
             --model anthropic/claude-opus-4-6

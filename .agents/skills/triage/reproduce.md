@@ -2,14 +2,14 @@
 
 Reproduce a GitHub issue to determine if a bug is valid and reproducible.
 
-**CRITICAL: You MUST always write `report.md` to the triage directory before finishing, regardless of outcome. Even if you encounter errors, cannot reproduce the bug, hit unexpected problems, or need to skip — always write `report.md`. The orchestrator and downstream skills depend on this file to determine what happened. If you finish without writing it, the entire pipeline fails silently.**
+**CRITICAL: You MUST always read `report.md` and write `report.md` to the triage directory before finishing, regardless of outcome. Even if you encounter errors, cannot reproduce the bug, hit unexpected problems, or need to skip — always write `report.md`. The orchestrator and downstream skills depend on this file to determine what happened. If you finish without writing it, the entire pipeline fails silently.**
 
 ## Prerequisites
 
 These variables are referenced throughout this skill. They may be passed as args by an orchestrator, or inferred from the conversation when run standalone.
 
 - **`triageDir`** — Directory containing the reproduction project (e.g. `triage/issue-123`). If not passed as an arg, infer from previous conversation.
-- **`issueDetails`** - The issue details, often a string of JSON containing the GitHub issue title, body, and comments. If not passed as an arg, infer the issue from previous conversation and run `gh issue view ${issue_number} --json title,body,comments` to load the issue details directly from GitHub.
+- **`issueDetails`** - The GitHub API issue details payload. This must be provided explicitly by the user or available from prior conversation context / tool calls. If this data isn't available, you may run `gh issue view ${issue_number}` to load the missing issue details directly from GitHub.
 
 ## Overview
 
@@ -21,11 +21,9 @@ These variables are referenced throughout this skill. They may be passed as args
 
 ## Step 1: Confirm Bug Details
 
-Confirm that you have access to `bugDetails` (load directly from GitHub if you do not, following the instructions above).
+Confirm that you have `issueDetails` as defined/instructed above. **Otherwise**, fail — we cannot triage a bug that we have no details on.
 
-**Otherwise**, fail — we cannot triage a bug that we have no details on.
-
-Once you have `bugDetails`, read carefully:
+Once you have `issueDetails`, read carefully:
 
 - The bug description and expected vs actual behavior
 - Any reproduction steps provided
@@ -36,7 +34,7 @@ Once you have `bugDetails`, read carefully:
 
 Before attempting reproduction, check if this issue should be skipped due to a limitation of our sandbox reproduction environment.
 
-If any early exit condition is met, skip to Step 6 and write `report.md` with the skip details.
+If any early exit condition is met, skip to Step 5 and write `report.md` with the skip details.
 
 **Comment Handling for Early Exits:** Sometimes future comments will provide additional reproductions. An early exit is only valid if not future comments in that issue "invalidate" it. For example, if the original poster of a bug was on Astro 3.0, we would exit initially (`unsupported-version`). However, on a future run, if a commenter had later posted a similar reproduction but on the latest version of Astro, we would no longer consider that a valid early exit, and would instead continue on with the workflow.
 
@@ -45,6 +43,12 @@ The following are the documented early exit conditions that we support:
 ### Not Actionable (`not-actionable`)
 
 Skip if the issue is not a bug report. This workflow can only triage bugs — feature requests, suggestions, and discussions are not actionable here.
+
+### Missing Details (`missing-details`)
+
+Skip if the issue is missing a valid reproduction (see below for list of supported valid reproductions).
+Skip if the issue is missing a description of the user's expected result (ex: "What's the expected result?" section of our issue template is filled out).
+We need both of these to successfully reproduce, and later to verify the expected results.
 
 ### Unsupported Astro Version (`unsupported-version`)
 
@@ -63,37 +67,74 @@ Skip if the bug is specific to Bun or Deno. Our sandbox only supports Node.js.
 
 ### Maintainer Override (`maintainer-override`)
 
-Skip if a repository maintainer has commented that this issue should not be reproduced here. Check collaborator status with: `gh api "repos/<owner>/<repo>/collaborators/<user>" --silent && echo "user is collaborator"`
+Skip if a repository maintainer has commented that this issue should not be reproduced here. To determine if a commenter is a maintainer, check the `author_association` field on their comment in `issueDetails` — values of `MEMBER`, `COLLABORATOR`, or `OWNER` indicate a maintainer.
 
 ## Step 3: Set Up Reproduction Project
 
-The reproduction project goes in the `triageDir` directory (e.g. `triage/gh-123`). If no `triageDir` is provided, default to `triage/gh-<issue_number>`.
+Every bug report should include some sort of reproduction. The reproduction project goes in the `triageDir` directory (e.g. `triage/gh-123`). If no `triageDir` is provided, default to `triage/gh-<issue_number>`.
 
-**If a StackBlitz URL is provided in the issue:**
-The triage workspace has already been downloaded. Inspect what's there and proceed to configuration.
+Set up the reproduction project based on what the issue provides you. Once the reproduction project directory has been completed, run `pnpm install --no-frozen-lockfile` in the workspace top-level root to connect it to the rest of the monorepo.
 
-**If no StackBlitz URL (fallback to example template):**
-The workspace has been set up from `examples/minimal`. You may need to add dependencies.
+### StackBlitz Project URL (`https://stackblitz.com/edit/...`)
 
-Sometimes, a user will provide a Gist URL instead of a StackBlitz URL to help show how to reproduce the issue. Use `gh gist view <gist-id>` to fetch any included gists, to help get a better understanding of what the problem is.
+If reproduction was provided as a Stackblitz project URL, download it into the `triageDir` directory using `stackblitz-clone`:
 
-Check the issue to determine what's needed:
+```bash
+npx stackblitz-clone@latest <stackblitz-url> <triageDir>
+```
 
-- React components → `pnpm astro add react` (in the triage dir)
-- MDX content → `pnpm astro add mdx`
-- Specific adapter → `pnpm astro add node` (or vercel, netlify, etc.)
+### StackBlitz GitHub URL (`https://stackblitz.com/github/...`)
 
-## Step 4: Configure the Triage Project
+StackBlitz has a special, commonly-used URL to open a GitHub repo in StackBlitz. If we have received one of these as reproduction, parse out the GitHub org & repo names and then treat it as a GitHub URL, following the "GitHub URL" step below.
 
-Based on the issue, modify the triage project:
+### GitHub URL (`https://github.com/...`)
 
-1. Update `astro.config.mjs` with required configuration
-2. Create pages, components, or middleware that trigger the bug
-3. Add any additional files mentioned in the issue
+If reproduction was provided as a GitHub repo URL, clone the repo into the triage directory and remove the `.git` directory to avoid conflicts with the host repo:
 
-Keep the reproduction as minimal as possible — only add what's needed to trigger the bug.
+```bash
+git clone https://github.com/<owner>/<repo>.git <triageDir>
+rm -rf <triageDir>/.git
+```
 
-## Step 5: Attempt Reproduction in the Triage Project
+If a specific branch or subdirectory is referenced, check out that branch before removing `.git`, or copy only the relevant subdirectory.
+
+### Gist URL (`https://gist.github.com/`)
+
+Fetch the gist contents using the GitHub API to help understand the reproduction:
+
+```bash
+curl -s "https://api.github.com/gists/<gist-id>"
+```
+
+You may still need to set up a project from scratch (see fallback below) and apply the gist files into it.
+
+### Manual Steps Reproduction
+
+If no reproduction URL is provided, you will need to follow the manual steps that the user provided instead. If the user didn't mention a specific template, use `minimal` as the default.
+
+```bash
+# 1. List available example templates
+ls examples/
+# 2. Remove the selected template's node_modules directory to avoid problems with `cp -r`
+rm -rf examples/<template>/node_modules
+# 3. Copy over the selected template into the triage directory
+cp -r examples/<template> <triageDir>
+# 4. Re-run install (at the workspace root) to add back missing node_modules dependencies
+pnpm install --no-frozen-lockfile
+```
+
+Verify that the project was created in the correct place (`cat <triageDir>/package.json`).
+
+Then, modify the triage project as needed to attempt your reproduction:
+
+1. Update `astro.config.mjs` with required configuration changes
+2. Add/modify any dependencies or Astro integrations (`@astrojs/react`, etc.)
+3. Add/modify any pages, components, middleware, etc. that trigger the bug
+4. Add/modify any additional files mentioned in the issue
+
+Keep the reproduction as minimal as possible — only add what the issue reporter has documented as needed to trigger the bug.
+
+## Step 4: Attempt Reproduction in the Triage Project
 
 Use all of the tools at your disposal — `pnpm run dev|build|preview|test`, `curl`, `agent-browser`, etc.
 
@@ -101,7 +142,7 @@ Use all of the tools at your disposal — `pnpm run dev|build|preview|test`, `cu
 2. **Verify the baseline.** Remove or reverse the triggering code and confirm the project works without the bug. This guards against false positives — if the project is still broken without the triggering code, the issue may be in your setup, not the reported bug.
 3. **Document what you observe.** Record exact error messages and stack traces, which command triggers the issue, and whether it's consistent or intermittent.
 
-## Step 6: Write Output
+## Step 5: Write Output
 
 Write `report.md` to the triage directory:
 
