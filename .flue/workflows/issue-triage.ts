@@ -12,7 +12,7 @@ export const proxies = {
 				{ method: 'POST', path: '/*/git-upload-pack' },
 				{ method: 'GET', path: '/*/info/refs' },
 				{ method: 'POST', path: '/*/git-receive-pack' },
-			{ method: 'POST', path: '/repos/withastro/astro/issues/*/labels', limit: 2 },
+				{ method: 'POST', path: '/repos/withastro/astro/issues/*/labels', limit: 2 },
 				{ method: 'DELETE', path: '/repos/withastro/astro/issues/*/labels/*', limit: 2 },
 			],
 		},
