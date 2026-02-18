@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createServer } from 'node:http';
 import { basename } from 'node:path';
 import { Writable } from 'node:stream';
 import { after, afterEach, before, describe, it } from 'node:test';
@@ -19,8 +20,30 @@ describe('astro:image', () => {
 		let devServer;
 		/** @type {Array<{ type: any, level: 'error', message: string; }>} */
 		let logs = [];
+		/** @type {import('node:http').Server | undefined} */
+		let redirectServer;
+		/** @type {string | undefined} */
+		let redirectUrl;
 
 		before(async () => {
+			redirectServer = createServer((req, res) => {
+				if (req.url === '/redirect') {
+					res.statusCode = 302;
+					res.setHeader('Location', 'https://example.com/image.png');
+					res.end();
+					return;
+				}
+
+				res.statusCode = 404;
+				res.end();
+			});
+
+			await new Promise((resolve) => redirectServer.listen(0, '127.0.0.1', resolve));
+			const address = redirectServer.address();
+			if (address && typeof address === 'object') {
+				redirectUrl = `http://127.0.0.1:${address.port}/redirect`;
+			}
+
 			fixture = await loadFixture({
 				root: './fixtures/core-image/',
 				image: {
@@ -30,6 +53,15 @@ describe('astro:image', () => {
 						{
 							protocol: 'data',
 						},
+						...(redirectUrl
+							? [
+									{
+										protocol: 'http',
+										hostname: '127.0.0.1',
+										port: new URL(redirectUrl).port,
+									},
+								]
+							: []),
 					],
 				},
 			});
@@ -50,6 +82,9 @@ describe('astro:image', () => {
 
 		after(async () => {
 			await devServer.stop();
+			if (redirectServer) {
+				await new Promise((resolve) => redirectServer.close(resolve));
+			}
 		});
 
 		describe('basics', () => {
@@ -486,6 +521,13 @@ describe('astro:image', () => {
 					assert.equal($img.attr('src'), '/penguin3.jpg');
 					assert.ok($img.attr('width'));
 					assert.ok($img.attr('height'));
+				});
+
+				it('rejects remote redirects', async () => {
+					assert.ok(redirectUrl, 'Expected redirect URL to be set');
+					const src = `/_image?href=${encodeURIComponent(redirectUrl)}&w=1&h=1&f=png`;
+					const imageRequest = await fixture.fetch(src);
+					assert.ok(imageRequest.status >= 400);
 				});
 			});
 
