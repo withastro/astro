@@ -2,10 +2,11 @@ import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import path from 'node:path';
 import { hasFileExtension, isInternalPath } from '@astrojs/internal-helpers/path';
-import type { NodeApp } from 'astro/app/node';
+import type { BaseApp } from 'astro/app';
 import send from 'send';
 import { resolveClientDir } from './shared.js';
-import type { Options } from './types.js';
+import type { NodeAppHeadersJson, Options } from './types.js';
+import { createRequest } from 'astro/app/node';
 
 /**
  * Creates a Node.js http listener for static files and prerendered pages.
@@ -13,7 +14,11 @@ import type { Options } from './types.js';
  * If one matching the request path is not found, it relegates to the SSR handler.
  * Intended to be used only in the standalone mode.
  */
-export function createStaticHandler(app: NodeApp, options: Options) {
+export function createStaticHandler(
+	app: BaseApp,
+	options: Options,
+	headersMap: NodeAppHeadersJson | undefined,
+) {
 	const client = resolveClientDir(options);
 	/**
 	 * @param ssr The SSR handler to be called if the static handler does not find a matching file.
@@ -39,10 +44,13 @@ export function createStaticHandler(app: NodeApp, options: Options) {
 			const hasSlash = urlPath.endsWith('/');
 			let pathname = urlPath;
 
-			if (app.headersMap && app.headersMap.length > 0) {
-				const routeData = app.match(req, true);
+			if (headersMap && headersMap.length > 0) {
+				const request = createRequest(req, {
+					allowedDomains: app.getAllowedDomains?.() ?? [],
+				});
+				const routeData = app.match(request, true);
 				if (routeData && routeData.prerender) {
-					const matchedRoute = app.headersMap.find((header) => header.pathname.includes(pathname));
+					const matchedRoute = headersMap.find((header) => header.pathname.includes(pathname));
 					if (matchedRoute) {
 						for (const header of matchedRoute.headers) {
 							res.setHeader(header.key, header.value);

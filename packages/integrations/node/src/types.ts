@@ -49,3 +49,11 @@ type RequestHandlerParams = [
 	next?: (err?: unknown) => void,
 	locals?: object,
 ];
+
+export type NodeAppHeadersJson = {
+	pathname: string;
+	headers: {
+		key: string;
+		value: string;
+	}[];
+}[];
