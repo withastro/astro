@@ -88,7 +88,17 @@ chore: update dependencies
 This repo uses changesets. If your change affects published packages (features, fixes — not docs/chore), create a changeset:
 
 ```bash
-pnpm changeset
+pnpm changeset add --empty
+```
+
+Then edit the generated file in `.changeset/` to add the package name, bump type, and summary. For example:
+
+```markdown
+---
+'astro': patch
+---
+
+Fix CSS scoping regression in nested components
 ```
 
 - `feat:` → minor bump
