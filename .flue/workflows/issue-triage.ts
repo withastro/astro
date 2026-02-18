@@ -8,12 +8,12 @@ export const proxies = {
 		policy: {
 			base: 'allow-read',
 			allow: [
+				// Allow read-only access to the GraphQL endpoint
 				{ method: 'POST', path: '/graphql', body: githubBody.graphql() },
-				{ method: 'POST', path: '/*/git-upload-pack' },
+				// Allow git clone, fetch, and push over smart HTTP transport
 				{ method: 'GET', path: '/*/info/refs' },
+				{ method: 'POST', path: '/*/git-upload-pack' },
 				{ method: 'POST', path: '/*/git-receive-pack' },
-				{ method: 'POST', path: '/repos/withastro/astro/issues/*/labels', limit: 2 },
-				{ method: 'DELETE', path: '/repos/withastro/astro/issues/*/labels/*', limit: 2 },
 			],
 		},
 	}),
@@ -38,6 +38,41 @@ async function postGitHubComment(issueNumber: number, body: string): Promise<voi
 	);
 	if (!res.ok) {
 		throw new Error(`Failed to post comment (HTTP ${res.status}): ${await res.text()}`);
+	}
+}
+
+async function addGitHubLabels(issueNumber: number, labels: string[]): Promise<void> {
+	const res = await fetch(
+		`https://api.github.com/repos/withastro/astro/issues/${issueNumber}/labels`,
+		{
+			method: 'POST',
+			headers: {
+				Authorization: `token ${process.env.FREDKBOT_GITHUB_TOKEN}`,
+				'Content-Type': 'application/json',
+				Accept: 'application/vnd.github+json',
+			},
+			body: JSON.stringify({ labels }),
+		},
+	);
+	if (!res.ok) {
+		throw new Error(`Failed to add labels (HTTP ${res.status}): ${await res.text()}`);
+	}
+}
+
+async function removeGitHubLabel(issueNumber: number, label: string): Promise<void> {
+	const res = await fetch(
+		`https://api.github.com/repos/withastro/astro/issues/${issueNumber}/labels/${encodeURIComponent(label)}`,
+		{
+			method: 'DELETE',
+			headers: {
+				Authorization: `token ${process.env.FREDKBOT_GITHUB_TOKEN}`,
+				'Content-Type': 'application/json',
+				Accept: 'application/vnd.github+json',
+			},
+		},
+	);
+	if (!res.ok && res.status !== 404) {
+		throw new Error(`Failed to remove label (HTTP ${res.status}): ${await res.text()}`);
 	}
 }
 
@@ -341,9 +376,7 @@ export default async function triage(flue: FlueClient, args: TriageArgs) {
 	await postGitHubComment(issueNumber, comment);
 
 	if (triageResult.reproducible) {
-		await flue.shell(
-			`gh api -X DELETE repos/withastro/astro/issues/${issueNumber}/labels/needs%20triage`,
-		);
+		await removeGitHubLabel(issueNumber, 'needs triage');
 
 		const selectedLabels = await selectTriageLabels(flue, {
 			comment,
@@ -351,18 +384,13 @@ export default async function triage(flue: FlueClient, args: TriageArgs) {
 			packageLabels,
 		});
 		if (selectedLabels.length > 0) {
-			const labelsJson = JSON.stringify({ labels: selectedLabels });
-			await flue.shell(
-				`echo '${labelsJson}' | gh api repos/withastro/astro/issues/${issueNumber}/labels --input -`,
-			);
+			await addGitHubLabels(issueNumber, selectedLabels);
 		}
 	} else if (triageResult.skipped) {
 		// Triage was skipped due to a runner limitation. Keep "needs triage" so a
 		// maintainer can still pick it up, and add "auto triage skipped" to prevent
 		// the workflow from re-running on every new comment.
-		await flue.shell(
-			`echo '{"labels":["auto triage skipped"]}' | gh api repos/withastro/astro/issues/${issueNumber}/labels --input -`,
-		);
+		await addGitHubLabels(issueNumber, ['auto triage skipped']);
 	} else {
 		// Not reproducible: do nothing. The "needs triage" label stays on the issue
 		// so that it can continue to be worked on and triaged by the humans.
