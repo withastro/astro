@@ -103,8 +103,8 @@ export async function getContext(argv: string[]): Promise<Context> {
 
 	if (no) {
 		yes = false;
-		if (install == undefined) install = false;
-		if (git == undefined) git = false;
+		if (install === undefined) install = false;
+		if (git === undefined) git = false;
 	}
 
 	skipHouston =

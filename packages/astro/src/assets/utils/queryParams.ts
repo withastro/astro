@@ -21,8 +21,8 @@ export function getOrigQueryParams(
 	}
 
 	return {
-		width: parseInt(width),
-		height: parseInt(height),
+		width: Number.parseInt(width),
+		height: Number.parseInt(height),
 		format: format as ImageInputFormat,
 	};
 }
