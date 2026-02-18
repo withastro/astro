@@ -2,5 +2,4 @@
 '@astrojs/cloudflare': patch
 '@astrojs/node': patch
 ---
-Map to `middlewareMode` adapter feature (set to `classic`).
-
+Refactors to use `middlewareMode` adapter feature (set to `classic`)

@@ -2,7 +2,7 @@
 'astro': patch
 ---
 
-Create new `middlewareMode` adapter feature that replaces `edgeMiddleware` option.
+Adds new `middlewareMode` adapter feature that replaces `edgeMiddleware` option
 
 This feature only impacts adapter developers. If your adapter supports `edgeMiddleware`, you should now use the new `middlewareMode` option to specify the middleware mode for your adapter. The `edgeMiddleware` feature is deprecated and will be removed in a future release.
 
