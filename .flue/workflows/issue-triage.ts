@@ -12,8 +12,7 @@ export const proxies = {
 				{ method: 'POST', path: '/*/git-upload-pack' },
 				{ method: 'GET', path: '/*/info/refs' },
 				{ method: 'POST', path: '/*/git-receive-pack' },
-				{ method: 'POST', path: '/repos/withastro/astro/issues/*/comments', limit: 2 },
-				{ method: 'POST', path: '/repos/withastro/astro/issues/*/labels', limit: 2 },
+			{ method: 'POST', path: '/repos/withastro/astro/issues/*/labels', limit: 2 },
 				{ method: 'DELETE', path: '/repos/withastro/astro/issues/*/labels/*', limit: 2 },
 			],
 		},
@@ -22,6 +21,24 @@ export const proxies = {
 
 function assert(condition: unknown, message: string): asserts condition {
 	if (!condition) throw new Error(message);
+}
+
+async function postGitHubComment(issueNumber: number, body: string): Promise<void> {
+	const res = await fetch(
+		`https://api.github.com/repos/withastro/astro/issues/${issueNumber}/comments`,
+		{
+			method: 'POST',
+			headers: {
+				Authorization: `token ${process.env.FREDKBOT_GITHUB_TOKEN}`,
+				'Content-Type': 'application/json',
+				Accept: 'application/vnd.github+json',
+			},
+			body: JSON.stringify({ body }),
+		},
+	);
+	if (!res.ok) {
+		throw new Error(`Failed to post comment (HTTP ${res.status}): ${await res.text()}`);
+	}
 }
 
 const issueDetailsSchema = v.object({
@@ -291,7 +308,6 @@ export default async function triage(flue: FlueClient, args: TriageArgs) {
 	if (triageResult.fixed) {
 		const diff = await flue.shell('git diff main --stat');
 		if (diff.stdout.trim()) {
-			await flue.shell(`git checkout -B ${branch}`);
 			const status = await flue.shell('git status --porcelain');
 			if (status.stdout.trim()) {
 				await flue.shell('git add -A');
@@ -322,9 +338,7 @@ export default async function triage(flue: FlueClient, args: TriageArgs) {
 		),
 	});
 
-	await flue.shell(`gh api repos/withastro/astro/issues/${issueNumber}/comments -f body=@-`, {
-		stdin: comment,
-	});
+	await postGitHubComment(issueNumber, comment);
 
 	if (triageResult.reproducible) {
 		await flue.shell(
