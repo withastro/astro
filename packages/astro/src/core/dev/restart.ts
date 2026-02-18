@@ -8,7 +8,7 @@ import { SETTINGS_FILE } from '../../preferences/constants.js';
 import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { createSettings, resolveConfig } from '../config/index.js';
-import { createNodeLogger } from '../config/logging.js';
+import { createNodeLogger } from '../logger/node.js';
 import { collectErrorMetadata } from '../errors/dev/utils.js';
 import { isAstroConfigZodError } from '../errors/errors.js';
 import { createSafeError } from '../errors/index.js';

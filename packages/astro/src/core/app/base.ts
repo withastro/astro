@@ -18,6 +18,7 @@ import {
 	REROUTABLE_STATUS_CODES,
 	REROUTE_DIRECTIVE_HEADER,
 	responseSentSymbol,
+	REWRITE_DIRECTIVE_HEADER_KEY,
 } from '../constants.js';
 import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
@@ -342,6 +343,7 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	}
 
 	public async render(request: Request, renderOptions?: RenderOptions): Promise<Response> {
+		const timeStart = performance.now();
 		let routeData: RouteData | undefined = renderOptions?.routeData;
 		let locals: object | undefined;
 		let clientAddress: string | undefined;
@@ -379,7 +381,8 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 				'The adapter ' + this.manifest.adapterName + ' provided a custom RouteData for ',
 				request.url,
 			);
-			this.logger.debug('router', 'RouteData:\n' + routeData);
+			this.logger.debug('router', 'RouteData');
+			this.logger.debug('router', routeData);
 		}
 		if (locals) {
 			if (typeof locals !== 'object') {
@@ -443,6 +446,16 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 			});
 			session = renderContext.session;
 			response = await renderContext.render(componentInstance);
+
+			const isRewrite = response.headers.has(REWRITE_DIRECTIVE_HEADER_KEY);
+
+			this.logThisRequest({
+				pathname,
+				method: request.method,
+				statusCode: response.status,
+				isRewrite,
+				timeStart,
+			});
 		} catch (err: any) {
 			this.logger.error(null, err.stack || err.message || String(err));
 			return this.renderError(request, {
@@ -672,4 +685,52 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 	public getManifest() {
 		return this.pipeline.manifest;
 	}
+
+	logThisRequest({
+		pathname,
+		method,
+		statusCode,
+		isRewrite,
+		timeStart,
+	}: {
+		pathname: string;
+		method: string;
+		statusCode: number;
+		isRewrite: boolean;
+		timeStart: number;
+	}) {
+		const timeEnd = performance.now();
+		this.logRequest({
+			pathname,
+			method,
+			statusCode,
+			isRewrite,
+			reqTime: timeEnd - timeStart,
+		});
+	}
+
+	public abstract logRequest(_options: LogRequestPayload): void;
 }
+
+export type LogRequestPayload = {
+	/**
+	 * The current path being rendered
+	 */
+	pathname: string;
+	/**
+	 * The method of the request
+	 */
+	method: string;
+	/**
+	 * The status code of the request
+	 */
+	statusCode: number;
+	/**
+	 * If the current request is a rewrite
+	 */
+	isRewrite: boolean;
+	/**
+	 * How long it took to render the request
+	 */
+	reqTime: number;
+};
