@@ -558,6 +558,20 @@ export const FailedToFetchRemoteImageDimensions = {
 } satisfies ErrorData;
 /**
  * @docs
+ * @message
+ * Remote image `IMAGE_URL` is not allowed by your image configuration.
+ * @description
+ * The remote image URL does not match your configured `image.domains` or `image.remotePatterns`.
+ */
+export const RemoteImageNotAllowed = {
+	name: 'RemoteImageNotAllowed',
+	title: 'Remote image is not allowed',
+	message: (imageURL: string) =>
+		`Remote image ${imageURL} is not allowed by your image configuration.`,
+	hint: 'Update `image.domains` or `image.remotePatterns`, or remove `inferSize` for this image.',
+} satisfies ErrorData;
+/**
+ * @docs
  * @description
  * The built-in image services do not currently support optimizing all image formats.
  *

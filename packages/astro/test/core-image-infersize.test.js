@@ -76,5 +76,16 @@ describe('astro:image:infersize', () => {
 				assert.equal($dimensions.text().trim(), '64x64');
 			});
 		});
+
+		it('rejects remote inferSize that is not allowlisted', async () => {
+			logs.length = 0;
+			const res = await fixture.fetch('/disallowed');
+			await res.text();
+
+			const hasDisallowedLog = logs.some(
+				(log) => log.message.includes('Remote image') && log.message.includes('not allowed'),
+			);
+			assert.equal(hasDisallowedLog, true);
+		});
 	});
 });
