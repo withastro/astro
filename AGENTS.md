@@ -92,6 +92,7 @@ Fix CSS scoping regression in nested components
 - `feat:` → minor bump
 - `fix:` → patch bump
 - `docs:`, `chore:`, `refactor:` → usually no changeset needed
+- Breaking changes → major bump, but these should never be introduced without prior agreement from maintainers
 
 ## PR Description
 
