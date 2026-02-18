@@ -1,5 +1,13 @@
 # astro
 
+## 5.17.3
+
+### Patch Changes
+
+- [#15564](https://github.com/withastro/astro/pull/15564) [`522f880`](https://github.com/withastro/astro/commit/522f880b07a4ea7d69a19b5507fb53a5ed6c87f8) Thanks [@matthewp](https://github.com/matthewp)! - Add a default body size limit for server actions to prevent oversized requests from exhausting memory.
+
+- [#15569](https://github.com/withastro/astro/pull/15569) [`e01e98b`](https://github.com/withastro/astro/commit/e01e98b063e90d274c42130ec2a60cc0966622c9) Thanks [@matthewp](https://github.com/matthewp)! - Respect image allowlists when inferring remote image sizes and reject remote redirects.
+
 ## 5.17.2
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @astrojs/node
 
+## 9.5.4
+
+### Patch Changes
+
+- [#15564](https://github.com/withastro/astro/pull/15564) [`522f880`](https://github.com/withastro/astro/commit/522f880b07a4ea7d69a19b5507fb53a5ed6c87f8) Thanks [@matthewp](https://github.com/matthewp)! - Add a default body size limit for server actions to prevent oversized requests from exhausting memory.
+
+- [#15572](https://github.com/withastro/astro/pull/15572) [`ef851bf`](https://github.com/withastro/astro/commit/ef851bf0560a1ef2d5532d600095e0e6b3b9047c) Thanks [@matthewp](https://github.com/matthewp)! - Upgrade astro package support
+
+  astro@5.17.3 includes a fix to prevent Action payloads from exhausting memory. @astrojs/node now depends on this version of Astro as a minimum requirement.
+
 ## 9.5.3
 
 ### Patch Changes
