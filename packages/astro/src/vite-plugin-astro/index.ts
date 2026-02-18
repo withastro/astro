@@ -275,6 +275,21 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 
 					const transformResult = await compile(source, filename);
 
+					// The compiler incorrectly emits a viewtransitions.css import for files
+					// that use server:defer, even though server islands don't need view
+					// transition styles. Strip the import if no transition directives are
+					// actually used (i.e. no $$renderTransition or $$createTransitionScope
+					// calls remain after esbuild tree-shaking).
+					let code = transformResult.code;
+					const transitionsCssImport = 'import "astro/components/viewtransitions.css";';
+					if (
+						code.includes(transitionsCssImport) &&
+						!code.includes('$$renderTransition(') &&
+						!code.includes('$$createTransitionScope(')
+					) {
+						code = code.replace(transitionsCssImport, '');
+					}
+
 					const astroMetadata: AstroPluginMetadata['astro'] = {
 						// Remove Astro components that have been mistakenly given client directives
 						// We'll warn the user about this later, but for now we'll prevent them from breaking the build
@@ -288,7 +303,7 @@ export default function astro({ settings, logger }: AstroPluginOptions): vite.Pl
 					};
 
 					return {
-						code: transformResult.code,
+						code,
 						map: transformResult.map,
 						meta: {
 							astro: astroMetadata,
