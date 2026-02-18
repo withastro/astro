@@ -33,6 +33,7 @@ import { createDefaultPrerenderer, type DefaultPrerenderer } from './default-pre
 import { type BuildInternals, hasPrerenderedPages } from './internal.js';
 import type { StaticBuildOptions } from './types.js';
 import type { AstroSettings } from '../../types/astro.js';
+import { recordPageRender } from './perf-tracker.js';
 import { getTimeStat, shouldAppendForwardSlash } from './util.js';
 
 export async function generatePages(
@@ -380,7 +381,7 @@ async function generatePathWithPrerenderer(
 	if (response.status >= 300 && response.status < 400) {
 		// Handle redirects
 		if (routeIsRedirect(route) && !config.build.redirects) {
-			logRenderTime(logger, timeStart, false);
+			logRenderTime(logger, timeStart, false, pathname);
 			return;
 		}
 		const locationSite = getRedirectLocationOrThrow(responseHeaders);
@@ -401,7 +402,7 @@ async function generatePathWithPrerenderer(
 		}
 	} else {
 		if (!response.body) {
-			logRenderTime(logger, timeStart, true);
+			logRenderTime(logger, timeStart, true, pathname);
 			return;
 		}
 		body = Buffer.from(await response.arrayBuffer());
@@ -429,17 +430,19 @@ async function generatePathWithPrerenderer(
 	await fs.promises.mkdir(outFolder, { recursive: true });
 	await fs.promises.writeFile(outFile, body);
 
-	logRenderTime(logger, timeStart, false);
+	logRenderTime(logger, timeStart, false, pathname);
 }
 
-function logRenderTime(logger: Logger, timeStart: number, notCreated: boolean) {
+function logRenderTime(logger: Logger, timeStart: number, notCreated: boolean, pathname: string) {
 	const timeEnd = performance.now();
-	const isSlow = timeEnd - timeStart > THRESHOLD_SLOW_RENDER_TIME_MS;
+	const durationMs = timeEnd - timeStart;
+	const isSlow = durationMs > THRESHOLD_SLOW_RENDER_TIME_MS;
 	const timeIncrease = (isSlow ? colors.red : colors.dim)(`(+${getTimeStat(timeStart, timeEnd)})`);
 	const notCreatedMsg = notCreated
 		? colors.yellow('(file not created, response body was empty)')
 		: '';
 	logger.info('SKIP_FORMAT', ` ${timeIncrease} ${notCreatedMsg}`);
+	recordPageRender(pathname, durationMs);
 }
 
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
