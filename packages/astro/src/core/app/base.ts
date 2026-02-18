@@ -224,6 +224,9 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		let pathname = this.computePathnameFromDomain(request);
 		if (!pathname) {
 			pathname = url.pathname;
+			if (this.manifest.base !== '/' && !pathname.startsWith(this.manifest.base)) {
+				pathname = joinPaths(this.manifest.base, pathname);
+			}
 		}
 		const match = this.#router.match(decodeURI(pathname));
 		if (match.type !== 'match') return undefined;
