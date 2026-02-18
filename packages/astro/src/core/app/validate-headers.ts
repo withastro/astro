@@ -90,7 +90,10 @@ export function validateForwardedHeaders(
 		return result
 	}
 
-	let allowedDomain: RemotePattern = {}
+	// require a hostname
+	if (!forwardedHost || forwardedHost.length === 0) {
+		return result;
+	}
 
 	// Validate host (extract port from hostname for validation)
 	// Reject empty strings and sanitize to prevent path injection
@@ -103,40 +106,46 @@ export function validateForwardedHeaders(
 				// do not match anything other than hostname here.
 				const found = allowedDomains.find((pattern) => matchHostname(testUrl, pattern.hostname, true));
 				if (found) {
-					// also check for ports in the forwarded header, if there is a mismatch, return
-					if (port) {
-						if (found.port && found.port !== port) {
-							return result;
+					// we might need to set the port...
+					if (forwardedPort || port) {
+						if (found.port) {
+
+							if (port) {
+								if (forwardedPort && forwardedPort !== port) {
+									// weird case.
+									return result;
+								}
+								if (found.port === port) {
+									result.port = port;
+								}
+							} else {
+								if (found.port === forwardedPort) {
+									result.port = forwardedPort;
+								}
+							}
+						} else {
+							// If no port patterns, reject the header (strict security default)
 						}
 					}
+
+					// if a protocol is configured, ensure it is correct.
+					if (found.protocol) {
+						if (found.protocol !== forwardedProtocol) {
+							return result;
+						}
+
+						// all good
+						result.protocol = found.protocol;
+					} else if (forwardedProtocol && /^https?$/.test(forwardedProtocol)) {
+						// fallback to allow if it is not specified in the allowedDomains, but only if it is http or https
+						result.protocol = forwardedProtocol;
+					}
+
 					result.host = sanitized;
-					allowedDomain = found
+					return result
 				}
 			}
 		}
 	}
-
-	// If host is not valid, we cannot trust protocol or port from forwarded headers
-	if (!result.host || !allowedDomain.hostname) {
-		return result;
-	}
-
-	// Validate port
-	if (forwardedPort && allowedDomain.port && allowedDomain.port === forwardedPort) {
-		result.port = forwardedPort;
-	}
-
-	// Validate protocol
-	if (forwardedProtocol) {
-		if (allowedDomain.protocol) {
-			if (allowedDomain.protocol === forwardedProtocol) {
-				result.protocol = forwardedProtocol;
-			}
-		} else if (/^https?$/.test(forwardedProtocol)) {
-			// allowdDomains does not contain protocol, allow protocol
-			result.protocol = forwardedProtocol;
-		}
-	}
-
-	return result;
+	return result
 }
