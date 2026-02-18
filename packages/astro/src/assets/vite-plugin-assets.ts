@@ -304,17 +304,16 @@ export const inferRemoteSize = async (url) => {
 								code: makeSvgComponent(imageMetadata, contents, settings.config.experimental.svgo),
 							};
 						}
-						// Only skip referencedImages tracking for the SSR environment in server builds.
-						// The prerender environment should still track references so we can safely
-						// delete unreferenced original images after optimization.
+						// In SSR builds, any image loaded by the SSR environment could be reachable at
+						// request time without us knowning, so we'll always consider them as referenced.
 						const isSSROnlyEnvironment =
 							settings.buildOutput === 'server' &&
 							this.environment.name === ASTRO_VITE_ENVIRONMENT_NAMES.ssr;
+						if (isSSROnlyEnvironment) {
+							globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);
+						}
 						return {
-							code: `export default ${getProxyCode(
-								imageMetadata,
-								isSSROnlyEnvironment,
-							)}`,
+							code: `export default ${getProxyCode(imageMetadata, isSSROnlyEnvironment)}`,
 						};
 					} else {
 						globalThis.astroAsset.referencedImages.add(imageMetadata.fsPath);

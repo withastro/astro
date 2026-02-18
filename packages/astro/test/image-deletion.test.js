@@ -69,5 +69,10 @@ describe('astro:assets - delete images that are unused', () => {
 			const imagesUsedElsewhere = await fixture.glob('client/_astro/twoofus.*.*');
 			assert.equal(imagesUsedElsewhere.length, 2);
 		});
+
+		it('should not delete images that are used in both a prerendered and an SSR page', async () => {
+			const imagesUsedInBoth = await fixture.glob('client/_astro/shared.*.*');
+			assert.equal(imagesUsedInBoth.length, 2);
+		});
 	});
 });
