@@ -39,8 +39,6 @@ export function createStaticHandler(
 				isDirectory = fs.lstatSync(filePath).isDirectory();
 			} catch {}
 
-			const { trailingSlash = 'ignore' } = options;
-
 			const hasSlash = urlPath.endsWith('/');
 			let pathname = urlPath;
 
@@ -59,7 +57,7 @@ export function createStaticHandler(
 				}
 			}
 
-			switch (trailingSlash) {
+			switch (app.manifest.trailingSlash) {
 				case 'never': {
 					if (isDirectory && urlPath !== '/' && hasSlash) {
 						pathname = urlPath.slice(0, -1) + (urlQuery ? '?' + urlQuery : '');
@@ -113,7 +111,7 @@ export function createStaticHandler(
 			});
 			stream.on('headers', (_res: ServerResponse) => {
 				// assets in dist/_astro are hashed and should get the immutable header
-				if (pathname.startsWith(`/${options.assets}/`)) {
+				if (pathname.startsWith(`/${app.manifest.assetsDir}/`)) {
 					// This is the "far future" cache header, used for static files whose name includes their digest hash.
 					// 1 year (31,536,000 seconds) is convention.
 					// Taken from https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#immutable
