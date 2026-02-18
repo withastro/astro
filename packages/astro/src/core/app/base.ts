@@ -307,11 +307,9 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 					}
 
 					if (locale) {
-						const withoutBase = this.removeBase(url.pathname);
-						pathname = prependForwardSlash(joinPaths(normalizeTheLocale(locale), withoutBase));
-						if (this.manifest.base !== '/') {
-							pathname = joinPaths(this.manifest.base, pathname);
-						}
+						pathname = prependForwardSlash(
+							joinPaths(normalizeTheLocale(locale), this.removeBase(url.pathname)),
+						);
 						if (url.pathname.endsWith('/')) {
 							pathname = appendForwardSlash(pathname);
 						}

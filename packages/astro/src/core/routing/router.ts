@@ -124,7 +124,7 @@ function stripBase(
 		return pathname.slice(baseWithoutTrailingSlash.length);
 	}
 
-	return null;
+	return pathname;
 }
 
 function normalizeFileFormatPathname(pathname: string): string {
