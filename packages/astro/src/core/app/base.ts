@@ -223,12 +223,9 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 		if (this.manifest.assets.has(url.pathname)) return undefined;
 		let pathname = this.computePathnameFromDomain(request);
 		if (!pathname) {
-			pathname = url.pathname;
-			if (this.manifest.base !== '/' && !pathname.startsWith(this.manifest.base)) {
-				pathname = joinPaths(this.manifest.base, pathname);
-			}
+			pathname = prependForwardSlash(this.removeBase(url.pathname));
 		}
-		const match = this.#router.match(decodeURI(pathname));
+		const match = this.#router.match(decodeURI(pathname), { allowWithoutBase: true });
 		if (match.type !== 'match') return undefined;
 		const routeData = match.route;
 		if (allowPrerenderedRoutes) {

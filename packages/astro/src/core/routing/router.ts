@@ -45,7 +45,10 @@ export class Router {
 		this.#trailingSlash = options.trailingSlash;
 	}
 
-	public match(inputPathname: string): RouterMatch {
+	public match(
+		inputPathname: string,
+		{ allowWithoutBase = false }: { allowWithoutBase?: boolean } = {},
+	): RouterMatch {
 		const normalized = normalizePathname(inputPathname);
 		if (normalized.redirect) {
 			return { type: 'redirect', location: normalized.redirect, status: 301 };
@@ -58,10 +61,12 @@ export class Router {
 			this.#trailingSlash,
 		);
 		if (!baseResult) {
-			return { type: 'none', reason: 'outside-base' };
+			if (!allowWithoutBase) {
+				return { type: 'none', reason: 'outside-base' };
+			}
 		}
 
-		let pathname = baseResult;
+		let pathname = baseResult ?? normalized.pathname;
 		if (this.#buildFormat === 'file') {
 			pathname = normalizeFileFormatPathname(pathname);
 		}
