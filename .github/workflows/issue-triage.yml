@@ -99,6 +99,9 @@ jobs:
           echo "To attach from your machine:"
           echo "  OPENCODE_API_URL=\$(grep -o 'https://[^ ]*\\.trycloudflare\\.com' /tmp/cloudflared.log) opencode attach"
 
+      - name: Checkout fix branch
+        run: git checkout -B "flue/fix-${{ github.event.issue.number }}"
+
       - name: Run workflow
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -108,6 +111,5 @@ jobs:
         run: |
           pnpm flue run .flue/workflows/issue-triage.ts \
             --sandbox $IMAGE:latest \
-            --args "{\"issueNumber\": $ISSUE_NUMBER, \"triageDir\": \"triage/issue-$ISSUE_NUMBER\"}" \
-            --branch "flue/fix-$ISSUE_NUMBER" \
+            --args "{\"issueNumber\": $ISSUE_NUMBER, \"branch\": \"flue/fix-$ISSUE_NUMBER\"}" \
             --model anthropic/claude-opus-4-6

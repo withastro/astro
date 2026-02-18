@@ -1,11 +1,24 @@
-import type { Flue } from '@flue/client';
-import { anthropic, github } from '@flue/client/proxies';
+import type { FlueClient } from '@flue/client';
+import { anthropic, github, githubBody } from '@flue/client/proxies';
 import * as v from 'valibot';
 
-export const proxies = [
-	anthropic({/*policy: 'allow-all'*/}),
-	github({ token: process.env.GITHUB_TOKEN!, policy: 'read-only' }),
-];
+export const proxies = {
+	anthropic: anthropic(),
+	github: github({
+		policy: {
+			base: 'allow-read',
+			allow: [
+				{ method: 'POST', path: '/graphql', body: githubBody.graphql() },
+				{ method: 'POST', path: '/*/git-upload-pack' },
+				{ method: 'GET', path: '/*/info/refs' },
+				{ method: 'POST', path: '/*/git-receive-pack' },
+				{ method: 'POST', path: '/repos/withastro/astro/issues/*/comments', limit: 2 },
+				{ method: 'POST', path: '/repos/withastro/astro/issues/*/labels', limit: 2 },
+				{ method: 'DELETE', path: '/repos/withastro/astro/issues/*/labels/*', limit: 2 },
+			],
+		},
+	}),
+};
 
 function assert(condition: unknown, message: string): asserts condition {
 	if (!condition) throw new Error(message);
@@ -31,7 +44,7 @@ const issueDetailsSchema = v.object({
 });
 type IssueDetails = v.InferOutput<typeof issueDetailsSchema>;
 
-async function shouldRetriage(flue: Flue, issue: IssueDetails): Promise<'yes' | 'no'> {
+async function shouldRetriage(flue: FlueClient, issue: IssueDetails): Promise<'yes' | 'no'> {
 	return flue.prompt(
 		`You are reviewing a GitHub issue conversation to decide whether a triage re-run is warranted.
 
@@ -69,7 +82,7 @@ const repoLabelSchema = v.object({
 });
 type RepoLabel = v.InferOutput<typeof repoLabelSchema>;
 
-async function fetchRepoLabels(flue: Flue): Promise<{
+async function fetchRepoLabels(flue: FlueClient): Promise<{
 	priorityLabels: RepoLabel[];
 	packageLabels: RepoLabel[];
 }> {
@@ -92,13 +105,13 @@ async function fetchRepoLabels(flue: Flue): Promise<{
 }
 
 async function selectTriageLabels(
-	flue: Flue,
+	flue: FlueClient,
 	{
 		comment,
 		priorityLabels,
 		packageLabels,
 	}: { comment: string; priorityLabels: RepoLabel[]; packageLabels: RepoLabel[] },
-): Promise<string> {
+): Promise<string[]> {
 	const priorityLabelNames = priorityLabels.map((l) => l.name);
 	const packageLabelNames = packageLabels.map((l) => l.name);
 
@@ -137,12 +150,11 @@ ${comment}
 		},
 	);
 
-	const allLabels = [labelResult.priority, ...labelResult.packages];
-	return allLabels.map((l) => `--add-label ${JSON.stringify(l)}`).join(' ');
+	return [labelResult.priority, ...labelResult.packages];
 }
 
 async function runTriagePipeline(
-	flue: Flue,
+	flue: FlueClient,
 	issueNumber: number,
 	issueDetails: IssueDetails,
 ): Promise<{
@@ -156,7 +168,7 @@ async function runTriagePipeline(
 	commitMessage: string | null;
 }> {
 	const reproduceResult = await flue.skill('triage/reproduce.md', {
-		args: { issueNumber, issueDetails},
+		args: { issueNumber, issueDetails },
 		result: v.object({
 			reproducible: v.pipe(
 				v.boolean(),
@@ -244,8 +256,13 @@ async function runTriagePipeline(
 	};
 }
 
-export default async function triage(flue: Flue) {
-	const { issueNumber } = v.parse(v.object({ issueNumber: v.number() }), flue.args);
+interface TriageArgs {
+	issueNumber: number;
+	branch: string;
+}
+
+export default async function triage(flue: FlueClient, args: TriageArgs) {
+	const { issueNumber, branch } = args;
 	const issueResult = await flue.shell(
 		`gh issue view ${issueNumber} --json title,body,author,labels,createdAt,state,number,url,comments`,
 	);
@@ -274,7 +291,7 @@ export default async function triage(flue: Flue) {
 	if (triageResult.fixed) {
 		const diff = await flue.shell('git diff main --stat');
 		if (diff.stdout.trim()) {
-			await flue.shell(`git checkout -B ${flue.branch}`);
+			await flue.shell(`git checkout -B ${branch}`);
 			const status = await flue.shell('git status --porcelain');
 			if (status.stdout.trim()) {
 				await flue.shell('git add -A');
@@ -282,7 +299,7 @@ export default async function triage(flue: Flue) {
 					`git commit -m ${JSON.stringify(triageResult.commitMessage ?? 'fix(auto-triage): automated fix')}`,
 				);
 			}
-			const pushResult = await flue.shell(`git push -f origin ${flue.branch}`);
+			const pushResult = await flue.shell(`git push -f origin ${branch}`);
 			console.info('push result:', pushResult);
 			isPushed = pushResult.exitCode === 0;
 		}
@@ -294,7 +311,7 @@ export default async function triage(flue: Flue) {
 	assert(priorityLabels.length > 0, 'no priority labels found');
 	assert(packageLabels.length > 0, 'no package labels found');
 
-	const branchName = isPushed ? flue.branch : null;
+	const branchName = isPushed ? branch : null;
 	const comment = await flue.skill('triage/comment.md', {
 		args: { branchName, priorityLabels, issueDetails },
 		result: v.pipe(
@@ -305,26 +322,33 @@ export default async function triage(flue: Flue) {
 		),
 	});
 
-	await flue.shell(`gh issue comment ${issueNumber} --body-file -`, {
+	await flue.shell(`gh api repos/withastro/astro/issues/${issueNumber}/comments -f body=@-`, {
 		stdin: comment,
 	});
 
 	if (triageResult.reproducible) {
-		await flue.shell(`gh issue edit ${issueNumber} --remove-label "needs triage"`);
+		await flue.shell(
+			`gh api -X DELETE repos/withastro/astro/issues/${issueNumber}/labels/needs%20triage`,
+		);
 
-		const labelFlags = await selectTriageLabels(flue, {
+		const selectedLabels = await selectTriageLabels(flue, {
 			comment,
 			priorityLabels,
 			packageLabels,
 		});
-		if (labelFlags) {
-			await flue.shell(`gh issue edit ${issueNumber} ${labelFlags}`);
+		if (selectedLabels.length > 0) {
+			const labelsJson = JSON.stringify({ labels: selectedLabels });
+			await flue.shell(
+				`echo '${labelsJson}' | gh api repos/withastro/astro/issues/${issueNumber}/labels --input -`,
+			);
 		}
 	} else if (triageResult.skipped) {
 		// Triage was skipped due to a runner limitation. Keep "needs triage" so a
 		// maintainer can still pick it up, and add "auto triage skipped" to prevent
 		// the workflow from re-running on every new comment.
-		await flue.shell(`gh issue edit ${issueNumber} --add-label "auto triage skipped"`);
+		await flue.shell(
+			`echo '{"labels":["auto triage skipped"]}' | gh api repos/withastro/astro/issues/${issueNumber}/labels --input -`,
+		);
 	} else {
 		// Not reproducible: do nothing. The "needs triage" label stays on the issue
 		// so that it can continue to be worked on and triaged by the humans.
