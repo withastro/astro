@@ -1,0 +1,42 @@
+---
+// Test fixture for issue #15558
+// Content inside closed details elements should not be flagged as missing content
+---
+
+<h1>Testing Details Element</h1>
+
+<!-- Closed details with heading - should NOT be flagged -->
+<details>
+	<summary>Click to expand</summary>
+	<h2>Hidden Heading Inside Details</h2>
+	<p>This heading has content but is hidden inside a closed details element.</p>
+</details>
+
+<!-- Closed details with anchor - should NOT be flagged -->
+<details>
+	<summary>More information</summary>
+	<a href="#test">Hidden Link Inside Details</a>
+	<p>This link has content but is hidden inside a closed details element.</p>
+</details>
+
+<!-- Open details with heading - should NOT be flagged -->
+<details open>
+	<summary>Already expanded</summary>
+	<h2>Visible Heading Inside Open Details</h2>
+	<p>This is visible content.</p>
+</details>
+
+<!-- Multiple nested elements in closed details - should NOT be flagged -->
+<details>
+	<summary>Complex content</summary>
+	<div>
+		<h3>Nested Heading</h3>
+		<a href="#nested">Nested Link</a>
+	</div>
+</details>
+
+<!-- Empty heading - SHOULD be flagged -->
+<h2></h2>
+
+<!-- Empty link - SHOULD be flagged -->
+<a href="#empty"></a>

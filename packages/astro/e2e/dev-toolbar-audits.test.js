@@ -259,4 +259,26 @@ test.describe('Dev Toolbar - Audits', () => {
 		const count = await auditHighlights.count();
 		expect(count).toEqual(0);
 	});
+
+	test('does not warn about content inside closed details elements', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/a11y-details'));
+
+		const toolbar = page.locator('astro-dev-toolbar');
+		const appButton = toolbar.locator('button[data-app-id="astro:audit"]');
+		await appButton.click();
+
+		const auditCanvas = toolbar.locator('astro-dev-toolbar-app-canvas[data-app-id="astro:audit"]');
+		const auditHighlights = auditCanvas.locator('astro-dev-toolbar-highlight');
+
+		// Should only flag the 2 empty elements (empty h2 and empty anchor)
+		// Should NOT flag the headings and anchors inside closed details elements
+		const count = await auditHighlights.count();
+		expect(count).toEqual(2);
+
+		// Verify that both flagged elements have the a11y-missing-content code
+		for (const auditHighlight of await auditHighlights.all()) {
+			const auditCode = await auditHighlight.getAttribute('data-audit-code');
+			expect(auditCode).toBe('a11y-missing-content');
+		}
+	});
 });
