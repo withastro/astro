@@ -51,6 +51,7 @@ import { vitePluginEnvironment } from '../vite-plugin-environment/index.js';
 import { ASTRO_VITE_ENVIRONMENT_NAMES } from './constants.js';
 import { vitePluginChromedevtools } from '../vite-plugin-chromedevtools/index.js';
 import { vitePluginAstroServerClient } from '../vite-plugin-overlay/index.js';
+import { vitePluginShikiStyles } from '../vite-plugin-shiki-styles/index.js';
 
 type CreateViteOptions = {
 	settings: AstroSettings;
@@ -166,6 +167,7 @@ export async function createVite(
 			astroContainer(),
 			astroHmrReloadPlugin(),
 			vitePluginChromedevtools({ settings }),
+			vitePluginShikiStyles(),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
@@ -259,7 +261,7 @@ export async function createVite(
 			{ command: command === 'dev' ? 'serve' : command, mode },
 		];
 		// @ts-expect-error ignore TS2589: Type instantiation is excessively deep and possibly infinite.
-		plugins = plugins.flat(Infinity).filter((p) => {
+		plugins = plugins.flat(Number.POSITIVE_INFINITY).filter((p) => {
 			if (!p || p?.apply === applyToFilter) {
 				return false;
 			}

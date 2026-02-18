@@ -15,6 +15,7 @@ declare module 'vfile' {
 			localImagePaths?: string[];
 			remoteImagePaths?: string[];
 			frontmatter?: Record<string, any>;
+			hasCodeBlocks?: boolean;
 		};
 	}
 }
@@ -92,6 +93,8 @@ export interface MarkdownProcessorRenderResult {
 		localImagePaths: string[];
 		remoteImagePaths: string[];
 		frontmatter: Record<string, any>;
+		/** Whether the markdown contained code blocks that were syntax highlighted */
+		hasCodeBlocks?: boolean;
 	};
 }
 

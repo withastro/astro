@@ -19,8 +19,7 @@ const categoryIcons = new Map(
 export function iconForIntegration(integration: Integration) {
 	const icons = integration.categories
 		.filter((category: string) => categoryIcons.has(category))
-		.map((category: string) => categoryIcons.get(category)!)
-		.flat();
+		.flatMap((category: string) => categoryIcons.get(category)!);
 
 	return randomFromArray(icons);
 }
