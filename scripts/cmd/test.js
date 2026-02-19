@@ -101,7 +101,7 @@ export default async function test() {
 		forceExit: args.values['force-exit'],
 	})
 		.on('test:fail', () => {
-			// For some reason, a test fail using the JS API does not set an exit code of 1,
+			// For some reason, a test failure using the JS API does not set an exit code of 1,
 			// so we set it here manually
 			process.exitCode = 1;
 		})
