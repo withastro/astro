@@ -598,6 +598,9 @@ importers:
       neotraverse:
         specifier: ^0.6.18
         version: 0.6.18
+      obug:
+        specifier: ^2.1.1
+        version: 2.1.1
       p-limit:
         specifier: ^7.3.0
         version: 7.3.0
@@ -680,6 +683,9 @@ importers:
       '@types/cssesc':
         specifier: ^3.0.2
         version: 3.0.2
+      '@types/debug':
+        specifier: ^4.1.12
+        version: 4.1.12
       '@types/dlv':
         specifier: ^1.1.5
         version: 1.1.5

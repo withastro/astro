@@ -9,7 +9,6 @@ import { astroFrontmatterScanPlugin } from './esbuild-plugin-astro-frontmatter.j
 import { getParts } from './utils/generate-routes-json.js';
 import { type ImageService, setImageConfig } from './utils/image-config.js';
 import { createConfigPlugin } from './vite-plugin-config.js';
-import { createWasmUrlPlugin } from './vite-plugin-wasm-url.js';
 import {
 	cloudflareConfigCustomizer,
 	DEFAULT_SESSION_KV_BINDING_NAME,
@@ -191,7 +190,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							createConfigPlugin({
 								sessionKVBindingName,
 							}),
-							createWasmUrlPlugin(),
 						],
 					},
 					image: setImageConfig(args?.imageService ?? 'compile', config.image, command, logger),
