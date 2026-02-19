@@ -1,5 +1,165 @@
 # astro
 
+## 6.0.0-beta.13
+
+### Major Changes
+
+- [#15451](https://github.com/withastro/astro/pull/15451) [`84d6efd`](https://github.com/withastro/astro/commit/84d6efd9f1036fdf3c29e9b786b4a96453a607ed) Thanks [@ematipico](https://github.com/ematipico)! - Changes how styles applied to code blocks are emitted to support CSP - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-how-shiki-code-block-styles-are-emitted))
+
+### Minor Changes
+
+- [#15529](https://github.com/withastro/astro/pull/15529) [`a509941`](https://github.com/withastro/astro/commit/a509941a7a7a1e53f402757234bb88e5503e5119) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new build-in font provider `npm` to access fonts installed as NPM packages
+
+  You can now add web fonts specified in your `package.json` through Astro's type-safe Fonts API. The `npm` font provider allows you to add fonts either from locally installed packages in `node_modules` or from a CDN.
+
+  Set `fontProviders.npm()` as your fonts provider along with the required `name` and `cssVariable` values, and add `options` as needed:
+
+  ```js
+  import { defineConfig, fontProviders } from 'astro/config';
+
+  export default defineConfig({
+    experimental: {
+      fonts: [
+        {
+          name: 'Roboto',
+          provider: fontProviders.npm(),
+          cssVariable: '--font-roboto',
+        },
+      ],
+    },
+  });
+  ```
+
+  See the [NPM font provider reference documentation](https://v6.docs.astro.build/en/reference/font-provider-reference/#npm) for more details.
+
+- [#15548](https://github.com/withastro/astro/pull/15548) [`5b8f573`](https://github.com/withastro/astro/commit/5b8f5737feb1a051b7cbd5d543dd230492e5211f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds a new optional `embeddedLangs` prop to the `<Code />` component to support languages beyond the primary `lang`
+
+  This allows, for example, highlighting `.vue` files with a `<script setup lang="tsx">` block correctly:
+
+  ```astro
+  ---
+  import { Code } from 'astro:components';
+
+  const code = `
+  <script setup lang="tsx">
+  const Text = ({ text }: { text: string }) => <div>{text}</div>;
+  </script>
+  
+  <template>
+    <Text text="hello world" />
+  </template>`;
+  ---
+
+  <Code {code} lang="vue" embeddedLangs={['tsx']} />
+  ```
+
+  See the [`<Code />` component documentation](https://v6.docs.astro.build/en/guides/syntax-highlighting/#code-) for more details.
+
+- [#15483](https://github.com/withastro/astro/pull/15483) [`7be3308`](https://github.com/withastro/astro/commit/7be3308bf4b1710a3f378ba338d09a8528e01e76) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Adds `streaming` option to the `createApp()` function in the Adapter API, mirroring the same functionality available when creating a new `App` instance
+
+  An adapter's `createApp()` function now accepts `streaming` (defaults to `true`) as an option. HTML streaming breaks a document into chunks to send over the network and render on the page in order. This normally results in visitors seeing your HTML as fast as possible but factors such as network conditions and waiting for data fetches can block page rendering.
+
+  HTML streaming helps with performance and generally provides a better visitor experience. In most cases, disabling streaming is not recommended.
+
+  However, when you need to disable HTML streaming (e.g. your host only supports non-streamed HTML caching at the CDN level), you can opt out of the default behavior by passing `streaming: false` to `createApp()`:
+
+  ```ts
+  import { createApp } from 'astro/app/entrypoint';
+
+  const app = createApp({ streaming: false });
+  ```
+
+  See more about [the `createApp()` function](https://v6.docs.astro.build/en/reference/adapter-reference/#createapp) in the Adapter API reference.
+
+### Patch Changes
+
+- [#15542](https://github.com/withastro/astro/pull/15542) [`9760404`](https://github.com/withastro/astro/commit/97604040b73ec1d029f5d5a489aa744aaecfd173) Thanks [@rururux](https://github.com/rururux)! - Improves rendering by preserving `hidden="until-found"` value in attribues
+
+- [#15550](https://github.com/withastro/astro/pull/15550) [`58df907`](https://github.com/withastro/astro/commit/58df9072391fbfcd703e8d791ca51b7bedefb730) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves the JSDoc annotations for the `AstroAdapter` type
+
+- [#15507](https://github.com/withastro/astro/pull/15507) [`07f6610`](https://github.com/withastro/astro/commit/07f66101ed2850874c8a49ddf1f1609e6b1339fb) Thanks [@matthewp](https://github.com/matthewp)! - Avoid bundling SSR renderers when only API endpoints are dynamic
+
+- [#15459](https://github.com/withastro/astro/pull/15459) [`a4406b4`](https://github.com/withastro/astro/commit/a4406b4dfbca3756983b82c37d7c74f84d2de096) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a case where `context.csp` was logging warnings in development that should be logged in production only
+
+- Updated dependencies [[`84d6efd`](https://github.com/withastro/astro/commit/84d6efd9f1036fdf3c29e9b786b4a96453a607ed)]:
+  - @astrojs/markdown-remark@7.0.0-beta.7
+
+## 6.0.0-beta.12
+
+### Major Changes
+
+- [#15535](https://github.com/withastro/astro/pull/15535) [`dfe2e22`](https://github.com/withastro/astro/commit/dfe2e22042f92172442ab32777b3cce90685b76a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates `loadManifest()` and `loadApp()` from `astro/app/node` (Adapter API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-loadmanifest-and-loadapp-from-astroappnode-adapter-api))
+
+- [#15461](https://github.com/withastro/astro/pull/15461) [`9f21b24`](https://github.com/withastro/astro/commit/9f21b243d21478cdc5fb0193e05adad8e753839f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - **BREAKING CHANGE to the v6 beta Adapter API only**: renames `entryType` to `entrypointResolution` and updates possible values
+
+  Astro 6 introduced a way to let adapters have more control over the entrypoint by passing `entryType: 'self'` to `setAdapter()`. However during beta development, the name was unclear and confusing.
+
+  `entryType` is now renamed to `entrypointResolution` and its possible values are updated:
+  - `legacy-dynamic` becomes `explicit`.
+  - `self` becomes `auto`.
+
+  If you are building an adapter with v6 beta and specifying `entryType`, update it:
+
+  ```diff
+  setAdapter({
+      // ...
+  -    entryType: 'legacy-dynamic'
+  +    entrypointResolution: 'explicit'
+  })
+
+  setAdapter({
+      // ...
+  -    entryType: 'self'
+  +    entrypointResolution: 'auto'
+  })
+  ```
+
+- [#15461](https://github.com/withastro/astro/pull/15461) [`9f21b24`](https://github.com/withastro/astro/commit/9f21b243d21478cdc5fb0193e05adad8e753839f) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates `createExports()` and `start()` (Adapter API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-createexports-and-start-adapter-api))
+
+- [#15535](https://github.com/withastro/astro/pull/15535) [`dfe2e22`](https://github.com/withastro/astro/commit/dfe2e22042f92172442ab32777b3cce90685b76a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Deprecates `NodeApp` from `astro/app/node` (Adapter API) - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#deprecated-nodeapp-from-astroappnode-adapter-api))
+
+- [#15407](https://github.com/withastro/astro/pull/15407) [`aedbbd8`](https://github.com/withastro/astro/commit/aedbbd818628bed0533cdd627b73e2c5365aa17e) Thanks [@ematipico](https://github.com/ematipico)! - Changes how styles of responsive images are emitted - ([v6 upgrade guidance](https://v6.docs.astro.build/en/guides/upgrade-to/v6/#changed-how-responsive-image-styles-are-emitted))
+
+### Minor Changes
+
+- [#15535](https://github.com/withastro/astro/pull/15535) [`dfe2e22`](https://github.com/withastro/astro/commit/dfe2e22042f92172442ab32777b3cce90685b76a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Exports new `createRequest()` and `writeResponse()` utilities from `astro/app/node`
+
+  To replace the deprecated `NodeApp.createRequest()` and `NodeApp.writeResponse()` methods, the `astro/app/node` module now exposes new `createRequest()` and `writeResponse()` utilities. These can be used to convert a NodeJS `IncomingMessage` into a web-standard `Request` and stream a web-standard `Response` into a NodeJS `ServerResponse`:
+
+  ```js
+  import { createApp } from 'astro/app/entrypoint';
+  import { createRequest, writeResponse } from 'astro/app/node';
+  import { createServer } from 'node:http';
+
+  const app = createApp();
+
+  const server = createServer(async (req, res) => {
+    const request = createRequest(req);
+    const response = await app.render(request);
+    await writeResponse(response, res);
+  });
+  ```
+
+- [#15407](https://github.com/withastro/astro/pull/15407) [`aedbbd8`](https://github.com/withastro/astro/commit/aedbbd818628bed0533cdd627b73e2c5365aa17e) Thanks [@ematipico](https://github.com/ematipico)! - Adds support for responsive images when `security.csp` is enabled, out of the box.
+
+  Astro's implementation of responsive image styles has been updated to be compatible with a configured Content Security Policy.
+
+  Instead of, injecting style elements at runtime, Astro will now generate your styles at build time using a combination of `class=""` and `data-*` attributes. This means that your processed styles are loaded and hashed out of the box by Astro.
+
+  If you were previously choosing between Astro's CSP feature and including responsive images on your site, you may now use them together.
+
+### Patch Changes
+
+- [#15508](https://github.com/withastro/astro/pull/15508) [`2c6484a`](https://github.com/withastro/astro/commit/2c6484a4c34e86b8a26342a48986da26768de27b) Thanks [@KTibow](https://github.com/KTibow)! - Fixes behavior when shortcuts are used before server is ready
+
+- [#15497](https://github.com/withastro/astro/pull/15497) [`a93c81d`](https://github.com/withastro/astro/commit/a93c81de493e912aeba1d829d9ccf6997b2eb806) Thanks [@matthewp](https://github.com/matthewp)! - Fix dev reloads for content collection Markdown updates under Vite 7.
+
+- [#15535](https://github.com/withastro/astro/pull/15535) [`dfe2e22`](https://github.com/withastro/astro/commit/dfe2e22042f92172442ab32777b3cce90685b76a) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes the types of `createApp()` exported from `astro/app/entrypoint`
+
+- [#15491](https://github.com/withastro/astro/pull/15491) [`6c60b05`](https://github.com/withastro/astro/commit/6c60b05b8d6774da04567dc8b85b5f2956e9da0c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes a case where setting `vite.server.allowedHosts: true` was turned into an invalid array
+
+- [#14589](https://github.com/withastro/astro/pull/14589) [`7038f07`](https://github.com/withastro/astro/commit/7038f0700898a17cb87b5a2e408480c1226a47f4) Thanks [@43081j](https://github.com/43081j)! - Improves CLI styling
+
 ## 6.0.0-beta.11
 
 ### Major Changes

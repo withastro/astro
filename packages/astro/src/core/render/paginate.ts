@@ -41,7 +41,7 @@ export function generatePaginateFunction(
 
 		const result = [...Array(lastPage).keys()].map((num) => {
 			const pageNum = num + 1;
-			const start = pageSize === Infinity ? 0 : (pageNum - 1) * pageSize; // currentPage is 1-indexed
+			const start = pageSize === Number.POSITIVE_INFINITY ? 0 : (pageNum - 1) * pageSize; // currentPage is 1-indexed
 			const end = Math.min(start + pageSize, data.length);
 			const params = {
 				...additionalParams,

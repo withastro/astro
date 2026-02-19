@@ -54,7 +54,7 @@ export function validateSupportedFeatures(
 		adapterName,
 		logger,
 		'hybridOutput',
-		() => settings.config.output == 'static' && settings.buildOutput === 'server',
+		() => settings.config.output === 'static' && settings.buildOutput === 'server',
 	);
 
 	validationResult.serverOutput = validateSupportKind(

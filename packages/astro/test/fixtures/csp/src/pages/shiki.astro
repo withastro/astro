@@ -1,0 +1,51 @@
+---
+import { Code } from 'astro:components';
+
+const jsCode = `
+function greet(name) {
+  console.log('Hello, ' + name);
+  return 'Welcome!';
+}
+
+greet('World');
+`;
+
+const tsCode = `
+interface User {
+  name: string;
+  age: number;
+}
+
+const user: User = {
+  name: 'Alice',
+  age: 30
+};
+`;
+---
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Code Component CSP Test</title>
+</head>
+<body>
+  <h1>Testing Code.astro with CSP</h1>
+  
+  <h2>JavaScript Example</h2>
+  <Code code={jsCode} lang="js" theme="github-dark" />
+  
+  <h2>TypeScript Example</h2>
+  <Code code={tsCode} lang="ts" theme="github-dark" />
+  
+  <h2>Dual Themes Example</h2>
+  <Code 
+    code="const x = 42;" 
+    lang="js" 
+    themes={{
+      light: 'github-light',
+      dark: 'github-dark'
+    }}
+    defaultColor="light"
+  />
+</body>
+</html>

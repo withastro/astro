@@ -113,7 +113,7 @@ const service: ExternalImageService = {
 				if (typeof density === 'number') {
 					return density;
 				} else {
-					return parseFloat(density);
+					return Number.parseFloat(density);
 				}
 			});
 

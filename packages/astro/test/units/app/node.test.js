@@ -1,7 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
 import { describe, it } from 'node:test';
-import { NodeApp } from '../../../dist/core/app/node.js';
+import { createRequest, writeResponse } from '../../../dist/core/app/node.js';
 
 const mockNodeRequest = {
 	url: '/',
@@ -15,11 +15,11 @@ const mockNodeRequest = {
 	},
 };
 
-describe('NodeApp', () => {
+describe('node', () => {
 	describe('createRequest', () => {
 		describe('x-forwarded-for', () => {
 			it('parses client IP from single-value x-forwarded-for header', () => {
-				const result = NodeApp.createRequest({
+				const result = createRequest({
 					...mockNodeRequest,
 					headers: {
 						'x-forwarded-for': '1.1.1.1',
@@ -29,7 +29,7 @@ describe('NodeApp', () => {
 			});
 
 			it('parses client IP from multi-value x-forwarded-for header', () => {
-				const result = NodeApp.createRequest({
+				const result = createRequest({
 					...mockNodeRequest,
 					headers: {
 						'x-forwarded-for': '1.1.1.1,8.8.8.8',
@@ -39,7 +39,7 @@ describe('NodeApp', () => {
 			});
 
 			it('parses client IP from multi-value x-forwarded-for header with spaces', () => {
-				const result = NodeApp.createRequest({
+				const result = createRequest({
 					...mockNodeRequest,
 					headers: {
 						'x-forwarded-for': ' 1.1.1.1, 8.8.8.8, 8.8.8.2',
@@ -49,7 +49,7 @@ describe('NodeApp', () => {
 			});
 
 			it('fallbacks to remoteAddress when no x-forwarded-for header is present', () => {
-				const result = NodeApp.createRequest({
+				const result = createRequest({
 					...mockNodeRequest,
 					headers: {},
 				});
@@ -59,7 +59,7 @@ describe('NodeApp', () => {
 
 		describe('x-forwarded-host', () => {
 			it('parses host from single-value x-forwarded-host header', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -72,7 +72,7 @@ describe('NodeApp', () => {
 			});
 
 			it('parses host from multi-value x-forwarded-host header', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -85,7 +85,7 @@ describe('NodeApp', () => {
 			});
 
 			it('fallbacks to host header when no x-forwarded-host header is present', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -98,7 +98,7 @@ describe('NodeApp', () => {
 			});
 
 			it('bad values are ignored and fallback to host header', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -112,7 +112,7 @@ describe('NodeApp', () => {
 			});
 
 			it('rejects empty x-forwarded-host and falls back to host header', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -126,7 +126,7 @@ describe('NodeApp', () => {
 			});
 
 			it('rejects x-forwarded-host with no dots (e.g. localhost) against single wildcard pattern', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -141,7 +141,7 @@ describe('NodeApp', () => {
 			});
 
 			it('rejects x-forwarded-host with path separator (path injection attempt)', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -156,7 +156,7 @@ describe('NodeApp', () => {
 			});
 
 			it('rejects x-forwarded-host with multiple path segments', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -171,7 +171,7 @@ describe('NodeApp', () => {
 			});
 
 			it('rejects x-forwarded-host with backslash path separator (path injection attempt)', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -186,7 +186,7 @@ describe('NodeApp', () => {
 			});
 
 			it('parses x-forwarded-host with embedded port when allowedDomains has port pattern', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -202,7 +202,7 @@ describe('NodeApp', () => {
 		});
 
 		it('rejects Host header with path separator (path injection attempt)', () => {
-			const result = NodeApp.createRequest({
+			const result = createRequest({
 				...mockNodeRequest,
 				headers: {
 					host: 'example.com/admin',
@@ -213,7 +213,7 @@ describe('NodeApp', () => {
 		});
 
 		it('rejects Host header with backslash path separator (path injection attempt)', () => {
-			const result = NodeApp.createRequest({
+			const result = createRequest({
 				...mockNodeRequest,
 				headers: {
 					host: 'example.com\\admin',
@@ -225,7 +225,7 @@ describe('NodeApp', () => {
 
 		describe('Host header validation', () => {
 			it('rejects Host header when allowedDomains is configured but host does not match', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -239,7 +239,7 @@ describe('NodeApp', () => {
 			});
 
 			it('accepts Host header when it matches allowedDomains', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -252,7 +252,7 @@ describe('NodeApp', () => {
 			});
 
 			it('accepts Host header with port when it matches allowedDomains pattern', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -265,7 +265,7 @@ describe('NodeApp', () => {
 			});
 
 			it('accepts Host header with wildcard pattern in allowedDomains', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -278,7 +278,7 @@ describe('NodeApp', () => {
 			});
 
 			it('falls back to localhost when no allowedDomains is configured', () => {
-				const result = NodeApp.createRequest({
+				const result = createRequest({
 					...mockNodeRequest,
 					headers: {
 						host: 'any-host.com',
@@ -289,7 +289,7 @@ describe('NodeApp', () => {
 			});
 
 			it('falls back to localhost when allowedDomains is empty', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -303,7 +303,7 @@ describe('NodeApp', () => {
 			});
 
 			it('prefers x-forwarded-host over Host header when both match allowedDomains', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -319,7 +319,7 @@ describe('NodeApp', () => {
 
 		describe('x-forwarded-proto', () => {
 			it('parses protocol from single-value x-forwarded-proto header', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -334,7 +334,7 @@ describe('NodeApp', () => {
 			});
 
 			it('parses protocol from multi-value x-forwarded-proto header', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -349,7 +349,7 @@ describe('NodeApp', () => {
 			});
 
 			it('fallbacks to encrypted property when no x-forwarded-proto header is present', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -362,7 +362,7 @@ describe('NodeApp', () => {
 			});
 
 			it('rejects malicious x-forwarded-proto with URL injection (https://www.malicious-url.com/?tank=)', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -376,7 +376,7 @@ describe('NodeApp', () => {
 			});
 
 			it('rejects malicious x-forwarded-proto with middleware bypass attempt (x:admin?)', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -390,7 +390,7 @@ describe('NodeApp', () => {
 			});
 
 			it('rejects malicious x-forwarded-proto with cache poison attempt (https://localhost/vulnerable?)', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -404,7 +404,7 @@ describe('NodeApp', () => {
 			});
 
 			it('rejects malicious x-forwarded-proto with XSS attempt (javascript:alert(document.cookie)//)', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -418,7 +418,7 @@ describe('NodeApp', () => {
 			});
 
 			it('rejects empty x-forwarded-proto and falls back to encrypted property', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -430,11 +430,78 @@ describe('NodeApp', () => {
 				);
 				assert.equal(result.url, 'https://example.com/');
 			});
+
+			it('accepts x-forwarded-proto when allowedDomains has protocol and hostname', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+						headers: {
+							host: 'myapp.example.com',
+							'x-forwarded-proto': 'https',
+						},
+					},
+					{ allowedDomains: [{ protocol: 'https', hostname: 'myapp.example.com' }] },
+				);
+				// Without the fix, protocol validation fails due to hostname mismatch
+				// and falls back to socket.encrypted (false → http)
+				assert.equal(result.url, 'https://myapp.example.com/');
+			});
+
+			it('rejects x-forwarded-proto when it does not match protocol in allowedDomains', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+						headers: {
+							host: 'myapp.example.com',
+							'x-forwarded-proto': 'http',
+						},
+					},
+					{ allowedDomains: [{ protocol: 'https', hostname: 'myapp.example.com' }] },
+				);
+				// http is not in allowedDomains (only https), protocol falls back to socket (false → http)
+				// Host validation also fails because http doesn't match the pattern's protocol: 'https'
+				assert.equal(result.url, 'http://localhost/');
+			});
+
+			it('accepts x-forwarded-proto with wildcard hostname pattern in allowedDomains', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+						headers: {
+							host: 'myapp.example.com',
+							'x-forwarded-proto': 'https',
+						},
+					},
+					{ allowedDomains: [{ protocol: 'https', hostname: '**.example.com' }] },
+				);
+				assert.equal(result.url, 'https://myapp.example.com/');
+			});
+
+			it('constructs correct URL behind reverse proxy with all forwarded headers', () => {
+				// Simulates: Reverse proxy terminates TLS, connects to Astro via HTTP,
+				// forwards original protocol/host/port via X-Forwarded-* headers
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
+						headers: {
+							host: 'myapp.example.com',
+							'x-forwarded-proto': 'https',
+							'x-forwarded-host': 'myapp.example.com',
+						},
+					},
+					{ allowedDomains: [{ protocol: 'https', hostname: 'myapp.example.com' }] },
+				);
+				assert.equal(result.url, 'https://myapp.example.com/');
+			});
 		});
 
 		describe('x-forwarded-port', () => {
 			it('parses port from single-value x-forwarded-port header (with allowedDomains)', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -453,7 +520,7 @@ describe('NodeApp', () => {
 			});
 
 			it('parses port from multi-value x-forwarded-port header (with allowedDomains)', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -472,7 +539,7 @@ describe('NodeApp', () => {
 			});
 
 			it('rejects x-forwarded-port without allowedDomains patterns (strict security default)', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -486,7 +553,7 @@ describe('NodeApp', () => {
 			});
 
 			it('prefers port from host', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -500,7 +567,7 @@ describe('NodeApp', () => {
 			});
 
 			it('uses port embedded in x-forwarded-host', () => {
-				const result = NodeApp.createRequest(
+				const result = createRequest(
 					{
 						...mockNodeRequest,
 						headers: {
@@ -521,7 +588,7 @@ describe('NodeApp', () => {
 			socket.encrypted = true;
 			socket.remoteAddress = '2.2.2.2';
 			socket.destroyed = false;
-			const result = NodeApp.createRequest({
+			const result = createRequest({
 				...mockNodeRequest,
 				socket,
 			});
@@ -540,13 +607,13 @@ describe('NodeApp', () => {
 				...mockNodeRequest,
 				socket,
 			};
-			const result = NodeApp.createRequest(nodeRequest);
+			const result = createRequest(nodeRequest);
 			assert.equal(typeof result.signal.addEventListener, 'function');
 			assert.equal(socket.listenerCount('close') > 0, true);
 
 			const response = new Response('ok');
 			const destination = new MockServerResponse(nodeRequest);
-			await NodeApp.writeResponse(response, destination);
+			await writeResponse(response, destination);
 
 			assert.equal(result.signal.aborted, false);
 			assert.equal(socket.listenerCount('close'), 0);
