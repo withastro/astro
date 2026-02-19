@@ -329,7 +329,7 @@ export class RenderContext {
 			return response;
 		};
 
-		// If we are rendering an extrnal redirect, we don't need go through the middleware,
+		// If we are rendering an external redirect, we don't need go through the middleware,
 		// otherwise Astro will attempt to render the external website
 		if (isRouteExternalRedirect(this.routeData)) {
 			return renderRedirect(this);
