@@ -261,7 +261,7 @@ export async function createVite(
 			{ command: command === 'dev' ? 'serve' : command, mode },
 		];
 		// @ts-expect-error ignore TS2589: Type instantiation is excessively deep and possibly infinite.
-		plugins = plugins.flat(Infinity).filter((p) => {
+		plugins = plugins.flat(Number.POSITIVE_INFINITY).filter((p) => {
 			if (!p || p?.apply === applyToFilter) {
 				return false;
 			}

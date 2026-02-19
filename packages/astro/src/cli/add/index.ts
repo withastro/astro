@@ -839,7 +839,7 @@ async function tryToInstallIntegrations({
 
 	const inheritedFlags = Object.entries(flags)
 		.map(([flag]) => {
-			if (flag == '_') return;
+			if (flag === '_') return;
 			if (INHERITED_FLAGS.has(flag)) {
 				if (flag.length === 1) return `-${flag}`;
 				return `--${flag}`;
