@@ -4,7 +4,7 @@
 
 Adds new `middlewareMode` adapter feature that replaces `edgeMiddleware` option
 
-This feature only impacts adapter developers. If your adapter supports `edgeMiddleware`, you should now use the new `middlewareMode` option to specify the middleware mode for your adapter. The `edgeMiddleware` feature is deprecated and will be removed in a future release.
+This feature only impacts adapter authors. If your adapter supports `edgeMiddleware`, you should upgrade to the new `middlewareMode` option to specify the middleware mode for your adapter as soon as possible. The `edgeMiddleware` feature is deprecated and will be removed in a future major release.
 
 ```diff
 export default function createIntegration() {
