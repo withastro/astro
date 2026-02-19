@@ -69,7 +69,7 @@ Skip if the bug is specific to Bun or Deno. Our sandbox only supports Node.js.
 
 ### Maintainer Override (`maintainer-override`)
 
-Skip if a repository maintainer has commented that this issue should not be reproduced here. To determine if a commenter is a maintainer, check the `author_association` field on their comment in `issueDetails` — values of `MEMBER`, `COLLABORATOR`, or `OWNER` indicate a maintainer.
+Skip if a repository maintainer has commented that this issue should not be reproduced here. To determine if a commenter is a maintainer, check the `authorAssociation` field on their comment in `issueDetails` — values of `MEMBER`, `COLLABORATOR`, or `OWNER` indicate a maintainer.
 
 ## Step 3: Set Up Reproduction Project
 
