@@ -53,6 +53,12 @@ export function astroContentAssetPropagationPlugin({
 							message: AstroErrorData.ImageNotFound.message(base),
 						});
 					}
+					// Preserve the content image flag on the resolved ID so downstream plugins
+					// (e.g. vite-plugin-assets) know this is a content collection image import.
+					// This is important for SVGs: without the flag, SVGs get turned into full
+					// Astro components (importing createComponent from the server runtime), which
+					// can create circular module dependencies when used with top-level await.
+					resolved.id += `?${CONTENT_IMAGE_FLAG}`;
 					return resolved;
 				}
 				if (hasContentFlag(id, CONTENT_RENDER_FLAG)) {

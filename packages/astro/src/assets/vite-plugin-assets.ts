@@ -2,6 +2,7 @@ import type * as fsMod from 'node:fs';
 import { extname } from 'node:path';
 import MagicString from 'magic-string';
 import type * as vite from 'vite';
+import { CONTENT_IMAGE_FLAG } from '../content/consts.js';
 import { AstroError, AstroErrorData } from '../core/errors/index.js';
 import type { Logger } from '../core/logger/core.js';
 import {
@@ -266,6 +267,16 @@ export const inferRemoteSize = async (url) => {
 					if (!globalThis.astroAsset.referencedImages)
 						globalThis.astroAsset.referencedImages = new Set();
 
+					// Check if this is a content collection image import (has astroContentImageFlag).
+					// Content collection images only need plain metadata, not full components.
+					// This is critical for SVGs: creating SVG components imports createComponent from
+					// the server runtime, which can cause circular module dependencies with TLA.
+					const isContentImage = id.includes(CONTENT_IMAGE_FLAG);
+					if (isContentImage) {
+						// Strip the content image flag to get the real file path
+						id = removeQueryString(id);
+					}
+
 					if (id !== removeQueryString(id)) {
 						// If our import has any query params, we'll let Vite handle it, nonetheless we'll make sure to not delete it
 						// See https://github.com/withastro/astro/issues/8333
@@ -294,7 +305,7 @@ export const inferRemoteSize = async (url) => {
 					// Since you cannot use image optimization on the client anyway, it's safe to assume that if the user imported
 					// an image on the client, it should be present in the final build.
 					if (isAstroServerEnvironment(this.environment)) {
-						if (id.endsWith('.svg')) {
+						if (id.endsWith('.svg') && !isContentImage) {
 							const contents = await fs.promises.readFile(imageMetadata.fsPath, {
 								encoding: 'utf8',
 							});
