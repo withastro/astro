@@ -64,7 +64,18 @@ async function renderToStaticMarkup(
 		},
 		idPrefix,
 	});
-	return { html: result.body };
+
+	// Workaround for Svelte SSR bug where the `attributes()` function renders
+	// empty `class=""` when using spread props with an extracted class prop defaulting
+	// to null. Svelte's `attr_class()` correctly omits empty class attributes, but
+	// `attributes()` (used for spread props) doesn't filter them out.
+	// See: https://github.com/withastro/astro/issues/15576
+	let html = result.body;
+	if (html.includes(' class=""')) {
+		html = html.replace(/ class=""/g, '');
+	}
+
+	return { html };
 }
 
 const renderer: NamedSSRLoadedRendererValue = {
