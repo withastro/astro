@@ -2571,7 +2571,7 @@
   }
   ```
 
-  This is a backwards compatible change and your your existing dev toolbar apps will continue to function. However, we encourage you to build your apps with the new helpers, following the [updated Dev Toolbar API documentation](https://docs.astro.build/en/reference/dev-toolbar-app-reference/).
+  This is a backwards compatible change and your existing dev toolbar apps will continue to function. However, we encourage you to build your apps with the new helpers, following the [updated Dev Toolbar API documentation](https://docs.astro.build/en/reference/dev-toolbar-app-reference/).
 
 - [#10734](https://github.com/withastro/astro/pull/10734) [`6fc4c0e`](https://github.com/withastro/astro/commit/6fc4c0e420da7629b4cfc28ee7efce1d614447be) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Astro will now automatically check for updates when you run the dev server. If a new version is available, a message will appear in the terminal with instructions on how to update. Updates will be checked once per 10 days, and the message will only appear if the project is multiple versions behind the latest release.
 
