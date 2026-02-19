@@ -347,7 +347,7 @@ async function transition(
 	// The most recent navigation always has precedence
 	// Yes, there can be several navigation instances as the user can click links
 	// while we fetch content or simulate view transitions. Even synchronous creations are possible
-	// e.g. by calling navigate() from an transition event.
+	// e.g. by calling navigate() from a transition event.
 	// Invariant: all but the most recent navigation are already aborted.
 
 	const currentNavigation = abortAndRecreateMostRecentNavigation();
