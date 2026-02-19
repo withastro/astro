@@ -37,6 +37,39 @@ describe('MDX Shiki CSS conditional injection', () => {
 		});
 	});
 
+	describe('With code blocks and default settings', () => {
+		let fixture;
+		let document;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: new URL(
+					'./fixtures/mdx-syntax-hightlighting-conditional/with-code-default/',
+					import.meta.url,
+				),
+			});
+			await fixture.build();
+			const html = await fixture.readFile('/index.html');
+			document = parseHTML(html).document;
+		});
+
+		it('should inject Shiki CSS when code blocks present', () => {
+			const styles = document.querySelector('style')?.textContent || '';
+			// Check for Shiki class prefix
+			assert.ok(styles.includes('.__a_'), 'Should have Shiki token class definitions');
+			// Check for base utility classes
+			assert.ok(styles.includes('.astro-code-overflow'), 'Should have overflow class');
+		});
+
+		it('should render code blocks with Shiki classes', () => {
+			const codeBlock = document.querySelector('pre.astro-code');
+			assert.ok(codeBlock, 'Should have code blocks with astro-code class');
+
+			const classes = codeBlock.getAttribute('class');
+			assert.ok(classes && classes.includes('__a_'), 'Code block should have Shiki token class');
+		});
+	});
+
 	describe('Without code blocks', () => {
 		let fixture;
 		let document;
