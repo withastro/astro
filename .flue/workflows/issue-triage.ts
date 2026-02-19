@@ -19,6 +19,8 @@ export const proxies = {
 	}),
 };
 
+const PRIVILEGED_GITHUB_TOKEN = process.env.FREDKBOT_GITHUB_TOKEN ?? process.env.GITHUB_TOKEN;
+
 function assert(condition: unknown, message: string): asserts condition {
 	if (!condition) throw new Error(message);
 }
@@ -29,7 +31,7 @@ async function postGitHubComment(issueNumber: number, body: string): Promise<voi
 		{
 			method: 'POST',
 			headers: {
-				Authorization: `token ${process.env.FREDKBOT_GITHUB_TOKEN}`,
+				Authorization: `token ${PRIVILEGED_GITHUB_TOKEN}`,
 				'Content-Type': 'application/json',
 				Accept: 'application/vnd.github+json',
 			},
@@ -47,7 +49,7 @@ async function addGitHubLabels(issueNumber: number, labels: string[]): Promise<v
 		{
 			method: 'POST',
 			headers: {
-				Authorization: `token ${process.env.FREDKBOT_GITHUB_TOKEN}`,
+				Authorization: `token ${PRIVILEGED_GITHUB_TOKEN}`,
 				'Content-Type': 'application/json',
 				Accept: 'application/vnd.github+json',
 			},
@@ -65,7 +67,7 @@ async function removeGitHubLabel(issueNumber: number, label: string): Promise<vo
 		{
 			method: 'DELETE',
 			headers: {
-				Authorization: `token ${process.env.FREDKBOT_GITHUB_TOKEN}`,
+				Authorization: `token ${PRIVILEGED_GITHUB_TOKEN}`,
 				'Content-Type': 'application/json',
 				Accept: 'application/vnd.github+json',
 			},
