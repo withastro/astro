@@ -116,10 +116,10 @@ export function sharedValidateOptions(
 
 	// The logic for finding the perfect width is a bit confusing, here it goes:
 	// For images where no width has been specified:
-	// - For local, imported images, fallback to nearest width we can find in our configured
+	// - For local, imported images, fall back to nearest width we can find in our configured
 	// - For remote images, that's an error, width is always required.
 	// For images where a width has been specified:
-	// - If the width that the user asked for isn't in `sizes`, then fallback to the nearest one, but save the width
+	// - If the width that the user asked for isn't in `sizes`, then fall back to the nearest one, but save the width
 	// 	the user asked for so we can put it on the `img` tag later.
 	// - Otherwise, just use as-is.
 	// The end goal is:

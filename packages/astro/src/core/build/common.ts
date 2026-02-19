@@ -96,7 +96,7 @@ export function getOutFile(
 }
 
 /**
- * Ensures the `outDir` is within `process.cwd()`. If not it will fallback to `<cwd>/.astro`.
+ * Ensures the `outDir` is within `process.cwd()`. If not it will fall back to `<cwd>/.astro`.
  * This is used for static `ssrBuild` so the output can access node_modules when we import
  * the output files. A hardcoded fallback dir is fine as it would be cleaned up after build.
  */

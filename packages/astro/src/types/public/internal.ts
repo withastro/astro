@@ -111,7 +111,7 @@ export interface RouteData {
 	 */
 	redirectRoute?: RouteData;
 	/**
-	 * A list of {@link RouteData} to fallback to. They are present when `i18n.fallback` has a list of locales.
+	 * A list of {@link RouteData} to fall back to. They are present when `i18n.fallback` has a list of locales.
 	 */
 	fallbackRoutes: RouteData[];
 

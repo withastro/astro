@@ -2222,7 +2222,7 @@ describe('[SSG] i18n routing', () => {
 				assert.equal((await response.text()).includes('Oi essa e start\n'), true);
 			});
 
-			it('should render when the protocol header we fallback to the one of the host', async () => {
+			it('should render when the protocol header we fall back to the one of the host', async () => {
 				let request = new Request('https://example.pt/start', {
 					headers: {
 						Host: 'example.pt',
