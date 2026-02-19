@@ -1,6 +1,6 @@
 import * as z from 'zod/v4';
 
-export const CacheProviderConfigSchema = z.object({
+const CacheProviderConfigSchema = z.object({
 	config: z.record(z.string(), z.any()).optional(),
 	entrypoint: z.union([z.string(), z.instanceof(URL)]),
 });
@@ -9,7 +9,7 @@ export const CacheProviderConfigSchema = z.object({
  * Cache options that can be applied to a route.
  * Used both in nested `cache: {}` form and as flat shortcuts.
  */
-export const CacheOptionsSchema = z.object({
+const CacheOptionsSchema = z.object({
 	maxAge: z.number().optional(),
 	swr: z.number().optional(),
 	tags: z.array(z.string()).optional(),
@@ -38,7 +38,7 @@ export const CacheSchema = z.object({
  * }
  * ```
  */
-export const RouteRuleSchema = z.object({
+const RouteRuleSchema = z.object({
 	// Nested cache options (full form)
 	cache: CacheOptionsSchema.optional(),
 	// Flat cache shortcuts (Nitro-style)

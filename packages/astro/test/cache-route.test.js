@@ -31,7 +31,7 @@ describe('context.cache', () => {
 	describe('Production (CDN-style provider)', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;
-		/** @type {import('../src/core/app/index').App} */
+		/** @type {import('astro/app').App} */
 		let app;
 
 		before(async () => {

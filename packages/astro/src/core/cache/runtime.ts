@@ -13,7 +13,7 @@ const IS_ACTIVE = Symbol.for('astro:cache:active');
 
 export class AstroCache {
 	#options: CacheOptions = {};
-	#tags: Set<string> = new Set();
+	#tags = new Set<string>();
 	#disabled = false;
 	#provider: CacheProvider | null;
 
