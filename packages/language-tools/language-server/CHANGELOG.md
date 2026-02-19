@@ -717,7 +717,7 @@ In the background, this update means that we now have to maintain a lot less cod
 ### Patch Changes
 
 - 61620f1: Add support for Go To Type Definition
-- 9337f00: Fix language server not working when no initlizationOptions were passed
+- 9337f00: Fix language server not working when no initializationOptions were passed
 
 ## 0.21.1
 
