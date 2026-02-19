@@ -96,7 +96,7 @@ const FILES_TO_REMOVE = ['CHANGELOG.md', '.codesandbox'];
 const FILES_TO_UPDATE = {
 	'package.json': (file: string, overrides: { name: string }) =>
 		fs.promises.readFile(file, 'utf-8').then((value) => {
-			// Match first indent in the file or fallback to `\t`
+			// Match first indent in the file or fall back to `\t`
 			const indent = /(^\s+)/m.exec(value)?.[1] ?? '\t';
 			return fs.promises.writeFile(
 				file,
