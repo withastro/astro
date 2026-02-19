@@ -114,7 +114,7 @@ export const create = (collectionConfig: CollectionConfig): LanguageServicePlugi
 							// In Astro, schema errors are always fatal
 							diagnostic.severity = DiagnosticSeverity.Error;
 
-							// Map missing properties to the entire frontmatte
+							// Map missing properties to the entire frontmatter
 							if (diagnostic.message.startsWith('Missing property')) {
 								diagnostic.range = Range.create(
 									{ line: 0, character: 0 },
