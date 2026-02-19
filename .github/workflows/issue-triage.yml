@@ -2,7 +2,7 @@ name: Issue Triage
 
 on:
   issues:
-    types: [opened]
+    types: [opened, reopened]
   issue_comment:
     types: [created]
 
@@ -16,6 +16,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  label:
+    if: >-
+      !github.event.issue.pull_request &&
+      (github.event.action == 'opened' || github.event.action == 'reopened')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ["needs triage"]
+            })
+
   triage:
     # 1. Skip issues with "auto triage skipped" label
     # 2. Skip pull requests (issues only)
