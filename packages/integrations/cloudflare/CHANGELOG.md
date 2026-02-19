@@ -1716,7 +1716,7 @@
 
 ### Minor Changes
 
-- [#8595](https://github.com/withastro/astro/pull/8595) [`5b0b3c9a8`](https://github.com/withastro/astro/commit/5b0b3c9a8e0c0e6b6c7472b82008ab57985f2a04) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Add support for the following Node.js Runtime APIs, which are availabe in [Cloudflare](https://developers.cloudflare.com/workers/runtime-apis/nodejs) using the `node:` syntax.
+- [#8595](https://github.com/withastro/astro/pull/8595) [`5b0b3c9a8`](https://github.com/withastro/astro/commit/5b0b3c9a8e0c0e6b6c7472b82008ab57985f2a04) Thanks [@alexanderniebuhr](https://github.com/alexanderniebuhr)! - Add support for the following Node.js Runtime APIs, which are available in [Cloudflare](https://developers.cloudflare.com/workers/runtime-apis/nodejs) using the `node:` syntax.
   - assert
   - AsyncLocalStorage
   - Buffer
