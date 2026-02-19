@@ -7,7 +7,7 @@ import { fixtureDir } from '../utils.ts';
 
 describe(
 	'Content Intellisense - Completions',
-	{ skip: parseInt(process.versions.node) === 20 },
+	{ skip: Number.parseInt(process.versions.node) === 20 },
 	async () => {
 		let languageServer: LanguageServer;
 

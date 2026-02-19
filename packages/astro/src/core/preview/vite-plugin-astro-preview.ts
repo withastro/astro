@@ -43,7 +43,7 @@ export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 				if (!isRoot) {
 					const hasTrailingSlash = pathname.endsWith('/');
 
-					if (hasTrailingSlash && trailingSlash == 'never') {
+					if (hasTrailingSlash && trailingSlash === 'never') {
 						res.statusCode = 404;
 						res.end(notFoundTemplate(pathname, 'Not Found (trailingSlash is set to "never")'));
 						return;
@@ -51,7 +51,7 @@ export function vitePluginAstroPreview(settings: AstroSettings): Plugin {
 
 					if (
 						!hasTrailingSlash &&
-						trailingSlash == 'always' &&
+						trailingSlash === 'always' &&
 						!HAS_FILE_EXTENSION_REGEXP.test(pathname)
 					) {
 						res.statusCode = 404;

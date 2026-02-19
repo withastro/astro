@@ -16,7 +16,7 @@
     "@astrojs/mdx": "^5.0.0-beta.8",
     "@tailwindcss/vite": "^4.1.18",
     "@types/canvas-confetti": "^1.9.0",
-    "astro": "^6.0.0-beta.13",
+    "astro": "^6.0.0-beta.14",
     "canvas-confetti": "^1.9.4",
     "tailwindcss": "^4.1.18"
   }

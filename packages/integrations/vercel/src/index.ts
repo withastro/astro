@@ -438,18 +438,15 @@ export default function vercelAdapter({
 						const isrConfig = typeof isr === 'object' ? isr : {};
 						await builder.buildServerlessFolder(entryFile, NODE_PATH, _config.root);
 						if (isrConfig.exclude?.length) {
-							const expandedExclusions = isrConfig.exclude.reduce<string[]>((acc, exclusion) => {
+							const expandedExclusions = isrConfig.exclude.flatMap((exclusion) => {
 								if (exclusion instanceof RegExp) {
-									return [
-										...acc,
-										...routes
-											.filter((route) => exclusion.test(route.pattern))
-											.map((route) => route.pattern),
-									];
+									return routes
+										.filter((route) => exclusion.test(route.pattern))
+										.map((route) => route.pattern);
 								}
 
-								return [...acc, exclusion];
-							}, []);
+								return [exclusion];
+							});
 
 							const dest = _middlewareEntryPoint ? MIDDLEWARE_PATH : NODE_PATH;
 							for (const route of expandedExclusions) {
