@@ -600,7 +600,7 @@ export class RenderContext {
 			cspDestination: manifest.csp?.cspDestination ?? (routeData.prerender ? 'meta' : 'header'),
 			shouldInjectCspMetaTags,
 			cspAlgorithm,
-			// The following arrays must be cloned, otherwise they become mutable across routes.
+			// The following arrays must be cloned; otherwise, they become mutable across routes.
 			scriptHashes: manifest.csp?.scriptHashes ? [...manifest.csp.scriptHashes] : [],
 			scriptResources: manifest.csp?.scriptResources ? [...manifest.csp.scriptResources] : [],
 			styleHashes: manifest.csp?.styleHashes ? [...manifest.csp.styleHashes] : [],

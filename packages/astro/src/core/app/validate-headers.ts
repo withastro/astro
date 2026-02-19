@@ -50,7 +50,7 @@ function matchesAllowedDomains(
 
 /**
  * Validate a host against allowedDomains.
- * Returns the host only if it matches an allowed pattern, otherwise undefined.
+ * Returns the host only if it matches an allowed pattern; otherwise, undefined.
  * This prevents SSRF attacks by ensuring the Host header is trusted.
  */
 export function validateHost(

@@ -341,7 +341,7 @@ async function buildEnvironments(opts: StaticBuildOptions, internals: BuildInter
 				// and this is the only way to update the input after instantiation.
 				internals.clientInput = getClientInput(internals, settings);
 				if (!internals.clientInput.size) {
-					// At least 1 input is required to do a build, otherwise Vite throws.
+					// At least 1 input is required to do a build; otherwise, Vite throws.
 					// We need the client build to happen in order to copy over the `public/` folder
 					// So using the noop plugin here which will give us an input that just gets thrown away.
 					internals.clientInput.add(NOOP_MODULE_ID);

@@ -9,7 +9,7 @@ export function mapEdit(edit: TextEdit, code: AstroVirtualCode, languageId: stri
 			edit = ensureProperEditForFrontmatter(edit, code.astroMeta, '\n');
 		}
 	} else {
-		// If the edit is at the start of the file, add a newline before it, otherwise we'll get `<script>text`
+		// If the edit is at the start of the file, add a newline before it; otherwise, we'll get `<script>text`
 		if (edit.range.start.line === 0 && edit.range.start.character === 0) {
 			edit.newText = '\n' + edit.newText;
 		}

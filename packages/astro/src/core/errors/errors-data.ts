@@ -1190,7 +1190,7 @@ export const InvalidI18nMiddlewareConfiguration = {
 	name: 'InvalidI18nMiddlewareConfiguration',
 	title: 'Invalid internationalization middleware configuration',
 	message:
-		'The option `redirectToDefaultLocale` can be enabled only when `prefixDefaultLocale` is also set to `true`, otherwise redirects might cause infinite loops. Enable the option `prefixDefaultLocale` to continue to use `redirectToDefaultLocale`, or ensure both are set to `false`.',
+		'The option `redirectToDefaultLocale` can be enabled only when `prefixDefaultLocale` is also set to `true`; otherwise, redirects might cause infinite loops. Enable the option `prefixDefaultLocale` to continue to use `redirectToDefaultLocale`, or ensure both are set to `false`.',
 } satisfies ErrorData;
 
 /**
@@ -2094,6 +2094,6 @@ export const CannotOptimizeSvg = {
  * 		- If your message is fully dynamic (ex: lots of conditional logic), make `message` a proper function, like such: `message(parameters) { logic }`.
  * 			Make sure to add a `@message` tag with a static example of the error message, the docs won't be able to parse it otherwise.
  *  	- If your message is static, you can just use a string, `message: "my message"`.
- * 5. Make sure to add a JSdoc comment with the `@docs` tag so that it shows up in the docs, otherwise the error overlay will point to a 404!
+ * 5. Make sure to add a JSdoc comment with the `@docs` tag so that it shows up in the docs; otherwise, the error overlay will point to a 404!
  * For more information, see the README in this folder!
  */

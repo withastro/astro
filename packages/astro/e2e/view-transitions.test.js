@@ -538,7 +538,7 @@ test.describe('View Transitions', () => {
 		await page.goto(astro.resolveUrl('/video-one'));
 		const vid = page.locator('video');
 		await expect(vid).toBeVisible();
-		// Mute the video before playing, otherwise there's actually sounds when testing
+		// Mute the video before playing; otherwise, there's actually sounds when testing
 		await vid.evaluate((el) => (el.muted = true));
 		// Browser blocks autoplay, so we manually play it here. For some reason,
 		// you need to click and play it manually for it to actually work.
