@@ -3247,7 +3247,7 @@
 
   #### Upgrading
 
-  If you set a default `image.experimentalLayout` in your `astro.config.mjs`, or set it on a per-image basis using the `layout` prop, you will need to change all occurences to `constrained`:
+  If you set a default `image.experimentalLayout` in your `astro.config.mjs`, or set it on a per-image basis using the `layout` prop, you will need to change all occurrences to `constrained`:
 
   ```diff lang="ts"
   // astro.config.mjs
