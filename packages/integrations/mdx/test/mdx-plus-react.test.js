@@ -43,7 +43,7 @@ describe('MDX and React', () => {
 		assert.equal(h.textContent, 'Testing');
 	});
 
-	it('does not get a invalid hook call warning', () => {
+	it('does not get an invalid hook call warning', () => {
 		const errors = unhook();
 		assert.equal(errors.length === 0, true);
 	});

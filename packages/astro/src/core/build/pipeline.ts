@@ -217,7 +217,7 @@ export class BuildPipeline extends Pipeline {
 				return RedirectSinglePageBuiltModule;
 			}
 		} else if (routeIsFallback(route)) {
-			// This is a i18n fallback route
+			// This is an i18n fallback route
 			routeToProcess = getFallbackRoute(route, this.manifest.routes);
 		}
 

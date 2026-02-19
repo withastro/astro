@@ -70,7 +70,7 @@ export interface AstroSettings {
 	// This makes content optional. Internal only so it's not optional on InjectedType
 	injectedTypes: Array<Omit<InjectedType, 'content'> & Partial<Pick<InjectedType, 'content'>>>;
 	/**
-	 * Determine if the build output should be a static, dist folder or a adapter-based server output
+	 * Determine if the build output should be a static, dist folder or an adapter-based server output
 	 * undefined when unknown
 	 */
 	buildOutput: undefined | 'static' | 'server';
