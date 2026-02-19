@@ -402,7 +402,7 @@
 
 - [#11304](https://github.com/withastro/astro/pull/11304) [`2e70741`](https://github.com/withastro/astro/commit/2e70741362afc1e7d03c8b2a9d8edb8466dfe9c3) Thanks [@Fryuni](https://github.com/Fryuni)! - Removes the `AstroDbIntegration` type
 
-  Astro integration hooks can now be extended and as such `@astrojs/db` no longer needs to declare it's own integration type. Using `AstroIntegration` will have the same type.
+  Astro integration hooks can now be extended and as such `@astrojs/db` no longer needs to declare its own integration type. Using `AstroIntegration` will have the same type.
 
   If you were using the `AstroDbIntegration` type, apply this change to your integration code:
 
