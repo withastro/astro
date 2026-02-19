@@ -146,7 +146,11 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 							const newUrl = new URL(fullPath, finalSiteUrl).href;
 
-							if (config.trailingSlash === 'never') {
+							if (config.build.format === 'file' && !newUrl.endsWith('/')) {
+								// When build.format is 'file', output files have .html extension
+								// (e.g., /about → /about.html), so sitemap URLs should match
+								urls.push(newUrl + '.html');
+							} else if (config.trailingSlash === 'never') {
 								urls.push(newUrl);
 							} else if (config.build.format === 'directory' && !newUrl.endsWith('/')) {
 								urls.push(newUrl + '/');

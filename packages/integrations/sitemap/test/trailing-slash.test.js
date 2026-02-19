@@ -41,13 +41,13 @@ describe('Trailing slash', () => {
 				await fixture.build();
 			});
 
-			it('URLs do not end with trailing slash', async () => {
+			it('URLs have .html extension', async () => {
 				const data = await readXML(fixture.readFile('/sitemap-0.xml'));
 				const urls = data.urlset.url;
 
 				assert.equal(urls[0].loc[0], 'http://example.com');
-				assert.equal(urls[1].loc[0], 'http://example.com/one');
-				assert.equal(urls[2].loc[0], 'http://example.com/two');
+				assert.equal(urls[1].loc[0], 'http://example.com/one.html');
+				assert.equal(urls[2].loc[0], 'http://example.com/two.html');
 			});
 		});
 	});
