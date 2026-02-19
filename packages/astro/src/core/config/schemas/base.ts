@@ -15,7 +15,7 @@ import type { AstroUserConfig, ViteUserConfig } from '../../../types/public/conf
 import { allowedDirectivesSchema, cspAlgorithmSchema, cspHashSchema } from '../../csp/config.js';
 import { SessionSchema } from '../../session/config.js';
 
-// The below types are required boilerplate to workaround a Zod issue since v3.21.2. Since that version,
+// The below types are required boilerplate to work around a Zod issue since v3.21.2. Since that version,
 // Zod's compiled TypeScript would "simplify" certain values to their base representation, causing references
 // to transitive dependencies that Astro don't depend on (e.g. `mdast-util-to-hast` or `remark-rehype`). For example:
 //
