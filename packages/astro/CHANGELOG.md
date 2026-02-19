@@ -5233,7 +5233,7 @@
 - [#12226](https://github.com/withastro/astro/pull/12226) [`51d13e2`](https://github.com/withastro/astro/commit/51d13e2f6ce3a9e03c33d80af6716847f6a78061) Thanks [@ematipico](https://github.com/ematipico)! - The following renderer fields and integration fields now accept `URL` as a type:
 
   **Renderers**:
-  - `AstroRenderer.clientEntrpoint`
+  - `AstroRenderer.clientEntrypoint`
   - `AstroRenderer.serverEntrypoint`
 
   **Integrations**:
@@ -6346,7 +6346,7 @@
 - [#12226](https://github.com/withastro/astro/pull/12226) [`51d13e2`](https://github.com/withastro/astro/commit/51d13e2f6ce3a9e03c33d80af6716847f6a78061) Thanks [@ematipico](https://github.com/ematipico)! - The following renderer fields and integration fields now accept `URL` as a type:
 
   **Renderers**:
-  - `AstroRenderer.clientEntrpoint`
+  - `AstroRenderer.clientEntrypoint`
   - `AstroRenderer.serverEntrypoint`
 
   **Integrations**:
