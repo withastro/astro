@@ -61,6 +61,14 @@ export class AstroServerApp extends BaseApp<RunnablePipeline> {
 		ensure404Route(this.manifestData);
 	}
 
+	/**
+	 * Clears the route cache so that getStaticPaths() is re-evaluated.
+	 * Called via HMR when content collection data changes.
+	 */
+	clearRouteCache(): void {
+		this.pipeline.clearRouteCache();
+	}
+
 	async devMatch(pathname: string): Promise<DevMatch | undefined> {
 		const matchedRoute = await matchRoute(
 			pathname,
