@@ -9,7 +9,7 @@
 
 - Use `node -e` for scripting tasks, not `python` or `python3`.
 
-# Monorepo Guide
+# Monorepo Structure
 
 This directory is a Git monorepo containing a `pnpm` workspace:
 

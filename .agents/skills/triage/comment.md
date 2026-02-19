@@ -35,9 +35,9 @@ Generate and return a GitHub comment following the template below.
 
 The **Fix** line in the template has three possible forms. Choose the one that matches the triage outcome:
 
-1. **Fix: You created a fix:** Use `I was able to fix this issue.` and include the suggested fix link.
-2. **Fix: The issue is already fixed on main** (e.g. the user is on an older major version and the bug doesn't reproduce on current main): Use `This issue has already been fixed.` and tell the user how to get the fix (e.g. upgrade). Link the relevant upgrade guide if applicable: [v6](https://v6.docs.astro.build/en/guides/upgrade-to/v6/), [v5](https://docs.astro.build/en/guides/upgrade-to/v5/).
-3. **Fix: You could not find or create a fix:** Use `I was unable to find a fix for this issue.` and give guidance or a best guess at where the fix might be.
+1. **You created a fix:** Use `I was able to fix this issue.` and include the suggested fix link.
+2. **The issue is already fixed on main** (e.g. the user is on an older major version and the bug doesn't reproduce on current main): Use `This issue has already been fixed.` and tell the user how to get the fix (e.g. upgrade). Link the relevant upgrade guide if applicable: [v6](https://v6.docs.astro.build/en/guides/upgrade-to/v6/), [v5](https://docs.astro.build/en/guides/upgrade-to/v5/).
+3. **You could not find or create a fix:** Use `I was unable to find a fix for this issue.` and give guidance or a best guess at where the fix might be.
 
 ### "Priority" Instructions
 

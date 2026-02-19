@@ -19,8 +19,6 @@ export const proxies = {
 	}),
 };
 
-const PRIVILEGED_GITHUB_TOKEN = process.env.FREDKBOT_GITHUB_TOKEN ?? process.env.GITHUB_TOKEN;
-
 function assert(condition: unknown, message: string): asserts condition {
 	if (!condition) throw new Error(message);
 }
@@ -31,7 +29,7 @@ async function postGitHubComment(issueNumber: number, body: string): Promise<voi
 		{
 			method: 'POST',
 			headers: {
-				Authorization: `token ${PRIVILEGED_GITHUB_TOKEN}`,
+				Authorization: `token ${process.env.FREDKBOT_GITHUB_TOKEN}`,
 				'Content-Type': 'application/json',
 				Accept: 'application/vnd.github+json',
 			},
@@ -49,7 +47,7 @@ async function addGitHubLabels(issueNumber: number, labels: string[]): Promise<v
 		{
 			method: 'POST',
 			headers: {
-				Authorization: `token ${PRIVILEGED_GITHUB_TOKEN}`,
+				Authorization: `token ${process.env.FREDKBOT_GITHUB_TOKEN}`,
 				'Content-Type': 'application/json',
 				Accept: 'application/vnd.github+json',
 			},
@@ -67,7 +65,7 @@ async function removeGitHubLabel(issueNumber: number, label: string): Promise<vo
 		{
 			method: 'DELETE',
 			headers: {
-				Authorization: `token ${PRIVILEGED_GITHUB_TOKEN}`,
+				Authorization: `token ${process.env.FREDKBOT_GITHUB_TOKEN}`,
 				'Content-Type': 'application/json',
 				Accept: 'application/vnd.github+json',
 			},
@@ -143,11 +141,6 @@ async function fetchRepoLabels(flue: FlueClient): Promise<{
 	const labelsJson = await flue.shell(
 		"gh api repos/withastro/astro/labels --paginate --jq '.[] | {name, description}'",
 	);
-	if (labelsJson.exitCode !== 0) {
-		throw new Error(
-			`gh api labels failed (exit ${labelsJson.exitCode}):\n  stdout: ${labelsJson.stdout.slice(0, 500)}\n  stderr: ${labelsJson.stderr.slice(0, 500)}`,
-		);
-	}
 	const allLabels = v.parse(
 		v.array(repoLabelSchema),
 		labelsJson.stdout
