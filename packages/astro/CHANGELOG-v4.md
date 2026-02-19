@@ -3313,7 +3313,7 @@
 
 - [#10096](https://github.com/withastro/astro/pull/10096) [`227cd83a51bbd451dc223fd16f4cf1b87b8e44f8`](https://github.com/withastro/astro/commit/227cd83a51bbd451dc223fd16f4cf1b87b8e44f8) Thanks [@Fryuni](https://github.com/Fryuni)! - Fixes edge case on i18n fallback routes
 
-  Previously index routes deeply nested in the default locale, like `/some/nested/index.astro` could be mistaked as the root index for the default locale, resulting in an incorrect redirect on `/`.
+  Previously index routes deeply nested in the default locale, like `/some/nested/index.astro` could be mistaken as the root index for the default locale, resulting in an incorrect redirect on `/`.
 
 - [#10112](https://github.com/withastro/astro/pull/10112) [`476b79a61165d0aac5e98459a4ec90762050a14b`](https://github.com/withastro/astro/commit/476b79a61165d0aac5e98459a4ec90762050a14b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Renames the home Astro Devtoolbar App to `astro:home`
 
