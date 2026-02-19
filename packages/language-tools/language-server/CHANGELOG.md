@@ -655,7 +655,7 @@ In the background, this update means that we now have to maintain a lot less cod
 
 ### Patch Changes
 
-- c4f7a36: Trying desesperately to figure deployment out
+- c4f7a36: Trying desperately to figure deployment out
 
 ## 0.26.0
 
