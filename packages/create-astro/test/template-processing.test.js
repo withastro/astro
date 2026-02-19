@@ -67,7 +67,7 @@ Keep this.`;
 		assert.equal(result.trim(), expected.trim());
 	});
 
-	it('is case insensitive', async () => {
+	it('is case-insensitive', async () => {
 		const content = `# Title
 
 <!-- astro:remove:start -->
