@@ -181,7 +181,6 @@
     "@playwright/test": "1.58.2",
     "@types/aria-query": "^5.0.4",
     "@types/cssesc": "^3.0.2",
-    "@types/debug": "^4.1.12",
     "@types/dlv": "^1.1.5",
     "@types/hast": "^3.0.4",
     "@types/html-escaper": "3.0.4",
