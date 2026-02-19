@@ -73,7 +73,7 @@
 
 ### Patch Changes
 
-- [#15542](https://github.com/withastro/astro/pull/15542) [`9760404`](https://github.com/withastro/astro/commit/97604040b73ec1d029f5d5a489aa744aaecfd173) Thanks [@rururux](https://github.com/rururux)! - Improves rendering by preserving `hidden="until-found"` value in attribues
+- [#15542](https://github.com/withastro/astro/pull/15542) [`9760404`](https://github.com/withastro/astro/commit/97604040b73ec1d029f5d5a489aa744aaecfd173) Thanks [@rururux](https://github.com/rururux)! - Improves rendering by preserving `hidden="until-found"` value in attributes
 
 - [#15550](https://github.com/withastro/astro/pull/15550) [`58df907`](https://github.com/withastro/astro/commit/58df9072391fbfcd703e8d791ca51b7bedefb730) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Improves the JSDoc annotations for the `AstroAdapter` type
 
