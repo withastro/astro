@@ -1128,7 +1128,7 @@
 
   The `getFontData()` helper function from `astro:assets` was introduced in 5.14.0 to provide access to font family data for use outside of Astro. One of the goals of this API was to be able to retrieve buffers using URLs.
 
-  However, it turned out to be impactical and even impossible during prerendering.
+  However, it turned out to be impractical and even impossible during prerendering.
 
   Astro now exports a new `getFontBuffer()` helper function from `astro:assets` to retrieve font file buffers from URL returned by `getFontData()`. For example, when using [satori](https://github.com/vercel/satori) to generate OpenGraph images:
 
