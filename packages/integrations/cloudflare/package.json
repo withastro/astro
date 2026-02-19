@@ -44,7 +44,6 @@
     "@astrojs/internal-helpers": "workspace:*",
     "@astrojs/underscore-redirects": "workspace:*",
     "@cloudflare/vite-plugin": "^1.25.0",
-    "obug": "^2.1.1",
     "piccolore": "^0.1.3",
     "tinyglobby": "^0.2.15",
     "vite": "^7.3.1"
