@@ -88,7 +88,7 @@ export async function compile({
 	// See: https://github.com/withastro/astro/issues/15574
 	if (
 		transformResult.code.includes('astro/components/viewtransitions.css') &&
-		!/transition:(name|animate|persist)/.test(source)
+		!/transition:(?:name|animate|persist)/.test(source)
 	) {
 		transformResult = {
 			...transformResult,
