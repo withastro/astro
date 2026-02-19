@@ -45,8 +45,8 @@ Use `pnpm -C <dir> <command>` for project-local script commands when working in 
 # Astro Quick Reference
 
 - Use `astro dev` to start the local dev server with HMR. Do not use other web servers (`python -m http.server`, etc.).
-- Use `astro build` to create a production build in `dist/`.
-- Use `astro preview` to serve the production build in `dist/` locally. Do not use other web servers (`python -m http.server`, etc.).
+- Use `astro build` to create a production build in `dist/`, by default.
+- Use `astro preview` to serve the production build locally. Do not use other web servers (`python -m http.server`, etc.).
 - Use `astro check` to run type checking and diagnostics.
 - Use `astro sync` to generate and update TypeScript types.
 - Use `astro add` to install and configure an official integration.
