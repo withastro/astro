@@ -5,6 +5,10 @@
 - Run `pnpm format` to auto-format the entire repo.
 - Run `pnpm lint` to lint the entire repo.
 
+# Environment Guide
+
+- Use `node -e` for scripting tasks, not `python` or `python3`.
+
 # Monorepo Structure
 
 - This directory is a Git monorepo containing a `pnpm` workspace. The codebase is primarily TypeScript.
