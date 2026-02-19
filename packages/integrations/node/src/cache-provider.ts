@@ -222,6 +222,7 @@ const nodeMemoryProvider: CacheProviderFactory = (
 
 		async invalidate(invalidateOptions: InvalidateOptions) {
 			if (invalidateOptions.path) {
+				// Path invalidation is exact-match only (no glob/wildcard patterns)
 				cache.delete(invalidateOptions.path);
 			}
 			if (invalidateOptions.tags) {
