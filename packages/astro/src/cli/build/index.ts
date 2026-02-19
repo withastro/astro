@@ -1,5 +1,5 @@
 import _build from '../../core/build/index.js';
-import { printHelp } from '../../core/messages.js';
+import { printHelp } from '../../core/messages/runtime.js';
 import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface BuildOptions {

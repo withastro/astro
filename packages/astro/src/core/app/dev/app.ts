@@ -16,7 +16,7 @@ import { ensure404Route } from '../../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../../routing/dev.js';
 import type { RunnablePipeline } from '../../../vite-plugin-app/pipeline.js';
 import type { RoutesList } from '../../../types/astro.js';
-import { req } from '../../messages.js';
+import { req } from '../../messages/runtime.js';
 
 export class DevApp extends BaseApp<NonRunnablePipeline> {
 	logger: Logger;

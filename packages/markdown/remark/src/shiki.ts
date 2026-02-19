@@ -34,6 +34,11 @@ export interface CreateShikiHighlighterOptions {
 	theme?: ThemePresets | ThemeRegistration | ThemeRegistrationRaw;
 	themes?: Record<string, ThemePresets | ThemeRegistration | ThemeRegistrationRaw>;
 	langAlias?: HighlighterCoreOptions['langAlias'];
+	/**
+	 * Custom regex engine for Shiki.
+	 * Use JavaScript engine for environments that can't load WASM files (e.g. Cloudflare Workers).
+	 */
+	engine?: HighlighterCoreOptions['engine'];
 }
 
 export interface ShikiHighlighterHighlightOptions {
@@ -81,6 +86,7 @@ export async function createShikiHighlighter({
 	theme = 'github-dark',
 	themes = {},
 	langAlias = {},
+	engine,
 }: CreateShikiHighlighterOptions = {}): Promise<ShikiHighlighter> {
 	theme = theme === 'css-variables' ? cssVariablesTheme() : theme;
 
@@ -88,6 +94,7 @@ export async function createShikiHighlighter({
 		langs: ['plaintext', ...langs],
 		langAlias,
 		themes: Object.values(themes).length ? Object.values(themes) : [theme],
+		...(engine ? { engine } : {}),
 	};
 
 	const key = JSON.stringify(highlighterOptions, Object.keys(highlighterOptions).sort());
@@ -225,3 +232,6 @@ export async function createShikiHighlighter({
 function normalizePropAsString(value: Properties[string]): string | null {
 	return Array.isArray(value) ? value.join(' ') : (value as string | null);
 }
+
+// Re-export ThemePresets type for consumers
+export type { ThemePresets };

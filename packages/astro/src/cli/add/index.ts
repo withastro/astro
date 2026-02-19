@@ -24,8 +24,8 @@ import {
 	updateTSConfigForFramework,
 } from '../../core/config/tsconfig.js';
 import type { Logger } from '../../core/logger/core.js';
-import * as msg from '../../core/messages.js';
-import { printHelp } from '../../core/messages.js';
+import * as msg from '../../core/messages/runtime.js';
+import { printHelp } from '../../core/messages/runtime.js';
 import { appendForwardSlash } from '../../core/path.js';
 import { ensureProcessNodeEnv, parseNpmName } from '../../core/util.js';
 import { eventCliSession, telemetry } from '../../events/index.js';

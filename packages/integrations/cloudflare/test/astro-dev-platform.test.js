@@ -64,10 +64,12 @@ describe('AstroDevPlatform', () => {
 		const res = await fixture.fetch('/code-test');
 		assert.equal(res.status, 200);
 		const html = await res.text();
+		console.log('HTML output:', html);
 		const $ = cheerio.load(html);
 		// Verify the page rendered successfully with Code component
 		assert.equal($('h1').text(), 'Testing Code Component');
 		// Verify the code block was rendered
+		console.log('Pre elements found:', $('pre').length);
 		assert.ok($('pre').length > 0, 'Code block should be rendered');
 	});
 });

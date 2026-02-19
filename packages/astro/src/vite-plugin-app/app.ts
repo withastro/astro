@@ -23,7 +23,7 @@ import { getCustom404Route, getCustom500Route } from '../core/routing/helpers.js
 import { ensure404Route } from '../core/routing/astro-designed-error-pages.js';
 import { matchRoute } from '../core/routing/dev.js';
 import type { DevMatch, LogRequestPayload } from '../core/app/base.js';
-import { req } from '../core/messages.js';
+import { req } from '../core/messages/runtime.js';
 
 export class AstroServerApp extends BaseApp<RunnablePipeline> {
 	settings: AstroSettings;
