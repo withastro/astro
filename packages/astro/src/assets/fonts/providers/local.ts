@@ -26,7 +26,7 @@ type RawSource =
 
 interface Variant extends FamilyProperties {
 	/**
-	 * Font [sources](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/src). It can be a path relative to the root, a package import or a URL. URLs are particularly useful if you inject local fonts through an integration.
+	 * Font [sources](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/src). It can be a path relative to the root, a package import, or a URL. URLs are particularly useful if you inject local fonts through an integration.
 	 *
 	 * We recommend not putting your font files in [the `public/` directory](/en/reference/configuration-reference/#publicdir). Since Astro will copy these files into that folder at build time, this will result in duplicated files
 	 * in your build output. Instead, store them somewhere else in your project, such as in `src/`.
