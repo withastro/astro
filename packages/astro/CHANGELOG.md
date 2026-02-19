@@ -577,7 +577,7 @@
 
 - [#15260](https://github.com/withastro/astro/pull/15260) [`abca1eb`](https://github.com/withastro/astro/commit/abca1ebc0ed4b89b1904c58b7969f8386250f8de) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where adding new pages weren't correctly shown when using the development server.
 
-- [#15214](https://github.com/withastro/astro/pull/15214) [`6bab8c9`](https://github.com/withastro/astro/commit/6bab8c992add3ecad7581b26f6bc28a74e5d3485) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the internal perfomance timers weren't correctly updated to reflect new build pipeline.
+- [#15214](https://github.com/withastro/astro/pull/15214) [`6bab8c9`](https://github.com/withastro/astro/commit/6bab8c992add3ecad7581b26f6bc28a74e5d3485) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where the internal performance timers weren't correctly updated to reflect new build pipeline.
 
 - [#15259](https://github.com/withastro/astro/pull/15259) [`8670a69`](https://github.com/withastro/astro/commit/8670a699e96fcc972d441c75e503b20e8961a71f) Thanks [@ematipico](https://github.com/ematipico)! - Fixes an issue where styles weren't correctly reloaded when using the `@astrojs/cloudflare` adapter.
 
