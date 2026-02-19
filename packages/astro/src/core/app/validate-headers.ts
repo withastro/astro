@@ -97,55 +97,70 @@ export function validateForwardedHeaders(
 
 	// Validate host (extract port from hostname for validation)
 	// Reject empty strings and sanitize to prevent path injection
-	if (forwardedHost && forwardedHost.length > 0) {
-		const sanitized = sanitizeHost(forwardedHost);
-		if (sanitized) {
-			const { hostname, port } = parseHost(sanitized);
-			if (hostname) {
-				const testUrl = new URL(`https://${hostname}/`);
-				// do not match anything other than hostname here.
-				const found = allowedDomains.find((pattern) => matchHostname(testUrl, pattern.hostname, true));
-				if (found) {
-					// we might need to set the port...
-					if (forwardedPort || port) {
-						if (found.port) {
+	const sanitized = sanitizeHost(forwardedHost);
+	if (!sanitized) {
+		return result;
+	}
+	const { hostname, port } = parseHost(sanitized);
+	if (!hostname) {
+		return result;
+	}
 
-							if (port) {
-								if (forwardedPort && forwardedPort !== port) {
-									// weird case.
-									return result;
-								}
-								if (found.port === port) {
-									result.port = port;
-								}
-							} else {
-								if (found.port === forwardedPort) {
-									result.port = forwardedPort;
-								}
-							}
-						} else {
-							// If no port patterns, reject the header (strict security default)
-						}
-					}
+	const testUrl = new URL(`https://${hostname}/`);
+	// do not match anything other than hostname here.
+	const found = allowedDomains.find((pattern) => matchHostname(testUrl, pattern.hostname, true));
+	if (!found) {
+		return result;
+	}
 
-					// if a protocol is configured, ensure it is correct.
-					if (found.protocol) {
-						if (found.protocol !== forwardedProtocol) {
-							return result;
-						}
-
-						// all good
-						result.protocol = found.protocol;
-					} else if (forwardedProtocol && /^https?$/.test(forwardedProtocol)) {
-						// fallback to allow if it is not specified in the allowedDomains, but only if it is http or https
-						result.protocol = forwardedProtocol;
-					}
-
-					result.host = sanitized;
-					return result
-				}
-			}
+	// we might need to set the port...
+	// if allowedDomain specified a port, but none was found, reject all the headers.
+	if (found.port) {
+		if (port && found.port !== port) {
+			return result;
+		}
+		if (forwardedPort && found.port !== forwardedPort) {
+			return result;
 		}
 	}
+
+	if (forwardedPort || port) {
+		if (found.port) {
+			if (port) {
+				if (forwardedPort && forwardedPort !== port) {
+					// weird case.
+					return result;
+				}
+				if (found.port === port) {
+					result.port = port;
+				} else {
+					return result
+				}
+			} else if (found.port === forwardedPort) {
+					result.port = forwardedPort;
+			} else {
+
+				// found port but no match
+				return result
+			}
+		} else {
+			// If no port patterns, reject the header (strict security default)
+		}
+	}
+
+	// if a protocol is configured, ensure it is correct.
+	if (found.protocol) {
+		if (found.protocol !== forwardedProtocol) {
+			return result;
+		}
+
+		// all good
+		result.protocol = found.protocol;
+	} else if (forwardedProtocol && /^https?$/.test(forwardedProtocol)) {
+		// fallback to allow if it is not specified in the allowedDomains, but only if it is http or https
+		result.protocol = forwardedProtocol;
+	}
+
+	result.host = hostname;
 	return result
 }

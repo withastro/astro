@@ -77,7 +77,6 @@ describe('node', () => {
 						...mockNodeRequest,
 						headers: {
 							'x-forwarded-host': 'www2.example.com,www3.example.com',
-							'x-forwarded-proto': 'https',
 						},
 					},
 					{ allowedDomains: [{ hostname: '**.example.com' }] },
@@ -379,6 +378,19 @@ describe('node', () => {
 				);
 				assert.equal(result.url, 'https://example.com/');
 			});
+			it('rejects malicious x-forwarded-proto with URL injection (https://www.malicious-url.com/?tank=) when host is missing', () => {
+				const result = createRequest(
+					{
+						...mockNodeRequest,
+						headers: {
+							host: 'example.com',
+							'x-forwarded-proto': 'https://www.malicious-url.com/?tank=',
+						},
+					},
+					{ allowedDomains: [{ hostname: 'example.com' }] },
+				);
+				assert.equal(result.url, 'https://example.com/');
+			});
 
 			it('rejects malicious x-forwarded-proto with middleware bypass attempt (x:admin?)', () => {
 				const result = createRequest(
@@ -644,7 +656,7 @@ describe('node', () => {
 							'x-forwarded-host': 'example.com:3000',
 						},
 					},
-					{ allowedDomains: [{ hostname: 'example.com' }] },
+					{ allowedDomains: [{ hostname: 'example.com', port:'3000' }] },
 				);
 				assert.equal(result.url, 'https://example.com:3000/');
 			});
