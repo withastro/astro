@@ -64,6 +64,22 @@ describe('Server islands', () => {
 				assert.equal(serverIslandEl.length, 0);
 			});
 
+			it('does not include viewtransitions.css when not using ViewTransitions', async () => {
+				const res = await fixture.fetch('/');
+				assert.equal(res.status, 200);
+				const html = await res.text();
+				assert.equal(
+					html.includes('astroFadeInOut'),
+					false,
+					'should not include viewtransitions.css keyframes',
+				);
+				assert.equal(
+					html.includes('viewtransitions.css'),
+					false,
+					'should not reference viewtransitions.css',
+				);
+			});
+
 			it('HTML escapes scripts', async () => {
 				const res = await fixture.fetch('/');
 				assert.equal(res.status, 200);

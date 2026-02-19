@@ -82,6 +82,23 @@ export async function compile({
 
 	handleCompileResultErrors(transformResult, cssTransformErrors);
 
+	// The compiler incorrectly imports viewtransitions.css when `server:defer` is used,
+	// even without any transition directives. Strip the import if the source doesn't
+	// actually use transition:name, transition:animate, or transition:persist.
+	// See: https://github.com/withastro/astro/issues/15574
+	if (
+		transformResult.code.includes('astro/components/viewtransitions.css') &&
+		!/transition:(name|animate|persist)/.test(source)
+	) {
+		transformResult = {
+			...transformResult,
+			code: transformResult.code.replace(
+				/import\s*"astro\/components\/viewtransitions\.css";\n?/,
+				'',
+			),
+		};
+	}
+
 	return {
 		...transformResult,
 		css: transformResult.css.map((code, i) => ({
