@@ -141,6 +141,11 @@ async function fetchRepoLabels(flue: FlueClient): Promise<{
 	const labelsJson = await flue.shell(
 		"gh api repos/withastro/astro/labels --paginate --jq '.[] | {name, description}'",
 	);
+	if (labelsJson.exitCode !== 0) {
+		throw new Error(
+			`gh api labels failed (exit ${labelsJson.exitCode}):\n  stdout: ${labelsJson.stdout.slice(0, 500)}\n  stderr: ${labelsJson.stderr.slice(0, 500)}`,
+		);
+	}
 	const allLabels = v.parse(
 		v.array(repoLabelSchema),
 		labelsJson.stdout
@@ -318,6 +323,11 @@ export default async function triage(flue: FlueClient, args: TriageArgs) {
 	const issueResult = await flue.shell(
 		`gh issue view ${issueNumber} --json title,body,author,labels,createdAt,state,number,url,comments`,
 	);
+	if (issueResult.exitCode !== 0) {
+		throw new Error(
+			`gh issue view failed (exit ${issueResult.exitCode}):\n  stdout: ${issueResult.stdout.slice(0, 500)}\n  stderr: ${issueResult.stderr.slice(0, 500)}`,
+		);
+	}
 	const issueDetails = v.parse(issueDetailsSchema, JSON.parse(issueResult.stdout));
 
 	// If there are prior comments, this is a re-triage. Check whether new
