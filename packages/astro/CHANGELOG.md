@@ -4760,7 +4760,7 @@
 
 - [#11987](https://github.com/withastro/astro/pull/11987) [`bf90a53`](https://github.com/withastro/astro/commit/bf90a5343f9cd1bb46f30e4b331e7ae675f5e720) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - The `locals` object can no longer be overridden
 
-  Middleware, API endpoints, and pages can no longer override the `locals` object in its entirety. You can still append values onto the object, but you can not replace the entire object and delete its existing values.
+  Middleware, API endpoints, and pages can no longer override the `locals` object in its entirety. You can still append values onto the object, but you cannot replace the entire object and delete its existing values.
 
   If you were previously overwriting like so:
 
@@ -6626,7 +6626,7 @@
 
 - [#11987](https://github.com/withastro/astro/pull/11987) [`bf90a53`](https://github.com/withastro/astro/commit/bf90a5343f9cd1bb46f30e4b331e7ae675f5e720) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - The `locals` object can no longer be overridden
 
-  Middleware, API endpoints, and pages can no longer override the `locals` object in its entirety. You can still append values onto the object, but you can not replace the entire object and delete its existing values.
+  Middleware, API endpoints, and pages can no longer override the `locals` object in its entirety. You can still append values onto the object, but you cannot replace the entire object and delete its existing values.
 
   If you were previously overwriting like so:
 

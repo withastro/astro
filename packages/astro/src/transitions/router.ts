@@ -134,7 +134,7 @@ function runScripts() {
 	let needsWaitForInlineModuleScript = false;
 	// The original code made the assumption that all inline scripts are directly executed when inserted into the DOM.
 	// This is not true for inline module scripts, which are deferred but still executed in order.
-	// inline module scripts can not be awaited for with onload.
+	// inline module scripts cannot be awaited for with onload.
 	// Thus to be able to wait for the execution of all scripts, we make sure that the last inline module script
 	// is always followed by an external module script
 	for (const script of document.getElementsByTagName('script')) {
