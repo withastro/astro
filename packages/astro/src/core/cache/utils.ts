@@ -33,7 +33,6 @@ export function normalizeRouteRuleCacheOptions(
 				maxAge?: number;
 				swr?: number;
 				tags?: string[];
-				prerender?: boolean;
 		  }
 		| undefined,
 ): CacheOptions | undefined {

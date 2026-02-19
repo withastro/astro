@@ -2810,7 +2810,7 @@ export interface AstroUserConfig<
 		 * @default `undefined`
 		 * @description
 		 *
-		 * Route patterns mapped to rules that control caching and prerendering.
+		 * Route patterns mapped to cache rules.
 		 * Uses the same `[param]` and `[...rest]` syntax as file-based routing.
 		 *
 		 * Supports Nitro-style cache shortcuts where cache options can be specified
@@ -2827,12 +2827,6 @@ export interface AstroUserConfig<
 		 *
 		 *       // Full form with nested cache
 		 *       '/products/*': { cache: { maxAge: 3600, tags: ['products'] } },
-		 *
-		 *       // Prerender control
-		 *       '/about': { prerender: true },
-		 *
-		 *       // Combined: cached and explicitly dynamic
-		 *       '/dashboard/*': { maxAge: 60, prerender: false },
 		 *     },
 		 *   },
 		 * }
@@ -2857,10 +2851,6 @@ export interface AstroUserConfig<
 				 * Cache tags for invalidation (shortcut).
 				 */
 				tags?: string[];
-				/**
-				 * Whether to prerender this route at build time.
-				 */
-				prerender?: boolean;
 			}
 		>;
 	};

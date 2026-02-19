@@ -97,12 +97,6 @@ export default defineConfig({
 
       // Full form with nested cache
       '/products/*': { cache: { maxAge: 3600, tags: ['products'] } },
-
-      // Prerender control
-      '/about': { prerender: true },
-
-      // Combined: cached + explicitly dynamic
-      '/dashboard/*': { maxAge: 60, prerender: false },
     },
   },
 });

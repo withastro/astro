@@ -30,16 +30,11 @@ export const CacheSchema = z.object({
  * - Shortcuts: `{ maxAge: 3600, swr: 600 }` - flat cache options at rule level
  * - Full form: `{ cache: { maxAge: 3600, swr: 600 } }` - nested under cache key
  *
- * Also supports:
- * - `prerender: boolean` - whether to prerender the route at build time
- *
  * Examples:
  * ```ts
  * routeRules: {
  *   '/api/*': { swr: 600 },                              // shortcut
  *   '/products/*': { cache: { maxAge: 3600, tags: ['products'] } }, // full
- *   '/about': { prerender: true },                       // static
- *   '/dashboard/*': { maxAge: 60, prerender: false },    // dynamic + cached
  * }
  * ```
  */
@@ -50,8 +45,6 @@ export const RouteRuleSchema = z.object({
 	maxAge: z.number().optional(),
 	swr: z.number().optional(),
 	tags: z.array(z.string()).optional(),
-	// Prerender control
-	prerender: z.boolean().optional(),
 });
 
 /**

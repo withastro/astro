@@ -140,7 +140,7 @@ describe('normalizeRouteRuleCacheOptions()', () => {
 	});
 
 	it('returns undefined for rule with no cache options', () => {
-		const result = normalizeRouteRuleCacheOptions({ prerender: true });
+		const result = normalizeRouteRuleCacheOptions({});
 		assert.equal(result, undefined);
 	});
 
@@ -173,7 +173,7 @@ describe('extractCacheRoutesFromRouteRules()', () => {
 
 	it('filters out rules with no cache options', () => {
 		const result = extractCacheRoutesFromRouteRules({
-			'/about': { prerender: true },
+			'/about': {},
 			'/api/*': { swr: 600 },
 		});
 		assert.deepEqual(result, {
@@ -226,10 +226,7 @@ describe('cacheConfigToManifest()', () => {
 	});
 
 	it('handles routeRules with no cache options', () => {
-		const result = cacheConfigToManifest(
-			{ provider: '@astrojs/node/cache' },
-			{ '/about': { prerender: true } },
-		);
+		const result = cacheConfigToManifest({ provider: '@astrojs/node/cache' }, { '/about': {} });
 		assert.deepEqual(result, {
 			provider: '@astrojs/node/cache',
 			options: undefined,
