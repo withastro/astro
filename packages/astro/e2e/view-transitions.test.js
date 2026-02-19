@@ -1664,7 +1664,7 @@ test.describe('View Transitions', () => {
 		await page.goto(astro.resolveUrl('/abort2'));
 		// implemented in /abort2:
 		// Navigate to self with a 10 second animation
-		// shortly after starting that, change your mind an navigate to /one
+		// shortly after starting that, change your mind and navigate to /one
 		// check that animations got canceled
 		let p = page.locator('#one');
 		await expect(p, 'should have content').toHaveText('Page 1');
