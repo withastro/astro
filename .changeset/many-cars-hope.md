@@ -1,5 +1,5 @@
 ---
-'astro': patch
+'astro': minor
 ---
 
 Adds new `middlewareMode` adapter feature that replaces `edgeMiddleware` option
