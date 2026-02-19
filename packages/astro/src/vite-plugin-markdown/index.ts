@@ -128,9 +128,11 @@ export default function markdown({ settings, logger }: AstroPluginOptions): Plug
 				}
 
 				// Only inject Shiki styles if using Shiki syntax highlighter (default) AND document contains code blocks
+				const syntaxHighlight = settings.config.markdown.syntaxHighlight;
 				const usesShiki =
-					settings.config.markdown.syntaxHighlight === 'shiki' ||
-					settings.config.markdown.syntaxHighlight === undefined;
+					syntaxHighlight === 'shiki' ||
+					(typeof syntaxHighlight === 'object' && syntaxHighlight.type === 'shiki') ||
+					syntaxHighlight === undefined;
 				const hasCodeBlocks = renderResult.metadata.hasCodeBlocks ?? false;
 
 				const code = `

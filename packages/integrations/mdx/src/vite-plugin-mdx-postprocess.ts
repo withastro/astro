@@ -25,9 +25,11 @@ export function vitePluginMdxPostprocess(astroConfig: AstroConfig): Plugin {
 				const [imports, exports] = parse(code);
 
 				// Inject Shiki CSS import if using Shiki AND document contains code blocks
+				const syntaxHighlight = astroConfig.markdown.syntaxHighlight;
 				const usesShiki =
-					astroConfig.markdown.syntaxHighlight === 'shiki' ||
-					astroConfig.markdown.syntaxHighlight === undefined;
+					syntaxHighlight === 'shiki' ||
+					(typeof syntaxHighlight === 'object' && syntaxHighlight.type === 'shiki') ||
+					syntaxHighlight === undefined;
 				// Get hasCodeBlocks from metadata map populated by vite-plugin-mdx
 				const metadata = mdxMetadataMap.get(id);
 				const hasCodeBlocks = metadata?.hasCodeBlocks ?? false;
