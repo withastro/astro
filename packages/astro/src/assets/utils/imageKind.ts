@@ -4,7 +4,7 @@ import type { ImageMetadata, UnresolvedImageTransform } from '../types.js';
  * Determines if the given source is an ECMAScript Module (ESM) imported image.
  *
  * @param {ImageMetadata | string} src - The source to check. It can be an `ImageMetadata` object or a string.
- * @return {boolean} Returns `true` if the source is an `ImageMetadata` object, otherwise `false`.
+ * @return {boolean} Returns `true` if the source is an `ImageMetadata` object; otherwise, `false`.
  */
 export function isESMImportedImage(src: ImageMetadata | string): src is ImageMetadata {
 	return typeof src === 'object' || (typeof src === 'function' && 'src' in src);
@@ -14,7 +14,7 @@ export function isESMImportedImage(src: ImageMetadata | string): src is ImageMet
  * Determines if the provided source is a remote image URL in the form of a string.
  *
  * @param {ImageMetadata | string} src - The source to check, which can either be an `ImageMetadata` object or a string.
- * @return {boolean} Returns `true` if the source is a string, otherwise `false`.
+ * @return {boolean} Returns `true` if the source is a string; otherwise, `false`.
  */
 export function isRemoteImage(src: ImageMetadata | string): src is string {
 	return typeof src === 'string';
