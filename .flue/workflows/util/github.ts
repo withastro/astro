@@ -2,15 +2,11 @@ import * as v from 'valibot';
 
 const REPO = 'withastro/astro';
 
-function getToken(): string {
-	const token = process.env.FREDKBOT_GITHUB_TOKEN;
-	if (!token) throw new Error('FREDKBOT_GITHUB_TOKEN is not set');
-	return token;
-}
-
 function headers(): Record<string, string> {
+	const token = process.env.FREDKBOT_GITHUB_TOKEN || process.env.GITHUB_TOKEN;
+	if (!token) throw new Error('token is not set');
 	return {
-		Authorization: `token ${getToken()}`,
+		Authorization: `token ${token}`,
 		'Content-Type': 'application/json',
 		Accept: 'application/vnd.github+json',
 	};
