@@ -69,7 +69,7 @@ function reEncode(s: string) {
 
 			// If we find a character in the range \x00 - \x7f that is not one of the reEncodeValidChars,
 			// we replace it with its hex value escaped by an underscore for decodability (and better readability,
-			// because most of them are punctuations like ,'"":;_..., and '_' might be a better choice than '-')
+			// because most of them are punctuation like ,'"":;_..., and '_' might be a better choice than '-')
 			// The underscore itself (code 95) is also escaped and encoded as two underscores to avoid
 			// collisions between original and encoded strings.
 			// All other values are just copied over
