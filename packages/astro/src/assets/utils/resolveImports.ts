@@ -8,7 +8,7 @@ import { VALID_INPUT_FORMATS } from '../consts.js';
  *
  * @param imageSrc The src attribute of an image tag
  * @param filePath The path to the file that contains the image relative to the site root
- * @returns A module id of the image that can be rsolved by Vite, or undefined if it is not a local image
+ * @returns A module id of the image that can be resolved by Vite, or undefined if it is not a local image
  */
 export function imageSrcToImportId(imageSrc: string, filePath?: string): string | undefined {
 	// If the import is coming from the data store it will have a special prefix to identify it
