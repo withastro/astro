@@ -63,7 +63,9 @@ export class StaticPaths {
 			// Also process fallback routes
 			for (const currentRoute of eachRouteInRouteData(route)) {
 				const paths = await this.#getPathsForRoute(currentRoute);
-				allPaths.push(...paths);
+				for (const path of paths) {
+					allPaths.push(path);
+				}
 			}
 		}
 
