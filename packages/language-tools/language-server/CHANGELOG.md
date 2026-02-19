@@ -748,7 +748,7 @@ In the background, this update means that we now have to maintain a lot less cod
 ### Patch Changes
 
 - e6996f5: Fixed many situations where the language server would warn abusively about not being able to find Astro
-- 4589c2b: Fix the language server not warning properly when a package is implicitely any due to missing types
+- 4589c2b: Fix the language server not warning properly when a package is implicitly any due to missing types
 
 ## 0.20.0
 
