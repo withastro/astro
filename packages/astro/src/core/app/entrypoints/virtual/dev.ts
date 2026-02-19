@@ -26,6 +26,13 @@ export const createApp: CreateApp = ({ streaming } = {}) => {
 				logger.error('router', `Failed to update routes via HMR:\n ${e}`);
 			}
 		});
+
+		// Listen for content collection changes via HMR.
+		// Clear the route cache so getStaticPaths() is re-evaluated with fresh data.
+		import.meta.hot.on('astro:content-changed', () => {
+			if (!currentDevApp) return;
+			currentDevApp.pipeline.routeCache.clearAll();
+		});
 	}
 
 	return currentDevApp;
