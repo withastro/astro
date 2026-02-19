@@ -58,7 +58,7 @@
 
 ### Patch Changes
 
-- [#15432](https://github.com/withastro/astro/pull/15432) [`e2ad69e`](https://github.com/withastro/astro/commit/e2ad69ebdef907c5365bd1047772a3e86736c9d2) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Removes unneccessary warning about sharp from being printed at start of dev server and build
+- [#15432](https://github.com/withastro/astro/pull/15432) [`e2ad69e`](https://github.com/withastro/astro/commit/e2ad69ebdef907c5365bd1047772a3e86736c9d2) Thanks [@OliverSpeir](https://github.com/OliverSpeir)! - Removes unnecessary warning about sharp from being printed at start of dev server and build
 
 - Updated dependencies [[`a164c77`](https://github.com/withastro/astro/commit/a164c77336059f2dc3e7f7fe992aa754ed145ef3), [`a18d727`](https://github.com/withastro/astro/commit/a18d727fc717054df85177c8e0c3d38a5252f2da)]:
   - @astrojs/internal-helpers@0.8.0-beta.1
