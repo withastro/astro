@@ -146,7 +146,7 @@
 
 - [#9121](https://github.com/withastro/astro/pull/9121) [`f4efd1c80`](https://github.com/withastro/astro/commit/f4efd1c808476c7e60fe00fcfb86276cf14fee79) Thanks [@peng](https://github.com/peng)! - Adds a warning if `astro add` fetches a package but returns a non-404 status
 
-- [#9142](https://github.com/withastro/astro/pull/9142) [`7d55cf68d`](https://github.com/withastro/astro/commit/7d55cf68d89cb46bfb89a109b09af61be8431c89) Thanks [@ematipico](https://github.com/ematipico)! - Consistely emit fallback routes in the correct folders.
+- [#9142](https://github.com/withastro/astro/pull/9142) [`7d55cf68d`](https://github.com/withastro/astro/commit/7d55cf68d89cb46bfb89a109b09af61be8431c89) Thanks [@ematipico](https://github.com/ematipico)! - Consistently emit fallback routes in the correct folders.
 
 - [#9119](https://github.com/withastro/astro/pull/9119) [`306781795`](https://github.com/withastro/astro/commit/306781795d5f4b755bbdf650a937f1f3c00030bd) Thanks [@ematipico](https://github.com/ematipico)! - Fix a flaw in the i18n fallback logic, where the routes didn't preserve their metadata, such as hoisted scripts
 
