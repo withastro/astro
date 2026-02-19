@@ -1402,7 +1402,7 @@
 
   ### Routes
 
-  The `routes.strategy` option has been removed as you will no longer have the option to choose a strategy in v10 of this adpater.
+  The `routes.strategy` option has been removed as you will no longer have the option to choose a strategy in v10 of this adapter.
 
   If you are using `routes.strategy`, you can remove it. You might observe a different `dist/_routes.json` file, but it should not affect your project's behavior.
 
