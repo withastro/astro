@@ -64,7 +64,7 @@
     "@biomejs/biome": "2.3.15",
     "@changesets/changelog-github": "^0.5.2",
     "@changesets/cli": "^2.29.8",
-    "@flue/cli": "^0.0.39",
+    "@flue/cli": "^0.0.40",
     "@flue/client": "^0.0.25",
     "@types/node": "^18.19.115",
     "bgproc": "^0.2.0",

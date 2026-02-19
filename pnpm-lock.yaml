@@ -25,8 +25,8 @@ importers:
         specifier: ^2.29.8
         version: 2.29.8(@types/node@18.19.130)
       '@flue/cli':
-        specifier: ^0.0.39
-        version: 0.0.39(typescript@5.9.3)
+        specifier: ^0.0.40
+        version: 0.0.40(typescript@5.9.3)
       '@flue/client':
         specifier: ^0.0.25
         version: 0.0.25(typescript@5.9.3)
@@ -8794,12 +8794,9 @@ packages:
   '@fastify/static@9.0.0':
     resolution: {integrity: sha512-r64H8Woe/vfilg5RTy7lwWlE8ZZcTrc3kebYFMEUBrMqlydhQyoiExQXdYAy2REVpST/G35+stAM8WYp1WGmMA==}
 
-  '@flue/cli@0.0.39':
-    resolution: {integrity: sha512-DdK38UUavjDZPeZJffWlSkqJScHhDMtkmEUSMhei/TIKymYbUFBRX+COfYIxoaqEYaPyR3AJWFaEyc+KGyX52g==}
+  '@flue/cli@0.0.40':
+    resolution: {integrity: sha512-v4cWYf5qI3oFnVLm6JVJTwMee4G00rku9v7M8X9JshIloFboUr/lkfZ6gjAcdAoCxNSmgG+6G7u1DeDw5wwe/w==}
     hasBin: true
-
-  '@flue/client@0.0.18':
-    resolution: {integrity: sha512-DA0ctHnYj57qDGc1H5DvwPlsjlTncxCXX9mXtwfSN80Wa2mp1THYcgZZU+7VrlL0IjoPHNcqSwNF2w3keI9Bdw==}
 
   '@flue/client@0.0.25':
     resolution: {integrity: sha512-tAUjceouCZ1/xhqQXVwkvtbnaT30BiMOI/CEaFy8roPc7wd0XX9AhNqCRCCinFoiGcZmjeGod2JKA/C8TxhGJQ==}
@@ -17980,17 +17977,9 @@ snapshots:
       fastq: 1.20.1
       glob: 13.0.3
 
-  '@flue/cli@0.0.39(typescript@5.9.3)':
+  '@flue/cli@0.0.40(typescript@5.9.3)':
     dependencies:
-      '@flue/client': 0.0.18(typescript@5.9.3)
-    transitivePeerDependencies:
-      - typescript
-
-  '@flue/client@0.0.18(typescript@5.9.3)':
-    dependencies:
-      '@opencode-ai/sdk': 1.1.65
-      '@valibot/to-json-schema': 1.5.0(valibot@1.2.0(typescript@5.9.3))
-      valibot: 1.2.0(typescript@5.9.3)
+      '@flue/client': 0.0.25(typescript@5.9.3)
     transitivePeerDependencies:
       - typescript
 
