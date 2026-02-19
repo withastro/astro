@@ -774,7 +774,7 @@ describe('astro:image', () => {
 				assert.equal(res.status, 200);
 				assert.equal(
 					await res.text(),
-					"You fool! I'm not a image endpoint at all, I just return this!",
+					"You fool! I'm not an image endpoint at all, I just return this!",
 				);
 			});
 

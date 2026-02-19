@@ -221,7 +221,7 @@ const moveToLocation = (
 	} else {
 		if (to.hash) {
 			// because we are already on the target page ...
-			// ... what comes next is a intra-page navigation
+			// ... what comes next is an intra-page navigation
 			// that won't reload the page but instead scroll to the fragment
 			history.scrollRestoration = 'auto';
 			const savedState = history.state;
