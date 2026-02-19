@@ -1,0 +1,11 @@
+---
+const components = Object.values(import.meta.glob('../components/*.mdx', { eager: true }));
+---
+
+<div data-default-export>
+	{components.map(Component => <Component.default />)}
+</div>
+
+<div data-content-export>
+	{components.map(({ Content }) => <Content />)}
+</div>

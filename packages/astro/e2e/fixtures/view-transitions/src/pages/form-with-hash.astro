@@ -1,0 +1,13 @@
+---
+import Layout from '../components/Layout.astro';
+
+export const prerender = false;
+---
+<Layout>
+	<a href="#contact">To form</a>
+	<h2 id="contact">Contact Form</h2>
+	<form method="post">
+    { Astro.request.method === 'POST' && <span id="success">success</span> }
+		<input type="submit" value="Submit" id="submit">
+	</form>
+</Layout>

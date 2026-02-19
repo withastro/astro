@@ -1,0 +1,18 @@
+name: Close Issues (needs repro)
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  close-issues:
+    if: github.repository == 'withastro/astro'
+    runs-on: ubuntu-latest
+    steps:
+      - name: needs repro
+        uses: actions-cool/issues-helper@71b62d7da76e59ff7b193904feb6e77d4dbb2777 # v3.7.6
+        with:
+          actions: "close-issues"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          labels: "needs repro"
+          inactive-day: 3

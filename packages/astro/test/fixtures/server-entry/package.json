@@ -1,0 +1,9 @@
+{
+	"name": "@test/server-entry",
+	"version": "0.0.0",
+	"private": true,
+	"dependencies": {
+		"@test/server-entry-fake-adapter": "file:./fake-adapter",
+		"astro": "workspace:*"
+	}
+}

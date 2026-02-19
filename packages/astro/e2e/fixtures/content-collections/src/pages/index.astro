@@ -1,0 +1,8 @@
+---
+import { getEntry, render } from 'astro:content'
+
+const post = await getEntry('posts', 'post-1')
+const { Content } = await render(post);
+---
+
+<Content/>

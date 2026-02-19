@@ -1,0 +1,14 @@
+---
+import { getEntry, render } from 'astro:content';
+
+const entry = await getEntry('blog', 'promo/2-launch-week-component-scripts');
+const { Content } = await render(entry);
+---
+<html>
+<head>
+	<title>Launch Week</title>
+</head>
+<body>
+	<Content />
+</body>
+</html>

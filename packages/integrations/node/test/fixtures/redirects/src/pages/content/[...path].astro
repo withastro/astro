@@ -1,0 +1,9 @@
+---
+// Spread route for testing spread redirects
+
+export function getStaticPaths() {
+	return [
+		{ params: { path: 'some/nested/path' } },
+	];
+}
+---
