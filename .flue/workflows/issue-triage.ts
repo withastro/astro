@@ -1,6 +1,15 @@
 import type { FlueClient } from '@flue/client';
 import { anthropic, github, githubBody } from '@flue/client/proxies';
 import * as v from 'valibot';
+import {
+	type IssueDetails,
+	type RepoLabel,
+	addGitHubLabels,
+	fetchIssueDetails,
+	fetchRepoLabels,
+	postGitHubComment,
+	removeGitHubLabel,
+} from './util/github.ts';
 
 export const proxies = {
 	anthropic: anthropic(),
@@ -22,79 +31,6 @@ export const proxies = {
 function assert(condition: unknown, message: string): asserts condition {
 	if (!condition) throw new Error(message);
 }
-
-async function postGitHubComment(issueNumber: number, body: string): Promise<void> {
-	const res = await fetch(
-		`https://api.github.com/repos/withastro/astro/issues/${issueNumber}/comments`,
-		{
-			method: 'POST',
-			headers: {
-				Authorization: `token ${process.env.FREDKBOT_GITHUB_TOKEN}`,
-				'Content-Type': 'application/json',
-				Accept: 'application/vnd.github+json',
-			},
-			body: JSON.stringify({ body }),
-		},
-	);
-	if (!res.ok) {
-		throw new Error(`Failed to post comment (HTTP ${res.status}): ${await res.text()}`);
-	}
-}
-
-async function addGitHubLabels(issueNumber: number, labels: string[]): Promise<void> {
-	const res = await fetch(
-		`https://api.github.com/repos/withastro/astro/issues/${issueNumber}/labels`,
-		{
-			method: 'POST',
-			headers: {
-				Authorization: `token ${process.env.FREDKBOT_GITHUB_TOKEN}`,
-				'Content-Type': 'application/json',
-				Accept: 'application/vnd.github+json',
-			},
-			body: JSON.stringify({ labels }),
-		},
-	);
-	if (!res.ok) {
-		throw new Error(`Failed to add labels (HTTP ${res.status}): ${await res.text()}`);
-	}
-}
-
-async function removeGitHubLabel(issueNumber: number, label: string): Promise<void> {
-	const res = await fetch(
-		`https://api.github.com/repos/withastro/astro/issues/${issueNumber}/labels/${encodeURIComponent(label)}`,
-		{
-			method: 'DELETE',
-			headers: {
-				Authorization: `token ${process.env.FREDKBOT_GITHUB_TOKEN}`,
-				'Content-Type': 'application/json',
-				Accept: 'application/vnd.github+json',
-			},
-		},
-	);
-	if (!res.ok && res.status !== 404) {
-		throw new Error(`Failed to remove label (HTTP ${res.status}): ${await res.text()}`);
-	}
-}
-
-const issueDetailsSchema = v.object({
-	title: v.string(),
-	body: v.string(),
-	author: v.object({ login: v.string() }),
-	labels: v.array(v.looseObject({ name: v.string() })),
-	createdAt: v.string(),
-	state: v.string(),
-	number: v.number(),
-	url: v.string(),
-	comments: v.array(
-		v.looseObject({
-			author: v.object({ login: v.string() }),
-			authorAssociation: v.string(),
-			body: v.string(),
-			createdAt: v.string(),
-		}),
-	),
-});
-type IssueDetails = v.InferOutput<typeof issueDetailsSchema>;
 
 async function shouldRetriage(flue: FlueClient, issue: IssueDetails): Promise<'yes' | 'no'> {
 	return flue.prompt(
@@ -126,34 +62,6 @@ meaningful reproduction information, respond with "no".
 Return only "yes" or "no" inside the ---RESULT_START--- / ---RESULT_END--- block.`,
 		{ result: v.picklist(['yes', 'no']) },
 	);
-}
-
-const repoLabelSchema = v.object({
-	name: v.string(),
-	description: v.nullable(v.string()),
-});
-type RepoLabel = v.InferOutput<typeof repoLabelSchema>;
-
-async function fetchRepoLabels(flue: FlueClient): Promise<{
-	priorityLabels: RepoLabel[];
-	packageLabels: RepoLabel[];
-}> {
-	const labelsJson = await flue.shell(
-		"gh api repos/withastro/astro/labels --paginate --jq '.[] | {name, description}'",
-	);
-	const allLabels = v.parse(
-		v.array(repoLabelSchema),
-		labelsJson.stdout
-			.trim()
-			.split('\n')
-			.filter(Boolean)
-			.map((line) => JSON.parse(line)),
-	);
-
-	return {
-		priorityLabels: allLabels.filter((l) => /^- P\d/.test(l.name)),
-		packageLabels: allLabels.filter((l) => l.name.startsWith('pkg:')),
-	};
 }
 
 async function selectTriageLabels(
@@ -315,22 +223,13 @@ interface TriageArgs {
 
 export default async function triage(flue: FlueClient, args: TriageArgs) {
 	const { issueNumber, branch } = args;
-	const issueResult = await flue.shell(
-		`gh issue view ${issueNumber} --json title,body,author,labels,createdAt,state,number,url,comments`,
-	);
-	if (issueResult.exitCode !== 0) {
-		throw new Error(
-			`gh issue view failed (exit ${issueResult.exitCode}):\n  stdout: ${issueResult.stdout.slice(0, 500)}\n  stderr: ${issueResult.stderr.slice(0, 500)}`,
-		);
-	}
-	const issueDetails = v.parse(issueDetailsSchema, JSON.parse(issueResult.stdout));
+	const issueDetails = await fetchIssueDetails(issueNumber);
 
 	// If there are prior comments, this is a re-triage. Check whether new
 	// actionable information has been provided before running the full pipeline.
 	const hasExistingConversation = issueDetails.comments.length > 0;
 	if (hasExistingConversation) {
 		const shouldRetriageResult = await shouldRetriage(flue, issueDetails);
-
 		if (shouldRetriageResult === 'no') {
 			return { skipped: true, reason: 'No new actionable information' };
 		}
@@ -363,7 +262,7 @@ export default async function triage(flue: FlueClient, args: TriageArgs) {
 
 	// Fetch repo labels upfront so we can pass priority labels to the comment
 	// skill (which selects the priority) and package labels to the label selector.
-	const { priorityLabels, packageLabels } = await fetchRepoLabels(flue);
+	const { priorityLabels, packageLabels } = await fetchRepoLabels();
 	assert(priorityLabels.length > 0, 'no priority labels found');
 	assert(packageLabels.length > 0, 'no package labels found');
 
@@ -382,7 +281,6 @@ export default async function triage(flue: FlueClient, args: TriageArgs) {
 
 	if (triageResult.reproducible) {
 		await removeGitHubLabel(issueNumber, 'needs triage');
-
 		const selectedLabels = await selectTriageLabels(flue, {
 			comment,
 			priorityLabels,
