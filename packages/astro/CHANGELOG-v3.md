@@ -403,7 +403,7 @@
 
 ### Patch Changes
 
-- [#9016](https://github.com/withastro/astro/pull/9016) [`1ecc9aa32`](https://github.com/withastro/astro/commit/1ecc9aa3240b79a3879b1329aa4f671d80e87649) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add ability to "Click to go editor" on auditted elements in the dev overlay
+- [#9016](https://github.com/withastro/astro/pull/9016) [`1ecc9aa32`](https://github.com/withastro/astro/commit/1ecc9aa3240b79a3879b1329aa4f671d80e87649) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add ability to "Click to go editor" on audited elements in the dev overlay
 
 - [#9029](https://github.com/withastro/astro/pull/9029) [`29b83e9e4`](https://github.com/withastro/astro/commit/29b83e9e4b906cc0b5d92fae854fb350fc2be7c8) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Use UInt8Array instead of Buffer for both the input and return values of the `transform()` hook of the Image Service API to ensure compatibility with non-Node runtimes.
 
