@@ -123,8 +123,8 @@ export function sharedValidateOptions(
 	// 	the user asked for so we can put it on the `img` tag later.
 	// - Otherwise, just use as-is.
 	// The end goal is:
-	// - The size on the page is always the one the user asked for or the base image's size
-	// - The actual size of the image file is always one of `sizes`, either the one the user asked for or the nearest to it
+	// - The size on the page is always the one that the user asked for or the base image's size
+	// - The actual size of the image file is always one of `sizes`, either the one that the user asked for or the nearest to it
 	if (!options.width) {
 		const src = options.src;
 		if (isESMImportedImage(src)) {
