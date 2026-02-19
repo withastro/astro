@@ -8,6 +8,7 @@ on:
 
 env:
   IMAGE: ghcr.io/${{ github.repository }}/flue-sandbox
+  PNPM_STORE_DIR: .pnpm-store
 
 concurrency:
   # Only one triage run per issue at a time. New runs queue (not cancel)
