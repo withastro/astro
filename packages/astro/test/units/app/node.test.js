@@ -432,7 +432,7 @@ describe('NodeApp', () => {
 			});
 
 			it('accepts x-forwarded-proto when allowedDomains has protocol and hostname', () => {
-				const result = createRequest(
+				const result = NodeApp.createRequest(
 					{
 						...mockNodeRequest,
 						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
@@ -449,7 +449,7 @@ describe('NodeApp', () => {
 			});
 
 			it('rejects x-forwarded-proto when it does not match protocol in allowedDomains', () => {
-				const result = createRequest(
+				const result = NodeApp.createRequest(
 					{
 						...mockNodeRequest,
 						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
@@ -466,7 +466,7 @@ describe('NodeApp', () => {
 			});
 
 			it('accepts x-forwarded-proto with wildcard hostname pattern in allowedDomains', () => {
-				const result = createRequest(
+				const result = NodeApp.createRequest(
 					{
 						...mockNodeRequest,
 						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
@@ -483,7 +483,7 @@ describe('NodeApp', () => {
 			it('constructs correct URL behind reverse proxy with all forwarded headers', () => {
 				// Simulates: Reverse proxy terminates TLS, connects to Astro via HTTP,
 				// forwards original protocol/host/port via X-Forwarded-* headers
-				const result = createRequest(
+				const result = NodeApp.createRequest(
 					{
 						...mockNodeRequest,
 						socket: { encrypted: false, remoteAddress: '2.2.2.2' },
