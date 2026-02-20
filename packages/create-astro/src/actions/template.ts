@@ -124,7 +124,7 @@ export function getTemplateTarget(tmpl: string, ref = 'latest') {
 	// Handle Astro templates
 	if (ref === 'latest') {
 		// `latest` ref is specially handled to route to a branch specifically
-		// to allow faster downloads. Otherwise giget has to download the entire
+		// to allow faster downloads. Otherwise, giget has to download the entire
 		// repo and only copy a sub directory
 		return `github:withastro/astro#examples/${tmpl}`;
 	} else {
