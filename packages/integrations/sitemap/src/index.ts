@@ -125,7 +125,15 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 								finalSiteUrl.pathname += '/';
 							if (p.pathname.startsWith('/')) p.pathname = p.pathname.slice(1);
 							const fullPath = finalSiteUrl.pathname + p.pathname;
-							return new URL(fullPath, finalSiteUrl).href;
+							const newUrl = new URL(fullPath, finalSiteUrl).href;
+
+							if (config.build.format === 'file') {
+								const path = new URL(newUrl).pathname;
+								if (path !== '/' && path !== '' && !path.endsWith('/')) {
+									return newUrl + '.html';
+								}
+							}
+							return newUrl;
 						});
 
 					const routeUrls = _routes.reduce<string[]>((urls, r) => {
@@ -146,10 +154,15 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 							const newUrl = new URL(fullPath, finalSiteUrl).href;
 
-							if (config.build.format === 'file' && !newUrl.endsWith('/')) {
-								// When build.format is 'file', output files have .html extension
-								// (e.g., /about → /about.html), so sitemap URLs should match
-								urls.push(newUrl + '.html');
+							if (config.build.format === 'file') {
+								const path = new URL(newUrl).pathname;
+								if (path !== '/' && path !== '' && !path.endsWith('/')) {
+									// When build.format is 'file', output files have .html extension
+									// (e.g., /about → /about.html), so sitemap URLs should match
+									urls.push(newUrl + '.html');
+								} else {
+									urls.push(newUrl);
+								}
 							} else if (config.trailingSlash === 'never') {
 								urls.push(newUrl);
 							} else if (config.build.format === 'directory' && !newUrl.endsWith('/')) {
