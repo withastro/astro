@@ -176,7 +176,7 @@ To understand which file causes the issue, you can modify the `test` script insi
 }
 ```
 
-Save the change and **push it** to your PR. This change will make the test CI slower, but it will allow to see which files causes the timeout. Once you fixed the issue **revert the change and push it**.
+Save the change and **push it** to your PR. This change will make the test CI slower, but it will allow to see which files cause the timeout. Once you fixed the issue **revert the change and push it**.
 
 #### E2E tests
 
