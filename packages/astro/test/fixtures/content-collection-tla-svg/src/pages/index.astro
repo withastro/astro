@@ -1,0 +1,21 @@
+---
+import { getCollection } from 'astro:content';
+
+// Top-level await - this is the key trigger for the circular dependency bug.
+// When combined with SVG images in content collection image() fields,
+// the TLA causes a module evaluation deadlock.
+const articles = await getCollection('articles');
+---
+<html>
+  <head>
+    <title>Articles</title>
+  </head>
+  <body>
+    {articles.map((article) => (
+      <div class="article">
+        <h2 class="title">{article.data.title}</h2>
+        <img class="cover" src={article.data.cover.src} width={article.data.cover.width} height={article.data.cover.height} />
+      </div>
+    ))}
+  </body>
+</html>
