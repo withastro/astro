@@ -7181,7 +7181,7 @@
 - [#11698](https://github.com/withastro/astro/pull/11698) [`05139ef`](https://github.com/withastro/astro/commit/05139ef8b46de96539cc1d08148489eaf3cfd837) Thanks [@ematipico](https://github.com/ematipico)! - Adds a new property to the globals `Astro` and `APIContext` called `routePattern`. The `routePattern` represents the current route (component)
   that is being rendered by Astro. It's usually a path pattern will look like this: `blog/[slug]`:
 
-  ```asto
+  ```astro
   ---
   // src/pages/blog/[slug].astro
   const route = Astro.routePattern;
