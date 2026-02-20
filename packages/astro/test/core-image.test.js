@@ -904,7 +904,7 @@ describe('astro:image', () => {
 			assert.equal(img.status, 200);
 		});
 
-		it('returns 403 when loading a relative pattern iamge', async () => {
+		it('returns 403 when loading a relative pattern image', async () => {
 			const fixtureWithBase = await loadFixture({
 				root: './fixtures/core-image-ssr/',
 				output: 'server',
