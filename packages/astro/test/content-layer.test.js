@@ -62,36 +62,33 @@ describe('Content Layer', () => {
 			assert.ok(Array.isArray(json.jsonLoader));
 
 			const ids = json.jsonLoader.map((item) => item.data.id);
-			assert.deepEqual(
-				ids,
-				[
-					'labrador-retriever',
-					'german-shepherd',
-					'golden-retriever',
-					'french-bulldog',
-					'bulldog',
-					'beagle',
-					'poodle',
-					'rottweiler',
-					'german-shorthaired-pointer',
-					'yorkshire-terrier',
-					'boxer',
-					'dachshund',
-					'siberian-husky',
-					'great-dane',
-					'doberman-pinscher',
-					'australian-shepherd',
-					'miniature-schnauzer',
-					'cavalier-king-charles-spaniel',
-					'shih-tzu',
-					'boston-terrier',
-					'bernese-mountain-dog',
-					'pomeranian',
-					'havanese',
-					'english-springer-spaniel',
-					'shetland-sheepdog',
-				].sort(),
-			);
+			assert.deepEqual(ids, [
+				'australian-shepherd',
+				'beagle',
+				'bernese-mountain-dog',
+				'boston-terrier',
+				'boxer',
+				'bulldog',
+				'cavalier-king-charles-spaniel',
+				'dachshund',
+				'doberman-pinscher',
+				'english-springer-spaniel',
+				'french-bulldog',
+				'german-shepherd',
+				'german-shorthaired-pointer',
+				'golden-retriever',
+				'great-dane',
+				'havanese',
+				'labrador-retriever',
+				'miniature-schnauzer',
+				'pomeranian',
+				'poodle',
+				'rottweiler',
+				'shetland-sheepdog',
+				'shih-tzu',
+				'siberian-husky',
+				'yorkshire-terrier',
+			]);
 		});
 
 		it('can render markdown in loaders', async () => {
@@ -137,7 +134,7 @@ describe('Content Layer', () => {
 			assert.ok(Array.isArray(json.nestedJsonLoader));
 
 			const ids = json.nestedJsonLoader.map((item) => item.data.id);
-			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch'].sort());
+			assert.deepEqual(ids, ['bluejay', 'cardinal', 'goldfinch', 'robin', 'sparrow']);
 		});
 
 		it('can use an async parser in `file()` loader', async () => {
@@ -145,7 +142,7 @@ describe('Content Layer', () => {
 			assert.ok(Array.isArray(json.loaderWithAsyncParse));
 
 			const ids = json.loaderWithAsyncParse.map((item) => item.data.id);
-			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch'].sort());
+			assert.deepEqual(ids, ['bluejay', 'cardinal', 'goldfinch', 'robin', 'sparrow']);
 		});
 
 		it('Returns yaml `file()` loader collection', async () => {
@@ -153,21 +150,18 @@ describe('Content Layer', () => {
 			assert.ok(Array.isArray(json.yamlLoader));
 
 			const ids = json.yamlLoader.map((item) => item.id);
-			assert.deepEqual(
-				ids,
-				[
-					'bubbles',
-					'finn',
-					'shadow',
-					'spark',
-					'splash',
-					'nemo',
-					'angel-fish',
-					'gold-stripe',
-					'blue-tail',
-					'bubble-buddy',
-				].sort(),
-			);
+			assert.deepEqual(ids, [
+				'angel-fish',
+				'blue-tail',
+				'bubble-buddy',
+				'bubbles',
+				'finn',
+				'gold-stripe',
+				'nemo',
+				'shadow',
+				'spark',
+				'splash',
+			]);
 		});
 
 		it('Returns toml `file()` loader collection', async () => {
@@ -175,19 +169,16 @@ describe('Content Layer', () => {
 			assert.ok(Array.isArray(json.tomlLoader));
 
 			const ids = json.tomlLoader.map((item) => item.id);
-			assert.deepEqual(
-				ids,
-				[
-					'crown',
-					'nikes-on-my-feet',
-					'stars',
-					'never-let-me-down',
-					'no-church-in-the-wild',
-					'family-ties',
-					'somebody',
-					'honest',
-				].sort(),
-			);
+			assert.deepEqual(ids, [
+				'crown',
+				'family-ties',
+				'honest',
+				'never-let-me-down',
+				'nikes-on-my-feet',
+				'no-church-in-the-wild',
+				'somebody',
+				'stars',
+			]);
 		});
 
 		it('Returns csv `file()` loader collection', async () => {
@@ -195,21 +186,18 @@ describe('Content Layer', () => {
 			assert.ok(Array.isArray(json.csvLoader));
 
 			const ids = json.csvLoader.map((item) => item.data.id);
-			assert.deepEqual(
-				ids,
-				[
-					'lavender',
-					'rose',
-					'sunflower',
-					'basil',
-					'thyme',
-					'sage',
-					'daisy',
-					'marigold',
-					'chamomile',
-					'fern',
-				].sort(),
-			);
+			assert.deepEqual(ids, [
+				'basil',
+				'chamomile',
+				'daisy',
+				'fern',
+				'lavender',
+				'marigold',
+				'rose',
+				'sage',
+				'sunflower',
+				'thyme',
+			]);
 		});
 
 		it('Returns yaml `glob()` loader collection', async () => {
@@ -233,7 +221,7 @@ describe('Content Layer', () => {
 			assert.ok(Array.isArray(json.nestedJsonLoader));
 
 			const ids = json.nestedJsonLoader.map((item) => item.data.id);
-			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch'].sort());
+			assert.deepEqual(ids, ['bluejay', 'cardinal', 'goldfinch', 'robin', 'sparrow']);
 		});
 
 		it('Returns data entry by id', async () => {
@@ -597,36 +585,33 @@ describe('Content Layer', () => {
 			assert.ok(Array.isArray(json.jsonLoader));
 
 			const ids = json.jsonLoader.map((item) => item.data.id);
-			assert.deepEqual(
-				ids,
-				[
-					'labrador-retriever',
-					'german-shepherd',
-					'golden-retriever',
-					'french-bulldog',
-					'bulldog',
-					'beagle',
-					'poodle',
-					'rottweiler',
-					'german-shorthaired-pointer',
-					'yorkshire-terrier',
-					'boxer',
-					'dachshund',
-					'siberian-husky',
-					'great-dane',
-					'doberman-pinscher',
-					'australian-shepherd',
-					'miniature-schnauzer',
-					'cavalier-king-charles-spaniel',
-					'shih-tzu',
-					'boston-terrier',
-					'bernese-mountain-dog',
-					'pomeranian',
-					'havanese',
-					'english-springer-spaniel',
-					'shetland-sheepdog',
-				].sort(),
-			);
+			assert.deepEqual(ids, [
+				'australian-shepherd',
+				'beagle',
+				'bernese-mountain-dog',
+				'boston-terrier',
+				'boxer',
+				'bulldog',
+				'cavalier-king-charles-spaniel',
+				'dachshund',
+				'doberman-pinscher',
+				'english-springer-spaniel',
+				'french-bulldog',
+				'german-shepherd',
+				'german-shorthaired-pointer',
+				'golden-retriever',
+				'great-dane',
+				'havanese',
+				'labrador-retriever',
+				'miniature-schnauzer',
+				'pomeranian',
+				'poodle',
+				'rottweiler',
+				'shetland-sheepdog',
+				'shih-tzu',
+				'siberian-husky',
+				'yorkshire-terrier',
+			]);
 		});
 
 		it('Returns data entry by id', async () => {
