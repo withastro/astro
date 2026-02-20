@@ -165,7 +165,7 @@ node --test --test-only test/astro-basic.test.js
 
 #### Debugging tests in CI
 
-There might be occasions where some tests fail in certain CI runs due to some timeout issue. If this happens, it will be very difficult to understand which file cause the timeout. That's caused by come quirks of the Node.js test runner combined with our architecture.
+There might be occasions where some tests fail in certain CI runs due to some timeout issue. If this happens, it will be very difficult to understand which file cause the timeout. That's caused by some quirks of the Node.js test runner combined with our architecture.
 
 To understand which file causes the issue, you can modify the `test` script inside the `package.json` by adding the `--parallel` option:
 
