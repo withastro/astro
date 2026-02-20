@@ -262,4 +262,20 @@ describe('CSRF origin check', () => {
 			something: 'true',
 		});
 	});
+	it('return 200 when calling POST/PUT/DELETE/PATCH with the correct sec-fetch-site', async () => {
+		let request;
+		let response;
+
+		for (const method of ['POST', 'PUT', 'DELETE', 'PATCH']) {
+			request = new Request('http://me.com/api/', {
+				headers: { 'sec-fetch-site': "same-origin" },
+				method: method,
+			});
+			response = await app.render(request);
+			assert.equal(response.status, 200);
+			assert.deepEqual(await response.json(), {
+				something: 'true',
+			});
+		}
+	});
 });
