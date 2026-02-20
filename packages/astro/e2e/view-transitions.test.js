@@ -1759,4 +1759,60 @@ test.describe('View Transitions', () => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		expect(lines.join('')).toBe('');
 	});
+
+	test('Inline styles and font preloads persist through head swap', async ({ page, astro }) => {
+		// Go to font page 1
+		await page.goto(astro.resolveUrl('/font-page-one'));
+		let p = page.locator('#font-page-one');
+		await expect(p, 'should have content').toHaveText('Font Page 1');
+
+		// Count inline styles and font preload links before navigation
+		const stylesBefore = await page.locator('head style').count();
+		const fontPreloadsBefore = await page.locator('head link[rel=preload][as=font]').count();
+		expect(stylesBefore).toBeGreaterThan(0);
+		expect(fontPreloadsBefore).toBeGreaterThan(0);
+
+		// Capture references to the original elements
+		const styleIdBefore = await page.evaluate(() => {
+			const style = document.head.querySelector('style');
+			if (style) {
+				style.dataset.testId = 'original-style';
+				return style.dataset.testId;
+			}
+			return null;
+		});
+
+		const preloadIdBefore = await page.evaluate(() => {
+			const link = document.head.querySelector('link[rel=preload][as=font]');
+			if (link) {
+				link.dataset.testId = 'original-preload';
+				return link.dataset.testId;
+			}
+			return null;
+		});
+
+		// Navigate to font page 2 (same inline styles and font preloads)
+		await page.click('#click-font-two');
+		p = page.locator('#font-page-two');
+		await expect(p, 'should have content').toHaveText('Font Page 2');
+
+		// Verify inline styles and font preloads are still present
+		const stylesAfter = await page.locator('head style').count();
+		const fontPreloadsAfter = await page.locator('head link[rel=preload][as=font]').count();
+		expect(stylesAfter).toEqual(stylesBefore);
+		expect(fontPreloadsAfter).toEqual(fontPreloadsBefore);
+
+		// Verify the original elements survived the swap (same DOM nodes)
+		const styleIdAfter = await page.evaluate(() => {
+			const style = document.head.querySelector('style');
+			return style?.dataset?.testId ?? null;
+		});
+		const preloadIdAfter = await page.evaluate(() => {
+			const link = document.head.querySelector('link[rel=preload][as=font]');
+			return link?.dataset?.testId ?? null;
+		});
+
+		expect(styleIdAfter).toBe('original-style');
+		expect(preloadIdAfter).toBe('original-preload');
+	});
 });
