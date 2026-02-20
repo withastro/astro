@@ -7,7 +7,7 @@ import { VALID_INPUT_FORMATS } from '../consts.js';
  * Resolves an image src from a content file (such as markdown) to a module ID or import that can be resolved by Vite.
  *
  * @param imageSrc The src attribute of an image tag
- * @param filePath The path to the file that contains the imagem relative to the site root
+ * @param filePath The path to the file that contains the image relative to the site root
  * @returns A module id of the image that can be rsolved by Vite, or undefined if it is not a local image
  */
 export function imageSrcToImportId(imageSrc: string, filePath?: string): string | undefined {
