@@ -130,5 +130,5 @@ jobs:
         run: |
           pnpm flue run .flue/workflows/issue-triage.ts \
             --sandbox $IMAGE:latest \
-            --args "{\"issueNumber\": $ISSUE_NUMBER, \"branch\": \"flue/fix-$ISSUE_NUMBER\"}" \
+            --args "{\"issueNumber\": $ISSUE_NUMBER}" \
             --model anthropic/claude-opus-4-6

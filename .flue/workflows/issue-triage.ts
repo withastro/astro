@@ -216,13 +216,12 @@ async function runTriagePipeline(
 	};
 }
 
-interface TriageArgs {
-	issueNumber: number;
-	branch: string;
-}
+export const args = v.object({
+	issueNumber: v.number(),
+})
 
-export default async function triage(flue: FlueClient, args: TriageArgs) {
-	const { issueNumber, branch } = args;
+export default async function triage(flue: FlueClient, {issueNumber}: v.InferOutput<typeof args>) {
+	const branch = `flue/fix-${issueNumber}`;
 	const issueDetails = await fetchIssueDetails(issueNumber);
 
 	// If there are prior comments, this is a re-triage. Check whether new
