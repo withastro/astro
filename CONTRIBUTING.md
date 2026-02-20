@@ -301,7 +301,7 @@ The Astro project has five levels of priority to issues, where `p5` is the highe
 - `p4`: the bug impacts _many_ Astro projects, it doesn't have a workaround but Astro is still stable/usable.
 - `p3`: any bug that doesn't fall in the `p4` or `p5` category. If the documentation doesn't cover
   the case reported by the user, it's useful to initiate a discussion via the `"needs discussion"` label. Seek opinions from OP and other maintainers.
-- `p2`: all the bugs that have workarounds.
+- `p2`: all bugs that have workarounds.
 - `p1`: very minor bug, that impacts a small amount of users. Sometimes it's an edge case and it's easy to fix. Very useful if you want to assign the fix to a first-time contributor.
 
 > [!IMPORTANT]
