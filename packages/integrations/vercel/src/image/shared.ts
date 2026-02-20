@@ -144,7 +144,7 @@ export function sharedValidateOptions(
 				return Math.abs(curr - options.width!) < Math.abs(prev - options.width!) ? curr : prev;
 			});
 
-			// Save the width the user asked for to inform the `width` and `height` on the `img` tag
+			// Save the user's requested width to inform the `width` and `height` on the `img` tag
 			options.inputtedWidth = options.width;
 			options.width = nearestWidth;
 		}
