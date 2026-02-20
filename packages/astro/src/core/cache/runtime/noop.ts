@@ -1,6 +1,6 @@
-import { AstroError } from '../errors/errors.js';
-import { CacheNotEnabled } from '../errors/errors-data.js';
-import type { CacheHint, CacheOptions, InvalidateOptions, LiveDataEntry } from './types.js';
+import { AstroError } from '../../errors/errors.js';
+import { CacheNotEnabled } from '../../errors/errors-data.js';
+import type { CacheHint, CacheOptions, InvalidateOptions, LiveDataEntry } from '../types.js';
 
 /**
  * A no-op cache implementation used in dev mode when cache is configured.

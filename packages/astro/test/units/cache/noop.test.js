@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { NoopAstroCache, disabledAstroCache } from '../../../dist/core/cache/noop.js';
-import { applyCacheHeaders, isCacheActive } from '../../../dist/core/cache/runtime.js';
+import { NoopAstroCache, disabledAstroCache } from '../../../dist/core/cache/runtime/noop.js';
+import { applyCacheHeaders, isCacheActive } from '../../../dist/core/cache/runtime/cache.js';
 
 describe('NoopAstroCache', () => {
 	it('set() is callable and does nothing', () => {

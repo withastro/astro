@@ -36,9 +36,13 @@ import { renderRedirect } from './redirects/render.js';
 import { getParams, getProps, type Pipeline, Slots } from './render/index.js';
 import { isRoute404or500, isRouteExternalRedirect, isRouteServerIsland } from './routing/match.js';
 import { copyRequest, getOriginPathname, setOriginPathname } from './routing/rewrite.js';
-import { AstroCache } from './cache/runtime.js';
-import { type DisabledAstroCache, NoopAstroCache, disabledAstroCache } from './cache/noop.js';
-import { compileCacheRoutes, matchCacheRoute } from './cache/route-matching.js';
+import { AstroCache } from './cache/runtime/cache.js';
+import {
+	type DisabledAstroCache,
+	NoopAstroCache,
+	disabledAstroCache,
+} from './cache/runtime/noop.js';
+import { compileCacheRoutes, matchCacheRoute } from './cache/runtime/route-matching.js';
 import { AstroSession } from './session/runtime.js';
 import { validateAndDecodePathname } from './util/pathname.js';
 

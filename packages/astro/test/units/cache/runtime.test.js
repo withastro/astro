@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { AstroCache, applyCacheHeaders, isCacheActive } from '../../../dist/core/cache/runtime.js';
+import {
+	AstroCache,
+	applyCacheHeaders,
+	isCacheActive,
+} from '../../../dist/core/cache/runtime/cache.js';
 
 // Mock provider
 function createMockProvider(overrides = {}) {

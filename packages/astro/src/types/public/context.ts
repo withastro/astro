@@ -1,8 +1,8 @@
 import type { ActionClient, ActionReturnType } from '../../actions/runtime/types.js';
 import type { AstroCookies } from '../../core/cookies/cookies.js';
 import type { CspDirective, CspHash } from '../../core/csp/config.js';
-import type { AstroCache } from '../../core/cache/runtime.js';
-import type { DisabledAstroCache, NoopAstroCache } from '../../core/cache/noop.js';
+import type { AstroCache } from '../../core/cache/runtime/cache.js';
+import type { DisabledAstroCache, NoopAstroCache } from '../../core/cache/runtime/noop.js';
 import type { AstroSession } from '../../core/session/runtime.js';
 import type { AstroComponentFactory } from '../../runtime/server/index.js';
 import type { RewritePayload } from './common.js';

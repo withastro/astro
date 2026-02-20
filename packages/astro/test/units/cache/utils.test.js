@@ -2,13 +2,15 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
 	cacheConfigToManifest,
-	defaultSetHeaders,
 	extractCacheRoutesFromRouteRules,
-	isCacheHint,
-	isLiveDataEntry,
 	normalizeCacheProviderConfig,
 	normalizeRouteRuleCacheOptions,
 } from '../../../dist/core/cache/utils.js';
+import {
+	defaultSetHeaders,
+	isCacheHint,
+	isLiveDataEntry,
+} from '../../../dist/core/cache/runtime/utils.js';
 
 describe('defaultSetHeaders()', () => {
 	it('correct CDN-Cache-Control for maxAge only', () => {
@@ -114,7 +116,7 @@ describe('normalizeCacheProviderConfig()', () => {
 	it('handles URL entrypoint', () => {
 		const url = new URL('file:///tmp/cache-provider.js');
 		const result = normalizeCacheProviderConfig({ entrypoint: url });
-		assert.equal(result.entrypoint, '/tmp/cache-provider.js');
+		assert.equal(result.entrypoint, 'file:///tmp/cache-provider.js');
 		assert.equal(result.config, undefined);
 	});
 });

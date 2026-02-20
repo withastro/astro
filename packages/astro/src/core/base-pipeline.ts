@@ -24,7 +24,7 @@ import { RedirectSinglePageBuiltModule } from './redirects/index.js';
 import { RouteCache } from './render/route-cache.js';
 import { createDefaultRoutes } from './routing/default.js';
 import type { CacheProvider, CacheProviderFactory } from './cache/types.js';
-import type { CompiledCacheRoute } from './cache/route-matching.js';
+import type { CompiledCacheRoute } from './cache/runtime/route-matching.js';
 import type { SessionDriverFactory } from './session/types.js';
 
 /**

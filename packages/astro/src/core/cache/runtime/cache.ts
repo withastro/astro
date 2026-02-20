@@ -4,9 +4,9 @@ import type {
 	CacheProvider,
 	InvalidateOptions,
 	LiveDataEntry,
-} from './types.js';
-import { defaultSetHeaders, isLiveDataEntry } from './utils.js';
+} from '../types.js';
 import type { DisabledAstroCache, NoopAstroCache } from './noop.js';
+import { defaultSetHeaders, isLiveDataEntry } from './utils.js';
 
 const APPLY_HEADERS = Symbol.for('astro:cache:apply');
 const IS_ACTIVE = Symbol.for('astro:cache:active');
@@ -105,7 +105,7 @@ export class AstroCache {
 	}
 }
 
-// --- Framework-internal helpers (not exported from the `astro` package) ---
+// ─── Framework-internal helpers (not exported from the `astro` package) ─────
 
 /**
  * Apply cache headers to a response. No-ops for NoopAstroCache.

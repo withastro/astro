@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { compileCacheRoutes, matchCacheRoute } from '../../../dist/core/cache/route-matching.js';
+import {
+	compileCacheRoutes,
+	matchCacheRoute,
+} from '../../../dist/core/cache/runtime/route-matching.js';
 
 /**
  * Helper: compile routes with default base '/' and trailingSlash 'ignore'.

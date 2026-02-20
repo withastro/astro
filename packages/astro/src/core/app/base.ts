@@ -27,8 +27,8 @@ import { type CreateRenderContext, RenderContext } from '../render-context.js';
 import { redirectTemplate } from '../routing/3xx.js';
 import { ensure404Route } from '../routing/astro-designed-error-pages.js';
 import { matchRoute } from '../routing/match.js';
-import { type AstroCache, applyCacheHeaders } from '../cache/runtime.js';
-import type { DisabledAstroCache, NoopAstroCache } from '../cache/noop.js';
+import { type AstroCache, applyCacheHeaders } from '../cache/runtime/cache.js';
+import type { DisabledAstroCache, NoopAstroCache } from '../cache/runtime/noop.js';
 import { type AstroSession, PERSIST_SYMBOL } from '../session/runtime.js';
 import type { AppPipeline } from './pipeline.js';
 import type { SSRManifest } from './types.js';
@@ -449,7 +449,9 @@ export abstract class BaseApp<P extends Pipeline = AppPipeline> {
 
 			// If the cache provider has an onRequest handler (runtime caching),
 			// wrap the render call so the provider can serve from cache
-			const cacheProvider = await this.pipeline.getCacheProvider();
+			const cacheProvider = this.pipeline.cacheProvider
+				? await this.pipeline.getCacheProvider()
+				: null;
 			if (cacheProvider?.onRequest) {
 				response = await cacheProvider.onRequest(
 					{ request, url: new URL(request.url) },

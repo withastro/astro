@@ -1,11 +1,10 @@
-import { posix } from 'node:path';
 import { removeLeadingForwardSlash } from '@astrojs/internal-helpers/path';
-import type { AstroConfig } from '../../types/public/config.js';
-import type { RoutePart } from '../../types/public/internal.js';
-import { getParts } from '../routing/manifest/parts.js';
-import { getPattern } from '../routing/manifest/pattern.js';
-import { routeComparator } from '../routing/priority.js';
-import type { CacheOptions } from './types.js';
+import type { AstroConfig } from '../../../types/public/config.js';
+import type { RoutePart } from '../../../types/public/internal.js';
+import { getParts } from '../../routing/manifest/parts.js';
+import { getPattern } from '../../routing/manifest/pattern.js';
+import { routeComparator } from '../../routing/priority.js';
+import type { CacheOptions } from '../types.js';
 
 export interface CompiledCacheRoute {
 	pattern: RegExp;
@@ -25,7 +24,7 @@ export function compileCacheRoutes(
 ): CompiledCacheRoute[] {
 	const compiled = Object.entries(routes).map(([path, options]) => {
 		const segments = removeLeadingForwardSlash(path)
-			.split(posix.sep)
+			.split('/')
 			.filter(Boolean)
 			.map((s: string) => getParts(s, path));
 		const pattern = getPattern(segments, base, trailingSlash);
