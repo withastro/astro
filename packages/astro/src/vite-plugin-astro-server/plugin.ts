@@ -130,6 +130,8 @@ export default function createVitePluginAstroServer({
 				warnMissingAdapter(logger, settings);
 				pipeline.manifest.checkOrigin =
 					settings.config.security.checkOrigin && settings.buildOutput === 'server';
+				pipeline.manifest.actionBodySizeLimit =
+					settings.config.security.actionBodySizeLimit;
 				pipeline.setManifestData(routesList);
 			}
 
@@ -311,6 +313,7 @@ export function createDevelopmentManifest(settings: AstroSettings): SSRManifest 
 		i18n: i18nManifest,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
+		actionBodySizeLimit: settings.config.security.actionBodySizeLimit,
 		key: hasEnvironmentKey() ? getEnvironmentKey() : createKey(),
 		middleware() {
 			return {

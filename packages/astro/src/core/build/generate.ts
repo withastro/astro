@@ -775,6 +775,7 @@ async function createBuildManifest(
 		actions: () => actions,
 		checkOrigin:
 			(settings.config.security?.checkOrigin && settings.buildOutput === 'server') ?? false,
+		actionBodySizeLimit: settings.config.security.actionBodySizeLimit,
 		key,
 		csp,
 	};

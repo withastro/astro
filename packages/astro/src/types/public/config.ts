@@ -633,6 +633,31 @@ export interface AstroUserConfig<
 		 * When not configured, `X-Forwarded-Host` headers are not trusted and will be ignored.
 		 */
 		allowedDomains?: Partial<RemotePattern>[];
+
+		/**
+		 * @docs
+		 * @name security.actionBodySizeLimit
+		 * @kind h4
+		 * @type {number}
+		 * @default `1048576` (1 MB)
+		 * @version 5.x.0
+		 * @description
+		 *
+		 * Sets the maximum size in bytes allowed for action request bodies.
+		 *
+		 * By default, action request bodies are limited to 1 MB (1048576 bytes) to prevent abuse.
+		 * You can increase this limit if your actions need to accept larger payloads, for example when handling file uploads.
+		 *
+		 * ```js
+		 * // astro.config.mjs
+		 * export default defineConfig({
+		 *   security: {
+		 *     actionBodySizeLimit: 10 * 1024 * 1024 // 10 MB
+		 *   }
+		 * })
+		 * ```
+		 */
+		actionBodySizeLimit?: number;
 	};
 
 	/**
