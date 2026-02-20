@@ -1,5 +1,7 @@
 import type { Writable } from 'node:stream';
-import debugPackage from 'debug';
+import { createDebug, enable as obugEnable } from 'obug';
+import type { AstroInlineConfig } from '../../types/public/config.js';
+import { Logger } from './core.js';
 import { getEventPrefix, type LogMessage, type LogWritable, levels } from './core.js';
 
 type ConsoleStream = Writable & {
@@ -22,7 +24,7 @@ export const nodeLogDestination: LogWritable<LogMessage> = {
 	},
 };
 
-const debuggers: Record<string, debugPackage.Debugger['log']> = {};
+const debuggers: Record<string, ReturnType<typeof createDebug>> = {};
 
 /**
  * Emit a message only shown in debug mode.
@@ -32,18 +34,29 @@ const debuggers: Record<string, debugPackage.Debugger['log']> = {};
  */
 function debug(type: string, ...messages: Array<any>) {
 	const namespace = `astro:${type}`;
-	debuggers[namespace] = debuggers[namespace] || debugPackage(namespace);
-	return debuggers[namespace](...messages);
+	debuggers[namespace] = debuggers[namespace] || createDebug(namespace);
+	return debuggers[namespace](...(messages as [any, ...any[]]));
 }
 
 // This is gross, but necessary since we are depending on globals.
 (globalThis as any)._astroGlobalDebug = debug;
 
 export function enableVerboseLogging() {
-	debugPackage.enable('astro:*,vite:*');
+	// Enable debug logging via obug's enable function
+	// obug provides the same API as debug package
+	obugEnable('astro:*,vite:*');
 	debug('cli', '--verbose flag enabled! Enabling: DEBUG="astro:*,vite:*"');
 	debug(
 		'cli',
 		'Tip: Set the DEBUG env variable directly for more control. Example: "DEBUG=astro:*,vite:* astro build".',
 	);
+}
+
+export function createNodeLogger(inlineConfig: AstroInlineConfig): Logger {
+	if (inlineConfig.logger) return inlineConfig.logger;
+
+	return new Logger({
+		dest: nodeLogDestination,
+		level: inlineConfig.logLevel ?? 'info',
+	});
 }

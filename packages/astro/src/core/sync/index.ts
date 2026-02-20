@@ -18,7 +18,7 @@ import type { AstroSettings } from '../../types/astro.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
 import { getTimeStat } from '../build/util.js';
 import { resolveConfig } from '../config/config.js';
-import { createNodeLogger } from '../config/logging.js';
+import { createNodeLogger } from '../logger/node.js';
 import { createSettings } from '../config/settings.js';
 import { createVite } from '../create-vite.js';
 import {
