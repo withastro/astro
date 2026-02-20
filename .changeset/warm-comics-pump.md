@@ -1,6 +1,5 @@
 ---
 'astro': minor
-'@astrojs/node': minor
 ---
 
 Adds a new experimental Route Caching API for controlling SSR response caching. See the [RFC](https://github.com/withastro/roadmap/pull/1245) for full details.
