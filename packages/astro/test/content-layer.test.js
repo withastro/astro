@@ -62,33 +62,36 @@ describe('Content Layer', () => {
 			assert.ok(Array.isArray(json.jsonLoader));
 
 			const ids = json.jsonLoader.map((item) => item.data.id);
-			assert.deepEqual(ids, [
-				'labrador-retriever',
-				'german-shepherd',
-				'golden-retriever',
-				'french-bulldog',
-				'bulldog',
-				'beagle',
-				'poodle',
-				'rottweiler',
-				'german-shorthaired-pointer',
-				'yorkshire-terrier',
-				'boxer',
-				'dachshund',
-				'siberian-husky',
-				'great-dane',
-				'doberman-pinscher',
-				'australian-shepherd',
-				'miniature-schnauzer',
-				'cavalier-king-charles-spaniel',
-				'shih-tzu',
-				'boston-terrier',
-				'bernese-mountain-dog',
-				'pomeranian',
-				'havanese',
-				'english-springer-spaniel',
-				'shetland-sheepdog',
-			]);
+			assert.deepEqual(
+				ids,
+				[
+					'labrador-retriever',
+					'german-shepherd',
+					'golden-retriever',
+					'french-bulldog',
+					'bulldog',
+					'beagle',
+					'poodle',
+					'rottweiler',
+					'german-shorthaired-pointer',
+					'yorkshire-terrier',
+					'boxer',
+					'dachshund',
+					'siberian-husky',
+					'great-dane',
+					'doberman-pinscher',
+					'australian-shepherd',
+					'miniature-schnauzer',
+					'cavalier-king-charles-spaniel',
+					'shih-tzu',
+					'boston-terrier',
+					'bernese-mountain-dog',
+					'pomeranian',
+					'havanese',
+					'english-springer-spaniel',
+					'shetland-sheepdog',
+				].sort(),
+			);
 		});
 
 		it('can render markdown in loaders', async () => {
@@ -134,7 +137,7 @@ describe('Content Layer', () => {
 			assert.ok(Array.isArray(json.nestedJsonLoader));
 
 			const ids = json.nestedJsonLoader.map((item) => item.data.id);
-			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch']);
+			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch'].sort());
 		});
 
 		it('can use an async parser in `file()` loader', async () => {
@@ -142,7 +145,7 @@ describe('Content Layer', () => {
 			assert.ok(Array.isArray(json.loaderWithAsyncParse));
 
 			const ids = json.loaderWithAsyncParse.map((item) => item.data.id);
-			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch']);
+			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch'].sort());
 		});
 
 		it('Returns yaml `file()` loader collection', async () => {
@@ -150,18 +153,21 @@ describe('Content Layer', () => {
 			assert.ok(Array.isArray(json.yamlLoader));
 
 			const ids = json.yamlLoader.map((item) => item.id);
-			assert.deepEqual(ids, [
-				'bubbles',
-				'finn',
-				'shadow',
-				'spark',
-				'splash',
-				'nemo',
-				'angel-fish',
-				'gold-stripe',
-				'blue-tail',
-				'bubble-buddy',
-			]);
+			assert.deepEqual(
+				ids,
+				[
+					'bubbles',
+					'finn',
+					'shadow',
+					'spark',
+					'splash',
+					'nemo',
+					'angel-fish',
+					'gold-stripe',
+					'blue-tail',
+					'bubble-buddy',
+				].sort(),
+			);
 		});
 
 		it('Returns toml `file()` loader collection', async () => {
@@ -169,16 +175,19 @@ describe('Content Layer', () => {
 			assert.ok(Array.isArray(json.tomlLoader));
 
 			const ids = json.tomlLoader.map((item) => item.id);
-			assert.deepEqual(ids, [
-				'crown',
-				'nikes-on-my-feet',
-				'stars',
-				'never-let-me-down',
-				'no-church-in-the-wild',
-				'family-ties',
-				'somebody',
-				'honest',
-			]);
+			assert.deepEqual(
+				ids,
+				[
+					'crown',
+					'nikes-on-my-feet',
+					'stars',
+					'never-let-me-down',
+					'no-church-in-the-wild',
+					'family-ties',
+					'somebody',
+					'honest',
+				].sort(),
+			);
 		});
 
 		it('Returns csv `file()` loader collection', async () => {
@@ -186,18 +195,21 @@ describe('Content Layer', () => {
 			assert.ok(Array.isArray(json.csvLoader));
 
 			const ids = json.csvLoader.map((item) => item.data.id);
-			assert.deepEqual(ids, [
-				'lavender',
-				'rose',
-				'sunflower',
-				'basil',
-				'thyme',
-				'sage',
-				'daisy',
-				'marigold',
-				'chamomile',
-				'fern',
-			]);
+			assert.deepEqual(
+				ids,
+				[
+					'lavender',
+					'rose',
+					'sunflower',
+					'basil',
+					'thyme',
+					'sage',
+					'daisy',
+					'marigold',
+					'chamomile',
+					'fern',
+				].sort(),
+			);
 		});
 
 		it('Returns yaml `glob()` loader collection', async () => {
@@ -221,7 +233,7 @@ describe('Content Layer', () => {
 			assert.ok(Array.isArray(json.nestedJsonLoader));
 
 			const ids = json.nestedJsonLoader.map((item) => item.data.id);
-			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch']);
+			assert.deepEqual(ids, ['bluejay', 'robin', 'sparrow', 'cardinal', 'goldfinch'].sort());
 		});
 
 		it('Returns data entry by id', async () => {
@@ -246,7 +258,7 @@ describe('Content Layer', () => {
 			assert.ok(json.hasOwnProperty('simpleLoader'));
 			assert.ok(Array.isArray(json.simpleLoader));
 
-			const item = json.simpleLoader[0];
+			const item = json.simpleLoader.find(({ id }) => id === 'siamese');
 			assert.deepEqual(item, {
 				id: 'siamese',
 				collection: 'cats',
@@ -585,33 +597,36 @@ describe('Content Layer', () => {
 			assert.ok(Array.isArray(json.jsonLoader));
 
 			const ids = json.jsonLoader.map((item) => item.data.id);
-			assert.deepEqual(ids, [
-				'labrador-retriever',
-				'german-shepherd',
-				'golden-retriever',
-				'french-bulldog',
-				'bulldog',
-				'beagle',
-				'poodle',
-				'rottweiler',
-				'german-shorthaired-pointer',
-				'yorkshire-terrier',
-				'boxer',
-				'dachshund',
-				'siberian-husky',
-				'great-dane',
-				'doberman-pinscher',
-				'australian-shepherd',
-				'miniature-schnauzer',
-				'cavalier-king-charles-spaniel',
-				'shih-tzu',
-				'boston-terrier',
-				'bernese-mountain-dog',
-				'pomeranian',
-				'havanese',
-				'english-springer-spaniel',
-				'shetland-sheepdog',
-			]);
+			assert.deepEqual(
+				ids,
+				[
+					'labrador-retriever',
+					'german-shepherd',
+					'golden-retriever',
+					'french-bulldog',
+					'bulldog',
+					'beagle',
+					'poodle',
+					'rottweiler',
+					'german-shorthaired-pointer',
+					'yorkshire-terrier',
+					'boxer',
+					'dachshund',
+					'siberian-husky',
+					'great-dane',
+					'doberman-pinscher',
+					'australian-shepherd',
+					'miniature-schnauzer',
+					'cavalier-king-charles-spaniel',
+					'shih-tzu',
+					'boston-terrier',
+					'bernese-mountain-dog',
+					'pomeranian',
+					'havanese',
+					'english-springer-spaniel',
+					'shetland-sheepdog',
+				].sort(),
+			);
 		});
 
 		it('Returns data entry by id', async () => {
@@ -653,7 +668,10 @@ describe('Content Layer', () => {
 		it('updates collection when data file is changed', async () => {
 			const rawJsonResponse = await fixture.fetch('/collections.json');
 			const initialJson = devalue.parse(await rawJsonResponse.text());
-			assert.equal(initialJson.jsonLoader[0].data.temperament.includes('Bouncy'), false);
+			const initialLabrador = initialJson.jsonLoader.find(
+				(item) => item.data.id === 'labrador-retriever',
+			);
+			assert.equal(initialLabrador.data.temperament.includes('Bouncy'), false);
 
 			await fixture.editFile('/src/data/dogs.json', (prev) => {
 				const data = JSON.parse(prev);
@@ -664,7 +682,10 @@ describe('Content Layer', () => {
 			await fixture.onNextDataStoreChange();
 			const updatedJsonResponse = await fixture.fetch('/collections.json');
 			const updated = devalue.parse(await updatedJsonResponse.text());
-			assert.ok(updated.jsonLoader[0].data.temperament.includes('Bouncy'));
+			const updatedLabrador = updated.jsonLoader.find(
+				(item) => item.data.id === 'labrador-retriever',
+			);
+			assert.ok(updatedLabrador.data.temperament.includes('Bouncy'));
 			await fixture.resetAllFiles();
 		});
 
@@ -772,7 +793,10 @@ describe('Content Layer', () => {
 
 			const rawJsonResponse = await fixture.fetch('/collections.json');
 			const initialJson = devalue.parse(await rawJsonResponse.text());
-			assert.equal(initialJson.jsonLoader[0].data.temperament.includes('Bouncy'), false);
+			const initialLabrador = initialJson.jsonLoader.find(
+				(item) => item.data.id === 'labrador-retriever',
+			);
+			assert.equal(initialLabrador.data.temperament.includes('Bouncy'), false);
 
 			await fixture.editFile('/src/data/dogs.json', (prev) => {
 				const data = JSON.parse(prev);
@@ -783,7 +807,10 @@ describe('Content Layer', () => {
 			await fixture.onNextDataStoreChange();
 			const updatedJsonResponse = await fixture.fetch('/collections.json');
 			const updated = devalue.parse(await updatedJsonResponse.text());
-			assert.ok(updated.jsonLoader[0].data.temperament.includes('Bouncy'));
+			const updatedLabrador = updated.jsonLoader.find(
+				(item) => item.data.id === 'labrador-retriever',
+			);
+			assert.ok(updatedLabrador.data.temperament.includes('Bouncy'));
 			logs.length = 0;
 
 			await fixture.resetAllFiles();
