@@ -61,7 +61,7 @@ export function swapHeadElements(doc: Document) {
 		if (newEl) {
 			newEl.remove();
 		} else {
-			// Otherwise remove the element in the head. It doesn't exist in the new page.
+			// Otherwise, remove the element in the head. It doesn't exist in the new page.
 			el.remove();
 		}
 	}
