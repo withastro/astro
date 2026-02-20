@@ -1,6 +1,11 @@
 export type { RoutesList } from '../../../types/astro.js';
 export { App } from '../app.js';
-export { BaseApp, type RenderErrorOptions, type RenderOptions } from '../base.js';
+export {
+	BaseApp,
+	type RenderErrorOptions,
+	type RenderOptions,
+	type LogRequestPayload,
+} from '../base.js';
 export { fromRoutingStrategy, toRoutingStrategy } from '../common.js';
 export { createConsoleLogger } from '../logging.js';
 export {

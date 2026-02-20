@@ -11,7 +11,8 @@ import { MutableDataStore } from '../../content/mutable-data-store.js';
 import { globalContentConfigObserver } from '../../content/utils.js';
 import { telemetry } from '../../events/index.js';
 import type { AstroInlineConfig } from '../../types/public/config.js';
-import * as msg from '../messages.js';
+import * as msg from '../messages/runtime.js';
+import { newVersionAvailable } from '../messages/node.js';
 import { ensureProcessNodeEnv } from '../util.js';
 import { startContainer } from './container.js';
 import { createContainerWithAutomaticRestart } from './restart.js';
@@ -71,7 +72,7 @@ export default async function dev(inlineConfig: AstroInlineConfig): Promise<DevS
 
 							logger.warn(
 								'SKIP_FORMAT',
-								await msg.newVersionAvailable({
+								await newVersionAvailable({
 									latestVersion: version,
 								}),
 							);

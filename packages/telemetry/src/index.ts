@@ -1,6 +1,5 @@
 import { randomBytes } from 'node:crypto';
 import { isCI } from 'ci-info';
-import debug from 'debug';
 import { GlobalConfig } from './config.js';
 import * as KEY from './config-keys.js';
 import { post } from './post.js';
@@ -13,6 +12,13 @@ export type TelemetryEvent = { eventName: string; payload: Record<string, any> }
 // In the event of significant policy changes, update this!
 const VALID_TELEMETRY_NOTICE_DATE = '2023-08-25';
 
+/**
+ * Get the debug function from global (set by astro's logger)
+ */
+function getDebug(): ((type: string, ...args: any[]) => void) | undefined {
+	return (globalThis as any)._astroGlobalDebug;
+}
+
 type EventMeta = SystemInfo;
 interface EventContext extends ProjectInfo {
 	anonymousId: string;
@@ -22,7 +28,6 @@ export class AstroTelemetry {
 	private _anonymousSessionId: string | undefined;
 	private _anonymousProjectInfo: ProjectInfo | undefined;
 	private config = new GlobalConfig({ name: 'astro' });
-	private debug = debug('astro:telemetry');
 	private isCI = isCI;
 	private env = process.env;
 
@@ -108,20 +113,21 @@ export class AstroTelemetry {
 	}
 
 	async notify(callback: () => boolean | Promise<boolean>) {
+		const debug = getDebug();
 		if (this.isDisabled || this.isCI) {
-			this.debug(`[notify] telemetry has been disabled`);
+			debug?.('telemetry', `[notify] telemetry has been disabled`);
 			return;
 		}
 		// The end-user has already been notified about our telemetry integration!
 		// Don't bother them about it again.
 		if (this.isValidNotice()) {
-			this.debug(`[notify] last notified on ${this.notifyDate}`);
+			debug?.('telemetry', `[notify] last notified on ${this.notifyDate}`);
 			return;
 		}
 		const enabled = await callback();
 		this.config.set(KEY.TELEMETRY_NOTIFY_DATE, new Date().valueOf().toString());
 		this.config.set(KEY.TELEMETRY_ENABLED, enabled);
-		this.debug(`[notify] telemetry has been ${enabled ? 'enabled' : 'disabled'}`);
+		debug?.('telemetry', `[notify] telemetry has been ${enabled ? 'enabled' : 'disabled'}`);
 	}
 
 	async record(event: TelemetryEvent | TelemetryEvent[] = []) {
@@ -130,9 +136,11 @@ export class AstroTelemetry {
 			return Promise.resolve();
 		}
 
+		const debug = getDebug();
+
 		// Skip recording telemetry if the feature is disabled
 		if (this.isDisabled) {
-			this.debug('[record] telemetry has been disabled');
+			debug?.('telemetry', '[record] telemetry has been disabled');
 			return Promise.resolve();
 		}
 
@@ -152,10 +160,15 @@ export class AstroTelemetry {
 			context.anonymousId = `CI.${meta.ciName || 'UNKNOWN'}`;
 		}
 
-		if (this.debug.enabled) {
+		// Check if debug is enabled by trying to call it - if DEBUG is not set, nothing happens
+		const debugOutput =
+			process.env.DEBUG?.includes('astro:telemetry') ||
+			process.env.DEBUG?.includes('astro:*') ||
+			process.env.DEBUG === '*';
+		if (debugOutput && debug) {
 			// Print to standard error to simplify selecting the output
-			this.debug({ context, meta });
-			this.debug(JSON.stringify(events, null, 2));
+			debug('telemetry', { context, meta });
+			debug('telemetry', JSON.stringify(events, null, 2));
 			// Do not send the telemetry data if debugging. Users may use this feature
 			// to preview what data would be sent.
 			return Promise.resolve();
@@ -166,7 +179,7 @@ export class AstroTelemetry {
 			events,
 		}).catch((err) => {
 			// Log the error to the debugger, but otherwise do nothing.
-			this.debug(`Error sending event: ${err.message}`);
+			debug?.('telemetry', `Error sending event: ${err.message}`);
 		});
 	}
 }

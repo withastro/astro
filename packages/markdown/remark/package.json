@@ -13,12 +13,19 @@
   "homepage": "https://astro.build",
   "main": "./dist/index.js",
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./shiki": "./dist/shiki.js",
+    "./shiki-style-collector": "./dist/shiki-style-collector.js",
+    "./transformers/style-to-class": "./dist/transformers/style-to-class.js"
   },
   "imports": {
     "#import-plugin": {
       "browser": "./dist/import-plugin-browser.js",
       "default": "./dist/import-plugin-default.js"
+    },
+    "#shiki-engine": {
+      "workerd": "./dist/shiki-engine-workerd.js",
+      "default": "./dist/shiki-engine-default.js"
     }
   },
   "files": [
