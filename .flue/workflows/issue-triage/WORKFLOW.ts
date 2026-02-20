@@ -9,7 +9,7 @@ import {
 	fetchRepoLabels,
 	postGitHubComment,
 	removeGitHubLabel,
-} from './util/github.ts';
+} from './github.ts';
 
 export const proxies = {
 	anthropic: anthropic(),
@@ -218,9 +218,12 @@ async function runTriagePipeline(
 
 export const args = v.object({
 	issueNumber: v.number(),
-})
+});
 
-export default async function triage(flue: FlueClient, {issueNumber}: v.InferOutput<typeof args>) {
+export default async function triage(
+	flue: FlueClient,
+	{ issueNumber }: v.InferOutput<typeof args>,
+) {
 	const branch = `flue/fix-${issueNumber}`;
 	const issueDetails = await fetchIssueDetails(issueNumber);
 

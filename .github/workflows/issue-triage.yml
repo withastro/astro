@@ -128,7 +128,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.CI_ANTHROPIC_API_KEY }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
-          pnpm flue run .flue/workflows/issue-triage.ts \
+          pnpm flue run .flue/workflows/issue-triage/WORKFLOW.ts \
             --sandbox $IMAGE:latest \
             --args "{\"issueNumber\": $ISSUE_NUMBER}" \
             --model anthropic/claude-opus-4-6
