@@ -32,10 +32,20 @@ describe('HMR: Markdown updates', () => {
 			let html = await response.text();
 			assert.ok(html.includes('Original content'));
 
+			response = await fixture.fetch('/blog/post');
+			assert.equal(response.status, 200);
+			html = await response.text();
+			assert.ok(html.includes('Original content'));
+
 			await fixture.editFile(markdownPath, UPDATED_CONTENT);
 			await fixture.onNextDataStoreChange();
 
 			response = await fixture.fetch('/');
+			assert.equal(response.status, 200);
+			html = await response.text();
+			assert.ok(html.includes('Updated content'));
+
+			response = await fixture.fetch('/blog/post');
 			assert.equal(response.status, 200);
 			html = await response.text();
 			assert.ok(html.includes('Updated content'));
