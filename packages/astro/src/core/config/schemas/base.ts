@@ -91,6 +91,7 @@ export const ASTRO_CONFIG_DEFAULTS = {
 	security: {
 		checkOrigin: true,
 		allowedDomains: [],
+		actionBodySizeLimit: 1024 * 1024,
 	},
 	env: {
 		schema: {},
@@ -440,6 +441,10 @@ export const AstroConfigSchema = z.object({
 				)
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.security.allowedDomains),
+			actionBodySizeLimit: z
+				.number()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.security.actionBodySizeLimit),
 		})
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.security),

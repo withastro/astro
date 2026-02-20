@@ -87,6 +87,7 @@ export type SSRManifest = {
 	actions?: () => Promise<SSRActions> | SSRActions;
 	checkOrigin: boolean;
 	allowedDomains?: Partial<RemotePattern>[];
+	actionBodySizeLimit: number;
 	sessionConfig?: ResolvedSessionConfig<any>;
 	cacheDir: string | URL;
 	srcDir: string | URL;
