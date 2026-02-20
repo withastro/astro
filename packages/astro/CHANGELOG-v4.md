@@ -3307,7 +3307,7 @@
   Although the incorrect first comparison is not a problem by itself, it could cause the algorithm to make the wrong decision.
   Depending on the other routes in the project, the sorting could perform just the last two comparisons and by transitivity infer the inverse of the third (`/blog/[...slug` > `/` > `/blog`), which is incorrect.
 
-  Now the algorithm doesn't have a special case for index pages and instead does the comparison soleley for rest parameter segments and their immediate parents, which is consistent with the transitivity property.
+  Now the algorithm doesn't have a special case for index pages and instead does the comparison solely for rest parameter segments and their immediate parents, which is consistent with the transitivity property.
 
 - [#10120](https://github.com/withastro/astro/pull/10120) [`787e6f52470cf07fb50c865948b2bc8fe45a6d31`](https://github.com/withastro/astro/commit/787e6f52470cf07fb50c865948b2bc8fe45a6d31) Thanks [@bluwy](https://github.com/bluwy)! - Updates and supports Vite 5.1
 
