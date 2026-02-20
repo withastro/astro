@@ -2,7 +2,7 @@ name: Build Sandbox Image
 
 on:
   push:
-    paths: ['.flue/Dockerfile.sandbox', '.github/workflows/build-sandbox-image.yml']
+    paths: ['.flue/Dockerfile.sandbox', '.flue/AGENTS.sandbox.md', '.github/workflows/build-sandbox-image.yml']
   workflow_dispatch:
 
 env:
@@ -35,6 +35,6 @@ jobs:
           push: true
           tags: |
             ${{ env.IMAGE }}:latest
-            ${{ env.IMAGE }}:${{ hashFiles('.flue/Dockerfile.sandbox') }}
+            ${{ env.IMAGE }}:${{ hashFiles('.flue/Dockerfile.sandbox', '.flue/AGENTS.sandbox.md') }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
