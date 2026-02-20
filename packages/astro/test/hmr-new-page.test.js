@@ -45,7 +45,7 @@ describe('HMR: New page detection', () => {
 		assert.equal(response.status, 200);
 	});
 
-	it('should return 404 for non-existent page', async () => {
+	it('should return 404 for nonexistent page', async () => {
 		const response = await fixture.fetch('/new-page');
 		assert.equal(response.status, 404);
 	});

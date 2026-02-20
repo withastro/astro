@@ -29,7 +29,7 @@ import { SessionSchema } from '../../session/config.js';
 // ```
 //
 // The types below will "complexify" the types so that TypeScript would not simplify them. This way it will
-// reference the complex type directly, instead of referencing non-existent transitive dependencies.
+// reference the complex type directly, instead of referencing nonexistent transitive dependencies.
 //
 // Also, make sure to not index the complexified type, as it would return a simplified value type, which goes
 // back to the issue again. The complexified type should be the base representation that we want to expose.

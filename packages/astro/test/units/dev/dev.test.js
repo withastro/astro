@@ -125,7 +125,7 @@ describe('dev container', () => {
 					assert.equal(r.res.statusCode, 404);
 				}
 				{
-					// A non-existent page also serves the custom 404 page.
+					// A nonexistent page also serves the custom 404 page.
 					const r = createRequestAndResponse({ method: 'GET', url: '/other-page' });
 					container.handle(r.req, r.res);
 					await r.done;

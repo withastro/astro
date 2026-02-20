@@ -89,13 +89,13 @@ describe('[DEV] i18n routing', () => {
 			assert.match(await response.text(), /Custom 404/);
 		});
 
-		it('should return the correct locale on 404 page for non existing default locale page', async () => {
+		it('should return the correct locale on 404 page for nonexistent default locale page', async () => {
 			const response = await fixture.fetch('/es/nonexistent-page');
 			assert.equal(response.status, 404);
 			assert.equal((await response.text()).includes('Current Locale: es'), true);
 		});
 
-		it('should return the correct locale on 404 page for non existing english locale page', async () => {
+		it('should return the correct locale on 404 page for nonexistent english locale page', async () => {
 			const response = await fixture.fetch('/en/nonexistent-page');
 			assert.equal(response.status, 404);
 			assert.equal((await response.text()).includes('Current Locale: en'), true);
@@ -1478,14 +1478,14 @@ describe('[SSG] i18n routing', () => {
 				assert.equal((await response.text()).includes('Endurance'), true);
 			});
 
-			it('should return the correct locale on 404 page for non existing default locale page', async () => {
+			it('should return the correct locale on 404 page for nonexistent default locale page', async () => {
 				let request = new Request('http://example.com/es/nonexistent-page');
 				let response = await app.render(request);
 				assert.equal(response.status, 404);
 				assert.equal((await response.text()).includes('Current Locale: es'), true);
 			});
 
-			it('should return the correct locale on 404 page for non existing english locale page', async () => {
+			it('should return the correct locale on 404 page for nonexistent english locale page', async () => {
 				let request = new Request('http://example.com/en/nonexistent-page');
 				let response = await app.render(request);
 				assert.equal(response.status, 404);

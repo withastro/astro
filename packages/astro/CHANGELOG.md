@@ -1868,7 +1868,7 @@
 
 - [#14582](https://github.com/withastro/astro/pull/14582) [`7958c6b`](https://github.com/withastro/astro/commit/7958c6b44c4bcdaa827d33f71ae7c2def26dc1b4) Thanks [@florian-lefebvre](https://github.com/florian-lefebvre)! - Fixes a regression that caused Actions to throw errors while loading
 
-- [#14567](https://github.com/withastro/astro/pull/14567) [`94500bb`](https://github.com/withastro/astro/commit/94500bb22236b77c842d88407b9a73bfc7fde488) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the actions endpoint to return 404 for non-existent actions instead of throwing an unhandled error
+- [#14567](https://github.com/withastro/astro/pull/14567) [`94500bb`](https://github.com/withastro/astro/commit/94500bb22236b77c842d88407b9a73bfc7fde488) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the actions endpoint to return 404 for nonexistent actions instead of throwing an unhandled error
 
 - [#14566](https://github.com/withastro/astro/pull/14566) [`946fe68`](https://github.com/withastro/astro/commit/946fe68c973c966a4f589ae43858bf486cc70eb5) Thanks [@matthewp](https://github.com/matthewp)! - Fixes handling malformed cookies gracefully by returning the unparsed value instead of throwing
 
