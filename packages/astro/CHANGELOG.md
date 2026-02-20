@@ -1130,7 +1130,7 @@
 
   However, it turned out to be impractical and even impossible during prerendering.
 
-  Astro now exports a new `getFontBuffer()` helper function from `astro:assets` to retrieve font file buffers from URL returned by `getFontData()`. For example, when using [satori](https://github.com/vercel/satori) to generate OpenGraph images:
+  Astro now exports a new `getFontBuffer()` helper function from `astro:assets` to retrieve font file buffers from URL returned by `getFontData()`. For example, when using [satori](https://github.com/vercel/satori) to generate Open Graph images:
 
   ```diff
   // src/pages/og.png.ts
@@ -2085,7 +2085,7 @@
   const data = getFontData('--font-roboto');
   ```
 
-  For example, `getFontData()` can get the font buffer from the URL when using [satori](https://github.com/vercel/satori) to generate OpenGraph images:
+  For example, `getFontData()` can get the font buffer from the URL when using [satori](https://github.com/vercel/satori) to generate Open Graph images:
 
   ```tsx
   // src/pages/og.png.ts
