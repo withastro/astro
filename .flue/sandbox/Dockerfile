@@ -65,7 +65,7 @@ RUN git config --system --add safe.directory '*'
 # --- Global OpenCode rules for CI sessions ---
 # The flue CLI sets HOME=/tmp at runtime, so OpenCode reads global rules from
 # /tmp/.config/opencode/AGENTS.md. This injects CI-specific instructions.
-COPY .flue/AGENTS.sandbox.md /tmp/.config/opencode/AGENTS.md
+COPY .flue/sandbox/AGENTS.md /tmp/.config/opencode/AGENTS.md
 
 EXPOSE 48765
 
