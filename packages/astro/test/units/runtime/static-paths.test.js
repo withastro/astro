@@ -73,7 +73,7 @@ function createMockRoute({
 			pathname,
 			prerender,
 			type: 'page',
-			pattern: new RegExp('^' + route.replace(/\[([^\]]+)\]/g, '([^/]+)') + '$'),
+			pattern: new RegExp('^' + route.replace(/\[[^\]]+\]/g, '([^/]+)') + '$'),
 			params,
 			component: 'src/pages' + route + '.astro',
 			generate: (data) => data.route,
