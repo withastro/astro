@@ -873,7 +873,7 @@
 
 - [#8484](https://github.com/withastro/astro/pull/8484) [`78b82bb39`](https://github.com/withastro/astro/commit/78b82bb3929bee5d8d9bd32d65374956ddb05859) Thanks [@bb010g](https://github.com/bb010g)! - fix(astro): add support for `src/content/config.mts` files
 
-- [#8504](https://github.com/withastro/astro/pull/8504) [`5e1099f68`](https://github.com/withastro/astro/commit/5e1099f686abcc7026bd4fa74727f3b311c6d6d6) Thanks [@ematipico](https://github.com/ematipico)! - Minify the HTML of the redicts emitted during the build.
+- [#8504](https://github.com/withastro/astro/pull/8504) [`5e1099f68`](https://github.com/withastro/astro/commit/5e1099f686abcc7026bd4fa74727f3b311c6d6d6) Thanks [@ematipico](https://github.com/ematipico)! - Minify the HTML of the redirects emitted during the build.
 
 - [#8480](https://github.com/withastro/astro/pull/8480) [`644825845`](https://github.com/withastro/astro/commit/644825845c11c8d100a9b0d16b69a23c165c529e) Thanks [@yamanoku](https://github.com/yamanoku)! - Do not add type="text/css" to inline style tag
 
