@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # The slim image includes Node.js and npm but not git, curl, or wget.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-       ca-certificates curl wget git lsof procps \
+       ca-certificates curl wget git jq lsof procps \
     && rm -rf /var/lib/apt/lists/*
 
 # --- pnpm ---
