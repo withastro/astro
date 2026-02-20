@@ -5823,7 +5823,7 @@
   - In `astro build`, Astro will transform code with the most optimized output and removes debug information.
   - In `astro build --devOutput` (new flag), Astro will transform code with debug information like in `astro dev`.
 
-  This enables various usecases like:
+  This enables various use cases like:
 
   ```bash
   # Run the dev server connected to a "staging" API
@@ -6510,7 +6510,7 @@
   - In `astro build`, Astro will transform code with the most optimized output and removes debug information.
   - In `astro build --devOutput` (new flag), Astro will transform code with debug information like in `astro dev`.
 
-  This enables various usecases like:
+  This enables various use cases like:
 
   ```bash
   # Run the dev server connected to a "staging" API
