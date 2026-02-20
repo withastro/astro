@@ -1,6 +1,6 @@
 import colors from 'piccolore';
 import devServer from '../../core/dev/index.js';
-import { printHelp } from '../../core/messages.js';
+import { printHelp } from '../../core/messages/runtime.js';
 import { type Flags, flagsToAstroInlineConfig } from '../flags.js';
 
 interface DevOptions {
