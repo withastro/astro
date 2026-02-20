@@ -18,7 +18,7 @@ const service: LocalImageService = {
 	},
 	transform(inputBuffer, transform, serviceOptions) {
 		// NOTE: Hardcoding webp here isn't accurate to how the Vercel Image Optimization API works, normally what we should
-		// do is setup a custom endpoint that sniff the user's accept-content header and serve the proper format based on the
+		// do is set up a custom endpoint that sniff the user's accept-content header and serve the proper format based on the
 		// user's Vercel config. However, that's: a lot of work for: not much. The dev service is inaccurate to the prod service
 		// in many more ways, this is one of the less offending cases and is, imo, okay, erika - 2023-04-27
 		transform.format = transform.src.endsWith('svg') ? 'svg' : 'webp';
