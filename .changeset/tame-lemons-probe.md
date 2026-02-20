@@ -2,4 +2,4 @@
 "astro": patch
 ---
 
-Respect image allowlists when inferring remote image sizes and reject remote redirects.
+Fixes an issue where allowlists were not being enforced when handling remote images
