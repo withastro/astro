@@ -259,7 +259,7 @@ To run only a specific benchmark on CI, add its name after the command in your c
 
 ## For maintainers
 
-This paragraph provides some guidance to the maintainers of the monorepo. The guidelines explained here aren't necessarily followed by other repositories of the same GitHub organisation.
+This paragraph provides some guidance to the maintainers of the monorepo. The guidelines explained here aren't necessarily followed by other repositories of the GitHub organisation.
 
 ### Issue triaging workflow
 
