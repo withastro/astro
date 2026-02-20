@@ -103,6 +103,9 @@ export function createBasicPipeline(options = {}) {
 		options.logger ?? defaultLogger,
 		options.manifest ?? {
 			rootDir: import.meta.url,
+			experimentalQueuedRendering: {
+				enabled: true,
+			},
 		},
 		options.mode ?? 'development',
 		options.renderers ?? [],

@@ -11,6 +11,7 @@ export {
 	markHTMLString,
 	unescapeHTML,
 } from './escape.js';
+
 export { renderJSX } from './jsx.js';
 export type {
 	AstroComponentFactory,

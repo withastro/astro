@@ -73,6 +73,13 @@ export type SSRManifest = {
 	trailingSlash: AstroConfig['trailingSlash'];
 	buildFormat: NonNullable<AstroConfig['build']>['format'];
 	compressHTML: boolean;
+	experimentalQueuedRendering: {
+		enabled: boolean;
+		/** Node pool size for memory reuse (default: 1000, set to 0 to disable pooling) */
+		poolSize?: number;
+		/** Whether to enable HTMLString caching (default: true) */
+		contentCache?: boolean;
+	};
 	assetsPrefix?: AssetsPrefix;
 	renderers: SSRLoadedRenderer[];
 	/**

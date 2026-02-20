@@ -12,7 +12,6 @@ import {
 import { getFallbackRoute, routeIsFallback, routeIsRedirect } from '../routing/helpers.js';
 import { findRouteToRewrite } from '../routing/rewrite.js';
 import { createConsoleLogger } from './logging.js';
-
 export class AppPipeline extends Pipeline {
 	getName(): string {
 		return 'AppPipeline';

@@ -1,0 +1,39 @@
+---
+import Nested from '../components/Nested.astro';
+import WithSlot from '../components/WithSlot.astro';
+
+const items = ['First', 'Second', 'Third'];
+---
+<html>
+	<head>
+		<title>Queue Rendering Test</title>
+	</head>
+	<body>
+		<h1>Queue Rendering Test</h1>
+		
+		<section id="simple">
+			<p>Simple text rendering</p>
+			<p>Number: {42}</p>
+			<p>Boolean: {true}</p>
+		</section>
+
+		<section id="arrays">
+			<ul>
+				{items.map(item => <li>{item}</li>)}
+			</ul>
+		</section>
+
+		<section id="nested">
+			<Nested level={0} />
+			<Nested level={1} />
+			<Nested level={2} />
+		</section>
+
+		<section id="slots">
+			<WithSlot title="Test Title">
+				<p>Slot content here</p>
+				<p>Multiple paragraphs</p>
+			</WithSlot>
+		</section>
+	</body>
+</html>

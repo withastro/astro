@@ -9,8 +9,8 @@ import { astroBin, makeProject } from './_util.js';
  */
 async function setup() {
 	console.log('Setting up render-bench project...');
-	const render = await makeProject('render-bench');
-	const root = fileURLToPath(render);
+	let render = await makeProject('render-bench');
+	let root = fileURLToPath(render);
 
 	console.log(`Building project at ${root}...`);
 	await exec(astroBin, ['build'], {

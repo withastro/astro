@@ -178,6 +178,30 @@ importers:
         specifier: workspace:^
         version: link:../../../packages/astro
 
+  benchmark/static-projects/queue-build-hybrid:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:^
+        version: link:../../../packages/integrations/node
+      astro:
+        specifier: workspace:^
+        version: link:../../../packages/astro
+
+  benchmark/static-projects/queue-build-server:
+    dependencies:
+      '@astrojs/node':
+        specifier: workspace:^
+        version: link:../../../packages/integrations/node
+      astro:
+        specifier: workspace:^
+        version: link:../../../packages/astro
+
+  benchmark/static-projects/queue-build-static:
+    dependencies:
+      astro:
+        specifier: workspace:^
+        version: link:../../../packages/astro
+
   examples/basics:
     dependencies:
       astro:
@@ -3626,6 +3650,15 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/astro/test/fixtures/jsx-queue-rendering:
+    dependencies:
+      '@astrojs/mdx':
+        specifier: workspace:*
+        version: link:../../../../integrations/mdx
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+
   packages/astro/test/fixtures/large-array:
     dependencies:
       '@astrojs/solid-js':
@@ -3876,6 +3909,21 @@ importers:
       astro:
         specifier: workspace:*
         version: link:../../..
+
+  packages/astro/test/fixtures/queue-rendering:
+    dependencies:
+      '@astrojs/react':
+        specifier: workspace:*
+        version: link:../../../../integrations/react
+      astro:
+        specifier: workspace:*
+        version: link:../../..
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
 
   packages/astro/test/fixtures/react-and-solid:
     dependencies:
