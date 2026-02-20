@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fix an issue where the output files are changed unnecessarily, even when the source content is the same.
+Fixes an issue where the output files are changed unnecessarily, even when the source content is the same.
