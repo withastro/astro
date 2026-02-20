@@ -67,7 +67,7 @@ export const create = (collectionConfig: CollectionConfig): LanguageServicePlugi
 
 					if (changedConfig) {
 						collectionConfig.reload(
-							// For some reason, context.env.workspaceFolders is not an array of WorkspaceFolders nor the older format, strange
+							// For some reason, context.env.workspaceFolders is neither an array of WorkspaceFolders nor the older format, strange
 							context.env.workspaceFolders.map((folder) => ({ uri: folder.toString() })),
 						);
 						languageService.configure(getSettings(collectionConfig));
