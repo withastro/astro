@@ -512,7 +512,7 @@ async function transition(
 	} else {
 		// Simulation mode requires a bit more manual work
 		const updateDone = (async () => {
-			// Immediately paused to setup the ViewTransition object for Fallback mode
+			// Immediately paused to set up the ViewTransition object for Fallback mode
 			await Promise.resolve(); // hop through the micro task queue
 			await updateDOM(prepEvent, options, currentTransition, historyState, getFallback());
 			return undefined;
