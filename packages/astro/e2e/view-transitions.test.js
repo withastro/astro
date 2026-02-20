@@ -723,7 +723,7 @@ test.describe('View Transitions', () => {
 	}) => {
 		const loads = collectLoads(page);
 
-		// Go to the half bakeed page
+		// Go to the half baked page
 		await page.goto(astro.resolveUrl('/half-baked'));
 		let p = page.locator('#half-baked');
 		await expect(p, 'should have content').toHaveText('Half Baked');
